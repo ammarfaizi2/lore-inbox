@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVAHFwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVAHFz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbVAHFwW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 00:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVAHFwV
+	id S261793AbVAHFz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 00:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVAHFz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 00:52:21 -0500
-Received: from mail.kroah.org ([69.55.234.183]:15237 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261795AbVAHFrx convert rfc822-to-8bit
+	Sat, 8 Jan 2005 00:55:59 -0500
+Received: from mail.kroah.org ([69.55.234.183]:16261 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261793AbVAHFry convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:47:53 -0500
+	Sat, 8 Jan 2005 00:47:54 -0500
 Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <1105163268388@kroah.com>
+In-Reply-To: <1105163269213@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:47:48 -0800
-Message-Id: <11051632683091@kroah.com>
+Date: Fri, 7 Jan 2005 21:47:49 -0800
+Message-Id: <1105163269703@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
@@ -22,938 +22,951 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.446.44, 2004/12/20 14:20:07-08:00, stern@rowland.harvard.edu
+ChangeSet 1.1938.446.49, 2004/12/20 15:01:26-08:00, stern@rowland.harvard.edu
 
-[PATCH] USB: Create usb_hcd structures within usbcore [5/13]
+[PATCH] USB: Another hub driver cleanup [13/13]
 
-This patch alters the non-PCI OHCI drivers, removing the routines that
-allocate the hcd structures and introducing inline functions to convert
-safely between the public and private hcd structures.
+This patch does some more cleaning up of the hub driver.  The idea is to
+use 1-based port numbers everywhere, in accordance with the usage of the
+USB spec, the values stored in USB messages, and the values printed in the
+system log.  The downside is that we have to subtract 1 to index the
+children[] array, but that's a lot better than all the additions of 1 that
+were there before.  To emphasize the nature of this change, I renamed the
+"port" local variable to "port1" every place it is used.
 
 Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/usb/host/ohci-lh7a404.c |   43 +++-----
- drivers/usb/host/ohci-omap.c    |   60 +++++-------
- drivers/usb/host/ohci-pxa27x.c  |   41 +++-----
- drivers/usb/host/ohci-sa1111.c  |   28 ++---
- drivers/usb/host/sl811-hcd.c    |  198 +++++++++++++++++++++-------------------
- drivers/usb/host/sl811.h        |    8 +
- 6 files changed, 184 insertions(+), 194 deletions(-)
+ drivers/usb/core/hub.c |  280 ++++++++++++++++++++++++-------------------------
+ drivers/usb/core/usb.c |    8 -
+ 2 files changed, 146 insertions(+), 142 deletions(-)
 
 
-diff -Nru a/drivers/usb/host/ohci-lh7a404.c b/drivers/usb/host/ohci-lh7a404.c
---- a/drivers/usb/host/ohci-lh7a404.c	2005-01-07 15:43:22 -08:00
-+++ b/drivers/usb/host/ohci-lh7a404.c	2005-01-07 15:43:22 -08:00
-@@ -106,23 +106,22 @@
- 		retval = -ENOMEM;
- 		goto err1;
- 	}
--	
- 
--	hcd = driver->hcd_alloc ();
--	if (hcd == NULL){
--		pr_debug ("hcd_alloc failed");
-+	if(dev->resource[1].flags != IORESOURCE_IRQ){
-+		pr_debug ("resource[1] is not IORESOURCE_IRQ");
- 		retval = -ENOMEM;
- 		goto err1;
- 	}
-+	
- 
--	if(dev->resource[1].flags != IORESOURCE_IRQ){
--		pr_debug ("resource[1] is not IORESOURCE_IRQ");
-+	hcd = usb_create_hcd (driver);
-+	if (hcd == NULL){
-+		pr_debug ("hcd_alloc failed");
- 		retval = -ENOMEM;
- 		goto err1;
- 	}
-+	ohci_hcd_init(hcd_to_ohci(hcd));
- 
--	hcd->driver = (struct hc_driver *) driver;
--	hcd->description = driver->description;
- 	hcd->irq = dev->resource[1].start;
- 	hcd->regs = addr;
- 	hcd->self.controller = &dev->dev;
-@@ -130,27 +129,21 @@
- 	retval = hcd_buffer_create (hcd);
- 	if (retval != 0) {
- 		pr_debug ("pool alloc fail");
--		goto err1;
-+		goto err2;
- 	}
- 
- 	retval = request_irq (hcd->irq, usb_hcd_lh7a404_hcim_irq, SA_INTERRUPT,
--			      hcd->description, hcd);
-+			      hcd->driver->description, hcd);
- 	if (retval != 0) {
- 		pr_debug("request_irq failed");
- 		retval = -EBUSY;
--		goto err2;
-+		goto err3;
- 	}
- 
- 	pr_debug ("%s (LH7A404) at 0x%p, irq %d",
--	     hcd->description, hcd->regs, hcd->irq);
-+		hcd->driver->description, hcd->regs, hcd->irq);
- 
--	usb_bus_init (&hcd->self);
--	hcd->self.op = &usb_hcd_operations;
--	hcd->self.release = &usb_hcd_release;
--	hcd->self.hcpriv = (void *) hcd;
- 	hcd->self.bus_name = "lh7a404";
--	hcd->product_desc = "LH7A404 OHCI";
--
- 	usb_register_bus (&hcd->self);
- 
- 	if ((retval = driver->start (hcd)) < 0)
-@@ -162,10 +155,11 @@
- 	*hcd_out = hcd;
- 	return 0;
- 
-- err2:
-+ err3:
- 	hcd_buffer_destroy (hcd);
-+ err2:
-+	usb_put_hcd(hcd);
-  err1:
--	kfree(hcd);
- 	lh7a404_stop_hc(dev);
- 	release_mem_region(dev->resource[0].start,
- 				dev->resource[0].end
-@@ -226,7 +220,7 @@
- 		return ret;
- 
- 	if ((ret = ohci_run (ohci)) < 0) {
--		err ("can't start %s", ohci->hcd.self.bus_name);
-+		err ("can't start %s", hcd->self.bus_name);
- 		ohci_stop (hcd);
- 		return ret;
- 	}
-@@ -237,6 +231,8 @@
- 
- static const struct hc_driver ohci_lh7a404_hc_driver = {
- 	.description =		hcd_name,
-+	.product_desc =		"LH7A404 OHCI",
-+	.hcd_priv_size =	sizeof(struct ohci_hcd),
- 
- 	/*
- 	 * generic hardware linkage
-@@ -253,11 +249,6 @@
- 	/* resume:		ohci_lh7a404_resume,   -- tbd */
- #endif /*CONFIG_PM*/
- 	.stop =			ohci_stop,
--
--	/*
--	 * memory lifecycle (except per-request)
--	 */
--	.hcd_alloc =		ohci_hcd_alloc,
- 
- 	/*
- 	 * managing i/o requests and associated device resources
-diff -Nru a/drivers/usb/host/ohci-omap.c b/drivers/usb/host/ohci-omap.c
---- a/drivers/usb/host/ohci-omap.c	2005-01-07 15:43:22 -08:00
-+++ b/drivers/usb/host/ohci-omap.c	2005-01-07 15:43:22 -08:00
-@@ -157,7 +157,7 @@
- 
- static void start_hnp(struct ohci_hcd *ohci)
+diff -Nru a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+--- a/drivers/usb/core/hub.c	2005-01-07 15:42:44 -08:00
++++ b/drivers/usb/core/hub.c	2005-01-07 15:42:44 -08:00
+@@ -128,19 +128,21 @@
+ /*
+  * USB 2.0 spec Section 11.24.2.2
+  */
+-static int clear_port_feature(struct usb_device *hdev, int port, int feature)
++static int clear_port_feature(struct usb_device *hdev, int port1, int feature)
  {
--	const unsigned	port = ohci->hcd.self.otg_port - 1;
-+	const unsigned	port = ohci_to_hcd(ohci)->self.otg_port - 1;
- 	unsigned long	flags;
- 
- 	otg_start_hnp(ohci->transceiver);
-@@ -181,7 +181,7 @@
- 	dev_dbg(&pdev->dev, "starting USB Controller\n");
- 
- 	if (config->otg) {
--		ohci->hcd.self.otg_port = config->otg;
-+		ohci_to_hcd(ohci)->self.otg_port = config->otg;
- 		/* default/minimum OTG power budget:  8 mA */
- 		ohci->power_budget = 8;
- 	}
-@@ -198,7 +198,7 @@
- 		ohci->transceiver = otg_get_transceiver();
- 		if (ohci->transceiver) {
- 			int	status = otg_set_host(ohci->transceiver,
--						&ohci->hcd.self);
-+						&ohci_to_hcd(ohci)->self);
- 			dev_dbg(&pdev->dev, "init %s transceiver, status %d\n",
- 					ohci->transceiver->label, status);
- 			if (status) {
-@@ -293,7 +293,7 @@
- 		return -EBUSY;
- 	}
- 
--	hcd = driver->hcd_alloc ();
-+	hcd = usb_create_hcd (driver);
- 	if (hcd == NULL){
- 		dev_dbg(&pdev->dev, "hcd_alloc failed\n");
- 		retval = -ENOMEM;
-@@ -301,40 +301,33 @@
- 	}
- 	dev_set_drvdata(&pdev->dev, hcd);
- 	ohci = hcd_to_ohci(hcd);
-+	ohci_hcd_init(ohci);
- 
--	hcd->driver = (struct hc_driver *) driver;
--	hcd->description = driver->description;
- 	hcd->irq = pdev->resource[1].start;
- 	hcd->regs = (void *)pdev->resource[0].start;
- 	hcd->self.controller = &pdev->dev;
- 
- 	retval = omap_start_hc(ohci, pdev);
- 	if (retval < 0)
--		goto err1;
-+		goto err2;
- 
- 	retval = hcd_buffer_create (hcd);
- 	if (retval != 0) {
- 		dev_dbg(&pdev->dev, "pool alloc fail\n");
--		goto err1;
-+		goto err2;
- 	}
- 
- 	retval = request_irq (hcd->irq, usb_hcd_irq, 
--			      SA_INTERRUPT, hcd->description, hcd);
-+			      SA_INTERRUPT, hcd->driver->description, hcd);
- 	if (retval != 0) {
- 		dev_dbg(&pdev->dev, "request_irq failed\n");
- 		retval = -EBUSY;
--		goto err2;
-+		goto err3;
- 	}
- 
- 	dev_info(&pdev->dev, "at 0x%p, irq %d\n", hcd->regs, hcd->irq);
- 
--	usb_bus_init (&hcd->self);
--	hcd->self.op = &usb_hcd_operations;
--	hcd->self.release = &usb_hcd_release;
--	hcd->self.hcpriv = (void *) hcd;
- 	hcd->self.bus_name = pdev->dev.bus_id;
--	hcd->product_desc = "OMAP OHCI";
--
- 	usb_register_bus (&hcd->self);
- 
- 	if ((retval = driver->start (hcd)) < 0) 
-@@ -345,16 +338,17 @@
- 
- 	return 0;
- 
-- err2:
-+ err3:
- 	hcd_buffer_destroy (hcd);
-+ err2:
-+	dev_set_drvdata(&pdev->dev, NULL);
-+	usb_put_hcd(hcd);
-  err1:
--	kfree(hcd);
- 	omap_stop_hc(pdev);
- 
- 	release_mem_region(pdev->resource[0].start, 
- 			   pdev->resource[0].end - pdev->resource[0].start + 1);
- 
--	dev_set_drvdata(&pdev->dev, 0);
- 	return retval;
+ 	return usb_control_msg(hdev, usb_sndctrlpipe(hdev, 0),
+-		USB_REQ_CLEAR_FEATURE, USB_RT_PORT, feature, port, NULL, 0, HZ);
++		USB_REQ_CLEAR_FEATURE, USB_RT_PORT, feature, port1,
++		NULL, 0, HZ);
  }
  
-@@ -418,7 +412,7 @@
- 		writel(OHCI_CTRL_RWC, &ohci->regs->control);
+ /*
+  * USB 2.0 spec Section 11.24.2.13
+  */
+-static int set_port_feature(struct usb_device *hdev, int port, int feature)
++static int set_port_feature(struct usb_device *hdev, int port1, int feature)
+ {
+ 	return usb_control_msg(hdev, usb_sndctrlpipe(hdev, 0),
+-		USB_REQ_SET_FEATURE, USB_RT_PORT, feature, port, NULL, 0, HZ);
++		USB_REQ_SET_FEATURE, USB_RT_PORT, feature, port1,
++		NULL, 0, HZ);
+ }
  
- 	if ((ret = ohci_run (ohci)) < 0) {
--		err ("can't start %s", ohci->hcd.self.bus_name);
-+		err ("can't start %s", hcd->self.bus_name);
- 		ohci_stop (hcd);
- 		return ret;
+ /*
+@@ -149,16 +151,16 @@
+  */
+ static void set_port_led(
+ 	struct usb_hub *hub,
+-	int port,
++	int port1,
+ 	int selector
+ )
+ {
+-	int status = set_port_feature(hub->hdev, (selector << 8) | port,
++	int status = set_port_feature(hub->hdev, (selector << 8) | port1,
+ 			USB_PORT_FEAT_INDICATOR);
+ 	if (status < 0)
+ 		dev_dbg (hub->intfdev,
+ 			"port %d indicator %s status %d\n",
+-			port,
++			port1,
+ 			({ char *s; switch (selector) {
+ 			case HUB_LED_AMBER: s = "amber"; break;
+ 			case HUB_LED_GREEN: s = "green"; break;
+@@ -263,14 +265,14 @@
+ /*
+  * USB 2.0 spec Section 11.24.2.7
+  */
+-static int get_port_status(struct usb_device *hdev, int port,
++static int get_port_status(struct usb_device *hdev, int port1,
+ 		struct usb_port_status *data)
+ {
+ 	int i, status = -ETIMEDOUT;
+ 
+ 	for (i = 0; i < USB_STS_RETRIES && status == -ETIMEDOUT; i++) {
+ 		status = usb_control_msg(hdev, usb_rcvctrlpipe(hdev, 0),
+-			USB_REQ_GET_STATUS, USB_DIR_IN | USB_RT_PORT, 0, port,
++			USB_REQ_GET_STATUS, USB_DIR_IN | USB_RT_PORT, 0, port1,
+ 			data, sizeof(*data), HZ * USB_STS_TIMEOUT);
  	}
-@@ -429,6 +423,8 @@
+ 	return status;
+@@ -428,13 +430,13 @@
  
- static const struct hc_driver ohci_omap_hc_driver = {
- 	.description =		hcd_name,
-+	.product_desc =		"OMAP OHCI",
-+	.hcd_priv_size =	sizeof(struct ohci_hcd),
+ static void hub_power_on(struct usb_hub *hub)
+ {
+-	int i;
++	int port1;
  
- 	/*
- 	 * generic hardware linkage
-@@ -443,11 +439,6 @@
- 	.stop =			ohci_stop,
+ 	/* if hub supports power switching, enable power on each port */
+ 	if ((hub->descriptor->wHubCharacteristics & HUB_CHAR_LPSM) < 2) {
+ 		dev_dbg(hub->intfdev, "enabling power on all ports\n");
+-		for (i = 0; i < hub->descriptor->bNbrPorts; i++)
+-			set_port_feature(hub->hdev, i + 1,
++		for (port1 = 1; port1 <= hub->descriptor->bNbrPorts; port1++)
++			set_port_feature(hub->hdev, port1,
+ 					USB_PORT_FEAT_POWER);
+ 	}
  
- 	/*
--	 * memory lifecycle (except per-request)
--	 */
--	.hcd_alloc =		ohci_hcd_alloc,
--
--	/*
- 	 * managing i/o requests and associated device resources
- 	 */
- 	.urb_enqueue =		ohci_urb_enqueue,
-@@ -512,19 +503,20 @@
- 		return 0;
+@@ -688,7 +690,7 @@
+ 		hub->indicator [0] = INDICATOR_CYCLE;
  
- 	dev_dbg(dev, "suspend to %d\n", state);
--	down(&ohci->hcd.self.root_hub->serialize);
--	status = ohci_hub_suspend(&ohci->hcd);
-+	down(&ohci_to_hcd(ohci)->self.root_hub->serialize);
-+	status = ohci_hub_suspend(ohci_to_hcd(ohci));
- 	if (status == 0) {
- 		if (state >= 4) {
- 			/* power off + reset */
- 			OTG_SYSCON_2_REG &= ~UHOST_EN;
--			ohci->hcd.self.root_hub->state = USB_STATE_SUSPENDED;
-+			ohci_to_hcd(ohci)->self.root_hub->state =
-+					USB_STATE_SUSPENDED;
- 			state = 4;
+ 	hub_power_on(hub);
+-	hub->change_bits[0] = (1UL << (hub->descriptor->bNbrPorts)) - 1;
++	hub->change_bits[0] = (1UL << (hub->descriptor->bNbrPorts + 1)) - 2;
+ 	hub_activate(hub);
+ 	return 0;
+ 
+@@ -899,7 +901,7 @@
+ 			 */
+ 			down(&udev->serialize);
+ 			up(&hdev->serialize);
+-			return t;
++			return t + 1;
  		}
--		ohci->hcd.state = HCD_STATE_SUSPENDED;
-+		ohci_to_hcd(ohci)->state = HCD_STATE_SUSPENDED;
- 		dev->power.power_state = state;
  	}
--	up(&ohci->hcd.self.root_hub->serialize);
-+	up(&ohci_to_hcd(ohci)->self.root_hub->serialize);
+ 	usb_unlock_device(hdev);
+@@ -1190,22 +1192,22 @@
+ 					udev->config[0].desc.wTotalLength,
+ 					USB_DT_OTG, (void **) &desc) == 0) {
+ 			if (desc->bmAttributes & USB_OTG_HNP) {
+-				unsigned		port;
++				unsigned		port1;
+ 				struct usb_device	*root = udev->parent;
+ 				
+-				for (port = 0; port < root->maxchild; port++) {
+-					if (root->children[port] == udev)
++				for (port1 = 1; port1 <= root->maxchild;
++						port1++) {
++					if (root->children[port1-1] == udev)
+ 						break;
+ 				}
+-				port++;
+ 
+ 				dev_info(&udev->dev,
+ 					"Dual-Role OTG device on %sHNP port\n",
+-					(port == bus->otg_port)
++					(port1 == bus->otg_port)
+ 						? "" : "non-");
+ 
+ 				/* enable HNP before suspend, it's simpler */
+-				if (port == bus->otg_port)
++				if (port1 == bus->otg_port)
+ 					bus->b_hnp_enable = 1;
+ 				err = usb_control_msg(udev,
+ 					usb_sndctrlpipe(udev, 0),
+@@ -1234,9 +1236,9 @@
+ 		 */
+ 		if (udev->bus->b_hnp_enable || udev->bus->is_b_host) {
+ 			static int __usb_suspend_device (struct usb_device *,
+-						int port, u32 state);
++						int port1, u32 state);
+ 			err = __usb_suspend_device(udev,
+-					udev->bus->otg_port - 1,
++					udev->bus->otg_port,
+ 					PM_SUSPEND_MEM);
+ 			if (err < 0)
+ 				dev_dbg(&udev->dev, "HNP fail, %d\n", err);
+@@ -1284,12 +1286,12 @@
+ }
+ 
+ 
+-static int hub_port_status(struct usb_hub *hub, int port,
++static int hub_port_status(struct usb_hub *hub, int port1,
+ 			       u16 *status, u16 *change)
+ {
+ 	int ret;
+ 
+-	ret = get_port_status(hub->hdev, port + 1, &hub->status->port);
++	ret = get_port_status(hub->hdev, port1, &hub->status->port);
+ 	if (ret < 0)
+ 		dev_err (hub->intfdev,
+ 			"%s failed (err = %d)\n", __FUNCTION__, ret);
+@@ -1312,7 +1314,7 @@
+ #define HUB_LONG_RESET_TIME	200
+ #define HUB_RESET_TIMEOUT	500
+ 
+-static int hub_port_wait_reset(struct usb_hub *hub, int port,
++static int hub_port_wait_reset(struct usb_hub *hub, int port1,
+ 				struct usb_device *udev, unsigned int delay)
+ {
+ 	int delay_time, ret;
+@@ -1326,7 +1328,7 @@
+ 		msleep(delay);
+ 
+ 		/* read and decode port status */
+-		ret = hub_port_status(hub, port, &portstatus, &portchange);
++		ret = hub_port_status(hub, port1, &portstatus, &portchange);
+ 		if (ret < 0)
+ 			return ret;
+ 
+@@ -1356,13 +1358,13 @@
+ 
+ 		dev_dbg (hub->intfdev,
+ 			"port %d not reset yet, waiting %dms\n",
+-			port + 1, delay);
++			port1, delay);
+ 	}
+ 
+ 	return -EBUSY;
+ }
+ 
+-static int hub_port_reset(struct usb_hub *hub, int port,
++static int hub_port_reset(struct usb_hub *hub, int port1,
+ 				struct usb_device *udev, unsigned int delay)
+ {
+ 	int i, status;
+@@ -1370,13 +1372,13 @@
+ 	/* Reset the port */
+ 	for (i = 0; i < PORT_RESET_TRIES; i++) {
+ 		status = set_port_feature(hub->hdev,
+-				port + 1, USB_PORT_FEAT_RESET);
++				port1, USB_PORT_FEAT_RESET);
+ 		if (status)
+ 			dev_err(hub->intfdev,
+ 					"cannot reset port %d (err = %d)\n",
+-					port + 1, status);
++					port1, status);
+ 		else
+-			status = hub_port_wait_reset(hub, port, udev, delay);
++			status = hub_port_wait_reset(hub, port1, udev, delay);
+ 
+ 		/* return on disconnect or reset */
+ 		switch (status) {
+@@ -1384,7 +1386,7 @@
+ 		case -ENOTCONN:
+ 		case -ENODEV:
+ 			clear_port_feature(hub->hdev,
+-				port + 1, USB_PORT_FEAT_C_RESET);
++				port1, USB_PORT_FEAT_C_RESET);
+ 			/* FIXME need disconnect() for NOTATTACHED device */
+ 			usb_set_device_state(udev, status
+ 					? USB_STATE_NOTATTACHED
+@@ -1394,30 +1396,30 @@
+ 
+ 		dev_dbg (hub->intfdev,
+ 			"port %d not enabled, trying reset again...\n",
+-			port + 1);
++			port1);
+ 		delay = HUB_LONG_RESET_TIME;
+ 	}
+ 
+ 	dev_err (hub->intfdev,
+ 		"Cannot enable port %i.  Maybe the USB cable is bad?\n",
+-		port + 1);
++		port1);
+ 
  	return status;
  }
  
-@@ -546,11 +538,11 @@
- 		dev_dbg(dev, "resume from %d\n", dev->power.power_state);
- #ifdef	CONFIG_USB_SUSPEND
- 		/* get extra cleanup even if remote wakeup isn't in use */
--		status = usb_resume_device(ohci->hcd.self.root_hub);
-+		status = usb_resume_device(ohci_to_hcd(ohci)->self.root_hub);
- #else
--		down(&ohci->hcd.self.root_hub->serialize);
--		status = ohci_hub_resume(&ohci->hcd);
--		up(&ohci->hcd.self.root_hub->serialize);
-+		down(&ohci_to_hcd(ohci)->self.root_hub->serialize);
-+		status = ohci_hub_resume(ohci_to_hcd(ohci));
-+		up(&ohci_to_hcd(ohci)->self.root_hub->serialize);
- #endif
- 		if (status == 0)
- 			dev->power.power_state = 0;
-diff -Nru a/drivers/usb/host/ohci-pxa27x.c b/drivers/usb/host/ohci-pxa27x.c
---- a/drivers/usb/host/ohci-pxa27x.c	2005-01-07 15:43:22 -08:00
-+++ b/drivers/usb/host/ohci-pxa27x.c	2005-01-07 15:43:22 -08:00
-@@ -206,21 +206,20 @@
- 		goto err1;
- 	}
- 
--	hcd = driver->hcd_alloc ();
--	if (hcd == NULL){
--		pr_debug ("hcd_alloc failed");
-+	if(dev->resource[1].flags != IORESOURCE_IRQ){
-+		pr_debug ("resource[1] is not IORESOURCE_IRQ");
- 		retval = -ENOMEM;
- 		goto err1;
- 	}
- 
--	if(dev->resource[1].flags != IORESOURCE_IRQ){
--		pr_debug ("resource[1] is not IORESOURCE_IRQ");
-+	hcd = usb_create_hcd (driver);
-+	if (hcd == NULL){
-+		pr_debug ("hcd_alloc failed");
- 		retval = -ENOMEM;
- 		goto err1;
- 	}
-+	ohci_hcd_init(hcd_to_ohci(hcd));
- 
--	hcd->driver = (struct hc_driver *) driver;
--	hcd->description = driver->description;
- 	hcd->irq = dev->resource[1].start;
- 	hcd->regs = addr;
- 	hcd->self.controller = &dev->dev;
-@@ -228,27 +227,21 @@
- 	retval = hcd_buffer_create (hcd);
- 	if (retval != 0) {
- 		pr_debug ("pool alloc fail");
--		goto err1;
-+		goto err2;
- 	}
- 
- 	retval = request_irq (hcd->irq, usb_hcd_irq, SA_INTERRUPT,
--			      hcd->description, hcd);
-+			      hcd->driver->description, hcd);
- 	if (retval != 0) {
- 		pr_debug("request_irq(%d) failed with retval %d\n",hcd->irq,retval);
- 		retval = -EBUSY;
--		goto err2;
-+		goto err3;
- 	}
- 
- 	pr_debug ("%s (pxa27x) at 0x%p, irq %d",
--	     hcd->description, hcd->regs, hcd->irq);
-+		hcd->driver->description, hcd->regs, hcd->irq);
- 
--	usb_bus_init (&hcd->self);
--	hcd->self.op = &usb_hcd_operations;
--	hcd->self.release = &usb_hcd_release;
--	hcd->self.hcpriv = (void *) hcd;
- 	hcd->self.bus_name = "pxa27x";
--	hcd->product_desc = "PXA27x OHCI";
--
- 	usb_register_bus (&hcd->self);
- 
- 	if ((retval = driver->start (hcd)) < 0) {
-@@ -259,10 +252,11 @@
- 	*hcd_out = hcd;
- 	return 0;
- 
-- err2:
-+ err3:
- 	hcd_buffer_destroy (hcd);
-+ err2:
-+	usb_put_hcd(hcd);
-  err1:
--	kfree(hcd);
- 	pxa27x_stop_hc(dev);
- 	release_mem_region(dev->resource[0].start,
- 				dev->resource[0].end
-@@ -323,7 +317,7 @@
- 		return ret;
- 
- 	if ((ret = ohci_run (ohci)) < 0) {
--		err ("can't start %s", ohci->hcd.self.bus_name);
-+		err ("can't start %s", hcd->self.bus_name);
- 		ohci_stop (hcd);
- 		return ret;
- 	}
-@@ -335,6 +329,8 @@
- 
- static const struct hc_driver ohci_pxa27x_hc_driver = {
- 	.description =		hcd_name,
-+	.product_desc =		"PXA27x OHCI",
-+	.hcd_priv_size =	sizeof(struct ohci_hcd),
- 
- 	/*
- 	 * generic hardware linkage
-@@ -347,11 +343,6 @@
- 	 */
- 	.start =		ohci_pxa27x_start,
- 	.stop =			ohci_stop,
--
--	/*
--	 * memory lifecycle (except per-request)
--	 */
--	.hcd_alloc =		ohci_hcd_alloc,
- 
- 	/*
- 	 * managing i/o requests and associated device resources
-diff -Nru a/drivers/usb/host/ohci-sa1111.c b/drivers/usb/host/ohci-sa1111.c
---- a/drivers/usb/host/ohci-sa1111.c	2005-01-07 15:43:22 -08:00
-+++ b/drivers/usb/host/ohci-sa1111.c	2005-01-07 15:43:22 -08:00
-@@ -162,15 +162,14 @@
- 
- 	sa1111_start_hc(dev);
- 
--	hcd = driver->hcd_alloc ();
-+	hcd = usb_create_hcd (driver);
- 	if (hcd == NULL){
- 		dbg ("hcd_alloc failed");
- 		retval = -ENOMEM;
- 		goto err1;
- 	}
-+	ohci_hcd_init(hcd_to_ohci(hcd));
- 
--	hcd->driver = (struct hc_driver *) driver;
--	hcd->description = driver->description;
- 	hcd->irq = dev->irq[1];
- 	hcd->regs = dev->mapbase;
- 	hcd->self.controller = &dev->dev;
-@@ -178,27 +177,21 @@
- 	retval = hcd_buffer_create (hcd);
- 	if (retval != 0) {
- 		dbg ("pool alloc fail");
--		goto err1;
-+		goto err2;
- 	}
- 
- 	retval = request_irq (hcd->irq, usb_hcd_sa1111_hcim_irq, SA_INTERRUPT,
--			      hcd->description, hcd);
-+			      hcd->driver->description, hcd);
- 	if (retval != 0) {
- 		dbg("request_irq failed");
- 		retval = -EBUSY;
--		goto err2;
-+		goto err3;
- 	}
- 
- 	info ("%s (SA-1111) at 0x%p, irq %d\n",
--	      hcd->description, hcd->regs, hcd->irq);
-+		hcd->driver->description, hcd->regs, hcd->irq);
- 
--	usb_bus_init (&hcd->self);
--	hcd->self.op = &usb_hcd_operations;
--	hcd->self.release = &usb_hcd_release;
--	hcd->self.hcpriv = (void *) hcd;
- 	hcd->self.bus_name = "sa1111";
--	hcd->product_desc = "SA-1111 OHCI";
--
- 	usb_register_bus (&hcd->self);
- 
- 	if ((retval = driver->start (hcd)) < 0) 
-@@ -210,10 +203,11 @@
- 	*hcd_out = hcd;
- 	return 0;
- 
-- err2:
-+ err3:
- 	hcd_buffer_destroy (hcd);
-+ err2:
-+	usb_put_hcd(hcd);
-  err1:
--	kfree(hcd);
- 	sa1111_stop_hc(dev);
- 	release_mem_region(dev->res.start, dev->res.end - dev->res.start + 1);
- 	return retval;
-@@ -269,7 +263,7 @@
- 		return ret;
- 
- 	if ((ret = ohci_run (ohci)) < 0) {
--		err ("can't start %s", ohci->hcd.self.bus_name);
-+		err ("can't start %s", hcd->self.bus_name);
- 		ohci_stop (hcd);
- 		return ret;
- 	}
-@@ -280,6 +274,8 @@
- 
- static const struct hc_driver ohci_sa1111_hc_driver = {
- 	.description =		hcd_name,
-+	.product_desc =		"SA-1111 OHCI",
-+	.hcd_priv_size =	sizeof(struct ohci_hcd),
- 
- 	/*
- 	 * generic hardware linkage
-diff -Nru a/drivers/usb/host/sl811-hcd.c b/drivers/usb/host/sl811-hcd.c
---- a/drivers/usb/host/sl811-hcd.c	2005-01-07 15:43:22 -08:00
-+++ b/drivers/usb/host/sl811-hcd.c	2005-01-07 15:43:22 -08:00
-@@ -90,10 +90,12 @@
- 
- /*-------------------------------------------------------------------------*/
- 
--static irqreturn_t sl811h_irq(int irq, void *_sl811, struct pt_regs *regs);
-+static irqreturn_t sl811h_irq(int irq, void *_hcd, struct pt_regs *regs);
- 
- static void port_power(struct sl811 *sl811, int is_on)
+-static int hub_port_disable(struct usb_hub *hub, int port, int set_state)
++static int hub_port_disable(struct usb_hub *hub, int port1, int set_state)
  {
-+	struct usb_hcd	*hcd = sl811_to_hcd(sl811);
-+
- 	/* hub is inactive unless the port is powered */
- 	if (is_on) {
- 		if (sl811->port1 & (1 << USB_PORT_FEAT_POWER))
-@@ -101,12 +103,12 @@
+ 	struct usb_device *hdev = hub->hdev;
+ 	int ret;
  
- 		sl811->port1 = (1 << USB_PORT_FEAT_POWER);
- 		sl811->irq_enable = SL11H_INTMASK_INSRMV;
--		sl811->hcd.self.controller->power.power_state = PM_SUSPEND_ON;
-+		hcd->self.controller->power.power_state = PM_SUSPEND_ON;
+-	if (hdev->children[port] && set_state) {
+-		usb_set_device_state(hdev->children[port],
++	if (hdev->children[port1-1] && set_state) {
++		usb_set_device_state(hdev->children[port1-1],
+ 				USB_STATE_NOTATTACHED);
+ 	}
+-	ret = clear_port_feature(hdev, port + 1, USB_PORT_FEAT_ENABLE);
++	ret = clear_port_feature(hdev, port1, USB_PORT_FEAT_ENABLE);
+ 	if (ret)
+ 		dev_err(hub->intfdev, "cannot disable port %d (err = %d)\n",
+-			port + 1, ret);
++			port1, ret);
+ 
+ 	return ret;
+ }
+@@ -1427,10 +1429,10 @@
+  * time later khubd will disconnect() any existing usb_device on the port
+  * and will re-enumerate if there actually is a device attached.
+  */
+-static void hub_port_logical_disconnect(struct usb_hub *hub, int port)
++static void hub_port_logical_disconnect(struct usb_hub *hub, int port1)
+ {
+-	dev_dbg(hub->intfdev, "logical disconnect on port %d\n", port + 1);
+-	hub_port_disable(hub, port, 1);
++	dev_dbg(hub->intfdev, "logical disconnect on port %d\n", port1);
++	hub_port_disable(hub, port1, 1);
+ 
+ 	/* FIXME let caller ask to power down the port:
+ 	 *  - some devices won't enumerate without a VBUS power cycle
+@@ -1441,7 +1443,7 @@
+ 	 * Powerdown must be optional, because of reset/DFU.
+ 	 */
+ 
+-	set_bit(port, hub->change_bits);
++	set_bit(port1, hub->change_bits);
+  	kick_khubd(hub);
+ }
+ 
+@@ -1458,12 +1460,12 @@
+  * tree above them to deliver data, such as a keypress or packet.  In
+  * some cases, this wakes the USB host.
+  */
+-static int hub_port_suspend(struct usb_hub *hub, int port,
++static int hub_port_suspend(struct usb_hub *hub, int port1,
+ 		struct usb_device *udev)
+ {
+ 	int	status;
+ 
+-	// dev_dbg(hub->intfdev, "suspend port %d\n", port + 1);
++	// dev_dbg(hub->intfdev, "suspend port %d\n", port1);
+ 
+ 	/* enable remote wakeup when appropriate; this lets the device
+ 	 * wake up the upstream hub (including maybe the root hub).
+@@ -1488,11 +1490,11 @@
+ 	}
+ 
+ 	/* see 7.1.7.6 */
+-	status = set_port_feature(hub->hdev, port + 1, USB_PORT_FEAT_SUSPEND);
++	status = set_port_feature(hub->hdev, port1, USB_PORT_FEAT_SUSPEND);
+ 	if (status) {
+ 		dev_dbg(hub->intfdev,
+ 			"can't suspend port %d, status %d\n",
+-			port + 1, status);
++			port1, status);
+ 		/* paranoia:  "should not happen" */
+ 		(void) usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 				USB_REQ_CLEAR_FEATURE, USB_RECIP_DEVICE,
+@@ -1522,13 +1524,13 @@
+  * Linux (2.6) currently has NO mechanisms to initiate that:  no khubd
+  * timer, no SRP, no requests through sysfs.
+  */
+-int __usb_suspend_device (struct usb_device *udev, int port, u32 state)
++int __usb_suspend_device (struct usb_device *udev, int port1, u32 state)
+ {
+ 	int	status;
+ 
+ 	/* caller owns the udev device lock */
+-	if (port < 0)
+-		return port;
++	if (port1 < 0)
++		return port1;
+ 
+ 	if (udev->state == USB_STATE_SUSPENDED
+ 			|| udev->state == USB_STATE_NOTATTACHED) {
+@@ -1609,7 +1611,7 @@
+ 		} else
+ 			status = -EOPNOTSUPP;
+ 	} else
+-		status = hub_port_suspend(hdev_to_hub(udev->parent), port,
++		status = hub_port_suspend(hdev_to_hub(udev->parent), port1,
+ 				udev);
+ 
+ 	if (status == 0)
+@@ -1638,13 +1640,13 @@
+  */
+ int usb_suspend_device(struct usb_device *udev, u32 state)
+ {
+-	int	port, status;
++	int	port1, status;
+ 
+-	port = locktree(udev);
+-	if (port < 0)
+-		return port;
++	port1 = locktree(udev);
++	if (port1 < 0)
++		return port1;
+ 
+-	status = __usb_suspend_device(udev, port, state);
++	status = __usb_suspend_device(udev, port1, state);
+ 	usb_unlock_device(udev);
+ 	return status;
+ }
+@@ -1738,19 +1740,19 @@
+ }
+ 
+ static int
+-hub_port_resume(struct usb_hub *hub, int port, struct usb_device *udev)
++hub_port_resume(struct usb_hub *hub, int port1, struct usb_device *udev)
+ {
+ 	int	status;
+ 
+-	// dev_dbg(hub->intfdev, "resume port %d\n", port + 1);
++	// dev_dbg(hub->intfdev, "resume port %d\n", port1);
+ 
+ 	/* see 7.1.7.7; affects power usage, but not budgeting */
+ 	status = clear_port_feature(hub->hdev,
+-			port + 1, USB_PORT_FEAT_SUSPEND);
++			port1, USB_PORT_FEAT_SUSPEND);
+ 	if (status) {
+ 		dev_dbg(hub->intfdev,
+ 			"can't resume port %d, status %d\n",
+-			port + 1, status);
++			port1, status);
  	} else {
- 		sl811->port1 = 0;
- 		sl811->irq_enable = 0;
--		sl811->hcd.state = USB_STATE_HALT;
--		sl811->hcd.self.controller->power.power_state = PM_SUSPEND_DISK;
-+		hcd->state = USB_STATE_HALT;
-+		hcd->self.controller->power.power_state = PM_SUSPEND_DISK;
- 	}
- 	sl811->ctrl1 = 0;
- 	sl811_write(sl811, SL11H_IRQ_ENABLE, 0);
-@@ -115,12 +117,12 @@
- 	if (sl811->board && sl811->board->port_power) {
- 		/* switch VBUS, at 500mA unless hub power budget gets set */
- 		DBG("power %s\n", is_on ? "on" : "off");
--		sl811->board->port_power(sl811->hcd.self.controller, is_on);
-+		sl811->board->port_power(hcd->self.controller, is_on);
- 	}
- 
- 	/* reset as thoroughly as we can */
- 	if (sl811->board && sl811->board->reset)
--		sl811->board->reset(sl811->hcd.self.controller);
-+		sl811->board->reset(hcd->self.controller);
- 
- 	sl811_write(sl811, SL11H_IRQ_ENABLE, 0);
- 	sl811_write(sl811, SL11H_CTLREG1, sl811->ctrl1);
-@@ -446,7 +448,7 @@
- 	spin_unlock(&urb->lock);
- 
- 	spin_unlock(&sl811->lock);
--	usb_hcd_giveback_urb(&sl811->hcd, urb, regs);
-+	usb_hcd_giveback_urb(sl811_to_hcd(sl811), urb, regs);
- 	spin_lock(&sl811->lock);
- 
- 	/* leave active endpoints in the schedule */
-@@ -475,7 +477,7 @@
- 	}	
- 	ep->branch = PERIODIC_SIZE;
- 	sl811->periodic_count--;
--	hcd_to_bus(&sl811->hcd)->bandwidth_allocated
-+	sl811_to_hcd(sl811)->self.bandwidth_allocated
- 		-= ep->load / ep->period;
- 	if (ep == sl811->next_periodic)
- 		sl811->next_periodic = ep->next;
-@@ -643,9 +645,10 @@
- 	return irqstat;
- }
- 
--static irqreturn_t sl811h_irq(int irq, void *_sl811, struct pt_regs *regs)
-+static irqreturn_t sl811h_irq(int irq, void *_hcd, struct pt_regs *regs)
- {
--	struct sl811	*sl811 = _sl811;
-+	struct usb_hcd	*hcd = _hcd;
-+	struct sl811	*sl811 = hcd_to_sl811(hcd);
- 	u8		irqstat;
- 	irqreturn_t	ret = IRQ_NONE;
- 	unsigned	retries = 5;
-@@ -757,7 +760,7 @@
- 		if (sl811->port1 & (1 << USB_PORT_FEAT_ENABLE))
- 			start_transfer(sl811);
- 		ret = IRQ_HANDLED;
--		sl811->hcd.saw_irq = 1;
-+		hcd->saw_irq = 1;
- 		if (retries--)
- 			goto retry;
- 	}
-@@ -835,7 +838,7 @@
- 
- 	/* don't submit to a dead or disabled port */
- 	if (!(sl811->port1 & (1 << USB_PORT_FEAT_ENABLE))
--			|| !HCD_IS_RUNNING(sl811->hcd.state)) {
-+			|| !HCD_IS_RUNNING(hcd->state)) {
- 		retval = -ENODEV;
- 		goto fail;
- 	}
-@@ -937,8 +940,7 @@
- 			sl811->load[i] += ep->load;
+ 		u16		devstatus;
+ 		u16		portchange;
+@@ -1769,7 +1771,7 @@
+ 		 * sequence.
+ 		 */
+ 		devstatus = portchange = 0;
+-		status = hub_port_status(hub, port,
++		status = hub_port_status(hub, port1,
+ 				&devstatus, &portchange);
+ 		if (status < 0
+ 				|| (devstatus & LIVE_FLAGS) != LIVE_FLAGS
+@@ -1777,7 +1779,7 @@
+ 				) {
+ 			dev_dbg(hub->intfdev,
+ 				"port %d status %04x.%04x after resume, %d\n",
+-				port + 1, portchange, devstatus, status);
++				port1, portchange, devstatus, status);
+ 		} else {
+ 			/* TRSMRCY = 10 msec */
+ 			msleep(10);
+@@ -1786,7 +1788,7 @@
  		}
- 		sl811->periodic_count++;
--		hcd_to_bus(&sl811->hcd)->bandwidth_allocated
--				+= ep->load / ep->period;
-+		hcd->self.bandwidth_allocated += ep->load / ep->period;
- 		sofirq_on(sl811);
  	}
+ 	if (status < 0)
+-		hub_port_logical_disconnect(hub, port);
++		hub_port_logical_disconnect(hub, port1);
  
-@@ -1396,7 +1398,7 @@
- 	unsigned		i;
- 
- 	seq_printf(s, "%s\n%s version %s\nportstatus[1] = %08x\n",
--		sl811->hcd.product_desc,
-+		sl811_to_hcd(sl811)->product_desc,
- 		hcd_name, DRIVER_VERSION,
- 		sl811->port1);
- 
-@@ -1544,7 +1546,7 @@
- 	struct sl811	*sl811 = hcd_to_sl811(hcd);
- 	unsigned long	flags;
- 
--	del_timer_sync(&sl811->hcd.rh_timer);
-+	del_timer_sync(&hcd->rh_timer);
- 
- 	spin_lock_irqsave(&sl811->lock, flags);
- 	port_power(sl811, 0);
-@@ -1559,7 +1561,7 @@
- 
- 	/* chip has been reset, VBUS power is off */
- 
--	udev = usb_alloc_dev(NULL, &sl811->hcd.self, 0);
-+	udev = usb_alloc_dev(NULL, &hcd->self, 0);
- 	if (!udev)
- 		return -ENOMEM;
- 
-@@ -1567,9 +1569,9 @@
- 	hcd->state = USB_STATE_RUNNING;
- 
- 	if (sl811->board)
--		sl811->hcd.can_wakeup = sl811->board->can_wakeup;
-+		hcd->can_wakeup = sl811->board->can_wakeup;
- 
--	if (hcd_register_root(udev, &sl811->hcd) != 0) {
-+	if (hcd_register_root(udev, hcd) != 0) {
- 		usb_put_dev(udev);
- 		sl811h_stop(hcd);
- 		return -ENODEV;
-@@ -1585,6 +1587,7 @@
- 
- static struct hc_driver sl811h_hc_driver = {
- 	.description =		hcd_name,
-+	.hcd_priv_size =	sizeof(struct sl811),
- 
- 	/*
- 	 * generic hardware linkage
-@@ -1618,35 +1621,32 @@
- sl811h_remove(struct device *dev)
- {
- 	struct sl811		*sl811 = dev_get_drvdata(dev);
-+	struct usb_hcd		*hcd = sl811_to_hcd(sl811);
- 	struct platform_device	*pdev;
- 	struct resource		*res;
- 
- 	pdev = container_of(dev, struct platform_device, dev);
- 
--	if (HCD_IS_RUNNING(sl811->hcd.state))
--		sl811->hcd.state = USB_STATE_QUIESCING;
-+	if (HCD_IS_RUNNING(hcd->state))
-+		hcd->state = USB_STATE_QUIESCING;
- 
--	usb_disconnect(&sl811->hcd.self.root_hub);
-+	usb_disconnect(&hcd->self.root_hub);
- 	remove_debug_file(sl811);
--	sl811h_stop(&sl811->hcd);
-+	sl811h_stop(hcd);
- 
--	if (!list_empty(&sl811->hcd.self.bus_list))
--		usb_deregister_bus(&sl811->hcd.self);
-+	usb_deregister_bus(&hcd->self);
- 
--	if (sl811->hcd.irq >= 0)
--		free_irq(sl811->hcd.irq, sl811);
-+	free_irq(hcd->irq, hcd);
- 
--	if (sl811->data_reg)
--		iounmap(sl811->data_reg);
-+	iounmap(sl811->data_reg);
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
- 	release_mem_region(res->start, 1);
- 
--	if (sl811->addr_reg) 
--		iounmap(sl811->addr_reg);
-+	iounmap(sl811->addr_reg);
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	release_mem_region(res->start, 1);
- 
--	kfree(sl811);
-+	usb_put_hcd(hcd);
- 	return 0;
+ 	return status;
  }
- 
-@@ -1655,13 +1655,15 @@
- static int __init
- sl811h_probe(struct device *dev)
+@@ -1808,11 +1810,11 @@
+  */
+ int usb_resume_device(struct usb_device *udev)
  {
-+	struct usb_hcd		*hcd;
- 	struct sl811		*sl811;
- 	struct platform_device	*pdev;
- 	struct resource		*addr, *data;
- 	int			irq;
--	int			status;
-+	void __iomem		*addr_reg;
-+	void __iomem		*data_reg;
-+	int			retval;
- 	u8			tmp;
--	unsigned long		flags;
+-	int	port, status;
++	int	port1, status;
  
- 	/* basic sanity checks first.  board-specific init logic should
- 	 * have initialized these three resources and probably board
-@@ -1684,32 +1686,39 @@
- 		return -EINVAL;
+-	port = locktree(udev);
+-	if (port < 0)
+-		return port;
++	port1 = locktree(udev);
++	if (port1 < 0)
++		return port1;
+ 
+ 	/* "global resume" of the HC-to-USB interface (root hub), or
+ 	 * selective resume of one hub-to-device port
+@@ -1833,7 +1835,7 @@
+ 	} else if (udev->state == USB_STATE_SUSPENDED) {
+ 		// NOTE this fails if parent is also suspended...
+ 		status = hub_port_resume(hdev_to_hub(udev->parent),
+-				port, udev);
++				port1, udev);
+ 	} else {
+ 		status = 0;
+ 	}
+@@ -1875,25 +1877,25 @@
+ {
+ 	struct usb_hub		*hub = usb_get_intfdata (intf);
+ 	struct usb_device	*hdev = hub->hdev;
+-	unsigned		port;
++	unsigned		port1;
+ 	int			status;
+ 
+ 	/* stop khubd and related activity */
+ 	hub_quiesce(hub);
+ 
+ 	/* then suspend every port */
+-	for (port = 0; port < hdev->maxchild; port++) {
++	for (port1 = 1; port1 <= hdev->maxchild; port1++) {
+ 		struct usb_device	*udev;
+ 
+-		udev = hdev->children [port];
++		udev = hdev->children [port1-1];
+ 		if (!udev)
+ 			continue;
+ 		down(&udev->serialize);
+-		status = __usb_suspend_device(udev, port, state);
++		status = __usb_suspend_device(udev, port1, state);
+ 		up(&udev->serialize);
+ 		if (status < 0)
+ 			dev_dbg(&intf->dev, "suspend port %d --> %d\n",
+-				port, status);
++				port1, status);
  	}
  
--	if (!request_mem_region(addr->start, 1, hcd_name))
--		return -EBUSY;
-+	if (!request_mem_region(addr->start, 1, hcd_name)) {
-+		retval = -EBUSY;
-+		goto err1;
-+	}
-+	addr_reg = ioremap(addr->start, resource_len(addr));
-+	if (addr_reg == NULL) {
-+		retval = -ENOMEM;
-+		goto err2;
-+	}
-+
- 	if (!request_mem_region(data->start, 1, hcd_name)) {
--		release_mem_region(addr->start, 1);
--		return -EBUSY;
-+		retval = -EBUSY;
-+		goto err3;
-+	}
-+	data_reg = ioremap(data->start, resource_len(addr));
-+	if (data_reg == NULL) {
-+		retval = -ENOMEM;
-+		goto err4;
- 	}
+ 	intf->dev.power.power_state = state;
+@@ -1904,21 +1906,21 @@
+ {
+ 	struct usb_device	*hdev = interface_to_usbdev(intf);
+ 	struct usb_hub		*hub = usb_get_intfdata (intf);
+-	unsigned		port;
++	unsigned		port1;
+ 	int			status;
  
- 	/* allocate and initialize hcd */
--	sl811 = kcalloc(1, sizeof *sl811, GFP_KERNEL);
--	if (!sl811)
--		return 0;
-+	hcd = usb_create_hcd(&sl811h_hc_driver);
-+	if (!hcd) {
-+		retval = 0;
-+		goto err5;
-+	}
-+	sl811 = hcd_to_sl811(hcd);
- 	dev_set_drvdata(dev, sl811);
- 
--	usb_bus_init(&sl811->hcd.self);
--	sl811->hcd.self.controller = dev;
--	sl811->hcd.self.bus_name = dev->bus_id;
--	sl811->hcd.self.op = &usb_hcd_operations;
--	sl811->hcd.self.hcpriv = sl811;
--
--	sl811->hcd.self.release = &usb_hcd_release;
--
--	sl811->hcd.description = sl811h_hc_driver.description;
--	init_timer(&sl811->hcd.rh_timer);
--	sl811->hcd.driver = &sl811h_hc_driver;
--	sl811->hcd.irq = -1;
--	sl811->hcd.state = USB_STATE_HALT;
-+	hcd->self.controller = dev;
-+	hcd->self.bus_name = dev->bus_id;
-+	hcd->irq = irq;
-+	hcd->regs = addr_reg;
- 
- 	spin_lock_init(&sl811->lock);
- 	INIT_LIST_HEAD(&sl811->async);
-@@ -1717,36 +1726,27 @@
- 	init_timer(&sl811->timer);
- 	sl811->timer.function = sl811h_timer;
- 	sl811->timer.data = (unsigned long) sl811;
-+	sl811->addr_reg = addr_reg;
-+	sl811->data_reg = data_reg;
- 
--	sl811->addr_reg = ioremap(addr->start, resource_len(addr));
--	if (sl811->addr_reg == NULL) {
--		status = -ENOMEM;
--		goto fail;
--	}
--	sl811->data_reg = ioremap(data->start, resource_len(addr));
--	if (sl811->data_reg == NULL) {
--		status = -ENOMEM;
--		goto fail;
--	}
--
--	spin_lock_irqsave(&sl811->lock, flags);
-+	spin_lock_irq(&sl811->lock);
- 	port_power(sl811, 0);
--	spin_unlock_irqrestore(&sl811->lock, flags);
-+	spin_unlock_irq(&sl811->lock);
- 	msleep(200);
- 
- 	tmp = sl811_read(sl811, SL11H_HWREVREG);
- 	switch (tmp >> 4) {
- 	case 1:
--		sl811->hcd.product_desc = "SL811HS v1.2";
-+		hcd->product_desc = "SL811HS v1.2";
- 		break;
- 	case 2:
--		sl811->hcd.product_desc = "SL811HS v1.5";
-+		hcd->product_desc = "SL811HS v1.5";
- 		break;
- 	default:
- 		/* reject case 0, SL11S is less functional */
- 		DBG("chiprev %02x\n", tmp);
--		status = -ENXIO;
--		goto fail;
-+		retval = -ENXIO;
-+		goto err6;
- 	}
- 
- 	/* sl811s would need a different handler for this irq */
-@@ -1754,25 +1754,41 @@
- 	/* Cypress docs say the IRQ is IRQT_HIGH ... */
- 	set_irq_type(irq, IRQT_RISING);
- #endif
--	status = request_irq(irq, sl811h_irq, SA_INTERRUPT, hcd_name, sl811);
--	if (status < 0)
--		goto fail;
--	sl811->hcd.irq = irq;
-+	retval = request_irq(irq, sl811h_irq, SA_INTERRUPT,
-+			hcd->driver->description, hcd);
-+	if (retval != 0)
-+		goto err6;
-+
-+	INFO("%s, irq %d\n", hcd->product_desc, irq);
-+
-+	retval = usb_register_bus(&hcd->self);
-+	if (retval < 0)
-+		goto err7;
-+
-+	retval = sl811h_start(hcd);
-+	if (retval < 0)
-+		goto err8;
- 
--	INFO("%s, irq %d\n", sl811->hcd.product_desc, irq);
-+	create_debug_file(sl811);
-+	return 0;
- 
--	status = usb_register_bus(&sl811->hcd.self);
--	if (status < 0)
--		goto fail;
--	status = sl811h_start(&sl811->hcd);
--	if (status == 0) {
--		create_debug_file(sl811);
--		return 0;
--	}
--fail:
--	sl811h_remove(dev);
--	DBG("init error, %d\n", status);
--	return status;
-+ err8:
-+	usb_deregister_bus(&hcd->self);
-+ err7:
-+	free_irq(hcd->irq, hcd);
-+ err6:
-+	usb_put_hcd(hcd);
-+ err5:
-+	iounmap(data_reg);
-+ err4:
-+	release_mem_region(data->start, 1);
-+ err3:
-+	iounmap(addr_reg);
-+ err2:
-+	release_mem_region(addr->start, 1);
-+ err1:
-+	DBG("init error, %d\n", retval);
-+	return retval;
- }
- 
- #ifdef	CONFIG_PM
-@@ -1792,7 +1808,7 @@
- 		return retval;
- 
- 	if (state <= PM_SUSPEND_MEM)
--		retval = sl811h_hub_suspend(&sl811->hcd);
-+		retval = sl811h_hub_suspend(sl811_to_hcd(sl811));
- 	else
- 		port_power(sl811, 0);
- 	if (retval == 0)
-@@ -1812,14 +1828,14 @@
- 	 * let's assume it'd only be powered to enable remote wakeup.
- 	 */
- 	if (dev->power.power_state > PM_SUSPEND_MEM
--			|| !sl811->hcd.can_wakeup) {
-+			|| !sl811_to_hcd(sl811)->can_wakeup) {
- 		sl811->port1 = 0;
- 		port_power(sl811, 1);
+ 	if (intf->dev.power.power_state == PM_SUSPEND_ON)
  		return 0;
+ 
+-	for (port = 0; port < hdev->maxchild; port++) {
++	for (port1 = 1; port1 <= hdev->maxchild; port1++) {
+ 		struct usb_device	*udev;
+ 		u16			portstat, portchange;
+ 
+-		udev = hdev->children [port];
+-		status = hub_port_status(hub, port, &portstat, &portchange);
++		udev = hdev->children [port1-1];
++		status = hub_port_status(hub, port1, &portstat, &portchange);
+ 		if (status == 0) {
+ 			if (portchange & USB_PORT_STAT_C_SUSPEND) {
+-				clear_port_feature(hdev, port + 1,
++				clear_port_feature(hdev, port1,
+ 					USB_PORT_FEAT_C_SUSPEND);
+ 				portchange &= ~USB_PORT_STAT_C_SUSPEND;
+ 			}
+@@ -1932,13 +1934,13 @@
+ 			continue;
+ 		down (&udev->serialize);
+ 		if (portstat & USB_PORT_STAT_SUSPEND)
+-			status = hub_port_resume(hub, port, udev);
++			status = hub_port_resume(hub, port1, udev);
+ 		else {
+ 			status = finish_port_resume(udev);
+ 			if (status < 0) {
+ 				dev_dbg(&intf->dev, "resume port %d --> %d\n",
+-					port + 1, status);
+-				hub_port_logical_disconnect(hub, port);
++					port1, status);
++				hub_port_logical_disconnect(hub, port1);
+ 			}
+ 		}
+ 		up(&udev->serialize);
+@@ -1992,7 +1994,7 @@
+ #define HUB_DEBOUNCE_STEP	  25
+ #define HUB_DEBOUNCE_STABLE	 100
+ 
+-static int hub_port_debounce(struct usb_hub *hub, int port)
++static int hub_port_debounce(struct usb_hub *hub, int port1)
+ {
+ 	int ret;
+ 	int total_time, stable_time = 0;
+@@ -2000,7 +2002,7 @@
+ 	unsigned connection = 0xffff;
+ 
+ 	for (total_time = 0; ; total_time += HUB_DEBOUNCE_STEP) {
+-		ret = hub_port_status(hub, port, &portstatus, &portchange);
++		ret = hub_port_status(hub, port1, &portstatus, &portchange);
+ 		if (ret < 0)
+ 			return ret;
+ 
+@@ -2015,7 +2017,7 @@
+ 		}
+ 
+ 		if (portchange & USB_PORT_STAT_C_CONNECTION) {
+-			clear_port_feature(hub->hdev, port+1,
++			clear_port_feature(hub->hdev, port1,
+ 					USB_PORT_FEAT_C_CONNECTION);
+ 		}
+ 
+@@ -2026,7 +2028,7 @@
+ 
+ 	dev_dbg (hub->intfdev,
+ 		"debounce: port %d: total %dms stable %dms status 0x%x\n",
+-		port + 1, total_time, stable_time, portstatus);
++		port1, total_time, stable_time, portstatus);
+ 
+ 	if (stable_time < HUB_DEBOUNCE_STABLE)
+ 		return -ETIMEDOUT;
+@@ -2073,7 +2075,7 @@
+  * pointers, it's not necessary to lock the device.
+  */
+ static int
+-hub_port_init (struct usb_hub *hub, struct usb_device *udev, int port,
++hub_port_init (struct usb_hub *hub, struct usb_device *udev, int port1,
+ 		int retry_counter)
+ {
+ 	static DECLARE_MUTEX(usb_address0_sem);
+@@ -2088,7 +2090,7 @@
+ 	 */
+ 	if (!hdev->parent) {
+ 		delay = HUB_ROOT_RESET_TIME;
+-		if (port + 1 == hdev->bus->otg_port)
++		if (port1 == hdev->bus->otg_port)
+ 			hdev->bus->b_hnp_enable = 0;
  	}
  
- 	dev->power.power_state = PM_SUSPEND_ON;
--	return sl811h_hub_resume(&sl811->hcd);
-+	return sl811h_hub_resume(sl811_to_hcd(sl811));
+@@ -2100,7 +2102,7 @@
+ 	down(&usb_address0_sem);
+ 
+ 	/* Reset the device; full speed may morph to high speed */
+-	retval = hub_port_reset(hub, port, udev, delay);
++	retval = hub_port_reset(hub, port1, udev, delay);
+ 	if (retval < 0)		/* error or disconnect */
+ 		goto fail;
+ 				/* success, speed is known */
+@@ -2152,7 +2154,7 @@
+ 	} else if (udev->speed != USB_SPEED_HIGH
+ 			&& hdev->speed == USB_SPEED_HIGH) {
+ 		udev->tt = &hub->tt;
+-		udev->ttport = port + 1;
++		udev->ttport = port1;
+ 	}
+  
+ 	/* Why interleave GET_DESCRIPTOR and SET_ADDRESS this way?
+@@ -2202,7 +2204,7 @@
+ 					buf->bMaxPacketSize0;
+ 			kfree(buf);
+ 
+-			retval = hub_port_reset(hub, port, udev, delay);
++			retval = hub_port_reset(hub, port1, udev, delay);
+ 			if (retval < 0)		/* error or disconnect */
+ 				goto fail;
+ 			if (oldspeed != udev->speed) {
+@@ -2286,13 +2288,13 @@
+ 
+ fail:
+ 	if (retval)
+-		hub_port_disable(hub, port, 0);
++		hub_port_disable(hub, port1, 0);
+ 	up(&usb_address0_sem);
+ 	return retval;
  }
  
- #else
-diff -Nru a/drivers/usb/host/sl811.h b/drivers/usb/host/sl811.h
---- a/drivers/usb/host/sl811.h	2005-01-07 15:43:22 -08:00
-+++ b/drivers/usb/host/sl811.h	2005-01-07 15:43:22 -08:00
-@@ -118,7 +118,6 @@
- #define	PERIODIC_SIZE		(1 << LOG2_PERIODIC_SIZE)
- 
- struct sl811 {
--	struct usb_hcd		hcd;
- 	spinlock_t		lock;
- 	void __iomem		*addr_reg;
- 	void __iomem		*data_reg;
-@@ -158,7 +157,12 @@
- 
- static inline struct sl811 *hcd_to_sl811(struct usb_hcd *hcd)
+ static void
+-check_highspeed (struct usb_hub *hub, struct usb_device *udev, int port)
++check_highspeed (struct usb_hub *hub, struct usb_device *udev, int port1)
  {
--	return container_of(hcd, struct sl811, hcd);
-+	return (struct sl811 *) (hcd->hcd_priv);
-+}
-+
-+static inline struct usb_hcd *sl811_to_hcd(struct sl811 *sl811)
-+{
-+	return container_of((void *) sl811, struct usb_hcd, hcd_priv);
+ 	struct usb_qualifier_descriptor	*qual;
+ 	int				status;
+@@ -2308,7 +2310,7 @@
+ 			"connect to a high speed hub\n");
+ 		/* hub LEDs are probably harder to miss than syslog */
+ 		if (hub->has_indicators) {
+-			hub->indicator[port] = INDICATOR_GREEN_BLINK;
++			hub->indicator[port1-1] = INDICATOR_GREEN_BLINK;
+ 			schedule_work (&hub->leds);
+ 		}
+ 	}
+@@ -2366,7 +2368,7 @@
+  *		a firmware download)
+  * caller already locked the hub
+  */
+-static void hub_port_connect_change(struct usb_hub *hub, int port,
++static void hub_port_connect_change(struct usb_hub *hub, int port1,
+ 					u16 portstatus, u16 portchange)
+ {
+ 	struct usb_device *hdev = hub->hdev;
+@@ -2375,17 +2377,17 @@
+  
+ 	dev_dbg (hub_dev,
+ 		"port %d, status %04x, change %04x, %s\n",
+-		port + 1, portstatus, portchange, portspeed (portstatus));
++		port1, portstatus, portchange, portspeed (portstatus));
+ 
+ 	if (hub->has_indicators) {
+-		set_port_led(hub, port + 1, HUB_LED_AUTO);
+-		hub->indicator[port] = INDICATOR_AUTO;
++		set_port_led(hub, port1, HUB_LED_AUTO);
++		hub->indicator[port1-1] = INDICATOR_AUTO;
+ 	}
+  
+ 	/* Disconnect any existing devices under this port */
+-	if (hdev->children[port])
+-		usb_disconnect(&hdev->children[port]);
+-	clear_bit(port, hub->change_bits);
++	if (hdev->children[port1-1])
++		usb_disconnect(&hdev->children[port1-1]);
++	clear_bit(port1, hub->change_bits);
+ 
+ #ifdef	CONFIG_USB_OTG
+ 	/* during HNP, don't repeat the debounce */
+@@ -2394,11 +2396,11 @@
+ #endif
+ 
+ 	if (portchange & USB_PORT_STAT_C_CONNECTION) {
+-		status = hub_port_debounce(hub, port);
++		status = hub_port_debounce(hub, port1);
+ 		if (status < 0) {
+ 			dev_err (hub_dev,
+ 				"connect-debounce failed, port %d disabled\n",
+-				port+1);
++				port1);
+ 			goto done;
+ 		}
+ 		portstatus = status;
+@@ -2411,7 +2413,7 @@
+ 		if ((hub->descriptor->wHubCharacteristics
+ 					& HUB_CHAR_LPSM) < 2
+ 				&& !(portstatus & (1 << USB_PORT_FEAT_POWER)))
+-			set_port_feature(hdev, port + 1, USB_PORT_FEAT_POWER);
++			set_port_feature(hdev, port1, USB_PORT_FEAT_POWER);
+  
+ 		if (portstatus & USB_PORT_STAT_ENABLE)
+   			goto done;
+@@ -2421,11 +2423,11 @@
+ #ifdef  CONFIG_USB_SUSPEND
+ 	/* If something is connected, but the port is suspended, wake it up. */
+ 	if (portstatus & USB_PORT_STAT_SUSPEND) {
+-		status = hub_port_resume(hub, port, NULL);
++		status = hub_port_resume(hub, port1, NULL);
+ 		if (status < 0) {
+ 			dev_dbg(hub_dev,
+ 				"can't clear suspend on port %d; %d\n",
+-				port+1, status);
++				port1, status);
+ 			goto done;
+ 		}
+ 	}
+@@ -2437,10 +2439,11 @@
+ 		/* reallocate for each attempt, since references
+ 		 * to the previous one can escape in various ways
+ 		 */
+-		udev = usb_alloc_dev(hdev, hdev->bus, port);
++		udev = usb_alloc_dev(hdev, hdev->bus, port1);
+ 		if (!udev) {
+ 			dev_err (hub_dev,
+-				"couldn't allocate port %d usb_device\n", port+1);
++				"couldn't allocate port %d usb_device\n",
++				port1);
+ 			goto done;
+ 		}
+ 
+@@ -2455,7 +2458,7 @@
+ 		}
+ 
+ 		/* reset and get descriptor */
+-		status = hub_port_init(hub, udev, port, i);
++		status = hub_port_init(hub, udev, port1, i);
+ 		if (status < 0)
+ 			goto loop;
+ 
+@@ -2481,7 +2484,7 @@
+ 					"can't connect bus-powered hub "
+ 					"to this port\n");
+ 				if (hub->has_indicators) {
+-					hub->indicator[port] =
++					hub->indicator[port1-1] =
+ 						INDICATOR_AMBER_BLINK;
+ 					schedule_work (&hub->leds);
+ 				}
+@@ -2494,7 +2497,7 @@
+ 		if (udev->descriptor.bcdUSB >= 0x0200
+ 				&& udev->speed == USB_SPEED_FULL
+ 				&& highspeed_hubs != 0)
+-			check_highspeed (hub, udev, port);
++			check_highspeed (hub, udev, port1);
+ 
+ 		/* Store the parent's children[] pointer.  At this point
+ 		 * udev becomes globally accessible, although presumably
+@@ -2511,7 +2514,7 @@
+ 		if (hdev->state == USB_STATE_NOTATTACHED)
+ 			status = -ENOTCONN;
+ 		else
+-			hdev->children[port] = udev;
++			hdev->children[port1-1] = udev;
+ 		spin_unlock_irq(&device_state_lock);
+ 
+ 		/* Run it through the hoops (find a driver, etc) */
+@@ -2519,7 +2522,7 @@
+ 			status = usb_new_device(udev);
+ 			if (status) {
+ 				spin_lock_irq(&device_state_lock);
+-				hdev->children[port] = NULL;
++				hdev->children[port1-1] = NULL;
+ 				spin_unlock_irq(&device_state_lock);
+ 			}
+ 		}
+@@ -2537,7 +2540,7 @@
+ 		return;
+ 
+ loop_disable:
+-		hub_port_disable(hub, port, 1);
++		hub_port_disable(hub, port1, 1);
+ loop:
+ 		ep0_reinit(udev);
+ 		release_address(udev);
+@@ -2547,7 +2550,7 @@
+ 	}
+  
+ done:
+-	hub_port_disable(hub, port, 1);
++	hub_port_disable(hub, port1, 1);
  }
  
- struct sl811h_ep {
+ static void hub_events(void)
+@@ -2623,9 +2626,9 @@
+ 		}
+ 
+ 		/* deal with port status changes */
+-		for (i = 0; i < hub->descriptor->bNbrPorts; i++) {
++		for (i = 1; i <= hub->descriptor->bNbrPorts; i++) {
+ 			connect_change = test_bit(i, hub->change_bits);
+-			if (!test_and_clear_bit(i+1, hub->event_bits) &&
++			if (!test_and_clear_bit(i, hub->event_bits) &&
+ 					!connect_change)
+ 				continue;
+ 
+@@ -2635,8 +2638,8 @@
+ 				continue;
+ 
+ 			if (portchange & USB_PORT_STAT_C_CONNECTION) {
+-				clear_port_feature(hdev,
+-					i + 1, USB_PORT_FEAT_C_CONNECTION);
++				clear_port_feature(hdev, i,
++					USB_PORT_FEAT_C_CONNECTION);
+ 				connect_change = 1;
+ 			}
+ 
+@@ -2645,9 +2648,9 @@
+ 					dev_dbg (hub_dev,
+ 						"port %d enable change, "
+ 						"status %08x\n",
+-						i + 1, portstatus);
+-				clear_port_feature(hdev,
+-					i + 1, USB_PORT_FEAT_C_ENABLE);
++						i, portstatus);
++				clear_port_feature(hdev, i,
++					USB_PORT_FEAT_C_ENABLE);
+ 
+ 				/*
+ 				 * EM interference sometimes causes badly
+@@ -2657,21 +2660,22 @@
+ 				 */
+ 				if (!(portstatus & USB_PORT_STAT_ENABLE)
+ 				    && !connect_change
+-				    && hdev->children[i]) {
++				    && hdev->children[i-1]) {
+ 					dev_err (hub_dev,
+ 					    "port %i "
+ 					    "disabled by hub (EMI?), "
+ 					    "re-enabling...\n",
+-						i + 1);
++						i);
+ 					connect_change = 1;
+ 				}
+ 			}
+ 
+ 			if (portchange & USB_PORT_STAT_C_SUSPEND) {
+-				clear_port_feature(hdev, i + 1,
++				clear_port_feature(hdev, i,
+ 					USB_PORT_FEAT_C_SUSPEND);
+-				if (hdev->children[i]) {
+-					ret = remote_wakeup(hdev->children[i]);
++				if (hdev->children[i-1]) {
++					ret = remote_wakeup(hdev->
++							children[i-1]);
+ 					if (ret < 0)
+ 						connect_change = 1;
+ 				} else {
+@@ -2680,24 +2684,24 @@
+ 				}
+ 				dev_dbg (hub_dev,
+ 					"resume on port %d, status %d\n",
+-					i + 1, ret);
++					i, ret);
+ 			}
+ 			
+ 			if (portchange & USB_PORT_STAT_C_OVERCURRENT) {
+ 				dev_err (hub_dev,
+ 					"over-current change on port %d\n",
+-					i + 1);
+-				clear_port_feature(hdev,
+-					i + 1, USB_PORT_FEAT_C_OVER_CURRENT);
++					i);
++				clear_port_feature(hdev, i,
++					USB_PORT_FEAT_C_OVER_CURRENT);
+ 				hub_power_on(hub);
+ 			}
+ 
+ 			if (portchange & USB_PORT_STAT_C_RESET) {
+ 				dev_dbg (hub_dev,
+ 					"reset change on port %d\n",
+-					i + 1);
+-				clear_port_feature(hdev,
+-					i + 1, USB_PORT_FEAT_C_RESET);
++					i);
++				clear_port_feature(hdev, i,
++					USB_PORT_FEAT_C_RESET);
+ 			}
+ 
+ 			if (connect_change)
+@@ -2886,7 +2890,7 @@
+ 	struct usb_hub			*parent_hub;
+ 	struct usb_device_descriptor	descriptor = udev->descriptor;
+ 	struct usb_hub			*hub = NULL;
+-	int 				i, ret = 0, port = -1;
++	int 				i, ret = 0, port1 = -1;
+ 
+ 	if (udev->state == USB_STATE_NOTATTACHED ||
+ 			udev->state == USB_STATE_SUSPENDED) {
+@@ -2903,11 +2907,11 @@
+ 
+ 	for (i = 0; i < parent_hdev->maxchild; i++)
+ 		if (parent_hdev->children[i] == udev) {
+-			port = i;
++			port1 = i + 1;
+ 			break;
+ 		}
+ 
+-	if (port < 0) {
++	if (port1 < 0) {
+ 		/* If this ever happens, it's very bad */
+ 		dev_err(&udev->dev, "Can't locate device's port!\n");
+ 		return -ENOENT;
+@@ -2927,7 +2931,7 @@
+ 		/* ep0 maxpacket size may change; let the HCD know about it.
+ 		 * Other endpoints will be handled by re-enumeration. */
+ 		ep0_reinit(udev);
+-		ret = hub_port_init(parent_hub, udev, port, i);
++		ret = hub_port_init(parent_hub, udev, port1, i);
+ 		if (ret >= 0)
+ 			break;
+ 	}
+@@ -2983,6 +2987,6 @@
+ 	return 0;
+  
+ re_enumerate:
+-	hub_port_logical_disconnect(parent_hub, port);
++	hub_port_logical_disconnect(parent_hub, port1);
+ 	return -ENODEV;
+ }
+diff -Nru a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
+--- a/drivers/usb/core/usb.c	2005-01-07 15:42:44 -08:00
++++ b/drivers/usb/core/usb.c	2005-01-07 15:42:44 -08:00
+@@ -655,7 +655,7 @@
+  * usb_alloc_dev - usb device constructor (usbcore-internal)
+  * @parent: hub to which device is connected; null to allocate a root hub
+  * @bus: bus used to access the device
+- * @port: zero based index of port; ignored for root hubs
++ * @port1: one-based index of port; ignored for root hubs
+  * Context: !in_interrupt ()
+  *
+  * Only hub drivers (including virtual root hub drivers for host
+@@ -664,7 +664,7 @@
+  * This call may not be used in a non-sleeping context.
+  */
+ struct usb_device *
+-usb_alloc_dev(struct usb_device *parent, struct usb_bus *bus, unsigned port)
++usb_alloc_dev(struct usb_device *parent, struct usb_bus *bus, unsigned port1)
+ {
+ 	struct usb_device *dev;
+ 
+@@ -711,10 +711,10 @@
+ 		/* match any labeling on the hubs; it's one-based */
+ 		if (parent->devpath [0] == '0')
+ 			snprintf (dev->devpath, sizeof dev->devpath,
+-				"%d", port + 1);
++				"%d", port1);
+ 		else
+ 			snprintf (dev->devpath, sizeof dev->devpath,
+-				"%s.%d", parent->devpath, port + 1);
++				"%s.%d", parent->devpath, port1);
+ 
+ 		dev->dev.parent = &parent->dev;
+ 		sprintf (&dev->dev.bus_id[0], "%d-%s",
 

@@ -1,189 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVAXI7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVAXJHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbVAXI7t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 03:59:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVAXI7t
+	id S261306AbVAXJHe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 04:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVAXJHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 03:59:49 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:41871 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261153AbVAXI7e (ORCPT
+	Mon, 24 Jan 2005 04:07:34 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:27275 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S261306AbVAXJHR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 03:59:34 -0500
-Date: Mon, 24 Jan 2005 09:59:02 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
-Message-ID: <20050124085902.GA8059@elte.hu>
-References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us>
+	Mon, 24 Jan 2005 04:07:17 -0500
+Date: Mon, 24 Jan 2005 10:07:12 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: negative diskspace usage
+Message-ID: <20050124090710.GB27675@wiggy.net>
+Mail-Followup-To: Andries Brouwer <aebr@win.tue.nl>,
+	linux-kernel@vger.kernel.org
+References: <20050121141106.GG7147@wiggy.net> <20050122212328.GC11170@pclin040.win.tue.nl> <20050123225628.GA27675@wiggy.net> <20050123232649.GA24723@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87hdl940ph.fsf@sulphur.joq.us>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050123232649.GA24723@pclin040.win.tue.nl>
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Previously Andries Brouwer wrote:
+> It is an interesting situation, but probably there is not enough
+> information to find out what happened. On the other hand, if your
+> dumpe2fs output is not too big you might as well post it.
 
-* Jack O'Quin <joq@io.com> wrote:
+It is indeed not too big, so here it is:
 
->   First, only SCHED_FIFO worked reliably in my tests.  In Con's tests
->   even that did not work.  My system is probably better tuned for low
->   latency than his.  Until we can determine why there were so many
->   xruns, it is premature to declare victory for either scheduler.
->   Preferably, we should compare them on a well-tuned low-latency
->   system running your Realtime Preemption kernel.
+Filesystem volume name:   <none>
+Last mounted on:          <not available>
+Filesystem UUID:          33476a1a-cc34-4668-a4a3-fd0efaa01818
+Filesystem magic number:  0xEF53
+Filesystem revision #:    1 (dynamic)
+Filesystem features:      has_journal filetype needs_recovery sparse_super
+Default mount options:    (none)
+Filesystem state:         clean
+Errors behavior:          Continue
+Filesystem OS type:       Linux
+Inode count:              132480
+Block count:              264960
+Reserved block count:     13248
+Free blocks:              268779
+Free inodes:              129353
+First block:              0
+Block size:               4096
+Fragment size:            4096
+Blocks per group:         32768
+Fragments per group:      32768
+Inodes per group:         14720
+Inode blocks per group:   460
+Last mount time:          Wed Jan 19 16:38:17 2005
+Last write time:          Wed Jan 19 16:38:17 2005
+Mount count:              8
+Maximum mount count:      20
+Last checked:             Wed Aug 25 16:32:54 2004
+Check interval:           15552000 (6 months)
+Next check after:         Mon Feb 21 15:32:54 2005
+Reserved blocks uid:      0 (user root)
+Reserved blocks gid:      0 (group root)
+First inode:              11
+Inode size:		  128
+Journal inode:            8
+Journal backup:           inode blocks
 
-i didnt declare victory - the full range of latency fixes is in the -RT
-tree. Merging of relevant bits is an ongoing process - in 2.6.10 you've
-already seen some early results, but it's by no means complete. Nor did
-i declare that nice--20 was suitable for audio priorities.
 
->   Second, the nice(-20) scheduler provides no clear way to support
->   multiple realtime priorities. [...]
-
-why? You could use e.g. nice -20, -19 and -18. (see the patch below that
-implements this.)
-
->   Third, your prototype denies SCHED_FIFO to privileged threads.  This
->   is a serious problem, even for testing (though perhaps easy to fix).
-
-this is not a prototype, it's an 'API hack'. The real solution would
-have none of these limitations of course. Just think of this patch as an
-'easy way to use nice--20 without any jackd changes' - any API
-limitation you sense is a fault of this hack, not a fault of the
-concept.
-
-Find below an updated version of the 'API hack', which, instead of
-auto-mapping all RT priorities, extends sched_setscheduler() to allow
-nonzero sched_priority values for SCHED_OTHER, which are interpreted as
-nice values. E.g. to set a thread to nice--20, do this:
-
-	struct sched_param param = { sched_priority: -19 };
-
-	sched_setscheduler(pid, SCHED_OTHER, &param);
-
-(obviously this is not complete because no permission checking is done,
-but this could be combined with an rlimits solution to achieve safety.)
-
->   Most important, let's not forget that this long discussion started
->   because ordinary users need access to realtime scheduling.  Con's
->   scheduler provides a solution for that problem.  Your prototype does
->   not.
-
-sorry, but that is not how the discussion started. The discussion
-started about an API hack, the RT-LSM way to give ordinary users the
-unfettered access to RT scheduling.
-
-Then, after this approach was vetoed (rightfully IMO, because it has a
-number of disadvantages), did the real discussion start: "how do we give
-low latencies to audio applications (and other, soft-RT alike
-applications), while not allowing them to lock up the system."
-
-I happened to start that angle - until that point everyone was focused
-on the wrong premise of 'how do we give RT privileges to ordinary
-users'. We _dont_ give raw RT scheduling to ordinary users, period. The
-discussion is still about how to give (audio) applications low
-priorities, for which there are a number of solutions:
-
-- SCHED_ISO is a possibility, and has nonzero costs to the scheduler.
-
-- CKRM is another possibility, and has nonzero costs as well, but solves
-  a wider range of problems.
-
-- negative nice levels are the easiest shortterm solution and have zero
-  cost. They have some disadvantages though.
-
-I'm not 'against' SCHED_ISO at all:
-
-  http://lkml.org/lkml/2004/11/2/114
-
-> Being less entangled with SCHED_NORMAL makes me worry less about
-> someone coming along later and messing it up while working on some
-> unrelated problem. [...]
-
-i think the real situation is somewhat the opposite: we much more often
-broke RT scheduling than SCHED_NORMAL scheduling. RT scheduling is
-rarely used, while SCHED_NORMAL (and negative/positive nice levels) are
-used much more often than e.g. SCHED_FIFO or SCHED_RR.
-
-> [...] Right now for example, mounting an encrypted filesystem starts a
-> `loop0' kernel thread at nice -20.
-
-this is not really a problem - there are other kernel subsystems that
-start RT-priority kernel threads. We could easily move such threads to
-the common nice -10 priority level or so.
-
-	Ingo
-
---- linux/kernel/sched.c.orig
-+++ linux/kernel/sched.c
-@@ -2245,10 +2245,10 @@ EXPORT_PER_CPU_SYMBOL(kstat);
-  * if a better static_prio task has expired:
-  */
- #define EXPIRED_STARVING(rq) \
--	((STARVATION_LIMIT && ((rq)->expired_timestamp && \
-+	((task_nice(current) >= -15) && ((STARVATION_LIMIT && ((rq)->expired_timestamp && \
- 		(jiffies - (rq)->expired_timestamp >= \
- 			STARVATION_LIMIT * ((rq)->nr_running) + 1))) || \
--			((rq)->curr->static_prio > (rq)->best_expired_prio))
-+			((rq)->curr->static_prio > (rq)->best_expired_prio)))
- 
- /*
-  * Do the virtual cpu time signal calculations.
-@@ -3328,12 +3328,16 @@ static inline task_t *find_process_by_pi
- static void __setscheduler(struct task_struct *p, int policy, int prio)
- {
- 	BUG_ON(p->array);
-+	if (policy == SCHED_NORMAL) {
-+		p->policy = SCHED_NORMAL;
-+		p->rt_priority = 0;
-+		p->static_prio = NICE_TO_PRIO(prio);
-+		p->prio = p->static_prio;
-+		return;
-+	}
- 	p->policy = policy;
- 	p->rt_priority = prio;
--	if (policy != SCHED_NORMAL)
--		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
--	else
--		p->prio = p->static_prio;
-+	p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
- }
- 
- /**
-@@ -3361,12 +3365,17 @@ recheck:
- 	/*
- 	 * Valid priorities for SCHED_FIFO and SCHED_RR are
- 	 * 1..MAX_USER_RT_PRIO-1, valid priority for SCHED_NORMAL is 0.
-+	 *
-+	 * Hack: allow SCHED_OTHER with nice levels of -20 ... +19
- 	 */
--	if (param->sched_priority < 0 ||
--	    param->sched_priority > MAX_USER_RT_PRIO-1)
--		return -EINVAL;
--	if ((policy == SCHED_NORMAL) != (param->sched_priority == 0))
--		return -EINVAL;
-+	if (policy != SCHED_NORMAL) {
-+		if (param->sched_priority < 0 ||
-+		    param->sched_priority > MAX_USER_RT_PRIO-1)
-+			return -EINVAL;
-+	} else {
-+		if (param->sched_priority < -20 || param->sched_priority > 19)
-+			return -EINVAL;
-+	}
- 
- 	if ((policy == SCHED_FIFO || policy == SCHED_RR) &&
- 	    !capable(CAP_SYS_NICE))
+Group 0: (Blocks 0-32767)
+  Primary superblock at 0, Group descriptors at 1-1
+  Block bitmap at 464 (+464), Inode bitmap at 465 (+465)
+  Inode table at 4-463 (+4)
+  24101 free blocks, 14708 free inodes, 1 directories
+  Free blocks: 3, 8667-20480, 20482-32767
+  Free inodes: 11, 13, 15-14720
+Group 1: (Blocks 32768-65535)
+  Backup superblock at 32768, Group descriptors at 32769-32769
+  Block bitmap at 33264 (+496), Inode bitmap at 33265 (+497)
+  Inode table at 32772-33231 (+4)
+  32303 free blocks, 14719 free inodes, 1 directories
+  Free blocks: 32770-32771, 33232-33263, 33266-55295, 55297-65535
+  Free inodes: 14722-29440
+Group 2: (Blocks 65536-98303)
+  Block bitmap at 66064 (+528), Inode bitmap at 66065 (+529)
+  Inode table at 65540-65999 (+4)
+  34308 free blocks, 14720 free inodes, 0 directories
+  Free blocks: 65536-65539, 66000-66063, 66066-98303
+  Free inodes: 29441-44160
+Group 3: (Blocks 98304-131071)
+  Backup superblock at 98304, Group descriptors at 98305-98305
+  Block bitmap at 98864 (+560), Inode bitmap at 98865 (+561)
+  Inode table at 98308-98767 (+4)
+  32303 free blocks, 14718 free inodes, 1 directories
+  Free blocks: 98306-98307, 98768-98863, 98866-129023, 129025-131071
+  Free inodes: 44162-44163, 44165-58880
+Group 4: (Blocks 131072-163839)
+  Block bitmap at 131664 (+592), Inode bitmap at 131665 (+593)
+  Inode table at 131076-131535 (+4)
+  32305 free blocks, 14719 free inodes, 1 directories
+  Free blocks: 131073-131075, 131536-131663, 131666-163839
+  Free inodes: 58882-73600
+Group 5: (Blocks 163840-196607)
+  Backup superblock at 163840, Group descriptors at 163841-163841
+  Block bitmap at 164464 (+624), Inode bitmap at 164465 (+625)
+  Inode table at 163844-164303 (+4)
+  32304 free blocks, 14720 free inodes, 0 directories
+  Free blocks: 163842-163843, 164304-164463, 164466-196607
+  Free inodes: 73601-88320
+Group 6: (Blocks 196608-229375)
+  Block bitmap at 197264 (+656), Inode bitmap at 197265 (+657)
+  Inode table at 196612-197071 (+4)
+  45805 free blocks, 14720 free inodes, 0 directories
+  Free blocks: 196608-196611, 197072-197263, 197266-229375
+  Free inodes: 88321-103040
+Group 7: (Blocks 229376-262143)
+  Backup superblock at 229376, Group descriptors at 229377-229377
+  Block bitmap at 230064 (+688), Inode bitmap at 230065 (+689)
+  Inode table at 229380-229839 (+4)
+  32304 free blocks, 14720 free inodes, 0 directories
+  Free blocks: 229378-229379, 229840-230063, 230066-262143
+  Free inodes: 103041-117760
+Group 8: (Blocks 262144-264959)
+  Block bitmap at 262864 (+720), Inode bitmap at 262865 (+721)
+  Inode table at 262148-262607 (+4)
+  14741 free blocks, 14720 free inodes, 0 directories
+  Free blocks: 262144-262147, 262608-262863, 262866-264959
+  Free inodes: 117761-132480
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

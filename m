@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266392AbTGEQWR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 12:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266394AbTGEQWR
+	id S266399AbTGEQYM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 12:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266400AbTGEQYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 12:22:17 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:41700
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S266392AbTGEQWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 12:22:13 -0400
-Date: Sat, 5 Jul 2003 18:36:35 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: Status of the IO scheduler fixes for 2.4
-Message-ID: <20030705163635.GH23578@dualathlon.random>
-References: <Pine.LNX.4.55L.0307021923260.12077@freak.distro.conectiva> <Pine.LNX.4.55L.0307021927370.12077@freak.distro.conectiva> <1057197726.20903.1011.camel@tiny.suse.com> <Pine.LNX.4.55L.0307041639020.7389@freak.distro.conectiva> <20030705000016.GB23578@dualathlon.random> <Pine.LNX.4.55L.0307051257420.13074@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0307051257420.13074@freak.distro.conectiva>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Sat, 5 Jul 2003 12:24:12 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:11651
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S266399AbTGEQYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 12:24:06 -0400
+Date: Sat, 5 Jul 2003 17:37:22 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307051637.h65GbM9Z011595@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: PATCH: make i810 audio compile
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 05, 2003 at 12:59:19PM -0300, Marcelo Tosatti wrote:
-> 
-> On Sat, 5 Jul 2003, Andrea Arcangeli wrote:
-> 
-> > On Fri, Jul 04, 2003 at 05:01:54PM -0300, Marcelo Tosatti wrote:
-> > > release today), then fix pausing in -pre4. If the IO fairness still doesnt
-> >
-> > fix pausing is a showstopper bugfix, the box will hang for days without
-> > it.
-> >
-> > lowlatency elevator is for the desktop complains we get about
-> > interactivity compared to 2.5, so it's much lower prio than fix pausing.
-> > I would never merge fix pausing after lowlatency elevator. But that's
-> > just me.
-> 
-> You're right. I'll merge both patches in -pre3.
 
-agreed, thanks.
+This one still oopses when you unload it but thats a known bug with a known
+fix I need to merge later
 
-> Danke
-
-prego ;)
-
-Andrea
+diff --exclude-from /usr/src/exclude -u --recursive linux.22-bk2/drivers/sound/i810_audio.c linux.22-pre2-ac1/drivers/sound/i810_audio.c
+--- linux.22-bk2/drivers/sound/i810_audio.c	2003-07-05 17:01:44.000000000 +0100
++++ linux.22-pre2-ac1/drivers/sound/i810_audio.c	2003-06-29 16:10:11.000000000 +0100
+@@ -118,6 +118,9 @@
+ #ifndef PCI_DEVICE_ID_INTEL_ICH4
+ #define PCI_DEVICE_ID_INTEL_ICH4	0x24c5
+ #endif
++#ifndef PCI_DEVICE_ID_INTEL_ICH5
++#define PCI_DEVICE_ID_INTEL_ICH5	0x24d5
++#endif
+ #ifndef PCI_DEVICE_ID_INTEL_440MX
+ #define PCI_DEVICE_ID_INTEL_440MX	0x7195
+ #endif
+@@ -273,6 +276,7 @@
+ 	INTELICH2,
+ 	INTELICH3,
+ 	INTELICH4,
++	INTELICH5,
+ 	SI7012,
+ 	NVIDIA_NFORCE,
+ 	AMD768,
+@@ -286,6 +290,7 @@
+ 	"Intel ICH2",
+ 	"Intel ICH3",
+ 	"Intel ICH4",
++	"Intel ICH5",
+ 	"SiS 7012",
+ 	"NVIDIA nForce Audio",
+ 	"AMD 768",
+@@ -304,7 +309,8 @@
+ 	{  1, 0x0000 }, /* INTEL440MX */
+ 	{  1, 0x0000 }, /* INTELICH2 */
+ 	{  2, 0x0000 }, /* INTELICH3 */
+-        {  3, 0x0003 }, /* INTELICH4 */
++ 	{  3, 0x0003 }, /* INTELICH4 */
++	{  3, 0x0003 }, /* INTELICH5 */
+ 	/*@FIXME to be verified*/	{  2, 0x0000 }, /* SI7012 */
+ 	/*@FIXME to be verified*/	{  2, 0x0000 }, /* NVIDIA_NFORCE */
+ 	/*@FIXME to be verified*/	{  2, 0x0000 }, /* AMD768 */
+@@ -324,6 +330,8 @@
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH3},
+ 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH4,
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH4},
++	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH5,
++	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH5},
+ 	{PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_7012,
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, SI7012},
+ 	{PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_MCP1_AUDIO,

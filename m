@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVCOFst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262269AbVCOFwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbVCOFst (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 00:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVCOFst
+	id S262269AbVCOFwH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 00:52:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVCOFwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 00:48:49 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:47594 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262272AbVCOFsb (ORCPT
+	Tue, 15 Mar 2005 00:52:06 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:20166 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262269AbVCOFvn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 00:48:31 -0500
-Subject: Re: [Fastboot] Re: Query: Kdump: Core Image ELF Format
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, gdb <gdb@sources.redhat.com>,
-       Dave Anderson <anderson@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>, fastboot <fastboot@lists.osdl.org>
-In-Reply-To: <m1br9skn0b.fsf@ebiederm.dsl.xmission.com>
-References: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
-	 <m1br9um313.fsf@ebiederm.dsl.xmission.com>
-	 <1110350629.31878.7.camel@wks126478wss.in.ibm.com>
-	 <m1ll8wlx82.fsf@ebiederm.dsl.xmission.com>
-	 <1110430955.3574.11.camel@wks126478wss.in.ibm.com>
-	 <m1br9skn0b.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Tue, 15 Mar 2005 11:19:47 +0530
-Message-Id: <1110865787.3576.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Mar 2005 00:51:43 -0500
+Date: Mon, 14 Mar 2005 21:50:13 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andrew Morton <akpm@osdl.org>
+cc: nikita@clusterfs.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] mm counter operations through macros
+In-Reply-To: <20050314214506.050efadf.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0503142148510.16812@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503110422150.19280@schroedinger.engr.sgi.com>
+ <20050311182500.GA4185@redhat.com> <Pine.LNX.4.58.0503111103200.22240@schroedinger.engr.sgi.com>
+ <16946.62799.737502.923025@gargle.gargle.HOWL>
+ <Pine.LNX.4.58.0503142103090.16582@schroedinger.engr.sgi.com>
+ <20050314214506.050efadf.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-09 at 23:56 -0700, Eric W. Biederman wrote:
-> Vivek Goyal <vgoyal@in.ibm.com> writes:
-> 
-> > I want to fill the virtual addresses of linearly mapped region. That is
-> > physical addresses from 0 to MAXMEM (896 MB) are mapped by kernel at
-> > virtual addresses PAGE_OFFSET to (PAGE_OFFSET + MAXMEM). Values of
-> > PAGE_OFFSET and MAXMEM are already known and hard-coded.
-> 
-> PAGE_OFFSET has a common value of 0xc0000000, on x86.  However
-> that value is by no means fixed.  The 4G/4G split changes it
-> as do some other patches floating around at the time.
-> On x86-64 I don't know how stable those kinds of offsets are.
+On Mon, 14 Mar 2005, Andrew Morton wrote:
 
-Agreed. Then how about, exporting this information to user space.
-Probably through sysfs. May be the range of linearly mapped region can
-be exported. (PAGE_OFFSET to (PAGE_OFFSET + x)).
+> I don't think the MM_COUNTER_T macro adds much, really.  How about this?
 
->  
-> > I think I used the terminology kernel virtual address and that is adding
-> > to the confusion. Kernel virtual addresses are not necessarily linearly
-> > mapped. What I meant was kernel logical addresses whose associated
-> > physical addresses differ only by a constant offset.
-> 
-> I know what you meant.  I simply meant that things don't look that
-> constant to me.  Especially in Linux where there are enough people
-> to try most of the reasonable possibilities.
-> 
-> I don't even think it is a bad idea.  But I do think we have a different
-> idea of what is constant.
-> 
-> Eric
-> 
+Then you wont be able to get rid of the counters by
 
+#define MM_COUNTER(xx)
+
+anymore.
+
+>
+> --- 25/include/linux/sched.h~mm-counter-operations-through-macros-tidy	2005-03-14 21:43:00.000000000 -0800
+> +++ 25-akpm/include/linux/sched.h	2005-03-14 21:43:00.000000000 -0800
+> @@ -210,7 +210,6 @@ extern void arch_unmap_area_topdown(stru
+>  #define inc_mm_counter(mm, member) (mm)->_##member++
+>  #define dec_mm_counter(mm, member) (mm)->_##member--
+>  typedef unsigned long mm_counter_t;
+> -#define MM_COUNTER_T(member) mm_counter_t _##member
+>
+>  struct mm_struct {
+>  	struct vm_area_struct * mmap;		/* list of VMAs */
+> @@ -241,8 +240,8 @@ struct mm_struct {
+>  	unsigned long exec_vm, stack_vm, reserved_vm, def_flags, nr_ptes;
+>
+>  	/* Special counters protected by the page_table_lock */
+> -	MM_COUNTER_T(rss);
+> -	MM_COUNTER_T(anon_rss);
+> +	mm_counter_t _rss;
+> +	mm_counter_t _anon_rss;
+>
+>  	unsigned long saved_auxv[42]; /* for /proc/PID/auxv */
+>
+> _
+>
+>

@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132373AbRCZHXV>; Mon, 26 Mar 2001 02:23:21 -0500
+	id <S132362AbRCZH3v>; Mon, 26 Mar 2001 02:29:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132372AbRCZHXM>; Mon, 26 Mar 2001 02:23:12 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:50962 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S132371AbRCZHWy>; Mon, 26 Mar 2001 02:22:54 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15038.60956.18563.327332@wire.cadcamlab.org>
-Date: Mon, 26 Mar 2001 01:22:04 -0600 (CST)
-To: Eric Raymond <esr@snark.thyrsus.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+	id <S132360AbRCZH3l>; Mon, 26 Mar 2001 02:29:41 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:25357 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S132371AbRCZH3b>;
+	Mon, 26 Mar 2001 02:29:31 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: esr@thyrsus.com
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org,
         kbuild-devel@lists.sourceforge.net
-Subject: Re: CML1 cleanup patch
-In-Reply-To: <200103260001.f2Q01Yt09387@snark.thyrsus.com>
-	<15038.56527.591553.87791@wire.cadcamlab.org>
-	<3ABEE0B5.12A2F768@mandrakesoft.com>
-	<20010326014913.B11181@thyrsus.com>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+Subject: Re: [kbuild-devel] Re: CML1 cleanup patch 
+In-Reply-To: Your message of "Mon, 26 Mar 2001 02:09:02 EST."
+             <20010326020902.C11181@thyrsus.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 26 Mar 2001 17:28:44 +1000
+Message-ID: <23860.985591724@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 26 Mar 2001 02:09:02 -0500, 
+"Eric S. Raymond" <esr@thyrsus.com> wrote:
+>Jeff Garzik <jgarzik@mandrakesoft.com>:
+>> If we are moving to CML2 in 2.5, I see no point in big CML1 cleanups.
+>
+>Yes, I know, that's what I said about Peter's DERIVED patch a week ago.
 
-  [Jeff Garzik]
-> > It stays "8139too".  Donald Becker's rtl8139.c continues to exist
-> > outside the kernel.
+Hey, that was my DERIVED patch, not Peter's.  Point the blame where it
+is due, even I think that my patch was a bad idea.  -ENOTENOUGHCOFFEE.
 
-Honestly, Jeff, I don't see how it matters -- because if you are
-downloading an external driver, you are not going through the config
-system anyway.
+The 20 cris variables must be renamed to CONFIG_xxx, otherwise make dep
+will not find them and config changes will only cause partial
+recompiles - or do the cris people like inconsistent kernels?
 
-But ... "maintanicus selector est" (my pseudo-Latin for "the maintainer
-gets to choose") so I support your stand.
+Correcting the two old names is obviously the right thing to do.
 
-[esr]
-> Now, wait, Jeff.  I'm not attached to Peter's change, but I don't
-> think we can reasonably be expected to worry about every possible
-> driver left over from every old version of Linux when managing the
-> configuration-symbol namespace.  That way madness lies.
+That just leaves the 17 names of the form CONFIG_[0-9]*.  Only the 8139
+is likely to affect outside the kernel and the argument that renaming
+config options might affect external packages does not hold.  The
+recent aic7xxx change broke pcmcia on 2.2 kernels but we can work round
+it.
 
-Eric, the issue arose because you are obliquely proposing -- nay,
-insisting on -- a policy change.  CONFIG_8139TOO is a perfectly valid
-preprocessor token and a perfectly valid GNU Make macro name.  It
-corresponds with a source file '8139too.c' which is also perfectly
-valid.
-
-Did it never occur to you that by insisting on a policy change (and
-related code changes), with no discussion, consensus or mandate, and
-which fixes no current bugs ... that a few toes may feel stepped on?
-
-The burden of proof is yours.  Why should a CML2 design decision
-(stripping of CONFIG_ in the configuration files) change what seems to
-be an entirely reasonable policy?  Especially since there are multiple
-ways, which you have rejected, to work around the lexical problem in
-CML2 itself?
-
-Peter

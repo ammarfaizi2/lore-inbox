@@ -1,52 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267589AbUIJQbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267585AbUIJQbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267589AbUIJQbq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 12:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267548AbUIJQaX
+	id S267585AbUIJQbp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 12:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267599AbUIJQad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 12:30:23 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:51901 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S267557AbUIJQZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 12:25:40 -0400
-Date: Fri, 10 Sep 2004 11:25:28 -0500
-From: Greg Edwards <edwardsg@sgi.com>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com
-Subject: Re: 2.6.8.1-mm3 lockmeter on 512p w/kernbench
-Message-ID: <20040910162527.GA27541@sgi.com>
-References: <20040820031919.413d0a95.akpm@osdl.org> <200408201144.49522.jbarnes@engr.sgi.com> <200408201404.32515.jbarnes@engr.sgi.com>
+	Fri, 10 Sep 2004 12:30:33 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26531 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267582AbUIJQ2B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 12:28:01 -0400
+Date: Fri, 10 Sep 2004 17:27:56 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: John Cherry <cherry@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IA32 (2.6.9-rc1 - 2004-09-09.21.30) - 2 New warnings (gcc 3.2.2)
+Message-ID: <20040910162756.GO23987@parcelfarce.linux.theplanet.co.uk>
+References: <200409101418.i8AEIjjJ020039@cherrypit.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408201404.32515.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200409101418.i8AEIjjJ020039@cherrypit.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 02:04:32PM -0400, Jesse Barnes wrote:
-| More lockstats.  dcache is obviously still there, but for some reason the rcu 
-| stuff is gone (I didn't apply Manfred's patches).  I must have done some 
-| stuff prior to collecting the lockstat data last time that caused it.
+On Fri, Sep 10, 2004 at 07:18:45AM -0700, John Cherry wrote:
+> drivers/net/tulip/dmfe.c:1808: warning: passing arg 1 of `__le16_to_cpup' from incompatible pointer type
+> drivers/net/tulip/dmfe.c:1820: warning: passing arg 1 of `__le32_to_cpup' from incompatible pointer type
 
-...[snip]...
-
-| SPINLOCKS         HOLD            WAIT
-|   UTIL  CON    MEAN(  MAX )   MEAN(  MAX )(% CPU)     TOTAL NOWAIT SPIN RJECT  NAME
-| 
-|         3.1%  2.2us( 102ms)   12ms( 488ms)(35.1%) 320195677 96.9%  3.1% 0.00%  *TOTAL*
-
-...[snip]...
-
-|  31.2% 95.2%   71us(  10ms)   37ms( 146ms)(30.2%)   2828650  4.8% 95.2%    0%  rcu_check_quiescent_state+0xf0
-
-Looks like the RCU contention is still there.
-
-I ran some bench marks at 512p on a 2.6.5 SUSE kernel with and without
-Manfred's patches 4 and 5 added (the SUSE kernel already has the 3
-accepted RCU patches), and the results were very promising.  I think
-we'll want to pursue getting these other two RCU patches accepted.
-
-I'll to get some lockmeter numbers on a latest -mm kernel next week.
-
-Greg
+Real alignment bugs, BTW.  The first one happens to be OK, but line 1820 is
+guaranteed to be misaligned (32bit reads on addresses that differ by 2, so
+at least one is guaranteed to fsck up).  The value we are calculating there
+looks bogus, while we are at it...

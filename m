@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131104AbRAFPo1>; Sat, 6 Jan 2001 10:44:27 -0500
+	id <S130271AbRAFPrh>; Sat, 6 Jan 2001 10:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132116AbRAFPoR>; Sat, 6 Jan 2001 10:44:17 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12811 "EHLO
+	id <S131983AbRAFPrR>; Sat, 6 Jan 2001 10:47:17 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14859 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131104AbRAFPoB>; Sat, 6 Jan 2001 10:44:01 -0500
-Subject: Re: APIC-ERROR-Messages -
-To: nbreun@gmx.de
-Date: Sat, 6 Jan 2001 15:46:00 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01010611131600.08129@nmb> from "Norbert Breun" at Jan 06, 2001 11:13:16 AM
+	id <S131350AbRAFPrM>; Sat, 6 Jan 2001 10:47:12 -0500
+Subject: Re: Network Performance?
+To: andrewm@uow.edu.au (Andrew Morton)
+Date: Sat, 6 Jan 2001 15:48:29 +0000 (GMT)
+Cc: sailer@bnl.gov (Tim Sailer), linux-kernel@vger.kernel.org
+In-Reply-To: <3A56FD6C.93D09ABB@uow.edu.au> from "Andrew Morton" at Jan 06, 2001 10:11:40 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14EvXe-0001C5-00@the-village.bc.nu>
+Message-Id: <E14Eva3-0001CQ-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> as far as I understood my smp-board seem not well designed - so I get APIC 
-> error messages nearly every 1-3 seconds. These mmessages do not help me 
-> because -so I was told - it is not possible to fix the problem.
+> The conclusion was "The problem is also fixed with
+> 2.4.0-test12pre3". Dunno about kernel 2.2 though.
 
-They are a warning that your box isnt going to be happy long term.; Eventually
-a bad message will get through with a good checksum. There was a panic case in
-the code when messages got reset that is fixed in 2.4.0-preleease
-
-> Is it possible to eliminate these error messages. My logfiles grow enormously 
-> and are "trashed" with these messages...
-
-You can certainly comment the printk's out of your own tree
-
-
+DaveM sent me a patch to address the problem its in 2.2.19pre3
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

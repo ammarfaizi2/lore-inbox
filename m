@@ -1,30 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130388AbRCWJaU>; Fri, 23 Mar 2001 04:30:20 -0500
+	id <S130433AbRCWJbu>; Fri, 23 Mar 2001 04:31:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130433AbRCWJaK>; Fri, 23 Mar 2001 04:30:10 -0500
-Received: from [212.115.175.146] ([212.115.175.146]:1781 "EHLO
-	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
-	id <S130388AbRCWJaF>; Fri, 23 Mar 2001 04:30:05 -0500
-Message-ID: <27525795B28BD311B28D00500481B7601F107E@ftrs1.intranet.ftr.nl>
-From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
-To: Rik van Riel <riel@conectiva.com.br>, Tom Kondilis <tomk@plaza.ds.adp.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] Prevent OOM from killing init
-Date: Fri, 23 Mar 2001 10:28:50 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S130434AbRCWJbk>; Fri, 23 Mar 2001 04:31:40 -0500
+Received: from t2.redhat.com ([199.183.24.243]:13815 "EHLO
+	meme.surrey.redhat.com") by vger.kernel.org with ESMTP
+	id <S130433AbRCWJb3>; Fri, 23 Mar 2001 04:31:29 -0500
+Date: Fri, 23 Mar 2001 09:29:57 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] gcc-3.0 warnings
+Message-ID: <20010323092957.F1469@redhat.com>
+In-Reply-To: <20010323011140.A1176@werewolf.able.es> <E14gFRT-0003f4-00@the-village.bc.nu> <20010323013800.A1918@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010323013800.A1918@werewolf.able.es>; from jamagallon@able.es on Fri, Mar 23, 2001 at 01:38:00AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's not the OOM killer however, but init dying because it
-> couldn't get the memory it needed to satisfy a page fault or
-> somesuch...
+On Fri, Mar 23, 2001 at 01:38:00AM +0100, J . A . Magallon wrote:
 
-Ehrm, I would like to re-state that it still would be nice if
-some mechanism got introduced which enables one to set certain
-processes to "cannot be killed".
-For example: I would hate it it the UPS monitoring daemon got
-killed for obvious reasons :o)
+> Yes, a null sentence can shut up the compiler. But what is the purpose of
+> a jump to the end instead of a return ? Some optimization ?
+
+So that when someone decides that the function needs to do some extra
+initialisation at the beginning and some extra cleanup at the end,
+they don't accidentally miss an exit point.
+
+Tim.
+*/

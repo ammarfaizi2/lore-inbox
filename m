@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbULGLqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbULGMJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbULGLqs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 06:46:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbULGLqr
+	id S261793AbULGMJk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 07:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbULGMJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 06:46:47 -0500
-Received: from gprs214-197.eurotel.cz ([160.218.214.197]:31616 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261794AbULGLqb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 06:46:31 -0500
-Date: Tue, 7 Dec 2004 12:46:15 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] Add support to resume swsusp from initrd
-Message-ID: <20041207114615.GA1356@elf.ucw.cz>
-References: <1102279686.9384.22.camel@tyrosine> <20041205211823.GD1012@elf.ucw.cz> <1102374924.13483.9.camel@tyrosine> <20041207094439.GC1469@elf.ucw.cz> <1102419597.13483.33.camel@tyrosine>
+	Tue, 7 Dec 2004 07:09:39 -0500
+Received: from mail.timesys.com ([65.117.135.102]:28992 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S261793AbULGMJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 07:09:38 -0500
+Subject: Re: Second Attempt: Driver model usage on embedded processors
+From: Jason McMullan <jason.mcmullan@timesys.com>
+To: Kumar Gala <kumar.gala@freescale.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/PPC Development <linuxppc-dev@ozlabs.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk,
+       Embedded PPC Linux list <linuxppc-embedded@ozlabs.org>
+In-Reply-To: <48C50EC3-480D-11D9-8A5A-000393DBC2E8@freescale.com>
+References: <48C50EC3-480D-11D9-8A5A-000393DBC2E8@freescale.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 07 Dec 2004 07:09:37 -0500
+Message-Id: <1102421377.6162.8.camel@jmcmullan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1102419597.13483.33.camel@tyrosine>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Evolution 2.0.1-1mdk 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 2004-12-06 at 23:03 -0600, Kumar Gala wrote:
+> The intent was that I would use the platform_data pointer to pass board 
+> specific information to the driver.  We would have board specific code 
+> which would fill in the information.  The question I have is how to 
+> handle the device variant information which is really static?
 
-> > > -
-> > > +extern dev_t swsusp_resume_device;
-> > >  
-> > >  static int noresume = 0;
-> > >  char resume_file[256] = CONFIG_PM_STD_PARTITION;
-> > 
-> > Move it to include/linux/suspend.h
-> 
-> swsusp_resume_device? Ok.
+I use a 'struct device_ethernet_data' in my MPC85xx platform-device
+patches at http://www.evillabs.net/~gus/patches
 
-Yes.
+That seems to work well, and we could move it from
+include/asm-ppc/device-ethernet.h to include/linux/device-ethernet.h to
+make it more arch-independant. That covers MAC addrs and phy locations.
 
-> > > +        p = memchr(buf, '\n', n);
-> > > +        len = p ? p - buf : n;
-> > > +
-> > > +        if (sscanf(buf, "%u:%u", &maj, &min) == 2) {
-> > > +                res = MKDEV(maj, min);
-> > > +                if (maj == MAJOR(res) && min == MINOR(res)) {
-> > 
-> > You mkdev, than test that MKDEV worked? Could you add a comment why
-> > its needed?
-> 
-> That's just cut and pasted from name_to_dev_t - I assumed there was some
-> subtlety going on there.
+As for PHY IRQ, that's a thornier issue. For now, I put that in the
+ethernet device's resource list.
 
-Ok, maybe there's some subtlety ;-). If someone knows, please
-comment...
-								Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Jason McMullan <jason.mcmullan@timesys.com>

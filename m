@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262226AbSJATN0>; Tue, 1 Oct 2002 15:13:26 -0400
+	id <S262859AbSJASPF>; Tue, 1 Oct 2002 14:15:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261994AbSJATNL>; Tue, 1 Oct 2002 15:13:11 -0400
-Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:14210 "EHLO
-	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S262128AbSJATMp>; Tue, 1 Oct 2002 15:12:45 -0400
-Date: Tue, 1 Oct 2002 12:17:56 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Meelis Roos <mroos@linux.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PPC: more config dependency problems
-Message-ID: <20021001191756.GA705@opus.bloom.county>
-References: <Pine.GSO.4.44.0209270914210.6491-100000@math.ut.ee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0209270914210.6491-100000@math.ut.ee>
-User-Agent: Mutt/1.4i
+	id <S262860AbSJASPF>; Tue, 1 Oct 2002 14:15:05 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:26788 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S262859AbSJASPD>; Tue, 1 Oct 2002 14:15:03 -0400
+Date: Tue, 1 Oct 2002 15:20:11 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Andrew Morton <akpm@digeo.com>
+Cc: Daniel Phillips <phillips@arcor.de>,
+       Lorenzo Allegrucci <l.allegrucci@tiscalinet.it>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: qsbench, interesting results
+In-Reply-To: <3D99E3C5.E0F99E9E@digeo.com>
+Message-ID: <Pine.LNX.4.44L.0210011518000.653-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 09:19:54AM +0300, Meelis Roos wrote:
+On Tue, 1 Oct 2002, Andrew Morton wrote:
 
-> This time I compiled some modular IDE to get usb-storage to work.
-> Appears there are config dependency problems in IDE too - vmlinux
-> doesn't link (2.4.20-pre8). This is just FYI, I can probably find a
-> configuration that links.
-[snip]
-> CONFIG_BLK_DEV_IDE=m
-[snip]
-> CONFIG_BLK_DEV_IDE_PMAC=y
+> Problem is, it's cruel.  People don't notice that we shaved 15 seconds
+> off that three minute session of file bashing which they just did.
+> But they do notice that when they later wiggle their mouse, it takes
+> five seconds to pull the old stuff back in.
 
-Yes, this is a known invalid configuration.
+Yup, this is the big problem with VM ;)
 
+> The way I'd like to address that is with a "I know that's cool but I
+> don't like it" policy override knob.  But finding a sensible way of
+> doing that is taking some head-scratching.  Anything which says
+> "unmap pages much later" is doomed to failure I suspect.  It will
+> just increase latency when we really _do_ need to unmap, and will
+> cause weird OOM failures.
+
+FreeBSD fixes this in a fairly simple way.  It has a sysctl
+switch (vm_defer_pageouts IIRC) that can be toggled on and
+off.
+
+If the switch is off, the VM only reclaims swap backed pages
+if memory is really low and doesn't if it can keep enough
+free memory by only reclaiming file backed pages.
+
+regards,
+
+Rik
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+A: No.
+Q: Should I include quotations after my reply?
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264048AbUGFPuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264054AbUGFPzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264048AbUGFPuG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 11:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbUGFPuG
+	id S264054AbUGFPzY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 11:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbUGFPzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 11:50:06 -0400
-Received: from mailout1.samsung.com ([203.254.224.24]:23231 "EHLO
-	mailout1.samsung.com") by vger.kernel.org with ESMTP
-	id S264048AbUGFPt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 11:49:58 -0400
-Date: Wed, 07 Jul 2004 00:48:04 +0900
-From: "Hyok S. Choi" <hyok.choi@samsung.com>
-Subject: [PATCH] armnommu patch for 2.6.7 is available!
-To: linux-arm-kernel@lists.arm.linux.org.uk,
-       Linux-Kernel List <linux-kernel@vger.kernel.org>,
-       uClinux development list <uclinux-dev@uclinux.org>
-Message-id: <0I0F00F2RTB779@mmp1.samsung.com>
-Organization: Samsung Electronics Co.,Ltd.
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Thread-index: AcRjcJ/JtIdErBkxSA6yyjKze+7fmw==
+	Tue, 6 Jul 2004 11:55:23 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:42953 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S264054AbUGFPzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 11:55:17 -0400
+Message-ID: <40EACB64.2010503@comcast.net>
+Date: Tue, 06 Jul 2004 11:55:16 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthias Andree <matthias.andree@gmx.de>
+CC: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: post 2.6.7 BK change breaks Java?
+References: <20040705231131.GA5958@merlin.emma.line.org>
+In-Reply-To: <20040705231131.GA5958@merlin.emma.line.org>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Glad to introduce 2.6.7-hsc0 patch set, the armnommu support for linux-2.6.7
-kernel.
-Which means uClinux/ARM patch against 2.6.7 in alternative. You can find the
-patch at :
-http://opensrc.sec.samsung.com
-or directly,
-http://opensrc.sec.samsung.com/download/linux-2.6.7-hsc0.patch.gz
+The only thing I've seen kill java like that would be NX things, such as
+the NX patch mentioned in an earlier thread; execshield; or PaX.  I saw
+some talk about possibly enabling NX by default; but I don't see this in
+the -mm6 list, and I have no idea where the bk patch list is.  I
+wouldn't expect either Linus or Andrew to have decided to merge an NX
+patch in at this stage; but it's a possibility.
 
-It is generated against vanilla 2.6.7 kernel.
+Andrew?  Has anything like that been added in the bk tree?
 
-ChangeLog:
-   a. new platform (s3c4510b,ESPD) is supported, with 4510b specialized
-cache codes and ethernet driver.
-       by Curt Brune [curt@acm.org] (thanks!)
-   b. new platform (s3c44b0x) is supported, with 44b0x cache codes and
-rtl8019.
-       by Nickmit Zheng [nickmit_zheng@eastday.com] (thanks!)
-   c. merged with internal 2.6.6-hsc1 patch and several fixes for 2.6.7.
+Matthias Andree wrote:
+| Hi,
+|
+| I've pulled from the linux-2.6 BK tree some post-2.6.7 version, compiled
+| and installed it, and it breaks Java, standalone or plugged into
+| firefox, the symptom is that the application catches SIGKILL. This
+| didn't happen with stock 2.6.7 and doesn't happen with 2.6.6 either.
+|
+| Is there any particular change I should try backing out?
+|
+| TIA,
+|
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Best Regards,
-Hyok
-
-P.S. : armnommu architecture directory have been used for uClinux/ARM
-support, like m68knommu.
-     Some people suggest merging into arm architecture, and I have a part of
-the idea as my plan sent to RMK.
-     If anyone has a good idea to co-operate with arm and armnommu without
-maintaining trouble,
-     please let me know. :-)
-    
-
-<EOT>
-
-CHOI, HYOK-SUNG
-Engineer (Linux System Software)
-S/W Platform Lab, Digital Media R&D Center
-Samsung Electronics Co.,Ltd.
-tel: +82-31-200-8594  fax: +82-31-200-3427
-e-mail: hyok.choi@samsung.com <mailto:hyok.choi@samsung.com> 
-Linux 2.6 armnommu maintainer : http://opensrc.sec.samsung.com
-
-
- 
-
- 
-
-
+iD8DBQFA6stihDd4aOud5P8RAnSWAJsGGWL61RC+GIiKk083w6tN5minSQCfSzb4
+tstDqu+7FnIyeCSrfSBPrS8=
+=pOq9
+-----END PGP SIGNATURE-----

@@ -1,95 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266236AbSKGAS1>; Wed, 6 Nov 2002 19:18:27 -0500
+	id <S266243AbSKGAYF>; Wed, 6 Nov 2002 19:24:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266237AbSKGAS1>; Wed, 6 Nov 2002 19:18:27 -0500
-Received: from packet.digeo.com ([12.110.80.53]:56530 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266236AbSKGAS0>;
-	Wed, 6 Nov 2002 19:18:26 -0500
-Message-ID: <3DC9B2D9.1081249C@digeo.com>
-Date: Wed, 06 Nov 2002 16:24:57 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Maciej Babinski <maciej@imsa.edu>, Jens Axboe <axboe@suse.de>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.46 ext3 errors
-References: <20021106075406.GC1137@suse.de> <20021106175542.A8364@imsa.edu>
+	id <S266244AbSKGAYF>; Wed, 6 Nov 2002 19:24:05 -0500
+Received: from pop015pub.verizon.net ([206.46.170.172]:7876 "EHLO
+	pop015.verizon.net") by vger.kernel.org with ESMTP
+	id <S266243AbSKGAYE>; Wed, 6 Nov 2002 19:24:04 -0500
+Message-Id: <200211070028.gA70SMDv000402@pool-141-150-241-241.delv.east.verizon.net>
+Date: Wed, 6 Nov 2002 19:28:20 -0500
+From: Skip Ford <skip.ford@verizon.net>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Kernel List <linux-kernel@vger.kernel.org>, dcl_info@osdl.org,
+       dcl_discussion@osdl.org, dev@osdl.org
+Subject: Re: [ANNOUNCE] linux-2.5.46-dcl1
+References: <1036626404.20740.169.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Nov 2002 00:24:58.0206 (UTC) FILETIME=[1A7317E0:01C285F4]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1036626404.20740.169.camel@dell_ss3.pdx.osdl.net>; from shemminger@osdl.org on Wed, Nov 06, 2002 at 03:46:44PM -0800
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop015.verizon.net from [141.150.241.241] at Wed, 6 Nov 2002 18:30:38 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Babinski wrote:
+Stephen Hemminger wrote:
+> The latest release is available on SourceForge 
+>    http://sourceforge.net/projects/osdldcl 
 > 
-> I got this same error while running "seq 1000000|xargs touch"
-> in an otherwise empty directory. It got as far as about 20,000
-> files before the filesystem was remounted ro.
-> 
+> Linux 2.5.46-dcl1
+>  * Update to Linux Trace Toolkit (LTT)		(Karim Yaghmour)
 
-Looks like we had some overeager cut-n-paste in the Orlov
-conversion.
+Why did you change the LTT syscall number for no good reason?  The tools
+have to be recompiled to use it.  You could've left it 258 and just
+added posix clocks after it.
 
-The per-blockgroup inode and directory accounting is being
-double-accounted for, and we're not journalling the updates...
-
-This should fix it up, but it is untested.
-
-
---- 25/fs/ext3/ialloc.c~ext3-inodes-count-fix	Wed Nov  6 16:16:55 2002
-+++ 25-akpm/fs/ext3/ialloc.c	Wed Nov  6 16:24:20 2002
-@@ -227,11 +227,6 @@ static int find_group_dir(struct super_b
- 	}
- 	if (!best_desc)
- 		return -1;
--	best_desc->bg_free_inodes_count =
--		cpu_to_le16(le16_to_cpu(best_desc->bg_free_inodes_count) - 1);
--	best_desc->bg_used_dirs_count =
--		cpu_to_le16(le16_to_cpu(best_desc->bg_used_dirs_count) + 1);
--	mark_buffer_dirty(best_bh);
- 	return best_group;
- }
- 
-@@ -355,14 +350,7 @@ fallback:
- 	}
- 
- 	return -1;
--
- found:
--	desc->bg_free_inodes_count =
--		cpu_to_le16(le16_to_cpu(desc->bg_free_inodes_count) - 1);
--	desc->bg_used_dirs_count =
--		cpu_to_le16(le16_to_cpu(desc->bg_used_dirs_count) + 1);
--	sbi->s_dir_count++;
--	mark_buffer_dirty(bh);
- 	return group;
- }
- 
-@@ -410,9 +398,6 @@ static int find_group_other(struct super
- 	return -1;
- 
- found:
--	desc->bg_free_inodes_count =
--		cpu_to_le16(le16_to_cpu(desc->bg_free_inodes_count) - 1);
--	mark_buffer_dirty(bh);
- 	return group;
- }
- 
-@@ -521,9 +506,11 @@ repeat:
- 	if (err) goto fail;
- 	gdp->bg_free_inodes_count =
- 		cpu_to_le16(le16_to_cpu(gdp->bg_free_inodes_count) - 1);
--	if (S_ISDIR(mode))
-+	if (S_ISDIR(mode)) {
- 		gdp->bg_used_dirs_count =
- 			cpu_to_le16(le16_to_cpu(gdp->bg_used_dirs_count) + 1);
-+		EXT3_SB(sb)->s_dir_count++;
-+	}
- 	BUFFER_TRACE(bh2, "call ext3_journal_dirty_metadata");
- 	err = ext3_journal_dirty_metadata(handle, bh2);
- 	if (err) goto fail;
-
-_
+-- 
+Skip

@@ -1,72 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262656AbVAEXYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbVAEX2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262656AbVAEXYy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 18:24:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVAEXYm
+	id S262665AbVAEX2j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 18:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVAEX2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 18:24:42 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:35816 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262656AbVAEXW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 18:22:56 -0500
-Message-ID: <41DC76C0.20408@intel.com>
-Date: Wed, 05 Jan 2005 15:22:40 -0800
-From: Arun Sharma <arun.sharma@intel.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: mingo@redhat.com
-Subject: [PATCH] Remove unnecessary #GP after flush_thread()
-Content-Type: multipart/mixed;
- boundary="------------020701050906020601080503"
+	Wed, 5 Jan 2005 18:28:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:61572 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262663AbVAEX0q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 18:26:46 -0500
+Date: Wed, 5 Jan 2005 15:26:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: linux-kernel@vger.kernel.org, andrea@suse.de, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH][5/?] count writeback pages in nr_scanned
+Message-Id: <20050105152625.0b479838.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0501031224400.25392@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.61.0501031224400.25392@chimarrao.boston.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020701050906020601080503
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Rik van Riel <riel@redhat.com> wrote:
+>
+> OOM kills have been observed with 70% of the pages in lowmem being
+>  in the writeback state.  If we count those pages in sc->nr_scanned,
+>  the VM should throttle and wait for IO completion, instead of OOM
+>  killing.
+
+I'll queue this up:
 
 
-During execve(), we seem to have a window between flush_thread() and start_thread() where %gs = 0x33, but cpu_gdt_table[cpu][6] == 0. This causes an unnecessary #GP fault on __switch_to() if there is a context switch during the window. But most people are not noticing it because of the fixup in loadsegment().
 
-Specifically, this BUG() was triggered during normal execution.
+From: Rik van Riel <riel@redhat.com>
 
---- arch/i386/kernel/process.c- 2005-01-05 15:13:51.450321632 -0800
-+++ arch/i386/kernel/process.c  2005-01-05 15:13:55.129762272 -0800
-@@ -764,6 +764,12 @@
-         * Restore %fs and %gs if needed.
-         */
-        if (unlikely(prev->fs | prev->gs | next->fs | next->gs)) {
-+#if 1
-+                if ((next->gs == 0x33)
-+                        && (cpu_gdt_table[cpu][6].a == 0)
-+                        && (cpu_gdt_table[cpu][6].b == 0))
-+                        BUG();
-+#endif
-                loadsegment(fs, next->fs);
-                loadsegment(gs, next->gs);
+OOM kills have been observed with 70% of the pages in lowmem being in the
+writeback state.  If we count those pages in sc->nr_scanned, the VM should
+throttle and wait for IO completion, instead of OOM killing.
 
+(akpm: this is how the code was designed to work - we broke it six months
+ago).
 
-This patch sets %gs = 0 _before_ the thread.tls_array is zeroed.
+Signed-off-by: Rik van Riel <riel@redhat.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-Signed-off-by: Arun Sharma <arun.sharma@intel.com>
+ 25-akpm/mm/vmscan.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
+diff -puN mm/vmscan.c~vmscan-count-writeback-pages-in-nr_scanned mm/vmscan.c
+--- 25/mm/vmscan.c~vmscan-count-writeback-pages-in-nr_scanned	2005-01-05 15:24:53.730874336 -0800
++++ 25-akpm/mm/vmscan.c	2005-01-05 15:25:48.286580608 -0800
+@@ -369,14 +369,14 @@ static int shrink_list(struct list_head 
+ 
+ 		BUG_ON(PageActive(page));
+ 
+-		if (PageWriteback(page))
+-			goto keep_locked;
+-
+ 		sc->nr_scanned++;
+ 		/* Double the slab pressure for mapped and swapcache pages */
+ 		if (page_mapped(page) || PageSwapCache(page))
+ 			sc->nr_scanned++;
+ 
++		if (PageWriteback(page))
++			goto keep_locked;
++
+ 		referenced = page_referenced(page, 1, sc->priority <= 0);
+ 		/* In active use or really unfreeable?  Activate it. */
+ 		if (referenced && page_mapping_inuse(page))
+_
 
---------------020701050906020601080503
-Content-Type: text/plain;
- name="flush_thread_gp.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="flush_thread_gp.patch"
-
-LS0tIGxpbnV4LTIuNi4xMC9hcmNoL2kzODYva2VybmVsL3Byb2Nlc3MuYy0JMjAwNS0wMS0w
-NSAxNToxNToyNS40Njk1NDExMzYgLTA4MDAKKysrIGxpbnV4LTIuNi4xMC9hcmNoL2kzODYv
-a2VybmVsL3Byb2Nlc3MuYwkyMDA1LTAxLTA1IDE1OjE1OjI2LjkzOTMxNzY5NiAtMDgwMApA
-QCAtMzI5LDYgKzMyOSw3IEBACiB7CiAJc3RydWN0IHRhc2tfc3RydWN0ICp0c2sgPSBjdXJy
-ZW50OwogCisJX19hc21fXygibW92bCAlMCwlJWdzIjogOiJyIiAoMCkpOwogCW1lbXNldCh0
-c2stPnRocmVhZC5kZWJ1Z3JlZywgMCwgc2l6ZW9mKHVuc2lnbmVkIGxvbmcpKjgpOwogCW1l
-bXNldCh0c2stPnRocmVhZC50bHNfYXJyYXksIDAsIHNpemVvZih0c2stPnRocmVhZC50bHNf
-YXJyYXkpKTsJCiAJLyoK
---------------020701050906020601080503--

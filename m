@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292986AbSCFJu5>; Wed, 6 Mar 2002 04:50:57 -0500
+	id <S293452AbSCFJxR>; Wed, 6 Mar 2002 04:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293439AbSCFJus>; Wed, 6 Mar 2002 04:50:48 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:61957 "EHLO
+	id <S293439AbSCFJxI>; Wed, 6 Mar 2002 04:53:08 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:65285 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S292986AbSCFJua>; Wed, 6 Mar 2002 04:50:30 -0500
-Message-ID: <3C85E627.1030800@evision-ventures.com>
-Date: Wed, 06 Mar 2002 10:49:27 +0100
+	id <S293429AbSCFJw6>; Wed, 6 Mar 2002 04:52:58 -0500
+Message-ID: <3C85E693.4020507@evision-ventures.com>
+Date: Wed, 06 Mar 2002 10:51:15 +0100
 From: Martin Dalecki <dalecki@evision-ventures.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
 X-Accept-Language: en-us, pl
 MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+CC: Jens Axboe <axboe@suse.de>, Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
-In-Reply-To: <E16iPUx-0004vD-00@the-village.bc.nu>
+In-Reply-To: <E16iPNT-0004tb-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Alan Cox wrote:
->>I intend to kill the largely overdesigned taskfile stuff. It's broken
->>by design to provide this micro level of device access to *anybody*.
->>Operating systems should try to present the functionality of devices
->>in a convenient way to the user and not just mapp it directly to
->>user space.
+>>No quite my plan is:
+>>
+>>1. Rip it off.
+>>2. Reimplement stuff if and only if someone really shows pressure
+>>for using it.
+>>
+>>The "command parsing" excess is certainly going to go.
 >>
 > 
-> Martin - please go and use a macintosh for 8 weeks then come back. The
-> unix philosophy is make the simple things easy make the complex possible. 
+> Its maybe handy actually. Without command parsing I can tell the drive to
+> do anything without good control - you know say like all the upcoming SSSCA
+> encrypt chunks of your harddisk so you can never get them back stuff.
+> 
+> The important bit is that for each command you must know the sequence of
+> phases. Get it wrong and your storage system goes off to visit undefined
+> states. I don't like my disks in undefined states because it tends to leave
+> them with undefined content.
+> 
+> Two things I do think wants considering
+> 
+> #1	Can the same thing be done by passing the command and sequence of
+> 	transitions from user space (scsi generic takes that approach but
+> 	scsi is a little more forgiving since the bogus transition will
+> 	screw your command in a "oh whoops" detectable manner). IDE
+> 	has a nice habit of explaining you screwed up by scribbling on
+> 	the disk and/or locking solid
+> 
+> #2	Shoot all the little routines and make them into a table.
+> 
+> That would tidy it no end. 
 
-Add "and do as much in user-space" in esp. if the stuff is anyway only
-suitable for root and we agree. My main objection is just
-the way the driver commands are exposed to user space and the
-way they are validated in kernel space.
+I will just try the aproach 2 first.
 

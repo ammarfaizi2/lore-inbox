@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbUCSOiN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 09:38:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUCSOiN
+	id S262063AbUCSOjz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 09:39:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbUCSOjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 09:38:13 -0500
-Received: from holomorphy.com ([207.189.100.168]:35716 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261891AbUCSOiL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 09:38:11 -0500
-Date: Fri, 19 Mar 2004 06:38:08 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] anobjrmap 1/6 objrmap
-Message-ID: <20040319143808.GP2045@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0403182317050.16911-100000@localhost.localdomain>
+	Fri, 19 Mar 2004 09:39:55 -0500
+Received: from mail.shareable.org ([81.29.64.88]:47502 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262063AbUCSOjx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 09:39:53 -0500
+Date: Fri, 19 Mar 2004 14:39:49 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Robert_Hentosh@Dell.com, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: spurious 8259A interrupt
+Message-ID: <20040319143948.GD3897@mail.shareable.org>
+References: <6C07122052CB7749A391B01A4C66D31E014BEA49@ausx2kmps304.aus.amer.dell.com> <20040319130609.GE2650@mail.shareable.org> <Pine.LNX.4.53.0403190825070.929@chaos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403182317050.16911-100000@localhost.localdomain>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <Pine.LNX.4.53.0403190825070.929@chaos>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18, 2004 at 11:21:07PM +0000, Hugh Dickins wrote:
-> First of six patches implementing full object-based rmap over 2.6.5-rc1,
-> reviving my anonmm method to compare against Andrea's anon_vma method.
-> I've not yet implemented Linus' early-COW solution to the mremap move
-> issue, that will follow; handling of non-linear obj vmas also to follow.
-> Sorry, not yet checked against wli's tree, he may have some fixes to it.
+Richard B. Johnson wrote:
+> > For those rare occasions when an interrupt handler wants to
+> > re-enable interrupts (sti), _then_ it could mask the interrupt
+> > that called the handler.
+>
+> It would work. However, the driver would then have to "know"
+> if the interrupt came from IO-APIC or from the 8259. It also
+> would have to "know" what IRQ it was actually using, etc.,
 
-It would actually take serious rereading to verify that what issues I'd
-fixed weren't ones I introduced myself. In that set of patches,
-anobjrmap appeared alongside a page allocator rewrite, a top-down vma
-allocation policy for i386, an arch/i386/mm/pgtable.c rewrite, wrapping
-every modification to userspace ptes to track statistics wanted by
-/proc/, highpmd, something that RCU'd inode->i_mmap{,_shared} missing
-the needed smp_read_barrier_depends() calls, and using wrappers around
-rwlocks to allow mapping->page_lock to be configured as an rwlock or
-spinlock at compile-time thrown in for good measure, so there isn't
-much of a way to rule out my own hacks. There was even experimental
-junk at some point e.g. to remove files_lock in addition to a fair
-number of other quetionable/buggy patches I dumped instead of debugging.
+The generic interrupt handlers in Linux _do_ know all that.  They
+need to, to mask the interrupt :)
 
-The story of that tree is too tortuous and sad to tell. I'll put up a
-new tree with a substantially different emphasis, comprised of
-completely different patches, when I have enough material to warrant it.
+The driver would not need to know: a global per-cpu variable can keep
+track of where the most recent interrupt came from.
 
+> So, all the dirty details were put in the kernel code so that the
+> ISR only needs to know it was called as a result of an interrupt.
 
--- wli
+Yes, but that doesn't explain the masking.  It explains why there are
+generic interrupt handlers (which know about the 8259, various APIC
+etc.) and the driver interrupt handlers.
+
+> There is no problem with masking ON/OFF the interrupt
+> input to the 8259, In fact, this can be used to generate
+> another (unreliable) edge if the IRQ line is still asserted.
+
+No, there is no problem.  But there is a performance impact.  Masking
+and unmasking the 8259 is an I/O operation which may be quite slow.
+
+If we don't need it, why do we take the performance hit?
+
+> The IRQ7 spurious is usually an artifact of a crappy motherboard
+> design [+ good explanation].
+
+Thanks.  That was very informative.
+
+-- Jamie

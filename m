@@ -1,35 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319041AbSIKOrv>; Wed, 11 Sep 2002 10:47:51 -0400
+	id <S319084AbSIKOvj>; Wed, 11 Sep 2002 10:51:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319070AbSIKOrv>; Wed, 11 Sep 2002 10:47:51 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:39437 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S319041AbSIKOrv>;
-	Wed, 11 Sep 2002 10:47:51 -0400
-Date: Wed, 11 Sep 2002 07:50:12 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Hans Reiser <reiser@namesys.com>
-cc: <rwhron@earthlink.net>, <linux-kernel@vger.kernel.org>,
-       mason <mason@namesys.com>, <akpm@digeo.com>
-Subject: Re: Performance differences in recent kernels
-In-Reply-To: <3D7F14EB.4010803@namesys.com>
-Message-ID: <Pine.LNX.4.33L2.0209110748010.29148-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319088AbSIKOvj>; Wed, 11 Sep 2002 10:51:39 -0400
+Received: from msp-65-29-16-62.mn.rr.com ([65.29.16.62]:31874 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S319084AbSIKOvi>; Wed, 11 Sep 2002 10:51:38 -0400
+Date: Wed, 11 Sep 2002 09:55:29 -0500
+From: Shawn <core@enodev.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Shawn <core@enodev.com>, Andi Kleen <ak@suse.de>,
+       Thunder from the hill <thunder@lightweight.ods.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+Message-ID: <20020911095529.A8346@q.mn.rr.com>
+References: <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net> <p73wupuq34l.fsf@oldwotan.suse.de> <20020909193820.GA2007@lnuxlab.ath.cx.suse.lists.linux.kernel> <Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm.suse.lists.linux.kernel> <p73wupuq34l.fsf@oldwotan.suse.de> <20020909162050.B4781@q.mn.rr.com> <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net> <20020910142347.A5000@q.mn.rr.com> <5.1.0.14.2.20020911065208.00b32b00@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <5.1.0.14.2.20020911065208.00b32b00@pop.gmx.net>; from efault@gmx.de on Wed, Sep 11, 2002 at 06:56:22AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Sep 2002, Hans Reiser wrote:
+Which is why I pointed out that the issue at hand was not regarding the
+everything else, but in fact the actual filesystem support.
 
-| AIM is a proprietary benchmark, yes?  If we send you a copy of reiser4
-| next month, would you be willing to give it a run?
+As far as why the rest is still pending, I was just offering ideas.
 
-No, it's now GPL and available at
-  http://caldera.com/developers/community/contrib/aim.html
+A lot of this thread is advocacy as opposed to substantive conversation
+about the how and/or why/why not of inclusion of XFS into mainline.
+Fankly, there is no /real/ answer except "Linus has not weighed in on
+the current question".
 
--- 
-~Randy
-"Linux is not a research project. Never was, never will be."
-  -- Linus, 2002-09-02
+I lost my ability to invest emotions in either side of huge kernel
+debates when the devfs and lvm wars happened.
 
+On 09/10, Mike Galbraith said something like:
+> At 02:23 PM 9/10/2002 -0500, Shawn wrote:
+> >I'm not sure what this is intended to communicate.
+> 
+> (sigh)
+> If "everything else" the XFS team has asked for has gone in, it seems 
+> unlikely that
+> sponsorship is needed.
+> 
+>          -Mike
+
+--
+Shawn Leas
+core@enodev.com
+
+I went to the eye doctor and found out I needed glasses for reading.  So,
+I got some flip-up contact lenses.
+						-- Stephen Wright

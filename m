@@ -1,87 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281469AbRKHFKS>; Thu, 8 Nov 2001 00:10:18 -0500
+	id <S281470AbRKHFKS>; Thu, 8 Nov 2001 00:10:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281472AbRKHFKK>; Thu, 8 Nov 2001 00:10:10 -0500
-Received: from ilm.mech.unsw.EDU.AU ([129.94.171.100]:35853 "EHLO
-	ilm.mech.unsw.edu.au") by vger.kernel.org with ESMTP
-	id <S281469AbRKHFJz>; Thu, 8 Nov 2001 00:09:55 -0500
-Date: Thu, 8 Nov 2001 16:09:38 +1100
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org, Ian Maclaine-cross <iml@debian.org>
-Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
-Message-ID: <20011108160938.A8855@ilm.mech.unsw.edu.au>
-In-Reply-To: <20011031113312.A8738@ilm.mech.unsw.edu.au> <20011102121602.A45@toy.ucw.cz> <20011106112052.A10721@ilm.mech.unsw.edu.au> <20011106111846.D26034@atrey.karlin.mff.cuni.cz>
+	id <S281469AbRKHFKL>; Thu, 8 Nov 2001 00:10:11 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:13316 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S281470AbRKHFKE>;
+	Thu, 8 Nov 2001 00:10:04 -0500
+Date: Wed, 7 Nov 2001 22:10:05 -0800
+From: Greg KH <greg@kroah.com>
+To: Pete Toscano <pete.lkml@toscano.org>, linux-kernel@vger.kernel.org
+Subject: Re: Oops when syncing Sony Clie 760 with USB cradle
+Message-ID: <20011107221005.B959@kroah.com>
+In-Reply-To: <E160obZ-0001bO-00@janus> <20011105131014.A4735@kroah.com> <3BE7F362.1090406@gutschke.com> <20011106095527.A10279@kroah.com> <3BE870EF.2080508@gutschke.com> <20011106155934.B12661@kroah.com> <20011107225328.A18371@bubba.toscano.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011106111846.D26034@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011107225328.A18371@bubba.toscano.org>
 User-Agent: Mutt/1.3.23i
-From: Ian Maclaine-cross <iml@ilm.mech.unsw.edu.au>
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 11 Oct 2001 05:01:49 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-On Tue, Nov 06, 2001 at 11:18:46AM +0100, Pavel Machek wrote:
-[snip] 
-> > I agree with you, Pavel. Commenting out the 11 minute update
-> > code is a better solution. :)
-> 
-> Are you going to try to push patch trhough linus?
+On Wed, Nov 07, 2001 at 10:53:28PM -0500, Pete Toscano wrote:
+> Just in case it matters any, here's the Clie (760C) part of my
+> /proc/bus/usb/devices:
 
-Yes, I will prepare a patch for the 2.5 series. Thanks to all for
-their contributions.
+Can you try syncing on /dev/ttyUSB0 with coldsync, telling it you have a
+m50x and let me know if it works or not?
 
-Please find following a short, crude and preliminary, 2.4.12 i386
-patch which I am now testing on my AMD K6-III machine.  Reasons for
-commenting out the 11 minute update code are in my previous
-linux-kernel email. My patched compressed kernel is 156 bytes smaller.
-It has been running normally with clock synchronized to NTP for two
-days and has left the RTC to drift freely.
+thanks,
 
-diff -u --recursive linux.old/arch/i386/kernel/time.c linux/arch/i386/kernel/time.c
---- linux.old/arch/i386/kernel/time.c	Tue Sep 18 16:03:09 2001
-+++ linux/arch/i386/kernel/time.c	Tue Nov  6 21:03:46 2001
-@@ -313,6 +313,8 @@
- 	write_unlock_irq(&xtime_lock);
- }
- 
-+#ifdef UPDATE_RTC
-+
- /*
-  * In order to set the CMOS clock precisely, set_rtc_mmss has to be
-  * called 500 ms after the second nowtime has started, because when
-@@ -384,6 +386,8 @@
- /* last time the cmos clock got updated */
- static long last_rtc_update;
- 
-+#endif
-+
- int timer_ack;
- 
- /*
-@@ -426,6 +430,8 @@
- 		smp_local_timer_interrupt(regs);
- #endif
- 
-+#ifdef UPDATE_RTC
-+
- 	/*
- 	 * If we have an externally synchronized Linux clock, then update
- 	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be
-@@ -440,6 +446,7 @@
- 		else
- 			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
- 	}
-+#endif
- 	    
- #ifdef CONFIG_MCA
- 	if( MCA_bus ) {
-
-
-
-
-
--- 
-Regards,
-Ian Maclaine-cross (iml@debian.org)
+greg k-h

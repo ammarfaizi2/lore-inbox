@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262430AbSJESRp>; Sat, 5 Oct 2002 14:17:45 -0400
+	id <S262431AbSJESWM>; Sat, 5 Oct 2002 14:22:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262431AbSJESRp>; Sat, 5 Oct 2002 14:17:45 -0400
-Received: from borg1.zianet.com ([216.234.192.105]:20492 "HELO
-	mesatop.zianet.com") by vger.kernel.org with SMTP
-	id <S262430AbSJESRp>; Sat, 5 Oct 2002 14:17:45 -0400
-Subject: Re: 2.5 Problem Report Status
-From: Steven Cole <elenstev@mesatop.com>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 05 Oct 2002 12:18:10 -0600
-Message-Id: <1033841892.2353.13.camel@localhost.localdomain>
+	id <S262434AbSJESWM>; Sat, 5 Oct 2002 14:22:12 -0400
+Received: from bohnice.netroute.lam.cz ([212.71.169.62]:30191 "EHLO localhost")
+	by vger.kernel.org with ESMTP id <S262431AbSJESWK>;
+	Sat, 5 Oct 2002 14:22:10 -0400
+Date: Sat, 5 Oct 2002 20:27:40 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unable to kill processes in D-state
+Message-ID: <20021005182740.GC16200@vagabond>
+Mail-Followup-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org
+References: <20021005090705.GA18475@stud.ntnu.no> <1033841462.1247.3716.camel@phantasy>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1033841462.1247.3716.camel@phantasy>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Molina wrote:
+On Sat, Oct 05, 2002 at 02:11:02PM -0400, Robert Love wrote:
+> On Sat, 2002-10-05 at 05:07, Thomas Lang?s wrote:
+> 
+> > We have a fairly large installation on-campus, and we have some problems
+> > with the current linux-kernel (and older ones) - namely that processes
+> > entering D-state will stay there forever (given that the right event got
+> > them there in the first place).  This right event is killing the 
+> > autofs-daemon.  Doing this will result in heavy load because of lots
+> > of D-state processes, and you can't kill any of the D-state processes.
+> > Why shouldn't one be able to kill processes that has entered D-state?
+> > We have to reboot our servers to get rid of this problem, and it's
+> > rather annoying.
+> 
+> Because they are in uninterruptible sleep.  They are doing something
+> important, presumably in a critical section, and have no wake-up path
+> for signals or errors.
+> 
+> Finally, they probably hold a semaphore.  In short, you cannot kill
+> them, nor would you want to.
+> 
+> I would simplify the question and ask why are you killing the autofs
+> daemon?  Clearly this is a recipe for disaster.
 
-> additional report      01 Oct 2002 also in 2.5.40
-> 20. http://marc.theaimsgroup.com/?l=linux-kernel&m=103343520729702&w=2
->
->Several people have reported oops on boot in device_attach.  It may be 
->related to isapnp, but that is not confirmed.
+On the other hand it's a bug if a process stays in D-state for time of
+order of seconds or more. Unfortunately it's impossible to avoid this
+in networking filesystems with current state of VFS (in 2.4). Even there
+though, it's a bug if it's indefinite.
 
-I reported the above oops was fixed for me here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103349300620391&w=2
+These problems were already discussed on LKML, you might want to search
+the archive. IIRC this is a known problem of OpenAFS (not in standart
+kernel). It was reported with various drivers for some 2.4.x kernels
+too.
 
-The new oops on boot for 2.5.39 which I referred to in that message,
-and which I also reported for 2.5.40 here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103350518802833&w=2
-
-has been fixed (for me anyway) in 2.5.40-ac3.
-
-Thanks,
-Steven
-
+-------------------------------------------------------------------------------
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>

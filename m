@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263290AbSJCOEq>; Thu, 3 Oct 2002 10:04:46 -0400
+	id <S263321AbSJCOM5>; Thu, 3 Oct 2002 10:12:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263291AbSJCOEq>; Thu, 3 Oct 2002 10:04:46 -0400
-Received: from [203.117.131.12] ([203.117.131.12]:3050 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S263290AbSJCOEp>; Thu, 3 Oct 2002 10:04:45 -0400
-Message-ID: <3D9C4FA8.10201@metaparadigm.com>
-Date: Thu, 03 Oct 2002 22:09:44 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alexander Viro <viro@math.psu.edu>, Andreas Dilger <adilger@clusterfs.com>,
-       Lars Marowsky-Bree <lmb@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
-References: <Pine.GSO.4.21.0210021922200.13480-100000@weyl.math.psu.edu> 	<3D9BDA8D.5080700@metaparadigm.com> <1033648730.28022.8.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263325AbSJCOM5>; Thu, 3 Oct 2002 10:12:57 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:11532 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S263321AbSJCOMx>; Thu, 3 Oct 2002 10:12:53 -0400
+Date: Thu, 3 Oct 2002 15:17:07 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg Ungerer <gerg@snapgear.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+Subject: Re: Linux 2.5.40-ac1
+Message-ID: <20021003151707.A17513@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg Ungerer <gerg@snapgear.com>, linux-kernel@vger.kernel.org,
+	Alan Cox <alan@redhat.com>
+References: <3D9B8363.6030806@snapgear.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D9B8363.6030806@snapgear.com>; from gerg@snapgear.com on Thu, Oct 03, 2002 at 09:38:11AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/03/02 20:38, Alan Cox wrote:
-> On Thu, 2002-10-03 at 06:50, Michael Clark wrote:
-> 
->>>... and you don't need EVMS for that.
->>
->>But EVMS would be an excellent substitute in the mean time.
->>
->>Better to having something excellent now than something perfect but
->>too late.
-> 
-> 
-> You can see who around here has maintained kernel code and who hasnt.
-> You don't want a substitute in the mean time, because then you have to
-> get rid of it
+On Thu, Oct 03, 2002 at 09:38:11AM +1000, Greg Ungerer wrote:
+> What do you think about the separate mm/mmnommu directories
+> at the top level?  Should the mmnommu be merged into mm?
 
-Like LVM ;)
+The sepearate one is horrible maintaince wise.  Please introduce
+CONFIG_MMU and try to make as many _files_ in mm/ conditional on
+those.  Else use the proper ways (cond_syscall(), inline stubs) to
+hide the differences.
 
-/me submits to the masters and waits in subjugation.
-
-Just hoping for good Volume Manager in 2.6 and EVMS looks good
-to me from an end user perspective, and also seems quite timely.
-
-~mc
 

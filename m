@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129232AbRBBUPI>; Fri, 2 Feb 2001 15:15:08 -0500
+	id <S129734AbRBBUTj>; Fri, 2 Feb 2001 15:19:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129487AbRBBUO7>; Fri, 2 Feb 2001 15:14:59 -0500
-Received: from [216.151.155.116] ([216.151.155.116]:61965 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S129232AbRBBUOv>; Fri, 2 Feb 2001 15:14:51 -0500
-To: Delta <birtl00@dmi.usherb.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: System unresponsitive when copying HD/HD
-In-Reply-To: <3A7B1129.2ED4CCE4@dmi.usherb.ca>
-From: Doug McNaught <doug@wireboard.com>
-Date: 02 Feb 2001 15:13:07 -0500
-In-Reply-To: Delta's message of "Fri, 02 Feb 2001 14:57:29 -0500"
-Message-ID: <m3vgqsetd8.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S129487AbRBBUT3>; Fri, 2 Feb 2001 15:19:29 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:32775 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129734AbRBBUTK>;
+	Fri, 2 Feb 2001 15:19:10 -0500
+Date: Fri, 2 Feb 2001 21:18:26 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: <bcrl@redhat.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, <linux-aio@kvack.org>,
+        <kiobuf-io-devel@lists.sourceforge.net>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: 1st glance at kiobuf overhead in kernel aio vs pread vs user
+ aio
+In-Reply-To: <Pine.LNX.4.30.0102021317470.4628-100000@today.toronto.redhat.com>
+Message-ID: <Pine.LNX.4.30.0102022101120.6394-100000@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Delta <birtl00@dmi.usherb.ca> writes:
 
-> While cp is copying from the second hard disk to the first hard disk,
-> I find my system performance
-> drop VERY sharply.  X is sloppy, even bash takes many seconds to
-> respond.  I using two
-> recent IDE disk (Fudjisu 13 gig, Maxtor 20 Gig), so I'm wondering why
-> the system is so slow?  My mobo is a FIC SD11 and I have an athlon
-> 550 Mhz.
+Ben,
 
-You don't say what kernel you're running.  Some versions (2.2.16ish)
-have very bad interactive response under I/O load.  2.2.18 is supposed
-to be better, or try 2.2.19pre.
+- first of all, great patch! I've got a conceptual question: exactly how
+does the AIO code prevent filesystem-related scheduling in the issuing
+process' context? I'd like to use (and test) your AIO code for TUX, but i
+do not see where it's guaranteed that the process that does the aio does
+not block - from the patch this is not yet clear to me. (Right now TUX
+uses separate 'async IO' kernel threads to avoid this problem.) Or if it's
+not yet possible, what are the plans to handle this?
 
-Also 'hdparm -u' may help, and turning on DMA if you're not using it.
+- another conceptual question. async IO doesnt have much use if many files
+are used and open() is synchronous. (which it is right now) Thus for TUX
+i've added ATOMICLOOKUP to the VFS - and 'missed' (ie. not yet
+dentry-cached) VFS lookups are passed to the async IO threads as well. Do
+you have any plans to add file-open() as an integral part of the async IO
+framework as well?
 
--Doug
+once these issues are solved (or are they already?), i'd love to drop the
+ad-hoc kernel-thread based async IO implementation of TUX and 'use the
+real thing'. (which will also probably perform better) [Btw., context
+switches are not that much of an issue in kernel-space, due to lazy TLB
+switching. So basically in kernel-space the async IO threads are barely
+more than a function call.]
+
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

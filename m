@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262246AbSJAUhc>; Tue, 1 Oct 2002 16:37:32 -0400
+	id <S262833AbSJAUsH>; Tue, 1 Oct 2002 16:48:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262270AbSJAUhc>; Tue, 1 Oct 2002 16:37:32 -0400
-Received: from mesatop.zianet.com ([216.234.192.105]:59920 "HELO
-	mesatop.zianet.com") by vger.kernel.org with SMTP
-	id <S262256AbSJAUhb>; Tue, 1 Oct 2002 16:37:31 -0400
-Subject: 2.5.40 Oops on boot (ide_setup_dma+0x16)
-From: Steven Cole <elenstev@mesatop.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 01 Oct 2002 14:38:09 -0600
-Message-Id: <1033504690.2358.4.camel@localhost.localdomain>
+	id <S262834AbSJAUsH>; Tue, 1 Oct 2002 16:48:07 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:9887 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262833AbSJAUsF>;
+	Tue, 1 Oct 2002 16:48:05 -0400
+Date: Tue, 1 Oct 2002 22:53:25 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Skip Ford <skip.ford@verizon.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: KDSETKEYCODE work with new input layer?
+Message-ID: <20021001225325.C15796@ucw.cz>
+References: <20021001151722.A11750@ucw.cz> <200210011532.g91FW4fG000308@pool-141-150-241-241.delv.east.verizon.net> <20021001174129.A12995@ucw.cz> <200210011649.g91GnDfG000953@pool-141-150-241-241.delv.east.verizon.net> <20021001185154.A13641@ucw.cz> <200210011741.g91HfR5Y000241@pool-141-150-241-241.delv.east.verizon.net> <20021001193938.A14179@ucw.cz> <200210011811.g91IBt5Y000464@pool-141-150-241-241.delv.east.verizon.net> <20021001203817.B14385@ucw.cz> <200210012004.g91K4SC7000390@pool-141-150-241-241.delv.east.verizon.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200210012004.g91K4SC7000390@pool-141-150-241-241.delv.east.verizon.net>; from skip.ford@verizon.net on Tue, Oct 01, 2002 at 04:04:27PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all,
+On Tue, Oct 01, 2002 at 04:04:27PM -0400, Skip Ford wrote:
 
-After getting 2.5.40 (many thanks to John Bradford for his mirror),
-I got this oops, identical to 2.5.39 with a fix to isapnp.c. This
-post is to verify that this problem still exists in 2.5.40.
+> Vojtech Pavlik wrote:
+> > 
+> > Well, if you get loadkeys to load the high keycodes, then indeed
+> > everything is fine.
+> 
+> Disregard my other email.  I can get it to work if I redefine NR_KEYS in
+> keyboard.h then rebuild the kernel and loadkeys using the new value.
+> 
+> My map with extended keycodes loads and all the multimedia keys work
+> without using setkeycodes.  Have I done something horrible by upping
+> NR_KEYS?
 
-Oops info copied down by hand:
+I don't think so it should be fine - actually NR_KEYS should be the same
+as KEY_MAX in input.h probably.
 
-EIP is at ide_iomio_dma+0xa4/0x110
-
-Call Trace:
-[<c01e02e6>]ide_setup_dma+0x16/0x2a0
-[<c01deb46>]ide_hwif_setup_dma+0xc6/0x100
-[<c01deeca>]do_ide_setup_pci_device+0x18/0x60
-[<c01def48>]ide_setup_pci_device+0x18/0x60
-[<c0105030>]init+0x0/0x160
-[<c010504c>]init+0x1c/0x160
-[<c0105030>]init+0x0/0x160
-[<c0105495>]kernel_thread_helper_0x5/0x10
-
-This machine is a single PIII with Intel 82371AB PII4X chipset
-and Promise PDC20262 disk controller.
-
-My .config info was posted earlier here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103349300620391&w=2
-
-I also recompiled without CONFIG_IDEDMA_PCI_AUTO
-and without CONFIG_IDEDMA_AUTO and rebooted with the
-same results as above.
-
-Steven
-
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs

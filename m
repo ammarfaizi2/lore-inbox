@@ -1,47 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265108AbTFMCnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 22:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265109AbTFMCnZ
+	id S265112AbTFMDKY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 23:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265113AbTFMDKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 22:43:25 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:20997 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S265108AbTFMCnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 22:43:25 -0400
-Subject: Re: [PATCH] fix insidious bug with init section identification in
-	the kernel module loader
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030613011906.923262C254@lists.samba.org>
-References: <20030613011906.923262C254@lists.samba.org>
-Content-Type: text/plain
+	Thu, 12 Jun 2003 23:10:23 -0400
+Received: from mta01bw.bigpond.com ([139.134.6.78]:48338 "EHLO
+	mta01bw.bigpond.com") by vger.kernel.org with ESMTP id S265112AbTFMDKV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 23:10:21 -0400
+Reply-To: <java_solutions@bigpond.com>
+From: "Chris Harrison" <java_solutions@bigpond.com>
+To: "Alfie John" <alfiejohn@hotmail.com>, <jobs@interlogic.com.au>,
+       <vox@lists.lugod.org>, <linux-kernel@vger.kernel.org>,
+       <ajug@yahoogroups.com>
+Subject: RE: [ajug] [OT] joining the "elite" team
+Date: Fri, 13 Jun 2003 13:26:50 -0700
+Message-ID: <LGEJLNJGCBAOLLKLFCPBAEAICDAA.java_solutions@bigpond.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 12 Jun 2003 21:57:04 -0500
-Message-Id: <1055473026.2117.59.camel@mulgrave>
-Mime-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <Law10-F26GCl9FopYC900000100@hotmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-12 at 20:18, Rusty Russell wrote:
-> In message <1055452158.2117.52.camel@mulgrave> you write:
-> > This problem manifests itself nastily on parisc, where the linker seems
-> > to generate large number of elf sections, often one for each non static
-> > function, with names like
-> > 
-> > .text.<function name>
-> 
-> -ffunction-sections, perhaps?
 
-Yes, we only have nineteen bit branch relocations on the parisc1.1, so
-we usually have to interleave trampoline stubs in between the function
-sections to get from one end of the kernel to the other.
+Yep, I totally agree, its unacceptable, a few points:
 
-I suppose as long as we never get a module bigger than 256k, we don't
-actually need to split modules up this way...
+"...with FIRST CLASS HONOURS  in Computer Science or a similar degree..."
+then "...must be a UNIVERSITY graduate...".
+The former cancels the latter.  Although, they might be making a point that
+'internet degrees' from Spam mail don't count.
 
-James
+"...who is REALLY EXCEPTIONALLY GOOD at it...", as opposed to really crap at
+it?  or maybe partially exceptional at it?
 
+And the best one, "[our company]...is very sophisticated."  Yes, like the
+sophisticated advertisement you came up with.
+
+My five year old daughter actually has better grasp of grammar than this
+ad...
+
+Chris.
+
+> -----Original Message-----
+> From: Alfie John [mailto:alfiejohn@hotmail.com]
+> Sent: Thursday, 12 June 2003 7:49 PM
+> To: jobs@interlogic.com.au; vox@lists.lugod.org;
+> linux-kernel@vger.kernel.org; ajug@yahoogroups.com
+> Subject: [ajug] [OT] joining the "elite" team
+>
+>
+> Hello,
+>
+> I write to you in response to an add I saw at seek.com.au,
+> "OBJECT ORIENTED
+> PROGRAMMER -MELBOURNE RECENT GRADUATE" -
+> http://it.seek.com.au/users/viewdetails.asp?Action=jobsearch&JobLi
+> stAction=ViewOneAd&JobSearch=true&AdID=2731247
+>
+> I find this add highly arrogant and highly contradictive.
+>
+> You start with "seeking for ...FIRST CLASS HONOURS", however your add is
+> basically searching for a top class, 313373 computer geek. As
+> history shows,
+> even hacker's hackers like RMS and Linus had not-so "first class" grades
+> while in high school AND at uni because they were too busy with selfish
+> delites such as churning through kernel code.
+>
+> The next contradictive statement is "She or he must have an INTRINSIC
+> understanding of computing". But later you provide insight to
+> your company
+> with "The applications are an amalgam of complex business processes,
+> maximisation of resources, and require considerable mathematical
+> acumen." In
+> other words, you need MS Excel shitkickers with knowledge in business
+> management with contemporary management skills and not elite coders with
+> sk1llZ. Also, I don't really understand why "indepth knowledge of OOP" is
+> going to help me with optimizing functions with spreadsheets.
+>
+> "The company only employs THE BEST AND BRIGHTEST"; followed by
+> "It is very
+> sophisticated." and the even more arrogant "An average person
+> will be unable
+> to keep up with the high intellectual horsepower generated by the
+> members of
+> this elite team.". This tells the reader that you MUST have the
+> worlds best
+> coders under your organization and yet you are "GROWING AND PROFITABLE".
+>
+> I must go now with my pittyful programming skills which are no where near
+> the "EXCEPTIONALLY GOOD" skills that your company is looking for, but I
+> smile just to know that this email is going to be forwarded to
+> programmers
+> around the world with a link to your add to show just what an
+> "elite team"
+> you really are!
+>
+> int 20h;
+> Alfie John
+>
+> _________________________________________________________________
+> Get mobile Hotmail. Go to  http://ninemsn.com.au/mobilecentral/signup.asp
+>
+>
+> ------------------------ Yahoo! Groups Sponsor ---------------------~-->
+> Looking for the latest Free IT White Papers?
+> Visit SearchMobileComputing.com to access over 500 white papers.
+> Get instant access at SearchMobileComputing.com Today
+> http://us.click.yahoo.com/9lAzoD/PLNGAA/witMAA/saFolB/TM
+> ---------------------------------------------------------------------~->
+>
+> To unsubscribe, send a message to
+> ajug-unsubscribe@egroups.com
+>
+>
+> Your use of Yahoo! Groups is subject to http://docs.yahoo.com/info/terms/
+>
+>
+>
 

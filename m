@@ -1,28 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUIOJhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUIOJzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUIOJhu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 05:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263626AbUIOJhu
+	id S263962AbUIOJzG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 05:55:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUIOJzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 05:37:50 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:27326 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262605AbUIOJhs (ORCPT
+	Wed, 15 Sep 2004 05:55:06 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:24520 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263962AbUIOJzB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 05:37:48 -0400
-Date: Wed, 15 Sep 2004 11:38:59 +0200
+	Wed, 15 Sep 2004 05:55:01 -0400
+Date: Wed, 15 Sep 2004 11:56:14 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       felipe_alfaro@linuxmail.org
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
-Message-ID: <20040915093859.GA1629@elte.hu>
-References: <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu> <1094597710.16954.207.camel@krustophenia.net> <1094598822.16954.219.camel@krustophenia.net> <32930.192.168.1.5.1094601493.squirrel@192.168.1.5> <20040908082358.GB680@elte.hu> <20040908083158.GA1611@elte.hu> <37312.195.245.190.93.1094728166.squirrel@195.245.190.93> <1095210962.2406.79.camel@krustophenia.net> <19084.195.245.190.94.1095240596.squirrel@195.245.190.94>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrea Arcangeli <andrea@novell.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
+Message-ID: <20040915095614.GB1629@elte.hu>
+References: <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914140905.GM4180@dualathlon.random> <41470021.1030205@yahoo.com.au> <20040914150316.GN4180@dualathlon.random> <1095210126.2406.70.camel@krustophenia.net> <20040915013925.GF9106@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <19084.195.245.190.94.1095240596.squirrel@195.245.190.94>
+In-Reply-To: <20040915013925.GF9106@holomorphy.com>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -35,23 +34,26 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+* William Lee Irwin III <wli@holomorphy.com> wrote:
 
-> b) When CONFIG_SCHED_SMT is not set, I can run all along with
-> softirq-preempt=1, hardirq-preempt=1 et al. While running jackd in
-> realtime mode, I get NO hard-locks, but unfortunately XRUNs are
-> plenty. A real storm. However I've noticed that the whole seems pretty
-> much stable, as I didn't experience one single system hang. Regression
-> to softirq-preempt=0 and hardirq-preempt=0 dissolves the xrun storm to
-> nothing again.
+> > With Ingo's patches the worst case latency on the same machine as my XP
+> > example is about 150 usecs.  So, it seems to me that Ingo's patches can
+> > achieve results as good or better than OSX even without the one or two
+> > "dangerous" changes, like the removal of lock_kernel around
+> > do_tty_write.
+> 
+> The code we're most worried is buggy, not just nonperformant.
 
-when you set softirq-preempt=1 and hardirq-preempt=1 then you also need
-to make the soundcard's IRQ non-threaded via /proc/irq/*/*/threaded
-(pick the right one that is your soundcard). E.g. i have a CMI8738-MC6 
-on IRQ11, so i'd have to do this:
+what code do you mean? The one i know about and which Lee is referring
+to above is the 6-lines tty unlocking change - the one which Alan
+objected to rightfully. I've zapped it from my tree.
 
-	echo 0 > /proc/irq/11/CMI8738-MC6/threaded
+(nobody objected to the original thread on lkml weeks ago where the tty
+unlocking change was proposed, implemented, alpha-tested and beta-tested
+in -mm for several releases - that's why it showed up in my 20+
+latency-reduction patches.)
 
-to mark the soundcard's interrupt as directly-executed.
+No latency changes to the tty layer until someone fixes its locking. End
+of story.
 
 	Ingo

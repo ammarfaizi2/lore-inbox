@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263282AbTJUT42 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 15:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbTJUT42
+	id S263285AbTJUUFj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 16:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbTJUUFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 15:56:28 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:2564 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263282AbTJUT4Z
+	Tue, 21 Oct 2003 16:05:39 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:5636 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263285AbTJUUFd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 15:56:25 -0400
+	Tue, 21 Oct 2003 16:05:33 -0400
 To: linux-kernel@vger.kernel.org
 Path: gatekeeper.tmr.com!davidsen
 From: davidsen@tmr.com (bill davidsen)
 Newsgroups: mail.linux-kernel
 Subject: Re: [RFC] frandom - fast random generator module
-Date: 21 Oct 2003 19:46:24 GMT
+Date: 21 Oct 2003 19:55:32 GMT
 Organization: TMR Associates, Schenectady NY
-Message-ID: <bn42eg$ic9$1@gatekeeper.tmr.com>
-References: <HbGf.8rL.1@gated-at.bofh.it> <ugzng1axel.fsf@panda.mostang.com> <3F8EF17A.2040502@users.sf.net> <20031016144205.I7000@schatzie.adilger.int>
-X-Trace: gatekeeper.tmr.com 1066765584 18825 192.168.12.62 (21 Oct 2003 19:46:24 GMT)
+Message-ID: <bn42vk$ies$1@gatekeeper.tmr.com>
+References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <3F8E70E0.7070000@users.sf.net> <3F8E8101.70009@pobox.com>
+X-Trace: gatekeeper.tmr.com 1066766132 18908 192.168.12.62 (21 Oct 2003 19:55:32 GMT)
 X-Complaints-To: abuse@tmr.com
 Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031016144205.I7000@schatzie.adilger.int>,
-Andreas Dilger  <adilger@clusterfs.com> wrote:
-| On Oct 16, 2003  21:28 +0200, Eli Billauer wrote:
-| > Allow me to supply a couple facts about frandom:
-| > 
-| > * It's not a "crappy" RNG. Its RC4 origins and the fact, that it has 
-| > passed tests indicate the opposite. A fast RNG doesn't necessarily mean 
-| > a bad one. I doubt if any test will tell the difference between frandom 
-| > and any other good RNG. You're most welcome to try.
-| 
-| The "crappy RNG" being referred to is just some code we implemented to
-| give us somewhat unique numbers instead of sucking CPU.
-| 
-| > * Frandom is written completely in C. On an i686, gcc compiles the 
-| > critical part to 26 assembly instructions per byte, and I doubt if any 
-| > hand assembly would help significantly. The algorithms is clean and 
-| > simple, and the compiler performs well with it.
-| 
-| This is still more expensive than a hw RNG (which will be about 1 ins
-| per 4 bytes), so it would be nice to make this arch-specific if possible
-| (runtime and compile time).
+In article <3F8E8101.70009@pobox.com>, Jeff Garzik  <jgarzik@pobox.com> wrote:
+| Eli Billauer wrote:
 
-Clearly that's true inside the kernel. Although the speed will be
-somewhat less because you may not always need four bytes, no?
+| > Besides, it's quite easy to do something wrong with random numbers. By 
+| > having a good source of random data, I suppose we can spare a lot of 
+| > people the headache of getting their own user-space application right 
+| > for the one-off thing they want to do.
+| 
+| This is completely bogus logic.  I can use this (incorrect) argument to 
+| similar push for applications doing bsearch(3) or qsort(3) via a system 
+| call.
 
-The benefit of a random number source user programs can use, which is
-going to avoid giving the same number to multiple processes or threads
-is significant for simulations and sampling. It doesn't matter if this
-is done with frandom or speeding urandom to similar speed, other than
-that some people will protest a change in urandom, even a change for the
-better.
+Your argument is correct, but this is data generation rather than
+analysis. In doing simulation it's desirable to ensure that multiple
+instances of a program don't use the same numbers.
 
+For instance, simulating user load against a server; I want the
+simulation of human thinking time to be a number in the range n..m and
+not to be the same for all threads. Sure I can get around that, and do,
+but I wouldn't mind having a simple source of random bytes which was
+quality PRNG and unique.
+
+Again, this is not a case that this is a "must have" feature, just an
+opinion that there are benefits to having such a feature which don't
+apply to the cases you cited above.
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc

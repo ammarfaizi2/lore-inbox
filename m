@@ -1,96 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289552AbSAKTHc>; Fri, 11 Jan 2002 14:07:32 -0500
+	id <S289600AbSAKTR6>; Fri, 11 Jan 2002 14:17:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289597AbSAKTHW>; Fri, 11 Jan 2002 14:07:22 -0500
-Received: from svr3.applink.net ([206.50.88.3]:44814 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S289552AbSAKTHP>;
-	Fri, 11 Jan 2002 14:07:15 -0500
-Message-Id: <200201111906.g0BJ6kSr003243@svr3.applink.net>
+	id <S289601AbSAKTRj>; Fri, 11 Jan 2002 14:17:39 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:5393 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S289600AbSAKTRa>; Fri, 11 Jan 2002 14:17:30 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, timothy.covell@ashavan.org,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: strange kernel message when hacking the NIC driver
-Date: Fri, 11 Jan 2002 13:02:56 -0600
+From: Hans-Peter Jansen <hpj@urpla.net>
+Organization: LISA GmbH
+To: trond.myklebust@fys.uio.no
+Subject: Re: [NFS] some strangeness (at least) with linux-2.4.17-NFS_ALL patch
+Date: Fri, 11 Jan 2002 20:17:26 +0100
 X-Mailer: KMail [version 1.3.2]
-Cc: zhengpei@msu.edu (Pei Zheng), linux-kernel@vger.kernel.org
-In-Reply-To: <E16P1Sb-0007b9-00@the-village.bc.nu>
-In-Reply-To: <E16P1Sb-0007b9-00@the-village.bc.nu>
+In-Reply-To: <20020111131528.44F8613E6@shrek.lisa.de> <15422.65459.871735.203004@charged.uio.no>
+In-Reply-To: <15422.65459.871735.203004@charged.uio.no>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
+Message-Id: <20020111191744.7A9CE1426@shrek.lisa.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 January 2002 07:11, Alan Cox wrote:
-> > Let me clarify what I said earlier.  You cannot have
-> > identical MAC addresses on two different NICs.   Indeed,
-> > it is impossible w/o trying to fool the kernel into
-> > redefining the NICs hardware based MAC address.
+On Friday, 11. January 2002 16:07, Trond Myklebust wrote:
+> >>>>> " " == Hans-Peter Jansen <hpj@urpla.net> writes:
+>      > The problem is, ls on the client side complains about an I/O
+>      > error, when listing the conf/ dir.
 >
-> Wrong
+> What server is this?
+
+Oups, sorry: 
+Linux shrek 2.4.13-ac7 #6 SMP Son Dez 2 20:02:04 CET 2001 i686 unknown
+(on patches, IIRC)
 >
-> A mac address is per system. Now in fact almost all systems do it per
-> ethernet card but that is not what the specifications guarantee. There are
-> machines out there and cards out there which use the same MAC on all
-> interfaces. -
+>      > After removing this symlink (within the server), ls is OK
+>      > within the client. Trying to copy servers /etc/ou.conf file to
+>      > /usr/share/openuniverse within the client, cp complains about
 
-IMHO, they _should_ be unique except for multicast addressing and uses
-such as in HSRP/VRRP and such.   Network admins usually like to have
-a firm grip concerning how traffic is routed.  They don't want traffic on
-one segment/subnet getting routed to another.  IHMO, this is a vector
-for viruses proliferation because the host vulnerable thinks that all
-segments/subnets are the same.
+Oups, correction: /usr/share/openuniverse/conf
 
+>      > to many levels of symlinks?!? (/usr is shared)
+>
+> That can happen, yes. The symlink is still in the dcache, and so the
+> VFS thinks that we want to open whatever it is that the symlink is
+> pointing to (not the symlink itself). For this reason, less strict
+> checking is performed, and so the client does not immediately see the
+> change.
 
-I don't have the money to shell out for a copy of the IEEE 802.x standards, 
-but I can quote some other folks on this:
+Shouldn't the client invalidate the dcache entry some time?
+Now, 5 hours later, the dcache entry isn't invalidated, yet.
 
+I think, this is a thinko. I'm not familiar with nfs internals,
+but have done stuff like this before (anybody remember BioNet?).
 
-RFC 826:
+Please try this:
 
-However, 48.bit Ethernet addresses are supposed to be unique and fixed for 
-all time, so they shouldn't
-change.
+shrek is the server, elfe the client
+/raid is shared (reiserfs, no raid), /tmp isn't
 
+shrek:/raid/tmp# touch /tmp/huhu
+shrek:/raid/tmp# ln -s /tmp/huhu
+shrek:/raid/tmp# l
+total 1
+drwxr-xr-x    2 root     root           55 Jan 11 20:07 ./
+drwxr-xr-x    9 root     root          218 Jan 11 20:06 ../
+lrwxrwxrwx    1 root     root            9 Jan 11 20:07 huhu -> /tmp/huhu
 
->From the Ethernet FAQ:
+elfe:/raid/tmp# echo "huhu" > /tmp/huhu
+elfe:/raid/tmp# l
+insgesamt 1
+drwxr-xr-x    2 root     root           55 11. Jan 20:07 ./
+drwxr-xr-x    9 root     root          218 11. Jan 20:06 ../
+lrwxrwxrwx    1 root     root            9 11. Jan 20:07 huhu -> /tmp/huhu
+elfe:/raid/tmp# cat huhu 
+huhu
 
-02.10Q: What is a MAC address?
-A: It is  the unique hexadecimal serial number assigned to each Ether-
-net  network device to identify it  on  the network.  With Ethernet
-devices  (as  with  most other  network  types),  this  address  is
-permanently set at  the time of manufacturer, though it can usually
-be changed  through  software (though this is  generally a Very
-Bad Thing to do).
+shrek:/raid/tmp# rm huhu
 
-02.11Q: Why must the MAC address to be unique?
+elfe:/raid/tmp# l
+insgesamt 1
+drwxr-xr-x    2 root     root           35 11. Jan 20:07 ./
+drwxr-xr-x    9 root     root          218 11. Jan 20:06 ../
+elfe:/raid/tmp# touch huhu
+elfe:/raid/tmp# l
+ls: huhu: Eingabe-/Ausgabefehler
+insgesamt 1
+drwxr-xr-x    2 root     root           55 11. Jan 20:08 ./
+drwxr-xr-x    9 root     root          218 11. Jan 20:06 ../
 
-A: Each card  has  a  unique MAC address,  so  that
-it will be able to exclusively  grab  packets  off the wire
-meant  for  it.   If  MAC addresses are not unique,  there is
-no  way  to distinguish between two  stations.  Devices on the
-network  watch  network traffic and look for their own MAC address
-in each packet to determine whether they should decode  it or  not.
-Special circumstances exist  for broadcasting to every device.
+Pretty simple. Can you reproduce this?
 
-04.01Q: What is a "segment"?
-A: A  piece of network wire bounded by bridges,  routers, repeaters or
-terminators.
+> If, however, you had first done 'ls -l' or something that tries to
+> read the symlink itself, more strict revalidation checks are
+> performed, and the stale dentry would have been detected.
 
-04.02Q: What is a "subnet"?
-A: Another overloaded  term. It can  mean, depending on  the usage,  a
-segment, a set of machines  grouped together by a specific protocol
-feature  (note  that  these machines do not have to be on  the same
-segment, but they could be) or a big  nylon  thing used  to capture
-enemy subs.
+Not sure.
 
+> I can tighten the checks on this sort of thing a bit, but if so, it
+> needs to be done carefully. It is important to make sure that
+> operations like
+>    'ls /usr/lib/*'
+> (in which you want the system to repeatedly look up the same path) are
+> efficient by caching the '/usr/lib' bit even if that /usr/lib is a
+> symlink.
+> Of course every time we do open("/usr/lib/libc.so"), we *do* want to
+> make sure that we perform strict checks when we do the lookup of the
+> last element of the path (on the actual file "libc.so").
+>
+> Cheers,
+>   Trond
 
-
-
-
-
-
--- 
-timothy.covell@ashavan.org.
+Thank for your patience,
+Hans-Peter

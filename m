@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262316AbVCITV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVCITV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbVCITV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 14:21:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVCITQ7
+	id S262219AbVCITV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 14:21:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVCITR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 14:16:59 -0500
-Received: from main.gmane.org ([80.91.229.2]:9700 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262393AbVCITOa (ORCPT
+	Wed, 9 Mar 2005 14:17:29 -0500
+Received: from mail.kroah.org ([69.55.234.183]:18384 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262219AbVCITMq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 14:14:30 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Bob Bennett <robert.bennett@ca.com>
-Subject: Re: Reading large /proc entry from kernel module
-Date: Wed, 9 Mar 2005 15:17:07 +0000 (UTC)
-Message-ID: <loom.20050309T161017-339@post.gmane.org>
-References: <200503081445.56237.ks@cs.aau.dk>
+	Wed, 9 Mar 2005 14:12:46 -0500
+Date: Wed, 9 Mar 2005 11:12:30 -0800
+From: Greg KH <greg@kroah.com>
+To: "Kilau, Scott" <Scott_Kilau@digi.com>
+Cc: Wen Xiong <wendyx@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ patch 6/7] drivers/serial/jsm: new serial device driver
+Message-ID: <20050309191230.GA27501@kroah.com>
+References: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D9E9@minimail.digi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 141.202.248.11 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821)
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D9E9@minimail.digi.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristian Sørensen <ks <at> cs.aau.dk> writes:
+On Wed, Mar 09, 2005 at 11:42:31AM -0600, Kilau, Scott wrote:
+> Hi Wendy, Greg, all,
+> 
+> If IBM intends on our DPA management program to work for the JSM
+> products, the ioctls are needed.
 
-> 
-> Hi all!
-> 
-> I have some trouble reading a 2346 byte /proc entry from our Umbrella kernel 
-> module.
+Wendy, what is IBM's stance on this?
 
-> 	if (count != UMB_POLICY_SIZE) {
-> 		printk("Umbrella: Error - /proc/umbrella is of invalid size\n");
-> 		return -EFAULT;
+> DPA support is a requirement for all Digi drivers, so it would
+> not be possible for me to remove them from my "dgnc" version
+> of the driver.
 
-> 	if (copy_from_user(lbuf, buffer, count)) {
-> 		kfree(lbuf);
-> 		kfree(policy);
-> 		return -EFAULT;
-> 	}
-> 
-> 	strcpy(policy, lbuf);
-> 	umb_parse_proc(policy);
-> 
-> }
-> 
+"requirement" from whom and to who?  The Linux kernel community?
 
-> Now that everything works, I want to write a string of excactly 2346 
-> characters to the /proc/umbrella file. However when I make the 
-> copy_from_user, I only get the first 1003 characters (
-> - Do you have a pointer to where I do this thing wrong?
+> For the JSM driver, its up to you whether you feel its needed or not.
 > 
-> What is the limit regarding the size of writing a /proc entry? (we consider 
-> importing binary public keys to the kernel this way in the future).
+> However, I would like to mention that the DIGI drivers that currently
+> reside in the kernel sources *do* reserve that ioctl space,
+> and is acknowledged by "Documentation/ioctl-number.txt":
+> > d'     F0-FF   linux/digi1.h
 > 
-> Best regards,
-> Kristian.
-> 
+> I understand that the list is not a reservation list,
+> but a current list of potential ioctl conflicts...
 
-What makes you think you only have 1003 bytes?  If UMB_POLICY_SIZE is defined as
-2346, then user space must have written that amount.  Probably the problem is
-that you used strcpy() to copy the data from lbuf to policy, and there is a null
-character after 1003 bytes.  It is an unnecessary extra step to allocate two
-buffers (lbuf & policy) and copy data from one to the other.  Why not just pass
-lbuff to umb_parse_proc()??
+It's not a reservation issue, it's the fact that we don't want to allow
+new ioctls, and if we do, they had better work properly (your
+implementation does not.)
 
-Regards,
-   Bob Bennett
+thanks,
 
+greg k-h

@@ -1,50 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288781AbSAEMEf>; Sat, 5 Jan 2002 07:04:35 -0500
+	id <S288789AbSAEMIp>; Sat, 5 Jan 2002 07:08:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288787AbSAEMEZ>; Sat, 5 Jan 2002 07:04:25 -0500
-Received: from tangens.hometree.net ([212.34.181.34]:37533 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S288781AbSAEMEJ>; Sat, 5 Jan 2002 07:04:09 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Two hdds on one channel - why so slow?
-Date: Sat, 5 Jan 2002 12:04:08 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <a16q3o$sl8$1@forge.intermeta.de>
-In-Reply-To: <20020104191906.5fe0efe9.skraw@ithnet.com> <E16MZEf-00053p-00@the-village.bc.nu> <20020105015215.A1506@werewolf.able.es>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1010232248 28072 212.34.181.4 (5 Jan 2002 12:04:08 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sat, 5 Jan 2002 12:04:08 +0000 (UTC)
-X-Warning: This article could contain indecent words in German and/or English.
+	id <S288790AbSAEMIf>; Sat, 5 Jan 2002 07:08:35 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:13841 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S288789AbSAEMIc>;
+	Sat, 5 Jan 2002 07:08:32 -0500
+Message-ID: <XFMail.20020105125812.ast@domdv.de>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <1010174181.2530.2.camel@localhost.localdomain>
+Date: Sat, 05 Jan 2002 12:58:12 +0100 (CET)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
+Subject: Re: APM driver patch summary
+Cc: linux-kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk,
+        Thomas Hood <jdthood@mail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you don't want to read such words, please use a Killfile.
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
 
-"J.A. Magallon" <jamagallon@able.es> writes:
+On 04-Jan-2002 Borsenkow Andrej wrote:
+> Sorry for the delay, I was off before New Year and then could not test
+> it ...
+> 
+> 
+> On óÂÔ, 2001-12-22 at 17:44, Andreas Steinmetz wrote:
+>> Hi,
+>> I merged 2., 3. and 4. (attached) with some modifications.
+>> 
+>> 1. There is now a module parameter apm-idle-threshold which allows to
+>> override
+>>    the compiled in idle percentage threshold above which BIOS idle calls are
+>>    done.
+>> 
+>> 2. I modified Andrej's mechanism to detect a defunct BIOS (stating 'does
+>> stop
+>>    CPU' when it actually doesn't) to take into account that there's other
+>>    interrupts than the timer interrupt that could reactivate the cpu.
+>>    As there's 16 hardware interrupts on x86 (apm is arch specific anyway) I
+>>    do
+>>    use a leaky bucket counter for a maximum of 16 idle rounds until jiffies
+>>    is
+>>    increased. When the counter reaches zero it stays at this value and the
+>>    system idle routine is called. If BIOS idle is a noop then the counter
+>>    reaches zero fast, thus effectively halting the cpu.
+>> 
+> 
+> I do not think you need it. Either interrupt waked up somebody and set
+> need_resched and we exit loop or nobody is ready to run and we can sleep
+> again. Why complicate things any more than needed? 
+> 
 
->(btw, I am still using -in low end linux boxen- Quantum SCSI drives that
->came with prehistoric macs, SEs and so on, so they can be about 8 years
->old. They work, slow for today standars, but work. Can anybody say the
->same about ide drives ?)
+NIC interrupt with fragmented packet, usb, sound, ... - there's interrupts with
+nobody ready to run. Have a look at /proc/interrupts from time to time while
+your system is idle.
 
-I have an Seagate ST238R (30 MB, 5 1/4" full size) on my Amiga. It
-still spins up... haven't tried reading from it, though. 14 years old.
+>> Andrej, could you please test the patch if it works for your laptop?
+>> 
+> 
+> It does not work and I am very surprised it works for somebody (well,
+> there are conditios when it will work). By default pm_idle is always
+> NULL so we *never* actually call kernel function that really stops CPU.
+> Main idle task is cpu_idle that does
+> 
 
-	Regards
-		Henning
+Well, if your BIOS is not broken it works. That's why I asked you to test the
+patch.
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+> if (pm_idle)
+>    pm_idle()
+> or
+>    default_idle
+> 
+> and CPU is halted in default_idle. So your patch just enters busy loop
+> calling BIOS APM Idle over and over again just like it was before.
+> 
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Granted.
+
+> Attached patch makes apm_cpu_idle do the same and call either old
+> pm_idle (a.k.a. sys_idle) or default_idle. I removed your interrupt
+> handling - it does not actually affect the problem but it still is not
+> needed IMHO. t1, t2 are changed from int into long because jiffies is
+> long - not sure if it is really needed.
+> 
+
+Please don't  do it like this. It breaks apm module build for sure. I would
+suggest to implement the functionality of default_idle() into apm_cpu_idle().
+Though I could do this right now I'd ask all participating parties to agree on
+a current code status on which to work on.
+
+> cheers and sorry for delay
+> 
+> -andrej
+> 
+> 
+> 
+
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

@@ -1,98 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVAMWEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbVAMWNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbVAMWEG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 17:04:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVAMWCz
+	id S261771AbVAMWNp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 17:13:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVAMWNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 17:02:55 -0500
-Received: from www.ssc.unict.it ([151.97.230.9]:45061 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S261764AbVAMV6a (ORCPT
+	Thu, 13 Jan 2005 17:13:10 -0500
+Received: from www.ssc.unict.it ([151.97.230.9]:40965 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S261741AbVAMV61 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 16:58:30 -0500
-Subject: [patch 09/11] uml: add stack content to dumps
+	Thu, 13 Jan 2005 16:58:27 -0500
+Subject: [patch 08/11] uml: fix and cleanup code in ubd_kern.c coming from ubd_user.c
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
        user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
 From: blaisorblade_spam@yahoo.it
-Date: Thu, 13 Jan 2005 22:01:08 +0100
-Message-Id: <20050113210108.751921FEF9@zion>
+Date: Thu, 13 Jan 2005 22:01:06 +0100
+Message-Id: <20050113210106.38C071FEF6@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Copy some code from i386 to print the stack content. Rough form yet, should
-work although.
+* Fix the use of errno: it refers to the __errno_location glibc definition
+  when in ubd_user.c, and hence works; but in ubd_kern.c it refers to
+  kernel_errno, which is different. So use the return value of os_* functions,
+  as we should always have done.
+* Remove {read,write}_ubd_fs(), which are just silly.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
 ---
 
- linux-2.6.10-rc-paolo/arch/um/kernel/sysrq.c |   40 +++++++++++++++++++++++----
- 1 files changed, 35 insertions(+), 5 deletions(-)
+ linux-2.6.11-paolo/arch/um/drivers/ubd_kern.c |   21 ++++-----------------
+ 1 files changed, 4 insertions(+), 17 deletions(-)
 
-diff -puN arch/um/kernel/sysrq.c~uml-add-stack-content-to-dumps arch/um/kernel/sysrq.c
---- linux-2.6.10-rc/arch/um/kernel/sysrq.c~uml-add-stack-content-to-dumps	2004-11-30 18:32:12.000000000 +0100
-+++ linux-2.6.10-rc-paolo/arch/um/kernel/sysrq.c	2004-11-30 20:27:06.540447816 +0100
-@@ -15,11 +15,13 @@
- void show_trace(unsigned long * stack)
- {
- 	/* XXX: Copy the CONFIG_FRAME_POINTER stack-walking backtrace from
--	 * arch/i386/kernel/traps.c. */
-+	 * arch/i386/kernel/traps.c, and then move this to sys-i386/sysrq.c.*/
-         unsigned long addr;
+diff -puN arch/um/drivers/ubd_kern.c~uml-start-fixing-ubd arch/um/drivers/ubd_kern.c
+--- linux-2.6.11/arch/um/drivers/ubd_kern.c~uml-start-fixing-ubd	2005-01-13 05:53:42.073259584 +0100
++++ linux-2.6.11-paolo/arch/um/drivers/ubd_kern.c	2005-01-13 05:53:42.076259128 +0100
+@@ -83,8 +83,6 @@ extern int create_cow_file(char *cow_fil
+ 			   unsigned long *bitmap_len_out,
+ 			   int *data_offset_out);
+ extern int read_cow_bitmap(int fd, void *buf, int offset, int len);
+-extern int read_ubd_fs(int fd, void *buffer, int len);
+-extern int write_ubd_fs(int fd, char *buffer, int len);
+ extern void do_io(struct io_thread_req *req);
  
--        if (!stack)
-+        if (!stack) {
-                 stack = (unsigned long*) &stack;
-+		WARN_ON(1);
-+	}
+ static inline int ubd_test_bit(__u64 bit, unsigned char *data)
+@@ -323,7 +321,7 @@ static int ubd_setup_common(char *str, i
+ 		}
  
-         printk("Call Trace: \n");
-         while (((long) stack & (THREAD_SIZE-1)) != 0) {
-@@ -34,7 +36,8 @@ void show_trace(unsigned long * stack)
+ 		if(!strcmp(str, "sync")){
+-			global_openflags.s = 1;
++			global_openflags = of_sync(global_openflags);
+ 			return(0);
+ 		}
+ 		major = simple_strtoul(str, &end, 0);
+@@ -513,7 +511,7 @@ static void ubd_handler(void)
+ 
+ 	do_ubd = NULL;
+ 	intr_count++;
+-	n = read_ubd_fs(thread_fd, &req, sizeof(req));
++	n = os_read_file(thread_fd, &req, sizeof(req));
+ 	if(n != sizeof(req)){
+ 		printk(KERN_ERR "Pid %d - spurious interrupt in ubd_handler, "
+ 		       "err = %d\n", os_getpid(), -n);
+@@ -1155,7 +1153,7 @@ static void do_ubd_request(request_queue
+ 		err = prepare_request(req, &io_req);
+ 		if(!err){
+ 			do_ubd = ubd_handler;
+-			n = write_ubd_fs(thread_fd, (char *) &io_req, 
++			n = os_write_file(thread_fd, (char *) &io_req,
+ 					 sizeof(io_req));
+ 			if(n != sizeof(io_req))
+ 				printk("write to io thread failed, "
+@@ -1436,7 +1434,7 @@ int open_ubd_file(char *file, struct ope
+ 		if((fd == -ENOENT) && (create_cow_out != NULL))
+ 			*create_cow_out = 1;
+                 if(!openflags->w ||
+-                   ((errno != EROFS) && (errno != EACCES))) return(-errno);
++                   ((fd != -EROFS) && (fd != -EACCES))) return(fd);
+ 		openflags->w = 0;
+ 		fd = os_open_file(file, *openflags, mode);
+ 		if(fd < 0)
+@@ -1513,17 +1511,6 @@ int create_cow_file(char *cow_file, char
+ 	return(err);
  }
  
- /*
-- * The architecture-independent dump_stack generator
-+ * stack dumps generator - this is used by arch-independent code.
-+ * And this is identical to i386 currently.
-  */
- void dump_stack(void)
+-/* XXX Just trivial wrappers around os_read_file and os_write_file */
+-int read_ubd_fs(int fd, void *buffer, int len)
+-{
+-	return(os_read_file(fd, buffer, len));
+-}
+-
+-int write_ubd_fs(int fd, char *buffer, int len)
+-{
+-	return(os_write_file(fd, buffer, len));
+-}
+-
+ static int update_bitmap(struct io_thread_req *req)
  {
-@@ -44,7 +47,34 @@ void dump_stack(void)
- }
- EXPORT_SYMBOL(dump_stack);
- 
--void show_stack(struct task_struct *task, unsigned long *sp)
-+/*Stolen from arch/i386/kernel/traps.c */
-+static int kstack_depth_to_print = 24;
-+
-+/* This recently started being used in arch-independent code too, as in
-+ * kernel/sched.c.*/
-+void show_stack(struct task_struct *task, unsigned long *esp)
- {
--	show_trace(sp);
-+	unsigned long *stack;
-+	int i;
-+
-+	if (esp == NULL) {
-+		if (task != current) {
-+			esp = (unsigned long *) KSTK_ESP(task);
-+			/* Which one? No actual difference - just coding style.*/
-+			//esp = (unsigned long *) PT_REGS_IP(&task->thread.regs);
-+		} else {
-+			esp = (unsigned long *) &esp;
-+		}
-+	}
-+
-+	stack = esp;
-+	for(i = 0; i < kstack_depth_to_print; i++) {
-+		if (kstack_end(stack))
-+			break;
-+		if (i && ((i % 8) == 0))
-+			printk("\n       ");
-+		printk("%08lx ", *stack++);
-+	}
-+
-+	show_trace(esp);
- }
+ 	int n;
 _

@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274513AbRJJDng>; Tue, 9 Oct 2001 23:43:36 -0400
+	id <S274520AbRJJDt2>; Tue, 9 Oct 2001 23:49:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274520AbRJJDn1>; Tue, 9 Oct 2001 23:43:27 -0400
-Received: from quechua.inka.de ([212.227.14.2]:27432 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S274513AbRJJDnT>;
-	Tue, 9 Oct 2001 23:43:19 -0400
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
+	id <S274530AbRJJDtS>; Tue, 9 Oct 2001 23:49:18 -0400
+Received: from mailout5-0.nyroc.rr.com ([24.92.226.122]:44929 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S274520AbRJJDtH>; Tue, 9 Oct 2001 23:49:07 -0400
+Message-ID: <07a801c1513e$a07e2b90$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "SATHISH.J" <sathish.j@tatainfotech.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.evjttkv.77obpm@ifi.uio.no> <fa.i76guuv.758o9k@ifi.uio.no>
 Subject: Re: Reg-network driver.
-In-Reply-To: <Pine.LNX.4.10.10110091750390.11843-100000@blrmail>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-pre3-xfs (i686))
-Message-Id: <E15rAHc-0007Ct-00@calista.inka.de>
-Date: Wed, 10 Oct 2001 05:43:48 +0200
+Date: Tue, 9 Oct 2001 23:49:50 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.10.10110091750390.11843-100000@blrmail> you wrote:
 > I have cscope installed to search source files.
-> I could not find "register_netdevice()" functionthrough it. I want to see
-> where it calls the driver initialisation.
+> I could not find "register_netdevice()" functionthrough it. 
+> I want to see where it calls the driver initialisation.
 
-:) You should use more sophistacated and complex, very high tech new source
-browsing tools like find and grep instead :) It's of course in the network
-core.
+http://lxr.linux.no/ident is your friend =).
 
-Greetings
-Bernd
+Regards,
+Dan
+
+
+

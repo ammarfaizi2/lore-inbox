@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264856AbTAJKmz>; Fri, 10 Jan 2003 05:42:55 -0500
+	id <S264853AbTAJKnJ>; Fri, 10 Jan 2003 05:43:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264853AbTAJKmz>; Fri, 10 Jan 2003 05:42:55 -0500
-Received: from mail.hometree.net ([212.34.181.120]:61917 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S264856AbTAJKmy>; Fri, 10 Jan 2003 05:42:54 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Date: Fri, 10 Jan 2003 10:51:38 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <avm8jq$ka9$1@forge.intermeta.de>
-References: <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org> <E18WB8Q-0004k6-00@fencepost.gnu.org> <20030108115327.GA5020@gnuppy.monkey.org> <E18WlrH-0000NO-00@fencepost.gnu.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1042195898 1667 212.34.181.4 (10 Jan 2003 10:51:38 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Fri, 10 Jan 2003 10:51:38 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S264867AbTAJKnJ>; Fri, 10 Jan 2003 05:43:09 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19089
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264853AbTAJKnH>; Fri, 10 Jan 2003 05:43:07 -0500
+Subject: Re: Problem in IDE Disks cache handling in kernel 2.4.XX
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: fverscheure@wanadoo.fr
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Andre Hedrick <andre@linux-ide.org>
+In-Reply-To: <20030110095558.E144CFF11@postfix4-1.free.fr>
+References: <20030110095558.E144CFF11@postfix4-1.free.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042198670.28469.45.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 10 Jan 2003 11:37:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Stallman <rms@gnu.org> writes:
+On Fri, 2003-01-10 at 09:54, Francis Verscheure wrote:
+> In fact for ATA/ATAPI 5 cfs_enable_2  has no meaning.  The fields to test are 
+> write cache bits in command_set_1 and cfs_enable_1.
+> And in both cases the FLUSH CACHE command ALWAYS EXISTS !
+> The test of cfs_enable_2 must only be used for ATA/ATAPI 6 drives to use 
+> FLUSH CACHE or FLUSH CACHE EXT in case of 48 bit addressing mode.
 
->There is no such thing as an open source community.  The people who
->founded the open source movement in 1998, and the people who support
->it now, are part of the free software community.  (We in the free
+Thanks for the report. I need to go reread the spec before I can
+definitively comemnt on this.
 
-Open Source != Free Software. Else Microsoft would be part of the
-"free software community", because they open up their sources, too.
+> And it seems to me that when an IDE drive has a cache enabled wcache must be 
+> initialized to say so ? Or you have to do a STANDY or SLEEP before APM 
+> suspend or power off to be sure that the cache has been written to the disk.
 
-There is "free software (free as in free beer)" which is not open
-sourced.
+Technically - no. In the real world its a very very good idea
 
-As you build most of your assumptions on this, this is where you whole
-logic breaks down.
+> I had a look at patch 2.4.21pre3 and the code looks the same.
+> 
+> And by the way how are powered off the IDE drives ?
+> Because a FLUSH CACHE or STANDY or SLEEP is MANDATORY before powering off the 
+> drive with cache enabled or you will enjoy lost data
 
-	Regards
-		Henning
+IDE disagrees with itself over this but when we get a controlled power
+off we do this. The same ATA5/ATA6 problem may well be present there
+too. I will review both
 
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+Any specific opinion Andre ?
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

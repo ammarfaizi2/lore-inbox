@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbUKFAH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbUKFAca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbUKFAH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 19:07:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbUKFAH4
+	id S261286AbUKFAca (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 19:32:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbUKFAca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 19:07:56 -0500
-Received: from ms-smtp-02.rdc-kc.rr.com ([24.94.166.122]:35053 "EHLO
-	ms-smtp-02.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S261279AbUKFAHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 19:07:49 -0500
-Date: Fri, 5 Nov 2004 18:06:02 -0600
-From: Andy Warner <andyw@pobox.com>
-To: Brad Campbell <brad@wasp.net.au>
-Cc: Andy Warner <andyw@pobox.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [SATA] status report, libata-dev queue updated
-Message-ID: <20041105180602.D31715@florence.linkmargin.com>
-References: <20041105100049.GA31653@havoc.gtf.org> <418BCED3.1030600@wasp.net.au> <20041105132613.A30910@florence.linkmargin.com> <418BD814.807@wasp.net.au>
+	Fri, 5 Nov 2004 19:32:30 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28649 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261286AbUKFAc0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 19:32:26 -0500
+Date: Fri, 5 Nov 2004 16:32:21 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: levon@movementarian.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, cliffw@osdl.org
+Subject: [PATCH][OPROFILE] disable preempt when calling smp_processor_id()
+Message-ID: <20041105163221.J14339@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <418BD814.807@wasp.net.au>; from brad@wasp.net.au on Fri, Nov 05, 2004 at 11:44:20PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Campbell wrote:
-> Andy Warner wrote:
-> > Brad Campbell wrote:
-> > 
-> >>[...]
-> >>Read that as "I have tried really, really hard to break it and as yet been unable to".
-> > 
-> > 
-> > Is your system SMP ? I'm actively tracking a problem now with
-> > pass-thru behaviour (via /dev/sg* ) on SMP systems.
-> 
-> Nope, sorry. Only lowly UP here.
+Oprofile is hitting many of the below BUG messages.
 
-I can confirm that there is some sort of problem with
-PIO and SMP. Either exercising only DMA commands, or booting
-with maxcpus=1 avoids the problem. At present, I suspect
-the PIO task and/or state machine, but I'm still investigating.
+BUG: using smp_processor_id() in preemptible [00000001] code: sleep/4892
+caller is task_exit_notify+0x9/0x17
+Call Trace: <ffffffff802ac70f>{smp_processor_id+191}
+	    <ffffffff803ff219>{task_exit_notify+9}
+	    <ffffffff8014a930>{notifier_call_chain+32}
+	    <ffffffff8013d181>{profile_task_exit+49}
+	    <ffffffff8013eb22>{do_exit+34}
+	    <ffffffff80146490>{process_timeout+0}
+	    <ffffffff8013f8c8>{do_group_exit+264}
+	    <ffffffff801106b6>{system_call+126}
 
-I doubt this problem will occur unless you have concurrent
-PIO access to different controllers on an SMP system.
--- 
-andyw@pobox.com
+smp_processor_id() is called w/out preempt disabled.  Use
+get_cpu()/put_cpu() instead.  Should this be put_cpu_no_resched()?
 
-Andy Warner		Voice: (612) 801-8549	Fax: (208) 575-5634
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+
+--- linux-2.6.10-rc1-mm3-smp_processor_id/drivers/oprofile/buffer_sync.c~orig	2004-11-05 15:21:21.551984200 -0800
++++ linux-2.6.10-rc1-mm3-smp_processor_id/drivers/oprofile/buffer_sync.c	2004-11-05 15:23:29.000000000 -0800
+@@ -62,7 +62,8 @@
+ 	/* To avoid latency problems, we only process the current CPU,
+ 	 * hoping that most samples for the task are on this CPU
+ 	 */
+-	sync_buffer(smp_processor_id());
++	sync_buffer(get_cpu());
++	put_cpu();
+   	return 0;
+ }
+ 
+@@ -86,7 +87,8 @@
+ 		/* To avoid latency problems, we only process the current CPU,
+ 		 * hoping that most samples for the task are on this CPU
+ 		 */
+-		sync_buffer(smp_processor_id());
++		sync_buffer(get_cpu());
++		put_cpu();
+ 		return 0;
+ 	}
+ 

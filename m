@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbTJZQxh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 11:53:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263312AbTJZQxg
+	id S263304AbTJZQwP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 11:52:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263307AbTJZQwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 11:53:36 -0500
-Received: from m77.net81-65-140.noos.fr ([81.65.140.77]:24745 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S263310AbTJZQx1
+	Sun, 26 Oct 2003 11:52:15 -0500
+Received: from m77.net81-65-140.noos.fr ([81.65.140.77]:23721 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S263304AbTJZQwK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 11:53:27 -0500
-Date: Sun, 26 Oct 2003 17:52:49 +0100
+	Sun, 26 Oct 2003 11:52:10 -0500
+Date: Sun, 26 Oct 2003 17:51:33 +0100
 From: Stelian Pop <stelian@popies.net>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 2.6.0-test9] meye driver update
-Message-ID: <20031026165249.GV4013@deep-space-9.dsnet>
+Subject: [PATCH 2.6.0-test9] sonypi driver update
+Message-ID: <20031026165133.GU4013@deep-space-9.dsnet>
 Reply-To: Stelian Pop <stelian@popies.net>
 Mail-Followup-To: Stelian Pop <stelian@popies.net>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -28,9 +28,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This small patch documents the existence of a forth 'motioneye'
-camera plugged into the USB bus, of course unsupported by the
-meye driver.
+This small patch corrects the Zoom and Thumbphrase button events.
 
 Linus, please apply.
 
@@ -38,32 +36,28 @@ Thanks,
 
 Stelian.
 
-===== Documentation/video4linux/meye.txt 1.7 vs edited =====
---- 1.7/Documentation/video4linux/meye.txt	Fri Aug  1 14:47:51 2003
-+++ edited/Documentation/video4linux/meye.txt	Sun Oct 26 15:00:36 2003
-@@ -33,6 +33,11 @@
- driver however), but things are not moving very fast (see
- http://r-engine.sourceforge.net/) (PCI vendor/device is 0x10cf/0x2011).
+===== drivers/char/sonypi.h 1.18 vs edited =====
+--- 1.18/drivers/char/sonypi.h	Mon Sep  1 12:37:24 2003
++++ edited/drivers/char/sonypi.h	Fri Oct 24 21:13:49 2003
+@@ -37,7 +37,7 @@
+ #ifdef __KERNEL__
  
-+There is a forth model connected on the USB bus in TR1* Vaio laptops.
-+This camera is not supported at all by the current driver, in fact
-+little information if any is available for this camera
-+(USB vendor/device is 0x054c/0x0107).
-+
- Driver options:
- ---------------
+ #define SONYPI_DRIVER_MAJORVERSION	 1
+-#define SONYPI_DRIVER_MINORVERSION	20
++#define SONYPI_DRIVER_MINORVERSION	21
  
-===== drivers/media/video/meye.h 1.10 vs edited =====
---- 1.10/drivers/media/video/meye.h	Tue Sep 30 02:23:29 2003
-+++ edited/drivers/media/video/meye.h	Fri Oct 24 21:14:38 2003
-@@ -31,7 +31,7 @@
- #define _MEYE_PRIV_H_
+ #define SONYPI_DEVICE_MODEL_TYPE1	1
+ #define SONYPI_DEVICE_MODEL_TYPE2	2
+@@ -329,8 +329,8 @@
+ 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_PKEY_MASK, sonypi_pkeyev },
+ 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x11, SONYPI_BACK_MASK, sonypi_backev },
+ 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_HELP_MASK, sonypi_helpev },
+-	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_ZOOM_MASK, sonypi_zoomev },
+-	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_THUMBPHRASE_MASK, sonypi_thumbphraseev },
++	{ SONYPI_DEVICE_MODEL_TYPE2, 0x21, SONYPI_ZOOM_MASK, sonypi_zoomev },
++	{ SONYPI_DEVICE_MODEL_TYPE2, 0x20, SONYPI_THUMBPHRASE_MASK, sonypi_thumbphraseev },
+ 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x31, SONYPI_MEMORYSTICK_MASK, sonypi_memorystickev },
+ 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x41, SONYPI_BATTERY_MASK, sonypi_batteryev },
  
- #define MEYE_DRIVER_MAJORVERSION	1
--#define MEYE_DRIVER_MINORVERSION	7
-+#define MEYE_DRIVER_MINORVERSION	8
- 
- #include <linux/config.h>
- #include <linux/types.h>
 -- 
 Stelian Pop <stelian@popies.net>

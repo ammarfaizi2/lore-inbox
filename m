@@ -1,96 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266643AbUIANtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUIANvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266643AbUIANtg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 09:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267401AbUIANrL
+	id S266704AbUIANvG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 09:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUIANj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 09:47:11 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:26761 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S266646AbUIANno (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 09:43:44 -0400
-Date: Wed, 1 Sep 2004 15:43:41 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Ian Wienand <ianw@gelato.unsw.edu.au>, Christoph Hellwig <hch@lst.de>
-Subject: Re: kbuild: Support LOCALVERSION
-Message-ID: <20040901134341.GT6985@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, Ian Wienand <ianw@gelato.unsw.edu.au>,
-	Christoph Hellwig <hch@lst.de>
-References: <20040831192642.GA15855@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Nx8xdmI2KD3LNVVP"
-Content-Disposition: inline
-In-Reply-To: <20040831192642.GA15855@mars.ravnborg.org>
-X-Operating-System: Linux mail 2.6.8-rc4 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+	Wed, 1 Sep 2004 09:39:58 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:50560
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266319AbUIANh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 09:37:28 -0400
+To: akpm@osdl.org
+Subject: [PATCH 1/2] topdown support for ppc64
+Cc: apw@shadowen.org, linux-kernel@vger.kernel.org
+Message-Id: <E1C2VIe-0005pb-P5@localhost.localdomain>
+From: Andy Whitcroft <apw@shadowen.org>
+Date: Wed, 01 Sep 2004 14:37:20 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Recent patches introduced a top down user process address space
+allocation policy; further patches enable this for ppc64.
+Although these work correctly for normal maps, the topdown
+algorithm does not take into account stringent mixing constraints
+for small and large pages on this architecture.  These patches
+introduce a ppc64 specific arch_get_unused_area_topdown() variant.
+The first introduces infrastructure to allow replacement of the
+generic arch_get_unused_area_topdown() and the second utilises
+this infrastructure.
 
---Nx8xdmI2KD3LNVVP
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In this patch I have followed the pattern set by the
+arch_get_unused_area() using HAVE_ARCH_UNMAPPED_AREA_TOPDOWN to
+be consistent.  However, it would also be possible to simply have
+a ppc64_get_unused_area_topdown() in the arch/ppc64/mm/mmap.c or
+to use weak bindings.
 
-On Tue, 2004-08-31 21:26:43 +0200, Sam Ravnborg <sam@ravnborg.org>
-wrote in message <20040831192642.GA15855@mars.ravnborg.org>:
-> The following patch combines the request from several people.
-> If you place a file named localversion* in the root of your
-> soruce tree or the root of your output tree the text included in this
-> file will be appended to KERNELRELEASE.
->=20
-> LOCALVERSION was originally introduced by Ian Wienand <ianw@gelato.unsw.e=
-du.au>
->=20
-> This allows one to put a short string in localversion identifying this
-> particular configuration "-smpacpi", or to identify applied patches
-> to the source "-llat-np".
->=20
-> More specifically:
-> $(srctree)/localversion-lowlatency contains "-llat"
-> $(srctree)/localversion-scheduler-nick constins "-np"
->=20
-> $(objtree)/localversion contains "-smpacpi"
->=20
-> Resulting KERNELRELEASE would be:
-> 2.6.8.rc1-smpacpi-llat-np
+-apw
 
-Basically: I love it. Maybe it would also be good (in the longer term)
-to introduce a config name into one of the Kconfig files, which is
-preserved in the .config file (eg. SuSE does something like that and
-even while I'm not a SuSE user, it's really dandy at some times, esp.
-for things like "SMP-4GB", "VAX-KA4x" and the like). It's basically like
-adding the defconfig_* name to some of the variables :-)
+=== 8< ===
+Allow an architecture to override the default definition of
+arch_get_unmapped_area_topdown().
 
-MfG, JBG
-PS: When will the package support show up?
+Revision: $Rev: 602 $
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
-  O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 
---Nx8xdmI2KD3LNVVP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+diffstat 090-arch_topdown
+---
+ mmap.c |    2 ++
+ 1 files changed, 2 insertions(+)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBNdINHb1edYOZ4bsRApdWAJ4gguWGD/Iag6RXwOmv9+sDwXEYRgCfSyyd
-aU2B/PTTzQldFem+XVo9/i8=
-=Sxr4
------END PGP SIGNATURE-----
-
---Nx8xdmI2KD3LNVVP--
+diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/mm/mmap.c current/mm/mmap.c
+--- reference/mm/mmap.c	2004-08-25 12:33:42.000000000 +0100
++++ current/mm/mmap.c	2004-08-26 12:26:59.000000000 +0100
+@@ -1078,6 +1078,7 @@ void arch_unmap_area(struct vm_area_stru
+  * This mmap-allocator allocates new areas top-down from below the
+  * stack's low limit (the base):
+  */
++#ifndef HAVE_ARCH_UNMAPPED_AREA_TOPDOWN
+ unsigned long
+ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
+ 			  const unsigned long len, const unsigned long pgoff,
+@@ -1162,6 +1163,7 @@ fail:
+ 
+ 	return addr;
+ }
++#endif
+ 
+ void arch_unmap_area_topdown(struct vm_area_struct *area)
+ {

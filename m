@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318958AbSHMH1I>; Tue, 13 Aug 2002 03:27:08 -0400
+	id <S318962AbSHMHhz>; Tue, 13 Aug 2002 03:37:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318962AbSHMH1I>; Tue, 13 Aug 2002 03:27:08 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:32524 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S318958AbSHMH1H>; Tue, 13 Aug 2002 03:27:07 -0400
-Date: Tue, 13 Aug 2002 00:30:29 -0700 (PDT)
-From: J Sloan <jjs@freeside.toyota.com>
-To: Mitch Sako <msako@cadence.com>
-cc: J Sloan <jjs@lexus.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: -aa 3.5GB Patch Questions
-In-Reply-To: <3D5805F7.FA03F767@cadence.com>
-Message-ID: <Pine.LNX.4.30.0208130028330.19281-100000@freeside.toyota.com>
+	id <S318963AbSHMHhz>; Tue, 13 Aug 2002 03:37:55 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:37650 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S318962AbSHMHhy>; Tue, 13 Aug 2002 03:37:54 -0400
+Message-ID: <3D58B89E.1C9F8AEF@aitel.hist.no>
+Date: Tue, 13 Aug 2002 09:43:26 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.31 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Daniel Phillips <phillips@arcor.de>,
+       Bernd Eckenfels <ecki-news2002-08@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] VM Regress - A VM regression and test tool
+References: <Pine.LNX.4.44L.0208121101090.23404-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, 7.1, 7,2 and 7.3 -
+Rik van Riel wrote:
 
-all running -aa compiled with latest errata gcc 2.96
+> The thing is that developers need some benchmarking thing
+> they can script to run overnight.  Watching vmstat for
+> hours on end is not a useful way of spending development
+> time.
+> 
+> On the other hand, if somebody could code up some scriptable
+> benchmarks that approximate real workloads better than the
+> current benchmarks do, I'd certainly appreciate it.
+> 
+> For web serving, for example, I wouldn't mind a benchmark that:
+> 
+> 1) simulates a number of users, that:
+>     1a) load a page with 10 to 20 associated images
+>     1b) sleep for a random time between 3 and 60 seconds,
+>         "reading the page"
+>     1c) follow a link and grab another page with N images
+> 2) varies the number of users from 1 to N
+> 3) measures
+>     3a) the server's response time until it starts
+>         answering the request
+>     3b) the time it takes to download each full page
+> 
+> Then we can plot both kinds of response time against the number
+> of users and we have an idea of the web serving performance of
+> a particular system ... without focussing on, or even measuring,
+> the unrealistic "servers N pages per minute" number.
+> 
+Don't forget to count the total amount of
+swap & block io.  (i.e. vmstat 1 > logfile & sum it up)
 
-Joe
+Good strategies for page replacement may result in
+less io for the same job, which means a lot for
+performance whenever you get disk-bound.  Many
+a web server serves more than fits in cache, and of
+course there are file servers too...
 
-
-
-On Mon, 12 Aug 2002, Mitch Sako wrote:
-
-> I'm (re)installing all of the erratta now on a 7.2 machine.  What RH are you
-> running?  Unfortunately, I don't have a non-proprietary testcase to give out
-> because the one I have contains proprietary source code.
->
-> Mitch
->
-> J Sloan wrote:
->
-> > Just a sanity check, are you using the
-> > current (errata) red hat gcc?
-> >
-> > Just asking since 2.96 is all I use, and
-> > the -aa kernels are completely stable
-> > here - do you have a test workload to
-> > allow me to try and duplicate your bug?
-> >
-> > Joe
-> >
->
->
-
+Helge Hafting

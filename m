@@ -1,48 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268697AbUJDXbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268704AbUJDXkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268697AbUJDXbl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 19:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268700AbUJDXbl
+	id S268704AbUJDXkO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 19:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUJDXkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 19:31:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62641 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268697AbUJDXbj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 19:31:39 -0400
-Date: Mon, 4 Oct 2004 16:35:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Phil Oester <kernel@linuxace.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Process start times moving in reverse on 2.6.8.1
-Message-Id: <20041004163511.5624c52c.akpm@osdl.org>
-In-Reply-To: <20041004190054.GA29409@linuxace.com>
-References: <20041004190054.GA29409@linuxace.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 4 Oct 2004 19:40:14 -0400
+Received: from fed1rmmtao06.cox.net ([68.230.241.33]:18910 "EHLO
+	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S268704AbUJDXkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 19:40:00 -0400
+Date: Mon, 4 Oct 2004 16:39:58 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 2.6.9-rc3] Fix 'htmldocs' and friends with O=
+Message-ID: <20041004233958.GD32692@smtp.west.cox.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phil Oester <kernel@linuxace.com> wrote:
->
-> ISTR discussion on the mailing list about this problem,
-> and recently upgraded from 2.6.3 to 2.6.8.1 to hopefully
-> solve it, but alas the problem still exists.
-> 
-> Example:
-> 
-> # date ; ps -ef | grep ps | grep -v grep
-> Mon Oct  4 14:53:39 EDT 2004
-> root     29412 29351  0 14:51 pts/0    00:00:00 ps -ef
-> 
-> Notice the two minute difference between now and what the
-> process start time is.  Uptime on this box is 48 days, so
-> it is a gradual drift.
-> 
-> Any ideas on this?  Or has it been fixed since 2.6.8.1?
+Hello.  The following patch fixes up 'htmldocs' and related to work when
+trees are being built with O=.  I fixed it all up by passing the srctree
+as an env-var to docproc (and thus what it calls) and then pull that out
+when needed.
 
-It's allegedly fixed by
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm2/broken-out/fix-process-start-times.patch
-but I've seen no confirmation of that.
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
+--- linux-2.6.9-rc3.orig/Documentation/DocBook/Makefile
++++ linux-2.6.9-rc3/Documentation/DocBook/Makefile
+@@ -58,14 +58,14 @@ MAKEMAN   = $(PERL) $(srctree)/scripts/m
+ # The following rules are used to generate the .sgml documentation
+ # required to generate the final targets. (ps, pdf, html).
+ quiet_cmd_docproc = DOCPROC $@
+-      cmd_docproc = $(DOCPROC) doc $< >$@
++      cmd_docproc = SRCTREE=$(srctree)/ $(DOCPROC) doc $< >$@
+ define rule_docproc
+ 	set -e;								\
+         $(if $($(quiet)cmd_$(1)),echo '  $($(quiet)cmd_$(1))';) 	\
+         $(cmd_$(1)); 							\
+         ( 								\
+           echo 'cmd_$@ := $(cmd_$(1))'; 				\
+-          echo $@: `$(DOCPROC) depend $<`; 				\
++          echo $@: `SRCTREE=$(srctree) $(DOCPROC) depend $<`; 		\
+         ) > $(dir $@).$(notdir $@).cmd
+ endef
+ 
+@@ -129,6 +129,9 @@ quiet_cmd_db2html = DB2HTML $@
+ # Rule to generate man files - output is placed in the man subdirectory
+ 
+ %.9:	%.sgml
++ifneq ($(KBUILD_SRC),)
++	$(Q)mkdir -p $(objtree)/Documentation/DocBook/man
++endif
+ 	$(SPLITMAN) $< $(objtree)/Documentation/DocBook/man "$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)"
+ 	$(MAKEMAN) convert $(objtree)/Documentation/DocBook/man $<
+ 
+--- linux-2.6.9-rc3.orig/scripts/kernel-doc
++++ linux-2.6.9-rc3/scripts/kernel-doc
+@@ -1531,7 +1531,7 @@ sub process_state3_type($$) { 
+ }
+ 
+ sub process_file($) {
+-    my ($file) = @_;
++    my ($file) = "$ENV{'SRCTREE'}@_";
+     my $identifier;
+     my $func;
+     my $initial_section_counter = $section_counter;
+--- linux-2.6.9-rc3.orig/scripts/basic/docproc.c
++++ linux-2.6.9-rc3/scripts/basic/docproc.c
+@@ -79,6 +79,7 @@ void exec_kernel_doc(char **svec)
+ {
+ 	pid_t pid;
+ 	int ret;
++	char real_filename[PATH_MAX + 1];
+ 	/* Make sure output generated so far are flushed */
+ 	fflush(stdout);
+ 	switch(pid=fork()) {
+@@ -86,8 +87,13 @@ void exec_kernel_doc(char **svec)
+ 			perror("fork");
+ 			exit(1);
+ 		case  0:
+-			execvp(KERNELDOCPATH KERNELDOC, svec);
+-			perror("exec " KERNELDOCPATH KERNELDOC);
++			memset(real_filename, 0, sizeof(real_filename));
++			strncat(real_filename, getenv("SRCTREE"), PATH_MAX);
++			strncat(real_filename, KERNELDOCPATH KERNELDOC,
++					PATH_MAX - strlen(real_filename));
++			execvp(real_filename, svec);
++			fprintf(stderr, "exec ");
++			perror(real_filename);
+ 			exit(1);
+ 		default:
+ 			waitpid(pid, &ret ,0);
+@@ -160,12 +166,17 @@ void find_export_symbols(char * filename
+ 	struct symfile *sym;
+ 	char line[MAXLINESZ];
+ 	if (filename_exist(filename) == NULL) {
++		char real_filename[PATH_MAX + 1];
++		memset(real_filename, 0, sizeof(real_filename));
++		strncat(real_filename, getenv("SRCTREE"), PATH_MAX);
++		strncat(real_filename, filename,
++				PATH_MAX - strlen(real_filename));
+ 		sym = add_new_file(filename);
+-		fp = fopen(filename, "r");
++		fp = fopen(real_filename, "r");
+ 		if (fp == NULL)
+ 		{
+ 			fprintf(stderr, "docproc: ");
+-			perror(filename);
++			perror(real_filename);
+ 		}
+ 		while(fgets(line, MAXLINESZ, fp)) {
+ 			char *p;
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

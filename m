@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbTK1Kyk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 05:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTK1Kyk
+	id S262126AbTK1LC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 06:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTK1LC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 05:54:40 -0500
-Received: from mail.skjellin.no ([80.239.42.67]:65195 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S262116AbTK1Kyj (ORCPT
+	Fri, 28 Nov 2003 06:02:28 -0500
+Received: from ns.suse.de ([195.135.220.2]:57570 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262126AbTK1LC1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 05:54:39 -0500
+	Fri, 28 Nov 2003 06:02:27 -0500
+To: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Strange behavior observed w.r.t 'su' command
-From: Andre Tomt <lkml@tomt.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031128105750.GA5777@cambrant.com>
-References: <3FC707B6.1070704@mailandnews.com> <yw1xekvs3lbt.fsf@kth.se>
-	 <20031128105750.GA5777@cambrant.com>
-Content-Type: text/plain
-Message-Id: <1070016863.29981.28.camel@slurv.pasop.tomt.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 28 Nov 2003 11:54:23 +0100
-Content-Transfer-Encoding: 7bit
+References: <3FC707B6.1070704@mailandnews.com> <jeoeuw7pf7.fsf@sykes.suse.de>
+	<yw1x65h43h3b.fsf@kth.se>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I like the IMPUDENT NOSE on that car..  Are you a TEEN-AGER?  
+Date: Fri, 28 Nov 2003 11:53:31 +0100
+In-Reply-To: <yw1x65h43h3b.fsf@kth.se> (
+ =?iso-8859-1?q?M=E5ns_Rullg=E5rd's_message_of?= "Fri, 28 Nov 2003 11:47:20
+ +0100")
+Message-ID: <je3cc87oic.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-11-28 at 11:57, Tim Cambrant wrote:
-> On Fri, Nov 28, 2003 at 10:15:50AM +0100, M?ns Rullg?rd wrote:
-> > I can't reproduce it on Slackware running 2.6.0-test10.  It's probably
-> > a redhat thing.
-> 
-> This problem also appears on Gentoo 1.4 running 2.6.0-test11. I don't
-> know about the rest of the environment, but it's definately not just
-> a RedHat thing. Could it have something to do with some library-version
-> or something?
+mru@kth.se (Måns Rullgård) writes:
 
-For whatever it's worth, I can't reproduce this on a Debian Sid system
-with kernel version 2.4.23-rc1. I guess RH/Gentoo isn't killing off the
-forked shell when su dies brutally, leaving the root shell and the user
-shell fighting for the terminal.
+> It appears that my su exec()s the shell, whereas the redhat and gentoo
+> su fork() and exec().
 
+Yes, your su probably does not support PAM.
 
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

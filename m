@@ -1,59 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUGTVT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266291AbUGTVX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266250AbUGTVT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 17:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266281AbUGTVT5
+	id S266291AbUGTVX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 17:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUGTVX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 17:19:57 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:61876 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S266250AbUGTVT4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 17:19:56 -0400
-X-Sasl-enc: I8lBb3peS5424aH7az40zw 1090358394
-Message-ID: <021501c46e9f$524d9c90$9aafc742@ROBMHP>
-From: "Rob Mueller" <robm@fastmail.fm>
-To: "Chris Mason" <mason@suse.com>, <wli@holomorphy.com>, <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <00f601c46539$0bdf47a0$e6afc742@ROBMHP> <1089377936.3956.148.camel@watt.suse.com> <009e01c46849$f2e85430$9aafc742@ROBMHP> <1090353111.23350.8.camel@watt.suse.com>
-Subject: Re: Processes stuck in unkillable D state (now seen in 2.6.7-mm6)
-Date: Tue, 20 Jul 2004 14:19:56 -0700
+	Tue, 20 Jul 2004 17:23:26 -0400
+Received: from [138.15.108.3] ([138.15.108.3]:4277 "EHLO mailer.nec-labs.com")
+	by vger.kernel.org with ESMTP id S266291AbUGTVXW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 17:23:22 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2149
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2149
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: encrypt ramdisk
+Date: Tue, 20 Jul 2004 17:23:11 -0400
+Message-ID: <951A499AA688EF47A898B45F25BD8EE80126D4D1@mailer.nec-labs.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: encrypt ramdisk
+Thread-Index: AcRuYndnP4O0KrFoTbCpjQRo2g8y7AAPRqvA
+From: "Lei Yang" <leiyang@nec-labs.com>
+To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>,
+       "Kernelnewbies (E-mail)" <kernelnewbies@nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Could anyone anwser my question?
 
-> Ugh, so the call path here is:
->
-> reiserfs_file_write -> start a transaction
-> copy_from_user -> fault in the page
-> page fault handler -> lock page
->
-> This means we're trying to lock a page with a running transaction, and
-> that's not allowed, since some other process on the box most likely has
-> that page locked and is trying to start a transaction.
->
-> That makes for 3 different deadlocks in this exact same call path
-> (dirty_inode, lock_page and kmap), and my patch for it has major
-> problems.  So, I'll talk things over with everyone during OLS and try to
-> work out a proper fix.
->
-> Sorry Rob, this one is non-trivial.
+Many many thanks..
 
-Thanks for looking at it Chris. At least it seems that there is now a 
-diagnosis of what's happening, which can be half the battle!
+Lei
 
-I'm surprised that this seems so rare, and that no-one else has reported it 
-as a significant problem before. Do you think there's anything in particular 
-about our kernel config that would be causing this to happen?
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Lei Yang
+Sent: Tuesday, July 20, 2004 10:04 AM
+To: Linux-Kernel (E-mail)
+Subject: Re: encrypt ramdisk
 
-Rob
 
+Well, I've asked questions about executable on ramdisk on this mailing list and got a lot of useful information here. Most say that since code is already in RAM (as it is in ramdisk), it will be mapped to process address space (text segment) and run in place. This seems very reasonable to me -- kernel will optimize the ram usage and should prevent duplicate copy of code in ram. 
+
+Now I am very confused about loopback device and block device and ...., could anyone please tell me what I should read or where I should refer to so that I can get a better understanding as how this all works inside? I've been searching around and it seems that all the documents are about how to use a loopback device, none of them (as far as I can see) include a good description as how it actually works and what the kernel does to make it work.
+
+Thanks very much! Really appreciate any help.
+Lei
+
+-----Original Message-----
+From: Jan Hudec [mailto:bulb@vagabond.light.src]On Behalf Of Jan Hudec
+Sent: Monday, July 19, 2004 7:23 PM
+To: Lei Yang
+Cc: kernelnewbies@nl.linux.org
+Subject: Re: encrypt ramdisk
+
+
+On Mon, Jul 19, 2004 at 11:51:43 -0400, Lei Yang wrote:
+> Hello,
+> 
+> Can I set up a ramdisk and use loopback encryption to encrypt it?
+> As far as I understand, the OS will keep data encrypted on the hard 
+> disk at all times and decrypts it in RAM only as it's read. So an encrypted 
+> executable on physical hard disk will be decrypted page by page upon
+> reading to RAM. But what happens to an executable sitting in ramdisk?
+> Can I also encrypt it? Since the code is in RAM, it should be running in place,
+> how do kernel deal with encrypted code and run? 
+
+A code on ramdisk will NOT be running inplace. A code on tmpfs will --
+and you can't mount that over loopback.
+
+There are two layers -- a block device and a filesystem. The block
+device reads and writes blocks -- and from filesystem's point of view,
+it does not matter where they are stored in the end.
+
+A ramdisk is a block device. The filesystem talks to it as if it was
+a real disk.
+
+The loopback is a virtual block device implemented in terms of something
+able to read and write -- which might be another block device or a file.
+Even if ramdisk was optimized to not copy the data (I really don't know
+whether it is), it wouldn't affect it's behaviour. The loopback reads
+the data, filters them and passes them on to the filesystem, copying
+them in the process.
+
+On the other hand tmpfs is a filesystem that does not use block device.
+It keeps the data in cache. So they are executed and mmapped in place,
+but there is no place to put a crypto loop in.
+
+> Any comments?
+> 
+> Thanks in advance!
+> Lei
+> 
+> --
+> Kernelnewbies: Help each other learn about the Linux kernel.
+> Archive:       http://mail.nl.linux.org/kernelnewbies/
+> FAQ:           http://kernelnewbies.org/faq/
+> 
+-------------------------------------------------------------------------------
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

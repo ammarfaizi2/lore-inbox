@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267636AbTCBJmz>; Sun, 2 Mar 2003 04:42:55 -0500
+	id <S269172AbTCBJow>; Sun, 2 Mar 2003 04:44:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269172AbTCBJmz>; Sun, 2 Mar 2003 04:42:55 -0500
-Received: from AMarseille-201-1-3-35.abo.wanadoo.fr ([193.253.250.35]:24359
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S267636AbTCBJmy>; Sun, 2 Mar 2003 04:42:54 -0500
-Subject: Re: 2.5.63: 'Debug: sleeping function called from illegal context
-	at mm/slab.c:1617'
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1046568414.24557.11.camel@irongate.swansea.linux.org.uk>
-References: <20030301210518.GA740@gallifrey>
-	 <1046568414.24557.11.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046598825.2030.101.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 02 Mar 2003 10:53:45 +0100
+	id <S269174AbTCBJow>; Sun, 2 Mar 2003 04:44:52 -0500
+Received: from p0058.as-l043.contactel.cz ([194.108.242.58]:4081 "EHLO
+	SnowWhite.janik.cz") by vger.kernel.org with ESMTP
+	id <S269172AbTCBJov> convert rfc822-to-8bit; Sun, 2 Mar 2003 04:44:51 -0500
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+References: <20030226200208.GA392@elf.ucw.cz> <m38yvz3qts.fsf@Janik.cz>
+	<20030301183929.A31305@infradead.org> <m3el5q3dys.fsf@Janik.cz>
+	<20030302091130.A11536@infradead.org>
+From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
+ ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
+ iHiAs(t(~b#1.{w.d[=Z
+Date: Sun, 02 Mar 2003 10:57:40 +0100
+In-Reply-To: <20030302091130.A11536@infradead.org> (Christoph Hellwig's
+ message of "Sun, 2 Mar 2003 09:11:30 +0000")
+Message-ID: <m3u1emhyzv.fsf@Janik.cz>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i386-suse-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-02 at 02:26, Alan Cox wrote:
-> On Sat, 2003-03-01 at 21:05, Dr. David Alan Gilbert wrote:
-> > Hi,
-> >   2.5.63 had a good go at trying to boot for me; the only error during
-> > boot was 'Debug: sleeping function called from illegal context at
-> > mm/slab.c:1617' during the IDE startup.
-> 
-> Known problem. Its a bug in the request_irq code on x86. IDE just
-> happens to be a victim of it.
+   From: Christoph Hellwig <hch@infradead.org>
+   Date: Sun, 2 Mar 2003 09:11:30 +0000
 
-Well... it's a bug in _all_ archs. They (almost) all call the proc
-stuff from request_irq, and worse, on x86, I think, has the
-kmalloc inside request_irq changed to GFP_ATOMIC.
+   > But anyway, don't you think Pavel is free to develop whatever free software
+   > he likes to develop instead of following you political agenda?
 
-You really think request_irq should be safe to be called from irq
-context ?
+Of course he is - it is one of his freedom. I only wanted to show him that
+there are (IMO) better ways to spend his time. And it is no about
+politics...
+-- 
+Pavel Janík
 
-I tend to think IDE is at fault here. It doesn't seem to be a
-sane requirement to me to have request_irq be called at IRQ
-time. It's rather easy to fix it's kmalloc to be GFP_ATOMIC
-instead of GFP_KERNEL, but what about /proc stuff ? And the
-day we want to fit IRQs in the driver model, that will probably
-involve taking a semaphore as well here and do other IRQ tree
-management task that are definitely not something we want to
-do at IRQ time.
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-Ben.
+                  -- Rik van Riel in linux-kernel

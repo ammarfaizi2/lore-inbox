@@ -1,75 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278680AbRJXRyF>; Wed, 24 Oct 2001 13:54:05 -0400
+	id <S278682AbRJXRyz>; Wed, 24 Oct 2001 13:54:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278682AbRJXRxq>; Wed, 24 Oct 2001 13:53:46 -0400
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:41393 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S278680AbRJXRxe>; Wed, 24 Oct 2001 13:53:34 -0400
-Date: Wed, 24 Oct 2001 18:55:12 +0100
-From: Dave Jones <davej@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, rgooch@atnf.csiro.au
-Subject: [PATCH] Simplify serverworks workaround.
-Message-ID: <20011024185512.A6207@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, rgooch@atnf.csiro.au
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S278684AbRJXRyr>; Wed, 24 Oct 2001 13:54:47 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:55823 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S278682AbRJXRyf>; Wed, 24 Oct 2001 13:54:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: David Lang <david.lang@digitalinsight.com>
+Subject: Re: VM
+Date: Wed, 24 Oct 2001 19:56:00 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Keith Owens <kaos@ocs.com.au>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0110240920530.14041-100000@dlang.diginsite.com>
+In-Reply-To: <Pine.LNX.4.40.0110240920530.14041-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011024175507Z16346-698+175@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, Richard,
- Patch below makes the workaround for Serverworks LE chipsets
- a little simpler, and also adds a printk to let people know
- why they can't use Write-combining.
+On October 24, 2001 06:24 pm, David Lang wrote:
+> the problem is that there isn't a patchset available from either aa or rik
+> that converts one to the other, the only patchset readily available
+> converts linus+aa to ac+rik this changes a lot more then just the VM stuff
+> so without going to a lot of effort it's not possible to directly compare
+> the two VM designs while keeping the rest of the kernel the same.
 
-regards,
+A non-kernel-hacker can easily make the patch.  Andrea posted a list of all 
+the files affected back at the beginning of his 'vm rewrite' thread.
 
-Dave.
+> > > Daniel, I think the suggestion isn't to break out the differences in a
+> > > bunch of config options, but rather to do something like duplicating all
+> > > files that are VM related into two files, foo.c becomes foo.aa.c and
+> > > foo.rik.c at that point your config file either uses all the .rik files 
+> > > or all the .aa files and both would be in the same tree, but not 
+> > > interact with each other.
+> > >
+> > > yes, there would be a lot of duplication between them, but something 
+> > > like this would let people compare the two directly without also having 
+> > > all the other linus vs ac changes potentially affecting their tests.
+> >
+> > Patch and lilo are your friends.
 
-
-diff -urN --exclude-from=/home/davej/.exclude linux/arch/i386/kernel/mtrr.c ../2.5/linux-dj/arch/i386/kernel/mtrr.c
---- linux/arch/i386/kernel/mtrr.c	Fri Oct 12 16:29:57 2001
-+++ linux-dj/arch/i386/kernel/mtrr.c	Sat Oct 13 12:08:34 2001
-@@ -473,25 +473,16 @@
-     unsigned long config, dummy;
-     struct pci_dev *dev = NULL;
-     
--   /* ServerWorks LE chipsets have problems with  write-combining 
--      Don't allow it and  leave room for other chipsets to be tagged */
-+   /* ServerWorks LE chipsets have problems with write-combining 
-+      Don't allow it and leave room for other chipsets to be tagged */
- 
--    if ((dev = pci_find_class(PCI_CLASS_BRIDGE_HOST << 8, NULL)) != NULL) {
--	switch(dev->vendor) {
--        case PCI_VENDOR_ID_SERVERWORKS:
-- 	    switch (dev->device) {
--	    case PCI_DEVICE_ID_SERVERWORKS_LE:
-+	if ((dev = pci_find_class(PCI_CLASS_BRIDGE_HOST << 8, NULL)) != NULL) {
-+		if ((dev->vendor == PCI_VENDOR_ID_SERVERWORKS) &&
-+			(dev->device == PCI_DEVICE_ID_SERVERWORKS_LE)) {
-+		printk (KERN_INFO "mtrr: Serverworks LE detected. Write-combining disabled.\n");
- 		return 0;
--		break;
--	    default:
--		break;
--	    }
--	    break;
--	default:
--	    break;
-+		}
- 	}
--    }
--
- 
-     switch ( mtrr_if )
-     {
-
-
--- 
-| Dave Jones.                    http://www.codemonkey.org.uk
-| SuSE Labs .
+--
+Daniel

@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264375AbTDOHFk (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 03:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264359AbTDOHFk (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 03:05:40 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:55814 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S264375AbTDOHFj (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 03:05:39 -0400
-Date: Tue, 15 Apr 2003 09:03:57 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: alan@lxorguk.ukuu.org.uk, rddunlap@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: oops when using hdc=ide-scsi (2.5.66)
-Message-Id: <20030415090357.5d5586b4.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.3.96.1030415002500.22538A-100000@gatekeeper.tmr.com>
-References: <1049740232.2965.80.camel@dhcp22.swansea.linux.org.uk>
-	<Pine.LNX.3.96.1030415002500.22538A-100000@gatekeeper.tmr.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id S264359AbTDOHW6 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 03:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbTDOHW6 (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 03:22:58 -0400
+Received: from granite.he.net ([216.218.226.66]:32261 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S264359AbTDOHW4 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 03:22:56 -0400
+Date: Tue, 15 Apr 2003 00:37:07 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH] add CONFIG_DEBUG_DEV_PRINTK
+Message-ID: <20030415073707.GA9416@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Apr 2003 00:27:50 -0400 (EDT)
-Bill Davidsen <davidsen@tmr.com> wrote:
+Ok, I don't want to remember how many times I've gotten burned by the
+dev_printk() function while developing drivers, as it doesn't check for
+valid pointers before dereferencing them.  So here's a patch I've
+started using that might help out any kernel driver developers in the
+same situation.  For device busses that support hotplug, this patch is a
+lifesaver (the dev->driver pointer has a fun habit of going away pretty
+early during disconnect...)
 
-> On 7 Apr 2003, Alan Cox wrote:
-> 
-> > On Llu, 2003-04-07 at 20:02, Randy.Dunlap wrote:
-> > > Hi,
-> > > 
-> > > I get this when I boot 2.5.66 and the Linux command line contains
-> > > "hdc=ide-scsi".  Yes, I know that I can remove that option (as in
-> > > "DDT"), but the kernel shouldn't do this, either.
-> > 
-> > ide_scsi is completely broken in 2.5.x. Known problem. If you need it
-> > either use 2.4 or fix it 8)
-> 
-> Is that an official position that it will not be supported? People with MO
-> drives and tape will be supported only on 2.4?
+I'm not pushing for submission to the main kernel tree, unless others
+really feel it's useful.
 
-Don't forget the merely not existing SCSI CD/DVD writers, just about all of
-them are ATAPI. I guess a non-working ide-scsi module won't work out for any of
-the distros...
+greg k-h
 
--- 
-Regards,
-Stephan
+
+# added CONFIG_DEBUG_DEV_PRINTK option to keep my sanity during development.
+
+diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	Mon Apr 14 11:46:36 2003
++++ b/arch/i386/Kconfig	Mon Apr 14 11:46:36 2003
+@@ -1504,6 +1504,13 @@
+ 	  This options enables addition error checking for high memory systems.
+ 	  Disable for production systems.
+ 
++config DEBUG_DEV_PRINTK
++	bool "Debug dev_printk"
++	depends on DEBUG_KERNEL
++	help
++	  If you say Y here, all dev_printk() parameters will be checked before
++	  dev_printk() is called.  This is useful when debugging new drivers.
++
+ config KALLSYMS
+ 	bool "Load all symbols for debugging/kksymoops"
+ 	help
+diff -Nru a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h	Mon Apr 14 11:46:36 2003
++++ b/include/linux/device.h	Mon Apr 14 11:46:36 2003
+@@ -379,8 +379,20 @@
+ extern void firmware_unregister(struct subsystem *);
+ 
+ /* debugging and troubleshooting/diagnostic helpers. */
++#ifdef CONFIG_DEBUG_DEV_PRINTK
++#define dev_printk(level, dev, format, arg...)			\
++	do {							\
++		if (!(dev) || !(dev)->driver)			\
++			WARN_ON(1);				\
++		else						\
++			printk(level "%s %s: " format , 	\
++				(dev)->driver->name , 		\
++				(dev)->bus_id , ## arg);	\
++	} while (0)
++#else
+ #define dev_printk(level, dev, format, arg...)	\
+ 	printk(level "%s %s: " format , (dev)->driver->name , (dev)->bus_id , ## arg)
++#endif
+ 
+ #ifdef DEBUG
+ #define dev_dbg(dev, format, arg...)		\

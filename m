@@ -1,90 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262741AbUC3FFv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 00:05:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUC3FFv
+	id S262814AbUC3FRx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 00:17:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbUC3FRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 00:05:51 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:64158 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262741AbUC3FFs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 00:05:48 -0500
-Date: Tue, 30 Mar 2004 10:36:14 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, Robert Olsson <Robert.Olsson@data.slu.se>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Dave Miller <davem@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Morton <akpm@osdl.org>,
-       rusty@au1.ibm.com
-Subject: Re: route cache DoS testing and softirqs
-Message-ID: <20040330050614.GA4669@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20040329184550.GA4540@in.ibm.com> <20040329222926.GF3808@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040329222926.GF3808@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+	Tue, 30 Mar 2004 00:17:53 -0500
+Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:1912 "HELO
+	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262814AbUC3FRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 00:17:52 -0500
+Message-ID: <406902F7.8030805@yahoo.com.au>
+Date: Tue, 30 Mar 2004 15:17:43 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ben Greear <greearb@candelatech.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel thread scheduling question
+References: <4068F3E7.9060005@candelatech.com>
+In-Reply-To: <4068F3E7.9060005@candelatech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 01:07:12AM +0000, Andrea Arcangeli wrote:
-> btw, the set_current_state(TASK_INTERRUPTIBLE) before
-> kthread_should_stop seems overkill w.r.t. smp locking, plus the code is
-> written in the wrong way around, all set_current_state are in the wrong
-> place. It's harmless but I cleaned up that bit as well.
+Ben Greear wrote:
+> I have a kernel thread that I would like to have run at least
+> every 1-2 miliseconds.
+> 
+> I think I would be happy if there were a way to have the
+> process yield/schedule() at least once per ms with the
+> understanding that it would get to wake again 1-2ms later.
+> Is there a way to do such a thing without hacking up the
+> scheduler code?
+> 
+> I have tried 2.6.4 with pre-empt, and setting the thread priority
+> to -18, but I still see cases where the process is starved for 20+
+> milliseconds every 3-5 seconds or so.  Other than this single
+> process, there is not a big load on the system.
+> 
 
-I think set_current_state(TASK_INTERRUPTIBLE) before kthread_should_stop()
-_is_ required, otherwise kthread_stop can fail to destroy a kthread.
+Use realtime scheduling. sched_setscheduler (2) is a good
+place to start.
 
-
-kthread_stop does:
-
-	1. kthread_stop_info.k = k;
-        2. wake_up_process(k);
-
-and if ksoftirqd were to do :
-
-	a. while (!kthread_should_stop()) {
-        b.         __set_current_state(TASK_INTERRUPTIBLE);
-        c.         schedule();
-           }
-
-
-There is a (narrow) possibility here that a) happens _after_ 1) as well as 
-b) _after_ 2).
-
-In such a case kthread_stop would have failed to wake up the kthread!
-
-
-The same race is avoided if ksoftirqd does:
-
-        a. __set_current_state(TASK_INTERRUPTIBLE);
-	b. while (!kthread_should_stop()) {
-        c.         schedule();
-        d.         __set_current_state(TASK_INTERRUPTIBLE);
-           }
-
-        e. __set_current_state(TASK_RUNNING);
-
-In this case, even if b) happens _after_ 1) and c) _after_ 2), schedule
-simply returns immediately because task's state would have been set to 
-TASK_RUNNING by 2). It goes back to the kthread_should_stop() check and 
-exits!
-
-
-
-
-
-
-
-
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

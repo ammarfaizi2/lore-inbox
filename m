@@ -1,64 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272426AbTHFVNw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 17:13:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272387AbTHFVNv
+	id S270870AbTHFVKb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 17:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270926AbTHFVKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 17:13:51 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:24031 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S272426AbTHFVNu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 17:13:50 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Andy Isaacson" <adi@hexapodia.org>,
-       "Jesse Pollard" <jesse@cats-chateau.net>
-Cc: <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: TOE brain dump
-Date: Wed, 6 Aug 2003 14:13:47 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKOEOCEOAA.davids@webmaster.com>
+	Wed, 6 Aug 2003 17:10:30 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:50094
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S270870AbTHFVKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 17:10:24 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Timothy Miller <miller@techsource.com>,
+       Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: Interactivity improvements
+Date: Thu, 7 Aug 2003 07:15:29 +1000
+User-Agent: KMail/1.5.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+References: <200308050207.18096.kernel@kolivas.org> <3F2F21DF.1050601@cyberone.com.au> <3F314D6B.9090302@techsource.com>
+In-Reply-To: <3F314D6B.9090302@techsource.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20030806143956.B15543@hexapodia.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Disposition: inline
+Message-Id: <200308070715.29461.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 7 Aug 2003 04:48, Timothy Miller wrote:
+> Here's a kooky idea...
+>
+> I'm not sure about this detail, but I would guess that the int
+> schedulers are trying to determine relatively stable priority values for
+> processes.  A process does not instantly come to its correct priority
+> level, because it gets there based on accumulation of behavioral patterns.
+>
+> Well, it occurs to me that we could benefit from situations where
+> priority changes are underdamped.  The results would sometimes be an
+> oscillation in priority levels.  In the short term, a given process may
+> be given different amounts of CPU time when it is run, although in the
+> long term, it should average out.
+>
+> At the same time, certain tasks can only be judged correctly over the
+> long term, like X, for example.  Its long-term behavior is interactive,
+> but now and then, it will become a CPU hog, and we want to LET it.
+>
+> The idea I'm proposing, however poorly formed, is that if we allow some
+> "excessive" oscillation early on in the life of a process, we may be
+> able to more quickly get processes to NEAR its correct priority, OR get
+> its CPU time over the course of three times being run for the
+> underdamped case to be about the same as it would be if we knew in
+> advance what the priority should be.  But in the underdamped case, the
+> priority would continue to oscillate up and down around the correct
+> level, because we are intentionally overshooting the mark each time we
+> adjust priority.
+>
+> This may not be related, but something that pops into my mind is a
+> numerical method called Newton's Method.  It's a way to solve for roots
+> of an equation, and it involved derivatives, and I don't quite remember
+> how it works.  But in any event, the results are less accurate than,
+> say, bisection, but you get to the answer MUCH more quickly.
 
-> This statement is completely false.  Ethernet switches *do* read the
-> packet into memory before starting transmission.
+Good thinking, but this is more or less already done in my code. I do have 
+very rapid elevation of priority, and once something is known interactive it 
+decays more slowly. It still _must_ be able to vary after the fact as 
+interactive tasks can turn into cpu hogs and so on. 
 
-	Some do. Some don't. Some are configurable.
-
-> This must be so,
-> because an Ethernet switch does not propagate runts, jabber frames, or
-> frames with an incorrect ethernet crc.
-
-	If they use cut-through switching, they do. Some use adaptive switching,
-which means they use cut-through switching but change to store and forward
-if there are too many runts, jabber frames, bad CRCs, and so on.
-
-	Obviously, you can't always do a cut-through. If the target port is busy,
-cut-through is impossible. If the ports are different speeds, cut-through is
-impossible. The Intel 510T switch for my home network does adaptive
-switching with configurable error thresholds. In fact, it's even smarter
-than that, with an intermediate mode that suppresses runts without doing a
-full store and forward. See:
-http://www.intel.com/support/express/switches/23188.htm
-
-> If the switch starts
-> transmission before it's received the last bit, it is provably
-> impossible for it to avoid propagating crc-failing-frames; ergo,
-> switches must have the entire packet on hand before starting
-> transmission.
-
-	Except not all switches always avoid propogating bad frames.
-
-	DS
-
+Con
 

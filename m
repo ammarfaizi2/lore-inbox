@@ -1,73 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318317AbSIBQzc>; Mon, 2 Sep 2002 12:55:32 -0400
+	id <S318333AbSIBRSx>; Mon, 2 Sep 2002 13:18:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318327AbSIBQzc>; Mon, 2 Sep 2002 12:55:32 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:35772 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S318317AbSIBQzb>; Mon, 2 Sep 2002 12:55:31 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 2 Sep 2002 18:27:07 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.5.33: modular ide breaks lilo ...
-Message-ID: <20020902162707.GA22182@bytesex.org>
+	id <S318342AbSIBRSx>; Mon, 2 Sep 2002 13:18:53 -0400
+Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:3817 "HELO
+	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
+	id <S318333AbSIBRSw>; Mon, 2 Sep 2002 13:18:52 -0400
+Message-ID: <20020902172322.23692.qmail@thales.mathematik.uni-ulm.de>
+From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
+Date: Mon, 2 Sep 2002 19:23:22 +0200
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Include LRU in page count
+References: <3D644C70.6D100EA5@zip.com.au> <E17kunE-0003IO-00@starship> <20020831161448.12564.qmail@thales.mathematik.uni-ulm.de> <E17lEDR-0004Qq-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <E17lEDR-0004Qq-00@starship>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+On Sat, Aug 31, 2002 at 09:47:29PM +0200, Daniel Phillips wrote:
+> > Also there may be lru only pages on the active list, i.e. refill
+> > inactive should have this hunk as well:
+> > 
+> > > +#if LRU_PLUS_CACHE==2
+> > > +             BUG_ON(!page_count(page));
+> > > +             if (unlikely(page_count(page) == 1)) {
+> > > +                     mmstat(vmscan_free_page);
+> > > +                     BUG_ON(!TestClearPageLRU(page)); // side effect abuse!!
+> > > +                     put_page(page);
+> > > +                     continue;
+> > > +             }
+> > > +#endif
+> 
+> If we have orphans on the active list, we'd probably better just count
+> them and figure out what we're doing wrong to put them there in the first
+> place.  In time they will migrate to the inactive list and get cleaned
+> up.
 
-I've tried building the ide driver modular and insmod it using an
-initrd.  The kernel boots just fine, but lilo complains:
+Hm, think of your favourite memory hog being killed with lots of anon
+pages on the active list while someone else holds the lru lock.
+Won't all these anon pages legally end up orphaned on the active list
+(due to the trylock in page_cache_release)?
 
-bogomips root ~# lilo
-Device 0x0300: Invalid partition table, 2nd entry
-  3D address:     1/0/262 (264096)
-  Linear address: 1/10/4175 (4209030)
+   regards  Christian
 
-I've also noticed that the fdisk output looks different depending on
-modular vs. static ide, I suspect this is related.  With a modular IDE
-driver it looks like this:
-
-bogomips root ~# fdisk -l /dev/hda
-
-Disk /dev/hda: 16 heads, 63 sectors, 79780 cylinders
-Units = cylinders of 1008 * 512 bytes
-
-   Device Boot    Start       End    Blocks   Id  System
-/dev/hda1             1      4176   2104483+   b  Win95 FAT32
-Partition 1 does not end on cylinder boundary:
-     phys=(261, 254, 63) should be (261, 15, 63)
-/dev/hda2   *      4176     68659  32499495    5  Extended
-Partition 2 does not end on cylinder boundary:
-     phys=(1023, 254, 63) should be (1023, 15, 63)
-/dev/hda4         68659     79768   5598652+  a5  FreeBSD
-Partition 4 does not end on cylinder boundary:
-     phys=(1023, 254, 63) should be (1023, 15, 63)
-/dev/hda5          4176      6264   1052226   82  Linux swap
-/dev/hda6          6264     18759   6297448+  83  Linux
-/dev/hda7         18759     68659  25149726   83  Linux
-
-With ide built-in statically fdisk prints this:
-
-bogomips root ~# fdisk -l
-
-Disk /dev/hda: 255 heads, 63 sectors, 5005 cylinders
-Units = cylinders of 16065 * 512 bytes
-
-   Device Boot    Start       End    Blocks   Id  System
-/dev/hda1             1       262   2104483+   b  Win95 FAT32
-/dev/hda2   *       263      4308  32499495    5  Extended
-/dev/hda4          4309      5005   5598652+  a5  FreeBSD
-/dev/hda5           263       393   1052226   82  Linux swap
-/dev/hda6           394      1177   6297448+  83  Linux
-/dev/hda7          1178      4308  25149726   83  Linux
-
-Any idea?
-
-  Gerd
-
+-- 
+THAT'S ALL FOLKS!

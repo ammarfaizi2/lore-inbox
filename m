@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261587AbSKCDvy>; Sat, 2 Nov 2002 22:51:54 -0500
+	id <S261605AbSKCDzn>; Sat, 2 Nov 2002 22:55:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261590AbSKCDvy>; Sat, 2 Nov 2002 22:51:54 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:2793 "EHLO
+	id <S261607AbSKCDzn>; Sat, 2 Nov 2002 22:55:43 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:12010 "EHLO
 	out002.verizon.net") by vger.kernel.org with ESMTP
-	id <S261587AbSKCDvx>; Sat, 2 Nov 2002 22:51:53 -0500
-Date: Sat, 02 Nov 2002 21:57:49 -0500
-From: Akira Tsukamoto <at541@columbia.edu>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] 2/2 2.5.45 cleanup & add original copy_ro/from_user
-Cc: linux-kernel@vger.kernel.org, Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <3DC3A9C0.7979C276@digeo.com>
-References: <20021102025838.220E.AT541@columbia.edu> <3DC3A9C0.7979C276@digeo.com>
-Message-Id: <20021102214537.379A.AT541@columbia.edu>
+	id <S261605AbSKCDzm>; Sat, 2 Nov 2002 22:55:42 -0500
+Date: Sat, 02 Nov 2002 22:01:38 -0500
+From: Akira Tsukamoto <akira-t@suna-asobi.com>
+To: steve.roemen@wcom.com
+Subject: Re: [PATCH] Athlon cache-line fix
+Cc: linux-kernel@vger.kernel.org, "'Hirokazu Takahashi'" <taka@valinux.co.jp>,
+       "'Andrew Morton'" <akpm@digeo.com>
+In-Reply-To: <001e01c282a7$b99da1a0$e70a7aa5@WSXA7NCC106.wcomnet.com>
+References: <20021102005122.2205.AKIRA-T@suna-asobi.com> <001e01c282a7$b99da1a0$e70a7aa5@WSXA7NCC106.wcomnet.com>
+Message-Id: <20021102220019.37A0.AKIRA-T@suna-asobi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
 X-Mailer: Becky! ver. 2.05.06
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at out002.verizon.net from [138.89.32.225] at Sat, 2 Nov 2002 21:58:17 -0600
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at out002.verizon.net from [138.89.32.225] at Sat, 2 Nov 2002 22:02:06 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 02 Nov 2002 02:32:32 -0800
-Andrew Morton <akpm@digeo.com> mentioned:
-> I'd prefer that we have these functions in .c, and laid out with
-> a minimum of C tricks.  Because more work needs to be done on the
-> memory copy functions, and doing that in header files is a pain.
+Thank you for tring it.
 
-Personally I don't mind adding everything in .h or .c.
-I just used the convention what string.h and string-486.h doing.
-Isn't it confusing that adding everything in .c also?
+Akira
+
+On Sat, 02 Nov 2002 13:40:39 -0600
+steve roemen <steve.roemen@wcom.com> mentioned:
+
+> it speeds mine up too.
+> 
+> -steve
+>  
+> -----Original Message-----
+> Subject: [PATCH] Athlon cache-line fix
+> 
+> This is a fix for Athlon cache-line.
 
 

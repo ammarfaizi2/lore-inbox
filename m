@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264646AbTBORyo>; Sat, 15 Feb 2003 12:54:44 -0500
+	id <S264665AbTBOR6g>; Sat, 15 Feb 2003 12:58:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264665AbTBORyo>; Sat, 15 Feb 2003 12:54:44 -0500
-Received: from faui11.informatik.uni-erlangen.de ([131.188.31.2]:39093 "EHLO
-	faui11.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S264646AbTBORym>; Sat, 15 Feb 2003 12:54:42 -0500
-From: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
-Message-Id: <200302151804.TAA04500@faui11.informatik.uni-erlangen.de>
-Subject: Re: [PATCH][2.5][8/14] smp_call_function_on_cpu - s390
-To: zwane@holomorphy.com (Zwane Mwaikambo)
-Date: Sat, 15 Feb 2003 19:04:34 +0100 (MET)
-Cc: weigand@immd1.informatik.uni-erlangen.de (Ulrich Weigand),
-       linux-kernel@vger.kernel.org (Linux Kernel),
-       schwidefsky@de.ibm.com (Martin Schwidefsky)
-In-Reply-To: <Pine.LNX.4.50.0302151149150.16012-100000@montezuma.mastecende.com> from "Zwane Mwaikambo" at Feb 15, 2003 11:56:54 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S264706AbTBOR6g>; Sat, 15 Feb 2003 12:58:36 -0500
+Received: from vsmtp2.tin.it ([212.216.176.222]:17389 "EHLO smtp2.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S264665AbTBOR6f>;
+	Sat, 15 Feb 2003 12:58:35 -0500
+Message-ID: <3E4E8013.C26DFA0@libero.it>
+Date: Sat, 15 Feb 2003 18:59:47 +0100
+From: Abramo Bagnara <abramo.bagnara@libero.it>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en, it
 MIME-Version: 1.0
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Synchronous signal delivery..
+References: <Pine.LNX.4.44.0302131452450.4232-100000@penguin.transmeta.com> <3E4CAEFC.92914AB3@libero.it> <1045232677.7958.9.camel@irongate.swansea.linux.org.uk> <3E4CF5D2.6ED23062@libero.it> <20030215133600.F629@nightmaster.csn.tu-chemnitz.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-
-> It would be a bug in the caller, this is a primitive really. If the caller 
-> is calling this with random bitmasks they are probably making errors 
-> elsewhere too. This is also the behaviour of the Alpha version, which has 
-> been around before this patch.
-
-Well, either this is a requirement on the caller or it isn't.  I guess
-it is fine to make this requirement, but then ...
-
-> The following cpu_online call only goes as far as avoiding IPI'ing to 
-> nonexistent cpus, anything more would be spoonfeeding the caller, i prefer 
-> garbage in, garbage out.
+Ingo Oeser wrote:
 > 
-> 	for (i = 0; i < NR_CPUS; i++) {
-> 		if (cpu_online(i) && ((1UL << i) & mask))
-> 			smp_ext_bitcall(i, ec_call_function);
-> 	}
+> On Fri, Feb 14, 2003 at 02:57:38PM +0100, Abramo Bagnara wrote:
+> > > Out of band data is a second data channel, so open two pipes. Jeez
+> >
+> > What about the relation between the two channels?
+> 
+> Encoded in the program logic, where it belongs. We have enough
+> needless interrelations between API functions already.
+> 
+> If you would like to have two channels in one, than simply
+> implement a multiplexer in the program that needs it (look at ssh
+> for an example).
 
-... this test is quite pointless as the routine will hang shortly
-anyway.  In fact is appears to be rather misleading as it can give
-the casual reader the impression that offline CPUs are properly
-cared for.  I'd suggest to either
+We might call this thread "the neverending misunderstanding" ;-)
 
-- make the routine really safe by doing something like
-    mask &= cpu_online_mask;
-  at the beginning
+My message was a proposal about an universal solution for
+control/out-of-band streams on pseudo-files (like the Linus sig fd,
+devices fd, socket, proc files, etc.) as a way to comunicate between
+user space and kernel space.
 
-or else
+I.e. something that might replace ioctl/fcntl mess giving same (and
+more) flexybility and power (extending the 'everything is a file'
+concept also to control data).
 
-- lose the cpu_online test
-
-
-But apart from this cosmetic issue, there is still a real problem:
-smp_ext_bitcall can fail due to SIGP returning a busy condition;
-smp_ext_bitcall_others would have retried until the busy condition
-is gone.  This means your version can actually lose signals and
-deadlock.  You should do something like
-
-	while (smp_ext_bitcall(i, ec_call_function) == sigp_busy)
-		udelay(10);
-
-B.t.w as you are removing the only caller of smp_ext_bitcall_others,
-you might as well delete the function itself.
-
-All those comments apply likewise to the s390x version.
-
-
-Bye,
-Ulrich
+This is *not* something I'd propose for user space (where we definitely
+have many good ways to achieve these results).
 
 -- 
-  Dr. Ulrich Weigand
-  weigand@informatik.uni-erlangen.de
+Abramo Bagnara                       mailto:abramo.bagnara@libero.it
+
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy

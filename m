@@ -1,82 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315870AbSGLKKz>; Fri, 12 Jul 2002 06:10:55 -0400
+	id <S315611AbSGLKIE>; Fri, 12 Jul 2002 06:08:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315919AbSGLKKy>; Fri, 12 Jul 2002 06:10:54 -0400
-Received: from 12-237-135-160.client.attbi.com ([12.237.135.160]:15373 "EHLO
-	Midgard.attbi.com") by vger.kernel.org with ESMTP
-	id <S315870AbSGLKKw> convert rfc822-to-8bit; Fri, 12 Jul 2002 06:10:52 -0400
-Content-Type: text/plain;
-  charset="iso-8859-2"
-From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Missing files in 2.4.19-rc1
-Date: Fri, 12 Jul 2002 05:13:48 -0500
-User-Agent: KMail/1.4.2
-References: <Pine.OSF.4.44.0207121138410.264794-100000@tao.natur.cuni.cz>
-In-Reply-To: <Pine.OSF.4.44.0207121138410.264794-100000@tao.natur.cuni.cz>
-Cc: Martin =?iso-8859-2?q?MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
+	id <S315870AbSGLKID>; Fri, 12 Jul 2002 06:08:03 -0400
+Received: from sproxy.gmx.de ([213.165.64.20]:1637 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S315611AbSGLKIC>;
+	Fri, 12 Jul 2002 06:08:02 -0400
+Message-ID: <005801c2298c$9f3f6f10$1c6fa8c0@hyper>
+From: "Christian Ludwig" <cl81@gmx.net>
+To: "Daniel Phillips" <phillips@arcor.de>
+Cc: "Linux Kernel Mailinglist" <linux-kernel@vger.kernel.org>
+References: <003d01c22819$ba1818b0$1c6fa8c0@hyper> <E17Suso-0002dn-00@starship> <003f01c2297e$b3e395d0$1c6fa8c0@hyper> <E17SwAM-0002e2-00@starship>
+Subject: Re: bzip2 support against 2.4.18
+Date: Fri, 12 Jul 2002 12:12:18 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200207120513.48616.kelledin+LKML@skarpsey.dyndns.org>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 July 2002 04:47 am, Martin MOKREJ© wrote:
-> Hi,
->   I'm getting while `make dep`
+Daniel Phillips wrote on Friday, July 12, 2002 10:52 AM:
+
+> On Friday 12 July 2002 10:32, Christian Ludwig wrote:
+> > To make it
+> > at least a little bit easier there should be that 'bz2' in the name. So
+> > 'bz2linux' would be a goal. But if we do this we also could change
+'bzImage'
+> > to 'gzlinux'.
 >
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4.19-rc1/include -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
-> -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include -E -D__GENKSYMS__
-> au1000_gpio.c
+> You can feel pretty confident in thinking the name bzImage is never going
+> to change, if only because too many fingers know how to type the stupid
+> thing by reflex action.
+
+Right.
+
+> > On the other hand I also had the idea to let the name 'bzImage' be for
+both,
+> > gzip and bzip2. The problem is that I can neither overload the name nor
+> > choose the kernel compression at configuration time [I do not know how
+to
+> > make it at least].
 >
-> | /sbin/genksyms -p smp_ -k 2.4.19 >
-> | /usr/src/linux-2.4.19-rc1/include/linux/modules/au1000_gpio.ver.tmp
+> Now that you mention it, bzImage should continue to serve perfectly well,
+> so long as you have some other way of configuring the kernel compression
+> method than via the make target.  Why not just make the compression method
+> a config option?  If it had been done this way from the beginning, we'd
+> never have acquired the b or the z.
 >
-(snip)
-> via-pmu.c:40: asm/prom.h: No such file or directory
-> via-pmu.c:41: asm/machdep.h: No such file or directory
-> via-pmu.c:45: asm/sections.h: No such file or directory
-> via-pmu.c:48: asm/pmac_feature.h: No such file or directory
-> via-pmu.c:51: asm/sections.h: No such file or directory
-> via-pmu.c:52: asm/cputable.h: No such file or directory
-> via-pmu.c:53: asm/time.h: No such file or directory
-(snip)
-> amd7930.c:95: asm/openprom.h: No such file or directory
-> amd7930.c:96: asm/oplib.h: No such file or directory
-> amd7930.c:100: asm/sbus.h: No such file or directory
-> amd7930.c:102: asm/audioio.h: No such file or directory
-(snip)
-> dbri.c:53: asm/openprom.h: No such file or directory
-> dbri.c:54: asm/oplib.h: No such file or directory
-> dbri.c:58: asm/sbus.h: No such file or directory
-> dbri.c:61: asm/audioio.h: No such file or directory
-(snip)
-> su.c:78: asm/oplib.h: No such file or directory
-> su.c:80: asm/ebus.h: No such file or directory
-(snip)
-> bbc_i2c.c:16: asm/oplib.h: No such file or directory
-> bbc_i2c.c:17: asm/ebus.h: No such file or directory
-> bbc_i2c.c:18: asm/spitfire.h: No such file or directory
-> bbc_i2c.c:19: asm/bbc.h: No such file or directory
+> This way you avoid the entire controversy of chosing a new name for the
+> kernel image, and anyway, it's a nicer interface than via the make
+> target.
 
-Dumb question: Did you do a make menuconfig/config/xconfig, or just copy over 
-your .config file from an old kernel?  Was a make mrproper done at any time?
+That came into my mind, too. Let's see what I can do about it...
+It won't probably be ready before August, because I still have some exams.
 
-When you first untar a stock kernel source tree, the "include/asm" directory 
-does not exist in the tree.  When you make config/menuconfig/xconfig, an 
-"include/asm" symlink gets created (among other things), linking to an 
-architecture specific asm header directory like include/asm-i386 or the like.  
-"make mrproper" destroys this symlink as part of the source tree cleanup.
+Have fun.
 
-So if you fail to do the make *config, or you do a make mrproper after your 
-most recent make *config, you lose that symlink.  Thus a possible cause for 
-the errors you're getting.
+    - Christian
 
--- 
-Kelledin
-"If a server crashes in a server farm and no one pings it, does it still cost 
-four figures to fix?"
 

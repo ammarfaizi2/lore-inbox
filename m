@@ -1,62 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132612AbRDCTuB>; Tue, 3 Apr 2001 15:50:01 -0400
+	id <S132613AbRDCUBy>; Tue, 3 Apr 2001 16:01:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132613AbRDCTtv>; Tue, 3 Apr 2001 15:49:51 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:9996 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S132612AbRDCTtn>;
-	Tue, 3 Apr 2001 15:49:43 -0400
-Date: Tue, 3 Apr 2001 20:47:52 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Mike Kravetz <mkravetz@sequent.com>
-Cc: Fabio Riccardi <fabio@chromium.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: a quest for a better scheduler
-In-Reply-To: <20010403121308.A1054@w-mikek2.sequent.com>
-Message-ID: <Pine.LNX.4.30.0104032024290.9285-100000@elte.hu>
+	id <S132633AbRDCUBp>; Tue, 3 Apr 2001 16:01:45 -0400
+Received: from pat.uio.no ([129.240.130.16]:26001 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S132613AbRDCUBi>;
+	Tue, 3 Apr 2001 16:01:38 -0400
+To: Caleb Epstein <cae@bklyn.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS client code slow in 2.4.3
+In-Reply-To: <20010403145615.C1049@hagrid.bklyn.org>
+	<20010403150852.A1310@hagrid.bklyn.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: text/plain; charset=US-ASCII
+Date: 03 Apr 2001 22:00:47 +0200
+In-Reply-To: Caleb Epstein's message of "Tue, 3 Apr 2001 15:08:52 -0400"
+Message-ID: <shsn19xpxcg.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Caleb Epstein <cae@bklyn.org> writes:
 
-On Tue, 3 Apr 2001, Mike Kravetz wrote:
+     > On Tue, Apr 03, 2001 at 02:56:15PM -0400, Caleb Epstein wrote:
+    >> I am having problems with timeouts and generaly throughput in
+    >> the 2.4.3 NFS client side code which are not present in the
+    >> 2.4.2 kernel running in the same configuraiton on the same
+    >> hardware.  The machines are on a 100 Mbit switched local
+    >> network with essentially no other trafic.
 
-> [...] Currently, in this implementation we only deviate from the
-> current scheduler in a small number of cases where tasks get a boost
-> due to having the same memory map.
+     > 	On second thought, it looks like 2.4.2 may also exhibit the
+     > 	same behaviro after a little while.  Now that the machine has
+     > 	been up for a half hour or so, NFS traffic has become slow on
+     > 	my 2.4.2 client again.  I am seeing messages like this in my
+     > 	kernel log:
 
-thread-thread-affinity pretty much makes it impossible to use a priority
-queue. This 'small number of cases' is actually a fundamental issue: can
-the 'goodness()' function be an arbitrary function of:
+     > Apr 3 15:01:54 hagrid kernel: nfs: server tela not responding,
+     > still trying Apr 3 15:01:54 hagrid kernel: nfs: server tela OK
 
-	goodness(process_prev,process_next) := f(process_prev,process_next)
+The above is a generic message that simply is stating that NFS traffic
+is congested because the server isn't responding for whatever reason.
 
-, or is the queue design restricting the choice of goodness() functions?
-Priority queues for example restrict the choice of the goodness() function
-to subset of functions:
+In 99% of all cases, this means that the server is not seeing all the
+packets that the client is sending it. This forces the client to
+throttle back the number of requests it can have on the fly, and then
+to wait until the given packet times out, and then to resend.
 
-	goodness(process_prev,process_next) := f(process_next);
+Try checking whether or not the server is seeing all the packets that
+the client is sending by comparing the output of tcpdump/ethereal
+between the client and the server.
+If the packet loss is large, try fiddling with the hardware: typically
+stuff such as overriding the NIC autoconfiguration, swapping the NIC,
+checking for noisy cables,...
 
-this restriction (independence of the priority from the previous process)
-is a fundamentally bad property, scheduling is nonlinear and affinity
-decisions depend on the previous context. [i had a priority-queue SMP
-scheduler running 2-3 years ago but dropped the idea due to this issue.]
-IMO it's more important to have a generic and flexible scheduler, and
-arbitrary, nonnatural restrictions tend to bite us later on.
+If you're unable to trace the problem, try playing around with
+rsize/wsize, timeo and retrans (man 5 nfs). The smaller the packet,
+the less the chances are of UDP fragments getting lost.
+You might also want to try out the NFS ping patch from
+   http://www.fys.uio.no/~trondmy/src/2.4.2
 
-one issue regarding multiqueues is the ability of interactive processes to
-preempt other, lower priority processes on other CPUs. These sort of
-things tend to happen while using X. In a system where process priorities
-are different, scheduling decisions cannot be localized per-CPU
-(unfortunately), and 'the right to run' as such is a global thing.
-
-> Can someone tell me what a good workload/benchmark would be to examine
-> 'low thread count' performance? [...]
-
-lmbench's lat_ctx for example, and other tools in lmbench trigger various
-scheduler workloads as well.
-
-	Ingo
-
+Cheers,
+   Trond

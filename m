@@ -1,53 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266716AbTA2RDa>; Wed, 29 Jan 2003 12:03:30 -0500
+	id <S266675AbTA2RD0>; Wed, 29 Jan 2003 12:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266717AbTA2RDa>; Wed, 29 Jan 2003 12:03:30 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:39405 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S266716AbTA2RD2>; Wed, 29 Jan 2003 12:03:28 -0500
-Date: Wed, 29 Jan 2003 15:12:20 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-cc: John Bradford <john@grabjohn.com>, jeff millar <wa1hco@adelphia.net>,
-       "" <Raphael_Schmid@CUBUS.COM>, "" <rob@r-morris.co.uk>,
-       "" <linux-kernel@vger.kernel.org>
+	id <S266716AbTA2RD0>; Wed, 29 Jan 2003 12:03:26 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:41916
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S266675AbTA2RD0>; Wed, 29 Jan 2003 12:03:26 -0500
+Date: Wed, 29 Jan 2003 12:15:43 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Scaring the non-geeks (was Bootscreen)
-In-Reply-To: <200301291409.57213.roy@karlsbakk.net>
-Message-ID: <Pine.LNX.4.50L.0301291511420.28338-100000@imladris.surriel.com>
-References: <200301281440.h0SEeBS8001126@darkstar.example.net>
- <200301291409.57213.roy@karlsbakk.net>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030129121543.A9282@animx.eu.org>
+References: <200301281440.h0SEeBS8001126@darkstar.example.net> <200301291409.57213.roy@karlsbakk.net> <1043846348.11513.2.camel@oubop4.bursar.vt.edu> <1043848700.11095.2.camel@localhost> <1043848911.11513.8.camel@oubop4.bursar.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <1043848911.11513.8.camel@oubop4.bursar.vt.edu>; from Richard B. Tilley  (Brad) on Wed, Jan 29, 2003 at 09:01:50AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Jan 2003, Roy Sigurd Karlsbakk wrote:
+> Reading Your Credit Card Number			[OK]
+> Obtaining Your Date Of Birth			[OK]
+> Bringing Up Network Interface			[OK]
+> Transferring Your Personal Info to Finland	[OK]
 
-> The point is that Linux should allow for a user-friendly image (yes!
-> possibly with Tux winking with the eyes or something - in a Mac sorta
-> way). This will allow for higher user-friendlyness,
+Checking for intelligent life			[FAILED]
 
-       0   2   4   6   8   10
-
-                        /
-                       /
-                      /
-                     /
-                    /
-                   /
-                  /
-           TROLL-O-METER
-
-
-Even though you might not have intended it, the effect on
-lkml will be the same ;)
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263675AbRGNUC0>; Sat, 14 Jul 2001 16:02:26 -0400
+	id <S264865AbRGNUDg>; Sat, 14 Jul 2001 16:03:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264856AbRGNUCQ>; Sat, 14 Jul 2001 16:02:16 -0400
-Received: from [24.93.67.52] ([24.93.67.52]:23059 "EHLO mail5.carolina.rr.com")
-	by vger.kernel.org with ESMTP id <S263675AbRGNUCB>;
-	Sat, 14 Jul 2001 16:02:01 -0400
-From: Zilvinas Valinskas <zvalinskas@carolina.rr.com>
-Date: Sat, 14 Jul 2001 16:01:22 -0400
-To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.6-ac3
-Message-ID: <20010714160122.A3670@clt88-175-140.carolina.rr.com>
-In-Reply-To: <20010714183603.A5773@lightning.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S264860AbRGNUD0>; Sat, 14 Jul 2001 16:03:26 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12302 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264856AbRGNUDI>; Sat, 14 Jul 2001 16:03:08 -0400
+Subject: Re: Again: Linux 2.4.x and AMD Athlon
+To: gfriedmann@mediaone.net (Gabriel Friedmann)
+Date: Sat, 14 Jul 2001 21:04:07 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200107141954.f6EJsUS09999@demai05.mw.mediaone.net> from "Gabriel Friedmann" at Jul 14, 2001 03:54:22 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010714183603.A5773@lightning.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15LVe3-0001fO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> o	Fix range checks in mga				(me)
-> 	| I've no idea if I've broken the matrox driver in doing so
-> 	| but right now I dont actually care. XFree need to fix it right
-> o	Ditto for radeon				(me)
-> o	Ditto for r128					(me)
-> o	Ditto for matrox pci				(me)
-> o	And generic drm_addbufs				(me)
-> 
-These drivers are already outdated .... In order to get DRI working
-you need drivers that comes with XFree 4.1.0 (or the CVS version of
-DRI tree ....). I doubt these are worth ... fixing at all.
+> This bums me out.  AS i am using ABIT kt7a-raid with the kt133a chipset, and 
+> 3dnow kernel optimizations and i oops right as i boot (sometimes before i 
+> complete any init-scripts).
 
-ps.
-I'll forward this email to dri-dever@ mailing list.
+Yep. Its not an ideal situation. People are btw also reporting similar
+photoshop oopses in windows. I suspect related problems 
+
+> Anyways...  I am confirming a problem with my via chipset and 3dnow 
+> optimizations.  VIA82CXXX in kernel support not affecting outcome.
+
+Nope - you want the via82cxxx ide support, that is a big performance win as
+you get UDMA IDE. The prefetch/movntq optimisations are less of an impact,
+so an Athlon with a non athlon optimised kernel is still a killer devel box
+

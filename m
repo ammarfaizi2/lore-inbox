@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318293AbSIBN3J>; Mon, 2 Sep 2002 09:29:09 -0400
+	id <S318295AbSIBNaT>; Mon, 2 Sep 2002 09:30:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318295AbSIBN3J>; Mon, 2 Sep 2002 09:29:09 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:42513 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S318293AbSIBN3I>; Mon, 2 Sep 2002 09:29:08 -0400
-To: Daniel Jacobowitz <dan@debian.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove BUG_ON(p->ptrace) in release_task()
-References: <87fzwthapw.fsf@devron.myhome.or.jp>
-	<20020901193313.GA23985@nevyn.them.org>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 02 Sep 2002 22:33:16 +0900
-In-Reply-To: <20020901193313.GA23985@nevyn.them.org>
-Message-ID: <87k7m4ikir.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S318297AbSIBNaS>; Mon, 2 Sep 2002 09:30:18 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:9176 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S318295AbSIBNaS>;
+	Mon, 2 Sep 2002 09:30:18 -0400
+Date: Mon, 2 Sep 2002 15:36:16 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Tobias Ringstrom <tori@ringstrom.mine.nu>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with the O(1) scheduler in 2.4.19
+In-Reply-To: <Pine.LNX.4.44.0208301822200.2042-100000@boris.prodako.se>
+Message-ID: <Pine.LNX.4.44.0209021535330.5160-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Jacobowitz <dan@debian.org> writes:
 
-> On Mon, Sep 02, 2002 at 02:38:03AM +0900, OGAWA Hirofumi wrote:
-> > Hi,
-> > 
-> > I think, BUG_ON(p->ptrace) will be called if the CLONE_DETACH process
-> > is traced.  This patch removes BUG_ON(p->ptrace), and also removes
-> > BUG_ON(p->ptrace) workaround in sys_wait4().
-> 
-> The BUG_ON is correct, and that isn't a workaround - if the list is not
-> empty, then it will be garbage after the task struct is freed.  Your
-> patch breaks tracing of normal processes again, because the ptrace_list
-> will not be empty.
+On Sun, 1 Sep 2002, Tobias Ringstrom wrote:
 
-Whoops, yes, I'm wrong. Sorry. My fixes wasn't enough. However, looks
-like your case called the following BUG().
+> While the O(1) scheduler has performed very well for me in most
+> situations, I have one big problem with it.  When running a
+> Counter-Strike game server on Linux 2.4.19 with the sched-2.4.19-rc2-A4
+> patch applied, the server process is niced from the default value of 15
+> (interactive) to 25 (background).  This means that every time crond
+> wakes up or a mail arrives the game latency becomes extremely bad and
+> the users experience lag.
 
-sys_ptrace()
-    -> ptrace_attach()
-        -> __ptrace_link()
+does the same problem happen if you renice the game server to -10 or -15?
 
-void __ptrace_link(task_t *child, task_t *new_parent)
-{
-	if (!list_empty(&child->ptrace_list))
-		BUG();
-	if (child->parent == new_parent)
-		BUG();		<--- this
-	list_add(&child->ptrace_list, &child->parent->ptrace_children);
-	REMOVE_LINKS(child);
+	Ingo
 
-So, I need to look source more. Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

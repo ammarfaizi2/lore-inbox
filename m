@@ -1,66 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286942AbSANPof>; Mon, 14 Jan 2002 10:44:35 -0500
+	id <S287461AbSANPq1>; Mon, 14 Jan 2002 10:46:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286962AbSANPoZ>; Mon, 14 Jan 2002 10:44:25 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:10246 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S286942AbSANPoS>; Mon, 14 Jan 2002 10:44:18 -0500
-Date: Mon, 14 Jan 2002 07:50:07 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@elte.hu>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: cross-cpu balancing with the new scheduler
-In-Reply-To: <3C42FBA7.B1084B4D@colorfullife.com>
-Message-ID: <Pine.LNX.4.40.0201140749340.1486-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286962AbSANPqQ>; Mon, 14 Jan 2002 10:46:16 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:12617 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S287461AbSANPqH>; Mon, 14 Jan 2002 10:46:07 -0500
+Date: Mon, 14 Jan 2002 16:45:10 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Robert Love <rml@tech9.net>
+Cc: Andrew Morton <akpm@zip.com.au>, jogi@planetzork.ping.de,
+        Ed Sweetman <ed.sweetman@wmich.edu>, yodaiken@fsmlabs.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
+        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020114164510.C22791@athlon.random>
+In-Reply-To: <20020112095209.A5735@hq.fsmlabs.com> <20020112180016.T1482@inspiron.school.suse.de> <005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au> <20020113184249.A15955@planetzork.spacenet> <1010946178.11848.14.camel@phantasy> <3C41E415.9D3DA253@zip.com.au> <1010952276.12125.59.camel@phantasy> <20020114125619.E10227@athlon.random> <1011015540.4137.1.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <1011015540.4137.1.camel@phantasy>; from rml@tech9.net on Mon, Jan 14, 2002 at 08:38:54AM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Manfred Spraul wrote:
+On Mon, Jan 14, 2002 at 08:38:54AM -0500, Robert Love wrote:
+> On Mon, 2002-01-14 at 06:56, Andrea Arcangeli wrote:
+> > On Sun, Jan 13, 2002 at 03:04:35PM -0500, Robert Love wrote:
+> > > user system.  But things like (ack!) dbench 16 show a marked
+> > > improvement.
+> > 
+> > please try again on top of -aa, and I've to specify this : benchmarked
+> > in a way that can be trusted and compared, so we can make some use of
+> > this information.  This mean with -18pre2aa2 alone and only -preempt on
+> > top of -18pre2aa2.
+> 
+> I realize the test isn't directly comparing what we want, so I asked him
+> for ll+O(1) benchmark, which he gave.  Another set would be to do
+      ^^ actually mini-ll
 
-> Davide Libenzi wrote:
-> >
-> > I've a very simple phrase when QA is bugging me with these corner cases :
-> >
-> > "As Designed"
-> >
-> > It's much much better than adding code and "Return To QA" :-)
-> > I tried priority balancing in BMQS but i still prefer "As Designed" ...
-> >
-> Another test, now with 4 process (dual cpu):
-> #nice -n 19 ./eatcpu&
-> #nice -n 19 ./eatcpu&
-> #./eatcpu&
-> #nice -n -19 ./eatcpu&
->
-> And the top output:
-> <<<<<<
-> 73 processes: 68 sleeping, 5 running, 0 zombie, 0 stopped
-> CPU0 states: 100.0% user,  0.0% system, 100.0% nice,  0.0% idle
-> CPU1 states: 98.0% user,  2.0% system, 33.0% nice,  0.0% idle
-> [snip]
-> PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
->  1163 root      39  19   396  396   324 R N  99.5  0.1   0:28 eatcpu
->  1164 root      39  19   396  396   324 R N  33.1  0.1   0:11 eatcpu
->  1165 root      39   0   396  396   324 R    33.1  0.1   0:07 eatcpu
->  1166 root      39 -19   396  396   324 R <  31.3  0.1   0:06 eatcpu
->  1168 manfred    1   0   980  976   768 R     2.7  0.2   0:00 top
-> [snip]
->
-> The niced process still has it's own cpu, and the "nice -19" process has
-> 33% of the second cpu.
->
-> IMHO that's buggy. 4 running process, 1 on cpu0, 3 on cpu1.
+right (I was still in the middle of the backlog of my emails, so I
+didn't know he just produced the mini-ll+O(1)). The mini-ll+O(1) shows
+that -preempt is still a bit faster (as expected not much faster
+anymore). The reason it is faster it is probably really the sum of few
+usec latency of userspace cpu cycles that you save. However given the
+small difference in numbers in this patological case (-j1 obviously
+cannot take advantage of the few usec less of reduced latency) still
+makes me to think it doesn't worth the pain and the complexity, or at
+least somebody should also proof that it doesn't visibly drop
+performance in a 100% cpu bound _system_ (not user) time load (ala
+pagecache_lock collision testcase with sendfile etc..), in general with
+a single thread in the system.
 
-Yes, a long run with 3:1 is no more "As Designed" :-)
-
-
-
-
-- Davide
-
-
+Andrea

@@ -1,43 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279250AbRJWFjK>; Tue, 23 Oct 2001 01:39:10 -0400
+	id <S279257AbRJWFmk>; Tue, 23 Oct 2001 01:42:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279251AbRJWFjB>; Tue, 23 Oct 2001 01:39:01 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:63492 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S279250AbRJWFim>;
-	Tue, 23 Oct 2001 01:38:42 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VM 
-In-Reply-To: Your message of "Mon, 22 Oct 2001 20:59:40 +0200."
-             <20011022185859Z16022-4006+539@humbolt.nl.linux.org> 
-Mime-Version: 1.0
+	id <S279254AbRJWFmU>; Tue, 23 Oct 2001 01:42:20 -0400
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:50693
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S279253AbRJWFmI>; Tue, 23 Oct 2001 01:42:08 -0400
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200110230522.f9N5M2g03266@www.hockin.org>
+Subject: Re: PCI PIRQ routing questions..
+To: john@deater.net (John Clemens)
+Date: Mon, 22 Oct 2001 22:22:02 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@sourceforge.net
+In-Reply-To: <Pine.LNX.4.33.0110230052560.3178-100000@pianoman.cluster.toy> from "John Clemens" at Oct 23, 2001 01:06:11 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 23 Oct 2001 15:38:55 +1000
-Message-ID: <1337.1003815535@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001 20:59:40 +0200, 
-Daniel Phillips <phillips@bonn-fries.net> wrote:
->If you want to argue for something, argue for giving config the ability to 
->apply patches, that would be lots of fun.
+> everything else on the laptop is set to IRQ11. (well, enet, cardbus,
+> video).  I tried using setpci to change the USB irq to something unused
 
-cc list trimmed.
+On many systems USB is an internal IRQ route, not configurable through PIRQ
+at all, despite what the PIRQ table tells you.
 
-It is kbuild rather than config that needs the ability.  I could do it
-trivially in kbuild 2.5, I almost added the facility at one time.  Alas
-it breaks when you get overlapping patches, select one config or
-another and it works, select both (assuming they are not exclusive) and
-it breaks.
-
-I don't have a solution and the symptoms of overlapping patches are
-worse than the problem that patches are trying to fix, so I left patch
-support out of kbuild 2.5.  You can use shadow trees where you overlay
-a new implementation of a subsystem over the base kernel, then switch
-between versions by specifying which set of trees you are using.
-
-http://sourceforge.net/projects/kbuild
-
+Just a possibility.

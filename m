@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265726AbRFYRjV>; Mon, 25 Jun 2001 13:39:21 -0400
+	id <S265863AbRFYRkL>; Mon, 25 Jun 2001 13:40:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265878AbRFYRjL>; Mon, 25 Jun 2001 13:39:11 -0400
-Received: from jffdns02.or.intel.com ([134.134.248.4]:16095 "EHLO
-	hebe.or.intel.com") by vger.kernel.org with ESMTP
-	id <S265726AbRFYRi6>; Mon, 25 Jun 2001 13:38:58 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDEF5@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Chris Wedgwood'" <cw@f00f.org>
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, proski@gnu.org,
-        linux-kernel@vger.kernel.org
-Subject: RE: ACPI + Promise IDE = disk corruption :-(((
-Date: Mon, 25 Jun 2001 10:38:12 -0700
+	id <S265889AbRFYRkC>; Mon, 25 Jun 2001 13:40:02 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:3847 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S265863AbRFYRjs>;
+	Mon, 25 Jun 2001 13:39:48 -0400
+Date: Mon, 25 Jun 2001 14:39:39 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Jeff Dike <jdike@karaya.com>
+Cc: Bulent Abali <abali@us.ibm.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, James Stevenson <mistral@stev.org>
+Subject: Re: all processes waiting in TASK_UNINTERRUPTIBLE state 
+In-Reply-To: <200106251825.NAA02909@ccure.karaya.com>
+Message-ID: <Pine.LNX.4.21.0106251437160.7419-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Their processor power state code looks dormant at the moment, so they
-haven't hit this particular issue.
-
-They have in the past run into a number of problems, and submitted fixes.
-The Linux version is getting much wider testing right now.
-
--- Andy
-
-PS Just FreeBSD, no Net or OpenBSD just yet.
-
-> From: Chris Wedgwood [mailto:cw@f00f.org]
->>     It's just *one* issue that has generated all the disk corruption
->>     reports.
+On Mon, 25 Jun 2001, Jeff Dike wrote:
+> abali@us.ibm.com said:
+> > Can you give more details?  Was there an aic7xxx scsi driver on the
+> > box? run_task_queue(&tq_disk) should eventually unlock those pages but
+> > they remain locked.  I am trying to narrow it down to fs/buffer code
+> > or the SCSI driver aic7xxx in my case.
 > 
-> The same code is used for FreeBSD and friends too right? Are they
-> seeing anywhere near the same number of types of poroblems Linux is?
+> Rik would be the one to tell you whether there was an aic7xxx driver
+> on the physical box.  There obviously isn't one on UML, so if we're
+> looking at the same bug, it's in the generic code.
+
+The box has as AIC-7880U controller. OTOH, my dual P5 also has
+an AIC7xxx controller and I've never seen the problem there...
+
+On our quad Xeon this problem really seems to be phase-of-moon
+related; it hasn't shown up in the last 5 days or so under heavy
+stress testing, but when the kernel is compiled just a little bit
+different it doesn't happen. ;)
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

@@ -1,59 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267614AbUHaU5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269223AbUHaVBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267614AbUHaU5b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 16:57:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269029AbUHaU4o
+	id S269223AbUHaVBv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 17:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269162AbUHaUd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 16:56:44 -0400
-Received: from gprs214-69.eurotel.cz ([160.218.214.69]:39554 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S267650AbUHaUy5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 16:54:57 -0400
-Date: Tue, 31 Aug 2004 22:54:23 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040831205422.GD16110@elf.ucw.cz>
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl> <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org> <20040831203226.GB16110@elf.ucw.cz> <Pine.LNX.4.58.0408311336580.2295@ppc970.osdl.org>
+	Tue, 31 Aug 2004 16:33:57 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:34039 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268875AbUHaU1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 16:27:15 -0400
+Date: Tue, 31 Aug 2004 22:27:07 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Dmitry Golubev <dmitry@mikrotik.com>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] embedding 2.6 or more findings on kernel size
+Message-ID: <20040831202707.GQ3466@fs.tum.de>
+References: <200408302307.35052.dmitry@mikrotik.com> <200408311710.01601.dmitry@mikrotik.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408311336580.2295@ppc970.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <200408311710.01601.dmitry@mikrotik.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Aug 31, 2004 at 05:10:01PM +0300, Dmitry Golubev wrote:
+>...
+> --- ./linux-2.6.8.1/arch/i386/Kconfig	2004-08-14 13:54:50.000000000 +0300
+> +++ ./linux-2.6.8.1_new/arch/i386/Kconfig	2004-08-31 15:19:02.000000000 +0300
+> @@ -321,6 +321,46 @@
+>  
+>  endchoice
+>  
+> +menu "Specific x86 vendor support"
+> +	depends on X86
+> +	
+> +config X86_CPU_VENDOR_AMD
+> +	bool "Advanced Micro Devices"
+> +	default y
+> +
+> +config X86_CPU_VENDOR_CYRIX
+> +	bool "Cyrix | VIA | National Semiconductor"
+> +	default y
+> +
+> +config X86_CPU_VENDOR_CENTAUR
+> +	bool "Centaur Technology"
+> +	default y
+> +	help
+> +	  This option enables support for Centaur C6 (IDT WinChip) 
+> +	  processor family.
+> +
+> +config X86_CPU_VENDOR_TRANSMETA
+> +	bool "Transmeta Crusoe"
+> +	default y
+> +
+> +config X86_CPU_VENDOR_INTEL
+> +	bool "Intel"
+> +	default y
+> +
+> +config X86_CPU_VENDOR_RISE
+> +	bool "Rise Technology"
+> +	default y
+> +
+> +config X86_CPU_VENDOR_NEXGEN
+> +	bool "NexGen"
+> +	default y
+> +
+> +config X86_CPU_VENDOR_UMC
+> +	bool "UMC Green CPUs"
+> +	default y
+> +
+> +endmenu
+> +
+>...
 
-> > It buys me caching.
-> 
-> I'll actually buy into that. If only because I consider caching to be one 
-> of the more important things that the kernel does (caches are a _classic_ 
-> case of "shared data that needs synchronization").
-> 
-> However, that said, user space can trivially cache things in the 
-> filesystem, so while this may be a convenient feature, I think you should 
-> look at perhaps doing it in the _shell_ instead..
 
-That cache should disappear as soon as I need disk
-space. I.e. userspace should never see -ENOSPC because of this kind of
-caching. This need some kernel support. Ouch and cached file should
-atomically go away as soon as main file changes, otherwise I do not
-see how multiple processes could cooperate on caching...
+Please don't include this.
 
-chattr +kill-this-file-when-low-on-disk-space patch.bz2...ubz 
+I'd prefer to switch i386 cpu selection to a different scheme which 
+gives you effectively these options for free without additional options.
 
-would solve first problem. Not sure how to do the second one.
+@Andrew:
+You rejected my i386 cpu selection patch for 2.6 some time ago, and 
+asked me to resend it for 2.7 .
+With the new 2.6 development model, will you now accept this patch
+in 2.6?
 
-								Pavel
+cu
+Adrian
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

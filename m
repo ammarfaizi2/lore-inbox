@@ -1,91 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbVCUXdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVCUWs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbVCUXdr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 18:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbVCUWtq
+	id S262117AbVCUWs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 17:48:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVCUWrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:49:46 -0500
-Received: from fire.osdl.org ([65.172.181.4]:23758 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262124AbVCUWsR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:48:17 -0500
-Date: Mon, 21 Mar 2005 14:47:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: andrei@arhont.com
-Cc: linux-kernel@vger.kernel.org, video4linux-list@redhat.com
-Subject: Re: amd64 2.6.11 oops on modprobe
-Message-Id: <20050321144752.6acf4e75.akpm@osdl.org>
-In-Reply-To: <1110024688.5494.2.camel@whale.core.arhont.com>
-References: <1110024688.5494.2.camel@whale.core.arhont.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Mar 2005 17:47:06 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:49369 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262144AbVCUWnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 17:43:45 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389
+Date: Mon, 21 Mar 2005 23:43:31 +0100
+User-Agent: KMail/1.7.1
+References: <20050321025159.1cabd62e.akpm@osdl.org>
+In-Reply-To: <20050321025159.1cabd62e.akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503212343.31665.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrei Mikhailovsky <andrei@arhont.com> wrote:
->
-> I get the oops during the boot up process. This did not happen in
-> 2.6.10/2.6.9.
+Hi,
 
-Andrei, is this still happening in 2.6.12-rc1?
+On Monday, 21 of March 2005 11:51, you wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm1/
 
-Thanks.
+I get the following BUG every time I try to suspend my box to disk.
 
-> Here is the output from dmesg:
-> 
-> Unable to handle kernel paging request at ffffffff880db000 RIP: 
-> <ffffffff880d909f>{:saa7110:saa7110_write_block+127}
-> PGD 103027 PUD 105027 PMD 3ee64067 PTE 0
-> Oops: 0000 [1] 
-> CPU 0 
-> Modules linked in: adv7175 saa7110 zr36067 videocodec videodev sata_nv
-> libata snd_intel8x0 snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm
-> snd_timer snd snd_page_alloc i2c_nforce2 it87 eeprom i2c_sensor i2c_isa
-> sk98lin
-> Pid: 2604, comm: modprobe Not tainted 2.6.11-amd64
-> RIP: 0010:[<ffffffff880d909f>]
-> <ffffffff880d909f>{:saa7110:saa7110_write_block+127}
-> RSP: 0018:ffff81003f6c5b78  EFLAGS: 00010287
-> RAX: 000000000000139f RBX: 00000000ffffec36 RCX: 000000000000002a
-> RDX: 000000000000009f RSI: 0000000000000001 RDI: ffffffff880bf838
-> RBP: 000000000000139f R08: 0000000000000000 R09: ffff81003efd63a8
-> R10: 0000000000000001 R11: ffffffff802f75d0 R12: ffffffff880db000
-> R13: ffff81003f3e0200 R14: ffff81003e0df200 R15: 0000000000000001
-> FS:  00002aaaaaac5520(0000) GS:ffffffff80500180(0000)
-> knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-> CR2: ffffffff880db000 CR3: 000000003e125000 CR4: 00000000000006e0
-> Process modprobe (pid: 2604, threadinfo ffff81003f6c4000, task
-> ffff81003ed59700)
-> Stack: 0000000000000076 0000000000000000 0000000000000000
-> 0000000000000000 
->        0000000000000000 ffffffffffff0000 ffffffffffffffff
-> ffff81003e0df228 
->        ffff002a0001004e ffff81003f6c5b78 
-> Call Trace:<ffffffff880d9930>{:saa7110:saa7110_detect_client+0} 
->        <ffffffff880d9ab4>{:saa7110:saa7110_detect_client+388} 
->        <ffffffff802f6812>{i2c_probe+642}
-> <ffffffff802f4c24>{i2c_add_adapter+468} 
->        <ffffffff802f7928>{i2c_bit_add_bus+840}
-> <ffffffff880d7600>{:zr36067:init_dc10_cards+1536} 
->        <ffffffff801468e1>{sys_init_module+5857}
-> <ffffffff80174de7>{do_lookup+55} 
->        <ffffffff8021f440>{prio_tree_insert+48}
-> <ffffffff880d7000>{:zr36067:init_dc10_cards+0} 
->        <ffffffff80113fff>{sys_mmap+191} <ffffffff8010e1fa>{system_call
-> +126} 
->        
-> 
-> Code: 41 0f b6 04 24 ff c5 49 ff c4 41 88 44 15 00 88 04 0c 8b 44 
-> RIP <ffffffff880d909f>{:saa7110:saa7110_write_block+127} RSP
-> <ffff81003f6c5b78>
-> CR2: ffffffff880db000
-> 
-> If anyone need more debugging info, I am ready to help
-> 
-> 
-> -- 
-> Andrei Mikhailovsky
-> 
+Greets,
+Rafael
+
+
+Stopping tasks: ===================================================================|
+Freeing memory... done (66711 pages freed)
+They asked me for state 1
+----------- [cut here ] --------- [please bite here ] ---------
+Kernel BUG at pci:389
+invalid operand: 0000 [1]
+CPU 0
+Modules linked in: usbserial parport_pc lp parport thermal processor fan button battery ac soundcore snd_page_alloc ipt_TOS ipt_LOG ipt_limit v
+Pid: 9141, comm: do_acpi_sleep Not tainted 2.6.12-rc1-mm1
+RIP: 0010:[<ffffffff80283a70>] <ffffffff80283a70>{pci_choose_state+96}
+RSP: 0000:ffff810020fbfd78  EFLAGS: 00010292
+RAX: 000000000000001d RBX: 0000000000000001 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 00000000000044e0 RDI: ffffffff8041d140
+RBP: ffff81002fc151c0 R08: 0000000000000000 R09: ffff81002a535c48
+R10: 00000000ffffffff R11: 0000000000000000 R12: ffff81002fc151c0
+R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000080
+FS:  00002aaaab28b800(0000) GS:ffffffff8055c840(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00002aaaaaac2000 CR3: 000000001dd8a000 CR4: 00000000000006e0
+Process do_acpi_sleep (pid: 9141, threadinfo ffff810020fbe000, task ffff810020d527e0)
+Stack: ffff81002c349628 0000000000000000 ffff81002c349628 ffffffff8032218a
+       ffff81002fc149a8 0000000000000000 ffff81002fc15230 0000000000000000
+       ffffffff8048f680 0000000000000003
+Call Trace:<ffffffff8032218a>{usb_hcd_pci_suspend+74} <ffffffff8028519e>{pci_device_suspend+30}
+       <ffffffff802ee3d2>{suspend_device+50} <ffffffff802ee4f1>{device_suspend+129}
+       <ffffffff80166ceb>{prepare_devices+11} <ffffffff80167095>{pm_suspend_disk+21}
+       <ffffffff80164206>{enter_state+70} <ffffffff8016442d>{state_store+109}
+       <ffffffff801f275f>{subsys_attr_store+31} <ffffffff801f2c1c>{sysfs_write_file+204}
+       <ffffffff8019c6c9>{vfs_write+233} <ffffffff8019c863>{sys_write+83}
+       <ffffffff8010f092>{system_call+126}
+
+Code: 0f 0b 7a 3e 3e 80 ff ff ff ff 85 01 31 d2 66 90 48 8b 5c 24
+RIP <ffffffff80283a70>{pci_choose_state+96} RSP <ffff810020fbfd78>
+
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

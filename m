@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261435AbSJPLkT>; Wed, 16 Oct 2002 07:40:19 -0400
+	id <S261822AbSJPLpg>; Wed, 16 Oct 2002 07:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261822AbSJPLkT>; Wed, 16 Oct 2002 07:40:19 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:22998 "EHLO
+	id <S262147AbSJPLpf>; Wed, 16 Oct 2002 07:45:35 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:34006 "EHLO
 	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S261435AbSJPLkS>; Wed, 16 Oct 2002 07:40:18 -0400
-Date: Wed, 16 Oct 2002 13:46:31 +0200 (MET DST)
+	id <S261822AbSJPLpf>; Wed, 16 Oct 2002 07:45:35 -0400
+Date: Wed, 16 Oct 2002 13:51:54 +0200 (MET DST)
 From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
+To: "David S. Miller" <davem@redhat.com>
+cc: jw@pegasys.ws, linux-kernel@vger.kernel.org
 Subject: Re: mapping 36 bit physical addresses into 32 bit virtual
-In-Reply-To: <aoi6bb$309$1@cesium.transmeta.com>
-Message-ID: <Pine.GSO.3.96.1021016133123.14774F-100000@delta.ds2.pg.gda.pl>
+In-Reply-To: <20021016.002408.78874810.davem@redhat.com>
+Message-ID: <Pine.GSO.3.96.1021016134712.14774G-100000@delta.ds2.pg.gda.pl>
 Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Oct 2002, H. Peter Anvin wrote:
+On Wed, 16 Oct 2002, David S. Miller wrote:
 
-> Oh no, the x86 madness is spreading!!!!
+>    i distinctly remember the working
+>    with the newest R400x in 1993 which was still 32bit.
 > 
-> (It's depressing this happening on a MIPS system, which has been 64
-> bits since who-knows-when...)
+> You remember wrong, R400x can run happily in either 32-bit or 64-bit
+> mode.
 
- Yep, but the reasons are different -- the embedded people are paranoid on
-cutting away any possible bit of silicon and, admittedly, they are right,
-to some extent.  Why do they need 36-bit physical addressing in 32-bit
-cores remains a mystery to me, though, yet the MIPS32 ISA spec permits up
-to 36 bits (implementation-specific) here.  Even more interesting is why
-an implementation chose mapping of I/O devices there -- it's usually
-easier for an OS to have them mapped within the low 29-bit address space
-where they can be accessed bypassing the TLB. 
+ Many system implementations sticked to a 32-bit operation of R4k
+processors, though, possibly because of a few intriguing processor errata
+in early silicon revisions that hurt badly certain 64-bit operations. 
+This might have created an illusion these processors were 32-bit. 
 
 -- 
 +  Maciej W. Rozycki, Technical University of Gdansk, Poland   +

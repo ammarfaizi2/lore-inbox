@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314870AbSDVWiF>; Mon, 22 Apr 2002 18:38:05 -0400
+	id <S314894AbSDVWt5>; Mon, 22 Apr 2002 18:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314871AbSDVWiE>; Mon, 22 Apr 2002 18:38:04 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:8917 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S314870AbSDVWiD>;
-	Mon, 22 Apr 2002 18:38:03 -0400
-Date: Mon, 22 Apr 2002 18:38:01 -0400
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Larry McVoy <lm@bitmover.com>, Roman Zippel <zippel@linux-m68k.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020422183801.C18907@havoc.gtf.org>
-In-Reply-To: <20020422155223.B20999@havoc.gtf.org> <Pine.LNX.4.44.0204221624300.3714-100000@hawkeye.luckynet.adm>
+	id <S314895AbSDVWt5>; Mon, 22 Apr 2002 18:49:57 -0400
+Received: from bitmover.com ([192.132.92.2]:48041 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S314894AbSDVWt4>;
+	Mon, 22 Apr 2002 18:49:56 -0400
+Date: Mon, 22 Apr 2002 15:49:55 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Doug Ledford <dledford@redhat.com>, Larry McVoy <lm@bitmover.com>,
+        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Message-ID: <20020422154955.M18800@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alexander Viro <viro@math.psu.edu>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Doug Ledford <dledford@redhat.com>, Larry McVoy <lm@bitmover.com>,
+	Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16zP1W-0001Mm-00@starship> <Pine.GSO.4.21.0204221740570.5686-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 22, 2002 at 04:31:15PM -0600, Thunder from the hill wrote:
-> Hi,
-> 
-> Sorry, I haven't checked email for a while. Putting this into an
-> external readme file might still leave some people complaining,
-> but if you wish I could do that either.
-> The last version was more or less a cut and paste from Larry, this one is 
-> a little edited...
+On Mon, Apr 22, 2002 at 05:45:41PM -0400, Alexander Viro wrote:
+> Daniel, if you will ever get a legitimate reason to send me mail -
+> try to convince somebody sane to forward it.  I'm serious - taking
+> you out of killfile was a bad mistake and I'm not going to repeat
+> it.
 
-What I'll do is take this and some of stuff sent to me privately
-(spelling correction, peer review stuff) and update that.  I will
-probably reword your intro here.
+In 19 years of being on mailing lists, this is the first and
+only time I've actually implemented a killfile.  Kind of sad,
+but I can't say that I (or anyone else) am/is going to miss
+me rising to Daniel's baiting.
 
-A README in that dir might not be a bad idea, but it (like the other
-docs) will actually be useful.  It will include the "BK disclaimer" as
-well as other stuff.
+> *PLONK*
 
-	Jeff
-
-
-
+Indeed.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

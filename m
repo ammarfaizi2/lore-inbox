@@ -1,159 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129274AbRAYXSP>; Thu, 25 Jan 2001 18:18:15 -0500
+	id <S130967AbRAYXTz>; Thu, 25 Jan 2001 18:19:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130970AbRAYXSF>; Thu, 25 Jan 2001 18:18:05 -0500
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:38302 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129274AbRAYXRv>; Thu, 25 Jan 2001 18:17:51 -0500
-Date: Thu, 25 Jan 2001 23:17:49 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: Alan Cox <alan@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.0-ac11: small NTFS fixes
-Message-ID: <Pine.SOL.3.96.1010125230703.20503A-200000@draco.cus.cam.ac.uk>
+	id <S130970AbRAYXTp>; Thu, 25 Jan 2001 18:19:45 -0500
+Received: from austin.jhcloos.com ([206.224.83.202]:35594 "HELO
+	austin.jhcloos.com") by vger.kernel.org with SMTP
+	id <S130967AbRAYXTi>; Thu, 25 Jan 2001 18:19:38 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: hotmail can't deal with ECN
+In-Reply-To: <14960.29127.172573.22453@pizda.ninka.net>
+	<200101251905.f0PJ5ZG216578@saturn.cs.uml.edu>
+	<14960.31423.938042.486045@pizda.ninka.net>
+	<20010125115214.D9992@draco.foogod.com>
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <20010125115214.D9992@draco.foogod.com>
+Date: 25 Jan 2001 17:19:37 -0600
+Message-ID: <m3itn3i5iu.fsf@austin.jhcloos.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1804928587-980464669=:20503"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+>>>>> "alex" == alex  <alex@foogod.com> writes:
 
----559023410-1804928587-980464669=:20503
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+alex> I think the point of a test address is that this could
+alex> conceivably affect more providers than just Hotmail, and it
+alex> would be useful for people to be able to check to make sure
+alex> their own provider isn't also ECN brain damaged ...
 
-Alan,
+I have to agree with this.
 
-Please apply attached ntfs patch for next 2.4.0-ac kernel release.
+Are there any well know sites using ECN we can test against?
 
-It fixes a long standing bug where values of lengths of runs were
-considered unsigned when they are in fact signed numbers (both read and
-write). Also it makes a correction to how negative mft_recordsizes are
-handled. 
+Doesn't have to be a mail server, of course.  Maybe a web server with
+auth lookups turned on?  or an ftp server supporting only non-passive
+xfers.  An open squid.  Several possibilities exist for the general
+case.  (Although for some who want to test a mail autoresponder may be
+the only useable option....)
 
-Thanks go to Yuri Per <yuri@acronis.com> for the initial patch (which
-required only a tiny modification).
-
-Best regards,
-
-	Anton
+-JimC
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+James H. Cloos, Jr.  <http://jhcloos.com/public_key>     1024D/ED7DAEA6 
+<cloos@jhcloos.com>  E9E9 F828 61A4 6EA9 0F2B  63E7 997A 9F17 ED7D AEA6
 
----559023410-1804928587-980464669=:20503
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ntfs-patch-2.4.0-ac11"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.SOL.3.96.1010125231749.20503B@draco.cus.cam.ac.uk>
-Content-Description: 
-
-ZGlmZiAtdXIgbGludXgtMi40LjAtYWMxMS12YW5pbGxhL2ZzL250ZnMvaW5v
-ZGUuYyBsaW51eC9mcy9udGZzL2lub2RlLmMNCi0tLSBsaW51eC0yLjQuMC1h
-YzExLXZhbmlsbGEvZnMvbnRmcy9pbm9kZS5jCVdlZCBKYW4gMjQgMjM6MjM6
-NDYgMjAwMQ0KKysrIGxpbnV4L2ZzL250ZnMvaW5vZGUuYwlUaHUgSmFuIDI1
-IDIzOjQyOjUyIDIwMDENCkBAIC00NDQsMTYgKzQ0NCwxNiBAQA0KIAkqY3R5
-cGUgPSAwOw0KIAlzd2l0Y2ggKHR5cGUgJiAweEYpIHsNCiAJY2FzZSAxOiAN
-Ci0JCSpsZW5ndGggPSBOVEZTX0dFVFU4KCpkYXRhKTsNCisJCSpsZW5ndGgg
-PSBOVEZTX0dFVFM4KCpkYXRhKTsNCiAJCWJyZWFrOw0KIAljYXNlIDI6IA0K
-LQkJKmxlbmd0aCA9IE5URlNfR0VUVTE2KCpkYXRhKTsNCisJCSpsZW5ndGgg
-PSBOVEZTX0dFVFMxNigqZGF0YSk7DQogCQlicmVhazsNCiAJY2FzZSAzOiAN
-Ci0JCSpsZW5ndGggPSBOVEZTX0dFVFUyNCgqZGF0YSk7DQorCQkqbGVuZ3Ro
-ID0gTlRGU19HRVRTMjQoKmRhdGEpOw0KIAkJYnJlYWs7DQogICAgICAgICBj
-YXNlIDQ6IA0KLQkJKmxlbmd0aCA9IE5URlNfR0VUVTMyKCpkYXRhKTsNCisJ
-CSpsZW5ndGggPSBOVEZTX0dFVFMzMigqZGF0YSk7DQogCQlicmVhazsNCiAg
-ICAgICAgIAkvKiBOb3RlOiBjYXNlcyA1LTggYXJlIHByb2JhYmx5IHBvaW50
-bGVzcyB0byBjb2RlLCBzaW5jZSBob3cNCiAJCSAqIG1hbnkgcnVucyA+IDRH
-QiBvZiBsZW5ndGggYXJlIHRoZXJlPyBBdCB0aGUgbW9zdCwgY2FzZXMgNQ0K
-QEAgLTQ2Myw2ICs0NjMsMTEgQEANCiAJCW50ZnNfZXJyb3IoIkNhbid0IGRl
-Y29kZSBydW4gdHlwZSBmaWVsZCAleFxuIiwgdHlwZSk7DQogCQlyZXR1cm4g
-LTE7DQogCX0NCisJaWYgKCpsZW5ndGggPCAwKQ0KKwl7DQorCQludGZzX2Vy
-cm9yKCJOZWdhdGl2ZSBydW4gbGVuZ3RoIGRlY29kZWRcbiIpOw0KKwkJcmV0
-dXJuIC0xOw0KKwl9DQogCSpkYXRhICs9ICh0eXBlICYgMHhGKTsNCiAJc3dp
-dGNoICh0eXBlICYgMHhGMCkgew0KIAljYXNlIDA6DQpAQCAtNzA0LDEzICs3
-MDksMTQgQEANCiAJCWlmIChvZmZzZXQgKyA4ID4gc2l6ZSkNCiAJCQlyZXR1
-cm4gLUUyQklHOyAvKiBJdCBtaWdodCBzdGlsbCBmaXQsIGJ1dCB0aGlzDQog
-CQkJCQkqIHNpbXBsaWZpZXMgdGVzdGluZy4gKi8NCi0JCWlmIChsZW4gPCAw
-eDEwMCkgew0KKwkJLyogUnVuIGxlbmd0aCBpcyBzdG9yZWQgYXMgc2lnbmVk
-IG51bWJlci4gKi8NCisJCWlmIChsZW4gPD0gMHg3Rikgew0KIAkJCU5URlNf
-UFVUVTgocmVjICsgb2Zmc2V0ICsgMSwgbGVuKTsNCiAJCQljb2ZmcyA9IDE7
-DQotCQl9IGVsc2UgaWYgKGxlbiA8IDB4MTAwMDApIHsNCisJCX0gZWxzZSBp
-ZiAobGVuIDwgMHg3RkZGKSB7DQogCQkJTlRGU19QVVRVMTYocmVjICsgb2Zm
-c2V0ICsgMSwgbGVuKTsNCiAJCQljb2ZmcyA9IDI7DQotCQl9IGVsc2UgaWYg
-KGxlbiA8IDB4MTAwMDAwMCkgew0KKwkJfSBlbHNlIGlmIChsZW4gPCAweDdG
-RkZGRikgew0KIAkJCU5URlNfUFVUVTI0KHJlYyArIG9mZnNldCArIDEsIGxl
-bik7DQogCQkJY29mZnMgPSAzOw0KIAkJfSBlbHNlIHsNCkBAIC03MjAsMjEg
-KzcyNiwyMSBAQA0KICAgICAJCSoocmVjICsgb2Zmc2V0KSB8PSBjb2Zmcysr
-Ow0KIAkJaWYgKHJsW2ldLmNsdXN0ZXIgPT0gTUFYX0NMVVNURVJfVCkgLyog
-Q29tcHJlc3NlZCBydW4uICovDQogCQkJLyogTm90aGluZyAqLzsNCi0JCWVs
-c2UgaWYgKHJjbHVzID4gLTB4ODAgJiYgcmNsdXMgPCAweDdGKSB7DQorCQll
-bHNlIGlmIChyY2x1cyA+PSAtMHg4MCAmJiByY2x1cyA8PSAweDdGKSB7DQog
-CQkJKihyZWMgKyBvZmZzZXQpIHw9IDB4MTA7DQogCQkJTlRGU19QVVRTOChy
-ZWMgKyBvZmZzZXQgKyBjb2ZmcywgcmNsdXMpOw0KIAkJCWNvZmZzICs9IDE7
-DQotCQl9IGVsc2UgaWYocmNsdXMgPiAtMHg4MDAwICYmIHJjbHVzIDwgMHg3
-RkZGKSB7DQorCQl9IGVsc2UgaWYocmNsdXMgPj0gLTB4ODAwMCAmJiByY2x1
-cyA8PSAweDdGRkYpIHsNCiAJCQkqKHJlYyArIG9mZnNldCkgfD0gMHgyMDsN
-CiAJCQlOVEZTX1BVVFMxNihyZWMgKyBvZmZzZXQgKyBjb2ZmcywgcmNsdXMp
-Ow0KIAkJCWNvZmZzICs9IDI7DQotCQl9IGVsc2UgaWYocmNsdXMgPiAtMHg4
-MDAwMDAgJiYgcmNsdXMgPCAweDdGRkZGRikgew0KKwkJfSBlbHNlIGlmKHJj
-bHVzID49IC0weDgwMDAwMCAmJiByY2x1cyA8PSAweDdGRkZGRikgew0KIAkJ
-CSoocmVjICsgb2Zmc2V0KSB8PSAweDMwOw0KIAkJCU5URlNfUFVUUzI0KHJl
-YyArIG9mZnNldCArIGNvZmZzLCByY2x1cyk7DQogCQkJY29mZnMgKz0gMzsN
-CiAJCX0gZWxzZQ0KICNpZiAwIC8qIEluIGNhc2UgbnRmc19jbHVzdGVyX3Qg
-ZXZlciBiZWNvbWVzIDY0Yml0LiAqLw0KLQkgICAgICAgCWlmIChyY2x1cyA+
-IC0weDgwMDAwMDAwTEwgJiYgcmNsdXMgPCAweDdGRkZGRkZGKQ0KKwkgICAg
-ICAgCWlmIChyY2x1cyA+PSAtMHg4MDAwMDAwMExMICYmIHJjbHVzIDw9IDB4
-N0ZGRkZGRkYpDQogI2VuZGlmDQogCQl7DQogCQkJKihyZWMgKyBvZmZzZXQp
-IHw9IDB4NDA7DQpAQCAtNzQyLDE2ICs3NDgsMTcgQEANCiAJCQljb2ZmcyAr
-PSA0Ow0KIAkJfQ0KICNpZiAwIC8qIEZvciA2NC1iaXQgbnRmc19jbHVzdGVy
-X3QgKi8NCi0JCWVsc2UgaWYgKHJjbHVzID4gLTB4ODAwMDAwMDAwMCAmJiBy
-Y2x1cyA8IDB4N0ZGRkZGRkZGRikgew0KKwkJZWxzZSBpZiAocmNsdXMgPj0g
-LTB4ODAwMDAwMDAwMCAmJiByY2x1cyA8PSAweDdGRkZGRkZGRkYpIHsNCiAJ
-CQkqKHJlYyArIG9mZnNldCkgfD0gMHg1MDsNCiAJCQlOVEZTX1BVVFM0MChy
-ZWMgKyBvZmZzZXQgKyBjb2ZmcywgcmNsdXMpOw0KIAkJCWNvZmZzICs9IDU7
-DQotCQl9IGVsc2UgaWYgKHJjbHVzID4gLTB4ODAwMDAwMDAwMDAwICYmIHJj
-bHVzIDwgMHg3RkZGRkZGRkZGRkYpIHsNCisJCX0gZWxzZSBpZiAocmNsdXMg
-Pj0gLTB4ODAwMDAwMDAwMDAwICYmIA0KKwkJCQkJCXJjbHVzIDw9IDB4N0ZG
-RkZGRkZGRkZGKSB7DQogCQkJKihyZWMgKyBvZmZzZXQpIHw9IDB4NjA7DQog
-CQkJTlRGU19QVVRTNDgocmVjICsgb2Zmc2V0ICsgY29mZnMsIHJjbHVzKTsN
-CiAJCQljb2ZmcyArPSA2Ow0KLQkJfSBlbHNlIGlmIChyY2x1cyA+IC0weDgw
-MDAwMDAwMDAwMDAwICYmIA0KLQkJCQkJCSAgICByY2x1cyA8IDB4N0ZGRkZG
-RkZGRkZGRkYpIHsNCisJCX0gZWxzZSBpZiAocmNsdXMgPj0gLTB4ODAwMDAw
-MDAwMDAwMDAgJiYgDQorCQkJCQkJcmNsdXMgPD0gMHg3RkZGRkZGRkZGRkZG
-Rikgew0KIAkJCSoocmVjICsgb2Zmc2V0KSB8PSAweDcwOw0KIAkJCU5URlNf
-UFVUUzU2KHJlYyArIG9mZnNldCArIGNvZmZzLCByY2x1cyk7DQogCQkJY29m
-ZnMgKz0gNzsNCmRpZmYgLXVyIGxpbnV4LTIuNC4wLWFjMTEtdmFuaWxsYS9m
-cy9udGZzL3N1cGVyLmMgbGludXgvZnMvbnRmcy9zdXBlci5jDQotLS0gbGlu
-dXgtMi40LjAtYWMxMS12YW5pbGxhL2ZzL250ZnMvc3VwZXIuYwlXZWQgSmFu
-IDI0IDIzOjIzOjQ2IDIwMDENCisrKyBsaW51eC9mcy9udGZzL3N1cGVyLmMJ
-VGh1IEphbiAyNSAyMzo1Mjo0MyAyMDAxDQpAQCAtODksMTggKzg5LDE5IEBA
-DQogCQkgICBzaG91bGQgYmUgc2FmZS4gKi8NCiAJCXZvbC0+aW5kZXhfY2x1
-c3RlcnNfcGVyX3JlY29yZCA9IDE7DQogCX0NCi0JLyogSW4gc29tZSBjYXNl
-cywgMHhGNiBtZWFudCAxMDI0IGJ5dGVzLiBPdGhlciBzdHJhbmdlIHZhbHVl
-cyBoYXZlIG5vdA0KLQkgICBiZWVuIG9ic2VydmVkICovDQotCWlmICh2b2wt
-Pm1mdF9jbHVzdGVyc19wZXJfcmVjb3JkIDwgMCAmJg0KLQkgICAgdm9sLT5t
-ZnRfY2x1c3RlcnNfcGVyX3JlY29yZCAhPSAtMTApDQotCQludGZzX2Vycm9y
-KCJVbmV4cGVjdGVkIGRhdGEgIzQgaW4gYm9vdCBibG9ja1xuIik7DQotDQog
-CXZvbC0+Y2x1c3RlcnNpemUgPSB2b2wtPmJsb2Nrc2l6ZSA8PCB2b2wtPmNs
-dXN0ZXJmYWN0b3JiaXRzOw0KIAlpZiAodm9sLT5tZnRfY2x1c3RlcnNfcGVy
-X3JlY29yZCA+IDApDQogCQl2b2wtPm1mdF9yZWNvcmRzaXplID0NCiAJCQkg
-ICAgICAgdm9sLT5jbHVzdGVyc2l6ZSAqIHZvbC0+bWZ0X2NsdXN0ZXJzX3Bl
-cl9yZWNvcmQ7DQotCWVsc2UNCisJZWxzZSB7DQorCQkvKiBJZiBtZnRfcmVj
-b3Jkc2l6ZSA8IGNsdXN0ZXJzaXplIHRoZW4gbWZ0X2NsdXN0ZXJzX3Blcl9y
-ZWNvcmQNCisJCSAgID0gLWxvZzIobWZ0X3JlY29yZHNpemUpIGJ5dGVzLiBN
-ZnRfcmVjb3Jkc2l6ZSBub3JtYWx5IGVxdWFscw0KKwkJICAgMTAyNCBieXRl
-cywgd2hpY2ggaXMgZW5jb2RlZCBhcyAweEY2LiAqLw0KKwkJaWYgKHZvbC0+
-bWZ0X2NsdXN0ZXJzX3Blcl9yZWNvcmQgPCAtMzEgfHwNCisJCQkJCS05IDwg
-dm9sLT5tZnRfY2x1c3RlcnNfcGVyX3JlY29yZCkNCisJCQludGZzX2Vycm9y
-KCJVbmV4cGVjdGVkIGRhdGEgIzQgaW4gYm9vdCBibG9ja1xuIik7DQogCQl2
-b2wtPm1mdF9yZWNvcmRzaXplID0gMSA8PCAoLXZvbC0+bWZ0X2NsdXN0ZXJz
-X3Blcl9yZWNvcmQpOw0KKwl9DQogCXZvbC0+aW5kZXhfcmVjb3Jkc2l6ZSA9
-IHZvbC0+Y2x1c3RlcnNpemUgKg0KIAkJCQkJCXZvbC0+aW5kZXhfY2x1c3Rl
-cnNfcGVyX3JlY29yZDsNCiAJLyogRklYTUU6IGxvbmcgbG9uZyB2YWx1ZSAq
-Lw0K
----559023410-1804928587-980464669=:20503--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

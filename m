@@ -1,78 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266419AbUFWMA1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266409AbUFWMCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266419AbUFWMA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 08:00:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266433AbUFWMA1
+	id S266409AbUFWMCu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 08:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266448AbUFWMCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 08:00:27 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:6792 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S266419AbUFWMAZ (ORCPT
+	Wed, 23 Jun 2004 08:02:50 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:53668 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S266409AbUFWMCs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 08:00:25 -0400
-Date: Wed, 23 Jun 2004 14:00:23 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2-mm2 udp multicast problem (sendto hangs)
-Message-Id: <20040623140023.4cd7aa3e@phoebee>
-In-Reply-To: <200406231334.57816.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <20040622164000.110f2a63@phoebee>
-	<20040623115617.68b93100@phoebee>
-	<200406231334.57816.vda@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: Sylpheed-Claws 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+	Wed, 23 Jun 2004 08:02:48 -0400
+Date: Wed, 23 Jun 2004 20:59:06 +0900 (JST)
+Message-Id: <20040623.205906.71913783.taka@valinux.co.jp>
+To: haveblue@us.ibm.com
+Cc: ashwin_s_rao@yahoo.com, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Atomic operation for physically moving a page (for memory
+ defragmentation)
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <1087619137.4921.93.camel@nighthawk>
+References: <20040619031536.61508.qmail@web10902.mail.yahoo.com>
+	<1087619137.4921.93.camel@nighthawk>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jun 2004 13:34:57 +0300
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> bubbled:
+Hi,
 
-> On Wednesday 23 June 2004 12:56, Martin Zwickel wrote:
-> > if I use MSG_DONTWAIT with sendto, I get temporarily unavailable resources
-> > (many!):
-> >
-> > sendto(sendfd): Resource temporarily unavailable
-> >
-> > but isn't udp supposed to not block?
+> > > However, if we're on an unlikely error path or
+> > > similar and other options aren't suitable...
+> > 
+> > Maintaining atomicity in uniprocessor systems is easy
+> > by preempt_enable and preempt_disable during the
+> > operation. This implementation cannot be used for SMP
+> > systems. 
+> > Now during the time a page is copied/updatede if a
+> > page is accessed the copied contents become invalid,
+> > as updation is not done. Also during updation a
+> > similar situation might arise.
+> > The problem we are facing is to maintain the atomicity
+> > of this operation on SMP boxes.
 > 
-> Think about what will happen if you will try to spew
-> udp packets continuously:
+> I think what you really want to do is keep anybody else from making a
+> new pte to the page, once you've invalidated all of the existing ones,
+> right?
 > 
-> while(1)
-> 	sendto(...);
-> 
-> They will pile up in queue and eventually it will fill up.
-> Then kernel may either drop excess packets silently
-> or return you EAGAIN.
+> Holding a lock_page() should do the trick.  Anybody that goes any pulls
+> the page out of the page cache has to do a lock_page() and check
+> page->mapping before they can establish a pte to it, so you can stop
+> that.  Since you're invalidating page->mapping before you move the page
+> (you *are* doing this, right?), it will end up working itself out.  
 
-Yes, but why does the kernel not send out the queue?(I don't know if the queue
-is empty or full when my sendto stops)
-Without MSG_DONTWAIT, sendto waits endlessly. But on what?
-Normally the kernel should put the queued packets on the line and accept new
-ones, or did I misunderstand this?
+We should know that many part of kernel code will access the page
+without holding a lock_page(). The lock_page() can't block them.
 
-My program sends out many udp packets, and sometimes it just stops until the
-kernel receives a network packet or I access the local network(with arp
-command).
-
-So if I run arp in an endless loop(while :; do arp; done), sendto runs smooth.
-
-For me it smells like a bug ;)
-
-Martin
-
--- 
-MyExcuse:
-I'd love to help you -- it's just that the Boss won't let me near the computer.
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
+Thank you,
+Hirokazu Takahashi.

@@ -1,153 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263114AbUC2ThW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 14:37:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbUC2ThV
+	id S263061AbUC2Tf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 14:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbUC2Tf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 14:37:21 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36766 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S263124AbUC2ThG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 14:37:06 -0500
-To: Jamie Lokier <jamie@shareable.org>
-Cc: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cowlinks v2
-References: <m1ptb0zjki.fsf@ebiederm.dsl.xmission.com>
-	<20040327102828.GA21884@mail.shareable.org>
-	<m1vfkq80oy.fsf@ebiederm.dsl.xmission.com>
-	<20040327214238.GA23893@mail.shareable.org>
-	<m1ptax97m6.fsf@ebiederm.dsl.xmission.com>
-	<m1brmhvm1s.fsf@ebiederm.dsl.xmission.com>
-	<20040328122242.GB32296@mail.shareable.org>
-	<m14qs8vipz.fsf@ebiederm.dsl.xmission.com>
-	<20040328235528.GA2693@mail.shareable.org>
-	<m1zna0tp55.fsf@ebiederm.dsl.xmission.com>
-	<20040329123658.GA4984@mail.shareable.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 29 Mar 2004 12:36:39 -0700
-In-Reply-To: <20040329123658.GA4984@mail.shareable.org>
-Message-ID: <m18yhjh2d4.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Mon, 29 Mar 2004 14:35:57 -0500
+Received: from pC19F1BE6.dip0.t-ipconnect.de ([193.159.27.230]:21632 "EHLO
+	susi.maya.org") by vger.kernel.org with ESMTP id S263061AbUC2Tfz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 14:35:55 -0500
+Message-ID: <40687A8E.5000604@pC19F1BE6.dip0.t-ipconnect.de>
+Date: Mon, 29 Mar 2004 21:35:42 +0200
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040212
+X-Accept-Language: de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Chris Mason <mason@suse.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Very poor performance with 2.6.4
+References: <40672F39.5040702@p3EE062D5.dip0.t-ipconnect.de>	 <20040328200710.66a4ae1a.akpm@osdl.org>	 <4067BF2C.8050801@p3EE060D4.dip0.t-ipconnect.de> <1080570227.20685.93.camel@watt.suse.com>
+In-Reply-To: <1080570227.20685.93.camel@watt.suse.com>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
-
-> Eric W. Biederman wrote:
-> > The file will become a cow file only after it is modified or it's
-> > containing directory is modified.
+Chris Mason wrote:
+> On Mon, 2004-03-29 at 01:16, Andreas Hartmann wrote:
+>> Andrew Morton wrote:
+>> > Andreas Hartmann <andihartmann@freenet.de> wrote:
+>> >>
+>> >> I tested kernel 2.6.4. While compiling kdelibs and kdebase, I felt, that
+>> >>  kernel 2.6 seems to be slower than 2.4.25.
+>> >> 
+>> >>  So I did some tests to compare the performance directly. Therefore I
+>> >>  rebooted for everey test in init 2 (no X).
+>> >> 
+>> >>  I locally compiled 2.6.5rc2 3 times under 2.6.4 and under 2.4.25 on a
+>> >>  reiserfs LVM partition, which resides onto a IDE HD (using DMA) and got
+>> >>  the following result:
+>> >> 
+>> >>  In the middle, compiling under kernel 2.6.4 tooks 9.3% more real time than
+>> >>  under 2.4.25.
+>> >>  The user-processortime is about the same, but the system-processortime is
+>> >>  under 2.6.4 32.9% higher than under 2.4.25.
+>> > 
+>> > Try mounting your reiserfs filesystems with the `-o nolargeio=1' option.
+>> 
+>> This didn't help.
+>> 
+>> > 
+>> > If that doesn't help, please run a comparative kernel profile.  See
+>> > Documentation/basic_profiling.txt.
+>> 
+>> I'll do this next.
 > 
-> Eh?  The file (or directory) must be labelled as a cowlinked file the
-> moment you make the cowlink, not when the data is modified.  It's
-> _breaking_ the cowlink that happens when the data (or directory
-> contents) are modified.
+> You might also want to try 2.6.5-rc2 which has a set of reiserfs fixes
+> from 2.4.x.  I'm hoping those will clean things up for you.
 
-We have the mechanism of:
-> You cowlinked a directory.  That converts the original directory inode
-> to a cowlink, creates another cowlink, and creates a shared inode
-> which now contains the directory.
-> 
-> Then you modify the directory or anything below it.  That duplicates
-> the directory, breaking the directory cowlinks and duplicating the
-> shared directory inode -- so that the two directory cowlink inodes
-> become normal directory inodes.  The directory duplication results in
-> two directory which are full of cowlinks -- every object in the
-> original directory is cowlinked by this operation.
+Ok, here is the result for 2.6.5-rc2 (3 times middle, with preemption), 
+compared to 2.4.25.
 
-This mechanism does not label all files below a directory as cowlinked
-the moment the cowlink.
+The result is, the performancedifference to 2.4.25 is the same as for 
+2.6.4 as described above.
+Nearly means: The real processing time is about 1% faster than under 
+2.6.4, but 8.3% slower than with 2.4.25. The system-processortime is 1.2% 
+faster than under 2.6.4 but 31,7% more than under 2.4.25. The times for 
+the user-processortime is unchanged.
 
-Therefore cowlink on a directory as described may be an interesting
-operation but it is not an atomic snapshot of the directory and
-it's contents.  
+But I'm not shure if these values are really significant, because the 
+values for the real time meassured each try differ a lot under 2.6.
 
-> > Thus you can have data in the
-> > file that was written after the snapshot operation finished, but
-> > before the individual file itself is marked cow.
-> 
-> The creation of a cowlink should be atomic w.r.t. writing.
-> 
-> Specifically, the operation which moves the contents of a non-cowlink
-> inode to a newly created shared inode, and converts the original
-> non-cowlink inode to a cowlink inode, should be atomic.
-> 
-> Is there an unavoidable race condition?  I don't see one.
-
-Only if the following apply.
-
-- A correct cow on a directory is considered to be an atomic snapshot
-  of both the directory and everything below it.
-- You break the cow on the directories on demand, as above.
-
-Scenario. The directory tree looks like:
-
-/dir1 (inode 1)/link1 (inode 10)
-/dir2 (inode 2)/link2 (inode 10)
-
-Then a cow link is performed:
-
-ln --cow dir2 cow1
-
-Resulting in a directory tree that looks like:
-/dir1 (inode 1)/link1 (inode 10)
-/dir2 (inode 2) -> (inode 3)/link2 (inode 10)
-/cow1 (inode 4) -> (inode 3)/link2 (inode 10)
+For example 2.6.5rc2:
+between 9.07 min and 8.37 min for real time.
+Under 2.4.25, the differences are a lot of smaller: between 8.06 min and 
+8.15 min for real time.
+The values for user and system time are nearly constant with 6.49 min and 
+36 sec (kernel 2.6) and 6.43 min / 27 sec for 2.4.25.
 
 
-Then we have several things that could happen.
-Scenario A: fd = open(/cow1/link2); write(fd, ....);
-Scenario B: fd = open(/dir2/link2); write(fd, ....);
-Scenario C: fd = open(/dir1/link1); write(fd, ....);
-
-** 
-In Scenario A the open breaks the cow on the directory, so that
-the cow copy can have it's own inode as:
-
-/dir1 (inode 1)/link1 (inode 10) -> (inode 11)
-/dir2 (inode 2)/link2 (inode 10) -> (inode 11)
-/cow1 (inode 3)/link2 (inode 12) -> (inode 11)
-
-Then the write occurs the cow is broken and the tree looks like:
-
-/dir1 (inode 1)/link1 (inode 10)
-/dir2 (inode 2)/link2 (inode 10) -> (inode 11)
-/cow1 (inode 3)/link2 (inode 12)
-
-** 
-In Scenario B the open breaks the cow on the directory, so that
-the cow copy can potentially have it's own inode as:
-
-/dir1 (inode 1)/link1 (inode 10) -> (inode 11)
-/dir2 (inode 2)/link2 (inode 10) -> (inode 11)
-/cow1 (inode 3)/link2 (inode 12) -> (inode 11)
-
-Then the write occurs the cow is broken and the tree looks like:
-
-/dir1 (inode 1)/link1 (inode 10)
-/dir2 (inode 2)/link2 (inode 10)
-/cow1 (inode 3)/link2 (inode 12) -> (inode 11)
-
-
-** 
-In Scenario C their is no open for the cow to break and
-things proceed normally the directory tree remains looking like:
-
-/dir1 (inode 1)/link1 (inode 10)
-/dir2 (inode 2) -> (inode 3)/link2 (inode 10)
-/cow1 (inode 3) -> (inode 3)/link2 (inode 10)
-
-Then when the write occurs there is not cow to break, and the
-tree remains looking like:
-
-/dir1 (inode 1)/link1 (inode 10)
-/dir2 (inode 2) -> (inode 3)/link2 (inode 10)
-/cow1 (inode 3) -> (inode 3)/link2 (inode 10)
-
-So I see a problem with Scenario C.   Perhaps you can refute it.
-
-Eric
+Regards,
+Andreas Hartmann

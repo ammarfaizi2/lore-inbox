@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261295AbSJHRqt>; Tue, 8 Oct 2002 13:46:49 -0400
+	id <S261276AbSJHRom>; Tue, 8 Oct 2002 13:44:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261298AbSJHRqt>; Tue, 8 Oct 2002 13:46:49 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:21537 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S261295AbSJHRqt>; Tue, 8 Oct 2002 13:46:49 -0400
-Message-ID: <61DB42B180EAB34E9D28346C11535A780112FE40@nocmail101.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'linuxguruguy'" <linuxguruguy@aaahawk.com>, linux-kernel@vger.kernel.org
-Subject: RE: email I received
-Date: Tue, 8 Oct 2002 12:52:15 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261288AbSJHRom>; Tue, 8 Oct 2002 13:44:42 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:63504 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S261276AbSJHRom>;
+	Tue, 8 Oct 2002 13:44:42 -0400
+Date: Tue, 8 Oct 2002 19:49:46 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Mitchell Blank Jr <mitch@sfgoth.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.5 patch] fix kbuild breakage in drivers/atm
+Message-ID: <20021008194946.A2212@mars.ravnborg.org>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	Mitchell Blank Jr <mitch@sfgoth.com>,
+	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+References: <Pine.NEB.4.44.0210081752240.8340-100000@mimas.fachschaften.tu-muenchen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.NEB.4.44.0210081752240.8340-100000@mimas.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Tue, Oct 08, 2002 at 06:02:41PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 08, 2002 at 06:02:41PM +0200, Adrian Bunk wrote:
+> BTW:
+> There might be places in the kernel that are now broken without a compile
+> error, consider the second part of this line would output a compiler flag
+> instead of a file name.
 
-> 
-> I recently got an email from some one with a windows binary file
-> attached it seems to have come from linux-kernel-owner@vger.kernel.org
-> below is the email (minus the attachment)if anyone could help with
-> determining who did this behavior it would be greatly appreciated
+find -name Makefile | cut -d: -f 1 | grep -v arch | xargs grep '\.\./'
 
-This would be the BugBear Virus you received.  BugBear is running rampant,
-so you'll likely see more from your windows friends.
+./drivers/atm/Makefile:    CONFIG_ATM_FORE200E_PCA_FW := $(shell if test -n "`$(CC) -E -dM ../../include/asm/byteorder.h | grep ' __LITTLE_ENDIAN '`"; then echo pca200e.bin; else echo pca200e_ecd.bin2; fi)
+./drivers/net/Makefile:obj-$(CONFIG_ARCH_ACORN) += ../acorn/net/
+./drivers/scsi/Makefile:obj-$(CONFIG_ARCH_ACORN)	+= ../acorn/scsi/
+./fs/devfs/Makefile:TOPDIR = ../..
+./fs/devfs/Makefile:	gcc -o /tmp/base.o -D__KERNEL__ -I../../include -Wall \
 
-Check for details on:
-http://www.cert.org/current/current_activity.html#W32BugBear
+Dunno about the acorn part, but devfs looks broken.
+Checking, devfs makefile has some documentation support in the makefile.
+I'm tempted to delete it, surely it's not part of the kernel build system,
+but I guess someone would yell at me.
 
-You can rest assured, I bet everyone on the list got it as a consequence of
-it being sent to a list address, probably someone has linux-kernel in their
-address book, on their windows machine.
+If we include the architecture Makefiles:
+find -name Makefile |  xargs grep '\.\./' | wc -l
+   148
 
-Check the e-mail header you posted, and the following IP.  That is the
-original sender. 
+But I'm sure we hit a lot of false positves here.
 
->Received: from [217.81.46.31] (helo=meinserver) by
->mrvdomng.kundenserver.de
->	with smtp (Exim 3.35 #1) id 17ygKv-0004kj-00; Tue, 08 Oct 2002
-00:26:49
->	+0200
->
-
-Name:    pD9512E1F.dip.t-dialin.net
-Address:  217.81.46.31
- 
+	Sam

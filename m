@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129480AbQJ1LQU>; Sat, 28 Oct 2000 07:16:20 -0400
+	id <S130183AbQJ1MyS>; Sat, 28 Oct 2000 08:54:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129583AbQJ1LQJ>; Sat, 28 Oct 2000 07:16:09 -0400
-Received: from mailgate1.zdv.Uni-Mainz.DE ([134.93.8.56]:144 "EHLO
-	mailgate1.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
-	id <S129480AbQJ1LQA>; Sat, 28 Oct 2000 07:16:00 -0400
-Date: Sat, 28 Oct 2000 13:15:58 +0200
-From: Dominik Kubla <dominik.kubla@uni-mainz.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Pavel Machek <pavel@suse.cz>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] kernel/module.c (plus gratuitous rant)
-Message-ID: <20001028131558.A17429@uni-mainz.de>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	Pavel Machek <pavel@suse.cz>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001027194513.A1060@bug.ucw.cz> <4309.972694843@ocs3.ocs-net>
-Mime-Version: 1.0
+	id <S130222AbQJ1MyI>; Sat, 28 Oct 2000 08:54:08 -0400
+Received: from proxy.ovh.net ([213.244.20.42]:32776 "HELO proxy.ovh.net")
+	by vger.kernel.org with SMTP id <S130183AbQJ1Mxz>;
+	Sat, 28 Oct 2000 08:53:55 -0400
+Message-ID: <39FACC55.29E85BE0@ovh.net>
+Date: Sat, 28 Oct 2000 14:53:41 +0200
+From: octave klaba <oles@ovh.net>
+X-Mailer: Mozilla 4.73 [en] (Win98; I)
+X-Accept-Language: fr,en
+MIME-Version: 1.0
+To: linux-net@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: VM-global-2.2.18pre17-7
+In-Reply-To: <Pine.LNX.4.05.10010271651240.14633-100000@marina.lowendale.com.au> <Pine.LNX.4.21.0010271124550.5338-100000@freak.distro.conectiva> <20001027181344.B1248@niksula.cs.hut.fi> <39F9CEF3.2BE915D9@ovh.net>
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <4309.972694843@ocs3.ocs-net>; from kaos@ocs.com.au on Sat, Oct 28, 2000 at 12:00:43PM +1100
-X-No-Archive: yes
-Restrict: no-external-archive
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 28, 2000 at 12:00:43PM +1100, Keith Owens wrote:
-> On Fri, 27 Oct 2000 19:45:13 +0200, 
-> Pavel Machek <pavel@suse.cz> wrote:
-> >Would it be possible to keep 2.7.2.3? You still need 2.7.2.3 to
-> >reliably compile 2.0.X (and maybe even 2.2.all-but-latest?).
-> 
-> You can have multiple versions of gcc installed, just select the one to
-> use when you compile the kernel.
-> 
-> CC=gcc-2723 make 2.0 kernel
-> CC=gcc-2723 make 2.2 kernel
-> CC=egcs make 2.4 kernel
 
-Even simpler: "gcc -V 2.7.2.3" or "gcc -V 2.95.2" or whatever...
+>The Becker's driver from ftp://ftp.scyld.com/pub/network/eepro100.c cures
+>the error messages, but the network still stalls, and worse yet, seems to
+>stall forever (as opposed to few minutes with 2.2.18pre17 driver).
 
-Yours,
-  Dominik Kubla
--- 
-http://petition.eurolinux.org/index_html - No Software Patents In Europe!
+this eepro100.c works for me
+asus/dual piii-800 133mhz/768ram ecc/mylex-170/2x18Go
+
+thanks for your help.
+
+Octave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269464AbRHGVda>; Tue, 7 Aug 2001 17:33:30 -0400
+	id <S269466AbRHGVfU>; Tue, 7 Aug 2001 17:35:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269466AbRHGVdV>; Tue, 7 Aug 2001 17:33:21 -0400
-Received: from fep04.swip.net ([130.244.199.132]:37252 "EHLO
-	fep04-svc.swip.net") by vger.kernel.org with ESMTP
-	id <S269464AbRHGVdF>; Tue, 7 Aug 2001 17:33:05 -0400
-Date: Tue, 7 Aug 2001 23:31:54 +0200 (CEST)
-From: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
-X-X-Sender: <petero@ppro.localdomain>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S269467AbRHGVfK>; Tue, 7 Aug 2001 17:35:10 -0400
+Received: from cardinal0.Stanford.EDU ([171.64.15.238]:25774 "EHLO
+	cardinal0.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S269466AbRHGVet>; Tue, 7 Aug 2001 17:34:49 -0400
+Date: Tue, 7 Aug 2001 14:34:48 -0700 (PDT)
+From: Ted Unangst <tedu@stanford.edu>
 cc: <linux-kernel@vger.kernel.org>
-Subject: kupdated oops in 2.4.8-pre5
-Message-ID: <Pine.LNX.4.33.0108072325230.1930-100000@ppro.localdomain>
+Subject: summary Re: encrypted swap
+In-Reply-To: <fa.g4fleqv.1mle133@ifi.uio.no>
+Message-ID: <Pine.GSO.4.31.0108071419300.2838-100000@cardinal0.Stanford.EDU>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following oops with kernel 2.4.8-pre5. bh becomes NULL in
-sync_old_buffers() but the code tries to dereference it anyway.
+basically, there are a few scenarios that have come up.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000001c
-c0132ed7
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0132ed7>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010286
-eax: 00016975   ebx: c5fec550   ecx: 00000000   edx: 00000000
-esi: ffffffff   edi: fff9ffff   ebp: c5fec000   esp: c5fedfc4
-ds: 0018   es: 0018   ss: 0018
-Process kupdated (pid: 7, stackpage=c5fed000)
-Stack: c5fec550 c5fec550 ffffffff c5fec000 c013317c 0008e000 c5fec000 00010f00
-       c11e1fb0 c0105000 0008e000 c01054f6 c0231cf0 c0133090 c0223fd8
-Call Trace: [<c013317c>] [<c0105000>] [<c01054f6>] [<c0133090>]
-Code: 3b 42 1c 0f 89 e0 ff ff ff 81 3d a0 b3 21 c0 a0 b3 21 c0 74
+1. notebook is stolen.  presumably, if you have sensitive data, you would
+know not to suspend and only power down completely after use.  so the
+notebook can be stolen while the power is on, or while the power is off.
+if the power is off, all is good, the data is safe.  if the power is on, i
+don't think this was a random street thug who snatched your notebook.
+(what were you doing working on sensitive data in a dark alley?)
+presumably, you were there with it.  in that case, it was probably a
+"directed" hit by someone after the data, and not just the notebook.
+there's a good chance that *you* will also be taken if they want the data
+that bad.  really, who leaves their notebook on and unattended?  esp. if
+it contains super sensitive data.  and whether you know the swap passwork
+or not, you will know the password for your email, and you're in for a
+long night with some truth serum and a meat hook.  ;)
 
->>EIP; c0132ed7 <sync_old_buffers+27/50>   <=====
-Trace; c013317c <kupdate+ec/f0>
-Trace; c0105000 <_stext+0/0>
-Trace; c01054f6 <kernel_thread+26/30>
-Trace; c0133090 <kupdate+0/f0>
-Code;  c0132ed7 <sync_old_buffers+27/50>
-00000000 <_EIP>:
-Code;  c0132ed7 <sync_old_buffers+27/50>   <=====
-   0:   3b 42 1c                  cmp    0x1c(%edx),%eax   <=====
-Code;  c0132eda <sync_old_buffers+2a/50>
-   3:   0f 89 e0 ff ff ff         jns    ffffffe9 <_EIP+0xffffffe9> c0132ec0 <sync_old_buffers+10/50>
-Code;  c0132ee0 <sync_old_buffers+30/50>
-   9:   81 3d a0 b3 21 c0 a0      cmpl   $0xc021b3a0,0xc021b3a0
-Code;  c0132ee7 <sync_old_buffers+37/50>
-  10:   b3 21 c0
-Code;  c0132eea <sync_old_buffers+3a/50>
-  13:   74 00                     je     15 <_EIP+0x15> c0132eec <sync_old_buffers+3c/50>
+2. a server, or maybe a workstation.  if you are working with sensitive
+data, but wouldn't notice the "plumber" sawing apart your computer to
+extract ram chips, you're in bad shape.  a quick hit and run operation
+wouldn't have time for all the fancy hacks and cpu swaps to get at the
+swap password.  and again, there are *people* who know everything on that
+disk.  and they will probably be eaiser to brute force than the hard
+drive.
 
--- 
-Peter Österlund             peter.osterlund@mailbox.swipnet.se
-Sköndalsvägen 35            http://home1.swipnet.se/~w-15919
-S-128 66 Sköndal            +46 8 942647
-Sweden
+conclusion:  if your data is that valuable, you will need a small army to
+protect it.  don't bother encrypting swap, because guns are a better means
+of protection.  if your data is only semi-valuable, or private that you
+wouldn't want random others to read it, then swap encryption is good.
+it's a nice feature that some people might like to have.  does it solve
+every problem? no.  but the people in the edge cases are most likely very
+aware of the possibilities.
 
+btw, i've used it, just for fun, and didn't notice too much performance
+hit.
+
+implementation paper:
+http://www.openbsd.org/papers/swapencrypt.ps
+
+ted
+
+
+
+
+--
+"I read a funny story about how the Republicans freed the slaves.
+The Republicans are the ones who created slavery by law in the
+1600's.  Abraham Lincoln freed the slaves and he was not a
+Republican."
+      - M. Barry, Mayor of Washington, DC
 

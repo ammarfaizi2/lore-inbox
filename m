@@ -1,129 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbUKHQoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbUKHQsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbUKHQoe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 11:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbUKHQn6
+	id S261860AbUKHQsY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 11:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbUKHQsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 11:43:58 -0500
-Received: from zone3.gcu-squad.org ([217.19.50.74]:53774 "EHLO
-	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S261855AbUKHPIf convert rfc822-to-8bit
+	Mon, 8 Nov 2004 11:48:09 -0500
+Received: from alog0232.analogic.com ([208.224.220.247]:1664 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261860AbUKHPNX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 10:08:35 -0500
-Date: Mon, 8 Nov 2004 16:02:36 +0100 (CET)
-To: jpiszcz@lucidpixels.com, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 & adm1021 & i2c_piix4 temperature monitoring
-X-IlohaMail-Blah: khali@gcu.info
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
-Message-ID: <UfARNKk2.1099926156.4923140.khali@gcu.info>
-In-Reply-To: <Pine.LNX.4.61.0411080907500.10502@p500>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: sensors@Stimpy.netroedge.com
+	Mon, 8 Nov 2004 10:13:23 -0500
+Date: Mon, 8 Nov 2004 10:12:39 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: insmod module-loading errors, Linux-2.6.9
+Message-ID: <Pine.LNX.4.61.0411081007530.3682@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Justin,
+Hello module wizards,
 
->I am monitoring the temperature sensors on my Dell GX1 box, and I get the
->following in dmesg:
->
->i2c_adapter i2c-0: Failed! (01)
->i2c_adapter i2c-0: Failed! (01)
->i2c_adapter i2c-0: Failed! (01)
->i2c_adapter i2c-0: Failed reset at end of transaction (01)
->i2c_adapter i2c-0: Failed! (01)
->i2c_adapter i2c-0: Failed! (01)
->i2c_adapter i2c-0: Failed! (01)
->i2c_adapter i2c-0: Failed! (01)
->i2c_adapter i2c-0: Failed reset at end of transaction (01)
->i2c_adapter i2c-0: Failed! (01)
->i2c_adapter i2c-0: Failed! (01)
->i2c_adapter i2c-0: Failed! (01)
->i2c_adapter i2c-0: Failed! (01)
+If one makes changes to the kernel configuration,
+compiles, then attempts to install the new kernel,
+there are two possible things that happen.
 
-First note that Dell systems are well known for their improperly
-configured SMBus devices.
+(1) One does `make modules_install` before `make install`
+or...
+(2) One does `make install` before `make modules_install'.
 
->Of course the ``secret'' to getting the temperature sensors to work on a
->Dell is two options when loading the i2c driver and the adm1024 driver.
+In the first case, `make install` may fail because the
+loop device module fails to load with:
 
-I guess you really mean adm1021 here?
+Script started on Mon 08 Nov 2004 09:07:41 AM EST
+# insmod loop.ko
+insmod: error inserting 'loop.ko': -1 Invalid module format
+# insmod -f loop.ko
+insmod: error inserting 'loop.ko': -1 Invalid module format
+# dmesg | tail --lines 2
+loop: version magic '2.6.9 SMP preempt PENTIUM4 gcc-3.3' should be '2.6.9 SMP PENTIUM4 gcc-3.3'
+loop: version magic '2.6.9 SMP preempt PENTIUM4 gcc-3.3' should be '2.6.9 SMP PENTIUM4 gcc-3.3'
+# exit
+Script done on Mon 08 Nov 2004 09:08:35 AM EST
 
->   TYPE="/sbin/modprobe"
->
->   $TYPE i2c_piix4 force=1
->   $TYPE adm1021 read_only=1
->
->The force is required to enable it, otherwise I do not believe it even
->loads.
+..OR..
 
-True, because Dell's BIOS won't configure it.
+The installation seems to work, but the system won't complete
+a boot because modules from the previous configuration were used
+in the `initrd` procedure.
 
-As noted in lm_sensors' documentation here:
-  http://www2.lm-sensors.nu/~lm78/cvs/lm_sensors2/doc/busses/i2c-piix4
-you should be careful when using this option.
+This all comes about because the new module loading procedure
+won't allow (ignores) the "-f" (force) parameter. So, one
+is screwed trying to do something simple like substituting
+a preemptive kernel for another if there isn't already an
+alternate bootable system on the disk.
 
-One possible cause for the trouble you experience would be that the
-piix4's address happens to conflict with another device address on your
-system. The driver should have complained if it were the case, but only
-if the other device has a Linux driver. If, say, this is an I/O address
-range the BIOS uses on its own, the i2c-piix4 driver may not know about
-this. You can use "i2cdetect -l" (or browse /sys) to find out the
-address the PIIX4 is using, as it shows in the I2C bus name.
+Please restore the "-f" parameter passed to insmod. It
+was there for a very good reason. This allows one
+who encounters the module-loading error while installing
+the kernel to force the module loading. In this way, the
+correct modules are used to generate the new `initrd` image.
 
-One thing you could try would be to use the force_addr parameter of the
-i2c-piix4 driver. As noted in the documentation, this is DANGEROUS so
-you better be extremely careful if you do. Basically, you would force
-the address to a supposedly unused address (check /proc/ioports for
-ranges to NOT use). Address must be a multiple of 16.
 
-Maybe you'll have better results when using this, maybe not. Please let
-us know. Be warned that using an improper address may cause SEVERE
-DAMAGE, and that there is unfortunately no way to know which addresses
-are suitable.
-
-See this thread:
-  http://archives.andrew.net.au/lm-sensors/msg21973.html
-Now, what you want to risk is left to you.
-
-This post:
-  https://bugzilla.redhat.com/bugzilla/long_list.cgi?buglist=73730
-suggests that 0x6000 MIGHT be a good candidate.
-
-BTW, you really should first try:
-1* Upgrading BIOSes if possible.
-2* Contacting Dell about the problem. This is really a BIOS issue, we may
-try to work around it in the kernel but this is not where the original
-problem lies.
-
->The read_only=1 is so it does not change the temperature range in the
->monitoring chip, if read_only=1 is not set and the machine gets hot, say
->from compiling the kernel, the machine shuts itself off.
-
-This is theoretically not necessary anymore since Linux kernel 2.6.6
-(where adm1021 chip init was reworked). Could you please try without it
-and let us know how it goes?
-
-As a side note, I think that we should get rid of that "read_only"
-module parameter. It makes the code more complex with no obvious benefit
-(assuming you'll confirm that you don't need it anymore). No other
-hardware monitoring chip driver has this.
-
->My question is, why all the failed transactions?
->I graph the temperature without any issues (system and CPU) but I still
->get some of these in dmesg, any ideas?
-
-I doubt that you really have no issue. Reads fail when you have a
-"Failed! (01)" error. Since the adm1021 driver doesn't handle that
-kind of error, this should result in bogus temperature readings
-(typically -1).
-
-Thanks,
---
-Jean Delvare
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261295AbREOTcF>; Tue, 15 May 2001 15:32:05 -0400
+	id <S261293AbREOT3p>; Tue, 15 May 2001 15:29:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261301AbREOTbz>; Tue, 15 May 2001 15:31:55 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:64667 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S261295AbREOTbj>; Tue, 15 May 2001 15:31:39 -0400
-Date: Tue, 15 May 2001 13:31:21 -0600
-Message-Id: <200105151931.f4FJVL830847@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <20010515200202.A754@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <E14zb68-0002Fq-00@the-village.bc.nu>
-	<Pine.LNX.4.21.0105150803230.1802-100000@penguin.transmeta.com>
-	<20010515200202.A754@nightmaster.csn.tu-chemnitz.de>
+	id <S261295AbREOT3Z>; Tue, 15 May 2001 15:29:25 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:46085 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261293AbREOT3Q>; Tue, 15 May 2001 15:29:16 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Getting FS access events
+Date: 15 May 2001 12:28:54 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9ds01m$7q9$1@cesium.transmeta.com>
+In-Reply-To: <200105150649.f4F6nwD22946@vindaloo.ras.ucalgary.ca> <5.1.0.14.2.20010515105633.00a22c10@pop.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser writes:
-> On Tue, May 15, 2001 at 08:10:29AM -0700, Linus Torvalds wrote:
-> > and I don't see why we couldn't expose the "driver
-> > name" for any file descriptor.
+Followup to:  <5.1.0.14.2.20010515105633.00a22c10@pop.cus.cam.ac.uk>
+By author:    Anton Altaparmakov <aia21@cam.ac.uk>
+In newsgroup: linux.dev.kernel
 > 
-> Because we dont like to replace:
+> They shouldn't, but maybe some stupid utility or a typo will do it creating 
+> two incoherent copies of the same block on the device. -> Bad Things can 
+> happen.
 > 
->    if (st.device == MAJOR_1)
->       bla
->    else if ...
+> Can't we simply stop people from doing it by say having mount lock the 
+> device from further opens (and vice versa of course, doing a "dd" should 
+> result in lock of device preventing a mount during the duration of "dd"). - 
+> Wouldn't this be a good thing, guaranteeing that problems cannot happen 
+> while not incurring any overhead except on device open/close? Or is this a 
+> matter of "give the user enough rope"? - If proper rw locking is 
+> implemented it could allow simultaneous -o ro mount with a dd from the 
+> device but do exclusive write locking, for example, for maximum flexibility.
 > 
-> with
-> 
->    if (!strcmp(st.device,"driver_1") )
->       bla
->    else if ...
-> 
-> ?
-> 
-> There is no win doing it this way, because every time we add a
-> new driver that fits or change the name of one, we need add
-> support for it.
 
-Now look at how we can already do these things with devfs. Let's say
-I've opened /dev/cdroms/cdrom0 and it's sitting on fd=3.
-% ls -lF /proc/self/fd/3
-lrwx------   1 root     root           64 May 15 13:24 /proc/self/fd/3 -> /dev/ide/host0/bus0/target1/lun0/cd
+This would leave no way (without introducing new interfaces) to write,
+for example, the boot block on an ext2 filesystem.  Note that the
+bootblock (defined as the first 1024 bytes) is not actually used by
+the filesystem, although depending on the block size it may share a
+block with the superblock (if blocksize > 1024).
 
-So, in my application I do:
-	len = readlink ("/proc/self/3", buffer, buflen);
-	if (strcmp (buffer + len - 2, "cd") != 0) {
-		fprintf (stderr, "Not a CD-ROM! Bugger off.\n");
-		exit (1);
-	}
-	if (strncmp (buffer, "/dev/ide", 8) == 0) do_ide (fd);
-	else if (strncmp (buffer, "/dev/scsi", 9) == 0) do_scsi (fd);
-	else do_generic (fd);
+	-hpa
 
-That's a lot cleaner than relying on magic numbers, IMNSHO.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

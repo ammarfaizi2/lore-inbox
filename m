@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262915AbUCWXpW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 18:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262924AbUCWXpV
+	id S262917AbUCWXrh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 18:47:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262922AbUCWXrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 18:45:21 -0500
-Received: from gprs214-90.eurotel.cz ([160.218.214.90]:57477 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262915AbUCWXpM (ORCPT
+	Tue, 23 Mar 2004 18:47:36 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37313 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262917AbUCWXrb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 18:45:12 -0500
-Date: Wed, 24 Mar 2004 00:44:49 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jonathan Sambrook <swsusp@hmmn.org>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
-Message-ID: <20040323234449.GM364@elf.ucw.cz>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <20040323095318.GB20026@hmmn.org> <20040323214734.GD364@elf.ucw.cz> <200403231743.01642.dtor_core@ameritech.net> <20040323233228.GK364@elf.ucw.cz> <1080081653.22670.15.camel@calvin.wpcb.org.au>
+	Tue, 23 Mar 2004 18:47:31 -0500
+Date: Tue, 23 Mar 2004 15:49:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Kurt Garloff <garloff@suse.de>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: Non-Exec stack patches
+Message-Id: <20040323154937.1f0dc500.akpm@osdl.org>
+In-Reply-To: <20040323231256.GP4677@tpkurt.garloff.de>
+References: <20040323231256.GP4677@tpkurt.garloff.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1080081653.22670.15.camel@calvin.wpcb.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Kurt Garloff <garloff@suse.de> wrote:
+>
+> find attached a patch to parse the elf binaries for a PT_GNU_STACK
+> section to set the stack non-executable if possible.
 
-> > Well, I'd hate
-> > 
-> > Nov 10 00:37:51 amd kernel: Buffer I/O error on device sr0, logical block 842340
-> > Nov 10 00:37:53 amd kernel: end_request: I/O error, dev sr0, sector 6738472
-> > 
-> > to be obscured by progress bar.
-> 
-> So why aren't you arguing against bootsplash too? That definitely
-> obscures such an error :> Of course we could argue that such an error
-> shouldn't happen and/or will be obvious via other means (assuming it
-> indicates hardware failure).
+This patch propagates the PT_GNU_STACK setting into the vma flags, allowing
+the architecture to set the stack permissions non-executable if the
+architecture chooses to do that, yes?
 
-Of course I *am* against bootsplash. Unfortunately I've probably lost
-that war already. But at least it is not in -linus tree (and that's
-what I use anyway) => I gave up with bootsplash-equivalents, as long
-as they don't come to linus.
+Which architectures are currently making their pre-page execute permissions
+depend upon VM_EXEC?  Would additional arch patches be needed for this?
 
-[And I believe Linus would shoot down bootsplash-like code, anyway.]
+This may not get past Linus of course.  It doesn't even get past me with
+that magical undocumented -1/0/+1 value of the executable_stack argument. 
+Please replace that with a proper, commented, #defined-or-enumerated value,
+thanks.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

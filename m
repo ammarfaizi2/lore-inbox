@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269503AbUINRXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269467AbUINRXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269503AbUINRXO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 13:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269581AbUINRUc
+	id S269467AbUINRXN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 13:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269603AbUINRTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 13:20:32 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:41624 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S269540AbUINRQN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 13:16:13 -0400
-Message-ID: <414726FB.20703@rtr.ca>
-Date: Tue, 14 Sep 2004 13:14:35 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] New QStor SATA/RAID Driver for 2.6.9-rc2
-References: <41471163.10709@rtr.ca> <1095177622.16990.48.camel@localhost.localdomain>
-In-Reply-To: <1095177622.16990.48.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Sep 2004 13:19:24 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:37038 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S269530AbUINRRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 13:17:51 -0400
+Date: Tue, 14 Sep 2004 10:17:49 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Document ARM pci=firmware option
+Message-ID: <20040914171749.GA9193@plexity.net>
+Reply-To: dsaxena@plexity.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Correct ioctl return is -ENOTTY for unknown (thats a mistake still in
-> many existing drivers so no suprise its still being copied)
 
-Quoting linux/Documentation/scsi_mid_low_api.txt:
-*
-*      Unfortunately some applications expect -EINVAL and react badly
-*      when -ENOTTY is returned; stick with -EINVAL.
+Added a new pci= command line option specific to ARM systems in 
+-rc2 and it should be added to kernel-parameters.txt.
 
-Looks like a documentation fix is needed then.
+Please apply,
+~Deepak
 
-This is a hardware RAID device, with various graduations of sharing
-possible between hardware and software.   It was originally written
-pre-libata, and the RAID functionality in particular does not map
-well to libata.  Nor do the host-queuing implementation and other features.
+Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
 
-Thanks Alan.  I'll address the other points you brought up later.
+===== Documentation/kernel-parameters.txt 1.47 vs edited =====
+--- 1.47/Documentation/kernel-parameters.txt	Thu Aug 26 23:30:30 2004
++++ edited/Documentation/kernel-parameters.txt	Tue Sep 14 09:53:56 2004
+@@ -878,6 +878,12 @@
+ 					enabled.
+ 		noacpi			[IA-32] Do not use ACPI for IRQ routing
+ 					or for PCI scanning.
++		firmware		[ARM] Do not re-enumerate the bus but 
++					instead just use the configuration
++					from the bootloader. This is currently
++					used on IXP2000 systems where the 
++					bus has to be configured a certain way
++					for adjunct CPUs.
+ 
+ 	pcmv=		[HW,PCMCIA] BadgePAD 4
+ 
 
-Cheers
 -- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
+
+"Unlike me, many of you have accepted the situation of your imprisonment
+and will die here like rotten cabbages." - Number 6

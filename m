@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262548AbTCMTTF>; Thu, 13 Mar 2003 14:19:05 -0500
+	id <S262557AbTCMTV1>; Thu, 13 Mar 2003 14:21:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262549AbTCMTTF>; Thu, 13 Mar 2003 14:19:05 -0500
-Received: from B57f7.pppool.de ([213.7.87.247]:25549 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S262548AbTCMTS6>; Thu, 13 Mar 2003 14:18:58 -0500
-Subject: 2.4.20 and 2.5.64 NIC missing interrupts in APIC mode
-From: Daniel Egger <degger@fhm.edu>
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-26gLKfvaInRTxDJtSv4i"
-Organization: 
-Message-Id: <1047581900.1513.36.camel@sonja>
+	id <S262558AbTCMTV1>; Thu, 13 Mar 2003 14:21:27 -0500
+Received: from packet.digeo.com ([12.110.80.53]:61142 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262557AbTCMTV0>;
+	Thu, 13 Mar 2003 14:21:26 -0500
+Date: Thu, 13 Mar 2003 11:32:09 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.64-mm6
+Message-Id: <20030313113209.0be9f71c.akpm@digeo.com>
+In-Reply-To: <p73n0jz4cdt.fsf@amdsimf.suse.de>
+References: <20030313032615.7ca491d6.akpm@digeo.com.suse.lists.linux.kernel>
+	<p73n0jz4cdt.fsf@amdsimf.suse.de>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 13 Mar 2003 19:58:21 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Mar 2003 19:32:06.0884 (UTC) FILETIME=[3B966240:01C2E997]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen <ak@suse.de> wrote:
+>
+> Andrew Morton <akpm@digeo.com> writes:
+> 
+> 
+> >   This means that large cache-cold executables start significantly faster.
+> >   Launching X11+KDE+mozilla goes from 23 seconds to 16.  Starting OpenOffice
+> >   seems to be 2x to 3x faster, and starting Konqueror maybe 3x faster too. 
+> >   Interesting.
+> > 
+> >   This might cause weird thing to happen, especially on small-memory machines.
+> 
+> That's great. It would be nice to have this as a sysctl or perhaps
+> some heuristic based on file size and available memory for 2.6.
+> 
 
---=-26gLKfvaInRTxDJtSv4i
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+We shouldn't be putting this in-kernel, really.  Userspace can obtain
+the same results by running madvise(MADV_WILLNEED) against the mapping
+immediately after setting it up.  So a simple
 
-Hija,
+	map = mmap(...);
++	if (getenv("MAP_PREFAULT"))
++		madvise(map, len, MADV_WILLNEED);
 
-I just bought a new motherboard "ECS L7VTA" sporting a VIA KT400 chipset
-and found an annoying bug which took me quite some time to track down:
+in glibc is enough.
 
-As soon as I enable the APIC mode in the BIOS the onboard PHY seems
-to ignore any packets which are thrown at it *after* the kernel
-initialised itself which is especially nasty since the system is booting
-from network effectively stopping its boot when trying to get an IP
-using DHCP or mounting a NFS volume in case the IP is fixed. The onboard
-NIC is a VIA Rhine II (VT6102).
-
-The startup process looks like:
-- POST
-- BIOS check
-- PXE BIOS initialisation
-- PXE boot into etherboot
-- Correct detection and initialisation of the NIC in etherboot
-- Boot of linux kernel
-- Correct initialisation of system including NIC (via-rhine driver from
-    Donald Becker as in the standard kernels)
-- Endless loop like the following:
-
--------->
-eth0: Setting full-duplex based on MII #1 link partner capability of 41e1.
-Sending DCHP requests ...... timed out!
-<--------
-
-The NIC initialised itself with the correct interrupt according to the
-BIOS screen. As soon as I shut down the APIC mode, everything works as
-expected.=20
-
-Ideas?
-
---=20
-Servus,
-       Daniel
-
---=-26gLKfvaInRTxDJtSv4i
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+cNTMchlzsq9KoIYRAl8mAJ9hJiekvCWtqxqM4h4bMF95jYmOSACgtvwS
-0mzTPS/1VgIH0AP/1aOaARM=
-=qQ01
------END PGP SIGNATURE-----
-
---=-26gLKfvaInRTxDJtSv4i--
+That will work on 2.4, too.  I haven't tested that though.
 

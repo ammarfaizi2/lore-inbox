@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277758AbRJ1IGK>; Sun, 28 Oct 2001 03:06:10 -0500
+	id <S277803AbRJ1ITf>; Sun, 28 Oct 2001 03:19:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277777AbRJ1IGB>; Sun, 28 Oct 2001 03:06:01 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2065 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277758AbRJ1IFq>; Sun, 28 Oct 2001 03:05:46 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Non-standard MODULE_LICENSEs in 2.4.13-ac2
-Date: 28 Oct 2001 01:06:15 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9rge9n$sua$1@cesium.transmeta.com>
-In-Reply-To: <20011027012016.F23590@turbolinux.com> <E15xVcA-0003bG-00@the-village.bc.nu>
-MIME-Version: 1.0
+	id <S277798AbRJ1ITP>; Sun, 28 Oct 2001 03:19:15 -0500
+Received: from jalon.able.es ([212.97.163.2]:1011 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S277782AbRJ1ITM>;
+	Sun, 28 Oct 2001 03:19:12 -0500
+Date: Sun, 28 Oct 2001 09:19:41 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Alan Cox <laughing@shared-source.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: i2c CONFIG bug in 2.4.13
+Message-ID: <20011028091941.A10819@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+X-Mailer: Balsa 1.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E15xVcA-0003bG-00@the-village.bc.nu>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
->
-> > but I think you are confusing intent with implementation.  The intent
-> > (AFAICS) is to mark the kernel tainted ONLY if a closed-source module
-> > is loaded, rather than to be a "license police" mechanism, especially
-> > for sources that have been included in the kernel for a long time.
-> 
-> "BSD" can indicate totally closed source material as well as other stuff
-> 
+Hi.
 
-I was thinking about that, and that doesn't seem right to me -- you
-can make closed-source derivative works based on BSD but I would
-typically not refer to them as "BSD" license (think SunOS 4.1 here...)
+I"C has a bug in config options. An option is misnamed in 2.4.13, so I
+suppose it applies both to -pre3 and -ac3. Patch follows:
 
-> 
-> Also Keith is right - if it is GPL compatible BSD code linked with the
-> kernel then its correct to describe it as Dual BSD/GPL anyway
-> 
+--- linux-2.4.13-ac3/drivers/i2c/i2c-core.c.orig	Sun Oct 28 09:11:07 2001
++++ linux-2.4.13-ac3/drivers/i2c/i2c-core.c	Sun Oct 28 09:11:23 2001
+@@ -1284,7 +1284,7 @@
+ #ifdef CONFIG_I2C_ALGOBIT
+ 	extern int i2c_algo_bit_init(void);
+ #endif
+-#ifdef CONFIG_I2C_CONFIG_I2C_PHILIPSPAR
++#ifdef CONFIG_I2C_PHILIPSPAR
+ 	extern int i2c_bitlp_init(void);
+ #endif
+ #ifdef CONFIG_I2C_ELV
 
-I think the idea of making a standard set of macros available is a
-good idea for two reasons:
 
-a) It avoids mispellings;
-
-b) It makes it possible to apply standard definitions to the codified
-   strings.
-
-	-hpa
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.14-pre3-beo #2 SMP Sun Oct 28 01:07:36 CEST 2001 i686

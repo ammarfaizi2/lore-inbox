@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262140AbTEEWKO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 18:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbTEEWKO
+	id S262112AbTEEWIa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 18:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbTEEWI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 18:10:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27342 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262140AbTEEWKN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 18:10:13 -0400
-Date: Mon, 5 May 2003 23:22:40 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Gabriel Devenyi <devenyga@mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] KernelJanitor: Convert remaining error returns to return -E Linux 2.5.68
-Message-ID: <20030505222240.GH10374@parcelfarce.linux.theplanet.co.uk>
-References: <200304292215.20590.devenyga@mcmaster.ca> <20030429224228.GQ10374@parcelfarce.linux.theplanet.co.uk> <200304292311.24117.devenyga@mcmaster.ca> <20030505221146.GA227@elf.ucw.cz>
+	Mon, 5 May 2003 18:08:29 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:58847 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262112AbTEEWI2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 18:08:28 -0400
+Date: Mon, 5 May 2003 14:51:41 -0700
+From: Greg KH <greg@kroah.com>
+To: Stian Jordet <liste@jordet.nu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB not working with 2.5.69, worked with .68
+Message-ID: <20030505215141.GB3111@kroah.com>
+References: <1052168060.826.8.camel@chevrolet.hybel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030505221146.GA227@elf.ucw.cz>
+In-Reply-To: <1052168060.826.8.camel@chevrolet.hybel>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06, 2003 at 12:11:46AM +0200, Pavel Machek wrote:
-> Hi!
+On Mon, May 05, 2003 at 10:54:20PM +0200, Stian Jordet wrote:
 > 
-> > It was intended to do exactly what the KernelJanitor TODO and kj.pl script 
-> > pointed out, but aparently there's more to it than that. (BTW it just says 
-> > "sed s/return EWHATEVER/return -EWHATEVER/") Discouraging people with foul 
-> > language isn't the best way to get more developers, this is only my first 
-> > try.
-> 
-> That's Al Viro, it seems. He is hidding his real name? He's always
-> like that
+> I have read somewhere that the USB device not accepting new address
+> means that the host-controller doesn't get an interrupt, and that this
+> often is because of ACPI. It's just the same with acpi disabled (and in
+> 2.5.68 it did work with and without acpi).
 
-???
+Hm, can you look at /proc/interrups and verify that the usb controller's
+interrupt count is going up?  It really sounds like the interrupt isn't
+getting through to the usb controller driver.
 
-When the fsck had I ever stooped down to hiding my name?
+thanks,
+
+greg k-h

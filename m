@@ -1,96 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261209AbTIGSgs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 14:36:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbTIGSgs
+	id S261366AbTIGStR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 14:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbTIGStQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 14:36:48 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:34538 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261209AbTIGSgq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 14:36:46 -0400
-Subject: [PATCH] fix Summit srat.h includes
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-khFaeiwQK9hvqPYua3pK"
-Organization: 
-Message-Id: <1062959739.27214.2174.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 07 Sep 2003 11:35:39 -0700
+	Sun, 7 Sep 2003 14:49:16 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20577 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261366AbTIGStO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 14:49:14 -0400
+To: insecure@mail.od.ua
+Cc: Michael Frank <mhf@linuxmail.org>, Yann Droneaud <yann.droneaud@mbda.fr>,
+       fruhwirth clemens <clemens-dated-1063536166.2852@endorphin.org>,
+       linux-kernel@vger.kernel.org,
+       =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Subject: Re: nasm over gas?
+References: <20030904104245.GA1823@leto2.endorphin.org>
+	<200309050128.47002.insecure@mail.od.ua>
+	<200309052058.11982.mhf@linuxmail.org>
+	<200309052028.37367.insecure@mail.od.ua>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 07 Sep 2003 12:49:17 -0600
+In-Reply-To: <200309052028.37367.insecure@mail.od.ua>
+Message-ID: <m18yp0o2mq.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+insecure <insecure@mail.od.ua> writes:
 
---=-khFaeiwQK9hvqPYua3pK
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> On Friday 05 September 2003 15:59, Michael Frank wrote:
+> > Just got another reply to this thread which helps to explain what I meant
+> > by "better coders in 98+% of applications"
+> >
+> > On Friday 05 September 2003 19:42, Jörn Engel wrote:
+> > > How big is the .text of the asm and c variant?  If the text of yours
+> > > is much bigger, you just traded 2fish performance for general
+> > > performance.  Everything else will suffer from cache misses.  Forget
+> > > your microbenchmark, your variant will make the machine slower.
+> 
+> A random example form one small unrelated program (gcc 3.2):
+> 
+> main:
+>         pushl   %ebp
+>         pushl   %edi
+>         pushl   %esi
+>         pushl   %ebx
+>         subl    $32, %esp
+>         xorl    %ebp, %ebp
+>         cmpl    $1, 52(%esp)
+>         movl    $0, 20(%esp)
+>         movl    $1000000, %edi      <----
+>         movl    $1000000, 16(%esp)  <----
+>         movl    $0, 12(%esp)
+>         movl    $.LC27, 8(%esp)
+>         je      .L274
+>         movl    $1, %esi
+>         cmpl    52(%esp), %esi
+>         jge     .L272
+> 
+> No sane human will do that.
 
-I was compiling for my plain 'ol PC, and was getting unresolved symbols
-for get_memcfg_from_srat() and get_zholes_size().  The CONFIG_NUMA
-definition right now allows it to be turned on for plain old X86_PC. 
-Does anyone know why this is?  
+> 
+> main:
+>         pushl   %ebp
+>         pushl   %edi
+>         pushl   %esi
+>         pushl   %ebx
+>         subl    $32, %esp
+>         xorl    %ebp, %ebp
+>         cmpl    $1, 52(%esp)
+>         movl    $0, 20(%esp)
+>         movl    $1000000, %edi
+>         movl    %edi, 16(%esp)	<-- save 4 bytes
+>         movl    %ebp, 12(%esp)  <-- save 4 bytes
+>         movl    $.LC27, 8(%esp)
+>         je      .L274
+>         movl    $1, %esi
+>         cmpl    52(%esp), %esi
+>         jge     .L272
+> 
+> And this is only from a cursory examination.
 
-depends on SMP && HIGHMEM64G && 
-          (X86_PC || X86_NUMAQ || X86_GENERICARCH || 
-                  (X86_SUMMIT && ACPI && !ACPI_HT_ONLY))
+Actually it is no as simple as that.  With the instruction that uses
+%edi following immediately after the instruction that populates it you cannot
+execute those two instructions in parallel.  So the code may be slower.  The
+exact rules depend on the architecture of the cpu.
 
-In any case, the summit code incorrectly assumes in at least 2 places
-that NUMA && !NUMAQ means summit.  Someone was evidently trying to cover
-the generic subarch case, but that's already taken care of by the lovely
-config system and CONFIG_ACPI_SRAT.  This patch fixes those assumptions
-and adds a nice little warning for people that try to #include srat.h
-without having srat support turned on.  
+> What gives you an impression that anyone is going to rewrite linux in asm?
+> I _only_ saying that compiler-generated asm is not 'good'. It's mediocre.
+> Nothing more. I am not asm zealot.
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+I think I would agree with that statement most compiler-generated assembly
+code is mediocre in general.  At the same time I would add most human
+generated assembly is poor, and a pain to maintain.
 
---=-khFaeiwQK9hvqPYua3pK
-Content-Disposition: attachment; filename=srat-include-2.6.0-test4-0.patch
-Content-Type: text/x-patch; name=srat-include-2.6.0-test4-0.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
+If you concentrate on those handful of places where you need to
+optimize that is reasonable.  Beyond that there simply are not the
+developer resources to do good assembly.  And things like algorithmic
+transformations in assembly are an absolute nightmare.  Where they are
+quite simple in C.
 
-diff -ru linux-2.6.0-test4/include/asm-i386/mmzone.h linux-2.6.0-test4-srat/include/asm-i386/mmzone.h
---- linux-2.6.0-test4/include/asm-i386/mmzone.h	2003-08-22 16:56:14.000000000 -0700
-+++ linux-2.6.0-test4-srat/include/asm-i386/mmzone.h	2003-09-15 08:22:32.000000000 -0700
-@@ -119,7 +119,7 @@
- 
- #ifdef CONFIG_X86_NUMAQ
- #include <asm/numaq.h>
--#elif CONFIG_NUMA	/* summit or generic arch */
-+#elif CONFIG_ACPI_SRAT
- #include <asm/srat.h>
- #elif CONFIG_X86_PC
- #define get_memcfg_numa get_memcfg_numa_flat
-diff -ru linux-2.6.0-test4/include/asm-i386/numnodes.h linux-2.6.0-test4-srat/include/asm-i386/numnodes.h
---- linux-2.6.0-test4/include/asm-i386/numnodes.h	2003-08-22 16:52:57.000000000 -0700
-+++ linux-2.6.0-test4-srat/include/asm-i386/numnodes.h	2003-09-15 08:22:50.000000000 -0700
-@@ -5,7 +5,7 @@
- 
- #ifdef CONFIG_X86_NUMAQ
- #include <asm/numaq.h>
--#elif CONFIG_NUMA
-+#elif CONFIG_ACPI_SRAT
- #include <asm/srat.h>
- #else
- #define MAX_NUMNODES	1
-diff -ru linux-2.6.0-test4/include/asm-i386/srat.h linux-2.6.0-test4-srat/include/asm-i386/srat.h
---- linux-2.6.0-test4/include/asm-i386/srat.h	2003-08-22 16:53:43.000000000 -0700
-+++ linux-2.6.0-test4-srat/include/asm-i386/srat.h	2003-09-15 08:20:49.000000000 -0700
-@@ -27,6 +27,10 @@
- #ifndef _ASM_SRAT_H_
- #define _ASM_SRAT_H_
- 
-+#ifndef CONFIG_ACPI_SRAT
-+#error CONFIG_ACPI_SRAT not defined, and srat.h header has been included
-+#endif
-+
- #define MAX_NUMNODES		8
- extern void get_memcfg_from_srat(void);
- extern unsigned long *get_zholes_size(int);
+And if the average generated code quality bothers you enough with C
+the compiler can be fixed, or another compiler can be written that
+does a better job, and the benefit applies to a lot more code.
 
---=-khFaeiwQK9hvqPYua3pK--
-
+Eric

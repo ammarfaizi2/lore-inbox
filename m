@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266617AbUAWSML (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 13:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266601AbUAWSMJ
+	id S262960AbUAWSSm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 13:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266632AbUAWSSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 13:12:09 -0500
-Received: from mailhub.hp.com ([192.151.27.10]:55742 "EHLO mailhub.hp.com")
-	by vger.kernel.org with ESMTP id S266617AbUAWSLi (ORCPT
+	Fri, 23 Jan 2004 13:18:41 -0500
+Received: from mail.kroah.org ([65.200.24.183]:20907 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262960AbUAWSSe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 13:11:38 -0500
-Subject: RE: pci_alloc_consistent()
-From: Alex Williamson <alex.williamson@hp.com>
-To: Leonid Grossman <leonid.grossman@s2io.com>
-Cc: "'Jes Sorensen'" <jes@wildopensource.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'ravinandan arakali'" <ravinandan.arakali@s2io.com>, iod00d@hp.com
-In-Reply-To: <000001c3e1be$79904640$0400a8c0@S2IOtech.com>
-References: <000001c3e1be$79904640$0400a8c0@S2IOtech.com>
-Content-Type: text/plain
-Message-Id: <1074881493.26664.31.camel@wilson.home.net>
+	Fri, 23 Jan 2004 13:18:34 -0500
+Date: Fri, 23 Jan 2004 10:18:30 -0800
+From: Greg KH <greg@kroah.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Alan Stern <stern@rowland.harvard.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core
+Message-ID: <20040123181830.GE23169@kroah.com>
+References: <Pine.LNX.4.58.0401230939170.2151@home.osdl.org> <Pine.LNX.4.44L0.0401231248510.856-100000@ida.rowland.org> <20040123181004.GJ21151@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 23 Jan 2004 11:11:34 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040123181004.GJ21151@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-01-23 at 07:37, Leonid Grossman wrote:
-> Hi Jes,
+On Fri, Jan 23, 2004 at 06:10:04PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Fri, Jan 23, 2004 at 01:03:33PM -0500, Alan Stern wrote:
+> > The general context is that a module is trying to unload, but it can't
+> > until the release() callback for its device has finished.
 > 
-> > Leonid,
-> > 
-> > What type of Itanium box? It's possible what you're seeing is 
-> > caused by a bug in the IOMMU code, but we would need to know 
-> > which one (HP, SGI or someone else's).
-> 
-> The problem with pci_alloc_consistent()above 1MB happens on HP rx2600
-> (this is 2U dual-Itanium 900MHz pci-x 133 box). I don't believe it
-> happens on 64 bit Opterons. Today we are going to test Dell and SGI
-> Itanium systems, as well as a bit newer rx 2600 with Itanium-2 1.5GHz -
-> I'll let you know by the end of the day.
+> ... and if I redirect rmmod stdin from sysfs, we get what?  Exactly.
 
-   The iommu code on zx1 boxes is currently limited to consistent
-mappings of 64 * PAGE_SIZE.  We need to implement the consistent dma
-mask interface so that 64bit devices can bypass the iommu and dma as
-much as they'd like.  If you change your system page size to 64k, you
-should be able to get up to 4MB mappings with the current code.  Sounds
-like we need to do a BUG or something to make it more obvious how this
-is failing.  It should be a pretty simple update to sba_iommu to make it
-start looking at consistent_dma_mask in this path.  I'll try to get a
-patch sent out for it on 2.6.  Thanks,
-
-	Alex
-
+You get what you deserve :)

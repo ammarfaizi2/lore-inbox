@@ -1,76 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263874AbRFLX7R>; Tue, 12 Jun 2001 19:59:17 -0400
+	id <S263859AbRFLXxh>; Tue, 12 Jun 2001 19:53:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263881AbRFLX7H>; Tue, 12 Jun 2001 19:59:07 -0400
-Received: from jalon.able.es ([212.97.163.2]:29149 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S263874AbRFLX6y>;
-	Tue, 12 Jun 2001 19:58:54 -0400
-Date: Wed, 13 Jun 2001 01:48:01 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: "Albert D . Cahalan" <acahalan@cs.uml.edu>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-        Christoph Hellwig <hch@ns.caldera.de>, linux-kernel@vger.kernel.org,
-        ognen@gene.pbi.nrc.ca
-Subject: Re: threading question
-Message-ID: <20010613014801.A17093@werewolf.able.es>
-In-Reply-To: <XFMail.20010612144449.davidel@xmailserver.org> <200106122158.f5CLwTR253610@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200106122158.f5CLwTR253610@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Tue, Jun 12, 2001 at 23:58:29 +0200
-X-Mailer: Balsa 1.1.5
+	id <S263874AbRFLXx0>; Tue, 12 Jun 2001 19:53:26 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:38414 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263859AbRFLXxI>; Tue, 12 Jun 2001 19:53:08 -0400
+Date: Tue, 12 Jun 2001 16:48:31 -0700 (PDT)
+From: Patrick Mochel <mochel@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Jeff Golds <jgolds@resilience.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Problems with arch/i386/kernel/apm.c
+In-Reply-To: <E159We4-0000Cc-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10106121639100.13607-100000@nobelium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 20010612 Albert D. Cahalan wrote:
+On Mon, 11 Jun 2001, Alan Cox wrote:
+
+> > > needed.  What I am really desiring to know is if there are any devices
+> > > that depend on the apm::send_event(APM_NORMAL_RESUME) happening while
+> > > interrupts are disabled.
+> > 
+> > Good spotting...  If any devices depend on what you describe, I would
+> > argue that their drivers should handle that not the core apm code...
 > 
-> In that case, this could be a hardware issue. Note that he seems
-> to be comparing an x86 PC against SGI MIPS, Sun SPARC, and Compaq
-> Alpha hardware.
+> The drivers can't handle it at the moment. I've been talking to many people
+> about this all hitting this sort of driver problem.
 > 
-> His data set is most likely huge. It's DNA data.
+> I think the fix is to keep two classes of power management objects and do
+> the following
 > 
-> The x86 box likely has small caches, a fast core, and a slow bus.
-> So most of the time the CPU will be stalled waiting for a memory
-> operation.
-> 
+> 	Call each 'nonirq' suspend function
+> 	(aborting if need be)
+> 	cli()
+> 	Call each irq blocked suspend function
+> 	suspend
 
-Perhaps is just synchronization of caches. 
-say you want to sum all the elements of a vector in parallele split in
-two pieces:
+It shouldn't be necessary to keep two classes of PM objects; instead walk
+the device tree twice on suspend.
 
-int total=0;
-thread 1:
-	for fist half
-		total += v[i]
-thread 2:
-	for second half
-		total += v[i]
+The first one is an opportunity for the driver to save any device state; a
+method to notify the driver that it's going to sleep (as some PPC people
+requested); or to do what it needs to with interrupts enabled. 
 
-and you tought: 'well, I need a mutex for access to total. that will slow
-down things, lets use separate counters':
+This also gives the system a graceful way to abort the process should any
+of the drivers complain that it absolutely cannot suspend (none of the
+devices will actually be powered off at that point).
 
-int bigtotal;
-int total[2];
-thread 1:
-	for fist half
-		total[0] += v[i]
-thread 2:
-	for second half
-		total[1] += v[i]
+We then disable interrupts and walk the tree again, actually shutting off
+devices. This way, no special cases are made, and no partitioning of the
+power management objects is needed.
 
-bigtotal = total[0]+total[1]
+> resume:
+> 	call each irq blocked resume function
+> 	sti();
+> 	call each nonirq resume
 
-The problem ? total[0] and total[1] are nearby one of each other. So in
-the same cache line. So on every write to total[?], even if they are
-independent, system has to synchrnize caches.
+Is this really necessary? We should (note _should_) be able to enable
+interrupts, then walk the device tree to resume everything. 
 
-Big iron (SGI, Sparc), has special hardware, but cheap PC mobos...
+Linus confirmed this assumption, but it may turn out to not be the case.
+If that is so, then it will be easy enough to do a two stage walk of the
+tree, like in suspend - one to power on the device and reinitialize it,
+the next to restore state and continue on once interrupts have been
+enabled.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Linux Mandrake release 8.1 (Cooker) for i586
-Linux werewolf 2.4.5-ac13 #1 SMP Sun Jun 10 21:42:28 CEST 2001 i686
+
+	-pat
+

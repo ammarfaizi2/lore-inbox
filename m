@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278269AbRKSLil>; Mon, 19 Nov 2001 06:38:41 -0500
+	id <S278492AbRKSM3X>; Mon, 19 Nov 2001 07:29:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278163AbRKSLib>; Mon, 19 Nov 2001 06:38:31 -0500
-Received: from postfix1-2.free.fr ([213.228.0.130]:4837 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S278085AbRKSLiR>; Mon, 19 Nov 2001 06:38:17 -0500
-Date: Mon, 19 Nov 2001 12:26:20 +0100
-From: christophe =?iso-8859-1?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
+	id <S278630AbRKSM3O>; Mon, 19 Nov 2001 07:29:14 -0500
+Received: from NET.WAU.NL ([137.224.10.12]:48396 "EHLO net.wau.nl")
+	by vger.kernel.org with ESMTP id <S278492AbRKSM3H>;
+	Mon, 19 Nov 2001 07:29:07 -0500
+Date: Mon, 19 Nov 2001 13:29:05 +0100
+From: Olivier Sessink <lists@olivier.pk.wau.nl>
+Subject: PCMCIA kernel freezes (yenta_socket) - more info
 To: linux-kernel@vger.kernel.org
-Subject: Re: Weird PCMCIA behavior
-Message-ID: <20011119122619.E3353@online.fr>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011118180656.A18252@temp123.org> <3BF84297.7FB77B3B@mandrakesoft.com> <20011118182903.A18291@temp123.org> <3BF847D1.54532522@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0H629O+sVkh21xTi"
-Content-Disposition: inline
-In-Reply-To: <3BF847D1.54532522@mandrakesoft.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: "debian SID Gnu/Linux 2.4.15-pre6 on i586"
+Message-id: <20011119132905.6c0591f8.lists@olivier.pk.wau.nl>
+Organization: Wageningen Multimedia Software Labs
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
---0H629O+sVkh21xTi
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+when I insert a PCMCIA card (3 cards tested) in my Sony Vaio R600HEK the
+system freezes. When I remove the card it runs again. logs show nothing,
+dmesg shows nothing.. 
 
-On Sun, Nov 18, 2001 at 06:44:17PM -0500, Jeff Garzik wrote:
-> Nope.  CardBus looks like hotplug PCI to the kernel, so all normal PCI
-> drivers automagically work as CardBus drivers.  You actually need no
-> userspace tools at all..
+When I boot the system with a PCMCIA card in the slot, it works AND I can
+remove it and add it again without a problem!!??!!
 
-In my undertanding, if you compile drivers for your cardbus and for
-attached peripherals as modules (and that make sense for cardbus
-hardware), then you need the 'hotplug' userspace tool.
+So the workaround it to boot it with a card always, but that is not really
+convenient..
 
-This tool is informed by the kernel that a new device is in and then is
-responsible to insmod the correct driver(s) (mainly by looking in
-modules.pcimap and friends) and to setup things like setup a network
-when a network card is inserted ...
+it is a Debian testing (Woody) system with kernel 2.4.14, the following
+modules are loaded: cb_enabler, ds, yenta_socket and pcmcia_core
 
-Is that wrong ?
+I also have some weird kernel messages when the PCMCIA is started:
 
-Christophe
+Linux Kernel Card Services 3.1.22
+  options:  [pci] [cardbus] [pm]
+PCI: No IRQ known for interrupt pin A of device 01:02.0. Please try using
+pci=biosirq.
+Yenta IRQ list 04b8, PCI irq0
+Socket status: 30000410
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0800-0x08ff: clean.
+cs: IO port probe 0x0100-0x04ff: excluding 0x170-0x177 0x370-0x37f
+0x4d0-0x4d7
+cs: IO port probe 0x0a00-0x0aff: clean.
+cs: memory probe 0xa0000000-0xa0ffffff: clean.
 
---=20
-Christophe Barb=E9 <christophe.barbe@online.fr>
-GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+More info on this laptop can be found on
+http://lx.student.wau.nl/~olivier/linux_on_r600hek/linux_on_r600hek.html
+including dmesg output and lspci output and stuff like that
 
---0H629O+sVkh21xTi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+anybody an idea?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Pour information voir http://www.gnupg.org
-
-iD8DBQE7+Oxbj0UvHtcstB4RAiSTAJ99q+Yys5Iyy2JNjr1I6D/pfsJ1gACfcG77
-WhTsKUWWyWQddbEiFbG2HD0=
-=ASZ0
------END PGP SIGNATURE-----
-
---0H629O+sVkh21xTi--
+regards,
+	Olivier

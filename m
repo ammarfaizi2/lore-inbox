@@ -1,58 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263702AbUAHElT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 23:41:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbUAHElT
+	id S263711AbUAHEyL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 23:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbUAHEyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 23:41:19 -0500
-Received: from sea2-f38.sea2.hotmail.com ([207.68.165.38]:43279 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263702AbUAHElS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 23:41:18 -0500
-X-Originating-IP: [81.250.248.165]
-X-Originating-Email: [thadeum@hotmail.com]
-From: "Silk Thadeum" <thadeum@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: /drivers/net/tulip/dmfe.c may be outdated : kernel loading problem
-Date: Thu, 08 Jan 2004 05:41:17 +0100
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F38LFQG101s7hp0000e306@hotmail.com>
-X-OriginalArrivalTime: 08 Jan 2004 04:41:17.0710 (UTC) FILETIME=[A7BC6AE0:01C3D5A1]
+	Wed, 7 Jan 2004 23:54:11 -0500
+Received: from dci.doncaster.on.ca ([66.11.168.194]:12934 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S263711AbUAHEyH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 23:54:07 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, jw schultz <jw@pegasys.ws>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: raid0 slower than devices it is assembled of?
+References: <200312151434.54886.adasi@kernel.pl>
+	<20031216040156.GJ12726@pegasys.ws> <3FDF1C03.2020509@aitel.hist.no>
+	<Pine.LNX.4.58.0312160825570.1599@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312160825570.1599@home.osdl.org>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 07 Jan 2004 23:54:05 -0500
+Message-ID: <87llojujki.fsf@stark.dyndns.tv>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I have been working on Linux 2.4.20 for a couple of months and use a Davicom 
-Semiconductor Ethernet network card driver known as dmfe.c for module dmfe.
+Linus Torvalds <torvalds@osdl.org> writes:
 
-I had no problem since here, but on Linux 2.6.0-i386-stable kernel is 
-refusing to load the module :
+> The fact is, modern disks are GOOD at streaming data. They're _really_
+> good at it compared to just about anything else they ever do. The win you
+> get from even medium-sized stripes on RAID0 are likely to not be all that
+> noticeable, and you can definitely lose _big_ just because it tends to
+> hack your IO patterns to pieces.
 
---
-$ insmod dmfe.o
-insmod: error inserting 'dmfe.o': -1 Invalid module format
-$ lspci | grep Davicom
-00:0a.0 Ethernet controller : Davicom Semiconductor, Inc. Ethernet 100/10 
-Mbit (rev 31)
---
+I'm not sure how you reach this conclusion. 50MB/s may sound like a lot, it's
+sure a whole lot more than the 2MB/s I get on this 486 over here. But then the
+hard drive I have that gets 50MB/s is also 250G and the one in the 486 is
+425M, a factor of 588 difference in size. So as good as the drives are getting
+at streaming data, the amount of data we want to stream is going up even
+faster.
 
-I tried to load the module by various ways : with old (for 2.4.20) and new 
-(from 2.6.0 stable) compiled driver, but that didn't work. I quickly looked 
-at the source code which seems quite old. I can't actually help you in 
-having a deeper workaround because I don't yet have sufficient technical 
-skills for that.
+> My personal guess is that modern RAID0 stripes should be on the order of
+> several MEGABYTES in size rather than the few hundred kB that most people
+> use (not to mention the people who have 32kB stripes or smaller - they
+> just kill their IO access patterns with that, and put the CPU at
+> ridiculous strain).
 
-I'm working on a Debian Sarge testing prerelease.
+> Big stripes help because:
+> 
+>  - disks already do big transfers well, so you shouldn't split them up.
+>    Quite frankly, the kinds of access patterns that let you stream
+>    multiple streams of 50MB/s and get N-way throughput increases just
+>    don't exists in the real world outside of some very special niches (DoD
+>    satellite data backup, or whatever).
 
-Have fun in debug ;p
+Or just about any moderate sized SQL database. Virtually any large query will
+cause what Oracle calls "full table scan"s or what postgres calls a
+"sequential scan" precisely because reading sequential data is way faster than
+random access. Often a single query will generate several such streams, and
+often large on-disk sorts which have sequential access patterns as well.
 
-Regards,
+It seems to me that having a stripe-size of several megabytes will defeat the
+read-ahead and essentially limit the database to 50MB/s which while it seems
+like a lot really isn't fast enough to keep up with the increase in the amount
+of data being handled. Even a small database with tables around 1GB will
+benefit enormously from being able to stream the data at 100MB/s or 150MB/s.
 
-Thadeum.
+> I may be wrong, of course. But I doubt it.
 
-_________________________________________________________________
-Help STOP SPAM with the new MSN 8 and get 2 months FREE*  
-http://join.msn.com/?page=features/junkmail
+Well it should be easy enough to test. It would be quite a radical change in
+thinking. All the raidtools documentation suggests starting with 32kb and
+experimenting -- largely with smaller stripe sizes. I've certainly never
+considered anything much larger. It would be really interesting to know how
+even a typical database query ran on raid arrays of varying stripe sizes.
+
+-- 
+greg
 

@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262535AbSIUIEf>; Sat, 21 Sep 2002 04:04:35 -0400
+	id <S262468AbSIUHx2>; Sat, 21 Sep 2002 03:53:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275885AbSIUIEf>; Sat, 21 Sep 2002 04:04:35 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:32497 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262535AbSIUIEf>;
-	Sat, 21 Sep 2002 04:04:35 -0400
-Message-ID: <3D8C2928.EC37FEC7@mvista.com>
-Date: Sat, 21 Sep 2002 01:09:12 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Richard Henderson <rth@twiddle.net>
-CC: Mikael Pettersson <mikpe@csd.uu.se>, Daniel Jacobowitz <dan@debian.org>,
-       Brian Gerst <bgerst@didntduck.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Syscall changes registers beyond %eax, on linux-i386
-References: <24181C771D3@vcnet.vc.cvut.cz> <3D8A11BB.4090100@didntduck.org> <20020919192434.GA3286@nevyn.them.org> <15754.12963.763811.307755@kim.it.uu.se> <3D8ADD05.999E4A5C@mvista.com> <20020920231946.B27148@twiddle.net>
+	id <S262535AbSIUHx2>; Sat, 21 Sep 2002 03:53:28 -0400
+Received: from holomorphy.com ([66.224.33.161]:6540 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262468AbSIUHx1>;
+	Sat, 21 Sep 2002 03:53:27 -0400
+Date: Sat, 21 Sep 2002 00:52:26 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Re: 2.5.36-mm1 dbench 512 profiles
+Message-ID: <20020921075226.GO3530@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@digeo.com>,
+	linux-kernel@vger.kernel.org, viro@math.psu.edu
+References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com> <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com> <20020920080628.GK3530@holomorphy.com> <20020920120358.GV28202@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020920120358.GV28202@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Henderson wrote:
-> 
-> On Fri, Sep 20, 2002 at 01:32:05AM -0700, george anzinger wrote:
-> > So, is there a problem?  Yes, neither the call stub macros
-> > in asm/unistd.h nor those in glibc bother to list the used
-> > registers beyond the third ":".
-> 
-> No, this is not the real problem.  The real problem is that if
-> the program receives a signal during a system call, the kernel
-> will return all the way up to entry.S, deliver the signal and
-> then restart the syscall.
-> 
-> Except the syscall will restart with the corrupted registers.
-> 
-> Hilarity ensues.
-> 
-I submit that BOTH of these are problems.  And only  the
-kernel can fix the latter.
+On Fri, Sep 20, 2002 at 05:03:58AM -0700, William Lee Irwin III wrote:
+> Also notable is that the system time was significantly reduced though
+> I didn't log it. Essentially a long period of 100% system time is
+> entered after a certain point in the benchmark, during which there are
+> few (around 60 or 70) context switches in a second, and the duration
+> of this period was shortened.
 
--g
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+A radical difference is present in 2.5.37: the long period of 100%
+system time is instead a long period of idle time.
+
+I don't have an oprofile vs. 2.5.37 but I'll report back when I do.
+
+
+Cheers,
+Bill

@@ -1,132 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268966AbUJEKEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268944AbUJEKGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268966AbUJEKEw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 06:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268937AbUJEKEF
+	id S268944AbUJEKGK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 06:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268937AbUJEKFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 06:04:05 -0400
-Received: from gizmo08bw.bigpond.com ([144.140.70.18]:20175 "HELO
-	gizmo08bw.bigpond.com") by vger.kernel.org with SMTP
-	id S268947AbUJEKDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 06:03:20 -0400
-Message-ID: <41627163.5020602@bigpond.net.au>
-Date: Tue, 05 Oct 2004 20:03:15 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: bug in sched.c:task_hot()
-References: <200410050237.i952bx620740@unix-os.sc.intel.com> <41624E42.8030105@bigpond.net.au> <416250F0.5010008@yahoo.com.au> <4162565F.60007@bigpond.net.au> <41625E8D.2070101@yahoo.com.au>
-In-Reply-To: <41625E8D.2070101@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 5 Oct 2004 06:05:05 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39559 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268944AbUJEKES (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 06:04:18 -0400
+Date: Tue, 5 Oct 2004 03:01:55 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: mbligh@aracnet.com, pwil3058@bigpond.net.au, frankeh@watson.ibm.com,
+       dipankar@in.ibm.com, akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
+       efocht@hpce.nec.com, lse-tech@lists.sourceforge.net, hch@infradead.org,
+       steiner@sgi.com, jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
+       ak@suse.de, sivanich@sgi.com
+Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and
+ memory placement
+Message-Id: <20041005030155.2901af06.pj@sgi.com>
+In-Reply-To: <20041005021736.40f51b33.pj@sgi.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040805190500.3c8fb361.pj@sgi.com>
+	<247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<411685D6.5040405@watson.ibm.com>
+	<20041001164118.45b75e17.akpm@osdl.org>
+	<20041001230644.39b551af.pj@sgi.com>
+	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au>
+	<821020000.1096814205@[10.10.2.4]>
+	<20041003083936.7c844ec3.pj@sgi.com>
+	<834330000.1096847619@[10.10.2.4]>
+	<835810000.1096848156@[10.10.2.4]>
+	<20041003175309.6b02b5c6.pj@sgi.com>
+	<838090000.1096862199@[10.10.2.4]>
+	<20041003212452.1a15a49a.pj@sgi.com>
+	<843670000.1096902220@[10.10.2.4]>
+	<20041004085327.727191bf.pj@sgi.com>
+	<118120000.1096913871@flay>
+	<20041004132551.551c9fd3.pj@sgi.com>
+	<13000000.1096928155@flay>
+	<20041005021736.40f51b33.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Peter Williams wrote:
-> 
->> Nick Piggin wrote:
->>
->>> Peter Williams wrote:
->>>
->>>>
->>>> The interesting question is: How does now get to be less than 
->>>> timestamp?  This probably means that timestamp_last_tick is not a 
->>>> good way of getting a value for "now".
->>>
->>>
->>>
->>>
->>> It is the best we can do.
->>
->>
->>
->> You could use sched_clock() which will do better.  The setting of 
->> timestamp in schedule() gives you a pretty good chance that it's value 
->> will be greater than timestamp_last_tick.
->>
-> 
-> sched_clock is not guaranteed to be synchronised across CPUs though.
-> It may be completely different. So even if you did use sched_clock,
-> you'd still have to apply the timestamp_last_tick adjustment.
+> Who am I missing ...
 
-I assumed that was why all the "timestamp correction on changing CPU" 
-code was added recently.
+Oops - hi, Hubertus ;).
 
-> 
-> Considering that we really don't need sched_clock resolution here,
-> it just isn't needed.
-> 
-> Kenneth's overflow fix is definitely required though, even if you
-> were to use sched_clock.
-
-Yes.  Or, if the accuracy is sufficient, you could just use 
-timestamp_last_tick to set timestamp which would save the cost of 
-calling sched_clock() for that purpose.
-
-> 
->>>
->>>>  By the way, neither is sched_clock() when measuring small time 
->>>> differences as it is not monotonic (something that I had to allow 
->>>> for in my scheduling code).
->>>
->>>
->>>
->>>
->>> I'm pretty sure it is monotonic, actually. I know some CPUs can execute
->>> rdtsc speculatively, but I don't think it would ever be sane to execute
->>> two rdtsc's in the wrong order.
->>
->>
-> 
-> Hmm, there may be some jitter when waking a process from a remote
-> CPU - because in that case, we do have to apply the timestamp_last_tick
-> correction.
-> 
->>
->> I have experienced it going backwards and I assumed that it was due to 
->> the timing code applying corrections.  (You've got two choices if your 
->> clock is running fast: one is to mark time until the real world 
->> catches up with you and the other is to set your clock back to the 
->> correct time when you notice a discrepancy.  I assumed that the second 
->> strategy had been followed by the time code and didn't bother checking 
->> further because it was an easy problem to sidestep.) Admittedly, this 
->> behaviour 
-> 
-> 
-> We don't really care what real time is doing here, just so long as the
-> numbers returned are roughly the same for everyone (all processes).
-
-I agree which is why I didn't chase it.  As far as I'm concerned when 
-sched_clock() appears to go backwards the time interval that I'm 
-measuring is so small that using zero is close enough.
-
-> 
->> was only observed when measuring very short times such as the time 
->> spent on the runqueue waiting for CPU access when the system was idle 
->> BUT it was definitely occurring.  And it only occurred on a system 
->> where the lower bits of the values returned by sched_clock() were not 
->> zero i.e. a reasonably modern one.  It was observed on a single CPU 
->> machine as well and was not, therefore, a result of drift between CPUs.
-> 
-> 
-> I don't see how this could happen on a single CPU system. I can
-> believe you saw it though.
-
-When I suspected it as the source of a problem that I was experiencing I 
-put some test code in to detect it.  The time between occurrences was of 
-the order of hours and only happened when the interval was very small.
-
-As I said, I assumed that it was due to "corrections" but didn't bother 
-chasing it as it only happened when the time intervals were very small 
-and using zero when it occurred was adequate for my purposes.
-
-Peter
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

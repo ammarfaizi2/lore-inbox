@@ -1,210 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262096AbTDAHUK>; Tue, 1 Apr 2003 02:20:10 -0500
+	id <S262100AbTDAH0m>; Tue, 1 Apr 2003 02:26:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262100AbTDAHUK>; Tue, 1 Apr 2003 02:20:10 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:26554 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262096AbTDAHUH>; Tue, 1 Apr 2003 02:20:07 -0500
-Date: Mon, 31 Mar 2003 23:31:21 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: 2.5.66-mjb2
-Message-ID: <15110000.1049182281@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S262103AbTDAH0m>; Tue, 1 Apr 2003 02:26:42 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:4086 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S262100AbTDAH0l>; Tue, 1 Apr 2003 02:26:41 -0500
+Date: Mon, 31 Mar 2003 23:35:48 -0800
+From: Chris Wright <chris@wirex.com>
+To: linux-security-module@wirex.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] 2.5.66-lsm1
+Message-ID: <20030331233548.A7582@figure1.int.wirex.com>
+Mail-Followup-To: linux-security-module@wirex.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patchset contains mainly scalability and NUMA stuff, and anything 
-else that stops things from irritating me. It's meant to be pretty stable, 
-not so much a testing ground for new stuff.
+The Linux Security Modules project provides a lightweight, general purpose
+framework for access control.  The LSM interface enables developing
+security policies as loadable kernel modules.  See http://lsm.immunix.org
+for more information.
 
-I'd be very interested in feedback from anyone willing to test on any 
-platform, however large or small.
+2.5.66-lsm1 patch released.  This is a rebase up to 2.5.66 as well as
+some interface and module updates.  Out of tree projects will want to
+resync with interface changes.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.66/patch-2.5.66-mjb2.bz2
+Full lsm-2.5 patch (LSM + all modules) is available at:
+	http://lsm.immunix.org/patches/2.5/2.5.66/patch-2.5.66-lsm1.gz
 
-additional:
+The whole ChangeLog for this release is at:
+	http://lsm.immunix.org/patches/2.5/2.5.66/ChangeLog-2.5.66-lsm1
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.66/shpte
+The LSM 2.5 BK tree can be pulled from:
+        bk://lsm.bkbits.net/lsm-2.5
 
-Since 2.5.66-mjb1 (~ = changed, + = added, - = dropped)
+2.5.66-lsm1
+ - merge with 2.5.59-66					(me)
+ - restore file permission hooks to sendfile		(Stephen Smalley)
+ - security.h inclusion in network files		(Stephen Smalley)
+ - cleanup init[open]_private_file			(Stephen Smalley)
+ - syslog, sysctl cleanups				(Stephen Smalley)
+ - add CONFIG_SECURITY_NETWORK				(Stephen Smalley)
+ - cleanup for newer skb allocation			(me)
+ - SELinux:						(Stephen Smalley)
+   - labelled network fixes
+   - ptrace fixes, drop support for exec_permission_lite
+   - minor fixes
+   - use kernel SID in reparent_to_init
+ - drop task_kmod_set_label hook			(me)
+ - drop explicit exec_permission_lite hook		(me)
+ - drop exta call to security_sock_rcv_skb hook		(me)
+ - fix setfs[ug]id return values			(Jakub Jelinek)
 
-Notes:
+thanks,
+-chris
 
-Now in Linus' tree:
-
-New: 
-+ tcp_speedup					Martin J. Bligh
-	Speedup TCP (avoid double copy) as suggested by Linus
-+ early_printk_fix				Keith Mannthey
-	Fix commandline parsing in early printk (yay!)
-+ disable preempt				Martin J. Bligh
-	I broke preempt somehow, temporarily disable it to stop accidents
-+ sched_idle					Martin J. Bligh
-	Call load_balance with proper idle flag (pointed out by John Hawkes)
-+ diskstats					Rick Lindsley
-	Make disk stats available in /proc so they scale to lotsa disks.
-+ cs46xx_lib					Martin J. Bligh
-	Fix silly compiler warning in cs46xx_lib
-
-Pending:
-Hyperthreaded scheduler (Ingo Molnar)
-objrmap bugfixes for nonlinear vma's (Dave McCracken)
-Seperate kernel PMDs per process (Dave Hansen)
-Non-PAE aligned kernel splits (Dave Hansen)
-scheduler callers profiling (Anton or Bill Hartner)
-PPC64 NUMA patches (Anton)
-Child runs first (akpm)
-Kexec
-e1000 fixes
-Update the lost timer ticks code
-
-Present in this patch:
-
-early_printk					Dave Hansen et al.
-	Allow printk before console_init
-
-confighz					Andrew Morton / Dave Hansen
-	Make HZ a config option of 100 Hz or 1000 Hz
-
-config_page_offset				Dave Hansen / Andrea
-	Make PAGE_OFFSET a config option
-
-vmalloc_stats					Dave Hansen
-	Expose useful vmalloc statistics
-
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
-
-schedstat					Rick Lindsley
-	Provide stats about the scheduler under /proc/schedstat
-
-schedstat2					Rick Lindsley
-	Provide more stats about the scheduler under /proc/schedstat
-
-schedstat-scripts				Rick Lindsley
-	Provide some scripts for schedstat analysis under scripts/
-
-sched_tunables					Robert Love
-	Provide tunable parameters for the scheduler (+ NUMA scheduler)
-
-irq_affinity					Martin J. Bligh
-	Workaround for irq_affinity on clustered apic mode systems (eg x440)
-
-partial_objrmap					Dave McCracken
-	Object based rmap for filebacked pages.
-
-objrmap_fix					Dave McCracken
-	Fix detection of anon pages
-
-objrmap_fixes					Dave McCracken / Hugh Dickins
-	Fix up some mapped sizing bugs in objrmap
-
-objrmap_mapcount				Dave McCracken
-	Fix up some mapped sizing bugs in objrmap
-
-kgdb						Andrew Morton / Various People
-	The older version of kgdb, synched with 2.5.54-mm1
-
-kprobes						Vamsi Krishna S
-	Add kernel probes hooks to the kernel
-
-thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
-	Prep work to reduce kernel stacks to 4K
-	
-interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
-	Create a per-cpu interrupt stack.
-
-stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
-	Check for kernel stack overflows.
-
-4k_stack            (4K stacks pt 4)		Dave Hansen
-	Config option to reduce kernel stacks to 4K
-
-fix_kgdb					Dave Hansen
-	Fix interaction between kgdb and 4K stacks
-
-stacks_from_slab				William Lee Irwin
-	Take kernel stacks from the slab cache, not page allocation.
-
-thread_under_page				William Lee Irwin
-	Fix THREAD_SIZE < PAGE_SIZE case
-
-lkcd						LKCD team
-	Linux kernel crash dump support
-
-percpu_loadavg					Martin J. Bligh
-	Provide per-cpu loadaverages, and real load averages
-
-spinlock_inlining				Andrew Morton
-	Inline spinlocks for profiling. Made into a ugly config option by me.
-
-summit_pcimap					Matt Dobson
-	Provide pci bus -> node mapping for x440
-
-# shpte						Dave McCracken
-	Shared pagetables
-
-reiserfs_dio					Mingming Cao
-	DIO for Reiserfs
-
-concurrent_balloc				Alex Tomas
-	Concurrent ext2 block allocation - makes SDET & dbench go whizzy fast.
-
-concurrent_inode				Alex Tomas
-	Concurrent ext2 inode allocation - makes SDET & dbench go whizzy fast.
-
-sched_interactive				Ingo Molnar
-	Bugfix for interactive scheduler
-
-kgdb_cleanup					Martin J. Bligh
-	Stop kgdb renaming schedule to do_schedule when it's not even enabled
-
-3c509_fix					Martin J. Bligh
-	Fix warning in 3c509 driver.
-
-acenic_fix					Martin J. Bligh
-	Fix warning in acenic driver
-
-sisfix						Martin J. Bligh
-	Fix warning & bug in sis900 driver
-
-scsi_sysfs_fix					Martin J. Bligh
-	Fix error in scsi_sysfs.
-
-local_balance_exec				Martin J. Bligh
-	Modify balance_exec to use node-local queues when idle
-
-d_notify					Andrew Morton
-	Convert dparent_lock do dentry->d_lock
-
-membind						Matt Dobson
-	NUMA memory binding API
-
-tcp_speedup					Martin J. Bligh
-	Speedup TCP (avoid double copy) as suggested by Linus
-
-early_printk_fix				Keith Mannthey
-	Fix commandline parsing in early printk (yay!)
-
-disable preempt					Martin J. Bligh
-	I broke preempt somehow, temporarily disable it to stop accidents
-
-sched_idle					Martin J. Bligh
-	Call load_balance with proper idle flag (pointed out by John Hawkes)
-
-diskstats					Rick Lindsley
-	Make disk stats available in /proc so they scale to lotsa disks.
-
-cs46xx_lib					Martin J. Bligh
-	Fix silly compiler warning in cs46xx_lib
-
--mjb						Martin J. Bligh
-	Add a tag to the makefile
-
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266459AbUG0QXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266449AbUG0QXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266459AbUG0QXx (ORCPT <rfc822;willy@w.ods.org>);
+	id S266449AbUG0QXx (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 27 Jul 2004 12:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266449AbUG0QWs
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266458AbUG0QWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 12:22:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45961 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266459AbUG0QWM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 12:22:12 -0400
-Message-ID: <41068126.3000009@pobox.com>
-Date: Tue, 27 Jul 2004 12:21:58 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Tue, 27 Jul 2004 12:22:52 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:3834 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266460AbUG0QWO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 12:22:14 -0400
+Message-ID: <410680E0.1090802@austin.ibm.com>
+Date: Tue, 27 Jul 2004 11:20:48 -0500
+From: Joel Schopp <jschopp@austin.ibm.com>
+Reply-To: jschopp@austin.ibm.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040616
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dominik Karall <dominik.karall@gmx.net>
-CC: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Daniele Venzano <webvenza@libero.it>
-Subject: Re: SiS900: NULL pointer encountered in Rx ring, skipping
-References: <200407232052.06616.dominik.karall@gmx.net> <41067418.9020000@pobox.com> <200407271814.59859.dominik.karall@gmx.net>
-In-Reply-To: <200407271814.59859.dominik.karall@gmx.net>
+To: Paul Mackerras <paulus@samba.org>
+CC: akpm@osdl.org, anton@samba.org, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpu hotplug ppc64 bug
+References: <410594FF.5040307@austin.ibm.com> <16646.21807.210253.45979@cargo.ozlabs.ibm.com>
+In-Reply-To: <16646.21807.210253.45979@cargo.ozlabs.ibm.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Karall wrote:
-> On Tuesday 27 July 2004 17:26, Jeff Garzik wrote:
+I think that function pointers are a good idea too.  But I'm not sure 
+why that should hold up this patch.  As it stands now all ppc64 
+platforms that do hotplug happen to be pSeries.  I don't know of any 
+other ppc64 platforms that are not pSeries who plan on doing this in the 
+next few years.  The function is already pSeries specific anyway with 
+the rtas_stop_self call.
+
+Meanwhile if we do not put this patch in all Power5 machines will be 
+unable to do cpu hotplug with a mainline kernel.
+
+
+
+> I wanted to do this a bit differently - I was going to make cpu_die be
+> a platform-specific function called via a ppc_md function pointer,
+> rather than putting very pseries-specific stuff in smp.c, which is
+> used on all platforms.  But having been on vacation and then
+> travelling, I haven't got to it yet.
 > 
->>Dominik Karall wrote:
->>
->>>After a few hours my network doesn't work on my laptop. There appear a
->>>lot of those messages:
->>>
->>>eth0: NULL pointer encountered in Rx ring, skipping
->>>eth0: NULL pointer encountered in Rx ring, skipping
->>>eth0: NULL pointer encountered in Rx ring, skipping
->>>eth0: NULL pointer encountered in Rx ring, skipping
->>>eth0: NULL pointer encountered in Rx ring, skipping
->>>eth0: NULL pointer encountered in Rx ring, skipping
->>>eth0: NULL pointer encountered in Rx ring, skipping
->>>eth0: NULL pointer encountered in Rx ring, skipping
->>>eth0: NULL pointer encountered in Rx ring, skipping
->>>eth0: NULL pointer encountered in Rx ring, skipping
->>>
->>>It works again after restarting network. I'm using 2.6.8-rc2 now. It was
->>>the same problem in 2.6.7, but I didn't test it with earlier kernels.
->>
->>A NULL appears when the machine is temporarily unable to allocate room
->>for a new skb.  Your machine's atomic memory pools are getting too low...
->>
->>	Jeff
+> Paul.
 > 
-> 
-> Yes, I took a look at the code and found the debug message. But isn't there 
-> any way to avoid network stop working? Because after a network restart it 
-> works again, maybe there could be used any "soft reset" to make network 
-> working again after such an error.
-
-The OOM problem is completely unrelated to the network, therefore no 
-reset should ever be considered for this condition.
-
-The driver should properly handle the 'NULL in rx ring' condition as a 
-normal occurence.  It should skip to the next available skb in the ring. 
-  If no skbs are remain, it should drop the skb.
-
-See natsemi.c for additional -- and optional -- OOM handling techniques.
-
-	Jeff
-
-

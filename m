@@ -1,46 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbUCASgS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 13:36:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbUCASgS
+	id S261399AbUCASiR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 13:38:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbUCASiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 13:36:18 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:59559 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261396AbUCASgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 13:36:16 -0500
-Date: Mon, 1 Mar 2004 18:34:41 +0000
-From: Dave Jones <davej@redhat.com>
-To: Christoph Terhechte <ct@fdk-berlin.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2: drm:drm_init Cannot initialize the agpgart module
-Message-ID: <20040301183441.GA29415@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Christoph Terhechte <ct@fdk-berlin.de>,
-	linux-kernel@vger.kernel.org
-References: <57977.212.184.83.69.1078165110.squirrel@mail.fdk-filmhaus.de>
+	Mon, 1 Mar 2004 13:38:17 -0500
+Received: from [66.46.92.2] ([66.46.92.2]:907 "EHLO ns1.superclick.com")
+	by vger.kernel.org with ESMTP id S261399AbUCASiK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 13:38:10 -0500
+Subject: Re: Ibm Serveraid Problem with 2.4.25
+From: Enrico Demarin <enricod@videotron.ca>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Chuck Lever <cel@citi.umich.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0403011505150.5314-100000@dmt.cyclades>
+References: <Pine.LNX.4.44.0403011505150.5314-100000@dmt.cyclades>
+Content-Type: text/plain
+Message-Id: <1078166466.4444.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <57977.212.184.83.69.1078165110.squirrel@mail.fdk-filmhaus.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 01 Mar 2004 13:41:06 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 01, 2004 at 07:18:30PM +0100, Christoph Terhechte wrote:
+Hi Marcelo,
 
- > There was a hint on this list that "intel_agp" should be loaded, too. I
- > have a VIA based board, so I tried "via_agp". It loads alright, but the
- > outcame is the same (and it was unnecessary under 2.4.22 anyway).
- > 
- > Here's my system's lspci output:
- > 
- > 00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 [IGD4-1P] System
- > Controller (rev 13)
- > 00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 [IGD4-1P] AGP Bridge
- > 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
+Add mpt fusion driver to the list, it exhibits the problem as well.
 
-You have a VIA southbridge, but an AMD north bridge (where agpgart lives)
-Try modprobe amd-k7-agp
+- Enrico
 
-		Dave
+On Mon, 2004-03-01 at 13:23, Marcelo Tosatti wrote:
+> On Mon, 1 Mar 2004, Chuck Lever wrote:
+> 
+> > hi marcelo-
+> > 
+> > your "fix" will break readahead again for NFS.  with the ">=" as you
+> > propose, the read ahead code will never be able to read the last page of
+> > the file as a coalesced read, it will always be a separate 4KB read.
+> > 
+> > the problem is not the readahead code, it is the driver code that tries
+> > to read beyond the end of the device.  my change merely exposed this
+> > misbehavior.
+> > 
+> > so there is a broken assumption somewhere about how the index of the last
+> > page of a file/device is computed.  i think it is a problem when the file
+> > ends exactly on a page boundary.
+> >
+> > alain, if you don't use the NFS client, marcelo's fix should work just
+> > fine for you.  but i believe that in general it is incorrect.
+> 
+> Okey, most drivers do no exhibit this problem indeed.
+> 
+> We should try to fix the problematic drivers, then.
+> 
+> If we can't do it easily and in a straightforward manner, I'm afraid we
+> will have to undo your change because even if the "read end beyond of
+> device" accesses are harmless (are they really harmless?), they must
+> fixed.
+> 
+> Agreed?
+> 
+> I'll take a look at them later today, but I'm no expert, so help is very
+> appreciated.
+> 
+> We know that these have problems:
+> 
+> - Promise ATA
+> - ips (serveraid)
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

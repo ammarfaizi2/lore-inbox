@@ -1,91 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135477AbRAGDeY>; Sat, 6 Jan 2001 22:34:24 -0500
+	id <S135410AbRAGDne>; Sat, 6 Jan 2001 22:43:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135684AbRAGDeE>; Sat, 6 Jan 2001 22:34:04 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:18817 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S135477AbRAGDdp>; Sat, 6 Jan 2001 22:33:45 -0500
-Date: Sat, 6 Jan 2001 22:33:28 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: posix_types.h  error
-Message-ID: <Pine.LNX.3.95.1010106222520.20496A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135420AbRAGDnO>; Sat, 6 Jan 2001 22:43:14 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:32520 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S135410AbRAGDnH>;
+	Sat, 6 Jan 2001 22:43:07 -0500
+Date: Sun, 7 Jan 2001 04:43:04 +0100
+From: Andi Kleen <ak@suse.de>
+To: Jean-Christian de Rivaz <jcdr@lightning.ch>
+Cc: jpranevich@lycos.com, linux-kernel@vger.kernel.org
+Subject: Re: New features in Linux 2.4 - Wonderful World of Linux 2.4
+Message-ID: <20010107044304.B14330@gruyere.muc.suse.de>
+In-Reply-To: <CNDCNNNONGMAFAAA@mailcity.com> <3A5782EF.93297FC5@lightning.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A5782EF.93297FC5@lightning.ch>; from jcdr@lightning.ch on Sat, Jan 06, 2001 at 09:41:19PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 06, 2001 at 09:41:19PM +0100, Jean-Christian de Rivaz wrote:
+> Joe Pranevich wrote:
+> >
+> > Networking and Protocols
+> >
+> >                                     ... It should also be mentioned at
+> >    this point that Linux is still the only operating system completely
+> >    compatible with the letter of the IPv4 specification ...
+> 
+> I am very interesting about the proof of this. I work on a project witch
+> need to be certified. Any informations about the compliance of Linux to
+> some specification is very welcome.
 
-There is an error at line 80 in linux-2.4.0/include/asm/posix_types.h
-which prevents source-code from being compiled using the new C compiler
-that I was forced to install in order to build the new kernel.
+It's very dubious at least. AFAIK no RFC1122/RFC1812 evulation has been done recently
+(since 2.0 or so). Also part of these RFCs have been superseeded by later RFCs
+that have not reached Internet standard status yet, so it would not be very useful
+anyways (today's internet looks very different from 1989's when 1122 was written) 
 
-		gcc 2.95.3
-
-Script started on Sat Jan  6 22:16:30 2001
-# cat xxx.c
-
-
-#include <stdio.h>
-#include <stdlib.h>
-
-
-main()
-{
-    fd_set x;
-
-    FD_ZERO(&x);
-}
-
-# gcc -c -o xxx.o xxx.c
-xxx.c: In function `main':
-xxx.c:11: Invalid `asm' statement:
-xxx.c:11: fixed or forbidden register 2 (cx) was spilled for class CREG.
-# vi /usr/include/asm/posix_types.h
-#ifndef __ARCH_I386_POSIX_TYPES_H
-#define __ARCH_I386_POSIX_TYPES_H
-[K
-[K/*
-[K * This file is generally used by user-level software, so you need to
-[K * be a little careful about namespace pollution etc.  Also, we cannot
-[K * assume GCC is being used.
-[K */
-[K
-[Ktypedef unsigned short  __kernel_dev_t;
-[Snipped...]
-
-#define __FD_ZERO(fdsetp) \
-[Kdo { \
-[K        int __d0, __d1; \
-[K        __asm__ __volatile__("cld ; rep ; stosl" \
-[K                        :"=m" (*(__kernel_fd_set *) (fdsetp)), \
-[K                          "=&c" (__d0), "=&D" (__d1) \
-[K                        :"a" (0), "1" (__FDSET_LONGS), \
-[K                        "2" ((__kernel_fd_set *) (fdsetp)) : "memory"); \
-[K} while (0)
-[K
-[K#endif /* defined(__KERNEL__) || !defined(__GLIBC__) || (__GLIBC__ < 2) */
-[K
-
-exit
-Script done on Sat Jan  6 22:19:03 2001
-
-Since these inline asm statements no longer use register names, I
-don't know how to fix them. One of life's little mystries is how
-previously readable code got into this shape.
+The mechanism the comment refers to (asynchronous error notification for UDP, which
+is not in traditional BSD) is not used by 99.9% of all apps BTW ;) 
 
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+-Andi
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

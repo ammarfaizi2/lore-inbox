@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291838AbSBXXPY>; Sun, 24 Feb 2002 18:15:24 -0500
+	id <S291806AbSBXXVZ>; Sun, 24 Feb 2002 18:21:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291840AbSBXXPN>; Sun, 24 Feb 2002 18:15:13 -0500
-Received: from jalon.able.es ([212.97.163.2]:63149 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S291838AbSBXXPE>;
-	Sun, 24 Feb 2002 18:15:04 -0500
-Date: Mon, 25 Feb 2002 00:14:55 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: rwhron@earthlink.net
-Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] Linux 2.4.18-rc3-jam1
-Message-ID: <20020225001455.A1894@werewolf.able.es>
-In-Reply-To: <20020224150044.GA11858@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020224150044.GA11858@rushmore>; from rwhron@earthlink.net on dom, feb 24, 2002 at 16:00:44 +0100
-X-Mailer: Balsa 1.3.1
+	id <S291834AbSBXXVF>; Sun, 24 Feb 2002 18:21:05 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:48633 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S291806AbSBXXUz>;
+	Sun, 24 Feb 2002 18:20:55 -0500
+Date: Mon, 25 Feb 2002 00:20:53 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200202242320.AAA15930@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] 2.4.18-pre/rc broke PLIP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+[sent to Tim Waugh and Marcelo previously, but of course
+I managed to put a typo in the cc: to lkml]
 
-First of all, I never expected this tniny patch collection would origin
-such "rivers of e-ink"...
-Please, have always present that I can have made some mistake in my
-offset re-engineering. But the fact that it at least survives the tests
-is good. 
+Someone (sorry I forgot who) reported having problems with
+PLIP in recent kernels. I've done some testing and can confirm
+that PLIP worked up to 2.4.17 but broke in 2.4.18-pre/rc.
+The only thing PLIP does is put "plip0: transmit timeout(1,87)"
+messages in the kernel log.
 
-On 20020224 rwhron@earthlink.net wrote:
->2.4.18-rc2-jam1   128  0.80  5.72%    0.190       3.68  0.00000  0.00000  14
->2.4.18-rc4-jam1   128  0.80  5.72%    5.025    6734.19  0.07560  0.00000  14
+After a lot of testing I've narrowed it down to the following
+hunk in the 2.4.18-rc4 patch:
 
-This is really strange. I have looked at my patches and are the same. What
-changed in mainlaine ??
+--- linux.orig/drivers/parport/parport_pc.c	Mon Feb 18 20:18:40 2002
++++ linux/drivers/parport/parport_pc.c	Mon Jan 14 19:08:50 2002
+@@ -2212,7 +2233,7 @@
+ 	}
+ 	memcpy (ops, &parport_pc_ops, sizeof (struct parport_operations));
+ 	priv->ctr = 0xc;
+-	priv->ctr_writable = 0xff;
++	priv->ctr_writable = ~0x10;
+ 	priv->ecr = 0;
+ 	priv->fifo_depth = 0;
+ 	priv->dma_buf = 0;
 
-[...]
->
->Below is a snippet of tiobench on random writes.  The rc4-jam1
->included the entire patchset, whereas rc2-jam1 had patches with
->the first two digits < 20.
->
+If I back this hunk out, PLIP starts working again.
+Is this fix sufficient or is there something else that need fixing?
 
-So rc2-jam1 is running without the ide-update (I noticed your system is IDE),
-but also without irqrate.
-I will reorder the patches so you can apply 0*, 1* and 3* without problems,
-then scsi-ide updates. And you can try with/out the ide update.
-Do not see what can be related with latency in >=20*, apart from ide and
-irqrate...
-
-I do not know if you are already doing this, but I will skip the bproc part
-for thins tests. It pollutes system calls with hooks for network, so it can
-be hurting in many ways.
-
-I will release a -jam2 with latest vm-27 and reordering the patches.
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-rc4-jam1 #1 SMP Sat Feb 23 16:25:56 CET 2002 i686
+/Mikael

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271319AbRICH3M>; Mon, 3 Sep 2001 03:29:12 -0400
+	id <S271367AbRICHwg>; Mon, 3 Sep 2001 03:52:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271320AbRICH3C>; Mon, 3 Sep 2001 03:29:02 -0400
-Received: from ns.suse.de ([213.95.15.193]:51984 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S271319AbRICH27>;
-	Mon, 3 Sep 2001 03:28:59 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: davem@redhat.com (David S. Miller), willy@debian.org, thunder7@xs4all.nl,
-        parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
-Subject: Re: [parisc-linux] documented Oops running big-endian reiserfs on parisc architecture
-In-Reply-To: <20010903002514.X5126@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <E15dghq-0000bZ-00@the-village.bc.nu.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 03 Sep 2001 09:29:12 +0200
-In-Reply-To: Alan Cox's message of "3 Sep 2001 01:32:44 +0200"
-Message-ID: <oup66b0zq9j.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S271321AbRICHw0>; Mon, 3 Sep 2001 03:52:26 -0400
+Received: from virtualro.ic.ro ([194.102.78.138]:527 "EHLO virtualro.ic.ro")
+	by vger.kernel.org with ESMTP id <S271320AbRICHwO>;
+	Mon, 3 Sep 2001 03:52:14 -0400
+Date: Mon, 3 Sep 2001 10:52:44 +0300 (EEST)
+From: Jani Monoses <jani@astechnix.ro>
+To: linux-kernel@vger.kernel.org
+Subject: ide_delay_50ms question
+Message-ID: <Pine.LNX.4.10.10109031045530.12103-100000@virtualro.ic.ro>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> > > Is it impossible to handle unaligned access traps properly on
-> > > parisc?  If so, well you have some problems...
-> > 
-> > No, we just haven't bothered to implement it yet.  Not many people
-> > use IPX these days.
-> 
-> You also need unaligned trap fixups for
-> 
-> AX.25, NetROM, LAPB, X.25, Appletalk, PPP, Anything over 802.2LLC, Linus
-> NFS code for some NFS mount options (although not the -ac NFS code)
+Hi
+could anybody tell me why is the mdelay(50) solution better than the
+schedule_timeout(HZ/20) in ide_delay_50ms.I suppose because it is bootime
+and there is nothing to schedule.
+But then the condition should also extend to CONFIG_BLK_DEV_IDECS_MODULE
+as well, because when I insert an IDE compactflash card things stop for a
+second or so nad I use a modular driver.
+And I don't know about removable harddrives but isn't the schedule_timeout
+solution better for them as well?
 
-And also everybody connected to the internet needs them, because you can 
-create arbitarily unaligned TCP/UDP/ICMP headers using IP option byte sized 
-NOPs. 
 
--Andi
+void ide_delay_50ms (void)
+{
+#ifndef CONFIG_BLK_DEV_IDECS
+        mdelay(50);
+#else
+        __set_current_state(TASK_UNINTERRUPTIBLE);
+        schedule_timeout(HZ/20);
+#endif /* CONFIG_BLK_DEV_IDECS */
+}
+
+

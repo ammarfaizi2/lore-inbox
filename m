@@ -1,90 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262040AbSJEEtY>; Sat, 5 Oct 2002 00:49:24 -0400
+	id <S262036AbSJEE7I>; Sat, 5 Oct 2002 00:59:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262036AbSJEEtX>; Sat, 5 Oct 2002 00:49:23 -0400
-Received: from fc2.capaccess.org ([151.200.199.52]:27915 "EHLO
-	fc2.capaccess.org") by vger.kernel.org with ESMTP
-	id <S262035AbSJEEtT>; Sat, 5 Oct 2002 00:49:19 -0400
-Message-id: <fc.0010c7b2005e044c3b9aca001cbef148.5e0455@capaccess.org>
-Date: Sat, 05 Oct 2002 00:54:54 -0400
-Subject: Re: an open letter to Geor
-To: James.Bottomley@hansenpartnership.com
-Cc: linux-kernel@vger.kernel.org, james.bottomley@hansenpartnership.com
-From: "Rick A. Hohensee" <rickh@capaccess.org>
-References: <200210041534.g94FYdQ03332@localhost.localdomain>
-In-Reply-To: <200210041534.g94FYdQ03332@localhost.localdomain>
+	id <S262041AbSJEE7I>; Sat, 5 Oct 2002 00:59:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24580 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262036AbSJEE7H>;
+	Sat, 5 Oct 2002 00:59:07 -0400
+Message-ID: <3D9E72C8.1070203@pobox.com>
+Date: Sat, 05 Oct 2002 01:04:08 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Andi Kleen <ak@suse.de>
+CC: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Why does x86_64 support a SuSE-specific ioctl?
+References: <Pine.NEB.4.44.0210041654570.11119-100000@mimas.fachschaften.tu-muenchen.de.suse.lists.linux.kernel> <p73adltqz9g.fsf@oldwotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-reformatted a bit before replying ....
->
->I'm not interested in disputing or evaluating any of the allegations
->raised in your letter, I'll leave everyone to draw their own conclusions.
->However, I am curious about the consequences of what you propose.  In
->particular, your remedies.
->
->Let us assume that George Soros accepts your letter and withdraws funding
->from Transmeta.  What are the consequences for Linux and Microsoft?
->
-
-I didn't explicitly suggest remedies, but you presume my drift correctly.
-I prefer to leave the bulk of that to the interested public.
-
->Transmeta could easily collapse, thus throwing several prominent Linux
->developers out into the job market.  Worse, the resulting publicity about
-the
->reasons would create a media circus that would be highly damaging to
-Linux as
->a whole and the release of 2.6 in particular.
->
-
-And what would the overall adverse effect of that be? Linux has been
-getting steadily less interesting since 1.2.13, and has done close to
-nothing for the end-user. rtlinux is something of an exception. I'd have
-that as the default kernel by now. rtlinux is clever, and historic, but
-even that I suspect may be over-complex. I seem to recall an available NMI
-even with rtlinux. Zimple.
-
->Microsoft is bound to capitalise on this and sieze the opportunity to try
-to
->displace Linux from the server and enterprise (the very places it
-currently
->feels the greatest heat from Linux).  I don't claim it would succeed, but
-it
->will certainly try.
->
->The net effect of your proposal therefore would be to cause a stall in
->Linux development and hand Microsoft an opportunity to capture the Server
->market and the Enterprise.  Is that really your aim?
-
-If Microsoft ever comes up with a real server OS, they surely won't have
-the only one. There are *BSD, Plan 9, Linux, etc. And the as-yet unseen.
-
->
->If you really hold true to the principles of openness, why not instead ask
->Soros for funding to create a company that will produce the OS you think
->Linux should be and compete directly with Microsoft in "the client" arena?
->At least that would be a positive remedy, intead of the wholly negative
->one you propose.  Perhaps it would even give you the opportunity to see at
->least one of your works proliferate?
-
-I leave all that to Mr. Soros and similar. I am in fact quite sick of C
-and everything-is-a-file at this point though. And hardware gets easier
-every day.
-
-> >James Bottomley > In private email a curious party noted that I have no
-smoking gun. True.  (Although I'm of the opinion that the scorn of DSFH is
-at least a warm gun.) A George Soros will be able to see what's going on
-without one, particularly with the George Soros view of Transmeta.
-
-Good questions. I'm surprised at the generally mature response to this.
-Thanks.
-
-Rick Hohensee
+Andi Kleen wrote:
+> Adrian Bunk <bunk@fs.tum.de> writes:
+> 
+>>TIOCGDEV is (as the comment above indicates) in neither 2.4.20-pre9 nor in
+>>2.5.40 and I'm wondering why the x86_64 kernel supports a SuSE-specific
+>>i386 ioctl?
+> 
+> 
+> Why not? 
+> 
+> I resubmitted the TIOCGDEV patch to Marcelo now, which implements it 
+> for the console device.
+[...]
+> diff -urN linux-2.4.18.tmp/include/asm-arm/ioctls.h linux-2.4.18.SuSE/include/asm-arm/ioctls.h
+> --- linux-2.4.18.tmp/include/asm-arm/ioctls.h	Fri Feb  9 01:32:44 2001
+> +++ linux-2.4.18.SuSE/include/asm-arm/ioctls.h	Sat May  4 11:37:56 2002
+> @@ -49,6 +49,7 @@
+>  #define TIOCGSID	0x5429  /* Return the session ID of FD */
+>  #define TIOCGPTN	_IOR('T',0x30, unsigned int) /* Get Pty Number (of pty-mux device) */
+>  #define TIOCSPTLCK	_IOW('T',0x31, int)  /* Lock/unlock Pty */
+> +#define TIOCGDEV	_IOR('T',0x32, unsigned int) /* Get real dev no below /dev/console */
+>  
+>  #define FIONCLEX	0x5450  /* these numbers need to be adjusted. */
+>  #define FIOCLEX		0x5451
 
 
+"Why not?" is not a very good argument for merging code into the kernel :)
+
+It seems like a good idea to -not- add this ioctl, because
+* if 2.4.x and 2.5.x don't have it, there obviously isn't a huge need 
+for it, so why add one more ioctl we will have to maintain binary 
+compatibility for
+* "real dev" doesn't necessary have meaning in all contexts, IIRC
+* viro might have a cow at the use of kdev_t_to_nr...  is that required 
+for compatibility with some existing apps?  It seems like you want to 
+_decompose_ a number into major/minor, to be an interface that 
+withstands the test of time
 

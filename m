@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132552AbRDUJt6>; Sat, 21 Apr 2001 05:49:58 -0400
+	id <S132553AbRDUJyJ>; Sat, 21 Apr 2001 05:54:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132553AbRDUJts>; Sat, 21 Apr 2001 05:49:48 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52490 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132552AbRDUJti>; Sat, 21 Apr 2001 05:49:38 -0400
-Subject: Re: SMP in 2.4
-To: mikulas@artax.karlin.mff.cuni.cz (Mikulas Patocka)
-Date: Sat, 21 Apr 2001 10:50:23 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), dennis@etinc.com (Dennis),
-        matti.aarnio@zmailer.org (Matti Aarnio), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1010421110704.25023A-100000@artax.karlin.mff.cuni.cz> from "Mikulas Patocka" at Apr 21, 2001 11:08:31 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132555AbRDUJx7>; Sat, 21 Apr 2001 05:53:59 -0400
+Received: from spiral.extreme.ro ([212.93.159.205]:37249 "HELO
+	spiral.extreme.ro") by vger.kernel.org with SMTP id <S132553AbRDUJxo>;
+	Sat, 21 Apr 2001 05:53:44 -0400
+Date: Sat, 21 Apr 2001 12:53:29 +0300 (EEST)
+From: Dan Podeanu <pdan@spiral.extreme.ro>
+To: <Wayne.Brown@altec.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Current status of NTFS support
+In-Reply-To: <86256A34.0079A841.00@smtpnotes.altec.com>
+Message-ID: <Pine.LNX.4.30.0104211251340.16271-100000@spiral.extreme.ro>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14qu25-0003M3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > especially if you want to do it right on the BX. But you can do this and rtlinux
-> > does
-> 
-> There is already desc->handler->ack(irq) in do_IRQ which does that. Is any
-> more special handling needed? 
+On Fri, 20 Apr 2001 Wayne.Brown@altec.com wrote:
 
-You need to keep the IRQ line masked not just ack it. The code for handling all
-the BX and other cases is there but its a bit more than 3 clock cycles long
+>
+> So how risky is this?
 
+Risky enough. I had to chkdsk once for half an hour after copying on an
+NTFS 5. Of course, I'm not familiar with the internals of it.
+
+>
+> Also, I'll have to recreate my Linux partitions after the upgrade.  Does anyone
+> know if FIPS can split a partition safely that was created under Windows
+> NT?
+
+As far as I know, it doesn't know about NTFS. I might be wrong though. Get
+some Partition Magic that is bit wiser.
 

@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313654AbSDJTjm>; Wed, 10 Apr 2002 15:39:42 -0400
+	id <S313661AbSDJTkh>; Wed, 10 Apr 2002 15:40:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313657AbSDJTjl>; Wed, 10 Apr 2002 15:39:41 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:57336 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S313654AbSDJTjk>; Wed, 10 Apr 2002 15:39:40 -0400
-Date: Wed, 10 Apr 2002 13:38:12 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID superblock confusion
-Message-ID: <20020410193812.GE3509@turbolinux.com>
-Mail-Followup-To: Richard Gooch <rgooch@ras.ucalgary.ca>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200204101533.g3AFXwS09100@vindaloo.ras.ucalgary.ca> <20020410184010.GC3509@turbolinux.com> <200204101924.g3AJOp113305@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S313673AbSDJTkg>; Wed, 10 Apr 2002 15:40:36 -0400
+Received: from matav-4.matav.hu ([145.236.252.35]:2072 "EHLO
+	Forman.fw.matav.hu") by vger.kernel.org with ESMTP
+	id <S313661AbSDJTke>; Wed, 10 Apr 2002 15:40:34 -0400
+Date: Wed, 10 Apr 2002 21:37:43 +0200 (CEST)
+From: Narancs v1 <narancs@narancs.tii.matav.hu>
+X-X-Sender: narancs@helka
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-pre6,too re: ide-scsi hanging on modprobe, 2.4.18-ac1 (fwd)
+Message-ID: <Pine.LNX.4.44.0204102136340.6563-100000@helka>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 10, 2002  13:24 -0600, Richard Gooch wrote:
-> Andreas Dilger writes:
-> > On Apr 10, 2002  09:33 -0600, Richard Gooch wrote:
-> > > Even though I'm using persistent superblockss, which is supposed to
-> > > allow one to move devices from one controller to another, I can't
-> > > use my RAID) set in this configuration. Looks like a bug.
-> > > 
-> > > md0: former device scsi/host2/bus0/target1/lun0/part2 is unavailable,
-> > >      removing from array!
-> > > md: md0, array needs 6 disks, has 5, aborting.
-> > 
-> > Note that this appears to be your real problem.
-> 
-> No. I tested all 6 partitions used in the RAID set. They are all
-> available.
+so it does with the latest stable-pre
 
-Well, MD seems to think it is unavailable...  I would check the codepath
-that generates this message and see why it is happening.  Maybe it is a
-timing issue or something, that MD autostart is starting before this
-device is set up or something?  I don't know.
+bad hardware?
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+now, ide-cd can't mount it neither saying bad superblock.
+
+-------------------------
+Narancs v1
+IT Security Administrator
+Warning: This is a really short .sig! Vigyazat: ez egy nagyon rovid szig!
+
+
+---------- Forwarded message ----------
+Date: Wed, 10 Apr 2002 20:16:57 +0200 (CEST)
+From: Narancs v1 <narancs@narancs.tii.matav.hu>
+To: linux-kernel@vger.kernel.org
+Subject: ide-scsi hanging on modprobe, 2.4.18-ac1
+
+Hi!
+
+everything is working fine with this kernel, but this
+
+modprobe ide-scsi
+
+hdd: ATAPI reset complete
+ide-scsi: (IO,CoD) != (0,1) while issuing a packet command
+scsi : aborting command due to timeout : pid 221340, scsi1, channel 0, id
+0, lun 0 Inquiry 00 00 00 ff 00
+SCSI host 1 abort (pid 221340) timed out - resetting
+SCSI bus is being reset for host 1 channel 0.
+hdd: ATAPI reset complete
+ide-scsi: (IO,CoD) != (0,1) while issuing a packet command
+hdd: ATAPI reset complete
+
+forever it does.
+
+is it because of AC's stuff?
+
+which version is recommended for daily use?
+
+thanks
+
+-------------------------
+Narancs v1
+IT Security Administrator
+Warning: This is a really short .sig! Vigyazat: ez egy nagyon rovid szig!
+
+
 

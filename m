@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263256AbSKEAEo>; Mon, 4 Nov 2002 19:04:44 -0500
+	id <S262959AbSKDXwg>; Mon, 4 Nov 2002 18:52:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263252AbSKEAEW>; Mon, 4 Nov 2002 19:04:22 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15343 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S263246AbSKEAED>; Mon, 4 Nov 2002 19:04:03 -0500
-Date: Tue, 5 Nov 2002 01:10:31 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Dave Kleikamp <shaggy@shaggy.austin.ibm.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.46
-Message-ID: <20021105001031.GA3348@fs.tum.de>
-References: <Pine.LNX.4.44.0211041508020.1832-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S262981AbSKDXwg>; Mon, 4 Nov 2002 18:52:36 -0500
+Received: from dp.samba.org ([66.70.73.150]:46487 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262959AbSKDXwe>;
+	Mon, 4 Nov 2002 18:52:34 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211041508020.1832-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15815.2399.566974.940599@gargle.gargle.HOWL>
+Date: Tue, 5 Nov 2002 10:57:19 +1100
+From: Christopher Yeoh <cyeoh@samba.org>
+To: "Geoff Gustafson" <geoff@linux.co.intel.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Open POSIX Test Suite
+In-Reply-To: <000a01c28454$56a94b90$7fd40a0a@amr.corp.intel.com>
+References: <000a01c28454$56a94b90$7fd40a0a@amr.corp.intel.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 04, 2002 at 03:13:04PM -0800, Linus Torvalds wrote:
->...
-> Summary of changes from v2.5.45 to v2.5.46
-> ============================================
->...
-> Dave Kleikamp <shaggy@shaggy.austin.ibm.com>:
->...
->   o JFS: add posix acls
->...
+Hi Geoff,
 
-It seems that at least one file is missing:
+At 2002/11/4 14:48-0800  Geoff Gustafson writes:
+> 
+> Contributions of any test cases, review of the work, discussion of the
+> approach, etc. are very welcome. Join the development mailing list,
+> posixtest-discuss. The initial focus is on Signals, Message Queues, Threads,
+> Semaphores, and Clocks & Timers, based on current interests and resources.
+> You can help in these areas, or start work on another area of the spec.
+> There
+> will need to be some uniformity across the suite, but many details have yet
+> to
+> be worked out, so your involvement in those decisions help a lot.
 
-<--  snip  -->
+Have you looked at the LSB test suites yet? They already cover much of
+what you plan on writing tests for, though we would welcome any
+volunteers who would like to increase the coverage.  Most of the tests
+suites are released under the Artistic License, with quite a bit of
+the code donated by the Open Group (originally from the Unix
+certification tests).
 
-...
-  gcc -Wp,-MD,fs/jfs/.super.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=k6 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
--D_JFS_4K  -DKBUILD_BASENAME=super   -c -o fs/jfs/super.o fs/jfs/super.c
-fs/jfs/super.c:31: jfs_acl.h: No such file or directory
-...
-make[2]: *** [fs/jfs/super.o] Error 1
+You can find more information about them here:
 
-<--  snip  -->
+http://www.linuxbase.org/test
 
-cu
-Adrian
+The CVS repository is on SourceForge in the LSB project.
 
+Chris
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+cyeoh@au.ibm.com
+IBM OzLabs Linux Development Group
+Canberra, Australia

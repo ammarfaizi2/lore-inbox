@@ -1,93 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266124AbUHMQU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266147AbUHMQVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266124AbUHMQU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 12:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266147AbUHMQU2
+	id S266147AbUHMQVi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 12:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUHMQVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 12:20:28 -0400
-Received: from jade.spiritone.com ([216.99.193.136]:6102 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S266124AbUHMQUX
+	Fri, 13 Aug 2004 12:21:37 -0400
+Received: from 8.75.30.213.rev.vodafone.pt ([213.30.75.8]:31238 "EHLO
+	odie.graycell.biz") by vger.kernel.org with ESMTP id S266147AbUHMQV0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 12:20:23 -0400
-Date: Fri, 13 Aug 2004 09:20:11 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, steiner@sgi.com
-Subject: Re: [PATCH] allocate page caches pages in round robin fasion
-Message-ID: <89760000.1092414010@[10.10.2.4]>
-In-Reply-To: <200408130859.24637.jbarnes@engr.sgi.com>
-References: <200408121646.50740.jbarnes@engr.sgi.com> <84960000.1092408633@[10.10.2.4]> <200408130859.24637.jbarnes@engr.sgi.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 13 Aug 2004 12:21:26 -0400
+Subject: Re: Process hangs copying large file to cifs
+From: Nuno Ferreira <nuno.ferreira@graycell.biz>
+To: "Steve French (IBM LTC)" <smfltc@us.ibm.com>
+Cc: linux-cifs-client@lists.samba.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1092341205.4172.49.camel@taz.graycell.biz>
+References: <1088459930.5666.8.camel@stevef95.austin.ibm.com>
+	 <1088507544.2418.1.camel@taz.graycell.biz>
+	 <1092328302.4172.42.camel@taz.graycell.biz>  <411C60EA.EA01F2A2@us.ibm.com>
+	 <1092341205.4172.49.camel@taz.graycell.biz>
+Content-Type: text/plain
+Organization: Graycell
+Date: Fri, 13 Aug 2004 17:21:22 +0100
+Message-Id: <1092414083.4247.11.camel@taz.graycell.biz>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.92.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 13 Aug 2004 16:21:24.0143 (UTC) FILETIME=[9392EBF0:01C48151]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I really don't think this is a good idea - you're assuming there's really
->> no locality of reference, which I don't think is at all true in most cases.
+On Qui, 2004-08-12 at 21:06 +0100, Nuno Ferreira wrote:
+> On Sex, 2004-08-13 at 01:34 -0500, Steve French (IBM LTC) wrote:
+> > Your log entries indicate that the socket was dead, so the patch you hand applied for hashing of inodes
+> > appears unrelated.
 > 
-> No, not at all, just that locality of reference matters more for stack and 
-> anonymous pages than it does for page cache pages.  I.e. we don't want a node 
-> to be filled up with page cache pages causing all other memory references 
-> from the process to be off node.
-
-Does that actually happen though? Looking at the current code makes me think
-it'll keep some pages free on all nodes at all times, and if kswapd does
-it's job, we'll never fall back across nodes. Now ... I think that's broken,
-but I think that's what currently happens - that was what we discussed at
-KS ... I might be misreading it though, I should test it.
-
-Even if that's not true, allocating all your most recent stuff off-node is
-still crap (so either way, I'd agree the current situation is broken), but
-I don't think the solution is to push ALL your accesses (with n-1/n probability)
-off-node ... we need to be more careful than that ...
- 
->> If we round-robin it ... surely 7/8 of your data (on your 8 node machine)
->> will ALWAYS be off-node ? I thought we discussed this at KS/OLS - what is
->> needed is to punt old pages back off onto another node, rather than
->> swapping them out. That way all your pages are going to be local.
+> I just mentioned the previous problem because the behaviour was pretty
+> much the same as before, long times of no TCP traffic, intermittent
+> freezes apparently of all the processes trying to do IO to the disk.
 > 
-> That gets complicated pretty quickly I think.  We don't want to constantly 
-> shuffle pages between nodes with kswapd, and there's also the problem of 
-> deciding when to do it.
-
-When the other zone is above the high watermark (or even some newer watermark,
-ie it has lots of free pages). If we have any sort of locality of reference,
-we want the most recently used pages on-node, and less recently ones off-node,
-and then the least-recently used on disk.
- 
->> OK, so it obviously does something ... but is the dd actually faster?
->> I'd think it's slower ...
+> > Many (including myself copy) much larger files regularly via CIFS.
 > 
-> Sure, it's probably a tiny bit slower, but assume that dd actually had some 
-> compute work to do after it read in a file (like an encoder or fp app), w/o 
-> the patch, most of it's time critical references would be off node.  The 
-> important thing is to get the file data in memory, since that'll be way 
-> faster than reading from disk, but it doesn't really matter *where* it is in 
-> memory.  Especially since we want an app's code and data to be node local.
+> It appears (purely speculation, no hard facts to back it up) related to
+> memory pressure, it doesn't happen with smaller files (my laptop has
+> 512Mb) and it happens less often on the second copy if the file fits on
+> cache. 
 
-Not sure I'd agree with that - it's the same problem as swappiness on a global
-basis for non-NUMA machines. We want the pages we're using MOST to be local,
-the others to be not-local, and that doesn't equate (necessarily) to whether
-it's pagecache or not. Shared pages could indeed be dealt with differently,
-and spread more global ... but I don't agree that pagecache pages equate 1-1
-with being globally shared - in fact, I think most often the opposite is true.
+I've now reproduced it with 2.6.8-rc4. Just after boot I could not
+reproduce it with the previous file, but trying with a larger (350Mb)
+file it happened again. Another hint to memory pressure? I will try
+again in a few hours with the smaller file to see if it happens...
+Just tried, this time it happened with the first (smaller) file.
+What info can I try to collect to help you find the problem?
+-- 
+Nuno Ferreira
 
-So when we're making such decisions, we need to consider the usage of a page
-in more careful of a way than whether it's pagecache or not. page->mapcount
-would be a better start, I think, than simply pagecache or not. Spreading
-pagecache around will just make the most common case slower, I think.
-
-I understand the desire to make node mem pressures equalize somewhat - having
-dynamically altered fallback schemes for NUMA nodes to the node with the
-most free mem, etc would help ... but we need to be really careful what
-we keep local, and what we push remote. Most apps seem to have fairly
-good locality
-
-M.
-
-PS. The obvious exceptions to these rules are shmem and shared libs ... 
-shmem should probably go round-robin amongst its users nodes by default,
-and shared libs replicate ... I'll look at fixing up shmem at least.

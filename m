@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUGMVDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUGMVKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265910AbUGMVDW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 17:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265913AbUGMVDW
+	id S265768AbUGMVKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 17:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265913AbUGMVKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 17:03:22 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:14504 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265910AbUGMVDR (ORCPT
+	Tue, 13 Jul 2004 17:10:16 -0400
+Received: from cantor.suse.de ([195.135.220.2]:927 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265768AbUGMVKH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 17:03:17 -0400
-Date: Tue, 13 Jul 2004 22:01:23 +0200
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: suspend/resume success and failure report and questions
-Message-ID: <20040713200123.GA13091@gamma.logic.tuwien.ac.at>
-References: <20040710083027.GB27827@gamma.logic.tuwien.ac.at> <20040713193640.GG3654@openzaurus.ucw.cz>
+	Tue, 13 Jul 2004 17:10:07 -0400
+Date: Tue, 13 Jul 2004 23:07:21 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: Patrick Mansfield <patmans@us.ibm.com>, Jens Axboe <axboe@suse.de>
+Subject: [PATCH] add removeable sysfs block device attribute
+Message-ID: <20040713210721.GA3399@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040713193640.GG3654@openzaurus.ucw.cz>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel!
 
-On Die, 13 Jul 2004, Pavel Machek wrote:
-> > 	Only thing I am missing is some way of post-resume script.
-> 
-> echo 4 > /proc/acpi/sleep; post_resume_script
+This patch adds a /block/*/removeable sysfs attribute. A value of 1
+indicates the media can change anytime. This is a hint for userland
+to poll such devices for possible media changes, and leave all others alone.
+There is currently no way to see if a connected usb-storage device is a
+disk or a card reader. It will also show 1 for CD and ZIP drives.
 
-Thanks for this, I realized it after playing around a bit.
+It was done by Patrick Mansfield a while ago. I can probably not
+sigh-off his work. ;)
 
-> > - partial Suspend2Ram via mem > /sys/power/state
-> 
-> See video.txt. Perhaps usb & radeon need some more
-> suspend/resume support?
 
-Ok, I have to get this patched video driver to work, means recompiling
-debian/sid package with this fix.
+diff -purN linux-2.6.8-rc1-bk2/drivers/block/genhd.c linux-2.6.8-rc1-bk2.removeable_media/drivers/block/genhd.c
+--- linux-2.6.8-rc1-bk2/drivers/block/genhd.c	2004-07-13 20:14:17.326681737 +0000
++++ linux-2.6.8-rc1-bk2.removeable_media/drivers/block/genhd.c	2004-07-13 20:47:52.215560764 +0000
+@@ -352,6 +352,12 @@ static ssize_t disk_range_read(struct ge
+ {
+ 	return sprintf(page, "%d\n", disk->minors);
+ }
++static ssize_t disk_removable_read(struct gendisk * disk, char *page)
++{
++	return sprintf(page, "%d\n",
++		       (disk->flags & GENHD_FL_REMOVABLE ? 1 : 0));
++
++}
+ static ssize_t disk_size_read(struct gendisk * disk, char *page)
+ {
+ 	return sprintf(page, "%llu\n", (unsigned long long)get_capacity(disk));
+@@ -384,6 +390,10 @@ static struct disk_attribute disk_attr_r
+ 	.attr = {.name = "range", .mode = S_IRUGO },
+ 	.show	= disk_range_read
+ };
++static struct disk_attribute disk_attr_removable = {
++	.attr = {.name = "removable", .mode = S_IRUGO },
++	.show	= disk_removable_read
++};
+ static struct disk_attribute disk_attr_size = {
+ 	.attr = {.name = "size", .mode = S_IRUGO },
+ 	.show	= disk_size_read
+@@ -396,6 +406,7 @@ static struct disk_attribute disk_attr_s
+ static struct attribute * default_attrs[] = {
+ 	&disk_attr_dev.attr,
+ 	&disk_attr_range.attr,
++	&disk_attr_removable.attr,
+ 	&disk_attr_size.attr,
+ 	&disk_attr_stat.attr,
+ 	NULL,
 
-For usb, no idea, but I can live with /etc/init.d/hotplug stop ; sleep ;
-... start.
+-- 
+USB is for mice, FireWire is for men!
 
-> > - network drivers (b44)
-> 
-> Should work ok.
-
-They do, meanwhile I have tested them.
-
-And orinoco from cvs also works.
-
-Thanks a lot and best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universit‰t Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-TYNE and WEAR (nouns)
-The 'Tyne' is the small priceless or vital object accidentally dropped
-on the floor (e.g. diamond tie clip, contact lens) and the 'wear' is
-the large immovable object (e.g. Welsh dresser, car-crusher) that it
-shelters under.
-			--- Douglas Adams, The Meaning of Liff
+sUse lINUX ag, n√úRNBERG

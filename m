@@ -1,62 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314300AbSDRK5C>; Thu, 18 Apr 2002 06:57:02 -0400
+	id <S314303AbSDRLAm>; Thu, 18 Apr 2002 07:00:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314301AbSDRK5B>; Thu, 18 Apr 2002 06:57:01 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:20752 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314300AbSDRK5B>; Thu, 18 Apr 2002 06:57:01 -0400
-Message-ID: <3CBE97E5.1010004@evision-ventures.com>
-Date: Thu, 18 Apr 2002 11:54:45 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S314307AbSDRLAl>; Thu, 18 Apr 2002 07:00:41 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55565 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314303AbSDRLAl>; Thu, 18 Apr 2002 07:00:41 -0400
+Subject: Re: SSE related security hole
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Thu, 18 Apr 2002 12:18:34 +0100 (BST)
+Cc: dledford@redhat.com (Doug Ledford), jh@suse.cz,
+        linux-kernel@vger.kernel.org, jakub@redhat.com, aj@suse.de, ak@suse.de,
+        pavel@atrey.karlin.mff.cuni.cz
+In-Reply-To: <20020418072615.I14322@dualathlon.random> from "Andrea Arcangeli" at Apr 18, 2002 07:26:15 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.8 IDE 38
-In-Reply-To: <Pine.LNX.4.33.0204051657270.16281-100000@penguin.transmeta.com> <3CBBED42.50003@evision-ventures.com> <3CBE8E61.6070702@evision-ventures.com> <20020418114844.A15930@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16y9vu-0004PJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Thu, Apr 18, 2002 at 11:14:09AM +0200, Martin Dalecki wrote:
-> 
->>@@ -523,6 +513,12 @@
->> 	unsigned	autodma    : 1;	/* automatically try to enable DMA at boot */
->> 	unsigned	udma_four  : 1;	/* 1=ATA-66 capable, 0=default */
->> 	unsigned	highmem	   : 1; /* can do full 32-bit dma */
->>+	byte		slow;		/* flag: slow data port */
->>+	unsigned no_io_32bit	   : 1;	/* disallow enabling 32bit I/O */
->>+	byte		io_32bit;	/* 0=16-bit, 1=32-bit, 2/3=32bit+sync */
->>+	unsigned no_unmask	   : 1;	/* disallow setting unmask bit */
->>+	byte		unmask;		/* flag: okay to unmask other irqs */
->>+
-> 
-> 
-> Just cosmetic... This causes the layout to be:
-> 
-> 	1 bit
-> 	1 bit
-> 	1 bit
-> 	align to word
-> 	1 byte
-> 	align to word
-> 	1 bit
-> 	align to word
-> 	1 byte
-> 	align to word
-> 	1 bit
-> 	align to word
-> 	1 byte
-> 	align to word
-> 
-> which is rather wasteful.  Any chance you can group the bits together
-> and the bytes together?
+> This mean the mmx isn't really backwards compatible and that's
+> potentially a problem for all the legacy x86 multiuser operative
+> systems.  That's an hardware design bug, not a software problem.  In
+> short running a 2.[02] kernel on a MMX capable CPU isn't secure, the
+> same potentially applies to windows NT and other unix, no matter of SSE.
 
-Of course you are right. I will group them later.
-
-
+That was my initial reaction but when I reread the documentation the 
+Intel folks are actually saying even back in Pentium MMX days that it isnt
+guaranteed that the FP/MMX state are not seperate registers

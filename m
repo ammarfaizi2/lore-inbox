@@ -1,94 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270005AbUJHPOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270009AbUJHPRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270005AbUJHPOp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 11:14:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270013AbUJHPOp
+	id S270009AbUJHPRy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 11:17:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270012AbUJHPRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 11:14:45 -0400
-Received: from out004pub.verizon.net ([206.46.170.142]:59013 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S270005AbUJHPOH
+	Fri, 8 Oct 2004 11:17:54 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:55230 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S270009AbUJHPRs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 11:14:07 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-Date: Fri, 8 Oct 2004 11:14:05 -0400
-User-Agent: KMail/1.7
-Cc: Bruce Ferrell <bferrell@baywinds.org>, Linus Torvalds <torvalds@osdl.org>,
-       Jon Masters <jonathan@jonmasters.org>, jmerkey@galt.devicelogics.com,
-       Jesper Juhl <juhl-lkml@dif.dk>, "Jeff V. Merkey" <jmerkey@drdos.com>,
-       Dave Jones <davej@redhat.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       "jmerkey@comcast.net" <jmerkey@comcast.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <35fb2e590410011509712b7d1@mail.gmail.com> <200410080838.33268.gene.heskett@verizon.net> <41669AA4.9050503@baywinds.org>
-In-Reply-To: <41669AA4.9050503@baywinds.org>
+	Fri, 8 Oct 2004 11:17:48 -0400
+Message-ID: <4166AF2F.6070904@rtr.ca>
+Date: Fri, 08 Oct 2004 11:15:59 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Mark Lord <lsml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
+References: <4161A06D.8010601@rtr.ca> <416547B6.5080505@rtr.ca>	<20041007150709.B12688@infradead.org> <4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com> <4165A45D.2090200@rtr.ca>	<4165A766.1040104@pobox.com> <4165A85D.7080704@rtr.ca>	<4165AB1B.8000204@pobox.com> <4165ACF8.8060208@rtr.ca> 	<20041007221537.A17712@infradead.org> <1097241583.2412.15.camel@mulgrave>
+In-Reply-To: <1097241583.2412.15.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410081114.05249.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.50.25] at Fri, 8 Oct 2004 10:14:06 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 October 2004 09:48, Bruce Ferrell wrote:
->Gene Heskett wrote:
-[...]
->>
->> Yeah there are Jon, and his initials are probably BG.  I've been
->> following this thread, first in amazement, followed by disbelief,
->> since it started yesterday, and the only thing my 6th sense is
->> telling me is that this is an attempt to undermine the GPL by
->> someone like M$ so that they can take it to court and successfully
->> render it moot.
->>
->> At one point he's talking about $50,000 for a snapshot, then next
->> he's saying $50,000 per copyright holder, and how that would end
->> up being millions.  A new story with almost every message, and
->> coming from several addresses, at one point from drdos.com, so I
->> went over to see if he was actually listed there but couldn't find
->> a reference. Ditto for the *panogas address.  And I haven't looked
->> at comcast as that is an ISP with several million addresses IIRC.
->>
->> This old (70, and more user than coder now) fart associate member
->> of the FSF is more and more convinced he's a troll, out only to
->> contaminate the GPL and a few million to do that is just chicken
->> feed to his backers.  And make no mistake, the sucessfull
->> contamination of the GPL could be worth many billions of dollars
->> to M$ et all.  Thats the most obvious 'SWAG' candidate as the real
->> source of all this largess.
->>
->> My $0.02: Deal with the likes of him at the peril of the GPL.
->>
->> Here's another question that needs answered too, why the hell
->> isn't Linus in the To: or Cc: list?  (He is now!) After all, his
->> approval would be the first thing you would need, isn't it Jeff? 
->> Again, one more clue that this looks like the fox, trying to sneak
->> in under the henhouse radar.
+James Bottomley wrote:
 >
->A bit of a historical note is in order.  Jeff used to work for
-> Novell... And had more than a small dispute with them over some
-> linux code he did that allowed linux to, as I recall, do things
-> with netware 4.x.  Novell took exception as at the time the only
-> other code that did it was closed source distributed through
-> Caldera.
+> Actually, the driver has no need for a thread at all.  Since you're
+> simply using it to fire hotplug events, use schedule_work instead.
 
-I see, so there is a personal axe to grind here also.  I wasn't aware 
-of that.  That places this a lot closer to the trolling scenario (and 
-a waste of time and bandwidth) than a fox in the henhouse then.  And 
-the troll certainly cannot write a check of sufficient magnitude to 
-be interesting.  All in all, an enlightening thread now, thank you to 
-those that were there to record history. :-)
+That worries me some, because the mid-layer will perform blocking I/O
+and the like, and I'm not sure how much that stuff may depend on its
+own usage (any?) of workqueues.  If you believe it to be safe,
+then I'll nuke the kthread entirely.
 
+> I also noticed the following in a lightening review:
+> 
+> - Kill these constructs:
+> +	/* scsi_done expects to be called while locked */
+> +	if (!in_interrupt())
+> +		spin_lock_irqsave(uhba->lock, flags);
+> 
+> scsi_done() doesn't require a lock
+
+Really?  I wonder why the mid-layer is so religious about
+doing the lock around every invocation of it today?
+
+But again, if we're sure that this is the case, then it certainly
+make's life simpler in the driver.
+
+> - Your emulated commands assume they're non-sg and issued through the
+> kernel (i.e. you don't kmap and you don't do SG).  This will blow up on
+> the first inquiry submitted via SG_IO for instance.
+
+The SG is tested for and simply failed -- there is no need today for
+SG usage on those code paths.  If there turns out to be a need for that
+interface with this driver in the future, we can add it.  Just like most
+of the other drivers currently treat it.
+
+What is the "kmap" semantic, and how should it be applied here?
+
+Thanks
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264373AbUG2Gnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264307AbUG2Gni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264373AbUG2Gnp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 02:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUG2Gnp
+	id S264307AbUG2Gni (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 02:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUG2Gni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 02:43:45 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:25322 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S264373AbUG2Gnm (ORCPT
+	Thu, 29 Jul 2004 02:43:38 -0400
+Received: from omx3-ext.SGI.COM ([192.48.171.20]:4750 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264373AbUG2Gng (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 02:43:42 -0400
-Date: Thu, 29 Jul 2004 08:43:38 +0200
-From: David Weinehall <tao@debian.org>
-To: Shawn Starr <shawn.starr@rogers.com>
-Cc: "'Brown, Len'" <len.brown@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI][2.6.8-rc2-bk #] - ACPI shutdown problems on IBM Thinkpads (T42)
-Message-ID: <20040729064338.GF22472@khan.acc.umu.se>
-Mail-Followup-To: Shawn Starr <shawn.starr@rogers.com>,
-	"'Brown, Len'" <len.brown@intel.com>, linux-kernel@vger.kernel.org
-References: <29AC424F54821A4FB5D7CBE081922E400131B410@hdsmsx403.hd.intel.com> <000301c47518$d6784e50$0200080a@panic>
+	Thu, 29 Jul 2004 02:43:36 -0400
+Date: Wed, 28 Jul 2004 23:42:55 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org,
+       piggin@cyberone.com.au
+Subject: Re: Oops in find_busiest_group(): 2.6.8-rc1-mm1
+Message-Id: <20040728234255.29ef4c13.pj@sgi.com>
+In-Reply-To: <1089871489.10000.388.camel@nighthawk>
+References: <1089871489.10000.388.camel@nighthawk>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000301c47518$d6784e50$0200080a@panic>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 11:05:00PM -0400, Shawn Starr wrote:
-> 
-> I'll keep looking for patches as you get time.
-> 
-> I appreciate your help.
+I just hit what might be the same oops.
 
-Disable APIC support and shutdown will work.
+I had not upgraded my working kernel for a month, and just now, when I
+upgraded to 2.6.8-rc2-mm1, running sn2_defconfig on a small SN2 system,
+it fails to boot everytime, ending with an Oops that starts out with:
 
-Meanwhile, has anyone solved the problem with the Thinkpad-keys after
-a suspend/resume?  Volume keys still work, as does the brightness keys,
-but Fn+F4 for suspend doesn't (manual suspend still works), and tpb
-doesn't see any of the Thinkpad specific keypresses any longer
-("Access IBM", Fn+Fx, etc), not even if I restart tpb, and
-/proc/interrupts:acpi indicates that interrups are not working for ACPI
-any longer.  All other interrupts seem to function properly, and I have
-both patches from [1] applied.
+======================================================
+Freeing unused kernel memory: 320kB freed
+Unable to handle kernel NULL pointer dereference (address 0000000000000008)
+swapper[0]: Oops 8813272891392 [1]
+Modules linked in:
 
-[1] http://bugme.osdl.org/show_bug.cgi?id=2643
+Pid: 0, CPU 0, comm:              swapper
+psr : 0000101008022018 ifs : 8000000000000e20 ip  : [<a0000001000bd710>]    Not tainted
+ip is at find_busiest_group+0xb0/0x640
+======================================================
 
+I added a conditional printk_ratelimit'ed print at the top of
+find_busiest_group() whenever group is NULL, just before the first
+dereference of group in the line:
 
-Regards: David Weinehall
+	local_group = cpu_isset(this_cpu, group->cpumask);
+
+That print fires about 20,480 times each 5 second suppression window.
+
+But it boots, if I also add code to break out of the "do { ... } while
+(group != sd->groups)" loop, whenever group goes NULL.
+
 -- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

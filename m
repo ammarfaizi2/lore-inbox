@@ -1,73 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286227AbRL0Jtc>; Thu, 27 Dec 2001 04:49:32 -0500
+	id <S286231AbRL0KI5>; Thu, 27 Dec 2001 05:08:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286229AbRL0JtX>; Thu, 27 Dec 2001 04:49:23 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:26886 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S286227AbRL0JtG>; Thu, 27 Dec 2001 04:49:06 -0500
-Message-ID: <3C2AEBA8.809@evision-ventures.com>
-Date: Thu, 27 Dec 2001 10:36:40 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011212
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Bill Huey <billh@tierra.ucsd.edu>
-CC: "David S. Miller" <davem@redhat.com>, kerndev@sc-software.com,
-        bcrl@redhat.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-aio@kvack.org
-Subject: Re: aio
-In-Reply-To: <20011219.184527.31638196.davem@redhat.com> <Pine.LNX.3.95.1011219184950.581H-100000@scsoftware.sc-software.com> <20011219.190629.03111291.davem@redhat.com> <20011219192105.B26007@burn.ucsd.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S286233AbRL0KIs>; Thu, 27 Dec 2001 05:08:48 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:4811
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S286231AbRL0KIe>; Thu, 27 Dec 2001 05:08:34 -0500
+Date: Thu, 27 Dec 2001 04:54:06 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] CML2-1.9.15
+Message-ID: <20011227045406.A14332@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20011227044942.A14267@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011227044942.A14267@thyrsus.com>; from esr@thyrsus.com on Thu, Dec 27, 2001 at 04:49:42AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Huey wrote:
+Eric S. Raymond <esr@thyrsus.com>:
+> We have an entire new front end in this release, code based on a tree width
+                                                                   ^^^^^^^^^^
+> that shows a nice folder view of the configuration menus.  Install and try 
+> out `make treeconfig' to see it.
 
->On Wed, Dec 19, 2001 at 07:06:29PM -0800, David S. Miller wrote:
->
->>Firstly, you say this as if server java applets do not function at all
->>or with acceptable performance today.  That is not true for the vast
->>majority of cases.
->>
->>If java server applet performance in all cases is dependent upon AIO
->>(it is not), that would be pretty sad.  But it wouldn't be the first
->>
->
->Java is pretty incomplete in this area, which should be addressed to a
->great degree in the new NIO API.
->
->The core JVM isn't dependent on this stuff per se for performance, but
->it is critical to server side programs that have to deal with highly
->scalable IO systems, largely number of FDs, that go beyond the current
->expressiveness of select()/poll().
->
->This is all standard fare in *any* kind of high performance networking
->application where some kind of high performance kernel/userspace event
->delivery system is needed, kqueue() principally.
->
->>time I've heard crap like that.  There is propaganda out there telling
->>people that 64-bit address spaces are needed for good java
->>performance.  Guess where that came from?  (hint: they invented java
->>and are in the buisness of selling 64-bit RISC processors)
->>
->
->What ? oh god. HotSpot is a pretty amazing compiler and it performs well.
->Swing does well now, but the lingering issue in Java is the shear size
->of it and possibly GC issues. It pretty clear that it's going to get
->larger, which is fine since memory is cheap.
->
-I remind you: ORACLE 9i is requiring half a gig as a minimum just due to the
-use of the CRAPPY PIECE OF SHIT written in the Java, called, you guess 
-it: Just the
-bloody damn Installer. Java is really condemned just due to the fact 
-that both terms: speed
-and memmory usage are both allways only *relative* to other systems.
+Should have been `tree widget'.  That's what I get for trying to type after 
+4AM in the morning...
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-And yes GC's have only one problem - they try to give a general solution 
-for problems
-which can be easly prooven to be mathmematically insolvable. The 
-resulting undeterministic
-behaviour of applications is indeed the thing which is hurting most.
-
+Society in every state is a blessing, but government even in its best
+state is but a necessary evil; in its worst state an intolerable one;
+for when we suffer, or are exposed to the same miseries *by a
+government*, which we might expect in a country *without government*,
+our calamities is heightened by reflecting that we furnish the means
+by which we suffer."		-- Thomas Paine

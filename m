@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135869AbREIHMy>; Wed, 9 May 2001 03:12:54 -0400
+	id <S135870AbREIHOo>; Wed, 9 May 2001 03:14:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135870AbREIHMp>; Wed, 9 May 2001 03:12:45 -0400
-Received: from waulogy.Stanford.EDU ([128.12.53.47]:56843 "EHLO
-	waulogy.stanford.edu") by vger.kernel.org with ESMTP
-	id <S135869AbREIHMb>; Wed, 9 May 2001 03:12:31 -0400
-Date: Wed, 9 May 2001 00:11:00 -0700 (PDT)
-From: david chan <dave@waulogy.stanford.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fixes for Incorrect kmalloc() Sizes (fwd)
-Message-ID: <Pine.LNX.4.30.0105090009220.23307-100000@waulogy.stanford.edu>
+	id <S135885AbREIHOe>; Wed, 9 May 2001 03:14:34 -0400
+Received: from coorong.anu.edu.au ([150.203.141.5]:55940 "EHLO
+	coorong.anu.edu.au") by vger.kernel.org with ESMTP
+	id <S135870AbREIHOU>; Wed, 9 May 2001 03:14:20 -0400
+Message-ID: <3AF8EE3A.21932E5D@tltsu.anu.edu.au>
+Date: Wed, 09 May 2001 17:14:02 +1000
+From: Robert Cohen <robert@coorong.anu.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Question: Status of VIA chipsets and 2.2 kernels
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+What with all the various problem reports flying around for via
+chipsets, Ive lost track of the state of play as regards via
+northbridges and south bridges.
+I am thinking of buying a machine with a via chipset and I wan't to know
+how stable it is likely to be with Linux.
+I would appreciate it if someone who know's whats going on can give a
+report on the state of play
+as regards to all the problems and their current status with 2.2 kernels
+(and 2.4 if their feeling energetic).
 
-I was told that these patches were word-wrapped and needed resending. So
-here they are.
+Possible machine are:
+ a P3 machine with a ASUS CUV4X-E motherboard which uses the apollo pro
+694X northbridge and a 686B southbridge.
 
-Thank you,
-David Chan
+An athlon machine with an ASUS A7V motherboard which uses a KT133
+(VT8363) northbridge and a 686A southbridge.
 
+An athlon machine with an ASUS A7V133 motherboard which uses a KT133A
+(VT8363A) northbridge and a 686B southbridge.
 
----snip---
---- drivers/sound/emu10k1/midi.c.orig	Fri Feb  9 11:30:23 2001
-+++ drivers/sound/emu10k1/midi.c	Tue May  8 19:43:43 2001
-@@ -56,7 +56,7 @@
- {
- 	struct midi_hdr *midihdr;
+Problems Ive been hearing about include DMA disk transfers between
+channels. Some reports say these only occur with Western digital disks.
+The 2 athlon boards listed include an onboard promise IDE controller. So
+I should be OK if I use this for disks, right?
 
--	if ((midihdr = (struct midi_hdr *) kmalloc(sizeof(struct midi_hdr *), GFP_KERNEL)) == NULL) {
-+	if ((midihdr = (struct midi_hdr *) kmalloc(sizeof(struct midi_hdr), GFP_KERNEL)) == NULL) {
- 		ERROR();
- 		return -EINVAL;
- 	}
-@@ -328,7 +328,7 @@
- 	if (!access_ok(VERIFY_READ, buffer, count))
- 		return -EFAULT;
-
--	if ((midihdr = (struct midi_hdr *) kmalloc(sizeof(struct midi_hdr *), GFP_KERNEL)) == NULL)
-+	if ((midihdr = (struct midi_hdr *) kmalloc(sizeof(struct midi_hdr), GFP_KERNEL)) == NULL)
- 		return -EINVAL;
-
- 	midihdr->bufferlength = count;
----snip---
-
----snip---
---- drivers/telephony/ixj.c.orig	Tue May  8 20:00:07 2001
-+++ drivers/telephony/ixj.c	Tue May  8 20:00:25 2001
-@@ -4475,7 +4475,7 @@
- {
- 	IXJ_FILTER_CADENCE *lcp;
-
--	lcp = kmalloc(sizeof(IXJ_CADENCE), GFP_KERNEL);
-+	lcp = kmalloc(sizeof(IXJ_FILTER_CADENCE), GFP_KERNEL);
- 	if (lcp == NULL)
- 		return -ENOMEM;
- 	if (copy_from_user(lcp, (char *) cp, sizeof(IXJ_FILTER_CADENCE)))
----snip---
+Any other problems I should know about?
 
 
-
-
-
+--
+Robert Cohen
+Unix Support
+TLTSU
+Australian National University
+Ph: 612 58389

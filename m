@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272824AbRIGSwq>; Fri, 7 Sep 2001 14:52:46 -0400
+	id <S272822AbRIGSvg>; Fri, 7 Sep 2001 14:51:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272823AbRIGSwg>; Fri, 7 Sep 2001 14:52:36 -0400
-Received: from duba06h06-0.dplanet.ch ([212.35.36.67]:30984 "EHLO
-	duba06h06-0.dplanet.ch") by vger.kernel.org with ESMTP
-	id <S272824AbRIGSwV>; Fri, 7 Sep 2001 14:52:21 -0400
-Message-ID: <3B993207.787B0D5@dplanet.ch>
-Date: Fri, 07 Sep 2001 22:45:59 +0200
-From: "Giacomo A. Catenazzi" <cate@dplanet.ch>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i586)
-X-Accept-Language: en
+	id <S272824AbRIGSv0>; Fri, 7 Sep 2001 14:51:26 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57613 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272822AbRIGSvM>; Fri, 7 Sep 2001 14:51:12 -0400
+Date: Fri, 7 Sep 2001 11:47:09 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: expand_stack fix [was Re: 2.4.9aa3]
+In-Reply-To: <20010903172445.N699@athlon.random>
+Message-ID: <Pine.LNX.4.33.0109071142060.10472-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: OOPS[devfs]: reproducible in vfs_follow_link 2.4.9,2.4.10-pre4
-In-Reply-To: <3B97744E.7020007@dplanet.ch>
-		<Pine.GSO.4.21.0109061454480.7097-100000@weyl.math.psu.edu> <200109061941.f86Jfak01921@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-> 
-> Alexander Viro writes:
-> >
-> >
-> > On Thu, 6 Sep 2001, Giacomo Catenazzi wrote:
-> >
-> > > Hello.
-> > >
-> > > Since yesterdey, every time I run a 2.4.9 or 2.4.10pre-4 without the
-> > > "devfs=nomount" I
-> > > have two oops + /usr, /home /boot not mounted (all (also /): ext2).
-> >
-> >       Don't use devfs. One of the known bugs - devfs passes a string
-> > to vfs_follow_link() and doesn't care to preserve it until
-> > vfs_follow_link() is done.
-> 
 
-> 
-> If people could test the latest devfs patch, that would be really
-> helpful. Linus isn't applying it because he's concerned that the many
-> SD support may break something. Even if you don't have many SD's,
-> please apply the patch and send a message to the list (and Cc: me)
-> stating whether or not your system still works.
-> 
+On Mon, 3 Sep 2001, Andrea Arcangeli wrote:
+>
+> Linus please include the attached patch to the next kernel, expand_stack
+> is totally broken at the moment, we cannot mess with the mm vma layout
+> if we don't hold the mmap_sem in write mode.
 
-No, your patch  didn't work.
-I have still the oops.
+I disagree with the diagnosis..
 
-I investigates, and the oops come in the mountall script (in init.d),
-when running: mount -avt nonfs,nosmbfs.
-(I noticed thet at this point kernel load floppy modules, but when I
-removed also the floppy module, the oops reappers.)
+expand_stack() has _never_ messed with the vma layout, and never should.
+As such, from a vma list integrity standpoint it is fine.
 
-Note: only the first time I run the script  the kernel oops, thus
-on normal boot sequence debian would not mount my partitions :-(.
+Do we mess with the contents? Yes. But I'd much rather see a much more
+minimal approach to the problem, on the order of:
+ - make sure we only accept GROWSDOWN for anonymous areas (which don't
+   care about the offset)
+ - make the vm_start update atomic (possibly by just getting the pagetable
+   spinlock).
 
-	giacomo
+> I considered implementing a read->write semaphore upgrade primitive but
+> it cannot be reliable
+
+There is no such thing. Never has been. It's a fundamentally impossible
+operation. We may, at some point, decide to have a "read_for_write()" and
+then "upgrade()" operations on the semaphore, but those inherently imply
+some level of single-threading (ie only one read-for-writer accepted at
+one time, with many pure readers), which makes it useless for this
+particular case anyway.
+
+However, having a finer-granularity spinlock _inside_ the semaphore (see
+above suggestion) is a perfectly valid approach.
+
+			Linus
+

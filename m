@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290534AbSARC16>; Thu, 17 Jan 2002 21:27:58 -0500
+	id <S290513AbSARCYI>; Thu, 17 Jan 2002 21:24:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290514AbSARC1s>; Thu, 17 Jan 2002 21:27:48 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:7557 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S290534AbSARC1e>; Thu, 17 Jan 2002 21:27:34 -0500
-Message-Id: <5.1.0.14.2.20020118021222.04e4caa0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 18 Jan 2002 02:27:45 +0000
-To: linux-kernel@vger.kernel.org
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Linux 2.5.3-pre1-aia1
+	id <S290514AbSARCX7>; Thu, 17 Jan 2002 21:23:59 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:13329 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S290513AbSARCXu>; Thu, 17 Jan 2002 21:23:50 -0500
+Date: Fri, 18 Jan 2002 13:23:59 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: <mingo@elte.hu>
+Cc: James.Bottomley@HansenPartnership.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: Problems with O(1) scheduler on non-x86 arch's
+Message-Id: <20020118132359.3cbca3f3.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.LNX.4.33.0201171046480.2000-100000@localhost.localdomain>
+In-Reply-To: <200201170229.g0H2TnY04563@localhost.localdomain>
+	<Pine.LNX.4.33.0201171046480.2000-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since the new IDE core from Andre is now solid as reported by various 
-people on IRC, here is my local patch (stable for me) which you can apply 
-to play with the shiny new IDE core (IDE core fix is same as 
-ata-253p1-2.bz2 from Jens). (-:
+On Thu, 17 Jan 2002 10:50:58 +0100 (CET)
+Ingo Molnar <mingo@elte.hu> wrote:
 
-Patch available from:
+> in the long term i think the correct approach would be to always store the
+> logical CPU number in p->cpu.
 
-http://www-stu.christs.cam.ac.uk/~aia21/linux/patch-2.5.3-pre1-aia1
-http://www-stu.christs.cam.ac.uk/~aia21/linux/patch-2.5.3-pre1-aia1.bz2
-http://www-stu.christs.cam.ac.uk/~aia21/linux/patch-2.5.3-pre1-aia1.gz
+The hotplug CPU patch gets rid of the whole concept of "logical CPU number".
+This is even cleaner, and avoids these mistakes which bite us all the time.
 
-Linux 2.5.3-pre1-aia1
+	http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Hotcpu
 
-o       Fix new IDE core                        (Jens Axboe, Andre Hedrick)
-+       Configure help entries for IDE          (Andre Hedrick, Rob Radez, me)
-+       Reduce NTFS vmalloc use (NTFS 1.1.22)   (me)
-o       Compile fixes for dnotify               (me)
-o       Compile fixes for via82cxxx             (me)
-
-Patches marked "+" have been submitted to Linus by me already.
-
-Enjoy,
-
-Anton
-
-
+Rusty.
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

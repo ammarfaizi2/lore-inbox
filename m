@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261587AbSK3U7g>; Sat, 30 Nov 2002 15:59:36 -0500
+	id <S261829AbSK3VSw>; Sat, 30 Nov 2002 16:18:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261829AbSK3U7g>; Sat, 30 Nov 2002 15:59:36 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30225 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261587AbSK3U7f>;
-	Sat, 30 Nov 2002 15:59:35 -0500
-Message-ID: <3DE92854.6000000@pobox.com>
-Date: Sat, 30 Nov 2002 16:06:28 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: en-us, en
+	id <S262838AbSK3VSw>; Sat, 30 Nov 2002 16:18:52 -0500
+Received: from smtp-03.inode.at ([62.99.194.5]:22970 "EHLO smtp.inode.at")
+	by vger.kernel.org with ESMTP id <S261829AbSK3VSv> convert rfc822-to-8bit;
+	Sat, 30 Nov 2002 16:18:51 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Patrick Petermair <black666@inode.at>
+Reply-To: black666@inode.at
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem with via82cxxx and vt8235
+Date: Sat, 30 Nov 2002 22:27:23 +0100
+User-Agent: KMail/1.4.3
+References: <200211300129.32580.black666@inode.at> <1038667380.17209.2.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1038667380.17209.2.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] C99 initializers for drivers/media/radio
-References: <E18IEk7-0003yA-00@calista.inka.de>
-In-Reply-To: <E18IEk7-0003yA-00@calista.inka.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211302227.23253.black666@inode.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels wrote:
-> In article <20021130174509.GD10613@debian> you wrote:
-> 
->>Here's a patch set for switching drivers/media/radio to use C99
->>initializers. The patches are against 2.5.50.
-> 
-> ...
-> 
->>static struct pcm20_device pcm20_unit = {
->>-       freq:   87*16000,
->>-       muted:  1,
->>-       stereo: 0
->>+       .freq   = 87*16000,
->>+       .muted  = 1,
->>};
-> 
-> ...
-> 
-> IMHO it is not a good idea to skip default initilised members. IT is self
-> documenting to see all members, and it is easier to change them, if
-> required. Especially if the old code had it.
+Alan Cox:
+> On Sat, 2002-11-30 at 00:29, Patrick Petermair wrote:
+> > Hi!
+> >
+> > I have a MSI KT3Ultra2 Motherboard with a VT8235 southbridge. I'm
+> > currently running kernel 2.4.19 - unfortunately it doesn't detect the
+> > southbridge, so I cannot enable dma.
+> > I tried the patch from Vojtech Pavlik (via82cxxx), but then it hangs
+> > at boot:
+>
+> Try the -ac tree firstly
+
+Thanks Alan, now dma works perfect!
+How come this code isn't in the official 2.4.20 kernel?
+
+The only strange thing now is that uname doesn't know my cpu:
+
+starbase:/# uname -a
+Linux starbase 2.4.20-ac1 #1 Sam Nov 30 18:43:15 CET 2002 i686 unknown 
+unknown GNU/Linux
+starbase:/#
+
+But it gets recognized during boot:
+
+starbase:/# dmesg | grep -i AMD
+CPU: AMD Athlon(tm) XP 2200+ stepping 00
+starbase:/#
+
+starbase:/# cat /proc/cpuinfo | grep -i AMD
+vendor_id       : AuthenticAMD
+model name      : AMD Athlon(tm) XP 2200+
+starbase:/#
 
 
-I think you are half-right :)
+But hey, I can live with that - I have dma now :-)
+Just curious, what's causing this.
 
-It is personal preference whether or not to list default initialized 
-members.  However -- if the previous code [like the code above] 
-initialized all its members specifically, then the C99 initializers 
-cleanup should not change that practice.
+Thanks so much...
+Patrick
 
-	Jeff
 
 
 

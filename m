@@ -1,283 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261364AbREMAmc>; Sat, 12 May 2001 20:42:32 -0400
+	id <S261363AbREMCSo>; Sat, 12 May 2001 22:18:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261363AbREMAmW>; Sat, 12 May 2001 20:42:22 -0400
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.59.198]:31016 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S261362AbREMAmH>; Sat, 12 May 2001 20:42:07 -0400
-Message-ID: <3AFDD848.3060604@blue-labs.org>
-Date: Sat, 12 May 2001 17:41:44 -0700
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-pre1 i686; en-US; rv:0.9) Gecko/20010505
-X-Accept-Language: en
+	id <S261365AbREMCSf>; Sat, 12 May 2001 22:18:35 -0400
+Received: from sunny.pacific.net.au ([210.23.129.40]:31720 "EHLO
+	sunny.pacific.net.au") by vger.kernel.org with ESMTP
+	id <S261363AbREMCSX>; Sat, 12 May 2001 22:18:23 -0400
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/telephony/phonedev.c (brings this code up to date with Quicknet CVS)
-Content-Type: multipart/mixed;
- boundary="------------070400060502020409080508"
+From: "ashridah" <ashridah@pobox.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: mount /dev/hdb2 /usr; swapon /dev/hdb2  keeps flooding
+X-Mailer: Pronto v2.2.5 On linux/mysql
+Date: 12 May 2001 21:17:57 EST
+Reply-To: "ashridah" <ashridah@pobox.com>
+In-Reply-To: <Pine.A41.4.31.0105130055400.19270-100000@pandora.inf.elte.hu>
+In-Reply-To: <Pine.A41.4.31.0105130055400.19270-100000@pandora.inf.elte.hu>
+Message-Id: <E14ylSK-0000dO-00@mycrondo>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070400060502020409080508
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-phonedev.diff is against 2.4.4 and brings the file phonedev.c up to date 
-with respect to the Quicknet CVS.  Changes are very minor, mostly #if 
-LINUX_VERSION_CODE matching and structure updates.  Small off by one 
-fixes and file operation semantics updates.
+On Sun, 13 May 2001 01:00:39 +0200 (CEST), BERECZ Szabolcs said:
 
-There is no impact to other files or functions functions.
+> Hi!
+>  
+>  root@kama3:/home/szabi# cat /proc/mounts
+>  ...
+>  /dev/hdb2 /usr ext2 rw 0 0
+>  ...
+>  root@kama3:/home/szabi# swapon /dev/hdb2
+[snip]
 
-David
+hmm. while the technical issues of this situation are fairly interesting,
+can i make a suggestion? if you're running out of swap every now and 
+then, perhaps you need to use swapd (a userspace daemon, that adds
+more swap from swapfiles as you need it, and recovers the space when
+things become less pressing). that's much better than trying it by hand
+when necessary. As you've noticed, we're all only human, and mistakes
+can be made.
 
+swapd: http://cvs.linux.hr/swapd/
 
---------------070400060502020409080508
-Content-Type: text/plain;
- name="phonedev.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="phonedev.diff"
+as a side bonus, you get to keep that partition as a filesystem, and also
+dedicate it to being the swapfile holder.
 
---- drivers/telephony/phonedev.c	Tue Sep 19 08:31:53 2000
-+++ /zip/code/VoIP/ixj/phonedev.c	Sat May 12 17:32:05 2001
-@@ -12,8 +12,14 @@
-  *
-  * Fixes:       Mar 01 2000 Thomas Sparr, <thomas.l.sparr@telia.com>
-  *              phone_register_device now works with unit!=PHONE_UNIT_ANY
-+ *
-+ *              May 12 2001 David Ford, <david@blue-labs.org>
-+ *              brought kernel version up to date with CVS, minor changes
-  */
- 
-+#if LINUX_VERSION_CODE < 0x020400
-+#include <linux/config.h>
-+#endif
- #include <linux/version.h>
- #include <linux/module.h>
- #include <linux/types.h>
-@@ -23,13 +29,16 @@
- #include <linux/string.h>
- #include <linux/errno.h>
- #include <linux/phonedev.h>
-+#if LINUX_VERSION_CODE >= 0x020400
- #include <linux/init.h>
-+#endif
- #include <asm/uaccess.h>
- #include <asm/system.h>
- 
- #include <linux/kmod.h>
-+#if LINUX_VERSION_CODE >= 0x020400
- #include <linux/sem.h>
--
-+#endif
- 
- #define PHONE_NUM_DEVICES	256
- 
-@@ -38,8 +47,9 @@
-  */
- 
- static struct phone_device *phone_device[PHONE_NUM_DEVICES];
-+#if LINUX_VERSION_CODE >= 0x020400
- static DECLARE_MUTEX(phone_lock);
--
-+#endif
- /*
-  *    Open a phone device.
-  */
-@@ -49,26 +59,48 @@
- 	unsigned int minor = MINOR(inode->i_rdev);
- 	int err = 0;
- 	struct phone_device *p;
-+#if LINUX_VERSION_CODE >= 0x020400
- 	struct file_operations *old_fops, *new_fops = NULL;
--
-+#endif
- 	if (minor >= PHONE_NUM_DEVICES)
- 		return -ENODEV;
- 
-+#if LINUX_VERSION_CODE >= 0x020400
- 	down(&phone_lock);
-+#endif
- 	p = phone_device[minor];
-+#if LINUX_VERSION_CODE < 0x020400
-+	if (p == NULL) {
-+#else
- 	if (p)
- 		new_fops = fops_get(p->f_op);
- 	if (!new_fops) {
-+#endif
- 		char modname[32];
- 
-+#if LINUX_VERSION_CODE >= 0x020400
- 		up(&phone_lock);
-+#endif
- 		sprintf(modname, "char-major-%d-%d", PHONE_MAJOR, minor);
- 		request_module(modname);
-+#if LINUX_VERSION_CODE >= 0x020400
- 		down(&phone_lock);
-+#endif
- 		p = phone_device[minor];
--		if (p == NULL || (new_fops = fops_get(p->f_op)) == NULL)
--		{
--			err=-ENODEV;
-+#if LINUX_VERSION_CODE < 0x020400
-+		if (p == NULL)
-+			return -ENODEV;
-+	}
-+	if (p->open) {
-+		err = p->open(p, file);	/* Tell the device it is open */
-+		if (err)
-+			return err;
-+	}
-+	file->f_op = p->f_op;
-+	return 0;
-+#else
-+		if (p == NULL || (new_fops = fops_get(p->f_op)) == NULL) {
-+			err = -ENODEV;
- 			goto end;
- 		}
- 	}
-@@ -81,9 +113,10 @@
- 		file->f_op = fops_get(old_fops);
- 	}
- 	fops_put(old_fops);
--end:
-+      end:
- 	up(&phone_lock);
- 	return err;
-+#endif
- }
- 
- /*
-@@ -101,20 +134,25 @@
- 
- 	if (unit != PHONE_UNIT_ANY) {
- 		base = unit;
--		end = unit + 1;  /* enter the loop at least one time */
-+		end = unit;
- 	}
--	
-+#if LINUX_VERSION_CODE >= 0x020400
- 	down(&phone_lock);
-+#endif
- 	for (i = base; i < end; i++) {
- 		if (phone_device[i] == NULL) {
- 			phone_device[i] = p;
- 			p->minor = i;
- 			MOD_INC_USE_COUNT;
-+#if LINUX_VERSION_CODE >= 0x020400
- 			up(&phone_lock);
-+#endif
- 			return 0;
- 		}
- 	}
-+#if LINUX_VERSION_CODE >= 0x020400
- 	up(&phone_lock);
-+#endif
- 	return -ENFILE;
- }
- 
-@@ -124,48 +162,90 @@
- 
- void phone_unregister_device(struct phone_device *pfd)
- {
-+#if LINUX_VERSION_CODE >= 0x020400
- 	down(&phone_lock);
-+#endif
- 	if (phone_device[pfd->minor] != pfd)
- 		panic("phone: bad unregister");
- 	phone_device[pfd->minor] = NULL;
-+#if LINUX_VERSION_CODE >= 0x020400
- 	up(&phone_lock);
-+#endif
- 	MOD_DEC_USE_COUNT;
- }
- 
- 
--static struct file_operations phone_fops =
--{
--	owner:		THIS_MODULE,
--	open:		phone_open,
-+static struct file_operations phone_fops = {
-+#if LINUX_VERSION_CODE >= 0x020400
-+	owner:THIS_MODULE,
-+	open:phone_open,
-+#else
-+	NULL,
-+	NULL,
-+	NULL,
-+	NULL,			/* readdir */
-+	NULL,
-+	NULL,
-+	NULL,
-+	phone_open,
-+	NULL,			/* flush */
-+	NULL
-+#endif
- };
- 
- /*
-- *	Board init functions
-+ *    Board init functions
-  */
-- 
-+
-+#if LINUX_VERSION_CODE < 0x020400
-+extern int ixj_init(void);
- 
- /*
-  *    Initialise Telephony for linux
-  */
- 
-+int telephony_init(void)
-+#else
- static int __init telephony_init(void)
-+#endif
- {
- 	printk(KERN_INFO "Linux telephony interface: v1.00\n");
- 	if (register_chrdev(PHONE_MAJOR, "telephony", &phone_fops)) {
- 		printk("phonedev: unable to get major %d\n", PHONE_MAJOR);
- 		return -EIO;
- 	}
--
-+#if LINUX_VERSION_CODE < 0x020400
-+	/*
-+	 *    Init kernel installed drivers
-+	 */
-+#ifdef CONFIG_PHONE_IXJ
-+	ixj_init();
-+#endif
-+#endif
- 	return 0;
- }
- 
-+#ifdef MODULE
-+#if LINUX_VERSION_CODE < 0x020400
-+int init_module(void)
-+{
-+	return telephony_init();
-+}
-+
-+void cleanup_module(void)
-+#else
- static void __exit telephony_exit(void)
-+#endif
- {
- 	unregister_chrdev(PHONE_MAJOR, "telephony");
- }
- 
-+#endif
-+
-+#if LINUX_VERSION_CODE >= 0x020400
- module_init(telephony_init);
- module_exit(telephony_exit);
-+#endif
- 
- EXPORT_SYMBOL(phone_register_device);
- EXPORT_SYMBOL(phone_unregister_device);
+while this is a solution i'd never go in for (userspace is slightly more
+fallible
+than i like (which doesn't stop me from using devfsd) given the situation
+swapd needs to act in), but it's better than doing it by hand, no?
 
---------------070400060502020409080508--
+Andrew 'ashridah' Pilley
+
+>  do you need any other information?
+>  
+>  Bye,
+>  Szabi
+>  
+>  -
+>  To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>  the body of a message to majordomo@vger.kernel.org
+>  More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  Please read the FAQ at  http://www.tux.org/lkml/
+>  
 

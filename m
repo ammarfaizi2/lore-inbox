@@ -1,122 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263040AbUDPTzE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 15:55:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263605AbUDPTzE
+	id S262459AbUDPUC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 16:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbUDPUC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 15:55:04 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:32266 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S263040AbUDPTy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 15:54:57 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] deinline put_page if CONFIG_HUGETLB_PAGE=y
-Date: Fri, 16 Apr 2004 22:54:46 +0300
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>
-References: <200404162230.40530.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200404162230.40530.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_GoDgAjxU1Nzisr0"
-Message-Id: <200404162254.46533.vda@port.imtp.ilyichevsk.odessa.ua>
+	Fri, 16 Apr 2004 16:02:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:14019 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262459AbUDPUCJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 16:02:09 -0400
+Date: Fri, 16 Apr 2004 13:02:01 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Ken Ashcraft <ken@coverity.com>
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu,
+       james.bottomley@steeleye.com
+Subject: Re: [CHECKER] Probable security holes in 2.6.5
+Message-ID: <20040416130201.A22989@build.pdx.osdl.net>
+References: <1082134916.19301.7.camel@dns.coverity.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1082134916.19301.7.camel@dns.coverity.int>; from ken@coverity.com on Fri, Apr 16, 2004 at 10:01:57AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> [BUG] signed int and unchecked
+> /home/kash/linux/linux-2.6.5/drivers/message/fusion/mptctl.c:1313:mptctl_getiocinfo: ERROR:TAINT: 1229:1313:Using user value "port" without first performing bounds checks [SOURCE_MODEL=(lib,copy_from_user,user,taintscalar)] [PATH=]    
+> 	else if (data_size == (sizeof(struct mpt_ioctl_iocinfo_rev0)+12))
+> 		cim_rev = 0;	/* obsolete */
+> 	else
+> 		return -EFAULT;
+> 
+> Start --->
+> 	if (copy_from_user(&karg, uarg, data_size)) {
+> 
+> 	... DELETED 78 lines ...
+> 
+> 	 */
+> 	strncpy (karg.driverVersion, MPT_LINUX_PACKAGE_NAME,
+> MPT_IOCTL_VERSION_LENGTH);
+> 	karg.driverVersion[MPT_IOCTL_VERSION_LENGTH-1]='\0';
+> 
+> 	karg.busChangeEvent = 0;
+> Error --->
+> 	karg.hostId = ioc->pfacts[port].PortSCSIID;
+> 	karg.rsvd[0] = karg.rsvd[1] = 0;
 
---Boundary-00=_GoDgAjxU1Nzisr0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Agreed, port should be validated.  Looks like it can only be 0 or 1 if
+it's only referencing pfacts[2]?  Patch below.
 
-On Friday 16 April 2004 22:30, Denis Vlasenko wrote:
-> This is next version of 'inline hunter', a tool designed to find
-> inlines which are large. It has bug fixes and improvements suggested
-> by readers of lkml. Tarball and results are below sig.
->
-> Matt, you may simply replace earlier version with this one.
-> --
-> vda
->
-> Size  Uses Wasted Name and definition
-> ===== ==== ====== ================================================
->    56  461  16560 copy_from_user	include/asm/uaccess.h
->   122  119  12036 skb_dequeue	include/linux/skbuff.h
->   164   78  11088 skb_queue_purge	include/linux/skbuff.h
->    97  141  10780 netif_wake_queue	include/linux/netdevice.h
->    43  468  10741 copy_to_user	include/asm/uaccess.h
->    43  461  10580 copy_from_user	include/asm/uaccess.h
->   145   77   9500 put_page	include/linux/mm.h
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
 
-This patch deinlines put_page if CONFIG_HUGETLB_PAGE=y.
---
-vda
-
---Boundary-00=_GoDgAjxU1Nzisr0
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="linux-2.6.5.mm_inline1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="linux-2.6.5.mm_inline1.patch"
-
-diff -urN linux-2.6.5.orig/include/linux/mm.h linux-2.6.5.mm_inline1/include/linux/mm.h
---- linux-2.6.5.orig/include/linux/mm.h	Sun Apr  4 06:36:15 2004
-+++ linux-2.6.5.mm_inline1/include/linux/mm.h	Fri Apr 16 22:49:18 2004
-@@ -253,22 +253,7 @@
- 	atomic_inc(&page->count);
- }
+===== drivers/message/fusion/mptctl.c 1.20 vs edited =====
+--- 1.20/drivers/message/fusion/mptctl.c	Sat Mar 27 07:38:07 2004
++++ edited/drivers/message/fusion/mptctl.c	Fri Apr 16 12:53:20 2004
+@@ -1208,7 +1208,7 @@
+ 	int			numDevices = 0;
+ 	unsigned int		max_id;
+ 	int			ii;
+-	int			port;
++	unsigned int		port;
+ 	int			cim_rev;
+ 	u8			revision;
  
--static inline void put_page(struct page *page)
--{
--	if (PageCompound(page)) {
--		page = (struct page *)page->lru.next;
--		if (put_page_testzero(page)) {
--			if (page->lru.prev) {	/* destructor? */
--				(*(void (*)(struct page *))page->lru.prev)(page);
--			} else {
--				__page_cache_release(page);
--			}
--		}
--		return;
--	}
--	if (!PageReserved(page) && put_page_testzero(page))
--		__page_cache_release(page);
--}
-+void put_page(struct page *page);
+@@ -1240,9 +1240,7 @@
+ 		return -ENODEV;
+ 	}
  
- #else		/* CONFIG_HUGETLB_PAGE */
+-	/* Verify the data transfer size is correct.
+-	 * Ignore the port setting.
+-	 */
++	/* Verify the data transfer size is correct.  */
+ 	if (karg.hdr.maxDataSize != data_size) {
+ 		printk(KERN_ERR "%s@%d::mptctl_getiocinfo - "
+ 			"Structure size mismatch. Command not completed.\n",
+@@ -1258,6 +1256,8 @@
+ 	else
+ 		karg.adapterType = MPT_IOCTL_INTERFACE_SCSI;
  
-diff -urN linux-2.6.5.orig/mm/page_alloc.c linux-2.6.5.mm_inline1/mm/page_alloc.c
---- linux-2.6.5.orig/mm/page_alloc.c	Sun Apr  4 06:36:17 2004
-+++ linux-2.6.5.mm_inline1/mm/page_alloc.c	Fri Apr 16 22:49:51 2004
-@@ -109,6 +109,24 @@
-  * This is only for debug at present.  This usage means that zero-order pages
-  * may not be compound.
-  */
-+
-+void put_page(struct page *page)
-+{
-+	if (PageCompound(page)) {
-+		page = (struct page *)page->lru.next;
-+		if (put_page_testzero(page)) {
-+			if (page->lru.prev) {	/* destructor? */
-+				(*(void (*)(struct page *))page->lru.prev)(page);
-+			} else {
-+				__page_cache_release(page);
-+			}
-+		}
-+		return;
-+	}
-+	if (!PageReserved(page) && put_page_testzero(page))
-+		__page_cache_release(page);
-+}
-+
- static void prep_compound_page(struct page *page, unsigned long order)
- {
- 	int i;
-
---Boundary-00=_GoDgAjxU1Nzisr0--
-
++	if (karg.hdr.port > 1)
++		return -EINVAL;
+ 	port = karg.hdr.port;
+ 
+ 	karg.port = port;

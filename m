@@ -1,157 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268314AbUH2VWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268316AbUH2VYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268314AbUH2VWS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 17:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268316AbUH2VWS
+	id S268316AbUH2VYN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 17:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268317AbUH2VYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 17:22:18 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:18834 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S268314AbUH2VWG (ORCPT
+	Sun, 29 Aug 2004 17:24:12 -0400
+Received: from holomorphy.com ([207.189.100.168]:38576 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268316AbUH2VX6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 17:22:06 -0400
-Date: Sun, 29 Aug 2004 17:22:05 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, romieu@fr.zoreil.com
-Subject: [PATCH,RFT] 8139cp TSO support
-Message-ID: <20040829212205.GA2864@havoc.gtf.org>
-Reply-To: netdev@oss.sgi.com
+	Sun, 29 Aug 2004 17:23:58 -0400
+Date: Sun, 29 Aug 2004 14:23:50 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
+       Alessandro Rubini <rubini@ipvvis.unipv.it>
+Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
+Message-ID: <20040829212350.GX5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andries Brouwer <Andries.Brouwer@cwi.nl>,
+	mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
+	Alessandro Rubini <rubini@ipvvis.unipv.it>
+References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040829162252.GG5492@holomorphy.com> <20040829184114.GS5492@holomorphy.com> <20040829192617.GB24937@apps.cwi.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040829192617.GB24937@apps.cwi.nl>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 29, 2004 at 11:41:14AM -0700, William Lee Irwin III wrote:
+>> I guess I might as well write a diffprof(1) too.
 
-Just added TSO support to the 8139cp driver, as it looked fairly
-straightforward.
+On Sun, Aug 29, 2004 at 09:26:17PM +0200, Andries Brouwer wrote:
+> Thanks!
+> <mutter>
+> Is it really necessary to tell Alessandro Rubini, Stephane Eranian,
+> Andrew Morton, Werner Almesberger, John Levon, Nikita Danilov
+> that their work makes you vomit?
+> Many kernel people have such unpleasant habits.
+> It fully suffices to say that you considered the original code
+> too ugly to fix.
+> </mutter>
 
-Anyone willing to give this some testing?
+It probably qualifies as impolite. I suppose a better way of going
+about this would be saying that the code has accumulated some cruft,
+and then describing the differences in greater detail.
 
-Also, the r8169 implementation should be similar, if someone (Francois?)
-wants to tackle it.
+The removal of the multiplier resetting is an oversight; I rarely
+use the feature myself, but upon closer examination, the multiplier
+accepted by write_profile() is not ASCII. I also question the role of a
+profile report extraction utility in alterations of profiling state.
 
-	Jeff
+The removal of the reset feature is once again intentional as this
+can be done by echo > /proc/profile.
+
+The removal of the individual bin count reporting is intentional, but
+not a very nice removal, as it's a useful feature and definitely not a
+misfeature. The format of the histogram reporting is, however, not very
+useful as sort(1) etc. don't easily interoperate with it. This should
+be put back for serious use.
+
+The removal of accepting compressed files is once again intentional,
+and replaced with the new feature of accepting '-' as an argument for
+the files operated on so that decompression to pipes may replace it.
+
+The removal of the stepsize reporting was intentional, but again not
+a nice removal.
+
+The removal of reporting zero hit count symbols was intentional, but
+again not nice.
+
+The removal of verbose reporting with text addresses in addition to the
+symbol was intentional, but again not nice.
+
+The removal of -V was intentional, as I consider it bloat.
+
+The removal of the normalized load from the reporting was very
+intentional, as it's pure gibberish.
+
+The difference I cared the most about was algorithmic. A giant memcpy()
+of the profile buffer and making multiple passes over it is ridiculous.
+This was recoded as maintaining a buffer large enough to hold the
+length of the profile buffer spanning symbol currently being examined.
+In this way the memory resources required for it to operate are
+drastically reduced from multiple megabytes to just a few pages.
 
 
+On Sun, Aug 29, 2004 at 09:26:17PM +0200, Andries Brouwer wrote:
+> <util-linux maintainer>
+> Your code still requires some polishing. No localized messages, etc.
+
+I tend to avoid locale bits due to system resource and library
+dependency concerns. I usually try to avoid using (g)libc for similar
+reasons also by making syscalls directly, static linking and so on,
+but expected that would not go over well.
 
 
-# ChangeSet
-#   2004/08/29 17:19:44-04:00 jgarzik@pobox.com 
-#   [netdrvr 8139cp] TSO support
-# 
-diff -Nru a/drivers/net/8139cp.c b/drivers/net/8139cp.c
---- a/drivers/net/8139cp.c	2004-08-29 17:19:59 -04:00
-+++ b/drivers/net/8139cp.c	2004-08-29 17:19:59 -04:00
-@@ -185,6 +185,9 @@
- 	RingEnd		= (1 << 30), /* End of descriptor ring */
- 	FirstFrag	= (1 << 29), /* First segment of a packet */
- 	LastFrag	= (1 << 28), /* Final segment of a packet */
-+	LargeSend	= (1 << 27), /* TCP Large Send Offload (TSO) */
-+	MSSShift	= 16,	     /* MSS value position */
-+	MSSMask		= 0xfff,     /* MSS value: 11 bits */
- 	TxError		= (1 << 23), /* Tx error summary */
- 	RxError		= (1 << 20), /* Rx error summary */
- 	IPCS		= (1 << 18), /* Calculate IP checksum */
-@@ -747,10 +750,11 @@
- {
- 	struct cp_private *cp = netdev_priv(dev);
- 	unsigned entry;
--	u32 eor;
-+	u32 eor, flags;
- #if CP_VLAN_TAG_USED
- 	u32 vlan_tag = 0;
- #endif
-+	int mss = 0;
- 
- 	spin_lock_irq(&cp->lock);
- 
-@@ -770,6 +774,9 @@
- 
- 	entry = cp->tx_head;
- 	eor = (entry == (CP_TX_RING_SIZE - 1)) ? RingEnd : 0;
-+	if (dev->features & NETIF_F_TSO)
-+		mss = skb_shinfo(skb)->tso_size;
-+
- 	if (skb_shinfo(skb)->nr_frags == 0) {
- 		struct cp_desc *txd = &cp->tx_ring[entry];
- 		u32 len;
-@@ -781,21 +788,21 @@
- 		txd->addr = cpu_to_le64(mapping);
- 		wmb();
- 
--		if (skb->ip_summed == CHECKSUM_HW) {
-+		flags = eor | len | DescOwn | FirstFrag | LastFrag;
-+
-+		if (mss)
-+			flags |= LargeSend | ((mss & MSSMask) << MSSShift);
-+		else if (skb->ip_summed == CHECKSUM_HW) {
- 			const struct iphdr *ip = skb->nh.iph;
- 			if (ip->protocol == IPPROTO_TCP)
--				txd->opts1 = cpu_to_le32(eor | len | DescOwn |
--							 FirstFrag | LastFrag |
--							 IPCS | TCPCS);
-+				flags |= IPCS | TCPCS;
- 			else if (ip->protocol == IPPROTO_UDP)
--				txd->opts1 = cpu_to_le32(eor | len | DescOwn |
--							 FirstFrag | LastFrag |
--							 IPCS | UDPCS);
-+				flags |= IPCS | UDPCS;
- 			else
- 				BUG();
--		} else
--			txd->opts1 = cpu_to_le32(eor | len | DescOwn |
--						 FirstFrag | LastFrag);
-+		}
-+
-+		txd->opts1 = cpu_to_le32(flags);
- 		wmb();
- 
- 		cp->tx_skb[entry].skb = skb;
-@@ -834,16 +841,19 @@
- 						 len, PCI_DMA_TODEVICE);
- 			eor = (entry == (CP_TX_RING_SIZE - 1)) ? RingEnd : 0;
- 
--			if (skb->ip_summed == CHECKSUM_HW) {
--				ctrl = eor | len | DescOwn | IPCS;
-+			ctrl = eor | len | DescOwn;
-+
-+			if (mss)
-+				ctrl |= LargeSend |
-+					((mss & MSSMask) << MSSShift);
-+			else if (skb->ip_summed == CHECKSUM_HW) {
- 				if (ip->protocol == IPPROTO_TCP)
--					ctrl |= TCPCS;
-+					ctrl |= IPCS | TCPCS;
- 				else if (ip->protocol == IPPROTO_UDP)
--					ctrl |= UDPCS;
-+					ctrl |= IPCS | UDPCS;
- 				else
- 					BUG();
--			} else
--				ctrl = eor | len | DescOwn;
-+			}
- 
- 			if (frag == skb_shinfo(skb)->nr_frags - 1)
- 				ctrl |= LastFrag;
-@@ -1536,6 +1546,8 @@
- 	.set_tx_csum		= ethtool_op_set_tx_csum, /* local! */
- 	.get_sg			= ethtool_op_get_sg,
- 	.set_sg			= ethtool_op_set_sg,
-+	.get_tso		= ethtool_op_get_tso,
-+	.set_tso		= ethtool_op_set_tso,
- 	.get_regs		= cp_get_regs,
- 	.get_wol		= cp_get_wol,
- 	.set_wol		= cp_set_wol,
-@@ -1765,6 +1777,10 @@
- 
- 	if (pci_using_dac)
- 		dev->features |= NETIF_F_HIGHDMA;
-+
-+#if 0 /* disabled by default until verified */
-+	dev->features |= NETIF_F_TSO;
-+#endif
- 
- 	dev->irq = pdev->irq;
- 
+On Sun, Aug 29, 2004 at 09:26:17PM +0200, Andries Brouwer wrote:
+> And next, you removed some features, but do not indicate what
+> replacement you see.
+> For example, Andrew added the -M option that sets a frequency.
+> Are you going to contribute a write_profile too?
+> Or do you think nobody should wish to set a frequency?
+> </util-linux maintainer>
+
+I wasn't really expecting much to come of it besides prodding people
+to clean up bloat. The reduced functionality alone likely precludes it
+from consideration for inclusion. Supposing that there is greater
+interest, which I don't expect, I can fix these things up and so on.
+
+
+-- wli

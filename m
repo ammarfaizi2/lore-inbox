@@ -1,68 +1,67 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154500AbPHYPBJ>; Wed, 25 Aug 1999 11:01:09 -0400
-Received: by vger.rutgers.edu id <S154370AbPHYO6b>; Wed, 25 Aug 1999 10:58:31 -0400
-Received: from [216.70.176.28] ([216.70.176.28]:1529 "EHLO rsts-11.mit.edu") by vger.rutgers.edu with ESMTP id <S154534AbPHYO4f>; Wed, 25 Aug 1999 10:56:35 -0400
-Date: Wed, 25 Aug 1999 10:54:13 -0400
-Message-Id: <199908251454.KAA01398@rsts-11.mit.edu>
-To: osman@Cable.EU.org
-CC: linux-kernel@vger.rutgers.edu
-In-reply-to: <Pine.LNX.4.10.9908240528280.2367-100000@fw.Cable.EU.org> (message from Osman on Tue, 24 Aug 1999 05:38:25 +0200 (CEST))
-Subject: Re: Question: finding boundaries of ext2fs-partitions.
-From: tytso@mit.edu
-Address: 1 Amherst St., Cambridge, MA 02139
-Phone: (617) 253-8091
-References: <Pine.LNX.4.10.9908240528280.2367-100000@fw.Cable.EU.org>
+Received: by vger.rutgers.edu via listexpand id <S154773AbPH0SPY>; Fri, 27 Aug 1999 14:15:24 -0400
+Received: by vger.rutgers.edu id <S154420AbPH0RwE>; Fri, 27 Aug 1999 13:52:04 -0400
+Received: from neon-best.transmeta.com ([206.184.214.10]:14190 "EHLO neon.transmeta.com") by vger.rutgers.edu with ESMTP id <S154442AbPH0Roh>; Fri, 27 Aug 1999 13:44:37 -0400
+Date: Fri, 27 Aug 1999 10:45:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Kernel Mailing List <linux-kernel@vger.rutgers.edu>, "David S. Miller" <davem@redhat.com>, Richard Henderson <rth@cygnus.com>
+Subject: Re: Linux-2.3.15..
+In-Reply-To: <Pine.LNX.4.10.9908271831030.4003-100000@laser.random>
+Message-ID: <Pine.LNX.4.10.9908271040440.1013-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-   Date:   Tue, 24 Aug 1999 05:38:25 +0200 (CEST)
-   From: Osman <osman@Cable.EU.org>
 
-   I heard from an other list that there was a discussion here a few weeks
-   ago or some, about this topic.
-   I need a prg wich will help me in rebuilding/recreating my partition
-   table.
-   The data is still there, only the table was lost due to a mistake I made
-   while installing RH6.0.
 
-The following list of tools that will allow you to rebuild partition
-tables was written up by Andries Brouwer (Andries.Brouwer@cwi.nl) a few
-months ago, and as far as I know it's still an accurate description of
-the various choices you have out there for this task.  
+On Fri, 27 Aug 1999, Andrea Arcangeli wrote:
+> 
+> I guess the problem is the pipe code since I understood the old semaphores
+> completly and there weren't SMP races there.
 
-In my personal opinion, gpart is probably the best of the bunch at this
-point, although all of the programs are relatively new and aren't
-foolproof.  In particular, nearly all of them can be confused by
-previous filesystems whose superblocks are still present on the disk.
-(In the future, programs could be made smarter by looking at the mount
-times to see which filesystem is more recent if there are two
-overlapping filesystems.  As far as I know none of the programs do this
-kind of hueristics for you, so manual human judgement will be required.)
+Well, I certainly saw strange behaviour. The trylock code seemed to be the
+prime culprit - it tried to decrement the "waking" count, but it could end
+up doing it too late so that people had already seen a increment from a
+concurrent "up()".
 
-Anyway, here's Anderies's list:
+I'm not saying the new code is bug-free, but it works for me where the old
+one did not - and your claim that it is obviously broken is also obviously
+wrong, see later..
 
-   (i) findsuper is a small utility that finds blocks with the ext2
-   superblock signature, and prints out location and some info.
-   It is in the non-installed part of the e2progs distribution.
+> Your new semaphores seems completly buggy to me and I am surprised your
+> kernel works without crash or corruption with them.
 
-   (ii) rescuept is a utility that recognizes ext2 superblocks,
-   FAT partitions, swap partitions, and extended partition tables;
-   it prints out information that can be used with fdisk or sfdisk
-   to reconstruct the partition table.
-   It is in the non-installed part of the util-linux distribution.
+Well, you're not counting right..
 
-   (iii) fixdisktable (http://bmrc.berkeley.edu/people/chaffee/fat32.html)
-   is a utility that handles ext2, FAT, NTFS, ufs, BSD disklabels
-   (but not yet v1 Linux swap partitions); it actually will rewrite
-   the partition table, if you give it permission.
+> task1	task2		task3	   -> effect ->	count		sleepers
+> -----	-----		-----			-----		--------
+> 						1		0
+> 
+> ------- task 0 does a down() ------------------	0		0
+> ------- here task 1,2,3 try to get the lock ---
+> 
+> down()						-1		1
+> (I avoided the details here)
+> schedule()
+> 	down()					-2		1
+> 	spin_lock()
+> 	sleepers++				-2		2
+> 	add_neg(1)				-1???		2
+> 	sleepers = 1				-1		1
+> 	schedule()
+> 			down()
+> 			spin_lock()
+> 			sleepers++		-1		2
 
-   (iv) gpart (http://home.pages.de/~michab/gpart/) is a utility
-   that handles ext2, FAT, Linux swap, HPFS, NTFS, FreeBSD and
-   Solaris/x86 disklabels, minix, reiser fs; it prints a proposed
-   contents for the primary partition table, and is well-documented.
+Wrong counting. The "down()" decremented count, so you have
 
-Hope this helps!
+						-2		2
 
-						 - Ted
+which is exactly right, and explains why there will _not_ be two users in
+the critical region at the same time.
+
+			Linus
 
 
 -

@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268419AbRG3H3d>; Mon, 30 Jul 2001 03:29:33 -0400
+	id <S268418AbRG3Hlj>; Mon, 30 Jul 2001 03:41:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268417AbRG3H3X>; Mon, 30 Jul 2001 03:29:23 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:30994 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S268416AbRG3H3S>;
-	Mon, 30 Jul 2001 03:29:18 -0400
-Date: Mon, 30 Jul 2001 08:28:53 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Anton Altaparmakov <aia21@cam.ac.uk>, <postmaster@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Test mail
-In-Reply-To: <Pine.LNX.4.33L.0107300101490.11893-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0107300826510.14171-100000@infradead.org>
+	id <S268416AbRG3Hl2>; Mon, 30 Jul 2001 03:41:28 -0400
+Received: from e23.nc.us.ibm.com ([32.97.136.229]:59595 "EHLO
+	e23.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268418AbRG3HlX>; Mon, 30 Jul 2001 03:41:23 -0400
+Date: Mon, 30 Jul 2001 00:40:43 -0700 (PDT)
+From: Sridhar Samudrala <samudrala@us.ibm.com>
+To: kuznet@ms2.inr.ac.ru
+cc: Thiemo Voigt <thiemo@sics.se>, dmfreim@us.ibm.com,
+        alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, lartc@mailman.ds9a.nl,
+        diffserv-general@lists.sourceforge.net, rusty@rustcorp.com.au
+Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
+In-Reply-To: <200107291625.UAA16491@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.21.0107300035490.22748-100000@w-sridhar2.des.sequent.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi Rik.
+On Sun, 29 Jul 2001 kuznet@ms2.inr.ac.ru wrote:
 
-On Mon, 30 Jul 2001, Rik van Riel wrote:
+> Hello!
+> 
+> > The aim of TCP SYN policing is to prevent server overload by discarding
+> > connection requests
+> 
+> Well, I alluded to this particularly. :-)
+> 
+> But if Sridhar meaned this saying about SYN policing, I would
+> prefer this, rather than bare prioritization, which is pretty
+> dubious when taken alone.
 
- > On Mon, 30 Jul 2001, Anton Altaparmakov wrote:
+Alexey,
 
- >> At 23:20 29/07/2001, Mailing Server wrote:
+Yes. I also meant that in kernel prioritization of connections needs to be 
+complemented with SYN policing so that starvation of a particular class of
+connections is avoided. We do mention this in our HOWTO for our patch. 
 
- >>>Hi, just verifying email, enjoy the attached file.
+I also agree with your suggestion that an enhancement to our patch can be
+to reserve some slots for each class based on the priority and drop lower
+priority connections even when accept queue is not full. 
+I am not sure how much overhead is involved in maintaining the the no. of
+slots left for each priority class. Also what should be the ratio of slots 
+that need to reserved for each class? 
 
- >> Would it be possible to have lkml setup to filter out this kind of
- >> crap?!?
+Do you think that the existing PAQ patch with SYN policing is a reasonable
+way for prioritizing incoming connection requests? Or will it be worthwhile
+to enhance our patch to add dropping of connections based on priority. 
+Preempting existing low priority connections in acceptq with high priority 
+ones may not be good idea as we need to abort them by sending a RST.
 
- > IIRC lkml already has pretty strict filters.
- >
- > However, you cannot have your filters prepared for
- > any random thing. Eventually something will get
- > through.
- >
- > It seems that this month's something just got through.
-
-Surely it should be simple to check that each piece of mail has a from
-address in it, and either kill any that doesn't, or at least plug in
-the envelope from address in its place?
-
-Best wishes from Riley.
+Thanks
+Sridhar
+> 
+> Alexey
+> 
 

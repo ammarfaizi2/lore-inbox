@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318585AbSHGQWc>; Wed, 7 Aug 2002 12:22:32 -0400
+	id <S318572AbSHGQ17>; Wed, 7 Aug 2002 12:27:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318588AbSHGQWc>; Wed, 7 Aug 2002 12:22:32 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:1531 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318585AbSHGQWb>; Wed, 7 Aug 2002 12:22:31 -0400
-Subject: Re: UNIX domain socket hanging around when not closed
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020807155606.GH32427@mea-ext.zmailer.org>
-References: <20020807153251.GD27745@vagabond> 
-	<20020807155606.GH32427@mea-ext.zmailer.org>
-Content-Type: text/plain
+	id <S318623AbSHGQ17>; Wed, 7 Aug 2002 12:27:59 -0400
+Received: from pat.uio.no ([129.240.130.16]:48079 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S318572AbSHGQ16>;
+	Wed, 7 Aug 2002 12:27:58 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Aug 2002 18:45:42 +0100
-Message-Id: <1028742342.18478.321.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Message-ID: <15697.19302.705293.176599@charged.uio.no>
+Date: Wed, 7 Aug 2002 18:31:34 +0200
+To: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
+Cc: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: RE: O_SYNC option doesn't work (2.4.18-3)
+In-Reply-To: <EE83E551E08D1D43AD52D50B9F511092E114DF@ntserver2>
+References: <EE83E551E08D1D43AD52D50B9F511092E114DF@ntserver2>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-07 at 16:56, Matti Aarnio wrote:
->       - There could pre-exist the named socket (at a R/O
->         filesystem), and no new name needs to be allocated
->         in the filesystem for it.
-> 
->       - The entire named entity would not be allowed to
->         exist purely in VFS space, that is: creation wise
->         the permission verification could ignore location
->         directory being on a read/only file system, and
->         just use directory permissions.  (Questions about
->         memory expenditure, etc.  all kinds of trade-offs.)
+>>>>> " " == Gregory Giguashvili <Gregoryg@ParadigmGeo.com> writes:
 
-Linux has a non file system name space for AF_UNIX sockets too. But its
-a Linux extension
+    >> You'll have to ask RedHat. 2.4.18-3 is *not* a stock Linux
+    >> kernel.
+     > What about 2.4.7-10 (Default for RH7.2)? I was referring to the
+     > latest version I have...
 
+Same story. RedHat/Suse/... all patch their kernels with extra stuff
+that often is not included in any of Marcelo/Linus' "standard"
+kernels. The latter are found on ftp.kernel.org and mirrors...
+
+Cheers,
+  Trond

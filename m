@@ -1,116 +1,230 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262465AbSI3Q0a>; Mon, 30 Sep 2002 12:26:30 -0400
+	id <S262438AbSI3QSw>; Mon, 30 Sep 2002 12:18:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262491AbSI3Q0a>; Mon, 30 Sep 2002 12:26:30 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:54204 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262465AbSI3Q00>; Mon, 30 Sep 2002 12:26:26 -0400
-Date: Mon, 30 Sep 2002 09:29:10 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: 2.5.39-mm1
-Message-ID: <766838976.1033378149@[10.10.2.3]>
-In-Reply-To: <3D9804E1.76C9D4AE@digeo.com>
-References: <3D9804E1.76C9D4AE@digeo.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
+	id <S262336AbSI3QRk>; Mon, 30 Sep 2002 12:17:40 -0400
+Received: from [198.149.18.6] ([198.149.18.6]:56223 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S262329AbSI3QRb>;
+	Mon, 30 Sep 2002 12:17:31 -0400
+Date: Mon, 30 Sep 2002 19:37:13 -0400
+From: Christoph Hellwig <hch@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: lord@sgi.com, arjanv@redhat.com, cw@f00f.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] smptimers, old BH removal, tq-cleanup, 2.5.39
+Message-ID: <20020930193713.A13195@sgi.com>
+Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
+	Ingo Molnar <mingo@elte.hu>, lord@sgi.com, arjanv@redhat.com,
+	cw@f00f.org, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209291927400.15706-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209291927400.15706-100000@localhost.localdomain>; from mingo@elte.hu on Sun, Sep 29, 2002 at 07:52:17PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well that's still a 1% bottom line.  But we don't have a
-> comparison which shows the effects of this patch alone.
+On Sun, Sep 29, 2002 at 07:52:17PM +0200, Ingo Molnar wrote:
+> i've done the following cleanups/simplifications to task-queues:
 > 
-> Can you patch -R the five patches and retest sometime?
+>  - removed the ability to define your own task-queue, what can be done is 
+>    to schedule_task() a given task to keventd, and to flush all pending 
+>    tasks.
 > 
-> I just get the feeling that it should be doing better.
+> this is actually a quite easy transition, since 90% of all task-queue
+> users in the kernel used BH_IMMEDIATE - which is very similar in
+> functionality to keventd.
 
-Well, I think something is indeed wrong.
+But it breaks XFS.  Chris Wedgwood fixed it to use schedule_task()
+instead (and I cleaned it up a littler more, see patch below), but
+this does effectively simgle-thead XFS I/O completion.
 
-Averages times of 5 kernel compiles on 16-way NUMA-Q:
+Why?  XFS used to have a per-cpu task-queue, emptied by a per-cpu
+kernel thread.  To get anywhere near the per-formance again we'd
+need to merge the per-cpu keventd patch Arjan did for RH 2.1AS into
+2.5.  Altennatively we could allow kernel code to create it's own
+kevends with associated task-queues, but that sounds rather ugly..
 
-2.5.38-mm1
-Elapsed: 20.44s User: 192.118s System: 46.346s CPU: 1166.6%
-2.5.38-mm1 + the original hot/cold stuff I sent you
-Elapsed: 19.798s User: 191.61s System: 43.322s CPU: 1186.4%
 
-Reduction in both system and elapsed time.
-
-2.5.39-mm1 w/o hot/cold stuff
-Elapsed: 19.538s User: 191.91s System: 44.746s CPU: 1210.8%
-2.5.39-mm1
-Elapsed: 19.532s User: 192.25s System: 42.642s CPU: 1203.2%
-
-No change in elapsed time, system time down somewhat.
-
-Looking at differences in averaged profiles:
-
-Going from 38-mm1 to 38-mm1-hot (+ made things worse, - better)
-Everything below 50 ticks difference excluded.
-
-960 alloc_percpu_page
-355 free_percpu_page
-266 page_remove_rmap
-96 file_read_actor
-89 vm_enough_memory
-56 page_add_rmap
--50 do_wp_page
--53 __pagevec_lru_add
--56 schedule
--73 dentry_open
--93 __generic_copy_from_user
--96 atomic_dec_and_lock
--97 get_empty_filp
--131 __fput
--144 __set_page_dirty_buffers
--147 do_softirq
--169 __alloc_pages
--187 .text.lock.file_table
--263 pgd_alloc
--323 pte_alloc_one
--396 zap_pte_range
--408 do_anonymous_page
--733 __free_pages_ok
--1301 rmqueue
--6709 default_idle
--9776 total
-
-Going from 39-mm1 w/o hot to 39-mm1
-
-1600 default_idle
-896 buffered_rmqueue
-421 free_hot_cold_page
-271 page_remove_rmap
-197 vm_enough_memory
-161 .text.lock.file_table
-132 get_empty_filp
-95 __fput
-90 atomic_dec_and_lock
-50 filemap_nopage
--55 do_no_page
--55 __pagevec_lru_add
--62 schedule
--65 fd_install
--70 file_read_actor
--73 find_get_page
--81 d_lookup
--111 __set_page_dirty_buffers
--285 pgd_alloc
--350 pte_alloc_one
--382 do_anonymous_page
--412 zap_pte_range
--508 total
--717 __free_pages_ok
--1285 rmqueue
-
-Which looks about the same to me? Me slightly confused. Will try
-adding the original hot/cold stuff onto 39-mm1 if you like?
-
-M.
+diff -uNr -p linux-2.5.39-mm1/fs/xfs/pagebuf/page_buf.c linux-2.5.39/fs/xfs/pagebuf/page_buf.c
+--- linux-2.5.39-mm1/fs/xfs/pagebuf/page_buf.c	Mon Sep 30 14:27:25 2002
++++ linux-2.5.39/fs/xfs/pagebuf/page_buf.c	Mon Sep 30 16:49:06 2002
+@@ -160,8 +160,6 @@ pb_tracking_free(
+ 
+ STATIC kmem_cache_t *pagebuf_cache;
+ STATIC pagebuf_daemon_t *pb_daemon;
+-STATIC struct list_head pagebuf_iodone_tq[NR_CPUS];
+-STATIC wait_queue_head_t pagebuf_iodone_wait[NR_CPUS];
+ STATIC void pagebuf_daemon_wakeup(int);
+ 
+ /*
+@@ -1157,15 +1155,6 @@ _pagebuf_wait_unpin(
+ 	current->state = TASK_RUNNING;
+ }
+ 
+-void
+-pagebuf_queue_task(
+-	struct tq_struct	*task)
+-{
+-	queue_task(task, &pagebuf_iodone_tq[smp_processor_id()]);
+-	wake_up(&pagebuf_iodone_wait[smp_processor_id()]);
+-}
+-
+-
+ /*
+  *	Buffer Utility Routines
+  */
+@@ -1210,9 +1199,8 @@ pagebuf_iodone(
+ 		INIT_TQUEUE(&pb->pb_iodone_sched,
+ 			pagebuf_iodone_sched, (void *)pb);
+ 
+-		queue_task(&pb->pb_iodone_sched,
+-				&pagebuf_iodone_tq[smp_processor_id()]);
+-		wake_up(&pagebuf_iodone_wait[smp_processor_id()]);
++		schedule_task(&pb->pb_iodone_sched);
++
+ 	} else {
+ 		up(&pb->pb_iodonesema);
+ 	}
+@@ -1666,62 +1654,6 @@ pagebuf_delwri_dequeue(
+ 	spin_unlock(&pb_daemon->pb_delwrite_lock);
+ }
+ 
+-
+-/*
+- * The pagebuf iodone daemon
+- */
+-
+-STATIC int pb_daemons[NR_CPUS];
+-
+-STATIC int
+-pagebuf_iodone_daemon(
+-	void			*__bind_cpu)
+-{
+-	int			cpu = (long) __bind_cpu;
+-	DECLARE_WAITQUEUE	(wait, current);
+-
+-	/*  Set up the thread  */
+-	daemonize();
+-
+-	/* Avoid signals */
+-	spin_lock_irq(&current->sig->siglock);
+-	sigfillset(&current->blocked);
+-	recalc_sigpending();
+-	spin_unlock_irq(&current->sig->siglock);
+-
+-	/* Migrate to the right CPU */
+-	set_cpus_allowed(current, 1UL << cpu);
+-	if (smp_processor_id() != cpu)
+-		BUG();
+-
+-	sprintf(current->comm, "pagebuf_io_CPU%d", cpu);
+-	INIT_LIST_HEAD(&pagebuf_iodone_tq[cpu]);
+-	init_waitqueue_head(&pagebuf_iodone_wait[cpu]);
+-	__set_current_state(TASK_INTERRUPTIBLE);
+-	mb();
+-
+-	pb_daemons[cpu] = 1;
+-
+-	for (;;) {
+-		add_wait_queue(&pagebuf_iodone_wait[cpu],
+-				&wait);
+-
+-		if (TQ_ACTIVE(pagebuf_iodone_tq[cpu]))
+-			__set_task_state(current, TASK_RUNNING);
+-		schedule();
+-		remove_wait_queue(&pagebuf_iodone_wait[cpu],
+-				&wait);
+-		run_task_queue(&pagebuf_iodone_tq[cpu]);
+-		if (pb_daemons[cpu] == 0)
+-			break;
+-		__set_current_state(TASK_INTERRUPTIBLE);
+-	}
+-
+-	pb_daemons[cpu] = -1;
+-	wake_up_interruptible(&pagebuf_iodone_wait[cpu]);
+-	return 0;
+-}
+-
+ /* Defines for pagebuf daemon */
+ DECLARE_WAIT_QUEUE_HEAD(pbd_waitq);
+ STATIC int force_flush;
+@@ -1907,8 +1839,6 @@ STATIC int
+ pagebuf_daemon_start(void)
+ {
+ 	if (!pb_daemon) {
+-		int		cpu;
+-
+ 		pb_daemon = (pagebuf_daemon_t *)
+ 				kmalloc(sizeof(pagebuf_daemon_t), GFP_KERNEL);
+ 		if (!pb_daemon) {
+@@ -1924,19 +1854,6 @@ pagebuf_daemon_start(void)
+ 
+ 		kernel_thread(pagebuf_daemon, (void *)pb_daemon,
+ 				CLONE_FS|CLONE_FILES|CLONE_VM);
+-		for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-			if (!cpu_online(cpu))
+-				continue;
+-			if (kernel_thread(pagebuf_iodone_daemon,
+-					(void *)(long) cpu,
+-					CLONE_FS|CLONE_FILES|CLONE_VM) < 0) {
+-				printk("pagebuf_daemon_start failed\n");
+-			} else {
+-				while (!pb_daemons[cpu]) {
+-					yield();
+-				}
+-			}
+-		}
+ 	}
+ 	return 0;
+ }
+@@ -1950,24 +1867,12 @@ STATIC void
+ pagebuf_daemon_stop(void)
+ {
+ 	if (pb_daemon) {
+-		int		cpu;
+-
+ 		pb_daemon->active = 0;
+ 		pb_daemon->io_active = 0;
+ 
+ 		wake_up_interruptible(&pbd_waitq);
+ 		while (pb_daemon->active == 0) {
+ 			interruptible_sleep_on(&pbd_waitq);
+-		}
+-		for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-			if (!cpu_online(cpu))
+-				continue;
+-			pb_daemons[cpu] = 0;
+-			wake_up(&pagebuf_iodone_wait[cpu]);
+-			while (pb_daemons[cpu] != -1) {
+-				interruptible_sleep_on(
+-					&pagebuf_iodone_wait[cpu]);
+-			}
+ 		}
+ 
+ 		kfree(pb_daemon);
+diff -uNr -p linux-2.5.39-mm1/fs/xfs/pagebuf/page_buf.h linux-2.5.39/fs/xfs/pagebuf/page_buf.h
+--- linux-2.5.39-mm1/fs/xfs/pagebuf/page_buf.h	Mon Sep 30 14:13:46 2002
++++ linux-2.5.39/fs/xfs/pagebuf/page_buf.h	Mon Sep 30 16:15:25 2002
+@@ -324,9 +324,6 @@ extern void pagebuf_unlock(		/* unlock b
+ 
+ #define pagebuf_geterror(pb)	((pb)->pb_error)
+ 
+-extern void pagebuf_queue_task(
+-		struct tq_struct *);
+-
+ extern void pagebuf_iodone(		/* mark buffer I/O complete	*/
+ 		page_buf_t *);		/* buffer to mark		*/
+ 
+diff -uNr -p linux-2.5.39-mm1/fs/xfs/xfs_log.c linux-2.5.39/fs/xfs/xfs_log.c
+--- linux-2.5.39-mm1/fs/xfs/xfs_log.c	Mon Sep 30 14:15:55 2002
++++ linux-2.5.39/fs/xfs/xfs_log.c	Mon Sep 30 16:15:25 2002
+@@ -2779,7 +2779,7 @@ xlog_state_release_iclog(xlog_t		*log,
+ 		case 0:
+ 			return xlog_sync(log, iclog, 0);
+ 		case 1:
+-			pagebuf_queue_task(&iclog->ic_write_sched);
++		        schedule_task(&iclog->ic_write_sched);
+ 		}
+ 	}
+ 	return (0);

@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262546AbTCRTDf>; Tue, 18 Mar 2003 14:03:35 -0500
+	id <S262544AbTCRTF7>; Tue, 18 Mar 2003 14:05:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262549AbTCRTDf>; Tue, 18 Mar 2003 14:03:35 -0500
-Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:13698 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262546AbTCRTDe>; Tue, 18 Mar 2003 14:03:34 -0500
-Date: Tue, 18 Mar 2003 13:14:21 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4
- due to wrmsr (performance)
-In-Reply-To: <3E7765DE.10609@didntduck.org>
-Message-ID: <Pine.LNX.4.44.0303181312490.1261-100000@localhost.localdomain>
+	id <S262549AbTCRTF7>; Tue, 18 Mar 2003 14:05:59 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:46010 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP
+	id <S262544AbTCRTF6>; Tue, 18 Mar 2003 14:05:58 -0500
+Message-ID: <3E76FFB9.50908@cyclades.com>
+Date: Tue, 18 Mar 2003 11:15:05 +0000
+From: Henrique Gobbi <henrique2.gobbi@cyclades.com>
+Reply-To: henrique.gobbi@cyclades.com
+Organization: Cyclades Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Building a 2.4.x kernel with all options
+References: <Pine.LNX.4.53.0303181346500.11080@skynet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > You can run this (stupid) test-program to try. On my P4 I get
-> > 
-> > 	empty overhead=320 cycles
-> > 	load overhead=0 cycles
-> > 	I$ load overhead=0 cycles
-> > 	I$ load overhead=0 cycles
-> > 	I$ store overhead=264 cycles
+Dear all !!!
 
-On my Athlon 1.3GHz system I get:
-[tmolina@dad tmolina]$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 1343.030
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov 
-pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 2637.82
+Is there a easy way to compile a linux 2.4 kernel with all possible 
+options. That is, something like "make all" or "make everything".
 
-empty overhead=16 cycles
-load overhead=1 cycles
-I$ load overhead=1 cycles
-I$ load overhead=1 cycles
-I$ store overhead=763 cycles
+I need to build a kernel that has everything set. If possible I'd like 
+to use everything that can be module as module.'
 
+Any hint is welcome
+-- 
+regards
+Henrique
 

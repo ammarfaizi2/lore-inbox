@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281237AbRKPINz>; Fri, 16 Nov 2001 03:13:55 -0500
+	id <S281234AbRKPIUr>; Fri, 16 Nov 2001 03:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281240AbRKPINp>; Fri, 16 Nov 2001 03:13:45 -0500
-Received: from dns.irisa.fr ([131.254.254.2]:47521 "HELO dns.irisa.fr")
-	by vger.kernel.org with SMTP id <S281237AbRKPINb>;
-	Fri, 16 Nov 2001 03:13:31 -0500
-Date: Fri, 16 Nov 2001 09:13:30 +0100
-From: DINH Viet Hoa <Viet-Hoa.Dinh@irisa.fr>
+	id <S281235AbRKPIUg>; Fri, 16 Nov 2001 03:20:36 -0500
+Received: from web10302.mail.yahoo.com ([216.136.130.80]:49702 "HELO
+	web10302.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S281234AbRKPIUZ>; Fri, 16 Nov 2001 03:20:25 -0500
+Message-ID: <20011116082013.23833.qmail@web10302.mail.yahoo.com>
+Date: Fri, 16 Nov 2001 09:20:13 +0100 (CET)
+From: =?iso-8859-1?q?Marco=20Schwarz?= <mschwarz_contron@yahoo.de>
+Subject: Machine hangs when booting from NFS server
 To: linux-kernel@vger.kernel.org
-Subject: programs mapping in memory
-Message-Id: <20011116091330.627cd194.vdinh@irisa.fr>
-Organization: IRISA
-X-Mailer: Sylpheed version 0.6.5claws12 (GTK+ 1.2.8; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe I am on the bad mailing-list but my question is
-the following : Why are programs mapped into memory
-segments that start around 0x8048000 ?
-How is it chosen and why is this choice made ?
-For example, why couldn't is be 0x1000000 ?
+Hi, 
 
-for example :
+I got a serious problem when booting my diskless
+clients:
 
-% cat /proc/1/maps 
-08048000-0804f000 r-xp 00000000 08:01 6078       /sbin/init
-0804f000-08050000 rw-p 00006000 08:01 6078       /sbin/init
-08050000-08054000 rwxp 00000000 00:00 0
-...
-bfffe000-c0000000 rwxp fffff000 00:00 0
+Sometimes it hangs at
 
-(Version of linux is 2.2.13)
+<5>Sending BOOTP requests . OK
+<4>IP-Config: Got BOOTP answer from 192.168.0.235, my
+address is 192.168.0.110
+<4>IP-Config: Complete:
+<4>      device=eth0, addr=192.168.0.110,
+mask=255.255.255.0, gw=255.255.255.255,
+<4>     host=192.168.0.110, domain=,
+nis-domain=(none),
+<4>     bootserver=192.168.0.235,
+rootserver=192.168.0.235,
+rootpath=/netclients/192.168.0.110,rsize=8192,wsize=8192
+<6>NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+<5>ds: no socket drivers loaded!
+<5>Looking up port of RPC 100003/2 on 192.168.0.235
+^^^^^^
 
-thanks for your answers.
+It will get a timeout and after that it cannot mount
+its NFS root.
+It happens about 50% of the time ... and sometimes its
+working just fine.
 
--- 
-DINH Viêt Hoà, ingénieur associé, projet PARIS
-IRISA-INRIA, Campus de Beaulieu, 35042 Rennes cedex, France
-Tél: +33 (0) 2 99 84 75 98, Fax: +33 (0) 2 99 84 25 28
+Kernel version is 2.4.9.
+
+Somebody know what could cause this ?
+
+Thanks,
+
+Marco Schwarz
+
+__________________________________________________________________
+
+Gesendet von Yahoo! Mail - http://mail.yahoo.de
+Ihre E-Mail noch individueller? - http://domains.yahoo.de

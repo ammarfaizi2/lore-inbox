@@ -1,71 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291241AbSAaTSA>; Thu, 31 Jan 2002 14:18:00 -0500
+	id <S291248AbSAaTZK>; Thu, 31 Jan 2002 14:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291242AbSAaTRv>; Thu, 31 Jan 2002 14:17:51 -0500
-Received: from flubber.jvb.tudelft.nl ([130.161.76.47]:3206 "EHLO
-	mail.jvb.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S291241AbSAaTRe>; Thu, 31 Jan 2002 14:17:34 -0500
-From: "Robbert Kouprie" <robbert@jvb.tudelft.nl>
-To: "'Ben Greear'" <greearb@candelatech.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: NIC lockup in 2.4.17 (SMP/APIC/Intel 82557)
-Date: Thu, 31 Jan 2002 20:17:21 +0100
-Message-ID: <000f01c1aa8b$e7fbcee0$020da8c0@nitemare>
+	id <S291247AbSAaTYy>; Thu, 31 Jan 2002 14:24:54 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52488 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S291248AbSAaTYb>; Thu, 31 Jan 2002 14:24:31 -0500
+Date: Thu, 31 Jan 2002 11:23:40 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Rik van Riel <riel@conectiva.com.br>, Momchil Velikov <velco@fadata.bg>,
+        John Stoffel <stoffel@casc.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+In-Reply-To: <20020131201412.L1309@athlon.random>
+Message-ID: <Pine.LNX.4.33.0201311115450.1732-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: <3C5984C9.20104@candelatech.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I experienced the 10 Mbit half duplex problems too with this card, but
-they seemed to have gone away after a bugfix from Alan Cox somewhere in
-2.4. Somewhere later I upgraded to 100 Mbit full duplex and never
-experienced problems again until 2.4.17.
 
-I think im gonna try some older kernels and look through diffs if I have
-time.
+On Thu, 31 Jan 2002, Andrea Arcangeli wrote:
+>
+> then there must be some collision handling that raise the complexity to
+> O(N) like with the hashtable, if the depth is fixed and if 32bits of
+> index are enough regardless of how many entries are in the tree.
 
-- Robbert
+No collisions. Each mapping has its own private tree. And mappings are
+virtually indexed by 32 bits. No hashes, no collisions, no nothing.
 
-> -----Original Message-----
-> From: Ben Greear [mailto:greearb@candelatech.com] 
-> Sent: donderdag 31 januari 2002 18:54
-> To: Robbert Kouprie
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: NIC lockup in 2.4.17 (SMP/APIC/Intel 82557)
-> 
-> 
-> 
-> 
-> Robbert Kouprie wrote:
-> 
-> > The box is an Abit BP6 with Dual Celerons 433 and 192 Mb RAM. No
-> > PCI-Riser cards. It is connected at 100 Mbit full duplex to a 100
-> > Mbit switch. APIC is enabled. No kind of power management 
-> is enabled.
-> 
-> 
-> The only lockup problems I have run into are connecting some 
-> eepro nics to
-> a 10bt hub, and using (cheap arsed, it appears) PCI riser 
-> cards.  I have
-> heard of some SMP related issues, but nothing concrete, and I don't
-> have any SMP systems personally.  You could try the e100, but I have
-> no idea if it will be better or worse for your particular problem.
-> 
-> 
-> -- 
-> Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-> President of Candela Technologies Inc      http://www.candelatech.com
-> ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-> 
-> 
+Think of the page tables. We can have 64GB of memory, and the page tables
+will shrink and grow dynamically to match the needs for virtual memory.
+The radix tree is no different, except it ends up being a bit more
+aggressive about shrinking by virtue of not always using the maximum depth.
+
+(A fixed depth tree is much simpler, and has equivalent memory use for
+not-very-dense mappings. But file mappings are 99% dense).
+
+> of course if we add kmalloc to the pagecache code we can drop such part
+> from the page structure with the hashtable too.
+
+But you still need the hashtable.
+
+Right now the hashtable is _roughly_ the size of 4 bytes per physical page
+in the machine - and it was done that way explicitly to avoid havin gto
+walk the chains. That's a LOT of memory.
+
+For example, on my 2GB machine, I have 2MB worth of hash-tables.
+
+In addition, each "struct page" has 8 bytes in it, so we have a total of
+12 bytes per page just for the hash chains.
+
+And yes, you could use kmalloc to allocate the hash chain entries. But
+we're _guaranteed_ that 12 bytes, and kmalloc overhead might make it
+worse.
+
+In short: the radix tree certainly isn't any worse.
+
+		Linus
 

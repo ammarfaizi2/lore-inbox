@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVCaPEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVCaPEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbVCaPEw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 10:04:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVCaPD6
+	id S261506AbVCaPEs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 10:04:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVCaPDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 10:03:58 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:58738 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261497AbVCaPBa (ORCPT
+	Thu, 31 Mar 2005 10:03:42 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:60478 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261498AbVCaPCi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 10:01:30 -0500
+	Thu, 31 Mar 2005 10:02:38 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=VMPiSofsVjJH4Tb2//J0iMNM6uQyzl3ixFqrcdT549brxfSlx5Ye3DfVU3oYLw1m11MQpon58h3GEPR08VeXB/YflH9MzIiPpfKwZ88+5vCP7UZlWsfSACZt3np1zbcHhLt8NNeiFk62TVlvsUfrpFkvgIwm9yrGAU1Wxz/1s/k=
-Message-ID: <424C10C3.9080102@gmail.com>
-Date: Fri, 01 Apr 2005 00:01:23 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Cc: mage@adamant.ua
-Subject: sata_sil Mod15Write quirk workaround patch for vanilla kernel avaialble.
-Content-Type: text/plain; charset=EUC-KR
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=cqDCSEoqgd0fVF5fjO+OqVtovSwE/dj6Z+1iT/2Vjxx+QadzQElXze/uzqBWSEW8+uBLdECA0OAJokF5U3nVt9XW0PfJUr1qM/4THIyvtIajUcl/wMsGY+aFSWZaB+T7YytZSNXDxv3Eg2/1DGipKHx+lp7w9onECSVsWxLXT+g=
+Message-ID: <d120d50005033107024b4c2f96@mail.gmail.com>
+Date: Thu, 31 Mar 2005 10:02:37 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, Stefan Seyfried <seife@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Isaacson <adi@hexapodia.org>
+In-Reply-To: <20050331083909.GA1387@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <20050329181831.GB8125@elf.ucw.cz>
+	 <1112135477.29392.16.camel@desktop.cunningham.myip.net.au>
+	 <20050329223519.GI8125@elf.ucw.cz>
+	 <200503310226.03495.dtor_core@ameritech.net>
+	 <20050331083909.GA1387@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 31 Mar 2005 10:39:10 +0200, Pavel Machek <pavel@suse.cz> wrote:
+> >  int swsusp_write(void)
+> >  {
+> >       int error;
+> > -     device_resume();
+> >       lock_swapdevices();
+> >       error = write_suspend_image();
+> >       /* This will unlock ignored swap devices since writing is
+> 
+> Looks good, except... why move code around? Could you just call
+> usermodehelper_disable from swsusp_write?
 
- Hello, guys.
+That's because I don't think that swsusp_write is a proper place for
+it ;) It looks like a lean and mean function that does just write and
+manipulating usermodehelper state _and_ system (device) state is
+wrong. Let it do one thing, don't overload with actions that I think
+belong to the upper level. Do you agree?
 
- I  generated m16w workaround patch for 2.6.11.6 (by just removing two
-lines :-) and set up a page regarding m15w quirk and the workaournd.
-I'm planning on updating m15w patch against the vanilla tree until it
-gets into the mainline so that impatient users can try out and it gets
-more testing.
-
- http://home-tj.org/m15w
-
- Thanks.
+I think I need to stick in usermodehelper_enable call in case
+swsusp_write fails though.
 
 -- 
-tejun
-
+Dmitry

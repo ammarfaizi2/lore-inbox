@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbTJ2Q7I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 11:59:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbTJ2Q7I
+	id S261807AbTJ2RBo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 12:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbTJ2RBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 11:59:08 -0500
-Received: from mail.gmx.net ([213.165.64.20]:13999 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261659AbTJ2Q7G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 11:59:06 -0500
-X-Authenticated: #555711
-From: "Sebastian Piecha" <spi@gmxpro.de>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 29 Oct 2003 17:59:24 +0100
+	Wed, 29 Oct 2003 12:01:44 -0500
+Received: from web40405.mail.yahoo.com ([66.218.78.102]:22975 "HELO
+	web40405.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261807AbTJ2RBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 12:01:42 -0500
+Message-ID: <20031029170141.58468.qmail@web40405.mail.yahoo.com>
+Date: Wed, 29 Oct 2003 09:01:41 -0800 (PST)
+From: Joshua Weage <weage98@yahoo.com>
+Subject: BUG?: NFS client problems with 2.4.22
+To: Linux Kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: oops in skb in 2.4.20/2.4.22-ac4/2.4.23pre1 but not 2.6.0-test1/test7
-Message-ID: <3F9FFFFC.12003.4B9DC3A@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Everything works now. skbuff.c seems to be ok.
+I have just compiled 2.4.22 with the NFS inode deadlock patch applied
+from the 2.4.23-pre tree.
 
-At the end it seems to be an issue between one of my three memory 
-modules and the installed Promise ide controller. Without the Promise 
-controller everythink works and with a changed memory stick also 
-everything works. I did a lot of memtests but no error was shown. I 
-think one of the memory modules has some electrical specialties when 
-used together with the Promise controller.
+Configuration is SMP, athlon, bonding, eepro100, e1000, NFS v2 and 3
+client.  Pretty basic.
 
-Thanks a lot to everybody who tried to shed some light on this.
+Two nodes use only the eepro100 adapters, two nodes have bonded
+eepro100 and e1000 adapters, both show the same issue.
 
---
-Mit freundlichen Gruessen/Best regards,
-Sebastian Piecha
+This kernel is now producing "kernel: nfs: server not responding"
+"kernel: nfs: server OK" messages at a rate of 5-10 per second.  It
+looks like this kernel is ignoring the timeo option specified in
+/etc/fstab and setting the timeout very small.  I currently have timeo
+set to 40.
 
-EMail: spi@gmxpro.de
+I'm using the following options on my nfs mounts:
+rsize=8192,wsize=8192,hard,intr,timeo=40
 
+Previous Redhat kernels 2.4.18 to 2.4.20-20 have not displayed this
+problem.
+
+Is this a known problem with the 2.4.22 kernel?
+
+Thanks,
+
+Joshua Weage
+
+=====
+
+
+__________________________________
+Do you Yahoo!?
+Exclusive Video Premiere - Britney Spears
+http://launch.yahoo.com/promos/britneyspears/

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278309AbRJSFMU>; Fri, 19 Oct 2001 01:12:20 -0400
+	id <S278311AbRJSFrk>; Fri, 19 Oct 2001 01:47:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278310AbRJSFMK>; Fri, 19 Oct 2001 01:12:10 -0400
-Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:46530 "EHLO
-	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S278309AbRJSFMB>; Fri, 19 Oct 2001 01:12:01 -0400
-Date: Fri, 19 Oct 2001 01:12:25 -0400 (EDT)
-From: "Daniel T. Chen" <crimsun@email.unc.edu>
-To: safemode <safemode@speakeasy.net>
-cc: Davide Libenzi <davidel@xmailserver.org>,
-        "David E. Weekly" <dweekly@legato.com>,
-        ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
-In-Reply-To: <20011019012601Z278266-17408+2209@vger.kernel.org>
-Message-ID: <Pine.A41.4.21L1.0110190111090.59346-100000@login3.isis.unc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278312AbRJSFrU>; Fri, 19 Oct 2001 01:47:20 -0400
+Received: from zero.tech9.net ([209.61.188.187]:30482 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S278311AbRJSFrM>;
+	Fri, 19 Oct 2001 01:47:12 -0400
+Subject: Re: 2.4.13pre5aa1
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011019061914.A1568@athlon.random>
+In-Reply-To: <20011019061914.A1568@athlon.random>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
+Date: 19 Oct 2001 01:48:05 -0400
+Message-Id: <1003470485.913.13.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bug in yesterday's build of binutils (2.11.92.0.5-3), which is fixed in
-today's build (2.11.92.0.7-1).
+On Fri, 2001-10-19 at 00:19, Andrea Arcangeli wrote:
+> Only in 2.4.13pre3aa1: 00_files_struct_rcu-2.4.10-04-1
+> Only in 2.4.13pre5aa1: 00_files_struct_rcu-2.4.10-04-2
 
----
-Dan Chen                 crimsun@email.unc.edu
-GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
+I want to point out to preempt-kernel users that RCU is not
+preempt-safe. The implicit locking assumed from per-CPU data structures
+is defeated by preemptibility.
 
-On Thu, 18 Oct 2001, safemode wrote:
+(Actually, FWIW, I think I can think of ways to make RCU preemptible but
+it would involve changing the write-side quiescent code for the case
+where the pointers were carried over the task switches.  Probably not
+worth it.) 
 
-> It works fine here, cept i get that damn 
-> ld: bvmlinux: Not enough room for program headers (allocated 2, need 3)
-> ld: final link failed: Bad value
-> error now when i compile on tmpfs that i didn't get when i compiled on the 
-> hdd with 2.4.10-acX.  It's only started happening since using 2.4.12-ac3.  
-> I've only used this kernel so i dont know if it's 2.4.12 or the ac3 part.   
-> anyways it got to that point in about 3:30 seconds . . which is about 5 
-> seconds faster than disk.   
+This is not to say RCU is worthless with a preemptible kernel, but that
+we need to make it safe (and then make sure it is still a performance
+advantage, but I don't think this would add much overhead).  Note this
+is clean, simply wrapping the read code in non-preemption statements.
+
+I will hack up a patch when I get the time, but I would like to prevent
+myself from maintaining the patch against a third tree ... where, oh
+where, is 2.5? :)
+
+	Robert Love
 

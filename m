@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132490AbRAVQdn>; Mon, 22 Jan 2001 11:33:43 -0500
+	id <S132559AbRAVQnS>; Mon, 22 Jan 2001 11:43:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132559AbRAVQde>; Mon, 22 Jan 2001 11:33:34 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:63759 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S132408AbRAVQdU>; Mon, 22 Jan 2001 11:33:20 -0500
-Message-ID: <3A6C609F.F135DB0@didntduck.org>
-Date: Mon, 22 Jan 2001 11:32:31 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S132702AbRAVQnH>; Mon, 22 Jan 2001 11:43:07 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:28331 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S132559AbRAVQnB> convert rfc822-to-8bit; Mon, 22 Jan 2001 11:43:01 -0500
+Date: Mon, 22 Jan 2001 17:26:42 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Jorge Nerin <comandante@zaralinux.com>
+cc: Dominik Kubla <dominik.kubla@uni-mainz.de>, linux-kernel@vger.kernel.org
+Subject: Re: APIC errors
+In-Reply-To: <3A674160.A6621B8C@zaralinux.com>
+Message-ID: <Pine.GSO.3.96.1010119212502.19533D-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-To: Andrew Clausen <clausen@conectiva.com.br>
-CC: linux-fsdevel@vger.kernel.org, bug-parted@gnu.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Partition IDs in the New World TM
-In-Reply-To: <3A6C5D12.99704689@conectiva.com.br>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Clausen wrote:
-> 
-> Hi all,
-> 
-> We have roughly 10 different types of partition tables.  We hate
-> them, but it looks like they won't be going away for a long time.
-> 
-> Partition IDs seem to create a lot of confusion.  For example,
-> most people use 0x83 for both ext2 and reiserfs, on msdos
-> partition tables.  People use "Apple_UNIX_SVR2" for ext2 on
-> Mac, etc.
-> 
-> Linux doesn't really use partition IDs.  Well, not entirely
-> true... it's used on Mac's as a heuristic, for finding swap
-> devices, etc. - but I think this unnecessary.
-> 
-> LVM also uses it, but I also think it's unnecessary.
-> 
-> So, can anyone remember why we have partition IDs?  (as opposed
-> to just probing for signatures on the fs)  If new partition table
-> types come out (which is happening, believe it or not...), how
-> should Linux/fdisk/parted handle IDs?  Should we have one Linux
-> type, that we use for everything?  Should we have one type for each
-> TYPE of data (file system, swap, logical volume physical device, etc.)?
+On Thu, 18 Jan 2001, Jorge Nerin wrote:
 
-For compatability with dual booting other operating systems.  Would you
-want Windows walking over your ext2 filesystems?  Linux didn't invent
-the partition table schemes, it just borrows from those that are most
-common for a given architecture (ie. msdos on PC compatable systems,
-etc.)
+> >  It's the first report of APIC errors on a P5 system I have seen, so it's
+> > probably not a result of a bad motherboard design.  I'd recommend to check
+> > if the system doesn't get overheated.  You may also be unlucky to have a
+> > faulty board.
+> 
+> Hey, it's not the first, some time ago when it began to be reported a
+> lot of people with various systems asked at the same time about the same
+> thing :)
 
---
+ I've seen a lot of reports but they were from P6 systems' owners.
 
-				Brian Gerst
+> LOC:    1620963    1620962 
+> ERR:       2697
+> [coma@quartz coma]$ uptime 
+>   8:14pm  up  4:30,  0 users,  load average: 0.19, 0.11, 0.09
+
+ This rate of errors is alarming.  You get an error every six seconds on
+the average. 
+
+> but my system works ok, mostly, now I have just upgraded a Realtek 8029
+> (10Mb) because it gets hung to a Realtek 8139 (100Mb) just to found the
+> mobo has some kind of busmastering problems, but that's another story.
+
+ The hangs might actually be a result of interrupt delivery problems (just
+as other people report).
+
+> P.D. And as you suggested it runs very hot, about 50ºC at the cpus when
+> both are at full use.
+
+ Well, 50 degrees is not that hot -- CPUs are actually speced for up to 70
+degrees ambient temperature (that means the maximum temperature of the
+case, not the heatsink!), but you need to ensure proper cooling. 
+
+ After one and a half year since the error reporting is enabled I have yet
+to see a hardware error to be reported by an APIC in my system.
+
+  Maciej
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129733AbRALP05>; Fri, 12 Jan 2001 10:26:57 -0500
+	id <S129763AbRALPe5>; Fri, 12 Jan 2001 10:34:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130392AbRALP0q>; Fri, 12 Jan 2001 10:26:46 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:11917 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S129733AbRALP0m>; Fri, 12 Jan 2001 10:26:42 -0500
-Date: Fri, 12 Jan 2001 17:25:45 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Arjan van de Ven <arjan@fenrus.demon.nl>
-Cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: khttpd beaten by boa
-Message-ID: <20010112172545.H10035@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.21.0101071655090.1110-100000@home.lameter.com> <m14H4Nl-000OY9C@amadeus.home.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <m14H4Nl-000OY9C@amadeus.home.nl>; from arjan@fenrus.demon.nl on Fri, Jan 12, 2001 at 02:36:41PM +0100
+	id <S130018AbRALPer>; Fri, 12 Jan 2001 10:34:47 -0500
+Received: from ega010000096.lancs.ac.uk ([148.88.153.219]:18948 "EHLO
+	egb070000014.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S129763AbRALPef>; Fri, 12 Jan 2001 10:34:35 -0500
+Date: Fri, 12 Jan 2001 15:32:28 +0000 (GMT)
+From: Stephen Torri <s.torri@lancaster.ac.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux booting from HD on Promise Ultra ATA 100
+Message-ID: <Pine.LNX.4.21.0101121523040.4379-100000@egb070000014.lancs.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 02:36:41PM +0100, Arjan van de Ven wrote:
-> > This just goes on to show that khttpd is unnecessary kernel bloat and can be
-> > "just as well" handled by a userspace application, minus some rather very
-> > special cases which do not justify its inclusion into the main kernel.
-> Regarding wether either khttpd or TuX should be in the kernel: I take it
-> that it is your oppinion that neither should be in the kernel. I disagree
-> with that and I think having a http-server-engine  (or even a more generic
-> file-serving engine) in the kernel can make sense for high-end uses. The
-> average desktop-user doesn't profit from it, sure. But that also holds for
-> things like hardware-raid or even SCSI. We still want those in though.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This thingie is nice for embedded use, where you need a webserver
-for some stuff, but don't wan't to include one, because you need
-it only to represent some machine values of a process
-computer[1].
+I'm having difficulty booting from the Promise controller. Here is the
+story:
 
-But we need a more generic one, which has the functionality of a
-read only entry of /proc.
+I originally had my system setup with all drives working off the
+mainsboard IDE controller (Intel 82371AB PIIX4). The setup was
 
-That would be _very_ useful.
+/dev/hda - ST310232A, FwRev=3.09  (Seagate)
+/dev/hdb - 927308, FwRev=RA530JNO (Maxtor) * Linux installed here
+/dev/hdc - CD-532E-B (Teach CDROM)
+/dev/hdd - CD-RW4224A (Smart & Friendly CDRW).
 
-Regards
+Well I got an Promise Ultra ATA 100 controller card. Went over to
+linux-ide.org and get the patches for kernel-2.2.16. Took a pristine
+kernel-2.2.16 and patched it and then compiled it on a RedHat 6.2
+system. I then made a bootdisk with this new kernel.
 
-Ingo Oeser
+So then I installed the drives in this order:
 
-[1] Don't know the right translation for "Prozessrechner", Sorry ;-(
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
+(Mainsboard controller)
+primary master - ST310232A (Seagate)
+primary slave - none
+secondary master - CDROM
+secondary slave - CDRW
+
+(Promise controller)
+primary slave - IBM-DLTA-307045 (IBM)
+primary slave - 927308 (Maxtor) * Linux install here
+secondary master - none
+secondary slave - none
+
+The system boots if I use the bootdisk and tell it "linux
+root=/dev/hdf3".  I edited the lilo.conf and the fstab for the new
+setup. I can log in and do my business with my the linux partition but
+when I tried to use lilo to setup the MBR on the first disk (mainsboard) I
+got this:
+
+warning: BIOS Drive 0x82 may not be accessible.
+
+Is there some settings that I need to give to the lilo to boot?
+
+Stephen
+
+- -- 
+Buyer's Guide for a Operating System:
+Don't care to know: Mac
+Don't mind knowing but not too much: Windows
+Hit me! I can take it!: Linux
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+Filter: gpg4pine 4.0 (http://azzie.robotics.net)
+
+iD8DBQE6XyOTI7ZT+dSlizsRAu3BAKCdtwlgiJ9+isy9NOlltIs+logHMgCfViiy
+ofYOmWxhH6Qt8FDeoJNZvsg=
+=+RwL
+-----END PGP SIGNATURE-----
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbULKRr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbULKRug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbULKRr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 12:47:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbULKRr3
+	id S261982AbULKRug (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 12:50:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbULKRud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 12:47:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8578 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261971AbULKRrZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 12:47:25 -0500
-Message-ID: <41BB32A4.2090301@pobox.com>
-Date: Sat, 11 Dec 2004 12:47:16 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: rudi@asics.ws
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel (64bit) 4GB memory support
-References: <1102752990.17081.160.camel@cpu0>  <41BAC68D.6050303@pobox.com> <1102760002.10824.170.camel@cpu0>
-In-Reply-To: <1102760002.10824.170.camel@cpu0>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 11 Dec 2004 12:50:33 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:63964 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261982AbULKRuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 12:50:16 -0500
+Subject: Re: PCI IRQ problems -- update
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jim Paris <jim@jtan.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041211173538.GA21216@jim.sh>
+References: <20041211173538.GA21216@jim.sh>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1102783555.7267.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 11 Dec 2004 16:45:57 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rudolf Usselmann wrote:
-> On Sat, 2004-12-11 at 17:06, Jeff Garzik wrote:
-> 
->>Rudolf Usselmann wrote:
->>
->>>Could anybody tell me which of the previous (non 2.6.9) kernels
->>>do support 4GB of main memory in 64 bit mode ?
->>
->>64bit kernels have supported >4GB since their ports inception, AFAIK.
->>
->>Your platform could limit this artificially, of course.
+On Sad, 2004-12-11 at 17:35, Jim Paris wrote:
+> In short, all PCI IRQs are routed via ACPI to PIC IRQ 9.  When the
+> PIIX IDE device is enabled, it pulls on that interrupt until it gets
+> disabled ("nobody cared").  ide0 then continues to work on IRQ 14, but
+> all other devices are broken since IRQ 9 is disabled.
 
-> Yes, but it is currently broken (kernel panics). I wonder
-> if anybody knew which kernel does work for 64 bit and >4GB
-> of memory. I'm sure there must be people out there with
-> similar configurations to mine ....
+The PIIX should be in legacy mode by default in which case it would be
+on
+IRQ 14/15 only. Can you post boot messages ?
 
-All 2.6 kernels work with 64bit and >4GB memory, on my configurations 
-(x86-64, ia64, and alpha).
+> I'm not sure how to get to the root cause of the problem, though.  For
+> starters: where _should_ the INTA of the IDE card go, if anywhere?  If
 
-It is a mistake to assume that all 64bit and/or >4GB is broken.
+Quite possibly nowhere. IDE controllers have two modes one in which they
+are normal PCI devices (and use INTA) and one in which they are "legacy"
+compatible and use IRQ14/15 directly so they work with pre-PCI operating
+systems.
 
+> my laptop's IDE is routed to and pulling on IRQ 9, how can it still be
+> functioning on IRQ 14?  Or, if the routing doesn't matter, is there
+> anything I can do to prevent it from pulling on 9?
 
-> (Tiger K8W, dual Opteron)
-
-Ok, we finally get a bit of useful information.
-
-Are you CERTAIN that you are booting a 64bit kernel?
-Is your memory PC1600, PC2100, or PC2700?
-Is your memory installed in matched pairs?
-Is all your memory ECC registered?
-Is your BIOS at the latest version?
-
-Once we get through the hardware issues, now it is time to do a binary 
-search of 2.6 kernels, to see which one works for you.  If no 2.6 
-kernels work for you, then give 2.4 kernels a try.
-
-	Jeff
-
+In legacy mode (the mode I would expect at boot) it shouldn't be using
+INTA at all.
 

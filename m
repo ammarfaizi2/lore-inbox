@@ -1,51 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277849AbRJLT6N>; Fri, 12 Oct 2001 15:58:13 -0400
+	id <S278083AbRJLUGd>; Fri, 12 Oct 2001 16:06:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278106AbRJLT6D>; Fri, 12 Oct 2001 15:58:03 -0400
-Received: from m3d.uib.es ([130.206.132.6]:9149 "EHLO m3d.uib.es")
-	by vger.kernel.org with ESMTP id <S277849AbRJLT5q>;
-	Fri, 12 Oct 2001 15:57:46 -0400
-Date: Fri, 12 Oct 2001 21:58:16 +0200 (MET)
-From: Ricardo Galli <gallir@m3d.uib.es>
-To: <linux-kernel@vger.kernel.org>
-cc: <alan@lxorguk.ukuu.org.uk>
-Subject: 2.4.10-ac1 hard lockup (APM+nvidia related) and reiser adds ^@
-Message-ID: <Pine.LNX.4.33.0110122137300.7111-100000@m3d.uib.es>
+	id <S278106AbRJLUGY>; Fri, 12 Oct 2001 16:06:24 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1040 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278083AbRJLUGP>; Fri, 12 Oct 2001 16:06:15 -0400
+Subject: Re: kapm-idled Funny in 2.4.10-ac12
+To: jdthood@mail.com (Thomas Hood)
+Date: Fri, 12 Oct 2001 21:12:30 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1002915626.10291.67.camel@thanatos> from "Thomas Hood" at Oct 12, 2001 03:40:24 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15s8fW-0000PV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes I know... I must complain to nvidia, but it happens only with this
-kernel, so I report it just in case.
+> get_cmos_time is in time.c .  It does a bunch of CMOS_READs
+> without taking rtc_lock.
+> 
+> Methinks that the
+>     save_flags(flags); ...; cli(); ...; restore_flags(flags);
+> constructs in apm.c need some attention.
 
-
-Doing an apm -s with the nvidia module loaded, the kernel locks hard.
-With Linus kernel, the nvidia just rejects the suspend:
-
-kernel: NVRM: avoiding suspend request, don't want to shutdown!!
-
-
-There is no logs, ctrl-alt-print doesn't work and a ping doesn't neither.
-It's strange than the machine locks again next reboot, only avoided cold
-reboot.
-
-If I kill all xdm/X processes and rmmod nvidia modules, apm -s it works
-nicely.
-
-During these tests, I realised that reiserfs still added funny chars to
-log files after a reboot. Thousands of "^@" in all syslog files (hope only
-there...).
-
-OTH, I am finding these kernel errors since vanilla 2.4.10:
-
-Oct 12 21:35:32 linux kernel: mtrr: no MTRR for f0000000,2000000 found
-
-
-Hope this helps.
-
-Regards,
-
---ricardo
-
+Well spotted. Yes the CMOS handling does still seem a bit random in places

@@ -1,93 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbUJ0JYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262352AbUJ0J0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262345AbUJ0JYx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 05:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbUJ0JXs
+	id S262352AbUJ0J0p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 05:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbUJ0JZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 05:23:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:55694 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262345AbUJ0JWi (ORCPT
+	Wed, 27 Oct 2004 05:25:11 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:58806 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262346AbUJ0JXr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 05:22:38 -0400
-Date: Wed, 27 Oct 2004 02:20:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Morris <jmorris@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@intel.com
-Subject: Re: 2.6.10-rc1-mm1
-Message-Id: <20041027022031.1567fe98.akpm@osdl.org>
-In-Reply-To: <Xine.LNX.4.44.0410270409370.8390-100000@thoron.boston.redhat.com>
-References: <20041026233307.53f37a6c.akpm@osdl.org>
-	<Xine.LNX.4.44.0410270409370.8390-100000@thoron.boston.redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 27 Oct 2004 05:23:47 -0400
+Date: Wed, 27 Oct 2004 11:24:53 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+Message-ID: <20041027092453.GA17999@elte.hu>
+References: <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417F16BB.3030300@cybsft.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris <jmorris@redhat.com> wrote:
->
-> On Tue, 26 Oct 2004, Andrew Morton wrote:
-> 
-> > My guess would be that you died here:
-> > 
-> > 	list_add_tail(&driver->node, &acpi_bus_drivers);
-> > 
-> > in acpi_bus_register_driver().  Which means that some _other_ acpi driver
-> > structure on that list is scrogged.  Perhaps it was marked __init or
-> > something.
-> > 
-> > Can you debug it a bit?  Maybe print the addresses and names of the drivers
-> > as they get registered in acpi_bus_register_driver() and also print out
-> > acpi_bus_drivers.prev.  If we can get the name of the offending driver
-> > we'll be able to find the bug.
-> 
-> Interestingly, the debug printks are not showing up in
-> acpi_bus_register_driver() before the oops, and they should be if that's
-> where it's happening.  Compiling with debug info makes the oops go away.
-> 
-> Here's some debugging of the last few drivers to be registered before the 
-> oops is seen:
-> 
-> name=hpet node=c03ee9a0 acpi_bus_drivers.prev=c03ea6a0
-> name=i8042 node=c03eeda0 acpi_bus_drivers.prev=c03ee9a0
-> name=floppy node=c03f24c0 acpi_bus_drivers.prev=c03ee9a0
-> 
-> 
-> Note acpi_bus_drivers.prev for floppy was not set to c03eeda0, which you 
-> would normally expect?
 
-Not too sure what I'm looking at there.
+* K.R. Foley <kr@cybsft.com> wrote:
 
-ah.  the acpi floppy scanning code seems to be misinterpreting the
-acpi_bus_register_driver() return value, so if it returns zero we think
-that the driver was registered, only it wasn't.  floppy_init() then
-proceeds to unregister a not-registered driver.  I think.  Does this help?
+> I've repeated the above on the dual 933 Xeon:
+> 
+> Still problems with interactive behavior. Running KDE, with top
+> running in xterm, scrolling through the menus I get some pauses. When
+> the pauses occur I see kdeinit hit the top of the list and sometimes
+> consuming 90% or more of a CPU and idle usage drops to 30-40%. I do
+> see some latency traces (not really high ones) in the log that were
+> generated by kdeinit but I think they were generated prior to when
+> these pauses occurred, most likely when logging in.
 
---- 25/drivers/block/floppy.c~add-acpi-based-floppy-controller-enumeration-fix-fix	2004-10-27 02:14:33.567295256 -0700
-+++ 25-akpm/drivers/block/floppy.c	2004-10-27 02:15:13.415237448 -0700
-@@ -4379,7 +4379,7 @@ static int acpi_floppy_init(void)
- 		return -ENODEV;
- 	}
- 	err = acpi_bus_register_driver(&acpi_floppy_driver);
--	if (err >= 0)
-+	if (err > 0)
- 		acpi_floppy_registered = 1;
- 	return err;
- }
-@@ -4401,7 +4401,7 @@ int __init floppy_init(void)
- 	int i, unit, drive;
- 	int err, dr;
- 
--	if (acpi_floppy_init() == 0) {
-+	if (acpi_floppy_init() <= 0) {
- 		err = -ENODEV;
- 		goto out_put_acpi;
- 	}
-_
+is this 90% or more CPU time system (kernel) overhead or userspace
+overhead?
 
-If so, I wonder why acpi_bus_register_driver() is returning zero.
-
-Bjorn, do I remember hearing that we can drop all that code anyway?  That
-it'll be done in another way?
-
+	Ingo

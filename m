@@ -1,45 +1,134 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317021AbSFFRJl>; Thu, 6 Jun 2002 13:09:41 -0400
+	id <S317007AbSFFRMg>; Thu, 6 Jun 2002 13:12:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317023AbSFFRJk>; Thu, 6 Jun 2002 13:09:40 -0400
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:63986 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S317021AbSFFRJi>;
-	Thu, 6 Jun 2002 13:09:38 -0400
-Date: Thu, 6 Jun 2002 13:09:35 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Robert Love <rml@tech9.net>
-Cc: "David S. Miller" <davem@redhat.com>, akpm@zip.com.au,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] CONFIG_NR_CPUS
-Message-ID: <20020606170935.GA32506@www.kroptech.com>
-In-Reply-To: <3CFF3504.1DCD24E7@zip.com.au> <20020606.031520.08940800.davem@redhat.com> <1023377213.13787.2.camel@sinai>
+	id <S317030AbSFFRMf>; Thu, 6 Jun 2002 13:12:35 -0400
+Received: from niobium.golden.net ([199.166.210.90]:45053 "EHLO
+	niobium.golden.net") by vger.kernel.org with ESMTP
+	id <S317007AbSFFRMe>; Thu, 6 Jun 2002 13:12:34 -0400
+Date: Thu, 6 Jun 2002 13:12:20 -0400
+From: "John L. Males" <jlmales@yahoo.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Question Regarding "EXTRAVERSION" Specification
+Message-Id: <20020606131220.36093ef5.jlmales@yahoo.com>
+In-Reply-To: <20020606124846.28a10cbd.jlmales@yahoo.com>
+Reply-To: jlmales@yahoo.com
+Organization: Toronto, Ontario - Canada
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="ZX=.8)wWDw+b5NIa"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 06, 2002 at 08:26:52AM -0700, Robert Love wrote:
-> I have attached a patch that is Andrew's + your request, Dave.  Since
-> what really determines the maximum number of CPUs is the size of
-> unsigned long, I used that.  Cool?
-> 
-> 	Robert Love
-> 
-> diff -urN linux-2.5.20/arch/i386/Config.help linux/arch/i386/Config.help
-> --- linux-2.5.20/arch/i386/Config.help	Sun Jun  2 18:44:41 2002
-> +++ linux/arch/i386/Config.help	Thu Jun  6 07:58:58 2002
-> @@ -25,6 +25,14 @@
->  
->    If you don't know what to do here, say N.
->  
-> +CONFIG_NR_CPUS
-> +  This allows you to specify the maximum number of CPUs which this
-> +  kernel will support.  The maximum supported value is 32 and the
-                                                          ^^
-This isn't quite true now...
+--ZX=.8)wWDw+b5NIa
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
---Adam
+Hi,
+
+**** Please BCC me in on any reply, not CC me.  Two reasons, I am not
+on the LKML, and second I am suffering BIG time with SPAM from posting
+to the mailing list.  Thanks in advance. *****
+
+Sorry I made a few bad typo and incoherrent statements in my last
+eMail.  I am very tired and very short on sleep due to some major
+construction work in my building.  Please see below for important
+corrections.
+
+On Thu, 6 Jun 2002 12:48:46 -0400
+John L. Males wrote in Message-ID:
+20020606124846.28a10cbd.jlmales@yahoo.com
+
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: "John L. Males" <jlmales@yahoo.com>
+Subject: Re: Question Regarding "EXTRAVERSION" Specification
+Date: Thu, 6 Jun 2002 12:48:46 -0400
+
+> Keith,
+> 
+
+[snip]
+
+> 
+> Ok, well I created a:
+> 
+> VERSION = 2
+> PATCHLEVEL = 2
+> SUBLEVEL = 20
+> EXTRAVERSION = -PentiumK6TSCCyrixIII-SMP-ow3
+> -PentiumK6-SMP-ow3
+
+Ignore the "-PentiumK6-SMP-ow3" line above, part of my cut and paste
+activity.
+
+> 
+> The Kernel itself seemed just fine with this, but various programs
+> like those to mkinitrd and LILO, not sure about GRUB as not able to
+> test all had big problems with it.  I had to keep it down to
+> 
+> EXTRAVERSION = -PentiumK6-SMP-ow3 before the supporting and
+> dependant on the Kernel in somewere ok with the original one I used
+> above.
+
+Umm, now this make no sense at all above, trying again:
+
+EXTRAVERSION = -PentiumK6-SMP-ow3
+
+Worked just fine with the supporting and dependant on the Kernel in
+some manner programs.
+
+> 
+
+[snip]
+
+> 
+> 
+> Regards,
+> 
+> John L. Males
+> Willowdale, Ontario
+> Canada
+> 06 June 2002 12:48
+> 
+> 
+
+[snip]
+
+
+Regards,
+
+John L. Males
+Willowdale, Ontario
+Canada
+06 June 2002 13:12
+
+==================================================================
+***** Please BCC me in on any reply, not CC me.  Two reasons, I am not
+on the LKML, and second I am suffering BIG time with SPAM from posting
+to the mailing list.  Thanks in advance. *****
+
+
+Please BCC me by replacing yahoo.com after the "@" as follows"
+TLD =         The last three letters of the word internet
+Domain name = The first four letters of the word software,
+              followed by the first four letters of the word
+              homeless.
+My appologies in advance for the jumbled eMail address
+and request to BCC me, but SPAM has become a very serious
+problem.  The eMail address in my header information is
+not a valid eMail address for me.  I needed to use a valid
+domain due to ISP SMTP screen rules.
+--ZX=.8)wWDw+b5NIa
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iEYEARECAAYFAjz/mAAACgkQsrsjS27q9xZPVgCeMZES/KWon1DHg17bDEGbmkRJ
+IjsAnR/39I50KfgODuj3OCLQxtUp7+uS
+=mZZv
+-----END PGP SIGNATURE-----
+
+--ZX=.8)wWDw+b5NIa--
 

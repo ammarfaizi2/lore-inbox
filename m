@@ -1,75 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268126AbUJOCd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268149AbUJOCkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268126AbUJOCd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 22:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268149AbUJOCd7
+	id S268149AbUJOCkU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 22:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268159AbUJOCkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 22:33:59 -0400
-Received: from brown.brainfood.com ([146.82.138.61]:33664 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S268126AbUJOCd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 22:33:56 -0400
-Date: Thu, 14 Oct 2004 21:33:54 -0500 (CDT)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U2
-In-Reply-To: <20041014234202.GA26207@elte.hu>
-Message-ID: <Pine.LNX.4.58.0410142133090.1224@gradall.private.brainfood.com>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
- <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
- <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
- <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
- <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+	Thu, 14 Oct 2004 22:40:20 -0400
+Received: from relay.pair.com ([209.68.1.20]:20484 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S268149AbUJOCkM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 22:40:12 -0400
+X-pair-Authenticated: 66.190.53.4
+Message-ID: <416F388A.3060204@cybsft.com>
+Date: Thu, 14 Oct 2004 21:40:10 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Bill Huey (hui)" <bhuey@lnxw.com>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, Daniel Walker <dwalker@mvista.com>,
+       Andrew Morton <akpm@osdl.org>, Adam Heath <doogie@debian.org>,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U2
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015022341.GA22831@nietzsche.lynx.com>
+In-Reply-To: <20041015022341.GA22831@nietzsche.lynx.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Oct 2004, Ingo Molnar wrote:
+Bill Huey (hui) wrote:
+> On Fri, Oct 15, 2004 at 01:42:02AM +0200, Ingo Molnar wrote:
+> 
+>>i have released the -U2 PREEMPT_REALTIME patch:
+>>
+>>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U2
+> 
+> 
+> mm/shmem.c: In function `shmem_dir_map':
+> mm/shmem.c:103: warning: implicit declaration of function `kmap_atomic_rt'
+> mm/shmem.c:103: error: `KM_USER0' undeclared (first use in this function)
+> mm/shmem.c:103: error: (Each undeclared identifier is reported only once
+> mm/shmem.c:103: error: for each function it appears in.)
+> mm/shmem.c: In function `shmem_dir_unmap':
+> mm/shmem.c:108: warning: implicit declaration of function `kunmap_atomic_rt'
+> mm/shmem.c:108: error: `KM_USER0' undeclared (first use in this function)
+> mm/shmem.c: In function `shmem_swp_map':
+> mm/shmem.c:113: error: `KM_USER1' undeclared (first use in this function)
+> mm/shmem.c: In function `shmem_swp_balance_unmap':
+> mm/shmem.c:125: error: `KM_USER1' undeclared (first use in this function)
+> mm/shmem.c: In function `shmem_swp_unmap':
+> mm/shmem.c:130: error: `KM_USER1' undeclared (first use in this function)
+> mm/shmem.c: In function `shmem_swp_set':
+> mm/shmem.c:333: warning: implicit declaration of function `kmap_atomic_to_page_rt'
+> mm/shmem.c:333: error: invalid type argument of `->'
+> mm/shmem.c: In function `shmem_file_write':
+> mm/shmem.c:1362: error: `KM_USER0' undeclared (first use in this function)
+> mm/shmem.c:1362: warning: assignment makes pointer from integer without a cast
+> mm/shmem.c: In function `shmem_symlink':
+> mm/shmem.c:1719: error: `KM_USER0' undeclared (first use in this function)
+> mm/shmem.c:1719: warning: assignment makes pointer from integer without a cast
+> make[1]: *** [mm/shmem.o] Error 1
+> make: *** [mm] Error 2
+> root@nietzsche> /home/bhuey/linux-2.6.8% 17# make tags
+> 
+> ....
+> 
+> I've got kgdb targetted next and I'm trying to figure out how to write a
+> rw/semaphore with priority inheritance.
+> 
+> bill
+> 
+> 
 
->
-> i have released the -U2 PREEMPT_REALTIME patch:
->
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U2
+What platform are you getting this on?
 
-scheduling while atomic: XFree86/0x04000002/1129
-caller is cond_resched+0x53/0x70
- [<c027acd7>] schedule+0x517/0x550
- [<c012ce6a>] check_preempt_timing+0x1a/0x130
- [<c0107b98>] do_IRQ+0x58/0x80
- [<c027b243>] cond_resched+0x53/0x70
- [<c012c684>] _mutex_lock+0x14/0x40
- [<c012c6d5>] _mutex_lock_irqsave+0x5/0x10
- [<c01b28bf>] avc_has_perm_noaudit+0x10f/0x180
- [<c012ce6a>] check_preempt_timing+0x1a/0x130
- [<c01b296a>] avc_has_perm+0x3a/0x78
- [<c014de87>] shmem_truncate+0x1d7/0x400
- [<c01b8060>] ipc_has_perm+0x70/0x90
- [<c027b209>] cond_resched+0x19/0x70
- [<c01a9c72>] ipcperms+0x72/0xa0
- [<c01adaf7>] do_shmat+0xc7/0x300
- [<c010b8b6>] sys_ipc+0x1c6/0x280
- [<c01c8040>] copy_to_user+0x40/0x60
- [<c011d69c>] sys_gettimeofday+0x2c/0x70
- [<c01057fb>] syscall_call+0x7/0xb
-scheduling while atomic: liquidwar/0x04000002/1553
-caller is cond_resched+0x53/0x70
- [<c027acd7>] schedule+0x517/0x550
- [<c012ce6a>] check_preempt_timing+0x1a/0x130
- [<c027b243>] cond_resched+0x53/0x70
- [<c012c684>] _mutex_lock+0x14/0x40
- [<c012c6d5>] _mutex_lock_irqsave+0x5/0x10
- [<c01b27da>] avc_has_perm_noaudit+0x2a/0x180
- [<c01b2992>] avc_has_perm+0x62/0x78
- [<c01b296a>] avc_has_perm+0x3a/0x78
- [<c012c690>] _mutex_lock+0x20/0x40
- [<c01b8060>] ipc_has_perm+0x70/0x90
- [<c01b8060>] ipc_has_perm+0x70/0x90
- [<c0107b98>] do_IRQ+0x58/0x80
- [<c01adb13>] do_shmat+0xe3/0x300
- [<c010b8b6>] sys_ipc+0x1c6/0x280
- [<c0147a4f>] sys_munmap+0x3f/0x60
- [<c01057fb>] syscall_call+0x7/0xb
-
+kr

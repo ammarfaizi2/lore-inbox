@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVCaS4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVCaS7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261616AbVCaS4t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 13:56:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVCaS4t
+	id S261618AbVCaS7e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 13:59:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVCaS7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 13:56:49 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:55936 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261616AbVCaS4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 13:56:32 -0500
-From: Mark Gross <mgross@linux.intel.com>
-Organization: Intel
-To: "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Delay in a tasklet.
-Date: Thu, 31 Mar 2005 10:48:25 -0800
-User-Agent: KMail/1.5.4
-References: <5009AD9521A8D41198EE00805F85F18F054EA085@sembo111.teknor.com>
-In-Reply-To: <5009AD9521A8D41198EE00805F85F18F054EA085@sembo111.teknor.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 31 Mar 2005 13:59:33 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:4761 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261618AbVCaS7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 13:59:16 -0500
+Subject: Re: off topic: GPL and binary modules
+From: Lee Revell <rlrevell@joe-job.com>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Emmanuel Papirakis <papiraki@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <424C43FF.3050107@didntduck.org>
+References: <11ad0fa80503311026536d9db2@mail.gmail.com>
+	 <424C43FF.3050107@didntduck.org>
+Content-Type: text/plain
+Date: Thu, 31 Mar 2005 13:59:11 -0500
+Message-Id: <1112295551.1829.22.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503311048.25674.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 March 2005 07:20, Bouchard, Sebastien wrote:
-> Hi,
->
-> I'm in the process of writing a linux driver and I have a question in
-> regards to tasklet :
->
-> Is it ok to have large delay "udelay(1000);" in the tasklet?
->
-> If not, what should I do?
->
+On Thu, 2005-03-31 at 13:39 -0500, Brian Gerst wrote:
+> Search the list archives, this has been flamed to death already.
+> 
 
-If the hardware can tolerate longer a longer or variable delays, then perhaps 
-putting the work that has the large delay on a one shot timer would work?
+Actually, don't search the list archives.  Talk to a lawyer about it.
 
-If that doesn't cut it, then I wonder if you could structure your taskelt 
-processing around a kernel thread.
+Even if you get legal advice it's probably pointless to pass it on to
+the list because you will just get a bunch of non lawyers arguing with
+it.
 
-Is this for 2.6 or 2.4 based kernels?
-
---mgross
+Lee
 

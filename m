@@ -1,69 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263741AbUC3Qoo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 11:44:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUC3Qoo
+	id S263744AbUC3Qn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 11:43:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUC3Qn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 11:44:44 -0500
-Received: from madrid10.amenworld.com ([62.193.203.32]:31749 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S263741AbUC3Qnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 11:43:31 -0500
-Date: Tue, 30 Mar 2004 17:20:24 +0200
-From: DervishD <raul@pleyades.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Lev Lvovsky <lists1@sonous.com>, linux-kernel@vger.kernel.org
-Subject: Re: older kernels + new glibc?
-Message-ID: <20040330152024.GE8304@DervishD>
-Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-	Lev Lvovsky <lists1@sonous.com>, linux-kernel@vger.kernel.org
-References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com> <Pine.LNX.4.53.0403291602340.2893@chaos> <20040329222710.GA8204@DervishD> <Pine.LNX.4.53.0403300706500.5144@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.53.0403300706500.5144@chaos>
-User-Agent: Mutt/1.4.2.1i
-Organization: Pleyades
+	Tue, 30 Mar 2004 11:43:26 -0500
+Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:10507
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263740AbUC3QnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 11:43:20 -0500
+Date: Tue, 30 Mar 2004 08:38:37 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Lionel Bergeret <lbergeret@swing.be>, JunHyeok Heo <jhheo@idis.co.kr>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH] Bogus LBA48 drives
+In-Reply-To: <Pine.GSO.4.58.0403301654300.9765@waterleaf.sonytel.be>
+Message-ID: <Pine.LNX.4.10.10403300821520.11654-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Richard :)
 
- * Richard B. Johnson <root@chaos.analogic.com> dixit:
-> >     Mmm, I'm confused. As far as I knew, you *should* use symlinks to
-> > your current (running) kernel includes for /usr/include/asm and
-> > /usr/include/linux. I've been doing this for years (in fact I
-> > compiled my libc back in the 2.2 days IIRC), without problems. Why it
-> > should be avoided and what kind of problems may arise if someone
-> > (like me) has those symlinks?
-> The libc headers end up including kernel headers via the sym-links.
-> They must *only* use the headers with which libc was built. Therefore,
-> any sym-links should be removed and replaced with a copy of the
-> appropriate headers.
+Actually this issue an errata correction in ATA-6 and changed in ATA-7.
 
-    Looking at my backups of 2001 (god bless backups...) I found that
-the running kernel when I built my glibc (yes, I still use the same
-glibc that in 2001...) was 2.4.10, so I'm going to replace the
-symlinks with two real dirs with the headers from 2.4.10. Thanks a
-lot for your help :)
+48-bit command set support is different than capacity.
 
-> This comes about because the C library used kernel headers,
-> which it shouldn't have done in the first place.
+A fix that address the erratium is prefered, just need to take some time
+to read it.
 
-    Yes :(( I hope that in the next version that is fixed (and the
-fact that the libc cannot be compiled with newer versions of GCC
-because of an stupid bug in a prototype, but that's a very offtopic
-matter...).
- 
-> FYI, you __never__ include C library headers when building
-> any kernel modules.
+Cheers,
 
-    If I ever write a kernel module, I won't ;) Thanks for your help
-:)
+Andre Hedrick
+LAD Storage Consulting Group
 
-    Raúl Núñez de Arenas Coronado
+On Tue, 30 Mar 2004, Geert Uytterhoeven wrote:
 
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+> 
+> Apparently some IDE drives (e.g. a pile of 80 GB ST380020ACE drives I have
+> access to) advertise to support LBA48, but don't, causing kernels that support
+> LBA48 (i.e. anything newer than 2.4.18, including 2.4.25 and 2.6.4) to fail on
+> them.  Older kernels (including 2.2.20 on the Debian woody CDs) work fine.
+> 
+> One problem with those drives is that the lba_capacity_2 field in their drive
+> identification is set to 0, making the IDE driver think the disk is 0 bytes
+> large. At first I tried modifying the driver to use lba_capacity if
+> lba_capacity_2 is set to 0, but this caused disk errors. So it looks like those
+> drives don't support the increased transfer size of LBA48 neither.
+> 
+> I added a workaround for these drives to both 2.4.25 and 2.6.4. I'll send
+> patches in follow-up emails.
+> 
+> BTW, this problem (incl. a small patch to fix it for 2.4.19, which doesn't work
+> on 2.4.25 anymore) was reported a while ago by JunHyeok Heo, cfr.
+> http://www.cs.helsinki.fi/linux/linux-kernel/2002-42/0312.html
+> 
+> Gr{oetje,eeting}s,
+> 
+> 						Geert
+> 
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+> 							    -- Linus Torvalds
+> 
+

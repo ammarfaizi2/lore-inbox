@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbTD0Vls (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 17:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbTD0Vls
+	id S261835AbTD0VzL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 17:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbTD0VzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 17:41:48 -0400
-Received: from smtp-out.comcast.net ([24.153.64.116]:59063 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S261809AbTD0Vlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 17:41:47 -0400
-Date: Sun, 27 Apr 2003 17:52:34 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: Re: Re:  Swap Compression
-In-reply-to: <20030427190444.GC5174@wohnheim.fh-wedel.de>
-To: =?UNKNOWN?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200304271752340880.025AB0DF@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-References: <200304251848410590.00DEC185@smtp.comcast.net>
- <20030426091747.GD23757@wohnheim.fh-wedel.de>
- <200304261148590300.00CE9372@smtp.comcast.net>
- <20030426160920.GC21015@wohnheim.fh-wedel.de>
- <200304262224040410.031419FD@smtp.comcast.net>
- <20030427090418.GB6961@wohnheim.fh-wedel.de>
- <200304271324370750.01655617@smtp.comcast.net>
- <20030427175147.GA5174@wohnheim.fh-wedel.de>
- <200304271431250990.01A281C7@smtp.comcast.net>
- <20030427190444.GC5174@wohnheim.fh-wedel.de>
+	Sun, 27 Apr 2003 17:55:11 -0400
+Received: from willow.seitz.com ([146.145.147.180]:34570 "EHLO
+	willow.seitz.com") by vger.kernel.org with ESMTP id S261835AbTD0VzK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 17:55:10 -0400
+From: Ross Vandegrift <ross@willow.seitz.com>
+Date: Sun, 27 Apr 2003 18:07:17 -0400
+To: Larry McVoy <lm@work.bitmover.com>, Chris Adams <cmadams@hiwaay.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030427220717.GA24991@willow.seitz.com>
+References: <fa.ivrgub8.1ci079c@ifi.uio.no> <20030427183553.GA955879@hiwaay.net> <20030427185037.GA23581@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030427185037.GA23581@work.bitmover.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well here's some new code.  I'll get to work on a userspace app
-to compress files.  This code ONLY works on fcomp-standard
-and does only one BruteForce (bmbinary is disabled) search for
-redundancy.  This means three things:
+On Sun, Apr 27, 2003 at 11:50:37AM -0700, Larry McVoy wrote:
+>     1) Corporations are threatened when people copy their content and/or
+>        products.
+>     2) Corporations have a lot of money which they use to get the government
+>        to create laws to protect the corporate interests.
+>     3) Corporations have a lot of money which they use to create technology
+>        which will remove threats to the corporation.
+>     4) The more you inist that you are doing nothing wrong the more motivated
+>        the corporation becomes to stop you.
+[snip]
+> What I'm trying to
+> say is that I think that the organizations which *create* the IP will
+> vigorously defend that.  The more you try and circumvent that the more
+> draconian they will get.
 
-1 - There's no support for messing with the pointer size and mdist/
-analysis buffer size (max pointer distance)
-2 - The compression ratios will not be the best.  The first match,
-no matter how short, will be taken.  If it's less than 4 bytes, it will
-return "no match" to the fcomp_push function.
-3 - It will be slow.  BruteForce() works.  Period.  The code is too
-simple for even a first-day introductory C student to screw up, and
-there are NO bugs unless I truly AM a moron.  bmbinary() should
-work, and the function it was coded from works in test, but neither
-have been written out and proven to work by logic diagram.  It's
-fast (infinitely faster than BruteForce()), but I'll try it when I feel that
-the rest of the code is working right.
+I think that you simply meant in your email to identify free software as
+a cause for this paranoia.  I can kinda see the logic, and you might be
+right.
 
-This should be complete for fcomp-standard.  A little alteration will
-allow the fcomp-extended to work.  *Wags tail* this past two days
-has been fun ^_^;
+But what I think what fired up many other readers (and me as well, until
+I read your reply), is that your email reads like the solution is to
+stop making free software/independant music/etc and just pay for what
+we're offered.  After all, individual creations will only serve to increase
+the paranoia of the corporations.
 
---Bluefox Icy
+If you're offering that as a solution, you're far crazier than even the
+most vicious anti-BK people have claimed.
 
+-- 
+Ross Vandegrift
+ross@willow.seitz.com
+
+A Pope has a Water Cannon.                               It is a Water Cannon.
+He fires Holy-Water from it.                        It is a Holy-Water Cannon.
+He Blesses it.                                 It is a Holy Holy-Water Cannon.
+He Blesses the Hell out of it.          It is a Wholly Holy Holy-Water Cannon.
+He has it pierced.                It is a Holey Wholly Holy Holy-Water Cannon.
+He makes it official.       It is a Canon Holey Wholly Holy Holy-Water Cannon.
+Batman and Robin arrive.                                       He shoots them.

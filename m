@@ -1,149 +1,159 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbTFTIp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 04:45:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbTFTIp0
+	id S262451AbTFTIwR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 04:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbTFTIwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 04:45:26 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:16071 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262444AbTFTIpX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 04:45:23 -0400
-Date: Fri, 20 Jun 2003 10:58:53 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: misty-@charter.net
-Cc: Bernd Schubert <bernd-schubert@web.de>, andre@linux-ide.org,
-       linux-kernel@vger.kernel.org, despair@adelphia.net
-Subject: Re: Problems with IDE on GA-7VAXP motherboard
-Message-ID: <20030620105853.A16743@ucw.cz>
-References: <200306191429.40523.bernd-schubert@web.de> <20030619193118.GA32406@charter.net> <20030620075249.GA7833@charter.net>
+	Fri, 20 Jun 2003 04:52:17 -0400
+Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:25472
+	"HELO ghanima.endorphin.org") by vger.kernel.org with SMTP
+	id S262451AbTFTIwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 04:52:14 -0400
+Date: Fri, 20 Jun 2003 11:06:12 +0200
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Initial Vector Fix for loop.c.
+Message-ID: <20030620090612.GA1322@ghanima.endorphin.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IiVenqGWf+H9Y6IX"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030620075249.GA7833@charter.net>; from misty-@charter.net on Fri, Jun 20, 2003 at 03:52:51AM -0400
+User-Agent: Mutt/1.3.28i
+From: Fruhwirth Clemens <clemens-dated-1056963973.bf26@endorphin.org>
+X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 20, 2003 at 03:52:51AM -0400, misty-@charter.net wrote:
 
-> I believe I have nailed the problem to the wall. Your talk about the
-> bios misdetecting the cable got me to thinking - I hadn't actually been
-> able to see what the bios said it was configuring the disks attached to
-> since lilo's menu came up microseconds later.
-> 
-> I still haven't bothered checking, however I believe the bios is on a
-> very unhealthy volume of crack. :)
-> 
-> using hdparm -i /dev/hda shows the disk wasn't configured to do any pio
-> mode or udma/dma mode at boot time. Strange, right?
+--IiVenqGWf+H9Y6IX
+Content-Type: multipart/mixed; boundary="zhXaljGHf11kAtnf"
+Content-Disposition: inline
 
-Not very strange. Some disks even cannot report it. And, any disk if set
-to PIO only may not report any mode as active, since that is only
-applicable to DMA modes.
 
-> Stranger when you do hdparm -I on the disk again and it shows the disk
-> is set to use udma4 - and the disk only understands up to udma2! - now
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If you use hdparm -I and the drive reports udma4, it can understand
-udma4, since hdparm -I is straight from the drive's mouth.
+Meta information:=20
 
-> add in the fact I currently have a 40 wire cable connected to the disk
-> and my brain starts frying :)
+This mail proposes a fix for:=20
+must-fix list item "drivers/block/loop.c" and
+should-fix list item "drivers/block/cryptoloop"
 
-That's a problem I assume. If the drive can do udma3 and higher, the
-chipset can do udma3 and higher, and you have a 40-wire cable and some
-bad luck, the BIOS or the driver may misdetect the cable and try to
-operate the drive at, most likely, udma4. This won't work, of course.
+Content:
 
-> At a suggestion of a friend, I set the disk to use mdma2 - via the line:
-> 
-> hdparm -Xmdma2 -d1 /dev/hda
+loop.c is broken. It's broken since 2.4. In particular the initial vector
+calculation which every cryptographic loop transformation uses is broken.
 
-Don't do this. If your drive supports udma, then there is no reason to
-use mwdma. Ever. mwdma is not crc-protected and that can lead to drive
-data corruption, namely in the case where you seem to have cabling
-problems.
+What's the problem you might ask.. It's that that the IV calculation is
+based on the logical block sector of the block device. Just think of what
+happends if you move your image to another device with a different block
+size..
 
-If you have a 40-wire cable, udma2 will work just fine on it. If you
-want a slower speed, use udma1 or udma0, which is the same speed as
-mwdma2, but is CRC protected and thanks to the udma signalling also more
-robust.
+Correct! The IV metric changes and everyone who knows what's CBC
+encryption will correctly conclude: you can't read your image.=20
 
-> It worked, for all of two seconds. Remember, this is a WD drive. WD
-> drives, or at least mine, like to screw up in pretty amazing ways when
-> you turn dma on initially. Mine throws a screenful of CRC errors,
-> causing the kernel to reset the ide channel.
+That's bad. And that's the reason why every project which provides you with
+encryption via loop.c will also provide you with a patch for this broken
+loop.c behavior.=20
 
-CRC errors in mwdma mode? Weird. Those CRC errors must've come from the
-drive itself - them not being transfer CRC errors but surface CRC
-errors. That's mean the drive is dying and you should be getting them in
-PIO mode as well
+The fix is quite simple. Just switch to a fixed IV metric. Which is: the
+smallest granulity -> fixed 512-byte and kerneli.org's cryptoloop as well as
+Jari's loop-AES do exactly that.
 
-> Oddly, I noticed that dma
-> was still on despite the fact the channel had been reset - so I checked
-> with -I again, only to find out now the disk was told to use udma*3*! -
-> this wasn't getting me anywhere. >D
+These two packages are the only facilities I'm aware of that provides
+harddisc encryption for the 2.4. kernel. However marcello refused to switch
+the IV metric for 2.4. because it will - yes that's correct - break any
+image which has been created with a IV-sensitiv loop transformation..
 
-Note that the asterisk stays even after the drive is used back in PIO
-mode. The way to check if DMA is being used is hdparm /dev/hd*
+=2E.BUT except for cryptoloop and loop-AES there are no such loop
+transformation modules! And those two projects have already fixed this
+issue. So we're providing backward compatiblity for nothing here. No user
+base could ever benefit from this backward compatiblity, since the only
+reason the initial vector calculation is done is for crypto and every crypto
+project out there already uses the 512-byte IV-metric.
 
-> Anyway, the simple fix was to force
-> it to keep settings across a reset by doing:
-> 
-> hdparm -Xmdma2 -k1 -d1 /dev/hda
-> 
-> - I am no longer getting any hda: lost interrupt messages, nor am I
-> getting any errors at all about the disk losing data or getting
-> confused. It's running slower than I'm used to, as I used to run it in
-> ata66 mode, but MUCH faster than it was a day ago. :) All I need to do
-> now is migrate the information from this disk to one of my maxtors and
-> I'm all set. Finally, I can start setting this machine up. Note, I
-> could get this disk to use ata66 again if I switched cables to the 80
-> wire variant - but I plan on replacing this disk asap anyway.
-> 
-> So, to summarize: The BIOS in the Gigabyte GA-7VAXP motherboard (and
-> likely all variants using the same bios) is getting confused and
-> misdetecting both the cable's abilities and the hard disks abilities,
-> causing linux to have a very nasty fit when you try using it without
-> manually changing the settings using hdparm.
-> 
-> I have not tried, nor will I likely try, setting the PIO modes up with
-> this motherboard as I don't need to. However, it is very likely that
-> the same problem occurs with dma disabled as with dma enabled - you
-> need to manually reconfigure the hard disk and disk controller using
-> hdparm to the correct values, or it just basically gets all confused
-> and whines.
-> 
-> Also note, I tested this setup after configuring with hdparm in three
-> ways: First, I did a test using hdparm -t -T /dev/hda - Passed. A
-> little slow, but understandable considering. Second, I did a simple
-> test doing find / - this almost always caused the thing to throw a
-> hda: lost interrupt before at some point or another. Passed. Finally,
-> I'm currently doing a kernel compile. As I said, a P1 133 was
-> outpacing this machine before. This is a AMD XP 2600+ - it's
-> absolutely ludicrous for a P1 to outpace this thing, unless some
-> unsane overclocker ... no, I don't want to encourage anyone. :P
-> Anyway, even with the slow settings, the kernel compile is going quite
-> nicely, and is going much faster than the P1 could ever hope to do.
-> 
-> Note that the bios in this motherboard does not support turning OFF
-> dma support - the only options are 'auto' 'ata33' and 'ata66/100/133'
-> - all of which don't appear to actually work. For instance, I have the
-> bios set to ata33 right now as I write this, and despite this, it was
-> still trying to set the disk up to use udma4!
-> 
-> A buggy bios a happy linux user does not make. :)
-> 
->   Thank you for all your help, time and effort. It was greatly
->   appreciated.
-> 
->   Tim McGrath - To unsubscribe from this list: send the line
->   "unsubscribe linux-kernel" in the body of a message to
->   majordomo@vger.kernel.org More majordomo info at
->   http://vger.kernel.org/majordomo-info.html Please read the FAQ at
->   http://www.tux.org/lkml/
+So go for it. Fix it before 2.6.x is out and we're stuck with this crap
+again.=20
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+http://bugzilla.kernel.org/show_bug.cgi?id=3D192
+
+Just apply the patch.=20
+
+If this bug is fixed, we can go ahead and add cryptoloop which is ready and
+tested.
+
+Regards, Clemens
+
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="loop-clemens-2.5.70.diff"
+Content-Transfer-Encoding: quoted-printable
+
+--- drivers/block/loop.c.orig	Fri Jun 20 11:02:10 2003
++++ drivers/block/loop.c	Fri Jun 20 11:02:49 2003
+@@ -79,6 +79,8 @@
+=20
+ #include <asm/uaccess.h>
+=20
++#define LOOP_IV_SECTOR_BITS 9
++
+ static int max_loop =3D 8;
+ static struct loop_device *loop_dev;
+ static struct gendisk **disks;
+@@ -196,7 +198,7 @@
+ 	data =3D kmap(bvec->bv_page) + bvec->bv_offset;
+ 	len =3D bvec->bv_len;
+ 	while (len > 0) {
+-		sector_t IV =3D index * (PAGE_CACHE_SIZE/bsize) + offset/bsize;
++		sector_t IV =3D (index << (PAGE_CACHE_SHIFT - LOOP_IV_SECTOR_BITS)) + (o=
+ffset >> LOOP_IV_SECTOR_BITS);
+ 		int transfer_result;
+=20
+ 		size =3D PAGE_CACHE_SIZE - offset;
+@@ -279,7 +281,7 @@
+ 	unsigned long count =3D desc->count;
+ 	struct lo_read_data *p =3D (struct lo_read_data*)desc->buf;
+ 	struct loop_device *lo =3D p->lo;
+-	int IV =3D page->index * (PAGE_CACHE_SIZE/p->bsize) + offset/p->bsize;
++	int IV =3D  (page->index << (PAGE_CACHE_SHIFT - LOOP_IV_SECTOR_BITS)) + (=
+offset >> LOOP_IV_SECTOR_BITS);
+=20
+ 	if (size > count)
+ 		size =3D count;
+@@ -484,7 +486,7 @@
+ bio_transfer(struct loop_device *lo, struct bio *to_bio,
+ 			      struct bio *from_bio)
+ {
+-	unsigned long IV =3D loop_get_iv(lo, from_bio->bi_sector);
++	unsigned long IV =3D from_bio->bi_sector + (lo->lo_offset >> LOOP_IV_SECT=
+OR_BITS);
+ 	struct bio_vec *from_bvec, *to_bvec;
+ 	char *vto, *vfrom;
+ 	int ret =3D 0, i;
+@@ -545,7 +547,7 @@
+ 	 * piggy old buffer on original, and submit for I/O
+ 	 */
+ 	new_bio =3D loop_get_buffer(lo, old_bio);
+-	IV =3D loop_get_iv(lo, old_bio->bi_sector);
++	IV =3D old_bio->bi_sector + (lo->lo_offset >> LOOP_IV_SECTOR_BITS);
+ 	if (rw =3D=3D WRITE) {
+ 		if (bio_transfer(lo, new_bio, old_bio))
+ 			goto err;
+
+--zhXaljGHf11kAtnf--
+
+--IiVenqGWf+H9Y6IX
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE+8s6EW7sr9DEJLk4RAmybAJ0Tl0cZLYLEU6WXvdafUbnJKOCEwgCfTw97
+Ql4EuQlvvHRkFdAqkfnrv6Y=
+=3vmS
+-----END PGP SIGNATURE-----
+
+--IiVenqGWf+H9Y6IX--

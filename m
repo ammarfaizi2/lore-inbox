@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130039AbRBNF00>; Wed, 14 Feb 2001 00:26:26 -0500
+	id <S129136AbRBNFsO>; Wed, 14 Feb 2001 00:48:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129681AbRBNF0R>; Wed, 14 Feb 2001 00:26:17 -0500
-Received: from [204.253.167.1] ([204.253.167.1]:44804 "EHLO vaio.greennet")
-	by vger.kernel.org with ESMTP id <S129108AbRBNF0D>;
-	Wed, 14 Feb 2001 00:26:03 -0500
-Date: Tue, 13 Feb 2001 20:20:35 -0500 (EST)
-From: Donald Becker <becker@scyld.com>
-To: Jes Sorensen <jes@linuxcare.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <d3zofrag0u.fsf@lxplus015.cern.ch>
-Message-ID: <Pine.LNX.4.10.10102131627180.7141-100000@vaio.greennet>
+	id <S129681AbRBNFsE>; Wed, 14 Feb 2001 00:48:04 -0500
+Received: from smtp8.us.dell.com ([143.166.224.234]:16399 "EHLO
+	smtp8.us.dell.com") by vger.kernel.org with ESMTP
+	id <S129136AbRBNFry>; Wed, 14 Feb 2001 00:47:54 -0500
+Date: Tue, 13 Feb 2001 23:47:50 -0600 (CST)
+From: Michael E Brown <michael_e_brown@dell.com>
+Reply-To: Michael E Brown <michael_e_brown@dell.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Michael E Brown <michael_e_brown@exchange.dell.com>,
+        <Andries.Brouwer@cwi.nl>, <Matt_Domsch@exchange.dell.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: block ioctl to read/write last sector
+In-Reply-To: <3A89CF93.A934C473@colorfullife.com>
+Message-ID: <Pine.LNX.4.30.0102132343250.1882-100000@carthage.michaels-house.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Feb 2001, Jes Sorensen wrote:
+On Wed, 14 Feb 2001, Manfred Spraul wrote:
 
-> >>>>> "Donald" == Donald Becker <becker@scyld.com> writes:
-> 
-> Donald> On 9 Feb 2001, Jes Sorensen wrote:
-> >> The ia64 kernel has gotten mis aligned load support, but it's slow
-> >> as a dog so we really want to copy the packet every time anyway
-> >> when the header is not aligned. If people send out 802.3 headers or
-> >> other crap on Ethernet then it's just too bad.
-> 
-> Donald> Note the word "required", meaning "must be done"
-> Donald> vs. "recommended" meaning "should be done".
-> 
-> Donald> The initial issue was a comment in a starfire patch that
-> Donald> claimed an IA64 bug had been fixed.  The copy breakpoint
-> Donald> change might have improved performance by doing a copy-align,
-> Donald> but it didn't fix a bug.
-> 
-> I agree it was a bug, and yes it has been fixed.
+> I have one additional user space only idea:
+> have you tried raw-io? bind a raw device to the partition, IIRC raw-io
+> is always in 512 byte units.
 
-There was not a bug in the driver.  The bug was/is in the protocol handling
-code.  The protocol handling code *must* be able to handle unaligned IP
-headers.
+That has been tried. No, it does not work. :-)  Using Scsi-Generic is the
+only way so far found, but of course, it only works on SCSI drives.
 
-> Donald> That performance tradeoff was already anticipated: the
-> Donald> 'rx_copybreak' value that was changed was a module parameter,
-..
-> In this case it just results in a performance degradation for 99% of
-> the usage. What about making the change so it is optimized away unless
-> IPX is enabled?
+>
+> Probably an ioctl is the better idea, but I'd use absolute sector
+> numbers (not relative to the end), and obviously 64-bit sector numbers -
+> 2 TB isn't that far away.
+>
 
-???
-  - It's not just IPX hosts that send 802.3 headers.
-  - While a good initial value might depend on the architecture, the
-    best setting is processor implementation and environment dependent.
-    Those details are not known at compile time.
-  - The code path cost of a module option is only a compare and a
-    conditional branch.
+I was deliberately trying to limit the scope to avoid misuse. This is to
+work around a flaw in the current API, not to create a new API. Limiting
+access to only those blocks that would normally be inaccessible through
+the normal API seemed like the best bet to me.
 
-Donald Becker				becker@scyld.com
-Scyld Computing Corporation		http://www.scyld.com
-410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
-Annapolis MD 21403			410-990-9993
+--
+Michael Brown
 

@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266337AbUAHWjN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 17:39:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUAHWjN
+	id S266342AbUAHWmo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 17:42:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUAHWmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 17:39:13 -0500
-Received: from pD9E5711F.dip.t-dialin.net ([217.229.113.31]:57612 "EHLO
-	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
-	id S266337AbUAHWjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 17:39:09 -0500
-Date: Thu, 8 Jan 2004 22:46:02 +0000
-From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Relocation overflow with modules on Alpha
-Message-ID: <20040108224602.D7797@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@dl8bcu.de
-Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-	linux-kernel@vger.kernel.org
-References: <yw1xy8sn2nry.fsf@ford.guide> <20040106004435.A3228@Marvin.DL8BCU.ampr.org> <20040108181502.B9562@jurassic.park.msu.ru>
+	Thu, 8 Jan 2004 17:42:44 -0500
+Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:9232
+	"EHLO betawl.net") by vger.kernel.org with ESMTP id S266342AbUAHWmm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 17:42:42 -0500
+Date: Thu, 8 Jan 2004 23:42:40 +0100
+From: Santiago Garcia Mantinan <manty@manty.net>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ALSA in 2.6 failing to find the OPL chip of the sb cards
+Message-ID: <20040108224239.GA775@man.manty.net>
+References: <20040107212916.GA978@man.manty.net> <s5hy8sixsor.wl@alsa2.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20040108181502.B9562@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Thu, Jan 08, 2004 at 06:15:02PM +0300
+Content-Disposition: inline
+In-Reply-To: <s5hy8sixsor.wl@alsa2.suse.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 08, 2004 at 06:15:02PM +0300, Ivan Kokshaysky wrote:
-> On Tue, Jan 06, 2004 at 12:44:35AM +0000, Thorsten Kranzkowski wrote:
-> > : relocation truncated to fit: BRADDR .init.text
-> > init/built-in.o(.text+0xf10): In function `inflate_codes':
-> 
-> Looks like it's a GCC-3.3 bug.
+> compile with CONFIG_SND_DEBUG and CONFIG_SND_VERBOSE_PRINTK.
+> if it's in snd_opl3_detect(), "OPL2/3 chip not detected at ..."
+> message should appear (together with other message in
+> snd_opl3_detect()).
+> if not, it must be in snd_device_new(), and quite mysterious...
 
-will try 3.3.2 soon.
+I have compiled 2.6.1rc3 this way, here is the result when loading the
+kernel's alsa modules for sb16 (0.9.7):
 
-> I'm thinking about some __init tricks in lib/inflate.c.
-> What about this patch? It has a nice side effect - the "inflate"
-> code gets freed after init is done.
+pnp: Device 00:01.00 activated.
+ALSA sound/isa/sb/sb16.c:313: pnp SB16: port=0x220, mpu port=0x330, fm port=0x388
+ALSA sound/isa/sb/sb16.c:315: pnp SB16: dma1=1, dma2=5, irq=10
+ALSA sound/isa/sb/sb_common.c:133: SB [0x220]: DSP chip found, version = 4.13
+ALSA sound/drivers/opl3/opl3_lib.c:133: OPL3: stat1 = 0xff
+ALSA sound/drivers/opl3/opl3_lib.c:444: OPL2/3 chip not detected at 0x388/0x38a
+ALSA sound/isa/sb/sb16.c:484: sb16: no OPL device at 0x388-0x38a
 
-seems this patch gets rid of the issue - I just successfully booted
-rc1 with your patch and sound enabled. It even plays mp3's :)
+Hope this helps a bit.
 
-> Ivan.
+Don't hesitate to ask for anything else you may need.
 
-Thanks,
-Thorsten (advancing to rc3 and examining dmesg closer ....)
- 
+Regards...
 -- 
-| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
-| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |
+Manty/BestiaTester -> http://manty.net

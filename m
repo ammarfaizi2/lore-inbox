@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbUCAKJH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 05:09:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbUCAKJH
+	id S261171AbUCAKIM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 05:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbUCAKIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 05:09:07 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:30171 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261154AbUCAKI7
+	Mon, 1 Mar 2004 05:08:11 -0500
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:47878 "EHLO
+	ford.pronto.tv") by vger.kernel.org with ESMTP id S261171AbUCAKIF convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 05:08:59 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Tom Rini <trini@kernel.crashing.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [KGDB PATCH][7/7] Move debugger_entry()
-Date: Mon, 1 Mar 2004 15:38:44 +0530
-User-Agent: KMail/1.5
-References: <20040227212301.GC1052@smtp.west.cox.net> <20040227215211.GI1052@smtp.west.cox.net> <20040227215428.GJ1052@smtp.west.cox.net>
-In-Reply-To: <20040227215428.GJ1052@smtp.west.cox.net>
+	Mon, 1 Mar 2004 05:08:05 -0500
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dropping CONFIG_PM_DISK?
+References: <1ulUA-33w-3@gated-at.bofh.it>
+	<20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz>
+	<yw1x4qt93i6y.fsf@kth.se> <20040229181053.GD286@elf.ucw.cz>
+	<yw1xznb120zn.fsf@kth.se> <20040301094023.GF352@elf.ucw.cz>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Mon, 01 Mar 2004 11:08:01 +0100
+In-Reply-To: <20040301094023.GF352@elf.ucw.cz> (Pavel Machek's message of
+ "Mon, 1 Mar 2004 10:40:23 +0100")
+Message-ID: <yw1xhdx8ani6.fsf@kth.se>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403011538.44953.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK to checkin.
+Pavel Machek <pavel@ucw.cz> writes:
 
--Amit
+>> > Try current swsusp with minimal drivers, init=/bin/bash.
+>> 
+>> Well, if I do that it works.  Or at least some old version did, I
+>> assume the later ones would too.  However, that sort of removes the
+>> whole point.  Taking down the system enough to be able to unload
+>> almost everything is as close as rebooting you'll get.
+>
+> Well, now do a search for "which module/application causes failure".
 
-On Saturday 28 Feb 2004 3:24 am, Tom Rini wrote:
-> Hello.  When we use kgdboe, we can't use it until do_basic_setup() is done.
-> So we have two options, not allow kgdboe to use the initial breakpoint
-> or move debugger_entry() to be past the point where kgdboe will be usable.
-> I've opted for the latter, as if an earlier breakpoint is needed you can
-> still use serial and throw kgdb_schedule_breakpoint/breakpoint where
-> desired.
->
-> --- linux-2.6.3-rc4/init/main.c	2004-02-17 09:51:19.000000000 -0700
-> +++ linux-2.6.3-rc4-kgdb/init/main.c	2004-02-17 11:33:51.854388988 -0700
-> @@ -581,6 +582,7 @@ static int init(void * unused)
->
->  	smp_init();
->  	do_basic_setup();
-> +	debugger_entry();
->
->  	prepare_namespace();
+I know, it just takes an awful time.
 
+>> BTW, is there some easier way to track the development than using the
+>> patches from the web page?  Unpatching after a couple of BK merges
+>> isn't the easiest thing.  Is there a BK tree somewhere I can pull
+>> from?
+>
+> Are you using swsusp2?
+
+Well, trying to.  Isn't it supposed to be the latest and greatest?
+
+> That's _not_ what I'm talking about. swsusp is in mainline.
+
+It would still be the same module(s) that caused it to fail, right?
+
+-- 
+Måns Rullgård
+mru@kth.se

@@ -1,57 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265201AbUFROzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265203AbUFRO7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265201AbUFROzf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 10:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbUFROze
+	id S265203AbUFRO7O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 10:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbUFRO7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 10:55:34 -0400
-Received: from mail.dif.dk ([193.138.115.101]:52205 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S265201AbUFROzc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 10:55:32 -0400
-Date: Fri, 18 Jun 2004 16:54:38 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Kyle McMartin <kyle@debian.org>, linux-kernel@vger.kernel.org
+	Fri, 18 Jun 2004 10:59:14 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:43904 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S265203AbUFRO7N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 10:59:13 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
 Subject: Re: Stop the Linux kernel madness
-In-Reply-To: <Pine.LNX.4.56.0406181647340.16649@jjulnx.backbone.dif.dk>
-Message-ID: <Pine.LNX.4.56.0406181652530.16649@jjulnx.backbone.dif.dk>
-References: <40D232AD.4020708@opensound.com> <20040618002017.GA29005@engsoc.org>
- <Pine.LNX.4.56.0406181647340.16649@jjulnx.backbone.dif.dk>
+Date: Fri, 18 Jun 2004 16:59:09 +0200
+User-Agent: KMail/1.6.2
+Cc: Olaf Hering <olh@suse.de>, Roman Zippel <zippel@linux-m68k.org>,
+       4Front Technologies <dev@opensound.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+References: <40D232AD.4020708@opensound.com> <20040618134732.GA21216@suse.de> <20040618140332.GA19404@vana.vc.cvut.cz>
+In-Reply-To: <20040618140332.GA19404@vana.vc.cvut.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406181659.10036.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jun 2004, Jesper Juhl wrote:
+> Or do I miss some nice and simple interface which can be used for
+> notifications about newly plugged (USB) devices?
 
-> On Thu, 17 Jun 2004, Kyle McMartin wrote:
->
-> > On Thu, Jun 17, 2004 at 05:09:17PM -0700, 4Front Technologies wrote:
-> > > Files linux-2.6.5/arch/i386/boot98/setup.S and
-> > > linux-2.6.5-7.75/arch/i386/boot98/setup.S differ
-> > >
-> > Ok. They edit setup.S. This doesn't change APIs.
-> >
-> > > Files linux-2.6.5/arch/i386/defconfig and
-> > > linux-2.6.5-7.75/arch/i386/defconfig differ
-> > >
-> > SuSE doesn't ship the default kernel .config. *SHOCK!* Neither does
-> > anyone else.
-> >
-> Well, Slackware Linux usually ships with an unmodified kernel.org kernel
-> (there are rare cases of patches that fix security issues though). I find
-> this a very nice property of Slackware since there are never any problems
-> when replacing the default kernel with a custom build kernel.org one...
-> There are other minor distributions that also ship with kernel.org
-> kernels - I don't have a list at hand, but I've run into several over the
-> years.
->
-Whoops, should have read the parent email better. Slackware does not use
-the default kernel .config, it does however use the kernel.org source
-without additional patches.. I agree, nobody ships a defconfig kernel.
-
-
---
-Jesper Juhl <juhl-lkml@dif.dk>
-
+hotplug?

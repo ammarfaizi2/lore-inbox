@@ -1,123 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319082AbSHMWwg>; Tue, 13 Aug 2002 18:52:36 -0400
+	id <S319080AbSHMWvt>; Tue, 13 Aug 2002 18:51:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319093AbSHMWwg>; Tue, 13 Aug 2002 18:52:36 -0400
-Received: from berzerk.gpcc.itd.umich.edu ([141.211.2.162]:17037 "EHLO
+	id <S319081AbSHMWvs>; Tue, 13 Aug 2002 18:51:48 -0400
+Received: from berzerk.gpcc.itd.umich.edu ([141.211.2.162]:9613 "EHLO
 	berzerk.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
-	id <S319082AbSHMWw2>; Tue, 13 Aug 2002 18:52:28 -0400
-Date: Tue, 13 Aug 2002 18:56:16 -0400 (EDT)
+	id <S319080AbSHMWvr>; Tue, 13 Aug 2002 18:51:47 -0400
+Date: Tue, 13 Aug 2002 18:55:35 -0400 (EDT)
 From: "Kendrick M. Smith" <kmsmith@umich.edu>
 X-X-Sender: kmsmith@rastan.gpcc.itd.umich.edu
 To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
-Subject: patch 02/38: new error codes
-Message-ID: <Pine.SOL.4.44.0208131855520.25942-100000@rastan.gpcc.itd.umich.edu>
+Subject: patch 01/38: switches in fs/Config.in, fs/Config.help
+Message-ID: <Pine.SOL.4.44.0208131854000.25942-100000@rastan.gpcc.itd.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch adds new NFSv4-only error codes to include/linux/nfs.h,
-and also indicates which of the old error codes still exist in NFSv4.
+This patch defines new switches in fs/Config.in -
+  CONFIG_NFS_V4:  enables nfsv4 client
+  CONFIG_NFSD_V4: enables nfsv4 server
+  CONFIG_SUNRPC_GSSD_CLNT: enables in-kernel client for GSSD
 
---- old/include/linux/nfs.h	Wed Jul 24 16:03:22 2002
-+++ new/include/linux/nfs.h	Mon Jul 29 23:18:38 2002
-@@ -39,39 +39,68 @@
-  * standard, but seem to be widely used nevertheless.
-  */
-  enum nfs_stat {
--	NFS_OK = 0,			/* v2 v3 */
--	NFSERR_PERM = 1,		/* v2 v3 */
--	NFSERR_NOENT = 2,		/* v2 v3 */
--	NFSERR_IO = 5,			/* v2 v3 */
--	NFSERR_NXIO = 6,		/* v2 v3 */
-+	NFS_OK = 0,			/* v2 v3 v4 */
-+	NFSERR_PERM = 1,		/* v2 v3 v4 */
-+	NFSERR_NOENT = 2,		/* v2 v3 v4 */
-+	NFSERR_IO = 5,			/* v2 v3 v4 */
-+	NFSERR_NXIO = 6,		/* v2 v3 v4 */
- 	NFSERR_EAGAIN = 11,		/* v2 v3 */
--	NFSERR_ACCES = 13,		/* v2 v3 */
--	NFSERR_EXIST = 17,		/* v2 v3 */
--	NFSERR_XDEV = 18,		/*    v3 */
--	NFSERR_NODEV = 19,		/* v2 v3 */
--	NFSERR_NOTDIR = 20,		/* v2 v3 */
--	NFSERR_ISDIR = 21,		/* v2 v3 */
--	NFSERR_INVAL = 22,		/* v2 v3 that Sun forgot */
--	NFSERR_FBIG = 27,		/* v2 v3 */
--	NFSERR_NOSPC = 28,		/* v2 v3 */
--	NFSERR_ROFS = 30,		/* v2 v3 */
--	NFSERR_MLINK = 31,		/*    v3 */
-+	NFSERR_ACCES = 13,		/* v2 v3 v4 */
-+	NFSERR_EXIST = 17,		/* v2 v3 v4 */
-+	NFSERR_XDEV = 18,		/*    v3 v4 */
-+	NFSERR_NODEV = 19,		/* v2 v3 v4 */
-+	NFSERR_NOTDIR = 20,		/* v2 v3 v4 */
-+	NFSERR_ISDIR = 21,		/* v2 v3 v4 */
-+	NFSERR_INVAL = 22,		/* v2 v3 v4 */
-+	NFSERR_FBIG = 27,		/* v2 v3 v4 */
-+	NFSERR_NOSPC = 28,		/* v2 v3 v4 */
-+	NFSERR_ROFS = 30,		/* v2 v3 v4 */
-+	NFSERR_MLINK = 31,		/*    v3 v4 */
- 	NFSERR_OPNOTSUPP = 45,		/* v2 v3 */
--	NFSERR_NAMETOOLONG = 63,	/* v2 v3 */
--	NFSERR_NOTEMPTY = 66,		/* v2 v3 */
--	NFSERR_DQUOT = 69,		/* v2 v3 */
--	NFSERR_STALE = 70,		/* v2 v3 */
-+	NFSERR_NAMETOOLONG = 63,	/* v2 v3 v4 */
-+	NFSERR_NOTEMPTY = 66,		/* v2 v3 v4 */
-+	NFSERR_DQUOT = 69,		/* v2 v3 v4 */
-+	NFSERR_STALE = 70,		/* v2 v3 v4 */
- 	NFSERR_REMOTE = 71,		/* v2 v3 */
- 	NFSERR_WFLUSH = 99,		/* v2    */
--	NFSERR_BADHANDLE = 10001,	/*    v3 */
-+	NFSERR_BADHANDLE = 10001,	/*    v3 v4 */
- 	NFSERR_NOT_SYNC = 10002,	/*    v3 */
--	NFSERR_BAD_COOKIE = 10003,	/*    v3 */
--	NFSERR_NOTSUPP = 10004,		/*    v3 */
--	NFSERR_TOOSMALL = 10005,	/*    v3 */
--	NFSERR_SERVERFAULT = 10006,	/*    v3 */
--	NFSERR_BADTYPE = 10007,		/*    v3 */
--	NFSERR_JUKEBOX = 10008		/*    v3 */
-- };
-+	NFSERR_BAD_COOKIE = 10003,	/*    v3 v4 */
-+	NFSERR_NOTSUPP = 10004,		/*    v3 v4 */
-+	NFSERR_TOOSMALL = 10005,	/*    v3 v4 */
-+	NFSERR_SERVERFAULT = 10006,	/*    v3 v4 */
-+	NFSERR_BADTYPE = 10007,		/*    v3 v4 */
-+	NFSERR_JUKEBOX = 10008,		/*    v3 v4 */
-+	NFSERR_SAME = 10009,		/*       v4 */
-+	NFSERR_DENIED = 10010,		/*       v4 */
-+	NFSERR_EXPIRED = 10011,		/*       v4 */
-+	NFSERR_LOCKED = 10012,		/*       v4 */
-+	NFSERR_GRACE = 10013,		/*       v4 */
-+	NFSERR_FHEXPIRED = 10014,	/*       v4 */
-+	NFSERR_SHARE_DENIED = 10015,	/*       v4 */
-+	NFSERR_WRONGSEC = 10016,	/*       v4 */
-+	NFSERR_CLID_INUSE = 10017,	/*       v4 */
-+	NFSERR_RESOURCE = 10018,	/*       v4 */
-+	NFSERR_MOVED = 10019,		/*       v4 */
-+	NFSERR_NOFILEHANDLE = 10020,	/*       v4 */
-+	NFSERR_MINOR_VERS_MISMATCH = 10021,   /* v4 */
-+	NFSERR_STALE_CLIENTID = 10022,	/*       v4 */
-+	NFSERR_STALE_STATEID = 10023,	/*       v4 */
-+	NFSERR_OLD_STATEID = 10024,	/*       v4 */
-+	NFSERR_BAD_STATEID = 10025,	/*       v4 */
-+	NFSERR_BAD_SEQID = 10026,	/*       v4 */
-+	NFSERR_NOT_SAME = 10027,	/*       v4 */
-+	NFSERR_LOCK_RANGE = 10028,	/*       v4 */
-+	NFSERR_SYMLINK = 10029,		/*       v4 */
-+	NFSERR_READDIR_NOSPC = 10030,	/*       v4 */
-+	NFSERR_LEASE_MOVED = 10031,	/*       v4 */
-+	NFSERR_ATTRNOTSUPP = 10032,	/*       v4 */
-+	NFSERR_NO_GRACE = 10033,	/*       v4 */
-+	NFSERR_RECLAIM_BAD = 10034,	/*       v4 */
-+	NFSERR_RECLAIM_CONFLICT = 10035,/*       v4 */
-+	NFSERR_BAD_XDR = 10036,		/*       v4 */
-+	NFSERR_LOCKS_HELD = 10037	/*       v4 */
-+};
+[Background: GSSD is a service which runs in userspace, whose
+ purpose in life (for now) is to provide translation between
+ strings of the form user@realm, which are used in the NFSv4
+ protocol, and numerical uid/gid's, which the kernel can
+ understand.  The kernel communicates with GSSD through
+ loopback RPC calls.]
 
- /* NFSv2 file types - beware, these are not the same in NFSv3 */
+--- old/fs/Config.in	Wed Jul 24 16:03:29 2002
++++ new/fs/Config.in	Thu Aug  8 09:41:58 2002
+@@ -109,10 +109,12 @@ if [ "$CONFIG_NET" = "y" ]; then
+    dep_tristate 'InterMezzo file system support (replicating fs) (EXPERIMENTAL)' CONFIG_INTERMEZZO_FS $CONFIG_INET $CONFIG_EXPERIMENTAL
+    dep_tristate 'NFS file system support' CONFIG_NFS_FS $CONFIG_INET
+    dep_mbool '  Provide NFSv3 client support' CONFIG_NFS_V3 $CONFIG_NFS_FS
++   dep_mbool '  Provide NFSv4 client support (EXPERIMENTAL)' CONFIG_NFS_V4 $CONFIG_NFS_FS $CONFIG_EXPERIMENTAL
+    dep_bool '  Root file system on NFS' CONFIG_ROOT_NFS $CONFIG_NFS_FS $CONFIG_IP_PNP
 
+    dep_tristate 'NFS server support' CONFIG_NFSD $CONFIG_INET
+    dep_mbool '  Provide NFSv3 server support' CONFIG_NFSD_V3 $CONFIG_NFSD
++   dep_mbool '  Provide NFSv4 server support (EXPERIMENTAL)' CONFIG_NFSD_V4 $CONFIG_NFSD_V3 $CONFIG_EXPERIMENTAL
+    dep_mbool '  Provide NFS server over TCP support (EXPERIMENTAL)' CONFIG_NFSD_TCP $CONFIG_NFSD $CONFIG_EXPERIMENTAL
+
+    if [ "$CONFIG_NFS_FS" = "y" -o "$CONFIG_NFSD" = "y" ]; then
+@@ -130,6 +132,9 @@ if [ "$CONFIG_NET" = "y" ]; then
+    if [ "$CONFIG_NFSD_V3" = "y" -o "$CONFIG_NFS_V3" = "y" ]; then
+      define_bool CONFIG_LOCKD_V4 y
+    fi
++   if [ "$CONFIG_NFSD_V4" = "y" -o "$CONFIG_NFS_V4" = "y" ]; then
++     define_bool CONFIG_SUNRPC_GSSD_CLNT y
++   fi
+    define_tristate CONFIG_EXPORTFS $CONFIG_NFSD
+
+    dep_tristate 'SMB file system support (to mount Windows shares etc.)' CONFIG_SMB_FS $CONFIG_INET
+--- old/fs/Config.help	Wed Jul 24 16:03:30 2002
++++ new/fs/Config.help	Wed Aug  7 12:24:03 2002
+@@ -514,6 +514,13 @@ CONFIG_NFS_V3
+
+   If unsure, say N.
+
++CONFIG_NFS_V4
++  Say Y here if you want your NFS client to be able to speak the newer
++  version 4 of the NFS protocol.  This feature is experimental, and
++  should only be used if you are interested in helping to test NFSv4.
++
++  If unsure, say N.
++
+ CONFIG_ROOT_NFS
+   If you want your Linux box to mount its whole root file system (the
+   one containing the directory /) from some other computer over the
+@@ -555,6 +562,12 @@ CONFIG_NFSD_V3
+   If you would like to include the NFSv3 server as well as the NFSv2
+   server, say Y here.  If unsure, say Y.
+
++CONFIG_NFSD_V4
++  If you would like to include the NFSv4 server as well as the NFSv2
++  server, say Y here.  This feature is experimental, and should only
++  be used if you are interested in helping to test NFSv4.  If unsure,
++  say N.
++
+ CONFIG_NFSD_TCP
+   Enable NFS service over TCP connections.  This the officially
+   still experimental, but seems to work well.
 

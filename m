@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbUBRKGK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 05:06:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264283AbUBRKGK
+	id S264283AbUBRKSY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 05:18:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264313AbUBRKSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 05:06:10 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:27663 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S264147AbUBRKGI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 05:06:08 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: tridge@samba.org
-Subject: Re: UTF-8 and case-insensitivity
-Date: Wed, 18 Feb 2004 11:05:58 +0100
-User-Agent: KMail/1.6.1
-Cc: hpa@zytor.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <16434.58656.381712.241116@samba.org>
-In-Reply-To: <16434.58656.381712.241116@samba.org>
-MIME-Version: 1.0
+	Wed, 18 Feb 2004 05:18:24 -0500
+Received: from karnickel.franken.de ([193.141.110.11]:52747 "EHLO
+	karnickel.franken.de") by vger.kernel.org with ESMTP
+	id S264283AbUBRKSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 05:18:23 -0500
+Date: Wed, 18 Feb 2004 11:17:02 +0100
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.3
+Message-ID: <20040218101702.GA5551@debian.franken.de>
+References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402181105.58425.robin.rosenberg.lists@dewire.com>
+In-Reply-To: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: erik@debian.franken.de (Erik Tews)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 February 2004 05.08, tridge@samba.org wrote:
-> Hpa,
+On Tue, Feb 17, 2004 at 08:15:08PM -0800, Linus Torvalds wrote:
 > 
-> > So you're hosed if anyone uses characters outside the UCS-2 character
-> > set...
+> Ok, it's out.
 > 
-> I've heard they are re-defining all those 16 bit numbers to be UCS-16
-> instead of UCS-2 for exactly that reason. This is rather similar to
-> the move in the Unix community to start using UTF-8.
+> There were some minimal changes relative to the last -rc4, mostly some 
+> configuration and build fixes, but a few important one-liners too.
 
-I've read it also: http://www.microsoft.com/globaldev/getwr/steps/wrg_unicode.mspx
-"The fundamental representation of text in Windows NT-based operating systems is UTF-16"
-
--- robin
+Ext3 doesn't seem to compile without jbd support.

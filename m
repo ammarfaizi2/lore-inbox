@@ -1,1610 +1,265 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263778AbUDQJ5b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 05:57:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263780AbUDQJ5b
+	id S263776AbUDQKEq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 06:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263780AbUDQKEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 05:57:31 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:48059 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S263778AbUDQJt0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 05:49:26 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] Consolidate =?iso-8859-1?q?sys32=5Fnfsservctl=0A?=
-Date: Fri, 16 Apr 2004 18:08:34 +0200
-User-Agent: KMail/1.6.1
-References: <200404161800.22367.arnd@arndb.de>
-In-Reply-To: <200404161800.22367.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404161808.35003.arnd@arndb.de>
+	Sat, 17 Apr 2004 06:04:45 -0400
+Received: from colino.net ([62.212.100.143]:45556 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S263776AbUDQJyv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 05:54:51 -0400
+Date: Sat, 17 Apr 2004 11:54:25 +0200
+From: Colin Leroy <colin@colino.net>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Re: [linux-usb-devel] 2.6.6-rc1: cdc-acm still
+ (differently) broken
+Message-Id: <20040417115425.0b2f0d6a@jack.colino.net>
+In-Reply-To: <20040416234813.0aaa44cf@jack.colino.net>
+References: <20040415201117.11524f63@jack.colino.net>
+	<407EDA4A.2070509@pacbell.net>
+	<20040415212334.4a568c5a@jack.colino.net>
+	<407EE9A5.3020305@pacbell.net>
+	<20040416122415.6f532584@jack.colino.net>
+	<4080297A.1090002@pacbell.net>
+	<20040416234813.0aaa44cf@jack.colino.net>
+Organization: 
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.4.0; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Sat__17_Apr_2004_11_54_25_+0200_QywQ.jxPAZ7/=U5J"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sys32_nfsservctl is the largest remaining syscall emulation handler that
-can be consolidated. mips and ia64 currently don't use this at all,
-parisc has a simpler implementation than the one used by s390, sparc
-ppc and that the new compat_sys_nfsservctl is based on.
+This is a multi-part message in MIME format.
 
-The user access checks in the code are inconsistant at least, which
-should be fixed here.
+--Multipart=_Sat__17_Apr_2004_11_54_25_+0200_QywQ.jxPAZ7/=U5J
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Compile tested only due to lack of proper test setup.
+On 16 Apr 2004 at 23h04, Colin Leroy wrote:
 
- arch/ia64/ia32/sys_ia32.c          |  170 --------------------------
- arch/parisc/kernel/sys_parisc32.c  |   88 -------------
- arch/parisc/kernel/syscall_table.S |    2
- arch/ppc64/kernel/misc.S           |    2
- arch/ppc64/kernel/sys_ppc32.c      |  239 -------------------------------------
- arch/s390/kernel/compat_linux.c    |  220 ----------------------------------
- arch/s390/kernel/compat_wrapper.S  |   10 -
- arch/s390/kernel/syscalls.S        |    2
- arch/sparc64/kernel/sys_sparc32.c  |  226 ----------------------------------
- arch/sparc64/kernel/systbls.S      |    2
- arch/x86_64/ia32/ia32entry.S       |    2
- arch/x86_64/ia32/sys_ia32.c        |  227 -----------------------------------
- fs/compat.c                        |  239 +++++++++++++++++++++++++++++++++++++
- 13 files changed, 249 insertions(+), 1180 deletions(-)
+Hi, 
 
-===== arch/ia64/ia32/sys_ia32.c 1.96 vs edited =====
---- 1.96/arch/ia64/ia32/sys_ia32.c	Thu Apr 15 19:30:49 2004
-+++ edited/arch/ia64/ia32/sys_ia32.c	Thu Apr 15 17:37:01 2004
-@@ -2200,176 +2200,6 @@
- 	return sys_setresgid(srgid, segid, ssgid);
- }
- 
--/* Stuff for NFS server syscalls... */
--struct nfsctl_svc32 {
--	u16			svc32_port;
--	s32			svc32_nthreads;
--};
--
--struct nfsctl_client32 {
--	s8			cl32_ident[NFSCLNT_IDMAX+1];
--	s32			cl32_naddr;
--	struct in_addr		cl32_addrlist[NFSCLNT_ADDRMAX];
--	s32			cl32_fhkeytype;
--	s32			cl32_fhkeylen;
--	u8			cl32_fhkey[NFSCLNT_KEYMAX];
--};
--
--struct nfsctl_export32 {
--	s8			ex32_client[NFSCLNT_IDMAX+1];
--	s8			ex32_path[NFS_MAXPATHLEN+1];
--	compat_dev_t	ex32_dev;
--	compat_ino_t	ex32_ino;
--	s32			ex32_flags;
--	compat_uid_t	ex32_anon_uid;
--	compat_gid_t	ex32_anon_gid;
--};
--
--struct nfsctl_arg32 {
--	s32			ca32_version;	/* safeguard */
--	union {
--		struct nfsctl_svc32	u32_svc;
--		struct nfsctl_client32	u32_client;
--		struct nfsctl_export32	u32_export;
--		u32			u32_debug;
--	} u;
--#define ca32_svc	u.u32_svc
--#define ca32_client	u.u32_client
--#define ca32_export	u.u32_export
--#define ca32_debug	u.u32_debug
--};
--
--union nfsctl_res32 {
--	struct knfs_fh		cr32_getfh;
--	u32			cr32_debug;
--};
--
--static int
--nfs_svc32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= __get_user(karg->ca_svc.svc_port, &arg32->ca32_svc.svc32_port);
--	err |= __get_user(karg->ca_svc.svc_nthreads,
--			  &arg32->ca32_svc.svc32_nthreads);
--	return err;
--}
--
--static int
--nfs_clnt32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_client.cl_ident[0],
--			  &arg32->ca32_client.cl32_ident[0],
--			  NFSCLNT_IDMAX);
--	err |= __get_user(karg->ca_client.cl_naddr,
--			  &arg32->ca32_client.cl32_naddr);
--	err |= copy_from_user(&karg->ca_client.cl_addrlist[0],
--			  &arg32->ca32_client.cl32_addrlist[0],
--			  (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
--	err |= __get_user(karg->ca_client.cl_fhkeytype,
--		      &arg32->ca32_client.cl32_fhkeytype);
--	err |= __get_user(karg->ca_client.cl_fhkeylen,
--		      &arg32->ca32_client.cl32_fhkeylen);
--	err |= copy_from_user(&karg->ca_client.cl_fhkey[0],
--			  &arg32->ca32_client.cl32_fhkey[0],
--			  NFSCLNT_KEYMAX);
--	return err;
--}
--
--static int
--nfs_exp32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_export.ex_client[0],
--			  &arg32->ca32_export.ex32_client[0],
--			  NFSCLNT_IDMAX);
--	err |= copy_from_user(&karg->ca_export.ex_path[0],
--			  &arg32->ca32_export.ex32_path[0],
--			  NFS_MAXPATHLEN);
--	err |= __get_user(karg->ca_export.ex_dev,
--		      &arg32->ca32_export.ex32_dev);
--	err |= __get_user(karg->ca_export.ex_ino,
--		      &arg32->ca32_export.ex32_ino);
--	err |= __get_user(karg->ca_export.ex_flags,
--		      &arg32->ca32_export.ex32_flags);
--	err |= __get_user(karg->ca_export.ex_anon_uid,
--		      &arg32->ca32_export.ex32_anon_uid);
--	err |= __get_user(karg->ca_export.ex_anon_gid,
--		      &arg32->ca32_export.ex32_anon_gid);
--	return err;
--}
--
--static int
--nfs_getfh32_res_trans(union nfsctl_res *kres, union nfsctl_res32 *res32)
--{
--	int err;
--
--	err = copy_to_user(&res32->cr32_getfh,
--			&kres->cr_getfh,
--			sizeof(res32->cr32_getfh));
--	err |= __put_user(kres->cr_debug, &res32->cr32_debug);
--	return err;
--}
--
--int asmlinkage
--sys32_nfsservctl(int cmd, struct nfsctl_arg32 *arg32, union nfsctl_res32 *res32)
--{
--	struct nfsctl_arg *karg = NULL;
--	union nfsctl_res *kres = NULL;
--	mm_segment_t oldfs;
--	int err;
--
--	karg = kmalloc(sizeof(*karg), GFP_USER);
--	if(!karg)
--		return -ENOMEM;
--	if(res32) {
--		kres = kmalloc(sizeof(*kres), GFP_USER);
--		if(!kres) {
--			kfree(karg);
--			return -ENOMEM;
--		}
--	}
--	switch(cmd) {
--	case NFSCTL_SVC:
--		err = nfs_svc32_trans(karg, arg32);
--		break;
--	case NFSCTL_ADDCLIENT:
--		err = nfs_clnt32_trans(karg, arg32);
--		break;
--	case NFSCTL_DELCLIENT:
--		err = nfs_clnt32_trans(karg, arg32);
--		break;
--	case NFSCTL_EXPORT:
--		err = nfs_exp32_trans(karg, arg32);
--		break;
--	default:
--		err = -EINVAL;
--		break;
--	}
--	if(err)
--		goto done;
--	oldfs = get_fs();
--	set_fs(KERNEL_DS);
--	err = sys_nfsservctl(cmd, karg, kres);
--	set_fs(oldfs);
--
--	if(!err && cmd == NFSCTL_GETFS)
--		err = nfs_getfh32_res_trans(kres, res32);
--
--done:
--	if(karg)
--		kfree(karg);
--	if(kres)
--		kfree(kres);
--	return err;
--}
--
- /* Handle adjtimex compatibility. */
- 
- struct timex32 {
-===== arch/parisc/kernel/sys_parisc32.c 1.27 vs edited =====
---- 1.27/arch/parisc/kernel/sys_parisc32.c	Thu Apr 15 19:30:49 2004
-+++ edited/arch/parisc/kernel/sys_parisc32.c	Thu Apr 15 17:37:01 2004
-@@ -564,94 +564,6 @@
-         return ret;
- }
- 
--/* EXPORT/UNEXPORT */
--struct nfsctl_export32 {
--	char		ex_client[NFSCLNT_IDMAX+1];
--	char		ex_path[NFS_MAXPATHLEN+1];
--	__kernel_old_dev_t ex_dev;
--	compat_ino_t	ex_ino;
--	int		ex_flags;
--	__kernel_uid_t	ex_anon_uid;
--	__kernel_gid_t	ex_anon_gid;
--};
--
--struct nfsctl_arg32 {
--	int			ca_version;	/* safeguard */
--	/* wide kernel places this union on 8-byte boundary, narrow on 4 */
--	union {
--		struct nfsctl_svc	u_svc;
--		struct nfsctl_client	u_client;
--		struct nfsctl_export32	u_export;
--		struct nfsctl_fdparm	u_getfd;
--		struct nfsctl_fsparm	u_getfs;
--	} u;
--};
--
--asmlinkage int sys32_nfsservctl(int cmd, void *argp, void *resp)
--{
--	int ret, tmp;
--	struct nfsctl_arg32 n32;
--	struct nfsctl_arg n;
--
--	ret = copy_from_user(&n, argp, sizeof n.ca_version);
--	if (ret != 0)
--		return ret;
--
--	/* adjust argp to point at the union inside the user's n32 struct */
--	tmp = (unsigned long)&n32.u - (unsigned long)&n32;
--	argp = (void *)((unsigned long)argp + tmp);
--	switch(cmd) {
--	case NFSCTL_SVC:
--		ret = copy_from_user(&n.u, argp, sizeof n.u.u_svc);
--		break;
--
--	case NFSCTL_ADDCLIENT:
--	case NFSCTL_DELCLIENT:
--		ret = copy_from_user(&n.u, argp, sizeof n.u.u_client);
--		break;
--
--	case NFSCTL_GETFD:
--		ret = copy_from_user(&n.u, argp, sizeof n.u.u_getfd);
--		break;
--
--	case NFSCTL_GETFS:
--		ret = copy_from_user(&n.u, argp, sizeof n.u.u_getfs);
--		break;
--
--	case NFSCTL_UNEXPORT:		/* nfsctl_export */
--	case NFSCTL_EXPORT:		/* nfsctl_export */
--		ret = copy_from_user(&n32.u, argp, sizeof n32.u.u_export);
--#undef CP
--#define CP(x)	n.u.u_export.ex_##x = n32.u.u_export.ex_##x
--		memcpy(n.u.u_export.ex_client, n32.u.u_export.ex_client, sizeof n32.u.u_export.ex_client);
--		memcpy(n.u.u_export.ex_path, n32.u.u_export.ex_path, sizeof n32.u.u_export.ex_path);
--		CP(dev);
--		CP(ino);
--		CP(flags);
--		CP(anon_uid);
--		CP(anon_gid);
--		break;
--
--	default:
--		/* lockd probes for some other values (0x10000);
--		 * so don't BUG() */
--		ret = -EINVAL;
--		break;
--	}
--
--	if (ret == 0) {
--		unsigned char rbuf[NFS_FHSIZE + sizeof (struct knfsd_fh)];
--		KERNEL_SYSCALL(ret, sys_nfsservctl, cmd, &n, &rbuf);
--		if (cmd == NFSCTL_GETFD) {
--			ret = copy_to_user(resp, rbuf, NFS_FHSIZE);
--		} else if (cmd == NFSCTL_GETFS) {
--			ret = copy_to_user(resp, rbuf, sizeof (struct knfsd_fh));
--		}
--	}
--
--	return ret;
--}
--
- typedef long __kernel_loff_t32;		/* move this to asm/posix_types.h? */
- 
- asmlinkage int sys32_sendfile64(int out_fd, int in_fd, __kernel_loff_t32 *offset, s32 count)
-===== arch/parisc/kernel/syscall_table.S 1.6 vs edited =====
---- 1.6/arch/parisc/kernel/syscall_table.S	Thu Apr 15 19:30:49 2004
-+++ edited/arch/parisc/kernel/syscall_table.S	Thu Apr 15 17:37:01 2004
-@@ -266,7 +266,7 @@
- 	ENTRY_SAME(ni_syscall)		/* query_module */
- 	ENTRY_SAME(poll)
- 	/* structs contain pointers and an in_addr... */
--	ENTRY_DIFF(nfsservctl)
-+	ENTRY_COMP(nfsservctl)
- 	ENTRY_SAME(setresgid)		/* 170 */
- 	ENTRY_SAME(getresgid)
- 	ENTRY_SAME(prctl)
-===== arch/ppc64/kernel/misc.S 1.76 vs edited =====
---- 1.76/arch/ppc64/kernel/misc.S	Thu Apr 15 17:25:08 2004
-+++ edited/arch/ppc64/kernel/misc.S	Thu Apr 15 17:37:01 2004
-@@ -740,7 +740,7 @@
- 	.llong .sys_getresuid	        /* 165 */
- 	.llong .sys_ni_syscall		/* old query_module syscall */
- 	.llong .sys_poll
--	.llong .sys32_nfsservctl
-+	.llong .compat_sys_nfsservctl
- 	.llong .sys_setresgid
- 	.llong .sys_getresgid	        /* 170 */
- 	.llong .sys32_prctl
-===== arch/ppc64/kernel/sys_ppc32.c 1.88 vs edited =====
---- 1.88/arch/ppc64/kernel/sys_ppc32.c	Thu Apr 15 19:30:49 2004
-+++ edited/arch/ppc64/kernel/sys_ppc32.c	Thu Apr 15 17:37:01 2004
-@@ -351,245 +351,6 @@
- 	return ret;
- }
- 
--/* Stuff for NFS server syscalls... */
--struct nfsctl_svc32 {
--	u16			svc32_port;
--	s32			svc32_nthreads;
--};
--
--struct nfsctl_client32 {
--	s8			cl32_ident[NFSCLNT_IDMAX+1];
--	s32			cl32_naddr;
--	struct in_addr		cl32_addrlist[NFSCLNT_ADDRMAX];
--	s32			cl32_fhkeytype;
--	s32			cl32_fhkeylen;
--	u8			cl32_fhkey[NFSCLNT_KEYMAX];
--};
--
--struct nfsctl_export32 {
--	s8			ex32_client[NFSCLNT_IDMAX+1];
--	s8			ex32_path[NFS_MAXPATHLEN+1];
--	compat_dev_t	ex32_dev;
--	compat_ino_t	ex32_ino;
--	s32			ex32_flags;
--	compat_uid_t	ex32_anon_uid;
--	compat_gid_t	ex32_anon_gid;
--};
--
--struct nfsctl_fdparm32 {
--	struct sockaddr		gd32_addr;
--	s8			gd32_path[NFS_MAXPATHLEN+1];
--	s32			gd32_version;
--};
--
--struct nfsctl_fsparm32 {
--	struct sockaddr		gd32_addr;
--	s8			gd32_path[NFS_MAXPATHLEN+1];
--	s32			gd32_maxlen;
--};
--
--struct nfsctl_arg32 {
--	s32			ca32_version;	/* safeguard */
--	union {
--		struct nfsctl_svc32	u32_svc;
--		struct nfsctl_client32	u32_client;
--		struct nfsctl_export32	u32_export;
--		struct nfsctl_fdparm32	u32_getfd;
--		struct nfsctl_fsparm32	u32_getfs;
--	} u;
--#define ca32_svc	u.u32_svc
--#define ca32_client	u.u32_client
--#define ca32_export	u.u32_export
--#define ca32_getfd	u.u32_getfd
--#define ca32_getfs	u.u32_getfs
--};
--
--union nfsctl_res32 {
--	__u8			cr32_getfh[NFS_FHSIZE];
--	struct knfsd_fh		cr32_getfs;
--};
--
--static int nfs_svc32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= __get_user(karg->ca_svc.svc_port, &arg32->ca32_svc.svc32_port);
--	err |= __get_user(karg->ca_svc.svc_nthreads, &arg32->ca32_svc.svc32_nthreads);
--	return err;
--}
--
--static int nfs_clnt32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_client.cl_ident[0],
--			  &arg32->ca32_client.cl32_ident[0],
--			  NFSCLNT_IDMAX);
--	err |= __get_user(karg->ca_client.cl_naddr, &arg32->ca32_client.cl32_naddr);
--	err |= copy_from_user(&karg->ca_client.cl_addrlist[0],
--			  &arg32->ca32_client.cl32_addrlist[0],
--			  (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
--	err |= __get_user(karg->ca_client.cl_fhkeytype,
--		      &arg32->ca32_client.cl32_fhkeytype);
--	err |= __get_user(karg->ca_client.cl_fhkeylen,
--		      &arg32->ca32_client.cl32_fhkeylen);
--	err |= copy_from_user(&karg->ca_client.cl_fhkey[0],
--			  &arg32->ca32_client.cl32_fhkey[0],
--			  NFSCLNT_KEYMAX);
--
--	if(err) return -EFAULT;
--	return 0;
--}
--
--static int nfs_exp32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_export.ex_client[0],
--			  &arg32->ca32_export.ex32_client[0],
--			  NFSCLNT_IDMAX);
--	err |= copy_from_user(&karg->ca_export.ex_path[0],
--			  &arg32->ca32_export.ex32_path[0],
--			  NFS_MAXPATHLEN);
--	err |= __get_user(karg->ca_export.ex_dev,
--		      &arg32->ca32_export.ex32_dev);
--	err |= __get_user(karg->ca_export.ex_ino,
--		      &arg32->ca32_export.ex32_ino);
--	err |= __get_user(karg->ca_export.ex_flags,
--		      &arg32->ca32_export.ex32_flags);
--	err |= __get_user(karg->ca_export.ex_anon_uid,
--		      &arg32->ca32_export.ex32_anon_uid);
--	err |= __get_user(karg->ca_export.ex_anon_gid,
--		      &arg32->ca32_export.ex32_anon_gid);
--	karg->ca_export.ex_anon_uid = karg->ca_export.ex_anon_uid;
--	karg->ca_export.ex_anon_gid = karg->ca_export.ex_anon_gid;
--
--	if(err) return -EFAULT;
--	return 0;
--}
--
--static int nfs_getfd32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_getfd.gd_addr,
--			  &arg32->ca32_getfd.gd32_addr,
--			  (sizeof(struct sockaddr)));
--	err |= copy_from_user(&karg->ca_getfd.gd_path,
--			  &arg32->ca32_getfd.gd32_path,
--			  (NFS_MAXPATHLEN+1));
--	err |= __get_user(karg->ca_getfd.gd_version,
--		      &arg32->ca32_getfd.gd32_version);
--
--	if(err) return -EFAULT;
--	return 0;
--}
--
--static int nfs_getfs32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_getfs.gd_addr,
--			  &arg32->ca32_getfs.gd32_addr,
--			  (sizeof(struct sockaddr)));
--	err |= copy_from_user(&karg->ca_getfs.gd_path,
--			  &arg32->ca32_getfs.gd32_path,
--			  (NFS_MAXPATHLEN+1));
--	err |= __get_user(karg->ca_getfs.gd_maxlen,
--		      &arg32->ca32_getfs.gd32_maxlen);
--
--	if(err) return -EFAULT;
--	return 0;
--}
--
--/* This really doesn't need translations, we are only passing
-- * back a union which contains opaque nfs file handle data.
-- */
--static int nfs_getfh32_res_trans(union nfsctl_res *kres, union nfsctl_res32 *res32)
--{
--	int err;
--
--	err = copy_to_user(res32, kres, sizeof(*res32));
--
--	if(err) return -EFAULT;
--	return 0;
--}
--
--/* Note: it is necessary to treat cmd_parm as an unsigned int, 
-- * with the corresponding cast to a signed int to insure that the 
-- * proper conversion (sign extension) between the register representation of a signed int (msr in 32-bit mode)
-- * and the register representation of a signed int (msr in 64-bit mode) is performed.
-- */
--int asmlinkage sys32_nfsservctl(u32 cmd_parm, struct nfsctl_arg32 *arg32, union nfsctl_res32 *res32)
--{
--  int cmd = (int)cmd_parm;
--	struct nfsctl_arg *karg = NULL;
--	union nfsctl_res *kres = NULL;
--	mm_segment_t oldfs;
--	int err;
--
--	karg = kmalloc(sizeof(*karg), GFP_USER);
--	if(!karg)
--		return -ENOMEM;
--	if(res32) {
--		kres = kmalloc(sizeof(*kres), GFP_USER);
--		if(!kres) {
--			kfree(karg);
--			return -ENOMEM;
--		}
--	}
--	switch(cmd) {
--	case NFSCTL_SVC:
--		err = nfs_svc32_trans(karg, arg32);
--		break;
--	case NFSCTL_ADDCLIENT:
--		err = nfs_clnt32_trans(karg, arg32);
--		break;
--	case NFSCTL_DELCLIENT:
--		err = nfs_clnt32_trans(karg, arg32);
--		break;
--	case NFSCTL_EXPORT:
--	case NFSCTL_UNEXPORT:
--		err = nfs_exp32_trans(karg, arg32);
--		break;
--	case NFSCTL_GETFD:
--		err = nfs_getfd32_trans(karg, arg32);
--		break;
--	case NFSCTL_GETFS:
--		err = nfs_getfs32_trans(karg, arg32);
--		break;
--	default:
--		err = -EINVAL;
--		break;
--	}
--	if(err)
--		goto done;
--	oldfs = get_fs();
--	set_fs(KERNEL_DS);
--	err = sys_nfsservctl(cmd, karg, kres);
--	set_fs(oldfs);
--
--	if (err)
--		goto done;
--
--	if((cmd == NFSCTL_GETFD) ||
--	   (cmd == NFSCTL_GETFS))
--		err = nfs_getfh32_res_trans(kres, res32);
--
--done:
--	if(karg)
--		kfree(karg);
--	if(kres)
--		kfree(kres);
--	return err;
--}
--
--
- 
- /* These are here just in case some old sparc32 binary calls it. */
- asmlinkage long sys32_pause(void)
-===== arch/s390/kernel/compat_linux.c 1.21 vs edited =====
---- 1.21/arch/s390/kernel/compat_linux.c	Thu Apr 15 19:30:49 2004
-+++ edited/arch/s390/kernel/compat_linux.c	Thu Apr 15 17:37:01 2004
-@@ -815,226 +815,6 @@
- 
- #endif  /* CONFIG_MODULES */
- 
--/* Stuff for NFS server syscalls... */
--struct nfsctl_svc32 {
--	u16			svc32_port;
--	s32			svc32_nthreads;
--};
--
--struct nfsctl_client32 {
--	s8			cl32_ident[NFSCLNT_IDMAX+1];
--	s32			cl32_naddr;
--	struct in_addr		cl32_addrlist[NFSCLNT_ADDRMAX];
--	s32			cl32_fhkeytype;
--	s32			cl32_fhkeylen;
--	u8			cl32_fhkey[NFSCLNT_KEYMAX];
--};
--
--struct nfsctl_export32 {
--	s8			ex32_client[NFSCLNT_IDMAX+1];
--	s8			ex32_path[NFS_MAXPATHLEN+1];
--	compat_dev_t	ex32_dev;
--	compat_ino_t	ex32_ino;
--	s32			ex32_flags;
--	compat_uid_t	ex32_anon_uid;
--	compat_gid_t	ex32_anon_gid;
--};
--
--struct nfsctl_fdparm32 {
--	struct sockaddr		gd32_addr;
--	s8			gd32_path[NFS_MAXPATHLEN+1];
--	s32			gd32_version;
--};
--
--struct nfsctl_fsparm32 {
--	struct sockaddr		gd32_addr;
--	s8			gd32_path[NFS_MAXPATHLEN+1];
--	s32			gd32_maxlen;
--};
--
--struct nfsctl_arg32 {
--	s32			ca32_version;	/* safeguard */
--	union {
--		struct nfsctl_svc32	u32_svc;
--		struct nfsctl_client32	u32_client;
--		struct nfsctl_export32	u32_export;
--		struct nfsctl_fdparm32	u32_getfd;
--		struct nfsctl_fsparm32	u32_getfs;
--	} u;
--#define ca32_svc	u.u32_svc
--#define ca32_client	u.u32_client
--#define ca32_export	u.u32_export
--#define ca32_getfd	u.u32_getfd
--#define ca32_getfs	u.u32_getfs
--#define ca32_authd	u.u32_authd
--};
--
--union nfsctl_res32 {
--	__u8			cr32_getfh[NFS_FHSIZE];
--	struct knfsd_fh		cr32_getfs;
--};
--
--static int nfs_svc32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= __get_user(karg->ca_svc.svc_port, &arg32->ca32_svc.svc32_port);
--	err |= __get_user(karg->ca_svc.svc_nthreads, &arg32->ca32_svc.svc32_nthreads);
--	return err;
--}
--
--static int nfs_clnt32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_client.cl_ident[0],
--			  &arg32->ca32_client.cl32_ident[0],
--			  NFSCLNT_IDMAX);
--	err |= __get_user(karg->ca_client.cl_naddr, &arg32->ca32_client.cl32_naddr);
--	err |= copy_from_user(&karg->ca_client.cl_addrlist[0],
--			  &arg32->ca32_client.cl32_addrlist[0],
--			  (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
--	err |= __get_user(karg->ca_client.cl_fhkeytype,
--		      &arg32->ca32_client.cl32_fhkeytype);
--	err |= __get_user(karg->ca_client.cl_fhkeylen,
--		      &arg32->ca32_client.cl32_fhkeylen);
--	err |= copy_from_user(&karg->ca_client.cl_fhkey[0],
--			  &arg32->ca32_client.cl32_fhkey[0],
--			  NFSCLNT_KEYMAX);
--	return err;
--}
--
--static int nfs_exp32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_export.ex_client[0],
--			  &arg32->ca32_export.ex32_client[0],
--			  NFSCLNT_IDMAX);
--	err |= copy_from_user(&karg->ca_export.ex_path[0],
--			  &arg32->ca32_export.ex32_path[0],
--			  NFS_MAXPATHLEN);
--	err |= __get_user(karg->ca_export.ex_dev,
--		      &arg32->ca32_export.ex32_dev);
--	err |= __get_user(karg->ca_export.ex_ino,
--		      &arg32->ca32_export.ex32_ino);
--	err |= __get_user(karg->ca_export.ex_flags,
--		      &arg32->ca32_export.ex32_flags);
--	err |= __get_user(karg->ca_export.ex_anon_uid,
--		      &arg32->ca32_export.ex32_anon_uid);
--	err |= __get_user(karg->ca_export.ex_anon_gid,
--		      &arg32->ca32_export.ex32_anon_gid);
--	karg->ca_export.ex_anon_uid = high2lowuid(karg->ca_export.ex_anon_uid);
--	karg->ca_export.ex_anon_gid = high2lowgid(karg->ca_export.ex_anon_gid);
--	return err;
--}
--
--static int nfs_getfd32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_getfd.gd_addr,
--			  &arg32->ca32_getfd.gd32_addr,
--			  (sizeof(struct sockaddr)));
--	err |= copy_from_user(&karg->ca_getfd.gd_path,
--			  &arg32->ca32_getfd.gd32_path,
--			  (NFS_MAXPATHLEN+1));
--	err |= __get_user(karg->ca_getfd.gd_version,
--		      &arg32->ca32_getfd.gd32_version);
--	return err;
--}
--
--static int nfs_getfs32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_getfs.gd_addr,
--			  &arg32->ca32_getfs.gd32_addr,
--			  (sizeof(struct sockaddr)));
--	err |= copy_from_user(&karg->ca_getfs.gd_path,
--			  &arg32->ca32_getfs.gd32_path,
--			  (NFS_MAXPATHLEN+1));
--	err |= __get_user(karg->ca_getfs.gd_maxlen,
--		      &arg32->ca32_getfs.gd32_maxlen);
--	return err;
--}
--
--/* This really doesn't need translations, we are only passing
-- * back a union which contains opaque nfs file handle data.
-- */
--static int nfs_getfh32_res_trans(union nfsctl_res *kres, union nfsctl_res32 *res32)
--{
--	return copy_to_user(res32, kres, sizeof(*res32)) ? -EFAULT : 0;
--}
--
--long asmlinkage sys32_nfsservctl(int cmd, struct nfsctl_arg32 *arg32, union nfsctl_res32 *res32)
--{
--	struct nfsctl_arg *karg = NULL;
--	union nfsctl_res *kres = NULL;
--	mm_segment_t oldfs;
--	int err;
--
--	karg = kmalloc(sizeof(*karg), GFP_USER);
--	if(!karg)
--		return -ENOMEM;
--	if(res32) {
--		kres = kmalloc(sizeof(*kres), GFP_USER);
--		if(!kres) {
--			kfree(karg);
--			return -ENOMEM;
--		}
--	}
--	switch(cmd) {
--	case NFSCTL_SVC:
--		err = nfs_svc32_trans(karg, arg32);
--		break;
--	case NFSCTL_ADDCLIENT:
--		err = nfs_clnt32_trans(karg, arg32);
--		break;
--	case NFSCTL_DELCLIENT:
--		err = nfs_clnt32_trans(karg, arg32);
--		break;
--	case NFSCTL_EXPORT:
--	case NFSCTL_UNEXPORT:
--		err = nfs_exp32_trans(karg, arg32);
--		break;
--	case NFSCTL_GETFD:
--		err = nfs_getfd32_trans(karg, arg32);
--		break;
--	case NFSCTL_GETFS:
--		err = nfs_getfs32_trans(karg, arg32);
--		break;
--	default:
--		err = -EINVAL;
--		break;
--	}
--	if(err)
--		goto done;
--	oldfs = get_fs();
--	set_fs(KERNEL_DS);
--	err = sys_nfsservctl(cmd, karg, kres);
--	set_fs(oldfs);
--
--	if (err)
--		goto done;
--
--	if((cmd == NFSCTL_GETFD) ||
--	   (cmd == NFSCTL_GETFS))
--		err = nfs_getfh32_res_trans(kres, res32);
--
--done:
--	if(karg)
--		kfree(karg);
--	if(kres)
--		kfree(kres);
--	return err;
--}
--
- /* Translations due to time_t size differences.  Which affects all
-    sorts of things, like timeval and itimerval.  */
- 
-===== arch/s390/kernel/compat_wrapper.S 1.11 vs edited =====
---- 1.11/arch/s390/kernel/compat_wrapper.S	Thu Apr 15 19:30:49 2004
-+++ edited/arch/s390/kernel/compat_wrapper.S	Thu Apr 15 17:37:01 2004
-@@ -786,12 +786,12 @@
- 	lgfr	%r4,%r4			# long 
- 	jg	sys_poll		# branch to system call
- 
--	.globl  sys32_nfsservctl_wrapper 
--sys32_nfsservctl_wrapper:
-+	.globl  compat_sys_nfsservctl_wrapper 
-+compat_sys_nfsservctl_wrapper:
- 	lgfr	%r2,%r2			# int 
--	llgtr	%r3,%r3			# struct nfsctl_arg_emu31 * 
--	llgtr	%r4,%r4			# union nfsctl_res_emu31 * 
--	jg	sys32_nfsservctl	# branch to system call
-+	llgtr	%r3,%r3			# struct compat_nfsctl_arg* 
-+	llgtr	%r4,%r4			# union compat_nfsctl_res* 
-+	jg	compat_sys_nfsservctl	# branch to system call
- 
- 	.globl  sys32_setresgid16_wrapper 
- sys32_setresgid16_wrapper:
-===== arch/s390/kernel/syscalls.S 1.11 vs edited =====
---- 1.11/arch/s390/kernel/syscalls.S	Thu Apr 15 19:30:49 2004
-+++ edited/arch/s390/kernel/syscalls.S	Thu Apr 15 17:37:01 2004
-@@ -177,7 +177,7 @@
- NI_SYSCALL							/* for vm86 */
- NI_SYSCALL							/* old sys_query_module */
- SYSCALL(sys_poll,sys_poll,sys32_poll_wrapper)
--SYSCALL(sys_nfsservctl,sys_nfsservctl,sys32_nfsservctl_wrapper)
-+SYSCALL(sys_nfsservctl,sys_nfsservctl,compat_sys_nfsservctl_wrapper)
- SYSCALL(sys_setresgid16,sys_ni_syscall,sys32_setresgid16_wrapper)	/* 170 old setresgid16 syscall */
- SYSCALL(sys_getresgid16,sys_ni_syscall,sys32_getresgid16_wrapper)	/* old getresgid16 syscall */
- SYSCALL(sys_prctl,sys_prctl,sys32_prctl_wrapper)
-===== arch/sparc64/kernel/sys_sparc32.c 1.97 vs edited =====
---- 1.97/arch/sparc64/kernel/sys_sparc32.c	Thu Apr 15 19:30:49 2004
-+++ edited/arch/sparc64/kernel/sys_sparc32.c	Thu Apr 15 17:37:01 2004
-@@ -1392,232 +1392,6 @@
- 
- #endif  /* CONFIG_MODULES */
- 
--#if defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
--/* Stuff for NFS server syscalls... */
--struct nfsctl_svc32 {
--	u16			svc32_port;
--	s32			svc32_nthreads;
--};
--
--struct nfsctl_client32 {
--	s8			cl32_ident[NFSCLNT_IDMAX+1];
--	s32			cl32_naddr;
--	struct in_addr		cl32_addrlist[NFSCLNT_ADDRMAX];
--	s32			cl32_fhkeytype;
--	s32			cl32_fhkeylen;
--	u8			cl32_fhkey[NFSCLNT_KEYMAX];
--};
--
--struct nfsctl_export32 {
--	s8			ex32_client[NFSCLNT_IDMAX+1];
--	s8			ex32_path[NFS_MAXPATHLEN+1];
--	compat_dev_t	ex32_dev;
--	compat_ino_t	ex32_ino;
--	s32			ex32_flags;
--	compat_uid_t	ex32_anon_uid;
--	compat_gid_t	ex32_anon_gid;
--};
--
--struct nfsctl_fdparm32 {
--	struct sockaddr		gd32_addr;
--	s8			gd32_path[NFS_MAXPATHLEN+1];
--	s32			gd32_version;
--};
--
--struct nfsctl_fsparm32 {
--	struct sockaddr		gd32_addr;
--	s8			gd32_path[NFS_MAXPATHLEN+1];
--	s32			gd32_maxlen;
--};
--
--struct nfsctl_arg32 {
--	s32			ca32_version;	/* safeguard */
--	union {
--		struct nfsctl_svc32	u32_svc;
--		struct nfsctl_client32	u32_client;
--		struct nfsctl_export32	u32_export;
--		struct nfsctl_fdparm32	u32_getfd;
--		struct nfsctl_fsparm32	u32_getfs;
--	} u;
--#define ca32_svc	u.u32_svc
--#define ca32_client	u.u32_client
--#define ca32_export	u.u32_export
--#define ca32_getfd	u.u32_getfd
--#define ca32_getfs	u.u32_getfs
--};
--
--union nfsctl_res32 {
--	__u8			cr32_getfh[NFS_FHSIZE];
--	struct knfsd_fh		cr32_getfs;
--};
--
--static int nfs_svc32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= __get_user(karg->ca_svc.svc_port, &arg32->ca32_svc.svc32_port);
--	err |= __get_user(karg->ca_svc.svc_nthreads, &arg32->ca32_svc.svc32_nthreads);
--	return err;
--}
--
--static int nfs_clnt32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_client.cl_ident[0],
--			  &arg32->ca32_client.cl32_ident[0],
--			  NFSCLNT_IDMAX);
--	err |= __get_user(karg->ca_client.cl_naddr, &arg32->ca32_client.cl32_naddr);
--	err |= copy_from_user(&karg->ca_client.cl_addrlist[0],
--			  &arg32->ca32_client.cl32_addrlist[0],
--			  (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
--	err |= __get_user(karg->ca_client.cl_fhkeytype,
--		      &arg32->ca32_client.cl32_fhkeytype);
--	err |= __get_user(karg->ca_client.cl_fhkeylen,
--		      &arg32->ca32_client.cl32_fhkeylen);
--	err |= copy_from_user(&karg->ca_client.cl_fhkey[0],
--			  &arg32->ca32_client.cl32_fhkey[0],
--			  NFSCLNT_KEYMAX);
--	return (err ? -EFAULT : 0);
--}
--
--static int nfs_exp32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_export.ex_client[0],
--			  &arg32->ca32_export.ex32_client[0],
--			  NFSCLNT_IDMAX);
--	err |= copy_from_user(&karg->ca_export.ex_path[0],
--			  &arg32->ca32_export.ex32_path[0],
--			  NFS_MAXPATHLEN);
--	err |= __get_user(karg->ca_export.ex_dev,
--		      &arg32->ca32_export.ex32_dev);
--	err |= __get_user(karg->ca_export.ex_ino,
--		      &arg32->ca32_export.ex32_ino);
--	err |= __get_user(karg->ca_export.ex_flags,
--		      &arg32->ca32_export.ex32_flags);
--	err |= __get_user(karg->ca_export.ex_anon_uid,
--		      &arg32->ca32_export.ex32_anon_uid);
--	err |= __get_user(karg->ca_export.ex_anon_gid,
--		      &arg32->ca32_export.ex32_anon_gid);
--	karg->ca_export.ex_anon_uid = high2lowuid(karg->ca_export.ex_anon_uid);
--	karg->ca_export.ex_anon_gid = high2lowgid(karg->ca_export.ex_anon_gid);
--	return (err ? -EFAULT : 0);
--}
--
--static int nfs_getfd32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_getfd.gd_addr,
--			  &arg32->ca32_getfd.gd32_addr,
--			  (sizeof(struct sockaddr)));
--	err |= copy_from_user(&karg->ca_getfd.gd_path,
--			  &arg32->ca32_getfd.gd32_path,
--			  (NFS_MAXPATHLEN+1));
--	err |= __get_user(karg->ca_getfd.gd_version,
--		      &arg32->ca32_getfd.gd32_version);
--	return (err ? -EFAULT : 0);
--}
--
--static int nfs_getfs32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = __get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_getfs.gd_addr,
--			  &arg32->ca32_getfs.gd32_addr,
--			  (sizeof(struct sockaddr)));
--	err |= copy_from_user(&karg->ca_getfs.gd_path,
--			  &arg32->ca32_getfs.gd32_path,
--			  (NFS_MAXPATHLEN+1));
--	err |= __get_user(karg->ca_getfs.gd_maxlen,
--		      &arg32->ca32_getfs.gd32_maxlen);
--	return (err ? -EFAULT : 0);
--}
--
--/* This really doesn't need translations, we are only passing
-- * back a union which contains opaque nfs file handle data.
-- */
--static int nfs_getfh32_res_trans(union nfsctl_res *kres, union nfsctl_res32 *res32)
--{
--	return (copy_to_user(res32, kres, sizeof(*res32)) ? -EFAULT : 0);
--}
--
--int asmlinkage sys32_nfsservctl(int cmd, struct nfsctl_arg32 *arg32, union nfsctl_res32 *res32)
--{
--	struct nfsctl_arg *karg = NULL;
--	union nfsctl_res *kres = NULL;
--	mm_segment_t oldfs;
--	int err;
--
--	karg = kmalloc(sizeof(*karg), GFP_USER);
--	if(!karg)
--		return -ENOMEM;
--	if(res32) {
--		kres = kmalloc(sizeof(*kres), GFP_USER);
--		if(!kres) {
--			kfree(karg);
--			return -ENOMEM;
--		}
--	}
--	switch(cmd) {
--	case NFSCTL_SVC:
--		err = nfs_svc32_trans(karg, arg32);
--		break;
--	case NFSCTL_ADDCLIENT:
--		err = nfs_clnt32_trans(karg, arg32);
--		break;
--	case NFSCTL_DELCLIENT:
--		err = nfs_clnt32_trans(karg, arg32);
--		break;
--	case NFSCTL_EXPORT:
--	case NFSCTL_UNEXPORT:
--		err = nfs_exp32_trans(karg, arg32);
--		break;
--	case NFSCTL_GETFD:
--		err = nfs_getfd32_trans(karg, arg32);
--		break;
--	case NFSCTL_GETFS:
--		err = nfs_getfs32_trans(karg, arg32);
--		break;
--	default:
--		err = -EINVAL;
--		break;
--	}
--	if(err)
--		goto done;
--	oldfs = get_fs();
--	set_fs(KERNEL_DS);
--	err = sys_nfsservctl(cmd, karg, kres);
--	set_fs(oldfs);
--
--	if (err)
--		goto done;
--
--	if((cmd == NFSCTL_GETFD) ||
--	   (cmd == NFSCTL_GETFS))
--		err = nfs_getfh32_res_trans(kres, res32);
--
--done:
--	if(karg)
--		kfree(karg);
--	if(kres)
--		kfree(kres);
--	return err;
--}
--#else /* !NFSD */
--int asmlinkage sys32_nfsservctl(int cmd, void *notused, void *notused2)
--{
--	return sys_ni_syscall();
--}
--#endif
--
- /* Translations due to time_t size differences.  Which affects all
-    sorts of things, like timeval and itimerval.  */
- 
-===== arch/sparc64/kernel/systbls.S 1.54 vs edited =====
---- 1.54/arch/sparc64/kernel/systbls.S	Thu Apr 15 19:30:49 2004
-+++ edited/arch/sparc64/kernel/systbls.S	Thu Apr 15 17:37:01 2004
-@@ -69,7 +69,7 @@
- 	.word compat_fstatfs64, sys_llseek, sys_mlock, sys_munlock, sys_mlockall
- /*240*/	.word sys_munlockall, sys_sched_setparam, sys_sched_getparam, sys_sched_setscheduler, sys_sched_getscheduler
- 	.word sys_sched_yield, sys_sched_get_priority_max, sys_sched_get_priority_min, sys32_sched_rr_get_interval, compat_sys_nanosleep
--/*250*/	.word sys32_mremap, sys32_sysctl, sys_getsid, sys_fdatasync, sys32_nfsservctl
-+/*250*/	.word sys32_mremap, sys32_sysctl, sys_getsid, sys_fdatasync, compat_sys_nfsservctl
- 	.word sys_ni_syscall, compat_clock_settime, compat_clock_gettime, compat_clock_getres, compat_clock_nanosleep
- /*260*/	.word compat_sys_sched_getaffinity, compat_sys_sched_setaffinity, compat_timer_settime, compat_timer_gettime, sys_timer_getoverrun
- 	.word sys_timer_delete, sys32_timer_create, sys_ni_syscall, compat_sys_io_setup, sys_io_destroy
-===== arch/x86_64/ia32/ia32entry.S 1.33 vs edited =====
---- 1.33/arch/x86_64/ia32/ia32entry.S	Thu Apr 15 19:30:49 2004
-+++ edited/arch/x86_64/ia32/ia32entry.S	Thu Apr 15 17:37:01 2004
-@@ -474,7 +474,7 @@
- 	.quad sys32_vm86_warning	/* vm86 */ 
- 	.quad quiet_ni_syscall	/* query_module */
- 	.quad sys_poll
--	.quad sys32_nfsservctl
-+	.quad compat_sys_nfsservctl
- 	.quad sys_setresgid16	/* 170 */
- 	.quad sys_getresgid16
- 	.quad sys_prctl
-===== arch/x86_64/ia32/sys_ia32.c 1.59 vs edited =====
---- 1.59/arch/x86_64/ia32/sys_ia32.c	Thu Apr 15 19:30:49 2004
-+++ edited/arch/x86_64/ia32/sys_ia32.c	Thu Apr 15 17:37:01 2004
-@@ -1166,233 +1166,6 @@
- }
-  
- 
--#if defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
--/* Stuff for NFS server syscalls... */
--struct nfsctl_svc32 {
--	u16			svc32_port;
--	s32			svc32_nthreads;
--};
--
--struct nfsctl_client32 {
--	s8			cl32_ident[NFSCLNT_IDMAX+1];
--	s32			cl32_naddr;
--	struct in_addr		cl32_addrlist[NFSCLNT_ADDRMAX];
--	s32			cl32_fhkeytype;
--	s32			cl32_fhkeylen;
--	u8			cl32_fhkey[NFSCLNT_KEYMAX];
--};
--
--struct nfsctl_export32 {
--	s8			ex32_client[NFSCLNT_IDMAX+1];
--	s8			ex32_path[NFS_MAXPATHLEN+1];
--	compat_dev_t	ex32_dev;
--	compat_ino_t	ex32_ino;
--	s32			ex32_flags;
--	compat_pid_t	ex32_anon_uid;
--	compat_gid_t	ex32_anon_gid;
--};
--
--struct nfsctl_fdparm32 {
--	struct sockaddr		gd32_addr;
--	s8			gd32_path[NFS_MAXPATHLEN+1];
--	s32			gd32_version;
--};
--
--struct nfsctl_fsparm32 {
--	struct sockaddr		gd32_addr;
--	s8			gd32_path[NFS_MAXPATHLEN+1];
--	s32			gd32_maxlen;
--};
--
--struct nfsctl_arg32 {
--	s32			ca32_version;	/* safeguard */
--	union {
--		struct nfsctl_svc32	u32_svc;
--		struct nfsctl_client32	u32_client;
--		struct nfsctl_export32	u32_export;
--		struct nfsctl_fdparm32	u32_getfd;
--		struct nfsctl_fsparm32	u32_getfs;
--	} u;
--#define ca32_svc	u.u32_svc
--#define ca32_client	u.u32_client
--#define ca32_export	u.u32_export
--#define ca32_getfd	u.u32_getfd
--#define ca32_getfs	u.u32_getfs
--};
--
--union nfsctl_res32 {
--	__u8			cr32_getfh[NFS_FHSIZE];
--	struct knfsd_fh		cr32_getfs;
--};
--
--static int nfs_svc32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = get_user(karg->ca_version, &arg32->ca32_version);
--	err |= __get_user(karg->ca_svc.svc_port, &arg32->ca32_svc.svc32_port);
--	err |= __get_user(karg->ca_svc.svc_nthreads, &arg32->ca32_svc.svc32_nthreads);
--	return err;
--}
--
--static int nfs_clnt32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_client.cl_ident[0],
--			  &arg32->ca32_client.cl32_ident[0],
--			  NFSCLNT_IDMAX);
--	err |= __get_user(karg->ca_client.cl_naddr, &arg32->ca32_client.cl32_naddr);
--	err |= copy_from_user(&karg->ca_client.cl_addrlist[0],
--			  &arg32->ca32_client.cl32_addrlist[0],
--			  (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
--	err |= __get_user(karg->ca_client.cl_fhkeytype,
--		      &arg32->ca32_client.cl32_fhkeytype);
--	err |= __get_user(karg->ca_client.cl_fhkeylen,
--		      &arg32->ca32_client.cl32_fhkeylen);
--	err |= copy_from_user(&karg->ca_client.cl_fhkey[0],
--			  &arg32->ca32_client.cl32_fhkey[0],
--			  NFSCLNT_KEYMAX);
--	return err;
--}
--
--static int nfs_exp32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_export.ex_client[0],
--			  &arg32->ca32_export.ex32_client[0],
--			  NFSCLNT_IDMAX);
--	err |= copy_from_user(&karg->ca_export.ex_path[0],
--			  &arg32->ca32_export.ex32_path[0],
--			  NFS_MAXPATHLEN);
--	err |= __get_user(karg->ca_export.ex_dev,
--		      &arg32->ca32_export.ex32_dev);
--	err |= __get_user(karg->ca_export.ex_ino,
--		      &arg32->ca32_export.ex32_ino);
--	err |= __get_user(karg->ca_export.ex_flags,
--		      &arg32->ca32_export.ex32_flags);
--	err |= __get_user(karg->ca_export.ex_anon_uid,
--		      &arg32->ca32_export.ex32_anon_uid);
--	err |= __get_user(karg->ca_export.ex_anon_gid,
--		      &arg32->ca32_export.ex32_anon_gid);
--	SET_UID(karg->ca_export.ex_anon_uid, karg->ca_export.ex_anon_uid);
--	SET_GID(karg->ca_export.ex_anon_gid, karg->ca_export.ex_anon_gid);
--	return err;
--}
--
--
--static int nfs_getfd32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_getfd.gd_addr,
--			  &arg32->ca32_getfd.gd32_addr,
--			  (sizeof(struct sockaddr)));
--	err |= copy_from_user(&karg->ca_getfd.gd_path,
--			  &arg32->ca32_getfd.gd32_path,
--			  (NFS_MAXPATHLEN+1));
--	err |= get_user(karg->ca_getfd.gd_version,
--		      &arg32->ca32_getfd.gd32_version);
--	return err;
--}
--
--static int nfs_getfs32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
--{
--	int err;
--	
--	err = get_user(karg->ca_version, &arg32->ca32_version);
--	err |= copy_from_user(&karg->ca_getfs.gd_addr,
--			  &arg32->ca32_getfs.gd32_addr,
--			  (sizeof(struct sockaddr)));
--	err |= copy_from_user(&karg->ca_getfs.gd_path,
--			  &arg32->ca32_getfs.gd32_path,
--			  (NFS_MAXPATHLEN+1));
--	err |= get_user(karg->ca_getfs.gd_maxlen,
--		      &arg32->ca32_getfs.gd32_maxlen);
--	return err;
--}
--
--/* This really doesn't need translations, we are only passing
-- * back a union which contains opaque nfs file handle data.
-- */
--static int nfs_getfh32_res_trans(union nfsctl_res *kres, union nfsctl_res32 *res32)
--{
--	return copy_to_user(res32, kres, sizeof(*res32)) ? -EFAULT : 0;
--}
--
--long asmlinkage sys32_nfsservctl(int cmd, struct nfsctl_arg32 *arg32, union nfsctl_res32 *res32)
--{
--	struct nfsctl_arg *karg = NULL;
--	union nfsctl_res *kres = NULL;
--	mm_segment_t oldfs;
--	int err;
--
--	karg = kmalloc(sizeof(*karg), GFP_USER);
--	if(!karg)
--		return -ENOMEM;
--	if(res32) {
--		kres = kmalloc(sizeof(*kres), GFP_USER);
--		if(!kres) {
--			kfree(karg);
--			return -ENOMEM;
--		}
--	}
--	switch(cmd) {
--	case NFSCTL_SVC:
--		err = nfs_svc32_trans(karg, arg32);
--		break;
--	case NFSCTL_ADDCLIENT:
--		err = nfs_clnt32_trans(karg, arg32);
--		break;
--	case NFSCTL_DELCLIENT:
--		err = nfs_clnt32_trans(karg, arg32);
--		break;
--	case NFSCTL_EXPORT:
--	case NFSCTL_UNEXPORT:
--		err = nfs_exp32_trans(karg, arg32);
--		break;
--	case NFSCTL_GETFD:
--		err = nfs_getfd32_trans(karg, arg32);
--		break;
--	case NFSCTL_GETFS:
--		err = nfs_getfs32_trans(karg, arg32);
--		break;
--	default:
--		err = -EINVAL;
--		break;
--	}
--	if(err)
--		goto done;
--	oldfs = get_fs();
--	set_fs(KERNEL_DS);
--	err = sys_nfsservctl(cmd, karg, kres);
--	set_fs(oldfs);
--
--	if (err)
--		goto done;
--
--	if((cmd == NFSCTL_GETFD) ||
--	   (cmd == NFSCTL_GETFS))
--		err = nfs_getfh32_res_trans(kres, res32);
--
--done:
--	if(karg)
--		kfree(karg);
--	if(kres)
--		kfree(kres);
--	return err;
--}
--#else /* !NFSD */
--long asmlinkage sys32_nfsservctl(int cmd, void *notused, void *notused2)
--{
--	return sys_ni_syscall();
--}
--#endif
--
- long sys32_io_setup(unsigned nr_reqs, u32 *ctx32p)
- { 
- 	long ret; 
-===== fs/compat.c 1.24 vs edited =====
---- 1.24/fs/compat.c	Thu Apr 15 19:31:49 2004
-+++ edited/fs/compat.c	Thu Apr 15 17:37:01 2004
-@@ -1399,3 +1399,242 @@
- 	return ret;
- }
- 
-+#if defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
-+/* Stuff for NFS server syscalls... */
-+struct compat_nfsctl_svc {
-+	u16			svc32_port;
-+	s32			svc32_nthreads;
-+};
-+
-+struct compat_nfsctl_client {
-+	s8			cl32_ident[NFSCLNT_IDMAX+1];
-+	s32			cl32_naddr;
-+	struct in_addr		cl32_addrlist[NFSCLNT_ADDRMAX];
-+	s32			cl32_fhkeytype;
-+	s32			cl32_fhkeylen;
-+	u8			cl32_fhkey[NFSCLNT_KEYMAX];
-+};
-+
-+struct compat_nfsctl_export {
-+	char		ex32_client[NFSCLNT_IDMAX+1];
-+	char		ex32_path[NFS_MAXPATHLEN+1];
-+	compat_dev_t	ex32_dev;
-+	compat_ino_t	ex32_ino;
-+	compat_int_t	ex32_flags;
-+	compat_uid_t	ex32_anon_uid;
-+	compat_gid_t	ex32_anon_gid;
-+};
-+
-+struct compat_nfsctl_fdparm {
-+	struct sockaddr		gd32_addr;
-+	s8			gd32_path[NFS_MAXPATHLEN+1];
-+	compat_int_t		gd32_version;
-+};
-+
-+struct compat_nfsctl_fsparm {
-+	struct sockaddr		gd32_addr;
-+	s8			gd32_path[NFS_MAXPATHLEN+1];
-+	compat_int_t		gd32_maxlen;
-+};
-+
-+struct compat_nfsctl_arg {
-+	compat_int_t		ca32_version;	/* safeguard */
-+	union {
-+		struct compat_nfsctl_svc	u32_svc;
-+		struct compat_nfsctl_client	u32_client;
-+		struct compat_nfsctl_export	u32_export;
-+		struct compat_nfsctl_fdparm	u32_getfd;
-+		struct compat_nfsctl_fsparm	u32_getfs;
-+	} u;
-+#define ca32_svc	u.u32_svc
-+#define ca32_client	u.u32_client
-+#define ca32_export	u.u32_export
-+#define ca32_getfd	u.u32_getfd
-+#define ca32_getfs	u.u32_getfs
-+};
-+
-+union compat_nfsctl_res {
-+	__u8			cr32_getfh[NFS_FHSIZE];
-+	struct knfsd_fh		cr32_getfs;
-+};
-+
-+static int compat_nfs_svc_trans(struct nfsctl_arg *karg, struct compat_nfsctl_arg *arg)
-+{
-+	int err;
-+
-+	err = access_ok(VERIFY_READ, &arg->ca32_svc, sizeof(arg->ca32_svc));
-+	err |= get_user(karg->ca_version, &arg->ca32_version);
-+	err |= __get_user(karg->ca_svc.svc_port, &arg->ca32_svc.svc32_port);
-+	err |= __get_user(karg->ca_svc.svc_nthreads, &arg->ca32_svc.svc32_nthreads);
-+	return (err) ? -EFAULT : 0;
-+}
-+
-+static int compat_nfs_clnt_trans(struct nfsctl_arg *karg, struct compat_nfsctl_arg *arg)
-+{
-+	int err;
-+
-+	err = access_ok(VERIFY_READ, &arg->ca32_client, sizeof(arg->ca32_client));
-+	err |= get_user(karg->ca_version, &arg->ca32_version);
-+	err |= __copy_from_user(&karg->ca_client.cl_ident[0],
-+			  &arg->ca32_client.cl32_ident[0],
-+			  NFSCLNT_IDMAX);
-+	err |= __get_user(karg->ca_client.cl_naddr, &arg->ca32_client.cl32_naddr);
-+	err |= __copy_from_user(&karg->ca_client.cl_addrlist[0],
-+			  &arg->ca32_client.cl32_addrlist[0],
-+			  (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
-+	err |= __get_user(karg->ca_client.cl_fhkeytype,
-+		      &arg->ca32_client.cl32_fhkeytype);
-+	err |= __get_user(karg->ca_client.cl_fhkeylen,
-+		      &arg->ca32_client.cl32_fhkeylen);
-+	err |= __copy_from_user(&karg->ca_client.cl_fhkey[0],
-+			  &arg->ca32_client.cl32_fhkey[0],
-+			  NFSCLNT_KEYMAX);
-+
-+	return (err) ? -EFAULT : 0;
-+}
-+
-+static int compat_nfs_exp_trans(struct nfsctl_arg *karg, struct compat_nfsctl_arg *arg)
-+{
-+	int err;
-+
-+	err = access_ok(VERIFY_READ, &arg->ca32_export, sizeof(arg->ca32_export));
-+	err |= get_user(karg->ca_version, &arg->ca32_version);
-+	err |= __copy_from_user(&karg->ca_export.ex_client[0],
-+			  &arg->ca32_export.ex32_client[0],
-+			  NFSCLNT_IDMAX);
-+	err |= __copy_from_user(&karg->ca_export.ex_path[0],
-+			  &arg->ca32_export.ex32_path[0],
-+			  NFS_MAXPATHLEN);
-+	err |= __get_user(karg->ca_export.ex_dev,
-+		      &arg->ca32_export.ex32_dev);
-+	err |= __get_user(karg->ca_export.ex_ino,
-+		      &arg->ca32_export.ex32_ino);
-+	err |= __get_user(karg->ca_export.ex_flags,
-+		      &arg->ca32_export.ex32_flags);
-+	err |= __get_user(karg->ca_export.ex_anon_uid,
-+		      &arg->ca32_export.ex32_anon_uid);
-+	err |= __get_user(karg->ca_export.ex_anon_gid,
-+		      &arg->ca32_export.ex32_anon_gid);
-+	SET_UID(karg->ca_export.ex_anon_uid, karg->ca_export.ex_anon_uid);
-+	SET_GID(karg->ca_export.ex_anon_gid, karg->ca_export.ex_anon_gid);
-+
-+	return (err) ? -EFAULT : 0;
-+}
-+
-+static int compat_nfs_getfd_trans(struct nfsctl_arg *karg, struct compat_nfsctl_arg *arg)
-+{
-+	int err;
-+	
-+	err = access_ok(VERIFY_READ, &arg->ca32_getfd, sizeof(arg->ca32_getfd));
-+	err |= get_user(karg->ca_version, &arg->ca32_version);
-+	err |= __copy_from_user(&karg->ca_getfd.gd_addr,
-+			  &arg->ca32_getfd.gd32_addr,
-+			  (sizeof(struct sockaddr)));
-+	err |= __copy_from_user(&karg->ca_getfd.gd_path,
-+			  &arg->ca32_getfd.gd32_path,
-+			  (NFS_MAXPATHLEN+1));
-+	err |= __get_user(karg->ca_getfd.gd_version,
-+		      &arg->ca32_getfd.gd32_version);
-+
-+	return (err) ? -EFAULT : 0;
-+}
-+
-+static int compat_nfs_getfs_trans(struct nfsctl_arg *karg, struct compat_nfsctl_arg *arg)
-+{
-+	int err;
-+
-+	err = access_ok(VERIFY_READ, &arg->ca32_getfs, sizeof(arg->ca32_getfs));
-+	err |= get_user(karg->ca_version, &arg->ca32_version);
-+	err |= __copy_from_user(&karg->ca_getfs.gd_addr,
-+			  &arg->ca32_getfs.gd32_addr,
-+			  (sizeof(struct sockaddr)));
-+	err |= __copy_from_user(&karg->ca_getfs.gd_path,
-+			  &arg->ca32_getfs.gd32_path,
-+			  (NFS_MAXPATHLEN+1));
-+	err |= __get_user(karg->ca_getfs.gd_maxlen,
-+		      &arg->ca32_getfs.gd32_maxlen);
-+
-+	return (err) ? -EFAULT : 0;
-+}
-+
-+/* This really doesn't need translations, we are only passing
-+ * back a union which contains opaque nfs file handle data.
-+ */
-+static int compat_nfs_getfh_res_trans(union nfsctl_res *kres, union compat_nfsctl_res *res)
-+{
-+	int err;
-+
-+	err = copy_to_user(res, kres, sizeof(*res));
-+
-+	return (err) ? -EFAULT : 0;
-+}
-+
-+asmlinkage long compat_sys_nfsservctl(int cmd, struct compat_nfsctl_arg *arg,
-+					union compat_nfsctl_res *res)
-+{
-+	struct nfsctl_arg *karg;
-+	union nfsctl_res *kres;
-+	mm_segment_t oldfs;
-+	int err;
-+
-+	karg = kmalloc(sizeof(*karg), GFP_USER);
-+	kres = kmalloc(sizeof(*kres), GFP_USER);
-+	if(!karg || !kres) {
-+		err = -ENOMEM;
-+		goto done;
-+	}
-+
-+	switch(cmd) {
-+	case NFSCTL_SVC:
-+		err = compat_nfs_svc_trans(karg, arg);
-+		break;
-+
-+	case NFSCTL_ADDCLIENT:
-+		err = compat_nfs_clnt_trans(karg, arg);
-+		break;
-+
-+	case NFSCTL_DELCLIENT:
-+		err = compat_nfs_clnt_trans(karg, arg);
-+		break;
-+
-+	case NFSCTL_EXPORT:
-+	case NFSCTL_UNEXPORT:
-+		err = compat_nfs_exp_trans(karg, arg);
-+		break;
-+
-+	case NFSCTL_GETFD:
-+		err = compat_nfs_getfd_trans(karg, arg);
-+		break;
-+
-+	case NFSCTL_GETFS:
-+		err = compat_nfs_getfs_trans(karg, arg);
-+		break;
-+
-+	default:
-+		err = -EINVAL;
-+		goto done;
-+	}
-+
-+	oldfs = get_fs();
-+	set_fs(KERNEL_DS);
-+	err = sys_nfsservctl(cmd, karg, kres);
-+	set_fs(oldfs);
-+
-+	if (err)
-+		goto done;
-+
-+	if((cmd == NFSCTL_GETFD) ||
-+	   (cmd == NFSCTL_GETFS))
-+		err = compat_nfs_getfh_res_trans(kres, res);
-+
-+done:
-+	kfree(karg);
-+	kfree(kres);
-+	return err;
-+}
-+#else /* !NFSD */
-+long asmlinkage compat_sys_nfsservctl(int cmd, void *notused, void *notused2)
-+{
-+	return sys_ni_syscall();
-+}
-+#endif
+> Ok, here is the cosmetic patch following the previous one, then :)
 
+Uhm, previous patch is broken.
+Here are the two again.
+
+-- 
+Colin
+
+--Multipart=_Sat__17_Apr_2004_11_54_25_+0200_QywQ.jxPAZ7/=U5J
+Content-Type: application/octet-stream;
+ name="1_cdc-acm.patch"
+Content-Disposition: attachment;
+ filename="1_cdc-acm.patch"
+Content-Transfer-Encoding: base64
+
+LS0tIGRyaXZlcnMvdXNiL2NsYXNzL2NkYy1hY20uYy5vcmlnCTIwMDQtMDQtMTUgMjA6MDQ6NDcu
+MDAwMDAwMDAwICswMjAwCisrKyBkcml2ZXJzL3VzYi9jbGFzcy9jZGMtYWNtLmMJMjAwNC0wNC0x
+NiAxMjoyMTo0MC4xMjA4NjU1MTIgKzAyMDAKQEAgLTU4MSw0NSArNTgxLDQ3IEBACiAKIAlkZXYg
+PSBpbnRlcmZhY2VfdG9fdXNiZGV2IChpbnRmKTsKIAotCQljZmFjbSA9IGRldi0+YWN0Y29uZmln
+OwotCi0JCWZvciAoaiA9IDA7IGogPCBjZmFjbS0+ZGVzYy5iTnVtSW50ZXJmYWNlcyAtIDE7IGor
+KykgewotCQkgICAgCi0JCQlpZiAodXNiX2ludGVyZmFjZV9jbGFpbWVkKGNmYWNtLT5pbnRlcmZh
+Y2Vbal0pIHx8Ci0JCQkgICAgdXNiX2ludGVyZmFjZV9jbGFpbWVkKGNmYWNtLT5pbnRlcmZhY2Vb
+aiArIDFdKSkKLQkJCWNvbnRpbnVlOworCQkJY2ZhY20gPSBkZXYtPmFjdGNvbmZpZzsKKwkKKwkJ
+CS8qIFdlIGtub3cgd2UncmUgcHJvYmUoKWQgd2l0aCB0aGUgY29udHJvbCBpbnRlcmZhY2UuICov
+CisJCQlpZmNvbSA9IGludGYtPmN1cl9hbHRzZXR0aW5nOwogCi0JCQkvKiBXZSBrbm93IHdlJ3Jl
+IHByb2JlKClkIHdpdGggdGhlIGNvbnRyb2wgaW50ZXJmYWNlLgotCQkJICogRklYTUUgQUNNIGRv
+ZXNuJ3QgZ3VhcmFudGVlIHRoZSBkYXRhIGludGVyZmFjZSBpcworCQkJLyogQUNNIGRvZXNuJ3Qg
+Z3VhcmFudGVlIHRoZSBkYXRhIGludGVyZmFjZSBpcwogCQkJICogYWRqYWNlbnQgdG8gdGhlIGNv
+bnRyb2wgaW50ZXJmYWNlLCBvciB0aGF0IGlmIG9uZQotCQkJICogaXMgdGhlcmUgaXQncyBub3Qg
+Zm9yIGNhbGwgbWFuYWdlbWVudCAuLi4gc28gdXNlCi0JCQkgKiB0aGUgY2RjIHVuaW9uIGRlc2Ny
+aXB0b3Igd2hlbmV2ZXIgdGhlcmUgaXMgb25lLgorCQkJICogaXMgdGhlcmUgaXQncyBub3QgZm9y
+IGNhbGwgbWFuYWdlbWVudCAuLi4gc28gZmluZAorCQkJICogaXQKIAkJCSAqLwotCQkJaWZjb20g
+PSBpbnRmLT5jdXJfYWx0c2V0dGluZzsKLQkJCWlmIChpbnRmID09IGNmYWNtLT5pbnRlcmZhY2Vb
+al0pIHsKLQkJCQlpZmRhdGEgPSBjZmFjbS0+aW50ZXJmYWNlW2ogKyAxXS0+Y3VyX2FsdHNldHRp
+bmc7Ci0JCQkJZGF0YSA9IGNmYWNtLT5pbnRlcmZhY2VbaiArIDFdOwotCQkJfSBlbHNlIGlmIChp
+bnRmID09IGNmYWNtLT5pbnRlcmZhY2VbaiArIDFdKSB7CisJCQlmb3IgKGogPSAwOyBqIDwgY2Zh
+Y20tPmRlc2MuYk51bUludGVyZmFjZXM7IGorKykgewogCQkJCWlmZGF0YSA9IGNmYWNtLT5pbnRl
+cmZhY2Vbal0tPmN1cl9hbHRzZXR0aW5nOwogCQkJCWRhdGEgPSBjZmFjbS0+aW50ZXJmYWNlW2pd
+OwotCQkJfSBlbHNlCi0JCQkJY29udGludWU7Ci0KLQkJCWlmIChpZmRhdGEtPmRlc2MuYkludGVy
+ZmFjZUNsYXNzICE9IDEwIHx8IGlmZGF0YS0+ZGVzYy5iTnVtRW5kcG9pbnRzIDwgMikKLQkJCQlj
+b250aW51ZTsKLQotCQkJZXBjdHJsID0gJmlmY29tLT5lbmRwb2ludFswXS5kZXNjOwotCQkJZXBy
+ZWFkID0gJmlmZGF0YS0+ZW5kcG9pbnRbMF0uZGVzYzsKLQkJCWVwd3JpdGUgPSAmaWZkYXRhLT5l
+bmRwb2ludFsxXS5kZXNjOwotCi0JCQlpZiAoKGVwY3RybC0+YkVuZHBvaW50QWRkcmVzcyAmIDB4
+ODApICE9IDB4ODAgfHwgKGVwY3RybC0+Ym1BdHRyaWJ1dGVzICYgMykgIT0gMyB8fAotCQkJICAg
+KGVwcmVhZC0+Ym1BdHRyaWJ1dGVzICYgMykgIT0gMiB8fCAoZXB3cml0ZS0+Ym1BdHRyaWJ1dGVz
+ICYgMykgIT0gMiB8fAotCQkJICAgKChlcHJlYWQtPmJFbmRwb2ludEFkZHJlc3MgJiAweDgwKSBe
+IChlcHdyaXRlLT5iRW5kcG9pbnRBZGRyZXNzICYgMHg4MCkpICE9IDB4ODApCi0JCQkJY29udGlu
+dWU7Ci0KLQkJCWlmICgoZXByZWFkLT5iRW5kcG9pbnRBZGRyZXNzICYgMHg4MCkgIT0gMHg4MCkg
+ewotCQkJCWVwcmVhZCA9ICZpZmRhdGEtPmVuZHBvaW50WzFdLmRlc2M7Ci0JCQkJZXB3cml0ZSA9
+ICZpZmRhdGEtPmVuZHBvaW50WzBdLmRlc2M7CisKKwkJCQlpZiAoaWZkYXRhLT5kZXNjLmJJbnRl
+cmZhY2VDbGFzcyA9PSAxMCAmJgorCQkJCSAgICBpZmRhdGEtPmRlc2MuYk51bUVuZHBvaW50cyA9
+PSAyKSB7CisJCQkJCWVwY3RybCA9ICZpZmNvbS0+ZW5kcG9pbnRbMF0uZGVzYzsKKwkJCQkJZXBy
+ZWFkID0gJmlmZGF0YS0+ZW5kcG9pbnRbMF0uZGVzYzsKKwkJCQkJZXB3cml0ZSA9ICZpZmRhdGEt
+PmVuZHBvaW50WzFdLmRlc2M7CisKKwkJCQkJaWYgKChlcGN0cmwtPmJFbmRwb2ludEFkZHJlc3Mg
+JiAweDgwKSAhPSAweDgwIHx8CisJCQkJCSAgICAoZXBjdHJsLT5ibUF0dHJpYnV0ZXMgJiAzKSAh
+PSAzIHx8CisJCQkJCSAgICAoZXByZWFkLT5ibUF0dHJpYnV0ZXMgJiAzKSAhPSAyIHx8IAorCQkJ
+CQkgICAgKGVwd3JpdGUtPmJtQXR0cmlidXRlcyAmIDMpICE9IDIgfHwKKwkJCQkJICAgICgoZXBy
+ZWFkLT5iRW5kcG9pbnRBZGRyZXNzICYgMHg4MCkgXiAoZXB3cml0ZS0+YkVuZHBvaW50QWRkcmVz
+cyAmIDB4ODApKSAhPSAweDgwKSAKKwkJCQkJCWdvdG8gbmV4dF9pbnRlcmZhY2U7CisKKwkJCQkJ
+ZGJnKCJmb3VuZCBkYXRhIGludGVyZmFjZSBhdCAlZFxuIiwgaik7CisJCQkJCWJyZWFrOworCQkJ
+CX0gZWxzZSB7CituZXh0X2ludGVyZmFjZToKKwkJCQkJaWZkYXRhID0gTlVMTDsKKwkJCQkJZGF0
+YSA9IE5VTEw7CisJCQkJfQorCQkJfQorCisJCQkvKiB0aGVyZSdzIGJlZW4gYSBwcm9ibGVtICov
+CisJCQlpZiAoIWlmZGF0YSkgeworCQkJCWRiZygiaW50ZXJmYWNlIG5vdCBmb3VuZCAoJXApXG4i
+LCBpZmRhdGEpOworCQkJCXJldHVybiAtRU5PREVWOworCiAJCQl9CiAKIAkJCWZvciAobWlub3Ig
+PSAwOyBtaW5vciA8IEFDTV9UVFlfTUlOT1JTICYmIGFjbV90YWJsZVttaW5vcl07IG1pbm9yKysp
+OwpAQCAtNjk2LDE2ICs2OTgsMjEgQEAKIAkJCWFjbS0+bGluZS5kYXRhYml0cyA9IDg7CiAJCQlh
+Y21fc2V0X2xpbmUoYWNtLCAmYWNtLT5saW5lKTsKIAotCQkJdXNiX2RyaXZlcl9jbGFpbV9pbnRl
+cmZhY2UoJmFjbV9kcml2ZXIsIGRhdGEsIGFjbSk7CisJCQlpZiAoIChqID0gdXNiX2RyaXZlcl9j
+bGFpbV9pbnRlcmZhY2UoJmFjbV9kcml2ZXIsIGRhdGEsIGFjbSkpICE9IDApIHsKKwkJCQllcnIo
+ImNsYWltIGZhaWxlZCIpOworCQkJCXVzYl9mcmVlX3VyYihhY20tPmN0cmx1cmIpOworCQkJCXVz
+Yl9mcmVlX3VyYihhY20tPnJlYWR1cmIpOworCQkJCXVzYl9mcmVlX3VyYihhY20tPndyaXRldXJi
+KTsKKwkJCQlrZnJlZShhY20pOworCQkJCWtmcmVlKGJ1Zik7CisJCQkJcmV0dXJuIGo7CisJCQl9
+IAogCiAJCQl0dHlfcmVnaXN0ZXJfZGV2aWNlKGFjbV90dHlfZHJpdmVyLCBtaW5vciwgJmludGYt
+PmRldik7CiAKIAkJCWFjbV90YWJsZVttaW5vcl0gPSBhY207CiAJCQl1c2Jfc2V0X2ludGZkYXRh
+IChpbnRmLCBhY20pOwogCQkJcmV0dXJuIDA7Ci0JCX0KLQotCXJldHVybiAtRUlPOwogfQogCiBz
+dGF0aWMgdm9pZCBhY21fZGlzY29ubmVjdChzdHJ1Y3QgdXNiX2ludGVyZmFjZSAqaW50ZikK
+
+--Multipart=_Sat__17_Apr_2004_11_54_25_+0200_QywQ.jxPAZ7/=U5J
+Content-Type: application/octet-stream;
+ name="2_cdc-acm-cosmetic.patch"
+Content-Disposition: attachment;
+ filename="2_cdc-acm-cosmetic.patch"
+Content-Transfer-Encoding: base64
+
+LS0tIGRyaXZlcnMvdXNiL2NsYXNzL2NkYy1hY20uYy5uZXcJMjAwNC0wNC0xNiAyMzo0NDoxNC4y
+MDgyMzQ5NzYgKzAyMDAKKysrIGRyaXZlcnMvdXNiL2NsYXNzL2NkYy1hY20uYwkyMDA0LTA0LTE2
+IDIzOjQ0OjQ1LjQ0MjQ4NjY0OCArMDIwMApAQCAtNTgxLDEzOCArNTgxLDEzOCBAQAogCiAJZGV2
+ID0gaW50ZXJmYWNlX3RvX3VzYmRldiAoaW50Zik7CiAKLQkJCWNmYWNtID0gZGV2LT5hY3Rjb25m
+aWc7Ci0JCi0JCQkvKiBXZSBrbm93IHdlJ3JlIHByb2JlKClkIHdpdGggdGhlIGNvbnRyb2wgaW50
+ZXJmYWNlLiAqLwotCQkJaWZjb20gPSBpbnRmLT5jdXJfYWx0c2V0dGluZzsKLQotCQkJLyogQUNN
+IGRvZXNuJ3QgZ3VhcmFudGVlIHRoZSBkYXRhIGludGVyZmFjZSBpcwotCQkJICogYWRqYWNlbnQg
+dG8gdGhlIGNvbnRyb2wgaW50ZXJmYWNlLCBvciB0aGF0IGlmIG9uZQotCQkJICogaXMgdGhlcmUg
+aXQncyBub3QgZm9yIGNhbGwgbWFuYWdlbWVudCAuLi4gc28gZmluZAotCQkJICogaXQKLQkJCSAq
+LwotCQkJZm9yIChqID0gMDsgaiA8IGNmYWNtLT5kZXNjLmJOdW1JbnRlcmZhY2VzOyBqKyspIHsK
+LQkJCQlpZmRhdGEgPSBjZmFjbS0+aW50ZXJmYWNlW2pdLT5jdXJfYWx0c2V0dGluZzsKLQkJCQlk
+YXRhID0gY2ZhY20tPmludGVyZmFjZVtqXTsKLQotCQkJCWlmIChpZmRhdGEtPmRlc2MuYkludGVy
+ZmFjZUNsYXNzID09IDEwICYmCi0JCQkJICAgIGlmZGF0YS0+ZGVzYy5iTnVtRW5kcG9pbnRzID09
+IDIpIHsKLQkJCQkJZXBjdHJsID0gJmlmY29tLT5lbmRwb2ludFswXS5kZXNjOwotCQkJCQllcHJl
+YWQgPSAmaWZkYXRhLT5lbmRwb2ludFswXS5kZXNjOwotCQkJCQllcHdyaXRlID0gJmlmZGF0YS0+
+ZW5kcG9pbnRbMV0uZGVzYzsKLQotCQkJCQlpZiAoKGVwY3RybC0+YkVuZHBvaW50QWRkcmVzcyAm
+IDB4ODApICE9IDB4ODAgfHwKLQkJCQkJICAgIChlcGN0cmwtPmJtQXR0cmlidXRlcyAmIDMpICE9
+IDMgfHwKLQkJCQkJICAgIChlcHJlYWQtPmJtQXR0cmlidXRlcyAmIDMpICE9IDIgfHwgCi0JCQkJ
+CSAgICAoZXB3cml0ZS0+Ym1BdHRyaWJ1dGVzICYgMykgIT0gMiB8fAotCQkJCQkgICAgKChlcHJl
+YWQtPmJFbmRwb2ludEFkZHJlc3MgJiAweDgwKSBeIChlcHdyaXRlLT5iRW5kcG9pbnRBZGRyZXNz
+ICYgMHg4MCkpICE9IDB4ODApIAotCQkJCQkJZ290byBuZXh0X2ludGVyZmFjZTsKLQotCQkJCQlk
+YmcoImZvdW5kIGRhdGEgaW50ZXJmYWNlIGF0ICVkXG4iLCBqKTsKLQkJCQkJYnJlYWs7Ci0JCQkJ
+fSBlbHNlIHsKKwljZmFjbSA9IGRldi0+YWN0Y29uZmlnOworCisJLyogV2Uga25vdyB3ZSdyZSBw
+cm9iZSgpZCB3aXRoIHRoZSBjb250cm9sIGludGVyZmFjZS4gKi8KKwlpZmNvbSA9IGludGYtPmN1
+cl9hbHRzZXR0aW5nOworCisJLyogQUNNIGRvZXNuJ3QgZ3VhcmFudGVlIHRoZSBkYXRhIGludGVy
+ZmFjZSBpcworCSAqIGFkamFjZW50IHRvIHRoZSBjb250cm9sIGludGVyZmFjZSwgb3IgdGhhdCBp
+ZiBvbmUKKwkgKiBpcyB0aGVyZSBpdCdzIG5vdCBmb3IgY2FsbCBtYW5hZ2VtZW50IC4uLiBzbyBm
+aW5kCisJICogaXQKKwkgKi8KKwlmb3IgKGogPSAwOyBqIDwgY2ZhY20tPmRlc2MuYk51bUludGVy
+ZmFjZXM7IGorKykgeworCQlpZmRhdGEgPSBjZmFjbS0+aW50ZXJmYWNlW2pdLT5jdXJfYWx0c2V0
+dGluZzsKKwkJZGF0YSA9IGNmYWNtLT5pbnRlcmZhY2Vbal07CisKKwkJaWYgKGlmZGF0YS0+ZGVz
+Yy5iSW50ZXJmYWNlQ2xhc3MgPT0gMTAgJiYKKwkJICAgIGlmZGF0YS0+ZGVzYy5iTnVtRW5kcG9p
+bnRzID09IDIpIHsKKwkJCWVwY3RybCA9ICZpZmNvbS0+ZW5kcG9pbnRbMF0uZGVzYzsKKwkJCWVw
+cmVhZCA9ICZpZmRhdGEtPmVuZHBvaW50WzBdLmRlc2M7CisJCQllcHdyaXRlID0gJmlmZGF0YS0+
+ZW5kcG9pbnRbMV0uZGVzYzsKKworCQkJaWYgKChlcGN0cmwtPmJFbmRwb2ludEFkZHJlc3MgJiAw
+eDgwKSAhPSAweDgwIHx8CisJCQkgICAgKGVwY3RybC0+Ym1BdHRyaWJ1dGVzICYgMykgIT0gMyB8
+fAorCQkJICAgIChlcHJlYWQtPmJtQXR0cmlidXRlcyAmIDMpICE9IDIgfHwgCisJCQkgICAgKGVw
+d3JpdGUtPmJtQXR0cmlidXRlcyAmIDMpICE9IDIgfHwKKwkJCSAgICAoKGVwcmVhZC0+YkVuZHBv
+aW50QWRkcmVzcyAmIDB4ODApIF4gKGVwd3JpdGUtPmJFbmRwb2ludEFkZHJlc3MgJiAweDgwKSkg
+IT0gMHg4MCkgCisJCQkJZ290byBuZXh0X2ludGVyZmFjZTsKKworCQkJZGJnKCJmb3VuZCBkYXRh
+IGludGVyZmFjZSBhdCAlZFxuIiwgaik7CisJCQlicmVhazsKKwkJfSBlbHNlIHsKIG5leHRfaW50
+ZXJmYWNlOgotCQkJCQlpZmRhdGEgPSBOVUxMOwotCQkJCQlkYXRhID0gTlVMTDsKLQkJCQl9Ci0J
+CQl9Ci0KLQkJCS8qIHRoZXJlJ3MgYmVlbiBhIHByb2JsZW0gKi8KLQkJCWlmICghaWZkYXRhKSB7
+Ci0JCQkJZGJnKCJpbnRlcmZhY2Ugbm90IGZvdW5kICglcClcbiIsIGlmZGF0YSk7Ci0JCQkJcmV0
+dXJuIC1FTk9ERVY7Ci0KLQkJCX0KLQotCQkJZm9yIChtaW5vciA9IDA7IG1pbm9yIDwgQUNNX1RU
+WV9NSU5PUlMgJiYgYWNtX3RhYmxlW21pbm9yXTsgbWlub3IrKyk7Ci0JCQlpZiAoYWNtX3RhYmxl
+W21pbm9yXSkgewotCQkJCWVycigibm8gbW9yZSBmcmVlIGFjbSBkZXZpY2VzIik7Ci0JCQkJcmV0
+dXJuIC1FTk9ERVY7Ci0JCQl9Ci0KLQkJCWlmICghKGFjbSA9IGttYWxsb2Moc2l6ZW9mKHN0cnVj
+dCBhY20pLCBHRlBfS0VSTkVMKSkpIHsKLQkJCQllcnIoIm91dCBvZiBtZW1vcnkiKTsKLQkJCQly
+ZXR1cm4gLUVOT01FTTsKLQkJCX0KLQkJCW1lbXNldChhY20sIDAsIHNpemVvZihzdHJ1Y3QgYWNt
+KSk7Ci0KLQkJCWN0cmxzaXplID0gZXBjdHJsLT53TWF4UGFja2V0U2l6ZTsKLQkJCXJlYWRzaXpl
+ID0gZXByZWFkLT53TWF4UGFja2V0U2l6ZTsKLQkJCWFjbS0+d3JpdGVzaXplID0gZXB3cml0ZS0+
+d01heFBhY2tldFNpemU7Ci0JCQlhY20tPmNvbnRyb2wgPSBpbnRmOwotCQkJYWNtLT5kYXRhID0g
+ZGF0YTsKLQkJCWFjbS0+bWlub3IgPSBtaW5vcjsKLQkJCWFjbS0+ZGV2ID0gZGV2OwotCi0JCQlh
+Y20tPmJoLmZ1bmMgPSBhY21fcnhfdGFza2xldDsKLQkJCWFjbS0+YmguZGF0YSA9ICh1bnNpZ25l
+ZCBsb25nKSBhY207Ci0JCQlJTklUX1dPUksoJmFjbS0+d29yaywgYWNtX3NvZnRpbnQsIGFjbSk7
+Ci0KLQkJCWlmICghKGJ1ZiA9IGttYWxsb2MoY3RybHNpemUgKyByZWFkc2l6ZSArIGFjbS0+d3Jp
+dGVzaXplLCBHRlBfS0VSTkVMKSkpIHsKLQkJCQllcnIoIm91dCBvZiBtZW1vcnkiKTsKLQkJCQlr
+ZnJlZShhY20pOwotCQkJCXJldHVybiAtRU5PTUVNOwotCQkJfQotCi0JCQlhY20tPmN0cmx1cmIg
+PSB1c2JfYWxsb2NfdXJiKDAsIEdGUF9LRVJORUwpOwotCQkJaWYgKCFhY20tPmN0cmx1cmIpIHsK
+LQkJCQllcnIoIm91dCBvZiBtZW1vcnkiKTsKLQkJCQlrZnJlZShhY20pOwotCQkJCWtmcmVlKGJ1
+Zik7Ci0JCQkJcmV0dXJuIC1FTk9NRU07Ci0JCQl9Ci0JCQlhY20tPnJlYWR1cmIgPSB1c2JfYWxs
+b2NfdXJiKDAsIEdGUF9LRVJORUwpOwotCQkJaWYgKCFhY20tPnJlYWR1cmIpIHsKLQkJCQllcnIo
+Im91dCBvZiBtZW1vcnkiKTsKLQkJCQl1c2JfZnJlZV91cmIoYWNtLT5jdHJsdXJiKTsKLQkJCQlr
+ZnJlZShhY20pOwotCQkJCWtmcmVlKGJ1Zik7Ci0JCQkJcmV0dXJuIC1FTk9NRU07Ci0JCQl9Ci0J
+CQlhY20tPndyaXRldXJiID0gdXNiX2FsbG9jX3VyYigwLCBHRlBfS0VSTkVMKTsKLQkJCWlmICgh
+YWNtLT53cml0ZXVyYikgewotCQkJCWVycigib3V0IG9mIG1lbW9yeSIpOwotCQkJCXVzYl9mcmVl
+X3VyYihhY20tPnJlYWR1cmIpOwotCQkJCXVzYl9mcmVlX3VyYihhY20tPmN0cmx1cmIpOwotCQkJ
+CWtmcmVlKGFjbSk7Ci0JCQkJa2ZyZWUoYnVmKTsKLQkJCQlyZXR1cm4gLUVOT01FTTsKLQkJCX0K
+LQotCQkJdXNiX2ZpbGxfaW50X3VyYihhY20tPmN0cmx1cmIsIGRldiwgdXNiX3JjdmludHBpcGUo
+ZGV2LCBlcGN0cmwtPmJFbmRwb2ludEFkZHJlc3MpLAotCQkJCWJ1ZiwgY3RybHNpemUsIGFjbV9j
+dHJsX2lycSwgYWNtLCBlcGN0cmwtPmJJbnRlcnZhbCk7Ci0KLQkJCXVzYl9maWxsX2J1bGtfdXJi
+KGFjbS0+cmVhZHVyYiwgZGV2LCB1c2JfcmN2YnVsa3BpcGUoZGV2LCBlcHJlYWQtPmJFbmRwb2lu
+dEFkZHJlc3MpLAotCQkJCWJ1ZiArPSBjdHJsc2l6ZSwgcmVhZHNpemUsIGFjbV9yZWFkX2J1bGss
+IGFjbSk7Ci0JCQlhY20tPnJlYWR1cmItPnRyYW5zZmVyX2ZsYWdzIHw9IFVSQl9OT19GU0JSOwot
+Ci0JCQl1c2JfZmlsbF9idWxrX3VyYihhY20tPndyaXRldXJiLCBkZXYsIHVzYl9zbmRidWxrcGlw
+ZShkZXYsIGVwd3JpdGUtPmJFbmRwb2ludEFkZHJlc3MpLAotCQkJCWJ1ZiArPSByZWFkc2l6ZSwg
+YWNtLT53cml0ZXNpemUsIGFjbV93cml0ZV9idWxrLCBhY20pOwotCQkJYWNtLT53cml0ZXVyYi0+
+dHJhbnNmZXJfZmxhZ3MgfD0gVVJCX05PX0ZTQlI7Ci0KLQkJCWRldl9pbmZvKCZpbnRmLT5kZXYs
+ICJ0dHlBQ00lZDogVVNCIEFDTSBkZXZpY2UiLCBtaW5vcik7Ci0KLQkJCWFjbV9zZXRfY29udHJv
+bChhY20sIGFjbS0+Y3RybG91dCk7Ci0KLQkJCWFjbS0+bGluZS5zcGVlZCA9IGNwdV90b19sZTMy
+KDk2MDApOwotCQkJYWNtLT5saW5lLmRhdGFiaXRzID0gODsKLQkJCWFjbV9zZXRfbGluZShhY20s
+ICZhY20tPmxpbmUpOwotCi0JCQlpZiAoIChqID0gdXNiX2RyaXZlcl9jbGFpbV9pbnRlcmZhY2Uo
+JmFjbV9kcml2ZXIsIGRhdGEsIGFjbSkpICE9IDApIHsKLQkJCQllcnIoImNsYWltIGZhaWxlZCIp
+OwotCQkJCXVzYl9mcmVlX3VyYihhY20tPmN0cmx1cmIpOwotCQkJCXVzYl9mcmVlX3VyYihhY20t
+PnJlYWR1cmIpOwotCQkJCXVzYl9mcmVlX3VyYihhY20tPndyaXRldXJiKTsKLQkJCQlrZnJlZShh
+Y20pOwotCQkJCWtmcmVlKGJ1Zik7Ci0JCQkJcmV0dXJuIGo7Ci0JCQl9IAotCi0JCQl0dHlfcmVn
+aXN0ZXJfZGV2aWNlKGFjbV90dHlfZHJpdmVyLCBtaW5vciwgJmludGYtPmRldik7Ci0KLQkJCWFj
+bV90YWJsZVttaW5vcl0gPSBhY207Ci0JCQl1c2Jfc2V0X2ludGZkYXRhIChpbnRmLCBhY20pOwot
+CQkJcmV0dXJuIDA7CisJCQlpZmRhdGEgPSBOVUxMOworCQkJZGF0YSA9IE5VTEw7CisJCX0KKwl9
+CisKKwkvKiB0aGVyZSdzIGJlZW4gYSBwcm9ibGVtICovCisJaWYgKCFpZmRhdGEpIHsKKwkJZGJn
+KCJpbnRlcmZhY2Ugbm90IGZvdW5kICglcClcbiIsIGlmZGF0YSk7CisJCXJldHVybiAtRU5PREVW
+OworCisJfQorCisJZm9yIChtaW5vciA9IDA7IG1pbm9yIDwgQUNNX1RUWV9NSU5PUlMgJiYgYWNt
+X3RhYmxlW21pbm9yXTsgbWlub3IrKyk7CisJaWYgKGFjbV90YWJsZVttaW5vcl0pIHsKKwkJZXJy
+KCJubyBtb3JlIGZyZWUgYWNtIGRldmljZXMiKTsKKwkJcmV0dXJuIC1FTk9ERVY7CisJfQorCisJ
+aWYgKCEoYWNtID0ga21hbGxvYyhzaXplb2Yoc3RydWN0IGFjbSksIEdGUF9LRVJORUwpKSkgewor
+CQllcnIoIm91dCBvZiBtZW1vcnkiKTsKKwkJcmV0dXJuIC1FTk9NRU07CisJfQorCW1lbXNldChh
+Y20sIDAsIHNpemVvZihzdHJ1Y3QgYWNtKSk7CisKKwljdHJsc2l6ZSA9IGVwY3RybC0+d01heFBh
+Y2tldFNpemU7CisJcmVhZHNpemUgPSBlcHJlYWQtPndNYXhQYWNrZXRTaXplOworCWFjbS0+d3Jp
+dGVzaXplID0gZXB3cml0ZS0+d01heFBhY2tldFNpemU7CisJYWNtLT5jb250cm9sID0gaW50ZjsK
+KwlhY20tPmRhdGEgPSBkYXRhOworCWFjbS0+bWlub3IgPSBtaW5vcjsKKwlhY20tPmRldiA9IGRl
+djsKKworCWFjbS0+YmguZnVuYyA9IGFjbV9yeF90YXNrbGV0OworCWFjbS0+YmguZGF0YSA9ICh1
+bnNpZ25lZCBsb25nKSBhY207CisJSU5JVF9XT1JLKCZhY20tPndvcmssIGFjbV9zb2Z0aW50LCBh
+Y20pOworCisJaWYgKCEoYnVmID0ga21hbGxvYyhjdHJsc2l6ZSArIHJlYWRzaXplICsgYWNtLT53
+cml0ZXNpemUsIEdGUF9LRVJORUwpKSkgeworCQllcnIoIm91dCBvZiBtZW1vcnkiKTsKKwkJa2Zy
+ZWUoYWNtKTsKKwkJcmV0dXJuIC1FTk9NRU07CisJfQorCisJYWNtLT5jdHJsdXJiID0gdXNiX2Fs
+bG9jX3VyYigwLCBHRlBfS0VSTkVMKTsKKwlpZiAoIWFjbS0+Y3RybHVyYikgeworCQllcnIoIm91
+dCBvZiBtZW1vcnkiKTsKKwkJa2ZyZWUoYWNtKTsKKwkJa2ZyZWUoYnVmKTsKKwkJcmV0dXJuIC1F
+Tk9NRU07CisJfQorCWFjbS0+cmVhZHVyYiA9IHVzYl9hbGxvY191cmIoMCwgR0ZQX0tFUk5FTCk7
+CisJaWYgKCFhY20tPnJlYWR1cmIpIHsKKwkJZXJyKCJvdXQgb2YgbWVtb3J5Iik7CisJCXVzYl9m
+cmVlX3VyYihhY20tPmN0cmx1cmIpOworCQlrZnJlZShhY20pOworCQlrZnJlZShidWYpOworCQly
+ZXR1cm4gLUVOT01FTTsKKwl9CisJYWNtLT53cml0ZXVyYiA9IHVzYl9hbGxvY191cmIoMCwgR0ZQ
+X0tFUk5FTCk7CisJaWYgKCFhY20tPndyaXRldXJiKSB7CisJCWVycigib3V0IG9mIG1lbW9yeSIp
+OworCQl1c2JfZnJlZV91cmIoYWNtLT5yZWFkdXJiKTsKKwkJdXNiX2ZyZWVfdXJiKGFjbS0+Y3Ry
+bHVyYik7CisJCWtmcmVlKGFjbSk7CisJCWtmcmVlKGJ1Zik7CisJCXJldHVybiAtRU5PTUVNOwor
+CX0KKworCXVzYl9maWxsX2ludF91cmIoYWNtLT5jdHJsdXJiLCBkZXYsIHVzYl9yY3ZpbnRwaXBl
+KGRldiwgZXBjdHJsLT5iRW5kcG9pbnRBZGRyZXNzKSwKKwkJYnVmLCBjdHJsc2l6ZSwgYWNtX2N0
+cmxfaXJxLCBhY20sIGVwY3RybC0+YkludGVydmFsKTsKKworCXVzYl9maWxsX2J1bGtfdXJiKGFj
+bS0+cmVhZHVyYiwgZGV2LCB1c2JfcmN2YnVsa3BpcGUoZGV2LCBlcHJlYWQtPmJFbmRwb2ludEFk
+ZHJlc3MpLAorCQlidWYgKz0gY3RybHNpemUsIHJlYWRzaXplLCBhY21fcmVhZF9idWxrLCBhY20p
+OworCWFjbS0+cmVhZHVyYi0+dHJhbnNmZXJfZmxhZ3MgfD0gVVJCX05PX0ZTQlI7CisKKwl1c2Jf
+ZmlsbF9idWxrX3VyYihhY20tPndyaXRldXJiLCBkZXYsIHVzYl9zbmRidWxrcGlwZShkZXYsIGVw
+d3JpdGUtPmJFbmRwb2ludEFkZHJlc3MpLAorCQlidWYgKz0gcmVhZHNpemUsIGFjbS0+d3JpdGVz
+aXplLCBhY21fd3JpdGVfYnVsaywgYWNtKTsKKwlhY20tPndyaXRldXJiLT50cmFuc2Zlcl9mbGFn
+cyB8PSBVUkJfTk9fRlNCUjsKKworCWRldl9pbmZvKCZpbnRmLT5kZXYsICJ0dHlBQ00lZDogVVNC
+IEFDTSBkZXZpY2UiLCBtaW5vcik7CisKKwlhY21fc2V0X2NvbnRyb2woYWNtLCBhY20tPmN0cmxv
+dXQpOworCisJYWNtLT5saW5lLnNwZWVkID0gY3B1X3RvX2xlMzIoOTYwMCk7CisJYWNtLT5saW5l
+LmRhdGFiaXRzID0gODsKKwlhY21fc2V0X2xpbmUoYWNtLCAmYWNtLT5saW5lKTsKKworCWlmICgg
+KGogPSB1c2JfZHJpdmVyX2NsYWltX2ludGVyZmFjZSgmYWNtX2RyaXZlciwgZGF0YSwgYWNtKSkg
+IT0gMCkgeworCQllcnIoImNsYWltIGZhaWxlZCIpOworCQl1c2JfZnJlZV91cmIoYWNtLT5jdHJs
+dXJiKTsKKwkJdXNiX2ZyZWVfdXJiKGFjbS0+cmVhZHVyYik7CisJCXVzYl9mcmVlX3VyYihhY20t
+PndyaXRldXJiKTsKKwkJa2ZyZWUoYWNtKTsKKwkJa2ZyZWUoYnVmKTsKKwkJcmV0dXJuIGo7CisJ
+fSAKKworCXR0eV9yZWdpc3Rlcl9kZXZpY2UoYWNtX3R0eV9kcml2ZXIsIG1pbm9yLCAmaW50Zi0+
+ZGV2KTsKKworCWFjbV90YWJsZVttaW5vcl0gPSBhY207CisJdXNiX3NldF9pbnRmZGF0YSAoaW50
+ZiwgYWNtKTsKKwlyZXR1cm4gMDsKIH0KIAogc3RhdGljIHZvaWQgYWNtX2Rpc2Nvbm5lY3Qoc3Ry
+dWN0IHVzYl9pbnRlcmZhY2UgKmludGYpCg==
+
+--Multipart=_Sat__17_Apr_2004_11_54_25_+0200_QywQ.jxPAZ7/=U5J--

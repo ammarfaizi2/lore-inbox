@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265313AbSJRTcq>; Fri, 18 Oct 2002 15:32:46 -0400
+	id <S265225AbSJRT3e>; Fri, 18 Oct 2002 15:29:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265314AbSJRTcq>; Fri, 18 Oct 2002 15:32:46 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2688 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265313AbSJRTco>; Fri, 18 Oct 2002 15:32:44 -0400
-Date: Fri, 18 Oct 2002 15:38:43 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Robert Love <rml@tech9.net>
-cc: Neil Conway <nconway.list@ukaea.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4: variable HZ
-In-Reply-To: <1034966657.722.838.camel@phantasy>
-Message-ID: <Pine.LNX.3.95.1021018152117.150B-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265248AbSJRT3e>; Fri, 18 Oct 2002 15:29:34 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:26399 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S265225AbSJRT33>;
+	Fri, 18 Oct 2002 15:29:29 -0400
+Date: Fri, 18 Oct 2002 21:35:23 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: usb storage sddr09
+Message-ID: <20021018193523.GA25316@win.tue.nl>
+References: <200210172155.49349.tomlins@cam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210172155.49349.tomlins@cam.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Oct 2002, Robert Love wrote:
+On Thu, Oct 17, 2002 at 09:55:49PM -0400, Ed Tomlinson wrote:
 
-> On Fri, 2002-10-18 at 07:51, Neil Conway wrote:
-> 
-> > I was looking at your jiffies_to_clock_t() macro, and I notice that it
-> > will screw up badly if the user chooses a HZ value that isn't a multiple
-> > of the normal value (e.g. 1000 is OK, 512 isn't).
-> 
-> OK, sure, but why specify a power-of-two HZ?  There is absolutely no
-> reason to, at least on x86.
-> 
-> Want 512?  500 will do just as well and has the benefit of (a) being a
-> multiple of the previous HZ and (b) evenly dividing into our concept of
-> time.
-> 
-> 	Robert Love
-> 
+> In the patch fest in the last couple of days usb storage support for sddr09 
+> has broken.  I see the following in the log (2.5.43-mm2):
 
-At least on ix86, HZ needs to be something that CLOCK_TICK_RATE/LATCH
-comes out fairly close. Remember, LATCH is the divisor for the PIT
-and that PIT gets CLOCK_TICK_RATE for its input. If this number isn't
-fairly 'exact' there will be much jumping of time in the sawtooth
-corrector.
+> Oct 17 21:37:07 oscar kernel: sddr09: Found Flash card, ID = 00 00 00 00: Manuf. unknown, 4096 MB
+> Oct 17 21:37:07 oscar kernel: sda : unsupported sector size 1.
+> Oct 17 21:37:07 oscar kernel: SCSI device sda: 0 1-byte hdwr sectors (0 MB)
 
-If you are not using ELAN, CLOCK_TICK_RATE is 1193180. If your HZ is
-100, you have 1193180/100 = 1193.18, not too exact. if you use
-500, you get 1193180/500 = 2386.36 which has twice as much round-off.
-If you use 1193180/512 = 2330.43, even a higher fractional part.
+Yes. Reverting the 2.5.43 patch on usb/storage fixes this.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+> Also attempting to rmmod usb-storage gets:
+> 
+> Oct 17 21:53:12 oscar kernel: kernel BUG at drivers/base/core.c:269!
 
+Yes. I have seen the patch several times on this list.
+See http://marc.theaimsgroup.com/?l=linux-kernel&m=103479992624108&w=2
+
+Andries

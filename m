@@ -1,25 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267359AbUJVNWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269143AbUJVNfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267359AbUJVNWk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 09:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269143AbUJVNWk
+	id S269143AbUJVNfI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 09:35:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269524AbUJVNfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 09:22:40 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:50347 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267359AbUJVNWi (ORCPT
+	Fri, 22 Oct 2004 09:35:07 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:64701 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269143AbUJVNe5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 09:22:38 -0400
-Date: Fri, 22 Oct 2004 15:19:50 +0200
+	Fri, 22 Oct 2004 09:34:57 -0400
+Date: Fri, 22 Oct 2004 15:35:51 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Alexander Batyrshin <abatyrshin@ru.mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041022131950.GA6574@elte.hu>
-References: <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <4176A50C.9050303@ru.mvista.com>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9.3
+Message-ID: <20041022133551.GA6954@elte.hu>
+References: <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4176A50C.9050303@ru.mvista.com>
+In-Reply-To: <20041021132717.GA29153@elte.hu>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -32,30 +38,37 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Alexander Batyrshin <abatyrshin@ru.mvista.com> wrote:
+i have released the -U9.3 Real-Time Preemption patch, which can be
+downloaded from:
 
-> used i386/defconfig
+  http://redhat.com/~mingo/realtime-preempt/
 
-> BUG: semaphore recursion deadlock detected!
-> .. current task khpsbpkt/723 is already holding c04610c0.
+this too is a fixes-only release.
 
-ok, this should be fixed in -U9.2.
+Changes since -U9.2:
 
-> 2.
-> if execute
-> ``for i in `seq 1 9999`; do nohup bash >/dev/null 2>&1 & done'',
-> then you'll get something like:
-> [...skip...]
-> Warning: dev (pts0) tty->count(16) != #fd's(8) in tty_open
-> Warning: dev (pts0) tty->count(16) != #fd's(11) in tty_open
+ - tons more driver/mutex/completion conversion done by Thomas Gleixner 
+   for: ppp, ipmi, parport/ieeee1284, scsi, hotplug, and more.
 
-> I'v tested it against linux-2.6.9-rc4-mm1 => all was ok
+ - iptables/netfilter deadlock fix, this should fix the bug reported by 
+   Michal Schmidt.
 
-i have trouble reproducing this myself. Can you still trigger it under
--U9.2? If yes then could you check whether this still happens with a the
-same .config but with CONFIG_SMP turned off? This smells like a locking
-bug/breakage in the tty layer that we dont detect. You have all the
-relevant debug options turned on, correct? (DEBUG_PREEMPT and
-RWSEM_DEADLOCK_DETECT)
+ - .config housekeeping: disallow the turning off of PREEMPT_BKL when 
+   PREEMPT_REALTIME is on. This solves the build error reported by 
+   Matthew L Foster.
+
+ - print the full stacktrace of the current task in the deadlock 
+   detector and dont use show_stack(). This explains some of the weird
+   partial stackdumps reported.
+
+ - some more minor updates to the case when the deadlock detector turns
+   itself off due to reaching the limit. We kept the spinlock locked.
+
+to create a -U9.3 tree from scratch, the patching order is:
+
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+ + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc4.bz2
+ + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/2.6.9-rc4-mm1.bz2
+ + http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-rc4-mm1-U9.3
 
 	Ingo

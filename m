@@ -1,65 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265070AbTFCPov (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 11:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbTFCPou
+	id S265075AbTFCP66 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 11:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265076AbTFCP66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 11:44:50 -0400
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:15959 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265070AbTFCPoq convert rfc822-to-8bit (ORCPT
+	Tue, 3 Jun 2003 11:58:58 -0400
+Received: from cibs9.sns.it ([192.167.206.29]:17159 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id S265075AbTFCP6y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 11:44:46 -0400
-From: Bob Johnson <livewire@gentoo.org>
-Reply-To: livewire@gentoo.org
-To: "Wm. Josiah Erikson" <josiah@insanetechnology.com>
-Subject: Re: siimage driver status
-Date: Tue, 3 Jun 2003 10:58:06 -0500
-User-Agent: KMail/1.5.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0306031127450.23499-100000@bork.hampshire.edu>
-In-Reply-To: <Pine.LNX.4.44.0306031127450.23499-100000@bork.hampshire.edu>
+	Tue, 3 Jun 2003 11:58:54 -0400
+Date: Tue, 3 Jun 2003 18:12:16 +0200 (CEST)
+From: venom@sns.it
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: andreas@xss.co.at, <alan@lxorguk.ukuu.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: system clock speed too high?
+In-Reply-To: <20030603084737.33a5f817.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.43.0306031809480.24895-100000@cibs9.sns.it>
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200306031058.10447.livewire@gentoo.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+USB  is disabled in BIOS and ACPI  is disabled too,
+but the  problem persists.
+It is even difficoult to type the keyb as fast
+as it is on alll irqs.
 
-yes, ive always added -X66 , the only way to not lock is a trick from siimages 
-site (think it was in a mandrake script)
-echo "max_kb_per_request:15" > /proc/ide/hde/settings
 
-The lockup also happens in latest 2.5 kernels, which the above command
-is only for 2.4.
 
-On Tuesday 03 June 2003 10:29 am, Wm. Josiah Erikson wrote:
-> Does this still happen? It used to happen to me, but as soon as I added
 
-> -X66, per Alan's suggestion, everything is fine.
-> 	-Josiah (currently in the middle of writing 36GB to a two-drive
-> RAID 0 array on a sil3112 controller and everything is peachy - fast as
-> HELL, actually - grin - I've never seen over 100MB/sec off a RAID 0 of two
-> drives before)
+
+
+
+
+On Tue, 3 Jun 2003, Randy.Dunlap wrote:
+
+> Date: Tue, 3 Jun 2003 08:47:37 -0700
+> From: Randy.Dunlap <rddunlap@osdl.org>
+> To: venom@sns.it
+> Cc: andreas@xss.co.at, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+> Subject: Re: system clock speed too high?
 >
 >
-> On Tue, 3 Jun 2003, Bob Johnson wrote:
+> Hi,
 >
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+> Did you check to see if USB is enabled in your BIOS setup?
+> Nothing to do with Linux USB kernel support....
 >
-> Has anything been addressed to help the instant lock up when enabling dma
-> that alot of users are reporting?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+3MWSxJgsCy9JAX0RAlpwAJ9Q0Pmz1Xda8tCvmuVjV21G8oDwAgCbBKzI
-e6707tgTmA2nQKlfsVvr/pw=
-=Ct7+
------END PGP SIGNATURE-----
+> ~Randy
+>
+> On Tue, 3 Jun 2003 17:43:42 +0200 (CEST) venom@sns.it wrote:
+>
+> |
+> | No, I do not have USB enabled at all.
+> | anyway I see exactly the same results, also if the problem could be somewhere
+> | else.
+> |
+> | Luigi
+> |
+> | On Tue, 3 Jun 2003, Andreas Haumer wrote:
+> |
+> | > Date: Tue, 03 Jun 2003 17:38:09 +0200
+> | > From: Andreas Haumer <andreas@xss.co.at>
+> | > To: venom@sns.it
+> | > Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+> | >      Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+> | > Subject: Re: system clock speed too high?
+> | >
+> | > -----BEGIN PGP SIGNED MESSAGE-----
+> | > Hash: SHA1
+> | >
+> | > Hi!
+> | >
+> | > venom@sns.it wrote:
+> | > > I reported this same problem for kernel 2.5.69/70 on pentiumIII with chipset
+> | > > i810, but it seems the reports has been unnoticed.
+> | > >
+> | > > I replicated your tests with 2.5.70 without acpi, same results here.
+> | > >
+> | > Hm, do you have "USB legacy support" enabled on your
+> | > system, too? Does the problem go away if you disable it?
+> | >
+> | > What motherboard and BIOS does your computer have (manufacturer,
+> | > version numbers)?
+> | >
+> | > (This is a totally different chipset, so the problems
+> | > might be completely unrelated)
+> | >
+> | > - - andreas
+> | >
+> | > - --
+> | > Andreas Haumer                     | mailto:andreas@xss.co.at
+> | > *x Software + Systeme              | http://www.xss.co.at/
+> | > Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+> | > A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

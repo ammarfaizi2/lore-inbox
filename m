@@ -1,151 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262808AbSI3RzM>; Mon, 30 Sep 2002 13:55:12 -0400
+	id <S262824AbSI3SDG>; Mon, 30 Sep 2002 14:03:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262812AbSI3RyY>; Mon, 30 Sep 2002 13:54:24 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:5125 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262808AbSI3RxU>;
-	Mon, 30 Sep 2002 13:53:20 -0400
-Date: Mon, 30 Sep 2002 10:56:32 -0700
-From: Greg KH <greg@kroah.com>
-To: marcelo@conectiva.com.br
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB changes for 2.4.20-pre8
-Message-ID: <20020930175631.GA1592@kroah.com>
+	id <S262825AbSI3SDG>; Mon, 30 Sep 2002 14:03:06 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:772 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262824AbSI3SDC>;
+	Mon, 30 Sep 2002 14:03:02 -0400
+Date: Mon, 30 Sep 2002 19:02:34 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: NBD cleanups
+Message-ID: <20020930170234.GA122@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-Here are some USB updates for 2.4.20-pre8.
+Having special #ifdef for paranoia check is probably bad idea, turn it
+into BUG_ON().
+								Pavel
 
-Please pull from:  bk://linuxusb.bkbits.net/marcelo-2.4
+--- clean/drivers/block/nbd.c	2002-09-23 00:09:12.000000000 +0200
++++ linux/drivers/block/nbd.c	2002-09-23 00:09:22.000000000 +0200
+@@ -71,10 +71,8 @@
+ /* #define DEBUG( s ) printk( s ) 
+  */
+ 
+-#ifdef PARANOIA
+ static int requests_in;
+ static int requests_out;
+-#endif
+ 
+ static int nbd_open(struct inode *inode, struct file *file)
+ {
+@@ -270,18 +268,9 @@
+ 			printk(KERN_ALERT "req should never be null\n" );
+ 			goto out;
+ 		}
+-#ifdef PARANOIA
+-		if (lo != &nbd_dev[minor(req->rq_dev)]) {
+-			printk(KERN_ALERT "NBD: request corrupted!\n");
+-			continue;
+-		}
+-		if (lo->magic != LO_MAGIC) {
+-			printk(KERN_ALERT "NBD: nbd_dev[] corrupted: Not enough magic\n");
+-			goto out;
+-		}
+-#endif
++		BUG_ON(lo != &nbd_dev[minor(req->rq_dev)]);
++		BUG_ON(lo->magic != LO_MAGIC);
+ 		nbd_end_request(req);
+-
+ 	}
+  out:
+ 	return;
+@@ -291,12 +280,7 @@
+ {
+ 	struct request *req;
+ 
+-#ifdef PARANOIA
+-	if (lo->magic != LO_MAGIC) {
+-		printk(KERN_ERR "NBD: nbd_dev[] corrupted: Not enough magic when clearing!\n");
+-		return;
+-	}
+-#endif
++	BUG_ON(lo->magic != LO_MAGIC);
+ 
+ 	do {
+ 		req = NULL;
+@@ -331,15 +315,9 @@
+ 
+ 	while (!blk_queue_empty(QUEUE)) {
+ 		req = CURRENT;
+-#ifdef PARANOIA
+-		if (!req)
+-			FAIL("queue not empty but no request?");
+-#endif
++		BUG_ON(!req);
+ 		dev = minor(req->rq_dev);
+-#ifdef PARANOIA
+-		if (dev >= MAX_NBD)
+-			FAIL("Minor too big.");		/* Probably can not happen */
+-#endif
++		BUG_ON(dev >= MAX_NBD);
+ 		if (!(req->flags & REQ_CMD))
+ 			goto error_out;
+ 
+@@ -352,11 +330,9 @@
+ 			if (lo->flags & NBD_READ_ONLY)
+ 				FAIL("Write on read-only");
+ 		}
+-#ifdef PARANOIA
+-		if (lo->magic != LO_MAGIC)
+-			FAIL("nbd[] is not magical!");
++		BUG_ON(lo->magic != LO_MAGIC);
+ 		requests_in++;
+-#endif
++
+ 		req->errors = 0;
+ 		blkdev_dequeue_request(req);
+ 		spin_unlock_irq(q->queue_lock);
 
-The individual patches will be sent in follow up messages to this email.
-
-thanks,
-
-greg k-h
-
- drivers/usb/hcd.c                  |   94 +++--
- drivers/usb/hcd.h                  |    1 
- drivers/usb/hcd/ehci-dbg.c         |  525 +++++++++++++++++++++++++++---
- drivers/usb/hcd/ehci-hcd.c         |  512 ++++++++++++++++++++++--------
- drivers/usb/hcd/ehci-hub.c         |   16 
- drivers/usb/hcd/ehci-q.c           |  575 ++++++++++++++++++---------------
- drivers/usb/hcd/ehci-sched.c       |  630 +++++++++++++++----------------------
- drivers/usb/hcd/ehci.h             |   87 ++++-
- drivers/usb/hpusbscsi.c            |   31 -
- drivers/usb/kaweth.c               |   27 -
- drivers/usb/serial/visor.c         |    6 
- drivers/usb/serial/visor.h         |    1 
- drivers/usb/storage/sddr55.c       |    2 
- drivers/usb/storage/unusual_devs.h |   15 
- 14 files changed, 1603 insertions(+), 919 deletions(-)
------
-
-ChangeSet@1.694, 2002-09-30 10:38:00-07:00, greg@kroah.com
-  USB: added Palm Zire support to the visor driver
-  
-  thanks to Martin Brachtl for the information.
-
- drivers/usb/serial/visor.c |    6 ++++--
- drivers/usb/serial/visor.h |    1 +
- 2 files changed, 5 insertions(+), 2 deletions(-)
-------
-
-ChangeSet@1.693, 2002-09-26 22:44:15-07:00, rgcrettol@datacomm.ch
-  [PATCH] USB 2.0 HDD Walker / ST-HW-818SLIM usb-storage fix
-  
-
- drivers/usb/storage/unusual_devs.h |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
-------
-
-ChangeSet@1.692, 2002-09-26 22:43:37-07:00, tim@physik3.uni-rostock.de
-  [PATCH] fix compares of jiffies
-  
-  on rechecking the current stable kernel code, I found some places where jiffies
-  were compared in a way that seems to break when they wrap. For these,
-  I made up patches to use the macros "time_before()" or "time_after()"
-  that are supposed to handle wraparound correctly.
-
- drivers/usb/storage/sddr55.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
-
-ChangeSet@1.691, 2002-09-26 22:42:59-07:00, brihall@pcisys.net
-  [PATCH] Update for JMTek USBDrive
-  
-  Attached is a patch against the 2.4.19 linux kernel. It adds an entry
-  for another version of the JMTek USBDrive (driverless), and also updates
-  my email address.
-
- drivers/usb/storage/unusual_devs.h |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
-------
-
-ChangeSet@1.690, 2002-09-26 22:42:30-07:00, oliver@neukum.name
-  [PATCH] USB: fixes for kaweth
-  
-  this fixes a few SMP locking issues for kaweth.
-
- drivers/usb/kaweth.c |   27 +++++++++++++++++----------
- 1 files changed, 17 insertions(+), 10 deletions(-)
-------
-
-ChangeSet@1.689, 2002-09-26 22:41:50-07:00, oliver@neukum.name
-  [PATCH] USB: update of hpusbscsi
-  
-  this fixes an unplugging problem and an SMP deadlock.
-
- drivers/usb/hpusbscsi.c |   31 +++++++++++++++++--------------
- 1 files changed, 17 insertions(+), 14 deletions(-)
-------
-
-ChangeSet@1.688, 2002-09-26 22:41:18-07:00, david-b@pacbell.net
-  [PATCH] EHCI matching 2.5.38bk3
-  
-  This basically brings the 2.4 code into sync with the current
-  2.5 code.  There've been a number of bugfixes and other changes,
-  code cleanup and so on, so I'll just summarize some of the
-  functional changes:
-  
-    - Fixes races and other qh unlink problems
-  
-    - Copes with rude eject from cardbus
-  
-    - Supports USB 1.1 interrupt transactions
-      through USB 2.0 hubs
-  
-    - Should work with VIA VT8235 (KT333/KT400)
-  
-    - Filed down a lot of rough ends
-
- drivers/usb/hcd/ehci-dbg.c   |  525 +++++++++++++++++++++++++++++++----
- drivers/usb/hcd/ehci-hcd.c   |  512 +++++++++++++++++++++++++---------
- drivers/usb/hcd/ehci-hub.c   |   16 -
- drivers/usb/hcd/ehci-q.c     |  575 +++++++++++++++++++++------------------
- drivers/usb/hcd/ehci-sched.c |  630 +++++++++++++++++--------------------------
- drivers/usb/hcd/ehci.h       |   87 +++++
- 6 files changed, 1495 insertions(+), 850 deletions(-)
-------
-
-ChangeSet@1.687, 2002-09-26 22:40:46-07:00, david-b@pacbell.net
-  [PATCH] Re: [PATCH 2.4.20-pre7 1 of 2] usbcore/hcd updates
-  
-  Here's the first of those two patches, to usbcore's "hcd" glue:
-  
-   - removes something I left in pre7 to simplify these patches.
-   - does pci map/unmap for the hardware-aware layer
-   - knows that none fault mode is no longer allowed
-
- drivers/usb/hcd.c |   94 ++++++++++++++++++++++++++++++++----------------------
- drivers/usb/hcd.h |    1 
- 2 files changed, 57 insertions(+), 38 deletions(-)
-------
-
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

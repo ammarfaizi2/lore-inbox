@@ -1,67 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbTHSVxe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 17:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbTHSVxe
+	id S261418AbTHSV4N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 17:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbTHSV4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 17:53:34 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:20882 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S261556AbTHSVx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 17:53:29 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 19 Aug 2003 23:53:26 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: richard@aspectgroup.co.uk, davem@redhat.com, willy@w.ods.org,
-       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
-       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030819235326.2920dacf.skraw@ithnet.com>
-In-Reply-To: <1061320099.30567.55.camel@dhcp23.swansea.linux.org.uk>
-References: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>
-	<1061320099.30567.55.camel@dhcp23.swansea.linux.org.uk>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 19 Aug 2003 17:56:12 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:5125 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S261418AbTHSVzR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 17:55:17 -0400
+Date: Tue, 19 Aug 2003 23:54:30 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: kbuild: Separate output directory - include patch
+Message-ID: <20030819215430.GD1791@mars.ravnborg.org>
+References: <20030819215157.GA1791@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030819215157.GA1791@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Aug 2003 20:08:20 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> > 	But if I was to do this in the other direction (arp -d 172.20.240.1;
-> > ping -I 172.24.0.1 172.20.240.1) then I'd lose connectivity over my default
-> > route because 172.20.240.1 won't accept ARP packets from IP numbers not on
-> > the connected subnet. The <incomplete> ARP entry will block any further ARP
-> > requests from valid IP numbers.
-> 
-> One thing I agree with you about is that an ARP resolution for an
-> address via one path should not block a resolution for it by another
-> path since to begin with the two paths may be to different routers
-> one of which is down.
-
-Sounds logical.
-
-Can you explain to me why there should be a difference in the source ip of an
-arp request originated by an ip packet from another address of the same host
-compared to a forwarded packet from another host, coming in on some secondary
-interface?
-If I understood David correctly the first case will do an arp request with
-source ip equal to source ip of the packet (originated locally).
-In the second case (the box has to forward some foreign packet) for sure its
-interface address will be used, correct? Or does that read: _some_ interface
-address will be used?
-Why this difference? The destination host cannot distinguish between these two
-cases, so they can be as well handled just the same. But it seems obvious that
-a foreign IP cannot be used as a source for an arp request.
-And overall, looking at an arp table, what is visible is: interface, MAC and
-corresponding IP. So as soon as an arp request is successfully completed the
-box doesn't even remember the source ip of the former arp request, right?
-
-Regards,
-Stephan
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1272  -> 1.1273 
+#	     kernel/Makefile	1.32    -> 1.33   
+#	scripts/genksyms/Makefile	1.3     -> 1.4    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/08/19	sam@mars.ravnborg.org	1.1273
+# kbuild: Fix build with seperate output directory
+# 
+# Build rule for ikconfig updated.
+# Include directive for genksyms updated
+# --------------------------------------------
+#
+diff -Nru a/kernel/Makefile b/kernel/Makefile
+--- a/kernel/Makefile	Tue Aug 19 23:41:31 2003
++++ b/kernel/Makefile	Tue Aug 19 23:41:31 2003
+@@ -20,8 +20,6 @@
+ obj-$(CONFIG_COMPAT) += compat.o
+ obj-$(CONFIG_IKCONFIG) += configs.o
+ 
+-# files to be removed upon make clean
+-clean-files := ikconfig.h
+ 
+ ifneq ($(CONFIG_IA64),y)
+ # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
+@@ -32,8 +30,13 @@
+ CFLAGS_sched.o := $(PROFILING) -fno-omit-frame-pointer
+ endif
+ 
+-$(obj)/ikconfig.h: scripts/mkconfigs .config Makefile
+-	$(CONFIG_SHELL) scripts/mkconfigs .config Makefile > $(obj)/ikconfig.h
++quiet_cmd_ikconfig = IKCFG   $@
++      cmd_ikconfig = $(CONFIG_SHELL) $< .config $(srctree)/Makefile > $@
++
++targets := ikconfig.h
++
++$(obj)/ikconfig.h: scripts/mkconfigs .config Makefile FORCE
++	$(call if_changed,ikconfig)
+ 
+ $(obj)/configs.o: $(obj)/ikconfig.h $(obj)/configs.c \
+ 		include/linux/version.h include/linux/compile.h
+diff -Nru a/scripts/genksyms/Makefile b/scripts/genksyms/Makefile
+--- a/scripts/genksyms/Makefile	Tue Aug 19 23:41:31 2003
++++ b/scripts/genksyms/Makefile	Tue Aug 19 23:41:31 2003
+@@ -3,13 +3,14 @@
+ always		:= $(host-progs)
+ 
+ genksyms-objs	:= genksyms.o parse.o lex.o
+-
+-HOSTCFLAGS_parse.o := -Wno-uninitialized
++# -I needed for generated C source (shipped source)
++HOSTCFLAGS_parse.o := -Wno-uninitialized -I$(obj)
+ 
+ # dependencies on generated files need to be listed explicitly
+ 
+ $(obj)/lex.o: $(obj)/parse.h $(obj)/keywords.c
+-
++# -I needed for generated C source (shipped source)
++HOSTCFLAGS_lex.o := -I$(obj)
+ 
+ ifdef GENERATE_PARSER
+ 

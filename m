@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263411AbTIHPnX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 11:43:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263436AbTIHPnX
+	id S262691AbTIHPul (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 11:50:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbTIHPul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 11:43:23 -0400
-Received: from ns.suse.de ([195.135.220.2]:52172 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263411AbTIHPmp (ORCPT
+	Mon, 8 Sep 2003 11:50:41 -0400
+Received: from mail.kroah.org ([65.200.24.183]:41419 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262691AbTIHPuk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 11:42:45 -0400
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.23-pre3] Possible bug in fs/buffer.c
-References: <200309081715.09657@bilbo.math.uni-mannheim.de>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: What a COINCIDENCE!  I'm an authorized ``SNOOTS OF THE STARS''
- dealer!!
-Date: Mon, 08 Sep 2003 17:42:40 +0200
-In-Reply-To: <200309081715.09657@bilbo.math.uni-mannheim.de> (Rolf Eike
- Beer's message of "Mon, 8 Sep 2003 17:15:09 +0200")
-Message-ID: <je3cf7uw0f.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 8 Sep 2003 11:50:40 -0400
+Date: Mon, 8 Sep 2003 08:50:48 -0700
+From: Greg KH <greg@kroah.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6][CFT] rmmod floppy kills box fixes + default_device_remove
+Message-ID: <20030908155048.GA10879@kroah.com>
+References: <Pine.LNX.4.53.0309072228470.14426@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0309072228470.14426@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rolf Eike Beer <eike-kernel@sf-tec.de> writes:
+On Sun, Sep 07, 2003 at 10:53:08PM -0400, Zwane Mwaikambo wrote:
+> Randy gave me the courage to delve in there... now that i'm lost to the 
+> world here is one picked up from bugzilla;
+> 
+> The crux of it is that the floppy driver isn't deleting timers before 
+> unloading itself. I've tested it locally somewhat, but the ioport 
+> busy looks very strange (although things do function). There is one part 
+> of this patch that i'd like Greg to look at, it's the 
+> default_device_release addition...
 
-> This is __put_unused_buffer_head from fs/buffer.c, lines 1156 to 1171:
->
->
-> static void __put_unused_buffer_head(struct buffer_head * bh)
-> {
-> 	if (unlikely(buffer_attached(bh)))
-> 		BUG();
-> 	if (nr_unused_buffer_heads >= MAX_UNUSED_BUFFERS) {
-> 		kmem_cache_free(bh_cachep, bh);
-> 	} else {
-> 		bh->b_dev = B_FREE;
-> ===>		bh->b_blocknr = -1;		<===
-> 		bh->b_this_page = NULL;
->
-> 		nr_unused_buffer_heads++;
-> 		bh->b_next_free = unused_list;
-> 		unused_list = bh;
-> 	}
-> }
->
-> In include/linux/fs.h "struct buffer_head" is defined this way:
->
-> struct buffer_head {
->         /* First cache line: */
->         struct buffer_head *b_next;     /* Hash queue list */
->         unsigned long b_blocknr;        /* block number */
-> ...
->
-> So this line (and line 1205, which is the same) is either ugly (and someone
-> meant ~0UL or something similar) or completely bogus.
+Ick, no, I do not want to see this function get added, sorry.
 
-It's neither ugly, nor bogus.  The only 100% reliable way to assign the
-maximum value to an unsigned integer is to use -1.
+What happens if someone grabs the struct device reference by opening a
+sysfs file and then you unload the module?  Yeah, not nice.  Please do
+_not_ create "empty" release() functions, unless you _really_ know what
+you are doing (and providing a "default" one like this is just ripe for
+abuse, that warning message in the kernel is there for a reason.)
 
-Andreas.
+thanks,
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+greg k-h

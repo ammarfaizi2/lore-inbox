@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbVC1Wa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVC1Wih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbVC1Wa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 17:30:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbVC1Wa6
+	id S262090AbVC1Wih (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 17:38:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbVC1Wih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 17:30:58 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:52230 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S262095AbVC1Way (ORCPT
+	Mon, 28 Mar 2005 17:38:37 -0500
+Received: from gate.crashing.org ([63.228.1.57]:62674 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262090AbVC1Wif (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 17:30:54 -0500
-Date: Tue, 29 Mar 2005 00:30:48 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/9] isofs: unobfuscate rock.c
-Message-ID: <20050328223048.GA2741@pclin040.win.tue.nl>
-References: <ie2p3m.2u2ccu.3z4p19m1j53m9pob6l5ceeebq.refire@cs.helsinki.fi> <20050328200252.GN28536@shell0.pdx.osdl.net>
+	Mon, 28 Mar 2005 17:38:35 -0500
+Subject: Re: [PATCH] radeonfb: Fix mode setting on CRT monitors
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <4247F2AA.7070201@ens-lyon.org>
+References: <1111969496.5409.40.camel@gaston>
+	 <4247F2AA.7070201@ens-lyon.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 29 Mar 2005 08:37:47 +1000
+Message-Id: <1112049467.5409.76.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050328200252.GN28536@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: CollegeOfNewCaledonia: kweetal.tue.nl 1189; Body=1 Fuz1=1 Fuz2=1
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 28, 2005 at 12:02:52PM -0800, Chris Wright wrote:
-> * Pekka Enberg (penberg@cs.helsinki.fi) wrote:
-> > This patch removes macro obfuscation from fs/isofs/rock.c and cleans it up
-> > a bit to make it more readable and maintainable. There are no functional
-> > changes, only cleanups. I have only tested this lightly but it passes
-> > mount and read on small Rock Ridge enabled ISO image.
+On Mon, 2005-03-28 at 14:03 +0200, Brice Goglin wrote:
+> Benjamin Herrenschmidt a écrit :
+> > Hi !
+> > 
+> > Current radeonfb is a bit "anal" about accepting CRT modes, it basically only
+> > accepts modes that have the exact resolution, which tends to break with fbcon
+> > on console switches as it provides "approximate" modes. This patch fixes it
+> > by having the driver chose the closest possible mode instead of looking for
+> > an exact match.
 > 
-> You might want to look at current -mm.  Andrew has a series or 13 or so
-> patches that do very similar cleanup.  Perhaps you could start from there?
+> Hi Benjamin,
+> 
+> I tried your patch because on recent -mm kernels I see dirty colored 
+> columns during a few seconds when switching from X to radeon fbcon
+> (looks like remaining colors of X).
+> I don't know what visible effect your patch is supposed to have.
+> I didn't see any difference, but I doesn't seem to break anything.
 
-Good! When Linus asked I audited rock.c and also did rather similar polishing -
-it happens automatically if one looks at this code. But it seems everybody is
-doing this right now, so I must wait a few weeks and see what got into Linus'
-tree. Linus plugged many but not all holes. (Maybe you did more?)
+The effect is that if your console resolution isn't an exact multiple of
+the character width or height, radeonfb would fail to set the mode on
+console switches. It doesn't happen with 1024x768 and default font but
+it does happen with some weird modes, and some monitors (/me lurks
+toward IBM) tend to have quite broken default EDID timings.
 
-Andries
+Ben.
+ 
+

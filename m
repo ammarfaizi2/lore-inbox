@@ -1,24 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315754AbSFYU3N>; Tue, 25 Jun 2002 16:29:13 -0400
+	id <S315893AbSFYUpa>; Tue, 25 Jun 2002 16:45:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315806AbSFYU3M>; Tue, 25 Jun 2002 16:29:12 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:46085 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S315754AbSFYU3L>; Tue, 25 Jun 2002 16:29:11 -0400
-Date: Tue, 25 Jun 2002 16:33:54 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: "Shen, JT" <JT.Shen@hp.com>
-Cc: andre@linux-ide.org, <linux-kernel@vger.kernel.org>
-Subject: Re: ide driver bug fix for the error message "hda: bad special flag
- 0x03"
-In-Reply-To: <5A96E87E2BA0714ABBEA2C8F3F3F667C0AA680@cceexc19.americas.cpqcorp.net>
-Message-ID: <Pine.LNX.4.44.0206251633300.10350-100000@freak.distro.conectiva>
+	id <S315919AbSFYUp3>; Tue, 25 Jun 2002 16:45:29 -0400
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:64014 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S315893AbSFYUp3> convert rfc822-to-8bit; Tue, 25 Jun 2002 16:45:29 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: ide driver bug fix for the error message "hda: bad special flag0x03"
+Date: Tue, 25 Jun 2002 15:45:23 -0500
+Message-ID: <5A96E87E2BA0714ABBEA2C8F3F3F667C0AA681@cceexc19.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ide driver bug fix for the error message "hda: bad special flag0x03"
+Thread-Index: AcIch3adizQdDxUeQqeuDX+QFYwPwwAAGABQ
+From: "Shen, JT" <JT.Shen@hp.com>
+To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 25 Jun 2002 20:45:24.0340 (UTC) FILETIME=[3ADC2B40:01C21C89]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+This problem is commonly found in an embedded SCSI system where there is no IDE hard drive. In that case, the cdrom device will have the device node /dev/hda. If you issue the command:
+
+  cat /proc/ide/hda/identify
+
+  or try to read the file /proc/ide/hda/identify
+
+the kernel will print out the following message to the system log:
+
+       "hda: bad special flag 0x03"
+
+The user may think something is wrong but in reality nothing is wrong. And we don't want to see this message comes out when nothing is wrong.
+
+JT
+
+-----Original Message-----
+From: Marcelo Tosatti [mailto:marcelo@conectiva.com.br]
+Sent: Tuesday, June 25, 2002 2:34 PM
+To: Shen, JT
+Cc: andre@linux-ide.org; linux-kernel@vger.kernel.org
+Subject: Re: ide driver bug fix for the error message "hda: bad special
+flag0x03"
+
 
 
 Mind to explain the problem in detail/
@@ -48,7 +77,7 @@ On Tue, 25 Jun 2002, Shen, JT wrote:
 >
 > Above is the patch that will fix the bug that when a user issue the command:
 >
->    cat /proc/ide/hda/identify
+>    
 >
 > the message "hda: bad special flag 0x03" gets written to the system log.  This will happen because the .config file that RedHat uses to create the kernel image has the flag CONFIG_BLK_DEV_IDECD=m.  Thus in ide.c code, it won't call ide_cdrom_reinit(). So for CDROM the special flag is left as 0x03.
 >

@@ -1,133 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263096AbTJEMns (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 08:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbTJEMns
+	id S263102AbTJENBM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 09:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263105AbTJENBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 08:43:48 -0400
-Received: from smtp3.att.ne.jp ([165.76.15.139]:31730 "EHLO smtp3.att.ne.jp")
-	by vger.kernel.org with ESMTP id S263096AbTJEMnm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 08:43:42 -0400
-Message-ID: <058a01c38b3e$49d25460$5cee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: <Andries.Brouwer@cwi.nl>, <linux-kernel@vger.kernel.org>
-References: <UTC200309301340.h8UDeD913920.aeb@smtp.cwi.nl>
-Subject: 2.6.0-test6 vs. APM or keyboard driver
-Date: Sun, 5 Oct 2003 21:41:28 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sun, 5 Oct 2003 09:01:12 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:27652 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S263102AbTJENBJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 09:01:09 -0400
+Date: Sun, 5 Oct 2003 15:00:44 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: iproute2 not compiling anymore
+Message-ID: <20031005130044.GA8861@pcw.home.local>
+References: <Pine.LNX.4.44.0310050940160.27815-100000@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310050940160.27815-100000@logos.cnet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
+Hi Marcelo, all,
 
-> - things changed a lot in 2.6.0-test6, so 2.6.0-test5
->   no longer is interesting
+On Sun, Oct 05, 2003 at 09:42:30AM -0300, Marcelo Tosatti wrote:
+> In previous messages you said iproute used to compile on "olders" 2.4.x 
+> kernel but doesnt compile anymore on recent 2.4. Is that information 
+> correct ? 
+> 
+> Can you tell me in more detail what is failing?
 
-OK, I'm running 2.6.0-test6 now.
-Things did not change in any observable way here.
+Just tested, and I confirm this too :
 
-> - % dmesg | grep keyboard
->   input: AT Translated Set 2 keyboard on isa0060/serio0
+gcc -D_GNU_SOURCE -O2 -Wstrict-prototypes -Wall -g -I../include-glibc -I/usr/include/db3 -include ../include-glibc/glibc-bugs.h -I/
+sr/src/linux/include -I../include -DRESOLVE_HOSTNAMES   -c -o ip.o ip.c
+In file included from ../include-glibc/netinet/in.h:7,
+                 from ip.c:23:
+/usr/src/linux/include/linux/in.h:141: field `gr_group' has incomplete type
+/usr/src/linux/include/linux/in.h:147: field `gsr_group' has incomplete type
+/usr/src/linux/include/linux/in.h:148: field `gsr_source' has incomplete type
+/usr/src/linux/include/linux/in.h:154: field `gf_group' has incomplete type
+/usr/src/linux/include/linux/in.h:157: field `gf_slist' has incomplete type
+make[1]: *** [ip.o] Error 1
+make[1]: Leaving directory `/data/src/net/ip-routing/iproute2-2.4.7-020116/ip'
+make: *** [all] Error 2
 
-I have to be in X11 in order to get a pipe.
-(I haven't patched test6 yet to get a pipe in a plain console,
-or to get a pipe or underscore from a USB keyboard anywhere.)
-Anyway, that command produced that output.
-There is no mention of Set 3.
+These fields are of type 'struct sockaddr_storage' :
 
+struct group_source_req
+{
+        __u32                   gsr_interface;  /* interface index */
+        struct sockaddr_storage gsr_group;      /* group address */
+        struct sockaddr_storage gsr_source;     /* source address */
+};
 
-2.6.0-test6 continues to have APM problems which earlier 2.6.0-test versions
-had, which can be solved by booting 2.4.19 or 2.4.20.
+But sockaddr_storage is defined in socket.h within such a #if :
 
-A laptop has the following keys among others:
-  Fn+F2 = adjust screen brightness (100%->25%->50%->75%->100%)
-  Fn+F7 = suspend to disk (but see below)
-  Fn+F8 = adjust CPU speed (200MHz->50MHz->100MHz->200MHz)
-  Fn+F9 = display battery status on screen for 5 seconds
-  Fn+F10 = suspend to RAM (but see below)
+#if defined(__KERNEL__) || !defined(__GLIBC__) || (__GLIBC__ < 2)
 
-If no APM driver is active, the BIOS performs all of those operations
-itself.  Suspend to disk uses a dedicated disk partition and turns off the
-power.  Suspend to RAM mostly turns off the power, the only way to turn it
-back on is to push the power switch, but it does use the battery to refresh
-RAM and could drain the battery in a few days if not plugged in.
+So it is clear that compiling with such headers on a recent libc outside the
+kernel may fail. I don't know what changed exactly, the #if or
+sockaddr_storage declaration.
 
-If an APM driver is active then the BIOS only performs these actions by
-itself:
-  Fn+F2 = adjust screen brightness (100%->25%->50%->75%->100%)
-  Fn+F8 = adjust CPU speed (200MHz->50MHz->100MHz->200MHz)
-  Fn+F9 = display battery status on screen for 5 seconds
-These actions vary as follows:
-  Fn+F7 = user suspend, followed by BIOS action (see below)
-  Fn+F10 = user standby (but see below)
+BTW, wouldn't it be interesting to have some sort of way to bypass these
+checks when we know that we want to compile against kernel headers ? I
+encountered the case for arptables a few weeks ago. I find it very dirty to
+add -D__KERNEL__ to user-space makefiles, and I don't find it logical to rebuild
+a libc with pre-release kernel headers either.
 
-Fn+F7 gives the OS a chance to take some action, after which the BIOS still
-saves state to a dedicated disk partition and turns off the power.
+So perhaps something like this would be useful for a limited set of userspace
+programs :
+  #if defined(__KERNEL__) || defined(REALLY_USE_KHDR) || !defined(__GLIBC__)...
 
-Fn+F10 is interpreted by Windows 95, 98, 2000, and XP as suspend to RAM,
-even though 98 and 2000 and XP use the word standby for it, and their APM
-drivers command the BIOS to do a suspend operation.  Only Linux is
-different, 2.4.* commands the BIOS to do a standby operation, which can be
-reawakened by actions such as pressing the keyboard's Shift key, but which
-could drain the battery in hours if not plugged in (except when I modified
-2.4.* so it commands the BIOS to do a suspend to RAM).
+Then, the affected programs could simply add a '#define REALLY_USE_KHDR' line
+before including particular headers.
 
-Also if 2.4.* is running then I can type the command "apm -s" to do a
-suspend to RAM (or can type the command "apm -S" to do the power-hungry
-version of standby).
-
-If 2.6.0-test[1-6] is running then behavior is as follows:
-  Fn+F2 = no-op
-  Fn+F7 = no-op
-  Fn+F8 = no-op
-  Fn+F9 = no-op
-  Fn+F10 = no-op
-Fortunately I can still type the command "apm -s" to do a suspend to RAM (or
-can type the command "apm -S" to do the power-hungry version of standby).
-
-Running with ACPI=OFF APM=DEBUG, I could confirm the messages that the APM
-driver gets from the BIOS.
-2.4.*:
-  Pull the power cord = power status change
-  Plug in the power cord = power status change
-  Fn+F2 = none, the BIOS acts by itself
-  Fn+F7 = user suspend (after which the BIOS acts)
-  Turn it back on = normal resume (oddly, no power status changes)
-  Fn+F8 = none, the BIOS acts by itself
-  Fn+F9 = none, the BIOS acts by itself
-  Fn+F10 = user standby (though I turned it into a suspend)
-  Turn it back on = normal resume (followed by two power status changes)
-2.6.0-test6:
-  Pull the power cord = power status change
-  Plug in the power cord = power status change
-  Fn+F2 = none, and the BIOS takes no action
-  Fn+F7 = none, and the BIOS takes no action
-  Fn+F8 = none, and the BIOS takes no action
-  Fn+F9 = none, and the BIOS takes no action
-  Fn+F10 = none, and the BIOS takes no action
-As mentioned above, commands "apm -s" and "apm -S" still work, though I
-neglected to look at the debug messages.  There is no way to force a suspend
-to disk though, and no way to adjust the screen brightness etc.
-
-The above complaints all concern either APM or the keyboard driver.  I am
-not sure if the 2.6.0 keyboard driver could be the reason why the BIOS no
-longer even gets signals from the keyboard.  I have never seen any other
-situation where a keyboard's "Fn" key plus functional meaning of another key
-could get broken, so I'm not sure if a broken keyboard driver could really
-be this powerful.  Otherwise the APM driver itself got b0rked between 2.4.*
-and 2.6.0-test[1-6].
-
-(ACPI is not an issue here.  It is already known that if I omit ACPI=OFF
-then the ACPI drivers will see just enough BIOS hooks so that they will act
-as no-ops instead of unloading themselves, they will persuade the APM driver
-to unload itself, and then I will have no power management whatsoever.  In
-2.6.0 I have configured the kernel build to omit ACPI entirely.)
+Any ideas ?
+Willy
 

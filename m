@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129767AbRBBSHO>; Fri, 2 Feb 2001 13:07:14 -0500
+	id <S129771AbRBBSJp>; Fri, 2 Feb 2001 13:09:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129771AbRBBSHF>; Fri, 2 Feb 2001 13:07:05 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:3853 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S129767AbRBBSHA>; Fri, 2 Feb 2001 13:07:00 -0500
-Message-ID: <3A7AEFBF.2FBA5822@namesys.com>
-Date: Fri, 02 Feb 2001 20:34:55 +0300
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en, ru
+	id <S129904AbRBBSJf>; Fri, 2 Feb 2001 13:09:35 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:47108 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129771AbRBBSJX>;
+	Fri, 2 Feb 2001 13:09:23 -0500
+From: Daniel Phillips <phillips@innominate.de>
+To: linux-kernel@vger.kernel.org
+Subject: SMP Race in brelse
+Date: Fri, 2 Feb 2001 15:19:34 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: Alan Cox <alan@redhat.com>, Jan Kasprzak <kas@informatics.muni.cz>,
-        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: ReiserFS Oops (2.4.1, deterministic, symlink
-In-Reply-To: <595250000.981126989@tiny>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Message-Id: <0102021907250D.15914@gimli>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
- 
-> Hans, decisions about proper compilers should not be made in each
-> individual part of the kernel.  If unpatched gcc 2.96 is getting reiserfs
+There is a rare SMP race in brelse:
 
-broke is broke.  If you use reiserfs, DO NOT use 2.96.  Period.  Nobody gains
-by letting a single user make this mistake.  
+1138 void __brelse(struct buffer_head * buf)
+1139 {
+1140         if (atomic_read(&buf->b_count)) {
+1141                 atomic_dec(&buf->b_count);
+1142                 return;
+1143         }
+1144         printk("VFS: brelse: Trying to free free buffer\n");
+1145 }
 
-> wrong, it is compiling other parts of the kernel wrong as well.  l-k has
-> discussed this at length already ;-)
+                cpu1                                 cpu2
 
-So, did Linus say no?  If not, let's ask him with a patch.  Quite simply,
-neither we nor the users should be burdened with this, and the patch removes
-the burden.
+Starting with buf->b_count = 1, if we have:
 
-Hans
+   if (atomic_read(&buf->b_count))
+					 if (atomic_read(&buf->b_count))
+       atomic_dec(&buf->b_count);
+					      atomic_dec(&buf->b_count);
+
+buf->b_count is now 0, but it should be -1, we fail to to report
+an erroneous extra brelse.
+
+-- 
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

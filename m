@@ -1,46 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269646AbRIHUCj>; Sat, 8 Sep 2001 16:02:39 -0400
+	id <S270299AbRIHU02>; Sat, 8 Sep 2001 16:26:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269786AbRIHUCb>; Sat, 8 Sep 2001 16:02:31 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48393 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269646AbRIHUCN>; Sat, 8 Sep 2001 16:02:13 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Re2: LOADLIN and 2.4 kernels
-Date: 8 Sep 2001 13:02:05 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9ndtft$6ci$1@cesium.transmeta.com>
-In-Reply-To: <51.10cc64a8.28cb50f8@aol.com>
+	id <S270773AbRIHU0T>; Sat, 8 Sep 2001 16:26:19 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:44814 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S270299AbRIHU0L>; Sat, 8 Sep 2001 16:26:11 -0400
+Message-ID: <3B9A7EBB.E73115AC@t-online.de>
+Date: Sat, 08 Sep 2001 22:25:31 +0200
+From: SPATZ1@t-online.de (Frank Schneider)
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
+In-Reply-To: <200109050621.f856LAK00824@ambassador.mathewson.int> <3B95DB22.866EDCA3@mediascape.de> <3B992EC4.ED1F82CB@web.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <51.10cc64a8.28cb50f8@aol.com>
-By author:    Floydsmith@aol.com
-In newsgroup: linux.dev.kernel
+Olaf Zaplinski schrieb:
 > 
-> Yes, indeed, not loading himem does solve the problem I had. But, do to the 
-> fact that I need extented memory (for a DOS ramdisk) and for some TSR(s) 
-> (like smartdrv) for a LS-120 boot disk I use as both a Linux and DOS "rescue" 
-> disk, I need "himem".
+> Olaf Zaplinski wrote:
+> >
+> > Joseph Mathewson wrote:
+> > >
+> > > I've just woken up this morning to find my internet gateway machine only
+> > > responding to pings, and on giving it a keyboard & monitor, a load of
+> > >
+> > > scsi0:0:1:0: Attempting to queue an ABORT message
+> > > scsi0:0:1:0: Cmd aborted from QINFIFO
+> > > aic7xxx_abort returns 8194
+> > >
+> > > errors.
+> > [...]
+> >
+> > /me too. I had this while booting 2.4.9 with a fresh installed SCSI card
+> > (AHA2940) + harddisk. What worked for me was to compile the kernel with the
+> > old Adaptec driver, so it's a driver issue.
 > 
 
-Someone reported to me that LOADLIN consistently fails to load kernels
-> 1 MB both with and without A20 changes; probably it tries to use the
-old "sector count" field in the kernel.  This would explain what we
-have observed, and so I consider this matter closed as far as I'm
-concerned.  LOADLIN needs to be updated to continue to be useful, and
-I don't know if Hans is still around, even.
+Hello...
 
-	-hpa
+I encounter a likely similar problem at the moment with aic7xxx and
+RAID5:
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+I run a RAID5-Array on three SCSI-Disks, all IBM, all LVD on the
+AIC7xxx-Controller on the Mobo (ASUS-P2B-DS)...and from time to time
+(usually about once per week) always the same partition of the RAID5
+gets a readerror and falls out of the array:
+
+-------------------------
+Sep  8 20:49:31 falcon kernel: SCSI disk error : host 0 channel 0 id 0
+lun 0 return code = 8000002
+Sep  8 20:49:31 falcon kernel: [valid=0] Info fld=0x0, Current sd08:04:
+sense key Hardware Error
+Sep  8 20:49:31 falcon kernel: Additional sense indicates Internal
+target failure
+Sep  8 20:49:31 falcon kernel:  I/O error: dev 08:04, sector 8545688
+Sep  8 20:49:31 falcon kernel: raid5: Disk failure on sda4, disabling
+device. Operation continuing on 2 devices
+Sep  8 20:49:31 falcon kernel: md: recovery thread got woken up ...
+Sep  8 20:49:31 falcon kernel: md0: no spare disk to reconstruct array!
+-- continuing in degraded mode
+Sep  8 20:49:31 falcon kernel: md: recovery thread finished ...
+Sep  8 20:49:31 falcon kernel: md: updating md0 RAID superblock on
+device
+Sep  8 20:49:31 falcon kernel: sdc1 [events: 000000be](write) sdc1's sb
+offset:
+8707072
+Sep  8 20:49:32 falcon kernel: sdb1 [events: 000000be](write) sdb1's sb
+offset:
+8707072
+Sep  8 20:49:32 falcon kernel: (skipping faulty sda4 )
+Sep  8 20:49:32 falcon kernel: .
+----------------------------
+
+Ok, i also thought: "Bad disk" and to verify this (i have still
+guarantee on the drive) i formated it, let the AIC-BIOS do a "remap of
+bad blocks" and ran "badblocks" about 5 times on it with the
+"-w"-option...last but not least i copied over 160GB from and to the
+drive over two days...nothing, not a single failure of the drive...today
+i re-integrated the disk in my array, and got already the first
+fall-off.
+
+I now switched also to the old aic7xxx driver, only to get an idea where
+to seek the problem...in the raid-code, in the driver or somewhere
+else...
+
+Solong..
+Frank.
+
+--
+Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
+Microsoft isn't the answer.
+Microsoft is the question, and the answer is NO.
+... -.-

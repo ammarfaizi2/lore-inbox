@@ -1,55 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131427AbRANIqf>; Sun, 14 Jan 2001 03:46:35 -0500
+	id <S131252AbRANIws>; Sun, 14 Jan 2001 03:52:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131428AbRANIqZ>; Sun, 14 Jan 2001 03:46:25 -0500
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:24580 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S131427AbRANIqP>;
-	Sun, 14 Jan 2001 03:46:15 -0500
-Date: Sun, 14 Jan 2001 08:44:59 +0100 (CET)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: <andre@linux-ide.org>, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: IDE DMA problem in 2.4.0
-In-Reply-To: <Pine.LNX.4.30.0101120942170.7175-100000@svea.tellus>
-Message-ID: <Pine.LNX.4.30.0101140843320.1590-100000@svea.tellus>
+	id <S131265AbRANIwi>; Sun, 14 Jan 2001 03:52:38 -0500
+Received: from jdi.jdimedia.nl ([212.204.192.51]:57104 "EHLO jdi.jdimedia.nl")
+	by vger.kernel.org with ESMTP id <S131252AbRANIwc>;
+	Sun, 14 Jan 2001 03:52:32 -0500
+Date: Sun, 14 Jan 2001 09:52:16 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+To: Harald Welte <laforge@gnumonks.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0 + iproute2
+In-Reply-To: <20010114093623.M6055@coruscant.gnumonks.org>
+Message-ID: <Pine.LNX.4.30.0101140948080.16388-100000@jdi.jdimedia.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2001, Tobias Ringstrom wrote:
-
-> On Thu, 11 Jan 2001, Adrian Bunk wrote:
-> > On Thu, 11 Jan 2001, Tobias Ringstrom wrote:
+> On Sat, Jan 13, 2001 at 05:37:01PM +0100, Igmar Palsenberg wrote:
+> > Hi,
 > >
-> > > When copying huge files from one disk to another (hda->hdc), I get the
-> > > following error (after some hundred megabytes):
-> > >
-> > > hdc: timeout waiting for DMA
-> > > ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> > > hdc: irq timeout: status=0xd1 { Busy }
-> > > hdc: DMA disabled
-> > > ide1: reset: success
-> > >...
-> > > VP_IDE: VIA vt82c596b IDE UDMA66 controller on pci0:7.1
-> > >...
-> > > Did I miss anything?
+> > kernel : 2.4.0 vanilla
+> > iproute2 version : ss001007
 > >
-> > Could you try if the (experimental) version 3.11 of the VIA IDE driver
-> > (announced by Vojtech Pavlik in [1]) fixes your problem? Simply copy the
-> > two files you find there to drivers/ide after you unpacked the kernel
-> > source.
+> > After building I've got a few problems :
+> >
+> > ./ip rule list
+> > RTNETLINK answers: Invalid argument
+> > Dump terminated
 >
-> Works like a charm!  I copied the full 4 GB without glitches, and it has
-> not eaten my filesystem yet, either.  I will continue to stress it, and
-> report any errors I find.
+> You forgot to set CONFIG_IP_ADVANCED_ROUTER
 
-Hrmph...  Grrr...  No, I got the same error again, it was just soooo much
-harder to get it.  The error is still there, I'm afraid.
+Nope. Still the same error after that one is set :
 
-/Tobias
+CONFIG_IP_ADVANCED_ROUTER=y
+
+[root@base root]# ip rule list
+RTNETLINK answers: Invalid argument
+Dump terminated
+
+According to net/ipv4/Config.in :
+
+if [ "$CONFIG_IP_ADVANCED_ROUTER" = "y" ]; then
+   define_bool CONFIG_RTNETLINK y
+   define_bool CONFIG_NETLINK y
+
+CONFIG_IP_ADVANCED_ROUTER just sets those two values, and adapts the
+questions. To make sure I just recompiled with Advanced Router turned on,
+and still the same error.
+
+I tested the other command of the ip command, and this one is the only one
+that gives problems, the others are fine.
+
+
+
+
+	Regards,
+
+
+		Igmar
+
+
+
+-- 
+
+--
+Igmar Palsenberg
+JDI Media Solutions
+
+Jansplaats 11
+6811 GB Arnhem
+The Netherlands
+
+mailto: i.palsenberg@jdimedia.nl
+PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272108AbSISRmK>; Thu, 19 Sep 2002 13:42:10 -0400
+	id <S272056AbSISRju>; Thu, 19 Sep 2002 13:39:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272116AbSISRmK>; Thu, 19 Sep 2002 13:42:10 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:43392 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S272108AbSISRmJ>;
-	Thu, 19 Sep 2002 13:42:09 -0400
-Date: Thu, 19 Sep 2002 10:48:30 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Jens Axboe <axboe@suse.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Anton Altaparmakov <aia21@cantab.net>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ide double init? + Re: BUG: Current 2.5-BK tree dies on boot!
-In-Reply-To: <20020919132724.GS31033@suse.de>
-Message-ID: <Pine.LNX.4.44.0209191041090.968-100000@cherise.pdx.osdl.net>
+	id <S272108AbSISRju>; Thu, 19 Sep 2002 13:39:50 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:60343 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S272056AbSISRjs>;
+	Thu, 19 Sep 2002 13:39:48 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Date: Thu, 19 Sep 2002 19:44:27 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Syscall changes registers beyond %eax, on linux-i386
+Cc: dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <24181C771D3@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 19 Sep 02 at 13:22, Richard B. Johnson wrote:
 
-On Thu, 19 Sep 2002, Jens Axboe wrote:
-
-> On Thu, Sep 19 2002, Alan Cox wrote:
-> > On Thu, 2002-09-19 at 12:14, Jens Axboe wrote:
-> > > 2.5 is reorged big time it seems, pci_register_driver() ->
-> > > drier_attach() -> do_driver_attach() -> found_match() calls ->probe()
-> > > unconditionally...
-> > 
-> > That would appear to be a bug in the 2.5 driver layer then. I'd suggest
-> > fixing it there. Attempting to probe a device that already has a driver
-> > attached to it doesn't seem to make sense.
+> > >>A short snippet of sys_poll, with irrelavant data removed.
+> > >>
+> > >>sys_poll(struct pollfd *ufds, .. , ..) {
+> > >>    ...
+> > >>    ufds++;
+> > >>    ...
 > 
-> Agree. Pat?
+> Well which one?  Here is an ioctl(). It certainly modifies one
+> of its parameter values.
 
-Yes, and that's the way it's set up: we check if the device has a driver 
-before we bind to it. However, dev->driver doesn't get set before the 
-device is registered with the core for PCI devices. That's fixed easily 
-enough. 
+poll(), as was already noted. Program below should
+print same value for B= and F=, but it reports f + 8*c instead
+(where c = number of filedescriptors passed to poll).
 
-But, I'm a bit confused on where this is happening. The PCI layer will 
-probe for devices before any drivers are registered. The drivers are 
-registered, then they're attached to devices that were already discovered. 
-So, how are they getting init'ed twice? 
+And you must call it from assembly, as your calls to getpid() or
+ioctl() (or poll()) are wrapped in libc - and glibc's code begins with
+push %ebx because of %ebx is used by -fPIC code.
 
+It is questinable whether we should try to not modify parameters
+passed into functions. It is definitely nice behavior, but I think
+that we should only guarantee that syscalls do not modify unused
+registers.
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+ 
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <sys/poll.h>
 
-	-pat
+struct pollfd f[5];
 
+int main(int argc, char* argv[]) {
+    unsigned int i;
+    void * reg;
+
+    for (i = 0; i < 5; i++) {
+        f[i].fd = 0;
+        f[i].events = POLLIN;
+    }
+    __asm__ __volatile__("int $0x80\n" : "=b"(reg) : "a"(168), "0"(f), "c"(5), "d"(1));
+    printf("B=%p F=%p\n", reg, f);
+    return 0;
+}

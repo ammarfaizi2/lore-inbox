@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261545AbSLHVO2>; Sun, 8 Dec 2002 16:14:28 -0500
+	id <S261573AbSLHVUk>; Sun, 8 Dec 2002 16:20:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261561AbSLHVO2>; Sun, 8 Dec 2002 16:14:28 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:1495 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261545AbSLHVO2>;
-	Sun, 8 Dec 2002 16:14:28 -0500
-Message-ID: <3DF3B7FB.9010902@colorfullife.com>
-Date: Sun, 08 Dec 2002 22:22:03 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id <S261594AbSLHVUk>; Sun, 8 Dec 2002 16:20:40 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:58587 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S261573AbSLHVUk> convert rfc822-to-8bit; Sun, 8 Dec 2002 16:20:40 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Matt Young <wz6b@arrl.net>
+Reply-To: wz6b@arrl.net
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.50. input_event      undefined --- any ideas 
+Date: Sun, 8 Dec 2002 13:27:48 -0800
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-To: anton@samba.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.50-BK + 24 CPUs
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212081327.48723.wz6b@arrl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton wrote:
+drivers/built-in.o: In function `kd_nosound':
+drivers/built-in.o(.text+0x38bca): undefined reference to `input_event'
+drivers/built-in.o(.text+0x38bdd): undefined reference to `input_event'
 
->schedules:
-> 56283 total
-> 41984 pipe_wait
->  9746 do_work
->  1949 do_exit
->  1834 sys_wait4
->
->ie during the compile we scheduled 56283 times, and 41984 of them were
->caused by pipes.
->
-The linux pipe implementation has only a page sized buffer - with 4 kB 
-pages, transfering 1 MB through a pipe means at 512 context switches.
 
---
-    Manfred
+also. what was the solution for --- 
+
+rch/i386/kernel/built-in.o: In function `do_suspend_lowlevel':
+arch/i386/kernel/built-in.o(.data+0x14d8): undefined reference to 
+`save_processor_state'
+arch/i386/kernel/built-in.o(.data+0x14de): undefined reference to 
+`saved_context_esp'
+arch/i386/kernel/built-in.o(.data+0x14e3): undefined reference to 
+`saved_context_eax'
+arch/i386/kernel/built-in.o(.data+0x14e9): undefined reference to 
+`saved_context
 

@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264319AbTICSmV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbTICS3Y
+	id S264252AbTICSrP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 14:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTICSpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:29:24 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:5581 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264266AbTICS2n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:28:43 -0400
-Subject: Re: corruption with A7A266+200GB disk?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Cc: Erik Andersen <andersen@codepoet.org>, steveb@unix.lancs.ac.uk,
+	Wed, 3 Sep 2003 14:45:30 -0400
+Received: from mail.kroah.org ([65.200.24.183]:59556 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264324AbTICSmj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 14:42:39 -0400
+Date: Wed, 3 Sep 2003 11:41:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Justin Cormack <justin@street-vision.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Ed Sweetman <ed.sweetman@wmich.edu>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0309031507040.6102-100000@logos.cnet>
-References: <Pine.LNX.4.44.0309031507040.6102-100000@logos.cnet>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062613648.19982.22.camel@dhcp23.swansea.linux.org.uk>
+Subject: Re: devfs to be obsloted by udev?
+Message-ID: <20030903184140.GA1651@kroah.com>
+References: <3F54A4AC.1020709@wmich.edu> <200309022219.02549.bzolnier@elka.pw.edu.pl> <1062581929.30060.197.camel@lotte.street-vision.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Wed, 03 Sep 2003 19:27:29 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062581929.30060.197.camel@lotte.street-vision.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-09-03 at 19:07, Marcelo Tosatti wrote:
-> > Known problem.  For some reason Marcelo has not yet applied 
-> > the fix for this problem to the 2.4.x kernels...
+On Wed, Sep 03, 2003 at 10:38:48AM +0100, Justin Cormack wrote:
+> On Tue, 2003-09-02 at 21:19, Bartlomiej Zolnierkiewicz wrote:
+> > 
+> > initramfs
 > 
-> Alan (which has a clue about IDE unlike me) had complaints about your 
-> approach, right? 
+> which seems to have been postponed to 2.7.
 
-Bart pointed out the case in question can only occur when you move a
-disk between interfaces physically. So the last IDE changes I sent you
-included a minimal version of Erik's change
+No, the initramfs code is in 2.6 right now.  The boot processes uses it
+too.
 
+What has been postponed to 2.7 is the moving of some of the boot code to
+use it some more.  But that's really just a matter of someone doing the
+work (and adding it to the build process properly.)  There are a few
+patches floating around somewhere that do this with the exception of
+intregrating into the build.
+
+thanks,
+
+greg k-h

@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311025AbSEEMEr>; Sun, 5 May 2002 08:04:47 -0400
+	id <S310835AbSEEMDY>; Sun, 5 May 2002 08:03:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311121AbSEEMEq>; Sun, 5 May 2002 08:04:46 -0400
-Received: from rm-f.net ([216.227.60.122]:23309 "EHLO SirDrinkalot.rm-f.net")
-	by vger.kernel.org with ESMTP id <S311025AbSEEMEp>;
-	Sun, 5 May 2002 08:04:45 -0400
-Date: Sun, 5 May 2002 05:04:33 -0700
-From: Dec <dec@rm-f.net>
-To: linux-kernel@vger.kernel.org
-Cc: marcelo@conectiva.com.br
-Subject: [PATCH] linux-2.4.19-pre8/fs/ufs/super.c
-Message-ID: <20020505050432.A17330@SirDrinkalot.rm-f.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S310917AbSEEMDX>; Sun, 5 May 2002 08:03:23 -0400
+Received: from vivi.uptime.at ([62.116.87.11]:63183 "EHLO vivi.uptime.at")
+	by vger.kernel.org with ESMTP id <S310835AbSEEMDW>;
+	Sun, 5 May 2002 08:03:22 -0400
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: "'Alexander Viro'" <viro@math.psu.edu>
+Cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: Another problem with Alpha and 2.5.13
+Date: Sun, 5 May 2002 14:00:05 +0200
+Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
+Message-ID: <001c01c1f42c$661b2d40$1201a8c0@pitzeier.priv.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+In-Reply-To: <Pine.GSO.4.21.0205041353400.23892-100000@weyl.math.psu.edu>
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes an UFS enabled 2.4.19-pre8 kernel compile problem.
-Some printk() calls' format strings and their variable
-arguments haven't been properly separated with commas.
+Alexander Viro wrote:
+> On Sat, 4 May 2002, Oliver Pitzeier wrote:
+> 
+> > Hi volks!
+> > 
+> > Here the problem
+> > raid5.c: In function `raid5_diskop':
+> 
+> raid5 is yet to be ported to bio.
+
+That's what i guessed. :o)
+
+Thanks for your advice!
+
+Regards,
+ Oliver
 
 
---- linux-2.4.19-pre8/fs/ufs/super.c.orig	Sun May  5 14:27:16 2002
-+++ linux-2.4.19-pre8/fs/ufs/super.c	Sun May  5 14:21:21 2002
-@@ -663,12 +663,12 @@
- 		goto failed;
- 	}
- 	if (uspi->s_bsize < 512) {
--		printk("ufs_read_super: fragment size %u is too small\n"
-+		printk("ufs_read_super: fragment size %u is too small\n",
- 			uspi->s_fsize);
- 		goto failed;
- 	}
- 	if (uspi->s_bsize > 4096) {
--		printk("ufs_read_super: fragment size %u is too large\n"
-+		printk("ufs_read_super: fragment size %u is too large\n",
- 			uspi->s_fsize);
- 		goto failed;
- 	}
-@@ -678,12 +678,12 @@
- 		goto failed;
- 	}
- 	if (uspi->s_bsize < 4096) {
--		printk("ufs_read_super: block size %u is too small\n"
-+		printk("ufs_read_super: block size %u is too small\n",
- 			uspi->s_fsize);
- 		goto failed;
- 	}
- 	if (uspi->s_bsize / uspi->s_fsize > 8) {
--		printk("ufs_read_super: too many fragments per block (%u)\n"
-+		printk("ufs_read_super: too many fragments per block (%u)\n",
- 			uspi->s_bsize / uspi->s_fsize);
- 		goto failed;
- 	}

@@ -1,55 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313332AbSDLPyQ>; Fri, 12 Apr 2002 11:54:16 -0400
+	id <S314121AbSDLRHL>; Fri, 12 Apr 2002 13:07:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314103AbSDLPyP>; Fri, 12 Apr 2002 11:54:15 -0400
-Received: from exchange.macrolink.com ([64.173.88.99]:21266 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S313332AbSDLPyO>; Fri, 12 Apr 2002 11:54:14 -0400
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A777B@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Guennadi Liakhovetski'" <gl@dsa-ac.de>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: serial driver question
-Date: Fri, 12 Apr 2002 08:54:13 -0700
+	id <S314123AbSDLRHK>; Fri, 12 Apr 2002 13:07:10 -0400
+Received: from web10002.mail.yahoo.com ([216.136.130.38]:18543 "HELO
+	web10002.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314121AbSDLRHK>; Fri, 12 Apr 2002 13:07:10 -0400
+Message-ID: <20020412170709.98207.qmail@web10002.mail.yahoo.com>
+Date: Fri, 12 Apr 2002 10:07:09 -0700 (PDT)
+From: Vahid Fereydunkolahi <fereydunk@yahoo.com>
+Subject: kernel threads.
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guennadi Liakhovetski wrote:
-> Hello all
-> 
-> The function
-> static int size_fifo(struct async_struct *info)
-> {
-> ...
-> ends as follows:
-> 	serial_outp(info, UART_LCR, UART_LCR_DLAB);
-> 	serial_outp(info, UART_DLL, old_dll);
-> 	serial_outp(info, UART_DLM, old_dlm);
-> 
-> 	return count;
-> }
-> 
-> Which means, that DLAB is not re-set, and, in particular, all 
-> subsequent read/write operations on offsets 0 and 1 will not 
-> affect the data and interrupt enable registers, but the divisor 
-> latch register... Or is this register somehow magically restored 
-> elsewhere or by the hardware (say, on an interrupt)? This 
-> function seems to be only called for startech UARTs.
+Folks,
+ I have a problem using kernel_thread. The problem is
+ when I use kernel threads I see a lot of context 
+switch. 
+ I monitor the system activity using vmstat.
 
-Hi Guennadi,
+Regards,
+--vahid
 
-I'll look at it as soon as my system is up. It's morning boot-up time here.
-Have a good evening.
 
-Ed Vance
-
----------------------------------------------------------------- 
-Ed Vance              edv@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Tax Center - online filing with TurboTax
+http://taxes.yahoo.com/

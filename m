@@ -1,68 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262705AbUAHDfU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 22:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUAHDfU
+	id S263592AbUAHDe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 22:34:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUAHDeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 22:35:20 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:39695 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S262705AbUAHDfK (ORCPT
+	Wed, 7 Jan 2004 22:34:25 -0500
+Received: from hera.kernel.org ([63.209.29.2]:48619 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S263592AbUAHDeY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 22:35:10 -0500
-Date: Thu, 8 Jan 2004 04:35:06 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Greg KH <greg@kroah.com>,
-       Andrey Borzenkov <arvidjaar@mail.ru>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-Message-ID: <20040108043506.A1555@pclin040.win.tue.nl>
-References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com> <Pine.LNX.4.58.0401071036560.12602@home.osdl.org> <20040108031357.A1396@pclin040.win.tue.nl> <Pine.LNX.4.58.0401071815320.12602@home.osdl.org> <20040108034906.A1409@pclin040.win.tue.nl> <Pine.LNX.4.58.0401071854500.2131@home.osdl.org>
+	Wed, 7 Jan 2004 22:34:24 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Use of floating point in the kernel
+Date: Wed, 07 Jan 2004 19:34:06 -0800
+Organization: Zytor Communications
+Message-ID: <3FFCCFAE.8090302@zytor.com>
+References: <20040107235912.GA23812@ee.oulu.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0401071854500.2131@home.osdl.org>; from torvalds@osdl.org on Wed, Jan 07, 2004 at 06:56:30PM -0800
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: terminus.zytor.com 1073532846 5033 66.80.2.163 (8 Jan 2004 03:34:06 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Thu, 8 Jan 2004 03:34:06 +0000 (UTC)
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en, sv, es, fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07, 2004 at 06:56:30PM -0800, Linus Torvalds wrote:
+Pekka Pietikainen wrote:
+> Hi
+> 
+> There are a few instances of use of floating point in 2.6,
+> 
 
-> > > When I insert a card in my card reader, it had better "just work". WITHOUT 
-> > > any strange "poll another device Y to make device X" work.
-> > 
-> > But it does just work.
-> > 
-> > Already today.
-> 
-> Exactly. It works today, because:
-> 
->  - the device nodes are there.
-> 
->    Ergo: udev should create the device nodes
-> 
->  - the kernel autopartitions the device on any open (both main device and 
->    the subpartitions) when it notices a changed media. No polling 
->    required.
-> 
->    Ergo: the kernel should continue to do this.
-> 
-> We should _not_ be in the situation where either of these things aren't 
-> true.
+Has anyone considered asking the gcc people to add an -fno-fpu (or 
+-mno-fpu) option, throwing an error if any FP instructions are used?
 
-Indeed.
-
-I am even happy in a somewhat more general situation that you are.
-If the kernel autopartitions (and make recognition of new partitions
-hotplug events so that udev can create the device nodes), all is well.
-
-On the other hand, if the kernel does not autopartition
-(for example because I had not selected CONFIG_MAC_PARTITION
-and put a Mac disk in my ZIP drive) then all is still well
-since user space can tell the kernel about the partitions
-it sees on this Mac disk. Of course these partitions that
-userspace tells the kernel about must also lead to hotplug
-events.
-
-Andries
+	-hpa
 

@@ -1,93 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291627AbSBAJOf>; Fri, 1 Feb 2002 04:14:35 -0500
+	id <S291651AbSBAJr2>; Fri, 1 Feb 2002 04:47:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291624AbSBAJOa>; Fri, 1 Feb 2002 04:14:30 -0500
-Received: from smtp3.vol.cz ([195.250.128.83]:24338 "EHLO smtp3.vol.cz")
-	by vger.kernel.org with ESMTP id <S291625AbSBAJM6>;
-	Fri, 1 Feb 2002 04:12:58 -0500
-Date: Thu, 31 Jan 2002 22:21:57 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nbd in 2.5.3 does not work, and can cause severe damage when read-write
-Message-ID: <20020131212157.GA516@elf.ucw.cz>
-In-Reply-To: <20020131132446.GA23990@vana.vc.cvut.cz>
+	id <S291645AbSBAJrS>; Fri, 1 Feb 2002 04:47:18 -0500
+Received: from mail4.svr.pol.co.uk ([195.92.193.211]:24936 "EHLO
+	mail4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S291651AbSBAJrI>; Fri, 1 Feb 2002 04:47:08 -0500
+Date: Thu, 31 Jan 2002 12:52:11 +0000
+To: lvm-devel@sistina.com
+Cc: Jim McDonald <Jim@mcdee.net>, Andreas Dilger <adilger@turbolabs.com>,
+        linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
+        evms-devel@lists.sourceforge.net
+Subject: Re: [linux-lvm] Re: [lvm-devel] [ANNOUNCE] LVM reimplementation ready for beta testing
+Message-ID: <20020131125211.A8934@fib011235813.fsnet.co.uk>
+In-Reply-To: <OFBCE93B66.F7B9C14E-ON85256B52.006B8AB3@raleigh.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020131132446.GA23990@vana.vc.cvut.cz>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <OFBCE93B66.F7B9C14E-ON85256B52.006B8AB3@raleigh.ibm.com>; from slpratt@us.ibm.com on Thu, Jan 31, 2002 at 01:52:29PM -0600
+From: Joe Thornber <thornber@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
->     I've got strange idea and tried to build diskless machine around
-> 2.5.3... Besides problem with segfaulting crc32 (it is initialized after 
-> net/ipv4/ipconfig.c due to lib/lib.a being a library... I had to hardcode
-> lib/crc32.o before --start-group in main Makefile, but it is another
-> story) there is bad problem with NBD caused by BIO changes:
+On Thu, Jan 31, 2002 at 01:52:29PM -0600, Steve Pratt wrote:
+> Joe Thornber wrote:
+> >On Wed, Jan 30, 2002 at 10:03:40PM +0000, Jim McDonald wrote:
+> >> Also, does/where does this fit in with EVMS?
 > 
-> (1) request flags were immediately put into on-wire request format.
->     In the past, we had 0=READ, !0=WRITE. Now only REQ_RW bit determines
->     direction. As nbd-server from nbd distribution package treats any
->     non-zero value as write, it performs writes instead of read. Fortunately
->     it will die due to other consistency checks on incoming request,
->     but...
+> >EVMS differs from us in that they seem to be trying to move the whole
+> >application into the kernel,
+> 
+> No, not really.  We only put in the kernel the things that make sense to be
+> in the kernel, discovery logic, ioctl support, I/O path.  All configuration
+> is handled in user space.
 
-I have no problem with this.
+There's still a *lot* of code in there; > 26,000 lines in fact.
+Whereas device-mapper weighs in at ~2,600 lines.  This is just because
+you've decided to take a different route from us, you may be proven to
+be correct.
 
-> (2) nbd servers handle only up to 10240 byte requests. So setting max_sectors
->     to 20 is needed, as otherwise nbd server commits suicide. Maximum request size
->     should be handshaked during nbd initialization, but currently just use
->     hardwired 20 sectors, so it will behave like it did in the past.
+> > whereas we've taken the opposite route
+> >and stripped down the kernel side to just provide services.
+> 
+> Then why does snapshot.c in device mapper have a read_metadata function
+> which populates the exception table from on disk metadata?  Seems like you
+> agree with us that having metadata knowledge in the kernel is a GOOD thing.
 
-But please do not apply this one. Nbd servers should be fixed, and I
-already have fix in cvs. (Besides, its trivial). Just make buffer in
-server 1MB big.
+In the case of snapshots the exception data has to be written by the
+kernel for performance reasons, as you know.  This is still a far cry
+from understanding the LVM1 metadata format.
 
-I do not like idea of handshake.
+> Since device_mapper does not support in kernel discovery, and EVMS relies
+> on this, it would be very difficult to change EVMS to use device_mapper.
 
-So, first hunk is fine, but I do not like second one.
-									Pavel
+So do the discovery on the EVMS side, and then pass the tables across
+to device-mapper to activate the LV's.
 
-> diff -urdN linux/drivers/block/nbd.c linux/drivers/block/nbd.c
-> --- linux/drivers/block/nbd.c	Thu Jan 10 18:15:38 2002
-> +++ linux/drivers/block/nbd.c	Thu Jan 31 00:24:50 2002
-> @@ -155,14 +155,15 @@
->  	unsigned long size = req->nr_sectors << 9;
->  
->  	DEBUG("NBD: sending control, ");
-> +	
-> +	rw = rq_data_dir(req);
-> +	
->  	request.magic = htonl(NBD_REQUEST_MAGIC);
-> -	request.type = htonl(req->flags);
-> +	request.type = htonl((rw & WRITE) ? 1 : 0);
->  	request.from = cpu_to_be64( (u64) req->sector << 9);
->  	request.len = htonl(size);
->  	memcpy(request.handle, &req, sizeof(req));
->  
-> -	rw = rq_data_dir(req);
-> -
->  	result = nbd_xmit(1, sock, (char *) &request, sizeof(request), rw & WRITE ? MSG_MORE : 0);
->  	if (result <= 0)
->  		FAIL("Sendmsg failed for control.");
-> @@ -517,6 +518,7 @@
->  	blksize_size[MAJOR_NR] = nbd_blksizes;
->  	blk_size[MAJOR_NR] = nbd_sizes;
->  	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), do_nbd_request, &nbd_lock);
-> +	blk_queue_max_sectors(BLK_DEFAULT_QUEUE(MAJOR_NR), 20);
->  	for (i = 0; i < MAX_NBD; i++) {
->  		nbd_dev[i].refcnt = 0;
->  		nbd_dev[i].file = NULL;
+> Why compete, come on over and help us :-)
 
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+I would like the two projects to help each other, but not to the point
+where one group of people has to say 'you are completely right, we
+will stop developing our project'.  It's unlikely that either of us is
+100% correct; but I do think device-mapper splits off a nice chunk of
+services that is useful to *all* people who want to do volume
+management.  As such I see that as one area where we may eventually
+work together.
 
+Similarly I expect to be providing an *optional* kernel module for LVM
+users who wish to do in kernel discovery of a root LV, so if the EVMS
+team has managed to get a nice generic way of iterating block devices
+etc.  into the kernel, we would be able to take advantage of that.
+Are you trying to break out functionality so it benefits other Linux
+projects ? or is EVMS just one monolithic application embedded in the
+kernel ?
 
-
-
+- Joe

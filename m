@@ -1,75 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272404AbTHMMYL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 08:24:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272568AbTHMMYL
+	id S272291AbTHMMXL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 08:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272378AbTHMMXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 08:24:11 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:11691 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S272404AbTHMMXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 08:23:33 -0400
-Message-ID: <3F3A2DB9.7030601@home.ro>
-Date: Wed, 13 Aug 2003 15:23:21 +0300
-From: Nufarul Alb <nufarul.alb@home.ro>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	Wed, 13 Aug 2003 08:23:11 -0400
+Received: from mail.suse.de ([213.95.15.193]:32012 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S272291AbTHMMXD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 08:23:03 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
+References: <20030813045638.GA9713@middle.of.nowhere.suse.lists.linux.kernel>
+	<20030813014746.412660ae.akpm@osdl.org.suse.lists.linux.kernel>
+	<20030813091958.GA30746@gates.of.nowhere.suse.lists.linux.kernel>
+	<20030813025542.32429718.akpm@osdl.org.suse.lists.linux.kernel>
+	<1060772769.8009.4.camel@localhost.localdomain.suse.lists.linux.kernel>
+	<20030813042544.5064b3f4.akpm@osdl.org.suse.lists.linux.kernel>
+	<1060774803.8008.24.camel@localhost.localdomain.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 13 Aug 2003 14:10:43 +0200
+In-Reply-To: <1060774803.8008.24.camel@localhost.localdomain.suse.lists.linux.kernel>
+Message-ID: <p7365l17o70.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: multibooting the linux kernel
-References: <3F396C04.90608@home.ro> <20030813072053.A25803@infradead.org>
-In-Reply-To: <20030813072053.A25803@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
->On Wed, Aug 13, 2003 at 01:36:52AM +0300, Nufarul Alb wrote:
->  
->
->>There is a patch for the kernel that make it able to preload modules 
->>before the acutal booting.
->>
->>I wonder if this feature will be included in the official linux kernel.
->>    
->>
->
->Mutliboot support would be nice, not sure about the module loading thing.
->
->But there's a bunch of issues with the paches:
->
->(1) please port to 2.6 first because
->      (a) there's not chance this will get into 2.4
->      (b) 2.6 has the inkernel module loader so you don't have to duplicate
->          so much loader code.
->(2) please convert from GNU to Linux style
->(3) please use the predefined __ASSEMBLY__ instead of ASM
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Those are not my patches. They belong to a certain Christian Koenig. He 
-doesn't mantain them any more and I'm searching for someone to mantain 
-this project.
+> On Mer, 2003-08-13 at 12:25, Andrew Morton wrote:
+> > Like this?
+> > 
+> > What happens if someone runs a K6 kernel on a K7?
+> > Or various other CPU types?  What is the matrix here?
+> 
+> Beats me, but then the prefetch code in 2.6 seems broken from
+> 5 seconds of inspection anyway. We are testing the XMM feature
+> and using prefetchnta for Athlon, thats wrong for lots of athlon
+> processors that dont have XMM but do have prefetch/prefetchw,
+> (which btw also seem to work properly on all these processors
+>  while prefetchnta seems to do funky things)
 
-I know very little about kernel programming, but I liked the idea of 
-having such a feature in the kernel. It gives more freedom in compiling 
-the kernel. Maybe one day we would have the main piece of the kernel as 
-a standard and only have to recompile modules. THIS HAS NOTHING TO DO 
-WITH MICROKERNELS. Multibooting is a different stuff.
+The early Athlon Specific test was not done to avoid too much bloat.
+(three alternatives instead of two)
 
-SO, if somebody knows who might want to update this patches, it would be 
-great.
+Most Athlons in existence should have XMM already and the rest works.
 
-Thanks!!
+You can hardly call that broken.
 
+I would be surprised if prefetch behaves differently than prefetchnta
+on Athlon. If the bug is similar to what happens on Opteron then
+I bet it won't make a difference.
 
+> For Athlon we should be testing 3Dnow, and using prefetch/prefetchw
+> for Intel cases we want to go for prefetchnta if XMM is set (PIII, PIV)
 
+That's done for write prefetches correctly.
+
+(as Intel does not have a write prefetch)
+
+-Andi

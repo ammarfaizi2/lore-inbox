@@ -1,80 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129944AbRAaOFY>; Wed, 31 Jan 2001 09:05:24 -0500
+	id <S129631AbRAaORr>; Wed, 31 Jan 2001 09:17:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130869AbRAaOFG>; Wed, 31 Jan 2001 09:05:06 -0500
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:37642 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S129944AbRAaOEw>; Wed, 31 Jan 2001 09:04:52 -0500
-From: bsuparna@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: Ben LaHaise <bcrl@redhat.com>
-cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-        kiobuf-io-devel@lists.sourceforge.net
-Message-ID: <CA2569E5.004D4950.00@d73mta03.au.ibm.com>
-Date: Wed, 31 Jan 2001 19:28:01 +0530
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-	/notify + callback chains
+	id <S129965AbRAaORh>; Wed, 31 Jan 2001 09:17:37 -0500
+Received: from yoda.planetinternet.be ([195.95.30.146]:64520 "EHLO
+	yoda.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S129631AbRAaORZ>; Wed, 31 Jan 2001 09:17:25 -0500
+Date: Wed, 31 Jan 2001 15:17:20 +0100
+From: Kurt Roeckx <Q@ping.be>
+To: Mohit Aron <aron@cs.rice.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gprof cannot profile multi-threaded programs
+Message-ID: <20010131151720.A1386@ping.be>
+In-Reply-To: <200101310531.XAA09534@cs.rice.edu>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre2i
+In-Reply-To: <200101310531.XAA09534@cs.rice.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 30, 2001 at 11:31:13PM -0600, Mohit Aron wrote:
+> I analyzed the problem to be the following. Linux uses periodic SIGPROF signals
+> for profiling (Linux doesn't use the profil system call used in other OS's like
+> Solaris where the kernel does the profiling on behalf of the process). All
+> profile information is collected in the context of the signal handler for the
+> SIGPROF signal in Linux. Unfortunately, any thread that's created using
+> pthread_create() does not get these periodic SIGPROF signals. Hence any thread
+> other than the first thread is not profiled. The fix is to use setitimer()
+> system call immediately in the thread startup function for any new thread to
+> make the SIGPROF signal to be delivered at the designated interrupt frequency
+> (every 10ms). With this fix, the profile produced by gprof reflects the overall
+> computation done by all threads in the process. A more general fix would be
+> to fix the kernel to make any new threads inherit the setitimer() settings
+> for the parent thread.
 
->The waitqueue extension below is a minimalist approach for providing
->kernel support for fully asynchronous io.  The basic idea is that a
->function pointer is added to the wait queue structure that is called
->during wake_up on a wait queue head.  (The patch below also includes
->support for exclusive lifo wakeups, which isn't crucial/perfect, but just
->happened to be part of the code.)  No function pointer or other data is
->added to the wait queue structure.  Rather, users are expected to make use
->of it by embedding the wait queue structure within their own data
->structure that contains all needed info for running the state machine.
+You have the same problem when doing fork().  Only the parent
+will get cpu usage info.  I have to call setitimer() too, to make
+it work properly.
 
->I suspect that chaining of events should be built on top of the
->primatives, which should be kept as simple as possible.  Comments?
-
-Do the following modifications to your wait queue extension sound
-reasonable ?
-
-1. Change add_wait_queue to add elements to the end of queue (fifo, by
-default) and instead have an add_wait_queue_lifo() routine that adds to the
-head of the queue ?
-  [This will help avoid the problem of waiters getting woken up before LIFO
-wakeup functions have run, just because the wait happened to have been
-issued after the LIFO callbacks were registered, for example, while an IO
-is going on]
-   Or is there a reason why add_wait_queue adds elements to the head by
-default ?
-
-2. Pass the wait_queue_head pointer as a parameter to the wakeup function
-(in addition to wait queue entry pointer).
-[This will make it easier for the wakeup function to access the  structure
-in which the wait queue is embedded, i.e. the object which the wait queue
-is associated with. Without this, we might have to store a pointer to this
-object in each element linked in the wait queue. This never was a problem
-with sleeping waiters because the a reference to the object being waited
-for would have been on the waiter's stack/context, but with wakeup
-functions there is no such context]
-
-3. Have  __wake_up_common break out of the loop if the wakeup function
-returns 1 (or some other value) ?
-[This makes it possible to abort the loop based on conditional logic in the
-wakeup function ]
+I complained about it a few days ago, but didn't get a reply yet.
 
 
-Regards
-Suparna
-
-
-  Suparna Bhattacharya
-  Systems Software Group, IBM Global Services, India
-  E-mail : bsuparna@in.ibm.com
-  Phone : 91-80-5267117, Extn : 2525
-
-
-
+Kurt
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

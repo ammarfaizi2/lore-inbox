@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267578AbRGNF6i>; Sat, 14 Jul 2001 01:58:38 -0400
+	id <S267580AbRGNGNc>; Sat, 14 Jul 2001 02:13:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267579AbRGNF63>; Sat, 14 Jul 2001 01:58:29 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:65014 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S267578AbRGNF6O>;
-	Sat, 14 Jul 2001 01:58:14 -0400
-Date: Sat, 14 Jul 2001 01:58:15 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about ext2
-In-Reply-To: <84l4sXb1w-B@khms.westfalen.de>
-Message-ID: <Pine.GSO.4.21.0107140151420.19749-100000@weyl.math.psu.edu>
+	id <S267581AbRGNGNW>; Sat, 14 Jul 2001 02:13:22 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7525 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S267580AbRGNGNG>; Sat, 14 Jul 2001 02:13:06 -0400
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu, <linux-mm@kvack.org>
+Subject: Re: RFC: Remove swap file support
+In-Reply-To: <3B472C06.78A9530C@mandrakesoft.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 Jul 2001 00:07:38 -0600
+In-Reply-To: <3B472C06.78A9530C@mandrakesoft.com>
+Message-ID: <m1elrk3uxh.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 
-
-On 13 Jul 2001, Kai Henningsen wrote:
-
-> viro@math.psu.edu (Alexander Viro)  wrote on 13.07.01 in <Pine.GSO.4.21.0107130623510.17323-100000@weyl.math.psu.edu>:
+> Since you can make any file into a block device using loop,
+> is there any value to supporting swap files in 2.5?
 > 
-> > The only really obscure part is dropping an extra reference if victim is
-> > a directory - then we know that we are cannibalizing the last external
-> > link to it and the only link that remains is victim's ".". We don't want
-> > it to prevent victim's removal, so we drive i_nlink of victim to zero.
-> 
-> Does this stuff work right with those cases which do linkcount=1 either  
-> because the fs doesn't have a link count, or because the real link count  
-> has grown too large?
+> swap files seem like a special case that is no longer necessary...
 
-It doesn't. If fs doesn't have link count you are very likely to need
-other ways to deal with rename() anyway (e.g. you are pretty likely to
-have part of metadata stored in directory entry). If you are playing
-with "set i_nlink to 1 if it's too large" (which works only for directories,
-BTW) - change according to your encoding scheme for link count.
+Yes, and no.  I'd say what we need to do is update rw_swap_page to
+use the address space functions directly.  With block devices and
+files going through the page cache in 2.5 that should remove any
+special cases cleanly.
 
+In 2.4 the swap code really hasn't been updated, the old code has only
+been patched enough to work on 2.4.  This adds layers of work that we
+really don't need to be doing.  Removing the extra redirection has the
+potential to give a small performance boost to swapping.
+
+The case to watch out for are deadlocks doing things like using
+swapfiles on an NFS mount.  As you point out we can already do this
+with the loop back devices so it isn't really a special case.  The
+only new case I can see working are swapfiles with holes in them, or
+swapfiles that do automatic compression.  I doubt those cases are
+significant improvements but it looks like they will fall out
+naturally. 
+
+Eric

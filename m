@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTKPE6R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 23:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTKPE6Q
+	id S261901AbTKPFNY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 00:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbTKPFNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 23:58:16 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36876 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261893AbTKPE6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 23:58:15 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
+	Sun, 16 Nov 2003 00:13:24 -0500
+Received: from mail-06.iinet.net.au ([203.59.3.38]:3269 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261901AbTKPFNX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 00:13:23 -0500
 Subject: Re: kernel.bkbits.net off the air
-Date: 15 Nov 2003 20:57:56 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bp704k$a61$1@cesium.transmeta.com>
-References: <20031114170449.GA32466@work.bitmover.com> <Pine.LNX.4.44.0311140905370.1827-100000@bigblue.dev.mdolabs.com> <20031114171001.GB32466@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+From: Sven Dowideit <svenud@ozemail.com.au>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031114174303.GC32466@work.bitmover.com>
+References: <fa.eto0cvm.1v20528@ifi.uio.no>
+	 <200311141624.32108.andrew@walrond.org>
+	 <20031114164640.GA1618@work.bitmover.com>
+	 <200311141734.57122.andrew@walrond.org>
+	 <20031114174303.GC32466@work.bitmover.com>
+Content-Type: text/plain
+Message-Id: <1068959565.889.5.camel@sven>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 16 Nov 2003 16:12:45 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20031114171001.GB32466@work.bitmover.com>
-By author:    Larry McVoy <lm@bitmover.com>
-In newsgroup: linux.dev.kernel
-> 
-> It's not a headache for us to do the conversion, that's fine.  I'd like to
-> get rid of the pserver on kernel.bkbits.net because it and the SVN server
-> beat up the machine quite a bit.  So an rsync based solution sounds good 
-> to me if HPA can handle it.
-> 
+On Sat, 2003-11-15 at 04:43, Larry McVoy wrote:
+> The points are
+>     a) I'm not at all convinced this is going to make anyone other than you
+>        happy.  They all want a BK replacement, not a tarball+patch replacement.
+As a quite irrelevant (from a kernel development point - as i don't do
+anything other than test / use and bug report) data point, this is
+somehting I would like to see, and preferably with a license that would
+make it possible to incluse in the mainline debian distribution. that
+way it would be possible for more people to test bk repository versions
+of software (not jsut the kernel) without having to install the full
+version of BK. 
 
-Machine-resource-wise or bandwidth-wise it's not a problem.  The
-coherency mechanism -- in particular, deploying it -- is the only
-issue.
+so all I'd like is to be able to do a get/update to the head revision of
+the repository, and if possible get/convert to a tagged version. 
 
-	-hpa
+having the second would have made chasing down what version of the
+kernel broke my pcmcia support easier :)
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+cheers
+
+Sven
+
+

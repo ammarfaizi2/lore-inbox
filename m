@@ -1,71 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313199AbSC1SM0>; Thu, 28 Mar 2002 13:12:26 -0500
+	id <S313202AbSC1SO0>; Thu, 28 Mar 2002 13:14:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313204AbSC1SMR>; Thu, 28 Mar 2002 13:12:17 -0500
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:14351 "EHLO
-	rtr.ca") by vger.kernel.org with ESMTP id <S313199AbSC1SMG>;
-	Thu, 28 Mar 2002 13:12:06 -0500
-Message-ID: <3CA35CAF.59B20386@pobox.com>
-Date: Thu, 28 Mar 2002 13:10:55 -0500
-From: Mark Lord <mlord@pobox.com>
-Organization: Real-Time Remedies Inc.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre9 i686)
+	id <S313204AbSC1SOR>; Thu, 28 Mar 2002 13:14:17 -0500
+Received: from quark.didntduck.org ([216.43.55.190]:33805 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S313202AbSC1SOC>; Thu, 28 Mar 2002 13:14:02 -0500
+Message-ID: <3CA35D5F.2144AFE6@didntduck.org>
+Date: Thu, 28 Mar 2002 13:13:51 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: John Summerfield <summer@os2.ami.com.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE and hot-swap disk caddies
-In-Reply-To: <Pine.LNX.3.96.1020328114600.18285A-100000@gatekeeper.tmr.com>
+To: Andrew Morton <akpm@zip.com.au>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] ext2_fill_super breakage
+In-Reply-To: <3CA2C68E.5B8C4176@zip.com.au> <3CA31BF6.7030609@didntduck.org> <3CA3529E.80E70428@zip.com.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hdparm - get/set hard disk parameters - version v4.6
+Andrew Morton wrote:
+> 
+> Brian Gerst wrote:
+> >
+> > Andrew Morton wrote:
+> > > In 2.5.7 there is a thinko in the allocation and initialisation
+> > > of the fs-private superblock for ext2.  It's passing the wrong type
+> > > to the sizeof operator (which of course gives the wrong size)
+> > > when allocating and clearing the memory.
+> > >
+> > > Lesson for the day: this is one of the reasons why this idiom:
+> > >
+> > >       some_type *p;
+> > >
+> > >       p = malloc(sizeof(*p));
+> > >       ...
+> > >       memset(p, 0, sizeof(*p));
+> > >
+> > > is preferable to
+> > >
+> > >       some_type *p;
+> > >
+> > >       p = malloc(sizeof(some_type));
+> > >       ...
+> > >       memset(p, 0, sizeof(some_type));
+> > >
+> > > I checked the other filesystems.  They're OK (but idiomatically
+> > > impure).  I've added a couple of defensive memsets where
+> > > they were missing.
+> >
+> > I'm not sure I follow you here.  Compiling this code (gcc 2.96):
+> >
+> > int foo1(void) { return sizeof(struct ext2_sb_info); }
+> > int foo2(struct ext2_sb_info *sbi) { return sizeof(*sbi); }
+> 
+> The current code is using sizeof(ext2_super_block) for
+> something which is of type ext2_sb_info.
+> 
+> The stylistic change tends to provide insulation from the
+> above bug.
 
-Usage:  hdparm  [options] [device] ..
+Doh.  Point taken.
 
-Options:
- -a   get/set fs readahead
- -A   set drive read-lookahead flag (0/1)
- -b   get/set bus state (0 == off, 1 == on, 2 == tristate)
- -B   get Advanced Power Management setting (1-255)
- -c   get/set IDE 32-bit IO setting
- -C   check IDE power mode status
- -d   get/set using_dma flag
- -D   enable/disable drive defect-mgmt
- -E   set cd-rom drive speed
- -f   flush buffer cache for device on exit
- -g   display drive geometry
- -h   display terse usage information
- -i   display drive identification
- -I   detailed/current information directly from drive
- -k   get/set keep_settings_over_reset flag (0/1)
- -K   set drive keep_features_over_reset flag (0/1)
- -L   set drive doorlock (0/1) (removable harddisks only)
- -m   get/set multiple sector count
- -n   get/set ignore-write-errors flag (0/1)
- -p   set PIO mode on IDE interface chipset (0,1,2,3,4,...)
- -P   set drive prefetch count
- -q   change next setting quietly
- -r   get/set readonly flag (DANGEROUS to set)
- -R   register an IDE interface (DANGEROUS)
- -S   set standby (spindown) timeout
- -t   perform device read timings
- -T   perform cache read timings
- -u   get/set unmaskirq flag (0/1)
- -U   un-register an IDE interface (DANGEROUS)
- -v   default; same as -acdgkmnru (-gr for SCSI, -adgr for XT)
- -V   display program version and exit immediately
- -w   perform device reset (DANGEROUS)
- -W   set drive write-caching flag (0/1) (DANGEROUS)
- -x   perform device for hotswap flag (0/1) (DANGEROUS)
- -X   set IDE xfer mode (DANGEROUS)
- -y   put IDE drive in standby mode
- -Y   put IDE drive to sleep
--- 
-Mark Lord
-Real-Time Remedies Inc.
-mlord@pobox.com
+--
+
+				Brian Gerst

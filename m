@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129716AbRACSnE>; Wed, 3 Jan 2001 13:43:04 -0500
+	id <S129996AbRACSsZ>; Wed, 3 Jan 2001 13:48:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130075AbRACSmy>; Wed, 3 Jan 2001 13:42:54 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:25107 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129716AbRACSmp>;
-	Wed, 3 Jan 2001 13:42:45 -0500
-Message-ID: <3A536ADD.BB38E3C7@innominate.de>
-Date: Wed, 03 Jan 2001 19:09:33 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-prerelease i586)
-X-Accept-Language: en
+	id <S130107AbRACSsO>; Wed, 3 Jan 2001 13:48:14 -0500
+Received: from [204.26.91.1] ([204.26.91.1]:62469 "EHLO www.mammoth.org")
+	by vger.kernel.org with ESMTP id <S130070AbRACSsF>;
+	Wed, 3 Jan 2001 13:48:05 -0500
+Date: Wed, 3 Jan 2001 12:17:38 -0600 (CST)
+From: josh <skulcap@mammoth.org>
+To: linux-kernel@vger.kernel.org
+Subject: usb dc2xx quirk
+Message-ID: <Pine.LNX.4.20.0101031155240.2682-100000@www>
 MIME-Version: 1.0
-To: Tobias Ringstrom <tori@tellus.mine.nu>, linux-kernel@vger.kernel.org
-Subject: Re: Benchmarking 2.2 and 2.4 using hdparm and dbench 1.1
-In-Reply-To: <Pine.LNX.4.21.0101031755090.4448-200000@svea.tellus>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tobias Ringstrom wrote:
-> 3) The 2.2 kernels outperform the 2.4 kernels for few clients (see
->    especially the "dbench 1" numbers for the PII-128M.  Oops!
 
-I noticed that too.  Furthermore I noticed that the results of the more
-heavily loaded tests on the whole 2.4.0 series tend to be highly
-variable (usually worse) if you started by moving the whole disk through
-cache, e.g., fsck on a damaged filesystem.
+Kernel Version: 2.4.0-test11 - 2.4.0-prerelease
+Platform: ix86 (PIII)
+Problem Hardware: Kodac DC280, firmware 1.01
 
-> The reason for doing the benchmarks in the first place is that my 32MB P90
-> at home really does perform noticeably worse with samba using 2.4 kernels
-> than using 2.2 kernels, and that bugs me.  I have no hard numbers for that
-> machine (yet).  If they will show anything extra, I will post them here.
-> Btw, has anyone else noticed samba slowdowns when going from 2.2 to 2.4?
+Ever since test10 or after, removing my dc280 from the usb
+bus causes khubd to crash.  I have tried both UHCI drivers
+and they produce the same effect. 
 
-Again, yes, I saw that.
+dmesg, syslog, messages, and .config can be found at:
+http://mammoth.org/~skulcap/usb-problem
 
-> Wow!  You made it all the way down here.  Congratulations!  :-)
+I have looked throug the archives and havent found anything
+like this, so I'm sorry if it has been covered already.  
 
-Heh.  Yes, then I read it all again backwards.  I'll respectfully bow
-out of the benchmarking business now.  :-)
+Thanks in advance!
 
-It would be great if you could track the ongoing progress - you could go
-so far as to automatically download the latest patch and rerun the
-tests.  (We have a script like that here to keep our lxr/cvs tree
-current.)  And yes, it gets more important to consider some of the other
-usage patterns so we don't end up with self-fullfilling prophecies.
+                            mammoth.org/~skulcap
+**********************************************BEGIN GEEK CODE BLOCK************
+"Sometimes, if you're perfectly      * GCS d- s: a-- C++ ULSC++++$ P+ L+++ E--- 
+still, you can hear the virgin       * W+(++) N++ o+ K- w--(---) O- M- V- PS-- 
+weeping for the savior of your will."* PE Y+ PGP t+ 5 X+ R !tv b+>+++ DI++ D++  
+ --DreamTheater, "Lines in the Sand" * G e h+ r-- y-   (www.geekcode.com)
+**********************************************END GEEK CODE BLOCK**************
 
-For benchmarking it would be really nice to have a way of emptying
-cache, beyond just syncing.  I took a look at that last week and
-unfortunately it's not trivial.  The things that have to be touched are
-optimized for the steady-state running case and tend to take their
-marching orders from global variables and embedded heuristics that you
-don't want to mess with.  Maybe I'm just looking at this problem the
-wrong way because the shortest piece of code I can imagine for doing
-this would be 1-200 lines long and would replicate a lot of the
-functionality of page_launder and flush_dirty_pages, in other words it
-would be a pain to maintain.
-
---
-Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

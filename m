@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbUCHXJd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 18:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbUCHXJc
+	id S261396AbUCHXNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 18:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUCHXNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 18:09:32 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:63497
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261156AbUCHXIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 18:08:07 -0500
-Date: Tue, 9 Mar 2004 00:08:45 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
-Message-ID: <20040308230845.GD12612@dualathlon.random>
-References: <20040308202433.GA12612@dualathlon.random> <1078781318.4678.9.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1078781318.4678.9.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Mon, 8 Mar 2004 18:13:24 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:6101 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id S261396AbUCHXMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 18:12:08 -0500
+Date: Tue, 9 Mar 2004 00:11:38 +0100 (MET)
+From: Arjen Verweij <A.Verweij2@ewi.tudelft.nl>
+Reply-To: a.verweij@student.tudelft.nl
+To: Craig Bradney <cbradney@zip.com.au>
+cc: Ross Dickson <ross@datscreative.com.au>,
+       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       <linux-kernel@vger.kernel.org>, Jamie Lokier <jamie@shareable.org>,
+       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       Daniel Drake <dan@reactivated.net>
+Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
+ instead of apic ack delay.
+In-Reply-To: <1078786761.9399.15.camel@athlonxp.bradney.info>
+Message-ID: <Pine.GHP.4.44.0403090007110.9764-100000@elektron.its.tudelft.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 08, 2004 at 10:28:38PM +0100, Arjan van de Ven wrote:
-> > . Basically without
-> > this fix it's like 2.6 is running w/o pte-highmem. 700 tasks with 2.7G
-> > of shm mapped each would run the box out of zone-normal even with 4:4.
-> > With 3:1 100 tasks would be enough. Math is easy:
-> > 
-> > 	2.7*1024*1024*1024/4096*8*100/1024/1024/1024
-> > 	2.7*1024*1024*1024/4096*8*700/1024/1024/1024
-> 
-> 
-> not saying your patch is not useful or anything,but there is a less
-> invasive shortcut possible. Oracle wants to mlock() its shared area, and
-> for mlock()'d pages we don't need a pte chain *at all*. So we could get
-> rid of a lot of this overhead that way.
+Yes, but for me the temp diff in Celsius between idle and load for the CPU
+is almost 20 degrees. This has a dramatic impact on the case temperature
+when it is closed because I haven't added fans in the top of the case yet.
 
-I agree that works fine for Oracle, that's becase Oracle is an extreme
-special case since most of this shared memory is an I/O cache, this is
-not the case of other apps, and those other apps really depends on the
-kernel vm paging algorithms for things more than istantiating a pte (or
-a pmd if it's a largepage). Other apps can't use mlock. Some of these
-apps works closely with oracle too.
+So you see I value the disconnect quite a bit. Maybe when I get better
+cooling I will disable it altogether in the BIOS so this headache will
+disappear forever ;)
 
-dropping pte_chains through mlock was suggested around april 2003
-originally by Wli and I didn't like that idea since we really want to
-allow swapping if we run short of ram. And it doesn't solve the
-scalability slowdown on the 32-way for kernel compiles either.
+Arjen
+
+On Mon, 8 Mar 2004, Craig Bradney wrote:
+
+> Hi Arjen
+>
+> <snip>
+>
+> > So far I have seen this only once, and I don't know what causes it.
+> >
+> > Ross, I prefer using your old patch because it keeps my temperature within
+> > reasonable bounds when the case is closed. Sorry.
+> >
+>
+> <snip>
+>
+> I have put the idle=C1halt patch that Ross released a little while back
+> now into Gentoo-dev-sources-2.6.3 as I reported to the list yesterday. I
+> no longer use the old apic_tack=2 patch. I have been playing silly
+> buggers with hardware, but so far the PC has made it to 11 hours and now
+> 7 hours with no issues.
+>
+> After those 11 hours I decided I'd change the PC setup in here and
+> disconnected a fan and a hard drive and moved my server s/w (apache etc)
+> to this PC so I only have one in here fpr now.
+>
+> Right now, CPU is at 34C which is only 1-3C higher than with the other
+> patch, including having one less fan sucking air out the back of the
+> box. Motherboard is actually lower (27C) than before (29C). Ambient room
+> temp is normal.
+>
+> After those 11 hours, I am quite sure that on normal use (ie not
+> compiling) the motherboard and cpu was 1-2C lower than with apic_tack=2.
+>
+> regards
+> Craig
+>
+

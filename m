@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291579AbSBHOVp>; Fri, 8 Feb 2002 09:21:45 -0500
+	id <S291585AbSBHO2G>; Fri, 8 Feb 2002 09:28:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291585AbSBHOVf>; Fri, 8 Feb 2002 09:21:35 -0500
-Received: from bilbo.math.uni-mannheim.de ([134.155.88.153]:49346 "HELO
-	bilbo.math.uni-mannheim.de") by vger.kernel.org with SMTP
-	id <S291579AbSBHOVU>; Fri, 8 Feb 2002 09:21:20 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rolf Eike Beer <eike@bilbo.math.uni-mannheim.de>
-Message-Id: <200202081520.29475@bilbo.math.uni-mannheim.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.4-pre3] link error in drivers/video/video.o
-Date: Fri, 8 Feb 2002 15:22:00 +0100
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S291580AbSBHO14>; Fri, 8 Feb 2002 09:27:56 -0500
+Received: from h108-129-61.datawire.net ([207.61.129.108]:31756 "HELO
+	mail.datawire.net") by vger.kernel.org with SMTP id <S291547AbSBHO1n>;
+	Fri, 8 Feb 2002 09:27:43 -0500
+Subject: Re: IBM ThinkPad - Redundant entry in serial pci_table
+From: Shawn Starr <shawn.starr@datawire.net>
+To: Andrey Panin <pazke@orbita1.ru>
+Cc: Linux <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020208103353.GA741@pazke.ipt>
+In-Reply-To: <1013029931.15007.2.camel@unaropia> 
+	<20020208103353.GA741@pazke.ipt>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1.99 (Preview Release)
+Date: 08 Feb 2002 09:30:14 -0500
+Message-Id: <1013178614.369.7.camel@unaropia>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ld -m elf_i386 -T /mnt/kernel/linux-2.5.4-pre3/arch/i386/vmlinux.lds -e stext 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
-init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o 
-fs/fs.o ipc/ipc.o \
-        /mnt/kernel/linux-2.5.4-pre3/arch/i386/lib/lib.a 
-/mnt/kernel/linux-2.5.4-pre3/lib/lib.a 
-/mnt/kernel/linux-2.5.4-pre3/arch/i386/lib/lib.a \
-         drivers/base/base.o drivers/char/char.o drivers/block/block.o 
-drivers/misc/misc.o drivers/net/net.o drivers/media/media.o 
-drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o 
-drivers/video/video.o \
-        net/network.o \
-        --end-group \
-        -o vmlinux
-drivers/video/video.o: In function `vesafb_init':
-drivers/video/video.o(.text.init+0x13f9): undefined reference to 
-`bus_to_virt_not_defined_use_pci_map'
-make: *** [vmlinux] Error 1
+I wasn't able to get the serial port working. I couldn't find any
+devices. It works in Win2k though.
 
-Eike
+Shawn.
+
+
+On Fri, 2002-02-08 at 05:33, Andrey Panin wrote:
+> Hi Shawn,
+> 
+> does this Xircom serial port really work ?
+> "register_serial(): autoconfig failed" message is highly suspicious.
+> 
+> Best regards.
+> 
+> -- 
+> Andrey Panin            | Embedded systems software engineer
+> pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+-- 
+Shawn Starr
+Developer Support Engineer
+Datawire Communication Networks Inc.
+10 Carlson Court, Suite 300
+Toronto, ON, M9W 6L2
+T: 416-213-2001 ext 179  F: 416-213-2008
+

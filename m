@@ -1,36 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263227AbUFFLRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263301AbUFFLSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263227AbUFFLRT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 07:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbUFFLRT
+	id S263301AbUFFLSE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 07:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbUFFLSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 07:17:19 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:30914 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S263227AbUFFLRS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 07:17:18 -0400
-Date: Sun, 6 Jun 2004 13:17:01 +0200 (MEST)
-Message-Id: <200406061117.i56BH14D025405@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: benh@kernel.crashing.org
-Subject: Re: [BUG] asm-ppc/pgtable.h breakage from 2.6.7-rc1-bk4
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
-       paulus@samba.org
+	Sun, 6 Jun 2004 07:18:04 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:38406 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S263301AbUFFLR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 07:17:56 -0400
+Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Mike McCormack <mike@codeweavers.com>, mingo@elte.hu,
+       Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040606084326.GA6716@infradead.org>
+References: <40C2B51C.9030203@codeweavers.com>
+	 <20040606073241.GA6214@infradead.org> <40C2E045.8090708@codeweavers.com>
+	 <20040606081021.GA6463@infradead.org> <40C2E5DC.8000109@codeweavers.com>
+	 <20040606083924.GA6664@infradead.org> <20040606084326.GA6716@infradead.org>
+Content-Type: text/plain
+Message-Id: <1086520670.1675.1.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
+Date: Sun, 06 Jun 2004 13:17:51 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 05 Jun 2004 20:50:41 -0500, Benjamin Herrenschmidt wrote:
->> That (see below) also works and allows 2.6.7-rc2 to
->> boot on my PM4400.
->
->Ok, that's not normal though, as we are only relaxing permissions,
->so we must be missing something in the DSI handler or such. Can you
->try to look at what the CPU is doing when hitting that loop ? It must
->be taking the same exception over and over again...
+On Sun, 2004-06-06 at 10:43, Christoph Hellwig wrote:
 
-According to Alt-SysRq, the current process is rc.sysinit,
-its kernel-side is in __switch_to(), and the kernel is at
-various points in page-fault/mm-fault handling.
-So it's not hanging, but it's not making progress either.
+> And btw, if you'd have read the whole thread you'd have seen that I argued
+> against mergign the randomization and address space layout changes into
+> 2.6, and such changes during stable series are bad.  But your still much
+> better of getting your code fixed properly, and thus pretty much means
+> havign your own binary format handler in the kernel that sets up the address
+> space in a windows compatible way.
 
-/Mikael
+I find randomization interesting and worthy... I would like to see it
+integrated into 2.6 although adding a toggle to controli it use could be
+desirable.
+
+Another thing I miss is Process ID randomization ala OpenBSD.
+
+

@@ -1,133 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264522AbUDTWQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264283AbUDTWQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264522AbUDTWQl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 18:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264520AbUDTWQk
+	id S264283AbUDTWQw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 18:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264483AbUDTWPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 18:16:40 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:37610 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S264542AbUDTVSI (ORCPT
+	Tue, 20 Apr 2004 18:15:49 -0400
+Received: from legolas.restena.lu ([158.64.1.34]:37782 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S264283AbUDTTu3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 17:18:08 -0400
-Date: Tue, 20 Apr 2004 14:17:13 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>, William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bitmap, cpumask_arith (was: 2.6.6-rc1-mm1)
-Message-Id: <20040420141713.3974e13b.pj@sgi.com>
-In-Reply-To: <20040419113950.6f34f435.pj@sgi.com>
-References: <20040418230131.285aa8ae.akpm@osdl.org>
-	<20040419062914.GE743@holomorphy.com>
-	<20040418234214.7bfb5392.akpm@osdl.org>
-	<20040419064943.GF743@holomorphy.com>
-	<20040419070643.GG743@holomorphy.com>
-	<20040419113950.6f34f435.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 20 Apr 2004 15:50:29 -0400
+Subject: Re: System hang with ATI's lousy driver
+From: Craig Bradney <cbradney@zip.com.au>
+To: Timothy Miller <miller@techsource.com>
+Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4085753B.2010700@techsource.com>
+References: <Pine.LNX.4.44.0404201158580.10469-100000@twin.uoregon.edu>
+	 <4085753B.2010700@techsource.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7JF+kfz8igj5ymBf9Llb"
+Message-Id: <1082490625.6555.22.camel@amilo.bradney.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 20 Apr 2004 21:50:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[I sent this message 24 hours ago, but don't see it on lkml - try again. - pj]
 
-Ok ... lets see here.
+--=-7JF+kfz8igj5ymBf9Llb
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This message is in reply to 4 messages from Bill Irwin, dated:
-  Sat, 17 Apr 2004 19:26:38 -0700
-  Sun, 18 Apr 2004 23:29:14 -0700
-  Sun, 18 Apr 2004 23:49:43 -0700
-  Mon, 19 Apr 2004 00:06:43 -0700
+On Tue, 2004-04-20 at 21:08, Timothy Miller wrote:
+> Joel Jaeggli wrote:
+> > On Tue, 20 Apr 2004, Timothy Miller wrote:
+> >=20
+> >=20
+> >>So, since XFree86's lousy open-source Radeon driver won't do OpenGL=20
+> >>right, I am forced to use ATI's lousy proprietary Radeon driver.  With=20
+> >>that, I can do OpenGL right, but when I exit the X server, the system=20
+> >>hangs completely.  I get lots of vertical lines on the screen, but I=20
+> >>can't even ping the computer.
+> >=20
+> >=20
+> > you didn't specify which ati card?
+>=20
+> Sorry.  Radeon 9000 Pro.
+>=20
+> > =20
+> >=20
+> >>Does anyone know of any conflict between using ATI's X11 driver and the=
+=20
+> >>Radeon console driver at the same time?
+> >>
+> >>I'm using kernel gentoo-2.4.25.
+> >>
+> >>
+> >>I'm getting really sick of not being able to get new graphics cards to=20
+> >>just work properly under Linux.
 
+I have a 9000 Pro running under gentoo-dev-sources 2.6.5 with 3d/opengl
+supported...
 
-> I'm having enough trouble remembering what Paul Jackson's take on things
+and I had it running with 2.4.x ages ago with gentoo-sources.
 
-My take was that in my work-in-progress bitmap/cpumask patches, I have:
+Also have a 9000 M9 Mobility in this laptop with direct rendering
+running ok.
 
-  1) Slightly strengthened the constraints (post-conditions) on
-     bitmap ops to not set tail bits so long as none were set on
-     input.  This mostly means that the complement operator zeros
-     out the tail.  The operators that return scalar (weight,
-     for example) or boolean (empty and full, for example) are
-     still careful to avoid depending on the state of the tail.
+Craig
 
-     This changes Bill Irwin's "don't care" rule into a "don't
-     care, but don't pollute further" rule.
+--=-7JF+kfz8igj5ymBf9Llb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-  2) Removed cpumask_arith entirely, along with 30 odd other files,
-     to be replaced by a single cpumask.h set of macros, layered
-     rather thinly on top of bitmap/bitop.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQBAhX8Bi+pIEYrr7mQRAkpTAJ9+4/35NK0SVRFS65oiNbYY9buJ3QCgg1B+
+uwfjJxkpa16+FTP17mfnsiU=
+=uocL
+-----END PGP SIGNATURE-----
 
-> The important aspect of these is that they're pertinent to small SMP
-> systems, ...
+--=-7JF+kfz8igj5ymBf9Llb--
 
-I tried making this point before, but failed to communicate.  Let me try
-again.  So far as I know, there is no instance in current Linux kernel
-code using this cpumask facility that is affected (currently broken) by
-the cpumask_arith bugs addressed by Bill's patch.  Do you know of any
-breakage in other _current_ code caused by these cpumask_arith bugs,
-Bill?
-
-As a consequence of my seeing nothing else yet overtly busted by this,
-it was, and remains, my recommendation to Bill to hold off on these
-patches.  Little sense in correcting the semantics of a piece of code
-that I expected to remove shortly anyway, if nothing else cared for now.
-
-However, I realize that Bill takes considerable pride in his work, and
-would like to see this fixed.  It's not worth a big fuss, either way,
-so far as I can tell.
-
-
-> Paul, please remove akpm from the cc: list
-
-I have removed akpm from this reply.
-
-
-> the users of small SMP systems who are affected by the bug(s) you
-> reported.
-
-I am unaware that any user of any small SMP (or other) system
-is affected by these bugs.
-
-
-> If you could review and/or send approval or the like that would be
-> very helpful ...
-
-If we can agree on the actual state of affairs, then I will readily
-agree to such to Andrew, and let him decide on the merits and
-appropriate timing of this patch.
-
->From what I know now, this would mean telling Andrew, of Bill's patch:
-
-  This patch fixes some bugs in the small SMP system (2 to 32 CPU) flavor
-  of cpumasks.  From what we know now, these bugs aren't breaking any
-  other existing code, but they are an accident waiting to happen.
-  If Paul Jackson's bitmap/cpumask rework is adapted in the future,
-  then this code being patched would be replaced anyway.  But for now,
-  these fixes are a definite improvement.
-
-If this does not seem like a correct statement of affairs, lets hash
-that out.  Then when we agree, you should present your patch to him on
-the lkml again, and I will gladly chime in with my endorsement.
-
-Unless, of course, you change your mind and decide to hold off on this
-patch, to which I would even more readily agree <grin>.
-
-
-> I have taken issue only where I believe you need to acquire arch
-> maintainer feedback.
-
-And I have agreed that this is an excellent request.  I was out on
-vacation last week, and hesitated to start the arch maintainer discussion
-the week before, knowing that I would be on vacation, and not wanting to
-start something I would not be around to follow through on.
-
-But I am back now, and expect later this week to begin that discussion,
-as you have recommended.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

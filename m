@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263502AbTDHLfd (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 07:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263506AbTDHLfd (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 07:35:33 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:36889 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263502AbTDHLfb (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 07:35:31 -0400
-Date: Tue, 8 Apr 2003 07:47:04 -0400
-Message-Id: <200304081147.h38Bl4708752@devserv.devel.redhat.com>
-From: Stephen Tweedie <sct@redhat.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, ext2-devel@lists.sourceforge.net
-Cc: Stephen Tweedie <sct@redhat.com>
-Subject: [Patch 1/1] 2.4: Fix for jbd compiler warnings.
+	id S261309AbTDHLu5 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 07:50:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbTDHLu5 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 07:50:57 -0400
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:62367 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S261309AbTDHLu4 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 07:50:56 -0400
+Message-Id: <200304081202.h38C2Wgu010663@post.webmailer.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: Compiling kernel with SuSE 8.2/gcc 3.3
+To: Stephan von Krawczynski <skraw@ithnet.com>, linux-kernel@vger.kernel.org
+Date: Tue, 08 Apr 2003 14:02:05 +0200
+References: <20030408115008$0cd2@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixes two compiler warnings in jbd, one of which causes compile
-failure under gcc-3.3.  (jbd.h fix from akpm.)
+Stephan von Krawczynski wrote:
 
---- linux-2.4-ext3push/fs/jbd/revoke.c.=K0000=.orig
-+++ linux-2.4-ext3push/fs/jbd/revoke.c
-@@ -136,7 +136,7 @@ repeat:
- oom:
- 	if (!journal_oom_retry)
- 		return -ENOMEM;
--	jbd_debug(1, "ENOMEM in " __FUNCTION__ ", retrying.\n");
-+	jbd_debug(1, "ENOMEM in %s, retrying.\n", __FUNCTION__);
- 	yield();
- 	goto repeat;
- }
---- linux-2.4-ext3push/include/linux/jbd.h.=K0000=.orig
-+++ linux-2.4-ext3push/include/linux/jbd.h
-@@ -281,7 +281,7 @@ void buffer_assertion_failure(struct buf
- 	do {								     \
- 		if (!(expr)) {						     \
- 			printk(KERN_ERR "EXT3-fs unexpected failure: %s;\n", # expr); \
--			printk(KERN_ERR ## why);			     \
-+			printk(KERN_ERR why);				     \
- 		}							     \
- 	} while (0)
- #define J_EXPECT(expr, why...)		__journal_expect(expr, ## why)
+> during tests with latest SuSE distro 8.2 compiling 2.4.21-pre6 showed a lot of
+> "comparison between signed and unsigned" warnings. It looks like SuSE ships gcc
+> 3.3 (prerelease). Is this compiler known to work for kernel compilation? Should
+> therefore all these warnings be fixed?
+
+We're building 2.4 and 2.5 kernels for s390 with a gcc-3.3 snapshot and we had to
+fix a few places in the kernel source to make that work reliably. See
+http://marc.theaimsgroup.com/?t=104611164800008&r=1&w=2 for more about this.
+I have also tried using gcc-3.3 for building a 2.4 i386 kernel and needed a
+small patch, but ymmv.
+
+        Arnd <><

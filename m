@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269476AbUIZCNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269491AbUIZCP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269476AbUIZCNg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 22:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269485AbUIZCNg
+	id S269491AbUIZCP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 22:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269489AbUIZCP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 22:13:36 -0400
-Received: from out011pub.verizon.net ([206.46.170.135]:52128 "EHLO
-	out011.verizon.net") by vger.kernel.org with ESMTP id S269476AbUIZCNd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 22:13:33 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make make install install modules too
-Date: Sat, 25 Sep 2004 22:13:32 -0400
-User-Agent: KMail/1.7
-Cc: Matthew Wilcox <matthew@wil.cx>, Matthew Wilcox <willy@debian.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>
-References: <20040917170051.GU642@parcelfarce.linux.theplanet.co.uk> <200409171338.51924.gene.heskett@verizon.net> <20040926013300.GL16153@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040926013300.GL16153@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 25 Sep 2004 22:15:27 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:19082 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269486AbUIZCPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 22:15:15 -0400
+Subject: Re: [sched.h 6/8] move aio include to mm.h
+From: Lee Revell <rlrevell@joe-job.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040926020637.GS9106@holomorphy.com>
+References: <20040925024513.GL9106@holomorphy.com>
+	 <20040925032419.GQ9106@holomorphy.com>
+	 <20040925032616.GR9106@holomorphy.com> <200409260356.27499.arnd@arndb.de>
+	 <20040926020637.GS9106@holomorphy.com>
+Content-Type: text/plain
+Message-Id: <1096164911.3697.39.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 25 Sep 2004 22:15:12 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409252213.32217.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.50.119] at Sat, 25 Sep 2004 21:13:32 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 25 September 2004 21:33, Matthew Wilcox wrote:
->On Fri, Sep 17, 2004 at 01:38:51PM -0400, Gene Heskett wrote:
->> This is not a good patch IMO.  Many of us do things with scripts
->> to drive the compile process, either in the name of repeatability
->> or consistency.   These scripts may step out of the src tree and
->> go make something else (lm_sensors comes to mind when it wasn't
->> part of the kernel) whose output goes into the
->> /lib/modules/version/ directory so that by the time the make
->> modules_install runs, everything is already in place for the
->> automatic depmod the modules_install does.  We *could* work around
->> it by re-adding the depmod lines to our scripts, but it seems that
->> might be called a kludge too.
->
->Documentation/kbuild/modules.txt answers how to do this "right".  In
-> any case, there's nothing to stop you changing your scripts from
-> "make install && do_my_special_thing && make modules_install" to
->"make kernel_install && do_my_special_thing && make modules_install"
+On Sat, 2004-09-25 at 22:06, William Lee Irwin III wrote:
+> On Samstag, 25. September 2004 05:26, William Lee Irwin III wrote:
+> >> This patch moves the aio inclusion from sched.h to mm.h, while leaving
+> >> workqueue.h directly included by sched.h; a large sweep is required to
+> >> clean up drivers including workqueue.h indirectly via sched.h
+> 
+> On Sun, Sep 26, 2004 at 03:56:27AM +0200, Arnd Bergmann wrote:
+> > FYI: the checkheaders.pl script I recently posted here gives me
+> > the following 175 results about potentially incorrect use of
+> > workqueue.h.
+> 
+> Grepping by hand turned up 186 files missing potentially missing direct
+> includes of workqueue.h, though I don't have a way to tell if I got
+> false negatives.
+> 
 
-Entirely true.  But in the interest of doing it consistently AND my 
-way, I have never used the make kernel install feature, doing my own 
-copying, renameing etc.  And my own grub.conf editing too.
+Can't you just try to build it with allyesconfig and see what breaks?
 
-In my case (and I'm an old (70ish) fart getting stuck in my ways) I 
-simply haven't needed to fix what isn't broken until such time as it 
-actually does break.   It isn't broken, yet..  :-)
+Lee
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

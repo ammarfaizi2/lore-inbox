@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262387AbTINMdz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 08:33:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbTINMdy
+	id S262394AbTINM60 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 08:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTINM60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 08:33:54 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24336 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262387AbTINMdx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 08:33:53 -0400
-Date: Sun, 14 Sep 2003 13:33:49 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-Message-ID: <20030914133349.A27870@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20030914121655.GS27368@fs.tum.de>
+	Sun, 14 Sep 2003 08:58:26 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:48872 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S262394AbTINM6Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 08:58:25 -0400
+Date: Sun, 14 Sep 2003 18:30:37 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
+Subject: Re: [patch] Make slab allocator work with SLAB_MUST_HWCACHE_ALIGN
+Message-ID: <20030914130037.GA1781@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20030910081654.GA1129@llm08.in.ibm.com> <1063208464.700.35.camel@localhost> <20030911055428.GA1140@llm08.in.ibm.com> <20030911110853.GB3700@llm08.in.ibm.com> <3F60A08A.7040504@colorfullife.com> <20030912085921.GB1128@llm08.in.ibm.com> <3F6378B0.8040606@colorfullife.com> <20030914080942.GA9302@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030914121655.GS27368@fs.tum.de>; from bunk@fs.tum.de on Sun, Sep 14, 2003 at 02:16:56PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030914080942.GA9302@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 14, 2003 at 02:16:56PM +0200, Adrian Bunk wrote:
-> The patch below adds a config option OPTIMIZE_FOR_SIZE for telling gcc 
-> to use -Os instead of -O2. Besides this, it removes constructs on 
-> architectures that had a -Os hardcoded in their Makefiles.
+On Sun, Sep 14, 2003 at 01:39:42PM +0530, Ravikiran G Thirumalai wrote:
+> The patch I posted earlier takes care of 1 & 2, but arbitraty alignment takes
+> care of all 4, and as you mentioned the patch is small enough.  If interface
 
-I'd rather retain the -Os default for ARM please.  (The init/Kconfig
-defaults it to 'n' for everything.)
+While we are at it, we should also probably look up the cache line
+size for a cpu family from a table, store it in some per-cpu data
+(cpuinfo_x86 ?) and provide an l1_cache_bytes() api to
+return it at run time.
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+Thanks
+Dipankar

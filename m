@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263849AbUDFOxV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 10:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUDFOxV
+	id S263853AbUDFOze (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 10:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263852AbUDFOzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 10:53:21 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:33977 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S263849AbUDFOxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 10:53:19 -0400
-From: Jan Killius <jkillius@arcor.de>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Oops with cpufreq on 2.6.5-mm1
-Date: Tue, 6 Apr 2004 16:53:14 +0200
-User-Agent: KMail/1.6.1
-References: <20040406101609.GA25248@gate.unimatrix> <20040406135441.GC32405@redhat.com>
-In-Reply-To: <20040406135441.GC32405@redhat.com>
-MIME-Version: 1.0
+	Tue, 6 Apr 2004 10:55:25 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:61429 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263854AbUDFOzI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 10:55:08 -0400
+Date: Tue, 6 Apr 2004 20:26:16 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: rusty@au1.ibm.com, mingo@elte.hu, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
+Subject: Re: [Experimental CPU Hotplug PATCH] - Move migrate_all_tasks to CPU_DEAD handling
+Message-ID: <20040406145616.GB8516@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20040405121824.GA8497@in.ibm.com> <4071F9C5.2030002@yahoo.com.au> <20040406083713.GB7362@in.ibm.com> <407277AE.2050403@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404061653.14606.jkillius@arcor.de>
+In-Reply-To: <407277AE.2050403@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-the patch don't apply clean to 2.6.5-mm1.
-On Tuesday 06 April 2004 15:54, Dave Jones wrote:
-> On Tue, Apr 06, 2004 at 12:16:09PM +0200, Jan Killius wrote:
->  > The patch have fixed the problem. thx
->
-> Can you try out the fully merged patch at
-> http://www.codemonkey.org.uk/projects/bitkeeper/cpufreq
-> too please ?
->
-> 		Dave
+On Tue, Apr 06, 2004 at 07:26:06PM +1000, Nick Piggin wrote:
+> Also in my patch, the offline check should probably be done below
+> the check for if (cpu == this_cpu... because that should be a common
+> route.
+
+	Will this be true for wakeups which are triggered from 
+expiring timers also? The timers on the dead CPU are migrated to other CPUs. 
+When they fire, the timer fn runs on a different CPU and can try to wake up a
+task 'n add it to dead cpu! So we probably need a unconditional cpu_is_offline
+check in try_to_wake_up?
+
+
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

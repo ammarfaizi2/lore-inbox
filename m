@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVBILxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVBIMbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbVBILxo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 06:53:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVBILxo
+	id S261813AbVBIMbk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 07:31:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVBIMbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 06:53:44 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:30367
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S261811AbVBILxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 06:53:36 -0500
-Subject: Re: Preempt Real-time for ARM
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Daniel Walker <dwalker@mvista.com>, LKML <linux-kernel@vger.kernel.org>,
-       Sven Dietrich <sdietrich@mvista.com>,
-       Russell King - ARM Linux <linux@arm.linux.org.uk>
-In-Reply-To: <20050209113140.GB13274@elte.hu>
-References: <1107628604.5065.54.camel@dhcp153.mvista.com>
-	 <1107948492.17747.31.camel@tglx.tec.linutronix.de>
-	 <20050209113140.GB13274@elte.hu>
-Content-Type: text/plain
-Date: Wed, 09 Feb 2005 12:53:30 +0100
-Message-Id: <1107950010.17747.35.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Feb 2005 07:31:40 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:331 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261813AbVBIMbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 07:31:39 -0500
+Date: Wed, 9 Feb 2005 12:30:24 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Chris Wright <chrisw@osdl.org>
+cc: "Mark F. Haigh" <Mark.Haigh@SpirentCom.COM>,
+       linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel/fork.c: VM accounting bugfix (2.6.11-rc3-bk5)
+In-Reply-To: <20050208230447.V24171@build.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.61.0502091223310.5842@goblin.wat.veritas.com>
+References: <420988C1.5030408@spirentcom.com> 
+    <20050208230447.V24171@build.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-09 at 12:31 +0100, Ingo Molnar wrote:
-> > I'm just waiting until the new SMP bits are there before I have
-> > another go and clean up the missing SMP bits.
+On Tue, 8 Feb 2005, Chris Wright wrote:
+> * Mark F. Haigh (Mark.Haigh@SpirentCom.COM) wrote:
+> > 
+> > If security_vm_enough_memory() fails there, then we vm_unacct_memory()
+> > that we never accounted (if security_vm_enough_memory() fails, no memory
+> > is accounted).
 > 
-> any chances for (most of) these bits going upstream as well? In any
-> case, the -RT tree can be a testbed for this.
+> You missed one subtle point.  That failure case actually unaccts 0 pages
+> (note the use of charge).  Not the nicest, but I believe correct.
 
-I guess this has to be discussed with Russell in detail. The UP bits are
-quite simple and we can preserve the ARM oddities by tweaking the
-generic layer a bit. The SMP stuff was/is work in progress, but what I
-have seen until now is not too scary, but needs some careful thoughts.
+Not quite: Mark's patch is worse than unnecessary, it's wrong.
 
-tglx
+dup_mmap's charge starts out at 0 and gets added to each time around
+the loop through vmas; if security_vm_enough_memory fails at any point
+in that loop, we need to vm_unacct_memory the charge already accumulated.
 
-
+Hugh

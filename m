@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSGYMsl>; Thu, 25 Jul 2002 08:48:41 -0400
+	id <S293680AbSGYMp7>; Thu, 25 Jul 2002 08:45:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313202AbSGYMsl>; Thu, 25 Jul 2002 08:48:41 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:57618 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S313190AbSGYMsk>;
-	Thu, 25 Jul 2002 08:48:40 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Thu, 25 Jul 2002 14:50:56 +0200
+	id <S312590AbSGYMp7>; Thu, 25 Jul 2002 08:45:59 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:34059 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S293680AbSGYMp6>; Thu, 25 Jul 2002 08:45:58 -0400
+Date: Thu, 25 Jul 2002 08:43:34 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Olaf Kirch <okir@suse.de>
+cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: Locking patches (generic & nfs)
+In-Reply-To: <20020719101950.A15819@suse.de>
+Message-ID: <Pine.LNX.3.96.1020725084130.11202B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [RFC/CFT] cmd640 irqlocking fixes
-CC: Andre Hedrick <andre@linux-ide.org>, martin@dalecki.de,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <1D0647598B@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Jul 02 at 14:08, Alan Cox wrote:
+On Fri, 19 Jul 2002, Olaf Kirch wrote:
 
-> +   OUT_BYTE(0x00, 0xCFB);
-> +   OUT_BYTE(0x00, 0xCF8);
-> +   OUT_BYTE(0x00, 0xCFA);
-> +   if (IN_BYTE(0xCF8) == 0x00 && IN_BYTE(0xCF8) == 0x00) {
-                                            ^^^^^
-It should be 0xCFA according to arch/i386/pci/direct.c...
-                                        Petr Vandrovec
-                                        vandrove@vc.cvut.cz
-                                        
+> I've been investigating an NFS locking problem a customer
+> of SuSE has had between an OpenServer machine (oh boy)
+> acting as the NFS client and a Linux box acting as the server.
+> 
+> In the process of debugging this, I came across a number of
+> bugs in the 2.4.18 kernel.
+
+When NFSv4 gets in the new kernel I invite you to put your eyeballs on
+that! Good catch!
+
+Clearly not a lot of users go through this code or it would have shown up
+sooner.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

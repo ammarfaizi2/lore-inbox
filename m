@@ -1,72 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbUKPF4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbUKPF60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbUKPF4k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 00:56:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbUKPF4k
+	id S261907AbUKPF60 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 00:58:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbUKPF5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 00:56:40 -0500
-Received: from mail.kroah.org ([69.55.234.183]:47067 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261915AbUKPFze (ORCPT
+	Tue, 16 Nov 2004 00:57:31 -0500
+Received: from mail.kroah.org ([69.55.234.183]:42459 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261907AbUKPFz3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 00:55:34 -0500
-Date: Mon, 15 Nov 2004 21:54:06 -0800
+	Tue, 16 Nov 2004 00:55:29 -0500
+Date: Mon, 15 Nov 2004 21:52:24 -0800
 From: Greg KH <greg@kroah.com>
 To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org,
-       Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       Kay Sievers <kay.sievers@vrfy.org>, tokunaga.keiich@jp.fujitsu.com,
-       motoyuki@soft.fujitsu.com, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, rml@novell.com, len.brown@intel.com,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: 2.6.10-rc1-mm3: ACPI problem due to un-exported hotplug_path
-Message-ID: <20041116055406.GG29328@kroah.com>
-References: <20041105001328.3ba97e08.akpm@osdl.org> <d120d5000411091548584bf8c5@mail.gmail.com> <20041110000811.GA8543@kroah.com> <200411092315.55187.dtor_core@ameritech.net>
+Cc: Tejun Heo <tj@home-tj.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.10-rc1 2/5] driver-model: bus_recan_devices() locking fix
+Message-ID: <20041116055224.GF29328@kroah.com>
+References: <20041104185826.GA17756@kroah.com> <d120d50004110508333c183cc1@mail.gmail.com> <20041110004052.GB8672@kroah.com> <200411092317.33300.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411092315.55187.dtor_core@ameritech.net>
+In-Reply-To: <200411092317.33300.dtor_core@ameritech.net>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 11:15:55PM -0500, Dmitry Torokhov wrote:
-> On Tuesday 09 November 2004 07:08 pm, Greg KH wrote:
-> > On Tue, Nov 09, 2004 at 06:48:17PM -0500, Dmitry Torokhov wrote:
-> > > On Tue, 9 Nov 2004 14:55:02 -0800, Greg KH <greg@kroah.com> wrote:
-> > > > On Fri, Nov 05, 2004 at 09:18:48PM -0800, Keshavamurthy Anil S wrote:
-> > > > > Also, since you have brought this, I have one another question to you.
-> > > > > Now in the new kernel, I see whenever anybody calls sysdev_register(kobj),
-> > > > > an "ADD" notification is sent. why is this? I would like to call
-> > > > > kobject_hotplug(kobj, ADD) later.
-> > > > 
-> > > > This happens when kobject_add() is called.  You shouldn't ever need to
-> > > > call kobject_hotplug() for an add event yourself.
-> > > > 
-> > > 
-> > > This is not always the case. One might want to postpone ADD event
-> > > until all summpelental object attributes are created. This way userspace
-> > > is presented with object in consistent state.
+On Tue, Nov 09, 2004 at 11:17:31PM -0500, Dmitry Torokhov wrote:
+> On Tuesday 09 November 2004 07:40 pm, Greg KH wrote:
+> > > I think we just have lay down the rules that one needs to get a reference
+> > > to an object in the following cases:
+> > > - object creation (first reference)
+> > > - linking some other object to the object in question. Every link to the
+> > > ? object should increase reference count.
+> > > - before passing object to another thread of execution to guarantee that
+> > > ? the object will live long enough for both threads.
 > > 
-> > No, that's a mess.  Let userspace wait for those attributes to show up
-> > if they need to.  That's what the "wait_for_sysfs" program bundled with
-> > udev is for.
-> >
+> > The rules are defined. ?See my OLS 2004 paper on krefs for details.
+> > 
 > 
-> I strongly disagree:
+> So that means you will patches like the one below, right?
 > 
-> - it makes userspace being aware of implementation details (whe exactly it
->   has to wait for, for how long, etc.) which is bad thing;
-> - not all the world is udev - needless replication of the code and bugs;
-> - not only making visible but announcing an object in non-working state
->   to userspace simply does not feel right.
+> diff -Nru a/drivers/base/driver.c b/drivers/base/driver.c
+> --- a/drivers/base/driver.c	2004-11-09 23:16:43 -05:00
+> +++ b/drivers/base/driver.c	2004-11-09 23:16:43 -05:00
+> @@ -26,13 +26,7 @@
+>  
+>  int driver_create_file(struct device_driver * drv, struct driver_attribute * attr)
+>  {
+> -	int error;
+> -	if (get_driver(drv)) {
+> -		error = sysfs_create_file(&drv->kobj, &attr->attr);
+> -		put_driver(drv);
+> -	} else
+> -		error = -EINVAL;
+> -	return error;
+> +	return sysfs_create_file(&drv->kobj, &attr->attr);
+>  }
+>  
+>  
+> @@ -44,10 +38,7 @@
+>  
+>  void driver_remove_file(struct device_driver * drv, struct driver_attribute * attr)
+>  {
+> -	if (get_driver(drv)) {
+> -		sysfs_remove_file(&drv->kobj, &attr->attr);
+> -		put_driver(drv);
+> -	}
+> +	sysfs_remove_file(&drv->kobj, &attr->attr);
+>  }
 
-Based on the recent additions to the /sbin/hotplug environment
-variables, userspace now knows exactly what it needs to wait for, if
-anything.  
+While not totally necessary, the current code is safe :)
 
-Also, there's no needless replication of this code, that's why
-wait_for_sysfs was split off of udev, it's for everyone to use, if they
-want to.
+I'll ask Pat about this next time I see him.
 
 thanks,
 

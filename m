@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268055AbUI1WBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268059AbUI1WBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268055AbUI1WBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 18:01:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUI1WBI
+	id S268059AbUI1WBM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 18:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268060AbUI1WBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 18:01:08 -0400
-Received: from mail.kroah.org ([69.55.234.183]:26283 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268055AbUI1WBE (ORCPT
+	Tue, 28 Sep 2004 18:01:12 -0400
+Received: from mail.kroah.org ([69.55.234.183]:29355 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268059AbUI1WBK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 18:01:04 -0400
-Date: Tue, 28 Sep 2004 15:00:47 -0700
+	Tue, 28 Sep 2004 18:01:10 -0400
+Date: Tue, 28 Sep 2004 14:56:20 -0700
 From: Greg KH <greg@kroah.com>
-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Cc: akpm@osdl.org, Ashok Raj <ashok.raj@intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add hook for PCI resource deallocation
-Message-ID: <20040928220047.GB13816@kroah.com>
-References: <41498CF6.9000808@jp.fujitsu.com> <20040924130251.A26271@unix-os.sc.intel.com> <20040924212208.GD7619@kroah.com> <4157CA04.5050604@jp.fujitsu.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/2] [RESEND] kobject: add HOTPLUG_ENV_VAR
+Message-ID: <20040928215620.GA13816@kroah.com>
+References: <1096302710971@topspin.com> <10963027102899@topspin.com> <20040927131014.695b8212.pj@sgi.com> <52fz53e526.fsf@topspin.com> <20040927234333.7cceff47.pj@sgi.com> <52mzzacsyk.fsf@topspin.com> <20040928090032.292d12e8.pj@sgi.com> <52wtyebcde.fsf@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4157CA04.5050604@jp.fujitsu.com>
+In-Reply-To: <52wtyebcde.fsf@topspin.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 05:06:28PM +0900, Kenji Kaneshige wrote:
-> Hi Greg and Andrew,
+On Tue, Sep 28, 2004 at 09:13:17AM -0700, Roland Dreier wrote:
+>     Paul> Perhaps - but perhaps also I've shown you ways to use a
+>     Paul> function with fewer non-const variables.
 > 
-> I'm attaching updated patches for adding pcibiod_disable_device()
-> hook based on the feedback from Ashok (Thank you, Ashok!).
-> 
-> I made two patches, one of them is against 2.6.9-rc2-mm1 and the
-> another is against 2.6.9-rc2-mm4 to which the previous version of
-> the patch has already been applyed. Please use the one convenient
-> for you.
+> Yeah, you've convinced me.  I'll reroll my patches.
 
-Based on all of the comments, I'll wait for you to incorporate them, so
-I'm not going to apply this one.
+Ok, I've thrown away your old ones :)
 
 thanks,
 

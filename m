@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268426AbTCCHlL>; Mon, 3 Mar 2003 02:41:11 -0500
+	id <S268422AbTCCHxq>; Mon, 3 Mar 2003 02:53:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268427AbTCCHlK>; Mon, 3 Mar 2003 02:41:10 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:39137 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268426AbTCCHlJ>; Mon, 3 Mar 2003 02:41:09 -0500
-Date: Sun, 02 Mar 2003 23:51:26 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Prasad <prasad_s@students.iiit.net>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: redirecting printk to the Serial port
-Message-ID: <1070000.1046677885@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.44.0303031307570.30529-100000@students.iiit.net>
-References: <Pine.LNX.4.44.0303031307570.30529-100000@students.iiit.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S268427AbTCCHxq>; Mon, 3 Mar 2003 02:53:46 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:40210 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S268422AbTCCHxp>; Mon, 3 Mar 2003 02:53:45 -0500
+Message-ID: <3E630CD9.9010906@aitel.hist.no>
+Date: Mon, 03 Mar 2003 09:05:45 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: =?ISO-8859-15?Q?Pavel_Jan=EDk?= <Pavel@Janik.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+References: <20030226200208.GA392@elf.ucw.cz> <m38yvz3qts.fsf@Janik.cz>	<20030301183929.A31305@infradead.org> <m3el5q3dys.fsf@Janik.cz>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make sure there's no serial stuff, etc in your init scripts that
-changes speeds or anything. Other than that, not sure ... been
-so long since I set it up, I forget ...
+Pavel Janík wrote:
+ >  E.g. Linus and other people exercising
+> "free" KitBeeper license now can not develop SCM software even if they want
+> to. I think this is really bad for their freedom.
 
-M.
+I wouldn't worry.  Linus can develop any SCM software he want to, he 
+merely have to drop bitkeeper first if he do.  There is no freedom 
+problem here.  His current use of bitkeeper simply means he isn't
+into developing scm systems right now.  Which probably is
+a good thing.
 
---On Monday, March 03, 2003 13:09:29 +0530 Prasad <prasad_s@students.iiit.net> wrote:
-
-> 
-> the output stopped after it printed the line "Freeing unused kernel 
-> memory".  How do we manage to get the printk's to the serial line after 
-> this. I can see the messages using 'dmesg' but am not getting them over 
-> the serial line.
-> 
-> Prasad.
-> 
-> On Sun, 2 Mar 2003, Martin J. Bligh wrote:
-> 
->> 
->> 
->> --On Monday, March 03, 2003 12:58:24 +0530 Prasad <prasad_s@students.iiit.net> wrote:
->> 
->> > 
->> > 
->> > I have seen the Documentation/serial-console.txt and accordingly gave the 
->> > kernel arguments console=/dev/ttyS0,9600n8, but even after giving that i 
->> > am not getting anything to the other end. To check if the serial 
->> > communication was in place... i tried echo "abc" > /dev/ttyS0 and that 
->> > worked.
->> 
->> I use "console=ttyS0,57600n8" - no "/dev".
->> 
->> M.
->> 
-> 
-> -- 
-> Failure is not an option
-> 
-> 
-
+Helge Hafting
 

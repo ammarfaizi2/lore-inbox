@@ -1,43 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263866AbTFVOpe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 10:45:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTFVOpd
+	id S263765AbTFVOpG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 10:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263866AbTFVOpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 10:45:33 -0400
-Received: from deepthot.org ([216.19.203.209]:44203 "EHLO dent.deepthot.org")
-	by vger.kernel.org with ESMTP id S263866AbTFVOpc (ORCPT
+	Sun, 22 Jun 2003 10:45:06 -0400
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:10512 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263765AbTFVOpB convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 10:45:32 -0400
-Date: Sun, 22 Jun 2003 07:59:04 -0700 (MST)
-From: Jay Denebeim <denebeim@deepthot.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Redhat 2.4.20 kernel problems
-Message-ID: <Pine.LNX.4.44.0306220758290.29695-100000@hotblack.deepthot.org>
+	Sun, 22 Jun 2003 10:45:01 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: Ishikawa <ishikawa@yk.rim.or.jp>
+Subject: Re: Warning messages during compilation of 2.4.21. (5 files)
+Date: Sun, 22 Jun 2003 16:58:26 +0200
+User-Agent: KMail/1.5.2
+References: <3EF4B98D.33A55CD1@yk.rim.or.jp> <200306221343.26884.fsdeveloper@yahoo.de> <3EF5B80C.7F5340F7@yk.rim.or.jp>
+In-Reply-To: <3EF5B80C.7F5340F7@yk.rim.or.jp>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200306221658.36409.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Sun, 22 Jun 2003, Aschwin Marsman wrote:
+On Sunday 22 June 2003 16:07, Ishikawa wrote:
+> > >
+> > > (for example, the line 283 of vt.c could be re-written to
+> > >    int kludge_i; /* to shut up warning */
+> > >
+> > >    if((kludge_i = tmp.kb_func) >= MAX_NR_FUNC)
+> > >        return -EINVAL;
+> >
+> > Some days ago, I've also looked over it to find a solution. :)
+> > But IMHO the kludge_i is far more uglier than the warning.
+> > What about that:
+> >
+> > if((int)tmp.kb_func >= MAX_NR_FUNC)
+> >         return -EINVAL;
+> >
+> > Doesn't it work?
+>
+> Unfortunately, GCC 3.3 is so clever that
+> mere type casting (as you suggested) still produced warning.
+> Only after assigning to an integer variable, I see
+> the warning message gone. Tough luck.
+> Agreed. The remedy is very ugly.
 
-> Have you already updated your system to the latest errata kernel and
-> packages?
+What about adding something like that:
+#if MAX_NR_FUNC < 256
+	if((int)tmp.kb_func >= MAX_NR_FUNC)
+		return -EINVAL;
+#endif
 
-Yes, that's the one that has the problem.
+Sure, this is ugly, too, but I think the warning is
+_very_ ugly. Another solution is, what you already
+said, to completely remove this if ().
 
-> You could try to send an email to a Red Hat mailing list:
-> http://www.redhat.com/support/forums/
+>
+> Regards,
+>
+> Ishikawa Chiaki
 
-Ah, that sounds like a plan, thank you kindly.
+- -- 
+Regards Michael Büsch
+http://www.8ung.at/tuxsoft
+ 16:52:16 up  1:46,  1 user,  load average: 1.16, 1.14, 1.06
 
-Jay
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
--- 
-* Jay Denebeim  Moderator       rec.arts.sf.tv.babylon5.moderated *
-* newsgroup submission address: b5mod@deepthot.org                *
-* moderator contact address:    b5mod-request@deepthot.org        *
-* personal contact address:     denebeim@deepthot.org             *
-
+iD8DBQE+9cQcoxoigfggmSgRAi0CAJ9kkvQfNEQ3vpSLDzPhVLhZ5qoB0gCcC+mn
+DCEUHvdUN4QssLP/HaRtb2U=
+=wK2z
+-----END PGP SIGNATURE-----
 

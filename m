@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271626AbRIBNsr>; Sun, 2 Sep 2001 09:48:47 -0400
+	id <S271627AbRIBOAa>; Sun, 2 Sep 2001 10:00:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271627AbRIBNsi>; Sun, 2 Sep 2001 09:48:38 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:63651 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S271626AbRIBNsY>;
-	Sun, 2 Sep 2001 09:48:24 -0400
-Date: Sun, 02 Sep 2001 14:48:39 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Stephan von Krawczynski <skraw@ithnet.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: Memory Problem in 2.4.10-pre2 / __alloc_pages failed
-Message-ID: <1013623912.999442119@[169.254.198.40]>
-In-Reply-To: <200109020226.f822QCS18912@maile.telia.com>
-In-Reply-To: <200109020226.f822QCS18912@maile.telia.com>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S271628AbRIBOAU>; Sun, 2 Sep 2001 10:00:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8459 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S271627AbRIBOAF>;
+	Sun, 2 Sep 2001 10:00:05 -0400
+Date: Sun, 2 Sep 2001 15:00:23 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: thunder7@xs4all.nl
+Cc: parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
+Subject: Re: [parisc-linux] documented Oops running big-endian reiserfs on parisc architecture
+Message-ID: <20010902150023.U5126@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20010902105538.A15344@middle.of.nowhere>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010902105538.A15344@middle.of.nowhere>; from thunder7@xs4all.nl on Sun, Sep 02, 2001 at 10:55:38AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Or/and we could remove the sources of higher order allocs, as an example:
-> why is the SCSI layer allowed to allocate order 3 allocs (32 kB) several
-> times per second? Will we really get a performance hit by not allowing
-> higher order allocs in active driver code?
+On Sun, Sep 02, 2001 at 10:55:38AM +0200, thunder7@xs4all.nl wrote:
+> ReiserFS version 3.6.25
+> bonnie[163]: Unaligned data reference 28
 
-Or put them in some slab like code, the slab for which gets allocated
-early on when memory is not fragmented, and (nearly) never gets released.
-Most of the stuff that actually NEEDS atomic allocation (as opposed
-to some of the requirements that are bogus) are for packets / data
-in flight. There is probably a finite amount of this at any given time.
+As it says, an unaligned data reference.
 
---
-Alex Bligh
+> r0-3     00000000 102ec550 10197d0c 26f24838
+
+> IASQ: 00000000 00000000 IAOQ: 10197d10 10197d14
+
+In kernel mode.
+
+> 10197d10:       0c 7c 10 93     ldw  e(sr0,r3),r19
+
+r3 is 26f24838, and offset `e' from that is unaligned.
+
+> which makes the error somewhere around here in 
+> fs/reiserfs/namei.c, function reiserfs_add_entry, after call to
+> padd_item, before call to reiserfs_find_entry:
+> 
+>     /* copy name */
+>     memcpy ((char *)(deh + 1), name, namelen);
+>     /* padd by 0s to the 4 byte boundary */
+>     padd_item ((char *)(deh + 1), ROUND_UP (namelen), namelen);
+> 
+>     /* entry is ready to be pasted into tree, set 'visibility' and 'stat data in entry' attributes */
+>     mark_de_without_sd (deh);
+>     visible ? mark_de_visible (deh) : mark_de_hidden (deh);
+> 
+>     /* find the proper place for the new entry */
+>     memset (bit_string, 0, sizeof (bit_string));
+>     de.de_gen_number_bit_string = (char *)bit_string;
+>     retval = reiserfs_find_entry (dir, name, namelen, &path, &de);
+
+I suspect mark_de_without_sd is an inlined function/macro and this will
+be where the unaligned data reference is happening.
+
+-- 
+Revolutions do not require corporate support.

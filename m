@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263458AbTFDPjE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 11:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263459AbTFDPjE
+	id S263503AbTFDPs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 11:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTFDPs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 11:39:04 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:63704 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263458AbTFDPjD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 11:39:03 -0400
-Subject: Re: 2.5.70-mm4
-From: Paul Larson <plars@linuxtestproject.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
-In-Reply-To: <20030603231827.0e635332.akpm@digeo.com>
-References: <20030603231827.0e635332.akpm@digeo.com>
+	Wed, 4 Jun 2003 11:48:57 -0400
+Received: from grebe.mail.pas.earthlink.net ([207.217.120.46]:44434 "EHLO
+	grebe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S263503AbTFDPsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 11:48:43 -0400
+Subject: Re: Strange load issues with 2.5.69/70 in both -mm and -bk trees.
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Mike Galbraith <efault@gmx.de>, Arjan van de Ven <arjanv@redhat.com>,
+       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0306041711410.13441-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0306041711410.13441-100000@localhost.localdomain>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 04 Jun 2003 10:52:19 -0500
-Message-Id: <1054741940.8438.175.camel@plars>
+Organization: 
+Message-Id: <1054742447.1820.46.camel@iso-8590-lx.zeusinc.com>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 Jun 2003 12:00:47 -0400
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-3.5, required 10,
+	AWL, EMAIL_ATTRIBUTION, IN_REP_TO, REFERENCES, SPAM_PHRASE_00_01)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-04 at 01:18, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm4/
-A couple of issues:
+On Wed, 2003-06-04 at 11:12, Ingo Molnar wrote:
+> a question - which process in your system is responsible for the sound
+> output?
 
-Hangs on boot unless I use acpi=off, but I don't believe this is unique
-to -mm.  I've seen this on plain 2.5 kernels on and off before with this
-8-way and others like it.  AFAIK the acpi issues are ongoing and still
-being worked, but please let me know if there's any information I can
-gather other than what's already out there that would assist in fixing
-these.
+In this simple test scenario it is wine itself (the actual process which
+I am renicing).  I verified this with a 'lsof' while sound was playing.
 
-I pulled the latest cvs of LTP and started a make on it.  The make
-finished but when I tried to do anything I realized that it was
-completely hung.  NMI was on but no messages over the serial console. 
-I'll turn off preempt and turn on debug eventlog and see if that
-provides any other useful information.  Is anyone else seeing this
-happen?  I had seen similar hangs in -mm2 and was told that ext3 might
-be the cuplrit and to wait for -mm3.  I didn't get a chance to try -mm3.
+This is why I keep saying that it almost seems as if it is the kernel
+itself that is being starved (perhaps starved is the wrong word here).
 
-Thanks,
-Paul Larson
+If the environment is a simple as:
 
+pluginserver-->/dev/dsp-->hardware
+
+and renicing the pluginserver process to a lower priority is what makes
+the sound stop skipping, then what else can it be?
+
+I am using ALSA with OSS emulation, but I did try the OSS driver as
+well.  My primary testing machine is a laptop with a Maestro3 sound card
+which is known to be buggy sometimes (although I've actually had very
+good success with it, especially with ALSA), but I have reproduced this
+issue with my desktop at home which is an Athlon 950Mhz with a
+Soundblaster live, although it is less noticable.
+
+It's been suggested I may be tripping some type of hardware quirk here,
+perhaps a shared interrupt issue, or simple PCI bandwidth or latency.  I
+suppose this is possible and I'm looking at these kinds of tweaks, but I
+think they are unlikely as why would renicing a userspace process make
+this type of problem go away?
+
+Later,
+Tom
 

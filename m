@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265863AbTIJWED (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 18:04:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265864AbTIJWED
+	id S265830AbTIJWeK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 18:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265883AbTIJWdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 18:04:03 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15103 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265863AbTIJWEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 18:04:00 -0400
-Date: Thu, 11 Sep 2003 00:03:43 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test4-mm5 and below: Wine and XMMS problems
-Message-ID: <20030910220343.GS27368@fs.tum.de>
-References: <20030902231812.03fae13f.akpm@osdl.org> <20030907100843.GM14436@fs.tum.de> <3F5B0AD2.3000706@cyberone.com.au> <20030908230820.GG14800@fs.tum.de>
+	Wed, 10 Sep 2003 18:33:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62179 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265900AbTIJWbC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 18:31:02 -0400
+Date: Wed, 10 Sep 2003 15:12:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: jbarnes@sgi.com (Jesse Barnes)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] you have how many nodes??
+Message-Id: <20030910151254.52f53e62.akpm@osdl.org>
+In-Reply-To: <20030910213602.GC17266@sgi.com>
+References: <20030910213602.GC17266@sgi.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030908230820.GG14800@fs.tum.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 01:08:20AM +0200, Adrian Bunk wrote:
-> On Sun, Sep 07, 2003 at 08:39:14PM +1000, Nick Piggin wrote:
-> > 
-> > Hi Adrian,
-> 
-> Hi Nick,
-> 
-> > It would be great if you could test the latest mm kernel (mm6 as of now
-> > I think), which has Con's latest stuff in it. You could also test my
-> > newest scheduler patch. Thanks for the feedback.
-> 
-> I didn't check -mm6 (I had a different problem with -mm6 and not that 
-> much time).
-> 
-> I tried plain test4 with your sched-rollup-v14 and I got these awful
-> slower sound like when wou manually retard a record.
+jbarnes@sgi.com (Jesse Barnes) wrote:
+>
+> Needed this for booting on a 128 node system.
+>
+> -#define ZONE_SHIFT (BITS_PER_LONG - 8)
+> +#define ZONE_SHIFT (BITS_PER_LONG - 10)
 
-More data:
-I tried test5 and test5-mm1.
+eeek, ia32 just lost another two page flags.
 
-Both produced this awful slower sound like when wou manually retard a 
-record, although my subjective impression was that it happens fewer than 
-with test4 with your sched-rollup-v14.
+This stuff needs to be controlled by per-arch and per-subarch header files.
 
-2.5.72 is still better than all recent kernels I've tested...  :-(
+Instead of going backwards like this we'd like to actually free up _more_
+bits in page->flags.  The worst (and controlling) case is on 32-bit NUMA:
+eight nodes, three zones per node.  That's five bits, leaving us 27 page
+flags.
 
-cu
-Adrian
+So we'd need
 
--- 
+	include/asm-foo/zonestuff.h:
+	
+	#define ARCH_MAX_NODES_SHIFT	3	/* Up to 8 nodes */
+	#define ARCH_MAX_ZONES_SHIFT	2	/* Up to 4 zones per node */
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 
+and all the mm.h/mmzone.h constants use those two.
+
+
+I think.  We could just say "dang numaq needs five bits", so:
+
+
+	#if BITS_PER_LONG == 32
+	#define ZONE_SHIFT 5
+	#else
+	#define ZONE_SHIFT 10
+	#endif
+
+
+Bit sleazy, but I think that would suffice.

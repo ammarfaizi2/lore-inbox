@@ -1,95 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266224AbRGESpb>; Thu, 5 Jul 2001 14:45:31 -0400
+	id <S266235AbRGES4x>; Thu, 5 Jul 2001 14:56:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266221AbRGESpV>; Thu, 5 Jul 2001 14:45:21 -0400
-Received: from zeke.inet.com ([199.171.211.198]:26100 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S266224AbRGESpO>;
-	Thu, 5 Jul 2001 14:45:14 -0400
-Message-ID: <3B44B4BD.DD7F7A5B@inet.com>
-Date: Thu, 05 Jul 2001 13:41:01 -0500
-From: "Jordan Breeding" <jordan.breeding@inet.com>
-Reply-To: Jordan <ledzep37@home.com>,
-        Jordan Breeding <jordan.breeding@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problems halting/rebooting with 2.4.{5,6}-ac
-In-Reply-To: <3B44AD33.26D97B4C@inet.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266230AbRGES4m>; Thu, 5 Jul 2001 14:56:42 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:55827 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S266227AbRGES4d>; Thu, 5 Jul 2001 14:56:33 -0400
+Date: Thu, 5 Jul 2001 14:56:33 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200107051856.f65IuXf29897@devserv.devel.redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Is  Swapping on software RAID1 possible  in linux 2.4 ?
+In-Reply-To: <mailman.994340644.23368.linux-kernel2news@redhat.com>
+In-Reply-To: <1011478953412.20010705152412@spylog.ru>  <15172.22988.643481.421716@notabene.cse.unsw.edu.au> <11486070195.20010705172249@spylog.ru> <mailman.994340644.23368.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jordan Breeding wrote:
+In linux-kernel, you wrote:
+> Peter Zaitsev wrote:
+> > 
+> > That's why I thought this problem is related to raid1 swapping I'm
+> > using.
 > 
-> I have a Tyan Tiger 230 SMP system running dual 1 GHz PIII processors.
-> The processors are of the same lot and revision, bought on the same
-> day.  Everything worked fine or some time in regard to
-> halting/rebooting.  I was using ac kernels configured with ACPI.  At the
-> time of the merge with the Linus stuff which included new ACPI I started
-> configuring with ACPI and ACPI bus management and I could no longer halt
-> the system but rebooting worked OK.  As of 2.4.5-ac24 and 2.4.6-ac1 I
-> can no longer halt or reboot my system properly using no power
-> management or ACPI, and APM still displays the message about being
-> broken on SMP.  Has anyone seen this problem, is there a fix for it?
-> Another thing I have noticed is that my /proc/cpuinfo file looks like
-> this:
-> 
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 8
-> model name      : Pentium III (Coppermine)
-> stepping        : 6
-> cpu MHz         : 999.694
-> cache size      : 256 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 2
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-> mca cmov pat pse36 mmx fxsr sse
-> bogomips        : 1992.29
-> 
-> processor       : 1
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 8
-> model name      : Pentium III (Coppermine)
-> stepping        : 6
-> cpu MHz         : 999.694
-> cache size      : 256 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 3
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-> mca cmov pat pse36 mmx fxsr sse
-> bogomips        : 1998.84
-> 
-> Notice the difference in cpuid level and bogomips values between the
-> two.  These processors should be exactly the same, same lot and revision
-> and everything else according to the shrink wrapped Intel retail boxes
-> they came out of.  What could be casuing them to show up at different
-> cpuid levels?  Thanks for any help with either issue.
-> 
-> Jordan Breeding
+> Well there is the potential problem that RAID1 has that it can't avoid allocating
+> memory in some occasions, for the 2nd bufferhead. ATARAID raid0 has the same problem for
+> now, and there is no real solution to this. You can pre-allocate a bunch of bufferheads,
+> but under high load you will run out of those, no matter how many you pre-allocate.
 
-Very sorry to have not included more information, when halting or
-rebooting it now stop at INIT: there are no more processes left at this
-run level and never actually reboots or halts.  To get around it I
-either have to hit the power/reset buton or use SysReq to reboot it. 
-Thanks again for any help.
+Arjan, why doesn't it sleep instead (GFP_KERNEL)?
 
-Jordan Breeding
+-- Pete

@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262402AbULCRcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbULCRb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262402AbULCRcX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 12:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbULCRcW
+	id S262373AbULCRb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 12:31:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbULCRbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 12:32:22 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:41113 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262402AbULCRbV (ORCPT
+	Fri, 3 Dec 2004 12:31:55 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:24766 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S262399AbULCR0T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 12:31:21 -0500
-Date: Fri, 3 Dec 2004 09:03:51 -0800
-From: Greg KH <greg@kroah.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6.10-rc2-mm4] perfctr sysfs update 1/4: core
-Message-ID: <20041203170351.GG28118@kroah.com>
-References: <200412021010.iB2AAORk004531@alkaid.it.uu.se> <20041202185918.GA8264@kroah.com> <16816.14159.597170.829515@alkaid.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16816.14159.597170.829515@alkaid.it.uu.se>
-User-Agent: Mutt/1.5.6i
+	Fri, 3 Dec 2004 12:26:19 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CA72@exa-atlanta>
+From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+To: "'Matt Domsch'" <Matt_Domsch@dell.com>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>
+Cc: "'brking@us.ibm.com'" <brking@us.ibm.com>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
+       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>,
+       "Mukker, Atul" <Atulm@lsil.com>
+Subject: RE: How to add/drop SCSI drives from within the driver?
+Date: Fri, 3 Dec 2004 12:18:22 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 03, 2004 at 10:52:15AM +0100, Mikael Pettersson wrote:
-> Greg KH writes:
->  > On Thu, Dec 02, 2004 at 11:10:24AM +0100, Mikael Pettersson wrote:
->  > > +static int __init perfctr_class_init(void)
->  > > +{
->  > > +	int ret;
->  > > +
->  > > +	ret = class_register(&perfctr_class);
->  > > +	if (ret)
->  > > +		return ret;
->  > > +	ret |= class_create_file(&perfctr_class, &class_attr_driver_version);
->  > > +	ret |= class_create_file(&perfctr_class, &class_attr_cpu_type);
->  > > +	ret |= class_create_file(&perfctr_class, &class_attr_cpu_features);
->  > > +	ret |= class_create_file(&perfctr_class, &class_attr_cpu_khz);
->  > > +	ret |= class_create_file(&perfctr_class, &class_attr_tsc_to_cpu_mult);
->  > > +	ret |= class_create_file(&perfctr_class, &class_attr_cpus_online);
->  > > +	ret |= class_create_file(&perfctr_class, &class_attr_cpus_forbidden);
->  > > +	if (ret)
->  > > +		class_unregister(&perfctr_class);
->  > > +	return ret;
->  > 
->  > It's easier to use sysfs_create_group() instead of registering all of
->  > the individual files.
-> 
-> Thanks for the hint. While looking around I noticed I can simplify
-> it even further by having perfctr_class.class_attrs point to an array
-> of attributes at class_register() time.
+4 Against        0 For
 
-Nice, I forgot about that :)
+That settles it. Thank you all for your replies.
 
-greg k-h
+Sreenivas
+LSI Logic 
+
+>-----Original Message-----
+>From: Matt Domsch [mailto:Matt_Domsch@dell.com] 
+>Sent: Friday, December 03, 2004 12:14 PM
+>To: Bagalkote, Sreenivas
+>Cc: 'brking@us.ibm.com'; 'James Bottomley'; 
+>'linux-kernel@vger.kernel.org'; 'linux-scsi@vger.kernel.org'; 
+>'bunk@fs.tum.de'; 'Andrew Morton'; Ju, Seokmann; Doelfel, 
+>Hardy; Mukker, Atul
+>Subject: Re: How to add/drop SCSI drives from within the driver?
+>
+>On Fri, Dec 03, 2004 at 11:11:01AM -0600, Matt Domsch wrote:
+>> Doing it within the driver means you've got to release a new driver 
+>> for each affected OS, to avoid having to update the userspace app on 
+>> each OS.  I claim it's much easier to update a userspace 
+>lib/app than 
+>> it is to update a driver on each installed system.
+>
+>And, you're going to have to update the userspace lib/app to 
+>add the new ioctl()-invocation to it anyhow.  So take the hit 
+>*only* there and make it use either /sys or /proc, whichever 
+>is available, no kernel changes.  Yes?
+>
+>--
+>Matt Domsch
+>Sr. Software Engineer, Lead Engineer
+>Dell Linux Solutions linux.dell.com & www.dell.com/linux Linux 
+>on Dell mailing lists @ http://lists.us.dell.com
+>

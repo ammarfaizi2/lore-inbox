@@ -1,116 +1,212 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265081AbSK1CFc>; Wed, 27 Nov 2002 21:05:32 -0500
+	id <S265093AbSK1COD>; Wed, 27 Nov 2002 21:14:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265093AbSK1CFc>; Wed, 27 Nov 2002 21:05:32 -0500
-Received: from dp.samba.org ([66.70.73.150]:50093 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265081AbSK1CFb>;
-	Wed, 27 Nov 2002 21:05:31 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S265096AbSK1COD>; Wed, 27 Nov 2002 21:14:03 -0500
+Received: from 12-237-16-92.client.attbi.com ([12.237.16.92]:58884 "EHLO
+	ledzep.dyndns.org") by vger.kernel.org with ESMTP
+	id <S265093AbSK1COA>; Wed, 27 Nov 2002 21:14:00 -0500
+From: "Jordan Breeding" <jordan.breeding@attbi.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [BUG] problem using aic7xxx based card in 2.5.x
+Date: Wed, 27 Nov 2002 20:21:21 -0600
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAsryhQfelRE+gmp9TTqKRT8KAAAAQAAAA5u2vWiVUFEqRjW02kVm5bQEAAAAA@attbi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15845.31596.453118.158051@argo.ozlabs.ibm.com>
-Date: Thu, 28 Nov 2002 13:11:56 +1100
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, Franz.Sirl-kernel@lauterbach.com
-Subject: [PATCH] [RESEND] Update adbhid.c driver
-X-Mailer: VM 7.07 under Emacs 20.7.2
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0007_01C29652.8D027B70"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
+X-OriginalArrivalTime: 28 Nov 2002 02:21:21.0718 (UTC) FILETIME=[D79F3560:01C29684]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+This is a multi-part message in MIME format.
 
-This patch updates drivers/macintosh/adbhid.c driver (which interfaces
-between the ADB bus and the input layer).  The patch gets rid of
-global cli/sti uses and corrects some typos (for example
-input.idversion -> input.id.version).  These changes have been
-approved by Franz Sirl, the maintainer of this driver.
+------=_NextPart_000_0007_01C29652.8D027B70
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-Please apply.
+Hello,
 
-Thanks,
-Paul.
+  I am running a new Gigabyte GA-8IPXDR dual Xeon board under Linux.  I
+can get everything to work with stock 2.4.x, 2.4.x with acpi and 2.4.x
+with acpi and booted with pci=noacpi, all of this is using 2.4.20-rc3
+with the latest acpi patch from sourceforge and the new aic7xxx driver.
+If I try and boot either 2.5.49, 2.5.49-bk or 2.5.49-mm1 the kernel gets
+as far as loading the scsi driver and then it starts acting very weird.
+I starts issuing the debug messages and card state dumps that are
+normally only printed when interrupts aren't setup correctly.  This is
+very odd considering 2.5.49 should be using the same acpi code as
+2.4.20-rc3 with the patch in place.  Also I can't boot 2.5.49 under any
+circumstance including acpi=off and/or pci=noacpi.  The board uses the
+Intel E7500 chipset and has onboard U160 (AIC-7899).  I am attached
+gzipped copies of a working dmesg from 2.4.20-ac3, /proc/interrupts and
+/proc/cpuinfo. 
+I don't have a serial console to grab the failing boot messages from
+2.5.x but they are the same messages everyone else gets from the aic7xxx
+driver when things are going according to plan interrupt wise.  Thanks
+for any help.
 
-diff -urN for-linus-ppc/drivers/macintosh/adbhid.c pmac-2.5/drivers/macintosh/adbhid.c
---- for-linus-ppc/drivers/macintosh/adbhid.c	2002-10-09 08:18:31.000000000 +1000
-+++ pmac-2.5/drivers/macintosh/adbhid.c	2002-11-07 14:50:41.000000000 +1100
-@@ -3,8 +3,9 @@
-  *
-  * ADB HID driver for Power Macintosh computers.
-  *
-- * Adapted from drivers/macintosh/mac_keyb.c by Franz Sirl
-- * (see that file for its authors and contributors).
-+ * Adapted from drivers/macintosh/mac_keyb.c by Franz Sirl.
-+ * drivers/macintosh/mac_keyb.c was Copyright (C) 1996 Paul Mackerras
-+ * with considerable contributions from Ben Herrenschmidt and others.
-  *
-  * Copyright (C) 2000 Franz Sirl.
-  *
-@@ -433,22 +434,17 @@
- static int
- adb_message_handler(struct notifier_block *this, unsigned long code, void *x)
- {
--	unsigned long flags;
--
- 	switch (code) {
- 	case ADB_MSG_PRE_RESET:
- 	case ADB_MSG_POWERDOWN:
- 	    	/* Stop the repeat timer. Autopoll is already off at this point */
--		save_flags(flags);
--		cli();
- 		{
- 			int i;
- 			for (i = 1; i < 16; i++) {
- 				if (adbhid[i])
--					del_timer(&adbhid[i]->input.timer);
-+					del_timer_sync(&adbhid[i]->input.timer);
- 			}
- 		}
--		restore_flags(flags);
- 
- 		/* Stop pending led requests */
- 		while(!led_request.complete)
-@@ -479,7 +475,7 @@
- 	memset(adbhid[id], 0, sizeof(struct adbhid));
- 	sprintf(adbhid[id]->phys, "adb%d:%d.%02x/input", id, default_id, original_handler_id);
- 
--	init_input_dev(&adbhid[id]);
-+	init_input_dev(&adbhid[id]->input);
- 
- 	adbhid[id]->id = default_id;
- 	adbhid[id]->original_handler_id = original_handler_id;
-@@ -508,21 +504,21 @@
- 		switch (original_handler_id) {
- 		default:
- 			printk("<unknown>.\n");
--			adbhid[id]->input.idversion = ADB_KEYBOARD_UNKNOWN;
-+			adbhid[id]->input.id.version = ADB_KEYBOARD_UNKNOWN;
- 			break;
- 
- 		case 0x01: case 0x02: case 0x03: case 0x06: case 0x08:
- 		case 0x0C: case 0x10: case 0x18: case 0x1B: case 0x1C:
- 		case 0xC0: case 0xC3: case 0xC6:
- 			printk("ANSI.\n");
--			adbhid[id]->input.idversion = ADB_KEYBOARD_ANSI;
-+			adbhid[id]->input.id.version = ADB_KEYBOARD_ANSI;
- 			break;
- 
- 		case 0x04: case 0x05: case 0x07: case 0x09: case 0x0D:
- 		case 0x11: case 0x14: case 0x19: case 0x1D: case 0xC1:
- 		case 0xC4: case 0xC7:
- 			printk("ISO, swapping keys.\n");
--			adbhid[id]->input.idversion = ADB_KEYBOARD_ISO;
-+			adbhid[id]->input.id.version = ADB_KEYBOARD_ISO;
- 			i = adbhid[id]->keycode[10];
- 			adbhid[id]->keycode[10] = adbhid[id]->keycode[50];
- 			adbhid[id]->keycode[50] = i;
-@@ -531,7 +527,7 @@
- 		case 0x12: case 0x15: case 0x16: case 0x17: case 0x1A:
- 		case 0x1E: case 0xC2: case 0xC5: case 0xC8: case 0xC9:
- 			printk("JIS.\n");
--			adbhid[id]->input.idversion = ADB_KEYBOARD_JIS;
-+			adbhid[id]->input.id.version = ADB_KEYBOARD_JIS;
- 			break;
- 		}
- 
+Jordan
+
+------=_NextPart_000_0007_01C29652.8D027B70
+Content-Type: application/octet-stream;
+	name="dmesg.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="dmesg.gz"
+
+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
+
+------=_NextPart_000_0007_01C29652.8D027B70
+Content-Type: application/octet-stream;
+	name="cpuinfo.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="cpuinfo.gz"
+
+H4sICJxC5T0AA2NwdWluZm8A7VHLTsMwEDzXX7HH9hIl6YtyBKEWoQJCIHGrXGeTWPJLsRPSfj3r
+FFHEF/TQg62dndmx1uMaK9B724xuIWUdmsI2O1kQWqNppcFHE1Ax4VoouZbqQEw2Z9oWqEZU56cS
+DNdIcFCP3ybw+fDyPH7fTuD+9QPyZJauN0fmAzonTUXC2WC53RwHk+kqT1YL6nFRI3h5jF7zLIen
+O1YWstvt2zhkLKtVGMAJlWlanjlhNT+j0rVRdUAfyx32Al2Q1vz06HlZgMKO9ohrfLlfteKVj4DG
+oNMIBYLzCMEL0L4BxxG0QBD9DXAnBXh0oENDTBUZDkLbjmQhjk0XIFSpWl9DETxw4SRo3UPZk5Un
+Wzo5XVAHCJrtbWW1dD5+0XKZJWnOmPuTUXbN6LIyupkl2b+M8mtGF5/R9JrRRWb0Ddrw09WQBgAA
+
+------=_NextPart_000_0007_01C29652.8D027B70
+Content-Type: application/octet-stream;
+	name="interrupts.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="interrupts.gz"
+
+H4sICKlC5T0AA2ludGVycnVwdHMApZPdasIwGIbPcxXfBVhI0pjUnknxoDCnuA12WtOgRcXR1hHv
+3mys+Tp/sNYcPYG8D2/+APxI5h8UkSFyxPAPCQCNf4nTUFCFFnob01kwnqdJYPKVAaiLnSmdh8W4
+TPbwbMxxuc/K3Kl43Cl/gZ/vgfMB6KzSWW6cKWqZ2L34lVJlrZ1l9GifRrI132YLkOmvggCTjSaS
+tFOZM82hWgaHtf5RPdtIV0JaO2gphVdyzvq0M/WaElD+7mSkRJ+zKrSy1jpTiHtUvU69MY0kmlin
+p3nD9DpN/Wfh0fA+kpdZggmpEIXHISakS0wWi/bdkmn69m9+Ar9RIePpAwAA
+
+------=_NextPart_000_0007_01C29652.8D027B70--
+

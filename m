@@ -1,274 +1,287 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266650AbUHBREI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUHBRGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266650AbUHBREI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 13:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266643AbUHBREI
+	id S266648AbUHBRGd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 13:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266661AbUHBRGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 13:04:08 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:20135 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266661AbUHBRDh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 13:03:37 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Date: Mon, 2 Aug 2004 10:02:31 -0700
+	Mon, 2 Aug 2004 13:06:30 -0400
+Received: from smtp.sys.beep.pl ([195.245.198.13]:27411 "EHLO smtp.sys.beep.pl")
+	by vger.kernel.org with ESMTP id S266643AbUHBRFs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 13:05:48 -0400
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: Corey Minyard <minyard@acm.org>
+Subject: Re: IPMI watchdog question
+Date: Mon, 2 Aug 2004 19:05:28 +0200
 User-Agent: KMail/1.6.2
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-References: <20040730221528.2702.qmail@web14922.mail.yahoo.com> <200407310859.45769.jbarnes@engr.sgi.com>
-In-Reply-To: <200407310859.45769.jbarnes@engr.sgi.com>
+Cc: Holger Kiehl <Holger.Kiehl@dwd.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0407280901330.31636@praktifix.dwd.de> <200408021829.18228.arekm@pld-linux.org> <410E710E.20004@acm.org>
+In-Reply-To: <410E710E.20004@acm.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_nOnDBWVesFCL82I"
-Message-Id: <200408021002.31117.jbarnes@engr.sgi.com>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200408021905.28112.arekm@pld-linux.org>
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: Points assigned by spam scoring system to this email. Note that message
+	is treated as spam ONLY if X-Spam-Flag header is set to YES.
+	If you have any report questions, see report postmaster@beep.pl for details.
+	Content analysis details:   (0.0 points, 25.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 02 of August 2004 18:51, Corey Minyard wrote:
 
---Boundary-00=_nOnDBWVesFCL82I
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> Your patch looks very good.  Could you add the test and set change,
+> too?  Then I think it is ready to go in.
+Added.
 
-On Saturday, July 31, 2004 8:59 am, Jesse Barnes wrote:
-> On Friday, July 30, 2004 3:15 pm, Jon Smirl wrote:
-> > If you set pci_dev->resource[PCI_ROM_RESOURCE] to C000:0 won't this
-> > mess up pci_assign_resource()/release_resource()?
->
-> Yeah, you're right, that wouldn't be a good thing to do.  I guess I'll have
-> to hang a different structure off of the pci_dev so we can tell the sysfs
-> rom handling code where to get the rom.  Doing it that way would allow us
-> to deal with cards that really need a copy made too, though the default
-> behavior would be to read it directly.
->
-> How does that sound?
+- support disabling watchdog by writting ,,V'' to device.
+- unify printk()
+- use atomic bit operations on ipmi_wdog_open
 
-Here's a new patch that implements that suggestion, though without any special 
-cases for the various cards that might need the ROM copy (e.g. those with 
-shared decoders or whose ROMs are in the system ROM somewhere).  How does it 
-look, Greg?  It it suitable for the mainline yet?  I expect those familiar 
-with the various cards to add the necessary quirks code as needed.
+Signed-off-by: Arkadiusz Miskiewicz <arekm@pld-linux.org>
 
-Thanks,
-Jesse
-
---Boundary-00=_nOnDBWVesFCL82I
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="pci-sysfs-rom-7.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="pci-sysfs-rom-7.patch"
-
-===== drivers/pci/pci-sysfs.c 1.10 vs edited =====
---- 1.10/drivers/pci/pci-sysfs.c	2004-06-04 06:23:04 -07:00
-+++ edited/drivers/pci/pci-sysfs.c	2004-08-02 09:57:11 -07:00
-@@ -164,6 +164,92 @@
- 	return count;
- }
- 
-+/**
-+ * pci_enable_rom - enable ROM decoding for a PCI device
-+ * @dev: PCI device to enable
-+ *
-+ * Enable ROM decoding on @dev.  This involves simply turning on the last
-+ * bit of the PCI ROM BAR.  Note that some cards may share address decoders
-+ * between the ROM and other resources, so enabling it may disable access
-+ * to MMIO registers or other card memory.
-+ */
-+static void
-+pci_enable_rom(struct pci_dev *dev)
-+{
-+	u32 rom_addr;
-+
-+	pci_read_config_dword(dev, PCI_ROM_ADDRESS, &rom_addr);
-+	rom_addr |= PCI_ROM_ADDRESS_ENABLE;
-+	pci_write_config_dword(dev, PCI_ROM_ADDRESS, rom_addr);
-+}
-+
-+/**
-+ * pci_disable_rom - disable ROM decoding for a PCI device
-+ * @dev: PCI device to disable
-+ *
-+ * Disable ROM decoding on a PCI device by turning off the last bit in the
-+ * ROM BAR.
-+ */
-+static void
-+pci_disable_rom(struct pci_dev *dev)
-+{
-+	u32 rom_addr;
-+
-+	pci_read_config_dword(dev, PCI_ROM_ADDRESS, &rom_addr);
-+	rom_addr &= ~PCI_ROM_ADDRESS_ENABLE;
-+	pci_write_config_dword(dev, PCI_ROM_ADDRESS, rom_addr);
-+}
-+
-+/**
-+ * pci_read_rom - read a PCI ROM
-+ * @kobj: kernel object handle
-+ * @buf: where to put the data we read from the ROM
-+ * @off: file offset
-+ * @count: number of bytes to read
-+ *
-+ * Put @count bytes starting at @off into @buf from the ROM in the PCI
-+ * device corresponding to @kobj.
-+ */
-+static ssize_t
-+pci_read_rom(struct kobject *kobj, char *buf, loff_t off, size_t count)
-+{
-+	struct pci_dev *dev = to_pci_dev(container_of(kobj,struct device,kobj));
-+	loff_t init_off = off;
-+	unsigned long start = pci_resource_start(dev, PCI_ROM_RESOURCE);
-+	int size = pci_resource_len(dev, PCI_ROM_RESOURCE);
-+	char direct_access = dev->rom_info.rom ? 0 : 1;
-+
-+	if (off > size)
-+		return 0;
-+	if (off + count > size) {
-+		size -= off;
-+		count = size;
-+	} else {
-+		size = count;
-+	}
-+
-+	/* Enable ROM space decodes and do the reads */
-+	if (direct_access)
-+		pci_enable_rom(dev);
-+
-+	while (size > 0) {
-+		unsigned char val;
-+		if (direct_access)
-+			val = readb(start + off);
-+		else
-+			val = *(dev->rom_info.rom + off);
-+		buf[off - init_off] = val;
-+		off++;
-+		--size;
-+	}
-+
-+	/* Disable again before continuing */
-+	if (direct_access)
-+		pci_disable_rom(dev);
-+
-+	return count;
-+}
-+
- static struct bin_attribute pci_config_attr = {
- 	.attr =	{
- 		.name = "config",
-@@ -186,13 +272,50 @@
- 	.write = pci_write_config,
- };
- 
--void pci_create_sysfs_dev_files (struct pci_dev *pdev)
-+void pci_create_sysfs_dev_files(struct pci_dev *pdev)
- {
- 	if (pdev->cfg_size < 4096)
- 		sysfs_create_bin_file(&pdev->dev.kobj, &pci_config_attr);
- 	else
- 		sysfs_create_bin_file(&pdev->dev.kobj, &pcie_config_attr);
- 
-+	/* If the device has a ROM, try to expose it in sysfs. */
-+	if (pci_resource_len(pdev, PCI_ROM_RESOURCE)) {
-+		struct bin_attribute *rom_attr;
-+		rom_attr = kmalloc(sizeof(*rom_attr), GFP_ATOMIC);
-+
-+		pdev->rom_info.rom_attr = NULL;
-+		if (!rom_attr)
-+			goto out;
-+
-+		pdev->rom_info.rom_attr = rom_attr;
-+		rom_attr->attr.name = "rom";
-+		rom_attr->attr.mode = S_IRUSR;
-+		rom_attr->attr.owner = THIS_MODULE;
-+		rom_attr->read = pci_read_rom;
-+		rom_attr->size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
-+		sysfs_create_bin_file(&pdev->dev.kobj, rom_attr);
-+	}
-+ out:
- 	/* add platform-specific attributes */
- 	pcibios_add_platform_entries(pdev);
-+}
-+
-+/**
-+ * pci_remove_sysfs_dev_files - cleanup PCI specific sysfs files
-+ * @pdev: device whose entries we should free
-+ *
-+ * Cleanup when @pdev is removed from sysfs.
-+ */
-+void pci_remove_sysfs_dev_files(struct pci_dev *pdev)
-+{
-+	if (pdev->cfg_size < 4096)
-+		sysfs_remove_bin_file(&pdev->dev.kobj, &pci_config_attr);
-+	else
-+		sysfs_remove_bin_file(&pdev->dev.kobj, &pcie_config_attr);
-+
-+	if (pdev->rom_info.rom_attr) {
-+		sysfs_remove_bin_file(&pdev->dev.kobj, pdev->rom_info.rom_attr);
-+		kfree(pdev->rom_info.rom_attr);
-+	}
- }
-===== drivers/pci/pci.h 1.12 vs edited =====
---- 1.12/drivers/pci/pci.h	2004-06-04 06:23:04 -07:00
-+++ edited/drivers/pci/pci.h	2004-08-02 09:41:02 -07:00
-@@ -3,6 +3,7 @@
- extern int pci_hotplug (struct device *dev, char **envp, int num_envp,
- 			 char *buffer, int buffer_size);
- extern void pci_create_sysfs_dev_files(struct pci_dev *pdev);
-+extern void pci_remove_sysfs_dev_files(struct pci_dev *pdev);
- extern int pci_bus_alloc_resource(struct pci_bus *bus, struct resource *res,
- 				  unsigned long size, unsigned long align,
- 				  unsigned long min, unsigned int type_mask,
-===== drivers/pci/probe.c 1.65 vs edited =====
---- 1.65/drivers/pci/probe.c	2004-05-21 11:45:27 -07:00
-+++ edited/drivers/pci/probe.c	2004-08-02 09:43:21 -07:00
-@@ -157,6 +157,8 @@
+--- linux.org/drivers/char/ipmi/ipmi_watchdog.c.org	2004-08-02 18:03:52.400100664 +0200
++++ linux/drivers/char/ipmi/ipmi_watchdog.c	2004-08-02 19:00:14.149996536 +0200
+@@ -51,6 +51,8 @@
+ #include <asm/apic.h>
  #endif
- 		}
+ 
++#define	PFX "IPMI Watchdog: "
++
+ #define IPMI_WATCHDOG_VERSION "v32"
+ 
+ /*
+@@ -160,6 +162,7 @@
+ static DECLARE_WAIT_QUEUE_HEAD(read_q);
+ static struct fasync_struct *fasync_q = NULL;
+ static char pretimeout_since_last_heartbeat = 0;
++static char expect_close;
+ 
+ /* If true, the driver will start running as soon as it is configured
+    and ready. */
+@@ -191,7 +194,7 @@
+ static int ipmi_ignore_heartbeat = 0;
+ 
+ /* Is someone using the watchdog?  Only one user is allowed. */
+-static int ipmi_wdog_open = 0;
++static unsigned long ipmi_wdog_open = 0;
+ 
+ /* If set to 1, the heartbeat command will set the state to reset and
+    start the timer.  The timer doesn't normally run when the driver is
+@@ -287,7 +290,7 @@
+ 				      recv_msg,
+ 				      1);
+ 	if (rv) {
+-		printk(KERN_WARNING "IPMI Watchdog, set timeout error: %d\n",
++		printk(KERN_WARNING PFX "set timeout error: %d\n",
+ 		       rv);
  	}
+ 
+@@ -464,7 +467,7 @@
+ 				      1);
+ 	if (rv) {
+ 		up(&heartbeat_lock);
+-		printk(KERN_WARNING "IPMI Watchdog, heartbeat failure: %d\n",
++		printk(KERN_WARNING PFX "heartbeat failure: %d\n",
+ 		       rv);
+ 		return rv;
+ 	}
+@@ -603,6 +606,21 @@
+ 		return -ESPIPE;
+ 
+ 	if (len) {
++	    	if (!nowayout) {
++		    	size_t i;
 +
-+	dev->rom_info.rom = NULL;
- 	if (rom) {
- 		dev->rom_base_reg = rom;
- 		res = &dev->resource[PCI_ROM_RESOURCE];
-===== drivers/pci/remove.c 1.3 vs edited =====
---- 1.3/drivers/pci/remove.c	2004-02-03 09:17:30 -08:00
-+++ edited/drivers/pci/remove.c	2004-08-02 09:41:52 -07:00
-@@ -26,6 +26,9 @@
- static void pci_destroy_dev(struct pci_dev *dev)
++			/* In case it was set long ago */
++			expect_close = 0;
++			
++    			for (i = 0; i != len; i++) {
++				char c;
++
++				if (get_user(c, buf + i))
++					return -EFAULT;
++				if (c == 'V')
++					expect_close = 42;
++			}
++		}
+ 		rv = ipmi_heartbeat();
+ 		if (rv)
+ 			return rv;
+@@ -670,11 +688,9 @@
+         switch (iminor(ino))
+         {
+                 case WATCHDOG_MINOR:
+-                    if (ipmi_wdog_open)
++		    if(test_and_set_bit(0, &ipmi_wdog_open))
+                         return -EBUSY;
+ 
+-                    ipmi_wdog_open = 1;
+-
+ 		    /* Don't start the timer now, let it start on the
+ 		       first heartbeat. */
+ 		    ipmi_start_timer_on_heartbeat = 1;
+@@ -712,14 +728,18 @@
  {
- 	pci_proc_detach_device(dev);
-+	/* Free the copy of the ROM if we made one */
-+	kfree(dev->rom_info.rom);
-+	pci_remove_sysfs_dev_files(dev);
- 	device_unregister(&dev->dev);
+ 	if (iminor(ino)==WATCHDOG_MINOR)
+ 	{
+-		if (!nowayout) {
++		if (expect_close == 42) {
+ 			ipmi_watchdog_state = WDOG_TIMEOUT_NONE;
+ 			ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB);
++			clear_bit(0, &ipmi_wdog_open);
++		} else {
++			printk(KERN_CRIT PFX "Unexpected close, not stopping watchdog!\n");
++			ipmi_heartbeat();
+ 		}
+-	        ipmi_wdog_open = 0;
+ 	}
  
- 	/* Remove the device from the device lists, and prevent any further
-===== include/linux/pci.h 1.130 vs edited =====
---- 1.130/include/linux/pci.h	2004-06-30 11:21:27 -07:00
-+++ edited/include/linux/pci.h	2004-08-02 09:32:08 -07:00
-@@ -471,6 +471,11 @@
- 	pci_mmap_mem
- };
+ 	ipmi_fasync (-1, filep, 0);
++	expect_close = 0;
  
-+struct rom_info {
-+	char *rom; /* copy of the ROM if necessary */
-+	struct bin_attribute *rom_attr;
-+};
-+
- /* This defines the direction arg to the DMA mapping routines. */
- #define PCI_DMA_BIDIRECTIONAL	0
- #define PCI_DMA_TODEVICE	1
-@@ -537,6 +542,7 @@
- 	unsigned int	is_busmaster:1; /* device is busmaster */
- 	
- 	unsigned int 	saved_config_space[16]; /* config space saved at suspend time */
-+	struct rom_info rom_info; /* How and where to get the ROM info for this device */
- #ifdef CONFIG_PCI_NAMES
- #define PCI_NAME_SIZE	96
- #define PCI_NAME_HALF	__stringify(43)	/* less than half to handle slop */
+ 	return 0;
+ }
+@@ -747,7 +767,7 @@
+ 				  void                 *handler_data)
+ {
+ 	if (msg->msg.data[0] != 0) {
+-		printk(KERN_ERR "IPMI Watchdog response: Error %x on cmd %x\n",
++		printk(KERN_ERR PFX "response: Error %x on cmd %x\n",
+ 		       msg->msg.data[0],
+ 		       msg->msg.cmd);
+ 	}
+@@ -792,7 +812,7 @@
+ 
+ 	rv = ipmi_create_user(ipmi_intf, &ipmi_hndlrs, NULL, &watchdog_user);
+ 	if (rv < 0) {
+-		printk("IPMI watchdog: Unable to register with ipmi\n");
++		printk(KERN_CRIT PFX "Unable to register with ipmi\n");
+ 		goto out;
+ 	}
+ 
+@@ -804,7 +824,7 @@
+ 	if (rv < 0) {
+ 		ipmi_destroy_user(watchdog_user);
+ 		watchdog_user = NULL;
+-		printk("IPMI watchdog: Unable to register misc device\n");
++		printk(KERN_CRIT PFX "Unable to register misc device\n");
+ 	}
+ 
+  out:
+@@ -815,7 +835,7 @@
+ 		start_now = 0; /* Disable this function after first startup. */
+ 		ipmi_watchdog_state = action_val;
+ 		ipmi_set_timeout(IPMI_SET_TIMEOUT_FORCE_HB);
+-		printk("Starting IPMI Watchdog now!\n");
++		printk(KERN_INFO PFX "Starting now!\n");
+ 	}
+ }
+ 
+@@ -826,7 +846,7 @@
+ 	/* If no one else handled the NMI, we assume it was the IPMI
+            watchdog. */
+ 	if ((!handled) && (preop_val == WDOG_PREOP_PANIC))
+-		panic("IPMI watchdog pre-timeout");
++		panic(PFX "pre-timeout");
+ 
+ 	/* On some machines, the heartbeat will give
+ 	   an error and not work unless we re-enable
+@@ -932,7 +952,7 @@
+ {
+ 	int rv;
+ 
+-	printk(KERN_INFO "IPMI watchdog driver version "
++	printk(KERN_INFO PFX "driver version "
+ 	       IPMI_WATCHDOG_VERSION "\n");
+ 
+ 	if (strcmp(action, "reset") == 0) {
+@@ -945,7 +965,7 @@
+ 		action_val = WDOG_TIMEOUT_POWER_DOWN;
+ 	} else {
+ 		action_val = WDOG_TIMEOUT_RESET;
+-		printk("ipmi_watchdog: Unknown action '%s', defaulting to"
++		printk(KERN_INFO PFX "Unknown action '%s', defaulting to"
+ 		       " reset\n", action);
+ 	}
+ 
+@@ -961,7 +981,7 @@
+ 		preaction_val = WDOG_PRETIMEOUT_MSG_INT;
+ 	} else {
+ 		preaction_val = WDOG_PRETIMEOUT_NONE;
+-		printk("ipmi_watchdog: Unknown preaction '%s', defaulting to"
++		printk(KERN_INFO PFX "Unknown preaction '%s', defaulting to"
+ 		       " none\n", preaction);
+ 	}
+ 
+@@ -973,23 +993,21 @@
+ 		preop_val = WDOG_PREOP_GIVE_DATA;
+ 	} else {
+ 		preop_val = WDOG_PREOP_NONE;
+-		printk("ipmi_watchdog: Unknown preop '%s', defaulting to"
++		printk(KERN_INFO PFX "Unknown preop '%s', defaulting to"
+ 		       " none\n", preop);
+ 	}
+ 
+ #ifdef HAVE_NMI_HANDLER
+ 	if (preaction_val == WDOG_PRETIMEOUT_NMI) {
+ 		if (preop_val == WDOG_PREOP_GIVE_DATA) {
+-			printk(KERN_WARNING
+-			       "ipmi_watchdog: Pretimeout op is to give data"
++			printk(KERN_WARNING PFX "Pretimeout op is to give data"
+ 			       " but NMI pretimeout is enabled, setting"
+ 			       " pretimeout op to none\n");
+ 			preop_val = WDOG_PREOP_NONE;
+ 		}
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 		if (nmi_watchdog == NMI_IO_APIC) {
+-			printk(KERN_WARNING
+-			       "ipmi_watchdog: nmi_watchdog is set to IO APIC"
++			printk(KERN_WARNING PFX "nmi_watchdog is set to IO APIC"
+ 			       " mode (value is %d), that is incompatible"
+ 			       " with using NMI in the IPMI watchdog."
+ 			       " Disabling IPMI nmi pretimeout.\n",
+@@ -999,8 +1017,7 @@
+ #endif
+ 		rv = request_nmi(&ipmi_nmi_handler);
+ 		if (rv) {
+-			printk(KERN_WARNING
+-			       "ipmi_watchdog: Can't register nmi handler\n");
++			printk(KERN_WARNING PFX "Can't register nmi handler\n");
+ 			return rv;
+ 		}
+ #ifdef CONFIG_X86_LOCAL_APIC
+@@ -1015,8 +1032,7 @@
+ 		if (preaction_val == WDOG_PRETIMEOUT_NMI)
+ 			release_nmi(&ipmi_nmi_handler);
+ #endif
+-		printk(KERN_WARNING
+-		       "ipmi_watchdog: can't register smi watcher\n");
++		printk(KERN_WARNING PFX "can't register smi watcher\n");
+ 		return rv;
+ 	}
+ 
+@@ -1061,8 +1077,7 @@
+ 	/* Disconnect from IPMI. */
+ 	rv = ipmi_destroy_user(watchdog_user);
+ 	if (rv) {
+-		printk(KERN_WARNING
+-		       "IPMI Watchdog, error unlinking from IPMI: %d\n",
++		printk(KERN_WARNING PFX "error unlinking from IPMI: %d\n",
+ 		       rv);
+ 	}
+ 	watchdog_user = NULL;
 
---Boundary-00=_nOnDBWVesFCL82I--
+> -Corey
+
+-- 
+Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
+arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux

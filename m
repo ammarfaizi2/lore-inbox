@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265311AbUAJSyp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 13:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbUAJSyo
+	id S265275AbUAJStf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 13:49:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265282AbUAJStf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 13:54:44 -0500
-Received: from mail.bluebottle.com ([69.20.6.25]:14214 "EHLO mail.bluebottle")
-	by vger.kernel.org with ESMTP id S265311AbUAJSxh (ORCPT
+	Sat, 10 Jan 2004 13:49:35 -0500
+Received: from fw.osdl.org ([65.172.181.6]:6343 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265275AbUAJSte (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 13:53:37 -0500
-Date: Sat, 10 Jan 2004 16:53:32 -0200 (BRST)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-X-X-Sender: fredlwm@pervalidus.dyndns.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: BUG:2.6.1 USB keyboard ignores "#" key
-Message-ID: <Pine.LNX.4.58.0401101645400.528@pervalidus.dyndns.org>
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Jan 2004 13:49:34 -0500
+Date: Sat, 10 Jan 2004 10:42:47 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Unhork ymfpci broken by hasty janitors
+Message-Id: <20040110104247.072131cd.rddunlap@osdl.org>
+In-Reply-To: <20040110102912.78ef218b.rddunlap@osdl.org>
+References: <200401101805.i0AI50x8012960@hera.kernel.org>
+	<20040110102912.78ef218b.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Bezerra wrote on 2004-01-10 14:40:14:
+On Sat, 10 Jan 2004 10:29:12 -0800 "Randy.Dunlap" <rddunlap@osdl.org> wrote:
 
-> I also have problems with my br-abnt2 usb keyboard.
-> I lost my ]} key.
+| On Sat, 10 Jan 2004 17:49:31 +0000 Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
+| 
+| | ChangeSet 1.1391, 2004/01/10 15:49:31-02:00, zaitcev@redhat.com
+| | 
+| | 	[PATCH] Unhork ymfpci broken by hasty janitors
+| | 	
+| | 	- Do not use schedule_timeout with spinlocks taken.
+| | 	- Restore missing kfree's.
+| 
+| some janitors maybe.  but "hasty janitors" != "kernel-janitors project".
+| 
+| BK shows previous changes here by "alan", "patch", and "torvalds",
+| so they must have been made by "patch".  8:)
 
-And here with my PS/2 ABNT2 keyboard I lost the key with
+Sorry, I meant to also say:
 
-/? (the one before right Shift).
+Yes, we (the KJ project) [or I] do make mistakes, but we haven't
+been making patches to 2.4.x kernels.
 
-On a side note, I also lose some accents with frame buffer on
-all terminals except tty1. I have to use setfont lat1-16 on all
-others. But that one is a very old problem.
-
--- 
-http://www.pervalidus.net/contact.html
+--
+~Randy

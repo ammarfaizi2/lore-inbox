@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292027AbSBAUye>; Fri, 1 Feb 2002 15:54:34 -0500
+	id <S292020AbSBAUx6>; Fri, 1 Feb 2002 15:53:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292015AbSBAUyS>; Fri, 1 Feb 2002 15:54:18 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:39396 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S292019AbSBAUx5>; Fri, 1 Feb 2002 15:53:57 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
+	id <S292018AbSBAUxf>; Fri, 1 Feb 2002 15:53:35 -0500
+Received: from rakis.net ([207.8.143.12]:7842 "EHLO egg.rakis.net")
+	by vger.kernel.org with ESMTP id <S292015AbSBAUx3>;
+	Fri, 1 Feb 2002 15:53:29 -0500
+Date: Fri, 1 Feb 2002 15:53:28 -0500 (EST)
+From: Greg Boyce <gboyce@rakis.net>
+X-X-Sender: gboyce@egg
+To: gmack@innerfire.net
+Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Machines misreporting Bogomips 
+In-Reply-To: <Pine.LNX.4.21.0202011258150.12383-100000@innerfire.net>
+Message-ID: <Pine.LNX.4.42.0202011549090.5498-100000@egg>
 MIME-Version: 1.0
-Subject: Re: [PATCH] IBM Lanstreamer bugfixes
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFB91B46B3.DE7448D0-ON85256B53.0071158D@raleigh.ibm.com>
-From: "Kent E Yoder" <yoder1@us.ibm.com>
-Date: Fri, 1 Feb 2002 14:53:43 -0600
-X-MIMETrack: Serialize by Router on D04NM109/04/M/IBM(Release 5.0.9 |November 16, 2001) at
- 02/01/2002 03:53:55 PM,
-	Serialize complete at 02/01/2002 03:53:55 PM
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > effects.  I tested by removing all the delays and instead putting 
-> > something like:
-> >         writew(val, addr);
-> >         (void) readw(addr);
+> > The machine is actually slower.  That's how I noticed the problem.
+> >
+> > Underclocking dosen't seem likely due to the difference in speed.  It's 4
+> > bogomips instead of 500.  The machine is running at about the speed of a
+> > 386 (I believe that's about right).  It almost seems as if someone turned
+> > off the turbo button.  But of course I haven't seen one of those since my
+> > old 486 :)
+> >
+> > --
+> > Greg Boyce
+> >
+> >
+>
+> Could they be running with cache disabled in the bios?
+>
 
-  Ok, now I'm curious about something...
+The machine is reporting that the cache is enabled.  Even if this was
+true, I have trouble believing that turning on the cache would result in a
+50,000% increase in speed (4 bogomips compared to 500).
 
-  If the readw() above is needed here (it definitely fixes *something*), 
-what purpose does the volatile below serve? 
+I have a feeling that I'm going to have to chalk this one up to hardware
+failure.  Another kind soul suggested it could be ECC memory reporting a
+continual string of 1 bit failures.
 
-io.h:122:#define writew(b,addr) (*(volatile unsigned short *) 
-__io_virt(addr) = (b))X
+--
+Greg Boyce
 
-Is this a sort of "go do this now" command to flush it from the CPU to the 
-PCI bus, while the readw() makes sure its flushed out of the PCI cache? 
 
-> > 
-> > instead, to flush the PCI cache.  Things seem to be happy. 
-> > 
-> > Is this the best way to make sure the PCI cache is flushed for writes 
-that 
-> > need to happen immediately?  I don't see many other drivers doing 
-it...
-
- Another question is, if the PCI bus is caching like this, how does it 
-handle adapters which write to one address and read from another for the 
-same variable?  I'm guessing it flushes all writes on a read?  This is 
-exactly what lanstreamer does, and I'm thinking this may have caused 
-problems before.
-
-Thanks,
-Kent
 

@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313274AbSC1Wtw>; Thu, 28 Mar 2002 17:49:52 -0500
+	id <S313276AbSC1Wwd>; Thu, 28 Mar 2002 17:52:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313276AbSC1Wtn>; Thu, 28 Mar 2002 17:49:43 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:57303 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S313274AbSC1Wt1>; Thu, 28 Mar 2002 17:49:27 -0500
-Date: Thu, 28 Mar 2002 14:48:37 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Testing of Ingo/Arjan highpte on 16-way NUMA-Q
-Message-ID: <162960000.1017355717@flay>
-In-Reply-To: <20020326191814.F13052@dualathlon.random>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S313277AbSC1WwX>; Thu, 28 Mar 2002 17:52:23 -0500
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:41468 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S313276AbSC1WwE>; Thu, 28 Mar 2002 17:52:04 -0500
+Date: Thu, 28 Mar 2002 22:52:03 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: Christian Schoenebeck <christian.schoenebeck@epost.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: power off
+In-Reply-To: <20020328214032.4F55147B1@debian.heim.lan>
+Message-ID: <Pine.SOL.3.96.1020328224816.4244A-100000@draco.cus.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adding your highpte patches to the NUMA-Q seems to make no
-performance impact whatsoever (just doing kernel compile). The
-profiles are so similar, it almost looks like it's not doing anything at
-all ;-) I find this a little strange, as all my ZONE_NORMAL is on
-node 0, so I'd expected this to have some sort of impact (either 
-positive or negative ;-)). 
+Hi,
 
-Is there an easy way to test whether this was working or not?
+You mell well find that you just need to upgrade your userspace utilities
+to make it work. For me, using the exact same kernel!!! but a different
+distro makes the difference between the computer just sitting there when I
+shutdown -h now or actually powering off...
 
-Thanks,
+In this particular case I just moved from SuSE 7.2 to Mandrake 8.1 and
+suddenly poweroff worked. (Note I used my custom kernel in both cases
+which I just copied from the old install onto the new one.)
 
-M.
+Having said all that some versions of 2.4 kernels have broken shutdown so
+it would help if you said which kernel version you are using...
 
-PS. yes I did remember to turn on the 4G-highpte option ;-)
+Cheers,
+
+Anton
 
 
+On Thu, 28 Mar 2002, Christian Schoenebeck wrote:
+
+> (please cc me)
+> 
+> Hi everybody!
+> 
+> I've got a problem with a machine (using an Asus SP98AGP-X mainboard) that 
+> doesn't want to power off since moving from 2.2.x to 2.4.x kernel. As I 
+> haven't found any other solution, can I simply replace the new apm.c by the 
+> old one from 2.2.x or just a part of the unit or would that be fatal?
+> 
+> PLEASE HELP ME WITH THIS!
+> 
+> Thanks in advance,
+> 
+> Christian Schoenebeck
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

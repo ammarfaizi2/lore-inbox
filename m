@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269589AbUJGBIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269591AbUJGBRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269589AbUJGBIw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 21:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269591AbUJGBIw
+	id S269591AbUJGBRx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 21:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269600AbUJGBRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 21:08:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4331 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269589AbUJGBIv
+	Wed, 6 Oct 2004 21:17:53 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:57227 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269591AbUJGBRv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 21:08:51 -0400
-Message-ID: <41649715.4040100@pobox.com>
-Date: Wed, 06 Oct 2004 21:08:37 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Wed, 6 Oct 2004 21:17:51 -0400
+Date: Thu, 7 Oct 2004 02:16:34 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@hibernia.jakma.org
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: "David S. Miller" <davem@davemloft.net>, joris@eljakim.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+In-Reply-To: <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0410070212340.5739@hibernia.jakma.org>
+References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>
+ <20041006080104.76f862e6.davem@davemloft.net> <Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>
+ <20041006082145.7b765385.davem@davemloft.net> <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
 MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Andrew Morton <akpm@osdl.org>, mingo@redhat.com, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       judith@osdl.org
-Subject: Re: new dev model (was Re: Default cache_hot_time value back to 10ms)
-References: <200410060042.i960gn631637@unix-os.sc.intel.com> <20041005205511.7746625f.akpm@osdl.org> <416374D5.50200@yahoo.com.au> <20041005215116.3b0bd028.akpm@osdl.org> <41637BD5.7090001@yahoo.com.au> <20041005220954.0602fba8.akpm@osdl.org> <416380D7.9020306@yahoo.com.au> <20041005223307.375597ee.akpm@osdl.org> <41638E61.9000004@pobox.com> <20041005233958.522972a9.akpm@osdl.org> <41644A3D.4050100@pobox.com> <41644BF1.7030904@pobox.com> <41644E6B.5070607@pobox.com> <Pine.GSO.4.61.0410062231290.738@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.61.0410062231290.738@waterleaf.sonytel.be>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven wrote:
-> P.S. I only track `real' (-pre and -rc) releases. I don't have the manpower
->      (what's in a word) to track daily snapshots (I do `read' bk-commits). If
->      m68k stuff gets broken in -rc, usually it means it won't get fixed before
->      2 full releases later.  Anyway, things shouldn't become broken in -rc,
->      IMHO that's what we (should) have -pre for...
+On Wed, 6 Oct 2004, Richard B. Johnson wrote:
 
+> thing --not. Select must return correct information.
 
-I agree completely, but -pre is apparently a dirty word (dirty suffix?:))
+It does, it's just state that select() reported on changed by the 
+time user called recvmsg.
 
-	Jeff
+> When a function call like select() says there are data available, 
+> there must be data available, period.
 
+There was, but there wasnt when recvmsg() was called. Time changes 
+things..
 
+> If not, it's broken and needs to be fixed. Requiring one to set 
+> sockets to non-blocking is a poor work- around for an otherwise 
+> fatal flaw.
+
+Any application that expects socket read not to block should set 
+O_NONBLOCK.
+
+> Cheers,
+> Dick Johnson
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+Kansas state law requires pedestrians crossing the highways at night to
+wear tail lights.

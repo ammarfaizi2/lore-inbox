@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133100AbRDLLCf>; Thu, 12 Apr 2001 07:02:35 -0400
+	id <S133098AbRDLLL5>; Thu, 12 Apr 2001 07:11:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133099AbRDLLC0>; Thu, 12 Apr 2001 07:02:26 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:3589 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S133098AbRDLLCL>;
-	Thu, 12 Apr 2001 07:02:11 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Chris Meadors <clubneon@hereintown.net>
-Date: Thu, 12 Apr 2001 13:01:13 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] matroxfb and mga XF4 driver coexistence...
-CC: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-fbdev@vuser.vu.union.edu
-X-mailer: Pegasus Mail v3.40
-Message-ID: <4BEDDEE649D@vcnet.vc.cvut.cz>
+	id <S133099AbRDLLLq>; Thu, 12 Apr 2001 07:11:46 -0400
+Received: from p108.usslc13.stsn.com ([208.32.226.108]:30224 "EHLO
+	hoteldns02.stsn.com") by vger.kernel.org with ESMTP
+	id <S133098AbRDLLLb>; Thu, 12 Apr 2001 07:11:31 -0400
+Date: Thu, 12 Apr 2001 06:57:47 -0400
+From: esr@snark.thyrsus.com
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: "Eric S. Raymond" <esr@snark.thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.0.0 release announcement
+Message-ID: <20010412065747.B994@thyrsus.com>
+Reply-To: esr@snark.thyrsus.com
+Mail-Followup-To: esr@thyrsus.com,
+	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <200104101047.f3AAl0h07395@snark.thyrsus.com> <200104120709.f3C798Y426000@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200104120709.f3C798Y426000@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Thu, Apr 12, 2001 at 03:09:08AM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 Apr 01 at 14:55, Chris Meadors wrote:
+Albert D. Cahalan <acahalan@cs.uml.edu>:
+> > * All three interfaces do progressive disclosure -- the user only sees
+> >   questions he/she needs to answer (no more hundreds of greyed-out menu
+> >   entries for irrelevant drivers!).
 > 
-> I would like to see this fixed as much as anyone (even complained to the
-> XFree people from SuSE last ALS).  But I don't think the fix should be in
-> the kernel.  XF4 needs to be fixed.  The problem doesn't just effect the
-> maxtroxfb, but also the vgacon video mode selection.
+> Well, that sucks. The greyed-out menu entries were the only good
+> thing about xconfig. Such entries provide a clue that you need
+> to enable something else to get the feature you desire. Otherwise
+> you might figure that the feature is missing, or that you have
+> overlooked it.
 
-But only users using matroxfb complains to me and/or to linux-kernel ;-)
-You know, it worked last week, but it does not work anymore today. And
-only thing I changed was kernel. So it must be in kernel...
- 
-> If I put anything other than "normal" or "extended" in the "vga=" line of
-> my lilo.conf the machine starts okay, but upon exiting X bad stuff
+You can have this back if you want by clicking the "Unsuppress" item in
+one of the pulldowns.
 
-It is first time I see that other drivers than mga one has troubles.
- 
-> I don't use the matroxfb driver so this patch wouldn't help me, and is
-> also why I say XFree 4.0 needs to be fixed.
+But since the theorem prover automatically turns on such prerequisites for
+you, you're very unlikely to need it.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Buy matrox and use matroxfb. It will fix problem for you, then...
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+The kind of charity you can force out of people nourishes about as much as
+the kind of love you can buy --- and spreads even nastier diseases.

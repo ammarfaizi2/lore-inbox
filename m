@@ -1,66 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263212AbUCYP1H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 10:27:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbUCYP1H
+	id S263207AbUCYPdI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 10:33:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbUCYPdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 10:27:07 -0500
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:22281 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S263212AbUCYP0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 10:26:31 -0500
-Date: Thu, 25 Mar 2004 09:39:19 -0600
-From: mikem@beardog.cca.cpqcorp.net
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: cciss updates [2 of 2]
-Message-ID: <20040325153919.GB4456@beardog.cca.cpqcorp.net>
-Reply-To: mike.miller@hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+	Thu, 25 Mar 2004 10:33:08 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:7143 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263207AbUCYPdB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 10:33:01 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Date: Thu, 25 Mar 2004 07:31:37 -0800
+Message-ID: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Thread-Index: AcQSXuO19QT+YV2aRAe+JJ+GlUGdUwAHonUg
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Andi Kleen" <ak@suse.de>, "Rick Lindsley" <ricklind@us.ibm.com>
+Cc: "Ingo Molnar" <mingo@elte.hu>, <piggin@cyberone.com.au>,
+       <linux-kernel@vger.kernel.org>, <akpm@osdl.org>, <kernel@kolivas.org>,
+       <rusty@rustcorp.com.au>, <anton@samba.org>,
+       <lse-tech@lists.sourceforge.net>, <mbligh@aracnet.com>
+X-OriginalArrivalTime: 25 Mar 2004 15:31:38.0321 (UTC) FILETIME=[43A3E410:01C4127E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please consider this for inclusion in the 2.4 kernel. 
+Andi,
 
-If no device is attached we now return -ENXIO instead of some bogus numbers.
-Prevents applications from trying to access non-existent disks.
+Can you be more specific with "it doesn't load balance threads
+aggressively enough"? Or what behavior of the base NUMA scheduler is
+missing in the sched-domain scheduler especially for NUMA?
 
- cciss.c |   16 ++++------------
- 1 files changed, 4 insertions(+), 12 deletions(-)
--------------------------------------------------------------------------------
-diff -burpN lx2425.orig/drivers/block/cciss.c lx2425-hazard-fix/drivers/block/cciss.c
---- lx2425.orig/drivers/block/cciss.c	2004-03-04 10:16:16.000000000 -0600
-+++ lx2425-hazard-fix/drivers/block/cciss.c	2004-03-25 08:52:07.000000000 -0600
-@@ -508,12 +508,8 @@ static int cciss_ioctl(struct inode *ino
- 			driver_geo.heads = hba[ctlr]->drv[dsk].heads;
- 			driver_geo.sectors = hba[ctlr]->drv[dsk].sectors;
- 			driver_geo.cylinders = hba[ctlr]->drv[dsk].cylinders;
--		} else {
--			driver_geo.heads = 0xff;
--			driver_geo.sectors = 0x3f;
--			driver_geo.cylinders = 
--				hba[ctlr]->drv[dsk].nr_blocks / (0xff*0x3f);
--		}
-+		} else 
-+			return -ENXIO;
- 		driver_geo.start=
- 			hba[ctlr]->hd[MINOR(inode->i_rdev)].start_sect;
- 		if (copy_to_user((void *) arg, &driver_geo,
-@@ -528,12 +524,8 @@ static int cciss_ioctl(struct inode *ino
- 			driver_geo.heads = hba[ctlr]->drv[dsk].heads;
- 			driver_geo.sectors = hba[ctlr]->drv[dsk].sectors;
- 			driver_geo.cylinders = hba[ctlr]->drv[dsk].cylinders;
--		} else {
--			driver_geo.heads = 0xff;
--			driver_geo.sectors = 0x3f;
--			driver_geo.cylinders = 
--				hba[ctlr]->drv[dsk].nr_blocks / (0xff*0x3f);
--		}
-+		} else 
-+			return -ENXIO;
- 		driver_geo.start= 
- 		hba[ctlr]->hd[MINOR(inode->i_rdev)].start_sect;
- 		if (copy_to_user((void *) arg, &driver_geo,  
+Jun
+
+>-----Original Message-----
+>From: Andi Kleen [mailto:ak@suse.de]
+>Sent: Thursday, March 25, 2004 3:47 AM
+>To: Rick Lindsley
+>Cc: Andi Kleen; Ingo Molnar; piggin@cyberone.com.au; linux-
+>kernel@vger.kernel.org; akpm@osdl.org; kernel@kolivas.org;
+>rusty@rustcorp.com.au; Nakajima, Jun; anton@samba.org; lse-
+>tech@lists.sourceforge.net; mbligh@aracnet.com
+>Subject: Re: [Lse-tech] [patch] sched-domain cleanups,
+sched-2.6.5-rc2-mm2-
+>A3
+>
+>On Thu, Mar 25, 2004 at 03:40:22AM -0800, Rick Lindsley wrote:
+>>     The main problem it has is that it performs quite badly on
+Opteron
+>NUMA
+>>     e.g. in the OpenMP STREAM test (much worse than the normal
+scheduler)
+>>
+>> Andi, I've got some schedstat code which may help us to understand
+why.
+>> I'll need to port it to Ingo's changes, but if I drop you a patch in
+a
+>> day or two can you try your test on sched-domain/non-sched-domain,
+>> collecting the stats?
+>
+>The openmp failure is already pretty well understood - it doesn't load
+>balance
+>threads aggressively enough over CPUs after startup.
+>
+>-Andi

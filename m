@@ -1,88 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVA1ISh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVA1IU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVA1ISh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 03:18:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVA1ISh
+	id S261191AbVA1IU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 03:20:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVA1IU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 03:18:37 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:44482 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261171AbVA1IS2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 03:18:28 -0500
-Date: Fri, 28 Jan 2005 09:18:14 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Doug Maxey <dwm@maxeymade.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] scsi/sata write barrier support
-Message-ID: <20050128081814.GH4800@suse.de>
-References: <200501272242.j0RMgoP5016154@falcon30.maxeymade.com> <41F97299.2070909@pobox.com> <20050128065358.GA4800@suse.de> <41F9F386.7070501@pobox.com>
+	Fri, 28 Jan 2005 03:20:26 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:24219
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S261192AbVA1IUO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 03:20:14 -0500
+Subject: Re: High resolution timers and BH processing on -RT
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: George Anzinger <george@mvista.com>, LKML <linux-kernel@vger.kernel.org>,
+       Doug Niehaus <niehaus@ittc.ku.edu>,
+       Benedikt Spranger <bene@linutronix.de>
+In-Reply-To: <20050128044301.GD29751@elte.hu>
+References: <1106871192.21196.152.camel@tglx.tec.linutronix.de>
+	 <20050128044301.GD29751@elte.hu>
+Content-Type: text/plain
+Date: Fri, 28 Jan 2005 09:20:10 +0100
+Message-Id: <1106900411.21196.181.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41F9F386.7070501@pobox.com>
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28 2005, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >On Thu, Jan 27 2005, Jeff Garzik wrote:
-> >
-> >>Doug Maxey wrote:
-> >>
-> >>>On Thu, 27 Jan 2005 13:02:48 +0100, Jens Axboe wrote:
-> >>>
-> >>>
-> >>>>Hi,
-> >>>>
-> >>>>For the longest time, only the old PATA drivers supported barrier writes
-> >>>>with journalled file systems. This patch adds support for the same type
-> >>>>of cache flushing barriers that PATA uses for SCSI, to be utilized with
-> >>>>libata. 
-> >>>
-> >>>
-> >>>What, if any mechanism supports changing the underlying write cache?  
-> >>>
-> >>>That is, assuming this is common across PATA and SCSI drives, and it is 
-> >>>possible to turn the cache off on the IDE drives, would switching the 
-> >>>cache underneath require completing the inflight IO?
-> >>
-> >>[ignoring your question, but it made me think...]
-> >>
-> >>
-> >>I am thinking the barrier support should know if the write cache is 
-> >>disabled (some datacenters do this), and avoid flushing if so?
-> >
-> >
-> >Ehm it does, read the code :)
+On Fri, 2005-01-28 at 05:43 +0100, Ingo Molnar wrote:
+> * 
+> is this due to algorithmic/PIT-programming overhead, or due to the noise
+> introduced by other, non-hard-RT timers? I'd guess the later from the
+> looks of it, but did your test introduce such noise (via networking and
+> application workloads?).
 > 
-> 
-> I did.  I see nowhere that handles the case where the user uses a util 
-> (hdparm or blktool) to switch off write cache after sd.c has probed the 
-> disk.  sd only sets its WCE bit at probe time, and doesn't appear to 
-> notice state changes.
 
-WCE bit should change then, like ->wcache does for ide. It's handled
-inside sd, there's nothing more it can do. sd_shutdown() and
-sd_issue_flush() have the same issue, they all rely on ->WCE being
-correct.
+Right, it's due to noise by non-RT timers, which I enforced by adding
+networking and applications.
 
-Can't say I'm too fond of command snooping, but I guess it's the only
-solution.
+This adds random timer expires and admittedly the PIT reprogramming
+overhead is adding portions of that noise.
 
-> Since nobody snoops the MODE SELECT on the caching page, nobody knows 
-> past probe the state of write caching.
-> 
-> Thus my comment...   I think barrier support should know about that sort 
-> of thing :)
+tglx
 
-So this would mainly be a problem if you boot with write caching
-disabled, but later turn it on. The other way around will still work
-safely, at the cost of two noop commands on each write barrier (which I
-doubt you would notice).
-
--- 
-Jens Axboe
 

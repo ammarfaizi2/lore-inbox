@@ -1,28 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283374AbRLDT6d>; Tue, 4 Dec 2001 14:58:33 -0500
+	id <S283380AbRLDUDM>; Tue, 4 Dec 2001 15:03:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283368AbRLDT5X>; Tue, 4 Dec 2001 14:57:23 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20742 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283349AbRLDT45>; Tue, 4 Dec 2001 14:56:57 -0500
-Subject: Re: nfs: task can't get a request slot
-To: kristian.peters@korseby.net (Kristian Peters)
-Date: Tue, 4 Dec 2001 20:05:20 +0000 (GMT)
-Cc: matt@theBachChoir.org.uk (Matt Bernstein), nbecker@fred.net,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3C0D20E2.9040801@korseby.net> from "Kristian Peters" at Dec 04, 2001 08:15:46 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S281664AbRLDUBt>; Tue, 4 Dec 2001 15:01:49 -0500
+Received: from [206.98.161.198] ([206.98.161.198]:52238 "EHLO
+	bart.learningpatterns.com") by vger.kernel.org with ESMTP
+	id <S283376AbRLDUBY>; Tue, 4 Dec 2001 15:01:24 -0500
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+From: Edward Muller <emuller@learningpatterns.com>
+To: Dave Jones <davej@suse.de>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
+        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
+In-Reply-To: <Pine.LNX.4.33.0112041833150.3798-100000@Appserv.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0112041833150.3798-100000@Appserv.suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16BLoe-0003H4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 04 Dec 2001 14:59:29 -0500
+Message-Id: <1007495969.4621.9.camel@akira.learningpatterns.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's right. But in meantime my load increases to 150.. (I had that 
-> yesterday...) Isn't there a way to force it shutdown even if there's no response 
-> ? I thought that would be possible by mounting it soft ?
+On Tue, 2001-12-04 at 12:43, Dave Jones wrote:
+> On Tue, 4 Dec 2001, Eric S. Raymond wrote:
+> 
+> > After CML2 has proven itself in 2.5, I do plan to go back to Marcelo
+> > and lobby for him accepting it into 2.4, on the grounds that doing so
+> > will simplify his maintainance task no end.
+> > ...
+> > I'm just going to say "Today's problems, today's tools."
+> 
+> So anyone perfectly happy with an older distro that didn't
+> ship python2-and-whatever-else gets screwed when they want to
+> build a newer kernel. Nice.
 
-The load isnt a problem, its all I/O wait not CPU
+That's been the case all along, sans python2. Newer kernels need newer
+tools. That's always been the case.
+
+> 
+> Dave.
+> 
+
+
+
+> -- 
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+-------------------------------
+Edward Muller
+Director of IS
+
+973-715-0230 (cell)
+212-487-9064 x115 (NYC)
+
+http://www.learningpatterns.com
+-------------------------------
+

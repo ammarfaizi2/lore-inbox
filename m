@@ -1,156 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVAXGbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVAXGW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVAXGbv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 01:31:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVAXG2u
+	id S261447AbVAXGW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 01:22:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVAXGWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 01:28:50 -0500
+	Mon, 24 Jan 2005 01:22:33 -0500
 Received: from umhlanga.stratnet.net ([12.162.17.40]:19986 "EHLO
 	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261461AbVAXGOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 01:14:30 -0500
+	id S261456AbVAXGO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 01:14:29 -0500
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][12/12] InfiniBand/mthca: remove x86 SSE pessimization
-In-Reply-To: <20051232214.3TWW9w76vhKgw1zV@topspin.com>
+Subject: [PATCH][7/12] InfiniBand/mthca: optimize event queue handling
+In-Reply-To: <20051232214.2ZjgnbDloKBl5KUG@topspin.com>
 X-Mailer: Roland's Patchbomber
 Date: Sun, 23 Jan 2005 22:14:24 -0800
-Message-Id: <20051232214.rXeANNOMpj6wmqS6@topspin.com>
+Message-Id: <20051232214.JlqWjfrLoi3PpTCk@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: akpm@osdl.org
 Content-Transfer-Encoding: 7BIT
 From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 24 Jan 2005 06:14:25.0637 (UTC) FILETIME=[F432E950:01C501DB]
+X-OriginalArrivalTime: 24 Jan 2005 06:14:25.0309 (UTC) FILETIME=[F400DCD0:01C501DB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Get rid of the x86 SSE code for atomic 64-bit writes to doorbell
-registers.  Saving/setting CR0 plus a clts instruction are too
-expensive for it to ever be a win, and the config option was just
-confusing.
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
 
+Event queue handling performance improvements:
+ - Only calculate EQ entry address once, and don't truncate the
+   consumer index until we really need to.
+ - Only read ECR once.  If a new event occurs while we're in the
+   interrupt handler, we'll get another interrupt anyway, since we
+   only clear events once.
+
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
---- linux-bk.orig/drivers/infiniband/hw/mthca/Kconfig	2005-01-23 08:30:27.000000000 -0800
-+++ linux-bk/drivers/infiniband/hw/mthca/Kconfig	2005-01-23 21:00:44.744520064 -0800
-@@ -14,13 +14,3 @@
- 	  This option causes the mthca driver produce a bunch of debug
- 	  messages.  Select this is you are developing the driver or
- 	  trying to diagnose a problem.
--
--config INFINIBAND_MTHCA_SSE_DOORBELL
--	bool "SSE doorbell code"
--	depends on INFINIBAND_MTHCA && X86 && !X86_64
--	default n
--	---help---
--	  This option will have the mthca driver use SSE instructions
--	  to ring hardware doorbell registers.  This may improve
--	  performance for some workloads, but the driver will not run
--	  on processors without SSE instructions.
---- linux-bk.orig/drivers/infiniband/hw/mthca/mthca_main.c	2005-01-23 20:58:55.771086544 -0800
-+++ linux-bk/drivers/infiniband/hw/mthca/mthca_main.c	2005-01-23 21:00:44.745519912 -0800
-@@ -40,10 +40,6 @@
- #include <linux/pci.h>
- #include <linux/interrupt.h>
+--- linux-bk.orig/drivers/infiniband/hw/mthca/mthca_provider.h	2005-01-23 08:30:27.000000000 -0800
++++ linux-bk/drivers/infiniband/hw/mthca/mthca_provider.h	2005-01-23 20:51:23.739805744 -0800
+@@ -66,11 +66,11 @@
+ 	struct mthca_dev      *dev;
+ 	int                    eqn;
+ 	u32                    ecr_mask;
++	u32                    cons_index;
+ 	u16                    msi_x_vector;
+ 	u16                    msi_x_entry;
+ 	int                    have_irq;
+ 	int                    nent;
+-	int                    cons_index;
+ 	struct mthca_buf_list *page_list;
+ 	struct mthca_mr        mr;
+ };
+--- linux-bk.orig/drivers/infiniband/hw/mthca/mthca_eq.c	2005-01-23 20:47:40.946675448 -0800
++++ linux-bk/drivers/infiniband/hw/mthca/mthca_eq.c	2005-01-23 20:51:23.740805592 -0800
+@@ -164,12 +164,12 @@
+ 		MTHCA_ASYNC_EVENT_MASK;
+ }
  
--#ifdef CONFIG_INFINIBAND_MTHCA_SSE_DOORBELL
--#include <asm/cpufeature.h>
--#endif
--
- #include "mthca_dev.h"
- #include "mthca_config_reg.h"
- #include "mthca_cmd.h"
-@@ -1117,22 +1113,6 @@
+-static inline void set_eq_ci(struct mthca_dev *dev, int eqn, int ci)
++static inline void set_eq_ci(struct mthca_dev *dev, struct mthca_eq *eq, u32 ci)
  {
- 	int ret;
+ 	u32 doorbell[2];
  
--	/*
--	 * TODO: measure whether dynamically choosing doorbell code at
--	 * runtime affects our performance.  Is there a "magic" way to
--	 * choose without having to follow a function pointer every
--	 * time we ring a doorbell?
--	 */
--#ifdef CONFIG_INFINIBAND_MTHCA_SSE_DOORBELL
--	if (!cpu_has_xmm) {
--		printk(KERN_ERR PFX "mthca was compiled with SSE doorbell code, but\n");
--		printk(KERN_ERR PFX "the current CPU does not support SSE.\n");
--		printk(KERN_ERR PFX "Turn off CONFIG_INFINIBAND_MTHCA_SSE_DOORBELL "
--		       "and recompile.\n");
--		return -ENODEV;
--	}
--#endif
--
- 	ret = pci_register_driver(&mthca_driver);
- 	return ret < 0 ? ret : 0;
- }
---- linux-bk.orig/drivers/infiniband/hw/mthca/mthca_doorbell.h	2005-01-23 08:30:38.000000000 -0800
-+++ linux-bk/drivers/infiniband/hw/mthca/mthca_doorbell.h	2005-01-23 21:00:44.746519760 -0800
-@@ -32,9 +32,7 @@
-  * $Id: mthca_doorbell.h 1349 2004-12-16 21:09:43Z roland $
-  */
+-	doorbell[0] = cpu_to_be32(MTHCA_EQ_DB_SET_CI | eqn);
+-	doorbell[1] = cpu_to_be32(ci);
++	doorbell[0] = cpu_to_be32(MTHCA_EQ_DB_SET_CI | eq->eqn);
++	doorbell[1] = cpu_to_be32(ci & (eq->nent - 1));
  
--#include <linux/config.h>
- #include <linux/types.h>
--#include <linux/preempt.h>
- 
- #define MTHCA_RD_DOORBELL      0x00
- #define MTHCA_SEND_DOORBELL    0x10
-@@ -59,51 +57,13 @@
- 	__raw_writeq(*(u64 *) val, dest);
+ 	mthca_write64(doorbell,
+ 		      dev->kar + MTHCA_EQ_DOORBELL,
+@@ -200,21 +200,22 @@
+ 		      MTHCA_GET_DOORBELL_LOCK(&dev->doorbell_lock));
  }
  
--#elif defined(CONFIG_INFINIBAND_MTHCA_SSE_DOORBELL)
--/* Use SSE to write 64 bits atomically without a lock. */
--
--#define MTHCA_DECLARE_DOORBELL_LOCK(name)
--#define MTHCA_INIT_DOORBELL_LOCK(ptr)    do { } while (0)
--#define MTHCA_GET_DOORBELL_LOCK(ptr)      (NULL)
--
--static inline unsigned long mthca_get_fpu(void)
--{
--	unsigned long cr0;
--
--	preempt_disable();
--	asm volatile("mov %%cr0,%0; clts" : "=r" (cr0));
--	return cr0;
--}
--
--static inline void mthca_put_fpu(unsigned long cr0)
--{
--	asm volatile("mov %0,%%cr0" : : "r" (cr0));
--	preempt_enable();
--}
--
--static inline void mthca_write64(u32 val[2], void __iomem *dest,
--				 spinlock_t *doorbell_lock)
--{
--	/* i386 stack is aligned to 8 bytes, so this should be OK: */
--	u8 xmmsave[8] __attribute__((aligned(8)));
--	unsigned long cr0;
--
--	cr0 = mthca_get_fpu();
--
--	asm volatile (
--		"movlps %%xmm0,(%0); \n\t"
--		"movlps (%1),%%xmm0; \n\t"
--		"movlps %%xmm0,(%2); \n\t"
--		"movlps (%0),%%xmm0; \n\t"
--		:
--		: "r" (xmmsave), "r" (val), "r" (dest)
--		: "memory" );
--
--	mthca_put_fpu(cr0);
--}
--
- #else
--/* Just fall back to a spinlock to protect the doorbell */
-+
-+/*
-+ * Just fall back to a spinlock to protect the doorbell if
-+ * BITS_PER_LONG is 32 -- there's no portable way to do atomic 64-bit
-+ * MMIO writes.
-+ */
+-static inline struct mthca_eqe *get_eqe(struct mthca_eq *eq, int entry)
++static inline struct mthca_eqe *get_eqe(struct mthca_eq *eq, u32 entry)
+ {
+-	return eq->page_list[entry * MTHCA_EQ_ENTRY_SIZE / PAGE_SIZE].buf
+-		+ (entry * MTHCA_EQ_ENTRY_SIZE) % PAGE_SIZE;
++	unsigned long off = (entry & (eq->nent - 1)) * MTHCA_EQ_ENTRY_SIZE;
++	return eq->page_list[off / PAGE_SIZE].buf + off % PAGE_SIZE;
+ }
  
- #define MTHCA_DECLARE_DOORBELL_LOCK(name) spinlock_t name;
- #define MTHCA_INIT_DOORBELL_LOCK(ptr)     spin_lock_init(ptr)
+-static inline int next_eqe_sw(struct mthca_eq *eq)
++static inline struct mthca_eqe* next_eqe_sw(struct mthca_eq *eq)
+ {
+-	return !(MTHCA_EQ_ENTRY_OWNER_HW &
+-		 get_eqe(eq, eq->cons_index)->owner);
++	struct mthca_eqe* eqe;
++	eqe = get_eqe(eq, eq->cons_index);
++	return (MTHCA_EQ_ENTRY_OWNER_HW & eqe->owner) ? NULL : eqe;
+ }
+ 
+-static inline void set_eqe_hw(struct mthca_eq *eq, int entry)
++static inline void set_eqe_hw(struct mthca_eqe *eqe)
+ {
+-	get_eqe(eq, entry)->owner =  MTHCA_EQ_ENTRY_OWNER_HW;
++	eqe->owner =  MTHCA_EQ_ENTRY_OWNER_HW;
+ }
+ 
+ static void port_change(struct mthca_dev *dev, int port, int active)
+@@ -235,10 +236,10 @@
+ {
+ 	struct mthca_eqe *eqe;
+ 	int disarm_cqn;
++	int  eqes_found = 0;
+ 
+-	while (next_eqe_sw(eq)) {
++	while ((eqe = next_eqe_sw(eq))) {
+ 		int set_ci = 0;
+-		eqe = get_eqe(eq, eq->cons_index);
+ 
+ 		/*
+ 		 * Make sure we read EQ entry contents after we've
+@@ -328,12 +329,13 @@
+ 			break;
+ 		};
+ 
+-		set_eqe_hw(eq, eq->cons_index);
+-		eq->cons_index = (eq->cons_index + 1) & (eq->nent - 1);
++		set_eqe_hw(eqe);
++		++eq->cons_index;
++		eqes_found = 1;
+ 
+ 		if (set_ci) {
+ 			wmb(); /* see comment below */
+-			set_eq_ci(dev, eq->eqn, eq->cons_index);
++			set_eq_ci(dev, eq, eq->cons_index);
+ 			set_ci = 0;
+ 		}
+ 	}
+@@ -347,8 +349,10 @@
+ 	 * possibility of the HCA writing an entry and then
+ 	 * having set_eqe_hw() overwrite the owner field.
+ 	 */
+-	wmb();
+-	set_eq_ci(dev, eq->eqn, eq->cons_index);
++	if (likely(eqes_found)) {
++		wmb();
++		set_eq_ci(dev, eq, eq->cons_index);
++	}
+ 	eq_req_not(dev, eq->eqn);
+ }
+ 
+@@ -362,7 +366,7 @@
+ 	if (dev->eq_table.clr_mask)
+ 		writel(dev->eq_table.clr_mask, dev->eq_table.clr_int);
+ 
+-	while ((ecr = readl(dev->hcr + MTHCA_ECR_OFFSET + 4)) != 0) {
++	if ((ecr = readl(dev->hcr + MTHCA_ECR_OFFSET + 4)) != 0) {
+ 		work = 1;
+ 
+ 		writel(ecr, dev->hcr + MTHCA_ECR_CLR_OFFSET + 4);
+@@ -440,7 +444,7 @@
+ 	}
+ 
+ 	for (i = 0; i < nent; ++i)
+-		set_eqe_hw(eq, i);
++		set_eqe_hw(get_eqe(eq, i));
+ 
+ 	eq->eqn = mthca_alloc(&dev->eq_table.alloc);
+ 	if (eq->eqn == -1)
 

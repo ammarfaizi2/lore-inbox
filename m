@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288675AbSA0VJb>; Sun, 27 Jan 2002 16:09:31 -0500
+	id <S288685AbSA0VQK>; Sun, 27 Jan 2002 16:16:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288685AbSA0VJU>; Sun, 27 Jan 2002 16:09:20 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10762 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288675AbSA0VJF>; Sun, 27 Jan 2002 16:09:05 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: CRAP in 2.4.18-pre7
-Date: 27 Jan 2002 13:08:49 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a31q91$upd$1@nell.transmeta.com>
-In-Reply-To: <20020126171545.GB11344@fefe.de> <3C542FE6.7C56D6BD@mandrakesoft.com> <3C5439C1.6000305@evision-ventures.com> <3C543E86.7F0FA37A@gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S288686AbSA0VQA>; Sun, 27 Jan 2002 16:16:00 -0500
+Received: from zero.tech9.net ([209.61.188.187]:30739 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288685AbSA0VPq>;
+	Sun, 27 Jan 2002 16:15:46 -0500
+Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
+In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 27 Jan 2002 16:21:12 -0500
+Message-Id: <1012166472.812.7.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3C543E86.7F0FA37A@gmx.net>
-By author:    root <gunther.mayer@gmx.net>
-In newsgroup: linux.dev.kernel
-> 
-> You don't need a hub to have collisions.
-> 
-> Duplex mismatch (i.e. one card in full-duplex, the other in half-duplex)
-> would just show 10-50 KByte/sec transfer rates typically.
-> 
-> The card's statistics about "collisions" and "late collisions" would
-> positively prove if this is the case.
-> 
+On Fri, 2002-01-25 at 03:40, Andrew Morton wrote:
+> Reading audio from IDE CDROMs always uses PIO.  This patch
+> teaches the kernel to use DMA for the CDROMREADAUDIO ioctl.
+> [...]
+> This code has not been tested for its effects upon SCSI-based
+> CDROM readers.  It needs to be.
 
-Not all cards correctly autoconfigure across a crossover cable (they
-should, but not all do).  When autoconfigure is screwed up, as you
-indicate above, things will be *VERY* messed up.
+Andrew,
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+I wanted to confirm success of testing the patch with a SCSI CD-ROM
+(Plextor UltraPlex Wide on aic7xxx).  I used your updated patch off your
+website.
+
+Audio rip completed without error.  Performance seems the same, which I
+assume is to be expected with SCSI readers.
+
+	Robert Love
+

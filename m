@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbUKNFHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbUKNGK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbUKNFHg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 00:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbUKNFHg
+	id S261248AbUKNGK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 01:10:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbUKNGK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 00:07:36 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55510 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261246AbUKNFHc (ORCPT
+	Sun, 14 Nov 2004 01:10:26 -0500
+Received: from holomorphy.com ([207.189.100.168]:11177 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261248AbUKNGKU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 00:07:32 -0500
-Date: Sat, 13 Nov 2004 21:07:09 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, davidm@snapgear.com,
-       linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: Re: [PATCH] VM routine fixes 
-In-Reply-To: <20942.1100257558@redhat.com>
-Message-ID: <Pine.LNX.4.58.0411132105240.12386@ppc970.osdl.org>
-References: <20041112023817.247af548.akpm@osdl.org>  <20041111143148.76dcaba4.akpm@osdl.org>
- <200411081432.iA8EWfmh023432@warthog.cambridge.redhat.com> <19844.1100255635@redhat.com>
-  <20942.1100257558@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 14 Nov 2004 01:10:20 -0500
+Date: Sat, 13 Nov 2004 22:10:16 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: jgarzik@pobox.com, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: Parenthize nth_page() macro arg, in linux/mm.h.
+Message-ID: <20041114061016.GF3217@holomorphy.com>
+References: <200411140517.iAE5HOqM010399@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411140517.iAE5HOqM010399@hera.kernel.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 13, 2004 at 07:43:08PM +0000, Linux Kernel Mailing List wrote:
+> ChangeSet 1.2092.7.2, 2004/11/13 14:43:08-05:00, jgarzik@pobox.com
+> 	Parenthize nth_page() macro arg, in linux/mm.h.
+>  mm.h |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> diff -Nru a/include/linux/mm.h b/include/linux/mm.h
+> --- a/include/linux/mm.h	2004-11-13 21:17:35 -08:00
+> +++ b/include/linux/mm.h	2004-11-13 21:17:35 -08:00
+> @@ -41,7 +41,7 @@
+>  #define MM_VM_SIZE(mm)	TASK_SIZE
+>  #endif
+> -#define nth_page(page,n) pfn_to_page(page_to_pfn((page)) + n)
+> +#define nth_page(page,n) pfn_to_page(page_to_pfn((page)) + (n))
+
+Okay, #1 the ((page)) thing should be unnecessary. If it is necessary,
+arch code is broken, which leads to #2: this came about because alpha
+wasn't parenthesizing its args in pfn_to_page(); where did the fix for
+that go?
 
 
-On Fri, 12 Nov 2004, David Howells wrote:
-> 
-> vm_area_struct not having an ops member? There's no real need for ops on
-> uClinux since almost all of the ops are irrelevant.
-
-I don't think that is a valid argument.
-
-If uClinux wants to be a different source-base, then go wild. But if you 
-want to integrate into the standard kernel, there are other priorities. 
-One of them is that it has to integrate cleanly. And that means that we 
-don't do micro-optimizations that make the non-MMU case affect mainline 
-code unless there is a damn good reason.
-
-		Linus
+-- wli

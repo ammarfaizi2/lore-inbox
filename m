@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262500AbTCPH2w>; Sun, 16 Mar 2003 02:28:52 -0500
+	id <S262519AbTCPHh3>; Sun, 16 Mar 2003 02:37:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262519AbTCPH2w>; Sun, 16 Mar 2003 02:28:52 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:26129 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S262500AbTCPH2v>;
-	Sun, 16 Mar 2003 02:28:51 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cpu-2.5.64-1 
-In-reply-to: Your message of "Mon, 10 Mar 2003 20:24:57 -0800."
-             <20030311042457.GL465@holomorphy.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 16 Mar 2003 18:39:30 +1100
-Message-ID: <15821.1047800370@ocs3.intra.ocs.com.au>
+	id <S262529AbTCPHh3>; Sun, 16 Mar 2003 02:37:29 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:5854 "EHLO
+	pd6mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id <S262519AbTCPHh2>; Sun, 16 Mar 2003 02:37:28 -0500
+Date: Sat, 15 Mar 2003 23:56:52 -0800
+From: Josef Roehrl <josefr@emspace.com>
+Subject: Re: Linux-kernel-revision-control list (was: Re: Never ever use word
+ BitKeeper if Larry does not like you)
+To: Christian Daudt <csd_ob@daudt.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: josefr@emspace.com
+Message-id: <3E742E44.7080106@emspace.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4.1)
+ Gecko/20020314 Netscape6/6.2.2
+References: <Pine.LNX.4.44.0303141120240.8584-100000@bushido>
+ <1047659289.2566.109.camel@sisko.scot.redhat.com>
+ <20030314163727.GE8937@work.bitmover.com> <200303140856.11839.csd_ob@daudt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Mar 2003 20:24:57 -0800, 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->Enable NUMA-Q's to run with more than 32 cpus by introducing a bitmap
->ADT and using it for cpu bitmasks on i386. Only good for up to 60 cpus;
->64x requires support for node-local cluster ID to physical node routes.
->diff -urpN linux-2.5.64/arch/i386/kernel/cpu/proc.c cpu-2.5.64-1/arch/i386/kernel/cpu/proc.c
->-	if (!(cpu_online_map & (1<<n)))
->+	if (!cpu_isset(n, cpu_online_map))
-	if (!cpu_online(n))
+I second that emotion.  Let's not lose track, though, of how the 
+BitKeeper issue affects kernel development.  Giving the BitKeeper 
+discussions their own home
+achieves 2 things: keeps the kernel development list focused on kernel 
+development and gets the BitKeeper issues hashed out better by making 
+those its own separate forum.
 
-Any main line code that explicitly refers to cpu_online_map is an
-ongoing maintenance problem.  Nothing should refer to cpu_online_map
-except the encapsulating macros such as cpu_online().
+Regards,
+
+Josef
+
+Christian Daudt wrote:
+
+>This BitKeeper subject resurfaces every week or so and probably accounts for 
+>5-10% of the linux-kernel mailing list traffic. While a terribly interesting 
+>topic to some - it really isn't about the kernel. Could someone be so kind as 
+>to create a linux-kernel-bitkeeper (or linux-kernel-revision-control) mailing 
+>list so that these discussions (which obviously are not going away) can have 
+>a proper home?
+>
+> cheers,
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+
 

@@ -1,138 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbTFFVjf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 17:39:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTFFVja
+	id S262318AbTFFVoF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 17:44:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTFFVoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 17:39:30 -0400
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:59800 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id S262298AbTFFVic
+	Fri, 6 Jun 2003 17:44:05 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:41347 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262318AbTFFVoE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 17:38:32 -0400
-Date: Fri, 6 Jun 2003 23:51:59 +0200
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] machine_reboot and friends
-Message-ID: <20030606215159.GB10721@h55p111.delphi.afb.lu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Anders Gustafsson <andersg@0x63.nu>
-X-Scanner: exiscan *19OP7v-00030z-00*dcLXji2/jZg*0x63.nu
+	Fri, 6 Jun 2003 17:44:04 -0400
+Message-ID: <3EE10D3D.4060803@austin.ibm.com>
+Date: Fri, 06 Jun 2003 16:53:01 -0500
+From: Mark Peloquin <peloquin@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linstab <linstab@osdl.org>, ltp-results@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: mm4, mm5, bk10 regression results
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+latest -mm tree results:
 
-just a thought:
+http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm4/2.5.70-mm3-vs-2.5.70-mm4/
+http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm4/2.5.70-vs-2.5.70-mm4/
+http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm5/2.5.70-mm4-vs-2.5.70-mm5/
+http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm5/2.5.70-vs-2.5.70-mm5/
 
-What if machine_restart/machine_halt/machine_power_off were made
-functionpointers instead? And let the architectures assign to them
-instead of defining the functions? Some architectures are already
-doing this. (There should be no problems with races or so, they are
-assigned early in the boot, and used at shutdowntime. And letting modules
-assign them wouldn't work in the ideal world where modules are
-deinitialized at shutdown)
+latest -bk tree results:
 
-A bit orthogonal: Different architechtures do different things if the action
-fails (or is unimplemented), some panic, some return, some do "for(;;);",
-isn't it about time someone defined the semantics for these functions?
+http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk10/2.5.70-bk9-vs-2.5.70-bk10/
+http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk10/2.5.70-vs-2.5.70-bk10/
 
-I mean something like the following, modulo changes to architechtures...
-
--- 
-Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
-
-
---- 1.3/include/linux/reboot.h	Thu Dec  5 02:05:34 2002
-+++ edited/include/linux/reboot.h	Fri Jun  6 21:07:01 2003
-@@ -44,9 +44,9 @@
-  * Architecture-specific implementations of sys_reboot commands.
-  */
- 
--extern void machine_restart(char *cmd);
--extern void machine_halt(void);
--extern void machine_power_off(void);
-+extern void (*machine_restart)(char *cmd);
-+extern void (*machine_halt)(void);
-+extern void (*machine_power_off)(void);
- 
- #endif
- 
---- 1.45/kernel/sys.c	Sun May 25 23:08:02 2003
-+++ edited/kernel/sys.c	Fri Jun  6 21:32:14 2003
-@@ -63,6 +63,14 @@
- int fs_overflowgid = DEFAULT_FS_OVERFLOWUID;
- 
- /*
-+ * These callbacks define archspecific behaviour.
-+ */
-+void (*machine_restart)(char *cmd);
-+void (*machine_halt)(void);
-+void (*machine_power_off)(void);
-+void (*pm_power_off)(void);
-+
-+/*
-  * this indicates whether you can reboot with ctrl-alt-del: the default is yes
-  */
- 
-@@ -403,7 +411,8 @@
- 		system_running = 0;
- 		device_shutdown();
- 		printk(KERN_EMERG "Restarting system.\n");
--		machine_restart(NULL);
-+		if(machine_restart)
-+			machine_restart(NULL);
- 		break;
- 
- 	case LINUX_REBOOT_CMD_CAD_ON:
-@@ -419,7 +428,8 @@
- 		system_running = 0;
- 		device_shutdown();
- 		printk(KERN_EMERG "System halted.\n");
--		machine_halt();
-+		if(machine_halt)
-+			machine_halt();
- 		unlock_kernel();
- 		do_exit(0);
- 		break;
-@@ -429,7 +439,10 @@
- 		system_running = 0;
- 		device_shutdown();
- 		printk(KERN_EMERG "Power down.\n");
--		machine_power_off();
-+		if(machine_power_off)
-+			machine_power_off();
-+		if(pm_power_off)
-+			pm_power_off();
- 		unlock_kernel();
- 		do_exit(0);
- 		break;
-@@ -445,7 +458,9 @@
- 		system_running = 0;
- 		device_shutdown();
- 		printk(KERN_EMERG "Restarting system with command '%s'.\n", buffer);
--		machine_restart(buffer);
-+		
-+		if(machine_restart)
-+			machine_restart(buffer);
- 		break;
- 
- #ifdef CONFIG_SOFTWARE_SUSPEND
-@@ -470,7 +485,8 @@
- static void deferred_cad(void *dummy)
- {
- 	notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
--	machine_restart(NULL);
-+	if(machine_restart)
-+		machine_restart(NULL);
- }
- 
- /*
-@@ -1414,3 +1430,4 @@
- EXPORT_SYMBOL(unregister_reboot_notifier);
- EXPORT_SYMBOL(in_group_p);
- EXPORT_SYMBOL(in_egroup_p);
-+EXPORT_SYMBOL(pm_power_off);
-
+Mark
 

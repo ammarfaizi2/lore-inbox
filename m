@@ -1,87 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129245AbRCTIlq>; Tue, 20 Mar 2001 03:41:46 -0500
+	id <S129259AbRCTJFj>; Tue, 20 Mar 2001 04:05:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129259AbRCTIlg>; Tue, 20 Mar 2001 03:41:36 -0500
-Received: from [32.97.166.34] ([32.97.166.34]:61855 "EHLO prserv.net")
-	by vger.kernel.org with ESMTP id <S129164AbRCTIlW>;
-	Tue, 20 Mar 2001 03:41:22 -0500
-Message-Id: <m14fHjL-001PKjC@mozart>
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Dawson Engler <engler@csl.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] 9 potential copy_*_user bugs in 2.4.1 
-In-Reply-To: Your message of "Thu, 15 Mar 2001 18:24:51 -0800."
-             <200103160224.SAA03920@csl.Stanford.EDU> 
-Date: Tue, 20 Mar 2001 19:42:56 +1100
+	id <S129282AbRCTJF3>; Tue, 20 Mar 2001 04:05:29 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:44535 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S129259AbRCTJFU>;
+	Tue, 20 Mar 2001 04:05:20 -0500
+Date: Tue, 20 Mar 2001 10:03:37 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: st corruption with 2.4.3-pre4
+In-Reply-To: <3AB63F5F.B7C3E71A@mandrakesoft.com>
+Message-ID: <Pine.GSO.4.10.10103200858110.4932-100000@escobaria.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200103160224.SAA03920@csl.Stanford.EDU> you write:
-> Hi,
-> 
-> I wrote an extension to gcc that does global analysis to determine
-> which pointers in 2.4.1 are ever treated as user space pointers (i.e,
-> passed to copy_*_user, verify_area, etc) and then makes sure they are
-> always treated that way.
+On Mon, 19 Mar 2001, Jeff Garzik wrote:
+> Is the corruption reproducible?  If so, does the corruption go away if
 
-Hi Dawson,
+Yes, it is reproducible. In all my tests, I tarred 16 files of 16 MB each to
+tape (I used a new one).
+  - test 1: 4 files with failed md5sum (no further investigation on type of
+	    corruption)
+  - test 2: 7 files with failed md5sum, 7 blocks of 32 consecutive bytes were
+	    corrupted, all starting at an offset of the form 32*x+1.
+  - test 3: 7 files with failed md5sum, 7 blocks of 32 consecutive bytes were
+	    corrupted, all starting at an offset of the form 32*x+1.
 
-	FYI, you missed one, which was fixed in 2.4.2.  This is tricky
-since ip_fw_ctl is defined in TWO (mutually exclusive) places:
-ipfwadm_core.c and ipchains_core.c.
+The files seem to be corrupted during writing only, as reading always gives the
+exact same (corrupted) data back.
 
-	Oh, I see in a later message that you do CONFIG=y.  Hmm, you
-won't even get asked about these if you've said CONFIG=y to
-CONFIG_IPTABLES.  You're best off trying CONFIG=m, which allows a
-compile of everything, but that may be outside your framework, in
-which case a series of different configurations might be in order...
+Copying files from the disk on the MESH to a disk on the Sym53c875 (which also
+has the tape drive) shows no corruption.
 
-diff -u --recursive --new-file v2.4.1/linux/net/ipv4/netfilter/ip_fw_compat.c linux/net/ipv4/netfilter/ip_fw_compat.c
---- v2.4.1/linux/net/ipv4/netfilter/ip_fw_compat.c	Mon Sep 18 15:09:55 2000
-+++ linux/net/ipv4/netfilter/ip_fw_compat.c	Fri Feb  9 11:34:13 2001
-@@ -9,6 +9,7 @@
- #include <linux/inetdevice.h>
- #include <linux/netdevice.h>
- #include <linux/module.h>
-+#include <asm/uaccess.h>
- #include <net/ip.h>
- #include <net/route.h>
- #include <linux/netfilter_ipv4/compat_firewall.h>
-@@ -197,14 +198,28 @@
- 	return NF_ACCEPT;
- }
- 
--extern int ip_fw_ctl(int optval, void *user, unsigned int len);
-+extern int ip_fw_ctl(int optval, void *m, unsigned int len);
- 
- static int sock_fn(struct sock *sk, int optval, void *user, unsigned int len)
- {
-+	/* MAX of:
-+	   2.2: sizeof(struct ip_fwtest) (~14x4 + 3x4 = 17x4)
-+	   2.2: sizeof(struct ip_fwnew) (~1x4 + 15x4 + 3x4 + 3x4 = 22x4)
-+	   2.0: sizeof(struct ip_fw) (~25x4)
-+
-+	   We can't include both 2.0 and 2.2 headers, they conflict.
-+	   Hence, 200 is a good number. --RR */
-+	char tmp_fw[200];
- 	if (!capable(CAP_NET_ADMIN))
- 		return -EPERM;
- 
--	return -ip_fw_ctl(optval, user, len);
-+	if (len > sizeof(tmp_fw) || len < 1)
-+		return -EINVAL;
-+
-+	if (copy_from_user(&tmp_fw, user, len))
-+		return -EFAULT;
-+
-+	return -ip_fw_ctl(optval, &tmp_fw, len);
- }
- 
- static struct nf_hook_ops preroute_ops
+> you rip out the scsi_error patch in 2.4.3-preXX?
 
-Hope that helps, and keep up the great work!
-Rusty.
+After reverting that patch, the problem got worse:
+  - test 4: 15 files with failed md5sum, a total of 40 blocks of 32 consecutive
+	    bytes were corrupted, all starting at an offset of the form 32*x+1.
+
+So it seems to be related to scsi_error.c.
+
+If you have some suggestions, I'm willing to try them. I'd like to trust
+whatever Amanda writes to my backup tapes :-)
+
+Gr{oetje,eeting}s,
+
+						Geert
+
 --
-Premature optmztion is rt of all evl. --DK
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

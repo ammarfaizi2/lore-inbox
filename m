@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262586AbVBBXTC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262316AbVBBX06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262586AbVBBXTC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 18:19:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVBBXPY
+	id S262316AbVBBX06 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 18:26:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbVBBX0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 18:15:24 -0500
-Received: from fed1rmmtao10.cox.net ([68.230.241.29]:14584 "EHLO
-	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S262693AbVBBXLE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 18:11:04 -0500
-Date: Wed, 2 Feb 2005 16:11:02 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Bryan O'Donoghue" <typedef@eircom.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ppc32 2.6.x builds for ppc m8xx arch.
-Message-ID: <20050202231102.GG15359@smtp.west.cox.net>
-References: <41ED2DAC.5030209@eircom.net>
+	Wed, 2 Feb 2005 18:26:30 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:30561 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262848AbVBBXVc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 18:21:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=qthuVBneeMkiij5XBlEPDf16mNj/irlEOCN+rvTaxlnRMeWYodPcAu5uscHRZ9U+58tsiS3dIAGm6MMA3R7fmo5ECNaKg0Pwy+kGK68/9JJlJ4QjRc8pA8G5zD+aSNOWgCKvJdI3HfiMfH+UBYIQJJvbi3BKQoar+CkPIM1qaNg=
+Message-ID: <58cb370e05020215213206ccfc@mail.gmail.com>
+Date: Thu, 3 Feb 2005 00:21:30 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] IDE: possible cleanups
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <20050131190154.GB18316@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41ED2DAC.5030209@eircom.net>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050131190154.GB18316@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 03:39:24PM +0000, Bryan O'Donoghue wrote:
-
-> Greetings list.
+On Mon, 31 Jan 2005 20:01:54 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> This patch contains the following possible cleanups:
+> - make some needlessly global code static
+> - ide-dma.c: remove the unneeded EXPORT_SYMBOL(__ide_dma_test_irq)
 > 
-> I'm curious about something which looks like an error in the mpc8xx 
-> build of the latest 2.6.11-rc1 kernel.
-[snip]
-> Looking at the difference between the 2.4 and the 2.6 build arguments.
-[snip]
-> I notice that for a start -m32 has appeared out of nowhere and 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--m32 is what allows you to use a ppc32/64 bi-arch toolchain and build a
-32bit kernel.  It is harmless on just ppc32 compilers.
-
-> furthermore -mcpu=860 has gone away.
-
-Correct.  -mcpu860 was a 'do nothing' flag.  It didn't actually tell the
-compiler anything, it just didn't cause an error.  It was removed when
-we had to add more really used flags.
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+applied

@@ -1,79 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267932AbRG2KsE>; Sun, 29 Jul 2001 06:48:04 -0400
+	id <S267923AbRG2Kmd>; Sun, 29 Jul 2001 06:42:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267928AbRG2Kry>; Sun, 29 Jul 2001 06:47:54 -0400
-Received: from cmailg7.svr.pol.co.uk ([195.92.195.177]:16156 "EHLO
-	cmailg7.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S267930AbRG2Krn>; Sun, 29 Jul 2001 06:47:43 -0400
-Posted-Date: Sun, 29 Jul 2001 10:47:36 GMT
-Message-ID: <00e101c1181b$e1c43380$5ffca8c0@UFP.CX>
-From: "Riley Williams" <rhw@@MemAlpha.cx>
-To: "Eric S Raymond" <esr@thyrsus.com>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <E14qaeC-0001DZ-00@the-village.bc.nu>
-Subject: Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-Date: Sun, 29 Jul 2001 11:47:00 +0100
-Organization: Memory Alpha
+	id <S267928AbRG2KmX>; Sun, 29 Jul 2001 06:42:23 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:7177 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S267923AbRG2KmL>; Sun, 29 Jul 2001 06:42:11 -0400
+Message-ID: <3B63E9F3.3BEAA025@zip.com.au>
+Date: Sun, 29 Jul 2001 20:48:19 +1000
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_00DE_01C11824.3404BEA0"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+To: Hugh Dickins <hugh@veritas.com>
+CC: Thomas Kotzian <thomasko321k@gmx.at>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: missing symbols in 2.4.7-ac2
+In-Reply-To: <3B636CA1.337A9C1A@zip.com.au> <Pine.LNX.4.21.0107291111440.16551-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-This is a multi-part message in MIME format.
+Hugh Dickins wrote:
+> 
+> On Sun, 29 Jul 2001, Andrew Morton wrote:
+> > Thomas Kotzian wrote:
+> > > when compiling with highmem = 4GB
+> > > problem in 3c59x - module:
+> > > unresolved symbol nr_free_highpages ...
+> >
+> > Ah.  Sorry.
+> > Alan, is it OK to export this symbol?
+> 
+> Laconic version: "Probably not: si_meminfo() is your friend".
 
-------=_NextPart_000_00DE_01C11824.3404BEA0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+:)
 
-Hi Alan, Eric.
+> Verbose version:
+> I don't think you really want nr_free_highpages(), that's transient
+> info - it won't usually fall so low as 0 if there is highmem, but do
+> you want to rely on that?
 
->> That's the main thing I'm after right now -- I want to cut down on
->> the false positives in my orphaned-symbol reports so that the
-actual
->> bugs will stand out.
+Prefer not to.  We want to know "does the system have any highmem
+pages".  I didn't know about sysinfo.totalhigh, so I used
+nr_free_highpages(), which answers the question "does the system
+have any free high pages right now".
 
-> Teach it to read a 'symbolstoignore' file.
->
-> Part of the problem you are hitting right now is that most
-architectures are
-> not yet fully in sync with 2.4 nor likely to all be for another few
-iterations.
+It's good enough - if we get it wrong (system was very low on memory
+when the driver was initialised) the driver will work - it just won't
+perform zerocopy optimisations.
 
-Not sure if it's relevant, but, I've enclosed (1) a bash script that
-produces an analysis of the CONFIG_ variables in a specified Linux
-kernel source tree, and (2) the results from running that on the 2.4.5
-tree. It analyses all files matching '*.?' and '[Cc]onfig.in' in the
-specified tree, and reports on the results by summarising both how
-many times each CONFIG_* variable is used total, which files it is
-used in, and how many times it is used in each file.
+>  And nr_free_highpages() is CONFIG_HIGHMEM
+> only, so you'd need #ifdef CONFIG_HIGHMEM around its call in 3c59x.c.
 
-Best wishes from Riley.
+That's OK actually - nr_free_highpages() evaluates to constant zero if
+CONFIG_HIGHMEM isn't defined.
 
 
-------=_NextPart_000_00DE_01C11824.3404BEA0
-Content-Type: application/octet-stream;
-	name="allgrep.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="allgrep.gz"
+--- linux-2.4.7-ac2/drivers/net/3c59x.c Sat Jul 28 07:12:03 2001
++++ linux/drivers/net/3c59x.c   Sun Jul 29 10:53:31 2001
+@@ -1299,8 +1299,11 @@
+        /* The 3c59x-specific entries in the device structure. */
+        dev->open = vortex_open;
+        if (vp->full_bus_master_tx) {
++               struct sysinfo sysinfo;
++
+                dev->hard_start_xmit = boomerang_start_xmit;
+-               if (nr_free_highpages() == 0) {
++               si_meminfo(&sysinfo);
++               if (sysinfo.totalhigh == 0) {
+                        /* Actually, it still should work with iommu. */
+                        dev->features |= NETIF_F_SG;
+                }
 
-H4sICMF0SzsCA2FsbGdyZXAAnVLRbtMwFH2Ov+IsdHhDctMiVQiNgKrB0KRqlVDhgaZMruO0loJd
-7GRoUP4dJ07DKiYecB7ie319zj3n+slJslY6WXO3JaSotaiU0SiN4JU8O8dPAr8KpXPEg3EMVt3v
-JApkZ2Caf5Wgz4ZvKJg5hMtLsTK6UJuh0hTZOfn1AHYjqztue1gnc1CXLL+M2MvbKfvM2Y9VgmRD
-8apli6KMRHtUFsyBNl+madRli42VO1zOb66u398+wuJ6mkZMiavr2TvSx5UMevZwxlZghd9936pS
-wkqet8W4QG5ItLNKVwXoKXsxcZml/l5zGuP10+ckClx9roPbo9bqG5hoEq3IdJCCdlU03dC2kdxo
-edR5qfQf06XYGqT/uTyxqL2uNcZsMD4i2VkjpHvMHsxnb1NK8Wn6IfQnRcmtBFPe5483Cyzmi+ks
-HQUbO5v/6WO45vEeOqoKLP0tn41xkvqdp42xukC1lZpEDXZbwvRfZ1HjECYjv+vnUsMIUVvLtZcF
-U+DUZdo/FAzadtEQBdRChX8jM/CH+CAragp63EmNFsoDBRnt9I4GJ3IktbOJs4J0th7sqGR4Ycx7
-pPi6lEOueXnvlCO/AYntmtFzAwAA
+Much preferable!  Thanks.
 
-------=_NextPart_000_00DE_01C11824.3404BEA0--
+I've checked all the architectures.  Looks fine, works OK.  Alan, please
+apply this one.
 
+-

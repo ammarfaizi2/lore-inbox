@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263270AbSJ1K7b>; Mon, 28 Oct 2002 05:59:31 -0500
+	id <S263277AbSJ1LJQ>; Mon, 28 Oct 2002 06:09:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263276AbSJ1K7b>; Mon, 28 Oct 2002 05:59:31 -0500
-Received: from ns.suse.de ([213.95.15.193]:40456 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S263270AbSJ1K7a>;
-	Mon, 28 Oct 2002 05:59:30 -0500
-To: Paul Eggert <eggert@twinsun.com>
+	id <S263289AbSJ1LJQ>; Mon, 28 Oct 2002 06:09:16 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:15410 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP
+	id <S263277AbSJ1LJQ>; Mon, 28 Oct 2002 06:09:16 -0500
+Date: Mon, 28 Oct 2002 12:15:34 +0100
+To: Marc Giger <gigerstyle@gmx.ch>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: nanosecond file timestamp resolution in filesystems, GNU make, etc.
-References: <20021027153651.GB26297@pimlott.net.suse.lists.linux.kernel> <200210280947.g9S9l9H01162@sic.twinsun.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 28 Oct 2002 12:05:49 +0100
-In-Reply-To: Paul Eggert's message of "28 Oct 2002 10:55:39 +0100"
-Message-ID: <p73u1j6su0i.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+Subject: Re: cpufreq: Intel(R) SpeedStep(TM) for this processor not (yet) available
+Message-ID: <20021028111534.GB606@poup.poupinou.org>
+References: <20021026105611.3d6a540c.gigerstyle@gmx.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021026105611.3d6a540c.gigerstyle@gmx.ch>
+User-Agent: Mutt/1.3.28i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Eggert <eggert@twinsun.com> writes:
+On Sat, Oct 26, 2002 at 10:56:11AM +0200, Marc Giger wrote:
+> Hi list, Hi Dominik
 > 
-> > Another way would be to round on flush, but that also has some problems :-
+> Why is cpufreq on my laptop not available? I know it works with window$.
+> My laptop has an Intel P3 speedstep cpu which supports 600Mhz and 500Mhz clock frequency. Will it be supported in the future?
 > 
-> Rounding is even worse.  GNU Make assumes truncation, i.e. it assumes
-> that a timestamp is truncated (floored, actually) when it is stored on
-> a non-nanosecond-aware filesystem.
-
-That is what my patchkit does currently, so I guess it should work fine.
-
+> Some additional infos:
 > 
-> > In my current patchkit I just chose to truncate because that was the 
-> > easiest and the other more complicated solutions didn't offer any 
-> > compeling advantage.
-> 
-> Can't you truncate/floor to filesystem timestamp resolution
-> immediately, i.e., before the inode is flushed?  That would address
-> the problems that I see.
 
-That would complicate the timestamp management in the kernel considerably.
-I'm not sure if I want to do that, probably not.
+Ask Intel. There is _no_ technical informations from Intel
+about their SpeedStep technology.  All is done for now by guessing,
+reverse engeenering, etc.  Only a subset of chipsets can
+work for now, and you do not have the one that cpufreq support.
+I heard also that it could work soon, but absolutely nothing
+is guarantied if Intel continue to withhold their 
+documentations.  You can join cpufreq mailing list if
+you want to help on this topic.
 
--Andi
+Cheers,
 
+-- 
+Ducrot Bruno
+http://www.poupinou.org        Page profaissionelle
+http://toto.tu-me-saoules.com  Haume page

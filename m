@@ -1,41 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129478AbRCYLhq>; Sun, 25 Mar 2001 06:37:46 -0500
+	id <S131873AbRCYMVb>; Sun, 25 Mar 2001 07:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131271AbRCYLhg>; Sun, 25 Mar 2001 06:37:36 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:2826 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129478AbRCYLhS>;
-	Sun, 25 Mar 2001 06:37:18 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: drew@drewb.com
+	id <S131958AbRCYMVU>; Sun, 25 Mar 2001 07:21:20 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:31494 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131873AbRCYMVJ>; Sun, 25 Mar 2001 07:21:09 -0500
+Date: 25 Mar 2001 13:44:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: torvalds@transmeta.com
 cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.3-pre7 and System.map, bzImage ?? 
-In-Reply-To: Your message of "Sun, 25 Mar 2001 11:14:44 GMT."
-             <15037.54052.77265.743026@champ.serialhacker.net> 
-Mime-Version: 1.0
+Message-ID: <7yXNer9Xw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.31.0103231159300.766-100000@penguin.transmeta.com>
+Subject: Re: Version 6.1.8 of the aic7xxx driver availalbe
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 25 Mar 2001 21:36:31 +1000
-Message-ID: <4010.985520191@ocs3.ocs-net>
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.31.0103231159300.766-100000@penguin.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Mar 2001 11:14:44 +0000 (), 
-Drew Bertola <drew@drewb.com> wrote:
->I've compiled 2.4.3-pre7 and no errors were reported, yet I can't find
->the kernel bzImage or System.map file.  Did I miss a major change in the
->install procedure since 2.4.1?
+torvalds@transmeta.com (Linus Torvalds)  wrote on 23.03.01 in <Pine.LNX.4.31.0103231159300.766-100000@penguin.transmeta.com>:
 
-The only change that might cause a problem is to arch/i386/boot/Makefile.
+> On Thu, 22 Mar 2001, Justin T. Gibbs wrote:
+> >
+> > 	aic7xxx_proc.c:
+> > 		Use an unsigned long for total number of commands
+> > 		sent to a device.  %q and %lld don't seem to work
+> > 		under Linux or I'd have used a uint64_t.
+>
+> It's "%Ld".
+>
+> Think ANSI "long long double" -> "Lf".
+>
+> Thus "long long int" -> "Ld".
+>
+> I know it's at least been discussed for ANSI C9X, although I have no idea
+> if it actually caught on.
 
-@@ -43,7 +43,7 @@ tools/build: tools/build.c
-        $(HOSTCC) $(HOSTCFLAGS) -o $@ $< -I$(TOPDIR)/include
- 
- bootsect: bootsect.o
--       $(LD) -Ttext 0x0 -s -oformat binary -o $@ $<
-+       $(LD) -Ttext 0x0 -s --oformat binary -o $@ $<
+It went the other way:
 
-There was also a bug fix to genksyms processing, although that is less
-likely to be the cause.  Check that your modutils and binutils are up
-to date.
+ISO/IEC 9899:1999 (E) +ISO/IEC:
 
+7 The length modifiers and their meanings are:
+
+hh Specifies that a following d, i, o, u, x,or X conversion specifier  
+applies to a signed char or unsigned char argument (the argument will have  
+been promoted according to the integer promotions, but its value shall be  
+converted to signed char or unsigned char before printing); or that a  
+following n conversion specifier applies to a pointer to a signed char  
+argument.
+
+h Specifies that a following d, i, o, u, x,orX conversion specifier  
+applies to a short int or unsigned short int argument (the argument will  
+have been promoted according to the integer promotions, but its value  
+shall be converted to short int or unsigned short int before printing); or  
+that a following n conversion specifier applies to a pointer to a short  
+int argument.
+
+l (ell) Specifies that a following d, i, o, u, x,orX conversion specifier  
+applies to a long int or unsigned long int argument; that a following n  
+conversion specifier applies to a pointer to a long int argument; that a  
+following c conversion specifier applies to a wint_t argument; that a  
+following s conversion specifier applies to a pointer to a wchar_t  
+argument; or has no effect on a following a, A, e, E, f, F, g, or G  
+conversion specifier.
+
+ll (ell-ell) Specifies that a following d, i, o, u, x,orX conversion  
+specifier applies to a long long int or unsigned long long int argument;  
+or that a following n conversion specifier applies to a pointer to a long  
+long int argument.
+
+j Specifies that a following d, i, o, u, x,orX conversion specifier  
+applies to an intmax_t or uintmax_t argument; or that a following n  
+conversion specifier applies to a pointer to an intmax_t argument.
+
+z Specifies that a following d, i, o, u, x,orX conversion specifier  
+applies to a size_t or the corresponding signed integer type argument; or  
+that a following n conversion specifier applies to a pointer to a signed  
+integer type corresponding to size_t argument.
+
+t Specifies that a following d, i, o, u, x,orX conversion specifier  
+applies to a ptrdiff_t or the corresponding unsigned integer type  
+argument; or that a following n conversion specifier applies to a pointer  
+to a ptrdiff_t argument.
+
+L Specifies that a following a, A, e, E, f, F, g,orG conversion specifier applies to a long double argument. If a length modifier appears with any conversion specifier other than as specified above, the behavior is undefined.
+
+
+
+
+MfG Kai

@@ -1,92 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbUEDVtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUEDV4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbUEDVtR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 17:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbUEDVtQ
+	id S261205AbUEDV4v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 17:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUEDV4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 17:49:16 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:15791 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S261179AbUEDVtO convert rfc822-to-8bit
+	Tue, 4 May 2004 17:56:51 -0400
+Received: from mail-ext.curl.com ([66.228.88.132]:19467 "HELO
+	mail-ext.curl.com") by vger.kernel.org with SMTP id S261205AbUEDV4t
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 17:49:14 -0400
-content-class: urn:content-classes:message
+	Tue, 4 May 2004 17:56:49 -0400
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: Load hid.o module synchronously?
+References: <s5g8ygi4l3q.fsf@patl=users.sf.net>
+	<408D65A7.7060207@nortelnetworks.com>
+	<s5gisfm34kq.fsf@patl=users.sf.net> <c6od9g$53k$1@gatekeeper.tmr.com>
+	<s5ghdv0i8w4.fsf@patl=users.sf.net> <20040504200147.GA26579@kroah.com>
+From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Message-ID: <s5ghduvdg1u.fsf@patl=users.sf.net>
+Date: 04 May 2004 17:56:48 -0400
+In-Reply-To: <20040504200147.GA26579@kroah.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH] mxcsr patch for i386 & x86-64
-Date: Tue, 4 May 2004 14:47:11 -0700
-Message-ID: <7F740D512C7C1046AB53446D37200173015DBDFC@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] mxcsr patch for i386 & x86-64
-Thread-Index: AcQyG+b236zq/g/fRIOAXAMQzlVcCAAAqgFw
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>, "Linus Torvalds" <torvalds@osdl.org>
-Cc: "Kamble, Nitin A" <nitin.a.kamble@intel.com>,
-       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>
-X-OriginalArrivalTime: 04 May 2004 21:47:11.0950 (UTC) FILETIME=[5B40CEE0:01C43221]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Jeff Garzik [mailto:jgarzik@pobox.com]
->Sent: Tuesday, May 04, 2004 2:08 PM
->Linus Torvalds wrote:
->> --- 1.19/arch/i386/kernel/i387.c	Tue Feb  3 21:30:39 2004
->> +++ edited/arch/i386/kernel/i387.c	Tue May  4 13:15:10 2004
->> @@ -24,6 +25,21 @@
->>  #define HAVE_HWFP 1
->>  #endif
->>
->> +static unsigned long mxcsr_feature_mask = 0xffffffff;
->
->> --- 1.10/arch/x86_64/kernel/i387.c	Fri Jan 23 12:17:58 2004
->> +++ edited/arch/x86_64/kernel/i387.c	Tue May  4 13:07:35 2004
->> @@ -24,6 +24,18 @@
->>  #include <asm/ptrace.h>
->>  #include <asm/uaccess.h>
->>
->> +unsigned long mxcsr_feature_mask = 0xffffffff;
->> +
->
->
->Minor/dumb question:  Is the above intentional?
->
->Would be nice to have them the same for consistency if nothing else.
->i386 and x86-64 common code gets pasted and #include'd all the time.
+Greg KH <greg@kroah.com> writes:
 
-If we look at set/get_fpu_xxx in i386 and x86-64, their codes are not
-consistent; functions vs. macros. This is mainly because x86-64 can
-assume the modern CPU features are available, and thus those are
-simplified. 
-
-It's not required to make mxcsr_feature_mask global on i386 because
-nobody else is using it in other files, but I agree that it would be
-better to make it global to avoid potential confusion/mistakes in the
-future.
-
-> ===== arch/i386/kernel/i387.c 1.19 vs edited =====
-> --- 1.19/arch/i386/kernel/i387.c	Tue Feb  3 21:30:39 2004
-> +++ edited/arch/i386/kernel/i387.c	Tue May  4 13:15:10 2004
-> @@ -10,6 +10,7 @@
-> ...
-> -void set_fpu_mxcsr( struct task_struct *tsk, unsigned short mxcsr )
-> -{
-> -	if ( cpu_has_xmm ) {
-> -		tsk->thread.i387.fxsave.mxcsr = (mxcsr & 0xffbf);
-> -	}
-> -}
-If we do this, then we should check if we can remove other (unused)
-set/get_fpu_xxx to make i386 and x86-64 more consistent. For example,
-set/get_fpu_fwd() are not used as far as I checked.
-
-Jun
-
+> On Sat, May 01, 2004 at 09:21:31AM -0400, Patrick J. LoPresti wrote:
 >
->	Jeff
->
->
+> > So there is no way to load this hardware driver and wait until it
+> > either binds or fails to bind to its associated hardware?  That seems
+> > like a bad bug in the design...
+> 
+> Um, what is wrong with the proposals I made for how you can detect
+> this?
 
+Your proposals were:
+
+ - look at the device in /proc/bus/usb/devices and wait until the
+   driver is bound to that device "(hid)" will show up as the
+   driver bound to that interface
+
+ - look at the sysfs directory for the hid driver and wait for
+   the symlink to the device shows up.  This should be at
+   /sys/bus/usb/drivers/hid
+
+I see how these let me wait until the hid.o module successfully binds
+to the hardware.
+
+But what if it fails to bind?  For example, what if an error occurs?
+Or what if the keyboard is on the module's blacklist?  How do I know
+when to stop waiting?
+
+Ideally, what I would like is for "modprobe <driver>" to wait until
+all hardware handled by that driver is either ready for use or is
+never going to be.  That seems simple and natural to me.  But I would
+be glad to use any other mechanism to achieve the same effect; I just
+have not seen one yet.
+
+ - Pat

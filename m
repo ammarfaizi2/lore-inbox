@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131974AbRDGVpt>; Sat, 7 Apr 2001 17:45:49 -0400
+	id <S132037AbRDGVwu>; Sat, 7 Apr 2001 17:52:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131985AbRDGVpk>; Sat, 7 Apr 2001 17:45:40 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:21822 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S131974AbRDGVp0>; Sat, 7 Apr 2001 17:45:26 -0400
-Date: Sat, 7 Apr 2001 22:45:12 +0100
-From: Tim Waugh <twaugh@redhat.com>
+	id <S131988AbRDGVwk>; Sat, 7 Apr 2001 17:52:40 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:2486 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S131985AbRDGVwc>;
+	Sat, 7 Apr 2001 17:52:32 -0400
+Message-ID: <3ACF8C1C.7CFF675A@mandrakesoft.com>
+Date: Sat, 07 Apr 2001 17:52:28 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Gunther Mayer <Gunther.Mayer@t-online.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: no To-header on input <"unlisted-recipients:;"@havoc.gtf.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: PATCH for Broken PCI Multi-IO in 2.4.3 (serial+parport)
-Message-ID: <20010407224512.K3280@redhat.com>
-In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com> <20010407111419.B530@redhat.com> <3ACF5F9B.AA42F1BD@t-online.de> <20010407200340.C3280@redhat.com> <3ACF6920.465635A1@mandrakesoft.com> <3ACF76B7.44F6279@t-online.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="KaGhPsiNaI6/sRd6"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3ACF76B7.44F6279@t-online.de>; from Gunther.Mayer@t-online.de on Sat, Apr 07, 2001 at 10:21:11PM +0200
+In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com> <20010407111419.B530@redhat.com> <3ACF5F9B.AA42F1BD@t-online.de> <20010407200340.C3280@redhat.com> <3ACF6920.465635A1@mandrakesoft.com> <3ACF790B.72171236@t-online.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Gunther Mayer wrote:
+> 
+> Jeff Garzik wrote:
+> >
+>  Like I mentioned in a
+> > previous message, the Via parport code is ugly and should go into a Via
+> > superio driver.  It is simply not scalable to consider the alternative
+> > -- add superio code to parport_pc.c for each ISA bridge out there.  I
+> > think the same principle applies to this discussion as well.
+> 
+> Yes, superio will go away and replaced by user level utility:
+> http://home.t-online.de/home/gunther.mayer/lssuperio-0.61.tar.bz2
 
---KaGhPsiNaI6/sRd6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The entire point of superio is -not- configuration.  That's what your
+BIOS setup does, and/or user-level utilities.
 
-On Sat, Apr 07, 2001 at 10:21:11PM +0200, Gunther Mayer wrote:
+The point of superio support is that you can obtain 100% accurate probe
+information for legacy ISA devices, by looking at the information
+exported by the ISA bridge.  There is no need for "probing" per se,
+because you know whether or not the parallel port is enabled, exactly
+what IRQ it's on, and exactly what DMA channel it uses.
 
-> Many users will be surprised if they must load another module
-> (e.g."pci_multiio") to get their parallel and serial ports working.
->=20
-> Thus _must not_ happen in the stable release.
+So, a superio probe occurs first because it provides the maximum
+information at the least cost.  Since ISA devices must still be
+supported, the ISA probe should come after the PCI probe (which includes
+PCI superio stuff).  ISA probes to ports already registered via the
+superio probe fail at the request_region level, avoiding any unnecessary
+hardware access at those ports.  There are tertiary benefits to such a
+scheme as well, I'll be glad to elaborate on if people are interested in
+the nitty gritty (read: boring) details.
 
-Yes, I agree.  I am planning for parport_serial.c to end up as part of
-parport_pc.o for 2.4.
+	Jeff
 
-Tim.
-*/
 
---KaGhPsiNaI6/sRd6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6z4pnONXnILZ4yVIRAijtAJ9QwHwphkfjeC/KoXuKMslo5qvC7QCeI2BH
-W39tdwEtcDmalLUAerMHcs8=
-=/LNH
------END PGP SIGNATURE-----
-
---KaGhPsiNaI6/sRd6--
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

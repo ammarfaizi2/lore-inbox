@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130575AbQKKMXk>; Sat, 11 Nov 2000 07:23:40 -0500
+	id <S130792AbQKKNun>; Sat, 11 Nov 2000 08:50:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130648AbQKKMXb>; Sat, 11 Nov 2000 07:23:31 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:31577 "EHLO
-	amsmta06-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S130575AbQKKMXV>; Sat, 11 Nov 2000 07:23:21 -0500
-Date: Sat, 11 Nov 2000 14:31:08 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: root <whtdrgn@mail.cannet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.17 wont compile on AMD k6@-550
-In-Reply-To: <3A0C9B74.114053B6@cannet.com>
-Message-ID: <Pine.LNX.4.21.0011111430330.7262-100000@server.serve.me.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130648AbQKKNuc>; Sat, 11 Nov 2000 08:50:32 -0500
+Received: from limes.hometree.net ([194.231.17.49]:26912 "EHLO
+	limes.hometree.net") by vger.kernel.org with ESMTP
+	id <S130760AbQKKNu2>; Sat, 11 Nov 2000 08:50:28 -0500
+To: linux-kernel@vger.kernel.org
+Date: Sat, 11 Nov 2000 13:24:18 +0000 (UTC)
+From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
+Message-ID: <8ujha2$1ou$1@forge.tanstaafl.de>
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+In-Reply-To: <Pine.LNX.3.95.1001110142537.5403A-100000@chaos.analogic.com>, <3A0C4D6B.B4FF664C@timpanogas.org>
+Reply-To: hps@tanstaafl.de
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2000, root wrote:
+jmerkey@timpanogas.org (Jeff V. Merkey) writes:
 
-> Hello kernel hackers,
-> 
->     I am having problems with compiling a kernel on an AMD K62-550.
-> I am running Red Hat 6.2, and am getting error messages like this:
-> 
-> cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
-> -fomit-frame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce
-> -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686   -c
-> -o tcp_output.o tcp_output.c
-> cc: Internal compiler error: program cc1 got fatal signal 11
+>I did Dick.  The config is fine.  The daemon is also fine and running. 
+>What's really weird is that even if I do a "sendmail -v -q" command
+>(which should force the queue to flush) it still doesn't. 
 
-SIG11 is almost always a hardware problem. Read the SIG11-HOWTO (is that
-called that way ?)
+O Timeout.ident=0s
+O Timeout.initial=30s (these are the ninieties / 21st century)
 
-> Kind Regards
-> Timothy A. DeWees
+Get someone that really has an idea about sendmail. 
 
+	Regards
+		Henning
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-	Igmar
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

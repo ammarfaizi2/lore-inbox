@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbUC0XzS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 18:55:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUC0XzS
+	id S261907AbUC1AAC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 19:00:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbUC1AAC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 18:55:18 -0500
-Received: from alt.aurema.com ([203.217.18.57]:46248 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S261931AbUC0XzO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 18:55:14 -0500
-Message-ID: <406613BC.90602@aurema.com>
-Date: Sun, 28 Mar 2004 09:52:28 +1000
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+	Sat, 27 Mar 2004 19:00:02 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1461 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261907AbUC0X75
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 18:59:57 -0500
+Message-ID: <4066156F.1000805@pobox.com>
+Date: Sat, 27 Mar 2004 18:59:43 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Micha Feigin <michf@post.tau.ac.il>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: finding out the value of HZ from userspace
-References: <20040313193852.GC12292@devserv.devel.redhat.com> <40564A22.5000504@aurema.com> <20040316063331.GB23988@devserv.devel.redhat.com> <40578FDB.9060000@aurema.com> <20040320102241.GK2803@devserv.devel.redhat.com> <405C2AC0.70605@stesmi.com> <20040322223456.GB2549@luna.mooo.com> <405F70F6.5050605@aurema.com> <20040325174053.GB11236@mail.shareable.org> <406369A1.7090905@aurema.com> <20040327133133.GB21884@mail.shareable.org>
-In-Reply-To: <20040327133133.GB21884@mail.shareable.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au> <406611CA.3050804@pobox.com> <406612AA.1090406@yahoo.com.au>
+In-Reply-To: <406612AA.1090406@yahoo.com.au>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> Peter Williams wrote:
+Nick Piggin wrote:
+> Jeff Garzik wrote:
 > 
->>Making HZ == USER_HZ would also solve the problem.
+>> Nick Piggin wrote:
+>>
+>>> I think 32MB is too much. You incur latency and lose
+>>> scheduling grainularity. I bet returns start diminishing
+>>> pretty quickly after 1MB or so.
+>>
+>>
+>>
+>> See my reply to Bart.
+>>
+>> Also, it is not the driver's responsibility to do anything but export 
+>> the hardware maximums.
+>>
+>> It's up to the sysadmin to choose a disk scheduling policy they like, 
+>> which implies that a _scheduler_, not each individual driver, should 
+>> place policy limitations on max_sectors.
+>>
 > 
-> 
-> They were equal once.
-> 
-> Making them equal now would reintroduce the problem that USER_HZ was
-> created to resolve: some userspace programs hard-code the value, so it
-> cannot be changed in interfaces used by those programs.
+> Yeah I suppose you're right there. In practice it doesn't
+> work that way though, does it?
 
-That was the wrong solution to that particular problem.  The programs 
-should have been fixed rather than the kernel being maimed to 
-accommodate their shortcomings.
+Not my problem  <grin>
 
-Peter
--- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+People shouldn't be tuning max_sectors at the source code level: that 
+just embeds the policy decisions in the source code, and leads to 
+constant fiddling with the driver to get things "just right". Over time, 
+disks get faster and latency falls naturally.  Thus the definition of 
+"just right" must be constantly tuned in the driver source code as time 
+passes.
+
+I also wouldn't want to lock out any users who wanted to use SATA at 
+full speed ;-)
+
+	Jeff
+
+
 

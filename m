@@ -1,31 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265817AbRFYAfs>; Sun, 24 Jun 2001 20:35:48 -0400
+	id <S265830AbRFYA4g>; Sun, 24 Jun 2001 20:56:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265819AbRFYAfi>; Sun, 24 Jun 2001 20:35:38 -0400
-Received: from mnh-1-02.mv.com ([207.22.10.34]:15110 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S265817AbRFYAfa>;
-	Sun, 24 Jun 2001 20:35:30 -0400
-Message-Id: <200106250145.UAA03758@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: landley@webofficenow.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Microsoft and Xenix. 
-In-Reply-To: Your message of "Sun, 24 Jun 2001 10:18:40 -0400."
-             <01062410184009.01519@localhost.localdomain> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 24 Jun 2001 20:45:51 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S265833AbRFYA4Z>; Sun, 24 Jun 2001 20:56:25 -0400
+Received: from c266492-a.lakwod1.co.home.com ([24.1.8.253]:5637 "EHLO
+	benatar.snurgle.org") by vger.kernel.org with ESMTP
+	id <S265830AbRFYA4K>; Sun, 24 Jun 2001 20:56:10 -0400
+Date: Sun, 24 Jun 2001 20:55:52 -0400 (EDT)
+From: William T Wilson <fluffy@snurgle.org>
+To: Rob Landley <landley@webofficenow.com>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Alan Chandler <alan@chandlerfamily.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Microsoft and Xenix.
+In-Reply-To: <01062406364601.01519@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0106242055390.2101-100000@benatar.snurgle.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-landley@webofficenow.com said:
-> Licklidder wasn't just a bigwig behind  arpanet, he also kicked off
-> project mac at MIT.
+On Sun, 24 Jun 2001, Rob Landley wrote:
 
-You're right, but you could at least spell his name right - J. C. R. Licklider.
+> I know the geos had nothing to do with digital, it started as a
+> windowing GUI for the commodore 64, if you can believe that...
 
-		Jeff (who was his last undergraduate thesis supervisee at MIT)
-
+I've actually got a copy, but it's for the Apple // :}
 

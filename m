@@ -1,80 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263662AbTKFONq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 09:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTKFONq
+	id S263583AbTKFOC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 09:02:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbTKFOC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 09:13:46 -0500
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:13844 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id S263662AbTKFONn convert rfc822-to-8bit (ORCPT
+	Thu, 6 Nov 2003 09:02:58 -0500
+Received: from ns.suse.de ([195.135.220.2]:974 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263583AbTKFOBb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 09:13:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Dain <omd1@cornell.edu>
-To: Gianni Tedesco <gianni@scaramanga.co.uk>, odain2@mindspring.com
-Subject: Re: CONFIG_PACKET_MMAP revisited
-Date: Thu, 6 Nov 2003 09:13:41 -0500
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <176730-2200310329491330@M2W026.mail2web.com> <1068116914.6144.1410.camel@lemsip>
-In-Reply-To: <1068116914.6144.1410.camel@lemsip>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200311060913.41719.omd1@cornell.edu>
+	Thu, 6 Nov 2003 09:01:31 -0500
+Date: Thu, 6 Nov 2003 14:52:11 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+Message-ID: <20031106135211.GB1194@suse.de>
+References: <20031106130030.GC1145@suse.de> <3FAA4737.3060906@cyberone.com.au> <20031106130553.GD1145@suse.de> <3FAA4880.8090600@cyberone.com.au> <20031106131141.GE1145@suse.de> <3FAA4D48.6040709@gmx.de> <20031106133136.GA477@suse.de> <3FAA5043.8060907@gmx.de> <20031106134713.GA798@suse.de> <3FAA52A3.9030000@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FAA52A3.9030000@cyberone.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday November 6 2003 6:08 am, Gianni Tedesco wrote:
-> On Wed, 2003-10-29 at 05:09, odain2@mindspring.com wrote:
-> > I believe that in normal operation each packet
-> > (or with NICs that do interrupt coalescing, every n packets) causes an
-> > interrupt which causes a context switch, the kernel then copies the data
-> > from the DMA buffer to the shared buffer and does a RETI.  That's fairly
-> > expensive.
->
-> The cost of handling that interrupt and doing an iret is unavoidable
-> (ignoring NAPI). The main point you are missing with the ring buffer is
-> that if packets come in at a fast enough rate, the usermode task never
-> context switches, because there is always data in the ring buffer, so it
-> loops in usermode forever.
+On Fri, Nov 07 2003, Nick Piggin wrote:
+> 
+> 
+> Jens Axboe wrote:
+> 
+> >On Thu, Nov 06 2003, Prakash K. Cheemplavam wrote:
+> >
+> >>>>>Heh indeed, maybe because the archs I use are still at 100. Looks
+> >>>>>suspiciously like it's loosing timer interrupts, which would indeed
+> >>>>>point to PIO.
+> >>>>>
+> >>>>>
+> >>>>bash-2.05b# hdparm -I /dev/hdc
+> >>>>
+> >>>
+> >>>-i please
+> >>>
+> >>bash-2.05b# hdparm -i /dev/hdc
+> >>
+> >>/dev/hdc:
+> >>
+> >>Model=LITE-ON LTR-16102B, FwRev=OS0K, SerialNo=
+> >>Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+> >>RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+> >>BuffType=unknown, BuffSize=0kB, MaxMultSect=0
+> >>(maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+> >>IORDY=yes, tPIO={min:227,w/IORDY:120}, tDMA={min:120,rec:120}
+> >>PIO modes:  pio0 pio1 pio2 pio3 pio4
+> >>DMA modes:  mdma0 mdma1 *mdma2
+> >>AdvancedPM=no
+> >>
+> >>* signifies the current active mode
+> >>
+> >>The same: dma is active.
+> >>
+> >
+> >Indeed, so you are ysing multiword mode 2. Can you try and do a dd from
+> >the drive, while doing a vmstat 1? Also, does that show the jerky
+> >behaviour?
+> >
+> 
+> AFAIK, Prakash cannot reproduce this bad behaviour with mm1, only mm2 (is
+> this right, Prakash?). So its something there (don't forget Andrew merges
+> the latest bk with his releases too).
 
-It seems to me that it can't loop in user mode forever.  There is no way to 
-get data into user mode (the ring buffer) witout going through the kernel.  
-My understanding is that the NIC doesn't transfer directly to the user mode 
-ring buffer, but rather to a different DMA buffer.  The kernel must copy it 
-from the DMA buffer to the ring buffer. Thus once the user mode app has 
-processed all the data in the ring buffer the kenel _must_ get involved to 
-get more data to user space.  Currently the data gets there because the NIC 
-produces an interrupt for each packet (or for every few packets) and when the 
-kernel handles these the data is copied to user space.  Then, as you point 
-out, the cost of the RETI can't be avoided.  
+I'm not aware of anything in that area that could explain the change.
 
-NAPI tries to solve this problem.  I don't know much about NAPI, but as I 
-understand it, the idea is this: The cost of the RETI's and context switches 
-(which occur on each interrupt) can be reduced if the NIC doesn't produce an 
-interrupt for every packet but instead does interrupt coalescing, but this 
-only goes so far.  If too many packets are coalesced the data copied by the 
-kernel will no longer fit in the L1 cache and we'll pay the price of moving 
-it there twice (once when the kernel copies the data from main memory to the 
-ring buffer and once when the user mode application reads it out of the 
-ring), the latency may become a problem, we've still got a context switch 
-every time the user mode application has processed everything in the ring 
-buffer (and perhaps more often), and we're still paying the price of copying 
-data from the DMA buffer to the ring.
-
-However, if the NIC could transfer the data directly to user space it wouldn't 
-need to cause an interrupt and the cost of the RETI and the context switch is 
-avoided.  The user mode app really could process forever without sleeping at 
-that point.
-
-> The problem could be the packets are coming in just too slow to allow
-> the ring buffer to work properly and causing the application to sleep on
-> poll(2) every time. This would kill performance at pathelogical packet
-> rates I guess.
->
-> You could work around this by spinning for a few thousand spins before
-> calling poll(2) (or even indefinately for that matter, and allow the
-> kernel to preempt you if need be).
-
+-- 
+Jens Axboe
 

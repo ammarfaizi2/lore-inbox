@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263292AbTJQCsV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 22:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbTJQCsV
+	id S263293AbTJQC6F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 22:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263294AbTJQC6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 22:48:21 -0400
-Received: from holomorphy.com ([66.224.33.161]:27014 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263292AbTJQCsU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 22:48:20 -0400
-Date: Thu, 16 Oct 2003 19:51:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: /proc reliability & performance
-Message-ID: <20031017025128.GA25291@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Albert Cahalan <albert@users.sf.net>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1066356438.15931.125.camel@cube>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1066356438.15931.125.camel@cube>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Thu, 16 Oct 2003 22:58:05 -0400
+Received: from dyn-ctb-210-9-243-144.webone.com.au ([210.9.243.144]:57092 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S263293AbTJQC6D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 22:58:03 -0400
+Message-ID: <3F8F5A53.50209@cyberone.com.au>
+Date: Fri, 17 Oct 2003 12:56:19 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Albert Cahalan <albert@users.sourceforge.net>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: decaying average for %CPU
+References: <1066358155.15931.145.camel@cube>
+In-Reply-To: <1066358155.15931.145.camel@cube>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 16, 2003 at 10:07:18PM -0400, Albert Cahalan wrote:
-> Tie directory readers to a task_struct (or to
-> some of the PID tracking structs), so that
-> a directory reader is on a list. When a task
-> exits, move the list of directory readers on
-> to a neighboring task.
-> That is O(1) on task exit, and generally O(n)
-> for the whole /proc or /proc/42/task read.
-> It's O(1) per step of the read, excepting
-> where multiple directory readers wind up at
-> the same location.
-> Another benefit is that it is reliable as
-> long as tasks don't move around on the lists.
-> Each task will appear at most once, and will
-> appear exactly once if it doesn't start or
-> exit during the directory scan.
-
-Several other things have been tried.
-(a) something mingo wrote I forgot the nature of
-(b) a thing manfred wrote that recovers positions in hashtable
-	collision chains by sorting them, with O(chain length)
-	insertion
-(c) a thing I wrote that turns the tasklist and pid_chains into
-	rbtrees and uses the last-seen pid to seek in O(lg(n))
-	time, and uses a routine to seek and fill buffers as a
-	drop-in replacement for get_tgid_list()/get_tid_list().
-
-I have a current implementation of (c), as well as a patch to
-restore 2.4 semantics to proc_pid_statm() in O(1) time.
 
 
--- wli
+Albert Cahalan wrote:
+
+>The UNIX standard requires that Linux provide
+>some measure of a process's "recent" CPU usage.
+>Right now, it isn't provided. You might run a
+>CPU hog for a year, stop it ("kill -STOP 42")
+>for a few hours, and see that "ps" is still
+>reporting 99.9% CPU usage. This is because the
+>kernel does not provide a decaying average.
+>
+
+I think the kernel provides enough info for userspace to do
+the job, doesn't it?
+
+

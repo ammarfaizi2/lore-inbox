@@ -1,83 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbUKMTKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbUKMTqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbUKMTKj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 14:10:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUKMTKj
+	id S261156AbUKMTqi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 14:46:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbUKMTqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 14:10:39 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36773 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261153AbUKMTKa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 14:10:30 -0500
-Date: Sat, 13 Nov 2004 13:24:50 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrey Melnikoff <temnota+news@kmv.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.28-rc3
-Message-ID: <20041113152450.GA28226@logos.cnet>
-References: <20041112180052.GE23215@logos.cnet> <20041113162709.GX24130@kmv.ru>
+	Sat, 13 Nov 2004 14:46:38 -0500
+Received: from colo.lackof.org ([198.49.126.79]:7115 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261156AbUKMTqg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 14:46:36 -0500
+Date: Sat, 13 Nov 2004 12:46:34 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Michael Chan <mchan@broadcom.com>
+Cc: Andi Kleen <ak@suse.de>, Grant Grundler <grundler@parisc-linux.org>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       akpm@osdl.org, greg@kroah.com,
+       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
+Subject: Re: [PATCH] pci-mmconfig fix for 2.6.9
+Message-ID: <20041113194634.GC3023@colo.lackof.org>
+References: <B1508D50A0692F42B217C22C02D849720312DED3@NT-IRVA-0741.brcm.ad.broadcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041113162709.GX24130@kmv.ru>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <B1508D50A0692F42B217C22C02D849720312DED3@NT-IRVA-0741.brcm.ad.broadcom.com>
+User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 13, 2004 at 07:27:09PM +0300, Andrey Melnikoff wrote:
-> In article <20041112180052.GE23215@logos.cnet> you wrote:
-> > Hi,
+On Sat, Nov 13, 2004 at 08:22:50AM -0800, Michael Chan wrote:
+> > If I got the discussion so far correctly then the PCI-SGI spec does not
+> > guarantee that there is no posting, but you know that the chipset
+> > you are using right now doesn't do it.
 > 
-> > Here goes the third release candidate.
-> 
-> > It contains a v2.6 backport of the binfmt_elf potential vulnerabilities
-> > disclosed this week, an enhanced smbfs client overflow fix, an ACPI update
-> > fixing a couple of nasty bugs, a NFS client bugfix and a network update
-> > from Davem.
-> 
-> Any chance to apply this patch before release?
-> 
-> Prevent NMI oopser kill kernel thread when megearid2 driver wating abort or
-> reset command completion. 
+> Yes, that's my understanding of the spec. Grant Grundler does not agree
+>  and thinks that non-posting is the only compliant implementation.
 
-Hi Andrey,
+That's not what I said. I think we do agree. I'll rephrase.
+The code currently in arch/i386 and arch/x86_64 support a chipset that
+is compliant with the part of the spec that requires non-postable
+config writes.
 
-I talked to Atul and Arjan about this one - the correct thing to do is to 
-replace mdelay() with CPU yielding msleep(). 
+Other chipsets can implement postable config space. To be compliant
+with the ECN, the architecture must define a method to guarantee
+the posted writes have reached the target device. I think the
+ECN we've been talking about assumes that method will be implemented
+in firmware somehow and NOT as a direct access method in the OS.
 
-We should backport msleep() in 2.4.29-pre1. 
+> I wish he was right as it would be the easiest to deal with.
+> We contacted Intel about the out-of-spec readl when writing to
+> the PMCSR to change power state as they were the original author
+> of the mmconfig code. Their solution was to remove the readl after
+> confirming that mmconfig was non-posted on their chipsets.
 
+That means someone has to introduce a new method to access
+mmconfig if they implement postable writes.
 
-> Signed-off-by: Andrey Melnikov <temnota+kernel@kmv.ru>
-> 
-> --- linux-2.4.28-rc3/drivers/scsi/megaraid2.c~	Thu Nov 11 19:37:13 2004
-> +++ linux-2.4.28-rc3/drivers/scsi/megaraid2.c	Sat Nov 13 19:20:23 2004
-> @@ -39,6 +39,7 @@
->  #include <linux/reboot.h>
->  #include <linux/module.h>
->  #include <linux/list.h>
-> +#include <linux/nmi.h>
->  
->  #include "sd.h"
->  #include "scsi.h"
-> @@ -2820,6 +2821,7 @@
->  
->  		if( iter++ < MBOX_ABORT_SLEEP*1000 ) {
->  			mdelay(1);
-> +			touch_nmi_watchdog();
->  		}
->  		else {
->  			printk(KERN_WARNING
-> @@ -2900,6 +2902,7 @@
->  
->  		if( iter++ < MBOX_RESET_SLEEP*1000 ) {
->  			mdelay(1);
-> +			touch_nmi_watchdog();
->  		}
->  		else {
->  			printk(KERN_WARNING
-> 
-> 
-> -- 
->  Best regards, TEMHOTA-RIPN aka MJA13-RIPE
->  System Administrator. mailto:temnota@kmv.ru
+hth,
+grant

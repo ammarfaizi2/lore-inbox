@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281203AbRKHApE>; Wed, 7 Nov 2001 19:45:04 -0500
+	id <S281202AbRKHApo>; Wed, 7 Nov 2001 19:45:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281202AbRKHAos>; Wed, 7 Nov 2001 19:44:48 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:63883 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S281203AbRKHAog>;
-	Wed, 7 Nov 2001 19:44:36 -0500
-Date: Wed, 07 Nov 2001 16:44:26 -0800 (PST)
-Message-Id: <20011107.164426.35502643.davem@redhat.com>
-To: adilger@turbolabs.com
-Cc: tim@physik3.uni-rostock.de, jgarzik@mandrakesoft.com, andrewm@uow.edu.au,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        netdev@oss.sgi.com, ak@muc.de, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011107173626.S5922@lynx.no>
-In-Reply-To: <Pine.LNX.4.30.0111080003320.29364-100000@gans.physik3.uni-rostock.de>
-	<20011107.160950.57890584.davem@redhat.com>
-	<20011107173626.S5922@lynx.no>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S281213AbRKHApf>; Wed, 7 Nov 2001 19:45:35 -0500
+Received: from holomorphy.com ([216.36.33.161]:50126 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S281202AbRKHApW>;
+	Wed, 7 Nov 2001 19:45:22 -0500
+Date: Wed, 7 Nov 2001 16:44:00 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] bootmem for 2.5
+Message-ID: <20011107164400.G26577@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011102140207.V31822@w-wli.des.beaverton.ibm.com> <1005017025.897.0.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <1005017025.897.0.camel@phantasy>; from rml@tech9.net on Mon, Nov 05, 2001 at 10:23:45PM -0500
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andreas Dilger <adilger@turbolabs.com>
-   Date: Wed, 7 Nov 2001 17:36:27 -0700
+On Mon, Nov 05, 2001 at 10:23:45PM -0500, Robert Love wrote:
+> The patch is without problem on 2.4.13-ac7.  Free memory increased by
+> about 100K: free and dmesg both confirm 384292k vs 384196k.  This is a
+> P3-733 on an i815 with 384MB.  Very nice.
+> 
+> Note that the patch and UP-APIC do not get along.  Some quick debugging
+> with William found the cause.  APIC does indeed touch bootmem.  The
+> above is thus obviously with CONFIG_X86_UP_APIC unset.
+> 
+> 	Robert Love
 
-   No, only a limited number of them cast to a signed value, which means
-   that a large number of them get the comparison wrong in the case of
-   jiffies wrap (where the difference is a large unsigned value, and not
-   a small negative number).
-   
-Why do they these cases that are actually in the code need to cast to
-a signed value to get a correct answer?  They are not like your
-example.
+I've managed to reproduce the problem, and I heard from you elsewhere
+that you've verified the fix (although it appeared to reduce the memory
+savings to 4KB).
 
-Almost all of these cases are:
+start_segment_treap() is a macro (operating largely on the same
+principle as list_entry()) which converts a treap_node_t * to a struct *
+given the field and struct name by computing offsets and casting. The
+casting renders this somewhat less than type safe, and the patch below
+corrects a type error I committed in calling it (the start_tree field
+is already of type treap_node_t *).
 
-	(jiffies - SOME_VALUE_KNOWN_TO_BE_IN_THE_PAST) > 5 * HZ
 
-So you say if we don't cast to signed, this won't get it right on
-wrap-around?  I disagree, let's say "long" is 32-bits and jiffies
-wrapped around to "0x2" and SOME_VALUE... is 0xfffffff8.  The
-subtraction above yields 10, and that is what we want.
 
-Please show me a bad case where casting to signed is necessary.
+Thanks again,
+Bill
+-----------------
+willir@us.ibm.com
 
-I actually ran through the tree the other night myself starting to
-convert these things, then I noticed that I couldn't even convince
-myself that the code was incorrect.
-
-Franks a lot,
-David S. Miller
-davem@redhat.com
+diff -urN linux-broken/mm/bootmem.c linux-bootmem/mm/bootmem.c
+--- linux-broken/mm/bootmem.c	Wed Nov  7 16:31:37 2001
++++ linux-bootmem/mm/bootmem.c	Wed Nov  7 16:31:09 2001
+@@ -860,7 +860,7 @@
+ 	while(pgdat) {
+ 		unsigned in_node;
+ 
+-		tree = start_segment_treap(&pgdat->bdata->segment_tree.start_tree);
++		tree = start_segment_treap(pgdat->bdata->segment_tree.start_tree);
+ 		in_node = segment_tree_intersects(tree, &segment);
+ 		in_any_node |= in_node;
+ 

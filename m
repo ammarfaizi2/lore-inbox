@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262426AbSJIXvc>; Wed, 9 Oct 2002 19:51:32 -0400
+	id <S262722AbSJIXrT>; Wed, 9 Oct 2002 19:47:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262547AbSJIXvc>; Wed, 9 Oct 2002 19:51:32 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:8117 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262426AbSJIXvb>;
-	Wed, 9 Oct 2002 19:51:31 -0400
-Date: Wed, 09 Oct 2002 16:50:03 -0700 (PDT)
-Message-Id: <20021009.165003.103179484.davem@redhat.com>
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Newsgroups: hometree.linux.kernel
-Subject: Re: BK is *evil* corporate software
+	id <S262357AbSJIXqh>; Wed, 9 Oct 2002 19:46:37 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:2229 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262312AbSJIXqf>;
+	Wed, 9 Oct 2002 19:46:35 -0400
+Date: Wed, 09 Oct 2002 16:45:04 -0700 (PDT)
+Message-Id: <20021009.164504.28085695.davem@redhat.com>
+To: sekiya@sfc.wide.ad.jp
+Cc: dfawcus@cisco.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <ao2ee1$l0c$1@forge.intermeta.de>
-References: <5.1.0.14.2.20021007204830.00b8b460@pop.gmx.net>
-	<20021007143134.V14596@work.bitmover.com>
-	<ao2ee1$l0c$1@forge.intermeta.de>
+In-Reply-To: <uu1jv9o3j.wl@sfc.wide.ad.jp>
+References: <20021010002902.A3803@edi-view1.cisco.com>
+	<20021009.162438.82081593.davem@redhat.com>
+	<uu1jv9o3j.wl@sfc.wide.ad.jp>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -25,12 +25,14 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-   Date: Wed, 9 Oct 2002 23:34:25 +0000 (UTC)
+   From: Yuji Sekiya <sekiya@sfc.wide.ad.jp>
+   Date: Thu, 10 Oct 2002 08:41:52 +0900
    
-   For the vast number of three to five developers enterprises, it's
-   simply unreasonably priced.
+   The reason we change the prefix length  from /10 to /64 is
+   following spec and adapting other imprementations.
 
-Larry is trying to tell you that BK isn't for you.
-It costs too much to support small numbers of groups
-which is why he can't price it the way you want.
+I think Derek's explanation shows that the specification
+allows the /10 behavior.
+
+Also, I suspect that since Derek works for Cisco, some "other
+implementations" behave how he describes. :-)

@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264355AbTDXAoU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 20:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264362AbTDXAoU
+	id S264352AbTDXAnr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 20:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264355AbTDXAnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 20:44:20 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:40418 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264355AbTDXAoO
+	Wed, 23 Apr 2003 20:43:47 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:12807 "EHLO
+	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP id S264352AbTDXAnq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 20:44:14 -0400
-Date: Wed, 23 Apr 2003 17:45:46 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Nigel Cunningham <ncunningham@clear.net.nz>, Pavel Machek <pavel@ucw.cz>
-cc: "Grover, Andrew" <andrew.grover@intel.com>, Marc Giger <gigerstyle@gmx.ch>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Fix SWSUSP & !SWAP
-Message-ID: <1605730000.1051145146@flay>
-In-Reply-To: <1051142550.4306.10.camel@laptop-linux>
-References: <F760B14C9561B941B89469F59BA3A847E96E0E@orsmsx401.jf.intel.com><20030424000344.GC32577@atrey.karlin.mff.cuni.cz> <1051142550.4306.10.camel@laptop-linux>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 23 Apr 2003 20:43:46 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: kernel ring buffer accessible by users
+Date: 24 Apr 2003 00:30:17 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <b87b6p$sks$2@abraham.cs.berkeley.edu>
+References: <frodoid.frodo.87wuhmh5ab.fsf@usenet.frodoid.org> <20030423125602.B1425@almesberger.net> <1051113589.707.948.camel@localhost> <20030423132359.B3557@almesberger.net>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1051144217 29340 128.32.153.211 (24 Apr 2003 00:30:17 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 24 Apr 2003 00:30:17 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't believer I've ever seen things get OOM killed. Instead, page
-> cache is discarded until things do fit.
+Werner Almesberger  wrote:
+>Robert Love wrote:
+>> Why on earth would the user give the kernel a password?
+>
+>That's just an example. It could be any other sensitive information,
+>including kernel state that you don't want to reveal to users.
+>
+>I think it's a reasonable assumption that one can speak freely in a
+>printk message.
 
-What happens if user allocated pages are filling up all the space,
-not page cache? Trust me, it happens ;-)
-
-M.
-
+Robert Love's position seems reasonable to me.  Can you show an example
+where it is useful and appropriate to print secrets out using printk()?
+It strikes me as risky and unnecessary, but maybe I'm missing something.

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264469AbTGBUSG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 16:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbTGBUSG
+	id S264476AbTGBUUN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 16:20:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbTGBUUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 16:18:06 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:17538 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264469AbTGBUSF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 16:18:05 -0400
-Date: Wed, 2 Jul 2003 16:35:41 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: DHCP vs Cable Modem
-Message-ID: <Pine.LNX.4.53.0307021627070.26905@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Jul 2003 16:20:13 -0400
+Received: from buerotecgmbh.de ([217.160.181.99]:59535 "EHLO buerotecgmbh.de")
+	by vger.kernel.org with ESMTP id S264478AbTGBUUJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 16:20:09 -0400
+Date: Wed, 2 Jul 2003 22:34:33 +0200
+From: Kay Sievers <lkml001@vrfy.org>
+To: linux-kernel@vger.kernel.org
+Subject: why does sscanf() does not interpret number length attributes?
+Message-ID: <20030702203433.GA14854@vrfy.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I needed a conversion from hex-string to integer and found
+this mail from Linus suggesting sscanf:
 
-Sorry about BW. Anybody know how to configure a cable modem?
-I have one. I connect it to the cable. I set Linux up for
-DHCP. I end up with a dynamic IP address, a network mask,
-a broadcast address, a default route, and even a name-server.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101414195507893&w=2
 
-I can ping the name-server. However, I can't telnet or use
-a Web Crawler. The thing works fine with WIN/2000/Prof. The
-ISP says they only support Windows. Since I have all the
-"hooks" working, how do I find a default route that will
-route my packets to bypass their stuff?
+but sscanf in linux-2.5/lib/vsprintf.c interpretes length attributes
+only when the type is a string. It uses simple_strtoul() and it will
+read the buffer until it finds a non-(hex)digit.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+int i;
+char str[] ="34AFFE45XYZ";
+sscanf(str, "%1x", &i);
+
+i will be '0x34AFFE45' instead of the expected '3'.
+
+Is this behaviour intended or is just nobody caring about?
+
+
+thanks
+Kay
 

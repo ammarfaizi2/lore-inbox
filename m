@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131997AbQKWO6G>; Thu, 23 Nov 2000 09:58:06 -0500
+        id <S129667AbQKWPRG>; Thu, 23 Nov 2000 10:17:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131991AbQKWO55>; Thu, 23 Nov 2000 09:57:57 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:13833 "EHLO
-        wire.cadcamlab.org") by vger.kernel.org with ESMTP
-        id <S131700AbQKWO5k>; Thu, 23 Nov 2000 09:57:40 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14877.10577.518203.721355@wire.cadcamlab.org>
-Date: Thu, 23 Nov 2000 08:27:29 -0600 (CST)
-To: cmedia <cltien@cmedia.com.tw>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux driver for c-media cm8x38 ver 4.12 released
-In-Reply-To: <3A1C62AA.5D4579B3@cmedia.com.tw>
-        <20001123033948.R2918@wire.cadcamlab.org>
-        <3A1D1998.5A22EA7C@cmedia.com.tw>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+        id <S129749AbQKWPQ5>; Thu, 23 Nov 2000 10:16:57 -0500
+Received: from kelland.nwc.alaska.net ([209.112.130.6]:49141 "EHLO alaska.net")
+        by vger.kernel.org with ESMTP id <S129667AbQKWPQv>;
+        Thu, 23 Nov 2000 10:16:51 -0500
+Date: Thu, 23 Nov 2000 05:46:44 -0900
+From: Ethan Benson <erbenson@alaska.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: binary garbage in dmesg/boot messages (2.2.18pre23)
+Message-ID: <20001123054644.A23839@plato.local.lan>
+Mail-Followup-To: Ethan Benson <erbenson@alaska.net>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[ChenLi Tien]
-> > I don't think the (2,3,0) ifdef is necessary.  Just use the labeled
-> > initializers for all kernels.  See also cm_audio_fops, cm_dsp_fops,
-> > cm_midi_fops, cm_dmfm_fops.
-> 
-> Yes, as 2.3.x series is not for end-user, I can remove them. I keep it for
-> easy to tell what's different for kernel 2.3 and 2.4.
+I was testing out 2.2.18pre23 for USB purposes and found that its
+outputing binary garbage at boot:
 
-What I meant was, the code which you have '#if version >= 2.3.0' is
-also valid for 2.2.  You should not have any conditional code there
-except the 'owner:' member, which is '#if version >= 2.4.0'.
+BIOS Vendor: Intel Corporation
+BIOS Version: 1.00.10.DD04
+BIOS Release: 03/19/97
+System Vendor: Sony Corporation.
+Product Name: PCV-70(U2).
+Version Sony GI.
+Serial Number 1003494.
+Board Vendor: Intel Corporation.
+Board Name: Agate.
+Board Version: AA662195-305.
+BIOS Vendor: f.£^]<94>fAè^D.£ESC<94>^N^_
+BIOS Version: SV^^gÅu^B.<8B>^^^^<9D><88>^\gÅu^F.<8B>^^
+<9D><89>^\3A^_^[A^^^FfQfPfRfSfUfVfW<8A>àgÄ}^B&<8A>^Eèh^Dr]gÄ}^Fg<8B>U
+÷AüÿuT<83>ú^CtO#OtK^N^_.<8B>7.<8B>O^D÷A^A
+BIOS Release: ùë÷SQR^F^^WV^^^F^_^G<87>÷.<8B>^NÜ<8B>x^CùèCÿrW&<8B>]
+^Cû+E°ÿ^^^F^_Wüóª<8B>U<8B>x_&<8B>^O&<8A>^G&<88>^ECG;ús-âò^G_W.<8B>^NÜ<8B>UAé^BfPf<8B>^Af<89>^E<83>Ç^DâofX<8B>^Vè^U
 
-> > No need for '#ifdef MODULE'.
-> 
-> I will remove it if kernel 2.2 can work.
+it appears to not cause any further problems, other then trashing the
+terminal of anyone who runs dmesg...
 
-It can.  I checked 2.2.0.
+/proc/version:
+Linux version 2.2.18pre23 (root@plato) (gcc version 2.95.2 20000220
+(Debian GNU/Linux)) #1 Thu Nov 23 04:01:23 AKST 2000
 
-Peter
+this does not occur under 2.2.17.  
+
+please CC replies.  
+
+-- 
+Ethan Benson
+http://www.alaska.net/~erbenson/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

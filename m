@@ -1,44 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265012AbSLSPUH>; Thu, 19 Dec 2002 10:20:07 -0500
+	id <S265608AbSLSP1W>; Thu, 19 Dec 2002 10:27:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265608AbSLSPUH>; Thu, 19 Dec 2002 10:20:07 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:43217 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265012AbSLSPUG>; Thu, 19 Dec 2002 10:20:06 -0500
-Date: Thu, 19 Dec 2002 07:24:34 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Alex Tomas <bzzz@tmi.comex.ru>, William Lee Irwin III <wli@holomorphy.com>
-cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       David Lang <david.lang@digitalinsight.com>, Robert Love <rml@tech9.net>,
-       Till Immanuel Patzschke <tip@inw.de>,
-       lse-tech <lse-tech@lists.sourceforge.net>, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: 15000+ processes -- poor performance ?!
-Message-ID: <14620000.1040311472@titus>
-In-Reply-To: <m3u1hapa51.fsf@lexa.home.net>
-References: <1040262178.855.106.camel@phantasy>
- <Pine.LNX.4.44.0212181743350.7848-100000@dlang.diginsite.com>
- <20021219020552.GO31800@holomorphy.com>
- <200212191015.gBJAFss28329@Port.imtp.ilyichevsk.odessa.ua>
- <20021219102720.GT31800@holomorphy.com> <m3u1hapa51.fsf@lexa.home.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265637AbSLSP1W>; Thu, 19 Dec 2002 10:27:22 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:4775 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S265608AbSLSP1V>;
+	Thu, 19 Dec 2002 10:27:21 -0500
+Date: Thu, 19 Dec 2002 17:35:16 +0200
+From: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
+To: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Invalidate: busy buffer + MD RAID 1
+Message-ID: <20021219153516.GA10968@linux.kappa.ro>
+References: <Pine.LNX.4.44.0212181905500.4421-100000@jdi.jdimedia.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0212181905500.4421-100000@jdi.jdimedia.nl>
+User-Agent: Mutt/1.3.25i
+X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  WLI> As userspace solutions go your suggestions is just as good. The
->  WLI> kernel still needs to get its act together and with some
->  WLI> urgency.
->
-> what about retreiving info from /proc/kmem or something like? just to
-> avoid binary -> text(proc) -> binary
+I get the same behaviour on several machines .. but I sleep well at night :P
 
-The binary <-> text translation problem is less of an issue than all the
-syscall traffic, dcache hits, etc. Search linux-kernel archives for a
-recent thread entitiled "ps performance sucks" or something similar.
+On Wed, Dec 18, 2002 at 07:45:00PM +0100, Igmar Palsenberg wrote:
+> 
+> Hi,
+> 
+> I get a 'invalidate: busy buffer' about 20 times at reboot. Only at 
+> reboot however.
+> 
+> Setup :
+> 
+> linux-2.4.19 + grsecurity-1.9.7d + acl+xattr 0.8.53 + freeswan (inc. aes 
+> and that kind of stuff)
+> 
+> The machine (Compaq ML350) has 2 scsi devices (sda, sdb) and a RAID 1 
+> setup :
+> 
+> md0 : sda1 + sdb1
+> md1 : sda3 + sdb3
+> swap is done on sda2 + sdb2, using default prio's.
+> 
+> Triggering the 'invalidate: busy buffer' is easiest done by letting squid 
+> create it's cache dirs and then rebooting.
+> 
+> No data corruption is occuring (at last not any that a force fsck can 
+> detect), but I removed the RAID1 setup to make sure I sleep well tonight 
+> :)
+> 
+> Looking at the md.c code, line 1708 :
+> 
+>     ITERATE_RDEV(mddev,rdev,tmp) {
+>         if (rdev->faulty)
+>             continue;
+>         invalidate_device(rdev->dev, 1);
+>         if (get_hardsect_size(rdev->dev)
+>             > md_hardsect_sizes[mdidx(mddev)])
+>             md_hardsect_sizes[mdidx(mddev)] =
+>                 get_hardsect_size(rdev->dev);
+>     }
+> 
+> Looks like it is invalidating the underlying devices (sda[13], sdb[13] in 
+> my case.
+> 
+> Since my RAID array doesn't get screwed I suspect that the md code does 
+> the above again on a do_md_stop(), but I can't find it.
+> 
+> Anyone got any comments on this ?? 
+> 
+> 
+> 
+> 	Regards,
+> 
+> 
+> 		Igmar
+> 
+> 
+> Please CC all responses.
+> 
+> 
+> 
+> -- 
+> 
+> Igmar Palsenberg
+> JDI Media Solutions
+> 
+> Helhoek 30
+> 6923PE Groessen
+> Tel: +31 (0)316 - 596695
+> Fax: +31 (0)316 - 596699
+> The Netherlands
+> 
+> mailto: i.palsenberg@jdimedia.nl
+> PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-M.
-
+-- 
+      Teodor Iacob,
+Network Administrator
+Astral TELECOM Internet

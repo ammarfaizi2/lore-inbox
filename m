@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAINwO>; Tue, 9 Jan 2001 08:52:14 -0500
+	id <S130514AbRAINwy>; Tue, 9 Jan 2001 08:52:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129734AbRAINwE>; Tue, 9 Jan 2001 08:52:04 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:3603 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129584AbRAINwB>;
-	Tue, 9 Jan 2001 08:52:01 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200101091116.f09BGN7281436@saturn.cs.uml.edu>
-Subject: Re: [PATCH] cramfs is ro only, so honour this in inode->mode
-To: shane@agendacomputing.com
-Date: Tue, 9 Jan 2001 06:16:23 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01010813171211.02165@www.easysolutions.net> from "Shane Nay" at Jan 08, 2001 01:17:12 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S130125AbRAINwp>; Tue, 9 Jan 2001 08:52:45 -0500
+Received: from m174-mp1-cvx1c.col.ntl.com ([213.104.76.174]:7684 "EHLO
+	[213.104.76.174]") by vger.kernel.org with ESMTP id <S129734AbRAINwb>;
+	Tue, 9 Jan 2001 08:52:31 -0500
+To: <linux-kernel@vger.kernel.org>, <>
+Subject: Re: Unified power management userspace policy
+In-Reply-To: <m2lmsld4rk.fsf@boreas.yi.org.> <3A5AED76.B2F60F8D@uow.edu.au>
+From: "John Fremlin" <vii@penguinpowered.com>
+Date: 09 Jan 2001 13:54:50 +0000
+In-Reply-To: Andrew Morton's message of "Tue, 09 Jan 2001 21:52:38 +1100"
+Message-ID: <m27l44x239.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shane Nay writes:
 
-> but the bits are useless in the "normal interpretation" of it,
-...
-> But then you pull out the write bits,
+Hi!
 
-If you need to steal a bit, grab one that won't hurt.
-Take the owner's read bit. (owner may read own files)
+ Andrew Morton <andrewm@uow.edu.au> writes:
+
+> Could you please use call_usermodehelper() in this patch
+> rather than exec_usermodehelper()?  I want to kill
+> exec_usermodehelper() sometime.
+
+The reason I used exec_usermodehelper is that I wanted to waitpid on
+the process to see how it exited. Am I still allowed to do that if it
+runs as a child of keventd?
+
+[...]
+
+-- 
+
+	http://www.penguinpowered.com/~vii
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

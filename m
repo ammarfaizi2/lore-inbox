@@ -1,70 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267452AbUHPGPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267455AbUHPG0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267452AbUHPGPz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 02:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267454AbUHPGPz
+	id S267455AbUHPG0E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 02:26:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267458AbUHPG0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 02:15:55 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:65242 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S267452AbUHPGPv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 02:15:51 -0400
-MIME-Version: 1.0
+	Mon, 16 Aug 2004 02:26:04 -0400
+Received: from gprs214-198.eurotel.cz ([160.218.214.198]:4741 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267455AbUHPGZu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 02:25:50 -0400
+Date: Mon, 16 Aug 2004 08:25:23 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, mochel@digitalimplant.org,
+       benh@kernel.crashing.org, david-b@pacbell.net
+Subject: Re: [patch] enums to clear suspend-state confusion
+Message-ID: <20040816062523.GB30338@elf.ucw.cz>
+References: <20040812120220.GA30816@elf.ucw.cz> <20040815175949.19d03e7f.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16672.20648.312792.140066@rover.ozlabs.ibm.com>
-Date: Mon, 16 Aug 2004 16:14:00 +1000
-To: Matthew Wilcox <willy@debian.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: VPD in sysfs
-In-Reply-To: <20040814182932.GT12936@parcelfarce.linux.theplanet.co.uk>
-References: <20040814182932.GT12936@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-From: "Martin Schwenke" <martins@au1.ibm.com>
-Reply-To: "Martin Schwenke" <martins@au1.ibm.com>
-X-Kernel: Linux 2.6.7
+Content-Disposition: inline
+In-Reply-To: <20040815175949.19d03e7f.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[I'll reply to this quickly even though I'm 1/2 asleep...  travelling
- and not sure when I'll get to email again...]
+Hi!
 
->>>>> "Willy" == Matthew Wilcox <willy@debian.org> writes:
+> > +enum pci_state {
+> >  +	D0 = 0,
+> >  +	D1 = 1,
+> >  +	D2 = 2,
+> 
+> These symbols are too generic.  They don't appear to currently clash with
+> anything else, but they could.
 
-    Willy> I've been sent a patch that reads some VPD from the Symbios
-    Willy> NVRAM and displays it in sysfs.  I'm not sure whether the
-    Willy> way the author chose to present it is the best.  They put
-    Willy> it in 0000:80:01.0/host0/vpd_name which seems a bit too
-    Willy> scsi-specific and insufficiently forward-looking (I bet we
-    Willy> want to expose more VPD data than that in the future, so we
-    Willy> should probably use a directory).
+Actually jffs is using macros called D1, D2 and D3. Ouch. This one
+should fix it.
+									Pavel
 
-Does the patch expose the VPD as text?  Either way, what's the format?
+--- linux-forakpm/include/linux/pci.h	2004-08-15 19:35:41.000000000 +0200
++++ linux/include/linux/pci.h	2004-08-16 08:15:59.000000000 +0200
+@@ -1023,23 +1023,23 @@
+ #define PCIPCI_ALIMAGIK		32
+ 
+ enum pci_state {
+-	D0 = 0,
+-	D1 = 1,
+-	D2 = 2,
+-	D3hot = 3,
+-	D3cold = 4
++	PCI_D0 = 0,
++	PCI_D1 = 1,
++	PCI_D2 = 2,
++	PCI_D3hot = 3,
++	PCI_D3cold = 4
+ };
+ 
+ static inline enum pci_state to_pci_state(suspend_state_t state)
+ {
+ 	if (SUSPEND_EQ(state, PM_SUSPEND_ON))
+-		return D0;
++		return PCI_D0;
+ 	if (SUSPEND_EQ(state, PM_SUSPEND_STANDBY))
+-		return D1;
++		return PCI_D1;
+ 	if (SUSPEND_EQ(state, PM_SUSPEND_MEM))
+-		return D3hot;
++		return PCI_D3hot;
+ 	if (SUSPEND_EQ(state, PM_SUSPEND_DISK))
+-		return D3cold;
++		return PCI_D3cold;
+ 	BUG();
+ }
+ 
 
-    Willy> I actually have a feeling (and please don't kill me for
-    Willy> saying this), that we should add a struct vpd * to the
-    Willy> struct device.  Then we need something like the
-    Willy> drivers/base/power/sysfs.c file (probably
-    Willy> drivers/base/vpd.c) that takes care of adding vpd to each
-    Willy> device that wants it.
-
-Sounds good to me...  I like the idea of a consistent way of getting
-at VPD.  Perhaps then HAL would get at it too.
-
-    Willy> Thoughts?  Since there's at least four and probably more
-    Willy> ways of getting at VPD, we either need to fill in some VPD
-    Willy> structs at initialisation or have some kind of vpd_ops that
-    Willy> a driver can fill in so the core can get at the data.
-
-For PCI 2.0/2.1 VPD in expansion ROMs the recent patch to expose the
-ROMs in sysfs is probably enough.  The likely brokenness of ROMs and
-the VPD means that trying to special-case around brokenness should
-probably be done outside the kernel.
-
-However, I could be wrong: there is something to be said for
-consistency...
-
-peace & happiness,
-martin
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

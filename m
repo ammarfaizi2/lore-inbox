@@ -1,40 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbTFXSUB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 14:20:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263245AbTFXSUA
+	id S263971AbTFXSXB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 14:23:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264075AbTFXSXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 14:20:00 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:14343 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S262562AbTFXSRv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 14:17:51 -0400
-Date: Tue, 24 Jun 2003 20:31:56 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: John Cherry <cherry@osdl.org>
-Cc: Adrian Bunk <bunk@fs.tum.de>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.73 compile results
-Message-ID: <20030624183156.GA11266@mars.ravnborg.org>
-Mail-Followup-To: John Cherry <cherry@osdl.org>,
-	Adrian Bunk <bunk@fs.tum.de>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <1056475577.9839.110.camel@cherrypit.pdx.osdl.net> <20030624173900.GV3710@fs.tum.de> <1056478596.9839.118.camel@cherrypit.pdx.osdl.net>
+	Tue, 24 Jun 2003 14:23:00 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:47373 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S263971AbTFXSW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 14:22:57 -0400
+Subject: Re: Problems when compile kernel 2.5.73-mm1
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: jds <jds@soltis.cc>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030624151611.M70129@soltis.cc>
+References: <20030624151611.M70129@soltis.cc>
+Content-Type: text/plain
+Message-Id: <1056479823.587.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1056478596.9839.118.camel@cherrypit.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 24 Jun 2003 20:37:04 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 24, 2003 at 11:16:37AM -0700, John Cherry wrote:
-> Unfortunately, the build continues even when it runs into compile or
-> link errors.
-I just wnat to add here that the build continue because 'make -k' is
-used because the script counts all errors that occur - not just the first
-one is see.
+On Tue, 2003-06-24 at 17:18, jds wrote:
+> Hi Andrew:
+> 
+>    I have problems whe try the compile kernel. the messages is:
+> 
+> [root@toshiba linux-2.5]# make bzImage
+> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+>   CHK     include/asm-i386/asm_offsets.h
+>   CC      init/main.o
+> In file included from include/linux/pagemap.h:7,
+>                  from include/linux/blkdev.h:10,
+>                  from include/linux/blk.h:2,
+>                  from init/main.c:26:
+> include/linux/mm.h: In function `lowmem_page_address':
+> include/linux/mm.h:344: `__PAGE_OFFSET' undeclared (first use in this function)
+> include/linux/mm.h:344: (Each undeclared identifier is reported only once
+> include/linux/mm.h:344: for each function it appears in.)
+> In file included from include/linux/bio.h:28,
+>                  from include/linux/blkdev.h:14,
+>                  from include/linux/blk.h:2,
+>                  from init/main.c:26:
+> include/asm/io.h: In function `virt_to_phys':
+> include/asm/io.h:74: `__PAGE_OFFSET' undeclared (first use in this function)
+> include/asm/io.h: In function `phys_to_virt':
+> include/asm/io.h:92: `__PAGE_OFFSET' undeclared (first use in this function)
+> include/asm/io.h: In function `isa_check_signature':
+> include/asm/io.h:245: `__PAGE_OFFSET' undeclared (first use in this function)
+> make[1]: *** [init/main.o] Error 1
+> make: *** [init] Error 2
+> [root@toshiba linux-2.5]#
+> 
+> Helpme please 
 
-John - any progress in sparse support - or too noisy?
+Please, do:
 
-	Sam
+1. make oldconfig
+2. make bzImage
+
+This should help
+

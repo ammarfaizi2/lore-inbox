@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270593AbRIFMWY>; Thu, 6 Sep 2001 08:22:24 -0400
+	id <S272464AbRIFMZF>; Thu, 6 Sep 2001 08:25:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272464AbRIFMWP>; Thu, 6 Sep 2001 08:22:15 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9742 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270593AbRIFMVz>; Thu, 6 Sep 2001 08:21:55 -0400
-Subject: Re: Solo sound - 2.4.10-pre build fails
-To: chris@boojiboy.eorbit.net
-Date: Thu, 6 Sep 2001 13:25:27 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <200109060149.SAA13180@boojiboy.eorbit.net> from "chris@boojiboy.eorbit.net" at Sep 05, 2001 06:49:40 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272466AbRIFMYz>; Thu, 6 Sep 2001 08:24:55 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:42758 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S272464AbRIFMYk>; Thu, 6 Sep 2001 08:24:40 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>, Jan Harkes <jaharkes@cs.cmu.edu>
+Subject: Re: page_launder() on 2.4.9/10 issue
+Date: Thu, 6 Sep 2001 14:31:32 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0109060851020.31200-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0109060851020.31200-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15eyDn-000800-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010906122459Z16031-32383+3771@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have a laptop with an ESS solo sound chip.
-> > I tried compiling 2.4.10-pre4 and
-> > the build fails on the sound code.
+On September 6, 2001 01:52 pm, Rik van Riel wrote:
+> On Tue, 4 Sep 2001, Jan Harkes wrote:
 > 
+> > To get back on the thread I jumped into, I totally agree with Linus
+> > that writeout should be as soon as possible.
 > 
-> The linux kernel 2.4.9-ac9 does build while
-> using the esssolo.c code.  
-> 
-> Somehow this code is broken in 2.4.10-pre
+> Nice way to destroy read performance.
 
-It requires the input device updates. It's up to Vojtech Pavlik when and if
-that gets submitted to Linus
+Blindly delaying all the writes in the name of better read performance isn't 
+the right idea either.  Perhaps we should have a good think about some 
+sensible mechanism for balancing reads against writes.
 
+> As DaveM noted so
+> nicely in his reverse mapping patch (at the end of the
+> 2.3 series), dirty pages get moved to the laundry list
+> and the washing machine will deal with them when we have
+> a full load.
+> 
+> Lets face it, spinning the washing machine is expensive
+> and running less than a full load makes things inefficient ;)
+
+That makes a good sound bite but doesn't stand up to scrutiny.
+
+It's not a washing machine ;-)
+
+--
+Daniel

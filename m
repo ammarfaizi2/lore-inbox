@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261322AbSKNBa0>; Wed, 13 Nov 2002 20:30:26 -0500
+	id <S261338AbSKNByy>; Wed, 13 Nov 2002 20:54:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261346AbSKNBa0>; Wed, 13 Nov 2002 20:30:26 -0500
-Received: from dp.samba.org ([66.70.73.150]:61573 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261322AbSKNBaZ>;
-	Wed, 13 Nov 2002 20:30:25 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5] Remove BUG in cpu_up 
-In-reply-to: Your message of "Wed, 13 Nov 2002 08:17:54 CDT."
-             <Pine.LNX.4.44.0211130804380.24523-100000@montezuma.mastecende.com> 
-Date: Thu, 14 Nov 2002 12:56:53 +1100
-Message-Id: <20021114013718.0FA082C243@lists.samba.org>
+	id <S261356AbSKNByy>; Wed, 13 Nov 2002 20:54:54 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:17835 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261338AbSKNByy>; Wed, 13 Nov 2002 20:54:54 -0500
+Subject: Re: module mess in -CURRENT
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Christoph Hellwig <hch@infradead.org>, rusty@rustcorp.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0211131655580.6810-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0211131655580.6810-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Nov 2002 02:27:20 +0000
+Message-Id: <1037240840.14393.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0211130804380.24523-100000@montezuma.mastecende.com> 
-you write:
-> On Wed, 13 Nov 2002, Rusty Russell wrote:
-> 
-> > Err, no.  If __cpu_up(cpu) succeeded, that means the cpu should bloody
-> > well be online!
-> 
-> smp startup looks rather convoluted to me right now, but if i see it 
-> correctly, __cpu_up should eventually be doing a wakeup_secondary_via_INIT 
-> on vanilla i386 correct? In that case, the processor accepting the IPI 
-> doesn't necessarily mean it will have managed to initialise (if at all) itsel
-f by 
+On Thu, 2002-11-14 at 00:59, Linus Torvalds wrote:
+> People who find the current module situation difficult can just compile in 
+> the stuff they need for now.
 
-It is bloody convoluted.  Hmm, the arch needs to wait before returning
-"success" on __cpu_up.
+That makes driver debugging almost impossible. It also makes building a
+test kernel set for a lot of boxes impractical. The completely broken
+unload stuff is going to be a real pig, PCMCIA only works modular and
+doesn't work now the unloads are all broken. OTOH the module rewrite has
+some nice features and a combo modutils is going to sort some of the
+problem out fairly easily.
 
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+The biggest need though is documentation so people can actually fix all
+the drivers for this stuff.
+
+
+
+

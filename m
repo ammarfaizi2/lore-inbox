@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVBPVub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVBPVwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbVBPVub (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 16:50:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVBPVub
+	id S262098AbVBPVwf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 16:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVBPVwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 16:50:31 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:52470 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S262082AbVBPVuW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 16:50:22 -0500
-Date: Wed, 16 Feb 2005 22:49:58 +0100
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Jirka Bohac <jbohac@suse.cz>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>, vojtech@suse.cz,
-       roman@augan.com, hch@nl.linux.org
-Subject: Re: [rfc] keytables - the new keycode->keysym mapping
-Message-ID: <20050216214958.GA7682@apps.cwi.nl>
-References: <20050209132654.GB8343@dwarf.suse.cz> <20050209152740.GD12100@apps.cwi.nl> <20050209171921.GB11359@dwarf.suse.cz> <20050209200330.GB15005@apps.cwi.nl> <20050210125344.GA5196@dwarf.suse.cz> <20050216182035.GA7094@dwarf.suse.cz>
-Mime-Version: 1.0
+	Wed, 16 Feb 2005 16:52:35 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:18205 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262099AbVBPVw2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 16:52:28 -0500
+To: "govind raj" <agovinda04@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Customized 2.6.10 kernel on a Compact Flash
+X-Message-Flag: Warning: May contain useful information
+References: <BAY10-F340B43C6A61C2D47ECC913D66C0@phx.gbl>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 16 Feb 2005 13:52:26 -0800
+In-Reply-To: <BAY10-F340B43C6A61C2D47ECC913D66C0@phx.gbl> (govind raj's
+ message of "Thu, 17 Feb 2005 03:17:56 +0530")
+Message-ID: <52r7jgw4th.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050216182035.GA7094@dwarf.suse.cz>
-User-Agent: Mutt/1.4i
+X-OriginalArrivalTime: 16 Feb 2005 21:52:26.0567 (UTC) FILETIME=[CDBF8D70:01C51471]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 16, 2005 at 07:20:35PM +0100, Jirka Bohac wrote:
+    govind> Thanks for all the pointers.  We had taken the /sbin/init
+    govind> from the existing Linux installation from where we had
+    govind> created the customized image. We need to have a inittab
+    govind> and we believe that we have set it correctly. The GRUB
+    govind> detects the CF hard disk as hda0 when we boot the embedded
+    govind> board and so in both the kernel parameter in grub.conf as
+    govind> well as in the inittab file we have / (root) marked as
+    govind> /dev/hda0. But we are perplexed by the message that the
+    govind> kernel prints out on being booted from the flash and just
+    govind> before panic'ing...
 
-> Now ... are there any more suggestions for any of the patches?
+Using /dev/hda0 as root seems a little strange to me, as the usual way
+of naming partitions starts with 1 (so the first partition would be
+/dev/hda1).  However the kernel seems to be finding and starting your
+init executable, so that likely isn't your problem.
 
-For the time being I look only at the diacr for unicode part.
-The fragment below looks like a strange kludge.
+I would suggest starting by using a statically linked shell as your init
+and building up from there.
 
-> -	if (diacr)
-> -		value = handle_diacr(vc, value);
-> +	if (diacr) {
-> +		v = handle_diacr(vc, value);
-> +
-> +		if (kbd->kbdmode == VC_UNICODE) {
-> +			to_utf8(vc, v & 0xFFFF);
-> +			return;
-> +		}
-> +
-> +		/* 
-> +		 * this makes at least latin-1 compose chars work 
-> +		 * even when using unicode keymap in non-unicode mode
-> +		 */
-> +		value = v & 0xFF; 
-> +	}
->  
->  	if (dead_key_next) {
->  		dead_key_next = 0;
-> @@ -637,7 +652,7 @@
->  {
->  	if (up_flag)
->  		return;
-> -	diacr = (diacr ? handle_diacr(vc, value) : value);
-> +	diacr = (diacr ? handle_diacr(vc, value) & 0xff : value);
-
-I see twice "& 0xff" but why?
-I think this is broken.
-
-Maybe the above "return" is broken as well. The original code
-was good, so the only change should be to transport more than 8 bits.
-
-Andries
+ - Roland

@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261264AbSITHjN>; Fri, 20 Sep 2002 03:39:13 -0400
+	id <S261289AbSITHka>; Fri, 20 Sep 2002 03:40:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261289AbSITHjN>; Fri, 20 Sep 2002 03:39:13 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:45033 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261264AbSITHjM>;
-	Fri, 20 Sep 2002 03:39:12 -0400
-Date: Fri, 20 Sep 2002 09:44:07 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Brad Hards <bhards@bigpond.net.au>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Meelis Roos <mroos@linux.ee>,
-       linux-kernel@vger.kernel.org
-Subject: Re: compile error in pre7-ac2: usb & input
-Message-ID: <20020920094407.A79476@ucw.cz>
-References: <Pine.LNX.4.44.0209191555240.1928-100000@ondatra.tartu-labor> <200209200709.20787.bhards@bigpond.net.au> <20020920090955.B79295@ucw.cz> <200209201727.10324.bhards@bigpond.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200209201727.10324.bhards@bigpond.net.au>; from bhards@bigpond.net.au on Fri, Sep 20, 2002 at 05:27:10PM +1000
+	id <S261291AbSITHka>; Fri, 20 Sep 2002 03:40:30 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:31122 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261289AbSITHk3>;
+	Fri, 20 Sep 2002 03:40:29 -0400
+Date: Fri, 20 Sep 2002 09:52:39 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 100,000 threads? [was: [ANNOUNCE] Native POSIX Thread Library
+ 0.1]
+In-Reply-To: <Pine.LNX.4.44L.0209192258010.1857-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44.0209200942030.27825-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 20, 2002 at 05:27:10PM +1000, Brad Hards wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Fri, 20 Sep 2002 17:09, Vojtech Pavlik wrote:
-> > On Fri, Sep 20, 2002 at 07:09:20AM +1000, Brad Hards wrote:
-> > > On Thu, 19 Sep 2002 23:54, Vojtech Pavlik wrote:
-> > > > On Thu, Sep 19, 2002 at 04:04:08PM +0300, Meelis Roos wrote:
-> > > > > drivers/usb/usbdrv.o: In function `hidinput_hid_event':
-> > > > > drivers/usb/usbdrv.o(.text+0x11573): undefined reference to
-> > > > > `input_event' drivers/usb/usbdrv.o(.text+0x115ee): undefined
-> > > > > reference to `input_event' drivers/usb/usbdrv.o(.text+0x11600):
-> > > > > undefined reference to `input_event'
-> > > > > drivers/usb/usbdrv.o(.text+0x11641): undefined reference to
-> > > > > `input_event' drivers/usb/usbdrv.o(.text+0x11664): undefined
-> > > > > reference to `input_event' drivers/usb/usbdrv.o(.text+0x11682): more
-> > > > > undefined references to `input_event' follow drivers/usb/usbdrv.o: In
-> > > > > function
-> > > > > `hidinput_connect':
-> > > > > drivers/usb/usbdrv.o(.text+0x118d4): undefined reference to
-> > > > > `input_register_device' drivers/usb/usbdrv.o: In function
-> > > > > `hidinput_disconnect':
-> > > > > drivers/usb/usbdrv.o(.text+0x118f3): undefined reference to
-> > > > > `input_unregister_device'
-> > > >
-> > > > Well, you enabled HID as built-in and Input as modular. HID needs
-> > > > Input.
-> > >
-> > > Not quite. CONFIG_USB + CONFIG_USB_HIDDEV doesn't need input.
-> > > Unfortunately CONFIG_USB_HIDINPUT does, and it is a dep_bool.
-> > > The only clean way I can see is to build HID as three seperate modules -
-> > > a core, the input interface, and the hiddev interface.  Even that is
-> > > pretty ugly.
-> >
-> > More modules, oh no!
-> Hmmm. You could always build part of the input layer into the kernel 
-> unconditionally (like the old keyboard handling code?). Not nice on some 
-> embedded applications, though you could probably build an "input.o" that is a 
-> bit smaller.
-> Or a version of the "unconditional build" based on some setup determined after 
-> the config step.
-> I'm still looking for a better idea - got any?
 
-As of current 2.5 input.o is always built in. (Since CONFIG_INPUT is defined to Y).
+On Thu, 19 Sep 2002, Rik van Riel wrote:
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> So, where did you put those 800 MB of kernel stacks needed for 100,000
+> threads ?
+
+With the default split and kernel stack we can start up 94,000 threads on
+x86. With Ben's/Dave's patch we can have up to 188,000 threads. With a 2:2
+GB VM split configured we can start 376,000 threads. If someone's that
+desperate then with a 1:3 split we can start up 564,000 threads.
+
+Anton tested 1 million concurrent threads on one of his bigger PowerPC
+boxes, which started up in around 30 seconds. I think he saw a load
+average of around 200 thousand. [ie. the runqueue was probably a few
+hundred thousand entries long at times.]
+
+> If you used the standard 3:1 user/kernel split you'd be using all of
+> ZONE_NORMAL for kernel stacks, but if you use a 2:2 split you'll end up
+> with a lot less user space (bad if you want to have many threads in the
+> same address space).
+
+the extreme high-end of threading typically uses very controlled
+applications and very small user level stacks.
+
+as to the question of why so many threads, the answer is because we can :)
+This, besides demonstrating some of the recent scalability advances, gives
+us the warm fuzzy feeling that things are right in this area. I mean,
+there are architectures where Linux could map a petabyte of RAM just fine,
+even though that might not be something we desperately need today.
+
+	Ingo
+

@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277514AbRJERTf>; Fri, 5 Oct 2001 13:19:35 -0400
+	id <S277519AbRJERcU>; Fri, 5 Oct 2001 13:32:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277515AbRJERTZ>; Fri, 5 Oct 2001 13:19:25 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:35232 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S277514AbRJERTF>; Fri, 5 Oct 2001 13:19:05 -0400
-Date: Fri, 5 Oct 2001 10:21:28 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Ryan C. Bonham" <Ryan@srfarms.com>, Larry McVoy <lm@bitmover.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 3ware discontinuing the Escalade Series
-In-Reply-To: <E15pYUF-00071y-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0110051013340.4761-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277520AbRJERcK>; Fri, 5 Oct 2001 13:32:10 -0400
+Received: from mail.spylog.com ([194.67.35.220]:39898 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S277519AbRJERcI>;
+	Fri, 5 Oct 2001 13:32:08 -0400
+Date: Fri, 5 Oct 2001 21:32:31 +0400
+From: Andrey Nekrasov <andy@spylog.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11-pre2-xfs
+Message-ID: <20011005213231.C13046@spylog.ru>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <andy@spylog.ru> <20011005022213.A8501@spylog.ru> <200110051420.f95EKVr12837@jen.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <200110051420.f95EKVr12837@jen.americas.sgi.com>
+User-Agent: Mutt/1.3.22i
+Organization: SpyLOG ltd.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Oct 2001, Alan Cox wrote:
+Hello Steve Lord,
 
-> The Promise hardware raid (Supertrak100) is also supported in the ac and
-> Linus trees nowdays but I've never been happy with its price/performance
-> personally.
+> Oh well, thats really useful, maybe __alloc_pages should report on its
+> caller's caller.
 
-I see the six channel supertrack100 for about US$ 330 which is around the
-price I was paying for 8 channel 6800's.
+I am use gcc gcc version 2.95.2 19991024 (release).
+May be with egcs will be better result?
 
-I guess I'll have to start investigating those. I'll miss the promise 3
-ata drives in two 5 1/4" slot raid enclosures as well...
 
-Seems like everytime you find something nice they go and discontinue it...
+> > ...
+> > swap_dup: Bad swap file entry 3f41e02c
+> > VM: killing process forwarderng
+> > swap_free: Bad swap offset entry 3ce50000
+> > swap_free: Bad swap file entry 3f41e02c
+> > swap_free: Bad swap offset entry 38bb5000
+> > ...
+> > 
+> > What is it? Kernel or may be my hardware problem?
 
-joelja
 
-> Alan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Probably kernel, but I am not really an expert on this part of the system,
+> is your swap a device or a file on a filesystem?
+
+/dev/hdg1             1      4145   2089048+  82  Linux swap
+
 
 -- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
-
-
-
-
+bye.
+Andrey Nekrasov, SpyLOG.

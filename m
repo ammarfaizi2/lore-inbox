@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131176AbRAQJUl>; Wed, 17 Jan 2001 04:20:41 -0500
+	id <S131317AbRAQJVL>; Wed, 17 Jan 2001 04:21:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131317AbRAQJUb>; Wed, 17 Jan 2001 04:20:31 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:11533 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S131176AbRAQJUU>; Wed, 17 Jan 2001 04:20:20 -0500
-From: aprasad@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: "Sajeev" <sajeevm@vantel.net>
-cc: linux-kernel@vger.kernel.org
-Message-ID: <CA2569D7.003337AC.00@d73mta05.au.ibm.com>
-Date: Wed, 17 Jan 2001 14:43:09 +0530
-Subject: Re: Problems in 2.4 kernel
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S131519AbRAQJVE>; Wed, 17 Jan 2001 04:21:04 -0500
+Received: from tellus.thn.htu.se ([193.10.192.40]:20234 "EHLO thn.htu.se")
+	by vger.kernel.org with ESMTP id <S131317AbRAQJUx>;
+	Wed, 17 Jan 2001 04:20:53 -0500
+Date: Wed, 17 Jan 2001 10:20:14 +0100 (CET)
+From: Richard Torkar <ds98rito@thn.htu.se>
+To: Sajeev <sajeevm@vantel.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problems in 2.4 kernel 
+In-Reply-To: <MFEGKNIIMHJHHBBEOKELAEANCAAA.sajeevm@vantel.net>
+Message-ID: <Pine.LNX.4.30.0101171019450.11494-100000@studpc91.thndorm.htu.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sanjeev Wrote:
-I am not able to mount my floppy drive. When I try to mount it gives me the
-following error
-'mount: /dev/fd0 has wrong major or minor number'
-_____________________________________________________________
-i think kernel is unable to find the driver for the filesystem type you are
-trying to mount.
-The supporting module is missing(if its compiled as module)or module path
-is not correct
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Regards,
-Anil
+Sajeev wrote:
+
+> Hi.
+> I am not able to mount my floppy drive. When I try to mount it gives me the
+> following error
+> 'mount: /dev/fd0 has wrong major or minor number'
+> I am running the latest kernel release i.e. 2.4 .
+> I tried recreating the node but it has been of no use.
+> Can anyone please help me.
+> Thanks
+> Sajeev
+>
+
+
+Are you having everything else updated according to Documentation/Changes?
+
+
+
+/Richard
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6ZWPUUSLExYo23RsRApkfAKCZkAfjDrnuM8cjSoI8/9v2G/Mb5ACgtRHy
+Vx/a5DhhULhjAXLwYX+TTiw=
+=+cqx
+-----END PGP SIGNATURE-----
 
 
 -

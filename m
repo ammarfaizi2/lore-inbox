@@ -1,38 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133021AbRAXXMR>; Wed, 24 Jan 2001 18:12:17 -0500
+	id <S132691AbRAXXT3>; Wed, 24 Jan 2001 18:19:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133046AbRAXXMH>; Wed, 24 Jan 2001 18:12:07 -0500
-Received: from post.cnt.ru ([212.15.122.243]:46093 "EHLO post.cnt.ru")
-	by vger.kernel.org with ESMTP id <S133021AbRAXXMA>;
-	Wed, 24 Jan 2001 18:12:00 -0500
-Date: Thu, 25 Jan 2001 02:11:49 +0300
-From: "dobro.cnt" <dobro@cnt.ru>
-X-Mailer: The Bat! (v1.34a) UNREG / CD5BF9353B3B7091
-Reply-To: "dobro.cnt" <dobro@cnt.ru>
-X-Priority: 3 (Normal)
-Message-ID: <791.010125@cnt.ru>
-To: linux-kernel@vger.kernel.org
-CC: linux-alpha@vger.kernel.org
-Subject: Problem with 2.4.0 and Nautilus
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S133021AbRAXXTT>; Wed, 24 Jan 2001 18:19:19 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:53511 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S132691AbRAXXTC>; Wed, 24 Jan 2001 18:19:02 -0500
+Date: Wed, 24 Jan 2001 18:19:03 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Weird hidden /dev/audio on devfs
+Message-ID: <Pine.LNX.4.30.0101241800390.1394-100000@fonzie.nine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have Alpha system based on AMD 751 & ALI 1543C chipset (Nautilus).
-Since I compiled and boot kernel 2.4.0 problem appears.
-1. don't work IDE DMA mode at all, only PIO
-2. don't work eepro100 support for Intel Ethernet card - driver
-reports I use non-busmaster slot (2.2.16 works fine)
-3. many other issues such SCSI device hang up during insmod driver and
-so on.
+Hello!
 
-It seems there is problem with DMA, but 2.2.16 works fine. Any help?
+I'm using 2.4.0-ac11 with devfs support. Something is very strange in the
+way how devfs behaves with respect to OSS sound drivers.
 
-Mike Pershin
+devfsd version 1.3.10 is running. There is an entry "alias /dev/audio
+/dev/sound" in modules.devfs, which is the default.
 
+If the "sound" module is not loaded, there are no files named "audio"
+under /dev:
+
+[proski@fonzie /dev]$ ls -al audio
+ls: audio: No such file or directory
+[proski@fonzie /dev]$ ls -alR | grep audio
+[proski@fonzie /dev]$
+
+Now I load sound.o and strange things begin:
+
+[proski@fonzie /dev]$ ls -al audio
+lr-xr-xr-x    1 root     root           11 Jan 24 18:08 audio ->
+sound/audio
+[proski@fonzie /dev]$ ls -alR | grep audio
+crw-rw--w-    1 root     root      14,   4 Dec 31  1969 audio
+[proski@fonzie /dev]$
+
+/dev/audio exists when named explicitly, but otherwise only
+/dev/sound/audio can be found.
+
+No sound-card specific modules are loaded at this point:
+
+[proski@fonzie /dev]$ /sbin/lsmod
+Module                  Size  Used by
+sound                  60880   0 (unused)
+soundcore               4240   2 [sound]
+mga                    95424   1
+agpgart                14080   3
+floppy                 46384   0 (autoclean)
+[proski@fonzie /dev]$
+
+All relevant config files are here:
+http://www.red-bean.com/~proski/sound_devfs/
+
+Regards,
+Pavel Roskin
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

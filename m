@@ -1,33 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbUJ3QnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbUJ3QnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbUJ3QnT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 12:43:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbUJ3QnT
+	id S261213AbUJ3QnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 12:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbUJ3QnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 12:43:19 -0400
-Received: from host2-225.pool8018.interbusiness.it ([80.18.225.2]:25316 "HELO
-	pchome.com.tw") by vger.kernel.org with SMTP id S261202AbUJ3QnS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 12:43:18 -0400
-Message-ID: <150e01c4be95$b9eb8100$c4b743ce@FrankSamuels09u_9qhwuuupa>
-Reply-To: "Update service" <FrankSamuels09u_9qhwuuupa@pchome.com.tw>
-From: "Update service" <FrankSamuels09u_9qhwuuupa@pchome.com.tw>
-To: "Client" <linux-kernel@vger.kernel.org>
-Subject: Happen to Need M.o-n.e-y urgently?
-Date: Sat, 30 Oct 2004 18:32:55 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1158
+	Sat, 30 Oct 2004 12:43:25 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27396 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261213AbUJ3QnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 12:43:21 -0400
+Date: Sat, 30 Oct 2004 18:42:48 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] binfmt_script.c: make struct script_format static
+Message-ID: <20041030164248.GM4374@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suspense-packed Details:
-linux-kernel, This link will Re-place your current In-c o m e within 3
-days:
-http://RealisticBiz.cjb.net 
+
+The patch below makes struct script_format in fs/binfmt_script.c static.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc1-mm2-full/fs/binfmt_script.c.old	2004-10-30 13:53:00.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/binfmt_script.c	2004-10-30 13:53:25.000000000 +0200
+@@ -96,7 +96,7 @@
+ 	return search_binary_handler(bprm,regs);
+ }
+ 
+-struct linux_binfmt script_format = {
++static struct linux_binfmt script_format = {
+ 	.module		= THIS_MODULE,
+ 	.load_binary	= load_script,
+ };
 

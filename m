@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbSIYTHL>; Wed, 25 Sep 2002 15:07:11 -0400
+	id <S262080AbSIYT2b>; Wed, 25 Sep 2002 15:28:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262068AbSIYTHL>; Wed, 25 Sep 2002 15:07:11 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:21454 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262067AbSIYTHK>;
-	Wed, 25 Sep 2002 15:07:10 -0400
-Date: Wed, 25 Sep 2002 12:02:03 -0700 (PDT)
-Message-Id: <20020925.120203.49564275.davem@redhat.com>
-To: mingo@elte.hu
-Cc: green@namesys.com, zaitcev@redhat.com, mingo@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: cmpxchg in 2.5.38
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0209251024580.4690-100000@localhost.localdomain>
-References: <20020925120725.A23559@namesys.com>
-	<Pine.LNX.4.44.0209251024580.4690-100000@localhost.localdomain>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262082AbSIYT2b>; Wed, 25 Sep 2002 15:28:31 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:14217 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S262080AbSIYT2a>;
+	Wed, 25 Sep 2002 15:28:30 -0400
+Date: Wed, 25 Sep 2002 21:42:33 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [ANNOUNCE] [patch] kksymoops, in-kernel symbolic oopser, 2.5.38-B0
+In-Reply-To: <Pine.LNX.4.44.0209251415500.28659-100000@chaos.physics.uiowa.edu>
+Message-ID: <Pine.LNX.4.44.0209252141080.17991-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ingo Molnar <mingo@elte.hu>
-   Date: Wed, 25 Sep 2002 10:26:34 +0200 (CEST)
-   
-   yes. It's only this place in the code that ever modifies that word
 
-I just realized...  how would a crippled spinlock implementation
-protect the readers looking at the word?
+one unrelated build thing that doesnt work is arch/i386/defconfig. If i
+add a CONFIG_KALLSYMS=y line to its debug section, and remove the
+CONFIG_KALLSYMS line from the .config, and then do a 'make oldconfig', i
+get this:
 
-The operation is decidely non-atomic, because only one side
-of the access is being synchronized.
+Kernel debugging (CONFIG_DEBUG_KERNEL) [Y/n/?]
+  Debug memory allocations (CONFIG_DEBUG_SLAB) [N/y/?]
+  Memory mapped I/O debugging (CONFIG_DEBUG_IOVIRT) [N/y/?]
+  Magic SysRq key (CONFIG_MAGIC_SYSRQ) [Y/n/?]
+  Spinlock debugging (CONFIG_DEBUG_SPINLOCK) [N/y/?]
+  Load all symbols for debugging/kksymoops (CONFIG_KALLSYMS) [N/y/?] (NEW)
 
-This is another reason you can't use cmpxchg like this and expect
-every architecture to be able to do something reasonable.
+i'd expect the 'Y' to be picked up from the defconfig - no?
 
-Use instead some algorithm with xchg() which is supported on every
-platform.
+	Ingo
+

@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262286AbVBKSty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVBKSv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262286AbVBKSty (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 13:49:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbVBKSty
+	id S262287AbVBKSv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 13:51:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVBKSv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 13:49:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:37014 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262286AbVBKSs0 (ORCPT
+	Fri, 11 Feb 2005 13:51:26 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:34518 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262287AbVBKSvB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 13:48:26 -0500
-Date: Fri, 11 Feb 2005 13:48:21 -0500
-From: Dave Jones <davej@redhat.com>
-To: Nick Warne <nick@linicks.net>
-Cc: linux-kernel@vger.kernel.org, tripperda@nvidia.com
-Subject: Re: How to disable slow agpgart in kernel config?
-Message-ID: <20050211184821.GC15721@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org,
-	tripperda@nvidia.com
-References: <200502111804.06899.nick@linicks.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 11 Feb 2005 13:51:01 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Date: Fri, 11 Feb 2005 10:50:31 -0800
+User-Agent: KMail/1.7.2
+Cc: Paul Jackson <pj@sgi.com>, Matthew Dobson <colpatch@us.ibm.com>,
+       dino@in.ibm.com, mbligh@aracnet.com, pwil3058@bigpond.net.au,
+       frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
+       ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, steiner@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       Simon.Derr@bull.net, sivanich@sgi.com
+References: <415F37F9.6060002@bigpond.net.au> <200502110854.53870.jbarnes@sgi.com> <20050211184257.GB21260@chandralinux.beaverton.ibm.com>
+In-Reply-To: <20050211184257.GB21260@chandralinux.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200502111804.06899.nick@linicks.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200502111050.32163.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 11, 2005 at 06:04:06PM +0000, Nick Warne wrote:
+On Friday, February 11, 2005 10:42 am, Chandra Seetharaman wrote:
+> My email was intented mainly to erase the notion that ckrm cannot handle
+> cpuset. Also, I wanted to understand if there is any real issues and that
+> is why I talked with Matt about why he thought ckrm cannot accomodate
+> memset before sending the second piece of mail.
 
- > > > This surprises me, especially considering the in-kernel nvidia-agp driver
- > > > was actually written by NVidia. Are there any agp error messages in
- > > > your dmesg / X log ?
- > 
- > > With the nVidia own nv_agp it appears directly in all apps, very fast 
- > > under GNOME 2.8.1. Why, I do not know. Also game (opengl) performance is 
- > > faster with the nv_agp, that I haven't used the kernel agp for months, now.
- > 
- > This is interesting.  I always used agpgart without a second thought (2.4.29, 
- > GeForce4 MX with Via KT133 chipset).
- > 
- > I just read through the nVidia readme file, and there is a comprehensive 
- > section on what module to use for what chipset (and card).  It recommends 
- > using the nVagp for my setup, so I just rebuilt excluding agpgart so I can 
- > use the nVdia module.
- > 
- > I never had slowness as such in KDE or X apps, but playing quake2 openGL I 
- > used to get a 'wave' type effect rippling down the screen occasionally.  A 
- > quick test using the nVagp module to have fixed that...
+Great!  So cpusets is good to go for the mainline then (i.e. no major 
+objections to the interface).  Note that implementation details that don't 
+affect the interface are another subject entirely, e.g. the sched domains 
+approach for scheduling as opposed to cpus_allowed.
 
-Terrence, any ideas ?
+> > CKRM seems nice, but why is it not in -mm?  I've heard it talked about a
+> > lot, but it usually comes up as a response to some other, simpler
+> > project, in the
+>
+> We did post to lkml a while back and got comments on it. We are working on
+> it and will post the fixed code again in few weeks with couple of
+> controllers.
 
-The only thing that jumps to mind that the nvidia gart driver is doing
-that the opensource one isn't is fiddling with PAT bits in the GART
-pages, but if anything, that should be just a performance thing.
+Excellent, I hope that it comes together into a form suitable for the 
+mainline, I think there are some really nice aspects to it.
 
-(It'd be really nice to get your PAT support in 2.6 sometime too btw).
-
-		Dave
-
+Thanks,
+Jesse

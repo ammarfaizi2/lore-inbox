@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbVAYWFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVAYWKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262184AbVAYWFy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 17:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVAYWFj
+	id S262181AbVAYWKI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 17:10:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVAYWHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 17:05:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28830 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262184AbVAYWDr (ORCPT
+	Tue, 25 Jan 2005 17:07:23 -0500
+Received: from orb.pobox.com ([207.8.226.5]:32974 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S262181AbVAYWCm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 17:03:47 -0500
-Date: Tue, 25 Jan 2005 14:03:02 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Chris Wright <chrisw@osdl.org>, "Jack O'Quin" <joq@io.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
-       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
-       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [patch, 2.6.11-rc2] sched: /proc/sys/kernel/rt_cpu_limit tunable
-Message-ID: <20050125140302.C24171@build.pdx.osdl.net>
-References: <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <87k6q2umla.fsf@sulphur.joq.us> <20050125083724.GA4812@elte.hu> <87oefdfaxp.fsf@sulphur.joq.us> <20050125214900.GA9421@elte.hu> <20050125135508.A24171@build.pdx.osdl.net> <20050125215758.GA10811@elte.hu>
+	Tue, 25 Jan 2005 17:02:42 -0500
+Date: Tue, 25 Jan 2005 14:02:29 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org,
+       Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
+       fastboot@lists.osdl.org, Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH 4/29] x86-i8259-shutdown
+Message-ID: <20050125220229.GB5726@ip68-4-98-123.oc.oc.cox.net>
+References: <x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com> <1106623970.2399.205.camel@d845pe> <20050125035930.GG13394@redhat.com> <m1sm4phpor.fsf@ebiederm.dsl.xmission.com> <20050125094350.GA6372@ip68-4-98-123.oc.oc.cox.net> <m1brbdhl3l.fsf@ebiederm.dsl.xmission.com> <20050125104904.GB5906@ip68-4-98-123.oc.oc.cox.net> <m13bwphflw.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050125215758.GA10811@elte.hu>; from mingo@elte.hu on Tue, Jan 25, 2005 at 10:57:58PM +0100
+In-Reply-To: <m13bwphflw.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ingo Molnar (mingo@elte.hu) wrote:
-> * Chris Wright <chrisw@osdl.org> wrote:
-> > * Ingo Molnar (mingo@elte.hu) wrote:
-> > > well, there's setrlimit, so you could add a jackd client callback that
-> > > instructs all clients to change their RT_CPU_RATIO rlimit. In theory we
-> > > could try to add a new rlimit syscall that changes another task's rlimit
-> > > (right now the syscalls only allow the changing of the rlimit of the
-> > > current task) - that would enable utilities to change the rlimit of all
-> > > tasks in the system, achieving the equivalent of a global sysctl.
-> > 
-> > We've talked about smth. similar in another thread.  I'm not opposed
-> > to the idea.
+On Tue, Jan 25, 2005 at 05:12:43AM -0700, Eric W. Biederman wrote:
+> Could you try this patch on your system with acpi that
+> is having problems.
 > 
-> did that thread go into technical details? There are some rlimit users
-> that might not be prepared to see the rlimit change under them. The
-> RT_CPU_RATIO one ought to be safe, but generally i'm not so sure.
+> The patch needs some work before it goes into a mainline kernel
+> as I have hacked the call to acpi_power_off_prepare into roughly
+> the proper position in the call chain instead of use a proper
+> hook.  But I can't quickly find an existing hook in the proper
+> location.
 
-Not really.   I mentioned the above, as well as the security concern.
-Right now, at least the task_setrlimit hook would have to change to take
-into account the task.  And I never convinced myself that async changes
-would be safe for each rlimit.
+I had to fix a couple of typos ("apci" and "offf") to get it to compile.
+Once I did that, the patch made shutdown work again.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+-Barry K. Nathan <barryn@pobox.com>
+

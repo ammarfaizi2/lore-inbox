@@ -1,85 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293087AbSBWGxc>; Sat, 23 Feb 2002 01:53:32 -0500
+	id <S293105AbSBWHCw>; Sat, 23 Feb 2002 02:02:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293090AbSBWGxW>; Sat, 23 Feb 2002 01:53:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51985 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293087AbSBWGxF>;
-	Sat, 23 Feb 2002 01:53:05 -0500
-Message-ID: <3C773C02.93C7753E@zip.com.au>
-Date: Fri, 22 Feb 2002 22:51:46 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] only irq-safe atomic ops
-In-Reply-To: <1014444810.1003.53.camel@phantasy>
+	id <S293108AbSBWHCp>; Sat, 23 Feb 2002 02:02:45 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:37388 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S293105AbSBWHC1>; Sat, 23 Feb 2002 02:02:27 -0500
+Date: Sat, 23 Feb 2002 08:02:24 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How to check the kernel compile options ?
+Message-ID: <20020223080223.A32501@devcon.net>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020216015834.D28176@devcon.net> <Pine.LNX.4.33L2.0202221150420.2938-100000@dragon.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33L2.0202221150420.2938-100000@dragon.pdx.osdl.net>; from rddunlap@osdl.org on Fri, Feb 22, 2002 at 11:56:31AM -0800
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Fri, Feb 22, 2002 at 11:56:31AM -0800, Randy.Dunlap wrote:
 > 
-> The following patch implements i386 versions of atomic_inc and
-> atomic_dec that are LOCK-less but provide IRQ-atomicity and act as a
-> memory-barrier.
-> 
-> An applicable use would be data that needs to be IRQ-safe but not
-> SMP-safe (or, more likely, is already SMP-safe for some other reason).
-> 
-> Additionally, these variants could prevent having to use
-> preempt_disable/enable or "full" atomic ops around per-CPU data with a
-> preemptible kernel.
-> 
+> | Note that you also need some way to keep the config symbols which are
+> | set to "n" and commented out in the .config. Otherwise you will have
+> | to answer a lot of questions on "make oldconfig" ("yes n | make
+> | oldconfig" isn't an option, as this doesn't tell you which config
+> | symbols have been added).
+> Will
+>   yes n | make oldconfig
+> build a kernel with the current y/m options still intact,
+> but any new or missing options set to 'n'?
 
-Thanks, Robert.
+Yes. "make oldconfig" will only ask for options not contained in the old
+ .config, and options it doesn't ask for don't take any input ;-)
 
-Some background here - for the delayed allocation code which I'm
-cooking up I need to globally count the number of dirty pages in the
-machine.  Currently that's done with atomic_inc(&nr_dirty_pages)
-in SetPageDirty().
+> | I have actually done my own patch to include the .config into the
+[...]
+> I looked.  It does nicely if that's where you want to store and find
+> the .config.  I'd rather have it associated with a kernel image file
+> and accessible even if the kernel isn't running.
 
-But this counter (which is used for when-to-start-writeback decisions)
-is unavoidably approximate.   It would be nice to make it a per-CPU
-array.  So on the rare occasions when the dirty-page count is needed,
-I can just whizz across the per-cpu counters adding them all up.
+You can extract it. One possibility is to disable compression for
+/proc/config and apply your "strings" magic.
 
-But how to increment or decrement a per-cpu counter?  The options
-are:
+The other way works if the config is GZIP compressed. Find the GZIP
+magic in the vmlinuz, decompress the compressed part of the image (up
+here it is like your "strings" variant), then search for GZIP magic
+again and decompress.
 
-- per_cpu_integer++;
+Quick&dirty script for the latter (using your "binoffset" tool):
 
-  This is *probably* OK on all architectures.  But there are no
-  guarantees that the compiler won't play games, and that this
-  operation is preempt-safe.
+---------- snip ----------
+#!/bin/sh
+set -e
+tmp=/tmp/$$
+gziphdr=`binoffset $1 0x1f 0x8b 0x08 2>/dev/null`
+dd if=$1 bs=1 skip=$gziphdr 2>/dev/null | gunzip > $tmp
+gziphdr=`binoffset $tmp 0x1f 0x8b 0x08 2>/dev/null`
+dd if=$tmp bs=1 skip=$gziphdr 2>/dev/null | gunzip
+rm -f $tmp
+---------- snip ----------
 
-- preempt_disable(); per_cpu_counter++; preempt_enable();
+At the moment I'm just writing a tool which does all parts in one turn
+(using zlib), to make it faster and more robust (the script above may
+fail for example if the kernel image has more than one block of gzip
+compressed data embedded). (It's actually working already, but the
+code needs some heavy cleanup before it can be released to the public
+;-) Come back in a few days for news...
 
-  A bit heavyweight for add-one-to-i.
-
-- atomic_inc
-
-  A buslocked operation where it is not needed - we only need
-  a preempt-locked operation here.  But it's per-cpu data, and
-  the buslocked rmw won't be too costly.
-
-I can't believe how piddling this issue is :)
-
-But if there's a general need for such a micro-optimisation
-then we need to:
-
-1: Create <linux/atomic.h> (for heavens sake!)
-
-2: In <linux/atomic.h>,
-
-   #ifndef ARCH_HAS_ATOMIC_INQ_THINGIES
-   #define atomic_inc_irq atomic_inc
-   ...
-   #endif
-
-But for now, I suggest we not bother.  I'll just use atomic_inc().
-
--
+Andreas
+-- 
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

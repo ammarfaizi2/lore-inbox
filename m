@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268260AbUJOSQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268268AbUJOSUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268260AbUJOSQt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 14:16:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268268AbUJOSQs
+	id S268268AbUJOSUz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 14:20:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268274AbUJOSUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 14:16:48 -0400
-Received: from mail4.utc.com ([192.249.46.193]:1735 "EHLO mail4.utc.com")
-	by vger.kernel.org with ESMTP id S268260AbUJOSQp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 14:16:45 -0400
-Message-ID: <41701401.5070403@cybsft.com>
-Date: Fri, 15 Oct 2004 13:16:33 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Fri, 15 Oct 2004 14:20:55 -0400
+Received: from mail.scitechsoft.com ([63.195.13.67]:36520 "EHLO
+	mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id S268268AbUJOSUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 14:20:44 -0400
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Fri, 15 Oct 2004 11:20:21 -0700
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
-       Andrew Morton <akpm@osdl.org>, Adam Heath <doogie@debian.org>,
-       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
-       Andrew Rodland <arodland@entermail.net>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
-In-Reply-To: <20041015102633.GA20132@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <416FB275.6425.1C3D985@localhost>
+In-reply-to: <1097843969.9863.8.camel@localhost.localdomain>
+References: <416E8322.25700.29ACC2F1@localhost>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i have released the -U3 PREEMPT_REALTIME patch:
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+> On Iau, 2004-10-14 at 21:46, Kendall Bennett wrote:
+> > a way to spawn a user mode process that early in the boot sequence (it 
+> > would have to come from the initrd image I expect) then the only option 
+> > is to compile it into the kernel.
 > 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U3
-> 
+> There is exactly that in 2.6 - the hotplug interfaces allow the
+> kernel to fire off userspace programs. Jon Smirl (who you should
+> definitely talk to about this stuff) has been hammering out a
+> design for moving almost all the mode switching into user space for
+> kernel video. 
 
-I have gotten a couple of interesting traces on my dual 2.6G Xeon 
-workstation here at the office. These were both generated running tests 
-on (oddly enough) my own trace buffer that I am working on for a client 
-here. The test basically consists of 100 threads putting data into the 
-trace buffer concurrently and then one reader thread draining it and 
-populating a multi-dimensional array to make sure all of the data is 
-accounted for and not corrupted. All threads are running at a normal 
-priority since the test is for correctness not performance. The traces 
-are here:
+That is awesome! I am all for moving this outside of the kernel, as it 
+would allow the use of ream vm86() services for VGA/VESA BIOS access on 
+x86 and the user of the emulator for non-x86 platforms. 
 
-http://www.cybsft.com/testresults/26workstation/2.6.9-rc4-mm1-VP/
+The only catch would be making sure this stuff is available really early 
+in the boot sequence. As it stands right now the solution we have brings 
+up the video almost imediately after you see the 'uncompressing kernel 
+image' message on the serial port. The other solution of course is to get 
+this into the boot loader which is what the AmigaOne folks did for their 
+machines (U-Boot brings up the video). We are working with those guys to 
+update their BIOS emulator to the latest version as the one they have 
+doesn't work that reliably.
 
-kr
+Anyway how do I find out more about this in 2.6?
+
+Also I assume the code would need to end up in the initrg image, correct? 
+Can you point me at some resources to learn more about how to get custom 
+code into the initrd image?
+
+Regards,
+
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
+
+

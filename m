@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262336AbVCPKgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVCPKhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262336AbVCPKgc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 05:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbVCPKgc
+	id S262337AbVCPKhe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 05:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262338AbVCPKhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 05:36:32 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:18123 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262346AbVCPKeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 05:34:24 -0500
-Subject: Re: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, rostedt@goodmis.org, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050316022638.237f72cd.akpm@osdl.org>
-References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
-	 <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>
-	 <20050315120053.GA4686@elte.hu>
-	 <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain>
-	 <20050315133540.GB4686@elte.hu>
-	 <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
-	 <20050316085029.GA11414@elte.hu> <20050316011510.2a3bdfdb.akpm@osdl.org>
-	 <20050316095155.GA15080@elte.hu> <20050316020408.434cc620.akpm@osdl.org>
-	 <20050316101209.GA16893@elte.hu>  <20050316022638.237f72cd.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 16 Mar 2005 11:34:08 +0100
-Message-Id: <1110969248.6292.2.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 16 Mar 2005 05:37:34 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:51425 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262337AbVCPKhW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 05:37:22 -0500
+Date: Wed, 16 Mar 2005 02:36:21 -0800 (PST)
+From: Paul Jackson <pj@sgi.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Ray Bryant <raybry@sgi.com>, Simon Derr <Simon.Derr@bull.net>,
+       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@muc.de>
+Message-Id: <20050316103624.6322.70203.sendpatchset@sam.engr.sgi.com>
+Subject: [Patch] cpusets alloc GFP_WAIT sleep fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-16 at 02:26 -0800, Andrew Morton wrote:
-> 
-> The hold times are short, and a context switch hurts rather ore than a
-> quick
-> spin.
+The cpuset mems_allowed update code in alloc_pages_current could
+(in theory) put a task to sleep that didn't allow sleeping (did
+not have __GFP_WAIT flag set).  In the rare circumstance that
+the current tasks mems_generation is outofdate compared to the
+tasks cpuset mems_generation, this mems_allowed update code
+needs to grap cpuset_sem, which can sleep.
 
-so we need a spinaphore ;)
+We avoid this by not trying to update mems_allowed here if we
+can't sleep (__GFP_WAIT not set).
 
+Applies to top of Linus's bk tree (post 2.6.11)
 
+Thanks to Ray Bryant <raybry@sgi.com> for noticing this.
+
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+===================================================================
+--- 2.6.12-pj.orig/mm/mempolicy.c	2005-03-16 01:16:58.000000000 -0800
++++ 2.6.12-pj/mm/mempolicy.c	2005-03-16 01:32:05.000000000 -0800
+@@ -788,12 +788,16 @@ alloc_page_vma(unsigned gfp, struct vm_a
+  *	Allocate a page from the kernel page pool.  When not in
+  *	interrupt context and apply the current process NUMA policy.
+  *	Returns NULL when no page can be allocated.
++ *
++ *	Don't call cpuset_update_current_mems_allowed() unless
++ *	1) it's ok to take cpuset_sem (can WAIT), and
++ *	2) allocating for current task (not interrupt).
+  */
+ struct page *alloc_pages_current(unsigned gfp, unsigned order)
+ {
+ 	struct mempolicy *pol = current->mempolicy;
+ 
+-	if (!in_interrupt())
++	if ((gfp & __GFP_WAIT) && !in_interrupt())
+ 		cpuset_update_current_mems_allowed();
+ 	if (!pol || in_interrupt())
+ 		pol = &default_policy;
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,96 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273385AbRJYQOK>; Thu, 25 Oct 2001 12:14:10 -0400
+	id <S274248AbRJYQ0o>; Thu, 25 Oct 2001 12:26:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274248AbRJYQNu>; Thu, 25 Oct 2001 12:13:50 -0400
-Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:6418 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S273385AbRJYQNo>;
-	Thu, 25 Oct 2001 12:13:44 -0400
-Message-ID: <3BD83A4C.B435D9DC@nyc.rr.com>
-Date: Thu, 25 Oct 2001 12:14:04 -0400
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13 i686)
-X-Accept-Language: en
+	id <S275709AbRJYQ0g>; Thu, 25 Oct 2001 12:26:36 -0400
+Received: from viper.haque.net ([66.88.179.82]:16521 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S274248AbRJYQ0V>;
+	Thu, 25 Oct 2001 12:26:21 -0400
+Newsgroups: linux.dev.kernel
+Date: Thu, 25 Oct 2001 12:25:30 -0400 (EDT)
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: bill davidsen <davidsen@tmr.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: fdisk: "File size limit exceeded on fdisk" 2.4.10 to 2.4.13-pre6
+In-Reply-To: <LCWB7.5048$ag6.923038958@newssvr17.news.prodigy.com>
+Message-ID: <Pine.LNX.4.33.0110251222090.25423-100000@viper.haque.net>
+In-Reply-To: <Pine.LNX.4.33.0110242100070.14064-100000@viper.haque.net>
+ <LCWB7.5048$ag6.923038958@newssvr17.news.prodigy.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: In great need
-In-Reply-To: <fa.jh1e0kv.4k8ujg@ifi.uio.no>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am a newbie/wannabe kernel hacker too :). 
+On Thu, 25 Oct 2001, bill davidsen wrote:
 
-Here are the steps I plan to take:
+> I haven't seen any problem, either. Certainly not with fdisk, this is
+> what I see:
+> ================================================================
+> bilbo:root> hdparm -V
+> hdparm v3.9
+>
+> bilbo:root> df
+> ....
+>
+> Don't know if this sheds light on the topic, I certainly do run fdisk on
+> "drives" my RAID controller creates which have 600GB or so broken into
+> little 100GB files.
 
-[1] Take an Operating Systems class (or read through the 
-syllabus materials).
-[2] Write a small operating system (to learn the stuff 
-that OS courses/books don't teach... for example, it 
-took me a while to realize where the BIOS loads the 
-MBR... thank god lilo is open source).
-[3] Learn a little about hardware and hardware 
-standards like PCI, PCMCIA, ACPI, USB, etc.
-[4] Read Oreilly's "Understanding the Linux Kernel".
-[5] Read the linux-kernel FAQ and archives
-[6] Read linux-kernel@vger.kernel.org (No Posting!)
-[7] Read linux source code
-[8] Read linux-kernel@vger.kernel.org (Post at Will!!)
-[9] Identify an area of need
-[10] Write code
-[11] Sacrifice a virgin pigeon and drink milk of an 
-albino goat....
+I guess it was unclear at first. You'll only get the error when you run
+mke2fs.
 
-You are now a kernel hacker.
+-- 
 
-I'm at step 2... perhaps as I go further a few of the 
-steps will disappear :).  Just my $0.02.
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
 
-Patrick Ouellet wrote:
-> 
-> Hi to you all great Linux Kernel maintainers.
-> 
-> As a follower of linux for a couple of years now
-> I wanted to go deeper into the madness,
-> so I said to myself, why no go as deep as you
-> can and get yourself into the Kernel.
-> 
-> My simple question is this:
-> 
-> Were should I start.
-> I would like to have a nice overview of the kernel
-> something that would help me understand all the part
-> of the kernel and how they work toghether.
-> 
-> If anyone could tell me where I could get
-> such information.. I would be pleased.
-> 
-> Thanx to you all and keep up the good work.
-> 
-> --
-> =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==
-> -=-=-=-=-=-=
-> Patrick Ouellet - Programmeur Sénior
-> patrick.ouellet@microtecsecurite.com
-> Recherche & Devloppement
-> Les Entreprise Microtec inc.
-> =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==
-> -=-=-=-=-=-=
-> "First they ignore you. Then they laugh at you.
-> Then they fight you. Then you win."
-> -Mohandas Gandhi
-> =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==
-> -=-=-=-=-=-=
-> All source code included (if any ) is
-> copyright Microtec Technologies Inc. 2001
-> =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==
-> -=-=-=-=-=-=
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
->  in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+  "Alcohol and calculus don't mix.             Developer/Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
+
+

@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264925AbTLKMyd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 07:54:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264930AbTLKMyd
+	id S264917AbTLKMso (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 07:48:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264918AbTLKMso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 07:54:33 -0500
-Received: from mail.ondacorp.com.br ([200.195.196.14]:65170 "EHLO
-	mail.ondacorp.com.br") by vger.kernel.org with ESMTP
-	id S264925AbTLKMyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 07:54:32 -0500
-Message-ID: <3FD86904.30500@arenanetwork.com.br>
-Date: Thu, 11 Dec 2003 10:54:28 -0200
-From: dual_bereta_r0x <dual_bereta_r0x@arenanetwork.com.br>
-Organization: ArenaNetwork Lan House & Cyber
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031026 Thunderbird/0.4a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.23 + tmpfs: where's my mem?!
-X-Enigmail-Version: 0.82.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 11 Dec 2003 07:48:44 -0500
+Received: from out008pub.verizon.net ([206.46.170.108]:5851 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S264917AbTLKMsm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 07:48:42 -0500
+Date: Thu, 11 Dec 2003 07:48:33 -0500
+Mime-Version: 1.0 (Apple Message framework v553)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Subject: problem building multiple kernels with correct version numbers
+From: ima.sudonim@verizon.net
+To: Linux Kernel <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
+Message-Id: <547F5518-2BD8-11D8-B1FC-00039398B344@verizon.net>
+X-Mailer: Apple Mail (2.553)
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [141.156.18.128] at Thu, 11 Dec 2003 06:48:41 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-root@hquest:/tmp# cat /etc/slackware-version
-Slackware 9.1.0
-root@hquest:/tmp# uname -a
-Linux hquest 2.4.23 #6 Sat Nov 29 22:47:03 PST 2003 i686 unknown unknown 
-GNU/Linux
-root@hquest:/tmp# df /tmp
-Filesystem           1K-blocks      Used Available Use% Mounted on
-tmpfs                   124024    112388     11636  91% /tmp
-root@hquest:/tmp# du -s .
-32      .
-root@hquest:/tmp# _
+Hi,
 
-Slackware-current install, stock kernel.
+I am still relatively new at kernel builds, but I have done a google 
+search and tried to follow the process of: make distclean dep vmlinux 
+modules modules_install
 
-More info on demand, c/c me please. TIA.
+I have source trees for:
+  2.4.20-8d,
+2.4.22-2f,
+2.4.23-pre5-ben0
 
--- 
-dual_bereta_r0x -- Alexandre Hautequest
-ArenaNetwork Lan House & Cyber -- www.arenanetwork.com.br
+Somehow the kernel version in the core Makefile is always: VERSION 2, 
+PATCHLEVEL 4, SUBLEVEL 23 EXTRAVERSION -pre5-ben0
+
+When I try to run my prebuilt kernels, the kernelversion info (uname 
+-r) is 2.4.23-pre5-ben0
+I can't update this value in the Makefile without it getting written 
+over from somewhere during the make dep vmlinux process.
+
+i) Where should I put in the kernel source tree an explicit source 
+number for the kernel I'm building?
+
+ii) Is there a tool to explicitly set a version string inside a vmlinux 
+kernel?
+
+iii) originally, I was just copying configuration information by 
+copying .config files from one source directory to another and 
+rebuilding. Did I somehow copy kernel version information withit?
+
+iv) is there an option inside make menuconfig to set the kernel's 
+version number?
+
+v) when I do a make modules_install, must I already be running the 
+vmlinux kernel made for it? It seems to always copy to 
+/lib/modules/2.4.23-pre5-ben0
+
+I was using Set version information on all module symbols in Loadable 
+module support. Could this have somehow set a kernel version file (if 
+such exists) somewhere?
+
+Should I just erase all of my source trees and start over from scratch? 
+  Do I need to be running a built kernel to run make_install to update 
+/lib/modules for the kernel I've just built?
+
+I am using Yellowdog linux (ppc) 3.01
+
+I do not subscribe to this forum due to heavy traffic but will watch it 
+from the website versions.
+
+Thank you!
+
+Ima
+

@@ -1,36 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263865AbUFTExZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263875AbUFTFAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263865AbUFTExZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 00:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbUFTExZ
+	id S263875AbUFTFAN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 01:00:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263881AbUFTFAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 00:53:25 -0400
-Received: from mail.dif.dk ([193.138.115.101]:45745 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S263865AbUFTExX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 00:53:23 -0400
-Date: Sun, 20 Jun 2004 06:52:26 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Arun Sen <arunsen@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Two Questions
-In-Reply-To: <029901c45657$d34d79b0$6401a8c0@waterdell>
-Message-ID: <Pine.LNX.4.56.0406200650460.19725@jjulnx.backbone.dif.dk>
-References: <029901c45657$d34d79b0$6401a8c0@waterdell>
+	Sun, 20 Jun 2004 01:00:13 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:31404 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263875AbUFTFAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 01:00:11 -0400
+Message-ID: <40D519D6.1050201@comcast.net>
+Date: Sun, 20 Jun 2004 01:00:06 -0400
+From: Albert Cranford <ac9410@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: linux-2.6.7-b2 runs faster than linux-2.6.7
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jun 2004, Arun Sen wrote:
-
-> mirror website.  However, they do not tell me who are the authors of these
-> patches and what are their addresses/emails.  How can I get this
-> information?
-
-Looking in the Changelogs for the different kernel versions is one place
-to get some info.
-
---
-Jesper Juhl <juhl-lkml@dif.dk>
+I think patchset from Len Brown for ACPI has an effect on speed.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108754114421866&w=2
+but no clue what to change.
 

@@ -1,34 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284001AbRLAITL>; Sat, 1 Dec 2001 03:19:11 -0500
+	id <S284005AbRLAI1D>; Sat, 1 Dec 2001 03:27:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284004AbRLAITB>; Sat, 1 Dec 2001 03:19:01 -0500
-Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:58788 "EHLO
-	DervishD.viadomus.com") by vger.kernel.org with ESMTP
-	id <S284001AbRLAISx>; Sat, 1 Dec 2001 03:18:53 -0500
-To: aia21@cus.cam.ac.uk, torvalds@transmeta.com
-Subject: Re: [PATCH] Enhancement of /proc/partitions output (2.5.1-pre5)
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E16A5XI-0005Lr-00@DervishD.viadomus.com>
-Date: Sat, 1 Dec 2001 09:30:12 +0100
-From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	 Coronado <dervishd@jazzfree.com>
-Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	   Coronado <dervishd@jazzfree.com>
-X-Mailer: DervishD TWiSTiNG Mailer
+	id <S284008AbRLAI0y>; Sat, 1 Dec 2001 03:26:54 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:28661
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S284005AbRLAI0h>; Sat, 1 Dec 2001 03:26:37 -0500
+Date: Sat, 1 Dec 2001 00:26:31 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: war <war@starband.net>, linux-kernel@vger.kernel.org
+Subject: Re: Is it normal for freezing while...
+Message-ID: <20011201002631.F489@mikef-linux.matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>, war <war@starband.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C085B04.50ABE0B5@starband.net> <3C0867A3.5119D2BC@zip.com.au> <3C087023.9683B8AF@starband.net> <3C0875DA.A54BC89E@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C0875DA.A54BC89E@zip.com.au>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hello Anton :)
+On Fri, Nov 30, 2001 at 10:16:58PM -0800, Andrew Morton wrote:
+> Being a cautious chap, I think I'll submit that patch, with
+> the default setting to "off", so there is no change to default
+> kernel behaviour.   Then people can run `elvtune -b' to enable it.
+> 
 
->Please consider below patch which adds the starting sector and number of
->sectors to /proc/partitions.
+Hmm...
 
-    This is a *great* idea. I was wondering why this information is
-not included by default :)))
+mikef-linux:/home/mfedyk# elvtune /dev/hda
 
-    I have a somewhat 'special' partition scheme and that information
-is vital for me. Thanks a lot for the patch. I hope that Marcello
-accepts it for 2.4.17...
+/dev/hda elevator ID            0
+        read_latency:           8192
+        write_latency:          16384
+        max_bomb_segments:      0
 
-    Raúl
+mikef-linux:/home/mfedyk# elvtune -b 2 /dev/hda
+
+/dev/hda elevator ID            0
+        read_latency:           8192
+        write_latency:          16384
+        max_bomb_segments:      0
+
+mikef-linux:/home/mfedyk# elvtune -b 1000 /dev/hda
+
+/dev/hda elevator ID            0
+        read_latency:           8192
+        write_latency:          16384
+        max_bomb_segments:      0
+
+mikef-linux:/home/mfedyk# elvtune -b 1000 /dev/hdc
+
+/dev/hdc elevator ID            1
+        read_latency:           8192
+        write_latency:          16384
+        max_bomb_segments:      0
+
+
+mikef-linux:/home/mfedyk# uname -r
+2.4.17-pre2
+
+What's wrong?

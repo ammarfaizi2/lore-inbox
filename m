@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263468AbTDSVIV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 17:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263470AbTDSVIV
+	id S263470AbTDSVLP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 17:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263472AbTDSVLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 17:08:21 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:52210 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263468AbTDSVIU (ORCPT
+	Sat, 19 Apr 2003 17:11:15 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:12275 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S263470AbTDSVLO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 17:08:20 -0400
+	Sat, 19 Apr 2003 17:11:14 -0400
 From: Andries.Brouwer@cwi.nl
-Date: Sat, 19 Apr 2003 23:20:18 +0200 (MEST)
-Message-Id: <UTC200304192120.h3JLKIn19920.aeb@smtp.cwi.nl>
+Date: Sat, 19 Apr 2003 23:23:12 +0200 (MEST)
+Message-Id: <UTC200304192123.h3JLNCK21665.aeb@smtp.cwi.nl>
 To: torvalds@transmeta.com
-Subject: [PATCH] fix slab corruption in namespace.c
+Subject: [PATCH] correct error message for failed clone ns
 Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The
-	new_ns = kmalloc(sizeof(struct namespace *), GFP_KERNEL);
-was less fortunate.
+If copy_namespace() returns -EPERM, copy_process() will
+return a confusing -ENOMEM. This fixes that.
 
 Andries
 
 ----------------------------------------------------------------
-diff -u --recursive --new-file -X /linux/dontdiff a/fs/namespace.c b/fs/namespace.c
---- a/fs/namespace.c	Wed Mar  5 10:47:29 2003
-+++ b/fs/namespace.c	Sat Apr 19 23:17:34 2003
-@@ -52,7 +52,7 @@
- 		INIT_LIST_HEAD(&mnt->mnt_list);
- 		if (name) {
- 			int size = strlen(name)+1;
--			char * newname = kmalloc(size, GFP_KERNEL);
-+			char *newname = kmalloc(size, GFP_KERNEL);
- 			if (newname) {
- 				memcpy(newname, name, size);
- 				mnt->mnt_devname = newname;
-@@ -774,7 +774,7 @@
- 
- 	get_namespace(namespace);
- 
--	if (! (flags & CLONE_NEWNS))
-+	if (!(flags & CLONE_NEWNS))
- 		return 0;
- 
- 	if (!capable(CAP_SYS_ADMIN)) {
-@@ -782,7 +782,7 @@
- 		return -EPERM;
- 	}
- 
--	new_ns = kmalloc(sizeof(struct namespace *), GFP_KERNEL);
-+	new_ns = kmalloc(sizeof(struct namespace), GFP_KERNEL);
- 	if (!new_ns)
- 		goto out;
- 
+diff -u --recursive --new-file -X /linux/dontdiff a/kernel/fork.c b/kernel/fork.c
+--- a/kernel/fork.c	Sat Apr 19 18:27:16 2003
++++ b/kernel/fork.c	Sat Apr 19 18:27:07 2003
+@@ -873,7 +873,8 @@
+ 		goto bad_fork_cleanup_sighand;
+ 	if (copy_mm(clone_flags, p))
+ 		goto bad_fork_cleanup_signal;
+-	if (copy_namespace(clone_flags, p))
++	retval = copy_namespace(clone_flags, p);
++	if (retval)
+ 		goto bad_fork_cleanup_mm;
+ 	retval = copy_thread(0, clone_flags, stack_start, stack_size, p, regs);
+ 	if (retval)

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266295AbSKGCtj>; Wed, 6 Nov 2002 21:49:39 -0500
+	id <S266303AbSKGCt7>; Wed, 6 Nov 2002 21:49:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266303AbSKGCtj>; Wed, 6 Nov 2002 21:49:39 -0500
-Received: from packet.digeo.com ([12.110.80.53]:48854 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266295AbSKGCtj>;
-	Wed, 6 Nov 2002 21:49:39 -0500
-Message-ID: <3DC9D64B.425B79DE@digeo.com>
-Date: Wed, 06 Nov 2002 18:56:11 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
-X-Accept-Language: en
+	id <S266304AbSKGCt7>; Wed, 6 Nov 2002 21:49:59 -0500
+Received: from dp.samba.org ([66.70.73.150]:10428 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266303AbSKGCt6>;
+	Wed, 6 Nov 2002 21:49:58 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-To: Miles Lane <miles.lane@attbi.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: EXT2 corruption -- After running 2.5.46, my root partition cannotbe 
- mounted by older kernels
-References: <3DC9D145.6040109@attbi.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Nov 2002 02:56:11.0808 (UTC) FILETIME=[3ABCE200:01C28609]
+Message-ID: <15817.54799.955377.260781@argo.ozlabs.ibm.com>
+Date: Thu, 7 Nov 2002 13:55:11 +1100
+To: Jens Axboe <axboe@suse.de>, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: [PATCH] Fix typo in sl82c105.c driver
+X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
-> 
-> Hi,
-> 
-> I am not sure how to diagnose the problem.  When I try to boot
-> the latest RH 8.0 kernel, I am informed that some unsupported
-> extensions are present on /dev/hda12 at boot time.  The partition
-> fails to mount and the boot process halts.
-> 
-> I have no trouble booting with 2.5.46.
-> 
+This patch fixes a minor typo in sl82c105.c which stops it from
+compiling.
 
-Please send the exact diagnostic message.
+Jens and/or Linus, please apply.
+
+Paul.
+
+diff -urN linux-2.5/drivers/ide/pci/sl82c105.c pmac-2.5/drivers/ide/pci/sl82c105.c
+--- linux-2.5/drivers/ide/pci/sl82c105.c	2002-10-12 14:40:28.000000000 +1000
++++ pmac-2.5/drivers/ide/pci/sl82c105.c	2002-10-30 12:32:48.000000000 +1100
+@@ -284,7 +284,7 @@
+ 
+ static int __devinit sl82c105_init_one(struct pci_dev *dev, const struct pci_device_id *id)
+ {
+-	ide_pci_device_t *d = &slc82c105_chipsets[id->driver_data];
++	ide_pci_device_t *d = &sl82c105_chipsets[id->driver_data];
+ 	if (dev->device != d->device)
+ 		BUG();
+ 	ide_setup_pci_device(dev, d);

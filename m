@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268971AbUJKP2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269077AbUJKP1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268971AbUJKP2A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 11:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269085AbUJKP15
+	id S269077AbUJKP1f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 11:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268978AbUJKP0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 11:27:57 -0400
-Received: from ns1.kazix.com ([69.93.95.154]:30644 "EHLO server1.kazix.com")
-	by vger.kernel.org with ESMTP id S268971AbUJKP0h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 11:26:37 -0400
-From: Vadim Lebedev <vadim@mbdsys.com>
-Organization: MBDSYS
+	Mon, 11 Oct 2004 11:26:01 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:24795 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S268971AbUJKPT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 11:19:59 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-Date: Mon, 11 Oct 2004 17:28:39 +0200
-User-Agent: KMail/1.6.1
+Subject: Re: 2.6.9-rc4-mm1
+Date: Mon, 11 Oct 2004 17:21:35 +0200
+User-Agent: KMail/1.6.2
+Cc: Andi Kleen <ak@muc.de>, Tim Cambrant <cambrant@acc.umu.se>, akpm@digeo.com
+References: <2O5L3-5Jq-11@gated-at.bofh.it> <200410111538.33299.rjw@sisk.pl> <20041011145022.GA52120@muc.de>
+In-Reply-To: <20041011145022.GA52120@muc.de>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410111728.39200.vadim@mbdsys.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server1.kazix.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - mbdsys.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Message-Id: <200410111721.35033.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven-Thorsten Dietrich <sdietrich@mvista.com> wrote in message 
-news:<2Nir3-4iC-13@gated-at.bofh.it>...
-> Announcing the availability of prototype real-time (RT)
-> enhancements to the Linux 2.6 kernel.
+On Monday 11 of October 2004 16:50, Andi Kleen wrote:
+> On Mon, Oct 11, 2004 at 03:38:32PM +0200, Rafael J. Wysocki wrote:
+> > On Monday 11 of October 2004 14:40, Andi Kleen wrote:
+> > > Tim Cambrant <cambrant@acc.umu.se> writes:
+> > > 
+> > > > On Mon, Oct 11, 2004 at 03:25:02AM -0700, Andrew Morton wrote:
+> > > >>
+> > > >> optimize-profile-path-slightly.patch
+> > > >>   Optimize profile path slightly
+> > > >>
+> > > >
+> > > > I'm still getting an oops at startup with this patch. After reversing
+> > > > it, everything is fine. Weren't you supposed to remove that from your
+> > > > tree until it was fixed?
+> > > 
+> > > There's a fixed version around. I thought Andrew had merged that one?
+> > [-- snip --]
+> > 
+> > This one does not apply to -mm.
+> 
+> You have to revert the previous version first.
 
-Reading the sources i believe that __p_mutex_up  is not constant time
-operation because of __p_mutex_down....
+I know that.  I should have said that it did not apply _after_ reverting the 
+previous version.
 
-It is clear that
-__p_mutex_down is not constant time operation because of insertion
-into the priority-sorted sleepers list.  However both __p_mutex_down
-and __p_mutex_up are synchronize on the same global spinlock
-(m_spin_lock) ....  so if the __p_mutex_down is holding this spinlock
-while inserting NO other process(or) is able to perform any __p_mutex
-operation...
+Greets,
+RJW
 
-Maybe the better idea would be to have a per-mutex spinlock? or even
-better, given that the task->rt_priority have a finite range maybe each
-mutex can have a table of sleeper lists indexed by rt_priority?
-
-
-Vadim
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,62 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264977AbTFLUHu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 16:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264978AbTFLUHt
+	id S264973AbTFLUGj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 16:06:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264977AbTFLUGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 16:07:49 -0400
-Received: from devil.servak.biz ([209.124.81.2]:51649 "EHLO devil.servak.biz")
-	by vger.kernel.org with ESMTP id S264977AbTFLUHs (ORCPT
+	Thu, 12 Jun 2003 16:06:35 -0400
+Received: from fed1mtao01.cox.net ([68.6.19.244]:6647 "EHLO fed1mtao01.cox.net")
+	by vger.kernel.org with ESMTP id S264973AbTFLUGc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 16:07:48 -0400
-Subject: Re: SBP2 hotplug doesn't update /proc/partitions
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Ben Collins <bcollins@debian.org>
-Cc: Andrew Morton <akpm@digeo.com>,
-       linux firewire devel <linux1394-devel@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1055446080.3480.291.camel@torrey.et.myrio.com>
-References: <1054770509.1198.79.camel@torrey.et.myrio.com>
-	 <3EDE870C.1EFA566C@digeo.com>
-	 <1054838369.1737.11.camel@torrey.et.myrio.com>
-	 <20030605175412.GF625@phunnypharm.org>
-	 <1054858724.3519.19.camel@torrey.et.myrio.com>
-	 <20030606025721.GJ625@phunnypharm.org>
-	 <1055446080.3480.291.camel@torrey.et.myrio.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1055449280.1789.28.camel@torrey.et.myrio.com>
+	Thu, 12 Jun 2003 16:06:32 -0400
+Date: Thu, 12 Jun 2003 13:20:01 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: linux-kernel@vger.kernel.org
+Cc: rmk@arm.linux.org.uk
+Subject: [PATCH] early_port_register
+Message-ID: <20030612132001.A4693@home.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 12 Jun 2003 13:21:21 -0700
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - devil.servak.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - arnor.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is perhaps a related problem:  I just noticed that if I have a
-firewire drive plugged in at boot, the SBP2 driver detects it during
-boot:
+Linus, please apply.
 
-ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[10]  MMIO=[e8201000-e82017ff]  Max Packet=[2048]
-scsi0 : SCSI emulation for IEEE-1394 SBP-2 Devices
-ieee1394: sbp2: Logged into SBP-2 device
-ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
-  Vendor: Maxtor 4  Model: A250J8            Rev:     
-  Type:   Direct-Access                      ANSI SCSI revision: 06
-ieee1394: Node added: ID:BUS[0-00:1023]  GUID[0004830000002cb3]
-ieee1394: Host added: ID:BUS[0-01:1023]  GUID[0040630000001c47]
+This has been discussed in a previous thread originated by David
+Mosberger.  This removed early_serial_setup() in favor of  a
+working early_port_register() call.  Many PPC systems rely on
+this functionality and are currently hacking around it in the
+PPC devel tree.  Last I looked, IA64 still had this in their
+devel tree too.
 
-But, the drive itself (/dev/sda) and any partitions on it don't show up
-in /proc/partitions until I mount one of them or perform some sort of
-other access to the drive, like running fdisk on it.  
+-Matt
 
-To me, this seems to be a bug.  Or is it actually by design?
-
--- 
-Torrey Hoffman <thoffman@arnor.net>
-
+===== drivers/serial/8250.c 1.32 vs edited =====
+--- 1.32/drivers/serial/8250.c	Thu Jun  5 23:36:47 2003
++++ edited/drivers/serial/8250.c	Thu Jun 12 11:43:54 2003
+@@ -2061,9 +2061,15 @@
+ 	return __register_serial(req, -1);
+ }
+ 
+-int __init early_serial_setup(struct serial_struct *req)
++int __init early_register_port(struct uart_port *port)
+ {
+-	__register_serial(req, req->line);
++	if (port->line >= ARRAY_SIZE(serial8250_ports))
++		return -ENODEV;
++
++	serial8250_isa_init_ports();    /* force ISA defaults */
++	serial8250_ports[port->line].port = *port;
++	serial8250_ports[port->line].port.ops = &serial8250_pops;
++
+ 	return 0;
+ }
+ 
+===== include/linux/serial.h 1.8 vs edited =====
+--- 1.8/include/linux/serial.h	Sun Feb 16 12:59:58 2003
++++ edited/include/linux/serial.h	Thu Jun 12 11:43:59 2003
+@@ -180,8 +180,10 @@
+ extern int register_serial(struct serial_struct *req);
+ extern void unregister_serial(int line);
+ 
++struct uart_port;
++
+ /* Allow complicated architectures to specify rs_table[] at run time */
+-extern int early_serial_setup(struct serial_struct *req);
++extern int early_register_port(struct uart_port *port);
+ 
+ #ifdef CONFIG_ACPI
+ /* tty ports reserved for the ACPI serial console port and debug port */

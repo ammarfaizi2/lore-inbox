@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263539AbTK1XSM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 18:18:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263541AbTK1XSL
+	id S263564AbTK1XlS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 18:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTK1XlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 18:18:11 -0500
-Received: from smtp2.home.se ([213.214.194.102]:17310 "EHLO smtp2.home.se")
-	by vger.kernel.org with ESMTP id S263539AbTK1XSK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 18:18:10 -0500
-Subject: Re: Kernel oops
-From: "Ville Jutvik" <ville.jutvik@home.se>
-To: anderson@skyweb.co.ke
-CC: linux-kernel@vger.kernel.org
-Date: Sat, 29 Nov 2003 00:15:42 +0100
-X-Mailer: NetMail ModWeb Module
+	Fri, 28 Nov 2003 18:41:18 -0500
+Received: from chaos.sr.unh.edu ([132.177.249.105]:1952 "EHLO chaos.sr.unh.edu")
+	by vger.kernel.org with ESMTP id S263564AbTK1XlR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 18:41:17 -0500
+Date: Fri, 28 Nov 2003 18:40:32 -0500 (EST)
+From: Kai Germaschewski <kai.germaschewski@unh.edu>
+X-X-Sender: kai@chaos.sr.unh.edu
+To: Valdis.Kletnieks@vt.edu
+cc: Tonnerre Anklin <thunder@keepsake.ch>,
+       Werner Cornelius <werner@isdn4linux.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [I4L] hfcpci missing MODULE_LICENSE 
+In-Reply-To: <200311280322.hAS3M602016305@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.44.0311281838330.22654-100000@chaos.sr.unh.edu>
 MIME-Version: 1.0
-Message-ID: <1070061342.5e936be0ville.jutvik@home.se>
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Thu, 27 Nov 2003 Valdis.Kletnieks@vt.edu wrote:
 
-I don't know what is causing your problems, but I can give you an advice or two.
+> which says: "I guess the license is meant to be GPL."  And so it was almost
+> certainly intended to be.
+> 
+> > +MODULE_LICENSE("GPL");
+> >  MODULE_AUTHOR("Kai Germaschewski <kai.germaschewski@gmx.de>/Werner Cornelius <werner@isdn4linux.de>");
+> 
+> 
+> Unfortunately, neither you nor I nor anybody but Kai or Werner (or their
+> assignees) can do this, as I understand the law.  The only proper resolutions
+> here are to get one of them to make some sort of statement (I suspect even a
+> "Yea, it's GPL, we just forgot the macro" e-mail from one of them would be good
+> enough), or to pull the code out of the 2.6.0 tree till it *is* resolved.
 
-* 2.4.21 isn't the lastest stable kernel - try upgrading to 2.4.22 and see if your problems clear.
+Yes, it's GPL, it actually even says so in the comment at the beginning of 
+the file. It's based on Werner's original driver which was GPL, and the 
+work I contributed to the Linux kernel is GPL too, of course.
 
-* Your hardware may be causing you trouble. Try inserting other memory-modules etc.
+--Kai
 
-I wish you good luck!
-
-Best regards,
-Ville Jutvikr själva.
-
-Äldre kvinnor är erfarna. De vet att efter 12 bärs kan det finnas vissa
-svårigheter med att få upp den. Yngre kvinnor kan behöva lite tid att
-greppa
-detta faktum och du får ägna resten av natten åt att massera hennes ego med
-kärleksförklaringar.
-
-En äldre kvinna har många väninnor, och de flesta av dem vill jättegärna
-ligga med dig om du s
 

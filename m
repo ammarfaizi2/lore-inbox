@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281599AbRKVUZA>; Thu, 22 Nov 2001 15:25:00 -0500
+	id <S281648AbRKVUav>; Thu, 22 Nov 2001 15:30:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281609AbRKVUYk>; Thu, 22 Nov 2001 15:24:40 -0500
-Received: from chunnel.redhat.com ([199.183.24.220]:17391 "EHLO
+	id <S281609AbRKVUal>; Thu, 22 Nov 2001 15:30:41 -0500
+Received: from chunnel.redhat.com ([199.183.24.220]:17647 "EHLO
 	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S281599AbRKVUYf>; Thu, 22 Nov 2001 15:24:35 -0500
-Date: Thu, 22 Nov 2001 20:24:32 +0000
+	id <S281648AbRKVUaW>; Thu, 22 Nov 2001 15:30:22 -0500
+Date: Thu, 22 Nov 2001 20:30:00 +0000
 From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Gavin Baker <gavbaker@ntlworld.com>
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: 2.4.13-ac7 ext3 OOPS
-Message-ID: <20011122202432.A11821@redhat.com>
-In-Reply-To: <20011118205039.A3208@box.penguin.power>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Joel Beach <joelbeach@optushome.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Maximum (efficient) partition sizes for various filesystem types...
+Message-ID: <20011122203000.B11821@redhat.com>
+In-Reply-To: <001401c170d3$ea40cc10$1e50a8c0@kinslayer> <E165lCN-00061N-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011118205039.A3208@box.penguin.power>; from gavbaker@ntlworld.com on Sun, Nov 18, 2001 at 08:50:39PM +0000
+In-Reply-To: <E165lCN-00061N-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Nov 19, 2001 at 09:58:43AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Sun, Nov 18, 2001 at 08:50:39PM +0000, Gavin Baker wrote:
-> A seemingly random OOPS while using netscape. 2.4.13-ac7 with preempt patches on a RH7.2 laptop.
- 
-> Nov 18 13:12:45 n-files kernel: EIP:    0010:[get_hash_table+107/208]    Not tainted
+On Mon, Nov 19, 2001 at 09:58:43AM +0000, Alan Cox wrote:
+> > For instance, the Debian guide says that, due to Ext2 efficiency, partitions
+> > greater than 6-7GB shouldn't be created. Is this true for Ext3/ReiserFS.
+> 
+> I've run several 45-200Gb ext2 and ext3 partitions with no problem. I'm not
+> sure what the origin of the Debian guide comemnt is but I've never heard
+> it from an ext2 developer
 
-get_hash_table oopses are almost always caused by bad memory.  For
-some reason, the buffer cache hashes are peculiarly sensitive to
-corruptions.
+The largest filesystem I use with ext3 at the moment is 40GB, and it
+is 98% full and is used *constantly* (it contains my main build
+trees).  I'm not sure where the 6-7GB limit idea comes from but I've
+got very few filesystems smaller than that, and they are still all
+ext3.
 
-> Nov 18 13:12:45 n-files kernel: eax: c1430000   ebx: ffffffff   ecx: 00000002   edx: 00003859
-
-It's not enough to be conclusive, but the other common footprint of
-random memory corruption is register dumps containing a value which is
-all-zeroes except for one flipped bit, like your 0x00000002 value in
-%ecx.
-
-Let me know if you can reproduce this, but in the absense of any other
-pattern, bad memory is the most likely cause for now.
-
---Stephen
+Cheers,
+ Stephen

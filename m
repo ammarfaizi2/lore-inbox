@@ -1,70 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132421AbRDJMk4>; Tue, 10 Apr 2001 08:40:56 -0400
+	id <S131666AbRDJMlt>; Tue, 10 Apr 2001 08:41:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131643AbRDJMei>; Tue, 10 Apr 2001 08:34:38 -0400
-Received: from cogent.ecohler.net ([216.135.202.106]:61629 "EHLO
-	cogent.ecohler.net") by vger.kernel.org with ESMTP
-	id <S131654AbRDJMd6>; Tue, 10 Apr 2001 08:33:58 -0400
-Date: Tue, 10 Apr 2001 08:33:40 -0400
-From: lists@sapience.com
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx and newer kernels
-Message-ID: <20010410083340.A16601@sapience.com>
-In-Reply-To: <20010408001132.A28840@sapience.com> <200104092119.f39LJts17813@aslan.scsiguy.com>
+	id <S131691AbRDJMlL>; Tue, 10 Apr 2001 08:41:11 -0400
+Received: from ns.suse.de ([213.95.15.193]:56329 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131666AbRDJMhy>;
+	Tue, 10 Apr 2001 08:37:54 -0400
+Date: Tue, 10 Apr 2001 14:37:52 +0200
+From: Andi Kleen <ak@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andi Kleen <ak@suse.de>, Mark Salisbury <mbs@mc.com>,
+        Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: No 100 HZ timer !
+Message-ID: <20010410143752.A16120@gruyere.muc.suse.de>
+In-Reply-To: <20010410143216.A15880@gruyere.muc.suse.de> <E14mxNm-0004BT-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <200104092119.f39LJts17813@aslan.scsiguy.com>; from gibbs@scsiguy.com on Mon, Apr 09, 2001 at 03:19:55PM -0600
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14mxNm-0004BT-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 10, 2001 at 01:36:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Justin:
-
-Ya think very buggy? I checked seagate web page and 
-unfortunately was unable to find any firmware updates
-for the barracuda drives.
-
-Curious tho that this has worked flawlessly for well over a 
-year with all prior version of linux and win2000 as well.  
-Also a few other folks seem to have similar problems with 
-newer kernels. 
-
-Do the newer drivers put a bigger demand on the drives that 
-might start to uncover the problems previously not seen? 
-
-I did find newer firmware for the adaptec 2940u2w card 
-tho so perhaps I should upgrade that?
-
-I will try turning off write cache - kernel config option right?
-
-Will report back.
-
-Thanks for your help - it sure would be nice to be able to
-run with the newer kernels again!
-
-Regards,
-
-
-Gene/
-
-On Mon, Apr 09, 2001 at 03:19:55PM -0600, Justin T. Gibbs wrote:
-> >Apr  7 19:56:13 snap kernel:   Vendor: SEAGATE   Model: ST318275LW        Rev:
-> > 0001
+On Tue, Apr 10, 2001 at 01:36:27PM +0100, Alan Cox wrote:
+> > It's also all interrupts, not only syscalls, and also context switch if you
+> > want to be accurate.
 > 
-> I seem to recall this being a very buggy firmware version.  You should
-> check with Seagate to see if they have something new.  If this is the
-> firmware I'm thinking of, the driver should perform correctly if you
-> disable write caching.  You can do this via the SCSI-Select menu for
-> the controller.
-> 
-> --
-> Justin
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> We dont need to be that accurate. Our sample rate is currently so low the
+> data is worthless anyway
+
+Just without checking on context switch you would lose the information of per pid
+system/user/total that is currently collected completely.
+
+-Andi

@@ -1,111 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262814AbUJ1Gj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262811AbUJ1GnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262814AbUJ1Gj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 02:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbUJ1GgU
+	id S262811AbUJ1GnX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 02:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbUJ1GnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 02:36:20 -0400
-Received: from [192.55.52.67] ([192.55.52.67]:57295 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262870AbUJ1GbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 02:31:24 -0400
-Subject: Re: [PATCH 3/5]add .match method for ACPI
-From: Len Brown <len.brown@intel.com>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Adam Belay <ambx1@neo.rr.com>,
-       Matthieu <castet.matthieu@free.fr>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>
-In-Reply-To: <1098327565.6132.224.camel@sli10-desk.sh.intel.com>
-References: <1098327565.6132.224.camel@sli10-desk.sh.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1098945067.5403.4.camel@d845pe>
+	Thu, 28 Oct 2004 02:43:19 -0400
+Received: from colino.net ([213.41.131.56]:58621 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S262811AbUJ1Ghk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 02:37:40 -0400
+Date: Thu, 28 Oct 2004 08:37:16 +0200
+From: Colin Leroy <colin@colino.net>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] usb: don't spit out too much errors with suspended
+ devices
+Message-ID: <20041028083716.5ab62064.colin@colino.net>
+In-Reply-To: <200410271613.56201.david-b@pacbell.net>
+References: <20041026172843.6ac07c1a.colin@colino.net>
+	<200410260905.14869.david-b@pacbell.net>
+	<20041027091925.56d31d91.colin@colino.net>
+	<200410271613.56201.david-b@pacbell.net>
+X-Mailer: Sylpheed-Claws 0.9.12cvs132.1 (GTK+ 2.4.0; i686-redhat-linux-gnu)
+X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 28 Oct 2004 02:31:07 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Applied,
+On 27 Oct 2004 at 16h10, David Brownell wrote:
 
-thanks,
--Len
+Hi, 
 
-On Wed, 2004-10-20 at 22:59, Li Shaohua wrote:
-> Hi,
-> The idea of the patch is from Bruno Ducrot <ducrot@poupinou.org>'s
-> ACPI
-> video extension patch. Since the video extension patch hasn't been
-> merged and the ACPI PNP driver requires it, I attached it here.
-> 
-> Thanks,
-> Shaohua
-> 
-> --- 2.6/drivers/acpi/scan.c.stg4        2004-10-18 16:49:57.926042680
-> +0800
-> +++ 2.6/drivers/acpi/scan.c     2004-10-18 16:57:30.572230000 +0800
-> @@ -161,7 +161,7 @@ acpi_bus_get_power_flags (
->         return 0;
->  }
-> 
-> -static int
-> +int
->  acpi_match_ids (
->         struct acpi_device      *device,
->         char                    *ids)
-> @@ -314,6 +314,8 @@ acpi_bus_match (
->         struct acpi_device      *device,
->         struct acpi_driver      *driver)
->  {
-> +       if (driver && driver->ops.match)
-> +               return driver->ops.match(device, driver);
->         return acpi_match_ids(device, driver->ids);
->  }
-> 
-> @@ -495,9 +497,6 @@ acpi_bus_find_driver (
-> 
->         ACPI_FUNCTION_TRACE("acpi_bus_find_driver");
-> 
-> -       if (!device->flags.hardware_id &&
-> !device->flags.compatible_ids)
-> -               goto Done;
-> -
->         spin_lock(&acpi_device_lock);
->         list_for_each_safe(node,next,&acpi_bus_drivers) {
->                 struct acpi_driver * driver = container_of(node,struct
-> acpi_driver,node);
-> --- 2.6/include/acpi/acpi_bus.h.stg4    2004-10-18 16:50:31.522935176
-> +0800
-> +++ 2.6/include/acpi/acpi_bus.h 2004-10-18 16:55:11.474376088 +0800
-> @@ -104,6 +104,8 @@ typedef int (*acpi_op_suspend)      (struct a
->  typedef int (*acpi_op_resume)  (struct acpi_device *device, int
-> state);
->  typedef int (*acpi_op_scan)    (struct acpi_device *device);
->  typedef int (*acpi_op_bind)    (struct acpi_device *device);
-> +typedef int (*acpi_op_match)   (struct acpi_device *device,
-> +       struct acpi_driver *driver);
-> 
->  struct acpi_device_ops {
->         acpi_op_add             add;
-> @@ -115,6 +117,7 @@ struct acpi_device_ops {
->         acpi_op_resume          resume;
->         acpi_op_scan            scan;
->         acpi_op_bind            bind;
-> +       acpi_op_match           match;
->  };
-> 
->  struct acpi_driver {
-> @@ -322,6 +325,7 @@ int acpi_bus_receive_event (struct acpi_
->  int acpi_bus_register_driver (struct acpi_driver *driver);
->  int acpi_bus_unregister_driver (struct acpi_driver *driver);
-> 
-> +int acpi_match_ids (struct acpi_device *device, char   *ids);
->  int acpi_create_dir(struct acpi_device *);
->  void acpi_remove_dir(struct acpi_device *);
-> 
-> 
-> 
-> 
+> The "message.c" part is fine, but the usbfs/devio change
+> only tests one of several paths for device access.  (My
+> first whack at this only covered a different one!)  Can
+> you verify this one instead?
 
+I'll do; I'll get back to you next week probably, because
+I'll be busy this week-end, and I'm avoiding 2.6.10-rc1 until
+ppc fixes go in: Citing Benjamin Herrenschmidt:
+
+> Well, I'd suggest not running that kernel until paul's signal fix gets
+> in, there is a FP register corruption in there... There are other issues
+> with 2.6.10 currently, so it's not really a good kernel to play with for
+> now.
+
+-- 
+Colin

@@ -1,185 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264942AbTFVLdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 07:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264956AbTFVLdJ
+	id S264991AbTFVLgM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 07:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265016AbTFVLgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 07:33:09 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:18703 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264942AbTFVLc7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 07:32:59 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Ishikawa <ishikawa@yk.rim.or.jp>
-Subject: Re: Warning messages during compilation of 2.4.21. (5 files)
-Date: Sun, 22 Jun 2003 13:47:01 +0200
-User-Agent: KMail/1.5.2
-References: <3EF4B98D.33A55CD1@yk.rim.or.jp>
-In-Reply-To: <3EF4B98D.33A55CD1@yk.rim.or.jp>
-MIME-Version: 1.0
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200306221343.26884.fsdeveloper@yahoo.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Sun, 22 Jun 2003 07:36:11 -0400
+Received: from cpt-dial-196-30-179-204.mweb.co.za ([196.30.179.204]:51328 "EHLO
+	nosferatu.lan") by vger.kernel.org with ESMTP id S264992AbTFVLfw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 07:35:52 -0400
+Subject: Re: Which driver for the 3C940 / 3C2000?
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: KML <linux-kernel@vger.kernel.org>
+Cc: karim@opersys.com
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aM9QsweQXg995av0G9Yo"
+Organization: 
+Message-Id: <1056282620.5490.9.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4- 
+Date: 22 Jun 2003 13:50:21 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Saturday 21 June 2003 22:01, Ishikawa wrote:
-> Hi,
+--=-aM9QsweQXg995av0G9Yo
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Hi.
+Hi
 
-[SNIP]
-> [1] /usr/src/linux/drivers/char/agp/agpgart_be.c
-> ;;;MODULE_AUTHOR("Jeff Hartmann <jhartmann@precisioninsight.com>");
->
->
-> agpgart_be.c: In function `agp_generic_create_gatt_table':
-> agpgart_be.c:580: warning: assignment from incompatible pointer type
-> agpgart_be.c: In function `amd_create_gatt_table':
-> agpgart_be.c:2453: warning: assignment from incompatible pointer type
-> agpgart_be.c:2454: warning: assignment from incompatible pointer type
-> agpgart_be.c: In function `amd_free_gatt_table':
-> agpgart_be.c:2480: warning: assignment from incompatible pointer type
-> agpgart_be.c:2481: warning: assignment from incompatible pointer type
->
-> There are three chunks. I will investigate this in turn.
-> (All of them seem to be fixed by (void *) cast on the Right-Hand-Side
-> of assignments.)
->
-> []  agpgart_be.c:580: warning: assignment from incompatible pointer type
->
-> 	char *table;
->            ...
-> 580 -->	agp_bridge.gatt_table_real = (unsigned long *) table;
-> 	agp_gatt_table = (void *)table;
+Karim wrote:
+> Jurgen Kramer wrote:
+>  > I am a bit confused about which driver a need for my onboard (Asus
+>  > P4C800 mobo) 3Com gigabit Ethernet controller. It should be a 3C940 bu=
+t
+>  > sometimes it's called 3C2000. I found a driver at the asus site which
+>  > compiles and works with some kernel versions. Is there a proper (open
+>  > source) kernel driver for this chip? It seems that the tg3 driver
+>  > support some type of 3C940 but not mine.
+>  >
+>  > lspci -n gives:
+>  >
+>  > 02:05.0 Class 0200: 10b7:1700 (rev 12)
+>  >
+>  > This chip is also currently not defined in pci_ids.h (2.4 and 2.5)
+>=20
+> I've got a P4C800DX-2.4GH-HT and have run into similar issues. I tried
 
+I have similar setup.
 
-agp_bridge.gatt_table_real = (u32*)table;
-u32* casts seem to be more correct to me.
-I haven't tested it.
+> using the 3C2000 driver shipped by ASUS on their "driver" CD, but that wa=
+s
+> a weird experience. The driver built and installed fine with the SMP
+> kernel shipped with RedHat9. HOWEVER ... I could browse some web sites
+> and not others (I'm still trying to figure out how this could be ...)
+> Somehow, I could point konqueror to slashdot.org, kernel.org, motorola.co=
+m,
+> yahoo.com, lwn.net, etc. and see the pages, but I was unable to visit int=
+el.com,
+> google.com, or amazon.com. I couldn't imagine this being a driver problem=
+, so I
+> tried all sorts of different things, but still had this weird behavior. F=
+inally, I
+> decided to put an 8139 with the same config, and that worked right away .=
+.. !?!
+>
 
-[SNIP]
->
-> ---
->
-> The following files keyboard.c and vt.c
-> produce warnings in a somewhat convinced manner in that
-> the warning is produced by explicit checking of
-> argument values: however as it stands, the
-> checking always produce TRUE or FALSE, a compile-time
-> constant, so to speak.
->
-> [2] /usr/src/linux/drivers/char/keyboard.c
->
-> keyboard.c: In function `do_fn':
-> keyboard.c:644: warning: comparison is always true due to limited range
-> of data type
->
-> static void do_fn(unsigned char value, char up_flag)
-> {
-> 	if (up_flag)
-> 		return;
-> --->	if (value < SIZE(func_table)) {
-> 		if (func_table[value])
-> 			puts_queue(func_table[value]);
-> 	} else
-> 		printk(KERN_ERR "do_fn called with value=%d\n", value);
-> }
->
-> SIZE is a macro to return the size of an array.
->
-> The size of func_table is MAX_NR_FUNC.
->
-> cd /usr/src/linux/drivers/char/
-> grep -n	 -e func_table *.[ch] /dev/null
-> defkeymap.c:191:char *func_table[MAX_NR_FUNC] = {
-> 		     ...
->
->
-> MAX_NR_FUNC is defined to be 256.
-> cd /usr/src/linux/include/linux/
-> grep -n	 -e NR_FUNC *.h /dev/null
-> kbd_kern.h:11:extern char *func_table[MAX_NR_FUNC];
-> keyboard.h:32:#define MAX_NR_FUNC	256	/* max nr of strings assigned to
-> keys */
->
-> So the confition inside if() is always TRUE as it stands.
->
-> Solution: see below for solution to [3].
->
-> [3] /usr/src/linux/drivers/char/vt.c
->
-> vt.c: In function `do_kdsk_ioctl':
-> vt.c:166: warning: comparison is always false due to limited range of
-> data type
-> vt.c: In function `do_kdgkb_ioctl':
-> vt.c:283: warning: comparison is always false due to limited range of
-> data type
->
->     #define i (tmp.kb_index)
->     #define s (tmp.kb_table)
->     #define v (tmp.kb_value)
->
-> 166:
-> -->    	if (i >= NR_KEYS || s >= MAX_NR_KEYMAPS)
-> 	    	return -EINVAL;
->
-> 283:
-> 	if (tmp.kb_func >= MAX_NR_FUNC)
-> 		return -EINVAL;
->
-> NR_KEYS is defined as 128.
-> keyboard.h:18:#define NR_KEYS		128
-> keyboard.h:28:extern unsigned short plain_map[NR_KEYS];
->
-> Solution :
->
-> I observe the desire to check the parameter value,
-> whic probably caused grief in the past.
->
-> Maybe cast the value to an integer value to
-> suppress the warning? It might be a little far-fetched
-> to do so just to suppress warning messages in
-> the compilation log, but I can see that for future
-> qaultiy-assurance of linux kernel efforts, such
-> hand-twisting may be necessary.
->
-> (for example, the line 283 of vt.c could be re-written to
->    int kludge_i; /* to shut up warning */
->
->    if((kludge_i = tmp.kb_func) >= MAX_NR_FUNC)
->        return -EINVAL;
+Ditto
 
-Some days ago, I've also looked over it to find a solution. :)
-But IMHO the kludge_i is far more uglier than the warning.
-What about that:
+> During my research about the 3C2000, I discovered that the driver
+> shipped with the board is actually a variant of the code in
+> drivers/net/sk98lin, with modified printks to display 3Com text instead o=
+f
+> SysKonnect information:
+> ...
 
-if((int)tmp.kb_func >= MAX_NR_FUNC)
-	return -EINVAL;
+Yep, its a SysKonnect chip.
 
-Doesn't it work?
+> And it goes on for CNET and Linksys. Apparently, all these devices rely
+> on the same core. However, a trivial adding of the appropriate vendor ID
+> and device ID to the sk98lin in 2.4.21 resulted in an ooops at load time,
+> so it isn't as straight forward as I would have liked it to be ...
+>=20
+
+Problem is rather that the drivers in the kernel really outdated.
+
+> It'd be nice that the sk98lin driver already in Linux be modified to add
+> support to the 3C940, albeit without the browsing weirdness ...
+>
+
+You can find the latest SysKonnect driver here:
+
+  http://www.syskonnect.de/syskonnect/support/driver/htm/sk98lin.htm
 
 
-> Happy Hacking,
+It is only for 2.2 and 2.4 though.
 
-- --
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 13:26:20 up  3:08,  1 user,  load average: 1.00, 1.00, 1.00
+I have 'ported' the latest version (6.10) and a previous version or two
+to 2.5, but I had similar issues as you .... I could ping the boxen on
+my network, but cannot ssh for instance - basically its as if it only
+do icmp and rarely actually send/receive other data.
+
+I have also mailed SysKonnect, but they told me to speak to 3COM :/
+
+Anyhow, if somebody want my efforts in the 2.5 port to get it working,
+ask.  I however do not have time to struggle with it currently.
+
+
+Regards,
+
+--=20
+
+Martin Schlemmer
+
+
+
+
+--=-aM9QsweQXg995av0G9Yo
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE+9Zc1oxoigfggmSgRAuXqAJ9rO6MGlc5lonIM3oeJPjBZpX+q3wCfWjmZ
-HkE8NZXVBWqVS6TKZ9RKYOs=
-=MICc
+iD8DBQA+9Zf8qburzKaJYLYRAv8PAJ9m1S3xP07YFNiWYdPeJtbnHzfQfACghS95
+yu2OkiiXeVn4NUWmbZwJyHw=
+=Fom1
 -----END PGP SIGNATURE-----
+
+--=-aM9QsweQXg995av0G9Yo--
 

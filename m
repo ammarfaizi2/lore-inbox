@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316830AbSE1Pqc>; Tue, 28 May 2002 11:46:32 -0400
+	id <S316831AbSE1PuK>; Tue, 28 May 2002 11:50:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316831AbSE1Pqb>; Tue, 28 May 2002 11:46:31 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:33457 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S316830AbSE1Pq3>; Tue, 28 May 2002 11:46:29 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        paul.mckenney@us.ibm.com, andrea@suse.de
+	id <S316834AbSE1PuJ>; Tue, 28 May 2002 11:50:09 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:63739 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S316831AbSE1PuI>; Tue, 28 May 2002 11:50:08 -0400
 Subject: Re: 8-CPU (SMP) #s for lockfree rtcache
-In-Reply-To: <20020528171104.D19734@in.ibm.com> <20020528.042514.92633856.davem@redhat.com> <20020528182806.A21303@in.ibm.com> <20020528.054043.06045639.davem@redhat.com>
-From: Andi Kleen <ak@muc.de>
-Date: 28 May 2002 17:45:56 +0200
-Message-ID: <m3bsb06zt7.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Robert Love <rml@tech9.net>
+To: dipankar@in.ibm.com
+Cc: "David S. Miller" <davem@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Paul McKenney <paul.mckenney@us.ibm.com>,
+        Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <20020528182806.A21303@in.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 28 May 2002 08:49:58 -0700
+Message-Id: <1022600998.20317.44.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+On Tue, 2002-05-28 at 05:58, Dipankar Sarma wrote:
 
->    From: Dipankar Sarma <dipankar@in.ibm.com>
->    Date: Tue, 28 May 2002 18:28:06 +0530
->    
->    Well, the last time RCU was discussed, Linus said that he would
->    like to see someplace where RCU clearly helps.
-> 
-> Alexey and I are in firm agreement that the routing cache
-> clearly benefits from RCU.
+> > Thanks, I am convinced RCU is the way to go.
 
-The next obvious benefitor IMHO is module unloading. Just putting 
-a synchronize_kernel() somewhere at the end of sys_delete_modules()
-after the destructor makes module unloading much less nasty than it 
-used to be (yes it doesn't fix all possible module unload races, but a 
-large share of them and it makes the problem much more controllable) 
+I am not. :P
 
--Andi
+> Well, the last time RCU was discussed, Linus said that he would
+> like to see someplace where RCU clearly helps.
+
+I agree the numbers posted are nice, but I remain skeptical like Linus. 
+Sure, the locking overhead is nearly gone in the profiled function where
+RCU is used.  But the overhead has just been _moved_ to wherever the RCU
+work is now done.  Any benchmark needs to include the damage done there,
+too.
+
+I also balk at implicit locking...
+
+	Robert Love
+

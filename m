@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265999AbUGOAVJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266002AbUGOAYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265999AbUGOAVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 20:21:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266073AbUGOAVA
+	id S266002AbUGOAYO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 20:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266048AbUGOAYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 20:21:00 -0400
-Received: from mail.kroah.org ([69.55.234.183]:54763 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265999AbUGOAJH convert rfc822-to-8bit
+	Wed, 14 Jul 2004 20:24:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:55275 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266002AbUGOAJI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 20:09:07 -0400
+	Wed, 14 Jul 2004 20:09:08 -0400
 Subject: Re: [PATCH] I2C update for 2.6.8-rc1
-In-Reply-To: <10898500302358@kroah.com>
+In-Reply-To: <10898500291667@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 14 Jul 2004 17:07:11 -0700
-Message-Id: <10898500311477@kroah.com>
+Date: Wed, 14 Jul 2004 17:07:10 -0700
+Message-Id: <10898500301403@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,104 +22,93 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1784.13.9, 2004/07/09 14:47:50-07:00, khali@linux-fr.org
+ChangeSet 1.1784.13.7, 2004/07/08 16:08:19-07:00, drewie@freemail.hu
 
-[PATCH] I2C: adm1025 driver ported to 2.6
+[PATCH] I2C: Add support for LM77
 
-This is my port of the adm1025 driver to 2.6. It has been tested by a
-few users and reported to work OK.
+This patch (against the current stack) adds support for the
+LM77 sensor chips made by National Semiconductor. Formerly
+this was claimed by the LM75 driver but when I got hold of an
+embedded board (built around the National Geode SC1100 CPU),
+which was equipped with an LM77, it turned out that the two
+chips are not compatible.
 
-Signed-off-by: Jean Delvare <khali at linux-fr dot org>
+It has been developed with help of, reviewed and approved
+by Jean Delvare.
+
+
+Signed-off-by: Andras Bali <drewie@freemail.hu>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/i2c/chips/Kconfig   |   10 
- drivers/i2c/chips/Makefile  |    1 
- drivers/i2c/chips/adm1025.c |  570 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 581 insertions(+)
+ drivers/i2c/chips/Kconfig  |   11 +
+ drivers/i2c/chips/Makefile |    1 
+ drivers/i2c/chips/lm77.c   |  413 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 425 insertions(+)
 
 
 diff -Nru a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
---- a/drivers/i2c/chips/Kconfig	2004-07-14 16:59:39 -07:00
-+++ b/drivers/i2c/chips/Kconfig	2004-07-14 16:59:39 -07:00
-@@ -22,6 +22,16 @@
+--- a/drivers/i2c/chips/Kconfig	2004-07-14 16:59:52 -07:00
++++ b/drivers/i2c/chips/Kconfig	2004-07-14 16:59:52 -07:00
+@@ -99,6 +99,17 @@
  	  This driver can also be built as a module.  If so, the module
- 	  will be called adm1021.
+ 	  will be called lm75.
  
-+config SENSORS_ADM1025
-+	tristate "Analog Devices ADM1025 and compatibles"
++config SENSORS_LM77
++	tristate "National Semiconductor LM77"
 +	depends on I2C && EXPERIMENTAL
 +	select I2C_SENSOR
 +	help
-+	  If you say yes here you get support for Analog Devices ADM1025
-+	  and Philips NE1619 sensor chips.
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called adm1025.
++	  If you say yes here you get support for National Semiconductor LM77
++	  sensor chips.
 +
- config SENSORS_ADM1031
- 	tristate "Analog Devices ADM1031 and compatibles"
++	  This driver can also be built as a module.  If so, the module
++	  will be called lm77.
++
+ config SENSORS_LM78
+ 	tristate "National Semiconductor LM78 and compatibles"
  	depends on I2C && EXPERIMENTAL
 diff -Nru a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
---- a/drivers/i2c/chips/Makefile	2004-07-14 16:59:39 -07:00
-+++ b/drivers/i2c/chips/Makefile	2004-07-14 16:59:39 -07:00
-@@ -8,6 +8,7 @@
- obj-$(CONFIG_SENSORS_W83781D)	+= w83781d.o
- 
- obj-$(CONFIG_SENSORS_ADM1021)	+= adm1021.o
-+obj-$(CONFIG_SENSORS_ADM1025)	+= adm1025.o
- obj-$(CONFIG_SENSORS_ADM1031)	+= adm1031.o
- obj-$(CONFIG_SENSORS_DS1621)	+= ds1621.o
- obj-$(CONFIG_SENSORS_EEPROM)	+= eeprom.o
-diff -Nru a/drivers/i2c/chips/adm1025.c b/drivers/i2c/chips/adm1025.c
+--- a/drivers/i2c/chips/Makefile	2004-07-14 16:59:52 -07:00
++++ b/drivers/i2c/chips/Makefile	2004-07-14 16:59:52 -07:00
+@@ -15,6 +15,7 @@
+ obj-$(CONFIG_SENSORS_GL518SM)	+= gl518sm.o
+ obj-$(CONFIG_SENSORS_IT87)	+= it87.o
+ obj-$(CONFIG_SENSORS_LM75)	+= lm75.o
++obj-$(CONFIG_SENSORS_LM77)	+= lm77.o
+ obj-$(CONFIG_SENSORS_LM78)	+= lm78.o
+ obj-$(CONFIG_SENSORS_LM80)	+= lm80.o
+ obj-$(CONFIG_SENSORS_LM83)	+= lm83.o
+diff -Nru a/drivers/i2c/chips/lm77.c b/drivers/i2c/chips/lm77.c
 --- /dev/null	Wed Dec 31 16:00:00 196900
-+++ b/drivers/i2c/chips/adm1025.c	2004-07-14 16:59:39 -07:00
-@@ -0,0 +1,570 @@
++++ b/drivers/i2c/chips/lm77.c	2004-07-14 16:59:52 -07:00
+@@ -0,0 +1,413 @@
 +/*
-+ * adm1025.c
-+ *
-+ * Copyright (C) 2000       Chen-Yuan Wu <gwu@esoft.com>
-+ * Copyright (C) 2003-2004  Jean Delvare <khali@linux-fr.org>
-+ *
-+ * The ADM1025 is a sensor chip made by Analog Devices. It reports up to 6
-+ * voltages (including its own power source) and up to two temperatures
-+ * (its own plus up to one external one). Voltages are scaled internally
-+ * (which is not the common way) with ratios such that the nominal value
-+ * of each voltage correspond to a register value of 192 (which means a
-+ * resolution of about 0.5% of the nominal value). Temperature values are
-+ * reported with a 1 deg resolution and a 3 deg accuracy. Complete
-+ * datasheet can be obtained from Analog's website at:
-+ *   http://www.analog.com/Analog_Root/productPage/productHome/0,2121,ADM1025,00.html
-+ *
-+ * This driver also supports the ADM1025A, which differs from the ADM1025
-+ * only in that it has "open-drain VID inputs while the ADM1025 has
-+ * on-chip 100k pull-ups on the VID inputs". It doesn't make any
-+ * difference for us.
-+ *
-+ * This driver also supports the NE1619, a sensor chip made by Philips.
-+ * That chip is similar to the ADM1025A, with a few differences. The only
-+ * difference that matters to us is that the NE1619 has only two possible
-+ * addresses while the ADM1025A has a third one. Complete datasheet can be
-+ * obtained from Philips's website at:
-+ *   http://www.semiconductors.philips.com/pip/NE1619DS.html
-+ *
-+ * Since the ADM1025 was the first chipset supported by this driver, most
-+ * comments will refer to this chipset, but are actually general and
-+ * concern all supported chipsets, unless mentioned otherwise.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
++    lm77.c - Part of lm_sensors, Linux kernel modules for hardware
++             monitoring
++
++    Copyright (c) 2004  Andras BALI <drewie@freemail.hu>
++
++    Heavily based on lm75.c by Frodo Looijaard <frodol@dds.nl>.  The LM77
++    is a temperature sensor and thermal window comparator with 0.5 deg
++    resolution made by National Semiconductor.  Complete datasheet can be
++    obtained at their site:
++       http://www.national.com/pf/LM/LM77.html
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
 +
 +#include <linux/config.h>
 +#include <linux/module.h>
@@ -127,353 +116,274 @@ diff -Nru a/drivers/i2c/chips/adm1025.c b/drivers/i2c/chips/adm1025.c
 +#include <linux/slab.h>
 +#include <linux/i2c.h>
 +#include <linux/i2c-sensor.h>
-+#include <linux/i2c-vid.h>
 +
-+/*
-+ * Addresses to scan
-+ * ADM1025 and ADM1025A have three possible addresses: 0x2c, 0x2d and 0x2e.
-+ * NE1619 has two possible addresses: 0x2c and 0x2d.
-+ */
 +
++/* Addresses to scan */
 +static unsigned short normal_i2c[] = { I2C_CLIENT_END };
-+static unsigned short normal_i2c_range[] = { 0x2c, 0x2e, I2C_CLIENT_END };
++static unsigned short normal_i2c_range[] = { 0x48, 0x4b, I2C_CLIENT_END };
 +static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
 +static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
 +
-+/*
-+ * Insmod parameters
-+ */
++/* Insmod parameters */
++SENSORS_INSMOD_1(lm77);
 +
-+SENSORS_INSMOD_2(adm1025, ne1619);
++/* The LM77 registers */
++#define LM77_REG_TEMP		0x00
++#define LM77_REG_CONF		0x01
++#define LM77_REG_TEMP_HYST	0x02
++#define LM77_REG_TEMP_CRIT	0x03
++#define LM77_REG_TEMP_MIN	0x04
++#define LM77_REG_TEMP_MAX	0x05
 +
-+/*
-+ * The ADM1025 registers
-+ */
++/* Each client has this additional data */
++struct lm77_data {
++	struct i2c_client	client;
++	struct semaphore	update_lock;
++	char			valid;
++	unsigned long		last_updated;	/* In jiffies */
++	int			temp_input;	/* Temperatures */
++	int			temp_crit;
++	int			temp_min;
++	int			temp_max;
++	int			temp_hyst;
++	u8			alarms;
++};
 +
-+#define ADM1025_REG_MAN_ID		0x3E
-+#define ADM1025_REG_CHIP_ID 		0x3F
-+#define ADM1025_REG_CONFIG		0x40
-+#define ADM1025_REG_STATUS1		0x41
-+#define ADM1025_REG_STATUS2		0x42
-+#define ADM1025_REG_IN(nr)		(0x20 + (nr))
-+#define ADM1025_REG_IN_MAX(nr)		(0x2B + (nr) * 2)
-+#define ADM1025_REG_IN_MIN(nr)		(0x2C + (nr) * 2)
-+#define ADM1025_REG_TEMP(nr)		(0x26 + (nr))
-+#define ADM1025_REG_TEMP_HIGH(nr)	(0x37 + (nr) * 2)
-+#define ADM1025_REG_TEMP_LOW(nr)	(0x38 + (nr) * 2)
-+#define ADM1025_REG_VID			0x47
-+#define ADM1025_REG_VID4		0x49
++static int lm77_attach_adapter(struct i2c_adapter *adapter);
++static int lm77_detect(struct i2c_adapter *adapter, int address, int kind);
++static void lm77_init_client(struct i2c_client *client);
++static int lm77_detach_client(struct i2c_client *client);
++static u16 lm77_read_value(struct i2c_client *client, u8 reg);
++static int lm77_write_value(struct i2c_client *client, u8 reg, u16 value);
 +
-+/*
-+ * Conversions and various macros
-+ * The ADM1025 uses signed 8-bit values for temperatures.
-+ */
++static struct lm77_data *lm77_update_device(struct device *dev);
 +
-+static int in_scale[6] = { 2500, 2250, 3300, 5000, 12000, 3300 };
 +
-+#define IN_FROM_REG(reg,scale)	(((reg) * (scale) + 96) / 192)
-+#define IN_TO_REG(val,scale)	((val) <= 0 ? 0 : \
-+				 (val) * 192 >= (scale) * 255 ? 255 : \
-+				 ((val) * 192 + (scale)/2) / (scale))
-+
-+#define TEMP_FROM_REG(reg)	((reg) * 1000)
-+#define TEMP_TO_REG(val)	((val) <= -127500 ? -128 : \
-+				 (val) >= 126500 ? 127 : \
-+				 (((val) < 0 ? (val)-500 : (val)+500) / 1000))
-+
-+/*
-+ * Functions declaration
-+ */
-+
-+static int adm1025_attach_adapter(struct i2c_adapter *adapter);
-+static int adm1025_detect(struct i2c_adapter *adapter, int address, int kind);
-+static void adm1025_init_client(struct i2c_client *client);
-+static int adm1025_detach_client(struct i2c_client *client);
-+static struct adm1025_data *adm1025_update_device(struct device *dev);
-+
-+/*
-+ * Driver data (common to all clients)
-+ */
-+
-+static struct i2c_driver adm1025_driver = {
++/* This is the driver that will be inserted */
++static struct i2c_driver lm77_driver = {
 +	.owner		= THIS_MODULE,
-+	.name		= "adm1025",
-+	.id		= I2C_DRIVERID_ADM1025,
++	.name		= "lm77",
 +	.flags		= I2C_DF_NOTIFY,
-+	.attach_adapter	= adm1025_attach_adapter,
-+	.detach_client	= adm1025_detach_client,
++	.attach_adapter = lm77_attach_adapter,
++	.detach_client	= lm77_detach_client,
 +};
 +
-+/*
-+ * Client data (each client gets its own)
-+ */
++static int lm77_id = 0;
 +
-+struct adm1025_data {
-+	struct i2c_client client;
-+	struct semaphore update_lock;
-+	char valid; /* zero until following fields are valid */
-+	unsigned long last_updated; /* in jiffies */
++/* straight from the datasheet */
++#define LM77_TEMP_MIN (-55000)
++#define LM77_TEMP_MAX 125000
 +
-+	u8 in[6];		/* register value */
-+	u8 in_max[6];		/* register value */
-+	u8 in_min[6];		/* register value */
-+	s8 temp[2];		/* register value */
-+	s8 temp_min[2];		/* register value */
-+	s8 temp_max[2];		/* register value */
-+	u16 alarms;		/* register values, combined */
-+	u8 vid;			/* register values, combined */
-+	u8 vrm;
-+};
-+
-+/*
-+ * Internal variables
-+ */
-+
-+static int adm1025_id = 0;
-+
-+/*
-+ * Sysfs stuff
-+ */
-+
-+#define show_in(offset) \
-+static ssize_t show_in##offset(struct device *dev, char *buf) \
-+{ \
-+	struct adm1025_data *data = adm1025_update_device(dev); \
-+	return sprintf(buf, "%u\n", IN_FROM_REG(data->in[offset], \
-+		       in_scale[offset])); \
-+} \
-+static ssize_t show_in##offset##_min(struct device *dev, char *buf) \
-+{ \
-+	struct adm1025_data *data = adm1025_update_device(dev); \
-+	return sprintf(buf, "%u\n", IN_FROM_REG(data->in_min[offset], \
-+		       in_scale[offset])); \
-+} \
-+static ssize_t show_in##offset##_max(struct device *dev, char *buf) \
-+{ \
-+	struct adm1025_data *data = adm1025_update_device(dev); \
-+	return sprintf(buf, "%u\n", IN_FROM_REG(data->in_max[offset], \
-+		       in_scale[offset])); \
-+} \
-+static DEVICE_ATTR(in##offset##_input, S_IRUGO, show_in##offset, NULL);
-+show_in(0);
-+show_in(1);
-+show_in(2);
-+show_in(3);
-+show_in(4);
-+show_in(5);
-+
-+#define show_temp(offset) \
-+static ssize_t show_temp##offset(struct device *dev, char *buf) \
-+{ \
-+	struct adm1025_data *data = adm1025_update_device(dev); \
-+	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp[offset-1])); \
-+} \
-+static ssize_t show_temp##offset##_min(struct device *dev, char *buf) \
-+{ \
-+	struct adm1025_data *data = adm1025_update_device(dev); \
-+	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_min[offset-1])); \
-+} \
-+static ssize_t show_temp##offset##_max(struct device *dev, char *buf) \
-+{ \
-+	struct adm1025_data *data = adm1025_update_device(dev); \
-+	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_max[offset-1])); \
-+}\
-+static DEVICE_ATTR(temp##offset##_input, S_IRUGO, show_temp##offset, NULL);
-+show_temp(1);
-+show_temp(2);
-+
-+#define set_in(offset) \
-+static ssize_t set_in##offset##_min(struct device *dev, const char *buf, \
-+	size_t count) \
-+{ \
-+	struct i2c_client *client = to_i2c_client(dev); \
-+	struct adm1025_data *data = i2c_get_clientdata(client); \
-+	data->in_min[offset] = IN_TO_REG(simple_strtol(buf, NULL, 10), \
-+			       in_scale[offset]); \
-+	i2c_smbus_write_byte_data(client, ADM1025_REG_IN_MIN(offset), \
-+				  data->in_min[offset]); \
-+	return count; \
-+} \
-+static ssize_t set_in##offset##_max(struct device *dev, const char *buf, \
-+	size_t count) \
-+{ \
-+	struct i2c_client *client = to_i2c_client(dev); \
-+	struct adm1025_data *data = i2c_get_clientdata(client); \
-+	data->in_max[offset] = IN_TO_REG(simple_strtol(buf, NULL, 10), \
-+			       in_scale[offset]); \
-+	i2c_smbus_write_byte_data(client, ADM1025_REG_IN_MAX(offset), \
-+				  data->in_max[offset]); \
-+	return count; \
-+} \
-+static DEVICE_ATTR(in##offset##_min, S_IWUSR | S_IRUGO, \
-+	show_in##offset##_min, set_in##offset##_min); \
-+static DEVICE_ATTR(in##offset##_max, S_IWUSR | S_IRUGO, \
-+	show_in##offset##_max, set_in##offset##_max);
-+set_in(0);
-+set_in(1);
-+set_in(2);
-+set_in(3);
-+set_in(4);
-+set_in(5);
-+
-+#define set_temp(offset) \
-+static ssize_t set_temp##offset##_min(struct device *dev, const char *buf, \
-+	size_t count) \
-+{ \
-+	struct i2c_client *client = to_i2c_client(dev); \
-+	struct adm1025_data *data = i2c_get_clientdata(client); \
-+	data->temp_min[offset-1] = TEMP_TO_REG(simple_strtol(buf, NULL, 10)); \
-+	i2c_smbus_write_byte_data(client, ADM1025_REG_TEMP_LOW(offset-1), \
-+				  data->temp_min[offset-1]); \
-+	return count; \
-+} \
-+static ssize_t set_temp##offset##_max(struct device *dev, const char *buf, \
-+	size_t count) \
-+{ \
-+	struct i2c_client *client = to_i2c_client(dev); \
-+	struct adm1025_data *data = i2c_get_clientdata(client); \
-+	data->temp_max[offset-1] = TEMP_TO_REG(simple_strtol(buf, NULL, 10)); \
-+	i2c_smbus_write_byte_data(client, ADM1025_REG_TEMP_HIGH(offset-1), \
-+				  data->temp_max[offset-1]); \
-+	return count; \
-+} \
-+static DEVICE_ATTR(temp##offset##_min, S_IWUSR | S_IRUGO, \
-+	show_temp##offset##_min, set_temp##offset##_min); \
-+static DEVICE_ATTR(temp##offset##_max, S_IWUSR | S_IRUGO, \
-+	show_temp##offset##_max, set_temp##offset##_max);
-+set_temp(1);
-+set_temp(2);
-+
-+static ssize_t show_alarms(struct device *dev, char *buf)
++/* In the temperature registers, the low 3 bits are not part of the
++   temperature values; they are the status bits. */
++static inline u16 LM77_TEMP_TO_REG(int temp)
 +{
-+	struct adm1025_data *data = adm1025_update_device(dev);
-+	return sprintf(buf, "%u\n", data->alarms);
++	int ntemp = SENSORS_LIMIT(temp, LM77_TEMP_MIN, LM77_TEMP_MAX);
++	return (u16)((ntemp / 500) * 8);
 +}
-+static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
 +
-+static ssize_t show_vid(struct device *dev, char *buf)
++static inline int LM77_TEMP_FROM_REG(u16 reg)
 +{
-+	struct adm1025_data *data = adm1025_update_device(dev);
-+	return sprintf(buf, "%u\n", vid_from_reg(data->vid, data->vrm));
++	return ((int)reg / 8) * 500;
 +}
-+static DEVICE_ATTR(in1_ref, S_IRUGO, show_vid, NULL);
 +
-+static ssize_t show_vrm(struct device *dev, char *buf)
-+{
-+	struct adm1025_data *data = adm1025_update_device(dev);
-+	return sprintf(buf, "%u\n", data->vrm);
++/* sysfs stuff */
++
++/* read routines for temperature limits */
++#define show(value)	\
++static ssize_t show_##value(struct device *dev, char *buf)	\
++{								\
++	struct lm77_data *data = lm77_update_device(dev);	\
++	return sprintf(buf, "%d\n", data->value);		\
 +}
-+static ssize_t set_vrm(struct device *dev, const char *buf, size_t count)
++
++show(temp_input);
++show(temp_crit);
++show(temp_min);
++show(temp_max);
++show(alarms);
++
++/* read routines for hysteresis values */
++static ssize_t show_temp_crit_hyst(struct device *dev, char *buf)
++{
++	struct lm77_data *data = lm77_update_device(dev);
++	return sprintf(buf, "%d\n", data->temp_crit - data->temp_hyst);
++}
++static ssize_t show_temp_min_hyst(struct device *dev, char *buf)
++{
++	struct lm77_data *data = lm77_update_device(dev);
++	return sprintf(buf, "%d\n", data->temp_min + data->temp_hyst);
++}
++static ssize_t show_temp_max_hyst(struct device *dev, char *buf)
++{
++	struct lm77_data *data = lm77_update_device(dev);
++	return sprintf(buf, "%d\n", data->temp_max - data->temp_hyst);
++}
++
++/* write routines */
++#define set(value, reg)	\
++static ssize_t set_##value(struct device *dev, const char *buf, size_t count)	\
++{										\
++	struct i2c_client *client = to_i2c_client(dev);				\
++	struct lm77_data *data = i2c_get_clientdata(client);			\
++	data->value = simple_strtoul(buf, NULL, 10);				\
++	lm77_write_value(client, reg, LM77_TEMP_TO_REG(data->value));		\
++	return count;								\
++}
++
++set(temp_min, LM77_REG_TEMP_MIN);
++set(temp_max, LM77_REG_TEMP_MAX);
++
++/* hysteresis is stored as a relative value on the chip, so it has to be
++   converted first */
++static ssize_t set_temp_crit_hyst(struct device *dev, const char *buf, size_t count)
 +{
 +	struct i2c_client *client = to_i2c_client(dev);
-+	struct adm1025_data *data = i2c_get_clientdata(client);
-+	data->vrm = simple_strtoul(buf, NULL, 10);
++	struct lm77_data *data = i2c_get_clientdata(client);
++	data->temp_hyst = data->temp_crit - simple_strtoul(buf, NULL, 10);
++	lm77_write_value(client, LM77_REG_TEMP_HYST,
++			 LM77_TEMP_TO_REG(data->temp_hyst));
 +	return count;
 +}
-+static DEVICE_ATTR(vrm, S_IRUGO | S_IWUSR, show_vrm, set_vrm);
 +
-+/*
-+ * Real code
-+ */
++/* preserve hysteresis when setting T_crit */
++static ssize_t set_temp_crit(struct device *dev, const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lm77_data *data = i2c_get_clientdata(client);
++	int oldcrithyst = data->temp_crit - data->temp_hyst;
++	data->temp_crit = simple_strtoul(buf, NULL, 10);
++	data->temp_hyst = data->temp_crit - oldcrithyst;
++	lm77_write_value(client, LM77_REG_TEMP_CRIT,
++			 LM77_TEMP_TO_REG(data->temp_crit));
++	lm77_write_value(client, LM77_REG_TEMP_HYST,
++			 LM77_TEMP_TO_REG(data->temp_hyst));
++	return count;
++}
 +
-+static int adm1025_attach_adapter(struct i2c_adapter *adapter)
++static DEVICE_ATTR(temp1_input, S_IRUGO,
++		   show_temp_input, NULL);
++static DEVICE_ATTR(temp1_crit, S_IWUSR | S_IRUGO,
++		   show_temp_crit, set_temp_crit);
++static DEVICE_ATTR(temp1_min, S_IWUSR | S_IRUGO,
++		   show_temp_min, set_temp_min);
++static DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO,
++		   show_temp_max, set_temp_max);
++
++static DEVICE_ATTR(temp1_crit_hyst, S_IWUSR | S_IRUGO,
++		   show_temp_crit_hyst, set_temp_crit_hyst);
++static DEVICE_ATTR(temp1_min_hyst, S_IRUGO,
++		   show_temp_min_hyst, NULL);
++static DEVICE_ATTR(temp1_max_hyst, S_IRUGO,
++		   show_temp_max_hyst, NULL);
++
++static DEVICE_ATTR(alarms, S_IRUGO,
++		   show_alarms, NULL);
++
++static int lm77_attach_adapter(struct i2c_adapter *adapter)
 +{
 +	if (!(adapter->class & I2C_CLASS_HWMON))
 +		return 0;
-+	return i2c_detect(adapter, &addr_data, adm1025_detect);
++	return i2c_detect(adapter, &addr_data, lm77_detect);
 +}
 +
-+/*
-+ * The following function does more than just detection. If detection
-+ * succeeds, it also registers the new chip.
-+ */
-+static int adm1025_detect(struct i2c_adapter *adapter, int address, int kind)
++/* This function is called by i2c_detect */
++static int lm77_detect(struct i2c_adapter *adapter, int address, int kind)
 +{
 +	struct i2c_client *new_client;
-+	struct adm1025_data *data;
++	struct lm77_data *data;
 +	int err = 0;
 +	const char *name = "";
-+	u8 config;
 +
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
++				     I2C_FUNC_SMBUS_WORD_DATA))
 +		goto exit;
 +
-+	if (!(data = kmalloc(sizeof(struct adm1025_data), GFP_KERNEL))) {
++	/* OK. For now, we presume we have a valid client. We now create the
++	   client structure, even though we cannot fill it completely yet.
++	   But it allows us to access lm77_{read,write}_value. */
++	if (!(data = kmalloc(sizeof(struct lm77_data), GFP_KERNEL))) {
 +		err = -ENOMEM;
 +		goto exit;
 +	}
-+	memset(data, 0, sizeof(struct adm1025_data));
++	memset(data, 0, sizeof(struct lm77_data));
 +
-+	/* The common I2C client data is placed right before the
-+	   ADM1025-specific data. */
 +	new_client = &data->client;
 +	i2c_set_clientdata(new_client, data);
 +	new_client->addr = address;
 +	new_client->adapter = adapter;
-+	new_client->driver = &adm1025_driver;
++	new_client->driver = &lm77_driver;
 +	new_client->flags = 0;
 +
-+	/*
-+	 * Now we do the remaining detection. A negative kind means that
-+	 * the driver was loaded with no force parameter (default), so we
-+	 * must both detect and identify the chip. A zero kind means that
-+	 * the driver was loaded with the force parameter, the detection
-+	 * step shall be skipped. A positive kind means that the driver
-+	 * was loaded with the force parameter and a given kind of chip is
-+	 * requested, so both the detection and the identification steps
-+	 * are skipped.
-+	 */
-+	config = i2c_smbus_read_byte_data(new_client, ADM1025_REG_CONFIG);
-+	if (kind < 0) { /* detection */
-+		if ((config & 0x80) != 0x00
-+		 || (i2c_smbus_read_byte_data(new_client,
-+		     ADM1025_REG_STATUS1) & 0xC0) != 0x00
-+		 || (i2c_smbus_read_byte_data(new_client,
-+		     ADM1025_REG_STATUS2) & 0xBC) != 0x00) {
-+			dev_dbg(&adapter->dev,
-+				"ADM1025 detection failed at 0x%02x.\n",
-+				address);
++	/* Here comes the remaining detection.  Since the LM77 has no
++	   register dedicated to identification, we have to rely on the
++	   following tricks:
++
++	   1. the high 4 bits represent the sign and thus they should
++	      always be the same
++	   2. the high 3 bits are unused in the configuration register
++	   3. addresses 0x06 and 0x07 return the last read value
++	   4. registers cycling over 8-address boundaries
++
++	   Word-sized registers are high-byte first. */
++	if (kind < 0) {
++		int i, cur, conf, hyst, crit, min, max;
++
++		/* addresses cycling */
++		cur = i2c_smbus_read_word_data(new_client, 0);
++		conf = i2c_smbus_read_byte_data(new_client, 1);
++		hyst = i2c_smbus_read_word_data(new_client, 2);
++		crit = i2c_smbus_read_word_data(new_client, 3);
++		min = i2c_smbus_read_word_data(new_client, 4);
++		max = i2c_smbus_read_word_data(new_client, 5);
++		for (i = 8; i <= 0xff; i += 8)
++			if (i2c_smbus_read_byte_data(new_client, i + 1) != conf
++			    || i2c_smbus_read_word_data(new_client, i + 2) != hyst
++			    || i2c_smbus_read_word_data(new_client, i + 3) != crit
++			    || i2c_smbus_read_word_data(new_client, i + 4) != min
++			    || i2c_smbus_read_word_data(new_client, i + 5) != max)
++				goto exit_free;
++
++		/* sign bits */
++		if (((cur & 0x00f0) != 0xf0 && (cur & 0x00f0) != 0x0)
++		    || ((hyst & 0x00f0) != 0xf0 && (hyst & 0x00f0) != 0x0)
++		    || ((crit & 0x00f0) != 0xf0 && (crit & 0x00f0) != 0x0)
++		    || ((min & 0x00f0) != 0xf0 && (min & 0x00f0) != 0x0)
++		    || ((max & 0x00f0) != 0xf0 && (max & 0x00f0) != 0x0))
 +			goto exit_free;
-+		}
-+	}
 +
-+	if (kind <= 0) { /* identification */
-+		u8 man_id, chip_id;
-+
-+		man_id = i2c_smbus_read_byte_data(new_client,
-+			 ADM1025_REG_MAN_ID);
-+		chip_id = i2c_smbus_read_byte_data(new_client,
-+			  ADM1025_REG_CHIP_ID);
-+		
-+		if (man_id == 0x41) { /* Analog Devices */
-+			if ((chip_id & 0xF0) == 0x20) { /* ADM1025/ADM1025A */
-+				kind = adm1025;
-+			}
-+		} else
-+		if (man_id == 0xA1) { /* Philips */
-+			if (address != 0x2E
-+			 && (chip_id & 0xF0) == 0x20) { /* NE1619 */
-+				kind = ne1619;
-+			}
-+		}
-+
-+		if (kind <= 0) { /* identification failed */
-+			dev_info(&adapter->dev,
-+			    "Unsupported chip (man_id=0x%02X, "
-+			    "chip_id=0x%02X).\n", man_id, chip_id);
++		/* unused bits */
++		if (conf & 0xe0)
 +			goto exit_free;
-+		}
++
++		/* 0x06 and 0x07 return the last read value */
++		cur = i2c_smbus_read_word_data(new_client, 0);
++		if (i2c_smbus_read_word_data(new_client, 6) != cur
++		    || i2c_smbus_read_word_data(new_client, 7) != cur)
++			goto exit_free;
++		hyst = i2c_smbus_read_word_data(new_client, 2);
++		if (i2c_smbus_read_word_data(new_client, 6) != hyst
++		    || i2c_smbus_read_word_data(new_client, 7) != hyst)
++			goto exit_free;
++		min = i2c_smbus_read_word_data(new_client, 4);
++		if (i2c_smbus_read_word_data(new_client, 6) != min
++		    || i2c_smbus_read_word_data(new_client, 7) != min)
++			goto exit_free;
++
 +	}
 +
-+	if (kind == adm1025) {
-+		name = "adm1025";
-+	} else if (kind == ne1619) {
-+		name = "ne1619";
++	/* Determine the chip type - only one kind supported! */
++	if (kind <= 0)
++		kind = lm77;
++
++	if (kind == lm77) {
++		name = "lm77";
 +	}
 +
-+	/* We can fill in the remaining client fields */
++	/* Fill in the remaining client fields and put it into the global list */
 +	strlcpy(new_client->name, name, I2C_NAME_SIZE);
-+	new_client->id = adm1025_id++;
++
++	new_client->id = lm77_id++;
 +	data->valid = 0;
 +	init_MUTEX(&data->update_lock);
 +
@@ -481,42 +391,18 @@ diff -Nru a/drivers/i2c/chips/adm1025.c b/drivers/i2c/chips/adm1025.c
 +	if ((err = i2c_attach_client(new_client)))
 +		goto exit_free;
 +
-+	/* Initialize the ADM1025 chip */
-+	adm1025_init_client(new_client);
++	/* Initialize the LM77 chip */
++	lm77_init_client(new_client);
 +
 +	/* Register sysfs hooks */
-+	device_create_file(&new_client->dev, &dev_attr_in0_input);
-+	device_create_file(&new_client->dev, &dev_attr_in1_input);
-+	device_create_file(&new_client->dev, &dev_attr_in2_input);
-+	device_create_file(&new_client->dev, &dev_attr_in3_input);
-+	device_create_file(&new_client->dev, &dev_attr_in5_input);
-+	device_create_file(&new_client->dev, &dev_attr_in0_min);
-+	device_create_file(&new_client->dev, &dev_attr_in1_min);
-+	device_create_file(&new_client->dev, &dev_attr_in2_min);
-+	device_create_file(&new_client->dev, &dev_attr_in3_min);
-+	device_create_file(&new_client->dev, &dev_attr_in5_min);
-+	device_create_file(&new_client->dev, &dev_attr_in0_max);
-+	device_create_file(&new_client->dev, &dev_attr_in1_max);
-+	device_create_file(&new_client->dev, &dev_attr_in2_max);
-+	device_create_file(&new_client->dev, &dev_attr_in3_max);
-+	device_create_file(&new_client->dev, &dev_attr_in5_max);
 +	device_create_file(&new_client->dev, &dev_attr_temp1_input);
-+	device_create_file(&new_client->dev, &dev_attr_temp2_input);
++	device_create_file(&new_client->dev, &dev_attr_temp1_crit);
 +	device_create_file(&new_client->dev, &dev_attr_temp1_min);
-+	device_create_file(&new_client->dev, &dev_attr_temp2_min);
 +	device_create_file(&new_client->dev, &dev_attr_temp1_max);
-+	device_create_file(&new_client->dev, &dev_attr_temp2_max);
++	device_create_file(&new_client->dev, &dev_attr_temp1_crit_hyst);
++	device_create_file(&new_client->dev, &dev_attr_temp1_min_hyst);
++	device_create_file(&new_client->dev, &dev_attr_temp1_max_hyst);
 +	device_create_file(&new_client->dev, &dev_attr_alarms);
-+	device_create_file(&new_client->dev, &dev_attr_in1_ref);
-+	device_create_file(&new_client->dev, &dev_attr_vrm);
-+
-+	/* Pin 11 is either in4 (+12V) or VID4 */
-+	if (!(config & 0x20)) {
-+		device_create_file(&new_client->dev, &dev_attr_in4_input);
-+		device_create_file(&new_client->dev, &dev_attr_in4_min);
-+		device_create_file(&new_client->dev, &dev_attr_in4_max);
-+	}
-+
 +	return 0;
 +
 +exit_free:
@@ -525,100 +411,66 @@ diff -Nru a/drivers/i2c/chips/adm1025.c b/drivers/i2c/chips/adm1025.c
 +	return err;
 +}
 +
-+static void adm1025_init_client(struct i2c_client *client)
++static int lm77_detach_client(struct i2c_client *client)
 +{
-+	u8 reg;
-+	struct adm1025_data *data = i2c_get_clientdata(client);
-+	int i;
-+
-+	data->vrm = 82;
-+
-+	/*
-+	 * Set high limits
-+	 * Usually we avoid setting limits on driver init, but it happens
-+	 * that the ADM1025 comes with stupid default limits (all registers
-+	 * set to 0). In case the chip has not gone through any limit
-+	 * setting yet, we better set the high limits to the max so that
-+	 * no alarm triggers.
-+	 */
-+	for (i=0; i<6; i++) {
-+		reg = i2c_smbus_read_byte_data(client,
-+					       ADM1025_REG_IN_MAX(i));
-+		if (reg == 0)
-+			i2c_smbus_write_byte_data(client,
-+						  ADM1025_REG_IN_MAX(i),
-+						  0xFF);
-+	}
-+	for (i=0; i<2; i++) {
-+		reg = i2c_smbus_read_byte_data(client,
-+					       ADM1025_REG_TEMP_HIGH(i));
-+		if (reg == 0)
-+			i2c_smbus_write_byte_data(client,
-+						  ADM1025_REG_TEMP_HIGH(i),
-+						  0x7F);
-+	}
-+
-+	/*
-+	 * Start the conversions
-+	 */
-+	reg = i2c_smbus_read_byte_data(client, ADM1025_REG_CONFIG);
-+	if (!(reg & 0x01))
-+		i2c_smbus_write_byte_data(client, ADM1025_REG_CONFIG,
-+					  (reg&0x7E)|0x01);
-+}
-+
-+static int adm1025_detach_client(struct i2c_client *client)
-+{
-+	int err;
-+
-+	if ((err = i2c_detach_client(client))) {
-+		dev_err(&client->dev, "Client deregistration failed, "
-+			"client not detached.\n");
-+		return err;
-+	}
-+
++	i2c_detach_client(client);
 +	kfree(i2c_get_clientdata(client));
 +	return 0;
 +}
 +
-+static struct adm1025_data *adm1025_update_device(struct device *dev)
++/* All registers are word-sized, except for the configuration register.
++   The LM77 uses the high-byte first convention. */
++static u16 lm77_read_value(struct i2c_client *client, u8 reg)
++{
++	if (reg == LM77_REG_CONF)
++		return i2c_smbus_read_byte_data(client, reg);
++	else
++		return swab16(i2c_smbus_read_word_data(client, reg));
++}
++
++static int lm77_write_value(struct i2c_client *client, u8 reg, u16 value)
++{
++	if (reg == LM77_REG_CONF)
++		return i2c_smbus_write_byte_data(client, reg, value);
++	else
++		return i2c_smbus_write_word_data(client, reg, swab16(value));
++}
++
++static void lm77_init_client(struct i2c_client *client)
++{
++	/* Initialize the LM77 chip - turn off shutdown mode */
++	int conf = lm77_read_value(client, LM77_REG_CONF);
++	if (conf & 1)
++		lm77_write_value(client, LM77_REG_CONF, conf & 0xfe);
++}
++
++static struct lm77_data *lm77_update_device(struct device *dev)
 +{
 +	struct i2c_client *client = to_i2c_client(dev);
-+	struct adm1025_data *data = i2c_get_clientdata(client);
++	struct lm77_data *data = i2c_get_clientdata(client);
 +
 +	down(&data->update_lock);
 +
-+	if ((jiffies - data->last_updated > HZ * 2) ||
-+	    (jiffies < data->last_updated) ||
-+	    !data->valid) {
-+		int i;
-+
-+		dev_dbg(&client->dev, "Updating data.\n");
-+		for (i=0; i<6; i++) {
-+			data->in[i] = i2c_smbus_read_byte_data(client,
-+				      ADM1025_REG_IN(i));
-+			data->in_min[i] = i2c_smbus_read_byte_data(client,
-+					  ADM1025_REG_IN_MIN(i));
-+			data->in_max[i] = i2c_smbus_read_byte_data(client,
-+					  ADM1025_REG_IN_MAX(i));
-+		}
-+		for (i=0; i<2; i++) {
-+			data->temp[i] = i2c_smbus_read_byte_data(client,
-+					ADM1025_REG_TEMP(i));
-+			data->temp_min[i] = i2c_smbus_read_byte_data(client,
-+					    ADM1025_REG_TEMP_LOW(i));
-+			data->temp_max[i] = i2c_smbus_read_byte_data(client,
-+					    ADM1025_REG_TEMP_HIGH(i));
-+		}
-+		data->alarms = i2c_smbus_read_byte_data(client,
-+			       ADM1025_REG_STATUS1)
-+			     | (i2c_smbus_read_byte_data(client,
-+				ADM1025_REG_STATUS2) << 8);
-+		data->vid = (i2c_smbus_read_byte_data(client,
-+			     ADM1025_REG_VID) & 0x0f)
-+			  | ((i2c_smbus_read_byte_data(client,
-+			      ADM1025_REG_VID4) & 0x01) << 4);
-+
++	if ((jiffies - data->last_updated > HZ + HZ / 2) ||
++	    (jiffies < data->last_updated) || !data->valid) {
++		dev_dbg(&client->dev, "Starting lm77 update\n");
++		data->temp_input =
++			LM77_TEMP_FROM_REG(lm77_read_value(client,
++							   LM77_REG_TEMP));
++		data->temp_hyst =
++			LM77_TEMP_FROM_REG(lm77_read_value(client,
++							   LM77_REG_TEMP_HYST));
++		data->temp_crit =
++			LM77_TEMP_FROM_REG(lm77_read_value(client,
++							   LM77_REG_TEMP_CRIT));
++		data->temp_min =
++			LM77_TEMP_FROM_REG(lm77_read_value(client,
++							   LM77_REG_TEMP_MIN));
++		data->temp_max =
++			LM77_TEMP_FROM_REG(lm77_read_value(client,
++							   LM77_REG_TEMP_MAX));
++		data->alarms =
++			lm77_read_value(client, LM77_REG_TEMP) & 0x0007;
 +		data->last_updated = jiffies;
 +		data->valid = 1;
 +	}
@@ -628,20 +480,20 @@ diff -Nru a/drivers/i2c/chips/adm1025.c b/drivers/i2c/chips/adm1025.c
 +	return data;
 +}
 +
-+static int __init sensors_adm1025_init(void)
++static int __init sensors_lm77_init(void)
 +{
-+	return i2c_add_driver(&adm1025_driver);
++	return i2c_add_driver(&lm77_driver);
 +}
 +
-+static void __exit sensors_adm1025_exit(void)
++static void __exit sensors_lm77_exit(void)
 +{
-+	i2c_del_driver(&adm1025_driver);
++	i2c_del_driver(&lm77_driver);
 +}
 +
-+MODULE_AUTHOR("Jean Delvare <khali@linux-fr.org>");
-+MODULE_DESCRIPTION("ADM1025 driver");
++MODULE_AUTHOR("Andras BALI <drewie@freemail.hu>");
++MODULE_DESCRIPTION("LM77 driver");
 +MODULE_LICENSE("GPL");
 +
-+module_init(sensors_adm1025_init);
-+module_exit(sensors_adm1025_exit);
++module_init(sensors_lm77_init);
++module_exit(sensors_lm77_exit);
 

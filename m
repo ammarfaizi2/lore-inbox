@@ -1,79 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263669AbREYJHA>; Fri, 25 May 2001 05:07:00 -0400
+	id <S263668AbREYJev>; Fri, 25 May 2001 05:34:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263668AbREYJGk>; Fri, 25 May 2001 05:06:40 -0400
-Received: from www.wen-online.de ([212.223.88.39]:11023 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S263667AbREYJGk>;
-	Fri, 25 May 2001 05:06:40 -0400
-Date: Fri, 25 May 2001 11:06:14 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Jaswinder Singh <jaswinder.singh@3disystems.com>
-cc: Alan Cox <laughing@shared-source.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.4-ac17
-In-Reply-To: <001d01c0e4dd$8f9cd7e0$53a6b3d0@Toshiba>
-Message-ID: <Pine.LNX.4.33.0105251103440.241-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263670AbREYJel>; Fri, 25 May 2001 05:34:41 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:57744 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S263668AbREYJea>; Fri, 25 May 2001 05:34:30 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 25 May 2001 02:34:24 -0700
+Message-Id: <200105250934.CAA23240@adam.yggdrasil.com>
+To: acahalan@cs.uml.edu
+Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
+Cc: aaronl@vitelus.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 May 2001, Jaswinder Singh wrote:
+>> = Aaron Lehmann <aaronl@vitelus.com>.
+>  = Albert D. Cahalan <acahalan@cs.uml.edu>
 
-> Dear Mike ,
->
-> >
-> > This one I tested with memleak.  It wasn't a leak, it was dcache
-> > growth.  Under vm stress, it shrank down fine.
-> >
->
-> It will depends upon lot of thing :-
-> 1.What is your size of ramfs ,
-unlimited.
-> 2. Are you using any harddisk ,
-(?? ramfs)  I think I misunderstand.
-> 3. How many many files are you creating ,
-lots of different names. (like you were)
-> 4. How frequently you are making files .
-as fast as a C proglet could create/maybe(random)access/destroy them.
-> 5. What are the size of your files ?
-varying from empty to small.
->
-> In my case , my ramfs is of 14 MB , using no hard-disk , i am continously
-> making and deleting files of 4 K size , my Machine hangs within 5 minutes ,
-> by saying no memory left.
+>> 	I believe this infringinges the copyrights of the authors
+>> of the code used in these drivers who released their code under GPL.
+>> Alan Cox, has gone on a campaign claiming that this is "mere aggregation"
 
-I can write random 4k files as fast and long as I like (with swap off)
-and if I flush out the rather large dcache...
+>As far as the Linux kernel is concerned, firmware images are
+>not software at all. They are large magic numbers that must
+>be written to the hardware. (they don't execute on your CPU)
 
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 2  0  1      0  17600    104   4456   0   0   197     4  118    41   6  83  11
- 1  0  0      0  14888    124   4476   0   0    31     0  123    37  13  87   0
- 1  0  0      0  12252    124   4476   0   0     0     0  103     9  11  89   0
- 1  0  0      0   9632    124   4476   0   0     0     0  105     7  17  83   0
- 1  0  0      0   7032    124   4480   0   0     0     0  103    10  11  89   0
- 1  0  0      0   4460    124   4476   0   0     0     0  101    10  12  88   0
- 1  0  1      0  20272    128   4480   0   0     1     2  116    16  23  77   0
- 1  0  0      0  17860    128   4480   0   0     0    15  115    10  17  83   0
- 1  0  0      0  15196    128   4476   0   0     0     0  110     7  15  85   0
-dentry_cache      747962 747990    128 24933 24933    1
-dentry_cache      769651 769680    128 25656 25656    1
-dentry_cache      792664 792690    128 26423 26423    1
-dentry_cache      814779 814800    128 27160 27160    1
-dentry_cache      835972 835980    128 27866 27866    1
-dentry_cache      715148 715170    128 23839 23839    1
+>If a driver writes 0x63f30e44 (4 bytes) to the card, no problem?
+>Fine, how about 0x52e590a84fc8231e (8 bytes) then? You can see
+>where this is leading I hope: 200 kB is perfectly fine.
 
-...afterward, I don't see leakage.  Only a short test this time, but
-long enough to eat all of my ram many times over if it leaked as fast
-as your description indicates.  I can't reproduce it. (2.4.4 btw)
+>It's obviously not size that matters. What matters is that Linux
+>doesn't transfer control into the firmware; that is, Linux does
+>not do a jump into firmware like this:
 
-> Please tell me about your system and what you are doing on it ?
+>goto *((void*)firmware);
 
-Generic 128mb PIII/500.  What I was doing on it was beating up ramfs
-looking for the leak you reported :)
+	I have never heard of this legal standard.  A reference
+to some section of Title 17 in the United States Code (copyright), a
+relevant court precedent, etc. would be appreciated.
 
-	-Mike
+	I am not a lawyer, so please do not use this as legal advice.
 
+	A software "license" typically grants you permission to do
+things that you would not otherwise be allowed to do with a
+copyrighted work in the absense of any permission (such as make a copy
+in most cases), provided that you meet certain conditions.  Those
+conditions could be nearly anything.  They're not necessarily limited
+to what is restricted by copyright.  I used to think it was so limited
+due to copyright preemption of state law by title 17 of US Code section
+301, http://www4.law.cornell.edu/uscode/17/301.html, but apparently
+this does not appear to be so according, for example, to
+http://www.richmond.edu/~jolt/v1i1/hardy.html#fn13, which references
+"Hines v. Davidowitz, 312 U.S. 52, 67 (1941), reaffirmed in Sears,
+Roebuck & Co. v. Stiffel Co., 376 U.S. 225, reh'g denied, 376 U.S.
+973 (1964)", which I HAVE NOT READ, but I have read other things about
+this question and this just happens to be what I could dig up in a few
+seconds on google.
 
+	If I recall correctly, doing something that is only legal if
+you had accepted an agreement is acceptance according to some
+provision of the uniform commercial code.  (No, it's not new.  I think
+at http://www.law.cornell.edu/ucc/2/2-206.html, section 1a, and the
+definition of goods to include "goods in action" in
+http://www.law.cornell.edu/ucc/2/2-105.html#Goods_2-105).
+
+	From this, I hope we can agree that is possible to write
+copying conditions that prohibit make any copies of certain free
+software contained in the keyspan_usa drivers if the keyspan_usa firmware is
+also distributed in the same driver ".o" file, and that the question
+is simply whether the GPL does so.
+
+	So, Albert, are you claiming that the FSF intended to allow a
+GPL'ed .o file that contains proprietary firmware for another
+microprocessor or are you claiming that FSF made a drafting error in
+the writing the GPL?
+
+	If you believe you have found an error in the GPL, do you
+think a court would let you out of it given the four corners rule
+(basically using evidence of the understood meaning of an agreement to
+interpret what was actually written down)?
+
+	On the question of whether this is nothing more than
+aggregation, the firmware works intimately with the device driver to
+produce a unitary result.  The part of the driver that runs in the
+device and the CPU side speak a mutually agreed upon protocol, and the
+unitary result is that you do not have to preload the firmware as
+earlier versions of the driver required.  You actually have to do some
+kernel development to remove the code.  It's not simply the case that
+you could just skip distribution of an extra file and have the rest of
+the functionality work.  In fact, even if you zeroed out the
+microcode, you would still not get the result of having the driver
+work (e.g., if you had loaded the code originally).  Instead, the
+driver would fill the device with all zeroes.  Greg Kroah-Hartman has
+already said he thinks removal is complicated enough that he does not
+want to voluntarily do it in 2.4.  For these reasons, this situation
+is not just shipping two works next to each other (mere aggregation).
+
+	I hope it should be clear now that the GPL can and does
+prohibit #include'ing this and that it is not mere aggregation.
+
+	I also hope that people understand that while I think the
+stability argument for not including my fix in 2.4 (which everyone
+seems to like technically) is BS, I would be satisfied if the
+keyspan_usa drivers were now released under GPL-compatible copying
+conditions.  However, it has now been weeks this has not been done.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

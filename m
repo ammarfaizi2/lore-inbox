@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267223AbUBMXBh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 18:01:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267266AbUBMXBh
+	id S267295AbUBMXL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 18:11:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUBMXL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 18:01:37 -0500
-Received: from gate.crashing.org ([63.228.1.57]:25498 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267223AbUBMXBf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 18:01:35 -0500
-Subject: [PATCH] ppc64: CONFIG_PPC_PMAC implies CONFIG_ADB_PMU
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1076713226.900.72.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 14 Feb 2004 10:00:26 +1100
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Feb 2004 18:11:56 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:60708 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S267295AbUBMXLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 18:11:54 -0500
+Date: Fri, 13 Feb 2004 18:11:52 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: RANDAZZO@ddc-web.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: spinlocks dont work
+In-Reply-To: <89760D3F308BD41183B000508BAFAC4104B16F6F@DDCNYNTD>
+Message-ID: <Pine.LNX.4.44.0402131810450.26101-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Fri, 13 Feb 2004 RANDAZZO@ddc-web.com wrote:
 
-This patch avoids a link error if PPC_PMAC is set and the user forgets
-to set ADB_PMU. (The PMU driver is mandatory for pmac)
+> On my uniprocessor system, I have two LKM's
+        ^^^^^^^^^^^^
 
-Ben.
+> how come spin locks don't work?????
 
-diff -urN linux-2.5/arch/ppc64/Kconfig linuxppc-2.5-benh/arch/ppc64/Kconfig
---- linux-2.5/arch/ppc64/Kconfig	2004-02-13 08:05:06.000000000 +1100
-+++ linuxppc-2.5-benh/arch/ppc64/Kconfig	2004-02-14 09:58:11.913734520 +1100
-@@ -87,6 +87,7 @@
- config PPC_PMAC
- 	depends on PPC_PSERIES
- 	bool "Apple PowerMac G5 support"
-+	select ADB_PMU
- 
- config PPC_PMAC64
- 	bool
+The spinlock code is compiled to NOPs on uniprocessor
+systems.  That is ok because the second driver cannot
+run while the first driver is holding the lock.
 
+You cannot reschedule while holding a spinlock.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

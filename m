@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274549AbRJEX2g>; Fri, 5 Oct 2001 19:28:36 -0400
+	id <S274603AbRJEXaq>; Fri, 5 Oct 2001 19:30:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274573AbRJEX21>; Fri, 5 Oct 2001 19:28:27 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:47121 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S274549AbRJEX2K>;
-	Fri, 5 Oct 2001 19:28:10 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S274596AbRJEXag>; Fri, 5 Oct 2001 19:30:36 -0400
+Received: from smi-105.smith.uml.edu ([129.63.206.105]:55558 "HELO
+	buick.pennace.org") by vger.kernel.org with SMTP id <S274586AbRJEXa2>;
+	Fri, 5 Oct 2001 19:30:28 -0400
+Date: Fri, 5 Oct 2001 19:30:49 -0400
+From: Alex Pennace <alex@pennace.org>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: Desperately missing a working "pselect()" or similar...
+Message-ID: <20011005193049.A6981@buick.pennace.org>
+Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
+	Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <3BBDD37D.56D7B359@isg.de> <E15pbid-0007fi-00@calista.inka.de> <20011005190523.A6516@buick.pennace.org> <15294.16536.430907.650513@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15294.16913.2117.383987@cargo.ozlabs.ibm.com>
-Date: Sat, 6 Oct 2001 09:28:17 +1000 (EST)
-To: Peter Rival <frival@zk3.dec.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
-        benh@kernel.crashing.org
-Subject: Re: [PATCH] change name of rep_nop
-In-Reply-To: <3BBDF6BC.5000300@zk3.dec.com>
-In-Reply-To: <E15pW6U-0006Xx-00@the-village.bc.nu>
-	<3BBDF6BC.5000300@zk3.dec.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+In-Reply-To: <15294.16536.430907.650513@notabene.cse.unsw.edu.au>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Rival writes:
+On Sat, Oct 06, 2001 at 09:21:38AM +1000, Neil Brown wrote:
+> On Friday October 5, alex@pennace.org wrote:
+> > The select system call doesn't return EINTR when the signal is caught
+> > prior to entry into select.
+> 
+> A technique I used in a similar situation once went something like:
+> 
+> tv.tv_sec=bignum;
+> tv.tv_usec = 0;
+> enable_signals();
+> select(nfds, &readfds,&writefds,0,&tv);
+> 
+> and have the signal handlers set tv.tv_sec to 0. (tv is a global
+> variable).
 
-> You also need to move the call to smp_boot_cpus() below the 
-> clear_bit(...) line in smp_init().  Without it, my Wildfire doesn't get 
-
-No, that won't work for me, because cpu_online_map is set by
-smp_boot_cpus(), at least on PPC (in fact each CPU sets its bit in
-cpu_online_map as it spins up).
-
-There shouldn't be a race on x86 at all, because the secondary
-processors don't call init_idle until after they see that the primary
-cpu has call smp_commence.  (There is currently a race on PPC since we
-call init_idle before waiting for smp_commence, but that would not be
-your problem.)
-
-> past the while(wait_init_idle) loop - seems all of the CPUs have already 
-> done their work before the mask is set.  Besides, it's the right place 
-> for it anyway.
-
-No, I think it should be smp_boot_cpus, set wait_init_idle,
-smp_commence, then the secondaries start clearing their bits.  Which
-AFAICS is the way it is on x86.  What architecture is your wildfire?
-
-Paul.
+I've thought about that, but I haven't been able to find any guarantee
+that there will be no user space futzing around with &tv, like a
+library wrapper that copies tv to another spot in memory and invokes
+the syscall with that address.

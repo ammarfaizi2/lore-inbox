@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316996AbSHGEmy>; Wed, 7 Aug 2002 00:42:54 -0400
+	id <S317012AbSHGEpe>; Wed, 7 Aug 2002 00:45:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317005AbSHGEmy>; Wed, 7 Aug 2002 00:42:54 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:33810 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316996AbSHGEmx>;
-	Wed, 7 Aug 2002 00:42:53 -0400
-Date: Tue, 6 Aug 2002 21:43:48 -0700
-From: Greg KH <greg@kroah.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USB root hub polling and suspend
-Message-ID: <20020807044348.GA11412@kroah.com>
-References: <15696.21218.406438.634687@argo.ozlabs.ibm.com>
+	id <S317022AbSHGEpe>; Wed, 7 Aug 2002 00:45:34 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:1259 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317012AbSHGEpd>;
+	Wed, 7 Aug 2002 00:45:33 -0400
+Date: Wed, 7 Aug 2002 10:29:49 +0530
+From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       vamsi_krishna@in.ibm.com
+Subject: Re: [PATCH] kprobes for 2.5.30
+Message-ID: <20020807102949.A23745@in.ibm.com>
+Reply-To: vamsi@in.ibm.com
+References: <20020806164242.B22164@in.ibm.com> <20020807020259.70602418A@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15696.21218.406438.634687@argo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Wed, 10 Jul 2002 03:40:22 -0700
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020807020259.70602418A@lists.samba.org>; from rusty@rustcorp.com.au on Wed, Aug 07, 2002 at 10:55:04AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 07, 2002 at 08:51:14AM +1000, Paul Mackerras wrote:
-> Currently with 2.5, when I suspend and resume my powerbook, I find
-> that the USB subsystem no longer sees root hub events, i.e. it doesn't
-> notice when I plug in a new USB device (it doesn't notice when I
-> unplug a device either but of course the driver for the device sees
-> that it is no longer responding).
-> 
-> It turns out that what happens is that the root hub timer goes off
-> after the OHCI driver has done its suspend stuff.  The timer routine
-> sees that the HCD is not running at the moment and doesn't schedule
-> another timeout.  Hence the series of timeouts stops.
-> 
-> The patch below fixes the problem for me.  Comments welcome.
+Hi Rusty,
 
-Thanks, I've added it to my tree and will send it on to Linus.
+On Wed, Aug 07, 2002 at 10:55:04AM +1000, Rusty Russell wrote:
+> In message <20020806164242.B22164@in.ibm.com> you write:
+> > - move trap1 and trap3 interrupt gates only under CONFIG_KPROBES. Please
+> >   note that if we don't do this, we need to call restore_interrupts()
+> >   from the dummy (post_)kprobe_handler() in include/asm-i386/kprobes.h
+> >   when CONFIG_KPROBES is off. I didn't like this subtle side effect. hence
+> >   the #ifdef CONFIG_KPROBES around _set_trap_gate. Still, the calling 
+> >   conventions of do_debug and do_int3 remain independent of CONFIG_KPROBES.
+> 
+> Hmm, I thought about this but then decided against it.  Your way is
+> pretty subtle too: I think I prefer the restore_interrupts()
+> explicitly after the (failed) call to kprobe_handler, ie (on top of
+> your patch, which looks excellent):
 
-greg k-h
+I agree this one is even better. 
+
+Thanks,
+Vamsi.
+
+> <snip patch>
+
+-- 
+Vamsi Krishna S.
+Linux Technology Center,
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi@in.ibm.com

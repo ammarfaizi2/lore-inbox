@@ -1,135 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVBDMtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263167AbVBDMtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVBDMtT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 07:49:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266246AbVBDMsF
+	id S263167AbVBDMtb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 07:49:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbVBDMtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 07:48:05 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:50849 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265788AbVBDMq6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 07:46:58 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: linuxppc64-dev@ozlabs.org
-Subject: Re: [PATCH] PPC/PPC64: Introduce CPU_HAS_FEATURE() macro
-Date: Fri, 4 Feb 2005 13:36:55 +0100
-User-Agent: KMail/1.6.2
-Cc: olof@austin.ibm.com (Olof Johansson), linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, trini@kernel.crashing.org,
-       paulus@samba.org, anton@samba.org, hpa@zytor.com
-References: <20050204072254.GA17565@austin.ibm.com>
-In-Reply-To: <20050204072254.GA17565@austin.ibm.com>
+	Fri, 4 Feb 2005 07:49:31 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:23254 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S265756AbVBDMq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 07:46:56 -0500
+Message-ID: <42036E6F.1080104@grupopie.com>
+Date: Fri, 04 Feb 2005 12:45:35 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_rx2ACsdQv5yQ5uj";
-  charset="iso-8859-15"
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net,
+       Pekka Enberg <penberg@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, penberg@cs.helsinki.fi
+Subject: Re: [uml-devel] Re: [PATCH 2.6] 4/7 replace uml_strdup by kstrdup
+References: <1107228511.41fef75f4a296@webmail.grupopie.com> <84144f02050201235257d0ec1c@mail.gmail.com> <4200BFA1.2060808@grupopie.com> <200502032051.18191.blaisorblade@yahoo.it>
+In-Reply-To: <200502032051.18191.blaisorblade@yahoo.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200502041336.59892.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Blaisorblade wrote:
+>[...]
+> For UML, you should probably add the prototype to a good header inside 
+> arch/um/include (those headers are in the searchpath for every file under 
+> arch/um) - probably the one which declared uml_strdup. Yes, we have had to 
+> duplicate prototypes for many functions... for inlines, we've had to provide 
+> in many case a non-inline version.
 
---Boundary-02=_rx2ACsdQv5yQ5uj
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Thanks for the tip. I'll have to read the code more carefully to 
+understand better where the userspace ends and the kernel begins, so 
+that I don't do similar mistakes in the future.
 
-On Freedag 04 Februar 2005 08:22, Olof Johansson wrote:
-> It's getting pretty old to have see and type cur_cpu_spec->cpu_features
-> & CPU_FTR_<feature>, when a shorter and less TLA-ridden macro is more
-> readable.
->=20
-> This also takes care of the differences between PPC and PPC64 cpu
-> features for the common code; most places in PPC could be replaced with
-> the macro as well.
+I'll redo the patch and post it for review, probably during next week. I 
+don't think there is much hurry, because, even if this gets accepted, it 
+should go in only in 2.6.12-rc1-mm1 or something like that, so there is 
+still time to review this more carefully.
 
-I have a somewhat similar patch that does the same to the
-systemcfg->platform checks. I'm not sure if we should use the same inline
-function for both checks, but I do think that they should be used in a
-similar way, e.g. CPU_HAS_FEATURE(x) and PLATFORM_HAS_FEATURE(x).
+Thanks for reviewing the patch,
 
-My implementation of the platform checks tries to be extra clever by turning
-runtime checks into compile time checks if possible. This reduces code size
-and in some cases execution speed. It can also be used to replace compile
-time checks, i.e. it allows us to write
+-- 
+Paulo Marques - www.grupopie.com
 
-static inline unsigned int readl(const volatile void __iomem *addr)
-{
-	if (platform_is(PLATFORM_PPC_ISERIES))
-		return iSeries_readl(addr);
-	if (platform_possible(PLATFORM_PPC_PSERIES))
-		return eeh_readl(addr);
-	return in_le32();
-}
-
-which will always result in the shortest code for any combination of
-CONFIG_PPC_ISERIES, CONFIG_PPC_PSERIES and the other platforms.
-
-The required code for this is roughly
-
-enum {
-	PPC64_PLATFORM_POSSIBLE =3D
-#ifdef CONFIG_PPC_ISERIES
-		PLATFORM_ISERIES |
-#endif
-#ifdef CONFIG_PPC_PSERIES
-		PLATFORM_PSERIES |
-#endif
-#ifdef CONFIG_PPC_PSERIES
-		PLATFORM_PSERIES_LPAR |
-#endif
-#ifdef CONFIG_PPC_POWERMAC
-		PLATFORM_POWERMAC |
-#endif
-#ifdef CONFIG_PPC_MAPLE
-		PLATFORM_MAPLE |
-#endif
-		0,
-	PPC64_PLATFORM_ONLY =3D
-#ifdef CONFIG_PPC_ISERIES
-		PLATFORM_ISERIES &
-#endif
-#ifdef CONFIG_PPC_PSERIES
-		PLATFORM_PSERIES &
-#endif
-#ifdef CONFIG_PPC_POWERMAC
-		PLATFORM_POWERMAC &
-#endif
-#ifdef CONFIG_PPC_MAPLE
-		PLATFORM_MAPLE &
-#endif
-		-1ul,
-};
-
-static inline platform_is(unsigned long platform)
-{
-	return ((PPC64_PLATFORM_ONLY & platform)=20
-	 || (PPC64_PLATFORM_POSSIBLE & platform & systemcfg->platform));
-}
-
-static inline platform_possible(unsigned long platform)
-{
-	reutrn !!(PPC64_PLATFORM_POSSIBLE & platform);
-}
-
-The same stuff is obviously possible for cur_cpu_spec->cpu_features as well.
-Do you think that it will help there?
-
-	Arnd <><
-
---Boundary-02=_rx2ACsdQv5yQ5uj
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCA2xr5t5GS2LDRf4RAmW/AKCS4KSLE8HSoEKKxV0OvPS9PygJygCfdNF7
-SzqF3zkYQhZxZFuP2ZH0O5A=
-=StYX
------END PGP SIGNATURE-----
-
---Boundary-02=_rx2ACsdQv5yQ5uj--
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

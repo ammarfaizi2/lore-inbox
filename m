@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263355AbTHJLJz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 07:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTHJLJz
+	id S263590AbTHJLKS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 07:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTHJLKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 07:09:55 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:34060 "EHLO
+	Sun, 10 Aug 2003 07:10:17 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:35340 "EHLO
 	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S263355AbTHJLJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 07:09:50 -0400
-Date: Sun, 10 Aug 2003 20:09:58 +0900 (JST)
-Message-Id: <20030810.200958.132808552.yoshfuji@linux-ipv6.org>
+	id S263590AbTHJLJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 07:09:56 -0400
+Date: Sun, 10 Aug 2003 20:10:05 +0900 (JST)
+Message-Id: <20030810.201005.44972660.yoshfuji@linux-ipv6.org>
 To: davem@redhat.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 5/9] convert drivers/ide to virt_to_pageoff()
+Subject: [PATCH 6/9] convert drivers/net to virt_to_pageoff()
 From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
 	<yoshfuji@linux-ipv6.org>
 In-Reply-To: <20030810020444.48cb740b.davem@redhat.com>
@@ -33,74 +33,132 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[5/9] convert drivers/ide to virt_to_pageoff().
+[6/9] convert drivers/net to virt_to_pageoff().
 
-Index: linux-2.6/drivers/ide/ide-dma.c
+Index: linux-2.6/drivers/net/acenic.c
 ===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/ide/ide-dma.c,v
-retrieving revision 1.60
-diff -u -r1.60 ide-dma.c
---- linux-2.6/drivers/ide/ide-dma.c	7 Aug 2003 07:35:12 -0000	1.60
-+++ linux-2.6/drivers/ide/ide-dma.c	10 Aug 2003 08:40:52 -0000
-@@ -255,7 +255,7 @@
- #endif
- 		memset(&sg[nents], 0, sizeof(*sg));
- 		sg[nents].page = virt_to_page(virt_addr);
--		sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
-+		sg[nents].offset = virt_to_pageoff(virt_addr);
- 		sg[nents].length = 128  * SECTOR_SIZE;
- 		nents++;
- 		virt_addr = virt_addr + (128 * SECTOR_SIZE);
-@@ -263,7 +263,7 @@
- 	}
- 	memset(&sg[nents], 0, sizeof(*sg));
- 	sg[nents].page = virt_to_page(virt_addr);
--	sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
-+	sg[nents].offset = virt_to_pageoff(virt_addr);
- 	sg[nents].length =  sector_count  * SECTOR_SIZE;
- 	nents++;
+RCS file: /home/cvs/linux-2.5/drivers/net/acenic.c,v
+retrieving revision 1.36
+diff -u -r1.36 acenic.c
+--- linux-2.6/drivers/net/acenic.c	1 Aug 2003 22:07:01 -0000	1.36
++++ linux-2.6/drivers/net/acenic.c	10 Aug 2003 08:40:52 -0000
+@@ -1960,7 +1960,7 @@
+ 		 */
+ 		skb_reserve(skb, 2 + 16);
+ 		mapping = pci_map_page(ap->pdev, virt_to_page(skb->data),
+-				       ((unsigned long)skb->data & ~PAGE_MASK),
++				       virt_to_pageoff(skb->data),
+ 				       ACE_STD_BUFSIZE - (2 + 16),
+ 				       PCI_DMA_FROMDEVICE);
+ 		ap->skb->rx_std_skbuff[idx].skb = skb;
+@@ -2026,7 +2026,7 @@
+ 		 */
+ 		skb_reserve(skb, 2 + 16);
+ 		mapping = pci_map_page(ap->pdev, virt_to_page(skb->data),
+-				       ((unsigned long)skb->data & ~PAGE_MASK),
++				       virt_to_pageoff(skb->data),
+ 				       ACE_MINI_BUFSIZE - (2 + 16),
+ 				       PCI_DMA_FROMDEVICE);
+ 		ap->skb->rx_mini_skbuff[idx].skb = skb;
+@@ -2087,7 +2087,7 @@
+ 		 */
+ 		skb_reserve(skb, 2 + 16);
+ 		mapping = pci_map_page(ap->pdev, virt_to_page(skb->data),
+-				       ((unsigned long)skb->data & ~PAGE_MASK),
++				       virt_to_pageoff(skb->data),
+ 				       ACE_JUMBO_BUFSIZE - (2 + 16),
+ 				       PCI_DMA_FROMDEVICE);
+ 		ap->skb->rx_jumbo_skbuff[idx].skb = skb;
+@@ -2743,7 +2743,7 @@
+ 	struct tx_ring_info *info;
  
-Index: linux-2.6/drivers/ide/arm/icside.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/ide/arm/icside.c,v
-retrieving revision 1.8
-diff -u -r1.8 icside.c
---- linux-2.6/drivers/ide/arm/icside.c	19 May 2003 17:48:30 -0000	1.8
-+++ linux-2.6/drivers/ide/arm/icside.c	10 Aug 2003 08:40:52 -0000
-@@ -233,7 +233,7 @@
+ 	mapping = pci_map_page(ap->pdev, virt_to_page(skb->data),
+-			       ((unsigned long) skb->data & ~PAGE_MASK),
++			       virt_to_pageoff(skb->data),
+ 			       skb->len, PCI_DMA_TODEVICE);
  
- 		memset(sg, 0, sizeof(*sg));
- 		sg->page   = virt_to_page(rq->buffer);
--		sg->offset = ((unsigned long)rq->buffer) & ~PAGE_MASK;
-+		sg->offset = virt_to_pageoff(rq->buffer);
- 		sg->length = rq->nr_sectors * SECTOR_SIZE;
- 		nents = 1;
- 	} else {
-Index: linux-2.6/drivers/ide/ppc/pmac.c
+ 	info = ap->skb->tx_skbuff + idx;
+Index: linux-2.6/drivers/net/sungem.c
 ===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/ide/ppc/pmac.c,v
-retrieving revision 1.13
-diff -u -r1.13 pmac.c
---- linux-2.6/drivers/ide/ppc/pmac.c	6 Jul 2003 19:33:43 -0000	1.13
-+++ linux-2.6/drivers/ide/ppc/pmac.c	10 Aug 2003 08:40:52 -0000
-@@ -971,7 +971,7 @@
- 	if (sector_count > 127) {
- 		memset(&sg[nents], 0, sizeof(*sg));
- 		sg[nents].page = virt_to_page(virt_addr);
--		sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
-+		sg[nents].offset = virt_to_pageoff(virt_addr);
- 		sg[nents].length = 127  * SECTOR_SIZE;
- 		nents++;
- 		virt_addr = virt_addr + (127 * SECTOR_SIZE);
-@@ -979,7 +979,7 @@
- 	}
- 	memset(&sg[nents], 0, sizeof(*sg));
- 	sg[nents].page = virt_to_page(virt_addr);
--	sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
-+	sg[nents].offset = virt_to_pageoff(virt_addr);
- 	sg[nents].length =  sector_count  * SECTOR_SIZE;
- 	nents++;
-    
+RCS file: /home/cvs/linux-2.5/drivers/net/sungem.c,v
+retrieving revision 1.40
+diff -u -r1.40 sungem.c
+--- linux-2.6/drivers/net/sungem.c	3 Aug 2003 18:34:10 -0000	1.40
++++ linux-2.6/drivers/net/sungem.c	10 Aug 2003 08:40:53 -0000
+@@ -725,8 +725,7 @@
+ 			skb_put(new_skb, (ETH_FRAME_LEN + RX_OFFSET));
+ 			rxd->buffer = cpu_to_le64(pci_map_page(gp->pdev,
+ 							       virt_to_page(new_skb->data),
+-							       ((unsigned long) new_skb->data &
+-								~PAGE_MASK),
++							       virt_to_pageoff(new_skb->data),
+ 							       RX_BUF_ALLOC_SIZE(gp),
+ 							       PCI_DMA_FROMDEVICE));
+ 			skb_reserve(new_skb, RX_OFFSET);
+@@ -873,8 +872,7 @@
+ 		len = skb->len;
+ 		mapping = pci_map_page(gp->pdev,
+ 				       virt_to_page(skb->data),
+-				       ((unsigned long) skb->data &
+-					~PAGE_MASK),
++				       virt_to_pageoff(skb->data),
+ 				       len, PCI_DMA_TODEVICE);
+ 		ctrl |= TXDCTRL_SOF | TXDCTRL_EOF | len;
+ 		if (gem_intme(entry))
+@@ -898,7 +896,7 @@
+ 		 */
+ 		first_len = skb_headlen(skb);
+ 		first_mapping = pci_map_page(gp->pdev, virt_to_page(skb->data),
+-					     ((unsigned long) skb->data & ~PAGE_MASK),
++					     virt_to_pageoff(skb->data),
+ 					     first_len, PCI_DMA_TODEVICE);
+ 		entry = NEXT_TX(entry);
+ 
+@@ -1464,8 +1462,7 @@
+ 		skb_put(skb, (ETH_FRAME_LEN + RX_OFFSET));
+ 		dma_addr = pci_map_page(gp->pdev,
+ 					virt_to_page(skb->data),
+-					((unsigned long) skb->data &
+-					 ~PAGE_MASK),
++					virt_to_pageoff(skb->data),
+ 					RX_BUF_ALLOC_SIZE(gp),
+ 					PCI_DMA_FROMDEVICE);
+ 		rxd->buffer = cpu_to_le64(dma_addr);
+Index: linux-2.6/drivers/net/sk98lin/skge.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/net/sk98lin/skge.c,v
+retrieving revision 1.24
+diff -u -r1.24 skge.c
+--- linux-2.6/drivers/net/sk98lin/skge.c	1 Aug 2003 19:02:34 -0000	1.24
++++ linux-2.6/drivers/net/sk98lin/skge.c	10 Aug 2003 08:40:53 -0000
+@@ -2142,7 +2142,7 @@
+ 	*/
+ 	PhysAddr = (SK_U64) pci_map_page(pAC->PciDev,
+ 					virt_to_page(pMessage->data),
+-					((unsigned long) pMessage->data & ~PAGE_MASK),
++					virt_to_pageoff(pMessage->data),
+ 					pMessage->len,
+ 					PCI_DMA_TODEVICE);
+ 	pTxd->VDataLow  = (SK_U32) (PhysAddr & 0xffffffff);
+@@ -2259,7 +2259,7 @@
+ 	*/
+ 	PhysAddr = (SK_U64) pci_map_page(pAC->PciDev,
+ 			virt_to_page(pMessage->data),
+-			((unsigned long) pMessage->data & ~PAGE_MASK),
++			virt_to_pageoff(pMessage->data),
+ 			skb_headlen(pMessage),
+ 			PCI_DMA_TODEVICE);
+ 
+@@ -2518,8 +2518,7 @@
+ 	Length = pAC->RxBufSize;
+ 	PhysAddr = (SK_U64) pci_map_page(pAC->PciDev,
+ 		virt_to_page(pMsgBlock->data),
+-		((unsigned long) pMsgBlock->data &
+-		~PAGE_MASK),
++		virt_to_pageoff(pMsgBlock->data),
+ 		pAC->RxBufSize - 2,
+ 		PCI_DMA_FROMDEVICE);
+ 
 
 -- 
 Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>

@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270930AbRHTNZx>; Mon, 20 Aug 2001 09:25:53 -0400
+	id <S271068AbRHTNfX>; Mon, 20 Aug 2001 09:35:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271132AbRHTNZn>; Mon, 20 Aug 2001 09:25:43 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:27109 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S271118AbRHTNZb>;
-	Mon, 20 Aug 2001 09:25:31 -0400
-Date: Mon, 20 Aug 2001 14:25:39 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: David Schwartz <davids@webmaster.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: RE: Entropy from net devices - keyboard & IDE just as 'bad' [was
- Re: [PATCH] let Net Devices feed Entropy, updated (1/2)]
-Message-ID: <2246712912.998317539@[10.132.112.53]>
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMGEOEDEAA.davids@webmaster.com>
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMGEOEDEAA.davids@webmaster.com>
-X-Mailer: Mulberry/2.1.0b3 (Win32)
+	id <S271094AbRHTNfP>; Mon, 20 Aug 2001 09:35:15 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:62419 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S271068AbRHTNfB>;
+	Mon, 20 Aug 2001 09:35:01 -0400
+Date: Mon, 20 Aug 2001 09:35:13 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andreas Hartmann <andihartmann@freenet.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: [Fix] Re: [2.4.8-ac5 and earlier] fatal mount-problem
+In-Reply-To: <3B8102D3.846C64A7@athlon.maya.org>
+Message-ID: <Pine.GSO.4.21.0108200932070.2638-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Better than the necessary 1 jiffie on non-i386 platforms and some
->> i386 platforms.
->
-> 	On those platforms, you simply can't have good entropy and still have
-> user accounts on the box with the default hardware. Sorry, the hardware
-> just doesn't permit it. You would have to set up some secure way to draw
-> entropy off an external pool, there's just nothing else you can do. (I
-> believe there are non-x87 platforms that have good timers, just not all
-> of them.)
+Alan, please apply. sync_dev() in ->release() is 100% bogus - all flushing
+the stuff out is done by callers (blkdev_close() et.al.).
 
-Many non-i386 platforms have more finely grained timers than 1 jiffie.
-The problem is the code doesn't use them. So my point is, it seems
-illogical to throw stones at (often) theoretical issues with Robert's
-patch, when people's energy would be better diverted to help fix up
-hole in the current implementation.
+--- AC8-7/drivers/scsi/sr.c	Sun Jul 29 01:54:47 2001
++++ linux/drivers/scsi/sr.c	Mon Aug 20 09:25:39 2001
+@@ -101,7 +101,6 @@
+ {
+ 	if (scsi_CDs[MINOR(cdi->dev)].device->sector_size > 2048)
+ 		sr_set_blocklength(MINOR(cdi->dev), 2048);
+-	sync_dev(cdi->dev);
+ 	scsi_CDs[MINOR(cdi->dev)].device->access_count--;
+ 	if (scsi_CDs[MINOR(cdi->dev)].device->host->hostt->module)
+ 		__MOD_DEC_USE_COUNT(scsi_CDs[MINOR(cdi->dev)].device->host->hostt->module);
 
---
-Alex Bligh
+

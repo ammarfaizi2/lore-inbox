@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292707AbSCRT4e>; Mon, 18 Mar 2002 14:56:34 -0500
+	id <S292705AbSCRT5y>; Mon, 18 Mar 2002 14:57:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292688AbSCRT4Z>; Mon, 18 Mar 2002 14:56:25 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:34946 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S292594AbSCRT4O>;
-	Mon, 18 Mar 2002 14:56:14 -0500
-Date: Mon, 18 Mar 2002 20:21:36 +0100
+	id <S292688AbSCRT5q>; Mon, 18 Mar 2002 14:57:46 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:39298 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S292705AbSCRT5k>;
+	Mon, 18 Mar 2002 14:57:40 -0500
+Date: Mon, 18 Mar 2002 20:25:02 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-Message-ID: <20020318192136.GC194@elf.ucw.cz>
-In-Reply-To: <3C8DDFC8.5080501@evision-ventures.com> <20020312165937.A4987@ucw.cz> <3C8E28A1.1070902@evision-ventures.com> <20020312172134.A5026@ucw.cz> <3C8E2C2C.2080202@evision-ventures.com> <20020312173301.C5026@ucw.cz> <3C8E3025.4070409@evision-ventures.com> <20020312175044.A5228@ucw.cz> <20020314140210.A37@toy.ucw.cz> <20020315121352.A25209@ucw.cz>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
+        Jonathan Barker <jbarker@ebi.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: VFS mediator?
+Message-ID: <20020318192502.GD194@elf.ucw.cz>
+In-Reply-To: <E16lej0-0002FE-00@the-village.bc.nu> <Pine.GSO.4.21.0203141825070.329-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,22 +25,33 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > You may happen to have the numbers, though - that should be enough.
-> > > 
-> > > Btw, I have a CMD640B based PCI card lying around here, but never
-> > > managed to get it generate any interrupts, though the rest seems to be
-> > > working.
+> > > I have experimented with using NFS for that -- start a local daemon that
+> > > exports a virtual filesystem and mount that. The great bonus is that it's
+> > > platform independent -- it works on Solaris, HP-UX and even Ultrix just as
+> > > well. Other projects have become more important, however, and I haven't
+> > > finished it. If you're interested, drop me a line.
 > > 
-> > Attach it to the timer interrupt -- that should do it for testing. Simplest
-> > way is to make ide timeouts HZ/100 and killing "lost interrupt" msg ;-).
+> > There are several of these and also some folks using the coda interface
+> > to do the same work, as the coda interface is sometimes better suited. 
 > 
-> Well, it seems like we'll have to something like this anyway. Some chips
-> sometimes forget to assert the IRQ after a transfer due to HW bugs, and
-> some PIIX3s are reported to do it quite often.
+> ... for some kinds of work.
+> 
+> First of all, "VFS mediator" is simply a userland filesystem.  That's
+> precisely what it is - filesystem that talks to a process.  We've got
+> quite a few of them and which one fits the task depends on the task.
+> 
+> 	* NFS (v2,v3):  Portable.  And that's the only good thing to say
+> about it - it's stateless, it has messy semantics all over the place and
+> implementing userland server requires a lot of glue.
 
-What is "quite often"? Unless it is more than once in a hour, current
-code is just okay... (It waits for timeout, which is about 30 sec?,
-then recovers).
+Does not work... If you mount nfs server on localhost, you can deadlock.
+
+> 	* CODA: nice if you want commit-on-close semantics and basically
+> want a lot of regular files.  More or less portable, userland side doesn't
+> require much glue.  Has a nice local caching and as the result bad for any
+> RPC-style uses.
+
+And the only one that works when r/w mounted on localhost.
 									Pavel
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

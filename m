@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312582AbSD2Pdn>; Mon, 29 Apr 2002 11:33:43 -0400
+	id <S312600AbSD2PdR>; Mon, 29 Apr 2002 11:33:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312619AbSD2Pdm>; Mon, 29 Apr 2002 11:33:42 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:15371 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S312582AbSD2Pdk>; Mon, 29 Apr 2002 11:33:40 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	id <S312582AbSD2PdQ>; Mon, 29 Apr 2002 11:33:16 -0400
+Received: from isengard.yottayotta.com ([209.115.177.37]:58641 "EHLO
+	isengard.yottayotta.com") by vger.kernel.org with ESMTP
+	id <S312600AbSD2Pc4>; Mon, 29 Apr 2002 11:32:56 -0400
+Message-ID: <3CCD6762.9040406@yottayotta.com>
+Date: Mon, 29 Apr 2002 09:31:46 -0600
+From: Murtada Shah <mshah@yottayotta.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: speeding up i2c drivers
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15565.26578.847909.40612@laputa.namesys.com>
-Date: Mon, 29 Apr 2002 19:33:38 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Sebastian Droege <sebastian.droege@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.1{0,1}] VFS: Busy inodes after unmount...
-In-Reply-To: <20020429172433.49ad5596.sebastian.droege@gmx.de>
-X-Mailer: VM 7.03 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
-X-Tom-Swifty: "IBM is up 3 points," Tom said, taking stock of the situation.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sebastian Droege writes:
- > Hi,
- > when rebooting or halting the system I get following message:
- > VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
- > 
- > All filesystems are ReiserFS
- > 
- > Any ideas why there are busy inodes after umount?
+I want to speed up the linux kernel i2c drivers. They are running @ 
+10Khz now, although i2c is capable of 100. Would anyone be able to point 
+me to the right direction?
 
-This problem is known. As I understand Alexander Viro is working on it
-right now.
+Murtada Shah
 
- > 
- > Bye
-
-Nikita.

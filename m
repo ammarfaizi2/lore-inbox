@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281900AbRKUPOO>; Wed, 21 Nov 2001 10:14:14 -0500
+	id <S281908AbRKUPdR>; Wed, 21 Nov 2001 10:33:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281897AbRKUPOE>; Wed, 21 Nov 2001 10:14:04 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:19212 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S281896AbRKUPNt>; Wed, 21 Nov 2001 10:13:49 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Mathijs Mohlmann <mathijs@knoware.nl>, Jan Hudec <bulb@ucw.cz>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [BUG] Bad #define, nonportable C, missing {}
-Date: Wed, 21 Nov 2001 17:12:27 +0000
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <XFMail.20011121145237.mathijs@knoware.nl>
-In-Reply-To: <XFMail.20011121145237.mathijs@knoware.nl>
+	id <S281907AbRKUPdI>; Wed, 21 Nov 2001 10:33:08 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:41317 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S281905AbRKUPc7>; Wed, 21 Nov 2001 10:32:59 -0500
+Date: Wed, 21 Nov 2001 15:34:46 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        "David S. Miller" <davem@redhat.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14 + Bug in swap_out.
+In-Reply-To: <Pine.LNX.4.33L.0111211219420.1491-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0111211515210.1357-100000@localhost.localdomain>
 MIME-Version: 1.0
-Message-Id: <01112117122701.02798@nemo>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 November 2001 13:52, Mathijs Mohlmann wrote:
-> On 21-Nov-2001 Jan Hudec wrote:
-> >> Go read up on C operator precedence. Unary ++ comes before %, so if we
-> >> rewrite the #define to make it more "readable" it would be #define
-> >> MODINC(x,y) (x = (x+1) % y)
-> >
-> > *NO*
-> > MODINC(x,y) (x = (x+1) % y)
-> > is correct and beaves as expected. Unfortunately:
-> > MODINC(x,y) (x = x++ % y)
-> > is a nonsence, because the evaluation is something like this
-> > x++ returns x
-> > x++ % y returns x % y
-> > x is assigned the result and it's incremented IN UNDEFINED ORDER!!!
-> > AFAIK the ANSI C spec explicitly undefines the order.
->
-> in fact, gcc does (according to my tests):
-> MODINC(x,y) (x = (x % y) + 1)
+On Wed, 21 Nov 2001, Rik van Riel wrote:
+> On 21 Nov 2001, Eric W. Biederman wrote:
+> 
+> > We only hold a ref count for the duration of swap_out_mm.
+> > Not for the duration of the value in swap_mm.
 
-drivers/message/i2o/i2o_config.c:#define MODINC(x,y) (x = x++ % y)
+Exactly.
 
-Alan, can you clarify what this macro is doing?
-What about making it less confusing?
---
-vda
+> In that case, why can't we just take the next mm from
+> init_mm and just "roll over" our mm to the back of the
+> list once we're done with it ?
+
+No.  That's how it used to be, that's what I changed it from.
+
+fork and exec are well ordered in how they add to the mmlist,
+and that ordering (children after parent) suited swapoff nicely,
+to minimize duplication of a swapent while it's being unused;
+except swap_out randomized the order by cycling init_mm around it.
+
+I agree that mmput would look nicer without the reference to swap_mm.
+If you want to make a change here, I'd suggest replacing swap_mm
+pointer by full dummy marker swap_mm, then mmput wouldn't need to
+worry about it at all.
+
+I didn't do it that way because I couldn't see where to initialize
+the swap_mm structure without touching each architecture separately;
+and I also wondered if there might be some stats gathering utility
+out there which would get confused by finding a non-mm in the mmlist.
+
+Hugh
+

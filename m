@@ -1,92 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbTEEWmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 18:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTEEWmZ
+	id S261454AbTEEWti (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 18:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTEEWti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 18:42:25 -0400
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:11407 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S261919AbTEEWmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 18:42:21 -0400
-Date: Mon, 5 May 2003 18:53:30 -0400
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Message-Id: <200305052253.h45MrUTj020679@locutus.cmf.nrl.navy.mil>
-To: davem@redhat.com
-Subject: [PATCH][ATM] svc's possibly race with sigd
-Cc: linux-kernel@vger.kernel.org
+	Mon, 5 May 2003 18:49:38 -0400
+Received: from landfill.ihatent.com ([217.13.24.22]:16790 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id S261454AbTEEWth
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 18:49:37 -0400
+To: Patrick Mau <mau@oscar.ping.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.69, DRI, Radeon 8500 AGP working for me
+References: <20030505195927.GA28347@oscar.ping.de>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 06 May 2003 01:01:54 +0200
+In-Reply-To: <20030505195927.GA28347@oscar.ping.de>
+Message-ID: <87isspxajh.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pretty sure the author wanted the wait queues in place before
-talking to sigd which might cause a wakeup on the vcc in question.
-this race is VERY unlikely, since going down to user space and back
-is quite slow.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---- linux-2.5.68/net/atm/svc.c.000	Mon May  5 18:31:34 2003
-+++ linux-2.5.68/net/atm/svc.c	Mon May  5 18:33:04 2003
-@@ -64,8 +64,8 @@
- 
- 	DPRINTK("svc_disconnect %p\n",vcc);
- 	if (test_bit(ATM_VF_REGIS,&vcc->flags)) {
--		sigd_enq(vcc,as_close,NULL,NULL,NULL);
- 		add_wait_queue(&vcc->sleep,&wait);
-+		sigd_enq(vcc,as_close,NULL,NULL,NULL);
- 		while (!test_bit(ATM_VF_RELEASED,&vcc->flags) && sigd) {
- 			set_current_state(TASK_UNINTERRUPTIBLE);
- 			schedule();
-@@ -124,8 +124,8 @@
- 	if (!test_bit(ATM_VF_HASQOS,&vcc->flags)) return -EBADFD;
- 	vcc->local = *addr;
- 	vcc->reply = WAITING;
--	sigd_enq(vcc,as_bind,NULL,NULL,&vcc->local);
- 	add_wait_queue(&vcc->sleep,&wait);
-+	sigd_enq(vcc,as_bind,NULL,NULL,&vcc->local);
- 	while (vcc->reply == WAITING && sigd) {
- 		set_current_state(TASK_UNINTERRUPTIBLE);
- 		schedule();
-@@ -169,12 +169,13 @@
- 		    !vcc->qos.rxtp.traffic_class) return -EINVAL;
- 		vcc->remote = *addr;
- 		vcc->reply = WAITING;
-+		add_wait_queue(&vcc->sleep,&wait);
- 		sigd_enq(vcc,as_connect,NULL,NULL,&vcc->remote);
- 		if (flags & O_NONBLOCK) {
-+			remove_wait_queue(&vcc->sleep,&wait);
- 			sock->state = SS_CONNECTING;
- 			return -EINPROGRESS;
- 		}
--		add_wait_queue(&vcc->sleep,&wait);
- 		error = 0;
- 		while (vcc->reply == WAITING && sigd) {
- 			set_current_state(TASK_INTERRUPTIBLE);
-@@ -243,8 +244,8 @@
- 	/* let server handle listen on unbound sockets */
- 	if (test_bit(ATM_VF_SESSION,&vcc->flags)) return -EINVAL;
- 	vcc->reply = WAITING;
--	sigd_enq(vcc,as_listen,NULL,NULL,&vcc->local);
- 	add_wait_queue(&vcc->sleep,&wait);
-+	sigd_enq(vcc,as_listen,NULL,NULL,&vcc->local);
- 	while (vcc->reply == WAITING && sigd) {
- 		set_current_state(TASK_UNINTERRUPTIBLE);
- 		schedule();
-@@ -313,8 +314,8 @@
- 		}
- 		/* wait should be short, so we ignore the non-blocking flag */
- 		new_vcc->reply = WAITING;
--		sigd_enq(new_vcc,as_accept,old_vcc,NULL,NULL);
- 		add_wait_queue(&new_vcc->sleep,&wait);
-+		sigd_enq(new_vcc,as_accept,old_vcc,NULL,NULL);
- 		while (new_vcc->reply == WAITING && sigd) {
- 			set_current_state(TASK_UNINTERRUPTIBLE);
- 			schedule();
-@@ -347,8 +348,8 @@
- 	DECLARE_WAITQUEUE(wait,current);
- 
- 	vcc->reply = WAITING;
--	sigd_enq2(vcc,as_modify,NULL,NULL,&vcc->local,qos,0);
- 	add_wait_queue(&vcc->sleep,&wait);
-+	sigd_enq2(vcc,as_modify,NULL,NULL,&vcc->local,qos,0);
- 	while (vcc->reply == WAITING && !test_bit(ATM_VF_RELEASED,&vcc->flags)
- 	    && sigd) {
- 		set_current_state(TASK_UNINTERRUPTIBLE);
+Patrick Mau <mau@oscar.ping.de> writes:
+
+> Many thnks, Linus
+> 
+> The current BK 2.5 tree fixes all my DRI and AGP related problems.
+> I did stress it very hard running various screensavers and quake 3,
+> so far everything is all right.
+> 
+> I'm currently using XFree from CVS:
+> 
+> XFree86 Version 4.3.99.3
+> Release Date: 29 April 2003
+> X Protocol Version 11, Revision 0, Release 6.6
+> Build Operating System: Linux 2.4.20 i686 [ELF]
+> Build Date: 01 May 2003
+> 
+> "Page Flipping" and "AGP Fast Write" are enabled,
+> AGP speed is set to "1" (the default ?).
+> 
+
+Radeon 7500 with 64Mb RAM ans 4xAGP now works like a charm here, first
+time in a long time. Both kernel modules and XFree CVS works.
+
+mvh,
+A
+- -- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+
+iD8DBQE+tu1fCQ1pa+gRoggRAn4TAJ42SqfK5Gv9AWliOjSUgqzKsvmhrgCfYXKB
+B7U3krdVBjVhLnTPx0oYixg=
+=XBMp
+-----END PGP SIGNATURE-----

@@ -1,80 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316459AbSFEXmq>; Wed, 5 Jun 2002 19:42:46 -0400
+	id <S316322AbSFEXmZ>; Wed, 5 Jun 2002 19:42:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316489AbSFEXmp>; Wed, 5 Jun 2002 19:42:45 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:907 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S316459AbSFEXmj>;
-	Wed, 5 Jun 2002 19:42:39 -0400
-Date: Wed, 5 Jun 2002 16:38:31 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] PCI device matching fix
-In-Reply-To: <Pine.LNX.4.44.0206051759440.8309-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.33.0206051625270.654-100000@geena.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316459AbSFEXmY>; Wed, 5 Jun 2002 19:42:24 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:21888
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S316322AbSFEXmV>; Wed, 5 Jun 2002 19:42:21 -0400
+Date: Wed, 5 Jun 2002 16:42:01 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add <linux/kdev_t.h> to <linux/bio.h>
+Message-ID: <20020605234201.GC709@opus.bloom.county>
+In-Reply-To: <Pine.LNX.4.33.0206021853030.1383-100000@penguin.transmeta.com> <20020605232220.GA709@opus.bloom.county> <20020606003420.A17872@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-[cc list trimmed]
-
-> Now does that mean you have given up on getting the ref counting right? 
-> Forcing the ref count to zero is obviously not a solution, 
-> pci_unregister_driver is usually called at module unload time, which means 
-> that struct pci_driver will go away immediately after the call returns. If 
-> you know that there are no other users at this time (which I doubt), you 
-> don't need to do the whole refcounting thing at all (since at all times 
-> before the ref count is surely >= 1). If not, you're racy.
-
-No, I haven't given up on it, and I admit it's fishy. However, I did it to 
-ensure that no one can access the driver since it is going away as soon as 
-we return to pci_unregister_driver. Though, I'll also admit that making 
-the next potential user hit the BUG() in get_driver() is not the nicest 
-thing to do...
-
-> I think I brought up that issue before, though nobody seemed interested. 
-> AFAICS there are two possible solutions:
+On Thu, Jun 06, 2002 at 12:34:20AM +0100, Russell King wrote:
+> On Wed, Jun 05, 2002 at 04:22:20PM -0700, Tom Rini wrote:
+> > The following add <linux/kdev_t.h> to <linux/bio.h>.
+> > 
+> > This is needed since bio_ioctl takes a kdev_t for its first argument.
 > 
-> o provide a destructor callback which is called from put_driver when we're 
->   about to throw away the last reference which would let whoever registered 
->   the thing in the beginning know that it's all his again now (If it was
->   kmalloced, that would be the time to kfree it). In this case it's 
->   rather that the callback would tell us we can now finish 
->   module_exit().
-> o Use a completion or something and do the above inside 
->   pci_unregister_driver (or remove_driver). I.e. have it sleep until
->   all references are gone. That would fix the race for the typical
-> 
-> void my_module_exit(void) { pci_unregister_driver(&my_driver); }
-> 
->   case.
-> 
-> (The latter would be my preference, as I see no point in having driver
->  authors deal with the complication of waiting for completion of 
->  pci_unregister_driver() themselves)
+> This should be fixed by a patch I submitted earlier today (you're getting
+> a build error in fs/mpage.c, right?)
 
-There is a destructor: struct device_driver::release(). It's the last 
-thing called from __remove_driver(). 
+Nope.  This was with that applied.  I'm breaking up mm.h, slightly,
+right now and hit that.
 
-No matter what, the module will get unloaded immediately. What would be 
-nice is if we could delay it until we said it was ok (from the driver's 
-release callback). We could even define a common release callback for all 
-drivers:
+> hch asked the very pertinent question though - why isn't kdev_t defined
+> by linux/types.h ?
 
-void driver_release(struct device_driver * drv)
-{
-	struct module * module = drv->module;
+That is a good question...  Possibly because of the other stuff
+associated with it.
 
-	/* do unload of module */
-}
-
-We wouldn't need a completion; we would just have to wait until the 
-refcount hit 0 naturally. But, I'm just making this stuff up. Is this at 
-all possible?
-
-	-pat
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

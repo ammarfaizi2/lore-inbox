@@ -1,104 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268404AbTBNNCT>; Fri, 14 Feb 2003 08:02:19 -0500
+	id <S268427AbTBNNFt>; Fri, 14 Feb 2003 08:05:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268417AbTBNMxK>; Fri, 14 Feb 2003 07:53:10 -0500
-Received: from cs-ats40.donpac.ru ([217.107.128.161]:22542 "EHLO pazke")
-	by vger.kernel.org with ESMTP id <S268409AbTBNMwj>;
-	Fri, 14 Feb 2003 07:52:39 -0500
-Date: Fri, 14 Feb 2003 15:57:53 +0300
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] visws: export some functions from i8259.c (2/13)
-Message-ID: <20030214125753.GB8230@pazke>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
+	id <S268422AbTBNNFe>; Fri, 14 Feb 2003 08:05:34 -0500
+Received: from AGrenoble-101-1-3-110.abo.wanadoo.fr ([193.253.251.110]:41156
+	"EHLO awak") by vger.kernel.org with ESMTP id <S268414AbTBNNFR>;
+	Fri, 14 Feb 2003 08:05:17 -0500
+Subject: Re: openbkweb-0.0
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Robert Love <rml@tech9.net>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Larry McVoy <lm@work.bitmover.com>,
+       Rik van Riel <riel@imladris.surriel.com>,
+       Jamie Lokier <jamie@shareable.org>,
+       Andrea Arcangeli <andrea@e-mind.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1045171099.9045.16.camel@phantasy>
+References: <20030206021029.GW19678@dualathlon.random>
+	 <20030213024751.GA14016@bjl1.jlokier.co.uk>
+	 <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com>
+	 <20030213161337.GA9654@work.bitmover.com>
+	 <20030213211127.GG20159@fs.tum.de>  <1045171099.9045.16.camel@phantasy>
+Content-Type: text/plain; charset=ISO-8859-15
+Organization: 
+Message-Id: <1045227563.13507.12.camel@bip.localdomain.fake>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="GPJrCs/72TxItFYR"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Uname: Linux 2.4.20aa1 i686 unknown
-From: Andrey Panin <pazke@orbita1.ru>
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 14 Feb 2003 13:59:23 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le jeu 13/02/2003 à 22:18, Robert Love a écrit :
+> On Thu, 2003-02-13 at 16:11, Adrian Bunk wrote:
+> 
+> > If a clause in a license forbids a licensee to use or decompile the
+> > program to gather the information needed for independendly developed
+> > programs to interoperate with this program current German copyright law
+> > says that this clause is void in Germany.  :-)
+> 
+> In which case you would have no right to use the program, not unlimited
+> right. :)
+> 
+> But if this is true, I guess this raises a concern for German hackers
+> (or perhaps everyone in the EU?).
 
---GPJrCs/72TxItFYR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+At least in France, it just means this particular clause is void. This
+doesn't prevent you (err .. me) from using it.
 
-Hi.
+	Xav
 
-This trivial patch exports some functions from 8259.c file.
-Visws subarch needs them to handle interrupts from legacy devices 
-connected to PIIX4 i8259s, which are in turn connected to SGI 
-Cobalt APIC.
-
-Please consider applying.
-
-Best regards.
-
--- 
-Andrey Panin		| Embedded systems software developer
-pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
-
---GPJrCs/72TxItFYR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-i8259
-
-diff -urN -X /usr/share/dontdiff linux-2.5.60.vanilla/include/asm-i386/i8259.h linux-2.5.60/include/asm-i386/i8259.h
---- linux-2.5.60.vanilla/include/asm-i386/i8259.h	Thu Jan  1 03:00:00 1970
-+++ linux-2.5.60/include/asm-i386/i8259.h	Thu Feb 13 20:42:02 2003
-@@ -0,0 +1,17 @@
-+#ifndef __ASM_I8259_H__
-+#define __ASM_I8259_H__
-+
-+extern unsigned int cached_irq_mask;
-+
-+#define __byte(x,y) 	(((unsigned char *) &(y))[x])
-+#define cached_21	(__byte(0, cached_irq_mask))
-+#define cached_A1	(__byte(1, cached_irq_mask))
-+
-+extern spinlock_t i8259A_lock;
-+
-+extern void init_8259A(int auto_eoi);
-+extern void enable_8259A_irq(unsigned int irq);
-+extern void disable_8259A_irq(unsigned int irq);
-+extern unsigned int startup_8259A_irq(unsigned int irq);
-+
-+#endif	/* __ASM_I8259_H__ */
-diff -urN -X /usr/share/dontdiff linux-2.5.60.vanilla/arch/i386/kernel/i8259.c linux-2.5.60/arch/i386/kernel/i8259.c
---- linux-2.5.60.vanilla/arch/i386/kernel/i8259.c	Thu Feb 13 20:29:07 2003
-+++ linux-2.5.60/arch/i386/kernel/i8259.c	Thu Feb 13 20:42:02 2003
-@@ -22,6 +22,7 @@
- #include <asm/desc.h>
- #include <asm/apic.h>
- #include <asm/arch_hooks.h>
-+#include <asm/i8259.h>
- 
- #include <linux/irq.h>
- 
-@@ -47,7 +48,7 @@
- 
- void mask_and_ack_8259A(unsigned int);
- 
--static unsigned int startup_8259A_irq(unsigned int irq)
-+unsigned int startup_8259A_irq(unsigned int irq)
- { 
- 	enable_8259A_irq(irq);
- 	return 0; /* never anything pending */
-@@ -71,11 +72,7 @@
- /*
-  * This contains the irq mask for both 8259A irq controllers,
-  */
--static unsigned int cached_irq_mask = 0xffff;
--
--#define __byte(x,y) 	(((unsigned char *)&(y))[x])
--#define cached_21	(__byte(0,cached_irq_mask))
--#define cached_A1	(__byte(1,cached_irq_mask))
-+unsigned int cached_irq_mask = 0xffff;
- 
- /*
-  * Not all IRQs can be routed through the IO-APIC, eg. on certain (older)
-
---GPJrCs/72TxItFYR--

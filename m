@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318497AbSIBWZ7>; Mon, 2 Sep 2002 18:25:59 -0400
+	id <S318518AbSIBW1a>; Mon, 2 Sep 2002 18:27:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318503AbSIBWZ7>; Mon, 2 Sep 2002 18:25:59 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:63992 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S318497AbSIBWZ6>; Mon, 2 Sep 2002 18:25:58 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Mon, 2 Sep 2002 16:28:37 -0600
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Stupid anti-spam testings...
-Message-ID: <20020902222837.GM32468@clusterfs.com>
-Mail-Followup-To: Matti Aarnio <matti.aarnio@zmailer.org>,
-	linux-kernel@vger.kernel.org
-References: <20020902215019.GB5834@mea-ext.zmailer.org>
+	id <S318526AbSIBW1a>; Mon, 2 Sep 2002 18:27:30 -0400
+Received: from hacksaw.org ([216.41.5.170]:14729 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id <S318518AbSIBW13>; Mon, 2 Sep 2002 18:27:29 -0400
+Message-Id: <200209022233.g82MXXgB015673@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.5 08/15/2002 with nmh-1.0.4
+To: Thunder from the hill <thunder@lightweight.ods.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c 
+In-reply-to: Your message of "Mon, 02 Sep 2002 15:43:56 MDT."
+             <Pine.LNX.4.44.0209021542590.3270-100000@hawkeye.luckynet.adm> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020902215019.GB5834@mea-ext.zmailer.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Date: Mon, 02 Sep 2002 18:33:33 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 03, 2002  00:50 +0300, Matti Aarnio wrote:
-> Quite a many of vger's recipients are doing return-path verification
-> testing for SMTP's MAIL FROM address.
-> 
-> I would not mind that, EXCEPT that those bloody stupid things don't
-> have any sane caches at all!    VGER is sending 300+ messages per
-> day to 3500+ recipients of linux-kernel list EVERY DAY, and every
-> outgoing message is now getting oodles of those probes!
-> 
-> Folks,  when you deploy that kind of testers, DO VERIFY THAT THEY
-> HAVE SANE CACHES!  A positive result shall be cached for at least
-> two hours, a negative result shall be cached for at least 30 minutes.
+Speaking from the perspective of a long time computer user and sys-admin, I'm 
+trying to understand life without a partition table.
 
-Do you know if this is one of the default checks from spamassassin?
-I would imagine that a lot of people (including myself) have it
-installed, so it is possible that it (or some other widely-used tool)
-now does this sort of check out-of-the-box, and the people who are
-installing them have no idea about the kind of load it generates on vger.
-I doubt that there are a large number of people who are independently
-misconfiguring their mail setup this way
+I operate under the following assumptions:
 
-If it is possible to track what tool is causing the problem and fixing
-the default setup of that tool at the source, it will probably solve
-99% of the problems in one go (after the list knows to which version
-they should upgrade).
+1. It's useful to have a physical disk divided into multiple logical disks.
+2. It's therefore important that the bootloader know about them, assuming that 
+we want to be able to boot from any logical disk.
+3. We can either have the bootloader spend time divining the structure of the 
+logical disks by scanning the physical disk or we can write it down in some 
+useful place.
+4. That useful place is very near the front of the physical disk.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Of course, I'd be the first to admit that the current partition table is a 
+stupid design, but I can't see not having one at all.
+
+
+-- 
+We have three rights:
+   the right to work, the right to pay to work, and the right to suffer the 
+consequences of our work.
+We have three obligations:
+   the obligation to work, the obligation to pay to work, and the obligation 
+to suffer the consequences of our work.
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+
 

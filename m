@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264891AbTLKJgg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 04:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264892AbTLKJgg
+	id S264583AbTLKJjr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 04:39:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264591AbTLKJjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 04:36:36 -0500
-Received: from massena-4-82-67-197-146.fbx.proxad.net ([82.67.197.146]:59035
-	"EHLO perso.free.fr") by vger.kernel.org with ESMTP id S264891AbTLKJgf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 04:36:35 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Date: Thu, 11 Dec 2003 10:36:33 +0100
-User-Agent: KMail/1.5.4
-Cc: Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0312101318330.850-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0312101318330.850-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Dec 2003 04:39:47 -0500
+Received: from mail.kroah.org ([65.200.24.183]:61824 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264583AbTLKJjq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 04:39:46 -0500
+Date: Thu, 11 Dec 2003 01:29:15 -0800
+From: Greg KH <greg@kroah.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrey Borzenkov <arvidjaar@mail.ru>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: file2alias - incorrect? aliases for USB
+Message-ID: <20031211092915.GC5510@kroah.com>
+References: <20031110093703.GA5449@kroah.com> <20031117060542.489442C266@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312111036.33115.baldrick@free.fr>
+In-Reply-To: <20031117060542.489442C266@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 December 2003 19:19, Alan Stern wrote:
-> On Wed, 10 Dec 2003, Duncan Sands wrote:
-> > On Wednesday 10 December 2003 18:34, David Brownell wrote:
-> > > > Unfortunately, usb_physical_reset_device calls usb_set_configuration
-> > > > which takes dev->serialize.
-> > >
-> > > Not since late August it doesn't ...
-> >
-> > In current 2.5 bitkeeper it does.
->
-> I don't understand the problem.  What's wrong with dropping dev->serialize
-> before calling usb_reset_device() or usb_set_configuration() and then
-> reacquiring it afterward?
+On Mon, Nov 17, 2003 at 02:09:32PM +1100, Rusty Russell wrote:
+> In message <20031110093703.GA5449@kroah.com> you write:
+> > Hm, but that's no good either, because the visor driver trips over that
+> > with its entry:
+> > 	MODULE_ALIAS("usb:v*p*dl*dh*dc*dsc*dp*ic*isc*ip*");
+> > and the improper module is loaded.  That needs to be fixed up...
+> > 
+> > Rusty, any reason why the module alias code is turning an empty
+> > MODULE_PARAM structure, as is declared in drivers/usb/serial/visor.c
+> > with the line:
+> >         { },                                    /* optional parameter entry */ 
+> > 
+> > Into the above MODULE_ALIAS?  I don't think that's correct.
+> 
+> Sorry for the delay, was away and am catching up on mail.
+> 
+> Thanks to Andrey for the fix.  Greg, did you want to add something
+> else?  Either way, please forward to Linus.
 
-The problem is that between dropping the lock and usb_set_configuration (or
-whatever) picking it up again, the device may be disconnected, so usb_set_configuration
-needs to handle the case of being called after disconnect (it doesn't seem to
-check for that right now, but I only had a quick look).  Also, after usbfs picks up
-the lock again it needs to check for disconnect.  None of this is a big deal, but
-it could all be avoided by a simpler change: provide a usb_physical_set_configuration
-(or whatever), which is usb_set_configuration without taking dev->serialize.
+Just finally did that, thanks.
 
-Duncan.
+greg k-h

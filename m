@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269032AbUIMXid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269048AbUIMXkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269032AbUIMXid (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 19:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269040AbUIMXid
+	id S269048AbUIMXkq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 19:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269040AbUIMXkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 19:38:33 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:18344
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S269032AbUIMXfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 19:35:36 -0400
-Date: Mon, 13 Sep 2004 16:33:33 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: jolt@tuxbox.org, pp@ee.oulu.fi, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] Fix for b44 warnings.
-Message-Id: <20040913163333.2fadaf93.davem@davemloft.net>
-In-Reply-To: <20040913163001.7fa560c6@dell_ss3.pdx.osdl.net>
-References: <200408292218.00756.jolt@tuxbox.org>
-	<20040913163001.7fa560c6@dell_ss3.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 13 Sep 2004 19:40:46 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:13530 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S269048AbUIMXkf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 19:40:35 -0400
+Date: Mon, 13 Sep 2004 16:37:13 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: rth@twiddle.net, ink@jurassic.park.msu.ru
+cc: linux-kernel@vger.kernel.org, greg@kroah.com, wli@holomorphy.com,
+       hannal@us.ibm.com
+Subject: [RFT 2.6.9-rc1 alpha sys_alcor.c] [1/2] convert pci_find_device to pci_get_device
+Message-ID: <806400000.1095118633@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Sep 2004 16:30:01 -0700
-Stephen Hemminger <shemminger@osdl.org> wrote:
 
-> B44 driver was using unsigned long as an io memory address.
-> Recent changes caused this to be a warning.  This patch fixes that
-> and makes the readl/writel wrapper into inline's instead of macros
-> with magic variable side effect (yuck).
+Here is a very simple patch to convert pci_find_device call to pci_get_device.
+As I don't have an alpha box or cross compiler could someone (wli- wink wink)
+please verify it compiles and doesn't break anything, thanks a lot.
 
-Jeff, I'll merge this one.
+Hanna Linder
+IBM Linux Technology Center
 
-Thanks Stephen.
+Signed-off-by: Hanna Linder  <hannal@us.ibm.com>
+----------
+
+diff -Nrup linux-2.6.9-rc1/arch/alpha/kernel/sys_alcor.c linux-2.6.9-rc1-alpha/arch/alpha/kernel/sys_alcor.c
+--- linux-2.6.9-rc1/arch/alpha/kernel/sys_alcor.c	2004-08-13 22:38:08.000000000 -0700
++++ linux-2.6.9-rc1-alpha/arch/alpha/kernel/sys_alcor.c	2004-09-10 11:33:06.000000000 -0700
+@@ -254,7 +254,7 @@ alcor_init_pci(void)
+ 	 * motherboard, by looking for a 21040 TULIP in slot 6, which is
+ 	 * built into XLT and BRET/MAVERICK, but not available on ALCOR.
+ 	 */
+-	dev = pci_find_device(PCI_VENDOR_ID_DEC,
++	dev = pci_get_device(PCI_VENDOR_ID_DEC,
+ 			      PCI_DEVICE_ID_DEC_TULIP,
+ 			      NULL);
+ 	if (dev && dev->devfn == PCI_DEVFN(6,0)) {
+@@ -262,6 +262,7 @@ alcor_init_pci(void)
+ 		printk(KERN_INFO "%s: Detected AS500 or XLT motherboard.\n",
+ 		       __FUNCTION__);
+ 	}
++	pci_dev_put(dev);
+ }
+ 
+ 
+
+

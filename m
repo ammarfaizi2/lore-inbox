@@ -1,90 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271110AbTHQVjw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 17:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271108AbTHQVjw
+	id S271043AbTHQVe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 17:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271051AbTHQVe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 17:39:52 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:46335 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S271110AbTHQVju convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 17:39:50 -0400
-Date: Mon, 18 Aug 2003 01:40:00 +0200
-From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
-To: =?iso-8859-2?Q?Herbert_P=F6tzl?= <herbert@13thfloor.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NMI appears to be stuck! (2.4.22-rc2 on dual Athlon)
-Message-ID: <20030818014000.A29722@beton.cybernet.src>
-References: <20030817212824.GA9025@www.13thfloor.at>
+	Sun, 17 Aug 2003 17:34:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47769 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271043AbTHQVe4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 17:34:56 -0400
+Date: Sun, 17 Aug 2003 14:36:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Osterlund <petero2@telia.com>
+Cc: lists@runa.sytes.net, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: segfault when unloading module loop in 2.6.0-test3+ck patches
+Message-Id: <20030817143600.1a2642a5.akpm@osdl.org>
+In-Reply-To: <m24r0g56kj.fsf@p4.localdomain>
+References: <20030817042751.379428cf.lists@runa.sytes.net>
+	<m28yps57oi.fsf@p4.localdomain>
+	<20030817135935.2790cec6.akpm@osdl.org>
+	<m24r0g56kj.fsf@p4.localdomain>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030817212824.GA9025@www.13thfloor.at>; from herbert@13thfloor.at on Sun, Aug 17, 2003 at 11:28:24PM +0200
-X-Orientation: Gay
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems NMI watchdog doesn't work on nforce2 (Athlon) chipset boards when APIC
-is enabled.
+Peter Osterlund <petero2@telia.com> wrote:
+>
+> Andrew Morton <akpm@osdl.org> writes:
+> 
+> > Peter Osterlund <petero2@telia.com> wrote:
+> > >
+> > > diff -puN drivers/block/loop.c~loop-oops-fix drivers/block/loop.c
+> > > --- linux/drivers/block/loop.c~loop-oops-fix	2003-08-17 19:19:22.000000000 +0200
+> > > +++ linux-petero/drivers/block/loop.c	2003-08-17 20:33:03.000000000 +0200
+> > > @@ -1198,6 +1198,7 @@ int __init loop_init(void)
+> > >  		lo->lo_queue = blk_alloc_queue(GFP_KERNEL);
+> > >  		if (!lo->lo_queue)
+> > >  			goto out_mem4;
+> > > +		init_timer(&lo->lo_queue->unplug_timer);
+> > >  		disks[i]->queue = lo->lo_queue;
+> > >  		init_MUTEX(&lo->lo_ctl_mutex);
+> > >  		init_MUTEX_LOCKED(&lo->lo_sem);
+> > 
+> > This bit should be done in ll_rw_blk.c somewhere.  Are you sure it is
+> > necessary for loop?
+> 
+> Without this, if I insmod loop and then immediately rmmod loop,
+> del_timer() calls check_timer_failed(), which generates warnings in
+> the kernel log.
+> 
+> In normal cases, the timer is initialized in blk_queue_make_request(),
+> but that function is not called if you don't use the loop device
+> before unloading the module. Maybe there is a better way to get rid of
+> this warning.
 
-I don't know if it works if APIC is disabled and also don't know
-about other boards.
+Yup. I moved it to blk_alloc_queue() and removed the init_timer() from
+blk_queue_make_request().
 
-Cl<
-
-On Sun, Aug 17, 2003 at 11:28:24PM +0200, Herbert Pötzl wrote:
-> 
-> Hi All!
-> 
-> Still no nmi_watchdog on dual Athlon systems?
-> 
-> Linux version 2.4.22-rc2 on dual
-> 
-> processor	: 0
-> vendor_id	: AuthenticAMD
-> cpu family	: 6
-> model		: 6
-> model name	: AMD Athlon(tm) MP 1800+
-> stepping	: 2
-> cpu MHz		: 1533.401
-> cache size	: 256 KB
-> 
-> Total of 2 processors activated (6127.61 BogoMIPS).                                                                                      ENABLING IO-APIC IRQs                                                                                                                    ..TIMER: vector=0x31 pin1=2 pin2=0                                                                                                       activating NMI Watchdog ... done.                                                                                                        testing NMI watchdog ... CPU#0: NMI appears to be stuck!                                                                                 testing the IO APIC.......................                                                                                                                                                                                                                                        .................................... done.                                                                                               Using local APIC timer interrupts.                                                                                                       calibrating APIC timer ...                                                                                                               
-> 
-> 
-> just for curiosity, if I do not give the nmi_watchdog=1 
-> option on the kernel boot line, the nmi seems to work fine?
-> 
-> # cat /proc/interrupts 
->            CPU0       CPU1       
->   0:       4275       2602    IO-APIC-edge  timer
->   1:          0          2    IO-APIC-edge  keyboard
->   2:          0          0          XT-PIC  cascade
->   4:        157        150    IO-APIC-edge  serial
->   8:          1          0    IO-APIC-edge  rtc
->   9:        169        186   IO-APIC-level  acpi
->  15:         12          3    IO-APIC-edge  ide1
->  16:       1195       1155   IO-APIC-level  aic7xxx
->  17:        149        144   IO-APIC-level  eth1
->  19:          1          3   IO-APIC-level  eth0
-> NMI:       4034       3577 
-> LOC:       6782       6777 
-> ERR:          0
-> MIS:          0
-> 
-> is this intentional, or have I missed something
-> terrible important? if you need more information,
-> let me know ...
-> 
-> TIA,
-> Herbert
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

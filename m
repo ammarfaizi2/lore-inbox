@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272258AbTHRTAT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 15:00:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272275AbTHRTAS
+	id S272274AbTHRTOz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 15:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272273AbTHRTOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 15:00:18 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27155 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S272258AbTHRS7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 14:59:07 -0400
-Date: Mon, 18 Aug 2003 19:59:03 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fix up riscom8 driver to use work queues instead of task queueing.
-Message-ID: <20030818195903.G1737@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030818192831.E1737@flint.arm.linux.org.uk> <Pine.LNX.4.44.0308181141010.5929-100000@home.osdl.org>
+	Mon, 18 Aug 2003 15:14:54 -0400
+Received: from 240.27.204.212.sr1.DTM1.ip.versanet.de ([212.204.27.240]:38787
+	"EHLO kermit.spenneberg.de") by vger.kernel.org with ESMTP
+	id S274964AbTHRTKX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 15:10:23 -0400
+Subject: Kernel 2.6 IPsec Howto
+From: Ralf Spenneberg <lists@spenneberg.org>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1061233819.1628.24.camel@kermit>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0308181141010.5929-100000@home.osdl.org>; from torvalds@osdl.org on Mon, Aug 18, 2003 at 11:47:14AM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 18 Aug 2003 21:10:19 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 11:47:14AM -0700, Linus Torvalds wrote:
-> I'd be interested to hear whether the dang things work. Of course, there 
-> probably aren't that many people around with the hardware any more. I 
-> could just have added them to the BROKEN list, but since they _might_ work 
-> it seemed like a better idea to be hugely optimistic instead ;)
+Hi, 
 
-True.  However, there is the opposite point of view which is equally
-valid.  There aren't many people with the hardware, and the people
-that there are aren't interested in development kernel series, so
-even if we did convert them during 2.7, we wouldn't hear about it
-until 2.8.
+I am trying to create some documentation covering the usage of the new
+IPsec stack. So far I have introductory chapters covering setkey and
+racoon. Today I added the isakmpd using the patch by Thomas Walpuski.
 
-IMO its far better to do these types of conversions when users are
-interested in the driver (and can therefore give you bug reports)
-than when they are actively ignoring the development series.
+http://www.ipsec-howto.org
 
-Both positions are equally valid.  I'm not going to argue that one
-is more valid than the other because I have enough on my plate for
-the time being. 8)
+Any feedback is appreciated.
 
+Cheers,
+
+Ralf
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Ralf Spenneberg
+RHCE, RHCX
 
+Book: Intrusion Detection für Linux Server   http://www.spenneberg.com
+IPsec-Howto				     http://www.ipsec-howto.org
+Honeynet Project Mirror:                     http://honeynet.spenneberg.org

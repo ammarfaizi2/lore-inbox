@@ -1,41 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289291AbSAOB1f>; Mon, 14 Jan 2002 20:27:35 -0500
+	id <S289345AbSAOBbz>; Mon, 14 Jan 2002 20:31:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289348AbSAOB10>; Mon, 14 Jan 2002 20:27:26 -0500
-Received: from waste.org ([209.173.204.2]:37535 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S289344AbSAOB1N>;
-	Mon, 14 Jan 2002 20:27:13 -0500
-Date: Mon, 14 Jan 2002 19:26:54 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: Theodore Tso <tytso@mit.edu>, Juan Quintela <quintela@mandrakesoft.com>,
-        Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
-        <felix-dietlibc@fefe.de>, <andersen@codepoet.org>
-Subject: Re: [RFC] klibc requirements, round 2
-In-Reply-To: <20020114165849.B26688@lynx.adilger.int>
-Message-ID: <Pine.LNX.4.44.0201141921580.2836-100000@waste.org>
+	id <S289344AbSAOBbp>; Mon, 14 Jan 2002 20:31:45 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:14092 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S289345AbSAOBbZ>; Mon, 14 Jan 2002 20:31:25 -0500
+Message-ID: <3C438657.4030403@lexus.com>
+Date: Mon, 14 Jan 2002 17:31:03 -0800
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: J Sloan <jjs@pobox.com>, Robert Love <rml@tech9.net>,
+        jogi@planetzork.ping.de, Andrew Morton <akpm@zip.com.au>,
+        Ed Sweetman <ed.sweetman@wmich.edu>, Andrea Arcangeli <andrea@suse.de>,
+        yodaiken@fsmlabs.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        nigel@nrg.org, Rob Landley <landley@trommello.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010946178.11848.14.camel@phantasy> <3C41E17A.4010909@pobox.com> <E16Q0wQ-0000ks-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Andreas Dilger wrote:
+Daniel Phillips wrote:
 
-> Actually, the whole point of Juan's suggestion was that you _don't_ want
-> to fsck a filesystem that is currently mounted.  There is always a
-> potential problem that fsck will change the on-disk data of the filesystem
-> in a way that is not coherent with what the kernel has in-memory, which
-> should force a system reboot before continuing (which most initscripts
-> don't do).  For ext2/ext3 this may be relatively safe (data/metadata don't
-> move around much), but reiserfsck cannot (or will not) fsck a mounted
-> filesystem at all.
+>On January 13, 2002 08:35 pm, J Sloan wrote:
+>
+>>The problem here is that when people report
+>>that the low latency patch works better for them
+>>than the preempt patch, they aren't talking about
+>>bebnchmarking the time to compile a kernel, they
+>>are talking about interactive feel and smoothness.
+>>
+>
+>Nobody is claiming the low latency patch works better than 
+>-preempt+lock_break, only that low latency can equal -preempt+lock_break, 
+>which is a claim I'm skeptical of, but oh well.
+>
+AFAICT Alan Cox  et al are saying that low-latency
+gives better latency than -preempt, but that if lock-break
+is added to -preempt, the results are basically the same.
 
-Interesting point. Modulo any existing LVM brokenness, we can do this with
-a read-only snapshot and pivot_root afterwards. Alternately, a read-only
-/bootsupport or something of the sort which contains *fsck. What we don't
-want is initramfs to get big.
+IOW lock-break + preempt =~ low-latency as far as the
+latency question is concerned.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+>>I've no agenda other than wanting to see linux
+>>as an attractive option for the multimedia and
+>>gaming crowds - and in my experience, the low
+>>latency patches simply give a much smoother
+>>feel and a more pleasant experience. Kernel
+>>compilation time is the farthest thing from my
+>>mind when e.g. playing Q3A!
+>>
+>
+>You need to read the thread *way* more closely ;-)
+>
+Admittedly my observations have been more from
+an "end-user" point of view, because at the end
+of the day, what I experience while using Linux as
+a multimedia/gaming platform is worth more than a
+barrel of benchmarks - and while kernel compilation
+time is of interest, it is just _one_  benchmark in the
+greater scheme of things. (not to mention that that
+benchmark result could probably be matched in a
+non -preempt kernel via /proc tuning)
+
+
+>>I'd be happy to check out the preempt patch
+>>again and see if anything's changed, if the
+>>problem of tux+preempt oopsing has been
+>>dealt with -
+>>
+>
+>Right, useful.
+>
+See my previous reply, or the archives -
+
+Regards,
+
+jjs
+
+
 

@@ -1,55 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbUDZPXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbUDZPhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262744AbUDZPXy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 11:23:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUDZPXy
+	id S262027AbUDZPhl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 11:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbUDZPhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 11:23:54 -0400
-Received: from users.linvision.com ([62.58.92.114]:63156 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262744AbUDZPXq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 11:23:46 -0400
-Date: Mon, 26 Apr 2004 17:23:45 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: andersen@codepoet.org, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] prevent module unloading for legacy IDE chipset drivers
-Message-ID: <20040426152345.GE14074@harddisk-recovery.com>
-References: <200404212219.24622.bzolnier@elka.pw.edu.pl> <200404221635.12490.bzolnier@elka.pw.edu.pl> <20040426135058.GC14074@harddisk-recovery.com> <200404261650.40801.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404261650.40801.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+	Mon, 26 Apr 2004 11:37:41 -0400
+Received: from host16.apollohosting.com ([209.239.37.142]:54429 "EHLO
+	host16.apollohosting.com") by vger.kernel.org with ESMTP
+	id S262027AbUDZPhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 11:37:38 -0400
+To: "OGAWA Hirofumi" <hirofumi@mail.parknet.co.jp>
+Cc: "Linux Kernel ML" <linux-kernel@vger.kernel.org>
+Subject: Re: 8139too not working in 2.6 (works now)
+References: <opr62ahdvlpsnffn@mail.mcaserta.com> <87oeperj4y.fsf@devron.myhome.or.jp> <opr62jbzk9psnffn@mail.mcaserta.com> <878ygirctm.fsf@devron.myhome.or.jp>
+Message-ID: <opr62lomnxpsnffn@mail.mcaserta.com>
+Date: Mon, 26 Apr 2004 17:37:24 +0200
+From: "Mirko Caserta" <mirko@mcaserta.com>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <878ygirctm.fsf@devron.myhome.or.jp>
+User-Agent: Opera M2/7.50 (Linux, build 663)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 26, 2004 at 04:50:40PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> BTW I think there is a common misunderstanding about libata:
->     it will not replace IDE drivers any time soon.
-> 
-> I want to rewrite+merge current IDE code with libata during 2.7
-> (and yes, legacy naming and ordering will be preserved!).
-> 
-> I hope nobody starts rewriting existing IDE drivers for libata and pushing
-> them upstream -> it will mean maintenance problems much bigger than OSS+ALSA.
 
-I don't think it's bad to have two drivers for the same hardware. We've
-seen that with the USB UHCI host controller, RTL 8139, Intel e100,
-Adaptec aic7xxx, NCR/Symbios sym53c8x. Having two drivers makes it easy
-for people to switch. The difference with OSS+ALSA is that the drivers
-I just mentioned have been "developed" in the tree, while ALSA was
-developed outside the tree.
+I tried "acpi=off" and it worked like a charm. He's the new  
+/proc/interrupts:
 
-> However writing _new_ libata driver for 'exotic' PATA hardware is OK.
+carbon:~# cat /proc/interrupts
+            CPU0       CPU1
+   0:     857627         12    IO-APIC-edge  timer
+   1:       1073          0    IO-APIC-edge  i8042
+   2:          0          0          XT-PIC  cascade
+   8:          1          1    IO-APIC-edge  rtc
+  12:         87          0    IO-APIC-edge  i8042
+  14:       4103          2    IO-APIC-edge  ide0
+  15:       4900          2    IO-APIC-edge  ide1
+  21:       4505          1   IO-APIC-level  eth0
+  27:       1484          0   IO-APIC-level  i91u, uhci_hcd, uhci_hcd,  
+uhci_hcd
+NMI:          0          0
+LOC:     857482     857455
+ERR:          0
+MIS:          0
 
-Is AMD 760/762 (amd74xx driver) considered "exotic"? ;-)
+Hope this helps someone else too.
+
+Thanks a lot, Mirko.
+
+On Tue, 27 Apr 2004 00:14:29 +0900, OGAWA Hirofumi  
+<hirofumi@mail.parknet.co.jp> wrote:
+
+> "Mirko Caserta" <mirko@mcaserta.com> writes:
+>
+>> Anyway, it doesn't look like an irq problem to me. It looks more like
+>> a  wrong detection of the TX triggering level in the driver.
+>
+> In interrupts-2.6.6-rc2-mm2-broken-out,
+>
+>            CPU0       CPU1
+>   0:     103394         48    IO-APIC-edge  timer
+>   1:        157          0    IO-APIC-edge  i8042
+>   5:          2          1    IO-APIC-edge  eth0
+>                               ^^^^^^^^^^^^-- wrong
+>   8:          2          0    IO-APIC-edge  rtc
+>   9:          0          0   IO-APIC-level  acpi
+>  11:          3          1    IO-APIC-edge  i91u
+>  12:         87          0    IO-APIC-edge  i8042
+>  14:       1068          2    IO-APIC-edge  ide0
+>  15:        953          1    IO-APIC-edge  ide1
+>
+> The above must be IO-APIC-level.
+> And the following is interesting one.
+>
+>     ACPI: ACPI tables contain no PCI IRQ routing entries
+>     PCI: Invalid ACPI-PCI IRQ routing table
+>     PCI: Probing PCI hardware
+>     PCI: Using IRQ router default [1106/3091] at 0000:00:00.0
+>     PCI BIOS passed nonexistent PCI bus 0!
+>     PCI BIOS passed nonexistent PCI bus 0!
+>     PCI BIOS passed nonexistent PCI bus 0!
+>     PCI BIOS passed nonexistent PCI bus 0!
+>     PCI BIOS passed nonexistent PCI bus 0!
+>     PCI BIOS passed nonexistent PCI bus 1!
+>     PCI BIOS passed nonexistent PCI bus 0!
+>
+> Um.. can you try "pci=noacpi" or "acpi=off"?
 
 
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

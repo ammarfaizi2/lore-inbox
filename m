@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263921AbTJEWTg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 18:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263926AbTJEWTg
+	id S263920AbTJEWGd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 18:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbTJEWGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 18:19:36 -0400
-Received: from hacksaw.org ([66.92.70.107]:9139 "EHLO
-	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
-	id S263921AbTJEWTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 18:19:33 -0400
-Message-Id: <200310052219.h95MJQKF008980@habitrail.home.fools-errant.com>
-X-Mailer: exmh version 2.6.1 02/18/2003 with nmh-1.0.4
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: swap and 2.4.20 
-In-reply-to: Your message of "Sun, 05 Oct 2003 14:56:27 PDT."
-             <20031005215627.GE1205@matchmail.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 05 Oct 2003 18:19:26 -0400
-From: Hacksaw <hacksaw@hacksaw.org>
+	Sun, 5 Oct 2003 18:06:33 -0400
+Received: from pop.gmx.net ([213.165.64.20]:47076 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263920AbTJEWG1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 18:06:27 -0400
+X-Authenticated: #1033915
+Message-ID: <3F8090E7.9040501@GMX.li>
+Date: Sun, 05 Oct 2003 23:45:11 +0200
+From: Jan Schubert <Jan.Schubert@GMX.li>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031005
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, kernelnewbies@vger.kernel.org
+Subject: Q: Maintainer for drivers/isdn/hisax in kernel-2.6
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Does this mean that you could replace a library out from under a running but 
-> > largely paged out app, and have it suddenly switch to the new library?
-> 
-> Technically yes, but realistically no.
-> 
-> You'd more likely crash the app since maybe only a few pages of the new code
-> were paged in, and nothing says that it's the update of the code you wanted...
-> 
+Who is the Maintainer for the (old) ISDN-Hisax-Part for the kernel-2.6 
+(located in drivers/isdn/hisax)? I've digged into the code and got some 
+problems. IMHO there exist some old/outdated code which will never be 
+used in the current state (there are some Kernel-Config-Values which are 
+not defined or which will never be used). I tried to write an module to 
+get an Teles ISDN-PCMCIA Card running and run into some problems which 
+prevents me from further testing now.
 
-Ahh, so nothing is done to ensure that that functional dependencies are 
-resolved. All right, that's not shocking, since it's not the point.
+Any help?
+Thx, Jan
 
-In fact, thinking about what might be involved to make that possible hurts my 
-head. Well maybe not. I wonder if you could have a mechanism that causes the 
-entire library to be paged out and reloaded if while paging the version is 
-discovered to have changed.
-
-In many ways this would be cool, as it would mean that running apps could stay 
-up and yet get bugs fixed.
-
-I'm guessing that would require there to be no static variables in the 
-library, as well as being fully reentrant, or that that any statics are in a 
-page whose format doesn't change and is locked down for the switch.
--- 
-Listening is a craft.
-Hearing is an art.
-http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
-
+PS: May someone point me to an Kernel-Module-Howto for kernel-2.6? There 
+is none in the the Documentation-Directory and i did'nt found one in the 
+net for now....
 

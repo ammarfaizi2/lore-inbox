@@ -1,952 +1,1006 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317140AbSFBHEv>; Sun, 2 Jun 2002 03:04:51 -0400
+	id <S317141AbSFBHGG>; Sun, 2 Jun 2002 03:06:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317141AbSFBHEu>; Sun, 2 Jun 2002 03:04:50 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:31763 "EHLO
+	id <S317145AbSFBHGF>; Sun, 2 Jun 2002 03:06:05 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:32787 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317140AbSFBHEe>; Sun, 2 Jun 2002 03:04:34 -0400
-Message-ID: <3CF9B5CD.9040904@evision-ventures.com>
-Date: Sun, 02 Jun 2002 08:06:05 +0200
+	id <S317141AbSFBHFe>; Sun, 2 Jun 2002 03:05:34 -0400
+Message-ID: <3CF9B60C.3080506@evision-ventures.com>
+Date: Sun, 02 Jun 2002 08:07:08 +0200
 From: Martin Dalecki <dalecki@evision-ventures.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
 X-Accept-Language: en-us, pl
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH} 2.5.19 IDE 79
+Subject: [PATCH] 2.5.19 IDE 80
 In-Reply-To: <Pine.LNX.4.33.0205291146510.1344-100000@penguin.transmeta.com>
 Content-Type: multipart/mixed;
- boundary="------------090300010104060906010607"
+ boundary="------------000405080005030907020401"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------090300010104060906010607
+--------------000405080005030907020401
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Sat Jun  1 21:31:47 CEST 2002 ide-clean-79
+Sun Jun  2 03:31:56 CEST 2002 ide-clean-80
 
-- Fix typo in sparc_v9 code, in ns87415, just introduced.
+- Sanitize the handling of the ioctl's and fix a bug on the way in dealing with
+   the WIN_SMART command where arguments where exchanged.
 
-- Eliminate unnecessary struct hd_drive_hob_hdr those are
-   in reality precisely the same registers as usual.
+- Finally sanitize ioctl further until it turned out that we could get rid of
+   the special request type REQ_DRIVE_CMD entierly. We are now using
+   consistently REQ_DRIVE_ACB.
 
-- Eliminate control_t, nowhere used type.
+   One hidden code path less again!
 
-- Unfold ide_init_drive_cmd() at the places where it's used. This makes obvious
-   that REQ_DRIVE_CMD gets only used on the ioctl command path.
+- Realize the ide_end_drive_cmd can be on the REQ_DRIVE_ACB only for ioctl() to
+   a disk. Eliminate it's usage from device type driver modules.
+
+- Remove command member from struct  hd_drive_task_hdr and place it in strcut
+   ata_taskfile. It is not common between the normal register file and HOB.
+
+   We will have to introduce some helper functions for particular command types.
 
 
---------------090300010104060906010607
+--------------000405080005030907020401
 Content-Type: text/plain;
- name="ide-clean-79.diff"
+ name="ide-clean-80.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="ide-clean-79.diff"
+ filename="ide-clean-80.diff"
 
-diff -urN linux-2.5.19/drivers/ide/device.c linux/drivers/ide/device.c
---- linux-2.5.19/drivers/ide/device.c	2002-06-01 23:17:28.000000000 +0200
-+++ linux/drivers/ide/device.c	2002-06-01 22:14:42.000000000 +0200
-@@ -142,4 +142,18 @@
+diff -urN linux-2.5.19/drivers/block/ll_rw_blk.c linux/drivers/block/ll_rw_blk.c
+--- linux-2.5.19/drivers/block/ll_rw_blk.c	2002-05-29 20:42:46.000000000 +0200
++++ linux/drivers/block/ll_rw_blk.c	2002-06-02 06:33:53.000000000 +0200
+@@ -490,11 +490,21 @@
+ 	}
+ }
  
- EXPORT_SYMBOL(ata_reset);
+-static char *rq_flags[] = { "REQ_RW", "REQ_RW_AHEAD", "REQ_BARRIER",
+-			   "REQ_CMD", "REQ_NOMERGE", "REQ_STARTED",
+-			   "REQ_DONTPREP", "REQ_QUEUED", "REQ_DRIVE_CMD",
+-			   "REQ_DRIVE_ACB", "REQ_PC", "REQ_BLOCK_PC",
+-			   "REQ_SENSE", "REQ_SPECIAL" };
++static char *rq_flags[] = {
++	"REQ_RW",
++	"REQ_RW_AHEAD",
++	"REQ_BARRIER",
++	"REQ_CMD",
++	"REQ_NOMERGE",
++	"REQ_STARTED",
++	"REQ_DONTPREP",
++	"REQ_QUEUED",
++	"REQ_DRIVE_ACB",
++	"REQ_PC",
++	"REQ_BLOCK_PC",
++	"REQ_SENSE",
++	"REQ_SPECIAL"
++};
  
-+/*
-+ * Output a complete register file.
-+ */
-+void ata_out_regfile(struct ata_device *drive, struct hd_drive_task_hdr *rf)
-+{
-+	struct ata_channel *ch = drive->channel;
-+
-+	OUT_BYTE(rf->feature, ch->io_ports[IDE_FEATURE_OFFSET]);
-+	OUT_BYTE(rf->sector_count, ch->io_ports[IDE_NSECTOR_OFFSET]);
-+	OUT_BYTE(rf->sector_number, ch->io_ports[IDE_SECTOR_OFFSET]);
-+	OUT_BYTE(rf->low_cylinder, ch->io_ports[IDE_LCYL_OFFSET]);
-+	OUT_BYTE(rf->high_cylinder, ch->io_ports[IDE_HCYL_OFFSET]);
-+}
-+
- MODULE_LICENSE("GPL");
+ void blk_dump_rq_flags(struct request *rq, char *msg)
+ {
 diff -urN linux-2.5.19/drivers/ide/ide.c linux/drivers/ide/ide.c
---- linux-2.5.19/drivers/ide/ide.c	2002-06-01 23:17:28.000000000 +0200
-+++ linux/drivers/ide/ide.c	2002-06-01 22:41:03.000000000 +0200
-@@ -673,19 +673,6 @@
+--- linux-2.5.19/drivers/ide/ide.c	2002-06-02 07:28:28.000000000 +0200
++++ linux/drivers/ide/ide.c	2002-06-02 07:09:29.000000000 +0200
+@@ -395,38 +395,30 @@
+  *
+  * Should be called under lock held.
+  */
+-void ide_end_drive_cmd(struct ata_device *drive, struct request *rq, u8 err)
++void ide_end_drive_cmd(struct ata_device *drive, struct request *rq)
+ {
+-	if (rq->flags & REQ_DRIVE_CMD) {
+-		u8 *args = rq->buffer;
+-		rq->errors = !ata_status(drive, READY_STAT, BAD_STAT);
+-		if (args) {
+-			args[0] = drive->status;
+-			args[1] = err;
+-			args[2] = IN_BYTE(IDE_NSECTOR_REG);
+-		}
+-	} else if (rq->flags & REQ_DRIVE_ACB) {
+-		struct ata_taskfile *args = rq->special;
++	if (rq->flags & REQ_DRIVE_ACB) {
++		struct ata_taskfile *ar = rq->special;
+ 
+ 		rq->errors = !ata_status(drive, READY_STAT, BAD_STAT);
+-		if (args) {
+-			args->taskfile.feature = err;
+-			args->taskfile.sector_count = IN_BYTE(IDE_NSECTOR_REG);
+-			args->taskfile.sector_number = IN_BYTE(IDE_SECTOR_REG);
+-			args->taskfile.low_cylinder = IN_BYTE(IDE_LCYL_REG);
+-			args->taskfile.high_cylinder = IN_BYTE(IDE_HCYL_REG);
+-			args->taskfile.device_head = IN_BYTE(IDE_SELECT_REG);
+-			args->taskfile.command = drive->status;
++		if (ar) {
++			ar->taskfile.feature = IN_BYTE(IDE_ERROR_REG);
++			ar->taskfile.sector_count = IN_BYTE(IDE_NSECTOR_REG);
++			ar->taskfile.sector_number = IN_BYTE(IDE_SECTOR_REG);
++			ar->taskfile.low_cylinder = IN_BYTE(IDE_LCYL_REG);
++			ar->taskfile.high_cylinder = IN_BYTE(IDE_HCYL_REG);
++			ar->taskfile.device_head = IN_BYTE(IDE_SELECT_REG);
++			ar->cmd = drive->status;
+ 			if ((drive->id->command_set_2 & 0x0400) &&
+ 			    (drive->id->cfs_enable_2 & 0x0400) &&
+ 			    (drive->addressing == 1)) {
+ 				/* The following command goes to the hob file! */
+ 				OUT_BYTE(0x80, drive->channel->io_ports[IDE_CONTROL_OFFSET]);
+-				args->hobfile.feature = IN_BYTE(IDE_FEATURE_REG);
+-				args->hobfile.sector_count = IN_BYTE(IDE_NSECTOR_REG);
+-				args->hobfile.sector_number = IN_BYTE(IDE_SECTOR_REG);
+-				args->hobfile.low_cylinder = IN_BYTE(IDE_LCYL_REG);
+-				args->hobfile.high_cylinder = IN_BYTE(IDE_HCYL_REG);
++				ar->hobfile.feature = IN_BYTE(IDE_FEATURE_REG);
++				ar->hobfile.sector_count = IN_BYTE(IDE_NSECTOR_REG);
++				ar->hobfile.sector_number = IN_BYTE(IDE_SECTOR_REG);
++				ar->hobfile.low_cylinder = IN_BYTE(IDE_LCYL_REG);
++				ar->hobfile.high_cylinder = IN_BYTE(IDE_HCYL_REG);
+ 			}
+ 		}
+ 	}
+@@ -583,7 +575,7 @@
+ 
+ 		memset(&args, 0, sizeof(args));
+ 		args.taskfile.sector_count = drive->sect;
+-		args.taskfile.command = WIN_RESTORE;
++		args.cmd = WIN_RESTORE;
+ 		args.handler = recal_intr;
+ 		ata_taskfile(drive, &args, NULL);
+ 	}
+@@ -602,10 +594,12 @@
+ 	err = ide_dump_status(drive, rq, msg, stat);
+ 	if (!drive || !rq)
+ 		return ide_stopped;
++
+ 	/* retry only "normal" I/O: */
+ 	if (!(rq->flags & REQ_CMD)) {
+ 		rq->errors = 1;
+-		ide_end_drive_cmd(drive, rq, err);
++		ide_end_drive_cmd(drive, rq);
++
+ 		return ide_stopped;
+ 	}
+ 	/* other bits are useless when BUSY */
+@@ -649,30 +643,6 @@
  }
  
  /*
-- * Issue a simple drive command.  The drive must be selected beforehand.
+- * Invoked on completion of a special DRIVE_CMD.
 - */
--static void drive_cmd(struct ata_device *drive, u8 cmd, u8 nsect)
+-static ide_startstop_t drive_cmd_intr(struct ata_device *drive, struct request *rq)
 -{
--	ide_set_handler(drive, drive_cmd_intr, WAIT_CMD, NULL);
--	ata_irq_enable(drive, 1);
--	ata_mask(drive);
--	OUT_BYTE(nsect, IDE_NSECTOR_REG);
--	OUT_BYTE(cmd, IDE_COMMAND_REG);
--}
+-	u8 *args = rq->buffer;
 -
+-	ide__sti();	/* local CPU only */
+-	if (!ata_status(drive, 0, DRQ_STAT) && args && args[3]) {
+-		int retries = 10;
+-
+-		ata_read(drive, &args[4], args[3] * SECTOR_WORDS);
+-
+-		while (!ata_status(drive, 0, BUSY_STAT) && retries--)
+-			udelay(100);
+-	}
+-
+-	if (!ata_status(drive, READY_STAT, BAD_STAT))
+-		return ata_error(drive, rq, __FUNCTION__); /* already calls ide_end_drive_cmd */
+-	ide_end_drive_cmd(drive, rq, GET_ERR());
+-
+-	return ide_stopped;
+-}
 -
 -/*
   * Busy-wait for the drive status to be not "busy".  Check then the status for
   * all of the "good" bits and none of the "bad" bits, and if all is okay it
   * returns 0.  All other cases return 1 after invoking error handler -- caller
-@@ -815,21 +802,26 @@
- #ifdef DEBUG
- 		printk("%s: DRIVE_CMD ", drive->name);
- 		printk("cmd=0x%02x ", args[0]);
--		printk("sc=0x%02x ", args[1]);
--		printk("fr=0x%02x ", args[2]);
--		printk("xx=0x%02x\n", args[3]);
-+		printk(" sc=0x%02x ", args[1]);
-+		printk(" fr=0x%02x ", args[2]);
-+		printk(" xx=0x%02x\n", args[3]);
- #endif
-+		ide_set_handler(drive, drive_cmd_intr, WAIT_CMD, NULL);
-+		ata_irq_enable(drive, 1);
-+		ata_mask(drive);
- 		if (args[0] == WIN_SMART) {
--			OUT_BYTE(0x4f, IDE_LCYL_REG);
--			OUT_BYTE(0xc2, IDE_HCYL_REG);
--			OUT_BYTE(args[2],IDE_FEATURE_REG);
--			OUT_BYTE(args[1],IDE_SECTOR_REG);
--			drive_cmd(drive, args[0], args[3]);
--
--			return ide_started;
-+			struct hd_drive_task_hdr regfile;
-+			regfile.feature = args[2];
-+			regfile.sector_count = args[3];
-+			regfile.sector_number = args[1];
-+			regfile.low_cylinder = 0x4f;
-+			regfile.high_cylinder = 0xc2;
-+			ata_out_regfile(drive, &regfile);
-+		} else {
-+			OUT_BYTE(args[2], IDE_FEATURE_REG);
-+			OUT_BYTE(args[1], IDE_NSECTOR_REG);
+@@ -775,53 +745,20 @@
  		}
--		OUT_BYTE(args[2],IDE_FEATURE_REG);
--		drive_cmd(drive, args[0], args[1]);
-+		OUT_BYTE(args[0], IDE_COMMAND_REG);
+ 	}
+ 
+-	/* This issues a special drive command, usually initiated by ioctl()
+-	 * from the external hdparm program.
++	/* This issues a special drive command.
+ 	 */
+ 	if (rq->flags & REQ_DRIVE_ACB) {
+-		struct ata_taskfile *args = rq->special;
++		struct ata_taskfile *ar = rq->special;
+ 
+-		if (!(args))
++		if (!(ar))
+ 			goto args_error;
+ 
+-		ata_taskfile(drive, args, NULL);
+-
+-		if (((args->command_type == IDE_DRIVE_TASK_RAW_WRITE) ||
+-		     (args->command_type == IDE_DRIVE_TASK_OUT)) &&
+-				args->prehandler && args->handler)
+-			return args->prehandler(drive, rq);
+-
+-		return ide_started;
+-	}
++		ata_taskfile(drive, ar, NULL);
+ 
+-	if (rq->flags & REQ_DRIVE_CMD) {
+-		u8 *args = rq->buffer;
+-
+-		if (!(args))
+-			goto args_error;
+-#ifdef DEBUG
+-		printk("%s: DRIVE_CMD ", drive->name);
+-		printk("cmd=0x%02x ", args[0]);
+-		printk(" sc=0x%02x ", args[1]);
+-		printk(" fr=0x%02x ", args[2]);
+-		printk(" xx=0x%02x\n", args[3]);
+-#endif
+-		ide_set_handler(drive, drive_cmd_intr, WAIT_CMD, NULL);
+-		ata_irq_enable(drive, 1);
+-		ata_mask(drive);
+-		if (args[0] == WIN_SMART) {
+-			struct hd_drive_task_hdr regfile;
+-			regfile.feature = args[2];
+-			regfile.sector_count = args[3];
+-			regfile.sector_number = args[1];
+-			regfile.low_cylinder = 0x4f;
+-			regfile.high_cylinder = 0xc2;
+-			ata_out_regfile(drive, &regfile);
+-		} else {
+-			OUT_BYTE(args[2], IDE_FEATURE_REG);
+-			OUT_BYTE(args[1], IDE_NSECTOR_REG);
+-		}
+-		OUT_BYTE(args[0], IDE_COMMAND_REG);
++		if (((ar->command_type == IDE_DRIVE_TASK_RAW_WRITE) ||
++		     (ar->command_type == IDE_DRIVE_TASK_OUT)) &&
++				ar->prehandler && ar->handler)
++			return ar->prehandler(drive, rq);
  
  		return ide_started;
  	}
-diff -urN linux-2.5.19/drivers/ide/ide-cd.c linux/drivers/ide/ide-cd.c
---- linux-2.5.19/drivers/ide/ide-cd.c	2002-06-01 23:17:28.000000000 +0200
-+++ linux/drivers/ide/ide-cd.c	2002-06-01 23:48:30.000000000 +0200
-@@ -535,7 +535,7 @@
+@@ -863,7 +800,7 @@
+ #ifdef DEBUG
+ 	printk("%s: DRIVE_CMD (null)\n", drive->name);
+ #endif
+-	ide_end_drive_cmd(drive, rq, GET_ERR());
++	ide_end_drive_cmd(drive, rq);
  
- 	/* stuff the sense request in front of our current request */
- 	rq = &info->request_sense_request;
--	ide_init_drive_cmd(rq);
-+	memset(rq, 0, sizeof(*rq));
- 	rq->cmd[0] = GPCMD_REQUEST_SENSE;
- 	rq->cmd[4] = pc->buflen;
- 	rq->flags = REQ_SENSE;
-@@ -1389,9 +1389,8 @@
- 
- 	/* Start of retry loop. */
- 	do {
--		ide_init_drive_cmd(&rq);
-+		memset(&rq, 0, sizeof(rq));
- 		memcpy(rq.cmd, cmd, CDROM_PACKET_SIZE);
--
- 		rq.flags = REQ_PC;
- 
- 		/* FIXME --mdcki */
-@@ -2276,7 +2275,7 @@
- 	struct request req;
- 	int ret;
- 
--	ide_init_drive_cmd(&req);
-+	memset(&req, 0, sizeof(req));
- 	req.flags = REQ_SPECIAL;
- 	ret = ide_do_drive_cmd(drive, &req, ide_wait);
- 
+ 	return ide_stopped;
+ }
 diff -urN linux-2.5.19/drivers/ide/ide-disk.c linux/drivers/ide/ide-disk.c
---- linux-2.5.19/drivers/ide/ide-disk.c	2002-06-01 23:17:28.000000000 +0200
-+++ linux/drivers/ide/ide-disk.c	2002-06-01 21:53:07.000000000 +0200
-@@ -264,8 +264,6 @@
+--- linux-2.5.19/drivers/ide/ide-disk.c	2002-06-02 07:28:28.000000000 +0200
++++ linux/drivers/ide/ide-disk.c	2002-06-02 07:18:26.000000000 +0200
+@@ -170,7 +170,7 @@
+ 
+ 	args.taskfile.device_head = head;
+ 	args.taskfile.device_head |= drive->select.all;
+-	args.taskfile.command =  get_command(drive, rq_data_dir(rq));
++	args.cmd =  get_command(drive, rq_data_dir(rq));
+ 
+ #ifdef DEBUG
+ 	printk("%s: %sing: ", drive->name,
+@@ -211,7 +211,7 @@
+ 
+ 	args.taskfile.device_head = ((block >> 8) & 0x0f);
+ 	args.taskfile.device_head |= drive->select.all;
+-	args.taskfile.command = get_command(drive, rq_data_dir(rq));
++	args.cmd = get_command(drive, rq_data_dir(rq));
+ 
+ #ifdef DEBUG
+ 	printk("%s: %sing: ", drive->name,
+@@ -264,7 +264,7 @@
  	args.hobfile.high_cylinder = (block >>= 8);	/* hi  lba */
  	args.hobfile.device_head = drive->select.all;
  
--	args.hobfile.control = 0x80;
--
- 	args.taskfile.command = get_command(drive, rq_data_dir(rq));
+-	args.taskfile.command = get_command(drive, rq_data_dir(rq));
++	args.cmd = get_command(drive, rq_data_dir(rq));
  
  #ifdef DEBUG
-@@ -728,7 +726,6 @@
- 	args.hobfile.high_cylinder = (addr_req >>= 8);
+ 	printk("%s: %sing: ", drive->name,
+@@ -355,7 +355,7 @@
  
- 	args.hobfile.device_head = 0x40;
--	args.hobfile.control = 0x80;
+ 		memset(&args, 0, sizeof(args));
  
-         args.handler = task_no_data_intr;
+-		args.taskfile.command = WIN_DOORLOCK;
++		args.cmd = WIN_DOORLOCK;
+ 		ide_cmd_type_parser(&args);
+ 
+ 		/*
+@@ -377,9 +377,9 @@
+ 	memset(&args, 0, sizeof(args));
+ 
+ 	if (drive->id->cfs_enable_2 & 0x2400)
+-		args.taskfile.command = WIN_FLUSH_CACHE_EXT;
++		args.cmd = WIN_FLUSH_CACHE_EXT;
+ 	else
+-		args.taskfile.command = WIN_FLUSH_CACHE;
++		args.cmd = WIN_FLUSH_CACHE;
+ 
+ 	ide_cmd_type_parser(&args);
+ 
+@@ -395,7 +395,7 @@
+ 		invalidate_bdev(inode->i_bdev, 0);
+ 
+ 		memset(&args, 0, sizeof(args));
+-		args.taskfile.command = WIN_DOORUNLOCK;
++		args.cmd = WIN_DOORUNLOCK;
+ 		ide_cmd_type_parser(&args);
+ 
+ 		if (drive->doorlocking &&
+@@ -444,7 +444,7 @@
+ 
+ 	memset(&args, 0, sizeof(args));
+ 	args.taskfile.sector_count = arg;
+-	args.taskfile.command	= WIN_SETMULT;
++	args.cmd = WIN_SETMULT;
+ 	ide_cmd_type_parser(&args);
+ 
+ 	if (!ide_raw_taskfile(drive, &args)) {
+@@ -475,7 +475,7 @@
+ 
+ 	memset(&args, 0, sizeof(args));
+ 	args.taskfile.feature	= (arg) ? SETFEATURES_EN_WCACHE : SETFEATURES_DIS_WCACHE;
+-	args.taskfile.command	= WIN_SETFEATURES;
++	args.cmd = WIN_SETFEATURES;
+ 	ide_cmd_type_parser(&args);
+ 	ide_raw_taskfile(drive, &args);
+ 
+@@ -489,7 +489,7 @@
+ 	struct ata_taskfile args;
+ 
+ 	memset(&args, 0, sizeof(args));
+-	args.taskfile.command = WIN_STANDBYNOW1;
++	args.cmd = WIN_STANDBYNOW1;
+ 	ide_cmd_type_parser(&args);
+ 
+ 	return ide_raw_taskfile(drive, &args);
+@@ -502,7 +502,7 @@
+ 	memset(&args, 0, sizeof(args));
+ 	args.taskfile.feature = (arg)?SETFEATURES_EN_AAM:SETFEATURES_DIS_AAM;
+ 	args.taskfile.sector_count = arg;
+-	args.taskfile.command = WIN_SETFEATURES;
++	args.cmd = WIN_SETFEATURES;
+ 	ide_cmd_type_parser(&args);
+ 	ide_raw_taskfile(drive, &args);
+ 
+@@ -622,14 +622,14 @@
+ 	/* Create IDE/ATA command request structure */
+ 	memset(&args, 0, sizeof(args));
+ 	args.taskfile.device_head = 0x40;
+-	args.taskfile.command = WIN_READ_NATIVE_MAX;
++	args.cmd = WIN_READ_NATIVE_MAX;
+ 	args.handler = task_no_data_intr;
+ 
  	/* submit command request */
+ 	ide_raw_taskfile(drive, &args);
+ 
+ 	/* if OK, compute maximum address value */
+-	if ((args.taskfile.command & 0x01) == 0) {
++	if ((args.cmd & 0x01) == 0) {
+ 		addr = ((args.taskfile.device_head & 0x0f) << 24)
+ 		     | (args.taskfile.high_cylinder << 16)
+ 		     | (args.taskfile.low_cylinder <<  8)
+@@ -650,14 +650,14 @@
+ 	memset(&args, 0, sizeof(args));
+ 
+ 	args.taskfile.device_head = 0x40;
+-	args.taskfile.command = WIN_READ_NATIVE_MAX_EXT;
++	args.cmd = WIN_READ_NATIVE_MAX_EXT;
+ 	args.handler = task_no_data_intr;
+ 
+         /* submit command request */
+         ide_raw_taskfile(drive, &args);
+ 
+ 	/* if OK, compute maximum address value */
+-	if ((args.taskfile.command & 0x01) == 0) {
++	if ((args.cmd & 0x01) == 0) {
+ 		u32 high = (args.hobfile.high_cylinder << 16) |
+ 			   (args.hobfile.low_cylinder << 8) |
+ 			    args.hobfile.sector_number;
+@@ -691,12 +691,12 @@
+ 	args.taskfile.high_cylinder = (addr_req >> 16);
+ 
+ 	args.taskfile.device_head = ((addr_req >> 24) & 0x0f) | 0x40;
+-	args.taskfile.command = WIN_SET_MAX;
++	args.cmd = WIN_SET_MAX;
+ 	args.handler = task_no_data_intr;
+ 	/* submit command request */
+ 	ide_raw_taskfile(drive, &args);
+ 	/* if OK, read new maximum address value */
+-	if ((args.taskfile.command & 0x01) == 0) {
++	if ((args.cmd & 0x01) == 0) {
+ 		addr_set = ((args.taskfile.device_head & 0x0f) << 24)
+ 			 | (args.taskfile.high_cylinder << 16)
+ 			 | (args.taskfile.low_cylinder <<  8)
+@@ -719,7 +719,7 @@
+ 	args.taskfile.low_cylinder = (addr_req >>= 8);
+ 	args.taskfile.high_cylinder = (addr_req >>= 8);
+ 	args.taskfile.device_head = 0x40;
+-	args.taskfile.command = WIN_SET_MAX_EXT;
++	args.cmd = WIN_SET_MAX_EXT;
+ 
+ 	args.hobfile.sector_number = (addr_req >>= 8);
+ 	args.hobfile.low_cylinder = (addr_req >>= 8);
+@@ -731,7 +731,7 @@
+ 	/* submit command request */
+ 	ide_raw_taskfile(drive, &args);
+ 	/* if OK, compute maximum address value */
+-	if ((args.taskfile.command & 0x01) == 0) {
++	if ((args.cmd & 0x01) == 0) {
+ 		u32 high = (args.hobfile.high_cylinder << 16) |
+ 			   (args.hobfile.low_cylinder << 8) |
+ 			    args.hobfile.sector_number;
 diff -urN linux-2.5.19/drivers/ide/ide-floppy.c linux/drivers/ide/ide-floppy.c
---- linux-2.5.19/drivers/ide/ide-floppy.c	2002-06-01 23:17:28.000000000 +0200
-+++ linux/drivers/ide/ide-floppy.c	2002-06-01 23:55:10.000000000 +0200
-@@ -712,10 +712,10 @@
- static void idefloppy_queue_pc_head(struct ata_device *drive,
- 		struct atapi_packet_command *pc, struct request *rq)
- {
--	ide_init_drive_cmd (rq);
-+	memset(rq, 0, sizeof(*rq));
-+	rq->flags = IDEFLOPPY_RQ;
- 	/* FIXME: --mdcki */
- 	rq->buffer = (char *) pc;
--	rq->flags = IDEFLOPPY_RQ;
- 	(void) ide_do_drive_cmd (drive, rq, ide_preempt);
- }
+--- linux-2.5.19/drivers/ide/ide-floppy.c	2002-06-02 07:28:28.000000000 +0200
++++ linux/drivers/ide/ide-floppy.c	2002-06-02 06:51:41.000000000 +0200
+@@ -620,7 +620,7 @@
  
-@@ -1065,10 +1065,10 @@
- #endif
+ #if IDEFLOPPY_DEBUG_LOG
+ 	printk (KERN_INFO "Reached idefloppy_end_request\n");
+-#endif /* IDEFLOPPY_DEBUG_LOG */
++#endif
  
- 	ata_irq_enable(drive, 1);
--	OUT_BYTE (dma_ok ? 1:0,IDE_FEATURE_REG);			/* Use PIO/DMA */
--	OUT_BYTE (bcount.b.high,IDE_BCOUNTH_REG);
--	OUT_BYTE (bcount.b.low,IDE_BCOUNTL_REG);
--	OUT_BYTE (drive->select.all,IDE_SELECT_REG);
-+	OUT_BYTE(dma_ok ? 1:0,IDE_FEATURE_REG);			/* Use PIO/DMA */
-+	OUT_BYTE(bcount.b.high,IDE_BCOUNTH_REG);
-+	OUT_BYTE(bcount.b.low,IDE_BCOUNTL_REG);
-+	OUT_BYTE(drive->select.all,IDE_SELECT_REG);
- 
- #ifdef CONFIG_BLK_DEV_IDEDMA
- 	if (dma_ok) {							/* Begin DMA, if necessary */
-@@ -1271,11 +1271,12 @@
- {
- 	struct request rq;
- 
--	ide_init_drive_cmd (&rq);
-+	memset(&rq, 0, sizeof(rq));
- 	/* FIXME: --mdcki */
- 	rq.buffer = (char *) pc;
- 	rq.flags = IDEFLOPPY_RQ;
--	return ide_do_drive_cmd (drive, &rq, ide_wait);
+ 	switch (uptodate) {
+ 		case 0: error = IDEFLOPPY_ERROR_GENERAL; break;
+@@ -632,12 +632,16 @@
+ 	/* Why does this happen? */
+ 	if (!rq)
+ 		return 0;
 +
-+	return ide_do_drive_cmd(drive, &rq, ide_wait);
- }
- 
- /*
-diff -urN linux-2.5.19/drivers/ide/ide-tape.c linux/drivers/ide/ide-tape.c
---- linux-2.5.19/drivers/ide/ide-tape.c	2002-06-01 23:17:28.000000000 +0200
-+++ linux/drivers/ide/ide-tape.c	2002-06-01 23:43:22.000000000 +0200
-@@ -1921,7 +1921,7 @@
-  */
- static void idetape_queue_pc_head(struct ata_device *drive, struct atapi_packet_command *pc, struct request *rq)
- {
--	ide_init_drive_cmd (rq);
-+	memset(rq, 0, sizeof(*rq));
- 	rq->buffer = (char *) pc;
- 	rq->flags = IDETAPE_PC_RQ1;
- 	ide_do_drive_cmd(drive, rq, ide_preempt);
-@@ -3153,7 +3153,7 @@
- {
- 	struct request rq;
- 
--	ide_init_drive_cmd (&rq);
-+	memset(&rq, 0, sizeof(rq));
- 	/* FIXME: --mdcki */
- 	rq.buffer = (char *) pc;
- 	rq.flags = IDETAPE_PC_RQ1;
-@@ -3414,17 +3414,17 @@
- #if IDETAPE_DEBUG_LOG
- 	if (tape->debug_level >= 2)
- 		printk (KERN_INFO "ide-tape: idetape_queue_rw_tail: cmd=%d\n",cmd);
--#endif /* IDETAPE_DEBUG_LOG */
-+#endif
- #if IDETAPE_DEBUG_BUGS
- 	if (idetape_pipeline_active (tape)) {
- 		printk (KERN_ERR "ide-tape: bug: the pipeline is active in idetape_queue_rw_tail\n");
- 		return (0);
+ 	if (!(rq->flags & IDEFLOPPY_RQ)) {
+ 		ide_end_request(drive, rq, uptodate);
+ 		return 0;
  	}
--#endif /* IDETAPE_DEBUG_BUGS */	
-+#endif
++
+ 	rq->errors = error;
+-	ide_end_drive_cmd (drive, rq, 0);
++	blkdev_dequeue_request(rq);
++	drive->rq = NULL;
++	end_that_request_last(rq);
  
--	ide_init_drive_cmd (&rq);
--	rq.bio = bio;
-+	memset(&rq, 0, sizeof(rq));
- 	rq.flags = cmd;
-+	rq.bio = bio;
- 	rq.sector = tape->first_frame_position;
- 	rq.nr_sectors = rq.current_nr_sectors = blocks;
- 	if (tape->onstream)
-@@ -3472,7 +3472,7 @@
- 			printk(KERN_INFO "ide-tape: %s: read back logical block %d, data %x %x %x %x\n", tape->name, logical_blk_num, *p++, *p++, *p++, *p++);
- #endif
- 		rq = &stage->rq;
--		ide_init_drive_cmd (rq);
-+		memset(rq, 0, sizeof(*rq));
- 		rq->flags = IDETAPE_WRITE_RQ;
- 		rq->sector = tape->first_frame_position;
- 		rq->nr_sectors = rq->current_nr_sectors = tape->capabilities.ctl;
-@@ -3748,7 +3748,7 @@
+ 	return 0;
+ }
+diff -urN linux-2.5.19/drivers/ide/ide-tape.c linux/drivers/ide/ide-tape.c
+--- linux-2.5.19/drivers/ide/ide-tape.c	2002-06-02 07:28:28.000000000 +0200
++++ linux/drivers/ide/ide-tape.c	2002-06-02 06:52:11.000000000 +0200
+@@ -1864,9 +1864,12 @@
+ 				idetape_increase_max_pipeline_stages (drive);
  		}
  	}
- 	rq = &new_stage->rq;
--	ide_init_drive_cmd (rq);
-+	memset(rq, 0, sizeof(*rq));
- 	rq->flags = IDETAPE_WRITE_RQ;
- 	rq->sector = tape->first_frame_position;	/* Doesn't actually matter - We always assume sequential access */
- 	rq->nr_sectors = rq->current_nr_sectors = blocks;
-@@ -3938,7 +3938,8 @@
- 	}
- 	if (tape->restart_speed_control_req)
- 		idetape_restart_speed_control(drive);
--	ide_init_drive_cmd (&rq);
+-	ide_end_drive_cmd(drive, rq, 0);
++	blkdev_dequeue_request(rq);
++	drive->rq = NULL;
++	end_that_request_last(rq);
 +
-+	memset(&rq, 0, sizeof(rq));
- 	rq.flags = IDETAPE_READ_RQ;
- 	rq.sector = tape->first_frame_position;
- 	rq.nr_sectors = rq.current_nr_sectors = blocks;
+ 	if (remove_stage)
+-		idetape_remove_stage_head (drive);
++		idetape_remove_stage_head(drive);
+ 	if (tape->active_data_request == NULL)
+ 		clear_bit(IDETAPE_PIPELINE_ACTIVE, &tape->flags);
+ 	spin_unlock_irqrestore(&tape->spinlock, flags);
 diff -urN linux-2.5.19/drivers/ide/ide-taskfile.c linux/drivers/ide/ide-taskfile.c
---- linux-2.5.19/drivers/ide/ide-taskfile.c	2002-06-01 23:17:28.000000000 +0200
-+++ linux/drivers/ide/ide-taskfile.c	2002-06-01 23:59:07.000000000 +0200
-@@ -314,7 +314,6 @@
- 		struct ata_taskfile *args, struct request *rq)
+--- linux-2.5.19/drivers/ide/ide-taskfile.c	2002-06-02 07:28:28.000000000 +0200
++++ linux/drivers/ide/ide-taskfile.c	2002-06-02 07:07:28.000000000 +0200
+@@ -311,34 +311,34 @@
+ }
+ 
+ ide_startstop_t ata_taskfile(struct ata_device *drive,
+-		struct ata_taskfile *args, struct request *rq)
++		struct ata_taskfile *ar, struct request *rq)
  {
  	struct hd_driveid *id = drive->id;
--	u8 HIHI = (drive->addressing) ? 0xE0 : 0xEF;
  
  	/* (ks/hs): Moved to start, do not use for multiple out commands */
- 	if (args->handler != task_mulout_intr) {
-@@ -322,25 +321,16 @@
+-	if (args->handler != task_mulout_intr) {
++	if (ar->handler != task_mulout_intr) {
+ 		ata_irq_enable(drive, 1);
  		ata_mask(drive);
  	}
  
--	if ((id->command_set_2 & 0x0400) &&
--	    (id->cfs_enable_2 & 0x0400) &&
--	    (drive->addressing == 1)) {
--		OUT_BYTE(args->hobfile.feature, IDE_FEATURE_REG);
--		OUT_BYTE(args->hobfile.sector_count, IDE_NSECTOR_REG);
--		OUT_BYTE(args->hobfile.sector_number, IDE_SECTOR_REG);
--		OUT_BYTE(args->hobfile.low_cylinder, IDE_LCYL_REG);
--		OUT_BYTE(args->hobfile.high_cylinder, IDE_HCYL_REG);
--	}
--
--	OUT_BYTE(args->taskfile.feature, IDE_FEATURE_REG);
--	OUT_BYTE(args->taskfile.sector_count, IDE_NSECTOR_REG);
--	/* refers to number of sectors to transfer */
--	OUT_BYTE(args->taskfile.sector_number, IDE_SECTOR_REG);
--	/* refers to sector offset or start sector */
--	OUT_BYTE(args->taskfile.low_cylinder, IDE_LCYL_REG);
--	OUT_BYTE(args->taskfile.high_cylinder, IDE_HCYL_REG);
--
--	OUT_BYTE((args->taskfile.device_head & HIHI) | drive->select.all, IDE_SELECT_REG);
-+	if ((id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400) &&
-+	    (drive->addressing == 1))
-+		ata_out_regfile(drive, &args->hobfile);
-+
-+	ata_out_regfile(drive, &args->taskfile);
-+
-+	{
-+		u8 HIHI = (drive->addressing) ? 0xE0 : 0xEF;
-+		OUT_BYTE((args->taskfile.device_head & HIHI) | drive->select.all, IDE_SELECT_REG);
-+	}
- 	if (args->handler != NULL) {
+ 	if ((id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400) &&
+ 	    (drive->addressing == 1))
+-		ata_out_regfile(drive, &args->hobfile);
++		ata_out_regfile(drive, &ar->hobfile);
+ 
+-	ata_out_regfile(drive, &args->taskfile);
++	ata_out_regfile(drive, &ar->taskfile);
+ 
+ 	{
+ 		u8 HIHI = (drive->addressing) ? 0xE0 : 0xEF;
+-		OUT_BYTE((args->taskfile.device_head & HIHI) | drive->select.all, IDE_SELECT_REG);
++		OUT_BYTE((ar->taskfile.device_head & HIHI) | drive->select.all, IDE_SELECT_REG);
+ 	}
+-	if (args->handler != NULL) {
++	if (ar->handler != NULL) {
  
  		/* This is apparently supposed to reset the wait timeout for
-@@ -361,8 +351,7 @@
+ 		 * the interrupt to accur.
+ 		 */
+ 
+-		ide_set_handler(drive, args->handler, WAIT_CMD, NULL);
+-		OUT_BYTE(args->taskfile.command, IDE_COMMAND_REG);
++		ide_set_handler(drive, ar->handler, WAIT_CMD, NULL);
++		OUT_BYTE(ar->cmd, IDE_COMMAND_REG);
+ 
+ 		/*
+ 		 * Warning check for race between handler and prehandler for
+@@ -346,8 +346,8 @@
+ 		 * inside the boundaries of the seek, we should be okay.
+ 		 */
+ 
+-		if (args->prehandler != NULL)
+-			return args->prehandler(drive, rq);
++		if (ar->prehandler != NULL)
++			return ar->prehandler(drive, rq);
  	} else {
  		/*
  		 * FIXME: this is a gross hack, need to unify tcq dma proc and
--		 * regular dma proc -- basically split stuff that needs to act
--		 * on a request from things like ide_dma_check etc.
-+		 * regular dma proc.
- 		 */
+@@ -358,21 +358,20 @@
+ 			return ide_started;
  
- 		if (!drive->using_dma)
-@@ -761,15 +750,6 @@
+ 		/* for dma commands we don't set the handler */
+-		if (args->taskfile.command == WIN_WRITEDMA
+-		 || args->taskfile.command == WIN_WRITEDMA_EXT)
++		if (ar->cmd == WIN_WRITEDMA  || ar->cmd == WIN_WRITEDMA_EXT)
+ 			return !udma_write(drive, rq);
+-		else if (args->taskfile.command == WIN_READDMA
+-		      || args->taskfile.command == WIN_READDMA_EXT)
++		else if (ar->cmd == WIN_READDMA
++		      || ar->cmd == WIN_READDMA_EXT)
+ 			return !udma_read(drive, rq);
+ #ifdef CONFIG_BLK_DEV_IDE_TCQ
+-		else if (args->taskfile.command == WIN_WRITEDMA_QUEUED
+-		      || args->taskfile.command == WIN_WRITEDMA_QUEUED_EXT
+-		      || args->taskfile.command == WIN_READDMA_QUEUED
+-		      || args->taskfile.command == WIN_READDMA_QUEUED_EXT)
++		else if (ar->cmd == WIN_WRITEDMA_QUEUED
++		      || ar->cmd == WIN_WRITEDMA_QUEUED_EXT
++		      || ar->cmd == WIN_READDMA_QUEUED
++		      || ar->cmd == WIN_READDMA_QUEUED_EXT)
+ 			return udma_tcq_taskfile(drive, rq);
+ #endif
+ 		else {
+-			printk("ata_taskfile: unknown command %x\n", args->taskfile.command);
++			printk("ata_taskfile: unknown command %x\n", ar->cmd);
+ 			return ide_stopped;
+ 		}
+ 	}
+@@ -396,18 +395,18 @@
+  */
+ ide_startstop_t task_no_data_intr(struct ata_device *drive, struct request *rq)
+ {
+-	struct ata_taskfile *args = rq->special;
++	struct ata_taskfile *ar = rq->special;
+ 
+ 	ide__sti();	/* local CPU only */
+ 
+ 	if (!ata_status(drive, READY_STAT, BAD_STAT)) {
+ 		/* Keep quiet for NOP because it is expected to fail. */
+-		if (args && args->taskfile.command != WIN_NOP)
++		if (ar && ar->cmd != WIN_NOP)
+ 			return ata_error(drive, rq, __FUNCTION__);
+ 	}
+ 
+-	if (args)
+-		ide_end_drive_cmd(drive, rq, GET_ERR());
++	if (ar)
++		ide_end_drive_cmd(drive, rq);
+ 
+ 	return ide_stopped;
  }
+@@ -466,8 +465,8 @@
+ 	}
+ 
+ 	/* (ks/hs): Fixed Multi Write */
+-	if ((args->taskfile.command != WIN_MULTWRITE) &&
+-	    (args->taskfile.command != WIN_MULTWRITE_EXT)) {
++	if ((args->cmd != WIN_MULTWRITE) &&
++	    (args->cmd != WIN_MULTWRITE_EXT)) {
+ 		unsigned long flags;
+ 		char *buf = ide_map_rq(rq, &flags);
+ 		/* For Write_sectors we need to stuff the first sector */
+@@ -569,7 +568,7 @@
+ 	args->prehandler = NULL;
+ 	args->handler = NULL;
+ 
+-	switch(args->taskfile.command) {
++	switch (args->cmd) {
+ 		case WIN_IDENTIFY:
+ 		case WIN_PIDENTIFY:
+ 			args->handler = task_in_intr;
+@@ -817,13 +816,6 @@
+ 
+ 	memset(&rq, 0, sizeof(rq));
+ 	rq.flags = REQ_DRIVE_ACB;
+-
+-#if 0
+-	if (args->command_type != IDE_DRIVE_TASK_NO_DATA)
+-		rq.current_nr_sectors = rq.nr_sectors
+-			= (args->hobfile.sector_count << 8)
+-			| args->taskfile.sector_count;
+-#endif
+ 	rq.special = args;
+ 
+ 	return ide_do_drive_cmd(drive, &rq, ide_wait);
+diff -urN linux-2.5.19/drivers/ide/ioctl.c linux/drivers/ide/ioctl.c
+--- linux-2.5.19/drivers/ide/ioctl.c	2002-06-02 07:28:28.000000000 +0200
++++ linux/drivers/ide/ioctl.c	2002-06-02 07:10:02.000000000 +0200
+@@ -23,6 +23,7 @@
+ #include <linux/errno.h>
+ #include <linux/blkpg.h>
+ #include <linux/pci.h>
++#include <linux/delay.h>
+ #include <linux/cdrom.h>
+ #include <linux/device.h>
+ 
+@@ -33,42 +34,67 @@
+ #include "ioctl.h"
  
  /*
-- * This function is intended to be used prior to invoking ide_do_drive_cmd().
-- */
--void ide_init_drive_cmd(struct request *rq)
--{
--	memset(rq, 0, sizeof(*rq));
--	rq->flags = REQ_DRIVE_CMD;
--}
--
--/*
-  * This function issues a special IDE device request onto the request queue.
++ * Invoked on completion of a special DRIVE_CMD.
++ */
++static ide_startstop_t drive_cmd_intr(struct ata_device *drive, struct request *rq)
++{
++	struct ata_taskfile *ar = rq->special;
++
++	ide__sti();	/* local CPU only */
++	if (!ata_status(drive, 0, DRQ_STAT) && ar->taskfile.sector_number) {
++		int retries = 10;
++
++		ata_read(drive, rq->buffer, ar->taskfile.sector_number * SECTOR_WORDS);
++
++		while (!ata_status(drive, 0, BUSY_STAT) && retries--)
++			udelay(100);
++	}
++
++	if (!ata_status(drive, READY_STAT, BAD_STAT))
++		return ata_error(drive, rq, __FUNCTION__); /* already calls ide_end_drive_cmd */
++	ide_end_drive_cmd(drive, rq);
++
++	return ide_stopped;
++}
++
++/*
+  * Implement generic ioctls invoked from userspace to imlpement specific
+  * functionality.
   *
-  * If action is ide_wait, then the rq is queued at the end of the request
-@@ -849,139 +829,12 @@
- 	return ide_do_drive_cmd(drive, &rq, ide_wait);
- }
- 
--/*
-- * Implement generic ioctls invoked from userspace to imlpement specific
-- * functionality.
-- *
-- * Unfortunately every single low level programm out there is using this
-- * interface.
-- */
--
--/*
-- * Backside of HDIO_DRIVE_CMD call of SETFEATURES_XFER.
-- * 1 : Safe to update drive->id DMA registers.
-- * 0 : OOPs not allowed.
-- */
--static int set_transfer(struct ata_device *drive, struct ata_taskfile *args)
--{
--	if ((args->taskfile.command == WIN_SETFEATURES) &&
--	    (args->taskfile.sector_number >= XFER_SW_DMA_0) &&
--	    (args->taskfile.feature == SETFEATURES_XFER) &&
--	    (drive->id->dma_ultra ||
--	     drive->id->dma_mword ||
--	     drive->id->dma_1word))
--		return 1;
--
--	return 0;
--}
--
--/*
-- * Verify that we are doing an approved SETFEATURES_XFER with respect
-- * to the hardware being able to support request.  Since some hardware
-- * can improperly report capabilties, we check to see if the host adapter
-- * in combination with the device (usually a disk) properly detect
-- * and acknowledge each end of the ribbon.
-- */
--static int ata66_check(struct ata_device *drive, struct ata_taskfile *args)
--{
--	if ((args->taskfile.command == WIN_SETFEATURES) &&
--	    (args->taskfile.sector_number > XFER_UDMA_2) &&
--	    (args->taskfile.feature == SETFEATURES_XFER)) {
--		if (!drive->channel->udma_four) {
--			printk("%s: Speed warnings UDMA 3/4/5 is not functional.\n", drive->channel->name);
--			return 1;
--		}
--#ifndef CONFIG_IDEDMA_IVB
--		if ((drive->id->hw_config & 0x6000) == 0) {
--#else
--		if (((drive->id->hw_config & 0x2000) == 0) ||
--		    ((drive->id->hw_config & 0x4000) == 0)) {
--#endif
--			printk("%s: Speed warnings UDMA 3/4/5 is not functional.\n", drive->name);
--			return 1;
--		}
--	}
--	return 0;
--}
--
--int ide_cmd_ioctl(struct ata_device *drive, unsigned long arg)
--{
--	int err = 0;
--	u8 vals[4];
--	u8 *argbuf = vals;
+  * Unfortunately every single low level programm out there is using this
+  * interface.
+  */
+-static int cmd_ioctl(struct ata_device *drive, unsigned long arg)
++static int do_cmd_ioctl(struct ata_device *drive, unsigned long arg)
+ {
+ 	int err = 0;
+ 	u8 vals[4];
+ 	u8 *argbuf = vals;
 -	u8 pio = 0;
--	int argsize = 4;
--	struct ata_taskfile args;
--	struct request rq;
+ 	int argsize = 4;
+ 	struct ata_taskfile args;
+ 	struct request rq;
+ 
+-	memset(&rq, 0, sizeof(rq));
+-	rq.flags = REQ_DRIVE_CMD;
 -
--	ide_init_drive_cmd(&rq);
--
--	/* Wait for drive ready.
+-	/* If empty parameter file - wait for drive ready.
 -	 */
 -	if (!arg)
 -		return ide_do_drive_cmd(drive, &rq, ide_wait);
 -
--	/* Second phase.
--	 */
--	if (copy_from_user(vals, (void *)arg, 4))
--		return -EFAULT;
--
--	args.taskfile.feature = vals[2];
+ 	/* Second phase.
+ 	 */
+ 	if (copy_from_user(vals, (void *)arg, 4))
+ 		return -EFAULT;
+ 
++	memset(&rq, 0, sizeof(rq));
++	rq.flags = REQ_DRIVE_ACB;
++
++	memset(&args, 0, sizeof(args));
++
+ 	args.taskfile.feature = vals[2];
 -	args.taskfile.sector_count = vals[3];
 -	args.taskfile.sector_number = vals[1];
 -	args.taskfile.low_cylinder = 0x00;
 -	args.taskfile.high_cylinder = 0x00;
--	args.taskfile.device_head = 0x00;
++	args.taskfile.sector_count = vals[1];
++	args.taskfile.sector_number = vals[3];
++	if (vals[0] == WIN_SMART) {
++		args.taskfile.low_cylinder = 0x4f;
++		args.taskfile.high_cylinder = 0xc2;
++	} else {
++		args.taskfile.low_cylinder = 0x00;
++		args.taskfile.high_cylinder = 0x00;
++	}
+ 	args.taskfile.device_head = 0x00;
 -	args.taskfile.command = vals[0];
--
--	if (vals[3]) {
--		argsize = 4 + (SECTOR_WORDS * 4 * vals[3]);
--		argbuf = kmalloc(argsize, GFP_KERNEL);
--		if (argbuf == NULL)
--			return -ENOMEM;
--		memcpy(argbuf, vals, 4);
--		memset(argbuf + 4, 0, argsize - 4);
--	}
--
--	/* Always make sure the transfer reate has been setup.
++	args.cmd = vals[0];
+ 
+ 	if (vals[3]) {
+ 		argsize = 4 + (SECTOR_WORDS * 4 * vals[3]);
+@@ -79,63 +105,18 @@
+ 		memset(argbuf + 4, 0, argsize - 4);
+ 	}
+ 
+-	/*
+-	 * Always make sure the transfer reate has been setup.
+-	 *
 -	 * FIXME: what about setting up the drive with ->tuneproc?
+-	 *
+-	 * Backside of HDIO_DRIVE_CMD call of SETFEATURES_XFER.
+-	 * 1 : Safe to update drive->id DMA registers.
+-	 * 0 : OOPs not allowed.
 -	 */
--	if (set_transfer(drive, &args)) {
+-	if ((args.taskfile.command == WIN_SETFEATURES) &&
+-	    (args.taskfile.sector_number >= XFER_SW_DMA_0) &&
+-	    (args.taskfile.feature == SETFEATURES_XFER) &&
+-	    (drive->id->dma_ultra ||
+-	     drive->id->dma_mword ||
+-	     drive->id->dma_1word)) {
 -		pio = vals[1];
--		if (ata66_check(drive, &args))
--			goto abort;
+-		/*
+-		 * Verify that we are doing an approved SETFEATURES_XFER with
+-		 * respect to the hardware being able to support request.
+-		 * Since some hardware can improperly report capabilties, we
+-		 * check to see if the host adapter in combination with the
+-		 * device (usually a disk) properly detect and acknowledge each
+-		 * end of the ribbon.
+-		 */
+-		if (args.taskfile.sector_number > XFER_UDMA_2) {
+-			if (!drive->channel->udma_four) {
+-				printk(KERN_WARNING "%s: Speed warnings UDMA > 2 is not functional.\n",
+-						drive->channel->name);
+-				goto abort;
+-			}
+-#ifndef CONFIG_IDEDMA_IVB
+-			if (!(drive->id->hw_config & 0x6000))
+-#else
+-			if (!(drive->id->hw_config & 0x2000) ||
+-			    !(drive->id->hw_config & 0x4000))
+-#endif
+-			{
+-				printk(KERN_WARNING "%s: Speed warnings UDMA > 2 is not functional.\n",
+-						drive->name);
+-				goto abort;
+-			}
+-		}
 -	}
 -
--	/* Issue ATA command and wait for completion.
--	 */
+ 	/* Issue ATA command and wait for completion.
+ 	 */
 -	rq.buffer = argbuf;
--	err = ide_do_drive_cmd(drive, &rq, ide_wait);
--
++	args.handler = drive_cmd_intr;
++
++	rq.buffer = argbuf + 4;
++	rq.special = &args;
+ 	err = ide_do_drive_cmd(drive, &rq, ide_wait);
+ 
 -	if (!err && pio) {
 -		/* active-retuning-calls future */
 -		/* FIXME: what about the setup for the drive?! */
 -		if (drive->channel->speedproc)
 -			drive->channel->speedproc(drive, pio);
 -	}
--
--abort:
--	if (copy_to_user((void *)arg, argbuf, argsize))
--		err = -EFAULT;
--
--	if (argsize > 4)
--		kfree(argbuf);
--
--	return err;
--}
--
- EXPORT_SYMBOL(drive_is_ready);
- EXPORT_SYMBOL(ata_read);
- EXPORT_SYMBOL(ata_write);
- EXPORT_SYMBOL(ata_taskfile);
- EXPORT_SYMBOL(recal_intr);
- EXPORT_SYMBOL(task_no_data_intr);
--EXPORT_SYMBOL(ide_init_drive_cmd);
- EXPORT_SYMBOL(ide_do_drive_cmd);
- EXPORT_SYMBOL(ide_raw_taskfile);
- EXPORT_SYMBOL(ide_cmd_type_parser);
--EXPORT_SYMBOL(ide_cmd_ioctl);
-diff -urN linux-2.5.19/drivers/ide/ioctl.c linux/drivers/ide/ioctl.c
---- linux-2.5.19/drivers/ide/ioctl.c	2002-05-29 20:42:50.000000000 +0200
-+++ linux/drivers/ide/ioctl.c	2002-06-02 00:03:22.000000000 +0200
-@@ -33,6 +33,119 @@
- #include "ioctl.h"
++	argbuf[0] = drive->status;
++	argbuf[1] = args.taskfile.feature;
++	argbuf[2] = args.taskfile.sector_count;
  
- /*
-+ * Implement generic ioctls invoked from userspace to imlpement specific
-+ * functionality.
-+ *
-+ * Unfortunately every single low level programm out there is using this
-+ * interface.
-+ */
-+static int cmd_ioctl(struct ata_device *drive, unsigned long arg)
-+{
-+	int err = 0;
-+	u8 vals[4];
-+	u8 *argbuf = vals;
-+	u8 pio = 0;
-+	int argsize = 4;
-+	struct ata_taskfile args;
-+	struct request rq;
-+
-+	memset(&rq, 0, sizeof(rq));
-+	rq.flags = REQ_DRIVE_CMD;
-+
-+	/* If empty parameter file - wait for drive ready.
-+	 */
-+	if (!arg)
-+		return ide_do_drive_cmd(drive, &rq, ide_wait);
-+
-+	/* Second phase.
-+	 */
-+	if (copy_from_user(vals, (void *)arg, 4))
-+		return -EFAULT;
-+
-+	args.taskfile.feature = vals[2];
-+	args.taskfile.sector_count = vals[3];
-+	args.taskfile.sector_number = vals[1];
-+	args.taskfile.low_cylinder = 0x00;
-+	args.taskfile.high_cylinder = 0x00;
-+	args.taskfile.device_head = 0x00;
-+	args.taskfile.command = vals[0];
-+
-+	if (vals[3]) {
-+		argsize = 4 + (SECTOR_WORDS * 4 * vals[3]);
-+		argbuf = kmalloc(argsize, GFP_KERNEL);
-+		if (argbuf == NULL)
-+			return -ENOMEM;
-+		memcpy(argbuf, vals, 4);
-+		memset(argbuf + 4, 0, argsize - 4);
-+	}
-+
-+	/*
-+	 * Always make sure the transfer reate has been setup.
-+	 *
-+	 * FIXME: what about setting up the drive with ->tuneproc?
-+	 *
-+	 * Backside of HDIO_DRIVE_CMD call of SETFEATURES_XFER.
-+	 * 1 : Safe to update drive->id DMA registers.
-+	 * 0 : OOPs not allowed.
-+	 */
-+	if ((args.taskfile.command == WIN_SETFEATURES) &&
-+	    (args.taskfile.sector_number >= XFER_SW_DMA_0) &&
-+	    (args.taskfile.feature == SETFEATURES_XFER) &&
-+	    (drive->id->dma_ultra ||
-+	     drive->id->dma_mword ||
-+	     drive->id->dma_1word)) {
-+		pio = vals[1];
-+		/*
-+		 * Verify that we are doing an approved SETFEATURES_XFER with
-+		 * respect to the hardware being able to support request.
-+		 * Since some hardware can improperly report capabilties, we
-+		 * check to see if the host adapter in combination with the
-+		 * device (usually a disk) properly detect and acknowledge each
-+		 * end of the ribbon.
-+		 */
-+		if (args.taskfile.sector_number > XFER_UDMA_2) {
-+			if (!drive->channel->udma_four) {
-+				printk(KERN_WARNING "%s: Speed warnings UDMA > 2 is not functional.\n",
-+						drive->channel->name);
-+				goto abort;
-+			}
-+#ifndef CONFIG_IDEDMA_IVB
-+			if (!(drive->id->hw_config & 0x6000))
-+#else
-+			if (!(drive->id->hw_config & 0x2000) ||
-+			    !(drive->id->hw_config & 0x4000))
-+#endif
-+			{
-+				printk(KERN_WARNING "%s: Speed warnings UDMA > 2 is not functional.\n",
-+						drive->name);
-+				goto abort;
-+			}
-+		}
-+	}
-+
-+	/* Issue ATA command and wait for completion.
-+	 */
-+	rq.buffer = argbuf;
-+	err = ide_do_drive_cmd(drive, &rq, ide_wait);
-+
-+	if (!err && pio) {
-+		/* active-retuning-calls future */
-+		/* FIXME: what about the setup for the drive?! */
-+		if (drive->channel->speedproc)
-+			drive->channel->speedproc(drive, pio);
-+	}
-+
-+abort:
-+	if (copy_to_user((void *)arg, argbuf, argsize))
-+		err = -EFAULT;
-+
-+	if (argsize > 4)
-+		kfree(argbuf);
-+
-+	return err;
-+}
-+
-+/*
-  * NOTE: Due to ridiculous coding habbits in the hdparm utility we have to
-  * always return unsigned long in case we are returning simple values.
-  */
-@@ -40,7 +153,7 @@
+-abort:
+ 	if (copy_to_user((void *)arg, argbuf, argsize))
+ 		err = -EFAULT;
+ 
+@@ -153,7 +134,6 @@
  {
  	unsigned int major, minor;
  	struct ata_device *drive;
--	struct request rq;
-+//	struct request rq;
+-//	struct request rq;
  	kdev_t dev;
  
  	dev = inode->i_rdev;
-@@ -50,7 +163,6 @@
- 	if ((drive = get_info_ptr(inode->i_rdev)) == NULL)
- 		return -ENODEV;
- 
--
- 	/* Contrary to popular beleve we disallow even the reading of the ioctl
- 	 * values for users which don't have permission too. We do this becouse
- 	 * such information could be used by an attacker to deply a simple-user
-@@ -61,7 +173,6 @@
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
- 
--	ide_init_drive_cmd(&rq);
- 	switch (cmd) {
- 		case HDIO_GET_32BIT: {
- 			unsigned long val = drive->channel->io_32bit;
-@@ -96,7 +207,6 @@
- 			/* FIXME: we can see that tuneproc whould do the
- 			 * locking!.
- 			 */
--
- 			if (ide_spin_wait_hwgroup(drive))
- 				return -EBUSY;
- 
-@@ -114,7 +224,6 @@
+@@ -354,10 +334,14 @@
  			return 0;
- 		}
  
--
- 		case HDIO_SET_UNMASKINTR:
- 			if (arg < 0 || arg > 1)
- 				return -EINVAL;
-@@ -202,9 +311,6 @@
- 			return 0;
- 		}
- 
--		case BLKRRPART: /* Re-read partition tables */
--			return ata_revalidate(inode->i_rdev);
--
- 		case HDIO_GET_IDENTITY:
- 			if (minor(inode->i_rdev) & PARTN_MASK)
- 				return -EINVAL;
-@@ -222,12 +328,6 @@
- 					drive->atapi_overlap << IDE_NICE_ATAPI_OVERLAP,
- 					(long *) arg);
- 
--		case HDIO_DRIVE_CMD:
+ 		case HDIO_DRIVE_CMD:
 -			if (!capable(CAP_SYS_RAWIO))
 -				return -EACCES;
--
--			return ide_cmd_ioctl(drive, arg);
--
- 		case HDIO_SET_NICE:
- 			if (arg != (arg & ((1 << IDE_NICE_DSC_OVERLAP))))
- 				return -EPERM;
-@@ -241,6 +341,34 @@
++			if (!arg) {
++				if (ide_spin_wait_hwgroup(drive))
++					return -EBUSY;
++				else
++					return 0;
++			}
  
- 			return 0;
+-			return cmd_ioctl(drive, arg);
++			return do_cmd_ioctl(drive, arg);
  
-+		case HDIO_GET_BUSSTATE:
-+			if (put_user(drive->channel->bus_state, (long *)arg))
-+				return -EFAULT;
-+
-+			return 0;
-+
-+		case HDIO_SET_BUSSTATE:
-+			if (drive->channel->busproc)
-+				drive->channel->busproc(drive, (int)arg);
-+
-+			return 0;
-+
-+		case HDIO_DRIVE_CMD:
-+			if (!capable(CAP_SYS_RAWIO))
-+				return -EACCES;
-+
-+			return cmd_ioctl(drive, arg);
-+
-+		/*
-+		 * uniform packet command handling
-+		 */
-+		case CDROMEJECT:
-+		case CDROMCLOSETRAY:
-+			return block_ioctl(inode->i_bdev, cmd, arg);
-+
-+		case BLKRRPART: /* Re-read partition tables */
-+			return ata_revalidate(inode->i_rdev);
-+
- 		case BLKGETSIZE:
- 		case BLKGETSIZE64:
- 		case BLKROSET:
-@@ -254,25 +382,6 @@
- 		case BLKBSZSET:
- 			return blk_ioctl(inode->i_bdev, cmd, arg);
+ 		/*
+ 		 * uniform packet command handling
+diff -urN linux-2.5.19/drivers/ide/pcidma.c linux/drivers/ide/pcidma.c
+--- linux-2.5.19/drivers/ide/pcidma.c	2002-06-01 23:17:28.000000000 +0200
++++ linux/drivers/ide/pcidma.c	2002-06-02 07:11:16.000000000 +0200
+@@ -541,9 +541,10 @@
  
--		/*
--		 * uniform packet command handling
--		 */
--		case CDROMEJECT:
--		case CDROMCLOSETRAY:
--			return block_ioctl(inode->i_bdev, cmd, arg);
--
--		case HDIO_GET_BUSSTATE:
--			if (put_user(drive->channel->bus_state, (long *)arg))
--				return -EFAULT;
--
--			return 0;
--
--		case HDIO_SET_BUSSTATE:
--			if (drive->channel->busproc)
--				drive->channel->busproc(drive, (int)arg);
--
--			return 0;
--
- 		/* Now check whatever this particular ioctl has a device type
- 		 * specific implementation.
- 		 */
-diff -urN linux-2.5.19/drivers/ide/ns87415.c linux/drivers/ide/ns87415.c
---- linux-2.5.19/drivers/ide/ns87415.c	2002-06-01 23:17:28.000000000 +0200
-+++ linux/drivers/ide/ns87415.c	2002-06-01 21:32:31.000000000 +0200
-@@ -193,7 +193,7 @@
- 		 * XXX: Reset the device, if we don't it will not respond
- 		 *      to select properly during first probe.
- 		 */
--		ata_reset(struct ata_channel *hwif);
-+		ata_reset(hwif);
+ 	ide_set_handler(drive, ide_dma_intr, WAIT_CMD, dma_timer_expiry);	/* issue cmd to drive */
+ 	if ((rq->flags & REQ_DRIVE_ACB) && (drive->addressing == 1)) {
++		/* FIXME: this should never happen */
+ 		struct ata_taskfile *args = rq->special;
+ 
+-		outb(args->taskfile.command, IDE_COMMAND_REG);
++		outb(args->cmd, IDE_COMMAND_REG);
+ 	} else if (drive->addressing) {
+ 		outb(reading ? WIN_READDMA_EXT : WIN_WRITEDMA_EXT, IDE_COMMAND_REG);
+ 	} else {
+diff -urN linux-2.5.19/drivers/ide/pdc4030.c linux/drivers/ide/pdc4030.c
+--- linux-2.5.19/drivers/ide/pdc4030.c	2002-06-01 23:17:28.000000000 +0200
++++ linux/drivers/ide/pdc4030.c	2002-06-02 07:13:34.000000000 +0200
+@@ -630,7 +630,7 @@
+ 	outb(taskfile->low_cylinder, IDE_LCYL_REG);
+ 	outb(taskfile->high_cylinder, IDE_HCYL_REG);
+ 	outb(taskfile->device_head, IDE_SELECT_REG);
+-	outb(taskfile->command, IDE_COMMAND_REG);
++	outb(args->cmd, IDE_COMMAND_REG);
+ 
+ 	switch (rq_data_dir(rq)) {
+ 	case READ:
+@@ -708,7 +708,7 @@
+ 	args.taskfile.low_cylinder	= (block>>=8);
+ 	args.taskfile.high_cylinder	= (block>>=8);
+ 	args.taskfile.device_head	= ((block>>8)&0x0f)|drive->select.all;
+-	args.taskfile.command		= (rq_data_dir(rq)==READ)?PROMISE_READ:PROMISE_WRITE;
++	args.cmd			= (rq_data_dir(rq)==READ)?PROMISE_READ:PROMISE_WRITE;
+ 
+ 	/* We can't call ide_cmd_type_parser here, since it won't understand
+ 	   our command, but that doesn't matter, since we don't use the
+diff -urN linux-2.5.19/drivers/ide/tcq.c linux/drivers/ide/tcq.c
+--- linux-2.5.19/drivers/ide/tcq.c	2002-06-01 23:17:28.000000000 +0200
++++ linux/drivers/ide/tcq.c	2002-06-02 07:12:17.000000000 +0200
+@@ -60,7 +60,7 @@
+ 	struct ata_taskfile *args = rq->special;
+ 
+ 	ide__sti();
+-	ide_end_drive_cmd(drive, rq, GET_ERR());
++	ide_end_drive_cmd(drive, rq);
+ 	kfree(args);
+ 
+ 	return ide_stopped;
+@@ -118,7 +118,7 @@
+ 	BUG_ON(!rq);
+ 
+ 	rq->special = args;
+-	args->taskfile.command = WIN_NOP;
++	args->cmd = WIN_NOP;
+ 	args->handler = tcq_nop_handler;
+ 	args->command_type = IDE_DRIVE_TASK_NO_DATA;
+ 
+@@ -407,7 +407,7 @@
+ 	memset(&args, 0, sizeof(args));
+ 
+ 	args.taskfile.feature = 0x01;
+-	args.taskfile.command = WIN_NOP;
++	args.cmd = WIN_NOP;
+ 	ide_cmd_type_parser(&args);
+ 
+ 	/*
+@@ -442,7 +442,7 @@
+ 
+ 	memset(&args, 0, sizeof(args));
+ 	args.taskfile.feature = SETFEATURES_EN_WCACHE;
+-	args.taskfile.command = WIN_SETFEATURES;
++	args.cmd = WIN_SETFEATURES;
+ 	ide_cmd_type_parser(&args);
+ 
+ 	if (ide_raw_taskfile(drive, &args)) {
+@@ -456,7 +456,7 @@
+ 	 */
+ 	memset(&args, 0, sizeof(args));
+ 	args.taskfile.feature = SETFEATURES_DIS_RI;
+-	args.taskfile.command = WIN_SETFEATURES;
++	args.cmd = WIN_SETFEATURES;
+ 	ide_cmd_type_parser(&args);
+ 
+ 	if (ide_raw_taskfile(drive, &args)) {
+@@ -470,7 +470,7 @@
+ 	 */
+ 	memset(&args, 0, sizeof(args));
+ 	args.taskfile.feature = SETFEATURES_EN_SI;
+-	args.taskfile.command = WIN_SETFEATURES;
++	args.cmd = WIN_SETFEATURES;
+ 	ide_cmd_type_parser(&args);
+ 
+ 	if (ide_raw_taskfile(drive, &args)) {
+@@ -554,7 +554,7 @@
+ 	ata_irq_enable(drive, 0);
  #endif
- 	}
  
+-	OUT_BYTE(args->taskfile.command, IDE_COMMAND_REG);
++	OUT_BYTE(args->cmd, IDE_COMMAND_REG);
+ 
+ 	if (wait_altstat(drive, &stat, BUSY_STAT)) {
+ 		ide_dump_status(drive, rq, "queued start", stat);
 diff -urN linux-2.5.19/drivers/scsi/ide-scsi.c linux/drivers/scsi/ide-scsi.c
---- linux-2.5.19/drivers/scsi/ide-scsi.c	2002-06-01 23:17:28.000000000 +0200
-+++ linux/drivers/scsi/ide-scsi.c	2002-06-01 23:39:24.000000000 +0200
-@@ -412,9 +412,9 @@
- 
- 	ata_select(drive, 10);
- 	ata_irq_enable(drive, 1);
--	OUT_BYTE (dma_ok,IDE_FEATURE_REG);
--	OUT_BYTE (bcount >> 8,IDE_BCOUNTH_REG);
--	OUT_BYTE (bcount & 0xff,IDE_BCOUNTL_REG);
-+	OUT_BYTE(dma_ok,IDE_FEATURE_REG);
-+	OUT_BYTE(bcount >> 8,IDE_BCOUNTH_REG);
-+	OUT_BYTE(bcount & 0xff,IDE_BCOUNTL_REG);
- 
- 	if (dma_ok) {
- 		set_bit(PC_DMA_IN_PROGRESS, &pc->flags);
-@@ -662,17 +662,20 @@
- 		}
+--- linux-2.5.19/drivers/scsi/ide-scsi.c	2002-06-02 07:28:28.000000000 +0200
++++ linux/drivers/scsi/ide-scsi.c	2002-06-02 04:48:47.000000000 +0200
+@@ -242,7 +242,11 @@
+ 		ide_end_request(drive, rq, uptodate);
+ 		return 0;
  	}
- 
--	ide_init_drive_cmd (rq);
-+	memset(rq, 0, sizeof(*rq));
-+	rq->flags = REQ_SPECIAL;
- 	rq->special = (char *) pc;
- 	rq->bio = idescsi_dma_bio (drive, pc);
--	rq->flags = REQ_SPECIAL;
- 	spin_unlock_irq(cmd->host->host_lock);
--	(void) ide_do_drive_cmd (drive, rq, ide_end);
-+	ide_do_drive_cmd (drive, rq, ide_end);
- 	spin_lock_irq(cmd->host->host_lock);
+-	ide_end_drive_cmd(drive, rq, 0);
 +
- 	return 0;
- abort:
--	if (pc) kfree (pc);
--	if (rq) kfree (rq);
-+	if (pc)
-+		kfree (pc);
-+	if (rq)
-+		kfree (rq);
- 	cmd->result = DID_ERROR << 16;
- 	done(cmd);
++	blkdev_dequeue_request(rq);
++	drive->rq = NULL;
++	end_that_request_last(rq);
++
+ 	if (rq->errors >= ERROR_MAX) {
+ 		pc->s.scsi_cmd->result = DID_ERROR << 16;
+ 		if (log)
+diff -urN linux-2.5.19/include/linux/blkdev.h linux/include/linux/blkdev.h
+--- linux-2.5.19/include/linux/blkdev.h	2002-05-29 20:42:49.000000000 +0200
++++ linux/include/linux/blkdev.h	2002-06-02 06:33:55.000000000 +0200
+@@ -81,7 +81,6 @@
+ 	/*
+ 	 * for ATA/ATAPI devices
+ 	 */
+-	__REQ_DRIVE_CMD,
+ 	__REQ_DRIVE_ACB,
  
+ 	__REQ_PC,	/* packet command (special) */
+@@ -101,7 +100,6 @@
+ #define REQ_STARTED	(1 << __REQ_STARTED)
+ #define REQ_DONTPREP	(1 << __REQ_DONTPREP)
+ #define REQ_QUEUED	(1 << __REQ_QUEUED)
+-#define REQ_DRIVE_CMD	(1 << __REQ_DRIVE_CMD)
+ #define REQ_DRIVE_ACB	(1 << __REQ_DRIVE_ACB)
+ #define REQ_PC		(1 << __REQ_PC)
+ #define REQ_BLOCK_PC	(1 << __REQ_BLOCK_PC)
 diff -urN linux-2.5.19/include/linux/hdreg.h linux/include/linux/hdreg.h
---- linux-2.5.19/include/linux/hdreg.h	2002-05-29 20:42:54.000000000 +0200
-+++ linux/include/linux/hdreg.h	2002-06-01 22:45:05.000000000 +0200
-@@ -81,18 +81,9 @@
+--- linux-2.5.19/include/linux/hdreg.h	2002-06-02 07:28:28.000000000 +0200
++++ linux/include/linux/hdreg.h	2002-06-02 07:20:57.000000000 +0200
+@@ -74,16 +74,12 @@
+ #define IDE_DRIVE_TASK_RAW_WRITE	4
+ 
+ struct hd_drive_task_hdr {
+-	u8 data;
+ 	u8 feature;
+ 	u8 sector_count;
+ 	u8 sector_number;
  	u8 low_cylinder;
  	u8 high_cylinder;
  	u8 device_head;
+-
+-	/* FXIME: Consider moving this out from here. */
 -	u8 command;
--} __attribute__((packed));
- 
--struct hd_drive_hob_hdr {
--	u8 data;
--	u8 feature;
--	u8 sector_count;
--	u8 sector_number;
--	u8 low_cylinder;
--	u8 high_cylinder;
--	u8 device_head;
--	u8 control;
-+	/* FXIME: Consider moving this out from here. */
-+	u8 command;
  } __attribute__((packed));
  
  /*
 diff -urN linux-2.5.19/include/linux/ide.h linux/include/linux/ide.h
---- linux-2.5.19/include/linux/ide.h	2002-06-01 23:17:29.000000000 +0200
-+++ linux/include/linux/ide.h	2002-06-01 23:58:26.000000000 +0200
+--- linux-2.5.19/include/linux/ide.h	2002-06-02 07:28:28.000000000 +0200
++++ linux/include/linux/ide.h	2002-06-02 07:21:08.000000000 +0200
 @@ -253,11 +253,11 @@
  	unsigned all			: 8;	/* all of the bits together */
  	struct {
  #if defined(__LITTLE_ENDIAN_BITFIELD)
--		unsigned head		: 4;	/* always zeros here */
-+		unsigned XXX_head	: 4;	/* always zeros here */
+-		unsigned XXX_head	: 4;	/* always zeros here */
++		unsigned head		: 4;	/* always zeros here */
  		unsigned unit		: 1;	/* drive select number: 0/1 */
--		unsigned bit5		: 1;	/* always 1 */
-+		unsigned XXX_bit5	: 1;	/* always 1 */
+-		unsigned XXX_bit5	: 1;	/* always 1 */
++		unsigned bit5		: 1;	/* always 1 */
  		unsigned lba		: 1;	/* using LBA instead of CHS */
--		unsigned bit7		: 1;	/* always 1 */
-+		unsigned XXX_bit7	: 1;	/* always 1 */
+-		unsigned XXX_bit7	: 1;	/* always 1 */
++		unsigned bit7		: 1;	/* always 1 */
  #elif defined(__BIG_ENDIAN_BITFIELD)
  		unsigned bit7		: 1;
  		unsigned lba		: 1;
-@@ -270,29 +270,6 @@
- 	} b;
- } select_t;
- 
--typedef union {
--	unsigned all			: 8;	/* all of the bits together */
--	struct {
--#if defined(__LITTLE_ENDIAN_BITFIELD)
--		unsigned bit0		: 1;
--		unsigned nIEN		: 1;	/* device INTRQ to host */
--		unsigned SRST		: 1;	/* host soft reset bit */
--		unsigned bit3		: 1;	/* ATA-2 thingy */
--		unsigned reserved456	: 3;
--		unsigned HOB		: 1;	/* 48-bit address ordering */
--#elif defined(__BIG_ENDIAN_BITFIELD)
--		unsigned HOB		: 1;
--		unsigned reserved456	: 3;
--		unsigned bit3		: 1;
--		unsigned SRST		: 1;
--		unsigned nIEN		: 1;
--		unsigned bit0		: 1;
--#else
--#error "Please fix <asm/byteorder.h>"
--#endif
--	} b;
--} control_t;
--
+@@ -666,11 +666,12 @@
  /*
-  * ATA/ATAPI device structure :
+  * Clean up after success/failure of an explicit drive cmd.
   */
-@@ -530,7 +507,7 @@
-  * Register new hardware with ide
-  */
- extern int ide_register_hw(hw_regs_t *hw);
--extern void ide_unregister(struct ata_channel *hwif);
-+extern void ide_unregister(struct ata_channel *);
- 
- struct ata_taskfile;
- 
-@@ -671,11 +648,6 @@
- ide_startstop_t restart_request(struct ata_device *);
- 
- /*
-- * This function is intended to be used prior to invoking ide_do_drive_cmd().
-- */
--extern void ide_init_drive_cmd(struct request *rq);
--
--/*
-  * "action" parameter type for ide_do_drive_cmd() below.
-  */
- typedef enum {
-@@ -698,7 +670,7 @@
+-extern void ide_end_drive_cmd(struct ata_device *, struct request *, u8);
++extern void ide_end_drive_cmd(struct ata_device *, struct request *);
  
  struct ata_taskfile {
  	struct hd_drive_task_hdr taskfile;
--	struct hd_drive_hob_hdr  hobfile;
-+	struct hd_drive_task_hdr  hobfile;
+ 	struct hd_drive_task_hdr  hobfile;
++	u8 cmd;					/* actual ATA command */
  	int command_type;
  	ide_startstop_t (*prehandler)(struct ata_device *, struct request *);
  	ide_startstop_t (*handler)(struct ata_device *, struct request *);
-@@ -717,21 +689,18 @@
- extern ide_startstop_t recal_intr(struct ata_device *, struct request *);
- extern ide_startstop_t task_no_data_intr(struct ata_device *, struct request *);
- 
--
--/* This is setting up all fields in args, which depend upon the command type.
-- */
- extern void ide_cmd_type_parser(struct ata_taskfile *args);
- extern int ide_raw_taskfile(struct ata_device *, struct ata_taskfile *);
--extern int ide_cmd_ioctl(struct ata_device *drive, unsigned long arg);
- 
- extern void ide_fix_driveid(struct hd_driveid *id);
- extern int ide_config_drive_speed(struct ata_device *, byte);
- extern byte eighty_ninty_three(struct ata_device *);
- 
--extern int system_bus_speed;
- 
- extern void ide_stall_queue(struct ata_device *, unsigned long);
- 
-+extern int system_bus_speed;
-+
- /*
-  * CompactFlash cards and their brethern pretend to be removable hard disks,
-  * but they never have a slave unit, and they don't have doorlock mechanisms.
-@@ -873,5 +842,6 @@
- extern int ata_status(struct ata_device *, u8, u8);
- extern int ata_irq_enable(struct ata_device *, int);
- extern void ata_reset(struct ata_channel *);
-+extern void ata_out_regfile(struct ata_device *, struct hd_drive_task_hdr *);
- 
- #endif
 
---------------090300010104060906010607--
+--------------000405080005030907020401--
 

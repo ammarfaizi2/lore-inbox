@@ -1,83 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbULEKQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbULEKd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbULEKQK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 05:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbULEKQK
+	id S261290AbULEKd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 05:33:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbULEKd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 05:16:10 -0500
-Received: from linaeum.absolutedigital.net ([63.87.232.45]:42909 "EHLO
-	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S261291AbULEKP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 05:15:59 -0500
-Date: Sun, 5 Dec 2004 05:15:42 -0500 (EST)
-From: Cal Peake <cp@absolutedigital.net>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.10-rc3 oops when 'modprobe -r dvb-bt8xx'
-In-Reply-To: <41B1BD24.4050603@eyal.emu.id.au>
-Message-ID: <Pine.LNX.4.61.0412050455440.27512@linaeum.absolutedigital.net>
-References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org>
- <41B1BD24.4050603@eyal.emu.id.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 5 Dec 2004 05:33:28 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:44729 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261290AbULEKdY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 05:33:24 -0500
+Date: Sun, 5 Dec 2004 11:33:17 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] NX: Fix noexec kernel parameter / x86_64
+Message-ID: <20041205103317.GB26964@elte.hu>
+References: <Pine.LNX.4.61.0412041135570.6378@montezuma.fsmlabs.com> <Pine.LNX.4.61.0412042356340.6378@montezuma.fsmlabs.com> <20041205065921.GA26964@elte.hu> <Pine.LNX.4.61.0412050007010.6378@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0412050007010.6378@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Dec 2004, Eyal Lebedinsky wrote:
 
-> In the spirit of festive testing I would like to say that the oops that I
-> enjoyed throughout rc2-bk* is still present in -rc3. -mm series does not
-> have this problem.
+* Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+
+> > > +		if (!memcmp(from, "noexec=", 7)) {
+> > > +			extern void nonx_setup(char *str);
+> > > +	
+> > > +			nonx_setup(from + 7);
+> > > +		}
+> > 
+> > looks good, but please put the prototype into a header.
 > 
-> EIP is at bttv_i2c_info+0x36/0x6a [bttv]
+> I bet Andrew is going to say the same thing... It just seems odd
+> putting a prototype in a header for a function with one call site and
+> gets freed after boot. Since i'll have to rediff, i'm also going to
+> change the nonx_setup parameter type to const char * as suggested by
+> someone in a private email.
 
-Hi Eyal,
+too many times did stuff break in the past due to some function changing
+some attribute later on but the prototype being misdefined in another
+place and the compiler having no chance to detect it.
 
->From what I can tell the oops comes from the above function calling 
-dvb_bt8xx_i2c_info after the module that holds it (dvb-bt8xx) gets 
-unloaded. The dvb_bt8xx... function has been removed from rc2-mm4 so 
-that's prolly why you don't get the oops in the -mm kernels.
-
-Until the changes propagate from -mm to Linus' tree the below patch should 
-take care of it.
-
--- Cal
-
-Signed-off-by: Cal Peake <cp@absolutedigital.net>
-
---- linux-2.6.10-rc3/drivers/media/dvb/bt8xx/dvb-bt8xx.c.orig	2004-12-05 02:19:58.000000000 -0500
-+++ linux-2.6.10-rc3/drivers/media/dvb/bt8xx/dvb-bt8xx.c	2004-12-05 05:11:14.000000000 -0500
-@@ -331,24 +331,6 @@
- 	return 0;
- 	}
- 
--static void dvb_bt8xx_i2c_info(struct bttv_sub_device *sub,
--			       struct i2c_client *client, int attach)
--{
--	struct dvb_bt8xx_card *card = dev_get_drvdata(&sub->dev);
--
--	if (attach) {
--		printk("xxx attach\n");
--		if (client->driver->command)
--			client->driver->command(client, FE_REGISTER,
--						card->dvb_adapter);
--	} else {
--		printk("xxx detach\n");
--		if (client->driver->command)
--			client->driver->command(client, FE_UNREGISTER,
--						card->dvb_adapter);
--	}
--}
--
- static struct bttv_sub_driver driver = {
- 	.drv = {
- 		.name		= "dvb-bt8xx",
-@@ -360,7 +342,6 @@
- 		 * .resume	= dvb_bt8xx_resume,
- 		 */
- 	},
--	.i2c_info = dvb_bt8xx_i2c_info,
- };
- 
- static int __init dvb_bt8xx_init(void)
+	Ingo

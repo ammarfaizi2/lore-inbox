@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262725AbTLMBHH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 20:07:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbTLMBHH
+	id S262838AbTLMBK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 20:10:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262844AbTLMBK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 20:07:07 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:22934 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262725AbTLMBHF convert rfc822-to-8bit
+	Fri, 12 Dec 2003 20:10:58 -0500
+Received: from netrider.rowland.org ([192.131.102.5]:30214 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S262838AbTLMBK5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 20:07:05 -0500
-content-class: urn:content-classes:message
+	Fri, 12 Dec 2003 20:10:57 -0500
+Date: Fri, 12 Dec 2003 20:10:55 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Oliver Neukum <oliver@neukum.org>
+cc: David Brownell <david-b@pacbell.net>, Duncan Sands <baldrick@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+In-Reply-To: <200312130036.29053.oliver@neukum.org>
+Message-ID: <Pine.LNX.4.44L0.0312122001460.16010-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [RFC/PATCH] FUSYN 5/10: kernel fuqueues
-Date: Fri, 12 Dec 2003 17:05:25 -0800
-Message-ID: <A20D5638D741DD4DBAAB80A95012C0AE0125E2BB@orsmsx409.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC/PATCH] FUSYN 5/10: kernel fuqueues
-Thread-Index: AcPBAXQO/erhjIKJTqSHbrSlHiM5UQAE4fQw
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Jamie Lokier" <jamie@shareable.org>, "Matt Mackall" <mpm@selenic.com>
-Cc: <gene.heskett@verizon.net>, <linux-kernel@vger.kernel.org>,
-       <robustmutexes@lists.osdl.org>
-X-OriginalArrivalTime: 13 Dec 2003 01:05:26.0063 (UTC) FILETIME=[31366BF0:01C3C115]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 13 Dec 2003, Oliver Neukum wrote:
 
-> From: Jamie Lokier [mailto:jamie@shareable.org]
+> > Hoever the consequent changes to the device structure (i.e., everything
+> > needed to reflect the fact that it is disconnected) could be done in
+> > another thread.
 > 
-> Matt Mackall wrote:
-> > The obvious pronunciation is closer to "fuck you" (fuh-queue or
-> > fuq-ueue), which is a little more pointed.
-> 
-> Like the obvious pronunciation of "futex" as "fuh-teks"?  Not!
-> 
-> I say keep the fuqueues as the foo-queues they so beautifully are.
+> Please clarify. You have to disconnect() before you do the physical reset.
 
-Foo like in who-cares-we-are-going-to-blast-it-anyway? }:)
+No you don't.  In fact, that would defeat one of the purposes of
+usb_reset_device, which is to re-initialize the device while leaving an 
+existing driver bound to it (so far as I know that feature is only used by 
+usb-storage).  It's a last-ditch form of error recovery.
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)
+The API has an admitted weak spot when more than one driver is bound to 
+the device.  No one has settled on a definite policy for how to handle 
+that situation.
+
+> IMHO you should do the code paths for late errors and the device morphed
+> case in another thread, but what's the benefit for success?
+
+In the success case there are no errors, the device hasn't morphed, and 
+there's no need to do anything in another thread.  The existing driver(s) 
+can remain bound, usb_reset_device returns 0, and nothing more has to be 
+done.
+
+Alan Stern
+

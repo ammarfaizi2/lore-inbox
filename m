@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315370AbSHTGPJ>; Tue, 20 Aug 2002 02:15:09 -0400
+	id <S315200AbSHTG2k>; Tue, 20 Aug 2002 02:28:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315372AbSHTGPI>; Tue, 20 Aug 2002 02:15:08 -0400
-Received: from mailhost.nmt.edu ([129.138.4.52]:24842 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S315370AbSHTGPI>;
-	Tue, 20 Aug 2002 02:15:08 -0400
-Date: Tue, 20 Aug 2002 00:17:04 -0600
-From: Val Henson <val@nmt.edu>
-To: "Tomasz Torcz, BG" <zdzichu@irc.pl>, linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4 and full ipv6 - will it happen?
-Message-ID: <20020820061704.GF21389@boardwalk>
-References: <20020819043941.GA31158@irc.pl> <1029759935.19375.12.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S315372AbSHTG2j>; Tue, 20 Aug 2002 02:28:39 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:35812 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315200AbSHTG2j>;
+	Tue, 20 Aug 2002 02:28:39 -0400
+Date: Mon, 19 Aug 2002 23:30:29 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Rik van Riel <riel@conectiva.com.br>, wish@nightloop.de
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: Linux 2.4.20-pre4
+Message-ID: <2423785769.1029799828@[10.10.2.3]>
+In-Reply-To: <Pine.LNX.4.44L.0208192341330.1857-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44L.0208192341330.1857-100000@imladris.surriel.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1029759935.19375.12.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 19, 2002 at 01:25:35PM +0100, Alan Cox wrote:
-> On Mon, 2002-08-19 at 05:39, Tomasz Torcz, BG wrote:
-> > 
-> > Some time ago Linux was first OS to have full RFC complaint IPv4 stack.
+>> Is the -aa VM going to be merged into 2.4.20 or will this happen at any
+>> later release of 2.4?
 > 
-> There are no fully RFC compliant IPv4 stacks. The Linux networking stack
-> is not capable of jumping over tall buildings.
+> Is somebody going to split up the -aa VM in small pieces and
+> send those to marcelo, including an explanation of what each
+> individual piece does and why ?
+> 
+> If so, there's probably quite a decent chance stuff will be
+> merged.
 
-And you'd know that if you'd played the TCP/IP drinking game:
+I thought Andrew already did that?
 
-http://www.nmt.edu/~val/tcpip.html
+M.
 
-You're not cool unless you've submitted a question.  All the other
-kids are doing it!
-
--VAL

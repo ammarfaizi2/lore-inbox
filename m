@@ -1,50 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266252AbUHGFui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266258AbUHGF7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266252AbUHGFui (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 01:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266262AbUHGFui
+	id S266258AbUHGF7A (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 01:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUHGF7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 01:50:38 -0400
-Received: from holomorphy.com ([207.189.100.168]:20178 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266258AbUHGFuh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 01:50:37 -0400
-Date: Fri, 6 Aug 2004 22:50:31 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Chris Shoemaker <c.shoemaker@cox.net>
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, vda@port.imtp.ilyichevsk.odessa.ua,
-       ak@suse.de
-Subject: Re: Possible dcache BUG
-Message-ID: <20040807055031.GW17188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Chris Shoemaker <c.shoemaker@cox.net>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-	vda@port.imtp.ilyichevsk.odessa.ua, ak@suse.de
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408060751.07605.gene.heskett@verizon.net> <Pine.LNX.4.58.0408060948310.24588@ppc970.osdl.org> <200408061316.24495.gene.heskett@verizon.net> <20040806172607.GO17188@holomorphy.com> <20040806231902.GB15493@cox.net> <20040807041550.GV17188@holomorphy.com> <20040807000521.GA15636@cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 7 Aug 2004 01:59:00 -0400
+Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:60945 "EHLO
+	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S266258AbUHGF64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 01:58:56 -0400
+From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] [fastroute] more cleanups.
+Date: Sat, 7 Aug 2004 07:58:44 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040807000521.GA15636@cox.net>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_U+GFBHCom718K1U"
+Message-Id: <200408070758.44525.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 09:15:50PM -0700, William Lee Irwin III wrote:
->> I've not seen this ever again after some point, and don't recall enough
->> of the context/etc. to say much about what was going on with it.
 
-On Fri, Aug 06, 2004 at 08:05:21PM -0400, Chris Shoemaker wrote:
-> I know what you mean.  Sometimes I don't know which bothers me more, the
-> oopses that inexplicably DON'T come back, or the ones that DO.
-> Perchance, have you added RAM since the oops, or changed the machine's
-> memory-related behavior?
+--Boundary-00=_U+GFBHCom718K1U
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Neither. Only the kernel has changed. Upon closer inspection, local
-changes with direct impact on the inode cache are likely suspects.
+<davem@nuts.davemloft.net>
+	[NET]: Kill NET_FASTROUTE, does nothing and suffers from major bitrot.
+	Based up suggestion/changes from Jeff Garzik.
+	Signed-off-by: David S. Miller <davem@redhat.com>
 
+--Boundary-00=_U+GFBHCom718K1U
+Content-Type: application/x-bzip2;
+  name="fastroute-cleanup.patch.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="fastroute-cleanup.patch.bz2"
 
--- wli
+QlpoOTFBWSZTWRMUATkAbcTfgAIweG//93/v/+C////wYBs/O+a3wADufAzYGcABAyL0y0pTcp3M
+27NFsLWt251ecABfABvR9NFB8jQAoUUDQ0M7DviKeTQEyaTGIRmqgaAAADIAAAJTRoRUTImmSYT1
+AANAAAAAABIKIjRNNRiQeiMQNANAGgA0AAJU/1UmiTKamnigAAAAAAAAAARUkM0Sn4p6mmKeiabS
+b1IMjTymaT0hp6noNJkAFRSBACCYITQU8RPSPUNNGNQ0D1DJ6ajohEck0qf5CQ/CpEi1jK1+nh8v
+4yQjvukkIskH50S0C0ztkEUBCHGnrsgQj7c3gwm/7uHkvFGQF52kkBUiCTwavMgiT4BLkEVDbRRN
+sGbuNcvjKIAjVy7KTGIIlqoJbDIgiYkEj60EfUEj26cd0IjH7/GSEdbaQiDBUVYXKjBIGzfbDJ5U
+e/fjPyxn493JKYK5t2y3+WZZ8F6Odxx/Lzcsbs3n40kCPxfodrQhNoEJ/Z8vtAIVrFgxWMV9uMYr
+F/Pd497PkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAe5sAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADuZLcfjf6fGQImLGPp92Tg/L29pAie
+emHoufty/Qdmq/Njqrmw07mXc4jaQVXGAiQBETDmt6t7eEETjQRJlFV0AgifLDX6TDoM8PbFzdNz
+O6/BVVP5s20b+c7xd5s3SrRJ83guTeVXaxdS5QkkKh5qkyu7S2axndSs46p87tLVVbOc5eUzDq1z
+M1uOV28V6Thpl4ZYzhLzrqtopOb7WvtOw4cgxs5vbvvcvuG6WWX0wxgxxXWO30273CM4dju7kZ0M
+zpmcuG+8h9rd6X3pvTmWTmZneczmjHW9K5e0tWzG22/fjXXHaQ80RFERURHwxCI/wyzCRohEeEN6
+CKk/MhEVAhZ+54xBBEo2g5ooInIGc4b/nkK7MUDFSEnsSflPv/BT1/A+Lb18q+jlXyr7rrMaTcvU
+MyXFp9bOLljLqqHMnNq+2mqo5PeU3uzkyxEyjl7TZRrq7FEzSRhPVnRrTmrJZ0qe9nMczyYQlKiZ
+JyaMT2YzJt3TU0pjlEqEKE+1MIxEPCQvkjKxZamrMZy2qutUzWcL6uZMJWTSJ2nKYpqaJSVY3Z43
+Z411zujTMhEYIRHp5c0Ij6Dh4/r+oaFJHiUa5KqqqqqqqqSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSTarFTIg+B/IhSilFMFGDBS
+U7GDIZGBRMymDIlKUwUpgjMyKYIpgwZEoopSmCmDBgMGBSUwKYJTBgyMGAyMEUhgwYJmYMGRkZDM
+pTBmZFKZijBgMEDAQEe5z4F5Xy1S+7krJu8Y93bcq5nFsu0916O1KxbLtPdejtSsTAI+HwkIPwon
+EpKRRypBgUKSQpGeS/yyEZkoSkRKTKiMFCiUSiklFJSjgQiPPw88vT1+JTh8K2FlWWPN0qQ9OXOp
+CSEUPiWLJUkkkjECEZBCEdhoFECEfQIEI0KQkJCsgIINtz11Q5qZ+N+CyXaamcSx01mU2sqapFVl
+Zl21lTVIqss7EclKSPqQiOw+cJHAzkbDG5d6ERnDcb2EwLPkgjJuQRlJhgJGNVzARBMej0CSS51C
+odQ3IlTkahKEmk5kcaMMMKQkiw3iQajRWDwpHHhvEgolQNAnEypYcBnpo8Qrc3KomZLDCsd4/EEF
+oOVMVECUEarqYgs8P+h5APTwGRxxxzlyu7gSQkhJDtCBtvAoa64EeIc1KojgcCSArrJRNEAUUIRz
+jgfBTGnrECQsygsLbSsAoiCBib9ITLdBiARqRWxASMGDGNDQ3BLZeYJCiL8fcfK3VJt0Ntsbg+QI
+CCC/VnoXta8vDlT78Or5W3E3GZzje371VRKqZUiqauISTGWeNc+hCI0dE1QiOuf1oRHw9ltrVqDj
+Hf6wO90mrGNVxwarr4nGN9wA71ZsxmvOrlW+Le3kkhJI6jczh8u9bbdTUqrLLc+Gq4nI00qgPd4t
+8YxXO5IowcXEALCwb10uNWphjes5Bhg7ushyriret6NtjG26VK1pptttpqhsIOHLbE+OytspsbbY
+/pB6gCIPL2TsrJ77fMlCMdBJN7ej2oMEQ0lEpIUpKBT6vHKlh6Y4HrDs7AM1rbbpWbMCQkcrW22q
+zZjtrVtsdOfJhnWg1W+NtgEtrNm82sxttjKGEW0KCVtNrZ6QW9wOhAaAT7RJJYHh5Yd9b8uqPevd
+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
+
+--Boundary-00=_U+GFBHCom718K1U--

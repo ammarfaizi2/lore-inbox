@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277003AbRJKWOA>; Thu, 11 Oct 2001 18:14:00 -0400
+	id <S277010AbRJKWW3>; Thu, 11 Oct 2001 18:22:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276997AbRJKWNj>; Thu, 11 Oct 2001 18:13:39 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31240 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276990AbRJKWNi>; Thu, 11 Oct 2001 18:13:38 -0400
-Subject: Re: Module read a file?
-To: mra@pobox.com (Mark Atwood)
-Date: Thu, 11 Oct 2001 23:18:54 +0100 (BST)
-Cc: cfriesen@nortelnetworks.com (Christopher Friesen),
-        linux-kernel@vger.kernel.org (Linux Kernel Development)
-In-Reply-To: <m3zo6xswcq.fsf@flash.localdomain> from "Mark Atwood" at Oct 11, 2001 02:25:09 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S276997AbRJKWWT>; Thu, 11 Oct 2001 18:22:19 -0400
+Received: from smi-105.smith.uml.edu ([129.63.206.105]:32520 "HELO
+	buick.pennace.org") by vger.kernel.org with SMTP id <S276966AbRJKWWF>;
+	Thu, 11 Oct 2001 18:22:05 -0400
+Date: Thu, 11 Oct 2001 18:19:51 -0400
+From: Alex Pennace <alex@pennace.org>
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
+Cc: James Sutherland <jas88@cam.ac.uk>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: unkillable process in R state?
+Message-ID: <20011011181951.A21719@buick.pennace.org>
+Mail-Followup-To: Christopher Friesen <cfriesen@nortelnetworks.com>,
+	James Sutherland <jas88@cam.ac.uk>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SOL.4.33.0110111918330.24868-100000@orange.csi.cam.ac.uk> <3BC5F0A0.56F644B7@nortelnetworks.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15roAI-000539-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <3BC5F0A0.56F644B7@nortelnetworks.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Because the firmware is stored in volitile memory on the card, and
-> vanishes on a card reset or removal, and I would like to have it Just
-> Work with the pcmcia-cs package with minimal changes.
-
-Longer term that is precisely what the hot plug interface is there fore
-
-> Having to remember "run this userspace tool after every card reset"
-> (which includes power suspends and so forth) would be a major pain.
+On Thu, Oct 11, 2001 at 03:18:34PM -0400, Christopher Friesen wrote:
+> Okay, I just tried this, and the pertinant results were: 
 > 
-> Besides, the card already has a good validator in it.
+> $ gdb find
+> GNU gdb 4.18
+> Copyright 1998 Free Software Foundation, Inc.
+> GDB is free software, covered by the GNU General Public License, and you are
+> welcome to change it and/or distribute copies of it under certain conditions.
+> Type "show copying" to see the conditions.
+> There is absolutely no warranty for GDB.  Type "show warranty" for details.
+> This GDB was configured as "ppc-yellowdog-linux"...(no debugging symbols
+> found)...
+> (gdb) attach 31075
+> Attaching to program: /usr/bin/find, Pid 31075
+> 
+> 
+> 
+> At this point it hangs and ctrl-C has no effect and I have to kill it from
+> another console.
+> 
+> Attaching to another program worked fine.
+> 
+> Any other ideas?
 
-What do you do if the card is compiled in and initialised before the
-firmware holding fs is mounted ?
+Look in /proc/31075/fd and see what it has open.

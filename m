@@ -1,185 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281084AbRKTOxt>; Tue, 20 Nov 2001 09:53:49 -0500
+	id <S281088AbRKTO6j>; Tue, 20 Nov 2001 09:58:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281087AbRKTOxa>; Tue, 20 Nov 2001 09:53:30 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:32919
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S281084AbRKTOxT>; Tue, 20 Nov 2001 09:53:19 -0500
-Date: Tue, 20 Nov 2001 09:50:18 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Configure.help missing entries list
-Message-ID: <20011120095018.A25289@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S281093AbRKTO6a>; Tue, 20 Nov 2001 09:58:30 -0500
+Received: from zero.tech9.net ([209.61.188.187]:35079 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S281088AbRKTO6P>;
+	Tue, 20 Nov 2001 09:58:15 -0500
+Subject: Re: [bug report] System hang up with Speedtouch USB hotplug
+From: Robert Love <rml@tech9.net>
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+Cc: Kilobug <kilobug@freesurf.fr>, linux-kernel@vger.kernel.org
+In-Reply-To: <E166A9X-0000Co-00@baldrick>
+In-Reply-To: <E165lQB-0001DZ-00@baldrick> <1006204883.826.0.camel@phantasy> 
+	<E166A9X-0000Co-00@baldrick>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
+Date: 20 Nov 2001 09:58:10 -0500
+Message-Id: <1006268291.5448.2.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's down to 145 entries from 167 last week, thanks mostly to David Woodhouse
-documenting the new MTD symbols.  Please do what you can to empty this list
-by sending me help entries.
+On Tue, 2001-11-20 at 07:37, Duncan Sands wrote:
+> By the way, I find the preemptible kernel patch
+> very helpful for debugging SMP problems on a
+> uniprocessor machine.
+> 
+> I'm trying to debug the speedtouch kernel module
+> crashes with SMP using it: the module oopses
+> nicely with preempt too!
 
-ALPHA_EV67
-ARCH_ANAKIN
-ARCH_CAMELOT
-ARCH_CDB89712
-ARCH_CLEP7312
-ARCH_CLPS711X
-ARCH_CLPS7500
-ARCH_CO285
-ARCH_EDB7211
-ARCH_FOOTBRIDGE
-ARCH_INTEGRATOR
-ARCH_SA1100
-ARCH_SHARK
-ARC_CONSOLE
-ATM_LANAI
-AU1000_SERIAL_CONSOLE
-AU1000_UART
-BLK_DEV_IT8172
-BLK_DEV_Q40IDE
-CPU_ARM1020_D_CACHE_ON
-CPU_ARM1020_FORCE_WRITE_THROUGH
-CPU_ARM1020_I_CACHE_ON
-CPU_ARM1020_ROUND_ROBIN
-CPU_ARM920_CPU_IDLE
-CPU_ARM920_D_CACHE_ON
-CPU_ARM920_I_CACHE_ON
-CPU_ARM920_WRITETHROUGH
-CPU_ARM926T
-CPU_ARM926_CPU_IDLE
-CPU_ARM926_D_CACHE_ON
-CPU_ARM926_I_CACHE_ON
-CPU_ARM926_ROUND_ROBIN
-CPU_ARM926_WRITETHROUGH
-CPU_FREQ
-DASD_AUTO_DIAG
-DASD_AUTO_ECKD
-DASD_AUTO_FBA
-EFI_VARS
-EP7211_IR
-EP72XX_ROM_BOOT
-ETRAX_ETHERNET_LPSLAVE
-ETRAX_ETHERNET_LPSLAVE_HAS_LEDS
-ETRAX_NETWORK_LED_ON_WHEN_ACTIVITY
-ETRAX_NETWORK_LED_ON_WHEN_LINK
-ETRAX_POWERBUTTON_BIT
-ETRAX_ROOT_DEVICE
-ETRAX_SERIAL_PORT0
-ETRAX_SHUTDOWN_BIT
-ETRAX_SOFT_SHUTDOWN
-EUROTECH_WDT
-EVB_PCI1
-FB_TX3912
-FORWARD_KEYBOARD
-GEN_RTC
-GSC_DINO
-HWC_CPI
-I2C_ALGO8XX
-I2C_PPC405_ADAP
-I2C_PPC405_ALGO
-I2C_RPXLITE
-IA64_GRANULE_16MB
-IA64_GRANULE_64MB
-IA64_SGI_SN_DEBUG
-IA64_SGI_SN_SIM
-IT8172_REVC
-IT8172_SCR0
-IT8172_SCR1
-IT8172_TUNING
-ITE_I2C_ADAP
-ITE_I2C_ALGO
-LASI_82596
-LP486E
-MAPLE_KEYBOARD
-MAPLE_MOUSE
-MEMORY_SET
-MEMORY_SIZE
-MIPS_AU1000_ENET
-MTD_ARM_INTEGRATOR
-PCIBA
-PCI_PERMEDIA
-PCMCIA_AXNET
-PCMCIA_XIRCOM
-PFAULT
-PHONE_IXJ_PCMCIA
-PPPOATM
-PROFILE
-PROFILE_SHIFT
-SA1100_ADSBITSY
-SA1100_CERF_16MB
-SA1100_CERF_32MB
-SA1100_CERF_64MB
-SA1100_CERF_8MB
-SA1100_CERF_CPLD
-SA1100_CERF_FLASH_16MB
-SA1100_CERF_FLASH_32MB
-SA1100_CERF_FLASH_8MB
-SA1100_EXTENEX1
-SA1100_EXTENEX1_16MB
-SA1100_FIR
-SA1100_FREEBIRD
-SA1100_GRAPHICSMASTER
-SA1100_HUW_WEBPANEL
-SA1100_ITSY
-SA1100_JORNADA720
-SA1100_OMNIMETER
-SA1100_PFS168
-SA1100_PLEB
-SA1100_SHERMAN
-SA1100_SIMPAD
-SA1100_YOPY
-SCSI_DECSII
-SCSI_LASI
-SCSI_QLOGIC_FC_FIRMWARE
-SCSI_SIM
-SERIAL_21285_OLD
-SERIAL_SGI_L1_PROTOCOL
-SERIAL_TX3912
-SERIAL_TX3912_CONSOLE
-SGIWD93_SCSI
-SHARED_KERNEL
-SH_PCIDMA_NONCOHERENT
-SIMETH
-SIM_SERIAL
-SOUND_CMPCI_FM
-SOUND_CMPCI_FMIO
-SOUND_CMPCI_LINE_BASS
-SOUND_CMPCI_LINE_REAR
-SOUND_CMPCI_MIDI
-SOUND_CMPCI_MPUIO
-SOUND_CMPCI_SPDIFINVERSE
-SOUND_VRC5477
-ST40_LMI_MEMORY
-SYSCLK_100
-SYSCLK_75
-SYSCLK_83
-TULIP_MMIO
-UCODE_PATCH
-USB_STORAGE_DATAFAB
-USB_STORAGE_HP8200e
-USB_STORAGE_JUMPSHOT
-USERIAL
-VETH
-VIA_RHINE_MMIO
-VIDEO_ZORAN_DC10
-VIDEO_ZORAN_LML33
-VLAN_8021Q
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+This is a nice unintended benefit of the preemptible kernel patch, eh? 
+It also helps in your SMP debugging because you can see the lock depth
+(how many locks are held) via current->preempt_count.  The preempt patch
+will also prevent you from infinite looping in the kernel, assuming the
+system is able to preempt itself.
 
-Certainly one of the chief guarantees of freedom under any government,
-no matter how popular and respected, is the right of the citizens to
-keep and bear arms.  [...] the right of the citizens to bear arms is
-just one guarantee against arbitrary government and one more safeguard
-against a tyranny which now appears remote in America, but which
-historically has proved to be always possible.
-        -- Hubert H. Humphrey, 1960
+	Robert Love
+

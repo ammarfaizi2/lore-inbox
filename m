@@ -1,61 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278046AbRJ0Ili>; Sat, 27 Oct 2001 04:41:38 -0400
+	id <S279797AbRJ0IwA>; Sat, 27 Oct 2001 04:52:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279795AbRJ0Il2>; Sat, 27 Oct 2001 04:41:28 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:5513 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S278046AbRJ0IlU>;
-	Sat, 27 Oct 2001 04:41:20 -0400
-Date: Sat, 27 Oct 2001 10:40:59 +0200 (CEST)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-cc: "Jeffrey H. Ingber" <jhingber@ix.netcom.com>, linux-kernel@vger.kernel.org
-Subject: Re: Other computers HIGHLY degrading network performance (DoS?)
-In-Reply-To: <20011027093729.B2651@bee.lk>
-Message-ID: <Pine.LNX.4.21.0110271035440.3272-100000@tux.rsn.bth.se>
-X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279795AbRJ0Ivk>; Sat, 27 Oct 2001 04:51:40 -0400
+Received: from [24.78.175.24] ([24.78.175.24]:46214 "EHLO oof.localnet")
+	by vger.kernel.org with ESMTP id <S279792AbRJ0Ivb>;
+	Sat, 27 Oct 2001 04:51:31 -0400
+Date: Sat, 27 Oct 2001 01:52:06 -0700
+From: Simon Kirby <sim@netnation.com>
+To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH: 2.4.14-pre3] Semicolon missing in pcd.c
+Message-ID: <20011027015206.A30481@netnation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Oct 2001, Anuradha Ratnaweera wrote:
+--- linux/drivers/block/paride/pcd.c.orig	Sat Oct 27 01:33:27 2001
++++ linux/drivers/block/paride/pcd.c	Sat Oct 27 01:49:32 2001
+@@ -271,7 +271,7 @@
+ 	release:		cdrom_release,
+ 	ioctl:			cdrom_ioctl,
+ 	check_media_change:	cdrom_media_changed,
+-}
++};
+ 
+ static struct cdrom_device_ops pcd_dops = {
+ 	pcd_open,
 
-> > > Just found out that this is _not_ a problem of the "download accelerator", but
-> > > something to do with queuing algorithm of the router.  Even a normal wget
-> > > process or a big mail has a big impart on the network.  Hopefully an iptables
-> > > firewall would solve the problem.
-> > 
-> > I'd advice you to seriously look over your network, are you 100% sure you
-> > don't have a duplex-issue anywhere?
-> 
-> I will double check.  I wonder if this is the cause, because the network is 100
-> Mbps, but the router is switching only at 64kbps.
+Simon-
 
-Our network almost died when someone changed the duplex in the switch
-here...
-
-> > I've been running linuxrouters for quite a while and right now I have a few
-> > linuxrouters routing 100Mbit/s internetconnections. We have never had any
-> > problems like the one you describe so my first guess would be that you have a
-> > duplexproblem, probably between the linuxrouter and the switch it's connected
-> > to on the inside, that's usually where it's located.
-> 
-> We have a hub, and not a switch.  Can this be the reason?  BTW, how come that a
-> duplex issue can result in such huge degradations?
-
-If you are trying to run full-duplex against the hub it till completely
-kill the performance of the entire hub, been there, done that. When I did
-that one I could only push 5-50kB/s through the hub.
-
-> > I seriously doubt that this a problem with the networking in linux.
-> 
-> Not in linux, may be the way they have _used_ linux on the router ;-)
-
-Hehe, I think you'll have to have quite weird QoS rules to manage to do
-something like this :)
-
-/Martin
-
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
-
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261866AbTDUSX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTDUSX2
+	id S261840AbTDUSXq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTDUSXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:23:28 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29710 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261866AbTDUSX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:23:27 -0400
-Date: Mon, 21 Apr 2003 11:35:31 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Christoph Hellwig <hch@infradead.org>,
+	Mon, 21 Apr 2003 14:23:46 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:25098 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261844AbTDUSXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 14:23:44 -0400
+Date: Mon, 21 Apr 2003 19:35:46 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
        Roman Zippel <zippel@linux-m68k.org>,
-       "David S. Miller" <davem@redhat.com>, <Andries.Brouwer@cwi.nl>,
-       <linux-kernel@vger.kernel.org>
+       "David S. Miller" <davem@redhat.com>, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] new system call mknod64
-In-Reply-To: <20030421182734.GN10374@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0304211132130.3101-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030421193546.A10287@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	"David S. Miller" <davem@redhat.com>, Andries.Brouwer@cwi.nl,
+	linux-kernel@vger.kernel.org
+References: <20030421191013.A9655@infradead.org> <Pine.LNX.4.44.0304211117260.3101-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0304211117260.3101-100000@home.transmeta.com>; from torvalds@transmeta.com on Mon, Apr 21, 2003 at 11:22:51AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 21 Apr 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > I personally think that anything that uses "dev_t" in _any_ other way than 
-> > <major,minor> is fundamentally broken.
+On Mon, Apr 21, 2003 at 11:22:51AM -0700, Linus Torvalds wrote:
+> Actually, we still do it for both block _and_ character devices.
 > 
-> Do you consider internal use of MKDEV-produced constants broken?
+> Look at "nfs*xdr.c" to see what's up.
 
-Since they are always in canonical format, there is no way for them to 
-have the aliasing issue. However, even then they _should_ be careful, 
-since it would be very confusing (and bad) if they consider
+Just think s/major/dev_lo/g and s/minor/dev_hi/g.  This is the
+represantation for a legacy protocol.  Just because fat thinks
+of a filename as 8+3 Linux filenames don't have to be that format.
 
-	0x00010100 	(major 1, minor 256)
+> The fact that the kernel internally has generalized it away doesn't 
+> matter. Any kernel virtualization of the number still _has_ to account for 
+> the fact that it's a real thing.
+> 
+> Put another way:
+> 
+> 	0x0000000000000101
+> 
+> _has_ to open the same file as
+> 
+> 	0x0000000100000001
+> 
+> because otherwise the kernel virtualization is broken (since they will
+> look the same to a user, and they will end up being written to disk the
+> same way).
 
-to be fundamentally different from
-
-	0x01ff		(major 1, minor 255)
-
-and cause problems that way.
-
-In other words, if I'm a device driver, and I say that I want "range 
-0-0xfff" for "major 2", then I had better get _all_ of it. That means that 
-I'd better get
-
-	0x0200-0x02ff
-
-_and_
-
-	0x00020100-0x00020fff
-
-and quite frankly, I think that ends up being a lot easier to handle if 
-you just always consider it to be a <major,minor> split.
-
-(but as long as the end result is equivalent, who cares?)
-
-			Linus
+Umm, no.  You're far to major/minor biased to realized live get a lot
+sipler for use if we don't do any complicated mapping of old dev_t
+to the larger dev_t.  With the proper ranges we can just map it
+numerically 1:1 to the new dev_t.  Yes, that means it's all in one
+new "major".  But who cares?
 

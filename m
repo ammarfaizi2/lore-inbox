@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129445AbRAaKqq>; Wed, 31 Jan 2001 05:46:46 -0500
+	id <S130339AbRAaKtQ>; Wed, 31 Jan 2001 05:49:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129561AbRAaKqg>; Wed, 31 Jan 2001 05:46:36 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25862 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129445AbRAaKqS>; Wed, 31 Jan 2001 05:46:18 -0500
-Subject: Re: hotmail not dealing with ECN
-To: hpa@transmeta.com (H. Peter Anvin)
-Date: Wed, 31 Jan 2001 10:46:40 +0000 (GMT)
-Cc: davem@redhat.com (David S. Miller), linux-kernel@vger.kernel.org
-In-Reply-To: <3A70D7B2.F8C5F67C@transmeta.com> from "H. Peter Anvin" at Jan 25, 2001 05:49:38 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130420AbRAaKtG>; Wed, 31 Jan 2001 05:49:06 -0500
+Received: from smtp.mountain.net ([198.77.1.35]:58377 "EHLO riker.mountain.net")
+	by vger.kernel.org with ESMTP id <S130339AbRAaKs7>;
+	Wed, 31 Jan 2001 05:48:59 -0500
+Message-ID: <3A77ED7F.466582F0@mountain.net>
+Date: Wed, 31 Jan 2001 05:48:31 -0500
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i486)
+X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
 MIME-Version: 1.0
+To: Peter Samuelson <peter@cadcamlab.org>
+CC: David Ford <david@linux.com>, Stephen Frost <sfrost@snowman.net>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
+In-Reply-To: <3A777E1A.8F124207@linux.com> <20010130220148.Y26953@ns> <3A77966E.444B1160@linux.com> <3A77C6E7.606DDA67@mountain.net> <20010131042616.A32636@cadcamlab.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14Numh-00026h-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > RFC793, where is lists the unused flag bits as "reserved".
-> > That is pretty clear to me.  It just has to say that
-> > they are reserved, and that is what it does.
-> > 
+Peter Samuelson wrote:
 > 
-> Is the definition of "reserved" defined anywhere?  In a lot of specs,
-> "reserved" means MBZ.
+> [Tom Leete]
+> > It's not an incompatibility with the k7 chip, just bad code in
+> > include/asm-i386/string.h.
 > 
-> Note, that I'm not arguing with you.  I'm trying to pick this apart.
+> So you're saying SMP *is* supported on Athlon?  Do motherboards exist?
+> 
+> Peter
 
-Reserved values are normally (as in 793) listed as reserved, must be zero.
-The meaning of that in RFC literature is absolutely clear. That in the absence
-of you supporting a newer feature using these bits the value must be set to
-zero. You may not rely on it being zero from another host however.
+No, I'm saying that SMP locking etc. is compatible with Athlon. The failure
+to build is not a workaround but a coding error. SMP builds for UP machines
+are supposed to work.
 
+Tom
+-- 
+The Daemons lurk and are dumb. -- Emerson
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264022AbUFBULX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264054AbUFBUNQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264022AbUFBULX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 16:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264045AbUFBULX
+	id S264054AbUFBUNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 16:13:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUFBUNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 16:11:23 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:50766 "EHLO
+	Wed, 2 Jun 2004 16:13:15 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:56415 "EHLO
 	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S264022AbUFBULC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 16:11:02 -0400
-Date: Wed, 2 Jun 2004 21:10:50 +0100 (BST)
+	id S264054AbUFBUMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 16:12:06 -0400
+Date: Wed, 2 Jun 2004 21:11:56 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@osdl.org>
-cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] get_user_pages vs. try_to_unmap
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kill missed pte warning
 In-Reply-To: <Pine.LNX.4.44.0406022103500.27696-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0406022109250.27696-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0406022110580.27696-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli's fix to an ironic weakness with get_user_pages.
-try_to_unmap_one must check page_count against page->mapcount before
-unmapping a swapcache page: because the raised pagecount by which
-get_user_pages ensures the page cannot be freed, will cause any write
-fault to see that page as not exclusively owned, and therefore a copy
-page will be substituted for it - the reverse of what's intended.
-
-rmap.c was entirely free of such page_count heuristics before, I tried
-hard to avoid putting this in.  But Andrea's fix rarely gives a false
-positive; and although it might be nicer to change exclusive_swap_page
-etc. to rely on page->mapcount instead, it seems likely that we'll want
-to get rid of page->mapcount later, so better not to entrench its use.
+I've seen no warnings, nor heard any reports of warnings, that anon_vma
+ever misses ptes (nor anonmm before it).  That WARN_ON (with its useless
+stack dump) was okay to goad developers into making reports, but would
+mainly be an irritation if it ever appears on user systems: kill it now.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
- mm/rmap.c |   17 +++++++++++++++++
- 1 files changed, 17 insertions(+)
+ mm/rmap.c |   29 +++++++----------------------
+ 1 files changed, 7 insertions(+), 22 deletions(-)
 
 --- 2.6.7-rc2/mm/rmap.c	2004-05-30 11:36:40.000000000 +0100
-+++ linux/mm/rmap.c	2004-06-02 16:32:06.492313384 +0100
-@@ -485,6 +485,23 @@ static int try_to_unmap_one(struct page 
- 		goto out_unmap;
++++ linux/mm/rmap.c	2004-06-02 16:32:17.644617976 +0100
+@@ -193,7 +193,7 @@ vma_address(struct page *page, struct vm
+  * repeatedly from either page_referenced_anon or page_referenced_file.
+  */
+ static int page_referenced_one(struct page *page,
+-	struct vm_area_struct *vma, unsigned int *mapcount, int *failed)
++	struct vm_area_struct *vma, unsigned int *mapcount)
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long address;
+@@ -208,14 +208,8 @@ static int page_referenced_one(struct pa
+ 	if (address == -EFAULT)
+ 		goto out;
+ 
+-	if (!spin_trylock(&mm->page_table_lock)) {
+-		/*
+-		 * For debug we're currently warning if not all found,
+-		 * but in this case that's expected: suppress warning.
+-		 */
+-		(*failed)++;
++	if (!spin_trylock(&mm->page_table_lock))
+ 		goto out;
+-	}
+ 
+ 	pgd = pgd_offset(mm, address);
+ 	if (!pgd_present(*pgd))
+@@ -251,18 +245,14 @@ static inline int page_referenced_anon(s
+ 	struct anon_vma *anon_vma = (struct anon_vma *) page->mapping;
+ 	struct vm_area_struct *vma;
+ 	int referenced = 0;
+-	int failed = 0;
+ 
+ 	spin_lock(&anon_vma->lock);
+ 	BUG_ON(list_empty(&anon_vma->head));
+ 	list_for_each_entry(vma, &anon_vma->head, anon_vma_node) {
+-		referenced += page_referenced_one(page, vma,
+-						  &mapcount, &failed);
++		referenced += page_referenced_one(page, vma, &mapcount);
+ 		if (!mapcount)
+-			goto out;
++			break;
+ 	}
+-	WARN_ON(!failed);
+-out:
+ 	spin_unlock(&anon_vma->lock);
+ 	return referenced;
+ }
+@@ -289,7 +279,6 @@ static inline int page_referenced_file(s
+ 	struct vm_area_struct *vma = NULL;
+ 	struct prio_tree_iter iter;
+ 	int referenced = 0;
+-	int failed = 0;
+ 
+ 	if (!spin_trylock(&mapping->i_mmap_lock))
+ 		return 0;
+@@ -299,17 +288,13 @@ static inline int page_referenced_file(s
+ 		if ((vma->vm_flags & (VM_LOCKED|VM_MAYSHARE))
+ 				  == (VM_LOCKED|VM_MAYSHARE)) {
+ 			referenced++;
+-			goto out;
++			break;
+ 		}
+-		referenced += page_referenced_one(page, vma,
+-						  &mapcount, &failed);
++		referenced += page_referenced_one(page, vma, &mapcount);
+ 		if (!mapcount)
+-			goto out;
++			break;
  	}
  
-+	/*
-+	 * Don't pull an anonymous page out from under get_user_pages.
-+	 * GUP carefully breaks COW and raises page count (while holding
-+	 * page_table_lock, as we have here) to make sure that the page
-+	 * cannot be freed.  If we unmap that page here, a user write
-+	 * access to the virtual address will bring back the page, but
-+	 * its raised count will (ironically) be taken to mean it's not
-+	 * an exclusive swap page, do_wp_page will replace it by a copy
-+	 * page, and the user never get to see the data GUP was holding
-+	 * the original page for.
-+	 */
-+	if (PageSwapCache(page) &&
-+	    page_count(page) != page->mapcount + 2) {
-+		ret = SWAP_FAIL;
-+		goto out_unmap;
-+	}
-+
- 	/* Nuke the page table entry. */
- 	flush_cache_page(vma, address);
- 	pteval = ptep_clear_flush(vma, address, pte);
+-	if (list_empty(&mapping->i_mmap_nonlinear))
+-		WARN_ON(!failed);
+-out:
+ 	spin_unlock(&mapping->i_mmap_lock);
+ 	return referenced;
+ }
 

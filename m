@@ -1,159 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264096AbRFZURZ>; Tue, 26 Jun 2001 16:17:25 -0400
+	id <S264738AbRFZUSF>; Tue, 26 Jun 2001 16:18:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263031AbRFZURQ>; Tue, 26 Jun 2001 16:17:16 -0400
-Received: from amadeus.resilience.com ([209.245.157.29]:13364 "HELO jmcmullan")
-	by vger.kernel.org with SMTP id <S264096AbRFZUOK>;
-	Tue, 26 Jun 2001 16:14:10 -0400
-Date: Tue, 26 Jun 2001 15:58:38 -0400
-From: Jason McMullan <jmcmullan@linuxcare.com>
-To: linux-kernel@vger.kernel.org
-Subject: VM Requirement Document - v0.0
-Message-ID: <20010626155838.A23098@jmcmullan.resilience.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+	id <S264494AbRFZURz>; Tue, 26 Jun 2001 16:17:55 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:20097 "HELO
+	tsunami.webofficenow.com") by vger.kernel.org with SMTP
+	id <S263031AbRFZURe>; Tue, 26 Jun 2001 16:17:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@webofficenow.com>
+Reply-To: landley@webofficenow.com
+To: <asmith@14inverleith.freeserve.co.uk>,
+        Kai Henningsen <kaih@khms.westfalen.de>
+Subject: Re: [comphist] Re: Microsoft and Xenix.
+Date: Tue, 26 Jun 2001 10:44:53 -0400
+X-Mailer: KMail [version 1.2]
+Cc: <linux-kernel@vger.kernel.org>, <penguicon-comphist@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.33.0106252104530.18127-100000@vtrl22.vtrl.co.uk>
+In-Reply-To: <Pine.LNX.4.33.0106252104530.18127-100000@vtrl22.vtrl.co.uk>
+MIME-Version: 1.0
+Message-Id: <01062610445301.12583@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 25 June 2001 16:19, asmith@14inverleith.freeserve.co.uk wrote:
+> Hi again,
+>
+>
+>
+> some old brain-cells got excited with the "good-ol-days" and other names
+> have surfaced like "Superbrain","Sirius" and "Apricot".Sirius was Victor in
+> the USA.  If you go done the so-called IBM compatible route then the nearly
+> compatible  nightmares  will arise and haunt you, your lucky if the scars
+> have faded!!
 
-	Here's my first pass at a VM requirements document,
-for the embedded, desktop, and server cases. At the end is 
-a summary of general rules that should take care of all of 
-these cases.
+With the spelling cleaned up slightly, I just might want to quote that last 
+sentence in my book.  Would you object?
 
-Bandwidth Descriptions:
+I take it that superbrain, sirius/victor, and apricot were PC clones like the 
+Tandy and Wang that were sort of but not really compatable?
 
-	immediate: RAM, on-chip cache, etc. 
-	fast:	   Flash reads, ROMs, etc.
-	medium:    Hard drives, CD-ROMs, 100Mb ethernet, etc.
-	slow:	   Flash writes, floppy disks,  CD-WR burners
-	packeted:  Reads/write should be in as large a packet as possible
+> I learnt my computing on a PDP8/E with papertape punch/reader, RALF,
+> Fortran II, then later 2.4Mb removable cartridges (RK05 I think).  toggling
+> in the bootstrap improved your concentration. Much later you could
+> get a single chip(?) version of this in a wee knee sized box.
 
-Embedded Case
--------------
+"A quarter century of unix" mentions RK05 cartridges several times, but never 
+says much ABOUT them.
 
-	Overview
-	--------
-	  In the embedded case, the primary VM motiviation is to
-	use as _little_ caching of the filesystem for reads as
-	possible because (a) reads are very fast and (b) we don't
-	have any swap. However, we want to cache _writes_ as hard
-	as possible, because Flash is slow, and prone to wear.
-	  
-	Machine Description
-	------------------
-		RAM:	4-64Mb	 (reads: immediate, writes: immediate)
-		Flash:	4-128Mb  (reads: fast, writes: slow, packeted)
-		CDROM:	640-800Mb (reads: medium)
-		Swap:	0Mb
+Okay, so they're 2.4 megabyte removable cartridges?  How big?  Are they tapes 
+or disk packs?  (I.E. can you run off of them or are they just storage?)  I 
+know lots of early copies of unix were sent out from Bell Labs on RK05 
+cartidges signed "love, ken"...
 
-	Motiviations
-	------------
-		* Don't write to the (slow,packeted) devices until
-		  you need to free up memory for processes.
-		* Never cache reads from immediate/fast devices.
+What was that big reel to reel tape they always show in movies, anyway?
 
-Desktop Case
-------------
+I need a weekend just to collate stuff...
 
-	Overview
-	--------
-	  On the desktop, interactivity is king. We don't want to eat
-	lots of I/O bandwidth paging in and out, however we also want
-	to cache as much of the FS as possible, to speed compiles and
-	multiple operations over the same sets of files. 
-	
-	  Balancing this is the notion of 'cache-hit-rates'. If our 
-	access patterns aren't hitting cache, but disk instead, don't 
-	swap out processes, just shrink the cache. Contrawise, if we
-	have good cache hit rates, swap out the idle tasks.
+> One summer job was working on a PDP15 analog computer alongside an 11/20
+> with DECTAPE, trying to compute missile firing angles. [A simple version of
+> Pres Bush's starwars shield].
 
-	Machine Description
-	-------------------
-		RAM:	32Mb-1Gb  (reads: immediate, writes: immediate)
-		HD:	1Gb-100Gb (reads: medium, writes: medium)
-		CDROM:	640-800Mb (reads: medium)
-		DVD:	1Gb-8Gb   (reads: medium)
-		Swap:	RAM size  (HD speeds)
+Considering that the Mark I was designed to compute tables of artillery 
+firing angles during World War II...  It's a distinct trend, innit?  And the 
+source of the game "artillery duel", of course...
 
-	Motivations
-	-----------
-		* If we're getting low cache hit rates, don't flush 
-		  processes to swap.
-		* If we're getting good cache hit rates, flush old, idle
-		  processes to swap.
-
-Laptop Case
------------
-
-	Overview
-	--------
-	  Same as a desktop, except now you must treat the HDs as
-	packetized devices for power-saving.
-
-	Machine Description
-	-------------------
-		RAM:	32Mb-1Gb  (reads: immediate, writes: immediate)
-		HD:	1Gb-100Gb (reads: medium,packeted, writes: medium,packeted)
-		CDROM:	640-800Mb (reads: medium)
-		DVD:	1Gb-8Gb   (reads: medium)
-		Swap:	RAM size  (HD speeds)
-
-	Motivations
-	-----------
-		* Keep packetized devices as continuously-idle as possible.
-		  Small chunks of idleness don't count. You want to have
-		  maximal stetches of idleness for the device.
-
-Server Case
------------
-
-	Overview
-	--------
-	  Same as a desktop, except that interactivity be damned. You
-	want processes to _rarely_ have to wait for swap-ins, and 
-	you want as much read-ahead as possible. Idle tasks are pressed
-	firmly into cache to make room for running processes.
-
-	Machine Description
-	-------------------
-		RAM:	512Mb-64Gb (reads: immediate, writes: immediate)
-		HD:	10Gb-4Tb   (reads: medium, writes: medium)
-		Swap:	2*RAM size  (HD speeds)
-
-	Motivations
-	-----------
-		* Keep running processes as fully in memory as possible.
-
------------------------------ SUMMARY ----------------------------------
-
-	If we take all the motivations from the above, and list them,
-we get:
-
-	* Don't write to the (slow,packeted) devices until
-	  you need to free up memory for processes.
-	* Never cache reads from immediate/fast devices.
-	* If we're getting low cache hit rates, don't flush 
-	  processes to swap.
-	* If we're getting good cache hit rates, flush old, idle
-	  processes to swap.
-	* Keep packetized devices as continuously-idle as possible.
-	  Small chunks of idleness don't count. You want to have
-	  maximal stetches of idleness for the device.
-	* Keep running processes as fully in memory as possible.
-
-
-	Oddly enough, they don't seem to conflict. I'll continue to
-work on these motivations, and try to determine testable methods
-of measuring the success of a VM versus these criteria.
-
-	Comments welcome.
-
--- 
-Jason McMullan, Senior Linux Consultant
-Linuxcare, Inc. 412.432.6457 tel, 412.656.3519 cell
-jmcmullan@linuxcare.com, http://www.linuxcare.com/
-Linuxcare. Putting open source to work.
+> --
+>
+> Andrew Smith in Edinburgh,Scotland
+>
+>  On 25 Jun 2001, Kai Henningsen wrote:
+> > landley@webofficenow.com (Rob Landley)  wrote on 24.06.01 in 
+<0106241044060C.01519@localhost.localdomain>:
+> > > Now if somebody here could just point me to a decent reference on A/UX
+> > > - Apple's mid-80's version of Unix (for the early macintosh, I
+> > > believe...)
+> >
+> > http://www.google.com/search?q=%22%2ba/ux%22
+> >
+> > Usually a good idea.
+> >
+> >
+> >
+> > Also, you probably want to look at RFC 2235.
+> >
+> > MfG Kai
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
+> _______________________________________________
+> Penguicon-comphist mailing list
+> Penguicon-comphist@lists.sourceforge.net
+> http://lists.sourceforge.net/lists/listinfo/penguicon-comphist

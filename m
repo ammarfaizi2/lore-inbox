@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266323AbTA2PkZ>; Wed, 29 Jan 2003 10:40:25 -0500
+	id <S266243AbTA2PeC>; Wed, 29 Jan 2003 10:34:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266330AbTA2PkZ>; Wed, 29 Jan 2003 10:40:25 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:18715
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S266323AbTA2PkY>; Wed, 29 Jan 2003 10:40:24 -0500
-Date: Wed, 29 Jan 2003 10:48:47 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-cc: Stefan Reinauer <stepan@suse.de>, Robert Morris <rob@r-morris.co.uk>,
-       Raphael Schmid <Raphael_Schmid@CUBUS.COM>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Bootscreen
-In-Reply-To: <200301291417.29064.roy@karlsbakk.net>
-Message-ID: <Pine.LNX.4.44.0301291048230.4761-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266233AbTA2PeC>; Wed, 29 Jan 2003 10:34:02 -0500
+Received: from [217.167.51.129] ([217.167.51.129]:36312 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S266243AbTA2Pd7>;
+	Wed, 29 Jan 2003 10:33:59 -0500
+Subject: Re: [PATCH] IDE: Do not call bh_phys() on buffers with invalid
+	b_page.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030129153820.GF31566@suse.de>
+References: <1043852266.1690.63.camel@zion.wanadoo.fr>
+	 <20030129150000.GD31566@suse.de> <1043853614.1668.70.camel@zion.wanadoo.fr>
+	 <20030129152214.GE31566@suse.de> <1043853975.1668.74.camel@zion.wanadoo.fr>
+	 <20030129153820.GF31566@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1043855055.536.81.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 29 Jan 2003 16:44:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Jan 2003, Roy Sigurd Karlsbakk wrote:
+On Wed, 2003-01-29 at 16:38, Jens Axboe wrote:
+> No, any b_data < PAGE_OFFSET is not wrong, that's the point. For highmem
+> b_page, b_data will be the offset into the page. So it could be 2048,
+> for instance.
 
-> > Then don't output kernel messages to your default display device. No
-> > Kernel Hacking Required (tm)
-> 
-> Still - it'd be cute to have a 'Pronto Television blah starting'  splash.
-> Why not include it? It won't break anything!
+In the other if() case, yes ;)
 
-Then display that on your default display device...
+> The test is meant to catch an invalid buffer_head, where b_page is not
+> set but b_data isn't valid either. So to make it complete, you could do:
 
-	Zwane
+Yup, I undestood that.
+
+> 		if (bh->b_data < PAGE_SIZE)
+> 			BUG();
+> 		if (bh->b_data < PAGE_OFFSET)
+> 			BUG();
+> 	}
+
+All I wanted to spot is that < PAGE_OFFSET would catch the PAGE_SIZE bug
+as well ;) But that's not a problem in real life anyway it seems.
+
 -- 
-function.linuxpower.ca
-
+Benjamin Herrenschmidt <benh@kernel.crashing.org>

@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281067AbRKYVWt>; Sun, 25 Nov 2001 16:22:49 -0500
+	id <S281066AbRKYVaA>; Sun, 25 Nov 2001 16:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281068AbRKYVWk>; Sun, 25 Nov 2001 16:22:40 -0500
-Received: from postfix2-1.free.fr ([213.228.0.9]:60374 "HELO
-	postfix2-1.free.fr") by vger.kernel.org with SMTP
-	id <S281067AbRKYVWb>; Sun, 25 Nov 2001 16:22:31 -0500
-From: Willy Tarreau <wtarreau@free.fr>
-Message-Id: <200111252122.fAPLMMF01027@ns.home.local>
-Subject: [ANNOUNCE] kmsgdump ported to 2.4
-To: root@mauve.demon.co.uk
-Date: Sun, 25 Nov 2001 22:22:22 +0100 (CET)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S281068AbRKYV3u>; Sun, 25 Nov 2001 16:29:50 -0500
+Received: from smtpnotes.altec.com ([209.149.164.10]:39428 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S281066AbRKYV3e>; Sun, 25 Nov 2001 16:29:34 -0500
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>
+Message-ID: <86256B0F.0075ED4C.00@smtpnotes.altec.com>
+Date: Sun, 25 Nov 2001 15:28:39 -0600
+Subject: Re: Linux 2.5.0
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Ian,
 
-I finally ported kmsgdump to 2.4 one week later, but now it seems to work. At
-least, it dumps the messages on panic() and on SysRQ-D. I had a problem when
-LocalAPIC was enabled because the interrupts were not released after the CPU
-reset, but it seems to be OK now. I'd like that you test it and tell me if you
-encounter bugs in it. At least I found one : after a manual dump of the messages
-on the diskette, if you press <I> to display informations, there seems to be a
-memory overwrite at the end of the last line. Weird but not the that important
-IMHO, given the free time I have to spend on it.
 
-You can download it here :
+Yes, I realize that.  When switching from one tree to another I reverse the
+patches back to the fork point (using patch -R) and then apply the appropriate
+patches for the tree I want.  That's the method I've used for a long time for
+keeping up with both Linus' -preX kernels and Alan's -acX kernels with only a
+single source tree.  (After 2.5 has been out for awhile I'll just drop 2.4
+altogether and then it won't be an issue.)
 
-   http://wtarreau.free.fr/kmsgdump/
+Wayne
 
-I hope it'll help you in debugging your kernel, and perhaps help others
-(LKML cc'd).
 
-I couldn't test it in an SMP configuration, and the code tries to stop all CPUs
-except the one that is reset, there are chances that it might not properly work.
 
-Good luck ;-)
-Willy
+
+Arnaldo Carvalho de Melo <acme@conectiva.com.br> on 11/25/2001 10:51:28 AM
+
+To:   Wayne Brown/Corporate/Altec@Altec
+cc:   lkml <linux-kernel@vger.kernel.org>
+
+Subject:  Re: Linux 2.5.0
+
+
+
+Em Sun, Nov 25, 2001 at 09:16:17AM -0600, Wayne.Brown@altec.com escreveu:
+>
+>
+> Thanks.  I had hoped the version number was the only change, but wanted to be
+> sure.  I'll be keeping just one source tree for both 2.4.x and 2.5.x and
+> switching between the versions by applying and reversing patches as needed, so
+> it's important that my copy of the source stay *exactly* in sync with Linus'
+
+But keep in mind that this is only the fork point, from now on more and
+more things will diverge and patches for one will not necessarily apply to
+both trees.
+
+> copy (otherwise I've have just altered the version in the Makefile myself).
+> With the help of your patch I've just built both 2.4.16-pre1 and 2.5.1-pre1
+from
+> the same 2.4.15 source, which is what I wanted.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
 

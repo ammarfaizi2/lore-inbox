@@ -1,52 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131472AbRDFKhB>; Fri, 6 Apr 2001 06:37:01 -0400
+	id <S131479AbRDFKtF>; Fri, 6 Apr 2001 06:49:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131476AbRDFKgu>; Fri, 6 Apr 2001 06:36:50 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:2482 "EHLO sunrise.pg.gda.pl")
-	by vger.kernel.org with ESMTP id <S131472AbRDFKgf>;
-	Fri, 6 Apr 2001 06:36:35 -0400
-From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Message-Id: <200104061035.MAA13189@sunrise.pg.gda.pl>
-Subject: Re: Arch specific/multiple Configure.help files?
-To: cate@debian.org
-Date: Fri, 6 Apr 2001 12:35:13 +0200 (MET DST)
-Cc: johan.adolfsson@axis.com (Johan Adolfsson), linux-kernel@vger.kernel.org
-In-Reply-To: <3ACD8ECC.F2518B90@math.ethz.ch> from "Giacomo Catenazzi" at Apr 06, 2001 11:39:24 AM
-Reply-To: ankry@green.mif.pg.gda.pl
-X-Mailer: ELM [version 2.5 PL2]
+	id <S131478AbRDFKsz>; Fri, 6 Apr 2001 06:48:55 -0400
+Received: from cm.med.3284844210.kabelnet.net ([195.202.190.178]:51728 "EHLO
+	phobos.hvrlab.org") by vger.kernel.org with ESMTP
+	id <S131477AbRDFKsp>; Fri, 6 Apr 2001 06:48:45 -0400
+Date: Fri, 6 Apr 2001 12:48:03 +0200 (CEST)
+From: Herbert Valerio Riedel <hvr@hvrlab.org>
+To: Jens Axboe <axboe@suse.de>
+cc: <linux-kernel@vger.kernel.org>, <linux-crypto@nl.linux.org>
+Subject: IV calculation, blocksize (and CBC type encryptions) in loop.c
+In-Reply-To: <20010405190117.F5187@suse.de>
+Message-ID: <Pine.LNX.4.30.0104061104210.1067-100000@janus.txd.hvrlab.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Giacomo Catenazzi wrote:"
-> Johan Adolfsson wrote:
-> > 
-> > Having the help close to the config sounds like a good idea
-> > from a maintenance point of view.
-> 
-> But in 2.5.x the config.in are centralized, thus also
-> Configure.help sould be centralized.
-> And in this case I think that a big file hurts nobody.
+hello...
 
-What about common config options (like CONFIG_PCI, CONFIG_BINFMT_ELF,
-CONFIG_SMP, CONFIG_SERIAL), which have Configure.help entries wtitten in
-PC-centric style?
+On Thu, 5 Apr 2001, Jens Axboe wrote:
+> On Thu, Apr 05 2001, Herbert Valerio Riedel wrote:
+> > I've had success w/ your lvm-stack-1 patch on my system...
+> > (next thing I'll testing will be w/ the real crypto patch)
+> Ok, good so far.
 
-What is info about ISA/EISA bus for sparc users for? Why no info about SBUS
-there?
-What is COM3 for Amiga user?
-How can alpha user compile kernel for Pentium?
-What is the difference between ELF and A.OUT for architectures that do not
-support a.out at all?
+well... after some hours of code reading and experimenting I'm a bit stuck
+with the next problem: the blocksize in the loop's transfer function...
 
-IMO some, even very standard, options may need different explanations for
-different architectures.
+I've got this one problem:
 
-Maybe some kind of architecture-specyfic #include in Configure.help entries?
+for encryption to work, especially the cbc variants (which are the only
+one supported for loop encryption by the newest crypt patch), I need to
+read the data block with the same block length, which it was written
+with....
 
-Just my 0.03 PLZ
+e.g. since user space programs aren't able to set the blocksize on loop
+devices, they use the last active blocksize for that loop device.
 
-Andrzej
+on the other hand kernel space code is able to set blocksize... or at
+least it seems so...
+(btw, does loop_get_bs() return always the same blocksize... ?)
+
+I've noticed that kernelspace filesystem code is able to do so... what
+
+I've tried: I modified transfer_none() to spit out the arguments it got
+passed, then I set up a loop device (about 1 gig large), then I created a
+filesystem with mke2fs, making sure a blocksize greater than BLOCK_SIZE
+was used, then I tried to sync/flush the buffer cache, and then I mounted
+that filesystem... (using XFS shows the problem even better, since that
+filesystem uses different blocksizes for the different sections)
+
+$ losetup /dev/loop0 /dev/hda1
+
+$ mke2fs -b 4096 /dev/loop0
+this showed transfer's were done with size % 1024 == 0...
+
+$ [...flush/sync buffers...]
+
+$ mount /dev/loop0 /mnt/foo
+this showed that transfer's were done mostly with size % 4096 == 0
+and real_block % 4 == 0
+
+$ umount /dev/loop0
+
+$ mke2fs -b 4096 /dev/loop0
+now all transfer's have size % 4096 == 0 and real_block % 4 == 0...
+
+(btw, trying to set the blocksize by ioctl() from user space fails...)
+
+now I could just workaround that problem, by operating on smaller blocks
+in the transfer_function, and incrementing that IV by myself...
+but then another problem is, that the IV calculation
+breaks if the blocksize is set below 1024 byte, and only partial blocks
+(as those blocksizes on which IV calculation relays) get processed... :-/
+
+it's quite a mess :-(
+
+you can test for yourself the effects, by making the transfer_xor
+scrambling key depending on the real_block argument... (w/o having to
+apply the full crypto patches...)
+
+any ideas how to get IV+cbc based crypto 'fixed'?
+(btw, I'm talking about block device backed loop setup's, no lvm
+involved... just /dev/hda1...)
+
+I hope I've succeeded explaining the problem clear enough...
+
+greetings,
+--
+

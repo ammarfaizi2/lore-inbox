@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbQLKNVS>; Mon, 11 Dec 2000 08:21:18 -0500
+	id <S130012AbQLKNc7>; Mon, 11 Dec 2000 08:32:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130425AbQLKNVI>; Mon, 11 Dec 2000 08:21:08 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64780 "EHLO
+	id <S130553AbQLKNcu>; Mon, 11 Dec 2000 08:32:50 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:269 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129511AbQLKNUv>; Mon, 11 Dec 2000 08:20:51 -0500
-Subject: Re: INIT_LIST_HEAD marco audit
-To: mhaque@haque.net (Mohammad A. Haque)
-Date: Mon, 11 Dec 2000 12:52:28 +0000 (GMT)
-Cc: miles@megapathdsl.net (Miles Lane), fdavis112@juno.com (Frank Davis),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A3454BE.352FDB96@haque.net> from "Mohammad A. Haque" at Dec 10, 2000 11:14:54 PM
+	id <S130012AbQLKNcm>; Mon, 11 Dec 2000 08:32:42 -0500
+Subject: Re: Linux 2.2.18 almost...
+To: edmc@snowline.net (Eddy)
+Date: Mon, 11 Dec 2000 13:03:57 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux-Kernel),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <000901c06354$7732e240$598d7ece@snowline.net> from "Eddy" at Dec 11, 2000 01:26:28 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E145SRT-0007sM-00@the-village.bc.nu>
+Message-Id: <E145Sca-0007t3-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -static struct tq_struct tcic_task = {
-> -	routine:	tcic_bh
-> +DECLARE_TASK_QUEUE(tcic_task);
-> +struct tq_struct run_tcic_task = {
-> +	routine:	(void (*)(void *)) tcic_bh
->  };
+> root=/dev/nfs ip=both ether=0,0,eth0     gives this result
+> 
+> Dec 10 22:50:52 Eddys dhcpd: DHCPDISCOVER from 00:50:ba:05:7b:fb via eth0
+> Dec 10 22:50:52 Eddys dhcpd: DHCPOFFER on 192.168.50.2 to 00:50:ba:05:7b:fb
+> via eth0
 
-Why remove the 'static' ?
+Those are DHCP. 'both' is the old keywords for rarp and bootp. It now behaves
+as it should do for compatibility. Try 'on' or 'all'
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

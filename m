@@ -1,50 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264102AbUE0NHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263614AbUE0NPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264102AbUE0NHu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 09:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264349AbUE0NHu
+	id S263614AbUE0NPX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 09:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbUE0NPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 09:07:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61095 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264102AbUE0NHt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 09:07:49 -0400
-Date: Thu, 27 May 2004 10:09:25 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Vincent Lefevre <vincent@vinc17.org>
-Subject: Re: [2.4.26] overcommit_memory documentation clarification
-Message-ID: <20040527130925.GA13520@logos.cnet>
-References: <20040509001045.GA23263@ay.vinc17.org> <20040509214941.GG7161@ay.vinc17.org> <20040527122042.GC13095@logos.cnet> <200405271430.11125@WOLK>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405271430.11125@WOLK>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 27 May 2004 09:15:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1926 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263614AbUE0NPI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 09:15:08 -0400
+Date: Thu, 27 May 2004 09:15:00 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: Cleanups for APIC
+In-Reply-To: <20040525124937.GA13347@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0405270856120.28319@devserv.devel.redhat.com>
+References: <20040525124937.GA13347@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 27, 2004 at 02:30:11PM +0200, Marc-Christian Petersen wrote:
-> On Thursday 27 May 2004 14:20, Marcelo Tosatti wrote:
-> 
-> Hi Marcelo,
 
-Hi Marc, 
+On Tue, 25 May 2004, Pavel Machek wrote:
 
-> > We should or merge Alan's strict-overcommit patches (from RH's tree),
-> > or fix the documentation.
-> 
-> I vote for the strict-overcommit thing. Do you have that handy for your 
-> 2.4-bk?
-> 
-> Alan, prolly you? Or do we have to extract it from 
-> linux-2.4.21-selected-ac-bits.patch? ;)
+> This cleans up io_apic.c a bit -- I do not really like 4 copies of same
+> code. Does it look okay to apply?
 
-Alan is busy with other things.
+yeah, agreed - i checked & test it, it's ok. I made a small modification
+(see the patch below) to uninline the __modify_IO_APIC_irq() function -
+shaving 0.5K off the kernel's size ...
 
-The strict overcommit fixes need to be extraced and tested.
+(wrt. io_apic_sync(): i added it in 2.1.104 together with some other
+changes - i dont this it's necessary anymore - the local APICs had
+writearound erratas, but i dont remember this ever being necessary for
+IO-APICs. I'll address this in another patch.)
 
-Dave Jones told me about it the other day.
+	Ingo
 
-Still haven't found the time to download RH's srpm.
+From: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/arch/i386/kernel/io_apic.c.orig	
++++ linux/arch/i386/kernel/io_apic.c	
+@@ -41,8 +41,6 @@
+ 
+ #include "io_ports.h"
+ 
+-#undef APIC_LOCKUP_DEBUG
+-
+ #define APIC_LOCKUP_DEBUG
+ 
+ static spinlock_t ioapic_lock = SPIN_LOCK_UNLOCKED;
+@@ -127,83 +125,50 @@ static void __init replace_pin_at_irq(un
+ 	}
+ }
+ 
+-/* mask = 1 */
+-static void __mask_IO_APIC_irq (unsigned int irq)
++static void __modify_IO_APIC_irq (unsigned int irq, unsigned long enable, unsigned long disable)
+ {
+-	int pin;
+ 	struct irq_pin_list *entry = irq_2_pin + irq;
++	unsigned int pin, reg;
+ 
+ 	for (;;) {
+-		unsigned int reg;
+ 		pin = entry->pin;
+ 		if (pin == -1)
+ 			break;
+ 		reg = io_apic_read(entry->apic, 0x10 + pin*2);
+-		io_apic_modify(entry->apic, 0x10 + pin*2, reg |= 0x00010000);
++		reg &= ~disable;
++		reg |= enable;
++		io_apic_modify(entry->apic, 0x10 + pin*2, reg);
+ 		if (!entry->next)
+ 			break;
+ 		entry = irq_2_pin + entry->next;
+ 	}
++}
++
++/* mask = 1 */
++static void __mask_IO_APIC_irq (unsigned int irq)
++{
++	struct irq_pin_list *entry = irq_2_pin + irq;
++	__modify_IO_APIC_irq(irq, 0x00010000, 0);
++	/* Is it needed? Or do others need it too? */
+ 	io_apic_sync(entry->apic);
+ }
+ 
+ /* mask = 0 */
+ static void __unmask_IO_APIC_irq (unsigned int irq)
+ {
+-	int pin;
+-	struct irq_pin_list *entry = irq_2_pin + irq;
+-
+-	for (;;) {
+-		unsigned int reg;
+-		pin = entry->pin;
+-		if (pin == -1)
+-			break;
+-		reg = io_apic_read(entry->apic, 0x10 + pin*2);
+-		io_apic_modify(entry->apic, 0x10 + pin*2, reg &= 0xfffeffff);
+-		if (!entry->next)
+-			break;
+-		entry = irq_2_pin + entry->next;
+-	}
++	__modify_IO_APIC_irq(irq, 0, 0x00010000);
+ }
+ 
+ /* mask = 1, trigger = 0 */
+ static void __mask_and_edge_IO_APIC_irq (unsigned int irq)
+ {
+-	int pin;
+-	struct irq_pin_list *entry = irq_2_pin + irq;
+-
+-	for (;;) {
+-		unsigned int reg;
+-		pin = entry->pin;
+-		if (pin == -1)
+-			break;
+-		reg = io_apic_read(entry->apic, 0x10 + pin*2);
+-		reg = (reg & 0xffff7fff) | 0x00010000;
+-		io_apic_modify(entry->apic, 0x10 + pin*2, reg);
+-		if (!entry->next)
+-			break;
+-		entry = irq_2_pin + entry->next;
+-	}
++	__modify_IO_APIC_irq(irq, 0x00010000, 0x00008000);
+ }
+ 
+ /* mask = 0, trigger = 1 */
+ static void __unmask_and_level_IO_APIC_irq (unsigned int irq)
+ {
+-	int pin;
+-	struct irq_pin_list *entry = irq_2_pin + irq;
+-
+-	for (;;) {
+-		unsigned int reg;
+-		pin = entry->pin;
+-		if (pin == -1)
+-			break;
+-		reg = io_apic_read(entry->apic, 0x10 + pin*2);
+-		reg = (reg & 0xfffeffff) | 0x00008000;
+-		io_apic_modify(entry->apic, 0x10 + pin*2, reg);
+-		if (!entry->next)
+-			break;
+-		entry = irq_2_pin + entry->next;
+-	}
++	__modify_IO_APIC_irq(irq, 0x00008000, 0x00010000);
+ }
+ 
+ static void mask_IO_APIC_irq (unsigned int irq)

@@ -1,162 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293738AbSCAUcU>; Fri, 1 Mar 2002 15:32:20 -0500
+	id <S293723AbSCAUfa>; Fri, 1 Mar 2002 15:35:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293735AbSCAUcN>; Fri, 1 Mar 2002 15:32:13 -0500
-Received: from penguin.linuxhardware.org ([63.173.68.170]:15028 "EHLO
-	penguin.linuxhardware.org") by vger.kernel.org with ESMTP
-	id <S293723AbSCAUbx>; Fri, 1 Mar 2002 15:31:53 -0500
-Date: Fri, 1 Mar 2002 15:22:39 -0500 (EST)
-From: Kristopher Kersey <augustus@linuxhardware.org>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Panics on IDE Initialization
-In-Reply-To: <Pine.LNX.4.10.10203010336080.514-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.33.0203011521450.23902-100000@penguin.linuxhardware.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293731AbSCAUfW>; Fri, 1 Mar 2002 15:35:22 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:59152 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S293728AbSCAUfB>; Fri, 1 Mar 2002 15:35:01 -0500
+Date: Fri, 1 Mar 2002 21:34:58 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Ben Greear <greearb@candelatech.com>, "David S. Miller" <davem@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org, zab@zabbo.net
+Subject: Re: Various 802.1Q VLAN driver patches. [try2]
+Message-ID: <20020301213458.A30120@devcon.net>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Ben Greear <greearb@candelatech.com>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+	linux-net@vger.kernel.org, zab@zabbo.net
+In-Reply-To: <20020301.072831.120445660.davem@redhat.com> <3C7FA81A.3070602@candelatech.com> <20020301.081110.76328637.davem@redhat.com> <3C7FAC00.4010402@candelatech.com> <3C7FADBB.3A5B338F@mandrakesoft.com> <20020301174619.A6125@devcon.net> <3C7FD1E3.800A61FD@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C7FD1E3.800A61FD@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Mar 01, 2002 at 02:09:23PM -0500
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have word that it's the HighPoint controller's fault.  I will verify
-this myself and let you know.
+On Fri, Mar 01, 2002 at 02:09:23PM -0500, Jeff Garzik wrote:
+> 
+> 1) This patch is (like I mentioned earlier) for reference only, not for
+> application.
 
-Kris
+Ack. Although it works like a charme in production here, and I did not
+receive any problem reports about it so far. So anyone who needs this
+now should apply the patch locally for the moment.
 
-On Fri, 1 Mar 2002, Andre Hedrick wrote:
+> It is really halfway in between software and hardware VLAN
+> support.
 
-> On Fri, 1 Mar 2002, Martin Dalecki wrote:
->
-> > Kristopher Kersey wrote:
-> > > Still panics at initialization.  I have attached the /proc/pci and lspci
-> > > output.  This is for the SOYO board.  I will see about getting the ABIT
-> > > board information.
-> > >
-> > > Kris
-> > >
-> > > On Fri, 1 Mar 2002, Alan Cox wrote:
-> > >
-> > >
-> > >>>On two seperate motherboards that I have been testing, the ABIT
-> > >>>KR7A-RAID and the SOYO FIRE DRAGON, 2.4 kernels panic on boot up during
-> > >>>IDE initialization.  I don't really know how to track down the problem but
-> > >>>now that I've seen it on two boards I'm a bit worried.  This does not
-> > >>>happen with 2.2 kernels so it is 2.4 specific.  I have tested with 2.4.17
-> > >>>and 2.4.18 pre releases.  I will try to field any questions to solve the
-> > >>>
-> > >>Try 2.4.18 proper and 2.4.18-ac2 - we fixed at least one oops caused by
-> > >>controllers and mishandling of new revisions not in our tables. If it
-> > >>still fails send me the pci data for them
-> > >>
-> > >>
-> > >>
-> > >>------------------------------------------------------------------------
-> > >>
-> > >>PCI devices found:
-> > >>  Bus  0, device   0, function  0:
-> > >>    Host bridge: Intel Unknown device (rev 4).
-> > >>      Vendor id=8086. Device id=1a30.
-> > >>      Fast devsel.  Fast back-to-back capable.  Master Capable.  No bursts.
-> > >>      Prefetchable 32 bit memory at 0xe0000000 [0xe0000008].
-> > >>  Bus  0, device   1, function  0:
-> > >>    PCI bridge: Intel Unknown device (rev 4).
-> > >>      Vendor id=8086. Device id=1a31.
-> > >>      Fast devsel.  Fast back-to-back capable.  Master Capable.  Latency=64.  Min Gnt=14.
-> > >>  Bus  0, device  30, function  0:
-> > >>    PCI bridge: Intel Unknown device (rev 5).
-> > >>      Vendor id=8086. Device id=244e.
-> > >>      Fast devsel.  Fast back-to-back capable.  Master Capable.  No bursts.  Min Gnt=6.
-> > >>  Bus  0, device  31, function  0:
-> > >>    ISA bridge: Intel Unknown device (rev 5).
-> > >>      Vendor id=8086. Device id=2440.
-> > >>      Medium devsel.  Fast back-to-back capable.  Master Capable.  No bursts.
-> > >>  Bus  0, device  31, function  1:
-> > >>    IDE interface: Intel Unknown device (rev 5).
-> > >>      Vendor id=8086. Device id=244b.
-> > >>      Medium devsel.  Fast back-to-back capable.  Master Capable.  No bursts.
-> > >>      I/O at 0xf000 [0xf001].
-> > >>  Bus  0, device  31, function  2:
-> > >>    USB Controller: Intel Unknown device (rev 5).
-> > >>      Vendor id=8086. Device id=2442.
-> > >>      Medium devsel.  Fast back-to-back capable.  IRQ 11.  Master Capable.  No bursts.
-> > >>      I/O at 0xb000 [0xb001].
-> > >>  Bus  0, device  31, function  3:
-> > >>    SM Bus: Intel Unknown device (rev 5).
-> > >>      Vendor id=8086. Device id=2443.
-> > >>      Medium devsel.  Fast back-to-back capable.  IRQ 10.
-> > >>      I/O at 0x5000 [0x5001].
-> > >>  Bus  0, device  31, function  4:
-> > >>    USB Controller: Intel Unknown device (rev 5).
-> > >>      Vendor id=8086. Device id=2444.
-> > >>      Medium devsel.  Fast back-to-back capable.  IRQ 9.  Master Capable.  No bursts.
-> > >>      I/O at 0xb800 [0xb801].
-> > >>  Bus  1, device   0, function  0:
-> > >>    VGA compatible controller: NVidia Unknown device (rev 163).
-> > >>      Vendor id=10de. Device id=201.
-> > >>      Medium devsel.  Fast back-to-back capable.  IRQ 12.  Master Capable.  Latency=32.  Min Gnt=5.Max Lat=1.
-> > >>      Non-prefetchable 32 bit memory at 0xec000000 [0xec000000].
-> > >>      Prefetchable 32 bit memory at 0xe4000000 [0xe4000008].
-> > >>      Prefetchable 32 bit memory at 0xe8000000 [0xe8000008].
-> > >>  Bus  2, device   6, function  0:
-> > >>    RAID storage controller: Triones Technologies, Inc. Unknown device (rev 5).
-> > >>      Vendor id=1103. Device id=4.
-> > >>      Medium devsel.  IRQ 11.  Master Capable.  Latency=64.  Min Gnt=8.Max Lat=8.
-> > >>      I/O at 0x9000 [0x9001].
-> > >>      I/O at 0x9400 [0x9401].
-> > >>      I/O at 0x9800 [0x9801].
-> > >>      I/O at 0x9c00 [0x9c01].
-> > >>      I/O at 0xa000 [0xa001].
-> > >>  Bus  2, device   7, function  0:
-> > >>    Multimedia audio controller: Unknown vendor Unknown device (rev 16).
-> > >>      Vendor id=13f6. Device id=111.
-> > >>      Medium devsel.  IRQ 5.  Master Capable.  Latency=32.  Min Gnt=2.Max Lat=24.
-> > >>      I/O at 0xa400 [0xa401].
-> > >>  Bus  2, device   8, function  0:
-> > >>    Ethernet controller: Intel Unknown device (rev 3).
-> > >>      Vendor id=8086. Device id=2449.
-> > >>      Medium devsel.  Fast back-to-back capable.  IRQ 10.  Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
-> > >>      Non-prefetchable 32 bit memory at 0xef005000 [0xef005000].
-> > >>      I/O at 0xa800 [0xa801].
-> > >>  Bus  2, device   9, function  0:
-> > >>    FireWire (IEEE 1394): Texas Instruments Unknown device (rev 0).
-> > >>      Vendor id=104c. Device id=8023.
-> > >>      Medium devsel.  IRQ 9.  Master Capable.  Latency=32.  Min Gnt=2.Max Lat=4.
-> > >>      Non-prefetchable 32 bit memory at 0xef004000 [0xef004000].
-> > >>      Non-prefetchable 32 bit memory at 0xef000000 [0xef000000].
-> > >>
-> > >>
-> > >>
-> > >>00:00.0 Host bridge: Intel Corporation: Unknown device 1a30 (rev 04)
-> > >>00:01.0 PCI bridge: Intel Corporation: Unknown device 1a31 (rev 04)
-> > >>00:1e.0 PCI bridge: Intel Corporation: Unknown device 244e (rev 05)
-> > >>00:1f.0 ISA bridge: Intel Corporation: Unknown device 2440 (rev 05)
-> > >>00:1f.1 IDE interface: Intel Corporation: Unknown device 244b (rev 05)
-> >
-> > Please add this device ID to the abnormally long list in ide-pci.c and
-> > your chances may increase.
->
-> No, that only allows it to be reported.
-> It does not nothing until is is indexed in the Host core.
-> But you know that, it is obvious.
->
-> > >>00:1f.2 USB Controller: Intel Corporation: Unknown device 2442 (rev 05)
-> > >>00:1f.3 SMBus: Intel Corporation: Unknown device 2443 (rev 05)
-> > >>00:1f.4 USB Controller: Intel Corporation: Unknown device 2444 (rev 05)
-> > >>01:00.0 VGA compatible controller: nVidia Corporation: Unknown device 0201 (rev a3)
-> > >>02:06.0 RAID bus controller: Triones Technologies, Inc. HPT366 (rev 05)
->
-> Oh and you forgot this one here, too
->
-> > >>02:07.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
-> > >>02:08.0 Ethernet controller: Intel Corporation: Unknown device 2449 (rev 03)
-> > >>02:09.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8023
-> > >>
-> >
->
-> Cheers,
->
-> Andre Hedrick
-> Linux Disk Certification Project                Linux ATA Development
->
+Not really. The MTU setting is something which must be done for any
+"dumb" card that has no real hardware VLAN support, and the only thing
+Cyclone and Tornado cards care about the VlanEtherType is that they
+start IP checksumming 4 octets later. They don't care a bit about the
+contents of the VLAN tag.
 
+> 2) You don't want to set_8021q_mode if VLAN is not active.  It's silly
+> to activate it when VLAN is compiled as a module but no one is using
+> vlans.  That's going to be THE common case, because distros will
+> inevitably build the VLAN module with their stock kernel.
+
+Well, this was discussed on the VLAN mailing list. The conclusion
+there was that it will not hurt on most cards if it is enabled
+unconditionally.
+
+The only situation where it will probably hurt is if you have many
+frames exceeding ethernet MTU coming in through your ethernet cable.
+Those (up to FDDI size e.g. on 3COM cards without MaxPktSize support)
+will not be dropped by the card but instead handed up to the network
+stack and be dropped there. Are there any situations (except for
+failure cases) where a lot large frames are sent over normal ethernet?
+
+And for the 802.1q recognition of Cyclone and Tornado cards, this only
+affects the IP checksumming done by the hardware. As plain IP is never
+transmitted in frames with an ethernet type of 0x8100, this also will
+not affect normal operation.
+
+
+Anyway, if you want to enable it only if VLANs are really used on the
+card, what about adding a new hook to struct net_device, which can be
+used by the 802.1q core code to enable VLAN support on the card as
+needed (if supported by the driver)? Or, as this is only a boolean
+flag, maybe a generic feature_supported/set_feature hook pair that can
+be used for other similar situations in the future?
+
+> 3) 3c59x needs real dev->change_mtu support.  This patch provides the
+> info needed to do that... but doesn't do that.
+
+Intentionally, as this has nothing to do with VLAN support. The whole
+thing about the patch was that you /don't/ have to change the physical
+device MTU visible to the network stack. Otherwise the network stack
+would start sending oversized frames to the ethernet, which would
+render the untagged VLAN useless.
+
+> 4) It uses magic numbers instead of ETH_DATA_LEN and ETH_HLEN
+
+That's what the driver used before ;-)
+
+Andreas
+-- 
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

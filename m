@@ -1,122 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311710AbSGDRMY>; Thu, 4 Jul 2002 13:12:24 -0400
+	id <S312254AbSGDRVw>; Thu, 4 Jul 2002 13:21:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312254AbSGDRMY>; Thu, 4 Jul 2002 13:12:24 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:61675 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S311710AbSGDRMW>;
-	Thu, 4 Jul 2002 13:12:22 -0400
-Message-ID: <3D248208.4060500@colorfullife.com>
-Date: Thu, 04 Jul 2002 19:12:40 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-CC: linux-usb-devel@lists.sourceforge.net, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: usb storage cleanup
-References: <3D236950.5020307@colorfullife.com> <20020703144329.D8033@one-eyed-alien.net> <3D237870.7010600@colorfullife.com> <20020703170521.E8033@one-eyed-alien.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312560AbSGDRVv>; Thu, 4 Jul 2002 13:21:51 -0400
+Received: from h-64-105-34-244.SNVACAID.covad.net ([64.105.34.244]:10441 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S312254AbSGDRVu>; Thu, 4 Jul 2002 13:21:50 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 4 Jul 2002 10:24:11 -0700
+Message-Id: <200207041724.KAA06758@adam.yggdrasil.com>
+To: R.E.Wolff@BitWizard.nl
+Subject: Re: Rusty's module talk at the Kernel Summit
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dharm wrote:
-> 
->>E.g. queue_command stored new commands in ->queue_srb. The worker thread 
->>then moved it from queue_srb to srb and set sm_state to RUNNING.
->>
->>But what if command_abort() is called before the worker thread is scheduled?
-> 
-> 
-> Then we have a serious problem, because the aborts are on the order of
-> several seconds.  If the thread hasn't gotten scheduled by then it _should_
-> cause a BUG_ON.
+Rogier Wolfff wrote:
+>Adam J. Richter wrote:
+>> >The total saving over all 2.5.24 modules is 4% of the total module
+>> >sizes, rounded to page boundaries.
+>> 
+>>       As individual space optimizations go, 4% is respectable,
+>> especially for something that has no cost, helps detect bugs and
+>> simplifies the kernel.  It is hard to think of many potential
+>> other space improvements that would as effective, especially as
+>> function of implementation effort.  In comparison, my vmlinux is
+>> 5% init sections.  So, if init sections are worth it for the
+>> core kernel, they should be worth it for modules.
 >
+>Ehmmm. You normally load one big 1Mb kernel, freeing about 40 or 50k
+>at init time.
+>
+>You normally load a couple of modules, totalling much less. 
+>
+>Hmm. Just checked on a system with sound as modules, I see half a
+>megabyte of modules. So maybe that 20k is worth it. On the other hand,
+>you only load half a megabyte of shit if you have the RAM to spare.
+>20k is not worth the time I spend typing this....
 
-First of all, it's dead ugly. usb-storage crashes if the scheduler is 
-overloaded. IMHO that's a bug, especially since it's simple to avoid it.
+	The system that I am composing this email on has 1.1MB of
+modules and does not have sound drivers loaded.  It has ipv4 and a
+number of other facilities modularized that are not modules in the
+stock kernels.  Every system that I use has a configuration like this.
+With a lower per-module overhead, I would be more inclined to try to
+modularize other facilities and break up some larger modules into
+smaller ones, in the case where there is substantial code that is not
+needed for some configurations.
 
-And what about storage_disconnect()?
+	Just for fun, using your numbers and US dollars:
 
-Test case: user pulls out the usb cable while a transfer is in progress. 
-urb submitted to the device, reply not yet received.
-Result: storage_disconnect() would hang for 20 seconds until 
-command_abort() is called.
-I've fixed that by adding usb_stor_abort_transport() into 
-storage_disconnect(). But that means that abort_transport() could run in 
-the window between queuecommand() and the scheduling of the worker thread.
-
-Read through my proposal: With current_urb_sem [I've called it urb_sem, 
-but it's the same concept], the synchronization between abort and new 
-commands is guaranteed.
-
-The only difference is that I've moved testing ->abort_cmd and 
-down(&->urb_sem) into usb_stor_msg_common: Requesting that the callers 
-must acquire the semaphore and check abort_cmd() is unnecessary code 
-duplication and just asks for bugs.
-
-> 
->>>You're reverting the new mechanism to determine device state... why?
->>
->>Unnesessary duplication. Device disconnected is equivalent to 
->>->pusb_dev==NULL. Why do you need a special variable?
-> 
-> 
-> Because relying on a pointer has caused problems in the past, especially
-> when there are concerns that the pointer might be invalid.
-> 
-
-Could you explain a bit more? How could the pointer become invalid?
-
-> 
->>>You're removing the entire bus_reset() logic... why?
->>>
->>
->>You are right, that change is not correct.
->>Do you remember the reasons that lead to the current implementation?
->>
->>Hmm. Are you sure that the code can't cause data losses with unrelated 
->>devices?
->>Suppose I have an usb hub installed, and behind that hub 2 usb disks. If 
->>bus_reset is called for the scsi controller that represents one disk, 
->>won't that affect the data transfer that go to the other disk?
-> 
-> 
-> The hub isn't reset, only the target device is.
-> 
-You are right.
-
-That leaves one problem: a real disconnect in the middle of 
-host_reset(), i.e. after checking us->bitflags or reading pusb_dev.
-
-It should be possible to handle that case, too: usb_device structures 
-are refcounted.
-
-> 
->>The only new change is removing the call to usb_stor_CBI_irq() and 
->>replacing it with "up(&us->ip_waitq);" from usb_stor_abort_transport. 
->>Setting sm_state and then calling usb_stor_CBI_irq() is a 
->>synchronization nightmare.
->>Situation: command is completed by the hardware and aborted by the scsi 
->>midlayer at the same time. usb_stor_abort_transport() could run on cpu1, 
->>_CBI_irq() on cpu2. Now imagine you run on Alpha, where both reads and 
->>writes are reordered. Initially I tried to fix it with memory barriers, 
->>but the new version is much simpler.
-> 
-> 
-> The only requirement in this condition is that the command state be
-> consistent at the end -- either completed or aborted.  I don't see how the
-> current code fails this requirement...
-> 
-
-My version is shorter ;-)
-usb_stor_CBI_irq() containes 2 independent parts: only part only for 
-command aborts, one part for normal interrupts. By splitting the 
-function several lines of exception handling became unnecessary.
+    20kB DRAM x $150/GB of DRAM    = $0.003
+    $0.003/user x 10 million users = $30,000 contribution to Linux users
 
 
---
-	Manfred
+>> >Most of that saving comes from a few modules.
+>> 
+>>       This makes me wonder if __init procedures are not being
+>> aggressively identified.  I wonder if people would use __init a little
+>> more if they knew they would get the benefit of it in the module case.
+>> Perhaps someday someone will write a tool to identify procedures that
+>> are only called from init sections.
+>
+>Sometimes the "error path" will try to reset/reinit the chip. You will
+>not see that happening during a normal usage cycle, but you will get
+>bitten if you remove the init based on an actual call-trace.... 
 
+	Such routines would correctly be skipped by the tool that I
+described.
+
+>>       Kernel modules have been a way of life for me for years, and I
+>> don't think I've ever caught a kernel bug by the mechanism that you
+>
+>This happens often enough "during development" that the bugs get fixed
+>before you get to see them....
+
+	As I said, you could have the following facility for when you
+want to force use of vmalloc:
+
+>> describe.  However, I see no harm in having a debugging option that
+>> always vmalloc'ed kernel modules.  This faciilty could be entirely
+>> configuarable from user level by having insmod allocate a module of
+>> *exactly* one page for modules that were less than a page (since you
+>> would only want to kmalloc modules that were *less* than one page).
+>
+>As far as I know, kmallocing more than half a page will actually
+>allocate the whole page.
+
+	If so, then that could be retuned if it turns out to be
+optimal to do so.  Even without the change, there could still be a lot
+of modules under half a page, such as the logitech bus mouse driver
+that is loaded on this system right now.
+
+	Making efficient use of a resource like memory often involves
+repeatedly grabbing small savings of a percent or two.  Maybe you
+start by releasing .init.data for 2%.  Then somebody submits a patch
+to release .init.text without substantial kernel modifications (even
+if only on x86) for 2%.  Then somebody writes a script to identify
+.text and .data labels that are only referenced from init sections,
+and that saves another 1%.  Then somebody adds a flag to insmod to
+load modules in a non-removable mode that does not load the exit
+sections, saving another 0.25%.  Then somebody changes allocation of
+modules that are less than a page to use kmalloc(GFP_HIGHMEM) instead
+of vmalloc (~30% of modules on my system are already this small).
+Then somebody figures out a way to have vmalloc's larger than a page
+that do not need page alignment can sometimes start in the unused last
+page of another vmalloc.  This reduction in the per-module memory
+overhead encourages people chip off some parts of larger library
+modules that are not used by all of the clients of that library.  Then
+somebody adds an kernel option to configure out some kernel code that
+is unnecessary in an "everything is a module" configuration, and so on.
+
+	At the end of the day, somebody who is trying to deploy web
+browsers on donated PC's for the local school district without
+maintaining a custom kernel finds that they can, or someone is able to
+squeeze IPSec into the wireless access point that they turned into a
+router, or someone finds that they can run a more standard kernel on a
+future wristwatch, or someone chooses Linux over Vxworks for a storage
+area network disk drive dongle for lower engineering costs and greater
+extensibility.  Incremental savings can add up to important advantages.
+ 
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

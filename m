@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267684AbTBFWst>; Thu, 6 Feb 2003 17:48:49 -0500
+	id <S267678AbTBFWxS>; Thu, 6 Feb 2003 17:53:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267686AbTBFWst>; Thu, 6 Feb 2003 17:48:49 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:49817 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267684AbTBFWsr>; Thu, 6 Feb 2003 17:48:47 -0500
-Date: Thu, 06 Feb 2003 14:58:21 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: gcc -O2 vs gcc -Os performance
-Message-ID: <279800000.1044572300@[10.10.2.4]>
-In-Reply-To: <b1uml3$2af$1@penguin.transmeta.com>
-References: <336780000.1044313506@flay> <224770000.1044546145@[10.10.2.4]> <1044553691.10374.20.camel@irongate.swansea.linux.org.uk> <263740000.1044563891@[10.10.2.4]> <b1uml3$2af$1@penguin.transmeta.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267686AbTBFWxS>; Thu, 6 Feb 2003 17:53:18 -0500
+Received: from AMarseille-201-1-3-171.abo.wanadoo.fr ([193.253.250.171]:64295
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S267678AbTBFWxR>; Thu, 6 Feb 2003 17:53:17 -0500
+Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: rossb@google.com, alan@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20030206132043.1896a1c2.skraw@ithnet.com>
+References: <20030202161837.010bed14.skraw@ithnet.com>
+	 <3E3D4C08.2030300@pobox.com> <20030202185205.261a45ce.skraw@ithnet.com>
+	 <3E3D6367.9090907@pobox.com> <20030205104845.17a0553c.skraw@ithnet.com>
+	 <1044443761.685.44.camel@zion.wanadoo.fr> <3E414243.4090303@google.com>
+	 <1044465151.685.149.camel@zion.wanadoo.fr>
+	 <20030206132043.1896a1c2.skraw@ithnet.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: 
+Message-Id: <1044572658.6330.51.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 07 Feb 2003 00:04:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 2901299 vmlinux.O2
->> 2667827 vmlinux.Os
+On Thu, 2003-02-06 at 13:20, Stephan von Krawczynski wrote:
+> On 05 Feb 2003 18:12:31 +0100
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 > 
-> Well, Os is certainly smaller.  
+> 
+> > Stephan: Can you try editing ide-dma.c, function
+> > __ide_dma_test_irq(), and remove that line:
+> > 
+> > -	drive->waiting_for_dma++;
+> > 
+> > And tell us if it helps in any way.
+> > 
+> > Ben.
+> 
+> Hello Ben,
+> 
+> as requested I tried the above "patch" and had no problem so far. Current
+> situation is:
+> (ide2, ide3 are PDC, eth2 is tg3)
 
-Yup. I have lots of RAM though, so unless I can see the perf increase
-from cache effects, it's not desperately interesting to me personally.
-If someone could do similar measurements with a puny-cache celeron chip, 
-it would be interesting ... 
+Ok, well, if it' still stable by now, I beleive we can safely remove
+that line from ide_dma_test_irq(). AFAIK, it really have nothing to do
+here.
 
-> So I suspect -Os tends to be more appropriate for user-mode code, and
-> especially code with low repeat rates.  Possibly the "low repeat rate"
-> thing ends up being true of certain kernel subsystems too.
+(I suspect it got copied from ide-pmac somewhat... I use it as a counter
+in there to implement some timeout when the DMA engine didn't start at
+all because the disk issued an error, and on these, I know for sure
+the IRQ isn't shared...)
 
-Fair enough. I'm not desperately interested in user-land code at the
-moment, personally, but gcc is admittedly more general. Maybe we should
-compile gcc itself with -Os ;-) Andi (I think) also made the observation
-that the garbage-collect size for gcc3.2 may be rather small.
+Alan, can you include that ?
 
-The observation re low repeat rate is interesting ... might be amusing 
-to do some really basic profile-guided optimisation on this grounds,
-take readprofile / oprofile output, and compile the files that don't
-get hammered at all with -Os rather than -O2. Given their low frequency
-(by definition), I'm not sure that improving their icache footprint will
-have a measureable effect though.
+===== drivers/ide/ide-dma.c 1.10 vs edited =====
+--- 1.10/drivers/ide/ide-dma.c  Sat Feb  1 20:37:36 2003
++++ edited/drivers/ide/ide-dma.c        Fri Feb  7 00:03:43 2003
+@@ -826,7 +826,6 @@
+        if (!drive->waiting_for_dma)
+                printk(KERN_WARNING "%s: (%s) called while not
+waiting\n",
+                        drive->name, __FUNCTION__);
+-       drive->waiting_for_dma++;
+        return 0;
+ }
 
-M.
+(Patch against Marcelo's 2.4.21-pre4)
+
 

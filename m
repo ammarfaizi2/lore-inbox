@@ -1,77 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311618AbSDDVdn>; Thu, 4 Apr 2002 16:33:43 -0500
+	id <S311615AbSDDV0n>; Thu, 4 Apr 2002 16:26:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311647AbSDDVde>; Thu, 4 Apr 2002 16:33:34 -0500
-Received: from mailg.telia.com ([194.22.194.26]:11250 "EHLO mailg.telia.com")
-	by vger.kernel.org with ESMTP id <S311618AbSDDVdZ>;
-	Thu, 4 Apr 2002 16:33:25 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Robert Love <rml@tech9.net>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() at boot time
-Date: Thu, 4 Apr 2002 23:34:04 +0200
-X-Mailer: KMail [version 1.4]
-Cc: Dave Hansen <haveblue@us.ibm.com>, "Adam J. Richter" <adam@yggdrasil.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0204041113410.12895-100000@penguin.transmeta.com> <1017948383.22303.537.camel@phantasy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200204042334.04367.roger.larsson@norran.net>
+	id <S311618AbSDDV0d>; Thu, 4 Apr 2002 16:26:33 -0500
+Received: from finch-post-11.mail.demon.net ([194.217.242.39]:33551 "EHLO
+	finch-post-11.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S311615AbSDDV0U>; Thu, 4 Apr 2002 16:26:20 -0500
+Date: Thu, 4 Apr 2002 22:26:15 +0100
+From: Bob Dunlop <bob.dunlop@xyzzy.org.uk>
+To: James Simmons <jsimmons@transvirtual.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HomePlug support?
+Message-ID: <20020404222615.A13351@xyzzy.org.uk>
+In-Reply-To: <Pine.LNX.4.10.10204041011210.309-100000@www.transvirtual.com> <20020404184048.GI435@turbolinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On torsdagen den 4 april 2002 21.26, Robert Love wrote:
-> On Thu, 2002-04-04 at 14:14, Linus Torvalds wrote:
-> > The answer is that preempt_schedule() illegally sets
-> >
-> > 	current->state = TASK_RUNNING;
-> >
-> > without asking the process whether that's OK. The SMP code never does
-> > anything like that.
->
-> Well Ingo added that ;)
->
-> We used to just set a flag in the preempt_count that marked the task as
-> preempted and made sure on its next trip into schedule it ran again.
->
+On Thu, Apr  4,  Andreas Dilger wrote:
+> On Apr 04, 2002  10:12 -0800, James Simmons wrote:
+> > Anyone working on HomePlug support?
 
-How about doing:
+As someone else has already responded.  Closed source standard so I'd guess
+unlikely to become a true standard.  Seen many variations before and they've
+all crashed and burned.  Whatever happened to the NorWEB field trial ?
 
-asmlinkage void preempt_schedule(void)
-{
-	unsigned long saved_state;
+> Hmm, I wonder if I will be able to run tcpdump from my electrical outlet
+> and listen to my neighbour's network traffic, and take over their X10
+> appliance controls ;-).
 
-	if (unlikely(preempt_get_count()))
-		return;
+More interesting could you hack into the protocol for reading the electricty
+meter remotely ?  Spoof the meter and save a fortune in power bills!
+Worked nextdoor to a remote meter company once and it was a problem they
+took very seriously.
 
-	preempt_disable(); /* or use an atomic operation */
-	saved_state = current->state;
-	current->state = TASK_RUNNING;
-	preempt_enable_no_resched(); /* we are scheduling anyway... */
-	schedule();
-	current->state = saved_state;
-}
-
-It is unlikely to get preemption between schedule() and the
-setting since schedule it self checks - the window is small.
-And when it hits if will correctly restore the correct value.
-
-Note this code does not need to solve the FLAG problem.
-
-	 current->state |= FLAG
-	* PREEMPT *
-		current->state |= FLAG
-		schedule()
-		current->state &= ~FLAG
-	schedule() with flag disabled
-
-
-/RogerL
+Still puzzled by the European political standardisation of the power supply.
+Politics says 230V yet my AVO still reads 240V RMS in the UK and 220V in
+Germany ?  Still it also says 50Hz and I'd swear I only get 49 and a glitch.
 
 -- 
-Roger Larsson
-Skellefteå
-Sweden
-
+        Bob Dunlop

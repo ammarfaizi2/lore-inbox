@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268259AbUIPRBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268448AbUIPRGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268259AbUIPRBg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 13:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268317AbUIPQrY
+	id S268448AbUIPRGo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 13:06:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268118AbUIPRBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 12:47:24 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:38356 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S268185AbUIPQoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 12:44:22 -0400
-Date: Thu, 16 Sep 2004 12:44:23 +0000 (UTC)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, wli@holomorphy.com
-Subject: Re: [PATCH] remove LOCK_SECTION from x86_64 spin_lock asm
-In-Reply-To: <20040916062759.GA10527@elte.hu>
-Message-ID: <Pine.LNX.4.53.0409161238030.2897@musoma.fsmlabs.com>
-References: <Pine.LNX.4.53.0409151458470.10849@musoma.fsmlabs.com>
- <20040915144523.0fec2070.akpm@osdl.org> <20040916061359.GA12915@wotan.suse.de>
- <20040916062759.GA10527@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Sep 2004 13:01:52 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:52934 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268490AbUIPRAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 13:00:12 -0400
+Subject: Re: Having problem with mmap system call!!!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: root@chaos.analogic.com
+Cc: "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0409161050200.12305@chaos>
+References: <4EE0CBA31942E547B99B3D4BFAB348111078FE@mail.esn.co.in>
+	 <Pine.LNX.4.53.0409160958070.12146@chaos>
+	 <1095341494.22744.26.camel@localhost.localdomain>
+	 <Pine.LNX.4.53.0409161050200.12305@chaos>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095350240.22750.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 16 Sep 2004 16:57:20 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Sep 2004, Ingo Molnar wrote:
+On Iau, 2004-09-16 at 15:54, Richard B. Johnson wrote:
+> > SHM_FAIL is the wrong error check btw.
+> >
+> 
+> MAP_FAILED only appeared in real late 'C' runtime library headers.
+> That's why the code defines SHM_FAIL, which is also correct, but
+> doesn't cause a redefinition error.
 
-> the ebp trick is nice, but forcing a formal stack frame for every
-> function has global performance implications. Couldnt we define some
-> sort of current-> field [or current_thread_info() field] that the
-> spinlock code could set and clear, which field would be listened to by
-> profile_pc(), so that the time spent spinning would be attributed to the
-> callee? Something like:
+SuS doesn't permit the use of SHM_FAIL. And you don't get redefinition
+errors if you use ds
 
-I think the generic route is nice but wouldn't this break with the 
-following.
+> Well that's really nice. Now, how do you do that? The kernel DS
+> is not the user DS so you end up with a kernel hack instead of
+> a user hack?
 
-taskA:
-spin_lock(lockA); // contended
-<interrupt>
-int1:
-spin_lock(lockB)
-
-I was thinking along the likes of a per_cpu real_pc, but realised it falls 
-prey to the same problem as above... Unless we have irq threads, then of 
-course your solution works.
-
-	Zwane
+Who cares about DS ? the user space page tables get mapped, its how all
+mmap functions work. A simple example is the sound drivers (2.4
+drivers/sound) which kmalloc a buffer of kernel space then make it
+mappable to the user
 

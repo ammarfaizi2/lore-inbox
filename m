@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbTELIQm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 04:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTELIQm
+	id S262001AbTELI1w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 04:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbTELI1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 04:16:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:37769 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262000AbTELIQk (ORCPT
+	Mon, 12 May 2003 04:27:51 -0400
+Received: from smtp3.cwidc.net ([154.33.63.113]:57546 "EHLO smtp3.cwidc.net")
+	by vger.kernel.org with ESMTP id S262001AbTELI1u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 04:16:40 -0400
-Date: Mon, 12 May 2003 10:29:02 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [BENCHMARK] 2.5.69-mm3 with contest
-Message-ID: <20030512082902.GA837@suse.de>
-References: <200305111655.35543.kernel@kolivas.org> <3EBF538B.50501@cyberone.com.au>
-Mime-Version: 1.0
+	Mon, 12 May 2003 04:27:50 -0400
+Message-ID: <3EBF5DF2.2080204@tequila.co.jp>
+Date: Mon, 12 May 2003 17:40:18 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030506
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Anders Karlsson <anders@trudheim.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Two RAID1 mirrors are faster than three
+References: <200305112212_MC3-1-386B-32BF@compuserve.com>	 <3EBF24A8.1050100@tequila.co.jp> <1052716203.4100.10.camel@tor.trudheim.com>
+In-Reply-To: <1052716203.4100.10.camel@tor.trudheim.com>
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EBF538B.50501@cyberone.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12 2003, Nick Piggin wrote:
-> 
-> 
-> Con Kolivas wrote:
-> 
-> snip
-> 
-> >io_load:
-> >Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-> >2.5.68              3   492     15.9    167.1   19.7    6.23
-> >2.5.68-mm1          4   128     59.4    47.6    19.4    1.62
-> >2.5.68-mm2          4   131     58.8    47.0    18.9    1.64
-> >2.5.68-mm3          4   271     28.4    89.2    17.9    3.39
-> >2.5.69              4   343     22.7    120.5   19.8    4.29
-> >2.5.69-mm3          4   319     24.5    105.3   18.1    4.04
-> >
-> snip
-> 
-> >
-> >dbench_load:
-> >Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-> >2.5.68              3   412     18.4    5.3     47.6    5.22
-> >2.5.68-mm1          4   361     21.1    5.5     54.0    4.57
-> >2.5.68-mm2          4   345     22.0    4.8     49.3    4.31
-> >2.5.68-mm3          4   721     10.5    6.8     33.6    9.01
-> >2.5.69              4   374     20.3    5.0     48.1    4.67
-> >2.5.69-mm3          4   653     11.6    6.2     34.0    8.27
-> >
-> >Very similar to 2.5.68-mm3
-> >
-> Thanks again Con. These two benchmarks especially are fairly suboptimal
-> compared with the 68-mm2 days... I hope it is just the larger request queue
-> size in place in the rq-dyn patch in mm. If you get some time, could you
-> possibly change include/linux/blkdev.h:BLKDEV_MAX_RQ from 1024 to 128 and
-> bench these two loads on that setting.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Or just wait for 2.5.70, it has rq-dyn with BLKDEV_MAX_RQ of 128.
+Anders Karlsson wrote:
 
--- 
-Jens Axboe
+> On Mon, 2003-05-12 at 05:35, Clemens Schwaighofer wrote:
+>
+
+[db raid1 with 3 discs]
+
+that sounds like a super special featuer never needed in Software (!!)
+Raid thing (IMvHO).
+
+I can only image a Hotspare Disc, thats all.
+
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE+v13yjBz/yQjBxz8RAptGAKCIikhrT18Qn5QpFYqjo+e/tlbisACg34Yb
+m45mtqNXKDf239bDJkAqdpw=
+=/rFz
+-----END PGP SIGNATURE-----
 

@@ -1,70 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbUJZPno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbUJZPvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbUJZPno (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 11:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUJZPno
+	id S261188AbUJZPvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 11:51:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbUJZPvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 11:43:44 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:65255 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261196AbUJZPnl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 11:43:41 -0400
-Date: Tue, 26 Oct 2004 17:43:36 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Arne Henrichsen <ahenric@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with close() system call
-In-Reply-To: <605a56ed04102605433b9f368@mail.gmail.com>
-Message-ID: <Pine.LNX.4.53.0410261739470.641@yvahk01.tjqt.qr>
-References: <605a56ed04102504401e0f469f@mail.gmail.com> 
- <Pine.LNX.4.53.0410261329410.26803@yvahk01.tjqt.qr> <605a56ed04102605433b9f368@mail.gmail.com>
+	Tue, 26 Oct 2004 11:51:16 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:6161 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S261188AbUJZPvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 11:51:14 -0400
+Message-ID: <417E7582.6050805@techsource.com>
+Date: Tue, 26 Oct 2004 12:04:18 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+To: linux-os@analogic.com
+CC: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
+Subject: Re: Some discussion points open source friendly graphics [was: HARDWARE:
+   Open-Source-Friendly Graphics Cards -- Viable?]
+References: <417D21C8.30709@techsource.com> <417D6365.3020609@pobox.com> <MPG.1be854649d4829f8989704@news.gmane.org> <417E6CF3.503@techsource.com> <Pine.LNX.4.53.0410261118120.338@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.53.0410261118120.338@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Best is to put a printk("i'm in ioctl()") in the ioctl() function and a
->> printk("i'm in close()") in the close() one, to be really sure whether the
->> close() function of your module is called.
->
->Yes, that is exactly what I am doing. I basically implement the
->flush() call (for close) as the release() call was never called on
->close. So my release call does nothing. What I see is that the flush
-
-Uh, then something's wrong. Your device fops should look like this:
-{
-  .release = my_close, // which is called upon close(2)
-}
-
-Anything else is of course, never working.
-
->function gets called, even though I have never called the close()
->system call from my user app.
->
->I also print out the module counter, and it doesn't make sense who
->increments it:
-
->From that output, I would not either get any idea.
-Try opening only one device at a time.
-Then, put a dump_stack() where you see fit.
-
->My user app looks something like this:
-
->    fd[i] = open(dev, O_RDWR | O_SYNC);
-
-I don't think O_SYNC has any effect on unregular files.
-
->    if(status != 0)
->    {
->      printf("%s - %s\n", dev, strerror(errno));
->    }
->  } /* for(port_id = 0; port_id < nr_ports; port_id++) */
-
-Well, WHERE do you close() the fd?
 
 
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+linux-os wrote:
+> On Tue, 26 Oct 2004, Timothy Miller wrote:
+> 
+
+>>For cost reasons, we likely wouldn't socket the chip, so you'd probably
+>>have to send it in for an RMA.  We'd reprogram it, and send it back.  Or
+>>if you have a friend with the right tools, they can do it.
+>>
+> 
+> 
+> Normally you use a boundary-scan (JTAG) serial header so you can program,
+> reprogram, debug the chip. FPGA development tools expect (require)
+> this.
+> 
+> Check out http:/www.macraigor.com/full_gnu.htm for their GNU tools
+> and devices, designed for Linux (and M$).
+
+Sounds cool.  The easier we can make it, the better.
+

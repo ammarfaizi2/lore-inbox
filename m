@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266575AbUGKMJO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266580AbUGKMTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266575AbUGKMJO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 08:09:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266577AbUGKMJN
+	id S266580AbUGKMTx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 08:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266579AbUGKMTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 08:09:13 -0400
-Received: from astro.futurequest.net ([69.5.28.104]:36055 "HELO
-	astro.futurequest.net") by vger.kernel.org with SMTP
-	id S266575AbUGKMJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 08:09:11 -0400
-From: Daniel Schmitt <pnambic@unu.nu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.7] Ehci controller interrupts like crazy on nforce2
-Date: Sun, 11 Jul 2004 14:09:09 +0200
-User-Agent: KMail/1.6.2
-References: <40EDF209.70707@yahoo.ca>
-In-Reply-To: <40EDF209.70707@yahoo.ca>
-Cc: Jonathan Filiatrault <lintuxicated@yahoo.ca>
-MIME-Version: 1.0
+	Sun, 11 Jul 2004 08:19:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11945 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266577AbUGKMTv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 08:19:51 -0400
+Date: Sun, 11 Jul 2004 13:19:50 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@redhat.com>, davidm@hpl.hp.com,
+       suresh.b.siddha@intel.com, jun.nakajima@intel.com, torvalds@osdl.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: serious performance regression due to NX patch
+Message-ID: <20040711121950.GU5889@parcelfarce.linux.theplanet.co.uk>
+References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com> <Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com> <Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com> <Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com> <20040711030225.11fb61e7.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407111409.09405.pnambic@unu.nu>
+In-Reply-To: <20040711030225.11fb61e7.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 July 2004 03:16, Jonathan Filiatrault wrote:
-> Here it is: another nforce2 hardware bug. The ehci controller seems to
-> send a massive number of interrupts to the kernel (264379 per second).
-> This uses about 5 to 10% of the cpu. This shows up in top in the
-> "hi"(hard interrupts) indicator. Nothing unusual shows up in the kernel
-> log. My system has an Asus A7N8X Nforce2 Board with an Athlon XP 2800+
-> mounted on it.
+On Sun, Jul 11, 2004 at 03:02:25AM -0700, Andrew Morton wrote:
+> Apropos of nothing much, CONFIG_X86 would be preferreed here, but x86_64
+> defines that too.
 
-I've seen this problem on my board (Epox 8RDA3+) as well. The root cause seems 
-to be interrupt link devices enabled without regard for the actual device 
-status. A recent patch that delayed IRQ assignment to device activiation time 
-fixed this for me; you might want to try a fresh -mm or -bk kernel.
+IMO, x86-64 should stop defining CONFIG_X86.  It's far more common
+to say "X86 && !X86_64" than it is to say X86.  How about defining
+CONFIG_X86_COMMON and migrating usage of X86 to X86_COMMON?
 
-Hope that helps,
-
-Daniel.
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

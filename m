@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293151AbSCJShz>; Sun, 10 Mar 2002 13:37:55 -0500
+	id <S293150AbSCJSgF>; Sun, 10 Mar 2002 13:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293154AbSCJShp>; Sun, 10 Mar 2002 13:37:45 -0500
-Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:7429 "EHLO
-	server01.nullzone.prv") by vger.kernel.org with ESMTP
-	id <S293151AbSCJShd>; Sun, 10 Mar 2002 13:37:33 -0500
-Message-Id: <5.1.0.14.2.20020310193611.00caf1f8@192.168.2.131>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 10 Mar 2002 19:37:22 +0100
-To: Edward Shushkin <edward@namesys.com>
-From: system_lists@nullzone.org
-Subject: Re: [reiserfs-list] Opss! on 2.5.6 with ReiserFS
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-In-Reply-To: <3C8BCE86.17A5F7E8@namesys.com>
-In-Reply-To: <5.1.0.14.2.20020310165035.00caf5c0@192.168.2.131>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S293148AbSCJSfz>; Sun, 10 Mar 2002 13:35:55 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:266 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293150AbSCJSfq>;
+	Sun, 10 Mar 2002 13:35:46 -0500
+Message-ID: <3C8BA70A.206C0EFE@zip.com.au>
+Date: Sun, 10 Mar 2002 10:33:46 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matthew Kirkwood <matthew@hairy.beasts.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.6: JFS vs gcc 2.95.4
+In-Reply-To: <Pine.LNX.4.33.0203101600010.31738-100000@sphinx.mythic-beasts.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Edward.
-I'll apply and let me inform u about result ( just like a beta-tester )
+Matthew Kirkwood wrote:
+> 
+> Hi,
+> 
+> I can't build jfs in 2.5.6 with gcc 2.95.4 from Debian
+> testing:
+> 
+> gcc -D__KERNEL__ -I/home/matthew/kern/linux-2.5.6/include -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+> -march=k6  -D_JFS_4K -DKBUILD_BASENAME=jfs_imap  -c -o jfs_imap.o
+> jfs_imap.c
+> jfs_imap.c: In function `diAlloc':
+> /home/matthew/kern/linux-2.5.6/include/asm/rwsem.h:169: inconsistent
+> operand constraints in an `asm'
+> jfs_imap.c: In function `diNewIAG':
+> /home/matthew/kern/linux-2.5.6/include/asm/rwsem.h:169: inconsistent
+> operand constraints in an `asm'
+> 
+> I don't really speak gcc asm, so I don't know where to start
+> on this.  Is it a known issue?
+> 
 
-At 21:22 10/03/2002 +0000, Edward Shushkin wrote:
->system_lists@nullzone.org wrote:
-> >
-> > Hi there,
-> >
-> >     i got a 'Opss' on my PII (one of my fileservers) just changing the
-> > kernel version from 2.5.5 to .6
->
->Reiserfs in linux >= 2.5.6-pre3 does have broken stuff in journal area due 
->to vfs cleanups.
->Please wait, or apply this:
->
->--- linux-2.5.6-pre3/fs/reiserfs/journal.c.orig Thu Mar  7 12:44:43 2002
->+++ linux-2.5.6-pre3/fs/reiserfs/journal.c      Thu Mar  7 13:53:36 2002
->@@ -1960,8 +1960,7 @@
->                 SB_ONDISK_JOURNAL_DEVICE( super ) ?
->                 to_kdev_t(SB_ONDISK_JOURNAL_DEVICE( super )) : super -> 
-> s_dev;
->         /* there is no "jdev" option and journal is on separate device */
->-       if( ( !jdev_name || !jdev_name[ 0 ] ) &&
->-           SB_ONDISK_JOURNAL_DEVICE( super ) ) {
->+       if( ( !jdev_name || !jdev_name[ 0 ] ) ) {
->                 journal -> j_dev_bd = bdget( kdev_t_to_nr( jdev ) );
->                 if( journal -> j_dev_bd )
->                         result = blkdev_get( journal -> j_dev_bd,
->@@ -1976,9 +1975,6 @@
->                 return result;
->         }
->
->-       /* no "jdev" option and journal is on the host device */
->-       if( !jdev_name || !jdev_name[ 0 ] )
->-               return 0;
->         journal -> j_dev_file = filp_open( jdev_name, 0, 0 );
->         if( !IS_ERR( journal -> j_dev_file ) ) {
->                 struct inode *jdev_inode;
->
->
->Thanks,
->Edward
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+This worked for me:
 
+--- linux-2.5.6/include/asm-i386/rwsem.h	Tue Feb 19 18:11:01 2002
++++ 25/include/asm-i386/rwsem.h	Sat Mar  9 14:37:35 2002
+@@ -164,7 +164,7 @@ LOCK_PREFIX	"  xadd      %%edx,(%%eax)\n
+ 		"  jmp       1b\n"
+ 		LOCK_SECTION_END
+ 		"# ending __up_read\n"
+-		: "+m"(sem->count), "+d"(tmp)
++		: /*"+m"(sem->count),*/ "+d"(tmp)
+ 		: "a"(sem)
+ 		: "memory", "cc");
+ }
 
-
-
+-

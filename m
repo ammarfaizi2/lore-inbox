@@ -1,77 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263986AbSLWLrF>; Mon, 23 Dec 2002 06:47:05 -0500
+	id <S264665AbSLWLzn>; Mon, 23 Dec 2002 06:55:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264001AbSLWLrF>; Mon, 23 Dec 2002 06:47:05 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:7172 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263986AbSLWLrE>;
-	Mon, 23 Dec 2002 06:47:04 -0500
-Date: Sat, 21 Dec 2002 13:01:02 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Ducrot Bruno <poup@poupinou.org>
-Cc: Pavel Machek <pavel@suse.cz>, "Grover, Andrew" <andrew.grover@intel.com>,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] [PATCH] acpi_wakeup fixes
-Message-ID: <20021221120101.GA1371@zaurus>
-References: <20021217202142.GB1012@poup.poupinou.org>
+	id <S264672AbSLWLzn>; Mon, 23 Dec 2002 06:55:43 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:11681 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S264665AbSLWLzl>; Mon, 23 Dec 2002 06:55:41 -0500
+Date: Mon, 23 Dec 2002 13:03:49 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Read this and be ashamed ;) or: Awfull performance loss since 2.4.18 to 2.4.21-pre2
+Message-ID: <20021223120349.GJ12643@louise.pinerecords.com>
+References: <200212221439.28075.m.c.p@wolk-project.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021217202142.GB1012@poup.poupinou.org>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <200212221439.28075.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> 2.4.18
+> 2147483648 bytes transferred in 119.140681 seconds (18024772 bytes/sec)
+>
+> 2.4.19
+> 2147483648 bytes transferred in 140.305836 seconds (15305733 bytes/sec)
 
-> @@ -41,7 +41,7 @@
->  	cmpl	_0x12345678, %eax
->  	jne	bogus_real_magic
->  
-> -#if 1
-> +#if 0
->  	lcall   _0xc000,_3
->  #endif
->  #if 0
+Well I'm getting the numbers the other way round. <g>
 
-We should make this runtime configurable...
+Machine:
 
-Anyway disabling this is probably right.
+$ egrep 'model name|MHz' /proc/cpuinfo
+model name      : AMD Athlon(tm) processor
+cpu MHz         : 996.037
+$ grep MemTotal /proc/meminfo
+MemTotal:       516588 kB
+$ egrep 'Bridge|DMA rate' /proc/ide/via
+South Bridge:                       VIA vt82c686b
+Highest DMA rate:                   UDMA100
+$ cat /proc/ide/ide0/hda/model
+ST380021A
+$ su -c 'hdparm -Iv /dev/hda| grep -i dma'
+ using_dma    =  1 (on)
+        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
+$ grep [[:blank:]]/[[:blank:]] /etc/fstab
+/dev/hda3	/	reiserfs	defaults	1	1
 
-> @@ -69,8 +69,12 @@
->  
->  	movl	real_save_cr0 - wakeup_code, %eax
->  	movl	%eax, %cr0
-> +
-> +	# flush the prefetch queue.
->  	jmp 1f
-> +1:	jmp 1f
->  1:
+Tests:
 
-Is this really neccessary? One jump should be
-ok...
+$ uname -r
+2.4.18
+$ time sh -c 'sync; sync; sync; dd if=/dev/zero of=hoax bs=16k count=131072; sync; sync; sync'
+131072+0 records in
+131072+0 records out
+real    1m44.708s
+user    0m0.140s
+sys     0m20.340s
+=> 19.56MB/s
 
-> @@ -160,11 +164,12 @@
->  	ALIGN
->  
->  
-> -.org	0x2000
-> +.org	0x800
->  wakeup_stack:
-> -.org	0x3000
-> +.org	0x900
->  ENTRY(wakeup_end)
-> -.org	0x4000
-> +# .org	0x1000
-> +	.align 4096
+$ uname -r
+2.4.20
+$ time sh -c 'sync; sync; sync; dd if=/dev/zero of=hoax bs=16k count=131072; sync; sync; sync'
+131072+0 records in
+131072+0 records out
+real    1m27.980s
+user    0m0.120s
+sys     0m20.290s
+=> 23.28MB/s
 
-Kill the comment, otherwise ok.
-
->  wakeup_pmode_return:
->  	movl	___KERNEL_DS, %eax
-
+I also tried machines with disks connected to various SCSI controllers
+and in all cases more recent kernels gave better results than older
+ones (sym53c8xx: two-disk raid1 - 2.4.18: ~35MB/s, 2.4.20: ~40MB/s).
+I'm using reiserfs 3.6 everywhere.
 
 -- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
-
+Tomas Szepe <szepe@pinerecords.com>

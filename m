@@ -1,37 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267986AbUJVVjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267994AbUJVVjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267986AbUJVVjW (ORCPT <rfc822;willy@w.ods.org>);
+	id S267994AbUJVVjW (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 22 Oct 2004 17:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268031AbUJVVfX
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268000AbUJVVfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 17:35:23 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:37346 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267904AbUJVVbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 17:31:18 -0400
-Subject: Re: How is user space notified of CPU speed changes?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>
-In-Reply-To: <4179623C.9050807@nortelnetworks.com>
-References: <1098399709.4131.23.camel@krustophenia.net>
-	 <1098444170.19459.7.camel@localhost.localdomain>
-	 <1098468316.5580.18.camel@krustophenia.net>
-	 <4179623C.9050807@nortelnetworks.com>
+	Fri, 22 Oct 2004 17:35:09 -0400
+Received: from julesburg.uits.indiana.edu ([129.79.1.75]:1162 "EHLO
+	julesburg.uits.indiana.edu") by vger.kernel.org with ESMTP
+	id S268033AbUJVVbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 17:31:35 -0400
+Subject: Re: Linux v2.6.9 and GPL Buyout
+From: brian wheeler <bdwheele@indiana.edu>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1098476905.19435.43.camel@localhost.localdomain>
+Message-Id: <1098480691.8033.8.camel@wombat.educ.indiana.edu>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 22 Oct 2004 21:28:26 +0100
+Date: Fri, 22 Oct 2004 16:31:31 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-10-22 at 20:40, Chris Friesen wrote:
-> x86 really could use an on-die register that increments at 1GHz independent of 
-> clock speed and is synchronized across all CPUs in an SMP box.
+I'd like to see the list (as well as knowing which kernel version the
+list comes from) as would many others, I suspect.
 
-HPET sort of is this but at chipset level
+Brian Wheeler
+bdwheele@indiana.edu
+
+
+---------------------
+Jeff V. Merkey wrote:
+
+SCO Just sent over a list of contaminated files with a "bill of health" 
+certification for Linux that if we remove the identified files
+they will certify our Linux distribution as clean. They are also sending 
+out some form of statement that we are
+not affiliated with them, and that we are competitors of SCO since we 
+use Linux. They claim the following and I have
+a listing of files, lines numbers, etc. they told us we must remove in 
+order for our Linux appliances to be considered
+"clean." This info might be useful to others. They have a cert program 
+to remove the areas.
+
+Here it is. I can get the line numbers of the file and their names if 
+anyone needs it, but the list is very big.
+
+RCU
+46 files
+109,688 lines
+
+NUMA
+101 files
+56,587 lines
+
+JFS
+44 files
+32,224 lines
+
+XFS
+173 Files
+119,130 lines
+
+SMP
+1,185 files
+829,393 lines
+
+Total files/lines they [allege] contains SCO source code
+1,549 files
+1,147,022 lines
+
+If you guys want the specific line numbers and filenames, I will ask 
+them to post the specific filenames/line numbers they claim
+are theirs. They stated we can ship Linux with fear of being sued if we 
+comply with their Linux Certification Program.
+
+
 

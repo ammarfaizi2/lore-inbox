@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269213AbUJTW7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270332AbUJUCk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269213AbUJTW7z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 18:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267619AbUJTWdb
+	id S270332AbUJUCk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 22:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270627AbUJUCkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 18:33:31 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:31468 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S269097AbUJTWIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 18:08:53 -0400
-Subject: Re: [SoftwareSuspend-devel] Re: Announce: Software Suspend 2.1 for
-	2.6.9.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Paul Ionescu <i_p_a_u_l@yahoo.com>
-Cc: SoftwareSuspend-Devel <softwaresuspend-devel@lists.berlios.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <pan.2004.10.20.10.14.30.549235@yahoo.com>
-References: <1098237615.7738.13.camel@desktop.cunninghams>
-	 <pan.2004.10.20.10.14.30.549235@yahoo.com>
-Content-Type: text/plain
-Message-Id: <1098309930.4989.55.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 21 Oct 2004 08:05:30 +1000
+	Wed, 20 Oct 2004 22:40:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61879 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270332AbUJUCh0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 22:37:26 -0400
+Message-ID: <417720D6.1030908@pobox.com>
+Date: Wed, 20 Oct 2004 22:37:10 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: Linus Torvalds <torvalds@osdl.org>, John Cherry <cherry@osdl.org>,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: Linux v2.6.9... (compile stats)
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <1098196575.4320.0.camel@cherrybomb.pdx.osdl.net> <20041019161834.GA23821@one-eyed-alien.net> <1098310286.3381.5.camel@cherrybomb.pdx.osdl.net> <20041020224106.GM23987@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0410201710370.2317@ppc970.osdl.org> <41770307.5060304@pobox.com> <20041021015522.GH23987@parcelfarce.linux.theplanet.co.uk> <41771813.8090204@pobox.com> <20041021022442.GI23987@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20041021022442.GI23987@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul.
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> IDGI.  Why do you insist on releasing these guys in library code?  Even
 
-On Wed, 2004-10-20 at 20:14, Paul Ionescu wrote:
-> Hi Nigel,
-> 
-> I tried this new version, and it still won't suspend with 4G himem support
-> compiled in (still hangs at "copying pageset 1").
-> Have you had the time to look in the kernel .config file and serial dump
-> I've sent you (on your e-mail, not on the list)? 
-> Maybe I compiled some wrong options in the kernel.
+Because there are two distinct and separate models of port mapping/usage:
 
-Sorry; it went clean out of my head. I'll take a look asap.
+1) A bunch of separate IO address spaces (PIO).  The "mapping" is 
+currently done in ata_pci_init_native_mode() and ata_pci_init_legacy_mode()
 
-Regards,
+2) One single linear address space (MMIO).  The mapping is done in the 
+low-level driver.
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+#1 is in the library because the logic is duplicated _precisely_, across 
+multiple host controllers, according to a hardware specification.
 
-Many today claim to be tolerant. True tolerance, however, can cope with others
-being intolerant.
+Thus, if the mapping is done in the library core, so should the unmapping.
+
+	Jeff
+
+
 

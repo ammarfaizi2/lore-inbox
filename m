@@ -1,83 +1,404 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263525AbUJ2W3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263549AbUJ2W3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263525AbUJ2W3t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 18:29:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263549AbUJ2W0X
+	id S263549AbUJ2W3u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 18:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263539AbUJ2W0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 18:26:23 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:56193 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S263606AbUJ2WGo (ORCPT
+	Fri, 29 Oct 2004 18:26:08 -0400
+Received: from mail.gmx.de ([213.165.64.20]:48787 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261446AbUJ2WOQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 18:06:44 -0400
-Date: Sat, 30 Oct 2004 00:06:21 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Norbert Preining <preining@logic.at>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-mm1, class_simple_* and GPL addition
-Message-ID: <20041029220621.GB21522@vana.vc.cvut.cz>
-References: <20041027135052.GE32199@gamma.logic.tuwien.ac.at> <20041027153715.GB13991@kroah.com> <200410272012.44361.dtor_core@ameritech.net> <20041029205505.GB30638@kroah.com>
+	Fri, 29 Oct 2004 18:14:16 -0400
+X-Authenticated: #4399952
+Date: Sat, 30 Oct 2004 00:31:22 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041030003122.03bcf01b@mango.fruits.de>
+In-Reply-To: <20041029212545.GA13199@elte.hu>
+References: <20041029163155.GA9005@elte.hu>
+	<20041029191652.1e480e2d@mango.fruits.de>
+	<20041029170237.GA12374@elte.hu>
+	<20041029170948.GA13727@elte.hu>
+	<20041029193303.7d3990b4@mango.fruits.de>
+	<20041029172151.GB16276@elte.hu>
+	<20041029172243.GA19630@elte.hu>
+	<20041029203619.37b54cba@mango.fruits.de>
+	<20041029204220.GA6727@elte.hu>
+	<20041029233117.6d29c383@mango.fruits.de>
+	<20041029212545.GA13199@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041029205505.GB30638@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 03:55:05PM -0500, Greg KH wrote:
+On Fri, 29 Oct 2004 23:25:45 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
+
+> > will do so. btw: i think i'm a bit confused right now. What debugging
+> > features should i have enabled for this test?
 > 
-> You are right, class_simple is merely a wrapper around the core class
-> and class_device functions.  It makes it easier for a driver subsystem
-> to implement a very common feature.
+> this particular one (atomicity-checking) is always-enabled if you have
+> the -RT patch applied (it's a really cheap check).
 > 
-> See, "wrapper" is the point here.  If we were to have someone try to
-> submit the class_simple code today, after the driver core had the GPL
-> function exports on them, we would laugh them out of the room on the
-> grounds that they were wrapping GPL interfaces with a looser one.  So,
-> because of that, I'm going to mark these functions this way.
+> for the 'application-triggered tracing' facility we talked about earlier
+> is only active if LATENCY_TRACING is enabled. In that case to turn the 
+> tracer on, call:
+[snip]
 
-It is not correct argument.  That you turned them to GPL-only just
-week before you sent change for class_simple does not negate that they
-existed since 2.6.0 as non-GPL exports.
+Ok,
 
-I had code for vmnet which were better than one using class_simple
-(class_simple has problem that when you create 256 devices at once,
-udevd spawns 256 subprocesses, each wanting ~1MB memory, and all
-in runable state; it takes ~10sec until 1GHz 512MB K7 box comes
-back to life), but since you changed GPL-ness of driver core, when
-you sent first patches I just thought that it is intentional that
-you left class_simple untouched in first round and did not complain
-immediately when I saw your first GPLization patch.
+.config attached,
 
-> As to people saying it's futile to try to get companies to change, I
-> don't buy that.  Go look up the history of the EXPORT_SYMBOL_GPL marker
-> and see who used it first.  I know for a fact that because of this
-> marking on some kernel functions a very large company totally switched
-> directions and rethought their policies about Linux kernel
-> drivers/modules.  Now that company has plays very nicely with the Linux
-> kernel community, and contributes a lot of very good, useful, and needed
-> code, all under the GPL.
+running the patched jackd -R -P 60 -d alsa -p64 for a bit and provoking
+xruns via window wiggling :)
 
-And it was API which was accessible by non-GPL modules before?  Your
-way looks more like GIF patent to me - first leave API open for 9 months so
-every distribution and all external providers jump on udev, and then
-close API and require everybody to relicense code under license of your
-choice.
+mango:~# cat /proc/sys/kernel/trace_enabled 
+2
+mango:~# cat /proc/sys/kernel/preempt_max_latency 
+75
+mango:~# cat /proc/sys/kernel/preempt_thresh      
+0
 
-> So we can change things, little things like this can help everyone out,
-> even if I'm going to get a ton of nvidia user hate mail directed to me
-> after the next kernel comes out...
-> 
-> Remember, binary kernel modules are a leach on our community.
+mango:~# cat /proc/latency_trace 
+preemption latency trace v1.0.7 on 2.6.9-mm1-RT-V0.5.14-rt
+-------------------------------------------------------
+ latency: 75 us, entries: 54 (54)   |   [VP:0 KP:1 SP:1 HP:1 #CPUS:1]
+    -----------------
+    | task: jackd/1083, uid:1000 nice:0 policy:1 rt_prio:60
+    -----------------
+ => started at: try_to_wake_up+0x5a/0x110 <c01151ca>
+ => ended at:   finish_task_switch+0x31/0xc0 <c0115691>
+=======>
+  834 80000000 0.000ms (+0.000ms): (39) ((115))
+  834 80000000 0.000ms (+0.000ms): (1083) ((834))
+  834 80000000 0.000ms (+0.000ms): preempt_schedule (try_to_wake_up)
+  834 80000000 0.000ms (+0.000ms): preempt_schedule (__up_write)
+  834 00000000 0.000ms (+0.000ms): preempt_schedule (up_write_mutex)
+  834 80000000 0.000ms (+0.000ms): __schedule (preempt_schedule)
+  834 80000000 0.000ms (+0.000ms): profile_hit (__schedule)
+  834 80000000 0.000ms (+0.000ms): sched_clock (__schedule)
+ 1083 80000000 0.001ms (+0.000ms): __switch_to (__schedule)
+ 1083 80000000 0.001ms (+0.000ms): (834) ((1083))
+ 1083 80000000 0.001ms (+0.000ms): (115) ((39))
+ 1083 80000000 0.002ms (+0.000ms): finish_task_switch (__schedule)
+ 1083 80000000 0.002ms (+0.000ms): trace_stop_sched_switched (finish_task_switch)
+ 1083 80000000 0.002ms (+0.000ms): (1083) ((39))
+ 1083 00000000 0.003ms (+0.000ms): _mutex_unlock (kfree)
+ 1083 00000000 0.003ms (+0.000ms): up_mutex (kfree)
+ 1083 00000000 0.003ms (+0.000ms): up_write_mutex (kfree)
+ 1083 00000000 0.003ms (+0.000ms): __up_write (up_write_mutex)
+ 1083 00000000 0.003ms (+0.000ms): poll_freewait (sys_poll)
+ 1083 00000000 0.003ms (+0.000ms): remove_wait_queue (poll_freewait)
+ 1083 00000000 0.003ms (+0.000ms): _mutex_lock_irqsave (remove_wait_queue)
+ 1083 00000000 0.003ms (+0.000ms): __mutex_lock (_mutex_lock_irqsave)
+ 1083 00000000 0.003ms (+0.000ms): __might_sleep (__mutex_lock)
+ 1083 00000000 0.004ms (+0.000ms): down_mutex (__mutex_lock)
+ 1083 00000000 0.004ms (+0.000ms): down_write_mutex (__mutex_lock)
+ 1083 00000000 0.004ms (+0.000ms): __might_sleep (down_write_mutex)
+ 1083 00000000 0.004ms (+0.000ms): _mutex_unlock_irqrestore (remove_wait_queue)
+ 1083 00000000 0.004ms (+0.000ms): up_mutex (remove_wait_queue)
+ 1083 00000000 0.004ms (+0.000ms): up_write_mutex (remove_wait_queue)
+ 1083 00000000 0.004ms (+0.000ms): __up_write (up_write_mutex)
+ 1083 00000000 0.004ms (+0.000ms): fput (poll_freewait)
+ 1083 00000000 0.005ms (+0.000ms): free_pages (poll_freewait)
+ 1083 00000000 0.005ms (+0.000ms): __free_pages (poll_freewait)
+ 1083 00000000 0.005ms (+0.000ms): free_hot_page (poll_freewait)
+ 1083 00000000 0.006ms (+0.000ms): __free_pages_ok (free_hot_page)
+ 1083 00000000 0.006ms (+0.000ms): free_pages_bulk (__free_pages_ok)
+ 1083 00000000 0.006ms (+0.000ms): _mutex_lock_irqsave (free_pages_bulk)
+ 1083 00000000 0.006ms (+0.000ms): __mutex_lock (_mutex_lock_irqsave)
+ 1083 00000000 0.007ms (+0.000ms): __might_sleep (__mutex_lock)
+ 1083 00000000 0.007ms (+0.000ms): down_mutex (__mutex_lock)
+ 1083 00000000 0.007ms (+0.000ms): down_write_mutex (__mutex_lock)
+ 1083 00000000 0.007ms (+0.000ms): __might_sleep (down_write_mutex)
+ 1083 00000000 0.007ms (+0.000ms): bad_range (free_pages_bulk)
+ 1083 00000000 0.007ms (+0.000ms): bad_range (free_pages_bulk)
+ 1083 00000000 0.008ms (+0.000ms): _mutex_unlock_irqrestore (free_pages_bulk)
+ 1083 00000000 0.008ms (+0.000ms): up_mutex (free_pages_bulk)
+ 1083 00000000 0.008ms (+0.000ms): up_write_mutex (free_pages_bulk)
+ 1083 00000000 0.008ms (+0.004ms): __up_write (up_write_mutex)
+ 1083 00000000 0.013ms (+0.000ms): sys_gettimeofday (syscall_call)
+ 1083 00000000 0.013ms (+0.000ms): user_trace_stop (sys_gettimeofday)
+ 1083 80000000 0.013ms (+0.000ms): user_trace_stop (sys_gettimeofday)
+ 1083 80000000 0.013ms (+0.000ms): update_max_trace (user_trace_stop)
+ 1083 80000000 0.014ms (+0.000ms): _mmx_memcpy (update_max_trace)
+ 1083 80000000 0.014ms (+0.000ms): kernel_fpu_begin (_mmx_memcpy)
 
-I cannot speak for NVidia, but VMware's modules are opensource.  Their
-license is just not compatible with GPL, so your argument about binary kernel
-modules fall short here.
-				Thanks,
-					Petr Vandrovec
 
-P.S.: mknod solution in initscript saves ~60 bytes on disk and 220 bytes
-of kernel memory, plus mp3 player does not stop for 10 sec after loading 
-vmnet ;-)  I must thank you for changing availability of your API, it
-allowed me to see how to do things more efficiently.
+
+mango:~# chrt -p `pidof "IRQ 3"`
+pid 118's current scheduling policy: SCHED_FIFO
+pid 118's current scheduling priority: 99
+
+mango:~# ps aux|grep jackd
+tapas     1080  4.2  3.6 28244 28220 pts/1   SLl+ 00:22   0:18 jackd -R -P 60 -d alsa -p 64
+mango:~# chrt -p 1080
+pid 1080's current scheduling policy: SCHED_OTHER
+pid 1080's current scheduling priority: 0
+mango:~# chrt -p 1081
+pid 1081's current scheduling policy: SCHED_OTHER
+pid 1081's current scheduling priority: 0
+mango:~# chrt -p 1082
+pid 1082's current scheduling policy: SCHED_FIFO
+pid 1082's current scheduling priority: 70
+mango:~# chrt -p 1083
+pid 1083's current scheduling policy: SCHED_FIFO
+pid 1083's current scheduling priority: 60
+
+
+and here's some syslog stuff:
+
+Oct 30 00:20:32 mango kernel: Realtime LSM initialized (group 1002, mlock=1)
+Oct 30 00:20:35 mango kernel: IRQ#3 thread RT prio: 43.
+Oct 30 00:20:38 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:20:38 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:20:38 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:20:38 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:20:38 mango kernel: ---------------------------
+Oct 30 00:20:38 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:20:38 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:20:38 mango kernel: ----------------------------------------
+Oct 30 00:20:38 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:20:38 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:20:38 mango kernel: 
+Oct 30 00:20:47 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:20:47 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:20:47 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:20:47 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:20:47 mango kernel: ---------------------------
+Oct 30 00:20:47 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:20:47 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:20:47 mango kernel: ----------------------------------------
+Oct 30 00:20:47 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:20:47 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:20:47 mango kernel: 
+Oct 30 00:20:51 mango kernel: (IRQ 3/118/CPU#0): new 4 us maximum-latency wakeup.
+Oct 30 00:20:51 mango kernel: (bash/867/CPU#0): new 6 us maximum-latency wakeup.
+Oct 30 00:20:52 mango kernel: (bash/1035/CPU#0): new 7 us maximum-latency wakeup.
+Oct 30 00:20:52 mango kernel: (ksoftirqd/0/2/CPU#0): new 8 us maximum-latency wakeup.
+Oct 30 00:20:52 mango kernel: (ksoftirqd/0/2/CPU#0): new 13 us maximum-latency wakeup.
+Oct 30 00:21:11 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:11 mango kernel: (IRQ 12/15/CPU#0): new 19 us maximum-latency wakeup.
+Oct 30 00:21:11 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:11 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:11 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:11 mango kernel: ---------------------------
+Oct 30 00:21:11 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:11 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:11 mango kernel: ----------------------------------------
+Oct 30 00:21:11 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:11 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:11 mango kernel: 
+Oct 30 00:21:11 mango kernel: (IRQ 12/15/CPU#0): new 75 us maximum-latency wakeup.
+Oct 30 00:21:11 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:11 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:11 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:11 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:11 mango kernel: ---------------------------
+Oct 30 00:21:11 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:11 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:11 mango kernel: ----------------------------------------
+Oct 30 00:21:11 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:11 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:11 mango kernel: 
+Oct 30 00:21:11 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:11 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:11 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:11 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:11 mango kernel: ---------------------------
+Oct 30 00:21:11 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:11 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:11 mango kernel: ----------------------------------------
+Oct 30 00:21:11 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:11 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:11 mango kernel: 
+Oct 30 00:21:11 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:11 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:11 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:11 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:11 mango kernel: ---------------------------
+Oct 30 00:21:11 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:11 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:11 mango kernel: ----------------------------------------
+Oct 30 00:21:11 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:11 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:11 mango kernel: 
+Oct 30 00:21:11 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:11 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:11 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:11 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:11 mango kernel: ---------------------------
+Oct 30 00:21:11 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:11 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:11 mango kernel: ----------------------------------------
+Oct 30 00:21:11 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:11 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:11 mango kernel: 
+Oct 30 00:21:11 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:11 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:11 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:11 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:11 mango kernel: ---------------------------
+Oct 30 00:21:11 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:11 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:11 mango kernel: ----------------------------------------
+Oct 30 00:21:11 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:11 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:11 mango kernel: 
+Oct 30 00:21:12 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:12 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:12 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:12 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:12 mango kernel: ---------------------------
+Oct 30 00:21:12 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:12 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:12 mango kernel: ----------------------------------------
+Oct 30 00:21:12 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:12 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:12 mango kernel: 
+Oct 30 00:21:13 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:13 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:13 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:13 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:13 mango kernel: ---------------------------
+Oct 30 00:21:13 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:13 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:13 mango kernel: ----------------------------------------
+Oct 30 00:21:13 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:13 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:13 mango kernel: 
+Oct 30 00:21:31 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:31 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:31 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:31 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:31 mango kernel: ---------------------------
+Oct 30 00:21:31 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:31 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:31 mango kernel: ----------------------------------------
+Oct 30 00:21:31 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:31 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:31 mango kernel: 
+Oct 30 00:21:32 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:32 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:32 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:32 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:32 mango kernel: ---------------------------
+Oct 30 00:21:32 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:32 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:32 mango kernel: ----------------------------------------
+Oct 30 00:21:32 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:32 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:32 mango kernel: 
+Oct 30 00:21:32 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:32 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:32 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:32 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:32 mango kernel: ---------------------------
+Oct 30 00:21:32 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:32 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:32 mango kernel: ----------------------------------------
+Oct 30 00:21:32 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:32 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:32 mango kernel: 
+Oct 30 00:21:32 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:32 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:32 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:32 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:32 mango kernel: ---------------------------
+Oct 30 00:21:32 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:32 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:32 mango kernel: ----------------------------------------
+Oct 30 00:21:32 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:32 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:32 mango kernel: 
+Oct 30 00:21:34 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:34 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:34 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:34 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:34 mango kernel: ---------------------------
+Oct 30 00:21:34 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:34 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:34 mango kernel: ----------------------------------------
+Oct 30 00:21:34 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:34 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:34 mango kernel: 
+Oct 30 00:21:35 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:35 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:35 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:35 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:35 mango kernel: ---------------------------
+Oct 30 00:21:35 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:35 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:35 mango kernel: ----------------------------------------
+Oct 30 00:21:35 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:35 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:35 mango kernel: 
+Oct 30 00:21:37 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:21:37 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:21:37 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:21:37 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:21:37 mango kernel: ---------------------------
+Oct 30 00:21:37 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:21:37 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:21:37 mango kernel: ----------------------------------------
+Oct 30 00:21:37 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:21:37 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:21:37 mango kernel: 
+Oct 30 00:22:09 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:22:09 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:22:09 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:22:09 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:22:09 mango kernel: ---------------------------
+Oct 30 00:22:09 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:22:09 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:22:09 mango kernel: ----------------------------------------
+Oct 30 00:22:09 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:22:09 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:22:09 mango kernel: 
+Oct 30 00:22:10 mango kernel: jackd:1019 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:22:10 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:22:10 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:22:10 mango kernel:  [kernel_config_data+5091/6569] io_schedule+0x13/0x20 (8)
+Oct 30 00:22:10 mango kernel:  [do_hardirq+104/304] sync_page+0x38/0x50 (12)
+Oct 30 00:22:10 mango kernel:  [kernel_config_data+5981/6569] __wait_on_bit_lock+0x5d/0x70 (32)
+Oct 30 00:22:10 mango kernel:  [init_irq_proc+137/176] __lock_page+0x89/0xa0 (92)
+Oct 30 00:22:10 mango kernel:  [__generic_file_aio_read+402/544] filemap_nopage+0x2b2/0x3e0 (60)
+Oct 30 00:22:10 mango kernel:  [do_no_page+74/848] do_no_page+0xba/0x390 (68)
+Oct 30 00:22:10 mango kernel:  [handle_mm_fault+207/416] handle_mm_fault+0xef/0x180 (48)
+Oct 30 00:22:10 mango kernel:  [get_user_pages+169/912] get_user_pages+0x139/0x380 (60)
+Oct 30 00:22:10 mango kernel:  [make_pages_present+108/192] make_pages_present+0x9c/0x110 (56)
+Oct 30 00:22:10 mango kernel:  [do_mmap_pgoff+699/1808] do_mmap_pgoff+0x47b/0x700 (88)
+Oct 30 00:22:10 mango kernel:  [old_mmap+149/304] old_mmap+0xc5/0xf0 (96)
+Oct 30 00:22:10 mango kernel:  [irq_entries_start+3/128] syscall_call+0x7/0xb (-8124)
+Oct 30 00:22:10 mango kernel: ---------------------------
+Oct 30 00:22:10 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:22:10 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:22:10 mango kernel: ----------------------------------------
+Oct 30 00:22:10 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:22:10 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:22:10 mango kernel: 
+Oct 30 00:24:40 mango kernel: jackd:1083 userspace BUG: scheduling in user-atomic context!
+Oct 30 00:24:40 mango kernel:  [show_registers+99/464] dump_stack+0x23/0x30 (20)
+Oct 30 00:24:40 mango kernel:  [kernel_config_data+2090/6569] schedule+0x7a/0x120 (36)
+Oct 30 00:24:40 mango kernel:  [irq_entries_start+43/128] work_resched+0x6/0x17 (-8124)
+Oct 30 00:24:40 mango kernel: ---------------------------
+Oct 30 00:24:40 mango kernel: | preempt count: 00000001 ]
+Oct 30 00:24:40 mango kernel: | 1-level deep critical section nesting:
+Oct 30 00:24:40 mango kernel: ----------------------------------------
+Oct 30 00:24:40 mango kernel: .. [l_show+173/272] .... print_traces+0x1d/0x90
+Oct 30 00:24:40 mango kernel: .....[show_registers+99/464] ..   ( <= dump_stack+0x23/0x30)
+Oct 30 00:24:40 mango kernel: 
+Oct 30 00:28:29 mango kernel: (IRQ 3/118/CPU#0): new 205 us maximum-latency wakeup.

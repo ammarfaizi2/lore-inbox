@@ -1,90 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313056AbSDCFQp>; Wed, 3 Apr 2002 00:16:45 -0500
+	id <S313059AbSDCFaZ>; Wed, 3 Apr 2002 00:30:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313057AbSDCFQg>; Wed, 3 Apr 2002 00:16:36 -0500
-Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:40677 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S313056AbSDCFQX>;
-	Wed, 3 Apr 2002 00:16:23 -0500
-Message-ID: <3CAA9025.3060004@tmsusa.com>
-Date: Tue, 02 Apr 2002 21:16:21 -0800
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020402
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: A me-too oops from 2.4.19-pre4-ac3
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S313060AbSDCFaP>; Wed, 3 Apr 2002 00:30:15 -0500
+Received: from violet.setuza.cz ([194.149.118.97]:62475 "EHLO violet.setuza.cz")
+	by vger.kernel.org with ESMTP id <S313059AbSDCF36>;
+	Wed, 3 Apr 2002 00:29:58 -0500
+Subject: Re: Question about 'Hidden' Directories in ext2
+From: Frank Schaefer <frank.schafer@setuza.cz>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0204021704360.6590-100000@rtlab.med.cornell.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 03 Apr 2002 07:29:57 +0200
+Message-Id: <1017811798.250.0.camel@ADMIN>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 2002-04-03 at 00:16, Calin A. Culianu wrote:
+> 
+> Ok, so some hackers broke into one of our boxes and set up an ftp site.
+> They monopolized over 70gb of hard drive space with warez and porn.  We
+> aren't really that upset about it, since we thought it was kind of funny.
+> (Of course we don't like the idea that they are using out bandwidth and
+> disk space, but we can easily remedy that).
+> 
+> Anyway, the weird thing is they created 2 directories, both of which were
+> strangely hidden.  You can cd into them but you can't ls them.  I
+> 
+> /usr/lib/ypx and /usr/man/ypx were the two directories that contained both
+> the ftp software and the ftp root.  When you are in /usr/man and you do an
+> ls, you don't see the ypx directory (same when you are in /usr/lib).  The
+> ls binary we got is right off the redhat cd so it shouldn't still be
+> compromised by whatever rootkit was installed.
+> 
+> My question is this: can the data structures in ext2fs be somehow hacked
+> so a directory can't appear in a listing but can be otherwise located for
+> a stat or a chdir?  I should think no.. maybe we still haven't gotten rid
+> of the rootkit...
 
-I've seen a few of these reports on the list -
+Hi,
 
-I'm running 2.4.19-pre4-ac3 + preemptive and
-the  -aa low latency patch. (Andrew's mini-lowlat)
+Andreas is right. If you're compromized, You should reinstall your
+system.
+We catched an atacker at work not long ago. They hadn't the time to
+remove their cracking tools, so we were able to analyze them.
+This led me to the conclusion not to use a standard distro ( amongst
+other things ). The script they used analyzed which distro is in use,
+and infected the apropriate places for all popular distributions.
+Furtheron I wrote a module to bastillize the box, using exactly the
+methods crackers are using ( an example is on phrack ). Oh ... yes, and
+last but not least we modified some userspace progs and the kernel (
+this task took me to this list ), and we have everything read-only ( tmp
+and var on a fs mounted noexec,nosuid,nodev ).
 
-The box had been up for about 4 days when the
-oops happened, while playing quake 3 arena.
-No ill effects were noted, the box is still up
-and everything appears to be working.
+Regards
+Frank
 
-Red Hat 7.2+ updates -
-P4b 1600
-Genuine Intel P4 mobo
-512 MB RAM
-
-Yes, my kernel is tainted with nvidia, but IMHO
-the nvidia driver has zero connection with the
-oops - So, FWIW, here's the oops:
-
-kernel BUG at page_alloc.c:131!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c012efd7>]    Tainted: P
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00013282
-eax: 00000000   ebx: c1552120   ecx: c100000c   edx: dad607a8
-esi: 00000000   edi: 00000000   ebp: 00007000   esp: dda91ed8
-ds: 0018   es: 0018   ss: 0018
-Process X (pid: 2118, stackpage=dda91000)
-Stack: c025f278 c1552120 00000000 00000001 c1552120 00008000 c1552120 
-c1552120
-       00008000 dcba1640 00007000 c0122592 c1552120 1a319027 00000008 
-00000000
-       48591000 de241484 48589000 00000000 48591000 de241484 00030002 
-dc0dab80
-Call Trace: [<c0122592>] [<c0125054>] [<c012503d>] [<c0125114>] 
-[<c0106efb>]
-Code: 0f 0b 83 00 22 1b 1f c0 c6 43 24 05 8b 43 18 89 f1 83 e0 eb
-
- >>EIP; c012efd7 <__free_pages_ok+c7/2a0>   <=====
-Trace; c0122592 <zap_page_range+192/260>
-Trace; c0125054 <do_munmap+214/2a0>
-Trace; c012503d <do_munmap+1fd/2a0>
-Trace; c0125114 <sys_munmap+34/50>
-Trace; c0106efb <system_call+33/38>
-Code;  c012efd7 <__free_pages_ok+c7/2a0>
-00000000 <_EIP>:
-Code;  c012efd7 <__free_pages_ok+c7/2a0>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c012efd9 <__free_pages_ok+c9/2a0>
-   2:   83 00 22                  addl   $0x22,(%eax)
-Code;  c012efdc <__free_pages_ok+cc/2a0>
-   5:   1b 1f                     sbb    (%edi),%ebx
-Code;  c012efde <__free_pages_ok+ce/2a0>
-   7:   c0 c6 43                  rol    $0x43,%dh
-Code;  c012efe1 <__free_pages_ok+d1/2a0>
-   a:   24 05                     and    $0x5,%al
-Code;  c012efe3 <__free_pages_ok+d3/2a0>
-   c:   8b 43 18                  mov    0x18(%ebx),%eax
-Code;  c012efe6 <__free_pages_ok+d6/2a0>
-   f:   89 f1                     mov    %esi,%ecx
-Code;  c012efe8 <__free_pages_ok+d8/2a0>
-  11:   83 e0 eb                  and    $0xffffffeb,%eax
-
-
+BTW: Can anyone point me to a site on which I can find some info about
+the usage ot the crypto patches?
 
 

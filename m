@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135979AbRD0FeD>; Fri, 27 Apr 2001 01:34:03 -0400
+	id <S135981AbRD0GGi>; Fri, 27 Apr 2001 02:06:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135981AbRD0Fdx>; Fri, 27 Apr 2001 01:33:53 -0400
-Received: from penguin-ext.wise.edt.ericsson.se ([194.237.142.110]:18062 "EHLO
-	penguin-ext.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
-	id <S135979AbRD0Fde>; Fri, 27 Apr 2001 01:33:34 -0400
-Date: Fri, 27 Apr 2001 13:47:54 +0800 (SGT)
-From: Gregory Hosler <gregory.hosler@eno.ericsson.se>
-Subject: via82cxxx_audio & SMP
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: gregory.hosler@eno.ericsson.se
-Message-id: <XFMail.010427134754.gregory.hosler@eno.ericsson.se>
-Organization: Ericsson Telecommunications, Pte Ltd
-MIME-version: 1.0
-X-Mailer: XFMail 1.3 [p0] on Linux
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 8bit
-X-Priority: 3 (Normal)
+	id <S135982AbRD0GG3>; Fri, 27 Apr 2001 02:06:29 -0400
+Received: from mozart.stat.wisc.edu ([128.105.5.24]:18439 "EHLO
+	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
+	id <S135981AbRD0GGU>; Fri, 27 Apr 2001 02:06:20 -0400
+To: Yiping Chen <YipingChen@via.com.tw>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: About rebuild 2.4.x kernel to support SMP.
+In-Reply-To: <611C3E2A972ED41196EF0050DA92E0760265D56B@EXCHANGE2>
+From: buhr@stat.wisc.edu (Kevin Buhr)
+In-Reply-To: Yiping Chen's message of "Thu, 26 Apr 2001 23:36:23 +0800"
+Date: 27 Apr 2001 01:02:27 -0500
+Message-ID: <vbar8yeyj64.fsf@mozart.stat.wisc.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Yiping Chen <YipingChen@via.com.tw> writes:
+> 
+> So, I have two question now, 
+> 1. how to determine whether your kernel support SMP?
 
-I have an onboard AC97 detected as:
+Type "uname -a", as you did before:
 
-   kernel: Via 686a audio driver 1.1.14b
-   kernel: via82cxxx: Codec rate locked at 48Khz
-   kernel: ac97_codec: AC97 Audio codec, id: 0x5745:0x4301 (Unknown)
-   kernel: via82cxxx: IRQ fixup, 0x3C==0x12
-   kernel: via82cxxx: board #1 at 0x9C00, IRQ 18
+>      Linux lab5-1 2.4.2-2 #1 SMP Wed Apr 25 18:56:05 CST 2001 i686 unknown
+                               ^^^
+SMP appears here if and only if your kernel was compiled as an SMP
+kernel (i.e., with CONFIG_SMP set).  Programmatically, you can get
+this same information from the "uname" system call.  The "version"
+member for the "utsname" structure will be the complete string:
 
-My motherboard is a MSI-6321 (duap CPU).
+        #1 SMP Wed Apr 25 18:56:05 CST 2001
 
-This sound chip works fine under 2.2.x kernel, and works under 2.4.3 single
-processor kernel. but under the SMP kernel it really doesn't work. it repeats
-(forever) the 1st phrase/tone sent to the sound device.
+That is, you should be able to reliably determine whether or not the
+kernel is SMP by simply "strstr"ing for " SMP " in the version string.
 
-for example, I was having problems in gnome (sound sounded like a tapdancer),
-so I decided to logout, kill esd, login as root, and run sndconfig.
+> 2. I remember in 2.2.x, when I rebuild the kernel which support SMP, the
+> compile
+>     argument will include -D__SMP__ , but this time, when I rebuild kernel
+> 2.4.2-2 , it didn't  appear.
+>     Why? 
 
-sndconfig sees the AC97 pci sound chip properly, but when it goes to
-play the sample sound, all I get is an infinite loop of Linus repeating
-"Hi, Hi, Hi, Hi, Hi, ..." instead of "Hi, I'm Linus, and I ...".
+The "__SMP__" preprocessor define has been replaced by the
+"CONFIG_SMP" configuration file variable.
 
-this is the latest driver (1.1.14b)
-
-any thoughts or suggestions. I am willing to put in kprint statements, and
-collect debugging info and/or assist in debugginbg this.
-
-thank you, and regards,
-
--Greg Hosler
-
-----------------------------------
-E-Mail: Gregory Hosler <gregory.hosler@eno.ericsson.se>
-Date: 27-Apr-01
-Time: 13:39:14
-
-   You can release software that's good, software that's inexpensive, or
-   software that's available on time.  You can usually release software
-   that has 2 of these 3 attributes -- but not all 3.
-
-----------------------------------
+Kevin <buhr@stat.wisc.edu>

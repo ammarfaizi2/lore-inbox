@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272485AbRIFSps>; Thu, 6 Sep 2001 14:45:48 -0400
+	id <S272498AbRIFSvS>; Thu, 6 Sep 2001 14:51:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272489AbRIFSpj>; Thu, 6 Sep 2001 14:45:39 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:34720 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S272485AbRIFSpc>; Thu, 6 Sep 2001 14:45:32 -0400
-Subject: [PATCH2] 2.4.9-ac9 NTFS minor fix to previous patch
-To: alan@lxorguk.ukuu.org.uk
-Date: Thu, 6 Sep 2001 19:45:52 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4 PL24]
+	id <S272496AbRIFSvJ>; Thu, 6 Sep 2001 14:51:09 -0400
+Received: from spike.porcupine.org ([168.100.189.2]:19722 "EHLO
+	spike.porcupine.org") by vger.kernel.org with ESMTP
+	id <S272489AbRIFSvE>; Thu, 6 Sep 2001 14:51:04 -0400
+Subject: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
+In-Reply-To: <20010906203646.A11741@gruyere.muc.suse.de> "from Andi Kleen at
+ Sep 6, 2001 08:36:46 pm"
+To: Andi Kleen <ak@suse.de>
+Date: Thu, 6 Sep 2001 14:51:24 -0400 (EDT)
+Cc: Wietse Venema <wietse@porcupine.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christopher Friesen <cfriesen@nortelnetworks.com>,
+        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+        linux-net@vger.kernel.org
+X-Time-Zone: USA EST, 6 hours behind central European time
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15f49w-00043M-00@libra.cus.cam.ac.uk>
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20010906185124.42C37BC06C@spike.porcupine.org>
+From: wietse@porcupine.org (Wietse Venema)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alan,
+Andi Kleen:
+> [Sending a similar mail for the third time now; you conveniently chosed 
+> to ignore all earlier ones of me in the discussion. I will not send another
+> one, but just quietly think "Wietse is a moron" before forgetting the issue]
 
-Below patch is incremental to previous large patch and fixes a small no
-brainer on my part which caused the ntfs module to have an undefined
-symbol if compiled without debug support... - Please apply. Thanks.
+Oh, come on. I was asking for more than RTFM.
 
-</me writes on my forehead>Test all compile options before sending a
-patch.
+> On Wed, Sep 05, 2001 at 05:23:26PM -0400, Wietse Venema wrote:
+> > On a more serious note, what portable primitives does Linux offer
+> > to look up all interface IP addresses and their corresponding
+> > netmasks?
+> 
+> man rtnetlink 7
 
-Best regards,
+It's not portable as you may believe.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+    [root@redhat52 /root]# man rtnetlink
+    No manual entry for rtnetlink
 
+This was released only three years ago.
 
---- linux-2.4.9-ac9-ntfs-1.1.18b/fs/ntfs/support.h	Mon Jul 16 23:14:10 2001
-+++ linux-2.4.9-ac9-ntfs-1.1.18/fs/ntfs/support.h	Thu Sep  6 19:21:40 2001
-@@ -19,7 +19,11 @@
- #define DEBUG_NAME1  1024
- #define DEBUG_NAME2  2048
- 
-+#ifdef DEBUG
- void ntfs_debug(int mask, const char *fmt, ...);
-+#else
-+#define ntfs_debug(mask, fmt, ...)	do {} while (0)
-+#endif
- 
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
---- linux-2.4.9-ac9-ntfs-1.1.18b/fs/ntfs/support.c	Thu Sep  6 19:32:28 2001
-+++ linux-2.4.9-ac9-ntfs-1.1.18/fs/ntfs/support.c	Thu Sep  6 19:20:55 2001
-@@ -62,7 +62,6 @@
- }
- #endif
- #else /* End of DEBUG functions. Normal ones below... */
--#define ntfs_debug(mask, fmt, ...)	do {} while (0)
- 
- #ifndef ntfs_malloc
- void *ntfs_malloc(int size)
+But it does not matter. The code needs to be written anyway.
+
+Do you have more to share than RFTM? Pointers to code?
+
+	Wietse

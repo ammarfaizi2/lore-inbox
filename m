@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262969AbTIARSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 13:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbTIARSP
+	id S263015AbTIARPq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 13:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263112AbTIARPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 13:18:15 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:8209 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S262969AbTIARSI (ORCPT
+	Mon, 1 Sep 2003 13:15:45 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:55450 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S263015AbTIARPn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 13:18:08 -0400
-Date: Mon, 1 Sep 2003 19:18:06 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Christoph Hellwig <hch@infradead.org>,
-       Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org,
-       tigran@aivazian.fsnet.co.uk
-Subject: Re: dontdiff for 2.6.0-test4
-Message-ID: <20030901171806.GB1041@mars.ravnborg.org>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Christoph Hellwig <hch@infradead.org>,
-	Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org,
-	tigran@aivazian.fsnet.co.uk
-References: <Pine.GSO.4.44.0309010754480.1106-100000@north.veritas.com> <20030901163958.A24464@infradead.org> <20030901162244.GA1041@mars.ravnborg.org> <3F537CDD.3040809@pobox.com>
-Mime-Version: 1.0
+	Mon, 1 Sep 2003 13:15:43 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jes@trained-monkey.org,
+       zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RFC: kills consistent_dma_mask
+References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
+	<20030818111522.A12835@devserv.devel.redhat.com>
+	<m33cfyt3x6.fsf@trained-monkey.org>
+	<1061298438.30566.29.camel@dhcp23.swansea.linux.org.uk>
+	<20030819095547.2bf549e3.davem@redhat.com>
+	<m34r0dwfrr.fsf@defiant.pm.waw.pl> <m38ypl29i4.fsf@defiant.pm.waw.pl>
+	<m3isoo2taz.fsf@trained-monkey.org> <m3n0dz5kfg.fsf@defiant.pm.waw.pl>
+	<20030824060057.7b4c0190.davem@redhat.com>
+	<m365kmltdy.fsf@defiant.pm.waw.pl> <m365kex2rp.fsf@defiant.pm.waw.pl>
+	<20030830185007.5c61af71.davem@redhat.com>
+	<1062334374.31861.32.camel@dhcp23.swansea.linux.org.uk>
+	<20030831222233.1bd41f01.davem@redhat.com>
+	<1062402857.13087.4.camel@dhcp23.swansea.linux.org.uk>
+	<20030901005259.73f77f24.davem@redhat.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 01 Sep 2003 18:27:45 +0200
+In-Reply-To: <20030901005259.73f77f24.davem@redhat.com>
+Message-ID: <m3u17wcw3i.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F537CDD.3040809@pobox.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 01, 2003 at 01:07:41PM -0400, Jeff Garzik wrote:
-> 
-> dontdiff must know about many things that 'make mrproper' need not care 
-> about:
-> 
-> 	files with ".bak" suffix
-> 	files with "~" suffix
-> 	BitKeeper, CVS, RCS, SCCS directories
+"David S. Miller" <davem@redhat.com> writes:
 
-make mrproper already cares about all those.
-Fragments from top-level Makefile:
+> But knowing breaking the tree for people is bad practice.
 
-RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o -name CVS \) -prune -o
-
-mrproper:
-        @find . $(RCS_FIND_IGNORE) \
-                \( -name '*.orig' -o -name '*.rej' -o -name '*~' \
-                -o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
-                -o -name '.*.rej' -o -size 0 \
-                -o -name '*%' -o -name '.*.cmd' -o -name 'core' \) \
-                -type f -print | xargs rm -f
-        $(call cmd,mrproper)
-
-
-	Sam
+How about breaking the existing sound drivers (not checked other things)
+on ia64 and x86-64?
+-- 
+Krzysztof Halasa, B*FH

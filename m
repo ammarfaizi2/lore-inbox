@@ -1,90 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316670AbSERF0b>; Sat, 18 May 2002 01:26:31 -0400
+	id <S316748AbSERFhR>; Sat, 18 May 2002 01:37:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316744AbSERF0a>; Sat, 18 May 2002 01:26:30 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:52728 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S316670AbSERF0a>; Sat, 18 May 2002 01:26:30 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Wayne.Brown@altec.com
-Cc: linux-kernel@vger.kernel.org
-Date: Fri, 17 May 2002 22:23:10 -0700 (PDT)
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-In-Reply-To: <86256BBD.001C64E2.00@smtpnotes.altec.com>
-Message-ID: <Pine.LNX.4.44.0205172220400.32688-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316749AbSERFhQ>; Sat, 18 May 2002 01:37:16 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:57073 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S316748AbSERFhQ>; Sat, 18 May 2002 01:37:16 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Fri, 17 May 2002 23:34:58 -0600
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Htree directory index for Ext2, updated
+Message-ID: <20020518053458.GF21295@turbolinux.com>
+Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
+	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200205170736.g4H7aNj281162@saturn.cs.uml.edu> <E178suL-0000Bs-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wayne, the only change (other then better, faster functions) is the
-elimination of steps.
+On May 18, 2002  03:21 +0200, Daniel Phillips wrote:
+> Patch is severely broken in its current form, not only for the
+> reasons you stated, but also because of its inability to handle
+> renaming in any sane way.  I want a patch --sane option.
 
-if it will satisfy you you can continue to do a make mproper and make dep
-and just ignore the 'no target found' messages.
+I bet BitKeeper gets it right... ;-) ;-) ;-)
 
-David Lang
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-On Sat, 18 May 2002 Wayne.Brown@altec.com wrote:
-
-> Date: Sat, 18 May 2002 00:09:19 -0500
-> From: Wayne.Brown@altec.com
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
->
->
->
-> Gee, what a tolerant attitude.  I state my preference -- not a demand, just a
-> preference -- that the old interfaces be retained IN ADDITION to whatever new
-> features are added, and you say "Bah go away."  I'm sorry, I must have missed
-> the rule that says only people who agree with you are allowed to post their
-> opinions on lkml.
->
-> The current system works just fine for my needs.  I've never seen the point of
-> trying to "improve" things that are already good enough.  But now that you've
-> explained it to me so politely, I understand.  My top priority is supposed to be
-> what YOU want, even though you don't care anything at all about what I want.
->
-> So, in the spirit of your oh-so-helpful message, let me say this:  Get stuffed,
-> jerk.
->
->
->
->
->
-> Robert Love <rml@tech9.net> on 05/17/2002 06:14:45 PM
->
-> To:   Wayne Brown/Corporate/Altec@Altec
-> cc:   linux-kernel@vger.kernel.org
->
-> Subject:  Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
->
->
->
->
-> So we should curb progress in the name of you not spending 2 minutes
-> rewriting your bash scripts or repopulating your bash history with new
-> commands?
->
-> Bah go away.  I and most other people here are the exact opposite - give
-> us new features, less bugs, or innovation and we will surely change.
-> Otherwise we would still be in the stone age.
->
->      Robert Love
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->

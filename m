@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264134AbTEaDog (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 23:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264135AbTEaDog
+	id S264138AbTEaEUE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 00:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbTEaEUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 23:44:36 -0400
-Received: from almesberger.net ([63.105.73.239]:4 "EHLO host.almesberger.net")
-	by vger.kernel.org with ESMTP id S264134AbTEaDof (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 23:44:35 -0400
-Date: Sat, 31 May 2003 00:57:51 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Carl Spalletta <cspalletta@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cute kernel trick, or communistic ploy?
-Message-ID: <20030531005751.A8250@almesberger.net>
-References: <20030530231231.64427.qmail@web41501.mail.yahoo.com> <20030530223355.A3639@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030530223355.A3639@almesberger.net>; from wa@almesberger.net on Fri, May 30, 2003 at 10:33:55PM -0300
+	Sat, 31 May 2003 00:20:04 -0400
+Received: from [203.152.128.21] ([203.152.128.21]:7830 "EHLO emmtel.com")
+	by vger.kernel.org with ESMTP id S264138AbTEaEUE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 00:20:04 -0400
+MIME-Version: 1.0
+Message-Id: <3ED8306B.000003.01156@virender.internal.com>
+Date: Sat, 31 May 2003 10:02:43 +0530
+Content-Type: Text/Plain; charset=US-ASCII
+X-Mailer: IncrediMail 2001 (2001107.2001107)
+From: "Suryakant Verma" <suryakant.verma@drishinfo.com>
+X-FID: PLAINTXT-NONE-0000-0000-000000000000
+X-FVER: 3.0
+X-CNT: ;
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+To: <linux-kernel@vger.kernel.org>
+Subject: Error:Undefined reference to deflateinit_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> (I shouldn't need to kmalloc $data or the casts in kfree.
-> Two more things to fix ...)
-
-Ancient history. With the current version
-http://umlsim.sourceforge.net/umlsim-37.tar.gz
-it can be written as
-
-#define GFP_ATOMIC 0x20
-$uml = $run_uml("A","no-such-script",1);
-$page = (char *) kmalloc(4096,GFP_ATOMIC);
-$start = (char **) kmalloc(4,GFP_ATOMIC);
-$eof = (int *) kmalloc(4,GFP_ATOMIC);
-uptime_read_proc($page,$start,0,0,$eof,0);
-kfree($eof);
-printk(*$start);
-kfree($start);
-kfree($page);
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+ am developing linux kernel 2.4 for uCdimm using CygWin package.
+I am trying to put JFFS2 file system support in my kernel.I have enabled =
+the JFFS2 support and also the option for MTD UTILS.When build the =
+kernel using make i get the following error
+Error:Undefined reference to deflateinit_
+I try to solve the problem by installing zlib but problem remains kindly =
+help me
+ 

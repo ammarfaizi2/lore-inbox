@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266577AbUF3KZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265424AbUF3Ken@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266577AbUF3KZw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 06:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUF3KZw
+	id S265424AbUF3Ken (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 06:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUF3Ken
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 06:25:52 -0400
-Received: from math.ut.ee ([193.40.5.125]:42210 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S266577AbUF3KZu (ORCPT
+	Wed, 30 Jun 2004 06:34:43 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:43491 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S265424AbUF3Kel (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 06:25:50 -0400
-Date: Wed, 30 Jun 2004 13:25:48 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: irq 11: nobody cared? (usb?)
-Message-ID: <Pine.GSO.4.44.0406301318300.15010-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Jun 2004 06:34:41 -0400
+Date: Wed, 30 Jun 2004 12:35:31 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'andrebalsa@altern.org'" <andrebalsa@altern.org>,
+       "'Richard E. Gooch'" <rgooch@atnf.csiro.au>,
+       "'rml@tech9.net'" <rml@tech9.net>, "'akpm@osdl.org'" <akpm@osdl.org>,
+       "'Con Kolivas'" <kernel@kolivas.org>
+Subject: Re: Preemption of the OS system call due to expiration of the time-sl ice for: a) SCHED_NORMAL (aka SCHED_OTHER) b) SCHED_RR
+Message-ID: <20040630103531.GA24347@elte.hu>
+References: <313680C9A886D511A06000204840E1CF08F42FAE@whq-msgusr-02.pit.comms.marconi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <313680C9A886D511A06000204840E1CF08F42FAE@whq-msgusr-02.pit.comms.marconi.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just got this from 2.6.7 + BK as of 20040629.
 
-irq 11: nobody cared!
-Stack pointer is garbage, not printing trace
-handlers:
-[<e09960b0>] (usb_hcd_irq+0x0/0x60 [usbcore])
-[<c02684b0>] (e100_intr+0x0/0x110)
-Disabling IRQ #11
+* Povolotsky, Alexander <Alexander.Povolotsky@marconi.com> wrote:
 
-First boot of the same kernel ran fine for a day, then USB mouse hung
-(replug cured it). Then on next reboot it disabled irq 11 and e100 and
-one usb port along with it (mouse is in another usb port and worked
-fine). I rebooted it again and now it's working fine again.
+> Con - thanks for your kind answers !
+> 
+> Preemption (due to the expiration of the time-slice) of the process,
+> while it executes OS system call, - by another process (of equal or
+> higher priority) when running under following scheduling policies:
+> 
+>  a) SCHED_NORMAL (aka SCHED_OTHER)
+>  b) SCHED_RR 
+> 
+> Is it possible in Linux 2.6 ? Linux 2.4 ?
 
-I looked into the logs of the first accident and it's mostly the same (a
-couple of X restarts to check whether it revives the mouse):
+this is possible in 2.6 in CONFIG_PREEMPT is on. There's no guaranteed
+latency due to non-preemptability of interrupts and critical sections
+but the practical latencies are well below 1 msec. A bad driver or some
+rare codepath we missed could introduce long latencies - but these are
+usually easy to fix.
 
-irq 11: nobody cared!
-Stack pointer is garbage, not printing tracehandlers:
-[__crc_xprt_create_proto+526825/4343765] (usb_hcd_irq+0x0/0x60 [usbcore])
-[e100_intr+0/272] (e100_intr+0x0/0x110)
-Disabling IRQ #11
-agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
-agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
-agpgart: Putting AGP V2 device at 0000:03:00.0 into 4x mode
-agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
-agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
-agpgart: Putting AGP V2 device at 0000:03:00.0 into 4x mode
-usb 1-2: USB disconnect, address 2
-usb 2-2: new low speed USB device using address 2
-input: USB HID v1.10 Mouse [Logitech USB-PS/2 Optical Mouse] on usb-0000:00:1f.4-2
+The core 2.6 kernel itself is very latency-friendly, in a very
+controlled hardware environment utilizing well-reviewed userspace code,
+a slimmed down kernel, no block IO and no high-rate interrupt source
+(other than the interrupt source the application cares about) i'd say
+it's quite close to hard-RT: all kernel functions have bound latency,
+'all' you have to take care of are latencies introduced by hardware
+interrupts.
 
--- 
-Meelis Roos (mroos@linux.ee)
+in 2.4 kernel-preemption is done too in lots of places conditionally
+(cooperatively), by kernel code. Unlike 2.6 there's no forced preemption
+of kernel code.
 
+	Ingo

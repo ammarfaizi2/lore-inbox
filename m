@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262053AbSJITKf>; Wed, 9 Oct 2002 15:10:35 -0400
+	id <S261549AbSJITbz>; Wed, 9 Oct 2002 15:31:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262054AbSJITKf>; Wed, 9 Oct 2002 15:10:35 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:65525 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262053AbSJITKI>; Wed, 9 Oct 2002 15:10:08 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 9 Oct 2002 13:13:35 -0600
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] CONFIG_DEBUG_SLAB broken on SMP
-Message-ID: <20021009191335.GB3045@clusterfs.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S261527AbSJITby>; Wed, 9 Oct 2002 15:31:54 -0400
+Received: from crack.them.org ([65.125.64.184]:16645 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S261518AbSJITbv>;
+	Wed, 9 Oct 2002 15:31:51 -0400
+Date: Wed, 9 Oct 2002 15:37:38 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: george anzinger <george@mvista.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Linus <torvalds@transmeta.com>,
+       LKML <linux-kernel@vger.kernel.org>, Jeff Dike <jdike@karaya.com>
+Subject: Re: [PATCH] make do_signal static on i386
+Message-ID: <20021009193738.GA15232@nevyn.them.org>
+Mail-Followup-To: george anzinger <george@mvista.com>,
+	Stephen Rothwell <sfr@canb.auug.org.au>,
+	Linus <torvalds@transmeta.com>, LKML <linux-kernel@vger.kernel.org>,
+	Jeff Dike <jdike@karaya.com>
+References: <20021009181003.022da660.sfr@canb.auug.org.au> <3DA46A17.447B2C59@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <3DA46A17.447B2C59@mvista.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We were tracking down a strange bug in our code that only appeared on
-SMP and not UP, and we thought that CONFIG_DEBUG_SLAB (and the ensuing
-FORCED_DEBUG which enables SLAB_POISON and SLAB_REDZONE) was going to
-catch problems with slab objects, so we were very very confused when a
-test like:
+On Wed, Oct 09, 2002 at 10:40:39AM -0700, george anzinger wrote:
+> This will cause problems for nano_sleep and
+> clock_nanosleep.  These system calls need to call
+> do_signal() in order to meet the POSIX standard which states
+> that they are interrupted only by signals that are delivered
+> to user code.  Other signals are not to interrupt the
+> sleep.  This is why do_signal() returns this information to
+> the caller.
+> 
+> I suppose one could argue that such functions should be in
+> signal.c, but save for this signal issue the code is
+> common.  Seems a waste to support the same code in N
+> platforms.
 
-	struct foo *obj;
+IMO, calling the architecture's do_signal function to handle that is
+entirely the wrong way to go.  They don't even all have the same
+arguments, and the wrappers hi-res-timers put around sys_nanosleep are
+hideous.
 
-	cache = kmem_cache_create("test_cache", sizeof(struct foo))
-	obj = kmem_cache_alloc(cache, GFP_KERNEL);
-	kmem_cache_free(cache, obj);
-	// print out contents of obj
+All of this should be handled correctly in kernel/signal.c, and things
+like triggering the debugger should be done from there, not duplicated
+in each platform's signal delivery code.
 
-was not poisoning obj, or setting the redzone fields on obj to "free".
+Ideally we should even trigger the debugger without necessarily
+knocking the sleeping process out of sleep.
 
-The problem appears to be in the SMP version of __kmem_cache_alloc()
-and __kmem_cache_free(), where it simply sticks the obj in the per-CPU
-list without doing the poison or redzone stuff that is done inside
-kmem_cache_free_one_tail().
-
-Granted, there are per-slab caches for performance reasons, but putting
-the object poisoning and redzoning inside the per-CPU operations does
-not cause any additional overhead when it is not enabled, and also helps
-to find SMP bugs, especially race conditions between referencing an
-object in one thread and freeing it in another (which are much more
-prevelant on SMP systems as well).
-
-I'm working on a patch now, if people are interested in this.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

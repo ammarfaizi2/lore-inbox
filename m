@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbVCAOlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVCAOmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbVCAOlL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 09:41:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVCAOlL
+	id S261931AbVCAOmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 09:42:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVCAOmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 09:41:11 -0500
-Received: from magic.adaptec.com ([216.52.22.17]:26011 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S261927AbVCAOk4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 09:40:56 -0500
-Message-ID: <42247EF0.9000404@adaptec.com>
-Date: Tue, 01 Mar 2005 09:40:48 -0500
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dougg@torque.net
-CC: Adrian Bunk <bunk@stusta.de>, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] SCSI: possible cleanups
-References: <20050228213159.GO4021@stusta.de> <4224245E.6090503@torque.net>
-In-Reply-To: <4224245E.6090503@torque.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Mar 2005 14:40:51.0852 (UTC) FILETIME=[AAAA5CC0:01C51E6C]
+	Tue, 1 Mar 2005 09:42:25 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51858 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261928AbVCAOmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 09:42:14 -0500
+Date: Tue, 1 Mar 2005 14:42:11 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linas Vepstas <linas@austin.ibm.com>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+Message-ID: <20050301144211.GI28741@parcelfarce.linux.theplanet.co.uk>
+References: <422428EC.3090905@jp.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <422428EC.3090905@jp.fujitsu.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03/01/05 03:14, Douglas Gilbert wrote:
->>   - scsi_error.c: scsi_normalize_sense
-> 
-> 
-> I introduced scsi_normalize_sense() recently, Christoph H.
-> proposed it should be static but Luben Tuikov (aic7xxx
-> maintainer) said he wished to use it in the future.
-> Hence it was left global.
+On Tue, Mar 01, 2005 at 05:33:48PM +0900, Hidetoshi Seto wrote:
+> Today's patch is 3rd one - iochk_clear/read() interface.
+> - This also adds pair-interface, but not to sandwich only readX().
+>   Depends on platform, starting with ioreadX(), inX(), writeX()
+>   if possible... and so on could be target of error checking.
 
-Hi guys,
+I'd prefer to see it as ioerr_clear(), ioerr_read() ...
 
-I think the idea of normalized sense is very good.
-Basically the question is if LLDD would submit normalized
-sense to SCSI Core or whether they would submit a pointer
-to raw sense data as returned by the device and let SCSI
-Core decipher it.
+> - Additionally adds special token - abstract "iocookie" structure
+>   to control/identifies/manage I/Os, by passing it to OS.
+>   Actual type of "iocookie" could be arch-specific. Device drivers
+>   could use the iocookie structure without knowing its detail.
 
-If the former, then it should be global, if the latter then
-it should be static to SCSI Core.
+Fine.
 
-	Luben
+> If arch doesn't(or cannot) have its io-checking strategy, these
+> interfaces could be used as a replacement of local_irq_save/restore
+> pair. Therefore, driver maintainer can write their driver code with
+> these interfaces for all arch, even where checking is not implemented.
+
+But many drivers don't need to save/restore interrupts around IO accesses.
+I think defaulting these to disable and restore interrupts is a very bad idea.
+They should probably be no-ops in the generic case.
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

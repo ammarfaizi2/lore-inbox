@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130577AbRCWLCU>; Fri, 23 Mar 2001 06:02:20 -0500
+	id <S130532AbRCWLGk>; Fri, 23 Mar 2001 06:06:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130552AbRCWLCK>; Fri, 23 Mar 2001 06:02:10 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:23818 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S130532AbRCWLBz>; Fri, 23 Mar 2001 06:01:55 -0500
-Message-ID: <3ABB2A19.D82B50A7@evision-ventures.com>
-Date: Fri, 23 Mar 2001 11:48:57 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Stephen Clouse <stephenc@theiqgroup.com>,
-        Guest section DW <dwguest@win.tue.nl>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <Pine.LNX.4.21.0103222236450.29682-100000@imladris.rielhome.conectiva>
+	id <S130552AbRCWLGa>; Fri, 23 Mar 2001 06:06:30 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:56074 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130532AbRCWLGP>;
+	Fri, 23 Mar 2001 06:06:15 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Junfeng Yang <yjf@stanford.edu>
+cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
+Subject: Re: [CHECKER] 4 warnings in kernel/module.c 
+In-Reply-To: Your message of "Fri, 23 Mar 2001 02:41:40 -0800."
+             <Pine.GSO.4.31.0103230236500.3192-100000@epic8.Stanford.EDU> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 23 Mar 2001 22:05:28 +1100
+Message-ID: <18150.985345528@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Sat, 23 Mar 2002, Martin Dalecki wrote:
-> 
-> > This is due to the broken calculation formula in oom_kill().
-> 
-> Feel free to write better-working code.
+On Fri, 23 Mar 2001 02:41:40 -0800 (PST), 
+Junfeng Yang <yjf@stanford.edu> wrote:
+>Hi, we modified the block checker and run it again on linux 2.4.1. (The
+>block checker flags an error when blocking functions are called with
+>either interrupts disabled or a spin lock held. )
+>
+>It gave us 4 warnings in kernel/module.c. Because we are unaware of the
+>contexts where these functions are called, we are not sure if these 4
+>warnings are real errors or false positives. Please help us to verify them
+>or show that they are false positives.
 
-I don't get paid for it and I'm not idling through my days...
+All false positives.  The big kernel lock is a special case, you are
+allowed to sleep while holding that lock.  See release_kernel_lock()
+and reacquire_kernel_lock() in sched().
+

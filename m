@@ -1,96 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbULHS2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbULHSaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbULHS2F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 13:28:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbULHS2F
+	id S261296AbULHSaG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 13:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbULHSaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 13:28:05 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:43675 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261273AbULHS16 (ORCPT
+	Wed, 8 Dec 2004 13:30:06 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:387 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id S261296AbULHS34 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 13:27:58 -0500
-Date: Wed, 8 Dec 2004 10:25:23 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       george@mvista.com, albert@users.sourceforge.net,
-       Ulrich.Windl@rz.uni-regensburg.de, len.brown@intel.com,
-       linux@dominikbrodowski.de, davidm@hpl.hp.com, ak@suse.de,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
-       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max <amax@us.ibm.com>, mahuja@us.ibm.com
-Subject: Re: [RFC] New timeofday proposal (v.A1)
-In-Reply-To: <1102470914.1281.27.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0412081009540.27324@schroedinger.engr.sgi.com>
-References: <1102470914.1281.27.camel@cog.beaverton.ibm.com>
+	Wed, 8 Dec 2004 13:29:56 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Figuring out physical memory regions from a kernel module
+Date: Wed, 8 Dec 2004 11:28:53 -0700
+Message-ID: <C863B68032DED14E8EBA9F71EB8FE4C20596020D@azsmsx406>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Figuring out physical memory regions from a kernel module
+Thread-Index: AcTdT60/8CGUmNG2R1iGWFoNM3tGyAAAJd/A
+From: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+To: <haveblue@us.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Dec 2004 18:28:54.0626 (UTC) FILETIME=[C5F2BC20:01C4DD53]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Dec 2004, john stultz wrote:
 
-> Features of this design:
-> ========================
 
-> o Consolidates a large amount of code:
-> 	Allows for shared times source implementations, such as: i386, x86-64
-> and ia64 all use HPET, i386 and x86-64 both have ACPI PM timers, and
-> i386 and ia64 both have cyclone counters. Time sources are just drivers!
+-----Original Message-----
+From: Dave Hansen [mailto:haveblue@us.ibm.com] 
+Sent: Wednesday, December 08, 2004 10:58 AM
+To: Hanson, Jonathan M
+Cc: Linux Kernel Mailing List
+Subject: Re: Figuring out physical memory regions from a kernel module
 
-What I would to see also included here is to provide a clean posix
-interface to these drivers. IMHO the current char interfaces to clock
-drivers should be removed. Look at SGI's mmtimer implementation in
-2.6.10-rc3. We have modified the posix interface to allow clock drivers to
-export their timer values via CLOCK_SGI_CYCLE and we are also
-now able to schedule hardware interrupts via timer_* posix functions
-utilizing CLOCK_SGI_CYCLE that are then delivered as signals to an
-application. Timer chips usually include time sources as well as the
-ability to generate periodic or single shot
-interrupts. There needs to be some way for clock drivers to cleanly
-interface with these. The API may be the posix subsystem but I do not
-like the quality of the code nor the current API for the clock drivers.
+On Wed, 2004-12-08 at 09:44, Hanson, Jonathan M wrote:
+> 	Is there a reliable way to tell from a kernel module (currently
+> written for 2.4 but will need to work under 2.6 in the future) which
+> regions of physical memory are actually available for the kernel and
+> processes to use?
 
-The API for user space to clocks already exists through the posix
-standard. I would suggest to work with that standard for a way to deal
-with clocks under Linux.
+Is this a rehashing of the "Walking all the physical memory in an x86
+system" thread? :)
 
-> Brief Psudo-code to illustrate the design:
-> ==========================================
->
-> monotonic_clock()
-> 	now = timesource_read();	/* read the timesource */
-> 	ns = cyc2ns(now - offset_base);	/* calculate nsecs since last hook */
-> 	ntp_ns = ntp_scale(ns);		/* apply ntp scaling */
+Why don't you just tell us what you're actually trying to do in your
+module.  There's probably a better way.
 
-These are not really functions right? timesource_read can be a direct
-memory read and the cyc2ns and ntp_scale can be reduced to some scaling
-factor?
+-- Dave
 
-> Points I'm glossing over for now:
-> ====================================================
->
-> o ntp_scale(ns):  scales ns by NTP scaling factor
-> 	- see ntp.c for details
-> 	- costly, but correct.
+[Jon M. Hanson] The module is dumping the contents of physical memory
+and saving the architecture state of the system to a file when triggered
+(ioctl call). What I have works but I need to extend it to systems other
+than my own where I have hard-coded the system RAM regions into the
+code. I need the physical addresses of memory because the tool I feed
+this output into requires this. Here is an example of what the memory
+file looks like:
 
-Please do not call this function from monotonic_clock but provide some
-sort of scaling factor that is adjusted from time to time.
+/origin 00000000
+00000001
+f0005646
+f000e2c3
+    .
+    .
+    .
 
-> o What is the cost of throwing around 64bit values for everything?
-> 	- Do we need an arch specific time structure that varies size
-> accordingly?
+Memory contents that are all zero are not printed out but another origin
+statement must be printed out when a non-zero memory location is
+encountered after the optionally multiple locations with zero. All
+origin addresses are double-word physical addresses.
 
-I think 64 bit values are fine but then I work for a 64 bit company and
-this may just be the contextual predisposition.
+Initially I mistakenly thought I could just write a loop that began at
+__pa(PAGE_OFFSET) and went to total_ram_pages * PAGE_SIZE. This worked
+somewhat but was not traversing all of the memory due to the "holes" in
+the RAM (like the 1 M hole and memory-mapped I/O). I hard-coded the
+actual "System RAM" locations obtained via:
 
-> o Some arches (arm, for example) do not have high res timing hardware
-> 	- In this case we can have a "jiffies" timesource
-> 		- cyc2ns(x) =  x*(NSEC_PER_SEC/HZ)
-> 		- doesn't work for tickless systems
+cat /proc/iomem | grep 'System RAM'
 
-In that case maybe the "ticks" are the timesource and not really tick
-processing per se.
-There could be a separation between "increment counter" and tick processing.
+into the code and now I can be sure that I'm getting all of the RAM I'm
+intending to get. This will work on this one system only reliably so now
+I'm trying to figure out those arbitrary ranges automatically from my
+kernel module.
+
+I'm currently trying to figure out these ranges by just traversing the
+mem_map array and recording what addresses are in use there. I'm not
+sure that's going to work out, though.
+

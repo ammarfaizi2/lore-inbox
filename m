@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283048AbRLWBig>; Sat, 22 Dec 2001 20:38:36 -0500
+	id <S283003AbRLWBgR>; Sat, 22 Dec 2001 20:36:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283054AbRLWBi3>; Sat, 22 Dec 2001 20:38:29 -0500
-Received: from web13108.mail.yahoo.com ([216.136.174.153]:48398 "HELO
-	web13108.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S283056AbRLWBiQ>; Sat, 22 Dec 2001 20:38:16 -0500
-Message-ID: <20011223013815.45902.qmail@web13108.mail.yahoo.com>
-Date: Sat, 22 Dec 2001 17:38:15 -0800 (PST)
-From: Chris Rankin <rankincj@yahoo.com>
-Subject: Re: Linux IA32 microcode driver
-To: Ben Clifford <benc@hawaga.org.uk>
-Cc: tigran@veritas.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0112221050290.9843-100000@barbarella.hawaga.org.uk>
+	id <S283048AbRLWBgG>; Sat, 22 Dec 2001 20:36:06 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19720 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S283003AbRLWBf5>; Sat, 22 Dec 2001 20:35:57 -0500
+Message-ID: <3C2534E6.3080806@zytor.com>
+Date: Sat, 22 Dec 2001 17:35:34 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: dcinege@psychosis.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Booting a modular kernel through a multiple streams file
+In-Reply-To: <Pine.GSO.4.21.0112180350550.6100-100000@weyl.math.psu.edu> <E16HwgA-0001uk-00@schizo.psychosis.com> <3C252861.3090600@zytor.com> <E16HxEq-00029F-00@schizo.psychosis.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The msr driver doesn't support devfs at all, and nor
-does cpuid come to that. However, microcode creates a
-miscellaneous character device, number (10,184), in
-the /dev/misc directory. This is why the regular
-/dev/cpu/microcode file is so mysterious...
+Dave Cinege wrote:
 
-Chris
-
---- Ben Clifford <benc@hawaga.org.uk> wrote:
-> On Sat, 22 Dec 2001, Chris Rankin wrote:
 > 
-> > Am I missing something rather obvious, or is the
-> /dev/cpu/microcode
-> > device being mis-created under devfs with Linux
-> 2.4.x? I have enclosed
-> > a patch to ensure that the character device really
-> *is* a character
-> > device.
-> 
-> On my system, running 2.4.16, I get no devfs entry
-> for that or msr at all.
-> I just get the mtrr entry.
-> 
-> This is with microcode and msr loaded as modules.
-> 
-> -- 
-> Ben Clifford     benc@hawaga.org.uk
-> http://www.hawaga.org.uk/ben/  GPG: 30F06950
-> webcam:
->
-http://barbarella.hawaga.org.uk/~benc/webcam/live.html
+> I've patched GRUB to support loading the mutiple images. It would also
+> be supported in syslinux, if you choose to implement it. Months
+> ago when I asked you to implement it, you told me the idea was
+> stupid.  : P   I will never let you forget this myopia. : >
 > 
 
 
-__________________________________________________
-Do You Yahoo!?
-Send your FREE holiday greetings online!
-http://greetings.yahoo.com
+Holding a grudge, eh?  How very mature of you.
+
+Seriously, I made it very clear at the time that I thought supporting 
+*multiple ramdisks* were a stupid idea.  Perhaps you misunderstood, but 
+I was talking about what some people had been requesting of loading a 
+filesystem into /dev/ram0, another filesystem into /dev/ram1, etc., 
+including waiting for a disk replacement in between.  Doing that in the 
+bootloader is just idiotic, for the same reason all the crap in the 
+current kernel is equally stupid (although forgivable for historical 
+reasons.)
+
+The reason to support uncompressed images -- as well as gaps between 
+images -- is to let synthesis happen in the bootloader.  For example, 
+some people have requested passing the PXE configuration packets to the 
+kernel, which currently is all but impossible.  Presenting them as files 
+in the initramfs is the natural way to do it.
+
+Viros changes are drastic, no question about it, but dismissing them as 
+"disaster" without further motivation is a bloody awfully arrogant.
+
+	-hpa
+
+

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbTEUHzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 03:55:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTEUHmm
+	id S262037AbTEUINT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 04:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbTEUINL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 03:42:42 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:58838 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261544AbTEUHlo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 03:41:44 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Wed, 21 May 2003 04:13:11 -0400
+Received: from smtp5.wanadoo.fr ([193.252.22.27]:15236 "EHLO
+	mwinf0403.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S262033AbTEUILi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 04:11:38 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 00/14] USB speedtouch update
+Date: Wed, 21 May 2003 10:24:38 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200305210049.24619.baldrick@wanadoo.fr> <20030521020732.GA7939@kroah.com>
+In-Reply-To: <20030521020732.GA7939@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16075.8557.309002.866895@napali.hpl.hp.com>
-Date: Tue, 20 May 2003 23:49:17 -0700
-To: linux-kernel@vger.kernel.org
-Cc: linux-ia64@linuxia64.org
-Subject: web page on O(1) scheduler
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+Message-Id: <200305211024.38553.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recently, I started to look into some odd performance behaviors of the
-O(1) scheduler.  I decided to document what I found in a web page
-at:
+> I've applied all of these to my tree, but I didn't apply the following
+> to Linus's tree because they just didn't apply.  I tried to fix up a few
+> by hand, and got some of them to work, but eventually gave up on the
+> rest.  So here's a list of the ones that didn't go into Linus's tree:
+> 	USB speedtouch: use optimally sized reconstruction buffers
+> 	USB speedtouch: send path micro optimizations
+> 	USB speedtouch: kfree_skb -> dev_kfree_skb
+> 	USB speedtouch: receive code rewrite
+>
+> Also this one didn't go into Linus's tree, as it's already there:
+> 	USB speedtouch: remove MOD_XXX_USE_COUNT
+>
+> So, any patches against Linus's latest bk tree to bring the above into
+> sync would be appreciated.
 
-	http://www.hpl.hp.com/research/linux/kernel/o1.php
+I think the problem is that you forgot to apply this one to Linus's tree:
 
-(it may take another couple of hours before the pages show up outside
-the HP firewall, so if you get "page not found" at the moment, don't
-be surprised).
+[PATCH 02/14] USB speedtouch: trivial whitespace and name changes
 
-I should say that I have no direct stake in the CPU scheduler (never
-worked on it, not sure I ever would want to), but I feel that it's
-worthwhile to at least document the O(1) scheduler a bit better.
-Also, I do feel that the O(1) scheduler currently has rather poor
-"long-term" properties.  It would be nice if some of those properties
-could be improved without hurting the other excellent properties of
-the current O(1) scheduler.
+Ciao,
 
-I think the web pages should be most relevant to the HPTC (high
-performance technical computing) community, since this is the
-community that is most likely affected by some of the performance
-oddities of the O(1) scheduler.  Certainly anyone using OpenMP on
-Intel platforms (x86 and ia64) may want to take a look.
-
-Comments welcome.
-
-	--david
+Duncan.

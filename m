@@ -1,63 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264277AbUEMQPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264291AbUEMQRg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264277AbUEMQPq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 12:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264291AbUEMQPq
+	id S264291AbUEMQRg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 12:17:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbUEMQRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 12:15:46 -0400
-Received: from j110113.ppp.asahi-net.or.jp ([61.213.110.113]:28428 "EHLO
-	mail.tar.bz") by vger.kernel.org with ESMTP id S264277AbUEMQPp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 12:15:45 -0400
-Message-ID: <40A39F2E.2080303@ThinRope.net>
-Date: Fri, 14 May 2004 01:15:42 +0900
-From: Kalin KOZHUHAROV <kalin@ThinRope.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
-X-Accept-Language: bg, en, ja, ru, de
-MIME-Version: 1.0
+	Thu, 13 May 2004 12:17:35 -0400
+Received: from iPass.cambridge.arm.com ([193.131.176.58]:10464 "EHLO
+	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
+	id S264291AbUEMQRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 12:17:31 -0400
+Subject: local_irq_save, memory clobbering and volatile
+From: scott douglass <scott.douglass@arm.com>
 To: linux-kernel@vger.kernel.org
-CC: Pascal Schmidt <der.eremit@email.de>
-Subject: Re: Too restrictive permissions on some files prevent non-root build
-  (with KBUILD_OUTPUT) [bug 2669]
-References: <1VorQ-6xx-13@gated-at.bofh.it> <E1BOGcs-00006u-7d@localhost>
-In-Reply-To: <E1BOGcs-00006u-7d@localhost>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+x-mimeole: Produced By Microsoft Exchange V6.5.6944.0
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1084465048.12767.106.camel@pc982.cambridge.arm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 13 May 2004 17:17:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pascal Schmidt wrote:
-> On Thu, 13 May 2004 15:30:14 +0200, you wrote in linux.kernel:
-> 
->>For 2.6.6 the files in question can be found by:
->>cd /sometempdir
->>tar xjf linux-2.6.6.tar.bz2
->>find linux-2.6.6 ! -perm -004 -exec ls -l {} \;
-> 
-> 
-> This can only be a problem when unpacking as root, otherwise all
-> files are owned by the user running tar, anyway. I guess most
-> people don't do their kernel work as root... and why should they?
-> 
-> The simple workaround is to unpack the tar archive as the user
-> planning to run the compile.
-> 
+Hello,
+ 
+I've searched through the mailing list archives and I've found these
+comments about volatile (albeit from a few years back):
 
-Well, I guess you are right, but I prefer (and usually do) a single source tree in /usr/src/linux-2.6.6 as for the kurrent kernel and then other users (i.e. non root) compile with the KBUILD_OUTPUT in other directories.
+> "volatile" is _never_ a good idea, [...]
 
-Why?
+and
 
-Because I compile all my kernels on a single machine (but with distcc running on 4+ boxes) and then install it on the other machines.
+> [...] volatile is an evil keyword that is badly specified and only 
+> makes the compiler generate worse code without ever fixing any real
+> bugs.
 
-Even if these file permissions are note a "real bug" there is no point in only some files being non-world readable (some in the Documentation/ as well).
+But there's a lot of archive to search though and I may have missed
+something relevant.  I also looked though the Documentation directory
+without success.
 
-Kalin.
+If I understand correctly, the arguments against volatile are/were that
+using volatile can slow down some critical regions like list traversal
+and can hide the absence of proper locking.  It seems to me that the
+"slow down some critical regions" can be handled by manually caching the
+value (in the critical region) rather than hoping the compiler would
+notice.
 
--- 
-||///_ o  *****************************
-||//'_/>     WWW: http://ThinRope.net/
-|||\/<" 
-|||\\ ' 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Do I understand the arguments against volatile correctly?
+
+Is this still the official position?  If so, why is volatile used so
+much in the current kernel sources?
+
+I think the clobbering of memory by local_irq_save, et al. is not
+necessary in cases were volatile is used correctly.  The clobbering
+inhibits the compiler's ability to optimize more than volatile does. 
+When memory gets clobbered the compiler can't optimize other memory
+accesses in the function even though they are not involved in the
+critical region.  As compilers do more inlining the amount of
+optimization damage done by clobbering memory grows.
+ 
+Existing code relies on the current clobbering instead of using volatile
+accesses, so I'm suggesting that there should be new, non-clobbering
+forms, e.g. local_irq_save_no_clobber, etc.  To use them correctly the
+accesses in the critical region must be to volatile objects, for
+example:
+ 
+__inline__ void atomic_clear_mask (unsigned long mask, volatile unsigned
+long *addr) {
+	unsigned long flags;
+ 
+	local_irq_save_no_clobber(flags);
+	*addr &= ~mask;
+	local_irq_restore_no_clobber(flags);
+}
+ 
+This lets the compiler know exactly which accesses are to volatile
+objects and means that functions that call atomic_clear_mask can still
+be optimized.  Some of the C definitions of atomic_clear_mask in the
+sources already have this volatile qualification.
+ 
+Is there any reason not to add local_irq_save_no_clobber, etc. (perhaps
+with better names)?
+
+[I'm not on the mailing list but I will check the mailing list for
+replies.]
+
+Thanks.
+

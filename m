@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263352AbUCTKte (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 05:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263351AbUCTKtX
+	id S263351AbUCTKtf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 05:49:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbUCTKtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 05:49:23 -0500
-Received: from mail.shareable.org ([81.29.64.88]:9871 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S263363AbUCTKtF (ORCPT
+	Sat, 20 Mar 2004 05:49:15 -0500
+Received: from [61.48.16.218] ([61.48.16.218]:19125 "ehlo yahoo.com.cn")
+	by vger.kernel.org with ESMTP id S263352AbUCTKtD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 05:49:05 -0500
-Date: Sat, 20 Mar 2004 10:48:18 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Robert Love <rml@ximian.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-       mjy@geizhals.at, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PREEMPT and server workloads
-Message-ID: <20040320104818.GC10398@mail.shareable.org>
-References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <1079632130.6043.6.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1079632130.6043.6.camel@localhost>
-User-Agent: Mutt/1.4.1i
+	Sat, 20 Mar 2004 05:49:03 -0500
+From: "ZHL jewelry" <liyo1978@yahoo.com.cn>
+Subject: business for you
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: liyo1978@yahoo.com.cn
+Date: Sat, 20 Mar 2004 18:48:59 +0800
+X-Priority: 3
+X-Mailer: Foxmail 4.1 [cn]
+Message-Id: <S263352AbUCTKtD/20040320104903Z+35@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> This is because of work Dave Miller and Ingo did - irq count, softirq
-> count, and lock count (when PREEMPT=y) are unified into preempt_count. 
+How are you!
 
-(x86 only) Have you considerd unifying the "interrupts disabled" bit
-into it as well, for spin_lock_irqsave/spin_unlock_irqrestore?
+I am the sales manager of the ZhongHengLong jewelry group . our company mainly 
+is a manufacturer, and has been founded for many years, the factory covers more than 500 acre 
+and  has more than 1,000 employees, The main products of the company contain "925" sterling 
+silver jewelry and ornaments with various natural precious stone studded,moderate and superior 
+pearl ornaments,natural jadeite,rubies and sapphires, diamond ornements, crystal handicrafts, 
+gold and silver decorations, silver cutlery and gifts£¬ etc.; We export the handicrafts and 
+jewelry to nations as Europe, the United States, Canada, and there are more than 50 domestic 
+chain stores. 
 
-The principle is to use a memory bit or counter instead of "cli" and
-"sti", because it is cheaper or even free when it's unified in
-preempt_count.
+ We hope to cooperate with more domestic and international friends for the wider market. 
+ Web site of our company:       http:// www.upfeeling.com. 
+ If you have intention to cooperate with us, please contact us. 
 
-The very first instructions of the interrupt handlers check
-preempt_count, and if interrupts are logically disabled they modify
-preempt_count to indicate that an irq is pending, save the interrupt
-vector number, and return keeping interrupts disabled at the CPU level
-(i.e. not using "iret").  Only one vector can be pending in this way,
-because we keep CPU interrupts disabled after the first one.
+Address :Room 1110,No.1 Building,The Newstart Apartment,No.5 in Road Changchunqiao,Haidian
+ District,Beijing,China.
+ 
+Zip code :100089
+ 
+Contact person: Zhong Huang(Mr.)
 
-In spin_unlock_irqrestore, it checks preempt_count (as it already
-does), and in the slow path if there's an irq pending, calls the
-handler for that irq as if it were invoked by the CPU.
+Add: No10 11/F, 1#NewStart, No.5 ChangChunQiao Road, Haidian District, Beijing, 100089 P. R. China
 
-That should effectively eliminate the "cli" and "sti" isnructions
-from spin_lock_irqsave and spin_unlock_irqrestore, saving a few cycles.
 
--- Jamie
+Tel: (8610) 82562788,82562787/89-18 
+
+
+Fax: (8610) 82563221
+
+
+Mobile: 13051076228 
+
+Yahoo ID:liudesheng1118
+
+E-mail: 
+business@upfeeling.com, 
+huangzhong19731128@yahoo.com.cn, 
+service@upfeeling.com 
+
+English website£º http://www.upfeeling.com/zhl/enzhl/index.htm
+website£º 
+http://www.upfeeling.com 
+http://www.upfeeling.cn
+http://www.upfeeling.com.cn
+

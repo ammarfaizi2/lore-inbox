@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315919AbSILOWr>; Thu, 12 Sep 2002 10:22:47 -0400
+	id <S315928AbSILOeV>; Thu, 12 Sep 2002 10:34:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315923AbSILOWr>; Thu, 12 Sep 2002 10:22:47 -0400
-Received: from osiris.medic.chalmers.se ([129.16.30.197]:24227 "HELO
-	mail.dtek.chalmers.se") by vger.kernel.org with SMTP
-	id <S315919AbSILOWq>; Thu, 12 Sep 2002 10:22:46 -0400
-Date: Thu, 12 Sep 2002 16:27:36 +0200 (MEST)
-From: Johan Brodin <d98jobro@dtek.chalmers.se>
-To: linux-kernel@vger.kernel.org
-Subject: Init - how does it work?
-Message-ID: <Pine.GSO.4.10.10209121620340.13583-100000@licia.dtek.chalmers.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315942AbSILOeV>; Thu, 12 Sep 2002 10:34:21 -0400
+Received: from h-66-166-207-97.SNVACAID.covad.net ([66.166.207.97]:3472 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S315928AbSILOeU>; Thu, 12 Sep 2002 10:34:20 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 12 Sep 2002 07:39:01 -0700
+Message-Id: <200209121439.HAA04166@adam.yggdrasil.com>
+To: ookhoi@humilis.net
+Subject: Re: 2.5.34 on Sony PictureBook fails to boot
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>From: Ookhoi <ookhoi@humilis.net>
 
-I am new to this list, so I will take one second to present myself.
-My name is Johan and I am a 23-year old student at Chalmers university of
-technology in Sweden. The reason for joining this list is that I am
-currently doing my Master Thesis Project in Computer Science and
-Engineering. My thesis is namned "Design of dependable distributed
-UNIX-based systems" and one issue that I am looking into is process
-supervision.
+>> 	Attempting to boot 2.5.34 compiled with SMP on a Sony
+>> PictureBook results in the computer being reset before the kernel
+>> activates the console.
 
-I tried to configure init to start and respawn processes and this worked
-great, no problems at all, but what really would make me happy is if
-someone of all you subscribers to this list could explain how this feature
-(respawn) works. How is init told that it must respawn the process? and
-such things! If someone could find the time to help me out, I would be
-very grateful.
+>Which picturebook? (intel or crusoe cpu?)
 
-Thanks!
-/Johan
+	PCG-C1VN (Transmeta).  Sorry for not specifying that originally.
 
+>And why smp? Just curious.
 
+	To have on kernel for many systems and for preempt.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,81 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129220AbQJ0Arm>; Thu, 26 Oct 2000 20:47:42 -0400
+	id <S129677AbQJ0AtW>; Thu, 26 Oct 2000 20:49:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129677AbQJ0Ard>; Thu, 26 Oct 2000 20:47:33 -0400
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:43762 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S129220AbQJ0ArY>; Thu, 26 Oct 2000 20:47:24 -0400
-Date: Thu, 26 Oct 2000 17:47:23 -0700
-From: Dan Kegel <dank@alumni.caltech.edu>
-Subject: Re: Linux's implementation of poll() not scalable?
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Eric W. Biederman" <ebiederm@biederman.org>,
-        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
-Reply-to: dank@alumni.caltech.edu
-Message-id: <39F8D09B.F55AD0FD@alumni.caltech.edu>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.14-5.0 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-In-Reply-To: <Pine.LNX.4.10.10010260936330.2460-100000@penguin.transmeta.com>
+	id <S130101AbQJ0AtM>; Thu, 26 Oct 2000 20:49:12 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:3593 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129677AbQJ0AtB>;
+	Thu, 26 Oct 2000 20:49:01 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200010270048.e9R0mie220290@saturn.cs.uml.edu>
+Subject: Re: Topic for discussion: OS Design
+To: root@chaos.analogic.com
+Date: Thu, 26 Oct 2000 20:48:44 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+        dlitz@dlitz.net (Dwayne C . Litzenberger),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1001026083116.10279A-100000@chaos.analogic.com> from "Richard B. Johnson" at Oct 26, 2000 09:17:49 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> However, we also need to remember what got us to this discussion in the
-> first place. One of the reasons why poll() is such a piggy interface is
-> exactly because it tries to be "nice" to the programmer.
+Richard B. Johnson writes:
+> On Thu, 26 Oct 2000, Albert D. Cahalan wrote:
+>> Richard B. Johnson writes:
 
-poll() is a piggy interface because it is O(n) in polled file 
-descriptors, not because of its level-triggered nature.
+>>> o	Once installed, a kernel module is every bit as "efficient"
+>>> as some driver linked into the kernel at build-time. Of course
+>>
+>> I doubt this is true on most modern processors. On the Pentium
+>> and above, large pages are used for the kernel. The PowerPC port
+>             ^^^^^^^^^^^
+>
+> The page-size is determined by the architecture.
 
-> I'd much rather have an event interface that is documented to be edge-
-> triggered and is really _lightweight_, than have another interface that
-> starts out with some piggy features.
+The page sizes are determined by the architecture.
 
-Agreed (except for that 'edge-triggered' part), but I don't think
-'level-triggered' implies piggy.   I haven't benchmarked whether
-kqueue() slows down the networking layer of FreeBSD yet; do you
-suspect maintaining the level-triggered structures actually is
-a bottleneck for them?
- 
-> I do understand that level to some degree is "nicer", but everybody pretty
-> much agrees that apart from requireing more care, edge-triggered certainly
-> does everything the level-triggered interfaces do.
+For common Intel chips: 4 kB, 2 MB, 4 MB.
+(some restrictions may apply -- Ingo Molnar would know)
 
-Agreed.
- 
-> For example, if you want to only partially handle an event (one of the
-> more valid arguments I've seen, although I do not agree with it actually
-> being all that common or important thing to do), the edge-triggered
-> interface _does_ allow for that. It's fairly easy, in fact: you just
-> re-bind the thing.
+For ia64, you get about a dozen different sizes ranging from
+the old 4 kB pages up to something like 256 MB.
+
+For the PowerPC you have BAT registers that override page tables.
+You get 4 for code and 4 for data, so you can map all physical
+memory for the kernel w/o using page table entries or TLB slots.
+
+The SPARC code, if I recall correctly, does not maintain page
+tables for normal kernel code. If the virtual address is within
+the direct mapped region, a software TLB loader just adds an
+offset to get the physical address.
+
+So your modules suffer by being unable to take advantage of
+more efficent virtual-to-physical mapping mechanisms.
+
+>> uses BAT registers. Other ports have other hacks to reduce TLB
+>> misses and/or wasted memory. Also, you waste half a page or more
+>> for the average module.
 > 
-> (My suggested "bind()" interface would be to just always add a newly bound
-> fd to the event queue, but I would not object to a "one-time test for
-> active" kind of "bind()" interface either - which would basically allow
-> for a poll() interface - and the existing Linux internal "poll()"
-> implementation actually already allows for exactly this so it wouldn't
-> even add any complexity).
-> ... the "re-bind()" approach works very simply, and means that the
-> overhead of testing whether the event is still active is not a generic
-> thing that _always_ has to be done, but something where the application
-> can basically give the kernel the information that "this time we're
-> leaving the event possibly half-done, please re-test now".
+> Since kernel memory is allocated in pages, you use whatever you
+> need. If a module is 4097 bytes in length, you could, in principle,
+> 'waste' 4095 bytes. So what? it's never paged or otherwise producing
+> any overhead whatsoever.
 
-Hmm.  I don't like the extra system call, though.  Any chance you'd be
-willing to make get_events() take a vector of bind requests, so we can
-avoid the system call overhead of re-binding?  (Or is that too close
-to kqueue for you?)
+What, wasted memory is not overhead?
 
-And are you sure apps will always know whether they need to rebind?
-Sometimes you're faced with a protocol stack which may or may not
-read the requests fully, and which you aren't allowed to change.
-It'd be nice to still have a high-performance interface that can deal with 
-that situation.
-- Dan
+Also, consider the cache effects. To keep things simple, assume
+you have a highly modular kernel and that modules are 2 kB.
+Also, you have separate 4-way 16 kB L1 caches for code and data.
+Well, you now have an 8 kB cache for code, along with 8 kB of
+useless transistors.
+
+Of course this is bad, even if you don't have modules that are
+exactly 2 kB.
+
+> These are modules I have written for a project. Since these are object
+> files, they contain not only code, but also a relocation table. So they
+> don't require as much memory as the file size shows. However, since
+> these are all modules, the relocation table is similar in size and
+> can be considered a constant.
+> 
+>          6204 Oct 24 10:48 firewire.o    8192 -  6204 = 1988
+>         11120 Oct 24 10:48 gpib_drvr.o  12288 - 11120 = 1168
+>          6692 Oct 24 10:48 ramdisk.o     8192 -  6692 = 1500
+>          3886 Oct 24 10:48 rtc_drvr.o    4096 -  3886 =  210
+>          6776 Oct 25 12:38 vxibus.o      8192 -  6776 = 1416
+> Totals                                          ----    ----
+>                                                34678    6282
+> 
+> This shows that out of 34,678 bytes we needed, we wasted 6282, ~1.5
+> pages. Since there are 5 modules, we waste about 1/3 page per module.
+> 
+> So I don't, as you say; "... waste 1/2 page or more per module".
+
+Somebody else posted their numbers: you waste about 15% of memory.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262964AbTCSJ7A>; Wed, 19 Mar 2003 04:59:00 -0500
+	id <S262977AbTCSKBn>; Wed, 19 Mar 2003 05:01:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262960AbTCSJ7A>; Wed, 19 Mar 2003 04:59:00 -0500
-Received: from smtp5.wanadoo.fr ([193.252.22.29]:41139 "EHLO
-	mwinf0202.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S262964AbTCSJ6i>; Wed, 19 Mar 2003 04:58:38 -0500
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Latest 2.5 BK: oops in timer.c
-Date: Wed, 19 Mar 2003 11:09:27 +0100
-User-Agent: KMail/1.5.1
+	id <S262978AbTCSKBn>; Wed, 19 Mar 2003 05:01:43 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:59153 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S262977AbTCSKBl>; Wed, 19 Mar 2003 05:01:41 -0500
+Message-ID: <3E784315.3060806@aitel.hist.no>
+Date: Wed, 19 Mar 2003 11:14:45 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 471] New: Root on software raid don't boot on new 2.5 kernel
+ since after 2.5.45
+References: <779600000.1048059690@[10.10.2.4]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303191109.27359.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Copied from the screen, so minimal.
-Note: nmi_watchdog=1
+Martin J. Bligh wrote:
+> http://bugme.osdl.org/show_bug.cgi?id=471
+> 
+>            Summary: Root on software raid don't boot on new 2.5 kernel since
+>                     after 2.5.45
 
-timer_interrupt+0x1a3/0x3f0
-do_softirq+0xa1/0xb0
-do_IRQ+0x23f/0x380
-do_nmi+0x4f/0x60
-common_interrupt+0x18/0x20
-open_namei+0x5b/0x650
-check_poison_obj+0x3b/0x1a0
-filp_open+0x41/0x70
-getname+0x8a/0xc0
-sys_open+0x53/0x90
-syscall_call+0x7/0xb
-code: 89 50 04 89 02 c7 ...
-timer.c:312: spin_lock already locked by kernel/timer.c/406
+Root on raid-1 works fine for me, with and without devfs.  My kernel has
+no module support, everything is compiled in.  I don't use initrd.
+I have used root-raid with every 2.5 kernel except for a few that had
+raid bugs. (Affecting all raid, the root weren't special.)
+
+Until recently the root raid always did an unclean shutdown, but this didn't
+cause other trouble than a bootup resync.
+
+> Problem Description:
+>  The software raid setup I have boots on 2.4 but not on newer 2.5 kernels, i
+> have everything need compiled in and the 2.5 kernel also rapports that it has
+> found /dev/md2 but it rapports that is's unable to mount the root partition for
+> this device. I have tried to pass /dev/md0 as the root but this hangs the
+> kernel, is root on raid broaken in kernel 2.5 or am I doing something wrong?
+> 
+>  lilo:
+>   image=/boot/vmlinuz-2.4.21-pre1
+>         label=linux
+>         root=/dev/md2
+>         read-only
+>         append=" devfs=mount"
+> 
+>   image=/boot/vmlinuz-2.5.65
+>         label=linux25
+>         root=/dev/md2
+>         read-only
+>         append=" devfs=mount"
+
+Are you using devfs?  I expect the name of the raid device
+to be something like /dev/md/2 instead of /dev/md2 in that case.
+
+Helge Hafting
+

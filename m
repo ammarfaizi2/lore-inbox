@@ -1,421 +1,1023 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269918AbUIDNYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269919AbUIDN2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269918AbUIDNYv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 09:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269943AbUIDNYv
+	id S269919AbUIDN2f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 09:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267889AbUIDN2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 09:24:51 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:54978 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S269918AbUIDNWz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 09:22:55 -0400
-Message-ID: <1094304174.4139c1aeb3e0f@imp4-q.free.fr>
-Date: Sat,  4 Sep 2004 15:22:54 +0200
-From: castet.matthieu@free.fr
-To: linux-kernel@vger.kernel.org
-Subject: [RFC/patch] ACPI in linux PnP layer
+	Sat, 4 Sep 2004 09:28:35 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:13540 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S269919AbUIDNXb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 09:23:31 -0400
+Date: Sat, 4 Sep 2004 14:23:30 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC/patch] macro_removal_agp_mtrr.diff
+In-Reply-To: <20040904103711.GD5313@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.58.0409041418450.25475@skynet>
+References: <Pine.LNX.4.58.0409041053450.25475@skynet>
+ <1094292878.2801.7.camel@laptop.fenrus.com> <Pine.LNX.4.58.0409041126500.25475@skynet>
+ <20040904103711.GD5313@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="-MOQ10943041741c087f910d7d45234a854f38222fa115"
-User-Agent: Internet Messaging Program (IMP) 3.2.5
-X-Originating-IP: 213.228.45.27
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format.
 
----MOQ10943041741c087f910d7d45234a854f38222fa115
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Okay here is an updated patch:
 
-Hi,
+I've taken suggestions from Christoph and Arjan on board,
 
-I have started to plug acpi in PnP layer.
-A first patch add the function acpi_driver_scan, that allow to call a function
-for each acpi device.
-I have to do that because acpi is load before PnP, and it can't add my function
-in acpi_bus_add (driver/acpi/scan.c).
+My only issue is with the stuff in drm_os_linux.h, I've had to make a
+dummy AGP structure, and add the mtrr_add/mtrr_del stubs (as they are fine
+on x86 but don't exist on anything else..) but perhaps a small ugly in
+there is better than big uglies elsewhere...
 
-The second patch is the PnP acpi driver.
-It parse possible and activated resources.
-It use acpi_register_gsi to activate irq (is that need ???)
+I might be able to drop the OS_HAS_AGP from the drivers, but that'll be a
+job that requires testing via CVS (as that is where we have the people
+with the different cards..)
 
-Also there are no disable/set acpi resource support, nor ADDRESS resource
-support.
+Dave.
 
-But it work well with drivers that work with pnpbios(parport, serial, ...).
+===== drivers/char/drm/drmP.h 1.45 vs edited =====
+--- 1.45/drivers/char/drm/drmP.h	Fri Sep  3 20:00:58 2004
++++ edited/drivers/char/drm/drmP.h	Sat Sep  4 22:54:58 2004
+@@ -73,19 +73,20 @@
+ #include <asm/pgalloc.h>
+ #include "drm.h"
 
-What do you think of it ?
-Any comment ?
+-#include "drm_os_linux.h"
++#define __OS_HAS_AGP (defined(CONFIG_AGP) || (defined(CONFIG_AGP_MODULE) && defined(MODULE)))
++#define __OS_HAS_MTRR (defined(CONFIG_MTRR))
 
-Matthieu
++#include "drm_os_linux.h"
 
-PS : please CC me since I'm not subscribed to lkml.
----MOQ10943041741c087f910d7d45234a854f38222fa115
-Content-Type: application/octet-stream; name="acpi.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="acpi.patch"
+ /***********************************************************************/
+ /** \name DRM template customization defaults */
+ /*@{*/
 
-ZGlmZiAtcnVOIC0tZXhjbHVkZT0nKi5jbWQnIC0tZXhjbHVkZT0nKi5vJyAtLWV4Y2x1ZGU9Jyou
-a28nIGxpbnV4Lm9sZC9kcml2ZXJzL2FjcGkvc2Nhbi5jIGxpbnV4LTIuNi45L2RyaXZlcnMvYWNw
-aS9zY2FuLmMKLS0tIGxpbnV4Lm9sZC9kcml2ZXJzL2FjcGkvc2Nhbi5jCTIwMDQtMDktMDQgMTQ6
-MTY6MzcuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yLjYuOS9kcml2ZXJzL2FjcGkvc2Nhbi5j
-CTIwMDQtMDktMDQgMTQ6Mzk6NDcuMDAwMDAwMDAwICswMjAwCkBAIC04LDYgKzgsNyBAQAogI2lu
-Y2x1ZGUgPGFjcGkvYWNwaV9kcml2ZXJzLmg+CiAjaW5jbHVkZSA8YWNwaS9hY2ludGVycC5oPgkv
-KiBmb3IgYWNwaV9leF9laXNhX2lkX3RvX3N0cmluZygpICovCiAKKyNpbmNsdWRlIDxsaW51eC9t
-b2R1bGUuaD4KIAogI2RlZmluZSBfQ09NUE9ORU5UCQlBQ1BJX0JVU19DT01QT05FTlQKIEFDUElf
-TU9EVUxFX05BTUUJCSgic2NhbiIpCkBAIC0xMDcwLDQgKzEwNzEsMjIgQEAKIAlyZXR1cm5fVkFM
-VUUocmVzdWx0KTsKIH0KIAoraW50IGFjcGlfZHJpdmVyX3NjYW4odm9pZCAoKiBoYW5kbGVyKShz
-dHJ1Y3QgYWNwaV9kZXZpY2UgKiBkZXYpKQoreworCXN0cnVjdCBsaXN0X2hlYWQgKiBub2RlLCAq
-IG5leHQ7CisJaWYgKCFoYW5kbGVyKQorCQkgcmV0dXJuX1ZBTFVFKC1FSU5WQUwpOworCisJc3Bp
-bl9sb2NrKCZhY3BpX2RldmljZV9sb2NrKTsKKwlsaXN0X2Zvcl9lYWNoX3NhZmUobm9kZSwgbmV4
-dCwgJmFjcGlfZGV2aWNlX2xpc3QpIHsKKwkJc3RydWN0IGFjcGlfZGV2aWNlICogZGV2ID0gY29u
-dGFpbmVyX29mKG5vZGUsIHN0cnVjdCBhY3BpX2RldmljZSwgZ19saXN0KTsKKwkJc3Bpbl91bmxv
-Y2soJmFjcGlfZGV2aWNlX2xvY2spOworCQloYW5kbGVyKGRldik7CisJCXNwaW5fbG9jaygmYWNw
-aV9kZXZpY2VfbG9jayk7CisJfQorCXNwaW5fdW5sb2NrKCZhY3BpX2RldmljZV9sb2NrKTsKKwly
-ZXR1cm5fVkFMVUUoMCk7Cit9CisKIHN1YnN5c19pbml0Y2FsbChhY3BpX3NjYW5faW5pdCk7CitF
-WFBPUlRfU1lNQk9MKGFjcGlfZHJpdmVyX3NjYW4pOwo=
+-#ifndef __HAVE_AGP
+-#define __HAVE_AGP		0
+-#endif
+-#ifndef __HAVE_MTRR
+-#define __HAVE_MTRR		0
+-#endif
++/* driver capabilities and requirements mask */
++#define DRIVER_USE_AGP     0x1
++#define DRIVER_REQUIRE_AGP 0x2
++#define DRIVER_USE_MTRR    0x4
++
+ #ifndef __HAVE_CTX_BITMAP
+ #define __HAVE_CTX_BITMAP	0
+ #endif
+@@ -96,11 +97,9 @@
+ #define __HAVE_IRQ		0
+ #endif
 
----MOQ10943041741c087f910d7d45234a854f38222fa115
-Content-Type: application/octet-stream; name="pnpacpi.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="pnpacpi.patch"
+-#define __REALLY_HAVE_AGP	(__HAVE_AGP && (defined(CONFIG_AGP) || \
+-						defined(CONFIG_AGP_MODULE)))
+-#define __REALLY_HAVE_MTRR	(__HAVE_MTRR && defined(CONFIG_MTRR))
+ #define __REALLY_HAVE_SG	(__HAVE_SG)
 
-ZGlmZiAtcnVOIC0tZXhjbHVkZT0nKi5jbWQnIC0tZXhjbHVkZT0nKi5vJyAtLWV4Y2x1ZGU9Jyou
-a28nIGxpbnV4Lm9sZC9kcml2ZXJzL3BucC9LY29uZmlnIGxpbnV4LTIuNi45L2RyaXZlcnMvcG5w
-L0tjb25maWcKLS0tIGxpbnV4Lm9sZC9kcml2ZXJzL3BucC9LY29uZmlnCTIwMDQtMDYtMTYgMDc6
-MTk6MjMuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yLjYuOS9kcml2ZXJzL3BucC9LY29uZmln
-CTIwMDQtMDktMDQgMTQ6MDc6NDYuMDAwMDAwMDAwICswMjAwCkBAIC0zNSw1ICszNSw3IEBACiAK
-IHNvdXJjZSAiZHJpdmVycy9wbnAvcG5wYmlvcy9LY29uZmlnIgogCitzb3VyY2UgImRyaXZlcnMv
-cG5wL3BucGFjcGkvS2NvbmZpZyIKKwogZW5kbWVudQogCmRpZmYgLXJ1TiAtLWV4Y2x1ZGU9Jyou
-Y21kJyAtLWV4Y2x1ZGU9JyoubycgLS1leGNsdWRlPScqLmtvJyBsaW51eC5vbGQvZHJpdmVycy9w
-bnAvTWFrZWZpbGUgbGludXgtMi42LjkvZHJpdmVycy9wbnAvTWFrZWZpbGUKLS0tIGxpbnV4Lm9s
-ZC9kcml2ZXJzL3BucC9NYWtlZmlsZQkyMDA0LTA2LTE2IDA3OjE4OjM4LjAwMDAwMDAwMCArMDIw
-MAorKysgbGludXgtMi42LjkvZHJpdmVycy9wbnAvTWFrZWZpbGUJMjAwNC0wOS0wNCAxNDoxMjo1
-Ny4wMDAwMDAwMDAgKzAyMDAKQEAgLTYsMyArNiw0IEBACiAKIG9iai0kKENPTkZJR19QTlBCSU9T
-KQkJKz0gcG5wYmlvcy8KIG9iai0kKENPTkZJR19JU0FQTlApCQkrPSBpc2FwbnAvCitvYmotJChD
-T05GSUdfUE5QQUNQSSkJCSs9IHBucGFjcGkvCmRpZmYgLXJ1TiAtLWV4Y2x1ZGU9JyouY21kJyAt
-LWV4Y2x1ZGU9JyoubycgLS1leGNsdWRlPScqLmtvJyBsaW51eC5vbGQvZHJpdmVycy9wbnAvcG5w
-YWNwaS9jb3JlLmMgbGludXgtMi42LjkvZHJpdmVycy9wbnAvcG5wYWNwaS9jb3JlLmMKLS0tIGxp
-bnV4Lm9sZC9kcml2ZXJzL3BucC9wbnBhY3BpL2NvcmUuYwkxOTcwLTAxLTAxIDAxOjAwOjAwLjAw
-MDAwMDAwMCArMDEwMAorKysgbGludXgtMi42LjkvZHJpdmVycy9wbnAvcG5wYWNwaS9jb3JlLmMJ
-MjAwNC0wOS0wNCAxNDo1MDozMi4wMDAwMDAwMDAgKzAyMDAKQEAgLTAsMCArMSw2MDggQEAKKy8q
-CisgKiBwbnBhY3BpIC0tIFBuUCBBQ1BJIGRyaXZlcgorICoKKyAqIENvcHlyaWdodCAoYykgMjAw
-NCBNYXR0aGlldSBDYXN0ZXQgPGNhc3RldC5tYXR0aGlldUBmcmVlLmZyPgorICogCisgKiBUaGlz
-IHByb2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29y
-IG1vZGlmeSBpdAorICogdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMg
-TGljZW5zZSBhcyBwdWJsaXNoZWQgYnkgdGhlCisgKiBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb247
-IGVpdGhlciB2ZXJzaW9uIDIsIG9yIChhdCB5b3VyIG9wdGlvbikgYW55CisgKiBsYXRlciB2ZXJz
-aW9uLgorICoKKyAqIFRoaXMgcHJvZ3JhbSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0
-IGl0IHdpbGwgYmUgdXNlZnVsLCBidXQKKyAqIFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0
-IGV2ZW4gdGhlIGltcGxpZWQgd2FycmFudHkgb2YKKyAqIE1FUkNIQU5UQUJJTElUWSBvciBGSVRO
-RVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRS4gIFNlZSB0aGUgR05VCisgKiBHZW5lcmFsIFB1
-YmxpYyBMaWNlbnNlIGZvciBtb3JlIGRldGFpbHMuCisgKgorICogWW91IHNob3VsZCBoYXZlIHJl
-Y2VpdmVkIGEgY29weSBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UKKyAqIGFsb25n
-IHdpdGggdGhpcyBwcm9ncmFtOyBpZiBub3QsIHdyaXRlIHRvIHRoZSBGcmVlIFNvZnR3YXJlCisg
-KiBGb3VuZGF0aW9uLCBJbmMuLCA1OSBUZW1wbGUgUGxhY2UsIFN1aXRlIDMzMCwgQm9zdG9uLCBN
-QSAgMDIxMTEtMTMwNyAgVVNBCisgKi8KKworLyogVE9ETworICogYWRyZXNzIGhhbmRsaW5nCisg
-KiBzZXQvZGlzYmxlIGRldmljZQorICogY29kZSBjbGVhbm5pbmcgKyBtZW1sZWFrCisgKiBob3Rw
-bHVnIGRldmljZQorICogcmVtb3ZlIGRldmljZQorICovCisgCisjaW5jbHVkZSA8YWNwaS9hY3Bp
-X2J1cy5oPgorI2luY2x1ZGUgPGxpbnV4L2FjcGkuaD4KKyNpbmNsdWRlIDxsaW51eC9wbnAuaD4K
-KworI2RlZmluZSBNQVhfREVWSUNFIDUwCitzdGF0aWMgc3RydWN0IGFjcGlfZGV2aWNlICogc2Vs
-ZiBbTUFYX0RFVklDRV0gPSB7WzAgLi4uIChNQVhfREVWSUNFLTEpXSA9IE5VTEx9OworCit2b2lk
-ICpwbnBhY3BpX2ttYWxsb2Moc2l6ZV90IHNpemUsIGludCBmKQoreworCXZvaWQgKnAgPSBrbWFs
-bG9jKCBzaXplLCBmICk7CisJaWYgKCBwID09IE5VTEwgKQorCQlwcmludGsoS0VSTl9FUlIgIlBu
-UEFDUEk6IGttYWxsb2MoKSBmYWlsZWRcbiIpOworCWVsc2UKKwkJbWVtc2V0KHAsIDAsIHNpemUp
-OworCXJldHVybiBwOworfQorLyoKKyAqIENvbXBhdGlibGUgRGV2aWNlIElEcworICovCisKK3Zv
-aWQgcG5waWRhY3BpX3RvX3BucGlkKGNoYXIgKmlkLCBjaGFyICpzdHIpCit7CisJc3RyWzBdID0g
-aWRbMF07CisJc3RyWzFdID0gaWRbMV07CisJc3RyWzJdID0gaWRbMl07CisJc3RyWzNdID0gdG9s
-b3dlcihpZFszXSk7CisJc3RyWzRdID0gdG9sb3dlcihpZFs0XSk7CisJc3RyWzVdID0gdG9sb3dl
-cihpZFs1XSk7CisJc3RyWzZdID0gdG9sb3dlcihpZFs2XSk7CisJc3RyWzddID0gJ1wwJzsKKwor
-CXJldHVybjsKK30KKworLyoKKyAqIEFsbG9jYXRlZCBSZXNvdXJjZXMKKyAqLworCitzdGF0aWMg
-dm9pZAorcG5wYWNwaV9wYXJzZV9hbGxvY2F0ZWRfaXJxcmVzb3VyY2Uoc3RydWN0IHBucF9yZXNv
-dXJjZV90YWJsZSAqIHJlcywgaW50IGlycSkKK3sKKwlpbnQgaSA9IDA7CisJd2hpbGUgKCEocmVz
-LT5pcnFfcmVzb3VyY2VbaV0uZmxhZ3MgJiBJT1JFU09VUkNFX1VOU0VUKSAmJiBpIDwgUE5QX01B
-WF9JUlEpIGkrKzsKKwlpZiAoaSA8IFBOUF9NQVhfSVJRKSB7CisJCXJlcy0+aXJxX3Jlc291cmNl
-W2ldLmZsYWdzID0gSU9SRVNPVVJDRV9JUlE7ICAvLyBBbHNvIGNsZWFycyBfVU5TRVQgZmxhZwor
-CQlpZiAoaXJxID09IC0xKSB7CisJCQlyZXMtPmlycV9yZXNvdXJjZVtpXS5mbGFncyB8PSBJT1JF
-U09VUkNFX0RJU0FCTEVEOworCQkJcmV0dXJuOworCQl9CisJCXJlcy0+aXJxX3Jlc291cmNlW2ld
-LnN0YXJ0ID0KKwkJcmVzLT5pcnFfcmVzb3VyY2VbaV0uZW5kID0gKHVuc2lnbmVkIGxvbmcpIGly
-cTsKKwl9Cit9CisKK3N0YXRpYyB2b2lkCitwbnBhY3BpX3BhcnNlX2FsbG9jYXRlZF9kbWFyZXNv
-dXJjZShzdHJ1Y3QgcG5wX3Jlc291cmNlX3RhYmxlICogcmVzLCBpbnQgZG1hKQoreworCWludCBp
-ID0gMDsKKwl3aGlsZSAoIShyZXMtPmRtYV9yZXNvdXJjZVtpXS5mbGFncyAmIElPUkVTT1VSQ0Vf
-VU5TRVQpICYmIGkgPCBQTlBfTUFYX0RNQSkgaSsrOworCWlmIChpIDwgUE5QX01BWF9ETUEpIHsK
-KwkJcmVzLT5kbWFfcmVzb3VyY2VbaV0uZmxhZ3MgPSBJT1JFU09VUkNFX0RNQTsgIC8vIEFsc28g
-Y2xlYXJzIF9VTlNFVCBmbGFnCisJCWlmIChkbWEgPT0gLTEpIHsKKwkJCXJlcy0+ZG1hX3Jlc291
-cmNlW2ldLmZsYWdzIHw9IElPUkVTT1VSQ0VfRElTQUJMRUQ7CisJCQlyZXR1cm47CisJCX0KKwkJ
-cmVzLT5kbWFfcmVzb3VyY2VbaV0uc3RhcnQgPQorCQlyZXMtPmRtYV9yZXNvdXJjZVtpXS5lbmQg
-PSAodW5zaWduZWQgbG9uZykgZG1hOworCX0KK30KKworc3RhdGljIHZvaWQKK3BucGFjcGlfcGFy
-c2VfYWxsb2NhdGVkX2lvcmVzb3VyY2Uoc3RydWN0IHBucF9yZXNvdXJjZV90YWJsZSAqIHJlcywg
-aW50IGlvLCBpbnQgbGVuKQoreworCWludCBpID0gMDsKKwl3aGlsZSAoIShyZXMtPnBvcnRfcmVz
-b3VyY2VbaV0uZmxhZ3MgJiBJT1JFU09VUkNFX1VOU0VUKSAmJiBpIDwgUE5QX01BWF9QT1JUKSBp
-Kys7CisJaWYgKGkgPCBQTlBfTUFYX1BPUlQpIHsKKwkJcmVzLT5wb3J0X3Jlc291cmNlW2ldLmZs
-YWdzID0gSU9SRVNPVVJDRV9JTzsgIC8vIEFsc28gY2xlYXJzIF9VTlNFVCBmbGFnCisJCWlmIChs
-ZW4gPD0gMCB8fCAoaW8gKyBsZW4gLTEpID49IDB4MTAwMDMpIHsKKwkJCXJlcy0+cG9ydF9yZXNv
-dXJjZVtpXS5mbGFncyB8PSBJT1JFU09VUkNFX0RJU0FCTEVEOworCQkJcmV0dXJuOworCQl9CisJ
-CXJlcy0+cG9ydF9yZXNvdXJjZVtpXS5zdGFydCA9ICh1bnNpZ25lZCBsb25nKSBpbzsKKwkJcmVz
-LT5wb3J0X3Jlc291cmNlW2ldLmVuZCA9ICh1bnNpZ25lZCBsb25nKShpbyArIGxlbiAtIDEpOwor
-CX0KK30KKworc3RhdGljIHZvaWQKK3BucGFjcGlfcGFyc2VfYWxsb2NhdGVkX21lbXJlc291cmNl
-KHN0cnVjdCBwbnBfcmVzb3VyY2VfdGFibGUgKiByZXMsIGludCBtZW0sIGludCBsZW4pCit7CisJ
-aW50IGkgPSAwOworCXdoaWxlICghKHJlcy0+bWVtX3Jlc291cmNlW2ldLmZsYWdzICYgSU9SRVNP
-VVJDRV9VTlNFVCkgJiYgaSA8IFBOUF9NQVhfTUVNKSBpKys7CisJaWYgKGkgPCBQTlBfTUFYX01F
-TSkgeworCQlyZXMtPm1lbV9yZXNvdXJjZVtpXS5mbGFncyA9IElPUkVTT1VSQ0VfTUVNOyAgLy8g
-QWxzbyBjbGVhcnMgX1VOU0VUIGZsYWcKKwkJaWYgKGxlbiA8PSAwKSB7CisJCQlyZXMtPm1lbV9y
-ZXNvdXJjZVtpXS5mbGFncyB8PSBJT1JFU09VUkNFX0RJU0FCTEVEOworCQkJcmV0dXJuOworCQl9
-CisJCXJlcy0+bWVtX3Jlc291cmNlW2ldLnN0YXJ0ID0gKHVuc2lnbmVkIGxvbmcpIG1lbTsKKwkJ
-cmVzLT5tZW1fcmVzb3VyY2VbaV0uZW5kID0gKHVuc2lnbmVkIGxvbmcpKG1lbSArIGxlbiAtIDEp
-OworCX0KK30KKworCitzdGF0aWMgYWNwaV9zdGF0dXMgYWNwaV9wbnBfYWxsb2NhdGVkX3Jlc291
-cmNlKHN0cnVjdCBhY3BpX3Jlc291cmNlICpyZXMsIHZvaWQgKmRhdGEpCit7CisJc3RydWN0IHBu
-cF9yZXNvdXJjZV90YWJsZSAqIHJlc190YWJsZSA9IChzdHJ1Y3QgcG5wX3Jlc291cmNlX3RhYmxl
-ICopZGF0YTsKKwkvL3ByaW50aygicmVzIGlkICV4XG4iLHJlcy0+aWQpOworCisJc3dpdGNoIChy
-ZXMtPmlkKSB7CisJY2FzZSBBQ1BJX1JTVFlQRV9JUlE6CisJCWlmIChyZXMtPmRhdGEuaXJxLm51
-bWJlcl9vZl9pbnRlcnJ1cHRzID4gMCkKKwkJCXBucGFjcGlfcGFyc2VfYWxsb2NhdGVkX2lycXJl
-c291cmNlKHJlc190YWJsZSwgCisJCQkJLyogaXMgaXQgb2sgPworCQkJCSAqIHByb2R1Y2UgSU9B
-UElDWzBdOiBJbnZhbGlkIHJlZmVyZW5jZSB0byBJUlEgMAorCQkJCSAqLworCQkJCWFjcGlfcmVn
-aXN0ZXJfZ3NpKHJlcy0+ZGF0YS5pcnEuaW50ZXJydXB0c1swXSwKKwkJCQkJcmVzLT5kYXRhLmly
-cS5lZGdlX2xldmVsLAorCQkJCQlyZXMtPmRhdGEuaXJxLmFjdGl2ZV9oaWdoX2xvdykpOworCQli
-cmVhazsKKworCWNhc2UgQUNQSV9SU1RZUEVfRVhUX0lSUToKKwkJaWYgKHJlcy0+ZGF0YS5leHRl
-bmRlZF9pcnEubnVtYmVyX29mX2ludGVycnVwdHMgPiAwKQorCQkJcG5wYWNwaV9wYXJzZV9hbGxv
-Y2F0ZWRfaXJxcmVzb3VyY2UocmVzX3RhYmxlLCAKKwkJCQlhY3BpX3JlZ2lzdGVyX2dzaShyZXMt
-PmRhdGEuZXh0ZW5kZWRfaXJxLmludGVycnVwdHNbMF0sCisJCQkJCXJlcy0+ZGF0YS5leHRlbmRl
-ZF9pcnEuZWRnZV9sZXZlbCwKKwkJCQkJcmVzLT5kYXRhLmV4dGVuZGVkX2lycS5hY3RpdmVfaGln
-aF9sb3cpKTsKKwkJYnJlYWs7CisJY2FzZSBBQ1BJX1JTVFlQRV9ETUE6CisJCWlmIChyZXMtPmRh
-dGEuZG1hLm51bWJlcl9vZl9jaGFubmVscyA+IDApCisJCQlwbnBhY3BpX3BhcnNlX2FsbG9jYXRl
-ZF9kbWFyZXNvdXJjZShyZXNfdGFibGUsIAorCQkJCQlyZXMtPmRhdGEuZG1hLmNoYW5uZWxzWzBd
-KTsKKwkJYnJlYWs7CisJY2FzZSBBQ1BJX1JTVFlQRV9JTzoKKwkJcG5wYWNwaV9wYXJzZV9hbGxv
-Y2F0ZWRfaW9yZXNvdXJjZShyZXNfdGFibGUsIAorCQkJCXJlcy0+ZGF0YS5pby5taW5fYmFzZV9h
-ZGRyZXNzLCAKKwkJCQlyZXMtPmRhdGEuaW8ucmFuZ2VfbGVuZ3RoKTsKKwkJYnJlYWs7CisJY2Fz
-ZSBBQ1BJX1JTVFlQRV9GSVhFRF9JTzoKKwkJcG5wYWNwaV9wYXJzZV9hbGxvY2F0ZWRfaW9yZXNv
-dXJjZShyZXNfdGFibGUsIAorCQkJCXJlcy0+ZGF0YS5maXhlZF9pby5iYXNlX2FkZHJlc3MsIAor
-CQkJCXJlcy0+ZGF0YS5maXhlZF9pby5yYW5nZV9sZW5ndGgpOworCQlicmVhazsKKwljYXNlIEFD
-UElfUlNUWVBFX01FTTI0OgorCQlwbnBhY3BpX3BhcnNlX2FsbG9jYXRlZF9tZW1yZXNvdXJjZShy
-ZXNfdGFibGUsIAorCQkJCXJlcy0+ZGF0YS5tZW1vcnkyNC5taW5fYmFzZV9hZGRyZXNzLCAKKwkJ
-CQlyZXMtPmRhdGEubWVtb3J5MjQucmFuZ2VfbGVuZ3RoKTsKKwkJYnJlYWs7CisJY2FzZSBBQ1BJ
-X1JTVFlQRV9NRU0zMjoKKwkJcG5wYWNwaV9wYXJzZV9hbGxvY2F0ZWRfbWVtcmVzb3VyY2UocmVz
-X3RhYmxlLCAKKwkJCQlyZXMtPmRhdGEubWVtb3J5MzIubWluX2Jhc2VfYWRkcmVzcywgCisJCQkJ
-cmVzLT5kYXRhLm1lbW9yeTMyLnJhbmdlX2xlbmd0aCk7CisJCWJyZWFrOworCWNhc2UgQUNQSV9S
-U1RZUEVfRklYRURfTUVNMzI6CisJCXBucGFjcGlfcGFyc2VfYWxsb2NhdGVkX21lbXJlc291cmNl
-KHJlc190YWJsZSwgCisJCQkJcmVzLT5kYXRhLmZpeGVkX21lbW9yeTMyLnJhbmdlX2Jhc2VfYWRk
-cmVzcywgCisJCQkJcmVzLT5kYXRhLmZpeGVkX21lbW9yeTMyLnJhbmdlX2xlbmd0aCk7CisJCWJy
-ZWFrOworI2lmIDAKKwljYXNlIEFDUElfUlNUWVBFX0FERFJFU1MxNjoKKwkJcG5wYWNwaV9wYXJz
-ZV9hbGxvY2F0ZWRfbWVtcmVzb3VyY2UocmVzX3RhYmxlLCAKKwkJCQlyZXMtPmRhdGEuYWRkcmVz
-czE2Lm1pbl9hZGRyZXNzX3JhbmdlLCAKKwkJCQlyZXMtPmRhdGEuYWRkcmVzczE2LmFkZHJlc3Nf
-bGVuZ3RoKTsKKwkJYnJlYWs7CisJY2FzZSBBQ1BJX1JTVFlQRV9BRERSRVNTMzI6CisJCXBucGFj
-cGlfcGFyc2VfYWxsb2NhdGVkX21lbXJlc291cmNlKHJlc190YWJsZSwgCisJCQkJcmVzLT5kYXRh
-LmFkZHJlc3MzMi5taW5fYWRkcmVzc19yYW5nZSwgCisJCQkJcmVzLT5kYXRhLmFkZHJlc3MzMi5h
-ZGRyZXNzX2xlbmd0aCk7CisJCWJyZWFrOworCS8qCisJY2FzZSBBQ1BJX1JTVFlQRV9BRERSRVNT
-NjQ6CisJCXBucGFjcGlfcGFyc2VfYWxsb2NhdGVkX21lbXJlc291cmNlKHJlc190YWJsZSwgCisJ
-CXJlcy0+ZGF0YS5hZGRyZXNzNjQubWluX2FkZHJlc3NfcmFuZ2UsIAorCQlyZXMtPmRhdGEuYWRk
-cmVzczY0LmFkZHJlc3NfbGVuZ3RoKTsKKwkJYnJlYWs7CisJKi8KKyNlbmRpZgorCWRlZmF1bHQ6
-CisJCXByaW50ayhLRVJOX1dBUk5JTkcgIlBuUEFDUEk6IEFsbG9jIHR5cGUgOiAlZCBub3QgaGFu
-ZGxlXG4iLCAKKwkJCQlyZXMtPmlkKTsKKwl9CisJCQkKKwlyZXR1cm4gQUVfT0s7Cit9CisKK3N0
-YXRpYyBhY3BpX3N0YXR1cyBhY3BpX3BucF9wYXJzZV9hbGxvY2F0ZWRfcmVzb3VyY2Uoc3RydWN0
-IGFjcGlfZGV2aWNlICpkZXZpY2UsIHN0cnVjdCBwbnBfcmVzb3VyY2VfdGFibGUgKiByZXMpCit7
-CisJLyogQmxhbmsgdGhlIHJlc291cmNlIHRhYmxlIHZhbHVlcyAqLworCXBucF9pbml0X3Jlc291
-cmNlX3RhYmxlKHJlcyk7CisKKwlyZXR1cm4gYWNwaV93YWxrX3Jlc291cmNlcyhkZXZpY2UtPmhh
-bmRsZSwgTUVUSE9EX05BTUVfX0NSUywgYWNwaV9wbnBfYWxsb2NhdGVkX3Jlc291cmNlLCByZXMp
-OworfQorCisKK3N0YXRpYyB2b2lkIHBucGFjcGlfcGFyc2VfZG1hX29wdGlvbihzdHJ1Y3QgcG5w
-X29wdGlvbiAqb3B0aW9uLCBzdHJ1Y3QgYWNwaV9yZXNvdXJjZV9kbWEgKnApCit7CisJaW50IGk7
-CisJc3RydWN0IHBucF9kbWEgKiBkbWE7CisJZG1hID0gcG5wYWNwaV9rbWFsbG9jKHNpemVvZihz
-dHJ1Y3QgcG5wX2RtYSksIEdGUF9LRVJORUwpOworCWlmICghZG1hKQorCQlyZXR1cm47CisKKwlm
-b3IoaT0wOyBpPHAtPm51bWJlcl9vZl9jaGFubmVsczsgaSsrKQorCQlkbWEtPm1hcCB8PSAxPDxw
-LT5jaGFubmVsc1tpXTsKKwlkbWEtPmZsYWdzID0gMDsKKwlpZiAocC0+YnVzX21hc3RlcikKKwkJ
-ZG1hLT5mbGFncyB8PSBJT1JFU09VUkNFX0RNQV9NQVNURVI7CisJc3dpdGNoIChwLT50eXBlKSB7
-CisJY2FzZSBBQ1BJX0NPTVBBVElCSUxJVFk6CisJCWRtYS0+ZmxhZ3MgfD0gSU9SRVNPVVJDRV9E
-TUFfQ09NUEFUSUJMRTsKKwkJYnJlYWs7CisJY2FzZSBBQ1BJX1RZUEVfQToKKwkJZG1hLT5mbGFn
-cyB8PSBJT1JFU09VUkNFX0RNQV9UWVBFQTsKKwkJYnJlYWs7CisJY2FzZSBBQ1BJX1RZUEVfQjoK
-KwkJZG1hLT5mbGFncyB8PSBJT1JFU09VUkNFX0RNQV9UWVBFQjsKKwkJYnJlYWs7CisJY2FzZSBB
-Q1BJX1RZUEVfRjoKKwkJZG1hLT5mbGFncyB8PSBJT1JFU09VUkNFX0RNQV9UWVBFRjsKKwkJYnJl
-YWs7CisJfQorCXN3aXRjaCAocC0+dHJhbnNmZXIpIHsKKwljYXNlIEFDUElfVFJBTlNGRVJfODoK
-KwkJZG1hLT5mbGFncyB8PSBJT1JFU09VUkNFX0RNQV84QklUOworCQlicmVhazsKKwljYXNlIEFD
-UElfVFJBTlNGRVJfOF8xNjoKKwkJZG1hLT5mbGFncyB8PSBJT1JFU09VUkNFX0RNQV84QU5EMTZC
-SVQ7CisJCWJyZWFrOworCWNhc2UgQUNQSV9UUkFOU0ZFUl8xNjoKKwkJZG1hLT5mbGFncyB8PSBJ
-T1JFU09VUkNFX0RNQV8xNkJJVDsKKwkJYnJlYWs7CisJfQorCisKKwlwbnBfcmVnaXN0ZXJfZG1h
-X3Jlc291cmNlKG9wdGlvbixkbWEpOworCXJldHVybjsKK30KKworc3RhdGljIGludCBpcnFfZmxh
-Z3MoaW50IGVkZ2VfbGV2ZWwsIGludCBhY3RpdmVfaGlnaF9sb3cpCit7CisJaW50IGZsYWc7CisJ
-aWYgKGVkZ2VfbGV2ZWwgPT0gQUNQSV9MRVZFTF9TRU5TSVRJVkUpIHsKKwkJaWYoYWN0aXZlX2hp
-Z2hfbG93ID09IEFDUElfQUNUSVZFX0xPVykKKwkJCWZsYWcgPSBJT1JFU09VUkNFX0lSUV9MT1dM
-RVZFTDsKKwkJZWxzZQorCQkJZmxhZyA9IElPUkVTT1VSQ0VfSVJRX0hJR0hMRVZFTDsKKwl9CisJ
-ZWxzZSB7CisJCWlmKGFjdGl2ZV9oaWdoX2xvdyA9PSBBQ1BJX0FDVElWRV9MT1cpCisJCQlmbGFn
-ID0gSU9SRVNPVVJDRV9JUlFfTE9XRURHRTsKKwkJZWxzZQorCQkJZmxhZyA9IElPUkVTT1VSQ0Vf
-SVJRX0hJR0hFREdFOworCX0KKwlyZXR1cm4gZmxhZzsKK30KKwkKK3N0YXRpYyB2b2lkIHBucGFj
-cGlfcGFyc2VfaXJxX29wdGlvbihzdHJ1Y3QgcG5wX29wdGlvbiAqb3B0aW9uLCBzdHJ1Y3QgYWNw
-aV9yZXNvdXJjZV9pcnEgKnApCit7CisJaW50IGk7CisJc3RydWN0IHBucF9pcnEgKiBpcnE7CisJ
-aXJxID0gcG5wYWNwaV9rbWFsbG9jKHNpemVvZihzdHJ1Y3QgcG5wX2lycSksIEdGUF9LRVJORUwp
-OworCWlmICghaXJxKQorCQlyZXR1cm47CisKKwlmb3IoaT0wOyBpPHAtPm51bWJlcl9vZl9pbnRl
-cnJ1cHRzOyBpKyspCisJCWlycS0+bWFwIHw9IDE8PHAtPmludGVycnVwdHNbaV07CisJaXJxLT5m
-bGFncyA9IGlycV9mbGFncyhwLT5lZGdlX2xldmVsLCBwLT5hY3RpdmVfaGlnaF9sb3cpOworCisJ
-cG5wX3JlZ2lzdGVyX2lycV9yZXNvdXJjZShvcHRpb24saXJxKTsKKwlyZXR1cm47Cit9CisKK3N0
-YXRpYyB2b2lkIHBucGFjcGlfcGFyc2VfZXh0X2lycV9vcHRpb24oc3RydWN0IHBucF9vcHRpb24g
-Km9wdGlvbiwgc3RydWN0IGFjcGlfcmVzb3VyY2VfZXh0X2lycSAqcCkKK3sKKwlpbnQgaTsKKwlz
-dHJ1Y3QgcG5wX2lycSAqIGlycTsKKwlpcnEgPSBwbnBhY3BpX2ttYWxsb2Moc2l6ZW9mKHN0cnVj
-dCBwbnBfaXJxKSwgR0ZQX0tFUk5FTCk7CisJaWYgKCFpcnEpCisJCXJldHVybjsKKworCWZvcihp
-PTA7IGk8cC0+bnVtYmVyX29mX2ludGVycnVwdHM7IGkrKykKKwkJaXJxLT5tYXAgfD0gMTw8cC0+
-aW50ZXJydXB0c1tpXTsKKwlpcnEtPmZsYWdzID0gaXJxX2ZsYWdzKHAtPmVkZ2VfbGV2ZWwsIHAt
-PmFjdGl2ZV9oaWdoX2xvdyk7CisKKwlwbnBfcmVnaXN0ZXJfaXJxX3Jlc291cmNlKG9wdGlvbixp
-cnEpOworCXJldHVybjsKK30KKworc3RhdGljIHZvaWQKK3BucGFjcGlfcGFyc2VfcG9ydF9vcHRp
-b24oc3RydWN0IHBucF9vcHRpb24gKm9wdGlvbiwgc3RydWN0IGFjcGlfcmVzb3VyY2VfaW8gKmlv
-KQoreworCXN0cnVjdCBwbnBfcG9ydCAqIHBvcnQ7CisJcG9ydCA9IHBucGFjcGlfa21hbGxvYyhz
-aXplb2Yoc3RydWN0IHBucF9wb3J0KSwgR0ZQX0tFUk5FTCk7CisJaWYgKCFwb3J0KQorCQlyZXR1
-cm47CisJcG9ydC0+bWluID0gaW8tPm1pbl9iYXNlX2FkZHJlc3M7CisJcG9ydC0+bWF4ID0gaW8t
-Pm1heF9iYXNlX2FkZHJlc3M7CisJcG9ydC0+YWxpZ24gPSBpby0+YWxpZ25tZW50OworCXBvcnQt
-PnNpemUgPSBpby0+cmFuZ2VfbGVuZ3RoOworCXBvcnQtPmZsYWdzID0gQUNQSV9ERUNPREVfMTYg
-PT0gaW8tPmlvX2RlY29kZSA/IFBOUF9QT1JUX0ZMQUdfMTZCSVRBRERSIDogMDsKKwlwbnBfcmVn
-aXN0ZXJfcG9ydF9yZXNvdXJjZShvcHRpb24scG9ydCk7CisJcmV0dXJuOworfQorCitzdGF0aWMg
-dm9pZAorcG5wYWNwaV9wYXJzZV9maXhlZF9wb3J0X29wdGlvbihzdHJ1Y3QgcG5wX29wdGlvbiAq
-b3B0aW9uLCBzdHJ1Y3QgYWNwaV9yZXNvdXJjZV9maXhlZF9pbyAqaW8pCit7CisJc3RydWN0IHBu
-cF9wb3J0ICogcG9ydDsKKwlwb3J0ID0gcG5wYWNwaV9rbWFsbG9jKHNpemVvZihzdHJ1Y3QgcG5w
-X3BvcnQpLCBHRlBfS0VSTkVMKTsKKwlpZiAoIXBvcnQpCisJCXJldHVybjsKKwlwb3J0LT5taW4g
-PSBwb3J0LT5tYXggPSBpby0+YmFzZV9hZGRyZXNzOworCXBvcnQtPnNpemUgPSBpby0+cmFuZ2Vf
-bGVuZ3RoOworCXBvcnQtPmFsaWduID0gMDsKKwlwb3J0LT5mbGFncyA9IFBOUF9QT1JUX0ZMQUdf
-RklYRUQ7CisJcG5wX3JlZ2lzdGVyX3BvcnRfcmVzb3VyY2Uob3B0aW9uLHBvcnQpOworCXJldHVy
-bjsKK30KKworc3RhdGljIHZvaWQKK3BucGFjcGlfcGFyc2VfbWVtMjRfb3B0aW9uKHN0cnVjdCBw
-bnBfb3B0aW9uICpvcHRpb24sIHN0cnVjdCBhY3BpX3Jlc291cmNlX21lbTI0ICpwKQoreworCXN0
-cnVjdCBwbnBfbWVtICogbWVtOworCW1lbSA9IHBucGFjcGlfa21hbGxvYyhzaXplb2Yoc3RydWN0
-IHBucF9tZW0pLCBHRlBfS0VSTkVMKTsKKwlpZiAoIW1lbSkKKwkJcmV0dXJuOworCW1lbS0+bWlu
-ID0gcC0+bWluX2Jhc2VfYWRkcmVzczsKKwltZW0tPm1heCA9IHAtPm1heF9iYXNlX2FkZHJlc3M7
-CisJbWVtLT5hbGlnbiA9IHAtPmFsaWdubWVudDsKKwltZW0tPnNpemUgPSBwLT5yYW5nZV9sZW5n
-dGg7CisKKwltZW0tPmZsYWdzID0gQUNQSV9SRUFEX1dSSVRFX01FTU9SWSA9PSBwLT5yZWFkX3dy
-aXRlX2F0dHJpYnV0ZSA/CisJCQlJT1JFU09VUkNFX01FTV9XUklURUFCTEUgOiAwOworCisJcG5w
-X3JlZ2lzdGVyX21lbV9yZXNvdXJjZShvcHRpb24sbWVtKTsKKwlyZXR1cm47Cit9CisKK3N0YXRp
-YyB2b2lkCitwbnBhY3BpX3BhcnNlX21lbTMyX29wdGlvbihzdHJ1Y3QgcG5wX29wdGlvbiAqb3B0
-aW9uLCBzdHJ1Y3QgYWNwaV9yZXNvdXJjZV9tZW0zMiAqcCkKK3sKKwlzdHJ1Y3QgcG5wX21lbSAq
-IG1lbTsKKwltZW0gPSBwbnBhY3BpX2ttYWxsb2Moc2l6ZW9mKHN0cnVjdCBwbnBfbWVtKSwgR0ZQ
-X0tFUk5FTCk7CisJaWYgKCFtZW0pCisJCXJldHVybjsKKwltZW0tPm1pbiA9IHAtPm1pbl9iYXNl
-X2FkZHJlc3M7CisJbWVtLT5tYXggPSBwLT5tYXhfYmFzZV9hZGRyZXNzOworCW1lbS0+YWxpZ24g
-PSBwLT5hbGlnbm1lbnQ7CisJbWVtLT5zaXplID0gcC0+cmFuZ2VfbGVuZ3RoOworCisJbWVtLT5m
-bGFncyA9IEFDUElfUkVBRF9XUklURV9NRU1PUlkgPT0gcC0+cmVhZF93cml0ZV9hdHRyaWJ1dGUg
-PworCQkJSU9SRVNPVVJDRV9NRU1fV1JJVEVBQkxFIDogMDsKKworCXBucF9yZWdpc3Rlcl9tZW1f
-cmVzb3VyY2Uob3B0aW9uLG1lbSk7CisJcmV0dXJuOworfQorCitzdGF0aWMgdm9pZAorcG5wYWNw
-aV9wYXJzZV9maXhlZF9tZW0zMl9vcHRpb24oc3RydWN0IHBucF9vcHRpb24gKm9wdGlvbiwgc3Ry
-dWN0IGFjcGlfcmVzb3VyY2VfZml4ZWRfbWVtMzIgKnApCit7CisJc3RydWN0IHBucF9tZW0gKiBt
-ZW07CisJbWVtID0gcG5wYWNwaV9rbWFsbG9jKHNpemVvZihzdHJ1Y3QgcG5wX21lbSksIEdGUF9L
-RVJORUwpOworCWlmICghbWVtKQorCQlyZXR1cm47CisJbWVtLT5taW4gPSBtZW0tPm1heCA9IHAt
-PnJhbmdlX2Jhc2VfYWRkcmVzczsKKwltZW0tPnNpemUgPSBwLT5yYW5nZV9sZW5ndGg7CisJbWVt
-LT5hbGlnbiA9IDA7CisKKwltZW0tPmZsYWdzID0gQUNQSV9SRUFEX1dSSVRFX01FTU9SWSA9PSBw
-LT5yZWFkX3dyaXRlX2F0dHJpYnV0ZSA/CisJCQlJT1JFU09VUkNFX01FTV9XUklURUFCTEUgOiAw
-OworCisJcG5wX3JlZ2lzdGVyX21lbV9yZXNvdXJjZShvcHRpb24sbWVtKTsKKwlyZXR1cm47Cit9
-CisKKy8vWFhYCitzdGF0aWMgc3RydWN0IHBucF9vcHRpb24gKm9wdGlvbiwgKm9wdGlvbl9pbmRl
-cGVuZGVudDsKKworc3RhdGljIGFjcGlfc3RhdHVzIGFjcGlfcG5wX29wdGlvbl9yZXNvdXJjZShz
-dHJ1Y3QgYWNwaV9yZXNvdXJjZSAqcmVzLCB2b2lkICpkYXRhKQoreworCWludCBwcmlvcml0eSA9
-IDA7CisJc3RydWN0IHBucF9kZXYgKmRldiA9IChzdHJ1Y3QgcG5wX2RldiAqKWRhdGE7CisJLy9w
-cmludGsoInBvcyByZXMgaWQgJXhcbiIscmVzLT5pZCk7CisKKwlzd2l0Y2ggKHJlcy0+aWQpIHsK
-KwkJY2FzZSBBQ1BJX1JTVFlQRV9JUlE6CisJCQlwbnBhY3BpX3BhcnNlX2lycV9vcHRpb24ob3B0
-aW9uLCAmcmVzLT5kYXRhLmlycSk7CisJCWJyZWFrOworCQljYXNlIEFDUElfUlNUWVBFX0VYVF9J
-UlE6CisJCQlwbnBhY3BpX3BhcnNlX2V4dF9pcnFfb3B0aW9uKG9wdGlvbiwgJnJlcy0+ZGF0YS5l
-eHRlbmRlZF9pcnEpOworCQlicmVhazsKKwkJY2FzZSBBQ1BJX1JTVFlQRV9ETUE6CisJCQlwbnBh
-Y3BpX3BhcnNlX2RtYV9vcHRpb24ob3B0aW9uLCAmcmVzLT5kYXRhLmRtYSk7CisJCQkJCQkKKwkJ
-YnJlYWs7CisJCWNhc2UgQUNQSV9SU1RZUEVfSU86CisJCQlwbnBhY3BpX3BhcnNlX3BvcnRfb3B0
-aW9uKG9wdGlvbiwgJnJlcy0+ZGF0YS5pbyk7CisJCQlicmVhazsKKwkJY2FzZSBBQ1BJX1JTVFlQ
-RV9GSVhFRF9JTzoKKwkJCXBucGFjcGlfcGFyc2VfZml4ZWRfcG9ydF9vcHRpb24ob3B0aW9uLCAm
-cmVzLT5kYXRhLmZpeGVkX2lvKTsKKwkJCWJyZWFrOworCQljYXNlIEFDUElfUlNUWVBFX01FTTI0
-OgorCQkJcG5wYWNwaV9wYXJzZV9tZW0yNF9vcHRpb24ob3B0aW9uLCAmcmVzLT5kYXRhLm1lbW9y
-eTI0KTsKKwkJCWJyZWFrOworCQljYXNlIEFDUElfUlNUWVBFX01FTTMyOgorCQkJcG5wYWNwaV9w
-YXJzZV9tZW0zMl9vcHRpb24ob3B0aW9uLCAmcmVzLT5kYXRhLm1lbW9yeTMyKTsKKwkJCWJyZWFr
-OworCQljYXNlIEFDUElfUlNUWVBFX0ZJWEVEX01FTTMyOgorCQkJcG5wYWNwaV9wYXJzZV9maXhl
-ZF9tZW0zMl9vcHRpb24ob3B0aW9uLCAmcmVzLT5kYXRhLmZpeGVkX21lbW9yeTMyKTsKKwkJCWJy
-ZWFrOworCQljYXNlIEFDUElfUlNUWVBFX1NUQVJUX0RQRjoKKwkJCXN3aXRjaCAocmVzLT5kYXRh
-LnN0YXJ0X2RwZi5jb21wYXRpYmlsaXR5X3ByaW9yaXR5KSB7CisJCQkJY2FzZSBBQ1BJX0dPT0Rf
-Q09ORklHVVJBVElPTjoKKwkJCQkJcHJpb3JpdHkgPSBQTlBfUkVTX1BSSU9SSVRZX1BSRUZFUlJF
-RDsKKwkJCQkJYnJlYWs7CisJCQkJCQorCQkJCWNhc2UgQUNQSV9BQ0NFUFRBQkxFX0NPTkZJR1VS
-QVRJT046CisJCQkJCXByaW9yaXR5ID0gUE5QX1JFU19QUklPUklUWV9BQ0NFUFRBQkxFOworCQkJ
-CQlicmVhazsKKworCQkJCWNhc2UgQUNQSV9TVUJfT1BUSU1BTF9DT05GSUdVUkFUSU9OOgorCQkJ
-CQlwcmlvcml0eSA9IFBOUF9SRVNfUFJJT1JJVFlfRlVOQ1RJT05BTDsKKwkJCQkJYnJlYWs7CisJ
-CQkJZGVmYXVsdDoKKwkJCQkJcHJpb3JpdHkgPSBQTlBfUkVTX1BSSU9SSVRZX0lOVkFMSUQ7CisJ
-CQkJCWJyZWFrOworCQkJfQorCQkJb3B0aW9uID0gcG5wX3JlZ2lzdGVyX2RlcGVuZGVudF9vcHRp
-b24oZGV2LCBwcmlvcml0eSk7CisJCQlpZiAoIW9wdGlvbikKKwkJCQlyZXR1cm4gLTE7CisJCQli
-cmVhazsKKwkJY2FzZSBBQ1BJX1JTVFlQRV9FTkRfRFBGOgorCQkJaWYgKG9wdGlvbl9pbmRlcGVu
-ZGVudCA9PSBvcHRpb24pCisJCQkJcHJpbnRrKEtFUk5fV0FSTklORyAiUG5QQUNQSTogTWlzc2lu
-ZyBTTUFMTF9UQUdfU1RBUlRERVAgdGFnXG4iKTsKKwkJCW9wdGlvbiA9IG9wdGlvbl9pbmRlcGVu
-ZGVudDsKKwkJCWJyZWFrOworCQlkZWZhdWx0OgorCQkJcHJpbnRrKEtFUk5fV0FSTklORyAiUG5Q
-QUNQSTogT3B0aW9uIHR5cGUgOiAlZCBub3QgaGFuZGxlXG4iLCByZXMtPmlkKTsKKwl9CisJCQkK
-KwlyZXR1cm4gQUVfT0s7Cit9CisKK3N0YXRpYyBpbnQgcG5wYWNwaV9nZXRfcmVzb3VyY2VzKHN0
-cnVjdCBwbnBfZGV2ICogZGV2LCBzdHJ1Y3QgcG5wX3Jlc291cmNlX3RhYmxlICogcmVzKQorewor
-CisJYWNwaV9zdGF0dXMgc3RhdHVzOworCXN0YXR1cyA9IGFjcGlfcG5wX3BhcnNlX2FsbG9jYXRl
-ZF9yZXNvdXJjZShzZWxmW2Rldi0+bnVtYmVyXSwgJmRldi0+cmVzKTsKKwlyZXR1cm4gQUNQSV9G
-QUlMVVJFKHN0YXR1cyk/LUVOT0RFVjowOworfQorCitzdGF0aWMgaW50IHBucGFjcGlfc2V0X3Jl
-c291cmNlcyhzdHJ1Y3QgcG5wX2RldiAqIGRldiwgc3RydWN0IHBucF9yZXNvdXJjZV90YWJsZSAq
-IHJlcykKK3sKKwlwcmludGsoS0VSTl9XQVJOSU5HICJQblBBQ1BJOiBOb3QgaW1wbGVtZW50ZWRc
-biIpOworCXJldHVybiAtRU5PREVWOworfQorCitzdGF0aWMgaW50IHBucGFjcGlfZGlzYWJsZV9y
-ZXNvdXJjZXMoc3RydWN0IHBucF9kZXYgKmRldikKK3sKKwlwcmludGsoS0VSTl9XQVJOSU5HICJQ
-blBBQ1BJOiBOb3QgaW1wbGVtZW50ZWRcbiIpOworCXJldHVybiAtRU5PREVWOworfQorCitzdHJ1
-Y3QgcG5wX3Byb3RvY29sIHBucGFjcGlfcHJvdG9jb2wgPSB7CisJLm5hbWUJPSAiUGx1ZyBhbmQg
-UGxheSBBQ1BJIiwKKwkuZ2V0CT0gcG5wYWNwaV9nZXRfcmVzb3VyY2VzLAorCS5zZXQJPSBwbnBh
-Y3BpX3NldF9yZXNvdXJjZXMsCisJLmRpc2FibGUgPSBwbnBhY3BpX2Rpc2FibGVfcmVzb3VyY2Vz
-LAorfTsKKworc3RhdGljIGludCBhY3BpX3BucF9hZGRfZGV2aWNlKHN0cnVjdCBhY3BpX2Rldmlj
-ZSAqZGV2aWNlKQoreworCWFjcGlfc3RhdHVzIHN0YXR1czsKKwlzdHJ1Y3QgcG5wX2lkICpkZXZf
-aWQ7CisJY2hhciBpZFs4XTsKKwlzdHJ1Y3QgcG5wX2RldiAqZGV2OworCisJc3RhdGljIGludCBu
-dW0gPSAwOworCisJaWYobnVtPj1NQVhfREVWSUNFKQorCQlyZXR1cm4gLUVOT0RFVjsKKworCWlm
-IChzdHJsZW4oYWNwaV9kZXZpY2VfaGlkKGRldmljZSkpICE9IDcpIHsKKwkJLy9wcmludGsoImRl
-dmljZSA6IGhpZCAlcyAlZFxuIiwgaWQsIHN0cmxlbihpZCkpOworCQlyZXR1cm4gLTE7CisJfQor
-CQorCS8vcHJpbnRrKCJkZXZpY2UgOiBoaWQgJXMgXG4iLCBhY3BpX2RldmljZV9oaWQoZGV2aWNl
-KSk7CisJZGV2ID0gIHBucGFjcGlfa21hbGxvYyhzaXplb2Yoc3RydWN0IHBucF9kZXYpLCBHRlBf
-S0VSTkVMKTsKKwlpZiAoIWRldikKKwkJcmV0dXJuIC0xOworCisJZGV2LT5udW1iZXIgPSBudW0r
-KzsKKwlzZWxmW2Rldi0+bnVtYmVyXSA9IGRldmljZTsKKwlzdHJuY3B5KGRldi0+bmFtZSAsZGV2
-aWNlLT5wbnAuYnVzX2lkLCBQTlBfTkFNRV9MRU4pOworCisKKwkvKiBzZXQgdGhlIGluaXRpYWwg
-dmFsdWVzIGZvciB0aGUgUG5QIGRldmljZSAqLworCWRldl9pZCA9IHBucGFjcGlfa21hbGxvYyhz
-aXplb2Yoc3RydWN0IHBucF9pZCksIEdGUF9LRVJORUwpOworCWlmICghZGV2X2lkKQorCQlnb3Rv
-IGVycjsKKwlwbnBpZGFjcGlfdG9fcG5waWQoYWNwaV9kZXZpY2VfaGlkKGRldmljZSksaWQpOwor
-CW1lbWNweShkZXZfaWQtPmlkLGlkLDcpOworCisJcG5wX2FkZF9pZChkZXZfaWQsIGRldik7CisJ
-Ly9wYXJzZSBhbGxvY2F0ZWQgcmVzb3VyY2UKKwlzdGF0dXMgPSBhY3BpX3BucF9wYXJzZV9hbGxv
-Y2F0ZWRfcmVzb3VyY2UoZGV2aWNlLCAmZGV2LT5yZXMpOworCWlmIChBQ1BJX0ZBSUxVUkUoc3Rh
-dHVzKSkgeworCQkvL3ByaW50ayhLRVJOX0RFQlVHICJNRVRIT0RfTkFNRV9fQ1JTIGZhaWxsdXJl
-XG4iKTsKKwkJZGV2LT5hY3RpdmUgPSAwOworCQkvL3JldHVybiAtRUlPOworCX0KKwllbHNlCisJ
-CWRldi0+YWN0aXZlID0gMTsKKworCW9wdGlvbl9pbmRlcGVuZGVudCA9IG9wdGlvbiA9IHBucF9y
-ZWdpc3Rlcl9pbmRlcGVuZGVudF9vcHRpb24oZGV2KTsKKwlpZiAoIW9wdGlvbikKKwkJZ290byBl
-cnI7CisJc3RhdHVzID0gYWNwaV93YWxrX3Jlc291cmNlcyhkZXZpY2UtPmhhbmRsZSwgTUVUSE9E
-X05BTUVfX1BSUywgYWNwaV9wbnBfb3B0aW9uX3Jlc291cmNlLCBkZXYpOworCS8qaWYgKEFDUElf
-RkFJTFVSRShzdGF0dXMpKQorCQlwcmludGsoS0VSTl9ERUJVRyAiTUVUSE9EX05BTUVfX1BSUyBm
-YWlsbHVyZVxuIik7CisJCS8vcmV0dXJuIC1FSU87CisJKi8KKworCWlmIChkZXZpY2UtPmZsYWdz
-LmNvbXBhdGlibGVfaWRzKSB7CisJCXN0cnVjdCBhY3BpX2NvbXBhdGlibGVfaWRfbGlzdCAqY2lk
-X2xpc3QgPSBkZXZpY2UtPnBucC5jaWRfbGlzdDsKKwkJaW50IGk7CisKKwkJZm9yIChpID0gMDsg
-aSA8IGNpZF9saXN0LT5jb3VudDsgaSsrKSB7CisJCQlkZXZfaWQgPSBwbnBhY3BpX2ttYWxsb2Mo
-c2l6ZW9mKHN0cnVjdCBwbnBfaWQpLCBHRlBfS0VSTkVMKTsKKwkJCWlmICghZGV2X2lkKQorCQkJ
-CWNvbnRpbnVlOworCisJCQltZW1jcHkoZGV2X2lkLT5pZCxjaWRfbGlzdC0+aWRbaV0udmFsdWUs
-Nyk7CisJCQlwbnBfYWRkX2lkKGRldl9pZCwgZGV2KTsKKwkJfQorCX0KKworI2lmIDAKKwlkZXYt
-PmZsYWdzID0gbm9kZS0+ZmxhZ3M7CisJaWYgKCEoZGV2LT5mbGFncyAmIFBOUEJJT1NfTk9fQ09O
-RklHKSkKKwkJZGV2LT5jYXBhYmlsaXRpZXMgfD0gUE5QX0NPTkZJR1VSQUJMRTsKKwlpZiAoIShk
-ZXYtPmZsYWdzICYgUE5QQklPU19OT19ESVNBQkxFKSkKKwkJZGV2LT5jYXBhYmlsaXRpZXMgfD0g
-UE5QX0RJU0FCTEU7CisJZGV2LT5jYXBhYmlsaXRpZXMgfD0gUE5QX1JFQUQ7CisJaWYgKHBucGFj
-cGlfaXNfZHluYW1pYyhkZXYpKQorCQlkZXYtPmNhcGFiaWxpdGllcyB8PSBQTlBfV1JJVEU7CisJ
-aWYgKGRldi0+ZmxhZ3MgJiBQTlBCSU9TX1JFTU9WQUJMRSkKKwkJZGV2LT5jYXBhYmlsaXRpZXMg
-fD0gUE5QX1JFTU9WQUJMRTsKKyNlbmRpZgorCisJZGV2LT5wcm90b2NvbCA9ICZwbnBhY3BpX3By
-b3RvY29sOworCisJLyogY2xlYXIgb3V0IHRoZSBkYW1hZ2VkIGZsYWdzICovCisJaWYgKCFkZXYt
-PmFjdGl2ZSkKKwkJcG5wX2luaXRfcmVzb3VyY2VfdGFibGUoJmRldi0+cmVzKTsKKwlwbnBfYWRk
-X2RldmljZShkZXYpOworCXJldHVybiAwOworCitlcnI6CisJa2ZyZWUoZGV2KTsKKwlyZXR1cm4g
-LTE7Cit9CisKK3N0YXRpYyB2b2lkIGFjcGlfcG5wX2FkZF9kZXZpY2VfaGFuZGxlcihzdHJ1Y3Qg
-YWNwaV9kZXZpY2UgKmRldmljZSkKK3sKKwlhY3BpX3BucF9hZGRfZGV2aWNlKGRldmljZSk7Cit9
-CisKKy8vWFhYIHB1dCBpbiBhIGhlYWRlciBmaWxlLi4uCitleHRlcm4gaW50IGFjcGlfZHJpdmVy
-X3NjYW4odm9pZCAoKiBoYW5kbGVyKShzdHJ1Y3QgYWNwaV9kZXZpY2UgKiBkZXYpKTsKKworaW50
-IF9faW5pdCBwbnBhY3BpX2luaXQodm9pZCkKK3sKKwlwcmludGsoS0VSTl9JTkZPICJQblAgQUNQ
-SSBpbml0XG4iKTsKKwlwbnBfcmVnaXN0ZXJfcHJvdG9jb2woJnBucGFjcGlfcHJvdG9jb2wpOwor
-CXJldHVybiBhY3BpX2RyaXZlcl9zY2FuKGFjcGlfcG5wX2FkZF9kZXZpY2VfaGFuZGxlcik7Cit9
-CitkZXZpY2VfaW5pdGNhbGwocG5wYWNwaV9pbml0KTsKKworRVhQT1JUX1NZTUJPTChwbnBhY3Bp
-X3Byb3RvY29sKTsKZGlmZiAtcnVOIC0tZXhjbHVkZT0nKi5jbWQnIC0tZXhjbHVkZT0nKi5vJyAt
-LWV4Y2x1ZGU9Jyoua28nIGxpbnV4Lm9sZC9kcml2ZXJzL3BucC9wbnBhY3BpL0tjb25maWcgbGlu
-dXgtMi42LjkvZHJpdmVycy9wbnAvcG5wYWNwaS9LY29uZmlnCi0tLSBsaW51eC5vbGQvZHJpdmVy
-cy9wbnAvcG5wYWNwaS9LY29uZmlnCTE5NzAtMDEtMDEgMDE6MDA6MDAuMDAwMDAwMDAwICswMTAw
-CisrKyBsaW51eC0yLjYuOS9kcml2ZXJzL3BucC9wbnBhY3BpL0tjb25maWcJMjAwNC0wOS0wNCAx
-NDoxMTozNi4wMDAwMDAwMDAgKzAyMDAKQEAgLTAsMCArMSwxMCBAQAorIworIyBQbHVnIGFuZCBQ
-bGF5IEFDUEkgY29uZmlndXJhdGlvbgorIworY29uZmlnIFBOUEFDUEkKKwlib29sICJQbHVnIGFu
-ZCBQbGF5IEFDUEkgc3VwcG9ydCAoRVhQRVJJTUVOVEFMKSIKKwlkZXBlbmRzIG9uIFBOUCAmJiBY
-ODYgJiYgQUNQSV9CVVMgJiYgRVhQRVJJTUVOVEFMCisJZGVwZW5kcyBvbiAhUE5QQklPUworCWRl
-ZmF1bHQgeQorCS0tLWhlbHAtLS0KKwlUb2RvCmRpZmYgLXJ1TiAtLWV4Y2x1ZGU9JyouY21kJyAt
-LWV4Y2x1ZGU9JyoubycgLS1leGNsdWRlPScqLmtvJyBsaW51eC5vbGQvZHJpdmVycy9wbnAvcG5w
-YWNwaS9NYWtlZmlsZSBsaW51eC0yLjYuOS9kcml2ZXJzL3BucC9wbnBhY3BpL01ha2VmaWxlCi0t
-LSBsaW51eC5vbGQvZHJpdmVycy9wbnAvcG5wYWNwaS9NYWtlZmlsZQkxOTcwLTAxLTAxIDAxOjAw
-OjAwLjAwMDAwMDAwMCArMDEwMAorKysgbGludXgtMi42LjkvZHJpdmVycy9wbnAvcG5wYWNwaS9N
-YWtlZmlsZQkyMDA0LTA5LTA0IDE0OjM3OjUzLjAwMDAwMDAwMCArMDIwMApAQCAtMCwwICsxLDUg
-QEAKKyMKKyMgTWFrZWZpbGUgZm9yIHRoZSBrZXJuZWwgUE5QQUNQSSBkcml2ZXIuCisjCisKK29i
-ai15IDo9IGNvcmUubwpkaWZmIC1ydU4gLS1leGNsdWRlPScqLmNtZCcgLS1leGNsdWRlPScqLm8n
-IC0tZXhjbHVkZT0nKi5rbycgbGludXgub2xkL2RyaXZlcnMvcG5wL3BucGJpb3MvS2NvbmZpZyBs
-aW51eC0yLjYuOS9kcml2ZXJzL3BucC9wbnBiaW9zL0tjb25maWcKLS0tIGxpbnV4Lm9sZC9kcml2
-ZXJzL3BucC9wbnBiaW9zL0tjb25maWcJMjAwNC0wNi0xNiAwNzoxOTo0NC4wMDAwMDAwMDAgKzAy
-MDAKKysrIGxpbnV4LTIuNi45L2RyaXZlcnMvcG5wL3BucGJpb3MvS2NvbmZpZwkyMDA0LTA5LTA0
-IDE0OjExOjMxLjAwMDAwMDAwMCArMDIwMApAQCAtNCw2ICs0LDggQEAKIGNvbmZpZyBQTlBCSU9T
-CiAJYm9vbCAiUGx1ZyBhbmQgUGxheSBCSU9TIHN1cHBvcnQgKEVYUEVSSU1FTlRBTCkiCiAJZGVw
-ZW5kcyBvbiBQTlAgJiYgWDg2ICYmIEVYUEVSSU1FTlRBTAorCWRlcGVuZHMgb24gIVBOUEFDUEkK
-KwlkZWZhdWx0IG4KIAktLS1oZWxwLS0tCiAJICBMaW51eCB1c2VzIHRoZSBQTlBCSU9TIGFzIGRl
-ZmluZWQgaW4gIlBsdWcgYW5kIFBsYXkgQklPUwogCSAgU3BlY2lmaWNhdGlvbiBWZXJzaW9uIDEu
-MEEgTWF5IDUsIDE5OTQiIHRvIGF1dG9kZXRlY3QgYnVpbHQtaW4K
++
+ /*@}*/
 
----MOQ10943041741c087f910d7d45234a854f38222fa115--
+
+@@ -479,7 +478,6 @@
+ 	/*@}*/
+ } drm_device_dma_t;
+
+-#if __REALLY_HAVE_AGP
+ /**
+  * AGP memory entry.  Stored as a doubly linked list.
+  */
+@@ -508,7 +506,6 @@
+ 	int		   cant_use_aperture;
+ 	unsigned long	   page_mask;
+ } drm_agp_head_t;
+-#endif
+
+ /**
+  * Scatter-gather memory.
+@@ -685,9 +682,7 @@
+ 	wait_queue_head_t buf_readers;	/**< Processes waiting to read */
+ 	wait_queue_head_t buf_writers;	/**< Processes waiting to ctx switch */
+
+-#if __REALLY_HAVE_AGP
+ 	drm_agp_head_t    *agp;	/**< AGP data */
+-#endif
+
+ 	struct pci_dev    *pdev;	/**< PCI device structure */
+ 	int               pci_domain;	/**< PCI bus domain number */
+@@ -710,8 +705,32 @@
+ 	struct            drm_driver_fn fn_tbl;
+ 	drm_local_map_t   *agp_buffer_map;
+ 	int               dev_priv_size;
++	u32               driver_features;
+ } drm_device_t;
+
++static __inline__ int drm_core_check_feature(struct drm_device *dev, int feature)
++{
++	return ((dev->driver_features & feature) ? 1 : 0);
++}
++
++#if __OS_HAS_AGP
++static inline int drm_core_has_AGP(struct drm_device *dev)
++{
++  return drm_core_check_feature(dev, DRIVER_USE_AGP);
++}
++#else
++#define drm_core_has_AGP(dev) (0)
++#endif
++
++#if __OS_HAS_MTRR
++static inline int drm_core_has_MTRR(struct drm_device *dev)
++{
++  return drm_core_check_feature(dev, DRIVER_USE_MTRR);
++}
++#else
++#define drm_core_has_MTRR(dev) (0)
++#endif
++
+ extern void DRM(driver_register_fns)(struct drm_device *dev);
+
+ /******************************************************************/
+@@ -768,12 +787,10 @@
+ 					   drm_device_t *dev);
+ extern void	     DRM(ioremapfree)(void *pt, unsigned long size, drm_device_t *dev);
+
+-#if __REALLY_HAVE_AGP
+ extern DRM_AGP_MEM   *DRM(alloc_agp)(int pages, u32 type);
+ extern int           DRM(free_agp)(DRM_AGP_MEM *handle, int pages);
+ extern int           DRM(bind_agp)(DRM_AGP_MEM *handle, unsigned int start);
+ extern int           DRM(unbind_agp)(DRM_AGP_MEM *handle);
+-#endif
+
+ 				/* Misc. IOCTL support (drm_ioctl.h) */
+ extern int	     DRM(irq_by_busid)(struct inode *inode, struct file *filp,
+@@ -900,7 +917,6 @@
+ #endif
+
+
+-#if __REALLY_HAVE_AGP
+ 				/* AGP/GART support (drm_agpsupport.h) */
+ extern drm_agp_head_t *DRM(agp_init)(void);
+ extern void           DRM(agp_uninit)(void);
+@@ -925,7 +941,6 @@
+ extern int            DRM(agp_free_memory)(DRM_AGP_MEM *handle);
+ extern int            DRM(agp_bind_memory)(DRM_AGP_MEM *handle, off_t start);
+ extern int            DRM(agp_unbind_memory)(DRM_AGP_MEM *handle);
+-#endif
+
+ 				/* Stub support (drm_stub.h) */
+ int                   DRM(stub_register)(const char *name,
+===== drivers/char/drm/drm_agpsupport.h 1.28 vs edited =====
+--- 1.28/drivers/char/drm/drm_agpsupport.h	Sat Jul 17 00:14:58 2004
++++ edited/drivers/char/drm/drm_agpsupport.h	Sat Sep  4 19:03:35 2004
+@@ -34,8 +34,7 @@
+ #include "drmP.h"
+ #include <linux/module.h>
+
+-#if __REALLY_HAVE_AGP
+-
++#if __OS_HAS_AGP
+
+ #define DRM_AGP_GET (drm_agp_t *)inter_module_get("drm_agp")
+ #define DRM_AGP_PUT inter_module_put("drm_agp")
+@@ -466,4 +465,4 @@
+ 	return drm_agp->unbind_memory(handle);
+ }
+
+-#endif /* __REALLY_HAVE_AGP */
++#endif /* __OS_HAS_AGP */
+===== drivers/char/drm/drm_bufs.h 1.24 vs edited =====
+--- 1.24/drivers/char/drm/drm_bufs.h	Fri Sep  3 19:37:29 2004
++++ edited/drivers/char/drm/drm_bufs.h	Sat Sep  4 22:57:34 2004
+@@ -130,13 +130,13 @@
+ #ifdef __alpha__
+ 		map->offset += dev->hose->mem_space->start;
+ #endif
+-#if __REALLY_HAVE_MTRR
+-		if ( map->type == _DRM_FRAME_BUFFER ||
+-		     (map->flags & _DRM_WRITE_COMBINING) ) {
+-			map->mtrr = mtrr_add( map->offset, map->size,
+-					      MTRR_TYPE_WRCOMB, 1 );
++		if (drm_core_has_MTRR(dev)) {
++			if ( map->type == _DRM_FRAME_BUFFER ||
++			     (map->flags & _DRM_WRITE_COMBINING) ) {
++				map->mtrr = mtrr_add( map->offset, map->size,
++						      MTRR_TYPE_WRCOMB, 1 );
++			}
+ 		}
+-#endif
+ 		if (map->type == _DRM_REGISTERS)
+ 			map->handle = DRM(ioremap)( map->offset, map->size,
+ 						    dev );
+@@ -162,15 +162,15 @@
+ 			dev->lock.hw_lock = map->handle; /* Pointer to lock */
+ 		}
+ 		break;
+-#if __REALLY_HAVE_AGP
+ 	case _DRM_AGP:
++		if (drm_core_has_AGP(dev)) {
+ #ifdef __alpha__
+-		map->offset += dev->hose->mem_space->start;
++			map->offset += dev->hose->mem_space->start;
+ #endif
+-		map->offset += dev->agp->base;
+-		map->mtrr   = dev->agp->agp_mtrr; /* for getmap */
++			map->offset += dev->agp->base;
++			map->mtrr   = dev->agp->agp_mtrr; /* for getmap */
++		}
+ 		break;
+-#endif
+ 	case _DRM_SCATTER_GATHER:
+ 		if (!dev->sg) {
+ 			DRM(free)(map, sizeof(*map), DRM_MEM_MAPS);
+@@ -270,15 +270,15 @@
+ 		switch (map->type) {
+ 		case _DRM_REGISTERS:
+ 		case _DRM_FRAME_BUFFER:
+-#if __REALLY_HAVE_MTRR
+-			if (map->mtrr >= 0) {
+-				int retcode;
+-				retcode = mtrr_del(map->mtrr,
+-						   map->offset,
+-						   map->size);
+-				DRM_DEBUG("mtrr_del = %d\n", retcode);
++		  if (drm_core_has_MTRR(dev)) {
++				if (map->mtrr >= 0) {
++					int retcode;
++					retcode = mtrr_del(map->mtrr,
++							   map->offset,
++							   map->size);
++					DRM_DEBUG("mtrr_del = %d\n", retcode);
++				}
+ 			}
+-#endif
+ 			DRM(ioremapfree)(map->handle, map->size, dev);
+ 			break;
+ 		case _DRM_SHM:
+@@ -340,7 +340,7 @@
+ 	}
+ }
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ /**
+  * Add AGP buffers for DMA transfers (ioctl).
+  *
+@@ -517,7 +517,7 @@
+ 	atomic_dec( &dev->buf_alloc );
+ 	return 0;
+ }
+-#endif /* __REALLY_HAVE_AGP */
++#endif /* __OS_HAS_AGP */
+
+ #if __HAVE_PCI_DMA
+ int DRM(addbufs_pci)( struct inode *inode, struct file *filp,
+@@ -940,7 +940,7 @@
+ 			     sizeof(request) ) )
+ 		return -EFAULT;
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	if ( request.flags & _DRM_AGP_BUFFER )
+ 		return DRM(addbufs_agp)( inode, filp, cmd, arg );
+ 	else
+@@ -1185,8 +1185,8 @@
+ 		return -EFAULT;
+
+ 	if ( request.count >= dma->buf_count ) {
+-		if ( (__HAVE_AGP && (dma->flags & _DRM_DMA_USE_AGP)) ||
+-		     (__HAVE_SG && (dma->flags & _DRM_DMA_USE_SG)) ) {
++		if ((drm_core_has_AGP(dev) && (dma->flags & _DRM_DMA_USE_AGP)) ||
++		    (__HAVE_SG && (dma->flags & _DRM_DMA_USE_SG)) ) {
+ 			drm_map_t *map = dev->agp_buffer_map;
+
+ 			if ( !map ) {
+===== drivers/char/drm/drm_drv.h 1.41 vs edited =====
+--- 1.41/drivers/char/drm/drm_drv.h	Fri Sep  3 19:49:23 2004
++++ edited/drivers/char/drm/drm_drv.h	Sat Sep  4 21:28:36 2004
+@@ -52,9 +52,7 @@
+  * OTHER DEALINGS IN THE SOFTWARE.
+  */
+
+-#ifndef __MUST_HAVE_AGP
+-#define __MUST_HAVE_AGP			0
+-#endif
++
+ #ifndef __HAVE_CTX_BITMAP
+ #define __HAVE_CTX_BITMAP		0
+ #endif
+@@ -166,7 +164,7 @@
+ 	[DRM_IOCTL_NR(DRM_IOCTL_CONTROL)]       = { DRM(control),     1, 1 },
+ #endif
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	[DRM_IOCTL_NR(DRM_IOCTL_AGP_ACQUIRE)]   = { DRM(agp_acquire), 1, 1 },
+ 	[DRM_IOCTL_NR(DRM_IOCTL_AGP_RELEASE)]   = { DRM(agp_release), 1, 1 },
+ 	[DRM_IOCTL_NR(DRM_IOCTL_AGP_ENABLE)]    = { DRM(agp_enable),  1, 1 },
+@@ -367,9 +365,8 @@
+ 		dev->magiclist[i].head = dev->magiclist[i].tail = NULL;
+ 	}
+
+-#if __REALLY_HAVE_AGP
+ 				/* Clear AGP information */
+-	if ( dev->agp ) {
++	if (drm_core_has_AGP(dev) && dev->agp) {
+ 		drm_agp_mem_t *entry;
+ 		drm_agp_mem_t *nexte;
+
+@@ -388,7 +385,6 @@
+ 		dev->agp->acquired = 0;
+ 		dev->agp->enabled  = 0;
+ 	}
+-#endif
+
+ 				/* Clear vma list (only built for debugging) */
+ 	if ( dev->vmalist ) {
+@@ -407,15 +403,15 @@
+ 				switch ( map->type ) {
+ 				case _DRM_REGISTERS:
+ 				case _DRM_FRAME_BUFFER:
+-#if __REALLY_HAVE_MTRR
+-					if ( map->mtrr >= 0 ) {
+-						int retcode;
+-						retcode = mtrr_del( map->mtrr,
+-								    map->offset,
+-								    map->size );
+-						DRM_DEBUG( "mtrr_del=%d\n", retcode );
++					if (drm_core_has_MTRR(dev)) {
++						if ( map->mtrr >= 0 ) {
++							int retcode;
++							retcode = mtrr_del( map->mtrr,
++									    map->offset,
++									    map->size );
++							DRM_DEBUG( "mtrr_del=%d\n", retcode );
++						}
+ 					}
+-#endif
+ 					DRM(ioremapfree)( map->handle, map->size, dev );
+ 					break;
+ 				case _DRM_SHM:
+@@ -540,24 +536,23 @@
+ 	if (dev->fn_tbl.preinit)
+ 	  dev->fn_tbl.preinit(dev);
+
+-#if __REALLY_HAVE_AGP
+-	dev->agp = DRM(agp_init)();
+-#if __MUST_HAVE_AGP
+-	if ( dev->agp == NULL ) {
+-		DRM_ERROR( "Cannot initialize the agpgart module.\n" );
+-		DRM(stub_unregister)(dev->minor);
+-		DRM(takedown)( dev );
+-		return -EINVAL;
++	if (drm_core_has_AGP(dev))
++	{
++		dev->agp = DRM(agp_init)();
++		if (drm_core_check_feature(dev, DRIVER_REQUIRE_AGP) && (dev->agp == NULL)) {
++			DRM_ERROR( "Cannot initialize the agpgart module.\n" );
++			DRM(stub_unregister)(dev->minor);
++			DRM(takedown)( dev );
++			return -EINVAL;
++		}
++		if (drm_core_has_MTRR(dev)) {
++			if (dev->agp)
++				dev->agp->agp_mtrr = mtrr_add( dev->agp->agp_info.aper_base,
++							       dev->agp->agp_info.aper_size*1024*1024,
++							       MTRR_TYPE_WRCOMB,
++							       1 );
++		}
+ 	}
+-#endif
+-#if __REALLY_HAVE_MTRR
+-	if (dev->agp)
+-		dev->agp->agp_mtrr = mtrr_add( dev->agp->agp_info.aper_base,
+-					dev->agp->agp_info.aper_size*1024*1024,
+-					MTRR_TYPE_WRCOMB,
+-					1 );
+-#endif
+-#endif
+
+ #if __HAVE_CTX_BITMAP
+ 	retcode = DRM(ctxbitmap_init)( dev );
+@@ -644,25 +639,23 @@
+ 		DRM(ctxbitmap_cleanup)( dev );
+ #endif
+
+-#if __REALLY_HAVE_AGP && __REALLY_HAVE_MTRR
+-		if ( dev->agp && dev->agp->agp_mtrr >= 0) {
++		if (drm_core_has_MTRR(dev) && drm_core_has_AGP(dev) &&
++		    dev->agp && dev->agp->agp_mtrr >= 0) {
+ 			int retval;
+ 			retval = mtrr_del( dev->agp->agp_mtrr,
+ 				   dev->agp->agp_info.aper_base,
+ 				   dev->agp->agp_info.aper_size*1024*1024 );
+ 			DRM_DEBUG( "mtrr_del=%d\n", retval );
+ 		}
+-#endif
+
+ 		DRM(takedown)( dev );
+
+-#if __REALLY_HAVE_AGP
+-		if ( dev->agp ) {
++		if (drm_core_has_AGP(dev) && dev->agp ) {
+ 			DRM(agp_uninit)();
+ 			DRM(free)( dev->agp, sizeof(*dev->agp), DRM_MEM_AGPLISTS );
+ 			dev->agp = NULL;
+ 		}
+-#endif
++
+ 		if (dev->fn_tbl.postcleanup)
+ 		  dev->fn_tbl.postcleanup(dev);
+
+===== drivers/char/drm/drm_memory.h 1.15 vs edited =====
+--- 1.15/drivers/char/drm/drm_memory.h	Fri Sep  3 20:00:58 2004
++++ edited/drivers/char/drm/drm_memory.h	Sat Sep  4 22:43:45 2004
+@@ -44,7 +44,7 @@
+  */
+ #define DEBUG_MEMORY 0
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+
+ #include <linux/vmalloc.h>
+
+@@ -130,46 +130,56 @@
+ 	return pte_pfn(*ptep) << PAGE_SHIFT;
+ }
+
+-#endif /* __REALLY_HAVE_AGP */
++#else /* __OS_HAS_AGP */
++
++static inline drm_map_t *drm_lookup_map(unsigned long offset, unsigned long size, drm_device_t *dev)
++{
++  return NULL;
++}
++
++static inline void *agp_remap(unsigned long offset, unsigned long size, drm_device_t *dev)
++{
++  return NULL;
++}
++
++static inline unsigned long drm_follow_page (void *vaddr)
++{
++  return 0;
++}
++
++#endif
+
+ static inline void *drm_ioremap(unsigned long offset, unsigned long size, drm_device_t *dev)
+ {
+-#if __REALLY_HAVE_AGP
+-	if (dev->agp && dev->agp->cant_use_aperture) {
++	if (drm_core_has_AGP(dev) && dev->agp && dev->agp->cant_use_aperture) {
+ 		drm_map_t *map = drm_lookup_map(offset, size, dev);
+
+ 		if (map && map->type == _DRM_AGP)
+ 			return agp_remap(offset, size, dev);
+ 	}
+-#endif
+-
+ 	return ioremap(offset, size);
+ }
+
+ static inline void *drm_ioremap_nocache(unsigned long offset, unsigned long size,
+ 					drm_device_t *dev)
+ {
+-#if __REALLY_HAVE_AGP
+-	if (dev->agp && dev->agp->cant_use_aperture) {
++	if (drm_core_has_AGP(dev) && dev->agp && dev->agp->cant_use_aperture) {
+ 		drm_map_t *map = drm_lookup_map(offset, size, dev);
+
+ 		if (map && map->type == _DRM_AGP)
+ 			return agp_remap(offset, size, dev);
+ 	}
+-#endif
+-
+ 	return ioremap_nocache(offset, size);
+ }
+
+ static inline void drm_ioremapfree(void *pt, unsigned long size, drm_device_t *dev)
+ {
+-#if __REALLY_HAVE_AGP
+ 	/*
+ 	 * This is a bit ugly.  It would be much cleaner if the DRM API would use separate
+ 	 * routines for handling mappings in the AGP space.  Hopefully this can be done in
+ 	 * a future revision of the interface...
+ 	 */
+-	if (dev->agp && dev->agp->cant_use_aperture
++	if (drm_core_has_AGP(dev) && dev->agp && dev->agp->cant_use_aperture
+ 	    && ((unsigned long) pt >= VMALLOC_START && (unsigned long) pt < VMALLOC_END))
+ 	{
+ 		unsigned long offset;
+@@ -182,7 +192,6 @@
+ 			return;
+ 		}
+ 	}
+-#endif
+
+ 	iounmap(pt);
+ }
+@@ -332,7 +341,7 @@
+ 	drm_ioremapfree(pt, size, dev);
+ }
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ /** Wrapper around agp_allocate_memory() */
+ DRM_AGP_MEM *DRM(alloc_agp)(int pages, u32 type)
+ {
+===== drivers/char/drm/drm_memory_debug.h 1.7 vs edited =====
+--- 1.7/drivers/char/drm/drm_memory_debug.h	Sat Apr 10 17:06:27 2004
++++ edited/drivers/char/drm/drm_memory_debug.h	Sat Sep  4 19:03:35 2004
+@@ -352,7 +352,7 @@
+ 	}
+ }
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+
+ DRM_AGP_MEM *DRM(alloc_agp)(int pages, u32 type)
+ {
+===== drivers/char/drm/drm_os_linux.h 1.15 vs edited =====
+--- 1.15/drivers/char/drm/drm_os_linux.h	Fri Aug 27 19:38:14 2004
++++ edited/drivers/char/drm/drm_os_linux.h	Sat Sep  4 22:47:44 2004
+@@ -41,8 +41,34 @@
+ #define DRM_IRQ_ARGS		int irq, void *arg, struct pt_regs *regs
+
+ /** AGP types */
++#if __OS_HAS_AGP
+ #define DRM_AGP_MEM		struct agp_memory
+ #define DRM_AGP_KERN		struct agp_kern_info
++#else
++/* define some dummy types for non AGP supporting kernels */
++struct no_agp_kern {
++  unsigned long aper_base;
++  unsigned long aper_size;
++};
++#define DRM_AGP_MEM             int
++#define DRM_AGP_KERN            struct no_agp_kern
++#endif
++
++#if !(__OS_HAS_MTRR)
++static __inline__ int mtrr_add (unsigned long base, unsigned long size,
++                                unsigned int type, char increment)
++{
++    return -ENODEV;
++}
++
++static __inline__ int mtrr_del (int reg, unsigned long base,
++                                unsigned long size)
++{
++    return -ENODEV;
++}
++#define MTRR_TYPE_WRCOMB     1
++
++#endif
+
+ /** Task queue handler arguments */
+ #define DRM_TASKQUEUE_ARGS	void *arg
+===== drivers/char/drm/drm_vm.h 1.29 vs edited =====
+--- 1.29/drivers/char/drm/drm_vm.h	Sat Jul 17 00:14:58 2004
++++ edited/drivers/char/drm/drm_vm.h	Sat Sep  4 23:08:04 2004
+@@ -46,10 +46,11 @@
+  * Find the right map and if it's AGP memory find the real physical page to
+  * map, get the page, increment the use count and return it.
+  */
++#if __OS_HAS_AGP
+ static __inline__ struct page *DRM(do_vm_nopage)(struct vm_area_struct *vma,
+ 						 unsigned long address)
+ {
+-#if __REALLY_HAVE_AGP
++
+ 	drm_file_t *priv  = vma->vm_file->private_data;
+ 	drm_device_t *dev = priv->dev;
+ 	drm_map_t *map    = NULL;
+@@ -59,6 +60,8 @@
+ 	/*
+          * Find the right map
+          */
++	if (!drm_core_has_AGP(dev, DRIVER_USE_AGP))
++		goto vm_nopage_error;
+
+ 	if(!dev->agp || !dev->agp->cant_use_aperture) goto vm_nopage_error;
+
+@@ -107,10 +110,15 @@
+ 		return page;
+         }
+ vm_nopage_error:
+-#endif /* __REALLY_HAVE_AGP */
+-
+ 	return NOPAGE_SIGBUS;		/* Disallow mremap */
+ }
++#else
++static __inline__ struct page *DRM(do_vm_nopage)(struct vm_area_struct *vma,
++						 unsigned long address)
++{
++	return NOPAGE_SIGBUS;
++}
++#endif /* __OS_HAS_AGP */
+
+ /**
+  * \c nopage method for shared virtual memory.
+@@ -201,15 +209,13 @@
+ 			switch (map->type) {
+ 			case _DRM_REGISTERS:
+ 			case _DRM_FRAME_BUFFER:
+-#if __REALLY_HAVE_MTRR
+-				if (map->mtrr >= 0) {
++				if (drm_core_has_MTRR(dev) && map->mtrr >= 0) {
+ 					int retcode;
+ 					retcode = mtrr_del(map->mtrr,
+ 							   map->offset,
+ 							   map->size);
+ 					DRM_DEBUG("mtrr_del = %d\n", retcode);
+ 				}
+-#endif
+ 				DRM(ioremapfree)(map->handle, map->size, dev);
+ 				break;
+ 			case _DRM_SHM:
+@@ -533,7 +539,7 @@
+ 	 * --BenH.
+ 	 */
+ 	if (!VM_OFFSET(vma)
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	    && (!dev->agp || dev->agp->agp_info.device->vendor != PCI_VENDOR_ID_APPLE)
+ #endif
+ 	    )
+@@ -577,8 +583,7 @@
+
+ 	switch (map->type) {
+         case _DRM_AGP:
+-#if __REALLY_HAVE_AGP
+-	  if (dev->agp->cant_use_aperture) {
++	  if (drm_core_has_AGP(dev) && dev->agp->cant_use_aperture) {
+                 /*
+                  * On some platforms we can't talk to bus dma address from the CPU, so for
+                  * memory of type DRM_AGP, we'll deal with sorting out the real physical
+@@ -590,7 +595,6 @@
+                 vma->vm_ops = &DRM(vm_ops);
+                 break;
+ 	  }
+-#endif
+                 /* fall through to _DRM_FRAME_BUFFER... */
+ 	case _DRM_FRAME_BUFFER:
+ 	case _DRM_REGISTERS:
+===== drivers/char/drm/gamma.h 1.16 vs edited =====
+--- 1.16/drivers/char/drm/gamma.h	Fri Sep  3 19:49:23 2004
++++ edited/drivers/char/drm/gamma.h	Sat Sep  4 19:03:35 2004
+@@ -36,8 +36,6 @@
+
+ /* General customization:
+  */
+-#define __HAVE_MTRR			1
+-
+ #define DRIVER_AUTHOR		"VA Linux Systems Inc."
+
+ #define DRIVER_NAME		"gamma"
+@@ -72,8 +70,6 @@
+ /* DMA customization:
+  */
+ #define __HAVE_DMA			1
+-#define __HAVE_AGP			1
+-#define __MUST_HAVE_AGP			0
+ #define __HAVE_OLD_DMA			1
+ #define __HAVE_PCI_DMA			1
+
+===== drivers/char/drm/gamma_dma.c 1.24 vs edited =====
+--- 1.24/drivers/char/drm/gamma_dma.c	Fri Sep  3 20:00:58 2004
++++ edited/drivers/char/drm/gamma_dma.c	Sat Sep  4 19:03:35 2004
+@@ -934,6 +934,7 @@
+
+ void gamma_driver_register_fns(drm_device_t *dev)
+ {
++	dev->driver_features = DRIVER_USE_AGP | DRIVER_USE_MTRR;
+ 	DRM(fops).read = gamma_fops_read;
+ 	DRM(fops).poll = gamma_fops_poll;
+ 	dev->fn_tbl.preinit = gamma_driver_preinit;
+===== drivers/char/drm/i810.h 1.16 vs edited =====
+--- 1.16/drivers/char/drm/i810.h	Fri Sep  3 19:49:23 2004
++++ edited/drivers/char/drm/i810.h	Sat Sep  4 19:03:35 2004
+@@ -36,9 +36,6 @@
+
+ /* General customization:
+  */
+-#define __HAVE_AGP		1
+-#define __MUST_HAVE_AGP		1
+-#define __HAVE_MTRR		1
+ #define __HAVE_CTX_BITMAP	1
+
+ #define DRIVER_AUTHOR		"VA Linux Systems Inc."
+===== drivers/char/drm/i810_dma.c 1.39 vs edited =====
+--- 1.39/drivers/char/drm/i810_dma.c	Fri Sep  3 20:00:58 2004
++++ edited/drivers/char/drm/i810_dma.c	Sat Sep  4 19:03:35 2004
+@@ -1407,6 +1407,7 @@
+
+ void i810_driver_register_fns(drm_device_t *dev)
+ {
++	dev->driver_features = DRIVER_USE_AGP | DRIVER_REQUIRE_AGP | DRIVER_USE_MTRR;
+ 	dev->dev_priv_size = sizeof(drm_i810_buf_priv_t);
+ 	dev->fn_tbl.pretakedown = i810_driver_pretakedown;
+ 	dev->fn_tbl.release = i810_driver_release;
+===== drivers/char/drm/i830.h 1.14 vs edited =====
+--- 1.14/drivers/char/drm/i830.h	Fri Sep  3 19:49:23 2004
++++ edited/drivers/char/drm/i830.h	Sat Sep  4 19:03:35 2004
+@@ -36,9 +36,6 @@
+
+ /* General customization:
+  */
+-#define __HAVE_AGP		1
+-#define __MUST_HAVE_AGP		1
+-#define __HAVE_MTRR		1
+ #define __HAVE_CTX_BITMAP	1
+
+ #define DRIVER_AUTHOR		"VA Linux Systems Inc."
+===== drivers/char/drm/i830_dma.c 1.29 vs edited =====
+--- 1.29/drivers/char/drm/i830_dma.c	Fri Sep  3 20:00:58 2004
++++ edited/drivers/char/drm/i830_dma.c	Sat Sep  4 19:03:35 2004
+@@ -1602,6 +1602,7 @@
+
+ void i830_driver_register_fns(drm_device_t *dev)
+ {
++	dev->driver_features = DRIVER_USE_AGP | DRIVER_REQUIRE_AGP | DRIVER_USE_MTRR;
+ 	dev->dev_priv_size = sizeof(drm_i830_buf_priv_t);
+ 	dev->fn_tbl.pretakedown = i830_driver_pretakedown;
+ 	dev->fn_tbl.release = i830_driver_release;
+===== drivers/char/drm/i915.h 1.2 vs edited =====
+--- 1.2/drivers/char/drm/i915.h	Thu Sep  2 21:51:56 2004
++++ edited/drivers/char/drm/i915.h	Sat Sep  4 19:03:44 2004
+@@ -16,9 +16,6 @@
+
+ /* General customization:
+  */
+-#define __HAVE_AGP		1
+-#define __MUST_HAVE_AGP		1
+-#define __HAVE_MTRR		1
+ #define __HAVE_CTX_BITMAP	1
+
+ #define DRIVER_AUTHOR		"Tungsten Graphics, Inc."
+===== drivers/char/drm/i915_dma.c 1.4 vs edited =====
+--- 1.4/drivers/char/drm/i915_dma.c	Fri Sep  3 20:00:58 2004
++++ edited/drivers/char/drm/i915_dma.c	Sat Sep  4 19:03:44 2004
+@@ -732,6 +732,7 @@
+
+ void i915_driver_register_fns(drm_device_t *dev)
+ {
++	dev->driver_features = DRIVER_USE_AGP | DRIVER_REQUIRE_AGP | DRIVER_USE_MTRR;
+ 	dev->fn_tbl.pretakedown = i915_driver_pretakedown;
+ 	dev->fn_tbl.prerelease = i915_driver_prerelease;
+ }
+===== drivers/char/drm/mga.h 1.12 vs edited =====
+--- 1.12/drivers/char/drm/mga.h	Fri Sep  3 19:05:58 2004
++++ edited/drivers/char/drm/mga.h	Sat Sep  4 19:04:01 2004
+@@ -36,9 +36,6 @@
+
+ /* General customization:
+  */
+-#define __HAVE_AGP		1
+-#define __MUST_HAVE_AGP		1
+-#define __HAVE_MTRR		1
+ #define __HAVE_CTX_BITMAP	1
+
+ #define DRIVER_AUTHOR		"Gareth Hughes, VA Linux Systems Inc."
+===== drivers/char/drm/mga_dma.c 1.21 vs edited =====
+--- 1.21/drivers/char/drm/mga_dma.c	Fri Sep  3 20:00:58 2004
++++ edited/drivers/char/drm/mga_dma.c	Sat Sep  4 19:04:01 2004
+@@ -813,6 +813,7 @@
+
+ void mga_driver_register_fns(drm_device_t *dev)
+ {
++	dev->driver_features = DRIVER_USE_AGP | DRIVER_REQUIRE_AGP | DRIVER_USE_MTRR;
+ 	dev->fn_tbl.pretakedown = mga_driver_pretakedown;
+ 	dev->fn_tbl.dma_quiescent = mga_driver_dma_quiescent;
+ }
+===== drivers/char/drm/r128.h 1.16 vs edited =====
+--- 1.16/drivers/char/drm/r128.h	Fri Sep  3 19:05:58 2004
++++ edited/drivers/char/drm/r128.h	Sat Sep  4 19:04:01 2004
+@@ -36,9 +36,6 @@
+
+ /* General customization:
+  */
+-#define __HAVE_AGP		1
+-#define __MUST_HAVE_AGP		0
+-#define __HAVE_MTRR		1
+ #define __HAVE_CTX_BITMAP	1
+ #define __HAVE_SG		1
+ #define __HAVE_PCI_DMA		1
+===== drivers/char/drm/r128_cce.c 1.22 vs edited =====
+--- 1.22/drivers/char/drm/r128_cce.c	Fri Sep  3 20:00:58 2004
++++ edited/drivers/char/drm/r128_cce.c	Sat Sep  4 19:04:01 2004
+@@ -322,7 +322,7 @@
+ 	/* The manual (p. 2) says this address is in "VM space".  This
+ 	 * means it's an offset from the start of AGP space.
+ 	 */
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	if ( !dev_priv->is_pci )
+ 		ring_start = dev_priv->cce_ring->offset - dev->agp->base;
+ 	else
+@@ -510,7 +510,7 @@
+ 		(drm_r128_sarea_t *)((u8 *)dev_priv->sarea->handle +
+ 				     init->sarea_priv_offset);
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	if ( !dev_priv->is_pci ) {
+ 		drm_core_ioremap( dev_priv->cce_ring, dev );
+ 		drm_core_ioremap( dev_priv->ring_rptr, dev );
+@@ -533,7 +533,7 @@
+ 		dev->agp_buffer_map->handle = (void *)dev->agp_buffer_map->offset;
+ 	}
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	if ( !dev_priv->is_pci )
+ 		dev_priv->cce_buffers_offset = dev->agp->base;
+ 	else
+@@ -558,7 +558,7 @@
+ 	R128_WRITE( R128_LAST_DISPATCH_REG,
+ 		    dev_priv->sarea_priv->last_dispatch );
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	if ( dev_priv->is_pci ) {
+ #endif
+ 		if (!DRM(ati_pcigart_init)( dev, &dev_priv->phys_pci_gart,
+@@ -569,7 +569,7 @@
+ 			return DRM_ERR(ENOMEM);
+ 		}
+ 		R128_WRITE( R128_PCI_GART_PAGE, dev_priv->bus_pci_gart );
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	}
+ #endif
+
+@@ -597,7 +597,7 @@
+ 	if ( dev->dev_private ) {
+ 		drm_r128_private_t *dev_priv = dev->dev_private;
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 		if ( !dev_priv->is_pci ) {
+ 			if ( dev_priv->cce_ring != NULL )
+ 				drm_core_ioremapfree( dev_priv->cce_ring, dev );
+===== drivers/char/drm/r128_state.c 1.19 vs edited =====
+--- 1.19/drivers/char/drm/r128_state.c	Fri Sep  3 19:05:58 2004
++++ edited/drivers/char/drm/r128_state.c	Sat Sep  4 19:04:01 2004
+@@ -1712,6 +1712,7 @@
+
+ void r128_driver_register_fns(drm_device_t *dev)
+ {
++	dev->driver_features = DRIVER_USE_AGP | DRIVER_USE_MTRR;
+ 	dev->dev_priv_size = sizeof(drm_r128_buf_priv_t);
+ 	dev->fn_tbl.prerelease = r128_driver_prerelease;
+ 	dev->fn_tbl.pretakedown = r128_driver_pretakedown;
+===== drivers/char/drm/radeon.h 1.23 vs edited =====
+--- 1.23/drivers/char/drm/radeon.h	Fri Sep  3 19:05:58 2004
++++ edited/drivers/char/drm/radeon.h	Sat Sep  4 19:04:01 2004
+@@ -37,9 +37,6 @@
+
+ /* General customization:
+  */
+-#define __HAVE_AGP		1
+-#define __MUST_HAVE_AGP		0
+-#define __HAVE_MTRR		1
+ #define __HAVE_CTX_BITMAP	1
+ #define __HAVE_SG		1
+ #define __HAVE_PCI_DMA		1
+===== drivers/char/drm/radeon_cp.c 1.28 vs edited =====
+--- 1.28/drivers/char/drm/radeon_cp.c	Fri Sep  3 20:00:58 2004
++++ edited/drivers/char/drm/radeon_cp.c	Sat Sep  4 19:13:57 2004
+@@ -858,7 +858,7 @@
+ 		      ( ( dev_priv->gart_vm_start - 1 ) & 0xffff0000 )
+ 		    | ( dev_priv->fb_location >> 16 ) );
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	if ( !dev_priv->is_pci ) {
+ 		RADEON_WRITE( RADEON_MC_AGP_LOCATION,
+ 			      (((dev_priv->gart_vm_start - 1 +
+@@ -885,7 +885,7 @@
+ 	SET_RING_HEAD( dev_priv, cur_read_ptr );
+ 	dev_priv->ring.tail = cur_read_ptr;
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	if ( !dev_priv->is_pci ) {
+ 		RADEON_WRITE( RADEON_CP_RB_RPTR_ADDR,
+ 			      dev_priv->ring_rptr->offset
+@@ -1161,7 +1161,7 @@
+ 		(drm_radeon_sarea_t *)((u8 *)dev_priv->sarea->handle +
+ 				       init->sarea_priv_offset);
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	if ( !dev_priv->is_pci ) {
+ 		drm_core_ioremap( dev_priv->cp_ring, dev );
+ 		drm_core_ioremap( dev_priv->ring_rptr, dev );
+@@ -1211,7 +1211,7 @@
+ 	dev_priv->gart_vm_start = dev_priv->fb_location
+ 				+ RADEON_READ( RADEON_CONFIG_APER_SIZE );
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	if ( !dev_priv->is_pci )
+ 		dev_priv->gart_buffers_offset = (dev->agp_buffer_map->offset
+ 						- dev->agp->base
+@@ -1240,7 +1240,7 @@
+
+ 	dev_priv->ring.high_mark = RADEON_RING_HIGH_MARK;
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	if ( !dev_priv->is_pci ) {
+ 		/* Turn off PCI GART */
+ 		radeon_set_pcigart( dev_priv, 0 );
+@@ -1286,7 +1286,7 @@
+ 	if ( dev->dev_private ) {
+ 		drm_radeon_private_t *dev_priv = dev->dev_private;
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 		if ( !dev_priv->is_pci ) {
+ 			if ( dev_priv->cp_ring != NULL )
+ 				drm_core_ioremapfree( dev_priv->cp_ring, dev );
+@@ -1329,7 +1329,7 @@
+
+ 	DRM_DEBUG("Starting radeon_do_resume_cp()\n");
+
+-#if __REALLY_HAVE_AGP
++#if __OS_HAS_AGP
+ 	if ( !dev_priv->is_pci ) {
+ 		/* Turn off PCI GART */
+ 		radeon_set_pcigart( dev_priv, 0 );
+===== drivers/char/drm/radeon_state.c 1.31 vs edited =====
+--- 1.31/drivers/char/drm/radeon_state.c	Fri Sep  3 19:05:58 2004
++++ edited/drivers/char/drm/radeon_state.c	Sat Sep  4 19:04:01 2004
+@@ -2582,6 +2582,7 @@
+
+ void radeon_driver_register_fns(struct drm_device *dev)
+ {
++	dev->driver_features = DRIVER_USE_AGP | DRIVER_USE_MTRR;
+ 	dev->dev_priv_size = sizeof(drm_radeon_buf_priv_t);
+ 	dev->fn_tbl.prerelease = radeon_driver_prerelease;
+ 	dev->fn_tbl.pretakedown = radeon_driver_pretakedown;
+===== drivers/char/drm/sis.h 1.9 vs edited =====
+--- 1.9/drivers/char/drm/sis.h	Fri Sep  3 19:05:58 2004
++++ edited/drivers/char/drm/sis.h	Sat Sep  4 19:04:01 2004
+@@ -41,9 +41,6 @@
+
+ /* General customization:
+  */
+-#define __HAVE_AGP		1
+-#define __MUST_HAVE_AGP		0
+-#define __HAVE_MTRR		1
+ #define __HAVE_CTX_BITMAP	1
+
+ #define DRIVER_AUTHOR		"SIS"
+===== drivers/char/drm/sis_mm.c 1.13 vs edited =====
+--- 1.13/drivers/char/drm/sis_mm.c	Fri Sep  3 19:05:58 2004
++++ edited/drivers/char/drm/sis_mm.c	Sat Sep  4 19:04:01 2004
+@@ -407,6 +407,7 @@
+
+ void DRM(driver_register_fns)(drm_device_t *dev)
+ {
++	dev->driver_features = DRIVER_USE_AGP | DRIVER_USE_MTRR;
+ 	dev->fn_tbl.context_ctor = sis_init_context;
+ 	dev->fn_tbl.context_dtor = sis_final_context;
+ }
+===== drivers/char/drm/tdfx.h 1.5 vs edited =====
+--- 1.5/drivers/char/drm/tdfx.h	Thu Apr 22 21:25:27 2004
++++ edited/drivers/char/drm/tdfx.h	Sat Sep  4 19:04:01 2004
+@@ -36,7 +36,6 @@
+
+ /* General customization:
+  */
+-#define __HAVE_MTRR		1
+ #define __HAVE_CTX_BITMAP	1
+
+ #define DRIVER_AUTHOR		"VA Linux Systems Inc."
+===== drivers/char/drm/tdfx_drv.c 1.8 vs edited =====
+--- 1.8/drivers/char/drm/tdfx_drv.c	Thu Sep  2 21:51:56 2004
++++ edited/drivers/char/drm/tdfx_drv.c	Sat Sep  4 19:28:19 2004
+@@ -34,6 +34,7 @@
+ #include "tdfx.h"
+ #include "drmP.h"
+
++#include "drm_agpsupport.h"
+ #include "drm_auth.h"
+ #include "drm_bufs.h"
+ #include "drm_context.h"
+@@ -52,5 +53,6 @@
+
+ void DRM(driver_register_fns)(drm_device_t *dev)
+ {
++	dev->driver_features = DRIVER_USE_MTRR;
+ }
+

@@ -1,53 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317431AbSFHTc4>; Sat, 8 Jun 2002 15:32:56 -0400
+	id <S317432AbSFHThA>; Sat, 8 Jun 2002 15:37:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317433AbSFHTcz>; Sat, 8 Jun 2002 15:32:55 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:50957
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317431AbSFHTcz>; Sat, 8 Jun 2002 15:32:55 -0400
-Date: Sat, 8 Jun 2002 12:30:37 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Pawel Kot <pkot@linuxnews.pl>, lkml <linux-kernel@vger.kernel.org>,
-        Andre Hedrick <andre@serialata.org>
-Subject: Re: Another -pre
-In-Reply-To: <Pine.LNX.4.44.0206031155200.4146-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.10.10206081229460.1190-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317433AbSFHTg7>; Sat, 8 Jun 2002 15:36:59 -0400
+Received: from mta3.srv.hcvlny.cv.net ([167.206.5.9]:26324 "EHLO
+	mta3.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S317432AbSFHTg6>; Sat, 8 Jun 2002 15:36:58 -0400
+Date: Sat, 08 Jun 2002 14:15:10 -0400
+From: jay <jbeatty@optonline.net>
+Subject: rpm --rebuild fails on 2.5.20
+To: linux kernel <linux-kernel@vger.kernel.org>
+Message-id: <3D0249AE.4070902@optonline.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When I try to use rpm to rebuild a src.rpm, it gives a Segmentation 
+fault on 2.5.20. Works on 2.5.18 and 2.4.18.
 
-Marcelo,
+rpm -vvvvvv --rebuild ORBit2*
+Segmentation fault
 
-I just got back in town so I this is my first real chance to read through
-a weeks worth of the list.
 
-On Mon, 3 Jun 2002, Marcelo Tosatti wrote:
+Some small src.rpm files work, e.g. filesystem-2.1.6-4.src.rpm, but not all.
 
-> 
-> 
-> On Mon, 3 Jun 2002, Pawel Kot wrote:
-> 
-> > On Mon, 3 Jun 2002, Marcelo Tosatti wrote:
-> >
-> > > Due to some missing network fixes and -ac merge, I'll release another -pre
-> > > later today.
-> > >
-> > > -rc should be out by the end of the week.
-> >
-> > Would you please consider merging some IDE updates before releasing
-> > 2.4.19? Current version remains unusable for me.
-> > See http://marc.theaimsgroup.com/?l=linux-kernel&m=102277249800423&w=2
-> > and followers for more detailes.
-> 
-> Andre,
-> 
-> Have you looked into this problem ?
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
+jay
 

@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313818AbSD0Ns4>; Sat, 27 Apr 2002 09:48:56 -0400
+	id <S314058AbSD0NuN>; Sat, 27 Apr 2002 09:50:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314058AbSD0Nsz>; Sat, 27 Apr 2002 09:48:55 -0400
-Received: from ns1.baby-dragons.com ([199.33.245.254]:38379 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S313818AbSD0Nsy>; Sat, 27 Apr 2002 09:48:54 -0400
-Date: Sat, 27 Apr 2002 09:48:37 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Dave Jones <davej@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.x-dj and SCSI error handling.
-In-Reply-To: <20020427131025.F14743@suse.de>
-Message-ID: <Pine.LNX.4.44.0204270947250.5500-100000@filesrv1.baby-dragons.com>
+	id <S314083AbSD0NuM>; Sat, 27 Apr 2002 09:50:12 -0400
+Received: from pD9E23370.dip.t-dialin.net ([217.226.51.112]:14059 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S314058AbSD0NuL>; Sat, 27 Apr 2002 09:50:11 -0400
+Date: Sat, 27 Apr 2002 07:50:09 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: linux-kernel@vger.kernel.org
+Subject: BIOS-provided physical RAM map with double address
+Message-ID: <Pine.LNX.4.44.0204270748050.3714-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-	Hello Dave ,  Might be nice to also mention the drivers that were
-	being complained about .  So there respective mantainers can
-	benifit from your email .  Tia ,  JimL
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 0000000017ffc000 (usable)
+ BIOS-e820: 0000000017ffc000 - 0000000017fff000 (ACPI data)
+ BIOS-e820: 0000000017fff000 - 0000000018000000 (ACPI NVS)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+hm, page 17ffc000 reserved twice.
 
-On Sat, 27 Apr 2002, Dave Jones wrote:
+Erm, can this be any bad? I mean, Linux seems to work very well on that 
+PC, but Windows 2000 couldn't even boot the install. Could this be the 
+reason? Is there further nastiness to expect?
 
-> Folks, I just woke up to about a dozen reports of the same 'bug'
-> all with patches which are so wrong they stand no chance of application
-> by me or Linus, posting here is quicker than me pointing those people
-> (and those who may follow them) to the answer.
->
-> The recent patch from Christoph Hellwig which kills off
-> the last remaining remnants of the old style SCSI error handling.
-> The reason these drivers no longer compile due to missing 'abort' and
-> 'reset' functions is due to the fact that they need converting to
-> new-style error handling.
->
-> For instructions on how to do this, read http://www.andante.org/scsi_eh.html
->
-> For instructions on how not to this..
-> o   Do not send me patches that just remove the reset: and abort:
->     functions. This gives us no error handling whatsoever.
-> o   Do not send me patches re-adding the 'missing' reset & abort functions
->     to the Scsi_Host_Template struct.  This gets us nowhere.
-> o   Yes, I know ide-scsi, and various other scsi drivers are broken.
->     Fix them, or be patient and wait for them to be fixed.
->     Dave.
-
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Regards,
+Thunder
+-- 
+                                                  Thunder from the hill.
+Not a citizen of any town.                   Not a citizen of any state.
+Not a citizen of any country.               Not a citizen of any planet.
+                         Citizen of our universe.
 

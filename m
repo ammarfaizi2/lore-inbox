@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266851AbUHOTWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266853AbUHOThE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266851AbUHOTWA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 15:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266854AbUHOTWA
+	id S266853AbUHOThE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 15:37:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266858AbUHOThE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 15:22:00 -0400
-Received: from ool-44c1e325.dyn.optonline.net ([68.193.227.37]:33749 "HELO
-	dyn.galis.org") by vger.kernel.org with SMTP id S266851AbUHOTV4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 15:21:56 -0400
-From: "George Georgalis" <george@galis.org>
-Mail-Followup-To: netdev@oss.sgi.com,
-  linux-kernel@vger.kernel.org,
-  alan@lxorguk.ukuu.org.uk,
-  romieu@fr.zoreil.com
-Date: Sun, 15 Aug 2004 15:21:55 -0400
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: kernel-2.6.8.1 EIP is at velocity_netdev_event+0x16/0x50
-Message-ID: <20040815192155.GG32195@trot.local>
-References: <20040815095814.GA32195@trot.local> <20040815110625.GA2829@electric-eye.fr.zoreil.com> <20040815155457.GB32195@trot.local> <20040815184937.GA9105@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040815184937.GA9105@electric-eye.fr.zoreil.com>
+	Sun, 15 Aug 2004 15:37:04 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:19666 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S266853AbUHOThC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 15:37:02 -0400
+Date: Sun, 15 Aug 2004 12:36:25 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
+ pte
+In-Reply-To: <411F7067.8040305@colorfullife.com>
+Message-ID: <Pine.LNX.4.58.0408151234350.2309@schroedinger.engr.sgi.com>
+References: <411F7067.8040305@colorfullife.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 15, 2004 at 08:49:38PM +0200, Francois Romieu wrote:
->George Georgalis <george@galis.org> :
->[...]
->> ...that patch doesn't build
->> 
->>   26674 Aug 15 06:51 ../20040815-2.6.8-via-velocity-test.patch
->
->The patch has been updated. Same location.
+On Sun, 15 Aug 2004, Manfred Spraul wrote:
 
-still no build...
+> Very odd. Why do you see a problem with the page_table_lock but no
+> problem from the mmap semaphore?
 
-kernel-2.6.8.1 +
-   27253 Aug 15 14:31 ../20040815-2.6.8-via-velocity-test.patch
+I will have a look at that...
 
+> The page fault codepath acquires both.
+> How often is the page table lock acquired per page fault? Just once or
+> multiple spin_lock calls per page fault? Is the problem contention or
+> cache line trashing?
 
-  CC      arch/i386/pci/i386.o
-  CC      arch/i386/pci/pcbios.o
-  CC      arch/i386/pci/mmconfig.o
-  CC      arch/i386/pci/direct.o
-  CC      arch/i386/pci/fixup.o
-  CC      arch/i386/pci/acpi.o
-  CC      arch/i386/pci/legacy.o
-  CC      arch/i386/pci/irq.o
-  CC      arch/i386/pci/common.o
-  LD      arch/i386/pci/built-in.o
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-drivers/built-in.o: In function `wol_calc_crc':
-drivers/built-in.o(.text+0x69e02): undefined reference to `crc_ccitt'
-make: *** [.tmp_vmlinux1] Error 1
-
-// George
-
--- 
-George Georgalis, Architect and administrator, Linux services. IXOYE
-http://galis.org/george/  cell:646-331-2027  mailto:george@galis.org
-Key fingerprint = 5415 2738 61CF 6AE1 E9A7  9EF0 0186 503B 9831 1631
+The page table lock seems to be acquired at least 2 times and up to 5
+times per page fault.

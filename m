@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317306AbSGODmN>; Sun, 14 Jul 2002 23:42:13 -0400
+	id <S317307AbSGODuj>; Sun, 14 Jul 2002 23:50:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317307AbSGODmM>; Sun, 14 Jul 2002 23:42:12 -0400
-Received: from esteel10.client.dti.net ([209.73.14.10]:41425 "EHLO
-	shookay.newview.com") by vger.kernel.org with ESMTP
-	id <S317306AbSGODmL>; Sun, 14 Jul 2002 23:42:11 -0400
-Date: Sun, 14 Jul 2002 23:44:57 -0400
-From: Mathieu Chouquet-Stringer <mathieu@newview.com>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-Message-ID: <20020714234457.A21658@shookay.newview.com>
-Mail-Followup-To: Mathieu Chouquet-Stringer <mathieu@newview.com>,
-	Thunder from the hill <thunder@ngforever.de>,
-	linux-kernel@vger.kernel.org
-References: <20020714233440.A21612@shookay.newview.com> <Pine.LNX.4.44.0207142138040.3452-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0207142138040.3452-100000@hawkeye.luckynet.adm>; from thunder@ngforever.de on Sun, Jul 14, 2002 at 09:38:16PM -0600
+	id <S317308AbSGODui>; Sun, 14 Jul 2002 23:50:38 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:16834 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S317307AbSGODui>; Sun, 14 Jul 2002 23:50:38 -0400
+Date: Mon, 15 Jul 2002 05:53:54 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Andries Brouwer <aebr@win.tue.nl>,
+       A Guy Called Tyketto <tyketto@wizard.com>, linux-kernel@vger.kernel.org
+Subject: Re: kbd not functioning in 2.5.25-dj2
+In-Reply-To: <20020714200119.E27798@ucw.cz>
+Message-ID: <Pine.GSO.3.96.1020715055117.22261A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 14, 2002 at 09:38:16PM -0600, Thunder from the hill wrote:
-> Hi,
+On Sun, 14 Jul 2002, Vojtech Pavlik wrote:
 
-  Hi,
- 
-> Please time the erase!
+> The problem is that 0xff takes too long to finish to be done while Linux
+> is booting, and it has already been done by the BIOS.
 
-Had the same idea: :-)
-mchouque - /tmp/joerg %/usr/bin/time rm -rf rock
-0.18user 6.10system 0:09.27elapsed 67%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (139major+20minor)pagefaults 0swaps
-/usr/bin/time rm -rf rock  0.18s user 6.10s system 67% cpu 9.277 total
+ Certainly, you don't have to poll, do you?  Just send the command and let
+the kernel proceed.  Resume initialization in the IRQ handler, when a
+response arrives (or never).
 
-Not too bad if you think it took 1 hour something to create the
-directory... 
 -- 
-Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
-    It is exactly because a man cannot do a thing that he is a
-                      proper judge of it.
-                      -- Oscar Wilde
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

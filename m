@@ -1,111 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261495AbTCYGxw>; Tue, 25 Mar 2003 01:53:52 -0500
+	id <S261572AbTCYHEp>; Tue, 25 Mar 2003 02:04:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261572AbTCYGxw>; Tue, 25 Mar 2003 01:53:52 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:45992 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S261495AbTCYGxu>;
-	Tue, 25 Mar 2003 01:53:50 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 25 Mar 2003 08:04:58 +0100 (MET)
-Message-Id: <UTC200303250704.h2P74wE14222.aeb@smtp.cwi.nl>
-To: torvalds@transmeta.com
-Subject: [PATCH] tty_io cleanup
+	id <S261578AbTCYHEp>; Tue, 25 Mar 2003 02:04:45 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:23176 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261572AbTCYHEo>; Tue, 25 Mar 2003 02:04:44 -0500
+Date: Tue, 25 Mar 2003 08:15:32 +0100
+From: Andi Kleen <ak@muc.de>
+To: ink@jurassic.park.msu.ru
 Cc: linux-kernel@vger.kernel.org
+Subject: cacheline size detection code in 2.5.66
+Message-ID: <20030325071532.GA19217@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adding the unregister_chrdev_region call that is the counterpart
-to register_chrdev_region, we get a nice cleanup of tty_io.c.
 
-Andries
+Hi,
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/char/tty_io.c b/drivers/char/tty_io.c
---- a/drivers/char/tty_io.c	Tue Mar 25 04:54:31 2003
-+++ b/drivers/char/tty_io.c	Tue Mar 25 07:48:48 2003
-@@ -2143,31 +2143,16 @@
-  */
- int tty_unregister_driver(struct tty_driver *driver)
- {
--	int	retval;
--	struct tty_driver *p;
--	int	i, found = 0;
-+	int retval, i;
- 	struct termios *tp;
--	const char *othername = NULL;
--	
-+
- 	if (*driver->refcount)
- 		return -EBUSY;
- 
--	list_for_each_entry(p, &tty_drivers, tty_drivers) {
--		if (p == driver)
--			found++;
--		else if (p->major == driver->major)
--			othername = p->name;
--	}
--	
--	if (!found)
--		return -ENOENT;
--
--	if (othername == NULL) {
--		retval = unregister_chrdev(driver->major, driver->name);
--		if (retval)
--			return retval;
--	} else
--		register_chrdev(driver->major, othername, &tty_fops);
-+	retval = unregister_chrdev_region(driver->major, driver->minor_start,
-+					  driver->num, driver->name);
-+	if (retval)
-+		return retval;
- 
- 	list_del(&driver->tty_drivers);
- 
-diff -u --recursive --new-file -X /linux/dontdiff a/fs/char_dev.c b/fs/char_dev.c
---- a/fs/char_dev.c	Tue Mar 25 04:54:40 2003
-+++ b/fs/char_dev.c	Tue Mar 25 07:48:48 2003
-@@ -174,7 +174,8 @@
- }
- 
- /* todo: make void - error printk here */
--int unregister_chrdev(unsigned int major, const char * name)
-+int unregister_chrdev_region(unsigned int major, unsigned int baseminor,
-+			     int minorct, const char *name)
- {
- 	struct char_device_struct *cd, **cp;
- 	int ret = 0;
-@@ -184,7 +185,9 @@
- 
- 	write_lock(&chrdevs_lock);
- 	for (cp = &chrdevs[i]; *cp; cp = &(*cp)->next)
--		if ((*cp)->major == major)
-+		if ((*cp)->major == major &&
-+		    (*cp)->baseminor == baseminor &&
-+		    (*cp)->minorct == minorct)
- 			break;
- 	if (!*cp || strcmp((*cp)->name, name))
- 		ret = -EINVAL;
-@@ -198,6 +201,11 @@
- 	return ret;
- }
- 
-+int unregister_chrdev(unsigned int major, const char *name)
-+{
-+	return unregister_chrdev_region(major, 0, 256, name);
-+}
-+
- /*
-  * Called every time a character special file is opened
-  */
-diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/fs.h b/include/linux/fs.h
---- a/include/linux/fs.h	Tue Mar 25 04:54:45 2003
-+++ b/include/linux/fs.h	Tue Mar 25 07:35:49 2003
-@@ -1060,6 +1060,8 @@
- extern int register_chrdev(unsigned int, const char *,
- 			   struct file_operations *);
- extern int unregister_chrdev(unsigned int, const char *);
-+extern int unregister_chrdev_region(unsigned int, unsigned int, int,
-+				    const char *);
- extern int chrdev_open(struct inode *, struct file *);
- 
- /* fs/block_dev.c */
+You added this code in 2.5.66: 
+
++       /*
++        * Assume PCI cacheline size of 32 bytes for all x86s except K7/K8
++        * and P4. It's also good for 386/486s (which actually have 16)
++        * as quite a few PCI devices do not support smaller values.
++        */
++        pci_cache_line_size = 32 >> 2;
++       if (c->x86 >= 6 && c->x86_vendor == X86_VENDOR_AMD)
++               pci_cache_line_size = 64 >> 2;  /* K7 & K8 */
++       else if (c->x86 > 6)
++               pci_cache_line_size = 128 >> 2; /* P4 */
+
+This will be wrong on Pentium M for example which has a 32byte cache
+line but x86 model 9. But it's actually not needed, because all the 
+new CPUs report their cacheline size as part of CPUID for CLFLUSH.
+
+When the CPU supports CLFLUSH you can just extract it from 
+the second byte in the second word reported by CPUID 1.
+With that just use what the CPU tells you. This should also
+work correctly on VIA etc which afaik support CLFLUSH 
+in the newer CPUs.
+
+The x86-64 port extract it like this in setup.c:
+	if (c->x86_capability[0] & (1<<19)) 
+       		c->x86_clflush_size = ((misc >> 8) & 0xff) * 8;
+	}. 
+I changed its pci code to use that directly now. i386 likely
+should too. When no CLFLUSH is supported you can safely assume 32byte
+cachelines.
+
+-Andi
+
+	
+
+
+

@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbUGLUSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbUGLUTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbUGLUSP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 16:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUGLUSP
+	id S262391AbUGLUTF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 16:19:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUGLUTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 16:18:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10164 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262356AbUGLUSM (ORCPT
+	Mon, 12 Jul 2004 16:19:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36239 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262370AbUGLUSw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 16:18:12 -0400
-Date: Mon, 12 Jul 2004 13:17:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@redhat.com>
-cc: Jakub Jelinek <jakub@redhat.com>, davidm@hpl.hp.com,
-       suresh.b.siddha@intel.com, jun.nakajima@intel.com,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: serious performance regression due to NX patch
-In-Reply-To: <Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org>
-References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
- <Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
- <20040711123803.GD21264@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
+	Mon, 12 Jul 2004 16:18:52 -0400
+From: Daniel Phillips <phillips@redhat.com>
+Organization: Red Hat
+To: linux-kernel@vger.kernel.org, ssic-linux-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org, linux-cluster@redhat.com
+Subject: [ANNOUNCE] Cluster Infrastructure BOF at OLS
+Date: Mon, 12 Jul 2004 16:18:50 -0400
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407121618.50987.phillips@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
+There will be a BOF at OLS for those interested in hammering out issues
+of cluster infrastructure for Linux.
 
-On Mon, 12 Jul 2004, Ingo Molnar wrote:
-> 
-> so ... this should be #ifndef ia64?
+   http://www.linuxsymposium.org/2004/view_abstract.php?content_key=203
 
-No. Make it a CONFIG_DEFAULT_NOEXEC and make the relevant architectures do
-a
+   Friday July 23rd, 8:00 to 9:00 PM, Room D
+   (Watch for last minute schedule changes.)
 
-	define_bool DEFAULT_NOEXEC y
+The format will be:
 
-in their Kconfig files.
+   * Panel discussion, 20 minutes
+   * Open discussion, 30 minutes
+   * Wrapup, 10 minutes.
 
-In general, we should _never_ use an architecture-define. They just always
-end up becoming more and more hairy, and less and less obvious what they 
-are all about.
+Participants should come equipped with an adequate supply of fire 
+retardant and/or a good flamesuit.
 
-So instead, make a readable and explicit config define, and let each 
-architecture just set it (or not) as they wish.
+P.S., Please remove cross-posts as appropriate if you reply.
 
-		Linus
+Regards,
+
+Daniel

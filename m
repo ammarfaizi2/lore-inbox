@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263160AbTDFXIV (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 19:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbTDFXIV (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 19:08:21 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:23812
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S263160AbTDFXIU 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 19:08:20 -0400
-Subject: Re: 2.5.65-preempt booting on 32way NUMAQ
-From: Robert Love <rml@tech9.net>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Martin Bligh <mbligh@aracnet.com>
-In-Reply-To: <Pine.LNX.4.50.0304061807210.2268-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0304060625130.2268-100000@montezuma.mastecende.com>
-	 <20030406112340.GM993@holomorphy.com> <1049653846.753.156.camel@localhost>
-	 <20030406214631.GP993@holomorphy.com> <1049666635.753.161.camel@localhost>
-	 <Pine.LNX.4.50.0304061807210.2268-100000@montezuma.mastecende.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049671189.753.163.camel@localhost>
+	id S263156AbTDFXFF (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 19:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbTDFXFF (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 19:05:05 -0400
+Received: from smtp1.poczta.onet.pl ([213.180.130.31]:8100 "EHLO
+	smtp1.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S263156AbTDFXFE (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 19:05:04 -0400
+To: linux-kernel@vger.kernel.org
+From: filip <filip_@op.pl>
+Date: Mon, 07 Apr 2003 1:16:26 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Subject: paralel port - doesn't keep pins states
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 06 Apr 2003 19:19:50 -0400
-Content-Transfer-Encoding: 7bit
+X-Mailer: onet.poczta
+Message-Id: <E192JNC-0004Dy-00@f28.test.onet.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-04-06 at 18:07, Zwane Mwaikambo wrote:
+Hello,
 
-> On Sun, 6 Apr 2003, Robert Love wrote:
->
-> > Sure, but if you have a specific driver that needs a little
-> love let me know :)
-> 
-> I pray that pun was unintentional ;)
+I hope it is the right place to ask about my problem...
 
-Ouch, yes, it was.
+I want to use /dev/lp0 (lp module) on my PC for controlling
+external devices.
+The problem is when I wtire 1 byte to /dev/lp0, paralel port
+keeps this state just for few ms...
+(I made special plug - so the is no problem with handshake - details on:
+http://www.hut.fi/Misc/Electronics/circuits/nullprint.html)
 
-But I kind of like it.  Expect more of it... :)
+It is strange because everything works corect on my old PC (Pentium160).
 
-	Robert Love
-
+Regards,
+Filip

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317023AbSHJPW4>; Sat, 10 Aug 2002 11:22:56 -0400
+	id <S317017AbSHJPUZ>; Sat, 10 Aug 2002 11:20:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317024AbSHJPWz>; Sat, 10 Aug 2002 11:22:55 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:29710 "EHLO
+	id <S317022AbSHJPUY>; Sat, 10 Aug 2002 11:20:24 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:27918 "EHLO
 	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S317023AbSHJPWr>; Sat, 10 Aug 2002 11:22:47 -0400
-Date: Sat, 10 Aug 2002 19:26:10 +0400
+	id <S317017AbSHJPUX>; Sat, 10 Aug 2002 11:20:23 -0400
+Date: Sat, 10 Aug 2002 19:23:44 +0400
 From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 To: Linus Torvalds <torvalds@transmeta.com>,
        Richard Henderson <rth@twiddle.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch 2.5.30] alpha: CPU logical mapping [3/10]
-Message-ID: <20020810192610.B20534@jurassic.park.msu.ru>
+Subject: [patch 2.5.30] alpha: pte/pfn/page/tlb macros update [1/10]
+Message-ID: <20020810192344.A20505@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,207 +20,166 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hardware cpu_id to logical cpu mapping is gone.
-Converted to cpu_online() etc.
+This starts a large set of alpha patches accumulated since 2.5.18 or
+even earlier. All of this was reasonably well tested.
+Thanks to Jeff Wiedemeier for SMP testing and fixes.
+
+- sync up with (2.5.18?) pte/pfn/page/tlb etc. macros;
+- asm-generic/tlb.h: loading unsigned long constant to unsigned int
+  tlb->nr causes compiler warnings on 64 bit platforms.
 
 Ivan.
 
---- 2.5.30/include/asm-alpha/smp.h	Mon Mar 18 23:37:12 2002
-+++ linux/include/asm-alpha/smp.h	Sat Aug 10 01:20:59 2002
-@@ -42,20 +42,16 @@ extern struct cpuinfo_alpha cpu_data[NR_
+--- 2.5.30/include/asm-alpha/page.h	Fri Aug  2 01:16:33 2002
++++ linux/include/asm-alpha/page.h	Thu Aug  8 19:28:01 2002
+@@ -15,10 +15,10 @@
+ #define STRICT_MM_TYPECHECKS
  
- #define PROC_CHANGE_PENALTY     20
+ extern void clear_page(void *page);
+-#define clear_user_page(page, vaddr)	clear_page(page)
++#define clear_user_page(page, vaddr, pg)	clear_page(page)
  
--/* Map from cpu id to sequential logical cpu number.  This will only
--   not be idempotent when cpus failed to come on-line.  */
--extern int __cpu_number_map[NR_CPUS];
--#define cpu_number_map(cpu)  __cpu_number_map[cpu]
--
--/* The reverse map from sequential logical cpu number to cpu id.  */
--extern int __cpu_logical_map[NR_CPUS];
--#define cpu_logical_map(cpu)  __cpu_logical_map[cpu]
--
- #define hard_smp_processor_id()	__hard_smp_processor_id()
- #define smp_processor_id()	(current_thread_info()->cpu)
+ extern void copy_page(void * _to, void * _from);
+-#define copy_user_page(to, from, vaddr)	copy_page(to, from)
++#define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
  
- extern unsigned long cpu_present_mask;
--#define cpu_online_map cpu_present_mask
-+extern int smp_num_cpus;
+ #ifdef STRICT_MM_TYPECHECKS
+ /*
+@@ -95,8 +95,12 @@ extern __inline__ int get_order(unsigned
+ #define __pa(x)			((unsigned long) (x) - PAGE_OFFSET)
+ #define __va(x)			((void *)((unsigned long) (x) + PAGE_OFFSET))
+ #ifndef CONFIG_DISCONTIGMEM
+-#define virt_to_page(kaddr)	(mem_map + (__pa(kaddr) >> PAGE_SHIFT))
+-#define VALID_PAGE(page)	(((page) - mem_map) < max_mapnr)
++#define pfn_to_page(pfn)	(mem_map + (pfn))
++#define page_to_pfn(page)	((unsigned long)((page) - mem_map))
++#define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
 +
-+#define cpu_online_map		cpu_present_mask
-+#define num_online_cpus()	(smp_num_cpus)
-+#define cpu_online(cpu)		(cpu_present_mask & (1<<(cpu)))
-+#define cpu_possible(cpu)	cpu_online(cpu)
++#define pfn_valid(pfn)		((pfn) < max_mapnr)
++#define virt_addr_valid(kaddr)	pfn_valid(__pa(kaddr) >> PAGE_SHIFT)
+ #endif /* CONFIG_DISCONTIGMEM */
  
- extern int smp_call_function_on_cpu(void (*func) (void *info), void *info,int retry, int wait, unsigned long cpu);
- 
---- 2.5.30/include/asm-alpha/mmu_context.h	Mon Mar 18 23:37:15 2002
-+++ linux/include/asm-alpha/mmu_context.h	Sat Aug 10 01:20:59 2002
-@@ -227,8 +227,9 @@ init_new_context(struct task_struct *tsk
- {
- 	int i;
- 
--	for (i = 0; i < smp_num_cpus; i++)
--		mm->context[cpu_logical_map(i)] = 0;
-+	for (i = 0; i < NR_CPUS; i++)
-+		if (cpu_online(i))
-+			mm->context[i] = 0;
-         tsk->thread_info->pcb.ptbr
- 	  = ((unsigned long)mm->pgd - IDENT_ADDR) >> PAGE_SHIFT;
- 	return 0;
---- 2.5.30/arch/alpha/kernel/smp.c	Sat Aug 10 01:19:52 2002
-+++ linux/arch/alpha/kernel/smp.c	Sat Aug 10 01:20:59 2002
-@@ -37,6 +37,7 @@
- #include <asm/hardirq.h>
- #include <asm/softirq.h>
- #include <asm/mmu_context.h>
-+#include <asm/tlbflush.h>
- 
- #define __KERNEL_SYSCALLS__
- #include <asm/unistd.h>
-@@ -84,9 +85,6 @@ int smp_threads_ready;		/* True once the
- cycles_t cacheflush_time;
- unsigned long cache_decay_ticks;
- 
--int __cpu_number_map[NR_CPUS];
--int __cpu_logical_map[NR_CPUS];
--
- extern void calibrate_delay(void);
- extern asmlinkage void entInt(void);
- 
-@@ -463,9 +461,6 @@ smp_boot_one_cpu(int cpuid, int cpunum)
- 	init_idle(idle, cpuid);
- 	unhash_process(idle);
- 
--	__cpu_logical_map[cpunum] = cpuid;
--	__cpu_number_map[cpuid] = cpunum;
--
- 	DBGS(("smp_boot_one_cpu: CPU %d state 0x%lx flags 0x%lx\n",
- 	      cpuid, idle->state, idle->flags));
- 
-@@ -490,9 +485,7 @@ smp_boot_one_cpu(int cpuid, int cpunum)
- 		barrier();
- 	}
- 
--	/* We must invalidate our stuff as we failed to boot the CPU.  */
--	__cpu_logical_map[cpunum] = -1;
--	__cpu_number_map[cpuid] = -1;
-+	/* We failed to boot the CPU.  */
- 
- 	printk(KERN_ERR "SMP: Processor %d is stuck.\n", cpuid);
- 	return -1;
-@@ -562,12 +555,8 @@ smp_boot_cpus(void)
- 	unsigned long bogosum;
- 
- 	/* Take care of some initial bookkeeping.  */
--	memset(__cpu_number_map, -1, sizeof(__cpu_number_map));
--	memset(__cpu_logical_map, -1, sizeof(__cpu_logical_map));
- 	memset(ipi_data, 0, sizeof(ipi_data));
- 
--	__cpu_number_map[boot_cpuid] = 0;
--	__cpu_logical_map[0] = boot_cpuid;
- 	current_thread_info()->cpu = boot_cpuid;
- 
- 	smp_store_cpu_info(boot_cpuid);
-@@ -942,10 +931,9 @@ flush_tlb_mm(struct mm_struct *mm)
- 	if (mm == current->active_mm) {
- 		flush_tlb_current(mm);
- 		if (atomic_read(&mm->mm_users) <= 1) {
--			int i, cpu, this_cpu = smp_processor_id();
--			for (i = 0; i < smp_num_cpus; i++) {
--				cpu = cpu_logical_map(i);
--				if (cpu == this_cpu)
-+			int cpu, this_cpu = smp_processor_id();
-+			for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+				if (!cpu_online(cpu) || cpu == this_cpu)
- 					continue;
- 				if (mm->context[cpu])
- 					mm->context[cpu] = 0;
-@@ -986,10 +974,9 @@ flush_tlb_page(struct vm_area_struct *vm
- 	if (mm == current->active_mm) {
- 		flush_tlb_current_page(mm, vma, addr);
- 		if (atomic_read(&mm->mm_users) <= 1) {
--			int i, cpu, this_cpu = smp_processor_id();
--			for (i = 0; i < smp_num_cpus; i++) {
--				cpu = cpu_logical_map(i);
--				if (cpu == this_cpu)
-+			int cpu, this_cpu = smp_processor_id();
-+			for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+				if (!cpu_online(cpu) || cpu == this_cpu)
- 					continue;
- 				if (mm->context[cpu])
- 					mm->context[cpu] = 0;
-@@ -1036,10 +1023,9 @@ flush_icache_user_range(struct vm_area_s
- 	if (mm == current->active_mm) {
- 		__load_new_mm_context(mm);
- 		if (atomic_read(&mm->mm_users) <= 1) {
--			int i, cpu, this_cpu = smp_processor_id();
--			for (i = 0; i < smp_num_cpus; i++) {
--				cpu = cpu_logical_map(i);
--				if (cpu == this_cpu)
-+			int cpu, this_cpu = smp_processor_id();
-+			for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+				if (!cpu_online(cpu) || cpu == this_cpu)
- 					continue;
- 				if (mm->context[cpu])
- 					mm->context[cpu] = 0;
---- 2.5.30/arch/alpha/kernel/setup.c	Wed Jun 19 23:46:54 2002
-+++ linux/arch/alpha/kernel/setup.c	Sat Aug 10 01:20:59 2002
-@@ -1109,7 +1109,7 @@ show_cpuinfo(struct seq_file *f, void *s
- #ifdef CONFIG_SMP
- 	seq_printf(f, "cpus active\t\t: %d\n"
- 		      "cpu active mask\t\t: %016lx\n",
--		       smp_num_cpus, cpu_present_mask);
-+		       num_online_cpus(), cpu_present_mask);
+ #define VM_DATA_DEFAULT_FLAGS		(VM_READ | VM_WRITE | VM_EXEC | \
+--- 2.5.30/include/asm-alpha/pgtable.h	Fri Aug  2 01:16:17 2002
++++ linux/include/asm-alpha/pgtable.h	Thu Aug  8 19:28:02 2002
+@@ -179,11 +179,12 @@ extern unsigned long __zero_page(void);
  #endif
- 
- 	return 0;
---- 2.5.30/arch/alpha/kernel/irq.c	Mon Aug  5 00:56:40 2002
-+++ linux/arch/alpha/kernel/irq.c	Sat Aug 10 01:20:59 2002
-@@ -525,12 +525,9 @@ show_interrupts(struct seq_file *p, void
- 
- #ifdef CONFIG_SMP
- 	seq_puts(p, "           ");
--	for (i = 0; i < smp_num_cpus; i++)
--		seq_printf(p, "CPU%d       ", i);
--#ifdef DO_BROADCAST_INTS
--	for (i = 0; i < smp_num_cpus; i++)
--		seq_printf(p, "TRY%d       ", i);
--#endif
-+	for (i = 0; i < NR_CPUS; i++)
-+		if (cpu_online(i))
-+			seq_printf(p, "CPU%d       ", i);
- 	seq_putc(p, '\n');
- #endif
- 
-@@ -542,14 +539,9 @@ show_interrupts(struct seq_file *p, void
- #ifndef CONFIG_SMP
- 		seq_printf(p, "%10u ", kstat_irqs(i));
+ #if defined(CONFIG_ALPHA_GENERIC) || \
+     (defined(CONFIG_ALPHA_EV6) && !defined(USE_48_BIT_KSEG))
+-#define PHYS_TWIDDLE(phys) \
+-  ((((phys) & 0xc0000000000UL) == 0x40000000000UL) \
+-  ? ((phys) ^= 0xc0000000000UL) : (phys))
++#define KSEG_PFN	(0xc0000000000UL >> PAGE_SHIFT)
++#define PHYS_TWIDDLE(pfn) \
++  ((((pfn) & KSEG_PFN) == (0x40000000000UL >> PAGE_SHIFT)) \
++  ? ((pfn) ^= KSEG_PFN) : (pfn))
  #else
--		for (j = 0; j < smp_num_cpus; j++)
--			seq_printf(p, "%10u ",
--				     kstat.irqs[cpu_logical_map(j)][i]);
--#ifdef DO_BROADCAST_INTS
--		for (j = 0; j < smp_num_cpus; j++)
--			seq_printf(p, "%10lu ",
--				     irq_attempt(cpu_logical_map(j), i));
+-#define PHYS_TWIDDLE(phys) (phys)
++#define PHYS_TWIDDLE(pfn) (pfn)
+ #endif
+ 
+ /*
+@@ -199,12 +200,13 @@ extern unsigned long __zero_page(void);
+ #endif
+ 
+ #ifndef CONFIG_DISCONTIGMEM
++#define pte_pfn(pte)	(pte_val(pte) >> 32)
++#define pte_page(pte)	pfn_to_page(pte_pfn(pte))
+ #define mk_pte(page, pgprot)						\
+ ({									\
+ 	pte_t pte;							\
+ 									\
+-	pte_val(pte) = ((unsigned long)(page - mem_map) << 32) |	\
+-		       pgprot_val(pgprot);				\
++	pte_val(pte) = (page_to_pfn(page) << 32) | pgprot_val(pgprot);	\
+ 	pte;								\
+ })
+ #else
+@@ -219,10 +221,20 @@ extern unsigned long __zero_page(void);
+ 										\
+ 	pte;									\
+ })
++#define pte_page(x)							\
++({									\
++	unsigned long kvirt;						\
++	struct page * __xx;						\
++									\
++	kvirt = (unsigned long)__va(pte_val(x) >> (32-PAGE_SHIFT));	\
++	__xx = virt_to_page(kvirt);					\
++									\
++	__xx;								\
++})
+ #endif
+ 
+-extern inline pte_t mk_pte_phys(unsigned long physpage, pgprot_t pgprot)
+-{ pte_t pte; pte_val(pte) = (PHYS_TWIDDLE(physpage) << (32-PAGE_SHIFT)) | pgprot_val(pgprot); return pte; }
++extern inline pte_t pfn_pte(unsigned long physpfn, pgprot_t pgprot)
++{ pte_t pte; pte_val(pte) = (PHYS_TWIDDLE(physpfn) << 32) | pgprot_val(pgprot); return pte; }
+ 
+ extern inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+ { pte_val(pte) = (pte_val(pte) & _PAGE_CHG_MASK) | pgprot_val(newprot); return pte; }
+@@ -233,20 +245,6 @@ extern inline void pmd_set(pmd_t * pmdp,
+ extern inline void pgd_set(pgd_t * pgdp, pmd_t * pmdp)
+ { pgd_val(*pgdp) = _PAGE_TABLE | ((((unsigned long) pmdp) - PAGE_OFFSET) << (32-PAGE_SHIFT)); }
+ 
+-#ifndef CONFIG_DISCONTIGMEM
+-#define pte_page(x)	(mem_map+(unsigned long)((pte_val(x) >> 32)))
+-#else
+-#define pte_page(x)							\
+-({									\
+-	unsigned long kvirt;						\
+-	struct page * __xx;						\
+-									\
+-	kvirt = (unsigned long)__va(pte_val(x) >> (32-PAGE_SHIFT));	\
+-	__xx = virt_to_page(kvirt);					\
+-									\
+-	__xx;								\
+-})
 -#endif
-+		for (j = 0; j < NR_CPUS; j++)
-+			if (cpu_online(j))
-+				seq_printf(p, "%10u ", kstat.irqs[j][i]);
- #endif
- 		seq_printf(p, " %14s", irq_desc[i].handler->typename);
- 		seq_printf(p, "  %c%s",
-@@ -565,9 +557,9 @@ show_interrupts(struct seq_file *p, void
- 	}
- #if CONFIG_SMP
- 	seq_puts(p, "IPI: ");
--	for (j = 0; j < smp_num_cpus; j++)
--		seq_printf(p, "%10lu ",
--			     cpu_data[cpu_logical_map(j)].ipi_count);
-+	for (i = 0; i < NR_CPUS; i++)
-+		if (cpu_online(i))
-+			seq_printf(p, "%10lu ", cpu_data[i].ipi_count);
- 	seq_putc(p, '\n');
- #endif
- 	seq_printf(p, "ERR: %10lu\n", irq_err_count);
+ 
+ extern inline unsigned long
+ pmd_page_kernel(pmd_t pmd)
+--- 2.5.30/include/asm-alpha/system.h	Fri Aug  2 01:16:28 2002
++++ linux/include/asm-alpha/system.h	Thu Aug  8 19:28:02 2002
+@@ -130,8 +130,10 @@ struct el_common_EV6_mcheck {
+ extern void halt(void) __attribute__((noreturn));
+ #define __halt() __asm__ __volatile__ ("call_pal %0 #halt" : : "i" (PAL_halt))
+ 
+-#define prepare_to_switch()	do { } while(0)
+-#define switch_to(prev,next)						  \
++#define prepare_arch_schedule(prev)		do { } while(0)
++#define finish_arch_schedule(prev)		do { } while(0)
++
++#define switch_to(prev,next,last)						  \
+ do {									  \
+ 	alpha_switch_to(virt_to_phys(&(next)->thread_info->pcb), (prev)); \
+ 	check_mmu_context();						  \
+--- 2.5.30/include/asm-alpha/tlb.h	Fri Aug  2 01:16:22 2002
++++ linux/include/asm-alpha/tlb.h	Thu Aug  8 19:28:02 2002
+@@ -1 +1,15 @@
++#ifndef _ALPHA_TLB_H
++#define _ALPHA_TLB_H
++
++#define tlb_start_vma(tlb, vma)			do { } while (0)
++#define tlb_end_vma(tlb, vma)			do { } while (0)
++#define tlb_remove_tlb_entry(tlb, pte, addr)	do { } while (0)
++
++#define tlb_flush(tlb)				flush_tlb_mm((tlb)->mm)
++
+ #include <asm-generic/tlb.h>
++
++#define pte_free_tlb(tlb,pte)			pte_free(pte)
++#define pmd_free_tlb(tlb,pmd)			pmd_free(pmd)
++ 
++#endif
+--- 2.5.30/include/asm-generic/tlb.h	Fri Aug  2 01:15:59 2002
++++ linux/include/asm-generic/tlb.h	Thu Aug  8 19:28:01 2002
+@@ -54,7 +54,7 @@ static inline mmu_gather_t *tlb_gather_m
+ 	tlb->mm = mm;
+ 
+ 	/* Use fast mode if only one CPU is online */
+-	tlb->nr = num_online_cpus() > 1 ? 0UL : ~0UL;
++	tlb->nr = num_online_cpus() > 1 ? 0U : ~0U;
+ 
+ 	tlb->fullmm = full_mm_flush;
+ 	tlb->freed = 0;

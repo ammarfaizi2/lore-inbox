@@ -1,110 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268323AbUHQQAC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268335AbUHQQBa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268323AbUHQQAC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 12:00:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268272AbUHQQAC
+	id S268335AbUHQQBa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 12:01:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268272AbUHQQAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 12:00:02 -0400
-Received: from cantor.suse.de ([195.135.220.2]:35306 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268319AbUHQP70 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 11:59:26 -0400
-Date: Tue, 17 Aug 2004 17:59:18 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] bio_uncopy_user mem leak
-Message-ID: <20040817155918.GA5312@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
+	Tue, 17 Aug 2004 12:00:46 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:11169 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S268322AbUHQP7g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 11:59:36 -0400
+Date: Tue, 17 Aug 2004 17:59:27 +0200
+To: linux-kernel@vger.kernel.org
+Cc: Ballarin.Marc@gmx.de, fsteiner-mail@bio.ifi.lmu.de, christer@weinigel.se
+Subject: [PATCH] 2.6.8.1 Mis-detect CRDW as CDROM
+Message-ID: <20040817155927.GA19546@proton-satura-home>
+References: <411FD919.9030702@comcast.net> <20040816231211.76360eaa.Ballarin.Marc@gmx.de> <4121A689.8030708@bio.ifi.lmu.de> <200408171311.06222.satura@proton>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-X-Operating-System: Linux 2.6.5-20-KG i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200408171311.06222.satura@proton>
+User-Agent: Mutt/1.5.6+20040722i
+From: Andreas Messer <andreas.messer@gmx.de>
+X-ID: GEHzPaZDZe1SAlYf2r3tfjj328zFewB0zsLRt1w-j5eUe2ssTf8XZA@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello again,
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+as i get informed, that the kmail emailclient has not made
+what i want, i decided to use mutt for next time. I will
+include the patch again to make it readable. I have also
+changed the thing with MODE_SELECT_10 to write mode 
+because Christer Weinig figured out, that this CMD may
+be insecure in connection with harddisks.
+The changes to cdrom.h made by Marc Ballarin have not yet 
+been included.
+But i think, that the security model should made more 
+precise - deciding only upon the commands does not give
+the effekt of much improved security.
 
-Hi Andrew,
+Here ist the patch.
 
-When using bounce buffers for SG_IO commands with unaligned=20
-buffers in blk_rq_map_user(), we should free the pages from
-blk_rq_unmap_user() which calls bio_uncopy_user() for the=20
-non-BIO_USER_MAPPED case. That function failed to free the
-pages for write requests.
-
-So we leaked pages and you machine would go OOM. Rebooting=20
-helped ;-)
-
-This bug was triggered by writing audio CDs (but not on data=20
-CDs), as the audio frames are not aligned well (2352 bytes),
-so the user pages don't just get mapped.
-
-Bug was reported by Mathias Homan and debugged by Chris Mason + me.
-(Jens is away.)
-
-Signed-off-by: Kurt Garloff <garloff@suse.de>
-
- bio.c |   21 +++++++++------------
- 1 files changed, 9 insertions(+), 12 deletions(-)
-
---- linux-2.6.8.x86/fs/bio.c.orig	2004-08-14 07:37:15.000000000 +0200
-+++ linux-2.6.8.x86/fs/bio.c	2004-08-17 17:41:52.022012902 +0200
-@@ -388,20 +388,17 @@ int bio_uncopy_user(struct bio *bio)
- 	struct bio_vec *bvec;
- 	int i, ret =3D 0;
-=20
--	if (bio_data_dir(bio) =3D=3D READ) {
--		char *uaddr =3D bio->bi_private;
--
--		__bio_for_each_segment(bvec, bio, i, 0) {
--			char *addr =3D page_address(bvec->bv_page);
--
--			if (!ret && copy_to_user(uaddr, addr, bvec->bv_len))
--				ret =3D -EFAULT;
-+	char *uaddr =3D bio->bi_private;
-+=09
-+	__bio_for_each_segment(bvec, bio, i, 0) {
-+		char *addr =3D page_address(bvec->bv_page);
-+		if (bio_data_dir(bio) =3D=3D READ && !ret &&=20
-+		    copy_to_user(uaddr, addr, bvec->bv_len))
-+			ret =3D -EFAULT;
-=20
--			__free_page(bvec->bv_page);
--			uaddr +=3D bvec->bv_len;
--		}
-+		__free_page(bvec->bv_page);
-+		uaddr +=3D bvec->bv_len;
- 	}
--
- 	bio_put(bio);
- 	return ret;
+--- linux-2.6.8.1/drivers/block/scsi_ioctl.c	2004-08-16 21:44:53.000000000 +0200
++++ linux/drivers/block/scsi_ioctl.c	2004-08-17 17:41:54.000000000 +0200
+@@ -156,6 +156,54 @@
+ 		safe_for_write(WRITE_16),
+ 		safe_for_write(WRITE_BUFFER),
+ 		safe_for_write(WRITE_LONG),
++
++
++		/* Some additional defs for recording/reading CDs */
++
++		/* 0x01 REZERO_UNIT used by k3b, but also work without */
++               
++		/* read-mode */
++		safe_for_read(GPCMD_GET_CONFIGURATION),
++		safe_for_read(GPCMD_GET_EVENT_STATUS_NOTIFICATION),
++		safe_for_read(GPCMD_GET_PERFORMANCE),
++		safe_for_read(GPCMD_MECHANISM_STATUS),
++
++		/* should this allowed for read ? */
++		safe_for_read(GPCMD_LOAD_UNLOAD),
++		safe_for_read(GPCMD_SET_SPEED),
++		safe_for_read(GPCMD_PAUSE_RESUME),   /* playing audio cd */
++		safe_for_read(SEEK_10),              /* playing audio cd */
++		safe_for_read(GPCMD_SET_READ_AHEAD),
++		safe_for_read(GPCMD_SET_STREAMING),
++		safe_for_read(GPCMD_STOP_PLAY_SCAN), /* playing audio cd */
++
++		/* k3b wont work without read - maybe bug in k3b, but 
++		   MODE_SELECT_10 seems to destroy data in conjunction
++                   with harddisk */
++		safe_for_write(GPCMD_MODE_SELECT_10), 
++
++		/* write-mode */
++		safe_for_write(GPCMD_BLANK), 
++		safe_for_write(GPCMD_CLOSE_TRACK),
++		safe_for_write(0x2c),        /* ERASE_10 */ 
++		safe_for_write(GPCMD_FORMAT_UNIT),
++		safe_for_write(GPCMD_PREVENT_ALLOW_MEDIUM_REMOVAL),
++		safe_for_write(0x5c),        /* READ_BUFFER_CAPACITY */
++		safe_for_write(GPCMD_READ_FORMAT_CAPACITIES),
++		safe_for_write(GPCMD_REPAIR_RZONE_TRACK),
++		safe_for_write(GPCMD_RESERVE_RZONE_TRACK),
++		safe_for_write(0x5d),        /* SEND_CUE_SHEET */
++		safe_for_write(0xbf),        /* SEND_DVD_STRUCTURE */
++		safe_for_write(GPCMD_SEND_KEY),
++		safe_for_write(GPCMD_SEND_OPC),
++		safe_for_write(SYNCHRONIZE_CACHE),
++		safe_for_write(VERIFY),
++
++		/* Disabled, may change firmware 
++		   safe_for_write(0x3b),  WRITE_BUFFER */
++		/* Disabled due useless without WRITE_BUFFER 
++		   safe_for_write(0x3c),  READ_BUFFER */
++
+ 	};
+ 	unsigned char type = cmd_type[cmd[0]];
+ 
+@@ -173,6 +221,14 @@
+ 	if (capable(CAP_SYS_RAWIO))
+ 		return 0;
+ 
++        /* Added for debugging*/
++       
++	if(file->f_mode & FMODE_WRITE)
++	  printk(KERN_WARNING "SCSI-CMD Filter: 0x%x not allowed with write-mode\n",cmd[0]);
++	else
++	  printk(KERN_WARNING "SCSI-CMD Filter: 0x%x not allowed with read-mode\n",cmd[0]);
++
++
+ 	/* Otherwise fail it with an "Operation not permitted" */
+ 	return -EPERM;
  }
-
---=20
-Kurt Garloff, Director SUSE Labs, Novell
-
---azLHFNyN32YCQGCU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBIitWxmLh6hyYd04RAj1AAJ0YITtm16Dq2XwIoloqKYD6hWCMhgCghxmn
-pn5Aoa49dmvbESDyMPTiZ3c=
-=qlWb
------END PGP SIGNATURE-----
-
---azLHFNyN32YCQGCU--

@@ -1,45 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbUBYSjm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 13:39:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbUBYSjm
+	id S261516AbUBYSmi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 13:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbUBYSln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 13:39:42 -0500
-Received: from fed1mtao01.cox.net ([68.6.19.244]:1720 "EHLO fed1mtao01.cox.net")
-	by vger.kernel.org with ESMTP id S261540AbUBYSjg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 13:39:36 -0500
-Date: Wed, 25 Feb 2004 11:39:34 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Paul Mundt <lethal@linux-sh.org>, "James H. Cloos Jr." <cloos@jhcloos.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: make help ARCH=xx fun
-Message-ID: <20040225183934.GX1052@smtp.west.cox.net>
-References: <m3y8qwv78e.fsf@lugabout.jhcloos.org> <20040222095021.GB2266@mars.ravnborg.org> <20040224215548.GF1052@smtp.west.cox.net> <20040225190049.GB2474@mars.ravnborg.org> <20040225180858.GW1052@smtp.west.cox.net> <20040225183038.GA24041@linux-sh.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040225183038.GA24041@linux-sh.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 25 Feb 2004 13:41:43 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4992 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261673AbUBYSlU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 13:41:20 -0500
+Date: Wed, 25 Feb 2004 13:41:11 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Kristian =?ISO-8859-1?Q?S=F8rensen?= <ks@cs.auc.dk>,
+       linux-kernel@vger.kernel.org, umbrella@cs.auc.dk
+Subject: Re: Implement new system call in 2.6
+In-Reply-To: <20040225101419.5f058573.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.53.0402251336510.3401@chaos>
+References: <Pine.LNX.4.56.0402250933001.648@homer.cs.auc.dk>
+ <20040225101419.5f058573.rddunlap@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25, 2004 at 01:30:38PM -0500, Paul Mundt wrote:
-> On Wed, Feb 25, 2004 at 11:08:59AM -0700, Tom Rini wrote:
-> > I can understand that.  How about:
-> > for board in arch/$(ARCH)/configs/*defconfig; \
-> >  do \
-> >    if [ -f $board ]; then
-> >     ...
-> >    fi
-> >  done
-> > 
-> Simply just matching on *defconfig should be fine. I already changed this on
-> matching defconfig-* for sh to get around matching SCCS.
+On Wed, 25 Feb 2004, Randy.Dunlap wrote:
 
-Would you mind changing to foo_defconfig from defconfig-foo ?  Then you
-get the make foo_defconfig rule for free.
+> On Wed, 25 Feb 2004 11:07:41 +0100 (CET) Kristian Sørensen wrote:
+>
+> | Hi all!
+> |
+> | How do I invoke a newly created system call in the 2.6.3 kernel from
+> | userspace?
+> |
+> | The call is added it arch/i386/kernel/entry.S and include/asm/unistd.h
+> | and the call is implemented in a security module called Umbrella(*).
+> |
+> | The kernel compiles and boots nicely.
+> |
+> | The main problem is now to compile a userspace program that invokes this
+> | call. The guide for implementing the systemcall at
+> | http://fossil.wpi.edu/docs/howto_add_systemcall.html
+> | has been followed, which yields the following userspace program:
+> |
+> | // test.h
+> | #include "/home/snc/linux-2.6.3-umbrella/include/linux/unistd.h"
+> | _syscall1(int, umbrella_scr, int, arg1);
+> |
+> | // test.c
+> | #include "test.h"
+> | main() {
+> |   int test = umbrella_scr(1);
+> |   printf ("%i\n", test);
+> | }
+> |
+> | When compiling:
+> |
+> | gcc -I/home/snc/linux-2.6.3/include test.c
+> |
+> | /tmp/ccYYs1zB.o(.text+0x20): In function `umbrella_scr':
+> | : undefined reference to `errno'
+> | collect2: ld returned 1 exit status
+> |
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+#include <errno.h>
+
+Some versions of 'C' define errno as *__errno_location().
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

@@ -1,49 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266360AbUAHWUj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 17:20:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266361AbUAHWUi
+	id S266334AbUAHWgu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 17:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUAHWgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 17:20:38 -0500
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:61711 "EHLO
-	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
-	id S266360AbUAHWUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 17:20:37 -0500
-Date: Thu, 8 Jan 2004 17:20:25 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: trond.myklebust@fys.uio.no, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org, raven@themaw.net,
-       Michael.Waychison@sun.com, thockin@sun.com
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-Message-ID: <20040108222024.GG21498@fieldses.org>
-References: <33128.141.211.133.197.1073590355.squirrel@webmail.uio.no> <3FFDB272.8030808@zytor.com> <33178.141.211.133.197.1073592524.squirrel@webmail.uio.no> <3FFDC7F4.4070800@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FFDC7F4.4070800@zytor.com>
-User-Agent: Mutt/1.5.4i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Thu, 8 Jan 2004 17:36:50 -0500
+Received: from p68.rivermarket.wintek.com ([208.13.56.68]:6064 "EHLO
+	dust.p68.rivermarket.wintek.com") by vger.kernel.org with ESMTP
+	id S266334AbUAHWgr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 17:36:47 -0500
+Date: Thu, 8 Jan 2004 17:40:46 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: Diego Calleja <grundig@teleline.es>, Ian Kent <raven@themaw.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: udev and devfs - The final word
+In-Reply-To: <200401082220.24127.arvidjaar@mail.ru>
+Message-ID: <Pine.LNX.4.58.0401081712520.3452@dust>
+References: <E1Aeab1-0009FQ-00.arvidjaar-mail-ru@f20.mail.ru>
+ <Pine.LNX.4.44.0401082333280.449-100000@donald.themaw.net>
+ <20040108182621.1278db90.grundig@teleline.es> <200401082220.24127.arvidjaar@mail.ru>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 08, 2004 at 01:13:24PM -0800, H. Peter Anvin wrote:
-> Also, your global machine credential is to some degree "all the security
-> you get."  Any security which isn't enforced by the filesystem driver
-> doesn't exist in a Unix environment; in particular there is no security
-> against root.
+To shorten my reply from one post to two:
 
-I only have to trust root on the nfs client machines that I actually
-use.  (In fact, I only really have to trust those machines with a
-short-lived ticket, preventing even those machines from impersonating me
-beyond a limited time.)
+I wasn't aware the lookup race had been fixed.  Silly me.  As to the
+number of results for the terms I used, I was looking for that specific
+post, as I'd cited it before.  'devfs deadlock' also returns plenty of
+good (and irrelevant)  results at that same archive.
 
-> Stupid tricks like remapping uid 0 are just that; stupid
-> tricks without any real security value.  You know this, of course.
-> However, if you think the automounter doesn't have the privilege to
-> access the remote server but the user does, then that's false security.
+On Thu, 8 Jan 2004, Andrey Borzenkov wrote:
 
-If the server requires kerberos credentials that only a user has, then
-the automounter can't do anything until the user coughs up those
-credentials.
+> On Thursday 08 January 2004 20:26, Diego Calleja wrote:
+> > El Thu, 8 Jan 2004 23:40:16 +0800 (WST) Ian Kent <raven@themaw.net> 
+> escribió:
+> > > Again I'm also unable to find descriptions of the 'unsolvable' races.
+> > >
+> > > I wouldn't mind knowing what they are either. Anyone?
+> >
+> > You can find tons of examples (several of them patches by Al Viro to fix
+> > them) by searching with google with keywords like "devfs races". The
+> > "should fix" list
+> > (http://www.kernel.org/pub/linux/kernel/people/akpm/must-fix) has this:
+> >
+> 
+> is it a gospel?
 
---Bruce Fields
+Given akpm's track record and, the fact that he's going to be maintaining
+2.6, his word is enough for me.  But...
+
+[lookup vs. devfsd deadlock]
+
+> oh, well ... if you selected this example ...
+> 
+> Mandrake workaround it mentions was my first attempt to fix this; this
+> did not fix the devfs but rather fixed the user-space program that
+> provoked this on boot (and that was buggy irrespectively of this
+> problem).
+> 
+> Current 2.6 kernel includes my fix to deadlock condition. Current -mm
+> includes one possible fix for race condition; Andrew Morton mentioned
+> that it is unlikely to be accepted due to minor changes in VFS layer; I
+> am working on another less intrusive fix and overall devfs cleanup.
+> 
+> Would you please instead of citing long obsolete paper show me real example 
+> and explain *why* it is not fixable. Better yet, would you take some time to 
+> try to provoke any of those huge races and report back your success (stack 
+> trace and instructions how to reproduce them are welcome :)
+> 
+> Thank you
+
+One should do one's own research.  If I'd done my own better, I would've
+found a better example than the one I posted previously.  However, since
+you seem unwilling or unable to do your own homework, and I have nearly
+unlimited free time until next Monday, here's some more:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103696697201341&w=2
+
+Some parts of that post have been fixed.  I haven't taken the time to read
+the rest of the thread (I don't remember that thread being very long).
+
+However, I'm all but positive the problems Viro points out in this post
+still apply:  
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107223747630894&w=2
+
+These posts are out there and they are _not_ hard to find at all.  That
+last one was from about two weeks ago.  The other is much older, and I'd
+have to do some digging in ugly, ugly code to find points that still
+apply.  However, as I started this paragraph by saying, this stuff isn't
+hard to find at all.
+
+Please consider doing your own homework.  It's not like discussion of
+devfs and its problems has been rare.
+
+Thank you.
+
+-- 
+Alex Goddard
+agoddard at purdue.edu

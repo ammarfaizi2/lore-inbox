@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268066AbTBRW5d>; Tue, 18 Feb 2003 17:57:33 -0500
+	id <S267960AbTBRW7O>; Tue, 18 Feb 2003 17:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268083AbTBRW5c>; Tue, 18 Feb 2003 17:57:32 -0500
-Received: from AMarseille-201-1-6-77.abo.wanadoo.fr ([80.11.137.77]:44583 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S268066AbTBRW5b>;
-	Tue, 18 Feb 2003 17:57:31 -0500
-Subject: Re: [ACPI] Re: Fixes to suspend-to-RAM
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Pavel Machek <pavel@ucw.cz>, Linus Torvalds <torvalds@transmeta.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.33.0302181535520.1035-100000@localhost.localdomain>
-References: <Pine.LNX.4.33.0302181535520.1035-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045609701.7399.5.camel@zion.wanadoo.fr>
+	id <S268088AbTBRW7N>; Tue, 18 Feb 2003 17:59:13 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32526 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267960AbTBRW7L>; Tue, 18 Feb 2003 17:59:11 -0500
+Date: Tue, 18 Feb 2003 23:09:10 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: clean up the IDE iops, add ones for a dead iface
+Message-ID: <20030218230910.A27653@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+References: <E18lC5R-00067P-00@the-village.bc.nu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 19 Feb 2003 00:08:21 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E18lC5R-00067P-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Feb 18, 2003 at 06:03:21PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-02-18 at 22:41, Patrick Mochel wrote:
+On Tue, Feb 18, 2003 at 06:03:21PM +0000, Alan Cox wrote:
+> +static u8 ide_unplugged_inb (unsigned long port)
+> +{
+> +	return 0xFF;
+> +}
 
-> I propose that we don't even call SUSPEND_DISABLE. Based on recent
-> conversations, it appears that we can and should do the entire device
-> suspend sequence in two passes - SUSPEND_SAVE_STATE with interrupts
-> enabled, and SUSPEND_POWER_DOWN with interrupts disabled.
+Shouldn't this return 0x7f, ie bit 7 clear, as if we have an interface
+without drive attached?
 
-Right... though I still care about my early pet SUSPEND_NOTIFY for
-the few things that need to care about allocations issues (that is
-that need to know they can no longer rely on GFP_KERNEL & friends
-not blocking until wakeup).
-
-Regarding failure, what I did with success on pmac (I had occasional
-failure to suspend from the OHCI controller or video drivers during
-tests, though those seem to be quite rare in real life) is to call
-back the wakeup calls for devices that got the matching suspend
-call.
-
-I beleive it's as safe to just call all wakeup calls in order
-instead though, and it makes things simpler (as the individual
-drivers should really know in what state they really are).
-
-Ben.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

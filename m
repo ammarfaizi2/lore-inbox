@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVCIX3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVCIX3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbVCIX3K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 18:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVCIX1J
+	id S261313AbVCIX3m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 18:29:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVCIX3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:27:09 -0500
-Received: from rutherford.zen.co.uk ([212.23.3.142]:31973 "EHLO
-	rutherford.zen.co.uk") by vger.kernel.org with ESMTP
-	id S261199AbVCIX0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 18:26:39 -0500
-Message-ID: <422F8623.4030405@cantab.net>
-Date: Wed, 09 Mar 2005 23:26:27 +0000
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Support for GEODE CPUs
-References: <200503081935.j28JZ433020124@hera.kernel.org>	 <1110387668.28860.205.camel@localhost.localdomain>	 <20050309173344.GD17865@csclub.uwaterloo.ca> <1110405563.3072.250.camel@localhost.localdomain>
-In-Reply-To: <1110405563.3072.250.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-Rutherford-IP: [82.70.146.41]
+	Wed, 9 Mar 2005 18:29:30 -0500
+Received: from fire.osdl.org ([65.172.181.4]:43936 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262301AbVCIX3D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 18:29:03 -0500
+Date: Wed, 9 Mar 2005 15:28:25 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Chris Wright <chrisw@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Daniel Staaf <dst@bostream.nu>, LKML <linux-kernel@vger.kernel.org>,
+       Andrei Mikhailovsky <andrei@arhont.com>,
+       Ian Campbell <icampbell@arcom.com>,
+       Ronald Bultje <rbultje@ronald.bitfreak.net>,
+       Gerd Knorr <kraxel@bytesex.org>, stable@kernel.org
+Subject: Re: [PATCH 2.6] Fix i2c messsage flags in video drivers
+Message-ID: <20050309232825.GH5389@shell0.pdx.osdl.net>
+References: <1110024688.5494.2.camel@whale.core.arhont.com> <422A5473.7030306@osdl.org> <1110115990.5611.2.camel@whale.core.arhont.com> <422CCBF4.1060902@osdl.org> <20050308201504.6aee36d5.khali@linux-fr.org> <20050308202530.2fbfae9a.khali@linux-fr.org> <20050309184055.GX28536@shell0.pdx.osdl.net> <20050309225559.061058dd.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050309225559.061058dd.khali@linux-fr.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+* Jean Delvare (khali@linux-fr.org) wrote:
+> > 
+> > Are people reporting this as a problem?
 > 
-> There are a few Geode tricks to know for performance
-> 
-> - If you can't turn it off use solid areas of colour to speed the system
-> up (The hardware uses RLE encoding to reduce ram fetch bandwidth)
+> Not that I know. For adv7175 it couldn't be reported so far anyway
+> because people would hit the oops in saa7110 before (same board: DC10+,
+> oops fixed in a different patch).
 
-How much of a difference does the compression make to performance?
+Heh, right.
 
-> - The onboard audio is a software SB emulation on older GX. It burns
-> CPU.
+> It is possible that people are able to get their board to still work
+> without my patch, if the chips were properly configured in the first
+> place and they don't attempt to reconfigure them (like norm change). I
+> don't know the chips well enough to tell how probable this is.
 
-Presumably one could write a native audio driver that didn't use the 
-soundblaster emulation?
+According to offlist mail, it does "fix a bug that bothers people."
+So looks like a fine candidate, and is queued up for -stable.
 
-David Vrabel
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbUBIKrd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 05:47:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264510AbUBIKrd
+	id S264605AbUBILGg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 06:06:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264608AbUBILGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 05:47:33 -0500
-Received: from 10fwd.cistron-office.nl ([62.216.29.197]:25788 "EHLO
-	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
-	id S264505AbUBIKrc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 05:47:32 -0500
-Date: Mon, 9 Feb 2004 11:47:29 +0100
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-To: viro@parcelfarce.linux.theplanet.co.uk
+	Mon, 9 Feb 2004 06:06:36 -0500
+Received: from [193.170.124.123] ([193.170.124.123]:38978 "EHLO 23.cms.ac")
+	by vger.kernel.org with ESMTP id S264605AbUBILGe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 06:06:34 -0500
+Date: Mon, 9 Feb 2004 12:06:24 +0100
+From: JG <jg@cms.ac>
+To: John Bradford <john@grabjohn.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Does anyone still care about BSD ptys?
-Message-ID: <20040209104729.GA19401@traveler.cistron.net>
-Reply-To: linux-kernel@vger.kernel.org
-References: <c07c67$vrs$1@terminus.zytor.com> <c07i5r$ctq$1@news.cistron.nl> <20040209100940.GF21151@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: could someone plz explain those ext3/hard disk errors
+In-Reply-To: <200402091026.i19AQ15t000678@81-2-122-30.bradfords.org.uk>
+References: <20040208175346.767881A96E1@23.cms.ac>
+	<20040209014722.GA22683@stout.hampshire.edu>
+	<20040209095227.AF4261A9ACF@23.cms.ac>
+	<200402091026.i19AQ15t000678@81-2-122-30.bradfords.org.uk>
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Gentoo 1.4 ;)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20040209100940.GF21151@parcelfarce.linux.theplanet.co.uk> (from viro@parcelfarce.linux.theplanet.co.uk on Mon, Feb 09, 2004 at 11:09:40 +0100)
-X-Mailer: Balsa 2.0.16
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Mon__9_Feb_2004_12_06_25_+0100_q9z+3PO0WhqzGXc7"
+Message-Id: <20040209110633.1E8DE1A9AD7@23.cms.ac>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004.02.09 11:09, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Mon, Feb 09, 2004 at 08:59:39AM +0000, Miquel van Smoorenburg wrote:
-> > In article <c07c67$vrs$1@terminus.zytor.com>,
-> > H. Peter Anvin <hpa@zytor.com> wrote:
-> > >Does anyone still care about old-style BSD ptys, i.e. /dev/pty*?  I'm
-> > >thinking of restructuring the pty system slightly to make it more
-> > >dynamic and to make use of the new larger dev_t, and I'd like to get
-> > >rid of the BSD ptys as part of the same patch.
-> > 
-> > bootlogd(8) which is used by Debian and Suse is started as the
-> > first thing at boottime. It needs a pty, and tries to use /dev/pts
-> > if it's there but falls back to BSD style pty's if /dev/pts isn't
-> > mounted - which will be the case 99% of the time.
+--Signature=_Mon__9_Feb_2004_12_06_25_+0100_q9z+3PO0WhqzGXc7
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+hi,
+
+> Please read the FAQ, fix your mail application - you are sending long
+> lines, and don't break the CC list.
+
+i've re-read it now, but i'm sorry, i don't know what you mean with "don't break the CC list".
+the long lines were my mistake.
+
+
+> As to your problem, look at the LBA sector addresses in the error
+> message:
 > 
-> So what's the problem with calling mount(2)?
+> 280923064991615
+> 
+> is your drive really over 100 EB?  No...
 
-Well, nothing really, but removing BSD style support in the 2.6 series
-now will break existing installations. Doing it in 2.7 would be fine.
+i know this value can't be right, but why does such a problem arise? is it the raid-controller's driver or bios? or something else?
 
-Mike.
+thx,
+JG
+
+
+--Signature=_Mon__9_Feb_2004_12_06_25_+0100_q9z+3PO0WhqzGXc7
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAJ2m4U788cpz6t2kRAsU3AJ4oawz5No4SQwx7CEZN4OGXafP8cgCeIgPJ
+OQBiXN+Wi4LoIuwuDkbud6o=
+=A2/U
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__9_Feb_2004_12_06_25_+0100_q9z+3PO0WhqzGXc7--

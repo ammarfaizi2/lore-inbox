@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264255AbTKKEDd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 23:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbTKKEDd
+	id S264254AbTKKEDR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 23:03:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264253AbTKKEDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 23:03:33 -0500
-Received: from relay.pair.com ([209.68.1.20]:11278 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S264255AbTKKEDa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 23:03:30 -0500
-X-pair-Authenticated: 68.42.66.6
-Subject: Re: OT: why no file copy() libc/syscall ??
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       davide.rossetti@roma1.infn.it, filia@softhome.net,
-       jesse@cats-chateau.net, dwmw2@infradead.org, moje@vabo.cz,
-       kakadu_croc@yahoo.com
-In-Reply-To: <20031110205011.R10197@schatzie.adilger.int>
-References: <1068512710.722.161.camel@cube>
-	 <20031110205011.R10197@schatzie.adilger.int>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xbIS4OSSI8/DUb687L0R"
-Message-Id: <1068523406.4156.7.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 10 Nov 2003 23:03:26 -0500
+	Mon, 10 Nov 2003 23:03:17 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:9376 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264254AbTKKEDO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 23:03:14 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 10 Nov 2003 20:03:15 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: jw schultz <jw@pegasys.ws>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+In-Reply-To: <20031111034815.GA17240@pegasys.ws>
+Message-ID: <Pine.LNX.4.44.0311102002090.2097-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 10 Nov 2003, jw schultz wrote:
 
---=-xbIS4OSSI8/DUb687L0R
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> If the history file (or another single file) is enough:
+> 
+>         starthist=`ls -l $CVSROOT/CVSROOT/history`
+>         curhist=""
+> 
+>         while [ "$Starthist" != "$curhist" ]
+>         do
+> 		starthist=`ls -l $CVSROOT/CVSROOT/history`
+>                 rsync .....
+>                 curhist=`ls -l $CVSROOT/CVSROOT/history`
+>         done
 
-On Mon, 2003-11-10 at 22:50, Andreas Dilger wrote:
-> Having a sys_copy() syscall would be incredibly useful for Lustre
-> (distributed Linux fs).  We could start a copy from one storage node
-> to another (or more likely many to many for a file striped over many
-> storage nodes) at num_stripes * uni-directional bandwidth with no
-> impact to the client node.  Instead, we have to copy files at best a
-> single client's bi-directional network_bandwidth.
+BK2CVS does not compile $CVSROOT/CVSROOT/history, but the second one 
+should work:
 
-Plus a sys_copy() syscall could be used as a generic way for filesystems
-to set up Copy-on-Write.  Right now, you'd need to have userspace call
-sys-reiser4 or something like that.
---=20
-Daniel Gryniewicz <dang@fprintf.net>
+> If not you can test the directory.
+> 
+>         ls -l $CVSROOT/CVSROOT >$TMPFILE.start
+>         touch $TMPFILE.test
+> 
+>         until diff -q $TMPFILE.start $TMPFILE.test >/dev/null
+>         do
+> 		ls -l $CVSROOT/CVSROOT >$TMPFILE.start
+>                 rsync .....
+>                 ls -l $CVSROOT/CVSROOT >$TMPFILE.test
+>         done
+>         rm -f $TMPFILE.start $TMPFILE.test
 
---=-xbIS4OSSI8/DUb687L0R
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQA/sF+OomPajV0RnrERAoMQAJ92zzsTZbr5JtDSAYLDTGtQFPeOCwCdEWSU
-Nt0+UCMfEC9jn1CcYRDMUGc=
-=s0Cq
------END PGP SIGNATURE-----
+- Davide
 
---=-xbIS4OSSI8/DUb687L0R--
+

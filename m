@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262457AbSLBNEm>; Mon, 2 Dec 2002 08:04:42 -0500
+	id <S263291AbSLBNTj>; Mon, 2 Dec 2002 08:19:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262901AbSLBNEm>; Mon, 2 Dec 2002 08:04:42 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:2180 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262457AbSLBNEl>; Mon, 2 Dec 2002 08:04:41 -0500
-Date: Mon, 2 Dec 2002 08:13:47 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Super user <lnxuser2002@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Size limitation for the module
-In-Reply-To: <20021129123052.61297.qmail@web14609.mail.yahoo.com>
-Message-ID: <Pine.LNX.3.95.1021202080121.20938A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263313AbSLBNTj>; Mon, 2 Dec 2002 08:19:39 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:49320 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S263291AbSLBNTi>;
+	Mon, 2 Dec 2002 08:19:38 -0500
+Date: Mon, 2 Dec 2002 13:24:39 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Margit Schubert-While <margitsw@t-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19/20, 2.5 missing P4 ifdef ?
+Message-ID: <20021202132439.GA26889@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Margit Schubert-While <margitsw@t-online.de>,
+	linux-kernel@vger.kernel.org
+References: <4.3.2.7.2.20021128151157.00b522c0@pop.t-online.de> <20021128142437.GA23664@suse.de> <20021129000859.GA2027@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021129000859.GA2027@werewolf.able.es>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Nov 2002, Super user wrote:
+On Fri, Nov 29, 2002 at 01:08:59AM +0100, J.A. Magallon wrote:
 
-> Hi All,
-> 
-> I have a kernel module which is a huge one. Around 1.5
-> MB. Is there any known problems in having a such a big
-> module.
-> 
-> The problem is after inserting the module, the box
-> freezes after some time.
+ > - PII also supports the prefetches. Is it worth to add it ?
 
-[SNIPPED...]
+I think you are mistaken. The prefetch instructions came to
+Intel CPUs with SSE. There are no (afair) no SSE Pentium II's.
 
-There might not be 1.5 MB available from kmalloc() and there
-may be a bug in kmalloc() when it gets to allocating more
-memory than it has (these boundary conditions may not have been
-tested very well, or your module isn't checking returned results).
+		Dave
 
-Normally, if you need lots of memory for a module, you tell
-the kernel upon boot that there is less memory than there is.
-IOW, you reserve it. Then, in your module you use ioremap() to
-allocate it exclusively for your module.
-
-This method has many advantages as well. FYI, the memory is
-never paged, it's always immediately available for your module.
-
-In principle, you are supposed to use copy/from/to/io and
-read/b/w/l/write/b/w/l to access it, but on ix86 (only), you
-can initialize a pointer with the value returned from ioremap().
-
-This, of course is not portable, but a module allocation of 1.5 MB
-is not portable anyway, so doit2it.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

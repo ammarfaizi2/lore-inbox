@@ -1,63 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262853AbREVWB6>; Tue, 22 May 2001 18:01:58 -0400
+	id <S262863AbREVWJi>; Tue, 22 May 2001 18:09:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262854AbREVWBs>; Tue, 22 May 2001 18:01:48 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:51460 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S262853AbREVWBj>; Tue, 22 May 2001 18:01:39 -0400
-Message-ID: <3B0AE188.C5457975@evision-ventures.com>
-Date: Wed, 23 May 2001 00:00:40 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com, viro@math.psu.edu
-Subject: Re: [PATCH] struct char_device
-In-Reply-To: <UTC200105222135.XAA78936.aeb@vlet.cwi.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262864AbREVWJ2>; Tue, 22 May 2001 18:09:28 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:31751 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S262863AbREVWJL>;
+	Tue, 22 May 2001 18:09:11 -0400
+Date: Wed, 23 May 2001 00:09:00 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac13
+Message-ID: <20010523000900.A17869@se1.cogenit.fr>
+In-Reply-To: <20010522154501.A7645@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010522223048.A9649@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Tue, May 22, 2001 at 03:45:01PM +0100
+X-Organisation: Marie's fan club
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
-> 
-> Martin Dalecki writes:
-> 
-> > I fully agree with you.
-> 
-> Good.
-> 
-> Unfortunately I do not fully agree with you.
-> 
-> > Most of the places where there kernel is passing kdev_t
-> > would be entierly satisfied with only the knowlendge of
-> > the minor number.
-> 
-> My kdev_t is a pointer to a structure with device data
-> and device operations. Among the operations a routine
-> that produces a name. Among the data, in the case of a
-> block device, the size, and the sectorsize, ..
-> 
-> A minor gives no name, and no data.
-> 
-> Linus' minor is 20-bit if I recall correctly.
-> My minor is 32-bit. Neither of the two can be
-> used to index arrays.
+Alan Cox <laughing@shared-source.org> écrit :
+[...]
+> o	Add missing locking to stradis driver		(me)
 
-Erm... I wasn't talking about the DESIRED state of affairs!
-I was talking about the CURRENT state of affairs. OK?
-The fact still remains that most of the places which a have pointed
-out just need the minor nibble of whatever bits you pass to them.
+- unbalanced returns after down();
+- 1770: if the initial version isn't racy with saa7146_irq (line 534), this
+  one is equivalent and shorter.
 
-Apparently nobody on this list here blabbering about a new improved
-minor/major space didn't actually take the time and looked into
-all those places where the kernel is CURRENTLY replying in minor/major
-array enumeration. They are TON's of them. The most ugly are RAID
-drivers
-an all those MD LVW and whatever stuff as well as abused minor number
-spaces as replacements of differnt majors.
+init_saa7146:2185
+	if ((saa->dmadebi = kmalloc(32768 + 4096, GFP_KERNEL)) == NULL)
+[...]
+looks suspect if the next vmalloc fail. Btw, I don't get the author
+idea behind the whole "if (foo->bar == null) { foo->bar = vmalloc(...)}"
+thing (chainsaw ?).
 
-At least you have admitted that you where the one responsible for
-the design of this MESS.
+Fine against 2.4.4-ac14.
+
+--- linux-2.4.4-ac13.orig/drivers/media/video/stradis.c	Tue May 22 16:40:01 2001
++++ linux-2.4.4-ac13/drivers/media/video/stradis.c	Tue May 22 17:31:48 2001
+@@ -1513,8 +1513,10 @@ out:			
+ 					 SAA7146_MC1);
+ 			} else {
+ 				if (saa->win.vidadr == 0 || saa->win.width == 0
+-				    || saa->win.height == 0)
++				    || saa->win.height == 0) {
++					up(&saa->sem);
+ 					return -EINVAL;
++				}
+ 				saa->cap |= 1;
+ 				saawrite((SAA7146_MC1_TR_E_1 << 16) | 0xffff,
+ 					 SAA7146_MC1);
+@@ -1770,16 +1772,18 @@ out:			
+ 					if (saa->endmarktail <  
+ 						saa->endmarkhead) {
+ 						if (saa->endmarkhead -
+-							saa->endmarktail < 2)
++							saa->endmarktail < 2) {
++							up(&saa->sem);
+ 							return -ENOSPC;
+-					} else if (saa->endmarkhead <=
+-						saa->endmarktail) {
++						}
++					} else {
+ 						if (saa->endmarktail -
+ 							saa->endmarkhead >
+-							(MAX_MARKS - 2))
++							(MAX_MARKS - 2)) {
++							up(&saa->sem);
+ 							return -ENOSPC;
+-					} else
+-						return -ENOSPC;
++						}
++					}
+ 					saa->endmark[saa->endmarktail] =
+ 						saa->audtail;
+ 					saa->endmarktail++;
+@@ -1928,8 +1932,10 @@ static long saa_write(struct video_devic
+ 				saa->audtail = 0;
+ 			}
+ 			if (copy_from_user(saa->audbuf + saa->audtail, buf,
+-				blocksize)) 
+-				return -EFAULT;
++				blocksize)) {
++				count = -EFAULT;
++				goto out;
++			}
+ 			saa->audtail += blocksize;
+ 			todo -= blocksize;
+ 			buf += blocksize;
+
+

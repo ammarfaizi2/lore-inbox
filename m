@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281027AbRKGWS6>; Wed, 7 Nov 2001 17:18:58 -0500
+	id <S281021AbRKGWWh>; Wed, 7 Nov 2001 17:22:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281026AbRKGWSr>; Wed, 7 Nov 2001 17:18:47 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:39947 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S281021AbRKGWSi>;
-	Wed, 7 Nov 2001 17:18:38 -0500
-Date: Wed, 7 Nov 2001 15:18:06 -0800
-From: Greg KH <greg@kroah.com>
-To: Stephan Gutschke <stephan@gutschke.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops when syncing Sony Clie 760 with USB cradle
-Message-ID: <20011107151806.A22444@kroah.com>
-In-Reply-To: <E160obZ-0001bO-00@janus> <20011105131014.A4735@kroah.com> <3BE7F362.1090406@gutschke.com> <20011106095527.A10279@kroah.com> <3BE9BDD0.2070703@gutschke.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BE9BDD0.2070703@gutschke.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 10 Oct 2001 21:59:01 -0700
+	id <S281022AbRKGWW1>; Wed, 7 Nov 2001 17:22:27 -0500
+Received: from gw.lowendale.com.au ([203.26.242.120]:4168 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S281021AbRKGWWR>; Wed, 7 Nov 2001 17:22:17 -0500
+Date: Thu, 8 Nov 2001 09:32:30 +1100 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Jonas Diemer <diemer@gmx.de>,
+        Linux Kermel ML <linux-kernel@vger.kernel.org>
+Subject: Re: VIA 686 timer bugfix incomplete
+In-Reply-To: <20011107211445.A2286@suse.cz>
+Message-ID: <Pine.LNX.4.05.10111080917140.19515-100000@marina.lowendale.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 08, 2001 at 12:03:44AM +0100, Stephan Gutschke wrote:
-> didn't work :-(
+On Wed, 7 Nov 2001, Vojtech Pavlik wrote:
+
+[...]
+> On Wed, Nov 07, 2001 at 08:48:00PM +0100, Jonas Diemer wrote:
+[...]
+> > well, just use the option described above. that way, ppl that need the fix can
+> > choose to use it (at a cost of performance), others simply don't need checking.
+> > 
+> > -jonas
+> > 
+> > PS: CC me in your answers plz, I am not subscribed to the list.
 > 
-> This is the output of /var/log/syslog if I connect to ttyUSB0
-> I am not sure yet though that the problem is in your module.
-> I know the jpilot worked, before, but I will still try later
-> to connect to the clie with coldsync as well.
-> Lets see if that gives anything different.
-> Let me know what else I can do to help.
+> The VIA bug isn't a problem: The fix doesn't cause performance problems
+> to people unaffected by the bug, it just prints an annoying message to
+> people who see it triggered by bug #2 (Neptune).
+[snip]
 
-Yes, you will have to use coldsync to talk to this device right now, as
-pilot-link doesn't have support for the 4.x Palm OS USB protocol yet
-(jpilot uses pilot-link.)
+Maybe not performance problems, but my tired-but-otherwise-reliable
+AcerNote-950C (which definitely does not have a VIA686a - it's a Pentium)
+doesn't seem to like this VIA686a fix (but only sometimes {:-( ).
 
-Let me know if coldsync fails (remember you have to tell coldsync that
-you are a m50x, and that you want the "simple" protocol, check the docs
-for the proper config file setting.)
+Prior to 2.2.19, on going to sleep due to low battery, I could reliably
+wake it up.  with 2.2.19 (being where this fix entered 2.2) this isn't the
+case - sometimes I just get the "probable bug" message, sometimes also a
+diag re hda (sorry, can't quote right now) and on one occasion serious
+file system corruption (OK, maybe it was a co-incidence, or maybe not).
 
-thanks,
+Yes, I probably have a bug in the timer department, but I strongly suspect
+that the fix for the 686a is not appropriate for my chipset.
 
-greg k-h
+If the current VIA686a "probable bug" fix is going to remain as default,
+then I for one would like to see a knob to disable it.
+
+For 2.2, I'm happy to have a go at making and alpha-testing a patch for a
+kernel command-line switch to disable this - but I'd very much like to
+hear from the custodians of consistency in such matters as to an
+appropriate/best attribute=value to use for this.  Some sugestions:
+
+	chips=novia686a
+	via_hacks=no686a
+	via_hacks=none
+	timer=no686a
+
+Regards,
+Neale.
+

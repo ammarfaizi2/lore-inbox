@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131887AbRBQUm4>; Sat, 17 Feb 2001 15:42:56 -0500
+	id <S132023AbRBQUtR>; Sat, 17 Feb 2001 15:49:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132023AbRBQUmq>; Sat, 17 Feb 2001 15:42:46 -0500
-Received: from mercury.ST.HMC.Edu ([134.173.57.219]:1284 "HELO
-	mercury.st.hmc.edu") by vger.kernel.org with SMTP
-	id <S131887AbRBQUmn>; Sat, 17 Feb 2001 15:42:43 -0500
-From: Nate Eldredge <neldredge@hmc.edu>
+	id <S131996AbRBQUtG>; Sat, 17 Feb 2001 15:49:06 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37896 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132023AbRBQUss>; Sat, 17 Feb 2001 15:48:48 -0500
+Subject: Re: Linux stifles innovation...
+To: dennis@etinc.com (Dennis)
+Date: Sat, 17 Feb 2001 20:47:15 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jesse@cats-chateau.net,
+        A.J.Scott@casdn.neu.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <5.0.0.25.0.20010217134720.03630cf0@mail.etinc.com> from "Dennis" at Feb 17, 2001 02:08:40 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14990.57922.176851.105401@mercury.st.hmc.edu>
-Date: Sat, 17 Feb 2001 12:42:42 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: neldredge@hmc.edu (Nate Eldredge), linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1ac17 hang on mounting loopback fs
-In-Reply-To: <E14UE0r-00071Q-00@the-village.bc.nu>
-In-Reply-To: <14990.18933.849551.526672@mercury.st.hmc.edu>
-	<E14UE0r-00071Q-00@the-village.bc.nu>
-X-Mailer: VM 6.76 under Emacs 20.5.1
+Message-Id: <E14UEGE-00074Z-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
- > > # mount -t ext2 -o loop /spare/i486-linuxaout.img /spare/mnt
- > > loop: enabling 8 loop devices
- > 
- > Loop does not currently work in 2.4. It might partly work by luck
- > but thats it.  This will change as and when the new loop patches go
- > in. Until then if you need loop use 2.2
+> both lock up under load. You dont run a busy ISP i guess. The fact that 
+> they come out with a new release every few minutes is clear evidence that 
+> it is problematic.
 
-I see.  Thank you.  I can live without it until then.
+I've been technical director of an ISP. I help manage sites that have not
+insignificant loads and no eepro100 driver problems. For that matter there
+are porn sites using eepro100 drivers.
 
-Btw, I applied Jens Axboe's loop-3 patch as suggested by Ville Herva.
-It applied with some fuzz and offset.  However, when I booted it, the
-kernel oopsed when I tried to mount the first ordinary ext2 partition
-(no loopback involved).  I can post the oops if anyone cares, but I
-presume that loop-3 and 2.4.1ac17 are just incompatible.
+> Intel doesnt sell the e100.o driver, so they couldnt give a rats ass if it 
 
--- 
+Your information is wrong. But then it usually is. If you are large corporation
+and would care to talk to Intel they will be happy to discuss it further.
 
-Nate Eldredge
-neldredge@hmc.edu
+Of course the single biggest problem with the eepro100 is closedness, and people
+in Intel with attitudes like yours who refuse to release full documentation.
+
+Alan
+

@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263410AbTIGSOy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 14:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263430AbTIGSNu
+	id S261252AbTIGSMH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 14:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTIGSMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 14:13:50 -0400
-Received: from static-ctb-210-9-247-166.webone.com.au ([210.9.247.166]:49678
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S263426AbTIGSNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 14:13:38 -0400
-Message-ID: <3F5B7537.9090805@cyberone.com.au>
-Date: Mon, 08 Sep 2003 04:13:11 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Andrew Morton <akpm@osdl.org>, jyau_kernel_dev@hotmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-References: <000101c374a3$2d2f9450$f40a0a0a@Aria>	 <1062878664.3754.12.camel@boobies.awol.org>	 <3F5ABD3A.7060709@cyberone.com.au>  <20030906231856.6282cd44.akpm@osdl.org> <1062954122.12822.3.camel@boobies.awol.org>
-In-Reply-To: <1062954122.12822.3.camel@boobies.awol.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 7 Sep 2003 14:12:07 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:51179 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261252AbTIGSL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 14:11:58 -0400
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, bunk@fs.tum.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       robert@schwebel.de, Rusty Russell <rusty@rustcorp.com.au>
+In-Reply-To: <20030907174341.GA21260@mail.jlokier.co.uk>
+References: <200309071647.h87Glp4t014359@harpo.it.uu.se>
+	 <20030907174341.GA21260@mail.jlokier.co.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1062958188.16972.49.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Sun, 07 Sep 2003 19:09:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sul, 2003-09-07 at 18:43, Jamie Lokier wrote:
+> 	2. The CPU types are not a total order.  Say I want a kernel
+> 	   that supports Athlons and a Centaur for my cluster.  What
+> 	   CPU setting should I use?  What CPU setting will give my the best
+> 	   performing kernel - and is that the same as the one for smallest
+> 	   kernel?
 
+You'd use two kernels. There is no sane other answer to that specific
+case 8)
 
-Robert Love wrote:
+> 	   But I don't want to compile in support for every x86,
+> 	   because space is tight, and I want it to run as fast as it
+> 	   can given that it could run on either of the two chips.
 
->On Sun, 2003-09-07 at 02:18, Andrew Morton wrote:
->
->
->>We cannot just jam all this code into Linus's tree while crossing our
->>fingers and hoping that something will turn up to fix this problem. 
->>Because we don't know what causes it, nor whether we even _can_ fix it.
->>
->
->Actually, this would be my argument _for_ Nick's approach.  It is simple
->and we all understand it.
->
+The code size differential is noise except for FPU emulation, and thats
+in part sloppy because we could have __fpuseg and eject it at boot if
+not needed ;)
 
-Unfortunately (or fortunately?) you can't really get from my patch to
-Con's in small simple steps, its basically one or the other. I'd like
-to see my patch get included in 2.6, but I'm yet to convince many others.
-Con is further along that road, so my only possibility for wider testing
-is to try free up mm kernels for possible use ;) (if Andrew will have
-them of course). Getting Con's patch more testing wouldn't hurt
-anyone though, of course.
+386 kernels are slow because of user space handling and lack of bswap
+486 kernels basically work on anything just fine
 
+> I'm not sure if an Athlon is "lower" than a PII or not....  Which do I
+> option do I pick, to run on either of those without including
+> redundant stuff for older CPUs?
+
+Right now its ordered
+
+386 - 486 - 586 - 586+TSC - 686 - PPro - PII - PIII - PIV
+
+Geode is a branch off 586+TSC and supports 686+ too
+Athlon branches off from PIII if I remember rightly
+Winchip branches off from 586 and supports all later x86 too
+ELAN is its own weird world
+Xmeta comes off 686 somewhere depending how you handle PGE
 

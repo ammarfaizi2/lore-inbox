@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265508AbTAWRq4>; Thu, 23 Jan 2003 12:46:56 -0500
+	id <S267039AbTAWRxd>; Thu, 23 Jan 2003 12:53:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265532AbTAWRq4>; Thu, 23 Jan 2003 12:46:56 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:7301 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S265508AbTAWRqx>; Thu, 23 Jan 2003 12:46:53 -0500
-Date: Thu, 23 Jan 2003 17:57:31 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: David Woodhouse <dwmw2@infradead.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.55-rmk1: user space lossage
-In-Reply-To: <20030123020627.5603a268.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0301231753430.2336-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S266999AbTAWRxc>; Thu, 23 Jan 2003 12:53:32 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:57510 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S267039AbTAWRxb>;
+	Thu, 23 Jan 2003 12:53:31 -0500
+Date: Thu, 23 Jan 2003 19:02:19 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>, greg@ulima.unil.ch
+Cc: cdwrite@other.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
+Message-ID: <20030123180219.GT910@suse.de>
+References: <200301231752.h0NHqOM5001079@burner.fokus.gmd.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301231752.h0NHqOM5001079@burner.fokus.gmd.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jan 2003, Andrew Morton wrote:
+On Thu, Jan 23 2003, Joerg Schilling wrote:
+> >From greg@ulima.unil.ch Thu Jan 23 18:51:42 2003
+> >   7 seconds.  0.98% done, estimate finish Thu Jan 23 18:51:05 2003
+> >   6 seconds.  1.22% done, estimate finish Thu Jan 23 18:51:46 2003
+> >   5 seconds.  1.46% done, estimate finish Thu Jan 23 18:52:14 2003
+> >   0 seconds. Operation starts.
+> >Waiting for reader process to fill input buffer ... input buffer ready.
+> >BURN-Free is ON.
+> >Starting new track at sector: 0
+> >Track 01:    4 of 4001 MB written (fifo  96%)  16.1x.cdrecord-prodvd: Success. write_g1: scsi sendcmd: no error
+> >CDB:  2A 00 00 00 08 B8 00 00 1F 00
+> >status: 0x2 (CHECK CONDITION)
+> >Sense Bytes:
+> >Sense Key: 0xFFFFFFFF [], Segment 0
+> >Sense Code: 0x00 Qual 0x00 (no additional sense information) Fru 0x0
+> >Sense flags: Blk 0 (not valid) 
+> >resid: 63488
+> >cmd finished after 0.007s timeout 100s
 > 
-> We cannot clear VM_MAYWRITE in there - it turns writeable MAP_PRIVATE
-> mappings into readonly ones.
 > 
-> So change it back to the 2.4 form - disallow a writeable MAP_SHARED mapping
-> against filesystems which do no implement ->writepage().
+> In one of my mails, I decribed why there are 2 bugs in the kernel.
+> Only one of them so far has been fixed. The sense data is still missing.
 
-Sorry for late quibbles, but wouldn't patch below be better?  Linus
-did intend that change to the occasionally criticized 2.4 behaviour,
-this preserves that change while avoiding the bug which hit David.
+That is correct, I'll fix the 2nd bug tomorrow. The new SG_IO transport
+is still so new that there are places where I know ide-cd will not do
+the right thing wrt sense. In fact I don't think it will every copy
+sense back.
 
-You may notice I've sneaked a ~VM_SHARED in there too.  Not because
-I can say it's necessary, but the VM_MAYWRITE, VM_SHARED treatment
-is already weird, I'd feel safer if we keep to the same combination
-as already exists in the !FMODE_WRITE case (see do_mmap_pgoff).
-
-Hugh
-
---- 2.5.59-mm2/mm/filemap.c	Sat Jan 18 10:37:36 2003
-+++ linux/mm/filemap.c	Thu Jan 23 16:50:34 2003
-@@ -1310,9 +1310,11 @@
- 
- int generic_file_readonly_mmap(struct file *file, struct vm_area_struct *vma)
- {
--	if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_WRITE))
--		return -EINVAL;
--	vma->vm_flags &= ~VM_MAYWRITE;
-+	if (vma->vm_flags & VM_SHARED) {
-+		if (vma->vm_flags & VM_WRITE)
-+			return -EINVAL;
-+		vma->vm_flags &= ~(VM_MAYWRITE | VM_SHARED);
-+	}
- 	return generic_file_mmap(file, vma);
- }
- #else
+-- 
+Jens Axboe
 

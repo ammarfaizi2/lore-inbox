@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310335AbSCAGee>; Fri, 1 Mar 2002 01:34:34 -0500
+	id <S310145AbSCAHSB>; Fri, 1 Mar 2002 02:18:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310331AbSCAGca>; Fri, 1 Mar 2002 01:32:30 -0500
-Received: from pcp809261pcs.nrockv01.md.comcast.net ([68.49.81.201]:14476 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S310345AbSCAG3e>; Fri, 1 Mar 2002 01:29:34 -0500
-Date: Fri, 1 Mar 2002 01:29:33 -0500
-From: Olivier Galibert <galibert@pobox.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the tree
-Message-ID: <20020301012933.A6621@zalem.nrockv01.md.comcast.net>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1020228215025.3310A-100000@gatekeeper.tmr.com> <Pine.LNX.4.33L.0203010009510.2801-100000@imladris.surriel.com>
+	id <S310362AbSCAHQE>; Fri, 1 Mar 2002 02:16:04 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:6923 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S310359AbSCAHOj>; Fri, 1 Mar 2002 02:14:39 -0500
+Date: Fri, 1 Mar 2002 08:14:10 +0100
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Val Henson <val@nmt.edu>,
+        "Randy.Dunlap" <rddunlap@osdl.org>, Laurent <laurent@augias.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: read_proc issue
+Message-ID: <20020301071410.GA11256@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20020227140432.L20918@boardwalk> <E16gBps-0005wa-00@the-village.bc.nu> <20020228000532.GA8858@arthur.ubicom.tudelft.nl> <E16fucy-0004vi-00@starship.berlin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33L.0203010009510.2801-100000@imladris.surriel.com>; from riel@conectiva.com.br on Fri, Mar 01, 2002 at 12:13:08AM -0300
+In-Reply-To: <E16fucy-0004vi-00@starship.berlin>
+User-Agent: Mutt/1.3.27i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 01, 2002 at 12:13:08AM -0300, Rik van Riel wrote:
-> You can send marcelo such a patch (without the scheduler) right
-> now.
+On Wed, Feb 27, 2002 at 04:19:35AM +0100, Daniel Phillips wrote:
+> On February 28, 2002 01:05 am, Erik Mouw wrote:
+> > It might also be an idea to export proc_calc_metrics() from
+> > fs/proc/proc_misc.c because quite a lot of code actually tries to do
+> > exactly the same.
+> 
+> Look at all the parameters, they're trying to be a struct.  How about
+> cleaning it up before exporting?
 
-And it's even probably a better idea to send it without the scheduler.
-It's a typical Al Viro[tm] patch, change a repeated group of code into
-one macro/function with zero impact on the resulting code, only better
-encapsulation.  It is completely orthogonal to the scheduler, and
-obviously low risk.
+Look at all the parameters of a procfs read() function and compare them
+with the parameters of proc_calc_metrics(). See why cleaning up
+would make things only more complicated?
 
-  OG.
 
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

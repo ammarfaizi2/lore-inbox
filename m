@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267955AbTB1PTs>; Fri, 28 Feb 2003 10:19:48 -0500
+	id <S268000AbTB1PYi>; Fri, 28 Feb 2003 10:24:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267951AbTB1PTr>; Fri, 28 Feb 2003 10:19:47 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:10254 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S267974AbTB1PSv>;
-	Fri, 28 Feb 2003 10:18:51 -0500
-Date: Fri, 28 Feb 2003 16:28:41 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br
-Subject: Re: OOPS in 2.4.21-pre5, ide-scsi
-Message-Id: <20030228162841.17ac0092.skraw@ithnet.com>
-In-Reply-To: <20030227221017.4291c1f6.skraw@ithnet.com>
-References: <20030227221017.4291c1f6.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S268001AbTB1PYi>; Fri, 28 Feb 2003 10:24:38 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:15755 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268000AbTB1PYh>; Fri, 28 Feb 2003 10:24:37 -0500
+Date: Fri, 28 Feb 2003 07:34:41 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Jeff Garzik <jgarzik@pobox.com>, Andi Kleen <ak@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Matthew Wilcox <willy@debian.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Proposal: Eliminate GFP_DMA
+Message-ID: <10490000.1046446480@[10.10.2.4]>
+In-Reply-To: <20030228152502.GA32449@gtf.org>
+References: <20030228064631.G23865@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73heao7ph2.fsf@amdsimf.suse.de> <20030228141234.H23865@parcelfarce.linux.theplanet.co.uk> <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <20030228143405.I23865@parcelfarce.linux.theplanet.co.uk> <1046447737.16599.83.camel@irongate.swansea.linux.org.uk> <20030228145614.GA27798@wotan.suse.de> <20030228152502.GA32449@gtf.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Feb 2003 22:10:17 +0100
-Stephan von Krawczynski <skraw@ithnet.com> wrote:
+>> > > umm.  are you volunteering to convert drivers/net/macmace.c to the pci_*
+>> > > API then?  also, GFP_DMA is used on, eg, s390 to get memory below 2GB and
+>> > > on ia64 to get memory below 4GB.
+>> > 
+>> > The ia64 is a fine example of how broken it is. People have to hack around 
+>> > with GFP_DMA meaning different things on ia64 to everything else. It needs
+>> > to die. 
+>> 
+>> At least on x86-64 it is still needed when you need have some hardware
+>> with address limits < 4GB (e.g. an 24bit soundcard)
+>> 
+>> pci_* on K8 only allows address mask 0xffffffff or unlimited.
+> 
+> That's a bit broken...  I have an ALS4000 PCI soundcard that is a 24-bit
+> soundcard.  pci_set_dma_mask should support 24-bits accordingly,
+> otherwise it's a bug in your platform implementation...  Nobody will be
+> able to use certain properly-written drivers on your platform otherwise.
 
-> >>EIP; c0213ab3 <idescsi_pc_intr+63/360>   <=====
+If we're going to really sort this out, would be nice to just pass an upper
+bound for an address to __alloc_pages, instead of a simple bitmask ;-)
 
-Additional comment:
+M.
 
-This oops is reproducable at my system. I tried today again, and again it
-happened on the same EIP. If I got that right it is this code:
-
-
-                if (status.b.check)
-                        rq->errors++;
-                idescsi_end_request(drive, 1);
-                return ide_stopped;
-        }
-
-Obviously rq is somehow damaged. I tried to retrieve further info by adding:
-
-/* $$$ */
-                local_irq_enable();
-                printk("scsi: %08lx, pc: %08lx, rq: %08lx\n",scsi,pc,rq);
-                if (status.b.check)
-                        rq->errors++;
-                idescsi_end_request(drive, 1);
-                return ide_stopped;
-        }
-
-Interestingly there are about 10 lines in syslog with this output, then it
-stops for around 10-20 seconds, and _then_ it oops'es. I got the feeling that
-this "late" rq is indeed long gone, when the code is entered.
-I tried to patch a bit around this problem, but no success at this time...
-
--- 
-Regards,
-Stephan

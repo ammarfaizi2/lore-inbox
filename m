@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUIVUSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUIVUSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267235AbUIVUSv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 16:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267180AbUIVURb
+	id S267254AbUIVUSu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 16:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267235AbUIVURg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 16:17:31 -0400
-Received: from unicorn.sch.bme.hu ([152.66.208.4]:52375 "EHLO
-	unicorn.sch.bme.hu") by vger.kernel.org with ESMTP id S267235AbUIVUOl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 16:14:41 -0400
-Date: Wed, 22 Sep 2004 22:14:24 +0200
-From: Pozsar Balazs <pozsy@uhulinux.hu>
-To: Christoph Hellwig <hch@infradead.org>,
-       Rodrigo Severo <rodrigo.lists@fabricadeideias.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: SCSI Initio 9100UW (INIC-950p chipset) support nunder kernel 2.6.x
-Message-ID: <20040922201424.GC2098@unicorn.sch.bme.hu>
-References: <4151A24A.7000302@fabricadeideias.com> <20040922170651.A3340@infradead.org>
-Mime-Version: 1.0
+	Wed, 22 Sep 2004 16:17:36 -0400
+Received: from mail.enyo.de ([212.9.189.167]:6920 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S267254AbUIVUPK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 16:15:10 -0400
+To: Hisaaki Shibata <shibata@luky.org>
+Cc: stern@rowland.harvard.edu, linux-usb-users@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Genesys and IEEE 1394 (was: Re: Genesys Logic and Kernel 2.4)
+References: <20040709054435.GA31159@torres.ka0.zugschlus.de>
+	<20040711.052727.607952779.shibata@luky.org>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Wed, 22 Sep 2004 22:15:01 +0200
+In-Reply-To: <20040711.052727.607952779.shibata@luky.org> (Hisaaki Shibata's
+	message of "Sun, 11 Jul 2004 05:27:27 +0900 (JST)")
+Message-ID: <87d60eqcvu.fsf_-_@deneb.enyo.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040922170651.A3340@infradead.org>
-User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 22, 2004 at 05:06:51PM +0100, Christoph Hellwig wrote:
-> On Wed, Sep 22, 2004 at 01:03:00PM -0300, Rodrigo Severo wrote:
-> > with kernel 2.4.24 (yes, I know it's old).
-> > 
-> > I want to update my kernel do 2.6.8. The question: is there support for 
-> > this board/chipset under kernel 2.6.x?
-> > 
-> > I looked around a lot and couldn't find much. www.initio.com says their 
-> > code is in the kernel since 2.0.32. Has it been left out for 2.6.x?
-> > 
-> > Is anyone working on this port? Anyone intending to work on it?
-> 
-> The driver still exists and actually compiles.  It's marked BROKEN, although
-> I don't know why.  If you want to help testing we can update it to current
-> standards.
+* Hisaaki Shibata:
 
-It works perfectly for me. (I have 1 disk and 1 cdrom.)
+>> +		/* According to the technical support people at Genesys Logic,
+>> +		 * devices using their chips have problems transferring more
+>> +		 * than 32 KB at a time.  In practice people have found that
+>> +		 * 64 KB works okay and that's what Windows does.  But we'll
+>> +		 * be conservative.
+>> +		 */
+>> +		if (ss->pusb_dev->descriptor.idVendor == USB_VENDOR_ID_GENESYS)
+>> +			ss->htmplt->max_sectors = 64;
+>
+> +			ss->htmplt.max_sectors = 64;
+>
+>> +
 
-Also note that mandrake ships a kernel with the BROKEN flag patched off.
+Christoph Biedl discovered that it's likely that a a similar
+workaround is needed in the IEEE 1394 code:
 
-I do not know why was it marked as such.
-
-
--- 
-pozsy
+http://sourceforge.net/mailarchive/forum.php?thread_id=5128811&forum_id=5389

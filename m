@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315406AbSGIOPR>; Tue, 9 Jul 2002 10:15:17 -0400
+	id <S315374AbSGION4>; Tue, 9 Jul 2002 10:13:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315415AbSGIOPQ>; Tue, 9 Jul 2002 10:15:16 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:58355 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S315406AbSGIOPP>; Tue, 9 Jul 2002 10:15:15 -0400
-Date: Tue, 9 Jul 2002 16:17:39 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] using 2.5.25 with IDE
-Message-ID: <Pine.SOL.4.30.0207091613350.16892-100000@mion.elka.pw.edu.pl>
+	id <S315388AbSGIONz>; Tue, 9 Jul 2002 10:13:55 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:40466 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S315374AbSGIONy>; Tue, 9 Jul 2002 10:13:54 -0400
+Date: Tue, 9 Jul 2002 15:16:33 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andi Kleen <ak@muc.de>
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix iounmap for non page aligned addresses
+In-Reply-To: <20020709135534.A1155@averell>
+Message-ID: <Pine.LNX.4.21.0207091457220.1640-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 9 Jul 2002, Andi Kleen wrote:
+> 
+> This fixes a problem introduced by the pageattr ioremap/unmap patches.
+> iounmap lost the ability to free non page aligned addresses, which
+> are e.g. used by the bootflag code.  This patch fixes this.
 
-Contrary to the popular belief 2.5.25 has only Martin's IDE-93
-and has broken locking...
+Good.
 
-If you want to run IDE on 2.5.25 get and apply:
+> Also fix a potential off by one bug.
 
-IDE-94 by Martin
-IDE-95/96/97/98-pre by me
+Niggle: changing "< high_memory" to "<= high_memory"?  I think that
+change is wrong (though admittedly no wronger than what's in 2.4).
 
-from:
-http://home.elka.pw.edu.pl/~bzolnier/ata/
+So long as VMALLOC_OFFSET enforces an arbitrary gap of at least 8MB
+between high_memory and the vmalloc address area, it doesn't matter.
+But one day someone may remove that gap (why not?) to make a few
+more addresses available, then "<= high_memory" test could go wrong.
 
---
-Bartlomiej
+Hugh
+
+> --- linux-work/arch/i386/mm/ioremap.c.~2~	Tue Jun 18 02:13:09 2002
+> +++ linux/arch/i386/mm/ioremap.c	Fri Jun 21 14:42:23 2002
+> @@ -213,9 +213,9 @@
+>  void iounmap(void *addr)
+>  { 
+>  	struct vm_struct *p;
+> -	if (addr < high_memory) 
+> +	if (addr <= high_memory) 
+>  		return; 
+> -	p = remove_kernel_area(addr); 
+> +	p = remove_kernel_area(PAGE_MASK & (unsigned long) addr); 
+>  	if (!p) { 
+>  		printk("__iounmap: bad address %p\n", addr);
+>  		return;
 

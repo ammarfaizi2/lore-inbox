@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262936AbVDAVFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbVDAVUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262936AbVDAVFm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 16:05:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbVDAVBt
+	id S262890AbVDAVUK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 16:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVDAVRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 16:01:49 -0500
-Received: from webmail.topspin.com ([12.162.17.3]:37423 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S262912AbVDAUvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 15:51:22 -0500
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][21/27] IB/mthca: split MR key munging routines
-In-Reply-To: <2005411249.Tkvt1lzz8zEHUMmz@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Fri, 1 Apr 2005 12:49:53 -0800
-Message-Id: <2005411249.VplL6XJIvCp9HHyP@topspin.com>
+	Fri, 1 Apr 2005 16:17:40 -0500
+Received: from smtp07.web.de ([217.72.192.225]:35200 "EHLO smtp07.web.de")
+	by vger.kernel.org with ESMTP id S262911AbVDAVIh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 16:08:37 -0500
+Subject: Re: Kernel OOOPS in 2.6.11.6
+From: Ali Akcaagac <aliakc@web.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Chris Wright <chrisw@osdl.org>, Nathan Scott <nathans@sgi.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050329170128.GA2078@lst.de>
+References: <1112008141.17962.1.camel@localhost>
+	 <20050328224430.GO28536@shell0.pdx.osdl.net> <20050329063044.GB17541@frodo>
+	 <20050329165923.GG30522@shell0.pdx.osdl.net> <20050329170128.GA2078@lst.de>
+Content-Type: text/plain
+Date: Fri, 01 Apr 2005 23:08:41 +0200
+Message-Id: <1112389721.1819.1.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 01 Apr 2005 20:49:53.0981 (UTC) FILETIME=[5B355ED0:01C536FC]
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@mellanox.co.il>
+On Tue, 2005-03-29 at 19:01 +0200, Christoph Hellwig wrote:
+> just to check whether it's Nathan's race theory, can you please
+> disable PREEMPT and PREEMPT_BKL?
 
-Split Tavor and Arbel/mem-free index<->hw key munging routines, so that FMR implementation 
-can call correct implementation without testing HCA type (which it already knows).
+Ok till now this ooops can not be reproduced. I have been spending some
+time today copying large chunks of files and subdirs from point A to
+point B but everything seem to work normally. These errors are hard to
+trigger specially when happening under strange circumstances. As soon as
+I hit this issue again I will report again.
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Roland Dreier <roland@topspin.com>
+greetings,
 
+Ali Akcaagac
 
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_mr.c	2005-04-01 12:38:27.075083423 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_mr.c	2005-04-01 12:38:28.676735749 -0800
-@@ -198,20 +198,40 @@
- 				      seg + (1 << order) - 1);
- }
- 
-+static inline u32 tavor_hw_index_to_key(u32 ind)
-+{
-+	return ind;
-+}
-+
-+static inline u32 tavor_key_to_hw_index(u32 key)
-+{
-+	return key;
-+}
-+
-+static inline u32 arbel_hw_index_to_key(u32 ind)
-+{
-+	return (ind >> 24) | (ind << 8);
-+}
-+
-+static inline u32 arbel_key_to_hw_index(u32 key)
-+{
-+	return (key << 24) | (key >> 8);
-+}
-+
- static inline u32 hw_index_to_key(struct mthca_dev *dev, u32 ind)
- {
- 	if (dev->hca_type == ARBEL_NATIVE)
--		return (ind >> 24) | (ind << 8);
-+		return arbel_hw_index_to_key(ind);
- 	else
--		return ind;
-+		return tavor_hw_index_to_key(ind);
- }
- 
- static inline u32 key_to_hw_index(struct mthca_dev *dev, u32 key)
- {
- 	if (dev->hca_type == ARBEL_NATIVE)
--		return (key << 24) | (key >> 8);
-+		return arbel_key_to_hw_index(key);
- 	else
--		return key;
-+		return tavor_key_to_hw_index(key);
- }
- 
- int mthca_mr_alloc_notrans(struct mthca_dev *dev, u32 pd,
 

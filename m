@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262903AbSJLLe5>; Sat, 12 Oct 2002 07:34:57 -0400
+	id <S262901AbSJLLgW>; Sat, 12 Oct 2002 07:36:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262905AbSJLLe5>; Sat, 12 Oct 2002 07:34:57 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:33043 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S262903AbSJLLe4>; Sat, 12 Oct 2002 07:34:56 -0400
-Date: Sat, 12 Oct 2002 04:40:36 -0700
-From: jw schultz <jw@pegasys.ws>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.42
-Message-ID: <20021012114036.GB22536@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com> <20021012095026.GC28537@merlin.emma.line.org> <20021012111140.GA22536@pegasys.ws> <1034423197.14382.2.camel@irongate.swansea.linux.org.uk>
+	id <S262905AbSJLLgW>; Sat, 12 Oct 2002 07:36:22 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:33040 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S262901AbSJLLgU>; Sat, 12 Oct 2002 07:36:20 -0400
+Date: Sat, 12 Oct 2002 13:42:05 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - (NUMA))
+Message-ID: <20021012114205.GB32511@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com> <200210060130.g961UjY2206214@pimout2-ext.prodigy.net> <3DA7647C.3060603@namesys.com> <20021012012807.1BB5B635@merlin.webofficenow.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1034423197.14382.2.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20021012012807.1BB5B635@merlin.webofficenow.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 12, 2002 at 12:46:37PM +0100, Alan Cox wrote:
-> On Sat, 2002-10-12 at 12:11, jw schultz wrote:
-> > So far everything indicates that LVM2 is not compatible with
-> > LVM.  That LVM2 and LVM(1) can coexist-exist is irrelevant if
-> > 2.5 hasn't got a working LVM(1).  And that would leave us
-> > with having to do backup+restore around the upgrade.
-> 
-> LVM2 supports LVM1 volumes. I don't know where you got the idea
-> otherwise. 
+On Fri, 11 Oct 2002, Rob Landley wrote:
 
-Good.  I'm very glad to be wrong.  Then all we need care
-about is project maturity and design.
+> I'm also looking for an "unmount --force" option that works on something 
+> other than NFS.  Close all active filehandles (the programs using it can just 
+> deal with EBADF or whatever), flush the buffers to disk, and unmount.  None 
+> of this "oh I can't do that, you have a zombie process with an open file...", 
+> I want  "guillotine this filesystem pronto, capice?" behavior.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+Seconded.
 
-		Remember Cernan and Schmitt
+The patch at the URL below used to work back with 2.4.9, I did not track
+what has become of it, if it still applies, I haven't needed it recently
+or if so, Alt-SysRq was fair enough for me. Maybe just updating this
+badfs and forced umount patch for 2.4.20 would suffice:
+
+http://www.moses.uklinux.net/patches/forced-umount-2.4.9.patch
+
+It gives me one reject in fs/super.c that I don't know how to fix:
+
+***************
+*** 1145,1150 ****
+  		return retval;
+  	}
+  
+  	spin_lock(&dcache_lock);
+  
+  	if (atomic_read(&sb->s_active) > 1) {
+--- 1172,1180 ----
+  		return retval;
+  	}
+  
++ 	if (flags&MNT_FORCE)
++ 		quiesce_filesystem(mnt);
++ 
+  	spin_lock(&dcache_lock);
+  
+  	if (atomic_read(&sb->s_active) > 1) {

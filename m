@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262321AbTKYKvi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 05:51:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbTKYKvh
+	id S262319AbTKYKr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 05:47:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTKYKr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 05:51:37 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:27064 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S262321AbTKYKvg (ORCPT
+	Tue, 25 Nov 2003 05:47:57 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:9503 "EHLO poup.poupinou.org")
+	by vger.kernel.org with ESMTP id S262319AbTKYKrw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 05:51:36 -0500
-To: jt@hpl.hp.com
-Cc: linux-pcmcia@lists.infradead.org,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] Ricoh Cardbus -> Can't get interrupts
-References: <20031124235727.GA2467@bougret.hpl.hp.com>
-	<Pine.LNX.4.58.0311241759470.1599@home.osdl.org>
-	<Pine.LNX.4.58.0311241819030.1599@home.osdl.org>
-	<20031125025605.GA4059@bougret.hpl.hp.com>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 25 Nov 2003 05:41:24 -0500
-In-Reply-To: <20031125025605.GA4059@bougret.hpl.hp.com>
-Message-ID: <yq0k75oivcb.fsf@wildopensource.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Tue, 25 Nov 2003 05:47:52 -0500
+Date: Tue, 25 Nov 2003 11:47:48 +0100
+To: Michael Holzt <kju@fqdn.org>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: [ACPI] RE: Toshiba ACPI battery status - ACPI errors
+Message-ID: <20031125104748.GB7375@poupinou.org>
+References: <7F740D512C7C1046AB53446D37200173618752@scsmsx402.sc.intel.com> <20031124225539.GA22718@fqdn.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031124225539.GA22718@fqdn.org>
+User-Agent: Mutt/1.5.4i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jean" == Jean Tourrilhes <jt@bougret.hpl.hp.com> writes:
+On Mon, Nov 24, 2003 at 11:55:39PM +0100, Michael Holzt wrote:
+> > I suspect this is a known issue with AML code from Toshiba. 
+> 
+> Sorry, but unfortunately your guess is wrong (would have been too easy). A
+> few days ago i reported about the Tecra S1 problems on the acpi-devel list
+> as well, maybe you missed my post, which can be found in the archives here:
+> 
+>   http://sourceforge.net/mailarchive/forum.php?thread_id=3511931&forum_id=6102
 
-Jean> 	Don't get me wrong, PCI-CardBus add-on cards seem to always be
-Jean> a pain, whereas laptop seems to always have the right magic. I
-Jean> already tried unsuccessfully to add a TI PCI-Pcmcia on another
-Jean> box, and this was similar, whereas my laptops are always working
-Jean> out of the box.  If you wonder why I'm doing that, well, there
-Jean> is not many SMP laptops to try wireless driver on ;-)
+Sorry, I missed your post.
 
-Actualy no, Sony laptops are notorious for getting the interrupt logic
-wrong with the Ricoh cardbus chips. Without ACPI IRQ routing enabled
-you don't see a thing on those laptops.
+> 
+> Included was a link to the disassembled dsdt, which can be found here:
+> 
+>   http://www.kju.de/data/dsdt.dsl
+> 
+> As you can see, the _STA-Methods of both BAT0 and BAT1 do proper return
+> calls. I'm sorry, but i'm do not have any knowledge about acpi or dsdts to
+> debug this myself. The DSDT has some other errors as well.
 
-Cheers,
-Jes
+I posted last week at acpi-devel a patch which fake a ECDT.  That should
+at least fix your embedded error you encounter.
+
+http://sourceforge.net/mailarchive/message.php?msg_id=6561311
+
+Looking your DSDT, the parameter you have to pass at boot are:
+
+ecdt_fake=0x66:0x62:0x10:-1:\\_SB.PCI0.LPCB.EC0
+
+I hope that at least that will correct some obivous errors.
+
+> 
+> It is somewhat strange, that toshiba as one of the core members of ACPI
+> seems to be unable to provide sane DSDTs for years now. Something is real
+> wrong with this company.
+
+Indeed.  They should change their ODM.
+
+-- 
+Ducrot Bruno
+
+--  Which is worse:  ignorance or apathy?
+--  Don't know.  Don't care.

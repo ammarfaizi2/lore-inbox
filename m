@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbTIKODs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 10:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbTIKODs
+	id S261167AbTIKOKG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 10:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbTIKOKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 10:03:48 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:20609 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id S261344AbTIKODo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 10:03:44 -0400
-Subject: [PATCH] linux/fs/ufs/namei.c
+	Thu, 11 Sep 2003 10:10:06 -0400
+Received: from bilbo.math.uni-mannheim.de ([134.155.88.153]:54694 "EHLO
+	bilbo.math.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S261167AbTIKOKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 10:10:01 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
 To: linux-kernel@vger.kernel.org
-Date: Thu, 11 Sep 2003 09:03:43 -0500 (CDT)
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+Subject: Re: [RFC][PATCH] kmalloc + memset(foo, 0, bar) = kmalloc0
+Date: Thu, 11 Sep 2003 16:11:28 +0200
+User-Agent: KMail/1.5.3
+References: <200309111540.58729@bilbo.math.uni-mannheim.de> <20030911134557.GV454@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20030911134557.GV454@parcelfarce.linux.theplanet.co.uk>
+Cc: viro@parcelfarce.linux.theplanet.co.uk
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary=ELM754070711-4970-0_
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20030911140343.28348DBDB@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob Tracy)
+Content-Disposition: inline
+Message-Id: <200309111611.28198@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Donnerstag, 11. September 2003 15:45 schrieben Sie:
+> On Thu, Sep 11, 2003 at 03:40:58PM +0200, Rolf Eike Beer wrote:
+> > Hi,
+> >
+> > a (very) simple grep in drivers/ showed more than 300 matches of code
+> > like this:
+> >
+> > foo = kmalloc(bar, baz);
+> > if (! foo)
+> > 	return -ENOMEM;
+> > memset(foo, 0, sizeof(foo));
 
---ELM754070711-4970-0_
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+> Erm.  It would better *not* be there in such amounts - sizeof(foo) would
+> be a size of pointer...
 
-The attached patch fixes a compilation problem (syntax) that
-arises when using the recommended minimum (according to
-linux/Documentation/Changes) gcc-2.95.3 compiler to build
-2.6.0-test5.  Would have found this sooner, but my
-Slackware 8.0 laptop has been in use at a remote location
-for the past several months :-).
+Eek, yes. Typo from me.
 
-<old_fart_mode><gasoline><match>
-Don't much care for whatever C language standard revision
-that allows this kind of sloppiness.  However, gcc-3.2.2
-handles it just fine.
-</match></gasoline></old_fart_mode>
+> > Why not add a small inlined function doing the memset for us
+> > and reducing the code to
+> >
+> > foo = kmalloc0(bar, baz);
+> > if (! foo)
+> > 	return -ENOMEM;
+>
+> Bad choice of name - too easy to confuse with kmalloc().
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+Yes, maybe. But don't expect more innovations from me today, it's someone 
+else's turn ;)
 
---ELM754070711-4970-0_
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: attachment; filename=patch00t5_ufs
-
---- linux/fs/ufs/namei.c.orig	Wed Sep 10 10:23:03 2003
-+++ linux/fs/ufs/namei.c	Wed Sep 10 21:45:30 2003
-@@ -113,10 +113,11 @@
- static int ufs_mknod (struct inode * dir, struct dentry *dentry, int mode, dev_t rdev)
- {
- 	struct inode * inode;
-+	int err;
- 	if (!old_valid_dev(rdev))
- 		return -EINVAL;
- 	inode = ufs_new_inode(dir, mode);
--	int err = PTR_ERR(inode);
-+	err = PTR_ERR(inode);
- 	if (!IS_ERR(inode)) {
- 		init_special_inode(inode, mode, rdev);
- 		/* NOTE: that'll go when we get wide dev_t */
-
---ELM754070711-4970-0_--
+Eike

@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268445AbUIPQOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268212AbUIPQFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268445AbUIPQOG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 12:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268440AbUIPQL6
+	id S268212AbUIPQFn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 12:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUIPQEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 12:11:58 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:20653 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268355AbUIPQJl (ORCPT
+	Thu, 16 Sep 2004 12:04:00 -0400
+Received: from mail.tmr.com ([216.238.38.203]:43012 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S268280AbUIPP4y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 12:09:41 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: device driver for the SGI system clock, mmtimer
-Date: Thu, 16 Sep 2004 09:09:12 -0700
-User-Agent: KMail/1.7
-Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
-       Bob Picco <Robert.Picco@hp.com>, venkatesh.pallipadi@intel.com
-References: <200409161003.39258.bjorn.helgaas@hp.com>
-In-Reply-To: <200409161003.39258.bjorn.helgaas@hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 16 Sep 2004 11:56:54 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+Date: Thu, 16 Sep 2004 11:57:34 -0400
+Organization: TMR Associates, Inc
+Message-ID: <ciccmu$ija$1@gatekeeper.tmr.com>
+References: <20040913135253.GA3118@crusoe.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409160909.12840.jbarnes@engr.sgi.com>
+X-Trace: gatekeeper.tmr.com 1095349791 19050 192.168.12.100 (16 Sep 2004 15:49:51 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+In-Reply-To: <20040913135253.GA3118@crusoe.alcove-fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, September 16, 2004 9:03 am, Bjorn Helgaas wrote:
-> Christoph Lameter wrote:
-> > The timer hardware was designed around the multimedia timer specification
-> > by Intel but to my knowledge only SGI has implemented that standard. The
-> > driver was written by Jesse Barnes.
->
-> As far as I can see, drivers/char/hpet.c talks to the same hardware.
-> HP sx1000 machines (and probably others) also implement the HPET.
+Stelian Pop wrote:
+> Hi all,
+> 
+> Is there a reason there is no API implementing a simple in-kernel
+> FIFO ? A linked list is a bit overkill...
+> 
+> Besides my sonypi and meye drivers which could use this, there are
+> quite a few other drivers which re-implement the circular buffer
+> over and over again...
+> 
+> An initial implementation follows below. Comments ?
 
-No, it's different hardware.
+Many.
 
-> I think you should look at adding your functionality to hpet.c
-> rather than adding a new driver.
+- you don't need both size and len, just the length
+- you don't need a count of what's in the fifo, calc from tail-head
+- you don't need remaining, when the tail reaches the head
+   you're out of data.
+- you want to do at most two memcpy operations, the loop is just
+   unproductive overhead.
+- if the fifo goes empty set the head and tail back to zero so you don't
+   wrap (assumes doing just two memcpy ops) when you don't need to
 
-I think Christoph already looked at that.  And HPET doesn't provide mmap 
-functionality, does it?  I.e. allow a userspace program to dereference the 
-counter register directly?
-
-Jesse
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

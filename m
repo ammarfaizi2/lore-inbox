@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276246AbRI1TEo>; Fri, 28 Sep 2001 15:04:44 -0400
+	id <S276247AbRI1TQf>; Fri, 28 Sep 2001 15:16:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276249AbRI1TEf>; Fri, 28 Sep 2001 15:04:35 -0400
-Received: from smtp8.xs4all.nl ([194.109.127.134]:64509 "EHLO smtp8.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S276246AbRI1TEQ>;
-	Fri, 28 Sep 2001 15:04:16 -0400
-From: thunder7@xs4all.nl
-Date: Fri, 28 Sep 2001 21:03:55 +0200
-To: linux-kernel@vger.kernel.org
-Subject: floppy hang with 2.4.9-ac1x
-Message-ID: <20010928210355.A2837@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S276249AbRI1TQ0>; Fri, 28 Sep 2001 15:16:26 -0400
+Received: from [213.97.45.174] ([213.97.45.174]:48653 "EHLO pau.intranet.ct")
+	by vger.kernel.org with ESMTP id <S276247AbRI1TQM>;
+	Fri, 28 Sep 2001 15:16:12 -0400
+Date: Fri, 28 Sep 2001 21:14:22 +0200 (CEST)
+From: Pau Aliagas <linux4u@wanadoo.es>
+X-X-Sender: <pau@pau.intranet.ct>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: bill davidsen <davidsen@tmr.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.9-ac16 good perfomer?
+In-Reply-To: <Pine.LNX.4.33L.0109281535220.26495-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0109282109590.10387-100000@pau.intranet.ct>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using mtools, such as mdir and mformat, under 2.4.9-ac16 (from
-2.4.9-ac10 onwards, IIRC) hard-hangs my linux system....
+On Fri, 28 Sep 2001, Rik van Riel wrote:
 
-dual P3/700, SMP kernel, gcc-3.0.1, Abit VP6 with VIA 694X chipset,
-mtools-3.9.7
+> On Fri, 28 Sep 2001, bill davidsen wrote:
+>
+> > I have been playing with 2.4.9-ac16 and I note that on a small machine
+> > (without the highmem issues) it really seems much slower initially.
+> > After startx I pop up netscape for a test, and it takes almost 50%
+> > longer than 2.4.8-pre3 I've been running since it was new. After that it
+> > seems okay but not wildly better, my aim was to be able to use netscape
+> > and cdrecord and {anything_else} at the same time.
+>
+> Mmmm, interesting.  Could you send me a screen worth of
+> top output and maybe 10 or 20 lines or so of 'vmstat 1'
+> output, both taken while the machine is going through a
+> hard time ?
+>
+> Lets try to resolve this issue while we're at it ;)
 
-dmesg about the floppy:
+I find it the best in 2.4 series :)
+Opening a nautilus window in a directory with 1600 pictures taht usually
+made the system unusable (a laptop) now doesn't affect much.
 
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
+An important remaining glitch for me is what happens when the system is
+idle for some time, for instance after the screensaver has been running
+during lunch time; it takes a few seconds moving from desktop to desktop
+til it "swaps in" applications again. Maybe we are throwing away pages too
+aggressively?
 
-/proc/dma:
- 4: cascade
+Pau
 
-/proc/interrupts:
-
-           CPU0       CPU1       
-  0:      42356      44396    IO-APIC-edge  timer
-  1:       2122       3557    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          0          3    IO-APIC-edge  rtc
- 14:       6150       3406    IO-APIC-edge  ide0
- 16:         33         32   IO-APIC-level  sym53c8xx
- 17:         23         21   IO-APIC-level  sym53c8xx, sym53c8xx, EMU10K1
- 18:      12680      12663   IO-APIC-level  ide2, ide3, DE500-AA (eth0)
- 19:          0          0   IO-APIC-level  usb-uhci, usb-uhci
-NMI:          0          0 
-LOC:      86651      86651 
-ERR:          0
-MIS:          0
-
-The floppy-drive itself functions quite well in DOS, so it's not that.
-
-The symptoms are easy to describe:
-
-the console hangs, and switching to another doesn't work. Also the
-num-lock key is dead. The floppy light stays on, but it doesn't sound
-like it is doing anything but spinning the motor.
-There are no messages in the system logs.
-
-Any hints on what to do?
-
-Thanks,
-Jurriaan
--- 
-Cadets were humping in the corridors, a party of outraged Senators roamed
-Krane barracks, everyone, including me, questioned orders, ...
-Law and order.
-	David Feintuch - Fisherman's Hope.
-GNU/Linux 2.4.9-ac16 SMP/ReiserFS 2x1402 bogomips load av: 0.00 0.03 0.04

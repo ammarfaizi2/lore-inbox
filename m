@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278137AbRJWRtx>; Tue, 23 Oct 2001 13:49:53 -0400
+	id <S278145AbRJWR6N>; Tue, 23 Oct 2001 13:58:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278142AbRJWRtd>; Tue, 23 Oct 2001 13:49:33 -0400
-Received: from pop3.telenet-ops.be ([195.130.132.40]:38344 "EHLO
-	pop3.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S278137AbRJWRtW>; Tue, 23 Oct 2001 13:49:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: DevilKin <DevilKin@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: More memory == better?
-Date: Tue, 23 Oct 2001 19:46:54 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20011023161340.02EAC9BD76@pop3.telenet-ops.be> <20011023181501.A6821@blu>
-In-Reply-To: <20011023181501.A6821@blu>
-X-Cats: All your linux' belong to us!
+	id <S278149AbRJWR6E>; Tue, 23 Oct 2001 13:58:04 -0400
+Received: from patan.Sun.COM ([192.18.98.43]:62896 "EHLO patan.sun.com")
+	by vger.kernel.org with ESMTP id <S278145AbRJWR5y>;
+	Tue, 23 Oct 2001 13:57:54 -0400
+Message-ID: <3BD5AED6.90401C9C@sun.com>
+Date: Tue, 23 Oct 2001 10:54:30 -0700
+From: Tim Hockin <thockin@sun.com>
+Organization: Sun Microsystems, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011023174956.54E609BF5A@pop3.telenet-ops.be>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: issue: deleting one IP alias deletes all
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 October 2001 18:15, antirez wrote:
-> On Tue, Oct 23, 2001 at 06:10:38PM +0200, DevilKin wrote:
-> [snip]
->
-> > I must say that even with most of my applications loaded/running, the
-> > system never even touches the swap partition.
-> >
-> > So, would it be wise?
->
-> If the applications you run are very disk-intensive probably the
-> answer is yes, since free memory is used as disk cache.
+So we've noticed, and taken issue with this behavior.
 
-Not really no... Just the average desktop stuff...  some programming now and 
-again... 
+If you have several IP aliases on an interface (eth0:0, eth0:1, eth0:2) you
+get inconsistent behavior when downing them.
 
-And games ofcourse :-)
+* if I 'ifconfig down' eth0:1, I am left with eth0:0 and eth0:2
+* if I 'ifconfig down' eth0:0, eth0:1 and eth0:2 go away, too
 
-DK
+I assert that this should not happen.  I have a simple patch to fix this
+behavior, but I want to know a few things.
 
+* Is this supposed to happen? Why?
+* Is it correct that both the real interface and the first alias are marked
+as primary (! IFA_F_SECONDARY), while all other aliases are secondary?  It
+seems to me that ALL ALIASES should be secondary.  Is this wrong? Why?
+
+Can anyone fill me in?
+
+Thanks
+Tim
 -- 
-devilkin@gmx.net
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Cobalt Server Appliances
+thockin@sun.com

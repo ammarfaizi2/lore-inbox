@@ -1,159 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317352AbSGDHYC>; Thu, 4 Jul 2002 03:24:02 -0400
+	id <S317354AbSGDHfT>; Thu, 4 Jul 2002 03:35:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317353AbSGDHYB>; Thu, 4 Jul 2002 03:24:01 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:56047 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317352AbSGDHYA>;
-	Thu, 4 Jul 2002 03:24:00 -0400
-Message-ID: <3D23F88C.2050502@us.ibm.com>
-Date: Thu, 04 Jul 2002 00:26:04 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
+	id <S317359AbSGDHfS>; Thu, 4 Jul 2002 03:35:18 -0400
+Received: from flrtn-5-m1-95.vnnyca.adelphia.net ([24.55.70.95]:61568 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S317354AbSGDHfR>;
+	Thu, 4 Jul 2002 03:35:17 -0400
+Message-ID: <3D23FAFE.20207@tmsusa.com>
+Date: Thu, 04 Jul 2002 00:36:30 -0700
+From: J Sloan <joe@tmsusa.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove BKL from driverfs
-References: <3D23EA93.7090106@us.ibm.com> <20020704071004.GI29657@kroah.com>
-Content-Type: multipart/mixed;
- boundary="------------060206050606050400050208"
+To: Ingo Molnar <mingo@elte.hu>
+CC: Bill Davidsen <davidsen@tmr.com>, Rob Landley <landley@trommello.org>,
+       Tom Rini <trini@kernel.crashing.org>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OKS] O(1) scheduler in 2.4
+References: <Pine.LNX.4.44.0207040846340.3309-100000@e2>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060206050606050400050208
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Ingo, it's apparent you are refraining from
+pushing this O(1) scheduler - that's admirable,
+but don't swing too far in the other direction.
 
-Greg KH wrote:
-> On Wed, Jul 03, 2002 at 11:26:27PM -0700, Dave Hansen wrote:
->>I saw your talk about driverfs at OLS and it got my attention.  When 
->>my BKL debugging patch showed some use of the BKL in driverfs, I was 
->>very dissapointed (you can blame Greg if you want).
-> 
-> Blame me?  Al Viro pushed that BKL into the file, not I :)
+The fact is, it's working well in 2.5, it's working
+well in the 2.4-ac tree, it's working well in the
+2.4-aa tree, and Red Hat has been shipping it.
 
-But you're so much closer :)  Did he push the mknod stuff too?
+It will soon be the case that most Linux users
+are using O(1) - thus any poor clown who
+downloads the standard src from kernel.org
+has a large task ahead of him if he wants
+similar functionality to the majority of
+linux users. This divergence may not be a
+good thing...
 
->>text from dmesg after BKL debugging patch:
->>release of recursive BKL hold, depth: 1
->>[ 0]main:492
->>[ 1]inode:149
-> 
-> This means what?
+;-)
 
-BKL was acquired at main.c:492 and current->lock_depth was 0
-then
-BKL was acquired at inode.c:149 and current->lock_depth was 1
+Joe
 
->>I see no reason to hold the BKL in your situation.  I replaced it with 
->>i_sem in some places and just plain removed it in others.  I believe 
->>that you get all of the protection that you need from dcache_lock in 
->>the dentry insert and activate.  Can you prove me wrong?
-> 
-> I see no reason to really care :)
-> Can you prove that driverfs (or pcihpfs or usbfs) accesses are on a
-> critical path that removing the BKL usage here actually helps?
+Ingo Molnar wrote:
 
-Nope.  I'm pretty sure that it isn't in a critical path anywhere, nor 
-are there any performance benefits.  It is simply an annoying use that 
-is relatively easy to remove.  It's kinda like using spaces instead of 
-tabs; most people won't notice, but some people really care :)
+>On Wed, 3 Jul 2002, Bill Davidsen wrote:
+>
+>  
+>
+>>>it might be a candidate for inclusion once it has _proven_ stability and
+>>>robustness (in terms of tester and developer exposion), on the same order
+>>>of magnitude as the 2.4 kernel - but that needs time and exposure in trees
+>>>like the -ac tree and vendor trees. It might not happen at all, during the
+>>>lifetime of 2.4.
+>>>      
+>>>
+>>It has already proven to be stable and robust in the sense that it isn't
+>>worse than the stock scheduler on typical loads and is vastly better on
+>>some.
+>>    
+>>
+>
+>this is your experience, and i'm happy about that. Whether it's the same
+>experience for 90% of Linux users, time will tell.
+>
+>  
+>
+>>>Note that the O(1) scheduler isnt a security or stability fix, neither is
+>>>it a driver backport. It isnt a feature backport that enables hardware
+>>>that couldnt be used in 2.4 before. The VM was a special case because most
+>>>people agreed that it truly sucked, and even though people keep
+>>>disagreeing about that decision, the VM is in a pretty good shape now -
+>>>and we still have good correlation between the VM in 2.5, and the VM in
+>>>2.4. The 2.4 scheduler on the other hand doesnt suck for 99% of the
+>>>people, so our hands are not forced in any way - we have the choice of a
+>>>'proven-rock-solid good scheduler' vs. an 'even better, but still young
+>>>scheduler'.
+>>>      
+>>>
+>>Here I disagree. Sure behaves like a stability fix to me. On a system
+>>with a mix of interractive and cpu-bound processes, including processes
+>>with hundreds of threads, you just can't get reasonable performance
+>>balancing with nice() because it is totally impractical to keep tuning a
+>>thread which changes from hog to disk io to socket waits with a human in
+>>the loop. The new scheduler notices this stuff and makes it work, I
+>>don't even know for sure (as in tried it) if you can have different nice
+>>on threads of the same process.
+>>    
+>>
+>
+>(yes, it's possible to nice() individual threads.)
+>
+>  
+>
+>>This is not some neat feature to buy a few percent better this or that,
+>>this is roughly 50% more users on the server before it falls over, and
+>>no total bogs when many threads change to hog mode at once.
+>>    
+>>
+>
+>are these hard numbers? I havent seen much hard data yet from real-life
+>servers using the O(1) scheduler. There was lots of feedback from
+>desktop-class systems that behave better, but servers used to be pretty
+>good with the previous scheduler as well.
+>
+>  
+>
+>>You will not hear me saying this about preempt, or low-latency, and I
+>>bet that after I try lock-break this weekend I won't fell that I have to
+>>have that either. The O(1) scheduler is self defense against badly
+>>behaved processes, and the reason it should go in mainline is so it
+>>won't depend on someone finding the time to backport the fun stuff from
+>>2.5 as a patch every time.
+>>    
+>>
+>
+>well, the O(1) scheduler indeed tries to put up as much defense against
+>'badly behaved' processes as possible. In fact you should try to start up
+>your admin shells via nice -20, that gives much more priority than it used
+>to under the previous scheduler - it's very close to the RT priorities,
+>but without the risks. This works in the other direction as well: nice +19
+>has a much stronger meaning (in terms of preemption and timeslice
+>distribution) than it used to.
+>
+>	Ingo
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-> I think that driverfs_mknod() needs some kind of protection now that you
-> have removed it.
 
-Do you just want to make sure it isn't called concurrently, or is 
-there some other BKL-protected area that you're concerned about. 
-driverfs_mknod() doesn't appear to be doing anything sneaky like 
-sleeping or calling itself, so I think a simple spinlock will work 
-just fine.
-
-> Um, you used spaces, please use tabs like the rest of the file, and how
-> Documentation/CodingStyle mandates.
-
-Arg.  I saw your talk twice so I really don't have an excuse.  fix 
-attached.
-
--- 
-Dave Hansen
-haveblue@us.ibm.com
-
---------------060206050606050400050208
-Content-Type: text/plain;
- name="driverfs-bkl_remove-2.5.24-1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="driverfs-bkl_remove-2.5.24-1.patch"
-
---- linux-2.5.24-clean/fs/driverfs/inode.c	Thu Jun 20 15:53:45 2002
-+++ linux/fs/driverfs/inode.c	Thu Jul  4 00:22:54 2002
-@@ -128,6 +128,7 @@
- 	return inode;
- }
- 
-+static spinlock_t driverfs_mknod_lock = SPIN_LOCK_UNLOCKED;
- static int driverfs_mknod(struct inode *dir, struct dentry *dentry, int mode, int dev)
- {
- 	struct inode *inode = driverfs_get_inode(dir->i_sb, mode, dev);
-@@ -146,20 +147,20 @@
- static int driverfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
- {
- 	int res;
--	lock_kernel();
- 	dentry->d_op = &driverfs_dentry_dir_ops;
-+	spin_lock(&driverfs_mknod_lock);
-  	res = driverfs_mknod(dir, dentry, mode | S_IFDIR, 0);
--	unlock_kernel();
-+	spin_unlock(&driverfs_mknod_lock);
- 	return res;
- }
- 
- static int driverfs_create(struct inode *dir, struct dentry *dentry, int mode)
- {
- 	int res;
--	lock_kernel();
- 	dentry->d_op = &driverfs_dentry_file_ops;
-+	spin_lock(&driverfs_mknod_lock);
-  	res = driverfs_mknod(dir, dentry, mode | S_IFREG, 0);
--	unlock_kernel();
-+	spin_unlock(&driverfs_mknod_lock);
- 	return res;
- }
- 
-@@ -211,9 +212,9 @@
- 	if (driverfs_empty(dentry)) {
- 		struct inode *inode = dentry->d_inode;
- 
--		lock_kernel();
-+		down(&inode->i_sem);
- 		inode->i_nlink--;
--		unlock_kernel();
-+		up(&inode->i_sem);
- 		dput(dentry);
- 		error = 0;
- 	}
-@@ -353,8 +354,9 @@
- driverfs_file_lseek(struct file *file, loff_t offset, int orig)
- {
- 	loff_t retval = -EINVAL;
-+        struct inode *inode = file->f_dentry->d_inode->i_mapping->host;
- 
--	lock_kernel();
-+	down(&inode->i_sem);	
- 	switch(orig) {
- 	case 0:
- 		if (offset > 0) {
-@@ -371,7 +373,7 @@
- 	default:
- 		break;
- 	}
--	unlock_kernel();
-+	up(&inode->i_sem);
- 	return retval;
- }
- 
-
---------------060206050606050400050208--
 

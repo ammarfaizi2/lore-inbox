@@ -1,57 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268079AbUI1XDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268089AbUI1XK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268079AbUI1XDf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 19:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268088AbUI1XDf
+	id S268089AbUI1XK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 19:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268088AbUI1XK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 19:03:35 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:17156 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268079AbUI1XDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 19:03:31 -0400
-Date: Wed, 29 Sep 2004 00:03:25 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Timur Tabi <timur.tabi@ammasso.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org
-Subject: Re: get_user_pages() still broken in 2.6
-Message-ID: <20040929000325.A6758@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Timur Tabi <timur.tabi@ammasso.com>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-References: <4159E85A.6080806@ammasso.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4159E85A.6080806@ammasso.com>; from timur.tabi@ammasso.com on Tue, Sep 28, 2004 at 05:40:26PM -0500
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 28 Sep 2004 19:10:29 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:44675 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S268089AbUI1XKU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 19:10:20 -0400
+Date: Wed, 29 Sep 2004 00:10:18 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: dri-devel <dri-devel@lists.sourceforge.net>,
+       Xserver development <xorg@freedesktop.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New DRM driver model - gets rid of DRM() macros!
+In-Reply-To: <9e4733910409280854651581e2@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0409290009050.11496@skynet>
+References: <9e4733910409280854651581e2@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 05:40:26PM -0500, Timur Tabi wrote:
-> I was hoping that this bug would be fixed in the 2.6 kernels, but 
-> apparently it hasn't been.
-> 
-> Function get_user_pages() is supposed to lock user memory.  However, 
-> under extreme memory constraints, the kernel will swap out the "locked" 
-> memory.
-> 
-> I have a test app which does this:
-> 
-> 1) Calls our driver, which issues a get_user_pages() call for one page.
-> 2) Calls our driver again to get the physical address of that page (the 
-> driver uses pgd/pmd/pte_offset).
-> 3) Tries allocate 1GB of memory (this system has 1GB of physical RAM).
-> 4) Tries to get the physical address again.
-> 
-> In step 4, the physical address is usually zero, which means either 
-> pgd_offset or pmd_offset failed.  This indicates the page was swapped out.
-> 
-> I don't understand how this bug can continue to exist after all this 
-> time.  get_user_pages() is supposed to lock the memory, because drivers 
-> use it for DMA'ing directly into user memory.
 
-get_user_pages locks the page in memory.  It doesn't do anything about ptes.
+As with Ian, I'm trying to grab the time to review this over the next day
+or two, I have one or two worries but as I haven't read over the code I'll
+wait until I'm ready to dedicate some proper time to it ..
+
+Dave.
+
+On Tue, 28 Sep 2004, Jon Smirl wrote:
+
+> I've checked two new directories into DRM CVS for Linux 2.6 -
+> linux-core, shared-core. This code implements a new model for DRM
+> where DRM is split into a core piece and personality modules that
+> share the core. The major reason for doing this is that it allows me
+> to remove all of the DRM() macros; something that is causing lot's of
+> complaints from the Linux kernel people.
+>
+> cvs -z3 -d:pserver:anonymous@dri.freedesktop.org:/cvs/dri co drm
+>
+> The patch for this is quite large, 500K, and it will mess up the Linux
+> 2.4/BSD DRM builds since it removes the DRM() macro. Instead of doing
+> this as a patch I made the new CVS directories.
+>
+> I've checked radeon and r128 and they work. Everything else should
+> work except ffb, please check the other drivers and let me know. I've
+> probably made some typos with a edit this large.
+>
+> ffb should work in principle but since I don't own one or a Sparc
+> machine so I can't compile the driver. I suspect ffb has compiler
+> errors but the are easily fixed just by copying similar code from one
+> of the working modules. Please send patches.
+>
+> The API between the core and personalities doesn't look to be all that
+> huge. With work I'd guess that 10% of the entry points could be
+> eliminated. After another year of development we might be able to
+> specify a stable core API.
+>
+> What are everyone's thoughts on this? There is no technical reason it
+> can't be implemented on Linux 2.4/BSD, although I don't see any reason
+> to do it for 2.4.
+>
+> Any ideas on how to generate a unique identifier for the core? It
+> probably should be regenerated by the Makefile whenever the core
+> changes. Personalities would have to match the core identifier. This
+> would stop people from loading binary modules that don't match the
+> core.
+>
+> After sometime testing and fixing obvious problems I'll generate a
+> patch for the 2.6 kernel and lkml.
+>
+> [root@smirl linux-2.6]# lsmod | more
+> Module                  Size  Used by
+> tdfx                    2816  0
+> sis                    10176  0
+> mga                    56704  0
+> i915                   16896  0
+> via                    19428  0
+> savage                  3840  0
+> r128                   44672  0
+> radeon                 70272  0
+> drm                    59684  8 tdfx,sis,mga,i915,via,savage,r128,radeon
+>
+> The core provides these entry points....
+>
+> [root@smirl linux-2.6]# grep EXPORT_SYMBOL *
+> drm_bufs.c:EXPORT_SYMBOL(drm_order);
+> drm_bufs.c:EXPORT_SYMBOL(drm_initmap);
+> drm_dma.c:EXPORT_SYMBOL(drm_core_reclaim_buffers);
+> drm_drv.c:EXPORT_SYMBOL(drm_cleanup_pci);
+> drm_drv.c:EXPORT_SYMBOL(drm_init);
+> drm_drv.c:EXPORT_SYMBOL(drm_exit);
+> drm_drv.c:EXPORT_SYMBOL(drm_open);
+> drm_drv.c:EXPORT_SYMBOL(drm_release);
+> drm_drv.c:EXPORT_SYMBOL(drm_ioctl);
+> drm_fops.c:EXPORT_SYMBOL(drm_flush);
+> drm_fops.c:EXPORT_SYMBOL(drm_fasync);
+> drm_init.c:EXPORT_SYMBOL(drm_flags);
+> drm_irq.c:EXPORT_SYMBOL(drm_irq_uninstall);
+> drm_irq.c:EXPORT_SYMBOL(drm_vbl_send_signals);
+> drm_memory.c:EXPORT_SYMBOL(drm_calloc);
+> drm_pci.c:EXPORT_SYMBOL(drm_pci_alloc);
+> drm_pci.c:EXPORT_SYMBOL(drm_pci_free);
+> drm_stub.c:EXPORT_SYMBOL(drm_probe);
+> drm_vm.c:EXPORT_SYMBOL(drm_core_get_map_ofs);
+> drm_vm.c:EXPORT_SYMBOL(drm_core_get_reg_ofs);
+>
+> Drivers provide these callbacks......
+>
+> struct drm_driver_fn {
+>        u32 driver_features;
+>        int dev_priv_size;
+>        int permanent_maps;
+>        drm_ioctl_desc_t *ioctls;
+>        int num_ioctls;
+>        int (*preinit)(struct drm_device *, unsigned long flags);
+>        void (*prerelease)(struct drm_device *, struct file *filp);
+>        void (*pretakedown)(struct drm_device *);
+>        int (*postcleanup)(struct drm_device *);
+>        int (*presetup)(struct drm_device *);
+>        int (*postsetup)(struct drm_device *);
+>        int (*dma_ioctl)( DRM_IOCTL_ARGS );
+>        /* these are opposites at the moment */
+>        int (*open_helper)(struct drm_device *, drm_file_t *);
+>        void (*free_filp_priv)(struct drm_device *, drm_file_t *);
+>
+>        void (*release)(struct drm_device *, struct file *filp);
+>        void (*dma_ready)(struct drm_device *);
+>        int (*dma_quiescent)(struct drm_device *);
+>        int (*context_ctor)(struct drm_device *dev, int context);
+>        int (*context_dtor)(struct drm_device *dev, int context);
+>        int (*kernel_context_switch)(struct drm_device *dev, int old, int new);
+>        int (*kernel_context_switch_unlock)(struct drm_device *dev);
+>        int (*vblank_wait)(struct drm_device *dev, unsigned int *sequence);
+> /* these have to be filled in */
+>        int (*postinit)(struct drm_device *, unsigned long flags);
+>        irqreturn_t (*irq_handler)( DRM_IRQ_ARGS );
+>        void (*irq_preinstall)(struct drm_device *dev);
+>        void (*irq_postinstall)(struct drm_device *dev);
+>        void (*irq_uninstall)(struct drm_device *dev);
+>        void (*reclaim_buffers)(struct file *filp);
+>        unsigned long (*get_map_ofs)(drm_map_t *map);
+>        unsigned long (*get_reg_ofs)(struct drm_device *dev);
+>        void (*set_version)(struct drm_device *dev, drm_set_version_t *sv);
+>        int (*version)(drm_version_t *version);
+> };
+>
+>
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

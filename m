@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292316AbSCON2b>; Fri, 15 Mar 2002 08:28:31 -0500
+	id <S292336AbSCONmO>; Fri, 15 Mar 2002 08:42:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292294AbSCON2L>; Fri, 15 Mar 2002 08:28:11 -0500
-Received: from alpha1.ebi.ac.uk ([193.62.196.122]:37641 "EHLO alpha1.ebi.ac.uk")
-	by vger.kernel.org with ESMTP id <S291279AbSCON2E>;
-	Fri, 15 Mar 2002 08:28:04 -0500
-Message-Id: <200203151327.NAA303879@alpha1.ebi.ac.uk>
+	id <S292339AbSCONmF>; Fri, 15 Mar 2002 08:42:05 -0500
+Received: from burdell.cc.gatech.edu ([130.207.3.207]:3082 "EHLO
+	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
+	id <S292336AbSCONlv>; Fri, 15 Mar 2002 08:41:51 -0500
+Date: Fri, 15 Mar 2002 08:41:49 -0500
+From: Josh Fryman <fryman@cc.gatech.edu>
+To: Miao Qingjun <qjmiao@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Intel IXP1200 and Linux
+Message-Id: <20020315084149.0fcdbf68.fryman@cc.gatech.edu>
+In-Reply-To: <20020315053916.531.qmail@web12303.mail.yahoo.com>
+In-Reply-To: <20020315053916.531.qmail@web12303.mail.yahoo.com>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; sparc-sun-solaris2.7)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Jonathan Barker <jbarker@ebi.ac.uk>
-Reply-To: jbarker@ebi.ac.uk
-Organization: EMBL-EBI
-To: linux-kernel@vger.kernel.org
-Subject: Re: VFS mediator?
-Date: Fri, 15 Mar 2002 14:28:22 +0000
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200203141351.NAA257264@alpha1.ebi.ac.uk>
-In-Reply-To: <200203141351.NAA257264@alpha1.ebi.ac.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
-        Britt Park <britt@drscience.sciencething.org>,
-        David Golden <david.golden@unison.ie>,
-        Dominik Kubla <kubla@sciobyte.de>,
-        Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All
+> I have problems to run linux from IXA SDK 2.01 onto
+> an old IXP1200 evaluation board (not IXM1200 board).
 
-On Thursday 14 Mar 2002 2:52 pm, I wrote:
+this is your problem.  SDK 2.01 contains the kernel reworked for the
+RadiSys board ("bridalveil/SI").  the original EVB with dual gigF 
+and 8x 10/100TX doesn't work with this source.
 
-> In brief: a kernel module which "exported" VFS requests to a (specified)
-> user-space daemon would be useful. My particular application is a daemon
-> which generates files on the fly - I would like to expose this as part of
-> the filesystem. Ideally, the kernel module would deal with generation of
-> fake inode numbers etc and the user-space daemon would simply be asked to
-> create a pipe corresponding to a "filename" and (possibly) supply a
-> directory tree.
+use the source instead from the netwinder.org site with the original
+intel IXP1200 how-to information.  (also, getting support on LKML for
+the unofficial patches to make IXP1200 work isn't too likely :) 
+you'll note that the kernel is pre-2.4.0.  ancient history. these
+patches have not been incorporated in the main kernel...)
 
-Many thanks for all your useful suggestions. I'll look at them all and (when 
-I get time) compile a digest of answers. I'm particularly amused by the very 
-groovy perlfs (thanks to David Golden for pointing me towards it). 
+the SDK 2.x series is commented for the changes made from the 
+original how-to release, and massaging #ifdef's in the code _should_
+fix it, but seems not to.  i haven't done an exhaustive diff to see
+where else changes have been made.
 
-Jonathan
-
+-josh

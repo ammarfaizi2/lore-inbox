@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbUKBMbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbUKBMex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUKBMbA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 07:31:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbUKBMbA
+	id S261215AbUKBMex (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 07:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbUKBMex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 07:31:00 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:32908 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261210AbUKBMaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 07:30:52 -0500
-Message-ID: <41877DF5.8070008@yahoo.com.au>
-Date: Tue, 02 Nov 2004 23:30:45 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
+	Tue, 2 Nov 2004 07:34:53 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:13285 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261219AbUKBMeu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 07:34:50 -0500
+Date: Tue, 2 Nov 2004 13:35:49 +0100
+From: Ingo Molnar <mingo@elte.hu>
 To: Con Kolivas <kernel@kolivas.org>
-CC: linux <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] remove interactive credit
-References: <418707CD.1080903@kolivas.org>
-In-Reply-To: <418707CD.1080903@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] consolidate task preempts
+Message-ID: <20041102123549.GA15290@elte.hu>
+References: <418707E2.1060105@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <418707E2.1060105@kolivas.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> remove interactive credit
-> 
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> Special casing tasks by interactive credit was helpful for preventing fully
-> cpu bound tasks from easily rising to interactive status. 
-> 
-> However it did not select out tasks that had periods of being fully cpu bound
-> and then sleeping while waiting on pipes, signals etc. This led to a more
-> disproportionate share of cpu time.
-> 
-> Backing this out will no longer special case only fully cpu bound tasks, and
-> prevents the variable behaviour that occurs at startup before tasks declare
-> themseleves interactive or not, and speeds up application startup slightly
-> under certain circumstances. It does cost in interactivity slightly as load
-> rises but it is worth it for the fairness gains.
-> 
-> Signed-off-by: Con Kolivas <kernel@kolivas.org>
-> 
 
-I'm scared :(
+* Con Kolivas <kernel@kolivas.org> wrote:
 
-I'm in favour of any attempts to simplify things... but will it be two
-months or three before this spontaneously explodes for half our userbase?
+> consolidate task preempts
 
-Andrew's boss so he gets to decide >:)
+nack. This change:
+
+-               if (TASK_PREEMPTS_CURR(p, rq))
+-                       resched_task(rq->curr);
++               preempt(p, rq);
+
+hides a real decision made. It might be more acceptable if it was called
+'maybe_preempt_curr(p, rq)', but i'm not so sure.
+
+	Ingo
+
+

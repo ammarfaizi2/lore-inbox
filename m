@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265797AbSLNSlH>; Sat, 14 Dec 2002 13:41:07 -0500
+	id <S265798AbSLNSxn>; Sat, 14 Dec 2002 13:53:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265798AbSLNSlH>; Sat, 14 Dec 2002 13:41:07 -0500
-Received: from packet.digeo.com ([12.110.80.53]:49338 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265797AbSLNSlG>;
-	Sat, 14 Dec 2002 13:41:06 -0500
-Message-ID: <3DFB7D14.149B2B80@digeo.com>
-Date: Sat, 14 Dec 2002 10:48:52 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S265815AbSLNSxn>; Sat, 14 Dec 2002 13:53:43 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:3717 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S265798AbSLNSxn>; Sat, 14 Dec 2002 13:53:43 -0500
+Date: Sat, 14 Dec 2002 13:01:20 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove Rules.make from Makefiles (1/3)
+In-Reply-To: <3DFB70D3.9010506@quark.didntduck.org>
+Message-ID: <Pine.LNX.4.44.0212141258400.6813-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-To: Mohamed El Ayouty <melayout@umich.edu>
-CC: Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.51] Failure to mount ext3 root when ext2 compiled in
-References: <3DFB03E8.C7AB1271@digeo.com> <1039875751.10805.3.camel@syKr0n.mine.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Dec 2002 18:48:52.0877 (UTC) FILETIME=[72AC93D0:01C2A3A1]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mohamed El Ayouty wrote:
-> 
-> I started having that problem since 2.5.48.
-> 
-> I just commented out those 4 lines in init/do_mounts.c:
-> 
-> #ifdef CONFIG_DEVFS_FS
->         sys_mount("devfs", "/dev", "devfs", 0, NULL);
->         do_devfs = 1;
-> #endif
-> 
-> and 2.5.51 now works.
-> 
+On Sat, 14 Dec 2002, Brian Gerst wrote:
 
-OK, the above code was added in 2.5.48.   Thanks.  I'll bug Mr Viro
-about it when the power comes back on over on the East coast...
+> Makefiles no longer need to include Rules.make, which is currently an 
+> empty file.  This patch removes it from the arch tree Makefiles.
 
-If you replace CONFIG_DEVFS_FS with CONFIG_DEVFS_MOUNT there, does
-that fix it?
+I was hoping somebody would do the legwork here ;) I agree with these 
+patches, I was just too lazy to do them myself yet. I'll pick them up if 
+Linus didn't apply them already.
+
+Thanks,
+--Kai
+
+

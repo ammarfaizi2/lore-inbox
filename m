@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318194AbSHIIpv>; Fri, 9 Aug 2002 04:45:51 -0400
+	id <S318190AbSHIIoo>; Fri, 9 Aug 2002 04:44:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318196AbSHIIpv>; Fri, 9 Aug 2002 04:45:51 -0400
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:9892 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S318194AbSHIIpt> convert rfc822-to-8bit; Fri, 9 Aug 2002 04:45:49 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: SA <bullet.train@ntlworld.com>
+	id <S318193AbSHIIoo>; Fri, 9 Aug 2002 04:44:44 -0400
+Received: from daffy.thegoop.com ([206.58.79.242]:37127 "EHLO
+	daffy.thegoop.com") by vger.kernel.org with ESMTP
+	id <S318190AbSHIIon>; Fri, 9 Aug 2002 04:44:43 -0400
+Date: Fri, 9 Aug 2002 01:48:40 -0700
+From: David Bronaugh <dbronaugh@linuxboxen.org>
 To: linux-kernel@vger.kernel.org
-Subject: device driver / char module interrupt vector -> user space code
-Date: Fri, 9 Aug 2002 09:49:48 +0100
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200208090949.48484.bullet.train@ntlworld.com>
+Subject: Patch to enable K6-2 and K6-3 processor optimizations
+Message-Id: <20020809014840.4e81fbd3.dbronaugh@linuxboxen.org>
+Organization: Independent
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Dear Kernel List,
+This is my first kernel patch, so please go easy on me :)
 
-I am writing a char module for a PCI stage controller and want to add the 
-following functionality; 
+What it does is conditionally enable -march=k6-2 and -march=k6-3, and provide options for each in the Processor Type and Features menu.
 
-The device will generate an interrupt (or software trigger) and I want this to 
-run a bit of user code with relatively latency.  (<1ms).  I am unclear how to
-do this while still separating the user from the kernel code and maintaining
-security - would this usually be handled by issuing a signal to the user space
-process? if so how and what latency can I expect? 
+This is conditional on the compiler supporting it; as of this writing only GCC 3.1 does. I compiled this kernel successfully with this patch on my K6-III and am presently running this kernel.
 
-Thanks matt
+It also enables 3DNow in the case of the K6-III; I wasn't sure if 3DNow might imply the extended Athlon 3DNow instructions, so I only enabled it for the K6-III, which I know supports it.
 
+Anyhow, that's all.
 
-(more info: the stage controller moves little mechanical platforms in an 
-experiment, as the platforms reach certain positions (determined by
-the hardware or the driver) user code must be run to perform some
-action (say take a measurement).  The stages move continuously so
-timing errors map to positional errors.  I could do all this in kernel space
-by linking the various drivers controlling the various hardware together
-under a super-driver for the entire experiment, however, it would be
-much nicer to achieve this with separate modules and user code). 
+David Bronaugh
+
+ps: This is pretty trivial to apply for other CPUs too; as I understand it several different CPU types gained their own architecture strings with GCC 3.1

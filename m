@@ -1,56 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319204AbSH2Nkn>; Thu, 29 Aug 2002 09:40:43 -0400
+	id <S319206AbSH2Nxr>; Thu, 29 Aug 2002 09:53:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319205AbSH2Nkn>; Thu, 29 Aug 2002 09:40:43 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:57067 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S319204AbSH2Nkm>; Thu, 29 Aug 2002 09:40:42 -0400
-Date: Thu, 29 Aug 2002 06:42:44 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, Andrew Morton <akpm@zip.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG+FIX] 2.4 buggercache sucks
-Message-ID: <318656043.1030603363@[10.10.2.3]>
-In-Reply-To: <200208291000.46618.roy@karlsbakk.net>
-References: <200208291000.46618.roy@karlsbakk.net>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S319209AbSH2Nxr>; Thu, 29 Aug 2002 09:53:47 -0400
+Received: from pa91.banino.sdi.tpnet.pl ([213.76.211.91]:25863 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
+	id <S319206AbSH2Nxq>; Thu, 29 Aug 2002 09:53:46 -0400
+Subject: Re: [patch] USB storage: Datafab KECF-USB, Sagatek DCS-CF
+In-Reply-To: <20020805155658.GE27306@kroah.com>
+To: Greg KH <greg@kroah.com>
+Date: Thu, 29 Aug 2002 15:57:37 +0200 (CEST)
+CC: Marek Michalkiewicz <marekm@amelek.gda.pl>, marcelo@conectiva.com.br,
+       mdharm-usb@one-eyed-alien.net, mwilck@freenet.de,
+       linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL95 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E17kPnl-0003aD-00@alf.amelek.gda.pl>
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Summary: the code below probably isn't the desired solution.
+Envelope-to: marekm@amelek.gda.pl
+Date: Mon, 5 Aug 2002 08:56:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Marek Michalkiewicz <marekm@amelek.gda.pl>
+cc: marcelo@conectiva.com.br, mdharm-usb@one-eyed-alien.net, 
+	 mwilck@freenet.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch] USB storage: Datafab KECF-USB, Sagatek DCS-CF
+Message-ID: <20020805155658.GE27306@kroah.com>
+References: <20020626145741.GD4611@kroah.com> <E17bLKe-0001p2-00@alf.amelek.gda.pl>
+Content-Disposition: inline
+In-Reply-To: <E17bLKe-0001p2-00@alf.amelek.gda.pl>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Mon, 08 Jul 2002 14:36:57 -0700
+
+(Sorry for the delay - found an old email lost between tons of spam...)
+
+> On Sun, Aug 04, 2002 at 03:22:04PM +0200, Marek Michalkiewicz wrote:
+> > Hi,
+> > 
+> > > Heh, send this to me again after 2.4.19-final is out, and I'll
+> > > reconsider it :)
+> > 
+> > Over a month later, here it is - this drivers/usb/storage/unusual_devs.h
+> > entry appears to be sufficient to make my Sagatek DCS-CF work:
+> > 
+> > /* aka Sagatek DCS-CF */
+> > UNUSUAL_DEV(  0x07c4, 0xa400, 0x0000, 0xffff,
+> > 		"Datafab",
+> > 		"KECF-USB",
+> > 		US_SC_SCSI, US_PR_BULK, NULL,
+> > 		US_FL_FIX_INQUIRY ),
 > 
-> Very well - but where is the code to run then?
+> That's a wide range for this device, do you really need 0x0000 - 0xffff
+> for this?
 
-Not quite sure what you mean?
- 
-> I mean - this code solved _my_ problem. Without it the server OOMs within 
-> minutes of high load, as explained earlier. I'd rather like a clean fix in 
-> 2.4 than this, although it works.
+Well, I don't know what to do - the device I have is reported as
+revision 0113.  But the patch on http://martin.wilck.bei.t-online.de/
+has a range of 0x0000 - 0x0015 so it would not handle my device.
 
-I'm sure Andrew could explain this better than I - he wrote the
-code, I just whined about the problem. Basically he frees the
-buffer_head immediately after he's used it, which could at least
-in theory degrade performance a little if it could have been reused.
-Now, nobody's ever really benchmarked that, so a more conservative
-approach is likely to be taken, unless someone can prove it doesn't
-degrade performance much for people who don't need the fix. One
-of the cases people were running scared of was something doing 
-continual overwrites of a file, I think something like:
+> And send a patch to Matt, if he agrees with it, he'll send it on to me.
 
-for (i=0;i<BIGNUMBER;i++) {
-	lseek (0);
-	write 4K of data;
-}
+He is on the Cc: list.  Please consider this entry, possibly with
+US_FL_START_STOP and US_FL_MODE_XLATE flags added (no difference
+for me, but present in the patch on the above mentioned page), for
+inclusion in 2.4.20.  I can make a patch if you tell me what range
+and flags would be accepted.
 
-Or something. 
+Support for such devices out of the box becomes more important now
+that motherboard BIOSes start supporting boot from USB storage
+(so you could easily install a Linux distribution on a CF card,
+or use one as a rescue disk simply plugged into an USB port if ever
+needed - no need for a floppy or CD-ROM drive in a server).
+I don't know how widespread this is, but such a feature has just
+appeared in the latest MSI MS-6368 BIOS upgrade, for example...
 
-Was your workload doing lots of reads, or lots of writes? Or both?
-
-M.
+Thanks,
+Marek
 

@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130374AbQLETa7>; Tue, 5 Dec 2000 14:30:59 -0500
+	id <S129532AbQLEToY>; Tue, 5 Dec 2000 14:44:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130379AbQLETau>; Tue, 5 Dec 2000 14:30:50 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:1028 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S130374AbQLETad>;
-	Tue, 5 Dec 2000 14:30:33 -0500
-Message-ID: <20001205004049.A1316@bug.ucw.cz>
-Date: Tue, 5 Dec 2000 00:40:49 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Kevin Buhr <buhr@stat.wisc.edu>, trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: negative NFS cookies: bad C library or bad kernel?
-In-Reply-To: <vbaaeae2joz.fsf@mozart.stat.wisc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <vbaaeae2joz.fsf@mozart.stat.wisc.edu>; from Kevin Buhr on Sat, Dec 02, 2000 at 10:49:16PM -0600
+	id <S129449AbQLEToP>; Tue, 5 Dec 2000 14:44:15 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:36258 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S129410AbQLEToA>;
+	Tue, 5 Dec 2000 14:44:00 -0500
+Date: Tue, 5 Dec 2000 11:13:27 -0800 (PST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: eepro100 driver update for 2.4
+In-Reply-To: <20001204211633.A16092@saw.sw.com.sg>
+Message-ID: <Pine.LNX.4.21.0012051104510.7727-100000@age.cs.columbia.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 4 Dec 2000, Andrey Savochkin wrote:
 
-> Fiddling with the Crytographic File System the other day, I managed to
-> tickle a mysterious bug.  When some directories grew large enough,
-> suddenly a chunk of files would half "disappear".  "find" would list
-> them fine, but "ls" and "echo *" wouldn't.
+> > There is nothing relevant in the errata, unfortunately...
 > 
-> After a bit of troubleshooting, I discovered that the CFS daemon
-> (which presents itself to the system as an NFS daemon) was using
+> Do you have it?
 
-Do you run CFS daemon and client on same machine? Where is
-documentation/download of CFS?
+I have the manual in the office, so I can look at it again in a couple of
+days. I've used it to hack on the BSDI driver...
 
-								Pavel 
+> The sympthomes are that the card triggers Flow Control Pause condition (and
+> interrupt) on the last stages of the initialization or right after.
+> And it happens with flow control being explicitly turned off.
+> High network load considerably increase the chances of the event.
+> After that the card stops to behave sane and reports status 0x7048.
+
+Cool, I'll try to go over the driver init sequence by the end of the
+weekend and let you know if I see anything wrong.
+
+> It may happen that we don't understand something in the initialization
+> sequence, or just a plain hardware bug.
+
+Do you know if only one specific chip revision exhibits this problem? It
+would really help track down the problem. If I remember correctly, 82557
+doesn't have flow control at all, and 82558/9 have different 
+implementations -- one is proprietary (82558) and one is standard (82559).
+
+Thanks,
+Ion
+
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

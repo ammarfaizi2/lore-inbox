@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277828AbRJRRPc>; Thu, 18 Oct 2001 13:15:32 -0400
+	id <S277831AbRJRRTW>; Thu, 18 Oct 2001 13:19:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277831AbRJRRPW>; Thu, 18 Oct 2001 13:15:22 -0400
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:20744 "EHLO
-	moria.gondor.com") by vger.kernel.org with ESMTP id <S277828AbRJRRPL>;
-	Thu, 18 Oct 2001 13:15:11 -0400
-Date: Thu, 18 Oct 2001 19:15:39 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: Tony Hoyle <tmh@nothing-on.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Input on the Non-GPL Modules
-Message-ID: <20011018191539.A5676@gondor.com>
-In-Reply-To: <Pine.LNX.4.21.0110181113020.9058-100000@wyrm.rakis.net> <20011018183217.A5055@gondor.com> <3bcf0c42.97910140@tony-home>
+	id <S277832AbRJRRTM>; Thu, 18 Oct 2001 13:19:12 -0400
+Received: from ppp01.ts1-1.NewportNews.visi.net ([209.8.196.1]:10480 "EHLO
+	blimpo.internal.net") by vger.kernel.org with ESMTP
+	id <S277831AbRJRRTA>; Thu, 18 Oct 2001 13:19:00 -0400
+Date: Thu, 18 Oct 2001 13:16:08 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Non-GPL modules
+Message-ID: <20011018131608.C10952@visi.net>
+In-Reply-To: <Pine.LNX.3.95.1011018101831.603A-100000@chaos.analogic.com> <3BCF0B10.CFA9E3FB@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3bcf0c42.97910140@tony-home>
-User-Agent: Mutt/1.3.23i
+In-Reply-To: <3BCF0B10.CFA9E3FB@evision-ventures.com>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 18, 2001 at 05:08:13PM +0000, Tony Hoyle wrote:
-> This is still a GPL violation, as the small module couldn't then be
-> linked with the proprietary module.  Most companies aren't prepared to
-> get into the legally murky ground that that sort of thing entails.
+On Thu, Oct 18, 2001 at 07:02:08PM +0200, Martin Dalecki wrote:
+> > 
+> > Review of the driver source-code by a competent hardware designer,
+> > who knows how to read code, will give away the trade secret. Then
+> > anybody, who hasn't bothered to invest the millions of dollars of
+> > Engineering development cost, can make one of these cheaper and
+> > put us out of business.
+> 
+> And what about the simple fact that the tainted flag will become
+> entierly useless when in fact most of us will be using tainted
+> kernel? Hey anyway most of us are now deploying "tainted" linux
+> distributions anyway and NOT GNU/Linux Debian. Most of use use
+> distros and kernels far away from the official Linus kernel too, so
+> this flagging doesn't help anybody it's just BLOAT.
 
-Why not? It is obviously allowed to write proprietary modules, as long
-as they dont use GPL-only interfaces. 
+So you think it is the responsibility of the l-k hackers to field bugs
+against highly hacked and forked versions of the kernel from a distro
+that you use?
 
-Jan
 
+Ben
+
+-- 
+ .----------=======-=-======-=========-----------=====------------=-=-----.
+/                   Ben Collins    --    Debian GNU/Linux                  \
+`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'

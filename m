@@ -1,22 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315338AbSEYVFc>; Sat, 25 May 2002 17:05:32 -0400
+	id <S315370AbSEYVHj>; Sat, 25 May 2002 17:07:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315370AbSEYVFb>; Sat, 25 May 2002 17:05:31 -0400
-Received: from bitmover.com ([192.132.92.2]:41939 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S315338AbSEYVFb>;
-	Sat, 25 May 2002 17:05:31 -0400
-Date: Sat, 25 May 2002 14:05:32 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Wolfgang Denk <wd@denx.de>
-Cc: Larry McVoy <lm@bitmover.com>, Karim Yaghmour <karim@opersys.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-Message-ID: <20020525140532.A11297@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Wolfgang Denk <wd@denx.de>, Larry McVoy <lm@bitmover.com>,
-	Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020525133637.B17573@work.bitmover.com> <20020525205139.D283611972@denx.denx.de>
+	id <S315375AbSEYVHi>; Sat, 25 May 2002 17:07:38 -0400
+Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:54800
+	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S315370AbSEYVHh>; Sat, 25 May 2002 17:07:37 -0400
+Date: Sat, 25 May 2002 23:07:35 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+To: Jeremy White <jwhite@codeweavers.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: isofs unhide option:  troubles with Wine
+Message-ID: <20020525230735.A18560@bouton.inet6-interne.fr>
+Mail-Followup-To: Jeremy White <jwhite@codeweavers.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1022301029.2443.28.camel@jwhiteh>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,22 +22,59 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 25, 2002 at 10:51:34PM +0200, Wolfgang Denk wrote:
-> > and the guy who did that work freely admitted that it was a fork of the 
-> > RT/Linux source base?
+On Fri, May 24, 2002 at 11:30:29PM -0500, Jeremy White wrote:
+> Greetings,
 > 
-> Yes, of course it was a fork at a very early point  of  the  develop-
-> ment. So what? Nobody denies that RTAI is based on the same core idea
-> as RT-Linux - that's why the RT-Linux patent _is_ an issue to RTAI.
+> When installing Microsoft Office with Wine, we find that some
+> MS CDs have certain files marked as hidden on the CD.
+> [...]
+> 
+> Unfortunately, I don't have a strong feeling for what the
+> 'right' solution is.  I see several options:
+> 
+>     1.  Invert the logic of the option, make it 'hide' instead
+>         of unhide, and so unhide is the default.
+> 
+>     2.  Make it possible to set this mount option from user
+>         space (I don't like this, but it would get me around
+>         the problem).
+> 
+>     3.  Make it so that isofs/dir.c still strips out hidden
+>         files, but enable isofs/namei.c to return a hidden file that
+>         is opened directly by name.
+> 
+> I am willing to submit a patch to implement the appropriate solution.
+> 
+> Comments and opinions are greatly appreciated; please copy me directly
+> though, as I am not subscribed.
+> 
+> Thanks,
+> 
+> Jeremy
+> 
 
-s/same core idea/same core code/
+With 3. Wine's FindFirstFile and FindNextFile wont't be able to report
+hidden files and Win32 programs could rely on that instead of using
+hard-coded filenames.
+If I'm not mistaken these functions return all files and put file flags
+in a struct. User apps are responsible of the hiding.
+One could argue that Win32 programs could rely on the file flags being
+reported correctly, but I find this far less probable.
 
-Go search around, get the code you can still find on the net and start
-diffing.  So not only do the RTAI people have an issue with the patent,
-it looks like they'd better be conforming to the GPL as well.  Didn't
-RTAI switch the copyright on "their" sourcebase to LGPL?  So explain to
-me how you can take a GPLed source base, change it, and then change the
-license.  Are you saying that 100% of that source base has been rewritten?
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+If one goal is to allow Wine to implement the Win32 syscalls as correctly as
+possible 3. is not an option IMHO.
+
+Moreover I don't like the idea of files readable but not findable by common
+tools, seems broken to me.
+
+2. will lead to entries in FAQ:
+
+Q: What does the "unhide" option mean in my /etc/fstab ?
+A: Lengthy explanation on ISO9660, Windows FS versus Unix FS and so on...
+
+1. will do what Linux already does for other FAT/NTFS contents, simply show
+the info to the users even if Windows' tools hide it by default.
+
+Personnaly I would choose 1. (I prefer short FAQs).
+
+LB.

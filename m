@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265681AbRFXAlb>; Sat, 23 Jun 2001 20:41:31 -0400
+	id <S265688AbRFXAuC>; Sat, 23 Jun 2001 20:50:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265687AbRFXAlW>; Sat, 23 Jun 2001 20:41:22 -0400
-Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:17675 "EHLO
-	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
-	id <S265681AbRFXAlG>; Sat, 23 Jun 2001 20:41:06 -0400
-Message-ID: <05c701c0fc46$5ac58be0$d55355c2@microsoft>
-From: "Alexander V. Bilichenko" <dmor@7ka.mipt.ru>
-To: <linux-kernel@vger.kernel.org>
-Subject: GCC3.0: Again
-Date: Sun, 24 Jun 2001 04:41:06 +0400
+	id <S265691AbRFXAtw>; Sat, 23 Jun 2001 20:49:52 -0400
+Received: from fla057.us-it.net ([208.60.183.57]:10587 "EHLO onevista.com")
+	by vger.kernel.org with ESMTP id <S265688AbRFXAtj>;
+	Sat, 23 Jun 2001 20:49:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: John Adams <johna@onevista.com>
+Organization: One Vista Associates
+To: linux-kernel@vger.kernel.org
+Subject: Re: Microsoft and Xenix.
+Date: Sat, 23 Jun 2001 20:49:42 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <E15DZbq-0008D8-00@roo.home> <01062310075401.00696@localhost.localdomain>
+In-Reply-To: <01062310075401.00696@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="windows-1251"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2488.0001
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2488.0001
+Message-Id: <01062320494201.01112@flash.onevista.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Again:
+On Saturday 23 June 2001 10:07, Rob Landley wrote:
+> Here's what I'm looking for:
+>
+> AIX was first introduced for the IBM RT/PC in 1986, which came out of the
+> early RISC research.  It was ported to PS/2 and S/370 by SAA, and was
+> based on unix SVR2.  (The book didn't specify whether the original
+> version or the version ported to SAA was based on SVR2, I'm guessing both
+> were.)
 
-make[3]: Entering directory `/usr/src/linux/net/core'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-tri
-graphs -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack
--boundary=2 -march=i686    -c -o datagram.o datagram.c
-{standard input}: Assembler messages:
-{standard input}:747: Error: Junk `adcl $0xffff' after register
-{standard input}:804: Error: Junk `adcl $0xffff' after register
-make[3]: *** [datagram.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/net/core'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux/net/core'
-make[1]: *** [_subdir_core] Error 2
-make[1]: Leaving directory `/usr/src/linux/net'
-make: *** [_dir_net] Error 2
+You are partially correct.  AIX (Advanced Interactive eXecutive) was built 
+by the Boston office of Interactive Systems under contract to IBM.  We had 
+a maximum of 17 people in the effort which shipped on the RT in January 
+1986.
 
+Prior to that time, Interactive Systems had produced a port of System III 
+running on the PC/XT called PC/IX which was sold via IBM.  I used PC/IX to 
+produce the software only floating point code in the first version of AIX.
 
-Best regards,
-Alexander         mailto:dmor@7ka.mipt.ru
-
+johna

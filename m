@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317914AbSGKVl1>; Thu, 11 Jul 2002 17:41:27 -0400
+	id <S317916AbSGKVpF>; Thu, 11 Jul 2002 17:45:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317915AbSGKVl0>; Thu, 11 Jul 2002 17:41:26 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:20985 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S317914AbSGKVlZ>;
-	Thu, 11 Jul 2002 17:41:25 -0400
-Message-ID: <3D2DFC08.445B2723@mvista.com>
-Date: Thu, 11 Jul 2002 14:43:36 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S317915AbSGKVpE>; Thu, 11 Jul 2002 17:45:04 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:35849
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317918AbSGKVpD>; Thu, 11 Jul 2002 17:45:03 -0400
+Date: Thu, 11 Jul 2002 14:44:52 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: mbs <mbs@mc.com>, dank@kegel.com,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Periodic clock tick considered harmful (was: Re: HZ, preferably as
-References: <E17SlUl-0001ai-00@the-village.bc.nu>
+cc: James Stevenson <mistral@stev.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ATAPI + cdwriter problem
+In-Reply-To: <E17Sldb-0001d4-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10207111431260.20499-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+
+The basics are this for ATAPI.
+Look in the PDC driver for the 48-bit operations.
+You see a second DMA engine registered at an offset much further into
+BAR4.  Until the PRD is generated for "DUAL" engines ATAPI will suck.
+
+This is the kind of detailed information I do not publish.
+
+Now you have to deal with mixed ATA and ATAPI on the same channel and the
+driver to deal with such switch modes will explode.
+
+The amount of code need (aka the crappy bloat that works) is what people
+bawked (sp) at and why everyone calls my coding "CRAPPY".   I find no need
+to spend a lot of time developing an extened API to permit switch back PRD
+and DMA engines for the short amount of time I have left.
+
+If somebody wants it they can pay for it.
+
+Also for a lot of people, the can not read.
+
+I have clearly stated that most of the add-on cards do not support ATAPI.
+You want ATAPI put it on the mainboard.  You got a cheap crappy mainboard
+like VIA which rudely squashes PCI add-on performance tough.  Comupters
+are like sports cars, "Speed Costs Money, How Fast Do You Want To Go ?"
+
+As far as alphas are concerned ask Bryce.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+
+On Thu, 11 Jul 2002, Alan Cox wrote:
+
+> > You just broke every system that is not x86 wanting to use the pci card.
 > 
-> > First blush is HELL YES!  The issue is accounting.  When you
-> > ask how long a program ran, you are looking at the
-> > accounting that happens on a tick.  This is where one of two
+> I want to find out if Promise stuff fixes the problems people are having. 
+> Dealing with a bit of non x86 portability is something to worry about 
+> later. Right now both the rc1 and the rc1-ac2 promise IDE suck completely
+> for a lot of people. Probably more than own alphas
 > 
-> Thats also an implementation issue. Note that the current code is also
-> wildly inaccurate. Mr Shannon says we are good to at best 50 run/sleep
-> changes a second.  I've got "100% busy" workloads that are 99% asleep.
-> 
-> Tracking cpu usage at task switch works a lot better for newer processors
-> which as well as having rdtsc also have performance counters. In fact you
-> can do much more interesting things on modern PC class platforms like
-> scheduling using pre-emption interrupts based on instructions executed,
-> memory accesses and more.
-> 
-Oh, I agree.  Hardware could make all this a lot easier.  
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+> Alan
+

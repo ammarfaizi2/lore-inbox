@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262814AbUDHV7g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 17:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbUDHV7g
+	id S262774AbUDHWDg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 18:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbUDHWDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 17:59:36 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:6086 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262730AbUDHV7e convert rfc822-to-8bit (ORCPT
+	Thu, 8 Apr 2004 18:03:35 -0400
+Received: from linux-bt.org ([217.160.111.169]:12234 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S262774AbUDHWDd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 17:59:34 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: HUGETLB commit handling.
-Date: Thu, 8 Apr 2004 14:58:40 -0700
-Message-ID: <01EF044AAEE12F4BAAD955CB75064943014B92FA@scsmsx401.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: HUGETLB commit handling.
-Thread-Index: AcQdkJmYwmNjBCE1RyiI8vJes+zUXwAI5UBg
-From: "Seth, Rohit" <rohit.seth@intel.com>
-To: "Andy Whitcroft" <apw@shadowen.org>, "Andrew Morton" <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "Ray Bryant" <raybry@sgi.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>,
-       <anton@samba.org>, <sds@epoch.ncsc.mil>, <ak@suse.de>,
-       <lse-tech@lists.sourceforge.net>, <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 08 Apr 2004 21:58:41.0272 (UTC) FILETIME=[A7617F80:01C41DB4]
+	Thu, 8 Apr 2004 18:03:33 -0400
+Subject: Re: [PATCH 2.6.5] Add sysfs class support to fs/coda/psdev.c
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, braam@cs.cmu.edu,
+       Greg Kroah-Hartman <greg@kroah.com>, coda@cs.cmu.edu
+In-Reply-To: <7970000.1081458781@dyn318071bld.beaverton.ibm.com>
+References: <7290000.1081457670@dyn318071bld.beaverton.ibm.com>
+	 <7970000.1081458781@dyn318071bld.beaverton.ibm.com>
+Content-Type: text/plain
+Message-Id: <1081461739.5880.13.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 09 Apr 2004 00:02:19 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Whitcroft <> wrote on Thursday, April 08, 2004 9:36 AM:
+Hi Hanna,
 
-> We have been looking at the HUGETLB page commit issue (offlist) and
-> are close a final merged patch.  However, our testing seems to have
-> thrown up an inconsistency in interface which we are not sure whether
-> to fix or not.   
+> Here is the fixed patch:
 > 
-> With normal shm segments we commit the pages we will need at shmget()
-> time. 
-> The real pages being allocated on demand.  With hugetlb pages we
-> currently do not manage commit, but allocate them on map, shmat() in
-> this case.  When we add commit handling it would seem most
-> appropriate to commit the pages in shmget() as for small page
-> mappings.  However, this might seem to change the semantics slightly,
-> in that if there is insufficient hugepages available then the failure
-> would come at shmget() and not shmat() time.      
+> diff -Nrup linux-2.6.5/fs/coda/psdev.c linux-2.6.5p/fs/coda/psdev.c
+> --- linux-2.6.5/fs/coda/psdev.c	2004-04-03 19:37:36.000000000 -0800
+> +++ linux-2.6.5p/fs/coda/psdev.c	2004-04-08 14:05:51.000000000 -0700
+> @@ -37,6 +37,7 @@
+>  #include <linux/init.h>
+>  #include <linux/list.h>
+>  #include <linux/smp_lock.h>
+> +#include <linux/device.h>
+>  #include <asm/io.h>
+>  #include <asm/system.h>
+>  #include <asm/poll.h>
+> @@ -61,6 +62,7 @@ unsigned long coda_timeout = 30; /* .. s
+>  
 > 
-> I would contend this is the right thing to do, as it makes the
-> semantics of hugepages match that of the existing small pages.  We
-> are looking for a consensus as this might be construed as a semantic
-> change.   
-> 
+>  struct venus_comm coda_comms[MAX_CODADEVS];
+> +static struct class_simple coda_psdev_class;
 
-IMO, doing this accounting check at shmget time seems reasonable as it
-aligns the accouting semantics of normal and hugepages.
+I think coda_psdev_class must be a pointer.
 
+Regards
 
-> Thoughts.
-> 
-> -apw
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ia64"
-> in the body of a message to majordomo@vger.kernel.org More majordomo
-> info at  http://vger.kernel.org/majordomo-info.html  
+Marcel
+
 

@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263808AbUDFNLs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 09:11:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbUDFNLs
+	id S263806AbUDFNOx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 09:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUDFNOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 09:11:48 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:44203 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S263808AbUDFNLr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 09:11:47 -0400
-Date: Tue, 06 Apr 2004 22:11:56 +0900 (JST)
-Message-Id: <20040406.221156.124921543.taka@valinux.co.jp>
-To: rmk+lkml@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
-Subject: Re: [Lhms-devel] [patch 4/6] memory hotplug for hugetlbpages
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <20040406140224.B23527@flint.arm.linux.org.uk>
-References: <20040406.214123.129013798.taka@valinux.co.jp>
-	<20040406.214801.127823252.taka@valinux.co.jp>
-	<20040406140224.B23527@flint.arm.linux.org.uk>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+	Tue, 6 Apr 2004 09:14:53 -0400
+Received: from ulysses.news.tiscali.de ([195.185.185.36]:62475 "EHLO
+	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
+	id S263806AbUDFNOw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 09:14:52 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Thomas Bach <blox@tiscali.de>
+Newsgroups: linux.kernel
+Subject: Workaround for ReiserFS on root-filesystem
+Date: Mon, 05 Apr 2004 19:54:16 +0200
+Organization: Tiscali Germany
+Message-ID: <c4uag9$270t$1@ulysses.news.tiscali.de>
+NNTP-Posting-Host: p213.54.49.246.tisdip.tiscali.de
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: ulysses.news.tiscali.de 1081257290 72733 213.54.49.246 (6 Apr 2004 13:14:50 GMT)
+X-Complaints-To: abuse@tiscali.de
+NNTP-Posting-Date: Tue, 6 Apr 2004 13:14:50 +0000 (UTC)
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040317
+X-Accept-Language: de-de, de, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Folks!
 
-> > @@ -1667,6 +1670,7 @@ int handle_mm_fault(struct mm_struct *mm
-> >  pmd_t fastcall *__pmd_alloc(struct mm_struct *mm, pgd_t *pgd, unsigned long address)
-> >  {
-> >  	pmd_t *new;
-> > +	struct page *page;
-> >  
-> >  	spin_unlock(&mm->page_table_lock);
-> >  	new = pmd_alloc_one(mm, address);
-> > @@ -1682,6 +1686,8 @@ pmd_t fastcall *__pmd_alloc(struct mm_st
-> >  		pmd_free(new);
-> >  		goto out;
-> >  	}
-> > +	page = virt_to_page(new);
-> > +	pmd_add_rmap(new, mm, address);
-> 
-> Doesn't this want to be:
-> 
-> 	pmd_add_rmap(page, mm, address);
-> 
-> ?
-> 
-> And how about collapsing this down to:
-> 
-> 	pmd_add_rmap(virt_to_page(new), mm, address);
+I use ReiserFS for my root-filesystem while trying to upgrade to a newer 
+kernel-version (still using 2.4.20) I got a error, that / could not be 
+remounted read/write. After googling a bit I stumbled over the fact that 
+ReiserFS as root-filesystem doesn't work since version 2.4.22 (or 
+something like this).
 
-Yes, it can be. I'll fix it. 
+So I asked myself if there exists any workaround/howto/something-else so 
+   I could get away from making my root-fs to an ext3 one. Does anyone 
+know something about it?
 
-But I guess these code would be replaced with objrmap in no distant
-future.
-
-Thank you,
-Hirokazu Takahashi.
+Thanks,
+	Thomas Bach

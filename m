@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129729AbRAaEhv>; Tue, 30 Jan 2001 23:37:51 -0500
+	id <S129904AbRAaEyg>; Tue, 30 Jan 2001 23:54:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130105AbRAaEhl>; Tue, 30 Jan 2001 23:37:41 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:3140 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S129729AbRAaEhY>; Tue, 30 Jan 2001 23:37:24 -0500
-Message-ID: <3A77966E.444B1160@linux.com>
-Date: Tue, 30 Jan 2001 20:37:02 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre11 i686)
-X-Accept-Language: en
+	id <S130098AbRAaEy0>; Tue, 30 Jan 2001 23:54:26 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:9220 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129904AbRAaEyP>; Tue, 30 Jan 2001 23:54:15 -0500
+Date: Wed, 31 Jan 2001 01:05:02 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: lkml <linux-kernel@vger.kernel.org>
+cc: linux-mm@kvack.org
+Subject: [PATCH] vma limited swapin readahead 
+Message-ID: <Pine.LNX.4.21.0101310037540.16187-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Stephen Frost <sfrost@snowman.net>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
-In-Reply-To: <3A777E1A.8F124207@linux.com> <20010130220148.Y26953@ns>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mhm.  Is it worth the effort to make a dependancy on the CPU type for SMP?
 
-</idle questions>
+Hi, 
 
--d
+The current swapin readahead code reads a number of pages (1 >>
+page_cluster)  which are physically contiguous on disk with reference to
+the page which needs to be faulted in.
 
-Stephen Frost wrote:
+However, the pages which are contiguous on swap are not necessarily
+contiguous in the virtual memory area where the fault happened. That means
+the swapin readahead code may read pages which are not related to the
+process which suffered a page fault.
 
-> * David Ford (david@linux.com) wrote:
-> > A person just brought up a problem in #kernelnewbies, building an SMP
-> > kernel doesn't work very well, current is undefined.  I don't have more
-> > time to debug it but I'll strip the config and put it up at
-> > http://stuph.org/smp-config
->
->         They're trying to compile SMP for Athlon/K7 (CONFIG_MK7=y).
+I've changed the swapin code to not readahead pages if they are not
+virtually contiguous on the vma which is being faulted to avoid
+the problem described above.
 
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+Testers are very welcome since I'm unable to test this in various
+workloads.
 
+The patch is available at
+http://bazar.conectiva.com.br/~marcelo/patches/v2.4/2.4.1pre10/swapin_readahead.patch
 
 
 -

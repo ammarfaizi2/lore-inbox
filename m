@@ -1,28 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316636AbSEQSSx>; Fri, 17 May 2002 14:18:53 -0400
+	id <S316637AbSEQS1J>; Fri, 17 May 2002 14:27:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316637AbSEQSSw>; Fri, 17 May 2002 14:18:52 -0400
-Received: from elixir.e.kth.se ([130.237.48.5]:41488 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S316636AbSEQSSv>;
-	Fri, 17 May 2002 14:18:51 -0400
-To: linux-kernel@vger.kernel.org
-Subject: ide cd/dvd with 2.4.19-pre8
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 17 May 2002 20:18:49 +0200
-Message-ID: <yw1x1ycak586.fsf@gladiusit.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S316638AbSEQS1I>; Fri, 17 May 2002 14:27:08 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:32644 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S316637AbSEQS1H>; Fri, 17 May 2002 14:27:07 -0400
+Date: Fri, 17 May 2002 13:26:40 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200205171826.NAA44036@tomcat.admin.navo.hpc.mil>
+To: phillips@bonn-fries.net, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
+        Peter Chubb <peter@chubb.wattle.id.au>
+Subject: Re: [PATCH] remove 2TB block device limit
+In-Reply-To: <E178m48-00006Z-00@starship>
+Cc: Anton Altaparmakov <aia21@cantab.net>,
+        Peter Chubb <peter@chubb.wattle.id.au>,
+        Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+        axboe@suse.de, akpm@zip.com.au, martin@dalecki.de,
+        neilb@cse.unsw.edu.au
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just noticed that reading from both my cdrom and dvd is a lot slower
-with 2.4.19-pre8 than 2.4.18. Now hdparm reports ~800 kbytes/s compared to
-1.7 MBytes/s for CD and >2 MBytes/s for DVD with 2.4.18. It is even impossible
-to play DVDs. Any ideas?
+---------  Received message begins Here  ---------
 
--- 
-Måns Rullgård
-mru@users.sf.net
+> 
+> On Friday 17 May 2002 15:32, Jesse Pollard wrote:
+> > And for the curious, the filesystems are SAMFS and SAMQFS on Sun E10000s.
+> > We migrated the data from Cray NC1 filesystems with DMF - Cray data
+> > migration facility (this took over 4 months. Would have taken only a month
+> > or two, but we also had to accept new data at the same time).
+> 
+> Thanks for the fascinating data, however you left out one crucial piece of
+> information: how many data bits in your processor?
+
+Sorry - I did omit that..
+
+Sun E10000s are Sparc based, and 64 bit. I realize this doesn't refer to
+the 32 bit boundaries, but they were operating in 32 bit mode for the initial
+installation (Solaris 2.6) and since some of the filesystem support was 3rd
+party and didn't work when the kernel was in 64 bit mode.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbUJ0E1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbUJ0E33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbUJ0E1K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 00:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbUJ0E1J
+	id S261495AbUJ0E33 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 00:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbUJ0E33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 00:27:09 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8091 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261494AbUJ0E1F (ORCPT
+	Wed, 27 Oct 2004 00:29:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48283 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261495AbUJ0E3Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 00:27:05 -0400
-Date: Wed, 27 Oct 2004 00:26:44 -0400 (EDT)
+	Wed, 27 Oct 2004 00:29:24 -0400
+Date: Wed, 27 Oct 2004 00:29:10 -0400 (EDT)
 From: Rik van Riel <riel@redhat.com>
 X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Ed Tomlinson <edt@aei.ca>
-cc: Massimo Cetra <mcetra@navynet.it>,
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+cc: Ed Tomlinson <edt@aei.ca>, Massimo Cetra <mcetra@navynet.it>,
        "'Chuck Ebbert'" <76306.1226@compuserve.com>,
        "'Bill Davidsen'" <davidsen@tmr.com>,
        "'William Lee Irwin III'" <wli@holomorphy.com>,
        "'linux-kernel'" <linux-kernel@vger.kernel.org>
 Subject: Re: My thoughts on the "new development model"
-In-Reply-To: <200410261719.56474.edt@aei.ca>
-Message-ID: <Pine.LNX.4.44.0410270019170.21548-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0410270402340.20284@student.dei.uc.pt>
+Message-ID: <Pine.LNX.4.44.0410270027110.21548-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Oct 2004, Ed Tomlinson wrote:
+On Wed, 27 Oct 2004, Marcos D. Marado Torres wrote:
 
-> The issue is that Linus _has_ changed the development model.  What we have
-> now is more flexable and much more responsive to changes.  This does 
-> lead to stable releases that are not quite a stable as some of the previous
-> stable series... 
+> When it happened in 2.4 2.5 was created. Isn't all this just the
+> indication that we need a 2.6 development like 2.4 is, and we need 2.7
+> to be created?
 
-I can't remember a single stable kernel series that was as
-stable as the 2.6 kernel.  In 1.2, 2.0, 2.2 and 2.4 there were
-huge problems dealing with the rate of change that's required
-to fix everybody's problems.
+While a 2.7 series might provide developers with an "outlet"
+for their creativity, it does not give users the availability
+of the features they need.
 
-You have to realise that you have to choose between changing
-things quickly, or leaving people's bugs unfixed.  When you
-have millions of users, you cannot both fix everybody's problems
-and keep a low rate of change.
+Most features are developed because a user needs them now,
+so having the users wait until 2.8 is not acceptable.  Making
+the distributions backport the needed features into 2.6 leads
+to lots of duplicate effort and some code fragmentation.
 
-The traditional approach has been opening up a development
-kernel branch, but this means lots of fixes and new features
-are not present in the stable kernel, and need to be backported
-by the various distributions.
-
-All in all, I think the 2.6 kernel is doing significantly better
-than any of the stable kernel series I've seen before.
-
-> This is why I suggest a fix/security branch.  The idea being that after
-> a month or so of fixes etc it will be a very stable kernel and it will
-> not have slowed down development.
-
-This is a good idea, though it is a very fine line between a
-fix and a feature.  There needs to be a very clear policy on
-which kind of patches are acceptable and which aren't.
+I like the way 2.6 is currently being handled.
 
 -- 
 "Debugging is twice as hard as writing the code in the first place.

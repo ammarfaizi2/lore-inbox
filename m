@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289957AbSAKOEe>; Fri, 11 Jan 2002 09:04:34 -0500
+	id <S289959AbSAKOIy>; Fri, 11 Jan 2002 09:08:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289959AbSAKOEY>; Fri, 11 Jan 2002 09:04:24 -0500
-Received: from mail.turbolinux.co.jp ([210.171.55.67]:13831 "EHLO
-	mail.turbolinux.co.jp") by vger.kernel.org with ESMTP
-	id <S289957AbSAKOEM>; Fri, 11 Jan 2002 09:04:12 -0500
-Message-ID: <3C3EF0AC.6010505@turbolinux.co.jp>
-Date: Fri, 11 Jan 2002 23:03:24 +0900
-From: Go Taniguchi <go@turbolinux.co.jp>
-Organization: Turbolinx Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:0.9.6) Gecko/20011206
-X-Accept-Language: ja
+	id <S289961AbSAKOIo>; Fri, 11 Jan 2002 09:08:44 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8965 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289959AbSAKOIe>; Fri, 11 Jan 2002 09:08:34 -0500
+Subject: Re: Big patch: linux-2.5.2-pre11/drivers/scsi compilation fixes
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Fri, 11 Jan 2002 14:20:06 +0000 (GMT)
+Cc: axboe@suse.de (Jens Axboe), adam@yggdrasil.com (Adam J. Richter),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3C3EEC94.7020001@evision-ventures.com> from "Martin Dalecki" at Jan 11, 2002 02:45:56 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: sd@turbolinux.co.jp, "David S. Miller" <davem@redhat.com>
-Subject: Re: [sd:04032] Re: [PATCH] removed socket buffer in unix domain socket
-In-Reply-To: <E16NaD0-0001Hs-00@the-village.bc.nu>	<3C3EE76C.1030808@turbolinux.co.jp> <20020111.054525.107941129.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16P2XO-0007lf-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you very much for your comment.
+Unless you started with the 2.4.17/2.4.18pre for most of the NCR5380 based
+drivers don't bother. The one in 2.5 doesn't even work in 2.2 SMP
 
->    
-> Slot 256 is a special slot fo unbound sockets.  The table is
-> sized to UNIX_HASH_SIZE + 1, so it is ok and your patch is
-> not right.
-> 
-> Please see the other email from Alexey Kuznetsov which includes
-> a real fix for your bug.
-> 
-> 
-
-OK, however that fix can not work the test program.
-The problem always occurred by process of slot 256.
-I try to confirm the "real fix" once again.
-
-Thanx.
-
+Alan

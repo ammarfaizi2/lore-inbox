@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270686AbTHKUFi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 16:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272570AbTHKUFi
+	id S262116AbTHKT7g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269559AbTHKT7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 16:05:38 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:34794 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S270686AbTHKUFh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 16:05:37 -0400
-Date: Mon, 11 Aug 2003 22:04:32 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Gerd Knorr <kraxel@suse.de>
-Cc: Christoph Bartelmus <columbus@hit.handshake.de>,
-       lirc-list@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       vojtech@suse.cz
-Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
-Message-ID: <20030811200432.GS2627@elf.ucw.cz>
-References: <1059820741.3116.24.camel@laurelin> <20030807214311.GC211@elf.ucw.cz> <1060334463.5037.13.camel@defiant.flameeyes> <20030808231733.GF389@elf.ucw.cz> <8rZ2nqa1z9B@hit-columbus.hit.handshake.de> <20030811124744.GB1733@elf.ucw.cz> <20030811183132.GB17777@bytesex.org> <20030811185914.GK2627@elf.ucw.cz> <20030811195422.GA25598@bytesex.org>
+	Mon, 11 Aug 2003 15:59:36 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:27266 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262116AbTHKT7d (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 15:59:33 -0400
+Message-Id: <200308111959.h7BJxT0r030229@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802 
+In-Reply-To: Your message of "Mon, 11 Aug 2003 21:34:01 +0200."
+             <20030811193401.GA8957@ucw.cz> 
+From: Valdis.Kletnieks@vt.edu
+References: <1060616931.8472.22.camel@defiant.flameeyes> <20030811163913.GA16568@bytesex.org> <20030811175642.GC2053@convergence.de> <20030811185947.GA8549@ucw.cz> <20030811191709.GN2627@elf.ucw.cz>
+            <20030811193401.GA8957@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030811195422.GA25598@bytesex.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: multipart/signed; boundary="==_Exmh_-624470548P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 11 Aug 2003 15:59:29 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--==_Exmh_-624470548P
+Content-Type: text/plain; charset=us-ascii
 
-> > Yes, that might be even better. I'd like to have ir drivers at one
-> > place, but if theres enough advantage the other way...
-> 
-> Yes, there is:  I can just put the IR info into the card database.
-> The poll thread can go away, instead I can hook gpio readouts into the
-> IRQ handler.  Probing is just one or two lines in bttv-cards.c, ...
+On Mon, 11 Aug 2003 21:34:01 +0200, Vojtech Pavlik said:
+> On Mon, Aug 11, 2003 at 09:17:10PM +0200, Pavel Machek wrote:
+> > Ahha, I thought BTN_1 would be first mouse button ;-). Will fix that.
+> No, that'd be BTN_LEFT.
 
-Well, that looks really nice!
+Urp.  My mouse has 7 buttons (ok, 5, one of which is a scrollwheel and
+generates 3 different events).  Which left button do you mean? ;)
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+http://www.microsoft.com/catalog/display.asp?subid=22&site=10561
+
+Fortunately for the coders, it doesn't come in a wireless version yet. ;)
+
+
+--==_Exmh_-624470548P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/N/WhcC3lWbTT17ARAtdpAKCSRTJf2exhKTtIscwhwgL/D3VE9wCgjE8/
+efyqSFMMQ0t9gMP/rpQ/A1Y=
+=rq0L
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-624470548P--

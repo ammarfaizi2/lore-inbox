@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267510AbUHWTsB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266824AbUHWTxC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267510AbUHWTsB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 15:48:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUHWTqc
+	id S266824AbUHWTxC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 15:53:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266833AbUHWTvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 15:46:32 -0400
-Received: from mail.kroah.org ([69.55.234.183]:52163 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266864AbUHWSg0 convert rfc822-to-8bit
+	Mon, 23 Aug 2004 15:51:36 -0400
+Received: from mail.kroah.org ([69.55.234.183]:47043 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266824AbUHWSgS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 14:36:26 -0400
+	Mon, 23 Aug 2004 14:36:18 -0400
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <1093286083943@kroah.com>
-Date: Mon, 23 Aug 2004 11:34:43 -0700
-Message-Id: <1093286083141@kroah.com>
+In-Reply-To: <10932860881850@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:49 -0700
+Message-Id: <10932860894178@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,32 +23,34 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1807.54.1, 2004/08/02 16:05:14-07:00, nacc@us.ibm.com
+ChangeSet 1.1807.56.39, 2004/08/09 14:26:14-07:00, greg@kroah.com
 
-[PATCH] I2C: i2c-keywest: replace schedule_timeout() with msleep()
-
-Uses msleep() instead of schedule_timeout() to guarantee
-the task delays at least the desired time amount.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+PCI Hotplug: fix compiler warnings in pciehp driver.
 
 
- drivers/i2c/busses/i2c-keywest.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+ drivers/pci/hotplug/pciehp_hpc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 
-diff -Nru a/drivers/i2c/busses/i2c-keywest.c b/drivers/i2c/busses/i2c-keywest.c
---- a/drivers/i2c/busses/i2c-keywest.c	2004-08-23 11:07:42 -07:00
-+++ b/drivers/i2c/busses/i2c-keywest.c	2004-08-23 11:07:42 -07:00
-@@ -662,8 +662,7 @@
- 	spin_lock_irq(&iface->lock);
- 	while (iface->state != state_idle) {
- 		spin_unlock_irq(&iface->lock);
--		set_task_state(current,TASK_UNINTERRUPTIBLE);
--		schedule_timeout(HZ/10);
-+		msleep(100);
- 		spin_lock_irq(&iface->lock);
- 	}
- #endif /* POLLED_MODE */
+diff -Nru a/drivers/pci/hotplug/pciehp_hpc.c b/drivers/pci/hotplug/pciehp_hpc.c
+--- a/drivers/pci/hotplug/pciehp_hpc.c	2004-08-23 11:02:55 -07:00
++++ b/drivers/pci/hotplug/pciehp_hpc.c	2004-08-23 11:02:55 -07:00
+@@ -1017,7 +1017,7 @@
+ 	return IRQ_HANDLED;
+ }
+ 
+-static int hpc_get_max_lnk_speed (struct slot *slot, enum pcie_link_speed *value)
++static int hpc_get_max_lnk_speed (struct slot *slot, enum pci_bus_speed *value)
+ {
+ 	struct php_ctlr_state_s *php_ctlr = slot->ctrl->hpc_ctlr_handle;
+ 	enum pcie_link_speed lnk_speed;
+@@ -1120,7 +1120,7 @@
+ 	return retval;
+ }
+ 
+-static int hpc_get_cur_lnk_speed (struct slot *slot, enum pcie_link_speed *value)
++static int hpc_get_cur_lnk_speed (struct slot *slot, enum pci_bus_speed *value)
+ {
+ 	struct php_ctlr_state_s *php_ctlr = slot->ctrl->hpc_ctlr_handle;
+ 	enum pcie_link_speed lnk_speed = PCI_SPEED_UNKNOWN;
 

@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbULOIVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbULOI3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbULOIVd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 03:21:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbULOIVd
+	id S261642AbULOI3W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 03:29:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbULOI3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 03:21:33 -0500
-Received: from mail.mellanox.co.il ([194.90.237.34]:9309 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261632AbULOIV1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 03:21:27 -0500
-Date: Wed, 15 Dec 2004 10:21:28 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, pavel@suse.cz, discuss@x86-64.org,
-       gordon.jin@intel.com
+	Wed, 15 Dec 2004 03:29:22 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:167 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261642AbULOI3S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 03:29:18 -0500
+Date: Wed, 15 Dec 2004 09:29:17 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       discuss@x86-64.org, gordon.jin@intel.com
 Subject: Re: unregister_ioctl32_conversion and modules. ioctl32 revisited.
-Message-ID: <20041215082128.GA11889@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20041215065650.GM27225@wotan.suse.de> <20041215074635.GC11501@mellanox.co.il> <20041215080020.GT27225@wotan.suse.de>
+Message-ID: <20041215082917.GW27225@wotan.suse.de>
+References: <20041215065650.GM27225@wotan.suse.de> <20041215074635.GC11501@mellanox.co.il> <20041215080020.GT27225@wotan.suse.de> <20041215082128.GA11889@mellanox.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041215080020.GT27225@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20041215082128.GA11889@mellanox.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-Quoting r. Andi Kleen (ak@suse.de) "Re: unregister_ioctl32_conversion and modules. ioctl32 revisited.":
-> > There were two additional motivations for my patch:
-> > 1. Make it possible to avoid the BKL completely by writing
-> >    an ioctl with proper internal locking.
-> 
-> Good point.  It is the first step towards BKL less native ioctls. So it's 
-> certainly a good idea even for the non compat case.
-> 
-> > 2. As noted by  Juergen Kreileder, the compat hash does not work
-> >    for ioctls that encode additional information in the command, like this:
+On Wed, Dec 15, 2004 at 10:21:28AM +0200, Michael S. Tsirkin wrote:
+> > > 2. As noted by  Juergen Kreileder, the compat hash does not work
+> > >    for ioctls that encode additional information in the command, like this:
+> > > 
+> > > #define EVIOCGBIT(ev,len)  _IOC(_IOC_READ, 'E', 0x20 + ev, len)
+> > > 
+> > > I post the patch (updated for 2.6.10-rc2, boots) that I built for
+> > > Juergen, below. If there's interest, let me know.
 > > 
-> > #define EVIOCGBIT(ev,len)  _IOC(_IOC_READ, 'E', 0x20 + ev, len)
-> > 
-> > I post the patch (updated for 2.6.10-rc2, boots) that I built for
-> > Juergen, below. If there's interest, let me know.
+> > Patch looks good to me, except for some messed up white space
+> > that is probably easily fixed.
 > 
-> Patch looks good to me, except for some messed up white space
-> that is probably easily fixed.
+> I did try so .. Where? :)
 
-I did try so .. Where? :)
+Most of it actually. But perhaps your mailer just messed up the patch?
 
-> > I'd like to add that my patch does not touch any in-kernel users,
-> > that would have to be done separately, probably as a first step
-> > simply taking the BKL inside ioctl_compat.
-> 
-> I doubt any of the compat wrappers need BKL, they never touch
-> any global state and then just call sys_ioctl which takes the BKL
-> only when needed.
-> 
-> Ok there is a slight possibility that out of tree code wrote
-> compat wrappers that need BKL, but in that case they will just
-> have to deal with the bugs. Removing register_ioctl32_conversion
-> and some comments would take care of them anyways.
+Anyways, if there are no negative comments I would recommend you
+submit your patch (preferably in a non messed up form) to akpm@osdl.org
+for inclusion into -mm*. The other parts of the proposal (converting
+the existing users and deprecating register_ioctl32_conversion) could be 
+attacked then.
 
-I mean out of tree code can just implement ioctl_compat by taking the BKL
-if it needs it.
+There is also some related work that could be done easily then,
+e.g. the network stack ioctls currently drop the BKL as first thing.
+With ioctl_native that could be probably done better. There may 
+be other such low hanging fruit areas too.
 
-MST
+-Andi

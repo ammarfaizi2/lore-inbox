@@ -1,56 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpBRWzzCFBNTIS+eSuirRTmeGmw==
+thread-index: AcQVpCCMrx8WLUWMRnqDTDVy+G3RoQ==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sat, 03 Jan 2004 09:11:17 +0000
-Message-ID: <00c601c415a4$1456f700$d100000a@sbs2003.local>
-From: "Dmitry Torokhov" <dtor_core@ameritech.net>
+Delivery-date: Sat, 03 Jan 2004 15:19:13 +0000
+Message-ID: <00f301c415a4$208c9340$d100000a@sbs2003.local>
+Content-Transfer-Encoding: 7bit
+Date: Mon, 29 Mar 2004 16:40:13 +0100
 X-Mailer: Microsoft CDO for Exchange 2000
-To: <Administrator@osdl.org>
-Subject: Re: [PATCH 6/7] Kconfig Synaptics help
-Date: Mon, 29 Mar 2004 16:39:53 +0100
-User-Agent: KMail/1.5.4
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+From: "Pavel Machek" <pavel@ucw.cz>
+To: <Administrator@mangalore.zipworld.com.au>
+Cc: <linux-kernel@vger.kernel.org>,
+        "Rusty trivial patch monkey Russell" <trivial@rustcorp.com.au>,
+        "Andrew Morton" <akpm@zip.com.au>
+Subject: Re: 2.5isms
 Content-Class: urn:content-classes:message
-References: <200401030350.43437.dtor_core@ameritech.net> <200401030401.35798.dtor_core@ameritech.net> <200401030402.16745.dtor_core@ameritech.net>
 Importance: normal
+References: <20030703200134.GA18459@andromeda> <20031230213050.GA3301@andromeda>
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-In-Reply-To: <200401030402.16745.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20031230213050.GA3301@andromeda>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:39:53.0390 (UTC) FILETIME=[14606CE0:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:40:14.0671 (UTC) FILETIME=[210FA5F0:01C415A4]
 
-===================================================================
+Hi!
 
+> It seems I've found another 2.5ism.  2.6.0, arch/i386/kernel/dmi_scan.c
+> has
+> 
+> #ifdef CONFIG_SIMNOW
+>         /*
+>          *      Skip on x86/64 with simnow. Will eventually go away
+>          *      If you see this ifdef in 2.6pre mail me !
+>          */
+>         return -1;
+> #endif
+> 
+> I don't know whose file this is ..
+> 
+> Also, 2.6.0 still has the previously mentioned problem in
+> include/asm/io.h.
+> 
+> Not subscribed, CC me.
 
-ChangeSet@1.1576, 2004-01-03 02:49:55-05:00, dtor_core@ameritech.net
-  Input: Kconfig help section update -
-         Suggest psmouse.proto=imps option to Synaptics users who do not
-         want installing native XFree driver but want tapping work
+This is obsolete x86-64 code... Please apply,
+								Pavel
 
-
- Kconfig |    2 ++
- 1 files changed, 2 insertions(+)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
---- a/drivers/input/mouse/Kconfig	Sat Jan  3 03:10:06 2004
-+++ b/drivers/input/mouse/Kconfig	Sat Jan  3 03:10:06 2004
-@@ -29,6 +29,8 @@
- 	  and a new verion of GPM at:
- 		http://www.geocities.com/dt_or/gpm/gpm.html
- 	  to take advantage of the advanced features of the touchpad.
-+	  If you do not want install specialized drivers but want tapping
-+	  working please use option psmouse.proto=imps.
+--- tmp/linux/arch/i386/kernel/dmi_scan.c	2004-01-03 16:12:43.000000000 +0100
++++ linux/arch/i386/kernel/dmi_scan.c	2004-01-03 16:12:17.000000000 +0100
+@@ -108,15 +108,7 @@
+ 	u8 buf[15];
+ 	u32 fp=0xF0000;
  
- 	  If unsure, say Y.
- 
+-#ifdef CONFIG_SIMNOW
+-	/*
+- 	 *	Skip on x86/64 with simnow. Will eventually go away
+- 	 *	If you see this ifdef in 2.6pre mail me !
+- 	 */
+-	return -1;
+-#endif
+- 	
+-	while( fp < 0xFFFFF)
++	while (fp < 0xFFFFF)
+ 	{
+ 		isa_memcpy_fromio(buf, fp, 15);
+ 		if(memcmp(buf, "_DMI_", 5)==0 && dmi_checksum(buf))
+
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

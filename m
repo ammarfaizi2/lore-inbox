@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289379AbSAJKgA>; Thu, 10 Jan 2002 05:36:00 -0500
+	id <S289380AbSAJKgu>; Thu, 10 Jan 2002 05:36:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289380AbSAJKfv>; Thu, 10 Jan 2002 05:35:51 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:27141 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S289379AbSAJKfd>; Thu, 10 Jan 2002 05:35:33 -0500
-Date: Thu, 10 Jan 2002 10:35:31 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-X-X-Sender: <matthew@sphinx.mythic-beasts.com>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-In-Reply-To: <20020109182902.A2804@thyrsus.com>
-Message-ID: <Pine.LNX.4.33.0201101014560.14207-100000@sphinx.mythic-beasts.com>
+	id <S289381AbSAJKgl>; Thu, 10 Jan 2002 05:36:41 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:29191 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S289380AbSAJKge>; Thu, 10 Jan 2002 05:36:34 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15421.27446.227873.475829@laputa.namesys.com>
+Date: Thu, 10 Jan 2002 13:21:42 +0300
+To: "Weiping He" <laser@zhengmai.com.cn>
+Cc: "Oleg Drokin" <green@Namesys.COM>, <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@Namesys.COM>
+Subject: Re: anybody know about "journal-615" and/or "journal-601" log error?(may be SCSI problem?)
+In-Reply-To: <003b01c1997c$4a86fec0$d20101c0@T21laser>
+In-Reply-To: <005401c18dc6$f3e3fb10$d20101c0@T21laser>
+	<20011226094209.B871@namesys.com>
+	<003b01c1997c$4a86fec0$d20101c0@T21laser>
+X-Mailer: VM 7.00 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jan 2002, Eric S. Raymond wrote:
+journal-601 means that writing of the block into the journal area failed.
+journal-615 means that writing of the commit record into the journal area failed.
 
-> > 	if [ /proc/ -nt /var/run/dmidecode ]; then
-> > 		echo We need to run some code as root.
-> > 		echo -n Enter root\'s\
-> > 		su -c 'dmidecode > /var/run/dmidecode'
-> > 	fi
+Reiserfs cannot work reliably if there are io errors on access to
+journal area. So, if this is turns out to be hardware problem (as it
+looks to be, judging by scsi error messages), you will have to resort to
+changing drive. There is also not well tested support for relocating
+journal to another device or different place on a device.
 
-> The autoconfigurator is *not* mean to be run at boot time, or as root.
+Weiping He writes:
+ > Hi,
+ > 
+ > I've experienced another crash this morning.
+ > I'v recorded the message displayed on the screen:
+ > 
+ > -------------------------------------8<------------------------------------------------
+ > journal-601, buffer write failed
 
-Under normal circumstances.
-
-> It is intended to be run by ordinary users, after system boot time.
-> This is so they can configure and experimentally build kernels without
-> incurring the "oops..." risks of going root.
-
-Then ship it in a separate package with initscripts.  Either
-CML2 is well enough designed that the autoconfigurator will
-not need to change as the kernel does, or all your
-overengineering was for nought.
-
-> Therefore, the above 'solution' is not acceptable.
-
-To who?  It provides as way for your configurator to function
-out-of-the-box until distributions choose whether it's worth
-their while to support your scheme.
-
-Matthew.
-
+Nikita.

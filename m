@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272574AbRHaBLs>; Thu, 30 Aug 2001 21:11:48 -0400
+	id <S272575AbRHaBQ2>; Thu, 30 Aug 2001 21:16:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272575AbRHaBLi>; Thu, 30 Aug 2001 21:11:38 -0400
-Received: from rj.sgi.com ([204.94.215.100]:42985 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S272574AbRHaBL1>;
-	Thu, 30 Aug 2001 21:11:27 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Cox <laughing@shared-source.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac5 
-In-Reply-To: Your message of "Fri, 31 Aug 2001 01:33:11 +0100."
-             <20010831013311.A8535@lightning.swansea.linux.org.uk> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 31 Aug 2001 11:11:33 +1000
-Message-ID: <8483.999220293@kao2.melbourne.sgi.com>
+	id <S272576AbRHaBQS>; Thu, 30 Aug 2001 21:16:18 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:7613 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S272575AbRHaBQG>;
+	Thu, 30 Aug 2001 21:16:06 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 31 Aug 2001 01:15:50 GMT
+Message-Id: <200108310115.BAA318386@vlet.cwi.nl>
+To: alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] blkgetsize64 ioctl
+Cc: bcrl@redhat.com, linux-kernel@vger.kernel.org, michael_e_brown@dell.com,
+        tytso@mit.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Aug 2001 01:33:11 +0100, 
-Alan Cox <laughing@shared-source.org> wrote:
->2.4.9-ac5
->o	Add MODULE_LICENSE tagging			(me)
+    From: Ben LaHaise
+    ...
 
-__module_license needs to be static.  Otherwise we get problems when
-MODULE_LICENSE() is used in two objects which are linked into the same
-module.  Given the legal requirements for copyright etc., I expect
-people to put MODULE_LICENSE in every source file, not just one.
+An interesting conversation, this.
+A is blamed for making the terrible mistake of shipping an unreserved ioctl,
+very stupid, because by accident B has made the minor mistake of shipping
+an unreserved ioctl.
+Maybe I misread something.
 
-What do you need for licence support in modutils?  Obviously modinfo
-needs to print it, but what about insmod?  Should insmod issue warning
-messages for proprietary modules?  What about ksymoops?  IOW, what was
-the reason for adding MODULE_LICENSE?
+    From: Michael E Brown <michael_e_brown@dell.com>
 
+    Alan,
+        Here is a patch that reserves the 108 and 109 ioctl numbers for
+    get/set last sector. This patch has already been merged into the ia64
+    tree, and is currently necessary in order to support the EFI GPT
+    partitioning scheme on ia64. It is also in the Red Hat kernel tree. I had
+    assumed that somebody at Red Hat would have forwarded it to you.
+
+Marking the numbers not-to-be-used is certainly a good idea.
+
+Concerning the need for this particular nonsense - we have had this
+discussion earlier this year, and also without any patches
+one can read the last sector.  (Using some bad kludge, but still..)
+
+One of the patches I have at ftp.kernel.org removes the entire problem -
+one needs (1) a test in ll_rw_blk.c that uses not the size in 1024-byte blocks
+but in 512-byte sectors, and (2) a set-blocksize ioctl.
+And this latter is needed for other reasons as well.
+
+Maybe I should resubmit some such patch fragments?
+
+Andries
+
+
+>   Content-Disposition: attachment; filename=patch-getlastsector-20010213
+>
+>   ZGlmZiAtcnVQIGxpbnV4L2luY2x1ZGUvbGludXgvZnMuaCBsaW51eC1pb2N0
+
+Yes, indeed.

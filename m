@@ -1,107 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315783AbSETFRl>; Mon, 20 May 2002 01:17:41 -0400
+	id <S315785AbSETFTB>; Mon, 20 May 2002 01:19:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315785AbSETFRk>; Mon, 20 May 2002 01:17:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42511 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315783AbSETFRj>;
-	Mon, 20 May 2002 01:17:39 -0400
-Message-ID: <3CE887CE.80E08048@zip.com.au>
-Date: Sun, 19 May 2002 22:21:18 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Bug with shared memory.
-In-Reply-To: <OF6D316E56.12B1A4B0-ONC1256BB9.004B5DB0@de.ibm.com> <3CE16683.29A888F8@zip.com.au> <20020520043040.GA21806@dualathlon.random>
+	id <S315788AbSETFTA>; Mon, 20 May 2002 01:19:00 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:1254 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S315785AbSETFS6>;
+	Mon, 20 May 2002 01:18:58 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3 
+In-Reply-To: Your message of "Mon, 20 May 2002 01:09:36 -0400."
+             <200205200509.g4K59a9494917@saturn.cs.uml.edu> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Mon, 20 May 2002 15:18:37 +1000
+Message-ID: <3640.1021871917@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> ...
-> As next thing I'll go ahead on the inode/highmem imbalance repored by
-> Alexey in the weekend.
+On Mon, 20 May 2002 01:09:36 -0400 (EDT), 
+"Albert D. Cahalan" <acahalan@cs.uml.edu> wrote:
+>Well, not everybody trusts "make install" to do something useful.
+>I'd do something like this:
+>
+>make clean
+>bzip2 -dc ../foo.bz2 | patch -E -s -p1
+>make menuconfig
+>time script build-log
+>make vmlinux && make modules && make modules_install && exit
+>cp vmlinux /boot/vmlinux-2.5.16
+>cp System.map /boot/System.map-2.5.16
+>cp .config /boot/config-2.5.16
+>sync
+>su -
+>joe /etc/yaboot.conf
+>sync
+>exit
 
-(Some background:  the problem is that ZONE_NORMAL gets clogged with
- inodes which are unfreeable because they have attached pagecache
- pages.  There is no VM pressure against ZONE_HIGHMEM and there is
- nothing which causes the pagecache pages to be freed.  The machine
- dies due to ZONE_NORMAL exhaustion.  Workload is (presumably) the
- reading or creation of a very large number of small files on a machine
- which has much highmem.
+Then you will be pleased to hear that kbuild 2.5 supports precisely
+that model.  It has an install menu which lets you specify the name of
+the install kernel, whether to install System.map and .config, and the
+names to install them under.  It even has an config entry for a
+post-install script.
 
- I expect Andrea is looking at a solution which releases pages against
- unused inodes when there are many unused inodes, but prune_icache()
- is failing to free sufficient inodes).
+After setting up these variables (only needs to be done once)
 
-I'll be interested to see your solution ;)  We need to be careful to
-not over-shrink pagecache.  Also we need to be doubly-careful to
-ensure that LRU order is maintained on unused_list.
+CONFIG_INSTALL_KERNEL_NAME=/boot/vmlinux-KERNELRELEASE
+CONFIG_INSTALL_SYSTEM_MAP=y
+CONFIG_INSTALL_SYSTEM_MAP_NAME=/boot/System.map-KERNELRELEASE
+CONFIG_INSTALL_CONFIG=y
+CONFIG_INSTALL_CONFIG_NAME=/boot/config-KERNELRELEASE
+CONFIG_INSTALL_SCRIPT=y
+CONFIG_INSTALL_SCRIPT_NAME=joe /etc/yaboot.conf
 
+Your build process collapes to
 
-I expect this is a compound bug: sure, ZONE_NORMAL is clogged with
-inodes.  But I bet it's also clogged with buffer_heads.  If the
-buffer_head problem was fixed then the inode problem would occur
-much later. - more highmem, more/smaller files.
+  make -j defconfig installable && sudo make install
 
->  Then the only pending thing before next -aa is
-> the integration of the 2.5 scheduler like in 2.4-ac. I will also soon
-> automate the porting of all the not-yet merged stuff into 2.5, so we
-> don't risk to forget anything.
+It does not get any simpler than that!
 
-That's good.
-
-> I mostly care about mainline but I would
-> also suggest Alan to merge in -ac the very same VM of -aa (so we also
-> increase the testing before it gets merged in mainline as it is
-> happening bit by bit overtime).  Alan, I'm looking at it a bit and what
-> you're shipping is an hybrid between the old 2.4 vm and the current one,
-> plus using the rmap design for unmapping pagetables. The issue is not
-> the rmap design, the issue is that the hybrid gratuitously reintroduces
-> various bugs like kswapd infinite loop and it misses all the recent
-> fixes (problems like kswapd infinite loop are reproducible after months
-> the machine are up, other things like unfreed bh with shortage in the
-> normal zone fixed in recent -aa are reproducible only with big irons,
-> numa/discontigmem stuff, definitive fix for google etc..etc..).
-
-I've seen a vague report from the IBM team which indicates that -aa VM does
-not solve the ZONE_NORMAL-full-of-buffer_heads lockup.  The workload was
-specweb on a 16 gig machine, I believe.
-
-I did a quickie patch early this month which simply strips buffers
-away from pages at each and every opportunity - that fixed it of
-course.  At the end of the run, ZONE_NORMAL had 250 MB free, as
-opposed to zero with 2.4.18-stock.
-
-I think this is a better approach than memclass_related_bhs().
-Because it proactively makes memory available in ZONE_NORMAL
-for blockdev pages.  If we minimise the amount of memory which
-is consumed by buffer_heads then we maximise the amount of
-memory which is available to inodes and indirects.   Sure,
-the buffers cache the disk mapping.  But the inodes and indirects
-cache the same information which *much* better packing density.
-Sure, there's some extra CPU cost in reestablishing the mapping,
-but in the no-buffer_heads testing I'm doing on 2.5 it is unmeasurable.
-
-Currently, we're effectively allowing buffer_heads to evict useful
-pagecache data.  We have to perform additional I/O to get that back.
-
-In other words: once we've finished I/O, just get rid of the
-damn things.   Bit radical for 2.4 maybe.
-
-> ...
-> 
-> About rmap design I would very much appreciate if Rik could make a
-> version of his patch that implements rmap on top of current -aa
-
-That would be good to see.  I believe Rik is offline for a week
-or three, so he may not see your words.
-
--

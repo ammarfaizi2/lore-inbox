@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267418AbRHAQTx>; Wed, 1 Aug 2001 12:19:53 -0400
+	id <S267452AbRHAQYX>; Wed, 1 Aug 2001 12:24:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267452AbRHAQTm>; Wed, 1 Aug 2001 12:19:42 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:46864 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267418AbRHAQTh>; Wed, 1 Aug 2001 12:19:37 -0400
-Date: Wed, 1 Aug 2001 09:18:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: booting SMP P6 kernel on P4 hangs.
-In-Reply-To: <3B67CE6A.A670093E@redhat.com>
-Message-ID: <Pine.LNX.4.33.0108010917540.20829-100000@penguin.transmeta.com>
+	id <S267497AbRHAQYN>; Wed, 1 Aug 2001 12:24:13 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:63223 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S267452AbRHAQYB>; Wed, 1 Aug 2001 12:24:01 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200108011623.f71GNpH4006704@webber.adilger.int>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <3B672C6B.9AC418B0@pp.htv.fi> "from Jussi Laako at Aug 1, 2001 01:08:43
+ am"
+To: Jussi Laako <jlaako@pp.htv.fi>
+Date: Wed, 1 Aug 2001 10:23:50 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jussi Laako writes:
+> Just a side note to this discussion.
+> 
+> I'd be very happy with full data journalling even with 50% performance
+> penalty... There are applications that require extreme data integrity all
+> times no matter what happens.
 
-On Wed, 1 Aug 2001, Arjan van de Ven wrote:
-> >
-> > It should boot, and it looks like the problem may be a bad MP table.
->
-> Oh it is. And it's due to a recommendation Intel makes to bios writers.
-> As a result, every P4 I've encountered shares this bug. Intel knows it's
-> an invalid MP table, but refuses to change the recommendation.
+Use ext3 then.  It allows full data journaling.  It will even support data
+journaling on some files and metadata-only journaling on the rest of the
+filesystem (this is currently broken on SMP machines, because not many
+people have had a need to use it yet, but it will get fixed).
 
-What's the recommendation? We might be able to change the specific code in
-question..
-
-Or are they just trying to strongarm the move to the horrid ACPI tables?
-
-		Linus
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbUCIIYM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 03:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUCIIYM
+	id S261670AbUCIIVN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 03:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbUCIIVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 03:24:12 -0500
-Received: from mail.ywesee.com ([62.12.131.35]:37570 "HELO debian.ywesee.com")
-	by vger.kernel.org with SMTP id S261717AbUCIIYI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 03:24:08 -0500
-Date: Tue, 9 Mar 2004 09:24:06 +0100
-From: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Benh Kernel 2.4.25 and 2.6.3
-Message-Id: <20040309092406.6513fd7c@zrr.local>
-Organization: ywesee - intellectual capital connected
-X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	Tue, 9 Mar 2004 03:21:13 -0500
+Received: from mail.kroah.org ([65.200.24.183]:27853 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261670AbUCIIVL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 03:21:11 -0500
+Date: Tue, 9 Mar 2004 00:19:48 -0800
+From: Greg KH <greg@kroah.com>
+To: rihad <rihad@mail.ru>
+Cc: linux-kernel-digest@lists.us.dell.com, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] udev 021 release
+Message-ID: <20040309081948.GI22057@kroah.com>
+References: <20040303153403.21649.81059.Mailman@linux.us.dell.com> <4048D503.10808@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4048D503.10808@mail.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Fri, Mar 05, 2004 at 11:29:07PM +0400, rihad wrote:
+> Date: 	Wed, 3 Mar 2004 07:14:33 -0800
+> From: Greg KH <greg@kroah.com>
+> 
+> >Users need to learn that the kernel is changing models from one which
+> >automatically loaded modules when userspace tried to access the device,
+> >to one where the proper modules are loaded when the hardware is found.
+> 
+> Does this mean that I will have modules for all my hardware hanging 
+> around even if I'm not, say, using cdrom at the moment?
 
-I build in a new 80 GB HDD in my G3 Pismo. Then I build the system from Gentoo-LiveCD and installed the kernel from source. Problems:
+Yup, why not?
 
-2.4.25-benh
-***********
-I rsync'd with rsync.penguinppc.org::linux-2.4-benh and build the kernel.
+> And does it mean that if I rmmod -a the unused cdrom module and later
+> try to mount /cdrom, the correct module won't be magically insmod'ed?
 
-When I boot my G3 Pismo I get:
-OOps: kernel access of bad area, sig: 11
-NIP: C0012C6 XER: 00000000 LR: C0307120  SP: C02B0CE0 REGS: c02b0c30 TRAP: 0300 Not tainted
-MSR: 00001032 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 11
-DAR: 00000000, DSISR: 40000000
-TASK= c02aed30[0] etc
+If you don't have the /dev entry there, how would anything know to load
+the module?
 
-this repeats twice and then reboots the maschine. 
+> I like the idea of lazy module loading, and it seems that your model 
+> doesn't fit in nicely, I could be wrong.
 
-2.6.3-benh (gentoo: ppc-development-sources)
-**********
-This one boots fine till /proc .....   [ok]
+How about "loading the modules for the hardware present"?  What's wrong
+with that?
 
-than the maschine just hangs. I got udev installed.
+thanks,
 
-Thanks for your Feedback.
--- 
-Mit freundlichen Grüssen / best regards
-
-Zeno Davatz
-Verkauf & Akquisition
-
-+41 1 350 85 86
-
-www.ywesee.com > intellectual capital connected > www.oddb.org
+greg k-h

@@ -1,67 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265678AbUGTGLd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265722AbUGTGiC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265678AbUGTGLd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 02:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265682AbUGTGLd
+	id S265722AbUGTGiC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 02:38:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265724AbUGTGiC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 02:11:33 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:21909 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265678AbUGTGLb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 02:11:31 -0400
-Date: Tue, 20 Jul 2004 08:12:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-audio-dev@music.columbia.edu,
-       arjanv@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040720061227.GC27118@elte.hu>
-References: <20040710222510.0593f4a4.akpm@osdl.org> <1089673014.10777.42.camel@mindpipe> <20040712163141.31ef1ad6.akpm@osdl.org> <1089677823.10777.64.camel@mindpipe> <20040712174639.38c7cf48.akpm@osdl.org> <1089687168.10777.126.camel@mindpipe> <20040712205917.47d1d58b.akpm@osdl.org> <1089705440.20381.14.camel@mindpipe> <20040719104837.GA9459@elte.hu> <1090301906.22521.16.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 20 Jul 2004 02:38:02 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:45699 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265722AbUGTGh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 02:37:58 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Input patches
+Date: Tue, 20 Jul 2004 01:37:54 -0500
+User-Agent: KMail/1.6.2
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1090301906.22521.16.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407200137.56150.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vojtech,
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+Now that my driver core patches have been merged in Linus' tree I would
+like finish merging input patches. Please do:
 
-> Does this scale in a linear fashion with respect to CPU speed?  You
-> mentioned you were testing on a 2Ghz machine, does 700 usecs on that
-> translate to 2800 usecs on a 500Mhz box?
+       bk pull bk//dtor.bkbits.net/input
 
-given that this particular latency is dominated by cachemisses the DRAM
-latency controls it too which is independent of CPU MHz. Wrt. cachemiss
-costs, newer CPUs typically have twice the L2-cache line size (so it
-takes more bus cycles to fetch it) - the improvements in bandwidth of
-fetching a single line should offset most of this. DRAM latencies didnt
-improve much in the past 10 years so that's almost a constant between a
-500MHz/100MHz(system-bus) vs. 2GHz/400MHz system. So i'd guesstimate a
-500 MHz box to do somewhere around 1000-1500 usecs.
+You will pull the following patches (along with whatever was in Linus'
+tree as of last evening):
 
-> How much I/O do you allow to be in flight at once?  It seems like by
-> decreasing the maximum size of I/O that you handle in one interrupt
-> you could improve this quite a bit.  Disk throughput is good enough,
-> anyone in the real world who would feel a 10% hit would just throw
-> hardware at the problem.
+01-drivers-makefile.patch
+	- move input/serio closer to the top of drivers/Makefile so
+	  serio_bus structure initialized early and is ready by the time
+	  sunzilog and sunsu register their serio ports.
 
-i'm not sure whether this particular value (max # of sg-entries per IO
-op) is runtime tunable. Jens? Might make sense to enable elvtune-alike
-tunability of this value.
+02-sunzilog-serio-register.patch
+	- Do not attempt to register serio ports while holding a spinlock
+          and with interrupts off. Fully initialize hardware first and
+	  only then register. Cures lockup reported by WLI.
 
-limiting the in-flight IO will only work with IDE/PATA that doesnt have
-multiple commands in flight for a given disk. SATA and SCSI handles
-multiple command completions per IRQ invocation so limiting the size of
-a single IO op has less effect there.
+03-i8042-broken-mux-workaround.patch
+	- Some MUXes get confused what AUX port the byte came from. Assume
+	  that is came from the same port previous byte came from if it
+	  arrived within HZ/10
 
-	Ingo
+04-serio-pause-rx.patch
+	- Add serio_pause_rx and serio_continue_rx that take serio->lock and
+	  can be used by drivers to protect their critical sections from
+	  interrupt handler.
+
+05-psmouse-set-state.patch
+	- Use serio_pause_rx/serio_continue_rx when changing psmosuee state
+	  (active, ignore)
+
+06-psmouse-initializing.patch
+	- Add a new state PSMOUSE_INITIALIZING and do not try to call protocol
+	  handler for mice in this state. Shoudl help with OOPS caused by USB
+	  Legacy emulation generating wierd data stream when probing for mouse
+
+07-synaptics-passthrough-handling.patch
+	- If data looks like a pass-through packet and tuchpad has pass-
+          through capability do not pass it to the main handler if child port
+          is disconnected. Let serio core sort it out and bind a proper driver
+	  to the port
+
+08-psmouse-reconnect.patch
+	- Instead of wierd rule that connect should not activate mouse if
+	  there is a pass-through port and have child do activation do the
+	  following:
+	  1. Connect/reconnect always activate port in question
+	  2. If port is a pass-through port connect/reconnect will
+             deactivate parent at the beginning of the probe and will
+             activate it after everything is done.
+	  This allows reliably reconnect children ports in response to user
+          request (echo -n "reconnect" > /sys/bus...)

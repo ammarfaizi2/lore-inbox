@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262839AbVDASab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262855AbVDASd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262839AbVDASab (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 13:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVDAS3X
+	id S262855AbVDASd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 13:33:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262854AbVDASdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 13:29:23 -0500
-Received: from smtpout16.mailhost.ntl.com ([212.250.162.16]:64880 "EHLO
-	mta08-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
-	id S262847AbVDAS1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 13:27:38 -0500
-Message-ID: <424D929A.2030801@gentoo.org>
-Date: Fri, 01 Apr 2005 19:27:38 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David N. Welton" <davidw@dedasys.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk, helge.hafting@hist.no,
-       opengeometry@yahoo.ca
-Subject: Re: rootdelay
-References: <87wtrphuvj.fsf@dedasys.com>
-In-Reply-To: <87wtrphuvj.fsf@dedasys.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Apr 2005 13:33:01 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:57730 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262844AbVDASaq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 13:30:46 -0500
+Date: Fri, 1 Apr 2005 20:29:55 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
+Message-ID: <20050401182955.GA12379@elte.hu>
+References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu> <20050401104724.GA31971@elte.hu> <200504011231.55717.gene.heskett@verizon.net> <424D927F.2020601@cybsft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424D927F.2020601@cybsft.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
 
-David N. Welton wrote:
-> [ Please CC replies to me, thanks! ]
-> 
-> Hi, I was looking at your patch:
-> 
-> http://lkml.org/lkml/2005/1/21/132
-> 
-> Very small, which is nice.
-> 
-> I was wondering if there were any interest in my own efforts in that
-> direction:
-> 
-> http://dedasys.com/freesoftware/patches/blkdev_wakeup.patch
-> 
-> which is far more intrusive, and perhaps isn't good kernel programming
-> style, but, on the other hand, is the optimal solution in terms of
-> boot time because it wakes up the boot process right when the device
-> comes on line.
-> 
-> Since I saw your patch included, it looks like there is interest in
-> this, and I'd toot my own horn once more before just leaving my patch
-> to the bit rot of the ages...
-> 
-> Thanks!
+* K.R. Foley <kr@cybsft.com> wrote:
 
-As simple as it may be, it's a bit of a shame that we actually need rootdelay 
-as its something that the kernel should do automatically. At the time when we 
-last discussed it, we didn't come up with a better (and safe) way to handle 
-it, but I don't think we considered anything like your implementation.
+> >This one didn't go in cleanly Ingo.  From my build-src scripts output:
+> >-------------------
+> >Applying patch realtime-preempt-2.6.12-rc1-V0.7.43-04
 
-I've CC'd a few people who were involved the last time around to see if they 
-have any input for you.
+> Adding the attached patch on top of the above should resolve the 
+> failures, at least in the patching. Still working on building it.
 
-Daniel
+i fixed these things up in -43-05 ... i hope :-|
+
+	Ingo

@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263079AbTJGXrk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 19:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbTJGXrk
+	id S263018AbTJGXnx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 19:43:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbTJGXnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 19:47:40 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:13950 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S263079AbTJGXri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 19:47:38 -0400
-Date: Wed, 8 Oct 2003 00:46:55 +0100
-From: Dave Jones <davej@redhat.com>
-To: Len Brown <len.brown@intel.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Dimitri Torfs <dimitri@sonycom.com>, acpi-devel@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: vaio doesn't poweroff with 2.4.22 (fwd)
-Message-ID: <20031007234655.GA10471@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Len Brown <len.brown@intel.com>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Dimitri Torfs <dimitri@sonycom.com>,
-	acpi-devel@lists.sourceforge.net,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.21.0310022254280.8802-400000@vervain.sonytel.be> <1065560111.3366.33.camel@dhcppc4>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1065560111.3366.33.camel@dhcppc4>
-User-Agent: Mutt/1.5.4i
+	Tue, 7 Oct 2003 19:43:53 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:42254 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S263018AbTJGXnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 19:43:51 -0400
+Date: Tue, 7 Oct 2003 19:43:40 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Domen Puncer <domen@coderock.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 3c59x on 2.6.0-test3->test6 slow
+In-Reply-To: <200310070949.31220.domen@coderock.org>
+Message-ID: <Pine.LNX.4.53.0310071349560.19396@montezuma.fsmlabs.com>
+References: <200310061529.56959.domen@coderock.org> <200310070144.47822.domen@coderock.org>
+ <Pine.LNX.4.53.0310062016340.19396@montezuma.fsmlabs.com>
+ <200310070949.31220.domen@coderock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 07, 2003 at 04:55:11PM -0400, Len Brown wrote:
+On Tue, 7 Oct 2003, Domen Puncer wrote:
 
- > > In 2.4.21, both `halt' and `reboot' work fine.
- > Did you configure with ACPI in 2.4.21?
- > If you configured with APM in 2.4.21, you might consider sticking with
- > it rather than switching to ACPI in 2.4.22.
+> > What is your link peer?
+> 
+> Not native english speaker, but if "link peer"  is the remote end, then this is a
+> friend's computer. (and a hub is between computers)
 
-So power-off on shutdown with acpi is actually working for some folks?
-None of my boxes seem to work with it any more. I'm not sure when
-this started, but its been that way for a while, in both 2.4 and 2.6test
+Ok in this case it would be the hub, sometimes these aren't the best when 
+it comes to advertising capabilities.
 
- > Also, if there is a BIOS update available for this system you should
- > consider it.
+> # strace mii-tool eth0
+> execve("/sbin/mii-tool", ["mii-tool", "eth0"], [/* 37 vars */]) = 0
+> socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 3
+> ioctl(3, 0x89f0, 0x804b460)             = -1 EOPNOTSUPP (Operation not supported)
+> write(2, "SIOCGMIIPHY on \'eth0\' failed: Op"..., 54SIOCGMIIPHY on 'eth0' failed: Operation not supported
+> ) = 54
+> close(3)                                = 0
 
-Rocking horse poop is probably easier to find than Sony VAIO BIOS updates. 
-I spent an afternoon once being bounced around from one Sony
-flash-ridden site to another to no avail..
+Could you try updating your mii-tool please.
 
-		Dave
+#define SIOCGMIIREG	0x8948		/* Read MII PHY register.	*/
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+I'm not sure what your current binary is doing. I have the following 
+version;
+
+Name        : net-tools                    Relocations: (not relocateable)
+Version     : 1.60                              Vendor: Red Hat, Inc.
+Release     : 12                            Build Date: Tue 11 Feb 2003 09:33:32 AM EST
+Install Date: Sat 19 Apr 2003 11:57:08 AM EDT      Build Host: tweety.devel.redhat.com
+Group       : System Environment/Base       Source RPM: net-tools-1.60-12.src.rpm
+Size        : 611073                           License: GPL
+Signature   : DSA/SHA1, Mon 24 Feb 2003 01:37:21 AM EST, Key ID 219180cddb42a60e
+Packager    : Red Hat, Inc. <http://bugzilla.redhat.com/bugzilla>
+Summary     : Basic networking tools.
+Description :
+The net-tools package contains basic networking tools, including
+ifconfig, netstat, route, and others.

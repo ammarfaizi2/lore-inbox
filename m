@@ -1,49 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbTJMQZH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 12:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbTJMQZF
+	id S261837AbTJMQaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 12:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbTJMQaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 12:25:05 -0400
-Received: from users.linvision.com ([62.58.92.114]:54657 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S261967AbTJMQY7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 12:24:59 -0400
-Date: Mon, 13 Oct 2003 18:24:57 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Xose Vazquez Perez <xose@wanadoo.es>
-Cc: linux-scsi <linux-scsi@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [summary] state of scsi drivers
-Message-ID: <20031013162457.GD17877@bitwizard.nl>
-References: <3F8ACFE2.1080708@wanadoo.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F8ACFE2.1080708@wanadoo.es>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+	Mon, 13 Oct 2003 12:30:09 -0400
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:216 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S261837AbTJMQaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 12:30:00 -0400
+Message-ID: <3F8AD4A7.1040804@pacbell.net>
+Date: Mon, 13 Oct 2003 09:36:55 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: Patrick Mochel <mochel@osdl.org>
+CC: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: [patch 2.6.0-test7] PM resume must allow device removal
+Content-Type: multipart/mixed;
+ boundary="------------030707010405000500090006"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 13, 2003 at 06:16:34PM +0200, Xose Vazquez Perez wrote:
-> o sym53c8xx_2
->  - manufacturer: LSI Logic
->  - kernel: 2.1.17a     (Dec 01 2001)
->  - latest: 2.1.18f     (Oct 13 2003)
->  - beta:   2.1.19-pre3 (Nov 23 2002)
->  - arch: i386 alpha sparc powerpc ia64
->  - features:
->  - maintainer: <matthew_AT_wil.cx>
->  - url: http://www.tux.org/pub/tux/roudier/drivers/linux/stable/
->         http://ftp.linux.org.uk/pub/linux/willy/patches/
+This is a multi-part message in MIME format.
+--------------030707010405000500090006
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-AFAIK Matthew only maintains the driver in 2.6, not in 2.4.
+Hi Patrick,
+
+Here's a patch that resolves the PM problem I reported last week:
+the self-deadlock during PM resume, in the case where devices
+vanished during suspend.  That's typical in certain OHCI-HCD
+resume scenarios (where the HC loses power) and may eventually
+happen in other cases, as drivers for hotpluggable buses become
+more intelligent about things getting unplugged.
+
+You may want to have a more elaborate fix.  It looked to me like
+that lock was overloaded ... it's serving not just to protect
+the list of PM devices against concurrent changes, but also to
+make sure only one task was managing PM suspend/resume.  It
+seems to me that the "one task" rule would better be handled
+by some sort of state flag.
+
+- Dave
 
 
-Erik
+--------------030707010405000500090006
+Content-Type: text/plain;
+ name="pm-1013.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pm-1013.patch"
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
-| Data lost? Stay calm and contact Harddisk-recovery.com
+--- 1.11/drivers/base/power/resume.c	Mon Aug 25 11:08:21 2003
++++ edited/drivers/base/power/resume.c	Fri Oct 10 21:06:07 2003
+@@ -22,8 +22,17 @@
+ 
+ int resume_device(struct device * dev)
+ {
+-	if (dev->bus && dev->bus->resume)
+-		return dev->bus->resume(dev);
++	if (dev->bus && dev->bus->resume) {
++		int retval;
++
++		/* drop lock so the call can use device_del() to clean up
++		 * after unplugged (or otherwise vanished) child devices
++		 */
++		up(&dpm_sem);
++		retval = dev->bus->resume(dev);
++		down(&dpm_sem);
++		return retval;
++	}
+ 	return 0;
+ }
+ 
+
+--------------030707010405000500090006--
+

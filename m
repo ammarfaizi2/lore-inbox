@@ -1,45 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265281AbRF0Gkm>; Wed, 27 Jun 2001 02:40:42 -0400
+	id <S265284AbRF0HaY>; Wed, 27 Jun 2001 03:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265283AbRF0Gkc>; Wed, 27 Jun 2001 02:40:32 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:2064 "EHLO
-	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S265279AbRF0GkS>; Wed, 27 Jun 2001 02:40:18 -0400
-Date: 27 Jun 2001 08:35:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <83fdxMUHw-B@khms.westfalen.de>
-In-Reply-To: <E15F4tx-0003sA-00@pmenage-dt.ensim.com>
-Subject: Re: [PATCH] User chroot
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
+	id <S265286AbRF0HaP>; Wed, 27 Jun 2001 03:30:15 -0400
+Received: from temp20.astound.net ([24.219.123.215]:44554 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S265284AbRF0HaJ>; Wed, 27 Jun 2001 03:30:09 -0400
+Date: Wed, 27 Jun 2001 00:29:47 -0700 (PDT)
+From: Andre Hedrick <andre@aslab.com>
+To: Gunther Mayer <Gunther.Mayer@t-online.de>
+cc: linux-kernel@vger.kernel.org, dhinds@zen.stanford.edu
+Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
+In-Reply-To: <3B38EE96.A6C11980@t-online.de>
+Message-ID: <Pine.LNX.4.10.10106270017350.13459-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <Pine.GSO.4.21.0106262138370.18037-100000@weyl.math.psu.edu> <E15F4tx-0003sA-00@pmenage-dt.ensim.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pmenage@ensim.com (Paul Menage)  wrote on 26.06.01 in <E15F4tx-0003sA-00@pmenage-dt.ensim.com>:
 
-> >You need to be root to do mknod. You need to do mknod to create /dev/zero.
-> >You need /dev/zero to get anywhere near the normal behaviour of the system.
-> >
->
-> Sure, but we're not necessarily looking for a system that behaves
-> normally in all aspects. The example given was that of a paranoid
-> network server that does all its initialisation in a normal environment,
-> and then does a chroot to its data directory. Or alternatively, forks
-> after accepting a connection, and the child does a chroot. No need to be
-> able to exec other programs, etc. Such a daemon is certainly possible,
-> as I've written one myself. But it had to be started by root, rather
-> than by a normal user.
+I can not help if you have a device that not compliant to the rules.
+ATA-2 is OBSOLETED thus we forced (the NCITS Standards Body) the CFA
+people to move to ATA-4 or ATA-5.
 
-Aah - in that case, it seems the absence of /dev/zero might even be an  
-advantage, making it impossible to exec (most) programs.
+That device is enabling with its ablity to assert its device->host
+interrupt regardless of the HOST...that is a bad device.
+
+Send me the manufacturer and I will tear them apart for making a
+non-compliant device.  Then figure out a way to de-assert the like
+regardless if it exists without hang the rest of the driver.
+
+Cheers,
 
 
-MfG Kai
+On Tue, 26 Jun 2001, Gunther Mayer wrote:
+
+> Hi,
+> 
+> this patch fixes the hard hang (no SYSRQ) on inserting
+> any PCMCIA ATA/IDE card (e.g. CompactFlash, Clik40 etc)
+> to a PCI-Cardbus bridge add-in card.
+> 
+> Thanks David for his valuable explanation about what happens:
+> ide-probe registers it's irq handler too late! After it
+> triggers the interrupt during the probe the (shared) irq
+> loops forever, effectively wedging the machine completely.
+> 
+> Regards, Gunther
+> 
+> 
+> 
+> --- linux245.orig/drivers/ide/ide-cs.c  Fri Feb  9 20:40:02 2001
+> +++ linux/drivers/ide/ide-cs.c  Tue Jun 26 21:22:19 2001
+> @@ -324,6 +324,9 @@
+>      if (link->io.NumPorts2)
+>         release_region(link->io.BasePort2, link->io.NumPorts2);
+>  
+> +    outb(0x02, ctl_base); // Set nIEN = disable device interrupts
+> +                         // else it hangs on PCI-Cardbus add-in cards, wedging irq
+> +
+>      /* retry registration in case device is still spinning up */
+>      for (i = 0; i < 10; i++) {
+>         hd = ide_register(io_base, ctl_base, link->irq.AssignedIRQ);
+> --- linux245.orig/drivers/ide/ide-probe.c       Sun Mar 18 18:25:02 2001
+> +++ linux/drivers/ide/ide-probe.c       Tue Jun 26 21:25:07 2001
+> @@ -685,6 +685,8 @@
+>  #else /* !CONFIG_IDEPCI_SHARE_IRQ */
+>                 int sa = (hwif->chipset == ide_pci) ? SA_INTERRUPT|SA_SHIRQ : SA_INTERRUPT;
+>  #endif /* CONFIG_IDEPCI_SHARE_IRQ */
+> +
+> +               outb(0x00, hwif->io_ports[IDE_CONTROL_OFFSET]); // clear nIEN == enable irqs
+>                 if (ide_request_irq(hwif->irq, &ide_intr, sa, hwif->name, hwgroup)) {
+>                         if (!match)
+>                                 kfree(hwgroup);
+> 
+
+Andre Hedrick
+ASL Kernel Development
+Linux ATA Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+

@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314068AbSEAWFk>; Wed, 1 May 2002 18:05:40 -0400
+	id <S314069AbSEAWQA>; Wed, 1 May 2002 18:16:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314069AbSEAWFk>; Wed, 1 May 2002 18:05:40 -0400
-Received: from gw.lowendale.com.au ([203.26.242.120]:15420 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S314068AbSEAWFj>; Wed, 1 May 2002 18:05:39 -0400
-Date: Thu, 2 May 2002 08:45:38 +1000 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Eugenij Butusov <dinorage@wp.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernels 2.2.19-2.4.x. Why why why?
-In-Reply-To: <20020501201703.A990@matrix.awr.open.net.pl>
-Message-ID: <Pine.LNX.4.05.10205020839030.8020-100000@marina.lowendale.com.au>
+	id <S314072AbSEAWP7>; Wed, 1 May 2002 18:15:59 -0400
+Received: from jffdns02.or.intel.com ([134.134.248.4]:22747 "EHLO
+	hebe.or.intel.com") by vger.kernel.org with ESMTP
+	id <S314069AbSEAWP7>; Wed, 1 May 2002 18:15:59 -0400
+Message-ID: <BD9B60A108C4D511AAA10002A50708F22C1500@orsmsx118.jf.intel.com>
+From: "Leech, Christopher" <christopher.leech@intel.com>
+To: "'Steffen Persvold'" <sp@scali.com>,
+        "Linux-Kernel (linux-kernel@vger.kernel.org)" 
+	<linux-kernel@vger.kernel.org>
+Subject: RE: Plan for e100-e1000 in mainline
+Date: Wed, 1 May 2002 15:15:44 -0700 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 May 2002, Eugenij Butusov wrote:
 
->  I'm writing to You because of my problem with kernels > 2.2.17.
-> This kernel is the last that works on my machine. I've tried almost
-> all, including 2.3.x and 2.5.x, but they simple don't work.
+> Another funny thing is that the latency for the gigabit 
+> adapter (e1000) is also higher than fast ethernet (eepro100) 
+> with small messages (<256 bytes) :
 
-Have you tried 2.2.21-rc3?
+You could try setting the RxIntDelay module parameter to 0, that should
+improve round trip latency.  The balance between latency on the receive path
+and interrupt rate can be difficult to manage, hopefully a dynamic method
+like NAPI will result in Ethernet drivers that need less hand tuning.
 
-[...]
-> PROC: p200MMX
-> MB: pc chips, SiS, tx-pro m570(v12), apg, 1MB L2 cache, onboard soundpro
-> MEM: 64MB sdram
-> GFX: diamond viper v330 agp (4mb)
-> NIC: realtek8139 (D-Link NetEasy)
-> HDD: 2x3.2GB (samsung & seagate, both udma33)
-
-Assuming I have you right that 2.2.17 works reliably and 2.2.18 fails
-reliably, then perhaps:
-
-(a) have a look through the changelog at
-http://www.kernel.org/pub/linux/kernel/v2.2/linux-2.2.18.log and see if
-there's anything likely -OR-
-(b) do a binary search of 2.2.18-pre* to find just where it breaks.
-
-The point is to narrow down the patch which broke things for you.
-
-HTH,
-Neale.
-
+--
+Chris Leech <christopher.leech@intel.com>
+Network Software Engineer
+LAN Access Division, Intel Corporation

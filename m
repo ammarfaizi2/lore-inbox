@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272225AbTG3Q6G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 12:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273022AbTG3Q6G
+	id S273005AbTG3QqN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 12:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273006AbTG3QqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 12:58:06 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:46514 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S272225AbTG3Q6D
+	Wed, 30 Jul 2003 12:46:13 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:45318 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S273005AbTG3QqL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 12:58:03 -0400
-Date: Wed, 30 Jul 2003 09:58:02 -0700 (PDT)
-From: henrique2.gobbi@cyclades.com
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Anuradha Ratnaweera <anuradha@ratnaweera.net>,
-       Wichert Akkerman <wichert@wiggy.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Contributing to the kernel while being employed
-In-Reply-To: <29610000.1059582685@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0307300952520.6400-100000@intra.cyclades.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Jul 2003 12:46:11 -0400
+Date: Wed, 30 Jul 2003 18:37:45 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.0-test2 wanXL driver
+Message-ID: <20030730183745.A3878@electric-eye.fr.zoreil.com>
+References: <m3lluhnj6e.fsf@defiant.pm.waw.pl> <20030730002959.A23749@electric-eye.fr.zoreil.com> <m3u195lykx.fsf@defiant.pm.waw.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m3u195lykx.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Wed, Jul 30, 2003 at 01:09:34AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I don't understand laws.
-What you guys think about this ?
-
-Labor Code section 2870 of the State of California:
-
-"Any provision in an employment agreement which provides that an employee 
-shall assign or offer to assign any of his or her rights in an invention 
-to his or her employer shall not apply to an inventory that the employee 
-developed entirely on his or her own time without using the employer's 
-equipment, supplies, facilities, or trade secret information..."
-
-henrique
-
-On Wed, 30 Jul 2003, Martin J. Bligh wrote:
-
-> > What if the employer _is_ interested in contributing to the open source
-> > under company copyright and doesn't mind using company resources, but
-> > the employee prefers to keep copyright to himself.  The only way he can
-> > do it is by using his own resources and time (off hours).  But this is
-> > not possible if there is a contract that coveres the full employment
-> > period, including after hours.
+Krzysztof Halasa <khc@pm.waw.pl> :
+> Francois Romieu <romieu@fr.zoreil.com> :
+[...]
+> > dma_map_single() is probably preferred over virt_to_bus().
 > 
-> Why do you want the copyright? So you can sue in case of violation?
-> If so, then giving both yourself and your employer copyright might help ...
-> 
-> M.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Never heard of it in fact :-)
+> Will check.
 
+It isn't that far from pci_map_single() and friends.
+See Documentation/DMA-mapping.txt for more details and drivers/net/ for examples
+of use.
+
+--
+Ueimor

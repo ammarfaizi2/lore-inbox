@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263030AbUCSV7F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 16:59:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263012AbUCSV7E
+	id S263012AbUCSWDH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 17:03:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbUCSWDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 16:59:04 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51162 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262490AbUCSV67
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 16:58:59 -0500
-Message-ID: <405B6D15.9030600@pobox.com>
-Date: Fri, 19 Mar 2004 16:58:45 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stefan Smietanowski <stesmi@stesmi.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: FYI: SATA on x86-64
-References: <405B6B6B.70200@pobox.com> <405B6C6B.4050202@stesmi.com>
-In-Reply-To: <405B6C6B.4050202@stesmi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Mar 2004 17:03:07 -0500
+Received: from codeblau.walledcity.de ([212.84.209.34]:17427 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id S263012AbUCSWDD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 17:03:03 -0500
+Date: Fri, 19 Mar 2004 23:03:47 +0100
+From: Felix von Leitner <felix-kernel@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: Firewire broken in 2.6.4 (detects disk but times out mounting)
+Message-ID: <20040319220347.GA10539@codeblau.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Smietanowski wrote:
-> Jeff Garzik wrote:
-> 
->>
->> There appear to be a variety of platform problems that lead to trouble 
->> with libata (and also with the IDE driver to some extent), with the 
->> default x86-64 kernel + some buggy BIOSes + some iommu weirdness.
->>
->> Here are some boot options to mix and match:
->>     nomce, iommu=off, noapic, acpi=off
->>
->> And also try using an SMP kernel (CONFIG_SMP) rather than a 
->> uniprocessor one.
-> 
-> 
-> You have any special place where one or several options might be useful?
-> 
-> I stressed the promise sata on my ASUS K8V with a Maxtor disk yesterday
-> and it worked just fine. Under 2.4 that is. And yes, running an x86_64
-> kernel.
+Here's what happens:
 
-If you don't need any of those options, then no worries.  You are fine 
-as-is.
+Mar 19 22:00:47 hellhound ieee1394: sbp2: Logged into SBP-2 device
+Mar 19 22:00:47 hellhound ieee1394: sbp2: Node 0-00:1023: Max speed [S400] - Max payload [2048]
+Mar 19 22:00:47 hellhound Vendor: Maxtor    Model: 5000DV            Rev: 0100
+Mar 19 22:00:47 hellhound Type:   Direct-Access                      ANSI SCSI revision: 06
+Mar 19 22:00:47 hellhound SCSI device sda: 490232832 512-byte hdwr sectors (250999 MB)
+Mar 19 22:00:47 hellhound sda: asking for cache data failed
+Mar 19 22:00:47 hellhound sda: assuming drive cache: write through
+Mar 19 22:00:47 hellhound /dev/scsi/host0/bus0/target1/lun0: p1
+Mar 19 22:00:47 hellhound Attached scsi disk sda at scsi0, channel 0, id 1, lun 0
+Mar 19 22:00:47 hellhound ip1394: $Rev: 1175 $ Ben Collins <bcollins@debian.org>
+Mar 19 22:00:47 hellhound ip1394: eth2: IEEE-1394 IPv4 over 1394 Ethernet (fw-host0)
+[...]
+Mar 19 22:01:21 hellhound ieee1394: sbp2: aborting sbp2 command
+Mar 19 22:01:21 hellhound 0x28 00 00 00 00 3f 00 00 01 00 
+Mar 19 22:01:31 hellhound ieee1394: sbp2: aborting sbp2 command
+Mar 19 22:01:31 hellhound 0x00 00 00 00 00 00 
+Mar 19 22:01:31 hellhound ieee1394: sbp2: reset requested
+Mar 19 22:01:31 hellhound ieee1394: sbp2: Generating sbp2 fetch agent reset
+Mar 19 22:01:41 hellhound ieee1394: sbp2: aborting sbp2 command
+Mar 19 22:01:41 hellhound 0x00 00 00 00 00 00 
+Mar 19 22:01:41 hellhound ieee1394: sbp2: reset requested
+Mar 19 22:01:41 hellhound ieee1394: sbp2: Generating sbp2 fetch agent reset
+Mar 19 22:02:01 hellhound ieee1394: sbp2: aborting sbp2 command
+Mar 19 22:02:01 hellhound 0x00 00 00 00 00 00 
+Mar 19 22:02:01 hellhound ieee1394: sbp2: reset requested
+Mar 19 22:02:01 hellhound ieee1394: sbp2: Generating sbp2 fetch agent reset
+Mar 19 22:02:21 hellhound ieee1394: sbp2: aborting sbp2 command
+Mar 19 22:02:21 hellhound 0x00 00 00 00 00 00 
+Mar 19 22:02:21 hellhound scsi: Device offlined - not ready after error recovery: host 0 channel 0 id 1 lun 0
+Mar 19 22:02:21 hellhound SCSI error : <0 0 1 0> return code = 0x50000
+Mar 19 22:02:21 hellhound end_request: I/O error, dev sda, sector 63
+Mar 19 22:02:21 hellhound FAT: unable to read boot sector
 
-	Jeff
 
+Any idea?  It is not a general read failure since reading the partition table
+worked.  This is on a VIA Athlon XP board.
 
-
+Felix

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261700AbSIXQZV>; Tue, 24 Sep 2002 12:25:21 -0400
+	id <S261703AbSIXQgJ>; Tue, 24 Sep 2002 12:36:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261701AbSIXQZV>; Tue, 24 Sep 2002 12:25:21 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:64641 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S261700AbSIXQZT>;
-	Tue, 24 Sep 2002 12:25:19 -0400
-Date: Tue, 24 Sep 2002 09:32:10 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH-RFC] README 1ST - New problem logging macros (2.5.38)
-In-Reply-To: <20020924055814.GA21931@kroah.com>
-Message-ID: <Pine.LNX.4.44.0209240926500.966-100000@cherise.pdx.osdl.net>
+	id <S261704AbSIXQgJ>; Tue, 24 Sep 2002 12:36:09 -0400
+Received: from mons.uio.no ([129.240.130.14]:15072 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S261703AbSIXQgJ>;
+	Tue, 24 Sep 2002 12:36:09 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Organization: Dept. of Physics, University of Oslo, Norway
+To: Daniel Phillips <phillips@arcor.de>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+Date: Tue, 24 Sep 2002 18:40:39 +0200
+User-Agent: KMail/1.4.1
+Cc: Andrew Morton <akpm@digeo.com>, Rik van Riel <riel@conectiva.com.br>,
+       Urban Widmark <urban@teststation.com>, Chuck Lever <cel@citi.umich.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3D811A6C.C73FEC37@digeo.com> <shshegg1g5h.fsf@charged.uio.no> <E17thwm-0003fX-00@starship>
+In-Reply-To: <E17thwm-0003fX-00@starship>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209241840.40070.trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 24 September 2002 07:09, Daniel Phillips wrote:
 
-On Mon, 23 Sep 2002, Greg KH wrote:
+> Coalesce before initiating writeout?  I don't see why NFS should be special
+> in this regard, or why it should not leave a page locked until IO has
+> completed, like other filesystems.  Could you please explain?
 
-> One further comment:
-> 
-> On Mon, Sep 23, 2002 at 06:55:13PM -0700, Larry Kessler wrote:
-> > --- linux-2.5.37/drivers/include/linux/net_problem.h	Wed Dec 31 18:00:00 1969
-> > +++ linux-2.5.37-net/include/linux/net_problem.h	Mon Sep 23 20:04:23 2002
-> 
-> 
-> > --- linux-2.5.37/drivers/include/linux/pci_problem.h	Wed Dec 31 18:00:00 1969
-> > +++ linux-2.5.37-net/include/linux/pci_problem.h	Mon Sep 23 19:56:11 2002
-> 
-> {sigh}
-> 
-> Have people been ignoring all of the core driver changes that have been
-> happening?  Almost everything that is "struct device" now, with some bus
-> specific things tacked on (and those bus specific things are getting
-> slowly merged into struct device too.)
-> 
-> It would make more sense (if you continue this path of changes to the
-> kernel) to focus on the device, bus, and class structures.  That way you
-> don't have to create a usb_problem.h, iee1394_problem.h, i2c_problem.h,
-> i2o_problem.h, scsi_problem.h, ide_problem.h, etc.
+It does that for reads.
 
-On a tangent and ignoring the completely correct statement...
+For writes, however, I see no point in keeping the page lock beyond what is 
+required in order to safely copy data from userland. To do so would give 
+disastrous performances if somebody was trying to write < page-sized records. 
+I belive this is true for all filesystems.
+For some reason or another, the buffer stuff needs to re-take the page lock 
+when it actually performs the physical commit to disk. NFS doesn't need to do 
+this in order to perform an RPC call, so we don't...
 
-Why do we have such a flat namespace in include/linux/ anyway? Assuming 
-introducing a problem.h header for each subsystem was a sound idea, we 
-could just have
-
-include/linux/problem/pci.h
-include/linux/problem/net.h
-...
-
-
-	-pat
-
+Cheers,
+  Trond

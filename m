@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265351AbUAJTyd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 14:54:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265363AbUAJTyc
+	id S265367AbUAJT5X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 14:57:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbUAJT5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 14:54:32 -0500
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:47966 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S265351AbUAJTy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 14:54:27 -0500
-Date: Sat, 10 Jan 2004 19:53:02 +0000
-From: DaMouse Networks <damouse@ntlworld.com>
-To: linux-kernel@vger.kernel.org
-Subject: SiS964 SerialATA RAID
-Message-Id: <20040110195302.28aa3408@EozVul.WORKGROUP>
-Organization: DaMouse Networks
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 10 Jan 2004 14:57:22 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:28585 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265367AbUAJT4x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 14:56:53 -0500
+Date: Sat, 10 Jan 2004 20:56:39 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: Do not use synaptics extensions by default
+Message-ID: <20040110195639.GE22654@ucw.cz>
+References: <20040110175930.GA1749@elf.ucw.cz> <200401101428.49358.dtor_core@ameritech.net> <20040110195124.GC1212@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040110195124.GC1212@elf.ucw.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
-   I've decided I want a mirrored SATA-RAID setup for my boxen in late 2004 and I was wondering how the development for the SiS964 SATA drivers are going for 2.6.x?
+On Sat, Jan 10, 2004 at 08:51:24PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > Why would you document something that is deprecated? It was removed so the
+> > new users would not start using it instead of psmouse.proto. psmouse.noext
+> > should be gone soon.
+> 
+> My understanding is that Documentation/kernel-parameters.txt should
+> document all available parameters...
 
-TIA
+Well, I wouldn't mind documenting psmouse.noext, with a comment that it
+shouldn't be used because it'll be removed in near future.
 
--DaMouse
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

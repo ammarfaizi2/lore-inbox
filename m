@@ -1,70 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262057AbSI3Pmj>; Mon, 30 Sep 2002 11:42:39 -0400
+	id <S262080AbSI3PgB>; Mon, 30 Sep 2002 11:36:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262109AbSI3Pmi>; Mon, 30 Sep 2002 11:42:38 -0400
-Received: from 62-190-219-230.pdu.pipex.net ([62.190.219.230]:14720 "EHLO
-	nemesis.cube") by vger.kernel.org with ESMTP id <S262057AbSI3Pmh>;
-	Mon, 30 Sep 2002 11:42:37 -0400
-Message-ID: <3D98722D.5050503@walrond.org>
-Date: Mon, 30 Sep 2002 16:47:57 +0100
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020831
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE Problems with 2.5.39
-References: <3D9775BF.3090504@walrond.org> <1033337141.9053.6.camel@I401.resi.insa-lyon.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S262108AbSI3PgB>; Mon, 30 Sep 2002 11:36:01 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:36764 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S262080AbSI3Pf7>; Mon, 30 Sep 2002 11:35:59 -0400
+Subject: Re: Hard lockups running X with 2.5.38-bk4, -bk5 and -mm3
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D939062.9C44B2B8@digeo.com>
+References: <1033078474.1306.43.camel@spc9.esa.lanl.gov> 
+	<3D939062.9C44B2B8@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 30 Sep 2002 09:37:03 -0600
+Message-Id: <1033400223.1306.48.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nope; This is the latest Asus PR-DLS dual Xeon motherboard with
+On Thu, 2002-09-26 at 16:55, Andrew Morton wrote:
+> Steven Cole wrote:
+> > 
+> > I only recently started testing 2.5.x kernels with X, and have
+> > immediately run into problems.
+[snipped]
+> Me too.  deadlocks on tasklist_lock.  Some fixes went into Linus's
+> tree a few hours ago, so please retest.
 
-ServerWorks^® Grand Champion LE North Bridge (CMIC-LE)
-ServerWorks^® Champion South Bridge (CSB5)
-ServerWorks^® 64-bit PCI-X Bridge (CIOB-X2)
+Sorry for the long delay (long weekend), but 2.5.39 works fine now with
+X on my new test system.  Thanks.
 
-And the Serverworks IDE driver doesn't see my drive.
-Works Fine with 2.4.20-pre8
-
-Who should I be talking to?
-
-JF wrote:
-
->On Sun, 2002-09-29 at 23:50, Andrew Walrond wrote:
->  
->
->>Hi,
->>
->>I can't boot with 2.5.39 because the built-in  ide driver (ServerWorks 
->>CSB5) can't see hda, and VFS says "Cannot open root device "hda3" or 
->>03:03" which results in a kernel panic
->>
->>Works fine with 2.4.20-pre? with identical kernel setup and kernel 
->>parameter root=/dev/hda3
->>
->>Is this a known problem? Any way around it or patches?
->>    
->>
->
->I used to have this problem with 2.5 too
->It went from the IDE controller chipset.
->
->Are you sure that you have only 1 IDE controller chipset ?
->
->I have both PIIX4 and HPT366. Root FS is on HPT366 controller. Enabling
->only PIIX4 used to work with 2.4 but doesn't with 2.5 anymore (got
->exactly your problem). I had to enable specific support for both.
->
->I suppose your root FS is on a specific IDE controller for which the
->support is not enabled (check the different type in the IDE/ATA kernel
->config section)
->
->Regards.
->
->  
->
-
+Steven
 

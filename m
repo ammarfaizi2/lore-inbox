@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265140AbTBFCU6>; Wed, 5 Feb 2003 21:20:58 -0500
+	id <S265567AbTBFCZ6>; Wed, 5 Feb 2003 21:25:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265246AbTBFCU6>; Wed, 5 Feb 2003 21:20:58 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:28432 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265140AbTBFCU6>;
-	Wed, 5 Feb 2003 21:20:58 -0500
-Date: Wed, 5 Feb 2003 18:26:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Andy Chou <acc@CS.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU
-Subject: Re: [CHECKER] 112 potential memory leaks in 2.5.48
-Message-ID: <20030206022611.GB22537@kroah.com>
-References: <20030205011353.GA17941@Xenon.Stanford.EDU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030205011353.GA17941@Xenon.Stanford.EDU>
-User-Agent: Mutt/1.4i
+	id <S265568AbTBFCZ6>; Wed, 5 Feb 2003 21:25:58 -0500
+Received: from ns.xdr.com ([209.48.37.1]:14765 "EHLO xdr.com")
+	by vger.kernel.org with ESMTP id <S265567AbTBFCZ5>;
+	Wed, 5 Feb 2003 21:25:57 -0500
+Date: Wed, 5 Feb 2003 18:35:40 -0800
+From: David Ashley <dash@xdr.com>
+Message-Id: <200302060235.h162ZeP04153@xdr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Block device invalidate cached blocks
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 04, 2003 at 05:13:53PM -0800, Andy Chou wrote:
-> 14	|	drivers/hotplug/ibmphp_ebda.c
+>I'm working on a block device driver for linux. 
+>
+>Linux caches the blocks read from my block device, which is fine. I've 
+>mounted a read-only filesystem on the block device. But sometimes on 
+>the back end the file system will change. Is there a way I can cause the 
+>kernel to just flush all its cached blocks? Or even better invalidate 
+>just the few blocks that have changed? 
+>
+>Thanks-- 
+>Dave
 
-Look, I'm number 1!  :(
 
-{sigh} Yes all of these are bugs, I've reworked a lot of this code to
-fix all of these problems.  A bunch of these were also found by the
-smatch program, but I hadn't sent a patch for them yet.
+After some hunting (kernel hackers guide proved fruitless, web searches
+were the same, looked in fs/buffer.c and found
+void invalidate_bdev(struct block_device *bdev, int destroy_dirty_buffers);
 
-Thanks for the report, I appreciate it.
+Found use of it in block_dev.c:
 
-greg k-h
+/* Kill _all_ buffers, dirty or not.. */
+static void kill_bdev(struct block_device *bdev)
+{
+	invalidate_bdev(bdev, 1);
+	truncate_inode_pages(bdev->bd_inode->i_mapping, 0);
+}	
+
+So hopefully I can just invalidate the block device when I need to.
+
+-Dave

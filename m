@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316522AbSEOXSi>; Wed, 15 May 2002 19:18:38 -0400
+	id <S316518AbSEOXyr>; Wed, 15 May 2002 19:54:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316521AbSEOXSh>; Wed, 15 May 2002 19:18:37 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:12042 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S316520AbSEOXSh>; Wed, 15 May 2002 19:18:37 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: IO stats in /proc/partitions
-Date: Wed, 15 May 2002 23:18:34 +0000 (UTC)
-Organization: Cistron
-Message-ID: <abuqca$ipn$2@ncc1701.cistron.net>
-In-Reply-To: <UTC200205041959.g44JxQa20044.aeb@smtp.cwi.nl> <Pine.LNX.4.21.0205151838001.21222-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1021504714 19255 195.64.65.67 (15 May 2002 23:18:34 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S316521AbSEOXyr>; Wed, 15 May 2002 19:54:47 -0400
+Received: from scfdns02.sc.intel.com ([143.183.152.26]:8661 "EHLO
+	crotus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S316518AbSEOXyq>; Wed, 15 May 2002 19:54:46 -0400
+Message-Id: <200205152353.g4FNrew30146@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Gross <mgross@unix-os.sc.intel.com>
+Reply-To: mgross@unix-os.sc.intel.com
+Organization: SSG Intel
+To: Pavel Machek <pavel@suse.cz>, "Vamsi Krishna S ." <vamsi@in.ibm.com>
+Subject: Re: PATCH Multithreaded core dump support for the 2.5.14 (and 15) kernel.
+Date: Wed, 15 May 2002 16:53:18 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: "Gross, Mark" <mark.gross@intel.com>, "'Erich Focht'" <efocht@ess.nec.de>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        "'Bharata B Rao'" <bharata@in.ibm.com>
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C057B485B@orsmsx111.jf.intel.com> <20020515120722.A17644@in.ibm.com> <20020515140448.C37@toy.ucw.cz>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.21.0205151838001.21222-100000@freak.distro.conectiva>,
-Marcelo Tosatti  <marcelo@conectiva.com.br> wrote:
->On Sat, 4 May 2002 Andries.Brouwer@cwi.nl wrote:
+On Wednesday 15 May 2002 10:04 am, Pavel Machek wrote:
+> Okay, what about:
 >
->> However, I see that these days the pollution of /proc/partitions
->> is becoming official - it is part of patch-2.4.19-pre7.
->> I strongly object, and hope it is not too late to revert this.
->> 
->The change can possibly break userlevel tools which were working with
->2.4.18.
+> Thread 1 is in kernel and holds lock A. You need lock A to dump state.
+> When you move 1 to phantom runqueue, you loose ability to get A and
+> deadlock.
+>
+> What prevents that?
 
-Perhaps, but I had the opposite experience. I noticed by accident
-that iostat (as included in Debian) suddenly had working extended
-statistics. So there are *certainly* tools that get fixed by
-2.4.19-pre7. I was pleasantly surprised.
+Any pending tasklet / bottom half + top half get processes by the real CPU's 
+even thought the I/O bound process may have been moved to the phantom run 
+queue.  Its just that for the suspended processes sitting on the phantom 
+queue this processing stops with the call to try_to_wake_up, until the 
+process is moved back onto a run queue with a CPU.
 
->Christoph, please create a /proc/diskstatistics file or something like
->that and send me a patch.
+The only way I can see what your talking about happening is for some kernel 
+code (or driver) to grab a lock and then hold it across a call to one of the 
+sleep_on functions pending some I/O.
 
-Bummer, I'm using Debian, and iostat is in woody (frozen, about to
-be released) - that means Debian users will have to wait to the
-next release, another two years perhaps, before iostat gets working.
+Any driver that holds a lock across any sleep_on call I think is abusing 
+locks and needs adjusting.
 
-Why not keep it as it is, it's probably not going to break
-anything as debian and redhat tools already know about this
-apparently. 2.5 is about new features, 2.4 is about stability
-and, though some might oppose, folding in stable patches that
-have been in vendor kernels for months or years.
+Nothing prevents someone writing a driver that abuses locks.
 
-Mike.
--- 
-"Insanity -- a perfectly rational adjustment to an insane world."
-  - R.D. Lang
+If you know of such a case I need to worry about or there is another way for 
+this design to get into trouble please let me know.  I'll look into it as 
+quickly as I can.
 
+--mgross

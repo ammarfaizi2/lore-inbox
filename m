@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265537AbUFTVem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265660AbUFTVho@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265537AbUFTVem (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 17:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265951AbUFTVem
+	id S265660AbUFTVho (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 17:37:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265951AbUFTVho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 17:34:42 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:56388 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265537AbUFTVe1
+	Sun, 20 Jun 2004 17:37:44 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:15878 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S265660AbUFTVhm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 17:34:27 -0400
-Date: Sun, 20 Jun 2004 23:45:43 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Andreas Gruenbacher <agruen@suse.de>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Kai Germaschewski <kai@germaschewski.name>
-Subject: Re: [PATCH 2/2] kbuild: Improved external module support
-Message-ID: <20040620214543.GA10332@mars.ravnborg.org>
-Mail-Followup-To: Arjan van de Ven <arjanv@redhat.com>,
-	Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-	Andreas Gruenbacher <agruen@suse.de>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Kai Germaschewski <kai@germaschewski.name>
-References: <20040620211905.GA10189@mars.ravnborg.org> <20040620212353.GD10189@mars.ravnborg.org> <1087766729.2805.15.camel@laptop.fenrus.com>
+	Sun, 20 Jun 2004 17:37:42 -0400
+Date: Sun, 20 Jun 2004 23:37:43 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Matroxfb in 2.6 still doesn't work in 2.6.7
+Message-ID: <20040620213743.GA6974@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040618211031.GA4048@irc.pl> <20040619190503.GB17053@vana.vc.cvut.cz> <20040619193053.GA3644@irc.pl> <20040619203954.GC17053@vana.vc.cvut.cz> <20040620160437.GA29046@irc.pl> <20040620170114.GA4683@vana.vc.cvut.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1087766729.2805.15.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040620170114.GA4683@vana.vc.cvut.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 20, 2004 at 11:25:29PM +0200, Arjan van de Ven wrote:
+On Sun, Jun 20, 2004 at 07:01:14PM +0200, Petr Vandrovec wrote:
+> > > video=matroxfb:vesa:0x11A,right:48,hslen:112,left:248,hslen:112,lower:1,vslen:3,upper:48
+> > > maybe with ',sync:3' if +hsync/+vsync are mandatory for your monitor.
+> > 
+> >  Neither one works. During kernel boot resolution is switched to 1280x1024, but
+> > screen become corrupted - there are some green points in upper part of
+> > monitor. 
 > 
-> > #   3) The build symlink now points to the output of the kernel
-> > #      compile.
-> > #      - When a kernel is compiled with output and source
-> > #        mixed, the build and source symlinks will point
-> > #        to the same directory. In this case there is
-> > #        no change in behaviour.
+> It works exactly as your kernel is configured. It switched to graphics, but it does
+> not paint your console there because you told you kernel to not do that.
+> >  Also, the patch from platan do not compile:
 > 
-> > #   It is recommended that distributions pick up this
-> > #   method, and especially start shipping kernel output and
-> > #   source separately.
-> > #   
+> And this one too - my patch needs fbcon.
+> > # CONFIG_FRAMEBUFFER_CONSOLE is not set
 > 
-> I don't see the point of this; module builds don't use the output of the
-> kernel compile but the SOURCE, eg the headers and Makefiles.
-When building modules they use _both_ the source and partly the output.
-The output needed is what is required for kbuild to work, and optionally
-Module.symvers for symbol versions.
+> Enable this. Into the kernel, not as a module.
 
-> I don't see a reason for this change; at least what I ship right now for
-> the Fedora Core 2 kernel seems to work for all modules with sane
-> makefiles so far....
+ Wow! It works! It not the same mode as in XFree (fb is moved lower by one line),
+but it is working!
+ I don't think if I've met CONFIG_FRAMEBUFFER_CONSOLE earlier in 2.6.x. Also
+method of selecing videomode (vesa:xxx stuff, not plain resolution and bpp) seems
+strange and alien, but it works with your patch. 
+ When mergin with mainline is planned?
 
-Did you put the output of the kernel compile in a separate output directory,
-reusing the same src for several configurations?
-If not you do not need the change, and thus do not get any benefit. On the
-other hand everything should work as-is for you.
+-- 
+Tomasz Torcz            There exists no separation between gods and men:
+zdzichu@irc.-nie.spam-.pl   one blends softly casual into the other. 
 
-	Sam

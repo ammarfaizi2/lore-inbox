@@ -1,103 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVBGPwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVBGQBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVBGPwS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 10:52:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVBGPwS
+	id S261167AbVBGQBe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 11:01:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVBGQBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 10:52:18 -0500
-Received: from relay.muni.cz ([147.251.4.35]:60644 "EHLO tirith.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S261167AbVBGPwJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 10:52:09 -0500
-Date: Mon, 7 Feb 2005 16:52:02 +0100
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jens Axboe <axboe@suse.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Memory leak in 2.6.11-rc1?
-Message-ID: <20050207155202.GY24513@fi.muni.cz>
-References: <20050121161959.GO3922@fi.muni.cz> <20050207110030.GI24513@fi.muni.cz> <Pine.LNX.4.58.0502070728280.2165@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0502070728280.2165@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Muni-Envelope-From: kas@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Mon, 7 Feb 2005 11:01:34 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:27327 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261167AbVBGQBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 11:01:32 -0500
+Message-ID: <42079029.5040401@sgi.com>
+Date: Mon, 07 Feb 2005 09:58:33 -0600
+From: Patrick Gefre <pfg@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: linux-kernel@vger.kernel.org, matthew@wil.cx,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [PATCH] Altix : ioc4 serial driver support
+References: <20050103140938.GA20070@infradead.org> <Pine.SGI.3.96.1050131164059.62785B-100000@fsgi900.americas.sgi.com> <20050201092335.GB28575@infradead.org> <420139BF.4000100@sgi.com> <20050202215716.GA23253@infradead.org>
+In-Reply-To: <20050202215716.GA23253@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-: Jan - can you give Jens a bit of an idea of what drivers and/or schedulers 
-: you're using?
+Christoph Hellwig wrote:
+> On Wed, Feb 02, 2005 at 02:36:15PM -0600, Patrick Gefre wrote:
+> 
+>>>Please kill ioc4_ide_init as it's completely unused and make 
+>>>ioc4_serial_init
+>>>a normal module_init() handler in ioc4_serial, there's no need to call
+>>>them from the generic driver.
+>>>
+>>
+>>I want ioc4_serial_init called before pci_register_driver() if I make it a
+>>module_init() call I have no control over order ??
+> 
+> 
+> For the modular case it'd always be executed before because the module
+> must be loaded first, for the builtin case it'd depend on the link order.
+> 
+> Let's leave it as-is, it's probably safer.
+> 
+> 
 
-	I have a Tyan S2882 dual Opteron, network is on-board tg3,
-there are 8 P-ATA HDDs hooked on 3ware 7506-8 controller (no HW RAID
-there, but the drives are partitioned and partition grouped to form
-software RAID-0, 1, 5, and 10 volumes - the main fileserving traffic
-is on a RAID-5 volume, and /var is on RAID-10 volume.
 
-	Filesystems are XFS for that RAID-5 volume, ext3 for the rest
-of the system. I have compiled-in the following I/O schedulers (according
-to my /var/log/dmesg :-)
+Latest version with review mods:
+ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
 
-io scheduler noop registered
-io scheduler anticipatory registered
-io scheduler deadline registered
-io scheduler cfq registered
-
-I have not changed the scheduler by hand, so I suppose the anticipatory
-is the default.
-
-	No X, just serial console. The server does FTP serving mostly
-(ProFTPd with sendfile() compiled in), sending mail via qmail (cca
-100-200k mails a day), and bits of other work (rsync, Apache, ...).
-Fedora core 3 with all relevant updates.
-
-	My fstab (physical devices only):
-/dev/md0                /                       ext3    defaults        1 1
-/dev/md1                /home                   ext3    defaults        1 2
-/dev/md6                /var                    ext3    defaults        1 2
-/dev/md4                /fastraid               xfs     noatime         1 3
-/dev/md5                /export                 xfs     noatime         1 4
-/dev/sde4               swap                    swap    pri=10          0 0
-/dev/sdf4               swap                    swap    pri=10          0 0
-/dev/sdg4               swap                    swap    pri=10          0 0
-/dev/sdh4               swap                    swap    pri=10          0 0
-
-	My mdstat:
-
-Personalities : [raid0] [raid1] [raid5]
-md6 : active raid0 md3[0] md2[1]
-      19550720 blocks 64k chunks
-
-md1 : active raid1 sdd1[1] sdc1[0]
-      14659200 blocks [2/2] [UU]
-
-md2 : active raid1 sdf1[1] sde1[0]
-      9775424 blocks [2/2] [UU]
-
-md3 : active raid1 sdh1[1] sdg1[0]
-      9775424 blocks [2/2] [UU]
-
-md4 : active raid0 sdh2[7] sdg2[6] sdf2[5] sde2[4] sdd2[3] sdc2[2] sdb2[1] sda2[0]
-      39133184 blocks 256k chunks
-
-md5 : active raid5 sdh3[7] sdg3[6] sdf3[5] sde3[4] sdd3[3] sdc3[2] sdb3[1] sda3[0]
-      1572512256 blocks level 5, 256k chunk, algorithm 2 [8/8] [UUUUUUUU]
-
-md0 : active raid1 sdb1[1] sda1[0]
-      14659200 blocks [2/2] [UU]
-
-unused devices: <none>
-
-	Anything else you want to know? Thanks,
-
--Yenya
-
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-> Whatever the Java applications and desktop dances may lead to, Unix will <
-> still be pushing the packets around for a quite a while.      --Rob Pike <
+Signed-off-by: Patrick Gefre <pfg@sgi.com>

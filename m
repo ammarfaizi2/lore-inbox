@@ -1,166 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261463AbTBOLKm>; Sat, 15 Feb 2003 06:10:42 -0500
+	id <S262469AbTBOLRP>; Sat, 15 Feb 2003 06:17:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbTBOLKl>; Sat, 15 Feb 2003 06:10:41 -0500
-Received: from mail1.bluewin.ch ([195.186.1.74]:4350 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S261624AbTBOLJK>;
-	Sat, 15 Feb 2003 06:09:10 -0500
-Date: Sat, 15 Feb 2003 12:18:12 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-Subject: [1/4][via-rhine][PATCH] Trivial changes; not affecting functionality
-Message-ID: <20030215111812.GA11525@k3.hellgate.ch>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="sdtB3X0nJg68CQEu"
+	id <S262492AbTBOLRP>; Sat, 15 Feb 2003 06:17:15 -0500
+Received: from c16639.thoms1.vic.optusnet.com.au ([210.49.244.5]:4073 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id <S262469AbTBOLRL>;
+	Sat, 15 Feb 2003 06:17:11 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.61-mm1
+Date: Sat, 15 Feb 2003 22:27:03 +1100
+User-Agent: KMail/1.5
+References: <20030214231356.59e2ef51.akpm@digeo.com>
+In-Reply-To: <20030214231356.59e2ef51.akpm@digeo.com>
+Cc: Andrew Morton <akpm@digeo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030215111705.GA11127@k3.hellgate.ch>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.5.60 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+Message-Id: <200302152227.03979.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm getting the same problem as 2.5.60-mm2 during boot:
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+bad: scheduling while atomic!
+Call Trace:
+ [<c0112ab1>] do_schedule+0x3d/0x2f4
+ [<c0112fb5>] wait_for_completion+0x8d/0xd0
+ [<c0112dac>] default_wake_function+0x0/0x1c
+ [<c0112dac>] default_wake_function+0x0/0x1c
+ [<c0122219>] create_workqueue+0x125/0x178
+ [<c010508e>] init+0x2a/0x17c
+ [<c0105064>] init+0x0/0x17c
+ [<c0106e5d>] kernel_thread_helper+0x5/0xc
 
-- nuke mii_status_bits
-- move clear_tally_counters() up so it can get inlined (pointed out by
-  Luca Barbieri)
-- rename via_restart_tx() -> via_rhine_restart_tx()
+aio_setup: sizeof(struct page) = 40
+Journalled Block Device driver loaded
+bad: scheduling while atomic!
+Call Trace:
+ [<c0112ab1>] do_schedule+0x3d/0x2f4
+ [<c0112fb5>] wait_for_completion+0x8d/0xd0
+ [<c0112dac>] default_wake_function+0x0/0x1c
+ [<c0112dac>] default_wake_function+0x0/0x1c
+ [<c010508e>] init+0x2a/0x17c
+ [<c0105064>] init+0x0/0x17c
+ [<c0106e5d>] kernel_thread_helper+0x5/0xc
 
+bad: scheduling while atomic!
+Call Trace:
+ [<c0112ab1>] do_schedule+0x3d/0x2f4
+ [<c0112fb5>] wait_for_completion+0x8d/0xd0
+ [<c0112dac>] default_wake_function+0x0/0x1c
+ [<c0112dac>] default_wake_function+0x0/0x1c
+ [<c010508e>] init+0x2a/0x17c
+ [<c0105064>] init+0x0/0x17c
+ [<c0106e5d>] kernel_thread_helper+0x5/0xc
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="via-rhine-1.16rc-01_trivial.diff"
+bad: scheduling while atomic!
+Call Trace:
+ [<c0112ab1>] do_schedule+0x3d/0x2f4
+ [<c0112fb5>] wait_for_completion+0x8d/0xd0
+ [<c0112dac>] default_wake_function+0x0/0x1c
+ [<c0112dac>] default_wake_function+0x0/0x1c
+ [<c010508e>] init+0x2a/0x17c
+ [<c0105064>] init+0x0/0x17c
+ [<c0106e5d>] kernel_thread_helper+0x5/0xc
 
---- 00_2.5.61/drivers/net/via-rhine.c	Sat Feb 15 10:42:53 2003
-+++ 01_trivial/drivers/net/via-rhine.c	Fri Feb 14 18:09:48 2003
-@@ -425,20 +425,6 @@ enum intr_status_bits {
- 	IntrNormalSummary=0x0003, IntrAbnormalSummary=0xC260,
- };
- 
--/* MII interface, status flags.
--   Not to be confused with the MIIStatus register ... */
--enum mii_status_bits {
--	MIICap100T4			= 0x8000,
--	MIICap10100HdFd		= 0x7800,
--	MIIPreambleSupr		= 0x0040,
--	MIIAutoNegCompleted	= 0x0020,
--	MIIRemoteFault		= 0x0010,
--	MIICapAutoNeg		= 0x0008,
--	MIILink				= 0x0004,
--	MIIJabber			= 0x0002,
--	MIIExtended			= 0x0001
--};
--
- /* The Rx and Tx buffer descriptors. */
- struct rx_desc {
- 	s32 rx_status;
-@@ -533,8 +519,6 @@ static void via_rhine_set_rx_mode(struct
- static struct net_device_stats *via_rhine_get_stats(struct net_device *dev);
- static int netdev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
- static int  via_rhine_close(struct net_device *dev);
--static inline void clear_tally_counters(long ioaddr);
--static inline void via_restart_tx(struct net_device *dev);
- 
- static void wait_for_reset(struct net_device *dev, int chip_id, char *name)
- {
-@@ -797,7 +781,7 @@ static int __devinit via_rhine_init_one 
- 					   mdio_read(dev, phy, 5));
- 
- 				/* set IFF_RUNNING */
--				if (mii_status & MIILink)
-+				if (mii_status & BMSR_LSTATUS)
- 					netif_carrier_on(dev);
- 				else
- 					netif_carrier_off(dev);
-@@ -1175,8 +1159,8 @@ static void via_rhine_timer(unsigned lon
- 
- 	/* make IFF_RUNNING follow the MII status bit "Link established" */
- 	mii_status = mdio_read(dev, np->phys[0], MII_BMSR);
--	if ( (mii_status & MIILink) != (np->mii_status & MIILink) ) {
--		if (mii_status & MIILink)
-+	if ( (mii_status & BMSR_LSTATUS) != (np->mii_status & BMSR_LSTATUS) ) {
-+		if (mii_status & BMSR_LSTATUS)
- 			netif_carrier_on(dev);
- 		else
- 			netif_carrier_off(dev);
-@@ -1414,8 +1398,8 @@ static void via_rhine_rx(struct net_devi
- 	int boguscnt = np->dirty_rx + RX_RING_SIZE - np->cur_rx;
- 
- 	if (debug > 4) {
--		printk(KERN_DEBUG " In via_rhine_rx(), entry %d status %8.8x.\n",
--			   entry, le32_to_cpu(np->rx_head_desc->rx_status));
-+		printk(KERN_DEBUG "%s: via_rhine_rx(), entry %d status %8.8x.\n",
-+			   dev->name, entry, le32_to_cpu(np->rx_head_desc->rx_status));
- 	}
- 
- 	/* If EOP is set on the next entry, it's a new packet. Send it up. */
-@@ -1521,7 +1505,18 @@ static void via_rhine_rx(struct net_devi
- 	writew(CmdRxDemand | np->chip_cmd, dev->base_addr + ChipCmd);
- }
- 
--static inline void via_restart_tx(struct net_device *dev) {
-+/* Clears the "tally counters" for CRC errors and missed frames(?).
-+   It has been reported that some chips need a write of 0 to clear
-+   these, for others the counters are set to 1 when written to and
-+   instead cleared when read. So we clear them both ways ... */
-+static inline void clear_tally_counters(const long ioaddr)
-+{
-+	writel(0, ioaddr + RxMissed);
-+	readw(ioaddr + RxCRCErrs);
-+	readw(ioaddr + RxMissed);
-+}
-+
-+static inline void via_rhine_restart_tx(struct net_device *dev) {
- 	struct netdev_private *np = dev->priv;
- 	int entry = np->dirty_tx % TX_RING_SIZE;
- 
-@@ -1561,7 +1556,7 @@ static void via_rhine_error(struct net_d
- 		if (debug > 1)
- 			printk(KERN_INFO "%s: Abort %4.4x, frame dropped.\n",
- 				   dev->name, intr_status);
--		via_restart_tx(dev);
-+		via_rhine_restart_tx(dev);
- 	}
- 	if (intr_status & IntrTxUnderrun) {
- 		if (np->tx_thresh < 0xE0)
-@@ -1570,7 +1565,7 @@ static void via_rhine_error(struct net_d
- 			printk(KERN_INFO "%s: Transmitter underrun, Tx "
- 				   "threshold now %2.2x.\n",
- 				   dev->name, np->tx_thresh);
--		via_restart_tx(dev);
-+		via_rhine_restart_tx(dev);
- 	}
- 	if (intr_status & ~( IntrLinkChange | IntrStatsMax |
-  						 IntrTxError | IntrTxAborted | IntrNormalSummary)) {
-@@ -1599,17 +1594,6 @@ static struct net_device_stats *via_rhin
- 	return &np->stats;
- }
- 
--/* Clears the "tally counters" for CRC errors and missed frames(?).
--   It has been reported that some chips need a write of 0 to clear
--   these, for others the counters are set to 1 when written to and
--   instead cleared when read. So we clear them both ways ... */
--static inline void clear_tally_counters(const long ioaddr)
--{
--	writel(0, ioaddr + RxMissed);
--	readw(ioaddr + RxCRCErrs);
--	readw(ioaddr + RxMissed);
--}
--
- static void via_rhine_set_rx_mode(struct net_device *dev)
- {
- 	struct netdev_private *np = dev->priv;
+SGI XFS for Linux 2.5.61-mm1 with no debug enabled
+bad: scheduling while atomic!
+Call Trace:
+ [<c0112ab1>] do_schedule+0x3d/0x2f4
+ [<c0112fb5>] wait_for_completion+0x8d/0xd0
+ [<c0112dac>] default_wake_function+0x0/0x1c
+ [<c0112dac>] default_wake_function+0x0/0x1c
+ [<c0122219>] create_workqueue+0x125/0x178
+ [<c021711f>] pagebuf_daemon_start+0xb/0x4c
+ [<c0161a4a>] create_proc_entry+0x9a/0xb4
+ [<c0151d2b>] register_filesystem+0x3b/0x70
+ [<c010508e>] init+0x2a/0x17c
+ [<c0105064>] init+0x0/0x17c
+ [<c0106e5d>] kernel_thread_helper+0x5/0xc
 
---sdtB3X0nJg68CQEu--
+Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing enabled
+tts/0 at I/O 0x3f8 (irq = 4) is a 16550A
+tts/1 at I/O 0x2f8 (irq = 3) is a 16550A
+pty: 256 Unix98 ptys configured
+Real Time Clock Driver v1.11
+Non-volatile memory driver v1.2
+using deadline elevator
+Intel(R) PRO/100 Network Driver - version 2.1.29-k4
+Copyright (c) 2002 Intel Corporation
+
+PCI: Found IRQ 11 for device 00:04.0
+bad: scheduling while atomic!
+Call Trace:
+ [<c0112ab1>] do_schedule+0x3d/0x2f4
+ [<c011b977>] add_timer+0x11b/0x120
+ [<c011c4e8>] schedule_timeout+0x84/0xac
+ [<c011c458>] process_timeout+0x0/0xc
+ [<c024e944>] e100_selftest+0x58/0xb0
+ [<c02297d9>] pci_device_probe+0x41/0x5c
+ [<c02302b3>] bus_match+0x37/0x60
+ [<c0230374>] driver_attach+0x3c/0x5c
+ [<c0230602>] bus_add_driver+0xa6/0xd8
+ [<c023093c>] driver_register+0x34/0x38
+ [<c02298d2>] pci_register_driver+0x42/0x54
+ [<c010508e>] init+0x2a/0x17c
+ [<c0105064>] init+0x0/0x17c
+ [<c0106e5d>] kernel_thread_helper+0x5/0xc
+
+bad: scheduling while atomic!
+Call Trace:
+ [<c0112ab1>] do_schedule+0x3d/0x2f4
+ [<c011b977>] add_timer+0x11b/0x120
+ [<c011c4e8>] schedule_timeout+0x84/0xac
+ [<c011c458>] process_timeout+0x0/0xc
+ [<c02297d9>] pci_device_probe+0x41/0x5c
+ [<c02302b3>] bus_match+0x37/0x60
+ [<c0230374>] driver_attach+0x3c/0x5c
+ [<c0230602>] bus_add_driver+0xa6/0xd8
+ [<c023093c>] driver_register+0x34/0x38
+ [<c02298d2>] pci_register_driver+0x42/0x54
+ [<c010508e>] init+0x2a/0x17c
+ [<c0105064>] init+0x0/0x17c
+ [<c0106e5d>] kernel_thread_helper+0x5/0xc
+
+Freeing alive device c13a6000, eth%d
+alloc_skb called nonatomically from interrupt c027a74c
+------------[ cut here ]------------
+kernel BUG at net/core/skbuff.c:178!
+invalid operand: 0000
+CPU:    0
+EIP:    0060:[<c0271823>]    Not tainted
+EFLAGS: 00010246
+EIP is at alloc_skb+0x43/0x1a4
+eax: 0000003a   ebx: c038adc0   ecx: c02f5308   edx: 00000296
+esi: c13a6000   edi: 000000d0   ebp: c13a6000   esp: c129feac
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 1, threadinfo=c129e000 task=c129c040)
+Stack: c02ea8c0 c027a74c c038adc0 c13a6000 00000005 c027a74c 00000f60 000000d0
+       c038adc0 c027abfe 00000010 c13a6000 ffffffff c011f9fa c038adc0 00000005
+       c13a6000 c129e000 c03888e1 c0388908 c0276470 c04111c4 00000005 c13a6000
+Call Trace:
+ [<c027a74c>] rtmsg_ifinfo+0x10/0x78
+ [<c027a74c>] rtmsg_ifinfo+0x10/0x78
+ [<c027abfe>] rtnetlink_event+0x36/0x3c
+ [<c011f9fa>] notifier_call_chain+0x1e/0x38
+ [<c0276470>] register_netdevice+0x168/0x174
+ [<c0255c0e>] register_netdev+0x5e/0x70
+ [<c02297d9>] pci_device_probe+0x41/0x5c
+ [<c02302b3>] bus_match+0x37/0x60
+ [<c0230374>] driver_attach+0x3c/0x5c
+ [<c0230602>] bus_add_driver+0xa6/0xd8
+ [<c023093c>] driver_register+0x34/0x38
+ [<c02298d2>] pci_register_driver+0x42/0x54
+ [<c010508e>] init+0x2a/0x17c
+ [<c0105064>] init+0x0/0x17c
+ [<c0106e5d>] kernel_thread_helper+0x5/0xc
+
+Code: 0f 0b b2 00 63 a8 2e c0 83 c4 08 83 e7 ef 31 c0 9c 59 fa be
+ <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
+
+Con

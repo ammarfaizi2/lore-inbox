@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVAESa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262541AbVAESap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262539AbVAESa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 13:30:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVAESa1
+	id S262541AbVAESap (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 13:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVAESap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 13:30:27 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:65174 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262539AbVAESaR
+	Wed, 5 Jan 2005 13:30:45 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:47509 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262541AbVAESab
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 13:30:17 -0500
-Message-ID: <41DC324F.5040009@tmr.com>
-Date: Wed, 05 Jan 2005 13:30:39 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Willy Tarreau <willy@w.ods.org>, Thomas Graf <tgraf@suug.ch>,
-       "Theodore Ts'o" <tytso@mit.edu>, Adrian Bunk <bunk@stusta.de>,
-       Diego Calleja <diegocg@teleline.es>, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-References: <41DB2BF3.2010103@tmr.com><41DB2BF3.2010103@tmr.com> <20050105000942.GA7961@holomorphy.com>
-In-Reply-To: <20050105000942.GA7961@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Jan 2005 13:30:31 -0500
+Date: Wed, 5 Jan 2005 10:30:07 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] rcu: eliminate rcu_data.last_qsctr
+Message-ID: <20050105183007.GA1272@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <41AA0D5F.21CB9ED3@tv-sign.ru> <41D2CF3B.4040304@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41D2CF3B.4040304@colorfullife.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Tue, Jan 04, 2005 at 06:51:15PM -0500, Bill Davidsen wrote:
+On Wed, Dec 29, 2004 at 04:37:31PM +0100, Manfred Spraul wrote:
+> Oleg Nesterov wrote:
 > 
->>I expect this to be ignored or disparaged like all other suggestions 
->>that anything resembling stability is needed.
+> >last_qsctr is used in rcu_check_quiescent_state() exclusively.
+> >We can reset qsctr at the start of the grace period, and then
+> >just test qsctr against 0.
+> >
+> > 
+> >
+> It seems the patch got lost, I've updated it a bit and resent it to Andrew.
 > 
+> But: I think there is the potential for an even larger cleanup, although 
+> this would be more a rewrite:
+> Get rid of rcu_check_quiescent_state and instead use something like this 
+> in rcu_qsctr_inc:
 > 
-> No one is claiming stability is not needed. We are only debating the
-> best way to go about accomplishing it.
+> static inline void rcu_qsctr_inc(int cpu)
+> {
+>        struct rcu_data *rdp = &per_cpu(rcu_data, cpu);
+>        if (rdp->quiescbatch != rcp->cur) {
+>             /* a new grace period is running. And we are at a quiescent
+>              * point, so complete it
+>              */
+>             spin_lock(&rsp->lock);
+>             rdp->quiescbatch = rcp->cur;
+>             cpu_quiet(rdp->cpu, rcp, rsp);
+>            spin_unlock(&rsp->lock);
+>     }
+> }
+> 
+> It's just an idea, it needs testing on big systems - does reading from 
+> the global rcp from every schedule call cause any problems? The cache 
+> line is virtually read-only, so it shouldn't cause trashing, but who knows?
 
-You fooled me, most of what I hear from developers sounds like "it's 
-working fine" to me. Linus made it this way, he wants it this way, and 
-if Alan Cox saying it isn't working well doesn't convince him, nothing 
-users say is going to matter.
+Hello, Manfred,
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+The main concern I have with this is not cache thrashing of rcp->cur,
+but shrinking the grace periods on large systems, which can result in
+extra overhead per callback, since the shorter grace periods will tend
+to have fewer callbacks.  We saw this problem on some of the early
+RCU-infrastructure patches.
+
+Another approach would be to conditionally compile the two versions,
+though that might make the code more complex.
+
+						Thanx, Paul

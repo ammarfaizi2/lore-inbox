@@ -1,85 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263537AbTJVLOg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 07:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263538AbTJVLOg
+	id S263564AbTJVLQN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 07:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbTJVLQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 07:14:36 -0400
-Received: from 24-216-47-96.charter.com ([24.216.47.96]:50828 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S263537AbTJVLO1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 07:14:27 -0400
-Date: Wed, 22 Oct 2003 07:14:27 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test8, oops, [__remove_from_page_cache+36/112] __remove_from_page_cache+0x24/0x70
-Message-ID: <20031022111427.GL2617@rdlg.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031022084413.GA2773@finwe.eu.org> <20031022085611.GA1848@finwe.eu.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="p7S+EREVcBHk3zUG"
-Content-Disposition: inline
-In-Reply-To: <20031022085611.GA1848@finwe.eu.org>
-User-Agent: Mutt/1.5.4i
+	Wed, 22 Oct 2003 07:16:13 -0400
+Received: from dwdmx2.dwd.de ([141.38.3.197]:43390 "HELO dwdmx2.dwd.de")
+	by vger.kernel.org with SMTP id S263564AbTJVLOv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 07:14:51 -0400
+Date: Wed, 22 Oct 2003 11:14:47 +0000 (GMT)
+From: Holger Kiehl <Holger.Kiehl@dwd.de>
+X-X-Sender: kiehl@praktifix.dwd.de
+To: "David S. Miller" <davem@redhat.com>
+cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Finding memory leak
+In-Reply-To: <20031019212316.58e64378.davem@redhat.com>
+Message-Id: <Pine.LNX.4.44.0310221058520.7238-100000@praktifix.dwd.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 19 Oct 2003, David S. Miller wrote:
 
---p7S+EREVcBHk3zUG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Sat, 18 Oct 2003 19:59:12 +0200
+> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+> 
+> > Andrew, DaveM, can this go into -test9?
+> 
+> Please have a look at current sources before asking questions
+> like this ok? :-)
+> 
+But what about 2.4.22? I am having a leak there, my size-2048 value
+is always going up. As mentioned earlier this seems to happen
+everytime igmpv3_newpack() gets called and allocates 1529 bytes.
 
+I took igmpv3_newpack() from 2.6.0-test8, had to made some changes
 
+        {
+                struct rt_key key = {};
 
-This sounds like what mine was doing, the oops looked similar as well
-(with the null pointer part atleast).  Reboot and I bet it'll run fine
-for a while and then start up again.  For me it seemed to start faulting
-when "free" showed over 250 Megs used.
+                key.dst = IGMPV3_ALL_MCR;
+                key.oif = dev->ifindex;
+                if (ip_route_output_key(&rt, &key)) {
+                        kfree_skb(skb);
+                        return 0;
+                }
+        }
 
+since there is no struct flowi in 2.4.x. Don't know if the above is
+correct, but the leak is still there.
 
-Thus spake Jacek Kawa (jfk@zeus.polsl.gliwice.pl):
+The size-2048 values always go up when we receive data via a DVB card from
+multiple multicast streams. Depending on the amount of memory the system
+has, they always hangup after a certain time.
 
-> Jak podaj? anonimowe ?r?d?a, przepowiedziano, ?e Jacek Kawa napisze:
->=20
-> > This machine has new RAM, but after about 7 hours of testing,=20
-> > memtest.86 didn't show any errors...=20
->=20
-> Well, it's RAM anyway... I've just got few segfaults in vim...
->=20
-> bye
->=20
-> --=20
-> Jacek Kawa
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+What else can I do find the leak?
 
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
+Please help.
 
-Life is not a destination, it's a journey.
-  Microsoft produces 15 car pileups on the highway.
-    Don't stop traffic to stand and gawk at the tragedy.
+Thanks,
+Holger
 
---p7S+EREVcBHk3zUG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/lmaT8+1vMONE2jsRAiyMAKCwfCux8EJNeIz6KdvhYIsvmjRh4QCgzw2R
-nFOkKuZbjikzvovIFGhztKE=
-=ywmq
------END PGP SIGNATURE-----
-
---p7S+EREVcBHk3zUG--

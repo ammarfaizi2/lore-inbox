@@ -1,162 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130235AbRCBCHK>; Thu, 1 Mar 2001 21:07:10 -0500
+	id <S130278AbRCBCKa>; Thu, 1 Mar 2001 21:10:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130265AbRCBCGv>; Thu, 1 Mar 2001 21:06:51 -0500
-Received: from PO10.ANDREW.CMU.EDU ([128.2.10.110]:40064 "EHLO
-	po10.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id <S130235AbRCBCGi>; Thu, 1 Mar 2001 21:06:38 -0500
-Message-ID: <subjzA1z0001Q6c7QE@andrew.cmu.edu>
-Date: Thu,  1 Mar 2001 21:05:00 -0500 (EST)
-From: Chaskiel M Grundman <cg2v+@andrew.cmu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: APIC error on CPU0 (UP APIC kernel)
+	id <S130277AbRCBCKL>; Thu, 1 Mar 2001 21:10:11 -0500
+Received: from jalon.able.es ([212.97.163.2]:46253 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S130265AbRCBCJ6>;
+	Thu, 1 Mar 2001 21:09:58 -0500
+Date: Fri, 2 Mar 2001 03:09:46 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.2ac8 lost char devices
+Message-ID: <20010302030946.A2631@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have some single-processr Dell Poweredge 2450 servers that I'm trying
-to move to 2.4. They have been running 2.2 SMP kernels for a while with
-no problem (to take advantage of the supposed benefit of using the
-ioapic). 
+Hi,
 
-2.4 SMP kernels seem to work fine, but using a 2.4.1 or 2.4.2 UP kernel
-with CONFIG_X86_UP_IOAPIC does not. At some point before the real root
-filesystem is mounted, the system begins spewing 
+Well, somethig has broken in ac8, because I lost my PS/2 mouse and
+(less important, but perhaps it is useful) the microcode driver. So
+I think it something common to both.
 
-APIC error on CPU0: 08(08)
+The onle diff in dmesg from ac7 to ac8 is just the errors:
 
-at a high rate and eventually either locks up, or is killed by the
-watchdog nmi (at which point control-alt-delete _works_)
+1c1
+< Linux version 2.4.2-ac7 (root@werewolf.able.es) (gcc version 2.96 20000731
+(Linux-Mandrake 8.0)) #1 SMP Fri Mar 2 02:36:23 CET 2001
+---
+> Linux version 2.4.2-ac8 (root@werewolf.able.es) (gcc version 2.96 20000731
+(Linux-Mandrake 8.0)) #1 SMP Fri Mar 2 01:17:50 CET 2001
+82c82
+< Detected 400.917 MHz processor.
+---
+> Detected 400.914 MHz processor.
+232,237c232,237
+< ..... CPU clock speed is 400.8934 MHz.
+< ..... host bus clock speed is 100.2232 MHz.
+< cpu: 0, clocks: 1002232, slice: 334077
+< CPU0<T0:1002224,T1:668144,D:3,S:334077,C:1002232>
+< cpu: 1, clocks: 1002232, slice: 334077
+< CPU1<T0:1002224,T1:334064,D:6,S:334077,C:1002232>
+---
+> ..... CPU clock speed is 400.8944 MHz.
+> ..... host bus clock speed is 100.2233 MHz.
+> cpu: 0, clocks: 1002233, slice: 334077
+> CPU0<T0:1002224,T1:668144,D:3,S:334077,C:1002233>
+> cpu: 1, clocks: 1002233, slice: 334077
+> CPU1<T0:1002224,T1:334064,D:6,S:334077,C:1002233>
+245c245,246
+< IA-32 Microcode Update Driver: v1.08 <tigran@veritas.com>
+---
+> microcode: can't misc_register on minor=184
+> microcode: failed to devfs_register()
 
-2450's use a serverworks chipset. I don't know what other information
-might be useful... 
+What is microcode doing with devfs ? I have not configured devfs...
 
-Here's an excerpt of the SMP 2.4.2 dmesg output, in case it's of any use:
+--
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
-ENABLING IO-APIC IRQs
-...changing IO-APIC physical APIC ID to 1 ... ok.
-...changing IO-APIC physical APIC ID to 2 ... ok.
-Synchronizing Arb IDs.
-init IO_APIC IRQs
- IO-APIC (apicid-pin) 1-0, 1-2, 1-3, 1-5, 1-10, 1-11, 1-13, 2-3, 2-8,
-2-9, 2-10,
- 2-11, 2-12, 2-13 not connected.
-..TIMER: vector=49 pin1=-1 pin2=0
-...trying to set up timer (IRQ0) through the 8259..... (found pin 0) ...works.
-activating NMI Watchdog ... done.
-number of MP IRQ sources: 27.
-number of IO-APIC #1 registers: 16.
-number of IO-APIC #2 registers: 16.
-testing the IO APIC.......................
-
-IO APIC #1......
-.... register #00: 01000000
-.......    : physical APIC id: 01
-.... register #01: 000F0011
-.......     : max redirection entries: 000F
-.......     : IO APIC version: 0011
-.... register #02: 00000000
-.......     : arbitration: 00
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 001 01  0    0    0   0   0    1    1    31
- 01 001 01  0    0    0   0   0    1    1    39
- 02 000 00  1    0    0   0   0    0    0    00
- 03 000 00  1    0    0   0   0    0    0    00
- 04 001 01  0    0    0   0   0    1    1    41
- 05 000 00  1    0    0   0   0    0    0    00
- 06 001 01  0    0    0   0   0    1    1    49
- 07 001 01  0    0    0   0   0    1    1    51
- 08 001 01  0    0    0   0   0    1    1    59
- 09 001 01  0    0    0   0   0    1    1    61
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 001 01  0    0    0   0   0    1    1    69
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 001 01  0    0    0   0   0    1    1    71
- 0f 001 01  0    0    0   0   0    1    1    79
-IO APIC #2......
-.... register #00: 02000000
-.......    : physical APIC id: 02
-.... register #01: 000F0011
-.......     : max redirection entries: 000F
-.......     : IO APIC version: 0011
-.... register #02: 02000000
-.......     : arbitration: 02
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 001 01  1    1    0   1   0    1    1    81
- 01 001 01  1    1    0   1   0    1    1    89
- 02 001 01  1    1    0   1   0    1    1    91
- 03 000 00  1    0    0   0   0    0    0    00
- 04 001 01  1    1    0   1   0    1    1    99
- 05 001 01  1    1    0   1   0    1    1    A1
- 06 001 01  1    1    0   1   0    1    1    A9
- 07 001 01  1    1    0   1   0    1    1    B1
- 08 000 00  1    0    0   0   0    0    0    00
- 09 000 00  1    0    0   0   0    0    0    00
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 000 00  1    0    0   0   0    0    0    00
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 001 01  1    1    0   1   0    1    1    B9
- 0f 001 01  1    1    0   1   0    1    1    C1
-IRQ to pin mappings:
-IRQ1 -> 1
-IRQ4 -> 4
-IRQ6 -> 6
-IRQ7 -> 7
-IRQ8 -> 8
-IRQ9 -> 9
-IRQ12 -> 12
-IRQ14 -> 14
-IRQ15 -> 15
-IRQ16 -> 0
-IRQ17 -> 1
-IRQ18 -> 2
-IRQ20 -> 4
-IRQ21 -> 5
-IRQ22 -> 6
-IRQ23 -> 7
-IRQ30 -> 14
-IRQ31 -> 15
-.................................... done.
-calibrating APIC timer ...
-..... CPU clock speed is 731.0440 MHz.
-..... host bus clock speed is 132.9169 MHz.
-cpu: 0, clocks: 1329169, slice: 664584
-CPU0<T0:1329168,T1:664576,D:8,S:664584,C:1329169>
-Setting commenced=1, go go go
-PCI: PCI BIOS revision 2.10 entry at 0xfc79e, last bus=3
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-PCI: ServerWorks host bridge: last bus ff
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 1: assuming transparent
-Unknown bridge resource 2: assuming transparent
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 1: assuming transparent
-Unknown bridge resource 2: assuming transparent
-PCI: Discovered primary peer bus 02 [IRQ]
-PCI: Using IRQ router ServerWorks [1166/0200] at 00:0f.0
-PCI->APIC IRQ transform: (B0,I2,P0) -> 20
-PCI->APIC IRQ transform: (B0,I8,P0) -> 22
-PCI->APIC IRQ transform: (B2,I8,P0) -> 16
-[...]
-ServerWorks OSB4: IDE controller on PCI bus 00 dev 79
-ServerWorks OSB4: chipset revision 0
-ServerWorks OSB4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0x08b0-0x08b7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0x08b8-0x08bf, BIOS settings: hdc:pio, hdd:pio
-hda: TOSHIBA CD-ROM XM-7002B, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-[...]
-VFS: Mounted root (ext2 filesystem).
-SCSI subsystem driver Revision: 1.00
-kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2
-megaraid: v107 (December 22, 1999)
-megaraid: found 0x8086:0x1960: in 00:02.1
-scsi0 : Found a MegaRAID controller at 0xf8820000, IRQ: 20
-megaraid: [1.01:1p00] detected 1 logical drives
-[..]
+Linux werewolf 2.4.2-ac7 #1 SMP Fri Mar 2 02:36:23 CET 2001 i686
 

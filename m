@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbUDUVu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbUDUVwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbUDUVu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 17:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUDUVu5
+	id S261735AbUDUVwf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 17:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUDUVwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 17:50:57 -0400
-Received: from main.gmane.org ([80.91.224.249]:18859 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261425AbUDUVuz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 17:50:55 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Marcos B <marcosnospam@free.fr>
-Subject: atkbd.c help !
-Date: Wed, 21 Apr 2004 23:49:44 +0200
-Message-ID: <c66q9j$jvs$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: montreuil-4-82-66-118-57.fbx.proxad.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20040312 Debian/1.4.1-0jds1
-X-Accept-Language: en
+	Wed, 21 Apr 2004 17:52:34 -0400
+Received: from fed1rmmtao01.cox.net ([68.230.241.38]:8106 "EHLO
+	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S261735AbUDUVwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 17:52:32 -0400
+To: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The missing RAID level
+References: <045P8FJ12@server5.heliogroup.fr>
+From: Junio C Hamano <junkio@cox.net>
+Date: Wed, 21 Apr 2004 14:52:30 -0700
+In-Reply-To: <fa.eu3v38b.10meq3@ifi.uio.no> (Hubert Tonneau's message of
+ "Tue, 20 Apr 2004 22:18:29 GMT")
+Message-ID: <7v4qrddmn5.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>>>>> "HT" == Hubert Tonneau <hubert.tonneau@fullpliant.org> writes:
 
-I cannot run X.
+HT> So, one very interesting possibility would be to have an
+HT> extra RAID level that would do the following:
 
-after startx, I have this message in dmesg:
+HT> assuming that you connect 5+1 partitions, then you get 5 md
+HT> partitions, not a single one, with the following properties:
 
-atkbd.c: unknown key released (transalted set 2, code 0x7a on 
-isa00060/serio0).
-atbkd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+HT> . any read to mdX goes straight forward to reading the
+HT> underlying partition.
 
-Anyone knows if it is actually a XFree86 bug ?
-And how to fix it ?
+HT> . any write goes staight forward to writting the underlying
+HT> partition, but also updates the parity on the extra
+HT> partition.
 
-/var/log/XFree86.0.log gives me no error.
-
-I've googled around and it seems that many people have this message, but 
-they can start X. Not me !
-
-Please help ! I need my gnome !
-If it is not the right place to ask this question, please tell me where 
-I can get more information.
-
-Thanks
-
-I'm using Debian Sid, kernel 2.6.4, XFree86 4.3.0-7
+It seems to me that you can create a single RAID-4 device out of
+5 data and 1 parity disks, and run device mapper on top of that
+RAID-4 device, picking every 6 chunk worth of data and
+collecting into a device (totalling 6 devices).  The first 5
+such device mapper devices would end up with blocks from the
+underlying 5 data disks.  I do not know offhand if such a dm
+target already exists, though.
 
 

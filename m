@@ -1,75 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267181AbUBMT1p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 14:27:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267188AbUBMT1p
+	id S264358AbUBMTVS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 14:21:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbUBMTVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 14:27:45 -0500
-Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:56724 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S267181AbUBMT1l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 14:27:41 -0500
-Subject: Re: [BK PATCHES] 2.6.x libata update
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: akpm@osdl.org, torvalds@osdl.org,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040213184316.GA28871@gtf.org>
-References: <20040213184316.GA28871@gtf.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IYFQTDH1LG8Ogqw+5WAT"
-Message-Id: <1076700491.22542.38.camel@nosferatu.lan>
+	Fri, 13 Feb 2004 14:21:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7578 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267183AbUBMTVQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 14:21:16 -0500
+Date: Fri, 13 Feb 2004 11:21:00 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Tommi Virtanen <tv@tv.debian.net>, Greg KH <greg@kroah.com>
+Cc: Leann Ogasawara <ogasawara@osdl.org>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] propogate errors from misc_register to caller
+Message-Id: <20040213112100.4f42abc2@dell_ss3.pdx.osdl.net>
+In-Reply-To: <20040213102755.27cf4fcd.shemminger@osdl.org>
+References: <20040213102755.27cf4fcd.shemminger@osdl.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 13 Feb 2004 21:28:11 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch to check for / in class_device is not enough.
+The misc_register function needs to check return value of the things it calls!
 
---=-IYFQTDH1LG8Ogqw+5WAT
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, 2004-02-13 at 20:43, Jeff Garzik wrote:
-
-Hi
-
-> <jgarzik@redhat.com> (04/02/13 1.1634)
->    [libata] catch, and ack, spurious DMA interrupts
->   =20
->    Hardware issue on Intel ICH5 requires an additional ack sequence
->    over and above the normal IDE DMA interrupt ack requirements.  Issue
->    described in post to freebsd list:
->    http://www.mail-archive.com/freebsd-stable@freebsd.org/msg58421.html
->   =20
->    Since the bug workaround only requires a single additional PIO or
->    MMIO read in the interrupt handler, it is applied to all chipsets
->    using the standard libata interrupt handler.
->   =20
->    Credit for research the issue, creating the patch, and testing the
->    patch all go to Jon Burgess.
->=20
-
-Did you miss the mail I sent about this locking my box in under
-20-30 mins?  It still looks the same as the previous one ....
-
-
-Thanks,
-
---=20
-Martin Schlemmer
-
---=-IYFQTDH1LG8Ogqw+5WAT
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBALSVLqburzKaJYLYRAscOAJ9mu8cp1B+v/5tzsmY8z0e6VqzKggCfUEhf
-2Hcmy3jOyDVG2jRrXXkntRY=
-=Fzb2
------END PGP SIGNATURE-----
-
---=-IYFQTDH1LG8Ogqw+5WAT--
-
+diff -Nru a/drivers/char/misc.c b/drivers/char/misc.c
+--- a/drivers/char/misc.c	Fri Feb 13 11:15:29 2004
++++ b/drivers/char/misc.c	Fri Feb 13 11:15:29 2004
+@@ -212,6 +212,9 @@
+ int misc_register(struct miscdevice * misc)
+ {
+ 	struct miscdevice *c;
++	struct class_device *class;
++	dev_t dev;
++	int err;
+ 	
+ 	down(&misc_sem);
+ 	list_for_each_entry(c, &misc_list, list) {
+@@ -240,19 +243,30 @@
+ 		snprintf(misc->devfs_name, sizeof(misc->devfs_name),
+ 				"misc/%s", misc->name);
+ 	}
++	dev = MKDEV(MISC_MAJOR, misc->minor);
+ 
+-	class_simple_device_add(misc_class, MKDEV(MISC_MAJOR, misc->minor),
+-				misc->dev, misc->name);
+-	devfs_mk_cdev(MKDEV(MISC_MAJOR, misc->minor),
+-			S_IFCHR|S_IRUSR|S_IWUSR|S_IRGRP, misc->devfs_name);
++	class = class_simple_device_add(misc_class, dev,
++					misc->dev, misc->name);
++	if (IS_ERR(class)) {
++		err = PTR_ERR(class);
++		goto out;
++	}
++
++	err = devfs_mk_cdev(dev, S_IFCHR|S_IRUSR|S_IWUSR|S_IRGRP, 
++			    misc->devfs_name);
++	if (err) {
++		class_simple_device_remove(dev);
++		goto out;
++	}
+ 
+ 	/*
+ 	 * Add it to the front, so that later devices can "override"
+ 	 * earlier defaults
+ 	 */
+ 	list_add(&misc->list, &misc_list);
++ out:
+ 	up(&misc_sem);
+-	return 0;
++	return err;
+ }
+ 
+ /**

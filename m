@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266818AbRGOS03>; Sun, 15 Jul 2001 14:26:29 -0400
+	id <S266864AbRGOTc5>; Sun, 15 Jul 2001 15:32:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266822AbRGOS0K>; Sun, 15 Jul 2001 14:26:10 -0400
-Received: from [210.52.24.10] ([210.52.24.10]:45317 "HELO mx.linux.net.cn")
-	by vger.kernel.org with SMTP id <S266818AbRGOSZ5>;
-	Sun, 15 Jul 2001 14:25:57 -0400
-Date: Sun, 15 Jul 2001 11:25:45 +0800
-From: Fang Han <dfbb@linux.net.cn>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]Fix 2.4.7 Compile Error (From AC's patch)
-Message-ID: <20010715112545.A1455@dfbbb.us.mvd>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S266860AbRGOTci>; Sun, 15 Jul 2001 15:32:38 -0400
+Received: from mta8-svc.virgin.net ([62.253.164.48]:40891 "EHLO
+	mta8-svc.virgin.net") by vger.kernel.org with ESMTP
+	id <S266853AbRGOTcd>; Sun, 15 Jul 2001 15:32:33 -0400
+From: Glynn Clements <glynn.clements@virgin.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15185.60966.754883.694830@cerise.nosuchdomain.co.uk>
+Date: Sun, 15 Jul 2001 20:25:26 +0100
+To: "Michael H. Warfield" <mhw@wittsend.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+        Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org,
+        linux-admin@vger.kernel.org
+Subject: Re: ORBS blacklist is BROKEN (deliberately)...
+In-Reply-To: <20010715140723.C28197@alcove.wittsend.com>
+In-Reply-To: <10249.995101943@ocs3.ocs-net>
+	<E15LOMk-00018x-00@the-village.bc.nu>
+	<20010715140723.C28197@alcove.wittsend.com>
+X-Mailer: VM 6.92 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If choose PVR2_FB, It will have an error, Because that driver is for 
-Dreamcast. an SUPER_H arch.
 
-So I just get the right part from AC's patch.
+Michael H. Warfield wrote:
 
---- linux/drivers/video/Config.in.orig	Sun Jul 15 11:18:23 2001
-+++ linux/drivers/video/Config.in	Sun Jul 15 11:19:26 2001
-@@ -98,8 +98,10 @@
-          bool '    CGsix (GX,TurboGX) support' CONFIG_FB_CGSIX
-       fi
-    fi
--   tristate '  NEC PowerVR 2 display support' CONFIG_FB_PVR2
--   dep_bool '    Debug pvr2fb' CONFIG_FB_PVR2_DEBUG $CONFIG_FB_PVR2
-+   if [ "$CONFIG_SH_DREAMCAST" = "y" ]; then
-+      tristate '  NEC PowerVR 2 display support' CONFIG_FB_PVR2
-+      dep_bool '    Debug pvr2fb' CONFIG_FB_PVR2_DEBUG $CONFIG_FB_PVR2
-+   fi
-    bool '  Epson 1355 framebuffer support' CONFIG_FB_E1355
-    if [ "$CONFIG_FB_E1355" = "y" ]; then
-       hex '    Register Base Address' CONFIG_E1355_REG_BASE a8000000
+> > > http://www.e-scrub.com/orbs/ is the key.  "Ronald F. Guilmette"
+> > > <rfg@monkeys.com> sent this message to spam lists.  Anybody still using
+> > > ORBS for lookups can expect to get random mail bounces.
+> 
+> > Yeah he's decided to solve his load problem by committing an act of criminal
+> > fraud, computer misuse and a few other violations
+> 
+> 	I can't find any crimes or violations that he's commiting.
+> His ethics may suck, but his system is being used against his explicitly
+> stated wishes.
+
+Maybe you misunderstood who "he" refers to?
+
+I took it as referring to the Alan Brown (the ORBS maintainer), rather
+than to to Ron Guilmette (who doesn't want his DNS server to be used). 
+
+I know that isn't what a literal reading of the quote and Alan's reply
+suggests, but it seems to make more sense to me.
+
+Alan can you clarify this please? (I know that this isn't particularly
+on-topic, but now that it's been said ...).
+
+-- 
+Glynn Clements <glynn.clements@virgin.net>

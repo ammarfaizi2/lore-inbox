@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268547AbTBWVAW>; Sun, 23 Feb 2003 16:00:22 -0500
+	id <S268549AbTBWVDh>; Sun, 23 Feb 2003 16:03:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268564AbTBWVAW>; Sun, 23 Feb 2003 16:00:22 -0500
-Received: from [65.244.37.61] ([65.244.37.61]:7136 "EHLO WSPNYCON1IPC.ipc.com")
-	by vger.kernel.org with ESMTP id <S268547AbTBWVAW>;
-	Sun, 23 Feb 2003 16:00:22 -0500
-Message-ID: <170EBA504C3AD511A3FE00508BB89A9201C671F7@exnanycmbx4.ipc.com>
-From: "Downing, Thomas" <Thomas.Downing@ipc.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.5.62 "unable to open initial console"
-Date: Sun, 23 Feb 2003 16:11:33 -0500
+	id <S268564AbTBWVDh>; Sun, 23 Feb 2003 16:03:37 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:13828 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S268549AbTBWVDg>; Sun, 23 Feb 2003 16:03:36 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302232115.h1NLF9wo000201@81-2-122-30.bradfords.org.uk>
+Subject: Re: Minutes from Feb 21 LSE Call
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Sun, 23 Feb 2003 21:15:09 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b3b6oa$bsj$1@penguin.transmeta.com> from "Linus Torvalds" at Feb 23, 2003 07:17:30 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apologies of off-topic or screamingly idiotic or newbie :-)
+> >If I didn't know this mattered I wouldn't bother with the barfbags.
+> >I just wouldn't deal with it.
+> 
+> Why?
+> 
+> The x86 is a hell of a lot nicer than the ppc32, for example.  On the
+> x86, you get good performance and you can ignore the design mistakes (ie
+> segmentation) by just basically turning them off.
 
-Booting 2.5.62 results in no console.  Looking at syslog shows:
+I could be wrong, but I always thought that Sparc, and a lot of other
+architectures could mark arbitrary areas of memory, (such as the
+stack), as non-executable, whereas x86 only lets you have one
+non-executable segment.
 
-Warning: unable to open initial console
-
-I am not using devfs - /dev/console is there, char major 5, minor 1.
-
-Kernel was built without MDA or framebuffer support, without serial or
-parallel console, with CONFIG_VGA_CONSOLE 1 and CONFIG_DUMMY_CONSOLE 1.
-
-Problem has been present since at least 2.5.59.
-
-System runs normally if booted with 2.5.24.
+John.

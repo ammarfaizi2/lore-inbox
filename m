@@ -1,124 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132756AbRDXWRg>; Tue, 24 Apr 2001 18:17:36 -0400
+	id <S132859AbRDXWTQ>; Tue, 24 Apr 2001 18:19:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132859AbRDXWR3>; Tue, 24 Apr 2001 18:17:29 -0400
-Received: from mx.ma.nma.ne.jp ([61.125.128.21]:33192 "HELO mx.ma.nma.ne.jp")
-	by vger.kernel.org with SMTP id <S132756AbRDXWQp>;
-	Tue, 24 Apr 2001 18:16:45 -0400
-Message-ID: <3AE5FB1B.BFF09D8@ma.nma.ne.jp>
-Date: Wed, 25 Apr 2001 07:15:55 +0900
-From: Masaki Tsuji <jammasa@ma.nma.ne.jp>
-X-Mailer: Mozilla 4.75 [ja] (Windows NT 5.0; U)
-X-Accept-Language: ja
-MIME-Version: 1.0
+	id <S132892AbRDXWTH>; Tue, 24 Apr 2001 18:19:07 -0400
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:37892 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S132859AbRDXWSt>; Tue, 24 Apr 2001 18:18:49 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: Can't read SCSI TAPE
-In-Reply-To: <Pine.LNX.3.95.1010424123227.15270A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Subject: Compiled sound causes loss of scrollback console : 2.4.4-p6
+Reply-To: klink@clouddancer.com
+Message-Id: <20010424221843.7F6006808@mail.clouddancer.com>
+Date: Tue, 24 Apr 2001 15:18:43 -0700 (PDT)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dears,
+While tracking down a sound problem, I decided to compile in the
+soundblaster rather than use modules.  It's been a long time since I
+ran sound under linux, but that used to work fine.
 
-"Richard B. Johnson" wrote:
-> 
-> Hmmm...
-> 
-> Masaki Tsuji <jammasa@ma.nma.ne.jp>
->                       ^^^^^^^^^^^^ ____ This address
-> 
-> ... was the address that did the CA-2000-17 attack on one of
-> our machines a few weeks ago.
-> 
-> This is not an accusation, only an observation. You might
-> want to tell your network administrator. Sombody at your
-> site may be hacking systems.
+I watched the reboot, noticed the usual isapnp stuff (part of problem)
 
-We're very sorry!
+...
+PCI: Probing PCI hardware
+Limiting direct PCI/PCI transfers.
+Activating ISA DMA hang workarounds.
+isapnp: Scanning for PnP cards...
+isapnp: Calling quirk for 01:00
+isapnp: SB audio device quirk - increasing port range
+isapnp: Card 'Creative SB16 PnP'
+isapnp: 1 Plug & Play card detected total
+...
 
-Probabry it's 10th or 11th Apr, isn't it?
-I was attacked too, but from outside.
+and then noticed that there were no soundblaster messages and tried to
+scrollback to verify.  Pressing Shift-PageUp did absolutely nothing.
 
-I asked my network administrator about that on 13th Apr, and catched reason.
-They said that their network equipments had some probrems, and fixed it.
-
-
-> SCSI tape problems or your kind are usually caused by a different
-> tape compression being used during record and playback. You should
-> try to use `mt` to set the compression to something you like
-> before you record, and the same compression when you play back
-> the tape.
-
-I tried compression option, but It doesn't work well.
-
-I tried ...
-
-No.1
-# mt datcompression 1
-... write
-# mt datcompression 1
-... read
-
-No.2
-# mt datcompression 0
-... write
-# mt datcompression 1
-... read
-
-No.3
-# mt datcompression 1
-... write
-# mt datcompression 0
-... read
-
-No.4
-# mt datcompression 0
-... write
-# mt datcompression 0
-... read
-
-, but can't
-
-'datcompression' isn't correct option ?
-
-
-> You can use `cat` and `od` to read/write from a tape before you
-> waste a lot file time with `tar`. You can even do:
-> 
->                 ls >/dev/tape
->                  .... takes a lot of time..
-> 
->                 cat /dev/tape  # Read back.
-> 
-> Blocking/deblocking is done in the driver so you can treat it as
-> a "slow-to-start" FIFO.
-
-I tried, and got error message...
-
------------------------------------
-# ls >/dev/tape
-st0: Write not multiple of tape block size.   <----- ???
-ls: write error: Input/output error
-#
------------------------------------
-# cat /dev/tape
-[inclemental-] Tue Apr 24 03: ......          <----- looks like good!
-#
------------------------------------
-
-Something wrong?
-
-
-
-Thanks, for your help.
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Masaki Tsuji
+The only change was to move from modules to compiled for sound, OSS,
+and soundblaster.  Booting the previous kernel(s) showed a working
+scrollback.  2.4.4-pre6 compiled under gcc 2.95.3 20010315 release.

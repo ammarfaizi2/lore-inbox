@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265437AbUAPNDy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 08:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265465AbUAPNDy
+	id S265441AbUAPNPA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 08:15:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbUAPNPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 08:03:54 -0500
-Received: from p508EF605.dip.t-dialin.net ([80.142.246.5]:21382 "EHLO
-	oscar.local.net") by vger.kernel.org with ESMTP id S265437AbUAPNDw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 08:03:52 -0500
-Date: Fri, 16 Jan 2004 14:03:36 +0100
-From: Patrick Mau <mau@oscar.ping.de>
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Cc: Mike Fedyk <mfedyk@matchmail.com>
-Subject: Re: Fwd: Re: [2.6] nfs_rename: target $file busy, d_count=2
-Message-ID: <20040116130336.GA5220@oscar.prima.de>
-Reply-To: Patrick Mau <mau@oscar.ping.de>
-References: <20040116050642.GF1748@srv-lnx2600.matchmail.com>
+	Fri, 16 Jan 2004 08:15:00 -0500
+Received: from gprs214-224.eurotel.cz ([160.218.214.224]:896 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265441AbUAPNO7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 08:14:59 -0500
+Date: Fri, 16 Jan 2004 14:14:46 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Oliver Neukum <oliver@neukum.org>,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       David Brownell <david-b@pacbell.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       USB Developers <linux-usb-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] Re: USB hangs
+Message-ID: <20040116131446.GA874@elf.ucw.cz>
+References: <200401120937.19131.oliver@neukum.org> <Pine.LNX.4.44L0.0401121119540.1327-100000@ida.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040116050642.GF1748@srv-lnx2600.matchmail.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <Pine.LNX.4.44L0.0401121119540.1327-100000@ida.rowland.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 09:06:42PM -0800, Mike Fedyk wrote:
-> On Thu, Jan 15, 2004 at 04:54:57PM -0800, Mike Fedyk wrote:
-> > On Thu, Jan 15, 2004 at 04:03:46PM -0800, Mike Fedyk wrote:
-> > > Both client and server are running the same 2.6.1-bk2 kernel with TCP-NFS.
-> > > SMP, Highmem, & preempt.
-> > 
-> > I have four clients that are all having this problem also, three 2.6, and
-> > one 2.4 client.
-> > 
-> > Using TCP-NFS they all have stale nfs handles even after a reboot (only
-> > rebooted one to try with 2.4.23), but changed one to UDP-NFS, and it didn't
-> > have the stale handles.
-> > 
-> > Will do more testing with UDP-NFS.
+Hi!
+
+
+> > In 2.4 they all run in interrupt or thread context IIRC.
+> > Problematic is the SCSI error handling thread. It can call usb_reset_device()
+> > which calls down and does allocations.
+> > Does that thread also do the PF_MEMALLOC trick?
 > 
-> No, TCP and UDP NFS both get stale file handles. :(
+> In 2.4 it doesn't, which is rather surpising considering how many storage 
+> devices run over SCSI transports.
 > 
-> Can anyone reproduce?
+> In 2.6 it sets PF_IOTHREAD.  I don't know if that subsumes the function of 
+> PF_MEMALLOC or not.  The state of kerneldoc for much of the Linux core 
+> functionality is shocking.
 
-Hi,
-
-I was able to reproduce stale handles a long time ago.
-A workable solution for me was to export using 'no_subtree_check'
-on the server. Like this:
-
-/data \
-  tony.local.net(rw,sync,no_root_squash,no_subtree_check) \
-
-Could you please try and reply to my address if t works ?
-
-Thanks,
-Patrick
+PF_IOTHREAD is there for suspend/resume. It does not affect anything
+else.
+									Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

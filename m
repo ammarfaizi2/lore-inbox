@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318007AbSHaUKZ>; Sat, 31 Aug 2002 16:10:25 -0400
+	id <S317950AbSHaUgl>; Sat, 31 Aug 2002 16:36:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318013AbSHaUKZ>; Sat, 31 Aug 2002 16:10:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1552 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318007AbSHaUKY>;
-	Sat, 31 Aug 2002 16:10:24 -0400
-Message-ID: <3D712682.66E2D3B2@zip.com.au>
-Date: Sat, 31 Aug 2002 13:26:42 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Include LRU in page count
-References: <3D644C70.6D100EA5@zip.com.au> <E17kunE-0003IO-00@starship> <20020831161448.12564.qmail@thales.mathematik.uni-ulm.de> <E17lEDR-0004Qq-00@starship>
-Content-Type: text/plain; charset=us-ascii
+	id <S317980AbSHaUgl>; Sat, 31 Aug 2002 16:36:41 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:11509
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317950AbSHaUgk>; Sat, 31 Aug 2002 16:36:40 -0400
+Subject: Re: [patch 2.4.19] reboot on out-of-file handles
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020831201638.GG721@gallifrey>
+References: <20020831201638.GG721@gallifrey>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 31 Aug 2002 21:41:08 +0100
+Message-Id: <1030826468.3582.25.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> Manfred suggested an approach to de-racing this race using
-> atomic_dec_and_lock, which needs to be compared to the current approach.
+On Sat, 2002-08-31 at 21:16, Dr. David Alan Gilbert wrote:
+> Hi,
+>   Please find below a patch that adds the ability to panic if you run
+> out of file handles (by setting /proc/sys/fs/file-max-panic to none-0).
 
-Could simplify things, but not all architectures have an optimised
-version.  So ia64, mips, parisc and s390 would end up taking
-the lru lock on every page_cache_release.
+You can already do this reliably in user space as part of your watchdog
+daemon processing.
+
+

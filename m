@@ -1,93 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265063AbUAaTCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 14:02:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265081AbUAaTCZ
+	id S265083AbUAaTT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 14:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265149AbUAaTT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 14:02:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:35470 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265063AbUAaTCW (ORCPT
+	Sat, 31 Jan 2004 14:19:27 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:20878 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S265083AbUAaTTY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 14:02:22 -0500
-Date: Sat, 31 Jan 2004 11:02:15 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
+	Sat, 31 Jan 2004 14:19:24 -0500
+Date: Sat, 31 Jan 2004 20:19:23 +0100
+From: bert hubert <ahu@ds9a.nl>
 To: Matthias Urlichs <smurf@smurf.noris.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org, molnar@elte.hu, phil-list@redhat.com
 Subject: Re: BUG: NTPL: waitpid() doesn't return?
-In-Reply-To: <20040131104606.GA25534@kiste>
-Message-ID: <Pine.LNX.4.58.0401311052180.2105@home.osdl.org>
-References: <20040131104606.GA25534@kiste>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20040131191923.GA21333@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Matthias Urlichs <smurf@smurf.noris.de>,
+	linux-kernel@vger.kernel.org, molnar@elte.hu, phil-list@redhat.com
+References: <20040131104606.GA25534@kiste> <20040131153743.GA13834@outpost.ds9a.nl> <20040131155155.GA1504@kiste> <20040131161805.GA15941@outpost.ds9a.nl> <20040131181518.GB1815@kiste>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040131181518.GB1815@kiste>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Added Ingo & NPTL list]
+
+[Matthias reports that threads forking multiple programs and running waitpid
+ on them has problems] 
+
+On Sat, Jan 31, 2004 at 07:15:19PM +0100, Matthias Urlichs wrote:
+
+> > If they do not wait for a specific pid, the kernel is right. The kernel has
+> > no way of knowing which process a specific waitpid is waiting for otherwise!
+> > 
+> Please check my original mail again. The thread _is_ waiting for a
+> specific pid.
+
+I can't reproduce this with 2.6.1, can you check if this works as intended
+on your system? Should output:
+
+Thread 0 Launched pid 10967
+Thread 1 Launched pid 10971
+Thread 1 waitpid for 10971 returned for 10971, status: 1
+Thread 0 waitpid for 10967 returned for 10967, status: 3
+
+This is with NPTL 0.60 (Debian Unstable).
+
+./sleep program:
+
+#!/bin/sh
+sleep $1
+exit $1
+
+testcase.c:
+
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <stdlib.h>
+
+void unixDie(const char* what)
+{
+  perror(what);
+  exit(1);
+}
+int s_counter;
+void *func(void *p)
+{
+  pid_t pid;
+  int status;
+  int counter=s_counter++;
+
+  pid=fork();
+  if(pid<0)
+    unixDie("doing fork");
+  if(!pid) {
+    char *arguments[]={"./sleep","",0};
+    char str[10];
+    sprintf(str,"%d",(int)p);
+    arguments[1]=str;
+
+    if(execve(arguments[0],arguments,0))
+      unixDie("doing execve");
+  }
+  if(pid) {
+    pid_t ret;
+    printf("Thread %d Launched pid %d\n", counter, pid);
+    ret=waitpid(pid, &status, 0);
+    if(ret<0)
+      unixDie("waitpid");
+
+    printf("Thread %d waitpid for %d returned for %d, status: %d\n",counter, pid, ret, WEXITSTATUS(status));
+  }
+
+  return 0;
+}
 
 
-On Sat, 31 Jan 2004, Matthias Urlichs wrote:
->
-> This partial trace is from Debian's mini-dinstall, which is a
-> multithreaded Python script.
+int main(int argc, char **argv)
+{
+  pthread_t t1, t2;
+  pthread_create(&t1, 0, func,(void*)3);
+  sleep(1);
+  pthread_create(&t2, 0, func,(void*)1);
 
-Looks buggy.
+  pthread_join(t2,0);
+  pthread_join(t1,0);
+  return 0;
+}
 
-> What happens here is that it spawns a bunch of threads, then some of
-> these fork+execve external programs which they waitpid() for.
-> 
-> Unfortunately, some of these waitpid() calls don't return even though 
-> the waited-for process clearly has exited.
 
-"Clearly" is not correct. What I bet happens is:
-
-> 31339 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x4018e0c8) = 31340
-> 31340 clone(child_stack=0x42edbb48, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, parent_tidptr=0x42edbc18, {entry_number:6, base_addr:0x42edbbd0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}, child_tidptr=0x42edbc18) = 31345
-> 31342 clone( <unfinished ...>
-> 31342 <... clone resumed> child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x416dbc18) = 31346
-> 31346 execve("/usr/bin/apt-ftparchive", ["apt-ftparchive", "packages", "testing/all"], [/* 12 vars */] <unfinished ...>
-> 31346 <... execve resumed> )            = 0
-> 31346 exit_group(0)                     = ?
-> 31340 --- SIGCHLD (Child exited) @ 0 (0) ---
-> 31342 waitpid(31346,  <unfinished ...>
-
-Notice how you do "waitpid()" for a _specific_ thread when you get a 
-SIGCHLD.
-
-How the heck do you know _which_ thread it was that exited?
-
-In other words, I suspect that you got a SIGCHILD for some _other_ thread, 
-and now you're waitpid'ing for the wrong thread. And while you do so, the 
-thread you wait for may well be waiting for you to do something.
-
-Rule: never EVER wait for a specific thread in a SIGCHLD handler. When you 
-get a SIGCHLD, your signal handler should just wait for "any thread". 
-Because SIGCHLD isn't specific enough (well, you could get the pid from 
-siginfo, but because SIGCHLD isn't queued, that wouldn't really work 
-either).
-
-So your SIHCHLD handler should _always_ look like this:
-
-	for (;;) {
-		int status;
-		int pid = waitpid(NULL, &status, WNOHANG);
-		if (pid < 0)
-			break;
-		handle_exit(pid, status);
-	}
-
-and anything else is basically a bug in your program (well, your SIGCHLD 
-handler might choose to just set a flag, and let the main loop do the 
-above: that usually makes some races much simpler to handle, since the 
-signal handler really _really_ shouldn't be taking any threading locks or 
-anythign like that).
-
-> Any ideas?
-
-Fix your thing to use NULL and WNOHANG.
-
-> NB: When not using strace, the waidpid() call does return;
-> unfortunately, it does so with "[Errno 10] No child processes".
-
-Probably just timing changes where strace effectively serializes something
-(ie you probably have other threads that also get signals and do waitpid).
-
-		Linus
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

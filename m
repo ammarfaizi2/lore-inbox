@@ -1,34 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262300AbVCIMAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVCIMDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262300AbVCIMAH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 07:00:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVCIMAH
+	id S262340AbVCIMDk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 07:03:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVCIMDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 07:00:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:23458 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262300AbVCIMAE (ORCPT
+	Wed, 9 Mar 2005 07:03:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:24739 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262340AbVCIMDG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 07:00:04 -0500
+	Wed, 9 Mar 2005 07:03:06 -0500
 From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050309032832.159e58a4.akpm@osdl.org> 
-References: <20050309032832.159e58a4.akpm@osdl.org>  <20050308170107.231a145c.akpm@osdl.org> <1110327267.24286.139.camel@dyn318077bld.beaverton.ibm.com> <18744.1110364438@redhat.com> <20050309110404.GA4088@in.ibm.com> <1110366469.6280.84.camel@laptopd505.fenrus.org> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, suparna@in.ibm.com,
-       pbadari@us.ibm.com, linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: aio stress panic on 2.6.11-mm1 
+In-Reply-To: <1110367079.2294.8.camel@boxen> 
+References: <1110367079.2294.8.camel@boxen> 
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Alexander Nyberg <alexn@dsv.su.se>
+Subject: Race against parent deletion in key_user_lookup() 
 X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 09 Mar 2005 11:59:20 +0000
-Message-ID: <3318.1110369560@redhat.com>
+Date: Wed, 09 Mar 2005 12:02:49 +0000
+Message-ID: <3411.1110369769@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
 
-> spin_lock_irq() is OK for down_*(), since down() can call schedule() anyway.
-> 
-> spin_lock_irqsave() should be used in up_*() and I guess down_*_trylock(),
-> although the latter shouldn't need to go into the slowpath anyway.
+I looked at some of the oops reports against keyrings, I think the problem
+is that the search isn't restarted after dropping the key_user_lock,
+*p will still be NULL when we get back to try_again and look through the tree.
 
-That's what I've done. I'm just testing my changes.
+It looks like the intention was that the search start over from scratch.
 
-David
+Signed-off-by: Alexander Nyberg <alexn@dsv.su.se>
+Signed-Off-By: David Howells <dhowells@redhat.com>
+
+===== security/keys/key.c 1.5 vs edited =====
+--- 1.5/security/keys/key.c	2005-01-21 06:02:10 +01:00
++++ edited/security/keys/key.c	2005-03-09 12:04:54 +01:00
+@@ -57,9 +57,10 @@ struct key_user *key_user_lookup(uid_t u
+ {
+ 	struct key_user *candidate = NULL, *user;
+ 	struct rb_node *parent = NULL;
+-	struct rb_node **p = &key_user_tree.rb_node;
++	struct rb_node **p;
+ 
+  try_again:
++	p = &key_user_tree.rb_node;
+ 	spin_lock(&key_user_lock);
+ 
+ 	/* search the tree for a user record with a matching UID */
+
+

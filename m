@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271056AbUJVKhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271058AbUJVKjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271056AbUJVKhO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 06:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271058AbUJVKhO
+	id S271058AbUJVKjO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 06:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271060AbUJVKjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 06:37:14 -0400
-Received: from holomorphy.com ([207.189.100.168]:44993 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S271056AbUJVKhN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 06:37:13 -0400
-Date: Fri, 22 Oct 2004 03:37:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, raybry@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Hugepages demand paging V1 [2/4]: set_huge_pte() arch updates
-Message-ID: <20041022103708.GK17038@holomorphy.com>
-References: <B05667366EE6204181EABE9C1B1C0EB501F2ADFB@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410212151310.3524@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0410212156300.3524@schroedinger.engr.sgi.com>
+	Fri, 22 Oct 2004 06:39:14 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:1547 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S271058AbUJVKjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 06:39:11 -0400
+Date: Fri, 22 Oct 2004 11:39:10 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-mm1
+Message-ID: <20041022103910.GB17526@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20041022032039.730eb226.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410212156300.3524@schroedinger.engr.sgi.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 09:57:23PM -0700, Christoph Lameter wrote:
-> Changelog
-> 	* Update set_huge_pte throughout all arches
-> 	* set_huge_pte has an additional address argument
-> 	* set_huge_pte must also do what update_mmu_cache typically does
-> 	  for PAGESIZE ptes.
-> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+>   - reiser4: not sure, really.  The namespace extensions were disabled,
+>     although all the code for that is still present.  Linus's filesystem
+>     criterion used to be "once lots of people are using it, preferably when
+>     vendors are shipping it".  That's a bit of a chicken and egg thing though.
+>     Needs more discussion.
 
-What's described above is not what the patch implements. The patch is
-calling update_mmu_cache() in a loop on all the virtual base pages of a
-virtual hugepage, which won't help at all, as it doesn't understand how
-to find the hugepages regardless of virtual address. AFAICT code to
-actually do the equivalent of update_mmu_cache() on hugepages most
-likely involves privileged instructions and perhaps digging around some
-cpu-specific data structures (e.g. the natively architected pagetables
-bearing no resemblance to Linux') for almost every non-x86 architecture.
+Your tree also has various rejected core changes for it still.
 
+> +add-simple_alloc_dentry-to-libfs.patch
+> 
+>  Code refactoring
 
--- wli
+I think this should go into fs/dcache.c and be called something
+like d_alloc_name or similar.
+
+> +hfs-export-type-creator-via-xattr.patch
+
+I haven't heard an answer on the comments on this on on -fsdevel yet..
+
+> +make-__sigqueue_alloc-a-general-helper.patch
+> 
+>  posix timer code tweaks
+
+Any reason it's marked inline now?
+

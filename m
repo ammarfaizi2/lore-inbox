@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289809AbSBEVJX>; Tue, 5 Feb 2002 16:09:23 -0500
+	id <S289817AbSBEVOd>; Tue, 5 Feb 2002 16:14:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289813AbSBEVJN>; Tue, 5 Feb 2002 16:09:13 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:4052 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289809AbSBEVJI>;
-	Tue, 5 Feb 2002 16:09:08 -0500
-Date: Wed, 6 Feb 2002 00:06:47 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Kristian <kristian.peters@korseby.net>
-Cc: Brandon Low <lostlogic@lostlogicx.com>, <starfire@dplanet.ch>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: New scheduler in 2.4. series?
-In-Reply-To: <20020205193856.7628dcb3.kristian.peters@korseby.net>
-Message-ID: <Pine.LNX.4.33.0202060004230.21710-100000@localhost.localdomain>
+	id <S289815AbSBEVOX>; Tue, 5 Feb 2002 16:14:23 -0500
+Received: from mrelay1.cc.umr.edu ([131.151.1.120]:35986 "EHLO smtp.umr.edu")
+	by vger.kernel.org with ESMTP id <S289817AbSBEVOQ> convert rfc822-to-8bit;
+	Tue, 5 Feb 2002 16:14:16 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: windows is more secure than linux!!
+Date: Tue, 5 Feb 2002 15:13:54 -0600
+Message-ID: <E0DDC0FF6CE82349A014D7498C36CEE02B5ACE@umr-mail2.umr.edu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: windows is more secure than linux!!
+Thread-Index: AcGudT0F+GDZPZ8uTQeoy+eNUr0lsgAFJYxA
+From: "Brenneke, Matthew Jeffrey (UMR-Student)" <mbrennek@umr.edu>
+To: "Rik van Riel" <riel@conectiva.com.br>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 5 Feb 2002, Kristian wrote:
 
-> [...] I still have some trouble with high priority nice levels (renice
-> -20). For some seconds the system gets totally unresponsive for user
-> requests while switching between those processes. [...]
+> -----Original Message-----
+> From: Rik van Riel [mailto:riel@conectiva.com.br]
+> Sent: Tuesday, February 05, 2002 12:42 PM
+> To: william fitzgerald
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: windows is more secure than linux!!
 
-if you are using nice -20 tasks then they might take CPU time away from
-lower priority tasks. This is why bigger negative nice levels should only
-be used sparingly. (and this is why it can only be done as root.)
+> Lies, damn lies & statistics.
+> 
+> regards,
+> 
+> Rik
 
-> The last one I've tried was J2.
+42.3454% of statistics are completely made up
 
-that's a pretty old patch, the current one is -K2.
-
-	Ingo
-
+Matt Brenneke
+mbrennek@umr.edu

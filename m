@@ -1,119 +1,180 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273966AbRIRXaN>; Tue, 18 Sep 2001 19:30:13 -0400
+	id <S273964AbRIRXaY>; Tue, 18 Sep 2001 19:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273965AbRIRXaD>; Tue, 18 Sep 2001 19:30:03 -0400
-Received: from hall.mail.mindspring.net ([207.69.200.60]:54313 "EHLO
-	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S272552AbRIRX3w>; Tue, 18 Sep 2001 19:29:52 -0400
-Subject: [PATCH] (Resend) AGP GART support for AMD 761
+	id <S273965AbRIRXaO>; Tue, 18 Sep 2001 19:30:14 -0400
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:50494 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S273964AbRIRXaA> convert rfc822-to-8bit; Tue, 18 Sep 2001 19:30:00 -0400
+Subject: Re: Feedback on preemptible kernel patch
 From: Robert Love <rml@tech9.net>
-To: laughing@shared-source.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Chris Mason <mason@suse.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <200109180406.f8I46LG02238@zero.tech9.net>
+In-Reply-To: <200109140302.f8E32LG13400@zero.tech9.net>
+	<200109150444.f8F4iEG19063@zero.tech9.net>
+	<1000530869.32365.21.camel@phantasy> 
+	<200109180406.f8I46LG02238@zero.tech9.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 X-Mailer: Evolution/0.13.99+cvs.2001.09.18.07.08 (Preview Release)
-Date: 18 Sep 2001 19:31:16 -0400
-Message-Id: <1000855879.19834.47.camel@phantasy>
+Date: 18 Sep 2001 19:31:22 -0400
+Message-Id: <1000855884.19836.49.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan, the following is a resend of my patch to add AMD 761 support to
-the AGP GART code, originally for 2.4.9-ac10.  If the patch is pending
-for a future -ac, I apologize -- although this applies cleaner.
+On Tue, 2001-09-18 at 00:06, Dieter Nützel wrote:
+> Am Samstag, 15. September 2001 07:14 schrieb Robert Love:
+> > Are you seeing any specific problems, now?  With the latest preemption
+> > patch on 2.4.10-pre9, do you crash? oops?
+> 
+> No, nothing with 2.4.10-pre9 + patch-rml-2.4.10-pre9-preempt-kernel-1 and 
+> your MMX/3Dnow! fix.
+> 
+> 2.4.10-pre10 + patch-rml-2.4.10-pre10-preempt-kernel-1 seems to be a winner!
+> 
+> See my results below.
 
+Excellent.  Note, 2.4.10-pre11 patches are out, but I don't know how
+stable it is.  I am not sure I agree with ripping out the VM at this
+moment.
 
-diff -urN linux-2.4.9-ac12/Documentation/Configure.help linux/Documentation/Configure.help
---- linux-2.4.9-ac12/Documentation/Configure.help	Tue Sep 18 17:43:45 2001
-+++ linux/Documentation/Configure.help	Tue Sep 18 18:54:17 2001
-@@ -3091,10 +3091,10 @@
-   the GLX component for XFree86 3.3.6, which can be downloaded from
-   <http://utah-glx.sourceforge.net/>.
- 
--AMD Irongate support
-+AMD Irongate and 761 support
- CONFIG_AGP_AMD
-   This option gives you AGP support for the GLX component of the
--  XFree86 4.x on AMD Irongate chipset.
-+  XFree86 4.x on AMD Irongate (750), 761, and 762 chipsets.
- 
-   For the moment, you should probably say N, unless you want to test
-   the GLX component for XFree86 3.3.6, which can be downloaded from
-diff -urN linux-2.4.9-ac12/drivers/char/Config.in linux/drivers/char/Config.in
---- linux-2.4.9-ac12/drivers/char/Config.in	Tue Sep 18 17:43:10 2001
-+++ linux/drivers/char/Config.in	Tue Sep 18 18:53:28 2001
-@@ -208,7 +208,7 @@
-    bool '  Intel 440LX/BX/GX and I815/I840/I850 support' CONFIG_AGP_INTEL
-    bool '  Intel I810/I815 (on-board) support' CONFIG_AGP_I810
-    bool '  VIA chipset support' CONFIG_AGP_VIA
--   bool '  AMD Irongate support' CONFIG_AGP_AMD
-+   bool '  AMD Irongate and 761 support' CONFIG_AGP_AMD
-    bool '  Generic SiS support' CONFIG_AGP_SIS
-    bool '  ALI chipset support' CONFIG_AGP_ALI
-    bool '  Serverworks LE/HE support' CONFIG_AGP_SWORKS
-diff -urN linux-2.4.9-ac12/drivers/char/agp/agp.h linux/drivers/char/agp/agp.h
---- linux-2.4.9-ac12/drivers/char/agp/agp.h	Tue Sep 18 17:43:10 2001
-+++ linux/drivers/char/agp/agp.h	Tue Sep 18 18:53:28 2001
-@@ -205,6 +205,9 @@
- #ifndef PCI_DEVICE_ID_AMD_762_0
- #define PCI_DEVICE_ID_AMD_762_0		0x700C
- #endif
-+#ifndef PCI_DEVICE_ID_AMD_761_0
-+#define PCI_DEVICE_ID_AMD_761_0         0x700e
-+#endif
- #ifndef PCI_VENDOR_ID_AL
- #define PCI_VENDOR_ID_AL		0x10b9
- #endif
-diff -urN linux-2.4.9-ac12/drivers/char/agp/agpgart_be.c linux/drivers/char/agp/agpgart_be.c
---- linux-2.4.9-ac12/drivers/char/agp/agpgart_be.c	Tue Sep 18 17:43:10 2001
-+++ linux/drivers/char/agp/agpgart_be.c	Tue Sep 18 18:53:28 2001
-@@ -387,9 +387,9 @@
- /* 
-  * Driver routines - start
-  * Currently this module supports the following chipsets:
-- * i810, 440lx, 440bx, 440gx, i840, i850, via vp3, via mvp3, via kx133, 
-- * via kt133, amd irongate, ALi M1541, and generic support for the SiS 
-- * chipsets.
-+ * i810, i815, 440lx, 440bx, 440gx, i840, i850, via vp3, via mvp3,
-+ * via kx133, via kt133, amd irongate, amd 761, ALi M1541, and generic
-+ * support for the SiS chipsets.
-  */
- 
- /* Generic Agp routines - Start */
-@@ -2937,6 +2937,12 @@
- 		"AMD",
- 		"AMD 760MP",
- 		amd_irongate_setup },
-+	{ PCI_DEVICE_ID_AMD_761_0,
-+		PCI_VENDOR_ID_AMD,
-+		AMD_761,
-+		"AMD",
-+		"761",
-+		amd_irongate_setup },
- 	{ 0,
- 		PCI_VENDOR_ID_AMD,
- 		AMD_GENERIC,
-@@ -2964,7 +2970,6 @@
- 		"Intel",
- 		"440GX",
- 		intel_generic_setup },
--	/* could we add support for PCI_DEVICE_ID_INTEL_815_1 too ? */
- 	{ PCI_DEVICE_ID_INTEL_815_0,
- 		PCI_VENDOR_ID_INTEL,
- 		INTEL_I815,
-diff -urN linux-2.4.9-ac12/include/linux/agp_backend.h linux/include/linux/agp_backend.h
---- linux-2.4.9-ac12/include/linux/agp_backend.h	Tue Sep 18 17:42:55 2001
-+++ linux/include/linux/agp_backend.h	Tue Sep 18 18:53:28 2001
-@@ -58,6 +58,7 @@
- 	SIS_GENERIC,
- 	AMD_GENERIC,
- 	AMD_IRONGATE,
-+	AMD_761,
- 	ALI_M1541,
- 	ALI_M1621,
- 	ALI_M1631,
+Personally, I am using 2.4.9-ac12.  Patches are going up soon.
 
+> > The only outstanding issue now is ReiserFS issues.
+> 
+> Yes, but no crash or oops for me.
+> "Only" some "stalls" during MPEG/Ogg-Vorbis playback (2-5 sec) :-(
+
+The ReiserFS issue may even be a non-issue.  Too much is going on right
+now to figure that out.  I am going to keep going through it, though.
+
+If you don't crash, its not an issue for you, at least.
+
+> > > It seems to be that kswap put some additional "load" on the disk from
+> > > time to time. Or is it the ReiserFS thing, again?
+> >
+> > I don't think its related to ReiserFS.
+> 
+> I think you are right.
+> 
+> > What sort of activity are you seeing?  How often?  How do you know its
+> > kswapd?
+> 
+> I saw it with "top" at the first line (but only some few percent).
+> It was during untarring some mid-sized archives (DRI) which took normally ~10 
+> sec, but with kswap and 2.4.9-pre9+your patches ~30 sec. Even "sync" needed 
+> some additional seconds.
+
+I don't know what to make of this.  Your's is the first report.
+
+> Are there some reschedule/context switch (kernel lock release) statements 
+> missing in ReiserFS?
+
+Actually, if ReiserFS was missing lock statements it would be faster :)
+(but then crash, of course)
+
+> Is this possible? Chris?
+> 
+> > I am glad the patch fixed it, the final version of that is going into
+> > the next preemption patch.  Stay tuned.
+> 
+> I am very happy with patch-rml-2.4.10-pre10-preempt-kernel-1.
+
+I am very glad.  Keep following the patches.
+
+> > These results are pretty good.  Throughput seems down 2-3% in many
+> > cases, although latency is greatly improved.  Look at those latency
+> > changes!  From thousands of ms to hundreds of us in bonnie.  Wow.
+> 
+> So look at my latest numbers. This time preempt only, sorry.
+> If you need 2.4.10-pre10 only, too please ask.
+
+The numbers look very good, comparing them to your previous posted
+results.
+
+Next time you benchmark (for a future kernel, say), I do indeed like
+seeing the non-preempt benchmarks so I can gauge things.  I realize its
+a pain to compile and boot multiple kernels, though.
+
+> > Even if you don't care about latency (I'm not an audio person or
+> > anything), these changes should be worth it.
+> 
+> I do. Or better, one of my friend's father will do some digital video editing 
+> with Linux:-)
+
+Great :)
+
+> > > Deleting with ReiserFS and the preempt kernel is GREAT!
+> >
+> > Good. I/O latency should be great now, with little change in
+> > throughput...
+> 
+> It is.
+> 
+> > > But I get some hiccup during noatun (mp3, ogg, etc. player for KDE-2.2)
+> > > or plaympeg together with dbench (16, 32). ReiserFS needs some preemption
+> > > fixes, too?
+> >
+> > You may still get some small hiccups ( < 1 second?) even with the
+> > preemption patch, as kernel locks prevent preemption (the patch can't
+> > guarentee low latency, just preemption outside of the locks).
+> 
+> Sadly 2-5 seconds at the beginning of dbench and during bonnie++ block 
+> operations (huge IO pressure, ~20% system, 3-5% user, 116308 kilobytes paged 
+> out).
+> 
+> > However, how bad was the hiccups with preemption disabled?  I have heard
+> > reports where it is 3-5sec at times.
+> 
+> Yes, nearly the same.
+
+Hm, these we need to figure out.  We need to find what locks are held
+too long or perhaps improperly -- stalls that large should not occur.
+
+You don't use ALSA drivers, do you?
+
+> > As the kernel becomes more scalable (finer-grain locking), preemption
+> > will improve.  Past that, perhaps during 2.5, we can work on some other
+> > things to improve preemption.
+> 
+> Is this a ReiserFS only problem? Uninteruptable IO?
+
+No, ReiserFS is a good design.  This is in general -- in many places we
+hold a very large lock -- ie, lock a whole subsystem from concurrent
+access.  What we can do is lock finer and finer items, ie individual
+structures, and use read/write and read locks appropriately.
+
+Past that, we can look into replacing the use of SMP spinlocks with
+other concurrency primitives for preemption.
+
+> > > I've attached two small compressed bonnie++ HTML files.
+> >
+> > These were neat, thanks.
+> 
+> One more.
+> 
+> > Thank you for your feedback and support.  Stay current with the kernel
+> > and the preemption patches,
+> 
+> I will.
+> 
+> > and I will try to figure the ReiserFS crashes out.
+> 
+> No crashes for me only the stalls.
+
+Good.
+
+Again, thanks a bunch for the feedback and benchmarks.  I will keep
+looking into ReiserFS, but it may indeed be a non-issue.
+
+You can keep up to date at http://tech9.net/rml/linux ... as I said, new
+patches are going up in a moment.
+
+Take care,
 
 -- 
 Robert M. Love

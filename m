@@ -1,91 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318272AbSHUNU3>; Wed, 21 Aug 2002 09:20:29 -0400
+	id <S318274AbSHUN0L>; Wed, 21 Aug 2002 09:26:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318274AbSHUNU3>; Wed, 21 Aug 2002 09:20:29 -0400
-Received: from ext-ch1gw-1.online-age.net ([216.34.191.35]:25568 "EHLO
-	ext-ch1gw-1.online-age.net") by vger.kernel.org with ESMTP
-	id <S318272AbSHUNU2>; Wed, 21 Aug 2002 09:20:28 -0400
-Message-ID: <EB3FFD6C1A30D411810400D0B774DEE406883BA9@VACHO1MISGE>
-From: "Warner, Bill (IndSys, GEFanuc, VMIC)" <Bill.Warner@gefanuc.com>
-To: "'Geert Uytterhoeven'" <geert@linux-m68k.org>,
-       Andre Hedrick <andre@linux-ide.org>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-       "'Padraig Brady'" <padraig.brady@corvil.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "Warner, Bill (IndSys, GEFanuc, VMIC)" <Bill.Warner@gefanuc.com>
-Subject: RE: IDE-flash device and hard disk on same controller
-Date: Wed, 21 Aug 2002 09:22:34 -0400
+	id <S318283AbSHUN0L>; Wed, 21 Aug 2002 09:26:11 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:34064 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S318274AbSHUN0K>; Wed, 21 Aug 2002 09:26:10 -0400
+Date: Wed, 21 Aug 2002 15:29:44 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Bhavana Nagendra <Bhavana.Nagendra@3dlabs.com>,
+       Gilad Ben-Yossef <gilad@benyossef.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Alloc and lock down large amounts of memory
+In-Reply-To: <5.1.0.14.2.20020821060719.00b7bd48@pop.gmx.net>
+Message-ID: <Pine.LNX.4.44.0208211528180.3407-100000@pc40.e18.physik.tu-muenchen.de>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please take me off of this discussion thread.
+On Wed, 21 Aug 2002, Mike Galbraith wrote:
 
-Thank you.
+> At 03:08 PM 8/20/2002 -0500, Bhavana Nagendra wrote:
+> > >
+> > > Curiosity:  why do you want to do device DMA buffer
+> > > allocation from userland?
+> >
+> >I need 256M memory for a graphics operation.  It's a requiremment,
+> >can't change it. There will be other reasonably sized allocs in kernel
+> >space, this is a special case that will be done from userland. As
+> >discussed earlier in this thread, there's no good way of alloc()ing
+> >and pinning that much in DMA memory space, is there?
+> 
+> Not that I know of.  It seems to me that any interface that tried
+> to provide this would have to know what kind of device is going
+> to DMA from/to that ram.
+> 
+> Usually, when someone needs a large gob of contiguous ram,
+> folks suggest doing the allocation in kernel, and early.
+> 
+BTW: What is the limit for pci_alloc_consistent and friends? Can it really 
+provide 256MB?
 
-> Bill Warner  , CPU Design Engineer
-VMIC    A GE Fanuc Company
-> bill.warner@gefanuc.com  
-> VMIC - A GE Fanuc Company
-> 12090 S. Memorial Pkwy, Huntsville, AL 35803
-> ph (256) 382-8230, fax (256) 650-5472                    
-> 
-> -----Original Message-----
-> From:	Geert Uytterhoeven [SMTP:geert@linux-m68k.org]
-> Sent:	Wednesday, August 21, 2002 2:17 AM
-> To:	Andre Hedrick
-> Cc:	Jeff Garzik; Heater, Daniel (IndSys, GEFanuc, VMIC); 'Padraig
-> Brady'; 'Linux Kernel'; Warner, Bill (IndSys, GEFanuc, VMIC)
-> Subject:	Re: IDE-flash device and hard disk on same controller
-> 
-> On Tue, 20 Aug 2002, Andre Hedrick wrote:
-> > Look at 2.4.20-pre2-ac5.
-> > 
-> > I fixed that problem.
-> 
-> OK, thanks!
-> 
-> > On Wed, 21 Aug 2002, Geert Uytterhoeven wrote:
-> > > On Tue, 20 Aug 2002, Jeff Garzik wrote:
-> > > > Jeff Garzik wrote:
-> > > > > Attached is the ATA core...
-> > > > 
-> > > > Just to give a little bit more information about the previously
-> attached 
-> > > > code, it is merely a module that does two things:  (a) demonstrates 
-> > > > proper [and sometimes faster-than-current-linus] ATA bus probing,
-> and 
-> > > > (b) demonstrates generic registration and initialization of ATA
-> devices 
-> > > > and channels.  All other tasks can be left to "personality" (a.k.a. 
-> > > > class) drivers, such as 'disk', 'cdrom', 'floppy', ... types.
-> > > 
-> > > Looks nice (at first sight)!
-> > > 
-> > > But one limitation is that it always assumes the IDE ports are located
-> in I/O
-> > > space :-(
-> > > What about architectures where IDE ports are located in MMIO space? Or
-> worse,
-> > > have some ports in I/O space (e.g. PCI IDE card) and some in MMIO
-> space (e.g.
-> > > SOC or mainboard IDE host interface)?
-> 
-> Gr{oetje,eeting}s,
-> 
-> 						Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 --
-> geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker.
-> But
-> when I'm talking to journalists I just say "programmer" or something like
-> that.
-> 							    -- Linus
-> Torvalds
+Ciao,
+					Roland
+
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
+

@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129090AbRBAGBS>; Thu, 1 Feb 2001 01:01:18 -0500
+	id <S129081AbRBAGFi>; Thu, 1 Feb 2001 01:05:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129081AbRBAGBJ>; Thu, 1 Feb 2001 01:01:09 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:11087 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S129044AbRBAGA5>; Thu, 1 Feb 2001 01:00:57 -0500
-Date: Wed, 31 Jan 2001 21:56:03 -0800
-From: Ralf Baechle <ralf@oss.sgi.com>
-To: Jamie Lokier <ln@tantalophile.demon.co.uk>
-Cc: Andi Kleen <ak@muc.de>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        John Fremlin <vii@altern.org>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com, paulus@linuxcare.com, linux-ppp@vger.kernel.org,
-        linux-net@vger.kernel.org
-Subject: Re: [PATCH] dynamic IP support for 2.4.0 (SIOCKILLADDR)
-Message-ID: <20010131215602.K874@bacchus.dhis.org>
-In-Reply-To: <m2d7d838sj.fsf@boreas.yi.org.> <200101290245.f0T2j2Y438757@saturn.cs.uml.edu> <20010129135905.B1591@fred.local> <20010129193136.A11035@pcep-jamie.cern.ch>
-Mime-Version: 1.0
+	id <S129129AbRBAGF2>; Thu, 1 Feb 2001 01:05:28 -0500
+Received: from cx838204-a.alsv1.occa.home.com ([24.16.83.66]:33548 "HELO
+	gw.rupa.com") by vger.kernel.org with SMTP id <S129081AbRBAGFN>;
+	Thu, 1 Feb 2001 01:05:13 -0500
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Andries.Brouwer@cwi.nl, mlord@pobox.com, ole@linpro.no,
+        linux-kernel@vger.kernel.org
+Subject: Re: Problems with Promise IDE controller under 2.4.1
+In-Reply-To: <Pine.LNX.4.10.10101311201390.13711-100000@master.linux-ide.org>
+From: Rupa Schomaker <rupa-list+linux-kernel@rupa.com>
+Mail-Copies-To: never
+Date: 31 Jan 2001 22:05:08 -0800
+In-Reply-To: <Pine.LNX.4.10.10101311201390.13711-100000@master.linux-ide.org> (Andre Hedrick's message of "Wed, 31 Jan 2001 12:03:04 -0800 (PST)")
+Message-ID: <m3hf2fdjl7.fsf@localhost.localdomain>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010129193136.A11035@pcep-jamie.cern.ch>; from ln@tantalophile.demon.co.uk on Mon, Jan 29, 2001 at 07:31:36PM +0100
-X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 29, 2001 at 07:31:36PM +0100, Jamie Lokier wrote:
+Andre Hedrick <andre@linux-ide.org> writes:
 
-> Unfortunately getting the same IP is rare now, so I've been toying with
+> On 31 Jan 2001, Rupa Schomaker wrote:
+> 
+> > Andre Hedrick <andre@linux-ide.org> writes:
+> > 
+> > 
+> > > > But there is no indication of what the problems could be,
+> > > > or what he thinks the geometry should be (and why).
+> > > > I see nothing very wrong in the posted data.
+> > > 
+> > > We agree Andries, but the enduser wants to see stuff the same.
+> > 
+> > In my case, I have two identical Maxtor drives, but they reported
+> > different geometry.  How could that be?  Move the "virgin" drive to
+> > the motherboard IDE controller and suddenly the geometry is the same.
+> > Use fdisk and partition the disk, write it, and then move to the
+> > promise controller and the "correct" geometry was used (that is, it is
+> > now the same as when hooked up to the motherboard ide controller).
+> > 
+> > Why was it important to me?  I'm doing RAID1 and it is really nice to
+> > have the same geometry so that the partition info is the same between
+> > the two drives.   Makes life easier.
+> 
+> Please read the above and pass the geometry to the kernel.
+> Mother boards have to do a translation to use the drive completely.
 
-Pretty much dependant of the type of equipment and the configuration used
-at the ISP's servers.  I use two ISPs when I'm back in Germany of which
-the one always and the other one never gives me the same IP when I
-reconnect within some short time.
+Andre,
 
-(Guess which one I prefer ...)
+But now it doesn't matter.  The drive was tainted (fdisk run while
+attached to the mainboard controller) and now that geometry is
+"stuck".  <shrug>  I was mostly explaining why it is nice to get the
+same geometry on two identical drives (RAID1 is easier for the human
+to deal with).
 
-  Ralf
+-- 
+-rupa
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

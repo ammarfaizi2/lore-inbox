@@ -1,79 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265781AbUF2P1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265782AbUF2Pcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265781AbUF2P1k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 11:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265782AbUF2P1k
+	id S265782AbUF2Pcn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 11:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265783AbUF2Pcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 11:27:40 -0400
-Received: from legaleagle.de ([217.160.128.82]:36577 "EHLO www.legaleagle.de")
-	by vger.kernel.org with ESMTP id S265781AbUF2P1h (ORCPT
+	Tue, 29 Jun 2004 11:32:43 -0400
+Received: from acrogw.sw.ru ([195.133.213.225]:27388 "EHLO dhcp6-7.acronis.ru")
+	by vger.kernel.org with ESMTP id S265782AbUF2Pck (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 11:27:37 -0400
-Message-ID: <40E18A8A.4060500@trash.net>
-Date: Tue, 29 Jun 2004 17:28:10 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: coreteam@netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: [netfilter-core] undefined reference to `ip_conntrack_untracked'
-References: <20040629140234.GT13365@wiggy.net>
-In-Reply-To: <20040629140234.GT13365@wiggy.net>
-Content-Type: multipart/mixed;
- boundary="------------090303020108090404090207"
+	Tue, 29 Jun 2004 11:32:40 -0400
+Date: Tue, 29 Jun 2004 19:38:09 +0400
+From: Andrey Ulanov <Andrey.Ulanov@acronis.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] PCMCIA bug fix
+Message-ID: <20040629153809.GA6531@dhcp6-7.acronis.ru>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="rwEMma7ioTxnRzrJ"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090303020108090404090207
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Please try this patch.
+--rwEMma7ioTxnRzrJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Wichert Akkerman wrote:
+I tested with one of ieee1394+usb2.0 PCMCIA adapters. Worked fine.
+Without this patch only first device (ieee1394 controller) was
+detected.
 
->(Not mailing this to netfilter-devel since it helpfully blocks posts
->from non-subscribers)
->  
->
+Please apply.
+-- 
+with best regards, Andrey Ulanov.
 
-Helpfully to subscribers ;)
+--rwEMma7ioTxnRzrJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="pcmcia-multi.patch"
 
-Regards
-Patrick
+--- linux/drivers/pcmcia/cardbus.c.pcmcia	2004-06-29 18:37:27.000000000 +0400
++++ linux/drivers/pcmcia/cardbus.c	2004-06-29 18:39:37.000000000 +0400
+@@ -435,12 +435,12 @@
+ 	pci_readb(&tmp, PCI_HEADER_TYPE, &hdr);
+ 	fn = 1;
+ 	if (hdr & 0x80) {
+-		do {
+-			tmp.devfn = fn;
++		for (i = 0; i < 8; i++) {
++			tmp.devfn = i;
+ 			if (pci_readw(&tmp, PCI_VENDOR_ID, &v) || !v || v == 0xffff)
+-				break;
++				continue;
+ 			fn++;
+-		} while (fn < 8);
++		};
+ 	}
+ 	s->functions = fn;
+ 
+@@ -450,11 +450,17 @@
+ 	memset(c, 0, fn * sizeof(struct cb_config_t));
+ 
+ 	irq = s->cap.pci_irq;
+-	for (i = 0; i < fn; i++) {
+-		struct pci_dev *dev = &c[i].dev;
++	for (i = 0, fn = 0; i < 8; i++) {
++		struct pci_dev *dev = &c[fn].dev;
+ 		u8 irq_pin;
+ 		int r;
+ 
++		tmp.devfn = i;
++		if(pci_readw(&tmp, PCI_VENDOR_ID, &v) || !v || v == 0xffff)
++		    continue;
++
++		fn++;
++
+ 		dev->bus = bus;
+ 		dev->sysdata = bus->sysdata;
+ 		dev->devfn = i;
 
->WHen trying to compile a 2.6.7 kernel I got the following:
->
->net/built-in.o(.text+0x59781): In function `target':
->: undefined reference to `ip_conntrack_untracked'
->make: *** [.tmp_vmlinux1] Error 1
->
->.config is below.
->
->Wichert.
->  
->
-
-
---------------090303020108090404090207
-Content-Type: text/plain;
- name="X"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="X"
-
-===== net/ipv4/netfilter/Kconfig 1.20 vs edited =====
---- 1.20/net/ipv4/netfilter/Kconfig	2004-03-30 06:24:39 +02:00
-+++ edited/net/ipv4/netfilter/Kconfig	2004-06-29 17:25:55 +02:00
-@@ -582,6 +582,7 @@
- config IP_NF_TARGET_NOTRACK
- 	tristate  'NOTRACK target support'
- 	depends on IP_NF_RAW
-+	depends on IP_NF_CONNTRACK
- 	help
- 	  The NOTRACK target allows a select rule to specify
- 	  which packets *not* to enter the conntrack/NAT
-
---------------090303020108090404090207--
+--rwEMma7ioTxnRzrJ--

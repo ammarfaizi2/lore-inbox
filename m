@@ -1,57 +1,461 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272355AbTHFWLp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 18:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272381AbTHFWLp
+	id S272537AbTHFWSh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 18:18:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272559AbTHFWSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 18:11:45 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:31497 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S272355AbTHFWLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 18:11:44 -0400
-Message-ID: <3F318021.1010409@techsource.com>
-Date: Wed, 06 Aug 2003 18:24:33 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Charlie Baylis <cb-lkml@fish.zetnet.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O12.2int for interactivity
-References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <3F303494.3030406@techsource.com> <1060133030.3f3058a68e126@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Aug 2003 18:18:37 -0400
+Received: from mx02.qsc.de ([213.148.130.14]:28884 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S272537AbTHFWSM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 18:18:12 -0400
+Date: Thu, 7 Aug 2003 00:18:35 +0200
+From: Wiktor Wodecki <wodecki@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: acpi bug/trace in 2.6.0-test2 and resulting scsi failure
+Message-ID: <20030806221835.GI710@gmx.de>
+Reply-To: Wiktor Wodecki <wodecki@gmx.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qM81t570OJUP5TU/"
+Content-Disposition: inline
+X-message-flag: Linux - choice of the GNU generation
+X-Operating-System: Linux 2.6.0-test2-O12 i686
+X-PGP-KeyID: 182C9783
+X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--qM81t570OJUP5TU/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Con Kolivas wrote:
-> Quoting Timothy Miller <miller@techsource.com>:
-> 
+Hello,
 
-> 
-> 
-> Thank you for your commentary which I agree with. With respect to these 
-> potential issues I have always worked on a fix for where I thought real world 
-> applications might cause these rather than try and fix it for just that program.
-> It was actually the opposite reason that my patch prevented thud from working; 
-> it is idle tasks that become suddenly cpu hogs that in the real world are 
-> potential starvers,  and I made a useful fix for that issue. Thud just happened 
-> to simulate those conditions and I only tested for it after I heard of thud. So 
-> just a (hopefully reassuring) reminder; I'm not making an xmms interactivity 
-> estimator, nor an X estimator, nor a "fix this exploit" one and so on.
-> 
+I just experienced a bug which made my scsi bus unusable:
 
+Aug  6 23:56:49 kakerlak kernel: irq 7: nobody cared!
+Aug  6 23:56:49 kakerlak kernel: Call Trace:
+Aug  6 23:56:49 kakerlak kernel:  [__report_bad_irq+42/144]
+__report_bad_irq+0x2a/0x90
+Aug  6 23:56:49 kakerlak kernel:  [note_interrupt+108/160]
+note_interrupt+0x6c/0xa0
+Aug  6 23:56:49 kakerlak kernel:  [do_IRQ+288/304] do_IRQ+0x120/0x130
+Aug  6 23:56:49 kakerlak kernel:  [common_interrupt+24/32]
+common_interrupt+0x18/0x20
+Aug  6 23:56:49 kakerlak kernel:  [do_softirq+64/160]
+do_softirq+0x40/0xa0
+Aug  6 23:56:49 kakerlak kernel:  [do_IRQ+252/304] do_IRQ+0xfc/0x130
+Aug  6 23:56:49 kakerlak kernel:  [common_interrupt+24/32]
+common_interrupt+0x18/0x20
+Aug  6 23:56:49 kakerlak kernel:  [acpi_processor_idle+213/455]
+acpi_processor_idle+0xd5/0x1c7
+Aug  6 23:56:49 kakerlak kernel:  [acpi_processor_idle+0/455]
+acpi_processor_idle+0x0/0x1c7
+Aug  6 23:56:49 kakerlak last message repeated 2 times
+Aug  6 23:56:49 kakerlak kernel:  [cpu_idle+47/64] cpu_idle+0x2f/0x40
+Aug  6 23:56:49 kakerlak kernel:  [_stext+0/96] rest_init+0x0/0x60
+Aug  6 23:56:49 kakerlak kernel:  [start_kernel+323/336]
+start_kernel+0x143/0x150
+Aug  6 23:56:49 kakerlak kernel:  [unknown_bootoption+0/256]
+unknown_bootoption+0x0/0x100
+Aug  6 23:56:49 kakerlak kernel:
+Aug  6 23:56:49 kakerlak kernel: handlers:
+Aug  6 23:56:49 kakerlak kernel: [acpi_irq+0/22] (acpi_irq+0x0/0x16)
+Aug  6 23:56:49 kakerlak kernel: Disabling IRQ #7
 
-I have always assumed that things like X and xmms were just examples of 
-the various sorts of things people would run when testing your scheduler.
+=2E..
+Aug  7 00:02:28 kakerlak kernel: scsi0: PCI error Interrupt at
+seqaddr =3D 0x7
+Aug  7 00:02:28 kakerlak kernel: scsi0: Data Parity Error Detected
+during address or write data phase
+Aug  7 00:02:28 kakerlak kernel: scsi0: WARNING WARNING WARNING WARNING
+Aug  7 00:02:28 kakerlak kernel: scsi0: Too many PCI parity errors
+observed as a target.
+Aug  7 00:02:28 kakerlak kernel: scsi0: Some device on this bus is
+generating bad parity.
+Aug  7 00:02:28 kakerlak kernel: scsi0: This is an error *observed by*,
+not *generated by*, this controller.
+Aug  7 00:02:28 kakerlak kernel: scsi0: PCI parity error checking has
+been disabled.
+Aug  7 00:02:28 kakerlak kernel: scsi0: WARNING WARNING WARNING WARNING
 
-But it was a mistaken assumption on my part that thud was an artificial 
-work load.  The author of thud, I believe it was, explained to me how 
-thud is a simulation of a real workload, reverse-engineered from 
-real-world experience.
+I'm not sure, if those two messages are related, but it seems so.
+Normally my scsi bus doesn't terminate operation.
 
-My apologies.
+Here's my /proc/interrupts:
 
+CPU0      =20
+0:   52199369          XT-PIC  timer
+1:      82327          XT-PIC  i8042
+2:          0          XT-PIC  cascade
+7:     101240          XT-PIC  acpi
+8:          4          XT-PIC  rtc
+9:      13477          XT-PIC  CMI8738
+10:    3058160          XT-PIC  aic7xxx, eth1
+11:     205526          XT-PIC  ide2, ide3
+12:     815064          XT-PIC  uhci-hcd,
+uhci-hcd, eth0
+14:     213620          XT-PIC  ide0
+15:     200388          XT-PIC  ide1
+NMI:          0=20
+LOC:   52200312=20
+ERR:       1240
+MIS:          0
 
+My lsmod:
+
+wiktor@kakerlak:~/uni/sysng/informatik/II/uebungen$ lsmod
+Module                  Size  Used by
+ppp_deflate             4736  0=20
+zlib_deflate           21080  1 ppp_deflate
+zlib_inflate           21184  1 ppp_deflate
+bsd_comp                5312  0=20
+ppp_async               9280  1=20
+vfat                   12928  0=20
+fat                    40960  1 vfat
+
+and my .config:
+
+CONFIG_X86=3Dy
+CONFIG_MMU=3Dy
+CONFIG_UID16=3Dy
+CONFIG_GENERIC_ISA_DMA=3Dy
+CONFIG_EXPERIMENTAL=3Dy
+CONFIG_SWAP=3Dy
+CONFIG_SYSVIPC=3Dy
+CONFIG_SYSCTL=3Dy
+CONFIG_LOG_BUF_SHIFT=3D14
+CONFIG_KALLSYMS=3Dy
+CONFIG_FUTEX=3Dy
+CONFIG_EPOLL=3Dy
+CONFIG_IOSCHED_AS=3Dy
+CONFIG_IOSCHED_DEADLINE=3Dy
+CONFIG_MODULES=3Dy
+CONFIG_MODULE_UNLOAD=3Dy
+CONFIG_OBSOLETE_MODPARM=3Dy
+CONFIG_KMOD=3Dy
+CONFIG_X86_PC=3Dy
+CONFIG_MK7=3Dy
+CONFIG_X86_CMPXCHG=3Dy
+CONFIG_X86_XADD=3Dy
+CONFIG_X86_L1_CACHE_SHIFT=3D6
+CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy
+CONFIG_X86_WP_WORKS_OK=3Dy
+CONFIG_X86_INVLPG=3Dy
+CONFIG_X86_BSWAP=3Dy
+CONFIG_X86_POPAD_OK=3Dy
+CONFIG_X86_GOOD_APIC=3Dy
+CONFIG_X86_INTEL_USERCOPY=3Dy
+CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
+CONFIG_X86_USE_3DNOW=3Dy
+CONFIG_PREEMPT=3Dy
+CONFIG_X86_UP_APIC=3Dy
+CONFIG_X86_UP_IOAPIC=3Dy
+CONFIG_X86_LOCAL_APIC=3Dy
+CONFIG_X86_IO_APIC=3Dy
+CONFIG_X86_TSC=3Dy
+CONFIG_X86_MCE=3Dy
+CONFIG_X86_MCE_NONFATAL=3Dy
+CONFIG_X86_MSR=3Dy
+CONFIG_X86_CPUID=3Dy
+CONFIG_EDD=3Dy
+CONFIG_NOHIGHMEM=3Dy
+CONFIG_MTRR=3Dy
+CONFIG_HAVE_DEC_LOCK=3Dy
+CONFIG_PM=3Dy
+CONFIG_SOFTWARE_SUSPEND=3Dy
+CONFIG_ACPI=3Dy
+CONFIG_ACPI_BOOT=3Dy
+CONFIG_ACPI_SLEEP=3Dy
+CONFIG_ACPI_SLEEP_PROC_FS=3Dy
+CONFIG_ACPI_BUTTON=3Dy
+CONFIG_ACPI_FAN=3Dy
+CONFIG_ACPI_PROCESSOR=3Dy
+CONFIG_ACPI_THERMAL=3Dy
+CONFIG_ACPI_BUS=3Dy
+CONFIG_ACPI_INTERPRETER=3Dy
+CONFIG_ACPI_EC=3Dy
+CONFIG_ACPI_POWER=3Dy
+CONFIG_ACPI_PCI=3Dy
+CONFIG_ACPI_SYSTEM=3Dy
+CONFIG_PCI=3Dy
+CONFIG_PCI_GOANY=3Dy
+CONFIG_PCI_BIOS=3Dy
+CONFIG_PCI_DIRECT=3Dy
+CONFIG_PCI_NAMES=3Dy
+CONFIG_KCORE_ELF=3Dy
+CONFIG_BINFMT_ELF=3Dy
+CONFIG_BINFMT_AOUT=3Dm
+CONFIG_BINFMT_MISC=3Dm
+CONFIG_BLK_DEV_FD=3Dm
+CONFIG_BLK_DEV_LOOP=3Dy
+CONFIG_BLK_DEV_RAM=3Dm
+CONFIG_BLK_DEV_RAM_SIZE=3D4096
+CONFIG_IDE=3Dy
+CONFIG_BLK_DEV_IDE=3Dy
+CONFIG_BLK_DEV_IDEDISK=3Dy
+CONFIG_IDEDISK_MULTI_MODE=3Dy
+CONFIG_BLK_DEV_IDECD=3Dy
+CONFIG_BLK_DEV_IDEPCI=3Dy
+CONFIG_BLK_DEV_GENERIC=3Dy
+CONFIG_IDEPCI_SHARE_IRQ=3Dy
+CONFIG_BLK_DEV_IDEDMA_PCI=3Dy
+CONFIG_IDEDMA_PCI_AUTO=3Dy
+CONFIG_IDEDMA_ONLYDISK=3Dy
+CONFIG_BLK_DEV_IDEDMA=3Dy
+CONFIG_BLK_DEV_ADMA=3Dy
+CONFIG_BLK_DEV_HPT366=3Dy
+CONFIG_BLK_DEV_VIA82CXXX=3Dy
+CONFIG_IDEDMA_AUTO=3Dy
+CONFIG_BLK_DEV_IDE_MODES=3Dy
+CONFIG_SCSI=3Dy
+CONFIG_BLK_DEV_SD=3Dy
+CONFIG_CHR_DEV_ST=3Dm
+CONFIG_BLK_DEV_SR=3Dy
+CONFIG_BLK_DEV_SR_VENDOR=3Dy
+CONFIG_CHR_DEV_SG=3Dm
+CONFIG_SCSI_MULTI_LUN=3Dy
+CONFIG_SCSI_REPORT_LUNS=3Dy
+CONFIG_SCSI_CONSTANTS=3Dy
+CONFIG_SCSI_LOGGING=3Dy
+CONFIG_SCSI_AIC7XXX=3Dy
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=3D64
+CONFIG_AIC7XXX_RESET_DELAY_MS=3D2000
+CONFIG_AIC7XXX_DEBUG_MASK=3D0
+CONFIG_MD=3Dy
+CONFIG_BLK_DEV_MD=3Dy
+CONFIG_MD_RAID0=3Dy
+CONFIG_MD_RAID1=3Dy
+CONFIG_MD_RAID5=3Dy
+CONFIG_BLK_DEV_DM=3Dy
+CONFIG_NET=3Dy
+CONFIG_PACKET=3Dy
+CONFIG_PACKET_MMAP=3Dy
+CONFIG_NETLINK_DEV=3Dy
+CONFIG_NETFILTER=3Dy
+CONFIG_UNIX=3Dy
+CONFIG_INET=3Dy
+CONFIG_IP_MULTICAST=3Dy
+CONFIG_IP_ADVANCED_ROUTER=3Dy
+CONFIG_IP_MULTIPLE_TABLES=3Dy
+CONFIG_IP_ROUTE_FWMARK=3Dy
+CONFIG_IP_ROUTE_TOS=3Dy
+CONFIG_IP_ROUTE_VERBOSE=3Dy
+CONFIG_ARPD=3Dy
+CONFIG_INET_ECN=3Dy
+CONFIG_SYN_COOKIES=3Dy
+CONFIG_IP_NF_CONNTRACK=3Dy
+CONFIG_IP_NF_FTP=3Dy
+CONFIG_IP_NF_IRC=3Dy
+CONFIG_IP_NF_TFTP=3Dm
+CONFIG_IP_NF_AMANDA=3Dm
+CONFIG_IP_NF_QUEUE=3Dy
+CONFIG_IP_NF_IPTABLES=3Dy
+CONFIG_IP_NF_MATCH_LIMIT=3Dy
+CONFIG_IP_NF_MATCH_MAC=3Dy
+CONFIG_IP_NF_MATCH_PKTTYPE=3Dy
+CONFIG_IP_NF_MATCH_MARK=3Dy
+CONFIG_IP_NF_MATCH_MULTIPORT=3Dy
+CONFIG_IP_NF_MATCH_TOS=3Dm
+CONFIG_IP_NF_MATCH_RECENT=3Dy
+CONFIG_IP_NF_MATCH_ECN=3Dm
+CONFIG_IP_NF_MATCH_DSCP=3Dm
+CONFIG_IP_NF_MATCH_AH_ESP=3Dm
+CONFIG_IP_NF_MATCH_LENGTH=3Dm
+CONFIG_IP_NF_MATCH_TTL=3Dm
+CONFIG_IP_NF_MATCH_TCPMSS=3Dm
+CONFIG_IP_NF_MATCH_HELPER=3Dm
+CONFIG_IP_NF_MATCH_STATE=3Dy
+CONFIG_IP_NF_MATCH_CONNTRACK=3Dy
+CONFIG_IP_NF_MATCH_UNCLEAN=3Dy
+CONFIG_IP_NF_MATCH_OWNER=3Dm
+CONFIG_IP_NF_FILTER=3Dy
+CONFIG_IP_NF_TARGET_REJECT=3Dy
+CONFIG_IP_NF_TARGET_MIRROR=3Dm
+CONFIG_IP_NF_NAT=3Dy
+CONFIG_IP_NF_NAT_NEEDED=3Dy
+CONFIG_IP_NF_TARGET_MASQUERADE=3Dy
+CONFIG_IP_NF_TARGET_REDIRECT=3Dm
+CONFIG_IP_NF_NAT_SNMP_BASIC=3Dm
+CONFIG_IP_NF_NAT_IRC=3Dy
+CONFIG_IP_NF_NAT_FTP=3Dy
+CONFIG_IP_NF_NAT_TFTP=3Dm
+CONFIG_IP_NF_NAT_AMANDA=3Dm
+CONFIG_IP_NF_MANGLE=3Dy
+CONFIG_IP_NF_TARGET_TOS=3Dy
+CONFIG_IP_NF_TARGET_ECN=3Dy
+CONFIG_IP_NF_TARGET_DSCP=3Dm
+CONFIG_IP_NF_TARGET_MARK=3Dy
+CONFIG_IP_NF_TARGET_LOG=3Dy
+CONFIG_IP_NF_TARGET_ULOG=3Dm
+CONFIG_IP_NF_TARGET_TCPMSS=3Dm
+CONFIG_IPV6_SCTP__=3Dy
+CONFIG_NET_SCHED=3Dy
+CONFIG_NET_SCH_CBQ=3Dy
+CONFIG_NET_SCH_HTB=3Dm
+CONFIG_NET_SCH_CSZ=3Dm
+CONFIG_NET_SCH_PRIO=3Dy
+CONFIG_NET_SCH_RED=3Dm
+CONFIG_NET_SCH_SFQ=3Dy
+CONFIG_NET_SCH_TEQL=3Dm
+CONFIG_NET_SCH_TBF=3Dm
+CONFIG_NET_SCH_GRED=3Dm
+CONFIG_NET_SCH_DSMARK=3Dm
+CONFIG_NET_SCH_INGRESS=3Dy
+CONFIG_NET_QOS=3Dy
+CONFIG_NET_ESTIMATOR=3Dy
+CONFIG_NET_CLS=3Dy
+CONFIG_NET_CLS_TCINDEX=3Dy
+CONFIG_NET_CLS_ROUTE4=3Dm
+CONFIG_NET_CLS_ROUTE=3Dy
+CONFIG_NET_CLS_FW=3Dy
+CONFIG_NET_CLS_U32=3Dy
+CONFIG_NET_CLS_RSVP=3Dm
+CONFIG_NET_CLS_POLICE=3Dy
+CONFIG_NETDEVICES=3Dy
+CONFIG_NET_ETHERNET=3Dy
+CONFIG_MII=3Dm
+CONFIG_NET_VENDOR_3COM=3Dy
+CONFIG_VORTEX=3Dy
+CONFIG_NET_PCI=3Dy
+CONFIG_SIS900=3Dy
+CONFIG_PPP=3Dy
+CONFIG_PPP_MULTILINK=3Dy
+CONFIG_PPP_FILTER=3Dy
+CONFIG_PPP_ASYNC=3Dm
+CONFIG_PPP_SYNC_TTY=3Dm
+CONFIG_PPP_DEFLATE=3Dm
+CONFIG_PPP_BSDCOMP=3Dm
+CONFIG_PPPOE=3Dy
+CONFIG_SLIP=3Dy
+CONFIG_SLIP_COMPRESSED=3Dy
+CONFIG_SLIP_SMART=3Dy
+CONFIG_SLIP_MODE_SLIP6=3Dy
+CONFIG_INPUT=3Dy
+CONFIG_INPUT_MOUSEDEV=3Dy
+CONFIG_INPUT_MOUSEDEV_PSAUX=3Dy
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=3D1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=3D768
+CONFIG_SOUND_GAMEPORT=3Dy
+CONFIG_SERIO=3Dy
+CONFIG_SERIO_I8042=3Dy
+CONFIG_INPUT_KEYBOARD=3Dy
+CONFIG_KEYBOARD_ATKBD=3Dy
+CONFIG_VT=3Dy
+CONFIG_VT_CONSOLE=3Dy
+CONFIG_HW_CONSOLE=3Dy
+CONFIG_SERIAL_8250=3Dy
+CONFIG_SERIAL_CORE=3Dy
+CONFIG_UNIX98_PTYS=3Dy
+CONFIG_UNIX98_PTY_COUNT=3D256
+CONFIG_I2C=3Dy
+CONFIG_I2C_ALGOBIT=3Dy
+CONFIG_I2C_CHARDEV=3Dy
+CONFIG_I2C_VIAPRO=3Dy
+CONFIG_SENSORS_VIA686A=3Dy
+CONFIG_I2C_SENSOR=3Dy
+CONFIG_RTC=3Dy
+CONFIG_AGP=3Dy
+CONFIG_AGP_VIA=3Dy
+CONFIG_DRM=3Dy
+CONFIG_DRM_TDFX=3Dy
+CONFIG_VIDEO_DEV=3Dy
+CONFIG_VIDEO_PROC_FS=3Dy
+CONFIG_EXT2_FS=3Dy
+CONFIG_EXT3_FS=3Dy
+CONFIG_JBD=3Dy
+CONFIG_AUTOFS_FS=3Dm
+CONFIG_AUTOFS4_FS=3Dy
+CONFIG_ISO9660_FS=3Dm
+CONFIG_JOLIET=3Dy
+CONFIG_ZISOFS=3Dy
+CONFIG_ZISOFS_FS=3Dm
+CONFIG_FAT_FS=3Dm
+CONFIG_MSDOS_FS=3Dm
+CONFIG_VFAT_FS=3Dm
+CONFIG_PROC_FS=3Dy
+CONFIG_DEVPTS_FS=3Dy
+CONFIG_TMPFS=3Dy
+CONFIG_RAMFS=3Dy
+CONFIG_NFS_FS=3Dy
+CONFIG_NFS_V3=3Dy
+CONFIG_NFS_V4=3Dy
+CONFIG_NFSD=3Dy
+CONFIG_NFSD_V3=3Dy
+CONFIG_NFSD_V4=3Dy
+CONFIG_NFSD_TCP=3Dy
+CONFIG_LOCKD=3Dy
+CONFIG_LOCKD_V4=3Dy
+CONFIG_EXPORTFS=3Dy
+CONFIG_SUNRPC=3Dy
+CONFIG_SMB_FS=3Dm
+CONFIG_CIFS=3Dm
+CONFIG_CODA_FS=3Dm
+CONFIG_MSDOS_PARTITION=3Dy
+CONFIG_SMB_NLS=3Dy
+CONFIG_NLS=3Dy
+CONFIG_NLS_DEFAULT=3D"iso8859-1"
+CONFIG_NLS_CODEPAGE_437=3Dy
+CONFIG_NLS_ISO8859_1=3Dy
+CONFIG_NLS_ISO8859_15=3Dy
+CONFIG_NLS_UTF8=3Dy
+CONFIG_FB=3Dy
+CONFIG_FB_MATROX=3Dm
+CONFIG_FB_MATROX_MILLENIUM=3Dy
+CONFIG_FB_3DFX=3Dy
+CONFIG_VGA_CONSOLE=3Dy
+CONFIG_DUMMY_CONSOLE=3Dy
+CONFIG_LOGO=3Dy
+CONFIG_LOGO_LINUX_CLUT224=3Dy
+CONFIG_SOUND=3Dy
+CONFIG_SND=3Dy
+CONFIG_SND_SEQUENCER=3Dy
+CONFIG_SND_OSSEMUL=3Dy
+CONFIG_SND_MIXER_OSS=3Dy
+CONFIG_SND_RTCTIMER=3Dy
+CONFIG_SND_CMIPCI=3Dy
+CONFIG_SND_VIA82XX=3Dy
+CONFIG_USB=3Dy
+CONFIG_USB_DEVICEFS=3Dy
+CONFIG_USB_BANDWIDTH=3Dy
+CONFIG_USB_UHCI_HCD=3Dy
+CONFIG_USB_PRINTER=3Dy
+CONFIG_USB_STORAGE=3Dm
+CONFIG_USB_HID=3Dy
+CONFIG_USB_HIDINPUT=3Dy
+CONFIG_DEBUG_KERNEL=3Dy
+CONFIG_MAGIC_SYSRQ=3Dy
+CONFIG_X86_EXTRA_IRQS=3Dy
+CONFIG_X86_FIND_SMP_CONFIG=3Dy
+CONFIG_X86_MPPARSE=3Dy
+CONFIG_ZLIB_INFLATE=3Dm
+CONFIG_ZLIB_DEFLATE=3Dm
+CONFIG_X86_BIOS_REBOOT=3Dy
+
+The kernel was patched with Con's O12, but I don't think the scheduler
+messed up.
+THe wrong boot command line is global_enable_wol=3DY, a leftover from my
+wake-on-lan playing. I already removed it.
+
+--=20
+Regards,
+
+Wiktor Wodecki
+
+--qM81t570OJUP5TU/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/MX676SNaNRgsl4MRAjtrAKClMgzfkHKKutFyea3nRWwoP+RwhQCgkoqW
+lAAxUcd7vIFNcX+ctHCFXls=
+=Zzpp
+-----END PGP SIGNATURE-----
+
+--qM81t570OJUP5TU/--

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262174AbTCZUKB>; Wed, 26 Mar 2003 15:10:01 -0500
+	id <S262001AbTCZUBv>; Wed, 26 Mar 2003 15:01:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262311AbTCZUKB>; Wed, 26 Mar 2003 15:10:01 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:1540 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262174AbTCZUJx>;
-	Wed, 26 Mar 2003 15:09:53 -0500
-Date: Thu, 27 Mar 2003 08:47:27 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@codemonkey.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-       J?rn Engel <joern@wohnheim.fh-wedel.de>,
-       James Bourne <jbourne@hardrock.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Ptrace hole / Linux 2.2.25
-Message-ID: <20030327074727.GA3021@zaurus.ucw.cz>
-References: <3E7E4C63.908@gmx.de> <Pine.LNX.4.44.0303231717390.19670-100000@cafe.hardrock.org> <20030324003946.GA11081@wohnheim.fh-wedel.de> <3E7E736D.4020200@zytor.com> <20030324144219.GC29637@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030324144219.GC29637@suse.de>
-User-Agent: Mutt/1.3.27i
+	id <S262062AbTCZUBu>; Wed, 26 Mar 2003 15:01:50 -0500
+Received: from vbws78.voicebs.com ([66.238.160.78]:30727 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S262001AbTCZUA3>; Wed, 26 Mar 2003 15:00:29 -0500
+Message-ID: <3E82097A.2040306@didntduck.org>
+Date: Wed, 26 Mar 2003 15:11:38 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ravikumar.chakaravarthy@amd.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Unable to turn paging on!!
+References: <99F2150714F93F448942F9A9F112634CA54B3A@txexmtae.amd.com>
+In-Reply-To: <99F2150714F93F448942F9A9F112634CA54B3A@txexmtae.amd.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+ravikumar.chakaravarthy@amd.com wrote:
+> I tweaked the kernel and boot loader to load the kernel at 0xdf000000, physical address. I did the following changes to setup the initial page table.
+> 
+> However during boot, in arch/i386/kernel/head.S when the paging bit is set 
+>        movl %eax,%cr0          /* ..and set paging (PG) bit */
+> 
+> My computer hangs!!
+> 
+> Any idea why??
+> 
+>   -Ravi
 
->  > >maybe. Peter, what do you think?
->  > I'd rather keep the collection itself on kernel.org.
-> 
-> Another possibility just occured to me.
-> It'd be useful to add a feature that adds a check to the
-> build process..
-> 
-> "Download post-release errata ? [Y/n]"
-> 
-> and have it wget patches from k.o, verify signatures and auto-apply them,
-> which removes the "admin didnt even know there were patches
-> that needed to be applied" possibility.
-> 
+The kernel can only be loaded into memory that is directly mapped, which 
+is the first 960MB.  Why do you need to change the load address?
 
-That looks like ugly can of worms to me.
-"what kernel do you have?"
-"2.4.25 and it did two downloads; I was
-compiling it on the friday night"
-
-				Pavel
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+--
+				Brian Gerst
 

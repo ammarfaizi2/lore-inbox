@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317142AbSFFTty>; Thu, 6 Jun 2002 15:49:54 -0400
+	id <S317141AbSFFTvX>; Thu, 6 Jun 2002 15:51:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317148AbSFFTtw>; Thu, 6 Jun 2002 15:49:52 -0400
-Received: from wsip68-14-236-254.ph.ph.cox.net ([68.14.236.254]:18670 "EHLO
-	mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S317142AbSFFTti>; Thu, 6 Jun 2002 15:49:38 -0400
-Message-ID: <000001c20d93$3e430b50$66aca8c0@kpfhome>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: "Tomas Szepe" <szepe@pinerecords.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <000701c20d8a$7234b520$66aca8c0@kpfhome> <20020606191503.GH17859@louise.pinerecords.com>
-Subject: Re: kbuild-2.5 2.4.19-pre10-ac2 "automatic" make installable?
-Date: Thu, 6 Jun 2002 12:45:16 -0700
-Organization: Laboratory Systems Group, Inc.
+	id <S317123AbSFFTvV>; Thu, 6 Jun 2002 15:51:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19729 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317157AbSFFTuW>;
+	Thu, 6 Jun 2002 15:50:22 -0400
+Message-ID: <3CFFBCA9.843C40F0@zip.com.au>
+Date: Thu, 06 Jun 2002 12:48:57 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Robert Love <rml@tech9.net>
+CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] CONFIG_NR_CPUS
+In-Reply-To: <20020606.031520.08940800.davem@redhat.com> <1023377213.13787.2.camel@sinai>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, my bad. I won't shoot myself in the foot again.
+Robert Love wrote:
+> 
+> On Thu, 2002-06-06 at 03:15, David S. Miller wrote:
+> 
+> > Nice.  While you're at it can you fix the value on 64-bit
+> > platforms when CONFIG_NR_CPUS is not specified?  (it should
+> > be 64, not 32)
+> 
+> I agree, this is good.  I often am toying with some debugging aid that
+> is an array of NR_CPUS and waste a lot of memory with NR_CPUS stuck at
+> 32... no reason my kernels should not be set to 2 or whatever I need.
+> 
+> I have attached a patch that is Andrew's + your request, Dave.  Since
+> what really determines the maximum number of CPUs is the size of
+> unsigned long, I used that.  Cool?
+> 
+> ...
+> +#define NR_CPUS        (sizeof(unsigned long) * 8)
 
------ Original Message -----
-From: "Tomas Szepe" <szepe@pinerecords.com>
-To: "Kevin P. Fleming" <kevin@labsysgrp.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, June 06, 2002 12:15 PM
-Subject: Re: kbuild-2.5 2.4.19-pre10-ac2 "automatic" make installable?
+OK.  What I'll do is:
 
+#ifdef CONFIG_SMP
+#define NR_CPUS CONFIG_NR_CPUS
+#else
+#define NR_CPUS 1
+#endif
 
-> > <snip>?
-> > ... and renamed Makefile to Makefile-2.4 and Makefile-2.5 to
-> > Makefile (so I don't have to keep specifying -f Makefile-2.5).
->
-> You are not supposed to do this. The original Makefile gets grepped
-> for kernel version by kbuild 2.5. Your renaming the Makefiles is probably
-> the cause of the seemingly automated rebuild.
->
-> T.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+and then go edit every SMP-capable arch's config.in/Config.help
+files.  But the arch maintainers should test one case please - x86
+was locking up at boot on quad CPU with NR_CPUS=2.  Others may do
+the same.
 
+About a quarter of the bloat is runqueues.  If we could dynamically
+allocate those in sched_init() it would be good, because presumably
+vendor kernels will be configured for the maximum number of CPUs.
+
+-

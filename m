@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129766AbRBSBnq>; Sun, 18 Feb 2001 20:43:46 -0500
+	id <S130073AbRBSBoR>; Sun, 18 Feb 2001 20:44:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130073AbRBSBng>; Sun, 18 Feb 2001 20:43:36 -0500
-Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:58888 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S129766AbRBSBnQ>; Sun, 18 Feb 2001 20:43:16 -0500
-Date: Mon, 19 Feb 2001 01:43:14 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: sendfile() breakage was Re: SO_SNDTIMEO: 2.4 kernel bugs
-In-Reply-To: <Pine.LNX.4.30.0102190025270.19003-100000@ferret.lmh.ox.ac.uk>
-Message-ID: <Pine.LNX.4.30.0102190138240.19003-100000@ferret.lmh.ox.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130436AbRBSBoJ>; Sun, 18 Feb 2001 20:44:09 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:62470 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130073AbRBSBnv>;
+	Sun, 18 Feb 2001 20:43:51 -0500
+Date: Mon, 19 Feb 2001 02:43:30 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andries.Brouwer@cwi.nl
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, zzed@cyberdude.com
+Subject: Re: [PROBLEM] 2.4.1 can't mount ext2 CD-ROM
+Message-ID: <20010219024330.B8227@suse.de>
+In-Reply-To: <UTC200102182111.WAA170825.aeb@vlet.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <UTC200102182111.WAA170825.aeb@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Sun, Feb 18, 2001 at 10:11:36PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 18 2001, Andries.Brouwer@cwi.nl wrote:
+>     > Strange. The twelve or so CD readers I have here are all
+>     > able to read 512-byte sectors. I am quite willing to believe
+> 
+>     I think most Plextor and Yamaha do, but it's not guaranteed to
+>     be supported. And it definitely won't for ATAPI with ide-scsi.
+> 
+> Strange. I just used ATAPI with ide-scsi as test. It works.
 
-On Mon, 19 Feb 2001, Chris Evans wrote:
+Yeah it works because sr does read padding on drives that can't dish
+out 512b sectors... This is my point.
 
-> > BTW, if you have enough fast network, you probably can observe
-> > that sendfile() is even not interrupted by signals. 8) But this
-> > is possible to fix at least. BTW the same fix will repair SO_*TIMEO
-> > partially, i.e. it will timeout after n*timeo, where n is an arbitrary
-> > number not exceeding size/sndbuf.
->
-> Hi Alexey,
->
-> You are right - our sendfile() implementation is broken. I have fixed it
-> (patch at end of mail).
+> Setting hardsect_size to 2048 means: this hardware is unable
+> to use smaller blocks, give an error to whoever asks for
+> something smaller.
 
-Actually the whole mess stems from our broken internal ->write() and
-->read() APIs.
+Which is the case for some drives. The error now occurs when ext2
+forcibly tries to set the block size.
 
-The _single_ return value is trying to convery _two_ pieces of information
-- always a bad move. They are:
-1) Success/failure (and error code if it's a failure)
-2) Amount of bytes read or written
+> Not setting hardsect_size at all means: I have no idea what this
+> hardware can do. Now it is up to the user. If the user tries
+> something the hardware cannot do, she will get EIO.
+> Limiting the user in advance is a bad idea.
 
-This bogon does not allow for the following information to be returned
-(assume I asked for 8192 bytes to be written):
-"4096 bytes were written, and the operation was aborted due to EINTR"
+Ok agreed, just forcing 2048 is a bit harsh but it was nicer than
+letting sr bomb on 512b requests at the time.
 
-Cheers
-Chris
+-- 
+Jens Axboe
 

@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVBVVU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVBVVUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbVBVVU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 16:20:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVBVVU1
+	id S261250AbVBVVUU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 16:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVBVVUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 16:20:27 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:7907 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261253AbVBVVUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 16:20:17 -0500
-Message-ID: <421BA1FD.8030108@nortel.com>
-Date: Tue, 22 Feb 2005 15:19:57 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Andrew Morton <akpm@osdl.org>, Olof Johansson <olof@austin.ibm.com>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, rusty@rustcorp.com.au
+	Tue, 22 Feb 2005 16:20:20 -0500
+Received: from gate.crashing.org ([63.228.1.57]:10975 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261250AbVBVVUO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 16:20:14 -0500
 Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
-References: <20050222190646.GA7079@austin.ibm.com> <20050222115503.729cd17b.akpm@osdl.org> <20050222210752.GG22555@mail.shareable.org>
-In-Reply-To: <20050222210752.GG22555@mail.shareable.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Olof Johansson <olof@austin.ibm.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, jamie@shareable.org,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       David Howells <dhowells@redhat.com>
+In-Reply-To: <1109106969.5412.138.camel@gaston>
+References: <20050222190646.GA7079@austin.ibm.com>
+	 <Pine.LNX.4.58.0502221123540.2378@ppc970.osdl.org>
+	 <1109106969.5412.138.camel@gaston>
+Content-Type: text/plain
+Date: Wed, 23 Feb 2005 08:19:20 +1100
+Message-Id: <1109107160.5326.140.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-
-> In futex.c:
+On Wed, 2005-02-23 at 08:16 +1100, Benjamin Herrenschmidt wrote:
+> On Tue, 2005-02-22 at 11:36 -0800, Linus Torvalds wrote:
 > 
-> 	down_read(&current->mm->mmap_sem);
-> 	get_futex_key(...) etc.
-> 	queue_me(...) etc.
-> 	current->flags |= PF_MMAP_SEM;             <- new
-> 	ret = get_user(...);
-> 	current->flags &= PF_MMAP_SEM;             <- new
-> 	/* the rest */
+> > DavidH - what's the word on nested read-semaphores like this? Are they 
+> > supposed to work (like nested read-spinlocks), or do we need to do the 
+> > things Olof does?
+> 
+> Isn't Olof scheme racy ? Can't the stuff get swapped out between the
+> first get_user() and the "real" one ?
 
-Should the second new line be this (with the inverse)?
+Forget it, I missed the check_user_page_readable() guy within the
+semaphore protection. I didn't know that function ;)
 
-	current->flags &= ~PF_MMAP_SEM;
+Ben.
 
 
-Chris

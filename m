@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265302AbTLHCh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 21:37:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265306AbTLHCh5
+	id S265305AbTLHCdA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 21:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265306AbTLHCdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 21:37:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50568 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265302AbTLHChz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 21:37:55 -0500
-Date: Sun, 7 Dec 2003 18:37:44 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Gordon Cormack <gvcormac@uwaterloo.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.test11 bug
-In-Reply-To: <20031208022427.GA12859@cormack.uwaterloo.ca>
-Message-ID: <Pine.LNX.4.58.0312071835020.10665@home.osdl.org>
-References: <20031208022427.GA12859@cormack.uwaterloo.ca>
+	Sun, 7 Dec 2003 21:33:00 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:30660 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S265305AbTLHCc7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 21:32:59 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "John Bradford" <john@grabjohn.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Additional clauses to GPL in network drivers
+Date: Sun, 7 Dec 2003 18:32:54 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKELHIIAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <200312071515.hB7FFkQH000866@81-2-122-30.bradfords.org.uk>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+	It occurs to me that it might not be a bad idea to have a short blurb that
+could be included in individual files that clarifies that the file is part
+of a GPL'd distribution but that's clear that it doesn't impose any
+additional restrictions. Here's a stab at such a notice just off the top of
+my head:
 
-On Sun, 7 Dec 2003, Gordon Cormack wrote:
->
-> I have read the FAQ but I'm confused about how to report a 2.6
-> kernel bug, or who to report it to.
+The contents of this is file are protected by copyright and consist of
+portions of the Linux kernel source code. The Linux kernel source code is
+distributed and licensed under the terms of the GPL and no permission is
+granted to distribute this file, or works derived therefrom, under any other
+terms. The full terms of the GPL should have been included with your
+distribution in a file called 'COPYING'.
 
-This is good.
+	Note that if you want to use this file (or portions of it) in another
+project that's also distributed under the GPL, it's perfectly reasonable to
+remove or modify this paragraph. We could also have a version that would
+survive even that change, maybe like this:
 
-> Here it is in a nutshell.
+The contents of this is file are protected by copyright and were distributed
+to you as a portion of a work distributed under the terms of the GPL and all
+other rights are reserved by the respective authors. No permission is
+granted to distribute this file, or works derived therefrom, under any other
+terms. The full terms of the GPL should have been included with your
+distribution in a file called 'COPYING'.
 
-And we want some more information on what kind of load/machine/config this
-is. However, I'm guessing from the report..
+	DS
 
-> Dec  6 13:16:01 flax20 kernel: Bad page state at free_hot_cold_page
 
-..that this might be running XFS? We've had this report from XFS users
-before.
-
-But if it isn't using XFS, holler _loudly_, and please do include more
-information about what configuration (both hardware and kernel config) the
-machine has.
-
-> As an aside, all versions of the 2.4 kernel are brought to their knees
-> in this application ("kswapd problems" hit full force and none of the
-> suggested patches worked).  Even with the occasional crash, 2.6.test11 is
-> way better.
-
-Hey, I don't like the occasional crash either.
-
-		Linus

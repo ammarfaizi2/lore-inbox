@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbREWKBC>; Wed, 23 May 2001 06:01:02 -0400
+	id <S261407AbREWJ7M>; Wed, 23 May 2001 05:59:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261369AbREWKAw>; Wed, 23 May 2001 06:00:52 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:14043 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S261353AbREWKAd>; Wed, 23 May 2001 06:00:33 -0400
-Message-ID: <3B0B8924.F0B78288@uow.edu.au>
-Date: Wed, 23 May 2001 19:55:48 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Manas Garg <mls@chakpak.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: O_TRUNC problem on a full filesystem
-In-Reply-To: <20010523114318.A8336@cygsoft.com>
+	id <S261369AbREWJ6y>; Wed, 23 May 2001 05:58:54 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:55824 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S261347AbREWJ6u>;
+	Wed, 23 May 2001 05:58:50 -0400
+Date: Wed, 23 May 2001 12:58:31 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Steve Modica <modica@sgi.com>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        "Brent D. Norris" <brent@biglinux.tccw.wku.edu>,
+        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-hams@vger.kernel.org, linux-ppp@vger.kernel.org
+Subject: Re: ECN is on!
+Message-ID: <20010523125831.S5947@mea-ext.zmailer.org>
+In-Reply-To: <200105221612.SAA26062@cave.bitwizard.nl> <3B0A9387.A1096DE5@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3B0A9387.A1096DE5@sgi.com>; from modica@sgi.com on Tue, May 22, 2001 at 11:27:51AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manas Garg wrote:
-> 
-> I am not sure if it should be classified as a bug, that's why I am calling it a
-> problem. Here is the description:
-> 
+  Folks, herewith I declare this topic ("ECN is on") TABOO, if
+  you want to continue discussing it, do that at   linux-kernel
+  WITH NEW TOPIC.
 
-It works fine with ext3 :)
+  My original message had  reply-to  pointing to  linux-kernel,
+  but all it takes is single person to ignore that...
 
-That's because ext3 has per-file block preallocation
-disabled.
+  Spare the other lists, my original intention was to "spread
+  the word", as not everybody subscribes  linux-kernel ...
 
-When you truncated your file, the blocks remained preallocated
-on behalf of the file, and were hence considered "used".  For
-some reason, a subsequent attempt to allocate blocks for the
-same file failed to use that file's preallocated blocks.
-
-It's an arguable bug in ext2 and, as you've seen, the consequences
-are bad.  Your applications _are_ a little bit buggy,
-because they can't assume that just because they
-truncated the file, that space will remain available to
-them.
-
-Maybe someone would like to wade through screenfuls of icky
-single-char identifiers and fix it?
-
--
+/Matti Aarnio

@@ -1,28 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314344AbSD0S1v>; Sat, 27 Apr 2002 14:27:51 -0400
+	id <S314343AbSD0SaY>; Sat, 27 Apr 2002 14:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314343AbSD0S1t>; Sat, 27 Apr 2002 14:27:49 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56593 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314358AbSD0S1h>; Sat, 27 Apr 2002 14:27:37 -0400
-Subject: Re: kswapd/X oops on > 2.4.15/2.5.0 (yes, with the nVidia drivers.)
-To: vogon@icculus.org (Colin Bayer)
-Date: Sat, 27 Apr 2002 19:46:09 +0100 (BST)
-Cc: linux-bugs@nvidia.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0204270026140.24721-100000@gamehenge.icculus.org> from "Colin Bayer" at Apr 27, 2002 01:05:34 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S314351AbSD0SaX>; Sat, 27 Apr 2002 14:30:23 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:16275 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S314343AbSD0SaP>;
+	Sat, 27 Apr 2002 14:30:15 -0400
+Date: Sat, 27 Apr 2002 14:30:14 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Christoph Lameter <christoph@lameter.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [OFF TOPIC] BK license change
+In-Reply-To: <Pine.LNX.4.44.0204271103290.5887-100000@k2-400.lameter.com>
+Message-ID: <Pine.GSO.4.21.0204271425030.25240-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E171XD0-0000Hg-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Using the proprietary nVidia drivers (yes, *evil*, whatever) on kernels
-> above 2.4.15, kswapd randomly oopses after a few days up, followed a
-> couple minutes later by X (which either dumps me to console or royally
-> fux0rz my screen, depending on its mood.)
 
-Talk to Nvidia. Please don't cc this list with such stuff.
+
+On Sat, 27 Apr 2002, Christoph Lameter wrote:
+
+> The best thing would be to stop this egg-dance around open sourceness and
+> release BK under GPL. This is wasting too much time. Trying to use a
+
+1001st time, CHOICE OF LICENSE BELONGS AUTHOR OF CODE IN QUESTION, dimwit.
+How many times should that be repeated until it sinks down?
+
+> I do not even know how BK works and I am not interested ...
+> just offended by ppl making access to development kernel source code
+> difficult
+
+... and who the hell would these people be?  I _AM_ interested since
+I'm not using BK and I'm working on aforementioned development kernel
+source.  Care to enlighten me?
+
+Until you've got real arguments (ones that would include some proof
+if the claims you've made) - fuck off and stop polluting l-k with
+your drivel.
+

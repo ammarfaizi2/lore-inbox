@@ -1,108 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261972AbUBWVPL (ORCPT <rfc822;willy@w.ods.org>);
+	id S262009AbUBWVPL (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 23 Feb 2004 16:15:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbUBWVNO
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUBWVNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 16:13:14 -0500
-Received: from mail.convergence.de ([212.84.236.4]:48618 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S261989AbUBWVFA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 16:05:00 -0500
-To: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       hunold@linuxtv.org
-From: Michael Hunold <hunold@linuxtv.org>
-Subject: [PATCH 9/9] TTUSB-Budget DVB driver update
-In-Reply-To: <10775702853317@convergence.de>
-Message-Id: <10775702863321@convergence.de>
-X-Mailer: gregkh_patchbomb_levon_offspring_mihu_extended
-Date: Mon, 23 Feb 2004 16:05:00 -0500
+	Mon, 23 Feb 2004 16:13:25 -0500
+Received: from mail.kroah.org ([65.200.24.183]:58321 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262009AbUBWVKb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 16:10:31 -0500
+Date: Mon, 23 Feb 2004 13:08:21 -0800
+From: Greg KH <greg@kroah.com>
+To: Martin <marogge@onlinehome.de>
+Cc: Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
+       vishwas.manral@lycos.com, "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Badness in pci_find_subsys
+Message-ID: <20040223210821.GB22598@kroah.com>
+References: <DMOCIEPNKDKOLIAA@mailcity.com> <200402230639.00737.robin.rosenberg.lists@dewire.com> <200402230830.45003.marogge@onlinehome.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402230830.45003.marogge@onlinehome.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- [DVB] dvb-ttusb-budget: Fixed i2c code to detect nearly all errors
-- [DVB] dvb-ttusb-budget: Added "V 2.1" to prevent warning message on driver load
-- [DVB] dvb-ttusb-budget: Some printks turned into dprintks
-- [DVB] dvb-ttusb-budget: Removed __initdata. It is now possible in kernel 2.6 to compile the DVB drivers into a monolithic kernel.
-- [DVB] dvb-ttusb-budget: Fix for failing urb submission under 2.6 kernels
-diff -uNrwB --new-file xx-linux-2.6.3/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c linux-2.6.3.p/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c
---- xx-linux-2.6.3/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c	2004-01-09 09:22:40.000000000 +0100
-+++ linux-2.6.3.p/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c	2004-02-02 19:28:30.000000000 +0100
-@@ -29,6 +29,7 @@
- #include <linux/dvb/dmx.h>
- #include <linux/pci.h>
- 
-+#include "dvb_usb_compat.h"
- #include "dvb_functions.h"
- 
- /*
-@@ -223,6 +224,9 @@
- 
- 	err = ttusb_result(ttusb, b, 0x20);
- 
-+        /* check if the i2c transaction was successful */
-+        if ((snd_len != b[5]) || (rcv_len != b[6])) return -EREMOTEIO;
-+
- 	if (rcv_len > 0) {
- 
- 		if (err || b[0] != 0x55 || b[1] != id) {
-@@ -273,7 +277,7 @@
- 				    snd_buf, snd_len, rcv_buf, rcv_len);
- 
- 		if (err < rcv_len) {
--			printk("%s: i == %i\n", __FUNCTION__, i);
-+			dprintk("%s: i == %i\n", __FUNCTION__, i);
- 			break;
- 		}
- 
-@@ -432,7 +436,8 @@
- 		get_version[7], get_version[8]);
- 
- 	if (memcmp(get_version + 4, "V 0.0", 5) &&
--	    memcmp(get_version + 4, "V 1.1", 5)) {
-+	    memcmp(get_version + 4, "V 1.1", 5) &&
-+   	    memcmp(get_version + 4, "V 2.1", 5)) {
- 		printk
- 		    ("%s: unknown STC version %c%c%c%c%c, please report!\n",
- 		     __FUNCTION__, get_version[4], get_version[5],
-@@ -932,7 +953,7 @@
- 	struct ttusb *ttusb = (struct ttusb *) dvbdmxfeed->demux;
- 	struct ttusb_channel *channel;
- 
--	printk("ttusb_start_feed\n");
-+	dprintk("ttusb_start_feed\n");
- 
- 	switch (dvbdmxfeed->type) {
- 	case DMX_TYPE_TS:
-@@ -1004,7 +1025,7 @@
- 
- static int ttusb_setup_interfaces(struct ttusb *ttusb)
- {
--	usb_reset_configuration(ttusb->dev);
-+	usb_set_configuration(ttusb->dev, 1);
- 	usb_set_interface(ttusb->dev, 1, 1);
- 
- 	ttusb->bulk_out_pipe = usb_sndbulkpipe(ttusb->dev, 1);
-@@ -1186,7 +1238,7 @@
- static struct usb_device_id ttusb_table[] = {
- 	{USB_DEVICE(0xb48, 0x1003)},
- 	{USB_DEVICE(0xb48, 0x1004)},	/* to be confirmed ????  */
--	{USB_DEVICE(0xb48, 0x1005)},	/* to be confirmed ????  */
-+	{USB_DEVICE(0xb48, 0x1005)},
- 	{}
- };
- 
-diff -uNrwB --new-file xx-linux-2.6.3/drivers/media/dvb/ttusb-budget/dvb-ttusb-dspbootcode.h linux-2.6.3.p/drivers/media/dvb/ttusb-budget/dvb-ttusb-dspbootcode.h
---- xx-linux-2.6.3/drivers/media/dvb/ttusb-budget/dvb-ttusb-dspbootcode.h	2003-12-18 12:54:50.000000000 +0100
-+++ linux-2.6.3.p/drivers/media/dvb/ttusb-budget/dvb-ttusb-dspbootcode.h	2004-02-02 19:28:30.000000000 +0100
-@@ -1,7 +1,7 @@
- 
- #include <asm/types.h>
- 
--u8 dsp_bootcode [] __initdata = {
-+u8 dsp_bootcode [] = {
- 	0x08, 0xaa, 0x00, 0x18, 0x00, 0x03, 0x08, 0x00, 
- 	0x00, 0x10, 0x00, 0x00, 0x01, 0x80, 0x18, 0x5f, 
- 	0x00, 0x00, 0x01, 0x80, 0x77, 0x18, 0x2a, 0xeb, 
+On Mon, Feb 23, 2004 at 08:30:44AM +0100, Martin wrote:
+> On Monday 23 February 2004 06:39, Robin Rosenberg wrote:
+> 
+> > > I was checking the pci documentation and it said under the heading
+> > > Obsolete function pci_find_subsys() - Superseded by pci_get_subsys() as
+> > > the former is not Hot plug safe. Could this be related to the problem
+> >
+> > You WHAT? Read the documentation! :-) I thought the ones calling the
+> > function should do that.
+> 
+> Reading the documentation (ie. source code) it appears the problem is 
+> triggered by the line
+> 
+> WARN_ON(in_interrupt());
+> 
+> Looks like the driver calls pci_find_subsys() from inside an interrupt on 
+> occasions which apparently it shouldn't. The problem seems to be on 
+> nvidia's side, not kernel development. I have emailed nvidia about it some 
+> time ago, so far no reaction... 
 
+This is correct, that function should not be called from within an
+interrupt.  That is just stupid programming...
 
+thanks,
+
+greg k-h

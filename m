@@ -1,88 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131008AbRCFQ3H>; Tue, 6 Mar 2001 11:29:07 -0500
+	id <S131011AbRCFQeI>; Tue, 6 Mar 2001 11:34:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131006AbRCFQ24>; Tue, 6 Mar 2001 11:28:56 -0500
-Received: from msgbas1x.cos.agilent.com ([192.6.9.33]:18921 "HELO
-	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S130988AbRCFQ2v>; Tue, 6 Mar 2001 11:28:51 -0500
-From: Jorge David Ortiz Fuentes <jorge_ortiz@hp.com>
-Date: Tue, 6 Mar 2001 17:28:43 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Process vs. Threads
-Message-ID: <20010306172843.D1283@hpspss3g.spain.hp.com>
+	id <S131010AbRCFQd7>; Tue, 6 Mar 2001 11:33:59 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:16349 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S131009AbRCFQdq>;
+	Tue, 6 Mar 2001 11:33:46 -0500
+Date: Tue, 6 Mar 2001 17:33:37 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Jeremy Jackson <jerj@coplanar.net>
+Cc: mshiju@in.ibm.com, linux-kernel@vger.kernel.org, linux-mca@vger.kernel.org
+Subject: Re: Linux installation problem
+Message-ID: <20010306173337.C21941@khan.acc.umu.se>
+In-Reply-To: <CA256A07.00341167.00@d73mta05.au.ibm.com> <3AA50CE8.2EA86CD@coplanar.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3AA50CE8.2EA86CD@coplanar.net>; from jerj@coplanar.net on Tue, Mar 06, 2001 at 11:14:32AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody:
+On Tue, Mar 06, 2001 at 11:14:32AM -0500, Jeremy Jackson wrote:
+> mshiju@in.ibm.com wrote:
+> 
+> > Hi all,
+> > I am trying to install Linux (redhat-7) on a ps/2
+> > server-9595 machine (mca ). I am booting from a floppy
+> > disk and using a custom build 2.4.1 kernel image since
+> > there are problems  booting  the machine using the
+> > installation image on  redhat CD and also it is not CD
+> > bootable. The problem is that after booting it asks for
+> > redhat CDROM and when I insert the redhat CDROM it gives
+> > a message "I could not find a redhat linux CDROM in any
+> > of your CDROM drives ". The CD drive is a SCSI device and
+> > I have enabled SCSI cdrom in kernel compilation . Can any
+> > one help me .
+> >
+> > Thanks & Regards
+> > Shiju
+> 
+> Hi,
+> 
+> I have a type 8560 PS/2... not the same as yours but I did install
+> slackware on it once.
 
-  I have been trying to differenciate threads and process in Linux. As
-I am sure you already know, other OS, namely HPUX, implement threads
-in a different way.  There is a thread id (TID) field in the structure
-that is used by the scheduler and it is used to identify uniquely each
-"task" that can be run.  Using this structure makes easier to identify
-which threads belong to the same process and tools such as ps or top
-show the TID as a field.
+8560? Isn't that a 286?! Is it processor-upgraded?
 
-  I understand that changing this in the Linux kernel would mean that:
-* some tools will have to be modified.
-* the proc filesystem should create a directory using the TID instead
-of the PID.
-* some features as VM handling, signaling or exec()ing from a thread
-would be more difficult to implement.
-* compatibility will be broken.
+> I would suggest installing from a standard PC.  Boot disks are very
+> inflexible, since you don't have any utilities to poke around and
+> figure out what's going on.
 
-  However, I miss some way to indicate that two processes are, in
-fact, threads of the same process.  Maybe there is something I'm
-missing.  Let me elaborate this.
+> Once you have a complete root filesystem, once you've got a kernel to
+> recognise your scsi adapter, (and disk), you're off to the races, and
+> can use all kinds of tools to look into the CDROM problem...BUT
+> 
+> it's probably not going to recognise the disk either...
+> 
+> check different virtual consoles with alt-f1, f2, etc: under a normal
+> redhat boot disk, the different vc's will have diagnostic messages, ie
+> kernel messages, list of modules being loaded, etc.
+> 
+> maybe the best way is to be sure to compile kernel with support for
+> scsi subsystem *in kernel* - not module, along with scsi-disk,
+> scsi-cdrom, and your scsi host adapter.  the last one may be the
+> tricky one.  you will have to figure out if it is supported.  (the one
+> in my PS/2 is at least for 2.0 kernel)
 
-  If you run 'top' (sorted by memory usage) and, lets say, you have 9
-threads, you see the SIZE of these 4 threads 
+The 8595 either has an IBM FAST SCSI/2 (uses ibmmca) or an FD
+MCS-600/700 (uses fd_mcs).
 
- 10:40am  up  1:23,  1 user,  load average: 0.26, 0.22, 0.10
-52 processes: 51 sleeping, 1 running, 0 zombie, 0 stopped
-CPU states:  0.0% user,  3.1% system,  0.0% nice, 96.8% idle
-Mem:   322464K av,  306284K used,   16180K free,   16876K shrd,   32432K
-buff
-Swap:  530136K av,    8064K used,  522072K free                   13660K
-cached
+> if you can make the kernel on the boot disk use a smaller font,
+> you will be able to see more of the messages at once.
+> 
+> also, shift-PgUp should let you scroll back some of the messages.
+> look for the kernel messages from your scsi host adapter driver...
+> if you don't see any there's a problem!
+> 
+> take a look inside your box and see what kind of scsi adapter it has.
+> or use your reference disk to see what it is.  post that here
+> so someone (maybe me) can check for kernel support.
 
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT  LIB %CPU %MEM   TIME COMMAND
-  745 root       0   0  224M 217M  1596 S       0  0.0 68.9   0:00
-traffic_mana
-  840 root      15   0  224M 217M  1596 S       0  0.0 68.9   0:00
-traffic_mana
-  841 root       0   0  224M 217M  1596 S       0  0.0 68.9   0:13
-traffic_mana
-  846 root       0   0  224M 217M  1596 S       0  0.0 68.9   0:00
-traffic_mana
-  848 root       0   0  224M 217M  1596 S       0  0.0 68.9   0:00
-traffic_mana
-  850 root       0   0  224M 217M  1596 S       0  0.0 68.9   0:00
-traffic_mana
-  855 root       0   0  224M 217M  1596 S       0  0.0 68.9   0:00
-traffic_mana
-  856 root       0   0  224M 217M  1596 S       0  0.0 68.9   0:00
-traffic_mana
-  857 root       0   0  224M 217M  1596 S       0  0.0 68.9   0:00
-traffic_mana
+I've never ever installed any of my MCA-machines from CD, only using the
+a couple of boot-disks and installing the rest via net.
 
-  This information is missleading since there is no way to know that
-these 9 threads are sharing memory. If you run 'ps axl' you can see
-the hierarchy as if it was a multiprocess program, i.e. no difference
-to show you that they are threads.  Not even reading
-/proc/<pid>/status you get info about these being threads.
+Oh, and for that matter, I've never installed Red Hat either, but that
+shouldn't matter.
 
-  Of course, I am talking about kernel 2.2.x, but AFAIK this has not
-changed in the new kernels.
 
-  Would it make sense to include this as an entry of the /proc/<pid>?
-
-  Thanks for reading,
-
-    Jorge
-
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276826AbRJ2RQC>; Mon, 29 Oct 2001 12:16:02 -0500
+	id <S276641AbRJ2RQw>; Mon, 29 Oct 2001 12:16:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276766AbRJ2RPp>; Mon, 29 Oct 2001 12:15:45 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24327 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276641AbRJ2RP1>; Mon, 29 Oct 2001 12:15:27 -0500
-Subject: Re: Pls apply this spinlock patch to the kernel
-To: jdoelle@de.ibm.com (Juergen Doelle)
-Date: Mon, 29 Oct 2001 17:22:35 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <3BDD8241.8002B946@de.ibm.com> from "Juergen Doelle" at Oct 29, 2001 05:22:25 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276766AbRJ2RQo>; Mon, 29 Oct 2001 12:16:44 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:16770 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S276641AbRJ2RP4>;
+	Mon, 29 Oct 2001 12:15:56 -0500
+Message-ID: <3BDD8EEC.6DFE6BA5@candelatech.com>
+Date: Mon, 29 Oct 2001 10:16:28 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jurgen Botz <jurgen@botz.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: eepro100.c & Intel integrated MBs
+In-Reply-To: <11361.1004374395@nova.botz.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15yG7P-0003Kb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> and occupies the full cacheline. The five hottest spinlocks for this 
-> work load are set to that type (kmap_lock, lru_list_lock, 
-> pagecache_lock, kernel_flag, pagemap_lru_lock)  The change is done in 
-> the common code, except for the kernel_flag. 
+Jurgen Botz wrote:
 
-That seems overkill. What you are saying is that static spinlocks need
-to be declared in some cases to be followed by padding.
+> I'm now using the e100 driver from the Intel web site, which works
+> perfectly, and light testing shows the Scyld (Don Becker) driver
+> to work as well.  The Intel driver seems to have an incompatible
+> license (noxious advertising clause?), but the Scyld drivers don't...
+> at least there isn't any license mentioned and of course many
+> of the net drivers in the current kernel are just earlier versions
+> of the Scyld drivers.
 
-> +static spinlock_cacheline_t lru_list_lock_cacheline = {SPIN_LOCK_UNLOCKED};
-> +#define lru_list_lock  lru_list_lock_cacheline.lock
+The Scyld drivers have only recently started working with the 2.4 series,
+and there is some unholly war between Becker and the rest of the kernel
+hackers...so I don't think you'll ever see his drivers in the standard
+kernel again...  RH usually tries to load the e100 (Intel's driver)
+instead of the eepro100.  The e100's license is close to compatible
+with the kernel, and I've heard rumors that the remaining issues may
+be worked out...  I've also heard the code is ugly as hell...but it
+does seem to work.  If only the e100 supported MII IOCTLs then I'd
+use it all the time!
 
-So why not just add a macro for aligning then do
-
-spinlock_t pagecache_lock ____cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
-cache_line_pad;
-
-where cache_line_pad is an asm(".align") - I would assume that is
-sufficient - Linus ?
-
-Alan
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265221AbSKEVjJ>; Tue, 5 Nov 2002 16:39:09 -0500
+	id <S265125AbSKEVgw>; Tue, 5 Nov 2002 16:36:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265224AbSKEVjI>; Tue, 5 Nov 2002 16:39:08 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:57263 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265221AbSKEVjH>;
-	Tue, 5 Nov 2002 16:39:07 -0500
-Message-Id: <200211052145.gA5Ljdr32055@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Nikita@Namesys.COM, reiserfs-dev@Namesys.COM, Reiserfs-List@Namesys.COM,
-       Linux-Kernel@vger.kernel.org
-Subject: build failure: reiser4progs-0.1.0
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 05 Nov 2002 13:45:39 -0800
-From: Cliff White <cliffw@osdl.org>
+	id <S265126AbSKEVgw>; Tue, 5 Nov 2002 16:36:52 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:13071 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S265125AbSKEVgv>; Tue, 5 Nov 2002 16:36:51 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB182B@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: Manish Lachwani <manish@Zambeel.com>
+Subject: 0x40 errors reported by 3ware controllers ...
+Date: Tue, 5 Nov 2002 13:43:17 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Attempting to test reiser4, kernel 2.5.46, using the 2002.11.05 snapshot.
---------------------------------------------------
-gcc -DHAVE_CONFIG_H -I. -I. -I../.. -I../../include -g -O2 -D_REENTRANT 
--D_FILE_OFFSET_BITS=64 -g -W -Wall -Wno-unused -Werror 
--DPLUGIN_DIR=\"/usr/local/lib/reiser4\" -c alloc40.c -MT alloc40.lo -MD -MP 
--MF .deps/alloc40.TPlo  -fPIC -DPIC -o .libs/alloc40.lo
-cc1: warnings being treated as errors
-alloc40.c: In function `callback_fetch_bitmap':
-alloc40.c:50: warning: signed and unsigned type in conditional expression
-alloc40.c: In function `callback_flush_bitmap':
-alloc40.c:209: warning: signed and unsigned type in conditional expression
-alloc40.c: In function `callback_check_bitmap':
-alloc40.c:376: warning: signed and unsigned type in conditional expression
-make[3]: *** [alloc40.lo] Error 1
-make[3]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin/all
-oc40'
-make[2]: *** [all-recursive] Error 1
-make[2]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin'
-make[1]: *** [all-recursive] Error 1
-make[1]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0'
-make: *** [all] Error 2
--------------------------------------
-cliffw
-
+Hello,
+We are making use of 3ware 7x50 controllers with Maxtor and Seagate drives.
+In one such setup, the operating temperature of the drives/controllers is
+between 45-55 C. Numerous 0x40 Error messages are reported by the 3ware
+firmware. We are making use of 7.5 latest firmware and the latest 3ware
+driver with the 2.4.17 kernel. 
+I spoke with Maxtor and Seagate support and they claim that ECC errors are
+rarely seen on their drives at even higher temperatures. Are there any
+issues with the 3ware controllers/firmware that may cause it to misreport
+ECC errors? Maxtor even claimed that it could be errors with the SRAM on the
+controller. Could that be possible? Has this been seen? I noticed that the
+operating temperature of the controllers is 40C. What kind of errors can
+occur because of these ambient conditions?
+We are seeing these errors accross different types of drives too ...
+Thanks
 

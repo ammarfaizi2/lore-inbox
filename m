@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284187AbRLASJ2>; Sat, 1 Dec 2001 13:09:28 -0500
+	id <S284210AbRLASO5>; Sat, 1 Dec 2001 13:14:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284188AbRLASJJ>; Sat, 1 Dec 2001 13:09:09 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:39101 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S284186AbRLASIt>; Sat, 1 Dec 2001 13:08:49 -0500
-Date: Sat, 1 Dec 2001 11:08:47 -0700
-Message-Id: <200112011808.fB1I8lq31535@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
+	id <S284196AbRLASOr>; Sat, 1 Dec 2001 13:14:47 -0500
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:52477 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S284203AbRLASO3>; Sat, 1 Dec 2001 13:14:29 -0500
+Message-Id: <5.1.0.14.2.20011201181316.00b0a400@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 01 Dec 2001 18:14:16 +0000
+To: "H. Peter Anvin" <hpa@zytor.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Incremental prepatches
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17pre2: devfs: devfs_mk_dir(printers): could not append to dir: dffe45c0 "", err: -17
-In-Reply-To: <E16A6LR-00042s-00@mrvdom02.schlund.de>
-In-Reply-To: <E16A6LR-00042s-00@mrvdom02.schlund.de>
+In-Reply-To: <3C089BDB.4020801@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-kernel@borntraeger.net writes:
-> After upgrading from 2.4.16 to 2.4.17pre2 I got the following message in 
-> dmesg:
-> 
-> .
-> parport0: assign_addrs: aa5500ff(80)
-> parport_pc: Via 686A parallel port: io=0x378
-> devfs: devfs_mk_dir(printers): could not append to dir: dffe45c0 "", err: -17
-> lp0: using parport0 (polling).
+At 08:59 01/12/01, H. Peter Anvin wrote:
+>I have created a robot on kernel.org which makes incremental prepatches 
+>available.
 
-Something other than drivers/char/lp.c is creating (implicitly or
-explicitly) the "printers" directory in the devfs root dir. A
-find+grep on the kernel sources does not reveal anything which would
-do this. Either you are loading some other kernel module to which I
-don't have the sources, or you have created /dev/printers from
-user-space.
+Fantastic! Thanks! Finally I can stop doing the diffs myself. (-:
 
-The new devfs core is less forgiving about these kinds of
-bugs/misuses.
+Best regards,
 
-> devfs: devfs_register(nvidiactl): could not append to parent, err: -17
-> devfs: devfs_register(nvidia0): could not append to parent, err: -17
+         Anton
+
+>It looks for standard-named prepatches in the 
+>/pub/linux/kernel/v*.*/testing directories, and creates incrementals in 
+>the corresponding /pub/linux/kernel/v*.*/testing/incr directory.
 >
-> with 2.4.16 and before the message was:
-> 
-> devfs: devfs_register(): device already registered: "nvidia0"
+>For example:
+>
+>hera 86 % cd /pub/linux/kernel/v2.5/testing/incr/
+>hera 87 % ls -l *.gz
+>-rw-rw-r--    1 kdist    kernel     177158 Nov 27 10:17 
+>patch-2.5.1-pre1-pre2.gz
+>-rw-rw-r--    1 kdist    kernel     102202 Nov 28 15:35 
+>patch-2.5.1-pre2-pre3.gz
+>-rw-rw-r--    1 kdist    kernel      52955 Nov 29 15:29 
+>patch-2.5.1-pre3-pre4.gz
+>-rw-rw-r--    1 kdist    kernel      53616 Nov 30 17:04 
+>patch-2.5.1-pre4-pre5.gz
+>
+>The naming and function of the patches should be obvious.
+>
+>.bz2 and .sign files are available too, of course.
+>
+>         -hpa
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-Who knows what nvidia does? Talk to them. Could be a bug in their
-driver where they create duplicate entries (the old devfs code would
-often let you get away with this). Or again, perhaps something in
-user-space is creating these entries.
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-> Why has this changed, and what is actually happen? My system runs
-> fine.
-
-You're lucky that the with way you use your system, it still works.
-
-BTW: if it is something in user-space creating these entries (say some
-vendor-provided boot script which populates devfs with "persistent"
-entries), then I suggest you rip out whatever is doing it. Instead, if
-you want permissions management, use devfsd-v1.3.20, which provides a
-complete solution to this. The new sample devfsd.conf file shows you
-how to configure devfsd to do this.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263226AbUDAVRZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 16:17:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbUDAVPG
+	id S263228AbUDAVWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 16:22:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbUDAVUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 16:15:06 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:61747 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263185AbUDAVNM (ORCPT
+	Thu, 1 Apr 2004 16:20:36 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:14388 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263192AbUDAVNS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 16:13:12 -0500
-Date: Thu, 1 Apr 2004 13:12:13 -0800
+	Thu, 1 Apr 2004 16:13:18 -0500
+Date: Thu, 1 Apr 2004 13:11:53 -0800
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: [Patch 12/23] mask v2 - [1/7] mmzone.h changes for nodemask
-Message-Id: <20040401131213.28c55250.pj@sgi.com>
+Subject: [Patch 8/23] mask v2 - Remove ppc64 obsolete cpumask ops
+Message-Id: <20040401131153.07ff8268.pj@sgi.com>
 In-Reply-To: <20040401122802.23521599.pj@sgi.com>
 References: <20040401122802.23521599.pj@sgi.com>
 Organization: SGI
@@ -25,70 +25,79 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch_12_of_23 - the mmzone.h changes from Matthew's Patch [1/7]
-	Just the mmzone.h changes taken from this patch: removing
-	extistant definition of node_online_map and helper functions,
-	added a #include <nodemask.h>.
+Patch_8_of_23 - Remove/recode obsolete cpumask macros from arch ppc64
+        Remove by recoding all uses of the obsolete cpumask const,
+        coerce and promote macros.
 
-Diffstat Patch_12_of_23:
- mmzone.h                       |   31 +------------------------------
- 1 files changed, 1 insertion(+), 30 deletions(-)
+Diffstat Patch_8_of_23:
+ open_pic.c                     |    8 ++++----
+ rtasd.c                        |    6 +++---
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
 ===================================================================
---- 2.6.4.orig/include/linux/mmzone.h	2004-04-01 00:56:30.000000000 -0800
-+++ 2.6.4/include/linux/mmzone.h	2004-04-01 01:00:41.000000000 -0800
-@@ -11,6 +11,7 @@
- #include <linux/cache.h>
- #include <linux/threads.h>
- #include <linux/numa.h>
-+#include <linux/nodemask.h>
- #include <asm/atomic.h>
+diff -Nru a/arch/ppc64/kernel/open_pic.c b/arch/ppc64/kernel/open_pic.c
+--- a/arch/ppc64/kernel/open_pic.c	Mon Mar 29 01:03:34 2004
++++ b/arch/ppc64/kernel/open_pic.c	Mon Mar 29 01:03:34 2004
+@@ -592,7 +592,7 @@
+ void openpic_init_processor(u_int cpumask)
+ {
+ 	openpic_write(&OpenPIC->Global.Processor_Initialization,
+-		      physmask(cpumask & cpus_coerce(cpu_online_map)));
++		      physmask(cpumask & cpus_addr(cpu_online_map)[0]));
+ }
  
- /* Free memory management - zoned buddy allocator.  */
-@@ -218,7 +219,6 @@
- #define node_present_pages(nid)	(NODE_DATA(nid)->node_present_pages)
- #define node_spanned_pages(nid)	(NODE_DATA(nid)->node_spanned_pages)
+ #ifdef CONFIG_SMP
+@@ -626,7 +626,7 @@
+ 	CHECK_THIS_CPU;
+ 	check_arg_ipi(ipi);
+ 	openpic_write(&OpenPIC->THIS_CPU.IPI_Dispatch(ipi),
+-		      physmask(cpumask & cpus_coerce(cpu_online_map)));
++		      physmask(cpumask & cpus_addr(cpu_online_map)[0]));
+ }
  
--extern int numnodes;
- extern struct pglist_data *pgdat_list;
+ void openpic_request_IPIs(void)
+@@ -712,7 +712,7 @@
+ {
+ 	check_arg_timer(timer);
+ 	openpic_write(&OpenPIC->Global.Timer[timer].Destination,
+-		      physmask(cpumask & cpus_coerce(cpu_online_map)));
++		      physmask(cpumask & cpus_addr(cpu_online_map)[0]));
+ }
  
- void get_zone_counts(unsigned long *active, unsigned long *inactive,
-@@ -336,35 +336,6 @@
- #error ZONES_SHIFT > MAX_ZONES_SHIFT
- #endif
  
--extern DECLARE_BITMAP(node_online_map, MAX_NUMNODES);
--
--#if defined(CONFIG_DISCONTIGMEM) || defined(CONFIG_NUMA)
--
--#define node_online(node)	test_bit(node, node_online_map)
--#define node_set_online(node)	set_bit(node, node_online_map)
--#define node_set_offline(node)	clear_bit(node, node_online_map)
--static inline unsigned int num_online_nodes(void)
--{
--	int i, num = 0;
--
--	for(i = 0; i < MAX_NUMNODES; i++){
--		if (node_online(i))
--			num++;
--	}
--	return num;
--}
--
--#else /* !CONFIG_DISCONTIGMEM && !CONFIG_NUMA */
--
--#define node_online(node) \
--	({ BUG_ON((node) != 0); test_bit(node, node_online_map); })
--#define node_set_online(node) \
--	({ BUG_ON((node) != 0); set_bit(node, node_online_map); })
--#define node_set_offline(node) \
--	({ BUG_ON((node) != 0); clear_bit(node, node_online_map); })
--#define num_online_nodes()	1
--
--#endif /* CONFIG_DISCONTIGMEM || CONFIG_NUMA */
- #endif /* !__ASSEMBLY__ */
- #endif /* __KERNEL__ */
- #endif /* _LINUX_MMZONE_H */
+@@ -837,7 +837,7 @@
+ 	cpumask_t tmp;
+ 
+ 	cpus_and(tmp, cpumask, cpu_online_map);
+-	openpic_mapirq(irq_nr - open_pic_irq_offset, physmask(cpus_coerce(tmp)));
++	openpic_mapirq(irq_nr - open_pic_irq_offset, physmask(cpus_addr(tmp)[0]));
+ }
+ 
+ #ifdef CONFIG_SMP
+diff -Nru a/arch/ppc64/kernel/rtasd.c b/arch/ppc64/kernel/rtasd.c
+--- a/arch/ppc64/kernel/rtasd.c	Mon Mar 29 01:03:34 2004
++++ b/arch/ppc64/kernel/rtasd.c	Mon Mar 29 01:03:34 2004
+@@ -413,7 +413,7 @@
+ 	}
+ 
+ 	lock_cpu_hotplug();
+-	cpu = first_cpu_const(mk_cpumask_const(cpu_online_map));
++	cpu = first_cpu(cpu_online_map);
+ 	for (;;) {
+ 		set_cpus_allowed(current, cpumask_of_cpu(cpu));
+ 		do_event_scan(event_scan);
+@@ -427,9 +427,9 @@
+ 		schedule_timeout((HZ*60/rtas_event_scan_rate) / 2);
+ 		lock_cpu_hotplug();
+ 
+-		cpu = next_cpu_const(cpu, mk_cpumask_const(cpu_online_map));
++		cpu = next_cpu(cpu, cpu_online_map);
+ 		if (cpu == NR_CPUS)
+-			cpu = first_cpu_const(mk_cpumask_const(cpu_online_map));
++			cpu = first_cpu(cpu_online_map);
+ 	}
+ 
+ error_vfree:
 
 
 -- 

@@ -1,69 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131479AbRC0SjS>; Tue, 27 Mar 2001 13:39:18 -0500
+	id <S131480AbRC0Swt>; Tue, 27 Mar 2001 13:52:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131482AbRC0SjI>; Tue, 27 Mar 2001 13:39:08 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:42991 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S131479AbRC0SjD>; Tue, 27 Mar 2001 13:39:03 -0500
-Message-Id: <l0313033bb6e68d4f8fbb@[192.168.239.101]>
-In-Reply-To: <20010327200830.C8133@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <3AC09480.E8317507@evision-ventures.com>; from
- dalecki@evision-ventures.com on Tue, Mar 27, 2001 at 03:24:16PM +0200
- <l03130332b6e632432b9f@[192.168.239.101]>
- <3AC09480.E8317507@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 27 Mar 2001 19:37:32 +0100
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Martin Dalecki <dalecki@evision-ventures.com>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: OOM killer???
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
+	id <S131320AbRC0Swa>; Tue, 27 Mar 2001 13:52:30 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:64220 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S131323AbRC0Sw0>; Tue, 27 Mar 2001 13:52:26 -0500
+Message-ID: <3AC0E112.6040607@AnteFacto.com>
+Date: Tue, 27 Mar 2001 19:50:58 +0100
+From: Padraig Brady <Padraig@AnteFacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac4 i686; en-US; 0.8.1) Gecko/20010326
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: Richard Smith <ras2@tant.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Compact flash disk and slave drives in 2.4.2
+In-Reply-To: <Pine.LNX.4.10.10103270912130.16125-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->If we use my OOM killer API, this patch would be a module and
->could have module parameters to select that.
->
->Johnathan: I URGE you to apply my patch before adding OOM killer
->   stuff. What's wrong with it, that you cannot use it? ;-)
->
->It is easy to add configurables to a module and play with them
->WITHOUT recompiling.
+How do you activate the walk around you describe
+to allow the detection of the slave? hda=ataflash?
+Is this sort of stuff documented anywhere?
 
-Thanks for reminding me - I'll look into it on the plane and see what I can
-do with it.
+For those interested you also mention it here:
+http://lists.sourceforge.net/archives//linux-usb-devel/2000-August/000929.html
 
->e.g. My important matlab calculation, which runs in user mode
->should not be killed. But killing a local webserver, which serves
->my help system is ok (because I will not loose work, and might
->get it over the net, if there is a problem).
->
->So as Rik stated: The OOM killer cannot suit all people, so it
->has to be configurable, to be OOM kill, not overkill ;-)
+This describes the other combination that causes
+a problem where you have a normal disk as master
+and the CF as slave:
+http://boudicca.tux.org/hypermail/linux-kernel/2000week25/0973.html
 
-Yes, configurability is probably a very good idea.  However, it would be
-best to include a good set of general parameters in the kernel itself, so
-the set of average systems needs as little tweaking as possible.  One
-cannot expect every sysadmin to be familiar with these arcane (and rarely
-actually used) parameters, so being able to select "server", "batch",
-"workstation", "embedded" and so on would help massively.
+Again the problem unresolved:
+http://boudicca.tux.org/hypermail/linux-kernel/2000week26/0174.html
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+cheers,
+Padraig.
 
-The key to knowledge is not to rely on people to teach you it.
+Andre Hedrick wrote:
 
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
+> Because 'real' ATA devices use a signature map the detects presense of
+> master slave during execute diagnostics.  This is done in the BIOS.
+> CFA does no report this correctly and waiting for a 31 second time out is
+> not acceptable.  If you have a complain take it to CFA commitee and have
+> them fix it.
+> 
+> I put in a walk around for having 2 CFA's to allow detection.
+> This will work also if you call it for a CFA+Disk pair.
+> 
+> On Tue, 27 Mar 2001, Padraig Brady wrote:
+> 
+>> OK the following assumes CF never have slaves which is just wrong.
+>> The CF should be logically treated as an IDE harddisk. So the fix is
+>> probably have a kernel parameter that causes the following check to
+>> be skipped?
+> 
+> Logically treated, is true, but again CFA does not follow the rules of
+> what the ATA committee gives them, and I refuse to break rules as the
+> standard model.  Rule breaking are exceptions.
+> 
+> Also show me a case where a laptop will do master/slave in CFA.
+> 
+>> /*
+>>    * Prevent long system lockup probing later for non-existant
+>>    * slave drive if the hwif is actually a flash memory card of some 
+>> variety:
+>>    */
+>>   if (drive_is_flashcard(drive)) {
+>>           ide_drive_t *mate = &HWIF(drive)->drives[1^drive->select.b.unit];
+>>           if (!mate->ata_flash) {
+>>                 mate->present = 0;
+>>                 ide_drive_t *mate = 
+>> &HWIF(drive)->drives[1^drive->select.b.unit]
+>>                 mate->noprobe = 1;
+>>           }
+>>   }
+>> 
+>> But do we need this check? Is it just for speed. If you have an "ordinary"
+>> harddrive as master with no slave, will the check for slave cause the same
+>> "long system lockup", and if not, why.
+>> 
+>> Padraig.
+>> 
+>> Andre Hedrick wrote:
+>> 
+>> 
+>>> Because in laptops, the primary use of CFA.
+>>> Laptops using CFA do not have slaves.
+>> 
+> 
+> Andre Hedrick
+> Linux ATA Development
+> ASL Kernel Development
+> -----------------------------------------------------------------------------
+> ASL, Inc.                                     Toll free: 1-877-ASL-3535
+> 1757 Houret Court                             Fax: 1-408-941-2071
+> Milpitas, CA 95035                            Web: www.aslab.com
 

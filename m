@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbTEANCO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 09:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbTEANCN
+	id S261249AbTEANKL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 09:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbTEANKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 09:02:13 -0400
-Received: from unthought.net ([212.97.129.24]:48055 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S261252AbTEANCM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 09:02:12 -0400
-Date: Thu, 1 May 2003 15:14:34 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: Mark Grosberg <mark@nolab.conman.org>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFD] Combined fork-exec syscall.
-Message-ID: <20030501131433.GH14372@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-	Mark Grosberg <mark@nolab.conman.org>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.BSO.4.44.0304272114560.23296-100000@kwalitee.nolab.conman.org> <yw1xptn7z9m6.fsf@zaphod.guide>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xptn7z9m6.fsf@zaphod.guide>
-User-Agent: Mutt/1.3.28i
+	Thu, 1 May 2003 09:10:11 -0400
+Received: from net015s.hetnet.nl ([194.151.104.155]:46348 "EHLO hetnet.nl")
+	by vger.kernel.org with ESMTP id S261249AbTEANKK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 09:10:10 -0400
+Content-Class: urn:content-classes:message
+From: <bas.mevissen@hetnet.nl>
+To: "Stuffed Crust" <pizza@shaftnet.org>, "David S. Miller" <davem@redhat.com>
+Cc: <bas.mevissen@hetnet.nl>, <linux-kernel@vger.kernel.org>
+Subject: RE: Broadcom BCM4306/BCM2050  support
+Date: Thu, 1 May 2003 15:22:37 +0200
+Message-ID: <7dac01c30fe4$bbfebd60$db6897c2@hetnet.local>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft CDO for Windows 2000
+Thread-Index: AcMP5Lv+4DLt/XvOEdeNYwBQi2Na5Q==
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 28, 2003 at 03:36:17AM +0200, Måns Rullgård wrote:
-> Mark Grosberg <mark@nolab.conman.org> writes:
-...
-> > But yeah, basically, something similar to NT's CreateProcess(). For the
-> > cases where the one-step process creation is sufficient.
-> 
-> Is that the call that takes dozens of parameters?  Copying :-) that
-> is, IMHO, straight against the UNIX philosophy.
 
-I agree with Måns completely.
+> (..) And as Alan and myself have been
+> talking to upper management entities at various wireless card
+> companies we know the real reason has to do with making regulation
+> agencies happy.  They do have drivers, and they do want to publish
+> them and yes they recognize that this will expose a lot of their
+> IP and they accept that.
 
-CreateProcess() is *horrible*.  It takes 10 arguments, several of them
-being pointers to structures.  Ugh!
+OK. So at least they are open to it. Maybe they should drop a binary somewhere to get a start. It's not what you want in the long term, but I think good enough for now. Then we should work something out for the frequency settings.
 
-Besides, the CreateProcessAsUser() call (which takes 13 arguments IIRC)
-demonstrates why such all-in-one-and-a-kitchen-sink calls are
-fundamentally flawed.
+What about the access points? There is nothing dangerous to set, so that information (or drivers and applications) can be given free. Does anyone know more about this?
 
-In the few cases where they do not demand unnecessary arguments, they
-simply lack the functionality that is actually needed.
+I tried to get some info from an Edimax AP, but no success (yet). They used a PRISM chipset, but their own microcontroller and stuff for the USB instead of the chip from Intersil. So I guess that that will become difficult.
 
-I would argue that any time spent on replicating such monsters in Linux
-would be far better spent optimizing the basic calls
-(exec/fork/dup/close/fcntl/...) instead.
+Regards,
+
+Bas.
 
 
-That was my 0.02 Euro on that one.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:

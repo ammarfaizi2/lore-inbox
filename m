@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289236AbSBJDtj>; Sat, 9 Feb 2002 22:49:39 -0500
+	id <S289234AbSBJDx7>; Sat, 9 Feb 2002 22:53:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289234AbSBJDt3>; Sat, 9 Feb 2002 22:49:29 -0500
-Received: from adsl-63-194-232-126.dsl.lsan03.pacbell.net ([63.194.232.126]:2058
-	"HELO alpha.dyndns.org") by vger.kernel.org with SMTP
-	id <S289236AbSBJDtM>; Sat, 9 Feb 2002 22:49:12 -0500
-Message-ID: <3C65EFF4.2000906@alpha.dyndns.org>
-Date: Sat, 09 Feb 2002 19:58:44 -0800
-From: Mark McClelland <mark@alpha.dyndns.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: video4linux-list@redhat.com
-CC: Kernel List <linux-kernel@vger.kernel.org>, kraxel@bytesex.org
-Subject: Re: [V4L] [PATCH/RFC] videodev.[ch] redesign
-In-Reply-To: <20020209194602.A23061@bytesex.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S289239AbSBJDxt>; Sat, 9 Feb 2002 22:53:49 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47634 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289234AbSBJDxl>; Sat, 9 Feb 2002 22:53:41 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [bk patch] Make cardbus compile in -pre4
+Date: Sun, 10 Feb 2002 03:52:32 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a44qq0$138$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org> <20020208203931.X15496@lynx.turbolabs.com> <3C649F4F.7E190D26@mandrakesoft.com> <20020209002920.Z15496@lynx.turbolabs.com>
+X-Trace: palladium.transmeta.com 1013313212 19997 127.0.0.1 (10 Feb 2002 03:53:32 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 10 Feb 2002 03:53:32 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
-
->It also provides a ioctl wrapper function which handles copying the
->ioctl args from/to userspace, so we have this at one place can drop all
->the copy_from/to_user calls within the v4l device driver ioctl handlers.
+In article <20020209002920.Z15496@lynx.turbolabs.com>,
+Andreas Dilger  <adilger@turbolabs.com> wrote:
 >
+>The problem is that (AFAIK) bk pull does not let Linus pick-and-choose
+>which patches he wants to accept as easily as importing them at the time
+>he reads each email.  It basically assumes that he wants everything that
+>is in the repository he is pulling from.
 
-Excellent work. I have no complaints, just a few questions:
+Yes and no.
 
-1. Would it be better to memset the temp buffer in video_generic_ioctl() 
-rather than in the driver? I've seen so many drivers forget to do this, 
-and it's a potential (albeit very small) security hole.
+I hope that the developers that I work enough with for it to matter tend
+to be fairly good at keeping things separate (ie separate BK trees for
+different development efforts etc), in which case it's not a big issue.
 
-2. In skeleton_open(), couldn't the device_data lookup code be replaced 
-with:
+And yes, from at least one developer I have already done a partial pull,
+ie taken only partial changes. In that case the changes I disagreed with
+were at the end, so it was easy enough to just do a "bk pull" into
+another tree, do a "bk undo", and only merge after that.
 
-    struct video_device *vdev = video_devdata(file);
-    struct device_data *dev = vdev->priv;
+But I agree - if I end up having to do that more than occasionally, I'm
+going to ask that developer to stop using bk at least as far as I'm
+concerned (ie he can use bk for himself, but I wouldn't accept bk
+patches from developers who cannot keep their stuff cleanly separated).
 
-3. In skeleton_initdev(), shouldn't...
-
-    dev->vdev = skeleton_template;
-
-...be...
-
-    memcpy(&dev->vdev, &skeleton_template, sizeof(skeleton_template);
-
-4. Is it safe to keep even 128 bytes on the stack in 
-video_generic_ioctl()? Consider that devices might spend a relatively 
-long time blocking on VIDIOCSYNC. With 32 devices in use at once, you'd 
-be coming dangerously close to a stack overflow. IMHO it would be better 
-to only allocate as much as MCAPTURE and SYNC need, and fall back on 
-kmalloc for the less time-critical ones (if necessary).
-
-Other than that, I extremely happy with what you've done!
-
--- 
-Mark McClelland
-mmcclell@bigfoot.com
-
-
-
+		Linus

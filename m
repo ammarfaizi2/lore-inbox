@@ -1,67 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130560AbQLFOS3>; Wed, 6 Dec 2000 09:18:29 -0500
+	id <S129755AbQLFOYJ>; Wed, 6 Dec 2000 09:24:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131132AbQLFOSS>; Wed, 6 Dec 2000 09:18:18 -0500
-Received: from air.lug-owl.de ([62.52.24.190]:39184 "HELO air.lug-owl.de")
-	by vger.kernel.org with SMTP id <S130560AbQLFOSK>;
-	Wed, 6 Dec 2000 09:18:10 -0500
-Date: Wed, 6 Dec 2000 14:47:41 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S129789AbQLFOXt>; Wed, 6 Dec 2000 09:23:49 -0500
+Received: from mx6.port.ru ([194.67.23.42]:527 "EHLO mx6.port.ru")
+	by vger.kernel.org with ESMTP id <S129755AbQLFOXq>;
+	Wed, 6 Dec 2000 09:23:46 -0500
+From: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Kernel boot params
-Message-ID: <20001206144741.A27613@lug-owl.de>
-Reply-To: jbglaw@lug-owl.de
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <003201c05f88$db6fc4a0$7930000a@hcd.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <003201c05f88$db6fc4a0$7930000a@hcd.net>; from whtdrgn@mail.cannet.com on Wed, Dec 06, 2000 at 08:31:31AM -0500
-X-Operating-System: Linux air 2.4.0-test8-pre1 
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 143.167.4.62 via proxy [143.167.1.16]
+In-Reply-To: <003201c05f88$db6fc4a0$7930000a@hcd.net>
+Reply-To: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E143f0R-000I98-00@f5.mail.ru>
+Date: Wed, 06 Dec 2000 16:53:14 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>     Could someone be so kind to point me to a page where I can find
+> a list of parameters I can pass to a kernel on boot. 
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+AFAIK, the Linux BootPrompt-HowTo is what you are looking for,  however, it doesn't provide a FULL list of kernel arguments, for which you are directed to the sources:-)
 
-On Wed, Dec 06, 2000 at 08:31:31AM -0500, Timothy A. DeWees wrote:
-
-Hi!
-
-> a list of parameters I can pass to a kernel on boot.  I am looking for=20
-
-=2E/linux/init/main.c
-
-MfG, JBG
-
---=20
-Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
-!!!
-/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
-keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
-99 E1BB
-     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
-
---J/dobhs11T7y2rNN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjouQ3wACgkQHb1edYOZ4btmVQCePw5MlqokKWzxgUDDQFuy940J
-rOgAn2i7+HO0kp8dr0SZWGepsLskFynT
-=daSS
------END PGP SIGNATURE-----
-
---J/dobhs11T7y2rNN--
+Guennadi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

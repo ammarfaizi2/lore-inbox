@@ -1,36 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbTFDAaj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 20:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbTFDAai
+	id S262029AbTFDAck (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 20:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbTFDAck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 20:30:38 -0400
-Received: from dub.inr.ac.ru ([193.233.7.105]:11992 "HELO dub.inr.ac.ru")
-	by vger.kernel.org with SMTP id S262028AbTFDAai (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 20:30:38 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200306040043.EAA24505@dub.inr.ac.ru>
-Subject: Re: fix TCP roundtrip time update code
-To: jmorris@intercode.com.au (James Morris)
-Date: Wed, 4 Jun 2003 04:43:22 +0400 (MSD)
-Cc: davidm@hpl.hp.com, gandalf@wlug.westbo.se, linux-kernel@vger.kernel.org,
-       linux-ia64@linuxia64.org, netdev@oss.sgi.com, davem@redhat.com,
-       akpm@digeo.com
-In-Reply-To: <Mutt.LNX.4.44.0306041021450.28035-100000@excalibur.intercode.com.au> from "James Morris" at Jun 04, 2003 10:24:14 AM
-X-Mailer: ELM [version 2.5 PL6]
+	Tue, 3 Jun 2003 20:32:40 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:35483 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S262029AbTFDAci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 20:32:38 -0400
+Date: Tue, 3 Jun 2003 20:43:47 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: strange dependancy generation bug?
+In-Reply-To: <20030603195651.GA17845@mars.ravnborg.org>
+Message-ID: <Pine.GSO.4.33.0306032004470.7750-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, 3 Jun 2003, Sam Ravnborg wrote:
+>In make a so-called "canned command sequence" is generated.
+>Quote from 'info make':
+>
+>	On the other hand, prefix characters on the command line that refers
+>	to a canned sequence apply to every line in the sequence.  So the rule:
+>
+>	     frob.out: frob.in
+>        	     @$(frobnicate)
 
-> This might be the solution to one of the 'must-fix' bugs for the
-> networking, which nobody so far was quite able to track down.
+(I seriously cannot believe there needs to be a protracted debate about
+ what's broken and who's at fault -- make or Makefile.  What we see is
+ what we get and it's a 5 second fix.  Beyond that, it's a problem for
+ the GNU Make maintainers, not lkml.)
 
-No doubts. All the symptoms are explained by this. I hope Andrew
-will confirm that the problem has gone.
+Weither make is using 1 shell or 10 doesn't matter.  Make is the thing
+emitting the command to the console as well as feeding the shell.  It's
+a matter of one command or more than one command.
 
-Alexey
+The Kbuild system is rather complex.  If you look deep enough, you'll
+see where the '@' is being applied.  What is actually happening looks
+like this:
+	define rule_for_act_of_frobnication
+		stuff_that_should_be_one_line
+				\
+		but_isn't
+	endef
+
+	frobnicate = @set -e; \
+			$(rule_for_act_of_frobnication);
+
+	frob.out: frob.in
+		$(call frobnicate)
+
+There's a big difference in @$(call frobnicate) and $(call frobnicate).
+Both ultimately resovle to two line of text.  In the first case, all of
+it hidden.  In the second, only the lines explicitly hidden will be hidden.
+
+Make isn't broken.  Makefile.build is.  To me, this was immediately obvious
+and confirmed after a few seconds searching for the "@". (It looks like
+someone hit [enter] where they shouldn't have.)
+
+--Ricky
+
+

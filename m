@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266964AbUBGQat (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 11:30:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266967AbUBGQat
+	id S266967AbUBGQdt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 11:33:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266971AbUBGQdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 11:30:49 -0500
-Received: from fw.osdl.org ([65.172.181.6]:54977 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266964AbUBGQar (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 11:30:47 -0500
-Date: Sat, 7 Feb 2004 08:32:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Matthias Urlichs <smurf@smurf.noris.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2.6.2-mm1: destroy_workqueue
-Message-Id: <20040207083254.2440175b.akpm@osdl.org>
-In-Reply-To: <pan.2004.02.07.11.49.04.872088@smurf.noris.de>
-References: <pan.2004.02.07.11.49.04.872088@smurf.noris.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 7 Feb 2004 11:33:49 -0500
+Received: from port-212-202-157-212.reverse.qsc.de ([212.202.157.212]:53129
+	"EHLO bender.portrix.net") by vger.kernel.org with ESMTP
+	id S266967AbUBGQd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 11:33:26 -0500
+Message-ID: <402512C4.4030903@portrix.net>
+Date: Sat, 07 Feb 2004 17:31:00 +0100
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031022 Debian/1.5-1.he-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Juergen Rose <rose@rz.uni-potsdam.de>
+CC: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: drivers/pnp/isapnp/Kconfig not found performing configure for
+ linux-2.6.2-mm1
+References: <1076168521.24931.2.camel@moen.bioinf.mdc-berlin.de>
+In-Reply-To: <1076168521.24931.2.camel@moen.bioinf.mdc-berlin.de>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Urlichs <smurf@smurf.noris.de> wrote:
->
-> I had a crash when unmounting a reiserfs at shutdown time.
-> 
-> Apparently, destroy_workqueue() inlines list_del(), which checks for
-> 
-> 148             BUG_ON(entry->prev->next != entry);
-> 
-> This is a problem when entry->prev is NULL.  :-/
-> 
-> Call trace, copied off the screen by hand:
-> destroy_workqueue+0x30
-> do_journal_release+0x4e
-> journal_mark_dirty+0x18c
-> journal_release+0x10
-> reiserfs_put_super+0x24
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-yup, thanks.
+Juergen Rose wrote:
+| Hi,
+|
+| I can't configure linux-2.6.2-mm1, because of a missing
+| drivers/pnp/isapnp/Kconfig. I patched a plain linux-2.6.2 with
+| 2.6.2-mm1.bz2:
+|
+| vilm:/usr/src/linux(40)#make menuconfig
+| make[1]: `scripts/fixdep' is up to date.
+| scripts/kconfig/mconf arch/i386/Kconfig
+| drivers/pnp/Kconfig:34: can't open file "drivers/pnp/isapnp/Kconfig"
+| make[1]: *** [menuconfig] Error 1
+|
+| What can I do?
 
---- 25/kernel/workqueue.c~cpuhotplug-03-core-workqueue-fix	Fri Feb  6 14:36:04 2004
-+++ 25-akpm/kernel/workqueue.c	Fri Feb  6 14:36:41 2004
-@@ -335,7 +335,7 @@ void destroy_workqueue(struct workqueue_
- 		if (cpu_online(cpu))
- 			cleanup_workqueue_thread(wq, cpu);
- 	}
--	list_del(&wq->list);
-+	del_workqueue(wq);
- 	unlock_cpu_hotplug();
- 	kfree(wq);
- }
+Works here:
 
-_
+$ ls -l drivers/pnp/isapnp/Kconfig
+- -rw-r--r--    1 jdittmer jdittmer      291 Feb  7 00:04 
+drivers/pnp/isapnp/Kconfig
+
+$ head -4 Makefile
+VERSION = 2
+PATCHLEVEL = 6
+SUBLEVEL = 2
+EXTRAVERSION = -mm1
+
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
+
+iD8DBQFAJRK/LqMJRclVKIYRAp85AJ4u5UAM/nGyGy7fJ2+WT4vKcXAq9gCdHajO
+eP+oPEN5IK4Y8qtzXROF18U=
+=n/8H
+-----END PGP SIGNATURE-----
 

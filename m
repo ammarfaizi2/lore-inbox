@@ -1,57 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUIDR0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264919AbUIDRcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbUIDR0b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 13:26:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264795AbUIDR0a
+	id S264919AbUIDRcj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 13:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbUIDRci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 13:26:30 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:26630 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264881AbUIDR0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 13:26:02 -0400
-Date: Sat, 4 Sep 2004 18:25:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Jan Blunck <j.blunck@tu-harburg.de>
-Subject: Re: [PATCH 1/3] copyfile: generic_sendpage
-Message-ID: <20040904182556.A16774@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	=?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Jan Blunck <j.blunck@tu-harburg.de>
-References: <20040904165733.GC8579@wohnheim.fh-wedel.de> <20040904181220.B16644@infradead.org> <20040904172223.GC9765@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040904172223.GC9765@wohnheim.fh-wedel.de>; from joern@wohnheim.fh-wedel.de on Sat, Sep 04, 2004 at 07:22:23PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 4 Sep 2004 13:32:38 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:30625 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264919AbUIDRcN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 13:32:13 -0400
+Message-ID: <4139FAF3.50307@us.ibm.com>
+Date: Sat, 04 Sep 2004 10:27:15 -0700
+From: badari <pbadari@us.ibm.com>
+Organization: IBM
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel McNeil <daniel@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, Suparna Bhattacharya <suparna@in.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+Subject: Re: [Bug 3317] New: Kernel oops in aio_complete while running AIO
+ application
+References: <20040831081835.08942f70.akpm@osdl.org>	 <1094226765.3628.112.camel@dyn318077bld.beaverton.ibm.com> <1094252275.2299.11.camel@ibm-c.pdx.osdl.net>
+In-Reply-To: <1094252275.2299.11.camel@ibm-c.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 04, 2004 at 07:22:23PM +0200, Jörn Engel wrote:
-> On Sat, 4 September 2004 18:12:20 +0100, Christoph Hellwig wrote:
-> > 
-> > > o unionmount - you might remember Jan Blunck's fix to ext3
-> > 
-> > Could you give some context please?
-> 
-> Trivial example union mount:
-> 
-> Top layer:	<empty>
-> 2nd layer:	foo
-> 
-> Writes to foo have to be done in the top layer, so foo has to be
-> copied up first.  And since that has to be done inside the kernel,
-> any possible implementation will be similar to my code.
-> 
-> For further details on unionmount, you should ask Jan directly.  But
-> for politeness' sake, please wait a month or two, so he can focus on
-> his university exams before getting into the flamewars. ;)
+Daniel,
 
-Oh, I know what union mounts are.  But I wonder who's hacking on them
-as they need some major VFS surgey to get right.
+aio_complete() gets called only when we are done with this dio.
+Other calls to finished_one_bio() should be fine. dio->result
+should have the return value we want to send back. The fix
+I made is to call aio_complete() only if we have something to
+report back.
+
+One problem is, dio->result gets updated for IO errors bur
+doesn't get updated for errors from get_user_pages().  Things
+should be fine, but I am not really comfortable retruning half
+errors thro aio_complete() and other half thro return value
+of do_direct_IO(). I guess its okay, since some of the IO errors
+can happen only after we submit the bio.
+
+Thanks,
+Badari
+
+Daniel McNeil wrote:
+
+>On Fri, 2004-09-03 at 08:52, Badari Pulavarty wrote:
+>  
+>
+>>On Tue, 2004-08-31 at 08:18, Andrew Morton wrote:
+>>    
+>>
+>>>Begin forwarded message:
+>>>
+>>>Date: Tue, 31 Aug 2004 06:15:18 -0700
+>>>From: bugme-daemon@osdl.org
+>>>To: bugme-new@lists.osdl.org
+>>>Subject: [Bugme-new] [Bug 3317] New: Kernel oops in aio_complete while running AIO application
+>>>
+>>>
+>>>http://bugme.osdl.org/show_bug.cgi?id=3317
+>>>
+>>>      
+>>>
+>>Hi Andrew,
+>>
+>>I debugged this some more. Here is whats happening:
+>>
+>>The test program used program text address as buffer to do the READ to.
+>>DIO get_user_pages() returned EFAULT. We called finished_one_bio()
+>>as part of dropping the ref. to dio. It called aio_complete().
+>>do_direct_IO() returned EFAULT to the caller. aio_run_iocb() expects
+>>to see EIOCBQUEUED/RETRY, otherwise it calls aio_complete() with the
+>>"ret" value. This is where the second aio_complete() is coming from.
+>>So we cleanup "req" and on the next de-ref we get OOPS.
+>>
+>>The problem here is, finished_one_bio() shouldn't call aio_complete()
+>>since no work has been done. I have a fix for this - can you verify this
+>>? I am not really comfortable with this "tweaking". (I am not really
+>>sure about IO errors like EIO etc. - if they can lead to calling
+>>aio_complete() twice)
+>>
+>>
+>>Fix is to call aio_complete() ONLY if there is something to report.
+>>Note the we don't update dio->result with any error codes from
+>>get_user_pages(), they just passed as "ret" value from do_direct_IO().
+>>
+>>Thanks,
+>>Badari
+>>    
+>>
+>
+>Badari,
+>
+>This does fix the problem when running on my system (ext3).
+>
+>One question, finished_one_bio() is called in 3 places,
+>are you sure the other places won't be harmed by this
+>change?
+>
+>I'm also looking over the code and will let you know if
+>I see any problems.
+>
+>Daniel
+>
+>--
+>To unsubscribe, send a message with 'unsubscribe linux-aio' in
+>the body to majordomo@kvack.org.  For more info on Linux AIO,
+>see: http://www.kvack.org/aio/
+>Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+>
+>  
+>
 

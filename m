@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbUCaAf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 19:35:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUCaAf3
+	id S263079AbUCaAhg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 19:37:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263083AbUCaAhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 19:35:29 -0500
-Received: from mail.kroah.org ([65.200.24.183]:57813 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262532AbUCaAfX (ORCPT
+	Tue, 30 Mar 2004 19:37:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36488 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263079AbUCaAhX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 19:35:23 -0500
-Date: Tue, 30 Mar 2004 16:34:47 -0800
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
-       maneesh@in.ibm.com, viro@math.psu.edu,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Unregistering interfaces
-Message-ID: <20040331003447.GC10262@kroah.com>
-References: <Pine.LNX.4.44L0.0403301844410.6478-100000@ida.rowland.org> <406A0C15.7090506@pacbell.net>
+	Tue, 30 Mar 2004 19:37:23 -0500
+Date: Tue, 30 Mar 2004 16:39:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: rddunlap@osdl.org, hari@in.ibm.com, linux-kernel@vger.kernel.org,
+       apw@shadowen.org
+Subject: Re: BUG_ON(!cpus_equal(cpumask, tmp));
+Message-Id: <20040330163928.7cafae3d.akpm@osdl.org>
+In-Reply-To: <187940000.1080692555@flay>
+References: <006701c415a4$01df0770$d100000a@sbs2003.local>
+	<20040329162123.4c57734d.akpm@osdl.org>
+	<20040329162555.4227bc88.akpm@osdl.org>
+	<20040330132832.GA5552@in.ibm.com>
+	<20040330151729.1bd0c5d0.rddunlap@osdl.org>
+	<187940000.1080692555@flay>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <406A0C15.7090506@pacbell.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 04:08:53PM -0800, David Brownell wrote:
-> Alan Stern wrote:
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> > I'll just say that kexec fails without this patch and works with
+> > it applied, so I'd like to see it merged.  If this patch isn't
+> > acceptable, let's find out why and try to make one that is.
+> > 
+> > Thanks for the patch, Hari.
 > 
-> >	  I'm in favor of changing the behavior of sysfs, so that either it
-> >refuses to delete directories that contain subdirectories or else it
-> >recursively deletes the subdirectories first.  At this point nothing has
-> >been settled.
-> 
-> Hmm, certainly I agree khubd should be deleting things bottom-up.
-> 
-> Are you say it isn't doing that already?  Or that it's trying to,
-> but something's preventing that from working?
+> >From discussions with Andy, it seems this still has the same race as before
+> just smaller. I don't see how we can fix this properly without having some
+> locking on cpu_online_map .... probably RCU as it's massively read-biased
+> and we don't want to pay a spinlock cost to read it.
 
-Look at everything that hangs off of usb devices in the sysfs tree that
-the usb core knows nothing about (scsi hosts, tty devices, etc.)
-
-Anyway, it's working properly now, and is why I added that kobject
-parent patch a long time ago (which Alan still seems to think is
-incorrect...)
-
-thanks,
-
-greg k-h
+We do want to avoid adding stuff to the IPI path.  If the going-away CPU
+still responds to IPIs after it has gone away then do we actually need to
+do anything?  For x86, at least?

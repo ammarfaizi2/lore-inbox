@@ -1,70 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280992AbRKTIX6>; Tue, 20 Nov 2001 03:23:58 -0500
+	id <S280988AbRKTIV6>; Tue, 20 Nov 2001 03:21:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280996AbRKTIXs>; Tue, 20 Nov 2001 03:23:48 -0500
-Received: from mail.parkairsystems.no ([193.216.79.10]:24326 "HELO
-	server4.normarc") by vger.kernel.org with SMTP id <S280992AbRKTIXm>;
-	Tue, 20 Nov 2001 03:23:42 -0500
-Message-ID: <766E81E1DE3AD411BAD400508B6B830B09DD46@mailserver.parkairsystems.net>
-From: Terje Dalen <t.dalen@no.parkairsystems.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: PROBLEM:  Kernel link problem (block.o)
-Date: Tue, 20 Nov 2001 09:19:49 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S280992AbRKTIVs>; Tue, 20 Nov 2001 03:21:48 -0500
+Received: from mailer.zib.de ([130.73.108.11]:10920 "EHLO mailer.zib.de")
+	by vger.kernel.org with ESMTP id <S280988AbRKTIVf>;
+	Tue, 20 Nov 2001 03:21:35 -0500
+Date: Tue, 20 Nov 2001 09:21:23 +0100
+From: Sebastian Heidl <heidl@zib.de>
+To: Akshat Kapoor <akshat@mercurykr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Query - How to Send Signal to application from kernel module !
+Message-ID: <20011120092123.R5446@csr-pc1.zib.de>
+In-Reply-To: <001401c17192$ebf8ce80$150d85a5@mercurykr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <001401c17192$ebf8ce80$150d85a5@mercurykr.com>; from akshat@mercurykr.com on Tue, Nov 20, 2001 at 12:43:52PM +0530
+X-www.distributed.net: 27 OGR packets (3.56 Tnodes) [4.21 Mnodes/s]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+On Tue, Nov 20, 2001 at 12:43:52PM +0530, Akshat Kapoor wrote:
+> Is it possible in Linux to send  a signal to an application from a driver ?
+> I've done this in Windows NT but Idont know how to do it in Linux. I
+have a look at kernel/signal.c
+I think you can use all the send_* force_* and kill_* functions but I'm not sure
+with this. Currently I used kill_proc_info and force_sig and they worked just
+fine.
 
-I have upgraded the kernel from 2.4.8 to 2.4.14 due freezing problems
-with 2.4.8 (I think there must have been a deadlock with the memory/swap
-handling. It only worked for 10 minutes to 6 hours). 
-
-My link problem started when I recompiled the kernel with
-
-CONFIG_BLK_DEV_LOOP = y
-
-and get the following problem:
-
-ld -m elf_i386 -T /usr/src/linux-2.4.14/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o
-fs/fs.o ipc/ipc.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
-drivers/net/net.o drivers/media/media.o drivers/char/drm/drm.o
-drivers/net/fc/fc.o drivers/net/appletalk/appletalk.o
-drivers/net/tokenring/tr.o drivers/net/wan/wan.o drivers/atm/atm.o
-drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o
-drivers/net/wireless/wireless_net.o drivers/pnp/pnp.o drivers/video/video.o
-drivers/net/hamradio/hamradio.o drivers/md/mddev.o \
-        net/network.o \
-        /usr/src/linux-2.4.14/arch/i386/lib/lib.a
-/usr/src/linux-2.4.14/lib/lib.a /usr/src/linux-2.4.14/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/block/block.o: In function `lo_send':
-drivers/block/block.o(.text+0xb2e9): undefined reference to
-`deactivate_page'
-drivers/block/block.o(.text+0xb325): undefined reference to
-`deactivate_page'
-
-
-I can see from in the changelog that the swap.h have been changed and the 
-deactivate_page function has been removed. I guess someone forgot to update
-the loop.c file. Is there a patch available for the correction of loop.c?
-
-When I compiled the kernel as a module I was able to install and run the
-kernel
-and actually my system have been stable for the last 14 hours.
-
-Best regards
-Terje
-
-
+HTH,
+_sh_
 

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264662AbUFGMSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264432AbUFGMSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264662AbUFGMSm (ORCPT <rfc822;willy@w.ods.org>);
+	id S264432AbUFGMSm (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 7 Jun 2004 08:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUFGMQ0
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264662AbUFGMR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 08:16:26 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:14721 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264609AbUFGL4c convert rfc822-to-8bit
+	Mon, 7 Jun 2004 08:17:29 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:7809 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S264432AbUFGL4e convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 07:56:32 -0400
+	Mon, 7 Jun 2004 07:56:34 -0400
 To: torvalds@osdl.org, akpm@osdl.org, vojtech@ucw.cz,
        linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7BIT
-Message-Id: <10866093542892@twilight.ucw.cz>
+Message-Id: <108660935415@twilight.ucw.cz>
 From: Vojtech Pavlik <vojtech@suse.cz>
 Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <1086609354985@twilight.ucw.cz>
+In-Reply-To: <10866093542982@twilight.ucw.cz>
 Mime-Version: 1.0
 Date: Mon, 7 Jun 2004 13:55:54 +0200
-Subject: [PATCH 31/39] input: Trailing whitespace fixes in drivers/input
+Subject: [PATCH 22/39] input: Trailing whitespace fixes in drivers/input/serio
 X-Mailer: gregkh_patchbomb_levon_offspring
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -28,22 +28,38 @@ You can pull this changeset from:
 
 ===================================================================
 
-ChangeSet@1.1587.27.11, 2004-05-10 01:36:08-05:00, dtor_core@ameritech.net
-  Input: trailing whitespace fixes in drivers/input
+ChangeSet@1.1587.27.2, 2004-05-10 01:23:48-05:00, dtor_core@ameritech.net
+  Input: trailing whitespace fixes in drivers/input/serio
 
 
- evbug.c    |   14 +++++++-------
- evdev.c    |    4 ++--
- joydev.c   |   16 ++++++++--------
- mousedev.c |   20 ++++++++++----------
- power.c    |   26 +++++++++++++-------------
- 5 files changed, 40 insertions(+), 40 deletions(-)
+ 98kbd-io.c |    4 ++--
+ ct82c710.c |    8 ++++----
+ gscps2.c   |   22 +++++++++++-----------
+ i8042.c    |   26 +++++++++++++-------------
+ parkbd.c   |   12 ++++++------
+ q40kbd.c   |    2 +-
+ rpckbd.c   |    2 +-
+ 7 files changed, 38 insertions(+), 38 deletions(-)
 
 ===================================================================
 
-diff -Nru a/drivers/input/evbug.c b/drivers/input/evbug.c
---- a/drivers/input/evbug.c	2004-06-07 13:11:00 +02:00
-+++ b/drivers/input/evbug.c	2004-06-07 13:11:00 +02:00
+diff -Nru a/drivers/input/serio/98kbd-io.c b/drivers/input/serio/98kbd-io.c
+--- a/drivers/input/serio/98kbd-io.c	2004-06-07 13:11:51 +02:00
++++ b/drivers/input/serio/98kbd-io.c	2004-06-07 13:11:51 +02:00
+@@ -42,8 +42,8 @@
+  * Register numbers.
+  */
+ 
+-#define KBD98_COMMAND_REG	0x43	
+-#define KBD98_STATUS_REG	0x43	
++#define KBD98_COMMAND_REG	0x43
++#define KBD98_STATUS_REG	0x43
+ #define KBD98_DATA_REG		0x41
+ 
+ spinlock_t kbd98io_lock = SPIN_LOCK_UNLOCKED;
+diff -Nru a/drivers/input/serio/ct82c710.c b/drivers/input/serio/ct82c710.c
+--- a/drivers/input/serio/ct82c710.c	2004-06-07 13:11:51 +02:00
++++ b/drivers/input/serio/ct82c710.c	2004-06-07 13:11:51 +02:00
 @@ -11,18 +11,18 @@
  /*
   * This program is free software; you can redistribute it and/or modify
@@ -67,279 +83,274 @@ diff -Nru a/drivers/input/evbug.c b/drivers/input/evbug.c
   * Should you need to contact me, the author, you can do so either by
   * e-mail - mail your message to <vojtech@ucw.cz>, or by paper mail:
   * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
-@@ -35,7 +35,7 @@
- #include <linux/device.h>
+diff -Nru a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
+--- a/drivers/input/serio/gscps2.c	2004-06-07 13:11:51 +02:00
++++ b/drivers/input/serio/gscps2.c	2004-06-07 13:11:51 +02:00
+@@ -16,7 +16,7 @@
+  * This file is subject to the terms and conditions of the GNU General Public
+  * License.  See the file "COPYING" in the main directory of this archive
+  * for more details.
+- * 
++ *
+  * TODO:
+  * - Dino testing (did HP ever shipped a machine on which this port
+  *                 was usable/enabled ?)
+@@ -44,7 +44,7 @@
  
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
--MODULE_DESCRIPTION("Input driver event debug module"); 
-+MODULE_DESCRIPTION("Input driver event debug module");
- MODULE_LICENSE("GPL");
+ #define PFX "gscps2.c: "
  
- static char evbug_name[] = "evbug";
-@@ -67,7 +67,7 @@
- static void evbug_disconnect(struct input_handle *handle)
- {
- 	printk(KERN_DEBUG "evbug.c: Disconnected device: %s\n", handle->dev->phys);
+-/* 
++/*
+  * Driver constants
+  */
+ 
+@@ -222,7 +222,7 @@
+ /**
+  * gscps2_interrupt() - Interruption service routine
+  *
+- * This function reads received PS/2 bytes and processes them on 
++ * This function reads received PS/2 bytes and processes them on
+  * all interfaces.
+  * The problematic part here is, that the keyboard and mouse PS/2 port
+  * share the same interrupt and it's not possible to send data if any
+@@ -240,9 +240,9 @@
+ 	  unsigned long flags;
+ 	  spin_lock_irqsave(&ps2port->lock, flags);
+ 
+-	  while ( (ps2port->buffer[ps2port->append].str = 
++	  while ( (ps2port->buffer[ps2port->append].str =
+ 		   gscps2_readb_status(ps2port->addr)) & GSC_STAT_RBNE ) {
+-		ps2port->buffer[ps2port->append].data = 
++		ps2port->buffer[ps2port->append].data =
+ 				gscps2_readb_input(ps2port->addr);
+ 		ps2port->append = ((ps2port->append+1) & BUFFER_SIZE);
+ 	  }
+@@ -349,7 +349,7 @@
+ 
+ 	if (!dev->irq)
+ 		return -ENODEV;
 -	
 +
- 	input_close_device(handle);
+ 	/* Offset for DINO PS/2. Works with LASI even */
+ 	if (dev->id.sversion == 0x96)
+ 		hpa += GSC_DINO_OFFSET;
+@@ -368,7 +368,7 @@
+ 	gscps2_reset(ps2port);
+ 	ps2port->id = readb(ps2port->addr+GSC_ID) & 0x0f;
+ 	snprintf(ps2port->name, sizeof(ps2port->name)-1, "%s %s",
+-		gscps2_serio_port.name, 
++		gscps2_serio_port.name,
+ 		(ps2port->id == GSC_ID_KEYBOARD) ? "keyboard" : "mouse" );
  
- 	kfree(handle);
-@@ -79,7 +79,7 @@
+ 	memcpy(&ps2port->port, &gscps2_serio_port, sizeof(gscps2_serio_port));
+@@ -401,9 +401,9 @@
+ 		ps2port->port.phys);
+ 
+ 	serio_register_port(&ps2port->port);
+-	
++
+ 	return 0;
+-	
++
+ fail:
+ 	free_irq(dev->irq, ps2port);
+ 
+@@ -430,7 +430,7 @@
+ 	list_del(&ps2port->node);
+ 	iounmap(ps2port->addr);
+ #if 0
+-	release_mem_region(dev->hpa, GSC_STATUS + 4); 
++	release_mem_region(dev->hpa, GSC_STATUS + 4);
+ #endif
+ 	dev_set_drvdata(&dev->dev, NULL);
+ 	kfree(ps2port);
+@@ -441,7 +441,7 @@
+ static struct parisc_device_id gscps2_device_tbl[] = {
+ 	{ HPHW_FIO, HVERSION_REV_ANY_ID, HVERSION_ANY_ID, 0x00084 }, /* LASI PS/2 */
+ #ifdef DINO_TESTED
+-	{ HPHW_FIO, HVERSION_REV_ANY_ID, HVERSION_ANY_ID, 0x00096 }, /* DINO PS/2 */ 
++	{ HPHW_FIO, HVERSION_REV_ANY_ID, HVERSION_ANY_ID, 0x00096 }, /* DINO PS/2 */
+ #endif
+ 	{ 0, }	/* 0 terminated list */
  };
+diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	2004-06-07 13:11:51 +02:00
++++ b/drivers/input/serio/i8042.c	2004-06-07 13:11:51 +02:00
+@@ -150,7 +150,7 @@
+  */
  
- MODULE_DEVICE_TABLE(input, evbug_ids);
+ static int i8042_command(unsigned char *param, int command)
+-{ 
++{
+ 	unsigned long flags;
+ 	int retval = 0, i = 0;
+ 
+@@ -161,7 +161,7 @@
+ 		dbg("%02x -> i8042 (command)", command & 0xff);
+ 		i8042_write_command(command & 0xff);
+ 	}
 -	
 +
- static struct input_handler evbug_handler = {
- 	.event =	evbug_event,
- 	.connect =	evbug_connect,
-diff -Nru a/drivers/input/evdev.c b/drivers/input/evdev.c
---- a/drivers/input/evdev.c	2004-06-07 13:11:00 +02:00
-+++ b/drivers/input/evdev.c	2004-06-07 13:11:00 +02:00
-@@ -220,7 +220,7 @@
+ 	if (!retval)
+ 		for (i = 0; i < ((command >> 12) & 0xf); i++) {
+ 			if ((retval = i8042_wait_write())) break;
+@@ -172,7 +172,7 @@
+ 	if (!retval)
+ 		for (i = 0; i < ((command >> 8) & 0xf); i++) {
+ 			if ((retval = i8042_wait_read())) break;
+-			if (i8042_read_status() & I8042_STR_AUXDATA) 
++			if (i8042_read_status() & I8042_STR_AUXDATA)
+ 				param[i] = ~i8042_read_data();
+ 			else
+ 				param[i] = i8042_read_data();
+@@ -415,17 +415,17 @@
+ 		} else dfl = 0;
  
- 		case EVIOCGID:
- 			return copy_to_user((void *) arg, &dev->id, sizeof(struct input_id)) ? -EFAULT : 0;
+ 		dbg("%02x <- i8042 (interrupt, aux%d, %d%s%s)",
+-			data, (str >> 6), irq, 
++			data, (str >> 6), irq,
+ 			dfl & SERIO_PARITY ? ", bad parity" : "",
+ 			dfl & SERIO_TIMEOUT ? ", timeout" : "");
+ 
+ 		serio_interrupt(i8042_mux_port + ((str >> 6) & 3), data, dfl, regs);
 -		
 +
- 		case EVIOCGKEYCODE:
- 			if (get_user(t, ((int *) arg) + 0)) return -EFAULT;
- 			if (t < 0 || t > dev->keycodemax || !dev->keycodesize) return -EINVAL;
-@@ -428,7 +428,7 @@
+ 		goto irq_ret;
+ 	}
  
- 	devfs_mk_cdev(MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + minor),
- 			S_IFCHR|S_IRUGO|S_IWUSR, "input/event%d", minor);
--	class_simple_device_add(input_class, 
-+	class_simple_device_add(input_class,
- 				MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + minor),
- 				dev->dev, "event%d", minor);
+ 	dbg("%02x <- i8042 (interrupt, %s, %d%s%s)",
+-		data, (str & I8042_STR_AUXDATA) ? "aux" : "kbd", irq, 
++		data, (str & I8042_STR_AUXDATA) ? "aux" : "kbd", irq,
+ 		dfl & SERIO_PARITY ? ", bad parity" : "",
+ 		dfl & SERIO_TIMEOUT ? ", timeout" : "");
  
-diff -Nru a/drivers/input/joydev.c b/drivers/input/joydev.c
---- a/drivers/input/joydev.c	2004-06-07 13:11:00 +02:00
-+++ b/drivers/input/joydev.c	2004-06-07 13:11:00 +02:00
-@@ -1,12 +1,12 @@
+@@ -539,7 +539,7 @@
+ 
+ 	if (i8042_enable_mux_mode(values, &mux_version))
+ 		return -1;
+-	
++
+ 	/* Workaround for broken chips which seem to support MUX, but in reality don't. */
+ 	/* They all report version 10.12 */
+ 	if (mux_version == 0xAC)
+@@ -607,7 +607,7 @@
  /*
-  * Joystick device driver for the input driver suite.
-  *
-- * Copyright (c) 1999-2002 Vojtech Pavlik 
-- * Copyright (c) 1999 Colin Van Dyke 
-+ * Copyright (c) 1999-2002 Vojtech Pavlik
-+ * Copyright (c) 1999 Colin Van Dyke
-  *
+  * Bit assignment test - filters out PS/2 i8042's in AT mode
+  */
+-	
++
+ 	if (i8042_command(&param, I8042_CMD_AUX_DISABLE))
+ 		return -1;
+ 	if (i8042_command(&param, I8042_CMD_CTL_RCTR) || (~param & I8042_CTR_AUXDIS)) {
+@@ -618,7 +618,7 @@
+ 	if (i8042_command(&param, I8042_CMD_AUX_ENABLE))
+ 		return -1;
+ 	if (i8042_command(&param, I8042_CMD_CTL_RCTR) || (param & I8042_CTR_AUXDIS))
+-		return -1;	
++		return -1;
+ 
+ /*
+  * Disable the interface.
+@@ -648,7 +648,7 @@
+ 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
+ 		printk(KERN_WARNING "i8042.c: Can't write CTR while registering.\n");
+ 		values->exists = 0;
+-		return -1; 
++		return -1;
+ 	}
+ 
+ 	printk(KERN_INFO "serio: i8042 %s port at %#lx,%#lx irq %d\n",
+@@ -877,7 +877,7 @@
+ static int i8042_notify_sys(struct notifier_block *this, unsigned long code,
+         		    void *unused)
+ {
+-        if (code==SYS_DOWN || code==SYS_HALT) 
++        if (code == SYS_DOWN || code == SYS_HALT)
+         	i8042_controller_cleanup();
+         return NOTIFY_DONE;
+ }
+@@ -1009,13 +1009,13 @@
+ 	del_timer_sync(&i8042_timer);
+ 
+ 	i8042_controller_cleanup();
+-	
++
+ 	if (i8042_kbd_values.exists)
+ 		serio_unregister_port(&i8042_kbd_port);
+ 
+ 	if (i8042_aux_values.exists)
+ 		serio_unregister_port(&i8042_aux_port);
+-	
++
+ 	for (i = 0; i < 4; i++)
+ 		if (i8042_mux_values[i].exists)
+ 			serio_unregister_port(i8042_mux_port + i);
+diff -Nru a/drivers/input/serio/parkbd.c b/drivers/input/serio/parkbd.c
+--- a/drivers/input/serio/parkbd.c	2004-06-07 13:11:51 +02:00
++++ b/drivers/input/serio/parkbd.c	2004-06-07 13:11:51 +02:00
+@@ -11,18 +11,18 @@
+ /*
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
 - * the Free Software Foundation; either version 2 of the License, or 
 + * the Free Software Foundation; either version 2 of the License, or
   * (at your option) any later version.
+- * 
++ *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+- * 
++ *
+  * You should have received a copy of the GNU General Public License
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+- * 
++ *
+  * Should you need to contact me, the author, you can do so either by
+  * e-mail - mail your message to <vojtech@ucw.cz>, or by paper mail:
+  * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
+@@ -104,7 +104,7 @@
+ 			parkbd_writing = 0;
+ 			parkbd_writelines(3);
+ 			return;
+-		}	
++		}
+ 
+ 		parkbd_writelines(((parkbd_buffer >> parkbd_counter++) & 1) | 2);
+ 
+@@ -120,7 +120,7 @@
+ 		if ((parkbd_counter == parkbd_mode + 10) || time_after(jiffies, parkbd_last + HZ/100)) {
+ 			parkbd_counter = 0;
+ 			parkbd_buffer = 0;
+-		}	
++		}
+ 
+ 		parkbd_buffer |= (parkbd_readlines() >> 1) << parkbd_counter++;
+ 
+diff -Nru a/drivers/input/serio/q40kbd.c b/drivers/input/serio/q40kbd.c
+--- a/drivers/input/serio/q40kbd.c	2004-06-07 13:11:51 +02:00
++++ b/drivers/input/serio/q40kbd.c	2004-06-07 13:11:51 +02:00
+@@ -4,7 +4,7 @@
+  *  Copyright (c) 2000-2001 Vojtech Pavlik
+  *
+  *  Based on the work of:
+- *	Richard Zidlicky <Richard.Zidlicky@stud.informatik.uni-erlangen.de>	
++ *	Richard Zidlicky <Richard.Zidlicky@stud.informatik.uni-erlangen.de>
   */
  
-@@ -34,7 +34,7 @@
- MODULE_LICENSE("GPL");
- 
- #define JOYDEV_MINOR_BASE	0
--#define JOYDEV_MINORS		16	
-+#define JOYDEV_MINORS		16
- #define JOYDEV_BUFFER_SIZE	64
- 
- #define MSECS(t)	(1000 * ((t) / HZ) + 1000 * ((t) % HZ) / HZ)
-@@ -115,7 +115,7 @@
- 
- 		default:
- 			return;
--	}  
-+	}
- 
- 	event.time = MSECS(jiffies);
- 
-@@ -449,10 +449,10 @@
- 	}
- 
- 	joydev_table[minor] = joydev;
--	
-+
- 	devfs_mk_cdev(MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + minor),
- 			S_IFCHR|S_IRUGO|S_IWUSR, "input/js%d", minor);
--	class_simple_device_add(input_class, 
-+	class_simple_device_add(input_class,
- 				MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + minor),
- 				dev->dev, "js%d", minor);
- 
-@@ -466,7 +466,7 @@
- 	joydev->exist = 0;
- 
- 	if (joydev->open)
--		input_close_device(handle);	
-+		input_close_device(handle);
- 	else
- 		joydev_free(joydev);
- }
-diff -Nru a/drivers/input/mousedev.c b/drivers/input/mousedev.c
---- a/drivers/input/mousedev.c	2004-06-07 13:11:00 +02:00
-+++ b/drivers/input/mousedev.c	2004-06-07 13:11:00 +02:00
-@@ -177,7 +177,7 @@
- 						case BTN_SIDE:   if (list->mode == 2) { index = 3; break; }
- 						case BTN_2:
- 						case BTN_STYLUS2:
--						case BTN_MIDDLE: index = 2; break;	
-+						case BTN_MIDDLE: index = 2; break;
- 						default: return;
- 					}
- 					switch (value) {
-@@ -267,7 +267,7 @@
- 				mousedev_free(list->mousedev);
- 		}
- 	}
--	
-+
- 	kfree(list);
- 	return 0;
- }
-@@ -301,11 +301,11 @@
- 		if (list->mousedev->minor == MOUSEDEV_MIX) {
- 			list_for_each_entry(handle, &mousedev_handler.h_list, h_node) {
- 				mousedev = handle->private;
--				if (!mousedev->open && mousedev->exist)	
-+				if (!mousedev->open && mousedev->exist)
- 					input_open_device(handle);
- 			}
--		} else 
--			if (!mousedev_mix.open && list->mousedev->exist)	
-+		} else
-+			if (!mousedev_mix.open && list->mousedev->exist)
- 				input_open_device(&list->mousedev->handle);
- 	}
- 
-@@ -327,7 +327,7 @@
- 		list->ps2[off + 3] = (list->ps2[off + 3] & 0x0f) | ((list->buttons & 0x18) << 1);
- 		list->bufsiz++;
- 	}
--	
-+
- 	if (list->mode == 1) {
- 		list->ps2[off + 3] = (list->dz > 127 ? 127 : (list->dz < -127 ? -127 : list->dz));
- 		list->dz -= list->ps2[off + 3];
-@@ -403,7 +403,7 @@
- 	kill_fasync(&list->fasync, SIGIO, POLL_IN);
- 
- 	wake_up_interruptible(&list->mousedev->wait);
--		
-+
- 	return count;
- }
- 
-@@ -431,7 +431,7 @@
- 	if (copy_to_user(buffer, list->ps2 + list->bufsiz - list->buffer - count, count))
- 		return -EFAULT;
- 
--	return count;	
-+	return count;
- }
- 
- /* No kernel lock - fine */
-@@ -487,7 +487,7 @@
- 
- 	devfs_mk_cdev(MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + minor),
- 			S_IFCHR|S_IRUGO|S_IWUSR, "input/mouse%d", minor);
--	class_simple_device_add(input_class, 
-+	class_simple_device_add(input_class,
- 				MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + minor),
- 				dev->dev, "mouse%d", minor);
- 
-@@ -538,7 +538,7 @@
- };
- 
- MODULE_DEVICE_TABLE(input, mousedev_ids);
--	
-+
- static struct input_handler mousedev_handler = {
- 	.event =	mousedev_event,
- 	.connect =	mousedev_connect,
-diff -Nru a/drivers/input/power.c b/drivers/input/power.c
---- a/drivers/input/power.c	2004-06-07 13:11:00 +02:00
-+++ b/drivers/input/power.c	2004-06-07 13:11:00 +02:00
-@@ -1,7 +1,7 @@
  /*
-  * $Id: power.c,v 1.10 2001/09/25 09:17:15 vojtech Exp $
-  *
-- *  Copyright (c) 2001 "Crazy" James Simmons  
-+ *  Copyright (c) 2001 "Crazy" James Simmons
-  *
-  *  Input driver Power Management.
-  *
-@@ -51,7 +51,7 @@
- 
- static DECLARE_WORK(suspend_button_task, suspend_button_task_handler, NULL);
- 
--static void power_event(struct input_handle *handle, unsigned int type, 
-+static void power_event(struct input_handle *handle, unsigned int type,
- 		        unsigned int code, int down)
+diff -Nru a/drivers/input/serio/rpckbd.c b/drivers/input/serio/rpckbd.c
+--- a/drivers/input/serio/rpckbd.c	2004-06-07 13:11:51 +02:00
++++ b/drivers/input/serio/rpckbd.c	2004-06-07 13:11:51 +02:00
+@@ -98,7 +98,7 @@
+ static void rpckbd_close(struct serio *port)
  {
- 	struct input_dev *dev = handle->dev;
-@@ -73,7 +73,7 @@
- 			case KEY_POWER:
- 				/* Hum power down the machine. */
- 				break;
--			default:	
-+			default:
- 				return;
- 		}
- 	} else {
-@@ -83,9 +83,9 @@
- 				/* This is risky. See pm.h for details. */
- 				if (dev->state != PM_RESUME)
- 					dev->state = PM_RESUME;
--				else 
--					dev->state = PM_SUSPEND;	
--				pm_send(dev->pm_dev, dev->state, dev); 	
-+				else
-+					dev->state = PM_SUSPEND;
-+				pm_send(dev->pm_dev, dev->state, dev);
- 				break;
- 			case KEY_POWER:
- 				/* Turn the input device off completely ? */
-@@ -97,14 +97,14 @@
- 	return;
+ 	free_irq(IRQ_KEYBOARDRX, port);
+-	free_irq(IRQ_KEYBOARDTX, port);	
++	free_irq(IRQ_KEYBOARDTX, port);
  }
  
--static struct input_handle *power_connect(struct input_handler *handler, 
--					  struct input_dev *dev, 
-+static struct input_handle *power_connect(struct input_handler *handler,
-+					  struct input_dev *dev,
- 					  struct input_device_id *id)
- {
- 	struct input_handle *handle;
- 
- 	if (!test_bit(EV_KEY, dev->evbit) || !test_bit(EV_PWR, dev->evbit))
--		return NULL;	
-+		return NULL;
- 
- 	if (!test_bit(KEY_SUSPEND, dev->keybit) || (!test_bit(KEY_POWER, dev->keybit)))
- 		return NULL;
-@@ -133,21 +133,21 @@
- 		.flags = INPUT_DEVICE_ID_MATCH_EVBIT | INPUT_DEVICE_ID_MATCH_KEYBIT,
- 		.evbit = { BIT(EV_KEY) },
- 		.keybit = { [LONG(KEY_SUSPEND)] = BIT(KEY_SUSPEND) }
--	},	
-+	},
- 	{
- 		.flags = INPUT_DEVICE_ID_MATCH_EVBIT | INPUT_DEVICE_ID_MATCH_KEYBIT,
- 		.evbit = { BIT(EV_KEY) },
- 		.keybit = { [LONG(KEY_POWER)] = BIT(KEY_POWER) }
--	},	
-+	},
- 	{
- 		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
- 		.evbit = { BIT(EV_PWR) },
--	},	
-+	},
- 	{ }, 	/* Terminating entry */
- };
- 
- MODULE_DEVICE_TABLE(input, power_ids);
--	
-+
- static struct input_handler power_handler = {
- 	.event =	power_event,
- 	.connect =	power_connect,
+ static struct serio rpckbd_port =
 

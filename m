@@ -1,28 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130584AbRCIPm4>; Fri, 9 Mar 2001 10:42:56 -0500
+	id <S130541AbRCIQiS>; Fri, 9 Mar 2001 11:38:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130585AbRCIPmq>; Fri, 9 Mar 2001 10:42:46 -0500
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:52240
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S130584AbRCIPmd>; Fri, 9 Mar 2001 10:42:33 -0500
-Date: Fri, 09 Mar 2001 10:41:01 -0500
-From: Chris Mason <mason@suse.com>
-To: linux-kernel@vger.kernel.org, alan@redhat.com, viro@math.psu.edu
-Subject: 2.4.2-ac calls FS truncate w/o BKL
-Message-ID: <890000000.984152461@tiny>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S130542AbRCIQiJ>; Fri, 9 Mar 2001 11:38:09 -0500
+Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:65287 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S130541AbRCIQh4>; Fri, 9 Mar 2001 11:37:56 -0500
+Date: Fri, 9 Mar 2001 08:35:48 -0800
+Message-Id: <200103091635.f29GZmC19160@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ingo Molnar <mingo@elte.hu>, Keith Owens <kaos@ocs.com.au>
+Subject: Re: [patch] serial console vs NMI watchdog
+In-Reply-To: <3AA8E6E5.A4AD5035@uow.edu.au>
+User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.2.18 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 10 Mar 2001 01:21:25 +1100, Andrew Morton <andrewm@uow.edu.au> wrote:
 
-The added vmtruncate calls in the ac series trigger calls to the FS
-truncate without the BKL held.  Easy enough to fix on the reiserfs side,
-but if other filesystems care we might want to change vmtruncate to grab
-the lock before calling truncate (and update the Locking doc ;-)
+> +/**
+> + * enable_nmi_watchdog - enables/disables NMI watchdog checking.
+> + * @yes: If zero, disable
 
--chris
+Ugh. I have a feeling that your chances to get Linus to accept this are
+extremely slim.
+
+Just have two functions, enable_nmi_watchdog and disable_nmi_watchdog.
+You can make them inline, or even macros...
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

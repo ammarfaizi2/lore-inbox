@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbTKQQhj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 11:37:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTKQQhj
+	id S263561AbTKQQch (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 11:32:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263570AbTKQQch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 11:37:39 -0500
-Received: from jupiter.loonybin.net ([208.248.0.98]:54545 "EHLO
-	jupiter.loonybin.net") by vger.kernel.org with ESMTP
-	id S263573AbTKQQhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 11:37:34 -0500
-Date: Mon, 17 Nov 2003 10:37:29 -0600
-From: Zinx Verituse <zinx@epicsol.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: serio chaining in 2.6.x?
-Message-ID: <20031117163729.GA5430@bliss>
-References: <20031117030652.GA4108@bliss> <20031117074748.GA27370@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031117074748.GA27370@ucw.cz>
-User-Agent: Mutt/1.5.4i
+	Mon, 17 Nov 2003 11:32:37 -0500
+Received: from fw.osdl.org ([65.172.181.6]:38119 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263561AbTKQQcg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 11:32:36 -0500
+Date: Mon, 17 Nov 2003 08:32:14 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dan Creswell <dan@dcrdev.demon.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Hard lock on 2.6-test9 (More Info)
+In-Reply-To: <3FB8CE08.6070001@dcrdev.demon.co.uk>
+Message-ID: <Pine.LNX.4.44.0311170829000.8840-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 17, 2003 at 08:47:48AM +0100, Vojtech Pavlik wrote:
-> On Sun, Nov 16, 2003 at 09:06:52PM -0600, Zinx Verituse wrote:
-> >
-[snip]
-> > What do you folks think the best method for chaining the
-> > serio drivers is?
-> 
-> You grab the port. Then you create a new one and register it. And you
-> forward all data that's not destined for you through to the new serio
-> port.
-> 
-> -- 
-> Vojtech Pavlik
 
-Many thanks -- I hadn't considered creating a new port, and I'm sure this
-solution will work perfectly :)
+On Mon, 17 Nov 2003, Dan Creswell wrote:
+> 
+>  17:       5267       3420   IO-APIC-level  ohci1394, Intel ICH4, nvidia
+> 
+> When I boot X under kernel 2.6, I see the additional nvidia interrupt 
+> path as per the 2.4 output (which was taken whilst I was running X).
+> 
+> But, within seconds of this additional interrupt assignment appearing, 
+> 2.6 dies a horrible death whilst 2.4 just keeps on rolling.
 
--- 
-Zinx Verituse
+Two potential reasons:
+ - the nvidia driver is just broken under 2.6.x
+ - or a driver bug in ohci1394 _or_ the Intel ICH4 driver, which could 
+   become unhappy if they see a lot of interrupts that aren't for them 
+   (maybe it uncovers a race).
+
+You can test for the latter by just disabling those drivers, and seeing 
+what happens. If it still breaks, it's nvidia. If the crashes stop, it 
+might _still_ be nvidia, but at that point somebody else might start being 
+interested in it.
+
+		Linus
+
+

@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262898AbVA2LhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262904AbVA2Lku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbVA2LhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 06:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbVA2LhQ
+	id S262904AbVA2Lku (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 06:40:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbVA2Lku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 06:37:16 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:17680 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262898AbVA2LhK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 06:37:10 -0500
-Date: Sat, 29 Jan 2005 12:37:26 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] I2C updates for 2.4.29 (3/3)
-Message-Id: <20050129123726.2e2019ae.khali@linux-fr.org>
-In-Reply-To: <20050129120235.5c7160e6.khali@linux-fr.org>
-References: <20050129120235.5c7160e6.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 29 Jan 2005 06:40:50 -0500
+Received: from main.gmane.org ([80.91.229.2]:50139 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262904AbVA2Lkj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 06:40:39 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Richard Hughes <ee21rh@surrey.ac.uk>
+Subject: Re: [Bug 4081] New: OpenOffice crashes while starting due to a   threading error
+Date: Sat, 29 Jan 2005 10:44:09 +0000
+Message-ID: <pan.2005.01.29.10.44.08.856000@surrey.ac.uk>
+References: <217740000.1106412985@[10.10.2.4]> <41F30E0A.9000100@osdl.org> <1106482954.1256.2.camel@tux.rsn.bth.se> <20050126132504.3295e07d@dxpl.pdx.osdl.net> <41F97E07.2040709@comcast.net> <20050128093104.61a7a387@dxpl.pdx.osdl.net> <1106954493.3051.8.camel@krustophenia.net> <41FACEC5.6070703@comcast.net> <20050128155713.6f3ef6d8@dxpl.pdx.osdl.net>
+Reply-To: ee21rh@surrey.ac.uk
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host217-43-20-137.range217-43.btcentralplus.com
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Original discussion:
-http://archives.andrew.net.au/lm-sensors/msg29038.html
-http://archives.andrew.net.au/lm-sensors/msg29041.html
+On Fri, 28 Jan 2005 15:57:13 -0800, Stephen Hemminger wrote:
+> Note: on 2.6.10
+> 	/dev/dri/card0	crw-rw-rw-
+> on 2.6.11-rc2
+> 	/dev/dri/card0	crw-rw----
+> 	/dev/dri/card1	crw-rw----
+> 
+> Changing permissions seems to fix (it for startup), will try more and see
+> if udev remembers not to turn them back.
 
-Bottom line:
-The "id" member of the i2c_client structure was discarded in Linux 2.6
-due to a lack of consistent use and overall need. While we of course
-won't backport this to Linux 2.4 so as to not break compatibility with
-existing 2.4 drivers, it still seems wise to update the documentation so
-that new drivers written for Linux 2.4 today (*sigh*) do not rely on it.
+Me too. (2.6.11-rc2-bk3, openoffice.org-1.1.3) I straced soffice and found
+it hanging on /dev/dri:
 
---- linux-2.4.29/Documentation/i2c/writing-clients.orig	2005-01-21 21:51:06.000000000 +0100
-+++ linux-2.4.29/Documentation/i2c/writing-clients	2005-01-23 18:21:47.000000000 +0100
-@@ -380,9 +380,6 @@
- 
- For now, you can ignore the `flags' parameter. It is there for future use.
- 
--  /* Unique ID allocation */
--  static int foo_id = 0;
--
-   int foo_detect_client(struct i2c_adapter *adapter, int address, 
-                         unsigned short flags, int kind)
-   {
-@@ -518,7 +515,6 @@
-     data->type = kind;
-     /* SENSORS ONLY END */
- 
--    new_client->id = foo_id++; /* Automatically unique */
-     data->valid = 0; /* Only if you use this field */
-     init_MUTEX(&data->update_lock); /* Only if you use this field */
- 
+geteuid32()                             = 500
+stat64("/dev/dri", {st_mode=S_IFDIR|0755, st_size=80, ...}) = 0
+stat64("/dev/dri/card14", 0xbff9c8bc)   = -1 ENOENT (No such file or directory)
+munmap(0x9b4838, 8192)                  = -1 EINVAL (Invalid argument)
+munmap(0x949e248, 3220820000)           = -1 EINVAL (Invalid argument)
+--- SIGSEGV (Segmentation fault) @ 0 (0) ---
++++ killed by SIGSEGV +++
 
+and with a chmod a+rw /dev/dri/card* everything is okay until I reboot,
+and it defaults back to crw-rw----
+
+What is at fault? Certainly oo shouldn't just seg-fault, but should the
+permissions on /dev/dri/card* be crw-rw---- or crw-rw-rw-?
+
+Richard Hughes
 
 -- 
-Jean Delvare
-http://khali.linux-fr.org/
+
+http://www.hughsie.com/PUBLIC-KEY
+
+

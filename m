@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUJ1S2z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262880AbUJ1ScZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbUJ1S2z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 14:28:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUJ1S2x
+	id S262880AbUJ1ScZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 14:32:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbUJ1ScR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 14:28:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14490 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263085AbUJ1S1T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 14:27:19 -0400
-Date: Thu, 28 Oct 2004 11:27:15 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: jamesclv@us.ibm.com, ak@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] clustered apic patch missing APIC_DFR_CLUSTER def
-Message-ID: <20041028112715.D14339@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Oct 2004 14:32:17 -0400
+Received: from out005pub.verizon.net ([206.46.170.143]:26572 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S262880AbUJ1ScC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 14:32:02 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9bk6 msdos fs OOPS
+Date: Thu, 28 Oct 2004 14:32:00 -0400
+User-Agent: KMail/1.7
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Nigel Kukard <nkukard@lbsd.net>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+References: <41809921.10200@lbsd.net> <200410280812.41150.gene.heskett@verizon.net> <87oeingerg.fsf@devron.myhome.or.jp>
+In-Reply-To: <87oeingerg.fsf@devron.myhome.or.jp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Message-Id: <200410281432.01013.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [141.153.91.102] at Thu, 28 Oct 2004 13:32:01 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The cluster apic support does not compile.  I added the APIC_DFR_CLUSTER
-def to asm-x86_64/apicdef.h (stolen from i386 one).  Also added
-APIC_DFR_FLAT while there.  This may only be papering over real fix.
+On Thursday 28 October 2004 09:21, OGAWA Hirofumi wrote:
+>Gene Heskett <gene.heskett@verizon.net> writes:
+>> After the reboot to a 2.6.10-rc1-bk6 plus your patch, its still
+>> fine, and except for the usual references to /dev/sda1 in the log
+>> when I turn it on or off, mounting it and scanning its directory
+>> doesn't generate any additional log info.  Was it supposed to?
+>
+>This bug is triggered by race condition. So, it may not happen.
+>
+>Thanks.
 
-Additionally, cluster_cpu_present_to_apicid() is defined but not used
-anywhere.  So remove it.
+I see.  Apparently my lashup doesn't trigger it.
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+Now, how about its going read-only on me if I move (and delete) say 33 
+pix at the head of the its directory listing?  Is this an M$ related 
+fs bug in the camera?
 
-===== include/asm-x86_64/apicdef.h 1.6 vs edited =====
---- 1.6/include/asm-x86_64/apicdef.h	2004-10-28 00:39:50 -07:00
-+++ edited/include/asm-x86_64/apicdef.h	2004-10-28 11:15:19 -07:00
-@@ -32,6 +32,8 @@
- #define			SET_APIC_LOGICAL_ID(x)	(((x)<<24))
- #define			APIC_ALL_CPUS		0xFFu
- #define		APIC_DFR	0xE0
-+#define			APIC_DFR_CLUSTER		0x0FFFFFFFu
-+#define			APIC_DFR_FLAT			0xFFFFFFFFu
- #define		APIC_SPIV	0xF0
- #define			APIC_SPIV_FOCUS_DISABLED	(1<<9)
- #define			APIC_SPIV_APIC_ENABLED		(1<<8)
-===== arch/x86_64/kernel/genapic_cluster.c 1.1 vs edited =====
---- 1.1/arch/x86_64/kernel/genapic_cluster.c	2004-10-28 00:39:50 -07:00
-+++ edited/arch/x86_64/kernel/genapic_cluster.c	2004-10-28 11:18:10 -07:00
-@@ -57,14 +57,6 @@
- 	apic_write_around(APIC_LDR, val);
- }
- 
--static int cluster_cpu_present_to_apicid(int mps_cpu)
--{
--	if ((unsigned)mps_cpu < NR_CPUS)
--		return (int)bios_cpu_apicid[mps_cpu];
--	else
--		return BAD_APICID;
--}
--
- /* Start with all IRQs pointing to boot CPU.  IRQ balancing will shift them. */
- 
- static cpumask_t cluster_target_cpus(void)
+Thats required some contortions like camera battery removal, reboot 
+this machine, etc to alleviate and restore normal operations in the 
+past.
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

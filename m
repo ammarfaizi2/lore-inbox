@@ -1,104 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbTELTVy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 15:21:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbTELTVy
+	id S262528AbTELTSx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 15:18:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbTELTSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 15:21:54 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:16583 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262577AbTELTVq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 15:21:46 -0400
-Message-ID: <3EBFF741.3070505@namesys.com>
-Date: Mon, 12 May 2003 23:34:25 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
+	Mon, 12 May 2003 15:18:53 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:24622 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262528AbTELTSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 15:18:52 -0400
+From: Jos Hulzink <josh@stack.nl>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
+Date: Mon, 12 May 2003 21:35:53 +0200
+User-Agent: KMail/1.5
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BK][2.4] reiserfs: Enable tail packing, resend
-Content-Type: multipart/mixed;
- boundary="------------050704030705000207010400"
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305122135.53751.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050704030705000207010400
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
 
+(kernel: 2.5.69)
 
--- 
-Hans
+The conclusion of bug 699 is that some / all i386 SMP systems that use MPS 1.4 
+(and higher ? or all MPS versions ?), should boot with the "pci=noacpi" 
+parameter to prevent IRQ problems.
 
+What exactly happens: The MPS 1.4 interpreter causes PCI IRQs to be remapped 
+to IRQ 16 and higher, which is the desired behaviour. The ACPI interpreter 
+comes in and finds no MADT table, for the Multiprocessor info is stored as 
+MPS table. No MADT table, so ACPI sets up the APIC in PIC mode (which I 
+wonder wether correct, but ok). As a result, the kernels pci_dev table tells 
+us that the IRQs have not been remapped (i.e. all values less than 16), while 
+the IRQs are actually mapped above 16. 
 
---------------050704030705000207010400
-Content-Type: message/rfc822;
- name="[2.4] reiserfs: Enable tail packing, resend"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="[2.4] reiserfs: Enable tail packing, resend"
+All drivers of PCI cards claim the wrong IRQ line, and the end of story is 
+timeouts while waiting for an IRQ that never comes.
 
-Return-Path: <green@angband.namesys.com>
-Delivered-To: reiser@namesys.com
-Received: (qmail 926 invoked from network); 12 May 2003 14:02:32 -0000
-Received: from angband.namesys.com (postfix@212.16.7.85)
-  by thebsh.namesys.com with SMTP; 12 May 2003 14:02:32 -0000
-Received: by angband.namesys.com (Postfix, from userid 521)
-	id 0AABD571F9C; Mon, 12 May 2003 18:02:32 +0400 (MSD)
-Date: Mon, 12 May 2003 18:02:32 +0400
-From: Oleg Drokin <green@namesys.com>
-To: reiser@namesys.com
-Subject: [2.4] reiserfs: Enable tail packing, resend
-Message-ID: <20030512140232.GD4165@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Remark: I think it is strange, that the kernel actually says: "ACPI: Using PIC 
+for interrupt routing", but it doesn't set up the PIC correctly (otherwise 
+the APIC rerouting table would be reset or something).
 
-Hello!
+Now, my big question his: how to fix this. It is possible to have some code in 
+the kernel that does the same as "pci=noacpi", but what and where do I have 
+to do the check, with what condition ?
 
-    This patch restores the tail packing fucntionality that was
-    mistakenly disabled by previously accepted directio fix patch.
+1) In the ACPI code, when MADT is not present ? Problem here is that the MPS 
+parser comes after the ACPI parser, so it isn't known yet that the MPS table 
+is present.
 
-    Please pull from bk://namesys.com/bk/reiser3-linux-2.4-tailfix
+2) In the MPS parser ? As soon as an I/O APIC is detected by MPS, tell ACPI 
+not to touch the APIC ? You get acpi related code in non-acpi procedures 
+then...
 
-Diffstat:
- inode.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+3) Somewhere else ? How early in the kernel boot process should this option be 
+set ?
 
-Plain text patch:
+And an additional question: is "pci=noapic" the correct way to fix this ? It 
+runs fine here, but maybe we should only touch the IRQ related part ? If so, 
+how to do that ?
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1158  -> 1.1159 
-#	 fs/reiserfs/inode.c	1.42    -> 1.43   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/03	green@angband.namesys.com	1.1159
-# reiserfs: One of the O_DIRECT fixes disabled tail packing by mistake. Enable it again.
-# --------------------------------------------
-#
-diff -Nru a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
---- a/fs/reiserfs/inode.c	Mon May 12 17:47:44 2003
-+++ b/fs/reiserfs/inode.c	Mon May 12 17:47:44 2003
-@@ -2085,8 +2085,8 @@
- 	/* If the file have grown beyond the border where it
- 	   can have a tail, unmark it as needing a tail
- 	   packing */
--	if ( (have_large_tails (inode->i_sb) && inode->i_size < block_size (inode)*4) ||
--	     (have_small_tails (inode->i_sb) && inode->i_size < block_size(inode)) )
-+	if ( (have_large_tails (inode->i_sb) && inode->i_size > block_size (inode)*4) ||
-+	     (have_small_tails (inode->i_sb) && inode->i_size > block_size(inode)) )
- 	    inode->u.reiserfs_i.i_flags &= ~i_pack_on_close_mask;
- 
- 	journal_begin(&th, inode->i_sb, 1) ;
+Please shoot... I found the problem, but this doesn't mean I understand the 
+kernel :)
 
-
-
---------------050704030705000207010400--
-
+Jos

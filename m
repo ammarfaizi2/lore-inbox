@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265124AbUETROe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUETRYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265124AbUETROe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 13:14:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUETROe
+	id S265207AbUETRYh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 13:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbUETRYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 13:14:34 -0400
-Received: from holomorphy.com ([207.189.100.168]:35715 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265124AbUETROd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 13:14:33 -0400
-Date: Thu, 20 May 2004 10:14:29 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ian Molton <spyro@f2s.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: struct page changes in 2.6.6
-Message-ID: <20040520171429.GB2434@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ian Molton <spyro@f2s.com>, linux-kernel@vger.kernel.org
-References: <20040520182152.45fb2ce7.spyro@f2s.com>
+	Thu, 20 May 2004 13:24:37 -0400
+Received: from amber.ccs.neu.edu ([129.10.116.51]:27791 "EHLO
+	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S265207AbUETRYg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 13:24:36 -0400
+Subject: Re: 2.6.6-mm4 (compile stats)
+From: Stan Bubrouski <stan@ccs.neu.edu>
+To: John Cherry <cherry@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1085068793.4420.1.camel@cherrybomb.pdx.osdl.net>
+References: <20040519040421.61263a43.akpm@osdl.org>
+	 <1084983767.12134.1.camel@cherrybomb.pdx.osdl.net>
+	 <1085001225.9697.4.camel@duergar>
+	 <1085068793.4420.1.camel@cherrybomb.pdx.osdl.net>
+Content-Type: text/plain
+Message-Id: <1085073875.9697.29.camel@duergar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040520182152.45fb2ce7.spyro@f2s.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 20 May 2004 13:24:35 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 20, 2004 at 06:21:52PM +0100, Ian Molton wrote:
-> Im trying to find the reason struct page lost its 'list' field -
-> arm26 depended on it right up to 2.6.5.
+On Thu, 2004-05-20 at 11:59, John Cherry wrote: 
+> > If I'm misunderstanding something please ignore, but me thinks those 'w'
+> > should be 'e', correct?
+> 
+> Typo.  Should be w/e.
+> 
+> John
 
-grep -nr 'list' include/asm-arm26 arch/arm26 discovers 0 uses of
-page->list.
+Thanks,
 
+Was just wondering, been feeling like I'm losin' my mind lately
 
--- wli
+-sb
+

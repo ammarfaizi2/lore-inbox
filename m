@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbTJIN5t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 09:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTJIN5t
+	id S262190AbTJIOC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 10:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbTJIOC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 09:57:49 -0400
-Received: from mail-13.iinet.net.au ([203.59.3.45]:45229 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262181AbTJIN5s
+	Thu, 9 Oct 2003 10:02:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44006 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262190AbTJIOC5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 09:57:48 -0400
-Subject: Re: devfs vs. udev
-From: Ian Kent <raven@themaw.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20031007174928.GB1956@kroah.com>
-References: <yw1xad8dfcjg.fsf@users.sourceforge.net>
-	 <pan.2003.10.07.13.41.23.48967@dungeon.inka.de>
-	 <yw1xekxpdtuq.fsf@users.sourceforge.net> <20031007142349.GX1223@rdlg.net>
-	 <pan.2003.10.07.16.06.52.842471@dungeon.inka.de>
-	 <20031007165404.GB29870@carfax.org.uk>  <20031007174928.GB1956@kroah.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1065706989.3203.2.camel@raven.themaw.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 09 Oct 2003 21:43:10 +0800
+	Thu, 9 Oct 2003 10:02:57 -0400
+Message-ID: <3F856A7E.2010607@pobox.com>
+Date: Thu, 09 Oct 2003 10:02:38 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: marcelo.tosatti@cyclades.com
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de
+Subject: Re: [PATCH] laptop mode
+References: <200310091103.h99B31ug014566@hera.kernel.org>
+In-Reply-To: <200310091103.h99B31ug014566@hera.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-10-08 at 01:49, Greg KH wrote:
-> On Tue, Oct 07, 2003 at 05:54:04PM +0100, Hugo Mills wrote:
-> > 
-> >    Surely udev needs the ability to make more than one device node or
-> > symlink when a device is plugged in anyway, so I just see this as an
-> > issue of writing the appropriate default configuration files.
+Linux Kernel Mailing List wrote:
+> ChangeSet 1.1150.1.52, 2003/10/08 10:49:45-03:00, axboe@suse.de
 > 
-> More than one device node per device?  Why would you want that?
-> 
-> And sure, it's just software, it can be made to do that, if someone
-> sends me a patch... :)
-> 
+> 	[PATCH] laptop mode
+> 	
+> 	Hi Marcelo,
+> 	
+> 	Lots of people have been using this patch with great success, and it's
+> 	been in the SuSE kernel for some months now too. It is also in the -benh
+> 	ppc tree
+> 	
+> 	Basically, it introduces a write back mode of dirty and journal data
+> 	that is more suitable for laptops. At the block layer end, it schedules
+> 	write out of dirty data after the disk has been idle for 5 seconds.
+> 	
+> 	Laptop mode can be switched on and off with /proc/sys/vm/laptop_mode.
+> 	There is also a block_dump sysctl, which if enabled will dump who
+> 	dirties and writes out data. This is very helpful in pinning down who is
+> 	causing unnecessary writes to the disk.
 
-Will udev remove the limit on the number of anonymous devices?
+Red Hat just dropped this patch since it was suspected of data 
+corruption ;-(
+
+	Jeff
+
+
 

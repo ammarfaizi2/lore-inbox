@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264954AbSK0Xru>; Wed, 27 Nov 2002 18:47:50 -0500
+	id <S264944AbSK0XrN>; Wed, 27 Nov 2002 18:47:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264950AbSK0Xrt>; Wed, 27 Nov 2002 18:47:49 -0500
-Received: from dp.samba.org ([66.70.73.150]:35712 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264946AbSK0Xrs>;
-	Wed, 27 Nov 2002 18:47:48 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org, vandrove@vc.cvut.cz, zippel@linux-m68k.org
-Subject: Re: Modules with list 
-In-reply-to: Your message of "Tue, 26 Nov 2002 23:22:34 -0800."
-             <200211270722.XAA23313@adam.yggdrasil.com> 
-Date: Thu, 28 Nov 2002 10:15:57 +1100
-Message-Id: <20021127235506.5744F2C075@lists.samba.org>
+	id <S264946AbSK0XrN>; Wed, 27 Nov 2002 18:47:13 -0500
+Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.223]:2218 "EHLO
+	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S264944AbSK0XrN>; Wed, 27 Nov 2002 18:47:13 -0500
+Date: Wed, 27 Nov 2002 18:47:23 -0500 (EST)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: fdavis@linux-dev
+To: linux-kernel@vger.kernel.org
+cc: fdavis@si.rr.com
+Subject: 2.5.50 : fs/hugetlbfs/inode.c error
+Message-ID: <Pine.LNX.4.44.0211271845410.4018-100000@linux-dev>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200211270722.XAA23313@adam.yggdrasil.com> you write:
-> Rusty Russell wrote:
-> >In message <200211260649.WAA22216@adam.yggdrasil.com> you write:
-> >> >This would only happen if someone says "rmmod --wait".
-> 
-> >As I realized last night after I wrote this, there is a bug in
-> >module.c.  If O_NONBLOCK is specified, we shouldn't drop the module
-> >sempaphore at all, for exactly this reason.  A bug I introduced while
-> >"cleaning up" the "--wait" path.
-> 
-> >Sorry for the confusion.
-> 
-> 	Then if you do "rmmod --wait" on some module that is in use,
-> every lsmod, insmod and rmmod will hang while attempting to acquire
+Hello all,
+  While 'make bzImage', I received the following error:
 
-Sorry, that's why I said "*If O_NONBLOCK* is specified" (ie. still
-drop it for the --wait case).
+Regards,
+Frank
 
-Hope that clarifies,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+fs/hugetlbfs/inode.c: In function `hugetlbfs_delete_inode':
+fs/hugetlbfs/inode.c:212: `security_ops' undeclared (first use in this function)
+fs/hugetlbfs/inode.c:212: (Each undeclared identifier is reported only once
+fs/hugetlbfs/inode.c:212: for each function it appears in.)
+fs/hugetlbfs/inode.c: In function `hugetlbfs_setattr':
+fs/hugetlbfs/inode.c:336: `security_ops' undeclared (first use in this function)
+make[2]: *** [fs/hugetlbfs/inode.o] Error 1
+make[1]: *** [fs/hugetlbfs] Error 2
+make: *** [fs] Error 2
+

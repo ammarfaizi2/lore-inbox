@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267697AbUGaPYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267702AbUGaPgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267697AbUGaPYA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 11:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267961AbUGaPX7
+	id S267702AbUGaPgb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 11:36:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267956AbUGaPgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 11:23:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43200 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267697AbUGaPXu (ORCPT
+	Sat, 31 Jul 2004 11:36:31 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:52435 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S267702AbUGaPg0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 11:23:50 -0400
-Message-ID: <410BB8F9.30900@bitplanet.net>
-Date: Sat, 31 Jul 2004 17:21:29 +0200
-From: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@bitplanet.net>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Olav Kongas <olav@enif.ee>, linux-kernel@vger.kernel.org
-Subject: Re: input system: EVIOCSABS(abs) ioctl disabled, why?
-References: <Pine.LNX.4.58.0407281453560.16069@serv.enif.ee> <20040728134313.GB4831@ucw.cz> <410B0486.6060706@bitplanet.net> <20040731093353.GA1579@ucw.cz>
-In-Reply-To: <20040731093353.GA1579@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 31 Jul 2004 11:36:26 -0400
+Date: Sat, 31 Jul 2004 17:36:10 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Zinx Verituse <zinx@epicsol.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-cd problems
+Message-ID: <20040731153609.GG23697@suse.de>
+References: <20040730193651.GA25616@bliss>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040730193651.GA25616@bliss>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-...
->>On a related note - shouldn't there also be a EVIOCSLED, or am I missing 
->>something obvious?  How do you set keyboard LEDs?
+On Fri, Jul 30 2004, Zinx Verituse wrote:
+> I'm going to bump this topic a bit, since it's been a while..
+> There are still some issues with ide-cd's SG_IO, listed from
+> most important as percieved by me to least:
 > 
-> You write() an LED event to the device. EVIOCSABS is intended for
-> modifying the absolute valuator range, not the value itself.
+>  * Read-only access grants you the ability to write/blank media in the drive
+>  * (with above) You can open the device only in read-only mode.
 
-Yeah, that works, thanks.
+That's by design. Search linux-scsi or this list for why that is so.
 
-Kristian
+>  * You can't open the device unless there is media in the drive
+
+False, you use O_NONBLOCK.
+
+>  * Still seems to be no way to specify scatter gather/dma buffers yourself,
+>    though I'm not entirely sure that matters anyway.
+
+That's true, later implementation of block layer SG_IO adds that as
+well. It's really a minor thing though, I don't think I've ever seen
+anyone use it outside of regression testing scripts.
+
+-- 
+Jens Axboe
+

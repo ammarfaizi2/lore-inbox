@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266535AbTAOPRz>; Wed, 15 Jan 2003 10:17:55 -0500
+	id <S266552AbTAOPVr>; Wed, 15 Jan 2003 10:21:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266552AbTAOPRz>; Wed, 15 Jan 2003 10:17:55 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:58265 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S266535AbTAOPRy>; Wed, 15 Jan 2003 10:17:54 -0500
-Date: Wed, 15 Jan 2003 09:26:23 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] add module reference to struct tty_driver
-In-Reply-To: <20030115100001.D31372@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0301150925400.24883-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266609AbTAOPVr>; Wed, 15 Jan 2003 10:21:47 -0500
+Received: from hauptpostamt.charite.de ([193.175.66.220]:146 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id <S266552AbTAOPVr>; Wed, 15 Jan 2003 10:21:47 -0500
+Date: Wed, 15 Jan 2003 16:30:39 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Which FB to use instead of vesafb?
+Message-ID: <20030115153039.GN32436@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030114173348.GG20592@charite.de> <20030114182556.GB16359@kanoe.ludicrus.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030114182556.GB16359@kanoe.ludicrus.net>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Jan 2003, Russell King wrote:
+* Joshua Kwan <joshk@ludicrus.ath.cx>:
 
-> On Tue, Jan 14, 2003 at 02:08:59PM -0800, Greg KH wrote:
-> > Woah!  Hm, this is going to cause lots of problems in drivers that have
-> > been assuming that the BKL is grabbed during module unload, and during
-> > open().  Hm, time to just fallback on the argument, "module unloading is
-> > unsafe" :(
-> 
-> Note that its the same in 2.4 as well.  iirc, the BKL was removed from
-> module loading/unloading sometime in the 2.3 timeline.
+> Try rivafb, but I hear it is broken in 2.5 :)
 
-You didn't look at linux-2.4/kernel/module.c lately, did you? ;)
+Nevermind, I'm not mentally 2.5.x ready anyway. I'll stick to
+2.4.21-sumthin
 
---Kai
-
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+What about the four lusers of the apocalypse? 
+I nominate: "advertising", "can't log in", "power switch" and "what backup?"
+Runners-up: "But I only changed one line" and  "What's the any key"?
 

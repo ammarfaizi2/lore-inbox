@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280459AbRJaUAk>; Wed, 31 Oct 2001 15:00:40 -0500
+	id <S280466AbRJaUCu>; Wed, 31 Oct 2001 15:02:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280461AbRJaUAb>; Wed, 31 Oct 2001 15:00:31 -0500
-Received: from tahallah.demon.co.uk ([158.152.175.193]:14324 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S280459AbRJaUAU>; Wed, 31 Oct 2001 15:00:20 -0500
-Date: Wed, 31 Oct 2001 20:00:22 +0000 (GMT)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: "David S. Miller" <davem@redhat.com>
-cc: <alex.buell@tahallah.demon.co.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [sparc] Weird ioctl() bug in 2.2.19 (fwd)
-In-Reply-To: <20011031.103241.45747017.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0110311958040.20237-100000@tahallah.demon.co.uk>
+	id <S280465AbRJaUCb>; Wed, 31 Oct 2001 15:02:31 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:53265 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S280464AbRJaUCZ>;
+	Wed, 31 Oct 2001 15:02:25 -0500
+Date: Wed, 31 Oct 2001 18:02:47 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Michael Peddemors <michael@wizard.ca>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.14-pre6
+In-Reply-To: <Pine.LNX.4.33.0110311126500.32727-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0110311802320.2963-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Oct 2001, David S. Miller wrote:
+On Wed, 31 Oct 2001, Linus Torvalds wrote:
 
-> I'm pretty sure the ioctl numbers are wrong, and that is what is
-> causing the problem.
+> (2.5.x will obviously use the new VM regardless, and I actually
+> believe that the new VM simply is better. I think that Alan will see
+> the light eventually, but at the same time I clearly admit that Alan
+> was right on a stability front for the last month or two ;)
 
-No, the ioctl numbers are correct, it's ESD that's fscked.
+Will you document the new VM ?
 
-    /* set the sound driver audio format for playback */
-#if defined(__powerpc__)
-    value = test = ( (esd_audio_format & ESD_MASK_BITS) == ESD_BITS16 )
-        ? /* 16 bit */ AFMT_S16_NE : /* 8 bit */ AFMT_U8;
-#else /* #if !defined(__powerpc__) */
-    value = test = ( (esd_audio_format & ESD_MASK_BITS) == ESD_BITS16 )
-        ? /* 16 bit */ AFMT_S16_LE : /* 8 bit */ AFMT_U8;
-#endif /* #if !defined(__powerpc__) */
-
-<sarcasm>
-This is such a lovely piece of code!
-<sarcasm>
-
-Anyway, I can fix it now by adding the appropriate AFMT_S16_BE statement
-guarded by a #ifdef but this sucks. Thanks to Peter Jones who spotted this
-one.
-
+Rik
 -- 
-Come the revolution, humourless gits'll be first up against the wall.
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-http://www.tahallah.demon.co.uk
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313080AbSC0TKw>; Wed, 27 Mar 2002 14:10:52 -0500
+	id <S313079AbSC0TNm>; Wed, 27 Mar 2002 14:13:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313078AbSC0TKn>; Wed, 27 Mar 2002 14:10:43 -0500
-Received: from astrodienst.ch ([192.53.104.1]:44550 "EHLO as73.astro.ch")
-	by vger.kernel.org with ESMTP id <S313071AbSC0TKf>;
-	Wed, 27 Mar 2002 14:10:35 -0500
-Date: Wed, 27 Mar 2002 20:10:33 +0100 (MET)
-From: Alois Treindl <alois@astro.ch>
-To: Andrew Morton <akpm@zip.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: oops with kjournald in SMP 2.4.16
-In-Reply-To: <3CA203FA.262EB621@zip.com.au>
-Message-ID: <Pine.HPX.4.21.0203272007400.20694-100000@as73.astro.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313078AbSC0TNc>; Wed, 27 Mar 2002 14:13:32 -0500
+Received: from gw.wmich.edu ([141.218.1.100]:43678 "EHLO gw.wmich.edu")
+	by vger.kernel.org with ESMTP id <S313079AbSC0TNT>;
+	Wed, 27 Mar 2002 14:13:19 -0500
+Subject: Re: [patch] speed up ext3 synchronous mounts
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020327190731.GA12677@merlin.emma.line.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 27 Mar 2002 14:13:10 -0500
+Message-Id: <1017256395.517.1.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Mar 2002, Andrew Morton wrote:
+On Wed, 2002-03-27 at 14:07, Matthias Andree wrote:
+> On Sun, 24 Mar 2002, Andrew Morton wrote:
 > 
-> For a while we were seeing a lot of these.  Around 2.4.14 to 2.4.17.
-> I have twenty or thirty different reports saved away.
+> > Again, we don't need to sync indirects as we dirty them because
+> > we run a commit if IS_SYNC(inode) prior to returning to the
+> > caller of write(2).
 > 
-> But they seem to have stopped.  It's beginning to look like whatever
-> it was got fixed somehow.
-> 
-> > 
-> > Does anyone recognize this problem, and has it been fixed in later kernels?
-> > 
-> 
-> Possibly so, yes.  2.4.16 is suspect in this regard.
-> 
+> Will this help synchronous NFS writes, at least a little? I have slow
+> write performance on "sync" NFSv3 exports (ext3 underneath, you guessed
+> it), kernel 2.4.19-pre3-ac4 (not really surprising, sync is slow ;-). Is
+> it worth a try?
 
-Thanks for replying.
-It is pity the situation is not more clear. 
+if you look at the source.  that kernel doesn't need the patch. Seems to
+have already been applied since ac1
 
-I understand you are saying hat the problem is not related to
-kjournald/ext3.
+
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 

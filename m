@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268398AbRG3HTL>; Mon, 30 Jul 2001 03:19:11 -0400
+	id <S268419AbRG3H3d>; Mon, 30 Jul 2001 03:29:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268406AbRG3HTC>; Mon, 30 Jul 2001 03:19:02 -0400
-Received: from [195.139.250.10] ([195.139.250.10]:40204 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S268398AbRG3HSt>;
-	Mon, 30 Jul 2001 03:18:49 -0400
-Message-ID: <3B65099E.8004F9E5@scali.no>
-Date: Mon, 30 Jul 2001 09:15:42 +0200
-From: Steffen Persvold <sp@scali.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S268417AbRG3H3X>; Mon, 30 Jul 2001 03:29:23 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:30994 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S268416AbRG3H3S>;
+	Mon, 30 Jul 2001 03:29:18 -0400
+Date: Mon, 30 Jul 2001 08:28:53 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Anton Altaparmakov <aia21@cam.ac.uk>, <postmaster@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Test mail
+In-Reply-To: <Pine.LNX.4.33L.0107300101490.11893-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0107300826510.14171-100000@infradead.org>
 MIME-Version: 1.0
-To: Gav <gavbaker@ntlworld.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VIA KT133A / athlon / MMX
-In-Reply-To: <E15QEP3-0006TF-00@the-village.bc.nu> <01072904032900.04737@box.penguin.power>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Gav wrote:
-> Just FYI, I've been running 2.4.7-pre6 for a few weeks on a Abit-KT7-a
-> (hpt370) that uses the KT133/VIA chipset, with a 1.33Ghz Athlon and the
-> kernel compiled for an Athlon.
-> 
-> The machine is now rock solid. I've given it the usual tests, k7burn for 5
-> hours, cp'ing 30G+ across drives a few times etc, and all is good.
-> 
-> The broken sound (crackle/pop) with my SB128PCI (same problem as SBLive)
-> still didn't go away though, but enabling PCI DRAM PREFETCH on the VT8363
-> Bus-PCI Bridge does cure it. This took me a while to find as I can't set this
-> in my bios, but powertweak came to the rescue.
-> 
-> While DRAM Prefetch is supposed to be an option to increase performance, my
-> sound is totally unusable without this set. I've heard numerous people
-> explain the same problem and it would be interesting to find out if this
-> cures their sound troubles too. If this is the case, is this something that
-> belongs in quirks, or is it too hardware specific? and would enabling this by
-> default hurt anything anyway? Or is this just masking the underlaying problem
-> ?
+Hi Rik.
 
-Hmm, I think "DRAM Prefetch" is the one you _don't_ want to turn on, because (and correct
-me if i'm wrong) it's causing all the problems with the IDE controller (data trashing).
+On Mon, 30 Jul 2001, Rik van Riel wrote:
 
-Regards,
--- 
-  Steffen Persvold               Systems Engineer
-  Email : mailto:sp@scali.no     Scali AS (http://www.scali.com)
-  Tlf   : (+47) 22 62 89 50      Olaf Helsets vei 6
-  Fax   : (+47) 22 62 89 51      N-0621 Oslo, Norway
+ > On Mon, 30 Jul 2001, Anton Altaparmakov wrote:
+
+ >> At 23:20 29/07/2001, Mailing Server wrote:
+
+ >>>Hi, just verifying email, enjoy the attached file.
+
+ >> Would it be possible to have lkml setup to filter out this kind of
+ >> crap?!?
+
+ > IIRC lkml already has pretty strict filters.
+ >
+ > However, you cannot have your filters prepared for
+ > any random thing. Eventually something will get
+ > through.
+ >
+ > It seems that this month's something just got through.
+
+Surely it should be simple to check that each piece of mail has a from
+address in it, and either kill any that doesn't, or at least plug in
+the envelope from address in its place?
+
+Best wishes from Riley.
+

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262883AbTEVRps (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 13:45:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbTEVRps
+	id S262872AbTEVRof (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 13:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbTEVRof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 13:45:48 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:31967 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S262883AbTEVRpq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 13:45:46 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Thu, 22 May 2003 13:44:35 -0400
+Received: from pc1-cmbg4-4-cust110.cmbg.cable.ntl.com ([81.96.70.110]:47626
+	"EHLO thekelleys.org.uk") by vger.kernel.org with ESMTP
+	id S262872AbTEVRof (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 13:44:35 -0400
+Message-ID: <3ECD0F8A.5080409@thekelleys.org.uk>
+Date: Thu, 22 May 2003 18:57:30 +0100
+From: Simon Kelley <simon@thekelleys.org.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-GB; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: ranty@debian.org
+CC: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, jt@hpl.hp.com,
+       Pavel Roskin <proski@gnu.org>, Oliver Neukum <oliver@neukum.org>,
+       David Gibson <david@gibson.dropbear.id.au>
+Subject: Re: [PATCH] Re: request_firmware() hotplug interface, third round
+ and a halve
+References: <20030517221921.GA28077@ranty.ddts.net> <20030521072318.GA12973@kroah.com> <20030521185212.GC12677@ranty.ddts.net> <20030521200736.GA2606@kroah.com> <20030522153154.GD13224@ranty.ddts.net>
+In-Reply-To: <20030522153154.GD13224@ranty.ddts.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16077.4056.136751.729309@napali.hpl.hp.com>
-Date: Thu, 22 May 2003 10:58:48 -0700
-To: Mike Galbraith <efault@gmx.de>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: Re: web page on O(1) scheduler
-In-Reply-To: <5.2.0.9.2.20030522181509.00cc4338@pop.gmx.net>
-References: <16075.48579.189593.405154@napali.hpl.hp.com>
-	<5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
-	<16075.8557.309002.866895@napali.hpl.hp.com>
-	<5.2.0.9.2.20030522181509.00cc4338@pop.gmx.net>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 22 May 2003 18:25:54 +0200, Mike Galbraith <efault@gmx.de> said:
+Works great for me now.
 
-  Mike> Out of curiosity, is someone hitting that with a real program?
+It's noisy: I'd remove/disable the printks in firmware_data_read and firmware_data_write
+before it goes in.
 
-Yes, it caused a failure in a validation program.  The test case is a
-stripped-down version of the original program and, of course, doesn't
-make much sense other than to demonstrate the scheduling problem.
+Cheers,
 
-	--david
+Simon.
+

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268001AbUBRUYO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 15:24:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268054AbUBRUYO
+	id S267823AbUBRTAo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 14:00:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267881AbUBRTAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 15:24:14 -0500
-Received: from fed1mtao07.cox.net ([68.6.19.124]:50392 "EHLO
-	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S268001AbUBRUYL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 15:24:11 -0500
-Date: Wed, 18 Feb 2004 13:23:57 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][1/6] A different KGDB stub
-Message-ID: <20040218202357.GU16881@smtp.west.cox.net>
-References: <20040217220249.GB16881@smtp.west.cox.net> <20040218193624.GA408@elf.ucw.cz>
-Mime-Version: 1.0
+	Wed, 18 Feb 2004 14:00:43 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:32131 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S267823AbUBRTAh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 14:00:37 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040218193624.GA408@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16435.46665.488393.913044@napali.hpl.hp.com>
+Date: Wed, 18 Feb 2004 11:00:25 -0800
+To: Christoph Hellwig <hch@infradead.org>
+Cc: davidm@hpl.hp.com, Pat Gefre <pfg@sgi.com>, akpm@osdl.org,
+       davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [2.6 PATCH] Altix update
+In-Reply-To: <20040218184411.A11714@infradead.org>
+References: <200402181441.i1IEfIWX024531@fsgi900.americas.sgi.com>
+	<20040218170601.A10490@infradead.org>
+	<16435.45326.877129.189633@napali.hpl.hp.com>
+	<20040218184411.A11714@infradead.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 08:36:24PM +0100, Pavel Machek wrote:
+>>>>> On Wed, 18 Feb 2004 18:44:11 +0000, Christoph Hellwig <hch@infradead.org> said:
 
-> Hi!
-> 
-> > The following is the core bits to this KGDB stub.
-> 
-> What are those weak functions good for? Can't we simply assume that
-> any architecture that allows CONFIG_KGDB provides neccessary
-> functions?
+  Christoph> On Wed, Feb 18, 2004 at 10:38:06AM -0800, David Mosberger wrote:
+  >> I don't think anybody is wedded to the code there.  From what I know,
+  >> it works fine, but if you want to submit enhancements, I'm pretty sure
+  >> they'd be appreciated.
 
-Not all arches need all functions, and that's where the weak functions
-come in.  We could remove some of them (the *gdb*regs* type ones) as
-being absolutely required, but not everyone needs kgdb_arch_init.
-Similarly for kgdb_flush_io.
+  Christoph> I've submitted a bunch of patches in that area last
+  Christoph> autum.  This resulted in a big flamewar and most are
+  Christoph> still outstanding :)
 
-> PS: Also.. how to proceed? Should I split your patches into "normal"
-> and "lite" parts and submit to Amit?
+Where?  On linux-ia64 or on lkml?  I don't recall these discussions
+(but then again, I'm admittedly very good at forgetting stuff...).
 
-Tomorrow I leave for FOSDEM, and won't have time to pick on KGDB until I
-get back Tuesday.  What I'm going to do then, if no one beats me to it,
-is to merge stuff I've got into Amit's patches (the CVS versions off of
-sourceforge), except for netpoll-specific portions of the kgdboe patch.
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+	--david

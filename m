@@ -1,65 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268053AbRHFMRz>; Mon, 6 Aug 2001 08:17:55 -0400
+	id <S268100AbRHFMVF>; Mon, 6 Aug 2001 08:21:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268094AbRHFMRp>; Mon, 6 Aug 2001 08:17:45 -0400
-Received: from ns.caldera.de ([212.34.180.1]:54932 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S268053AbRHFMRe>;
-	Mon, 6 Aug 2001 08:17:34 -0400
-Date: Mon, 6 Aug 2001 14:13:50 +0200
-Message-Id: <200108061213.f76CDoE05527@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: kai@tp1.ruhr-uni-bochum.de (Kai Germaschewski)
-Cc: linux-kernel@vger.kernel.org, kaos@ocs.com.au
-Subject: Re: 2.4.8-pre4, lots of compile warnings
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <Pine.LNX.4.33.0108061155480.8689-100000@chaos.tp1.ruhr-uni-bochum.de>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S268137AbRHFMUz>; Mon, 6 Aug 2001 08:20:55 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:65040 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268100AbRHFMUk>; Mon, 6 Aug 2001 08:20:40 -0400
+Subject: Re: rio_init, tty_io call confusion.  2.4.8-pre4
+To: kaos@ocs.com.au (Keith Owens)
+Date: Mon, 6 Aug 2001 13:21:41 +0100 (BST)
+Cc: R.E.Wolff@BitWizard.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <32756.997071720@ocs3.ocs-net> from "Keith Owens" at Aug 06, 2001 02:22:00 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15TjO9-0000rK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0108061155480.8689-100000@chaos.tp1.ruhr-uni-bochum.de> you wrote:
-> On Mon, 6 Aug 2001, Keith Owens wrote:
->
->> Add attribute unused plus a BIG comment saying that the code should be
->> moved to the new pci infrastructure ASAP.  Add the code to the janitor
->> list.
->
-> Moving to the new pci infrastructure is not an option for the
-> drivers/isdn/hisax driver. For historical reasons, it doesn't use
-> autoprobing, changing that now will break initializiation on probably
-> every distribution out there (if it supports ISDN).
+> drivers/char/tty_io calls rio_init and gets a link error when rio is
+> linked into the kenrel because rio_init is declared as static.  However
+> rio_init is also declared as module_init() so it gets called twice, one
+> from tty_io and once from the kernel initcall code.  One of those calls
+> has to go.  If you keep the tty_io call then rio_init cannot be static.
 
-There is another way to at lest use the pci tables without going for
-the full hotplug API.
+The tty_io call appears to be stale
 
-Just replace code like:
-
-	if ((dev_avm = pci_find_device(PCI_VENDOR_ID_AVM,
-			PCI_DEVICE_ID_AVM_A1,  dev_avm))) {
-		/* initialize card */
-	}
-
-with something like:
-
-
-	pci_for_each_dev(dev_avm) {
-		if (pci_match_device(avm_pci_tbl, dev_avm)) {
-			/* initialize card */
-		}
-	}
-
-This will need per-card instead of the current global hisax pci tables,
-but I think it's a good cleanup.
-
-
-> I'll break this compatibility in 2.5, though.
-
-Nice!  Does this mean the hisax subdrivers will finally be able to be
-individual modules?  Are there also other ISDN changes planned, e.g.
-going from the global cli/sti to better locking schemes?
-
-	Christoph
-
--- 
-Whip me.  Beat me.  Make me maintain AIX.

@@ -1,76 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271380AbTHKJiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 05:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271704AbTHKJiZ
+	id S271704AbTHKJoS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 05:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272325AbTHKJoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 05:38:25 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:12424
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S271380AbTHKJiX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 05:38:23 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH]O14int
-Date: Mon, 11 Aug 2003 19:43:49 +1000
-User-Agent: KMail/1.5.3
-Cc: Martin Schlemmer <azarah@gentoo.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200308090149.25688.kernel@kolivas.org> <200308111608.18241.kernel@kolivas.org> <3F375EBD.5030106@cyberone.com.au>
-In-Reply-To: <3F375EBD.5030106@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 11 Aug 2003 05:44:18 -0400
+Received: from trappist.elis.UGent.be ([157.193.204.1]:22439 "EHLO
+	trappist.elis.UGent.be") by vger.kernel.org with ESMTP
+	id S271704AbTHKJoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 05:44:17 -0400
+Subject: [PATCH] get/put_task_struct
+From: Frank Cornelis <Frank.Cornelis@elis.ugent.be>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Frank Cornelis <Frank.Cornelis@elis.ugent.be>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308111943.49235.kernel@kolivas.org>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 11 Aug 2003 11:44:01 +0200
+Message-Id: <1060595041.1602.3.camel@tom>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Aug 2003 19:15, Nick Piggin wrote:
-> Con Kolivas wrote:
-> >On Mon, 11 Aug 2003 15:44, Martin Schlemmer wrote:
-> >>On Sat, 2003-08-09 at 11:04, Con Kolivas wrote:
-> >>>On Sat, 9 Aug 2003 01:49, Con Kolivas wrote:
-> >>>>More duck tape interactivity tweaks
-> >>>
-> >>>s/duck/duct
-> >>>
-> >>>>Wli pointed out an error in the nanosecond to jiffy conversion which
-> >>>>may have been causing too easy to migrate tasks on smp (? performance
-> >>>>change).
-> >>>
-> >>>Looks like I broke SMP build with this. Will fix soon; don't bother
-> >>>trying this on SMP yet.
-> >>
-> >>Not to be nasty or such, but all these patches have taken
-> >>a very responsive HT box to one that have issues with multiple
-> >>make -j10's running and random jerkyness.
-> >
-> >A UP HT box you mean? That shouldn't be capable of running multiple make
-> > -j10s without some noticable effect. Apart from looking impressive, there
-> > is no point in having 30 cpu heavy things running with only 1 and a bit
-> > processor and the machine being smooth as silk; the cpu heavy things will
-> > just be unfairly starved in the interest of appearance (I can do that
-> > easily enough). Please give details if there is a specific issue you
-> > think I've broken or else I wont know about it.
->
-> Yeah make -j10s won't be without impact, but I think for a lot of
-> interactive stuff they don't need a lot of CPU, just to get it
-> in a timely manner. And Martin did say it had been responsive.
-> Sounds like in this case your changes are causing the interactive
-> stuff to get less CPU or higher scheduling latency?
+Hi,
 
-Sigh..,
+In order to be able to safely manipulate a task_struct (!= current) from
+within a module one should use get/put_task_struct. This is currently
+not possible because __put_task_struct is not exported. Next patch
+solves this issue. Please apply.
 
-No, it sounds to me like things are expiring faster than on default. He didn't 
-say make -j10, it was multiple -j10s. This is one where you simply cannot let 
-the scheduler keep starving the make -j10s indefinitely for X; on a server or 
-multiuser box X will simply cause unfair starvation. I'm trying to find a 
-workaround for this without rewriting whole sections of the scheduler code, 
-but I'm just not sure I should be trying to optimise for a desktop that runs 
-loads >16 per cpu. (I'll keep trying though, but if there is no workaround 
-that remains fair it wont happen)
+Frank.
 
-Con
+
+--- linux-2.6.0-test3.orig/kernel/ksyms.c	2003-08-09 06:31:15.000000000 +0200
++++ linux-2.6.0-test3/kernel/ksyms.c	2003-08-11 11:03:40.000000000 +0200
+@@ -498,6 +498,7 @@
+ #if !defined(__ia64__)
+ EXPORT_SYMBOL(loops_per_jiffy);
+ #endif
++EXPORT_SYMBOL(__put_task_struct);
+ 
+
+ /* misc */
+
 

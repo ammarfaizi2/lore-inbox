@@ -1,84 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267555AbUJNWD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267301AbUJNUsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267555AbUJNWD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 18:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267438AbUJNUqQ
+	id S267301AbUJNUsm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 16:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267333AbUJNUry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 16:46:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62592 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267170AbUJNSr1 (ORCPT
+	Thu, 14 Oct 2004 16:47:54 -0400
+Received: from rage.4t2.com ([217.20.115.48]:16075 "EHLO rage.4t2.com")
+	by vger.kernel.org with ESMTP id S267301AbUJNSqR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 14:47:27 -0400
-Date: Thu, 14 Oct 2004 14:46:35 -0400
-From: Dave Jones <davej@redhat.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       David Howells <dhowells@redhat.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 14 Oct 2004 14:46:17 -0400
+Date: Thu, 14 Oct 2004 20:44:11 +0200
+From: Thomas Weber <l_linux-kernel@mail2news.4t2.com>
+To: David Howells <dhowells@redhat.com>
+Cc: "Rusty Russell (IBM)" <rusty@au1.ibm.com>, dwmw2@redhat.com,
+       Greg KH <greg@kroah.com>, Arjan van de Ven <arjanv@redhat.com>,
+       Joy Latten <latten@us.ibm.com>, linux-kernel@vger.kernel.org
 Subject: Re: Fw: signed kernel modules?
-Message-ID: <20041014184635.GD18321@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	David Howells <dhowells@redhat.com>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	"Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-	David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	Joy Latten <latten@us.ibm.com>,
-	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <16349.1097752!349@redhat.com> <17271.1097756056@redhat.com> <Pine.LNX.4.53.0410140824490.363@chaos.analogic.com> <Pine.GSO.4.61.0410141617100.21062@waterleaf.sonytel.be> <Pine.LNX.4.53.0410141022180.1018@chaos.analogic.com> <Pine.LNX.4.53.0410141131190.7061@chaos.analogic.com> <20041014155030.GD26025@redhat.com> <Pine.LNX.4.61.0410141352590.8479@chaos.analogic.com> <20041014182052.GA18321@redhat.com> <Pine.LNX.4.61.0410141422530.1765@chaos.analogic.com>
+Message-ID: <20041014184411.GA4140@4t2.com>
+References: <20040810002741.GA7764@kroah.com> <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com> <30797.1092308768@redhat.com> <20040812111853.GB25950@devserv.devel.redhat.com> <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com> <27175.1095936746@redhat.com> <30591.1096451074@redhat.com> <10345.1097507482@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0410141422530.1765@chaos.analogic.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <10345.1097507482@redhat.com>
+User-Agent: Mutt/1.5.6+20040722i
+X-4t2Systems-MailScanner: Found to be clean
+X-4t2Systems-MailScanner-From: l_linux-kernel@mail2news.4t2.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 14, 2004 at 02:30:08PM -0400, Richard B. Johnson wrote:
+On Mon, Oct 11, 2004 at 04:11:22PM +0100, David Howells wrote:
+> 
+> > Sign the whole thing.  Use a signature format which doesn't suck (ASN1
+> > parsing in the kernel?  Hmm...).  Have your build system spit out two
+> > RPMs, one with full debug modules, and one without.  This is not rocket
+> > science.
+> 
+> You make it sound so simple...
 
- > No. I didn't time `make modules`, only `make bzImage`.
- > `make modules` takes too long to time (really) I don't
- > want to use any CPU resources which will screw up the
- > timing and I need to use the computer.
+I'n not a kernel hacker or anything like this. But reading this thread i
+might have another idea to approach the problem - if it had been
+discussed before just ignore me, i haven't searched much.
 
-You still have to calculate dependancies and such for
-anything built modular. Also a bunch of code built into
-the bzImage changes if things are built modular.
+How about creating the /lib/modules/ fs tree in a file, stuff all your
+modules there, sign that file and mount it ro via loopback to some fixed
+place like /modules?
+The kernel would only have to check the signature of the whole modules
+container once. From my limited understanding it wouldn't need much more
+kernel code and the userland tools to maintain the container file (adding, 
+signing) already exist too. After all it's the sysadmin who has to
+decide which modules he trusts (and puts into the container).
 
-the two comparisons aren't equal.  Additionally,
-you haven't factored in the fact that 'make dep'
-is no longer needed. This accounts for a big chunk
-of time on 2.4 kernel builds.
-
- > A wall-clock guess is that `make modules` takes about
- > an hour on the new system while it takes about 4 minutes
- > on the old. The new kernel build procedure is truly
- > horrible for the wall-clock time that is used.
- > 
- > For oranges vs oranges, if I compile Version 2.4.26
- > on a version 2.6.8 OS computer, the compile-time
- > is within tens of seconds. I'm not complaining about
- > the resulting kernel code performance, only the
- > abortion^M^M^M^M^M^Mjunk used to create a new kernel.
- > It 'make' won't do it, we have a problem and make
- > needs to be fixed.
-
-oranges to oranges means _exactly_ the same options
-(where they haven't changed from 2.4 -> 2.6) are
-set/unset. Anything else is totally bogus.
-
-If you find things are still taking phenomenally
-long times to build, then something is wrong somewhere.
-Don't you find it strange you're the only person
-to have complained about this ? If it was as big
-a problem as you're suggesting, those of us who
-do nothing but build kernels all day would be up in arms.
-
-		Dave
-
+as i said, just an idea from a non kernel hacking simple thinking admin,
+  Tom

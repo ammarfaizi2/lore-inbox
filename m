@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314277AbSFLWS5>; Wed, 12 Jun 2002 18:18:57 -0400
+	id <S316530AbSFLWWL>; Wed, 12 Jun 2002 18:22:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316530AbSFLWS5>; Wed, 12 Jun 2002 18:18:57 -0400
-Received: from mg02.austin.ibm.com ([192.35.232.12]:36485 "EHLO
-	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S314277AbSFLWS4>; Wed, 12 Jun 2002 18:18:56 -0400
-Message-ID: <3D07C8D0.60B49C6D@austin.ibm.com>
-Date: Wed, 12 Jun 2002 17:18:56 -0500
-From: Saurabh Desai <sdesai@austin.ibm.com>
-Organization: IBM Corporation
-X-Mailer: Mozilla 4.7 [en] (X11; U; AIX 4.3)
-X-Accept-Language: en-US,en-GB
+	id <S316803AbSFLWWK>; Wed, 12 Jun 2002 18:22:10 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37131 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316530AbSFLWWK>; Wed, 12 Jun 2002 18:22:10 -0400
+Message-ID: <3D07C977.7090603@zytor.com>
+Date: Wed, 12 Jun 2002 15:21:43 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-To: Matthew Wilcox <willy@debian.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fs/locks.c: Fix posix locking for threaded tasks
-In-Reply-To: <20020610034843.W27186@parcelfarce.linux.theplanet.co.uk> <E17I4bn-0007Rn-00@the-village.bc.nu> <20020612124536.T27449@parcelfarce.linux.theplanet.co.uk>
+To: Anton Altaparmakov <aia21@cantab.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support
+In-Reply-To: <5.1.0.14.2.20020612155646.048fd520@pop.cus.cam.ac.uk> <5.1.0.14.2.20020611155046.00af3980@pop.cus.cam.ac.uk> <5.1.0.14.2.20020612155646.048fd520@pop.cus.cam.ac.uk> <5.1.0.14.2.20020612192802.045b08c0@pop.cus.cam.ac.uk> <5.1.0.14.2.20020612214327.04590b70@pop.cus.cam.ac.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
+Anton Altaparmakov wrote:
+>>
+>> Note that there is no requirement that we're still on cpu "cpu" when
+>> we allocate the buffer.  Furthermore, if we fail, we just loop right
+>> back to the top.
 > 
-> On Wed, Jun 12, 2002 at 10:40:07AM +0100, Alan Cox wrote:
-> > > SUS v3 does not offer any enlightenment.  But it seems reasonable that
-> > > processes which share a files_struct should share locks.  After all,
-> > > if one process closes the fd, they'll remove locks belonging to the
-> > > other process.
-> > >
-> > > Here's a patch generated against 2.4; it also applies to 2.5.
-> > > Please apply.
-> >
-> > This seems horribly inappropriate for 2.4 as it may break apps
 > 
-> I have no problem with withdrawing the request for 2.4.  It does mean that
-> it's almost impossible to write an M:N threading library implementation.
-> This doesn't concern me too much; I just want you to be aware this is
-> the tradeoff you're making.
+> What is the point though? Why not just:
 > 
-> I would still like to see it in 2.5.
+>         if (!unlikely(decompression_buffers)) {
+>                 down_sem();
+>                 allocate_decompression_buffers();
+>                 up_sem();
+>         }
+> 
+> And be done with it?
+> 
+> I don't see any justification for the increased complexity...
+> 
 
-Yes, it's needed for M:N threading library. Here is scenario: Task A
-holds a lock and waiting for some event in library, now task B tries
-to acquire that lock and waits in kernel and this can create a deadlock.
-These tasks are created with CLONE_THREAD (for M:N) flag. 
-This change (removing pid check) may cause problem for 1:1 (linuxthreads),
-where each task has unique pid and tgid. Again, whether that's a right 
-behavior or not is questionable. 
-However, with CLONE_THREAD flag, all tasks shares "tgid" value with unique
-pid and that's why I suggested earlier to change the "fl_pid" from "pid" 
-to "tgid" and it works for both the cases (M:N and 1:1).
+Race condition -- you have to drop out of the critical section before
+you grab the allocation sempahore, and another CPU can grab the
+semaphore in that time.
+
+Thus, the buffers might appear right under your nose.
+
+	-hpa
+
+

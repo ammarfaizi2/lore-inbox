@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283722AbRK3Riv>; Fri, 30 Nov 2001 12:38:51 -0500
+	id <S283724AbRK3RrL>; Fri, 30 Nov 2001 12:47:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283723AbRK3Rim>; Fri, 30 Nov 2001 12:38:42 -0500
-Received: from www.wen-online.de ([212.223.88.39]:2056 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S283722AbRK3Rih>;
-	Fri, 30 Nov 2001 12:38:37 -0500
-Date: Fri, 30 Nov 2001 17:39:39 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.17pre1aa1
-In-Reply-To: <3C068476.480BC2AD@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0111301726390.3362-100000@mikeg.weiden.de>
+	id <S283727AbRK3RrB>; Fri, 30 Nov 2001 12:47:01 -0500
+Received: from dsl-213-023-038-163.arcor-ip.net ([213.23.38.163]:40210 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S283724AbRK3Rqu>;
+	Fri, 30 Nov 2001 12:46:50 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Larry McVoy <lm@bitmover.com>, Henning Schmiedehausen <hps@intermeta.de>
+Subject: Re: Coding style - a non-issue
+Date: Fri, 30 Nov 2001 18:49:11 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Larry McVoy <lm@bitmover.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> <1007140529.6655.37.camel@forge> <20011130092730.Q14710@work.bitmover.com>
+In-Reply-To: <20011130092730.Q14710@work.bitmover.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E169rmi-0000ko-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Nov 2001, Andrew Morton wrote:
+Hi Larry,
 
-> Andrea Arcangeli wrote:
-> >
-> > Only in 2.4.15aa1: 10_vm-17
-> > Only in 2.4.17pre1aa1: 10_vm-18
-> >
-> >         Minor vm tweaks in function of the feedback received.
-> >         Included Andrews' dirty += BUF_LOCKED.
-> >
->
-> OK.  One think I notice is that you've also decreased nfract,nfract_sync
-> from (40%,60%) to (20%,40%).  So taken together, these changes mean
-> that we'll start writeout much earlier, and will block writers much
-> earlier.  What's the thinking here?
->
-> I received some interesting results from Mike Galbraith today.
+On November 30, 2001 06:27 pm, Larry McVoy wrote:
+> I think that if you ask around, you'll find that the pros use a coding 
+> style that isn't theirs, even when writing new code.  They have evolved
+> to use the prevailing style in their environment.  I know that's true for
+> me, my original style was 4 space tabs, curly braces on their own line,
+> etc.  I now code the way Bill Joy codes, fondly known as Bill Joy normal
+> form.
 
-2.4.17-pre1aa1
-real    7m39.066s
-user    6m38.400s
-sys     0m29.140s
+Err, because you're still working at Sun?  I'll just ignore that last little 
+non sequitur, your comment about professionals adapting to the prevailing 
+standards is right on.
 
-user  :       0:06:44.82  76.1%  page in :   536247
-nice  :       0:00:00.00   0.0%  page out:   466800
-system:       0:00:45.45   8.5%  swap in :   106783
-idle  :       0:01:21.89  15.4%  swap out:   111683
+On the other hand, the idea of a coding style hall of shame - publicly 
+humiliating kernel contributers - is immature and just plain silly.  It's 
+good to have a giggle thinking about it, but that's where it should stop.
 
-__alloc_pages: 0-order allocation failed (gfp=0xf0/0)   (only the one)
-
-IO contrast...
-
-2.5.1-pre1
-real    7m54.873s
-user    6m41.070s
-sys     0m30.170s
-
-user  :       0:06:47.35  72.6%  page in :   661891
-nice  :       0:00:00.00   0.0%  page out:   708836
-system:       0:00:47.42   8.5%  swap in :   140234
-idle  :       0:01:46.26  18.9%  swap out:   172775
-
-	-Mike
-
+--
+Daniel

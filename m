@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265139AbUBEArB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 19:47:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbUBEAqM
+	id S265155AbUBEAeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 19:34:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbUBEAYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 19:46:12 -0500
-Received: from gprs148-146.eurotel.cz ([160.218.148.146]:28033 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265139AbUBEAkf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 19:40:35 -0500
-Date: Thu, 5 Feb 2004 01:39:44 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "La Monte H.P. Yarroll" <piggy@timesys.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Amit S. Kale" <amitkale@emsyssoft.com>
-Subject: Re: kgdb support in vanilla 2.6.2
-Message-ID: <20040205003944.GB8768@elf.ucw.cz>
-References: <20040204230133.GA8702@elf.ucw.cz> <20040204152137.500e8319.akpm@osdl.org> <402182B8.7030900@timesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <402182B8.7030900@timesys.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 4 Feb 2004 19:24:38 -0500
+Received: from zcamail04.zca.compaq.com ([161.114.32.104]:48905 "EHLO
+	zcamail04.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S265155AbUBEAVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 19:21:19 -0500
+Date: Wed, 4 Feb 2004 18:25:42 -0600 (CST)
+From: mikem@beardog.cca.cpqcorp.net
+To: akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: cciss updates for 2.6 [11 of 11]
+Message-ID: <Pine.LNX.4.58.0402041819510.18320@beardog.cca.cpqcorp.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Patch 11 of 11 (finally).
+This patch fixes an Oops when unloading the driver. Bug fix.
+Please consider this for inclusion.
 
-> >I wouldn't support inclusion of i386 kgdb until it has had a lot of
-> >cleanup, possible de-featuritisification and some thought has been applied
-> >to splitting it into arch and generic bits.  It's quite a lot of work.
-> 
-> Amit has started at least the third activity--he has split much of kgdb
-> into arch and generic bits.
-> 
-> Could you elaborate a little on the first two?
-> 
-> What major kinds of cleanup are we talking about?  Style issues?
-> 
-> What features (or classes of features) do you find excessive?  Would
-> it be sufficient to add a few config items to control subfeatures
-> of kgdb?
-> 
-> These are not idle questions.  If the amount of work to get it ready
-> for acceptance is tractable, I know a company that may be willing to
-> pay to have the work done.
+All of the patches sent out are needed to get the driver in the 2.6 tree
+up to the level of the driver that is in the 2.4 tree, excluding this
+patch which is not required in 2.4.
+More patches will be coming. They include multi-path failover support,
+support for more than 8 controllers, and msi support. Presently working on
+a per logical volume queueing scheme.
+Please forgive me for flooding your inboxes.
+--------------------------------------------------------------------------------------
+diff -burN lx262-p010/drivers/block/cciss.c lx262/drivers/block/cciss.c
+--- lx262-p010/drivers/block/cciss.c	2004-02-04 12:44:52.000000000 -0600
++++ lx262/drivers/block/cciss.c	2004-02-04 12:46:44.000000000 -0600
+@@ -2668,7 +2668,6 @@
+ 	pci_set_drvdata(pdev, NULL);
+ 	iounmap((void*)hba[i]->vaddr);
+ 	cciss_unregister_scsi(i);  /* unhook from SCSI subsystem */
+-	blk_cleanup_queue(hba[i]->queue);
+ 	unregister_blkdev(COMPAQ_CISS_MAJOR+i, hba[i]->devname);
+ 	remove_proc_entry(hba[i]->devname, proc_cciss);
 
-Well, I guess I know two more such companies. Seems like everyone and
-their aunt want kgdb these days :-).
-								Pavel
+@@ -2679,6 +2678,7 @@
+ 			del_gendisk(disk);
+ 	}
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
++	blk_cleanup_queue(hba[i]->queue);
+ 	pci_free_consistent(hba[i]->pdev, NR_CMDS * sizeof(CommandList_struct),
+ 			    hba[i]->cmd_pool, hba[i]->cmd_pool_dhandle);
+ 	pci_free_consistent(hba[i]->pdev, NR_CMDS * sizeof( ErrorInfo_struct),
+
+Thanks,
+mikem
+mike.miller@hp.com
+

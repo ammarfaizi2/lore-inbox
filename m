@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVBIJKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVBIJP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVBIJKR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 04:10:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVBIJKJ
+	id S261778AbVBIJP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 04:15:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbVBIJP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 04:10:09 -0500
-Received: from AToulouse-105-1-1-197.w80-14.abo.wanadoo.fr ([80.14.91.197]:50931
-	"EHLO lexbox.fr") by vger.kernel.org with ESMTP id S261450AbVBIJJy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 04:09:54 -0500
-Subject: BUG libata: SATA controller BigEndian
-Date: Wed, 9 Feb 2005 10:10:28 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <17AB476A04B7C842887E0EB1F268111E015180@xpserver.intra.lexbox.org>
-Content-class: urn:content-classes:message
-X-MS-Has-Attach: 
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-X-MS-TNEF-Correlator: 
-Thread-Topic: BUG libata: SATA controller BigEndian
-thread-index: AcUOhzLqJbksfw9IRCOSBLXiQsXowA==
-From: "David Sanchez" <david.sanchez@lexbox.fr>
-To: <linux-kernel@vger.kernel.org>
+	Wed, 9 Feb 2005 04:15:28 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:61402 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261613AbVBIJOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 04:14:34 -0500
+Date: Wed, 9 Feb 2005 09:14:33 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Michael Renzmann <mrenzmann@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to retrieve version from kernel source (the right way)?
+Message-ID: <20050209091433.GA11690@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Michael Renzmann <mrenzmann@web.de>, linux-kernel@vger.kernel.org
+References: <4209C71F.9040102@web.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4209C71F.9040102@web.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Feb 09, 2005 at 09:17:35AM +0100, Michael Renzmann wrote:
+> Hi all.
+> 
+> (Please CC: me, I'm not subscribed - although I'm following the list 
+> through gmane.org)
+> 
+> I'm working on Madwifi (a driver for wireless lan cards with Atheros 
+> chipset), which isn't part of the kernel (and probably won't ever be due 
+> to the binary-only HAL).
 
-On my embedded system, I'm using the kernel2.6.10 plus the libata patch
-2.6.11 of Mister Garzik.
-
-In little endian mode, all is ok i.e all my hdd connected on the
-controller
-SATA (Promise PDC20371 or PDC20579) are recognized.
-
-Unfortunately when I switch to big endian mode, my hdd are no more
-recognized and I get message such as "dev 0 not supported, ignoring" or
-just
-"no device found" !
-
-Does everyone encouter such a problem ? And do you find a solution :) ?
-
-Thanks
-
-David Sanchez 
-
+Why don't you use the reverse-engineered HAL from OpenBSD?
 

@@ -1,90 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292684AbSBZTEc>; Tue, 26 Feb 2002 14:04:32 -0500
+	id <S292702AbSBZTGv>; Tue, 26 Feb 2002 14:06:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292702AbSBZTEW>; Tue, 26 Feb 2002 14:04:22 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:16375 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S292684AbSBZTEI>;
-	Tue, 26 Feb 2002 14:04:08 -0500
-Date: Tue, 26 Feb 2002 11:03:48 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Erich Focht <focht@ess.nec.de>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] NUMA scheduling
-Message-ID: <20020226110348.D1262@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <20940000.1014663303@flay> <Pine.LNX.4.21.0202261028370.2830-100000@sx6.ess.nec.de>
-Mime-Version: 1.0
+	id <S292705AbSBZTGm>; Tue, 26 Feb 2002 14:06:42 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42250 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292702AbSBZTGg>;
+	Tue, 26 Feb 2002 14:06:36 -0500
+Message-ID: <3C7BDC57.A835D657@zip.com.au>
+Date: Tue, 26 Feb 2002 11:04:55 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Florian Lohoff <flo@rfc822.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [CRASH] gdth / __block_prepare_write: zeroing uptodate buffer! / NMI 
+ Watchdog detected LOCKUP
+In-Reply-To: <20020226184043.GA10420@paradigm.rfc822.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.21.0202261028370.2830-100000@sx6.ess.nec.de>; from focht@ess.nec.de on Tue, Feb 26, 2002 at 11:33:14AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erich,
+Florian Lohoff wrote:
+> 
+> Hi,
+> i have been looking for deadlocks we are experiencing on a couple of
+> SMP machines (Dual Celeron and Dual PIII). After a night stressing a
+> spare machine with dbench/bonnie++/tcpspray the machine locked up 30
+> minutes after i killed the test. The last messages on the console were:
+> 
+> __block_prepare_write: zeroing uptodate buffer!
 
-I'm glad to see you are also exploring NUMA scheduling.  The
-more the merrier.
+Yup.   This happens when the disk fills up.  Andrea and I were
+discussing it over the weekend.   There's a new patch in the -aa
+kernels which doesn't quite fix it :(
 
-On Tue, Feb 26, 2002 at 11:33:14AM +0100, Erich Focht wrote:
-> 
-> Well, maybe my description was a little bit misleading. My approach is not
-> balancing much more aggressively, the difference is actually minimal,
-> e.g. for 1ms ticks:
-> 
-> Mike's approach:
-> - idle CPU : load_balance()     every 1ms    (only within local node)
->              balance_cpu_sets() every 2ms    (balance across nodes)
-> - busy CPU : load_balance()     every 250ms
->              balance_cpu_sets() every 500ms
-> - schedule() : load_balance() if idle        (only within local node)
-> 
-> Erich's approach:
-> - idle CPU : load_balance() every 1ms   (first try balancing the local 
->                             node, if already balanced (no CPU exceeds the
->                             current load by >25%) try to find a remote
->                             node with larger load than on the current one
->                             (>25% again)).
-> - busy CPU : load_balance() every 250ms (same comment as above)
-> - schedule() : load_balance() if idle (same comment as above).
-> 
-> So the functional difference is not really that big here, I am also trying
-> to balance locally first. If that fails (no imbalance), I try
-> globally. The factor of 2 in the times is not so relevant, I think, and
-> also I don't consider my approach significantly more aggressive.
+We'll fix it in 2.4.19-pre somehow.  It's possible that this problem
+causes a chnuk of zeroes to be written into the file when you hit
+ENOSPC, which is rather rude.  But your file was truncated anyway.
 
-My factor of 'two' is really a 'distance' factor.  My thoughts were
-along the lines that node rebalancing would occur at different rates
-based on the distance between nodes.  On the Sequent NUMA-Q machines
-with really high remote memory latencies, you might want to be less
-agressive than on machines with lower latencies.  I was playing with
-the idea that you would discover distances during topology discovery,
-and the rate of rebalancing would somehow correspond to these distances.
+> 15 times - Machine was answering ping first but stopped after a couple
+> of minutes. Another couple of minutes later the nmi_watchdog stepped in
+> and produced an oops:
 
-> More significant is the difference in the data used for the balance
-> decision:
-> 
-> Mike: calculate load of a particular cpu set in the corresponding
-> load_balance() call.
->         Advantage: cheap (if spinlocks don't hurt there)
->         Disadvantage: for busy CPUs it can be really old (250ms)
-> 
-> Erich: calculate load when needed, at the load_balance() call, but not
-> more than needed (normally only local node data, global data if needed,
-> all lockless).
->         Advantage: fresh, lockless
->         Disadvantage: sometimes slower (when balancing across nodes)
-> 
-> As Mike has mainly the cache affinity in mind, it doesn't really matter
-> where a task is scheduled as long as it stays there long enough and the
-> nodes are well balanced. A wrong scheduling decision (based on old
-> data) will be fixed sooner or later (after x*250ms or so).
+SCSI error recovery deadlocked.
 
-Agreed.  I also played with the idea of keeping a load average over
-time, which seems to be something we may want.  However, I couldn't
-think of an efficient way to accomplish this, and my first attempts
-showed little promise.  Perhaps, I will investigate this more.
+Now it's *just* conceivable that the __block_prepare_write() problem
+caused a junk request to be sent down to the driver, which caused
+the driver to enter recovery, which it then screwed up.   But I
+doubt it.
 
--- 
-Mike
+It's also conceivable that the NMI watchdog code itself caused
+problems also.   Back in the days when it was permanently enabled,
+some machines kept going silly until nmi watchdog was enabled.
+
+Bottom line: I don't know why you got a SCSI error, and the lockup
+is possibly a bug in the scsi layer.
+
+-

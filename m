@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262449AbSJQXJg>; Thu, 17 Oct 2002 19:09:36 -0400
+	id <S262580AbSJQXNy>; Thu, 17 Oct 2002 19:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262506AbSJQXJf>; Thu, 17 Oct 2002 19:09:35 -0400
-Received: from tbaytel3.tbaytel.net ([206.47.150.179]:47346 "EHLO tbaytel.net")
-	by vger.kernel.org with ESMTP id <S262449AbSJQXI1> convert rfc822-to-8bit;
-	Thu, 17 Oct 2002 19:08:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Garrett Kajmowicz <gkajmowi@tbaytel.net>
-Reply-To: gkajmowi@tbaytel.net
-Organization: Garrett Kajmowicz
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE, TRIVIAL, RFC] Linux source strip/bundle script
-Date: Thu, 17 Oct 2002 19:08:13 -0400
-User-Agent: KMail/1.4.1
-References: <200210010734.14949.garrett@tbaytel.net> <E17wQCI-0005v4-00@starship> <20021017223900.GP19055@higherplane.net>
-In-Reply-To: <20021017223900.GP19055@higherplane.net>
-Cc: john slee <indigoid@higherplane.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210171908.13714.gkajmowi@tbaytel.net>
+	id <S262601AbSJQXNx>; Thu, 17 Oct 2002 19:13:53 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:10232 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S262580AbSJQXNl>; Thu, 17 Oct 2002 19:13:41 -0400
+Date: Thu, 17 Oct 2002 16:10:20 -0700
+From: Chris Wright <chris@wirex.com>
+To: Greg KH <greg@kroah.com>
+Cc: "David S. Miller" <davem@redhat.com>, jgarzik@pobox.com, ast@domdv.de,
+       hch@infradead.org, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove sys_security
+Message-ID: <20021017161020.E26442@figure1.int.wirex.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	"David S. Miller" <davem@redhat.com>, jgarzik@pobox.com,
+	ast@domdv.de, hch@infradead.org, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+References: <20021017.131830.27803403.davem@redhat.com> <3DAF3EF1.50500@domdv.de> <3DAF412A.7060702@pobox.com> <20021017.155630.98395232.davem@redhat.com> <20021017230912.GF1682@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021017230912.GF1682@kroah.com>; from greg@kroah.com on Thu, Oct 17, 2002 at 04:09:12PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> a quasi-sane way to do this bastardisation of the kernel sources would
-> be to do a make allyesconfig and remove anything that doesn't match up.
-> but given the amount of kernel source dedicated to generic drivers or
-> subsystems on any arch i think its a total waste of time, and i'm not
-> alone :-)
+* Greg KH (greg@kroah.com) wrote:
+> On Thu, Oct 17, 2002 at 03:56:30PM -0700, David S. Miller wrote:
+> > 
+> > I'm now leaning more towards something like what Al Viro
+> > hinted at earlier, creating generic per-file/fd attributes.
+> > This kind of stuff.
+> 
+> I think either Al, or Chris Wright, have mentioned that stackable
+> filesystems would remove all of the LSM VFS hooks, and also enable a lot
+> of other cool things to happen.  Unfortunately, that's not going to make
+> it into 2.6, but in the future is probably the way to go.
 
-I saw a way to help listed in the FAQ for this list.  If people seriously 
-think that my time will be wasted, please let me know and I will not waste my 
-time.
+I think it's more like filters than true stacking.  If I understand the
+problem correctly, true generic stacking introduces cache coherency fun.
 
--	Garrett Kajmowicz
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

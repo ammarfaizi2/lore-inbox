@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279922AbRKBByj>; Thu, 1 Nov 2001 20:54:39 -0500
+	id <S279925AbRKBB4i>; Thu, 1 Nov 2001 20:56:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279925AbRKBBy3>; Thu, 1 Nov 2001 20:54:29 -0500
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:48083 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S279922AbRKBByW>; Thu, 1 Nov 2001 20:54:22 -0500
-Message-ID: <A9B0C3C90A46D411951400A0C9F4F67103BA56E1@pdsmsx33.pd.intel.com>
-From: "Yan, Noah" <noah.yan@intel.com>
-To: "'Randy.Dunlap'" <rddunlap@osdl.org>
+	id <S279926AbRKBB43>; Thu, 1 Nov 2001 20:56:29 -0500
+Received: from codepoet.org ([166.70.14.212]:35946 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S279925AbRKBB4U>;
+	Thu, 1 Nov 2001 20:56:20 -0500
+Date: Thu, 1 Nov 2001 18:56:22 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: Get hands on starting in this world.
-Date: Fri, 2 Nov 2001 09:54:57 +0800 
-X-Mailer: Internet Mail Service (5.5.2653.19)
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+Message-ID: <20011101185622.A20668@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <3BE1271C.6CDF2738@mandrakesoft.com> <20011102124252.1032e9b2.rusty@rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011102124252.1032e9b2.rusty@rustcorp.com.au>
+User-Agent: Mutt/1.3.22i
+X-Operating-System: 2.4.12-ac3-rmk2, Rebel NetWinder (Intel StrongARM-110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is a good stuff. Is there much difference between 2.2.x and 2.4.x in the kernel initialization. You know, I am now starting on 2.2.x. Or do you have it for 2.2.x. 
-
-Thanks
-Noah
-
------Original Message-----
-From: Randy.Dunlap [mailto:rddunlap@osdl.org]
-Sent: 2001?11?2? 0:48
-To: Yan, Noah
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Get hands on starting in this world.
-
-
-"Yan, Noah" wrote:
+On Fri Nov 02, 2001 at 12:42:52PM +1100, Rusty Russell wrote:
+> On Thu, 01 Nov 2001 05:42:36 -0500
+> Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
 > 
-> I am a new comer to the Linux world. It is really a hard start for me when I dig into those OS code although I have a strong theoretic background in OS and computer architecture. I am now being blocking at the start_kernel and caliberate_delay function of Kernel 2.2.x. Also, everyday, I got hundreds of mail from Linux-kernel list but I cannot enjoy it.
+> > Is this designed to replace sysctl?
 > 
-> So could some experienced guys give some advice on how to start, which document/material can be recommended on this.
-> 
-> My keen interest in this filed make me free to any suggestions on that. Please lend your hands
+> Well, I'd suggest replacing *all* the non-process stuff in /proc.  Yes.
 
-Hi-
+As I've thought about this in the past, I realized that /proc 
+is serving two purposes.  It is exporting the list of processes,
+and it is also used to export kernel and driver information.
 
-As long as you don't mind an x86-leaning view of Linux boot/init,
-you could begin by looking over this:  http://home.att.net/~rddunlap/
-(or at:  http://www.linuxdoc.org/HOWTO/Linux-Init-HOWTO.html).
+What we really need is for procfs to be just process stuff, and the
+creation of a separate kernelfs nodev filesystem though which
+the kernel can share all the gory details about the hardware,
+drivers, phase of the moon, etc.   Since these serve two
+fundamentally different tasks, doesn't it make sense to split
+them into two separate filesystems?
 
-And there's lots of intro material at:  http://kernelnewbies.org/
+ -Erik
 
-~Randy
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

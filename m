@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265303AbSJaVlh>; Thu, 31 Oct 2002 16:41:37 -0500
+	id <S265354AbSJaVnY>; Thu, 31 Oct 2002 16:43:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265326AbSJaVlh>; Thu, 31 Oct 2002 16:41:37 -0500
-Received: from [203.167.79.9] ([203.167.79.9]:60431 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S265303AbSJaVlg>; Thu, 31 Oct 2002 16:41:36 -0500
-Subject: Re: [Linux-fbdev-devel] [BK fbdev updates]
-From: Antonino Daplas <adaplas@pol.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.33.0210311258040.1721-100000@maxwell.earthlink.net>
-References: <Pine.LNX.4.33.0210311258040.1721-100000@maxwell.earthlink.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1036100573.654.11.camel@daplas>
+	id <S265363AbSJaVnX>; Thu, 31 Oct 2002 16:43:23 -0500
+Received: from almesberger.net ([63.105.73.239]:60935 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S265354AbSJaVnW>; Thu, 31 Oct 2002 16:43:22 -0500
+Date: Thu, 31 Oct 2002 18:49:33 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: What's left over.
+Message-ID: <20021031184933.B2599@almesberger.net>
+References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com> <Pine.LNX.4.44L.0210310105160.1697-100000@imladris.surriel.com> <20021031031932.GQ15886@ns> <1036098562.12714.50.camel@cog>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 01 Nov 2002 05:42:56 +0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1036098562.12714.50.camel@cog>; from johnstul@us.ibm.com on Thu, Oct 31, 2002 at 01:09:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-01 at 05:03, James Simmons wrote:
-> 
-> Sorry about not producing a regular diff. The final changes really did a
-> number on the framebuffer console code in fbcon.c so I had some massive
-> work to do. I still have a massive amount of cleaning up to do. Also a lot
-> of drivers stil haven't been ported.
-> 
-> So here is the regular diff against 2.5.45
-> 
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-> 
+[ Cc: trimmed ]
 
-James,
+john stultz wrote:
+> groups for each project, I have no clue how anyone would be able to
+> handle the (unix)group management required. ACLs let the users
+> themselves manage what people got what access to their data.
 
-The diff you posted is still not the right one.  
+Note that POSIX ACLs don't seem to solve this either: they only
+let you control access in terms of existing users or groups.
 
-Tony
+IMHO, this is one of the standard pitfalls of ACLs: if they don't
+let you aggregate information, you quickly end up with huge ACLs
+hanging off every file, and each of those ACLs wants to be
+carefully maintained. I've seen a lot of this in my VMS days.
+(Unix is a bit better, because you can control access at a
+directory level, while VMS needs the ACL on each file, because
+you can open files directly by VMS' equivalent to an inode
+number, without traversing the directory hierarchy. Of course,
+many users didn't know that :-)
 
+To make ACLs truly scalable, it would be nice to be able to
+express permissions in terms of access to other filesystem
+objects. E.g. "everybody who can read file ~me/acls/my_friends
+can write the directory on which this ACE hangs". This should
+work like a symlink, i.e. if I add new friends to my_friends, I
+don't have to update all my ACLs.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

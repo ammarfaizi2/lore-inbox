@@ -1,125 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVADQDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVADQGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbVADQDf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 11:03:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVADQDf
+	id S261688AbVADQGA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 11:06:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVADQGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 11:03:35 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:30987 "EHLO
+	Tue, 4 Jan 2005 11:06:00 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:32523 "EHLO
 	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S261696AbVADQDZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 11:03:25 -0500
-Date: Tue, 4 Jan 2005 23:56:50 +0800 (WST)
+	id S261688AbVADQFu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 11:05:50 -0500
+Date: Tue, 4 Jan 2005 23:58:11 +0800 (WST)
 From: raven@themaw.net
-To: Marcello Tosatti <marcelo.tosatti@cyclades.com>
-cc: Francesco Paolo Lovergine <frankie@debian.org>,
+To: autofs mailing list <autofs@linux.kernel.org>
+cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] autofs4 2.4.29-pre3 add missing compat ioctls
-Message-ID: <Pine.LNX.4.61.0501042309380.20305@donald.themaw.net>
+Subject: [ANNOUNCE] autofs4 2.4 updated module build kit and kernel patches
+Message-ID: <Pine.LNX.4.61.0501042238370.20210@donald.themaw.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-98.2, required 8,
-	NO_REAL_NAME, PATCH_UNIFIED_DIFF, RCVD_IN_ORBS,
-	RCVD_IN_OSIRUSOFT_COM, UPPERCASE_50_75, USER_AGENT_PINE,
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-98.1, required 8,
+	NO_REAL_NAME, RCVD_IN_ORBS, RCVD_IN_OSIRUSOFT_COM, USER_AGENT_PINE,
 	USER_IN_WHITELIST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Marcello,
+Hi all,
 
-Can you merge this into the 2.4 kernel please.
+I have updated the autofs4 kernel module patches to match the 
+implementation in 2.6.10.
 
-It is a patch to add compat ioctls for autofs4 for architectures that 
-need them. They are used by autofs version 4.1.0 and above (current 
-version soon to be 4.1.4). So they have been missing for some time now.
+The most significant change is the addition of code to handle compatible 
+ioctls for architectures that need it. It is important for systems like 
+Gentoo or Debian on Ultra sparc, for example.
 
-This will also allow poeple to use my autofs4 module build package 
-without needing to patch and rebuild their kernel.
+The files are located in:
 
-Regards
+http://www.kernel.org/pub/linux/daemons/autofs/v4
+
+and are
+
+the build kit:
+     autofs4-2.4-module-20041227.tar.[bz2|gz]
+
+vanila kernel patches:
+     autofs4-2.4.18-20041227.patch
+     autofs4-2.4.19-20041227.patch
+     autofs4-2.4.20-20041227.patch
+     autofs4-2.4.21-20041227.patch
+     autofs4-2.4.22-20041227.patch
+     autofs4-2.4.27-20041227.patch
+
+RedHat 9:
+     autofs4-2.4.20-redhat9-20041227.patch
+
+Fedora Core 1:
+     autofs4-2.4.22-fc1-20041227.patch
+
+
 Ian
 
---- linux-2.4.29-pre3/include/linux/auto_fs4.h.compat-ioctl	2005-01-04 23:04:37.000000000 +0800
-+++ linux-2.4.29-pre3/include/linux/auto_fs4.h	2005-01-04 23:07:16.000000000 +0800
-@@ -41,7 +41,10 @@
-  	struct autofs_packet_expire_multi expire_multi;
-  };
 
--#define AUTOFS_IOC_EXPIRE_MULTI _IOW(0x93,0x66,int)
--
-+#define AUTOFS_IOC_EXPIRE_MULTI		_IOW(0x93,0x66,int)
-+#define AUTOFS_IOC_PROTOSUBVER		_IOR(0x93,0x67,int)
-+#define AUTOFS_IOC_ASKREGHOST		_IOR(0x93,0x68,int)
-+#define AUTOFS_IOC_TOGGLEREGHOST	_IOR(0x93,0x69,int)
-+#define AUTOFS_IOC_ASKUMOUNT		_IOR(0x93,0x70,int)
 
-  #endif /* _LINUX_AUTO_FS4_H */
---- linux-2.4.29-pre3/arch/x86_64/ia32/ia32_ioctl.c.compat-ioctl	2005-01-04 23:05:02.000000000 +0800
-+++ linux-2.4.29-pre3/arch/x86_64/ia32/ia32_ioctl.c	2005-01-04 23:07:16.000000000 +0800
-@@ -4099,6 +4099,10 @@
-  COMPATIBLE_IOCTL(AUTOFS_IOC_PROTOVER)
-  COMPATIBLE_IOCTL(AUTOFS_IOC_EXPIRE)
-  COMPATIBLE_IOCTL(AUTOFS_IOC_EXPIRE_MULTI)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_PROTOSUBVER)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_ASKREGHOST)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_TOGGLEREGHOST)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_ASKUMOUNT)
-  /* DEVFS */
-  COMPATIBLE_IOCTL(DEVFSDIOC_GET_PROTO_REV)
-  COMPATIBLE_IOCTL(DEVFSDIOC_SET_EVENT_MASK)
---- linux-2.4.29-pre3/arch/ppc64/kernel/ioctl32.c.compat-ioctl	2005-01-04 23:05:17.000000000 +0800
-+++ linux-2.4.29-pre3/arch/ppc64/kernel/ioctl32.c	2005-01-04 23:07:16.000000000 +0800
-@@ -4278,6 +4278,11 @@
-  COMPATIBLE_IOCTL(AUTOFS_IOC_CATATONIC),
-  COMPATIBLE_IOCTL(AUTOFS_IOC_PROTOVER),
-  COMPATIBLE_IOCTL(AUTOFS_IOC_EXPIRE),
-+COMPATIBLE_IOCTL(AUTOFS_IOC_EXPIRE_MULTI),
-+COMPATIBLE_IOCTL(AUTOFS_IOC_PROTOSUBVER),
-+COMPATIBLE_IOCTL(AUTOFS_IOC_ASKREGHOST),
-+COMPATIBLE_IOCTL(AUTOFS_IOC_TOGGLEREGHOST),
-+COMPATIBLE_IOCTL(AUTOFS_IOC_ASKUMOUNT),
-  /* DEVFS */
-  COMPATIBLE_IOCTL(DEVFSDIOC_GET_PROTO_REV),
-  COMPATIBLE_IOCTL(DEVFSDIOC_SET_EVENT_MASK),
---- linux-2.4.29-pre3/arch/sparc64/kernel/ioctl32.c.compat-ioctl	2005-01-04 23:05:53.000000000 +0800
-+++ linux-2.4.29-pre3/arch/sparc64/kernel/ioctl32.c	2005-01-04 23:07:16.000000000 +0800
-@@ -4918,6 +4918,10 @@
-  COMPATIBLE_IOCTL(AUTOFS_IOC_PROTOVER)
-  COMPATIBLE_IOCTL(AUTOFS_IOC_EXPIRE)
-  COMPATIBLE_IOCTL(AUTOFS_IOC_EXPIRE_MULTI)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_PROTOSUBVER)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_ASKREGHOST)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_TOGGLEREGHOST)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_ASKUMOUNT)
-  /* DEVFS */
-  COMPATIBLE_IOCTL(DEVFSDIOC_GET_PROTO_REV)
-  COMPATIBLE_IOCTL(DEVFSDIOC_SET_EVENT_MASK)
---- linux-2.4.29-pre3/arch/mips64/kernel/ioctl32.c.compat-ioctl	2005-01-04 23:06:10.000000000 +0800
-+++ linux-2.4.29-pre3/arch/mips64/kernel/ioctl32.c	2005-01-04 23:07:16.000000000 +0800
-@@ -2352,6 +2352,10 @@
-  	IOCTL32_HANDLER(AUTOFS_IOC_SETTIMEOUT32, ioc_settimeout),
-  	IOCTL32_DEFAULT(AUTOFS_IOC_EXPIRE),
-  	IOCTL32_DEFAULT(AUTOFS_IOC_EXPIRE_MULTI),
-+	IOCTL32_DEFAULT(AUTOFS_IOC_PROTSUBVER),
-+	IOCTL32_DEFAULT(AUTOFS_IOC_ASKREGHOST),
-+	IOCTL32_DEFAULT(AUTOFS_IOC_TOGGLEREGHOST),
-+	IOCTL32_DEFAULT(AUTOFS_IOC_ASKUMOUNT),
-
-  	/* DEVFS */
-  	IOCTL32_DEFAULT(DEVFSDIOC_GET_PROTO_REV),
---- linux-2.4.29-pre3/arch/parisc/kernel/ioctl32.c.compat-ioctl	2005-01-04 23:06:35.000000000 +0800
-+++ linux-2.4.29-pre3/arch/parisc/kernel/ioctl32.c	2005-01-04 23:07:16.000000000 +0800
-@@ -3375,6 +3375,11 @@
-  COMPATIBLE_IOCTL(AUTOFS_IOC_CATATONIC)
-  COMPATIBLE_IOCTL(AUTOFS_IOC_PROTOVER)
-  COMPATIBLE_IOCTL(AUTOFS_IOC_EXPIRE)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_EXPIRE_MULTI)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_PROTOSUBVER)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_ASKREGHOST)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_TOGGLEREGHOST)
-+COMPATIBLE_IOCTL(AUTOFS_IOC_ASKUMOUNT)
-  /* DEVFS */
-  COMPATIBLE_IOCTL(DEVFSDIOC_GET_PROTO_REV)
-  COMPATIBLE_IOCTL(DEVFSDIOC_SET_EVENT_MASK)

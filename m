@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132810AbRASPtv>; Fri, 19 Jan 2001 10:49:51 -0500
+	id <S132942AbRASP4c>; Fri, 19 Jan 2001 10:56:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132811AbRASPtl>; Fri, 19 Jan 2001 10:49:41 -0500
-Received: from host213-120-148-5.btopenworld.com ([213.120.148.5]:13160 "EHLO
-	nvlonlx01.nv.london") by vger.kernel.org with ESMTP
-	id <S132810AbRASPtZ>; Fri, 19 Jan 2001 10:49:25 -0500
-Date: Fri, 19 Jan 2001 15:49:00 +0000 (UTC)
-From: Mo McKinlay <mmckinlay@gnu.org>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-cc: Mo McKinlay <mmckinlay@gnu.org>, Peter Samuelson <peter@cadcamlab.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: named streams, extended attributes, and posix
-In-Reply-To: <3A6860F9.EC882411@holly-springs.nc.us>
-Message-ID: <Pine.LNX.4.30.0101191547210.2331-100000@nvws005.nv.london>
-Organization: inter/open Labs
-X-URL: http://www.interopen.org/
+	id <S132941AbRASP4V>; Fri, 19 Jan 2001 10:56:21 -0500
+Received: from www.psych1.neu.edu ([155.33.251.101]:23080 "EHLO
+	www.casdn.neu.edu") by vger.kernel.org with ESMTP
+	id <S132811AbRASP4D>; Fri, 19 Jan 2001 10:56:03 -0500
+From: "Andrew Scott" <A.J.Scott@casdn.neu.edu>
+Organization: Northeastern University
+To: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+Date: Fri, 19 Jan 2001 10:55:29 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+Reply-to: A.J.Scott@casdn.neu.edu
+Message-ID: <3A681D1F.10015.6A0F47@localhost>
+In-Reply-To: <93irfb$cqg$1@penguin.transmeta.com>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 10 Jan 2001, at 15:32, Linus Torvalds wrote:
 
-Today, Michael Rothwell (rothwell@holly-springs.nc.us) wrote:
+> Latin 101. Literally "about taste no argument".
 
-  > The filesystem, when registering that it supports the "named streams"
-  > namespace, could specify its preferred delimiter to the VFS as well.
-  > Ext4 could use /directory/file/stream, and NTFS could use
-  > /directory/file:stream.
+Or "about taste no argument there is" if you add the 'est', which 
+still makes sense in english, in a twisted (convoluted as apposed to 
+'bad' or 'sick') way.   
 
-Erk - nice from a programming point of view, horrible from a consistency
-one. The nice thing about VFS is that it provides a consistent abstract
-interface - I'd place a small amount of money on the fact that Al Viro
-would probably flame you to high heaven for that last suggestion if he was
-paying much attention to this thread :-)
+Q.E.D.
 
-- -- 
-Mo McKinlay
-mmckinlay@gnu.org
-- -------------------------------------------------------------------------
-GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
+> I suspect that it _should_ be "De gustibus non disputandum est", but
+> it's been too many years. That adds the required verb ("is") to make it
+> a full sentence. 
+> 
+> In English: "There is no arguing taste".
+> 
+> 		Linus
 
 
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjpoYe4ACgkQRcGgB3aidfn2RQCfa1nnClzSXxBCB0XnJ35RmOcm
-ysoAoJSg+USBkDCp4PKcX5iD0JQQvXw9
-=Lkci
------END PGP SIGNATURE-----
+------------------Mailed via Pegasus 3.12c & Mercury 1.48---------------
+A.J.Scott@casdn.neu.edu                    Fax (617)373-2942
+Andrew Scott                               Tel (617)373-5278   _
+Northeastern University--138 Meserve Hall                     / \   /
+College of Arts & Sciences-Deans Office                      / \ \ /
+Boston, Ma. 02115                                           /   \_/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

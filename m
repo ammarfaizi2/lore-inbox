@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136427AbREDPTr>; Fri, 4 May 2001 11:19:47 -0400
+	id <S136429AbREDPbu>; Fri, 4 May 2001 11:31:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136428AbREDPTi>; Fri, 4 May 2001 11:19:38 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:16720 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S136427AbREDPTc>; Fri, 4 May 2001 11:19:32 -0400
-Date: Fri, 4 May 2001 11:20:30 -0400
-From: "Michael K. Johnson" <johnsonm@redhat.com>
-Message-Id: <200105041520.f44FKUM07323@bastable.devel.redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: dhcp problem with realtek 8139 clone with rh 7.1
+	id <S136430AbREDPbl>; Fri, 4 May 2001 11:31:41 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:12376 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S136429AbREDPb0>; Fri, 4 May 2001 11:31:26 -0400
+Date: Fri, 4 May 2001 17:29:40 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, volodya@mindspring.com,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+Message-ID: <20010504172940.U3762@athlon.random>
+In-Reply-To: <Pine.LNX.4.21.0105031017460.30346-100000@penguin.transmeta.com> <200105041140.NAA03391@cave.bitwizard.nl> <20010504135614.S16507@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010504135614.S16507@suse.de>; from axboe@suse.de on Fri, May 04, 2001 at 01:56:14PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux-kernel, you wrote:
->I have som problem with my realtek 8139 clone. It won't work with dhcp
->against my isp. I've just installed redhat 7.1 on a i386 with to (exactly
->the same) network cards, one that should be connected to my isp, and one
->to
->the local network. My local network works fine, but when I try to start
->eth0
->(which is the card connecting to my isp) I get
->
->Determining IP configuration... Operation failed.
->   failed.
->
->If I manually try to run 'pump -i eth0' I also get Operation failed.
+On Fri, May 04, 2001 at 01:56:14PM +0200, Jens Axboe wrote:
+> Or you can rewrite block_read/write to use the page cache, in which case
+> you'd have more luck doing the above.
 
-This sounds more like pump failing to negotiate dhcp properly than
-like a failure in the driver.  Let's check that possibility first
-before assuming a driver bug.
+once block_dev is in pagecache there will obviously be no-way to share
+cache between the block device and the filesystem, because all the
+caches will be in completly different address spaces.
 
-Install dhcpcd, chmod a-x /sbin/pump, and see if it works better
-(if pump is not there or not executable, the scripts fall back to
-dhcpcd).  If so, please file a bug report against pump in buzilla
-http://bugzilla.redhat.com/bugzilla/
-
-michaelkjohnson
-
- "He that composes himself is wiser than he that composes a book."
- Linux Application Development                     -- Ben Franklin
- http://people.redhat.com/johnsonm/lad/
+Andrea

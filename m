@@ -1,89 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288302AbSACUc0>; Thu, 3 Jan 2002 15:32:26 -0500
+	id <S288301AbSACUc0>; Thu, 3 Jan 2002 15:32:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288305AbSACUcR>; Thu, 3 Jan 2002 15:32:17 -0500
-Received: from tourian.nerim.net ([62.4.16.79]:23822 "HELO tourian.nerim.net")
-	by vger.kernel.org with SMTP id <S288301AbSACUcN>;
-	Thu, 3 Jan 2002 15:32:13 -0500
-Message-ID: <3C34BFCA.3010200@free.fr>
-Date: Thu, 03 Jan 2002 21:32:10 +0100
-From: Lionel Bouton <Lionel.Bouton@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020101
-X-Accept-Language: en-us
+	id <S288306AbSACUcT>; Thu, 3 Jan 2002 15:32:19 -0500
+Received: from age.cs.columbia.edu ([128.59.22.100]:4878 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S288300AbSACUcC>; Thu, 3 Jan 2002 15:32:02 -0500
+Date: Thu, 3 Jan 2002 15:31:58 -0500 (EST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
+In-Reply-To: <E16MAp4-00018b-00@starship.berlin>
+Message-ID: <Pine.LNX.4.33.0201031311120.27242-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-To: lkml@ohdarn.net, Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Second edition of the -mjc branch has been released
-In-Reply-To: <200201030929.g039TCZ02342@ohdarn.net>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lkml@ohdarn.net wrote:
+On Thu, 3 Jan 2002, Daniel Phillips wrote:
 
-> Performance and stability issues have been fixed to some degree.
-> A lot of the patches I have received either did not have names attached
-> or I was unable to locate a name.  Please contact me if changes must
-> be made.  All of the patches that have been included in this release can
-> be found at:
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/mjc/linux-2.4/included/mjc2
-> The release itself is located here:
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/mjc/linux-2.4/current
+> On January 3, 2002 05:05 pm, Ion Badulescu wrote:
+> > Daniel Phillips wrote:
+> > 
+> > > +static struct file_system_type ext2_fs = {
+> > > +       owner:          THIS_MODULE,
+> > > +       fs_flags:       FS_REQUIRES_DEV,
+> > > +       name:           "ext2",
+> > > +       read_super:     ext2_read_super,
+> > > +       super_size:     sizeof(struct ext2_sb_info),
+> > > +       inode_size:     sizeof(struct ext2_inode_info)
+> > > +};
+> > 
+> > While we're at it, can we extend this model to also include details about 
+> > the other filesystem data structures with (potential) private info, i.e.
+> > struct dentry and struct file? ext2 might not use them, but other 
+> > filesystems certainly do.
 > 
-> Below is a snippet from Changelog.mjc:
-> mjc2:
-> Reverse Mapping Patch #10                       (Rik van Riel)
-> Bootmem patch                                   (William Lee Irwin III)
-> entry.S speedups                                (Alex Khripin)
-> -fixed entry.S to apply to mjc tree             (Luuk van der Duim)
-> NFS Updates                                     (Trond Myklebust)
-> kmem_cache_estimate optimization                (Balbir Singh)
-> IRQrate                                         (Ingo Molnar)
-> Pagecache & Icache hash changes                 (Chuck Lever,
->                                                 William Lee Irwin III,
->                                                 Rusty Russell,
->                                                 Anton Blanchard)
-> Voodoo Framebuffer Fixes                        (Jurriaan)
-> SiS 5513 Fixes                                  (Lionel Bouton)
-> 
+> Could you be more specific about what you mean, please?
 
+If we're going to have specific slabs for each specific filesystem's inode
+and superblock structures, why shouldn't we do the same with the struct
+file and struct dentry? Right now, if a filesystem needs to stick some
+information in there, it has to allocate and then dereference
+file->private_data and dentry->d_fsdata, and I thought this cleanup was
+trying to avoid that, right?
 
-SiS 5513:
+Something like this, added to the end of the filesystem declaration:
++       dentry_size:    sizeof(struct ext2_dentry_info),
++       file_size:      sizeof(struct ext2_file_info)
 
-- Current state:
-I had no filesystem corruption on my SIS735 system since latest patch, 
-had it reviewed by several readers and think to have put correct init 
-code in...
+Obviously the above is only an example, since ext2 doesn't have those 
+structures -- so it would simply use 0 instead.
 
+>From the filesystems in the tree, only intermezzo actually allocates 
+them, so it's not as pressing a matter as it was for inodes. A few others 
+(ab)use the private pointer to store an integer value, without actually 
+allocating a private structure.
 
-- Warning:
-I've not yet gotten the level of testing I'd like to (confirmation on 
-other SIS735 and reports for other 5513 derivatives).
+Stackable filesystems, on the other hand, make extensive use of all these 
+private data pointers to store the links to the stacking level immediately 
+underneath. Alas, they're not in the tree... :-)
 
-With old code ATA100 can work for some not at all for other and even for 
-many systems sometime work sometime fail (seems the most probable and 
-occured on my configuration).
-My guess is that the chip registers don't have a defined value at system 
-power on but some random probability of being right.
+> That's good advice and I'm likely to adhere to it - if you can show that 
+> having no spaces between the name of the function and its arguments really is 
+> the accepted practice.  I've seen both styles on my various travels though 
+> the kernel, and I prefer the one with the space.  Much as I prefer to put 
+> spaces around '+' (but not around '.', go figure).
 
-So I consider these fixes alpha quality untill I have success reports on 
-a larger scale.
+Well... I said "minor point" and it degenerated into a full-fledged 
+thread, while nobody actually cared much about the real code... :-)
 
+I know the issue has been hashed to death already, but basically the 
+common practice I was referring to is to *have* a space after a C keyword 
+(for, while, return), but *not* after a function name.
 
-- So:
-If you have SIS IDE and try the mjc branch, please report any success or 
-failure directly to me (with sis chipset used it would be good, with 
-mainboard model better and with BIOS rev it would be perfect).
+Thanks,
+Ion
 
-It's quite important for future devs as I'm not comfortable with the 
-current code (needed too much time to understand in my opinion). I'd 
-like to rewrite several chuncks (and in fact began to do so) but am 
-waiting for the current fixes to be tested on a larger scale.
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 
-> ATI Rage128 Framebuffer Fixes                   (?)
-> [...]
-
-
-LB.
 

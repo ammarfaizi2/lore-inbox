@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263927AbTLATLb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 14:11:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263936AbTLATLb
+	id S263930AbTLATtX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 14:49:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263937AbTLATtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 14:11:31 -0500
-Received: from mail.ondacorp.com.br ([200.195.196.14]:20385 "EHLO
-	mail.ondacorp.com.br") by vger.kernel.org with ESMTP
-	id S263927AbTLATLa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 14:11:30 -0500
-Message-ID: <3FCB925B.3020904@arenanetwork.com.br>
-Date: Mon, 01 Dec 2003 17:11:23 -0200
-From: dual_bereta_r0x <dual_bereta_r0x@arenanetwork.com.br>
-Organization: ArenaNetwork Lan House & Cyber
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031026 Thunderbird/0.4a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [Hardware] P4 thermal monitor
-X-Enigmail-Version: 0.82.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Dec 2003 14:49:23 -0500
+Received: from mail.kroah.org ([65.200.24.183]:28037 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263930AbTLATtW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 14:49:22 -0500
+Date: Mon, 1 Dec 2003 11:21:58 -0800
+From: Greg KH <greg@kroah.com>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, henning@meier-geinitz.de,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-usb-users@lists.sourceforge.net
+Subject: Re: USB scanner issue (Was: Re: Beaver in Detox!)
+Message-ID: <20031201192158.GC23209@kroah.com>
+References: <Pine.LNX.4.58.0311261239510.1524@home.osdl.org> <20031128182625.GP2541@stop.crashing.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031128182625.GP2541@stop.crashing.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all.
+On Fri, Nov 28, 2003 at 11:26:25AM -0700, Tom Rini wrote:
+> On Wed, Nov 26, 2003 at 12:55:00PM -0800, Linus Torvalds wrote:
+> 
+> [snip]
+> > I give you "Beaver in Detox", aka linux-2.6.0-test11. This is mainly
+> > brought on by the fact that the old aic7xxx driver was broken in -test10,
+> > and Ingo found this really evil test program that showed an error case in
+> > do_fork() that we had never handled right. Well, duh!
+> 
+> I've found an odd problem that's in at least 2.6.0-test11.  I've
+> reproduced this twice now with an Epson 1240 USB scanner
+> (0x04b8/0x010b).  What happens is if I run xsane from gimp, acquire a
+> preview, start to scan and then cancel, the scanner becomes
+> unresponsive.  If I try and quit xsane, it gets stuck.  Unplugging /
+> replugging and then trying to kill xsane locked the machine up hard.
+> 
+> Here's ver_linux, dmesg and the versions of gimp/xsane I'm running (I've
+> used the scanner during this boot, without trying to lock it up):
 
-Does the P4 didn't have thermal acpi monitor? As pointed by some 
-gdesklets monitors, i've enabled acpi + thermal modules, but cannot read 
-values (no such file in /proc/acpi/thermal_zone). In AMD Athlon 2.8+ i 
-can monitor its value.
+Can't you use xsane without the scanner kernel driver?  I thought the
+latest versions used libusb/usbfs to talk directly to the hardware.
+Because of this, the USB scanner driver is marked to be removed from the
+kernel sometime in the near future.
 
-Am i missing something?
+thanks,
 
-Asus p4p800-d, p4 2.4c ht enabled, 2.6.0-test11.
-
-Also, please point me to some other useful docs in this area.
-
-dmesg output:
-
-# modprobe acpi
-# modprobe thermal
-
-ACPI: Processor [CPU1] (supports C1)
-ACPI: Processor [CPU2] (supports C1)
-
-Please c/c me as i'm not subscribed. Thanks in advance.
---
-dual_bereta_r0x -- Alexandre Hautequest
-ArenaNetwork Lan House & Cyber -- www.arenanetwork.com.br
+greg k-h

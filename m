@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270319AbRHSPBx>; Sun, 19 Aug 2001 11:01:53 -0400
+	id <S270546AbRHSPIy>; Sun, 19 Aug 2001 11:08:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270519AbRHSPBd>; Sun, 19 Aug 2001 11:01:33 -0400
-Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:11199
-	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
-	id <S270319AbRHSPB0>; Sun, 19 Aug 2001 11:01:26 -0400
-Date: Sun, 19 Aug 2001 08:01:41 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@kobayashi.soze.net>
-To: <lk@Aniela.EU.ORG>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: reiserfs question
-In-Reply-To: <Pine.LNX.4.33.0108191745310.365-100000@ns1.Aniela.EU.ORG>
-Message-ID: <Pine.LNX.4.33.0108190757260.27721-100000@kobayashi.soze.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270553AbRHSPIo>; Sun, 19 Aug 2001 11:08:44 -0400
+Received: from [65.10.228.207] ([65.10.228.207]:54513 "HELO whatever.local")
+	by vger.kernel.org with SMTP id <S270546AbRHSPIf>;
+	Sun, 19 Aug 2001 11:08:35 -0400
+From: chuckw@ieee.org
+Date: Sat, 18 Aug 2001 23:17:04 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Looking for comments on Bottom-Half/Tasklet/SoftIRQ
+Message-ID: <20010818231704.A2388@ieee.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Aug 2001 lk@Aniela.EU.ORG wrote:
+Greetings,
+	I was reading the unreliable guide to kernel hacking and was looking for
+a little clarification on something.  2 Bottom halves cannot run at the same
+time, why?  
+	Also, could someone give me an example of a service which is a bottom half/
+tasklet/SoftIRQ?
 
-> I run slackware-linux 8.0 and when I restart my box without issuing the
-> halt command, I see the following message when the kernel boots:
->
-> reiserfs: checking transaction log (device 03:01) ...
-> Warning, log replay starting on readonly filesystem
-
-Perhaps you have a "read-only" line in the lilo.conf section for whatever
-kernel you're booting.  It's possible that initscripts are remounting the
-partition read-only, but not likely, and if you're using journalling, it's
-best to check your initscripts and get rid of all the junk that runs
-e2fsck and then remounts read-write.
-
-
-justin
-
+Thanks in advance,
+Chuck

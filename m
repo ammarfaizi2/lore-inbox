@@ -1,54 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281341AbRKPMGm>; Fri, 16 Nov 2001 07:06:42 -0500
+	id <S281358AbRKPM3T>; Fri, 16 Nov 2001 07:29:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281342AbRKPMGc>; Fri, 16 Nov 2001 07:06:32 -0500
-Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:17061 "EHLO
-	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S281341AbRKPMGN>; Fri, 16 Nov 2001 07:06:13 -0500
-Date: Fri, 16 Nov 2001 12:06:06 +0000 (GMT)
-From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-X-X-Sender: <alastair@gurney>
-To: Herbert Nachtnebel <Herbert.Nachtnebel@tuwien.ac.at>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: routing messages [was Athlon SMP blues]
-In-Reply-To: <B900970C7DD9474C972986EB3EC7C58F035767@andromeda.agcad.local>
-Message-ID: <Pine.GSO.4.33.0111161200540.14971-100000@gurney>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281357AbRKPM3J>; Fri, 16 Nov 2001 07:29:09 -0500
+Received: from chunnel.redhat.com ([199.183.24.220]:23033 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S281351AbRKPM3D>; Fri, 16 Nov 2001 07:29:03 -0500
+Date: Fri, 16 Nov 2001 12:28:55 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@zip.com.au>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: synchronous mounts
+Message-ID: <20011116122855.C2389@redhat.com>
+In-Reply-To: <3BF376EC.EA9B03C8@zip.com.au> <20011115214525.C14221@redhat.com> <3BF45B9F.DEE1076B@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BF45B9F.DEE1076B@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Nov 15, 2001 at 07:19:43PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<snip>
+Hi,
 
-> setup on my machine got screwed by a weird interaction between a missing
-> kernel config option and the user space tools used by the network setup
-> scripts. Before, I never had a usage for the "Routing Messages" option
-> in the "Networking Options" kernel configuration. But now, if I don't
-> enable it, than the ip utility isn't able to correctly determine the
-> network interfaces, hence the network setup script fails and even the
-> loopback interface isn't setup correctly. This way no usable network
-> connection is available and the login get screwed totally.
+On Thu, Nov 15, 2001 at 07:19:43PM -0500, Jeff Garzik wrote:
 
-Yes, I experienced exactly this problem yesterday. The login hangups
-were *not* to do with kernel problems, or overheating, but merely the
-'gpm' service trying to play with a non-existent mouse.
+> When working on something likely to crash, I always remount my
+> filesystems 'sync' with the intention to have the kernel immediately
+> sync to disk anything and everything it is coded to do.
 
-After booting the system into Red Hat's canned 2.4.9-13smp, I compiled
-2.4.15-pre4 [in about 2.5 minutes :) ]  and rebooted. The machine came
-up, but the networking was totally screwed. I rebuilt the kernel, adding
-several more config options in the networking section (including
-"Routing Messages", and it works beautifully now.
+The kernel has, in my memory, never behaved like that on sync mounts.
+mount -o sync was always intended just to give people the BSD-style
+sync metadata updates that some users expected.
 
-I've since built 2.4.15-pre5, which is also fine. Presumably, this
-patch has also fixed most of the merge bugs in -pre4? I had problems
-building -pre4 on other machines.
+The "mount" man page is wrong on this one.
 
-Cheers
-Alastair
+> Since the
+> kernel is responsible to flushing data to disk, it makes perfect sense
+> to have an option to sync not only metadata but data to disk
+> immediately, if the user desires such.
 
-o o o o o o o o o o o o o o o o o o o o o o o o o o o o
-Alastair Stevens           \ \
-MRC Biostatistics Unit      \ \___________ 01223 330383
-Cambridge UK                 \___ www.mrc-bsu.cam.ac.uk
+If you want to sync _everything_, it's at least 5 seeks per write
+syscall when you're writing a new file: superblock, group descriptor,
+block bitmap, inode, data, and potentially inode indirect.
 
+There's no point doing all that, especially since some of that data is
+redundant and will be rebuilt by e2fsck anyway after a crash.
+
+Is it really such an important feature that we're willing to suffer a
+factor-of-100 or more slowdown for it?
+
+> Further, expecting all apps to fsync(2) files under the right
+> circumstances is not reasonable.  There are "normal" circumstances where
+> someone expects non-syncing behavior of "cat foo bar > foobar", and then
+> there are extentuating circumstances where another expects the shell to
+> sync that command immediately.  Should we rewrite cat/bash/apps to all
+> fsync, depending on an option?  Should we expect people to modify all
+> their shell scripts to include "/bin/sync" for those times when they
+> want data-sync?  Such is not scalable at all.
+
+Not-scalable is doing 5000 seeks to write a 4MB file.  
+
+The behaviour you are talking about now, "cat foo bar > foobar" and
+expecting it to be intact on return, is *not the same thing*.  The
+sync mount option is there to order metadata writes for predictable
+recovery of the directory structure.  In the "cat" case, nobody cares
+what the inode is like during the write.  All that is desired in that
+example is fsync-on-close, and it is insane to implement
+fsync-on-close by writing every single block of the file
+synchronously.
+
+At ALS, an ext3 user asked why ext3 performance was entirely unusable
+under mount -o sync (he had a broken config which accidentally set an
+ext3 mount synchronous), whereas ext2 was OK.  I only realised
+afterwards that this was because of ext3's ordered data writes:
+whereas ext2 was just syncing the inodes and indirect blocks on write,
+ext3 was syncing the data too as part of the ordered data guarantees,
+and performance was totally destroyed by the extra seeks.
+
+"sync to keep the fs structures intact" and "sync to keep this file
+intact" are two totally different things.  In the latter case, we only
+care about the file contents as a whole, so fsync-on-close is far more
+appropriate.  If we want that, lets add it as a new option, but I
+don't see the benefit in making o- sync do all file data writes 100%
+synchronously.
+
+Cheers,
+ Stephen

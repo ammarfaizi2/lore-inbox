@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288018AbSABXj1>; Wed, 2 Jan 2002 18:39:27 -0500
+	id <S288008AbSABXk5>; Wed, 2 Jan 2002 18:40:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288016AbSABXhu>; Wed, 2 Jan 2002 18:37:50 -0500
-Received: from mail.actcom.co.il ([192.114.47.13]:38794 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S287169AbSABXg2>; Wed, 2 Jan 2002 18:36:28 -0500
-Message-Id: <200201022335.g02NZaj10253@lmail.actcom.co.il>
-Content-Type: text/plain; charset=US-ASCII
-From: Itai Nahshon <nahshon@actcom.co.il>
-Reply-To: nahshon@actcom.co.il
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>
-Subject: Re: SCSI host numbers?
-Date: Thu, 3 Jan 2002 01:35:32 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu>
-In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S288021AbSABXjd>; Wed, 2 Jan 2002 18:39:33 -0500
+Received: from gate.mesa.nl ([194.151.5.70]:62475 "EHLO joshua.mesa.nl")
+	by vger.kernel.org with ESMTP id <S287973AbSABXif>;
+	Wed, 2 Jan 2002 18:38:35 -0500
+Date: Thu, 3 Jan 2002 00:38:02 +0100
+From: "Marcel J.E. Mol" <marcel@mesa.nl>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Keith Owens <kaos@ocs.com.au>, timothy.covell@ashavan.org,
+        adrian kok <adriankok2000@yahoo.com.hk>, linux-kernel@vger.kernel.org
+Subject: Re: system.map
+Message-ID: <20020103003802.A15071@joshua.mesa.nl>
+Reply-To: marcel@mesa.nl
+In-Reply-To: <10236.1010007095@ocs3.intra.ocs.com.au> <200201022223.g02MNrF371382@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200201022223.g02MNrF371382@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Wed, Jan 02, 2002 at 05:23:53PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 January 2002 01:32 pm, Alan Cox wrote:
-> > Under some scenarios Linux assigns the same
-> > host_no to more than one scsi device.
-> >
-> > Can someone tell me what is the intended behavior?
->
-> A number should never be reissued.
->
-> > The problem is that a newly registered device gets
-> > its host_no from max_scsi_host. max_scsi_host is
-> > decremented when a device driver is unregistered
-> > (see drivers/scsi/host.c) allowing a second new
-> > host to reuse the same host_no.
->
-> I guess it needs to either only decrement the count if we are the highest
+On Wed, Jan 02, 2002 at 05:23:53PM -0500, Albert D. Cahalan wrote:
+> Keith Owens writes:
+> 
+> > System.map is not required for booting, it is only used after init
+> > starts, therefore it does not belong in /boot anyway.
+> 
+> It's not about modules either. :-) If you can ignore the
+> name, I can too. So "/boot" means "kernel stuff".
+ 
+So I moved /lib/modules in /boot and symlinked /lib/modules -> /boot/modules.
+Everything about kernels is then in /boot (partition). This allow me
+to share /boot over all the distros I installed and enjoy one kernel
+compilation on all distros...
 
-I'll argue that it should never decrement. The host that was just
-unregisrtered already has its host_id reserved and if we decrement,
-this number will be reasigned to the next new scsi host.
-
-Unless if the code for reservation that causes the conflicts
-is removed (but I guess it has a reason).
-
-> one (trivial hack) or scan for a free number/keep a free bitmap. The devfs
-> code has a handy little unique_id function for that
-
-That would not solve it. The problem is that one piece of code
-tries to allocate unique numbers (and get them back to the pool
-when they are not in use), another piece of code remembers the
-old number that a scsi host had and whan it re-registers gives
-it back its old host_no regardless if this number was re-assigned
-to a new host.
-
-Is there a function that given a string returns a unique number
-for this string? That would do the job.
-
--- Itai
+-Marcel
 
 
+-- 
+     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
+    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
+    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
+__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
+ They couldn't think of a number,           Linux user 1148  --  counter.li.org
+    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com

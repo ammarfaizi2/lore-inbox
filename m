@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261328AbTCGBSd>; Thu, 6 Mar 2003 20:18:33 -0500
+	id <S261321AbTCGBZY>; Thu, 6 Mar 2003 20:25:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261327AbTCGBSd>; Thu, 6 Mar 2003 20:18:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39908 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261328AbTCGBSc>;
-	Thu, 6 Mar 2003 20:18:32 -0500
-Date: Fri, 7 Mar 2003 01:29:05 +0000
-From: Chris Dukes <pakrat@www.uk.linux.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Robin Holt <holt@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: Make ipconfig.c work as a loadable module.
-Message-ID: <20030307012905.G20725@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com> <1046990052.18158.121.camel@irongate.swansea.linux.org.uk> <20030306221136.GB26732@gtf.org> <20030306222546.K838@flint.arm.linux.org.uk> <1046996037.18158.142.camel@irongate.swansea.linux.org.uk> <20030306231905.M838@flint.arm.linux.org.uk> <1046996987.17718.144.camel@irongate.swansea.linux.org.uk> <20030307000816.P838@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S261329AbTCGBZY>; Thu, 6 Mar 2003 20:25:24 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64783 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261321AbTCGBZW>; Thu, 6 Mar 2003 20:25:22 -0500
+Message-ID: <3E67F76E.4050709@zytor.com>
+Date: Thu, 06 Mar 2003 17:35:42 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
+References: <20030307001655.GB13766@kroah.com> <Pine.LNX.4.44.0303070156430.32518-100000@serv> <3E67F03F.2070902@zytor.com> <Pine.LNX.4.44.0303070215490.32518-100000@serv>
+In-Reply-To: <Pine.LNX.4.44.0303070215490.32518-100000@serv>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030307000816.P838@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Mar 07, 2003 at 12:08:16AM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 07, 2003 at 12:08:16AM +0000, Russell King wrote:
-> > 
-> > You can build the dhcp client with glibc static into your initrd. Its hardly
-> > magic or special programs or random garbage, and last time I counted it came
-> > to one program. Dunno what the other 999 utilities your dhcp needs are ?
+Roman Zippel wrote:
 > 
-> How about mount for nfs-root, a shell and a shell script to supply the
-> correct parameters to mount so it doesn't go and try to mount the
-> nfs-root with locking enabled - oh, and a few programs like sed and
-> so forth to pull the mount parameters out of the dhcp client output,
-> if there is such an output.
-
-If IBM can fit a kernel and a ramdisk containing all the utilities you
-describe and more in smaller than 5M of file for tftp, one would think 
-that it could be done on Linux.
+> Why would it be awkward? libgcc has the same problem, so they added this 
+> paragraph:
 > 
-> ipconfig.c does more than just configure networking.  It's a far smaller
-> solution to NFS-root than any userspace implementation could ever hope
-> to be.
+> In addition to the permissions in the GNU General Public License, the
+> Free Software Foundation gives you unlimited permission to link the
+> compiled version of this file into combinations with other programs,
+> and to distribute those combinations without any restriction coming
+> from the use of this file.  (The General Public License restrictions
+> do apply in other respects; for example, they cover modification of
+> the file, and distribution when not linked into a combine
+> executable.)
+> 
+> Why can't we do something similiar?
+> 
 
-That's nice.  Would you mind explaining to us where that would be a
-benefit?  Aside from dead header space in elf executables, I'm at
-a loss as to how a usermode implementation must be significantly
-larger than kernel code.
+Why does it matter?
 
--- 
-Chris Dukes
-I tried being reasonable once--I didn't like it.
+> 
+>> Furthermore, I'm the author of most of the
+>>code in there, and if someone really wants to rip it off it's not a huge
+>>deal to me.
+> 
+> If it becomes part of the kernel (and a core part, not just some driver), 
+> it would be awkward to have a completely different license, so this should 
+> not be done without a very good reason.
+> 
+
+Why is it awkward?
+
+	-hpa
+
+

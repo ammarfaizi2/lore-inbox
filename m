@@ -1,71 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVARK4C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVARK60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbVARK4C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 05:56:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVARK4B
+	id S261256AbVARK60 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 05:58:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVARK5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 05:56:01 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:47376 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S261251AbVARKzu (ORCPT
+	Tue, 18 Jan 2005 05:57:50 -0500
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:8466 "EHLO tron.kn.vutbr.cz")
+	by vger.kernel.org with ESMTP id S261256AbVARK4N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 05:55:50 -0500
-Date: Tue, 18 Jan 2005 11:55:47 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Mario Holbe <Mario.Holbe@TU-Ilmenau.DE>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4: "access beyond end of device" after ext2 mount
-Message-ID: <20050118105547.GD8747@pclin040.win.tue.nl>
-References: <20050115233530.GA2803@darkside.22.kls.lan> <20050117194635.GD22202@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050117194635.GD22202@logos.cnet>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : 
+	Tue, 18 Jan 2005 05:56:13 -0500
+Message-ID: <41ECEB45.5040505@stud.feec.vutbr.cz>
+Date: Tue, 18 Jan 2005 11:56:05 +0100
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041201)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>, Nick Sanders <sandersn@btinternet.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Unable to burn DVDs
+References: <1105474144.15542.1.camel@zeus.city.tvnet.hu><1105474144.15542.1.camel@zeus.city.tvnet.hu> <200501112151.13351.sandersn@btinternet.com> <41E557BC.9010405@tmr.com>
+In-Reply-To: <41E557BC.9010405@tmr.com>
+Content-Type: multipart/mixed;
+ boundary="------------010303000406020505050306"
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  identified this incoming email as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (0.1 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -0.6 BAYES_01               BODY: Bayesian spam probability is 1 to 10%
+                              [score: 0.0106]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 17, 2005 at 05:46:35PM -0200, Marcelo Tosatti wrote:
-> On Sun, Jan 16, 2005 at 12:35:30AM +0100, Mario Holbe wrote:
+This is a multi-part message in MIME format.
+--------------010303000406020505050306
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > mounting an ext2 (ext3 as well) filesystem seems to modify the
-> > block device's EOF behaviour: before the mount the device returned
-> > EOF, after the mount it doesn't anymore:
-> > 
-> > [on a fresh booted system]
-> > root@darkside:~# uname -a
-> > Linux darkside 2.4.27 #1 Sat Jan 15 17:07:20 CET 2005 i686 GNU/Linux
-> > root@darkside:~# dd if=/dev/hdg7 of=/dev/null
-> > 9992366+0 records in
-> > 9992366+0 records out
-> > root@darkside:~# mount -t ext2 -o ro /dev/hdg7 /mnt
-> > root@darkside:~# umount /dev/hdg7
-> > root@darkside:~# dd if=/dev/hdg7 of=/dev/null
-> > attempt to access beyond end of device
-> > 22:07: rw=0, want=4996184, limit=4996183
-> > dd: reading `/dev/hdg7': Input/output error
-> > 9992360+0 records in
-> > 9992360+0 records out
-> > root@darkside:~# bc
-> > 1249045 * 4
-> > 4996180
-> > 1249045 * 4 * 2
-> > 9992360
-> > 
-> > Could somebody please explain this to me? Is this intentional?
+Bill Davidsen wrote:
+> Nick Sanders wrote:
+>>For me when running growisofs  with user permissions on 2.6.10 (ide-cd) it 
+>>works perfectly 1st time but 2nd time fails with the error below. It works 
+>>fine when run as root.
+>>
+>>:-( unable to PREVENT MEDIA REMOVAL: Operation not permitted
+>>
+>>As an aside audio cd burning with cdrecord works as long as the '-text' option 
+>>isn't used, if it is the process hangs.
 > 
-> No
 > 
-> Its indeed strange.
+> I reported a similar thing with cdrecord, writing a first session 
+> successfully using the -multi flag, but not being able to append to it 
+> or read the size with the "-msinfo" flag. I was totally blown off and 
+> told I didn't have permissions on the device, even though I was able to 
+> write to it.
+> 
+> I believe the true answer is that the SCSI command filter is blocking a 
+> command needed to perform the operation, probably a command to lock the 
+> door of the drive. In my case I have permissions to write the CD, just 
+> not to read the info needed to write additional sessions.
+> 
 
-I suppose that what happens is the following:
-mounting sets the blocksize to 4096.
-After reading 9992360 sectors, reading the next block means reading
-the next 8 sectors and that fails because only 6 sectors are left.
+Hello,
+Bill and Nick, could you try the attached patch that I sent to Jens 
+Axboe yesterday? (You can see the mail with an explanation on
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110599420505734&w=2 )
 
-Test that this is what happens using blockdev --getbsz.
+Michal
 
-If you want to restore the device to full size, use
-blockdev --setbsz 512.
+--------------010303000406020505050306
+Content-Type: text/x-patch;
+ name="verify_command.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="verify_command.patch"
 
-Andries
+--- linux-2.6.11-mm1/drivers/block/scsi_ioctl.c.orig	2005-01-17 20:42:40.000000000 +0100
++++ linux-2.6.11-mm1/drivers/block/scsi_ioctl.c	2005-01-17 20:43:14.000000000 +0100
+@@ -197,9 +197,7 @@ static int verify_command(struct file *f
+ 	if (type & CMD_WRITE_SAFE) {
+ 		if (file->f_mode & FMODE_WRITE)
+ 			return 0;
+-	}
+-
+-	if (!(type & CMD_WARNED)) {
++	} else if (!(type & CMD_WARNED)) {
+ 		cmd_type[cmd[0]] = CMD_WARNED;
+ 		printk(KERN_WARNING "scsi: unknown opcode 0x%02x\n", cmd[0]);
+ 	}
+
+--------------010303000406020505050306--

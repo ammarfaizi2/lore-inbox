@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbTIMQX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 12:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbTIMQX3
+	id S261977AbTIMQoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 12:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbTIMQoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 12:23:29 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:34249 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261268AbTIMQX1
+	Sat, 13 Sep 2003 12:44:16 -0400
+Received: from smtp1.globo.com ([200.208.9.168]:38399 "EHLO mail.globo.com")
+	by vger.kernel.org with ESMTP id S261977AbTIMQoL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 12:23:27 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Mikael Pettersson <mikpe@csd.uu.se>, axboe@suse.de
-Subject: Re: DMA for ide-scsi?
-Date: Sat, 13 Sep 2003 18:25:27 +0200
-User-Agent: KMail/1.5
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-References: <200309131101.h8DB1WNd021570@harpo.it.uu.se>
-In-Reply-To: <200309131101.h8DB1WNd021570@harpo.it.uu.se>
+	Sat, 13 Sep 2003 12:44:11 -0400
+From: Marcelo Penna Guerra <eu@marcelopenna.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SII SATA request size limit
+Date: Sat, 13 Sep 2003 13:43:52 -0300
+User-Agent: KMail/1.5.9
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200309131825.27402.bzolnier@elka.pw.edu.pl>
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200309131344.02457.eu@marcelopenna.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 13 of September 2003 13:01, Mikael Pettersson wrote:
-> On Sat, 13 Sep 2003 08:29:18 +0200, Jens Axboe <axboe@suse.de> wrote:
-> >> Actually with 2.6, you no longer need ide-scsi.  You'll need to upgrade
-> >> your cdrecord tools and probably your burning GUI, if you use one.  I've
-> >> been burning that way for several months now.  (I'm using xcdroast,
-> >> though I need to start it with "-n" since I'm using cdrecord 2.01a18.)
-> >> This actually works better for me than ide-scsi as for some reason it
-> >> uses less CPU.
-> >
-> >That's because it _is_ faster. It contains no silly memory allocations
-> >for the buffer and data copying in the kernel, the data is mapped from
-> >the user buffer and DMA'ed directly from there. It also uses DMA where
-> >ide-scsi wont.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Alan Cox escreveu:
+
+> On Sad, 2003-09-13 at 00:07, Marcelo Penna Guerra wrote:
+>> And I still don't know how to set this limit back to 128 with 2.6.x 
+>kernels. 
+>> It can't be done the same way as in 2.4.x, can it?
 >
-> That begs the question: why won't ide-scsi do DMA?
-> I understand you'd rather see it disappear (:->) but since I use
-> it for other ATAPI devices as well, I'd like to see it maintained
-> and fully operational. Having DMA in ide-scsi would be nice.
+>I dont really track 2.6, if someone took reconfiguring it out of 2.6
+>that would be unfortunate and suprising.
 
-ide-scsi maintainer position is available :-).
+On 2.6.0-test4-mm6, /proc/ide/hde/settings:
 
-> (And the concept of using a SCSI API to ATA devices is in itself
-> not broken, even if the implementation has some problems.)
+name                    value           min             max             mode
+- ----                    -----           ---             ---             ----
+acoustic                0               0               254             rw
+address                 0               0               2               rw
+bios_cyl                65535           0               65535           rw
+bios_head               16              0               255             rw
+bios_sect               63              0               63              rw
+bswap                   0               0               1               r
+current_speed           69              0               70              rw
+failures                0               0               65535           rw
+init_speed              69              0               70              rw
+io_32bit                1               0               3               rw
+keepsettings            0               0               1               rw
+lun                     0               0               7               rw
+max_failures            1               0               65535           rw
+multcount               16              0               16              rw
+nice1                   1               0               1               rw
+nowerr                  0               0               1               rw
+number                  0               0               3               rw
+pio_mode                write-only      0               255             w
+slow                    0               0               1               rw
+unmaskirq               1               0               1               rw
+using_dma               1               0               1               rw
+wcache                  0               0               1               rw
 
-It is not broken short-term, however it is broken long-term.
+Anyone know the reason why it's not there anymore? Shouldn't it be 
+reimplemented?
 
-> /Mikael
+Marcelo Penna Guerra
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iD8DBQE/Y0lPD/U0kdg4PFoRAiV8AKCKjq2mUkt26uzS8lURWABNBM+dmACg4ZMF
+dNZW2uZxh0UM8+0hOv0vtZQ=
+=vDdg
+-----END PGP SIGNATURE-----

@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVAIS1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbVAIS3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbVAIS1k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 13:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVAIS1k
+	id S261685AbVAIS3r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 13:29:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVAIS3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 13:27:40 -0500
-Received: from fsmlabs.com ([168.103.115.128]:45219 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261681AbVAIS1i (ORCPT
+	Sun, 9 Jan 2005 13:29:46 -0500
+Received: from mail.kroah.org ([69.55.234.183]:7655 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261685AbVAIS3p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 13:27:38 -0500
-Date: Sun, 9 Jan 2005 11:27:20 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andi Kleen <ak@muc.de>
-cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86_64: Notify user of MCE events (updated)
-In-Reply-To: <m1fz1av5am.fsf@muc.de>
-Message-ID: <Pine.LNX.4.61.0501091127030.13639@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.61.0501082121380.13639@montezuma.fsmlabs.com>
- <m1sm5av9fd.fsf@muc.de> <Pine.LNX.4.61.0501091005590.13639@montezuma.fsmlabs.com>
- <m1fz1av5am.fsf@muc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 9 Jan 2005 13:29:45 -0500
+Date: Sun, 9 Jan 2005 10:29:37 -0800
+From: Greg KH <greg@kroah.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: davej@redhat.com, hannal@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix pci_get_device conversion in intel-agp
+Message-ID: <20050109182937.GA13531@kroah.com>
+References: <20050108190815.GA7031@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050108190815.GA7031@lst.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Jan 2005, Andi Kleen wrote:
+On Sat, Jan 08, 2005 at 08:08:15PM +0100, Christoph Hellwig wrote:
+> +	if (intel_i810_private.i810_dev)
+> +		pci_dev_put(intel_i810_private.i830_dev);
+> +	if (intel_i810_private.i830_dev)
+> +		pci_dev_put(intel_i830_private.i830_dev);
 
-> Zwane Mwaikambo <zwane@arm.linux.org.uk> writes:
-> > +	 */
-> > +	if (notify_user && console_logged) {
-> > +		notify_user = 0;
-> > +		clear_bit(0, &console_logged);
-> > +		printk(KERN_EMERG "Machine check exception logged\n");
-> 
-> Another suggestion: don't make this KERN_EMERG. Make it KERN_INFO. 
-> Logged errors are usually correct, so there is no need for an 
-> emergency.
-> 
-> Also since these are not always exceptions (but can be read from
-> the polling timer) I would call them "machine check events" 
+It's legal to call pci_dev_put() with a NULL pointer, so these checks
+are not needed.
 
-Thanks for the comments, i've updated the patch.
+thanks,
 
+greg k-h

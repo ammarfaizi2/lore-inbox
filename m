@@ -1,37 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135788AbREBTfE>; Wed, 2 May 2001 15:35:04 -0400
+	id <S135804AbREBTiO>; Wed, 2 May 2001 15:38:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135782AbREBTez>; Wed, 2 May 2001 15:34:55 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:13572 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135786AbREBTer>; Wed, 2 May 2001 15:34:47 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-Date: 2 May 2001 12:34:11 -0700
-Organization: A poorly-installed InterNetNews site
-Message-ID: <9cpnfj$ms3$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0104290914260.14261-100000@twinlark.arctic.org> <200104292116.f3TLGhu07016@pachyderm.pa.dec.com> <20010502211800.X805@mea-ext.zmailer.org>
+	id <S135792AbREBTh4>; Wed, 2 May 2001 15:37:56 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:37091 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S135782AbREBThg>; Wed, 2 May 2001 15:37:36 -0400
+Date: Wed, 2 May 2001 11:55:01 -0700
+From: Mike Anderson <mike.anderson@us.ibm.com>
+To: Doug Ledford <dledford@redhat.com>
+Cc: Eric.Ayers@intec-telecom-systems.com,
+        James Bottomley <James.Bottomley@steeleye.com>,
+        "Roets, Chris" <Chris.Roets@compaq.com>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: Linux Cluster using shared scsi
+Message-ID: <20010502115501.A19473@us.ibm.com>
+Mail-Followup-To: Doug Ledford <dledford@redhat.com>,
+	Eric.Ayers@intec-telecom-systems.com,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	"Roets, Chris" <Chris.Roets@compaq.com>,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <200105011445.KAA01117@localhost.localdomain><3AEEDFFC.409D8271@redhat.com> <15086.60620.745722.345084@gargle.gargle.HOWL> <3AF025AE.511064F3@redhat.com> <20010502102037.A19349@us.ibm.com> <3AF048FA.1B5EA399@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3AF048FA.1B5EA399@redhat.com>; from dledford@redhat.com on Wed, May 02, 2001 at 01:50:50PM -0400
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010502211800.X805@mea-ext.zmailer.org>,
-Matti Aarnio  <matti.aarnio@zmailer.org> wrote:
->On Sun, Apr 29, 2001 at 02:16:43PM -0700, Jim Gettys wrote:
->...
->> "X is an exercise in avoiding system calls".  I think I said this around
->> 1984-1985.  
->> 				- Jim
->
->I think that applies to all really high-performance servers.
+Doug,
 
-Note that it is definitely not always true.
+I guess I worded my question poorly. My question was around multi-path
+devices in combination with SCSI-2 reserve vs SCSI-3 persistent reserve which 
+has not always been easy, but is more difficult is you use a name space that 
+can slip or can have multiple entries for the same physical device you want
+to reserve.
 
-Linux system calls are reasonably light-weight.  And sometimes trying to
-avoid them ends up beaing _more_ work - because you might have to worry
-about synchronization and cache coherency in user mode. 
+But here is a second try.
 
-So the rule should be "avoid _unnecessary_ system calls".
+If this is a failover cluster then node A will need to reserve all disks in 
+shareable space using sg or only a subset if node A has sync'd his sd name
+space with the other node and they both wish to do work in disjoint pools of
+disks.
 
-		Linus
+In the scenario of grabbing all the disks. If sda and sdb are the same device 
+than I can only reserve one of them and ensure IO only goes down through the
+one I reserver-ed otherwise I could get a reservation conflict. This goes 
+along with your previous patch on supporting multi-path at "md" and translating this into the proper device to reserve. I guess it is up to the caller of 
+your service to handle this case correct??
+
+If this not any clearer than my last mail I will just wait to see the code
+:-).
+
+Thanks,
+
+-Mike
+
+Doug Ledford [dledford@redhat.com] wrote:
+> 
+> 
+> 
+> To:   Mike Anderson <mike.anderson@us.ibm.com>
+> cc:   Eric.Ayers@intec-telecom-systems.com, James Bottomley
+>       <James.Bottomley@steeleye.com>, "Roets, Chris"
+>       <Chris.Roets@compaq.com>, linux-kernel@vger.kernel.org,
+>       linux-scsi@vger.kernel.org
+> 
+> 
+> 
+> 
+> 
+> Mike Anderson wrote:
+> >
+> > Doug,
+> >
+> > A question on clarification.
+> >
+> > Is the configuration you are testing have both FC adapters going to the
+> same
+> > port of the storage device (mutli-path) or to different ports of the
+> storage
+> > device (mulit-port)?
+> >
+> > The reason I ask is that I thought if you are using SCSI-2 reserves that
+> the
+> > reserve was on a per initiator basis. How does one know which path has
+> the
+> > reserve?
+> 
+> Reservations are global in nature in that a reservation with a device will
+> block access to that device from all other initiators, including across
+> different ports on multiport devices (or else they are broken and need a
+> firmware update).
+> 
+> > On a side note. I thought the GFS project had up leveled there locking /
+> fencing
+> > into a API called a locking harness to support different kinds of fencing
+> > methods. Any thoughts if this capability could be plugged into this
+> service so
+> > that users could reduce recoding depending on which fencing support they
+> > selected.
+> 
+> I wouldn't know about that.
+> 
+> --
+> 
+>  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+>       Please check my web site for aic7xxx updates/answers before
+>                       e-mailing me about problems
+
+-- 
+Michael Anderson
+mike.anderson@us.ibm.com
+
+IBM Linux Technology Center - Storage IO
+Phone (503) 578-4466
+Tie Line: 775-4466
+

@@ -1,56 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267641AbRGUNgd>; Sat, 21 Jul 2001 09:36:33 -0400
+	id <S267632AbRGUN1n>; Sat, 21 Jul 2001 09:27:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267640AbRGUNgX>; Sat, 21 Jul 2001 09:36:23 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:13323 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S267637AbRGUNgO>;
-	Sat, 21 Jul 2001 09:36:14 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200107211335.RAA13657@ms2.inr.ac.ru>
-Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6
-To: mmurray@deepthought.ORG (Martin Murray)
-Date: Sat, 21 Jul 2001 17:35:51 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0107171610120.31029-100000@cobalt.deepthought.org> from "Martin Murray" at Jul 18, 1 00:45:20 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S267635AbRGUN1d>; Sat, 21 Jul 2001 09:27:33 -0400
+Received: from binky.de.uu.net ([192.76.144.28]:43720 "EHLO binky.de.uu.net")
+	by vger.kernel.org with ESMTP id <S267632AbRGUN1Y>;
+	Sat, 21 Jul 2001 09:27:24 -0400
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-15";
+  boundary="------------Boundary-00=_Y0ST4DSIL7FVO4E9B5NP"
+From: Detlev Offenbach <detlev@offenbach.fs.uunet.de>
+To: linux-kernel@vger.kernel.org
+Subject: MO-Drive under 2.4.7 usinf vfat
+Date: Sat, 21 Jul 2001 15:26:58 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
+Message-Id: <01072115265800.02284@majestix>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello!
 
-> You know. 2.2.19 uses my cardbus controller on IRQ 11 without a
-> problem. Could it be something in the way the yenta_socket driver sets up
-> the controller? I was thinking of dumping the read/write's from the i82365
-> from 2.2.19, and comparing it to the yenta_socket driver. Do you think
-> this is worthwhile?
+--------------Boundary-00=_Y0ST4DSIL7FVO4E9B5NP
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
 
-Did you make any progress on this?
+Hi all,
 
+I have just tested the new 2.4.7 kernel to see, whether it now works with a 
+MO-Drive using the vfat filesystem. Unfortunately it still doesn't. Mounting 
+a disk and writing to it is ok. However, when I try to read a file off the 
+disk, the program crashes with a Segmentation fault and I get a oops in the 
+messages file (see attachment). I tried ksymoops on this file, but either I 
+did something wrong or it couldn't analyse it.
 
-I have similar problem. Probably, we could cooperate to find a way to solve
-this.
+I hope, this issue will be fixed soon cause I would like to switch over to 
+the 2.4 kernel series without scratching my set of MO-disks.
 
-Seems, you are right, yenta.c corrupts something in hardware
-and the problem is not related to irqs. Observations are:
+Regards
+Detlev
 
+Btw, please answer by email as well because I think I got removed from the 
+mailing list somehow (or is it that quiet?).
+-- 
+Detlev Offenbach
+detlev@offenbach.fs.uunet.de
 
-* No irqs are generated at all after lockup. Printk added at do_IRQ, no activity.
-  (Moreover, here yenta irq is not shared with vga, but shared with firewire
-   port though.) Nothing. I did not find any software activity at all.
-* No activity at pcmcia is required to lockup. Loading yenta_socket is enough.
-* Unloading yenta before lockup happened does not help, i.e. something
-  is corrupted at time of yenta_init().
-* Lockup _inevitably_ happens when yenta_init was executed once
-  and I make any operation from set:
-  1. any call to APM bios, except for cpu idle.
-  2. Pressing any hotkey, including change of LCD brightness
-     (Sic! The last event is _absolutely_ invisible to software,
-      so that yenta_init does something terrible with hardware).
+--------------Boundary-00=_Y0ST4DSIL7FVO4E9B5NP
+Content-Type: text/plain;
+  charset="iso-8859-15";
+  name="oops.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="oops.txt"
 
-linux-2.2 with pcmcia does work, so that puzzle really can be solved
-comparing operations made by both implementations. Did you make this?
+SnVsIDIxIDE0OjM4OjIxIG1hamVzdGl4IGtlcm5lbDogVW5hYmxlIHRvIGhhbmRsZSBrZXJuZWwg
+TlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlIGF0IHZpcnR1YWwgYWRkcmVzcyAwMDAwMDAwMApKdWwg
+MjEgMTQ6Mzg6MjEgbWFqZXN0aXgga2VybmVsOiAgcHJpbnRpbmcgZWlwOgpKdWwgMjEgMTQ6Mzg6
+MjEgbWFqZXN0aXgga2VybmVsOiAwMDAwMDAwMApKdWwgMjEgMTQ6Mzg6MjEgbWFqZXN0aXgga2Vy
+bmVsOiAqcGRlID0gMDAwMDAwMDAKSnVsIDIxIDE0OjM4OjIxIG1hamVzdGl4IGtlcm5lbDogT29w
+czogMDAwMApKdWwgMjEgMTQ6Mzg6MjEgbWFqZXN0aXgga2VybmVsOiBDUFU6ICAgIDAKSnVsIDIx
+IDE0OjM4OjIxIG1hamVzdGl4IGtlcm5lbDogRUlQOiAgICAwMDEwOls8MDAwMDAwMDA+XQpKdWwg
+MjEgMTQ6Mzg6MjEgbWFqZXN0aXgga2VybmVsOiBFRkxBR1M6IDAwMDEwMjgyCkp1bCAyMSAxNDoz
+ODoyMSBtYWplc3RpeCBrZXJuZWw6IGVheDogMDAwMDAwMDAgICBlYng6IGQ3MjlkY2MwICAgZWN4
+OiAwMDAwNDAwMCAgIGVkeDogZDcyOWRjZTAKSnVsIDIxIDE0OjM4OjIxIG1hamVzdGl4IGtlcm5l
+bDogZXNpOiA0MDAxNzAwMCAgIGVkaTogMDAwMDAwMDAgICBlYnA6IDAwMDA0MDAwICAgZXNwOiBk
+NzI3ZmY4MApKdWwgMjEgMTQ6Mzg6MjEgbWFqZXN0aXgga2VybmVsOiBkczogMDAxOCAgIGVzOiAw
+MDE4ICAgc3M6IDAwMTgKSnVsIDIxIDE0OjM4OjIxIG1hamVzdGl4IGtlcm5lbDogUHJvY2VzcyBt
+b3JlIChwaWQ6IDExOTEsIHN0YWNrcGFnZT1kNzI3ZjAwMCkKSnVsIDIxIDE0OjM4OjIxIG1hamVz
+dGl4IGtlcm5lbDogU3RhY2s6IGUyYmFkOGZkIGQ3MjlkY2MwIDQwMDE3MDAwIDAwMDA0MDAwIGQ3
+MjlkY2UwIGQ3MjlkY2MwIGZmZmZmZmVhIGMwMTJlMTU2IApKdWwgMjEgMTQ6Mzg6MjEgbWFqZXN0
+aXgga2VybmVsOiAgICAgICAgZDcyOWRjYzAgNDAwMTcwMDAgMDAwMDQwMDAgZDcyOWRjZTAgZDcy
+N2UwMDAgMDgwNTBiNjggMDgwNTBiNjggYmZmZmY0OWMgCkp1bCAyMSAxNDozODoyMSBtYWplc3Rp
+eCBrZXJuZWw6ICAgICAgICBjMDEwNmMyYiAwMDAwMDAwMyA0MDAxNzAwMCAwMDAwNDAwMCAwODA1
+MGI2OCAwODA1MGI2OCBiZmZmZjQ5YyAwMDAwMDAwMyAKSnVsIDIxIDE0OjM4OjIxIG1hamVzdGl4
+IGtlcm5lbDogQ2FsbCBUcmFjZTogW3N5c19yZWFkKzE1MC8yMDhdIFtzeXN0ZW1fY2FsbCs1MS81
+Nl0gCkp1bCAyMSAxNDozODoyMSBtYWplc3RpeCBrZXJuZWw6IApKdWwgMjEgMTQ6Mzg6MjEgbWFq
+ZXN0aXgga2VybmVsOiBDb2RlOiAgQmFkIEVJUCB2YWx1ZS4K
 
-Alexey Kuznetsov
+--------------Boundary-00=_Y0ST4DSIL7FVO4E9B5NP--

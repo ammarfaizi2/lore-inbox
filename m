@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285492AbRLGUBh>; Fri, 7 Dec 2001 15:01:37 -0500
+	id <S285495AbRLGUE6>; Fri, 7 Dec 2001 15:04:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284324AbRLGUBb>; Fri, 7 Dec 2001 15:01:31 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:44296 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S285492AbRLGUBM>; Fri, 7 Dec 2001 15:01:12 -0500
-Message-ID: <3C111FE9.8E95DAA3@zip.com.au>
-Date: Fri, 07 Dec 2001 12:00:41 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre5 i686)
-X-Accept-Language: en
+	id <S285496AbRLGUEr>; Fri, 7 Dec 2001 15:04:47 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:42912 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S285495AbRLGUEb>; Fri, 7 Dec 2001 15:04:31 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Brian <hiryuu@envisiongames.net>
+Date: Sat, 8 Dec 2001 07:04:21 +1100 (EST)
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Ragnar =?iso-8859-1?Q?Kj=F8rstad?= <reiserfs@ragnark.vestdata.no>,
-        Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-        reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
-In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <E16CP0X-0000uE-00@starship.berlin> <3C110B3F.D94DDE62@zip.com.au>,
-		<3C110B3F.D94DDE62@zip.com.au> <E16CQwl-0000vL-00@starship.berlin>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15377.8389.648294.417287@notabene.cse.unsw.edu.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: knfsd and memory usage
+In-Reply-To: message from Brian on Friday December 7
+In-Reply-To: <200112071645.fB7GjLE03441@demai05.mw.mediaone.net>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+On Friday December 7, hiryuu@envisiongames.net wrote:
+> So I have this new file server (2.4.16), and it's memory looks like
+> Mem:    771952K total,   767492K used,     4460K free,    22016K buffers
+> Swap:        0K total,        0K used,        0K free,    71848K cached
 > 
-> On December 7, 2001 07:32 pm, Andrew Morton wrote:
-> > Daniel Phillips wrote:
-> > >
-> > > Because Ext2 packs multiple entries onto a single inode table block, the
-> > > major effect is not due to lack of readahead but to partially processed
-> > > inode table blocks being evicted.
-> >
-> > Inode and directory lookups are satisfied direct from the icache/dcache,
-> > and the underlying fs is not informed of a lookup, which confuses the VM.
-> >
-> > Possibly, implementing a d_revalidate() method which touches the
-> > underlying block/page when a lookup occurs would help.
+> So cache, buffers, and free memory account for ~100MB.
+> There are a handful of userspace processes taking ~20MB.
 > 
-> Very interesting point, the same thing happens with file index blocks vs page
-> cache accesses.  You're suggesting we need some kind of mechanism for
-> propagating hits on cache items, either back to the underlying data or the
-> information used to regenerate the cache items.
+> Obviously I expect the kernel to take up some memory, but 650 megs?
 
-Not just to regenerate, but in the case of inodes: to write them back.  
+Have a look at /proc/slabinfo.  It might show you where the memory is.
 
-We have situations in which sync_unlocked_inodes() stalls badly,
-because it keeps on doing reads.
+> 
+> Is there I way I can find out where all of that memory went?
+> If knfsd is hoarding (no other box has this much unaccounted for), is 
+> there a way to tweak it at runtime?  Are there 'safe' things to adjust at 
+> compile time?
 
--
+knfsd directly uses about 20K per thread.  Maybe as much as 30.  Any
+other memory usage is incidental and should be cleaned up by memory
+pressure.
+
+NeilBrown

@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbUCPSsW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 13:48:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUCPSsW
+	id S261206AbUCPSwq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 13:52:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUCPSvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 13:48:22 -0500
-Received: from nodns-212-69-243-51.first4it.co.uk ([212.69.243.51]:45071 "HELO
-	linuxoutlaws.co.uk") by vger.kernel.org with SMTP id S261183AbUCPSsQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 13:48:16 -0500
-Date: Tue, 16 Mar 2004 18:45:47 +0000
-From: Rob Shakir <rob@rshk.co.uk>
-To: Emmanuel Fleury <fleury@cs.auc.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with atkbd.c
-Message-ID: <20040316184547.GA21736@rshk.co.uk>
-References: <1079461752.24676.23.camel@rade7.s.cs.auc.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1079461752.24676.23.camel@rade7.s.cs.auc.dk>
-User-Agent: Mutt/1.4.1i
+	Tue, 16 Mar 2004 13:51:31 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:26836 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261215AbUCPStt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 13:49:49 -0500
+Message-Id: <200403161849.i2GInfF0007372@eeyore.valparaiso.cl>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler: Process priority fed back to parent? 
+In-Reply-To: Your message of "Tue, 16 Mar 2004 17:46:11 +0200."
+             <20040316154611.GA31510@mulix.org> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Tue, 16 Mar 2004 14:49:41 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 16, 2004 at 07:29:12PM +0100, Emmanuel Fleury wrote:
-> Hi,
-> 
-> I noticed today that I got several time the following error log in my
-> /var/log/messages:
-> 
-> Mar 16 14:00:59 hermes vmunix: atkbd.c: Unknown key released (translated
-> set 2,
-> code 0x7a on isa0060/serio0).
-> Mar 16 14:00:59 hermes vmunix: atkbd.c: This is an XFree86 bug. It
-> shouldn't access hardware directly.
-> Mar 16 14:00:59 hermes vmunix: atkbd.c: Unknown key released (translated
-> set 2,
-> code 0x7a on isa0060/serio0).
-> Mar 16 14:00:59 hermes vmunix: atkbd.c: This is an XFree86 bug. It
-> shouldn't access hardware directly.
-> 
-> Is it a known bug ?
+Muli Ben-Yehuda <mulix@mulix.org> said:
 
-Yes, it's in the 2.6 input drivers FAQ by Vojtech Pavlik, you can read the FAQ at: http://lwn.net/Articles/69107/.
+[...]
 
-Rob Shakir
+> This is something that I've thought of doing in the past. The reason I
+> didn't pursue it further is that it's impossible to get it right for
+> all cases, and it attacks the problem in the wrong place. The kernel
+> shouldn't need to guess(timate) what the process is going to do. The
+> userspace programmer, who knows what his process is going to do,
+> should tell the kernel.
+
+People have been known to lie on occasion, particularly when it is to their
+advantage...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

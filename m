@@ -1,62 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbTLCX6x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 18:58:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTLCX6x
+	id S262777AbTLDABi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 19:01:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbTLDABh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 18:58:53 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50699 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262730AbTLCX6s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 18:58:48 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
-Date: 3 Dec 2003 23:47:38 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bqlsmq$kp2$1@gatekeeper.tmr.com>
-References: <20031203115404.GE1810@gnu.org> <Pine.LNX.4.21.0312031316550.28298-100000@mlf.linux.rulez.org> <20031203232726.GC466@gnu.org>
-X-Trace: gatekeeper.tmr.com 1070495258 21282 192.168.12.62 (3 Dec 2003 23:47:38 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 3 Dec 2003 19:01:37 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19862 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262777AbTLDAA2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 19:00:28 -0500
+Date: Wed, 3 Dec 2003 16:00:21 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Kendall Bennett <KendallB@scitechsoft.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+In-Reply-To: <3FCDE5CA.2543.3E4EE6AA@localhost>
+Message-ID: <Pine.LNX.4.58.0312031533530.2055@home.osdl.org>
+References: <3FCDE5CA.2543.3E4EE6AA@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031203232726.GC466@gnu.org>,
-Andrew Clausen  <clausen@gnu.org> wrote:
-| On Wed, Dec 03, 2003 at 02:07:06PM +0100, Szakacsits Szabolcs wrote:
-| > > Can you elaborate?  Autodetect what?  Autodetect if the BIOS supports LBA?
-| > 
-| > Autodetect to boot from the boot controller's miniport driver or using
-| > BIOS. It should have been mentioned in one of the Microsoft articles I
-| > referred.
-| 
-| I'm totally confused.
-| 
-| What's a miniport driver?  What is a boot controller?  Do these have
-| anything to do with LBA?
-| 
-| Also, you say "autodetect"... you mean it is making a decision to use
-| some method (not that I understand this).  How does it make the decision?
-| 
-| The article doesn't mention "Linear", "LBA", "boot controller" or
-| "miniport driver" at all.  (I was looking at
-| http://support.microsoft.com/?kbid=98080 - is this the right one?)
-| 
-| 
-| The question I believe I asked was: how does the Windows installation
-| software decide whether to use LBA or CHS?  Is this an answer to
-| this question?
 
-Some (most?) BIOS implementations let you set this as an option,
-something like STANDARD, LARGE and LBA choices. Most today set LBA
-unless you force it.
 
-I would expect the Windows installer to use what the BIOS provides, but
-I'm happy to say I haven't done a winstall in several years.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+On Wed, 3 Dec 2003, Kendall Bennett wrote:
+>
+> I have heard many people reference the fact that the although the Linux
+> Kernel is under the GNU GPL license, that the code is licensed with an
+> exception clause that says binary loadable modules do not have to be
+> under the GPL.
+
+Nope. No such exception exists.
+
+There's a clarification that user-space programs that use the standard
+system call interfaces aren't considered derived works, but even that
+isn't an "exception" - it's just a statement of a border of what is
+clearly considered a "derived work". User programs are _clearly_ not
+derived works of the kernel, and as such whatever the kernel license is
+just doesn't matter.
+
+And in fact, when it comes to modules, the GPL issue is exactly the same.
+The kernel _is_ GPL. No ifs, buts and maybe's about it. As a result,
+anything that is a derived work has to be GPL'd. It's that simple.
+
+Now, the "derived work" issue in copyright law is the only thing that
+leads to any gray areas. There are areas that are not gray at all: user
+space is clearly not a derived work, while kernel patches clearly _are_
+derived works.
+
+But one gray area in particular is something like a driver that was
+originally written for another operating system (ie clearly not a derived
+work of Linux in origin). At exactly what point does it become a derived
+work of the kernel (and thus fall under the GPL)?
+
+THAT is a gray area, and _that_ is the area where I personally believe
+that some modules may be considered to not be derived works simply because
+they weren't designed for Linux and don't depend on any special Linux
+behaviour.
+
+Basically:
+ - anything that was written with Linux in mind (whether it then _also_
+   works on other operating systems or not) is clearly partially a derived
+   work.
+ - anything that has knowledge of and plays with fundamental internal
+   Linux behaviour is clearly a derived work. If you need to muck around
+   with core code, you're derived, no question about it.
+
+Historically, there's been things like the original Andrew filesystem
+module: a standard filesystem that really wasn't written for Linux in the
+first place, and just implements a UNIX filesystem. Is that derived just
+because it got ported to Linux that had a reasonably similar VFS interface
+to what other UNIXes did? Personally, I didn't feel that I could make that
+judgment call. Maybe it was, maybe it wasn't, but it clearly is a gray
+area.
+
+Personally, I think that case wasn't a derived work, and I was willing to
+tell the AFS guys so.
+
+Does that mean that any kernel module is automatically not a derived work?
+HELL NO! It has nothing to do with modules per se, except that non-modules
+clearly are derived works (if they are so central to the kenrel that you
+can't load them as a module, they are clearly derived works just by virtue
+of being very intimate - and because the GPL expressly mentions linking).
+
+So being a module is not a sign of not being a derived work. It's just
+one sign that _maybe_ it might have other arguments for why it isn't
+derived.
+
+		Linus

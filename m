@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265490AbUHFCSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266349AbUHFCTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265490AbUHFCSe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 22:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268078AbUHFCSd
+	id S266349AbUHFCTk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 22:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUHFCTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 22:18:33 -0400
-Received: from lakermmtao08.cox.net ([68.230.240.31]:24022 "EHLO
-	lakermmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S265490AbUHFCSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 22:18:21 -0400
-Date: Thu, 5 Aug 2004 17:26:32 -0400
-From: Chris Shoemaker <c.shoemaker@cox.net>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
-Subject: Re: Possible dcache BUG
-Message-ID: <20040805212632.GB11395@cox.net>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <20040804204640.64cd65fc.akpm@osdl.org> <200408050031.21366.gene.heskett@verizon.net> <200408051133.44684.vda@port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408051133.44684.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.5.6+20040523i
+	Thu, 5 Aug 2004 22:19:40 -0400
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:28596 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266349AbUHFCTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 22:19:30 -0400
+Message-ID: <4112EAAB.8040005@yahoo.com.au>
+Date: Fri, 06 Aug 2004 12:19:23 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] VFS readahead bug in 2.6.8-rc[1-3]
+References: <41127371.1000603@lougher.demon.co.uk> <4112D6FD.4030707@yahoo.com.au>
+In-Reply-To: <4112D6FD.4030707@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 11:33:44AM +0300, Denis Vlasenko wrote:
-> 
-> You may use cpuburn to test RAM/CPU too.
-> 
-> Although I have a memory which, when clocked a bit too high,
-> pass both memtest86 and cpuburn for extended periods of time,
-> yet large compile runs die with sig11 sometimes. Using a tiny
-> bit less aggressive clocking helped. :)
-> -- 
-> vda
+Nick Piggin wrote:
 
-Oh yes, now I remember that it was you who recommened cpuburn to me back
-in April/May or so.  I also was suspicious that neither memtest86 nor
-cpuburn were really stressful enough, but the large-compiles-in-a-loop
-weren't any better for me.  I would _love_ to just have some confident
-test to say "yep, your hardware is bad, go buy a shiny new box"  :)
+> Phillip Lougher wrote:
+>
+>> Hi,
+>>
+>> There is a readahead bug in do_generic_mapping_read (filemap.c).  This
+>> bug appears to have been introduced in 2.6.8-rc1.  Specifically the bug
+>> is caused by an incorrect code change which causes VFS to call
+>> readpage() for indexes beyond the end of files where the file length is
+>> zero or a 4k multiple.
+>>
+>> In Squashfs this causes a variety of almost immediate OOPes because
+>> Squashfs trusts the VFS not to pass invalid index values.  For other
+>> filesystems it may also be causing subtle bugs.  I have received
+>> prune_dcache oopes similar to Gene Heskett's (which was also
+>> pointer corruption), and so it may fix this and other reported
+>> readahead bugs.
+>>
+>> The patch is against 2.6.8-rc3.
+>>
+>
+> Good work - bug is mine, sorry.
+>
 
-I've seen memtest86 actually find bad RAM on a machine before, so I know
-it works _sometimes_.  Can anyone say the same for cpuburn?  What does
-a failure look like, and were there correlated symptoms like kernel oopses?
+On second thought, maybe not. I think your filesystem is at fault.
 
--chris
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Firstly, there possibly is a bug in do_pagecache_readahead which allows 
+it to
+read off the end of the file in a completely serialised situation. But 
+even so,
+notice the absence of locking - i_size can change at any time can't it? Then
+your fix will blow up when you race with a truncate, right?
+
+I think you need to handle reading off the end of the file properly: I'm not
+too familiar with this code, but IIRC you are allowed to setup pagecache 
+past
+the end of the file - it gets handled correctly in 
+do_generic_mapping_read, and
+ends up falling off the LRU. This should help you.
+

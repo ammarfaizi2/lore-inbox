@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263767AbTDNWAi (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263768AbTDNWAi (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 18:00:38 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:1164 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id S263767AbTDNWAh (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 18:00:37 -0400
-Date: Mon, 14 Apr 2003 15:11:10 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Andries.Brouwer@cwi.nl
-Cc: torvalds@transmeta.com, akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kdevt-diff
-Message-ID: <20030414221110.GK4917@ca-server1.us.oracle.com>
-References: <UTC200304142201.h3EM19S07185.aeb@smtp.cwi.nl>
+	id S263983AbTDNVsU (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbTDNVrs (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 17:47:48 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:39941 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263982AbTDNVrb (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 17:47:31 -0400
+Date: Mon, 14 Apr 2003 14:58:52 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] blockgroup_lock: hashed spinlocks for ext2 and ext3
+Message-Id: <20030414145852.6beabadf.akpm@digeo.com>
+In-Reply-To: <20030414214608.GA3392@wotan.suse.de>
+References: <200304131113.h3DBDvj2004773@hera.kernel.org>
+	<1050350782.7912.400.camel@averell>
+	<20030414143813.329609a6.akpm@digeo.com>
+	<20030414214608.GA3392@wotan.suse.de>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200304142201.h3EM19S07185.aeb@smtp.cwi.nl>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Apr 2003 21:59:16.0340 (UTC) FILETIME=[17927340:01C302D1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 15, 2003 at 12:01:09AM +0200, Andries.Brouwer@cwi.nl wrote:
-> > Do all devices smaller than 16:16 appear the same on all
-> > filesystems, limited or not?
+Andi Kleen <ak@suse.de> wrote:
+>
+> > 
+> > And this hashed lock is not a per-cpu thing.  (No locks are!) It just uses
+> > NR_CPUS to decide how big the hash should be.
 > 
-> Yes.
+> Isn't that what the IBM kmalloc_per_cpu() was for ? (I think the patch
+> was from Dipankar) 
 
-	I meant "is that the behavior we want to choose?"  I understand
-that this would be the result of your current scheme.
-	I guess I'm wondering what made you choose "consistency across
-legacy filesystems" over "consistency across our expanded device space".
+This is not a per-cpu data structure.
 
-Joel
+It is a hashed spinlock which uses NR_CPUS as a sizing hint.
 
--- 
-
-Life's Little Instruction Book #444
-
-	"Never underestimate the power of a kind word or deed."
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

@@ -1,56 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265794AbTL3OIe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 09:08:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbTL3OIe
+	id S265801AbTL3OTj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 09:19:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265802AbTL3OTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 09:08:34 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:37124 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265794AbTL3OId
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 09:08:33 -0500
-Date: Tue, 30 Dec 2003 15:20:04 +0100
-To: Jim Crilly <jim@why.dont.jablowme.net>
-Cc: Joshua Schmidlkofer <kernel@pacrimopen.com>,
-       "David B. Stevens" <dsteven3@maine.rr.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, Jos Hulzink <josh@stack.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.7 (future kernel) wish
-Message-ID: <20031230142004.GA14655@hh.idb.hist.no>
-References: <200312232342.17532.josh@stack.nl> <20031226233855.GA476@hh.idb.hist.no> <3FECCAF9.7070209@maine.rr.com> <1072507896.27022.226.camel@menion.home> <3FEE47F5.6090406@why.dont.jablowme.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Dec 2003 09:19:39 -0500
+Received: from ftp.ilog.fr ([81.80.162.195]:49335 "EHLO ftp.ilog.fr")
+	by vger.kernel.org with ESMTP id S265801AbTL3OTh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 09:19:37 -0500
+From: Bruno Haible <bruno@clisp.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SCO's infringing files list
+Date: Tue, 30 Dec 2003 15:17:27 +0100
+User-Agent: KMail/1.5
+Cc: Linus Torvalds <torvalds@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3FEE47F5.6090406@why.dont.jablowme.net>
-User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+Message-Id: <200312301517.27857.bruno@clisp.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 27, 2003 at 10:03:17PM -0500, Jim Crilly wrote:
-> >
-> >Sometimes Windows 2k or XP dump (BSOD), or maybe you just get an error. 
-> >
-> > 
-> >
-> Generally it just complains that you pulled out the device prematurely, 
+Here's some info about include/linux/ipc.h, also in SCO's list.
 
-Depends on what the device is used for, I guess.
+* lxr.linux.no shows that since version 1.0.9, it had only small incremental
+  changes.
 
-> I've never seen one give a STOP error from that but I guess a bad driver 
-> or USB controller could cause anything.
-> 
-Well, try having a partially loaded system dll on removable
-media when you pull the plug - it won't be pretty.
+The earliest copy of this file that I've got is from Krishna
+Balasubramanian's ipcbeta+.tar.Z file. This was his second or third
+beta release of SysV IPC for Linux. The file is here:
+http://www.haible.de/bruno/ipcbeta+.tar.Z
 
-> When you insert a device like a USB stick Windows puts a little icon 
-> next to the clock in the system tray that you're supposed to use to stop 
-> the device before pulling it, effectively it unmounts and stops (or 
-> atleast releases the device from) the driver so the device can be 
-> 'safely' removed. I also believe Windows mounts any removable device 
-> synchronously so that if you do pull it out prematurely the damage done 
-> is limited.
+* The include/linux/ipc.h from ipcbeta+.tar.Z is the same as the one in
+  linux-1.0.9 (http://lxr.linux.no/source/include/linux/ipc.h?v=1.0.9)
 
-Linux has sync mounts too. :-)  the rest is a gui thing, i.e. not kernel.
+I claim that Krishna Balasubramanian wrote this file.
 
-Helge Hafting
+* The ipcbeta+.tar.Z contents shows how he developed this thing:
+  He looked at various documentation sources (books, manual pages - remember
+  POSIX didn't specify IPC at that time -).
+  He collected some examples like the "dining philosophers" that were floating
+  around on the net.
+  We ran some test programs on other Unices (SunOS 4, possibly also HP-UX).
+  He wrote 40 KB of documentation, explaining each and every system call.
+  ... and someone who puts so much work in testing and documentation should
+  steal the header file??!
+
+* The value of IPC_PRIVATE is different in Linux. SysV systems define it as
+  (key_t)0, Linux defines it as ((key_t) 0), which extra parentheses.
+
+* The members of 'struct ipc_perm' are in different order on Linux.
+  SysV systems have them in the order
+     uid, gid, cuid, cgid, mode, seq, key.
+  Linux has them in the order
+     key, uid, gid, cuid, cgid, mode, seq.
+
+* The values for IPC_CREAT, IPC_EXCL, IPC_NOWAIT are written as octal numbers,
+  which is quite natural, since 9 bits having the same rwxrwxrwx semantics as
+  file permissions can be ORed into it. SysV systems write these constants
+  with 7 octal digits. Linux ipc.h writes them with 8 octal digits.
+
+* The values of IPC_RMID, IPC_SET, IPC_STAT are different: on Solaris
+  10, 11, 12; on Linux 0, 1, 2.
+
+* 'struct ipc_kludge' and the corresponding #defines for SEMOP, SEMGET etc.
+  don't exist in SysV systems. They arose only because we wanted to minimize
+  the number of system calls.
+
+I hope that's enough evidence that Krishna didn't copy the file's contents
+from anywhere.
+
+Bruno
+

@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262962AbUBZT3x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 14:29:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbUBZT2J
+	id S262956AbUBZTgU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 14:36:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbUBZTgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 14:28:09 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:15492 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S262943AbUBZT1F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 14:27:05 -0500
-Message-ID: <403E487B.8020707@matchmail.com>
-Date: Thu, 26 Feb 2004 11:26:51 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: Nico Schottelius <nico-kernel@schottelius.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: another hard disk broken or xfs problems?
-References: <20040225220051.GA187@schottelius.org> <20040225223428.GD640@frodo> <20040225234944.GD187@schottelius.org> <20040226032741.GB1177@frodo> <20040226082551.GA218@schottelius.org> <20040226204615.A481868@wobbly.melbourne.sgi.com>
-In-Reply-To: <20040226204615.A481868@wobbly.melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 26 Feb 2004 14:36:19 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:22695 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S262956AbUBZTf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 14:35:59 -0500
+Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
+From: Christophe Saout <christophe@saout.de>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Jean-Luc Cooke <jlcooke@certainkey.com>, linux-kernel@vger.kernel.org,
+       James Morris <jmorris@intercode.com.au>
+In-Reply-To: <20040225214308.GD3883@waste.org>
+References: <20040219170228.GA10483@leto.cs.pocnet.net>
+	 <20040219111835.192d2741.akpm@osdl.org>
+	 <20040220171427.GD9266@certainkey.com>
+	 <20040221021724.GA8841@leto.cs.pocnet.net>
+	 <20040224191142.GT3883@waste.org>
+	 <1077651839.11170.4.camel@leto.cs.pocnet.net>
+	 <20040224203825.GV3883@waste.org>  <20040225214308.GD3883@waste.org>
+Content-Type: text/plain
+Message-Id: <1077824146.14794.8.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 26 Feb 2004 20:35:46 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott wrote:
-> On Thu, Feb 26, 2004 at 09:25:51AM +0100, Nico Schottelius wrote:
->>And btw, do all filesystem drivers behave in this way, printing internal
->>errors and displaying call traces when they find errors in the
->>filesystem?
-> 
-> 
-> No, not all filesystem behave this way.  And it is configurable
-> in XFS; if you don't want this to happen, you can switch it off
-> via the sysctl/procfs interface - see the "error_level" section
-> in Documentation/filesystems/xfs.txt.
+Am Mi, den 25.02.2004 schrieb Matt Mackall um 22:43:
 
-I like this idea.
+> Ok, here's my proposed API extension (currently untested). Christophe,
+> care to give it a spin?
+>
+> diff -puN crypto/api.c~crypto-copy crypto/api.c
+> --- tiny/crypto/api.c~crypto-copy	2004-02-25 15:12:43.000000000 -0600
+> +++ tiny-mpm/crypto/api.c	2004-02-25 15:37:39.000000000 -0600
+> @@ -161,6 +161,27 @@ void crypto_free_tfm(struct crypto_tfm *
+>  	kfree(tfm);
+>  }
+>  
+> +int crypto_copy_tfm(char *dst, const struct crypto_tfm *src, unsigned size)
+> +{
+> +	int s = crypto_tfm_size(src);
+> +
+> +	if (size < s)
+> +		return 0;
 
-Is it just calling dump_stack() based on error level?
+Why the extra check?
+
+> +void crypto_cleanup_copy_tfm(char *user_tfm)
+> +{
+> +	crypto_exit_ops((struct crypto_tfm *)user_tfm);
+
+This looks dangerous. The algorithm might free a buffer. This is only
+safe if we introduce per-algorithm copy methods that also duplicate
+external buffers.
+
+I'd like to avoid a kmalloc in crypto_copy_tfm. This function also does
+the same as crypto_free_tfm except for the final kfree(tfm). So
+crypto_free_tfm could call this function. And it could have a better
+name.
+
+

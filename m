@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270045AbUJTM7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270124AbUJTNJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270045AbUJTM7p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 08:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269817AbUJTM6H
+	id S270124AbUJTNJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 09:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270068AbUJTNHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 08:58:07 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:54429 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S270315AbUJTMyx (ORCPT
+	Wed, 20 Oct 2004 09:07:01 -0400
+Received: from styx.suse.cz ([82.119.242.94]:50054 "EHLO shadow.suse.cz")
+	by vger.kernel.org with ESMTP id S270205AbUJTNEP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 08:54:53 -0400
-Date: Wed, 20 Oct 2004 14:56:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lorenzo Allegrucci <l_allegrucci@yahoo.it>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041020125607.GB8693@elte.hu>
-References: <20041012195424.GA3961@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <200410201452.01317.l_allegrucci@yahoo.it>
+	Wed, 20 Oct 2004 09:04:15 -0400
+Date: Wed, 20 Oct 2004 15:04:47 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: mightyquinn@letterboxes.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make kbtab play nice with wacom_drv in Xorg/XFree86
+Message-ID: <20041020130447.GA8086@ucw.cz>
+References: <1098271641.26932.12.camel@sayuki>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410201452.01317.l_allegrucci@yahoo.it>
+In-Reply-To: <1098271641.26932.12.camel@sayuki>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 20, 2004 at 07:27:21AM -0400, Dave Ahlswede wrote:
 
-* Lorenzo Allegrucci <l_allegrucci@yahoo.it> wrote:
+> In its current state, the kbtab driver can be made to work with the
+> XF86/Xorg Wacom driver, but only once per modprobe. If X is restarted,
+> the driver won't report any input events. This is because the driver
+> always reports the pen tool as being in use, and the information doesn't
+> seem to be passed after the first time the device is opened.
+> 
+> This patch fixes the issue by causing the driver to briefly report the
+> pen not in use each time the device is opened. 
 
-> Process kIrDAd (pid: 1295, threadinfo=de848000 task=df3d6110)
+It's a bug in the X Wacom driver that it doesn't check the initial state
+of the tool. It should use EVIOCGKEY() to do that.
 
-> Call Trace:
->  [<e09119bb>] run_irda_queue+0x5b/0xd0 [sir_dev] (4)
->  [<c0111590>] mcount+0x14/0x18 (8)
->  [<e09119bb>] run_irda_queue+0x5b/0xd0 [sir_dev] (28)
->  [<e0911ae2>] irda_thread+0xb2/0xf0 [sir_dev] (24)
+A good way to get this working in the driver would be report the PEN
+tool as not in use when the position is invalid (the pen is not within
+reach), if that is possible with the hardware. It's what the bit should
+signify.
 
-ok - IRDA too needs fixing. Disable CONFIG_IRDA for the time being.
+> Also, while the specs say the tablet is supposed to have 256 levels of
+> pressure sensitivity, it only seems to report 0-127 on both tablets that
+> I have access to. This patch changes the reported bounds to cooperate
+> better with Gimp 2.1.
 
-	Ingo
+No problem with that.
+
+> To actually use this in X, it may require the latest stable driver from
+> http://linuxwacom.sourceforge.net
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

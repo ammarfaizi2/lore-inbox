@@ -1,84 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262952AbUDLRGv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 13:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbUDLRGv
+	id S262960AbUDLRFO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 13:05:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbUDLRFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 13:06:51 -0400
-Received: from fire.osdl.org ([65.172.181.4]:48015 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S262952AbUDLRGo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 13:06:44 -0400
-Subject: Re: 2.6.5-mm4 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040410200551.31866667.akpm@osdl.org>
-References: <20040410200551.31866667.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1081789601.1643.2.camel@cherrypit.pdx.osdl.net>
+	Mon, 12 Apr 2004 13:05:14 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:58633 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S262960AbUDLRFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 13:05:07 -0400
+Date: Mon, 12 Apr 2004 19:05:15 +0200
+From: DervishD <raul@pleyades.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Confused about 2.6 PnP support
+Message-ID: <20040412170515.GA670@DervishD>
+Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 12 Apr 2004 10:06:41 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi all :)
 
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+    I'm on the way of upgrading to 2.6.x kernel, and since I don't
+have ISA cards (I don't even have an ISA bus in my mobo), I disabled
+ISA support in my config (CONFIG_ISA), but I've noticed that PnP
+support (CONFIG_PNP) depends on it :?
 
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.5-mm4         0w/0e     0w/0e   120w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.5-mm3         0w/0e     1w/0e   121w/12e   7w/0e   3w/0e    123w/0e
-2.6.5-mm2         0w/0e     0w/0e   128w/12e   7w/0e   3w/0e    134w/0e
-2.6.5-mm1         0w/0e     5w/0e   122w/ 0e   7w/0e   3w/0e    124w/0e
-2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
-2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
-2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
-2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
-2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
-2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
-2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
-2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
-2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
-2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
-2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
-2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
-2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
-2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
-2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
-2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+    AFAIK, PnP, strictly speaking, has nothing to do with the PCI
+bus, but I think is common notation to talk about PnP referring
+autoconfiguration of PCI cards, and I want to know if I need to
+select PCI support for having my PCI cards correctly detected and
+configured (currently my BIOS does the work), or if the PnP support
+in kernel 2.6 is just for ISA cards. In addition to this, the PnP
+BIOS support (which I think I may need so Linux correctly gets the
+IO, IRQ and DMA settings for my parallel port) is marked as
+EXPERIMENTAL (at least in 2.6.5)
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
+    I want to know if I must tell my BIOS I don't have a PnP OS or
+if, on the contrary, I should tell my BIOS that my OS is not PnP (I
+only use Linux) and deselect PnP support (as well as ISA support) in
+my 2.6.x kernel. Personally, I don't mind setting 'Non PnP OS' in my
+BIOS and remove both CONFIG_ISA and CONFIG_PNP.
 
-John
+    BTW, ¿does Linux support rebalancing of PnP bus resources or I
+better avoid conflicts...?
 
+    Thanks a lot in advance :)
 
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

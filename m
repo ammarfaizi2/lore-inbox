@@ -1,62 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318044AbSGRMmC>; Thu, 18 Jul 2002 08:42:02 -0400
+	id <S318041AbSGRMpW>; Thu, 18 Jul 2002 08:45:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318042AbSGRMmC>; Thu, 18 Jul 2002 08:42:02 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:6334 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S318044AbSGRMmA>; Thu, 18 Jul 2002 08:42:00 -0400
-Date: Thu, 18 Jul 2002 15:02:42 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Dale Amon <amon@vnl.com>
-Cc: Frank Davis <fdavis@si.rr.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.24 : BusLogic cleanup
-In-Reply-To: <20020718111847.GF19403@vnl.com>
-Message-ID: <Pine.LNX.4.44.0207181458140.29194-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318042AbSGRMpW>; Thu, 18 Jul 2002 08:45:22 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:37857 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S318041AbSGRMpV>; Thu, 18 Jul 2002 08:45:21 -0400
+Date: Thu, 18 Jul 2002 14:16:59 +0200
+From: Richard Zidlicky 
+	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux m68k <linux-m68k@lists.linux-m68k.org>
+Subject: shm_close BUG, 2.4.18
+Message-ID: <20020718141659.A218@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jul 2002, Dale Amon wrote:
 
-> On Mon, Jun 24, 2002 at 01:07:18AM -0400, Frank Davis wrote:
-> > Hello all,
-> >   The following patch removes some unneccessary (it seems) typedefs, and 
-> > adds in the pci_set_dma_mask() check mentioned in 
-> > Documentation/DMA-mapping.txt . Please review.
+Hi,
 
-The driver needs more than just the dma mask set.
+I got postmaster->sys_exit->do_exit->mmput->exit_mmap->shm_close->BUG->Oops
+Is this a known issue?
 
-> Did your Buslogic patch ever get included? I'm still
-> getting errors compiling 2.5.x as of .26 last night:
+Not sure yet why postmaster (postgresql-server-7.1.3) wanted to exit and 
+it had nothing to do at that time. It appears some c++ compilation died 
+with a SEGV at the same time although nothing else indicates an oom
+(I have verified the compilation had enough swap).
 
-Probably didn't get in because the driver is still not compliant with the 
-new kernel requirements for PCI/DMA
-
-> BusLogic.c:32: #error Please convert me to Documentation/DMA-mapping.txt
-> BusLogic.c: In function `BusLogic_DetectHostAdapter':
-> BusLogic.c:2841: warning: long unsigned int format, BusLogic_IO_Address_T arg (arg 2)
-> BusLogic.c: In function `BusLogic_QueueCommand':
-> BusLogic.c:3415: structure has no member named `address'
-
-That probably wants sg_dma_address()
-
-> BusLogic.c: In function `BusLogic_BIOSDiskParameters':
-> BusLogic.c:4141: warning: implicit declaration of function `scsi_bios_ptable'
-> BusLogic.c:4141: warning: assignment makes pointer from integer without a cast
-> make[2]: *** [BusLogic.o] Error 1
-> 
-> Given that your patch was against .24, I would guess
-> it should be "relatively" safe against a .26 since it's
-> only driver code that everyone else seems to be ignoring.
-
-Well its not the friendliest code either ;)
-
-Cheers,
-	Zwane Mwaikambo
-
--- 
-function.linuxpower.ca
-
+Richard

@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUCALff (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 06:35:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbUCALfe
+	id S261166AbUCALhL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 06:37:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbUCALhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 06:35:34 -0500
-Received: from hell.org.pl ([212.244.218.42]:29449 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S261184AbUCALf2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 06:35:28 -0500
-Date: Mon, 1 Mar 2004 12:35:29 +0100
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Michael Frank <mhf@linuxmail.org>, Micha Feigin <michf@post.tau.ac.il>,
-       Software suspend <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Swsusp-devel] Re: Dropping CONFIG_PM_DISK?
-Message-ID: <20040301113528.GA21778@hell.org.pl>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Michael Frank <mhf@linuxmail.org>,
-	Micha Feigin <michf@post.tau.ac.il>,
-	Software suspend <swsusp-devel@lists.sourceforge.net>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <1ulUA-33w-3@gated-at.bofh.it> <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz> <yw1x4qt93i6y.fsf@kth.se> <opr348q7yi4evsfm@smtp.pacific.net.th> <20040229213302.GA23719@luna.mooo.com> <opr35wvvrw4evsfm@smtp.pacific.net.th> <1078139361.21578.65.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <1078139361.21578.65.camel@gaston>
-User-Agent: Mutt/1.4.2i
+	Mon, 1 Mar 2004 06:37:11 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:56002 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261166AbUCALhG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 06:37:06 -0500
+Message-ID: <4043205C.7050109@cyberone.com.au>
+Date: Mon, 01 Mar 2004 22:37:00 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] SMT Nice 2.6.4-rc1-mm1
+References: <200403011752.56600.kernel@kolivas.org> <200403012225.59538.kernel@kolivas.org>
+In-Reply-To: <200403012225.59538.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Benjamin Herrenschmidt:
-> > - that 2.4 style PM got depreciated and let die before the
-> >    "new-driver-model" PM is workin
-> Except that it never worked
-> > - that perfectly good drivers were rewritten from scratch,
-> >    but without functioning PM support
-> Please, give names.
 
-USB UHCI driver could be a fine example of a regression -- it could survive
-suspend in 2.4 under certain conditions, this is no longer true for 2.6.
 
-There's also a great deal of people, who can't resume when AGP is being 
-used -- that is again a regression over 2.4.
+Con Kolivas wrote:
 
-The above are major showstoppers for most laptop users that already got
-used to stable and reliable swsusp and hence prefer to stick with 2.4.
+>On Mon, 1 Mar 2004 05:52 pm, Con Kolivas wrote:
+>
+>>This patch provides full per-package priority support for SMT processors
+>>(aka pentium4 hyperthreading) when combined with CONFIG_SCHED_SMT.
+>>
+>
+>And here are some benchmarks to demonstrate what happens. 
+>P4 3.06Ghz booted with bios HT off as UP (up), SMP with mm1(mm1), SMP with 
+>mm1-smtnice(sn)
+>
+>
 
-Best regards,
+Pretty impressive numbers.
 
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+How does it go on the desktop when running mprime at nice +19?
+How much worse can latencies of the niced tasks become? Any idea?
+

@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261403AbSJCXpA>; Thu, 3 Oct 2002 19:45:00 -0400
+	id <S261507AbSJCXrn>; Thu, 3 Oct 2002 19:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261373AbSJCXpA>; Thu, 3 Oct 2002 19:45:00 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:29193 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S261403AbSJCXo7>; Thu, 3 Oct 2002 19:44:59 -0400
-Date: Fri, 4 Oct 2002 00:50:23 +0100
-From: John Levon <levon@movementarian.org>
-To: Dave Jones <davej@codemonkey.org.uk>, Robert Love <rml@tech9.net>,
-       Greg KH <greg@kroah.com>, kernel <linux-kernel@vger.kernel.org>
-Subject: Re: export of sys_call_table
-Message-ID: <20021003235022.GA82187@compsoc.man.ac.uk>
-References: <20021003153943.E22418@openss7.org> <20021003221525.GA2221@kroah.com> <20021003222716.GB14919@suse.de> <1033684027.1247.43.camel@phantasy> <20021003233504.GA20570@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021003233504.GA20570@suse.de>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *17xFjb-000G2u-00*1PVvwOG9g.I* (Manchester Computing, University of Manchester)
+	id <S261508AbSJCXrn>; Thu, 3 Oct 2002 19:47:43 -0400
+Received: from pc132.utati.net ([216.143.22.132]:58784 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S261507AbSJCXrm>; Thu, 3 Oct 2002 19:47:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Daniel Phillips <phillips@arcor.de>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] In-kernel module loader 1/7
+Date: Thu, 3 Oct 2002 14:53:02 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+References: <20020919125906.21DEA2C22A@lists.samba.org> <20020919201140.GB17131@kroah.com> <E17w2XF-0005oW-00@starship>
+In-Reply-To: <E17w2XF-0005oW-00@starship>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20021003235152.B41E3397@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 12:35:04AM +0100, Dave Jones wrote:
+On Monday 30 September 2002 11:32 am, Daniel Phillips wrote:
 
-> Hrmmm, HEAD CVS from a few minutes ago still does.
-> John's work on getting things done correctly for 2.6 doesn't
-> change the fact that it's buggered on Red Hat's 2.4 kernel.
-> Or does it ?
+> Not being able to unload LSM would suck enormously.  At last count, we
+> knew how to do this:
+>
+>   1) Unhook the function hooks (using a call table simplifies this)
+>   2) Schedule on each CPU to ensure all tasks are out of the module
+>   3) A schedule where the module count is incremented doesn't count
+>
+> and we rely on the rule that and module code that could sleep must be
+> bracketed by inc/dec of the module count.
+>
+> Did somebody come up with a reason why this will not work?
 
-Right, it's buggered on Red Hat's kernel. Not really a problem; they
-have a bugzilla and it's not big deal to redirect users there.
+Preemption?
 
-Actually what I'd really like is for the Red Hat people to backport the
-patch. It shouldn't be too hard.
+Scheduling doesn't guarantee making any specific amount of progress within 
+the kernel with preemption enabled.  I thought the preferred strategy was to 
+wait for the time slices to refill and then exhaust (since everybody has to 
+exhaust their time slices before anybody gets new ones.  Unless I've missed 
+something...?)
 
-This doesn't change the situation for users on other 2.4 kernels, of
-course. But sys_call_table is still there for them.
-
-regards
-john
-
--- 
-"Me and my friends are so smart, we invented this new kind of art:
- Post-modernist throwing darts"
-	- the Moldy Peaches
+Rob

@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266010AbUA1TZH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 14:25:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUA1TYp
+	id S266037AbUA1Til (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 14:38:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266132AbUA1Til
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 14:24:45 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:5855 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S266010AbUA1TYM (ORCPT
+	Wed, 28 Jan 2004 14:38:41 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:64522 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S266037AbUA1Tik (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 14:24:12 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Wed, 28 Jan 2004 14:38:40 -0500
+Date: Wed, 28 Jan 2004 20:45:49 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: some combinations of make targets do not work anymore
+Message-ID: <20040128194549.GB2695@mars.ravnborg.org>
+Mail-Followup-To: Olaf Hering <olh@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <20040128180111.GA23021@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16408.3157.336306.812481@napali.hpl.hp.com>
-Date: Wed, 28 Jan 2004 11:24:05 -0800
-To: Andi Kleen <ak@suse.de>
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, iod00d@hp.com,
-       ishii.hironobu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
-In-Reply-To: <20040128195246.47a84498.ak@suse.de>
-References: <00a201c3e541$c0e7d680$2987110a@lsd.css.fujitsu.com>
-	<20040128172004.GB5494@cup.hp.com>
-	<20040128184137.616b6425.ak@suse.de>
-	<16408.30.896895.980121@napali.hpl.hp.com>
-	<20040128195246.47a84498.ak@suse.de>
-X-Mailer: VM 7.17 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20040128180111.GA23021@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 28 Jan 2004 19:52:46 +0100, Andi Kleen <ak@suse.de> said:
+On Wed, Jan 28, 2004 at 07:01:11PM +0100, Olaf Hering wrote:
+> 
+> Stuff like that used to work with 2.4 kernels, 2.6.2-rc2-mm2 runs make
+> oldconfig and depmod, but 'all' and 'modules_install' is not executed.
+> Bug or feature? target is ppc32.
 
-  >> I find this comment interesting.  Can you elaborate what you mean by
-  >> "slightly buggy systems"?
+Unexpected to say it. I have noticed some time ago, but since noone complained...
+I will take a look.
 
-  Andi> e.g. one bit ECC errors in memory are quite common.  And with
-  Andi> ECC memory they are not really fatal.
-
-Yet they are a good indicator that something is wrong (not performing
-properly) or may be failing soon.  I don't think putting on blinders
-for such problems is a good idea.  Though I agree that the question of
-how to report such things without needlessly alerting Joe Clueless is
-an interesting challenge.
-
-	--david
+	Sam

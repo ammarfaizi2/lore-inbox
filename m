@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312353AbSCYThk>; Mon, 25 Mar 2002 14:37:40 -0500
+	id <S312516AbSCYTmK>; Mon, 25 Mar 2002 14:42:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312517AbSCYThV>; Mon, 25 Mar 2002 14:37:21 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55310 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S312353AbSCYThK>; Mon, 25 Mar 2002 14:37:10 -0500
-Date: Mon, 25 Mar 2002 14:34:30 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE and hot-swap disk caddies
-In-Reply-To: <E16pWpL-0000pg-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1020325141655.4219A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312517AbSCYTmA>; Mon, 25 Mar 2002 14:42:00 -0500
+Received: from NEVYN.RES.CMU.EDU ([128.2.145.6]:31393 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id <S312516AbSCYTlq>;
+	Mon, 25 Mar 2002 14:41:46 -0500
+Date: Mon, 25 Mar 2002 14:40:24 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Brian S Queen <bqueen@nas.nasa.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dnotify header question
+Message-ID: <20020325144024.A16694@nevyn.them.org>
+Mail-Followup-To: Brian S Queen <bqueen@nas.nasa.gov>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200203251817.KAA04773@octane12.nas.nasa.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Mar 2002, Alan Cox wrote:
-
-> > The device is hot-swap capable and has a switch (others have a key) 
-> > that locks the drive in and powers it up; in the other position the 
-> > drive is powered down and can be removed.
+On Mon, Mar 25, 2002 at 10:17:54AM -0800, Brian S Queen wrote:
+> I apologize if this is a repeat question.  I didn't see my own question
+> come by on the mailing list though.
 > 
-> Linux doesn't support IDE hot swap at the drive level. Its basically
-> waiting people to want it enough to either fund it or go write the code
+> I have been wondering how to get the new dnotify parts currently in
+> <linux/fcntl.h> into <fcntl.h>.  I have recompiled and entirley rebuilt
+> gcc with the --with-headers option in an effort to get it to
+> incorporate the new stuff from <linux/fcntl.h>.  Is this an false
+> expectation?  Do I have to submit the changes to the glibc folks to get
+> them into the <fcntl.h>?
 
-  The way you say that makes me think that it does support at some other
-level... hot swap controller? Doesn't match MY hardware. Hot swap
-partitions? While I get amusing imaginations of cutting and pasting thin
-film off a platter, I guess that's not it either. Media? Unless some hot
-swap were to totally duplicate the IDE-FLOPPY code, I don't see that
-either.
-
-  Actually, I'm almost sure that I have booted a system with a drive in,
-unregistered it, swapped it, and reregistered it. Unfortunately that
-system is in a closet and hundreds of miles away, so I won't just check
-right now. But it was built on a junk 486 just to allow insertion of a
-pile of old 360 and 520MB drives which were being backed up to CD without
-even checking the contents, just so the drives could be recycled.
-
-  Since the project was closed and I got paid, I assume that worked. 
-Either that or the part-timer who did the work shipped about 70 copies of
-the bad music he liked and the client never looked :-(
+Yes, you do.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Daniel Jacobowitz                           Carnegie Mellon University
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129255AbQKSKFM>; Sun, 19 Nov 2000 05:05:12 -0500
+	id <S129152AbQKSKiD>; Sun, 19 Nov 2000 05:38:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129157AbQKSKFD>; Sun, 19 Nov 2000 05:05:03 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:35588 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129255AbQKSKE6>;
-	Sun, 19 Nov 2000 05:04:58 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Vincent <dtig@ihug.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: mount /mnt/cdrom ok!but ls segmentation fault... 
-In-Reply-To: Your message of "Sun, 19 Nov 2000 20:28:39 +1100."
-             <3A179D47.3CAAF427@ihug.com.au> 
-Mime-Version: 1.0
+	id <S129157AbQKSKhy>; Sun, 19 Nov 2000 05:37:54 -0500
+Received: from e35.marxmeier.com ([194.64.71.4]:31248 "EHLO e35.marxmeier.com")
+	by vger.kernel.org with ESMTP id <S129152AbQKSKhn>;
+	Sun, 19 Nov 2000 05:37:43 -0500
+Message-ID: <3A17A667.EED80785@marxmeier.com>
+Date: Sun, 19 Nov 2000 11:07:35 +0100
+From: Michael Marxmeier <mike@marxmeier.com>
+Organization: Marxmeier Software AG
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18pre22
+In-Reply-To: <E13xJ14-0002Do-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 19 Nov 2000 20:34:50 +1100
-Message-ID: <3677.974626490@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Nov 2000 20:28:39 +1100, 
-Vincent <dtig@ihug.com.au> wrote:
->Nov 19 19:46:47 darkstar kernel: Unable to handle kernel paging request
->at virtual address dfdfdfc4
->Nov 19 19:46:47 darkstar kernel: *pde = 00000000
->EIP: 0010:[<c486d5a7>]
+Compile failed:
 
-See linux/REPORTING-BUGS.
+megaraid.c: In function `mega_findCard':
+megaraid.c:1906: warning: implicit declaration of function
+`pci_resource_start'
 
+drivers/scsi/scsi.a(megaraid.o): In function `mega_findCard':
+megaraid.o(.text+0x19a7): undefined reference to `pci_resource_start'
+
+Seems a #include <linux/kcomp.h> is missing here.
+
+
+Michael
+
+-- 
+Michael Marxmeier           Marxmeier Software AG
+E-Mail: mike@marxmeier.com  Besenbruchstrasse 9
+Phone : +49 202 2431440     42285 Wuppertal, Germany
+Fax   : +49 202 2431420     http://www.marxmeier.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

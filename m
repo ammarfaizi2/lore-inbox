@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289046AbSBSAQp>; Mon, 18 Feb 2002 19:16:45 -0500
+	id <S289053AbSBSASp>; Mon, 18 Feb 2002 19:18:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289053AbSBSAQf>; Mon, 18 Feb 2002 19:16:35 -0500
-Received: from holomorphy.com ([216.36.33.161]:64142 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S289046AbSBSAQ1>;
-	Mon, 18 Feb 2002 19:16:27 -0500
-Date: Mon, 18 Feb 2002 16:16:14 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [TEST] page tables filling non-highmem
-Message-ID: <20020219001614.GO2114@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020219000318.GE3511@holomorphy.com> <Pine.LNX.4.33.0202181914350.5124-100000@coffee.psychology.mcmaster.ca>
+	id <S289055AbSBSASf>; Mon, 18 Feb 2002 19:18:35 -0500
+Received: from due.stud.ntnu.no ([129.241.56.71]:46533 "EHLO due.stud.ntnu.no")
+	by vger.kernel.org with ESMTP id <S289053AbSBSASZ>;
+	Mon, 18 Feb 2002 19:18:25 -0500
+Date: Tue, 19 Feb 2002 01:18:23 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Broadcom 5700/5701 Gigabit Ethernet Adapters
+Message-ID: <20020219011823.A28861@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E16bhwo-0007GZ-00@bronto.zrz.TU-Berlin.DE> <3C6D07B9.596AD49E@mandrakesoft.com> <20020215153604.A29642@stud.ntnu.no> <20020215.122047.41633873.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0202181914350.5124-100000@coffee.psychology.mcmaster.ca>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020215.122047.41633873.davem@redhat.com>; from davem@redhat.com on Fri, Feb 15, 2002 at 12:20:47PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 18, 2002 at 07:15:02PM -0500, Mark Hahn wrote:
->> 	fd = open("/home/wli/bench/mapfile", O_RDWR|O_LARGEFILE);
-> 
-> well, speaking as a member of the GP, I resent having to give you an account ;)
-> 
+David S. Miller:
+> No, we've been reverse engineering the hardware using the sources of
+> Broadcom's driver.  This is why the work is taking so long.
 
+Ok, I've downloaded the driver, and tried building as a modue to a
+2.4.17-kernel. It segfaulted when I tried loading it (since it says it's not
+done, I wasn't expecting it to work :).  However, my question is; how do you
+guys develope network drivers, for instance?  I mean, in order to test a new
+version (after the first has segfaulted), I need to reboot.  
 
-Things like this are supposed to deter casual users from attempting to use
-it on their own machines. There are also other issues I will not elaborate
-that will prevent the testcase from running unless addressed.
+I've got the broadcom-version dated 2th january 2002, and wanted to try and
+implement small parts of missing code, mostly for educational purposes to
+learn more about kernel programming.
 
-Those who understand them, please do not publicly give directions on
-how to address those issues.
-
-
-Cheers,
-Bill
+-- 
+Thomas

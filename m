@@ -1,86 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268419AbUHLB1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268396AbUHLBdX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268419AbUHLB1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 21:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268308AbUHLBZz
+	id S268396AbUHLBdX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 21:33:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268355AbUHLBdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 21:25:55 -0400
-Received: from mail016.syd.optusnet.com.au ([211.29.132.167]:63934 "EHLO
-	mail016.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S268407AbUHKXmv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 19:42:51 -0400
-Message-ID: <411AAEDA.9070601@kolivas.org>
-Date: Thu, 12 Aug 2004 09:42:18 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Wed, 11 Aug 2004 21:33:22 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:34748 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268350AbUHLB0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 21:26:47 -0400
+Message-ID: <411AC750.3040809@yahoo.com.au>
+Date: Thu, 12 Aug 2004 11:26:40 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler fairness problem on 2.6 series
-References: <20040811022143.4892.qmail@web13910.mail.yahoo.com> <cone.1092193795.772385.25569.502@pc.kolivas.org> <4119F3D9.7040708@gmx.de> <411A024B.6060100@kolivas.org> <411A0B71.4030503@gmx.de> <411A71F1.3090504@gmx.de>
-In-Reply-To: <411A71F1.3090504@gmx.de>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig6DF8DDF4BC8D83FEE96BD6FC"
+To: gene.heskett@verizon.net
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>,
+       Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: Possible dcache BUG
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <Pine.LNX.4.58.0408102201510.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408102213250.1839@ppc970.osdl.org> <200408111037.56062.gene.heskett@verizon.net>
+In-Reply-To: <200408111037.56062.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig6DF8DDF4BC8D83FEE96BD6FC
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Gene Heskett wrote:
 
-Prakash K. Cheemplavam wrote:
-> |
-> | I don't think it is the overhead. I rather think the way the kernel
-> | schedulers gives mpich and the cpu bound program  resources is unfair.
-> 
-> Well, I don't know whether it helps, but I ran a profiler and these are
-> the functions which cause so much wasted CPU cycles when running 16
-> processes of my example with mpich:
-> 
-> 124910    9.8170  vmlinux                  tcp_poll
-> 123356    9.6949  vmlinux                  sys_select
-> 85634     6.7302  vmlinux                  do_select
-> 71858     5.6475  vmlinux                  sysenter_past_esp
-> 62093     4.8801  vmlinux                  kfree
-> 51658     4.0600  vmlinux                  __copy_to_user_ll
-> 37495     2.9468  vmlinux                  max_select_fd
-> 36949     2.9039  vmlinux                  __kmalloc
-> 22700     1.7841  vmlinux                  __copy_from_user_ll
-> 14587     1.1464  vmlinux                  do_gettimeofday
-> 
-> Is anything scheduler related?
+>On Wednesday 11 August 2004 01:15, Linus Torvalds wrote:
+>
+>>On Tue, 10 Aug 2004, Linus Torvalds wrote:
+>>
+>>>So I suspect it's a balancing issue. Possibly just the slight
+>>>change in slab balancing to fix the highmem problems. Maybe we
+>>>shrink slab _too_ aggressively or something.
+>>>
+>>Udo, that's a simple thing to check. If it's the slab balancing
+>>changes, then you should be able to test it with just a
+>>
+>>	bk cset -x1.1830.4.3
+>>
+>>if you have the current BK and are a BK user, or by just revertign
+>>the patch here ("patch -R -p1" from inside your linux source tree)
+>>if you're not a BK user..
+>>
+>>		Linus
+>>
+>>
+>With the previously attached patch reverted, a fresh kernel builds in:
+>real    7m18.296s
+>user    5m49.385s
+>sys     0m31.760s
+>which is a marked improvement, but still about 1m30 or so slow.
+>
+>
 
-No
+This could easily be from too much slab pressure. How much memory do you 
+have?
+Have you got highmem turned on?
 
-It looks like your select timeouts are too short and when the cpu load 
-goes up they repeatedly timeout wasting cpu cycles.
-I quote from `man select_tut` under the section SELECT LAW:
+The new slab pressure calculation is an improvement in that it won't let 
+slab
+get out of control and cause OOMs, however it can shrink the slab too much.
+If you regularly need ZONE_DMA pages, for example. AFAIKS there isn't 
+much you
+can do about this except go to per-zone slab LRUs.
 
-1. You should always try use select without a timeout. Your program
-  should have nothing to do if there is no  data  available.  Code
-  that  depends  on timeouts is not usually portable and difficult
-  to debug.
+That said, your stability problems should be resolved first. If they are 
+fixed,
+and you would like to help track down the slowdown, run the kernel 
+compile about
+3 times each with and without the patch, and save cat /proc/vmstat 
+before and
+after each compile. Try to keep all else constant.
 
-Cheers,
-Con
+Thanks
+Nick
 
---------------enig6DF8DDF4BC8D83FEE96BD6FC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBGq7cZUg7+tp6mRURAuH1AJ9dz8ONSdg9XsB31KOzMFeFyQJnQwCffQVf
-tYLPQK1+uovX9ux/3961TfQ=
-=Qohq
------END PGP SIGNATURE-----
-
---------------enig6DF8DDF4BC8D83FEE96BD6FC--

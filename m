@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315988AbSHFWYP>; Tue, 6 Aug 2002 18:24:15 -0400
+	id <S316135AbSHFWZI>; Tue, 6 Aug 2002 18:25:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316135AbSHFWYP>; Tue, 6 Aug 2002 18:24:15 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:59903 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S315988AbSHFWYO>;
-	Tue, 6 Aug 2002 18:24:14 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Wed, 7 Aug 2002 00:27:46 +0200 (MEST)
-Message-Id: <UTC200208062227.g76MRk407059.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [bug, 2.5.29, IDE] partition table corruption?
-Cc: dalecki@evision.ag
+	id <S316210AbSHFWZH>; Tue, 6 Aug 2002 18:25:07 -0400
+Received: from jalon.able.es ([212.97.163.2]:28375 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316135AbSHFWZE>;
+	Tue, 6 Aug 2002 18:25:04 -0400
+Date: Wed, 7 Aug 2002 00:28:32 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Austin Gonyou <austin@digitalroadkill.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 See's incorrect cache size on P4 Xeons!?
+Message-ID: <20020806222832.GA2733@werewolf.able.es>
+References: <1028669517.6549.100.camel@UberGeek.coremetrics.com> <1028675096.18156.220.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1028675096.18156.220.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Aug 07, 2002 at 01:04:56 +0200
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar writes:
 
-> using 2.5.29 (vanilla or BK-curr) i cannot use /sbin/lilo anymore
-> to update the partition table.
+On 2002.08.07 Alan Cox wrote:
+>
+>> On boot each processor is says it has 1MB L3, is 2.4.19 unable to read
+>> that or something?
+>
+>At the moment we report the L1/L2 - we don't actually go decoding L3
+>caches. They are quite new. We should do however.
+>
 
-> if i do it then the partition table gets corrupted and the system
-> does not boot - it stops at 'LI'.
+???
 
-The standard explanation is that LILO cannot find the second stage
-loader, like you say, and that happens because it looks in the wrong
-place. For example, because it stores CHS coordinates in the wrong
-geometry. (But it can also happen because something changed in the
-disk numbering.)
+P4 Xeon 1.8:
 
-"Corruption" of the partition table is to be expected only if you
-ask LILO to rewrite the (CHS part of) the partition table.
+processor       : 3
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) XEON(TM) CPU 1.80GHz
+stepping        : 4
+cpu MHz         : 1784.295
+cache size      : 512 KB   <================
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 3565.15
 
-The funny thing is, I removed some stuff here in 2.5.30,
-so I would understand things immediately if you reported this
-about 2.5.30. But for 2.5.29 I do not immediately see why
-you would see any changes.
+Oops, model is different....
 
-Did you in the meantime find out what was wrong?
+God save us from PC hardware manufacturers. A Xeon is not just a Xeon.
 
-Are things OK in 2.5.28 and wrong in vanilla 2.5.29
-with the same version of LILO? (which version?)
-
-Do you use the linear or lba32 options? The fix-table option?
-
-What corruption do you see in the partition table?
-
-Do you use LVM?
-
-What happens under 2.5.30?
-
-Andries
+-- 
+J.A. Magallon             \   Software is like sex: It's better when it's free
+mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
+Linux werewolf 2.4.19-jam0, Mandrake Linux 9.0 (Cooker) for i586
+gcc (GCC) 3.2 (Mandrake Linux 9.0 3.2-0.2mdk)

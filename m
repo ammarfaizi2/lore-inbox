@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbUL3QF3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbUL3QHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbUL3QF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 11:05:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUL3QF2
+	id S261662AbUL3QHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 11:07:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbUL3QHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 11:05:28 -0500
-Received: from mail.tmr.com ([216.238.38.203]:10695 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261667AbUL3QFJ (ORCPT
+	Thu, 30 Dec 2004 11:07:16 -0500
+Received: from rproxy.gmail.com ([64.233.170.196]:54356 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261662AbUL3QHG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 11:05:09 -0500
-Message-ID: <41D429C3.8010805@tmr.com>
-Date: Thu, 30 Dec 2004 11:16:03 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>, kernel@kolivas.org,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: Trying out SCHED_BATCH
-References: <4d8e3fd304122923127167067c@mail.gmail.com><m3mzw262cu.fsf@rajsekar.pc> <20041229232028.055f8786.akpm@osdl.org>
-In-Reply-To: <20041229232028.055f8786.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 30 Dec 2004 11:07:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=YaP1mPpBE4tgajrftDxiphVnF9+vtefJ1nOeTpa4r/euQH9AKRfen/dBbYY6QzysQy6/yrbKg8S0mC/wKXKWNDdb4z2gU4Q+IyYp5J+Sj3TwXTq4JUyBdYY00ImemRVJy3cWkgxkNb8En28bOXthttVxNpHKbBxOfFvmZ/IZHEE=
+Message-ID: <105c793f041230080734d71c4a@mail.gmail.com>
+Date: Thu, 30 Dec 2004 11:07:06 -0500
+From: Andrew Haninger <ahaning@gmail.com>
+Reply-To: Andrew Haninger <ahaning@gmail.com>
+To: hps@intermeta.de
+Subject: Re: Fwd: Toshiba PS/2 touchpad on 2.6.X not working along bottom and right sides
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <cr16ho$eh1$1@tangens.hometree.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <105c793f04122907116b571ebf@mail.gmail.com>
+	 <105c793f041230065818ba608f@mail.gmail.com>
+	 <cr16ho$eh1$1@tangens.hometree.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+On Thu, 30 Dec 2004 15:23:36 +0000 (UTC), Henning P. Schmiedehausen
+<hps@intermeta.de> wrote:
+> This might be a touchpad that simulates the scroll wheel on the right
+> side and horizontal scrolling on the bottom.
 > 
->>Andrew, 
->> what's your plan for the staircase scheduler ?
+> Does your touchpad emit mouse button events when touching on the
+> right / bottom side?
 > 
-> 
-> I have none, frankly.  I haven't seen any complaints about the current
-> scheduler.
-> 
-> If someone can identify bad behaviour in the current scheduler which
-> staircase improves then please describe a tescase which the scheduler
-> developers can use to reproduce the situation.
+> I have a Toshiba Satellite with another touchpad (a Synaptics) and
+> this can be programmed to do so. I'd think that Toshiba noadays uses
+> touchpads that have this hard-coded (maybe there is a command to turn
+> this on/off).
+I have a ThinkPad T42 that can do this, as well, and this is what I
+thought when I first encountered this problem. However, I've had this
+Gateway laptop since about 1999 and it hasn't done this since. Not in
+2.2 or 2.4.
 
-Of course that may result in just another band-aid on the current 
-scheduler rather than a change.
-> 
-> If, after that, we deem that the problem cannot be feasibly fixed within the
-> context of the current scheduler and that the problem is sufficiently
-> serious to justify wholesale replacement of the scheduler then sure,
-> staircase is an option.
+Also, like I said, xev produced no output when I touched and dragged
+in the offending areas.
 
-More to the point, was there a problem with plugable schedulers? It 
-would be both technically and politically better to let people try, use, 
-and write schedulers for special case loads, just as we have for io 
-scheduling.
+If this really is an added feature and there's a way to turn it off,
+that would be okay. Having it off by default would be best since it's
+seemingly a changed behavior between one kernel version and another
+(also, I hate that feature :) ).
 
-I didn't find staircase to be the solution to any of my problems, but it 
-would be nice to let all the people who are improving schedulers have an 
-easy way to try new ideas (easier than building a whole new kernel, that 
-is).
-
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+--
+Andy

@@ -1,36 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264640AbUFXSqC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264641AbUFXSql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264640AbUFXSqC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 14:46:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUFXSqC
+	id S264641AbUFXSql (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 14:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUFXSqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 14:46:02 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:7916
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264640AbUFXSom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 14:44:42 -0400
-Date: Thu, 24 Jun 2004 20:44:47 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andi Kleen <ak@suse.de>, ak@muc.de, tripperda@nvidia.com,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: 32-bit dma allocations on 64-bit platforms
-Message-ID: <20040624184447.GW30687@dualathlon.random>
-References: <20040623234644.GC38425@colin2.muc.de> <s5hhdt1i4yc.wl@alsa2.suse.de> <20040624112900.GE16727@wotan.suse.de> <s5h4qp1hvk0.wl@alsa2.suse.de> <20040624164258.1a1beea3.ak@suse.de> <s5hy8mdgfzj.wl@alsa2.suse.de> <20040624152946.GK30687@dualathlon.random> <s5hsmclgcwl.wl@alsa2.suse.de> <20040624171620.GN30687@dualathlon.random> <s5hbrj8hkm9.wl@alsa2.suse.de>
+	Thu, 24 Jun 2004 14:46:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:25805 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264641AbUFXSqW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 14:46:22 -0400
+Date: Thu, 24 Jun 2004 11:44:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jack Steiner <steiner@sgi.com>
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] - Reduce TLB flushing during process migration
+Message-Id: <20040624114449.47fe2f67.akpm@osdl.org>
+In-Reply-To: <20040624125544.GA15742@sgi.com>
+References: <20040623143844.GA15670@sgi.com>
+	<20040623143318.07932255.akpm@osdl.org>
+	<20040624125544.GA15742@sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5hbrj8hkm9.wl@alsa2.suse.de>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 08:33:02PM +0200, Takashi Iwai wrote:
-> Sure, in extreme cases, it can't work.  But at least, it _may_ work
-> better than using only GFP_DMA.  And indeed it should (still) work
-> on most of consumer PC boxes.  The addition of another zone would help
-> much better, though.
+Jack Steiner <steiner@sgi.com> wrote:
+>
+> On Wed, Jun 23, 2004 at 02:33:18PM -0700, Andrew Morton wrote:
+> > Jack Steiner <steiner@sgi.com> wrote:
+> > >
+> > > This patch adds a platform specific hook to allow an arch-specific
+> > > function to be called after an explicit migration.
+> > 
+> > OK by me.  David, could you please merge this up?
+> > 
+> > Jack, please prepare an update for Documentation/cachetlb.txt.
+> 
+> 
+> ...
+> +7) void tlb_migrate_finish(struct mm_struct *mm)
+> +
+> +	This interface is called at the end of an explicit
+> +	process migration. This interface provides a hook 
+> +	to allow a platform to update TLB or context-specific 
+> +	information for the address space.
+> +
+> +	The ia64 sn2 platform is one example of a platform
+> +	that uses this interface.
 
-of course agreed.
+Ok...  But the code is still calling flush_tlb_mm() from within
+set_cpus_allowed() on non-ia64 platforms, which I believe is unnecessary.
+
+And it's calling it with a null pointer for kernel threads, which oopses on
+i386.  We went over this weeks ago.
+
+Shouldn't asm-generic.h be doing
+
+	#define tlb_migrate_finish(mm)	do {} while (0)
+
+?
+ 

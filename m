@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264414AbUFGNIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264731AbUFGNMH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264414AbUFGNIM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 09:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264635AbUFGMUg
+	id S264731AbUFGNMH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 09:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUFGNLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 08:20:36 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:50816 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264505AbUFGLzh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 07:55:37 -0400
-To: torvalds@osdl.org, akpm@osdl.org, vojtech@ucw.cz,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-Message-Id: <10866093522124@twilight.ucw.cz>
-From: Vojtech Pavlik <vojtech@suse.cz>
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <10866093523469@twilight.ucw.cz>
+	Mon, 7 Jun 2004 09:11:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6124 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264505AbUFGMU7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 08:20:59 -0400
+Date: Mon, 7 Jun 2004 14:20:47 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Russell Leighton <russ@elegant-software.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Using getpid() often, another way? [was Re: clone() <->	getpid() bug in 2.6?]
+Message-ID: <20040607122046.GC9835@devserv.devel.redhat.com>
+References: <40C1E6A9.3010307@elegant-software.com> <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org> <40C32A44.6050101@elegant-software.com> <40C33A84.4060405@elegant-software.com> <1086537490.3041.2.camel@laptop.fenrus.com> <40C3B22D.8080308@elegant-software.com>
 Mime-Version: 1.0
-Date: Mon, 7 Jun 2004 13:55:52 +0200
-Subject: [PATCH 3/39] input: Fix emulation of mouse reset (0xff) command.
-X-Mailer: gregkh_patchbomb_levon_offspring
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="raC6veAxrt5nqIoY"
+Content-Disposition: inline
+In-Reply-To: <40C3B22D.8080308@elegant-software.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input-for-linus
 
-===================================================================
+--raC6veAxrt5nqIoY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-ChangeSet@1.1371.691.1, 2004-04-05 17:39:48+02:00, vojtech@suse.cz
-  input: Fix emulation of mouse reset (0xff) command.
+On Sun, Jun 06, 2004 at 08:09:17PM -0400, Russell Leighton wrote:
+> >a library using clone sounds suspect to me, I can't imagine an app using
+> >pthreads being able to just use your library as a result.
+> >
+> Why? In  what way would a program that uses pthreads interfere with 
+> threads created using clone()?
 
+you do all kinds of tricks behind the threading library's back, and share
+some stuff while not others. I'd be suprised of that would NOT break.
 
- mousedev.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+--raC6veAxrt5nqIoY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-===================================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-diff -Nru a/drivers/input/mousedev.c b/drivers/input/mousedev.c
---- a/drivers/input/mousedev.c	2004-06-07 13:13:38 +02:00
-+++ b/drivers/input/mousedev.c	2004-06-07 13:13:38 +02:00
-@@ -391,9 +391,9 @@
- 				list->impsseq = 0;
- 				list->imexseq = 0;
- 				list->mode = 0;
--				list->ps2[0] = 0xaa;
--				list->ps2[1] = 0x00;
--				list->bufsiz = 2;
-+				list->ps2[1] = 0xaa;
-+				list->ps2[2] = 0x00;
-+				list->bufsiz = 3;
- 				break;
- 		}
- 
+iD8DBQFAxF2exULwo51rQBIRAvWLAJ0Zq7Exvk5s0Ge2ZnUeTLXQdEMcJQCfcLyI
+VxeApejxyG3WfR+RVeUgY14=
+=2rp+
+-----END PGP SIGNATURE-----
 
+--raC6veAxrt5nqIoY--

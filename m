@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264332AbTDWXzk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 19:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264336AbTDWXzj
+	id S264339AbTDXAFj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 20:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTDXAFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 19:55:39 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:62694 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264332AbTDWXzf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 19:55:35 -0400
-Date: Wed, 23 Apr 2003 16:57:05 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Pavel Machek <pavel@ucw.cz>, "Grover, Andrew" <andrew.grover@intel.com>
-cc: Nigel Cunningham <ncunningham@clear.net.nz>,
-       Marc Giger <gigerstyle@gmx.ch>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
+	Wed, 23 Apr 2003 20:05:39 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:51843 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S264339AbTDXAFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 20:05:38 -0400
+Date: Thu, 24 Apr 2003 10:17:33 +1000
+From: CaT <cat@zip.com.au>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Pavel Machek <pavel@ucw.cz>, mbligh@aracnet.com, ncunningham@clear.net.nz,
+       gigerstyle@gmx.ch, geert@linux-m68k.org, linux-kernel@vger.kernel.org
 Subject: Re: Fix SWSUSP & !SWAP
-Message-ID: <1592050000.1051142225@flay>
-In-Reply-To: <20030424000344.GC32577@atrey.karlin.mff.cuni.cz>
-References: <F760B14C9561B941B89469F59BA3A847E96E0E@orsmsx401.jf.intel.com> <20030424000344.GC32577@atrey.karlin.mff.cuni.cz>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+Message-ID: <20030424001733.GB678@zip.com.au>
+References: <1051136725.4439.5.camel@laptop-linux> <1584040000.1051140524@flay> <20030423235820.GB32577@atrey.karlin.mff.cuni.cz> <20030423170759.2b4e6294.akpm@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030423170759.2b4e6294.akpm@digeo.com>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > From: Martin J. Bligh [mailto:mbligh@aracnet.com] 
->> > Can't you just create a pre-reserved separate swsusp area on 
->> > disk the size 
->> > of RAM (maybe a partition rather than a file to make things 
->> > easier), and 
->> > then you know you're safe (basically what Marc was 
->> > suggesting, except pre-allocated)? Or does that make me the 
->> > prince of all evil? ;-)
->> > 
->> > However much swap space you allocate, it can always all be 
->> > used, so that seems futile ...
->> 
->> This is what Other OSes do, and I believe this is the correct path.
->> Using swap for swsusp is a clever hack but not a 100% solution.
+On Wed, Apr 23, 2003 at 05:07:59PM -0700, Andrew Morton wrote:
+> Pavel Machek <pavel@ucw.cz> wrote:
+> >
+> > If you really want to "solve" it reliably, you can always
+> > 
+> > swapon /dev/hdfoo666
 > 
-> Well, for normal use its clearly inferior -- suspend partition is unused
-> when it could be used for speeding system up by swapping out unused
-> stuff.
+> Seems that using a swapfile instead of a swapdev would fix that neatly.
 > 
-> OtherOS approach is better because it can guarantee suspend-to-disk
-> for critical situations like overheat or battery-critical.
-> 
-> But we can get best of both worlds if we OOM-kill during critical
-> suspend. [If suspend partition was not used for swapping, machine
-> would *already* OOM-killed someone, so we are only improving stuff].
+> But iirc, suspend doesn't work with swapfiles.  Is that correct?  If so,
+> what has to be done to get it working?
 
-OK ... but at least having the *option* to have a separate reserved
-area would be nice, no? For most people, RAM is just a tiny amount
-of their disk space ... and damn, does it make the code simpler ;-)
+I'm curious. What does a swapfile solve that a swapdev does not? Either
+way you need to prealloc the case (either have a chunky file in a
+partition or a partition set aside) or you need to keep enough room
+avail to fit the file when it's needed.
 
-M.
-
+-- 
+Martin's distress was in contrast to the bitter satisfaction of some
+of his fellow marines as they surveyed the scene. "The Iraqis are sick
+people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
+starting to hate this country. Wait till I get hold of a friggin' Iraqi.
+No, I won't get hold of one. I'll just kill him."
+	- http://www.informationclearinghouse.info/article2479.htm

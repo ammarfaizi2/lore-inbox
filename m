@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290760AbSAaAN0>; Wed, 30 Jan 2002 19:13:26 -0500
+	id <S290768AbSAaAVP>; Wed, 30 Jan 2002 19:21:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290759AbSAaANP>; Wed, 30 Jan 2002 19:13:15 -0500
-Received: from ns.suse.de ([213.95.15.193]:32004 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290757AbSAaANF>;
-	Wed, 30 Jan 2002 19:13:05 -0500
-Date: Thu, 31 Jan 2002 01:13:02 +0100
-From: Dave Jones <davej@suse.de>
-To: Erik Andersen <andersen@codepoet.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+	id <S290769AbSAaAVF>; Wed, 30 Jan 2002 19:21:05 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47368 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290768AbSAaAUx>; Wed, 30 Jan 2002 19:20:53 -0500
 Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020131011302.B31313@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020130211422.GA22705@codepoet.org> <E16W3no-0000Jv-00@the-village.bc.nu> <20020130234847.GA25577@codepoet.org>
-Mime-Version: 1.0
+To: andersen@codepoet.org
+Date: Thu, 31 Jan 2002 00:33:16 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), greg@kroah.com (Greg KH),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020130234847.GA25577@codepoet.org> from "Erik Andersen" at Jan 30, 2002 04:48:48 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020130234847.GA25577@codepoet.org>; from andersen@codepoet.org on Wed, Jan 30, 2002 at 04:48:48PM -0700
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16W5AC-0000a5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 04:48:48PM -0700, Erik Andersen wrote:
- > > assumptions. See the NCR5380 stuff I've now all done (in 2.4.18pre) - dont 
- > > use 2.5.* NCR5380 it'll probably corrupt your system if it doesn't just die
- > > or hang - Linus apparently merged untested stuff to the old broken driver.
- > 
- > This is in the latest -ac kernels?
+> This is in the latest -ac kernels?  Cool, I'll go take a close
+> look.  I'm very anxious to see a SCSI layer that doesn't suck
+> get put in place,
 
- Even better, it's in 2.4 mainline.
+The scsi mid layer is a seperate problem, and its getting there already in
+2.5. Chunks of nasty scsi special cases keep dissappearing with the bio stuff
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+The NCR5380 stuff fixes what was an amazingly crufty unmaintained driver
+

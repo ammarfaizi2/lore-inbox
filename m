@@ -1,63 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266296AbUITLxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266310AbUITLzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266296AbUITLxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 07:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266310AbUITLxJ
+	id S266310AbUITLzV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 07:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUITLzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 07:53:09 -0400
-Received: from cantor.suse.de ([195.135.220.2]:56780 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266296AbUITLw7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 07:52:59 -0400
-Date: Mon, 20 Sep 2004 13:50:32 +0200
-From: Olaf Hering <olh@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: OOM & [OT] util-linux-2.12e
-Message-ID: <20040920115032.GA21631@suse.de>
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl> <20040920094602.GA24466@suse.de> <Pine.LNX.4.61.0409201220200.3460@scrub.home> <20040920105618.GB24928@suse.de> <Pine.LNX.4.61.0409201311050.3460@scrub.home> <20040920112607.GA19073@suse.de> <Pine.LNX.4.61.0409201331320.3460@scrub.home>
+	Mon, 20 Sep 2004 07:55:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49573 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266316AbUITLy5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 07:54:57 -0400
+Date: Mon, 20 Sep 2004 07:33:12 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Max Michaels <mmichaels@rightmedia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-r1 mem issues
+Message-ID: <20040920103312.GA2089@logos.cnet>
+References: <0FC82FC6709BE34CB9118EE0E252FD2307994E70@ehost007.exch005intermedia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/mixed; boundary="AhhlLboLdkugWU4S"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0409201331320.3460@scrub.home>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <0FC82FC6709BE34CB9118EE0E252FD2307994E70@ehost007.exch005intermedia.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Sep 20, Roman Zippel wrote:
 
-> Hi,
-> 
-> On Mon, 20 Sep 2004, Olaf Hering wrote:
-> 
-> > > > > How do you distinguish between manual and automatic loop device setup?
-> > > > 
-> > > > -v
-> > 
-> > What do you mean by auto vs. manual? I dont understand what you mean
-> > here.
-> 
-> $ mount -oloop image /mnt
-> 
-> vs
-> 
-> $ losetup image /dev/loop0
-> $ mount /dev/loop0 /mnt
-> 
-> What should umount do, when called with /mnt?
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I have /dev/loop0 in /proc/mounts, umount does nothing wrong here.
-What do you see?
+On Sun, Sep 19, 2004 at 04:20:48PM -0700, Max Michaels wrote:
+> This is my first post, so please be forgiving of any faux-pas. I am
+> having issues with 2.6.8-r1 with memory being eaten by the kernel. Top
+> reveals that only about 35% of the memory (3GB) is being used but the
+> actual count of free memory is only about 10MB. /proc/slabinfo shows no
+> odd numbers and /proc/meminfo shows the same 10MB as the top total. No
+> processes account for this memory, so I'm assuming it must be the
+> kernel. Eventually, I run out of memory and OOM-killer starts killing
+> processes until it has some memory. Is there some troubleshooting method
+> I am missing or is this a known issue?
 
-> Relying on any specifc ordering in /proc/mounts is broken.
+Hi Max,
 
-Thats most likely true.  You could bind mount a mtab file.
-This specific case is tricky.
+Please try 2.6.9-rc2-mm1 and see if you can reproduce the problem there. 
 
--- 
-USB is for mice, FireWire is for men!
+If you can, please apply the attached patch and wait for the OOM killer to trigger.
 
-sUse lINUX ag, nÜRNBERG
+Doing so will show us how many swap pages were free at the moment of the killing,
+if there was swap space available there's something wrong.
+
+
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="vm-reclaim2.patch"
+
+--- mm/page_alloc.c.orig	2004-08-24 20:37:53.000000000 -0300
++++ mm/page_alloc.c	2004-08-24 22:51:49.498375608 -0300
+@@ -1021,11 +1021,12 @@
+ void show_free_areas(void)
+ {
+ 	struct page_state ps;
+-	int cpu, temperature;
++	int cpu, temperature, i;
+ 	unsigned long active;
+ 	unsigned long inactive;
+ 	unsigned long free;
+ 	struct zone *zone;
++	unsigned int swap_pages = 0;
+ 
+ 	for_each_zone(zone) {
+ 		show_node(zone);
+@@ -1086,6 +1087,8 @@
+ 			" active:%lukB"
+ 			" inactive:%lukB"
+ 			" present:%lukB"
++			" pages_scanned:%lu"
++			" all_unreclaimable? %s"
+ 			"\n",
+ 			zone->name,
+ 			K(zone->free_pages),
+@@ -1094,7 +1097,9 @@
+ 			K(zone->pages_high),
+ 			K(zone->nr_active),
+ 			K(zone->nr_inactive),
+-			K(zone->present_pages)
++			K(zone->present_pages),
++			zone->pages_scanned,
++			(zone->all_unreclaimable ? "yes" : "no")
+ 			);
+ 		printk("protections[]:");
+ 		for (i = 0; i < MAX_NR_ZONES; i++)
+@@ -1125,6 +1130,18 @@
+ 		printk("= %lukB\n", K(total));
+ 	}
+ 
++	swap_list_lock();
++	for (i = 0; i < nr_swapfiles; i++) {
++		if (!(swap_info[i].flags & SWP_USED) ||
++		     (swap_info[i].flags & SWP_WRITEOK))
++                       continue;
++		swap_pages += swap_info[i].inuse_pages;
++	}
++	swap_pages += nr_swap_pages;
++	swap_list_unlock();
++
++	printk("nr_free_swap_pages: %u\n", swap_pages);
++
+ 	show_swap_cache_info();
+ }
+ 
+
+--AhhlLboLdkugWU4S--

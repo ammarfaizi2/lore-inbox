@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311834AbSD1Qzn>; Sun, 28 Apr 2002 12:55:43 -0400
+	id <S311871AbSD1RfM>; Sun, 28 Apr 2002 13:35:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311839AbSD1Qzm>; Sun, 28 Apr 2002 12:55:42 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:26792 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S311834AbSD1Qzm>; Sun, 28 Apr 2002 12:55:42 -0400
-Date: Sun, 28 Apr 2002 10:55:26 -0600
-Message-Id: <200204281655.g3SGtQF24711@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Alexander Viro <viro@math.psu.edu>,
-        Christoph Lameter <christoph@lameter.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OFF TOPIC] BK license change
-In-Reply-To: <3CCB1D18.2010402@evision-ventures.com>
+	id <S311884AbSD1RfL>; Sun, 28 Apr 2002 13:35:11 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:55534 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S311871AbSD1RfK>;
+	Sun, 28 Apr 2002 13:35:10 -0400
+Message-ID: <3CCC32B5.1DF5EA5A@mvista.com>
+Date: Sun, 28 Apr 2002 10:34:45 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Why HZ on i386 is 100 ?
+In-Reply-To: <E171kjK-0003oh-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki writes:
-> Uz.ytkownik Alexander Viro napisa?:
-> > 1001st time, CHOICE OF LICENSE BELONGS AUTHOR OF CODE IN QUESTION, dimwit.
-> > How many times should that be repeated until it sinks down?
+Alan Cox wrote:
 > 
+> > so, what?  We will have a timer interrupt prior to the slice end, and
+> > will have to make this decision all over again.  However, the real rub
 > 
-> Anton please please let this discussion going on. It is *very*
-> good at pointing at the people who need an permanent personal
-> entry in my killfile for lkml ;-).
+> Only on unusual occasions.
+> 
+> > is that we have to keep track of elapsed time and account for that (i.e.
+> > shorten the remaining slice) not only in the timer interrupt, but each
+> 
+> We do anyway
 
-*Cough*! Martin: I've seen you flame quite a few times as well. I
-don't think you can claim the moral high ground.
+Yes, but now we do all this in the timer tick, not in schedule().  This
+occures much less often.  
+> 
+> Alan
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,79 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbTENW6v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 18:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbTENW6u
+	id S263131AbTENXFv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 19:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263139AbTENXFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 18:58:50 -0400
-Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:6675
-	"EHLO fep01-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S263020AbTENW6t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 18:58:49 -0400
-Message-ID: <3EC2CD23.2030009@rogers.com>
-Date: Wed, 14 May 2003 19:11:31 -0400
-From: Jeff Muizelaar <muizelaar@rogers.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Riley Williams <Riley@Williams.Name>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/4] NE2000 driver updates
-References: <BKEGKPICNAKILKJKMHCACEOMCPAA.Riley@Williams.Name> <1052910126.2103.3.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1052910126.2103.3.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep01-mail.bloor.is.net.cable.rogers.com from [24.43.126.4] using ID <muizelaar@rogers.com> at Wed, 14 May 2003 19:11:32 -0400
+	Wed, 14 May 2003 19:05:51 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:47568
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263131AbTENXFu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 19:05:50 -0400
+Date: Thu, 15 May 2003 01:18:38 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.21rc2aa1
+Message-ID: <20030514231838.GP1429@dualathlon.random>
+References: <20030514202258.GF1429@dualathlon.random> <3EC2C5AC.6050709@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EC2C5AC.6050709@gmx.net>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Thu, May 15, 2003 at 12:39:40AM +0200, Carl-Daniel Hailfinger wrote:
+> Andrea Arcangeli wrote:
+> 
+> > Only in 2.4.21rc2aa1: 00_remove_inode_page-prune_icache-smp-race-1
+> > 
+> > 	Fix mm corrupting SMP race between remove_inode_page and prune_icache.
+> > 	Found by Chris Mason.
+> 
+> Any chance this will get into mainline before 2.4.21?
 
->On Mer, 2003-05-14 at 08:29, Riley Williams wrote:
->
->  
->
->>If there's going to be any problems, it's with devices claiming the
->>same IOaddr as each other - and certain addresses are far too common
->>where that's concerned - especially 0x0300 through 0x031F which are
->>almost universal in their use !!!!!!!
->>    
->>
->
->This is why you have to get the ordering right. Specifically you have to
->deal with probe unsafe hardware (ie ne2000) early. Once you've checked
->0x300 isnt an NE2000 its generally safe to probe there, before that its
->a very bad idea. Space.c knows about this and a vast amount more.
->  
->
-With the patch none of the ordering gets changed, with the following 
-exceptions, afaik:
+it's obviously safe so I think yes:
 
-1. When request_region would prevent something from probing over top of 
-something else. This is a bug with my current patch, but a tough one to 
-avoid because we normally don't request_resource until the probe 
-function is called...
+--- x/mm/filemap.c.~1~	2003-04-24 16:37:50.000000000 +0200
++++ x/mm/filemap.c	2003-04-24 17:05:10.000000000 +0200
+@@ -100,9 +100,10 @@ static inline void remove_page_from_inod
+ 	if (mapping->a_ops->removepage)
+ 		mapping->a_ops->removepage(page);
+ 	
+-	mapping->nrpages--;
+ 	list_del(&page->list);
+ 	page->mapping = NULL;
++	wmb();
++	mapping->nrpages--;
+ }
+ 
+ static inline void remove_page_from_hash_queue(struct page * page)
 
-2. Any breakage that results from spliting probe1 into detect and setup:
-    device on 0x300.
-    driver x, and driver y.
-    old:
-       probe1 from driver x fails late in the routine. (after the place 
-where the detect/setup split would occur)
-       driver y probe1 succeds and it gets the device
 
-    new:
-       driver x detect succeceds.
-       all other driver detects at 0x300 thus fail.
-       driver x setup fails.
-       nobody gets the device.
-   
-This is a driver issue and as long as the split of probe1 to 
-detect/setup is done right there should be no problems.
+Marcelo please apply, thanks!
 
-Also ethX numbering could change because of the alloc/register_netdev is 
-happening at module init time and not at autoprobe time.
-
--Jeff
-
+Andrea

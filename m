@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283856AbRLAA3T>; Fri, 30 Nov 2001 19:29:19 -0500
+	id <S281201AbRLAAd7>; Fri, 30 Nov 2001 19:33:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281245AbRLAA27>; Fri, 30 Nov 2001 19:28:59 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:21488
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281248AbRLAA2y>; Fri, 30 Nov 2001 19:28:54 -0500
-Date: Fri, 30 Nov 2001 16:28:48 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Justin Wells <jread@semiotek.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Please tag tested releases of the 2.4.x kernel
-Message-ID: <20011130162848.I504@mikef-linux.matchmail.com>
-Mail-Followup-To: Justin Wells <jread@semiotek.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011130220451.9D5AD38326@fever.semiotek.com>
+	id <S281204AbRLAAdt>; Fri, 30 Nov 2001 19:33:49 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:31432 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S281201AbRLAAdn>; Fri, 30 Nov 2001 19:33:43 -0500
+Date: Sat, 1 Dec 2001 01:33:41 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: lartc@mailman.ds9a.nl
+Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru, hadi@cyberus.ca
+Subject: Finally, CBQ nearly completely documented
+Message-ID: <20011201013341.A23830@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>, lartc@mailman.ds9a.nl,
+	linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru, hadi@cyberus.ca
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011130220451.9D5AD38326@fever.semiotek.com>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 30, 2001 at 05:04:51PM -0500, Justin Wells wrote:
-> 
-> It would be great if on kernel.org there were a note indicating which 
-> releases of the linux kernel had been favourably received. 
->
-> If you could organize a bit you could even mark a release as "TESTED",
-> or even "APPROVED". All it would mean is that after it had been out for
-> a week or two nobody found any really serious problems.
->
+Hi,
 
-Are you volunteering to keep up on which kernels had what erratas?
+After preparing my talk on CBQ/HTB (http://ds9a.nl/cbq-presentation ), I
+finally understood how CBQ and filters etc truly work. And I wrote it down.
+Check out the Linux Advanced Routing & Shaping HOWTO, it's changed a lot!
 
-> "Really serious" would be something like it corrupts the filesystem, or
-> crashes a lot, or fails to build, or introduces a remote root exploit.
-> Releases like 2.4.14 (fails to build loopback) and 2.4.15 (corrupts) 
-> would not be tagged as "APPROVED".
-> 
-> Also "APPROVED" or "TESTED" doesn't mean there are no issues or problems,
-> just that they're the usual kind of issues and problems, rather than 
-> really serious issues.
-> 
-> I expect there to be quite a bit of human judgement involved in applying
-> the label. I'm not looking for a rigorous criteria--just the general 
-> feeling of the community a week or two after the release was posted.
-> 
+Especially this part is very new, please check it for mistakes and
+inconsistencies:
 
-The problem is that this is much like documentation.  It (should|needs to)
-be done, but usually it'll be started, and then abandoned.
+  http://ds9a.nl/2.4Routing/HOWTO//cvs/2.4routing/output/2.4routing-9.html
 
-Something like LWN (Linux Weekly News) might be a good place for this.
-Since you probably wouldn't want to know daily if you're going to be a few
-versions behind.
+I even got 'split' and 'defmap' figured out, which should be a first. There
+is not a single other page online that tells you correctly what these do.
 
-mf
+One thing - does *anybody* understand how hash tables work in tc filter, and
+what they do? Furthermore, I could use some help with the tc filter police
+things.
+
+So if you do understand how these work, please drop me a line.
+
+Thanks!
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+Trilab                                 The Technology People
+Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

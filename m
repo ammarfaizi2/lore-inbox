@@ -1,70 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267290AbSKSVUV>; Tue, 19 Nov 2002 16:20:21 -0500
+	id <S267162AbSKSVVr>; Tue, 19 Nov 2002 16:21:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267300AbSKSVUV>; Tue, 19 Nov 2002 16:20:21 -0500
-Received: from mta03bw.bigpond.com ([139.134.6.86]:36297 "EHLO
-	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S267290AbSKSVUU>; Tue, 19 Nov 2002 16:20:20 -0500
-From: Brad Hards <bhards@bigpond.net.au>
-To: Oliver Neukum <oliver@neukum.name>,
-       "Folkert van Heusden" <folkert@vanheusden.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: local link configuration daemon?
-Date: Wed, 20 Nov 2002 08:15:56 +1100
-User-Agent: KMail/1.4.5
-References: <003b01c28fed$724a2c80$3640a8c0@boemboem> <200211191827.10622.oliver@neukum.name>
-In-Reply-To: <200211191827.10622.oliver@neukum.name>
+	id <S267163AbSKSVVr>; Tue, 19 Nov 2002 16:21:47 -0500
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:13531 "EHLO
+	mail.kolivas.net") by vger.kernel.org with ESMTP id <S267162AbSKSVVp>;
+	Tue, 19 Nov 2002 16:21:45 -0500
+Message-ID: <1037741326.3ddaad0ef119d@kolivas.net>
+Date: Wed, 20 Nov 2002 08:28:46 +1100
+From: Con Kolivas <conman@kolivas.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@digeo.com>
+Subject: [BENCHMARK] 2.5.48-mm1 with contest
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200211200815.56896.bhards@bigpond.net.au>
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Here are contest benchmarks up to 2.5.48-mm1
 
-On Wed, 20 Nov 2002 04:27, Oliver Neukum wrote:
-> Am Dienstag, 19. November 2002 18:02 schrieb Folkert van Heusden:
-> > Hi,
-> >
-> > I just read this RFC on 'local link configuration' (mirrored at
-> > http://keetweej.vanheusden.com/~folkert/draft-ietf-zeroconf-ipv4-linkloca
-> >l. t xt ) and I was wondering: is this planned to be in the kernel? Or
-> > should occur this in userspace? (and if so; does it exist?
-> > freshmeat/google say it doesn't)
-> > Initially I thought I just configure an ip-address in that range on an
-> > adapter, but then I read that there is this whole protocol of sending and
-> > receiving arp-requests etc.
->
-> Brad Hards has done a preliminary implementation that runs in user space.
-It was originally done by Sebastian Kuzminsky. It basically uses the kernel's 
-packet filter (BPF) and socket code, via Libnet and libpcap. You can get it 
-from your friendly kernel.org mirror 
-(http://www.XX.kernel.org/pub/software/network/zcip/, where XX is your 
-country code).
+noload:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [5]              71.7    93      0       0       0.98
+2.5.47 [3]              73.5    93      0       0       1.00
+2.5.47-mm1 [5]          73.6    93      0       0       1.01
+2.5.47-mm3 [2]          73.7    93      0       0       1.01
+2.5.48 [5]              73.9    93      0       0       1.01
+2.5.48-mm1 [5]          73.8    93      0       0       1.01
 
-In the longer term, it might be appropriate to move some of it (the defend 
-part of the claim-and-defend sequence) into kernel space. I don't think it 
-makes sense to have it all in kernel space.
+cacherun:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [2]              66.6    99      0       0       0.91
+2.5.47 [3]              68.3    99      0       0       0.93
+2.5.47-mm1 [5]          68.4    99      0       0       0.93
+2.5.47-mm3 [2]          68.3    99      0       0       0.93
+2.5.48 [5]              68.5    99      0       0       0.94
+2.5.48-mm1 [5]          68.3    99      0       0       0.93
 
-However since it is still an i-D, and hasn't reached RFC state, I think it is 
-better to work up a reference implementation in userspace, and think about 
-how much might need to be in the kernel (for performance reasons, whatever) 
-when the RFC is released and we have a little deployment experience.
+process_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              109.5   57      119     44      1.50
+2.5.47 [3]              83.4    82      22      21      1.14
+2.5.47-mm1 [5]          83.0    83      21      20      1.13
+2.5.47-mm3 [2]          84.2    82      22      21      1.15
+2.5.48 [5]              86.5    79      26      23      1.18
+2.5.48-mm1 [5]          90.5    76      30      26      1.24
 
-Brad
-- -- 
-http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+dbench_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [1]              346.6   20      1       57      4.73
+2.5.47 [2]              224.2   33      1       44      3.06
+2.5.47-mm3 [2]          201.6   38      1       39      2.75
+2.5.48 [5]              236.4   31      1       43      3.23
+2.5.48-mm1 [5]          234.2   32      1       39      3.20
 
-iD8DBQE92qoMW6pHgIdAuOMRAsLhAJ9PBj1DyxSLfPa6JLYUPR81GKhDEwCePEYk
-Aznd3lBCdznErhRgtkKNvS4=
-=xz4Y
------END PGP SIGNATURE-----
+ctar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              117.4   63      1       7       1.60
+2.5.47 [3]              93.9    80      1       5       1.28
+2.5.47-mm1 [5]          94.0    81      1       5       1.28
+2.5.47-mm3 [2]          94.0    81      1       6       1.28
+2.5.48 [5]              93.5    81      1       5       1.28
+2.5.48-mm1 [5]          95.4    79      1       5       1.30
 
+xtar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              150.8   49      2       8       2.06
+2.5.47 [3]              167.1   45      2       7       2.28
+2.5.47-mm1 [5]          118.5   64      1       7       1.62
+2.5.47-mm3 [2]          211.3   38      2       6       2.89
+2.5.48 [5]              184.4   41      2       6       2.52
+2.5.48-mm1 [5]          210.7   35      2       6       2.88
+
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              474.1   15      36      10      6.48
+2.5.47 [3]              165.9   46      9       9       2.27
+2.5.47-mm1 [5]          126.3   61      5       8       1.73
+2.5.47-mm3 [2]          117.1   65      4       8       1.60
+2.5.48 [5]              131.4   59      6       8       1.79
+2.5.48-mm1 [5]          119.9   62      4       7       1.64
+
+read_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              102.3   70      6       3       1.40
+2.5.47 [3]              103.4   74      6       4       1.41
+2.5.47-mm1 [5]          100.6   76      7       4       1.37
+2.5.47-mm3 [2]          218.5   34      10      2       2.98*
+2.5.48 [5]              102.9   74      6       4       1.41
+2.5.48-mm1 [5]          256.7   29      11      2       3.51*
+
+list_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              90.2    76      1       17      1.23
+2.5.47 [3]              100.2   71      1       20      1.37
+2.5.47-mm1 [5]          102.4   69      1       19      1.40
+2.5.47-mm3 [2]          101.2   71      1       21      1.38
+2.5.48 [5]              98.2    72      1       19      1.34
+2.5.48-mm1 [5]          99.3    72      1       21      1.36
+
+mem_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.18 [3]              103.3   70      32      3       1.41
+2.5.47 [3]              151.1   49      35      2       2.06
+2.5.47-mm1 [5]          127.0   58      29      2       1.73
+2.5.47-mm3 [2]          243.8   31      39      1       3.33*
+2.5.48 [5]              121.2   61      30      2       1.66
+2.5.48-mm1 [5]          290.7   26      42      1       3.97*
+
+Con

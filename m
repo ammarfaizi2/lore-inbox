@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313032AbSEHPRd>; Wed, 8 May 2002 11:17:33 -0400
+	id <S314453AbSEHPTs>; Wed, 8 May 2002 11:19:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSEHPRc>; Wed, 8 May 2002 11:17:32 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:52489 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S313032AbSEHPRc>; Wed, 8 May 2002 11:17:32 -0400
-Date: Wed, 8 May 2002 12:17:13 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: Gerrit Huizenga <gh@us.ibm.com>, Clifford White <ctwhite@us.ibm.com>,
-        <linux-kernel@vger.kernel.org>, <oliendm@us.ibm.com>
-Subject: Re: x86 question: Can a process have > 3GB memory? 
-In-Reply-To: <191939915.1020845530@[10.10.2.3]>
-Message-ID: <Pine.LNX.4.44L.0205081216590.32261-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314465AbSEHPTr>; Wed, 8 May 2002 11:19:47 -0400
+Received: from goofy.fi.upm.es ([138.100.8.23]:43789 "EHLO goofy.fi.upm.es")
+	by vger.kernel.org with ESMTP id <S314453AbSEHPTp>;
+	Wed, 8 May 2002 11:19:45 -0400
+Date: Wed, 08 May 2002 17:19:26 +0200 (MET DST)
+From: Alvaro de Luna <aluna@datsi.fi.upm.es>
+Subject: paged memory map CANBUS
+To: linux-kernel@vger.kernel.org
+Message-id: <Pine.GSO.4.44.0205081642090.4595-100000@avellano.datsi.fi.upm.es>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 May 2002, Martin J. Bligh wrote:
 
-> >> Hey Cliff, we are planning to implement virtwin() if you remember that
-> >> from PTX.  AWE on NT was derived from the same work.  There should soon
-> >> be some discussion about it on lse-tech@lists.sourceforge.net or I can
-> >> give you some more data...
-> >
-> > Please implement it in userspace, using large POSIX shared memory
-> > segments and mmaping / munmapping them as needed.
->
-> How are you going to change the user page tables from userspace?
-> This mechanism would seem to need kernel support however you did it.
+Hi,
+My name is Alvaro de Luna and I'm looking for a Linux
+canbus drive. Sometime ago I bought a board that has
+two Intel AN82527 Can controller devices.
+But it isn't a normal board.
+His memory map is paged. Each device occupies 16 pages
+of 16 bytes, and I don't know if there is a driver that
+works.
 
-mmap(2) and munmap(2)
+Can anybody help me?
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+Regards,
+	Alvaro.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+
+
 

@@ -1,66 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313620AbSDPGnI>; Tue, 16 Apr 2002 02:43:08 -0400
+	id <S313621AbSDPGve>; Tue, 16 Apr 2002 02:51:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313621AbSDPGnH>; Tue, 16 Apr 2002 02:43:07 -0400
-Received: from web10407.mail.yahoo.com ([216.136.130.99]:28934 "HELO
-	web10407.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S313620AbSDPGnG>; Tue, 16 Apr 2002 02:43:06 -0400
-Message-ID: <20020416064306.91089.qmail@web10407.mail.yahoo.com>
-Date: Tue, 16 Apr 2002 16:43:06 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Re: 2.4.19-pre6aa1 (possible all kernel after 2.4.19-pre2) athlon PCI workaround
-To: kernel <linux-kernel@vger.kernel.org>
-Cc: Kurt Garloff <garloff@suse.de>
-In-Reply-To: <20020415174059.E2345@nbkurt.etpnet.phys.tue.nl>
+	id <S313622AbSDPGvd>; Tue, 16 Apr 2002 02:51:33 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:62725
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S313621AbSDPGvd>; Tue, 16 Apr 2002 02:51:33 -0400
+Date: Mon, 15 Apr 2002 23:51:03 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH]
+In-Reply-To: <20020416055313.GD12608@suse.de>
+Message-ID: <Pine.LNX.4.10.10204152349260.8091-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+It is 99% usage for distro to ship stable booting kernels given atapi is
+flakey.  However if you have a suggestion I am accepting options
+
+--andre
+
+On Tue, 16 Apr 2002, Jens Axboe wrote:
+
+> On Mon, Apr 15 2002, Andre Hedrick wrote:
+> > 
+> > http://www.linuxdiskcert.org/ide-2.4.19-p6.all.convert.3.patch.bz2
 > 
-> I don't know of an "official way".
-
-
-I think this is a known problem but it is strange that
-no one bother to implement something to make it easier
-for the end user to compile their own kernel rather
-than seraching the file and edit it . Of course I
-believe my box is not the only one suffering such
-problem.
-
-
-> There were a number of postings refering to
-> arch/i386/kernel/pci-pc.c:
-> pci_fixup_via_northbridge_bug()
-
-Just after posting my first email, I found the file,
-yes it is in arch/i386/kernel/pci-pc.c and I just
-comment out all lines in struct pci_fixup
-pcibios_fixups[] related to VIA; that is
-PCI_FIXUP_HEADER, PCI_VENDOR_ID_VIA  etc...
-
-I have no idea if this affects the system, but it
-seemed that the problem is solved and no thing wierd
-happened yet :-). May be if I got some trouble I will
-set the bit as you said. 
-
-
-> and claiming that not clearing bit 5 did make the
-> problem go away.
-> (IOW: Replace v &= 0x1f; /* clear bits 5, 6, 7 */
->            by v &= 0x3f; /* clear bits 6, 7 */
->  and see whether this helps.)
+> seems that you haven't fixed the case where you cannot enable dma on an
+> atapi drive if CONFIG_IDEDMA_ONLYDISK has been selected? to me this is a
+> bug -- I don't want auto-enable of dma on my atapi drives, but I surely
+> want to be able to hdparm -d1 them at will later on.
 > 
-> Regards,
+> -- 
+> Jens Axboe
+> 
 
-Thanks for your reply
-
-
-
-=====
-Steve Kieu
-
-http://messenger.yahoo.com.au - Yahoo! Messenger
-- A great way to communicate long-distance for FREE!

@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262038AbSLFOqk>; Fri, 6 Dec 2002 09:46:40 -0500
+	id <S262418AbSLFOsB>; Fri, 6 Dec 2002 09:48:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262418AbSLFOqk>; Fri, 6 Dec 2002 09:46:40 -0500
-Received: from hauptpostamt.charite.de ([193.175.66.220]:17062 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id <S262038AbSLFOqj>; Fri, 6 Dec 2002 09:46:39 -0500
-Date: Fri, 6 Dec 2002 15:54:10 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+	id <S262876AbSLFOsB>; Fri, 6 Dec 2002 09:48:01 -0500
+Received: from rakis.net ([216.235.252.212]:1676 "EHLO egg.rakis.net")
+	by vger.kernel.org with ESMTP id <S262418AbSLFOr7>;
+	Fri, 6 Dec 2002 09:47:59 -0500
+Date: Fri, 6 Dec 2002 09:55:36 -0500 (EST)
+From: Greg Boyce <gboyce@rakis.net>
+X-X-Sender: gboyce@egg
 To: linux-kernel@vger.kernel.org
-Subject: linux-2.4.20 fails to build with aic7xxx
-Message-ID: <20021206145410.GD5990@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.1i
+Subject: Dazed and Confused
+Message-ID: <Pine.LNX.4.42.0212060948250.7121-100000@egg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We get:
+Folks,
 
-...
-make[3]: Entering directory /usr/src/linux-2.4.20/drivers/scsi'
-/usr/bin/make -C aic7xxx
-make[4]: Entering directory /usr/src/linux-2.4.20/drivers/scsi/aic7xxx'
-/usr/bin/make all_targets
-make[5]: Entering directory /usr/src/linux-2.4.20/drivers/scsi/aic7xxx'
-/usr/bin/make -C aicasm
-make[6]: Entering directory
-/usr/src/linux-2.4.20/drivers/scsi/aic7xxx/aicasm'
-yacc -d -b aicasm_gram aicasm_gram.y
-aicasm_gram.y:921.21: parse error, unexpected ":", expecting ";" or "|"
-aicasm_gram.y:936.2-5: $$ of critical_section_start' has no declared type
-aicasm_gram.y:938.2-5: $$ of critical_section_start' has no declared type
-make[6]: *** [aicasm_gram.h] Error 1
-make[6]: Leaving directory
-/usr/src/linux-2.4.20/drivers/scsi/aic7xxx/aicasm'
-make[5]: *** [aicasm/aicasm] Error 2
-make[5]: Leaving directory /usr/src/linux-2.4.20/drivers/scsi/aic7xxx'
-make[4]: *** [first_rule] Error 2
-make[4]: Leaving directory /usr/src/linux-2.4.20/drivers/scsi/aic7xxx'
-make[3]: *** [_subdir_aic7xxx] Error 2
-make[3]: Leaving directory /usr/src/linux-2.4.20/drivers/scsi'
-make[2]: *** [_subdir_scsi] Error 2
-make[2]: Leaving directory /usr/src/linux-2.4.20/drivers'
-make[1]: *** [_dir_drivers] Error 2
-make[1]: Leaving directory /usr/src/linux-2.4.20'
-make: *** [stamp-build] Error 2
+I have an issue that I've been trying to track down for some time, and I
+was hoping that someone might be able to provide me with a definitive
+awnser.
 
-# yacc -V
-bison (GNU Bison) 1.75
-Written by Robert Corbett and Richard Stallman.
+I work in a company with a large number of Linux machine deployed all
+around the country, and in some of the machines we've been seeing the
+following error:
 
-Copyright (C) 2002 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There
-is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.
+Uhhuh. NMI received. Dazed and confused, but trying to continue
+You probably have a hardware problem with your RAM chips
 
-# grep -i AIC .config
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
-# CONFIG_AIC7XXX_PROBE_EISA_VL is not set
-CONFIG_AIC7XXX_BUILD_FIRMWARE=y
+Now, from what I've read about this error, it is caused by the memory
+detecting a parity error in the actual RAM chips, and reporting it to the
+OS.  However, some of the people within the company who handle the
+replacement of hardware are convinced that it might be something simpler
+in some of the cases.  Perhaps the RAM chip isn't fully seated, or the
+machine just needs a reboot.
 
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+Due to the number of machines and their locations, running memtest86 on
+them isn't exactly feasible.
+
+Is there anything besides failing hardware that could be the cause of this
+error?  Also, how serious is this error?  Some of the machines reporting
+this error have had problems with programs crashing, while others seem to
+run fine.
+
+Any input or resources you could point me at would be appreciated.
+
+Greg Boyce
 

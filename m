@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264836AbUDWO7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264834AbUDWPJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264836AbUDWO7P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 10:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264835AbUDWO7P
+	id S264834AbUDWPJP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 11:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbUDWPJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 10:59:15 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:8591 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264832AbUDWO7M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 10:59:12 -0400
-Date: Fri, 23 Apr 2004 16:58:58 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, netdev@oss.sgi.com
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: [PATCH] pktgen dependency (was: Re: Linux 2.4.27-pre1)
-In-Reply-To: <20040422130651.GB18358@logos.cnet>
-Message-ID: <Pine.GSO.4.58.0404231644470.15793@waterleaf.sonytel.be>
-References: <20040422130651.GB18358@logos.cnet>
+	Fri, 23 Apr 2004 11:09:15 -0400
+Received: from n12.grp.scd.yahoo.com ([66.218.66.67]:51096 "HELO
+	n12.grp.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S264831AbUDWPJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 11:09:13 -0400
+X-eGroups-Return: confirm-return-linux-kernel=vger.kernel.org@returns.groups.yahoo.com
+Date: 23 Apr 2004 15:09:12 -0000
+Message-ID: <1082732952.71.76503.m17@yahoogroups.com>
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	Yahoo!Groups<confirm-s2-sUL23TeW_Rk7wKwZ3Rm5WsQCEeE-linux-kernel=vger.kernel.org@yahoogroups.com>
+				    ^-missing end of mailbox
+Reply-To: confirm-s2-sUL23TeW_Rk7wKwZ3Rm5WsQCEeE-linux-kernel=vger.kernel.org@yahoogroups.com
+From: <confirm-return-linux-kernel=vger.kernel.org@returns.groups.yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Please confirm your request to join Imprimatur 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The packet generator doesn't compile if procfs is disabled.
-IIRC, there was an agreement that this dependency is needed:
+Hello linux-kernel@vger.kernel.org,
 
---- linux-2.4.27-pre1/net/Config.in.orig	2003-10-01 20:49:26.000000000 +0200
-+++ linux-2.4.27-pre1/net/Config.in	2004-04-23 14:43:58.000000000 +0200
-@@ -99,7 +99,7 @@
+We have received your request to join the Imprimatur 
+group hosted by Yahoo! Groups, a free, easy-to-use community service.
 
- mainmenu_option next_comment
- comment 'Network testing'
--tristate 'Packet Generator (USE WITH CAUTION)' CONFIG_NET_PKTGEN
-+dep_tristate 'Packet Generator (USE WITH CAUTION)' CONFIG_NET_PKTGEN $CONFIG_PROC_FS
- endmenu
+This request will expire in 7 days.
 
- endmenu
+TO BECOME A MEMBER OF THE GROUP: 
 
-Gr{oetje,eeting}s,
+1) Go to the Yahoo! Groups site by clicking on this link:
 
-						Geert
+   http://groups.yahoo.com/i?i=sUL23TeW_Rk7wKwZ3Rm5WsQCEeE&e=linux-kernel%40vger%2Ekernel%2Eorg 
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+  (If clicking doesn't work, "Cut" and "Paste" the line above into your 
+   Web browser's address bar.)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-OR-
+
+2) REPLY to this email by clicking "Reply" and then "Send"
+   in your email program
+
+If you did not request, or do not want, a membership in the
+Imprimatur group, please accept our apologies
+and ignore this message.
+
+Regards,
+
+Yahoo! Groups Customer Care
+
+Your use of Yahoo! Groups is subject to http://docs.yahoo.com/info/terms/ 
+
+ 
+
+
+

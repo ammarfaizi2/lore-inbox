@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262365AbTCMOLH>; Thu, 13 Mar 2003 09:11:07 -0500
+	id <S262358AbTCMOJg>; Thu, 13 Mar 2003 09:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262367AbTCMOLG>; Thu, 13 Mar 2003 09:11:06 -0500
-Received: from davisson.uni2.net ([130.227.52.105]:42888 "EHLO
-	davisson.uni2.net") by vger.kernel.org with ESMTP
-	id <S262364AbTCMOKz>; Thu, 13 Mar 2003 09:10:55 -0500
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Initialisation code for ELAN-SC400 graphics driver.
-From: Jarl Friis <jarl@pallas.dk>
-Organization: Software Developer
-Date: 13 Mar 2003 15:23:09 +0100
-Message-ID: <m0r89b9whe.fsf@linux.pallas.dk>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262360AbTCMOJg>; Thu, 13 Mar 2003 09:09:36 -0500
+Received: from jack.stev.org ([217.79.103.51]:37940 "EHLO jack.stev.org")
+	by vger.kernel.org with ESMTP id <S262358AbTCMOJd>;
+	Thu, 13 Mar 2003 09:09:33 -0500
+Message-ID: <01f901c2e96c$98b1e3d0$0cfea8c0@ezdsp.com>
+From: "James Stevenson" <james@stev.org>
+To: "pd dd" <parviz_kernel@yahoo.com>, "M. Soltysiak" <msoltysiak@hotmail.com>,
+       "ML-linux-kernel" <linux-kernel@vger.kernel.org>
+Cc: "M. Soltysiak" <msoltysiak@hotmail.com>,
+       "William Stearns" <wstearns@pobox.com>
+References: <20030313091315.14044.qmail@web20504.mail.yahoo.com>
+Subject: Re: Linux BUG: Memory Leak
+Date: Thu, 13 Mar 2003 14:26:53 -0000
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4920.2300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-I try to setup a system using AMD ELAN-SC400.
 
-The kernel is up and runnig fine. But I would like to use the
-integrated graphics controller of the Elan SC400. I can set this up in
-flat-mapped (linear mapped) framebuffer mode with 4 BPP, and I guess this is
-compatible with VESA-fb (not sure). I would like to know how (and
-where in the source) to initialise the screen_info code to trigger the
-vesafb driver.
+> With all due respect to all the great programmers and
+> minds in this mailing list. I could not read this and
+> not reply to this guy:
+>
+> Maybe you should take your games and movies to windows
+> and leave linux for more serious stuff. That'll fix
+> your memory leak.
 
-Can someone give a clue? or have someone already done this? will they
-reveal the code for it?
+correct me if i am wrong here but i know alot of students
+who use linux todo serious stuff and get really pissed off have to
+reboot into windows to play games because they dont work
+under windows and for various other things that also cause
+problems in linux. Actually quite alot of them end up
+dumping linux because any of the serious games wont work on there
+system because they would have to tear much of it apart toget
+them to work.
 
-in what source code file is screen_info initialised on a standard
-PC-system?
+this isnt a serious problem then ?
 
-Jarl
+    James
+
+
+
 

@@ -1,96 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267982AbTBMHXK>; Thu, 13 Feb 2003 02:23:10 -0500
+	id <S267986AbTBMH0e>; Thu, 13 Feb 2003 02:26:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267985AbTBMHXK>; Thu, 13 Feb 2003 02:23:10 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:14591 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S267982AbTBMHXI>;
-	Thu, 13 Feb 2003 02:23:08 -0500
-Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: Daniel Pittman <daniel@rimspace.net>
-Cc: wingel@nano-systems.com, lkml <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <87n0l0olel.fsf@enki.rimspace.net>
-References: <1045106216.1089.16.camel@vmhack> 
-	<87n0l0olel.fsf@enki.rimspace.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Feb 2003 23:32:38 -0800
-Message-Id: <1045121561.2326.27.camel@vmhack>
-Mime-Version: 1.0
+	id <S267987AbTBMH0e>; Thu, 13 Feb 2003 02:26:34 -0500
+Received: from vaak.stack.nl ([131.155.140.140]:32525 "EHLO mailhost.stack.nl")
+	by vger.kernel.org with ESMTP id <S267986AbTBMH0b>;
+	Thu, 13 Feb 2003 02:26:31 -0500
+Date: Thu, 13 Feb 2003 08:36:20 +0100 (CET)
+From: Jos Hulzink <josh@stack.nl>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Rick Warner <rick@sapphire.no-ip.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support for dual independent keyboards in devel kernel?
+In-Reply-To: <Pine.LNX.4.44.0302121833480.31435-100000@phoenix.infradead.org>
+Message-ID: <20030213082212.L32807-100000@toad.stack.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-12 at 20:27, Daniel Pittman wrote:
-> On 12 Feb 2003, Rusty Lynch wrote:
-> > The following is a proposal for a new sysfs based watchdog interface
-> > to be used as a replacement for the current char device w/ ioctl api
-> > as described in Documentation/watchdog-api.txt.
-> 
-> [...]
-> 
-> > Where each these files to the following ==>
-> > 
-> > start (RO)
-> >   - show: starts watchdog count
-> 
-> This would be much better as a store -- that way 'cat /.../watchdog0/*'
-> will not activate the watchdog. A more deliberate action is safer for
-> forgetful admins, such as me.
-> 
+On Wed, 12 Feb 2003, James Simmons wrote:
 
-Sounds logical.  My reasoning was more of a coin toss.
+> > I have been doing some research on running 2 independent displays off of 1
+> > machine (ie 2 keyboards, 2 mice, 2 vid cards, 2 monitors).. there are some
+> > hacks out there now that "sort of" work.... but nothing stable and official..
+> > it's all hacks....   I have read that support for this is planned for
+> > 2.5/2.6, and would like to know what progress has been done.  I am willing to
+> > help where I can.  I am a good C/C++ programmer, but have not done any kernel
+> > work so far.
+>
+>    You are talking about the linuxconsole project. Yes with alot of work
+> we got a multi-desktop system working. We even got several X servers with
+> several patches running on different desktops even tho they where working
+> out of one box. The main problem with this research was the console system
+> level of code was intertwine in each input and display driver. In 2.5.X
+> you see the moving of the console keyboards etc to the input api which can
+> function indepenedent of the console layer. You also had the same effect
+> with the new framebuffer layer. This was done to make driver writing easy
+> and to help the embedded space as well as prepare for the future
+> multi-desktop of linux.
+>    What has not been done is true multi-desktop support. I like to work on
+> this in the future but due to recent events in my life I have to abandon
+> such research :-(
+>
 
-> [...]
-> 
-> > status (RO)
-> >   - show: prints the current status value
-> > 
-> > bootstatus (RO)
-> >   - show: same as 'status', but valid for just after the last reboot.
-> 
-> [...]
-> 
-> > enable (RW)
-> >   - show: prints 0 or 1 to indicate if the wdt is enabled
-> >   - store: expects 0 or 1 to disable or enable the wdt
-> 
-> Isn't this the same information as the 'status' and 'start' members?
-> 
->       Daniel
+There is another project dealing with this: KGI. This project not
+only deals with Linux, but also with NetBSD and Freew:BSD. Together with
+the
+Linux input layer KGI should support as many keyboards / mice as you can
+buy.... Multiple desktop consoles runs fluently, support for full 3D
+accellerated desktops (with help from an user space lib: GGI) is almost
+there.
 
-Now that think about it, enable really is the same as start/stop, but
-the status is still something different.  I didn't really talk about it,
-but my intent was to provide the information currently available from
-the WDIOC_GETSTATUS ioctl, which is a value composed of the following
-flags:
+I'm still looking at how to connect multiple keyboards, for now I use a
+microcontroller on a serial port which gives me 4 keyboards extra.
 
-#define	WDIOF_OVERHEAT		0x0001	/* Reset due to CPU overheat */
-#define	WDIOF_FANFAULT		0x0002	/* Fan failed */
-#define	WDIOF_EXTERN1		0x0004	/* External relay 1 */
-#define	WDIOF_EXTERN2		0x0008	/* External relay 2 */
-#define	WDIOF_POWERUNDER	0x0010	/* Power bad/power fault */
-#define	WDIOF_CARDRESET		0x0020	/* Card previously reset the CPU */
-#define WDIOF_POWEROVER		0x0040	/* Power over voltage */
-#define WDIOF_SETTIMEOUT	0x0080  /* Set timeout (in seconds) */
-#define WDIOF_MAGICCLOSE	0x0100	/* Supports magic close char */
-#define	WDIOF_KEEPALIVEPING	0x8000	/* Keep alive ping reply */
+Unfortunately we're still missing a programmer willing to take a look at
+the multiple keyboard / mice issue. The code is almost there, though not
+functional yet. For info about KGI please drop by on
+http://kgi-wip.sourceforge.net or irc.freenode.net #kgi
 
-I debated with myself if each of these flags should be broke out into
-their own file, and I'm still not sure if it is better to keep the
-status as a single file.
+Jos
 
-> 
-> -- 
-> A cathedral, a wave of a storm, a dancer's leap,
-> never turn out to be as high as we had hoped.
->         -- Marcel Proust
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+P.S. For those thinking KGI is still that crazy project doing graphics
+accelleration in the kernel trough ioctls, please look again !
 

@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270851AbTG0QR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 12:17:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270855AbTG0QR0
+	id S270856AbTG0QTj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 12:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270862AbTG0QTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 12:17:26 -0400
-Received: from 228.80-202-174.nextgentel.com ([80.202.174.228]:33993 "EHLO
-	Knoppix") by vger.kernel.org with ESMTP id S270851AbTG0QRY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 12:17:24 -0400
-Subject: Re: Linux 2.4.22-pre8
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Nuno Silva <nuno.silva@vgertech.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55L.0307250939590.12476@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307241721130.7875@freak.distro.conectiva>
-	<3F20A0DB.2000101@vgertech.com> 
-	<Pine.LNX.4.55L.0307250939590.12476@freak.distro.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 27 Jul 2003 18:31:30 +0200
-Message-Id: <1059323490.1017.10.camel@hjemmepese>
-Mime-Version: 1.0
+	Sun, 27 Jul 2003 12:19:39 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:51725 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S270856AbTG0QSt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 12:18:49 -0400
+To: Ren <l.s.r@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Inline vfat_strnicmp()
+References: <20030727172150.15f8df7f.l.s.r@web.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 28 Jul 2003 01:33:58 +0900
+In-Reply-To: <20030727172150.15f8df7f.l.s.r@web.de>
+Message-ID: <87wue4udxl.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As far as I know, all known security problems are fixed. All security
-> fixes from -ac are in mainline.
-> 
-> So if anyone knows any security problem which is not fixed yet, please
-> inform me.
+Ren <l.s.r@web.de> writes:
 
-Are these fixes available as separate patches to 2.4.21? If so, where
-can I find them?
+> the function vfat_strnicmp() has just one callsite. Inlining it
+> actually shrinks vfat.o slightly.
 
-roy
+Thanks. I'll submit this patch to Linus.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

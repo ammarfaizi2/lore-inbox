@@ -1,72 +1,125 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317277AbSFLA1R>; Tue, 11 Jun 2002 20:27:17 -0400
+	id <S317265AbSFLAaS>; Tue, 11 Jun 2002 20:30:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317279AbSFLA1Q>; Tue, 11 Jun 2002 20:27:16 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:39862 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S317277AbSFLA1P>; Tue, 11 Jun 2002 20:27:15 -0400
-Date: Tue, 11 Jun 2002 19:27:10 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.21: kbuild changes broke filenames with commas 
-In-Reply-To: <16120.1023839748@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.44.0206111903480.18347-100000@chaos.physics.uiowa.edu>
+	id <S317268AbSFLAaR>; Tue, 11 Jun 2002 20:30:17 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:52497 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S317265AbSFLAaP>;
+	Tue, 11 Jun 2002 20:30:15 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200206120030.g5C0UDF139852@saturn.cs.uml.edu>
+Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
+To: fgouget@free.fr (Francois Gouget)
+Date: Tue, 11 Jun 2002 20:30:13 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.43.0206110712290.7449-100000@amboise.dolphin> from "Francois Gouget" at Jun 11, 2002 07:31:32 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jun 2002, Keith Owens wrote:
+Francois Gouget writes:
 
-> So what?  Users want filenames with ',' in them, the build system
-> should cope with it.  Restricting what the user is allowed to do to
-> what the build system can handle is the wrong approach.  The build
-> system already has to replace '-' with '_', changing comma as well is
-> not a problem.  Or are you going to say that '-' is not allowed in
-> filenames either?
+> This looks like a bad idea. The reason is that the VFAT driver is the
+> wrong abstraction layer to support the '.lnk' files:
+>
+>  * on Windows if you open("foo.lnk") you get the .lnk file, not the file
+> it 'links' to. On Linux you would get the file it points to instead
+> which is a different behavior.
 
-It's a stupid discussion - I added support for filenames containing a ',', 
-but the only remaining user is 53c7,8xx.c. That one is broken by the BIO 
-changes anyway, and I heard people say it should go away, as the 
-hardware is supported by other drivers. So I'll wait and see, if it 
-doesn't get fixed but removed, I think removing the hacks to support ',' 
-in the filename is the way to go.
+That's a common Windows app bug which exists exactly because
+the Microsoft implementation is at the wrong abstraction layer.
 
-> >Now, what if we had:
-> > 
-> > 	foo,bar.c
-> > 
-> > and
-> > 
-> > 	foo_bar.c
-> > 
-> > in the same directory?  The kbuild system goes wrong, destroying dependency
-> > information, using the wrong KBUILD_BASENAME.  Oops.  I guess we papered
-> > over a bug by allowing commas in filenames.
-> 
-> Not in kbuild 2.5.  I handle this case correctly for the -MD dependency
-> filename.  Try it and see.
+>  * Windows supports .lnk files on FAT, VFAT, NTFS, ISO9660, etc. So if
+> such support is added in the Linux kernel, it should be added to all of
+> the above filesystems. And then, there is no reason not to add it to
+> ext2, NFS, etc!
 
-Well, let me rephrase it as "foo,bar.c" and "foo:bar.c" ;). kbuild-2.5
-would break. Of course it's fixable with even more workarounds, but that's
-not the point.
+As long as a default ext2 mount doesn't get hit, I won't complain.
 
-> OBJECTNAME is externally visible, it is used in Rusty's rationalization
-> of boot and module parameters.  The only time that OBJECTNAME collision
-> would be a problem is when there are two modules called foo,bar and
-> foo_bar.  Having two modules that differ by a single character in the
-> middle of the name is going to cause more problems than just option
-> collision.  BTW, the existing build system does not support
-> KBUILD_OBJECTNAME so Rusty's code cannot go in.
+>  * what happens if a Unix program tries to create a file called
+> 'foo.lnk' that is not a .lnk file? I could create a text file called
+> 'mylinks.lnk' to store bookmark stuff for instance.
 
-Rusty knows that the current build system can support KBUILD_OBJECT (which 
-is what you called it, not KBUILD_OBJECTNAME) just fine - it's a three 
-line diff, but I don't see a point in submitting it as long as nobody uses 
-it.
+You get about the same as when creating ":" I'd imagine.
 
---Kai
+>  * there is no such thing as a dead .lnk file. If the specified path is
+> not found, Windows will use the file date, file size and whatnot to try
+> to find where the target went. Is it planned to add any such support
+> planned?
+
+I really doubt that! Calling out to userspace, as kmod and the
+hotplug stuff do, might be... not extremely unreasonable.
+
+>  * it has been mentionned that this makes it possible to extract source
+> tarballs that contain symlinks on a VFAT filesystem. While this sounds
+> cool I am not sure it is so useful.
+>    - for VFAT one could use the UMSDOS filesystem to do the same thing,
+>      and get many other features at the same time (at least while in
+>      Linux)
+
+not Cygwin compatible
+
+>  * it would prevent wine from reading the information in the '.lnk'
+> file... at least for 'supported' '.lnk' files
+
+It's fixable.
+
+>  * it was suggested to implement a hack to let Wine access the '.lnk'
+> data. Why implement a hack which is going to be Linux specific when
+> doing nothing works just fine and on any Unix system? Plus this is going
+> to require Linux specific code in Wine if it is to be supported.
+
+Wine already has Linux-specific code. The "doing nothing" option
+doesn't get us what we want: symlinks.
+
+>  * making it an option does not help Wine at all, especially if it is a
+> default one. Then we have to keep telling users that they have to modify
+> their fstab if they want Wine to work.
+
+Making it an option is NOT to help Wine, except perhaps as
+a temporary work-around until Wine is updated.
+
+> The right level to implement symlink support is:
+>
+>  * in Wine. Of course! There we know what the drive mappings are, we
+> have access to the registry and can even use the native shell library.
+
+This won't help with compiling Linux on a vfat partition which
+happens to have plenty of free space for a big compile.
+
+This won't help make a vfat root work.
+
+>  * in an LD_PRELOAD library. Then they would work for all filesystems,
+> be selectable on a per-user or even per-process basis. Of course it
+> would most likely not work with Wine (ld_preload libraries seldom do)
+> but we can at least easily disable such libraries using a wrapper
+> script.
+
+This is the TOTAL CRAP option. Clearly you've never used LD_PRELOAD.
+You're not going to get that working with static linked executables,
+setuid, setgid, very old executables, very new executables, stuff
+written in FreePascal, etc., etc., etc.
+
+>  * as an option in the KDE/Gnome file browsers and related file access
+> methods. That's the layer which seems closest to the Windows shell
+> 'layer'.
+
+Does anybody actually use a GUI file browser??? Eeeew.
+Hacking everything from awk to zsh would be required.
+
+> This looks like it could be the next 'unhide' thing. See:
+
+That was botched.
+
+1. no backdoor
+2. no Wine patch to use the backdoor
+
+The info really needs to be passed via stat() and
+the directory reading calls, same as we do for the
+file type info today. Then JFS, NTFS, FAT, and many
+other filesystems could use it.
 
 

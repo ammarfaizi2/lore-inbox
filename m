@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbQLOBhd>; Thu, 14 Dec 2000 20:37:33 -0500
+	id <S129267AbQLOBxP>; Thu, 14 Dec 2000 20:53:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132657AbQLOBhX>; Thu, 14 Dec 2000 20:37:23 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12293 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129325AbQLOBhT>; Thu, 14 Dec 2000 20:37:19 -0500
-Subject: Re: Signal 11
-To: michael@linuxmagic.com (Michael Peddemors)
-Date: Fri, 15 Dec 2000 01:09:29 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <0012141807080M.19494@mistress> from "Michael Peddemors" at Dec 14, 2000 06:07:08 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E146jNL-0000SN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129325AbQLOBxF>; Thu, 14 Dec 2000 20:53:05 -0500
+Received: from skuten.gs.bergen.hl.no ([193.214.40.9]:18697 "HELO
+	gs.bergen.hl.no") by vger.kernel.org with SMTP id <S129267AbQLOBwu>;
+	Thu, 14 Dec 2000 20:52:50 -0500
+Date: 15 Dec 2000 01:22:01 -0000
+Message-ID: <20001215012201.25167.qmail@gs.bergen.hl.no>
+From: vidar-kernel@gs.bergen.hl.no
+Cc: recipient list not shown:;
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > o	We tell vendors to build RPMv3 , glibc 2.1.x
-> Curious HOW do you tell vendors??
+On my newly installed 2 CPU server with redhat-7.0 I have two Adaptec
+quartet64 (ANA-62044) ethernet cards. Using the 2.4.0-testxx kernel I
+get this kernel error for something that looks like every single packet
+passing the network interface, providing vast syslog files, and makes i t impossible to use the console terminal to anything usefull, also
+featuring unreliable network connection.
 
-When they ask. More usefully Dan Quinlann and most vendors put together a
-recommended set of things to build with and use. It warns about library
-pitfalls, kernel changes and what packaging is supported. It is far from
-perfect and nothing like the LSB goals but its a start and following it does
-give you applications that with a bit of care run on everything.
+kernel: eth0: Internal fault: The skbuff addresses do not match in netdev_rx: 922368017 vs. f6fa3800 / f6fa3810.
 
-> > o	Vendors not being stupid understand that they have a bigger market
-> > 	share if they do that.
-> Ummm.. I remember Oracle's first release... wasn't it JUST redhat??
+The numbers changes as the errors keep coming rapidly.
 
-I believe so, and Adabas was SuSE only, and I doubt either vendor wanted it
-that way. Both actually ran fine on the other but were not supported.
+I have tried the preview "2.4.0-26" kernel provided on the redhat
+cd-drom, and selfcompiled versions of 2.4.0-test11 and 2.4.0-test12
+kernels using
 
-Alan
+gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+glibc-2.2-5.
 
+The network itself is kind of working, providing speed from 11.5Mbytes/ to 3-4Mbytes/s on one tp cable, but sometimes hangs for a while,
+providing lousy and unreliable network performance.
+
+The nic is currently connected with a single cat5 tp
+cable to a switch, with auto-negotiation for speed and duplex enabled,
+showing no errors either on the switch side nor from the output of ifconfig.
+
+Since the network seems to be working almost fine, I believe it's just a small bug that needs to be located and fixed.
+
+It seems to be working fairly ok the the few hours I've been running on 2.2.18 with Donald Becker's starfire.c driver.
+
+
+Regards
+
+Vidar Haugsvær
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,85 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVARWUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVARWWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbVARWUu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 17:20:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVARWUt
+	id S261448AbVARWWM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 17:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVARWWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 17:20:49 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:32594 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261447AbVARWUk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 17:20:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=HGbCwmB0uII2XUIxZxN+fF9PSWqLyalpjbBzhZggq30R12ZJUf+6b9PcO8wifNrsjCohS8m16sNfsE7QAPd46EDO/ZVoo0MzJHLoN4HYqHHfhvl6RUJpI+j1b3EdomBmzDfDr9DnluPVWR6rmOd4+HHQ5olXBvLF97MUHEQ3aeg=
-Message-ID: <d120d500050118142068157a78@mail.gmail.com>
-Date: Tue, 18 Jan 2005 17:20:40 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 0/2] Remove input_call_hotplug
-Cc: Hannes Reinecke <hare@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Vojtech Pawlik <vojtech@suse.cz>
-In-Reply-To: <20050118215820.GA17371@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 18 Jan 2005 17:22:12 -0500
+Received: from mail.inter-page.com ([207.42.84.180]:36363 "EHLO
+	mail.inter-page.com") by vger.kernel.org with ESMTP id S261448AbVARWWI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 17:22:08 -0500
+From: "Robert White" <rwhite@casabyte.com>
+To: <linux-os@analogic.com>, "'john stultz'" <johnstul@us.ibm.com>
+Cc: "'Linux kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: New Linux System time proposal
+Date: Tue, 18 Jan 2005 14:21:38 -0800
+Organization: Casabyte, Inc.
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAo+V6scX9e0yTLGWCQJDW1QEAAAAA@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-References: <41ED23A3.5020404@suse.de> <20050118213002.GA17004@kroah.com>
-	 <d120d50005011813495b49907c@mail.gmail.com>
-	 <20050118215820.GA17371@kroah.com>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <Pine.LNX.4.61.0501111548400.3354@chaos.analogic.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jan 2005 13:58:20 -0800, Greg KH <greg@kroah.com> wrote:
-> On Tue, Jan 18, 2005 at 04:49:34PM -0500, Dmitry Torokhov wrote:
-> > On Tue, 18 Jan 2005 13:30:02 -0800, Greg KH <greg@kroah.com> wrote:
-> > > On Tue, Jan 18, 2005 at 03:56:35PM +0100, Hannes Reinecke wrote:
-> > > > Hi all,
-> > > >
-> > > > the input subsystem is using call_usermodehelper directly, which breaks
-> > > > all sorts of assertions especially when using udev.
-> > > > And it's definitely going to fail once someone is trying to use netlink
-> > > > messages for hotplug event delivery.
-> > > >
-> > > > To remedy this I've implemented a new sysfs class 'input_device' which
-> > > > is a representation of 'struct input_dev'. So each device listed in
-> > > > '/proc/bus/input/devices' gets a class device associated with it.
-> > > > And we'll get proper hotplug events for each input_device which can be
-> > > > handled by udev accordingly.
-> > >
-> > > Hm, why another input class?  We already have /sys/class/input, which we
-> > > get hotplug events for.  We also have the individual input device
-> > > hotplug events, which is what I think we really want here, right?
-> >
-> > These are a bit different classes. One is a generic input device class
-> > device. Then you have several class device interfaces (evdev,
-> > mousedev, joydev, tsdev, keyboard) that together with generic input
-> > device produce concrete input devices (mouse, js, ts) that you have
-> > implemented with class_simple.
-> 
-> Hm, but we still need to make the input_dev a "real" struct device,
-> right?  And if you do that, then you just hooked up your hotplug event
-> properly, with no userspace breakage.
+I thought it was not at all unusual to miss a jiffy here or there due to interrupt
+locking/latency; plus jiffies is expressed with respect to the value of HZ so you
+would need to do some deviding in there somewhere.
 
-I wasn't planning on doing that. The real devices are serio ports,
-gameport ports and USB devices.They require power and resource
-management and so forth. input_device is just a product of binding a
-port to appropriate driver and seems to me like an ideal class_device
-candidate. Then you add couple of class interfaces and get another
-class_device layer as a result.
+Where HZ has been adjusted up, or on slower embedded boxes where interrupts could be
+blocked longer, you would lose time.
 
-> Then, if you want to still make the evdev, mousedev, and so on as
-> class_device interfaces, that's fine, but the main point of this patch
-> was to allow the call_usermodehelper call to be removed, so that the
-> input subsytem will work properly with the kernel event and hotplug
-> systems.
->
+Or are you not talking about real-word time?
 
-I was mostly talking about the need of 2 separate classes and this
-patch lays groundwork for it althou lifetime rules in input system
-need to be cleaned up before we can go all the way.
+Rob White,
+Casabyte, Inc.
 
--- 
-Dmitry

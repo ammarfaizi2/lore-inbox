@@ -1,103 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265230AbTLLO6o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 09:58:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbTLLO6o
+	id S265251AbTLLPDL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 10:03:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265252AbTLLPDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 09:58:44 -0500
-Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:13756
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S265230AbTLLO5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 09:57:43 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: HT schedulers' performance on single HT processor
-Date: Sat, 13 Dec 2003 01:57:36 +1100
-User-Agent: KMail/1.5.3
-Cc: Nick Piggin <piggin@cyberone.com.au>, Ingo Molnar <mingo@elte.hu>
+	Fri, 12 Dec 2003 10:03:11 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:42113 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265251AbTLLPDD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 10:03:03 -0500
+Date: Fri, 12 Dec 2003 10:04:47 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: floppy motor spins when floppy module not installed
+In-Reply-To: <yw1xd6auyvac.fsf@kth.se>
+Message-ID: <Pine.LNX.4.53.0312121000150.10423@chaos>
+References: <16345.51504.583427.499297@l.a> <yw1xd6auyvac.fsf@kth.se>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312130157.36843.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I set out to find how the hyper-thread schedulers would affect the all 
-important kernel compile benchmark on machines that most of us are likely to 
-encounter soon. The single processor HT machine.
+On Fri, 12 Dec 2003, [iso-8859-1] Måns Rullgård wrote:
 
-Usual benchmark precautions taken; best of five runs (curiously the fastest 
-was almost always the second run). Although for confirmation I really did 
-this twice.
+> Dale Mellor <dale@dmellor.dabsol.co.uk> writes:
+>
+> > 1. Floppy motor spins when floppy module not installed.
+>
+> It's a known problem.  Some broken BIOSes don't turn off the motor
+> after probing for a disk.  One solution is to change the boot priority
+> in the BIOS settings so the hard disk is tried before floppy.  If you
+> ever need to boot from a floppy, you can change it back.
+>
+> --
+> Måns Rullgård
+> mru@kth.se
 
-Tested a kernel compile with make vmlinux, make -j2 and make -j8. 
+It is not a broken BIOS! The BIOS timer that ticks 18.206 times
+per second has an ISR that, in addition to keeping time, turns
+OFF the FDC motor after two seconds of inactivity. This ISR is taken
+away by Linux. Therefore Linux must turn off that motor! It is a
+Linux bug, not a BIOS bug. Linux took control away from the BIOS
+during boot.
 
-make vmlinux - tests to ensure the sequential single threaded make doesn't 
-suffer as a result of these tweaks
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-make -j2 vmlinux - tests to see how well wasted idle time is avoided
-
-make -j8 vmlinux - maximum throughput test (4x nr_cpus seems to be ceiling for 
-this).
-
-Hardware: P4 HT 3.066
-
-Legend:
-UP - Uniprocessor 2.6.0-test11 kernel
-SMP - SMP kernel
-C1 - With Ingo's C1 hyperthread patch
-w26 - With Nick's w26 sched-rollup (hyperthread included)
-
-make vmlinux
-kernel	time
-UP	65.96
-SMP	65.80
-C1	66.54
-w26	66.25
-
-I was concerned this might happen and indeed the sequential single threaded 
-compile is slightly worse on both HT schedulers. (1)
-
-make -j2 vmlinux
-kernel	time
-UP	65.17
-SMP	57.77
-C1	66.01
-w26	57.94
-
-Shows the smp kernel nicely utilises HT whereas the UP kernel doesn't. The C1 
-result was very repeatable and I was unable to get it lower than this.(2)
-
-make -j8 vmlinux
-kernel	time
-UP	65.00
-SMP	57.85
-C1	58.25
-w26	57.94
-
-Results are not obviously better(3) but C1 is still a little slower (2)
-
-Ok so what happened as I see it?
-
-(1) My concern with the HT patches and single compiles was that in an effort 
-to keep both logical cores busy, the next task would bounce to the other 
-logical core. While very cheap on HT it's still more expensive than staying 
-on the same core. I can't prove that happened.
-
-(2) We know the C1 patch has trouble booting on some hardware so maybe there's 
-a bug in there affecting performance too.
-
-(3) There is a very real performance advantage in this benchmark to enabling 
-SMP on a HT cpu. However, in the best case it only amounts to 11%. This means 
-that if a specialised HT scheduler patch gained say 10% it would only amount 
-to 1% overall - hardly an exciting amount. 1% should have been on the edge of 
-statistical significance, but I haven't even been able to show any difference 
-at all. This does _not_ mean there aren't performance benefits elsewhere, but 
-they obviously need evidence.
-
-Conclusion?
-If you run nothing but kernel compiles all day on a P4 HT, make sure you 
-compile it for SMP ;-)
 

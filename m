@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312086AbSCTTsq>; Wed, 20 Mar 2002 14:48:46 -0500
+	id <S312081AbSCTTr4>; Wed, 20 Mar 2002 14:47:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312082AbSCTTsh>; Wed, 20 Mar 2002 14:48:37 -0500
-Received: from lightning.hereintown.net ([207.196.96.3]:6568 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id <S312083AbSCTTsX>; Wed, 20 Mar 2002 14:48:23 -0500
-Date: Wed, 20 Mar 2002 15:05:49 -0500 (EST)
-From: Chris Meadors <clubneon@hereintown.net>
-To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: task_struct changes?
-In-Reply-To: <61DB42B180EAB34E9D28346C11535A78062DA0@nocmail101.ma.tmpw.net>
-Message-ID: <Pine.LNX.4.40.0203201502170.7618-100000@rc.priv.hereintown.net>
+	id <S312082AbSCTTrq>; Wed, 20 Mar 2002 14:47:46 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:22788 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S312083AbSCTTrb>;
+	Wed, 20 Mar 2002 14:47:31 -0500
+Date: Wed, 20 Mar 2002 16:36:48 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Hugh Dickins <hugh@veritas.com>,
+        Dave McCracken <dmccr@us.ibm.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Creating a per-task kernel space for kmap, user pagetables, et
+ al
+In-Reply-To: <127930000.1016651345@flay>
+Message-ID: <Pine.LNX.4.44L.0203201635570.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Mar 2002, Holzrichter, Bruce wrote:
+On Wed, 20 Mar 2002, Martin J. Bligh wrote:
 
-> p_pptr changed to parent and you could just swap them in the code,
->
-> IE:
-> task_struct->p_pptr would become task_struct->parent
->
-> Not sure about the p_opptr, but I bet you'll find the same type of change.
->
-> I found this on Sparc64 as well, if you grep the 2.5.7 patch file, you
-> should be able to find p_opptr pretty quickly, I bet.
->
-> Hope this helps..
->
-> Bruce H.
+> This, unfortunately, isn't a total solution - we may sometimes need to
+> modify the task's pagetables from outside the process context, eg.
+> swapout (thanks to dmc for pointing this out to me ;-)). For this, we'd
+> just use the existing kmap mechanism to create another mapping to use
+> temporarily, and we're no worse off than before. But on the whole I
+> think it wins us enough to be worthwhile.
 
-Thanks it did help.
+There is absolutely no problem mapping the page tables of
+another process into our own kmap space. It's just like
+what the kernel does now, except that it'll be scalable
+because each process has its own kmap array.
 
-I guessed right, but just wanted to make sure.
+regards,
 
-And I found p_opptr became real_parent, if anyone else was wondering.
-
--Chris
+Rik
 -- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

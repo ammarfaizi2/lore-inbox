@@ -1,44 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263960AbRGRXAy>; Wed, 18 Jul 2001 19:00:54 -0400
+	id <S264096AbRGRXDo>; Wed, 18 Jul 2001 19:03:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264096AbRGRXAo>; Wed, 18 Jul 2001 19:00:44 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:25613 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263960AbRGRXAf>; Wed, 18 Jul 2001 19:00:35 -0400
-Date: Wed, 18 Jul 2001 15:59:30 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Inclusion of zoned inactive/free shortage patch
-In-Reply-To: <0107190057100H.12129@starship>
-Message-ID: <Pine.LNX.4.33.0107181555181.1237-100000@penguin.transmeta.com>
+	id <S264345AbRGRXDe>; Wed, 18 Jul 2001 19:03:34 -0400
+Received: from [209.213.80.2] ([209.213.80.2]:51650 "EHLO
+	joat.prv.ri.meganet.net") by vger.kernel.org with ESMTP
+	id <S264096AbRGRXDP>; Wed, 18 Jul 2001 19:03:15 -0400
+Message-ID: <3B5615E8.B838D6BD@ueidaq.com>
+Date: Wed, 18 Jul 2001 19:04:08 -0400
+From: Alex Ivchenko <aivchenko@ueidaq.com>
+Organization: UEI, Inc.
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,pdf
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: root@chaos.analogic.com
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: PROBLEM SOLVED: 2.4.x SPINLOCKS behave differently then 2.2.x
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard,
 
-On Thu, 19 Jul 2001, Daniel Phillips wrote:
+Linus Torvalds <torvalds@transmeta.com> wrote:
+> 
+> Richard B. Johnson <root@chaos.analogic.com> wrote:
+> >    ticks = 1 * HZ;        /* For 1 second */
+> >    while((ticks = interruptible_sleep_on_timeout(&wqhead, ticks)) > 0)
+> >                  ;
+> Don't do this.
 >
-> I don't really see much use for inactive_shortage_total() by itself,
-> except maybe deciding when to scan vs sitting idle.
+> Imagine what happens if a signal comes in and wakes you up? The signal
+> will continue to be pending, which will make your "sleep loop" be a busy
+> loop as you can never go to sleep interruptibly with a pending signal.
 
-Absolutely. But that's an important decision in itself. Getting that
-decision wrong means that we either scan too little (and which point the
-question of per-zone shortages becomes moot, because by the time we start
-scanning we're too deep in trouble to be able to do a good gradual job
-anyway). Or we scan too much, and then the per-zone shortage just means
-that we'll always have so much inactive stuff in all the zones that we'll
-continue scanning forever - because none of the zones (correctly) feel
-that they have any reason to actually free anything.
+Well, the problem was quite different compare to what I thought.
 
-So the global inactive_shortage() decision is certainly an important one:
-it should trigger early enough to matter, but not so early that we trigger
-it even when most local zones are really totally saturated and we really
-shouldn't be scanning at all.
+Our hardware requires that once you start talking to firmware you cannot let
+anybody to interrupt you.
+Thus, I lazily put in all "magic" handlers (read, write, ioctl):
 
-		Linus
+my_ioctl() {
+... do entry stuff
+_fw_spinlock // = spin_lock_irqsave(...);
 
+.. do my stuff (nobody could interrupt me)
+
+_fw_spinunlock // = spin_lock_irqrestore(...);
+}
+
+Everything worked fine under 2.2.x (I knew that this was a shortcut!!!)
+In 2.4.x I could not call wake_up_interruptible() while in spinlock 
+(and it's clearly understandable).
+
+Now it seems that I have to grab and release spinlock each time I talk to the board,
+exactly as I did in NT:
+     KeAcquireSpinLock(&Adapter->DeviceLock, &oldIrql);
+     if (KeSynchronizeExecution(Adapter->InterruptObject, PdAdapterEnableInterrupt, &Context));
+     KeReleaseSpinLock(&Adapter->DeviceLock, oldIrql);
+
+What d'u think?
+
+-- 
+Regards,
+Alex
+
+--
+Alex Ivchenko, Ph.D.
+United Electronic Industries, Inc.
+"The High-Performance Alternative (tm)"
+--
+10 Dexter Avenue
+Watertown, Massachusetts 02472
+Tel: (617) 924-1155 x 222 Fax: (617) 924-1441
+http://www.ueidaq.com

@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274732AbRIUBnx>; Thu, 20 Sep 2001 21:43:53 -0400
+	id <S274736AbRIUBvN>; Thu, 20 Sep 2001 21:51:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274736AbRIUBnn>; Thu, 20 Sep 2001 21:43:43 -0400
-Received: from mailb.telia.com ([194.22.194.6]:8968 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S274732AbRIUBni>;
-	Thu, 20 Sep 2001 21:43:38 -0400
-Message-Id: <200109210143.f8L1hnm08604@mailb.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S274739AbRIUBvE>; Thu, 20 Sep 2001 21:51:04 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:25606 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S274736AbRIUBuv>; Thu, 20 Sep 2001 21:50:51 -0400
+Date: Thu, 20 Sep 2001 22:51:08 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Roger Larsson <roger.larsson@norran.net>,
+        Oliver Xymoron <oxymoron@waste.org>,
+        Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Stefan Westerfeld <stefan@space.twc.de>, Robert Love <rml@tech9.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: [PATCH] Preemption Latency Measurement Tool
-Date: Fri, 21 Sep 2001 03:38:59 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: oxymoron@waste.org (Oliver Xymoron),
-        Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?q?N=FCtzel?=),
-        stefan@space.twc.de (Stefan Westerfeld), rml@tech9.net (Robert Love),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <E15kEjB-0006n9-00@the-village.bc.nu>
-In-Reply-To: <E15kEjB-0006n9-00@the-village.bc.nu>
+In-Reply-To: <20010921032230.Q729@athlon.random>
+Message-ID: <Pine.LNX.4.33L.0109202249370.1360-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 September 2001 03.03, Alan Cox wrote:
-> > If this analysis is correct:
-> > We really need to run RT processes with RT priorities!
-> >
-> > It is also possible that multimedia applications needs to be rewritten =
-> > to
+On Fri, 21 Sep 2001, Andrea Arcangeli wrote:
+> On Fri, Sep 21, 2001 at 02:03:37AM +0100, Alan Cox wrote:
+> > they dont get stuck doing a huge amount of pageout work for someone else.
+> > Thats one thing I seem to be seeing with the 10pre11 VM.
 >
-> I dont believe this is an application problem. Applications allocating
-> memory can end up doing page outs for other people. Its really important
-> they dont get stuck doing a huge amount of pageout work for someone else.
-> Thats one thing I seem to be seeing with the 10pre11 VM.
->
-> Sound cards have a lot of buffering, we are talking 64-128Kbytes + on card
-> buffers. Thats 0.25-0.5 seconds at 48Khz 16bit stereo
->
+> actually one feature of the 10pre11 VM is that it will avoid a
+> task to give to other people the pages that it is freeing for
+> itself. The previous VM didn't has such a feature. So (in theory
+> :) it should be the other way around. see the implementation of
+> page_alloc.c::balance_classzone().
 
-Hmm..
+The key word here seems to be "in theory"  ;)
 
-The yield we do in __alloc_pages is it really correct?
-1. Suppose it is not we that are the problem.
-2. Suppose there are lots of other processes that gets to run.
-3. If kswapd had higher prio, it would start to run without us giving up...
+Without testing the thing to death there's no way what
+it really does. Yes, this can make development go at a
+slower speed, but at least you'll end up with some idea
+of what's going on...
 
-I have to try...
+regards,
 
-/RogerL
+Rik
+--
+IA64: a worthy successor to the i860.
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

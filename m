@@ -1,77 +1,56 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbVCNE7y (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 13 Mar 2005 23:59:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVCNE6p
+	id S261738AbVCNTPj (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 14 Mar 2005 14:15:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVCNTPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 23:58:45 -0500
-Received: from smtp.zipmail.com.br ([200.221.11.147]:4839 "EHLO
-	www.zipmail.com.br") by vger.kernel.org with ESMTP id S261430AbVCNE4h convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 23:56:37 -0500
-Message-ID: <4233F30600001CB4@www.zipmail.com.br>
-Date: Mon, 14 Mar 2005 05:54:40 +0100
-From: mariasalem1@zipmail.com.br
-Subject: =?iso-8859-1?Q?LET=20US=20SHOW=20CONCERN?=
-To: mariasalem1@zipmail.com.br
+	Mon, 14 Mar 2005 14:15:39 -0500
+Received: from mail.mylife.com.ph ([202.124.137.125]:62223 "EHLO mylife.ph")
+	by vger.kernel.org with ESMTP id S261733AbVCNTPb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 14:15:31 -0500
+Message-ID: <1110856146.423651d24d17c@mylife.ph>
+Date: Tue, 15 Mar 2005 11:09:06 +0800
+From: Baba Usman <bbausman@mylife.ph>
+To: bbausman@mylife.ph
+Subject: Contract Offer.
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 212.247.71.12
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261430AbVCNE7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261738AbVCNTPj@vger.kernel.org>
 
-send replies to mariasalem2003@k.ro
-DEAR SIR,
+>From The Desk Of Baba Usman
+Reply-To:bab_usman@yahoo.com
 
+For Your Attention, 
 
+The Managing Director/Owner
 
-MY NAME IS MARIA SALEM.I AM 59 YEARS OLD WIDOW. I AM FROM SUDAN.I WAS
-MARRIED
- TO KHALID SALEM AND WE HAD
- THREE CHILDREN.MY HUSBAND AND MY THREE CHILDREN DIED IN IRAQ DURING THE
-LAST ATTACK
- ON IRAQ BY THE COALITION FORCES. MY HUSBAND WORKED AS AN ACCOUNTANT AT
-THE
-DURRA REFINERY IN IRAQ AND WHEN THE FUNDAMENTALISTS BLEW UP THE REFINERY,
-MY HUSBAND AND THE DIRECTOR
-OF THE REFINERY HAD $50MILLION UNITED STATES DOLLARS IN THEIR POSSESSION
-AND SINCE THE REFINERY HAS BEEN BURNT DOWN, THERE WERE NO TRACES AND THE
-MANAGING DIRECTOR GAVE MY HUSBAND THIS MONEY IN QUESTION HERE.
-EVER SINCE, I HAVE BEEN HELPING THE ORPHANS IN THE ORPHANAGE/MOTHERLESS
+My name is BABA USMAN, and this is an urgent contract invitation from Iraq. My
+benefactor at the new American controlled Iraq ministry has mandated me to seek
+for your cooperation in a multi-million dollars worth of supply contract on
+Building/Medical/Textile and General Ship equipments. Please if you can assist
+us, then kindly contact me via My E-mail {bab_usman@yahoo.com}(PLEASE MAKE SURE
+TO SEND EMAIL ONLY DETAILING YOUR DIRECT TELEPHONE,FAX NUMBERS AND EXCLUSIVE
+EMAIL based on your company abilities).
 
-HOME.I HAVE DONATED MONEY TO THE ORPHANS IN
-SIERRA-LEONE,SUDAN,CAMEROON, CAMBODIA
-.
-BEFORE I BECAME ILL,I DEPOSITED SOME MONEY, SEVENTEEN MILLION FIVE HUNDRED
-THOUSAND
-DOLLARS
-WITH A STORAGE AND SECURITY FIRM IN EUROPE.
+As soon as we recieve these, I shall get back to you with all details
+exclusively.
 
-PRESENTLY, I AM IN A HOSPITAL. MY DOCTORS TOLD ME THAT I HAVE CANCER OF
+NB:80% upfront for all supplies.
 
-THE BREAST THAT I HAVE FEW MONTHS TO LIVE.
+Regards,
 
- YOU WILL NOW HELP ME TO TAKE THE MONEY(SEVEN
-MILLION FIVE HUNDRED THOUSAND DOLLARS) TO ANY ORPHANANAGE HOME OF YOUR
-CHOICE:
-
-
-I AM OFFERING YOU 20% OF THE TOTAL SUM OF SEVENTEEN MILLION FIVE HUNDRED
-THOUSAND DOLLARS 5% IS FOR ANY EXPENSES INCURED BY YOU. AS SOON AS I RECEIVE
-YOUR REPLY, I WILL INTRODUCE YOU TO MY ATTORNEY AND HE
-WILL GIVE YOU DETAILS.
-
-
-YOURS SINCERELY
-
-MARIA SALEM
+BABA USMAN.
 
 
 
 
-------------------------------------------
-Use o melhor sistema de busca da Internet
-Radar UOL - http://www.radaruol.com.br
 
 
 
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.

@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282145AbRK1OGm>; Wed, 28 Nov 2001 09:06:42 -0500
+	id <S283050AbRK1OIA>; Wed, 28 Nov 2001 09:08:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282150AbRK1OGb>; Wed, 28 Nov 2001 09:06:31 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:59788 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S282145AbRK1OGU>; Wed, 28 Nov 2001 09:06:20 -0500
-Date: Wed, 28 Nov 2001 09:06:12 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Chris Meadors <clubneon@hereintown.net>
-cc: Martin Eriksson <nitrax@giron.wox.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 'spurious 8259A interrupt: IRQ7'
-In-Reply-To: <Pine.LNX.4.40.0111280855270.88-100000@rc.priv.hereintown.net>
-Message-ID: <Pine.LNX.3.95.1011128084801.10732A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283054AbRK1OHw>; Wed, 28 Nov 2001 09:07:52 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:39695 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S283050AbRK1OHk>;
+	Wed, 28 Nov 2001 09:07:40 -0500
+Date: Wed, 28 Nov 2001 15:07:17 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Sebastian =?iso-8859-1?Q?Dr=F6ge?= <sebastian.droege@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre2 compile error in ide-scsi.o ide-scsi.c
+Message-ID: <20011128150717.C23858@suse.de>
+In-Reply-To: <20011128135552.204311E532@Cantor.suse.de> <20011128145858.A23858@suse.de> <20011128140246.318A01E560@Cantor.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20011128140246.318A01E560@Cantor.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Nov 2001, Chris Meadors wrote:
-
-> On Wed, 28 Nov 2001, Martin Eriksson wrote:
+On Wed, Nov 28 2001, Sebastian Dröge wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> > I'm starting to believe it has something to do with the parallel port being
-> > unconnected, thus sending random signals to the mobo causing an interrupt?
-> > If this is the case it is very possible that it has to do with correct
-> > grounding also...
+> Am Mittwoch, 28. November 2001 14:58 schrieben Sie:
+> > On Wed, Nov 28 2001, Sebastian Dröge wrote:
+> > > -----BEGIN PGP SIGNED MESSAGE-----
+> > > Hash: SHA1
+> > >
+> > > Hi Jens,
+> > > your patch doesn't work for ide-scsi
+> > > I get this oops when trying to mount a CD:
+> >
+> > [oops in sr_scatter_pad]
+> >
+> > Hmm ok, and 2.5.1-pre1 works for you right?
 > 
-> Actually I believe way back there was a discussion about this same
-> message, Alan Cox said he thought it was caused by bad parallel ports.
-> 
-> That said I see it on 2 Athlon boxes with VIA chipsets.  One I had never
-> seen the message until I removed the parallel port QuickCam I had hooked
-> up.
-> 
+> Yes it works very well
 
-IRQ7 is usually connected to the parallel port. If there is no driver
-installed, that expects interrupts, you could end up with this
-annoying message because the printer status bits are all ORed into
-that IRQ line. You can disable this with software, though, and it
-might be a good idea.
+Ok, thanks for confirming that. Going to take a look at it now.
 
-          outb(0, BASE+2);
-
-... where BASE is 0x278, 0x378, 0x3bc, etc.. the printer ports.
-
-Also, a catch-all for confused interrupt controllers is IRQ7. Even
-without a parallel port, you can still get an occasional spurious
-interrupt. I think the kernel should have an interrupt handler for
-this interrupt that does nothing except ACK the interrupt and
-keep its mouth shut.  The request_irq() procedure should ignore
-the fact that it is "in use", and let any driver have it without
-sharing it.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+-- 
+Jens Axboe
 

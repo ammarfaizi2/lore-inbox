@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268117AbUILPy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268120AbUILQBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268117AbUILPy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 11:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268120AbUILPy3
+	id S268120AbUILQBY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 12:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268121AbUILQBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 11:54:29 -0400
-Received: from mta5.srv.hcvlny.cv.net ([167.206.5.78]:52596 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S268117AbUILPyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 11:54:25 -0400
-Date: Sun, 12 Sep 2004 11:53:44 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: [PATCH 2.6] watch64: generic variable monitoring system
-In-reply-to: <1094460391.1151.26.camel@jzny.localdomain>
-To: hadi@cyberus.ca
-Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Message-id: <200409121153.52047.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-References: <200409031307.01240.jeffpc@optonline.net>
- <200409051219.47590.jeffpc@optonline.net>
- <1094460391.1151.26.camel@jzny.localdomain>
+	Sun, 12 Sep 2004 12:01:24 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:45249 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S268120AbUILQBW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 12:01:22 -0400
+Date: Sun, 12 Sep 2004 09:00:51 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: Andrea Arcangeli <andrea@novell.com>, Arjan van de Ven <arjanv@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>, Andrea Arcangeli <andrea@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wedgwood <cw@f00f.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+Message-ID: <623470000.1095004850@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.53.0409121133480.2297@montezuma.fsmlabs.com>
+References: <593560000.1094826651@[10.10.2.4]><Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain><20040910151538.GA24434@devserv.devel.redhat.com> <20040910152852.GC15643@x30.random><20040910153421.GD24434@devserv.devel.redhat.com> <20040912141701.GA21626@nocona.random><622230000.1095001434@[10.10.2.4]> <Pine.LNX.4.53.0409121133480.2297@montezuma.fsmlabs.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--Zwane Mwaikambo <zwane@linuxpower.ca> wrote (on Sunday, September 12, 2004 11:45:19 -0400):
 
-Sorry, I missed your email.
+> yOn Sun, 12 Sep 2004, Martin J. Bligh wrote:
+> 
+>> --Andrea Arcangeli <andrea@novell.com> wrote (on Sunday, September 12, 2004 16:17:01 +0200):
+>> 
+>> > On Fri, Sep 10, 2004 at 05:34:21PM +0200, Arjan van de Ven wrote:
+>> >> disabling is actually not a bad idea; hard irq handlers run for a very short
+>> > 
+>> > you mean hard irq handlers "should run" for a very short time. There can
+>> > be slow hardware that needs a long time, and fast hardware that needs a
+>> > short time, and in turn it makes perfect sense to allow nesting to give
+>> > low latency to the "fast" onces, like it has always happened so far (not
+>> > only in linux AFIK). Disabling nesting completely sounds a very bad
+>> > idea to me, when "limiting nesting" can be achieved easily as confirmed
+>> > by Alan too.
+>> 
+>> IIRC, what we did in PTX was have 16 SPL levels, each interrupt was assigned
+>> a prio, and higher prio interrupts could interrupt lower prio ones (but not
+>> the same prio or higher). There's some support for that in the APIC, I think,
+>> something like the high nybble is prio, and the low nybble is just an index.
+> 
+> Currently we do use priorities on i386/APIC, albeit unintentionally by 
+> assigning higher IRQs higher vectors resulting in a higher priority.
+> However interrupt priorities on non deterministic general purpose 
+> operating systems seems pointless for the vast majority of the devices 
+> plugged into boxes these days. Not to mention possible starvation issues 
+> from high frequency long running interrupts.
 
-On Tuesday 07 September 2004 06:18, jamal wrote:
-> On Sun, 2004-09-05 at 12:19, Jeff Sipek wrote:
-> > There was a discussion about 64-bit network statistics about a year ago
-> > on lkml.
->
-> Sorry unsubscribed from lkml since summer of '94. [net related
-> discussions should really happen on netdev].
+Well, the idea is that long running interrupts get low prios ;-)
 
-netdev was CC'd during this whole discussion.
+But yes, we're fairly non-deterministic, apart from the timer interrupt, etc
+which are at one end of the scale, though I forget which ;-)
 
-> > watch64 is a generic so that anyone in the kernel can use it.
->
-> Ok - so why does this have to be in the kernel?
+M.
 
-I think it is convenient to have the 64 bit net stats reported by the kernel.
-
-Jeff.
-
-- -- 
-My public GPG key can be found at
-http://shells.gnugeneration.com/~jeffpc/gpg/public-0xC7958FFE.txt
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBRHENwFP0+seVj/4RAuzcAKCdBAooPae8pTaMEHbWmVDKAO7C5ACeLi21
-cen/Ag4bH5Dm9xkQiXj+d0Q=
-=BrV+
------END PGP SIGNATURE-----

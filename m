@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264922AbSJPOqH>; Wed, 16 Oct 2002 10:46:07 -0400
+	id <S265017AbSJPOoP>; Wed, 16 Oct 2002 10:44:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265023AbSJPOpD>; Wed, 16 Oct 2002 10:45:03 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43529 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265018AbSJPOoR>; Wed, 16 Oct 2002 10:44:17 -0400
-Date: Wed, 16 Oct 2002 07:52:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: NPT library mailing list <phil-list@redhat.com>,
-       Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-Subject: Re: [patch] mmap-speedup-2.5.42-C3
-In-Reply-To: <Pine.LNX.4.44.0210161013050.4573-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0210160751260.2181-100000@home.transmeta.com>
+	id <S265018AbSJPOoP>; Wed, 16 Oct 2002 10:44:15 -0400
+Received: from ihemail2.lucent.com ([192.11.222.163]:24984 "EHLO
+	ihemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id <S265017AbSJPOoN>; Wed, 16 Oct 2002 10:44:13 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15789.31874.550728.696896@gargle.gargle.HOWL>
+Date: Wed, 16 Oct 2002 10:49:38 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: Con Kolivas <conman@kolivas.net>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.43 with contest
+In-Reply-To: <1034749489.3dad063203723@kolivas.net>
+References: <1034749489.3dad063203723@kolivas.net>
+X-Mailer: VM 7.07 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 16 Oct 2002, Ingo Molnar wrote:
+Con,
 
-> 
-> On Tue, 15 Oct 2002, Saurabh Desai wrote:
-> 
-> >   Yes, the test_str02 performance improved a lot using NPTL.
-> >   However, on a side effect, I noticed that randomly my current telnet
-> >   session was logged out after running this test. Not sure, why?
-> 
-> i think it should be unrelated to the mmap patch. In any case, Andrew
-> added the mmap-speedup patch to 2.5.43-mm1, so we'll hear about this
-> pretty soon.
+Why are you bothering to show the older 2.5.3x series of kernels, but
+dropping the 2.4.18 results?  Wouldn't it make sense to see how the
+latest kernels in each section were doing?
 
-There's at least one Oops-report on linux-kernel on 2.5.43-mm1, where the 
-oops traceback was somewhere in munmap(). 
+Con> Here are the latest contest (http://contest.kolivas.net) benchmarks including 2.5.43
 
-Sounds like there are bugs there.
+Con> noload:
+Con> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+Con> 2.5.38 [3]              72.0    93      0       0       1.07
+Con> 2.5.39 [2]              72.2    93      0       0       1.07
+Con> 2.5.40 [1]              72.5    93      0       0       1.08
+Con> 2.5.41 [1]              73.8    93      0       0       1.10
+Con> 2.5.42 [2]              72.5    93      0       0       1.08
+Con> 2.5.42-mm3 [2]          78.1    93      0       0       1.16
+Con> 2.5.43 [2]              74.6    92      0       0       1.11
 
-		Linus
 
+Thanks,
+John

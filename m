@@ -1,50 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262934AbTDYEVv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 00:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbTDYEVu
+	id S262977AbTDYEaO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 00:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbTDYEaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 00:21:50 -0400
-Received: from terminus.zytor.com ([63.209.29.3]:64191 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S262934AbTDYEVu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 00:21:50 -0400
-Message-ID: <3EA8BAB0.4080003@zytor.com>
-Date: Thu, 24 Apr 2003 21:33:52 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: en-us, en, sv
+	Fri, 25 Apr 2003 00:30:13 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:12691 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id S262977AbTDYEaM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 00:30:12 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Fix SWSUSP & !SWAP
-References: <1051182797.2250.10.camel@laptop-linux> <Pine.GSO.4.21.0304241335210.19942-100000@vervain.sonytel.be> <b8a2le$p88$1@cesium.transmeta.com> <20030424222737.X26054@schatzie.adilger.int>
-In-Reply-To: <20030424222737.X26054@schatzie.adilger.int>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [BENCHMARK] TIO bench performance of 2.5.68
+Date: Fri, 25 Apr 2003 10:12:01 +0530
+Message-ID: <94F20261551DC141B6B559DC49108672431412@blr-m3-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BENCHMARK] TIO bench performance of 2.5.68
+Thread-Index: AcMK5QMSsNMHzpzOSXGYlQpuqOcz1g==
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 25 Apr 2003 04:42:01.0928 (UTC) FILETIME=[03840C80:01C30AE5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> 
-> This "supersync" already exists, and it is supported by all of the
-> journaling filesystems for LVM snapshots.  This is the VFS method
-> write_super_lockfs in the ext3/reiserfs/XFS/JFS super_operations.
-> Not only does it sync the dirty data to disk, but it also forces
-> the journal to be empty and marks the filesystem clean, so that it
-> can be snapshotted and read-only mounted (basically equivalent to
-> unmounting the filesystem).
-> 
-> Unfortunately, even though the filesystems themselves have supported
-> this VFS method for a long time, the actual code that calls these
-> methods (sync_super_lockfs() and unlockfs()) are still only available
-> as a patch from LVM.  The LVM/reiserfs folks have talked about submitting
-> it to Marcelo for a long time now, but apparently still haven't done so.
-> 
+Results are not varying much since last 6 kernel releases. There is a very marginal increase in CPU efficiency.
+Latencies have also risen but not by more than 5%.
 
-I really think this should be made available.  Perhaps we should have a 
-sync1() system call which takes a flag set.  Then we could have 
-sync1(SYNC_FLUSH_JOURNALS);
+No size specified, using 252 MB
 
-	-hpa
+Unit information
+================
+File size = megabytes
+Blk Size  = bytes
+Rate      = megabytes per second
+CPU%      = percentage of CPU used during the test
+Latency   = milliseconds
+Lat%      = percent of requests that took longer than X seconds
+CPU Eff   = Rate divided by CPU% - throughput per cpu load
 
+Sequential Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.68                        252   4096   10    6.76 3.458%    15.704     2658.86   0.00000  0.00000   196
+
+Random Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.68                        252   4096   10    0.47 0.441%   221.819     1993.16   0.00000  0.00000   106
+
+Sequential Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.68                        252   4096   10   10.80 16.35%     6.656    32552.30   0.10938  0.00469    66
+
+Random Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.68                        252   4096   10    0.66 0.773%     1.524     1265.13   0.00000  0.00000    85
+
+-Aniruddha

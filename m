@@ -1,57 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129708AbRBGTLd>; Wed, 7 Feb 2001 14:11:33 -0500
+	id <S129032AbRBGTMn>; Wed, 7 Feb 2001 14:12:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129500AbRBGTLX>; Wed, 7 Feb 2001 14:11:23 -0500
-Received: from infoblox.com ([64.39.15.22]:50705 "HELO torpid.com")
-	by vger.kernel.org with SMTP id <S129879AbRBGTLG>;
-	Wed, 7 Feb 2001 14:11:06 -0500
-Date: Wed, 7 Feb 2001 13:15:21 -0600 (CST)
-From: Ivan Pulleyn <ivan@torpid.com>
-To: Chris Mason <mason@suse.com>
-cc: Vedran Rodic <vedran@renata.irb.hr>, linux-kernel@vger.kernel.org,
-        reiserfs-list@namesys.com
-Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
-In-Reply-To: <552640000.981571531@tiny>
-Message-ID: <Pine.LNX.4.10.10102071311310.9686-100000@norway.torpid.com>
+	id <S130190AbRBGTMX>; Wed, 7 Feb 2001 14:12:23 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38661 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129027AbRBGTMT>; Wed, 7 Feb 2001 14:12:19 -0500
+Subject: Re: PCI-SCI Drivers v1.1-7 released
+To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
+Date: Wed, 7 Feb 2001 19:12:25 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010207130341.C27700@vger.timpanogas.org> from "Jeff V. Merkey" at Feb 07, 2001 01:03:41 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Qa0y-00014a-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 7 Feb 2001, Chris Mason wrote:
-
+> > That would explain the %age certainly. How it happened is the next question
 > 
-> 
-> On Wednesday, February 07, 2001 07:41:25 PM +0100 Vedran Rodic
-> <vedran@renata.irb.hr> wrote:
-> 
-> > 
-> > So could some of this bugs also be present in 3.5.x version of reiserfs?
-> > Will you be fixing them for that version?
-> > 
-> 
-> This list of reiserfs bugs was all specific to the 3.6.x versions, and they
-> don't appear with the 3.5.x code.  You will probably have problems if you
-> compile 3.5.x reiserfs with an unpatched redhat gcc 2.96, though.  
+> I'll gen some code, and send to you.
 
-Apologies if I'm mis-understanding (I don't follow the list too
-closely), but the zeros-in-log-files thing happens to me a lot on
-3.5.X. Is there some sort of debugging info I could offer to help
-figure it out?
-
-Ivan...
-
----------------------------------------------------------------------------
-			     Ivan Pulleyn
-		      4942 N. Winchester Ave. #3
-			  Chicago, IL 60640
-
-			   ivan@torpid.com
-			    (847) 980-1400
----------------------------------------------------------------------------
+Thanks. 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

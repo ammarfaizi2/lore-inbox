@@ -1,108 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbTJHNeX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 09:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTJHNd7
+	id S261585AbTJHNih (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 09:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbTJHNiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 09:33:59 -0400
-Received: from mail.convergence.de ([212.84.236.4]:8161 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S261538AbTJHN26 convert rfc822-to-8bit
+	Wed, 8 Oct 2003 09:38:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5092 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261546AbTJHNdr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 09:28:58 -0400
-Subject: [PATCH 7/14] usual c99 initializer fixes
-In-Reply-To: <10656197352583@convergence.de>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Wed, 8 Oct 2003 15:28:56 +0200
-Message-Id: <10656197362976@convergence.de>
+	Wed, 8 Oct 2003 09:33:47 -0400
+Date: Wed, 8 Oct 2003 14:33:38 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: "Tian, Kevin" <kevin.tian@intel.com>
+Cc: Maciej Zenczykowski <maze@cela.pl>, Andries Brouwer <aebr@win.tue.nl>,
+       Andrew Morton <akpm@osdl.org>, "Sharma, Arun" <arun.sharma@intel.com>,
+       linux-kernel@vger.kernel.org, Matthew Wilcox <willy@debian.org>
+Subject: Re: [PATCH] incorrect use of sizeof() in ioctl definitions
+Message-ID: <20031008133338.GH10906@parcelfarce.linux.theplanet.co.uk>
+References: <571ACEFD467F7749BC50E0A98C17CDD8F3283D@pdsmsx403.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Michael Hunold (LinuxTV.org CVS maintainer) <hunold@linuxtv.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <571ACEFD467F7749BC50E0A98C17CDD8F3283D@pdsmsx403.ccr.corp.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- [DVB] the usual c99 initialization fixes all over the DVB place
-diff -uNrwB --new-file xx-linux-2.6.0-test5/drivers/media/dvb/ttpci/av7110.c linux-2.6.0-test5/drivers/media/dvb/ttpci/av7110.c
---- xx-linux-2.6.0-test5/drivers/media/dvb/ttpci/av7110.c	2003-09-10 11:28:41.000000000 +0200
-+++ linux-2.6.0-test5/drivers/media/dvb/ttpci/av7110.c	2003-09-10 10:58:29.000000000 +0200
-@@ -2608,8 +2615,23 @@
-  ****************************************************************************/
- 
- static struct v4l2_input inputs[2] = {
--	{ 0,	"DVB",		V4L2_INPUT_TYPE_CAMERA,	1, 0, V4L2_STD_PAL_BG|V4L2_STD_NTSC_M, 0 }, 
--	{ 1,	"ANALOG",	V4L2_INPUT_TYPE_TUNER,	2, 1, V4L2_STD_PAL_BG|V4L2_STD_NTSC_M, 0 },
-+	{	
-+		.index 		= 0,
-+		.name 		= "DVB",
-+		.type		= V4L2_INPUT_TYPE_CAMERA,
-+		.audioset 	= 1,
-+		.tuner		= 0, /* ignored */
-+		.std		= V4L2_STD_PAL_BG|V4L2_STD_NTSC_M,
-+		.status		= 0,
-+	}, { 
-+		.index 		= 1,
-+		.name 		= "ANALOG",
-+		.type		= V4L2_INPUT_TYPE_TUNER,
-+		.audioset 	= 2,
-+		.tuner		= 0,
-+		.std		= V4L2_STD_PAL_BG|V4L2_STD_NTSC_M,
-+		.status		= 0,
-+	}
- };
- 
- /* taken from ves1820.c */
-@@ -4629,19 +4673,45 @@
- /* FIXME: these values are experimental values that look better than the
-    values from the latest "official" driver -- at least for me... (MiHu) */
- static struct saa7146_standard standard[] = {
--	{ "PAL", V4L2_STD_PAL, 0x15, 288, 576, 0x4a, 708, 709, 576, 768 },
--//	{ "PAL", V4L2_STD_PAL, 0x15, 288, 576, 0x3a, 720, 721, 576, 768 },
--	{ "NTSC", V4L2_STD_NTSC, 0x10, 244, 480, 0x40, 708, 709, 480, 640 },
-+	{
-+		.name	= "PAL", 	.id		= V4L2_STD_PAL_BG,
-+		.v_offset	= 0x15,	.v_field 	= 288,		.v_calc	= 576,
-+		.h_offset	= 0x4a,	.h_pixels 	= 708,		.h_calc	= 709,
-+		.v_max_out	= 576,	.h_max_out	= 768,
-+	}, {
-+		.name	= "NTSC", 	.id		= V4L2_STD_NTSC,
-+		.v_offset	= 0x10,	.v_field 	= 244,		.v_calc	= 480,
-+		.h_offset	= 0x40,	.h_pixels 	= 708,		.h_calc	= 709,
-+		.v_max_out	= 480,	.h_max_out	= 640,
-+	}
- };
- 
- static struct saa7146_standard analog_standard[] = {
--	{ "PAL", V4L2_STD_PAL, 0x18, 288, 576, 0x08, 708, 709, 576, 768 },
--	{ "NTSC", V4L2_STD_NTSC, 0x10, 244, 480, 0x40, 708, 709, 480, 640 },
-+	{
-+		.name	= "PAL", 	.id		= V4L2_STD_PAL_BG,
-+		.v_offset	= 0x18,	.v_field 	= 288,		.v_calc	= 576,
-+		.h_offset	= 0x08,	.h_pixels 	= 708,		.h_calc	= 709,
-+		.v_max_out	= 576,	.h_max_out	= 768,
-+	}, {
-+		.name	= "NTSC", 	.id		= V4L2_STD_NTSC,
-+		.v_offset	= 0x10,	.v_field 	= 244,		.v_calc	= 480,
-+		.h_offset	= 0x40,	.h_pixels 	= 708,		.h_calc	= 709,
-+		.v_max_out	= 480,	.h_max_out	= 640,
-+	}
- };
- 
- static struct saa7146_standard dvb_standard[] = {
--	{ "PAL", V4L2_STD_PAL, 0x14, 288, 576, 0x4a, 708, 709, 576, 768 },
--	{ "NTSC", V4L2_STD_NTSC, 0x10, 244, 480, 0x40, 708, 709, 480, 640 },
-+	{
-+		.name	= "PAL", 	.id		= V4L2_STD_PAL_BG,
-+		.v_offset	= 0x14,	.v_field 	= 288,		.v_calc	= 576,
-+		.h_offset	= 0x4a,	.h_pixels 	= 708,		.h_calc	= 709,
-+		.v_max_out	= 576,	.h_max_out	= 768,
-+	}, {
-+		.name	= "NTSC", 	.id		= V4L2_STD_NTSC,
-+		.v_offset	= 0x10,	.v_field 	= 244,		.v_calc	= 480,
-+		.h_offset	= 0x40,	.h_pixels 	= 708,		.h_calc	= 709,
-+		.v_max_out	= 480,	.h_max_out	= 640,
-+	}
- };
- 
- static struct saa7146_extension av7110_extension;
+On Wed, Oct 08, 2003 at 07:42:23PM +0800, Tian, Kevin wrote:
+> Thanks. :) Now I see... but are there any rules to decide which part
+> should be upgraded even breaking the backward compatibility? You know,
 
+Nothing should break.  Linux does not require userspace to be recompiled.
+Binaries from the 0.99 days still run today.  An exception to this would
+be ioctls that were introduced during the 2.5 cycle as they have not
+appeared in a stable release yet.
+
+Also, please remember that the size part of the ioctl is only a hint.
+Very few things really care about it (which is why the breakage wasn't
+discovered before).
+
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

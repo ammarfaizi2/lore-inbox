@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285369AbRLXV7O>; Mon, 24 Dec 2001 16:59:14 -0500
+	id <S283481AbRLXWA1>; Mon, 24 Dec 2001 17:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285380AbRLXV7E>; Mon, 24 Dec 2001 16:59:04 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:60172 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S285369AbRLXV64>;
-	Mon, 24 Dec 2001 16:58:56 -0500
-Date: Mon, 24 Dec 2001 22:58:55 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Data sitting and remaining in Send-Q
-Message-ID: <20011224225855.J2461@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011224211726.H2461@lug-owl.de> <1062462662.1009226676@[195.224.237.69]> <20011224213452.A7761@Marvin.DL8BCU.ampr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011224213452.A7761@Marvin.DL8BCU.ampr.org>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux mail 2.4.15-pre2 
+	id <S285383AbRLXWAM>; Mon, 24 Dec 2001 17:00:12 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:20435 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S285377AbRLXV7w>;
+	Mon, 24 Dec 2001 16:59:52 -0500
+Date: Mon, 24 Dec 2001 16:59:51 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Will Dyson <will_dyson@pobox.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: [CFT] BeFS filesystem 0.6
+In-Reply-To: <3C2796EC.9050008@pobox.com>
+Message-ID: <Pine.GSO.4.21.0112241625120.28049-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-12-24 21:34:52 +0000, Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-wrote in message <20011224213452.A7761@Marvin.DL8BCU.ampr.org>:
-> On Mon, Dec 24, 2001 at 08:44:37PM -0000, Alex Bligh - linux-kernel wrote:
-> > If you have an L3 device (router etc.) in the middle, you can get
-> > a similar effect if the device does not fragment data correctly
-> > (for instance the Cisco into ip tunnels bug - now fixed I think),
-> > or, if you are using PMTU discovery (probably), if some evil device,
+
+
+On Mon, 24 Dec 2001, Will Dyson wrote:
+
+> Hi,
 > 
-> Jan,
-> do you have some DSL Modem in between?
+> For some months now, I have been working on a read-only implementation 
+> of the BeOS's native filesystem (BeFS). I just released version 0.6, and 
+> I think it works pretty darn well. <http://befs-driver.sourceforge.net/>
+> 
+> I've had some reports of it working well on other peoples' machines as 
+> well. So what I'd really like now is for more people to try and break 
+> it. If you have a Be filesystem partition, please try it out. If you 
+> don't (but still feel like testing anyway), the download page has a 
+> filesystem image you can try it out on.
+> 
+> I'd also appreciate anyone who wants to critique the code itself. Thanks!
 
-Hi Thorsten!
+Umm...  Obvious comments:
 
-No, it's not the famous MTU-too-large-and-a-lot-of-fragmentation-needed
-problem. It was a broken NIC, unwilling to send frames > ~960 bytes...
+a) typedef struct super_block vfs_sb;  Please don't.
 
-MfG, JBG
+b) in inode.c:
+	inode->i_mode = (umode_t) raw_inode->mode;
+is wrong.  It's guaranteed bug either on big- or little-endian boxen.
+Same for mtime, uid and gid.  befs_count_blocks() also needs cleanup.
 
--- 
-Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
-	 -- New APT-Proxy written in shell script --
-	   http://lug-owl.de/~jbglaw/software/ap2/
+c) befs_read_block()...  Erm.  Why bother with extra layer of abstraction?
+
+d) befs_readdir().  You _are_ guaranteed that inode is non-NULL, you put
+pointer to befs_dir_operations only is S_ISDIR is true and S_ISDIR is
+mutually exclusive with S_ISLNK.
+
+e) are there sparse files on BeFS?  If yes - you want to make BH_Mapped
+conditional in get_block() (set it if block is present, don't if it's a
+hole in file).
+
+f) befs_arch().  You probably want to make that an option...
+
+g) endianness problems in read_super()...
+
+h) TODO: use line breaks ;-)
+

@@ -1,64 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267976AbUIVVs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265900AbUIVV7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267976AbUIVVs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 17:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267998AbUIVVs1
+	id S265900AbUIVV7b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 17:59:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUIVV7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 17:48:27 -0400
-Received: from gprs214-200.eurotel.cz ([160.218.214.200]:26249 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S267976AbUIVVpm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 17:45:42 -0400
-Date: Wed, 22 Sep 2004 23:45:29 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: year 2038 problem on x86-64
-Message-ID: <20040922214529.GA803@elf.ucw.cz>
-References: <20040922213028.GE14891@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040922213028.GE14891@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 22 Sep 2004 17:59:30 -0400
+Received: from mr02.conversent.net ([204.17.65.6]:11698 "EHLO
+	mr02.conversent.net") by vger.kernel.org with ESMTP id S265900AbUIVV71 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 17:59:27 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: Is there a user space pci rescan method?
+Date: Wed, 22 Sep 2004 17:58:44 -0400
+Message-ID: <E8F8DBCB0468204E856114A2CD20741F2C13E1@mail.local.ActualitySystems.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Is there a user space pci rescan method?
+thread-index: AcSg5KAIw9ypWN7hRMOjSBP0rLW0XQACnf5g
+From: "Dave Aubin" <daubin@actuality-systems.com>
+To: <root@chaos.analogic.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Lspci shows me that my new pci device is not present.
+Scanpci does show the device.  What I'd like to do
+Is get the kernel to know about it and then be able to
+See it with an lspci.
 
-> For testing (read() and write() is returning wrong value on 2.4
-> kernels) I played a bit with really big numbers... And I found out we
-> have year 9223372034708485227 problem ;-).
+Can you tell me how with lspci or setpci?
 
-And we have some nearer problems, too.
+Thanks again,
+Dave:) 
 
-#ifdef __ARCH_WANT_SYS_TIME
+-----Original Message-----
+From: Richard B. Johnson [mailto:root@chaos.analogic.com] 
+Sent: Wednesday, September 22, 2004 4:42 PM
+To: Dave Aubin
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is there a user space pci rescan method?
 
-/*
- * sys_time() can be implemented in user-level using
- * sys_gettimeofday().  Is this for backwards compatibility?  If so,
- * why not move it into the appropriate arch directory (for those
- * architectures that need it).
- *
- * XXX This function is NOT 64-bit clean!
- */
-asmlinkage long sys_time(int __user * tloc)
-{
-        int i;
-        struct timeval tv;
+On Wed, 22 Sep 2004, Dave Aubin wrote:
 
-        do_gettimeofday(&tv);
-        i = tv.tv_sec;
+> Hi,
+>
+>   Is there a user space or perhaps simple kernel module way to rescan 
+> the pci bus?  I currently have a user mode program modify the pci bus,
 
-        if (tloc) {
-                if (put_user(i,tloc))
-                        i = -EFAULT;
-        }
-        return i;
-}
+> but I can not push the user mode program to the bios for reasons I 
+> can't get in to.
+>   Currently I use this user mode program, then do a big hammer 
+> approach of a reboot to get the kernel to see the pci device.  Is 
+> there a nicer way of doing this?  Can someone kindly educate me.
+>
+> Huge Thanks,
+> Dave:)
+> -
 
-... __ARCH_WANT_SYS_TIME actually is set on x86-64.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Did you try `setpci` and `lspci`?
+You can sometimes get things working without resorting to a boot.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
+

@@ -1,45 +1,313 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263738AbTGXRXn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 13:23:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269578AbTGXRWt
+	id S269575AbTGXR3k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 13:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTGXR3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 13:22:49 -0400
-Received: from 66.83.182.2.nw.nuvox.net ([66.83.182.2]:24789 "EHLO
-	secure.intgrp.com") by vger.kernel.org with ESMTP id S269575AbTGXRV5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 13:21:57 -0400
-Message-ID: <038a01c3520a$233c2280$9100000a@intgrp.com>
-From: "Eric Wood" <eric@interplas.com>
-To: "Kernel List" <linux-kernel@vger.kernel.org>
-References: <077a01c35157$d898c100$9100000a@intgrp.com> <3F1F7A97.7000304@candelatech.com>
-Subject: Re: RH 9 kernel compile error
-Date: Thu, 24 Jul 2003 13:36:38 -0400
+	Thu, 24 Jul 2003 13:29:40 -0400
+Received: from mrout2.yahoo.com ([216.145.54.172]:44046 "EHLO mrout2.yahoo.com")
+	by vger.kernel.org with ESMTP id S269575AbTGXR3J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 13:29:09 -0400
+Message-ID: <3F201AD0.1020704@bigfoot.com>
+Date: Thu, 24 Jul 2003 10:43:44 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SATA HD 137GB limitation?
+References: <3F1F33B0.4070701@bigfoot.com> <20030724171253.GD5695@gtf.org>
+In-Reply-To: <20030724171253.GD5695@gtf.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> I have never used rpm target...but I imagine it works :)
+Jeff Garzik wrote:
+> On Wed, Jul 23, 2003 at 06:17:36PM -0700, Erik Steffl wrote:
+> 
+>>  system:
+>>
+>>  MB: intel D865PERL
+>>  maxtor 250GB SATA drive (not a boot drive)
+>>  kernel 2.4.21-ac4
+>>  debian unstable
+>>
+>>  normal kernels up to 2.4.21 freeze during HD detection, only 
+>>2.4.21-ac4 properly detects the drive. All programs (mkfs, badblocks, 
+>>cfdisk) recognize it as 250GB drive but none of them can read anything 
+>>beyond 137GB. All programs (that I tried) report read failure when 
+>>sectors above 137GB are being read.
+>>
+>>  anybody knows the status of SATA driver(s)?
+> 
+> 
+> Is this with CONFIG_SCSI_ATA or drivers/ide driver?
 
-Overall yes. As long as you:
-# make mrproper `/bin/cp configs/kernel-2.4.20-i686.config .config`
-oldconfig dep clean rpm
+   yes, isn't that the only way to make it work (I had kernel freezes 
+while detecting/setting the drivers otherwise)? I didn't post my kernel 
+config since I thought that it's obvious but maybe it's not.
 
-The resulting rpm file seems to always be built for i386 even though you're
-using a 686 .config file.  It looks like kerne.spec file which is generated
-from "scripts/mkspec" neglects to issue an arch.  Or you have to edit the
-Makefile and slip in a "--target=i686" or "--target=athlon" like so:
+   what I think are relevant options:
 
-$(RPM) -ta --target=i686 $(TOPDIR)/../$(KERNELPATH).tar.gz ; \
+CONFIG_SCSI_ATA=y
+CONFIG_SCSI_ATA_PIIX=y
 
-before you do the build.
--eric
+   not sure if PIIX is what I need (there's no help for it)...
+
+   Here's my complete kernel config (non-comment lines):
+
+CONFIG_X86=y
+CONFIG_UID16=y
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_HAS_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_F00F_WORKS_OK=y
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_ISA=y
+CONFIG_PCI_NAMES=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_IKCONFIG=y
+CONFIG_PM=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=m
+CONFIG_ISAPNP=m
+CONFIG_BLK_DEV_FD=m
+CONFIG_PARIDE=m
+CONFIG_PARIDE_PARPORT=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_STATS=y
+CONFIG_PACKET=m
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=m
+CONFIG_NETFILTER=y
+CONFIG_FILTER=y
+CONFIG_UNIX=m
+CONFIG_INET=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_AMANDA=m
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_AMANDA=m
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_NAT_TFTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_SCH_HTB=m
+CONFIG_NET_SCH_CSZ=m
+CONFIG_NET_SCH_PRIO=m
+CONFIG_NET_SCH_RED=m
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_SCH_TEQL=m
+CONFIG_NET_SCH_TBF=m
+CONFIG_NET_SCH_GRED=m
+CONFIG_NET_SCH_DSMARK=m
+CONFIG_NET_SCH_INGRESS=m
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=y
+CONFIG_NET_CLS_ROUTE4=y
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=y
+CONFIG_NET_CLS_U32=y
+CONFIG_NET_CLS_RSVP=y
+CONFIG_NET_CLS_RSVP6=y
+CONFIG_NET_CLS_POLICE=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=m
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_BLK_DEV_SR=m
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_SCSI_ATA=y
+CONFIG_SCSI_ATA_PIIX=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_TUN=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=m
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_SLIP=m
+CONFIG_SLIP_COMPRESSED=y
+CONFIG_INPUT=m
+CONFIG_INPUT_KEYBDEV=m
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1280
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1024
+CONFIG_INPUT_JOYDEV=m
+CONFIG_INPUT_EVDEV=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=1024
+CONFIG_PRINTER=m
+CONFIG_LP_CONSOLE=y
+CONFIG_PPDEV=m
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_INPUT_GAMEPORT=m
+CONFIG_INPUT_NS558=m
+CONFIG_INPUT_ANALOG=m
+CONFIG_RTC=y
+CONFIG_AGP=m
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_NEW=y
+CONFIG_DRM_TDFX=m
+CONFIG_AUTOFS_FS=m
+CONFIG_AUTOFS4_FS=m
+CONFIG_EXT3_FS=m
+CONFIG_JBD=m
+CONFIG_JBD_DEBUG=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_CRAMFS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_JFS_FS=m
+CONFIG_JFS_STATISTICS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_ROMFS_FS=m
+CONFIG_EXT2_FS=y
+CONFIG_UDF_FS=m
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_SMB_FS=m
+CONFIG_ZISOFS_FS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="cp437"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_1250=m
+CONFIG_NLS_CODEPAGE_1251=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_13=m
+CONFIG_NLS_KOI8_U=m
+CONFIG_NLS_UTF8=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_SOUND=m
+CONFIG_USB=m
+CONFIG_USB_DEBUG=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_UHCI=m
+CONFIG_USB_AUDIO=m
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+CONFIG_USB_DC2XX=m
+CONFIG_USB_SCANNER=m
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_VISOR=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+
+	erik
 

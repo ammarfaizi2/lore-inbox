@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129392AbQLHAsP>; Thu, 7 Dec 2000 19:48:15 -0500
+	id <S130231AbQLHAsf>; Thu, 7 Dec 2000 19:48:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130231AbQLHAsF>; Thu, 7 Dec 2000 19:48:05 -0500
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:12293 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S129392AbQLHAr4>; Thu, 7 Dec 2000 19:47:56 -0500
-Date: Fri, 8 Dec 2000 01:23:21 +0000
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: D-LINK DFE-530-TX
-Message-ID: <20001208012321.A1732@colonel-panic.com>
-Mail-Followup-To: pdh, "Mike A. Harris" <mharris@opensourceadvocate.org>,
-	Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0012061942570.620-100000@asdf.capslock.lan>
-Mime-Version: 1.0
+	id <S130456AbQLHAsP>; Thu, 7 Dec 2000 19:48:15 -0500
+Received: from k2.llnl.gov ([134.9.1.1]:34982 "EHLO k2.llnl.gov")
+	by vger.kernel.org with ESMTP id <S130205AbQLHAsB>;
+	Thu, 7 Dec 2000 19:48:01 -0500
+From: Reto Baettig <baettig@k2.llnl.gov>
+Message-Id: <200012080017.QAA00379@k2.llnl.gov>
+Subject: io_request_lock question (2.2)
+To: linux-kernel@vger.kernel.org
+Date: Thu, 7 Dec 2000 16:17:30 -0800 (PST)
+Reply-To: Reto Baettig <baettig@scs.ch>
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0012061942570.620-100000@asdf.capslock.lan>; from mharris@opensourceadvocate.org on Wed, Dec 06, 2000 at 07:44:02PM -0500
-From: Peter Horton <pdh@colonel-panic.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2000 at 07:44:02PM -0500, Mike A. Harris wrote:
-> Which ethernet module works with this card?  2.2.17 kernel
-> 
+Hi
 
-If the PCI device ID is 3065 then it's via-rhine, but not supported by the
-driver in the kernel. Get updated via-rhine from Donald Becker's site
-http://www.scyld.com/network.
+I'm trying to write a block device driver which does some network stuff to satisfy the requests. The problem is, that the network stuff wants to grab the io_request_lock which does not work because this lock is already locked when I come into the request_fn of my device.
 
-Even the DFE-530-TX driver for NT downloaded from D-Link's site doesn't know
-about this chip yet ... though changing the device ID in the .INF file seemed
-to make it work ... shrug.
+I looked at the implementation of the nbd which just calls 
 
-HTH
+	spin_unlock_irq(&io_request_lock);
+	... do network io ...
+	spin_lock_irq(&io_request_lock);
 
-P.
+This seems to work but it looks very dangerous to me (and ugly, too). Isn't there a better way to do this?
 
--- 
-+------------------------------------+
-|            Peter Horton            |
-+------------------------------------+
-|    http://www.colonel-panic.com    |
-|   http://www.berserk.demon.co.uk   |
-|         Linux 2.4.0-test11         |
-+------------------------------------+
+Thanks very much
+
+Reto 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,81 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271116AbTG1Vba (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 17:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271069AbTG1Vba
+	id S270069AbTG1VnH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 17:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271069AbTG1VnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 17:31:30 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:17900 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S271116AbTG1V3v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 17:29:51 -0400
-Date: Mon, 28 Jul 2003 23:29:39 +0200
-From: Wiktor Wodecki <wodecki@gmx.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Valdis.Kletnieks@vt.edu, kernel@kolivas.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O10int for interactivity
-Message-ID: <20030728212939.GB6798@gmx.de>
-Reply-To: Johoho <johoho@hojo-net.de>
-References: <200307280112.16043.kernel@kolivas.org> <200307281808.h6SI8C5k004439@turing-police.cc.vt.edu> <20030728114041.2c8ce156.akpm@osdl.org>
+	Mon, 28 Jul 2003 17:43:07 -0400
+Received: from CPE-65-29-19-166.mn.rr.com ([65.29.19.166]:1154 "EHLO
+	www.enodev.com") by vger.kernel.org with ESMTP id S270069AbTG1VnG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 17:43:06 -0400
+Subject: 2.6.0-test2-mm1: Can't mount root
+From: Shawn <core@enodev.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1059428584.6146.9.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
-Content-Disposition: inline
-In-Reply-To: <20030728114041.2c8ce156.akpm@osdl.org>
-X-message-flag: Linux - choice of the GNU generation
-X-Operating-System: Linux 2.6.0-test2-O10 i686
-X-PGP-KeyID: 182C9783
-X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 28 Jul 2003 16:43:04 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm using ide=reverse, and my root is on hde5. 2.6.0-test1-mm2 finds my
+root fs fine using the init/do_mounts.c patch posted recently.
 
---IrhDeMKUP4DT/M7F
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+2.6.0-test2-mm1 (in which said patch seems to have been included),
+however, fails on all of the following root= options:
+      * 2105
+      * /dev/ide/host2/bus0/target0/lun0/part5
+      * /dev/hde5
 
-On Mon, Jul 28, 2003 at 11:40:41AM -0700, Andrew Morton wrote:
-> Valdis.Kletnieks@vt.edu wrote:
-> >
-> > I am, however, able to get 'xmms' to skip.  The reason is that the CPU =
-is being
-> >  scheduled quite adequately, but I/O is *NOT*.
-> >=20
-> > ...
-> >  I'm guessing that the anticipatory scheduler is the culprit here.  Soo=
-n as I figure
-> >  out the incantations to use the deadline scheduler, I'll report back..=
-=2E.
->=20
-> Try decreasing the expiry times in /sys/block/hda/queue/iosched:
->=20
-> read_batch_expire
-> read_expire
-> write_batch_expire
-> write_expire
-
-I noticed that when bringing a huge application out of swap (mozilla,
-openoffice, also tested the gimp with 50 images open) that dividing
-everything by 2 in those 4 files I get a decent process fork. Without
-this tuning the fork (xterm) waits till the application is back up.
-
---=20
-Regards,
-
-Wiktor Wodecki
-
---IrhDeMKUP4DT/M7F
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/JZXD6SNaNRgsl4MRAjXxAKDCrMeY2YQD91GLGT2ZEJDw59p8QgCfc2mw
-bD+BhI97ahHKZPA6NGKkUPg=
-=BbaG
------END PGP SIGNATURE-----
-
---IrhDeMKUP4DT/M7F--
+I don't know what to try next. Can someone enlighten me as to what has
+been happening lately?

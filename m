@@ -1,30 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263132AbRE1TuU>; Mon, 28 May 2001 15:50:20 -0400
+	id <S263136AbRE1UUT>; Mon, 28 May 2001 16:20:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263136AbRE1TuK>; Mon, 28 May 2001 15:50:10 -0400
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:45500 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S263132AbRE1Tt4>; Mon, 28 May 2001 15:49:56 -0400
-Date: Mon, 28 May 2001 20:49:55 +0100 (BST)
-From: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>
+	id <S263137AbRE1UUJ>; Mon, 28 May 2001 16:20:09 -0400
+Received: from tomts6.bellnexxia.net ([209.226.175.26]:44013 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S263136AbRE1UUB>; Mon, 28 May 2001 16:20:01 -0400
+Subject: 2.4.5 and pppd/pppoe
+From: Daniel Rose <daniel.rose@datalinesolutions.com>
 To: linux-kernel@vger.kernel.org
-Subject: VIA KT133A Northbridge bug reported
-Message-ID: <Pine.SOL.3.96.1010528204546.23787A-100000@virgo.cus.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 28 May 2001 16:18:55 -0400
+Message-Id: <991081135.1399.0.camel@rocket.novakayne.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I saw a report on AMDZone of another VIA chipset bug.  The original source
-is:-
-http://www.chip.de/news_stories/news_stories_163106.html
 
-The claim from AMDZone's translation is that:-
-" According to the report KT133A boards with chipset codes of 1EA0 and
-1EA4 can have the bug which causes your computer to restart."
+Hello,
+I'm having problems with 2.4.5 and my pppoe connection.
+The kernel compiles fine, and works fine too, until I reboot, at which
+time it decides it no longer wants to work, and any time I attempt to
+call my start-pppoe script, i get:
 
-Has this one bitten Linuxers yet?
+May 28 15:54:28 rocket pppd[3091]: pppd 2.4.1 started by root, uid 0
+May 28 15:54:28 rocket pppd[3091]: Using interface ppp0
+May 28 15:54:28 rocket pppd[3091]: Connect: ppp0 <--> /dev/ttyp0
+May 28 15:54:43 rocket pppd[3091]: Hangup (SIGHUP)
+May 28 15:54:43 rocket pppd[3091]: Modem hangup
+May 28 15:54:43 rocket pppd[3091]: Connection terminated.
+May 28 15:54:44 rocket pppd[3091]: Exit.
 
+I am assuming that this is because of my eth0, which shows in ifconfig:
 
+eth0      Link encap:Ethernet  HWaddr 00:00:00:00:00:00 (it's using
+via-rhine chipset, compiled into kernel, not a module)
+
+This _only_ occurs after I reboot (ie. i can start up the new 2.4.5
+kernel and work it perfectly once, then reboot and it doesnt work)
+
+Anybody have any ideas?
+
+Thanks,
+
+Daniel Rose
 

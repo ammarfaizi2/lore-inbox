@@ -1,83 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVCXTRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVCXTSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbVCXTRn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 14:17:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVCXTRn
+	id S261739AbVCXTSr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 14:18:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVCXTSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 14:17:43 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42248 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261707AbVCXTRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 14:17:01 -0500
-Date: Thu, 24 Mar 2005 19:16:54 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Interesting tidbit: NetMos 9835 card, IRQ, and ACPI
-Message-ID: <20050324191654.D4189@flint.arm.linux.org.uk>
-Mail-Followup-To: Michael Tokarev <mjt@tls.msk.ru>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <42430EAD.3050605@tls.msk.ru>
+	Thu, 24 Mar 2005 14:18:46 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:62084 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261739AbVCXTSl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 14:18:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=EEYHd9r3SlDyWd6dUWrpHQbmK6nWxdGLK3tqqyHY2pss9Lc+f0WdgBXFcn8hZmkwRcgmoTnaURk2nh3jYCBY6cMeUKRo+VuaUFnRbYPGH7GOjhsK7un39D6O6tEkIyHCjn30kuRkfF+QKmo9kreAY8n5y938KQNNREZ4ttTZ1S4=
+Message-ID: <d120d500050324111826335f67@mail.gmail.com>
+Date: Thu, 24 Mar 2005 14:18:40 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Andy Isaacson <adi@hexapodia.org>
+Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Cc: Stefan Seyfried <seife@suse.de>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050324181059.GA18490@hexapodia.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <42430EAD.3050605@tls.msk.ru>; from mjt@tls.msk.ru on Thu, Mar 24, 2005 at 10:02:05PM +0300
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <20050323184919.GA23486@hexapodia.org> <4242CE43.1020806@suse.de>
+	 <20050324181059.GA18490@hexapodia.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 24, 2005 at 10:02:05PM +0300, Michael Tokarev wrote:
-> Found an interesting issue here.
+On Thu, 24 Mar 2005 10:10:59 -0800, Andy Isaacson <adi@hexapodia.org> wrote:
 > 
-> HP ProLiant ML150 box (dual xeon 2.4GHz) with intel
-> chipset (lspci output below) and NetMos PCI 9835
-> Multi-I/O Controller.
+> So I added i8042.noaux to my kernel command line, rebooted, insmodded
+> intel_agp, started X, and verified no touchpad action.  Then I
+> suspended, and it worked fine.  After restart, I suspended again - also
+> fine.
 > 
-> Boot with no fancy options on kernel command line.
+> So I think that fixed it.  But no touchpad is a bit annoying. :)
 > 
->   # cat /sys/bus/pci/devices/0000:01:00.0/irq
->   11
->   # modprobe 8250
->   # setserial /dev/ttyS2 irq 11 port 0xa400 autoconfig
-> 
-> the serial port does not work: close'int the file
-> after writing something stalls for a while, and nothing
-> gets written.  Ok.
 
-setserial shouldn't be used to configure PCI-based serial ports.  It's
-expected to fail. 8)
-
->   # rmmod 8250
->   # modprobe parport_pc
->   ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 18 (level, low) -> IRQ 193
->   # cat /sys/bus/pci/devices/0000:01:00.0/irq
->   193
->   # rmmod parport_pc # as it will conflict with 8250 here
->   # modprobe 8250
->   # setserial /dev/ttyS2 irq 193 port 0xa400 autoconfig
-> 
-> now the serial port works.
-
-That's because parport_pc seems to think it should be driving this
-combination serial/parallel device.  That's actually something that
-parport_serial should be doing, and there's a patch in -mm to fix
-this:
-
-http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm2/broken-out/netmos-parallel-serial-combo-support.patch
-
-However, this patch seems to claim that the 9835 is not supported
-by anything in the kernel at present, so how is parport_pc finding
-your card?  Have you applied any patches?
-
-> BTW, we have another prob with this very Netmos card and this very
-> machine: sometimes, the whole machine hangs hard when using serial
-> driver, so only power button helps.  Happens with 2.4.* kernels
-> (it assigns IRQ18 to the card) and with earlier 2.6.x kernels.
-> Dunno if the two are related.
-
-That's a separate problem.
+Try adding i8042.nomux instead of i8042.noaux, it should keep your
+touchpad in working condition. Please let me know if it still wiorks.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Dmitry

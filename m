@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310723AbSCHIGi>; Fri, 8 Mar 2002 03:06:38 -0500
+	id <S310727AbSCHIOL>; Fri, 8 Mar 2002 03:14:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310726AbSCHIG3>; Fri, 8 Mar 2002 03:06:29 -0500
-Received: from ip68-4-123-226.oc.oc.cox.net ([68.4.123.226]:22779 "HELO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
-	id <S310723AbSCHIGP>; Fri, 8 Mar 2002 03:06:15 -0500
-Subject: Re: [OT] Invalid @home email addresses
-To: blumpkin@attbi.com (Buddy Lumpkin)
-Date: Fri, 8 Mar 2002 00:08:04 -0800 (PST)
-Cc: tmolina@cox.net (Thomas Molina), linux-kernel@vger.kernel.org
-In-Reply-To: <FJEIKLCALBJLPMEOOMECGECOCJAA.blumpkin@attbi.com> from "Buddy Lumpkin" at Mar 07, 2002 09:16:14 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S310730AbSCHIOB>; Fri, 8 Mar 2002 03:14:01 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:45584 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S310729AbSCHINt>; Fri, 8 Mar 2002 03:13:49 -0500
+Message-ID: <3C88727A.5020108@evision-ventures.com>
+Date: Fri, 08 Mar 2002 09:12:42 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Hank Yang <hanky@promise.com.tw>
+CC: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
+In-Reply-To: <014701c1c5b6$a0dfb620$59cca8c0@hank> <3C873F96.C91E3591@redhat.com> <00b901c1c642$e7b6e9b0$59cca8c0@hank>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20020308080804.466C18A5E7@cx518206-b.irvn1.occa.home.com>
-From: barryn@pobox.com (Barry K. Nathan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-("[OT]" added to subject line, as I think this may be beginning to drift
-off topic now.)
+Hank Yang wrote:
+> Hello.
+> 
+>     That's because the linux-kernel misunderstand the raid controller
+> to IDE controller. If do so, The raid driver will be unstable when
+> be loaded.
+> 
+>     So we must to prevent the raio controller to be as IDE controller
+> here.
 
-Buddy Lumpkin wrote:
-> In fact, I never heard anything about cox.com
+Dear Hank. Please let me elaborate a bit on this, to see whatever
+I understand the issues.
 
-cox.net, you mean -- that's the domain name for e-mail accounts on Cox
-High-Speed Internet (which replaced Cox@Home).
+The Promise controlled is NOT a true self hosted RAID controller.
+It is just a bunch of ATA host chips, which a software add on
+in some ROM exposed as BIOS to Win32 systems, making it possible
+for them to view multiple configurations of the disks as once single
+nice RAID.
 
-> didn't AT&T buy @home?
+However under linux we have the nice ataraid.c driver, which is
+allowing one to use whichever ATA disks one wan't on whichever
+channels as RAID. The overhead of running the RAID functionality code
+from true nice RAMBUS RAM, in comparision to stincking flash RAM
+on some PCI card behind two bridges is in fact negative ;-).
 
-I don't remember the exact details; I think AT&T tried to buy it but the
-@Home bondholders managed to kill the deal with their legal manuverings,
-or something to that effect. So, AT&T never got to buy @Home.
+It doesn't therefore make any sense for a linux user to use
+the PDC as something elese then a bunch of host chennel chips.
 
-> I know they have since sold it
+Or what are your concerns?
 
-No, it was liquidated at the beginning of the month -- AT&T never owned
-it.
-
-> but my email address hasn't changed again.
-
-Because you're on AT&T's own network now, the same way that Thomas Molina
-and I are on Cox's own network, etc.
-
--Barry K. Nathan <barryn@pobox.com>

@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263969AbTEOLYV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 07:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263970AbTEOLYV
+	id S263972AbTEOL0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 07:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263973AbTEOL0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 07:24:21 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:61098 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263969AbTEOLYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 07:24:19 -0400
-Subject: Re: 2.5.69-mm5: pccard oops while booting: resolved
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030514191735.6fe0998c.akpm@digeo.com>
-References: <1052964213.586.3.camel@teapot.felipe-alfaro.com>
-	 <20030514191735.6fe0998c.akpm@digeo.com>
-Content-Type: text/plain
-Message-Id: <1052998601.726.1.camel@teapot.felipe-alfaro.com>
+	Thu, 15 May 2003 07:26:24 -0400
+Received: from holomorphy.com ([66.224.33.161]:56524 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263972AbTEOL0X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 07:26:23 -0400
+Date: Thu, 15 May 2003 04:38:09 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dean McEwan <dean_mcewan@linuxmail.org>
+Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: DRM, doesn't BK use it successfully? :-)
+Message-ID: <20030515113809.GD29926@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Dean McEwan <dean_mcewan@linuxmail.org>, lm@bitmover.com,
+	linux-kernel@vger.kernel.org
+References: <20030515105416.23112.qmail@linuxmail.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 15 May 2003 13:36:41 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030515105416.23112.qmail@linuxmail.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-15 at 04:17, Andrew Morton wrote:
-> Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
-> >
-> > I've been able to pinpoint the culprit of this: it's the
-> >  "make-KOBJ_NAME-match-BUS_ID_SIZE.patch" patch that it's causing the
-> >  oops for me when booting 2.5.69.mm5.
-> > 
-> >  Reverting this patch solves the oops for me.
-> 
-> I might have screwed that patch up.
-> 
-> This is the second half of it.  When it crashed, did you have the below
-> change in place as well?
-> 
-> Index: include/linux/device.h
-> ===================================================================
-> RCS file: /home/scm/linux-2.5/include/linux/device.h,v
-> retrieving revision 1.48
-> diff -u -u -r1.48 device.h
-> --- include/linux/device.h	29 Apr 2003 17:30:20 -0000	1.48
-> +++ include/linux/device.h	13 May 2003 07:47:39 -0000
-> @@ -35,7 +35,7 @@
->  #define DEVICE_NAME_SIZE	50
->  #define DEVICE_NAME_HALF	__stringify(20)	/* Less than half to accommodate slop */
->  #define DEVICE_ID_SIZE		32
-> -#define BUS_ID_SIZE		20
-> +#define BUS_ID_SIZE		KOBJ_NAME_LEN
->  
-> 
->  enum {
-> -
+On Thu, May 15, 2003 at 10:54:16AM +0000, Dean McEwan wrote:
+> Doesn't BK use a form of DRM quite successfully?
+> To monitor users?
 
-I applied the second half patch on top of 2.5.69-mm5 (the original
-2.5.69-mm5 defined BUS_ID_SIZE as 20), but the "pccard" kernel task
-keeps crashing as before.
+from you, whose feeble cries incite, you troll,
+I heed no words, and pay no mind or thought.
+Your post, if jest, is neither funny nor droll,
+And no one's seen what good you may have wrought.
 
-Anything else for me to try? :-)
+McVoy, if arsed, could answer this flamebait
+But no one but you could give a rat's ass
+If anyone should answer your complaint.
+The tactic is transparent, much too crass.
 
-Thanks!
+So stop this thread right now, I beg of you.
+There are enough trolls as it is, I say.
+There's too much noise on here already too
+And we'd rather not have you here to stay.
 
+Each time another troll bleats or goes "honk",
+I add to my .procmailrc *plonk*
+
+-- wli

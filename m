@@ -1,55 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274673AbRIYWyR>; Tue, 25 Sep 2001 18:54:17 -0400
+	id <S274680AbRIYWz2>; Tue, 25 Sep 2001 18:55:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274680AbRIYWyH>; Tue, 25 Sep 2001 18:54:07 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:3601 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S274673AbRIYWyE>; Tue, 25 Sep 2001 18:54:04 -0400
-Date: Tue, 25 Sep 2001 19:54:07 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Olivier Sessink <olivier@lx.student.wau.nl>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: weird memory related problems, negative memory usage or fake
- memory usage?
-In-Reply-To: <20010926003626.L8350@athlon.random>
-Message-ID: <Pine.LNX.4.33L.0109251952330.26091-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274681AbRIYWzS>; Tue, 25 Sep 2001 18:55:18 -0400
+Received: from hermes.csd.unb.ca ([131.202.3.20]:15581 "EHLO hermes.csd.unb.ca")
+	by vger.kernel.org with ESMTP id <S274680AbRIYWzD>;
+	Tue, 25 Sep 2001 18:55:03 -0400
+X-WebMail-UserID: newton
+Date: Tue, 25 Sep 2001 20:04:54 -0300
+From: Chris Newton <newton@unb.ca>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+X-EXP32-SerialNo: 00003025, 00003442
+Subject: FWD: RE: excessive interrupts on network cards
+Message-ID: <3BB13732@webmail1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebMail (Hydra) SMTP v3.61.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Sep 2001, Andrea Arcangeli wrote:
-> On Mon, Sep 24, 2001 at 07:03:20PM -0300, Rik van Riel wrote:
-> > On Mon, 24 Sep 2001, Olivier Sessink wrote:
+Francois Romieu got me to run 'lspci -x', and came to the conclusion that the 
+net card and scsi card are sharing IRQs...
 
-> > >   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-> > >  1262 root       5 -10 50764  -1M  1320 S <   2.7 99.9   0:01 XFree86
-> >
-> > It seems Andrea wasn't careful with the merge and
-> > backed out some of the locking wrt mm->rss.
->
-> thanks for forwarding this report, actually I just noticed this
-> here and that's good so I can reproduce :)
->
-> it is possible it is my mistake, but I don't think so, infact I
-> don't recall to have changed rss stuff or locking around it.
+  Someone just told me tha the had had a sound card and a network card sharing 
+IRQs, and that caused the network card to generate 'oodles of interrupts for 
+no apparent reason'.
 
-Mmm, then it could also be one of the bugs which got
-fixed in -ac but where Linus never reacted to the
-patch, IIRC the RSS thing was indeed fixed around the
-time where Linus was in the habbit of silently dropping
-half of the patches sent to him...
+  This on the right track?
 
-regards,
+Thanks
 
-Rik
+Chris
+
+>===== Original Message From Francois Romieu <romieu@cogenit.fr> =====
+Chris Newton <newton@unb.ca> :
+[...]
+> 00:02.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev
+> 08)
+> 00: 86 80 29 12 17 01 90 02 08 00 00 02 08 20 00 00
+> 10: 00 20 10 fe c1 ec 00 00 00 00 00 fe 00 00 00 00
+> 20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 9b 00
+> 30: 00 00 00 fd dc 00 00 00 00 00 00 00 0b 01 08 38
+                                           ^
+[...]
+> 01:02.0 SCSI storage controller: Adaptec 7899P (rev 01)
+> 00: 05 90 cf 00 16 01 b0 02 01 00 00 01 08 20 80 80
+> 10: 01 dc 00 00 04 10 00 f9 00 00 00 00 00 00 00 00
+> 20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 ce 00
+> 30: 00 00 00 f8 dc 00 00 00 00 00 00 00 05 01 28 19
+                                           ^
+[...]
+> 01:02.1 SCSI storage controller: Adaptec 7899P (rev 01)
+> 00: 05 90 cf 00 16 01 b0 02 01 00 00 01 08 20 80 80
+> 10: 01 d8 00 00 04 00 00 f9 00 00 00 00 00 00 00 00
+> 20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 ce 00
+> 30: 00 00 00 f8 dc 00 00 00 00 00 00 00 0b 02 28 19
+                                           ^
+[...]
+> 01:06.0 Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC
+> [Python-T] (rev 78)
+> 00: b7 10 05 98 17 01 10 02 78 00 00 02 08 20 00 00
+> 10: 81 d4 00 00 00 24 00 f9 00 00 00 00 00 00 00 00
+> 20: 00 00 00 00 00 00 00 00 00 00 00 00 b7 10 00 10
+> 30: 00 00 00 f8 dc 00 00 00 00 00 00 00 05 01 0a 0a
+                                           ^
+[...]
+> 01:08.0 Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC
+> [Python-T] (rev 78)
+> 00: b7 10 05 98 17 01 10 02 78 00 00 02 08 20 00 00
+> 10: 01 d4 00 00 00 20 00 f9 00 00 00 00 00 00 00 00
+> 20: 00 00 00 00 00 00 00 00 00 00 00 00 b7 10 00 10
+> 30: 00 00 00 f8 dc 00 00 00 00 00 00 00 0b 01 0a 0a
+                                           ^
+Each of your ethernet adapter shares an irq with a scsi controller.
+I had some results pulling some cards from the PCI slots and moving
+the network adapter around until its irq differs but I won't claim
+it's the cure for your problem (it was on HP Netserver motherboards).
+
 --
-IA64: a worthy successor to the i860.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Ueimor
 

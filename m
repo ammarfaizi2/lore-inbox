@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVC2Wsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVC2Wv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbVC2Wsx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 17:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVC2Wsx
+	id S261590AbVC2Wv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 17:51:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVC2Wv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 17:48:53 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31695 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261589AbVC2Wq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 17:46:59 -0500
-Message-ID: <4249DAD4.9020602@pobox.com>
-Date: Tue, 29 Mar 2005 17:46:44 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Tue, 29 Mar 2005 17:51:57 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:17817 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S261590AbVC2Wvs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 17:51:48 -0500
+Message-ID: <4249DC03.4000806@tlinx.org>
+Date: Tue, 29 Mar 2005 14:51:47 -0800
+From: "L. A. Walsh" <lkml@tlinx.org>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Herbert Xu <herbert@gondor.apana.org.au>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy
- (2.6.11)
-References: <1111731361.20797.5.camel@uganda><1111731361.20797.5.camel@uganda> <20050325061311.GA22959@gondor.apana.org.au> <4249D06F.30802@tmr.com>
-In-Reply-To: <4249D06F.30802@tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: RFC: 2.6.release.patchlevel:  Patch against 2.6.release[.0] ?
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> Herbert Xu wrote:
-> 
->> You missed the point.  This has nothing to do with the crypto API.
->> Jeff is saying that if this is disabled by default, then only a few
->> users will enable it and therefore use this API.
->>
->> Since we can't afford to enable it by default as hardware RNG may
->> fail which can lead to catastrophic consequences, there is no point
->> for this API at all.
-> 
-> 
-> Wait a minute, if it fails the system drops back to software, which is 
-> not as good in a pedantic analysis, but perhaps falls a good bit short 
-> of "catastrophic consequences" as most people would characterize that 
-> phrase. And more to the point, now that many CPUs and chipsets are the 
-> RNG of choice, what is the actual probability of a failure of the RNG 
-> leaving a functional system (that's a real question seeking response 
-> from someone who has some actual data).
+Given the frequency with which stabilization patches may be released, it
+may not be practical to expect users to catch each release announcement
+and download each patch.
 
-As I've said, in the past the Intel RNGs in particular -have- failed, 
-but the rest of the system keeps on working just fine.
+Especially if small patches are released for stability, as one might
+(hopefully) expect.  Assuming that stability and "fix-it" patches will
+generally be small (I'd hope).  Seeing that the latest "fix-it" patch
+is already at ".6", I'd have to load multiple patches to catch up from
+2.6.11.  I blinked my eyes and missed a few or 5 previous stability
+patches, so I just downloaded the entire bzip...not a biggie, but
+might create less load on servers if I didn't need to go through 6
+patch applications to get current.
 
-It probably depends on the hardware implementation; I think the Intel 
-RNG was based on a thermal diode, or somesuch.
+What do people think?  Would it be desirable to have the stability
+patchsets based against the base release (2.6.11 in this case)?  I'll
+already have downloaded 2.6.11 or the previous base release, but
+with the frequency of patch releases, it might be more reasonable to
+have patch revisions all patch against a base release rather than
+having to download and apply what may grow to be a large number (but
+small diff) against a base release?
 
-In the cases where an RNG has failed in the past, the system has worked 
-as expected:  rngd stopped feeding data into the entropy pool.
+Do people think patch-releases will get too big, or might it not
+be easier to apply them to a constant downloaded copy of the base?
 
-If the VIA RNG (on-CPU) fails, that's probably indicative of a larger 
-problem, though.
+It's a bit amusing since I was one of those that complained about the
+kernel stability, but 2.6.11 has been fairly solid for me, so, of course,
+I'm 6 patches behind -- I don't think the patch release notifications
+are getting as wide-spread press (or at least not reaching "/." :-)) as
+the main releases get.
 
-	Jeff
-
+Linda
 

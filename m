@@ -1,58 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVCBOw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVCBOyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbVCBOw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 09:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbVCBOw7
+	id S262323AbVCBOyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 09:54:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVCBOyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 09:52:59 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:3788 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262312AbVCBOwq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 09:52:46 -0500
-Date: Wed, 2 Mar 2005 06:51:52 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, johnpol@2ka.mipt.ru,
-       elsa-devel@lists.sourceforge.net, jlan@engr.sgi.com, gh@us.ibm.com,
-       efocht@hpce.nec.com, netdev@oss.sgi.com, kaigai@ak.jp.nec.com
-Subject: Re: [PATCH 2.6.11-rc4-mm1] connector: Add a fork connector
-Message-Id: <20050302065152.79d9fba2.pj@sgi.com>
-In-Reply-To: <1109753292.8422.117.camel@frecb000711.frec.bull.fr>
-References: <1109240677.1738.196.camel@frecb000711.frec.bull.fr>
-	<1109753292.8422.117.camel@frecb000711.frec.bull.fr>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 2 Mar 2005 09:54:09 -0500
+Received: from smtp4.wlink.com.np ([202.79.32.87]:24656 "HELO
+	smtp4.wlink.com.np") by vger.kernel.org with SMTP id S262323AbVCBOxx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 09:53:53 -0500
+Reply-To: <bhamal@wlink.com.np>
+From: "bj" <bhamal@wlink.com.np>
+To: <linux-kernel@vger.kernel.org>
+Subject: investingating kernel :Cnx error 
+Date: Wed, 2 Mar 2005 09:52:15 +0545
+Message-ID: <000401c51edd$ae348390$0db3fea9@kath.state.gov>
+MIME-Version: 1.0
+Content-Type: text/plain;	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Spam-Check-By: smtp3.wlink.com.np
+Spam: No ; -4.2 / 5.0
+X-Spam-Status-WL: No, hits=-4.2 required=5.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillaume wrote:
-> 
->   I also run the lmbench and results are send in response to another
-> thread "A common layer for Accounting packages". When fork connector is
-> turned off the overhead is negligible. 
+Hi !
 
-Good.
+I am using Red Hat 8 with kernel 2.4.20-30.8.legacy
 
-If I read this code right:
->
-> +static inline void fork_connector(pid_t parent, pid_t child)
-> +{
-> +	static DEFINE_SPINLOCK(cn_fork_lock);
-> +	static __u32 seq;   /* used to test if message is lost */
-> +
-> +	if (cn_fork_enable) {
+I am facing the following error some times  .
 
-then the code executed if the fork connector is off is a call to an
-inline function that tests an integer, finds it zero, and returns.
+It hangs my computer when I am doing a make or am using x-windows .
 
-This is sufficiently little code that I for one would hardly
-even need lmbench to be comfortable that fork() wasn't impacted
-seriously, in the case that the fork connector is disabled.
+How do I go about investigating the cause of it ?
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+Thank you for your help.
+
+Cheers,
+bj
+
+
+
+
+Feb 25 10:14:20 HOME kernel: cnxthsf_OsFloatSuffix: Id=4 used bit was FALSE
+!
+Feb 25 10:14:20 HOME kernel: cnxthsf_OsFloatSuffix: Id=5 used bit was FALSE
+!
+Feb 25 10:14:20 HOME kernel: cnxthsf_OsFloatSuffix: Id=5 used bit was FALSE
+!
+Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=8 used bit was FALSE
+!
+Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=9 used bit was FALSE
+!
+Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=0 used bit was FALSE
+!
+Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=2 used bit was FALSE
+!
+Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=3 used bit was FALSE
+!
+Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=4 used bit was FALSE
+!
+Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=5 used bit was FALSE
+!
+Feb 28 09:44:22 HOME kernel: cnxthsf_OsFloatSuffix: Id=3 used bit was FALSE
+!
+Feb 28 09:44:23 HOME kernel: cnxthsf_OsFloatSuffix: Id=9 used bit was FALSE
+!
+Feb 28 09:44:23 HOME kernel: cnxthsf_OsFloatSuffix: Id=0 used bit was FALSE
+!
+Feb 28 09:44:23 HOME kernel: cnxthsf_OsFloatSuffix: Id=3 used bit was FALSE
+!
+Feb 28 09:44:23 HOME kernel: cnxthsf_OsFloatSuffix: Id=6 used bit was FALSE
+!
+Feb 28 09:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=4 used bit was FALSE
+!
+Feb 28 09:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=0 used bit was FALSE
+!
+Feb 28 09:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=4 used bit was FALSE
+!
+Feb 28 10:26:44 HOME kernel: cnxthsf_OsFloatSuffix: Id=6 used bit was FALSE
+!
+Feb 28 10:26:47 HOME kernel: cnxthsf_OsFloatSuffix: Id=6 used bit was FALSE
+!
+Mar  1 09:30:46 HOME kernel: cnxthsf_OsFloatSuffix: Id=8 used bit was FALSE
+!
+Mar  1 09:30:46 HOME kernel: cnxthsf_OsFloatSuffix: Id=0 used bit was FALSE
+!
+Mar  1 10:06:56 HOME kernel: cnxthsf_OsFloatSuffix: Id=1 used bit was FALSE
+!
+Mar  1 10:07:00 HOME kernel: cnxthsf_OsFloatSuffix: Id=8 used bit was FALSE
+!
+

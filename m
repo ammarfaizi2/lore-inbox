@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262416AbTJGOe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 10:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTJGOe0
+	id S262433AbTJGOpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 10:45:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbTJGOpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 10:34:26 -0400
-Received: from h80ad269e.async.vt.edu ([128.173.38.158]:12160 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262416AbTJGOeT (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 10:34:19 -0400
-Message-Id: <200310071434.h97EY7vl027021@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't X be elemenated? 
-In-Reply-To: Your message of "Tue, 07 Oct 2003 14:52:36 +0200."
-             <yw1x1xtpfbvv.fsf@users.sourceforge.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.44.0309301209590.19804-100000@shell> <Pine.LNX.4.58.0309301316510.12484@dlang.diginsite.com> <20031007040449.GM205@openzaurus.ucw.cz> <3F82780C.8080408@pixelized.ch> <20031007121825.GA323@elf.ucw.cz>
-            <yw1x1xtpfbvv.fsf@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_962568890P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 7 Oct 2003 10:45:09 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:63717 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262433AbTJGOpE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 10:45:04 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Tue, 07 Oct 2003 10:34:07 -0400
+Message-ID: <16258.53615.17755.970961@laputa.namesys.com>
+Date: Tue, 7 Oct 2003 18:45:03 +0400
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: "E. Gryaznova" <grev@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: Can dbench be used for benchmarking fs?
+In-Reply-To: <20031007082944.D1564@schatzie.adilger.int>
+References: <3F82B4C6.707221A@namesys.com>
+	<20031007082944.D1564@schatzie.adilger.int>
+X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_962568890P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Andreas Dilger writes:
+ > On Oct 07, 2003  16:42 +0400, E. Gryaznova wrote:
+ > > I use dbench for benchmarking the file systems and some results are
+ > > suspicious for me.
+ > > :
+ > > :
+ > > :
+ > > As the result: the measuring deviation is equal = 23.4062 - 15.7005 =
+ > > 7.7057 or about ~38% from average value.
+ > > 
+ > > So, I have 2 questions :
+ > > 1. Is there a way to avoid such big deviations on measuring a file
+ > > systems throughput and to get more stable results?
+ > > 2. Can dbench be used for benchmarking the file systems and if it is so
+ > > -- what is the predictable error on the measuring?
+ > 
+ > Dbench is not a good filesystem benchmark, because it deletes all of the
+ > files at the end.  Use something else for the filesystem benchmark - there
 
-On Tue, 07 Oct 2003 14:52:36 +0200, mru@users.sourceforge.net (=3D?iso-88=
-59-1?q?M=3DE5ns_Rullg=3DE5rd?=3D)  said:
+Err... What is wrong with deleting all files at the end? Or do you mean
+it should mix file operations during run?
 
-> The other toolkits are either non-free, immensely ugly, or both.
+ > are lots of them (bonnie, iozone, mongo, etc).
 
-Keep in mind that in some cases, "non-free" is considered an advantage.  =
-A
-company that's trying to build a large expensive software package may cho=
-ose a
-toolkit precisely because it is *not* GPL'ed, so using it doesn't require=
+But why variance is so large?
 
-shipping your expensively produced source code....
+Another probably interesting observation is that dbench works faster on
+ext2 if it is run directly after mkfs.ext2, that is, without reboot
+between mkfs and mount.
 
-Remember why the LGPL exists....
+ > 
+ > Cheers, Andreas
 
-
---==_Exmh_962568890P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/gs7ecC3lWbTT17ARAnAfAKCZZuyzWQHH0AUGE3qkfAFW23mhvACg6Ddl
-3UZIonXyzFlfkMf+bOCQmyY=
-=cp/A
------END PGP SIGNATURE-----
-
---==_Exmh_962568890P--
+Nikita.

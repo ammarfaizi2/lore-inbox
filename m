@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281672AbRKQBas>; Fri, 16 Nov 2001 20:30:48 -0500
+	id <S281674AbRKQBjC>; Fri, 16 Nov 2001 20:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281673AbRKQBah>; Fri, 16 Nov 2001 20:30:37 -0500
-Received: from tan7.ncr.com ([192.127.94.7]:47125 "EHLO
-	susdayte51.daytonoh.ncr.com") by vger.kernel.org with ESMTP
-	id <S281672AbRKQBa3>; Fri, 16 Nov 2001 20:30:29 -0500
-Message-ID: <61A60D883863D411A36600D0B785B50C06D5FEA4@susdayte51.daytonoh.ncr.com>
-From: "Pinyowattayakorn, Naris" <np151003@exchange.SanDiegoCA.NCR.COM>
-To: linux-kernel@vger.kernel.org
-Subject: Driver callback routine when panic() is called
-Date: Fri, 16 Nov 2001 20:30:23 -0500
+	id <S281675AbRKQBil>; Fri, 16 Nov 2001 20:38:41 -0500
+Received: from mail.myrio.com ([63.109.146.2]:62450 "HELO smtp1.myrio.com")
+	by vger.kernel.org with SMTP id <S281674AbRKQBig>;
+	Fri, 16 Nov 2001 20:38:36 -0500
+Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CACF@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'ecd@atecom.com'" <ecd@atecom.com>
+Subject: 2.4.15-pre5 - unresolved symbols in atm/idt77252.o
+Date: Fri, 16 Nov 2001 17:38:00 -0800
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+X-Mailer: Internet Mail Service (5.5.2650.21)
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+I just compiled 2.4.15-pre5, and during "make modules_install":
 
-I don't know if this is an appropriate question to ask on this mailing list
-but I have no idea where to ask. 
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.15pre5/kernel/drivers/atm/idt77252.o
+depmod:  idt77252_tx_dump
 
-Is there any call that can be used for a driver to register system crash
-callback routines. Thus, If panic( ) is called, such a callback can save
-device-state information to be written into the system crash dump file. 
+The .config was essentially the one that Mandrake used for their
+2.4.8-mdk26 kernel - almost everything included as modules, but I
+changed the CPU type to PIII Coppermine.  I can send the .config 
+along if needed.
 
-Thanks,
-Naris
+(Author, as identified in idt77252.c, has been cc'ed)
+
+Thanks.
+
+Torrey

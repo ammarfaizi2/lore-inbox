@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267902AbTBLWch>; Wed, 12 Feb 2003 17:32:37 -0500
+	id <S267881AbTBLWbQ>; Wed, 12 Feb 2003 17:31:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267907AbTBLWch>; Wed, 12 Feb 2003 17:32:37 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:54976 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S267902AbTBLWcg>;
-	Wed, 12 Feb 2003 17:32:36 -0500
-Date: Wed, 12 Feb 2003 14:42:26 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Bruno Diniz de Paula <diniz@cs.rutgers.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT foolish question
-Message-ID: <20030212224226.GA13129@f00f.org>
-References: <1045084764.4767.76.camel@urca.rutgers.edu> <20030212140338.6027fd94.akpm@digeo.com> <1045088991.4767.85.camel@urca.rutgers.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1045088991.4767.85.camel@urca.rutgers.edu>
-User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
+	id <S267899AbTBLWbQ>; Wed, 12 Feb 2003 17:31:16 -0500
+Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:49414 "HELO
+	legolas.dynup.net") by vger.kernel.org with SMTP id <S267881AbTBLWbP>;
+	Wed, 12 Feb 2003 17:31:15 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Reply-To: rudmer@legolas.dynup.net
+Message-Id: <200302122246.19225@gandalf>
+To: "Randy.Dunlap" <randy.dunlap@verizon.net>, andmike@us.ibm.com,
+       james.bottomley@steeleye.com, linux-kernel@vger.kernel.org,
+       fischer@norbit.de, Tommy.Thorn@irisa.fr
+Subject: Re: [PATCH] fix scsi/aha15*.c for 2.5.60
+Date: Wed, 12 Feb 2003 23:41:02 +0100
+X-Mailer: KMail [version 1.3.2]
+References: <3E49DC38.52D278C4@verizon.net>
+In-Reply-To: <3E49DC38.52D278C4@verizon.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 12, 2003 at 05:29:52PM -0500, Bruno Diniz de Paula wrote:
+On Wednesday 12 February 2003 06:31, Randy.Dunlap wrote:
+> Hi,
+> 
+> Here are patches to aha152x.c and aha1542.c so that they will build
+> in 2.5.60.
+> 
+> Please review and apply or comment...
 
-> But I am using multiples of page size in both buffer alignment and
-> buffer size (2nd and 3rd parameters of read).  The issue is that
-> when I try to read files with sizes that are NOT multiples of block
-> size (and therefore also not multiples of page size), the read
-> syscall returns 0, with no errors.
+well it applies, compiles, but it gives a warning on depmod in make 
+modules_install:
 
-What filesystem?
+<snip>
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.60; fi
+WARNING: /lib/modules/2.5.60/kernel/drivers/scsi/aha152x.ko needs unknown 
+symbol scsi_put_command
+WARNING: /lib/modules/2.5.60/kernel/drivers/scsi/aha152x.ko needs unknown 
+symbol scsi_get_command
 
-Can you send an strace of this occurring?
+this is the relevant part of my .config:
+CONFIG_SCSI=m
+CONFIG_SCSI_AHA152X=m
 
-> So the question remains, am I able to read just files whose size is
-> a multiple of block size?
+this gives these modules in /lib/modules/2.5.60/kernel/drivers/scsi/:
+aha152x.ko  scsi_mod.ko  sg.ko
 
-No.
+what am i missing??
 
-You ideally should be able to read any length file with O_DIRECT.
-Even a 1-byte file.
-
-
-
-  --cw
+	Rudmer
+> 
+> Thanks,
+> ~Randy

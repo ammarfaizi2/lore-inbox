@@ -1,91 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272280AbRIVVjw>; Sat, 22 Sep 2001 17:39:52 -0400
+	id <S272287AbRIVVqV>; Sat, 22 Sep 2001 17:46:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272295AbRIVVjk>; Sat, 22 Sep 2001 17:39:40 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:60605
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S272280AbRIVVjY>; Sat, 22 Sep 2001 17:39:24 -0400
-Date: Sat, 22 Sep 2001 17:39:37 -0400
-From: Chris Mason <mason@suse.com>
-To: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-cc: Beau Kuiper <kuib-kl@ljbc.wa.edu.au>
-Subject: [PATCH] reiserfs speedup for 2.4.9+
-Message-ID: <1696760000.1001194777@tiny>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S272295AbRIVVqL>; Sat, 22 Sep 2001 17:46:11 -0400
+Received: from as1-5-2.tbg.s.bonet.se ([217.215.34.209]:61607 "EHLO
+	flashdance.cx") by vger.kernel.org with ESMTP id <S272287AbRIVVp7>;
+	Sat, 22 Sep 2001 17:45:59 -0400
+Date: Sat, 22 Sep 2001 23:46:50 +0200 (CEST)
+From: Peter Magnusson <iocc@linux-kernel.flashdance.cx>
+X-X-Sender: <iocc@flashdance>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: broken VM in 2.4.10-pre9
+In-Reply-To: <20010922164645.D15681@cs.cmu.edu>
+Message-ID: <Pine.LNX.4.33L2.0109222313420.29748-100000@flashdance>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 22 Sep 2001, Jan Harkes wrote:
 
-Hello everyone,
+> Only when the wrong pages have been swapped out and need to be swapped
+> in again. Swapped out pages should be relatively inactive, the amount of
+> swap space allocated number that you see in 'free' is not the same as
+> the amount of pages that are actually swapped out and removed from
+> memory, any active ones should still be around in the pagecache.
+>
+> > Use the swap as little as possible == good.
+>
+> Nope, Use the swap-in as little as possible == good, I don't mind having
+> 4GB of data in swap, as long as I typically don't need to load it back
+> into in memory. And every page that is in swap that I don't really need
+> means another page that can be used to avoid paging out an executable,
+> or purging the dentry lookup caches, or dropping one of those files I
+> access once every 5 minutes.
 
-Beau pointed me towards a performance bug in reiserfs, where reiserfs_write_super would be called excessively.  
+I think we are talking about somewhat different things. U talk about
+swapping in general. I talk about the changes 2.4.7 > now (2.4.9 for
+example) in the VM system that makes linux to swap alot.
 
-Turns out that 2.4.9 included some new super handling code that 
-interacted poorly with how reiserfs uses kupdated calls to 
-write_super to trigger writebacks of metadata.
+In kernel 2.4.7 maybe 5 Mbyte was put on the swap over a week. It didnt
+had any need to put more on the swap because i got 512 Mbyte RAM.
 
-This is most obvious with benchmarks like bonnie++, where 
-2.4.9 and 2.4.10 reiserfs do very poorly.
-
-This patch makes things much better in my tests, I'd appreciate 
-a few more testers.  The only risk is reiserfs using slightly 
-more memory, but only if I've screwed something up.
-
--chris
-
---- linux/fs/reiserfs/journal.c	Sat Sep  8 08:05:32 2001
-+++ linux/fs/reiserfs/journal.c	Sat Sep 22 17:10:57 2001
-@@ -746,6 +746,8 @@
-   }
-   atomic_set(&(jl->j_commit_flushing), 0) ;
-   wake_up(&(jl->j_commit_wait)) ;
-+  
-+  s->s_dirt = 1 ;
-   return 0 ;
- }
- 
-@@ -2378,7 +2381,6 @@
-   int count = 0;
-   int start ; 
-   time_t now ; 
--  int keep_dirty = 0 ;
-   struct reiserfs_transaction_handle th ; 
- 
-   start =  SB_JOURNAL_LIST_INDEX(p_s_sb) ;
-@@ -2388,10 +2390,6 @@
-   if (SB_JOURNAL_LIST_INDEX(p_s_sb) < 0) {
-     return 0  ;
-   }
--  if (!strcmp(current->comm, "kupdate")) {
--    immediate = 0 ;
--    keep_dirty = 1 ;
--  }
-   /* starting with oldest, loop until we get to the start */
-   i = (SB_JOURNAL_LIST_INDEX(p_s_sb) + 1) % JOURNAL_LIST_COUNT ;
-   while(i != start) {
-@@ -2416,7 +2414,6 @@
-     reiserfs_prepare_for_journal(p_s_sb, SB_BUFFER_WITH_SB(p_s_sb), 1) ;
-     journal_mark_dirty(&th, p_s_sb, SB_BUFFER_WITH_SB(p_s_sb)) ;
-     do_journal_end(&th, p_s_sb,1, COMMIT_NOW) ;
--    keep_dirty = 0 ;
-   } else if (immediate) { /* belongs above, but I wanted this to be very explicit as a special case.  If they say to 
-                              flush, we must be sure old transactions hit the disk too. */
-     journal_join(&th, p_s_sb, 1) ;
-@@ -2424,8 +2421,8 @@
-     journal_mark_dirty(&th, p_s_sb, SB_BUFFER_WITH_SB(p_s_sb)) ;
-     do_journal_end(&th, p_s_sb,1, COMMIT_NOW | WAIT) ;
-   }
--  keep_dirty |= reiserfs_journal_kupdate(p_s_sb) ;
--  return keep_dirty ;
-+  reiserfs_journal_kupdate(p_s_sb) ;
-+  return 0 ;
- }
- 
- /*
-
+Then that changed... In for example 2.4.9 it put ALOT of Mbyte on the swap
+very fast, like 100-200 Mbyte. And then it will slowly swap it back to RAM
+when they are needed. If it didnt put it on the swap in the first place and
+keept it in RAM like under 2.4.7 it would not swap it back to RAM later and
+it would go faster. I know alot of others that are very annoyed about this
+and is complaing about it. I just doesnt reach the linux-kernel
+mailinglist.
 

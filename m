@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbTJIQii (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 12:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbTJIQii
+	id S262319AbTJIQ4i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 12:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbTJIQ4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 12:38:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61836 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262285AbTJIQie
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 12:38:34 -0400
-Message-ID: <3F858EF8.5080105@pobox.com>
-Date: Thu, 09 Oct 2003 12:38:16 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Thu, 9 Oct 2003 12:56:37 -0400
+Received: from fep03-svc.mail.telepac.pt ([194.65.5.202]:5003 "EHLO
+	fep03-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
+	id S262319AbTJIQ4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 12:56:36 -0400
+Message-ID: <3F8592D6.6090905@vgertech.com>
+Date: Thu, 09 Oct 2003 17:54:46 +0100
+From: Nuno Silva <nuno.silva@vgertech.com>
+Organization: VGER, LDA
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030908 Debian/1.4-4
+X-Accept-Language: en-us, pt
 MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: Linus Torvalds <torvalds@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] disable_irq()/enable_irq() semantics and ide-probe.c
-References: <3F858885.1070202@colorfullife.com>
-In-Reply-To: <3F858885.1070202@colorfullife.com>
+To: herft <herft@sedal.usyd.edu.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: CPU Usage for particular User Login
+References: <5.1.1.5.2.20031009193818.0233ebf8@brain.sedal.usyd.edu.au>
+In-Reply-To: <5.1.1.5.2.20031009193818.0233ebf8@brain.sedal.usyd.edu.au>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> I'd like to use that for nic shutdown for natsemi:
+
+
+herft wrote:
+> Hi Vda,
+> Hi All.
 > 
->    disable_irq();
->    shutdown_nic();
->    free_irq();
->    enable_irq();
+> I want to get CPU Usage for particular User Login. (Seperately for each 
+> user)
+> 
+> IS THERE AN APPLICATION WHICH RUNS UNDER Linux to do this work?
 
+This is a bit off-topic for lkml, but...
 
-Why not just shutdown the NIC inside spin_lock_irqsave or disable_irq, 
-and then free_irq separately?
+AFAIK, no. You'll have to code your own.
 
-If you can't stop the NIC hardware from generating interrupts, that's a 
-driver bug.  And if the driver cannot handle its interrupt handler 
-between the spin_unlock_irqrestore() and free_irq() (shared irq case), 
-it's also buggy.
+You can also run a lot of top programs, each for one user (type 'u' 
+while in top).
 
-	Jeff
+Regards,
+Nuno Silva
 
-
+> 
+> 
+> Thanks
+> 
+> Sena Seneviratne
+> Computer Engineering Lab
+> Sydney University
+>
 

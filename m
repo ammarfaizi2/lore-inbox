@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289527AbSAVWzw>; Tue, 22 Jan 2002 17:55:52 -0500
+	id <S289521AbSAVW6C>; Tue, 22 Jan 2002 17:58:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289523AbSAVWzn>; Tue, 22 Jan 2002 17:55:43 -0500
-Received: from ns.caldera.de ([212.34.180.1]:22431 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S289518AbSAVWz1>;
-	Tue, 22 Jan 2002 17:55:27 -0500
-Date: Tue, 22 Jan 2002 23:55:12 +0100
-Message-Id: <200201222255.g0MMtCF09024@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: andyp@osdl.org (Andy Pfiffer)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: In Search Of: Old Module: "Two Kernel Monte"
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <1011739306.11541.30.camel@andyp>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
+	id <S289532AbSAVW5w>; Tue, 22 Jan 2002 17:57:52 -0500
+Received: from bs1.dnx.de ([213.252.143.130]:62370 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S289521AbSAVW5h>;
+	Tue, 22 Jan 2002 17:57:37 -0500
+Date: Tue, 22 Jan 2002 23:55:30 +0100 (CET)
+From: Robert Schwebel <robert@schwebel.de>
+X-X-Sender: <robert@callisto.local>
+Reply-To: <robert@schwebel.de>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: <linux-embedded@waste.org>
+Subject: New version of AMD Elan patch available
+In-Reply-To: <Pine.LNX.4.33.0112311900380.3056-100000@callisto.local>
+Message-ID: <Pine.LNX.4.33.0201222347301.893-100000@callisto.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1011739306.11541.30.camel@andyp> you wrote:
-> Briefly, the module would load a new kernel image, ramdisk, command line
-> etc. by trying to put the system back into a post-firmware state and
-> launch the kernel.  It apparently lacked support for SMP systems.
->
-> The original link to the code is now a dead-end: 
->
-> 	http://www.scyld.com/software/monte.html
->
-> and the original author is unreachable by the address listed.
->
-> If you've got a copy of the code stashed somewhere, or if you know of
-> more recent work in this area, I would appreciate a pointer.
+Hi,
 
-I've put an SRPM of a slightly hacked version on:
+[please send comments per mail]
 
-	ftp.kernel.org/pub/linux/kernel/people/hch/misc/monte-0.4.0-2.src.rpm
+today it's quick-release-time. There's another version of the AMD Elan
+patch available which adds Sven Geggus' driver for changing the CPU
+frequency. See the latest patch on
+
+  http://www.pengutronix.de/software/elan_en.html
+
+Please note that this is a very first and experimental version of this
+driver. The API will most likely change to the cpufreq API from the ARM
+architecture (Dave, I'll have a look at it tomorrow).
+
+Robert
+--
+ +--------------------------------------------------------+
+ | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
+ | Pengutronix - Linux Solutions for Science and Industry |
+ |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
+ |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
+ +--------------------------------------------------------+
+
 

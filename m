@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262894AbVAFP7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262886AbVAFQEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262894AbVAFP7N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 10:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbVAFP7M
+	id S262886AbVAFQEA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 11:04:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbVAFQEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 10:59:12 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:48548 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262894AbVAFP6r (ORCPT
+	Thu, 6 Jan 2005 11:04:00 -0500
+Received: from relay02.pair.com ([209.68.5.16]:62221 "HELO relay02.pair.com")
+	by vger.kernel.org with SMTP id S262886AbVAFQDk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 10:58:47 -0500
-Message-ID: <41DD608A.80003@sgi.com>
-Date: Thu, 06 Jan 2005 10:00:10 -0600
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Steve Longerbeam <stevel@mvista.com>, Hugh Dickins <hugh@veritas.com>,
-       "cl >> Christoph Lameter" <clameter@sgi.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, andrew morton <akpm@osdl.org>
-Subject: Re: page migration patchset
-References: <Pine.LNX.4.44.0501052008160.8705-100000@localhost.localdomain> <41DC7EAD.8010407@mvista.com> <20050106144307.GB59451@muc.de>
-In-Reply-To: <20050106144307.GB59451@muc.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 6 Jan 2005 11:03:40 -0500
+X-pair-Authenticated: 66.134.112.218
+Subject: Re: finding process blocking on a system call
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: selvakumar nagendran <kernelselva@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050106121830.44661.qmail@web60609.mail.yahoo.com>
+References: <20050106121830.44661.qmail@web60609.mail.yahoo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 06 Jan 2005 11:03:39 -0500
+Message-Id: <1105027419.17473.2.camel@athena.fprintf.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.1.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-
+On Thu, 2005-01-06 at 04:18 -0800, selvakumar nagendran wrote:
+> Hello linux-experts,
+>    I want to find whether a process blocks in a system
+> call due to the unavailability of the resource that is
+> accessed in it. For eg, if a semaphore key is not
+> available to the process while executing the system
+> calls like read, write etc, it will wait in the
+> TASK_INTERRUPTIBLE state. 
+>    Now, I don't want the process to simply sleep,
+> waiting for the semaphore. I want it to be added into
+> the runqueue again. And also, I want to determine this
+> in the kernel module. How can I do this? Can anyone
+> help me regarding this?
+>  I am intercepting system calls in kernel 2.4.28.
 > 
-> You need lazy hugetlbfs to use it (= allocate at page fault time,
-> not mmap time). Otherwise the policy can never be applied. I implemented 
-> my own version of lazy allocation for SLES9, but when I wanted to 
-> merge it into mainline some other people told they had a much better 
-> singing&dancing lazy hugetlb patch. So I waited for them, but they 
-> never went forward with their stuff and their code seems to be dead
-> now. So this is still a dangling end :/
+> Thanks,
+> selva
 > 
-> If nothing happens soon regarding the "other" hugetlb code I will
-> forward port my SLES9 code. It already has NUMA policy support.
 
-Andi,
+This is a very bad idea, as the process will expect the syscall to be
+complete when it runs again.  Just use the non-blocking versions of the
+syscall (file/network IO all have non-blocking versions), and handle the
+EWOULDBLOCK return value in your userspace application.
 
-I too have been frustrated by this process.  I think Christoph Lameter
-at SGI is looking at forward porting the "old" lazy hugetlbpage allocation
-code.  Of course, the proof is in the "doing" of this and I am not sure
-what other priorities he has at the moment.
-
--- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+Daniel

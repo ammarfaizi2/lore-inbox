@@ -1,81 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263568AbUC3JYl (ORCPT <rfc822;willy@w.ods.org>);
+	id S263571AbUC3JYl (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 30 Mar 2004 04:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbUC3JY1
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUC3JYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 04:24:27 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:25805 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S263568AbUC3JX2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 04:23:28 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Tom Rini <trini@kernel.crashing.org>, kgdb-bugreport@lists.sourceforge.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][KGDB] Drop 'E' packet support
-Date: Tue, 30 Mar 2004 13:38:51 +0530
-User-Agent: KMail/1.5
-References: <20040329201756.GK2895@smtp.west.cox.net>
-In-Reply-To: <20040329201756.GK2895@smtp.west.cox.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 30 Mar 2004 04:24:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52151 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263571AbUC3JYR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 04:24:17 -0500
+Date: Tue, 30 Mar 2004 01:24:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc2-mm5
+Message-Id: <20040330012404.34012b35.akpm@osdl.org>
+In-Reply-To: <200403301127.35263.rjwysocki@sisk.pl>
+References: <20040329014525.29a09cc6.akpm@osdl.org>
+	<200403301127.35263.rjwysocki@sisk.pl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403301338.51561.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fine with me.
-
--Amit
-
-On Tuesday 30 Mar 2004 1:47 am, Tom Rini wrote:
-> Hi.  After working on the docs a bit based on the textfile from Anurekh
-> Saxena, I'd like to commit the following patch (and similar hunks to the
-> i386-lite and x86_64 patch) to drop support for the 'E' packet.
+"R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
 >
-> This isn't something supported by stock GDB, nor AFAIK is it something
-> that's been submitted for inclusion in GDB.  So I'd really like to drop
-> this entirely until it's something gdb CVS supports (and I assume would
-> be documented in
-> http://sources.redhat.com/gdb/current/onlinedocs/gdb_33.html#SEC656 ).
-> I could stand putting off the question for now and putting it in the
-> non-lite patches, but I'd really rather not.
->
-> If no one objects, I'd like to commit this noon, -0700 on 30 March.
-> diff -u linux-2.6.4/kernel/kgdb.c linux-2.6.4/kernel/kgdb.c
-> --- linux-2.6.4/kernel/kgdb.c	2004-03-19 08:22:37.147169789 -0700
-> +++ linux-2.6.4/kernel/kgdb.c	2004-03-29 13:13:11.440594007 -0700
-> @@ -130,11 +130,6 @@
->  }
->
->  void __attribute__ ((weak))
-> -    kgdb_printexceptioninfo(int exceptionNo, int errorcode, char *buffer)
-> -{
-> -}
-> -
-> -void __attribute__ ((weak))
->      kgdb_disable_hw_debug(struct pt_regs *regs)
->  {
->  }
-> @@ -875,12 +870,6 @@
->  				int_to_threadref(&thref, threadid);
->  				pack_threadid(remcom_out_buffer + 2, &thref);
->  				break;
-> -
-> -			case 'E':
-> -				/* Print exception info */
-> -				kgdb_printexceptioninfo(exVector, err_code,
-> -							remcom_out_buffer);
-> -				break;
->  			case 'T':
->  				if (memcmp(remcom_in_buffer + 1,
->  					   "ThreadExtraInfo,", 16)) {
+> On Monday 29 of March 2004 11:45, Andrew Morton wrote:
+> >
+> > +remove-down_tty_sem.patch
+> > +tty-locking-again.patch
+> >
+> 
+> These two patches break things quite a bit for me.  With them, the kernel is 
+> unable to open any tty (virtual console, pts, whatever), it seems (my system 
+> is a dual AMD64 w/ NUMA w/o kernel preemption).
 
+yup.  Please revert tty-locking-again.patch.  Or just do
+rm drivers/char/tty* and start again.

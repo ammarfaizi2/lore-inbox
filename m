@@ -1,136 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265215AbUHRJEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUHRJJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265215AbUHRJEY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 05:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265232AbUHRJEY
+	id S265230AbUHRJJt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 05:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265232AbUHRJJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 05:04:24 -0400
-Received: from pop107-mtl.zid.com ([207.253.126.107]:46089 "EHLO oemcomputer")
-	by vger.kernel.org with ESMTP id S265212AbUHRJEN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 05:04:13 -0400
-From: formation.sept@laposte.net
-To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?=C9laboration=20d'un=20Plan=20de=20Formation?=
-Date: Tue, 17 Aug 2004 21:40:06 -0400
-MIME-Version: 1.0 (produced by Synapse)
-x-mailer: Synapse - Delphi & Kylix TCP/IP library by Lukas Gebauer
-Content-type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Content-Description: Message text
-Message-Id: <S265212AbUHRJEN/20040818090413Z+516@vger.kernel.org>
+	Wed, 18 Aug 2004 05:09:49 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:44501
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S265230AbUHRJJr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 05:09:47 -0400
+Message-ID: <41231CD8.5020300@bio.ifi.lmu.de>
+Date: Wed, 18 Aug 2004 11:09:44 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+Cc: Andreas Messer <andreas.messer@gmx.de>, linux-kernel@vger.kernel.org,
+       Ballarin.Marc@gmx.de, christer@weinigel.se
+Subject: Re: [PATCH] 2.6.8.1 Mis-detect CRDW as CDROM
+References: <411FD919.9030702@comcast.net> <20040816231211.76360eaa.Ballarin.Marc@gmx.de> <4121A689.8030708@bio.ifi.lmu.de> <200408171311.06222.satura@proton> <20040817155927.GA19546@proton-satura-home> <41231790.7060806@bio.ifi.lmu.de>
+In-Reply-To: <41231790.7060806@bio.ifi.lmu.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ÉLABORATION D'UN PLAN DE FORMATION
+Oh, I missed one case: When calling cdrecord with no cd in the plextor
+for the first time after booting, i.e., when /etc/hotplug/block.agent
+(on SuSE 9.1) jumps in, I see a 0x1 additionally:
 
-Formation:
+Aug 18 10:27:00 zassenhaus /etc/hotplug/block.agent[8396]: new block device /block/hdc
+Aug 18 10:27:00 zassenhaus /etc/hotplug/block.agent[8397]: new block device /block/hdd
+Aug 18 10:27:56 zassenhaus kernel: SCSI-CMD Filter: 0x1e not allowed with read-mode
+Aug 18 10:28:01 zassenhaus kernel: SCSI-CMD Filter: 0x1 not allowed with read-mode
+Aug 18 10:28:02 zassenhaus kernel: SCSI-CMD Filter: 0x1e not allowed with read-mode
+Aug 18 10:28:02 zassenhaus kernel: SCSI-CMD Filter: 0xe9 not allowed with read-mode
+...
 
-Atelier d'un jour - Le 27 Septembre 2004 à Montréal
-et le 24 Septembre 2004 à Québec
+The 0x1 does not appear afterwors anymore...
 
-"Pour ceux qui pensent que la formation coûte cher... essayez l'ignorance".
+Does it, by the way, make any sense that I report this here? Or will the
+security model have to be desgined first like you discussed it, before
+such tests are helpful? Just to avoid that I flood you with a list of
+blocked commands when you can't make any use of it now :-)
 
-CETTE FORMATION S'ADRESSE AUX DIRECTEURS FORMATION, DIRECTEURS 
-DES RESSOURCES HUMAINES, GESTIONNAIRES D'ENTREPRISE ET 
-DIRECTEURS DE DÉPARTEMENT GÉRANT LEUR FORMATION.
-	
+cu,
+Frank
 
-Suivez cette formation pour :
-
-    * Apprendre à développer un plan de formation en lien direct avec les objectifs 
-stratégiques de votre entreprise
-    * Gérer les compétences : outils d'analyse d'écart de compétences et mise à niveau
-    * Améliorer la productivité et la compétitivité
-    * Comprendre le processus pédagogique
-    * Mieux placer votre entreprise sur son marché
-    * Accroître le retour sur investissement de la formation
-    * Mieux gérer votre budget formation vis-à-vis de la loi 90
-    * Vous assurer que les méthodes apprises sont correctement appliquées et 
-implantées dans votre entreprise
-
-
-OBJECTIFS:
-Développer une démarche permettant d'analyser les besoins en formation et de 
-planifier les actions significatives.
-Acquérir des compétences et connaître des méthodes afin de planifier les achats de 
-formation en fonction des objectifs stratégiques de l'entreprise.
-Connaître les outils d'évaluation et de gestion de compétences.
-Connaître les enjeux et l'importance de la planification de la formation dans le contexte 
-de la mondialisation.
-
-PLAN DE COURS:
-
-Introduction:  Dans le contexte de la globalisation des marchés - la formation 
-aujourd'hui
-
-Présentation de la démarche en 5 points:
-
-    * Le diagnostic:  analyser les besoins en formation
-          o L'objectif stratégique
-          o L'objectif opérationnel
-          o Les objectifs de formation
-          o L'entretien avec le commanditaire du projet de formation
-          o Impact de la formation sur ...
-                + La compétence
-                + La motivation
-                + L'environnement de travail
-          o Étude de faisabilité
-                + Analyse stratégique
-                + Analyse de risque
-
-    * L'action de formation:  concevoir la réponse au besoin
-          o Le processus pédagogique
-                + Inscription
-                + Implication
-                + Action de formation
-                + Suivi
-                + Évaluation
-          o Conception de l'action de formation
-
-    * Le plan de formation:  la planification des actions
-          o Les acteurs
-          o Planification
-          o Aides
-          o Le plan de formation
-          o La fiche d'action de formation
-
-    * Sélection des prestataires:  les moyens
-          o Classification des achats en formation
-          o Sélection des prestataires
-                + Le cahier des charges
-                + Critères de sélection
-                + Coût de la formation
-          o Le marché de la formation
-
-    * Évaluation des projets de formation
-          o Évaluation du processus
-          o Évaluation des résultats
-          o Typologie
-          o Évaluation à froid
-          o Évaluation à chaud
-          o Évaluation individuelle
-          o Évaluation collective
-
-
-Date de la formation:  27 Septembre 2004 à Montréal et le 24 Septembre à Québec
-Lieu de la formation: Hôtel Plaza Québec  3031, Boul Laurier Ste-Foy
-Lieu de la formation:  Best Western Laval, 3655, Aut. des Laurentides, Laval
-
-Pour inscription, veuillez contacter Mme Maryse Morin au 1-800-861-6618
-
-
-Conseillers en sciences de gestion et technologies avancées
-450-226-2238 ou le 1-800-861-6618
-
-www.compufinder.com
-
-
-
-Pour vous désabonner de notre liste d'envoi écrire à 
- 
-info.compufinder@quebecemail.com
- 
-merci
+-- 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
 

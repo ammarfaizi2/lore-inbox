@@ -1,186 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbUFRTfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266600AbUFRTjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUFRTfX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 15:35:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266764AbUFRTb2
+	id S266600AbUFRTjq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 15:39:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266536AbUFRTfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 15:31:28 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53266 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266777AbUFRT37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 15:29:59 -0400
-Date: Fri, 18 Jun 2004 20:29:49 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] Couple of sysfs patches
-Message-ID: <20040618202949.B17516@flint.arm.linux.org.uk>
-Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20040610144658.31403.qmail@web81309.mail.yahoo.com> <20040610191740.B6833@flint.arm.linux.org.uk> <20040610212552.C6833@flint.arm.linux.org.uk> <200406161751.03574.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200406161751.03574.dtor_core@ameritech.net>; from dtor_core@ameritech.net on Wed, Jun 16, 2004 at 05:51:03PM -0500
+	Fri, 18 Jun 2004 15:35:30 -0400
+Received: from mailgate.uni-paderborn.de ([131.234.22.32]:23425 "EHLO
+	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
+	id S266599AbUFRTeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 15:34:23 -0400
+Message-ID: <40D343B6.4010302@uni-paderborn.de>
+Date: Fri, 18 Jun 2004 21:34:14 +0200
+From: Bjoern Schmidt <bj-schmidt@uni-paderborn.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Via-Rhine ethernet driver problem?
+References: <40685BC9.1040902@myrealbox.com>
+In-Reply-To: <40685BC9.1040902@myrealbox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
+X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
+X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.275,
+	required 4, AUTH_EIM_USER -5.00, RCVD_IN_NJABL 0.10,
+	RCVD_IN_NJABL_DIALUP 0.53, RCVD_IN_SORBS 0.10)
+X-MailScanner-From: bj-schmidt@uni-paderborn.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 16, 2004 at 05:51:03PM -0500, Dmitry Torokhov wrote:
-> What about freeing the resources? Can it be put in platform_device_unregister
-> or is it release handler task? I'd put it in unregister because when I call
-> unregister I expect device be half-dead and release as much resources as it
-> can.
+walt wrote:
 
-Greg,
+[...]
 
-Here's the updated patch - to be applied on top of the
-platform_get_resource() patch sent previously.
+> I also discovered by using 'scp' to copy files between machines that the 
+> bad
+> performance is assymetrical:  copying a file *to* this machine runs at 
+> about
+> half-speed (5 MB/sec) whereas copying a file *from* this machine runs at
+> 45 KiloB/sec, about one percent of expected.
 
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/drivers/base/platform.c linux/drivers/base/platform.c
---- orig/drivers/base/platform.c	Fri Jun 18 20:28:13 2004
-+++ linux/drivers/base/platform.c	Fri Jun 18 20:24:02 2004
-@@ -55,51 +55,24 @@ int platform_get_irq(struct platform_dev
- }
- 
- /**
-- *	platform_add_device - add one platform device
-- *	@dev: platform device
-- *
-- *	Adds one platform device, claiming the memory resources
-- */
--int platform_add_device(struct platform_device *dev)
--{
--	int i;
--
--	for (i = 0; i < dev->num_resources; i++) {
--		struct resource *p, *r = &dev->resource[i];
--
--		r->name = dev->dev.bus_id;
--
--		p = NULL;
--		if (r->flags & IORESOURCE_MEM)
--			p = &iomem_resource;
--		else if (r->flags & IORESOURCE_IO)
--			p = &ioport_resource;
--
--		if (p && request_resource(p, r)) {
--			printk(KERN_ERR
--			       "%s%d: failed to claim resource %d\n",
--			       dev->name, dev->id, i);
--			break;
--		}
--	}
--	if (i == dev->num_resources)
--		platform_device_register(dev);
--	return 0;
--}
--
--/**
-  *	platform_add_devices - add a numbers of platform devices
-  *	@devs: array of platform devices to add
-  *	@num: number of platform devices in array
-  */
- int platform_add_devices(struct platform_device **devs, int num)
- {
--	int i;
-+	int i, ret = 0;
- 
--	for (i = 0; i < num; i++)
--		platform_add_device(devs[i]);
-+	for (i = 0; i < num; i++) {
-+		ret = platform_device_register(devs[i]);
-+		if (ret) {
-+			while (--i >= 0)
-+				platform_device_unregister(devs[i]);
-+			break;
-+		}
-+	}
- 
--	return 0;
-+	return ret;
- }
- 
- /**
-@@ -109,6 +82,8 @@ int platform_add_devices(struct platform
-  */
- int platform_device_register(struct platform_device * pdev)
- {
-+	int i, ret = 0;
-+
- 	if (!pdev)
- 		return -EINVAL;
- 
-@@ -119,15 +94,53 @@ int platform_device_register(struct plat
- 	
- 	snprintf(pdev->dev.bus_id,BUS_ID_SIZE,"%s%u",pdev->name,pdev->id);
- 
-+	for (i = 0; i < pdev->num_resources; i++) {
-+		struct resource *p, *r = &pdev->resource[i];
-+
-+		r->name = pdev->dev.bus_id;
-+
-+		p = NULL;
-+		if (r->flags & IORESOURCE_MEM)
-+			p = &iomem_resource;
-+		else if (r->flags & IORESOURCE_IO)
-+			p = &ioport_resource;
-+
-+		if (p && request_resource(p, r)) {
-+			printk(KERN_ERR
-+			       "%s: failed to claim resource %d\n",
-+			       pdev->dev.bus_id, i);
-+			ret = -EBUSY;
-+			goto failed;
-+		}
-+	}
-+
- 	pr_debug("Registering platform device '%s'. Parent at %s\n",
- 		 pdev->dev.bus_id,pdev->dev.parent->bus_id);
--	return device_register(&pdev->dev);
-+
-+	ret = device_register(&pdev->dev);
-+	if (ret == 0)
-+		return ret;
-+
-+ failed:
-+	while (--i >= 0)
-+		if (pdev->resource[i].flags & (IORESOURCE_MEM|IORESOURCE_IO))
-+			release_resource(&pdev->resource[i]);
-+	return ret;
- }
- 
- void platform_device_unregister(struct platform_device * pdev)
- {
--	if (pdev)
-+	int i;
-+
-+	if (pdev) {
- 		device_unregister(&pdev->dev);
-+
-+		for (i = 0; i < pdev->num_resources; i++) {
-+			struct resource *r = &pdev->resource[i];
-+			if (r->flags & (IORESOURCE_MEM|IORESOURCE_IO))
-+				release_resource(r);
-+		}
-+	}
- }
- 
- 
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/include/linux/device.h linux/include/linux/device.h
---- orig/include/linux/device.h	Fri Jun 18 20:28:13 2004
-+++ linux/include/linux/device.h	Thu Jun 10 19:15:03 2004
-@@ -392,7 +392,6 @@ extern struct device platform_bus;
- 
- extern struct resource *platform_get_resource(struct platform_device *, unsigned int, unsigned int);
- extern int platform_get_irq(struct platform_device *, unsigned int);
--extern int platform_add_device(struct platform_device *);
- extern int platform_add_devices(struct platform_device **, int);
- 
- /* drivers/base/power.c */
+I have exactly the same problem on a asrock k7vt2 with VIA's Rhine II:
+
+megabyte:~# uname -a
+Linux megabyte 2.6.7 #1 Fri Jun 18 20:37:37 CEST 2004 i686 GNU/Linux
+
+=================================================================
+
+megabyte:~# lspci -v
+0000:00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 
+[Rhine-II] (rev 74)
+         Subsystem: VIA Technologies, Inc. VT6102 [Rhine-II]
+         Flags: bus master, medium devsel, latency 64, IRQ 11
+         I/O ports at dc00
+         Memory at dffffe00 (32-bit, non-prefetchable) [size=256]
+         Capabilities: [40] Power Management version 2
+
+==================================================================
+
+		up 		down
+100baseTx-FD:	~45 kB/s	~100 MBit/s
+100baseTx: 	~45 kB/s	~100 MBit/s
+10baseT-FD: 	~45 kB/s	~10  MBit/s
+10baseT:	~10 MBit/s	~10  MBit/s
+
+
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Greetings
+Bjoern Schmidt
+

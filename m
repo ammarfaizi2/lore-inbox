@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264667AbTGBHOo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 03:14:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264786AbTGBHOo
+	id S261365AbTGBHUS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 03:20:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTGBHUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 03:14:44 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:31980 "HELO
-	develer.com") by vger.kernel.org with SMTP id S264667AbTGBHOn (ORCPT
+	Wed, 2 Jul 2003 03:20:17 -0400
+Received: from ns.mock.com ([209.157.146.194]:13513 "EHLO mail.mock.com")
+	by vger.kernel.org with ESMTP id S261365AbTGBHUO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 03:14:43 -0400
-From: Bernardo Innocenti <bernie@develer.com>
-Organization: Develer
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH] Kill div64.h dupes, parenthesize do_div() macro params
-Date: Wed, 2 Jul 2003 09:28:38 +0200
-User-Agent: KMail/1.5.9
-References: <200307020232.20726.bernie@develer.com> <200307020852.17782.bernie@develer.com> <20030702071919.GP3040@dualathlon.random>
-In-Reply-To: <20030702071919.GP3040@dualathlon.random>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200307020928.38830.bernie@develer.com>
+	Wed, 2 Jul 2003 03:20:14 -0400
+Message-Id: <5.1.0.14.2.20030702002400.060d8658@mail.mock.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 02 Jul 2003 00:34:35 -0700
+To: Jeff Garzik <jgarzik@pobox.com>
+From: Jeff Mock <jeff-ml@mock.com>
+Subject: Re: PROBLEM: 2.4.21 ICH5 SATA related hang during boot
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3F01DA62.9080707@pobox.com>
+References: <5.1.0.14.2.20030701114153.060dd098@mail.mock.com>
+ <5.1.0.14.2.20030630101734.03daddc0@mail.mock.com>
+ <5.1.0.14.2.20030630101734.03daddc0@mail.mock.com>
+ <5.1.0.14.2.20030701114153.060dd098@mail.mock.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-DCC-meer-Metrics: wobble.mock.com 1035; Body=2 Fuz1=2 Fuz2=2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 July 2003 09:19, you wrote:
- > On Wed, Jul 02, 2003 at 08:52:17AM +0200, Bernardo Innocenti wrote:
- > > + *	static inline uint32_t do_div(uint64_t &n, uint32_t base)
- >
- > c++ ;)
+At 03:00 PM 7/1/2003 -0400, Jeff Garzik wrote:
+>Jeff Mock wrote:
+>>With this new change does the BIOS (on an Intel 875P / ICH5
+>>motherboard) still need the drives to be set to legacy mode, or can
+>>it be set to enhanced mode to access the full complement of SATA
+>>and PATA devices?
+>
+>Yep, you can enable enhanced (also called native) mode for SATA, to get 
+>the full spread of 6 devices normally possible (4 pata + 2 sata).
+>
+>         Jeff
 
- Oops! Shall I send a new patch? ;-)
+Wow, that's great, it works really well.  I'm doing a software raid-0
+across the two sata drives, I've been stressing it all afternoon with
+no problems.
 
- > > +# error do_div() does not yet support the C64
- >
- > ;)
- >
- > this new version looks good to me since it will fix bugs and it's not
- > only a cleanup avoiding code duplication. thanks.
+To see the CONFIG_SCSI_ATA_* options during configuration I had to set
+CONFIG_SCSI=y  (I had it set to CONFIG_SCSI=m previously.)  Also, if
+you want to boot from the SATA drives you should also set
+CONFIG_BLK_DEV_SD=y, or maybe load the module from initrd.
 
- The previous patch was not just a cleanup: it actually added parenthes
-that were missing around parameters in many do_div() variants. Guess
-what happened when shrink_slab() did this (pages = 0):
+I enjoy having the drives called /dev/sd[ab], it makes me feel like I
+paid more money for them.
 
-   do_div(delta, pages + 1); /* Ouch! */
-
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
-Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
-
+jeff
 

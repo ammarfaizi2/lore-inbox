@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135842AbRDZSLy>; Thu, 26 Apr 2001 14:11:54 -0400
+	id <S135817AbRDZSSp>; Thu, 26 Apr 2001 14:18:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135822AbRDZSLf>; Thu, 26 Apr 2001 14:11:35 -0400
-Received: from cr626425-a.bloor1.on.wave.home.com ([24.156.35.8]:30725 "EHLO
-	spqr.damncats.org") by vger.kernel.org with ESMTP
-	id <S135817AbRDZSLY>; Thu, 26 Apr 2001 14:11:24 -0400
-Date: Thu, 26 Apr 2001 14:11:25 -0400 (EDT)
-From: John Cavan <johnc@damncats.org>
-To: imel96@trustix.co.id
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Single user linux
-In-Reply-To: <Pine.LNX.4.33.0104261836130.1677-100000@tessy.trustix.co.id>
-Message-ID: <Pine.LNX.4.10.10104261406420.20975-100000@spqr.damncats.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135822AbRDZSSf>; Thu, 26 Apr 2001 14:18:35 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:31282 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135817AbRDZSSY>; Thu, 26 Apr 2001 14:18:24 -0400
+Date: Thu, 26 Apr 2001 20:12:36 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+Message-ID: <20010426201236.W819@athlon.random>
+In-Reply-To: <Pine.GSO.4.21.0104261137410.15385-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0104261137410.15385-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Apr 26, 2001 at 11:45:47AM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 26 Apr 2001 imel96@trustix.co.id wrote:
-> you're right, we could do it in more than one way. like copying
-> with mcopy without mounting a fat disk. the question is where to put it.
-> why we do it is an important thing.
-> taking place as a clueless user, i think i should be able to do anything.
-> i'd be happy to accept proof that multi-user is a solution for
-> clueless user, not because it's proven on servers. but because it is
-> a solution by definition.
+On Thu, Apr 26, 2001 at 11:45:47AM -0400, Alexander Viro wrote:
+> 	Ext2 does getblk+wait_on_buffer for new metadata blocks before
+> filling them with zeroes. While that is enough for single-processor,
+> on SMP we have the following race:
 > 
+> getblk gives us unlocked, non-uptodate bh
+> wait_on_buffer() does nothing
+> 					read from device locks it and starts IO
+> we zero it out.
+> 					on-disk data overwrites our zeroes.
+> we mark it dirty
+> bdflush writes the old data (_not_ zeroes) back to disk.
+> 
+> Result: crap in metadata block. Proposed fix: lock_buffer()/unlock_buffer()
+> around memset()/mark_buffer_uptodate() instead of wait_on_buffer() before
+> them.
+> 
+> Patch against 2.4.4-pre7 follows. Please, apply.
 
-I think you have it backwards here, given that Linux works one way and you
-want it to work another. Basically, I would suggest that it is up to you
-to prove that multi-user is NOT a solution for "clueless" user, especially
-given that there have been a number of suggestions on how to do it without
-changing the kernel or even changing software.
+correct. I bet other fs are affected as well btw.
 
-If you can't prove the case, I rather suspect that your patch won't make
-it. Don't feel bad though, I've yet to get one through either. :o)
-
-John
-
+Andrea

@@ -1,64 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290805AbSARUd5>; Fri, 18 Jan 2002 15:33:57 -0500
+	id <S290813AbSARUeH>; Fri, 18 Jan 2002 15:34:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290812AbSARUds>; Fri, 18 Jan 2002 15:33:48 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:56211 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S290805AbSARUda>; Fri, 18 Jan 2002 15:33:30 -0500
-Message-Id: <200201182033.g0IKXE2R004723@tigger.cs.uni-dortmund.de>
-To: Rainer Krienke <krienke@uni-koblenz.de>
-cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-        nfs@lists.sourceforge.net
-Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256? 
-In-Reply-To: Message from Rainer Krienke <krienke@uni-koblenz.de> 
-   of "Fri, 18 Jan 2002 13:12:16 +0100." <200201181212.g0ICCGq14563@bliss.uni-koblenz.de> 
-Date: Fri, 18 Jan 2002 21:33:13 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S290811AbSARUd6>; Fri, 18 Jan 2002 15:33:58 -0500
+Received: from [208.29.163.248] ([208.29.163.248]:16322 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S290813AbSARUds>; Fri, 18 Jan 2002 15:33:48 -0500
+Date: Fri, 18 Jan 2002 12:33:34 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
+To: Ben Greear <greearb@candelatech.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Tulip driver bug in 2.4.17 (fwd)
+In-Reply-To: <3C48774E.2020708@candelatech.com>
+Message-ID: <Pine.LNX.4.40.0201181224320.27656-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rainer Krienke <krienke@uni-koblenz.de> said:
+On Fri, 18 Jan 2002, Ben Greear wrote:
 
-[...]
+> David Lang wrote:
+>
+>
+> > for me the same machine is rock solid with 2.4.5/8 (driver 0.9.14) but
+> > fails with 2.4.14/17 (driver 0.9.15-pre9)
+>
+>
+> Can you check if your 2.4.5/8 driver actually does 100bt-FD autonegotiation
+> correctly?  I believe it was broken during that time, and fixed in 2.4.9.
+> It's possible that that may have something to do with the problem, but
+> it's a stretch...
 
-> At our site we store all user (~4000 users) data centrally on several NFS
-> servers (running solaris up to now). In order to ease administration we
-> chose the approach to mount each user directory direcly (via automount
-> configured by NIS) on a NFS client where the user wants to access his
-> data. The most important effect of this is, that each users directory is
-> always reachable under the path /home/<user>. This proofed to be very
-> useful (from the administrators point of view) when moving users from one
-> server to another, installing additionl NFS servers etc, because the only
-> path the user knows about and sees when e.g. issuing pwd is
-> /home/<user>. The second advantage is, that there is no need to touch the
-> client system: No need for NFS mounts in /etc/fstab to mount the servers
-> export directory and so there are no unneeded dependencies frpm any
-> client to the NFS servers.
+I have been seeing some errors that could be autonegotiation failing, they
+haven't been enough for me to ge the time to track them down (and I was
+putting them down to cisco switch config issues anyway) I'll have to
+double check.
 
-This is exactly what we do with our (much more modest) 600 accounts at the
-Departamento de Informatica of the UTFSM (Valparaiso, Chile).
+correction on version numbers.
 
-> Now think of a setup where no user directory mounts are configured but
-> the whole directory of a NFS server with many users is exported. Of
-> course this makes things easyer for the NFS-system since only one mount
-> is needed but on the client you need to create link trees or something
-> similar so the user still can access his home under /home/<user> and not
-> something like /home/server1/<user>. Moreover even if you create link
-> trees when you issue commands like pwd you see the real path (eg
-> /server1/<user>) instead of the logical (/home/<user>). Such paths are
-> soon written into scripts etc, so that if the user is moved sometime
-> later things will be broken.
+2.4.5-pre1 worked, 2.4.5 has driver 0.9-15-pre2 and fails, I guess I
+hadn't tested properly with 2.4.8, compiling now with drivers/net from
+2.4.4.
 
-> You simply loose a layer of abstraction if you do not mount the users dir 
-> directly. The only other solution I know of would be amd. Amd automatically 
-> places a link. But since we come from the sun world, we simply uses suns 
-> automounter and there were no problems up to now. 
+when it locks up the reset works immediatly, power takes a few seconds to
+shutdown.
 
-The SunOS automounter (which we used before Solaris) did this too. It was a
-pain in the neck, as the "real" path to the home does show through, and you
-get the same problems with scripts &c containing physical, not logical,
-paths to files. Fixing the _users_ is much harder than fixing up the
-configurations...
--- 
-Horst von Brand			     http://counter.li.org # 22616
+> It might also be interesting to see if the working driver still works
+> if you forward port it into 2.4.17....
+>
+> Ben
+>
+>
+> >
+> > the failure is not at all traffic related, I have these boxes in
+> > production (only useing 3 of the 4 ports) with no problems at all, but on
+> > a box not connected to any network I can lock it up by just issuing an
+> > ifconfig.
+> >
+> > it's possible that it's a PCI problem (if so can we back off the timing to
+> > what worked?), but I would expect the problem to be more variable if that
+> > was the case.
+> >
+> > David Lang
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+>
+>
+> --
+> Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+> President of Candela Technologies Inc      http://www.candelatech.com
+> ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+>
+>

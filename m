@@ -1,74 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317845AbSIOF0U>; Sun, 15 Sep 2002 01:26:20 -0400
+	id <S317851AbSIOF2r>; Sun, 15 Sep 2002 01:28:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317855AbSIOF0U>; Sun, 15 Sep 2002 01:26:20 -0400
-Received: from mta01bw.bigpond.com ([139.134.6.78]:65218 "EHLO
-	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S317845AbSIOF0M>; Sun, 15 Sep 2002 01:26:12 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Brian Craft <bcboy@thecraftstudio.com>, linux-kernel@vger.kernel.org
-Subject: Re: delay before open() works
-Date: Sun, 15 Sep 2002 15:25:01 +1000
-User-Agent: KMail/1.4.5
-References: <20020914094225.A1267@porky.localdomain>
-In-Reply-To: <20020914094225.A1267@porky.localdomain>
+	id <S317852AbSIOF2r>; Sun, 15 Sep 2002 01:28:47 -0400
+Received: from mail.gipiproject.org ([206.112.85.61]:64472 "EHLO mail.cdt.org")
+	by vger.kernel.org with ESMTP id <S317851AbSIOF2p>;
+	Sun, 15 Sep 2002 01:28:45 -0400
+Date: Sun, 15 Sep 2002 01:33:37 -0400 (EDT)
+From: Daniel Berlin <dberlin@dberlin.org>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       David Brownell <david-b@pacbell.net>,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+In-Reply-To: <E17qRfU-0001qz-00@starship>
+Message-ID: <Pine.LNX.4.44.0209150118220.25197-100000@dberlin.org>
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200209151525.01920.bhards@bigpond.net.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Sun, 15 Sep 2002 02:42, Brian Craft wrote:
-<snip>
-> This is pretty gross, since I have to determine the "15" by playing with
-> it, and I'm sure it will fail some of the time unless I make it reeeeeally
-> long. I suspected this was some hardware issue -- USB latencies on device
-> discovery, or boot time for the scanner -- but a friend who isn't
-> attempting to power-up his devices says he sees the same behavior when just
-> scripting "modprobe". So it appears there's some fairly long delay in the
-> kernel itself.
->
-> Anyone know off-hand what causes this delay, or if there's some way to get
-> the open() to block?
-There is a fundamental problem with the way hotplugging works in this case.
 
-The underlying hardware (in this case USB) detects a status change. It calls 
-call_usermode_helper(), and hands off the task to keventd. Then things wait. 
-Eventually keventd gets around to calling /sbin/hotplug, which loads modules, 
-runs scripts, writes config files, exec code - whatever. The problem is that 
-if module initialisation isn't complete, then clearly its interfaces may not 
-be established (or in some badly-coded cases, may contain races where the 
-interface is registered but isn't valid). 
+On Sun, 15 Sep 2002, Daniel Phillips wrote:
 
-After discussions with Oliver Neukem at Linux Kongress, the idea of a second 
-hotplug event emerges. This is signalled by the driver that actually 
-registers the interface after the interface is properly established (so in 
-your example, USB core does one call_usermode_helper(), which probably does 
-something like "modprobe scanner"; and the scanner driver does a second 
-call_usermode_helper(), which loads xsane).
+> On Tuesday 10 September 2002 21:03, Linus Torvalds wrote:
+> > On 10 Sep 2002, Alan Cox wrote:
+> > > 
+> > > It drops you politely into the kernel debugger, you fix up the values
+> > > and step over it. If you want to debug with zen mind power and printk
+> > > feel free. For the rest of us BUG() is fine on SMP
+> > 
+> > Ok, a show of hands.. 
+> > 
+> > Of the millions (whatever) of Linux machines, how many have a kernel 
+> > debugger attached? Count them.
+> 
+> Eh, mine is getting one attached to it right now. 
 
-BTW: I'm not sure who actually came up with the idea - it was in the hotplug 
-BoF, but I missed this part of it.
+Me too.
 
-Solves this race. Unfortunately requires some janitorial work. Patch away...
+> It's getting more
+> popular, and it would be more popular yet if it weren't considered some
+> dirty little secret, or somehow unmanly.
 
-Brad
+Reminds me of "Suns boot fast" (do a google search on it, and read the 
+first thing that comes up).
 
-- -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+> 
+> Let's try a different show of hands: How many users would be happier if
+> they knew that kernel developers are using modern techniques to improve
+> the quality of the kernel?
+> 
+> Of course, I use the term "modern" here loosely, since kdb and kgdb are
+> really only 80's technology.  Without them, we're stuck in the 60's.
+Moving from the stone to the bronze age, one day at a time.
 
-iD8DBQE9hBmtW6pHgIdAuOMRAsblAKCKoiHGDnKnCU3kORyTJKEy8sjPKwCfSwDj
-QGrrS/elmJ/YbBwmpksI+WU=
-=yclZ
------END PGP SIGNATURE-----
+
+> 
+> 
 

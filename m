@@ -1,76 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287299AbRL3BmE>; Sat, 29 Dec 2001 20:42:04 -0500
+	id <S287306AbRL3B7M>; Sat, 29 Dec 2001 20:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287303AbRL3Blz>; Sat, 29 Dec 2001 20:41:55 -0500
-Received: from 217-125-101-55.uc.nombres.ttd.es ([217.125.101.55]:22723 "EHLO
-	jep.dhis.org") by vger.kernel.org with ESMTP id <S287299AbRL3Blt>;
-	Sat, 29 Dec 2001 20:41:49 -0500
-Message-ID: <3C2E709A.1D12BEFB@jep.dhis.org>
-Date: Sun, 30 Dec 2001 02:40:43 +0100
-From: Josep Lladonosa i Capell <jep@jep.net.dhis.org>
-Reply-To: jlladono@pie.xtec.es
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre5 i686)
-X-Accept-Language: ca, en, es
+	id <S287307AbRL3B7D>; Sat, 29 Dec 2001 20:59:03 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:35088 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287306AbRL3B6r>;
+	Sat, 29 Dec 2001 20:58:47 -0500
+Date: Sat, 29 Dec 2001 23:58:29 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: <linux-mm@kvack.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH *] 2.4.17 rmap based VM #9
+Message-ID: <Pine.LNX.4.33L.0112292357420.24031-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: Stephan von Krawczynski <skraw@ithnet.com>,
-        Guest section DW <dwguest@win.tue.nl>,
-        James Stevenson <mistral@stev.org>, jlladono@pie.xtec.es,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x kernels, big ide disks and old bios
-In-Reply-To: <Pine.LNX.4.10.10112271926400.24491-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
+The 9th version of the reverse mapping based VM is now available.
+This is an attempt at making a more robust and flexible VM
+subsystem, while cleaning up a lot of code at the same time. The patch
+is available from:
 
-> You have it called "STROKE".
->
-> Use a patch and execute a soft-clip operation to the device and you are
-> fixed.
-
-...depends. I want the big disk to be /dev/hda, and bootable (an unattended
-boot).
-
-Disk is  119150/16/63. I soft (un)clipped it to max capacity (60Gb) with setmax
-.
-
-Configured it in the bios (32Gb limit) as a smaller disk, bios complained,
-telling an error, asking to press F1 to continue. The LBA mode (4111/255/63,
-LBA, for example) told the error, and asking for F1, as well. With
-(65530/16/63, NORM), it booted well.
-Kernel (2.4.17, patched) corrected the geometry while booting, but mke2fs
-generated many io-errors, I suspect beyond the 32Gb.
-
-Finally, a bios upgrade (unfortunately not for sizes beyond 32Gb), let me to
-configure the setup with
-the LBA mode, and boot works well, and mke2fs doesn't complain.
-
-I don't need to use setmax to clip-unclip when booting.
-
-What's the meaning of the 65535 max limit in bios_cyl? *
-
-*I don't think it is a kernel limit.
-*Is it the max value accepted by the physical disk, and that's why lba is used?
-
-*Was that the problem with the io-errors?
+           http://surriel.com/patches/2.4/2.4.17-rmap-9
+and        http://linuxvm.bkbits.net/
 
 
-# cat /proc/ide/hdc/settings
-name                    value           min             max             mode
-----                    -----           ---             ---             ----
-bios_cyl                119150          0               65535           rw
-bios_head               16              0               255             rw
-bios_sect               63              0               63              rw
+My big TODO items for a next release are:
+  - fix page_launder() so it doesn't submit the whole
+    inactive_dirty list for writeout in one go
 
+rmap 9:
+  - improve comments all over the place                   (Michael Cohen)
+  - don't panic if page_remove_rmap() cannot find the
+    rmap in question, it's possible that the memory was
+    PG_reserved and belonging to a driver, but the driver
+    exited and cleared the PG_reserved bit                (me)
+  - fix the VM livelock by replacing > by >= in a few
+    critical places in the pageout code                   (me)
+  - treat the reclaiming of an inactive_clean page like
+    allocating a new page, calling try_to_free_pages()
+    and/or fixup_freespace() if required                  (me)
+rmap 8:
+  - add ANY_ZONE to the balancing functions to improve
+    kswapd's balancing a bit                              (me)
+  - regularize some of the maximum loop bounds in
+    vmscan.c for cosmetic purposes                        (William Lee Irwin)
+  - move page_address() to architecture-independent
+    code, now the removal of page->virtual is portable    (William Lee Irwin)
+  - speed up free_area_init_core() by doing a single
+    pass over the pages and not using atomic ops          (William Lee Irwin)
+  - documented the buddy allocator in page_alloc.c        (William Lee Irwin)
+rmap 7:
+  - clean up and document vmscan.c                        (me)
+  - reduce size of page struct, part one                  (William Lee Irwin)
+  - add rmap.h for other archs (untested, not for ARM)    (me)
+rmap 6:
+  - make the active and inactive_dirty list per zone,
+    this is finally possible because we can free pages
+    based on their physical address                       (William Lee Irwin)
+  - cleaned up William's code a bit                       (me)
+  - turn some defines into inlines and move those to
+    mm_inline.h (the includes are a mess ...)             (me)
+  - improve the VM balancing a bit                        (me)
+  - add back inactive_target to /proc/meminfo             (me)
+rmap 5:
+  - fixed recursive buglet, introduced by directly
+    editing the patch for making rmap 4 ;)))              (me)
+rmap 4:
+  - look at the referenced bits in page tables            (me)
+rmap 3:
+  - forgot one FASTCALL definition                        (me)
+rmap 2:
+  - teach try_to_unmap_one() about mremap()               (me)
+  - don't assign swap space to pages with buffers         (me)
+  - make the rmap.c functions FASTCALL / inline           (me)
+rmap 1:
+  - fix the swap leak in rmap 0                           (Dave McCracken)
+rmap 0:
+  - port of reverse mapping VM to 2.4.16                  (me)
 
---
-Salutacions...Josep
-http://www.geocities.com/SiliconValley/Horizon/1065/
---
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
 
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

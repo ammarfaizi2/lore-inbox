@@ -1,105 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264896AbSJ3V7X>; Wed, 30 Oct 2002 16:59:23 -0500
+	id <S264902AbSJ3WGK>; Wed, 30 Oct 2002 17:06:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264902AbSJ3V7W>; Wed, 30 Oct 2002 16:59:22 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:40668 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S264896AbSJ3V7V>; Wed, 30 Oct 2002 16:59:21 -0500
-Message-ID: <3DC056C2.4070609@us.ibm.com>
-Date: Wed, 30 Oct 2002 14:01:38 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: [patch] use asm-generic/topology.h
-Content-Type: multipart/mixed;
- boundary="------------070909060602030603080904"
+	id <S264907AbSJ3WGK>; Wed, 30 Oct 2002 17:06:10 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3855 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264902AbSJ3WGJ>; Wed, 30 Oct 2002 17:06:09 -0500
+Date: Wed, 30 Oct 2002 22:12:29 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [BK fbdev updates]
+Message-ID: <20021030221229.B30602@flint.arm.linux.org.uk>
+Mail-Followup-To: James Simmons <jsimmons@infradead.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.33.0210301331210.1392-100000@maxwell.earthlink.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0210301331210.1392-100000@maxwell.earthlink.net>; from jsimmons@infradead.org on Wed, Oct 30, 2002 at 01:42:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070909060602030603080904
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Oct 30, 2002 at 01:42:21PM -0800, James Simmons wrote:
+>   The latest changes to the framebuffer layer are avaiable to be merged.
+> The changes include the final removal of all console related code in the
+> low level drivers. This allows for a very simple api. Also with this
+> design is to possible to run a test/debug a fbdev driver without the
+> framebuffer console. We can use another console system to see the results
+> of what we have done. This will allow greater speed at developing a new
+> driver because of the new simple api and the new approaches at
+> debugging them. Please merge with your tree.
+> 
+> bk://fbdev.bkbits.net/fbdev-2.5
 
-Linus,
+I'm getting sick to death of asking this.
 
-use_generic_topology.patch
+D I F F S T A T.
 
-This patch changes ppc64 & alpha to use the generic topology.h for the 
-non-NUMA case rather than redefining the same macros.  It is much easier 
-to maintain one set of generic non-NUMA macros than several.
+G N U P A T C H.
 
-[mcd@arrakis patches]$ diffstat use_generic_topo-2.5.44.patch
-  asm-alpha/topology.h |   19 +++++++------------
-  asm-ppc64/topology.h |    8 ++------
-  2 files changed, 9 insertions(+), 18 deletions(-)
+Why can't you make a script that automatically generates these for you?
 
-Cheers!
+What do we need to do to you to make you do this?
 
--Matt
+If you're not willing to do your part, don't be surprised when people
+ignore you when maintaining their framebuffer drivers.
 
---------------070909060602030603080904
-Content-Type: text/plain;
- name="use_generic_topo-2.5.44.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="use_generic_topo-2.5.44.patch"
-
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-alpha/topology.h linux-2.5.44-topology_fixup/include/asm-alpha/topology.h
---- linux-2.5.44-vanilla/include/asm-alpha/topology.h	Fri Oct 18 21:01:18 2002
-+++ linux-2.5.44-topology_fixup/include/asm-alpha/topology.h	Wed Oct 30 13:51:56 2002
-@@ -1,20 +1,15 @@
- #ifndef _ASM_ALPHA_TOPOLOGY_H
- #define _ASM_ALPHA_TOPOLOGY_H
- 
--#ifdef CONFIG_NUMA
--#ifdef CONFIG_ALPHA_WILDFIRE
-+#if defined(CONFIG_NUMA) && defined(CONFIG_ALPHA_WILDFIRE)
-+
- /* With wildfire assume 4 CPUs per node */
- #define __cpu_to_node(cpu)		((cpu) >> 2)
--#endif /* CONFIG_ALPHA_WILDFIRE */
--#endif /* CONFIG_NUMA */
- 
--#if !defined(CONFIG_NUMA) || !defined(CONFIG_ALPHA_WILDFIRE)
--#define __cpu_to_node(cpu)		(0)
--#define __memblk_to_node(memblk)	(0)
--#define __parent_node(nid)		(0)
--#define __node_to_first_cpu(node)	(0)
--#define __node_to_cpu_mask(node)	(cpu_online_map)
--#define __node_to_memblk(node)		(0)
--#endif /* !CONFIG_NUMA || !CONFIG_ALPHA_WILDFIRE */
-+#else /* !CONFIG_NUMA || !CONFIG_ALPHA_WILDFIRE */
-+
-+#include <asm-generic/topology.h>
-+
-+#endif /* CONFIG_NUMA && CONFIG_ALPHA_WILDFIRE */
- 
- #endif /* _ASM_ALPHA_TOPOLOGY_H */
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-ppc64/topology.h linux-2.5.44-topology_fixup/include/asm-ppc64/topology.h
---- linux-2.5.44-vanilla/include/asm-ppc64/topology.h	Fri Oct 18 21:01:52 2002
-+++ linux-2.5.44-topology_fixup/include/asm-ppc64/topology.h	Wed Oct 30 13:45:23 2002
-@@ -48,12 +48,8 @@
- 
- #else /* !CONFIG_NUMA */
- 
--#define __cpu_to_node(cpu)		(0)
--#define __memblk_to_node(memblk)	(0)
--#define __parent_node(nid)		(0)
--#define __node_to_first_cpu(node)	(0)
--#define __node_to_cpu_mask(node)	(cpu_online_map)
--#define __node_to_memblk(node)		(0)
-+/* If non-NUMA, grab the generic macros */
-+#include <asm-generic/topology.h>
- 
- #endif /* CONFIG_NUMA */
- 
-
---------------070909060602030603080904--
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

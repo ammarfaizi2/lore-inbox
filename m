@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVCIS71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262111AbVCIS7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbVCIS71 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 13:59:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVCIS70
+	id S262111AbVCIS7V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 13:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVCIS7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 13:59:26 -0500
-Received: from mail.kroah.org ([69.55.234.183]:18122 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262163AbVCIS7Q (ORCPT
+	Wed, 9 Mar 2005 13:59:21 -0500
+Received: from mail.kroah.org ([69.55.234.183]:17610 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262111AbVCIS7Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 9 Mar 2005 13:59:16 -0500
-Date: Wed, 9 Mar 2005 10:58:34 -0800
+Date: Wed, 9 Mar 2005 10:58:00 -0800
 From: Greg KH <greg@kroah.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, eric@lammerts.org
-Subject: Re: [patch 1/5] cramfs: small stat(2) fix
-Message-ID: <20050309185834.GB27268@kroah.com>
-References: <200503042117.j24LHFox017964@shell0.pdx.osdl.net>
+To: Wen Xiong <wendyx@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ patch 4/7] drivers/serial/jsm: new serial device driver
+Message-ID: <20050309185800.GA27268@kroah.com>
+References: <20050228063954.GB23595@kroah.com> <4228CE41.2000102@us.ltcfwd.linux.ibm.com> <20050304220116.GA1201@kroah.com> <422CD9DB.10103@us.ltcfwd.linux.ibm.com> <20050308064424.GF17022@kroah.com> <422DF525.8030606@us.ltcfwd.linux.ibm.com> <20050308235807.GA11807@kroah.com> <422F1A8A.4000106@us.ltcfwd.linux.ibm.com> <20050309163518.GC25079@kroah.com> <422F2FDD.4050908@us.ltcfwd.linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503042117.j24LHFox017964@shell0.pdx.osdl.net>
+In-Reply-To: <422F2FDD.4050908@us.ltcfwd.linux.ibm.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 01:16:54PM -0800, akpm@osdl.org wrote:
+On Wed, Mar 09, 2005 at 12:18:21PM -0500, Wen Xiong wrote:
+> Greg KH wrote:
 > 
-> From: Eric Lammerts <eric@lammerts.org>
-> 
-> When I stat(2) a device node on a cramfs, the st_blocks field is bogus
-> (it's derived from the size field which in this case holds the major/minor
-> numbers).  This makes du(1) output completely wrong.
-> 
-> Signed-off-by: Eric Lammerts <eric@lammerts.org>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> >On Wed, Mar 09, 2005 at 10:47:22AM -0500, Wen Xiong wrote:
+> > 
+> >
+> >>+static ssize_t jsm_driver_debug_show(struct device_driver *ddp, char 
+> >>*buf)
+> >>+{
+> >>+	return snprintf(buf, PAGE_SIZE, "0x%x\n", jsm_debug);
+> >>+}
+> >>+static DRIVER_ATTR(debug, S_IRUSR, jsm_driver_debug_show, NULL);
+> >>   
+> >>
+> >
+> >Should just be a module paramater, right?  So you can drop this too...
+> >
+> >This file is getting quite small now :)
+> >
+> If I removed two module paramaters, only two files left: version and state.
+> Removed all of them?
 
-Added to the -stable queue, thanks.
+Move them to a different file?
+
+thanks,
 
 greg k-h

@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVDCKZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVDCKiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbVDCKZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 06:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVDCKZ5
+	id S261648AbVDCKiL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 06:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVDCKiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 06:25:57 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:46039 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261638AbVDCKXo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 06:23:44 -0400
-Message-ID: <424FC42E.80503@yandex.ru>
-Date: Sun, 03 Apr 2005 14:23:42 +0400
-From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en, ru, en-us
-MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       "Artem B. Bityuckiy" <dedekind@infradead.org>,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: Re: [RFC] CryptoAPI & Compression
-References: <20050401152325.GB4150@gondor.apana.org.au> <Pine.LNX.4.58.0504011640340.9305@phoenix.infradead.org> <20050401221303.GA6557@gondor.apana.org.au> <424FA7B4.6050008@yandex.ru> <20050403084415.GA20326@gondor.apana.org.au> <424FB06B.3060607@yandex.ru> <20050403093044.GA20608@gondor.apana.org.au> <424FBB56.5090503@yandex.ru> <20050403100043.GA20768@gondor.apana.org.au> <1112522762.3899.182.camel@localhost.localdomain> <20050403101752.GA20866@gondor.apana.org.au>
-In-Reply-To: <20050403101752.GA20866@gondor.apana.org.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Apr 2005 06:38:11 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40466 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261648AbVDCKiH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 06:38:07 -0400
+Date: Sun, 3 Apr 2005 11:38:04 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Fix u32 vs. pm_message_t in arm
+Message-ID: <20050403113804.A921@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Andrew Morton <akpm@osdl.org>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20050329191543.GA8309@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050329191543.GA8309@elf.ucw.cz>; from pavel@ucw.cz on Tue, Mar 29, 2005 at 09:15:43PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
-> You might be right.  But I'm not sure yet.
-> 
-> If we use the current code and supply zlib_deflate with 1048576-12 bytes
-> of (incompressible) input and 1048576 bytes of output buffer, wouldn't
-> zlib keep writing incompressible blocks and return when it can't do that
-> anymore because the output buffer has been exhausted?
-It must not. Look at the algoritm closer.
+On Tue, Mar 29, 2005 at 09:15:43PM +0200, Pavel Machek wrote:
+> This fixes u32 vs. pm_message_t confusion in arm. I was not able to
+> even compile it, but it should not cause any problems. Please apply,
 
-stream->next_in = (u8 *)src;
-stream->next_out = dst;
+On testing this patch, it doesn't build.  You need to include
+linux/pm.h into linux/sysdev.h for starters, and fix sysdev.h
+to also use pm_message_t in it's function pointers.
 
-while (stream->total_in < *slen
-        && stream->total_out < *dlen - DEFLATE_PCOMPR_RESERVE) {
+Therefore, I'd like the following patch either to be in mainline first,
+or in my ARM tree for Linus to pull so ARM doesn't completely break
+on my next merge.
 
-         stream->avail_out = *dlen - DEFLATE_PCOMPR_RESERVE - 
-stream->total_out;
-         stream->avail_in = min((unsigned int)(*slen - 
-stream->total_in), stream->avail_out);
+===== include/linux/sysdev.h 1.7 vs edited =====
+--- 1.7/include/linux/sysdev.h	2004-02-13 06:18:02 +00:00
++++ edited/include/linux/sysdev.h	2005-04-03 11:30:13 +01:00
+@@ -22,6 +22,7 @@
+ #define _SYSDEV_H_
+ 
+ #include <linux/kobject.h>
++#include <linux/pm.h>
+ 
+ 
+ struct sys_device;
 
-         ret = zlib_deflate(stream, Z_SYNC_FLUSH);
-         if (ret != Z_OK)
-                 return -EINVAL;
-}
-
-stream->avail_out += DEFLATE_PCOMPR_RESERVE;
-stream->avail_in = 0; /* <------ no more input ! ---------- */
-
-ret = zlib_deflate(stream, Z_FINISH);
-if (ret != Z_STREAM_END)
-         return -EINVAL;
-
-
-
-> 
-> When it does return it has to finish writing the last block it's on.
-No, it must only put EOB and adler32, we won't give it more input.
 
 -- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbTJOK1k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 06:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbTJOK1j
+	id S262626AbTJOKj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 06:39:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbTJOKj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 06:27:39 -0400
-Received: from smtp2.att.ne.jp ([165.76.15.138]:56315 "EHLO smtp2.att.ne.jp")
-	by vger.kernel.org with ESMTP id S262547AbTJOK0K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 06:26:10 -0400
-Message-ID: <00ec01c39306$ac9a3520$3eee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Roman Zippel" <zippel@linux-m68k.org>
-Cc: "Sam Ravnborg" <sam@ravnborg.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-References: <1f8801c38f11$da95c410$5cee4ca5@DIAMONDLX60> <20031010073750.001ad559.rddunlap@osdl.org> <242001c38fdf$fb165690$5cee4ca5@DIAMONDLX60> <20031011111328.GB932@mars.ravnborg.org> <26ca01c38ff9$f4762d00$5cee4ca5@DIAMONDLX60> <Pine.LNX.4.44.0310131947450.8124-100000@serv>
-Subject: Re: 2.6.0-test7 and HIDBP
-Date: Wed, 15 Oct 2003 19:23:28 +0900
+	Wed, 15 Oct 2003 06:39:26 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:13723 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262626AbTJOKjZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 06:39:25 -0400
+Message-ID: <3F8D23DB.3070105@namesys.com>
+Date: Wed, 15 Oct 2003 14:39:23 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+CC: Wes Janzen <superchkn@sbcglobal.net>,
+       Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+       John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       nikita@namesys.com
+Subject: Re: Why are bad disk sectors numbered strangely, and what happens
+ to them?
+References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net> <3F8BBC08.6030901@namesys.com> <00ed01c39306$b0277a90$3eee4ca5@DIAMONDLX60>
+In-Reply-To: <00ed01c39306$b0277a90$3eee4ca5@DIAMONDLX60>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel replied to me:
+Norman Diamond wrote:
 
-> If USB_HIDDEV is set to 'y', then you indeed won't see USB_KBD, as it's
-> only selectable if USB_HIDDEV is 'n' or 'm'. It seems to work here.
+>Hans Reiser wrote:
+>
+>  
+>
+>>I think the problem is that many users don't know how to trigger the bad
+>>sector remapping for the case where the drive can still remap, using
+>>writes to the bad blocks, and probably our faq needs updating.
+>>    
+>>
+>
+>This is indeed one of the problems[*].  The other problem is that it seems
+>to be absurdly difficult to find which file contains the bad sector.  Even
+>though a file could have multiple hard links, it would be enough to get one
+>pathname for the file, in order to know which file needs to be reconstructed
+>from a source of good data.
+>
+>[* Of course I also wish that the original failing write had been detected
+>by the drive, but this failure isn't software's fault.  I hope.]
+>
+>
+>
+>  
+>
+badblocks program fixes that
 
-You are right.  On the machine with Gnome, I ran "make gconfig" again,
-changed one of the HID options from "y" to "m", and then the HIDBP options
-became available.
+-- 
+Hans
 
-Sorry, I didn't guess that changing a setting between "y" and "m" could
-affect the visibility of other options this way.  In this case it seems
-reasonable, but I still didn't imagine this kind of thing.  Sorry.
 

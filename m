@@ -1,91 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135653AbRDXOfT>; Tue, 24 Apr 2001 10:35:19 -0400
+	id <S135651AbRDXOiJ>; Tue, 24 Apr 2001 10:38:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135654AbRDXOfJ>; Tue, 24 Apr 2001 10:35:09 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:44806 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S135653AbRDXOfE>;
-	Tue, 24 Apr 2001 10:35:04 -0400
-Date: Tue, 24 Apr 2001 16:35:09 +0200
-From: Stephane List <stephane.list@fr.alcove.com>
-To: linux-kernel@vger.kernel.org
-Subject: Network driver: problem with insane (ported in 2.4.3)
-Message-ID: <20010424163509.A32453@alcove-fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.4i
-X-Operating-System: Linux morgan 2.2.18
-Organization: =?iso-8859-1?Q?Alc=F4ve=2C_l'informatique_est_libre?=
+	id <S135654AbRDXOh7>; Tue, 24 Apr 2001 10:37:59 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28940 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135651AbRDXOhl>; Tue, 24 Apr 2001 10:37:41 -0400
+Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
+To: viro@math.psu.edu (Alexander Viro)
+Date: Tue, 24 Apr 2001 15:37:34 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mhaque@haque.net (Mohammad A. Haque),
+        ttel5535@artax.karlin.mff.cuni.cz,
+        mharris@opensourceadvocate.org (Mike A. Harris),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0104241022040.6992-100000@weyl.math.psu.edu> from "Alexander Viro" at Apr 24, 2001 10:22:52 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14s3wf-0002CR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> > It is possible to implement the entire mail system without anything running
+> > as root but xinetd.
+> 
+> You want an MDA with elevated privileges, though...
 
-Has anybody ported insane or snull from Rubini to kernel 2.4.3?
+What role requires priviledge once the port is open ?
 
-I'm porting Rubini's example: "insane".
+	DNS lookup does not
+	Spooling to disk does not
+	Accepting a connection from a client does not
+	Doing peercred auth with a client does not
+	Copying spool articles matching the peercred to the client does not
 
-
-/* --------------------------------------------------------------------------
- * definition of the "private" data structure used by this interface
- */
-struct insane_private {
-    struct net_device_stats priv_stats;
-    struct net_device *priv_device; /* interface used to xmit data */
-    int priv_mode; /* how to drop packets */
-    int priv_arg1; /* arguments to the dropping mode */
-    int priv_arg2;
-};
+Alan
 
 
-
-
-int insane_open(struct net_device *dev)
-{
-    /* mark the device as operational */
-/*    dev->start = 1;
-    dev->tbusy = 0;*/
-    netif_start_queue(dev);
-    MOD_INC_USE_COUNT;
-    return 0;
-}
-int insane_close(struct net_device *dev)
-{
-/*    dev->start = 0;
-    dev->tbusy = 1;*/
-    netif_stop_queue(dev);
-    MOD_DEC_USE_COUNT;
-    return 0;
-}
-
-
-
-int insane_xmit(struct sk_buff *skb, struct net_device *dev)
-{
-
-... /* state if the packet must be transmit or nor, and if it must */
-
-    skb->dev = priv->priv_device;
-    skb->priority = 1;
-  printk("enqueue len=%d\n", skb->len); 
-  {
-          int ret = dev_queue_xmit (skb);
-          printk("enqueue ret=%d\n", ret);
-         }
-    return 0;
-}
-
-Everything looks OK, dev_queue_xmit returns 0, but nothing comes back when I
-ping through insane.
-
-Has anybody ported insane or snull from Rubini to kernel 2.4.3?
-
-Thanks a lot
-
-Stephane
-
--- 
-Stéphane LIST                     -- <stephane.list@fr.alcove.com>
-Alcôve, liberating software       -- <http://www.alcove.com/>

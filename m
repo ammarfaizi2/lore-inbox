@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273682AbRIQUMd>; Mon, 17 Sep 2001 16:12:33 -0400
+	id <S273688AbRIQUOX>; Mon, 17 Sep 2001 16:14:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273674AbRIQUMX>; Mon, 17 Sep 2001 16:12:23 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:32427 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S273675AbRIQUMH>;
-	Mon, 17 Sep 2001 16:12:07 -0400
-Message-Id: <m15j4kj-000QJQC@amadeus.home.nl>
-Date: Mon, 17 Sep 2001 21:12:25 +0100 (BST)
-From: arjan@fenrus.demon.nl
-To: garrett@garrettm.com
-Subject: Re: HPT370
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200109172006.f8HK6TO01234@archimedes.garrettm.com>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S273685AbRIQUON>; Mon, 17 Sep 2001 16:14:13 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:3593 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S273683AbRIQUNy>; Mon, 17 Sep 2001 16:13:54 -0400
+Date: Mon, 17 Sep 2001 15:49:44 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>, Christoph Rohland <cr@sap.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: 2.4.10pre VM changes: Potential race
+In-Reply-To: <Pine.LNX.4.21.0109151236270.1155-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0109171547290.6640-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200109172006.f8HK6TO01234@archimedes.garrettm.com> you wrote:
-> I'm unsure of who maintains the driver for the hpt370 ide raid card, but was 
-> wondering if anyone knows when (or if) it will support raid sets instead of 
-> just single disks. 
 
-Recent 2.4.X-ac kernels already support it in RAID0 mode; you can also get
-the standalone driver from
 
-http://people.redhat.com/arjanv/pdcraid/
+On Sat, 15 Sep 2001, Hugh Dickins wrote:
+
+> Marcelo,
+> 
+> I've done little testing of patch below (just SMP build on UP machine),
+> and uncertain whether I'll be able to do more over the weekend.  Better
+> for me to think backwards and forwards over it instead.  Please check
+> it out and give it a try, or take pieces for a patch of your own.
+> I won't be online, but will fetch mail from time to time.
+> 
+> It's an all-in-one patch of various things, which I'd want to
+> divide up into separate parts if I were submitting to Linus.
+> There's something in Documentation should be updated too.
+
+Hugh, 
+
+I agree on that we should separate parts if submitting to Linus.
+
+
+I'm going to separate the parts of the patch which are dealing with the
+race we discussed last week, review it, test it, and then send to Linus.
+
 

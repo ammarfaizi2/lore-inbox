@@ -1,124 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbUE2Dlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263182AbUE2EJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262906AbUE2Dlt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 23:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbUE2Dlt
+	id S263182AbUE2EJM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 00:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbUE2EJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 23:41:49 -0400
-Received: from www.michaelgregg.com ([64.71.189.252]:6605 "EHLO
-	srv1.michaelgregg.com") by vger.kernel.org with ESMTP
-	id S262906AbUE2Dlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 23:41:45 -0400
-Date: Fri, 28 May 2004 20:41:43 -0700 (PDT)
-From: michael gregg <linuxlist@michaelgregg.com>
-X-X-Sender: linuxlist@mgregg
-To: linux-kernel@vger.kernel.org
-Subject: promise sataII150 devices
-Message-ID: <Pine.LNX.4.44.0405282018350.7460-100000@mgregg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 29 May 2004 00:09:12 -0400
+Received: from gate.crashing.org ([63.228.1.57]:35237 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263182AbUE2EJE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 00:09:04 -0400
+Subject: [PATCH] radeonfb iBook & IGP fixes
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1085803388.2140.4.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 29 May 2004 14:03:08 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
+
+This patch to radeonfb fixes support for the latest iBook models along
+with an initialisation problem on some IGP chipsets. Please apply.
+
+Ben.
+
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+--- linux/drivers/video/aty/radeon_base.c.orig	2004-05-10 04:32:27.000000000 +0200
++++ linux/drivers/video/aty/radeon_base.c	2004-05-16 17:57:59.000000000 +0200
+@@ -1144,6 +1144,7 @@
  
-I noticed there was a thread a while back about creating mountable devices 
-with the carmel block driver.(some people not able to get access to the 
-drives.)
+ 	/* Set PPLL ref. div */
+ 	if (rinfo->family == CHIP_FAMILY_R300 ||
++	    rinfo->family == CHIP_FAMILY_RS300 ||
+ 	    rinfo->family == CHIP_FAMILY_R350 ||
+ 	    rinfo->family == CHIP_FAMILY_RV350) {
+ 		if (mode->ppll_ref_div & R300_PPLL_REF_DIV_ACC_MASK) {
+@@ -1855,7 +1856,8 @@
+ 	     rinfo->family == CHIP_FAMILY_RV280 ||
+ 	     rinfo->family == CHIP_FAMILY_RV350) &&
+ 	    !machine_is_compatible("PowerBook4,3") &&
+-	    !machine_is_compatible("PowerBook6,3"))
++	    !machine_is_compatible("PowerBook6,3") &&
++	    !machine_is_compatible("PowerBook6,5"))
+ 		conv_table = backlight_conv_m7;
+ 	else
+ 		conv_table = backlight_conv_m6;
+@@ -2129,7 +2131,31 @@
+ #endif /* CONFIG_PPC_OF */
  
-the major numbers for the drives are 160, with minor numbers being 0-255, 
-every drive getting 32 numbers. The drives themselves are going to be 
-multiples of 32, and 0. 
-drive 0, minor number 0
-drive 0 - partition 0, minor number 1
-drive 0 - partition 1, minor number 2
-.
-.
-drive 1, minor number 32
-drive 1 - partition 0, minor number 33
-.
-.
-drive 7, minor number 224
-drive 7 - partition 0, minor number 224
+ 	/* framebuffer size */
+-	tmp = INREG(CONFIG_MEMSIZE);
++        if ((rinfo->family == CHIP_FAMILY_RS100) ||
++            (rinfo->family == CHIP_FAMILY_RS200) ||
++            (rinfo->family == CHIP_FAMILY_RS300)) {
++          u32 tom = INREG(NB_TOM);
++          tmp = ((((tom >> 16) - (tom & 0xffff) + 1) << 6) * 1024);
++ 
++          OUTREG(MC_FB_LOCATION, tom);
++          OUTREG(DISPLAY_BASE_ADDR, (tom & 0xffff) << 16);
++          OUTREG(CRTC2_DISPLAY_BASE_ADDR, (tom & 0xffff) << 16);
++          OUTREG(OV0_BASE_ADDR, (tom & 0xffff) << 16);
++ 
++          /* This is supposed to fix the crtc2 noise problem. */
++          OUTREG(GRPH2_BUFFER_CNTL, INREG(GRPH2_BUFFER_CNTL) & ~0x7f0000);
++ 
++          if ((rinfo->family == CHIP_FAMILY_RS100) ||
++              (rinfo->family == CHIP_FAMILY_RS200)) {
++             /* This is to workaround the asic bug for RMX, some versions
++                of BIOS dosen't have this register initialized correctly.
++             */
++             OUTREGP(CRTC_MORE_CNTL, CRTC_H_CUTOFF_ACTIVE_EN,
++                     ~CRTC_H_CUTOFF_ACTIVE_EN);
++          }
++        } else {
++          tmp = INREG(CONFIG_MEMSIZE);
++        }
  
-I wrote a short perl script to generate a shell script to create all of 
-your devices with mknod. I'll copy the script in at the bottom of the 
-file.
-It generates output like this:
-mknod /dev/carmel/2 b 160 64 # drive 2
-mknod /dev/carmel/2p1 b 160 65 # drive 2 partition 1
-mknod /dev/carmel/2p2 b 160 66 # drive 2 partition 2
-mknod /dev/carmel/2p3 b 160 67 # drive 2 partition 3
-mknod /dev/carmel/2p4 b 160 68 # drive 2 partition 4
-mknod /dev/carmel/2p5 b 160 69 # drive 2 partition 5
-mknod /dev/carmel/2p6 b 160 70 # drive 2 partition 6
-mknod /dev/carmel/2p7 b 160 71 # drive 2 partition 7
-mknod /dev/carmel/2p8 b 160 72 # drive 2 partition 8
-mknod /dev/carmel/2p9 b 160 73 # drive 2 partition 9
-mknod /dev/carmel/2p10 b 160 74 # drive 2 partition 10
-mknod /dev/carmel/2p11 b 160 75 # drive 2 partition 11
-mknod /dev/carmel/2p12 b 160 76 # drive 2 partition 12
-mknod /dev/carmel/2p13 b 160 77 # drive 2 partition 13
-mknod /dev/carmel/2p14 b 160 78 # drive 2 partition 14
+ 	/* mem size is bits [28:0], mask off the rest */
+ 	rinfo->video_ram = tmp & CONFIG_MEMSIZE_MASK;
+--- linux/include/video/radeon.h.orig	2004-05-10 04:33:21.000000000 +0200
++++ linux/include/video/radeon.h	2004-05-17 17:48:34.000000000 +0200
+@@ -173,6 +173,8 @@
+ #define CUR_CLR1                               0x0270  
+ #define FP_HORZ_VERT_ACTIVE                    0x0278  
+ #define CRTC_MORE_CNTL                         0x027C  
++#define CRTC_H_CUTOFF_ACTIVE_EN                (1<<4)
++#define CRTC_V_CUTOFF_ACTIVE_EN                (1<<5)
+ #define DAC_EXT_CNTL                           0x0280  
+ #define FP_GEN_CNTL                            0x0284  
+ #define FP_HORZ_STRETCH                        0x028C  
+@@ -185,6 +187,7 @@
+ //#define DDA_ON_OFF			       0x02e4
+ #define DVI_I2C_CNTL_1			       0x02e4
+ #define GRPH_BUFFER_CNTL                       0x02F0
++#define GRPH2_BUFFER_CNTL                      0x03F0
+ #define VGA_BUFFER_CNTL                        0x02F4
+ #define OV0_Y_X_START                          0x0400
+ #define OV0_Y_X_END                            0x0404  
+@@ -1944,7 +1947,7 @@
+ #define ixREG_COLLAR_WRITE                         0x0013
+ #define ixREG_COLLAR_READ                          0x0014
+ 
+-
++#define NB_TOM                                     0x15C
+ 
+ 
+ #endif	/* _RADEON_H */
+--- linux/drivers/video/aty/radeon_monitor.c.orig	2004-05-10 04:31:55.000000000 +0200
++++ linux/drivers/video/aty/radeon_monitor.c	2004-05-16 17:59:32.000000000 +0200
+@@ -653,7 +653,8 @@
+ 		rinfo->panel_info.use_bios_dividers = 1;
+ 	}
+ 	/* iBook G4 */
+-	if (machine_is_compatible("PowerBook6,3")) {
++        if (machine_is_compatible("PowerBook6,3") |
++            machine_is_compatible("PowerBook6,5")) {
+ 		rinfo->panel_info.ref_divider = rinfo->pll.ref_div;
+ 		rinfo->panel_info.post_divider = 0x6;
+ 		rinfo->panel_info.fbk_divider = 0xad;
 
-
-So, you will be running fdisk(or your preferred disk utility) on 
-/dev/carmel/[0-7]
-
-your mount points are 
-/dev/carmel/[0-7][0-255]
-
-
-here is the perl script.
-reply to me here, or send me email at me -at- michaelgregg.com if you want 
-me to email you the perl script, or the shell script separately.
-
-
-
-
-
-
-
-
-
-
-
-
-#!/usr/bin/perl
-                                                                                                                                       
-$nodfile = "./carmel-make-node"; #name of shell script to write to
-                                                                                                                                       
-open (NODF, ">$nodfile");
-                                                                                                                                       
-$inc = 0; # minor number to be incremeted
-                                                                                                                                       
-for ($x=0;$x<=7;$x++)
-{
-        print NODF "mknod /dev/carmel/$x b 160 $inc # drive $x\n"; # whole 
-disk device, use this, or run fdisk on it.
-        $inc++;
-        for ($y=1;$y<=31;$y++)
-        {
-                print NODF "mknod /dev/carmel/$x"; # output the devices 
-for every partition for the main devices
-                print NODF "p$y b 160 $inc # drive $x partition $y\n";
-                $inc++;
-        }
-}
-                                                                                                                                       
-# repeat the above process for drives 8-15, if you have two cards in the 
-machine.
-                                                                                                                                       
-for ($x=8;$x<=15;$x++)
-{
-        print NODF "mknod /dev/carmel/$x b 161 $inc # drive $x\n";
-        $inc++;
-        for ($y=1;$y<=31;$y++)
-        {
-                print NODF "mknod /dev/carmel/$x";
-                print NODF "p$y b 161 $inc # drive $x partition $y\n";
-                $inc++;
-        }
-}
-                                                                                                                                       
-close NODF;
 

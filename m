@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130575AbRBMVKQ>; Tue, 13 Feb 2001 16:10:16 -0500
+	id <S129211AbRBMVGp>; Tue, 13 Feb 2001 16:06:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130478AbRBMVKG>; Tue, 13 Feb 2001 16:10:06 -0500
-Received: from phoenix.nanospace.com ([209.213.199.19]:7442 "HELO
-	phoenix.nanospace.com") by vger.kernel.org with SMTP
-	id <S130575AbRBMVJw>; Tue, 13 Feb 2001 16:09:52 -0500
-Date: Tue, 13 Feb 2001 13:09:40 -0800
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: gzipped executables
-Message-ID: <20010213130939.E13479@thune.yy.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21L.0102122251040.24003-100000@unix2.cc.ksu.edu>
-Mime-Version: 1.0
+	id <S130228AbRBMVGg>; Tue, 13 Feb 2001 16:06:36 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46347 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129211AbRBMVGc>; Tue, 13 Feb 2001 16:06:32 -0500
+Subject: Re: Is this the ultimate stack-smash fix?
+To: jeremy.jackson@sympatico.ca (Jeremy Jackson)
+Date: Tue, 13 Feb 2001 21:06:02 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca> from "Jeremy Jackson" at Feb 13, 2001 03:58:19 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.6i
-In-Reply-To: <Pine.GSO.4.21L.0102122251040.24003-100000@unix2.cc.ksu.edu>; from mas9483@ksu.edu on Mon, Feb 12, 2001 at 11:09:39PM -0600
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14SmeD-0002sR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 12, 2001 at 11:09:39PM -0600, Matt Stegman wrote:
-> Is there any kernel patch that would allow Linux to properly recognize,
-> and execute gzipped executables?
+> which are marked
+> supervisor-only (is this right?), and definitely don't contain user
+> code.
 
-What's wrong with using gzexe?
+x86 its a fair description. However someone has taken the same theory, 
+including handling the exceptions and the x86 segment tricks needed to make
+it kind of fly. Its not a perfect cure but it works. Search for Solar Designer
+and non executable stack.
 
-mrc
--- 
-       Mike Castle       Life is like a clock:  You can work constantly
-  dalgoda@ix.netcom.com  and be right all the time, or not work at all
-www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
+
+
+

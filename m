@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVBSBs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVBSBzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbVBSBs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 20:48:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVBSBs7
+	id S261608AbVBSBzO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 20:55:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVBSBzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 20:48:59 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:34708 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261606AbVBSBs5 (ORCPT
+	Fri, 18 Feb 2005 20:55:14 -0500
+Received: from dslb138.fsr.net ([12.7.7.138]:40349 "EHLO sandall.us")
+	by vger.kernel.org with ESMTP id S261420AbVBSBzJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 20:48:57 -0500
-Date: Fri, 18 Feb 2005 20:48:32 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>, linux-mm <linux-mm@kvack.org>,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: [RFC][PATCH] Memory Hotplug
-In-Reply-To: <1108765246.6482.135.camel@localhost>
-Message-ID: <Pine.LNX.4.61.0502182047020.19792@chimarrao.boston.redhat.com>
-References: <1108685033.6482.38.camel@localhost>  <1108685111.6482.40.camel@localhost>
-  <Pine.LNX.4.61.0502181650381.4052@chimarrao.boston.redhat.com>
- <1108765246.6482.135.camel@localhost>
+	Fri, 18 Feb 2005 20:55:09 -0500
+Date: Fri, 18 Feb 2005 17:56:37 -0800 (PST)
+From: Eric Sandall <eric@sandall.us>
+X-X-Sender: sandalle@cerberus
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Roland Dreier <roland@topspin.com>, Jim Gifford <lfs@jg555.com>
+Subject: Re: [ANNOUNCE] iproute2 050209
+In-Reply-To: <20050209151932.50500deb@dxpl.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.62.0502181756080.23808@cerberus>
+References: <20050209151932.50500deb@dxpl.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Feb 2005, Dave Hansen wrote:
-
->> Memory hot-remove isn't really needed with Xen, the balloon
->> driver takes care of that.
+On Wed, 9 Feb 2005, Stephen Hemminger wrote:
+> Small update to iproute2 which adds:
+> 	* infiniband address decode
+> 	* reorganize source for netem distribution files into separate directory
 >
-> You can free up individual pages back to the hypervisor, but you might
-> also want the opportunity to free up some unused mem_map if you shrink
-> the partition by a large amount.
+> http://developer.osdl.org/dev/iproute2/download/iproute2-2.6.10-050209.tar.gz
 
-Agreed, though I rather like the fact that the code can
-be introduced bit by bit, so the memory hot-remove code
-(probably the most complex part) doesn't need to be
-maintained out-of-tree for Xen, but can wait until it
-is upstream.
+This uncompresses to iproute2-2.6.9-050209 instead of
+iproute2-2.6.10-050209.
 
->>> I can post individual patches if anyone would like to comment on them.
->>
->> I'm interested.  I want to get this stuff working with Xen ;)
->
-> You can either pull them from here:
->
-> 	http://www.sr71.net/patches/2.6.11/2.6.11-rc3-mhp1/broken-out/
-
-Thanks, I'll take a stab at porting this functionality to Xen.
+-sandalle
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Eric Sandall                     |  Source Mage GNU/Linux Developer
+eric@sandall.us                  |  http://www.sourcemage.org/
+http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
+http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/

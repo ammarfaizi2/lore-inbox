@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265816AbRGDOmE>; Wed, 4 Jul 2001 10:42:04 -0400
+	id <S265328AbRGDOmD>; Wed, 4 Jul 2001 10:42:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265820AbRGDOly>; Wed, 4 Jul 2001 10:41:54 -0400
+	id <S265816AbRGDOly>; Wed, 4 Jul 2001 10:41:54 -0400
 Received: from humbolt.nl.linux.org ([131.211.28.48]:38918 "EHLO
 	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265816AbRGDOll>; Wed, 4 Jul 2001 10:41:41 -0400
+	id <S265328AbRGDOll>; Wed, 4 Jul 2001 10:41:41 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Ph. Marek" <marek@bmlv.gv.at>
-Subject: Re: Ideas for TUX2
-Date: Wed, 4 Jul 2001 16:31:00 +0200
+To: Marco Colombo <marco@esi.it>
+Subject: Re: VM Requirement Document - v0.0
+Date: Wed, 4 Jul 2001 16:44:24 +0200
 X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3.0.6.32.20010704081621.00921a60@pop3.bmlv.gv.at> <3.0.6.32.20010704095314.009201b0@pop3.bmlv.gv.at>
-In-Reply-To: <3.0.6.32.20010704095314.009201b0@pop3.bmlv.gv.at>
+Cc: Rik van Riel <riel@conectiva.com.br>, <mike_phillips@urscorp.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0107041026140.4236-100000@Megathlon.ESI>
+In-Reply-To: <Pine.LNX.4.33.0107041026140.4236-100000@Megathlon.ESI>
 MIME-Version: 1.0
-Message-Id: <01070416310004.03760@starship>
+Message-Id: <01070416442405.03760@starship>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 July 2001 09:53, Ph. Marek wrote:
-> >> Well, my point was, that with several thousand inodes spread over the
-> >> disk it won't always be possible to update the inode AND the fbb in one
-> >> go. So I proposed the 2nd inode with generation counter!
+On Wednesday 04 July 2001 10:32, Marco Colombo wrote:
+> On Tue, 3 Jul 2001, Daniel Phillips wrote:
+> > On Monday 02 July 2001 20:42, Rik van Riel wrote:
+> > > On Thu, 28 Jun 2001, Marco Colombo wrote:
+> > > > I'm not sure that, in general, recent pages with only one access are
+> > > > still better eviction candidates compared to 8 hours old pages. Here
+> > > > we need either another way to detect one-shot activity (like the one
+> > > > performed by updatedb),
+> > >
+> > > Fully agreed, but there is one problem with this idea.
+> > > Suppose you have a maximum of 20% of your RAM for these
+> > > "one-shot" things, now how are you going to be able to
+> > > page in an application with a working set of, say, 25%
+> > > the size of RAM ?
 > >
-> >The cool thing is, it *is* possible, read how here:
-> >
-> >  http://nl.linux.org/~phillips/tux2/phase.tree.tutorial.html
+> > Easy.  What's the definition of working set?  Those pages that are
+> > frequently referenced.  So as the application starts up some of its pages
+> > will get promoted from used-once to used-often.  (On the other hand, the
+> > target behavior here conflicts with the goal of grouping together several
+> > temporally-related accesses to the same page together as one access, so
+> > there's a subtle distinction to be made here, see below.)
 >
-> Well, ok. Your split the inode "files" too.
+> [...]
 >
-> Hmmm...
-> That sound more complex than my version (at least now, until I've seen the
-> implementation - maybe it's easier because it has less special cases than
-> mine).
+> In Rik example, the ws is larger than available memory. Part of it
+> (the "hottest" one) will get double-accesses, but other pages will keep
+> condending the few available (physical) pages with no chance of being
+> accessed twice.  But see my previous posting...
 
-Yes, it's more complex, but not horribly so.  It's a lot more efficient, and 
-that's the point.
+But that's exactly what we want.  Note that the idea of reserving a fixed 
+amount of memory for "one-shot" pages wasn't mine.  I see no reason to set a 
+limit.  There's only one critereon: does a page get referenced between the 
+time it's created and when its probation period expires?
 
-> And of course the memory usage on the harddisk is much less with your
-> version as you split your inode data and don't have it duplicated.
-
-Yep.
-
-> Well, I hope to see an implementation soon - I'd like to help, even if it's
-> only testing.
-
-See you on the list.  By the way, if you want to help out right now, could 
-you run some benchmarks my latest early flush patch?  See "[RFC] Early Flush 
-with Bandwidth Estimation".
+Once a page makes it into the active (level 2) set it's on an equal footing 
+with lots of others and it's up to our intrepid one-hand clock to warm it up 
+or cool it down as appropriate.  On the other hand, if the page gets sent to 
+death row it still has a few chances to prove its worth before being cleaned 
+up and sent to the aba^H^H^H^H^H^H^H^H reclaimed.  (Apologies for the 
+multiplying metaphors ;-)
 
 --
 Daniel

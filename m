@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285516AbSA1Hzu>; Mon, 28 Jan 2002 02:55:50 -0500
+	id <S288668AbSA1H5K>; Mon, 28 Jan 2002 02:57:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288668AbSA1Hzc>; Mon, 28 Jan 2002 02:55:32 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:33287 "EHLO
+	id <S288288AbSA1H5A>; Mon, 28 Jan 2002 02:57:00 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:11272 "EHLO
 	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S285516AbSA1Hz3>; Mon, 28 Jan 2002 02:55:29 -0500
-Message-Id: <200201280751.g0S7pqE21752@Port.imtp.ilyichevsk.odessa.ua>
+	id <S288668AbSA1H4d>; Mon, 28 Jan 2002 02:56:33 -0500
+Message-Id: <200201280753.g0S7rRE21758@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=US-ASCII
 From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] KERN_INFO for "Freeing unused kernel mem"
-Date: Mon, 28 Jan 2002 09:51:54 -0200
+To: Alexander Viro <viro@math.psu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] KERN_INFO for fs messages
+Date: Mon, 28 Jan 2002 09:53:29 -0200
 X-Mailer: KMail [version 1.3.2]
 Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
@@ -27,237 +27,106 @@ Today they are quite far from what was intended.
 Just look what kernel writes at the WARNING level
 each time you boot your box!
 
-This diff is for _INFO'izing "Freeing unused kernel mem"
-for multiple archs.
+Diff for fs/*.c cache size messages and the like.
 --
 vda
 
-diff --recursive -u linux-2.4.13-orig/arch/alpha/mm/init.c linux-2.4.13-new/arch/alpha/mm/init.c
---- linux-2.4.13-orig/arch/alpha/mm/init.c	Fri Sep 21 01:02:03 2001
-+++ linux-2.4.13-new/arch/alpha/mm/init.c	Thu Nov  8 23:42:11 2001
-@@ -380,7 +380,7 @@
- 		free_page(addr);
- 		totalram_pages++;
- 	}
--	printk ("Freeing unused kernel memory: %ldk freed\n",
-+	printk (KERN_INFO "Freeing unused kernel memory: %ldk freed\n",
- 		(&__init_end - &__init_begin) >> 10);
- }
+diff --recursive -u linux-2.4.13-orig/fs/buffer.c linux-2.4.13-new/fs/buffer.c
+--- linux-2.4.13-orig/fs/buffer.c	Tue Oct 23 22:54:19 2001
++++ linux-2.4.13-new/fs/buffer.c	Thu Nov  8 23:42:11 2001
+@@ -2533,7 +2533,7 @@
+ 		hash_table = (struct buffer_head **)
+ 		    __get_free_pages(GFP_ATOMIC, order);
+ 	} while (hash_table == NULL && --order > 0);
+-	printk("Buffer-cache hash table entries: %d (order: %d, %ld bytes)\n",
++	printk(KERN_INFO "Buffer cache hash table entries: %d (order: %d, %ld bytes)\n",
+ 	       nr_hash, order, (PAGE_SIZE << order));
  
-@@ -395,7 +395,7 @@
- 		free_page(start);
- 		totalram_pages++;
+ 	if (!hash_table)
+diff --recursive -u linux-2.4.13-orig/fs/dcache.c linux-2.4.13-new/fs/dcache.c
+--- linux-2.4.13-orig/fs/dcache.c	Thu Oct  4 03:57:36 2001
++++ linux-2.4.13-new/fs/dcache.c	Thu Nov  8 23:42:11 2001
+@@ -1210,7 +1210,7 @@
+ 			__get_free_pages(GFP_ATOMIC, order);
+ 	} while (dentry_hashtable == NULL && --order >= 0);
+
+-	printk("Dentry-cache hash table entries: %d (order: %ld, %ld bytes)\n",
++	printk(KERN_INFO "Dentry cache hash table entries: %d (order: %ld, %ld bytes)\n",
+ 			nr_hash, order, (PAGE_SIZE << order));
+
+ 	if (!dentry_hashtable)
+diff --recursive -u linux-2.4.13-orig/fs/inode.c linux-2.4.13-new/fs/inode.c
+--- linux-2.4.13-orig/fs/inode.c	Fri Sep 28 23:03:48 2001
++++ linux-2.4.13-new/fs/inode.c	Thu Nov  8 23:42:11 2001
+@@ -1150,7 +1150,7 @@
+ 			__get_free_pages(GFP_ATOMIC, order);
+ 	} while (inode_hashtable == NULL && --order >= 0);
+
+-	printk("Inode-cache hash table entries: %d (order: %ld, %ld bytes)\n",
++	printk(KERN_INFO "Inode cache hash table entries: %d (order: %ld, %ld bytes)\n",
+ 			nr_hash, order, (PAGE_SIZE << order));
+
+ 	if (!inode_hashtable)
+diff --recursive -u linux-2.4.13-orig/fs/namespace.c linux-2.4.13-new/fs/namespace.c
+--- linux-2.4.13-orig/fs/namespace.c	Mon Oct 15 23:47:36 2001
++++ linux-2.4.13-new/fs/namespace.c	Thu Nov  8 23:42:11 2001
+@@ -1022,8 +1022,9 @@
+ 	nr_hash = 1UL << hash_bits;
+ 	hash_mask = nr_hash-1;
+ 
+-	printk("Mount-cache hash table entries: %d (order: %ld, %ld bytes)\n",
+-			nr_hash, order, (PAGE_SIZE << order));
++	printk(KERN_INFO "Mount cache hash table entries: %d"
++		" (order: %ld, %ld bytes)\n",
++		nr_hash, order, (PAGE_SIZE << order));
+ 
+ 	/* And initialize the newly allocated array */
+ 	d = mount_hashtable;
+diff --recursive -u linux-2.4.13-orig/fs/super.c linux-2.4.13-new/fs/super.c
+--- linux-2.4.13-orig/fs/super.c	Sun Oct 21 00:14:42 2001
++++ linux-2.4.13-new/fs/super.c	Thu Nov  8 23:42:11 2001
+@@ -748,7 +748,7 @@
+
+ 	/* Forget any remaining inodes */
+ 	if (invalidate_inodes(sb)) {
+-		printk("VFS: Busy inodes after unmount. "
++		printk(KERN_ERR "VFS: Busy inodes after unmount. "
+ 			"Self-destruct in 5 seconds.  Have a nice day...\n");
  	}
--	printk ("Freeing initrd memory: %ldk freed\n", (end - __start) >> 10);
-+	printk (KERN_INFO "Freeing initrd memory: %ldk freed\n", (end - __start) >> 10);
- }
+ 
+@@ -936,12 +936,12 @@
+ 		goto no_nfs;
+ 	vfsmnt = do_kern_mount("nfs", root_mountflags, "/dev/root", data);
+ 	if (!IS_ERR(vfsmnt)) {
+-		printk ("VFS: Mounted root (%s filesystem).\n", "nfs");
++		printk(KERN_INFO "VFS: Mounted root (%s filesystem)\n", "nfs");
+ 		ROOT_DEV = vfsmnt->mnt_sb->s_dev;
+ 		goto attach_it;
+ 	}
+ no_nfs:
+-	printk(KERN_ERR "VFS: Unable to mount root fs via NFS, trying floppy.\n");
++	printk(KERN_ERR "VFS: Unable to mount root fs via NFS, trying floppy\n");
+ 	ROOT_DEV = MKDEV(FLOPPY_MAJOR, 0);
+ skip_nfs:
  #endif
- 
-diff --recursive -u linux-2.4.13-orig/arch/cris/mm/init.c linux-2.4.13-new/arch/cris/mm/init.c
---- linux-2.4.13-orig/arch/cris/mm/init.c	Thu Jul 26 20:10:06 2001
-+++ linux-2.4.13-new/arch/cris/mm/init.c	Thu Nov  8 23:42:11 2001
-@@ -459,7 +459,7 @@
-                 free_page(addr);
-                 totalram_pages++;
-         }
--        printk ("Freeing unused kernel memory: %dk freed\n", 
-+        printk (KERN_INFO "Freeing unused kernel memory: %dk freed\n", 
- 		(&__init_end - &__init_begin) >> 10);
- }
- 
-diff --recursive -u linux-2.4.13-orig/arch/i386/mm/init.c linux-2.4.13-new/arch/i386/mm/init.c
---- linux-2.4.13-orig/arch/i386/mm/init.c	Fri Sep 21 00:59:20 2001
-+++ linux-2.4.13-new/arch/i386/mm/init.c	Thu Nov  8 23:42:11 2001
-@@ -488,7 +488,7 @@
- 	datasize =  (unsigned long) &_edata - (unsigned long) &_etext;
- 	initsize =  (unsigned long) &__init_end - (unsigned long) &__init_begin;
- 
--	printk("Memory: %luk/%luk available (%dk kernel code, %dk reserved, %dk data, %dk init, %ldk highmem)\n",
-+	printk(KERN_INFO "Memory: %luk/%luk available (%dk kernel code, %dk reserved, %dk data, %dk init, %ldk highmem)\n",
- 		(unsigned long) nr_free_pages() << (PAGE_SHIFT-10),
- 		max_mapnr << (PAGE_SHIFT-10),
- 		codesize >> 10,
-@@ -552,14 +552,14 @@
- 		free_page(addr);
- 		totalram_pages++;
+@@ -1009,9 +1009,9 @@
+ 		 * Allow the user to distinguish between failed open
+ 		 * and bad superblock on root device.
+ 		 */
+-		printk ("VFS: Cannot open root device \"%s\" or %s\n",
++		printk(KERN_ERR "VFS: Cannot open root device \"%s\" or %s\n",
+ 			root_device_name, kdevname (ROOT_DEV));
+-		printk ("Please append a correct \"root=\" boot option\n");
++		printk(KERN_ERR "Please append a correct \"root=\" boot option\n");
+ 		panic("VFS: Unable to mount root fs on %s",
+ 			kdevname(ROOT_DEV));
  	}
--	printk ("Freeing unused kernel memory: %dk freed\n", (&__init_end - &__init_begin) >> 10);
-+	printk (KERN_INFO "Freeing unused kernel memory: %dk freed\n", (&__init_end - &__init_begin) >> 10);
- }
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- void free_initrd_mem(unsigned long start, unsigned long end)
- {
- 	if (start < end)
--		printk ("Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
-+		printk (KERN_INFO "Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
- 	for (; start < end; start += PAGE_SIZE) {
- 		ClearPageReserved(virt_to_page(start));
- 		set_page_count(virt_to_page(start), 1);
-diff --recursive -u linux-2.4.13-orig/arch/ia64/mm/init.c linux-2.4.13-new/arch/ia64/mm/init.c
---- linux-2.4.13-orig/arch/ia64/mm/init.c	Fri Sep 21 01:02:03 2001
-+++ linux-2.4.13-new/arch/ia64/mm/init.c	Thu Nov  8 23:42:11 2001
-@@ -99,7 +99,7 @@
- 		free_page(addr);
- 		++totalram_pages;
- 	}
--	printk ("Freeing unused kernel memory: %ldkB freed\n",
-+	printk (KERN_INFO "Freeing unused kernel memory: %ldkB freed\n",
- 		(&__init_end - &__init_begin) >> 10);
- }
- 
-@@ -141,7 +141,7 @@
- 	end = end & PAGE_MASK;
- 
- 	if (start < end)
--		printk ("Freeing initrd memory: %ldkB freed\n", (end - start) >> 10);
-+		printk (KERN_INFO "Freeing initrd memory: %ldkB freed\n", (end - start) >> 10);
- 
- 	for (; start < end; start += PAGE_SIZE) {
- 		if (!VALID_PAGE(virt_to_page(start)))
-diff --recursive -u linux-2.4.13-orig/arch/mips/mm/init.c linux-2.4.13-new/arch/mips/mm/init.c
---- linux-2.4.13-orig/arch/mips/mm/init.c	Wed Jul  4 16:50:39 2001
-+++ linux-2.4.13-new/arch/mips/mm/init.c	Thu Nov  8 23:42:11 2001
-@@ -262,7 +262,7 @@
- 		totalram_pages++;
- 		addr += PAGE_SIZE;
- 	}
--	printk("Freeing unused kernel memory: %dk freed\n",
-+	printk(KERN_INFO "Freeing unused kernel memory: %dk freed\n",
- 	       (&__init_end - &__init_begin) >> 10);
- }
- 
-diff --recursive -u linux-2.4.13-orig/arch/mips64/mm/init.c linux-2.4.13-new/arch/mips64/mm/init.c
---- linux-2.4.13-orig/arch/mips64/mm/init.c	Wed Jul  4 16:50:39 2001
-+++ linux-2.4.13-new/arch/mips64/mm/init.c	Thu Nov  8 23:42:11 2001
-@@ -455,7 +455,7 @@
- 		totalram_pages++;
- 		addr += PAGE_SIZE;
- 	}
--	printk("Freeing unused kernel memory: %ldk freed\n",
-+	printk(KERN_INFO "Freeing unused kernel memory: %ldk freed\n",
- 	       (&__init_end - &__init_begin) >> 10);
- }
- 
-diff --recursive -u linux-2.4.13-orig/arch/ppc/mm/init.c linux-2.4.13-new/arch/ppc/mm/init.c
---- linux-2.4.13-orig/arch/ppc/mm/init.c	Tue Oct  2 14:12:44 2001
-+++ linux-2.4.13-new/arch/ppc/mm/init.c	Thu Nov  8 23:42:11 2001
-@@ -231,7 +231,7 @@
- 		 (unsigned long)(&__ ## TYPE ## _end), \
- 		 #TYPE);
- 
--	printk ("Freeing unused kernel memory:");
-+	printk (KERN_INFO "Freeing unused kernel memory:");
- 	FREESEC(init);
- 	if (_machine != _MACH_Pmac)
- 		FREESEC(pmac);
-@@ -248,7 +248,7 @@
- #ifdef CONFIG_BLK_DEV_INITRD
- void free_initrd_mem(unsigned long start, unsigned long end)
- {
--	printk ("Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
-+	printk (KERN_INFO "Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
- 
- 	for (; start < end; start += PAGE_SIZE) {
- 		ClearPageReserved(virt_to_page(start));
-@@ -518,7 +518,7 @@
- 	}
- #endif /* CONFIG_HIGHMEM */
- 
--        printk("Memory: %luk available (%dk kernel code, %dk data, %dk init, %ldk highmem)\n",
-+        printk(KERN_INFO "Memory: %luk available (%dk kernel code, %dk data, %dk init, %ldk highmem)\n",
- 	       (unsigned long)nr_free_pages()<< (PAGE_SHIFT-10),
- 	       codepages<< (PAGE_SHIFT-10), datapages<< (PAGE_SHIFT-10),
- 	       initpages<< (PAGE_SHIFT-10),
-diff --recursive -u linux-2.4.13-orig/arch/s390/mm/init.c linux-2.4.13-new/arch/s390/mm/init.c
---- linux-2.4.13-orig/arch/s390/mm/init.c	Thu Oct 11 14:04:57 2001
-+++ linux-2.4.13-new/arch/s390/mm/init.c	Thu Nov  8 23:42:11 2001
-@@ -214,7 +214,7 @@
- 		free_page(addr);
- 		totalram_pages++;
-         }
--        printk ("Freeing unused kernel memory: %dk freed\n",
-+        printk (KERN_INFO "Freeing unused kernel memory: %dk freed\n",
- 		(&__init_end - &__init_begin) >> 10);
- }
- 
-@@ -222,7 +222,7 @@
- void free_initrd_mem(unsigned long start, unsigned long end)
- {
-         if (start < end)
--                printk ("Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
-+                printk (KERN_INFO "Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
-         for (; start < end; start += PAGE_SIZE) {
-                 ClearPageReserved(virt_to_page(start));
-                 set_page_count(virt_to_page(start), 1);
-diff --recursive -u linux-2.4.13-orig/arch/s390x/mm/init.c linux-2.4.13-new/arch/s390x/mm/init.c
---- linux-2.4.13-orig/arch/s390x/mm/init.c	Thu Oct 11 14:04:57 2001
-+++ linux-2.4.13-new/arch/s390x/mm/init.c	Thu Nov  8 23:42:11 2001
-@@ -226,7 +226,7 @@
- 		free_page(addr);
- 		totalram_pages++;
-         }
--        printk ("Freeing unused kernel memory: %ldk freed\n",
-+        printk (KERN_INFO "Freeing unused kernel memory: %ldk freed\n",
- 		(&__init_end - &__init_begin) >> 10);
- }
- 
-@@ -234,7 +234,7 @@
- void free_initrd_mem(unsigned long start, unsigned long end)
- {
-         if (start < end)
--                printk ("Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
-+                printk (KERN_INFO "Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
- 	for (; start < end; start += PAGE_SIZE) {
-                 ClearPageReserved(virt_to_page(start));
-                 set_page_count(virt_to_page(start), 1);
-diff --recursive -u linux-2.4.13-orig/arch/sh/mm/init.c linux-2.4.13-new/arch/sh/mm/init.c
---- linux-2.4.13-orig/arch/sh/mm/init.c	Mon Oct 15 18:36:48 2001
-+++ linux-2.4.13-new/arch/sh/mm/init.c	Thu Nov  8 23:42:11 2001
-@@ -187,7 +187,7 @@
- 		free_page(addr);
- 		totalram_pages++;
- 	}
--	printk ("Freeing unused kernel memory: %dk freed\n", (&__init_end - &__init_begin) >> 10);
-+	printk (KERN_INFO "Freeing unused kernel memory: %dk freed\n", (&__init_end - &__init_begin) >> 10);
- }
- 
- #ifdef CONFIG_BLK_DEV_INITRD
-@@ -200,7 +200,7 @@
- 		free_page(p);
- 		totalram_pages++;
- 	}
--	printk ("Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
-+	printk (KERN_INFO "Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
- }
- #endif
- 
-diff --recursive -u linux-2.4.13-orig/arch/sparc/mm/init.c linux-2.4.13-new/arch/sparc/mm/init.c
---- linux-2.4.13-orig/arch/sparc/mm/init.c	Mon Oct  1 14:19:56 2001
-+++ linux-2.4.13-new/arch/sparc/mm/init.c	Thu Nov  8 23:42:11 2001
-@@ -462,7 +462,7 @@
- 	initpages = (((unsigned long) &__init_end) - ((unsigned long) &__init_begin));
- 	initpages = PAGE_ALIGN(initpages) >> PAGE_SHIFT;
- 
--	printk("Memory: %dk available (%dk kernel code, %dk data, %dk init, %ldk highmem) [%08lx,%08lx]\n",
-+	printk(KERN_INFO "Memory: %dk available (%dk kernel code, %dk data, %dk init, %ldk highmem) [%08lx,%08lx]\n",
- 	       nr_free_pages() << (PAGE_SHIFT-10),
- 	       codepages << (PAGE_SHIFT-10),
- 	       datapages << (PAGE_SHIFT-10), 
-@@ -489,14 +489,14 @@
- 		totalram_pages++;
- 		num_physpages++;
- 	}
--	printk ("Freeing unused kernel memory: %dk freed\n", (&__init_end - &__init_begin) >> 10);
-+	printk (KERN_INFO "Freeing unused kernel memory: %dk freed\n", (&__init_end - &__init_begin) >> 10);
- }
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- void free_initrd_mem(unsigned long start, unsigned long end)
- {
- 	if (start < end)
--		printk ("Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
-+		printk (KERN_INFO "Freeing initrd memory: %ldk freed\n", (end - start) >> 10);
- 	for (; start < end; start += PAGE_SIZE) {
- 		struct page *p = virt_to_page(start);
- 
+@@ -1042,7 +1042,7 @@
+ mount_it:
+ 	/* FIXME */
+ 	up_write(&sb->s_umount);
+-	printk ("VFS: Mounted root (%s filesystem)%s.\n", p,
++	printk(KERN_INFO "VFS: Mounted root (%s filesystem)%s\n", p,
+ 		(sb->s_flags & MS_RDONLY) ? " readonly" : "");
+ 	putname(fs_names);
+ 	if (path_start >= 0) {

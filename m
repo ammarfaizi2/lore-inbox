@@ -1,34 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268193AbUHFQzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268217AbUHFRGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268193AbUHFQzs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 12:55:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268201AbUHFQvX
+	id S268217AbUHFRGS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 13:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUHFRCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 12:51:23 -0400
-Received: from colin2.muc.de ([193.149.48.15]:787 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S268181AbUHFQqy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 12:46:54 -0400
-Date: 6 Aug 2004 18:46:47 +0200
-Date: Fri, 6 Aug 2004 18:46:47 +0200
-From: Andi Kleen <ak@muc.de>
-To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, suparna@in.ibm.com, shemminger@osdl.org,
-       vamsi_krishna@in.ibm.com
-Subject: Re: [0/3]kprobes-base-268-rc3.patch
-Message-ID: <20040806164647.GA60207@muc.de>
-References: <2pMzT-XA-21@gated-at.bofh.it> <m3hdrhyhuy.fsf@averell.firstfloor.org> <20040806123757.GB3376@in.ibm.com> <20040806151625.GA96991@muc.de> <20040806163114.GB3732@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040806163114.GB3732@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 6 Aug 2004 13:02:41 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:24075 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id S268207AbUHFQ7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 12:59:07 -0400
+Message-ID: <4113B8A2.4050609@lougher.demon.co.uk>
+Date: Fri, 06 Aug 2004 17:58:10 +0100
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-GB; rv:1.2.1) Gecko/20030228
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] VFS readahead bug in 2.6.8-rc[1-3]
+References: <41127371.1000603@lougher.demon.co.uk> <4112D6FD.4030707@yahoo.com.au> <4112EAAB.8040005@yahoo.com.au>
+In-Reply-To: <4112EAAB.8040005@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Its good enough for Kprobes. Also kprobes needs int3 handler to be an 
-> interrupt gate, as of now its system gate. Please see my next mail for updated 
+Nick Piggin wrote:
 
-Looks fine for me now. Thanks.
+> On second thought, maybe not. I think your filesystem is at fault.
 
--Andi
+No I'm not wrong here. With a read-only filesystem i_size can
+never change, there are no possible race conditions.  If a too
+large index is passed it is a VFS bug.  Are you suggesting I should
+start to code assuming the VFS is broken?
+

@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbUFXU7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUFXVAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262538AbUFXU7m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 16:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263820AbUFXU7l
+	id S261252AbUFXVAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 17:00:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263820AbUFXVAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 16:59:41 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55794 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262538AbUFXU7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 16:59:32 -0400
-Date: Thu, 24 Jun 2004 22:59:22 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.7-mm2: compile error SCHED_SMT + NUMA + gcc 2.95
-Message-ID: <20040624205922.GC26669@fs.tum.de>
-References: <20040624014655.5d2a4bfb.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 24 Jun 2004 17:00:16 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:24193 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261252AbUFXVAG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 17:00:06 -0400
+Date: Thu, 24 Jun 2004 13:59:34 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm2 oopses and badness
+Message-ID: <34050000.1088110774@flay>
+In-Reply-To: <20040624120229.7995f5f4.akpm@osdl.org>
+References: <1968860000.1088089370@[10.10.2.4]> <20040624120229.7995f5f4.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040624014655.5d2a4bfb.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting the following compile error in 2.6.7-mm2 with SCHED_SMT=y 
-and NUMA=y when using gcc 2.95 (it doesn't seem to be specific to -mm):
+>> During bootup, shortly after CPU init (mm1 was fine):
+>> 
+>>  Only candidate I can see is 
+>>  +reduce-tlb-flushing-during-process-migration-2.patch
+>>  Will try backing that out unless you want something else ...
+> 
+> yes, that is the culprit.
+> 
+> 
+>  Only candidate I can see is 
+>  +reduce-tlb-flushing-during-process-migration-2.patch
+>  Will try backing that out unless you want something else ...
+> 
+> 
+> diff -puN include/asm-generic/tlb.h~reduce-tlb-flushing-during-process-migration-2-fix include/asm-generic/tlb.h
+> --- 25/include/asm-generic/tlb.h~reduce-tlb-flushing-during-process-migration-2-fix	2004-06-24 12:01:14.127142208 -0700
+> +++ 25-akpm/include/asm-generic/tlb.h	2004-06-24 12:01:27.815061328 -0700
+> @@ -147,6 +147,6 @@ static inline void tlb_remove_page(struc
+>  		__pmd_free_tlb(tlb, pmdp);			\
+>  	} while (0)
+>  
+> -#define tlb_migrate_finish(mm) flush_tlb_mm(mm)
+> +#define tlb_migrate_finish(mm) do { } while (0)
+>  
+>  #endif /* _ASM_GENERIC__TLB_H */
 
-<--  snip  -->
+Thanks - tested ... fixes it ;-)
 
-...
-  CC      arch/i386/kernel/smpboot.o
-arch/i386/kernel/smpboot.c: In function `arch_init_sched_domains':
-arch/i386/kernel/smpboot.c:1195: invalid lvalue in unary `&'
-arch/i386/kernel/smpboot.c:1231: invalid lvalue in unary `&'
-make[1]: *** [arch/i386/kernel/smpboot.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+M.
 

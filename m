@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264707AbTD0R3M (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 13:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264708AbTD0R3M
+	id S264709AbTD0RcL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 13:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264710AbTD0RcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 13:29:12 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:59653 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264707AbTD0R3K convert rfc822-to-8bit (ORCPT
+	Sun, 27 Apr 2003 13:32:11 -0400
+Received: from codepoet.org ([166.70.99.138]:140 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S264709AbTD0RcK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 13:29:10 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Louis Garcia <louisg00@bellsouth.net>
-Subject: Re: How to find device numbers?
-Date: Sun, 27 Apr 2003 19:40:42 +0200
-User-Agent: KMail/1.5.1
-References: <1051464332.2677.5.camel@tiger>
-In-Reply-To: <1051464332.2677.5.camel@tiger>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Sun, 27 Apr 2003 13:32:10 -0400
+Date: Sun, 27 Apr 2003 11:44:24 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>, alan@redhat.com
+Subject: Re: [PATCH] 2.4.21-rc1 pointless IDE noise reduction
+Message-ID: <20030427174424.GA17680@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Adrian Bunk <bunk@fs.tum.de>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel <linux-kernel@vger.kernel.org>, alan@redhat.com
+References: <20030424093443.GA7180@codepoet.org> <20030427122104.GK10256@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304271940.54699.fsdeveloper@yahoo.de>
+In-Reply-To: <20030427122104.GK10256@fs.tum.de>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun Apr 27, 2003 at 02:21:04PM +0200, Adrian Bunk wrote:
+> Looking at the only user of this function it seems we can completely 
+> remove it (patch below).
+> 
+> Alan:
+> Is the patch below OK or are there any future plans for more uses of
+> idedisk_supports_host_protected_area?
+> 
+> >  -Erik
 
-On Sunday 27 April 2003 19:25, Louis Garcia wrote:
-> Is there a list somewhere which has all these numbers and what they
-> represent?
+Looks fine to me.  Even better,
 
-Documentation/devices.txt
+ -Erik
 
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 19:40:12 up  7:47,  1 user,  load average: 1.37, 1.09, 1.03
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+rBYmoxoigfggmSgRAsNiAJ9YNgWtdDNYKloG07pyJo+couzFbwCfVQQQ
-Hr3eHLr6dq69oyNlHCPR5fQ=
-=MLLe
------END PGP SIGNATURE-----
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

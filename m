@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314634AbSHMKjd>; Tue, 13 Aug 2002 06:39:33 -0400
+	id <S314680AbSHMKsa>; Tue, 13 Aug 2002 06:48:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314680AbSHMKjd>; Tue, 13 Aug 2002 06:39:33 -0400
-Received: from [203.199.83.247] ([203.199.83.247]:52646 "HELO
-	mailweb34.rediffmail.com") by vger.kernel.org with SMTP
-	id <S314634AbSHMKjd>; Tue, 13 Aug 2002 06:39:33 -0400
-Date: 13 Aug 2002 10:42:32 -0000
-Message-ID: <20020813104232.29562.qmail@mailweb34.rediffmail.com>
-MIME-Version: 1.0
-From: "Nandakumar  NarayanaSwamy" <nanda_kn@rediffmail.com>
-Reply-To: "Nandakumar  NarayanaSwamy" <nanda_kn@rediffmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 8139too.c problems
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+	id <S314938AbSHMKsa>; Tue, 13 Aug 2002 06:48:30 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:57591 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S314680AbSHMKsa>; Tue, 13 Aug 2002 06:48:30 -0400
+Subject: Re: Linux 2.4.20-pre2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Greg Kroah-Hartman <greg@kroah.com>,
+       Kai Germaschewski <kai.germaschewski@gmx.de>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.NEB.4.44.0208131116270.14606-100000@mimas.fachschaften.tu-muenchen.de>
+References: <Pine.NEB.4.44.0208131116270.14606-100000@mimas.fachschaften.tu-muenchen.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 13 Aug 2002 11:49:42 +0100
+Message-Id: <1029235782.21007.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resending the mail, since i have not received a copy of that...
-Sorry if ypu are receiving duplicate copies.
+On Tue, 2002-08-13 at 10:19, Adrian Bunk wrote:
+> On Mon, 12 Aug 2002, Marcelo Tosatti wrote:
+> 
+> >...
+> > Greg Kroah-Hartman <greg@kroah.com>:
+> >...
+> >   o USB: removed the devrequest typedef
+> >...
+> 
+> This broke the compilation of drivers/isdn/hisax/st5481_usb.c:
 
+Fixes can be found for this and a couple of other usb breakages in the
+2.4.20-pre1-ac tree. I'll send them on to Marcelo today
 
-Hi All,
-
-Sorry for disturbing the list again.
-
-I am using RTL8139C in our target board which is based on MIPS
-IDT32334 processor.
-
-The version of 8139too.c that i am using is 1.0.1 where as I am
-using a embedded linux which is based on Linux Kernel
-2.4.5-pre1.
-
-When the packet is transmitted out, it is coming out as all
-0's(captured using sniffer). I dumped the whole packet in
-rtl8139_start_xmit (). The packet is a valid ARP packet.
-
-My doubt is whether this 8139too.c is tested with MIPS 
-processors?
-Because in one of the article i found that the supported
-processors are ARM, i386 etc.
-
-Can any body throw some light on this?
-
-with best regards,
-Nanda
-\

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262760AbTJDUzd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 16:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTJDUzd
+	id S262772AbTJDVkI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 17:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbTJDVkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 16:55:33 -0400
-Received: from colin2.muc.de ([193.149.48.15]:34832 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262760AbTJDUzc (ORCPT
+	Sat, 4 Oct 2003 17:40:08 -0400
+Received: from mail.kroah.org ([65.200.24.183]:1229 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262772AbTJDVkF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 16:55:32 -0400
-Date: 4 Oct 2003 22:55:45 +0200
-Date: Sat, 4 Oct 2003 22:55:45 +0200
-From: Andi Kleen <ak@colin2.muc.de>
-To: Tony Hoyle <tmh@nodomain.org>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: Oops linux 2.4.23-pre6 on amd64
-Message-ID: <20031004205545.GB71123@colin2.muc.de>
-References: <CYRo.18k.9@gated-at.bofh.it> <m3smm8q22o.fsf@averell.firstfloor.org> <3F7F1D21.1070503@nodomain.org>
+	Sat, 4 Oct 2003 17:40:05 -0400
+Date: Sat, 4 Oct 2003 14:39:46 -0700
+From: Greg KH <greg@kroah.com>
+To: Juan Carlos Castro Y Castro <jcastro@dba.com.br>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel doesn't see USB ADSL modem - pegasus?
+Message-ID: <20031004213945.GB8566@kroah.com>
+References: <A36146B96FA84B4BB69EB088451E965A080CE792@cygnus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F7F1D21.1070503@nodomain.org>
+In-Reply-To: <A36146B96FA84B4BB69EB088451E965A080CE792@cygnus>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Oops, scratch that last one... It's invalid too as I used the original 
-> oops rather than the new one.  This one's the right one (honest!).
+On Sat, Oct 04, 2003 at 02:10:57AM -0300, Juan Carlos Castro Y Castro wrote:
+> (Please CC me here and at jcastro@vialink.com.br -- I'm not subscribed)
+> 
+> I have a SpeedStream 5200 ADSL modem, connected to the USB port. From what I
+> understand, the pegasus driver should see it. I installed 2.4.23-pre6,
+> modprobe'd usbnet and pegasus, but no new interface shows up. (I tested with
+> ip link show)
+> 
+> Maybe I should patch the driver to include a device ID or something of the
+> sort?
 
-I cannot see anything obviously wrong. At which kernel version did the
-problem start? And is your compiler version known to be not buggy ?
+Try that, the driver currently does not support this device id.  Let us
+know how that works.
 
--Andi
+thanks,
+
+greg k-h

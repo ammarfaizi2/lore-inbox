@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261451AbTCEUWY>; Wed, 5 Mar 2003 15:22:24 -0500
+	id <S262425AbTCEUU4>; Wed, 5 Mar 2003 15:20:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261463AbTCEUWY>; Wed, 5 Mar 2003 15:22:24 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:51702 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261451AbTCEUWW>;
-	Wed, 5 Mar 2003 15:22:22 -0500
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: "Reed, Timothy A" <timothy.a.reed@lmco.com>,
-       "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: High Mem Options 
-In-reply-to: Your message of Wed, 05 Mar 2003 04:26:54 PST.
-             <20030305122654.GR1195@holomorphy.com> 
+	id <S262452AbTCEUU4>; Wed, 5 Mar 2003 15:20:56 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:27530 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S262425AbTCEUUz>;
+	Wed, 5 Mar 2003 15:20:55 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: James Simmons <jsimmons@infradead.org>
+Date: Wed, 5 Mar 2003 21:31:05 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <11065.1046896263.1@us.ibm.com>
-Date: Wed, 05 Mar 2003 12:31:03 -0800
-Message-Id: <E18qfXc-0002sX-00@w-gerrit2>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
+Cc: Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+X-mailer: Pegasus Mail v3.50
+Message-ID: <11EC6AF51A4E@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Mar 2003 04:26:54 PST, William Lee Irwin III wrote:
-> On Wed, Mar 05, 2003 at 06:28:36AM -0500, Reed, Timothy A wrote:
-> > 	Yet another quick question...is there any down side to using the
-> > 64GB option over the 4GB option if the machine only has 2GB of RAM onboard??
-> > I would think this would be a performance issue?  Does the kernel only use
-> > the translation table if it has to access any memory location over 4GB?
+On  5 Mar 03 at 20:22, James Simmons wrote:
+>  
+> >   And one (or two...) generic questions: why is not pseudo_palette
+> > u32* pseudo_palette, or even directly u32 pseudo_palette[17] ?
 > 
-> Yes, the additional level of pagetables slows things down quite a bit.
+> pseudo_palette was originally designed to be a pointer to some kind of 
+> data for color register programming. For example many PPC graphics cards 
+> have a color register region. Now you could have that point to 
+> pseudo_palette.  Note pseudo_palette is only visiable in fbmem.c for the 
+> logo drawing code. Personally I liek to see that hidden.
 
-Bill, do you hvae measures for this?  I seem to remember PTX's impact
-of PAE36 as being about 3-5% depending on workload.  Janet did one test
-sometime back with DB2 that showed a net of no difference on TPC-H (PAE
-slows things down, less memory pressure speeds things up) but Badari
-just repeated with 2.5.62 or 2.5.63 and saw a larger degradation.
+cfbfillrect? cfbimageblit? Both use pseudo_palette, and both convert
+it to u32*.
+ 
+> > And why we do not fill this pseudo_palette with
+> > i * 0x01010101U for 8bpp pseudocolor and i * 0x11111111U for 4bpp
+> > pseudocolor? This allowed me to remove couple of switches and tests
+> > from acceleration fastpaths (and from cfb_imageblit and cfb_fillrect,
+> > but I did not changed these two in my benchmarks below).
+> 
+> ??? Does your accel engine require these kinds of values?
 
-I'm wondering if some hardware is not getting correctly configured at
-boot with with respect to MTRR's, perhaps...  I really wouldn't expect
-a 10% impact from PAE and I don't have any consistent Linux measurements
-to validate or invalidate that much impact.
+Yes. It is 32bit engine, and so it wants 32bit value. And even if 
+not, code doing
 
-gerrit
+if (p->fix.visual == FB_VISUAL_TRUECOLOR ||
+    p->fix.visual == FB_VISUAL_DIRECTCOLOR)
+      fg = p->pseudo_palette[rect->color];
+else
+      fg = rect->color;
+
+is horrible. Two conditional jumps on each rectangle. If you'll do
+always lookup through pseudo_palette, not only that you get rid of
+these jumps, you can also remove calls to pixel_to_pat32 (and accompanying
+tables & lookups), as you do this expansion at set_var time,
+instead of at blit/clear time.
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
+

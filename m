@@ -1,126 +1,161 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262515AbUCMBp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 20:45:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbUCMBpw
+	id S262767AbUCMBw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 20:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbUCMBw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 20:45:52 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:37027 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262515AbUCMBoh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 20:44:37 -0500
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: RE[PATCH]2.6.4-rc3 MSI Support for IA64
-Date: Fri, 12 Mar 2004 17:44:22 -0800
-Message-ID: <7F740D512C7C1046AB53446D37200173FEB9E0@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RE[PATCH]2.6.4-rc3 MSI Support for IA64
-Thread-Index: AcQIiqOOwsuywEBTRCmro2hS8qsDeAABavCwAALblcA=
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>, <davidm@hpl.hp.com>,
-       "Zwane Mwaikambo" <zwane@linuxpower.ca>
-Cc: "long" <tlnguyen@snoqualmie.dp.intel.com>, <linux-ia64@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <grep@kroah.com>, <jgarzik@pobox.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-X-OriginalArrivalTime: 13 Mar 2004 01:44:23.0377 (UTC) FILETIME=[B5F37C10:01C4089C]
+	Fri, 12 Mar 2004 20:52:56 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:24218 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262767AbUCMBwv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 20:52:51 -0500
+Subject: Re: ALSA via82xx fails since 2.6.2
+From: Len Brown <len.brown@intel.com>
+To: =?ISO-8859-1?Q?J=FCrgen?= Repolusk <juerep@gmx.at>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F4E8F@hdsmsx402.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615F4E8F@hdsmsx402.hd.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1079142765.2175.71.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 12 Mar 2004 20:52:46 -0500
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Long,
+On Fri, 2004-03-12 at 15:34, Jürgen Repolusk wrote:
 
-I agree with David and Zwane. The other thing is those CONFIG_IA64
-below. We should move those to the arch-specific directory, by defining
-interface/macro. 
+> I see this in dmesg on 2.6.4-rc1:
+> 
+> VIA 82xx Audio: probe of 0000:00:07.5 failed with error -16
+> 
 
-Jun
+I don't know if it is related to the audio failure, but interrupts in
+general and the ACPI SCI in particular seem totally broken on this box
+(below)
 
->-#define MSI_AUTO -1
->+#ifndef CONFIG_IA64
->+#include <asm/desc.h>
->+#ifndef CONFIG_X86_64
->+#include <mach_apic.h>
->+#endif
->
->-#ifndef CONFIG_X86_IO_APIC
->-static inline int get_ioapic_vector(struct pci_dev *dev) { return -1;}
->-static inline void restore_ioapic_irq_handler(int irq) {}
->+static inline int vector_resources(void)
->+{
->+ 	int res;
->+#ifndef CONFIG_IA64
->+ 	int i, repeat;
->+ 	for (i = NR_REPEATS; i > 0; i--) {
->+ 		if ((FIRST_DEVICE_VECTOR + i * 8) > FIRST_SYSTEM_VECTOR)
->+ 			continue;
->+ 		break;
->+ 	}
->+ 	i++;
->+ 	repeat = (FIRST_SYSTEM_VECTOR - FIRST_DEVICE_VECTOR)/i;
->+ 	res = i * repeat - NR_RESERVED_VECTORS + 1;
-> #else
->-extern void restore_ioapic_irq_handler(int irq);
->+ 	res = LAST_DEVICE_VECTOR - FIRST_DEVICE_VECTOR - 1;
-> #endif
->+
->+ 	return res;
->+}
->
->+#ifdef CONFIG_IA64
->+#define MSI_DEST_MODE			MSI_PHYSICAL_MODE
->+#define MSI_TARGET_CPU	((ia64_getreg(_IA64_REG_CR_LID) >> 16) &
-0xffff)
->+#define MSI_TARGET_CPU_SHIFT		4
->+#else
->+#define MSI_DEST_MODE			MSI_LOGICAL_MODE
->+#define MSI_TARGET_CPU_SHIFT		12
-> #ifdef CONFIG_SMP
-> #define MSI_TARGET_CPU
-logical_smp_processor_id()
-> #else
-> #define MSI_TARGET_CPU			TARGET_CPUS
-> #endif
->+#endif
+> this is on a sony vaio pcg-fx505
+> 
+> regards
+> juergen repolusk, please CC me personally
+> 
+> complete dmesg (+lspci follow)
+> ADT (v001 SONY   K5       0x06040000 PTL_ 0x000f4240) @ 0x0fefee4c
+> ACPI: BOOT (v001 PTLTD  $SBFTBL$ 0x06040000  LTP 0x00000001) @
+> 0x0fefeec0
+> ACPI: SSDT (v001 PTLTD  POWERNOW 0x06040000  LTP 0x00000001) @
+> 0x0fefeee8
+> ACPI: DSDT (v001  SONY  K5       0x06040000 MSFT 0x0100000d) @
+> 0x00000000
+> Built 1 zonelists
+> Kernel command line: BOOT_IMAGE=gentoo264 ro root=303 apm=off acpi=on
+> vga=0x318
+> Local APIC disabled by BIOS -- reenabling.
+> Found and enabled local APIC!
+> Initializing CPU#0
+> PID hash table entries: 2048 (order 11: 16384 bytes)
+> Detected 1200.077 MHz processor.
+> Using tsc for high-res timesource
+> Console: colour dummy device 80x25
+> Memory: 254264k/262144k available (2817k kernel code, 7056k reserved,
+> 1078k
+> data, 172k init, 0k highmem)
+> Checking if this processor honours the WP bit even in supervisor
+> mode... Ok.
+> Calibrating delay loop... 2359.29 BogoMIPS
+> Dentry cache hash table entries: 32768 (order: 5, 131072 bytes)
+> Inode-cache hash table entries: 16384 (order: 4, 65536 bytes)
+> Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+> CPU:     After generic identify, caps: 0383fbff c1cbfbff 00000000
+> 00000000
+> CPU:     After vendor identify, caps: 0383fbff c1cbfbff 00000000
+> 00000000
+> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+> CPU: L2 Cache: 256K (64 bytes/line)
+> CPU:     After all inits, caps: 0383fbff c1cbfbff 00000000 00000020
+> Intel machine check architecture supported.
+> Intel machine check reporting enabled on CPU#0.
+> CPU: AMD mobile AMD Athlon(tm) 4  stepping 02
+> Enabling fast FPU save and restore... done.
+> Enabling unmasked SIMD FPU exception support... done.
+> Checking 'hlt' instruction... OK.
+> POSIX conformance testing by UNIFIX
+> enabled ExtINT on CPU#0
+> ESR value before enabling vector: 00000000
+> ESR value after enabling vector: 00000000
+> Using local APIC timer interrupts.
+> calibrating APIC timer ...
+> ..... CPU clock speed is 1199.0872 MHz.
+> ..... host bus clock speed is 199.0978 MHz.
+> NET: Registered protocol family 16
+> PCI: PCI BIOS revision 2.10 entry at 0xfd7cd, last bus=1
+> PCI: Using configuration type 1
+> mtrr: v2.0 (20020519)
+> ACPI: Subsystem revision 20040211
+> ACPI: IRQ9 SCI: Level Trigger.
+> spurious 8259A interrupt: IRQ7.
 
->-----Original Message-----
->From: Nguyen, Tom L
->Sent: Friday, March 12, 2004 4:22 PM
->To: davidm@hpl.hp.com; Zwane Mwaikambo
->Cc: long; linux-ia64@vger.kernel.org; linux-kernel@vger.kernel.org;
->grep@kroah.com; jgarzik@pobox.com; Nakajima, Jun; Luck, Tony
->Subject: RE: RE[PATCH]2.6.4-rc3 MSI Support for IA64
->
->On Fri, 12 Mar 2004, David Mosberger wrote:
->
->>>>>> On Fri, 12 Mar 2004 18:26:39 -0500 (EST), Zwane Mwaikambo
-><zwane@linuxpower.ca> said:
->
->>  Zwane> I wonder if we could consolidate these vector allocators as
->>  Zwane> assign_irq_vector(AUTO_ASSIGN) has the same semantics as
->>  Zwane> ia64_alloc_vector() and the one for i386 is also almost the
->>  Zwane> same as its MSI ilk.
->
->> Agreed.  I don't see any reason why ia64_alloc_vector() and
->> assign_irq_vector() couldn't or shouldn't be one and the same thing
->> (and assign_irq_vector() is a fine name).
->
->Agree. Thanks!
->
->> Tom, if you want to send me a patch that converts the existing uses
-of
->> ia64_alloc_vector() to assign_irq_vector(), I'd be happy to apply
->> (assuming it's clean etc., as usual).
->
->Thanks! We'll do. I will work with Tony and Jun to consolidate
-i386/IA64
->vector
->allocators to ensure it is clean.
->
->Thanks,
->Long
+Spurious on IRQ7 may mean that a device is pulling an interrupt line
+which has no driver attached.
+
+> irq 9: nobody cared!
+> Call Trace:
+>  [<c010b69b>] __report_bad_irq+0x2b/0x90
+>  [<c02592ad>] acpi_irq+0xf/0x1a
+>  [<c010b794>] note_interrupt+0x64/0xa0
+>  [<c010ba73>] do_IRQ+0x143/0x160
+>  [<c0109dc8>] common_interrupt+0x18/0x20
+
+Here we've apparently gone recursive on the interrupt handler, I don't
+think that is supposed to be possible.
+
+>  [<c0126a94>] do_softirq+0x44/0xa0
+>  [<c025929e>] acpi_irq+0x0/0x1a
+>  [<c010ba47>] do_IRQ+0x117/0x160
+>  [<c0109dc8>] common_interrupt+0x18/0x20
+>  [<c010c04c>] setup_irq+0x9c/0x100
+>  [<c025929e>] acpi_irq+0x0/0x1a
+
+okay, so we got an acpi_irq() right when we requeted the IRQ, that is
+unusual, but should be okay.  Curious that common_interrupt/do_IRQ are
+not on the stack here though...
+
+>  [<c010bb68>] request_irq+0x98/0xd0
+>  [<c02592ed>] acpi_os_install_interrupt_handler+0x35/0x5b
+
+>  [<c025929e>] acpi_irq+0x0/0x1a
+>  [<c025929e>] acpi_irq+0x0/0x1a
+
+dunno what's the deal with the stack here acpi_irq() is not called from
+acpi_ev_install_sci_handler(), and request_irq() hasn't even been called
+yet!
+
+>  [<c025d58e>] acpi_ev_install_sci_handler+0x1d/0x1f
+>  [<c025d548>] acpi_ev_sci_xrupt_handler+0x0/0x1c
+>  [<c025cf8d>] acpi_ev_handler_initialize+0x9/0x71
+>  [<c026ebf4>] acpi_enable_subsystem+0x2e/0x5b
+>  [<c04e35d2>] acpi_bus_init+0x7c/0x111
+>  [<c04e36c0>] acpi_init+0x59/0xb4
+>  [<c04d082c>] do_initcalls+0x2c/0xa0
+>  [<c01332c2>] init_workqueues+0x12/0x30
+>  [<c01050d5>] init+0x35/0x140
+>  [<c01050a0>] init+0x0/0x140
+>  [<c01072c9>] kernel_thread_helper+0x5/0xc
+> 
+> handlers:
+> [<c025929e>] (acpi_irq+0x0/0x1a)
+> Disabling IRQ #9
+> ACPI: Interpreter enabled
+
+What does /proc/interrupts on this box look like?
+how about when you boot with acpi=off or pci=noacpi?
+
+Are you sure you didn't see these messages before 2.6.2 -- was ACPI
+enabled in the working release?
+
+thanks,
+-Len
+
+

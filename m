@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291693AbSBALMN>; Fri, 1 Feb 2002 06:12:13 -0500
+	id <S291700AbSBALPN>; Fri, 1 Feb 2002 06:15:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291694AbSBALMD>; Fri, 1 Feb 2002 06:12:03 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:42142 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S291693AbSBALLz>; Fri, 1 Feb 2002 06:11:55 -0500
-Message-Id: <200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de>
-To: Larry McVoy <lm@work.bitmover.com>, Keith Owens <kaos@ocs.com.au>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin 
-In-Reply-To: Message from Larry McVoy <lm@bitmover.com> 
-   of "Thu, 31 Jan 2002 17:04:28 PST." <20020131170428.V1519@work.bitmover.com> 
-Date: Fri, 01 Feb 2002 12:11:30 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S291704AbSBALOz>; Fri, 1 Feb 2002 06:14:55 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:46605
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S291701AbSBALOh>; Fri, 1 Feb 2002 06:14:37 -0500
+Date: Fri, 1 Feb 2002 03:06:20 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Kris Urquhart <kurquhart@littlefeet-inc.com>,
+        "'Andreas Dilger'" <adilger@turbolabs.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: false positives on disk change checks
+In-Reply-To: <Pine.GSO.4.21.0201312105210.624-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.10.10202010303260.22985-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> said:
-> On Fri, Feb 01, 2002 at 11:29:58AM +1100, Keith Owens wrote:
-> > That sounds almost like what I was looking for, with two differences.
-> > 
-> > (1) Implement the collapsed set so bk records that it is equivalent to
-> >     the individual patchsets.  Only record that information in my tree.
-> >     I need the detailed history of what changes went into the collapsed
-> >     set, nobody else does.
-> > 
-> > (2) Somebody else creates a change against the collapsed set and I pull
-> >     that change.  bk notices that the change is again a collapsed set
-> >     for which I have local detail.  The external change becomes a
-> >     branch off the last detailed patch in the collapsed set.
-> 
-> This is certainly possible to do.  However, unless you are willing to fund
-> this development, we aren't going to do it.  We will pick up the costs of
-> making changes that you want if and only if we have commercial customers
-> who want (or are likely to want) the same thing.  Nothing personal, it's
-> a business and we make tradeoffs like that all the time.
+On Thu, 31 Jan 2002, Alexander Viro wrote:
 
-I wonder how your commercial customers develop code then. Either each
-programmer futzes around in his/her own tree, and then creates a patch (or
-some such) for everybody to see (then I don't see the point of source
-control as a help to the individual developer), or everybody sees all the
-backtracking going on everywhere (in which case the repository is a mostly
-useless mess AFAICS).
--- 
-Horst von Brand			     http://counter.li.org # 22616
+> 
+> 
+> On Thu, 31 Jan 2002, Kris Urquhart wrote:
+> 
+> > No patches - linux-2.4.17 right off of www.linux.org.  
+> > 
+> > The chipset is an ALI 1487/1489.  
+> > The disk itself is a JUMPtec DISKchip with a SanDisk 20-99-00024-1 on it.
+> > 
+> > The relevant lines from dmesg are:
+> >  Uniform Multi-Platform E-IDE driver Revision: 6.31
+> >  ide: Assuming 50MHz system bus speed for PIO modes; override with idebus=xx
+> >  hda: SunDisk SDTB-128, ATA DISK drive
+> >  ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> >  hda: 31360 sectors (16 MB) w/1KiB Cache, CHS=490/2/32
+> >  Partition check:
+> >   hda: hda1 hda2 hda3
+> > 
+> > % cat /proc/ide/driver
+> > ide-disk version 1.10
+> > 
+> > There is a CONFIG_BLK_DEV_ALI14XX, but apparently it only turns on 
+> > support for the second channel.  I tried it anyway (along with the 
+> > ide0=ali14xx boot parameter), but the disk was then not recognized 
+> > at boot time (busy/timeout during partition check).  A google search 
+> > did not turn up any problems with ali14xx.c since 2.0.
+> 
+> Andre, looks like setup above gives false positives on disk change check...
+
+What do you expect w/ removable media.
+Obivious it has to be reporting an media status event change.
+Gawd knows where I could find a copy of the hardware to verify.
+If it puts a patch of mine on it and it is still present there is a
+problem, if it goes away with the patch, the kernel should take the patch.
+
+Regards,
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
+

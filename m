@@ -1,140 +1,263 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267197AbUBSO2i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 09:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267217AbUBSO2i
+	id S267218AbUBSOcn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 09:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267291AbUBSOcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 09:28:38 -0500
-Received: from leon.mat.uni.torun.pl ([158.75.2.17]:65197 "EHLO
-	Leon.mat.uni.torun.pl") by vger.kernel.org with ESMTP
-	id S267197AbUBSO21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 09:28:27 -0500
-Date: Thu, 19 Feb 2004 15:28:22 +0100 (CET)
-From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-X-X-Sender: golbi@Juliusz
-To: linux-kernel@vger.kernel.org
-cc: Manfred Spraul <manfred@colorfullife.com>,
-       Michal Wronski <wrona@mat.uni.torun.pl>
-Subject: [RFC][PATCH] 2/6 POSIX message queues
-Message-ID: <Pine.GSO.4.58.0402191527030.18841@Juliusz>
+	Thu, 19 Feb 2004 09:32:42 -0500
+Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:13983 "EHLO
+	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S267218AbUBSO3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 09:29:21 -0500
+Date: Thu, 19 Feb 2004 09:29:11 -0500 (EST)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@azure.engin.umich.edu
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, <Linux-MM@kvack.org>
+Subject: [PATCH] orphaned ptes -- mremap vs. truncate race
+In-Reply-To: <Pine.LNX.4.58.0402162203230.2154@home.osdl.org>
+Message-ID: <Pine.SOL.4.44.0402190925280.18144-100000@azure.engin.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 6
-//  SUBLEVEL = 2
-//  EXTRAVERSION =
---- 2.6/ipc/util.c	2004-02-14 18:47:10.000000000 +0100
-+++ build-2.6/ipc/util.c	2004-02-14 18:44:34.000000000 +0100
-@@ -24,6 +24,7 @@
- #include <linux/security.h>
- #include <linux/rcupdate.h>
- #include <linux/workqueue.h>
-+#include <linux/mqueue.h>
 
- #if defined(CONFIG_SYSVIPC)
+Copying and moving page tables can race with invalidate_mmap_range
+and leave some orphaned ptes in the target page table unless some
+fix is already in place. For extra information about related races
+follow the links [1] and [2].
 
---- 2.6/arch/i386/kernel/entry.S	2004-02-14 18:47:10.000000000 +0100
-+++ build-2.6/arch/i386/kernel/entry.S	2004-02-14 18:43:43.000000000 +0100
-@@ -882,5 +882,11 @@
- 	.long sys_utimes
-  	.long sys_fadvise64_64
- 	.long sys_ni_syscall	/* sys_vserver */
-+	.long sys_mq_open
-+	.long sys_mq_unlink	/* 275 */
-+	.long sys_mq_timedsend
-+	.long sys_mq_timedreceive
-+	.long sys_mq_notify
-+	.long sys_mq_getsetattr
+Fork (dup_mmap) copies page tables from an old process to a new
+process. In dup_mmap, orphaned ptes due to a race between
+copy_page_range and invalidate_mmap_range can be avoided by ordering
+the old process's vma and the new process's vma appropriately in
+the corresponding i_mmap{_shared} list. This patch does that and
+adds a fat comment. This ordering ensures that invalidate_mmap_range
+zaps ptes from the old vma before the new vma. This helps to avoid
+orphaned ptes.
 
- syscall_table_size=(.-sys_call_table)
---- 2.6/include/asm-i386/unistd.h	2004-02-14 18:47:10.000000000 +0100
-+++ build-2.6/include/asm-i386/unistd.h	2004-02-14 18:43:43.000000000 +0100
-@@ -279,8 +279,14 @@
- #define __NR_utimes		271
- #define __NR_fadvise64_64	272
- #define __NR_vserver		273
-+#define __NR_mq_open 		274
-+#define __NR_mq_unlink		(__NR_mq_open+1)
-+#define __NR_mq_timedsend	(__NR_mq_open+2)
-+#define __NR_mq_timedreceive	(__NR_mq_open+3)
-+#define __NR_mq_notify		(__NR_mq_open+4)
-+#define __NR_mq_getsetattr	(__NR_mq_open+5)
+Currently, mremap does not add the new_vma to the corresponding
+i_mmap{_shared} list before copying the page tables. This is racy
+and leads to orphaned ptes. You can use the test program in the
+link [4] to trigger the race. In my old Quad Pentium II 200Mz 256MB,
+I can consistently trigger the race with the test program.
 
--#define NR_syscalls 274
-+#define NR_syscalls 280
+This patch adds the new_vma to the corresponding i_mmap{_shared} list
+in appropriate order before moving the page tables. This does not
+entirely solve the orphaned ptes problem because in the error path
+move_page_tables moves the ptes from the new_vma to the old vma
+(i.e., in opposite to the order of those vmas in the i_mmap{_shared}
+list). Therefore, to fix orphaned ptes in the error path, this patch
+uses the mapping's truncate_count. The fix is ugly and not efficient.
+However, truncate race in the error path is _very_ rare. So I think
+it is okay to take some performance penalty.
 
- /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+In the error path, this patch ignores nonlinear mappings since
+it's my understanding that we do not care about SIGBUS in nonlinear
+maps. To find Andrew Morton's take on this follow the link [3].
 
---- 2.6/include/linux/mqueue.h	1970-01-01 01:00:00.000000000 +0100
-+++ build-2.6/include/linux/mqueue.h	2004-02-14 18:50:50.000000000 +0100
-@@ -0,0 +1,50 @@
-+/* Copyright (C) 2003 Krzysztof Benedyczak & Michal Wronski
-+
-+   This program is free software; you can redistribute it and/or
-+   modify it under the terms of the GNU Lesser General Public
-+   License as published by the Free Software Foundation; either
-+   version 2.1 of the License, or (at your option) any later version.
-+
-+   It is distributed in the hope that it will be useful,
-+   but WITHOUT ANY WARRANTY; without even the implied warranty of
-+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+   Lesser General Public License for more details.
-+
-+   You should have received a copy of the GNU Lesser General Public
-+   License along with this software; if not, write to the Free
-+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-+   02111-1307 USA.  */
-+
-+#ifndef _LINUX_MQUEUE_H
-+#define _LINUX_MQUEUE_H
-+
-+#define MQ_PRIO_MAX 	32768
-+
-+typedef int mqd_t;
-+
-+struct mq_attr {
-+	long	mq_flags;	/* message queue flags			*/
-+	long	mq_maxmsg;	/* maximum number of messages		*/
-+	long	mq_msgsize;	/* maximum message size			*/
-+	long	mq_curmsgs;	/* number of messages currently queued	*/
-+};
-+
-+#define NOTIFY_NONE	0
-+#define NOTIFY_WOKENUP	1
-+#define NOTIFY_REMOVED	2
-+
-+#ifdef __KERNEL__
-+#include <linux/types.h>
-+#include <linux/time.h>
-+#include <linux/signal.h>
-+#include <linux/linkage.h>
-+
-+asmlinkage long sys_mq_open(const char __user *name, int oflag, mode_t mode, struct mq_attr __user *attr);
-+asmlinkage long sys_mq_unlink(const char __user *name);
-+asmlinkage long mq_timedsend(mqd_t mqdes, const char __user *msg_ptr, size_t msg_len, unsigned int msg_prio, const struct timespec __user *abs_timeout);
-+asmlinkage ssize_t mq_timedreceive(mqd_t mqdes, char __user *msg_ptr, size_t msg_len, unsigned int __user *msg_prio, const struct timespec __user *abs_timeout);
-+asmlinkage long mq_notify(mqd_t mqdes, const struct sigevent __user *notification);
-+asmlinkage long mq_getsetattr(mqd_t mqdes, const struct mq_attr __user *mqstat, struct mq_attr __user *omqstat);
-+#endif
-+
-+#endif
---- 2.6/kernel/sys.c	2004-02-14 17:19:39.000000000 +0100
-+++ build-2.6/kernel/sys.c	2004-02-14 18:45:23.000000000 +0100
-@@ -249,6 +249,12 @@
- cond_syscall(sys_epoll_create)
- cond_syscall(sys_epoll_ctl)
- cond_syscall(sys_epoll_wait)
-+cond_syscall(sys_mq_open)
-+cond_syscall(sys_mq_unlink)
-+cond_syscall(sys_mq_timedsend)
-+cond_syscall(sys_mq_timedreceive)
-+cond_syscall(sys_mq_notify)
-+cond_syscall(sys_mq_getsetattr)
+This patch is for 2.6.3-mm1. The patch is tested minimally.
 
- /* arch-specific weak syscall entries */
- cond_syscall(sys_pciconfig_read)
+Let me know of my stupidities and mistakes, if any.
+
+Links:
+-----
+[1] initial patch for do_no_page() vs. truncate race
+    http://marc.theaimsgroup.com/?t=105434202900003
+
+[2] final patch for do_no_page() vs. truncate -- distributed FS
+    http://marc.theaimsgroup.com/?t=105544905100001
+
+[3] nonlinear map - truncate - SIGBUS
+    http://marc.theaimsgroup.com/?m=106595961920958
+
+[4] Test programs
+    http://www-personal.engin.umich.edu/~vrajesh/linux/mremap-truncate/
+
+
+
+ include/linux/mm.h |    2 +
+ kernel/fork.c      |    9 ++++++-
+ mm/mmap.c          |   30 +++++++++++++++++++++-----
+ mm/mremap.c        |   60 +++++++++++++++++++++++++++++++++++++++--------------
+ 4 files changed, 78 insertions(+), 23 deletions(-)
+
+diff -puN kernel/fork.c~mremap_race kernel/fork.c
+--- mmlinux-2.6/kernel/fork.c~mremap_race	2004-02-19 00:39:36.000000000 -0500
++++ mmlinux-2.6-jaya/kernel/fork.c	2004-02-19 00:39:36.000000000 -0500
+@@ -316,9 +316,14 @@ static inline int dup_mmap(struct mm_str
+ 			if (tmp->vm_flags & VM_DENYWRITE)
+ 				atomic_dec(&inode->i_writecount);
+
+-			/* insert tmp into the share list, just after mpnt */
++			/*
++			 * insert tmp into the share list, just after mpnt.
++			 * Note that this order of insertion is important to
++			 * avoid orphaned ptes due to a rare race between
++			 * invalidate_mmap_range and copy_page_range.
++			 */
+ 			down(&file->f_mapping->i_shared_sem);
+-			list_add_tail(&tmp->shared, &mpnt->shared);
++			list_add(&tmp->shared, &mpnt->shared);
+ 			up(&file->f_mapping->i_shared_sem);
+ 		}
+
+diff -puN include/linux/mm.h~mremap_race include/linux/mm.h
+--- mmlinux-2.6/include/linux/mm.h~mremap_race	2004-02-19 00:39:36.000000000 -0500
++++ mmlinux-2.6-jaya/include/linux/mm.h	2004-02-19 00:39:36.000000000 -0500
+@@ -530,6 +530,8 @@ extern void si_meminfo_node(struct sysin
+
+ /* mmap.c */
+ extern void insert_vm_struct(struct mm_struct *, struct vm_area_struct *);
++extern void add_vma_to_process(struct mm_struct *, struct vm_area_struct *);
++extern void unmap_vma(struct mm_struct *, struct vm_area_struct *);
+ extern void build_mmap_rb(struct mm_struct *);
+ extern void exit_mmap(struct mm_struct *);
+
+diff -puN mm/mremap.c~mremap_race mm/mremap.c
+--- mmlinux-2.6/mm/mremap.c~mremap_race	2004-02-19 00:39:36.000000000 -0500
++++ mmlinux-2.6-jaya/mm/mremap.c	2004-02-19 00:39:36.000000000 -0500
+@@ -191,8 +191,9 @@ static unsigned long move_vma(struct vm_
+ 	unsigned long new_addr)
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
++	struct address_space *mapping = NULL;
+ 	struct vm_area_struct *new_vma, *next, *prev;
+-	int allocated_vma;
++	int allocated_vma, sequence = 0;
+ 	int split = 0;
+
+ 	new_vma = NULL;
+@@ -244,23 +245,40 @@ static unsigned long move_vma(struct vm_
+ 		if (!new_vma)
+ 			goto out;
+ 		allocated_vma = 1;
++		*new_vma = *vma;
++		INIT_LIST_HEAD(&new_vma->shared);
++		new_vma->vm_start = new_addr;
++		new_vma->vm_end = new_addr+new_len;
++		new_vma->vm_pgoff += (addr-vma->vm_start) >> PAGE_SHIFT;
++
++		if (new_vma->vm_file) {
++			struct inode *inode;
++			get_file(new_vma->vm_file);
++			inode = new_vma->vm_file->f_dentry->d_inode;
++			mapping = new_vma->vm_file->f_mapping;
++			if (new_vma->vm_flags & VM_DENYWRITE)
++				atomic_dec(&inode->i_writecount);
++			/*
++			 * insert new_vma into the shared list, just after vma.
++			 * Note that this ordering of insertion is important
++			 * to avoid orphaned ptes due to a rare race between
++			 * invalidate_mmap_range and move_page_tables.
++			 */
++			down(&mapping->i_shared_sem);
++			sequence = atomic_read(&mapping->truncate_count);
++			list_add(&new_vma->shared, &vma->shared);
++			up(&mapping->i_shared_sem);
++		}
++
++		if (new_vma->vm_ops && new_vma->vm_ops->open)
++			new_vma->vm_ops->open(new_vma);
+ 	}
+
+ 	if (!move_page_tables(vma, new_addr, addr, old_len)) {
+ 		unsigned long vm_locked = vma->vm_flags & VM_LOCKED;
+
+-		if (allocated_vma) {
+-			*new_vma = *vma;
+-			INIT_LIST_HEAD(&new_vma->shared);
+-			new_vma->vm_start = new_addr;
+-			new_vma->vm_end = new_addr+new_len;
+-			new_vma->vm_pgoff += (addr-vma->vm_start) >> PAGE_SHIFT;
+-			if (new_vma->vm_file)
+-				get_file(new_vma->vm_file);
+-			if (new_vma->vm_ops && new_vma->vm_ops->open)
+-				new_vma->vm_ops->open(new_vma);
+-			insert_vm_struct(current->mm, new_vma);
+-		}
++		if (allocated_vma)
++			add_vma_to_process(current->mm, new_vma);
+
+ 		/* Conceal VM_ACCOUNT so old reservation is not undone */
+ 		if (vma->vm_flags & VM_ACCOUNT) {
+@@ -291,8 +309,20 @@ static unsigned long move_vma(struct vm_
+ 		}
+ 		return new_addr;
+ 	}
+-	if (allocated_vma)
+-		kmem_cache_free(vm_area_cachep, new_vma);
++
++	/*
++	 * Ugly. Not efficient. Paranoid about leaving orphaned ptes due to
++	 * mremap vs. truncate race. But then, it works, and we do not worry
++	 * too much about burning few extra cycles under memory pressure.
++	 */
++	if (mapping && !(vma->vm_flags & VM_NONLINEAR) &&
++		(unlikely(sequence != atomic_read(&mapping->truncate_count)))) {
++		flush_cache_range(vma, addr, addr + old_len);
++		zap_page_range(vma, addr, old_len);
++	}
++
++	if (allocated_vma)
++		unmap_vma(current->mm, new_vma);
+  out:
+ 	return -ENOMEM;
+ }
+diff -puN mm/mmap.c~mremap_race mm/mmap.c
+--- mmlinux-2.6/mm/mmap.c~mremap_race	2004-02-19 00:39:36.000000000 -0500
++++ mmlinux-2.6-jaya/mm/mmap.c	2004-02-19 00:39:36.000000000 -0500
+@@ -1079,13 +1079,8 @@ no_mmaps:
+  * By the time this function is called, the area struct has been
+  * removed from the process mapping list.
+  */
+-static void unmap_vma(struct mm_struct *mm, struct vm_area_struct *area)
++void unmap_vma(struct mm_struct *mm, struct vm_area_struct *area)
+ {
+-	size_t len = area->vm_end - area->vm_start;
+-
+-	area->vm_mm->total_vm -= len >> PAGE_SHIFT;
+-	if (area->vm_flags & VM_LOCKED)
+-		area->vm_mm->locked_vm -= len >> PAGE_SHIFT;
+ 	/*
+ 	 * Is this a new hole at the lowest possible address?
+ 	 */
+@@ -1113,6 +1108,10 @@ static void unmap_vma_list(struct mm_str
+ {
+ 	do {
+ 		struct vm_area_struct *next = mpnt->vm_next;
++		size_t len = mpnt->vm_end - mpnt->vm_start;
++		mpnt->vm_mm->total_vm -= len >> PAGE_SHIFT;
++		if (mpnt->vm_flags & VM_LOCKED)
++			mpnt->vm_mm->locked_vm -= len >> PAGE_SHIFT;
+ 		unmap_vma(mm, mpnt);
+ 		mpnt = next;
+ 	} while (mpnt != NULL);
+@@ -1485,3 +1484,22 @@ void insert_vm_struct(struct mm_struct *
+ 	vma_link(mm, vma, prev, rb_link, rb_parent);
+ 	validate_mm(mm);
+ }
++
++/* Insert vm structure into process list sorted by address */
++
++void add_vma_to_process(struct mm_struct * mm, struct vm_area_struct * vma)
++{
++	struct vm_area_struct * __vma, * prev;
++	struct rb_node ** rb_link, * rb_parent;
++
++	__vma = find_vma_prepare(mm,vma->vm_start,&prev,&rb_link,&rb_parent);
++	if (__vma && __vma->vm_start < vma->vm_end)
++		BUG();
++	spin_lock(&mm->page_table_lock);
++	__vma_link_list(mm, vma, prev, rb_parent);
++	__vma_link_rb(mm, vma, rb_link, rb_parent);
++	spin_unlock(&mm->page_table_lock);
++	mark_mm_hugetlb(mm, vma);
++	mm->map_count++;
++	validate_mm(mm);
++}
+
+_
+
+

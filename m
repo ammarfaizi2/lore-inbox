@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264749AbUEKOGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264755AbUEKOID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264749AbUEKOGk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 10:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264751AbUEKOGk
+	id S264755AbUEKOID (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 10:08:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264756AbUEKOID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 10:06:40 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:23200 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S264738AbUEKOGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 10:06:38 -0400
-Date: Tue, 11 May 2004 10:01:55 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Kurt Garloff <garloff@suse.de>
-cc: Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Format Unit can take many hours
-In-Reply-To: <20040511114936.GI4828@tpkurt.garloff.de>
-Message-ID: <Pine.GSO.4.33.0405110952380.14297-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-ID: <Pine.GSO.4.33.0405110952382.14297@sweetums.bluetronic.net>
-Content-Disposition: INLINE
+	Tue, 11 May 2004 10:08:03 -0400
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:41650 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S264755AbUEKOHx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 10:07:53 -0400
+Subject: Companies interested in security for Embedded Linux?
+From: Kristian =?ISO-8859-1?Q?S=F8rensen?= <ks@cs.auc.dk>
+To: linux-kernel@vger.kernel.org
+Cc: umbrella@cs.auc.dk
+Content-Type: text/plain
+Message-Id: <1084284556.15067.29.camel@6-allhosts>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 11 May 2004 16:09:16 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 May 2004, Kurt Garloff wrote:
->the timeout for FORMAT_UNIT should be much longer; I've seen 8hrs
->already (75Gig). I've increased the timeout from 2hrs to 12hrs.
+Hi :)
 
-If you execute a FORMAT_UNIT properly, the timeout is irrelevant.  Set the
-IMMED bit so the command returns as soon as the drive begins processing it.
-Send TEST_UNIT_READY to check the progress.  I'll have to consult the
-spec, but I think support for Immed is required.
+We have previously announced some releases of Umbrella to this list. 
 
-That's how my (now 8 year old) tool for formating scsi devices (zip, jaz,
-hard disks, tapes, etc.) has always worked. [No, it is not published code.
-If the script kiddies want to low-level your hard drive, they're gonna have
-to learn how to do it themselves.]
+Umbrella introduces process based mandatory access control and
+authentification of files to Linux 2.6 for embedded systems.
 
---Ricky
+Umbrella was developed during our master thesis in Computer Science at
+Aalborg University (DK). We have all chosen to join the "Industrial
+Computer Science" line, which will span from September 2004 to June
+2005. In that period we will need to get some contacts to the industry
+for embedded Linux in order to get some feedback on our design and
+implementation... as we will also finish the implementation.
 
-PS: That even works under Solaris where one does not have the source code
-    to change the command timeouts.
+Does any of you, know some companies, that would be a good ida to try to
+contact? We have tried MontaVista and Siemens, they seem to be
+interested but the communication has stalled :(
 
+
+Cheers,
+The Umbrella Team.
+http://umbrella.sf.net
 

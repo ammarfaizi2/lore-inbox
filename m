@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264453AbTFPWSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 18:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264454AbTFPWSQ
+	id S264455AbTFPWTN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 18:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTFPWTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 18:18:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1233 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264453AbTFPWSP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 18:18:15 -0400
-Date: Mon, 16 Jun 2003 15:27:45 -0700 (PDT)
-Message-Id: <20030616.152745.124055059.davem@redhat.com>
-To: girouard@us.ibm.com
-Cc: stekloff@us.ibm.com, janiceg@us.ibm.com, jgarzik@pobox.com,
-       kenistonj@us.ibm.com, lkessler@us.ibm.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, niv@us.ibm.com
-Subject: Re: patch for common networking error messages
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <OFF1F6B3DC.30C0E5DE-ON85256D47.007AEFAF@us.ibm.com>
-References: <OFF1F6B3DC.30C0E5DE-ON85256D47.007AEFAF@us.ibm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 16 Jun 2003 18:19:12 -0400
+Received: from host-65-122-61-34.winux.com ([65.122.61.34]:36792 "EHLO
+	skarven.net") by vger.kernel.org with ESMTP id S264455AbTFPWTG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 18:19:06 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16110.17820.740483.866151@eagle.skarven.net>
+Date: Mon, 16 Jun 2003 18:33:00 -0400
+To: linux-kernel@vger.kernel.org
+From: Larry Auton <lkml@winux.com>
+Subject: direct i/o problem with 2.4.21
+X-Mailer: VM 7.04 under 21.4 (patch 12) "Portable Code" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Janice Girouard <girouard@us.ibm.com>
-   Date: Mon, 16 Jun 2003 17:29:15 -0500
-   
-   For the sake of consistency and automatic error log analysis, it might be
+> Message-ID: <16107.26375.67524.817817@nv.winux.com>
+> Date:   Sat, 14 Jun 2003 14:18:47 -0400
+> To:     linux-kernel@vger.kernel.org
+> From:   Larry Auton <lkml@winux.com>
+> Subject: direct i/o problem with 2.4.20 and 2.4.21rc7
+>
+> I have an application that requires direct i/o to thousands of files.
+> On 2.4.19 the open's would eventually fail (at around 7200 files).
+> On 2.4.20 and 2.4.21rc7 the machine hangs.
+> 
+> Here's a sample program to do the deed:
+> 
+>     wget http://www.skarven.net/lda/crashme.c
+>     cc -o crashme crashme.c     # compile it
+>     ./crashme 4000              # OK
+>     ./crashme 9999              # CRASH
+> 
+> It's a little obfuscated to eliminate the need for root privileges to
+> mess with rlimit. It simply opens a bunch of files with O_DIRECT and,
+> when enough files are open, the system will hang.
+> 
+> The system hangs when '/proc/slabinfo' reports that 'kiobuf' reaches 
+> just over 7230 active objects. I don't believe that this problem is
+> specific to any particular file system as the failure occurs when
+> using both ext2 and reiserfs.
+> 
+> Larry Auton
 
-And all the scripts checking for the existing messages
-in log files?  Screw them, right?
+The hang I reported on 2.4.21rc7 persists in the released version 2.4.21.
 
-This whole idea is starting to leave a very bad taste in
-my mouth...
+Larry

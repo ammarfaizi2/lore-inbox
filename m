@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317395AbSFHL1L>; Sat, 8 Jun 2002 07:27:11 -0400
+	id <S317380AbSFHMdh>; Sat, 8 Jun 2002 08:33:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317396AbSFHL1K>; Sat, 8 Jun 2002 07:27:10 -0400
-Received: from web14403.mail.yahoo.com ([216.136.174.60]:5971 "HELO
-	web14403.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317395AbSFHL1J>; Sat, 8 Jun 2002 07:27:09 -0400
-Message-ID: <20020608112710.23692.qmail@web14403.mail.yahoo.com>
-Date: Sat, 8 Jun 2002 04:27:10 -0700 (PDT)
-From: manjuanth n <manju_tt@yahoo.com>
-Subject: need help
-To: linux-kernel@vger.kernel.org
-Cc: manju_tt@yahoo.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317404AbSFHMdg>; Sat, 8 Jun 2002 08:33:36 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:19754 "EHLO tsmtp4.mail.isp")
+	by vger.kernel.org with ESMTP id <S317380AbSFHMdf>;
+	Sat, 8 Jun 2002 08:33:35 -0400
+Date: Sat, 8 Jun 2002 14:32:01 +0200
+From: Diego Calleja <diegocg@teleline.es>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre10aa2
+Message-Id: <20020608143201.1a093479.diegocg@teleline.es>
+In-Reply-To: <20020607194749.GS1004@dualathlon.random>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear sir,
- we have SAN environment  with hitachi  storage box
-and  brocade  switch. we are trying to  install Linux 
-with  qlogic  HBA card.  we  are facing strange 
-problems 
-1. If  we  disable LUN 0  we will not be able to see
-any LUNs on liunx  machine
-2. If we  enable  LUN 0  we can  see all the  LUNS 
-but  it  should be in sequence  i.e LUN0 ,1,2 , 3  etc
-if we disable  LUN 3  we will not be able  to see LUNS
-4 and  the  rest
- Is the  above things  are limitation of linux.
-Linux  machine is  running with  2.4.18 kernel
+On Fri, 7 Jun 2002 21:47:49 +0200
+Andrea Arcangeli <andrea@suse.de> escribió:
 
-Is there any solutions for  these problems? 
+> URL:
+> 
+> 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre10aa2.gz
+> 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre10aa2/
 
-Thanks and Regards
-Manjuanth
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com
+Your mail is 7 Jun, now it's 8 Jun and this URL doesn't works.....it
+happens always that the us.kernel.org mirror isn't up to date when you
+send patches. I think It'd be better to set the URL to www.kernel.org,
+although mirrors are there for something......

@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267360AbUIYVfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269416AbUIYVta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267360AbUIYVfb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 17:35:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269416AbUIYVfa
+	id S269416AbUIYVta (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 17:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269417AbUIYVta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 17:35:30 -0400
-Received: from cantor.suse.de ([195.135.220.2]:10931 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267360AbUIYVfZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 17:35:25 -0400
-Message-ID: <4155E40D.2020709@suse.de>
-Date: Sat, 25 Sep 2004 23:33:01 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>
-Subject: Re: 2.6.9-rc2-mm3: swsusp horribly slow on AMD64
-References: <200409251214.28743.rjw@sisk.pl>
-In-Reply-To: <200409251214.28743.rjw@sisk.pl>
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Sep 2004 17:49:30 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:1264 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269416AbUIYVt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 17:49:28 -0400
+From: plinius@comcast.net
+To: linux-kernel@vger.kernel.org
+Subject: security patch for drivers/char/n_tty.c
+Date: Sat, 25 Sep 2004 21:49:27 +0000
+Message-Id: <092520042149.27494.4155E7E70004FE9800006B6622007456729C9A070207049F@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Jul 16 2004)
+X-Authenticated-Sender: cGxpbml1c0Bjb21jYXN0Lm5ldA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> Pavel,
-> 
-> I've just tried to suspend my box and I must admit I've given up after 30 
-> minutes (sic!) of waiting when there were only 12% of pages written to disk.  
-> Apparently, swsusp slows down to an unacceptable level after saying "PM: 
-> Writing image to disk".
+Hello,
 
-is this reproducible? can you get sysrq-t / sysrq-p while it is slow
-writing to disk?
-I have seen this, too but i cannot nail it down to some specific
-pattern, it just "sometimes" is slow. Sysrq-p shows me it's almost
-always in "pccardd" (where it shouldn't be during suspend, iiuc).
-Unfortunately Pavel does not see this so we have to convince him that
-this is really a problem ;-)
-So if you can reproduce this, it would be a step in the right direction.
+Recently while examining the Linux tty code I noticed that my
+root password was still in read_buf some time after logging in,
+long after it was "read".
 
-    Stefan
+I thought it might be a good idea to add a fix to clear out 
+characters after they're read. The patch seems to work all right.
+
+This is for kernel 2.6.8.1 and the file is drivers/char/n_tty.c.
+
+Enjoy,
+Z Smith
+
+Inline patch:
+
+30a31,33
+>  *
+>  * 2004/09/20	by Z Smith (plinius@comcast.net): chars now truly erased upon
+>  *		reading from read_buf for better security.
+380a384
+> 			tty->read_buf[head] = 0;
+420a425
+> 					tty->read_buf[tail] = 0;
+1108a1114
+> 				tty->read_buf[tty->read_tail] = 0;
+
+-end-
+

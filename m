@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267212AbUHDCOB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267194AbUHDCRu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267212AbUHDCOB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 22:14:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267211AbUHDCOB
+	id S267194AbUHDCRu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 22:17:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbUHDCRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 22:14:01 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:9097 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S267226AbUHDCN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 22:13:56 -0400
-Date: Wed, 4 Aug 2004 04:13:32 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Chris Wright <chrisw@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch] mlock-as-nonroot revisted
-Message-ID: <20040804021332.GT2241@dualathlon.random>
-References: <20040804015350.GS2241@dualathlon.random> <Pine.LNX.4.44.0408032157160.5948-100000@dhcp83-102.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Aug 2004 22:17:50 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:35757 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267194AbUHDCRs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 22:17:48 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: Exposing ROM's though sysfs
+Date: Tue, 3 Aug 2004 19:16:01 -0700
+User-Agent: KMail/1.6.2
+Cc: Jon Smirl <jonsmirl@yahoo.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Vojtech Pavlik <vojtech@suse.cz>, Torrey Hoffman <thoffman@arnor.net>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <20040804013745.7323.qmail@web14927.mail.yahoo.com> <1091584635.1922.72.camel@gaston>
+In-Reply-To: <1091584635.1922.72.camel@gaston>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0408032157160.5948-100000@dhcp83-102.boston.redhat.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408031916.01593.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03, 2004 at 10:01:12PM -0400, Rik van Riel wrote:
-> On Wed, 4 Aug 2004, Andrea Arcangeli wrote:
-> > On Tue, Aug 03, 2004 at 09:21:34PM -0400, Rik van Riel wrote:
-> > > This is exactly why named hugetlb files are NOT included
-> > > in this accounting, only the ones created through the SHM
-> > > interface are.
-> > 
-> > but you're allowing everybody to alloc all RAM in hugetlb files with
-> > the change in the previos patch posted by Arjan
-> 
-> Nope, Arjan's patch (and my incremental) touch hugetlb_zero_setup,
-> which only seems to be called from ipc/shm.c
-> 
-> Normal hugetlb file creation (through the filesystem) isn't touched
-> by these patches.
+On Tuesday, August 3, 2004 6:57 pm, Benjamin Herrenschmidt wrote:
+> Jesse did a pretty good summary of what features need to be provided
+> though. Note also that this "arbitration" layer may also need an in-kernel
+> API for things like vgacon or whatever may want to "grab" access to the
+> VGA device.
 
-it is:
+Good point, I forgot about that.  Theoretically, as long as a device has been 
+POSTed, vgacon should work just fine with some small tweaks on platforms that 
+allow mapping of the VGA framebuffer.
 
-diff -purN linux-2.6.7/fs/hugetlbfs/inode.c linux/fs/hugetlbfs/inode.c
---- linux-2.6.7/fs/hugetlbfs/inode.c    2004-07-29 11:36:55.744448953
-+0200
-+++ linux/fs/hugetlbfs/inode.c  2004-07-29 11:38:04.292595263 +0200
-@@ -722,7 +722,7 @@ struct file *hugetlb_zero_setup(size_t s
-        struct qstr quick_string;
-        char buf[16];
+> I suggest that at this point, we don't try to bother with simultaneous
+> access to devices on separate PCI domains, but just use an in-kernel
+> semaphore to arbitrate the single user at a given point in time who "owns"
+> the VGA access, whatever bus it is on. So we need 2 things, both in-kernel
+> and for userland:
 
--       if (!capable(CAP_IPC_LOCK))
-+       if (!can_do_mlock())
-                return ERR_PTR(-EPERM);
+Sounds good.  Cards usually POST pretty quickly, so that won't be a problem 
+until someone puts 32 cards in a system (oh wait, that's not too far off :).
 
-        if (!is_hugepage_mem_enough(size))
+>  - A way to identify a VGA device on a given bus. Could this be a PCI
+> ID (or in kernel a pci_dev ?). That would mean no support for non-PCI
+> stuffs, how bad would that be ?
 
+I personally don't care about anything but PCI, AGP and PCI-Express, but you 
+make a good point about embedded stuff.
 
-this breaks local security if you set the rlimit to 1 byte (well, 1 byte
-== disable_cap_mlock).
+>  - Userland should use read/write for IOs imho, either to a /dev device
+> (with maybe an ioctl to switch between PIO and VGA mem, though mmap is
+> better for the later) or to some sysfs entry (in which case, can we add
+> mmap call to a sysfs attribute ? last time I looked, it wasn't simple).
+
+Yeah, that sounds reasonable.  I'd vote for a real device as opposed to sysfs 
+files, for now at least.
+
+Jesse

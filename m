@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132502AbRDWWwR>; Mon, 23 Apr 2001 18:52:17 -0400
+	id <S132526AbRDWWzw>; Mon, 23 Apr 2001 18:55:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132520AbRDWWus>; Mon, 23 Apr 2001 18:50:48 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:990 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S132511AbRDWWtZ>; Mon, 23 Apr 2001 18:49:25 -0400
-Date: Mon, 23 Apr 2001 16:49:18 -0600
-Message-Id: <200104232249.f3NMnI126351@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
-        viro@math.psu.edu (Alexander Viro), cr@sap.com (Christoph Rohland),
-        parsley@linuxjedi.org (David L. Parsley), linux-kernel@vger.kernel.org
-Subject: Re: hundreds of mount --bind mountpoints?
-In-Reply-To: <200104232242.f3NMgej516228@saturn.cs.uml.edu>
-In-Reply-To: <200104232119.f3NLJZT24922@vindaloo.ras.ucalgary.ca>
-	<200104232242.f3NMgej516228@saturn.cs.uml.edu>
+	id <S132511AbRDWWzm>; Mon, 23 Apr 2001 18:55:42 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:41989 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S132526AbRDWWy2>; Mon, 23 Apr 2001 18:54:28 -0400
+Date: Mon, 23 Apr 2001 23:54:10 +0100 (BST)
+From: David Woodhouse <dwmw2@infradead.org>
+X-X-Sender: <dwmw2@imladris.demon.co.uk>
+To: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
+cc: Matan Ziv-Av <matan@svgalib.org>, mythos <papadako@csd.uoc.gr>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Can't compile 2.4.3 with agcc
+In-Reply-To: <200104232232.AAA12700@kufel.dom>
+Message-ID: <Pine.LNX.4.33.0104232349530.15177-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan writes:
-> Richard Gooch writes:
-> 
-> > We want to take out that union because it sucks for virtual
-> > filesystems. Besides, it's ugly.
-> 
-> I hope you won't mind if people trash this with benchmarks.
+On Tue, 24 Apr 2001, Andrzej Krzysztofowicz wrote:
 
-But they can't. At least, not for a well designed patch. If there is a
-real issue of fragmentation, then there are ways to fix that without
-using a bloated union structure. Don't punish some filesystems just
-because others have a problem.
+> So maybe make the original error message more informative ?
+> Just something like:
+>
+> -             extern void __buggy_fxsr_alignment(void);
+> -             __buggy_fxsr_alignment();
+> +             extern void __BUG__task_struct__data_is_not_properly_alligned__Probably_your_compiler_is_buggy(void);
+> +             __BUG__task_struct__data_is_not_properly_alligned__Probably_your_compiler_is_buggy();
 
-Solutions to avoid fragmentation:
+1. People would probably still report that to l-k instead of reading it.
+2. It's still not guaranteed to compile, even with correct compilers.
 
-- keep a separate VFSinode and FSinode slab cache
-- allocate an enlarged VFSinode that contains the FSinode at the end,
-  with the generic pointer in the VFSinode part pointing to FSinode
-  part.
+Maybe you can do a post-processing step - a sanity check which is run
+_after_ build. But the runtime check is sufficient. People won't randomly
+start compiling kernels for production boxen with silly compilers, then
+booting them unattended. And if they do, they deserve the downtime.
 
-It's simply wrong to bloat everyone because some random FS found it
-easier to thow in a union.
+I agree that a compile-time check would be kinder, but only if it can be
+done properly. Show me one, and I'll be happy.
 
-Besides, for every benchmark that shows how fragmentation hurts, I can
-generate a benchmark showing how inode bloat hurts. Lies, damn lies
-and benchmarks.
+-- 
+dwmw2
 
-				Regards,
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263742AbTJCOzr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 10:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbTJCOzr
+	id S263749AbTJCPE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 11:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbTJCPE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 10:55:47 -0400
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:37614 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S263742AbTJCOzo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 10:55:44 -0400
-Subject: Re: Floppy disk working constantly
-From: Emmanuel Fleury <fleury@cs.auc.dk>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53.0310030909040.12482@chaos>
-References: <1065186072.6517.44.camel@rade7.s.cs.auc.dk>
-	 <Pine.LNX.4.53.0310030909040.12482@chaos>
-Content-Type: text/plain
-Organization: Aalborg University -- Computer Science Dept.
-Message-Id: <1065192909.551.5.camel@rade7.s.cs.auc.dk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 03 Oct 2003 16:55:12 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Oct 2003 11:04:27 -0400
+Received: from [139.30.44.2] ([139.30.44.2]:21124 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S263749AbTJCPEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 11:04:04 -0400
+Date: Fri, 3 Oct 2003 17:03:52 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Russell King <rmk@arm.linux.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH] remove unnecessary #includes from <linux/fs.h>
+In-Reply-To: <20031002161639.GF10382@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.33.0310031609040.18482-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-10-03 at 15:14, Richard B. Johnson wrote:
-> 
-> What are you using as a boot loader? 
+> You didn't comment on my suggestion, so I've done it manually once for
+> linux/fs.h and was shocked.  It still passes my compile-standalone
+> test after removing 11! #include lines.
 
-LILO.
+A compile-standalone test is a necessary condition but not a sufficient
+one. There can be many reasons why the includes might still be needed:
+ - the compile-test might depend on the specific configuration.
+ - the included header might be needed when the macros are used, not when
+   they are defined.
+ - indirect includes
+ - ...
+As you probably know, I tried to clean up sched.h, and it was extremely
+complicated to get right. So this definitely is 2.7 material.
 
-> This may be a problem with
-> the boot loader not turning off the floppy drive motor before
-> it transfers control to Linux. With no built-in floppy driver,
-> the motor would never turn off. With quick boot hard-disks,
-> the floppy motor may still be ON from the initial BIOS access.
-> 
-> Just for kicks, change the order of boot devices in your
-> BIOS so that the floppy is never accessed during boot. This
-> should verify the problem.
-
-That's it !
-
-I try several time with and without the [boot floppy] option enabled in
-the BIOS. Each time the [boot floppy] option was on, I got the floppy
-driver to spin on endlessly.
-
-Regards
--- 
-Emmanuel
-
-There's never enough time to do all the nothing you want.
-  -- Calvin & Hobbes (Bill Waterson)
+Tim
 

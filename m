@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132261AbQLVVDC>; Fri, 22 Dec 2000 16:03:02 -0500
+	id <S131686AbQLVVEW>; Fri, 22 Dec 2000 16:04:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132251AbQLVVCx>; Fri, 22 Dec 2000 16:02:53 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:22510 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S130458AbQLVVCl>; Fri, 22 Dec 2000 16:02:41 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200012222032.eBMKW0U13909@webber.adilger.net>
-Subject: Re: Fw: max number of ide controllers?
-In-Reply-To: <007c01c06c4d$aef446e0$2b6e60cf@pcscs.com> "from Charles Wilkins
- at Dec 22, 2000 02:30:46 pm"
-To: Charles Wilkins <chas@pcscs.com>
-Date: Fri, 22 Dec 2000 13:32:00 -0700 (MST)
-CC: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-        linux-raid@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S131943AbQLVVEM>; Fri, 22 Dec 2000 16:04:12 -0500
+Received: from NS2.pcscs.com ([207.96.110.42]:37130 "EHLO linux01.pcscs.com")
+	by vger.kernel.org with ESMTP id <S131686AbQLVVEC>;
+	Fri, 22 Dec 2000 16:04:02 -0500
+Message-ID: <00cd01c06c56$740a6740$2b6e60cf@pcscs.com>
+From: "Charles Wilkins" <chas@pcscs.com>
+To: "Linux Kernel mailing list" <linux-kernel@vger.kernel.org>
+Subject: hd disk devices
+Date: Fri, 22 Dec 2000 15:33:33 -0500
 MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles Wilkins writes:
-> Andrzej M. Krzysztofowicz says,
-> 
-> >"Linux supports up to 10 IDE channels, however channel numbers of PCI
-> controllers seem to be assigned first."
-> 
-> Warren Young says,
-> >"Kernel 2.2 is limited to 4 IDE controllers."
-> 
-> ok, so which is it kernel guys, 4 or 10 IDE controllers for the 2.2.x
-> kernel?
+I have the following hd devices in /dev.
 
-It depends if you have Andre's IDE patches applied to your kernel sources
-or not.
+hda 3,0
+hdb 3,64
+hdc 22,0
+hdd 22,64
+hde 33,0
+hdf 33,64
+hdg 34,0
+hdh 34,64
 
-> well, i know this SB32 card can operating on at least 3 different io ports .
-> . .
+How do I go about making devices for hdi, hdj, hdk, hdl, hdm, hdn, etc ?
 
-It may be that there is some difficulty in the order the IDE cards are
-initialized.  From your previous dmesg output, it appears that ide3 and ide4
-(PCI cards) are initialized before ide2 (ISA card), so they may be stealing
-an ioport that the ISA card needs.  Try booting with just the SB32 card
-and checking /proc/ioports, and then with only the other card, and see
-if anything in /proc/ioports (or /proc/interrupts) is conflicting.
+i.e. which major and minor numbers do I use?
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Regards,
+Charles Wilkins
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

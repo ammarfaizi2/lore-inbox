@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271677AbRICLEF>; Mon, 3 Sep 2001 07:04:05 -0400
+	id <S271679AbRICLGP>; Mon, 3 Sep 2001 07:06:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271679AbRICLDz>; Mon, 3 Sep 2001 07:03:55 -0400
-Received: from lxmayr6.informatik.tu-muenchen.de ([131.159.44.50]:24960 "EHLO
-	lxmayr6.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S271677AbRICLDr>; Mon, 3 Sep 2001 07:03:47 -0400
-Date: Mon, 3 Sep 2001 13:04:04 +0200
-From: Ingo Rohloff <rohloff@in.tum.de>
-To: epic@scyld.com, linux-kernel@vger.kernel.org
-Subject: epic100.c, SMC EtherPower II, SMC83c170/175 "EPIC"
-Message-ID: <20010903130404.B1064@lxmayr6.informatik.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+	id <S271681AbRICLFz>; Mon, 3 Sep 2001 07:05:55 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:52242 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S271679AbRICLFo>; Mon, 3 Sep 2001 07:05:44 -0400
+Message-ID: <3B935FF8.935244CE@namesys.com>
+Date: Mon, 03 Sep 2001 14:48:24 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
+        willy@debian.org, thunder7@xs4all.nl,
+        parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
+Subject: Re: [parisc-linux] documented Oops running big-endian reiserfs on parisc 
+ architecture
+In-Reply-To: <20010903002514.X5126@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <E15dghq-0000bZ-00@the-village.bc.nu.suse.lists.linux.kernel> <oup66b0zq9j.fsf@pigdrop.muc.suse.de> <20010903.011530.62340995.davem@redhat.com> <20010903104105.A3398@gruyere.muc.suse.de>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Ok, so the sum of this is that Jeff's patches work on the platforms he wrote
+them for, and we need one more fix for PA-RISC.
 
-I have got a "[SMC] 83C170QF" adaptor in my computer and I wasn't
-able to use the driver which is in linux-2.4.9.
+So, we can reasonably send Jeff's patches to Linus, and test and then put the
+PA-RISC patch into the AC tree, any disagreement?
 
-The sympotms are lot's of messages of this in /var/log/messages:
-"kernel: eth0: Too much work at interrupt, IntrStatus=0x008d0004"
-
-This seems to be a known problem; at least I found other people
-complaining about the same message in their kernel logs.
-The problem has different severity for different people. 
-I wasn't able to get the card working at all (basically the
-computer hung, while trying to mount several NFS directories).
-
-After searching the web for further information I was able
-to obtain a patched version, which was modified Heiko Boch. 
-It seems this version is an older linux-2.4.x driver with 
-some additional patches.
-
-This version works without glitches on my system with a 
-vanilla linux-2.4.9 kernel. 
-
-The homepage of Heiko Boch doesn't seem to exist anymore, so
-for all people who use this card and have the above problem,
-I put his modified version of epic100.c on my home page at
-www.in.tum.de/~rohloff (look for epic100.c). 
-
-I hope that after some testing someone can have a look over
-this version, who really can tell what the essential differences
-compared to the version in linux-2.4.9 are.
-
-Perhaps this will lead to a working linux-2.4.xx version in the future.
-
-so long
-  Ingo
+Hans

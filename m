@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263151AbTJWIhu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 04:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTJWIhu
+	id S262868AbTJWIev (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 04:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbTJWIeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 04:37:50 -0400
-Received: from natsmtp01.rzone.de ([81.169.145.166]:10428 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S263151AbTJWIht
+	Thu, 23 Oct 2003 04:34:50 -0400
+Received: from mailhost.netspeed.com.au ([203.31.48.33]:14600 "EHLO
+	netspeed.com.au") by vger.kernel.org with ESMTP id S262868AbTJWIdi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 04:37:49 -0400
-Message-ID: <3F97934F.4000007@softhome.net>
-Date: Thu, 23 Oct 2003 10:37:35 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Rozhavsky <mike@minantech.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: FEATURE REQUEST: Specific Processor Optimizations on x86 Architecture
-References: <JB3R.23s.23@gated-at.bofh.it> <JBn4.2xt.19@gated-at.bofh.it> <JBPW.36x.3@gated-at.bofh.it>
-In-Reply-To: <JBPW.36x.3@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Oct 2003 04:33:38 -0400
+Date: Thu, 23 Oct 2003 18:33:16 +1000
+From: Martin Pool <mbp@samba.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] prevent "dd if=/dev/mem" crash
+Message-ID: <20031023083316.GB5272@sourcefrog.net>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Andrew Morton <akpm@osdl.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <200310171610.36569.bjorn.helgaas@hp.com> <20031017155028.2e98b307.akpm@osdl.org> <20031019181756.GP1659@openzaurus.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031019181756.GP1659@openzaurus.ucw.cz>
+X-GPG: 1024D/A0B3E88B: AFAC578F 1841EE6B FD95E143 3C63CA3F A0B3E88B
+User-Agent: Mutt/1.5.4i
+X-Server: High Performance Mail Server - http://surgemail.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Rozhavsky wrote:
->>Considered the time normally spent in the kernel, a few percent faster
->>code there wouldn't be noticeable.
+On 19 Oct 2003, Pavel Machek <pavel@ucw.cz> wrote:
+> Hi!
 > 
-> What about firewall/router applications?
+> > > Old behavior:
+> > > 
+> > >     # dd if=/dev/mem of=/dev/null
+> > >     <unrecoverable machine check>
+> > 
+> > I recently fixed this for ia32 by changing copy_to_user() to not oops if
+> > the source address generated a fault.  Similarly copy_from_user() returns
+> > an error if the destination generates a fault.
 > 
+> Are you sure this is not hiding real errors? If you pass wrong
+> kernel ptr to copy_*_user, it should oops, not mask error with
+> -EFAULT.
+> Maybe another copy_user_unsafe should be created?
 
-   First. Network stack is already hand-optimized.
-   Second. It will not make software firewall/routers running faster - 
-especially regarding latencies - bottleneck is elsewhere.
+I think the problem is that reading memory that is mapped but doesn't
+physically exist causes a Machine Check Assertion (like an NMI) rather
+than a regular fault.
 
-   Just FYI.
-
-P.S. Actually I find Linux kernel being quite good hand optimized 
-already. But in any way, life in kernel would be made easier have we 
-decent portable compiler. But as to compilers 'decent portable' really 
-sounds like 'mission imposible'. And primary goal of gcc sure standard 
-conformance and portability - and it does this well. That's actually why
-we are using it ;-)
-
-  -- Person using gcc on Linux 2.4 x86/ppc32 & Solaris 8/9 with no 
-problems at all.
-
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
 --
-   "... and for $64000 question, could you get yourself vaguely
-      familiar with the notion of on-topic posting?"
-				-- Al Viro @ LKML
-
+Martin

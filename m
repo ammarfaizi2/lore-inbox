@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266969AbSLDJVU>; Wed, 4 Dec 2002 04:21:20 -0500
+	id <S266967AbSLDJSS>; Wed, 4 Dec 2002 04:18:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266976AbSLDJVU>; Wed, 4 Dec 2002 04:21:20 -0500
-Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:57759 "EHLO
-	mail.kolivas.net") by vger.kernel.org with ESMTP id <S266969AbSLDJVS>;
-	Wed, 4 Dec 2002 04:21:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-Reply-To: conman@kolivas.net
-To: Giuliano Pochini <pochini@shiny.it>
-Subject: Re: [BENCHMARK] 2.5.40-mm1 with contest
-Date: Wed, 4 Dec 2002 20:28:44 +1100
-User-Agent: KMail/1.4.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <XFMail.20021204094315.pochini@shiny.it>
-In-Reply-To: <XFMail.20021204094315.pochini@shiny.it>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212042028.48710.conman@kolivas.net>
+	id <S266968AbSLDJSR>; Wed, 4 Dec 2002 04:18:17 -0500
+Received: from holomorphy.com ([66.224.33.161]:53635 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266967AbSLDJSQ>;
+	Wed, 4 Dec 2002 04:18:16 -0500
+Date: Wed, 4 Dec 2002 01:25:41 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Christoph Hellwig <hch@sgi.com>,
+       marcelo@connectiva.com.br.munich.sgi.com, rml@tech9.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] set_cpus_allowed() for 2.4
+Message-ID: <20021204092541.GB9882@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Christoph Hellwig <hch@sgi.com>,
+	marcelo@connectiva.com.br.munich.sgi.com, rml@tech9.net,
+	linux-kernel@vger.kernel.org
+References: <20021202192652.A25938@sgi.com> <1919608311.1038822649@[10.10.2.3]> <3DEBB4BD.F64B6ADC@digeo.com> <20021202195003.GC28164@dualathlon.random> <3DED18CC.5770EA90@digeo.com> <20021204000618.GG11730@dualathlon.random> <3DED4CA4.5B9A20EA@digeo.com> <20021204004234.GL11730@dualathlon.random> <20021204010307.GA9882@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021204010307.GA9882@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Dec 03, 2002 at 04:30:28PM -0800, Andrew Morton wrote:
+>>> load is just one or more busywaits.  It has to be a compilation.  It
+>>> could be something to do with all the short-lived processes, or gcc -pipe)
 
-On Wed, 4 Dec 2002 07:43 pm, Giuliano Pochini wrote:
-> On 03-Dec-2002 Con Kolivas wrote:
-> > UP results
-> >
-> > process_load:
-> > Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-> > 2.4.20 [5]              108.1   58      84      40      1.62
-> > 2.5.50-mm1 [5]          86.6    78      18      20      1.30
->
-> Hm, load task gets half cpu time, but it goes 5 times slower
-> in 2.5.x. Why ? You can see a similar behaviour in other
-> tests too.
+On Wed, Dec 04, 2002 at 01:42:34AM +0100, Andrea Arcangeli wrote:
+>> could be that we think they're very interactive or something like that.
 
-You have to dig deeper to understand why. The time taken to compile the kernel 
-takes a fixed amount of cpu time. In the presence of a load, it takes longer 
-in wall clock time, but still takes about the same amount of cpu time. The 
-amount of extra wall clock time will basically be used for the load, 
-scheduling, io etc. Now the absolute extra wall clock time it takes to 
-compile the kernel in this load is time it can also be doing the load. 
-Therefore, if I spend 20 seconds longer to compile the kernel while the load 
-is running, the load must also get 20 seconds where it can be doing it's 
-work. Assuming it does 1 load per second, it will do 20 loads. If it takes 40 
-seconds longer to compile the kernel, the load gets 40 seconds longer; hence 
-it can do 40 loads. 
+On Tue, Dec 03, 2002 at 05:03:07PM -0800, William Lee Irwin III wrote:
+> The pipe issue is observable without involving gcc or kernel compiles.
+> Cooperating processes are consistently granted excessive priorities.
 
-Look at the example above and you'll see those numbers. It takes 20 seconds 
-longer in 2.5.50-mm1 compared to noload, and load gets to do 20 workloads. 
-2.4.20 takes 40 seconds longer and gets to do 40 workloads. If you take into 
-account the work done / time they are doing workloads at about the same rate. 
-Now if one had taken 20 seconds longer than the other and done only the same 
-amount of work it would be showing serious inefficiencies over and above the 
-fair scheduling issues which contest is really trying to measure.
+More specifically, the "cooperating processes monopolize the cpu"
+scenario is at its worst when a shell script is used to drive the bochs
+simulator by single-stepping in order to generate instruction-level
+boot-time traces of the execution of custom executives.
 
-Hmm. Not sure if I made that clear enough, but hopefully I got my point 
-across.
+./foo.sh | bochs is the method, where the contents of foo.sh are
+trivially derivable from bochs' debugging interface (a couple of
+newlines and then repeating 's' indefinitely, then killing the process
+by hand when the exception is observed while tail -f'ing the trace).
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
 
-iD8DBQE97crOF6dfvkL3i1gRAhdzAKCX8vlHqLQUm+MnzsGAjzP7UPJB4ACbB4um
-XyNURkBWQwIC7xAvgkTwmpY=
-=4mwU
------END PGP SIGNATURE-----
+Bill

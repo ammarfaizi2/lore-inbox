@@ -1,102 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbTIZHuP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 03:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbTIZHuP
+	id S261979AbTIZHrG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 03:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTIZHrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 03:50:15 -0400
-Received: from web40903.mail.yahoo.com ([66.218.78.200]:24201 "HELO
-	web40903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261305AbTIZHuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 03:50:05 -0400
-Message-ID: <20030926075004.79990.qmail@web40903.mail.yahoo.com>
-Date: Fri, 26 Sep 2003 00:50:04 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: 2.6.0-test5 broke RPM 4.2 on Red Hat 9 in a VERY weird way
-To: Samuel Flory <sflory@rackable.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3F7378ED.20409@rackable.com>
+	Fri, 26 Sep 2003 03:47:06 -0400
+Received: from mail.aex.nl ([212.153.234.107]:37129 "HELO mail.aex.nl")
+	by vger.kernel.org with SMTP id S261979AbTIZHrB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 03:47:01 -0400
+Message-ID: <3F73EE77.3000906@euronext.nl>
+Date: Fri, 26 Sep 2003 09:44:55 +0200
+From: Jan Evert van Grootheest <j.grootheest@euronext.nl>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Brown, Len" <len.brown@intel.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, marcelo@parcelfarce.linux.theplanet.co.uk,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: HT not working by default since 2.4.22
+References: <BF1FE1855350A0479097B3A0D2A80EE0CC8718@hdsmsx402.hd.intel.com>
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0CC8718@hdsmsx402.hd.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Flory,
+Len,
 
---- Samuel Flory <sflory@rackable.com> wrote:
-> Bradley Chapman wrote:
-> > Damn, spoke too soon :(
-> > 
-> > I upgraded to popt 1.8.1, installed beecrypt (rawhide RPM needs it), and
-> installed
-> > rpm 4.2.1 from rawhide -- all using LD_ASSUME_KERNEL=2.2.5. Reloaded my konsole
-> > to clear&reset my environment.
-> > 
-> > Now I still get the error, but the program still works, i.e. something like
-> this:
-> > 
-> > rpm -qpl /download/system/popt-1.8.1-0.30.i386.rpm
-> > rpmdb: unable to join the environment
-> > error: db4 error(11) from dbenv->open: Resource temporarily unavailable
-> > error: cannot open Packages index using db3 - Resource temporarily unavailable
-> (11)
-> > error: cannot open Packages database in /var/lib/rpm
-> > warning: /download/system/popt-1.8.1-0.30.i386.rpm: V3 DSA signature: NOKEY, key
-> ID
-> > 897da07a
-> > /usr/include/popt.h
-> > /usr/lib/libpopt.a
-> > /usr/lib/libpopt.la
-> > /usr/lib/libpopt.so
-> > /usr/lib/libpopt.so.0
-> > /usr/lib/libpopt.so.0.0.0
-> > /usr/share/locale/cs/LC_MESSAGES/popt.mo
-> > /usr/share/locale/da/LC_MESSAGES/popt.mo
-> > /usr/share/locale/de/LC_MESSAGES/popt.mo
-> > /usr/share/locale/es/LC_MESSAGES/popt.mo
-> > /usr/share/locale/eu_ES/LC_MESSAGES/popt.mo
-> > /usr/share/locale/fi/LC_MESSAGES/popt.mo
-> > /usr/share/locale/fr/LC_MESSAGES/popt.mo
-> > /usr/share/locale/gl/LC_MESSAGES/popt.mo
-> > /usr/share/locale/hu/LC_MESSAGES/popt.mo
-> > /usr/share/locale/id/LC_MESSAGES/popt.mo
-> > /usr/share/locale/is/LC_MESSAGES/popt.mo
-> > /usr/share/locale/it/LC_MESSAGES/popt.mo
-> > /usr/share/locale/ja/LC_MESSAGES/popt.mo
-> > /usr/share/locale/ko/LC_MESSAGES/popt.mo
-> > /usr/share/locale/no/LC_MESSAGES/popt.mo
-> > /usr/share/locale/pl/LC_MESSAGES/popt.mo
-> > /usr/share/locale/pt/LC_MESSAGES/popt.mo
-> > /usr/share/locale/pt_BR/LC_MESSAGES/popt.mo
-> > /usr/share/locale/ro/LC_MESSAGES/popt.mo
-> > /usr/share/locale/ru/LC_MESSAGES/popt.mo
-> > /usr/share/locale/sk/LC_MESSAGES/popt.mo
-> > /usr/share/locale/sl/LC_MESSAGES/popt.mo
-> > /usr/share/locale/sr/LC_MESSAGES/popt.mo
-> > /usr/share/locale/sv/LC_MESSAGES/popt.mo
-> > /usr/share/locale/tr/LC_MESSAGES/popt.mo
-> > /usr/share/locale/uk/LC_MESSAGES/popt.mo
-> > /usr/share/locale/wa/LC_MESSAGES/popt.mo
-> > /usr/share/locale/zh/LC_MESSAGES/popt.mo
-> > /usr/share/locale/zh_CN.GB2312/LC_MESSAGES/popt.mo
-> > /usr/share/man/man3/popt.3.gz
-> > 
-> > Anybody have any other ideas?
-> > 
+I think you're missing Jeffs point.
+He's really saying that the user want to select features. The user 
+doesn't really care how it is implemented. And there is no requirement 
+(I think) that some source files match one on one with a configuration 
+option.
+
+As a user I like Jeffs proposal very much. It allows me to indicate what 
+I want without bothering about the implementation.
+I think it would be wise to indicate in the help that HT does include 
+parts of ACPI.
+
+As a programmer, I can understand your point too. But perhaps you should 
+do something like this (in the Makefile):
+if CONFIG_HT
+	include part of ACPI needed for HT
+endif
+if CONFIG_ACPI
+	include all of acpi
+endif
+And let make fix things up.
+
+-- Jan Evert
+
+Brown, Len wrote:
+>>Now that I've thought of it (aren't I humble), I rather like 
+>>CONFIG_HT.
+>>It's simple and it's effects should be obvious to both developer and
+>>user:
+>>
+>>	CONFIG_HT, CONFIG_ACPI == ACPI
+>>	!CONFIG_HT, CONFIG_ACPI == ACPI
+>>	CONFIG_HT, !CONFIG_ACPI == HT-only ACPI
+>>	!CONFIG_HT, !CONFIG_ACPI == no ACPI
+>>
+>>Following the "autoconf model", what we really want to be testing with
+>>CONFIG_xxx is _features_, where possible. "hyperthreading: yes/no" is
+>>IMO more clear than "do I want ht-only ACPI or full ACPI", 
+>>while at the
+>>same time being more fine-grained and future-proof.
 > 
 > 
->    Try a "LD_ASSUME_KERNEL=2.2.5 rpm --rebuilddb"?
+> I like positive logic too.
+> I went so far as to try to implement this back when I deleted "noht".
+> 
+> The problem is that "!CONFIG_HT" is meaningless.  It implies that
+> you can have CONFIG_ACPI but still "config-out" HT, which you can't.
+> 
+> Ie. The 2nd row above says to give me ACPI w/o HT.
+> If you delete that row and reverse the polarity you get:
+> 
+> !CONFIG_ACPI_HT_ONLY, CONFIG_ACPI == ACPI
+> CONFIG_ACPI_HT_ONLY, !CONFIG_ACPI == HT-only ACPI
+> !CONFIG_ACPI_HT_ONLY, !CONFIG_ACPI == no ACPI
+> 
+> Here we can use config to emphasize that it is not possible to select
+> CONFIG_ACPI and CONFIG_ACPI_HT_ONLY at the same time.
+> 
+> Cheers,
+> -Len
+> 
+> Ps. Note that in 2.6 CONFIG_X86_HT exists and covers the sibling code.
+> It depends on CONFIG_SMP, and CONFIG_ACPI_HT_ONLY depends on it. (in the
+> ACPI patch)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Excellent! Thanks for the advice; now it works perfectly fine.
-
-Brad
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com

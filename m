@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290120AbSB0AGK>; Tue, 26 Feb 2002 19:06:10 -0500
+	id <S290228AbSB0AGK>; Tue, 26 Feb 2002 19:06:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290223AbSB0AGF>; Tue, 26 Feb 2002 19:06:05 -0500
-Received: from port-212-202-134-250.reverse.qsc.de ([212.202.134.250]:35542
-	"EHLO hannover-internet.de") by vger.kernel.org with ESMTP
-	id <S290229AbSB0AFY>; Tue, 26 Feb 2002 19:05:24 -0500
-Date: Wed, 27 Feb 2002 01:08:21 +0100 (CET)
-From: Alexander Newald <alexander@newald.de>
-To: linux-kernel@vger.kernel.org
-Subject: Docs for /proc for 2.4.17 or how to tune cacheing?
-Message-ID: <Pine.LNX.4.40.0202270102460.6162-100000@hannover-internet.de>
-Organization: www.hannover-internet.de
+	id <S290120AbSB0AGD>; Tue, 26 Feb 2002 19:06:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38923 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290228AbSB0AFQ>;
+	Tue, 26 Feb 2002 19:05:16 -0500
+Message-ID: <3C7C2264.7C255E9A@zip.com.au>
+Date: Tue, 26 Feb 2002 16:03:48 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
+CC: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: assertion failure : ext3 & lvm , 2.4.17 smp & 2.4.18-ac1 smp
+In-Reply-To: <3C7C1A88.AA6CE5DD@zip.com.au> <Pine.LNX.4.44.0202270141090.11106-100000@tassadar.physics.auth.gr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dimitris Zilaskos wrote:
+> 
+> On Tue, 26 Feb 2002, Andrew Morton wrote:
+> 
+> > Dimitris Zilaskos wrote:
+> > >
+> > > Assertion failure in do_get_write_access() at transaction.c:730: "(((jh2bh(jh))->b_state & (1UL << BH_Uptodate)) != 0)"
+> >
+> > This was fixed in the ext3 patch which went into 2.4.18-pre5
+> 
+> well i just got another one
+> 
+> Assertion failure in do_get_write_access() at transaction.c:730:
+> "(((jh2bh(jh))->b_state & (1UL << BH_Uptodate)) != 0)"
+> ...
+> 
+> uname -an :
+> Linux test 2.4.18-ac1 #2 SMP Tue Feb 26 23:13:44 EET 2002 i686 unknown
 
-Hello,
+blargh.  Possibly LVM tossed back an I/O error and ext3 fed
+the result into journal_get_write_access(), which would be
+an ext3 bug.
 
-I have a linux box with 2.4.17 running and 512 MB ram.
-
-While normal system running I have about 110 MB cache, 20 MB buffer, 150
-mb free and the rest used mem.
-
-As I have no tasks that will fork much or grow in size I think it would be
-great to lower the size of free mem and rise the size of cache and buffer.
-
-I undestand that this can be done with /proc/ and I looked in /proc/sys/vm
-but only can see:
-
-bdflush  kswapd  max-readahead  min-readahead  overcommit_memory
-page-cluster  pagetable_cache
-
-Here is the point I get stuck because I do not find any up to date docs
-for /proc
-
-
-Thanks for your time
-
-Alexander Newald
-
+Please prepare a ksymoops trace.

@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbULHAzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbULHAzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbULHAzu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 19:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbULHAzu
+	id S261978AbULHAzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 19:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbULHAzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 19:55:50 -0500
-Received: from wbar4.sea1-4-5-123-194.sea1.dsl-verizon.net ([4.5.123.194]:477
-	"EHLO sr71.net") by vger.kernel.org with ESMTP id S261977AbULHAzk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 19:55:40 -0500
-Subject: oops in proc_pid_stat() on task->real_parent?
-From: Dave Hansen <dave@sr71.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Tue, 7 Dec 2004 19:55:09 -0500
+Received: from smtp111.mail.sc5.yahoo.com ([66.163.170.9]:53888 "HELO
+	smtp111.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261977AbULHAzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 19:55:03 -0500
+Subject: Re: Time sliced CFQ io scheduler
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041208003736.GD16322@dualathlon.random>
+References: <20041202130457.GC10458@suse.de>
+	 <20041202134801.GE10458@suse.de> <20041202114836.6b2e8d3f.akpm@osdl.org>
+	 <20041202195232.GA26695@suse.de> <20041208003736.GD16322@dualathlon.random>
 Content-Type: text/plain
-Message-Id: <1102467332.19465.197.camel@localhost>
+Date: Wed, 08 Dec 2004 11:54:13 +1100
+Message-Id: <1102467253.8095.10.camel@npiggin-nld.site>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 07 Dec 2004 16:55:32 -0800
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got this OOPS while running a relatively intensive PostgreSQL load on
-my dual-CPU PIII with 2.6.9, while simultaneously running top.  Sorry,
-no serial console, but I do have a screenshot:
+On Wed, 2004-12-08 at 01:37 +0100, Andrea Arcangeli wrote:
+> On Thu, Dec 02, 2004 at 08:52:36PM +0100, Jens Axboe wrote:
+> > with its default io scheduler has basically zero write performance in
+> 
+> IMHO the default io scheduler should be changed to cfq. as is all but
+> general purpose so it's a mistake to leave it the default (plus as Jens
 
-	http://sprucegoose.sr71.net/~dave/oops/dsc02631.jpg
+I think it is actually pretty good at general purpose stuff. For
+example, the old writes starve reads thing. It is especially bad
+when doing small dependent reads like `find | xargs grep`. (Although
+CFQ is probably better at this than deadline too).
 
-$ addr2line -e vmlinux-2.6.9 c017920e
-/home/dave/blackbird/fs/proc/array.c:359
+It also tends to degrade more gracefully under memory load because
+it doesn't require much readahead.
 
->From the disassembly:
+> found the write bandwidth is not existent during reads, no surprise it
+> falls apart in any database load). We had to make the cfq the default
+> for the enterprise release already. The first thing I do is to add
+> elevator=cfq on a new install. I really like how well cfq has been
+> designed, implemented and turned, Jens's results with his last patch are
+> quite impressive.
+> 
 
-  c01791f7:       e8 d0 2b 15 00          call   c02cbdcc <_read_lock>
-  c01791fc:       83 c4 08                add    $0x8,%esp
-  c01791ff:       83 be a4 00 00 00 00    cmpl   $0x0,0xa4(%esi)
-  c0179206:       74 18                   je     c0179220 <proc_pid_stat+0x20c>
-  c0179208:       8b 86 ac 00 00 00       mov    0xac(%esi),%eax
-->c017920e:       8b 80 a4 00 00 00       mov    0xa4(%eax),%eax
-  c0179214:       89 44 24 48             mov    %eax,0x48(%esp)
-  c0179218:       eb 0e                   jmp    c0179228 <proc_pid_stat+0x214>
-  c017921a:       8d b6 00 00 00 00       lea    0x0(%esi),%esi
+That is synch write bandwidth. Yes that seems to be a problem.
 
-cmpl   $0x0,0xa4(%esi)                # check task->pid
-je     c0179220 <proc_pid_stat+0x20c> 
-mov    0xac(%esi),%eax                # load task->real_parent
-mov    0xa4(%eax),%eax                # load real_parent->pid
-mov    %eax,0x48(%esp)                # store into ppid
 
-It sure looks like the culprit is the dereference of real_parent.
-
-        read_lock(&tasklist_lock);
-        ppid = task->pid ? task->real_parent->pid : 0;
-        read_unlock(&tasklist_lock);
-
-Since I have DEBUG_PAGEALLOC turned on, I have the feeling that,
-although eax is an apparently valid address (d1a0ea90), that particular
-address was actually unmapped because the task had been freed at the
-time.  Is there a reference that needs to be taken on ->real_parent
-somewhere?
-
-Anyway, this was with 2.6.9, and I've been so far unable to reproduce it
-on the same kernel.  Although I'm not running current -bk, it looks like
-there's been some churn in the same area since 2.6.9, so maybe it was
-fixed.  
-
-Thought I'd report it, just in case someone else sees the same thing.
-
--- Dave
 

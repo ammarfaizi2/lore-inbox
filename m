@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269101AbUJKRKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269070AbUJKRH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269101AbUJKRKK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 13:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268957AbUJKRHh
+	id S269070AbUJKRH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 13:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268767AbUJKRFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 13:07:37 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:39595 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S269065AbUJKRGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 13:06:22 -0400
-Subject: Re: [patch] 2.6.9-rc4: SCSI qla2xxx gcc 3.4 compile errors
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20041011163501.GB3485@stusta.de>
-References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
-	<20041011162457.GA3485@stusta.de> <1097512128.1714.128.camel@mulgrave> 
-	<20041011163501.GB3485@stusta.de>
-Content-Type: text/plain
+	Mon, 11 Oct 2004 13:05:17 -0400
+Received: from siaag1ac.compuserve.com ([149.174.40.5]:14249 "EHLO
+	siaag1ac.compuserve.com") by vger.kernel.org with ESMTP
+	id S269072AbUJKREZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 13:04:25 -0400
+Date: Mon, 11 Oct 2004 13:01:34 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [PATCH] softdog.c (was: Kernel panic after rmmod softdog
+  (2.6.8.1))
+To: Michael Schierl <schierlm@gmx.de>
+Cc: Joel Becker <joel.becker@oracle.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200410111304_MC3-1-8C02-813F@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 11 Oct 2004 12:05:08 -0500
-Message-Id: <1097514314.1714.155.camel@mulgrave>
-Mime-Version: 1.0
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-11 at 11:35, Adrian Bunk wrote:
-> It's the only compile error with gcc 3.4 I found in 2.6.9-rc4, and the 
-> fix is pretty low-risk.
+Michael Schierl wrote:
 
-But also not essential.  If we apply lots of inessential but low risk
-fixes, all we end up with is merge problems in the various BK trees and
-no real benefit.  The fix is queued, it will be in early 2.6.9, just be
-patient.
+> today, when testing the software watchdog, I accidentally removed the 
+> software watchdog kernel module and got a kernel panic.
 
-James
+Does this fix it? (compiled but not tested)
+
+--- linux-2.6.8.1/drivers/char/watchdog/softdog.c.orig  Sun Oct 10 23:08:24 2004
++++ linux-2.6.8.1/drivers/char/watchdog/softdog.c       Sun Oct 10 23:10:12 2004
+@@ -135,8 +135,9 @@
+ {
+        if(test_and_set_bit(0, &timer_alive))
+                return -EBUSY;
+-       if (nowayout)
+-               __module_get(THIS_MODULE);
++
++       __module_get(THIS_MODULE);
++
+        /*
+         *      Activate timer
+         */
+@@ -152,6 +153,7 @@
+         */
+        if (expect_close == 42) {
+                softdog_stop();
++               module_put(THIS_MODULE);
+        } else {
+                printk(KERN_CRIT PFX "Unexpected close, not stopping watchdog!\n");
+                softdog_keepalive();
 
 
+--Chuck Ebbert  11-Oct-04  12:49:45
+  Current book: Stephen King: Wizard and Glass

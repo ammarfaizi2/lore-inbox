@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130768AbRDJSHn>; Tue, 10 Apr 2001 14:07:43 -0400
+	id <S130820AbRDJSHy>; Tue, 10 Apr 2001 14:07:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131191AbRDJSHd>; Tue, 10 Apr 2001 14:07:33 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:49836 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130768AbRDJSHT>;
-	Tue, 10 Apr 2001 14:07:19 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15059.19402.886297.342293@pizda.ninka.net>
-Date: Tue, 10 Apr 2001 11:07:06 -0700 (PDT)
-To: ppetru@ppetru.net (Petru Paler)
-Cc: Jakub Jelinek <jakub@redhat.com>, Dawson Engler <engler@csl.Stanford.EDU>,
+	id <S131191AbRDJSHo>; Tue, 10 Apr 2001 14:07:44 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:38416 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S130820AbRDJSHa>; Tue, 10 Apr 2001 14:07:30 -0400
+Date: Tue, 10 Apr 2001 13:01:07 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: "Manuel A. McLure" <mmt@unify.com>
+cc: "'Axel Thimm'" <Axel.Thimm@physik.fu-berlin.de>,
         linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] amusing copy_from_user bug
-In-Reply-To: <20010410135947.I3497@ppetru.net>
-In-Reply-To: <200104101011.DAA29579@csl.Stanford.EDU>
-	<20010410064128.C1169@devserv.devel.redhat.com>
-	<20010410135947.I3497@ppetru.net>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Subject: RE: Still IRQ routing problems with VIA
+In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C1A1@pcmailsrv1.sac.unify.com>
+Message-ID: <Pine.LNX.3.96.1010410125456.26863A-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Apr 2001, Manuel A. McLure wrote:
+> This may be the difference - I always set "Plug-n-Play OS: No" on all my
+> machines. Linux works fine and it doesn't seem to hurt Windows 98 any.
 
-Petru Paler writes:
- > On Tue, Apr 10, 2001 at 06:41:28AM -0400, Jakub Jelinek wrote:
- > > some architectures don't care at all, because verify_area is a noop
- > > (sparc64).
- > 
- > Why (and how) is this?
+Correct, it's perfectly fine to do that on all machines (not just Via).
+Users should also set "PNP OS: No" for Linux 2.2...
 
-On sparc64, the user lives in an entirely different address space.
-The user cannot even generate addresses in kernel space.  Basically,
-addresses are prefix'd by an 8-bit tag called an ASI (Address Space
-Identifier), which tells the cpu which TLB context to use etc.
-When running in user space or accessing user space in kernel mode
-we make the cpu use the special userspace ASI.
+Other BIOS settings to verify:
+Assign IRQ to VGA: no (optional, but you probably don't need a VGA IRQ)
+Operating System: other (or Unix, depending on the BIOS)
+Memory hole: no
 
-In fact the user can be given the complete 32-bit or 64-bit virtual
-address space, the kernel takes up none of it.
+Unless you are using ISA cards, make sure all your PCI plug-n-play
+IRQ settings are set to "PCI/PnP" not "ISA/ICU".
 
-Later,
-David S. Miller
-davem@redhat.com
+hmmm, maybe I should write a Linux kernel BIOS guide/FAQ...
+
+	Jeff
+
+
+

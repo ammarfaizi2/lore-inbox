@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264922AbTLRDYq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 22:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbTLRDYq
+	id S264921AbTLRDYd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 22:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264922AbTLRDYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 22:24:46 -0500
-Received: from [24.35.117.106] ([24.35.117.106]:1920 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S264922AbTLRDYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 22:24:43 -0500
-Date: Wed, 17 Dec 2003 22:24:17 -0500 (EST)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: Christian Axelsson <smiler@lanil.mine.nu>, andrew@walrond.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11-mm1
-In-Reply-To: <20031217035105.3c0bd533.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0312172220060.2348@localhost.localdomain>
-References: <20031217014350.028460b2.akpm@osdl.org> <200312171037.16969.andrew@walrond.org>
- <3FE039F5.5030703@lanil.mine.nu> <20031217035105.3c0bd533.akpm@osdl.org>
+	Wed, 17 Dec 2003 22:24:33 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5636 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264921AbTLRDYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 22:24:31 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: CONFIG_UNIX98_PTY_COUNT and devfs
+Date: 17 Dec 2003 19:24:27 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <brr6lb$ev$1@cesium.transmeta.com>
+References: <Pine.LNX.4.58.0312170131500.397@pervalidus.dyndns.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Dec 2003, Andrew Morton wrote:
-
-> Christian Axelsson <smiler@lanil.mine.nu> wrote:
-> >
-> > Andrew Walrond wrote:
-> > > On Wednesday 17 Dec 2003 9:43 am, Andrew Morton wrote:
-> > 
-> > > What are your intentions with -mm when you take over 2.6? Is any of -mm 
-> > > getting into 2.6 before 2.6.0 release? Is it mainly queued for 2.6.1?
+Followup to:  <Pine.LNX.4.58.0312170131500.397@pervalidus.dyndns.org>
+By author:    =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+In newsgroup: linux.dev.kernel
+>
+> I used CONFIG_UNIX98_PTY_COUNT=32 and it created
+> /dev/pty/m[0-255]. Is there any way to make devfs only create
+> /dev/pty/m[0-31] ?
 > 
-> We'll start merging it up after 2.6.0.  It'll be quite a lot of work,
-> actually - a lot of things have been parked in -mm for some time and may
-> not have had sufficiently wide testing, especially on non-i386.  I need to
-> ask the originators and others to re-review and retest some things.
+> From Configure.help:
 > 
-> > I would like to know aswell :)
-> > Will you be "bleeding edge" maintainer aswell or will that be handed 
-> > over to someone else?
+> "When not in use, each additional set of 256 PTYs occupy
+> approximately 8 KB of kernel memory on 32-bit architectures."
 > 
-> I guess I'll keep -mm going until there's a reason not to.
+> Does that mean it doesn't make any difference if I set
+> CONFIG_UNIX98_PTY_COUNT=1 or CONFIG_UNIX98_PTY_COUNT=256, and
+> ONFIG_UNIX98_PTY_COUNT=257 will create 512 entries ?
+> 
 
-Quite frankly I am becoming concerned about the number of patches that are 
-queued for post 2.6.0.  It is beginning to look like 2.6.0 might be nice 
-and quiet while 2.6.1+ are going to be quite messy as all the things "on 
-hold" get put in.
+This has absolutely nothing to do with devfs, but Unix98 PTYs
+currently come in packs of 256.
 
-I'm going to do my part by pounding heavily on -mm kernels since that 
-appears where all this is ending up.  
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+If you send me mail in HTML format I will assume it's spam.
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

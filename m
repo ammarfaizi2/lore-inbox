@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVCGKRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVCGK0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbVCGKRL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 05:17:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbVCGKRL
+	id S261736AbVCGK0S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 05:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbVCGK0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 05:17:11 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:58583 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261736AbVCGKQ5 (ORCPT
+	Mon, 7 Mar 2005 05:26:18 -0500
+Received: from ns.suse.de ([195.135.220.2]:24224 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261736AbVCGK0N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 05:16:57 -0500
-Date: Mon, 7 Mar 2005 11:16:49 +0100 (MET)
-Message-Id: <200503071016.j27AGnDm016062@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: dap@mail.index.hu, linux-kernel@vger.kernel.org
-Subject: Re: NMI watchdog question
+	Mon, 7 Mar 2005 05:26:13 -0500
+Date: Mon, 7 Mar 2005 11:26:09 +0100
+From: Karsten Keil <kkeil@suse.de>
+To: Domen Puncer <domen@coderock.org>
+Cc: Ralph Corderoy <ralph@inputplus.co.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
+       jlamanna@gmail.com
+Subject: Re: [patch 1/8] isdn_bsdcomp.c - vfree() checking cleanups
+Message-ID: <20050307102609.GB11334@pingi3.kke.suse.de>
+Mail-Followup-To: Domen Puncer <domen@coderock.org>,
+	Ralph Corderoy <ralph@inputplus.co.uk>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
+	jlamanna@gmail.com
+References: <20050306223800.1BBDC1EC90@trashy.coderock.org> <200503070007.j2707n403396@blake.inputplus.co.uk> <20050307002133.GG32564@nd47.coderock.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050307002133.GG32564@nd47.coderock.org>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.8-24.10-default i686
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 06 Mar 2005 01:53:25 +0100, Pallai Roland wrote:
-> I'm playing with the NMI watchdog (nmi_watchdog=1) on a reproductable
->hard lockup (no keyboard, etc) but seems like it doesn't works and I
->can't understand why, please explain to me the possible causes.. I
->belive it should work in this situation..
-...
->steps to the lockup:
-> 1. booting the machine with sata drive on the promise controller
-> 2. dd if=/dev/sda of=/dev/null bs=4k
-> 3. unplug the power from drive
-> 4. waiting about 2 seconds
-> 5. plug the power back
->
-> dd stucked in 'D' here for 10-15 seconds and than the kernel say:
->  ata1: command timeout
->
-> and voila, the box is dead, but without any message from the NMI
->watchdog :(
-...
->Kernel command line: auto BOOT_IMAGE=l2611-1S0 ro nfsroot=192.168.4.254:/mnt/daproot,v3 ip=192.
->168.4.5::192.168.4.254:255.255.255.0::eth0:none console=tty0 console=ttyS0,115200 nmi_watchdog=
->1 3
+On Mon, Mar 07, 2005 at 01:21:33AM +0100, Domen Puncer wrote:
+> On 07/03/05 00:07 +0000, Ralph Corderoy wrote:
+> > 
+> > Hi Domen,
+> > 
+> > > -		if (db->dict) {
+> > > -			vfree (db->dict);
+> > > -			db->dict = NULL;
+> > > -		}
+> > > +		vfree (db->dict);
+> > > +		db->dict = NULL;
+> > 
+> > Is it really worth always calling vfree() which calls __vunmap() before
+> > db->dict is determined to be NULL in order to turn three lines into two?
+> 
+> Four lines into two :-)
+> 
+> > Plus the write to db->dict which might otherwise not be needed.  The old
+> > code was clear, clean, and fast, no?
+> 
+> Shorter and more readable code is always better, right? And speed really
+> doesn't seem to be an issue here.
+> 
 
-Please try nmi_watchdog=2.
+I also prefer the old code, since it make clear, that you must be careful
+here, since the function can be called with already freed db->dict, and for
+me this version is not better readable as the old one.
+
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbTEHXbm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 19:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbTEHXbm
+	id S262259AbTEHXe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 19:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbTEHXe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 19:31:42 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:13762 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S262261AbTEHXbl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 19:31:41 -0400
-Date: Thu, 8 May 2003 16:44:06 -0700
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove devfs_register
-Message-ID: <20030508234406.GA23975@sgi.com>
-Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
-	Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-References: <20030508223449.A29413@lst.de> <20030508144808.745328f5.akpm@digeo.com>
+	Thu, 8 May 2003 19:34:27 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:1162
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262259AbTEHXe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 19:34:26 -0400
+Subject: Re: [PATCH][2.4] cleanup ptrace secfix and fix most side effects
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bernhard Kaindl <bk@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Bernhard Kaindl <bernhard.kaindl@gmx.de>
+In-Reply-To: <1052429495.13567.7.camel@dhcp22.swansea.linux.org.uk>
+References: <Pine.LNX.4.44.0305082310230.12720-200000@wotan.suse.de>
+	 <1052429495.13567.7.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052434095.13551.54.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030508144808.745328f5.akpm@digeo.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 May 2003 23:48:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's only because I haven't sent out another SN update yet.  I'll
-try to put that together next week against 2.5.69.
-
-Jesse
-
-On Thu, May 08, 2003 at 02:48:08PM -0700, Andrew Morton wrote:
-> Christoph Hellwig <hch@lst.de> wrote:
-> >
-> > Whee! devfs_register isn't used anymore in the whole tree
+On Iau, 2003-05-08 at 22:31, Alan Cox wrote:
+> > Using is_dumpable() here is not neccesary because the checks done here are:
+> > 
+> > >        if (!(child->ptrace & PT_PTRACED))
+> > >                return -ESRCH;
 > 
-> devfs_register appears to still be used in
-> 
-> ./arch/ia64/sn/io/sn2/xbow.c
-> ./arch/ia64/sn/io/hcl.c
-> ./arch/ia64/sn/io/pciba.c
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Except that current->mm->dumpable is not per task but per mm so you
+> might ptrace one thread and have another go setuid.
+
+Thinking about this harder
+
+A ptraced thread cannot go setuid since we don't permit the exec to do
+it
+
+A setuid thread marks the mm dumpable so no thread can be ptraced (since
+all threads inheriting the mm inherit it from the exec)
+
+So ignore my earlier message
+

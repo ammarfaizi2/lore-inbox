@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271368AbRIJQdh>; Mon, 10 Sep 2001 12:33:37 -0400
+	id <S271486AbRIJQmR>; Mon, 10 Sep 2001 12:42:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271370AbRIJQd1>; Mon, 10 Sep 2001 12:33:27 -0400
-Received: from c1608841-a.fallon1.nv.home.com ([65.5.95.44]:11416 "EHLO
-	tarot.internal.aom.geek") by vger.kernel.org with ESMTP
-	id <S271368AbRIJQdO>; Mon, 10 Sep 2001 12:33:14 -0400
-Date: Mon, 10 Sep 2001 09:33:26 -0700
-To: linux-kernel@vger.kernel.org
-Subject: Re: New SCSI subsystem in 2.4, and scsi idle patch
-Message-ID: <20010910093326.A30659@ferret.dyndns.org>
-In-Reply-To: <Pine.LNX.4.21.0109101216030.14338-100000@frank.gwc.org.uk> <Pine.LNX.4.10.10109101007150.15736-100000@coffee.psychology.mcmaster.ca>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10109101007150.15736-100000@coffee.psychology.mcmaster.ca>
-User-Agent: Mutt/1.3.20i
-From: idalton@ferret.dyndns.org
+	id <S271431AbRIJQmI>; Mon, 10 Sep 2001 12:42:08 -0400
+Received: from ashi.FootPrints.net ([204.239.179.1]:9991 "EHLO
+	ashi.FootPrints.net") by vger.kernel.org with ESMTP
+	id <S271421AbRIJQl5>; Mon, 10 Sep 2001 12:41:57 -0400
+Date: Mon, 10 Sep 2001 09:42:08 -0700 (PDT)
+From: Kaz Kylheku <kaz@ashi.footprints.net>
+To: Wolfram Gloger <wg@malloc.de>
+cc: <brianmc1@us.ibm.com>, <libc-alpha@sources.redhat.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: SMP-ix86-threads-fork: Linux 2.4.x kernel problem identified
+ [phantom read()]
+In-Reply-To: <E15gSpt-0008PG-00@mrvdom01.schlund.de>
+Message-ID: <Pine.LNX.4.33.0109100931190.20444-100000@ashi.FootPrints.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 10 Sep 2001, Wolfram Gloger wrote:
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On a variety of dual-ix86-SMP systems running Linux-2.4.[0-10pre]
+> kernels (compiled with gcc-2.95.2 and gcc-2.95.4) it eventually
+> happens that a read(fd, buf, sz) system call returns successfully but
+> it _actually hasn't read any bytes into buf_ (maybe the bytes go
+> somewhere else but I haven't determined where).
 
-On Mon, Sep 10, 2001 at 10:10:11AM -0400, Mark Hahn wrote:
-> > > I'm trying to get my 2.4.9 system to spin down my scsi disk(s) when i=
-dle. =20
->=20
-> remember: normal desktop drives have an expected life of only O(50k)=20
-> spin up/down cycles.  that's twice an hour for a three year warranty...
->=20
-> regards, mark hahn.
+Wow, that is nuts! :)
 
-Noflushd can be useful in this case, though it needs a patch to
-include/linux/kernel_stat.h in order to work with more than one
-IDE disk. More information is at <http://noflushd.sourceforge.net>
+> --- linuxthreads/manager.c.orig	Mon Jul 23 19:54:13 2001
+> +++ linuxthreads/manager.c	Mon Sep 10 11:48:49 2001
+> @@ -150,8 +150,18 @@
+>      }
+>      /* Read and execute request */
+>      if (n == 1 && (ufd.revents & POLLIN)) {
+> -      n = __libc_read(reqfd, (char *)&request, sizeof(request));
+> -      ASSERT(n == sizeof(request));
+> +      int sz_read;
+> +      request.req_kind = 0x123456;
+> +      for (sz_read=0; sz_read<sizeof(request); sz_read+=n) {
+> +	n = __libc_read(reqfd, (char *)&request + sz_read,
+> +			sizeof(request) - sz_read);
+> +	if (n < 0)
+> +	  continue;
+> +      }
 
-Granted, heavy-use servers probably do not want to spin down so much,
-though light-use servers could, with an high idle timeout.
+Careful; when you continue, the increment expression sz_read += n
+is still evaluated.
 
---=20
-Ferret
+And please note that sz_read < sizeof(request) is a signed-unsigned
+comparison!
 
-I will be switching my email addresses from @ferret.dyndns.org to
-@mail.aom.geek on or after September 1, 2001, but not until after
-Debian's servers include support. 'geek' is an OpenNIC TLD. See
-http://www.opennic.unrated.net for details about adding OpenNIC
-support to your computer, or ask your provider to add support to
-their name servers.
+So if sz_read is negative, its value will be converted to a positive
+value of type size_t, and your loop may terminate prematurely.
 
---vkogqOf2sHV7VnPd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+So it's perfectly possible to observe the behavior you are seeing
+if __libc_read() returns -1. Because then sz_read will acquire the
+value -1, and the guard expresssion sz_read < sizeof(request) will yield
+zero, terminating the loop.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Could you recode the test patch to eliminate these suspicions and re-test?
 
-iD8DBQE7nOtVe0DNEkH06HMRAjCbAJ9yk7dMqTGLPNsgayLP8my2H6TCawCghUWm
-/syE9caglRW+HeuXpoZKheQ=
-=WIyI
------END PGP SIGNATURE-----
-
---vkogqOf2sHV7VnPd--

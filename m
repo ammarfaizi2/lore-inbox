@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbUKYFMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262976AbUKYFQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbUKYFMF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Nov 2004 00:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbUKYFMF
+	id S262976AbUKYFQy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Nov 2004 00:16:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbUKYFQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Nov 2004 00:12:05 -0500
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:32951 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262974AbUKYFMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Nov 2004 00:12:01 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [patch 1/1] uml: fix some ptrace functions returns values
-Date: Thu, 25 Nov 2004 05:14:46 +0100
-User-Agent: KMail/1.7.1
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jdike@addtoit.com
-References: <20041124000715.E3A2FAB24@zion.localdomain> <41A3F6F6.1040903@osdl.org>
-In-Reply-To: <41A3F6F6.1040903@osdl.org>
+	Thu, 25 Nov 2004 00:16:54 -0500
+Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:43420 "HELO
+	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262976AbUKYFQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Nov 2004 00:16:53 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org, daniel.ritz@gmx.ch
+Subject: Re: [PATCH 2.6] touchkitusb: module_param to swap axes
+Date: Thu, 25 Nov 2004 00:10:08 -0500
+User-Agent: KMail/1.6.2
+Cc: Greg KH <greg@kroah.com>
+References: <200411242228.53446.daniel.ritz@gmx.ch>
+In-Reply-To: <200411242228.53446.daniel.ritz@gmx.ch>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411250514.46355.blaisorblade_spam@yahoo.it>
+Message-Id: <200411250010.09049.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 November 2004 03:50, Randy.Dunlap wrote:
-> blaisorblade_spam@yahoo.it wrote:
-> > From: Jeff Dike <jdike@addtoit.com>
-> >
-> > This patch adds ptrace_setfpregs and makes these functions return -errno
-> > on failure.
+On Wednesday 24 November 2004 04:28 pm, Daniel Ritz wrote:
+> add a module parameter to swap the axes. many displays need this...
+> 
+> --- 1.2/drivers/usb/input/touchkitusb.c	2004-09-18 10:07:25 +02:00
+> +++ edited/drivers/usb/input/touchkitusb.c	2004-11-24 18:57:59 +01:00
+> @@ -59,6 +59,10 @@
+>  #define DRIVER_AUTHOR			"Daniel Ritz <daniel.ritz@gmx.ch>"
+>  #define DRIVER_DESC			"eGalax TouchKit USB HID Touchscreen Driver"
+>  
+> +static int swap_xy;
+> +module_param(swap_xy, bool, 0);
 
-> Looks OK except that someone's SPACEBAR is broken (missing)
-> and there are (unneeded/unwanted) parens on the returns.
-Yes, that is Jeff Dike's keyboard - it's cursing all over arch/um with that 
-style.
-
-I'm going to resend it more conforming to the kernel style.
+It looks it can easily be exported to userspace to allow switching "on-fly"
+since it is checked for every packet. I think 0600 will do.
+ 
 -- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
+Dmitry

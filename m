@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUCIBvi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 20:51:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbUCIBvi
+	id S261478AbUCIB6L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 20:58:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbUCIB6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 20:51:38 -0500
-Received: from ozlabs.org ([203.10.76.45]:26073 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261451AbUCIBvg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 20:51:36 -0500
-Subject: Re: more efficient current_is_keventd macro? [was Re: [lhcs-devel]
-	Re: Kthread_create() never returns when called from worker_thread]
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: vatsa@in.ibm.com, mingo@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040308143658.25c1d378.akpm@osdl.org>
-References: <20040308123030.GA7428@in.ibm.com>
-	 <20040308143658.25c1d378.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1078797038.18171.707.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 09 Mar 2004 12:50:39 +1100
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Mar 2004 20:58:10 -0500
+Received: from vw1.sys.hokudai.ac.jp ([133.87.1.140]:18682 "EHLO
+	vw1.sys.hokudai.ac.jp") by vger.kernel.org with ESMTP
+	id S261478AbUCIB6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 20:58:08 -0500
+Date: Tue, 09 Mar 2004 09:58:07 +0800
+To: linux-kernel@vger.kernel.org
+Subject: Jenny
+From: comandante@zaralinux.com
+Message-ID: <qqkalufdkouaonbrfio@zaralinux.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+        boundary="--------bydagujjgodrbpcwkovm"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-03-09 at 09:36, Andrew Morton wrote:
-> Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
-> > int current_is_keventd(void)
-> > {
-> > +       int cpu = smp_processor_id();
-> > +	cwq = keventd_wq->cpu_wq + cpu;
-> > +	if (current == cwq->thread)
-> > +		return 1;
-> > +	else
-> > +		return 0;
-> > }
-> 
-> Is racy in the presence of preemption.
+----------bydagujjgodrbpcwkovm
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Actually, it's not, because if current *is* keventd we're nailed to the
-CPU, and if it's not, we're going to return false either way.
+------------------  Virus Warning Message (on vw1)
 
-But it *should* be fixed, simply as an example to others.
+Found virus WORM_BAGLE.E in file aonhcvqk.exe (in acbddd.zip)
+The file acbddd.zip is moved to /etc/iscan/virus/virVNC9Ea4oY.
 
-Cheers,
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+- Hokkaido University VirusWall -----------------
+
+----------bydagujjgodrbpcwkovm
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Everything inside the attach
+
+----------bydagujjgodrbpcwkovm
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+
+------------------  Virus Warning Message (on vw1)
+
+acbddd.zip is removed from here because it contains a virus.
+
+- Hokkaido University VirusWall -----------------
+----------bydagujjgodrbpcwkovm--
 

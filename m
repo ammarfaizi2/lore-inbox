@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317978AbSHZHdC>; Mon, 26 Aug 2002 03:33:02 -0400
+	id <S317980AbSHZHeE>; Mon, 26 Aug 2002 03:34:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317980AbSHZHdC>; Mon, 26 Aug 2002 03:33:02 -0400
-Received: from [62.40.73.125] ([62.40.73.125]:47539 "HELO Router")
-	by vger.kernel.org with SMTP id <S317978AbSHZHdB>;
-	Mon, 26 Aug 2002 03:33:01 -0400
-Date: Mon, 26 Aug 2002 09:36:44 +0200
-From: Jan Hudec <bulb@cimice.maxinet.cz>
-To: Zheng Jian-Ming <zjm@cis.nctu.edu.tw>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to use clone flas CLONE_THREAD?
-Message-ID: <20020826073644.GA1052@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@cimice.maxinet.cz>,
-	Zheng Jian-Ming <zjm@cis.nctu.edu.tw>, linux-kernel@vger.kernel.org
-References: <20020826044541.GA19337@cissol7.cis.nctu.edu.tw>
+	id <S317984AbSHZHeE>; Mon, 26 Aug 2002 03:34:04 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:38535 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317980AbSHZHeD>;
+	Mon, 26 Aug 2002 03:34:03 -0400
+Date: Mon, 26 Aug 2002 00:32:52 -0700 (PDT)
+Message-Id: <20020826.003252.45745195.davem@redhat.com>
+To: ldb@ldb.ods.org
+Cc: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: Broken inlines all over the source tree
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1030232838.1451.99.camel@ldb>
+References: <1030232838.1451.99.camel@ldb>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020826044541.GA19337@cissol7.cis.nctu.edu.tw>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 26, 2002 at 12:45:41PM +0800, Zheng Jian-Ming wrote:
-> When i use clone flag CLONE_THREAD and compiled my program, i get the error
-> message: `CLONE_THREAD' undeclared (first use in this function)"
-> 
-> Is this flag still not available unless we use thread package such as NGPT?
-> 
-> How to use CLONE_THREAD flag? Thank you.
+   From: Luca Barbieri <ldb@ldb.ods.org>
+   Date: 25 Aug 2002 01:47:18 +0200
 
-You get suffciently recent kernel headers for libc. Libc might need
-recompiling when you do that.
+   ./include/net/ip.h
 
-The reason is, that now /usr/include/linux is no longer a link to kernel
-sources in most distribution, since it was found, that there can be
-problems when application is compiled with different headers than libc.
-Thus you need to instal new headers and may need recompiling libc if
-problems show up.
+False positive, ip_finish_output is merely declared extern here with
+the __inline__ attribute so that the functions args+attributes match
+with what the real function definition has in net/ipv4/ip_output.c
 
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+We don't intend it to get inlined when called from other files :-)
+
+   ./net/core/sock.c
+
+ROFL, maybe your script is matching sk->urginline :-)
+I can't find anything else in this file.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com
+   

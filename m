@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266995AbRG1TDK>; Sat, 28 Jul 2001 15:03:10 -0400
+	id <S267000AbRG1TCu>; Sat, 28 Jul 2001 15:02:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266997AbRG1TDB>; Sat, 28 Jul 2001 15:03:01 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56836 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266989AbRG1TCq>; Sat, 28 Jul 2001 15:02:46 -0400
-Subject: Re: ext3-2.4-0.9.4
-To: patl@cag.lcs.mit.edu (Patrick J. LoPresti)
-Date: Sat, 28 Jul 2001 20:03:37 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <s5gsnfh80hw.fsf@egghead.curl.com> from "Patrick J. LoPresti" at Jul 28, 2001 12:46:51 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S266995AbRG1TCa>; Sat, 28 Jul 2001 15:02:30 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:27652 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S266989AbRG1TCW>;
+	Sat, 28 Jul 2001 15:02:22 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200107281902.XAA16831@ms2.inr.ac.ru>
+Subject: Re: [PATCH] [IMPORTANT] Re: 2.4.7 softirq incorrectness.
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Sat, 28 Jul 2001 23:02:07 +0400 (MSK DST)
+Cc: maxk@qualcomm.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        mingo@redhat.com, davem@redhat.com
+In-Reply-To: <20010728200257.E12090@athlon.random> from "Andrea Arcangeli" at Jul 28, 1 08:02:57 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15QZNB-00082q-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> How does this scheme "risk delivering mail to the wrong person
-> instead"?
+Hello!
 
-With the fsync it looks ok for most cases. It depends on the actions of
-a rename touching only one disk block - which of course it doesn't do. Even
-so with the fsync on a sane fs I cant see that problem occuring
+> cpu_raise_softirq is valid in any context. calling cpu_raise_softirq
+> there was correct (__cpu_raise_softirq would been too weak).
 
-> If you have metadata journalling, all you need for this algorithm to
-> work is to have rename() write to the journal before returning.  Is
-> this true for any of the current journalling file systems on Linux?
+I see now, the picture clears.
 
-Ext3 I believe so, Reiserfs I would assume so but Hans can answer
-definitively
+
+> fix the tasklet problem (only tasklets had a problem in 2.4.7).
+
+I said the problem was not in code. In understanding this.
+I am still not 100% sure what is legal, what is not. :-)
+
+F.e. Andrea, teach me how to make the following thing (not for released
+kernel, for me): I want to schedule softirq, but I do not want that
+this softirq eat all the cpu. It looks natural to use ksoftirqd for this.
+
+Alexey

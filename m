@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUISVfk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUISVnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264213AbUISVfk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 17:35:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbUISVfj
+	id S264261AbUISVnv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 17:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUISVnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 17:35:39 -0400
-Received: from mail.dif.dk ([193.138.115.101]:15012 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S264213AbUISVfi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 17:35:38 -0400
-Date: Sun, 19 Sep 2004 23:42:15 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Fritz Elfert <fritz@isdn4linux.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Karsten Keil <kkeil@suse.de>
-Subject: [PATCH] check copy_from_user return value in act2000_isa_download
-Message-ID: <Pine.LNX.4.61.0409192336300.2758@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 19 Sep 2004 17:43:50 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:63924 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S264261AbUISVnt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 17:43:49 -0400
+Date: Sun, 19 Sep 2004 23:39:52 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Andy Lutomirski <luto@myrealbox.com>
+Cc: Hans-Frieder Vogt <hfvogt@arcor.de>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, netdev@oss.sgi.com
+Subject: Re: 2.6.9-rc1-bk11+ and 2.6.9-rc1-mm3,4 r8169: freeze during boot (FIX included)
+Message-ID: <20040919213952.GA32570@electric-eye.fr.zoreil.com>
+References: <200409130035.50823.hfvogt@arcor.de> <20040916070211.GA32592@electric-eye.fr.zoreil.com> <200409161320.16526.jdmason@us.ltcfwd.linux.ibm.com> <200409171043.21772.jdmason@us.ltcfwd.linux.ibm.com> <20040917160151.GA29337@electric-eye.fr.zoreil.com> <414DF773.7060402@myrealbox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <414DF773.7060402@myrealbox.com>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andy Lutomirski <luto@myrealbox.com> :
+[...]
+> FWIW, it looks like init_board is setting PCIDAC in tp->cp_cmd but that 
+> isn't updated to the card until after the rx ring is filled in 
+> r8169_open.  This seems suspicious, since DMA memory is being allocated 
+> possibly in >32-bit addresses but the card hasn't been told to support 
+> that.  Fixing this doesn't seem to help, though...
 
-Here's a patch to fix the following warning by checking the return value 
-of copy_from_user and returning -EFAULT if it fails.
+rtl8169_hw_start() writes the CPlusCmd register before the ring descriptor
+adresses are set. Can you elaborate why it would not be enough ?
 
-drivers/isdn/act2000/act2000_isa.c: In function `act2000_isa_download':
-drivers/isdn/act2000/act2000_isa.c:437: warning: ignoring return value of `copy_from_user', declared with attribute warn_unused_result
+Btw the r8169 driver in 2.6.9-rcX does not advertise NETIF_F_HIGHDMA: where
+would a >32 bit address come from ?
 
-I don't have the hardware so I've only been able to do compile testing of 
-this patch.
+> Turning off high DMA fixes it.  Maybe it just needs to be disabled until 
+> someone figures out what's going on.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+I am cooking a patch for it (+ check for PCI error).
 
+As a side note, the r8169 chipset does not like DAC to be enabled on a
+32bit system. I got the usual PCI error reported while trying it.
 
-diff -up linux-2.6.9-rc2-bk5-orig/drivers/isdn/act2000/act2000_isa.c linux-2.6.9-rc2-bk5/drivers/isdn/act2000/act2000_isa.c
---- linux-2.6.9-rc2-bk5-orig/drivers/isdn/act2000/act2000_isa.c	2004-08-14 07:36:56.000000000 +0200
-+++ linux-2.6.9-rc2-bk5/drivers/isdn/act2000/act2000_isa.c	2004-09-19 23:34:49.000000000 +0200
-@@ -434,7 +434,10 @@ act2000_isa_download(act2000_card * card
-                 l = (length > 1024) ? 1024 : length;
-                 c = 0;
-                 b = buf;
--                copy_from_user(buf, p, l);
-+                if (copy_from_user(buf, p, l)) {
-+                        kfree(buf);
-+                        return -EFAULT;
-+                }
-                 while (c < l) {
-                         if (act2000_isa_writeb(card, *b++)) {
-                                 printk(KERN_WARNING
-
-
+--
+Ueimor

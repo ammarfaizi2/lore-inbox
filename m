@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290765AbSARRsD>; Fri, 18 Jan 2002 12:48:03 -0500
+	id <S290766AbSARRtd>; Fri, 18 Jan 2002 12:49:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290766AbSARRrx>; Fri, 18 Jan 2002 12:47:53 -0500
-Received: from quark.didntduck.org ([216.43.55.190]:28175 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S290765AbSARRrn>; Fri, 18 Jan 2002 12:47:43 -0500
-Message-ID: <3C485FB5.FC5CB8C3@didntduck.org>
-Date: Fri, 18 Jan 2002 12:47:33 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Raman S <raman_s_@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: int 0x40
-In-Reply-To: <F49lHiu3fQtYdVzDpub0001e2cc@hotmail.com>
+	id <S290769AbSARRtY>; Fri, 18 Jan 2002 12:49:24 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:25079 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S290766AbSARRtL>;
+	Fri, 18 Jan 2002 12:49:11 -0500
+Date: Fri, 18 Jan 2002 10:48:46 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Christian Hammers <ch@westend.com>
+Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] ext3 fs corruption with 2.4.17
+Message-ID: <20020118104846.Q29178@lynx.adilger.int>
+Mail-Followup-To: Christian Hammers <ch@westend.com>,
+	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20020118143214.GH28471@westend.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020118143214.GH28471@westend.com>; from ch@westend.com on Fri, Jan 18, 2002 at 03:32:14PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Raman S wrote:
+On Jan 18, 2002  15:32 +0100, Christian Hammers wrote:
+> Does anybody knows what exactly this means and if it could be helpful to
+> track down the origin of the problems? Or did anybody else experienced this
+> messages before?
 > 
-> Hi,
->   I relatively new to the kernel and am trying to understand how the linux
-> kernel handles interrupts. For this I attempted to
-> create an int 0x40 by adding a set_system_gate(64, &system_call) in traps.c.
-> I verfied by giving out print statements within set_system_gate that 64 is
-> being set during initialization (though it isnt a surprise that it is being
-> set).  But when i give an int 0x40 in a user level assembly program I get
-> segmentation fault, (a SIGSEGV signal is sent to the process).  I have tried
-> adding another function in entry.S called my_system_call and reproducing the
-> code in system_call with a jmp ret_from_sys_call  at the end. Also tried
-> giving an empty C function for my_system_call all with the same result.
+> On Thu, Jan 17, 2002 at 07:05:03PM +0100, root wrote:
+> > Jan 17 19:01:15 HOSTNAME kernel: EXT3-fs error (device sd(8,7)): ext3_new_block: Allocating block in system zone - block = 5931009
+> > Jan 17 19:01:16 HOSTNAME kernel: EXT3-fs error (device sd(8,7)): ext3_new_block: Allocating block in system zone - block = 5931018
+> > Jan 17 19:01:16 HOSTNAME kernel: EXT3-fs error (device sd(8,7)): ext3_new_block: Allocating block in system zone - block = 5931019
+> [repeats several hundert times with increasing block numbers]
 
-The IRQ setup code is probably overwriting it.  You'll need to make the
-code in i8259.c skip over vector 0x40 as well as SYSCALL_VECTOR (0x80).
+It means your block bitmap is corrupt and it says that metadata blocks
+are not in use, when they really are.  That will lead to serious
+corruption.
 
+Cheers, Andreas
 --
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-				Brian Gerst

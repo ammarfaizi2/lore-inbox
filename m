@@ -1,159 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262709AbSJEWQC>; Sat, 5 Oct 2002 18:16:02 -0400
+	id <S262776AbSJEW2P>; Sat, 5 Oct 2002 18:28:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262720AbSJEWQC>; Sat, 5 Oct 2002 18:16:02 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:51533 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262709AbSJEWQA>; Sat, 5 Oct 2002 18:16:00 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200210052221.g95MLVJ12360@devserv.devel.redhat.com>
-Subject: Linux 2.5.40-ac4
-To: linux-kernel@vger.kernel.org
-Date: Sat, 5 Oct 2002 18:21:31 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S262793AbSJEW2P>; Sat, 5 Oct 2002 18:28:15 -0400
+Received: from ophelia.ess.nec.de ([193.141.139.8]:30693 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S262776AbSJEW2J> convert rfc822-to-8bit; Sat, 5 Oct 2002 18:28:09 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [RFC] Simple NUMA scheduler patch
+Date: Sun, 6 Oct 2002 00:32:37 +0200
+User-Agent: KMail/1.4.1
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <200210021954.39358.efocht@ess.nec.de> <953763699.1033565134@[10.10.2.3]>
+In-Reply-To: <953763699.1033565134@[10.10.2.3]>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210051834.31031.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.5.40-ac4
-o	Make ibm partition code compile again		(Martin Schwidefsky)
-o	Remove unneeded config options on S/390		(Martin Schwidefsky)
-o	Update DASD drivers				(Martin Schwidefsky)
-o	Update S/390 xpram driver			(Martin Schwidefsky)
-o	Replace S/390 BH code by tasklets		(Martin Schwidefsky)
-o	Fix S/390 bitops bugs				(Martin Schwidefsky)
-o	S/390x 31bit emulation fixes			(Martin Schwidefsky)
-o	Update S/390 link scripts			(Martin Schwidefsky)
-o	Add S/390 pre-empt support			(Martin Schwidefsky)
-o	Inline some S/390 old compilers couldnt handle	(Martin Schwidefsky)
-o	Use diag 44 for S/390x spinlocks		(Martin Schwidefsky)
-o	Better S/390 timer handling			(Martin Schwidefsky)
-o	S/390 code cleanups				(Martin Schwidefsky)
-o	Clean up S/390 fpu load/stores			(Martin Schwidefsky)
-o	DECnet updates for testing			(Steve Whitehouse)
-o	Add console shutdown handling to S/390		(Martin Schwidefsky)
-o	Remove some bogus S/390 sanity checks		(Martin Schwidefsky)
-o	Clean up S/390 process irq			(Martin Schwidefsky)
-o	Fix/simplify chpids handling on S/390		(Martin Schwidefsky)
-o	No /proc/interrupts on S/390			(Martin Schwidefsky)
-o	Remove now unneeded S/390 hack in init/main.c	(Martin Schwidefsky)
-o	Clean up all the S/390 ptrace handling		(Martin Schwidefsky)
-o	Fix build with local apic enabled		(James Bottomley)
-o	Initial i2o_block merge of 2.4/2.5 code		(me)
-	| Not yet functional
-o	Initial i2o_scsi merge of 2.4/2.5 code		(me)
-	| Needs dma mapping, 64bit, be and new_eh
-o	Revert Ivan's pci change (breaks serverworks)
-o	PCI serial oops fix				(William Irwin)
-o	Remove dead wood from unistd.h			(Brian Gerst)
-o	Fix bug in capget 				(Chris Wright)
-o	Switch qnxfs to new style initializers		(Art Haas)
-o	Recongize qnx v6 file systems			(Anders Larsen)
-o	Kill off remaining pcibios_ users   (Greg "Ninja Turtle" Kroah-Hartmann)
-o	Fix scsi debug for scsi scan changes		(Mike Anderson)
-o	Fix some bugs in scsi error handling		(Mike Andersen)
-o	Forward port RMK's 2.4 scsi fixes		(Mike Andersen)
-o	Allow longer settle times for scsi reset	(Mike Andersen)
-o	Hopefully improve error policies a bit		(Mike Andersen)
+Hi Martin & Michael,
 
-Linux 2.5.40-ac3
-o	Resync telephony drivers with 2.4		(me)
-	| Forward port security and other minor fixes
-o	Fix aironet4500 build for tq changes		(me)
-o	Fix keyspan USB warnings with gcc 3		(me)
-o	Switch to the newer 2.4 depca driver		(me)
-o	Re-merge depca fixes from 2.5.0->2.5.40]
-o	Fix depca spinning waiting for irq probe	(me)
-o	Fix depca copy with interrupts off		(me)
-o	Fix depca clash with other ALIGN macros		(me)
-o	Initial port of NCR5380/g_NCR5380 to new locks	(me)
-	| This still needs new_eh, further clean up
-	| and possibly making NCR5380_main a thread
-o	Initial locking rework for the wd7000 scsi	(me)
-	| Still needs new_eh
-o	Update jffs to the dequeue_signal changes	(me)
-o	Update jffs2 to the dequeue_signal changes	(me)
-o	Fix shpnt misuse in NCR53c406a, wrong free_irq	(me)
-o	Update NCR53c406a to new style sglist		(me)
-	| Still needs new_eh
-o	Architecture updates for S/390			(Martin Schwidefsky)
-o	Include updates for S/390			(Martin Schwidefsky)
-o	Base S/390 driver updates			(Martin Schwidefsky)
-o	Add the new syscalls to S/390			(Martin Schwidefsky)
-o	Fix sleeping with locks in sound_core		(Jaroslav Kysela)
-o	Fix oops on shutdown of cs4281			(Suresh Siddha)
-o	Fix cdrom paths in devfs			(Jordan Breeding)
-o	Fix missing cache tag entry in intel cpu table	(Jean Delvare)
-o	Remove old 2.2 compatibility pci functions	(Greg Kroah-Hartmann)
-o	Clean up some dead devfs bits			(Greg Kroah-Hartmann)
-o	Fix an oops in the hugetblpage stuff		(Andrew Morton)
-	| Its still a stupid idea but now it doesnt oops
-o	Handle read only BARs with type bits set	(Ivan Kokshaysky)
+thanks for the mails and the results.
 
-Linux 2.5.40-ac2
-o	Fix a cut and paste error in the amd rng docs	(Troels Hansen)
-o	Forward port OSS maestro3 fixes for toughbook
-o	Forward port ramdisk cache coherency
-o	RTL8150 USB updates				(Petko Manalov)
-o	Fix corega USB ident				(Petko Manalov)
-o	USB keyboard driver fix				(Dave Miller)
-o	USB prototype fix				(Luc Vanoostenryck)
-o	USB string fixes		(cip307@cip.physik.uni-wuerzburg.de)
-o	USB test driver					(David Brownell)
-o	Speedtouch USB driver fixes			(Greg Kroah-Hartmann)
-o	Clean environment for hotplug			(Greg Kroah-Hartmann)
-o	Fix mprotect oops				(Hugh Dickins)
-o	NUMA-Q cleanups					(Martin Dobson)
-o	Split timers into one x86 timer type per file	(John Stultz)
-o	Cyclone timer support for x440 etc		(John Stultz)
-o	Fix sleeping from illegal context for ioperm	(Andrew Morton)
-o	Fix imm compile				(bonganilinux@mweb.co.za)
-o	Fix irda for tq changes				(Carlos Gorges)
-o	Fix xjack telephony build			(Carlos Gorges)
-o	Fix ppa compile					(Carlos Gorges)
-o	Fix aha152x compile for tq changes		(Carlos Gorges)
-o	Fix hamradio drivers for tq changes		(Carlos Gorges)
-o	Fix plip driver for tq changes			(Carlos Gorges)
-o	Fix mpt fusion for tq changes			(Carlos Gorges)
-o	Fix isdn for tq changes				(Carlos Gorges)
-o	Fix ieee1394 for tq changes			(Carlos Gorges)
-o	Fix new timer code to build with cpufreq on	(me)
-o	Fix capi build for new tq_ code			(me)
-	| ISDN still needs moving to real locks
-	| this just cleans up one item
-o	Fix missing header in mtdblock_ro		(Carlos Gorges)
-o	Fix a typo and other header			(me)
-o	Fix up ixj_pcmcia for 2.5			(me)
-	| Note for janitors - it looks like a lot of the pcmcia release
-	| code people "fixed" should be using del_timer_sync not del_timer
-o	Fix missing header in longhaul cpu speed driver	(me)
-o	Pipe read/write cleanup				(Manfred Spraul)
-o	Make IDE PCI config text clearer	(Andrzej Krzysztofowicz)
+On Wednesday 02 October 2002 22:25, Martin J. Bligh wrote:
+> > it's a start. But I'm afraid a full solution will need much more code
+> > (which is one of the problems with my NUMA scheduler patch).
+>
+> Right, but a sequence of smaller patches will be easier to get in.
+> I see this as a first step towards your larger patch ... if we can
+> do something simpler like Michael has, with enough view to your
+> later plans to make them merge together cleanly, I think we have
+> the best of both worlds ... Erich, what would it take to make this
+> a first stepping stone towards what you have? Or is it there already?
 
-Linux 2.5.40-ac1
-+	Initial port of aacraid driver to 2.5		(me)
-+	vfat corruption fix				(Petr Vandrovec)
-+	Clean up firestream warnings			(Francois Romieu)
-+	Voyager support					(James Bottomley)
-+	Fix split_vma					(Hugh Dickins)
-+	Fix config in video subdirectory		(John Levon)
-+	Update olympic driver to 2.5			(Mike Phillips)
-+	Fix sg init error				(Mike Anderson)
-+	Fix Rules.make
-o	Merge most of ucLinux stuff			(Greg Ungerer)
-	| It needs putting somewhere so we can pick over the
-	| hard bits left
-	| Q: Wouldn't drivers/char/mem-nommu.c be better
-	| Q: How to do the procfs stuff tidily
-	| Q: Wouldn't it be nicer to move all mm or mmnommu specific ksyms
-	|    int the relevant mm/*.c file area instead of kernel/ksyms
-	| Q: Why ifdef out overcommit -  its even easier to account on 
-	|    MMUless and useful info
-+	Stick tulip back under 10/100 ethernet		(me)
-+	Correct docs for IBM touchpad back to how	(me)
-	they were before
-o	Fix abuse of set_bit in winbond-840		(me)
-+	Fix abuse of set_bit in atp			(me)
+It would probably save some time if we reuse parts of the code which
+is already there (as with sched_migrate_task). I'd like to mention that
+the node affine scheduler is already in production use at several HPC
+sites and thus pretty well tested. The performance degradation you've
+hit on NUMAQ must be specific to the architecture and doesn't hit Azusa
+that much (we just don't see that). I think that could result from
+the idle tasks having homenode 0, this should be fixed in sched_init. 
+I'll post some numbers comparing O(1), pooling scheduler, node affine
+scheduler and RSS based affinity in a separate email. That should help
+to decide on the direction we should move. 
+
+Right now the approaches are far from each other because there is no
+concept of looping over the CPUs in a node. I can't imagine that we
+can live without that when the patch gets more complex. I suggest to use
+a sorted list of CPUs (sorted by node number) and a pointer into that
+list (what I was calling pool_cpus, pool_ptr):
+
+in topology.h:
+#ifdef CONFIG_NUMA_SCHED
+int _node_cpus[NR_CPUS];
+int node_ptr[MAX_NUMNODES+1];
+#define node_cpus(i) _node_cpus[i]
+#define loop_over_node(i,n) for(i=node_ptr[n];i<node_ptr[n+1];i++)
+#else
+#define node_cpus(i) (i)
+#define loop_over_node(i,n) for(i=0;i<NR_CPUS;i++)
+#endif
+
+Looping over nodes would be:
+	loop_over_node(i,node) {
+		cpu=node_cpus(i);
+		...
+	}
+
+For non-NUMA systems there's only one node containing all CPUs
+and the "cpu=code_cpus(i)" line will be optimized away. The
+initialization would simply be:
+
+{
+	int n, cpu, ptr;
+	unsigned long mask;
+	ptr=0;
+	for (n=0; n<numnodes; n++) {
+		mask = __node_to_cpu_mask(n);
+		node_ptr[i] = ptr;
+		for (cpu=0; cpu<NR_CPUS; cpu++)
+			if (mask  & (1UL << cpu))
+				_node_cpus[ptr++] = cpu;
+	}
+	node_ptr[numnodes]=ptr;
+}
+
+
+
+> The fact that Michael's patch seems to have better performance (at
+> least for the very simple tests I've done) seems to reinforce the
+> "many small steps" approach in my mind - it's easier to debug and
+> analyse like that.
+
+OK, I'll put the node-balanced initial load balancing on top of
+Michael's patch. Let's see how it changes.
+
+> > The ideas behind your patch are:
+> > 2. Favor own node for stealing if any CPU on the own node is >25%
+> > more loaded. Otherwise steal from another CPU if that one is >100%
+> > more loaded.
+> > ...
+> > 2. is ok as it makes it harder to change the node. But again, you don't
+> > aim at equally balanced nodes. And: if the task gets away from the node
+> > on which it got its memory, it has no reason to ever come back to it.
+>
+> I don't think we should aim too hard for exactly equal balancing,
+> it may well result in small peturbations causing task bouncing between
+> nodes.
+
+No, we shouldn't aim too hard. The histeresys introduced by the 25%
+imbalance necessary to start load balancing (as in Ingo's scheduler)
+is enough to protect us from the bouncing. But when running a small
+number of tasks you'd like to get the best performance out of the machine.
+For me that means the maximum memory bandwidth available for each task,
+which you only get if you distribute the tasks equally among the nodes.
+For large number of tasks you will always have good balance across the
+nodes, the O(1) scheduler already inforces that.
+
+> > For a final solution I believe that we will need targets like:
+> > (a) equally balance nodes
+> > (b) return tasks to the nodes where their memory is
+> > (c) make nodes "sticky" for tasks which have their memory on them,
+> > "repulsive" for other tasks.
+>
+> I'd add:
+>
+> (d) take into account the RSS when migrating tasks across nodes
+>     (ie stickiness is proportional to amount of RAM used on nodes)
+Yes. Though it sounds like a refinement of (c) ;-)
+
+Best regards,
+Erich
+

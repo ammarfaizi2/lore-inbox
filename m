@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265241AbUGCUXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265247AbUGCUXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265241AbUGCUXT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 16:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265247AbUGCUXT
+	id S265247AbUGCUXv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 16:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265250AbUGCUXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 16:23:19 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:64953 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S265241AbUGCUXO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 16:23:14 -0400
-Date: Sat, 3 Jul 2004 22:15:15 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: jt@hpl.hp.com
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>,
-       David Gibson <hermes@gibson.dropbear.id.au>
-Subject: Re: [PATCH] Update in-kernel orinoco drivers to upstream current CVS
-Message-ID: <20040703221515.B3275@electric-eye.fr.zoreil.com>
-References: <20040702222655.GA10333@bougret.hpl.hp.com> <20040703010709.A22334@electric-eye.fr.zoreil.com>
+	Sat, 3 Jul 2004 16:23:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54224 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265247AbUGCUXX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 16:23:23 -0400
+Date: Sat, 3 Jul 2004 13:22:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ipc 1/3: Add refcount to ipc_rcu_alloc
+Message-Id: <20040703132217.2754ea75.akpm@osdl.org>
+In-Reply-To: <40E6EE71.9050402@colorfullife.com>
+References: <40E6EE71.9050402@colorfullife.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040703010709.A22334@electric-eye.fr.zoreil.com>; from romieu@fr.zoreil.com on Sat, Jul 03, 2004 at 01:07:09AM +0200
-X-Organisation: Land of Sunshine Inc.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[drivers/net/wireless/orinoco_tmd.c:orinoco_tmd_init_one]
-        err = pci_enable_device(pdev);
--       if (err)
--               return -EIO;
--
--       printk(KERN_DEBUG "TMD setup\n");
--       pccard_ioaddr = pci_resource_start(pdev, 2);
--       pccard_iolen = pci_resource_len(pdev, 2);
--       if (! request_region(pccard_ioaddr, pccard_iolen, dev_info)) {
--               printk(KERN_ERR PFX "I/O resource at 0x%lx len 0x%lx busy\n",
--                       pccard_ioaddr, pccard_iolen);
--               pccard_ioaddr = 0;
--               err = -EBUSY;
--               goto fail;
-+       if (err) {
-+               printk(KERN_ERR PFX "Cannot enable PCI device\n");
-+               return -err;
+Manfred Spraul <manfred@colorfullife.com> wrote:
+>
+> the lifetime of the ipc objects (sem array, msg queue, shm mapping) is 
+>  controlled by kern_ipc_perms->lock - a spinlock. There is no simple way 
+>  to reacquire this spinlock after it was dropped to 
+>  schedule()/kmalloc/copy_{to,from}_user/whatever.
+> 
+>  The attached patch adds a reference count as a preparation to get rid of 
+>  sem_revalidate().
 
--> translates into
-   err = pci_enable_device(dev);
-   if (err) {
-           printk(KERN_ERR PFX "Cannot enable PCI device\n");
-           return -err;
+The pointer offsetting tricks are rather unattractive.  Is it not possible
+to simple aggregate the refcount into the refcounted structure, use
+container_of()?
 
-i.e. incorrectly returns > 0 
-
---
-Ueimor

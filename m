@@ -1,154 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262097AbTEHUOG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 16:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTEHUOF
+	id S262098AbTEHUVL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 16:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbTEHUVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 16:14:05 -0400
-Received: from smtp.netcabo.pt ([212.113.174.9]:38524 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S262097AbTEHUOA convert rfc822-to-8bit
+	Thu, 8 May 2003 16:21:11 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:54770 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262098AbTEHUVK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 16:14:00 -0400
-From: "=?iso-8859-1?B?Sm9z6SBFc3TqduNvIE1lbG8=?=" <jose.melo@netcabo.pt>
-To: <linux-kernel@vger.kernel.org>
-Subject: missing macro on asm/signal.h
-Date: Thu, 8 May 2003 21:26:53 +0100
-Message-ID: <000001c315a0$2a2c8fe0$0201a8c0@kryptos>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-OriginalArrivalTime: 08 May 2003 20:23:01.0873 (UTC) FILETIME=[9FA2B610:01C3159F]
+	Thu, 8 May 2003 16:21:10 -0400
+Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: davidm@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <16058.48490.620518.27093@napali.hpl.hp.com>
+References: <20030507104008$12ba@gated-at.bofh.it>
+	 <200305071154.h47BsbsD027038@post.webmailer.de>
+	 <20030507124113.GA412@elf.ucw.cz> <20030507135600.A22642@infradead.org>
+	 <1052318339.9817.8.camel@rth.ninka.net>
+	 <20030508151643.GO679@phunnypharm.org> <20030508193430.GC933@elf.ucw.cz>
+	 <20030508192730.GX679@phunnypharm.org>
+	 <16058.48490.620518.27093@napali.hpl.hp.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aLhW1mdZdHohhg22hg9U"
+Organization: Red Hat, Inc.
+Message-Id: <1052426022.1677.3.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 08 May 2003 22:33:42 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When compiling an util in my box I came across this error ate compile
-time
 
-/usr/include/asm/signal.h:27: conflicting types for sigset_t'
-/usr/include/sys/select.h:38: previous declaration of sigset_t'
-
-talking with a friend, we found out it required and macro on
-asm/signal.h
-
-#ifndef __sigset_t_defined no asm/signal.h
-typedef unsigned long sigset_t;
-#endif
-
-in the definition of sigset_t since it's always defined in both select.h
-and signal.h
-
-This solved the problem, he actually corrected the problem but didn't
-want to send an email,
-so I am sending. Hope it's usefull.
-
-Regards
+--=-aLhW1mdZdHohhg22hg9U
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
 
--- / --
+> Definitely.  I turn it off on a regular basis and expect to use it
+> even less in the future.
 
-Jose Estêvão Melo  jose.melo@netcabo.pt
-FCT/UNL            jem11288@students.fct.unl.pt
+working on a qemu port to ia64 ?
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+--=-aLhW1mdZdHohhg22hg9U
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-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
-EBeoa2dHCTwTE5CoByPP/UDqjRA=
-=JeTz
------END PGP PUBLIC KEY BLOCK-----
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
- 
+iD8DBQA+ur8mxULwo51rQBIRAtQPAKChbGsa1gfm4l5UBVMtzevYEbdNBwCfRwPf
+HZlhLoLcCn+WywEnyqZ1/Ns=
+=mrva
+-----END PGP SIGNATURE-----
 
+--=-aLhW1mdZdHohhg22hg9U--

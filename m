@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbVCaQYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVCaQcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbVCaQYU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 11:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVCaQYU
+	id S261407AbVCaQcz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 11:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVCaQcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 11:24:20 -0500
-Received: from ida.rowland.org ([192.131.102.52]:4612 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S261541AbVCaQYR (ORCPT
+	Thu, 31 Mar 2005 11:32:55 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:20743 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261407AbVCaQcx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 11:24:17 -0500
-Date: Thu, 31 Mar 2005 11:24:17 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
+	Thu, 31 Mar 2005 11:32:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=YpufE1OP2CP9kOx3lz83UBViwLiLOLwzcSxU1Ju6+3BmOVzNK7xrXCWEzRT9MsmPeCvj8a5BJgQV9o+VYUevhIxbjKwzNjgdqyvtEOtEgiODUEBlPM+NM5i7Cmbqu8oMKZZFi52PYmVMfZ7oFoYI8QhxvWaHC0oiD48FDmv93aI=
+Message-ID: <d120d50005033108321c8f4ae7@mail.gmail.com>
+Date: Thu, 31 Mar 2005 11:32:52 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
 To: Patrick Mochel <mochel@digitalimplant.org>
-cc: David Brownell <david-b@pacbell.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: klists and struct device semaphores
-In-Reply-To: <Pine.LNX.4.50.0503301814090.20992-100000@monsoon.he.net>
-Message-ID: <Pine.LNX.4.44L0.0503311119010.1510-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Cc: Pavel Machek <pavel@suse.cz>, Vojtech Pavlik <vojtech@suse.cz>,
+       Andy Isaacson <adi@hexapodia.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Nigel Cunningham <ncunningham@cyclades.com>,
+       Stefan Seyfried <seife@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.50.0503310801410.15519-100000@monsoon.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <20050329181831.GB8125@elf.ucw.cz>
+	 <1112135477.29392.16.camel@desktop.cunningham.myip.net.au>
+	 <20050329223519.GI8125@elf.ucw.cz>
+	 <200503310226.03495.dtor_core@ameritech.net>
+	 <Pine.LNX.4.50.0503310801410.15519-100000@monsoon.he.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Mar 2005, Patrick Mochel wrote:
-
-> > Having thought it through, I believe all we need for USB support is this:
-> >
-> > 	Whenever usb_register() in the USB core calls driver_register()
-> > 	and the call filters down to driver_attach(), that routine
-> > 	should lock dev->parent->sem before calling driver_probe_device()
-> > 	(and unlock it afterward, of course).
-> >
-> > 	(For the corresponding remove pathway, where usb_deregister()
-> > 	calls driver_unregister(), it would be nice if __remove_driver()
-> > 	locked dev->parent->sem before calling device_release_driver().
-> > 	This is not really needed, however, since USB drivers aren't
-> > 	supposed to touch the device in their disconnect() method.)
+On Thu, 31 Mar 2005 08:02:44 -0800 (PST), Patrick Mochel
+<mochel@digitalimplant.org> wrote:
 > 
+> On Thu, 31 Mar 2005, Dmitry Torokhov wrote:
 > 
-> Why can't you just lock it in ->probe() and ->remove() yourself?
+> > Ok, what do you think about this one?
+> >
+> > ===================================================================
+> >
+> > swsusp: disable usermodehelper after generating memory snapshot and
+> >         before resuming devices, so when device fails to resume we
+> >         won't try to call hotplug - userspace stopped anyway.
+> 
+> Hm, shouldn't we disable it before we start to freeze processes? We don't
+> want any more processes trying to start up after we've taken care of
+> them..
+> 
 
-Aha!  There you go...  This explains why you need explicit locking rules.
+Can't a device be removed (for any reason) _while_ we are freezing
+processes? I think freeszing code will properly deal with it... What
+about suspend semantics - if suspend fails do we say the device should
+be operational or the system should attempt to re-initialize? I.e. we
+are not doing suspend after all - can we still drop messages on the
+floor? After all, we still have ability to run coldplug after failed
+suspend.
 
-When probe() and remove() are called, the driver-model core already owns
-the device's lock.  If the driver then tried to lock the parent, it would
-mean acquiring locks in the wrong order.  This could easily lead to
-deadlock.
+I frankly am not sure at what point to disable usermode helper. Or
+maybe we need to have a list of pending events and suspend khelper_wq
+while suspending.
 
-Furthermore, it will often happen during probe() and remove() that the
-parent's lock is already owned by the USB core.  So the driver _mustn't_
-try to lock it.
-
-Alan Stern
-
+-- 
+Dmitry

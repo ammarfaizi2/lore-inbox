@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264344AbUFGJBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUFGJEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264344AbUFGJBP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 05:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUFGJBP
+	id S264246AbUFGJEV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 05:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbUFGJEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 05:01:15 -0400
-Received: from mail-05.iinet.net.au ([203.59.3.37]:45789 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264352AbUFGJBL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 05:01:11 -0400
-Subject: Re: Re: building MINIX on LINUX using gcc
-From: James Buchanan <buchanan@iinet.net.au>
-To: ckkashyap@spymac.com
+	Mon, 7 Jun 2004 05:04:21 -0400
+Received: from mail014.syd.optusnet.com.au ([211.29.132.160]:10441 "EHLO
+	mail014.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264246AbUFGJES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 05:04:18 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: bert hubert <ahu@ds9a.nl>
+Subject: Re: BUG in ht-aware scheduler/nice in 2.6.7-rc2 on dual xeon
+Date: Mon, 7 Jun 2004 19:03:57 +1000
+User-Agent: KMail/1.6.1
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040607083648.489254C050@spy10.spymac.net>
-References: <20040607083648.489254C050@spy10.spymac.net>
-Content-Type: text/plain
-Message-Id: <1086598881.2226.24.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 07 Jun 2004 19:01:21 +1000
+References: <20040607085625.GA11276@outpost.ds9a.nl>
+In-Reply-To: <20040607085625.GA11276@outpost.ds9a.nl>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406071903.57648.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 7 Jun 2004 18:56, bert hubert wrote:
+> Con, Ingo, List,
+>
+> I'm overjoyed with decent ht-aware scheduling in 2.6.7-rc2 and it does
+> mostly the right thing. However, the 'nice' work by Con shows some slight
+> problems.
+>
+> Please find attached program 'eat-time.cc'. Make sure not to compile it
+> with -O which might confuse things as this program basically does nothing.
+>
+> Run it without arguments to determine the speed of 1 cpu, it outputs a
+> number (megaloops/second). Then start it with that number as a parameter:
+>
+> Sample:
+>
+> $ ./eat-time
+> 592
+> $ ./eat-time 592
+> 99%
+> 99%
+> 100%
+> etc
+>
+> Now starting four of these at the same time gives the desired result:
+>
+> $ ./eat-time 592 & ./eat-time 592 & ./eat-time 592 & ./eat-time 592
+> 50%
+> 50%
+> 50%
+> 50%
+> etc
+>
+> This however:
+>
+> $ ./eat-time 592 & ./eat-time 592 &
+> 100%
+> 99%
+> In another xterm:
+> $ nice -n +19 ./eat-time 592 & nice -n +19 ./eat-time 592
+> 5%
+> 5%
+> 5%
+>
+> Fails sometimes, with all processes getting 50%. The above 'screenshot' is
+> from the working and expected situation, which happens most of the time.
+>
+> When it goes wrong, top shows me that Cpu0 and Cpu1 are 100% user, while
+> Cpu2 and Cpu3 are both 100% nice.  The niced processes show up in top as
+> PRiority 39, the unniced ones (NI = 0) as PR 25.
 
-> >PS. Get the official MINIX sources, and use a XX-to-YY translator or
-> Where do I get the official sources from?
+This is just because the scheduler balancing is not aware of nice and when two 
+same niceness tasks are on the same physical core they get equal shares. The 
+ht-aware nice only works at keeping different nice values on the same 
+physical core fair. There is no more that can be done using the current ht 
+aware mechanism; a far more complicated balancing algorithm that takes nice 
+into account would be required.
 
-http://www.cs.vu.nl/pub/minix/
-
-> What can I do to make it loadable by GRUB or so. I understand that /minix is a concatination of the various a.outs. Can I write a tiny executable 
-> that will get loaded by GRUB that loaded /minix beyond 1M. Are there many initializations that need to be done before this?
-
-You have to modify the startup code to accept the multiboot structure
-and do something with it.  You can compile it into an ELF image if you
-want to, nothing wrong with that.  Then compile the MM and FS tasks as
-a.out executables and specify them as modules on the GRUB command line,
-and load them from the kernel to the place you want them (much easier
-than the nasty way it's done so far).  You'd need to make extensive
-modifications.
-
-I suggest using GRUB to chainload instead.  You put the Minix bootsector
-and boot program into the Minix partition and GRUB can chainload from
-there.  No modification of sources needed for that.
-
-Minix expects certain areas of its compiled binary to be patched by
-boot, so don't make it a multiboot compliant kernel and load the servers
-separately without knowing what you're doing.  So chainloading with GRUB
-is by far the easiest way to go.
-
-Have fun :)
-
-James
-
-
+Con

@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265131AbUFGXbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265133AbUFGXor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265131AbUFGXbs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 19:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265132AbUFGXbs
+	id S265133AbUFGXor (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 19:44:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265132AbUFGXor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 19:31:48 -0400
-Received: from world.rdmcorp.com ([204.225.180.10]:56651 "EHLO
-	mailhost.rdmcorp.com") by vger.kernel.org with ESMTP
-	id S265131AbUFGXbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 19:31:46 -0400
-Date: Mon, 7 Jun 2004 19:28:17 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Sean Neakums <sneakums@zork.net>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: how to configure/build a kernel in a separate directory?
-In-Reply-To: <6uy8mz3vff.fsf@zork.zork.net>
-Message-ID: <Pine.LNX.4.58.0406071926540.22541@localhost.localdomain>
-References: <Pine.LNX.4.58.0406071653200.21938@localhost.localdomain>
- <6uy8mz3vff.fsf@zork.zork.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Jun 2004 19:44:47 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:65224 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S265133AbUFGXoq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 19:44:46 -0400
+Date: Mon, 7 Jun 2004 18:57:44 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Sushant Sharma <sushant@cs.unm.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: when is alloc_skb called
+Message-ID: <20040607225744.GA26253@phunnypharm.org>
+References: <40C4DE2A.1070008@cs.unm.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40C4DE2A.1070008@cs.unm.edu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 7 Jun 2004, Sean Neakums wrote:
-
-> "Robert P. J. Day" <rpjday@mindspring.com> writes:
+On Mon, Jun 07, 2004 at 03:29:14PM -0600, Sushant Sharma wrote:
+> Hi All
 > 
-> >   is there an easy way to configure/build one or both of a 2.4 and 2.6 
-> > kernel in a totally separate directory from the source directory itself?
-> >
-> >   i'd like to have a totally pristine ("make mrproper"ed) source tree,
-> > write-protected, readable by all, so that several developers can 
-> > independently configure and build their own kernels without stepping on 
-> > each other.
-> 
-> This isn't really what you want, but you can use 'cp -rl' to build a
-> hard-linked tree from the pristine read-only tree and build there.
-> This will at least address the space issue.
+> I want to know which are the evnets
+> that can lead to the calling of alloc_skb
+> function which is used to allocate sk_buff.
+> Arrival and departure of packet are 2 events
+> which I know. Are there any other events/cases
+> which can lead to alloc_skb(...) function call in kernel.
 
-i was reminded of the easy solution with the 2.6 kernel, so that's a 
-relief.  sadly, it's the 2.4 case that's more important to me at the 
-moment, and it looks like it's major symlink time.  oh well ... more 
-incentive to move on up to 2.6.
+Some non-network related drivers use skb's for non-network related
+things (ieee1394 is one such abuser).
 
-thanks.
-
-rday
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

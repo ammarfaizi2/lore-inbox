@@ -1,114 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbULWOKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbULWOdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbULWOKm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 09:10:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbULWOKm
+	id S261246AbULWOdd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 09:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbULWOdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 09:10:42 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:29659 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261243AbULWOKg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 09:10:36 -0500
-Subject: Re: [PATCH] Secondary cpus boot-up for non defalut location built
-	kernels
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, fastboot <fastboot@lists.osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       dipankar sarma <dipankar@in.ibm.com>
-In-Reply-To: <m1k6r9ur3h.fsf@ebiederm.dsl.xmission.com>
-References: <1103802944.8123.114.camel@2fwv946.in.ibm.com>
-	 <m1k6r9ur3h.fsf@ebiederm.dsl.xmission.com>
-Content-Type: multipart/mixed; boundary="=-c/B5/e5uunYxO1i4co6c"
-Organization: 
-Message-Id: <1103813102.8123.141.camel@2fwv946.in.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Dec 2004 20:15:02 +0530
+	Thu, 23 Dec 2004 09:33:33 -0500
+Received: from av2-2-sn3.vrr.skanova.net ([81.228.9.108]:65222 "EHLO
+	av2-2-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S261246AbULWOd3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 09:33:29 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>
+Subject: OOPS when disconnecting USB mouse while its event device is in use
+From: Peter Osterlund <petero2@telia.com>
+Date: 23 Dec 2004 15:33:22 +0100
+Message-ID: <m3is6tythp.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Running 2.6.10-rc3-bk15, I get an oops if I disconnect my USB mouse
+while a userspace program has the corresponding event device opened.
 
---=-c/B5/e5uunYxO1i4co6c
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I don't have this problem when running 2.6.10-rc3-mm1, which I think
+is because of this patch from bk-input.
 
+#   2004/10/21 23:50:25-05:00 dtor_core@ameritech.net 
+#   Input: evdev, joydev, mousedev, tsdev - remove class device and devfs
+#          entry when hardware driver disconnects instead of waiting for
+#          the last user to drop off. This way hardware drivers can be
+#          unloaded at any time.
 
-> > This patch fixes the problem of secondary cpus boot up. This situation
-> > is faced when kernel is built for non default locations like 16MB and
-> > onwards. In this configuration, only primary cpu (BP) comes and
-> > secondary cpus don't boot.
-> > 
-> > Problem occurs because in trampoline code, lgdt is not able to load the
-> > GDT as it happens to be situated beyond 16MB. This is due to the fact
-> > that cpu is still in real mode and default operand size is 16bit.
-> 
-> Which means that the cpu will load a 24bit linear address (3 bytes)
-> because it is acting like a 286.
->  
-> > This patch uses lgdtl instead of lgdt to force operand size to 32
-> > instead of 16.
-> 
-> Sounds sane looking at the trampoline I suspect that people thought
-> it was using a 32bit address all along.  And the code only worked
-> because the data was stored little endian.  
-
-> We probably want to apply
-> the same fix to the ldt instruction just about it.  Just in case
-> we ever decide to populate an idt at that point.
+Maybe it would be a good idea to merge this patch before 2.6.10.
 
 
-Sounds good. Sending the patch again with suggested change included.
-
-> 
-> But the fix certainly looks good from here.
-> 
-> Eric
-> 
+Dec 23 13:27:21 r3000 kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Dec 23 13:27:21 r3000 kernel:  printing eip:
+Dec 23 13:27:21 r3000 kernel: c01c77e1
+Dec 23 13:27:21 r3000 kernel: *pde = 00000000
+Dec 23 13:27:21 r3000 kernel: Oops: 0000 [#1]
+Dec 23 13:27:21 r3000 kernel: PREEMPT 
+Dec 23 13:27:21 r3000 kernel: Modules linked in: radeon snd_atiixp_modem nfsd exportfs lockd parport_pc lp parport autofs4 pcmcia sunrpc ipt_LOG ipt_limit ipt_state ipt_REJECT iptable_filter ipt_MASQUERADE iptable_nat ip_tables binfmt_misc dm_mod usbhid yenta_socket pcmcia_core ohci_hcd ehci_hcd usbcore 8139too ide_cd cdrom
+Dec 23 13:27:21 r3000 kernel: CPU:    0
+Dec 23 13:27:21 r3000 kernel: EIP:    0060:[<c01c77e1>]    Not tainted VLI
+Dec 23 13:27:21 r3000 kernel: EFLAGS: 00210246   (2.6.10-rc3-bk15) 
+Dec 23 13:27:21 r3000 kernel: EIP is at get_kobj_path_length+0x1a/0x31
+Dec 23 13:27:21 r3000 kernel: eax: 00000000   ebx: 00000000   ecx: ffffffff   edx: df95dbb8
+Dec 23 13:27:21 r3000 kernel: esi: 00000001   edi: 00000000   ebp: ffffffff   esp: c9549e50
+Dec 23 13:27:21 r3000 kernel: ds: 007b   es: 007b   ss: 0068
+Dec 23 13:27:21 r3000 kernel: Process evdev (pid: 6278, threadinfo=c9548000 task=ceebf020)
+Dec 23 13:27:21 r3000 kernel: Stack: c03b3b60 df95db94 dfb02498 df95dbb8 c01c785a df95dbb8 00000001 0000000a 
+Dec 23 13:27:21 r3000 kernel:        c0228ad3 c03b3b60 df95db94 dfb02498 dfb0218c c023c758 df95dbb8 000000d0 
+Dec 23 13:27:21 r3000 kernel:        c03b3b60 dfb02480 c957282a c03b3b48 c01caa54 c957282a 00000000 00000000 
+Dec 23 13:27:21 r3000 kernel: Call Trace:
+Dec 23 13:27:21 r3000 kernel:  [<c01c785a>] kobject_get_path+0x13/0x5f
+Dec 23 13:27:21 r3000 kernel:  [<c0228ad3>] pty_write+0x51/0x5a
+Dec 23 13:27:21 r3000 kernel:  [<c023c758>] class_hotplug+0x5e/0x19a
+Dec 23 13:27:21 r3000 kernel:  [<c01caa54>] vsprintf+0x27/0x2b
+Dec 23 13:27:21 r3000 kernel:  [<c01c84ee>] kobject_hotplug+0x2c3/0x2df
+Dec 23 13:27:21 r3000 kernel:  [<c01c7b86>] kobject_del+0x18/0x2d
+Dec 23 13:27:21 r3000 kernel:  [<c023cb7c>] class_device_del+0x98/0xb4
+Dec 23 13:27:21 r3000 kernel:  [<c023cba8>] class_device_unregister+0x10/0x1d
+Dec 23 13:27:21 r3000 kernel:  [<c026f431>] evdev_free+0x1b/0x36
+Dec 23 13:27:21 r3000 kernel:  [<c026f4e6>] evdev_release+0x9a/0xc7
+Dec 23 13:27:21 r3000 kernel:  [<c0153275>] __fput+0xfc/0x13c
+Dec 23 13:27:21 r3000 kernel:  [<c0151b8e>] filp_close+0x49/0x7b
+Dec 23 13:27:21 r3000 kernel:  [<c0151c1a>] sys_close+0x5a/0xa2
+Dec 23 13:27:21 r3000 kernel:  [<c0102ee1>] sysenter_past_esp+0x52/0x75
+Dec 23 13:27:21 r3000 kernel: Code: ff 85 c0 89 c3 74 ea 89 34 24 e8 ad d1 fb ff eb e0 55 bd ff ff ff ff 57 56 be 01 00 00 00 53 31 db 8b 54 24 14 8b 3a 89 e9 89 d8 <f2> ae f7 d1 49 8b 52 24 8d 74 31 01 85 d2 75 ea 5b 89 f0 5e 5f 
 
 -- 
-Vivek Goyal
-Linux Technology Center
-India Software Labs
-IBM India, Bangalore
-
---=-c/B5/e5uunYxO1i4co6c
-Content-Disposition: attachment; filename=boot_ap_for_nondefault_kernel.patch
-Content-Type: text/plain; name=boot_ap_for_nondefault_kernel.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-
-This patch fixes the problem of secondary cpus not coming up over a reboot. 
-This problem was seen when a kernel compiled for non default (16MB) location 
-is booted.
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- linux-2.6.10-rc3-mm1-changes-root/arch/i386/kernel/trampoline.S |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
-
-diff -puN arch/i386/kernel/trampoline.S~boot_ap_for_nondefault_kernel arch/i386/kernel/trampoline.S
---- linux-2.6.10-rc3-mm1-changes/arch/i386/kernel/trampoline.S~boot_ap_for_nondefault_kernel	2004-12-22 16:36:50.000000000 +0530
-+++ linux-2.6.10-rc3-mm1-changes-root/arch/i386/kernel/trampoline.S	2004-12-22 21:51:35.000000000 +0530
-@@ -51,8 +51,14 @@ r_base = .
- 	movl	$0xA5A5A5A5, trampoline_data - r_base
- 				# write marker for master knows we're running
- 
--	lidt	boot_idt - r_base	# load idt with 0, 0
--	lgdt	boot_gdt - r_base	# load gdt with whatever is appropriate
-+	/* GDT tables in non default location kernel can be beyond 16MB and
-+	 * lgdt will not be able to load the address as in real mode default
-+	 * operand size is 16bit. Use lgdtl instead to force operand size
-+	 * to 32 bit.
-+	 */
-+
-+	lidtl	boot_idt - r_base	# load idt with 0, 0
-+	lgdtl	boot_gdt - r_base	# load gdt with whatever is appropriate
- 
- 	xor	%ax, %ax
- 	inc	%ax		# protected mode (PE) bit
-_
-
---=-c/B5/e5uunYxO1i4co6c--
-
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

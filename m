@@ -1,86 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264519AbTIJDwr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 23:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbTIJDwr
+	id S264504AbTIJENR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 00:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264518AbTIJENQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 23:52:47 -0400
-Received: from postal.usc.edu ([128.125.253.6]:10977 "EHLO postal.usc.edu")
-	by vger.kernel.org with ESMTP id S264519AbTIJDwU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 23:52:20 -0400
-Date: Tue, 09 Sep 2003 20:52:18 -0700
-From: Phil Dibowitz <phil@ipom.com>
-Subject: Re: Linux IDE bug in 2.4.21 and 2.4.22 ?
-In-reply-to: <200309091701.48993.bzolnier@elka.pw.edu.pl>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3F5E9FF2.1050006@ipom.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827
- Debian/1.4-3
-References: <20030908225107.GE17108@earthlink.net>
- <200309091448.36231.bzolnier@elka.pw.edu.pl> <3F5DE49E.50500@ipom.com>
- <200309091701.48993.bzolnier@elka.pw.edu.pl>
+	Wed, 10 Sep 2003 00:13:16 -0400
+Received: from smtp3.us.dell.com ([143.166.148.134]:26636 "EHLO
+	smtp3.us.dell.com") by vger.kernel.org with ESMTP id S264504AbTIJENP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 00:13:15 -0400
+Date: Tue, 9 Sep 2003 18:12:48 -0500 (CDT)
+From: Matt Domsch <Matt_Domsch@Dell.com>
+X-X-Sender: mdomsch@localhost.localdomain
+To: Greg KH <greg@kroah.com>, <rmk@arm.linux.org.uk>
+cc: Dave Jones <davej@redhat.com>, Anatoly Pugachev <mator@gsib.ru>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Buggy PCI drivers - do not mark pci_device_id as discardable
+ data
+In-Reply-To: <20030910033524.GD9760@kroah.com>
+Message-ID: <Pine.LNX.4.44.0309091752320.17200-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
->>But, what about the case when I built in the generic driver, but made
->>the CMD649 driver a module, and loaded it after boot. That shouldn't
->>have *changed* what ide0 and ide1 are, right? I had ide0 and ide1
->>assigned, did a modprobe, and CMD649 changed what ide0 adn ide1 where,
->>and then forgot about the previous ones.. like all of a sudden it told
->>the generic driver "no, no, you were wrong, there's no VIA chipset here,
->>go back to sleep."
-> 
-> 
-> Hmm. please send me dmesg.
+> > agp_serverworks_probe() is marked __init.  Thus the static lookup
+> Ah, Russell just got a patch for this into the tree today.
 
-OK,
+Thanks Russell.  However, I believe your patch only fixes the
+pci_device_id tables marked __initdata, not the probe functions (or
+anything they call) being marked __init, which is what Anatoly tripped up.  
 
-I've posted the following:
+At least these have probe functions marked __init in -test5.
 
-GOOD WORKING CONFIG
-http://phildev.net/config-working
+drivers/net/irda/via-ircc.c:static int __init via_init_one
+drivers/net/tokenring/abyss.c:static int __init abyss_attach
+drivers/net/tokenring/tmspci.c:static int __init tms_pci_attach
+drivers/pcmcia/i82092.c:static int __init i82092aa_pci_probe
+sound/oss/ali5455.c:static int __init ali_probe
+sound/oss/ali5455.c:ali_ac97_init
+sound/oss/ali5455.c:ali_configure_clocking
+sound/oss/i810_audio.c:static int __init i810_probe
+sound/oss/i810_audio.c:i810_ac97_init
+sound/oss/i810_audio.c:i810_configure_clocking
+sound/oss/maestro3.c:static int __init m3_probe
+sound/oss/maestro3.c:m3_codec_install
+sound/oss/trident.c:static int __init trident_probe
+sound/oss/trident.c:trident_ac97_init
+sound/oss/via82cxxx_audio.c:static int __init via_init_one
+   (and some related functions)
+drivers/char/agp/*.c
 
-GOOD WORKING DMESG
-http://phildev.net/dmesg-working
 
-NON WORKING CONFIG
-http://phildev.net/config-bad
-
-NON WORKING DMESG
-http://phildev.net/dmesg-bad
-
-As a recap...
-For the non-working config, when I boot, the onboard VIA is recognized 
-by the generic IDE driver, and then I did the dmesg, and then I 
-modprobed CMD64X and it **reasigned** ide0 and ide1 to the PCI IDE 
-card's chains and the original ide0 and ide1 disappeared, I therefore 
-lost my hard drive, and the machine becomes unresponsive. I think that 
-**might** be a bug in the CMD64X driver?
-
-If I can provide more info, please let me know. I've kept the other 
-kernel around so that I may boot into it if need be.
-
-And as I said before, compiling hte VIA and CMD drivers both into the 
-works fine on my machine, and I appreciate help getting that working, 
-but I would like to either understand the above behavior, or know its a 
-bug, or...
-
-Thanks again for all your help. It really is much appreciated.
+Thanks,
+Matt
 
 -- 
-Phil Dibowitz                             phil@ipom.com
-Freeware and Technical Pages              Insanity Palace of Metallica
-http://www.phildev.net/                   http://www.ipom.com/
-
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety."
-  - Benjamin Franklin, 1759
-
+Matt Domsch
+Sr. Software Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 

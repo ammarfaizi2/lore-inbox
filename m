@@ -1,92 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbUCRRUP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 12:20:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbUCRRUP
+	id S262796AbUCRRZh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 12:25:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbUCRRZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 12:20:15 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:1977 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S262794AbUCRRUE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 12:20:04 -0500
-Content-Class: urn:content-classes:message
+	Thu, 18 Mar 2004 12:25:36 -0500
+Received: from devonshire.concentric.net ([207.155.248.12]:25472 "EHLO
+	devonshire.cnchost.com") by vger.kernel.org with ESMTP
+	id S262796AbUCRRZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 12:25:32 -0500
+Reply-To: <greggr@transquest.com>
+From: "Gregg Ruoti" <greggr@transquest.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: in need of a filesystems developer-for release under GPL
+Date: Thu, 18 Mar 2004 12:24:00 -0500
+Organization: TransQuest Ventures
+Message-ID: <003401c40d0d$d54fcfd0$6325010a@Gregg>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Linux Kernel Microcode Question
-Date: Thu, 18 Mar 2004 09:19:42 -0800
-Message-ID: <7F740D512C7C1046AB53446D3720017301118F87@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux Kernel Microcode Question
-Thread-Index: AcQNB/7wYG3KGIkQRgu9qrCM3DwUQQAAjSlw
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Justin Piszcz" <jpiszcz@hotmail.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Mar 2004 17:19:43.0803 (UTC) FILETIME=[3465A8B0:01C40D0D]
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A microcode update is used to correct errata in the processor, and the
-facility is part of the architecture, as written in the manual. As Dave
-pointed out, if the BIOS has the latest one, the OS does not need to do
-anything. 
 
-We are working with Tigran closely, and we have provided the latest
-updates to him very recently. He will try them out first, and then
-publish the new updates for public consumption. Stay tuned.
 
-Jun
+-----Original Message-----
+From: Gregg Ruoti [mailto:greggr@transquest.com] 
+Sent: Thursday, March 18, 2004 12:06 PM
+To: 'linux-kernel@vger.kernel.org'
+Subject: in need of a filesystems developer-for release under GPL
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
->owner@vger.kernel.org] On Behalf Of Justin Piszcz
->Sent: Thursday, March 18, 2004 8:41 AM
->To: linux-kernel@vger.kernel.org
->Subject: Linux Kernel Microcode Question
->
->The URL: http://www.urbanmyth.org/microcode/
->
->The microcode_ctl utility is a companion to the IA32 microcode driver
->written by Tigran Aivazian <tigran@veritas.com>. The utility has two
-uses:
->
->    * it decodes and sends new microcode to the kernel driver to be
->uploaded
->to Intel IA32 processors. (Pentium Pro, PII, PIII, Pentium 4, Celeron,
-Xeon
->etc - all P6 and above, which does NOT include pentium classics)
->    * it signals the kernel driver to release any buffers it may hold
->
->The microcode update is volatile and needs to be uploaded on each
-system
->boot i.e. it doesn't reflash your cpu permanently, reboot and it
-reverts
->back to the old microcode.
->
->My question is, what are the advantages vs disadvantages in updating
-your
->CPU's microcode?
->
->Is it worth it?
->
->Does it matter what type of Intel CPU you have?
->
->Do some CPU's benefit more than others for microcode updates?
->
->I know RedHat distributions usually do this by default, but others do
-not.
->
->Can anyone explain reasons to or not to update the CPU microcode?
->
->_________________________________________________________________
->FREE pop-up blocking with the new MSN Toolbar - get it now!
->http://clk.atdmt.com/AVE/go/onm00200415ave/direct/01/
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+I'm hoping this will be found relevant for some members in your
+organization.  I wanted to make them aware of this unique filesystems
+developer opportunity for the Linux platform::
+
+I am working on behalf of a software vendor that has formerly retained
+our search firm to help them identify an accomplished FILESYSTEMS
+DEVELOPER. Portions of the finished work will be released under GPL and
+will offer the hired individual that much more visibility in the
+Linux/Open Source world. It's a great opportunity for the right person
+to make the leap over to a Linux filesystems based environment if not
+there already. The position is located in the CA Bay Area.
+
+I came across your organization as being a very visible & active in this
+community/subject. My client has a management team which includes one of
+the originators of SGI's IRIX, a former Wind River senior executive at
+the CxO level as well as former IBM Labs & Apple Labs people in their
+core engineering team.
+
+As you are well aware, there are very few engineers that have developed
+a true disk-based filesystem (as opposed to working with one). I
+understand from my client that the hired individual will have the
+freedom & opportunity to build changes to the filesystem's robustness to
+malicious modification, and greatly enhance its auditing capabilities.
+This would include defining what actions the filesystem will
+automatically take to changes, etc. The challenges of this filesystem
+work should make it most attractive to the more creative individual.
+ 
+If you are aware of any professional acquaintances (SIGs,etc.) that you
+may be inclined to enlighten about this opportunity, I have copied the
+requirements below. If they would need more information, please feel
+free to contact me and I will provide what I can. Obviously, we would be
+grateful for any referral from you. If that does happen and we are
+successful in a hire, I am prepared to donate to your favorite SIG/User
+group, pay for a training class or offer a referral bonus to your
+organization to fund a trip to a conference etc. Thanks for your time
+(and my apologies for the long-winded email!).
+
+Regards,
+Gregg 
+===============================
+Position info:
+130k to 160K USD per annum
+This is my confidential client's most critical & visible position for
+building their next generation architecture to be deployed on the Intel
+platform. In the area of Linux management & deployment software, they
+are one of the few proven sources for their line of robust Linux
+solutions for the enterprise level customer. They are a small firm that
+is breaking ground with the commercial potential of Linux. 
+Their flexibility to pay full-time in the 130k to 160K range per annum
+proves the importance they are placing on this opportunity. This is a
+full-time position to be located in their northern California Bay Area
+headquarters. They will assist with relocation expenses for the right
+individual.
+
+ 
+REQUIREMENTS:
+1) Professional experience focused in the development of disk based
+Filesystems, not network filesystems. (Though NFS, cifs, or samba design
+skills are fine to have, they are NOT applicable to this position)
+
+2) Development in UNIX-compatible filesystems such as Linux (would be
+great to have), but AIX, Solaris, *BSD, etc. are all acceptable if the
+individual is interested in making the transition over to Linux
+filesystems.
+
+3) Worked with at least one of the following:
+-Linux Inodes (or other BSD like flavor Inodes)
+-Unix Vnodes
+
+4) Done development specifically within the VFS (Virtual System File
+Layer)
+
+5) Must be familiar with the architecture of at least 1 of the following
+filesystems: -EXT2 or EXT3 filesystem -jfs filesystem (IBM's journaled
+file system technology, currently used in IBM enterprise servers)
+-reiserfs filesystem (Reiser4) -XFS (SGI's filesystem)
+-HFS+ (Mac OS-X)
+-VxFS (Veritas)
+-ufs (Berkeley BSD filesystem) ====================================
+
+
+Gregg Ruoti
+Director Business Development
+908.684.3660 Office
+973.919.4019 Mobile
+greggr@transquest.com
+TransQuest Ventures, Inc.
+
+

@@ -1,36 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUGEVKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUGEVPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbUGEVKP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 17:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUGEVKP
+	id S262356AbUGEVPh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 17:15:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbUGEVPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 17:10:15 -0400
-Received: from math.ut.ee ([193.40.5.125]:29950 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S262329AbUGEVKJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 17:10:09 -0400
-Date: Tue, 6 Jul 2004 00:10:02 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Len Brown <len.brown@intel.com>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: rtc: IRQ 0 is not free.
-In-Reply-To: <1089052420.15675.21.camel@dhcppc4>
-Message-ID: <Pine.GSO.4.44.0407060003330.18649-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jul 2004 17:15:37 -0400
+Received: from fmr11.intel.com ([192.55.52.31]:29097 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262356AbUGEVPe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 17:15:34 -0400
+Subject: Re: 2.6.7-mm3 USB ehci IRQ problem
+From: Len Brown <len.brown@intel.com>
+To: Jurgen Kramer <gtm.kramer@inter.nl.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1089059612.3589.5.camel@paragon.slim>
+References: <A6974D8E5F98D511BB910002A50A6647615FEF3E@hdsmsx403.hd.intel.com>
+	 <1089054167.15653.51.camel@dhcppc4>  <1089058581.2496.9.camel@paragon.slim>
+	 <1089059612.3589.5.camel@paragon.slim>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1089062128.15675.122.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 05 Jul 2004 17:15:28 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> it would be good if you could verify that vanilla 2.6.7 puts
-> rtc on IRQ8 properly for this box.
+On Mon, 2004-07-05 at 16:33, Jurgen Kramer wrote:
+> On Mon, 2004-07-05 at 22:16, Jurgen Kramer wrote:
+> > On Mon, 2004-07-05 at 21:02, Len Brown wrote:
+> > > On Sun, 2004-06-27 at 08:02, Jurgen Kramer wrote:
 
-It was actually a configuration option of HPET that mucked with RTC
-IRQs, not ACPI.
+> 2.6.7 vanilly results are in. The results are...it works..
 
-> hmmm, had never heard of lspnp (and neither does my local system)
+great!  Now if you can apply this patch to 2.6.7 and tell me if
+it is ACPI that broke EHCI for you in -mm5 or something else:
 
-In Debian it's in the pcmcia-cs package.
+http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm5/broken-out/bk-acpi.patch
 
--- 
-Meelis Roos (mroos@linux.ee)
+
+thanks,
+-Len
+
 

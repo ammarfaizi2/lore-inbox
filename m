@@ -1,60 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbTJOAsi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 20:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbTJOAsi
+	id S262038AbTJOA5W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 20:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTJOA5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 20:48:38 -0400
-Received: from user-118bgnr.cable.mindspring.com ([66.133.194.251]:16000 "EHLO
-	BL4ST") by vger.kernel.org with ESMTP id S261239AbTJOAsh (ORCPT
+	Tue, 14 Oct 2003 20:57:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:717 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262038AbTJOA5U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 20:48:37 -0400
-Date: Wed, 15 Oct 2003 00:48:37 +0000
-From: Eric Wong <eric@yhbt.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: 4Front Technologies <dev@opensound.com>,
-       Martin Josefsson <gandalf@wlug.westbo.se>, linux-kernel@vger.kernel.org
-Subject: Re: mouse driver bug in 2.6.0-test7?
-Message-ID: <20031015004837.GA444@BL4ST>
-References: <3F8C3A99.6020106@opensound.com> <1066159113.12171.4.camel@tux.rsn.bth.se> <20031014193847.GA9112@ucw.cz> <3F8C56B3.1080504@opensound.com> <20031014201354.GA10458@ucw.cz>
+	Tue, 14 Oct 2003 20:57:20 -0400
+Date: Tue, 14 Oct 2003 17:59:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test7: saa7134 breaks on gcc 2.95
+Message-Id: <20031014175938.04d94087.akpm@osdl.org>
+In-Reply-To: <3F8C9705.26CA0B63@eyal.emu.id.au>
+References: <3F8C9705.26CA0B63@eyal.emu.id.au>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031014201354.GA10458@ucw.cz>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Tue, Oct 14, 2003 at 01:04:03PM -0700, 4Front Technologies wrote:
-> > I'd recommend that you make the sample rate a module config option so that
-> > users may be able to tweak this for their systems.
+Eyal Lebedinsky <eyal@eyal.emu.id.au> wrote:
+>
+> This compiler does not like dangling comma in funcs, so this patch
+>  is needed. For:
 > 
-> It already is. Only the code to make it a kernel command line parameter
-> (when psmouse is compiled into the kernel) is missing.
+>  #define dprintk(fmt, arg...)    if (core_debug) \
+>  	printk(KERN_DEBUG "%s/core: " fmt, dev->name, ## arg)
+> 
+>  Lines like this:
+> 
+>  	dprintk("hwinit1\n");
+> 
+>  should be hacked like this:
+> 
+>  	dprintk("hwinit1\n", "");
 
-I could've sworn I had this in one of the patches I sent you, but
-perhaps not.
+I couldn't find a sane way.  Ended up doing this:
 
---- drivers/input/mouse/psmouse-base.c~	2003-10-13 06:13:52.000000000 +0000
-+++ drivers/input/mouse/psmouse-base.c	2003-10-15 00:21:59.000000000 +0000
-@@ -651,10 +651,17 @@
- 	return 1;
- }
+diff -puN drivers/media/video/saa7134/saa7134-core.c~saa7134-build-fix drivers/media/video/saa7134/saa7134-core.c
+--- 25/drivers/media/video/saa7134/saa7134-core.c~saa7134-build-fix	2003-10-13 22:43:15.000000000 -0700
++++ 25-akpm/drivers/media/video/saa7134/saa7134-core.c	2003-10-13 22:43:15.000000000 -0700
+@@ -94,8 +94,13 @@ MODULE_PARM_DESC(latency,"pci latency ti
+ struct list_head  saa7134_devlist;
+ unsigned int      saa7134_devcount;
  
-+static int __init psmouse_rate_setup(char *str)
-+{
-+	get_option(&str, &psmouse_rate);
-+	return 1;
-+}
-+
- __setup("psmouse_noext", psmouse_noext_setup);
- __setup("psmouse_resolution=", psmouse_resolution_setup);
- __setup("psmouse_smartscroll=", psmouse_smartscroll_setup);
- __setup("psmouse_resetafter=", psmouse_resetafter_setup);
-+__setup("psmouse_rate=", psmouse_rate_setup);
+-#define dprintk(fmt, arg...)	if (core_debug) \
+-	printk(KERN_DEBUG "%s/core: " fmt, dev->name, ## arg)
++#define dprintk(fmt, arg...)						\
++	do {								\
++		if (core_debug) {					\
++			printk(KERN_DEBUG "%s/core: ", dev->name);	\
++			printk(fmt, ## arg);				\
++		}							\
++	} while (0)
  
- #endif
- 
--- 
-Eric Wong
+ /* ------------------------------------------------------------------ */
+ /* debug help functions                                               */
+
+_
+

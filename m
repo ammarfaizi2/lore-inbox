@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264188AbTDPBP5 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 21:15:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbTDPBP5 
+	id S264187AbTDPB1w (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 21:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbTDPB1w 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 21:15:57 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:12512 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S264188AbTDPBP4 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 21:15:56 -0400
-Date: Tue, 15 Apr 2003 18:27:43 -0700
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200304160127.h3G1Rh3b010502@napali.hpl.hp.com>
-To: torvalds@transmeta.com
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: module symbol fix
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-To: davidm@hpl.hp.com
+	Tue, 15 Apr 2003 21:27:52 -0400
+Received: from adsl-67-121-155-183.dsl.pltn13.pacbell.net ([67.121.155.183]:8416
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S264187AbTDPB1v (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 21:27:51 -0400
+Date: Tue, 15 Apr 2003 18:39:42 -0700
+To: kernel@kolivas.org
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [2.4.20-ck6] Rmap15f patch fails in vmscan.c
+Message-ID: <20030416013942.GA31943@triplehelix.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix for trivial typo.  Without it, you can't insert anything on top of
-agpgart.ko because the agp_register_driver() will erroneously pick up
-the symbol version from agp_backend_acquire().  I'm surprised a bug
-like this would survive for 9+ weeks.  Lack of testers?
 
-	--david
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-===== kernel/module.c 1.72 vs edited =====
---- 1.72/kernel/module.c	Tue Apr  8 12:36:21 2003
-+++ edited/kernel/module.c	Tue Apr 15 18:14:55 2003
-@@ -165,7 +165,7 @@
- 		if (gplok) {
- 			for (i = 0; i < mod->num_gpl_syms; i++) {
- 				if (strcmp(mod->gpl_syms[i].name, name) == 0) {
--					*crc = symversion(mod->crcs, i);
-+					*crc = symversion(mod->gpl_crcs, i);
- 					return mod->gpl_syms[i].value;
- 				}
- 			}
+The subject says it all. Extracted a clean 2.4.20 tree, patched it with
+the full -ck6 patch, then applied the rmap15f patch, and it fails in
+mm/vmscan.c. Give it a try for yourself... :)
+
+(The reason why I haven't just fixed it myself is because the rejects
+file is really big, and it seems to me like something you can easily
+correct with your sources, by rediffing against the right version of the
+file or something.)
+
+Regards
+Josh
+
+--=20
+New PGP public key: 0x27AFC3EE
+
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+nLReT2bz5yevw+4RAuNYAJ47PB4BBE+NH4JtWQFZthIvt3zlOQCgs01v
+2TlrzFAo9LOjv/Y3PIUP3rE=
+=TCTz
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--

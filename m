@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbUA0Byn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 20:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUA0Byn
+	id S261731AbUA0B5G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 20:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbUA0B5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 20:54:43 -0500
-Received: from [203.152.107.170] ([203.152.107.170]:12672 "HELO
-	skieu.myftp.org") by vger.kernel.org with SMTP id S261681AbUA0Byl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 20:54:41 -0500
-Date: Tue, 27 Jan 2004 14:56:06 +0000 (UTC)
-From: haiquy@yahoo.com
-X-X-Sender: sk@darkstar.example.net
-Reply-To: s_kieu@hotmail.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc1-mm1 pppd: page allocation failure (fwd)
-Message-ID: <Pine.LNX.4.53.0401271442590.919@darkstar.example.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 26 Jan 2004 20:57:06 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:49844 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261731AbUA0B5E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 20:57:04 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 27 Jan 2004 02:56:44 +0100 (MET)
+Message-Id: <UTC200401270156.i0R1uiR06609.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, gotom@debian.or.jp
+Subject: Re: [uPATCH] refuse plain ufs mount
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	From gotom@debian.or.jp  Tue Jan 27 02:44:00 2004
 
-Hi,
+	I wonder this modification is really ok because user can't find why he
+	can't mount his ufs if he does not specify ufstype=.  Putting only
+	one line is not acceptable for you?
 
-Sorry for the delay but I have still unable to reproduce the bug when
-when compiling use standard CFLAGS in the kernel Makefile.
+But you see, it wasn't the user at all, and it wasn't a ufs filesystem.
+It is kernel probing that causes error messages. That is unwanted.
+So, your version is wrong.
 
-Best regard,
+If it is really very desirable to warn the user the condition if(!silent)
+should be added.
 
+But in my opinion such a warning is not desirable at all.
+mount(8) and Documentation/filesystems/ufs.txt explain the details.
 
-Steve Kieu
-
----------- Forwarded message ----------
-Date: Sat, 24 Jan 2004 12:38:41 +0000 (UTC)
-From: haiquy@yahoo.com
-Reply-To: s_kieu@hotmail.com
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.2-rc1-mm1 pppd: page allocation failure
-
-
-Hi,
-
-This did not happen with 2.6.1-mm4 . The system is still running fine
-at the moment but I find several message in the dmesg output
-
-pppd: page allocation failure. order:4, mode:0xd0
-Call Trace: [<c01388f0>]  [<c013895f>]  [<c013b48c>]  [<c013b79e>]  [<c013bae4>]  [<c01fc177>]  [<c01f87b4>]  [<c01f6bd1>]  [<c014e742>]  [<c015f299>]  [<c02b2f67>]
-pppd: page allocation failure. order:4, mode:0xd0
-Call Trace: [<c01388f0>]  [<c013895f>]  [<c013b48c>]  [<c013b79e>]  [<c013bae4>]  [<c01fc177>]  [<c01f87b4>]  [<c01f6bd1>]  [<c014e742>]  [<c015f299>]  [<c02b2f67>]
-pppd: page allocation failure. order:4, mode:0xd0
-Call Trace: [<c01388f0>]  [<c013895f>]  [<c013b48c>]  [<c013b79e>]  [<c013bae4>]  [<c01fc177>]  [<c01f87b4>]  [<c01f6bd1>]  [<c014e742>]  [<c015f299>]  [<c02b2f67>]
-
-If some one need further testing or information pls cc me.
-
-Steve Kieu
+Andries

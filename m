@@ -1,235 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129458AbQLXAsi>; Sat, 23 Dec 2000 19:48:38 -0500
+	id <S129595AbQLXAt3>; Sat, 23 Dec 2000 19:49:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129595AbQLXAs3>; Sat, 23 Dec 2000 19:48:29 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:58305 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S129458AbQLXAsZ>;
-	Sat, 23 Dec 2000 19:48:25 -0500
-From: Andreas Franck <afranck@gmx.de>
-Date: Sun, 24 Dec 2000 01:21:44 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: Multipart/Mixed;
-  charset="US-ASCII";
-  boundary="------------Boundary-00=_8CQ1CK7DDWXS6FVO1A1E"
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.Linu.4.10.10012231826350.645-100000@mikeg.weiden.de>
-In-Reply-To: <Pine.Linu.4.10.10012231826350.645-100000@mikeg.weiden.de>
-Subject: Re: Fatal Oops on boot with 2.4.0testX and recent GCC snapshots
-Cc: Mike Galbraith <mikeg@wen-online.de>
+	id <S131105AbQLXAtT>; Sat, 23 Dec 2000 19:49:19 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:56062 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129595AbQLXAtJ>; Sat, 23 Dec 2000 19:49:09 -0500
+Message-ID: <3A454205.D33090A8@uow.edu.au>
+Date: Sun, 24 Dec 2000 11:23:33 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <00122401214400.17931@dg1kfa.ampr.org>
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: Linux 2.2.19pre2
+In-Reply-To: <3A40C8CB.D063E337@uow.edu.au>, <3A40C8CB.D063E337@uow.edu.au>; <20001220162456.G7381@athlon.random> <3A41DDB3.7E38AC7@uow.edu.au>, <3A41DDB3.7E38AC7@uow.edu.au>; <20001221161952.B20843@athlon.random> <3A4303AC.C635F671@uow.edu.au>, <3A4303AC.C635F671@uow.edu.au>; <20001222141929.A13032@athlon.random> <3A444CAA.4C5A7A89@uow.edu.au>,
+		<3A444CAA.4C5A7A89@uow.edu.au>; from andrewm@uow.edu.au on Sat, Dec 23, 2000 at 05:56:42PM +1100 <20001223191159.B29450@athlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli wrote:
+> 
+> On Sat, Dec 23, 2000 at 05:56:42PM +1100, Andrew Morton wrote:
+> > If we elect to not address this problem in 2.2 and to rely upon the network
+> 
+> I see. There are two races:
+> 
+> 1)      race inside __wake_up when it's run on the same waitqueue: 2.2.19pre3
+>         is affected as well as 2.2.18aa2, and 2.4.x is affected
+>         as well when #defining USE_RW_WAIT_QUEUE_SPINLOCK to 1.
 
---------------Boundary-00=_8CQ1CK7DDWXS6FVO1A1E
-Content-Type: text/plain;
-  charset="US-ASCII"
-Content-Transfer-Encoding: 8bit
+mm...  I think we should kill the USE_RW_WAIT_QUEUE_SPINLOCK option.
 
-The story continues, citing myself:
+> 2)      race between two parallel __wake_up running on different waitqueues
+>         (both 2.2.x and 2.4.x are affected)
+> 
+> 1) could be fixed trivially by making the waitqueue_lock a spinlock, but
+> this way doesn't solve 2). And if we solve 2) properly than 1) gets fixed as
+> well.
 
-> Hmm, would have been nice, but it crashes here with 20001222, nevertheless. 
-> For which CPU do you have your kernel configured? It might be a CPU 
-> specific issue, I'll try to compile for Pentium I and 486, now, and report
-> my results.
+I don't understand the problem with 2) in 2.2?  Every task on both waitqueues
+gets woken up.  Won't it sort itself out OK?
 
-It does not seem CPU specific, breaks for both 486 and Pentium with the same 
-error.
+For 2.4, 2) is an issue because we can have tasks on two waitqueues at the
+same time, with a mix of exclusive and non.  Putting a global spinlock
+into __wake_up_common would fix it, but was described as "horrid" by
+you-know-who :)
 
-> It would also be nice to know if this is a gcc issue or a kernel issue - if 
-> I knew which precise file was responsible for the crash, I could compare 
-> the assembly output for stable and snapshot GCC. My suspect is
-> kernel/sched.c, but this might be wrong, as the story begins on the launch 
-> of kupdate in fs/buffer.c.
+> I agree the right fix for 2) (and in turn for 1) ) is to count the number of
+> exclusive wake_up_process that moves the task in the runqueue, if the task was
+> just in the runqueue we must not consider it as an exclusive wakeup (so in turn
+> we'll try again to wakeup the next exclusive-wakeup waiter). This will
+> fix both races. Since the fix is self contained in __wake_up it's fine
+> for 2.2.19pre3 as well and we can keep using a read_write lock then.
 
-And this is where everything seems to go wrong: When I compile buffer.c with 
-2.95.2, and link everything together, the kernel magically boots without any 
-complaints; later on something starts crashing badly, but this might be other 
-issues that can be investigated later on.
+I really like this approach.  It fixes another problem in 2.4:
 
-> But now I have almost no clue what really goes wrong
-... and now I have a bit more, and the suspection that something broke the 
-way in which the kernel_thread function (arch/i386/kernel/process.c) wants to 
-start the kernel threads, here bdflush and kupdate. I don't understand all 
-issues completely, but something seems to have changed.
+Example:
 
-Attached are the relevant (?) portions of the assembly output for buffer.c: 
-kupdate, bdflush and bdflush_init, compiled with 2.95.2 and 2.97, 
-respectively. Perhaps someone could look over it?
+static struct request *__get_request_wait(request_queue_t *q, int rw)
+{
+        register struct request *rq;
+        DECLARE_WAITQUEUE(wait, current);
 
-Thanks and happy hacking,
-Andreas
+        add_wait_queue_exclusive(&q->wait_for_request, &wait);
+        for (;;) {
+                __set_current_state(TASK_UNINTERRUPTIBLE);
+	/* WINDOW HERE */
+                spin_lock_irq(&io_request_lock);
+                rq = get_request(q, rw);
+                spin_unlock_irq(&io_request_lock);
+                if (rq)
+                        break;
+                generic_unplug_device(q);
+                schedule();
+        }
+        remove_wait_queue(&q->wait_for_request, &wait);
+        current->state = TASK_RUNNING;
+        return rq;
+}
 
--- 
-->>>----------------------- Andreas Franck --------<<<-
----<<<---- Andreas.Franck@post.rwth-aachen.de --->>>---
-->>>---- Keep smiling! ----------------------------<<<-
+If this task enters the schedule() and is then woken, and another
+wakeup is sent to the waitqueue while this task is executing in
+the marked window, __wake_up_common() will try to wake this
+task a second time and will then stop looking for tasks to wake.
 
---------------Boundary-00=_8CQ1CK7DDWXS6FVO1A1E
-Content-Type: application/x-troff;
-  name="buffer-2.95.2.S"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="buffer-2.95.2.S"
+The outcome: two wakeups sent to the queue, but only one task woken.
 
-LnNlY3Rpb24JLnJvZGF0YQouTEMzMjoKCS5zdHJpbmcJImJkZmx1c2giCi50ZXh0CgkuYWxpZ24g
-MTYKLmdsb2JsIGJkZmx1c2gKCS50eXBlCSBiZGZsdXNoLEBmdW5jdGlvbgpiZGZsdXNoOgoJcHVz
-aGwgJWVkaQoJcHVzaGwgJWVzaQoJcHVzaGwgJWVieAoJbW92bCAkLTgxOTIsJWVieAojQVBQCglh
-bmRsICVlc3AsJWVieDsgCiNOT19BUFAKCW1vdmwgJDEsMTIwKCVlYngpCgltb3ZsICQxLDExMigl
-ZWJ4KQoJbGVhbCA1NjIoJWVieCksJWVkaQoJbW92bCAkLkxDMzIsJWVzaQojQVBQCgkxOglsb2Rz
-YgoJc3Rvc2IKCXRlc3RiICVhbCwlYWwKCWpuZSAxYgojTk9fQVBQCgltb3ZsICVlYngsYmRmbHVz
-aF90c2sKI0FQUAoJY2xpCiNOT19BUFAKCXB1c2hsICVlYngKCWNhbGwgZmx1c2hfc2lnbmFscwoJ
-YWRkbCAkNCwlZXNwCgltb3ZsICQtMSwxMzY0KCVlYngpCgltb3ZsICQtMSwxMzYwKCVlYngpCglt
-b3ZsICQwLDgoJWVieCkKI0FQUAoJc3RpCiNOT19BUFAKCW1vdmwgMTYoJWVzcCksJWVjeAojQVBQ
-CgkjIGF0b21pYyB1cCBvcGVyYXRpb24KCWluY2wgKCVlY3gpCglqbGUgMmYKMToKLnNlY3Rpb24g
-LnRleHQubG9jaywiYXgiCjI6CWNhbGwgX191cF93YWtldXAKCWptcCAxYgoucHJldmlvdXMKCS5w
-MmFsaWduIDQsLDcKI05PX0FQUAouTDMzNDg6CgljbXBsICQwLGVtZXJnZW5jeV9zeW5jX3NjaGVk
-dWxlZAoJamUgLkwzMzUxCgljYWxsIGRvX2VtZXJnZW5jeV9zeW5jCi5MMzM1MToKCXB1c2hsICQw
-CgljYWxsIGZsdXNoX2RpcnR5X2J1ZmZlcnMKCW1vdmwgJWVheCwlZXNpCgljYWxsIGZyZWVfc2hv
-cnRhZ2UKCWFkZGwgJDQsJWVzcAoJdGVzdGwgJWVheCwlZWF4CglqZSAuTDMzNTIKCXB1c2hsICQw
-CglwdXNobCAkMwoJY2FsbCBwYWdlX2xhdW5kZXIKCWFkZGwgJWVheCwlZXNpCglhZGRsICQ4LCVl
-c3AKLkwzMzUyOgoJbW92bCAkMSwoJWVieCkKCXhvcmwgJWVjeCwlZWN4Cgltb3ZsICQzLCVlZHgK
-CW1vdmwgJGJkZmx1c2hfZG9uZSwlZWF4CgljYWxsIF9fd2FrZV91cAoJdGVzdGwgJWVzaSwlZXNp
-CglqZSAuTDMzNTkKCXB1c2hsICQwCgljYWxsIGJhbGFuY2VfZGlydHlfc3RhdGUKCWFkZGwgJDQs
-JWVzcAoJdGVzdGwgJWVheCwlZWF4CglqZ2UgLkwzMzU4CgkucDJhbGlnbiA0LCw3Ci5MMzM1OToK
-CWNtcGwgJHRxX2Rpc2ssdHFfZGlzawoJamUgLkwzMzYyCglwdXNobCAkdHFfZGlzawoJY2FsbCBf
-X3J1bl90YXNrX3F1ZXVlCglhZGRsICQ0LCVlc3AKLkwzMzYyOgoJY2FsbCBzY2hlZHVsZQouTDMz
-NTg6Cgltb3ZsICQwLCglZWJ4KQoJam1wIC5MMzM0OAouTGZlNzA6Cgkuc2l6ZQkgYmRmbHVzaCwu
-TGZlNzAtYmRmbHVzaAouc2VjdGlvbgkucm9kYXRhCi5MQzMzOgoJLnN0cmluZwkia3VwZGF0ZSIK
-LnRleHQKCS5hbGlnbiAxNgouZ2xvYmwga3VwZGF0ZQoJLnR5cGUJIGt1cGRhdGUsQGZ1bmN0aW9u
-Cmt1cGRhdGU6CglwdXNobCAlZWRpCglwdXNobCAlZXNpCglwdXNobCAlZWJ4Cgltb3ZsICQtODE5
-MiwlZWJ4CiNBUFAKCWFuZGwgJWVzcCwlZWJ4OyAKI05PX0FQUAoJbGVhbCA1NjIoJWVieCksJWVk
-aQoJbW92bCAkLkxDMzMsJWVzaQoJbW92bCAxNiglZXNwKSwlZWN4Cgltb3ZsICQxLDEyMCglZWJ4
-KQoJbW92bCAkMSwxMTIoJWVieCkKI0FQUAoJMToJbG9kc2IKCXN0b3NiCgl0ZXN0YiAlYWwsJWFs
-CglqbmUgMWIKCWNsaQojTk9fQVBQCgltb3ZsICQtMzkzMjE3LDEzNjAoJWVieCkKCW1vdmwgJC0x
-LDEzNjQoJWVieCkKCXRlc3RiICQ2LDEzNzgoJWVieCkKCXNldG5lICVhbAoJbW92bCAlZWF4LCVl
-ZHgKCWFuZGwgJDEsJWVkeAoJbW92bCAlZWR4LDgoJWVieCkKI0FQUAoJc3RpCgkjIGF0b21pYyB1
-cCBvcGVyYXRpb24KCWluY2wgKCVlY3gpCglqbGUgMmYKMToKLnNlY3Rpb24gLnRleHQubG9jaywi
-YXgiCjI6CWNhbGwgX191cF93YWtldXAKCWptcCAxYgoucHJldmlvdXMKCS5wMmFsaWduIDQsLDcK
-I05PX0FQUAouTDM0NTM6Cgltb3ZsIGJkZl9wcm0rMTYsJWVheAoJdGVzdGwgJWVheCwlZWF4Cglq
-ZSAuTDM0NTgKCW1vdmwgJDEsKCVlYngpCgljYWxsIHNjaGVkdWxlX3RpbWVvdXQKCWptcCAuTDM0
-NTcKCS5wMmFsaWduIDQsLDcKLkwzNDU4OgoJbW92bCAkOCwoJWVieCkKCWNhbGwgc2NoZWR1bGUK
-LkwzNDU3OgoJY21wbCAkMCw4KCVlYngpCglqZSAuTDM0NTkKCXhvcmwgJWVjeCwlZWN4CiNBUFAK
-CWNsaQojTk9fQVBQCgl0ZXN0YiAkNCwxMzc4KCVlYngpCglqZSAuTDM0NjUKI0FQUAoJYnRybCAk
-MTgsMTM3NiglZWJ4KQojTk9fQVBQCglpbmNsICVlY3gKCS5wMmFsaWduIDQsLDcKLkwzNDY1OgoJ
-bW92bCAxMzY0KCVlYngpLCVlYXgKCW5vdGwgJWVheAoJYW5kbCAxMzgwKCVlYngpLCVlYXgKCW1v
-dmwgMTM2MCglZWJ4KSwlZWR4Cglub3RsICVlZHgKCWFuZGwgMTM3NiglZWJ4KSwlZWR4Cglvcmwg
-JWVkeCwlZWF4CglzZXRuZSAlYWwKCW1vdmwgJWVheCwlZWR4CglhbmRsICQxLCVlZHgKCW1vdmwg
-JWVkeCw4KCVlYngpCiNBUFAKCXN0aQojTk9fQVBQCgl0ZXN0bCAlZWN4LCVlY3gKCWpuZSAuTDM0
-NTgKCS5wMmFsaWduIDQsLDcKLkwzNDU5OgoJY2FsbCBzeW5jX29sZF9idWZmZXJzCglqbXAgLkwz
-NDUzCi5MZmU3MToKCS5zaXplCSBrdXBkYXRlLC5MZmU3MS1rdXBkYXRlCi5zZWN0aW9uCS50ZXh0
-LmluaXQKCS5hbGlnbiAxNgoJLnR5cGUJIGJkZmx1c2hfaW5pdCxAZnVuY3Rpb24KYmRmbHVzaF9p
-bml0OgoJc3VibCAkNDAsJWVzcAoJcHVzaGwgJWVkaQoJcHVzaGwgJWVzaQoJcHVzaGwgJWVieAoJ
-bGVhbCAzMiglZXNwKSwlZWJ4Cgltb3ZsICVlYngsJWVkaQoJbGVhbCAxMiglZXNwKSwlZXNpCglt
-b3ZsICQwLDEyKCVlc3ApCgltb3ZsICQwLDE2KCVlc3ApCgltb3ZsICQwLDIwKCVlc3ApCglsZWFs
-IDQ0KCVlc3ApLCVlYXgKCW1vdmwgJWVheCwyNCglZXNwKQoJbW92bCAlZWF4LDI4KCVlc3ApCglj
-bGQKCW1vdmwgJDUsJWVjeAoJcmVwCgltb3ZzbAoJcHVzaGwgJDY5MTIwCglwdXNobCAlZWJ4Cglw
-dXNobCAkYmRmbHVzaAoJY2FsbCBrZXJuZWxfdGhyZWFkCglhZGRsICQxMiwlZXNwCgltb3ZsICVl
-YngsJWVjeAojQVBQCgkjIGF0b21pYyBkb3duIG9wZXJhdGlvbgoJZGVjbCAoJWVjeCkKCWpzIDJm
-CjE6Ci5zZWN0aW9uIC50ZXh0LmxvY2ssImF4IgoyOgljYWxsIF9fZG93bl9mYWlsZWQKCWptcCAx
-YgoucHJldmlvdXMKI05PX0FQUAoJcHVzaGwgJDY5MTIwCglwdXNobCAlZWJ4CglwdXNobCAka3Vw
-ZGF0ZQoJY2FsbCBrZXJuZWxfdGhyZWFkCglhZGRsICQxMiwlZXNwCgltb3ZsICVlYngsJWVjeAoj
-QVBQCgkjIGF0b21pYyBkb3duIG9wZXJhdGlvbgoJZGVjbCAoJWVjeCkKCWpzIDJmCjE6Ci5zZWN0
-aW9uIC50ZXh0LmxvY2ssImF4IgoyOgljYWxsIF9fZG93bl9mYWlsZWQKCWptcCAxYgoucHJldmlv
-dXMKI05PX0FQUAoJeG9ybCAlZWF4LCVlYXgKCXBvcGwgJWVieAoJcG9wbCAlZXNpCglwb3BsICVl
-ZGkKCWFkZGwgJDQwLCVlc3AKCXJldAouTGZlNzI6Cgkuc2l6ZQkgYmRmbHVzaF9pbml0LC5MZmU3
-Mi1iZGZsdXNoX2luaXQKLnNlY3Rpb24JLmluaXRjYWxsLmluaXQsImF3IixAcHJvZ2JpdHMKCS5h
-bGlnbiA0CgkudHlwZQkgX19pbml0Y2FsbF9iZGZsdXNoX2luaXQsQG9iamVjdAoJLnNpemUJIF9f
-aW5pdGNhbGxfYmRmbHVzaF9pbml0LDQKX19pbml0Y2FsbF9iZGZsdXNoX2luaXQ6CgkubG9uZyBi
-ZGZsdXNoX2luaXQKCS5sb2NhbAliaF9oYXNoX21hc2sKCS5jb21tCWJoX2hhc2hfbWFzayw0LDQK
-CS5sb2NhbAliaF9oYXNoX3NoaWZ0CgkuY29tbQliaF9oYXNoX3NoaWZ0LDQsNAoJLmxvY2FsCWhh
-c2hfdGFibGUKCS5jb21tCWhhc2hfdGFibGUsNCw0CgkubG9jYWwJbHJ1X2xpc3QKCS5jb21tCWxy
-dV9saXN0LDE2LDQKCS5sb2NhbAlucl9idWZmZXJzX3R5cGUKCS5jb21tCW5yX2J1ZmZlcnNfdHlw
-ZSwxNiw0CgkubG9jYWwJc2l6ZV9idWZmZXJzX3R5cGUKCS5jb21tCXNpemVfYnVmZmVyc190eXBl
-LDE2LDQKCS5sb2NhbAl1bnVzZWRfbGlzdAoJLmNvbW0JdW51c2VkX2xpc3QsNCw0CgkubG9jYWwJ
-bnJfdW51c2VkX2J1ZmZlcl9oZWFkcwoJLmNvbW0JbnJfdW51c2VkX2J1ZmZlcl9oZWFkcyw0LDQK
-CS5sb2NhbAlmcmVlX2xpc3QKCS5jb21tCWZyZWVfbGlzdCw1NiwzMgoJLmlkZW50CSJHQ0M6IChH
-TlUpIDIuOTUuMiAyMDAwMDIyMCAoRGViaWFuIEdOVS9MaW51eCkiCg==
+I haven't thought about it super-hard, but I think that if
+__wake_up_common's exclusive-mode handling were changed
+as you describe, so that it keeps on scanning the queue until it has
+*definitely* moved a task onto the runqueue then this
+problem goes away.
 
---------------Boundary-00=_8CQ1CK7DDWXS6FVO1A1E
-Content-Type: application/x-troff;
-  name="buffer-2.97.S"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="buffer-2.97.S"
+> Those races of course are orthogonal with the issue we discussed previously
+> in this thread: a task registered in two waitqueues and wanting an exclusive
+> wakeup from one waitqueue and a wake-all from the other waitqueue (for
+> addressing that we need to move the wake-one information from the task struct
+> to the waitqueue_head and I still think that shoudln't be addressed in 2.2.x,
+> 2.2.x is fine with a per-task-struct wake-one information)
 
-LkxDMjE6Cgkuc3RyaW5nCSJiZGZsdXNoIgoJLnRleHQKCS5hbGlnbiAxNgouZ2xvYmwgYmRmbHVz
-aAoJLnR5cGUJYmRmbHVzaCxAZnVuY3Rpb24KYmRmbHVzaDoKCXB1c2hsCSVlZGkKCXB1c2hsCSVl
-c2kKCXB1c2hsCSVlYngKCW1vdmwJJC04MTkyLCAlZWJ4CiNBUFAKCWFuZGwgJWVzcCwlZWJ4OyAK
-I05PX0FQUAoJc3VibAkkMTYsICVlc3AKCW1vdmwJJDEsIDEyMCglZWJ4KQoJbW92bAkkMSwgMTEy
-KCVlYngpCglsZWFsCTU2MiglZWJ4KSwgJWVkaQoJbW92bAkkLkxDMjEsICVlc2kKI0FQUAoJMToJ
-bG9kc2IKCXN0b3NiCgl0ZXN0YiAlYWwsJWFsCglqbmUgMWIKI05PX0FQUAoJbW92bAklZWJ4LCBi
-ZGZsdXNoX3RzawojQVBQCgljbGkKI05PX0FQUAoJcHVzaGwJJWVieAoJY2FsbAlmbHVzaF9zaWdu
-YWxzCglwb3BsCSVlc2kKCW1vdmwJJC0xLCAxMzY0KCVlYngpCgltb3ZsCSQtMSwgMTM2MCglZWJ4
-KQoJbW92bAkkMCwgOCglZWJ4KQojQVBQCglzdGkKI05PX0FQUAoJbW92bAkzMiglZXNwKSwgJWVj
-eAojQVBQCgkjIGF0b21pYyB1cCBvcGVyYXRpb24KCWluY2wgKCVlY3gpCglqbGUgMmYKMToKLnNl
-Y3Rpb24gLnRleHQubG9jaywiYXgiCjI6CWNhbGwgX191cF93YWtldXAKCWptcCAxYgoucHJldmlv
-dXMKCS5wMmFsaWduIDQKI05PX0FQUAouTDIyNjI6Cgltb3ZsCWVtZXJnZW5jeV9zeW5jX3NjaGVk
-dWxlZCwgJWVjeAoJdGVzdGwJJWVjeCwgJWVjeAoJamUJLkwyMjY1CgljYWxsCWRvX2VtZXJnZW5j
-eV9zeW5jCi5MMjI2NToKCXB1c2hsCSQwCgljYWxsCWZsdXNoX2RpcnR5X2J1ZmZlcnMKCW1vdmwJ
-JWVheCwgJWVzaQoJY2FsbAlmcmVlX3Nob3J0YWdlCgl0ZXN0bAklZWF4LCAlZWF4Cglwb3BsCSVl
-ZHgKCWplCS5MMjI2NgoJcHVzaGwJJDAKCXB1c2hsCSQzCgljYWxsCXBhZ2VfbGF1bmRlcgoJcG9w
-bAklZWRpCglhZGRsCSVlYXgsICVlc2kKCXBvcGwJJWVheAouTDIyNjY6Cgl4b3JsCSVlY3gsICVl
-Y3gKCW1vdmwJJDEsICglZWJ4KQoJbW92bAkkMywgJWVkeAoJbW92bAkkYmRmbHVzaF9kb25lLCAl
-ZWF4CgljYWxsCV9fd2FrZV91cAoJdGVzdGwJJWVzaSwgJWVzaQoJamUJLkwyMjcwCglwdXNobAkk
-MAoJY2FsbAliYWxhbmNlX2RpcnR5X3N0YXRlCgl0ZXN0bAklZWF4LCAlZWF4Cglwb3BsCSVlY3gK
-CWpzCS5MMjI3MAouTDIyNjk6Cgltb3ZsCSQwLCAoJWVieCkKCWptcAkuTDIyNjIKCS5wMmFsaWdu
-IDQKLkwyMjcwOgoJY21wbAkkdHFfZGlzaywgdHFfZGlzawoJam5lCS5MMjI3NQouTDIyNzI6Cglj
-YWxsCXNjaGVkdWxlCglqbXAJLkwyMjY5CgkucDJhbGlnbiA0Ci5MMjI3NToKCXB1c2hsCSR0cV9k
-aXNrCgljYWxsCV9fcnVuX3Rhc2tfcXVldWUKCXBvcGwJJWVkeAoJam1wCS5MMjI3MgouTGZlNzA6
-Cgkuc2l6ZQliZGZsdXNoLC5MZmU3MC1iZGZsdXNoCgkuc2VjdGlvbgkucm9kYXRhCi5MQzIyOgoJ
-LnN0cmluZwkia3VwZGF0ZSIKCS50ZXh0CgkuYWxpZ24gMTYKLmdsb2JsIGt1cGRhdGUKCS50eXBl
-CWt1cGRhdGUsQGZ1bmN0aW9uCmt1cGRhdGU6CglwdXNobAklZWJwCglwdXNobAklZWRpCglwdXNo
-bAklZXNpCglwdXNobAklZWJ4Cgltb3ZsCSQtODE5MiwgJWVieAojQVBQCglhbmRsICVlc3AsJWVi
-eDsgCiNOT19BUFAKCW1vdmwJMjAoJWVzcCksICVlY3gKCW1vdmwJJWVieCwgJWVicAoJbW92bAkk
-MSwgMTIwKCVlYngpCgltb3ZsCSQxLCAxMTIoJWVieCkKCWxlYWwJNTYyKCVlYngpLCAlZWRpCglt
-b3ZsCSQuTEMyMiwgJWVzaQojQVBQCgkxOglsb2RzYgoJc3Rvc2IKCXRlc3RiICVhbCwlYWwKCWpu
-ZSAxYgoJY2xpCiNOT19BUFAKCWxlYWwJMTM2MCglZWJ4KSwgJWVkeAoJbW92bAkkLTM5MzIxNywg
-MTM2MCglZWJ4KQoJbW92bAkkLTEsIDEzNjQoJWVieCkKCXhvcmwJJWVheCwgJWVheAoJdGVzdGwJ
-JDM5MzIxNiwgMTM3NiglZWJ4KQoJc2V0bmUJJWFsCgltb3ZsCSVlYXgsIDgoJWVieCkKI0FQUAoJ
-c3RpCgkjIGF0b21pYyB1cCBvcGVyYXRpb24KCWluY2wgKCVlY3gpCglqbGUgMmYKMToKLnNlY3Rp
-b24gLnRleHQubG9jaywiYXgiCjI6CWNhbGwgX191cF93YWtldXAKCWptcCAxYgoucHJldmlvdXMK
-I05PX0FQUAoJbW92bAklZWR4LCAlZWRpCgkucDJhbGlnbiA0Ci5MMjI5MDoKCW1vdmwJYmRmX3By
-bSsxNiwgJWVheAoJdGVzdGwJJWVheCwgJWVheAoJamUJLkwyMjk1Cgltb3ZsCSQxLCAoJWVieCkK
-CWNhbGwJc2NoZWR1bGVfdGltZW91dAouTDIyOTQ6Cgltb3ZsCTgoJWVieCksICVlYXgKCXRlc3Rs
-CSVlYXgsICVlYXgKCWplCS5MMjI5NgoJeG9ybAklZXNpLCAlZXNpCiNBUFAKCWNsaQojTk9fQVBQ
-Cgl0ZXN0YgkkNCwgMTM3OCglZWJ4KSAKCWplCS5MMjI5OQojQVBQCglidHJsICQxOCwxMzc2KCVl
-YnApCiNOT19BUFAKCW1vdmwJJDEsICVlc2kKLkwyMjk5OgoJbW92bAk0KCVlZGkpLCAlZWF4Cglt
-b3ZsCSglZWRpKSwgJWVkeAoJbm90bAklZWF4Cglub3RsCSVlZHgKCWFuZGwJMTM4MCglZWJwKSwg
-JWVheAoJYW5kbAkxMzc2KCVlYnApLCAlZWR4Cgl4b3JsCSVlY3gsICVlY3gKCW9ybAklZWR4LCAl
-ZWF4CglzZXRuZQklY2wKCW1vdmwJJWVjeCwgOCglZWJ4KQojQVBQCglzdGkKI05PX0FQUAoJdGVz
-dGwJJWVzaSwgJWVzaQoJamUJLkwyMjk2Ci5MMjI5NToKCW1vdmwJJDgsICglZWJ4KQoJY2FsbAlz
-Y2hlZHVsZQoJam1wCS5MMjI5NAoJLnAyYWxpZ24gNAouTDIyOTY6CgljYWxsCXN5bmNfb2xkX2J1
-ZmZlcnMKCWptcAkuTDIyOTAKLkxmZTcxOgoJLnNpemUJa3VwZGF0ZSwuTGZlNzEta3VwZGF0ZQoJ
-LnNlY3Rpb24JLnRleHQuaW5pdCwiYXgiLEBwcm9nYml0cwoJLmFsaWduIDE2CgkudHlwZQliZGZs
-dXNoX2luaXQsQGZ1bmN0aW9uCmJkZmx1c2hfaW5pdDoKCXB1c2hsCSVlZGkKCXB1c2hsCSVlc2kK
-CXB1c2hsCSVlYngKCXN1YmwJJDY0LCAlZXNwCglsZWFsCTMyKCVlc3ApLCAlZWJ4CglsZWFsCTEy
-KCVlYngpLCAlZWF4Cgltb3ZsCSQwLCAoJWVzcCkKCW1vdmwJJDAsIDQoJWVzcCkKCW1vdmwJJDAs
-IDgoJWVzcCkKCW1vdmwJJWVheCwgMTIoJWVzcCkKCW1vdmwJJWVheCwgMTYoJWVzcCkKCW1vdmwJ
-JWVzcCwgJWVzaQoJY2xkCgltb3ZsCSVlYngsICVlZGkKCW1vdmwJJDUsICVlY3gKCXJlcAoJbW92
-c2wKCXB1c2hsCSQ2OTEyMAoJcHVzaGwJJWVieAoJcHVzaGwJJGJkZmx1c2gKCWNhbGwJa2VybmVs
-X3RocmVhZAoJYWRkbAkkMTIsICVlc3AKCW1vdmwJJWVieCwgJWVjeAojQVBQCgkjIGF0b21pYyBk
-b3duIG9wZXJhdGlvbgoJZGVjbCAoJWVjeCkKCWpzIDJmCjE6Ci5zZWN0aW9uIC50ZXh0LmxvY2ss
-ImF4IgoyOgljYWxsIF9fZG93bl9mYWlsZWQKCWptcCAxYgoucHJldmlvdXMKI05PX0FQUAoJcHVz
-aGwJJDY5MTIwCglwdXNobAklZWJ4CglwdXNobAkka3VwZGF0ZQoJY2FsbAlrZXJuZWxfdGhyZWFk
-CglhZGRsCSQ3NiwgJWVzcAoJbW92bAklZWJ4LCAlZWN4CiNBUFAKCSMgYXRvbWljIGRvd24gb3Bl
-cmF0aW9uCglkZWNsICglZWN4KQoJanMgMmYKMToKLnNlY3Rpb24gLnRleHQubG9jaywiYXgiCjI6
-CWNhbGwgX19kb3duX2ZhaWxlZAoJam1wIDFiCi5wcmV2aW91cwojTk9fQVBQCglwb3BsCSVlYngK
-CXhvcmwJJWVheCwgJWVheAoJcG9wbAklZXNpCglwb3BsCSVlZGkKCXJldAouTGZlNzI6Cgkuc2l6
-ZQliZGZsdXNoX2luaXQsLkxmZTcyLWJkZmx1c2hfaW5pdAoJLnNlY3Rpb24JLmluaXRjYWxsLmlu
-aXQsImF3IixAcHJvZ2JpdHMKCS5hbGlnbiA0CgkudHlwZQlfX2luaXRjYWxsX2JkZmx1c2hfaW5p
-dCxAb2JqZWN0Cgkuc2l6ZQlfX2luaXRjYWxsX2JkZmx1c2hfaW5pdCw0Cl9faW5pdGNhbGxfYmRm
-bHVzaF9pbml0OgoJLmxvbmcJYmRmbHVzaF9pbml0CgkubG9jYWwJYmhfaGFzaF9tYXNrCgkuY29t
-bQliaF9oYXNoX21hc2ssNCw0CgkubG9jYWwJYmhfaGFzaF9zaGlmdAoJLmNvbW0JYmhfaGFzaF9z
-aGlmdCw0LDQKCS5sb2NhbAloYXNoX3RhYmxlCgkuY29tbQloYXNoX3RhYmxlLDQsNAoJLmxvY2Fs
-CWxydV9saXN0CgkuY29tbQlscnVfbGlzdCwxNiw0CgkubG9jYWwJbnJfYnVmZmVyc190eXBlCgku
-Y29tbQlucl9idWZmZXJzX3R5cGUsMTYsNAoJLmxvY2FsCXNpemVfYnVmZmVyc190eXBlCgkuY29t
-bQlzaXplX2J1ZmZlcnNfdHlwZSwxNiw0CgkubG9jYWwJdW51c2VkX2xpc3QKCS5jb21tCXVudXNl
-ZF9saXN0LDQsNAoJLmxvY2FsCW5yX3VudXNlZF9idWZmZXJfaGVhZHMKCS5jb21tCW5yX3VudXNl
-ZF9idWZmZXJfaGVhZHMsNCw0CgkubG9jYWwJZnJlZV9saXN0CgkuY29tbQlmcmVlX2xpc3QsNTYs
-MzIKCS5pZGVudAkiR0NDOiAoR05VKSAyLjk3IDIwMDAxMjIyIChleHBlcmltZW50YWwpIgo=
+OK by me, as long as people don't uncautiously start using the
+capability for other things.
 
---------------Boundary-00=_8CQ1CK7DDWXS6FVO1A1E--
+> Should I take care of the 2.2.x fix, or will you take care of it? I'm not using
+> the wake-one patch in 2.2.19pre3 because I don't like it (starting from the
+> useless wmb() in accept) so if you want to take care of 2.2.19pre3 yourself I'd
+> suggest to apply the wake-one patch against 2.2.19pre3 in my ftp-patch area
+> first.  Otherwise give me an ack and I'll extend myself my wake-one patch to
+> ignore the wake_up_process()es that doesn't move the task in the runqueue.
+
+ack.
+
+I'll take another look at the 2.4 patch and ask you to review that
+when I've finished with the netdevice wetworks, if that's
+OK.
+
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,74 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271618AbTGQXSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 19:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271622AbTGQXSZ
+	id S271628AbTGQXZo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 19:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271626AbTGQXZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 19:18:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29095 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271618AbTGQXSX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 19:18:23 -0400
-Date: Thu, 17 Jul 2003 16:31:03 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: asm (lidt) question
-Message-Id: <20030717163103.40d4c96e.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.55.0307171615580.4845@bigblue.dev.mcafeelabs.com>
-References: <20030717152819.66cfdbaf.rddunlap@osdl.org>
-	<Pine.LNX.4.55.0307171535020.4845@bigblue.dev.mcafeelabs.com>
-	<Pine.LNX.4.55.0307171615580.4845@bigblue.dev.mcafeelabs.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
+	Thu, 17 Jul 2003 19:25:44 -0400
+Received: from [198.70.193.2] ([198.70.193.2]:22618 "EHLO AVEXCH01.qlogic.org")
+	by vger.kernel.org with ESMTP id S271625AbTGQXZj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 19:25:39 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Subject: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b4).
+Date: Thu, 17 Jul 2003 16:40:00 -0700
+Message-ID: <B179AE41C1147041AA1121F44614F0B0598B10@AVEXCH02.qlogic.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b4).
+Thread-Index: AcNMvLyU3vcyuvN+R5y85pB8nwmzEw==
+From: "Andrew Vasquez" <andrew.vasquez@qlogic.com>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>,
+       "Linux-SCSI" <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 17 Jul 2003 23:40:00.0523 (UTC) FILETIME=[BD0415B0:01C34CBC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jul 2003 16:18:06 -0700 (PDT) Davide Libenzi <davidel@xmailserver.org> wrote:
+All,
 
-| On Thu, 17 Jul 2003, Davide Libenzi wrote:
-| 
-| > On Thu, 17 Jul 2003, Randy.Dunlap wrote:
-| >
-| > >
-| > > In arch/i386/kernel, inline asm for loading IDT (lidt) is used a few
-| > > times, but with slightly different constraints and output/input
-| > > definitions.  Are these OK, equivalent, or what?
-| > >
-| > > [rddunlap@dragon kernel]$ findc lidt
-| > > ./cpu/common.c:484: __asm__ __volatile__("lidt %0": "=m" (idt_descr));
-| > > ./traps.c:783:	__asm__ __volatile__("lidt %0": "=m" (idt_descr));
-| > >
-| > > vs.
-| > >
-| > > ./reboot.c:186:	__asm__ __volatile__ ("lidt %0" : : "m" (real_mode_idt));
-| > > ./reboot.c:261:	__asm__ __volatile__("lidt %0": :"m" (no_idt));
-| > > ./suspend.c:95:	asm volatile ("lidt %0" :: "m" (saved_context.idt_limit));
-| >
-| > I'd have said no looking at the syntax (input/output), but they indeed
-| > generate the same code (just checked).
-| 
-| Randy, I'd say that this :
-| 
-| __asm__ __volatile__("lidt %0": "=m" (var));
-| 
-| is better then :
-| 
-| __asm__ __volatile__("lidt %0": :"m" (var));
-| 
-| IMHO, since "var" is really an output parameter.
+A new version of the 8.x series driver for Linux 2.6.x kernels has
+been uploaded to SourceForge:
 
-Yes, I agree, var is output and should be listed after the first ':'
-IMHO also.
+	http://sourceforge.net/projects/linux-qla2xxx/
 
-Thanks for checking that they generate the same code, though.
+This beta contains a large rewrite of some fundamental structures used
+throughout the driver.  This change sets the stage for some of the
+more interesting and useful updates such as asynchronous mailbox
+commands and a less intrusive discovery processes.
 
-I'll buy you a beer...  No, wait, I already did that.  :)
+Additionally, the beta includes several performance related changes:
 
---
-~Randy
+	o An initial merge of performance patches from Arjan van de
+	  Ven.  Read the revision notes for details:
+	  - Lock contention fixes.
+	  - RIO support.
+	o SCSI command --> IOCB formation speedup.
+
+BTW: future driver drops *will* come out at a more spirited pace.
+
+Changes include:
+
+ *	- IOCB staging fixups.
+ *	- Full support for 2k port logins (~2000 fabric devices).
+ *	- Resync with 6.06.00b12.
+ *	- Resync with Linux Kernel 2.6.0-test1.
+
+Finally, regarding some of the more interesting (if not the) question(s)
+pertaining to the development of qla2xxx:
+
+  o Creation of a single driver module rather than three distinct
+	drivers for each ISP type (21xx, 22xx, and 23xx).
+
+  From the technical side, there aren't many compelling reasons for
+  the change to not occur.  Support for 2k logins on 2300s did
+  introduce a rather large, but manageable (through the compile-time
+  preprocessor), interface change between the host driver and
+  firmware.  The driver could of course manage this during run-time
+  with some creative structure overlays, etc.  Secondly, bundling
+  firmware for all ISP types can lead to a rather large binary
+  module (21xx - ~64kbytes, 22xx - ~90kbytes, 23xx - ~110kbytes).
+  Also, when formal support for the ISP2322 chip is added, an
+  additional firmware image (again ~110kbytes) will need to be
+  compiled with the driver.  The new user-space firmware-load
+  interface could address the size concerns, but at the same time it
+  also calls into question the larger issue of support.
+
+  Unfortunately, it is support that ultimately becomes the
+  overriding factor in maintaining the three-module build process.
+  By building distinct modules (i.e. qla2300.ko to support ISP2300,
+  ISP2312, and ISP2322 chips) our DVT group would focus their time and
+  efforts on testing 23xx HBAs and not on regressing support with
+  EOL'd products.
+
+Until a policy change, the 8.x driver in its current form will have
+the limitation of only one driver, qla2100, qla2200, or qla2300, can
+be built as part of the kernel at any given time.  Please note, all
+three binaries built as modules *can* be loaded without incident.  For
+example:
+
+  The following combinations will NOT work:
+
+	- 2100 and 2200 support built as part of the kernel.
+	- 2200 and 2300 support built as part of the kernel.
+	- 2100 and 2300 support built as part of the kernel.
+
+  The following combinations will work:
+
+	- 2100, 2200 and 2300 support built as modules.
+	- 2100 support build as part of the kernel, 2200 and 2300
+	  support built as modules.
+	- 2300 support build as part of the kernel, 2100 and 2200
+	  support built as modules.
+	- etc...
+
+Regards,
+Andrew Vasquez

@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312294AbSCTXrv>; Wed, 20 Mar 2002 18:47:51 -0500
+	id <S312295AbSCTXtB>; Wed, 20 Mar 2002 18:49:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312297AbSCTXrl>; Wed, 20 Mar 2002 18:47:41 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42001 "EHLO
+	id <S312296AbSCTXso>; Wed, 20 Mar 2002 18:48:44 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43025 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312294AbSCTXr3>; Wed, 20 Mar 2002 18:47:29 -0500
-Subject: Re: Linux 2.4.19-pre4: zr36067.c needs update?
-To: eyal@eyal.emu.id.au (Eyal Lebedinsky)
-Date: Thu, 21 Mar 2002 00:02:48 +0000 (GMT)
-Cc: marcelo@conectiva.com.br (Marcelo Tosatti),
-        linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <3C991CD7.304631FC@eyal.emu.id.au> from "Eyal Lebedinsky" at Mar 21, 2002 10:35:51 AM
+	id <S312295AbSCTXsZ>; Wed, 20 Mar 2002 18:48:25 -0500
+Subject: Re: Bad Illegal instruction traps on dual-Xeon (p4) Linux Dell box
+To: tepperly@llnl.gov (Tom Epperly)
+Date: Thu, 21 Mar 2002 00:04:01 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3C991BE6.70504@llnl.gov> from "Tom Epperly" at Mar 20, 2002 03:31:50 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16nq2a-0003l4-00@the-village.bc.nu>
+Message-Id: <E16nq3l-0003lM-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> /data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h 
-> -DKBUILD_BASENAME=zr36067  -c -o zr36067.o zr36067.c
-> zr36067.c: In function `zoran_open':
-> zr36067.c:3268: structure has no member named `busy'
-> zr36067.c: At top level:
+> One box, tux06, has the latest Dell BIOS, A05. I don't know how to 
+> determine if it has the latest microcode updates. Where can one get the 
+> current microcode updates, and how do I install it?
 
-Revert the video4linux changes - I played with them briefly and found
-the same problem - they break most of the drivers.
+The microcode updates change the stepping value for the CPU afaik.
+
+> According to cat /proc/cpuinfo, two boxes tux06 & tux34 have stepping 
+> 10, and tux47 has stepping 2. I have seen the unexplained "Illegal 
+> instruction" messages on tux34 and tux47, but I haven't run the modified 
+> kernel on them. root access is restricted here.
+
+Humm. I'm still as baffled as Dell I'm afraid

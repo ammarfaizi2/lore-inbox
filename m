@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131658AbRCSXhK>; Mon, 19 Mar 2001 18:37:10 -0500
+	id <S131652AbRCSXka>; Mon, 19 Mar 2001 18:40:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131665AbRCSXhB>; Mon, 19 Mar 2001 18:37:01 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:47372 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131658AbRCSXgy>; Mon, 19 Mar 2001 18:36:54 -0500
-Date: Mon, 19 Mar 2001 15:35:44 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: 3rd version of R/W mmap_sem patch available
-In-Reply-To: <Pine.LNX.4.31.0103191525480.937-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.31.0103191529530.967-100000@penguin.transmeta.com>
+	id <S131653AbRCSXkV>; Mon, 19 Mar 2001 18:40:21 -0500
+Received: from chicago.cheek.com ([64.16.171.55]:524 "EHLO chicago.cheek.com")
+	by vger.kernel.org with ESMTP id <S131652AbRCSXkL>;
+	Mon, 19 Mar 2001 18:40:11 -0500
+Message-ID: <3AB698DD.5DAFDBA8@cheek.com>
+Date: Mon, 19 Mar 2001 15:40:13 -0800
+From: Joseph Cheek <joseph@cheek.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: KMALLOC_MAXSIZE undeclared in drivers/media/video/buz.c
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.4.3-pre4.
 
+i also see a reference to KMALLOC_MAXSIZE in
+drivers/net/hamradio/6pack.c
 
-On Mon, 19 Mar 2001, Linus Torvalds wrote:
->
-> Excellent point. We used to do all the looping and re-trying, but it got
-> ripped out a long time ago (and in any case, it historically didn't do
-> SMP, so the old code doesn't really work).
+this kernel won't compile, is KMALLOC_MAXSIZE set somewhere?  i can't
+find it.  is it deprecated?
 
-Actually, funnily enough, I see that the old thread-safe stuff is still
-there in get_pte_kernel_slow(). The only thing that breaks it is that we
-don't hold any locks, so it's only UP-safe, not SMP-safe.
-
-However, it definitely looks like we should just un-inline that thing
-completely, and make a lot of it architecture-independent anyway.
-
-		Linus
+gcc -D__KERNEL__ -I/usr/src/RedmondLinux/BUILD/linux-2.4.3/linux/include
+-Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
+-pipe -mpreferred-stack-boundary=2 -march=i586 -mcpu=i686 -DMODULE
+-DMODVERSIONS -include
+/usr/src/RedmondLinux/BUILD/linux-2.4.3/linux/include/linux/modversions.h
+-c -o buz.o buz.c
+buz.c: In function `v4l_fbuffer_alloc':
+buz.c:188: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c:188: (Each undeclared identifier is reported only once
+buz.c:188: for each function it appears in.)
+buz.c: In function `jpg_fbuffer_alloc':
+buz.c:262: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c:256: warning: `alloc_contig' might be used uninitialized in this
+function
+buz.c: In function `jpg_fbuffer_free':
+buz.c:322: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c:316: warning: `alloc_contig' might be used uninitialized in this
+function
+buz.c: In function `zoran_ioctl':
+buz.c:2837: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+make[3]: *** [buz.o] Error 1
+make[3]: Leaving directory
+`/usr/src/RedmondLinux/BUILD/linux-2.4.3/linux/drivers/media/video'
+make[2]: *** [_modsubdir_video] Error 2
+make[2]: Leaving directory
+`/usr/src/RedmondLinux/BUILD/linux-2.4.3/linux/drivers/media'
+make[1]: *** [_modsubdir_media] Error 2
+make[1]: Leaving directory
+`/usr/src/RedmondLinux/BUILD/linux-2.4.3/linux/drivers'
+make: *** [_mod_drivers] Error 2
 

@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289854AbSAPEV4>; Tue, 15 Jan 2002 23:21:56 -0500
+	id <S289858AbSAPE0G>; Tue, 15 Jan 2002 23:26:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290352AbSAPEVs>; Tue, 15 Jan 2002 23:21:48 -0500
-Received: from gherkin.frus.com ([192.158.254.49]:4736 "HELO gherkin.frus.com")
-	by vger.kernel.org with SMTP id <S289854AbSAPEVg>;
-	Tue, 15 Jan 2002 23:21:36 -0500
-Message-Id: <m16QhZs-0005khC@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy)
-Subject: [PATCH] 2.5.2: emu10k1 fixup
-To: torvalds@transmeta.com
-Date: Tue, 15 Jan 2002 22:21:32 -0600 (CST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	id <S290347AbSAPEZ4>; Tue, 15 Jan 2002 23:25:56 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:42881
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289858AbSAPEZo>; Tue, 15 Jan 2002 23:25:44 -0500
+Date: Tue, 15 Jan 2002 23:09:24 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: Tom Rini <trini@kernel.crashing.org>,
+        Justin Carlson <justincarlson@cmu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020115230924.A5538@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+	Tom Rini <trini@kernel.crashing.org>,
+	Justin Carlson <justincarlson@cmu.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020115013025.GA3814@cpe-24-221-152-185.az.sprintbbd.net> <197055869.1011134770@[195.224.237.69]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <197055869.1011134770@[195.224.237.69]>; from linux-kernel@alex.org.uk on Tue, Jan 15, 2002 at 10:46:11PM -0000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a *small* (avoiding the obvious pun) patch for the emu10k1
-driver that changes MINOR() to minor() in the affected files.  Apply
-to the 2.5.2 kernel source tree.
+Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>:
+> & this has a seemingly obvious solution, which is, if the autoprobe
+> stuff is selected, and, after presentation of the initial list
+> of drivers, plus comments like 'Network card: none', 'Sound card: none',
+> say 'We may have missed some stuff if you have an old computer, press
+> Y if what we've detected doesn't find all your hardware', and if
+> they press Y (only), select as modules every ISA driver except
+> those, which when loaded on a system not containing the relevant
+> card, can cause a hangup; thus deferring the autoprobing until
+> boot time.
 
+Not a bad idea, but it conflicts with one of the goals of 
+`make autoconfigurator', which is completely hands-off opration.
 
---- linux/drivers/sound/emu10k1/audio.c.orig	Thu Oct 11 06:51:46 2001
-+++ linux/drivers/sound/emu10k1/audio.c	Sat Jan  5 17:55:56 2002
-@@ -1098,7 +1098,7 @@
- 
- static int emu10k1_audio_open(struct inode *inode, struct file *file)
- {
--	int minor = MINOR(inode->i_rdev);
-+	int minor = minor(inode->i_rdev);
- 	struct emu10k1_card *card = NULL;
- 	struct list_head *entry;
- 	struct emu10k1_wavedevice *wave_dev;
---- linux/drivers/sound/emu10k1/midi.c.orig	Thu Oct 11 06:51:46 2001
-+++ linux/drivers/sound/emu10k1/midi.c	Sat Jan  5 17:59:03 2002
-@@ -87,7 +87,7 @@
- 
- static int emu10k1_midi_open(struct inode *inode, struct file *file)
- {
--	int minor = MINOR(inode->i_rdev);
-+	int minor = minor(inode->i_rdev);
- 	struct emu10k1_card *card = NULL;
- 	struct emu10k1_mididevice *midi_dev;
- 	struct list_head *entry;
---- linux/drivers/sound/emu10k1/mixer.c.orig	Thu Oct 11 06:51:46 2001
-+++ linux/drivers/sound/emu10k1/mixer.c	Sun Jan  6 01:33:02 2002
-@@ -640,7 +640,7 @@
- 
- static int emu10k1_mixer_open(struct inode *inode, struct file *file)
- {
--	int minor = MINOR(inode->i_rdev);
-+	int minor = minor(inode->i_rdev);
- 	struct emu10k1_card *card = NULL;
- 	struct list_head *entry;
- 
-
+Giacomo Catenazzi thinks he has collected enough "safe" probes to 
+find effectively all ISA devices, by grovelling through various bits
+of /proc.  So this problem may get solved directly.
 -- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+Probably fewer than 2% of handguns and well under 1% of all guns will
+ever be involved in a violent crime. Thus, the problem of criminal gun
+violence is concentrated within a very small subset of gun owners,
+indicating that gun control aimed at the general population faces a
+serious needle-in-the-haystack problem.
+	-- Gary Kleck, "Point Blank: Handgun Violence In America"

@@ -1,72 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263147AbSJBQYK>; Wed, 2 Oct 2002 12:24:10 -0400
+	id <S263149AbSJBQ1Y>; Wed, 2 Oct 2002 12:27:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263150AbSJBQYK>; Wed, 2 Oct 2002 12:24:10 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:10454 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S263147AbSJBQYI>;
-	Wed, 2 Oct 2002 12:24:08 -0400
-Date: Wed, 2 Oct 2002 18:39:38 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] sigfix-2.5.40-B1
-Message-ID: <Pine.LNX.4.44.0210021836050.1805-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263152AbSJBQ1Y>; Wed, 2 Oct 2002 12:27:24 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:33263 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S263149AbSJBQ1X>; Wed, 2 Oct 2002 12:27:23 -0400
+Date: Wed, 2 Oct 2002 09:25:19 -0700
+From: Chris Wright <chris@wirex.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Capabilities-related change in 2.5.40
+Message-ID: <20021002092519.C26557@figure1.int.wirex.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20021001164907.GA25307@nevyn.them.org> <20021001134552.A26557@figure1.int.wirex.com> <20021001211210.GA8784@nevyn.them.org> <20021002003817.B26557@figure1.int.wirex.com> <20021002132331.GA17376@nevyn.them.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021002132331.GA17376@nevyn.them.org>; from dan@debian.org on Wed, Oct 02, 2002 at 09:23:31AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Daniel Jacobowitz (dan@debian.org) wrote:
+> 
+> Look at cap_proc.c:_libcap_cappid :
 
-this patch (ontop of the previous signal patch) fixes one more
-thread-signals testcase. POSIX treats threads in sigwait() as a special
-thing - eg. the 'action' of a signal must not be considered for a thread
-that is in sigwait(). Ie. if no handler is defined and the only thread
-accepting a given signal is one in sigwait(), then the signal must be
-queued to that signal.
+Right, but cap_get_proc calls _libcap_cappid with pid of 0.  At any
+rate, I believe pid == 0 is intentional to pick up the current
+capabilities.
 
-this should fix Axel Zeuner's sigwait() testcase.
+> How very odd.  I have been running 2.5 on that machine for a while, and
+> the bug only showed up somewhere between 2.5.36 and 2.5.40.  Maybe a
+> coincidence triggered by the PID hashing... your tabbing is a little
+> odd but the patch looks right to me.  Thanks!
 
-	Ingo
+I tried on various older 2.5 kernels (> 2.5.20) and they returned -ESRCH.
+I agree, the PID hashing probably started picking up swapper.  And yes
+the tabbing is odd.  The file is badly in need of Lindent, as it's mostly
+space tabbed.  I didn't want to hide the patch in whitespace changes ;-)
 
---- linux/include/linux/sched.h.orig	Wed Oct  2 18:10:24 2002
-+++ linux/include/linux/sched.h	Wed Oct  2 18:12:14 2002
-@@ -430,6 +430,7 @@
- #define PF_FROZEN	0x00040000	/* frozen for system suspend */
- #define PF_SYNC		0x00080000	/* performing fsync(), etc */
- #define PF_FSTRANS	0x00100000	/* inside a filesystem transaction */
-+#define PF_SIGWAIT	0x00200000	/* inside sigwait */
- 
- /*
-  * Ptrace flags
---- linux/kernel/signal.c.orig	Wed Oct  2 18:08:39 2002
-+++ linux/kernel/signal.c	Wed Oct  2 18:14:05 2002
-@@ -886,6 +886,10 @@
- 		ret = specific_send_sig_info(sig, info, p, 1);
- 		goto out_unlock;
- 	}
-+	if (t->flags & PF_SIGWAIT) {
-+		ret = specific_send_sig_info(sig, info, t, 0);
-+		goto out_unlock;
-+	}
- 	if (sig_kernel_broadcast(sig) || sig_kernel_coredump(sig)) {
- 		ret = __broadcast_thread_group(p, sig);
- 		goto out_unlock;
-@@ -1485,12 +1489,14 @@
- 
- 			sigandsets(&current->blocked, &current->blocked, &these);
- 			recalc_sigpending();
-+			current->flags |= PF_SIGWAIT;
- 			spin_unlock_irq(&current->sig->siglock);
- 
- 			current->state = TASK_INTERRUPTIBLE;
- 			timeout = schedule_timeout(timeout);
- 
- 			spin_lock_irq(&current->sig->siglock);
-+			current->flags &= ~PF_SIGWAIT;
- 			sig = dequeue_signal(&current->sig->shared_pending, &these, &info);
- 			if (!sig)
- 				sig = dequeue_signal(&current->pending, &these, &info);
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

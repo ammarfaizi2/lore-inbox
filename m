@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130685AbRC0H6y>; Tue, 27 Mar 2001 02:58:54 -0500
+	id <S130493AbRC0H6O>; Tue, 27 Mar 2001 02:58:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130768AbRC0H6o>; Tue, 27 Mar 2001 02:58:44 -0500
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:26380 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S130685AbRC0H6f>; Tue, 27 Mar 2001 02:58:35 -0500
-From: Colonel <klink@clouddancer.com>
-To: linux-kernel@vger.kernel.org
-Cc: paulus@samba.org
-Subject: [PATCH] [RESEND] update chipsfb driver
-Reply-To: klink@clouddancer.com
-Message-Id: <20010327075748.7BC55689E@mail.clouddancer.com>
-Date: Mon, 26 Mar 2001 23:57:48 -0800 (PST)
+	id <S130685AbRC0H6F>; Tue, 27 Mar 2001 02:58:05 -0500
+Received: from smtp.alcove.fr ([212.155.209.139]:27141 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S130493AbRC0H5s>;
+	Tue, 27 Mar 2001 02:57:48 -0500
+Date: Tue, 27 Mar 2001 09:57:02 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Use semaphore for producer/consumer case...
+Message-ID: <20010327095702.B21635@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <000d01c0b3c7$e232ae90$5517fea9@local> <20010326165425.G15689@come.alcove-fr> <007d01c0b618$040b1780$5517fea9@local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <007d01c0b618$040b1780$5517fea9@local>; from manfred@colorfullife.com on Mon, Mar 26, 2001 at 07:12:55PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 26, 2001 at 07:12:55PM +0200, Manfred Spraul wrote:
 
-> Linus,
+> > > That doesn't work, at least the i386 semaphore implementation
+> doesn't
+> > > support semaphore counts < 0.
+> >
+> > Does that mean that kernel semaphore can not be used for something
+> > else than mutual exclusion ?
+> >
+> It's a bit better: counts >= 0 are supported, i.e. you can call up()
+> before down(), and that's used in several places.
 
-> At present, drivers/video/chipsfb.c can only be used on PPC, and it
-> doesn't compile even on PPC.  The patch below makes it compile, and
-> by changing it to use the generic inb/outb, means that there is at
-> least a chance it can be used on other platforms.  The patch is
-> against 2.4.3-pre7, could you apply it please?                                                                                                 
+I see... it's somewhat different than the classical semaphore 
+implementation, but usable anyway.
 
-I have an old Planar wall mount with Chips & Tech video, powered by a
-T.I. 486DX100 (the BIOS is 7 years old).  I originally bought it to
-use the frame buffer in a portable application, and this patch is the
-FIRST time I've ever obtained an image.  Thanks!
+> The for loop that Nigel proposed should solve your problem. Multiple
+> up's are handled correctly.
 
-The colormap is wrong, but at least I have some sort of working device
-now.  I shelved the project over a year ago, what's a good site to
-come up to speed on?
+Now I understand his suggestion. Thanks to both of you.
 
-r
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|------------- Ingénieur Informatique Libre --------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|----------- Alcôve, l'informatique est libre ------------|

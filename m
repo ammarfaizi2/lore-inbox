@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbVCJXQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVCKART@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbVCJXQf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 18:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263358AbVCJXM0
+	id S262117AbVCKART (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 19:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbVCKAQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 18:12:26 -0500
-Received: from mail.kroah.org ([69.55.234.183]:12251 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262117AbVCJXLX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 18:11:23 -0500
-Date: Thu, 10 Mar 2005 15:08:43 -0800
-From: Greg KH <greg@kroah.com>
-To: davem@davemloft.net, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
-       jmorris@redhat.com, yoshfuji@linux-ipv6.org, kaber@coreworks.de,
-       netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: [06/11] [TCP]: Put back tcp_timer_bug_msg[] symbol export.
-Message-ID: <20050310230843.GG22112@kroah.com>
-References: <20050310230519.GA22112@kroah.com>
+	Thu, 10 Mar 2005 19:16:20 -0500
+Received: from [205.233.219.253] ([205.233.219.253]:65228 "EHLO
+	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
+	id S262988AbVCKAK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 19:10:28 -0500
+Date: Thu, 10 Mar 2005 19:10:06 -0500
+From: Jody McIntyre <scjody@modernduck.com>
+To: linux-kernel@vger.kernel.org
+Cc: willy@debian.org
+Subject: Re: [PATCH, RFC 3/3] Use sem_getcount in xfs
+Message-ID: <20050311001006.GL1111@conscoop.ottawa.on.ca>
+References: <20050311000646.GJ1111@conscoop.ottawa.on.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050310230519.GA22112@kroah.com>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050311000646.GJ1111@conscoop.ottawa.on.ca>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
--stable review patch.  If anyone has any objections, please let us know.
+Convert XFS to use sem_getcount instead of nasty hack.  Should fix warning
+with XFS debugging on PARISC.  Untested since there is no obvious way to
+turn on XFS debugging.
 
-------------------
+Signed-off-by: Jody McIntyre <scjody@modernduck.com>
 
-
-
-This wrecks the ipv6 modular build for a lot of people.
-In fact, since I always build ipv6 modular I am surprised
-I never hit this.  My best guess is that my compiler is
-optimizing the reference away, but that can never be
-depended upon and the symbol export really is needed.
-
-[TCP]: Put back tcp_timer_bug_msg[] symbol export.
-  
-It is needed for tcp_reset_xmit_timer(), which is invoked by
-tcp_prequeue() which is invoked from tcp_ipv6.c
- 
-Signed-off-by: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
-diff -Nru a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
---- a/net/ipv4/tcp_timer.c	2005-03-09 17:20:38 -08:00
-+++ b/net/ipv4/tcp_timer.c	2005-03-09 17:20:38 -08:00
-@@ -38,6 +38,7 @@
- 
- #ifdef TCP_DEBUG
- const char tcp_timer_bug_msg[] = KERN_DEBUG "tcpbug: unknown timer value\n";
-+EXPORT_SYMBOL(tcp_timer_bug_msg);
+Index: 1394-dev/fs/xfs/linux-2.6/xfs_buf.c
+===================================================================
+--- 1394-dev.orig/fs/xfs/linux-2.6/xfs_buf.c	2005-03-10 18:20:13.000000000 -0500
++++ 1394-dev/fs/xfs/linux-2.6/xfs_buf.c	2005-03-10 18:20:55.000000000 -0500
+@@ -976,7 +976,7 @@ int
+ pagebuf_lock_value(
+ 	xfs_buf_t		*pb)
+ {
+-	return(atomic_read(&pb->pb_sema.count));
++	return(sem_getcount(&pb->pb_sema));
+ }
  #endif
  
- /*
-
-

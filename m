@@ -1,185 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbTLGGTt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 01:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTLGGTt
+	id S262130AbTLGG1y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 01:27:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTLGG1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 01:19:49 -0500
-Received: from sitemail3.everyone.net ([216.200.145.37]:32698 "EHLO
-	omta06.mta.everyone.net") by vger.kernel.org with ESMTP
-	id S261492AbTLGGTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 01:19:45 -0500
-Content-Type: multipart/mixed; boundary="----------=_1070777984-13338-1"
-Content-Transfer-Encoding: binary
+	Sun, 7 Dec 2003 01:27:54 -0500
+Received: from [66.62.77.7] ([66.62.77.7]:8083 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S262130AbTLGG1w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 01:27:52 -0500
+Subject: USB/visor oops
+From: Dax Kelson <dax@gurulabs.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1070778430.25972.3.camel@mentor.gurulabs.com>
 Mime-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-Date: Sat, 6 Dec 2003 22:19:44 -0800 (PST)
-From: john moser <bluefoxicy@linux.net>
-To: linux-kernel@vger.kernel.org
-Subject: Memory Managment idea to help move things to userspace
-Reply-To: bluefoxicy@linux.net
-X-Originating-Ip: [68.33.187.247]
-Message-Id: <20031207061944.2D005E4B9@sitemail.everyone.net>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 06 Dec 2003 23:27:10 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format...
+After having had my Tre600 hotsyncing working fine with RHL9 I'm trying
+again after upgrading to Fedora. So far all I get are oops and hangs.
 
-------------=_1070777984-13338-1
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+This is with the Fedora kernel 2.4.22-1.2115.nptl. This is with the uhci
+instead of usb-uhci.
 
-I've been told there's issues with transferring huge amounts of data between kernelspace and userspace.  I think I may have a solution, if this problem does indeed exist.  This would make things such as userspace netfiltering and userspace network filesystem drivers extremely feasable by effectively eliminating all data transfer overhead to and from the kernel in a secure and efficient manner.
+hub.c: new USB device 00:1d.0-1, assigned address 2
+usb.c: USB device 2 (vend/prod 0x82d/0x300) is not claimed by any active driver.
+usb.c: registered new driver serial
+usbserial.c: USB Serial support registered for Generic
+usbserial.c: USB Serial Driver core v1.4
+usbserial.c: USB Serial support registered for Handspring Visor / Treo / Palm 4. 0 / Clie 4.x
+usbserial.c: Handspring Visor / Treo / Palm 4.0 / Clie 4.x converter detected
+usbserial.c: Handspring Visor / Treo / Palm 4.0 / Clie 4.x converter now attache d to ttyUSB0 (or usb/tts/0 for devfs)
+usbserial.c: Handspring Visor / Treo / Palm 4.0 / Clie 4.x converter now attache d to ttyUSB1 (or usb/tts/1 for devfs)
+usbserial.c: USB Serial support registered for Sony Clie 3.5
+visor.c: USB HandSpring Visor, Palm m50x, Treo, Sony Clie driver v1.7
+uhci.c: bf80: host controller halted. very bad
+usb.c: USB disconnect on device 00:1d.0-1 address 2
+visor.c: Bytes In = 0  Bytes Out = 0
+Unable to handle kernel NULL pointer dereference at virtual address 00000998
+ printing eip:
+f884556c
+*pde = 37253067
+*pte = 00000000
+Oops: 0002
+visor usbserial uhci i810_audio ac97_codec soundcore radeon agpgart vmnet vmmon parport_pc lp parport autofs orinoco_cs orinoco hermes ds yenta_socket pcmcia_
+CPU:    0
+EIP:    0060:[<f884556c>]    Tainted: PF
+EFLAGS: 00010246
+ 
+EIP is at usb_serial_disconnect [usbserial] 0x6c (2.4.22-1.2115.nptl)
+eax: 00000000   ebx: f3830400   ecx: 00000000   edx: 00000000
+esi: f383041c   edi: 00000000   ebp: f3830400   esp: f7bc9f14
+ds: 0068   es: 0068   ss: 0068
+Process khubd (pid: 71, stackpage=f7bc9000)
+Stack: f383041c 00000000 00000064 f8847520 f8847500 00000000 f4cc0980 f883032f
+       e42f9200 f3830400 e42f9204 00000002 00000000 e42f9200 00000100 0000000a
+       f7355a00 00000000 f8833270 f7355b0c 00000001 00000010 f4cc05c0 f8832c9c
+Call Trace:   [<f8847520>] usb_serial_driver [usbserial] 0x20 (0xf7bc9f20)
+[<f8847500>] usb_serial_driver [usbserial] 0x0 (0xf7bc9f24)
+[<f883032f>] usb_disconnect_R1a2445d3 [usbcore] 0x9f (0xf7bc9f30)
+[<f8833270>] usb_hub_port_connect_change [usbcore] 0x270 (0xf7bc9f5c)
+[<f8832c9c>] usb_hub_port_status [usbcore] 0x6c (0xf7bc9f70)
+[<f8833568>] usb_hub_events [usbcore] 0x2e8 (0xf7bc9f90)
+[<f8833605>] usb_hub_thread [usbcore] 0x45 (0xf7bc9fbc)
+[<f88335c0>] usb_hub_thread [usbcore] 0x0 (0xf7bc9fc4)
+[<f88335c0>] usb_hub_thread [usbcore] 0x0 (0xf7bc9fe0)
+[<c010741d>] kernel_thread_helper [kernel] 0x5 (0xf7bc9ff0)
+ 
+ 
+Code: 89 90 98 09 00 00 8d 4e 58 ff 43 74 0f 8e 96 05 00 00 0f b6
+  
 
-PLEASE read and review this.  If it is complete and utter braindamage and simply not possible, please explain why, and discard.  If it IS good, then please plan to impliment in 2.7/2.8 (I realize I'm too late for 2.6).  If it's close but not quite there, FIX IT.  It's just an idea.
 
---Bluefox Icy
-
-_____________________________________________________________
-Linux.Net -->Open Source to everyone
-Powered by Linare Corporation
-http://www.linare.com/
-
-------------=_1070777984-13338-1
-Content-Type: text/plain; name="ukshm.txt"
-Content-Disposition: inline; filename="ukshm.txt"
-Content-Transfer-Encoding: base64
-
-dXNlci1rZXJuZWwgc2hhcmVkIG1lbW9yeQoKVEhFUkUgSVMgQU4gSVNTVUUg
-d2l0aCB1c2Vyc3BhY2UgcHJvZ3JhbXMgY29tbXVuaWNhdGluZyB3aXRoIHRo
-ZSBrZXJuZWwsIGZyb20Kd2hhdCBJIGhlYXIuICBUaGlzIGlzc3VlIGlzIHRo
-YXQgdGhlIHRyYW5zZmVycmVuY2Ugb2YgZGF0YSB0byBhbmQgZnJvbSB0aGUK
-a2VybmVsIGluY3VycnMgYSBsYXJnZSBhbW91bnQgb2Ygb3ZlcmhlYWQuICBJ
-IGhhdmUgYXR0ZW1wdGVkIHRvIGNvbWUgdXAgd2l0aCBhCmhhbGZ3YXkgZGVj
-ZW50IHdheSB0byBnZXQgYXJvdW5kIHRoaXMsIGFuZCBJIHdpbGwgc3RhdGUg
-bXkgcmVzdWx0cyBoZXJlLgoKRklSU1QgTEVUIE1FIEFTU0VSVCB0aGF0IEkg
-ZG8gbm90IGhhdmUgYW55IGV4cGVydCB1bmRlcnN0YW5kaW5nIG9mIHRoZSBz
-bGFiCmFsbG9jYXRvciBPUiBvZiB0aGUgVExCOyB0aGUgc2xhYiBjb2RlIGNv
-bmZ1c2VzIHRoZSBoZWxsIG91dCBvZiBtZSwgYW5kIEkgZG9uJ3QKZXZlbiBy
-ZW1lbWJlciB3aGF0IFRMQiBzdGFuZHMgZm9yLiAgTm9uZXRoZWxlc3MsIEkg
-YXNrIHRoYXQgdGhvc2Ugb2YgeW91IHdobwpkbyB1bmRlcnN0YW5kIHRoZXNl
-IHRoaW5ncyBnaXZlIHRoaXMgcG9zdCwgZG9jdW1lbnQsIG9yIHdoYXRldmVy
-IGZvcm0gaXQgaXMKeW91IGxvb2sgYXQgdGhpcyBpZGVhIGluIGZhaXIgcmV2
-aWV3LiAgSWYgdGhvc2Ugb2YgeW91IHdobyBrbm93IGhvdyB0aGVzZQp0aGlu
-Z3Mgd29yayB3aXNoIHRvIGFzc2VydCB0aGF0IGl0IGlzIHRvbyBtdWNoIHdv
-cmssIHBsZWFzZSBzdXBwbHkgbG9naWNhbApyZWFzb25zIHdoeSBpdCB3b24n
-dC4gIElmIHlvdSBiZWxpZXZlIGl0IG1heSwgcGxlYXNlIGF0dGVtcHQgdG8g
-ZXh0ZW5kIHRoZXNlCmlkZWFzIGludG8gc29tZSB3b3JrYWJsZSBmb3JtLgoK
-VEhFIFNMQUIgQUxMT0NBVE9SIGhhcyBzZXZlcmFsIHR5cGVzIG9mIGRhdGEg
-aXQgY2FuIGFsbG9jYXRlLCBpbmNsdWRpbmcgRE1BCmFsbG9jYXRpb25zLS1h
-bGxvY2F0aW9ucyB1c2VkIGFzIHRhcmdldHMgZm9yIGRpcmVjdCBkYXRhIHRy
-YW5zZmVyIGZyb20KaGFyZHdhcmUgc3VjaCBhcyBoYXJkIGRpc2tzIHRvIG1l
-bW9yeS0tYW5kIEF0b21pYyBhbGxvY2F0aW9ucy0tYWxsb2NhdGlvbnMKdGhh
-dCBtdXN0IGJlIGZ1bGx5IGFsbG9jYXRlZCBiZWZvcmUgdGhlIGZ1bmN0aW9u
-IGNhbiBzbGVlcC4gIFRoZXJlIGlzIGFsc28Ka2VybmVsIGFuZCB1c2VyIG1l
-bW9yeS4KClRIRSBWSVJUVUFMIE1FTU9SWSBzeXN0ZW0sIGFzIEkgdW5kZXJz
-dGFuZCBpdCwgZGVwZW5kcyBvbiBDUFUgbWljcm9jb2RlLApjYWNoZSwgYW5k
-IHNvbWV0aGluZyBpbiB0aGUgQ1BVIGNhbGxlZCBUTEIuICBBcyBJIGdhdGhl
-ciwgdGhpcyBUTEIgbWljcm9jb2RlCmFuZCBjYWNoZSBpcyBoYW5kbGVkIGF1
-dG9tYXRpY2FsbHkgYnkgdGhlIENQVS4gIFdoZW4gYSBwYWdlIGZhdWx0cyBh
-Y2Nyb3NzIGl0cwpib3VuZGFyeS0tdXN1YWxseSwgYSBwYWdlIGxvYWRlZCBp
-bnRvIENQVSBjYWNoZS0tdGhlIFRMQiBtaWNyb2NvZGUgcmVhZHMgdGhlCnBh
-Z2VfdGFibGUgY2FjaGUgaW5zaWRlIHRoZSBDUFUgY2FjaGUsIGZpbmRzIHRo
-ZSBuZXh0IG1hcHBpbmcsIGFuZCBsb2FkcyBpdApmcm9tIHJhbS4gIFRoZSBw
-cm9jZXNzIHNlZXMgdGhpcyBhcyBhIHNpbmdsZSwgY29udGlndW91cyBibG9j
-ayBvZiByYW0sIGV2ZW4KdGhvdWdoIHRoZSBwcm9jZXNzJyB2aXJ0dWFsIHJh
-bXNwYWNlIG1heSBiZSBzY2F0dGVyZWQgYWNjcm9zcyByYW0gb3IgZXZlbiBu
-b3QKZXZlbiBpbiByYW0gYnV0IG9uIGRpc2sgaW4gc3dhcCwgaW4gd2hpY2gg
-Y2FzZSBhIHBhZ2UgZmF1bHQgd291bGQgTk9UIGZpbmQKdGhhdCBlbnRyeSBp
-biB0aGUgVExCIGNhY2hlIGFuZCB3b3VsZCByZXF1ZXN0IHRoZSBvcGVyYXRp
-bmcgc3lzdGVtIHRvIGdpdmUgaXQKdGhhdCBwYWdlX3RhYmxlIGVudHJ5LCB3
-aGljaCB3b3VsZCBjYXVzZSB0aGUgT1MgdG8gc3dhcCB0aGUgcGFnZSBpbi4K
-CldIQVQgSSBBTSBTVUdHRVNUSU5HIGlzIHRoZSBhZGRpdGlvbiBvZiBhIG5l
-dyB0eXBlIG9mIHNsYWIgbWVtb3J5IGNhbGxlZApVc2VyLUtlcm5lbCBTaGFy
-ZWQgTWVtb3J5LCBvciBTTEFCX1VLU0hNIChHRlBfVUtTSE0pLiAgVGhpcyBt
-ZW1vcnkgd291bGQgT05MWQpiZSBjcmVhdGVkIHdoZW4gc3BlY2lhbGl6ZWQg
-aG9vayBpbiB0aGUga2VybmVsIGlzIHVzZWQsIGFuZCB3b3VsZCBiZSBtYXBw
-ZWQKaW50byB0aGUgcHJvY2VzcycgcmFtIHNwYWNlIHdpdGggcGFnZV90YWJs
-ZSBtYXBwaW5ncywgYnV0IGFsc28gd291bGQgYmUgYSBwYXJ0Cm9mIHRoZSBr
-ZXJuZWwncyBwcml2YXRlIHJhbXNwYWNlLiAgSW4gdGhpcyB3YXksIGlmIHRo
-ZSBwcm9jZXNzICJ3YWxrZWQiIHBhc3QKdGhlIGVuZCBvZiB0aGUgY2h1bmsg
-b2Yga2VybmVsc3BhY2UgcmFtIGFsbG9jYXRlZCBmb3IgaXRzIHB1cnBvc2Us
-IGl0IHdvdWxkCndpbmQgdXAgYmFjayBpbiB1c2Vyc3BhY2UsIHdpdGggbm8g
-a2VybmVsLWxldmVsIGNoZWNraW5nIG5lZWRlZCB0byBrZWVwIHRoZQpwcm9j
-ZXNzIGZyb20gc2NyZWVjaGluZyBhY2Nyb3NzIGtlcm5lbCByYW0gYW5kIGRl
-c3Ryb3lpbmcgdGhlIGtlcm5lbC4gIFRoZQptYWpvciBpc3N1ZSBoZXJlIGlz
-IHRoYXQgdGhpcyBraW5kIG9mIHBhZ2VfdGFibGUgbWFwcGluZyBtdXN0IGJl
-IG5vdGVkIGRvd24gc28KdGhhdCBpdCBpcyBOT1QgU1dBUFBFRC4KClRIRSBU
-WVBJQ0FMIFVTQUdFIG9mIHRoaXMgd291bGQgYmUgZm9yIGltbWVkaWF0ZSBh
-bmQgZGlyZWN0IGNvbW11bmljYXRpb24gb2YKZGF0YSBiZXR3ZWVuIHRoZSBr
-ZXJuZWwgYW5kIHNwZWNpYWxpemVkIHVzZXJzcGFjZSBhcHBsaWNhdGlvbnMg
-d2l0aG91dCBjb3B5aW5nCnJhbSBvciB1c2luZyBzeXNjYWxscy4KCkkgV0lM
-TCBFWEVNUExJRlkgVEhJUyBieSBkaXNjdXNzaW5nIGEgcG9zc2libGUgcmVp
-bXBsaW1lbnRhdGlvbiBvZgpuZXRmaWx0ZXIvZmlyZXdhbGxpbmcgaW4gdXNl
-cnNwYWNlIHdpdGggVUtTSE0uICBJIGFtIG5vdCBzdWdnZXN0aW5nIGhlcmUg
-dGhhdAppcHRhYmxlcyBuZWVkcyB0byBiZSBtb3ZlZCBvdXQgb2YgdGhlIGtl
-cm5lbDsgSSBhbSBzdWdnZXN0aW5nIHRoYXQgaXQgaXMKcG9zc2libGUgdG8g
-ZG8gc28gd2l0aCB0aGUgb25seSBwZXJmb3JtYW5jZSBoaXQgYW5kIGNvbXBs
-aWNhdGlvbnMgYmVpbmcgdGhhdApvZiBtb3ZpbmcgQ09ERSBmcm9tIGtlcm5l
-bCBzcGFjZSB0byB1c2Vyc3BhY2UuCgpDVVJSRU5UTFkgV0lUSCBJUFRBQkxF
-UyB0aGVyZSBhcmUgaG9va3MgaW4gdGhlIGtlcm5lbCB0byBhbGxvdyBhIHBy
-b2Nlc3Mgd2l0aApwcm9wZXIgYWNjZXNzIHByaXZpbGFnZXMgKHJvb3Qgb3du
-ZWQ/KSB0byBjYWxsIGNlcnRhaW4gc3lzdGVtIGZ1bmN0aW9ucyB0bwphZGp1
-c3QgaG93IHRoZSBrZXJuZWwgaGFuZGxlcyBuZXR3b3JrIGNvbm5lY3Rpb25z
-IGFuZCBkYXRhLiAgVGhpcyByZXF1aXJlcwptaW5pbWFsIGRhdGEgdHJhbnNm
-ZXIgYmV0d2VlbiB0aGUga2VybmVsIGFuZCB0aGUgdXNlcnNwYWNlIHByb2dy
-YW0gZm9yCmNvbmZpZ3VyYXRpb24gb25seS4gIEFmdGVyIHRoYXQsIGFsbCBw
-cm9jZXNzaW5nIGFuZCBkZWNpc2lvbiBtYWtpbmcgaXMgZG9uZQppbnNpZGUg
-dGhlIGtlcm5lbC4KCkFOT1RIRVIgQVBQUk9BQ0ggVE8gVEhJUyB3b3VsZCBi
-ZSB0byBtb3ZlIHRoZSBkZWNpc2lvbiBtYWtpbmcgYW5kIHByb2Nlc3NpbmcK
-Y29kZSBvdXQgb2YgdGhlIGtlcm5lbCwgYW5kIHRoZSB0YXJnZXRzIHN1Y2gg
-YXMgTkFUJ3MgTUFTUVVFUkFERSwgRFJPUCwKQUNDRVBULCBERU5ZLCBhbmQg
-Rk9SV0FSRCBpbnNpZGUgdGhlIGtlcm5lbCwgcG9zc2libHkgYXMgbW9kdWxl
-cy4gIFRoZSB0YXJnZXRzCndvdWxkIGV4aXN0IGV4YWN0bHkgYXMgdGhleSBh
-cmUgbm93LCBpbiBrZXJuZWxzcGFjZTsgaG93ZXZlciwgYWxsIGV4YW1pbmF0
-aW9uCmFuZCBkZWNpc2lvbiB3b3VsZCBiZSBkb25lIG91dHNpZGUgdGhlIGtl
-cm5lbCwgYW5kIHVzZXItZGVmaW5lZCBjaGFpbnMgYW5kCnRhcmdldHMgd291
-bGQgZXhpc3Qgb3V0c2lkZSB0aGUga2VybmVsLgoKVEhJUyBXT1VMRCBSRVFV
-SVJFIHRoYXQgdGhlIGtlcm5lbCB0cmFuc2ZlciB0aGUgbmV0d29yayBkYXRh
-IHRvIHRoZSBwcm9jZXNzOwp0aGUgcHJvY2VzcyBleGFtaW5lIHRoZSBkYXRh
-IGFuZCBtYWtlIGl0cyBkZWNpc2lvbnMgYW5kIGFsdGVyYXRpb25zOyBhbmQK
-ZmluYWxseSB0aGF0IHRoZSBwcm9jZXNzIHBhc3MgdGhlIGFsdGVyZWQgZGF0
-YSBhbmQgdGhlIGRlY2lzaW9ucyBiYWNrIHRvIHRoZQprZXJuZWwuICBBcyBJ
-IHVuZGVyc3RhbmQgaXQsIHRoaXMgd291bGQgY3VycmVudGx5IHJlcXVpcmUg
-YSBsb3Qgb2Ygd29yay4gIFRoaXMKaXMgd2hlcmUgVUtTSE0gY29tZXMgaW50
-byBwbGF5LgoKV0lUSCBUSEUgU1VHR0VTVEVEIEFERElUSU9OIHRvIHRoZSBr
-ZXJuZWwncyBtZW1vcnkgdHlwZSBhbmQgbW0gY29kZSwgdGhlCm92ZXJoZWFk
-IG9mIHRyYW5zZmVycmluZyB0aGUgZGF0YSBiYWNrIGFuZCBmb3J0aCBjb3Vs
-ZCBiZSBldmFkZWQuICBUaGUga2VybmVsCndvdWxkIHNpbXBseSBuZWdvdGlh
-dGUgYW4gQVBJIHdpdGggdGhlIHByb2dyYW0sIGFuZCB3aGVuIG5lZWRlZCBp
-dCB3b3VsZCBtYXAKb3V0IGEgcGFnZSBvciBwYWdlcyBvZiBrZXJuZWwgcmFt
-IHRvIGEgZnJlZSBwYWdlIG9yIHNldCBvZiBwYWdlcyBvZiB0aGUKdXNlcnNw
-YWNlIHByb2dyYW0ncyB2aXJ0dWFsIHJhbXNwYWNlICh0aGUgcHJvZ3JhbSB0
-eXBpY2FsbHkgaGFzIDNHLiAgVGhpcyBpcwpOT1QgYSBwcm9ibGVtKS4gIFRo
-ZW4gaXQgd291bGQgY2FsbCBhIGZ1bmN0aW9uIGluIHRoZSB1c2Vyc3BhY2Ug
-cHJvZ3JhbSB0bwp0ZWxsIGl0IHdoZXJlIHRoaXMgcmFtIGlzIGFuZCB3aGF0
-IGl0IHdhbnRzIGRvbmUgd2l0aCBpdC4gIEkgZG9uJ3Qga25vdyBpZgp0aGUg
-Y29uY2VwdCBvZiBhIGtlcm5lbCBjYWxsaW5nIGEgZnVuY3Rpb24gaW4gYSBw
-cm9ncmFtIGhhcyBiZWVuIHRob3VnaHQgb2YKYmVmb3JlLCBvciBpZiBpdCBp
-cyB1c2VkIG5vdzsgaWYgbm90LCBJIHdpbGwgdGVybSB0aGlzIGEgInJldmVy
-c2Ugc3lzY2FsbCIgZm9yCnNpbXBsaWNpdHkncyBzYWtlLCBiZWNhdXNlIHRo
-YXQncyB3aGF0IGl0IGlzLgoKVVBPTiBSRUNFSVZJTkcgdGhlIHJldmVyc2Ug
-c3lzY2FsbCwgdGhlIHByb2dyYW0gd291bGQgcGVyZm9ybSBpdHMgb3BlcmF0
-aW9ucwpvbiB0aGUgZGF0YSwgdGhlbiBpbml0aWF0ZSBhIHN5c2NhbGwgdG8g
-dGhlIGtlcm5lbCB0byBhY2tub3dsZWRnZSBpdHMgZmluaXNoZWQKc3RhdGUu
-ICBUaGlzIHNob3VsZCBiZSBub25ibG9ja2luZywgYXMgdGhlIHByb2dyYW0g
-Km1heSogY3Jhc2ggKHNvIG1heSB0aGUKY3VycmVudCBpbXBsaW1lbnRhdGlv
-biksIGFuZCB3ZSBkbyBOT1Qgd2FudCB0aGF0IHRvIHRha2UgZG93biB0aGUg
-a2VybmVsICh0aGUKY3VycmVudCBpbXBsaW1lbnRhdGlvbiB3aWxsKS4gIFRo
-ZSBrZXJuZWwgd2lsbCB0aGVuIHByb2Nlc3MgdGhlIHBhc3NlZApkZWNpc2lv
-biBhbmQgdW5tYXAgdGhlIFVLU0hNIGZyb20gdGhlIHByb2dyYW0sIGNvbnZl
-cnRpbmcgaXQgZGlyZWN0bHkgdG8KU0xBQl9LRVJORUwgbWVtb3J5LgoKSU4g
-VEhFIEVWRU5UIHRoYXQgdGhlIGNvbm5lY3RlZCBwcm9jZXNzIGlzIEtJTExF
-RCwgdGhlIGtlcm5lbCB3aWxsIGluIHRoaXMKZXhjb3JjaXNlIHNpbXBseSBk
-ZW55IGFsbCBuZXR3b3JraW5nICh5b3VyIGZpcmV3YWxsIGlzIGRlYWQsIHdo
-YXQgdGhlIGhlY2sgZG8KeW91IHdhbnQgaXQgdG8gZG8/KSB1bnRpbCBmdXJ0
-aGVyIG5vdGljZS4KClRISVMgSVMgT05MWSBhIHN1Z2dlc3Rpb24sIGFuZCBh
-IHNrZXRjaHkgaWRlYSBhdCB0aGF0LiAgSG93ZXZlciwgSSBiZWxpZXZlCnRo
-YXQgaWYgSSBoYXZlIE5PVCBoaXQgdGhpcyBkaXJlY3RseSBvbiB0aGUgaGVh
-ZCBpbiBhIHNlY3VyZSBhbmQgaGlnaGx5CmVmZmljaWVudCBtYW5uZXIsIHRo
-ZW4gSSBoYXZlIGF0IGxlYXN0IGNvbWUgY2xvc2UsIGFuZCB0aG9zZSBvZiB5
-b3Ugd2hvIGtub3cKYmV0dGVyIGNhbiBudWRnZSB0aGUgaWRlYSB0aGUgcmln
-aHQgd2F5IGFuZCBjb21lIHVwIHdpdGggYSB2aWFibGUgc29sdXRpb24uCg==
-
-------------=_1070777984-13338-1--

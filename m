@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267879AbRHKQfB>; Sat, 11 Aug 2001 12:35:01 -0400
+	id <S268569AbRHKQmv>; Sat, 11 Aug 2001 12:42:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268567AbRHKQeu>; Sat, 11 Aug 2001 12:34:50 -0400
-Received: from lanm-pc.com ([64.81.97.118]:16118 "EHLO golux.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S267879AbRHKQeg>;
-	Sat, 11 Aug 2001 12:34:36 -0400
-Date: Sat, 11 Aug 2001 12:32:00 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel lockups on dual-Athlon board -- help wanted
-Message-ID: <20010811123200.F6024@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010811062349.A1769@thyrsus.com> <E15VYfw-0002bu-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15VYfw-0002bu-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Aug 11, 2001 at 02:19:36PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S268567AbRHKQml>; Sat, 11 Aug 2001 12:42:41 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:64516 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S268564AbRHKQm1>; Sat, 11 Aug 2001 12:42:27 -0400
+From: jdassen@cistron.nl (J.H.M. Dassen (Ray))
+Subject: Re: strange gcc crashes...
+Date: Sat, 11 Aug 2001 16:42:38 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <slrn9nao3u.s9b.jdassen@odin.cistron-office.nl>
+In-Reply-To: <E15VaDR-000N0H-00@f9.mail.ru>
+X-Trace: ncc1701.cistron.net 997548158 18237 195.64.65.236 (11 Aug 2001 16:42:38 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> Try a completely different board and components. There are folks
-> running rock solid 2.4 on dual Athlons. I speculate yours is perhaps
-> marginal somewhere.
+Samium Gromoff <_deepfire@mail.ru> wrote:
+>        I`ve experienced strange gcc sig11 crashes.
+>     prerequisities: gcc-2.95.3-vanille, 2.4.7-vanille
 
-OK...
+[random sig11s]
 
-1. By "different board" do you mean different instance of the same design, or
-different design?  Because the K7 Thunder is, AFAIK, the only dual-Athlon
-1200 board that exists right now.  
+Time to read http://www.bitwizard.nl/sig11/ .
 
-2. Do you know of anyone else successfully running 2.4 over an AMD 760
-support chipset?
-
-3. Which components do you think are likely to be implicated?  Bad memory
-is an obvious guess, I suppose.
+HTH,
+Ray
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+The "Penguin Powered" logos people love should really be "Penguin
+Empowered". That, I think, is the best thing about Linux, too. We've given
+the computer back to the user. 
+	Alan Cox in http://www2.linuxjournal.com/articles/culture/012.html
 
-"Both oligarch and tyrant mistrust the people, 
-and therefore deprive them of arms."
-	--Aristotle

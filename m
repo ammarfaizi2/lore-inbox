@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263850AbTE0POu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 11:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263854AbTE0POu
+	id S263726AbTE0PRr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 11:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTE0PRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 11:14:50 -0400
-Received: from garnet.acns.fsu.edu ([146.201.2.25]:61118 "EHLO
-	garnet.acns.fsu.edu") by vger.kernel.org with ESMTP id S263850AbTE0POt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 11:14:49 -0400
-Message-ID: <3ED383E7.6080109@cox.net>
-Date: Tue, 27 May 2003 11:27:35 -0400
-From: David van Hoose <davidvh@cox.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Tue, 27 May 2003 11:17:46 -0400
+Received: from tartarus.telenet-ops.be ([195.130.132.46]:49815 "EHLO
+	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S263847AbTE0PQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 11:16:36 -0400
+From: DevilKin-LKML <devilkin-lkml@blindguardian.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: Linux 2.5.70 compile error
+Date: Tue, 27 May 2003 17:29:48 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com> <200305271048.36495.devilkin-lkml@blindguardian.org> <20030527130515.GH8978@holomorphy.com>
+In-Reply-To: <20030527130515.GH8978@holomorphy.com>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [2.5.70-bk1] Compilation failures ppa.c imm.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305271729.49047.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a compilation error on line 280 of ppa.c.
-Should
-	if (ppa_hosts[i] == host)
-Be
-	if ((struct Scsi_Host *)&ppa_hosts[i] == host)
-??
+On Tuesday 27 May 2003 15:05, William Lee Irwin III wrote:
+> I suspect you're attempting to shoot yourself in the foot. .config?
 
-Also, imm.c fails to compile on line 112 claiming that imm_proc_info is 
-undeclared by that point.
-Any questions?
+Ah, quite. I saw NUMA was activated, and disabling it fixed my problem. Odd 
+though, that it should become active just by doing a 'make oldconfig' with my 
+2.7.69 config file...
 
--David
+Anywayz, it works, this kernel solves all my outstanding issues sofar (being 
+mostly with the irda) so I'm happy :P
+
+Jan
+-- 
+You look like a million dollars.  All green and wrinkled.
 

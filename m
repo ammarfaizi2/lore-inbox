@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283391AbRLDTvC>; Tue, 4 Dec 2001 14:51:02 -0500
+	id <S283467AbRLDUkm>; Tue, 4 Dec 2001 15:40:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283205AbRLDTt2>; Tue, 4 Dec 2001 14:49:28 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:32948 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S283365AbRLDTsb>;
-	Tue, 4 Dec 2001 14:48:31 -0500
-Date: Tue, 4 Dec 2001 20:48:22 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Dave Jones <davej@suse.de>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
-        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204204822.H360@khan.acc.umu.se>
-In-Reply-To: <20011204120305.A16578@thyrsus.com> <Pine.LNX.4.33.0112041833150.3798-100000@Appserv.suse.de>
-Mime-Version: 1.0
+	id <S283376AbRLDUjV>; Tue, 4 Dec 2001 15:39:21 -0500
+Received: from abasin.nj.nec.com ([138.15.150.16]:60678 "HELO
+	abasin.nj.nec.com") by vger.kernel.org with SMTP id <S283439AbRLDUie>;
+	Tue, 4 Dec 2001 15:38:34 -0500
+From: Sven Heinicke <sven@research.nj.nec.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.33.0112041833150.3798-100000@Appserv.suse.de>; from davej@suse.de on Tue, Dec 04, 2001 at 06:43:17PM +0100
+Content-Transfer-Encoding: 7bit
+Message-ID: <15373.13379.382015.406274@abasin.nj.nec.com>
+Date: Tue, 4 Dec 2001 15:38:27 -0500 (EST)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: sven@research.nj.nec.com (Sven Heinicke), linux-kernel@vger.kernel.org
+Subject: Re: hints at modifying kswapd params in 2.4.16
+In-Reply-To: <E16BM0B-0003JC-00@the-village.bc.nu>
+In-Reply-To: <15373.2398.495306.503255@abasin.nj.nec.com>
+	<E16BM0B-0003JC-00@the-village.bc.nu>
+X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 06:43:17PM +0100, Dave Jones wrote:
-> On Tue, 4 Dec 2001, Eric S. Raymond wrote:
-> 
-> > After CML2 has proven itself in 2.5, I do plan to go back to Marcelo
-> > and lobby for him accepting it into 2.4, on the grounds that doing so
-> > will simplify his maintainance task no end.
-> > ...
-> > I'm just going to say "Today's problems, today's tools."
-> 
-> So anyone perfectly happy with an older distro that didn't
-> ship python2-and-whatever-else gets screwed when they want to
-> build a newer kernel. Nice.
 
-"So anyone happy with an older distro that didn't ship gcc-2.95.x, x > 2
-gets screwed when they want to build a newer kernel. Nice."
+We have actually moved our code to another Dell 4400 we got at the
+same time (in theory the same exact same system) and I rebuilt the
+kernel with the same .config file and I am getting different memory
+usage patterns.
 
+The first system I tried was Red Hat 7.1, it never used more then 2G
+of cache memory leaving the other 2G free.
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+The other system, Mandrake 8.0, sucks up all the 4G of memory with
+cache but has not yet shown any signs of thrashing.  Though the code
+has only been running a few hours.
+
+Could this be a C compiler issue?
+
+Alan Cox writes:
+ > > Does the AC kernel still have the old VM?  I really wanna stick the
+ > > the new stuff but but a need a stable system.  Older kernels 2.4.8 had
+ > > highmem issues, not the 2.4.16 has kswap issues.
+ > 
+ > There's a riel vm patch for 2.4.16 if you want to see if the vm thing is
+ > the problem case
+ > 
+ > Alan

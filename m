@@ -1,157 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbRAOLzq>; Mon, 15 Jan 2001 06:55:46 -0500
+	id <S129534AbRAOM2h>; Mon, 15 Jan 2001 07:28:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129485AbRAOLzg>; Mon, 15 Jan 2001 06:55:36 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:27898 "EHLO
-	lappi.waldorf-gmbh.de") by vger.kernel.org with ESMTP
-	id <S129413AbRAOLz0>; Mon, 15 Jan 2001 06:55:26 -0500
-Date: Mon, 15 Jan 2001 09:54:32 -0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel@vger.kernel.org, linux-mm@frodo.biederman.org
-Subject: Re: Caches, page coloring, virtual indexed caches, and more
-Message-ID: <20010115095432.A14351@bacchus.dhis.org>
-In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com> <E14GR38-0000nM-00@the-village.bc.nu> <20010111005657.B2243@khan.acc.umu.se> <20010112035620.B1254@bacchus.dhis.org> <m17l40hhtd.fsf@frodo.biederman.org> <20010115005315.D1656@bacchus.dhis.org> <m1snmlfbrx.fsf_-_@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m1snmlfbrx.fsf_-_@frodo.biederman.org>; from ebiederm@xmission.com on Mon, Jan 15, 2001 at 01:41:06AM -0700
-X-Accept-Language: de,en,fr
+	id <S129523AbRAOM20>; Mon, 15 Jan 2001 07:28:26 -0500
+Received: from dwdmx2.dwd.de ([141.38.2.10]:57135 "HELO dwdmx2.dwd.de")
+	by vger.kernel.org with SMTP id <S129401AbRAOM2Q>;
+	Mon, 15 Jan 2001 07:28:16 -0500
+Date: Mon, 15 Jan 2001 13:28:05 +0100 (CET)
+From: Holger Kiehl <Holger.Kiehl@dwd.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: More filesystem corruption with 2.4.1-pre3 and SW raid5
+Message-Id: <Pine.LNX.4.30.0101151325380.25963-100000@talentix.dwd.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 15, 2001 at 01:41:06AM -0700, Eric W. Biederman wrote:
+Hello
 
-(Cc list truncated since probably not so many people do care ...)
+Doing further tests I have experienced more filesystem corruption.
+This time on another node, but also with SMP and SW raid5. The machine
+has run the same test several times under 2.2.18, 2.2.17, 2.2.14 and
+2.2.12 with no problems. This was the first time the test was run under
+2.4.1 and gave me filesystem corruption. I observed the same thing on
+my machine at home.
 
-> shared mmap.  This is the important one.  Since we have a logical
-> backing store this is easy to handle.  We just enforce that the
-> virtual address in a process that we mmap something to must match the
-> logical address to VIRT_INDEX_BITS.  The effect is the same as a
-> larger page size with virtually no overhead.
+The test I am doing is copying/linking thousands of files around and delete
+them again. The test starts of with 58 process copying 600 files (SMALL),
+then 135 process copy around 9000 files (MEDIUM) and the in the last
+test 325 process copy 80000 files (BIG). Each of the three tests (SMALL,
+MEDIUM, BIG) is further divided into one test where the files get transmitted
+via FTP (localhost) and another where the files are just being linked
+from one directory to another one. And it always starts when I come
+to the linking test. The link rate is about 2000 files/s. Here follows
+some data what syslog reported:
 
-I'm told this is going to break software.  Bad since it's otherwise it'd
-be such a nice silver bullet solution.
+   Jan 13 17:09:03 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (1881249), 0
+   Jan 13 17:09:03 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (1881250), 0
+   Jan 13 17:09:03 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (1881251), 0
+       .
+       .
+       .
+   Jan 13 17:19:56 florix kernel: EXT2-fs error (device md(9,2)): ext2_free_blocks: bit already cleared for block 6688150
+   Jan 13 17:19:57 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (3338561), 0
+   Jan 13 17:19:57 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (3338562), 0
+   Jan 13 17:19:57 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (3338563), 0
+       .
+       .
+       .
+   Jan 13 17:20:00 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (3338647), 0
+   Jan 13 17:20:00 florix kernel: EXT2-fs error (device md(9,2)): ext2_free_blocks: bit already cleared for block 6688139
+   Jan 13 17:20:00 florix kernel: EXT2-fs error (device md(9,2)): ext2_free_blocks: bit already cleared for block 6688136
+   Jan 13 17:20:00 florix kernel: EXT2-fs error (device md(9,2)): ext2_free_blocks: bit already cleared for block 6688182
+   Jan 13 17:26:34 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (3361022), 0
+   Jan 13 17:26:34 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (3361023), 0
+   Jan 13 17:26:34 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (3361024), 0
+       .
+       .
+       .
+   Jan 13 17:26:35 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (3361023), 0
+   Jan 13 17:26:35 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (3361024), 0
+   Jan 13 17:29:20 florix kernel: EXT2-fs error (device md(9,2)): ext2_free_blocks: bit already cleared for block 918960
+   Jan 13 17:29:20 florix kernel: EXT2-fs error (device md(9,2)): ext2_free_blocks: bit already cleared for block 918961
+   Jan 13 17:29:20 florix kernel: EXT2-fs error (device md(9,2)): ext2_free_blocks: bit already cleared for block 918962
+       .
+       .
+       .
+   Jan 13 17:30:57 florix kernel: EXT2-fs error (device md(9,2)): ext2_free_blocks: bit already cleared for block 3808052
+   Jan 13 17:30:57 florix kernel: EXT2-fs error (device md(9,2)): ext2_free_blocks: bit already cleared for block 3808053
+   Jan 13 17:30:57 florix kernel: EXT2-fs error (device md(9,2)): ext2_free_blocks: bit already cleared for block 3808054
+   Jan 13 17:32:56 florix kernel: EXT2-fs error (device md(9,2)): ext2_readdir: bad entry in directory #2894349: rec_len % 4 != 0 - offset=0, inode=270105152, rec_len=1397, name_len=39
+   Jan 13 17:32:56 florix kernel: EXT2-fs warning (device md(9,2)): empty_dir: bad directory (dir #2894349) - no `.' or `..'
+   Jan 13 17:37:22 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (1940635), 0
+   Jan 13 17:37:22 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (1940636), 0
+   Jan 13 17:37:22 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (1940637), 0
+   Jan 13 17:37:22 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (1940638), 0
+       .
+       .
+       .
+    Jan 13 19:34:27 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (1933469), 0
+    Jan 13 19:34:27 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (1933471), 0
+    Jan 13 19:34:27 florix kernel: EXT2-fs warning (device md(9,2)): ext2_unlink: Deleting nonexistent file (1933472), 0
 
-> sysv shared memory is exactly the same as shared mmap.  Except instead
-> of a file offset you have an offset into the sysv segment.
 
-No, it's simpler in the MIPS case.  The ABI guys were nice and did define
-that the virtual addresses have to be multiple of 256kbyte which is
-more than sufficient to kill the problem.
+At this point I was not able to log in on the machine but it was still
+running and doing something as I discovered this morning when I came to
+work. On console it was constantly writting:
 
-> mremap.  Linux specific but pretty much the same as mmap, but easier.
-> We just enforce that the virtual address of the source of mremap,
-> and the destination of mremap match on VIRT_INDEX_BITS.
+    __alloc_pages: 0-order allocation failed
 
-Correct and as mremap doesn't take any address argument we won't break
-any expecations on the properties of the returned address in mmap.
+I was not able to log in so I had to reset the machine. After it came
+back I had to repair the filesystem by hand but only the filesystem
+and directories and files where I was doing my test where effected.
+Here are some messages when I was fsck the disk:
 
-> kmap is a little different.  using VIRT_INDEX_BITS is a little
-> subtle but should work.  Currently kmap is used only with the page
-> cache so we can take advantage of the page->index field.  From page->index 
-> we can compute the logical offset of the page and make certain the
-> page mapped with all VIRT_INDEX_BITS the same as a mmap alias.
+    Duplicate or bad block in use ...
+    Has 1 duplicate block(s), shared with 1 file(s): ...
+    Entry XXX has deleted/unused inode ...
+    Unattached inode XXX connect to /lost+found
+    Inode XXX ref count is 2, should be 1.
+    Inode XXX ref count is 6, should be 5.
+    Free blocks count wrong for group XXX
 
-Yup.  It gets somewhat tricker due to the page cache being in in KSEG0,
-an memory area which is essentially like a 512mb page that is hardwired
-in the CPU.  It's preferable to stick with since it means we never take
-any TLB faults for pages in the page cache on MIPS.
+Here are the details of the machine:
 
-> kmap and the swap cache are a little different.  Since index holds
-> the location of a page on the swap file we'd have to make that index
-> be the same for VIRT_INDEX_BITS as well.
+    Asus P2B-DS with two P3-450 and 256 MB ECC SDRAM
+    Oboard Adaptec AIC-7890/1 Ultra2 SCSI
+    6 x 9GB U2W SCSI disk put together as SW Raid 5
+    2 x Intel EEPro 100
+    RedHat 6.1 with the following installed:
 
-> > That's a possible solution; I'm not clear how bad the overhead would be.
-> > Right now a virtual alias is a relativly rare event and we don't want the
-> > common case of no virtual alias to make pay a high price.  Or?
-> 
-> I guess the question is how big would these logical pages need to be?
+    Linux florix 2.4.1-pre2 #3 SMP Sat Jan 13 15:39:55 GMT 2001 i686 unknown
+    Kernel modules         2.4.1
+    Gnu C                  egcs-2.91.66
+    Gnu Make               3.77
+    Binutils               2.9.1.0.25
+    Linux C Library        2.1.2
+    Dynamic linker         ldd (GNU libc) 2.1.2
+    Procps                 2.0.4
+    Mount                  2.10r
+    Net-tools              1.53
+    Console-tools          1999.03.02
+    Sh-utils               2.0
+    Modules Loaded         w83781d sensors i2c-piix4 i2c-isa i2c-core
 
-Depending of the CPU 8kb to 32kb; the hardware supports page sizes 4kb, 16kb,
-64kb ... 16mb.
+Holger
 
-> Answer big enough to turn your virtually indexed cache into a
-> physically indexed cache.  Which means they would have to be cache
-> size.  
-
-For above mentioned CPU versions which have 8kb rsp. 16kb per primary cache
-we want 32kb as mentioned.
-
-> Increasing PAGE_SIZE a few bits shouldn't be bad but going up two
-> orders of magnitude would likely skewer your swapping, and memory
-> management performance.  You'd just have way to few pages.
-> 
-> But I have a better suggestion so see above.
-
-> O.k. this is scratched off my list of possible good ideas.  Duh.  This
-> fails for exactly the same reason as increasing as increasing page
-> size.  at 256K cache and 4K PAGE_SIZE you'd need 256/4 = 64 different
-> types of pages, fairly nasty.
-
-You say it; yet it seems like it could be part of a good solution.  Just
-forcefully allocating a single page by splitting a large page and before
-that even swapping until we can actually allocate a higher order page is
-bad.
-
-> Hmm.  This doesn't sound right.  And this sounds like a silly way to
-> use reverse mappings anyway, since you can do it up front in mmap and
-> their kin.  Which means you don't have to slow any of the page fault
-> logic up.
-
-Then how do you handle something like:
-
-  fd = open(TESTFILE, O_RDWR | O_CREAT, 664);
-  res = write(fd, one, 4096);
-  mmap(addr            , PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-  mmap(addr + PAGE_SIZE, PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-
-If both mappings are immediately created accessible you'll directly endup
-with aliases.  There is no choice, if the pagesize is only 4kb an R4x00
-will create aliases in the case.  Bad.
-
-> Hmm.  Correct.  If you have the page aliases appropriately colored across
-> address spaces you will always hit the same cache block, and since you
-> do virtual to physical before the tag compare a false hit won't hurt
-> either.
-
-As above example shows you may even get aliases in a single address space.
-
-> Well virtually indexed caches look like worth supporting in the kernel
-> since it is easy to do, and can be compiled out on architectures that
-> don't support it.
-
-At least for sparc it's already supported.  Right now I don't feel like
-looking into the 2.4 solution but checkout srmmu_vac_update_mmu_cache in
-the 2.2 kernel.
-
-> For keeping cache collisions down I think we probably do a decent job
-> already.  All we need to do is to continuously cycle through cache
-> aliases.
->
-> For not ensuring too many cache collisions I think we probably do a
-> decent job already.
-
-Virtual aliases are the kind of harmful collision that must be avoid or
-data corruption will result.  We just happen to be lucky that there are
-only very few applications which will actually suffer from this problem.
-(Which is why we don't handle it correctly for all MIPSes ...)
-
->                       Only the least significant bits are significant.
-> And virtual addresses matter not at all.  In the buddy system where we
-> walk backward linearly through memory it feels o.k.  Only profiling
-> would tell if we were helping of if we could even help with that.
-
-Other Unices have choosen this implementation; of course they probably
-already had the reverse mapping facilities present and didn't implement
-them just for this purpose.
-
-  Ralf
-
---
-"Embrace, Enhance, Eliminate" - it worked for the pope, it'll work for Bill.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

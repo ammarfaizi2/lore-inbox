@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUGOAMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265983AbUGOAMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265996AbUGOAMM (ORCPT <rfc822;willy@w.ods.org>);
+	id S265983AbUGOAMM (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 14 Jul 2004 20:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265983AbUGOALJ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbUGOAKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 20:11:09 -0400
-Received: from mail.kroah.org ([69.55.234.183]:51947 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265996AbUGOAJA convert rfc822-to-8bit
+	Wed, 14 Jul 2004 20:10:41 -0400
+Received: from mail.kroah.org ([69.55.234.183]:51435 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265983AbUGOAI7 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 20:09:00 -0400
+	Wed, 14 Jul 2004 20:08:59 -0400
 Subject: Re: [PATCH] I2C update for 2.6.8-rc1
-In-Reply-To: <10898500321009@kroah.com>
+In-Reply-To: <10898500281194@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 14 Jul 2004 17:07:15 -0700
-Message-Id: <1089850035501@kroah.com>
+Date: Wed, 14 Jul 2004 17:07:09 -0700
+Message-Id: <10898500291667@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,128 +22,212 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1784.13.13, 2004/07/14 11:50:09-07:00, mhoffman@lightlink.com
+ChangeSet 1.1784.13.6, 2004/07/08 16:07:58-07:00, khali@linux-fr.org
 
-[PATCH] I2C: Remove extra inits from lm78 driver
+[PATCH] I2C: Documentation for i2c-parport
 
-This patch is from the lm_sensors project CVS, from this revision:
+At least, the i2c-parport gets some documentation. I heard several
+persons complaining that there was no sample electronics schema for
+building their own i2c-over-parallel-port, so I did just that, with the
+help of Sylvain Munaut. The documentation also includes the list of
+supported adapters, and a short comparison with other drivers using the
+parallel port to drive an i2c bus. At the end of the document I included
+an updated version of the i2c-velleman doc file (which I then deleted).
 
-	1.63 (mds) remove initialization of limits by driver
-
-It is better to set these limits by a combination of /etc/sensors.conf
-and 'sensors -s'; "mechanism not policy."  Please apply.
-
-Signed-off-by: Mark M. Hoffman <mhoffman@lightlink.com>
+Signed-off-by: Jean Delvare <khali at linux-fr dot org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/i2c/chips/lm78.c |   88 -----------------------------------------------
- 1 files changed, 88 deletions(-)
+ Documentation/i2c/i2c-velleman |   20 -----
+ Documentation/i2c/i2c-parport  |  156 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 156 insertions(+), 20 deletions(-)
 
 
-diff -Nru a/drivers/i2c/chips/lm78.c b/drivers/i2c/chips/lm78.c
---- a/drivers/i2c/chips/lm78.c	2004-07-14 16:59:07 -07:00
-+++ b/drivers/i2c/chips/lm78.c	2004-07-14 16:59:07 -07:00
-@@ -123,55 +123,6 @@
- }
- #define DIV_FROM_REG(val) (1 << (val))
- 
--/* Initial limits. To keep them sane, we use the 'standard' translation as
--   specified in the LM78 sheet. Use the config file to set better limits. */
--#define LM78_INIT_IN_0(vid) ((vid)==3500 ? 2800 : (vid))
--#define LM78_INIT_IN_1(vid) ((vid)==3500 ? 2800 : (vid))
--#define LM78_INIT_IN_2 3300
--#define LM78_INIT_IN_3 (((5000)   * 100)/168)
--#define LM78_INIT_IN_4 (((12000)  * 10)/38)
--#define LM78_INIT_IN_5 (((-12000) * -604)/2100)
--#define LM78_INIT_IN_6 (((-5000)  * -604)/909)
+diff -Nru a/Documentation/i2c/i2c-parport b/Documentation/i2c/i2c-parport
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/Documentation/i2c/i2c-parport	2004-07-14 17:00:03 -07:00
+@@ -0,0 +1,156 @@
++==================
++i2c-parport driver
++==================
++
++2004-07-06, Jean Delvare
++
++This is a unified driver for several i2c-over-parallel-port adapters,
++such as the ones made by Philips, Velleman or ELV. This driver is
++meant as a replacement for the older, individual drivers:
++ * i2c-philips-par
++ * i2c-elv
++ * i2c-velleman
++ * video/i2c-parport (NOT the same as this one, dedicated to home brew
++                      teletext adapters)
++
++It currently supports the following devices:
++ * Philips adapter
++ * home brew teletext adapter
++ * Velleman K8000 adapter
++ * ELV adapter
++ * Analog Devices evaluation boards (ADM1025, ADM1030, ADM1031, ADM1032)
++
++These devices use different pinout configurations, so you have to tell
++the driver what you have, using the type module parameter. There is no
++way to autodetect the devices. Support for different pinout configurations
++can be easily added when needed.
++
++
++Building your own adapter
++-------------------------
++
++If you want to build you own i2c-over-parallel-port adapter, here is
++a sample electronics schema (credits go to Sylvain Munaut):
++
++Device                                                      PC
++Side          ___________________Vdd (+)                    Side
++               |    |         |
++              ---  ---       ---
++              | |  | |       | |
++              |R|  |R|       |R|
++              | |  | |       | |
++              ---  ---       ---
++               |    |         |
++               |    |    /|   |
++SCL  ----------x--------o |-----------x-------------------  pin 2
++                    |    \|   |       |
++                    |         |       |
++                    |   |\    |       |
++SDA  ----------x----x---| o---x---------------------------  pin 13
++               |        |/            |
++               |                      |
++               |         /|           |
++               ---------o |----------------x--------------  pin 3
++                         \|           |    |
++                                      |    |
++                                     ---  ---
++                                     | |  | |
++                                     |R|  |R|
++                                     | |  | |
++                                     ---  ---
++                                      |    | 
++                                     ###  ###
++                                     GND  GND
++        
++Remarks:
++ - This is the exact pinout and electronics used on the Analog Devices
++   evaluation boards.
++                   /|
++ - All inverters -o |- must be 74HC05, they must be open collector output.
++                   \|
++ - All resitors are 10k.
++ - Pins 18-25 of the parallel port connected to GND.
++ - Pins 4-9 (D2-D7) could be used as VDD is the driver drives them high.
++   The ADM1032 evaluation board uses D4-D7. Beware that the amount of
++   current you can draw from the parallel port is limited. Also note that
++   all connected lines MUST BE driven at the same state, else you'll short
++   circuit the output buffers! So plugging the I2C adapter after loading
++   the i2c-parport module might be a good safety since data line state
++   prior to init may be unknown. 
++ - This is 5V!
++ - Obviously you cannot read SCL (so it's not really standard-compliant).
++   Pretty easy to add, just copy the SDA part and use another input pin.
++   That would give (ELV compatible pinout):
++
++
++Device                                                      PC
++Side          ______________________________Vdd (+)         Side
++               |    |            |    |
++              ---  ---          ---  ---
++              | |  | |          | |  | |
++              |R|  |R|          |R|  |R|
++              | |  | |          | |  | |
++              ---  ---          ---  ---
++               |    |            |    |
++               |    |      |\    |    |
++SCL  ----------x--------x--| o---x------------------------  pin 15
++                    |   |  |/         | 
++                    |   |             |
++                    |   |   /|        |
++                    |   ---o |-------------x--------------  pin 2
++                    |       \|        |    |
++                    |                 |    |
++                    |                 |    |
++                    |      |\         |    |
++SDA  ---------------x---x--| o--------x-------------------  pin 10
++                        |  |/              |
++                        |                  |
++                        |   /|             |
++                        ---o |------------------x---------  pin 3
++                            \|             |    |
++                                           |    |
++                                          ---  ---
++                                          | |  | |
++                                          |R|  |R|
++                                          | |  | |
++                                          ---  ---
++                                           |    | 
++                                          ###  ###
++                                          GND  GND
++
++
++If possible, you should use the same pinout configuration as existing
++adapters do, so you won't even have to change the code.
++
++
++Similar (but different) drivers
++-------------------------------
++
++This driver is NOT the same as the i2c-pport driver found in the i2c package.
++The i2c-pport driver makes use of modern parallel port features so that
++you don't need additional electronics. It has other restrictions however, and
++was not ported to Linux 2.6 (yet).
++
++This driver is also NOT the same as the i2c-pcf-epp driver found in the
++lm_sensors package. The i2c-pcf-epp driver doesn't use the parallel port
++as an I2C bus directly. Instead, it uses it to control an external I2C bus
++master. That driver was not ported to Linux 2.6 (yet) either.
++
++
++Legacy documentation for Velleman adapter
++-----------------------------------------
++
++Useful links:
++Velleman                http://www.velleman.be/
++Velleman K8000 Howto    http://howto.htlw16.ac.at/k8000-howto.html
++
++The project has lead to new libs for the Velleman K8000 and K8005:
++  LIBK8000 v1.99.1 and LIBK8005 v0.21
++With these libs, you can control the K8000 interface card and the K8005
++stepper motor card with the simple commands which are in the original
++Velleman software, like SetIOchannel, ReadADchannel, SendStepCCWFull and
++many more, using /dev/velleman.
++  http://home.wanadoo.nl/hihihi/libk8000.htm
++  http://home.wanadoo.nl/hihihi/libk8005.htm
++  http://struyve.mine.nu:8080/index.php?block=k8000
++  http://sourceforge.net/projects/libk8005/
+diff -Nru a/Documentation/i2c/i2c-velleman b/Documentation/i2c/i2c-velleman
+--- a/Documentation/i2c/i2c-velleman	2004-07-14 17:00:03 -07:00
++++ /dev/null	Wed Dec 31 16:00:00 196900
+@@ -1,23 +0,0 @@
+-i2c-velleman driver
+--------------------
+-This is a driver for i2c-hw access for Velleman K8000 and other adapters.
 -
--#define LM78_INIT_IN_PERCENTAGE 10
+-Useful links
+-------------
+-Velleman:
+-	http://www.velleman.be/
 -
--#define LM78_INIT_IN_MIN_0(vid) (LM78_INIT_IN_0(vid) - \
--	LM78_INIT_IN_0(vid) * LM78_INIT_IN_PERCENTAGE / 100)
--#define LM78_INIT_IN_MAX_0(vid) (LM78_INIT_IN_0(vid) + \
--	LM78_INIT_IN_0(vid) * LM78_INIT_IN_PERCENTAGE / 100)
--#define LM78_INIT_IN_MIN_1(vid) (LM78_INIT_IN_1(vid) - \
--	LM78_INIT_IN_1(vid) * LM78_INIT_IN_PERCENTAGE / 100)
--#define LM78_INIT_IN_MAX_1(vid) (LM78_INIT_IN_1(vid) + \
--	LM78_INIT_IN_1(vid) * LM78_INIT_IN_PERCENTAGE / 100)
+-Velleman K8000 Howto:
+-	http://howto.htlw16.ac.at/k8000-howto.html
 -
--#define LM78_INIT_IN_MIN_2 \
--        (LM78_INIT_IN_2 - LM78_INIT_IN_2 * LM78_INIT_IN_PERCENTAGE / 100)
--#define LM78_INIT_IN_MAX_2 \
--        (LM78_INIT_IN_2 + LM78_INIT_IN_2 * LM78_INIT_IN_PERCENTAGE / 100)
--#define LM78_INIT_IN_MIN_3 \
--        (LM78_INIT_IN_3 - LM78_INIT_IN_3 * LM78_INIT_IN_PERCENTAGE / 100)
--#define LM78_INIT_IN_MAX_3 \
--        (LM78_INIT_IN_3 + LM78_INIT_IN_3 * LM78_INIT_IN_PERCENTAGE / 100)
--#define LM78_INIT_IN_MIN_4 \
--        (LM78_INIT_IN_4 - LM78_INIT_IN_4 * LM78_INIT_IN_PERCENTAGE / 100)
--#define LM78_INIT_IN_MAX_4 \
--        (LM78_INIT_IN_4 + LM78_INIT_IN_4 * LM78_INIT_IN_PERCENTAGE / 100)
--#define LM78_INIT_IN_MIN_5 \
--        (LM78_INIT_IN_5 - LM78_INIT_IN_5 * LM78_INIT_IN_PERCENTAGE / 100)
--#define LM78_INIT_IN_MAX_5 \
--        (LM78_INIT_IN_5 + LM78_INIT_IN_5 * LM78_INIT_IN_PERCENTAGE / 100)
--#define LM78_INIT_IN_MIN_6 \
--        (LM78_INIT_IN_6 - LM78_INIT_IN_6 * LM78_INIT_IN_PERCENTAGE / 100)
--#define LM78_INIT_IN_MAX_6 \
--        (LM78_INIT_IN_6 + LM78_INIT_IN_6 * LM78_INIT_IN_PERCENTAGE / 100)
+-K8000 and K8005 libraries
+--------------------------
+-The project has lead to new libs for the Velleman K8000 and K8005:
+-LIBK8000 v1.99.1 and LIBK8005 v0.21
 -
--#define LM78_INIT_FAN_MIN_1 3000
--#define LM78_INIT_FAN_MIN_2 3000
--#define LM78_INIT_FAN_MIN_3 3000
+-With these libs, you can control the K8000 interface card and the K8005
+-stepper motor card with the simple commands which are in the original
+-Velleman software, like SetIOchannel, ReadADchannel, SendStepCCWFull and
+-many more, using /dev/velleman.
 -
--#define LM78_INIT_TEMP_OVER 60000
--#define LM78_INIT_TEMP_HYST 50000
--
- /* There are some complications in a module like this. First off, LM78 chips
-    may be both present on the SMBus and the ISA bus, and we have to handle
-    those cases separately at some places. Second, there might be several
-@@ -755,45 +706,6 @@
- 	else
- 		vid |= 0x10;
- 	vid = VID_FROM_REG(vid);
--
--	lm78_write_value(client, LM78_REG_IN_MIN(0),
--			 IN_TO_REG(LM78_INIT_IN_MIN_0(vid)));
--	lm78_write_value(client, LM78_REG_IN_MAX(0),
--			 IN_TO_REG(LM78_INIT_IN_MAX_0(vid)));
--	lm78_write_value(client, LM78_REG_IN_MIN(1),
--			 IN_TO_REG(LM78_INIT_IN_MIN_1(vid)));
--	lm78_write_value(client, LM78_REG_IN_MAX(1),
--			 IN_TO_REG(LM78_INIT_IN_MAX_1(vid)));
--	lm78_write_value(client, LM78_REG_IN_MIN(2),
--			 IN_TO_REG(LM78_INIT_IN_MIN_2));
--	lm78_write_value(client, LM78_REG_IN_MAX(2),
--			 IN_TO_REG(LM78_INIT_IN_MAX_2));
--	lm78_write_value(client, LM78_REG_IN_MIN(3),
--			 IN_TO_REG(LM78_INIT_IN_MIN_3));
--	lm78_write_value(client, LM78_REG_IN_MAX(3),
--			 IN_TO_REG(LM78_INIT_IN_MAX_3));
--	lm78_write_value(client, LM78_REG_IN_MIN(4),
--			 IN_TO_REG(LM78_INIT_IN_MIN_4));
--	lm78_write_value(client, LM78_REG_IN_MAX(4),
--			 IN_TO_REG(LM78_INIT_IN_MAX_4));
--	lm78_write_value(client, LM78_REG_IN_MIN(5),
--			 IN_TO_REG(LM78_INIT_IN_MIN_5));
--	lm78_write_value(client, LM78_REG_IN_MAX(5),
--			 IN_TO_REG(LM78_INIT_IN_MAX_5));
--	lm78_write_value(client, LM78_REG_IN_MIN(6),
--			 IN_TO_REG(LM78_INIT_IN_MIN_6));
--	lm78_write_value(client, LM78_REG_IN_MAX(6),
--			 IN_TO_REG(LM78_INIT_IN_MAX_6));
--	lm78_write_value(client, LM78_REG_FAN_MIN(0),
--			 FAN_TO_REG(LM78_INIT_FAN_MIN_1, 2));
--	lm78_write_value(client, LM78_REG_FAN_MIN(1),
--			 FAN_TO_REG(LM78_INIT_FAN_MIN_2, 2));
--	lm78_write_value(client, LM78_REG_FAN_MIN(2),
--			 FAN_TO_REG(LM78_INIT_FAN_MIN_3, 2));
--	lm78_write_value(client, LM78_REG_TEMP_OVER,
--			 TEMP_TO_REG(LM78_INIT_TEMP_OVER));
--	lm78_write_value(client, LM78_REG_TEMP_HYST,
--			 TEMP_TO_REG(LM78_INIT_TEMP_HYST));
- 
- 	/* Start monitoring */
- 	lm78_write_value(client, LM78_REG_CONFIG,
+-The libs can be found on http://groups.yahoo.com/group/k8000/files/linux/
 

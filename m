@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264401AbTDXCHm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 22:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264400AbTDXCHm
+	id S264419AbTDXCQK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 22:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264421AbTDXCQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 22:07:42 -0400
-Received: from almesberger.net ([63.105.73.239]:2055 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S264401AbTDXCHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 22:07:41 -0400
-Date: Wed, 23 Apr 2003 23:19:20 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Pat Suwalski <pat@suwalski.net>, Matthias Schniedermeyer <ms@citd.de>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <20030423231920.D1425@almesberger.net>
-References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423172120.GA12497@citd.de> <3EA6947D.9080106@suwalski.net> <20030423221749.GA9187@elf.ucw.cz> <3EA71533.4090008@suwalski.net> <20030423225520.GA32577@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030423225520.GA32577@atrey.karlin.mff.cuni.cz>; from pavel@ucw.cz on Thu, Apr 24, 2003 at 12:55:20AM +0200
+	Wed, 23 Apr 2003 22:16:10 -0400
+Received: from lakemtao03.cox.net ([68.1.17.242]:11995 "EHLO
+	lakemtao03.cox.net") by vger.kernel.org with ESMTP id S264419AbTDXCQJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 22:16:09 -0400
+Message-ID: <3EA74BB2.7040904@cox.net>
+Date: Wed, 23 Apr 2003 21:28:02 -0500
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: joe.korty@ccur.com, Nils Holland <nils@ravishing.de>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [2.4.21-rc1] USB Trackball broken
+References: <3EA6C558.5040004@cox.net> <20030423201619.GB12889@kroah.com> <3EA707D2.1000507@cox.net> <200304240034.20872.nils@ravishing.de> <20030424011616.GA11649@tsunami.ccur.com> <3EA74063.5040808@cox.net>
+In-Reply-To: <3EA74063.5040808@cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> That breaks in init=/bin/bash siuations,
+David van Hoose wrote:
+> Joe Korty wrote:
+> 
+>> Hi David, Nils,
+>>
+>> Nils, you have
+>>
+>>     CONFIG_USB_HIDINPUT=y
+>>
+>> which is correct.  David, you have
+>>
+>>     CONFIG_USB_HIDINPUT=m
+>>
+>> which is an illegal setting.  You must have hand-edited your config file
+>> to get this.  My guess is, the '=m' is being treated as 'not set'.
+>>
+>> You also need to have CONFIG_INPUT (Input core support section) set.
+>> If this is not set you will not see the CONFIG_USB_HIDINPUT question
+>> come up in the USB section.
+> 
+> 
+> Actually I didn't.. Blame RedHat. I used their config for the template 
+> for my kernel so I'd have fairly good compatibility. I'm compiling a 
+> kernel now to see if that was the bug.
 
-True. This also breaks a zillion other things, like NFS, journal
-recovery, and such. Shouldn't we have kernel options for them as
-well ? :-)
+This was it! I now have a working trackball! Thanks all of you who 
+helped me out. I'll post a bug report to RedHat now. :-)
 
-> old distros, etc.
+Thanks!
+David
 
-So you're claiming that users will find it more difficult to add
-one line to rc.local than upgrading their kernel ?
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

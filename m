@@ -1,68 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292581AbSCDRb7>; Mon, 4 Mar 2002 12:31:59 -0500
+	id <S292584AbSCDRc7>; Mon, 4 Mar 2002 12:32:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292589AbSCDRbo>; Mon, 4 Mar 2002 12:31:44 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:25250 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S292560AbSCDRbf>; Mon, 4 Mar 2002 12:31:35 -0500
-Date: Mon, 4 Mar 2002 10:46:09 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Gigabit Performance 2.4.19-preX - Excessive locks, calls, waits
-Message-ID: <20020304104609.C31523@vger.timpanogas.org>
-In-Reply-To: <20020304001223.A29448@vger.timpanogas.org> <E16hu0P-0007yq-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16hu0P-0007yq-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Mar 04, 2002 at 03:04:00PM +0000
+	id <S292557AbSCDRcy>; Mon, 4 Mar 2002 12:32:54 -0500
+Received: from mail.interware.hu ([195.70.32.130]:14486 "EHLO
+	mail.interware.hu") by vger.kernel.org with ESMTP
+	id <S292584AbSCDRcB>; Mon, 4 Mar 2002 12:32:01 -0500
+Date: Mon, 4 Mar 2002 18:31:59 +0100 (CET)
+From: Hirling Endre <endre@interware.hu>
+To: linux-kernel@vger.kernel.org
+Subject: recommended gigabit card for dot1q?
+Message-ID: <Pine.LNX.4.44.0203041827430.1157-100000@dusk.interware.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 04, 2002 at 03:04:00PM +0000, Alan Cox wrote:
-> > provided for review.  Recommend a minumum change of increasing 
-> > the sysctl_hot_list_len from 128 to 1024 by default.  I have reviewed 
-> 
-> Good way to kill low end boxes. It probably wants sizing based on system
-> size and load monitoring. 
-> 
-> > NetWare always created ECB's (Event Control Blocks) at the max size
-> > of the network adpapter rather than trying to allocate fragment 
-> > elements on the fly the way is being done in Linux with skb's.  
-> 
-> Thats up to the network adapter. In fact the Linux drivers mostly do 
-> keep preloaded with full sized buffers and only copy if the packet size
-> is small (and copying 1 or 2 cache lines isnt going to hurt anyone)
 
+Hello,
 
-There's an increase in latency.  For my application, I have no 
-problem keeping around a local patch that corrects this behavior 
-if folks don't feel it needs fixing.   From everything I've ever
-done in this space, having needless alloc/free calls in a 
-performance intensive path that requires low latency like a Lan 
-driver is not a good thing.  
+I have to upgrade one of our linux-based routers to gigabit. What GE
+card do you recommend for using with dot1q vlans? I tried a D-Link one
+(DGE550SX, based on a Level1 chip) and an Intel one that works with the
+e1000 driver, but I couldn't set up vlans properly with either of these.
 
-I am idle most of the time since I have eliminated all of the 
-copy activity by using SCI in the system.  This is why it's 
-idle most of the time.  Were I using the IP stack code in Linux
-proper, the utilization would be through the roof.  
+thanks in advance
+endre
 
-:-)
-
-Jeff
-
-
-> 
-> >  28044 default_idle                             584.2500
-> 
-> You spent most of your time asleep 8)
-> 
-> >   1117 __rdtsc_delay                             34.9062
-> 
-> Or doing delays
-> 
-> >    927 eth_type_trans                             4.4567
-> 
-> And pulling a line into L1 cache

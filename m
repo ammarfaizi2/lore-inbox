@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264765AbSJOT2D>; Tue, 15 Oct 2002 15:28:03 -0400
+	id <S264758AbSJOTUp>; Tue, 15 Oct 2002 15:20:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264766AbSJOT2D>; Tue, 15 Oct 2002 15:28:03 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:8357 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S264765AbSJOT2C>; Tue, 15 Oct 2002 15:28:02 -0400
-Date: Tue, 15 Oct 2002 12:33:49 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: [PATCH] superbh, fractured blocks, and grouped io
-Message-ID: <20021015193348.GN22117@nic1-pc.us.oracle.com>
-References: <20021014135100.GD28283@suse.de> <20021014181338.GF22117@nic1-pc.us.oracle.com> <20021015074423.GE5294@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021015074423.GE5294@suse.de>
-User-Agent: Mutt/1.4i
-X-Burt-Line: Trees are cool.
+	id <S264761AbSJOTUp>; Tue, 15 Oct 2002 15:20:45 -0400
+Received: from fw-az.mvista.com ([65.200.49.158]:508 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id <S264758AbSJOTUj>; Tue, 15 Oct 2002 15:20:39 -0400
+Message-ID: <3DAC6C7B.1080205@mvista.com>
+Date: Tue, 15 Oct 2002 12:28:59 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michael Clark <michael@metaparadigm.com>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] [PATCHES] Advanced TCA Hotswap Support in Linux Kernel
+References: <3DAB1007.6040400@mvista.com> <20021015052916.GA11190@kroah.com> <3DAC52A7.907@mvista.com> <3DAC685B.9070102@metaparadigm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 09:44:23AM +0200, Jens Axboe wrote:
-> We don't want to make them too large anyway, and I think that 64k-1 is
-> more than enough. Maybe it would even be better to simply use an even
-> 32kb. Consider someone writing in chunks of 64kb. It would simply suck
-> to get one 65024b request followed by a 512b one.
 
-	Well, 64K-1 is really 64K-hardsect_size.  In practice, it will
-probably be 32K, as folks like power-of-two buffers.  Some people would
-claim that larger sizes (128K, 512K) can improve throughput.
+Michael Clark wrote:
 
-Joel
+> On 10/16/02 01:38, Steven Dake wrote:
+>
+>> At this point, there isn't anything using them.  I am working on a 
+>> hotswap manager, that may be in kernel space (for performance 
+>> reasons) that may use these interfaces.  I'm also working on a SAFTE 
+>> Hotswap processor module (ie; drivers/scsi/sp.c) for the SCSI 
+>> subsystem that uses these interfaces.  (Safte is a hotswap standard 
+>> for SCSI chassis).
+>
+>
+> Do you really want to have SAF-TE polling in the kernel?
 
--- 
+Good code thanks for the pointer.
 
-Life's Little Instruction Book #356
+When I searched months ago, there wasn't anything out there.
 
-	"Be there when people need you."
+Safte polling in the kernel isn't inherently bad and could be tied into 
+the hotplug mechanism.
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+Making SAFTE hotswap available via SG would also work but system 
+performance would be bad at small poll intervals (like 100 msec).
+
+Thanks
+-steve
+
+>
+> This can easily be accomplished in userspace using sg.
+>
+> safte-monitor <http://gort.metaparadigm.com/safte-monitor/> can already
+> provde disk insertion, removal notifications in userspace and already
+> supports calling out to a script with the physical slot location 
+> information
+> (and with tweaks to the code, scsi device of the disk inserted)
+>
+> There is even code in safte-monitor to identify the wwn of the devices
+> in each slot, although it needs updating to the latest qlogic ioctl
+> interface (or hbaapi).
+>
+> ~mc
+>
+>
+>
+

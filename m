@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267425AbTGOMYE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 08:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267678AbTGOMXm
+	id S267557AbTGOMcL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 08:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267978AbTGOMbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 08:23:42 -0400
-Received: from mail.convergence.de ([212.84.236.4]:37280 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S267425AbTGOMGK convert rfc822-to-8bit
+	Tue, 15 Jul 2003 08:31:20 -0400
+Received: from mail.convergence.de ([212.84.236.4]:38816 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S267557AbTGOMGM convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 08:06:10 -0400
-Subject: [PATCH 11/17] Add a driver for the Technisat Skystar2 DVB card
-In-Reply-To: <1058271657827@convergence.de>
+	Tue, 15 Jul 2003 08:06:12 -0400
+Subject: [PATCH 14/17] Add TDA14500x DVB-T frontend driver
+In-Reply-To: <10582716581043@convergence.de>
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Tue, 15 Jul 2003 14:20:57 +0200
-Message-Id: <10582716573394@convergence.de>
+Date: Tue, 15 Jul 2003 14:20:59 +0200
+Message-Id: <10582716591780@convergence.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: torvalds@osdl.org, linux-kernel@vger.kernel.org
@@ -23,2577 +23,1205 @@ From: Michael Hunold (LinuxTV.org CVS maintainer)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[DVB] - add DVB driver for Technisat Skystar2 card, which is based on
-        the FlexCop2 chipset by B2C2
-diff -uNrwB --new-file linux-2.6.0-test1.work/drivers/media/dvb/b2c2/Kconfig linux-2.6.0-test1.patch/drivers/media/dvb/b2c2/Kconfig
---- linux-2.6.0-test1.work/drivers/media/dvb/b2c2/Kconfig	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.0-test1.patch/drivers/media/dvb/b2c2/Kconfig	2003-07-15 09:47:16.000000000 +0200
-@@ -0,0 +1,8 @@
-+config DVB_B2C2_SKYSTAR
-+	tristate "Technisat Skystar2 PCI"
+[DVB] - tda1004x DVB-T driver contributed by Andrew de Quincy and Robert Schlalach
+diff -uNrwB --new-file linux-2.6.0-test1.work/drivers/media/dvb/frontends/Kconfig linux-2.6.0-test1.patch/drivers/media/dvb/frontends/Kconfig
+--- linux-2.6.0-test1.work/drivers/media/dvb/frontends/Kconfig	2003-07-15 10:59:46.000000000 +0200
++++ linux-2.6.0-test1.patch/drivers/media/dvb/frontends/Kconfig	2003-06-27 13:50:04.000000000 +0200
+@@ -115,3 +115,23 @@
+ 	  DVB adapter simply enable all supported frontends, the 
+ 	  right one will get autodetected.
+ 
++config DVB_TDA1004X
++	tristate "Frontends with external TDA1004X demodulators (OFDM)"
 +	depends on DVB_CORE
 +	help
-+	  Support for the Skystar2 PCI DVB card by Technisat, which
-+	  is equipped with the FlexCopII chipset by B2C2.
++	  A DVB-T tuner module. Say Y when you want to support this frontend.
 +
-+	  Say Y if you own such a device and want to use it.
-diff -uNrwB --new-file linux-2.6.0-test1.work/drivers/media/dvb/b2c2/Makefile linux-2.6.0-test1.patch/drivers/media/dvb/b2c2/Makefile
---- linux-2.6.0-test1.work/drivers/media/dvb/b2c2/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.0-test1.patch/drivers/media/dvb/b2c2/Makefile	2003-07-15 09:45:20.000000000 +0200
-@@ -0,0 +1,3 @@
-+obj-$(DVB_B2C2_SKYSTAR) += skystar.o
++	  If you don't know what tuner module is soldered on your
++	  DVB adapter simply enable all supported frontends, the
++	  right one will get autodetected.
 +
-+EXTRA_CFLAGS = -Idrivers/media/dvb/dvb-core/
-diff -uNrwB --new-file linux-2.6.0-test1.work/drivers/media/dvb/b2c2/skystar2.c linux-2.6.0-test1.patch/drivers/media/dvb/b2c2/skystar2.c
---- linux-2.6.0-test1.work/drivers/media/dvb/b2c2/skystar2.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.0-test1.patch/drivers/media/dvb/b2c2/skystar2.c	2003-07-14 12:07:03.000000000 +0200
-@@ -0,0 +1,2548 @@
++config DVB_TDA1004X_FIRMWARE_FILE
++        string "Full pathname of tda1004x.bin firmware file"
++        depends on DVB_TDA1004X
++        default "/etc/dvb/tda1004x.bin"
++        help
++          The TDA1004X requires additional firmware in order to function.
++          The firmware file can obtained as follows:
++            wget http://www.technotrend.de/new/215/TTweb_215a_budget_20_05_2003.zip
++            unzip -j TTweb_215a_budget_20_05_2003.zip Software/Oem/PCI/App/ttlcdacc.dll
++            mv ttlcdacc.dll /etc/dvb/tda1004x.bin
+diff -uNrwB --new-file linux-2.6.0-test1.work/drivers/media/dvb/frontends/Makefile linux-2.6.0-test1.patch/drivers/media/dvb/frontends/Makefile
+--- linux-2.6.0-test1.work/drivers/media/dvb/frontends/Makefile	2003-07-15 10:59:46.000000000 +0200
++++ linux-2.6.0-test1.patch/drivers/media/dvb/frontends/Makefile	2003-06-27 13:36:23.000000000 +0200
+@@ -12,5 +12,6 @@
+ obj-$(CONFIG_DVB_CX24110) += cx24110.o
+ obj-$(CONFIG_DVB_GRUNDIG_29504_491) += grundig_29504-491.o
+ obj-$(CONFIG_DVB_GRUNDIG_29504_401) += grundig_29504-401.o
+-obj-$(CONFIG_DVB_MT312) += mt312.o
++obi-$(CONFIG_DVB_MT312) += mt312.o
+ obj-$(CONFIG_DVB_VES1820) += ves1820.o
++obj-$(CONFIG_DVB_TDA1004X) += tda1004x.o
+diff -uNrwB --new-file linux-2.6.0-test1.work/drivers/media/dvb/frontends/tda1004x.c linux-2.6.0-test1.patch/drivers/media/dvb/frontends/tda1004x.c
+--- linux-2.6.0-test1.work/drivers/media/dvb/frontends/tda1004x.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.0-test1.patch/drivers/media/dvb/frontends/tda1004x.c	2003-07-14 11:56:37.000000000 +0200
+@@ -0,0 +1,1158 @@
++  /*
++     Driver for Philips tda1004x OFDM Frontend
++
++     This program is free software; you can redistribute it and/or modify
++     it under the terms of the GNU General Public License as published by
++     the Free Software Foundation; either version 2 of the License, or
++     (at your option) any later version.
++
++     This program is distributed in the hope that it will be useful,
++     but WITHOUT ANY WARRANTY; without even the implied warranty of
++     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++
++     GNU General Public License for more details.
++
++     You should have received a copy of the GNU General Public License
++     along with this program; if not, write to the Free Software
++     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++
++   */
++
 +/*
-+ * skystar2.c - driver for the Technisat SkyStar2 PCI DVB card
-+ *              based on the FlexCopII by B2C2,Inc.
-+ *
-+ * Copyright (C) 2003  V.C. , skystar@moldova.cc
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU Lesser General Public License
-+ * as published by the Free Software Foundation; either version 2.1
-+ * of the License, or (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU Lesser General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-+ */
-+#include <linux/module.h>
-+#include <linux/delay.h>
-+#include <linux/pci.h>
++    This driver needs a copy of the DLL "ttlcdacc.dll" from the Haupauge or Technotrend
++    windows driver saved as '/etc/dvb/tda1004x.mc'.
++    You can also pass the complete file name with the module parameter 'tda1004x_firmware'.
 +
-+#include "dvb_i2c.h"
++    Currently the DLL from v2.15a of the technotrend driver is supported. Other versions can
++    be added reasonably painlessly.
++
++    Windows driver URL: http://www.technotrend.de/
++ */
++
++
++#define __KERNEL_SYSCALLS__
++#include <linux/kernel.h>
++#include <linux/vmalloc.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/string.h>
++#include <linux/slab.h>
++#include <linux/fs.h>
++#include <linux/unistd.h>
++#include <linux/fcntl.h>
++#include <linux/errno.h>
 +#include "dvb_frontend.h"
 +#include "dvb_functions.h"
 +
-+#include <linux/dvb/frontend.h>
-+#include <linux/dvb/dmx.h>
-+#include "dvb_demux.h"
-+#include "dmxdev.h"
-+#include "dvb_filter.h"
-+#include "dvbdev.h"
-+#include "demux.h"
-+#include "dvb_net.h"
++#ifndef CONFIG_TDA1004X_MC_LOCATION
++#define CONFIG_TDA1004X_MC_LOCATION "/etc/dvb/tda1004x.mc"
++#endif
 +
-+int debug = 0;
-+#define dprintk	if(debug != 0) printk
++static int tda1004x_debug = 0;
++static char *tda1004x_firmware = CONFIG_TDA1004X_MC_LOCATION;
 +
-+#define SizeOfBufDMA1	0x3AC00
-+#define SizeOfBufDMA2	0x758
 +
-+struct DmaQ {
++#define TDA10045H_ADDRESS        0x08
++#define TD1344_ADDRESS           0x61
++#define TDM1316L_ADDRESS         0x63
++#define MC44BC374_ADDRESS        0x65
 +
-+	u32 bus_addr;
-+	u32 head;
-+	u32 tail;
-+	u32 buffer_size;
-+	u8 *buffer;
++#define TDA1004X_CHIPID          0x00
++#define TDA1004X_AUTO            0x01
++#define TDA1004X_IN_CONF1        0x02
++#define TDA1004X_IN_CONF2        0x03
++#define TDA1004X_OUT_CONF1       0x04
++#define TDA1004X_OUT_CONF2       0x05
++#define TDA1004X_STATUS_CD       0x06
++#define TDA1004X_CONFC4          0x07
++#define TDA1004X_DSSPARE2        0x0C
++#define TDA1004X_CODE_IN         0x0D
++#define TDA1004X_FWPAGE          0x0E
++#define TDA1004X_SCAN_CPT        0x10
++#define TDA1004X_DSP_CMD         0x11
++#define TDA1004X_DSP_ARG         0x12
++#define TDA1004X_DSP_DATA1       0x13
++#define TDA1004X_DSP_DATA2       0x14
++#define TDA1004X_CONFADC1        0x15
++#define TDA1004X_CONFC1          0x16
++#define TDA1004X_SIGNAL_STRENGTH 0x1a
++#define TDA1004X_SNR             0x1c
++#define TDA1004X_REG1E           0x1e
++#define TDA1004X_REG1F           0x1f
++#define TDA1004X_CBER_RESET      0x20
++#define TDA1004X_CBER_MSB        0x21
++#define TDA1004X_CBER_LSB        0x22
++#define TDA1004X_CVBER_LUT       0x23
++#define TDA1004X_VBER_MSB        0x24
++#define TDA1004X_VBER_MID        0x25
++#define TDA1004X_VBER_LSB        0x26
++#define TDA1004X_UNCOR           0x27
++#define TDA1004X_CONFPLL_P       0x2D
++#define TDA1004X_CONFPLL_M_MSB   0x2E
++#define TDA1004X_CONFPLL_M_LSB   0x2F
++#define TDA1004X_CONFPLL_N       0x30
++#define TDA1004X_UNSURW_MSB      0x31
++#define TDA1004X_UNSURW_LSB      0x32
++#define TDA1004X_WREF_MSB        0x33
++#define TDA1004X_WREF_MID        0x34
++#define TDA1004X_WREF_LSB        0x35
++#define TDA1004X_MUXOUT          0x36
++#define TDA1004X_CONFADC2        0x37
++#define TDA1004X_IOFFSET         0x38
++
++#define dprintk if (tda1004x_debug) printk
++
++static struct dvb_frontend_info tda10045h_info = {
++	.name = "Philips TDA10045H",
++	.type = FE_OFDM,
++	.frequency_min = 51000000,
++	.frequency_max = 858000000,
++	.frequency_stepsize = 166667,
++	.caps = FE_CAN_INVERSION_AUTO |
++	    FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
++	    FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 | FE_CAN_FEC_AUTO |
++	    FE_CAN_QPSK | FE_CAN_QAM_16 | FE_CAN_QAM_64 | FE_CAN_QAM_AUTO |
++	    FE_CAN_TRANSMISSION_MODE_AUTO | FE_CAN_GUARD_INTERVAL_AUTO
 +};
 +
-+struct packet_header_t {
-+
-+	u32 sync_byte;
-+	u32 transport_error_indicator;
-+	u32 payload_unit_start_indicator;
-+	u32 transport_priority;
-+	u32 pid;
-+	u32 transport_scrambling_control;
-+	u32 adaptation_field_control;
-+	u32 continuity_counter;
++#pragma pack(1)
++struct tda1004x_state {
++	u8 tda1004x_address;
++	u8 tuner_address;
++	u8 initialised:1;
 +};
++#pragma pack()
 +
-+struct adapter {
-+
-+	struct pci_dev *pdev;
-+
-+	u8 card_revision;
-+	u32 B2C2_revision;
-+	u32 PidFilterMax;
-+	u32 MacFilterMax;
-+	u32 irq;
-+	u32 io_mem;
-+	u32 io_port;
-+	u8 mac_addr[8];
-+	u32 dwSramType;
-+
-+	struct dvb_adapter *dvb_adapter;
-+	struct dvb_demux demux;
-+	struct dmxdev dmxdev;
-+	struct dmx_frontend hw_frontend;
-+	struct dmx_frontend mem_frontend;
-+	struct dvb_i2c_bus *i2c_bus;
-+	struct dvb_net dvbnet;
-+
-+	struct semaphore i2c_sem;
-+
-+	struct DmaQ DmaQ1;
-+	struct DmaQ DmaQ2;
-+
-+	u32 dma_ctrl;
-+	u32 dma_status;
-+
-+	u32 capturing;
-+
-+	spinlock_t lock;
-+
-+	u16 pids[0x27];
-+	u32 mac_filter;
++struct fwinfo {
++	int file_size;
++	int fw_offset;
++	int fw_size;
 +};
++static struct fwinfo tda10045h_fwinfo[] = { {.file_size = 286720,.fw_offset = 0x34cc5,.fw_size = 30555} };
++static int tda10045h_fwinfo_count = sizeof(tda10045h_fwinfo) / sizeof(struct fwinfo);
++
++static int errno;
 +
 +
-+void linuxdelayms(u32 usecs)
++static int tda1004x_write_byte(struct dvb_i2c_bus *i2c, struct tda1004x_state *tda_state, int reg, int data)
 +{
-+	while (usecs > 0) {
-+		udelay(1000);
++	int ret;
++	u8 buf[] = { reg, data };
++	struct i2c_msg msg = { .addr=0, .flags=0, .buf=buf, .len=2 };
 +
-+		usecs--;
-+	}
++	dprintk("%s: reg=0x%x, data=0x%x\n", __FUNCTION__, reg, data);
++
++        msg.addr = tda_state->tda1004x_address;
++	ret = i2c->xfer(i2c, &msg, 1);
++
++	if (ret != 1)
++		dprintk("%s: error reg=0x%x, data=0x%x, ret=%i\n",
++		       __FUNCTION__, reg, data, ret);
++
++	dprintk("%s: success reg=0x%x, data=0x%x, ret=%i\n", __FUNCTION__,
++		reg, data, ret);
++	return (ret != 1) ? -1 : 0;
 +}
 +
-+/////////////////////////////////////////////////////////////////////
-+//              register functions
-+/////////////////////////////////////////////////////////////////////
-+
-+void WriteRegDW(struct adapter *adapter, u32 reg, u32 value)
++static int tda1004x_read_byte(struct dvb_i2c_bus *i2c, struct tda1004x_state *tda_state, int reg)
 +{
-+	u32 flags;
++	int ret;
++	u8 b0[] = { reg };
++	u8 b1[] = { 0 };
++	struct i2c_msg msg[] = {{ .addr=0, .flags=0, .buf=b0, .len=1},
++	                        { .addr=0, .flags=I2C_M_RD, .buf=b1, .len = 1}};
 +
-+	save_flags(flags);
-+	cli();
++	dprintk("%s: reg=0x%x\n", __FUNCTION__, reg);
 +
-+	writel(value, adapter->io_mem + reg);
++        msg[0].addr = tda_state->tda1004x_address;
++        msg[1].addr = tda_state->tda1004x_address;
++	ret = i2c->xfer(i2c, msg, 2);
 +
-+	restore_flags(flags);
-+}
-+
-+u32 ReadRegDW(struct adapter *adapter, u32 reg)
-+{
-+	return readl(adapter->io_mem + reg);
-+}
-+
-+u32 WriteRegOp(struct adapter * adapter, u32 reg, u32 operation, u32 andvalue, u32 orvalue)
-+{
-+	u32 tmp;
-+
-+	tmp = ReadRegDW(adapter, reg);
-+
-+	if (operation == 1)
-+		tmp = tmp | orvalue;
-+	if (operation == 2)
-+		tmp = tmp & andvalue;
-+	if (operation == 3)
-+		tmp = (tmp & andvalue) | orvalue;
-+
-+	WriteRegDW(adapter, reg, tmp);
-+
-+	return tmp;
-+}
-+
-+/////////////////////////////////////////////////////////////////////
-+//                      I2C
-+////////////////////////////////////////////////////////////////////
-+
-+u32 i2cMainWriteForFlex2(struct adapter * adapter, u32 command, u8 * buf, u32 retries)
-+{
-+	u32 i;
-+	u32 value;
-+
-+	WriteRegDW(adapter, 0x100, 0);
-+	WriteRegDW(adapter, 0x100, command);
-+
-+	for (i = 0; i < retries; i++) {
-+		value = ReadRegDW(adapter, 0x100);
-+
-+		if ((value & 0x40000000) == 0) {
-+			if ((value & 0x81000000) == 0x80000000) {
-+				if (buf != 0)
-+					*buf = (value >> 0x10) & 0xff;
-+
-+				return 1;
-+			}
-+
-+		} else {
-+
-+			WriteRegDW(adapter, 0x100, 0);
-+			WriteRegDW(adapter, 0x100, command);
-+		}
++	if (ret != 2) {
++		dprintk("%s: error reg=0x%x, ret=%i\n", __FUNCTION__, reg,
++		       ret);
++		return -1;
 +	}
 +
-+	return 0;
++	dprintk("%s: success reg=0x%x, data=0x%x, ret=%i\n", __FUNCTION__,
++		reg, b1[0], ret);
++	return b1[0];
 +}
 +
-+/////////////////////////////////////////////////////////////////////
-+//      device = 0x10000000 for tuner
-+//               0x20000000 for eeprom
-+/////////////////////////////////////////////////////////////////////
-+
-+u32 i2cMainSetup(u32 device, u32 chip_addr, u8 op, u8 addr, u32 value, u32 len)
++static int tda1004x_write_mask(struct dvb_i2c_bus *i2c, struct tda1004x_state *tda_state, int reg, int mask, int data)
 +{
-+	u32 command;
++        int val;
++	dprintk("%s: reg=0x%x, mask=0x%x, data=0x%x\n", __FUNCTION__, reg,
++		mask, data);
 +
-+	command = device | ((len - 1) << 26) | (value << 16) | (addr << 8) | chip_addr;
++	// read a byte and check
++	val = tda1004x_read_byte(i2c, tda_state, reg);
++	if (val < 0)
++		return val;
 +
-+	if (op != 0)
-+		command = command | 0x03000000;
-+	else
-+		command = command | 0x01000000;
++	// mask if off
++	val = val & ~mask;
++	val |= data & 0xff;
 +
-+	return command;
++	// write it out again
++	return tda1004x_write_byte(i2c, tda_state, reg, val);
 +}
 +
-+u32 FlexI2cRead4(struct adapter * adapter, u32 device, u32 chip_addr, u16 addr, u8 * buf, u8 len)
++static int tda1004x_write_buf(struct dvb_i2c_bus *i2c, struct tda1004x_state *tda_state, int reg, unsigned char *buf, int len)
 +{
-+	u32 command;
-+	u32 value;
++	int i;
++	int result;
 +
-+	int result, i;
++	dprintk("%s: reg=0x%x, len=0x%x\n", __FUNCTION__, reg, len);
 +
-+	command = i2cMainSetup(device, chip_addr, 1, addr, 0, len);
-+
-+	result = i2cMainWriteForFlex2(adapter, command, buf, 100000);
-+
-+	if ((result & 0xff) != 0) {
-+		if (len > 1) {
-+			value = ReadRegDW(adapter, 0x104);
-+
-+			for (i = 1; i < len; i++) {
-+				buf[i] = value & 0xff;
-+				value = value >> 8;
-+			}
-+		}
++	result = 0;
++	for (i = 0; i < len; i++) {
++		result = tda1004x_write_byte(i2c, tda_state, reg + i, buf[i]);
++		if (result != 0)
++			break;
 +	}
 +
 +	return result;
 +}
 +
-+u32 FlexI2cWrite4(struct adapter * adapter, u32 device, u32 chip_addr, u32 addr, u8 * buf, u8 len)
++static int tda1004x_enable_tuner_i2c(struct dvb_i2c_bus *i2c, struct tda1004x_state *tda_state)
 +{
-+	u32 command;
-+	u32 value;
-+	int i;
++        int result;
++	dprintk("%s\n", __FUNCTION__);
 +
-+	if (len > 1) {
-+		value = 0;
++	result = tda1004x_write_mask(i2c, tda_state, TDA1004X_CONFC4, 2, 2);
++	dvb_delay(1);
++	return result;
++}
 +
-+		for (i = len; i > 1; i--) {
-+			value = value << 8;
-+			value = value | buf[i - 1];
++static int tda1004x_disable_tuner_i2c(struct dvb_i2c_bus *i2c, struct tda1004x_state *tda_state)
++{
++
++	dprintk("%s\n", __FUNCTION__);
++
++	return tda1004x_write_mask(i2c, tda_state, TDA1004X_CONFC4, 2, 0);
++}
++
++
++static int tda10045h_set_bandwidth(struct dvb_i2c_bus *i2c,
++	                           struct tda1004x_state *tda_state,
++		                   fe_bandwidth_t bandwidth)
++{
++        static u8 bandwidth_6mhz[] = { 0x02, 0x00, 0x3d, 0x00, 0x60, 0x1e, 0xa7, 0x45, 0x4f };
++        static u8 bandwidth_7mhz[] = { 0x02, 0x00, 0x37, 0x00, 0x4a, 0x2f, 0x6d, 0x76, 0xdb };
++        static u8 bandwidth_8mhz[] = { 0x02, 0x00, 0x3d, 0x00, 0x48, 0x17, 0x89, 0xc7, 0x14 };
++
++        switch (bandwidth) {
++	case BANDWIDTH_6_MHZ:
++		tda1004x_write_byte(i2c, tda_state, TDA1004X_DSSPARE2, 0x14);
++		tda1004x_write_buf(i2c, tda_state, TDA1004X_CONFPLL_P, bandwidth_6mhz, sizeof(bandwidth_6mhz));
++		break;
++
++	case BANDWIDTH_7_MHZ:
++		tda1004x_write_byte(i2c, tda_state, TDA1004X_DSSPARE2, 0x80);
++		tda1004x_write_buf(i2c, tda_state, TDA1004X_CONFPLL_P, bandwidth_7mhz, sizeof(bandwidth_7mhz));
++		break;
++
++	case BANDWIDTH_8_MHZ:
++		tda1004x_write_byte(i2c, tda_state, TDA1004X_DSSPARE2, 0x14);
++		tda1004x_write_buf(i2c, tda_state, TDA1004X_CONFPLL_P, bandwidth_8mhz, sizeof(bandwidth_8mhz));
++		break;
++
++	default:
++		return -EINVAL;
++	}
++
++	tda1004x_write_byte(i2c, tda_state, TDA1004X_IOFFSET, 0);
++
++        // done
++        return 0;
++}
++
++
++static int tda1004x_init(struct dvb_i2c_bus *i2c, struct tda1004x_state *tda_state)
++{
++	u8 fw_buf[65];
++	struct i2c_msg fw_msg = {.addr = 0,.flags = 0,.buf = fw_buf,.len = 0 };
++	struct i2c_msg tuner_msg = {.addr = 0,.flags = 0,.buf = 0,.len = 0 };
++	unsigned char *firmware = NULL;
++	int filesize;
++	int fd;
++	int fwinfo_idx;
++	int fw_size = 0;
++	int fw_pos;
++	int tx_size;
++        static u8 disable_mc44BC374c[] = { 0x1d, 0x74, 0xa0, 0x68 };
++	mm_segment_t fs = get_fs();
++
++	dprintk("%s\n", __FUNCTION__);
++
++	// Load the firmware
++	set_fs(get_ds());
++	fd = open(tda1004x_firmware, 0, 0);
++	if (fd < 0) {
++		printk("%s: Unable to open firmware %s\n", __FUNCTION__,
++		       tda1004x_firmware);
++		return -EIO;
++	}
++	filesize = lseek(fd, 0L, 2);
++	if (filesize <= 0) {
++		printk("%s: Firmware %s is empty\n", __FUNCTION__,
++		       tda1004x_firmware);
++		sys_close(fd);
++		return -EIO;
++	}
++
++	// find extraction parameters
++	for (fwinfo_idx = 0; fwinfo_idx < tda10045h_fwinfo_count; fwinfo_idx++) {
++		if (tda10045h_fwinfo[fwinfo_idx].file_size == filesize)
++			break;
++	}
++	if (fwinfo_idx >= tda10045h_fwinfo_count) {
++		printk("%s: Unsupported firmware %s\n", __FUNCTION__, tda1004x_firmware);
++		sys_close(fd);
++		return -EIO;
++	}
++	fw_size = tda10045h_fwinfo[fwinfo_idx].fw_size;
++
++	// allocate buffer for it
++	firmware = vmalloc(fw_size);
++	if (firmware == NULL) {
++		printk("%s: Out of memory loading firmware\n",
++		       __FUNCTION__);
++		sys_close(fd);
++		return -EIO;
++	}
++
++	// read it!
++	lseek(fd, tda10045h_fwinfo[fwinfo_idx].fw_offset, 0);
++	if (read(fd, firmware, fw_size) != fw_size) {
++		printk("%s: Failed to read firmware\n", __FUNCTION__);
++		vfree(firmware);
++		sys_close(fd);
++		return -EIO;
++	}
++	sys_close(fd);
++	set_fs(fs);
++
++	// Disable the MC44BC374C
++	tda1004x_enable_tuner_i2c(i2c, tda_state);
++	tuner_msg.addr = MC44BC374_ADDRESS;
++	tuner_msg.buf = disable_mc44BC374c;
++	tuner_msg.len = sizeof(disable_mc44BC374c);
++	if (i2c->xfer(i2c, &tuner_msg, 1) != 1) {
++		i2c->xfer(i2c, &tuner_msg, 1);
++	}
++	tda1004x_disable_tuner_i2c(i2c, tda_state);
++
++	// set some valid bandwith parameters
++        switch(tda_state->tda1004x_address) {
++        case TDA10045H_ADDRESS:
++                tda10045h_set_bandwidth(i2c, tda_state, BANDWIDTH_8_MHZ);
++                break;
++        }
++	dvb_delay(500);
++
++	// do the firmware upload
++	tda1004x_write_byte(i2c, tda_state, TDA1004X_FWPAGE, 0);
++        fw_msg.addr = tda_state->tda1004x_address;
++	fw_pos = 0;
++	while (fw_pos != fw_size) {
++		// work out how much to send this time
++		tx_size = fw_size - fw_pos;
++		if (tx_size > 64) {
++			tx_size = 64;
 +		}
-+
-+		WriteRegDW(adapter, 0x104, value);
-+	}
-+
-+	command = i2cMainSetup(device, chip_addr, 0, addr, buf[0], len);
-+
-+	return i2cMainWriteForFlex2(adapter, command, 0, 100000);
-+}
-+
-+u32 fixChipAddr(u32 device, u32 bus, u32 addr)
-+{
-+	if (device == 0x20000000)
-+		return bus | ((addr >> 8) & 3);
-+
-+	return bus;
-+}
-+
-+u32 FLEXI2C_read(struct adapter * adapter, u32 device, u32 bus, u32 addr, u8 * buf, u32 len)
-+{
-+	u32 ChipAddr;
-+	u32 bytes_to_transfer;
-+	u8 *start;
-+
-+//  dprintk("%s:\n", __FUNCTION__);
-+
-+	start = buf;
-+
-+	while (len != 0) {
-+		bytes_to_transfer = len;
-+
-+		if (bytes_to_transfer > 4)
-+			bytes_to_transfer = 4;
-+
-+		ChipAddr = fixChipAddr(device, bus, addr);
-+
-+		if (FlexI2cRead4(adapter, device, ChipAddr, addr, buf, bytes_to_transfer) == 0)
-+			return buf - start;
-+
-+		buf = buf + bytes_to_transfer;
-+		addr = addr + bytes_to_transfer;
-+		len = len - bytes_to_transfer;
-+	};
-+
-+	return buf - start;
-+}
-+
-+u32 FLEXI2C_write(struct adapter * adapter, u32 device, u32 bus, u32 addr, u8 * buf, u32 len)
-+{
-+	u32 ChipAddr;
-+	u32 bytes_to_transfer;
-+	u8 *start;
-+
-+//  dprintk("%s:\n", __FUNCTION__);
-+
-+	start = buf;
-+
-+	while (len != 0) {
-+		bytes_to_transfer = len;
-+
-+		if (bytes_to_transfer > 4)
-+			bytes_to_transfer = 4;
-+
-+		ChipAddr = fixChipAddr(device, bus, addr);
-+
-+		if (FlexI2cWrite4(adapter, device, ChipAddr, addr, buf, bytes_to_transfer) == 0)
-+			return buf - start;
-+
-+		buf = buf + bytes_to_transfer;
-+		addr = addr + bytes_to_transfer;
-+		len = len - bytes_to_transfer;
-+	}
-+
-+	return buf - start;
-+}
-+
-+static int master_xfer(struct dvb_i2c_bus *i2c, const struct i2c_msg *msgs, int num)
-+{
-+	struct adapter *tmp = i2c->data;
-+	int i, ret = 0;
-+
-+	if (down_interruptible(&tmp->i2c_sem))
-+		return -ERESTARTSYS;
-+
-+	if (0) {
-+		dprintk("%s:\n", __FUNCTION__);
-+
-+		for (i = 0; i < num; i++) {
-+			printk("message %d: flags=%x, addr=0x%04x, buf=%x, len=%d \n", i, msgs[i].flags, msgs[i].addr, (u32) msgs[i].buf, msgs[i].len);
++		// send the chunk
++		fw_buf[0] = TDA1004X_CODE_IN;
++		memcpy(fw_buf + 1, firmware + fw_pos, tx_size);
++		fw_msg.len = tx_size + 1;
++		if (i2c->xfer(i2c, &fw_msg, 1) != 1) {
++			vfree(firmware);
++			return -EIO;
 +		}
++		fw_pos += tx_size;
++
++		dprintk("%s: fw_pos=0x%x\n", __FUNCTION__, fw_pos);
 +	}
-+	// allow only the vp310 frontend to access the bus
-+	if ((msgs[0].addr != 0x0E) && (msgs[0].addr != 0x61)) {
-+		up(&tmp->i2c_sem);
++	dvb_delay(100);
++	vfree(firmware);
 +
-+		return -EREMOTEIO;
-+	}
-+
-+	if ((num == 1) && (msgs[0].buf != NULL)) {
-+		if (msgs[0].flags == I2C_M_RD) {
-+			ret = -EINVAL;
-+
-+		} else {
-+
-+			// single writes do have the reg addr in buf[0] and data in buf[1] to buf[n]
-+			ret = FLEXI2C_write(tmp, 0x10000000, msgs[0].addr, msgs[0].buf[0], &msgs[0].buf[1], msgs[0].len - 1);
-+
-+			if (ret != msgs[0].len - 1)
-+				ret = -EREMOTEIO;
-+			else
-+				ret = num;
-+		}
-+
-+	} else if ((num == 2) && (msgs[1].buf != NULL)) {
-+
-+		// i2c reads consist of a reg addr _write_ followed by a data read, so msg[1].flags has to be examined
-+		if (msgs[1].flags == I2C_M_RD) {
-+			ret = FLEXI2C_read(tmp, 0x10000000, msgs[0].addr, msgs[0].buf[0], msgs[1].buf, msgs[1].len);
-+
-+		} else {
-+
-+			ret = FLEXI2C_write(tmp, 0x10000000, msgs[0].addr, msgs[0].buf[0], msgs[1].buf, msgs[1].len);
-+		}
-+
-+		if (ret != msgs[1].len)
-+			ret = -EREMOTEIO;
-+		else
-+			ret = num;
++	// Initialise the DSP and check upload was OK
++	tda1004x_write_mask(i2c, tda_state, TDA1004X_CONFC4, 0x10, 0);
++	tda1004x_write_byte(i2c, tda_state, TDA1004X_DSP_CMD, 0x67);
++	if ((tda1004x_read_byte(i2c, tda_state, TDA1004X_DSP_DATA1) != 0x67) ||
++	    (tda1004x_read_byte(i2c, tda_state, TDA1004X_DSP_DATA2) != 0x2c)) {
++		printk("%s: firmware upload failed!\n", __FUNCTION__);
++		return -EIO;
 +	}
 +
-+	up(&tmp->i2c_sem);
-+
-+	// master xfer functions always return the number of successfully
-+	// transmitted messages, not the number of transmitted bytes.
-+	// return -EREMOTEIO in case of failure.
-+	return ret;
-+}
-+
-+/////////////////////////////////////////////////////////////////////
-+// SRAM (Skystar2 rev2.3 has one "ISSI IS61LV256" chip on board,
-+// but it seems that FlexCopII can work with more than one chip)
-+/////////////////////////////////////////////////////////////////////
-+
-+u32 SRAMSetNetDest(struct adapter * adapter, u8 dest)
-+{
-+	u32 tmp;
-+
-+	udelay(1000);
-+
-+	tmp = (ReadRegDW(adapter, 0x714) & 0xFFFFFFFC) | (dest & 3);
-+
-+	udelay(1000);
-+
-+	WriteRegDW(adapter, 0x714, tmp);
-+	WriteRegDW(adapter, 0x714, tmp);
-+
-+	udelay(1000);
-+
-+	return tmp;
-+}
-+
-+u32 SRAMSetCaiDest(struct adapter * adapter, u8 dest)
-+{
-+	u32 tmp;
-+
-+	udelay(1000);
-+
-+	tmp = (ReadRegDW(adapter, 0x714) & 0xFFFFFFF3) | ((dest & 3) << 2);
-+
-+	udelay(1000);
-+	udelay(1000);
-+
-+	WriteRegDW(adapter, 0x714, tmp);
-+	WriteRegDW(adapter, 0x714, tmp);
-+
-+	udelay(1000);
-+
-+	return tmp;
-+}
-+
-+u32 SRAMSetCaoDest(struct adapter * adapter, u8 dest)
-+{
-+	u32 tmp;
-+
-+	udelay(1000);
-+
-+	tmp = (ReadRegDW(adapter, 0x714) & 0xFFFFFFCF) | ((dest & 3) << 4);
-+
-+	udelay(1000);
-+	udelay(1000);
-+
-+	WriteRegDW(adapter, 0x714, tmp);
-+	WriteRegDW(adapter, 0x714, tmp);
-+
-+	udelay(1000);
-+
-+	return tmp;
-+}
-+
-+u32 SRAMSetMediaDest(struct adapter * adapter, u8 dest)
-+{
-+	u32 tmp;
-+
-+	udelay(1000);
-+
-+	tmp = (ReadRegDW(adapter, 0x714) & 0xFFFFFF3F) | ((dest & 3) << 6);
-+
-+	udelay(1000);
-+	udelay(1000);
-+
-+	WriteRegDW(adapter, 0x714, tmp);
-+	WriteRegDW(adapter, 0x714, tmp);
-+
-+	udelay(1000);
-+
-+	return tmp;
-+}
-+
-+/////////////////////////////////////////////////////////////////////
-+// SRAM memory is accessed through a buffer register in the FlexCop
-+// chip (0x700). This register has the following structure:
-+//  bits 0-14  : address
-+//  bit  15    : read/write flag
-+//  bits 16-23 : 8-bit word to write
-+//  bits 24-27 : = 4
-+//  bits 28-29 : memory bank selector
-+//  bit  31    : busy flag
-+////////////////////////////////////////////////////////////////////
-+
-+void FlexSramWrite(struct adapter *adapter, u32 bank, u32 addr, u8 * buf, u32 len)
-+{
-+	u32 i, command, retries;
-+
-+	for (i = 0; i < len; i++) {
-+		command = bank | addr | 0x04000000 | (*buf << 0x10);
-+
-+		retries = 2;
-+
-+		while (((ReadRegDW(adapter, 0x700) & 0x80000000) != 0) && (retries > 0)) {
-+			linuxdelayms(1);
-+			retries--;
-+		};
-+
-+		if (retries == 0)
-+			printk("%s: SRAM timeout\n", __FUNCTION__);
-+
-+		WriteRegDW(adapter, 0x700, command);
-+
-+		buf++;
-+		addr++;
-+	}
-+}
-+
-+void FlexSramRead(struct adapter *adapter, u32 bank, u32 addr, u8 * buf, u32 len)
-+{
-+	u32 i, command, value, retries;
-+
-+	for (i = 0; i < len; i++) {
-+		command = bank | addr | 0x04008000;
-+
-+		retries = 10000;
-+
-+		while (((ReadRegDW(adapter, 0x700) & 0x80000000) != 0) && (retries > 0)) {
-+			linuxdelayms(1);
-+			retries--;
-+		};
-+
-+		if (retries == 0)
-+			printk("%s: SRAM timeout\n", __FUNCTION__);
-+
-+		WriteRegDW(adapter, 0x700, command);
-+
-+		retries = 10000;
-+
-+		while (((ReadRegDW(adapter, 0x700) & 0x80000000) != 0) && (retries > 0)) {
-+			linuxdelayms(1);
-+			retries--;
-+		};
-+
-+		if (retries == 0)
-+			printk("%s: SRAM timeout\n", __FUNCTION__);
-+
-+		value = ReadRegDW(adapter, 0x700) >> 0x10;
-+
-+		*buf = (value & 0xff);
-+
-+		addr++;
-+		buf++;
-+	}
-+}
-+
-+void SRAM_writeChunk(struct adapter *adapter, u32 addr, u8 * buf, u16 len)
-+{
-+	u32 bank;
-+
-+	bank = 0;
-+
-+	if (adapter->dwSramType == 0x20000) {
-+		bank = (addr & 0x18000) << 0x0D;
-+	}
-+
-+	if (adapter->dwSramType == 0x00000) {
-+		if ((addr >> 0x0F) == 0)
-+			bank = 0x20000000;
-+		else
-+			bank = 0x10000000;
-+	}
-+
-+	FlexSramWrite(adapter, bank, addr & 0x7FFF, buf, len);
-+}
-+
-+void SRAM_readChunk(struct adapter *adapter, u32 addr, u8 * buf, u16 len)
-+{
-+	u32 bank;
-+
-+	bank = 0;
-+
-+	if (adapter->dwSramType == 0x20000) {
-+		bank = (addr & 0x18000) << 0x0D;
-+	}
-+
-+	if (adapter->dwSramType == 0x00000) {
-+		if ((addr >> 0x0F) == 0)
-+			bank = 0x20000000;
-+		else
-+			bank = 0x10000000;
-+	}
-+
-+	FlexSramRead(adapter, bank, addr & 0x7FFF, buf, len);
-+}
-+
-+void SRAM_read(struct adapter *adapter, u32 addr, u8 * buf, u32 len)
-+{
-+	u32 length;
-+
-+	while (len != 0) {
-+		length = len;
-+
-+		// check if the address range belongs to the same 
-+		// 32K memory chip. If not, the data is read from 
-+		// one chip at a time.
-+		if ((addr >> 0x0F) != ((addr + len - 1) >> 0x0F)) {
-+			length = (((addr >> 0x0F) + 1) << 0x0F) - addr;
-+		}
-+
-+		SRAM_readChunk(adapter, addr, buf, length);
-+
-+		addr = addr + length;
-+		buf = buf + length;
-+		len = len - length;
-+	}
-+}
-+
-+void SRAM_write(struct adapter *adapter, u32 addr, u8 * buf, u32 len)
-+{
-+	u32 length;
-+
-+	while (len != 0) {
-+		length = len;
-+
-+		// check if the address range belongs to the same 
-+		// 32K memory chip. If not, the data is written to
-+		// one chip at a time.
-+		if ((addr >> 0x0F) != ((addr + len - 1) >> 0x0F)) {
-+			length = (((addr >> 0x0F) + 1) << 0x0F) - addr;
-+		}
-+
-+		SRAM_writeChunk(adapter, addr, buf, length);
-+
-+		addr = addr + length;
-+		buf = buf + length;
-+		len = len - length;
-+	}
-+}
-+
-+void SRAM_setSize(struct adapter *adapter, u32 mask)
-+{
-+	WriteRegDW(adapter, 0x71C, (mask | (~0x30000 & ReadRegDW(adapter, 0x71C))));
-+}
-+
-+u32 SRAM_init(struct adapter *adapter)
-+{
-+	u32 tmp;
-+
-+	tmp = ReadRegDW(adapter, 0x71C);
-+
-+	WriteRegDW(adapter, 0x71C, 1);
-+
-+	if (ReadRegDW(adapter, 0x71C) != 0) {
-+		WriteRegDW(adapter, 0x71C, tmp);
-+
-+		adapter->dwSramType = tmp & 0x30000;
-+
-+		dprintk("%s: dwSramType = %x\n", __FUNCTION__, adapter->dwSramType);
-+
-+	} else {
-+
-+		adapter->dwSramType = 0x10000;
-+
-+		dprintk("%s: dwSramType = %x\n", __FUNCTION__, adapter->dwSramType);
-+	}
-+
-+	return adapter->dwSramType;
-+}
-+
-+int SRAM_testLocation(struct adapter *adapter, u32 mask, u32 addr)
-+{
-+	u8 tmp1, tmp2;
-+
-+	dprintk("%s: mask = %x, addr = %x\n", __FUNCTION__, mask, addr);
-+
-+	SRAM_setSize(adapter, mask);
-+	SRAM_init(adapter);
-+
-+	tmp2 = 0xA5;
-+	tmp1 = 0x4F;
-+
-+	SRAM_write(adapter, addr, &tmp2, 1);
-+	SRAM_write(adapter, addr + 4, &tmp1, 1);
-+
-+	tmp2 = 0;
-+
-+	linuxdelayms(20);
-+
-+	SRAM_read(adapter, addr, &tmp2, 1);
-+	SRAM_read(adapter, addr, &tmp2, 1);
-+
-+	dprintk("%s: wrote 0xA5, read 0x%2x\n", __FUNCTION__, tmp2);
-+
-+	if (tmp2 != 0xA5)
-+		return 0;
-+
-+	tmp2 = 0x5A;
-+	tmp1 = 0xF4;
-+
-+	SRAM_write(adapter, addr, &tmp2, 1);
-+	SRAM_write(adapter, addr + 4, &tmp1, 1);
-+
-+	tmp2 = 0;
-+
-+	linuxdelayms(20);
-+
-+	SRAM_read(adapter, addr, &tmp2, 1);
-+	SRAM_read(adapter, addr, &tmp2, 1);
-+
-+	dprintk("%s: wrote 0x5A, read 0x%2x\n", __FUNCTION__, tmp2);
-+
-+	if (tmp2 != 0x5A)
-+		return 0;
-+
-+	return 1;
-+}
-+
-+u32 SRAM_length(struct adapter * adapter)
-+{
-+	if (adapter->dwSramType == 0x10000)
-+		return 32768;	//  32K
-+	if (adapter->dwSramType == 0x00000)
-+		return 65536;	//  64K        
-+	if (adapter->dwSramType == 0x20000)
-+		return 131072;	// 128K
-+
-+	return 32768;		// 32K
-+}
-+
-+//////////////////////////////////////////////////////////////////////
-+// FlexcopII can work with 32K, 64K or 128K of external SRAM memory.
-+//  - for 128K there are 4x32K chips at bank 0,1,2,3.
-+//  - for  64K there are 2x32K chips at bank 1,2.
-+//  - for  32K there is one 32K chip at bank 0.
-+//
-+// FlexCop works only with one bank at a time. The bank is selected
-+// by bits 28-29 of the 0x700 register.
-+//
-+// bank 0 covers addresses 0x00000-0x07FFF
-+// bank 1 covers addresses 0x08000-0x0FFFF
-+// bank 2 covers addresses 0x10000-0x17FFF
-+// bank 3 covers addresses 0x18000-0x1FFFF
-+/////////////////////////////////////////////////////////////////////
-+
-+int SramDetectForFlex2(struct adapter *adapter)
-+{
-+	u32 tmp, tmp2, tmp3;
-+
-+	dprintk("%s:\n", __FUNCTION__);
-+
-+	tmp = ReadRegDW(adapter, 0x208);
-+	WriteRegDW(adapter, 0x208, 0);
-+
-+	tmp2 = ReadRegDW(adapter, 0x71C);
-+
-+	dprintk("%s: tmp2 = %x\n", __FUNCTION__, tmp2);
-+
-+	WriteRegDW(adapter, 0x71C, 1);
-+
-+	tmp3 = ReadRegDW(adapter, 0x71C);
-+
-+	dprintk("%s: tmp3 = %x\n", __FUNCTION__, tmp3);
-+
-+	WriteRegDW(adapter, 0x71C, tmp2);
-+
-+	// check for internal SRAM ???
-+	tmp3--;
-+	if (tmp3 != 0) {
-+		SRAM_setSize(adapter, 0x10000);
-+		SRAM_init(adapter);
-+		WriteRegDW(adapter, 0x208, tmp);
-+
-+		dprintk("%s: sram size = 32K\n", __FUNCTION__);
-+
-+		return 32;
-+	}
-+
-+	if (SRAM_testLocation(adapter, 0x20000, 0x18000) != 0) {
-+		SRAM_setSize(adapter, 0x20000);
-+		SRAM_init(adapter);
-+		WriteRegDW(adapter, 0x208, tmp);
-+
-+		dprintk("%s: sram size = 128K\n", __FUNCTION__);
-+
-+		return 128;
-+	}
-+
-+	if (SRAM_testLocation(adapter, 0x00000, 0x10000) != 0) {
-+		SRAM_setSize(adapter, 0x00000);
-+		SRAM_init(adapter);
-+		WriteRegDW(adapter, 0x208, tmp);
-+
-+		dprintk("%s: sram size = 64K\n", __FUNCTION__);
-+
-+		return 64;
-+	}
-+
-+	if (SRAM_testLocation(adapter, 0x10000, 0x00000) != 0) {
-+		SRAM_setSize(adapter, 0x10000);
-+		SRAM_init(adapter);
-+		WriteRegDW(adapter, 0x208, tmp);
-+
-+		dprintk("%s: sram size = 32K\n", __FUNCTION__);
-+
-+		return 32;
-+	}
-+
-+	SRAM_setSize(adapter, 0x10000);
-+	SRAM_init(adapter);
-+	WriteRegDW(adapter, 0x208, tmp);
-+
-+	dprintk("%s: SRAM detection failed. Set to 32K \n", __FUNCTION__);
-+
++	// tda setup
++	tda1004x_write_mask(i2c, tda_state, TDA1004X_AUTO, 8, 0);
++        tda1004x_write_mask(i2c, tda_state, TDA1004X_AUTO, 0x10, 0x10);
++        tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF2, 0xC0, 0x0);
++        tda1004x_write_mask(i2c, tda_state, TDA1004X_CONFC4, 0x20, 0);
++        tda1004x_write_byte(i2c, tda_state, TDA1004X_CONFADC1, 0x2e);
++	tda1004x_write_mask(i2c, tda_state, TDA1004X_CONFC1, 0x80, 0x80);
++	tda1004x_write_mask(i2c, tda_state, TDA1004X_CONFC1, 0x40, 0);
++	tda1004x_write_mask(i2c, tda_state, TDA1004X_CONFC1, 0x10, 0);
++        tda1004x_write_byte(i2c, tda_state, TDA1004X_REG1E, 0);
++	tda1004x_write_byte(i2c, tda_state, TDA1004X_REG1F, 0);
++	tda1004x_write_mask(i2c, tda_state, TDA1004X_VBER_MSB, 0xe0, 0xa0);
++
++	// done
 +	return 0;
 +}
 +
-+void SLL_detectSramSize(struct adapter *adapter)
++static int tda1004x_encode_fec(int fec)
 +{
-+	SramDetectForFlex2(adapter);
-+}
-+
-+/////////////////////////////////////////////////////////////////////
-+//      EEPROM (Skystar2 has one "24LC08B" chip on board)
-+////////////////////////////////////////////////////////////////////
-+
-+int EEPROM_write(struct adapter *adapter, u16 addr, u8 * buf, u16 len)
-+{
-+	return FLEXI2C_write(adapter, 0x20000000, 0x50, addr, buf, len);
-+}
-+
-+int EEPROM_read(struct adapter *adapter, u16 addr, u8 * buf, u16 len)
-+{
-+	return FLEXI2C_read(adapter, 0x20000000, 0x50, addr, buf, len);
-+}
-+
-+u8 calc_LRC(u8 * buf, u32 len)
-+{
-+	u32 i;
-+	u8 sum;
-+
-+	sum = 0;
-+
-+	for (i = 0; i < len; i++)
-+		sum = sum ^ buf[i];
-+
-+	return sum;
-+}
-+
-+int EEPROM_LRC_read(struct adapter *adapter, u32 addr, u32 len, u8 * buf, u32 retries)
-+{
-+	int i;
-+
-+	for (i = 0; i < retries; i++) {
-+		if (EEPROM_read(adapter, addr, buf, len) == len) {
-+			if (calc_LRC(buf, len - 1) == buf[len - 1])
-+				return 1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+int EEPROM_LRC_write(struct adapter *adapter, u32 addr, u32 len, u8 * wbuf, u8 * rbuf, u32 retries)
-+{
-+	int i;
-+
-+	for (i = 0; i < retries; i++) {
-+		if (EEPROM_write(adapter, addr, wbuf, len) == len) {
-+			if (EEPROM_LRC_read(adapter, addr, len, rbuf, retries) == 1)
-+				return 1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/////////////////////////////////////////////////////////////////////
-+// These functions could be called from the initialization routine 
-+// to unlock SkyStar2 cards, locked by "Europe On Line".
-+//      
-+// in cards from "Europe On Line" the key is:
-+//
-+//      u8 key[20] = {
-+//           0xB2, 0x01, 0x00, 0x00,
-+//           0x00, 0x00, 0x00, 0x00,
-+//           0x00, 0x00, 0x00, 0x00,
-+//           0x00, 0x00, 0x00, 0x00,
-+//      };
-+//
-+//      LRC = 0xB3;
-+//
-+// in unlocked cards the key is:
-+//
-+//      u8 key[20] = {
-+//           0xB2, 0x00, 0x00, 0x00,
-+//           0x00, 0x00, 0x00, 0x00,
-+//           0x00, 0x00, 0x00, 0x00,
-+//           0x00, 0x00, 0x00, 0x00,
-+//      };
-+//
-+//     LRC = 0xB2;
-+/////////////////////////////////////////////////////////////////////
-+
-+int EEPROM_writeKey(struct adapter *adapter, u8 * key, u32 len)
-+{
-+	u8 rbuf[20];
-+	u8 wbuf[20];
-+
-+	if (len != 16)
++	// convert known FEC values
++	switch (fec) {
++	case FEC_1_2:
 +		return 0;
-+
-+	memcpy(wbuf, key, len);
-+
-+	wbuf[16] = 0;
-+	wbuf[17] = 0;
-+	wbuf[18] = 0;
-+	wbuf[19] = calc_LRC(wbuf, 19);
-+
-+	return EEPROM_LRC_write(adapter, 0x3E4, 20, wbuf, rbuf, 4);
-+}
-+
-+int EEPROM_readKey(struct adapter *adapter, u8 * key, u32 len)
-+{
-+	u8 buf[20];
-+
-+	if (len != 16)
-+		return 0;
-+
-+	if (EEPROM_LRC_read(adapter, 0x3E4, 20, buf, 4) == 0)
-+		return 0;
-+
-+	memcpy(key, buf, len);
-+
-+	return 1;
-+}
-+
-+int EEPROM_getMacAddr(struct adapter *adapter, char type, u8 * mac)
-+{
-+	u8 tmp[8];
-+
-+	if (EEPROM_LRC_read(adapter, 0x3F8, 8, tmp, 4) != 0) {
-+		if (type != 0) {
-+			mac[0] = tmp[0];
-+			mac[1] = tmp[1];
-+			mac[2] = tmp[2];
-+			mac[3] = 0xFE;
-+			mac[4] = 0xFF;
-+			mac[5] = tmp[3];
-+			mac[6] = tmp[4];
-+			mac[7] = tmp[5];
-+
-+		} else {
-+
-+			mac[0] = tmp[0];
-+			mac[1] = tmp[1];
-+			mac[2] = tmp[2];
-+			mac[3] = tmp[3];
-+			mac[4] = tmp[4];
-+			mac[5] = tmp[5];
-+		}
-+
++	case FEC_2_3:
 +		return 1;
-+
-+	} else {
-+
-+		if (type == 0) {
-+			memset(mac, 0, 6);
-+
-+		} else {
-+
-+			memset(mac, 0, 8);
-+		}
-+
-+		return 0;
-+	}
-+}
-+
-+char EEPROM_setMacAddr(struct adapter *adapter, char type, u8 * mac)
-+{
-+	u8 tmp[8];
-+
-+	if (type != 0) {
-+		tmp[0] = mac[0];
-+		tmp[1] = mac[1];
-+		tmp[2] = mac[2];
-+		tmp[3] = mac[5];
-+		tmp[4] = mac[6];
-+		tmp[5] = mac[7];
-+
-+	} else {
-+
-+		tmp[0] = mac[0];
-+		tmp[1] = mac[1];
-+		tmp[2] = mac[2];
-+		tmp[3] = mac[3];
-+		tmp[4] = mac[4];
-+		tmp[5] = mac[5];
++	case FEC_3_4:
++		return 2;
++	case FEC_5_6:
++		return 3;
++	case FEC_7_8:
++		return 4;
 +	}
 +
-+	tmp[6] = 0;
-+	tmp[7] = calc_LRC(tmp, 7);
-+
-+	if (EEPROM_write(adapter, 0x3F8, tmp, 8) == 8)
-+		return 1;
-+
-+	return 0;
++	// unsupported
++	return -EINVAL;
 +}
 +
-+/////////////////////////////////////////////////////////////////////
-+//                      PID filter
-+/////////////////////////////////////////////////////////////////////
-+
-+void FilterEnableStream1Filter(struct adapter *adapter, u32 op)
++static int tda1004x_decode_fec(int tdafec)
 +{
-+	dprintk("%s: op=%x\n", __FUNCTION__, op);
-+
-+	if (op == 0) {
-+		WriteRegOp(adapter, 0x208, 2, ~0x00000001, 0);
-+
-+	} else {
-+
-+		WriteRegOp(adapter, 0x208, 1, 0, 0x00000001);
-+	}
-+}
-+
-+void FilterEnableStream2Filter(struct adapter *adapter, u32 op)
-+{
-+	dprintk("%s: op=%x\n", __FUNCTION__, op);
-+
-+	if (op == 0) {
-+		WriteRegOp(adapter, 0x208, 2, ~0x00000002, 0);
-+
-+	} else {
-+
-+		WriteRegOp(adapter, 0x208, 1, 0, 0x00000002);
-+	}
-+}
-+
-+void FilterEnablePcrFilter(struct adapter *adapter, u32 op)
-+{
-+	dprintk("%s: op=%x\n", __FUNCTION__, op);
-+
-+	if (op == 0) {
-+		WriteRegOp(adapter, 0x208, 2, ~0x00000004, 0);
-+
-+	} else {
-+
-+		WriteRegOp(adapter, 0x208, 1, 0, 0x00000004);
-+	}
-+}
-+
-+void FilterEnablePmtFilter(struct adapter *adapter, u32 op)
-+{
-+	dprintk("%s: op=%x\n", __FUNCTION__, op);
-+
-+	if (op == 0) {
-+		WriteRegOp(adapter, 0x208, 2, ~0x00000008, 0);
-+
-+	} else {
-+
-+		WriteRegOp(adapter, 0x208, 1, 0, 0x00000008);
-+	}
-+}
-+
-+void FilterEnableEmmFilter(struct adapter *adapter, u32 op)
-+{
-+	dprintk("%s: op=%x\n", __FUNCTION__, op);
-+
-+	if (op == 0) {
-+		WriteRegOp(adapter, 0x208, 2, ~0x00000010, 0);
-+
-+	} else {
-+
-+		WriteRegOp(adapter, 0x208, 1, 0, 0x00000010);
-+	}
-+}
-+
-+void FilterEnableEcmFilter(struct adapter *adapter, u32 op)
-+{
-+	dprintk("%s: op=%x\n", __FUNCTION__, op);
-+
-+	if (op == 0) {
-+		WriteRegOp(adapter, 0x208, 2, ~0x00000020, 0);
-+
-+	} else {
-+
-+		WriteRegOp(adapter, 0x208, 1, 0, 0x00000020);
-+	}
-+}
-+
-+void FilterEnableNullFilter(struct adapter *adapter, u32 op)
-+{
-+	dprintk("%s: op=%x\n", __FUNCTION__, op);
-+
-+	if (op == 0) {
-+		WriteRegOp(adapter, 0x208, 2, ~0x00000040, 0);
-+
-+	} else {
-+
-+		WriteRegOp(adapter, 0x208, 1, 0, 0x00000040);
-+	}
-+}
-+
-+void FilterEnableMaskFilter(struct adapter *adapter, u32 op)
-+{
-+	dprintk("%s: op=%x\n", __FUNCTION__, op);
-+
-+	if (op == 0) {
-+		WriteRegOp(adapter, 0x208, 2, ~0x00000080, 0);
-+
-+	} else {
-+
-+		WriteRegOp(adapter, 0x208, 1, 0, 0x00000080);
-+	}
-+}
-+
-+
-+void CtrlEnableMAC(struct adapter *adapter, u32 op)
-+{
-+	if (op == 0) {
-+		WriteRegOp(adapter, 0x208, 2, ~0x00004000, 0);
-+
-+	} else {
-+
-+		WriteRegOp(adapter, 0x208, 1, 0, 0x00004000);
-+	}
-+}
-+
-+int CASetMacDstAddrFilter(struct adapter *adapter, u8 * mac)
-+{
-+	u32 tmp1, tmp2;
-+
-+	tmp1 = (mac[3] << 0x18) | (mac[2] << 0x10) | (mac[1] << 0x08) | mac[0];
-+	tmp2 = (mac[5] << 0x08) | mac[4];
-+
-+	WriteRegDW(adapter, 0x418, tmp1);
-+	WriteRegDW(adapter, 0x41C, tmp2);
-+
-+	return 0;
-+}
-+
-+void SetIgnoreMACFilter(struct adapter *adapter, u8 op)
-+{
-+	if (op != 0) {
-+		WriteRegOp(adapter, 0x208, 2, ~0x00004000, 0);
-+
-+		adapter->mac_filter = 1;
-+
-+	} else {
-+
-+		if (adapter->mac_filter != 0) {
-+			adapter->mac_filter = 0;
-+
-+			WriteRegOp(adapter, 0x208, 1, 0, 0x00004000);
-+		}
-+	}
-+}
-+
-+void CheckNullFilterEnable(struct adapter *adapter)
-+{
-+	FilterEnableNullFilter(adapter, 1);
-+	FilterEnableMaskFilter(adapter, 1);
-+}
-+
-+void InitPIDsInfo(struct adapter *adapter)
-+{
-+	int i;
-+
-+	for (i = 0; i < 0x27; i++)
-+		adapter->pids[i] = 0x1FFF;
-+}
-+
-+u32 CheckPID(struct adapter *adapter, u16 pid)
-+{
-+	u32 i;
-+
-+	if (pid == 0x1FFF)
-+		return 0;
-+
-+	for (i = 0; i < 0x27; i++) {
-+		if (adapter->pids[i] == pid)
-+			return 1;
++	// convert known FEC values
++	switch (tdafec) {
++	case 0:
++		return FEC_1_2;
++	case 1:
++		return FEC_2_3;
++	case 2:
++		return FEC_3_4;
++	case 3:
++		return FEC_5_6;
++	case 4:
++		return FEC_7_8;
 +	}
 +
-+	return 0;
-+}
-+
-+u32 PidSetGroupPID(struct adapter * adapter, u32 pid)
-+{
-+	u32 value;
-+
-+	dprintk("%s: pid=%x\n", __FUNCTION__, pid);
-+
-+	value = (pid & 0x3FFF) | (ReadRegDW(adapter, 0x30C) & 0xFFFF0000);
-+
-+	WriteRegDW(adapter, 0x30C, value);
-+
-+	return value;
-+}
-+
-+u32 PidSetGroupMASK(struct adapter * adapter, u32 pid)
-+{
-+	u32 value;
-+
-+	dprintk("%s: pid=%x\n", __FUNCTION__, pid);
-+
-+	value = ((pid & 0x3FFF) << 0x10) | (ReadRegDW(adapter, 0x30C) & 0xFFFF);
-+
-+	WriteRegDW(adapter, 0x30C, value);
-+
-+	return value;
-+}
-+
-+u32 PidSetStream1PID(struct adapter * adapter, u32 pid)
-+{
-+	u32 value;
-+
-+	dprintk("%s: pid=%x\n", __FUNCTION__, pid);
-+
-+	value = (pid & 0x3FFF) | (ReadRegDW(adapter, 0x300) & 0xFFFFC000);
-+
-+	WriteRegDW(adapter, 0x300, value);
-+
-+	return value;
-+}
-+
-+u32 PidSetStream2PID(struct adapter * adapter, u32 pid)
-+{
-+	u32 value;
-+
-+	dprintk("%s: pid=%x\n", __FUNCTION__, pid);
-+
-+	value = ((pid & 0x3FFF) << 0x10) | (ReadRegDW(adapter, 0x300) & 0xFFFF);
-+
-+	WriteRegDW(adapter, 0x300, value);
-+
-+	return value;
-+}
-+
-+u32 PidSetPcrPID(struct adapter * adapter, u32 pid)
-+{
-+	u32 value;
-+
-+	dprintk("%s: pid=%x\n", __FUNCTION__, pid);
-+
-+	value = (pid & 0x3FFF) | (ReadRegDW(adapter, 0x304) & 0xFFFFC000);
-+
-+	WriteRegDW(adapter, 0x304, value);
-+
-+	return value;
-+}
-+
-+u32 PidSetPmtPID(struct adapter * adapter, u32 pid)
-+{
-+	u32 value;
-+
-+	dprintk("%s: pid=%x\n", __FUNCTION__, pid);
-+
-+	value = ((pid & 0x3FFF) << 0x10) | (ReadRegDW(adapter, 0x304) & 0x3FFF);
-+
-+	WriteRegDW(adapter, 0x304, value);
-+
-+	return value;
-+}
-+
-+u32 PidSetEmmPID(struct adapter * adapter, u32 pid)
-+{
-+	u32 value;
-+
-+	dprintk("%s: pid=%x\n", __FUNCTION__, pid);
-+
-+	value = (pid & 0xFFFF) | (ReadRegDW(adapter, 0x308) & 0xFFFF0000);
-+
-+	WriteRegDW(adapter, 0x308, value);
-+
-+	return value;
-+}
-+
-+u32 PidSetEcmPID(struct adapter * adapter, u32 pid)
-+{
-+	u32 value;
-+
-+	dprintk("%s: pid=%x\n", __FUNCTION__, pid);
-+
-+	value = (pid << 0x10) | (ReadRegDW(adapter, 0x308) & 0xFFFF);
-+
-+	WriteRegDW(adapter, 0x308, value);
-+
-+	return value;
-+}
-+
-+u32 PidGetStream1PID(struct adapter * adapter)
-+{
-+	return ReadRegDW(adapter, 0x300) & 0x0000FFFF;
-+}
-+
-+u32 PidGetStream2PID(struct adapter * adapter)
-+{
-+	return ReadRegDW(adapter, 0x300) >> 0x10;
-+}
-+
-+u32 PidGetPcrPID(struct adapter * adapter)
-+{
-+	return ReadRegDW(adapter, 0x304) & 0x0000FFFF;
-+}
-+
-+u32 PidGetPmtPID(struct adapter * adapter)
-+{
-+	return ReadRegDW(adapter, 0x304) >> 0x10;
-+}
-+
-+u32 PidGetEmmPID(struct adapter * adapter)
-+{
-+	return ReadRegDW(adapter, 0x308) & 0x0000FFFF;
-+}
-+
-+u32 PidGetEcmPID(struct adapter * adapter)
-+{
-+	return ReadRegDW(adapter, 0x308) >> 0x10;
-+}
-+
-+u32 PidGetGroupPID(struct adapter * adapter)
-+{
-+	return ReadRegDW(adapter, 0x30C) & 0x0000FFFF;
-+}
-+
-+u32 PidGetGroupMASK(struct adapter * adapter)
-+{
-+	return ReadRegDW(adapter, 0x30C) >> 0x10;
-+}
-+
-+void ResetHardwarePIDFilter(struct adapter *adapter)
-+{
-+	PidSetStream1PID(adapter, 0x1FFF);
-+
-+	PidSetStream2PID(adapter, 0x1FFF);
-+	FilterEnableStream2Filter(adapter, 0);
-+
-+	PidSetPcrPID(adapter, 0x1FFF);
-+	FilterEnablePcrFilter(adapter, 0);
-+
-+	PidSetPmtPID(adapter, 0x1FFF);
-+	FilterEnablePmtFilter(adapter, 0);
-+
-+	PidSetEcmPID(adapter, 0x1FFF);
-+	FilterEnableEcmFilter(adapter, 0);
-+
-+	PidSetEmmPID(adapter, 0x1FFF);
-+	FilterEnableEmmFilter(adapter, 0);
-+}
-+
-+void OpenWholeBandwidth(struct adapter *adapter)
-+{
-+	PidSetGroupPID(adapter, 0);
-+
-+	PidSetGroupMASK(adapter, 0);
-+
-+	FilterEnableMaskFilter(adapter, 1);
-+}
-+
-+int AddHwPID(struct adapter *adapter, u32 pid)
-+{
-+	dprintk("%s: pid=%d\n", __FUNCTION__, pid);
-+
-+	if (pid <= 0x1F)
-+		return 1;
-+
-+	if ((PidGetGroupMASK(adapter) == 0) && (PidGetGroupPID(adapter) == 0))
-+		return 0;
-+
-+	if ((PidGetStream1PID(adapter) & 0x1FFF) == 0x1FFF) {
-+		PidSetStream1PID(adapter, pid & 0xFFFF);
-+
-+		FilterEnableStream1Filter(adapter, 1);
-+
-+		return 1;
-+	}
-+
-+	if ((PidGetStream2PID(adapter) & 0x1FFF) == 0x1FFF) {
-+		PidSetStream2PID(adapter, (pid & 0xFFFF));
-+
-+		FilterEnableStream2Filter(adapter, 1);
-+
-+		return 1;
-+	}
-+
-+	if ((PidGetPcrPID(adapter) & 0x1FFF) == 0x1FFF) {
-+		PidSetPcrPID(adapter, (pid & 0xFFFF));
-+
-+		FilterEnablePcrFilter(adapter, 1);
-+
-+		return 1;
-+	}
-+
-+	if ((PidGetPmtPID(adapter) & 0x1FFF) == 0x1FFF) {
-+		PidSetPmtPID(adapter, (pid & 0xFFFF));
-+
-+		FilterEnablePmtFilter(adapter, 1);
-+
-+		return 1;
-+	}
-+
-+	if ((PidGetEmmPID(adapter) & 0x1FFF) == 0x1FFF) {
-+		PidSetEmmPID(adapter, (pid & 0xFFFF));
-+
-+		FilterEnableEmmFilter(adapter, 1);
-+
-+		return 1;
-+	}
-+
-+	if ((PidGetEcmPID(adapter) & 0x1FFF) == 0x1FFF) {
-+		PidSetEcmPID(adapter, (pid & 0xFFFF));
-+
-+		FilterEnableEcmFilter(adapter, 1);
-+
-+		return 1;
-+	}
-+
++	// unsupported
 +	return -1;
 +}
 +
-+int RemoveHwPID(struct adapter *adapter, u32 pid)
++static int tda1004x_set_frequency(struct dvb_i2c_bus *i2c,
++			   struct tda1004x_state *tda_state,
++			   struct dvb_frontend_parameters *fe_params)
 +{
-+	dprintk("%s: pid=%d\n", __FUNCTION__, pid);
-+
-+	if (pid <= 0x1F)
-+		return 1;
-+
-+	if ((PidGetStream1PID(adapter) & 0x1FFF) == pid) {
-+		PidSetStream1PID(adapter, 0x1FFF);
-+
-+		return 1;
-+	}
-+
-+	if ((PidGetStream2PID(adapter) & 0x1FFF) == pid) {
-+		PidSetStream2PID(adapter, 0x1FFF);
-+
-+		FilterEnableStream2Filter(adapter, 0);
-+
-+		return 1;
-+	}
-+
-+	if ((PidGetPcrPID(adapter) & 0x1FFF) == pid) {
-+		PidSetPcrPID(adapter, 0x1FFF);
-+
-+		FilterEnablePcrFilter(adapter, 0);
-+
-+		return 1;
-+	}
-+
-+	if ((PidGetPmtPID(adapter) & 0x1FFF) == pid) {
-+		PidSetPmtPID(adapter, 0x1FFF);
-+
-+		FilterEnablePmtFilter(adapter, 0);
-+
-+		return 1;
-+	}
-+
-+	if ((PidGetEmmPID(adapter) & 0x1FFF) == pid) {
-+		PidSetEmmPID(adapter, 0x1FFF);
-+
-+		FilterEnableEmmFilter(adapter, 0);
-+
-+		return 1;
-+	}
-+
-+	if ((PidGetEcmPID(adapter) & 0x1FFF) == pid) {
-+		PidSetEcmPID(adapter, 0x1FFF);
-+
-+		FilterEnableEcmFilter(adapter, 0);
-+
-+		return 1;
-+	}
-+
-+	return -1;
-+}
-+
-+int AddPID(struct adapter *adapter, u32 pid)
-+{
-+	int i;
-+
-+	dprintk("%s: pid=%d\n", __FUNCTION__, pid);
-+
-+	if (pid > 0x1FFE)
-+		return -1;
-+
-+	if (CheckPID(adapter, pid) == 1)
-+		return 1;
-+
-+	for (i = 0; i < 0x27; i++) {
-+		if (adapter->pids[i] == 0x1FFF)	// find free pid filter
-+		{
-+			adapter->pids[i] = pid;
-+
-+			if (AddHwPID(adapter, pid) < 0)
-+				OpenWholeBandwidth(adapter);
-+
-+			return 1;
-+		}
-+	}
-+
-+	return -1;
-+}
-+
-+int RemovePID(struct adapter *adapter, u32 pid)
-+{
-+	u32 i;
-+
-+	dprintk("%s: pid=%d\n", __FUNCTION__, pid);
-+
-+	if (pid > 0x1FFE)
-+		return -1;
-+
-+	for (i = 0; i < 0x27; i++) {
-+		if (adapter->pids[i] == pid) {
-+			adapter->pids[i] = 0x1FFF;
-+
-+			RemoveHwPID(adapter, pid);
-+
-+			return 1;
-+		}
-+	}
-+
-+	return -1;
-+}
-+
-+/////////////////////////////////////////////////////////////////////
-+//                      DMA & IRQ
-+/////////////////////////////////////////////////////////////////////
-+
-+void CtrlEnableSmc(struct adapter *adapter, u32 op)
-+{
-+	if (op == 0) {
-+		WriteRegOp(adapter, 0x208, 2, ~0x00000800, 0);
-+
-+	} else {
-+
-+		WriteRegOp(adapter, 0x208, 1, 0, 0x00000800);
-+	}
-+}
-+
-+u32 DmaEnableDisableIrq(struct adapter *adapter, u32 flag1, u32 flag2, u32 flag3)
-+{
-+	adapter->dma_ctrl = adapter->dma_ctrl & 0x000F0000;
-+
-+	if (flag1 == 0) {
-+		if (flag2 == 0)
-+			adapter->dma_ctrl = adapter->dma_ctrl & ~0x00010000;
-+		else
-+			adapter->dma_ctrl = adapter->dma_ctrl | 0x00010000;
-+
-+		if (flag3 == 0)
-+			adapter->dma_ctrl = adapter->dma_ctrl & ~0x00020000;
-+		else
-+			adapter->dma_ctrl = adapter->dma_ctrl | 0x00020000;
-+
-+	} else {
-+
-+		if (flag2 == 0)
-+			adapter->dma_ctrl = adapter->dma_ctrl & ~0x00040000;
-+		else
-+			adapter->dma_ctrl = adapter->dma_ctrl | 0x00040000;
-+
-+		if (flag3 == 0)
-+			adapter->dma_ctrl = adapter->dma_ctrl & ~0x00080000;
-+		else
-+			adapter->dma_ctrl = adapter->dma_ctrl | 0x00080000;
-+	}
-+
-+	return adapter->dma_ctrl;
-+}
-+
-+u32 IrqDmaEnableDisableIrq(struct adapter * adapter, u32 op)
-+{
-+	u32 value;
-+
-+	value = ReadRegDW(adapter, 0x208) & 0xFFF0FFFF;
-+
-+	if (op != 0)
-+		value = value | (adapter->dma_ctrl & 0x000F0000);
-+
-+	WriteRegDW(adapter, 0x208, value);
-+
-+	return value;
-+}
-+
-+///////////////////////////////////////////////////////////////////////
-+//
-+// FlexCopII has 2 dma channels. DMA1 is used to transfer TS data to
-+// system memory.
-+//
-+// The DMA1 buffer is divided in 2 subbuffers of equal size.
-+// FlexCopII will transfer TS data to one subbuffer, signal an interrupt
-+// when the subbuffer is full and continue fillig the second subbuffer.
-+//
-+// For DMA1:
-+//      subbuffer size in 32-bit words is stored in the first 24 bits of
-+//      register 0x004. The last 8 bits of register 0x004 contain the number
-+//      of subbuffers.
-+//      
-+//      the first 30 bits of register 0x000 contain the address of the first
-+//      subbuffer. The last 2 bits contain 0, when dma1 is disabled and 1,
-+//      when dma1 is enabled.
-+//
-+//      the first 30 bits of register 0x00C contain the address of the second
-+//      subbuffer. the last 2 bits contain 1.
-+//
-+//      register 0x008 will contain the address of the subbuffer that was filled
-+//      with TS data, when FlexCopII will generate an interrupt.
-+//
-+// For DMA2:
-+//      subbuffer size in 32-bit words is stored in the first 24 bits of
-+//      register 0x014. The last 8 bits of register 0x014 contain the number
-+//      of subbuffers.
-+//      
-+//      the first 30 bits of register 0x010 contain the address of the first
-+//      subbuffer.  The last 2 bits contain 0, when dma1 is disabled and 1,
-+//      when dma1 is enabled.
-+//
-+//      the first 30 bits of register 0x01C contain the address of the second
-+//      subbuffer. the last 2 bits contain 1.
-+//
-+//      register 0x018 contains the address of the subbuffer that was filled
-+//      with TS data, when FlexCopII generates an interrupt.
-+//
-+///////////////////////////////////////////////////////////////////////
-+
-+int DmaInitDMA(struct adapter *adapter, u32 dma_channel)
-+{
-+	u32 subbuffers, subbufsize, subbuf0, subbuf1;
-+
-+	if (dma_channel == 0) {
-+		dprintk("%s: Initializing DMA1 channel\n", __FUNCTION__);
-+
-+		subbuffers = 2;
-+
-+		subbufsize = (((adapter->DmaQ1.buffer_size / 2) / 4) << 8) | subbuffers;
-+
-+		subbuf0 = adapter->DmaQ1.bus_addr & 0xFFFFFFFC;
-+
-+		subbuf1 = ((adapter->DmaQ1.bus_addr + adapter->DmaQ1.buffer_size / 2) & 0xFFFFFFFC) | 1;
-+
-+		dprintk("%s: first subbuffer address = 0x%x\n", __FUNCTION__, subbuf0);
-+		udelay(1000);
-+		WriteRegDW(adapter, 0x000, subbuf0);
-+
-+		dprintk("%s: subbuffer size = 0x%x\n", __FUNCTION__, (subbufsize >> 8) * 4);
-+		udelay(1000);
-+		WriteRegDW(adapter, 0x004, subbufsize);
-+
-+		dprintk("%s: second subbuffer address = 0x%x\n", __FUNCTION__, subbuf1);
-+		udelay(1000);
-+		WriteRegDW(adapter, 0x00C, subbuf1);
-+
-+		dprintk("%s: counter = 0x%x\n", __FUNCTION__, adapter->DmaQ1.bus_addr & 0xFFFFFFFC);
-+		WriteRegDW(adapter, 0x008, adapter->DmaQ1.bus_addr & 0xFFFFFFFC);
-+		udelay(1000);
-+
-+		if (subbuffers == 0)
-+			DmaEnableDisableIrq(adapter, 0, 1, 0);
-+		else
-+			DmaEnableDisableIrq(adapter, 0, 1, 1);
-+
-+		IrqDmaEnableDisableIrq(adapter, 1);
-+
-+		SRAMSetMediaDest(adapter, 1);
-+		SRAMSetNetDest(adapter, 1);
-+		SRAMSetCaiDest(adapter, 2);
-+		SRAMSetCaoDest(adapter, 2);
-+	}
-+
-+	if (dma_channel == 1) {
-+		dprintk("%s: Initializing DMA2 channel\n", __FUNCTION__);
-+
-+		subbuffers = 2;
-+
-+		subbufsize = (((adapter->DmaQ2.buffer_size / 2) / 4) << 8) | subbuffers;
-+
-+		subbuf0 = adapter->DmaQ2.bus_addr & 0xFFFFFFFC;
-+
-+		subbuf1 = ((adapter->DmaQ2.bus_addr + adapter->DmaQ2.buffer_size / 2) & 0xFFFFFFFC) | 1;
-+
-+		dprintk("%s: first subbuffer address = 0x%x\n", __FUNCTION__, subbuf0);
-+		udelay(1000);
-+		WriteRegDW(adapter, 0x010, subbuf0);
-+
-+		dprintk("%s: subbuffer size = 0x%x\n", __FUNCTION__, (subbufsize >> 8) * 4);
-+		udelay(1000);
-+		WriteRegDW(adapter, 0x014, subbufsize);
-+
-+		dprintk("%s: second buffer address = 0x%x\n", __FUNCTION__, subbuf1);
-+		udelay(1000);
-+		WriteRegDW(adapter, 0x01C, subbuf1);
-+
-+		SRAMSetCaiDest(adapter, 2);
-+	}
-+
-+	return 0;
-+}
-+
-+void CtrlEnableReceiveData(struct adapter *adapter, u32 op)
-+{
-+	if (op == 0) {
-+		WriteRegOp(adapter, 0x208, 2, ~0x00008000, 0);
-+
-+		adapter->dma_status = adapter->dma_status & ~0x00000004;
-+
-+	} else {
-+
-+		WriteRegOp(adapter, 0x208, 1, 0, 0x00008000);
-+
-+		adapter->dma_status = adapter->dma_status | 0x00000004;
-+	}
-+}
-+
-+///////////////////////////////////////////////////////////////////////////////
-+// bit 0 of dma_mask is set to 1 if dma1 channel has to be enabled/disabled
-+// bit 1 of dma_mask is set to 1 if dma2 channel has to be enabled/disabled
-+
-+void DmaStartStop0x2102(struct adapter *adapter, u32 dma_mask, u32 start_stop)
-+{
-+	u32 dma_enable, dma1_enable, dma2_enable;
-+
-+	dprintk("%s: dma_mask=%x\n", __FUNCTION__, dma_mask);
-+
-+	if (start_stop == 1) {
-+		dprintk("%s: starting dma\n", __FUNCTION__);
-+
-+		dma1_enable = 0;
-+		dma2_enable = 0;
-+
-+		if (((dma_mask & 1) != 0) && ((adapter->dma_status & 1) == 0) && (adapter->DmaQ1.bus_addr != 0)) {
-+			adapter->dma_status = adapter->dma_status | 1;
-+			dma1_enable = 1;
++	u8 tuner_buf[4];
++	struct i2c_msg tuner_msg = {.addr=0, .flags=0, .buf=tuner_buf, .len=sizeof(tuner_buf) };
++	int tuner_frequency;
++        u8 band, cp, filter;
++	int counter, counter2;
++
++	dprintk("%s\n", __FUNCTION__);
++
++	// setup the frequency buffer
++	switch (tda_state->tuner_address) {
++	case TD1344_ADDRESS:
++
++		// setup tuner buffer
++		tuner_frequency =
++                        (((fe_params->frequency / 1000) * 6) + 217502) / 1000;
++		tuner_buf[0] = tuner_frequency >> 8;
++		tuner_buf[1] = tuner_frequency & 0xff;
++		tuner_buf[2] = 0x88;
++		if (fe_params->frequency < 550000000) {
++			tuner_buf[3] = 0xab;
++		} else {
++			tuner_buf[3] = 0xeb;
 +		}
 +
-+		if (((dma_mask & 2) != 0) && ((adapter->dma_status & 2) == 0) && (adapter->DmaQ2.bus_addr != 0)) {
-+			adapter->dma_status = adapter->dma_status | 2;
-+			dma2_enable = 1;
-+		}
-+		// enable dma1 and dma2
-+		if ((dma1_enable == 1) && (dma2_enable == 1)) {
-+			WriteRegDW(adapter, 0x000, adapter->DmaQ1.bus_addr | 1);
-+			WriteRegDW(adapter, 0x00C, (adapter->DmaQ1.bus_addr + adapter->DmaQ1.buffer_size / 2) | 1);
-+			WriteRegDW(adapter, 0x010, adapter->DmaQ2.bus_addr | 1);
++		// tune it
++		tda1004x_enable_tuner_i2c(i2c, tda_state);
++		tuner_msg.addr = tda_state->tuner_address;
++		tuner_msg.len = 4;
++		i2c->xfer(i2c, &tuner_msg, 1);
 +
-+			CtrlEnableReceiveData(adapter, 1);
-+
-+			return;
-+		}
-+		// enable dma1
-+		if ((dma1_enable == 1) && (dma2_enable == 0)) {
-+			WriteRegDW(adapter, 0x000, adapter->DmaQ1.bus_addr | 1);
-+			WriteRegDW(adapter, 0x00C, (adapter->DmaQ1.bus_addr + adapter->DmaQ1.buffer_size / 2) | 1);
-+
-+			CtrlEnableReceiveData(adapter, 1);
-+
-+			return;
-+		}
-+		// enable dma2
-+		if ((dma1_enable == 0) && (dma2_enable == 1)) {
-+			WriteRegDW(adapter, 0x010, adapter->DmaQ2.bus_addr | 1);
-+
-+			CtrlEnableReceiveData(adapter, 1);
-+
-+			return;
-+		}
-+		// start dma
-+		if ((dma1_enable == 0) && (dma2_enable == 0)) {
-+			CtrlEnableReceiveData(adapter, 1);
-+
-+			return;
-+		}
-+
-+	} else {
-+
-+		dprintk("%s: stoping dma\n", __FUNCTION__);
-+
-+		dma_enable = adapter->dma_status & 0x00000003;
-+
-+		if (((dma_mask & 1) != 0) && ((adapter->dma_status & 1) != 0)) {
-+			dma_enable = dma_enable & 0xFFFFFFFE;
-+		}
-+
-+		if (((dma_mask & 2) != 0) && ((adapter->dma_status & 2) != 0)) {
-+			dma_enable = dma_enable & 0xFFFFFFFD;
-+		}
-+		//stop dma
-+		if ((dma_enable == 0) && ((adapter->dma_status & 4) != 0)) {
-+			CtrlEnableReceiveData(adapter, 0);
-+
-+			udelay(3000);
-+		}
-+		//disable dma1
-+		if (((dma_mask & 1) != 0) && ((adapter->dma_status & 1) != 0) && (adapter->DmaQ1.bus_addr != 0)) {
-+			WriteRegDW(adapter, 0x000, adapter->DmaQ1.bus_addr);
-+			WriteRegDW(adapter, 0x00C, (adapter->DmaQ1.bus_addr + adapter->DmaQ1.buffer_size / 2) | 1);
-+
-+			adapter->dma_status = adapter->dma_status & ~0x00000001;
-+		}
-+		//disable dma2
-+		if (((dma_mask & 2) != 0) && ((adapter->dma_status & 2) != 0) && (adapter->DmaQ2.bus_addr != 0)) {
-+			WriteRegDW(adapter, 0x010, adapter->DmaQ2.bus_addr);
-+
-+			adapter->dma_status = adapter->dma_status & ~0x00000002;
-+		}
-+	}
-+}
-+
-+void OpenStream(struct adapter *adapter, u32 pid)
-+{
-+	u32 dma_mask;
-+
-+	if (adapter->capturing == 0)
-+		adapter->capturing = 1;
-+
-+	FilterEnableMaskFilter(adapter, 1);
-+
-+	AddPID(adapter, pid);
-+
-+	dprintk("%s: adapter->dma_status=%x\n", __FUNCTION__, adapter->dma_status);
-+
-+	if ((adapter->dma_status & 7) != 7) {
-+		dma_mask = 0;
-+
-+		if (((adapter->dma_status & 0x10000000) != 0) && ((adapter->dma_status & 1) == 0)) {
-+			dma_mask = dma_mask | 1;
-+
-+			adapter->DmaQ1.head = 0;
-+			adapter->DmaQ1.tail = 0;
-+
-+			memset(adapter->DmaQ1.buffer, 0, adapter->DmaQ1.buffer_size);
-+		}
-+
-+		if (((adapter->dma_status & 0x20000000) != 0) && ((adapter->dma_status & 2) == 0)) {
-+			dma_mask = dma_mask | 2;
-+
-+			adapter->DmaQ2.head = 0;
-+			adapter->DmaQ2.tail = 0;
-+		}
-+
-+		if (dma_mask != 0) {
-+			IrqDmaEnableDisableIrq(adapter, 1);
-+
-+			DmaStartStop0x2102(adapter, dma_mask, 1);
-+		}
-+	}
-+}
-+
-+void CloseStream(struct adapter *adapter, u32 pid)
-+{
-+	u32 dma_mask;
-+
-+	if (adapter->capturing != 0)
-+		adapter->capturing = 0;
-+
-+	dprintk("%s: dma_status=%x\n", __FUNCTION__, adapter->dma_status);
-+
-+	dma_mask = 0;
-+
-+	if ((adapter->dma_status & 1) != 0)
-+		dma_mask = dma_mask | 0x00000001;
-+	if ((adapter->dma_status & 2) != 0)
-+		dma_mask = dma_mask | 0x00000002;
-+
-+	if (dma_mask != 0) {
-+		DmaStartStop0x2102(adapter, dma_mask, 0);
-+	}
-+
-+	RemovePID(adapter, pid);
-+}
-+
-+u32 InterruptServiceDMA1(struct adapter *adapter)
-+{
-+	struct dvb_demux *dvbdmx = &adapter->demux;
-+	struct packet_header_t packet_header;
-+
-+	int nCurDmaCounter;
-+	u32 nNumBytesParsed;
-+	u32 nNumNewBytesTransferred;
-+	u32 dwDefaultPacketSize = 188;
-+	u8 gbTmpBuffer[188];
-+	u8 *pbDMABufCurPos;
-+
-+	nCurDmaCounter = readl(adapter->io_mem + 0x008) - adapter->DmaQ1.bus_addr;
-+	nCurDmaCounter = (nCurDmaCounter / dwDefaultPacketSize) * dwDefaultPacketSize;
-+
-+	if ((nCurDmaCounter < 0) || (nCurDmaCounter > adapter->DmaQ1.buffer_size)) {
-+		dprintk("%s: dma counter outside dma buffer\n", __FUNCTION__);
-+
-+		return 1;
-+	}
-+
-+	adapter->DmaQ1.head = nCurDmaCounter;
-+
-+	if (adapter->DmaQ1.tail <= nCurDmaCounter) {
-+		nNumNewBytesTransferred = nCurDmaCounter - adapter->DmaQ1.tail;
-+
-+	} else {
-+
-+		nNumNewBytesTransferred = (adapter->DmaQ1.buffer_size - adapter->DmaQ1.tail) + nCurDmaCounter;
-+	}
-+
-+//  dprintk("%s: nCurDmaCounter   = %d\n" , __FUNCTION__, nCurDmaCounter);
-+//  dprintk("%s: DmaQ1.tail       = %d\n" , __FUNCTION__, adapter->DmaQ1.tail):
-+//  dprintk("%s: BytesTransferred = %d\n" , __FUNCTION__, nNumNewBytesTransferred);
-+
-+	if (nNumNewBytesTransferred < dwDefaultPacketSize)
-+		return 0;
-+
-+	nNumBytesParsed = 0;
-+
-+	while (nNumBytesParsed < nNumNewBytesTransferred) {
-+		pbDMABufCurPos = adapter->DmaQ1.buffer + adapter->DmaQ1.tail;
-+
-+		if (adapter->DmaQ1.buffer + adapter->DmaQ1.buffer_size < adapter->DmaQ1.buffer + adapter->DmaQ1.tail + 188) {
-+			memcpy(gbTmpBuffer, adapter->DmaQ1.buffer + adapter->DmaQ1.tail, adapter->DmaQ1.buffer_size - adapter->DmaQ1.tail);
-+			memcpy(gbTmpBuffer + (adapter->DmaQ1.buffer_size - adapter->DmaQ1.tail), adapter->DmaQ1.buffer, (188 - (adapter->DmaQ1.buffer_size - adapter->DmaQ1.tail)));
-+
-+			pbDMABufCurPos = gbTmpBuffer;
-+		}
-+
-+		if (adapter->capturing != 0) {
-+			u32 *dq = (u32 *) pbDMABufCurPos;
-+
-+			packet_header.sync_byte = *dq & 0x000000FF;
-+			packet_header.transport_error_indicator = *dq & 0x00008000;
-+			packet_header.payload_unit_start_indicator = *dq & 0x00004000;
-+			packet_header.transport_priority = *dq & 0x00002000;
-+			packet_header.pid = ((*dq & 0x00FF0000) >> 0x10) | (*dq & 0x00001F00);
-+			packet_header.transport_scrambling_control = *dq >> 0x1E;
-+			packet_header.adaptation_field_control = (*dq & 0x30000000) >> 0x1C;
-+			packet_header.continuity_counter = (*dq & 0x0F000000) >> 0x18;
-+
-+			if ((packet_header.sync_byte == 0x47) && (packet_header.transport_error_indicator == 0) && (packet_header.pid != 0x1FFF)) {
-+				if (CheckPID(adapter, packet_header.pid & 0x0000FFFF) != 0) {
-+					dvb_dmx_swfilter_packets(dvbdmx, pbDMABufCurPos, dwDefaultPacketSize / 188);
-+
++		// wait for it to finish
++		tuner_msg.len = 1;
++		tuner_msg.flags = I2C_M_RD;
++		counter = 0;
++		counter2 = 0;
++		while (counter++ < 100) {
++			if (i2c->xfer(i2c, &tuner_msg, 1) == 1) {
++				if (tuner_buf[0] & 0x40) {
++					counter2++;
 +				} else {
-+
-+//                  dprintk("%s: pid=%x\n", __FUNCTION__, packet_header.pid);
++					counter2 = 0;
 +				}
 +			}
++
++			if (counter2 > 10) {
++				break;
++			}
++		}
++		tda1004x_disable_tuner_i2c(i2c, tda_state);
++		break;
++
++	case TDM1316L_ADDRESS:
++		// determine charge pump
++		tuner_frequency = fe_params->frequency + 36130000;
++		if (tuner_frequency < 87000000) {
++			return -EINVAL;
++		} else if (tuner_frequency < 130000000) {
++                        cp = 3;
++		} else if (tuner_frequency < 160000000) {
++			cp = 5;
++		} else if (tuner_frequency < 200000000) {
++			cp = 6;
++		} else if (tuner_frequency < 290000000) {
++			cp = 3;
++		} else if (tuner_frequency < 420000000) {
++			cp = 5;
++		} else if (tuner_frequency < 480000000) {
++			cp = 6;
++		} else if (tuner_frequency < 620000000) {
++			cp = 3;
++		} else if (tuner_frequency < 830000000) {
++			cp = 5;
++		} else if (tuner_frequency < 895000000) {
++			cp = 7;
++		} else {
++			return -EINVAL;
 +		}
 +
-+		nNumBytesParsed = nNumBytesParsed + dwDefaultPacketSize;
-+
-+		adapter->DmaQ1.tail = adapter->DmaQ1.tail + dwDefaultPacketSize;
-+
-+		if (adapter->DmaQ1.tail >= adapter->DmaQ1.buffer_size)
-+			adapter->DmaQ1.tail = adapter->DmaQ1.tail - adapter->DmaQ1.buffer_size;
-+	};
-+
-+	return 1;
-+}
-+
-+void InterruptServiceDMA2(struct adapter *adapter)
-+{
-+	printk("%s:\n", __FUNCTION__);
-+}
-+
-+void isr(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	struct adapter *tmp = dev_id;
-+
-+	u32 value;
-+
-+//  dprintk("%s:\n", __FUNCTION__);
-+
-+	spin_lock_irq(&tmp->lock);
-+
-+	while (((value = ReadRegDW(tmp, 0x20C)) & 0x0F) != 0) {
-+		if ((value & 0x03) != 0)
-+			InterruptServiceDMA1(tmp);
-+		if ((value & 0x0C) != 0)
-+			InterruptServiceDMA2(tmp);
-+	}
-+
-+	spin_unlock_irq(&tmp->lock);
-+}
-+
-+
-+void InitDmaQueue(struct adapter *adapter)
-+{
-+	dma_addr_t dma_addr;
-+
-+	if (adapter->DmaQ1.buffer != 0)
-+		return;
-+
-+	adapter->DmaQ1.head = 0;
-+	adapter->DmaQ1.tail = 0;
-+	adapter->DmaQ1.buffer = 0;
-+
-+	adapter->DmaQ1.buffer = pci_alloc_consistent(adapter->pdev, SizeOfBufDMA1 + 0x80, &dma_addr);
-+
-+	if (adapter->DmaQ1.buffer != 0) {
-+		memset(adapter->DmaQ1.buffer, 0, SizeOfBufDMA1);
-+
-+		adapter->DmaQ1.bus_addr = dma_addr;
-+		adapter->DmaQ1.buffer_size = SizeOfBufDMA1;
-+
-+		DmaInitDMA(adapter, 0);
-+
-+		adapter->dma_status = adapter->dma_status | 0x10000000;
-+
-+		dprintk("%s: allocated dma buffer at 0x%x, length=%d\n", __FUNCTION__, (int) adapter->DmaQ1.buffer, SizeOfBufDMA1);
-+
-+	} else {
-+
-+		adapter->dma_status = adapter->dma_status & ~0x10000000;
-+	}
-+
-+	if (adapter->DmaQ2.buffer != 0)
-+		return;
-+
-+	adapter->DmaQ2.head = 0;
-+	adapter->DmaQ2.tail = 0;
-+	adapter->DmaQ2.buffer = 0;
-+
-+	adapter->DmaQ2.buffer = pci_alloc_consistent(adapter->pdev, SizeOfBufDMA2 + 0x80, &dma_addr);
-+
-+	if (adapter->DmaQ2.buffer != 0) {
-+		memset(adapter->DmaQ2.buffer, 0, SizeOfBufDMA2);
-+
-+		adapter->DmaQ2.bus_addr = dma_addr;
-+		adapter->DmaQ2.buffer_size = SizeOfBufDMA2;
-+
-+		DmaInitDMA(adapter, 1);
-+
-+		adapter->dma_status = adapter->dma_status | 0x20000000;
-+
-+		dprintk("%s: allocated dma buffer at 0x%x, length=%d\n", __FUNCTION__, (int) adapter->DmaQ2.buffer, (int) SizeOfBufDMA2);
-+
-+	} else {
-+
-+		adapter->dma_status = adapter->dma_status & ~0x20000000;
-+	}
-+}
-+
-+void FreeDmaQueue(struct adapter *adapter)
-+{
-+	if (adapter->DmaQ1.buffer != 0) {
-+		pci_free_consistent(adapter->pdev, SizeOfBufDMA1 + 0x80, adapter->DmaQ1.buffer, adapter->DmaQ1.bus_addr);
-+
-+		adapter->DmaQ1.bus_addr = 0;
-+		adapter->DmaQ1.head = 0;
-+		adapter->DmaQ1.tail = 0;
-+		adapter->DmaQ1.buffer_size = 0;
-+		adapter->DmaQ1.buffer = 0;
-+	}
-+
-+	if (adapter->DmaQ2.buffer != 0) {
-+		pci_free_consistent(adapter->pdev, SizeOfBufDMA2 + 0x80, adapter->DmaQ2.buffer, adapter->DmaQ2.bus_addr);
-+
-+		adapter->DmaQ2.bus_addr = 0;
-+		adapter->DmaQ2.head = 0;
-+		adapter->DmaQ2.tail = 0;
-+		adapter->DmaQ2.buffer_size = 0;
-+		adapter->DmaQ2.buffer = 0;
-+	}
-+}
-+
-+void FreeAdapterObject(struct adapter *adapter)
-+{
-+	dprintk("%s:\n", __FUNCTION__);
-+
-+	CloseStream(adapter, 0);
-+
-+	if (adapter->irq != 0)
-+		free_irq(adapter->irq, adapter);
-+
-+	FreeDmaQueue(adapter);
-+
-+	if (adapter->io_mem != 0)
-+		iounmap((void *) adapter->io_mem);
-+
-+	if (adapter != 0)
-+		kfree(adapter);
-+}
-+
-+int ClaimAdapter(struct adapter *adapter)
-+{
-+	struct pci_dev *pdev = adapter->pdev;
-+
-+	u16 var;
-+
-+	if (!request_region(pci_resource_start(pdev, 1), pci_resource_len(pdev, 1), pdev->name))
-+		return -EBUSY;
-+
-+	if (!request_mem_region(pci_resource_start(pdev, 0), pci_resource_len(pdev, 0), pdev->name))
-+		return -EBUSY;
-+
-+	pci_read_config_byte(pdev, PCI_CLASS_REVISION, &adapter->card_revision);
-+
-+	dprintk("%s: card revision %x \n", __FUNCTION__, adapter->card_revision);
-+
-+	if (pci_enable_device(pdev))
-+		return -EIO;
-+
-+	pci_read_config_word(pdev, 4, &var);
-+
-+	if ((var & 4) == 0)
-+		pci_set_master(pdev);
-+
-+	adapter->io_port = pdev->resource[1].start;
-+
-+	adapter->io_mem = (u32) ioremap(pdev->resource[0].start, 0x800);
-+
-+	if (adapter->io_mem == 0) {
-+		dprintk("%s: can not map io memory\n", __FUNCTION__);
-+
-+		return 2;
-+	}
-+
-+	dprintk("%s: io memory maped at %x\n", __FUNCTION__, adapter->io_mem);
-+
-+	return 1;
-+}
-+
-+int SLL_reset_FlexCOP(struct adapter *adapter)
-+{
-+	WriteRegDW(adapter, 0x208, 0);
-+	WriteRegDW(adapter, 0x210, 0xB2FF);
-+
-+	return 0;
-+}
-+
-+u32 DriverInitialize(struct pci_dev * pdev)
-+{
-+	struct adapter *adapter;
-+	u32 tmp;
-+	u8 key[16];
-+
-+	if (!(adapter = kmalloc(sizeof(struct adapter), GFP_KERNEL))) {
-+		dprintk("%s: out of memory!\n", __FUNCTION__);
-+
-+		return -ENOMEM;
-+	}
-+
-+	memset(adapter, 0, sizeof(struct adapter));
-+
-+	pdev->driver_data = adapter;
-+
-+	adapter->pdev = pdev;
-+	adapter->irq = pdev->irq;
-+
-+	if ((ClaimAdapter(adapter)) != 1) {
-+		FreeAdapterObject(adapter);
-+
-+		return 2;
-+	}
-+
-+	IrqDmaEnableDisableIrq(adapter, 0);
-+
-+	if (request_irq(pdev->irq, isr, 0x4000000, "Skystar2", adapter) != 0) {
-+		dprintk("%s: unable to allocate irq=%d !\n", __FUNCTION__, pdev->irq);
-+
-+		FreeAdapterObject(adapter);
-+
-+		return 2;
-+	}
-+
-+	ReadRegDW(adapter, 0x208);
-+	WriteRegDW(adapter, 0x208, 0);
-+	WriteRegDW(adapter, 0x210, 0xB2FF);
-+	WriteRegDW(adapter, 0x208, 0x40);
-+
-+	InitPIDsInfo(adapter);
-+
-+	PidSetGroupPID(adapter, 0);
-+	PidSetGroupMASK(adapter, 0x1FE0);
-+	PidSetStream1PID(adapter, 0x1FFF);
-+	PidSetStream2PID(adapter, 0x1FFF);
-+	PidSetPmtPID(adapter, 0x1FFF);
-+	PidSetPcrPID(adapter, 0x1FFF);
-+	PidSetEcmPID(adapter, 0x1FFF);
-+	PidSetEmmPID(adapter, 0x1FFF);
-+
-+	InitDmaQueue(adapter);
-+
-+	if ((adapter->dma_status & 0x30000000) == 0) {
-+		FreeAdapterObject(adapter);
-+
-+		return 2;
-+	}
-+
-+	adapter->B2C2_revision = (ReadRegDW(adapter, 0x204) >> 0x18);
-+
-+	if ((adapter->B2C2_revision != 0x82) && (adapter->B2C2_revision != 0xC3))
-+		if (adapter->B2C2_revision != 0x82) {
-+			dprintk("%s: The revision of the FlexCopII chip on your card is - %d\n", __FUNCTION__, adapter->B2C2_revision);
-+			dprintk("%s: This driver works now only with FlexCopII(rev.130) and FlexCopIIB(rev.195).\n", __FUNCTION__);
-+
-+			FreeAdapterObject(adapter);
-+
-+			return 2;
++		// determine band
++		if (fe_params->frequency < 49000000) {
++                        return -EINVAL;
++		} else if (fe_params->frequency < 159000000) {
++                        band = 1;
++		} else if (fe_params->frequency < 444000000) {
++			band = 2;
++		} else if (fe_params->frequency < 861000000) {
++			band = 4;
++		} else {
++			return -EINVAL;
 +		}
 +
-+	tmp = ReadRegDW(adapter, 0x204);
++		// work out filter
++		switch (fe_params->u.ofdm.bandwidth) {
++		case BANDWIDTH_6_MHZ:
++                        // 6 MHz isn't supported directly, but set this to
++                        // the 8 MHz setting in case we can fiddle it later
++                        filter = 1;
++                        break;
 +
-+	WriteRegDW(adapter, 0x204, 0);
-+	linuxdelayms(20);
++                case BANDWIDTH_7_MHZ:
++			filter = 0;
++			break;
 +
-+	WriteRegDW(adapter, 0x204, tmp);
-+	linuxdelayms(10);
++		case BANDWIDTH_8_MHZ:
++			filter = 1;
++			break;
 +
-+	tmp = ReadRegDW(adapter, 0x308);
-+	WriteRegDW(adapter, 0x308, 0x4000 | tmp);
++		default:
++			return -EINVAL;
++		}
 +
-+	adapter->dwSramType = 0x10000;
++		// calculate tuner parameters
++		tuner_frequency =
++                        (((fe_params->frequency / 1000) * 6) + 217280) / 1000;
++		tuner_buf[0] = tuner_frequency >> 8;
++		tuner_buf[1] = tuner_frequency & 0xff;
++		tuner_buf[2] = 0xca;
++		tuner_buf[3] = (cp << 5) | (filter << 3) | band;
 +
-+	SLL_detectSramSize(adapter);
++		// tune it
++		tda1004x_enable_tuner_i2c(i2c, tda_state);
++		tuner_msg.addr = tda_state->tuner_address;
++		tuner_msg.len = 4;
++                if (i2c->xfer(i2c, &tuner_msg, 1) != 1) {
++			return -EIO;
++		}
++		dvb_delay(1);
++		tda1004x_disable_tuner_i2c(i2c, tda_state);
++		break;
 +
-+	dprintk("%s sram length = %d, sram type= %x\n", __FUNCTION__, SRAM_length(adapter), adapter->dwSramType);
-+
-+	SRAMSetMediaDest(adapter, 1);
-+	SRAMSetNetDest(adapter, 1);
-+
-+	CtrlEnableSmc(adapter, 0);
-+
-+	SRAMSetCaiDest(adapter, 2);
-+	SRAMSetCaoDest(adapter, 2);
-+
-+	DmaEnableDisableIrq(adapter, 1, 0, 0);
-+
-+	if (EEPROM_getMacAddr(adapter, 0, adapter->mac_addr) != 0) {
-+		printk("%s MAC address = %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x \n", __FUNCTION__, adapter->mac_addr[0], adapter->mac_addr[1], adapter->mac_addr[2], adapter->mac_addr[3], adapter->mac_addr[4], adapter->mac_addr[5], adapter->mac_addr[6], adapter->mac_addr[7]
-+		    );
-+
-+		CASetMacDstAddrFilter(adapter, adapter->mac_addr);
-+		CtrlEnableMAC(adapter, 1);
++	default:
++		return -EINVAL;
 +	}
 +
-+	EEPROM_readKey(adapter, key, 16);
++	dprintk("%s: success\n", __FUNCTION__);
 +
-+	printk("%s key = \n %02x %02x %02x %02x \n %02x %02x %02x %02x \n %02x %02x %02x %02x \n %02x %02x %02x %02x \n", __FUNCTION__, key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9], key[10], key[11], key[12], key[13], key[14], key[15]
-+	    );
-+
-+	adapter->lock = SPIN_LOCK_UNLOCKED;
-+
-+	return 1;
-+}
-+
-+void DriverHalt(struct pci_dev *pdev)
-+{
-+	struct adapter *adapter;
-+
-+	adapter = pci_get_drvdata(pdev);
-+
-+	IrqDmaEnableDisableIrq(adapter, 0);
-+
-+	CtrlEnableReceiveData(adapter, 0);
-+
-+	FreeAdapterObject(adapter);
-+
-+	pci_set_drvdata(pdev, NULL);
-+
-+	release_region(pci_resource_start(pdev, 1), pci_resource_len(pdev, 1));
-+
-+	release_mem_region(pci_resource_start(pdev, 0), pci_resource_len(pdev, 0));
-+}
-+
-+static int dvb_start_feed(struct dvb_demux_feed *dvbdmxfeed)
-+{
-+	struct dvb_demux *dvbdmx = dvbdmxfeed->demux;
-+	struct adapter *adapter = (struct adapter *) dvbdmx->priv;
-+
-+	dprintk("%s: PID=%d, type=%d\n", __FUNCTION__, dvbdmxfeed->pid, dvbdmxfeed->type);
-+
-+	OpenStream(adapter, dvbdmxfeed->pid);
-+
++	// done
 +	return 0;
 +}
 +
-+static int dvb_stop_feed(struct dvb_demux_feed *dvbdmxfeed)
++static int tda1004x_set_fe(struct dvb_i2c_bus *i2c,
++	 	           struct tda1004x_state *tda_state,
++		           struct dvb_frontend_parameters *fe_params)
 +{
-+	struct dvb_demux *dvbdmx = dvbdmxfeed->demux;
-+	struct adapter *adapter = (struct adapter *) dvbdmx->priv;
++	int tmp;
 +
-+	dprintk("%s: PID=%d, type=%d\n", __FUNCTION__, dvbdmxfeed->pid, dvbdmxfeed->type);
++	dprintk("%s\n", __FUNCTION__);
 +
-+	CloseStream(adapter, dvbdmxfeed->pid);
 +
++	// set frequency
++	tmp = tda1004x_set_frequency(i2c, tda_state, fe_params);
++	if (tmp < 0)
++		return tmp;
++
++        // hardcoded to use auto as much as possible
++        fe_params->u.ofdm.code_rate_HP = FEC_AUTO;
++        fe_params->u.ofdm.guard_interval = GUARD_INTERVAL_AUTO;
++        fe_params->u.ofdm.transmission_mode = TRANSMISSION_MODE_AUTO;
++
++	// Set standard params.. or put them to auto
++	if ((fe_params->u.ofdm.code_rate_HP == FEC_AUTO) ||
++	    (fe_params->u.ofdm.code_rate_LP == FEC_AUTO) ||
++	    (fe_params->u.ofdm.constellation == QAM_AUTO) ||
++	    (fe_params->u.ofdm.hierarchy_information == HIERARCHY_AUTO)) {
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_AUTO, 1, 1);	// enable auto
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x03, 0);	// turn off constellation bits
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x60, 0);	// turn off hierarchy bits
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF2, 0x3f, 0);	// turn off FEC bits
++	} else {
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_AUTO, 1, 0);	// disable auto
++
++		// set HP FEC
++		tmp = tda1004x_encode_fec(fe_params->u.ofdm.code_rate_HP);
++		if (tmp < 0) return tmp;
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF2, 7, tmp);
++
++		// set LP FEC
++		if (fe_params->u.ofdm.code_rate_LP != FEC_NONE) {
++			tmp = tda1004x_encode_fec(fe_params->u.ofdm.code_rate_LP);
++			if (tmp < 0) return tmp;
++			tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF2, 0x38, tmp << 3);
++		}
++
++		// set constellation
++		switch (fe_params->u.ofdm.constellation) {
++		case QPSK:
++			tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 3, 0);
++			break;
++
++		case QAM_16:
++			tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 3, 1);
++			break;
++
++		case QAM_64:
++			tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 3, 2);
++			break;
++
++		default:
++			return -EINVAL;
++		}
++
++		// set hierarchy
++		switch (fe_params->u.ofdm.hierarchy_information) {
++		case HIERARCHY_NONE:
++			tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x60, 0 << 5);
++			break;
++
++		case HIERARCHY_1:
++			tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x60, 1 << 5);
++			break;
++
++		case HIERARCHY_2:
++			tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x60, 2 << 5);
++			break;
++
++		case HIERARCHY_4:
++			tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x60, 3 << 5);
++			break;
++
++		default:
++			return -EINVAL;
++		}
++	}
++
++        // set bandwidth
++        switch(tda_state->tda1004x_address) {
++        case TDA10045H_ADDRESS:
++                tda10045h_set_bandwidth(i2c, tda_state, fe_params->u.ofdm.bandwidth);
++                break;
++        }
++
++	// set inversion
++	switch (fe_params->inversion) {
++	case INVERSION_OFF:
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_CONFC1, 0x20, 0);
++		break;
++
++	case INVERSION_ON:
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_CONFC1, 0x20, 0x20);
++		break;
++
++	default:
++		return -EINVAL;
++	}
++
++	// set guard interval
++	switch (fe_params->u.ofdm.guard_interval) {
++	case GUARD_INTERVAL_1_32:
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_AUTO, 2, 0);
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x0c, 0 << 2);
++		break;
++
++	case GUARD_INTERVAL_1_16:
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_AUTO, 2, 0);
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x0c, 1 << 2);
++		break;
++
++	case GUARD_INTERVAL_1_8:
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_AUTO, 2, 0);
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x0c, 2 << 2);
++		break;
++
++	case GUARD_INTERVAL_1_4:
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_AUTO, 2, 0);
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x0c, 3 << 2);
++		break;
++
++	case GUARD_INTERVAL_AUTO:
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_AUTO, 2, 2);
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x0c, 0 << 2);
++		break;
++
++	default:
++		return -EINVAL;
++	}
++
++	// set transmission mode
++	switch (fe_params->u.ofdm.transmission_mode) {
++	case TRANSMISSION_MODE_2K:
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_AUTO, 4, 0);
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x10, 0 << 4);
++		break;
++
++	case TRANSMISSION_MODE_8K:
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_AUTO, 4, 0);
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x10, 1 << 4);
++		break;
++
++	case TRANSMISSION_MODE_AUTO:
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_AUTO, 4, 4);
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_IN_CONF1, 0x10, 0);
++		break;
++
++	default:
++		return -EINVAL;
++	}
++
++	// reset DSP
++	tda1004x_write_mask(i2c, tda_state, TDA1004X_CONFC4, 8, 8);
++	tda1004x_write_mask(i2c, tda_state, TDA1004X_CONFC4, 8, 0);
++	dvb_delay(10);
++
++	// done
 +	return 0;
 +}
 +
-+/////////////////////////////////////////////////////////////////////
-+//                      LNB control
-+/////////////////////////////////////////////////////////////////////
 +
-+void set_tuner_tone(struct adapter *adapter, u8 tone)
++static int tda1004x_get_fe(struct dvb_i2c_bus *i2c, struct tda1004x_state* tda_state, struct dvb_frontend_parameters *fe_params)
 +{
-+	u16 wzHalfPeriodFor45MHz[] = { 0x01FF, 0x0154, 0x00FF, 0x00CC };
-+	u16 ax;
 +
-+	dprintk("%s: %u\n", __FUNCTION__, tone);
++	dprintk("%s\n", __FUNCTION__);
 +
-+	switch (tone) {
++	// inversion status
++	fe_params->inversion = INVERSION_OFF;
++	if (tda1004x_read_byte(i2c, tda_state, TDA1004X_CONFC1) & 0x20) {
++		fe_params->inversion = INVERSION_ON;
++	}
++
++	// bandwidth
++	switch (tda1004x_read_byte(i2c, tda_state, TDA1004X_WREF_LSB)) {
++	case 0x14:
++		fe_params->u.ofdm.bandwidth = BANDWIDTH_8_MHZ;
++		break;
++	case 0xdb:
++		fe_params->u.ofdm.bandwidth = BANDWIDTH_7_MHZ;
++		break;
++	case 0x4f:
++		fe_params->u.ofdm.bandwidth = BANDWIDTH_6_MHZ;
++		break;
++	}
++
++	// FEC
++	fe_params->u.ofdm.code_rate_HP =
++	    tda1004x_decode_fec(tda1004x_read_byte(i2c, tda_state, TDA1004X_OUT_CONF2) & 7);
++	fe_params->u.ofdm.code_rate_LP =
++	    tda1004x_decode_fec((tda1004x_read_byte(i2c, tda_state, TDA1004X_OUT_CONF2) >> 3) & 7);
++
++	// constellation
++	switch (tda1004x_read_byte(i2c, tda_state, TDA1004X_OUT_CONF1) & 3) {
++	case 0:
++		fe_params->u.ofdm.constellation = QPSK;
++		break;
 +	case 1:
-+		ax = wzHalfPeriodFor45MHz[0];
++		fe_params->u.ofdm.constellation = QAM_16;
 +		break;
 +	case 2:
-+		ax = wzHalfPeriodFor45MHz[1];
++		fe_params->u.ofdm.constellation = QAM_64;
++		break;
++	}
++
++	// transmission mode
++	fe_params->u.ofdm.transmission_mode = TRANSMISSION_MODE_2K;
++	if (tda1004x_read_byte(i2c, tda_state, TDA1004X_OUT_CONF1) & 0x10) {
++		fe_params->u.ofdm.transmission_mode = TRANSMISSION_MODE_8K;
++	}
++
++	// guard interval
++	switch ((tda1004x_read_byte(i2c, tda_state, TDA1004X_OUT_CONF1) & 0x0c) >> 2) {
++	case 0:
++		fe_params->u.ofdm.guard_interval = GUARD_INTERVAL_1_32;
++		break;
++	case 1:
++		fe_params->u.ofdm.guard_interval = GUARD_INTERVAL_1_16;
++		break;
++	case 2:
++		fe_params->u.ofdm.guard_interval = GUARD_INTERVAL_1_8;
 +		break;
 +	case 3:
-+		ax = wzHalfPeriodFor45MHz[2];
++		fe_params->u.ofdm.guard_interval = GUARD_INTERVAL_1_4;
 +		break;
-+	case 4:
-+		ax = wzHalfPeriodFor45MHz[3];
-+		break;
-+
-+	default:
-+		ax = 0;
 +	}
 +
-+	if (ax != 0) {
-+		WriteRegDW(adapter, 0x200, ((ax << 0x0F) + (ax & 0x7FFF)) | 0x40000000);
++	// hierarchy
++	switch ((tda1004x_read_byte(i2c, tda_state, TDA1004X_OUT_CONF1) & 0x60) >> 5) {
++	case 0:
++		fe_params->u.ofdm.hierarchy_information = HIERARCHY_NONE;
++		break;
++	case 1:
++		fe_params->u.ofdm.hierarchy_information = HIERARCHY_1;
++		break;
++	case 2:
++		fe_params->u.ofdm.hierarchy_information = HIERARCHY_2;
++		break;
++	case 3:
++		fe_params->u.ofdm.hierarchy_information = HIERARCHY_4;
++		break;
++	}
 +
++	// done
++	return 0;
++}
++
++
++static int tda1004x_read_status(struct dvb_i2c_bus *i2c, struct tda1004x_state* tda_state, fe_status_t * fe_status)
++{
++	int status;
++        int cber;
++        int vber;
++
++	dprintk("%s\n", __FUNCTION__);
++
++	// read status
++	status = tda1004x_read_byte(i2c, tda_state, TDA1004X_STATUS_CD);
++	if (status == -1) {
++		return -EIO;
++	}
++
++        // decode
++	*fe_status = 0;
++        if (status & 4) *fe_status |= FE_HAS_SIGNAL;
++        if (status & 2) *fe_status |= FE_HAS_CARRIER;
++        if (status & 8) *fe_status |= FE_HAS_VITERBI | FE_HAS_SYNC | FE_HAS_LOCK;
++
++        // if we don't already have VITERBI (i.e. not LOCKED), see if the viterbi
++        // is getting anything valid
++        if (!(*fe_status & FE_HAS_VITERBI)) {
++                // read the CBER
++                cber = tda1004x_read_byte(i2c, tda_state, TDA1004X_CBER_LSB);
++                if (cber == -1) return -EIO;
++                status = tda1004x_read_byte(i2c, tda_state, TDA1004X_CBER_MSB);
++                if (status == -1) return -EIO;
++                cber |= (status << 8);
++                tda1004x_read_byte(i2c, tda_state, TDA1004X_CBER_RESET);
++
++                if (cber != 65535) {
++                        *fe_status |= FE_HAS_VITERBI;
++                }
++        }
++
++        // if we DO have some valid VITERBI output, but don't already have SYNC
++        // bytes (i.e. not LOCKED), see if the RS decoder is getting anything valid.
++        if ((*fe_status & FE_HAS_VITERBI) && (!(*fe_status & FE_HAS_SYNC))) {
++                // read the VBER
++                vber = tda1004x_read_byte(i2c, tda_state, TDA1004X_VBER_LSB);
++                if (vber == -1) return -EIO;
++                status = tda1004x_read_byte(i2c, tda_state, TDA1004X_VBER_MID);
++                if (status == -1) return -EIO;
++                vber |= (status << 8);
++                status = tda1004x_read_byte(i2c, tda_state, TDA1004X_VBER_MSB);
++                if (status == -1) return -EIO;
++                vber |= ((status << 16) & 0x0f);
++                tda1004x_read_byte(i2c, tda_state, TDA1004X_CVBER_LUT);
++
++                // if RS has passed some valid TS packets, then we must be
++                // getting some SYNC bytes
++                if (vber < 16632) {
++                        *fe_status |= FE_HAS_SYNC;
++                }
++        }
++
++	// success
++	dprintk("%s: fe_status=0x%x\n", __FUNCTION__, *fe_status);
++	return 0;
++}
++
++static int tda1004x_read_signal_strength(struct dvb_i2c_bus *i2c, struct tda1004x_state* tda_state, u16 * signal)
++{
++	int tmp;
++
++	dprintk("%s\n", __FUNCTION__);
++
++	// read it
++	tmp = tda1004x_read_byte(i2c, tda_state, TDA1004X_SIGNAL_STRENGTH);
++	if (tmp < 0)
++		return -EIO;
++
++	// done
++	*signal = (tmp << 8) | tmp;
++	dprintk("%s: signal=0x%x\n", __FUNCTION__, *signal);
++	return 0;
++}
++
++
++static int tda1004x_read_snr(struct dvb_i2c_bus *i2c, struct tda1004x_state* tda_state, u16 * snr)
++{
++	int tmp;
++
++	dprintk("%s\n", __FUNCTION__);
++
++	// read it
++	tmp = tda1004x_read_byte(i2c, tda_state, TDA1004X_SNR);
++	if (tmp < 0)
++		return -EIO;
++        if (tmp) {
++                tmp = 255 - tmp;
++        }
++
++        // done
++	*snr = ((tmp << 8) | tmp);
++	dprintk("%s: snr=0x%x\n", __FUNCTION__, *snr);
++	return 0;
++}
++
++static int tda1004x_read_ucblocks(struct dvb_i2c_bus *i2c, struct tda1004x_state* tda_state, u32* ucblocks)
++{
++	int tmp;
++	int tmp2;
++	int counter;
++
++	dprintk("%s\n", __FUNCTION__);
++
++	// read the UCBLOCKS and reset
++	counter = 0;
++	tmp = tda1004x_read_byte(i2c, tda_state, TDA1004X_UNCOR);
++	if (tmp < 0)
++		return -EIO;
++        tmp &= 0x7f;
++	while (counter++ < 5) {
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_UNCOR, 0x80, 0);
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_UNCOR, 0x80, 0);
++		tda1004x_write_mask(i2c, tda_state, TDA1004X_UNCOR, 0x80, 0);
++
++		tmp2 = tda1004x_read_byte(i2c, tda_state, TDA1004X_UNCOR);
++		if (tmp2 < 0)
++			return -EIO;
++		tmp2 &= 0x7f;
++		if ((tmp2 < tmp) || (tmp2 == 0))
++			break;
++	}
++
++	// done
++	if (tmp != 0x7f) {
++		*ucblocks = tmp;
 +	} else {
-+
-+		WriteRegDW(adapter, 0x200, 0x40FF8000);
++		*ucblocks = 0xffffffff;
 +	}
++	dprintk("%s: ucblocks=0x%x\n", __FUNCTION__, *ucblocks);
++	return 0;
 +}
 +
-+void set_tuner_polarity(struct adapter *adapter, u8 polarity)
++static int tda1004x_read_ber(struct dvb_i2c_bus *i2c, struct tda1004x_state* tda_state, u32* ber)
 +{
-+	u32 var;
++        int tmp;
 +
-+	dprintk("%s : polarity = %u \n", __FUNCTION__, polarity);
++	dprintk("%s\n", __FUNCTION__);
 +
-+	var = ReadRegDW(adapter, 0x204);
++	// read it in
++        tmp = tda1004x_read_byte(i2c, tda_state, TDA1004X_CBER_LSB);
++        if (tmp < 0) return -EIO;
++        *ber = tmp << 1;
++        tmp = tda1004x_read_byte(i2c, tda_state, TDA1004X_CBER_MSB);
++        if (tmp < 0) return -EIO;
++        *ber |= (tmp << 9);
++        tda1004x_read_byte(i2c, tda_state, TDA1004X_CBER_RESET);
 +
-+	if (polarity == 0) {
-+		dprintk("%s: LNB power off\n", __FUNCTION__);
-+		var = var | 1;
-+	};
-+
-+	if (polarity == 1) {
-+		var = var & ~1;
-+		var = var & ~4;
-+	};
-+
-+	if (polarity == 2) {
-+		var = var & ~1;
-+		var = var | 4;
-+	}
-+
-+	WriteRegDW(adapter, 0x204, var);
++	// done
++	dprintk("%s: ber=0x%x\n", __FUNCTION__, *ber);
++	return 0;
 +}
 +
-+static int flexcop_diseqc_ioctl(struct dvb_frontend *fe, unsigned int cmd, void *arg)
++
++static int tda1004x_ioctl(struct dvb_frontend *fe, unsigned int cmd, void *arg)
 +{
-+	struct adapter *adapter = fe->before_after_data;
++	int status = 0;
++	struct dvb_i2c_bus *i2c = fe->i2c;
++	struct tda1004x_state *tda_state = (struct tda1004x_state *) &(fe->data);
++
++	dprintk("%s: cmd=0x%x\n", __FUNCTION__, cmd);
 +
 +	switch (cmd) {
-+	case FE_SLEEP:
-+		{
-+			printk("%s: FE_SLEEP\n", __FUNCTION__);
++	case FE_GET_INFO:
++                switch(tda_state->tda1004x_address) {
++                case TDA10045H_ADDRESS:
++        		memcpy(arg, &tda10045h_info, sizeof(struct dvb_frontend_info));
++                        break;
++                }
++		break;
 +
-+			set_tuner_polarity(adapter, 0);
++	case FE_READ_STATUS:
++		return tda1004x_read_status(i2c, tda_state, (fe_status_t *) arg);
 +
-+			// return -EOPNOTSUPP, to make DVB core also send "FE_SLEEP" command to frontend.
-+			return -EOPNOTSUPP;
-+		}
++	case FE_READ_BER:
++		return tda1004x_read_ber(i2c, tda_state, (u32 *) arg);
 +
-+	case FE_SET_VOLTAGE:
-+		{
-+			dprintk("%s: FE_SET_VOLTAGE\n", __FUNCTION__);
++	case FE_READ_SIGNAL_STRENGTH:
++		return tda1004x_read_signal_strength(i2c, tda_state, (u16 *) arg);
 +
-+			switch ((fe_sec_voltage_t) arg) {
-+			case SEC_VOLTAGE_13:
++	case FE_READ_SNR:
++		return tda1004x_read_snr(i2c, tda_state, (u16 *) arg);
 +
-+				printk("%s: SEC_VOLTAGE_13, %x\n", __FUNCTION__, SEC_VOLTAGE_13);
++	case FE_READ_UNCORRECTED_BLOCKS:
++		return tda1004x_read_ucblocks(i2c, tda_state, (u32 *) arg);
 +
-+				set_tuner_polarity(adapter, 1);
++	case FE_SET_FRONTEND:
++		return tda1004x_set_fe(i2c, tda_state, (struct dvb_frontend_parameters*) arg);
 +
-+				break;
++	case FE_GET_FRONTEND:
++		return tda1004x_get_fe(i2c, tda_state, (struct dvb_frontend_parameters*) arg);
 +
-+			case SEC_VOLTAGE_18:
++	case FE_INIT:
++		// don't bother reinitialising
++		if (tda_state->initialised)
++			return 0;
 +
-+				printk("%s: SEC_VOLTAGE_18, %x\n", __FUNCTION__, SEC_VOLTAGE_18);
-+
-+				set_tuner_polarity(adapter, 2);
-+
-+				break;
-+
-+			default:
-+
-+				return -EINVAL;
-+			};
-+
-+			break;
-+		}
-+
-+	case FE_SET_TONE:
-+		{
-+			dprintk("%s: FE_SET_TONE\n", __FUNCTION__);
-+
-+			switch ((fe_sec_tone_mode_t) arg) {
-+			case SEC_TONE_ON:
-+
-+				printk("%s: SEC_TONE_ON, %x\n", __FUNCTION__, SEC_TONE_ON);
-+
-+				set_tuner_tone(adapter, 1);
-+
-+				break;
-+
-+			case SEC_TONE_OFF:
-+
-+				printk("%s: SEC_TONE_OFF, %x\n", __FUNCTION__, SEC_TONE_OFF);
-+
-+				set_tuner_tone(adapter, 0);
-+
-+				break;
-+
-+			default:
-+
-+				return -EINVAL;
-+			};
-+
-+			break;
-+		}
++		// OK, perform initialisation
++                status = tda1004x_init(i2c, tda_state);
++		if (status == 0)
++			tda_state->initialised = 1;
++		return status;
 +
 +	default:
-+
 +		return -EOPNOTSUPP;
-+	};
-+
-+	return 0;
-+}
-+
-+static int skystar2_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
-+{
-+	struct adapter *adapter;
-+	struct dvb_adapter *dvb_adapter;
-+	struct dvb_demux *dvbdemux;
-+
-+	int ret;
-+
-+	if (pdev == NULL)
-+		return -ENODEV;
-+
-+	if (DriverInitialize(pdev) != 1)
-+		return -ENODEV;
-+
-+	dvb_register_adapter(&dvb_adapter, pdev->name);
-+
-+	if (dvb_adapter == NULL) {
-+		printk("%s: Error registering DVB adapter\n", __FUNCTION__);
-+
-+		DriverHalt(pdev);
-+
-+		return -ENODEV;
 +	}
 +
-+	adapter = (struct adapter *) pdev->driver_data;
-+
-+	adapter->dvb_adapter = dvb_adapter;
-+
-+	init_MUTEX(&adapter->i2c_sem);
-+
-+	adapter->i2c_bus = dvb_register_i2c_bus(master_xfer, adapter, adapter->dvb_adapter, 0);
-+
-+	if (!adapter->i2c_bus)
-+		return -ENOMEM;
-+
-+	dvb_add_frontend_ioctls(adapter->dvb_adapter, flexcop_diseqc_ioctl, NULL, adapter);
-+
-+	dvbdemux = &adapter->demux;
-+
-+	dvbdemux->priv = (void *) adapter;
-+	dvbdemux->filternum = 32;
-+	dvbdemux->feednum = 32;
-+	dvbdemux->start_feed = dvb_start_feed;
-+	dvbdemux->stop_feed = dvb_stop_feed;
-+	dvbdemux->write_to_decoder = 0;
-+	dvbdemux->dmx.capabilities = (DMX_TS_FILTERING | DMX_SECTION_FILTERING | DMX_MEMORY_BASED_FILTERING);
-+
-+	dvb_dmx_init(&adapter->demux);
-+
-+	adapter->hw_frontend.source = DMX_FRONTEND_0;
-+
-+	adapter->dmxdev.filternum = 32;
-+	adapter->dmxdev.demux = &dvbdemux->dmx;
-+	adapter->dmxdev.capabilities = 0;
-+
-+	dvb_dmxdev_init(&adapter->dmxdev, adapter->dvb_adapter);
-+
-+	ret = dvbdemux->dmx.add_frontend(&dvbdemux->dmx, &adapter->hw_frontend);
-+	if (ret < 0)
-+		return ret;
-+
-+	adapter->mem_frontend.source = DMX_MEMORY_FE;
-+
-+	ret = dvbdemux->dmx.add_frontend(&dvbdemux->dmx, &adapter->mem_frontend);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = dvbdemux->dmx.connect_frontend(&dvbdemux->dmx, &adapter->hw_frontend);
-+	if (ret < 0)
-+		return ret;
-+
-+	dvb_net_init(adapter->dvb_adapter, &adapter->dvbnet, &dvbdemux->dmx);
 +	return 0;
 +}
 +
-+static void skystar2_remove(struct pci_dev *pdev)
++
++static int tda1004x_attach(struct dvb_i2c_bus *i2c)
 +{
-+	struct adapter *adapter;
-+	struct dvb_demux *dvbdemux;
++        int tda1004x_address = -1;
++	int tuner_address = -1;
++	struct tda1004x_state tda_state;
++	struct i2c_msg tuner_msg = {.addr=0, .flags=0, .buf=0, .len=0 };
++        static u8 td1344_init[] = { 0x0b, 0xf5, 0x88, 0xab };
++        static u8 tdm1316l_init[] = { 0x0b, 0xf5, 0x85, 0xab };
 +
-+	if (pdev == NULL)
-+		return;
++	dprintk("%s\n", __FUNCTION__);
 +
-+	adapter = pci_get_drvdata(pdev);
++	// probe for frontend
++        tda_state.tda1004x_address = TDA10045H_ADDRESS;
++	if (tda1004x_read_byte(i2c, &tda_state, TDA1004X_CHIPID) == 0x25) {
++                tda1004x_address = TDA10045H_ADDRESS;
++                printk("tda1004x: Detected Philips TDA10045H.\n");
++        }
 +
-+	if (adapter != NULL) {
-+		dvb_net_release(&adapter->dvbnet);
-+		dvbdemux = &adapter->demux;
++        // did we find a frontend?
++        if (tda1004x_address == -1) {
++		return -ENODEV;
++        }
 +
-+		dvbdemux->dmx.close(&dvbdemux->dmx);
-+		dvbdemux->dmx.remove_frontend(&dvbdemux->dmx, &adapter->hw_frontend);
-+		dvbdemux->dmx.remove_frontend(&dvbdemux->dmx, &adapter->mem_frontend);
-+
-+		dvb_dmxdev_release(&adapter->dmxdev);
-+		dvb_dmx_release(&adapter->demux);
-+
-+		if (adapter->dvb_adapter != NULL) {
-+			dvb_remove_frontend_ioctls(adapter->dvb_adapter, flexcop_diseqc_ioctl, NULL);
-+
-+			if (adapter->i2c_bus != NULL)
-+				dvb_unregister_i2c_bus(master_xfer, adapter->i2c_bus->adapter, adapter->i2c_bus->id);
-+
-+			dvb_unregister_adapter(adapter->dvb_adapter);
++	// supported tuner?
++	tda1004x_enable_tuner_i2c(i2c, &tda_state);
++	tuner_msg.addr = TD1344_ADDRESS;
++	tuner_msg.buf = td1344_init;
++	tuner_msg.len = sizeof(td1344_init);
++	if (i2c->xfer(i2c, &tuner_msg, 1) == 1) {
++                dvb_delay(1);
++		tuner_address = TD1344_ADDRESS;
++		printk("tda1004x: Detected Philips TD1344 tuner. PLEASE CHECK THIS AND REPORT BACK!.\n");
++	} else {
++		tuner_msg.addr = TDM1316L_ADDRESS;
++                tuner_msg.buf = tdm1316l_init;
++                tuner_msg.len = sizeof(tdm1316l_init);
++                if (i2c->xfer(i2c, &tuner_msg, 1) == 1) {
++                        dvb_delay(1);
++			tuner_address = TDM1316L_ADDRESS;
++			printk("tda1004x: Detected Philips TDM1316L tuner.\n");
 +		}
-+
-+		DriverHalt(pdev);
 +	}
++	tda1004x_disable_tuner_i2c(i2c, &tda_state);
++
++	// did we find a tuner?
++	if (tuner_address == -1) {
++		printk("tda1004x: Detected, but with unknown tuner.\n");
++		return -ENODEV;
++	}
++
++        // create state
++        tda_state.tda1004x_address = tda1004x_address;
++	tda_state.tuner_address = tuner_address;
++	tda_state.initialised = 0;
++
++	// register
++        switch(tda_state.tda1004x_address) {
++        case TDA10045H_ADDRESS:
++        	dvb_register_frontend(tda1004x_ioctl, i2c, (void *)(*((u32*) &tda_state)), &tda10045h_info);
++                break;
++        }
++
++	// success
++	return 0;
 +}
 +
-+static struct pci_device_id skystar2_pci_tbl[] = {
-+	{0x000013D0, 0x00002103, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000},
-+	{0,},
-+};
 +
-+static struct pci_driver skystar2_pci_driver = {
-+	.name = "Technisat SkyStar2 driver",
-+	.id_table = skystar2_pci_tbl,
-+	.probe = skystar2_probe,
-+	.remove = skystar2_remove,
-+};
-+
-+static int skystar2_init(void)
++static
++void tda1004x_detach(struct dvb_i2c_bus *i2c)
 +{
-+	printk("\nTechnisat SkyStar2 driver loading\n");
++	dprintk("%s\n", __FUNCTION__);
 +
-+	return pci_module_init(&skystar2_pci_driver);
++	dvb_unregister_frontend(tda1004x_ioctl, i2c);
 +}
 +
-+static void skystar2_cleanup(void)
++
++static
++int __init init_tda1004x(void)
 +{
-+	printk("\nTechnisat SkyStar2 driver unloading\n");
-+
-+	pci_unregister_driver(&skystar2_pci_driver);
++	return dvb_register_i2c_device(THIS_MODULE, tda1004x_attach, tda1004x_detach);
 +}
 +
-+module_init(skystar2_init);
-+module_exit(skystar2_cleanup);
 +
-+MODULE_DESCRIPTION("Technisat SkyStar2 DVB PCI Driver");
++static
++void __exit exit_tda1004x(void)
++{
++	dvb_unregister_i2c_device(tda1004x_attach);
++}
++
++module_init(init_tda1004x);
++module_exit(exit_tda1004x);
++
++MODULE_DESCRIPTION("Philips TDA10045H DVB-T Frontend");
++MODULE_AUTHOR("Andrew de Quincey & Robert Schlabbach");
 +MODULE_LICENSE("GPL");
-+EXPORT_NO_SYMBOLS;
++
++MODULE_PARM(tda1004x_debug, "i");
++MODULE_PARM_DESC(tda1004x_debug, "enable verbose debug messages");
++
++MODULE_PARM(tda1004x_firmware, "s");
++MODULE_PARM_DESC(tda1004x_firmware, "Where to find the firmware file");
 

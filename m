@@ -1,78 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268169AbUIGQMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268240AbUIGQJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268169AbUIGQMm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 12:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268247AbUIGQKA
+	id S268240AbUIGQJe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 12:09:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268169AbUIGQIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 12:10:00 -0400
-Received: from odin.allegientsystems.com ([208.251.178.227]:49672 "EHLO
-	pegasus.lawaudit.com") by vger.kernel.org with ESMTP
-	id S268200AbUIGQJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 12:09:27 -0400
-Message-ID: <413DDD33.8020007@optonline.net>
-Date: Tue, 07 Sep 2004 12:09:23 -0400
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040806
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kernel list <linux-kernel@vger.kernel.org>,
-       David Ford <david+challenge-response@blue-labs.org>
-Subject: Re: swsuspend still breaks 3c905, 2.6.7
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Sep 2004 12:08:46 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:14566 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S268230AbUIGPeV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 11:34:21 -0400
+Date: Tue, 7 Sep 2004 17:34:18 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Einar Lueck <elueck@de.ibm.com>
+Cc: Paul Jakma <paul@clubi.ie>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net/ipv4 for Source VIPA support, kernel BK Head
+Message-ID: <20040907153418.GC19354@MAIL.13thfloor.at>
+Mail-Followup-To: Einar Lueck <elueck@de.ibm.com>,
+	Paul Jakma <paul@clubi.ie>, linux-kernel@vger.kernel.org
+References: <200409011441.10154.elueck@de.ibm.com> <200409021858.38338.elueck@de.ibm.com> <Pine.LNX.4.61.0409022147220.23011@fogarty.jakma.org> <200409031007.29467.elueck@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409031007.29467.elueck@de.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford wrote:
-> Suspend and the 3com card becomes useless.  Have to remove the module or 
-> reboot. Seems to be a pretty common and long-standing bug with the power 
-> management and has been around since at least the middle 2.5.xx 
-> kernels.  And it seems it's also in 2.4.x.
+On Fri, Sep 03, 2004 at 10:07:29AM +0200, Einar Lueck wrote:
+> On Donnerstag, 2. September 2004 22:59 Paul Jakma wrote:
+> > 
+> > I dont see why it wouldnt work, it almost undoubtedly will work for 
+> > NFS over TCP. And any problems to cause it to not work would be best 
+> > taking up on the linux-nfs list in order to have a "bind to address" 
+> > option added to knfsd.
+> 
+> I just set up the loopback interface via ZEBRA/OSPF as You described it 
+> and checked via tcpdump the source IP address of the related NFS packets.
+> The kernel chooses the IP address of the NIC he routes the packets over as
+> the source IP address and not the Source VIPA configured for loopback.  
+> 
+> You are right, it would be one option to have a "bind to address" in KNFSD.
+> But our idea was to implement a feature well known from other operating 
+> systems like AIX to Linux because this feature is quite popular and liked 
+> especially by large customers.  As You have read for sure such a feature
+> adding redundant functionality to the kernel is not desired. So maybe we
+> should continue our discussion privately. Thanks for Your suggestions!
+> 
+> > 
+> > Why could it not be solved? And why is the answer not "ask the knfsd 
+> > people to provide bind-to-ip option"?
+> > 
+> 
+> We would win a facility allowing for a Source VIPA for all
+> kinds of servers not offering an explicit bind option. So: Due to the 
+> feature port idea mentioned above.
 
-Please test the latest 2.6.9-rc1-mm tree; I've got a patch in there for 
-this problem.
+btw, something very similar is implemented and used
+by linux-vserver (it's called chbind) to restrict
+0.0.0.0 (IADDR_ANY) binds to specified address(es)
 
-Nathan
+if you need more details, just let me know ...
 
+best,
+Herbert
+
+> > But on a server, the packets that go out tend to be replies to 
+> > requests. Or at least, the only packets of interest are replies. It's 
+> > a rare server that just off its own bat goes and talks to clients 
+> > which have not communicated first with the server before.
 > 
-> NETDEV WATCHDOG: eth0: transmit timed out
-> eth0: transmit timed out, tx_status ff status ffff.
->   diagnostics: net ffff media ffff dma ffffffff fifo ffff
-> eth0: Transmitter encountered 16 collisions -- network cable problem?
-> eth0: Interrupt posted but not delivered -- IRQ blocked by another device?
->   Flags; bus-master 1, dirty 0(0) current 16(0)
->   Transmit list ffffffff vs. e4aae200.
-> eth0: command 0x3002 did not complete! Status=0xffff
->   0: @e4aae200  length 8000002a status 0000002a
->   1: @e4aae2a0  length 8000002a status 0000002a
->   2: @e4aae340  length 8000002a status 0000002a
->   3: @e4aae3e0  length 8000002a status 0000002a
->   4: @e4aae480  length 8000004c status 0000004c
->   5: @e4aae520  length 8000002a status 0000002a
->   6: @e4aae5c0  length 8000002a status 0000002a
->   7: @e4aae660  length 8000002a status 0000002a
->   8: @e4aae700  length 8000002a status 0000002a
->   9: @e4aae7a0  length 8000004c status 0000004c
->   10: @e4aae840  length 8000002a status 0000002a
->   11: @e4aae8e0  length 8000002a status 0000002a
->   12: @e4aae980  length 8000002a status 0000002a
->   13: @e4aaea20  length 8000002a status 0000002a
->   14: @e4aaeac0  length 8000004c status 8000004c
->   15: @e4aaeb60  length 8000002a status 8000002a
-> eth0: command 0x5800 did not complete! Status=0xffff
-> eth0: Resetting the Tx ring pointer.
+> The enterprise customers we care about have for example servers
+> that utilize other servers (application servers utilizing a database or
+> a NFS server, etc.). So to generate replies these servers need
+> replies of other servers .
 > 
+> > 
+> > Anyway, even if the server for some reason initiated traffic, the 
+> > correct answer surely is "modify the server to bind to a specific 
+> > address", no?
 > 
-> Chris root # lspci -v -s 2:0.0
-> 02:00.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] 
-> (rev 78)
->         Subsystem: Dell Computer Corporation: Unknown device 00d4
->         Flags: bus master, medium devsel, latency 32, IRQ 11
->         I/O ports at ec80 [size=128]
->         Memory at f8fffc00 (32-bit, non-prefetchable) [size=128]
->         Expansion ROM at f9000000 [disabled] [size=128K]
->         Capabilities: [dc] Power Management version 2
+> As mentioned above ;)
 > 
+> > 
+> > > Bonding offers a failover facility. For more details, please refer to:
+> > > Documentation/networking/bonding.txt in the kernel tree.
+> > 
+> > Right, but what does bonding (layer 2) have to do with virtual IPs 
+> > and IP source address?
+> > 
 > 
-> David
+> If we focus for a moment just on the NIC-fail-over issue (not caring 
+> about layers, virtual IPs, etc.) then bonding offers the desired failover with
+> some restriction. This is the reason why I mentioned it in this context.
 > 
+> Again, thanks for Your suggestions and maybe we should continue our 
+> discussion privately.
+> 
+> Regards
+> 
+> Einar.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

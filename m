@@ -1,90 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279438AbRJ2UJj>; Mon, 29 Oct 2001 15:09:39 -0500
+	id <S279449AbRJ2UVB>; Mon, 29 Oct 2001 15:21:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279444AbRJ2UJa>; Mon, 29 Oct 2001 15:09:30 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:1668 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S279442AbRJ2UJN>; Mon, 29 Oct 2001 15:09:13 -0500
-Message-ID: <009e01c160b5$e48038c0$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "Urban Widmark" <urban@teststation.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0110291847420.21339-100000@cola.teststation.com>
-Subject: Re: via-rhine and MMIO
-Date: Mon, 29 Oct 2001 21:11:27 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S279446AbRJ2UUv>; Mon, 29 Oct 2001 15:20:51 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62473 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S279449AbRJ2UUk>;
+	Mon, 29 Oct 2001 15:20:40 -0500
+Date: Mon, 29 Oct 2001 20:21:16 +0000
+From: Joel Becker <jlbec@evilplan.org>
+To: Alex Deucher <agd5f@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: opl3sa2 sound driver and mixers
+Message-ID: <20011029202116.I2878@parcelfarce.linux.theplanet.co.uk>
+Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
+	Alex Deucher <agd5f@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011029193932.64498.qmail@web11301.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011029193932.64498.qmail@web11301.mail.yahoo.com>; from agd5f@yahoo.com on Mon, Oct 29, 2001 at 11:39:32AM -0800
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Urban Widmark" <urban@teststation.com>
-To: "Martin Eriksson" <nitrax@giron.wox.org>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, October 29, 2001 7:13 PM
-Subject: Re: via-rhine and MMIO
+On Mon, Oct 29, 2001 at 11:39:32AM -0800, Alex Deucher wrote:
+> I have a toshiba portege 3020ct and a libretto 50ct
+> with a opl3sa2 sound chips.  The modules load ok and
+> sound works, but an extra mixer seems to always load. 
 
+	Yeah, I see this too, "MS Sound System (CS4231)".  Toshiba Tecra
+8000.  2.4.10-ac10.  I will say that this is still an improvement over
+the "opl3sa2 doesn't work in 2.4" bit.
 
-> On Mon, 29 Oct 2001, Martin Eriksson wrote:
->
-> > I have done some changes to the via-rhine driver in 2.4.13 to be able to
-run
-> > with MMIO. I know it isn't really needed but I do it mainly for fun &
-> > learning.
->
-> Any measurable performance difference?
+Joel
 
-I don't think so, it would be slightly less latency, but as via-rhine needs
-to copy the data anyway...
+-- 
 
->
-> Any important changes from the driver that used to be on
->     http://www.cs.umu.se/~c97men/linux ?
-> (I have a copy of "v1.03a ME1.0 3/12/00")
+Life's Little Instruction Book #94
 
-Yes _I_ have matured a bit =) And the new driver does not choose between
-MMIO/PORTIO at runtime, because most other drivers seem to select this via
-CONFIG_ directives.
+	"Make it a habit to do nice things for people who 
+	 will never find out."
 
->
->
-> > /* Reload the station address from the EEPROM. */
-> > writeb(0x20, ioaddr + MACRegEEcsr);
-> > /* Typically 2 cycles to reload. */
-> > for (i = 0; i < 150; i++)
-> >     if (! (readb(ioaddr + MACRegEEcsr) & 0x20))
-> >         break;
-> > ...
-> >
-> > If I run this code when I'm using MMIO, I get a hardware adress of
-> > "ff:ff:ff:ff:ff:ff" instead of the right one (and everything craps up).
-But
-> > when I comment out this part all is fine. So what's it needed for
-anyway?
->
-> It is needed on some cards when rebooting from some other OSes that power
-> down the card (eg vt6102 chips on win98). The writeb causes the chip
-> itself to reload the hardware address from eeprom. Perhaps it no longer
-> finds the eeprom and just reads 0xff from some unmapped memory space.
->
-> Does it work to enable MMIO after the reset code?
-
-I'll check that out, and if all works fine I'll release a patch. By the way,
-how *do* you measure network performance the best way? What I have done now
-is only to stress test the driver, by copying a 400MB file from my Windows
-machine to /dev/null and at the same time recieving a 400MB file over FTP
-from my Sun Sparc which is bridged on another via-rhine.
-
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
-
-
+			http://www.jlbec.org/
+			jlbec@evilplan.org

@@ -1,144 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265266AbUAESoR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 13:44:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbUAESoR
+	id S265269AbUAESsK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 13:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265292AbUAESsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 13:44:17 -0500
-Received: from main.gmane.org ([80.91.224.249]:38112 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265266AbUAESoI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 13:44:08 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [ANNOUNCE] 2004-01-05 release of hotplug scripts
-Date: Mon, 05 Jan 2004 19:43:58 +0100
-Message-ID: <yw1x8ykm2q35.fsf@ford.guide>
-References: <20040105183058.GA22066@kroah.com>
+	Mon, 5 Jan 2004 13:48:10 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:62878 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265269AbUAESsF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 13:48:05 -0500
+Date: Mon, 5 Jan 2004 10:47:41 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Alex Buell <alex.buell@munted.org.uk>, linux-kernel@vger.kernel.org,
+       riel@redhat.com, arjanv@redhat.com
+Subject: Re: inode_cache / dentry_cache not being reclaimed aggressively enough  on low-memory PCs
+Message-ID: <20040105184741.GA1882@matchmail.com>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Alex Buell <alex.buell@munted.org.uk>, linux-kernel@vger.kernel.org,
+	riel@redhat.com, arjanv@redhat.com
+References: <Pine.LNX.4.58.0401031128100.2605@slut.local.munted.org.uk> <20040103103023.77bf91b5.jlash@speakeasy.net> <20040103145557.369a12c4.akpm@osdl.org> <Pine.LNX.4.58.0401040014360.4975@slut.local.munted.org.uk> <20040103190543.3b2d917f.akpm@osdl.org> <20040104072312.GM1882@matchmail.com> <Pine.LNX.4.58L.0401051531040.5618@logos.cnet>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:HXKWgVxGzPmK4bvAekrbthnbT8w=
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       linux-usb-devel@lists.sourceforge.net,
-       linux-usb-users@lists.sourceforge.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58L.0401051531040.5618@logos.cnet>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Mon, Jan 05, 2004 at 03:32:57PM -0200, Marcelo Tosatti wrote:
+> 
+> 
+> On Sat, 3 Jan 2004, Mike Fedyk wrote:
+> > Also, if there are any improvements considered for the 2.4 VM, it should be
+> > on top of the -aa series.  That's where the latest updates are, and it
+> > doesn't make sence to work from a base that already has seperate
+> > improvements available.
+> 
+> The fix in -aa seems to reclaim inodes very aggressively. The 2.4 RH tree
+> seems to contain a better version. Need to look into that.
 
-Greg KH <greg@kroah.com> writes:
+http://www.matchmail.com/stats/lrrd/matchmail.com/fileserver.matchmail.com-memory.html
 
-> This release is recommended for _anyone_ using the 2.6.0 and beyond
-> kernels who is still using hotplug scripts older than 2003_08_05, as a
-> number of changes have been made in order to support the 2.6 kernel
-> properly.
+Comparing[1] week 51 (2.4.23-rc5), and week 01 (2.4.23-aa1) would show that the
+slab cache can grow larger for the same workload in -aa right now.
 
-This patch makes things work better on my laptop running linux
-2.6.1-rc1.  Most likely it can be done in a better way.
-
-
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=hotplug-linux2.6.diff
-
-Index: etc/hotplug/hotplug.functions
-===================================================================
-RCS file: /cvsroot/linux-hotplug/admin/etc/hotplug/hotplug.functions,v
-retrieving revision 1.22
-diff -u -r1.22 hotplug.functions
---- etc/hotplug/hotplug.functions	7 Oct 2003 21:15:38 -0000	1.22
-+++ etc/hotplug/hotplug.functions	5 Jan 2004 18:33:33 -0000
-@@ -139,7 +139,7 @@
-     do
- 	# maybe driver modules need loading
-         LOADED=false
--	if ! lsmod | grep -q "^$MODULE " > /dev/null 2>&1; then
-+	if ! lsmod | grep -q "^${MODULE//-/_} " > /dev/null 2>&1; then
- 	    if grep -q "^$MODULE\$" $HOTPLUG_DIR/blacklist \
- 		    >/dev/null 2>&1; then
- 		debug_mesg "... blacklisted module:  $MODULE"
-Index: etc/hotplug/pci.agent
-===================================================================
-RCS file: /cvsroot/linux-hotplug/admin/etc/hotplug/pci.agent,v
-retrieving revision 1.13
-diff -u -r1.13 pci.agent
---- etc/hotplug/pci.agent	16 Sep 2003 19:42:17 -0000	1.13
-+++ etc/hotplug/pci.agent	5 Jan 2004 18:33:33 -0000
-@@ -147,7 +147,7 @@
- add)
-     pci_convert_vars
- 
--    LABEL="PCI slot $PCI_SLOT_NAME"
-+    LABEL="PCI slot $PCI_SLOT"
- 
-     # on 2.4 systems, modutils maintains MAP_CURRENT
-     if [ -r $MAP_CURRENT ]; then
-Index: etc/hotplug/pci.rc
-===================================================================
-RCS file: /cvsroot/linux-hotplug/admin/etc/hotplug/pci.rc,v
-retrieving revision 1.7
-diff -u -r1.7 pci.rc
---- etc/hotplug/pci.rc	6 Jun 2003 18:27:23 -0000	1.7
-+++ etc/hotplug/pci.rc	5 Jan 2004 18:33:33 -0000
-@@ -25,6 +25,11 @@
- #     . /etc/sysconfig/pci
- # fi
- 
-+sys_file ()
-+{
-+    cut -f2 -dx $DEVICE/$1
-+}
-+
- pci_boot_events ()
- {
-     #
-@@ -46,14 +51,27 @@
-     PCI_SUBSYS_ID=0:0
-     export ACTION PCI_CLASS PCI_ID PCI_SLOT PCI_SUBSYS_ID
- 
--    # these notifications will be handled by pcimodules
--    for BUS in `cd /proc/bus/pci;find * -type d -print`; do
--	for SLOT_FUNC in `cd /proc/bus/pci/$BUS; echo *`; do
--	    PCI_SLOT=$BUS:$SLOT_FUNC
--	    : hotplug pci for $PCI_SLOT
--	    /sbin/hotplug pci
-+    case $KERNEL in
-+	2.5*|2.6*)
-+	    for DEVICE in /sys/bus/pci/devices/*; do
-+		PCI_CLASS=`sys_file class`
-+		PCI_ID=`sys_file vendor`:`sys_file device`
-+		PCI_SLOT=`echo $DEVICE | cut -d: -f2-`
-+		PCI_SUBSYS_ID=`sys_file subsystem_vendor`:`sys_file subsystem_device`
-+		/sbin/hotplug pci
-+	    done
-+	    ;;
-+	2.4*)
-+	# these notifications will be handled by pcimodules
-+	for BUS in `cd /proc/bus/pci;find * -type d -print`; do
-+	    for SLOT_FUNC in `cd /proc/bus/pci/$BUS; echo *`; do
-+		PCI_SLOT=$BUS:$SLOT_FUNC
-+		: hotplug pci for $PCI_SLOT
-+		/sbin/hotplug pci
-+	    done
- 	done
--    done
-+	;;
-+    esac
- }
- 
- # See how we were called.
-
---=-=-=
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+I have a backup that runs every day at 4-6am that is somewhat memory
+intensive since it uses smbfs, (that's notorious for its bad memory usage
+patterns) and it doesn't shrink the slab at all.  The only thing that
+affected slab size was closing one of my mutt instances that was running on
+a maildir folder with 28k messages in it on tuesday of week 01.
 
 
--- 
-Måns Rullgård
-mru@kth.se
 
---=-=-=--
+http://www.matchmail.com/stats/lrrd/matchmail.com/fileserver.matchmail.com-swap.html
+
+2.4.23-aa may or may not have problems with inode/dentry reclaim (I haven't
+checked other workloads), but it sure improves the amount of swap I/O
+performed.
+
+
+
+Here's the top slab users right now:
+
+inode_cache       456388 457304    512 57163 57163    1 : 534792 4012606
+132385 68961    0 :  124
+
+dentry_cache      626116 641116    136 22897 22897    1 : 731108 7905948
+51318 27096    0 :  252  12
+
+buffer_head       127878 132732    108 3684 3687    1 : 163476 29891760
+62063 58376    0 :  252  126
+
+size-64           137960 141934     72 2678 2678    1 : 152534 2392141  3263
+585    0 :  252  126 :
+
+vm_area_struct      5586   6600     76  124  132    1 :   8650 17144108
+1294 1162    0 :  252  126
+
+blkdev_requests     4096   4120     96  103  103    1 :   4640    5018
+11613    0 :  252  126 :
+
+size-4096             98     98   4096   98   98    1 :    827  264784
+173433 173335    0 :   60   3
+
 

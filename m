@@ -1,27 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286188AbRLJIGz>; Mon, 10 Dec 2001 03:06:55 -0500
+	id <S286189AbRLJIMG>; Mon, 10 Dec 2001 03:12:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286189AbRLJIGj>; Mon, 10 Dec 2001 03:06:39 -0500
-Received: from mail.2d3d.co.za ([196.14.185.200]:19168 "HELO mail.2d3d.co.za")
-	by vger.kernel.org with SMTP id <S286188AbRLJIG2>;
-	Mon, 10 Dec 2001 03:06:28 -0500
-Date: Mon, 10 Dec 2001 10:09:18 +0200
+	id <S286190AbRLJILz>; Mon, 10 Dec 2001 03:11:55 -0500
+Received: from mail.2d3d.co.za ([196.14.185.200]:35296 "HELO mail.2d3d.co.za")
+	by vger.kernel.org with SMTP id <S286189AbRLJILw>;
+	Mon, 10 Dec 2001 03:11:52 -0500
+Date: Mon, 10 Dec 2001 10:14:52 +0200
 From: Abraham vd Merwe <abraham@2d3d.co.za>
-To: salinarl <Lanfranco.Salinari@icn.siemens.it>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Question about sniffers and linux
-Message-ID: <20011210100918.E1502@crystal.2d3d.co.za>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: 2.4.16 & OOM killer screw up
+Message-ID: <20011210101452.F1502@crystal.2d3d.co.za>
 Mail-Followup-To: Abraham vd Merwe <abraham@2d3d.co.za>,
-	salinarl <Lanfranco.Salinari@icn.siemens.it>,
 	Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BEC87A2@webmail>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="M/SuVGWktc5uNpra"
+	protocol="application/pgp-signature"; boundary="w3uUfsyyY1Pqa/ej"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BEC87A2@webmail>; from Lanfranco.Salinari@icn.siemens.it on Fri, Dec 07, 2001 at 19:44:49 +0100
 Organization: 2d3D, Inc.
 X-Operating-System: Debian GNU/Linux crystal 2.4.2 i686
 X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
@@ -31,47 +27,26 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---M/SuVGWktc5uNpra
+--w3uUfsyyY1Pqa/ej
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi salinarl!
+Hi!
 
-You don't need to write a kernel module to do this.
-
-Use RAW sockets. (See man 2 socket). If you're not interested in the link
-layer, you can also use DGRAM sockets to get everything from layer 3 and up
-(ip, arp, etc.)
-
-> I am new to kernel internals, and I would like to know how can a sniffer
-> read whole packets, I mean including the link layer header. In the receive
-> path, this happens, I think,  in the net_rx_action(), but in the transmit
-> path?
-> I know that there is a function called dev_queue_xmit_nit() for this, but
-> how can a driver add a link layer header to a packet before this function
-> gets called? The hard_start_xmit() of the driver is, in fact, called after
-> the dev_queue_xmit_nit(), (in the function dev_queue_xmit() ).
-> I think I'm missing something important about the subject, but I hope som=
-eone=20
-> will answer me, anyway.
-> Thank you in advance,
->=20
-> Lanfranco
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+If I leave my machine on for a day or two without doing anything on it (e.g.
+my machine at work over a weekend) and I come back then 1) all my memory is
+used for buffers/caches and when I try running application, the OOM killer
+kicks in, tries to allocate swap space (which I don't have) and kills
+whatever I try start (that's with 300M+ memory in buffers/caches).
 
 --=20
 
 Regards
  Abraham
 
-What we wish, that we readily believe.
-		-- Demosthenes
+Man must shape his tools lest they shape him.
+		-- Arthur R. Miller
 
 __________________________________________________________
  Abraham vd Merwe - 2d3D, Inc.
@@ -85,7 +60,7 @@ __________________________________________________________
   Http: http://www.2d3d.com        South Africa
 
 
---M/SuVGWktc5uNpra
+--w3uUfsyyY1Pqa/ej
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
@@ -93,9 +68,9 @@ Content-Disposition: inline
 Version: GnuPG v1.0.4 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE8FG2uzNXhP0RCUqMRAraxAJ9W3SPeo3D/49ft5YRzxH2Ttz7G7QCdHyzt
-eHYMTv53u6L3k7Duk7RwuI8=
-=tI8l
+iD8DBQE8FG78zNXhP0RCUqMRAkWRAJ43AZ2W12WqbUchwKZy2AA9JruepQCeMYmJ
+Zt7bAn209o9EwZfXBNxwdN8=
+=V4Eo
 -----END PGP SIGNATURE-----
 
---M/SuVGWktc5uNpra--
+--w3uUfsyyY1Pqa/ej--

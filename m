@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262496AbTEFKCX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 06:02:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbTEFKCX
+	id S262497AbTEFKMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 06:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262498AbTEFKMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 06:02:23 -0400
-Received: from inpbox.inp.nsk.su ([193.124.167.24]:30658 "EHLO
-	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP id S262496AbTEFKCW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 06:02:22 -0400
-Date: Tue, 6 May 2003 17:06:38 +0700
-From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
-Reply-To: D.A.Fedorov@inp.nsk.su
-To: Yoav Weiss <ml-lkml@unpatched.org>
-cc: terje.eggestad@scali.com, 76306.1226@compuserve.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <Pine.LNX.4.44.0305061133290.2977-100000@marcellos.corky.net>
-Message-ID: <Pine.SGI.4.10.10305061642310.8255699-100000@Sky.inp.nsk.su>
+	Tue, 6 May 2003 06:12:09 -0400
+Received: from [217.157.19.70] ([217.157.19.70]:6416 "EHLO jehova.dsm.dk")
+	by vger.kernel.org with ESMTP id S262497AbTEFKMI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 06:12:08 -0400
+Date: Tue, 6 May 2003 12:24:39 +0200 (CEST)
+From: Thomas Horsten <thomas@horsten.com>
+X-X-Sender: thomas@jehova.dsm.dk
+To: marcelo@conectiva.com.br
+cc: Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__ defined
+ (trivial)
+In-Reply-To: <20030506110259.A29633@infradead.org>
+Message-ID: <Pine.LNX.4.40.0305061216060.13598-100000@jehova.dsm.dk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 May 2003, Yoav Weiss wrote:
+Hi Marcelo,
 
-> > But how? When some global will not be exported, it would not be listed
-> > in /proc/ksyms.
-> 
-> So what ?
-> You just find the right address (in this case by getting the addresses of
-> exported syscalls and finding a list in memory, containing them in the
-> right order), and cast it to be the syscall table.  
+Here is a patch to fix the following problem (revised as Christoph
+suggested): In 2.4.21-rc1 some inline functions are added to
+asm-i386/byteorder.h. When __STRICT_ANSI__ is defined, __u64 doesn't get
+defined by asm-i386/types.h, but it is used in one of the new inline
+functions, __arch__swab64() - this causes a compile error for any program
+that includes linux/cdrom.h and is built with -ansi. See also Christoph's
+other comments on the list.
 
-Thank, now I understand it. And I would not do that.
+On Tue, 6 May 2003, Christoph Hellwig wrote:
+> [..]
+> You might want to reorder the code a bit to have only one
+> __STRICT_ANSI__ ifdef, but else it looks fine.
 
-> it from some exported symbol, and automagically create a module that
-> re-exports this symbol for your legacy driver to use.
+// Thomas
 
-All of my drivers are not legacy or binary-only.
-Under "third-party driver" in my other posts I was mean just out of
-kernel source tree software which are have no reasons to be included in
-the kernel sources.
 
-I just need legal kernel mechanisms to do some "strange" things,
-nothing else.
+--- linux-2.4.21-rc1-orig/include/asm-i386/byteorder.h	2003-05-06 09:52:33.000000000 +0100
++++ linux-2.4.21-rc1-ac4/include/asm-i386/byteorder.h	2003-05-06 11:20:01.000000000 +0100
+@@ -34,7 +34,7 @@
+ 		return x;
+ }
 
-> If you write the script, don't forget to GPL it :)
+-
++#ifndef __STRICT_ANSI__
+ static inline __u64 ___arch__swab64(__u64 val)
+ {
+ 	union {
+@@ -54,12 +54,14 @@
+ 	return v.u;
+ }
 
-I will not make such script.
++#define __BYTEORDER_HAS_U64__
+ #define __arch__swab64(x) ___arch__swab64(x)
++
++#endif /* !__STRICT_ANSI__ */
++
+ #define __arch__swab32(x) ___arch__swab32(x)
+ #define __arch__swab16(x) ___arch__swab16(x)
+
+-#define __BYTEORDER_HAS_U64__
+-
+ #endif /* __GNUC__ */
+
+ #include <linux/byteorder/little_endian.h>
 

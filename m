@@ -1,81 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbTJMOxx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 10:53:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbTJMOxx
+	id S261774AbTJMOy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 10:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTJMOy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 10:53:53 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:24343 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S261773AbTJMOxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 10:53:50 -0400
-Date: Mon, 13 Oct 2003 07:53:16 -0700
-From: Frank Cusack <fcusack@fcusack.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: nfs fstat st_blocks overreporting
-Message-ID: <20031013075316.A16032@google.com>
-Mime-Version: 1.0
+	Mon, 13 Oct 2003 10:54:27 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:60308 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261774AbTJMOyR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 10:54:17 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16266.48213.389446.904941@gargle.gargle.HOWL>
+Date: Mon, 13 Oct 2003 09:53:09 -0500
+To: "David S. Miller" <davem@redhat.com>
+Cc: karim@opersys.com, jmorris@redhat.com, zanussi@us.ibm.com,
+       linux-kernel@vger.kernel.org, bob@watson.ibm.com
+Subject: Re: [PATCH][RFC] relayfs (1/4) (Documentation)
+In-Reply-To: <20031011103429.5ebe3085.davem@redhat.com>
+References: <Pine.LNX.4.44.0310091311440.14415-100000@thoron.boston.redhat.com>
+	<3F859DF1.8000602@opersys.com>
+	<20031010005703.0daf3e19.davem@redhat.com>
+	<3F86C519.4030209@opersys.com>
+	<20031011103429.5ebe3085.davem@redhat.com>
+X-Mailer: VM(ViewMail) 7.01 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While you know I disagree that s_blocksize should be wtmult (ie, it
-is wtmult?wtmult:512 and I think it should be MAX(rsize,wsize)), in
-any event the blocks used reporting is incorrect in that it assumes
-a 512 byte blocksize.
+David S. Miller writes:
+ > On Fri, 10 Oct 2003 10:41:29 -0400
+ > Karim Yaghmour <karim@opersys.com> wrote:
+ > 
+ > > The question isn't whether netlink can transfer hundreds of thousands of
+ > > data units in one fell swoop. The question is: is it more efficient than
+ > > relayfs at this?
+ > 
+ > Wrong, it's the queueing model that's important for applications
+ > like this.
+ > 
 
-I don't know why blockbits is an unsigned char instead of an int; I
-just copied it from a similar block of code in fs/nfs/inode.c.
+relayfs isn't trying to provide a generic queueing model - it's
+basically just an efficient buffering mechanism with hooks for
+kernel-user data transfer.  It's a lower-level thing than netlink and
+might even be of use to netlink as a buffering layer.
 
---- 26t7.1/fs/nfs/inode.c	2003-10-13 06:59:34.000000000 -0700
-+++ 26t7.2/fs/nfs/inode.c	2003-10-13 07:50:34.000000000 -0700
-@@ -207,13 +207,17 @@ nfs_block_bits(unsigned long bsize, unsi
- }
- 
- /*
-- * Calculate the number of 512byte blocks used.
-+ * Calculate the number of 2^blockbits -byte blocks used.
-  */
- static inline unsigned long
--nfs_calc_block_size(u64 tsize)
-+nfs_calc_blocks_used(u64 tsize, unsigned char blockbits)
- {
--	loff_t used = (tsize + 511) >> 9;
--	return (used > ULONG_MAX) ? ULONG_MAX : used;
-+	unsigned long blockres;
-+	loff_t used;
-+
-+	blockres = (1 << blockbits) - 1;
-+	used = (tsize + blockres) >> blockbits;
-+	return (used > ULONG_MAX) ? ULONG_MAX : used;
- }
- 
- /*
-@@ -762,9 +766,9 @@ nfs_fhget(struct super_block *sb, struct
- 		inode->i_gid = fattr->gid;
- 		if (fattr->valid & (NFS_ATTR_FATTR_V3 | NFS_ATTR_FATTR_V4)) {
- 			/*
--			 * report the blocks in 512byte units
-+			 * report the blocks in s_blocksize units
- 			 */
--			inode->i_blocks = nfs_calc_block_size(fattr->du.nfs3.used);
-+			inode->i_blocks = nfs_calc_blocks_used(fattr->du.nfs3.used, inode->i_sb->s_blocksize_bits);
- 			inode->i_blksize = inode->i_sb->s_blocksize;
- 		} else {
- 			inode->i_blocks = fattr->du.nfs2.blocks;
-@@ -1181,9 +1185,10 @@ __nfs_refresh_inode(struct inode *inode,
- 
- 	if (fattr->valid & (NFS_ATTR_FATTR_V3 | NFS_ATTR_FATTR_V4)) {
- 		/*
--		 * report the blocks in 512byte units
-+		 * report the blocks in s_blocksize units
- 		 */
--		inode->i_blocks = nfs_calc_block_size(fattr->du.nfs3.used);
-+		inode->i_blocks = nfs_calc_blocks_used(fattr->du.nfs3.used,
-+					inode->i_sb->s_blocksize_bits);
- 		inode->i_blksize = inode->i_sb->s_blocksize;
-  	} else {
-  		inode->i_blocks = fattr->du.nfs2.blocks;
+In any case, applications like tracing or kernel debugging don't have
+a need for more of a queueing model than the in-order delivery and
+event buffering capabilities relayfs provides, and since applications
+like these either can't use netlink or would benefit from the
+efficiency provided by a no-frills buffering scheme, maybe there
+is actually a use for something like relayfs.
+
+-- 
+Regards,
+
+Tom Zanussi <zanussi@us.ibm.com>
+IBM Linux Technology Center/RAS
+

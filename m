@@ -1,61 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268215AbTBYRr1>; Tue, 25 Feb 2003 12:47:27 -0500
+	id <S268229AbTBYRln>; Tue, 25 Feb 2003 12:41:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268216AbTBYRr1>; Tue, 25 Feb 2003 12:47:27 -0500
-Received: from cs666873-16.austin.rr.com ([66.68.73.16]:40966 "EHLO
-	raptor.int.mccr.org") by vger.kernel.org with ESMTP
-	id <S268215AbTBYRrY>; Tue, 25 Feb 2003 12:47:24 -0500
-Date: Tue, 25 Feb 2003 11:57:08 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Zilvinas Valinskas <zilvinas@gemtek.lt>, helgehaf@aitel.hist.no,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.62-mm3 - no X for me
-Message-ID: <131360000.1046195828@[10.1.1.5]>
-In-Reply-To: <20030225015537.4062825b.akpm@digeo.com>
-References: <20030223230023.365782f3.akpm@digeo.com>
- <3E5A0F8D.4010202@aitel.hist.no><20030224121601.2c998cc5.akpm@digeo.com>
- <20030225094526.GA18857@gemtek.lt> <20030225015537.4062825b.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S268230AbTBYRln>; Tue, 25 Feb 2003 12:41:43 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:46084 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S268229AbTBYRlh>; Tue, 25 Feb 2003 12:41:37 -0500
+Date: Tue, 25 Feb 2003 17:51:51 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Privacy Extensions for Stateless Address Autoconfiguration in IPv6
+Message-ID: <20030225175151.A6512@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>,
+	davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+	kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, usagi@linux-ipv6.org
+References: <20030223.225251.119557134.davem@redhat.com> <20030226.003625.90530451.yoshfuji@linux-ipv6.org> <20030225160634.A4525@infradead.org> <20030226.024750.63517417.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030226.024750.63517417.yoshfuji@linux-ipv6.org>; from yoshfuji@linux-ipv6.org on Wed, Feb 26, 2003 at 02:47:50AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 26, 2003 at 02:47:50AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B wrote:
+> Thanks for comments. How about this? (only lib part)
 
---On Tuesday, February 25, 2003 01:55:37 -0800 Andrew Morton
-<akpm@digeo.com> wrote:
-
-> Ah, thank you.
-> 
-> 	kernel BUG at mm/rmap.c:248!
-> 
-> The fickle finger of fate points McCrackenwards.
-
-Yep.  He tripped over my sanity check that pages not marked anon actually
-have a real mapping pointer.  Apparently X allocates a page that should be
-marked anon but isn't.
-
-My main reason for adding the anon flag was to prove to myself that the
-mapping pointer can be trusted.  Apparently it can, generally, but it looks
-like I haven't successfully tracked down all the places that should set it.
-It looks like anon pages can come from random sources, so it might be an
-impossible task to find them all.
-
-I know you said you like the idea of having the flag, but I think the
-cleanest fix would be to change the check from
-
-	if (PageAnon(page))
-to
-	if (page->mapping && !PageSwapCache(page))
-
-Or I could set the anon flag based on that test.  I know page flags are
-getting scarce, so I'm leaning toward removing the flag entirely.
-
-What would you recommend?
-
-Dave McCracken
+This one looks fine.
 

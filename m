@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275346AbTHGOBG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 10:01:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275348AbTHGOBG
+	id S275349AbTHGOCl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 10:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275350AbTHGOCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 10:01:06 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:16380 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S275346AbTHGOBE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 10:01:04 -0400
-Message-ID: <3F325B9B.6030606@namesys.com>
-Date: Thu, 07 Aug 2003 18:00:59 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vladimir Lazarenko <vlad@lazarenko.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs4
-References: <200308070305.51868.vlad@lazarenko.net>
-In-Reply-To: <200308070305.51868.vlad@lazarenko.net>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Aug 2003 10:02:41 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:48859 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S275349AbTHGOCh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 10:02:37 -0400
+Date: Thu, 7 Aug 2003 16:02:32 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre10-ac1 -- lots of unresolved symbols
+Message-ID: <20030807140232.GC7094@louise.pinerecords.com>
+References: <20030807133053.GA18191@pwr.wroc.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030807133053.GA18191@pwr.wroc.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir Lazarenko wrote:
+> [pawel.dziekonski@pwr.wroc.pl]
+> 
+> I just got lots of unresolved symbols for 2.4.22-pre10-ac1, please help.
+> thanks in advance, P
 
->Greets,
->
->Is there going to be some kind of a converter for new reiserfs version?
->I'm running 2.4.22-rc1 now, with its current reiserfs implementation, and I 
->heard many good things about reiserfs v4, would it be possible to convert 
->filesystems without data loss? 
->
->It's going to be a major pain if I'll have to back things up and reinitialize 
->partitions...
->
->Thanks in advance.
->
->  
->
-there is a third party working on something called convertfs which looks 
-cool to me.  google for it....
+Save your .config, "make mrproper", cp in your .config, "make oldconfig",
+rebuild.
+
+There are certain config options (for instance SMP) the toggling of which
+requires this procedure.
 
 -- 
-Hans
-
-
+Tomas Szepe <szepe@pinerecords.com>

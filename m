@@ -1,169 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbUCJS0T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 13:26:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbUCJSXv
+	id S262755AbUCJSXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 13:23:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbUCJSXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 13:23:51 -0500
-Received: from pop.gmx.de ([213.165.64.20]:57482 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262748AbUCJSXO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 13:23:14 -0500
-Date: Wed, 10 Mar 2004 19:23:12 +0100 (MET)
-From: =?ISO-8859-1?Q?=22Fabian_LoneStar_Fr=E9d=E9rick=22?= 
-	<fabian.frederick@gmx.fr>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 10 Mar 2004 13:23:25 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9110 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262757AbUCJSWd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 13:22:33 -0500
+Message-ID: <404F5CDB.50900@pobox.com>
+Date: Wed, 10 Mar 2004 13:22:19 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="========GMXBoundary165211078942992"
-Subject: Re: [PATCH 2.6.4rc2mm1] nfsroot parser
-X-Priority: 3 (Normal)
-X-Authenticated: #9223398
-Message-ID: <16521.1078942992@www11.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
+To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+CC: axboe@suse.de, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: per device queues for cciss 2.6.0
+References: <D4CFB69C345C394284E4B78B876C1CF105BC1EBB@cceexc23.americas.cpqcorp.net>
+In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF105BC1EBB@cceexc23.americas.cpqcorp.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encapsulated multipart message -
-please use a MIME-compliant e-mail program to open it.
+Miller, Mike (OS Dev) wrote:
+> Yes, the controller has a single command buffer. It can hold 1024 outstanding commands.
 
-Dies ist eine mehrteilige Nachricht im MIME-Format -
-bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
+Ok, great.  Well then the carmel.c I sent you should be a good model -- 
+carmel.c has per-device queues, and there are no starvation issues.  The 
+code is contained within only a few LOC, in carm_push_q(), carm_pop_q(), 
+and carm_round_robin().
 
---========GMXBoundary165211078942992
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+As an aside, you should probably make the call to cciss_round_robin() 
+conditional on the hardware's command buffer being at least 1/2 empty. 
+(or pick whatever low water mark you like)
 
-Randy,
+The command buffer size, 1024, is quite nice.  Given the same model as 
+carmel.c, I predict that blk_{start,stop}_queue will be called quite 
+infrequently -- that translates to _high_ performance on the cciss hardware.
 
-       Here's nfs standard parser with some corrections.Is it ok for you ?
+Note the blk_{start,stop}_queue() were only recently fixed (grab latest 
+2.6.4-rc), so that may have introduced noise into whatever testing and 
+design you've done.
+
+Now, per-queue locking, rather than per-HBA locking, definitely 
+introduces some additional complexity.  I've got a good idea how to do 
+that, which involves the each queue's request function kicking a common 
+tasklet that queues commands to hardware.  But there's a lot of deadlock 
+potentional if it's not done right, since you still need a common lock 
+for the HBA when submitting and completing hardware commands.  So I 
+would be interested to see some evidence of actual SMP contention on the 
+per-HBA lock...
 
 Regards,
-Fabian
 
--- 
-+++ NEU bei GMX und erstmalig in Deutschland: TÜV-geprüfter Virenschutz +++
-100% Virenerkennung nach Wildlist. Infos: http://www.gmx.net/virenschutz
---========GMXBoundary165211078942992
-Content-Type: application/octet-stream; name="nfs_parse.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="nfs_parse.diff"
+	Jeff
 
-ZGlmZiAtTmF1ciBvcmlnL2ZzL25mcy9uZnNyb290LmMgZWRpdGVkL2ZzL25mcy9uZnNyb290LmMK
-LS0tIG9yaWcvZnMvbmZzL25mc3Jvb3QuYwkyMDA0LTAzLTEwIDEwOjU0OjIzLjAwMDAwMDAwMCAr
-MDEwMAorKysgZWRpdGVkL2ZzL25mcy9uZnNyb290LmMJMjAwNC0wMy0xMCAxOToxODoyNi4wMDAw
-MDAwMDAgKzAxMDAKQEAgLTY2LDcgKzY2LDggQEAKICAqCQkJCWlzIE5PVCBmb3IgdGhlIGxlbmd0
-aCBvZiB0aGUgaG9zdG5hbWUuCiAgKglIdWEgUWluCQk6CVN1cHBvcnQgZm9yIG1vdW50aW5nIHJv
-b3QgZmlsZSBzeXN0ZW0gdmlhCiAgKgkJCQlORlMgb3ZlciBUQ1AuCi0gKi8KKyAqCUZhYmlhbiBG
-cmVkZXJpY2s6CU9wdGlvbiBwYXJzZXIgcmVidWlsdCAodXNpbmcgcGFyc2VyIGxpYikKKyovCiAK
-ICNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4KICNpbmNsdWRlIDxsaW51eC90eXBlcy5oPgpAQCAt
-ODUsNiArODYsNyBAQAogI2luY2x1ZGUgPGxpbnV4L2luZXQuaD4KICNpbmNsdWRlIDxsaW51eC9y
-b290X2Rldi5oPgogI2luY2x1ZGUgPG5ldC9pcGNvbmZpZy5oPgorI2luY2x1ZGUgPGxpbnV4L3Bh
-cnNlci5oPgogCiAvKiBEZWZpbmUgdGhpcyB0byBhbGxvdyBkZWJ1Z2dpbmcgb3V0cHV0ICovCiAj
-dW5kZWYgTkZTUk9PVF9ERUJVRwpAQCAtMTE0LDkyICsxMTYsMTU4IEBACiAKICAqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKiovCiAKLS8qCi0gKiAgVGhlIGZvbGxvd2luZyBpbnRlZ2VyIG9wdGlvbnMgYXJlIHJl
-Y29nbml6ZWQKLSAqLwotc3RhdGljIHN0cnVjdCBuZnNfaW50X29wdHMgewotCWNoYXIgKm5hbWU7
-Ci0JaW50ICAqdmFsOwotfSByb290X2ludF9vcHRzW10gX19pbml0ZGF0YSA9IHsKLQl7ICJwb3J0
-IiwJJm5mc19wb3J0IH0sCi0JeyAicnNpemUiLAkmbmZzX2RhdGEucnNpemUgfSwKLQl7ICJ3c2l6
-ZSIsCSZuZnNfZGF0YS53c2l6ZSB9LAotCXsgInRpbWVvIiwJJm5mc19kYXRhLnRpbWVvIH0sCi0J
-eyAicmV0cmFucyIsCSZuZnNfZGF0YS5yZXRyYW5zIH0sCi0JeyAiYWNyZWdtaW4iLAkmbmZzX2Rh
-dGEuYWNyZWdtaW4gfSwKLQl7ICJhY3JlZ21heCIsCSZuZnNfZGF0YS5hY3JlZ21heCB9LAotCXsg
-ImFjZGlybWluIiwJJm5mc19kYXRhLmFjZGlybWluIH0sCi0JeyAiYWNkaXJtYXgiLAkmbmZzX2Rh
-dGEuYWNkaXJtYXggfSwKLQl7IE5VTEwsCQlOVUxMIH0KK2VudW0geworCU9wdF9wb3J0LCBPcHRf
-cnNpemUsIE9wdF93c2l6ZSwgT3B0X3RpbWVvLCBPcHRfcmV0cmFucywgT3B0X2FjcmVnbWluLAor
-CU9wdF9hY3JlZ21heCwgT3B0X2FjZGlybWluLCBPcHRfYWNkaXJtYXgsIE9wdF9zb2Z0LCBPcHRf
-aGFyZCwgT3B0X2ludHIsCisJT3B0X25vaW50ciwgT3B0X3Bvc2l4LCBPcHRfbm9wb3NpeCwgT3B0
-X2N0bywgT3B0X25vY3RvLCBPcHRfYWMsIAorCU9wdF9ub2FjLCBPcHRfbG9jaywgT3B0X25vbG9j
-aywgT3B0X3YyLCBPcHRfdjMsIE9wdF91ZHAsIE9wdF90Y3AsCisJT3B0X2Jyb2tlbl9zdWlkLCBP
-cHRfZXJyLAogfTsKIAotCi0vKgotICogIEFuZCBub3cgdGhlIGZsYWcgb3B0aW9ucwotICovCi1z
-dGF0aWMgc3RydWN0IG5mc19ib29sX29wdHMgewotCWNoYXIgKm5hbWU7Ci0JaW50ICBhbmRfbWFz
-azsKLQlpbnQgIG9yX21hc2s7Ci19IHJvb3RfYm9vbF9vcHRzW10gX19pbml0ZGF0YSA9IHsKLQl7
-ICJzb2Z0IiwJfk5GU19NT1VOVF9TT0ZULAlORlNfTU9VTlRfU09GVCB9LAotCXsgImhhcmQiLAl+
-TkZTX01PVU5UX1NPRlQsCTAgfSwKLQl7ICJpbnRyIiwJfk5GU19NT1VOVF9JTlRSLAlORlNfTU9V
-TlRfSU5UUiB9LAotCXsgIm5vaW50ciIsCX5ORlNfTU9VTlRfSU5UUiwJMCB9LAotCXsgInBvc2l4
-IiwJfk5GU19NT1VOVF9QT1NJWCwJTkZTX01PVU5UX1BPU0lYIH0sCi0JeyAibm9wb3NpeCIsCX5O
-RlNfTU9VTlRfUE9TSVgsCTAgfSwKLQl7ICJjdG8iLAl+TkZTX01PVU5UX05PQ1RPLAkwIH0sCi0J
-eyAibm9jdG8iLAl+TkZTX01PVU5UX05PQ1RPLAlORlNfTU9VTlRfTk9DVE8gfSwKLQl7ICJhYyIs
-CQl+TkZTX01PVU5UX05PQUMsCTAgfSwKLQl7ICJub2FjIiwJfk5GU19NT1VOVF9OT0FDLAlORlNf
-TU9VTlRfTk9BQyB9LAotCXsgImxvY2siLAl+TkZTX01PVU5UX05PTkxNLAkwIH0sCi0JeyAibm9s
-b2NrIiwJfk5GU19NT1VOVF9OT05MTSwJTkZTX01PVU5UX05PTkxNIH0sCi0jaWZkZWYgQ09ORklH
-X05GU19WMwotCXsgInYyIiwJCX5ORlNfTU9VTlRfVkVSMywJMCB9LAotCXsgInYzIiwJCX5ORlNf
-TU9VTlRfVkVSMywJTkZTX01PVU5UX1ZFUjMgfSwKLSNlbmRpZgotCXsgInVkcCIsCX5ORlNfTU9V
-TlRfVENQLAkJMCB9LAotCXsgInRjcCIsCX5ORlNfTU9VTlRfVENQLAkJTkZTX01PVU5UX1RDUCB9
-LAotCXsgImJyb2tlbl9zdWlkIix+TkZTX01PVU5UX0JST0tFTl9TVUlELAlORlNfTU9VTlRfQlJP
-S0VOX1NVSUQgfSwKLQl7IE5VTEwsCQkwLAkJCTAgfQorc3RhdGljIG1hdGNoX3RhYmxlX3QgdG9r
-ZW5zID0geworCXtPcHRfcG9ydCwgInBvcnQ9JXUifSwKKwl7T3B0X3JzaXplLCAicnNpemU9JXUi
-fSwKKwl7T3B0X3dzaXplLCAid3NpemU9JXUifSwKKwl7T3B0X3RpbWVvLCAidGltZW89JXUifSwK
-Kwl7T3B0X3JldHJhbnMsICJyZXRyYW5zPSV1In0sCisJe09wdF9hY3JlZ21pbiwgImFjcmVnbWlu
-PSV1In0sCisJe09wdF9hY3JlZ21heCwgImFjcmVnbWF4PSV1In0sCisJe09wdF9hY2Rpcm1pbiwg
-ImFjZGlybWluPSV1In0sCisJe09wdF9hY2Rpcm1heCwgImFjZGlybWF4PSV1In0sCisJe09wdF9z
-b2Z0LCAic29mdCJ9LAorCXtPcHRfaGFyZCwgImhhcmQifSwKKwl7T3B0X2ludHIsICJpbnRyIn0s
-CisJe09wdF9ub2ludHIsICJub2ludHIifSwKKwl7T3B0X3Bvc2l4LCAicG9zaXgifSwKKwl7T3B0
-X25vcG9zaXgsICJub3Bvc2l4In0sCisJe09wdF9jdG8sICJjdG8ifSwKKwl7T3B0X25vY3RvLCAi
-bm9jdG8ifSwKKwl7T3B0X2FjLCAiYWMifSwKKwl7T3B0X25vYWMsICJub2FjIn0sCisJe09wdF9s
-b2NrLCAibG9jayJ9LAorCXtPcHRfbm9sb2NrLCAibm9sb2NrIn0sCisJe09wdF92MiwgInYyIn0s
-CisJe09wdF92MywgInYzIn0sCisJe09wdF91ZHAsICJ1ZHAifSwKKwl7T3B0X3RjcCwgInRjcCJ9
-LAorCXtPcHRfYnJva2VuX3N1aWQsICJicm9rZW5fc3VpZCJ9LAorCXtPcHRfZXJyLCBOVUxMfQor
-CQogfTsKIAotCiAvKgogICogIFBhcnNlIG9wdGlvbiBzdHJpbmcuCiAgKi8KLXN0YXRpYyB2b2lk
-IF9faW5pdCByb290X25mc19wYXJzZShjaGFyICpuYW1lLCBjaGFyICpidWYpCisKK3N0YXRpYyBp
-bnQgX19pbml0IHJvb3RfbmZzX3BhcnNlKGNoYXIgKm5hbWUsIGNoYXIgKmJ1ZikKIHsKLQljaGFy
-ICpvcHRpb25zLCAqdmFsLCAqY3A7CiAKLQlpZiAoKG9wdGlvbnMgPSBzdHJjaHIobmFtZSwgJywn
-KSkpIHsKLQkJKm9wdGlvbnMrKyA9IDA7Ci0JCXdoaWxlICgoY3AgPSBzdHJzZXAoJm9wdGlvbnMs
-ICIsIikpICE9IE5VTEwpIHsKLQkJCWlmICghKmNwKQotCQkJCWNvbnRpbnVlOwotCQkJaWYgKCh2
-YWwgPSBzdHJjaHIoY3AsICc9JykpKSB7Ci0JCQkJc3RydWN0IG5mc19pbnRfb3B0cyAqb3B0cyA9
-IHJvb3RfaW50X29wdHM7Ci0JCQkJKnZhbCsrID0gJ1wwJzsKLQkJCQl3aGlsZSAob3B0cy0+bmFt
-ZSAmJiBzdHJjbXAob3B0cy0+bmFtZSwgY3ApKQotCQkJCQlvcHRzKys7Ci0JCQkJaWYgKG9wdHMt
-Pm5hbWUpCi0JCQkJCSoob3B0cy0+dmFsKSA9IChpbnQpIHNpbXBsZV9zdHJ0b3VsKHZhbCwgTlVM
-TCwgMTApOwotCQkJfSBlbHNlIHsKLQkJCQlzdHJ1Y3QgbmZzX2Jvb2xfb3B0cyAqb3B0cyA9IHJv
-b3RfYm9vbF9vcHRzOwotCQkJCXdoaWxlIChvcHRzLT5uYW1lICYmIHN0cmNtcChvcHRzLT5uYW1l
-LCBjcCkpCi0JCQkJCW9wdHMrKzsKLQkJCQlpZiAob3B0cy0+bmFtZSkgewotCQkJCQluZnNfZGF0
-YS5mbGFncyAmPSBvcHRzLT5hbmRfbWFzazsKLQkJCQkJbmZzX2RhdGEuZmxhZ3MgfD0gb3B0cy0+
-b3JfbWFzazsKLQkJCQl9Ci0JCQl9CisJY2hhciAqcDsKKwlzdWJzdHJpbmdfdCBhcmdzW01BWF9P
-UFRfQVJHU107CisJaW50IG9wdGlvbjsKKworCWlmICghbmFtZSkKKwkJcmV0dXJuIDE7CisKKwlp
-ZiAobmFtZVswXSAmJiBzdHJjbXAobmFtZSwgImRlZmF1bHQiKSl7CisJCXN0cmxjcHkoYnVmLCBu
-YW1lLCBORlNfTUFYUEFUSExFTik7CisJCXJldHVybiAxOworCX0KKwl3aGlsZSAoKHAgPSBzdHJz
-ZXAgKCZuYW1lLCAiLCIpKSAhPSBOVUxMKSB7CisJCWludCB0b2tlbjsgCisJCWlmICghKnApCisJ
-CQljb250aW51ZTsKKwkJdG9rZW4gPSBtYXRjaF90b2tlbihwLCB0b2tlbnMsIGFyZ3MpOworCisJ
-CS8qICV1IHRva2VucyBvbmx5ICovCisJCWlmIChtYXRjaF9pbnQoJmFyZ3NbMF0sICZvcHRpb24p
-KQorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gMDsKKwkJc3dpdGNoICh0
-b2tlbikgeworCQkJY2FzZSBPcHRfcG9ydDoKKwkJCQluZnNfcG9ydCA9IG9wdGlvbjsKKwkJCQli
-cmVhazsKKwkJCWNhc2UgT3B0X3JzaXplOgorCQkJCW5mc19kYXRhLnJzaXplID0gb3B0aW9uOwor
-CQkJCWJyZWFrOworCQkJY2FzZSBPcHRfd3NpemU6CisJCQkJbmZzX2RhdGEud3NpemUgPSBvcHRp
-b247CisJCQkJYnJlYWs7CisJCQljYXNlIE9wdF90aW1lbzoKKwkJCQluZnNfZGF0YS50aW1lbyA9
-IG9wdGlvbjsKKwkJCQlicmVhazsKKwkJCWNhc2UgT3B0X3JldHJhbnM6CisJCQkJbmZzX2RhdGEu
-cmV0cmFucyA9IG9wdGlvbjsKKwkJCQlicmVhazsKKwkJCWNhc2UgT3B0X2FjcmVnbWluOgorCQkJ
-CW5mc19kYXRhLmFjcmVnbWluID0gb3B0aW9uOworCQkJCWJyZWFrOworCQkJY2FzZSBPcHRfYWNy
-ZWdtYXg6CisJCQkJbmZzX2RhdGEuYWNyZWdtYXggPSBvcHRpb247CisJCQkJYnJlYWs7CisJCQlj
-YXNlIE9wdF9hY2Rpcm1pbjoKKwkJCQluZnNfZGF0YS5hY2Rpcm1pbiA9IG9wdGlvbjsKKwkJCQli
-cmVhazsKKwkJCWNhc2UgT3B0X2FjZGlybWF4OgorCQkJCW5mc19kYXRhLmFjZGlybWF4ID0gb3B0
-aW9uOworCQkJCWJyZWFrOworCQkJY2FzZSBPcHRfc29mdDoKKwkJCQluZnNfZGF0YS5mbGFncyB8
-PSBORlNfTU9VTlRfU09GVDsKKwkJCQlicmVhazsKKwkJCWNhc2UgT3B0X2hhcmQ6CisJCQkJbmZz
-X2RhdGEuZmxhZ3MgJj0gfk5GU19NT1VOVF9TT0ZUOworCQkJCWJyZWFrOworCQkJY2FzZSBPcHRf
-aW50cjoKKwkJCQluZnNfZGF0YS5mbGFncyB8PSBORlNfTU9VTlRfSU5UUjsKKwkJCQlicmVhazsK
-KwkJCWNhc2UgT3B0X25vaW50cjoKKwkJCQluZnNfZGF0YS5mbGFncyAmPSB+TkZTX01PVU5UX0lO
-VFI7CisJCQkJYnJlYWs7CisJCQljYXNlIE9wdF9wb3NpeDoKKwkJCQluZnNfZGF0YS5mbGFncyB8
-PSBORlNfTU9VTlRfUE9TSVg7CisJCQkJYnJlYWs7CisJCQljYXNlIE9wdF9ub3Bvc2l4OgorCQkJ
-CW5mc19kYXRhLmZsYWdzICY9IH5ORlNfTU9VTlRfUE9TSVg7CisJCQkJYnJlYWs7CisJCQljYXNl
-IE9wdF9jdG86CisJCQkJbmZzX2RhdGEuZmxhZ3MgJj0gfk5GU19NT1VOVF9OT0NUTzsKKwkJCQli
-cmVhazsKKwkJCWNhc2UgT3B0X25vY3RvOgorCQkJCW5mc19kYXRhLmZsYWdzIHw9IE5GU19NT1VO
-VF9OT0NUTzsKKwkJCQlicmVhazsKKwkJCWNhc2UgT3B0X2FjOgorCQkJCW5mc19kYXRhLmZsYWdz
-ICY9IH5ORlNfTU9VTlRfTk9BQzsKKwkJCQlicmVhazsKKwkJCWNhc2UgT3B0X25vYWM6CisJCQkJ
-bmZzX2RhdGEuZmxhZ3MgfD0gTkZTX01PVU5UX05PQUM7CisJCQkJYnJlYWs7CisJCQljYXNlIE9w
-dF9sb2NrOgorCQkJCW5mc19kYXRhLmZsYWdzICY9IH5ORlNfTU9VTlRfTk9OTE07CisJCQkJYnJl
-YWs7CisJCQljYXNlIE9wdF9ub2xvY2s6CisJCQkJbmZzX2RhdGEuZmxhZ3MgfD0gTkZTX01PVU5U
-X05PTkxNOworCQkJCWJyZWFrOworCQkJY2FzZSBPcHRfdjI6CisJCQkJbmZzX2RhdGEuZmxhZ3Mg
-Jj0gfk5GU19NT1VOVF9WRVIzOworCQkJCWJyZWFrOworCQkJY2FzZSBPcHRfdjM6CisJCQkJbmZz
-X2RhdGEuZmxhZ3MgfD0gTkZTX01PVU5UX1ZFUjM7CisJCQkJYnJlYWs7CisJCQljYXNlIE9wdF91
-ZHA6CisJCQkJbmZzX2RhdGEuZmxhZ3MgJj0gfk5GU19NT1VOVF9UQ1A7CisJCQkJYnJlYWs7CisJ
-CQljYXNlIE9wdF90Y3A6CisJCQkJbmZzX2RhdGEuZmxhZ3MgfD0gTkZTX01PVU5UX1RDUDsKKwkJ
-CQlicmVhazsKKwkJCWNhc2UgT3B0X2Jyb2tlbl9zdWlkOgorCQkJCW5mc19kYXRhLmZsYWdzIHw9
-IE5GU19NT1VOVF9CUk9LRU5fU1VJRDsKKwkJCQlicmVhazsKKwkJCWRlZmF1bHQgOiAKKwkJCQly
-ZXR1cm4gMDsKIAkJfQogCX0KLQlpZiAobmFtZVswXSAmJiBzdHJjbXAobmFtZSwgImRlZmF1bHQi
-KSkKLQkJc3RybGNweShidWYsIG5hbWUsIE5GU19NQVhQQVRITEVOKTsKKwlyZXR1cm4gMTsKIH0K
-IAotCiAvKgogICogIFByZXBhcmUgdGhlIE5GUyBkYXRhIHN0cnVjdHVyZSBhbmQgcGFyc2UgYWxs
-IG9wdGlvbnMuCiAgKi8K
 
---========GMXBoundary165211078942992--
 

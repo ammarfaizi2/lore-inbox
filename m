@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317468AbSHTW04>; Tue, 20 Aug 2002 18:26:56 -0400
+	id <S317462AbSHTWYt>; Tue, 20 Aug 2002 18:24:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317471AbSHTW04>; Tue, 20 Aug 2002 18:26:56 -0400
-Received: from p020.as-l031.contactel.cz ([212.65.234.212]:25472 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S317468AbSHTW0z>;
-	Tue, 20 Aug 2002 18:26:55 -0400
-Date: Wed, 21 Aug 2002 00:28:59 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: riel@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Kernel BUG in try_to_free_buffers
-Message-ID: <20020820222859.GC34144@ppc.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S317463AbSHTWYt>; Tue, 20 Aug 2002 18:24:49 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6410 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317462AbSHTWYs>;
+	Tue, 20 Aug 2002 18:24:48 -0400
+Message-ID: <3D62C2A3.4070701@mandrakesoft.com>
+Date: Tue, 20 Aug 2002 18:28:51 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       "'Padraig Brady'" <padraig.brady@corvil.com>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
+       "Warner, Bill (IndSys, GEFanuc, VMIC)" <Bill.Warner@gefanuc.com>
+Subject: Re: IDE-flash device and hard disk on same controller
+References: <Pine.LNX.4.10.10208201452210.3867-100000@master.linux-ide.org> <3D62BC10.3060201@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rik,
-  today I stressed my current 2.5.31-bk489 a bit, and kswapd
-was killed by kernel bug in spinlock.h at line 123, where
-spinlock signature is checked. Stack trace was
+Jeff Garzik wrote:
+> Attached is the ATA core...
 
-  try_to_free_buffers
-  try_to_release_page
-  shrink_list
-  shrink_dcache
-  kmem_cache_reap
-  shrink_caches
-  try_to_free_pages
-  kswap_balance_pgdat
-  kswap_balance
+Just to give a little bit more information about the previously attached 
+code, it is merely a module that does two things:  (a) demonstrates 
+proper [and sometimes faster-than-current-linus] ATA bus probing, and 
+(b) demonstrates generic registration and initialization of ATA devices 
+and channels.  All other tasks can be left to "personality" (a.k.a. 
+class) drivers, such as 'disk', 'cdrom', 'floppy', ... types.
 
-In try_to_free_buffers it died in spin_lock(&mapping->private_lock)
-(fs/buffers.c, line 2487). Because of I did not found any code
-path which does not initalize mapping's private_lock, I assume
-that bug was triggered by asm-generic/rmap.h:pgtable_add_rmap - this
-code assigns mm_struct into page's mapping field, and maybe that
-such page was passed down to try_to_release_page and everything
-went downhill...
+	Jeff
 
-Unfortunately my kernel does not have kdb, and 'gdb vmlinux /proc/kcore'
-after some time revealed that mapping contents is neither address_space 
-nor mm_struct (first two fields of structure contained pointer to the 
-beginning of structure itself, like if structure begins with empty list_t, 
-and neither of address_space nor mm_struct begins with such field).
 
-Of course it is also possible that mapping was simple released and
-memory was reused before all pages using it were destroyed, but I hope that
-we do not have such problem in kernel.
 
-System was running XFree, bk export -tplain and diff -urN kernel-tree-1 kernel-tree-2
-when BUG happened. Filesystem is ext2, but XFree use also shm. 384MB RAM,
-UP system running non-preemptible SMP kernel. After BUG system worked fine 
-(for hours), only kswapd was zombie.
-
-BTW, mapping was 0xd7c6ecdc. 
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz

@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266897AbSKOXky>; Fri, 15 Nov 2002 18:40:54 -0500
+	id <S266839AbSKOXjv>; Fri, 15 Nov 2002 18:39:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266928AbSKOXky>; Fri, 15 Nov 2002 18:40:54 -0500
-Received: from are.twiddle.net ([64.81.246.98]:10630 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S266897AbSKOXkw>;
-	Fri, 15 Nov 2002 18:40:52 -0500
-Date: Fri, 15 Nov 2002 15:47:47 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: in-kernel linking issues
-Message-ID: <20021115154747.B25789@twiddle.net>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	linux-kernel@vger.kernel.org
-References: <20021115142226.B25624@twiddle.net> <20021115230536.6C9982C10F@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021115230536.6C9982C10F@lists.samba.org>; from rusty@rustcorp.com.au on Sat, Nov 16, 2002 at 09:45:21AM +1100
+	id <S266897AbSKOXjv>; Fri, 15 Nov 2002 18:39:51 -0500
+Received: from WebDev.iNES.RO ([80.86.100.174]:39042 "HELO webdev.ines.ro")
+	by vger.kernel.org with SMTP id <S266839AbSKOXju>;
+	Fri, 15 Nov 2002 18:39:50 -0500
+Date: Sat, 16 Nov 2002 01:46:15 +0200 (EET)
+From: Andrei Ivanov <andrei.ivanov@ines.ro>
+X-X-Sender: <shadow@webdev.ines.ro>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 recovery
+Message-ID: <Pine.LNX.4.33L2.0211160140330.6700-100000@webdev.ines.ro>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 16, 2002 at 09:45:21AM +1100, Rusty Russell wrote:
-> > Actually, I've yet to come across one that is adversely affected.
-> > Note that we're putting code _not_ compiled with -fpic into this
-> > shared object.
-> 
-> Hmm, OK, I'm officially confused: I always connected the two.
-
-I encorage this view.  Normally bad things happen when this rule is
-not followed in userland.  But the kernel can bend the rules a bit.
-
-> Of course.  And ia64's module.c is about 500 lines (vs 130 for x86).
-> It's probably the worst case unless Alpha proves to be a complete pig
-> (note: ia64 might be missing some other stuff, but the linker is
-> tested).
-
-The ia64 code you have isn't going to be reliable until the
-other points I mentioned wrt section and common symbol sorting
-are done.  What you have will work until there's a large 
-variable (32k for alpha/mips, 1MB for ia64) in the data area.
-
-> Hmm, OK, I guess this is where I say "patch welcome"?
-
-I guess this is where I say "patch for what"?  Do I have some
-amount of buy-in for the shared library approach, or do I start
-adding lots of code to your .o linker?
-
-I guess I could work up a proof-of-concept patch for the former
-and see what people think...
 
 
-r~
+
+>
+> On Nov 13, 2002  19:13 +0200, Andrei Ivanov wrote:
+> > Hello, I have an ext3 formated partition on a harddrive that just got tons
+> > of badblocks and I'm trying to recover as much data as possible from that
+> > partition.
+> > If I try e2fsck /dev/hdb3 I get this error:
+> >
+> > e2fsck 1.32 (09-Nov-2002)
+> > Group descriptors look bad... trying backup blocks...
+> > e2fsck: Invalid argument while checking ext3 journal for /
+> >
+> > So I tried to remove the journal and make e2fsck treat the partition as an
+> > ext2 one, but no luck, although tune2fs -O ^has_journal /dev/hdb3 doesn't
+> > give me any message, except it's version string.
+> >
+> > If I pass fsck the backup superblock myself, it still refuses to run:
+> > e2fsck -b 32768 /dev/hdb3
+> > e2fsck: Invalid argument while checking ext3 journal for /
+> >
+> > Attached you will find some info (dmesg and hdparm). If you need any more
+> > info, tell me.
+>
+> I would suggest "dd if=bad_drive of=good_drive conv=sync,noerror"
+> and then do all of your recovery on the good drive.
+>
+> Cheers, Andreas
+> --
+> Andreas Dilger
+> http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> http://sourceforge.net/projects/ext2resize/
+
+I've finally managed to get a hard drive to do this, but I receive the
+same errors... :(
+
+Do you have any other suggestions ?
+Thanks
+
+
+
+
+

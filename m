@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265148AbUHHFZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265152AbUHHFxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265148AbUHHFZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 01:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUHHFZ3
+	id S265152AbUHHFxh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 01:53:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUHHFxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 01:25:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:6876 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265148AbUHHFZ1 (ORCPT
+	Sun, 8 Aug 2004 01:53:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24045 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265152AbUHHFxf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 01:25:27 -0400
-Date: Sat, 7 Aug 2004 22:25:16 -0700 (PDT)
+	Sun, 8 Aug 2004 01:53:35 -0400
+Date: Sat, 7 Aug 2004 22:53:13 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: James Morris <jmorris@redhat.com>
-cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, arjanv@redhat.com, dwmw2@infradead.org,
-       greg@kroah.com, Chris Wright <chrisw@osdl.org>, sfrench@samba.org,
-       mike@halcrow.us, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] implement in-kernel keys & keyring management
-In-Reply-To: <Xine.LNX.4.44.0408080046130.27710-100000@dhcp83-76.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0408072221480.1793@ppc970.osdl.org>
-References: <Xine.LNX.4.44.0408080046130.27710-100000@dhcp83-76.boston.redhat.com>
+To: Martin Mares <mj@ucw.cz>
+cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       James.Bottomley@steeleye.com, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+In-Reply-To: <20040807114046.GA5249@ucw.cz>
+Message-ID: <Pine.LNX.4.58.0408072250370.1793@ppc970.osdl.org>
+References: <200408071128.i77BSNCd006957@burner.fokus.fraunhofer.de>
+ <20040807114046.GA5249@ucw.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,23 +27,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 8 Aug 2004, James Morris wrote:
-> 
-> I would suggest that the /sbin/request-key interface be done via Netlink
-> messaging instead.  The kernel would generate key create and key update
-> messages, to which userpace daemons can respond (similar to e.g. pfkey
-> acquire).  I think these messages need to be tagged with the key 'type',
-> so that the userspace code knows what to generate keys for.
+On Sat, 7 Aug 2004, Martin Mares wrote:
+>
+> Most of all, I would like to know (I see I'm repeating myself, but I still
+> haven't seen an answer to that) what's so special about the SCSI-like devices,
 
-I really disagree. 
+Don't even bother.
 
-If you want to use netlink, do so. But do it from the /sbin/request-key
-script or binary.
+Joerg is wrong. SCSI number simply doesn't work, and the current Linux 
+setup is absolutely the right thing to do.
 
-I've never seen a good binary deamon listening for things. It's a horrible 
-interface. It's undebuggable, it's inflexible, and it's just plain nasty. 
+If Joerg keeps breaking cdrecord, the distributions will hopefully just 
+keep unbreaking it. The way you send SCSI commands to a device under Linux 
+is to open the device (with O_NDELAY) and then just start sending the 
+commands. None of the idiotic scanning and SCSI numbering crap.
 
-I'm just looking at how _well_ /sbin/hotplug has worked out. I believe 
-that it would have been a disaster done with a binary messaging setup.
+Involving Joerg in it just makes you go crazy. Don't bother.
 
 		Linus

@@ -1,24 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132532AbQKXKIS>; Fri, 24 Nov 2000 05:08:18 -0500
+        id <S132589AbQKXK1j>; Fri, 24 Nov 2000 05:27:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132608AbQKXKII>; Fri, 24 Nov 2000 05:08:08 -0500
-Received: from vp175103.reshsg.uci.edu ([128.195.175.103]:64772 "EHLO
-        moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-        id <S132532AbQKXKH6>; Fri, 24 Nov 2000 05:07:58 -0500
-Date: Fri, 24 Nov 2000 01:37:50 -0800
-Message-Id: <200011240937.eAO9bo102035@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+        id <S132609AbQKXK1a>; Fri, 24 Nov 2000 05:27:30 -0500
+Received: from devserv.devel.redhat.com ([207.175.42.156]:21004 "EHLO
+        devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+        id <S132589AbQKXK1V>; Fri, 24 Nov 2000 05:27:21 -0500
+Date: Fri, 24 Nov 2000 04:57:02 -0500
+From: Jakub Jelinek <jakub@redhat.com>
 To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org
+Cc: greg@linuxpower.cx, viro@math.psu.edu, alan@lxorguk.ukuu.org.uk,
+        bernds@redhat.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
 Subject: Re: gcc-2.95.2-51 is buggy
+Message-ID: <20001124045702.M1514@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
 In-Reply-To: <UTC200011240520.GAA143373.aeb@aak.cwi.nl>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18pre23 (i586))
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <UTC200011240520.GAA143373.aeb@aak.cwi.nl>; from Andries.Brouwer@cwi.nl on Fri, Nov 24, 2000 at 06:20:33AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2000 06:20:33 +0100 (MET), Andries.Brouwer@cwi.nl wrote:
-
+On Fri, Nov 24, 2000 at 06:20:33AM +0100, Andries.Brouwer@cwi.nl wrote:
+> >> ... RedHat's GCC snapshot "2.96" handles this case just fine.
+> 
+> > Now, if you can isolate the relevant part of the diff between
+> > 2.95.2 and RH 2.96...
+> 
+> Maybe I have to be more precise in the statement "gcc 2.95.2 is buggy".
+> 
+> I just installed gcc 2.95.2 freshly ftp'ed from ftp.gnu.org, and
+> 
+> % /usr/bin/gcc -v
 > Reading specs from /usr/lib/gcc-lib/i486-suse-linux/2.95.2/specs
 > gcc version 2.95.2 19991024 (release)
 > % /usr/bin/gcc -Wall -O2 -o bug bug.c; ./bug
@@ -31,20 +47,37 @@ On Fri, 24 Nov 2000 06:20:33 +0100 (MET), Andries.Brouwer@cwi.nl wrote:
 > 
 > So, not all versions of gcc 2.95.2 are equal.
 
-Interesting. Plain vanilla 2.95.2 from ftp.gnu.org exhibits the same
-bug on an BSDI2.1 i386 system.
+I believe all 2.95.2's are equal in this, I think the fact that it gives 0
+in the nobug case is some other reason:
 
-defiant ~/tmp$ gcc -v
-Reading specs from /usr/local/gnu/lib/gcc-lib/i386-pc-bsdi2.1/2.95.2/specs
+$ for i in gcc kgcc '/usr/src/gcc-trunk/obj/gcc/xgcc -B /usr/src/gcc-trunk/obj/gcc/' '/usr/src/gcc-2.95.2/obj/gcc/xgcc -B /usr/src/gcc-2.95.2/obj/gcc/'; do $i -v; for j in -mcpu=i386 -mcpu=i586 -mcpu=i686; do $i $j -O2 -o aeb aeb.c; echo -n "$i $j "; ./aeb; done; done
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+gcc version 2.96 20000731 (Red Hat Linux 7.0)
+gcc -mcpu=i386 0x0
+gcc -mcpu=i586 0x0
+gcc -mcpu=i686 0x0
+Reading specs from /usr/lib/gcc-lib/i386-glibc21-linux/egcs-2.91.66/specs
+gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+kgcc -mcpu=i386 0x0
+kgcc -mcpu=i586 0x0
+kgcc -mcpu=i686 0x0
+Reading specs from /usr/src/gcc-trunk/obj/gcc/specs
+Configured with:
+gcc version 2.97 20001120 (experimental)
+/usr/src/gcc-trunk/obj/gcc/xgcc -B /usr/src/gcc-trunk/obj/gcc/ -mcpu=i386 0x0
+/usr/src/gcc-trunk/obj/gcc/xgcc -B /usr/src/gcc-trunk/obj/gcc/ -mcpu=i586 0x0
+/usr/src/gcc-trunk/obj/gcc/xgcc -B /usr/src/gcc-trunk/obj/gcc/ -mcpu=i686 0x0
+Reading specs from /usr/src/gcc-2.95.2/obj/gcc/specs
 gcc version 2.95.2 19991024 (release)
-defiant ~/tmp$ gcc -O2 -o bug bug.c; ./bug
-0x4800000
+/usr/src/gcc-2.95.2/obj/gcc/xgcc -B /usr/src/gcc-2.95.2/obj/gcc/ -mcpu=i386 0x84800000
+/usr/src/gcc-2.95.2/obj/gcc/xgcc -B /usr/src/gcc-2.95.2/obj/gcc/ -mcpu=i586 0x84800000
+/usr/src/gcc-2.95.2/obj/gcc/xgcc -B /usr/src/gcc-2.95.2/obj/gcc/ -mcpu=i686 0x0
 
-Ion
+so the reason why it did not show up in the gcc you picked up from
+ftp.gnu.org is that you have compiled it so that it defaults to -mcpu=i686
+where the bug does not show up.
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+	Jakub
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

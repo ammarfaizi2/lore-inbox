@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265065AbSK1Bq4>; Wed, 27 Nov 2002 20:46:56 -0500
+	id <S265066AbSK1BuF>; Wed, 27 Nov 2002 20:50:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265066AbSK1Bqz>; Wed, 27 Nov 2002 20:46:55 -0500
-Received: from [204.221.110.13] ([204.221.110.13]:36283 "EHLO
-	minimail.digi.com") by vger.kernel.org with ESMTP
-	id <S265065AbSK1Bqz> convert rfc822-to-8bit; Wed, 27 Nov 2002 20:46:55 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [PATCH ] - 2.5.49 - New serial driver ( Digi Intl. Realport).
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Date: Wed, 27 Nov 2002 19:54:07 -0600
-Message-ID: <71A17D6448EC0140B44BCEB8CD0DA36E17D87A@minimail.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH ] - 2.5.49 - New serial driver ( Digi Intl. Realport).
-Thread-Index: AcKWgRMV15ItOQRcQXSKVfEPrxuXHw==
-From: "Scott Kilau" <Scott_Kilau@digi.com>
-To: <linux-kernel@vger.kernel.org>
+	id <S265074AbSK1BuF>; Wed, 27 Nov 2002 20:50:05 -0500
+Received: from h-64-105-35-74.SNVACAID.covad.net ([64.105.35.74]:63626 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S265066AbSK1BuE>; Wed, 27 Nov 2002 20:50:04 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 27 Nov 2002 17:54:36 -0800
+Message-Id: <200211280154.RAA07955@baldur.yggdrasil.com>
+To: kaos@ocs.com.au
+Subject: Re: Modules with list
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+On 2002-11-27 22:42:46 GMT, Keith Owens wrote:
+>On Wed, 27 Nov 2002 10:19:02 -0800, 
+>"Adam J. Richter" <adam@yggdrasil.com> wrote:
+>>       Hmm.  We could certainly have a binary editing tool to remove
+>>what was the .exit{,func} sections after the link...
+>>       In this scenario, the .exit{,func} section would be linked
+>>in and then discarded by the module loader, by the process of the
+>>kernel releasing its .init{,data} areas, or, if you wanted to build
+>>a bzImage without CONFIG_HOTPLUG, by using a binary editing tool or
+>>perhaps an ld script as I mentioned earlier in this response.
+>>
+>>       The point of the .devexit_p_refs section would just be to
+>>set those references to NULL if that was useful.  The kernel module
+>>load code would do something like:
+>
+>You have it back to front.  The real problem is open code that calls
+>functions in sections that have been discarded, that code is an oops
+>just waiting to happen.  When binutils was changed to detect such
+>dangling references, it found a lot of bad code on rarely tested error
+>paths.  Your method would stop binutils finding the dangling references
+>and open the kernel up to bad code again.
 
-Digi International would like to submit a new serial driver called Realport to the kernel tree.
+	Currently, for __devexit{,func}, this is only detected on
+CONFIG_HOTPLUG=n systems.  Under my scheme we would always build
+.devexit.{text,data} sections, so we could actually test this more
+widely, although it would require making a binary tool to delete the
+relocations at addresses pointed to by the .devexit_p_ptrs entries.
+We could have a regession test that would run that tool on every
+module, then run an ld script to delete .devexit.{data,text} and see
+if there are any dangling references.
 
-We currently ship this driver as a source RPM bundle available on our web site.
-The driver has been released for about 3 years now and is stable.
-
-The Realport product/drivers have become one of the main products of Digi and
-will be very actively supported by us.
-
-A brief description of what the driver is/does:
->         This driver makes the serial ports on a Digi RealPort enabled
->         network product appear as though they are local tty devices  
->         directly attached to the local computer.
-
-I have ported the driver up to 2.5.49,
-(The new .49 module stuff was *very* interesting!)
-
-The driver patch is quite large, so I have decided to have the patch put
-on our ftp site for download. It can be downloaded from:
-ftp://ftp.digi.com/support/techsupport/linux/linux-2.5.49-realport.diff.gz
-
-Please let me know if someone accepts and adds this patch to the kernel,
-so I can relay the good news to my powers-that-be.
-
-The changes involved are very minimal to the linux source tree.
-In fact, I can list them as follows:
-1) Created new file called Documentation/digirealport.txt
-2) Updated MAINTAINERS to include this new driver.
-4) Updated drivers/char/Kconfig to include this new driver.
-5) Updated drivers/char/Makefile to include this new driver.
-6) Created new directory in drivers/char called digi_rp.
-7) Put our Realport .c and .h files in this new directory.
-8) Created a Makefile in this new directory.
-9) Updated drivers/char/tty_io.c to include dgrp_init() for monolithic builds of the driver.
-
-I have tested it as both a module (with the new modutils of course!), and as
-a monolithic driver without any problems.
-
-Finally, if there are any questions about the driver, source, etc,
-please feel free to email me.
-
-Thanks!
-Scott Kilau
-Digi International
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

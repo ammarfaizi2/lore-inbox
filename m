@@ -1,74 +1,60 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S153996AbPKILq7>; Tue, 9 Nov 1999 06:46:59 -0500
-Received: by vger.rutgers.edu id <S153956AbPKILql>; Tue, 9 Nov 1999 06:46:41 -0500
-Received: from nms.rz.uni-kiel.de ([134.245.1.2]:55175 "HELO nms.rz.uni-kiel.de") by vger.rutgers.edu with SMTP id <S153954AbPKILqI> convert rfc822-to-8bit; Tue, 9 Nov 1999 06:46:08 -0500
-Message-ID: <382808C3.CA4E1BB7@physik.uni-kiel.de>
-Date: Tue, 09 Nov 1999 12:42:59 +0100
-From: Sven Niedner <niedner@physik.uni-kiel.de>
-Reply-To: linux-study@gimli.psychologie.uni-kiel.de
-Organization: Institut =?iso-8859-1?Q?f=FCr?= Angewandte und Experimentelle Physik
-X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.2.5 i686)
-X-Accept-Language: en
-To: linux-kernel@vger.rutgers.edu
-Cc: linux-study@psychologie.uni-kiel.de, Stefanie Hermann <mail@hermann-stolze.de>
-Subject: ANNOUNCE: Studying the Linux process (psychologically)
-MIME-version: 1.0
-Content-type: text/plain; charset="iso-8859-1"
-Content-transfer-encoding: 8BIT
+Received: by vger.rutgers.edu via listexpand id <S154172AbPKJISD>; Wed, 10 Nov 1999 03:18:03 -0500
+Received: by vger.rutgers.edu id <S153984AbPKJIRx>; Wed, 10 Nov 1999 03:17:53 -0500
+Received: from entropy.muc.muohio.edu ([134.53.213.10]:2729 "EHLO entropy.muc.muohio.edu") by vger.rutgers.edu with ESMTP id <S153942AbPKJIRi>; Wed, 10 Nov 1999 03:17:38 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:20888 "EHLO deliverator.sgi.com") by vger.rutgers.edu with ESMTP id <S154235AbPKEFhX>; Fri, 5 Nov 1999 00:37:23 -0500
+Date: Thu, 4 Nov 1999 21:37:06 -0800 (PST)
+From: Matt Robinson <yakker@cthulhu.engr.sgi.com>
+To: Linux Kernel List <linux-kernel@vger.rutgers.edu>
+Cc: yakker@sgi.com
+Subject: Linux Kernel Crash Dumps (version 1.0.1) Available
+In-Reply-To: <38220A99.F894722B@mandrakesoft.com>
+Message-ID: <Pine.SGI.3.94.991104213430.194471A-100000@awesome.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+Thanks for the announcement. :)  The 1.0.1 source code is now available,
+and a 1.0.2 version to correct a very minor bug in the librl code will
+be available tomorrow.  If you have questions about the product, please
+visit:
 
-Hi Net,
+	http://oss.sgi.com/projects/lkcd/faq.html
 
-we are planning a questionnaire study on the Linux
-development process and therefore need your input.
+There's also a majordomo list (lkcd@oss.sgi.com) which you can subscribe
+to by sending E-mail to majordomo@oss.sgi.com with the body message of:
 
-The goals of our study are:
+	subscribe lkcd your@email.address
 
-* to understand the motivations of Linux developers
+No subject line required.  Thanks, enjoy, and please send lots of
+feedback so we can improve the product.
 
-* to analyze how cooperation in a successful Open Source
-  project works
+--Matt
 
-* to make these working principles explicit so that they can be
-  further discused, optimized, and perhaps also transfered to
-  other Open Source projects
-
-* to provide a solid statistical base for theories of e.g. ESR
-
-The study itself will follow Open Source principles. This means 
-that all information and data of our study will be publicly 
-available at the project's homepage:
-
-        http://www.psychologie.uni-kiel.de/linux-study
-
-(There is also more information about our project.)
-
-Moreover, the development of the questionnaire itself will 
-follow Open Source principles in order to better integrate 
-the various experiences of Linux developers. Therefore, we 
-are anxious to learn more about your thoughts and ideas which 
-processes, principles, or motivations you think are necessary
-to enable successful software development in the Linux community.
-
-Since such a discussion is off-topic on linux-kernel, we invite 
-interested developers to join our mailing list:
-
-         linux-study@mlab.psychologie.uni-kiel.de
-
-To subscribe to the linux-study mailing list, send a mail 
-containing "subscribe linux-study" (without quotes) to
-majordomo@mlab.psychologie.uni-kiel.de .
-
-Looking forward to your ideas and comments,
-
-Sven Niedner   Stefanie Hermann   Guido Hertel
-
--- 
-Sven Niedner, Institut für Experimentelle und Angewandte Physik
-Physics of Toroidal Plasmas,
-http://www.psychologie.uni-kiel.de/~niedner
-REAL fortran programmers can program fortran in any language.
+On Thu, 4 Nov 1999, Jeff Garzik wrote:
+|>http://oss.sgi.com/projects/lkcd/
+|>
+|>The Linux Kernel Crash Dump project is designed to meet the needs of
+|>customers wanting a more reliable method of examining system failures
+|>after the machine recovers. This project contains kernel and user level
+|>code designed to: 
+|>
+|>* Save the kernel memory image when the system dies due to a software
+|>failure; 
+|>* Recover the kernel memory image when the system is rebooted; 
+|>* Analyze the memory image to determine what happened when the failure
+|>occurred. 
+|>
+|>-- 
+|>Jeff Garzik              | Just once, I wish we would encounter
+|>Building 1024            | an alien menace that wasn't immune to
+|>MandrakeSoft, Inc.       | bullets.   -- The Brigadier, "Dr. Who"
+|>
+|>-
+|>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+|>the body of a message to majordomo@vger.rutgers.edu
+|>Please read the FAQ at http://www.tux.org/lkml/
+|>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

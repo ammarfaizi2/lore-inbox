@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbUEFLqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUEFLrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbUEFLqH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 07:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUEFLqH
+	id S261685AbUEFLrU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 07:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUEFLrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 07:46:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3523 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261421AbUEFLqD (ORCPT
+	Thu, 6 May 2004 07:47:20 -0400
+Received: from mail.tpgi.com.au ([203.12.160.57]:51851 "EHLO mail1.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S261685AbUEFLrS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 07:46:03 -0400
-Date: Thu, 6 May 2004 13:45:44 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       B.Zolnierkiewicz@elka.pw.edu.pl, akpm@osdl.org
+	Thu, 6 May 2004 07:47:18 -0400
 Subject: Re: Force IDE cache flush on shutdown
-Message-ID: <20040506114544.GC16548@devserv.devel.redhat.com>
-References: <20040506070449.GA12862@devserv.devel.redhat.com> <20040506084918.B12990@infradead.org> <20040506075044.GC12862@devserv.devel.redhat.com> <20040506085549.A13098@infradead.org> <20040506104638.GA9929@devserv.devel.redhat.com> <20040506115220.A14669@infradead.org> <20040506113309.GB16548@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       B.Zolnierkiewicz@elka.pw.edu.pl, akpm@osdl.org
 In-Reply-To: <20040506113309.GB16548@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
+References: <20040506070449.GA12862@devserv.devel.redhat.com>
+	 <20040506084918.B12990@infradead.org>
+	 <20040506075044.GC12862@devserv.devel.redhat.com>
+	 <20040506085549.A13098@infradead.org>
+	 <20040506104638.GA9929@devserv.devel.redhat.com>
+	 <20040506115220.A14669@infradead.org>
+	 <20040506113309.GB16548@devserv.devel.redhat.com>
+Content-Type: text/plain
+Message-Id: <1083843938.22142.6.camel@laptop-linux.wpcb.org.au>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5-2.norlug 
+Date: Thu, 06 May 2004 21:45:38 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-On Thu, May 06, 2004 at 01:33:09PM +0200, Arjan van de Ven wrote:
-> On Thu, May 06, 2004 at 11:52:20AM +0100, Christoph Hellwig wrote:
-> > > +	idedisk_driver.gen_driver.shutdown = ide_drive_shutdown;
-> > 
-> > isn't idedisk_driver initialized statically somewhere?  You should probably
-> 
-> ok ok you win
-> 
-> diff -purN linux-2.6.5/drivers/ide/ide-disk.c linux/drivers/ide/ide-disk.c
-> --- linux-2.6.5/drivers/ide/ide-disk.c	2004-05-06 13:26:53.350284720 +0200
-> +++ linux/drivers/ide/ide-disk.c	2004-05-06 13:32:01.322465832 +0200
-> @@ -1725,6 +1725,9 @@ static ide_driver_t idedisk_driver = {
->  	.drives			= LIST_HEAD_INIT(idedisk_driver.drives),
->  	.start_power_step	= idedisk_start_power_step,
->  	.complete_power_step	= idedisk_complete_power_step,
-> +	.gen_driver = {
-> +		.shutdown	= ide_drive_shutdown,
-> +	},	                                
+If you want it tested on some more systems, send it to the suspend list
+(swsusp-devel at lists dot sourceforge dot net). There are a bunch of
+people there who'd love to give it a go and suspend2 will make any
+issues show up quickly. (At the moment, it calls
+drivers_suspend() prior to the power off call to force flushing).
 
+Regards,
 
-and that needs a prototype as well 
+Nigel
+-- 
+Nigel & Michelle Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614.
++61 (2) 6251 7727(wk); +61 (2) 6254 0216 (home)
 
---- linux-2.6.5/drivers/ide/ide-disk.c~	2004-05-06 13:44:41.052969240 +0200
-+++ linux-2.6.5/drivers/ide/ide-disk.c	2004-05-06 13:44:41.053969088 +0200
-@@ -1701,6 +1701,7 @@
- }
- 
- static int idedisk_attach(ide_drive_t *drive);
-+static int ide_drive_shutdown(struct device * dev);
- 
- /*
-  *      IDE subdriver functions, registered with ide.c
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
+

@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129424AbRCABhe>; Wed, 28 Feb 2001 20:37:34 -0500
+	id <S129446AbRCABiE>; Wed, 28 Feb 2001 20:38:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129434AbRCABh1>; Wed, 28 Feb 2001 20:37:27 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:8467 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129424AbRCABhS>;
-	Wed, 28 Feb 2001 20:37:18 -0500
-Date: Thu, 1 Mar 2001 02:36:59 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Priban <david2@maincube.net>, linux-kernel@vger.kernel.org
-Subject: Re: i2o & Promise SuperTrak100
-Message-ID: <20010301023659.F21518@suse.de>
-In-Reply-To: <MPBBILLJAONHMANIJOPDIEBIFMAA.david2@maincube.net> <E14Xnz8-0003rQ-00@the-village.bc.nu>
+	id <S129435AbRCABhy>; Wed, 28 Feb 2001 20:37:54 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:51676 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129466AbRCAB20>;
+	Wed, 28 Feb 2001 20:28:26 -0500
+Date: Thu, 1 Mar 2001 01:05:21 +0100
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Christoph Hellwig <hch@ns.caldera.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reiserfs patch for linux-2.4.2
+Message-ID: <20010301010521.A7301@caldera.de>
+Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
+	Christoph Hellwig <hch@ns.caldera.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010228202733.A18073@caldera.de> <20472.983404919@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E14Xnz8-0003rQ-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Feb 27, 2001 at 05:32:22PM +0000
+X-Mailer: Mutt 1.0i
+In-Reply-To: <20472.983404919@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Thu, Mar 01, 2001 at 11:01:59AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 27 2001, Alan Cox wrote:
-> In theory however i2o is a standard and all i2o works alike. In practice i2o
-> is a pseudo standard and nobody seems to interpret the spec the same way, the
-> implementations all tend to have bugs and the hardware sometimes does too.
+On Thu, Mar 01, 2001 at 11:01:59AM +1100, Keith Owens wrote:
+> On Wed, 28 Feb 2001 20:27:33 +0100, 
+> Christoph Hellwig <hch@ns.caldera.de> wrote:
+> >Urgg. limits.h is a userlevel header...
+> >
+> >The attached patch will make similar atempts fail (but not this one as
+> >there is also a limits.h in gcc's include dir).
+> >
+> >--- linux-2.4.0/Makefile	Mon Dec 25 19:21:14 2000
+> >-CPPFLAGS := -D__KERNEL__ -I$(HPATH)
+> >+GCCINCDIR = $(shell gcc -print-search-dirs | sed -ne 's/install: \(.*\)/\1include/gp')
+> >+CPPFLAGS := -D__KERNEL__ -nostdinc -I$(HPATH) -I$(GCCINCDIR)
+> 
+> cc: trimmed to l-k.
+> 
+> CPPFLAGS apply to the kernel compiler which can be a cross compiler but
+> you are extracting data from the host gcc.  What exactly are you trying
+> to do here?
 
-That's a pretty good description of standards in general, at least
-when it comes to hardware :-)
+Prevent inclusion of the usual (/usr/include) headers.
+
+> Are you trying to prevent the use of user space includes
+> or are you trying to pick up the cross compiler includes?
+
+Ok, gcc should be replaced by $(CC).
+
+	Christoph
 
 -- 
-Jens Axboe
-
+Of course it doesn't work. We've performed a software upgrade.

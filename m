@@ -1,72 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275342AbTHGNY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 09:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275344AbTHGNY4
+	id S275268AbTHGNcr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 09:32:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275314AbTHGNcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 09:24:56 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:3327 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S275342AbTHGNYv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 09:24:51 -0400
-Message-ID: <3F32531B.7080000@namesys.com>
-Date: Thu, 07 Aug 2003 17:24:43 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
+	Thu, 7 Aug 2003 09:32:47 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:63654 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S275268AbTHGNco
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 09:32:44 -0400
+Date: Thu, 7 Aug 2003 15:32:17 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Ed Cogburn <ecogburn@xtn.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2-(bk6 && mm5)  Build Failure - "ide_setup_dma()" is
+ MIA
+In-Reply-To: <3F323E4E.8040308@xtn.net>
+Message-ID: <Pine.SOL.4.30.0308071523470.20585-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-To: Oleg Drokin <green@namesys.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2.6] reiserfs: fix locking in reiserfs_remount
-References: <20030806093858.GF14457@namesys.com> <20030806172813.GB21290@matchmail.com> <20030806173114.GB15024@namesys.com>
-In-Reply-To: <20030806173114.GB15024@namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin wrote:
 
->Hello!
->
->On Wed, Aug 06, 2003 at 10:28:13AM -0700, Mike Fedyk wrote:
->  
->
->>>    Since reiserfs_remount can be called without BKL held, we better take BKL in there.
->>>    Please apply the below patch. It is against 2.6.0-test2
->>>      
->>>
->>is the BKL in reiserfs_write_unlock()?
->>    
->>
->
->Yes.
->
->  
->
->>Do we need to be adding more BKL usage, instead of the same or less at this
->>point?
->>    
->>
->
->Reiserfs needs BKL for it's journal operations. This is not "more",
->for some time BKL was taken in the VFS, then whoever removed that,
->forgot to propagate BKL down to actual fs methods that need the BKL.
->
->Bye,
->    Oleg
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-Is it known who removed it?
+On Thu, 7 Aug 2003, Ed Cogburn wrote:
 
--- 
-Hans
+> My .config for -bk6 is attached.  The same error occurs with the -mm5 tree
+> too.
+>
+> Update:  Ok, I figured out the problem.  I didn't have "Generic PCI
+> bus-master DMA support" enabled.  From reading its description I didn't
+> think I needed it because I have no IDE drives on my system (I need IDE for
+> 2 ATAPI devices, my hard drive is SCSI).  On reflection, I may not need "PCI
+> IDE chipset support" at all either.
+
+You don't want to use DMA on your ATAPI devices?
+
+If you want DMA on ATAPI and have PCI IDE chipset you need
+"PCI IDE chipset support" + "Generic PCI bus-master DMA support"
++ driver for you chipset.
+
+> In any event there seems to be a missing dependency here.
+>  CONFIG_BLK_DEV_IDEPCI ("PCI IDE chipset support") controls whether
+> drivers/ide/setup_pci.c is compiled.  That file calls ide_setup_dma(), but
+> this function is in drivers/ide/ide_dma.c which is controlled
+> by CONFIG_BLK_DEV_IDEDMA_PCI which is a *suboption* of IDEPCI.  In other
+> words, from my understanding of this, the latter config option, IDEDMA_PCI,
+> should be automatically *required* if the first config option, IDEPCI,
+> is selected.
+
+Yep. Proper fix is to make setup_pci.c independent of ide_dma.c (requires
+some more thought and work).
+
+> Of course, I could be reading this wrong, I'm just providing this FWIW.  :)
+
+Thanks for reporting anyway.
+
+--
+Bartlomiej
 
 

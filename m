@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264562AbUE0O1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264578AbUE0Ofw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264562AbUE0O1F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 10:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264578AbUE0O1E
+	id S264578AbUE0Ofw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 10:35:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264584AbUE0Ofw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 10:27:04 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:40338 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264562AbUE0O0l
+	Thu, 27 May 2004 10:35:52 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:55269 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264578AbUE0Ofv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 10:26:41 -0400
-Date: Thu, 27 May 2004 16:26:40 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Ingo Molnar <mingo@redhat.com>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: Cleanups for APIC
-In-Reply-To: <20040527141404.GA23566@elte.hu>
-Message-ID: <Pine.LNX.4.55.0405271614490.10917@jurand.ds.pg.gda.pl>
-References: <20040525124937.GA13347@elf.ucw.cz>
- <Pine.LNX.4.58.0405270856120.28319@devserv.devel.redhat.com>
- <Pine.LNX.4.55.0405271525140.10917@jurand.ds.pg.gda.pl>
- <Pine.LNX.4.58.0405270931040.28319@devserv.devel.redhat.com>
- <Pine.LNX.4.55.0405271542080.10917@jurand.ds.pg.gda.pl> <20040527141404.GA23566@elte.hu>
-Organization: Technical University of Gdansk
+	Thu, 27 May 2004 10:35:51 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Auzanneau Gregory <mls@reolight.net>
+Subject: Re: idebus setup problem (2.6.7-rc1)
+Date: Thu, 27 May 2004 16:37:40 +0200
+User-Agent: KMail/1.5.3
+References: <40B5D79C.6000600@reolight.net>
+In-Reply-To: <40B5D79C.6000600@reolight.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405271637.40353.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 May 2004, Ingo Molnar wrote:
+On Thursday 27 of May 2004 13:57, Auzanneau Gregory wrote:
+> Hello,
+>
+> It seems there is a problem with idebus parameter with 2.6.7-rc1.
+> Indeed, it doesn't take into account lilo append.
 
-> >  The I/O APIC need not be hooked to PCI ;-) -- I'm not sure about the
-> > i82093AA, but that's definitely true for the i82489DX.  The call to
-> > io_apic_sync() is needed for masking to make sure interrupts won't be
-> > dispatched after returning from the call -- this is not needed for
-> > unmasking as a delay here is harmless.
-> 
-> well, an APIC message could be on the way to the CPU even with this
-> synchronization. Does it matter whether it's a newly dispatched one due
-> to POST delays or an in-fly one due to APIC bus delays?
+Why are you using it in the first place?
 
- Well, if you'd mask, sync, ack (send EOI) in a handler, then the sync
-would assure the ack wouldn't be in effect before masking, so no further
-interrupt would arrive till unmasking.  It would work for level-triggered
-interrupts and the i82093AA, but OTOH for the i82489DX, which uses
-level-deassert messages, it wouldn't.
+Let me guess... you've nForce2 chipset and lspci shows you 66MHz.
+You don't need and really shouldn't be using 'idebus=66'.
 
- Too much hassle for an unreliable result...  Just scrap it.
+> With 2.6.7-rc1-mm1, i've got:
+> Kernel command line: BOOT_IMAGE=LinuxNEW ro root=304 idebus=66
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+This needs fixing.
+
+I remember seeing patch related to handling '=' in kernel params,
+maybe it's related (or maybe not).
+
+> With 2.6.6-mm3, i've got:
+> May 24 11:37:43 greg-port kernel: Kernel command line:
+> BOOT_IMAGE=LinuxNEW ro root=304 idebus=66
+> May 24 11:37:43 greg-port kernel: ide_setup: idebus=66
+> May 24 11:37:43 greg-port kernel: ide: Assuming 66MHz system bus speed
+> for PIO modes
+>
+> I tried to seek in the code, but my level is not as good as I would like
+> it. :)
+>
+>
+> Thank you all for the good work with linux, keep up with it ! :)
+

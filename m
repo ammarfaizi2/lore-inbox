@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263347AbTJESsd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 14:48:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263368AbTJESsd
+	id S263383AbTJETBM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 15:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263386AbTJETBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 14:48:33 -0400
-Received: from lewis.CNS.CWRU.Edu ([129.22.104.62]:54450 "EHLO
-	lewis.CNS.CWRU.Edu") by vger.kernel.org with ESMTP id S263347AbTJESsc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 14:48:32 -0400
-Date: Sun, 05 Oct 2003 14:48:31 -0400
-From: Justin Hibbits <jrh29@po.cwru.edu>
-Subject: BUG in 2.4.xx
-To: linux-kernel@vger.kernel.org
-Message-id: <83C51710-F764-11D7-BAB4-000A95841F44@po.cwru.edu>
-MIME-version: 1.0
-X-Mailer: Apple Mail (2.552)
-Content-type: text/plain; format=flowed; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	Sun, 5 Oct 2003 15:01:11 -0400
+Received: from gprs148-216.eurotel.cz ([160.218.148.216]:1664 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263383AbTJETBJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 15:01:09 -0400
+Date: Sun, 5 Oct 2003 21:00:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: paul.devriendt@amd.com, davej@redhat.com,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>
+Subject: powernow-k8: don't crash system at boot
+Message-ID: <20031005190056.GA863@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(panic from 2.4.22, but panics also in 2.4.21)
+Hi!
 
-This is what I get when I have high memory support and preempt enabled 
-in any 2.4 kernel.  High mem set to 4GB.  If I disable preempt, all 
-works just fine.  If you need more help, I'll keep this kernel around.
+powernow-k8 module fails to initialize government on boot, leading to
+nasty crash at boot.
 
--Justin
+This fixes it. Plus find_closest_find really wants to be static. Fix
+it, too.
+								Pavel
+
+Index: arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+===================================================================
+RCS file: /home/pavel/sf/bitbucket/bkcvs/linux-2.5/arch/i386/kernel/cpu/cpufreq/powernow-k8.c,v
+retrieving revision 1.2
+diff -u -u -r1.2 powernow-k8.c
+--- arch/i386/kernel/cpu/cpufreq/powernow-k8.c	1 Oct 2003 17:33:23 -0000	1.2
++++ arch/i386/kernel/cpu/cpufreq/powernow-k8.c	5 Oct 2003 18:41:50 -0000
+@@ -718,7 +718,7 @@
+ 
+ /* Converts a frequency (that might not necessarily be a multiple of 200) */
+ /* to a fid.                                                              */
+-u32
++static u32
+ find_closest_fid(u32 freq, int searchup)
+ {
+ 	if (searchup == SEARCH_UP)
+@@ -971,6 +971,7 @@
+ 	pol->cpuinfo.max_freq = 1000 * find_freq_from_fid(ppst[numps-1].fid);
+ 	pol->min = 1000 * find_freq_from_fid(ppst[0].fid);
+ 	pol->max = 1000 * find_freq_from_fid(ppst[batps - 1].fid);
++	pol->governor = CPUFREQ_DEFAULT_GOVERNOR;
+ 
+ 	printk(KERN_INFO PFX "cpu_init done, current fid 0x%x, vid 0x%x\n",
+ 	       currfid, currvid);
 
 
-Partition check:
-  /dev/ide/host0/bus0/target0/lun0:kernel BUG at sched.c:1263!
-invalid operand 0000
-CPU: 0
-EIP: 0010:[<c01aac85>] Not tainted
-EFLAGS: 00010213
-eax: ffffffff ebx: c0148000 ecx: c01614e0 edx: c01614e0
-esi: 00000001 edi: 00000000 ebp: c0149f24 esp: c0149f0c
-ds: 0018 es: 0018
-Process swapper (pid: 0, stackpage=c01490000)
 
-Stack: c0149000 00000001 0000000 c0148000 00000001 00000000 c0149f30 
-c01ab122
-c0148000 c0145d40 c01b3428 c0145d00 c01b3326 00000001 00000001
-c0145d40 fffffffe c01b310a c0145d40 c0148000 00000000 c0144f40 c0449f88
-Call Trace: [<c01ab122>] [<c01b3428>] [<c01b3326>] [<c01b310a>] 
-[<c019e81a>]
-	[<c019b4f0>] [<c01a0d33>] [<c019b4f0>] [<c019b513>] [<c019b569>]
-	[<c019b25d>]
-
-Code: 0f 0b ef 04 58 9c 38 c0 b8 00 e0 ff ff 21 e0 ff 40 04 89 45
-  <0>Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

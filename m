@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263182AbUEBR0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263166AbUEBRFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263182AbUEBR0h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 13:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbUEBR0h
+	id S263166AbUEBRFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 13:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUEBRFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 13:26:37 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:65441 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S263182AbUEBR0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 13:26:33 -0400
-Message-ID: <40952E29.2070903@t-online.de>
-Date: Sun, 02 May 2004 19:21:45 +0200
-From: mikeb1@t-online.de (Michael Berger)
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5) Gecko/20031007
-X-Accept-Language: de, en-us
-MIME-Version: 1.0
+	Sun, 2 May 2004 13:05:25 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:22230 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S263166AbUEBRFU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 13:05:20 -0400
+Date: Sun, 2 May 2004 19:05:20 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Error in installing kernel 2.6.5 compiled with GCC 3.4.0 and
- -mregparm=3
-References: <408BBCB2.9010804@t-online.de> <m2d65n2hw9.fsf@p4.localdomain>
-In-Reply-To: <m2d65n2hw9.fsf@p4.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Seen: false
-X-ID: rIveBMZLYenO92jr93vfl8Frij0XAkTdosVL91IUpqnb-jNhQBphca
+Subject: Re: [RFC] Filesystem with multiple mount-points
+Message-ID: <20040502170519.GA9255@MAIL.13thfloor.at>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0405021508210.834-100000@poirot.grange> <Pine.LNX.4.58L0.0405021712280.31153@ahriman.bucharest.roedu.net> <6ur7u2izmj.fsf@zork.zork.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6ur7u2izmj.fsf@zork.zork.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Peter
+On Sun, May 02, 2004 at 05:04:52PM +0100, Sean Neakums wrote:
+> GNU/Dizzy <dizzy@roedu.net> writes:
+> 
+> > How about mounting the big volume somewhere and using -o bind to mount 
+> > some paths within it in different places of your needs ? I know that -o 
+> > bind doesnt honor -o ro yet but if you really needed maybe you can make a 
+> > patch for that, I for one would be very interested about that.
+> 
+> Herbert Poetzl's bind mount extensions should fit the bill here.
+> I am unsure of the current status of the patches, though.
 
-Thank you for your reply. I receive LKML through my ISP. I have only 
-this messages in my messages file:
+current status is simple, there are patches for
+kernel 2.4 and 2.6 available, maybe a little outdated
+but that should not be too hard to fix, if there is
+some interest (so let me know ;).
 
-===============================================================================================
+I started to prepare those patches for inclusion
+in mainline, but the first patch (atime) still has
+not been included so I delayed the other patches,
+because I do not want to walk an empty mile ...
 
-Apr 25 12:58:55 Loki modprobe: FATAL: Error inserting loop 
-(/lib/modules/2.6.5/kernel/drivers/block/loop.ko): Invali
-d module format
-Apr 25 12:58:55 Loki kernel: loop: version magic '2.6.5 PENTIUMIII 
-REGPARM gcc-3.4' should be '2.6.5 PENTIUMIII gcc-
-3.4'
-Apr 25 12:58:55 Loki modprobe: FATAL: Error inserting loop 
-(/lib/modules/2.6.5/kernel/drivers/block/loop.ko): Invali
-d module format
-Apr 25 12:58:55 Loki kernel: loop: version magic '2.6.5 PENTIUMIII 
-REGPARM gcc-3.4' should be '2.6.5 PENTIUMIII gcc-
-3.4'
-Apr 25 13:01:13 Loki modprobe: FATAL: Error inserting loop 
-(/lib/modules/2.6.5/kernel/drivers/block/loop.ko): Invali
-d module format
-Apr 25 13:01:13 Loki kernel: loop: version magic '2.6.5 PENTIUMIII 
-REGPARM gcc-3.4' should be '2.6.5 PENTIUMIII gcc-
-3.4'
-Apr 25 13:01:13 Loki modprobe: FATAL: Error inserting loop 
-(/lib/modules/2.6.5/kernel/drivers/block/loop.ko): Invali
-d module format
-Apr 25 13:01:13 Loki kernel: loop: version magic '2.6.5 PENTIUMIII 
-REGPARM gcc-3.4' should be '2.6.5 PENTIUMIII gcc-
-3.4'
-Apr 25 13:18:04 Loki kernel: loop: loaded (max 8 devices)
-
-==================================================================================================
-
-This is after I rebooted the machine with the "new kernel" compiled with 
--mregparm=3. For the installation I loaded by hand the loop
-and ext2 module and installed the kernel. After rebooting I have now 
-this messages in my log files. I switched back to without
--mregparm=3 kernel 2.6.5 and this messages are away. I will do more 
-tests on a scratch box and with different config files and compilers.
-
-Best regards,
-
-Michael
+best,
+Herbert
 

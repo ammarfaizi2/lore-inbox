@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbUCPOX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 09:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUCPOXp
+	id S261850AbUCPOUq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 09:20:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbUCPOSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 09:23:45 -0500
-Received: from styx.suse.cz ([82.208.2.94]:5762 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S261964AbUCPOTu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 09:19:50 -0500
-Content-Transfer-Encoding: 7BIT
-Message-Id: <10794467781850@twilight.ucw.cz>
-Content-Type: text/plain; charset=US-ASCII
-Subject: [PATCH 44/44] Fixes in wacom.c: SLAB_ATOMIC->GFP_KERNEL and count bug in open()
-X-Mailer: gregkh_patchbomb_levon_offspring
-To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+	Tue, 16 Mar 2004 09:18:37 -0500
+Received: from law9-f22.law9.hotmail.com ([64.4.9.22]:29189 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S261850AbUCPOIp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 09:08:45 -0500
+X-Originating-IP: [202.9.130.118]
+X-Originating-Email: [pushkaragashe@hotmail.com]
+From: "vijay agashe" <pushkaragashe@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Active defragmentation : A replacement for bigphysarea?
+Date: Tue, 16 Mar 2004 14:08:30 +0000
 Mime-Version: 1.0
-Date: Tue, 16 Mar 2004 15:19:38 +0100
-In-Reply-To: <1079446778675@twilight.ucw.cz>
-From: Vojtech Pavlik <vojtech@suse.cz>
+Content-Type: text/plain; format=flowed
+Message-ID: <Law9-F22mEoxWAE1EHA00021cd6@hotmail.com>
+X-OriginalArrivalTime: 16 Mar 2004 14:08:37.0666 (UTC) FILETIME=[2D388020:01C40B60]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input
+I have implemented a memory defragmentation utility for linux kernel 2.6 
+based on the paper by Mr. Daniel Phillips.
+Can this utility be used instead of bigphysarea patch for requirements less 
+than MAX_ORDER of allocation ?
+Can the people using bigphysarea patch kindly provide me with their 
+respective memory requirements.
 
-===================================================================
+Pushkar.
 
-ChangeSet@1.1608.98.2, 2004-03-12 13:51:14+01:00, oliver@neukum.org
-  input: fixes in wacom.c
-    -use GFP_KERNEL where SLAB_ATOMIC is not needed
-    -fix count bug in open() error path
-
-
- wacom.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
-
-===================================================================
-
-diff -Nru a/drivers/usb/input/wacom.c b/drivers/usb/input/wacom.c
---- a/drivers/usb/input/wacom.c	Tue Mar 16 13:17:23 2004
-+++ b/drivers/usb/input/wacom.c	Tue Mar 16 13:17:23 2004
-@@ -593,8 +593,10 @@
- 		return 0;
- 
- 	wacom->irq->dev = wacom->usbdev;
--	if (usb_submit_urb(wacom->irq, GFP_KERNEL))
-+	if (usb_submit_urb(wacom->irq, GFP_KERNEL)) {
-+		wacom->open--;
- 		return -EIO;
-+	}
- 
- 	return 0;
- }
-@@ -619,7 +621,7 @@
- 		return -ENOMEM;
- 	memset(wacom, 0, sizeof(struct wacom));
- 
--	wacom->data = usb_buffer_alloc(dev, 10, SLAB_ATOMIC, &wacom->data_dma);
-+	wacom->data = usb_buffer_alloc(dev, 10, GFP_KERNEL, &wacom->data_dma);
- 	if (!wacom->data) {
- 		kfree(wacom);
- 		return -ENOMEM;
+_________________________________________________________________
+Protect your PC from viruses. Get in the experts. 
+http://www.msn.co.in/pcsafety/ Click here now!
 

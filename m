@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbUK0TmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbUK0Tp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbUK0TmW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 14:42:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbUK0TmW
+	id S261316AbUK0Tp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 14:45:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbUK0Tp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 14:42:22 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:25099 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261314AbUK0TmV (ORCPT
+	Sat, 27 Nov 2004 14:45:58 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:10392 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261316AbUK0Tpy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 14:42:21 -0500
-Message-ID: <41A8D89B.9090909@domdv.de>
-Date: Sat, 27 Nov 2004 20:42:19 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040918
-X-Accept-Language: en-us, en, de
+	Sat, 27 Nov 2004 14:45:54 -0500
+Date: Sat, 27 Nov 2004 20:45:51 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Richard Patterson <vectro@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Seekable pipes
+In-Reply-To: <20041127054852.47669.qmail@web13523.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.53.0411272044390.27610@yvahk01.tjqt.qr>
+References: <20041127054852.47669.qmail@web13523.mail.yahoo.com>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Javier Villavicencio <javierv@migraciones.gov.ar>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: no entropy and no output at /dev/random  (quick question)
-References: <41A7EDA1.5000609@migraciones.gov.ar> <Pine.LNX.4.53.0411272019350.27610@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0411272019350.27610@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
-> I doubt that timer and eth* are a non-predictable source. As such, they should
-> not contribute to the entropy. Better is the keyboard and/or mouse. SSH traffic
-> is network traffic, and if you send it to a network card, you can expect an
-> interrupt at <time>... prdictable.
+>Hello,
+>
+>I want to implement an interface for seekable pipes
+>(and FIFOs) in the Linux kernel.  The basic idea of
+>this is that when the reader issues a seek(), this
+>information can be passed onto the writer, who will
+>continue writing from the new location. Since the
+>reader doesn't have to do anything special, this
+>allows user-space programs to simulate real files,
+>providing features such as network filesystems and
+>database large-objects, all in user space.
 
-Timer, ok. But network - only if you are in full control of the network 
-segment the system is attached to which may be the case for your private 
-network but usually you can't predict what network traffic is actually 
-going on.
+Why not simply create two pipes, and use one for the data (from writer to
+reader) and the other for control (r->w)? Then you would not need to poke with
+the kernel after all.
+
+
+
+Jan Engelhardt
 -- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

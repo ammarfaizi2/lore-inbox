@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293347AbSCAQoQ>; Fri, 1 Mar 2002 11:44:16 -0500
+	id <S293357AbSCAQoP>; Fri, 1 Mar 2002 11:44:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293303AbSCAQoB>; Fri, 1 Mar 2002 11:44:01 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31506 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293317AbSCAQnN>;
-	Fri, 1 Mar 2002 11:43:13 -0500
-Message-ID: <3C7FAF8E.2CBEB702@mandrakesoft.com>
-Date: Fri, 01 Mar 2002 11:42:54 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: Matti Aarnio <matti.aarnio@zmailer.org>,
-        Ben Greear <greearb@candelatech.com>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+	id <S293347AbSCAQn6>; Fri, 1 Mar 2002 11:43:58 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:45702 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S293303AbSCAQmM>;
+	Fri, 1 Mar 2002 11:42:12 -0500
+Date: Fri, 01 Mar 2002 08:40:05 -0800 (PST)
+Message-Id: <20020301.084005.102610456.davem@redhat.com>
+To: greearb@candelatech.com
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
         linux-net@vger.kernel.org
 Subject: Re: Various 802.1Q VLAN driver patches. [try2]
-In-Reply-To: <Pine.LNX.4.33L2.0203010832340.7850-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3C7FAC00.4010402@candelatech.com>
+In-Reply-To: <3C7FA81A.3070602@candelatech.com>
+	<20020301.081110.76328637.davem@redhat.com>
+	<3C7FAC00.4010402@candelatech.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" wrote:
-> Attachment with Netscape 4.5/4.7 work fine.  They look like
-> plain text email (probably an option).  jgarzik and I have used
-> them successfully many times, including for Linus.
-
-Yep.
-
-The rule in Netscape appears to be, as long as the file doesn't have
-unprintable characters, it is attached as text/plain, which is the
-desired effect.
-
-	Jeff
-
-
-
--- 
-Jeff Garzik      |
-Building 1024    |
-MandrakeSoft     | Choose life.
+   From: Ben Greear <greearb@candelatech.com>
+   Date: Fri, 01 Mar 2002 09:27:44 -0700
+   
+   Resend of the patches:
+   
+Same line wrapping, try again.

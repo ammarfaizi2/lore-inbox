@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269390AbUJMQFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269731AbUJMQJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269390AbUJMQFd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 12:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269730AbUJMQFd
+	id S269731AbUJMQJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 12:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269738AbUJMQJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 12:05:33 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:62614 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269390AbUJMQF2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 12:05:28 -0400
-Message-ID: <9625752b04101309054eccbf@mail.gmail.com>
-Date: Wed, 13 Oct 2004 09:05:28 -0700
-From: Danny <dannydaemonic@gmail.com>
-Reply-To: Danny <dannydaemonic@gmail.com>
-To: Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-Subject: Re: mm kernel oops with r8169 & named, PREEMPT
-Cc: netdev@oss.sgi.com
-In-Reply-To: <20041013072814.GA24066@electric-eye.fr.zoreil.com>
+	Wed, 13 Oct 2004 12:09:27 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:48073 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269731AbUJMQJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 12:09:25 -0400
+Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+From: Lee Revell <rlrevell@joe-job.com>
+To: Martijn Sipkema <martijn@entmoot.nl>
+Cc: Sven Dietrich <sdietrich@mvista.com>, "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Thomas Gleixner <tglx@linutronix.de>, dwalker@mvista.com,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       amakarov@ru.mvista.com, ext-rt-dev@mvista.com,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <027e01c4b12a$188fda40$161b14ac@boromir>
+References: <20041012211201.GA28590@nietzsche.lynx.com>
+	 <EOEGJOIIAIGENMKBPIAEGEJGDKAA.sdietrich@mvista.com>
+	 <20041012225706.GC30966@nietzsche.lynx.com>
+	 <027e01c4b12a$188fda40$161b14ac@boromir>
+Content-Type: text/plain
+Message-Id: <1097682969.6538.5.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 13 Oct 2004 11:56:10 -0400
 Content-Transfer-Encoding: 7bit
-References: <9625752b041012230068619e68@mail.gmail.com>
-	 <20041013072814.GA24066@electric-eye.fr.zoreil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Oct 2004 09:28:14 +0200, Francois Romieu wrote:
-> Try the patch below (courtesy of Jon Mason, whitespaces may be wrong) and
-> see 1) if things perform better 2) if "timeout" messages appear in the
-> kernel log.
+On Wed, 2004-10-13 at 09:39, Martijn Sipkema wrote:
+> As you are mentioning TimeSys; they are distributing a modified kernel
+> with added realtime features, but do they also make the source available?
+> I know that they used to extend the kernel using a proprietary kernel
+> module; a clear violation of the GPL.
 
-The patch doesn't fix or prevent the oops.  Performance might have
-been better but I did no formal tests.  There were no "timeout"
-messages in the kernel log, however I only ran it with this change for
-35-45 minutes.
+OK, obvious troll, but I'll bite...
 
-I should mention that in the kernel log, with linux-2.6.8.1-mm4, it
-complains "process `named' is using obsolete setsockopt SO_BSDCOMPAT".
- However, with the most recent, 2.6.9-rc4-mm1, it doesn't get that
-far.  A "Unable to handle kernel paging request at virtual address
-00017f8c" happens instead.  I'm guessing the oops is just killing
-named before it gets that far.
+How is this any different from what the Nvidia module does?
 
-I enabled some more debug options in the kernel and I'm getting a 2nd
-oops following the first.
+Lee
 
-I wasn't sure if I should paste the huge oops here, and since the raw
-dmesg also shows spin lock errors, I thought I'd just post both on the
-web:
-http://members.cox.net/valenzdu/oops-raw
-http://members.cox.net/valenzdu/oops-processed
-
-I ran it through ksymoops but I don't have a /proc/ksyms and when I
-tried using /proc/kallsyms it gave me a format error.  I hope this is
-helpful, let me know if there is anything else I can do. (CC me
-please.)

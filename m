@@ -1,267 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263008AbTCLDf1>; Tue, 11 Mar 2003 22:35:27 -0500
+	id <S263007AbTCLDdD>; Tue, 11 Mar 2003 22:33:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263009AbTCLDf1>; Tue, 11 Mar 2003 22:35:27 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:56570 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S263008AbTCLDfW>;
-	Tue, 11 Mar 2003 22:35:22 -0500
-Message-ID: <3E6EAD5F.801@mvista.com>
-Date: Tue, 11 Mar 2003 19:45:35 -0800
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>, akpm@digeo.com,
-       cobra@compuserve.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: Runaway cron task on 2.5.63/4 bk?
-References: <Pine.LNX.4.44.0303101529040.20597-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0303101529040.20597-100000@home.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------050707010003020506090302"
+	id <S263008AbTCLDdD>; Tue, 11 Mar 2003 22:33:03 -0500
+Received: from bitmover.com ([192.132.92.2]:25232 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S263007AbTCLDdB>;
+	Tue, 11 Mar 2003 22:33:01 -0500
+Date: Tue, 11 Mar 2003 19:43:30 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Cc: ockman@penguincomputing.com, dev@bitmover.com
+Subject: [ANNOUNCE] BK->CVS (real time mirror)
+Message-ID: <20030312034330.GA9324@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org, ockman@penguincomputing.com,
+	dev@work.bitmover.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We've been working on a gateway between BitKeeper and CVS to provide
+the revision history in a form which makes the !BK people happy (or
+happier).
 
-This is a multi-part message in MIME format.
---------------050707010003020506090302
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+We have the first pass of this completed and have a linux 2.5 tree on
+kernel.bkbits.net and you can check out the tree as follows (please don't
+do this unless you are a programmer and will be using this.  Penguin
+Computing provided the hardware and the bandwidth for that machine and
+if you all melt down the network they could get annoyed.  By all means
+go for it if you actually write code, though, that's why it is there.)
 
-Ok, here is what I have.  I changed nano sleep to use a local 64-bit
-value for the target expire time in jiffies.  As much as MAX-INT/2-1
-will be put in the timer at any one time. It loops till the target
-time is met or exceeded.  The changes affect (clock)nanosleep only and
-not timers (they still error out for large values).
+    mkdir ws
+    cd ws
+    cvs -d:pserver:anonymous@kernel.bkbits.net:/home/cvs co linux-2.5
 
-I now use the simple u64=(long long) a * b for the mpy so I have 
-dropped the sc_math.h stuff (I will bring that round again :).
+Each of the releases are tagged, they are of the form v2_5_64 etc.
 
-What do you think?
+Linus had said in the past that someone other than us should do this but
+as it turns out, to do a reasonable job you need BK source.  So we did it.
+What do we mean by a reasonable job?  BitKeeper has an automatic branch
+feature which captures all parallel development.  It's cool but a bit
+pedantic and it makes exporting to a different system almost impossible
+if you try and match what BK does exactly.  So we didn't.  What we
+(actually Wayne Scott) did was to write a graph traversal alg which
+finds the longest path through the revision history which includes
+all tags.  For the 2.5 tree, that is currently 8298 distinct points.
+Each of those points has been captured in CVS as a commit.  If we did
+our job correctly, each of these commits has the same timestamp across
+all files.  So you should be able to get any changeset out of the CVS
+tree with the appropriate CVS command based on dates.
 
-Oh, the code passes the tests I have, but I have not tried to test for
-very large sleep times.
--g
+We also created a ChangeSet file in the CVS tree.  It has no contents, it
+serves as a place to capture the BK changeset comments.  Each file which
+is part of a changeset has an extra comment which is of the form
 
+	(Logical change 1.%d)
 
-Linus Torvalds wrote:
-> On Tue, 11 Mar 2003, Felipe Alfaro Solana wrote:
-> 
->> 
->>why not sleep(0)? 
-> 
-> 
-> I think a much more likely (and correct) usage for big sleep values is 
-> more something like this:
-> 
-> 	do_with_timeout(xxx, int timeout)
-> 	{
-> 		struct timespec ts;
-> 
-> 		... set up some async event ..
-> 		ts.tv_nsec = 0;
-> 		ts.tv_sec = timeout;
-> 		while (nanosleep(&ts, &ts)) {
-> 			if (async event happened)
-> 				return happy;
-> 		}
-> 		.. tear down the async event if it didn't happen ..
-> 	}
-> 
-> and here the natural thing to do in user space is to just make the "no 
-> timeout" case be a huge value.
-> 
-> At which point it is a _bug_ in the kernel if we return early with some 
-> random error code.
-> 
-> 		Linus
-> 
-> 
+where the "1.%d" matches the changeset rev.  So you can look for all files
+that have (Logical change 1.300) in their comments to reconstruct the 
+changeset.  NOTE!  That information is actually redundant, the timestamps
+are supposed to do the same thing, let us know if that is not working, we'll
+redo it.  I expect we'll find bugs, please be patient, it takes 4 hours of
+CPU time on a 2.1Ghz Athlon to do the conversion, that's a big part of 
+why this has taken so long.  That's after a week's worth of optimizations.
 
+Each ChangeSet delta has a BK rev associated with it in the comments.
+We'll be giving you a small shell script which you can use to send Linus
+patches that include the rev and we'll modify BK so that it can take
+those patches with no patch rejects if you used that script.
+
+We have a first pass of a real time gateway between BK and this CVS tree 
+done.  Right now it is done by hand (by me) but as soon as it is debugged
+you will see this tree being updated about 1-3 minutes after Linus pushes
+to bkbits.  
+
+Once you guys look this over and decide you like it, we'll do the same
+thing for the 2.4 tree.
+
+We're also talking to an unnamed (in case it doesn't work out) Linux
+company who may host bkbits.net for us.  If they do that, we'll turn
+the GNU patch exporter feature in BKD.  That means that you'll be able
+to wget any changeset as a GNU patch, complete with checkin comments.
+I'm working with Alan on the format, I think we're close though I have
+to run the latest version past him.
+
+If all of this sounds nice, it is.  It was a lot of work for us to do
+this and you might be wondering why we bothered.  Well, for a couple of
+reasons.  First of all, it was only recently that I realized that because
+BK is not free software some people won't run BK to get data out of BK.
+It may be dense on my part, but I simply did not anticipate that people
+would be that extreme, it never occurred to me.  We did a ton of work to
+make sure anyone could get their data out of BK but you do have to run
+BK to get the data.  I never thought of people not being willing to run
+BK to get at the data.  Second, we have maintained SCCS compatible file
+formats so that there would be another way to get the data out of BK.
+This has held us back in terms of functionality and performance.  I had
+thought there was some value in the SCCS format but recent discussions
+on this list have convinced me that without the changeset information
+the file format doesn't have much value.
+
+Our goal is to provide the data in a way that you can get at it without
+being dependent on us or BK in any way.  As soon as we have this
+debugged, I'd like to move the CVS repositories to kernel.org (if I can
+get HPA to agree) and then you'll have the revision history and can live
+without the fear of the "don't piss Larry off license".  Quite frankly,
+we don't like the current situation any better than many of you, so if
+this addresses your concerns that will take some pressure off of us.
+
+Another goal is to have the freedom to evolve our file formats to be
+better, better performance and more features.  SCCS is holding us back.
+So you should look hard at what we are providing and figure out if it
+is enough.  If you come back with "well, it's not BitKeeper so it's
+not enough" we'll just ignore that.  CVS isn't BitKeeper.  On the
+other hand, we believe we have gone as far as is possible to provide
+all of the information, checkin comments, data, timestamps, user names,
+everything.  The graph traversal alg captures information at an extremely
+fine granularity, absolutely as fine is possible.  We have 8298 distinct
+points over the 2.5.0 .. 2.5.64 set of changes, so it is 130 times finer
+than the official releases.  If you think something is missing, tell us,
+we'll try and fix it.
+
+The payoff for you is that you have the data in a format that is not
+locked into some tool which could be taken away.  The payoff for us is
+that we can evolve our tool as we see fit.  We have that right today,
+we can do whatever we want, but it would be anywhere from annoying
+to unethical to do so if that meant that you couldn't get at the data
+except through BitKeeper.  So the "deal" here is that you get the data
+in CVS (and/or patches + comments) and we get to hack the heck out of
+the file format.  Our changes are going to move far faster than CSSC or
+anyone else could keep up without a lot of effort.  On the other hand,
+our changes are going to make cold cache performance be much closer to
+hot cache performance, use a lot less disk space, a lot less memory,
+and a lot less CPU.
+
+So take a look and tell me what you think.
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
-
---------------050707010003020506090302
-Content-Type: text/plain;
- name="hrtimers-large-2.5.64-1.1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="hrtimers-large-2.5.64-1.1.patch"
-
-diff -urP -I '\$Id:.*Exp \$' -X /usr/src/patch.exclude linux-2.5.64-kb/include/linux/thread_info.h linux/include/linux/thread_info.h
---- linux-2.5.64-kb/include/linux/thread_info.h	2002-12-11 06:25:32.000000000 -0800
-+++ linux/include/linux/thread_info.h	2003-03-10 16:39:52.000000000 -0800
-@@ -12,7 +12,7 @@
-  */
- struct restart_block {
- 	long (*fn)(struct restart_block *);
--	unsigned long arg0, arg1, arg2;
-+	unsigned long arg0, arg1, arg2, arg3;
- };
- 
- extern long do_no_restart_syscall(struct restart_block *parm);
-diff -urP -I '\$Id:.*Exp \$' -X /usr/src/patch.exclude linux-2.5.64-kb/kernel/posix-timers.c linux/kernel/posix-timers.c
---- linux-2.5.64-kb/kernel/posix-timers.c	2003-03-05 15:10:40.000000000 -0800
-+++ linux/kernel/posix-timers.c	2003-03-11 16:51:39.000000000 -0800
-@@ -183,7 +183,7 @@
- __initcall(init_posix_timers);
- 
- static inline int
--tstojiffie(struct timespec *tp, int res, unsigned long *jiff)
-+tstojiffie(struct timespec *tp, int res, u64 *jiff)
- {
- 	unsigned long sec = tp->tv_sec;
- 	long nsec = tp->tv_nsec + res - 1;
-@@ -203,7 +203,7 @@
- 	 * below.  Here it is enough to just discard the high order
- 	 * bits.  
- 	 */
--	*jiff = HZ * sec;
-+	*jiff = (u64)sec * HZ;
- 	/*
- 	 * Do the res thing. (Don't forget the add in the declaration of nsec) 
- 	 */
-@@ -221,9 +221,12 @@
- static void
- tstotimer(struct itimerspec *time, struct k_itimer *timer)
- {
-+	u64 result;
- 	int res = posix_clocks[timer->it_clock].res;
--	tstojiffie(&time->it_value, res, &timer->it_timer.expires);
--	tstojiffie(&time->it_interval, res, &timer->it_incr);
-+	tstojiffie(&time->it_value, res, &result);
-+	timer->it_timer.expires = (unsigned long)result;
-+	tstojiffie(&time->it_interval, res, &result);
-+	timer->it_incr = (unsigned long)result;
- }
- 
- static void
-@@ -1020,6 +1023,9 @@
-  * Note also that the while loop assures that the sub_jiff_offset
-  * will be less than a jiffie, thus no need to normalize the result.
-  * Well, not really, if called with ints off :(
-+
-+ * HELP, this code should make an attempt at resolution beyond the 
-+ * jiffie.  Trouble is this is "arch" dependent...
-  */
- 
- int
-@@ -1208,6 +1214,7 @@
- 	struct timespec t;
- 	struct timer_list new_timer;
- 	struct abs_struct abs_struct = { .list = { .next = 0 } };
-+	u64 rq_time = 0;
- 	int abs;
- 	int rtn = 0;
- 	int active;
-@@ -1226,11 +1233,12 @@
- 		 * time and continue.
- 		 */
- 		restart_block->fn = do_no_restart_syscall;
--		if (!restart_block->arg2)
--			return -EINTR;
- 
--		new_timer.expires = restart_block->arg2;
--		if (time_before(new_timer.expires, jiffies))
-+		rq_time = restart_block->arg3;
-+		rq_time = (rq_time << 32) + restart_block->arg2;
-+		if (!rq_time)
-+			return -EINTR;
-+		if (rq_time <= get_jiffies_64())
- 			return 0;
- 	}
- 
-@@ -1243,37 +1251,37 @@
- 	}
- 	do {
- 		t = *tsave;
--		if ((abs || !new_timer.expires) &&
--		    !(rtn = adjust_abs_time(&posix_clocks[which_clock],
--					    &t, abs))) {
--			/*
--			 * On error, we don't set up the timer so
--			 * we don't arm the timer so
--			 * del_timer_sync() will return 0, thus
--			 * active is zero... and so it goes.
--			 */
-+		if (abs || !rq_time){
-+			adjust_abs_time(&posix_clocks[which_clock], &t, abs);
- 
--			tstojiffie(&t,
--				   posix_clocks[which_clock].res,
--				   &new_timer.expires);
-+			tstojiffie(&t, posix_clocks[which_clock].res, &rq_time);
- 		}
--		if (new_timer.expires) {
--			current->state = TASK_INTERRUPTIBLE;
--			add_timer(&new_timer);
--
--			schedule();
-+#if (BITS_PER_LONG < 64)
-+		if ((rq_time - get_jiffies_64()) > MAX_JIFFY_OFFSET){
-+			new_timer.expires = MAX_JIFFY_OFFSET;
-+		}else
-+#endif
-+		{
-+			new_timer.expires = (long)rq_time;
- 		}
-+		current->state = TASK_INTERRUPTIBLE;
-+		add_timer(&new_timer);
-+
-+		schedule();
- 	}
--	while ((active = del_timer_sync(&new_timer)) &&
-+	while ((active = del_timer_sync(&new_timer) || 
-+		rq_time > get_jiffies_64()) &&
- 	       !test_thread_flag(TIF_SIGPENDING));
- 
-+
- 	if (abs_struct.list.next) {
- 		spin_lock_irq(&nanosleep_abs_list_lock);
- 		list_del(&abs_struct.list);
- 		spin_unlock_irq(&nanosleep_abs_list_lock);
- 	}
- 	if (active) {
--		unsigned long jiffies_f = jiffies;
-+		s64 left;
-+		unsigned long rmd;
- 
- 		/*
- 		 * Always restart abs calls from scratch to pick up any
-@@ -1282,20 +1290,19 @@
- 		if (abs)
- 			return -ERESTARTNOHAND;
- 
--		jiffies_to_timespec(new_timer.expires - jiffies_f, tsave);
-+		left = rq_time - get_jiffies_64();
-+		if (left < 0)
-+			return 0;
-+
-+		tsave->tv_sec = div_long_long_rem(left, HZ, &rmd);
-+		tsave->tv_nsec = rmd * (NSEC_PER_SEC / HZ);
- 
--		while (tsave->tv_nsec < 0) {
--			tsave->tv_nsec += NSEC_PER_SEC;
--			tsave->tv_sec--;
--		}
--		if (tsave->tv_sec < 0) {
--			tsave->tv_sec = 0;
--			tsave->tv_nsec = 1;
--		}
- 		restart_block->fn = clock_nanosleep_restart;
- 		restart_block->arg0 = which_clock;
- 		restart_block->arg1 = (unsigned long)tsave;
--		restart_block->arg2 = new_timer.expires;
-+		restart_block->arg2 = rq_time & 0xffffffffLL;
-+		restart_block->arg3 = rq_time >> 32;
-+
- 		return -ERESTART_RESTARTBLOCK;
- 	}
- 
-
---------------050707010003020506090302--
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264879AbUAFSxU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 13:53:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUAFSxU
+	id S264919AbUAFTFn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 14:05:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264930AbUAFTFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 13:53:20 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:26005 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264879AbUAFSxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 13:53:19 -0500
+	Tue, 6 Jan 2004 14:05:42 -0500
+Received: from 195-23-16-24.nr.ip.pt ([195.23.16.24]:8357 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S264919AbUAFTFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 14:05:41 -0500
+Message-ID: <3FFB06AF.6000503@grupopie.com>
+Date: Tue, 06 Jan 2004 19:04:15 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: GrupoPIE
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Andrew Morton <akpm@osdl.org>, johnstultz@us.ibm.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] fix get_jiffies_64 to work on voyager
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: johnstul@us.ibm.com, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040106090521.4a7ad2a0.akpm@osdl.org>
-References: <1073405053.2047.28.camel@mulgrave>
-	<20040106081947.3d51a1d5.akpm@osdl.org> <1073406369.2047.33.camel@mulgrave>
-	 <20040106090521.4a7ad2a0.akpm@osdl.org>
-Content-Type: text/plain
+References: <1073405053.2047.28.camel@mulgrave> <Pine.LNX.4.58.0401060819000.2653@home.osdl.org> <3FFAFE7A.7030404@grupopie.com> <Pine.LNX.4.58.0401061033490.9166@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 06 Jan 2004 12:53:10 -0600
-Message-Id: <1073415191.2047.63.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-01-06 at 11:05, Andrew Morton wrote:
-> No, it was much simpler in my case: log_buf_len_setup() was accidentally
-> enabling interrupts early in boot and we were taking a timer interrupt
-> while holding a write lock on xtime_lock.  sched_clock() was requiring a
-> read lock and boom.
+Linus Torvalds wrote:
 
-Voyager has no APIC local timer equivalent, so I rebroadcast the timer
-tick to all CPUs.  However, the local tick is done in this thread with
-the xtime_lock held as write and it can trigger the scheduler load
-balancing, which needs to call sched_clock()....boom.
+> 
+> On Tue, 6 Jan 2004, Paulo Marques wrote:
+> 
+>>	....
+> 
+> Yes, we used to do things like that at some point (and your code is 
+> buggy: by leaving out the size, the "volatile" cast casts to the implicit 
+> "int" size in C). 
+> 
 
-All in all, this does show that the xtime sequence lock is a bit too
-fragile.  It also seems to show that we should redo the subarch timer
-hooks if we want to make the sequence locks work.
 
-I think there should be two hooks: one called holding the xtime write
-lock for doing clock adjustment specific things and the other called
-after we've released the xtime write lock.
+Ugh, stupid mistake. Just wrote the code to fast... :(
 
-James
 
+Anyway, thanks for your clarification. People like me that code a lot of 
+user-space stuff, take a while to realize all the implications of SMP, ordering, 
+preemption, etc., etc.
+
+By the way, after double checking your logic, it looks good as long as there are 
+no interrupts that take more than 3 jiffies to complete :)
+
+-- 
+Paulo Marques - www.grupopie.com
+
+"In a world without walls and fences who needs windows and gates?"
 

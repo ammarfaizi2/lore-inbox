@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbTIZAHg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 20:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTIZAHg
+	id S261168AbTIZAEi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 20:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTIZAEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 20:07:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64159 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262086AbTIZAHe
+	Thu, 25 Sep 2003 20:04:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59807 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261168AbTIZAEg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 20:07:34 -0400
-Message-ID: <3F73833A.2000909@pobox.com>
-Date: Thu, 25 Sep 2003 20:07:22 -0400
+	Thu, 25 Sep 2003 20:04:36 -0400
+Message-ID: <3F738288.5060304@pobox.com>
+Date: Thu, 25 Sep 2003 20:04:24 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Steve Dickson <SteveD@redhat.com>
-CC: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       trond.myklebust@fys.uio.no
-Subject: Re: [PATCH v2] reduce NFS stack usage
-References: <mailman.1064420466.30286.linux-kernel2news@redhat.com> <3F7335B4.1070002@RedHat.com>
-In-Reply-To: <3F7335B4.1070002@RedHat.com>
+To: marcelo@parcelfarce.linux.theplanet.co.uk
+CC: "Brown, Len" <len.brown@intel.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: HT not working by default since 2.4.22
+References: <Pine.LNX.4.44.0309251426570.30864-100000@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <Pine.LNX.4.44.0309251426570.30864-100000@parcelfarce.linux.theplanet.co.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Dickson wrote:
-> Hey Jeff,
+marcelo@parcelfarce.linux.theplanet.co.uk wrote:
+> On Wed, 24 Sep 2003, Brown, Len wrote:
 > 
-> Question:
-> Why are only nfs_lookup_revalidate() and nfs_readdir()
-> a problem and not the other 4 ops (like nfs_lookup())?
-> Is the case only those two showed up in the stack overflow
-> oops trace?
+> 
+>>Okay, so what to do?
+>>
+>>We could make 2.4.23 like 2.4.21 where ACPI code for HT is included in
+>>the kernel even when CONFIG_ACPI is not set.
+>>
+>>Or we could leave 2.4.23 like 2.4.22 where disabling CONFIG_ACPI really
+>>does remove all ACPI code in the kernel; and when CONFIG_ACPI is set,
+>>CONFIG_ACPI_HT_ONLY is available to limit ACPI to just the tables part
+>>needed for HT.
+> 
+> 
+> CONFIG_ACPI_HT should be not dependant on CONFIG_ACPI. So
+> 
+> 1) Please make it very clear on the configuration that for HT 
+> CONFIG_ACPI_HT_ONLY is needed
+> 2) Move it outside CONFIG_ACPI. 
+> 
+> OK? 
 
-You guessed it...  I'm sure other routines are problematic, but those 
-were two that showed up in traces.
 
+Unfortunately CONFIG_ACPI_HT_ONLY outside and independent of CONFIG_ACPI 
+proved a bit confusing.
 
-> Also, not like there much choice in matter, but I wonder what
-> type of performance hit (if any) there will be by making
-> these routines call kmalloc()... lookups and readdirs are
-> pretty popular ops...
+How about the more simple CONFIG_HYPERTHREAD or CONFIG_HT?
 
-Sure.  I wasn't suggesting by any means my patch is the ultimate 
-solution :)  Creating a slab cache would be easy enough...
+If enabled and CONFIG_SMP is set, then we will attempt to discover HT 
+via ACPI tables, regardless of CONFIG_ACPI value.
+
+Or... (I know multiple people will shoot me for saying this) we could 
+resurrect acpitable.[ch], and build that when CONFIG_ACPI is disabled.
 
 	Jeff
-
 
 
 

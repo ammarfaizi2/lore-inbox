@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262585AbREZXDF>; Sat, 26 May 2001 19:03:05 -0400
+	id <S262137AbREZW7G>; Sat, 26 May 2001 18:59:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262584AbREZXBp>; Sat, 26 May 2001 19:01:45 -0400
+	id <S262164AbREZW64>; Sat, 26 May 2001 18:58:56 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:20647 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262585AbREZXA1>;
-	Sat, 26 May 2001 19:00:27 -0400
-Date: Sat, 26 May 2001 13:45:58 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.4 and VC display lost
-Message-ID: <20010526134558.A17202@grobbebol.xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-OS: Linux grobbebol 2.4.4 
+	by vger.kernel.org with ESMTP id <S262168AbREZW6l>;
+	Sat, 26 May 2001 18:58:41 -0400
+Message-ID: <006601c0e615$dab0dea0$44a6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: <sathish.j@lycos.com>, <linux-kernel@vger.kernel.org>
+Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In-Reply-To: <ELGOGOKDIOKHKBAA@mailcity.com>
+Subject: Re: Reg- segmentation fault
+Date: Sat, 26 May 2001 11:58:29 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have mentioned this weird behaviour under 2.4.3 as well.
+Dear Satish,
 
-if I use X for some time, I alwasy switch and forth between the (IMHO)
-idel CLI and sometimes switch back to the clumsy GUI.
+What you means by "segmentation fault on my linux m/c" ?
 
-now, what happens is that sometimes, after I switch from X back to a VC,
-the display gets black and stays that way.
+Segmentation fault is coming from your applications or from Linux Packages
+or from Linux kernel ?
 
-the system works fine. I can still input everything I like etc but won't
-see anything.
+BTW, segmentation fault indicates an improper memory access , A common cause
+for a segmentation fault is an attempt to access an array out of bounds.
 
-it's on all non graphic consoles and I can't recover without rebooting.
+Jaswinder.
 
-anyone an idea ? 
+----- Original Message -----
+From: "sathish jayapalan" <sathish.j@lycos.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Saturday, May 26, 2001 6:12 AM
+Subject: Reg- segmentation fault
 
-I am using X 4.02 (XFREE) on a riva TNT (viper 550); no special driver
-used, only the one that's supplied with X itself.
 
+> Hi all,
+> Sorry to disturb you. I got a segmentation fault on my linux m/c. What
+could be the reason for it? Please help me in knowing this.
+>
+> Thanks in advance,
+> Regards,
+> sathish.j
+>
+>
+>
+>
+>
+>
+>
+> Get 250 color business cards for FREE!
+> http://businesscards.lycos.com/vp/fastpath/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
--- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  

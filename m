@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbQLKDZq>; Sun, 10 Dec 2000 22:25:46 -0500
+	id <S129319AbQLKD2g>; Sun, 10 Dec 2000 22:28:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129640AbQLKDZg>; Sun, 10 Dec 2000 22:25:36 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:52950 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129226AbQLKDZ1>; Sun, 10 Dec 2000 22:25:27 -0500
-Message-ID: <3A3441FC.28A2D2CA@haque.net>
-Date: Sun, 10 Dec 2000 21:54:52 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Frank Davis <fdavis112@juno.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: INIT_LIST_HEAD marco audit
-In-Reply-To: <390158470.976495326591.JavaMail.root@web346-wra.mail.com>
+	id <S129640AbQLKD20>; Sun, 10 Dec 2000 22:28:26 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:23557
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129319AbQLKD2J>; Sun, 10 Dec 2000 22:28:09 -0500
+Date: Mon, 11 Dec 2000 15:57:38 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Theodore Y. Ts'o" <tytso@MIT.EDU>, linux-kernel@vger.kernel.org
+Subject: Re: Serial cardbus code.... for testing, please.....
+Message-ID: <20001211155737.A13091@metastasis.f00f.org>
+In-Reply-To: <20001209145428.A11104@al.romantica.wg> <Pine.LNX.4.10.10012091011070.1574-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10012091011070.1574-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Dec 09, 2000 at 10:13:50AM -0800
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The follwing files probably need to be patched to use the
-DECLARE_TASK_QUEUE() macro and new tq_struct, but I don't have time
-right now to go through them.
+(cc' list trimmed)
 
-(grep for "static struct tq_struct.*=")
+On Sat, Dec 09, 2000 at 10:13:50AM -0800, Linus Torvalds wrote:
 
-drivers/net/wan/sdlamain.c
-drivers/block/paride/pseudo.h
-drivers/scsi/atari_NCR5380.c
-drivers/scsi/mac_NCR5380.c
-drivers/scsi/oktagon_esp.c
-drivers/scsi/sun3_NCR5380.c
-drivers/isdn/hisax/foreign.c
-drivers/isdn/hisax/foreign.c
-drivers/isdn/hisax/foreign.c
-drivers/acorn/block/mfmhd.c
-drivers/pcmcia/i82365.c
-drivers/pcmcia/tcic.c
-drivers/s390/block/dasd.c
+    Ted claimed he had a TI1311 or something, I think. So his VAIO is
+    definitely different from the ones I have. That may be enough of a
+    difference.
 
-Frank Davis wrote:
-> 
-> Hello all,
->         It looks like we need to perform an audit of test12-pre8 and find all the changes where INIT_LIST_HEAD should now be used.  Does anyone have a complete list of all the problem drivers, as well as a list of the ones that have already been fixed? If so, please post it to l-k . I don't mind maintaining a list of those patches..Just send them to fdavis112@juno.com .
+My Dell has a TI-1121 or something -- and it works perfectly and has
+done for quite some time (both legacy and CardBus). 
 
--- 
+Every now and then I get some bizarre IRQ routing funny which a
+reboot fixes, I just assumed that was because of recent PCI irq
+routing issues...
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+Ted, if it's useful, I can provide remote access to his laptop (it
+has builtin ethernet)...
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+
+
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

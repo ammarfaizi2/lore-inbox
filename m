@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265205AbUAPOnY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 09:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265179AbUAPOmB
+	id S265298AbUAPOqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 09:46:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265333AbUAPOqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 09:42:01 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:49156 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265177AbUAPOl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 09:41:56 -0500
-Date: Fri, 16 Jan 2004 14:41:32 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Pat Gefre <pfg@sgi.com>
-Cc: akpm@osdl.org, davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org,
-       hch@infradead.org
-Subject: Re: [PATCH 2.6] Altix updates
-Message-ID: <20040116144132.A24555@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pat Gefre <pfg@sgi.com>, akpm@osdl.org, davidm@napali.hpl.hp.com,
-	linux-kernel@vger.kernel.org
-References: <200401152154.i0FLscIG023452@fsgi900.americas.sgi.com>
+	Fri, 16 Jan 2004 09:46:09 -0500
+Received: from gprs214-224.eurotel.cz ([160.218.214.224]:3712 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265298AbUAPOqD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 09:46:03 -0500
+Date: Fri, 16 Jan 2004 15:45:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: kgdb-bugreport@lists.sourceforge.net,
+       kernel list <linux-kernel@vger.kernel.org>,
+       George Anzinger <george@mvista.com>
+Subject: Re: KGDB 2.0.3 with fixes and development in ethernet interface
+Message-ID: <20040116144537.GD2535@elf.ucw.cz>
+References: <200401161759.59098.amitkale@emsyssoft.com> <20040116125806.GA7409@elf.ucw.cz> <200401161947.11259.amitkale@emsyssoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200401152154.i0FLscIG023452@fsgi900.americas.sgi.com>; from pfg@sgi.com on Thu, Jan 15, 2004 at 03:54:37PM -0600
+In-Reply-To: <200401161947.11259.amitkale@emsyssoft.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 03:54:37PM -0600, Pat Gefre wrote:
-> 001-reorg.patch
-> 002-reorg1.patch
+Hi!
 
-The IS_IOADDR() stuff in the accesor funcs in pcibr_reg.c is completly
-bogus, please decide whether you want to pass a pointer to the pcibr_soft
-or bridge_t to it instead of doing second-guessing.
+> > > KGDB 2.0.3 is available at
+> > > http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.0.3.tar.bz2
+> > >
+> > > Ethernet interface still doesn't work. It responds to gdb for a couple of
+> > > packets and then panics. gdb log for ethernet interface is pasted
+> > > below.
+> >
+> > ++int kgdbeth_thread(void *data)
+> > ++{
+> > ++      struct net_device *ndev = (struct net_device *)data;
+> > ++      daemonize("kgdbeth");
+> > ++      while (!ndev->ip_ptr) {
+> > ++              schedule();
+> > ++      }
+> > ++      debugger_entry();
+> > ++      return 0;
+> >
+> > Don't you need some locking around ndev->ip_ptr? [Okay, it probably
+> > only matters on SMP, so it is not causing your problems..]
+> 
+> Yes. Some locking will be needed. I haven't yet figured out the exact sequence 
+> of function calls during configuration of an interface from userland.
+> 
+> Is there a hold-count kind of a thing on network interface components (like 
+> inodes, dentries)?
+> 
+> I am still using userland to bring an interface up. I guess it's best done 
+> inside the kernel instead of using notifications and spawning a thread. Then 
+> the interface would be usable much earlier.
 
-Also while the pic.h changes look okay they will conflict with a patch
-I'm about to send that adds common headers for the bridge/xbow/xwidget
-register for mips and IA64.  Can you send me a version of pic.h with
-those changes and the big endian ifdefs back in so I can just incorporate
-the new version into my patch?
+So.. if it works, I'll ifconfig eth0 up, it will print "waiting for
+kgdb to connect", I'll connect with gdb, and it will work?
+								Pavel
 
-Also are all those access you abstract away different in TIOCP?  If not
-please don't add the wrappers for them.
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

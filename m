@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262429AbVAKDww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262417AbVAKDvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbVAKDww (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 22:52:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVAKDvv
+	id S262417AbVAKDvh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 22:51:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbVAKDsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 22:51:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:7327 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262429AbVAKDti (ORCPT
+	Mon, 10 Jan 2005 22:48:53 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:6118 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262429AbVAJSXH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 22:49:38 -0500
-Date: Mon, 10 Jan 2005 19:49:36 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] acct_stack_growth nitpicks
-Message-ID: <20050110194936.O2357@build.pdx.osdl.net>
-References: <20050110164214.J2357@build.pdx.osdl.net>
+	Mon, 10 Jan 2005 13:23:07 -0500
+Date: Mon, 10 Jan 2005 10:23:04 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [UPDATE PATCH] scsi/qla1280: replace schedule_timeout() with ssleep()
+Message-ID: <20050110182304.GF3099@us.ibm.com>
+References: <20050110164703.GD14307@nd47.coderock.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050110164214.J2357@build.pdx.osdl.net>; from chrisw@osdl.org on Mon, Jan 10, 2005 at 04:42:14PM -0800
+In-Reply-To: <20050110164703.GD14307@nd47.coderock.org>
+X-Operating-System: Linux 2.6.10 (i686)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- remove duplicate rlim assignment in acct_stack_growth()
-- allow CAP_IPC_LOCK to override mlock rlimit during stack expansion as
-  in all other cases
+On Mon, Jan 10, 2005 at 05:47:03PM +0100, Domen Puncer wrote:
+> Patchset of 171 patches is at http://coderock.org/kj/2.6.10-bk13-kj/
+> 
+> Quick patch summary: about 30 new, 30 merged, 30 dropped.
+> Seems like most external trees are merged in -linus, so i'll start
+> (re)sending old patches.
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+<snip>
 
-===== mm/mmap.c 1.155 vs edited =====
---- 1.155/mm/mmap.c	2005-01-10 11:23:35 -08:00
-+++ edited/mm/mmap.c	2005-01-10 19:34:05 -08:00
-@@ -1346,7 +1346,6 @@ static int acct_stack_growth(struct vm_a
- 	struct rlimit *rlim = current->signal->rlim;
+> all patches:
+> ------------
+
+<snip>
+
+> msleep-drivers_scsi_ppa.patch
+
+Please drop this patch, as it incorrectly uses msleep() around waitqueues.
+
+> msleep-drivers_scsi_qla1280.patch
+
+Please conside replacing with the following patch:
+
+Description: Use ssleep() instead of schedule_timeout to guarantee the task
+delays as expected.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+
+
+--- 2.6.10-v/drivers/scsi/qla1280.c	2004-12-24 13:35:40.000000000 -0800
++++ 2.6.10/drivers/scsi/qla1280.c	2005-01-05 14:23:05.000000000 -0800
+@@ -2939,7 +2939,7 @@ qla1280_bus_reset(struct scsi_qla_host *
+ 		ha->bus_settings[bus].failed_reset_count++;
+ 	} else {
+ 		spin_unlock_irq(HOST_LOCK);
+-		schedule_timeout(reset_delay * HZ);
++		ssleep(reset_delay);
+ 		spin_lock_irq(HOST_LOCK);
  
- 	/* address space limit tests */
--	rlim = current->signal->rlim;
- 	if (mm->total_vm + grow > rlim[RLIMIT_AS].rlim_cur >> PAGE_SHIFT)
- 		return -ENOMEM;
- 
-@@ -1360,7 +1359,7 @@ static int acct_stack_growth(struct vm_a
- 		unsigned long limit;
- 		locked = mm->locked_vm + grow;
- 		limit = rlim[RLIMIT_MEMLOCK].rlim_cur >> PAGE_SHIFT;
--		if (locked > limit)
-+		if (locked > limit && !capable(CAP_IPC_LOCK))
- 			return -ENOMEM;
- 	}
- 
+ 		ha->bus_settings[bus].scsi_bus_dead = 0;

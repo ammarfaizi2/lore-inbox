@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261411AbREYSG5>; Fri, 25 May 2001 14:06:57 -0400
+	id <S261423AbREYS1Y>; Fri, 25 May 2001 14:27:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261404AbREYSGh>; Fri, 25 May 2001 14:06:37 -0400
-Received: from [63.109.146.2] ([63.109.146.2]:37873 "EHLO mail0.myrio.com")
-	by vger.kernel.org with ESMTP id <S261401AbREYSGZ>;
-	Fri, 25 May 2001 14:06:25 -0400
-Message-ID: <B65FF72654C9F944A02CF9CC22034CE22E1BD4@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Adam J. Richter'" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Fwd: Copyright infringement in linux/drivers/usb/serial/keysp
-	an*fw.h
-Date: Fri, 25 May 2001 11:06:15 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261427AbREYS1O>; Fri, 25 May 2001 14:27:14 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:35935 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S261423AbREYS1E>; Fri, 25 May 2001 14:27:04 -0400
+Date: Fri, 25 May 2001 13:27:03 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200105251827.NAA21092@tomcat.admin.navo.hpc.mil>
+To: ishikawa@yk.rim.or.jp, linux-kernel@vger.kernel.org
+Subject: Re: OOM process killer: strange X11 server crash...
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Adam J. Richter wrote:
-> Doug Ledford wrote:
-> >"Adam J. Richter" wrote:
+Ishikawa <ishikawa@yk.rim.or.jp>:
+....
+>Anyway, this time, here is what was printed on the screen (the tail end
+> of it).
+> --- begin quote ---
+>     ... could not record the above. they scrolled up and disapper...
+> Out of Memory: Killed process 4550 (XF8_SVGA.ati12).
+> __alloc_pages: 0-order allocation failed.
+> VM: killing process XF86_SVGA.ati12
+> --- end quote
 > 
-> >>         On the question of whether this is nothing more than
-> >> aggregation,
+> And before the message disappeared, I think I saw the
+> netscape process was killed, too.
+> I checked the log message and looked for "Memory"
+> Sure enough I foundnetscapewas killed, too, in this case.
+> 
+> May 25 09:16:46 duron kernel: Memory: 255280k/262080k available (978k
+> kernel cod
+> e, 6412k reserved, 378k data, 224k init, 0k highmem)
+>     ...
+> May 25 10:45:31 duron kernel: Out of Memory: Killed process 5562
+> (netscape).
+> May 25 10:45:31 duron kernel: Out of Memory: Killed process 5450
+> (XF86_SVGA.ati1
+> 2).
+>      ...
 
-... 
-[patent law definition of aggregation]
-...
+Something I have noticed with netscape is that if the X server is
+killed out from under it (user logout, or kill X11 manually) is that
+it continues to run. The process appears to be looping around select
+and attempting to reconnect to the (now dead) X server, and not exiting
+like it should.
 
-Well, I'm just an interested bystander.  But having read the recent 
-lkml posts on this issue, it seems to me that the critical points are:
+Other times it seems to terminate properly. The problem may exhibit itself
+if netscape is waiting for some asynchronous event (like the name service
+lookup maybe) and misses the/a signal that it's socket to the X server
+has failed. If a kill -15 doesn't terminate the rogue netscape, then it
+takes a kill -9 . In my expierence it is in a tight loop, and ignoring
+normal user input. It could still be expanding memory consumption...
 
->From the point of view of the kernel, the firmware code is just a big
-magic number that "turns on" the firmware.  
 
-The kernel is not _linked_ _with_ the firmware code.
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-The kernel doesn't even _exec_ the firmware.
-
-The firmware code can be used, unmodified, in other operating systems.
-
-The firmware code does not run in the same address space as the kernel.
-
-In principle, and maybe in practice, that firmware code might be running
-on a different processor, with different RAM, and a different instruction
-set.  
-
-It's obviously not part of the kernel! 
-
-Torrey Hoffman  -  torrey.hoffman@myrio.com
--------------------------------------------
-I find this corpse guilty of carrying a concealed weapon and I fine it $40. 
--- Judge Roy Bean, finding a pistol and $40 on a man he'd just shot. 
+Any opinions expressed are solely my own.

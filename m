@@ -1,18 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277256AbRJLLSI>; Fri, 12 Oct 2001 07:18:08 -0400
+	id <S277626AbRJLLTT>; Fri, 12 Oct 2001 07:19:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277616AbRJLLR6>; Fri, 12 Oct 2001 07:17:58 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:18192 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S277256AbRJLLRj>; Fri, 12 Oct 2001 07:17:39 -0400
+	id <S277618AbRJLLS6>; Fri, 12 Oct 2001 07:18:58 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:24590 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S277616AbRJLLSt>; Fri, 12 Oct 2001 07:18:49 -0400
 X-Apparently-From: <rachelchew@yahoo.com>
-Message-ID: <005d01c153c8$9cd11fc0$b304030a@networkwarwick.co.uk>
+Message-ID: <006901c153c8$c5f7cac0$b304030a@networkwarwick.co.uk>
 From: "Rachel Chew" <rachelchew@yahoo.com>
 To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200110121206.f9CC6XV01124@spnew.snpe.co.yu>
 Subject: How to install the linux source tree?
-Date: Sat, 13 Oct 2001 11:22:41 +0200
+Date: Sat, 13 Oct 2001 11:23:50 +0200
 Organization: home
 MIME-Version: 1.0
 Content-Type: text/plain;

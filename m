@@ -1,75 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261205AbTBOKXS>; Sat, 15 Feb 2003 05:23:18 -0500
+	id <S261295AbTBOK5l>; Sat, 15 Feb 2003 05:57:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261290AbTBOKXS>; Sat, 15 Feb 2003 05:23:18 -0500
-Received: from B5a22.pppool.de ([213.7.90.34]:29652 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S261205AbTBOKXQ>; Sat, 15 Feb 2003 05:23:16 -0500
-Subject: [Patch] Enable SSE for AMD Athlon (Thoroughbred) in 2.4.20
-From: Daniel Egger <degger@fhm.edu>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-v3TS0hT6eFR5Ztm2lwz4"
-Organization: 
-Message-Id: <1045266292.12105.41.camel@sonja>
+	id <S261330AbTBOK5l>; Sat, 15 Feb 2003 05:57:41 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:18185 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261295AbTBOK5l>; Sat, 15 Feb 2003 05:57:41 -0500
+Date: Sat, 15 Feb 2003 11:07:32 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       "Theodore T'so" <tytso@mit.edu>
+Subject: Re: [PATCH] Extended attribute fixes, etc.
+Message-ID: <20030215110732.A17564@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andreas Gruenbacher <agruen@suse.de>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	Theodore T'so <tytso@mit.edu>
+References: <200302112018.58862.agruen@suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 15 Feb 2003 00:44:53 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200302112018.58862.agruen@suse.de>; from agruen@suse.de on Tue, Feb 11, 2003 at 08:18:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 11, 2003 at 08:18:58PM +0100, Andreas Gruenbacher wrote:
+> The third to fifth are all steps towards trusted extended attributes, 
+> which are useful for privileged processes (mostly daemons). One use for 
+> this is Hierarchical Storage Management, in which a user space daemon 
+> stores online/offline information for files in trusted EA's, and the 
+> kernel communicates requests to bring files online to that daemon. This 
+> class of EA's will also find its way into XFS and ReiserFS, and 
+> expectedly also into JFS in this form. (Trusted EAs are included in the 
+> 2.4.19/2.4.20 patches as well.)
 
---=-v3TS0hT6eFR5Ztm2lwz4
-Content-Type: multipart/mixed; boundary="=-TAcD0YC7x1WV8J3QuQR+"
+Please don't do the ugly flags stuff.  We have fsuids and fsgids for exactly
+that reason (and because we're still lacking a credentials cache..).  
 
-
---=-TAcD0YC7x1WV8J3QuQR+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hija,
-
-please include the obvious oneliner attached in 2.4.21 to help
-the poor folks having recent Athlons. :)
-
-A similar change for the just released Barton would also be nice but
-I do not have the model number handy.
-
---=20
-Servus,
-       Daniel
-
---=-TAcD0YC7x1WV8J3QuQR+
-Content-Disposition: attachment; filename=diff
-Content-Type: text/plain; name=diff; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
-
---- arch/i386/kernel/setup.c.orig	2003-02-03 13:26:38.000000000 +0100
-+++ arch/i386/kernel/setup.c	2003-02-14 14:14:12.000000000 +0100
-@@ -1421,7 +1421,7 @@
- 			 * If the BIOS didn't enable it already, enable it
- 			 * here.
- 			 */
--			if (c->x86_model =3D=3D 6 || c->x86_model =3D=3D 7) {
-+			if (c->x86_model =3D=3D 6 || c->x86_model =3D=3D 7 || c->x86_model =3D=
-=3D 8) {
- 				if (!test_bit(X86_FEATURE_XMM,
- 					      &c->x86_capability)) {
- 					printk(KERN_INFO
-
---=-TAcD0YC7x1WV8J3QuQR+--
-
---=-v3TS0hT6eFR5Ztm2lwz4
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+TX90chlzsq9KoIYRApVXAKCviy6/G+0sQHZ9EN9Fq22Bx+rp1QCbB1Dk
-snxIOUEOmDZ563DKOeTCcGE=
-=+p/l
------END PGP SIGNATURE-----
-
---=-v3TS0hT6eFR5Ztm2lwz4--
 

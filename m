@@ -1,40 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271185AbTHCLDY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 07:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271177AbTHCLDY
+	id S271146AbTHCLAY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 07:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271158AbTHCLAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 07:03:24 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12010 "HELO
+	Sun, 3 Aug 2003 07:00:16 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:20970 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S271158AbTHCLBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 07:01:17 -0400
-Date: Sun, 3 Aug 2003 13:01:09 +0200
+	id S271146AbTHCK6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 06:58:47 -0400
+Date: Sun, 3 Aug 2003 12:58:42 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, willy@ods.org,
-       andrew.grover@intel.com
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Romain Lievin <roms@lpg.ticalc.org>
 Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [2.4 patch] fix a compile warning in acpi/system.c
-Message-ID: <20030803110109.GQ16426@fs.tum.de>
-References: <Pine.LNX.4.44.0308011316490.3656-100000@logos.cnet>
+Subject: [2.4 patch] fix a compile warning in tipar.c
+Message-ID: <20030803105842.GO16426@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308011316490.3656-100000@logos.cnet>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 01, 2003 at 01:19:11PM -0300, Marcelo Tosatti wrote:
->...
-> Summary of changes from v2.4.22-pre9 to v2.4.22-pre10
-> ============================================
->...
-> Willy Tarreau:
->   o ACPI poweroff fix
->...
-
-This patch causes the following compile warnings:
+I got the following compile warning in 2.4.22-pre10:
 
 <--  snip  -->
 
@@ -42,32 +31,44 @@ This patch causes the following compile warnings:
 gcc -D__KERNEL__ 
 -I/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include -
 Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6  -Os  -DACPI_DEBUG_OUTPUT 
--nostdinc -iwithprefix include -DKBUILD_BASENAME=system  -c -o system.o system.c
-system.c: In function `acpi_power_off':
-system.c:93: warning: implicit declaration of function `acpi_suspend'
-system.c: At top level:
-system.c:303: warning: type mismatch with previous implicit declaration
-system.c:93: warning: previous implicit declaration of `acpi_suspend'
-system.c:303: warning: `acpi_suspend' was previously implicitly declared to return `int'
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -iwithprefix 
+include -DKBUILD_BASENAME=tipar  -c -o tipar.o tipar.c
+tipar.c:76:1: warning: "minor" redefined
+In file included from 
+/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/fs.h:16,
+                 from 
+/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/capability.h:17,
+                 from 
+/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/binfmts.h:5,
+                 from 
+/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/sched.h:9,
+                 from tipar.c:49:
+/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/kdev_t.h:81:1:
+ warning: this is the location of the previous definition
 ...
 
 <--  snip  -->
 
+The minor #define was added to kdev_t.h in 2.4.18-pre4. The following
+patch adjusts tipar.c accordingly. Besides this, it changes the kernel
+version chack from a private macro to use the KERNEL_VERSION in kernel.h.
 
-The following patch removes these warnings:
-
---- linux-2.4.22-pre10-full/drivers/acpi/system.c.old	2003-08-02 22:23:08.000000000 +0200
-+++ linux-2.4.22-pre10-full/drivers/acpi/system.c	2003-08-02 22:26:28.000000000 +0200
-@@ -59,6 +59,8 @@
- static int acpi_system_add (struct acpi_device *device);
- static int acpi_system_remove (struct acpi_device *device, int type);
+--- linux-2.4.22-pre10-full/drivers/char/tipar.c.old	2003-08-02 22:52:49.000000000 +0200
++++ linux-2.4.22-pre10-full/drivers/char/tipar.c	2003-08-02 22:57:57.000000000 +0200
+@@ -71,9 +71,11 @@
+ #define DRIVER_DESC    "Device driver for TI/PC parallel link cables"
+ #define DRIVER_LICENSE "GPL"
  
-+acpi_status acpi_suspend (u32 state);
+-#define VERSION(ver,rel,seq) (((ver)<<16) | ((rel)<<8) | (seq))
+-#if LINUX_VERSION_CODE < VERSION(2,5,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,18)
+ # define minor(x) MINOR(x)
++#endif
 +
- static struct acpi_driver acpi_system_driver = {
- 	.name =		ACPI_SYSTEM_DRIVER_NAME,
- 	.class =	ACPI_SYSTEM_CLASS,
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+ # define need_resched() (current->need_resched)
+ #endif
+ 
 
 
 

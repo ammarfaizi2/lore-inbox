@@ -1,71 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVBVUWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVBVUZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVBVUWz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 15:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVBVUWz
+	id S261231AbVBVUZO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 15:25:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVBVUZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 15:22:55 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:1236 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261226AbVBVUWx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 15:22:53 -0500
-Message-ID: <421B95B8.4070006@tmr.com>
-Date: Tue, 22 Feb 2005 15:27:36 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX
- as device 
-References: <20050218103107.GA15052@wszip-kinigka.euro.med.ge.com> <200502190023.j1J0NBDi023090@turing-police.cc.vt.edu>
-In-Reply-To: <200502190023.j1J0NBDi023090@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Feb 2005 15:25:14 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:15286 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261231AbVBVUZF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 15:25:05 -0500
+Message-Id: <200502222024.j1MKOtlZ007512@laptop11.inf.utfsm.cl>
+To: Anthony DiSante <theant@nodivisions.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: uninterruptible sleep lockups 
+In-reply-to: <421B9018.7020007@nodivisions.com> 
+References: <421A3414.2020508@nodivisions.com> <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu> <421A4375.9040108@nodivisions.com> <421B12DB.70603@aitel.hist.no> <421B14A8.3000501@nodivisions.com> <Pine.LNX.4.61.0502220824440.25089@chaos.analogic.com> <421B9018.7020007@nodivisions.com>
+Comments: In-reply-to Anthony DiSante <theant@nodivisions.com>
+   message dated "Tue, 22 Feb 2005 15:03:36 -0500."
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Tue, 22 Feb 2005 17:24:55 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 22 Feb 2005 17:24:55 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 18 Feb 2005 15:23:44 EST, Bill Davidsen said:
-> 
-> 
->>I'll try to build a truth table for this, I'm now working with some 
->>non-iso data sets, so I'm a bit more interested. I would expect read() 
->>to only try to read one sector, so I'll just do a quick and dirty to get 
->>the size from the command line, seek and read.
->>
->>I haven't had a problem using dd to date, as long as I know how long the 
->>data set was, but I'll try to have results tonight.
-> 
-> 
-> The problem is that often you don't know exactly how long the data set is
-> (think "backup burned to CD/RW") - there's a *lot* of code that does stuff
-> like
-> 
-> 	while (actual=read(fd,buffer,65536) > 0) {
-> 		...
-> 	}
-> 
-> with the realistic expectation that the last read might return less than 64k,
-> in which case 'actual' will tell us how much was read.  Instead, we just get
-> an error on the read.
-> 
-> Note that 'dd' does this - that's why you get messages like '12343+1 blocks read'.
-> We *really* want to get to a point where 'dd' will work *without* having to
-> tell it a 'bs=' and 'count=' to get the size right....
+Anthony DiSante <theant@nodivisions.com> said:
+> linux-os wrote:
+> > There has been some discussion that these hung
+> > states could be "fixed", but that's absolutely
+> > positively incorrect.
 
-I think I already had a pretty good grasp on that, in my previous post 
-on this I noted: "The last time I looked at this, the issue was that the 
-user software did a large read and the ide-cd didn't properly return a 
-small data block with no error, but rather returned an error with no 
-data. If you get the size of the ISO image, you can read that with any 
-program which doesn't try to read MORE than that."
+> That's one of the things I asked a few messages ago.  Some people on the 
+> list were saying that it'd be "really hard" and would "require a lot of 
+> bookkeeping" to "fix" permanently-D-stated processes... which is completely 
+> different than "impossible."
 
-It sounds as if (a) the problem with ide-cd is going to get fixed, and 
-(b) ide-scsi may not remain depreciated. A win-win if I ever saw one.
-
+Most people here have little clue. It can't be done.
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,66 +1,145 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264729AbRFQM2R>; Sun, 17 Jun 2001 08:28:17 -0400
+	id <S264730AbRFQMyn>; Sun, 17 Jun 2001 08:54:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264728AbRFQM2H>; Sun, 17 Jun 2001 08:28:07 -0400
-Received: from tele-post-20.mail.demon.net ([194.217.242.20]:58884 "EHLO
-	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S264726AbRFQM1x>; Sun, 17 Jun 2001 08:27:53 -0400
-From: rjd@xyzzy.clara.co.uk
-Message-Id: <200106171227.f5HCRZu10829@xyzzy.clara.co.uk>
-Subject: Re: Newbie idiotic questions.
-To: phillips@bonn-fries.net (Daniel Phillips)
-Date: Sun, 17 Jun 2001 13:27:35 +0100 (BST)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        bpringle@sympatico.ca (Bill Pringlemeir), linux-kernel@vger.kernel.org
-In-Reply-To: <0106171248010N.00879@starship> from "Daniel Phillips" at Jun 17, 2001 12:27:11 
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S264731AbRFQMyf>; Sun, 17 Jun 2001 08:54:35 -0400
+Received: from smtp8.xs4all.nl ([194.109.127.134]:13817 "EHLO smtp8.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S264730AbRFQMyW>;
+	Sun, 17 Jun 2001 08:54:22 -0400
+From: thunder7@xs4all.nl
+Date: Sun, 17 Jun 2001 14:49:38 +0200
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: linux-kernel@vger.kernel.org, riel@conectiva.com.br
+Subject: Re: (lkml)Re: spindown [was Re: 2.4.6-pre2, pre3 VM Behavior]
+Message-ID: <20010617144938.A2300@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+In-Reply-To: <Pine.LNX.4.33.0106171156410.318-100000@mikeg.weiden.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0106171156410.318-100000@mikeg.weiden.de>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+On Sun, Jun 17, 2001 at 12:05:10PM +0200, Mike Galbraith wrote:
 > 
-> > because then you would be allocating the size of a pointer, not the size
-> > of a structure
+> It _juuust_ so happens that I was tinkering... what do you think of
+> something like the below?  (and boy do I ever wonder what a certain
+> box doing slrn stuff thinks of it.. hint hint;)
 > 
-> Whoops Jeff, you didn't have your coffee yet:
+I'm sorry to say this box doesn't really think any different of it.
 
-Whoops yourself. The following patch brings your example into line with
-the driver code. mpuout is a pointer to a structure not the structure itself
-as the malloc assignment clearly indicates.
+Everything that's in the cache before running slrn on a big group seems
+to stay there the whole time, making my active slrn-process use swap.
 
-*** x.c-orig	Sun Jun 17 13:19:33 2001
---- x.c	Sun Jun 17 13:19:42 2001
-***************
-*** 2,8 ****
-  
-  
-  struct foo { int a; int b; };
-! struct { struct foo foo; } *foobar;
-  
-  int main (void)
-  {
---- 2,8 ----
-  
-  
-  struct foo { int a; int b; };
-! struct { struct foo *foo; } *foobar;
-  
-  int main (void)
-  {
+I applied the patch to 2.4.5-ac15, and this was the result:
 
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  1  0  11216   2548 183560 264172   1   4   184   343  123   119   2   6  92
+ 0  0  0  11212   2620 183444 264184   0   0     4    72  127    99   1   2  97
+ 0  0  0  11212   1604 183444 264740   0   0   378     0  130   101   2   1  98
+ 0  1  0  11212   1588 184300 263116   0   0   552  1080  277   360   3  14  83
+ 2  0  2  11212   1692 174052 270536   0   0  1860     0  596   976   9  50  40
+ 2  0  2  11212   1588 166732 274816   0   0  1868  5426  643  1050   8  44  48
+ 0  1  0  11212   1588 163276 276888   0   0  1714  1816  580   972   9  17  74
+ 0  1  0  11212   1848 166280 273688   0   0   514  3952  301   355   3  40  57
+ 1  0  0  11212   1592 164232 273872   0   0  1824  3532  632  1083  11  25  64
+ 2  0  2  11212   1980 167304 268792   0   0  1678     0  550   881   8  51  41
+ 0  1  2  11212   1588 163908 271356   0   0  1344  4896  508   753   7  26  67
+ 1  0  0  11212   1588 160896 272756   0   0  1642  1301  574   929   9  22  69
+ 0  1  0  11212   1592 164936 268632   0   0   756  3594  370   467   6  43  51
+ 2  0  3  11212   1596 164380 266552   0   0  1904  2392  604  1017  10  52  37
+ 1  0  0  11212   1592 164752 265844   0   0  1784  2382  623  1000  10  22  69
+ 0  1  0  11212   1592 168528 262256   0   0   810  4176  364   523   5  43  52
+ 0  1  1  11212   1992 169324 259504   0   0  1686  3068  578   999  11  42  47
+ 0  1  0  11212   1588 170696 256332   0   0  1568  1080  532   894  10  20  70
+ 1  0  0  11212   1592 174876 253036   0   0   598  3600  315   420   4  41  55
+ 0  1  1  11212   2316 171592 253892   0   0  1816  3286  616  1073   7  29  64
+ 0  1  0  11212   1588 170380 253968   0   0  1638   840  540   910  13  29  58
+ 0  1  1  11212   2896 168840 253740   0   0   752  4120  342   458   4  45  51
+ 0  1  0  11216   2012 166392 255560   0   0  1352  2458  549   895   8  14  77
+ 2  0  1  11216   1588 170744 250164   0   0  1504  1260  503   791   7  48  45
+ 0  1  1  11224   1588 170704 249948   0   0   874  4106  516   655   6  10  84
+ 0  1  0  11228   1588 170148 248988   0   0  1442     0  466   772   8  20  73
+ 1  0  0  11228   1592 171784 247456   0   0   860  3598  362   495   7  44  48
+ 0  1  0  11228   1588 171864 246212   0   0  1390  3176  510   840   9  41  50
+ 0  1  2  11232   1992 170344 245832   0   0  1676  1808  539   898  10  45  45
+ 1  0  1  10508   1632 168204 246780   0 946  1508  2804  599   920   9  20  71
+ 0  1  0   9496   2020 168904 244880   0   0   936  3620  417   603   5  35  60
+ 1  0  0   9604   2516 164096 247536   0   0  1700  2214  563  1085  11  33  56
+ 0  1  0  16196   1820 162112 255492   0   2  1384  1596  497  1106   8  53  38
+ 1  0  0  19240   3000 158052 260608   0   0   400  3824  373   388   2  14  84
+ 1  1  1  28756   4508 146032 278104   0   0  1688  2140  612  1502   7  60  33
+ 2  0  0  39432  29100 105668 300912   0  18  2108  1178  645  1825  12  52  36
+ 1  0  0  40668  13024 108568 311748   0   0  1674  4992  623  1017   9  12  79
+ 0  1  0  45324   3484 105072 326432   0   0  1876  3624  619  1090  13  24  63
+ 1  0  0  53648   1564 102740 337688   0  18   950  3646  404   857   5  31  63
+ 2  0  0  53672   1604 103356 335680   0 2962  1436  5864  565   976  10  43  47
+ 1  0  1  54380   1920 103516 334320   0 1086  1826  1626  590  1072  13  45  42
+ 0  1  1  54600   6532  99568 333860   0 1006   242  5948  277  2680   2  39  59
+ 0  1  0  54596   1944 103744 331932   0   0  1854  3644  627  1054  11  16  73
+ 1  0  0  54592   1924 102876 331100   0 950  1956  2612  621  1173  11  41  48
+ 1  0  0  54592   1592 103576 329568   0   0  1548  4860  605  1106  11  36  53
+ 0  1  1  54592   1588 102908 328320   0 452  1808  2522  583  1049  11  51  38
+ 0  1  1  54592   1588 101916 327076   0 866  1816  1260  589  1046  11  49  40
+ 0  1  0  54592   2076  99568 327776   0 414   992  5728  459  1314   7  25  67
+ 0  1  0  54592   1588 103928 323824   0   0   968  3646  403   747   5  33  61
+ 1  0  0  54592   2632 100108 325136   0 402  1856  2468  622  1369  13  44  42
+ 0  1  0  54592   1588 101872 322600   0 392  1056  2834  461   802   6  35  60
+ 1  0  1  55644   1724 102108 322404   0 380  1448  2682  501  1032   9  50  41
+ 1  1  1  57388   1588 103068 322056   0   0  1384  1396  471   780   8  37  56
+ 0  1  1  58500   2048 102024 323020   0 368   876  3932  504   755   6  11  83
+ 1  0  1  65756  18188  85916 330256   0 2298   740  3680  316  1313   5  70  26
+ 1  1  1  70632  30324  69368 338880   0 1600   650  3804  329   907   4  83  14
+ 0  1  1  70856   9676  75040 350076   0   0  1872  4394  642  1016  10  16  75
+ 1  0  0  71136   1564  78716 350192   0   0  2024  3604  669  1131  11  17  72
+ 0  1  0  71476   1560  82388 342428   0   0  2022  3654  671  1108  13  15  72
+ 0  1  0  71880   1564  86068 335120   0   0  1742  3620  591   946  11  13  76
+ 0  1  0  71876   1560  86080 331492   0   0  1630     0  508   861   7  15  79
+ 1  0  0  72204   1556  89728 328004   0   0   154  3660  360   243   2   5  92
+ 0  1  0  72204   1560  93404 320364   0   0  1736  3612  609  1044  11  12  76
+ 2  0  0  72204   1560  93404 316984  68   0  1658     0  473   788  15  35  50
+ 1  0  0  72204   1588  95688 317020   0 1014  1934  4628  650  1119  10  20  70
+ 0  1  0  72196   2200  97964 320428   0  38  1660  3642  618   931   7  18  75
+ 0  1  1  72196   1588 100008 319428   0   0   788  4132  390   594   4  32  64
+ 2  3  1  72180   1920 101068 318516   0 2604  1818  4388  717  8010   6  44  49
+ 1  0  1  72180   1648  97756 320368   0 204  1410  3134  595   933  10  17  73
+ 0  1  1  72868   1588  99064 317864   0 1962  1716  4548  580  1398  10  48  42
+ 0  1  1  80340   2212  99744 322868   0 884  1610  2670  552  1048  10  55  34
+ 0  1  0  83392   1588  99792 326128   0   0   324  4620  402   629   2  17  81
+ 1  0  1  90228   1592  99116 331664   2 2230  1882  3730  616  1067   9  51  39
+ 3  0  1  95008   1588 102052 331888   0 3754  1440  5916  556  1042   9  62  29
+ 0  1  2  97784   1588 102432 333648   0 1900   336  5016  366   564   3  41  56
+ 1  0  1  98360   2828 102744 331796   0 4366   430  6242  376   868   3  62  35
+ 0  1  0  98384   1588 101656 332828   0   0   338    12  199   223  15  37  48
+ 0  1  0  98364   1588 102520 331268   0   0  1734  1160  357   421   2   3  94
 
-Now Prints:
+here slrn starts to sort all the headers just read in.
 
-	8
-	4
-	4
+ 1  0  0  98320   1588 102520 331336 3548   0  3812     0  181   189  39   2  59
+ 0  1  0  98320   1616 102520 332968 3966   0  3966     0  166   176  43   3  54
+ 1  0  0  98320   1588 100832 335272 4096   0  4128   116  185   221  44   3  53
+ 1  0  0  98320   2184  97692 338568 4242   0  4274    10  218   305  44   4  52
+ 1  0  0  98320   1588  96320 341424 3850   2  3882    68  198   269  44  12  44
+ 0  1  0  98320   1588  95032 343652 3772   0  3772    30  184   236  45   3  52
+ 1  0  0  98320   1588  92144 347176 4064   0  4096    14  171   204  44   3  53
+ 1  0  0  98320   2268  89940 349532 4004   0  4036    40  215   275  45   4  51
+ 1  0  0  98320   2212  89348 350096 252   0   284     4  110    68  51   1  47
+ 1  0  0  98320   2208  89348 350100   0   0     0    36  111    65  51   1  48
 
+process idle.
 
+The slrn-test I use is to open a very big group (some 150000 headers)
+from local spool. This first reads a lot of headers from disk, building
+an impressive 100 Mb size of malloc()ed space in memory, then sorts
+these headers.
+
+Good luck,
+Jurriaan
 -- 
-        Bob Dunlop                      FarSite Communications
-        rjd@xyzzy.clara.co.uk           bob.dunlop@farsite.co.uk
-        www.xyzzy.clara.co.uk           www.farsite.co.uk
+BOFH excuse #34:
+
+(l)user error
+GNU/Linux 2.4.5-ac15 SMP/ReiserFS 2x1402 bogomips load av: 0.41 0.11 0.03

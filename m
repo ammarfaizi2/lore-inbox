@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbTINJQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 05:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbTINJQ0
+	id S262196AbTINJcL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 05:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbTINJcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 05:16:26 -0400
-Received: from mail3-126.ewetel.de ([212.6.122.126]:31941 "EHLO
-	mail3.ewetel.de") by vger.kernel.org with ESMTP id S262344AbTINJQZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 05:16:25 -0400
-To: Andre Hedrick <andre@linux-ide.org>
+	Sun, 14 Sep 2003 05:32:11 -0400
+Received: from sullivan.realtime.net ([205.238.132.76]:2577 "EHLO
+	sullivan.realtime.net") by vger.kernel.org with ESMTP
+	id S262196AbTINJcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 05:32:08 -0400
+Date: Sun, 14 Sep 2003 04:32:01 -0500 (CDT)
+Message-Id: <200309140932.h8E9W1An062395@sullivan.realtime.net>
+Subject: Re: [linux-2.4.0-test5] swsusp w/o swap fail...
+To: Andi Kleen <ak@suse.de>
+From: Milton Miller <miltonm@bga.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL  [was: Re: Driver Model]]
-In-Reply-To: <vzkY.7cC.7@gated-at.bofh.it>
-References: <vyRY.6te.13@gated-at.bofh.it> <vzkY.7cC.7@gated-at.bofh.it>
-Date: Sun, 14 Sep 2003 11:16:13 +0200
-Message-Id: <E19ySzN-0000Fr-00@neptune.local>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+In-Reply-To: <20030913072327.GA23992@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Sep 2003 09:20:08 +0200, you wrote in linux.kernel:
+On Sat Sep 13 2003 - 02:24:36 EST, Andi Kleen wrote:
+> On Fri, Sep 12, 2003 at 10:49:29PM -0500, Milton Miller wrote:
+> > ... Rather than say ACPI_SLEEP also enables SWAP, how about having
+> > X86_64 pick up a change made to x86, and compile suspend.c on CONFIG_PM.
+> >
+> > Andi, can you test this?
+> 
+> That won't work. suspend won't compile without suspend_asm
+> 
 
-> If one reads ./include/linux/module.h
-> It clearly states any license is acceptable.
+Care to expand?   suspend_asm.S calls into suspend.c, but I don't
+see the converse.   I checked i386 and it compiles, and don't see
+how x86_64 will break.
 
-The problem is that the kernel has many copyright holders for different
-parts of the code, so what the author of module.h wrote can well be
-his own opinion but not that of others. Also, if modules are derived
-works under the terms of the GPL, the header file cannot change that
-fact, no matter what is says exactly.
+===== drivers/acpi/Kconfig 1.20 vs edited =====
+--- 1.20/drivers/acpi/Kconfig	Sat Aug 23 06:07:34 2003
++++ edited/drivers/acpi/Kconfig	Fri Sep 12 22:28:08 2003
+@@ -69,7 +69,6 @@
+ 	bool "Sleep States (EXPERIMENTAL)"
+ 	depends on X86 && ACPI
+ 	depends on EXPERIMENTAL && PM
+-	select SOFTWARE_SUSPEND
+ 	default y
+ 	---help---
+ 	  This option adds support for ACPI suspend states. 
+===== arch/x86_64/kernel/Makefile 1.23 vs edited =====
+--- 1.23/arch/x86_64/kernel/Makefile	Mon Aug 18 13:16:59 2003
++++ edited/arch/x86_64/kernel/Makefile	Fri Sep 12 22:28:56 2003
+@@ -16,7 +16,8 @@
+ obj-$(CONFIG_SMP)	+= smp.o smpboot.o trampoline.o
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o  nmi.o
+ obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o mpparse.o
+-obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend.o suspend_asm.o
++obj-$(CONFIG_PM)	+= suspend.o
++obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend_asm.o
+ obj-$(CONFIG_EARLY_PRINTK)    += early_printk.o
+ obj-$(CONFIG_GART_IOMMU) += pci-gart.o aperture.o
+ obj-$(CONFIG_DUMMY_IOMMU) += pci-nommu.o pci-dma.o
 
-Once again, it's all up to the lawyers to decide.
-
--- 
-Ciao,
-Pascal

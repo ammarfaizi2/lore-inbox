@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268578AbUIHP6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268368AbUIHP6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268578AbUIHP6h (ORCPT <rfc822;willy@w.ods.org>);
+	id S268368AbUIHP6h (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 8 Sep 2004 11:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268368AbUIHP6D
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268359AbUIHP54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 11:58:03 -0400
-Received: from imf24aec.mail.bellsouth.net ([205.152.59.72]:62596 "EHLO
-	imf24aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S267568AbUIHP4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 11:56:46 -0400
-Date: Wed, 8 Sep 2004 10:56:50 -0500
-From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: proc stalls
-Message-Id: <20040908105650.398e951a.Tommy.Reynolds@MegaCoder.com>
-In-Reply-To: <20040908141848.GB21729@washoe.rutgers.edu>
-References: <20040908054101.GR2966@washoe.rutgers.edu>
-	<20040908141848.GB21729@washoe.rutgers.edu>
-X-Mailer: Sylpheed version 0.9.12cvs7 (GTK+ 1.2.10; i686-redhat-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
- t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
- 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+	Wed, 8 Sep 2004 11:57:56 -0400
+Received: from elektroni.ee.tut.fi ([130.230.131.11]:19366 "HELO
+	elektroni.ee.tut.fi") by vger.kernel.org with SMTP id S268693AbUIHP5o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 11:57:44 -0400
+Date: Wed, 8 Sep 2004 18:57:42 +0300
+From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+To: Jens Axboe <axboe@suse.de>
+Cc: TazForEver@dlfp.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc1
+Message-ID: <20040908155742.GA19335@elektroni.ee.tut.fi>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>, TazForEver@dlfp.org,
+	LKML <linux-kernel@vger.kernel.org>
+References: <1094655493.18454.23.camel@athlon> <20040908153439.GM2258@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040908153439.GM2258@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uttered Yaroslav Halchenko <yoh@psychology.rutgers.edu>, spake thus:
+On Wed, Sep 08, 2004 at 05:34:39PM +0200, Jens Axboe wrote:
+> On Wed, Sep 08 2004, Benoit Dejean wrote:
+> > is it normal that 2.6.9-rc1 still leaks like hell when burning an audio
+> > CD ? i though this was fixed since 2.6.8.1
+> 
+> hmm no, it should not be. more details, please.
 
-> that problem was linked to the fact that nfs-mounted directory became
-> unavailable... 
-> Any ideas on how to further debug this situation to avoid future
-> problems?
-
-This is the required behavior for "hard" NFS mounts.  NFS doesn't
-deal with servers that drop off-line very well.
-
-Perhaps you should use the "soft" and/or the "timeo=N" value.  A
-"soft" mount will not cause your client to hang if the server goes
-away.  Unfortunately, this also has implications for application
-program's ideas about file integrity, but there you go.
-
-HTH.
+bio_uncopy_user-mem-leak-fix.patch and bio_uncopy_user-mem-leak.patch were
+not included in 2.6.9-rc1.

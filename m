@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUCHW3U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 17:29:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbUCHW3U
+	id S261370AbUCHWdh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 17:33:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbUCHWdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 17:29:20 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:44790 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261347AbUCHW3P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 17:29:15 -0500
-Message-ID: <404CF3B4.4020304@mvista.com>
-Date: Mon, 08 Mar 2004 14:29:08 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: "Amit S. Kale" <amitkale@emsyssoft.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz
-Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
-References: <200403081504.30840.amitkale@emsyssoft.com> <200403081619.16771.amitkale@emsyssoft.com> <20040308030722.01948c93.akpm@osdl.org> <200403081650.18641.amitkale@emsyssoft.com> <20040308152214.GE15065@smtp.west.cox.net>
-In-Reply-To: <20040308152214.GE15065@smtp.west.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Mar 2004 17:33:37 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:34313
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261370AbUCHWdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 17:33:35 -0500
+Date: Mon, 8 Mar 2004 23:34:15 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
+Message-ID: <20040308223415.GB12612@dualathlon.random>
+References: <20040308202433.GA12612@dualathlon.random> <20040308130231.59deef80.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040308130231.59deef80.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> On Mon, Mar 08, 2004 at 04:50:18PM +0530, Amit S. Kale wrote:
+On Mon, Mar 08, 2004 at 01:02:31PM -0800, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
+> >
+> > without this patch not even the 4:4 tlb overhead would allow intensive
+> > shm (shmfs+IPC) workloads to surivive on 32bit archs. Basically without
+> > this fix it's like 2.6 is running w/o pte-highmem.
 > 
->>On Monday 08 Mar 2004 4:37 pm, Andrew Morton wrote:
->>
->>>"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> yes.
 > 
-> [snip]
+> > But the real reason of this work is for huge 64bit archs, so we speedup
+> > and avoid to waste tons of ram.
 > 
->>>> If you consider it an absolutely must, we can do something so that the
->>>>dirty part is kept away and info threads almost always works.
->>>
->>>Yes, I'd consider `info threads' support a must-have.  I'm rather surprised
->>>that others do not?
->>
->>Present threads support code changes calling convention of do_IRQ. Most 
->>believe that to be an absolute no.
-> 
-> 
-> I believe that George's version does something totally different, with
-> some macros at compile time (and binutils support, I _think_) to not
-> have to change do_IRQ.
+> pte_chain space consumption is approximately equal to pagetable page space
+> consumption.  Sometimes a bit more, sometimes a lot less, approximately
+> equal.
 
-No, nothing at compile time, at least WRT the threads issue.  There is a 
-completely different problem with backtracing through an interrupt or trap.  I 
-have sent the patch for that which makes only minimal changes to code (one line 
-I think, and that an asm line).  The rest is a dwarft2 set of code to build the 
-frame description for the trap/interrupt frame.
+exactly.
 
 > 
+> So why do you say it saves "tons of ram"?
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+because in most high end workloads several gigabytes of ram are
+allocated in the pagetables, and without this patch we would waste
+another several gigabytes for rmap too (basically doubling the memory
+cost of the pagetables). And several gigabytes of ram saved is "tons of
+ram" in my vocabulary. I'm talking 64bit here (ignoring the fact the
+several gigabytes doesn't fit anyways in the max 4G of zone-normal with
+4:4)
 
+> > on 32-ways the scalability is hurted
+> > very badly by rmap, so it has to be removed (Martin can provide the
+> > numbers I think).
+> 
+> I don't recall that the objrmap patches ever significantly affected CPU
+> utilisation.
+
+it does, the number precisely is a 30% figure slowdown in kernel compiles.
+
+also check any readprofile in any of your boxes, rmap is at the very
+top.
+
+> I'm not saying that I'm averse to the patches, but I do suspect that this is
+> a case of large highmem boxes dragging the rest of the kernel along behind
+> them, and nothing else.
+
+highmem has nothing to do with this. Saving several gigs of ram and
+speedups of 30% on 32-ways are the only real reason.

@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVCOSkC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVCOSsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbVCOSkC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 13:40:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVCOSiR
+	id S261735AbVCOSsg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 13:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVCOSsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 13:38:17 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:28847 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261647AbVCOSff (ORCPT
+	Tue, 15 Mar 2005 13:48:35 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:8722 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261735AbVCOSpB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 13:35:35 -0500
-Message-ID: <42373A4C.D9B90D6@tv-sign.ru>
-Date: Tue, 15 Mar 2005 22:41:00 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>
-Cc: linux-kernel@vger.kernel.org, Shai Fultheim <Shai@Scalex86.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 0/2] del_timer_sync: proof of concept
-References: <4231E959.141F7D85@tv-sign.ru> <Pine.LNX.4.58.0503111254270.25992@server.graphe.net>
-	 <4237192B.7E8AA85A@tv-sign.ru> <Pine.LNX.4.58.0503151006550.25689@server.graphe.net>
-Content-Type: text/plain; charset=koi8-r
+	Tue, 15 Mar 2005 13:45:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=PqxnECIukogRWCSrRRWIz8udTq/Zv5bL5hcLyeSz8SJyzWwnAsfjHAo1M39uJhCOL27GmQO5LMXsIJBRqkYeFlRQRf/ICklLLpiBOq1Ij1JSWOcf1eG8qeEpVA6gWbUxRX/qqR5Yu0UDyQK66vMbGzGnVRBCM9DBLLWMa6uSwTI=
+Message-ID: <2cd57c9005031510443ba02e8@mail.gmail.com>
+Date: Wed, 16 Mar 2005 02:44:03 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] oom_kill fix
+Cc: coywolf@sosdg.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050314180258.271acfab.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <20050314181442.GA31020@everest.sosdg.org>
+	 <20050314180258.271acfab.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
->
-> However, this also means that __run_timers will not free up the timer and
-> it has to be explicitly freed with del_timer_??.
+On Mon, 14 Mar 2005 18:02:58 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> Coywolf Qi Hunt <coywolf@sosdg.org> wrote:
+> >
+> >  This oom_kill fix is to do mmput(mm) a bit earlier and returning 0 or 1
+> >  to indicate success or failure instead of returning mm_struct pointer.
+> 
+> Why is this a "fix"?  What bug is it fixing?
+> 
 
-I am not sure I understand you but no, del_timer{,_sync} is not needed.
+It's at least a coding style improvement and lets the code be less obfuscated.
+It increases the system survival possibilities by doing mmput immediately
+and reduces the chances of oom killing another process unnecessarily, IMHO.
 
-__run_timer deletes timer from base->tv? list and clears 'pending flag'.
+Or rather rename "fix" to "cleanup".
 
-__del_timer_sync sets ->_base = NULL, but it is merely optimization.
-It could set ->_base = base, but in that case next del_timer_sync()
-call will need spin_lock(base->lock) again.
-
-Oleg.
+-- 
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272121AbRHVWkB>; Wed, 22 Aug 2001 18:40:01 -0400
+	id <S272153AbRHVWvp>; Wed, 22 Aug 2001 18:51:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272152AbRHVWjv>; Wed, 22 Aug 2001 18:39:51 -0400
-Received: from femail27.sdc1.sfba.home.com ([24.254.60.17]:18573 "EHLO
-	femail27.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S272121AbRHVWjg>; Wed, 22 Aug 2001 18:39:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: Ion Badulescu <ionut@cs.columbia.edu>
-Subject: Re: [PATCH,RFC] make ide-scsi more selective
-Date: Wed, 22 Aug 2001 15:39:12 -0700
-X-Mailer: KMail [version 1.2]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mikael Pettersson <mikpe@csd.uu.se>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108221757020.17244-100000@age.cs.columbia.edu>
-In-Reply-To: <Pine.LNX.4.33.0108221757020.17244-100000@age.cs.columbia.edu>
+	id <S272154AbRHVWvf>; Wed, 22 Aug 2001 18:51:35 -0400
+Received: from ares.sot.com ([195.74.13.236]:50948 "EHLO ares.sot.com")
+	by vger.kernel.org with ESMTP id <S272153AbRHVWvW>;
+	Wed, 22 Aug 2001 18:51:22 -0400
+From: Santeri Kannisto <ss@ares.sot.com>
+Message-Id: <200108222251.BAA04797@ares.sot.com>
+Subject: Re: 2.4.9: GCC 3.0 problem in "acct.c"
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Date: Thu, 23 Aug 2001 01:51:33 +0300 (EEST)
+reply-to: Santeri.Kannisto@sot.com
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Message-Id: <01082215391200.00490@c779218-a>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 August 2001 03:00 pm, Ion Badulescu wrote:
-> On Wed, 22 Aug 2001, Nicholas Knight wrote:
-> > Here's an end-user perspective for you... I just spent 2 days trying
-> > to figure out how to use my CD-RW drive to read when using ide-scsi,
-> > before I finnaly realized that I had to do it by disabling ATAPI CD
-> > support and enabling SCSI CD support..
+Alan Cox wrote:
+> peter k. wrote:
+>> i just updated my gcc from 2.96 to 3.0.1 and now i cant compile kernel 2.4.9
+>> anymore, make bzImage fails with the following error message:
+>> 
+>> acct.c: In function `check_free_space':
+>> acct.c:147: Unrecognizable insn:
+>> (insn 335 102 336 (parallel[
+>>             (set (reg/v:SI 2 ecx [44])
+>>                 (const_int 0 [0x0]))
+>>             (clobber (reg:CC 17 flags))
+>>         ] ) -1 (insn_list:REG_DEP_ANTI 100 (insn_list:REG_DEP_ANTI 102
+>> (nil)))
+>>     (expr_list:REG_UNUSED (reg:CC 17 flags)
+>>         (nil)))
+>> acct.c:147: Internal compiler error in insn_default_length, at
+>> insn-attrtab.c:223
+>> 
+>> can anyone tell me how to fix this?
 >
-> Just doing hdX=scsi would have been enough, however. Except it doesn't
-> work (currently) if ide-scsi is a module.
+> Use gcc 2.96 or gcc 3.0.0. You broke the compiler. Please also see the gcc bug
+> reporting instructions. You will actually make a gcc hacker very happy 
+> reporting that problem.
 
-Could you elaborate on this? I almost never use modules for my primary 
-desktop system, SCSI emulation support and SCSI generic driver were both 
-compiled in, and I had "hdc=ide-scsi" and later also tried "hdc=scsi" and 
+Except that a similar problem with capi existed allready with gcc 3.0 +
+kernels 2.4.*, and that problem was reported to gcc people multiple 
+times. But it is still broken in gcc 3.0.1:
 
-I was unable to read from it with any device, /dev/sr0 /dev/sda /dev/scd0 
-were all dead-ends, but I was able to WRITE just fine... I just don't 
-want to reboot every time I want to write to the drive, nor reboot when I 
-want to READ from it.
+bp2.c:414: warning: `sbp2_host_info_lock' defined but not used
+capi.c: In function `capi_ioctl':
+capi.c:1031: Unrecognizable insn:
+(insn/i 1675 3103 3100 (parallel[ capi.c:1031: Internal error: Segmentation fault
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
 
-Disabling ATAPI CD-ROM support, and enabling SCSI CD-ROM (along with SCSI 
-emulation support and SCSI generic support) worked, and now I just access 
-both my CD-RW drive and my DVD-ROM drive through /dev/sr0 and /dev/sr1.
+So, does anyone have any ideas? That problem is critical because
+it makes ISDN (capi 2) unusable with kernels 2.4.* + gcc 3.0.* 
 
-My primary concern here is other users who haven't figured this out, I 
-know at least one ATAPI/IDE CD-R(W) in Linux HOWTO tells the user that 
-they'll have to use two seperate kernel images, one to allow reading from 
-their drive and the other for writing, infact that was my original method.
+All other things seem to function pretty well with 2.4.9 + 3.0.1.
 
-> I agree with Alan that the problem is the grab-on-load strategy that
-> ide-scsi (and ide-cd for that matter) uses. I am willing to look into
-> changing that to grab-on-open but I'm not sure if the change is an
-> appropriate one for a stable series kernel -- it looks pretty
-> non-trivial.
->
-> Ion
+-- 
+Mr. Santeri Kannisto, CTO, sk@sot.com - http://www.sot.com/
+Ou SOT Finnish Software Engineering   - fax  +372 5 171 941
+Kreutzwaldi 7-4, EE-10124 Tallinn     - tel. +372 5 044 941
+ESTONIA                             - http://bestlinux.net/

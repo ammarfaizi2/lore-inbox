@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316177AbSEOOiJ>; Wed, 15 May 2002 10:38:09 -0400
+	id <S316089AbSEOOhX>; Wed, 15 May 2002 10:37:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316178AbSEOOiI>; Wed, 15 May 2002 10:38:08 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:36103 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S316177AbSEOOiB>; Wed, 15 May 2002 10:38:01 -0400
-Message-Id: <200205151435.g4FEZo990223@aslan.scsiguy.com>
-To: Andrey Nekrasov <andy@spylog.ru>
-cc: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Adaptec Aic7xxx driver & 2.4.19pre8aa2 
-In-Reply-To: Your message of "Wed, 15 May 2002 17:03:28 +0400."
-             <20020515130328.GA19698@spylog.ru> 
-Date: Wed, 15 May 2002 08:35:50 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S316177AbSEOOhW>; Wed, 15 May 2002 10:37:22 -0400
+Received: from synapse.mensalinux.org ([208.255.12.2]:17792 "EHLO
+	iq.mensalinux.org") by vger.kernel.org with ESMTP
+	id <S316089AbSEOOhV>; Wed, 15 May 2002 10:37:21 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Jason Straight <jason@blazeconnect.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-pre8-ac2 - which vaio?
+Date: Tue, 14 May 2002 08:00:12 -0400
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200205140800.12610.jason@blazeconnect.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hello.
->
->Hardware motherboard: Intel "Lancewood" L440GX, SCSI integrated, last BIOS/BMC
->
->1. 2.4.19pre1aa1 :  : 1CPU/HIGHMEM/3.5Gb
+Which vaio bios was added to the tables? My grx still has problems with sound 
+and such apparantly due to conflicts.
 
-The key bit in the dump is this:
+Also on my GRX - the console acts wierd with framebuffer, when text reaches 
+the bottom of a console it nearly freezes the machine.
+-- 
 
->scsi0:0:0:0: Attempting to queue an ABORT message
->...
->scsi0:0:4:0: Command already completed
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Jason Straight
+President
+BlazeConnect Internet Services
+Cheboygan Michigan
+www.blazeconnect.net
+Phone: 231-597-0376
 
-Interrupts are not getting routed correctly for your motherboard
-in the 2.4.19pre release you are running.  I'm not sure what has
-changed there, but the aic7xxx driver is noticing, when told to
-abort a command, that it has already completed, but the interrupt
-for that completion was never received.  You may see different
-results if you play with the APIC I/O option.
-
---
-Justin

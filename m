@@ -1,111 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbTFTNsp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 09:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbTFTNsp
+	id S261825AbTFTNrN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 09:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTFTNrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 09:48:45 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:23946 "EHLO phoebee")
-	by vger.kernel.org with ESMTP id S262073AbTFTNsa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 09:48:30 -0400
-Date: Fri, 20 Jun 2003 16:02:28 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reimplement pci proc name
-Message-Id: <20030620160228.654e181c.martin.zwickel@technotrend.de>
-In-Reply-To: <20030620134811.GR24357@parcelfarce.linux.theplanet.co.uk>
-References: <20030620134811.GR24357@parcelfarce.linux.theplanet.co.uk>
-Organization: TechnoTrend AG
-X-Mailer: Sylpheed version 0.9.0claws42 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.4.21-rc4 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.d?x8FTndnyxhxX"
+	Fri, 20 Jun 2003 09:47:13 -0400
+Received: from sark.cc.gatech.edu ([130.207.7.23]:58290 "EHLO
+	sark.cc.gatech.edu") by vger.kernel.org with ESMTP id S261825AbTFTNrH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 09:47:07 -0400
+Date: Fri, 20 Jun 2003 10:00:51 -0400 (EDT)
+From: Jiantao Kong <jiantao@cc.gatech.edu>
+To: linux-kernel@vger.kernel.org
+cc: jkong@us.ibm.com
+Subject: Improper parameter for refill_inactive_zone in 2.5 kernel
+Message-ID: <Pine.GSO.4.50.0306200959160.28060-100000@gaia.cc.gatech.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.d?x8FTndnyxhxX
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-Hi Matthew!
+The following description is based on the 2.5.69 kernel. But it seems that
+the 2.5.72 kernel is the same.
 
-Just one question:
-If pci_name_bus copies the bus' hex to name and always returns 0,
-the "if (!pci_name_bus(name, bus)) return -EEXIST;" would always be true, right?
+PROBLEM 1: refill_counter becomes extreme large.
 
-Or did I miss something?
+In 2.5 kernel, the number of pages that are moved from the active list to
+the inactive list is determined in two steps. First, it is calculated
+using the same formula as 2.4 kernel.
+  ratio = nr_pages * nr_active /((nr_inactive|1*2);
+Then, this ratio value is added to a refill_counter. If the refill_counter
+is larger than SWAP_CLUSTER_MAX, min{refill_counter, 4*SWAP_CLUSTER_MAX}
+pages are examined in the active list to refill the inactive list. The
+number of pages examined is reduced from the refill_counter.
 
-Regards,
-Martin
+However, the refill_counter may become extreme large in some cases. I ran
+test under UML with 160M memory and 512M swap space. A process allocates
+190M memory using malloc and accesses the memory continuously. The
+refill_counter becomes very large after a while.
+(My printk output: refill counter = 1263227753)
 
-On Fri, 20 Jun 2003 14:48:11 +0100
-Matthew Wilcox <willy@debian.org> bubbled:
+Basically, the formula tells us the number of pages to examine based on
+the distance from current state to the ideal state. So there is no need to
+consider anything from any old state. The only purpose to maintain the
+refill_counter is to avoid doing refill_inactive_zone when the number of
+pages which need to be examined is too small. So, instead of subtracting
+the number of pages examined from the refill_counter, it should be better
+to reset it to zero every time refill_inactive_zone is called.
 
-> 
-> Index: drivers/pci/proc.c
-> ===================================================================
-> RCS file: /var/cvs/linux-2.5/drivers/pci/proc.c,v
-> retrieving revision 1.9
-> diff -u -p -r1.9 proc.c
-> --- drivers/pci/proc.c	14 Jun 2003 22:15:29 -0000	1.9
-> +++ drivers/pci/proc.c	17 Jun 2003 19:36:50 -0000
-> @@ -383,7 +383,8 @@ int pci_proc_attach_device(struct pci_de
->  		return -EACCES;
->  
->  	if (!(de = bus->procdir)) {
-> -		sprintf(name, "%02x", bus->number);
-> +		if (!pci_name_bus(name, bus))
-> +			return -EEXIST;
->  		de = bus->procdir = proc_mkdir(name, proc_bus_pci_dir);
->  		if (!de)
->  			return -ENOMEM;
+PROBLEM 2: try_to_free_pages/balance_pgdat is more likely to fail to
+reclaim enough pages.
 
-> Index: include/linux/pci.h
-> ===================================================================
-> RCS file: /var/cvs/linux-2.5/include/linux/pci.h,v
-> retrieving revision 1.17
-> diff -u -p -r1.17 pci.h
-> --- include/linux/pci.h	14 Jun 2003 22:16:01 -0000	1.17
-> +++ include/linux/pci.h	19 Jun 2003 00:55:35 -0000
-> @@ -808,6 +815,11 @@ extern int pci_pci_problems;
->  
->  #ifndef CONFIG_PCI_DOMAINS
->  static inline int pci_domain_nr(struct pci_bus *bus) { return 0; }
-> +static inline int pci_name_bus(char *name, struct pci_bus *bus)
-> +{
-> +	sprintf(name, "%02x", bus->number);
-> +	return 0;
-> +}
->  #endif
->  
->  #endif /* __KERNEL__ */
-> 
+When the inactive list is almost empty, pages must be moved from the
+active list to the inactive list first to reclaim. The upper bound for
+refill_inactive_zone limits the number of pages to examine to
+4*(DEF_PRIORITY+1)*SWAP_CLUSTER_MAX for try_to_free_pages and
+balance_pgdat. It is possible that there is not enough pages moved to the
+inactive list because that 'page_referenced' returns true for many of
+those examined pages.
 
+The effect of this behavior is not clear for me. Will it affect the
+responsiveness of the system?
 
--- 
-MyExcuse:
-Backbone adjustment
+Is it better to determine the upper bound for refill_inactive_zone based
+on the 'priority' parameter for shrink_zone just like the way that
+controls the number of pages to scan for shrink_cache?
 
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
+			-Jiantao Kong (jiantao@cc.gatech.edu)
 
-TechnoTrend AG <http://www.technotrend.de>
+P.S.:
 
---=.d?x8FTndnyxhxX
-Content-Type: application/pgp-signature
+One simple example can show why the counter becomes so large. Considering
+the worse case scenario that the inactive list is empty, then the ratio is
+(nr_pages*nr_active)/2. Here the nr_pages is the number of pages to
+reclaim, which is usually SWAP_CLUSTER_MAX=32 in 2.5 kernel if calling
+from try_to_free_pages or even larger if calling from balance_pgdat. Now
+the ratio may be 16N where N is the number of active pages. In 2.4 kernel,
+this number causes the refill_inactive to scan more pages then necessary.
+In 2.5 kernel, this number is still accumulated into the refill_counter.
+Moreover, the speed of feeding the refill_counter may be quicker than the
+speed of consuming. For example, the refill_inactive_zone may move fewer
+pages then expected so that the inactive list is still empty after the
+shrink_cache. Then the next time when shrink_zone is called, another 16N
+is added to the refill counter.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+8xP0mjLYGS7fcG0RAtrOAJ4kOijoMfXdRtRwszM67heUMWIemQCeJZPg
-HeN+/biXkxwcFllf2N2FDAU=
-=08qb
------END PGP SIGNATURE-----
-
---=.d?x8FTndnyxhxX--

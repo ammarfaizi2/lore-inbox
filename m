@@ -1,88 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289290AbSAPB4t>; Tue, 15 Jan 2002 20:56:49 -0500
+	id <S289732AbSAPB6i>; Tue, 15 Jan 2002 20:58:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289806AbSAPB4j>; Tue, 15 Jan 2002 20:56:39 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:10001 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S289290AbSAPB4a>; Tue, 15 Jan 2002 20:56:30 -0500
-Message-ID: <3C44DC7B.D960D15D@zip.com.au>
-Date: Tue, 15 Jan 2002 17:50:51 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
+	id <S289802AbSAPB62>; Tue, 15 Jan 2002 20:58:28 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:29966 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S289732AbSAPB6T>; Tue, 15 Jan 2002 20:58:19 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 15 Jan 2002 18:04:21 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Robert Love <rml@tech9.net>
+cc: Ingo Molnar <mingo@elte.hu>, Ed Tomlinson <tomlins@cam.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] O(1) scheduler-H6/H7/I0 and nice +19
+In-Reply-To: <1011146349.8756.63.camel@phantasy>
+Message-ID: <Pine.LNX.4.40.0201151803020.940-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: block completion races
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-void end_that_request_last(struct request *req)
-{
-        if (req->waiting != NULL)
-                complete(req->waiting);
+On 15 Jan 2002, Robert Love wrote:
 
-        blkdev_release_request(req);
-}
+> On Tue, 2002-01-15 at 21:48, Ingo Molnar wrote:
+>
+> > there is a way: renicing. Either use nice +19 on the compilation job or
+> > use nice -5 on the 'known good' tasks. Perhaps we should allow a nice
+> > decrease of up to -5 from the default level - and things like KDE or Gnome
+> > could renice interactive tasks, while things like compilation jobs would
+> > run on the default priority.
+>
+> This isn't a bad idea, as long as we don't use it as a crutch or
+> excuse.  That is, answer scheduling problems with "properly nice your
+> tasks" -- the scheduler should be smart enough, to some degree.
+>
+> FWIW, Solaris actually implements a completely different scheduling
+> policy, SCHED_INTERACT or something.  It is for windowed tasks in X --
+> they get a large interactivity bonus.
 
-
-I think a bug.  Sometimes (eg, cdrom_queue_packet_command())
-the request is allocated on a task's kernel stack.  As soon as
-we call complete(), that task can wake and release the request
-while blkdev_release_request() is diddling it on this CPU.
-
-Do you see any problem with releasing the request before running
-complete()?.  Also I think it's best to uninline blkdev_release_request().
-It's 104 bytes long, and we have four copies of it in ll_rw_blk.c.  A
-patch is here.
-
-Also, there is this code in ide_do_drive_cmd():
-
-        if (action == ide_wait) {
-                wait_for_completion(&wait);     /* wait for it to be serviced */
-                return rq->errors ? -EIO : 0;   /* return -EIO if errors */
-        }
-
-Is it safe to use `rq' here?  It has just been recycled in
-end_that_request_last() and we don't own it any more.
-
-I think the simplest approach to this one is to make the error
-code a part of the completion structure, so:
-
-struct blkdev_completion {
-	struct completion completion;
-	int errcode;
-};
-
-If you agree, I'll do the patch.
+Now ( with 2.5.3-pre1 ) intractivity is *very good* but SCHED_INTERACT
+would help *a lot* to get things even more right.
 
 
 
---- linux-2.4.18-pre4/drivers/block/ll_rw_blk.c	Tue Jan 15 15:08:24 2002
-+++ linux-akpm/drivers/block/ll_rw_blk.c	Tue Jan 15 17:39:22 2002
-@@ -546,7 +546,7 @@ static inline void add_request(request_q
- /*
-  * Must be called with io_request_lock held and interrupts disabled
-  */
--inline void blkdev_release_request(struct request *req)
-+void blkdev_release_request(struct request *req)
- {
- 	request_queue_t *q = req->q;
- 	int rw = req->cmd;
-@@ -1084,10 +1084,11 @@ int end_that_request_first (struct reque
- 
- void end_that_request_last(struct request *req)
- {
--	if (req->waiting != NULL)
--		complete(req->waiting);
-+	struct completion *waiting = req->waiting;
- 
- 	blkdev_release_request(req);
-+	if (waiting != NULL)
-+		complete(waiting);
- }
- 
- #define MB(kb)	((kb) << 10)
+
+- Davide
+
+

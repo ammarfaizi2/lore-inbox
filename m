@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263921AbTLELX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 06:23:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbTLELX2
+	id S263857AbTLELnA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 06:43:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263866AbTLELnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 06:23:28 -0500
-Received: from web02.mailshell.com ([209.157.66.232]:57823 "HELO mailshell.com")
-	by vger.kernel.org with SMTP id S263921AbTLELXX (ORCPT
+	Fri, 5 Dec 2003 06:43:00 -0500
+Received: from f19.mail.ru ([194.67.57.49]:28945 "EHLO f19.mail.ru")
+	by vger.kernel.org with ESMTP id S263857AbTLELm7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 06:23:23 -0500
-Message-ID: <20031205112319.31918.qmail@mailshell.com>
-Date: Fri, 05 Dec 2003 13:23:15 +0200
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Subject: Re: PROBLEM: 2.6test11 kernel panic on "head -1 /proc/net/tcp"
-References: <20031128170138.9513.qmail@mailshell.com>	<87d6bc2yvq.fsf@devron.myhome.or.jp>	<20031129170034.10522.qmail@mailshell.com>	<1070242158.1110.150.camel@buffy> <3FCBAE6F.1090405@myrealbox.com>	<20031201213624.18232.qmail@mailshell.com> <871xrmudyb.fsf@devron.myhome.or.jp>
-In-Reply-To: <871xrmudyb.fsf@devron.myhome.or.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-From: lkml-031128@amos.mailshell.com
-To: linux-kernel@vger.kernel.org
+	Fri, 5 Dec 2003 06:42:59 -0500
+From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>
+To: =?koi8-r?Q?=22?=watermodem=?koi8-r?Q?=22=20?= 
+	<aquamodem@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: devfs_mk_cdev  question
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [212.248.25.26]
+Date: Fri, 05 Dec 2003 14:42:57 +0300
+Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	  <arvidjaar@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1ASEML-000P1A-00.arvidjaar-mail-ru@f19.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi wrote:
-> lkml-031128@amos.mailshell.com writes:
-> 
-> 
->>After I added Ogawa's line, "head -1 /proc/net/tcp" stopped
->>freezing my machine but PPP failed to work.
->>
->>Also after adding Ogawa's line, PPP works fine (as it is now, as
->>I write this message) as long as I don't try "head -1 /proc/net/tcp"
->>after boot. If I'll try "head -1 /proc/net/tcp" now PPP will stop
->>working.
-> 
-> 
-> Can you reproduce the fail of PPP? I couldn't reproduce it.
-> What reason is the fail of PPP? (the "debug" option of pppd may be helpful)
 
-Sorry. I just tried:
+> I am a litte perplexed.  Is this error message important?
 
-1. From a multi-user mode, after an uptime of 5 days (test11 with your
-fix).
-2. killed the ppp daemon (/etc/init.d/ppp stop). Made sure the ppp0
-interface is down.
-3. did "head -1 /proc/net/tcp" and "cat /proc/net/tcp". Passed fine.
-4. re-startted ppp daemon.
-5. System is fine. No kernel errors. PPP works flowlessly.
+> I am running linux-2.6.0-test11 on a modified Mandrake 9.2 rc2 release.
 
-So I think my linking of PPP to the fix was wrong. Maybe the PPP failure
-was unrelated to this.
+You may have any issues here, esp. with initscripts. You may try
+current cooker.
 
-> 
-> Of course, the following message is easy reproducible. But it's
-> debugging message, not the real problem. And probably it's unrelated
-> to the fail of PPP.
-> 
-> 
->>>>>Badness in local_bh_enable at kernel/softirq.c:121
->>>>>Call Trace:
->>>>> [<c011df25>] local_bh_enable+0x85/0x90
->>>>> [<c02315e2>] ppp_async_push+0xa2/0x180
->>>>> [<c0230efd>] ppp_asynctty_wakeup+0x2d/0x60
->>>>> [<c0202638>] pty_unthrottle+0x58/0x60
->>>>> [<c01ff0fd>] check_unthrottle+0x3d/0x40
->>>>> [<c01ff1a3>] n_tty_flush_buffer+0x13/0x60
->>>>> [<c0202a47>] pty_flush_buffer+0x67/0x70
->>>>> [<c01fba41>] do_tty_hangup+0x3f1/0x460
+> The sound card is playing as I type but on boot I saw:
+> [
+> Dec  4 16:44:27 dali kernel: Advanced Linux Sound Architecture Driver Version 0.9.7 (Thu Sep 25 19:16:36 20 03 UTC).
+> Dec  4 16:44:27 dali kernel: request_module: failed /sbin/modprobe -- snd-card-0. error = -16
 
+EBUSY but no idea why it is reported; probably by driver?
+
+> As I slowly work my way through the problems I see this:
+> [
+> Dec  4 16:45:29 dali kernel: devfs_mk_cdev: could not append to parent for snd/hwC0D0
+
+check that /dev/snd is not a file or link or whatever. Remove it,
+remove /lib/dev-state/snd and try again. If it persists (i.e. you
+have non-directory /dev/snd appearing every time on boot) try
+to find out why it is created. ALSA initscript in Mandrake creates
+/dev/snd as link to /proc/whatever if it believes devfs is not present. It may be one possible reason.
+
+-andrey
 

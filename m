@@ -1,74 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287858AbSA3BdO>; Tue, 29 Jan 2002 20:33:14 -0500
+	id <S287882AbSA3BeO>; Tue, 29 Jan 2002 20:34:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287872AbSA3BdF>; Tue, 29 Jan 2002 20:33:05 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:38290
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S287858AbSA3Bct>; Tue, 29 Jan 2002 20:32:49 -0500
-Message-Id: <200201300131.g0U1VsU22963@snark.thyrsus.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Daniel Phillips <phillips@bonn-fries.net>,
-        ebiederm@xmission.com (Eric W. Biederman),
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: A modest proposal -- We need a patch penguin
-Date: Tue, 29 Jan 2002 20:33:03 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Larry McVoy <lm@bitmover.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0201282217220.10929-100000@penguin.transmeta.com> <m1wuy1cn0w.fsf@frodo.biederman.org> <E16Vi1x-0000Aw-00@starship.berlin>
-In-Reply-To: <E16Vi1x-0000Aw-00@starship.berlin>
+	id <S287880AbSA3BeB>; Tue, 29 Jan 2002 20:34:01 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47115 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287872AbSA3Bdx>;
+	Tue, 29 Jan 2002 20:33:53 -0500
+Message-ID: <3C574BD1.E5343312@zip.com.au>
+Date: Tue, 29 Jan 2002 17:26:41 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Robert Love <rml@tech9.net>
+CC: Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5: push BKL out of llseek
+In-Reply-To: <Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>,
+		<Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com> <1012351309.813.56.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 January 2002 06:51 pm, Daniel Phillips wrote:
-> On January 29, 2002 02:19 pm, Eric W. Biederman wrote:
-> > So the kernel maintainership becomes a network of maintainers.  Then
-> > we only have to understand the routing protocols.  Currently the
-> > routing tables appear to have Linus as the default route.  As there
-> > are currently kernel subsystems that do not have a real maintainer, it
-> > may reasonable to have a misc maintainer.  Who looks after the
-> > orphaned code, rejects/ignores patches for code that does have
-> > active maintainers, and looks for people to be maintainers of the
-> > orphaned code.
-> >
-> > The key is having enough human to human protocol that there is someone
-> > besides Linus you can send your code to.  Or at least when there isn't
-> > people are looking for someone.
-> >
-> > Free Software obtains a lot of it's value by many people scratching an
-> > itch and fixing a little bug, or adding a little feature, sending the
-> > code off and then they go off to something else.  We need to have the
-> > maintainer routing protocol clear enough, and the maintainer coverage
-> > good enough so we can accumulate most of the bug fixes from the fly by
-> > night hackers.
-> >
-> > So does anyone have any good ideas about how to build up routing
-> > tables?  And almost more importantly how to make certain we have good
-> > maintainer coverage over the entire kernel?
->
-> Yes, we should cc our patches to a patchbot:
->
->   patches-2.5@kernel.org -> goes to linus
->   patches-2.4@kernel.org -> goes to marcello
->   patches-usb@kernel.org -> goes to gregkh, regardless of 2.4/2.5
->   etc.
->
-> The vast sea of eyeballs will do the rest.  A web interface would be a nice
-> bonus, but 'patch sent and seen to be sent, to whom, when, what, why' is
-> the essential ingredient.
+Robert Love wrote:
+> 
+> @@ -84,9 +84,9 @@
+>         fn = default_llseek;
+>         if (file->f_op && file->f_op->llseek)
+>                 fn = file->f_op->llseek;
+> -       lock_kernel();
+> +       down(&file->f_dentry->d_inode->i_sem);
+>         retval = fn(file, offset, origin);
+> -       unlock_kernel();
+> +       up(&file->f_dentry->d_inode->i_sem);
+>         return retval;
+>  }
 
-And of course there's not much point in having patches go to that list that 
-AREN'T public (um, they're for inclusion into a public tree, right)?  So the 
-patchbot might as well distribute to a mailing list, as long as there's some 
-variety of moderation (possibly just a procmail recipe) to delete everything 
-that didn't actually have a patch in it.  (Yet another discussion list is 
-unlikely to help matters too much.)
+Just a little word of caution here.  Remember the
+apache-flock-synchronisation fiasco, where removal
+of the BKL halved Apache throughput on 8-way x86.
 
-Of course this still doesn't address the problem of patches going stale if 
-they're not applied for a version or two and something else that goes in 
-breaks them...
+This was because the BKL removal turned serialisation
+on a quick codepath from a spinlock into a schedule().
 
-Rob
+So...  I'd suggest that changes such as this should be
+benchmarked in isolation; otherwise we end up spending
+quite some time hunting down mysterious reports of
+performance regression, and having to rethink stuff.
+
+And llseek is *fast*.  If we're seeing significant
+lock contention in there then adding a schedule() is
+likely to turn Anton into one unhappy dbencher.
+
+-

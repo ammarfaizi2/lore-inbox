@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269927AbRHMXeL>; Mon, 13 Aug 2001 19:34:11 -0400
+	id <S269936AbRHMXvP>; Mon, 13 Aug 2001 19:51:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269928AbRHMXeB>; Mon, 13 Aug 2001 19:34:01 -0400
-Received: from smtp2.netc.pt ([212.18.160.142]:15490 "EHLO smtp2.netc.pt")
-	by vger.kernel.org with ESMTP id <S269927AbRHMXd5>;
-	Mon, 13 Aug 2001 19:33:57 -0400
-Date: Tue, 14 Aug 2001 01:31:28 +0100
-From: Paulo Andre <baggio@netc.pt>
-Subject: 2.4.8-ac3 fails on compiling
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Message-id: <01081401312801.01021@nirvana.local.net>
-MIME-version: 1.0
-X-Mailer: KMail [version 1.1.95.2]
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S269934AbRHMXvF>; Mon, 13 Aug 2001 19:51:05 -0400
+Received: from [216.102.46.130] ([216.102.46.130]:53794 "EHLO
+	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
+	id <S269930AbRHMXuz>; Mon, 13 Aug 2001 19:50:55 -0400
+To: Ben Greear <greearb@candelatech.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Requesting clarification on IPTOS_* values w/regard to RFC-1349
+In-Reply-To: <3B7862FD.BBDF0C51@candelatech.com>
+From: Roland Dreier <roland@topspincom.com>
+Date: 13 Aug 2001 16:50:47 -0700
+In-Reply-To: Ben Greear's message of "Mon, 13 Aug 2001 16:30:05 -0700"
+Message-ID: <523d6vldt4.fsf@love-boat.topspincom.com>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Capitol Reef)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+>>>>> "Ben" == Ben Greear <greearb@candelatech.com> writes:
 
-Got this compiling error when trying to build 2.4.8-ac3 on top of 2.4.8, it 
-chokes when trying to compile the FAT support. Might aswell be a problem 
-within the Makefile. Here's the produced output...
+    Ben> I have a hard time believing that the kernel is wrong on
+    Ben> something so basic, but I cannot reconcile RFC-1349 with
+    Ben> include/linux/ip.h
+
+    Ben> Here is the snippet from RFC-1349, found here:
+    Ben> http://www.cis.ohio-state.edu/cgi-bin/rfc/rfc1349.html
+
+****************************************************************************
+3 Specification of the Type of Service Octet
+
+    The TOS facility is one of the features of the Type of Service
+    octet in the IP datagram header. The Type of Service
+    octet consists of three fields: 
+
+                    0     1     2     3     4     5     6     7
+                 +-----+-----+-----+-----+-----+-----+-----+-----+
+                 |                 |                       |     |
+                 |   PRECEDENCE    |          TOS          | MBZ |
+                 |                 |                       |     |
+                 +-----+-----+-----+-----+-----+-----+-----+-----+
+
+****************************************************************************
 
 
-make -C fat
-make[2]: Entering directory `/usr/src/linux/fs/fat'
-make all_targets
-make[3]: Entering directory `/usr/src/linux/fs/fat'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686    -c -o buffer.o buffer.c
-make[3]: *** No rule to make target `msbuffer.h', needed by `cache.o'.  Stop.
-make[3]: Leaving directory `/usr/src/linux/fs/fat'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux/fs/fat'
-make[1]: *** [_subdir_fat] Error 2
-make[1]: Leaving directory `/usr/src/linux/fs'
-make: *** [_dir_fs] Error 2
+    Ben> However, include/linux/ip.h defines the values as if RFC-1349
+    Ben> numbered the bits backwards.  (It appears to me, for example,
+    Ben> that the TOS_MASK should be, in binary: 0111 1000, not 0001
+    Ben> 1110 as ip.h shows.)
+
+#define IPTOS_TOS_MASK		0x1E
+
+Actually, this is correct.  The RFC shows bits inside an octect in
+"network order".  In other words the high-order bit of an octect
+appears at the left, just as the high-order octet of a word appears at
+the left.  The way I always remember it is that network order writes
+bits the way you would write a binary number by hand.
+
+For further confirmation, you can see RFC 1122, which says:
+
+  The "Type-of-Service" byte in the IP header is divided into two
+  sections: the Precedence field (high-order 3 bits), and a field that
+  is customarily called "Type-of-Service" or "TOS" (low-order 5 bits).
+  In this document, all references to "TOS" or the "TOS field" refer
+  to the low-order 5 bits only.
+
+Roland
 
 
-Cheers,
-
-// Paulo Andre'

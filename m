@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbUK2LIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbUK2LKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbUK2LIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 06:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUK2LG7
+	id S261671AbUK2LKr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 06:10:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUK2LIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 06:06:59 -0500
-Received: from cantor.suse.de ([195.135.220.2]:9372 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261656AbUK2LEh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 06:04:37 -0500
-Message-ID: <41AAED32.2010703@suse.de>
-Date: Mon, 29 Nov 2004 10:34:42 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041104)
+	Mon, 29 Nov 2004 06:08:31 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:46722 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S261656AbUK2LHq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 06:07:46 -0500
+Message-ID: <41AB0318.2030209@verizon.net>
+Date: Mon, 29 Nov 2004 06:08:08 -0500
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: ncunningham@linuxmail.org
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hugang@soulinfo.com, Andrew Morton <akpm@zip.com.au>,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: Suspend 2 merge
-References: <1101292194.5805.180.camel@desktop.cunninghams>	 <20041124132839.GA13145@infradead.org>	 <1101329104.3425.40.camel@desktop.cunninghams>	 <20041125192016.GA1302@elf.ucw.cz>	 <1101422088.27250.93.camel@desktop.cunninghams>	 <20041125232200.GG2711@elf.ucw.cz> <1101426416.27250.147.camel@desktop.cunninghams>
-In-Reply-To: <1101426416.27250.147.camel@desktop.cunninghams>
-Content-Type: text/plain; charset=ISO-8859-1
+To: gene.heskett@verizon.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Am I still on this list?
+References: <200411290149.25390.gene.heskett@verizon.net>
+In-Reply-To: <200411290149.25390.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [209.158.220.243] at Mon, 29 Nov 2004 05:07:45 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
+Gene Heskett wrote:
+> I just went to vger.kernel.org and ran the MX-VERIFY-CGI script 
+> against my mailing address and it seemed to work ok, unlike last week 
+> when verizon had an overloaded mail box somewhere that not only 
+> caused some huge lags, but probably bounced so many messages to me 
+> that I got suspended.
+> 
+> Is there anyone here on this list that can throw some light on why 
+> I've not got any messages from the lkml since a burst of about 275 
+> early Friday morning?  Or if I've been suspended/unsubscribed, fix it 
+> back up?
+> 
+> At that time, the above script was failing when it got to my src 
+> mailserver at verizon.net.  Now it is not, but still no mail.  
+> Sniff...
+> 
 
-> The cryptoapi provides support for both compression and encryption. I'd
-> happily make use of that, but we still need a way for the user to choose
-> what compression/encryption they want and configure it. I'm not at all
+Same thing happened to me.  Verizon help-desk drones were useless - just 
+re-subscribed, and everything was back to normal.
 
-And encryption is in fact much more needed than compression. Remember,
-you are writing everything in memory (including maybe ssh passphrases or
-gpg keys) to swap in clear text. Not nice. And i agree that compression
-is nice to have, too.
+Glad to know it was Verizon's fault after all - OTOH, I don't think their mail 
+admins can comprehend why someone doesn't complain about ~300 messages a day... :)
 
->>>:> But not everyone who uses 2.6.9 uses swsusp. :>
-
-and not everyone who downloads suspend2 uses it ;-)
-
-> change a parameter or forcing them to do an ls in /dev with obscure
-> parameters (to get the major and minor numbers) when they already know
-> they want /dev/sda1 isn't user friendly. Obviously user friendliness is 
-
-This can easily be done by a userspace helper. You do use the
-(userspace) X server to display your GUI, don't you?
-Putting only the absolutely necessary things into the kernel (the same
-is true for the interactive resume thing - if someone wants interactive
-startup at a failing resume, he has to use an initrd, i don't see a
-problem with that) will probably increase the acceptance a bit :-)
-
-Best regards,
-
-   Stefan
-
+Jim

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265423AbTASG0G>; Sun, 19 Jan 2003 01:26:06 -0500
+	id <S265446AbTASG3L>; Sun, 19 Jan 2003 01:29:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265424AbTASG0G>; Sun, 19 Jan 2003 01:26:06 -0500
-Received: from yuzuki.cinet.co.jp ([61.197.228.219]:48002 "EHLO
+	id <S265506AbTASG3L>; Sun, 19 Jan 2003 01:29:11 -0500
+Received: from yuzuki.cinet.co.jp ([61.197.228.219]:49538 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S265423AbTASGZt>; Sun, 19 Jan 2003 01:25:49 -0500
-Date: Sun, 19 Jan 2003 15:34:22 +0900
+	id <S265446AbTASG20>; Sun, 19 Jan 2003 01:28:26 -0500
+Date: Sun, 19 Jan 2003 15:37:02 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCHSET] PC-9800 sub-arch (3/29) alsa
-Message-ID: <20030119063422.GB2965@yuzuki.cinet.co.jp>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCHSET] PC-9800 sub-arch (5/29) core#1
+Message-ID: <20030119063702.GD2965@yuzuki.cinet.co.jp>
 References: <20030119051043.GA2662@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,1026 +22,1569 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is patchset to support NEC PC-9800 subarchitecture
-against 2.5.59 (3/29).
+against 2.5.59 (5/29).
 
-ALSA sound drivers for PC98
-Fix bug in 2.5.59 and additional driver.
+Core patches for PC98 under arch/i386 and include/asm-i386/mach-* directory.
 
-diff -Nru linux/sound/isa/Kconfig linux98/sound/isa/Kconfig
---- linux/sound/isa/Kconfig	2002-10-31 13:23:47.000000000 +0900
-+++ linux98/sound/isa/Kconfig	2002-11-02 15:56:59.000000000 +0900
-@@ -39,6 +39,12 @@
- 	  Say 'Y' or 'M' to include support for CS4235,CS4236,CS4237B,CS4238B,CS4239
- 	  chips from Cirrus Logic - Crystal Semiconductors.
+diff -Nru linux-2.5.50-ac1/arch/i386/Kconfig linux98-2.5.59/arch/i386/Kconfig
+--- linux-2.5.50-ac1/arch/i386/Kconfig	2003-01-17 13:22:06.000000000 +0900
++++ linux98-2.5.59/arch/i386/Kconfig	2003-01-17 13:33:54.000000000 +0900
+@@ -75,6 +75,12 @@
  
-+config SND_PC98_CS4232
-+	tristate "NEC PC9800 CS4232 driver"
-+	depends on SND
+ 	  If you don't have one of these computers, you should say N here.
+ 
++config X86_PC9800
++	bool "PC-9800 (NEC)"
 +	help
-+	  Say 'Y' or 'M' to include support for NEC PC-9801/PC-9821 sound cards
++	  To make kernel for NEC PC-9801/PC-9821 sub-architecture, say Y.
++	  If say Y, kernel works -ONLY- on PC-9800 architecture.
 +
- config SND_ES968
- 	tristate "Generic ESS ES968 driver"
- 	depends on SND && ISAPNP
-diff -Nru linux-2.5.52/sound/isa/cs423x/Makefile linux98-2.5.52/sound/isa/cs423x/Makefile
---- linux-2.5.52/sound/isa/cs423x/Makefile	2002-12-16 11:08:16.000000000 +0900
-+++ linux98-2.5.52/sound/isa/cs423x/Makefile	2002-12-16 21:38:54.000000000 +0900
-@@ -10,6 +10,7 @@
- snd-cs4231-objs := cs4231.o
- snd-cs4232-objs := cs4232.o
- snd-cs4236-objs := cs4236.o
-+snd-pc98-cs4232-objs := pc98.o
+ config X86_BIGSMP
+ 	bool "Support for other sub-arch SMP systems with more than 8 CPUs"
+ 	help
+@@ -1167,7 +1173,7 @@
  
- # Toplevel Module Dependency
- obj-$(CONFIG_SND_AZT2320) += snd-cs4231-lib.o
-@@ -22,5 +23,6 @@
- obj-$(CONFIG_SND_INTERWAVE_STB) += snd-cs4231-lib.o
- obj-$(CONFIG_SND_OPTI92X_CS4231) += snd-cs4231-lib.o
- obj-$(CONFIG_SND_WAVEFRONT) += snd-cs4231-lib.o
-+obj-$(CONFIG_SND_PC98_CS4232) += snd-pc98-cs4232.o snd-cs4231-lib.o
+ config EISA
+ 	bool "EISA support"
+-	depends on ISA
++	depends on ISA && !X86_PC9800
+ 	---help---
+ 	  The Extended Industry Standard Architecture (EISA) bus was
+ 	  developed as an open alternative to the IBM MicroChannel bus.
+@@ -1185,7 +1191,7 @@
  
- obj-m := $(sort $(obj-m))
-diff -Nru linux/sound/isa/cs423x/pc98.c linux98/sound/isa/cs423x/pc98.c
---- linux/sound/isa/cs423x/pc98.c	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/sound/isa/cs423x/pc98.c	2002-11-01 11:37:22.000000000 +0900
-@@ -0,0 +1,466 @@
+ config MCA
+ 	bool "MCA support"
+-	depends on !(X86_VISWS || X86_VOYAGER)
++	depends on !(X86_VISWS || X86_VOYAGER || X86_PC9800)
+ 	help
+ 	  MicroChannel Architecture is found in some IBM PS/2 machines and
+ 	  laptops.  It is a bus system similar to PCI or ISA. See
+diff -Nru linux-2.5.50-ac1/arch/i386/Makefile linux98-2.5.59/arch/i386/Makefile
+--- linux-2.5.50-ac1/arch/i386/Makefile	2003-01-17 13:24:14.000000000 +0900
++++ linux98-2.5.59/arch/i386/Makefile	2003-01-17 13:33:54.000000000 +0900
+@@ -65,6 +65,10 @@
+ mflags-$(CONFIG_X86_NUMAQ)	:= -Iinclude/asm-i386/mach-numaq
+ mcore-$(CONFIG_X86_NUMAQ)	:= mach-default
+ 
++# PC-9800 subarch support
++mflags-$(CONFIG_X86_PC9800)	:= -Iinclude/asm-i386/mach-pc9800
++mcore-$(CONFIG_X86_PC9800)	:= mach-pc9800
++
+ # BIGSMP subarch support
+ mflags-$(CONFIG_X86_BIGSMP)	:= -Iinclude/asm-i386/mach-bigsmp
+ mcore-$(CONFIG_X86_BIGSMP)	:= mach-default
+@@ -90,15 +94,19 @@
+ CFLAGS += $(mflags-y)
+ AFLAGS += $(mflags-y)
+ 
++ifeq ($(CONFIG_X86_PC9800),y)
++boot := arch/i386/boot98
++else
+ boot := arch/i386/boot
++endif
+ 
+ .PHONY: zImage bzImage compressed zlilo bzlilo zdisk bzdisk install \
+ 		clean archclean archmrproper
+ 
+ all: bzImage
+ 
+-BOOTIMAGE=arch/i386/boot/bzImage
+-zImage zlilo zdisk: BOOTIMAGE=arch/i386/boot/zImage
++BOOTIMAGE=$(boot)/bzImage
++zImage zlilo zdisk: BOOTIMAGE=$(boot)/zImage
+ 
+ zImage bzImage: vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) $(BOOTIMAGE)
+@@ -119,7 +127,7 @@
+ 	$(Q)$(MAKE) $(clean)=arch/i386/boot98
+ 
+ define archhelp
+-  echo  '* bzImage	- Compressed kernel image (arch/$(ARCH)/boot/bzImage)'
++  echo  '* bzImage	- Compressed kernel image ($(boot)/bzImage)'
+   echo  '  install	- Install kernel using'
+   echo  '		   (your) ~/bin/installkernel or'
+   echo  '		   (distribution) /sbin/installkernel or'
+diff -Nru linux/arch/i386/kernel/setup.c linux98/arch/i386/kernel/setup.c
+--- linux/arch/i386/kernel/setup.c	2002-12-26 13:40:40.000000000 +0900
++++ linux98/arch/i386/kernel/setup.c	2002-12-26 14:01:32.000000000 +0900
+@@ -20,6 +20,7 @@
+  * This file handles the architecture-dependent parts of initialization
+  */
+ 
++#include <linux/config.h>
+ #include <linux/sched.h>
+ #include <linux/mm.h>
+ #include <linux/tty.h>
+@@ -40,6 +41,7 @@
+ #include <asm/setup.h>
+ #include <asm/arch_hooks.h>
+ #include "setup_arch_pre.h"
++#include "mach_resources.h"
+ 
+ int disable_pse __initdata = 0;
+ 
+@@ -102,98 +104,8 @@
+ static char command_line[COMMAND_LINE_SIZE];
+        char saved_command_line[COMMAND_LINE_SIZE];
+ 
+-struct resource standard_io_resources[] = {
+-	{ "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
+-	{ "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
+-	{ "timer", 0x40, 0x5f, IORESOURCE_BUSY },
+-	{ "keyboard", 0x60, 0x6f, IORESOURCE_BUSY },
+-	{ "dma page reg", 0x80, 0x8f, IORESOURCE_BUSY },
+-	{ "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
+-	{ "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
+-	{ "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
+-};
+-#ifdef CONFIG_MELAN
+-standard_io_resources[1] = { "pic1", 0x20, 0x21, IORESOURCE_BUSY };
+-standard_io_resources[5] = { "pic2", 0xa0, 0xa1, IORESOURCE_BUSY };
+-#endif
+-
+-#define STANDARD_IO_RESOURCES (sizeof(standard_io_resources)/sizeof(struct resource))
+-
+ static struct resource code_resource = { "Kernel code", 0x100000, 0 };
+ static struct resource data_resource = { "Kernel data", 0, 0 };
+-static struct resource vram_resource = { "Video RAM area", 0xa0000, 0xbffff, IORESOURCE_BUSY };
+-
+-/* System ROM resources */
+-#define MAXROMS 6
+-static struct resource rom_resources[MAXROMS] = {
+-	{ "System ROM", 0xF0000, 0xFFFFF, IORESOURCE_BUSY },
+-	{ "Video ROM", 0xc0000, 0xc7fff, IORESOURCE_BUSY }
+-};
+-
+-#define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
+-
+-static void __init probe_roms(void)
+-{
+-	int roms = 1;
+-	unsigned long base;
+-	unsigned char *romstart;
+-
+-	request_resource(&iomem_resource, rom_resources+0);
+-
+-	/* Video ROM is standard at C000:0000 - C7FF:0000, check signature */
+-	for (base = 0xC0000; base < 0xE0000; base += 2048) {
+-		romstart = isa_bus_to_virt(base);
+-		if (!romsignature(romstart))
+-			continue;
+-		request_resource(&iomem_resource, rom_resources + roms);
+-		roms++;
+-		break;
+-	}
+-
+-	/* Extension roms at C800:0000 - DFFF:0000 */
+-	for (base = 0xC8000; base < 0xE0000; base += 2048) {
+-		unsigned long length;
+-
+-		romstart = isa_bus_to_virt(base);
+-		if (!romsignature(romstart))
+-			continue;
+-		length = romstart[2] * 512;
+-		if (length) {
+-			unsigned int i;
+-			unsigned char chksum;
+-
+-			chksum = 0;
+-			for (i = 0; i < length; i++)
+-				chksum += romstart[i];
+-
+-			/* Good checksum? */
+-			if (!chksum) {
+-				rom_resources[roms].start = base;
+-				rom_resources[roms].end = base + length - 1;
+-				rom_resources[roms].name = "Extension ROM";
+-				rom_resources[roms].flags = IORESOURCE_BUSY;
+-
+-				request_resource(&iomem_resource, rom_resources + roms);
+-				roms++;
+-				if (roms >= MAXROMS)
+-					return;
+-			}
+-		}
+-	}
+-
+-	/* Final check for motherboard extension rom at E000:0000 */
+-	base = 0xE0000;
+-	romstart = isa_bus_to_virt(base);
+-
+-	if (romsignature(romstart)) {
+-		rom_resources[roms].start = base;
+-		rom_resources[roms].end = base + 65535;
+-		rom_resources[roms].name = "Extension ROM";
+-		rom_resources[roms].flags = IORESOURCE_BUSY;
+-
+-		request_resource(&iomem_resource, rom_resources + roms);
+-	}
+-}
+ 
+ static void __init limit_regions (unsigned long long size)
+ {
+@@ -826,11 +738,8 @@
+ 			request_resource(res, &data_resource);
+ 		}
+ 	}
+-	request_resource(&iomem_resource, &vram_resource);
+ 
+-	/* request I/O space for devices used on all i[345]86 PCs */
+-	for (i = 0; i < STANDARD_IO_RESOURCES; i++)
+-		request_resource(&ioport_resource, standard_io_resources+i);
++	mach_request_resource( );
+ 
+ 	/* Tell the PCI layer not to allocate too close to the RAM area.. */
+ 	low_mem_size = ((max_low_pfn << PAGE_SHIFT) + 0xfffff) & ~0xfffff;
+@@ -911,6 +820,8 @@
+ #ifdef CONFIG_VT
+ #if defined(CONFIG_VGA_CONSOLE)
+ 	conswitchp = &vga_con;
++#elif defined(CONFIG_GDC_CONSOLE)
++	conswitchp = &gdc_con;
+ #elif defined(CONFIG_DUMMY_CONSOLE)
+ 	conswitchp = &dummy_con;
+ #endif
+diff -Nru linux/arch/i386/kernel/time.c linux98/arch/i386/kernel/time.c
+--- linux/arch/i386/kernel/time.c	2003-01-14 14:58:41.000000000 +0900
++++ linux98/arch/i386/kernel/time.c	2003-01-14 22:42:14.000000000 +0900
+@@ -55,12 +55,15 @@
+ #include <asm/processor.h>
+ #include <asm/timer.h>
+ 
+-#include <linux/mc146818rtc.h>
++#include "mach_time.h"
++
+ #include <linux/timex.h>
+ #include <linux/config.h>
+ 
+ #include <asm/arch_hooks.h>
+ 
++#include "io_ports.h"
++
+ extern spinlock_t i8259A_lock;
+ int pit_latch_buggy;              /* extern */
+ 
+@@ -136,69 +139,13 @@
+ 	write_unlock_irq(&xtime_lock);
+ }
+ 
+-/*
+- * In order to set the CMOS clock precisely, set_rtc_mmss has to be
+- * called 500 ms after the second nowtime has started, because when
+- * nowtime is written into the registers of the CMOS clock, it will
+- * jump to the next second precisely 500 ms later. Check the Motorola
+- * MC146818A or Dallas DS12887 data sheet for details.
+- *
+- * BUG: This routine does not handle hour overflow properly; it just
+- *      sets the minutes. Usually you'll only notice that after reboot!
+- */
+ static int set_rtc_mmss(unsigned long nowtime)
+ {
+-	int retval = 0;
+-	int real_seconds, real_minutes, cmos_minutes;
+-	unsigned char save_control, save_freq_select;
++	int retval;
+ 
+ 	/* gets recalled with irq locally disabled */
+ 	spin_lock(&rtc_lock);
+-	save_control = CMOS_READ(RTC_CONTROL); /* tell the clock it's being set */
+-	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
+-
+-	save_freq_select = CMOS_READ(RTC_FREQ_SELECT); /* stop and reset prescaler */
+-	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
+-
+-	cmos_minutes = CMOS_READ(RTC_MINUTES);
+-	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
+-		BCD_TO_BIN(cmos_minutes);
+-
+-	/*
+-	 * since we're only adjusting minutes and seconds,
+-	 * don't interfere with hour overflow. This avoids
+-	 * messing with unknown time zones but requires your
+-	 * RTC not to be off by more than 15 minutes
+-	 */
+-	real_seconds = nowtime % 60;
+-	real_minutes = nowtime / 60;
+-	if (((abs(real_minutes - cmos_minutes) + 15)/30) & 1)
+-		real_minutes += 30;		/* correct for half hour time zone */
+-	real_minutes %= 60;
+-
+-	if (abs(real_minutes - cmos_minutes) < 30) {
+-		if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
+-			BIN_TO_BCD(real_seconds);
+-			BIN_TO_BCD(real_minutes);
+-		}
+-		CMOS_WRITE(real_seconds,RTC_SECONDS);
+-		CMOS_WRITE(real_minutes,RTC_MINUTES);
+-	} else {
+-		printk(KERN_WARNING
+-		       "set_rtc_mmss: can't update from %d to %d\n",
+-		       cmos_minutes, real_minutes);
+-		retval = -1;
+-	}
+-
+-	/* The following flags have to be released exactly in this order,
+-	 * otherwise the DS12887 (popular MC146818A clone with integrated
+-	 * battery and quartz) will not reset the oscillator and will not
+-	 * update precisely 500 ms later. You won't find this mentioned in
+-	 * the Dallas Semiconductor data sheets, but who believes data
+-	 * sheets anyway ...                           -- Markus Kuhn
+-	 */
+-	CMOS_WRITE(save_control, RTC_CONTROL);
+-	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
++	retval = mach_set_rtc_mmss(nowtime);
+ 	spin_unlock(&rtc_lock);
+ 
+ 	return retval;
+@@ -224,9 +171,9 @@
+ 		 * on an 82489DX-based system.
+ 		 */
+ 		spin_lock(&i8259A_lock);
+-		outb(0x0c, 0x20);
++		outb(0x0c, PIC_MASTER_OCW3);
+ 		/* Ack the IRQ; AEOI will end it automatically. */
+-		inb(0x20);
++		inb(PIC_MASTER_POLL);
+ 		spin_unlock(&i8259A_lock);
+ 	}
+ #endif
+@@ -240,14 +187,14 @@
+ 	 */
+ 	if ((time_status & STA_UNSYNC) == 0 &&
+ 	    xtime.tv_sec > last_rtc_update + 660 &&
+-	    (xtime.tv_nsec / 1000) >= 500000 - ((unsigned) TICK_SIZE) / 2 &&
+-	    (xtime.tv_nsec / 1000) <= 500000 + ((unsigned) TICK_SIZE) / 2) {
++	    (xtime.tv_nsec / 1000) >= TIME1 - ((unsigned) TICK_SIZE) / 2 &&
++	    (xtime.tv_nsec / 1000) <= TIME2 + ((unsigned) TICK_SIZE) / 2) {
+ 		if (set_rtc_mmss(xtime.tv_sec) == 0)
+ 			last_rtc_update = xtime.tv_sec;
+ 		else
+ 			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
+ 	}
+-	    
++
+ #ifdef CONFIG_MCA
+ 	if( MCA_bus ) {
+ 		/* The PS/2 uses level-triggered interrupts.  You can't
+@@ -292,43 +239,15 @@
+ /* not static: needed by APM */
+ unsigned long get_cmos_time(void)
+ {
+-	unsigned int year, mon, day, hour, min, sec;
+-	int i;
++	unsigned long retval;
+ 
+ 	spin_lock(&rtc_lock);
+-	/* The Linux interpretation of the CMOS clock register contents:
+-	 * When the Update-In-Progress (UIP) flag goes from 1 to 0, the
+-	 * RTC registers show the second which has precisely just started.
+-	 * Let's hope other operating systems interpret the RTC the same way.
+-	 */
+-	/* read RTC exactly on falling edge of update flag */
+-	for (i = 0 ; i < 1000000 ; i++)	/* may take up to 1 second... */
+-		if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP)
+-			break;
+-	for (i = 0 ; i < 1000000 ; i++)	/* must try at least 2.228 ms */
+-		if (!(CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP))
+-			break;
+-	do { /* Isn't this overkill ? UIP above should guarantee consistency */
+-		sec = CMOS_READ(RTC_SECONDS);
+-		min = CMOS_READ(RTC_MINUTES);
+-		hour = CMOS_READ(RTC_HOURS);
+-		day = CMOS_READ(RTC_DAY_OF_MONTH);
+-		mon = CMOS_READ(RTC_MONTH);
+-		year = CMOS_READ(RTC_YEAR);
+-	} while (sec != CMOS_READ(RTC_SECONDS));
+-	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
+-	  {
+-	    BCD_TO_BIN(sec);
+-	    BCD_TO_BIN(min);
+-	    BCD_TO_BIN(hour);
+-	    BCD_TO_BIN(day);
+-	    BCD_TO_BIN(mon);
+-	    BCD_TO_BIN(year);
+-	  }
++
++	retval = mach_get_cmos_time();
++
+ 	spin_unlock(&rtc_lock);
+-	if ((year += 1900) < 1970)
+-		year += 100;
+-	return mktime(year, mon, day, hour, min, sec);
++
++	return retval;
+ }
+ 
+ /* XXX this driverfs stuff should probably go elsewhere later -john */
+diff -Nru linux/arch/i386/kernel/timers/timer_pit.c linux98/arch/i386/kernel/timers/timer_pit.c
+--- linux/arch/i386/kernel/timers/timer_pit.c	2003-01-14 14:59:12.000000000 +0900
++++ linux98/arch/i386/kernel/timers/timer_pit.c	2003-01-14 22:42:14.000000000 +0900
+@@ -16,6 +16,7 @@
+ extern spinlock_t i8259A_lock;
+ extern spinlock_t i8253_lock;
+ #include "do_timer.h"
++#include "io_ports.h"
+ 
+ static int init_pit(void)
+ {
+@@ -77,7 +78,8 @@
+ {
+ 	int count;
+ 
+-	static int count_p = LATCH;    /* for the first call after boot */
++	static int count_p;
++	static int is_1st_boot = 1;    /* for the first call after boot */
+ 	static unsigned long jiffies_p = 0;
+ 
+ 	/*
+@@ -85,12 +87,18 @@
+ 	 */
+ 	unsigned long jiffies_t;
+ 
++	/* for support LATCH is not constant */
++	if (is_1st_boot) {
++		is_1st_boot = 0;
++		count_p = LATCH;
++	}
++
+ 	/* gets recalled with irq locally disabled */
+ 	spin_lock(&i8253_lock);
+ 	/* timer count may underflow right here */
+-	outb_p(0x00, 0x43);	/* latch the count ASAP */
++	outb_p(0x00, PIT_MODE);	/* latch the count ASAP */
+ 
+-	count = inb_p(0x40);	/* read the latched count */
++	count = inb_p(PIT_CH0);	/* read the latched count */
+ 
+ 	/*
+ 	 * We do this guaranteed double memory access instead of a _p 
+@@ -98,13 +106,13 @@
+ 	 */
+  	jiffies_t = jiffies;
+ 
+-	count |= inb_p(0x40) << 8;
++	count |= inb_p(PIT_CH0) << 8;
+ 	
+         /* VIA686a test code... reset the latch if count > max + 1 */
+         if (count > LATCH) {
+-                outb_p(0x34, 0x43);
+-                outb_p(LATCH & 0xff, 0x40);
+-                outb(LATCH >> 8, 0x40);
++                outb_p(0x34, PIT_MODE);
++                outb_p(LATCH & 0xff, PIT_CH0);
++                outb(LATCH >> 8, PIT_CH0);
+                 count = LATCH - 1;
+         }
+ 	
+diff -Nru linux/arch/i386/kernel/timers/timer_tsc.c linux98/arch/i386/kernel/timers/timer_tsc.c
+--- linux/arch/i386/kernel/timers/timer_tsc.c	2003-01-14 14:59:01.000000000 +0900
++++ linux98/arch/i386/kernel/timers/timer_tsc.c	2003-01-14 22:42:14.000000000 +0900
+@@ -14,6 +14,9 @@
+ /* processor.h for distable_tsc flag */
+ #include <asm/processor.h>
+ 
++#include "io_ports.h"
++#include "calibrate_tsc.h"
++
+ int tsc_disable __initdata = 0;
+ 
+ extern spinlock_t i8253_lock;
+@@ -22,8 +25,6 @@
+ /* Number of usecs that the last interrupt was delayed */
+ static int delay_at_last_interrupt;
+ 
+-static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
+-
+ /* Cached *multiplier* to convert TSC counts to microseconds.
+  * (see the equation below).
+  * Equal to 2^32 * (1 / (clocks per usec) ).
+@@ -64,7 +65,12 @@
+ {
+ 	int count;
+ 	int countmp;
+-	static int count1=0, count2=LATCH;
++	static int count1=0, count2, initialize = 1;
++
++	if (initialize) {
++		count2 = LATCH;
++		initialize = 0;
++	}
+ 	/*
+ 	 * It is important that these two operations happen almost at
+ 	 * the same time. We do the RDTSC stuff first, since it's
+@@ -82,10 +88,10 @@
+ 	rdtscl(last_tsc_low);
+ 
+ 	spin_lock(&i8253_lock);
+-	outb_p(0x00, 0x43);     /* latch the count ASAP */
++	outb_p(0x00, PIT_MODE);     /* latch the count ASAP */
+ 
+-	count = inb_p(0x40);    /* read the latched count */
+-	count |= inb(0x40) << 8;
++	count = inb_p(PIT_CH0);    /* read the latched count */
++	count |= inb(PIT_CH0) << 8;
+ 	spin_unlock(&i8253_lock);
+ 
+ 	if (pit_latch_buggy) {
+@@ -118,83 +124,9 @@
+ 	} while ((now-bclock) < loops);
+ }
+ 
+-/* ------ Calibrate the TSC ------- 
+- * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
+- * Too much 64-bit arithmetic here to do this cleanly in C, and for
+- * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
+- * output busy loop as low as possible. We avoid reading the CTC registers
+- * directly because of the awkward 8-bit access mechanism of the 82C54
+- * device.
+- */
+-
+-#define CALIBRATE_LATCH	(5 * LATCH)
+-#define CALIBRATE_TIME	(5 * 1000020/HZ)
+-
+ static unsigned long __init calibrate_tsc(void)
+ {
+-       /* Set the Gate high, disable speaker */
+-	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
+-
+-	/*
+-	 * Now let's take care of CTC channel 2
+-	 *
+-	 * Set the Gate high, program CTC channel 2 for mode 0,
+-	 * (interrupt on terminal count mode), binary count,
+-	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
+-	 *
+-	 * Some devices need a delay here.
+-	 */
+-	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
+-	outb_p(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
+-	outb_p(CALIBRATE_LATCH >> 8, 0x42);       /* MSB of count */
+-
+-	{
+-		unsigned long startlow, starthigh;
+-		unsigned long endlow, endhigh;
+-		unsigned long count;
+-
+-		rdtsc(startlow,starthigh);
+-		count = 0;
+-		do {
+-			count++;
+-		} while ((inb(0x61) & 0x20) == 0);
+-		rdtsc(endlow,endhigh);
+-
+-		last_tsc_low = endlow;
+-
+-		/* Error: ECTCNEVERSET */
+-		if (count <= 1)
+-			goto bad_ctc;
+-
+-		/* 64-bit subtract - gcc just messes up with long longs */
+-		__asm__("subl %2,%0\n\t"
+-			"sbbl %3,%1"
+-			:"=a" (endlow), "=d" (endhigh)
+-			:"g" (startlow), "g" (starthigh),
+-			 "0" (endlow), "1" (endhigh));
+-
+-		/* Error: ECPUTOOFAST */
+-		if (endhigh)
+-			goto bad_ctc;
+-
+-		/* Error: ECPUTOOSLOW */
+-		if (endlow <= CALIBRATE_TIME)
+-			goto bad_ctc;
+-
+-		__asm__("divl %2"
+-			:"=a" (endlow), "=d" (endhigh)
+-			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
+-
+-		return endlow;
+-	}
+-
+-	/*
+-	 * The CTC wasn't reliable: we got a hit on the very first read,
+-	 * or the CPU was so fast/slow that the quotient wouldn't fit in
+-	 * 32 bits..
+-	 */
+-bad_ctc:
+-	return 0;
++	return mach_calibrate_tsc();
+ }
+ 
+ 
+diff -Nru linux/arch/i386/kernel/traps.c linux98/arch/i386/kernel/traps.c
+--- linux/arch/i386/kernel/traps.c	2003-01-14 09:33:33.000000000 +0900
++++ linux98/arch/i386/kernel/traps.c	2003-01-14 09:52:36.000000000 +0900
+@@ -50,6 +50,8 @@
+ #include <linux/irq.h>
+ #include <linux/module.h>
+ 
++#include "mach_traps.h"
++
+ asmlinkage int system_call(void);
+ asmlinkage void lcall7(void);
+ asmlinkage void lcall27(void);
+@@ -387,8 +389,7 @@
+ 	printk("You probably have a hardware problem with your RAM chips\n");
+ 
+ 	/* Clear and disable the memory parity error line. */
+-	reason = (reason & 0xf) | 4;
+-	outb(reason, 0x61);
++	clear_mem_error(reason);
+ }
+ 
+ static void io_check_error(unsigned char reason, struct pt_regs * regs)
+@@ -425,7 +426,7 @@
+ 
+ static void default_do_nmi(struct pt_regs * regs)
+ {
+-	unsigned char reason = inb(0x61);
++	unsigned char reason = get_nmi_reason();
+  
+ 	if (!(reason & 0xc0)) {
+ #if CONFIG_X86_LOCAL_APIC
+@@ -449,10 +450,7 @@
+ 	 * Reassert NMI in case it became active meanwhile
+ 	 * as it's edge-triggered.
+ 	 */
+-	outb(0x8f, 0x70);
+-	inb(0x71);		/* dummy */
+-	outb(0x0f, 0x70);
+-	inb(0x71);		/* dummy */
++	reassert_nmi();
+ }
+ 
+ static int dummy_nmi_callback(struct pt_regs * regs, int cpu)
+diff -Nru linux/include/asm-i386/mach-default/calibrate_tsc.h linux98/include/asm-i386/mach-default/calibrate_tsc.h
+--- linux/include/asm-i386/mach-default/calibrate_tsc.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-default/calibrate_tsc.h	2002-11-05 22:15:11.000000000 +0900
+@@ -0,0 +1,90 @@
 +/*
-+ *  Driver for CS4232 on NEC PC9800 series
-+ *  Copyright (c) by Jaroslav Kysela <perex@suse.cz>
-+ *                   Osamu Tomita <tomita@cinet.co.jp>
-+ *                   Takashi Iwai <tiwai@suse.de>
++ *  include/asm-i386/mach-default/calibrate_tsc.h
 + *
-+ *
-+ *   This program is free software; you can redistribute it and/or modify
-+ *   it under the terms of the GNU General Public License as published by
-+ *   the Free Software Foundation; either version 2 of the License, or
-+ *   (at your option) any later version.
-+ *
-+ *   This program is distributed in the hope that it will be useful,
-+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *   GNU General Public License for more details.
-+ *
-+ *   You should have received a copy of the GNU General Public License
-+ *   along with this program; if not, write to the Free Software
-+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-+ *
++ *  Machine specific calibrate_tsc() for generic.
++ *  Split out from timer_tsc.c by Osamu Tomita <tomita@cinet.co.jp>
 + */
-+
-+#include <sound/driver.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <sound/core.h>
-+#include <sound/cs4231.h>
-+#include <sound/mpu401.h>
-+#include <sound/opl3.h>
-+#define SNDRV_GET_ID
-+#include <sound/initval.h>
-+#include "sound_pc9800.h"
-+
-+#define chip_t cs4231_t
-+
-+MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
-+MODULE_LICENSE("GPL");
-+MODULE_CLASSES("{sound}");
-+MODULE_DESCRIPTION("NEC PC9800 CS4232");
-+MODULE_DEVICES("{{NEC,PC9800}}");
-+
-+#define IDENT "PC98-CS4232"
-+
-+static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
-+static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
-+static int enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_ISAPNP; /* Enable this card */
-+static long port[SNDRV_CARDS] = SNDRV_DEFAULT_PORT;	/* PnP setup */
-+#if 0 /* NOT USED */
-+static long cport[SNDRV_CARDS] = SNDRV_DEFAULT_PORT;	/* PnP setup */
-+#endif
-+static long mpu_port[SNDRV_CARDS] = SNDRV_DEFAULT_PORT;/* PnP setup */
-+static long fm_port[SNDRV_CARDS] = SNDRV_DEFAULT_PORT;	/* PnP setup */
-+static int irq[SNDRV_CARDS] = SNDRV_DEFAULT_IRQ;	/* 5,7,9,11,12,15 */
-+static int mpu_irq[SNDRV_CARDS] = SNDRV_DEFAULT_IRQ;	/* 9,11,12,15 */
-+static int dma1[SNDRV_CARDS] = SNDRV_DEFAULT_DMA;	/* 0,1,3,5,6,7 */
-+static int dma2[SNDRV_CARDS] = SNDRV_DEFAULT_DMA;	/* 0,1,3,5,6,7 */
-+static int pc98ii[SNDRV_CARDS];				/* PC98II */
-+
-+MODULE_PARM(index, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+MODULE_PARM_DESC(index, "Index value for " IDENT " soundcard.");
-+MODULE_PARM_SYNTAX(index, SNDRV_INDEX_DESC);
-+MODULE_PARM(id, "1-" __MODULE_STRING(SNDRV_CARDS) "s");
-+MODULE_PARM_DESC(id, "ID string for " IDENT " soundcard.");
-+MODULE_PARM_SYNTAX(id, SNDRV_ID_DESC);
-+MODULE_PARM(enable, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+MODULE_PARM_DESC(enable, "Enable " IDENT " soundcard.");
-+MODULE_PARM_SYNTAX(enable, SNDRV_ENABLE_DESC);
-+MODULE_PARM(port, "1-" __MODULE_STRING(SNDRV_CARDS) "l");
-+MODULE_PARM_DESC(port, "Port # for " IDENT " driver.");
-+MODULE_PARM_SYNTAX(port, SNDRV_PORT12_DESC);
-+#if 0 /* NOT USED */
-+MODULE_PARM(cport, "1-" __MODULE_STRING(SNDRV_CARDS) "l");
-+MODULE_PARM_DESC(cport, "Control port # for " IDENT " driver.");
-+MODULE_PARM_SYNTAX(cport, SNDRV_PORT12_DESC);
-+#endif
-+MODULE_PARM(mpu_port, "1-" __MODULE_STRING(SNDRV_CARDS) "l");
-+MODULE_PARM_DESC(mpu_port, "MPU-401 port # for " IDENT " driver.");
-+MODULE_PARM_SYNTAX(mpu_port, SNDRV_PORT12_DESC);
-+MODULE_PARM(fm_port, "1-" __MODULE_STRING(SNDRV_CARDS) "l");
-+MODULE_PARM_DESC(fm_port, "FM port # for " IDENT " driver.");
-+MODULE_PARM_SYNTAX(fm_port, SNDRV_PORT12_DESC);
-+MODULE_PARM(irq, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+MODULE_PARM_DESC(irq, "IRQ # for " IDENT " driver.");
-+MODULE_PARM_SYNTAX(irq, SNDRV_IRQ_DESC);
-+MODULE_PARM(mpu_irq, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+MODULE_PARM_DESC(mpu_irq, "MPU-401 IRQ # for " IDENT " driver.");
-+MODULE_PARM_SYNTAX(mpu_irq, SNDRV_IRQ_DESC);
-+MODULE_PARM(dma1, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+MODULE_PARM_DESC(dma1, "DMA1 # for " IDENT " driver.");
-+MODULE_PARM_SYNTAX(dma1, SNDRV_DMA_DESC);
-+MODULE_PARM(dma2, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+MODULE_PARM_DESC(dma2, "DMA2 # for " IDENT " driver.");
-+MODULE_PARM_SYNTAX(dma2, SNDRV_DMA_DESC);
-+MODULE_PARM(pc98ii, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+MODULE_PARM_DESC(pc98ii, "Roland MPU-PC98II support.");
-+MODULE_PARM_SYNTAX(pc98ii, SNDRV_BOOLEAN_FALSE_DESC);
-+
-+
-+static snd_card_t *snd_pc98_cards[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
-+
-+/*
-+ * initialize MPU401-UART
++/* ------ Calibrate the TSC ------- 
++ * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
++ * Too much 64-bit arithmetic here to do this cleanly in C, and for
++ * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
++ * output busy loop as low as possible. We avoid reading the CTC registers
++ * directly because of the awkward 8-bit access mechanism of the 82C54
++ * device.
 + */
++#ifndef _MACH_CALIBRATE_TSC_H
++#define _MACH_CALIBRATE_TSC_H
 +
-+static int __init pc98_mpu401_init(int irq)
++#define CALIBRATE_LATCH	(5 * LATCH)
++#define CALIBRATE_TIME	(5 * 1000020/HZ)
++
++static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
++
++static inline unsigned long mach_calibrate_tsc(void)
 +{
-+#include "pc9801_118_magic.h"
-+#define outp118(reg,data) outb((reg),0x148e);outb((data),0x148f)
-+#define WAIT118 outb(0x00,0x5f)
-+	int	mpu_intr, count;
-+#ifdef OOKUBO_ORIGINAL
-+	int	err = 0;
-+#endif /* OOKUBO_ORIGINAL */
++       /* Set the Gate high, disable speaker */
++	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
 +
-+	switch (irq) {
-+	case 3:
-+		mpu_intr = 3;
-+		break;
-+	case 5:
-+		mpu_intr = 2;
-+		break;
-+	case 6:
-+		mpu_intr = 1;
-+		break;
-+	case 10:
-+		mpu_intr = 0;
-+		break;
-+	default:
-+		snd_printk(KERN_ERR IDENT ": Bad IRQ %d\n", irq);
-+		return -EINVAL;
++	/*
++	 * Now let's take care of CTC channel 2
++	 *
++	 * Set the Gate high, program CTC channel 2 for mode 0,
++	 * (interrupt on terminal count mode), binary count,
++	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
++	 *
++	 * Some devices need a delay here.
++	 */
++	outb(0xb0, PIT_MODE);			/* binary, mode 0, LSB/MSB, Ch 2 */
++	outb(CALIBRATE_LATCH & 0xff, PIT_CH2);	/* LSB of count */
++	outb(CALIBRATE_LATCH >> 8, PIT_CH2);	/* MSB of count */
++
++	{
++		unsigned long startlow, starthigh;
++		unsigned long endlow, endhigh;
++		unsigned long count;
++
++		rdtsc(startlow,starthigh);
++		count = 0;
++		do {
++			count++;
++		} while ((inb(0x61) & 0x20) == 0);
++		rdtsc(endlow,endhigh);
++
++		last_tsc_low = endlow;
++
++		/* Error: ECTCNEVERSET */
++		if (count <= 1)
++			goto bad_ctc;
++
++		/* 64-bit subtract - gcc just messes up with long longs */
++		__asm__("subl %2,%0\n\t"
++			"sbbl %3,%1"
++			:"=a" (endlow), "=d" (endhigh)
++			:"g" (startlow), "g" (starthigh),
++			 "0" (endlow), "1" (endhigh));
++
++		/* Error: ECPUTOOFAST */
++		if (endhigh)
++			goto bad_ctc;
++
++		/* Error: ECPUTOOSLOW */
++		if (endlow <= CALIBRATE_TIME)
++			goto bad_ctc;
++
++		__asm__("divl %2"
++			:"=a" (endlow), "=d" (endhigh)
++			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
++
++		return endlow;
 +	}
 +
-+	outp118(0x21, mpu_intr);
-+	WAIT118;
-+	outb(0x00, 0x148e);
-+	if (inb(0x148f) & 0x08) {
-+		snd_printk(KERN_INFO IDENT ": No MIDI daughter board found\n");
-+		return 0;
-+	}
-+
-+	outp118(0x20, 0x00);
-+	outp118(0x05, 0x04);
-+	for (count = 0; count < 35000; count ++)
-+		WAIT118;
-+	outb(0x05, 0x148e);
-+	for (count = 0; count < 65000; count ++)
-+		if (inb(0x148f) == 0x04)
-+			goto set_mode_118;
-+	snd_printk(KERN_ERR IDENT ": MIDI daughter board initalize failed at stage1\n\n");
-+	return -EINVAL;
-+
-+ set_mode_118:
-+	outp118(0x05, 0x0c);
-+	outb(0xaa, 0x485);
-+	outb(0x99, 0x485);
-+	outb(0x2a, 0x485);
-+	for (count = 0; count < sizeof(Data0485_99); count ++) {
-+		outb(Data0485_99[count], 0x485);
-+		WAIT118;
-+	}
-+
-+	outb(0x00, 0x486);
-+	outb(0xaa, 0x485);
-+	outb(0x9e, 0x485);
-+	outb(0x2a, 0x485);
-+	for (count = 0; count < sizeof(Data0485_9E); count ++)
-+		if (inb(0x485) != Data0485_9E[count]) {
-+#ifdef OOKUBO_ORIGINAL
-+			err = 1;
-+#endif /* OOKUBO_ORIGINAL */
-+			break;
-+		}
-+	outb(0x00, 0x486);
-+	for (count = 0; count < 2000; count ++)
-+		WAIT118;
-+#ifdef OOKUBO_ORIGINAL
-+	if (!err) {
-+		outb(0xaa, 0x485);
-+		outb(0x36, 0x485);
-+		outb(0x28, 0x485);
-+		for (count = 0; count < sizeof(Data0485_36); count ++)
-+			outb(Data0485_36[count], 0x485);
-+		outb(0x00, 0x486);
-+		for (count = 0; count < 1500; count ++)
-+			WAIT118;
-+		outp118(0x05, inb(0x148f) | 0x08);
-+		outb(0xff, 0x148c);
-+		outp118(0x05, inb(0x148f) & 0xf7);
-+		for (count = 0; count < 1500; count ++)
-+			WAIT118;
-+	}
-+#endif /* OOKUBO_ORIGINAL */
-+
-+	outb(0xaa, 0x485);
-+	outb(0xa9, 0x485);
-+	outb(0x21, 0x485);
-+	for (count = 0; count < sizeof(Data0485_A9); count ++) {
-+		outb(Data0485_A9[count], 0x485);
-+		WAIT118;
-+	}
-+
-+	outb(0x00, 0x486);
-+	outb(0xaa, 0x485);
-+	outb(0x0c, 0x485);
-+	outb(0x20, 0x485);
-+	for (count = 0; count < sizeof(Data0485_0C); count ++) {
-+		outb(Data0485_0C[count], 0x485);
-+		WAIT118;
-+	}
-+
-+	outb(0x00, 0x486);
-+	outb(0xaa, 0x485);
-+	outb(0x66, 0x485);
-+	outb(0x20, 0x485);
-+	for (count = 0; count < sizeof(Data0485_66); count ++) {
-+		outb(Data0485_66[count], 0x485);
-+		WAIT118;
-+	}
-+
-+	outb(0x00, 0x486);
-+	outb(0xaa, 0x485);
-+	outb(0x60, 0x485);
-+	outb(0x20, 0x485);
-+	for (count = 0; count < sizeof(Data0485_60); count ++) {
-+		outb(Data0485_60[count], 0x485);
-+		WAIT118;
-+	}
-+
-+	outb(0x00, 0x486);
-+	outp118(0x05, 0x04);
-+	outp118(0x05, 0x00);
-+	for (count = 0; count < 35000; count ++)
-+		WAIT118;
-+	outb(0x05, 0x148e);
-+	for (count = 0; count < 65000; count ++)
-+		if (inb(0x148f) == 0x00)
-+			goto end_mode_118;
-+	snd_printk(KERN_ERR IDENT ": MIDI daughter board initalize failed at stage2\n");
-+	return -EINVAL;
-+
-+ end_mode_118:
-+	outb(0x3f, 0x148d);
-+	snd_printk(KERN_INFO IDENT ": MIDI daughter board initalized\n");
++	/*
++	 * The CTC wasn't reliable: we got a hit on the very first read,
++	 * or the CPU was so fast/slow that the quotient wouldn't fit in
++	 * 32 bits..
++	 */
++bad_ctc:
 +	return 0;
 +}
 +
-+static int __init pc98_cs4231_chip_init(int dev)
++#endif /* !_MACH_CALIBRATE_TSC_H */
+diff -Nru linux/include/asm-i386/mach-default/mach_resources.h linux98/include/asm-i386/mach-default/mach_resources.h
+--- linux/include/asm-i386/mach-default/mach_resources.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-default/mach_resources.h	2002-10-21 09:59:22.000000000 +0900
+@@ -0,0 +1,113 @@
++/*
++ *  include/asm-i386/mach-default/mach_resources.h
++ *
++ *  Machine specific resource allocation for generic.
++ *  Split out from setup.c by Osamu Tomita <tomita@cinet.co.jp>
++ */
++#ifndef _MACH_RESOURCES_H
++#define _MACH_RESOURCES_H
++
++struct resource standard_io_resources[] = {
++	{ "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
++	{ "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
++	{ "timer", 0x40, 0x5f, IORESOURCE_BUSY },
++	{ "keyboard", 0x60, 0x6f, IORESOURCE_BUSY },
++	{ "dma page reg", 0x80, 0x8f, IORESOURCE_BUSY },
++	{ "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
++	{ "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
++	{ "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
++};
++#ifdef CONFIG_MELAN
++standard_io_resources[1] = { "pic1", 0x20, 0x21, IORESOURCE_BUSY };
++standard_io_resources[5] = { "pic2", 0xa0, 0xa1, IORESOURCE_BUSY };
++#endif
++
++#define STANDARD_IO_RESOURCES (sizeof(standard_io_resources)/sizeof(struct resource))
++
++static struct resource vram_resource = { "Video RAM area", 0xa0000, 0xbffff, IORESOURCE_BUSY };
++
++/* System ROM resources */
++#define MAXROMS 6
++static struct resource rom_resources[MAXROMS] = {
++	{ "System ROM", 0xF0000, 0xFFFFF, IORESOURCE_BUSY },
++	{ "Video ROM", 0xc0000, 0xc7fff, IORESOURCE_BUSY }
++};
++
++#define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
++
++static inline void probe_roms(void)
 +{
-+	int intr_bits, intr_bits2, dma_bits;
++	int roms = 1;
++	unsigned long base;
++	unsigned char *romstart;
 +
-+	switch (irq[dev]) {
-+	case 3:
-+		intr_bits = 0x08;
-+		intr_bits2 = 0x03;
++	request_resource(&iomem_resource, rom_resources+0);
++
++	/* Video ROM is standard at C000:0000 - C7FF:0000, check signature */
++	for (base = 0xC0000; base < 0xE0000; base += 2048) {
++		romstart = isa_bus_to_virt(base);
++		if (!romsignature(romstart))
++			continue;
++		request_resource(&iomem_resource, rom_resources + roms);
++		roms++;
 +		break;
-+	case 5:
-+		intr_bits = 0x10;
-+		intr_bits2 = 0x08;
-+		break;
-+	case 10:
-+		intr_bits = 0x18;
-+		intr_bits2 = 0x02;
-+		break;
-+	case 12:
-+		intr_bits = 0x20;
-+		intr_bits2 = 0x00;
-+		break;
-+	default:
-+		snd_printk(KERN_ERR IDENT ": Bad IRQ %d\n", irq[dev]);
-+		return -EINVAL;
 +	}
 +
-+	switch (dma1[dev]) {
-+	case 0:
-+		dma_bits = 0x01;
-+		break;
-+	case 1:
-+		dma_bits = 0x02;
-+		break;
-+	case 3:
-+		dma_bits = 0x03;
-+		break;
-+	default:
-+		snd_printk(KERN_ERR IDENT ": Bad DMA %d\n", dma1[dev]);
-+		return -EINVAL;
-+	}
++	/* Extension roms at C800:0000 - DFFF:0000 */
++	for (base = 0xC8000; base < 0xE0000; base += 2048) {
++		unsigned long length;
 +
-+	if (dma2[dev] >= 2) {
-+		snd_printk(KERN_ERR IDENT ": Bad DMA %d\n", dma2[dev]);
-+		return -EINVAL;
-+	}
-+	if (dma1[dev] != dma2[dev] && dma2[dev] >= 0)
-+		intr_bits |= 0x04;
++		romstart = isa_bus_to_virt(base);
++		if (!romsignature(romstart))
++			continue;
++		length = romstart[2] * 512;
++		if (length) {
++			unsigned int i;
++			unsigned char chksum;
 +
-+	if (PC9800_SOUND_ID() == PC9800_SOUND_ID_118) {
-+		/* Set up CanBe control registers. */
-+		snd_printd(KERN_INFO "Setting up CanBe Sound System\n");
-+		outb(inb(PC9800_SOUND_IO_ID) | 0x03, PC9800_SOUND_IO_ID);
-+		outb(0x01, 0x0f4a);
-+		outb(intr_bits2, 0x0f4b);
-+	}
++			chksum = 0;
++			for (i = 0; i < length; i++)
++				chksum += romstart[i];
 +
-+	outb(intr_bits | dma_bits, 0xf40);
-+	return 0;
-+}
++			/* Good checksum? */
++			if (!chksum) {
++				rom_resources[roms].start = base;
++				rom_resources[roms].end = base + length - 1;
++				rom_resources[roms].name = "Extension ROM";
++				rom_resources[roms].flags = IORESOURCE_BUSY;
 +
-+
-+static int __init snd_card_pc98_probe(int dev)
-+{
-+	snd_card_t *card;
-+	snd_pcm_t *pcm = NULL;
-+	cs4231_t *chip;
-+	opl3_t *opl3;
-+	int err;
-+
-+	if (port[dev] == SNDRV_AUTO_PORT) {
-+		snd_printk(KERN_ERR IDENT ": specify port\n");
-+		return -EINVAL;
-+	}
-+	card = snd_card_new(index[dev], id[dev], THIS_MODULE, 0);
-+	if (card == NULL)
-+		return -ENOMEM;
-+	if (mpu_port[dev] < 0 || mpu_irq[dev] < 0)
-+		mpu_port[dev] = SNDRV_AUTO_PORT;
-+	if (fm_port[dev] < 0)
-+		fm_port[dev] = SNDRV_AUTO_PORT;
-+
-+	if ((err = pc98_cs4231_chip_init(dev)) < 0) {
-+		snd_card_free(card);
-+		return err;
-+	}
-+
-+	if ((err = snd_cs4231_create(card,
-+				     port[dev],
-+				     -1,
-+				     irq[dev],
-+				     dma1[dev],
-+				     dma2[dev],
-+				     CS4231_HW_DETECT,
-+				     0,
-+				     &chip)) < 0) {
-+		snd_card_free(card);
-+		return err;
-+	}
-+	if ((err = snd_cs4231_pcm(chip, 0, &pcm)) < 0) {
-+		snd_card_free(card);
-+		return err;
-+	}
-+	if ((err = snd_cs4231_mixer(chip)) < 0) {
-+		snd_card_free(card);
-+		return err;
-+	}
-+
-+	if ((err = snd_cs4231_timer(chip, 0, NULL)) < 0) {
-+		snd_card_free(card);
-+		return err;
-+	}
-+
-+	if (fm_port[dev] != SNDRV_AUTO_PORT) {
-+		/* ??? */
-+		outb(0x00, fm_port[dev] + 6);
-+		inb(fm_port[dev] + 7);
-+		/* Enable OPL-3 Function */
-+		outb(inb(PC9800_SOUND_IO_ID) | 0x03, PC9800_SOUND_IO_ID);
-+		if (snd_opl3_create(card,
-+				    fm_port[dev], fm_port[dev] + 2,
-+				    OPL3_HW_OPL3_PC98, 0, &opl3) < 0) {
-+			printk(KERN_ERR IDENT ": OPL3 not detected\n");
-+		} else {
-+			if ((err = snd_opl3_hwdep_new(opl3, 0, 1, NULL)) < 0) {
-+				snd_card_free(card);
-+				return err;
++				request_resource(&iomem_resource, rom_resources + roms);
++				roms++;
++				if (roms >= MAXROMS)
++					return;
 +			}
 +		}
 +	}
 +
-+	if (mpu_port[dev] != SNDRV_AUTO_PORT) {
-+		err = pc98_mpu401_init(mpu_irq[dev]);
-+		if (! err) {
-+			err = snd_mpu401_uart_new(card, 0,
-+						  pc98ii[dev] ? MPU401_HW_PC98II : MPU401_HW_MPU401,
-+						  mpu_port[dev], 0,
-+						  mpu_irq[dev], SA_INTERRUPT, NULL);
-+			if (err < 0)
-+				snd_printk(KERN_INFO IDENT ": MPU401 not detected\n");
++	/* Final check for motherboard extension rom at E000:0000 */
++	base = 0xE0000;
++	romstart = isa_bus_to_virt(base);
++
++	if (romsignature(romstart)) {
++		rom_resources[roms].start = base;
++		rom_resources[roms].end = base + 65535;
++		rom_resources[roms].name = "Extension ROM";
++		rom_resources[roms].flags = IORESOURCE_BUSY;
++
++		request_resource(&iomem_resource, rom_resources + roms);
++	}
++}
++
++static inline void mach_request_resource(void)
++{
++	int i;
++
++	request_resource(&iomem_resource, &vram_resource);
++
++	/* request I/O space for devices used on all i[345]86 PCs */
++	for (i = 0; i < STANDARD_IO_RESOURCES; i++)
++		request_resource(&ioport_resource, standard_io_resources+i);
++
++}
++
++#endif /* !_MACH_RESOURCES_H */
+diff -Nru linux/include/asm-i386/mach-default/mach_time.h linux98/include/asm-i386/mach-default/mach_time.h
+--- linux/include/asm-i386/mach-default/mach_time.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-default/mach_time.h	2002-10-21 10:07:35.000000000 +0900
+@@ -0,0 +1,122 @@
++/*
++ *  include/asm-i386/mach-default/mach_time.h
++ *
++ *  Machine specific set RTC function for generic.
++ *  Split out from time.c by Osamu Tomita <tomita@cinet.co.jp>
++ */
++#ifndef _MACH_TIME_H
++#define _MACH_TIME_H
++
++#include <linux/mc146818rtc.h>
++
++/* for check timing call set_rtc_mmss() 500ms     */
++/* used in arch/i386/time.c::do_timer_interrupt() */
++#define TIME1	500000
++#define TIME2	500000
++
++/*
++ * In order to set the CMOS clock precisely, set_rtc_mmss has to be
++ * called 500 ms after the second nowtime has started, because when
++ * nowtime is written into the registers of the CMOS clock, it will
++ * jump to the next second precisely 500 ms later. Check the Motorola
++ * MC146818A or Dallas DS12887 data sheet for details.
++ *
++ * BUG: This routine does not handle hour overflow properly; it just
++ *      sets the minutes. Usually you'll only notice that after reboot!
++ */
++static inline int mach_set_rtc_mmss(unsigned long nowtime)
++{
++	int retval = 0;
++	int real_seconds, real_minutes, cmos_minutes;
++	unsigned char save_control, save_freq_select;
++
++	save_control = CMOS_READ(RTC_CONTROL); /* tell the clock it's being set */
++	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
++
++	save_freq_select = CMOS_READ(RTC_FREQ_SELECT); /* stop and reset prescaler */
++	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
++
++	cmos_minutes = CMOS_READ(RTC_MINUTES);
++	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
++		BCD_TO_BIN(cmos_minutes);
++
++	/*
++	 * since we're only adjusting minutes and seconds,
++	 * don't interfere with hour overflow. This avoids
++	 * messing with unknown time zones but requires your
++	 * RTC not to be off by more than 15 minutes
++	 */
++	real_seconds = nowtime % 60;
++	real_minutes = nowtime / 60;
++	if (((abs(real_minutes - cmos_minutes) + 15)/30) & 1)
++		real_minutes += 30;		/* correct for half hour time zone */
++	real_minutes %= 60;
++
++	if (abs(real_minutes - cmos_minutes) < 30) {
++		if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
++			BIN_TO_BCD(real_seconds);
++			BIN_TO_BCD(real_minutes);
++		}
++		CMOS_WRITE(real_seconds,RTC_SECONDS);
++		CMOS_WRITE(real_minutes,RTC_MINUTES);
++	} else {
++		printk(KERN_WARNING
++		       "set_rtc_mmss: can't update from %d to %d\n",
++		       cmos_minutes, real_minutes);
++		retval = -1;
++	}
++
++	/* The following flags have to be released exactly in this order,
++	 * otherwise the DS12887 (popular MC146818A clone with integrated
++	 * battery and quartz) will not reset the oscillator and will not
++	 * update precisely 500 ms later. You won't find this mentioned in
++	 * the Dallas Semiconductor data sheets, but who believes data
++	 * sheets anyway ...                           -- Markus Kuhn
++	 */
++	CMOS_WRITE(save_control, RTC_CONTROL);
++	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
++
++	return retval;
++}
++
++static inline unsigned long mach_get_cmos_time(void)
++{
++	unsigned int year, mon, day, hour, min, sec;
++	int i;
++
++	/* The Linux interpretation of the CMOS clock register contents:
++	 * When the Update-In-Progress (UIP) flag goes from 1 to 0, the
++	 * RTC registers show the second which has precisely just started.
++	 * Let's hope other operating systems interpret the RTC the same way.
++	 */
++	/* read RTC exactly on falling edge of update flag */
++	for (i = 0 ; i < 1000000 ; i++)	/* may take up to 1 second... */
++		if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP)
++			break;
++	for (i = 0 ; i < 1000000 ; i++)	/* must try at least 2.228 ms */
++		if (!(CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP))
++			break;
++	do { /* Isn't this overkill ? UIP above should guarantee consistency */
++		sec = CMOS_READ(RTC_SECONDS);
++		min = CMOS_READ(RTC_MINUTES);
++		hour = CMOS_READ(RTC_HOURS);
++		day = CMOS_READ(RTC_DAY_OF_MONTH);
++		mon = CMOS_READ(RTC_MONTH);
++		year = CMOS_READ(RTC_YEAR);
++	} while (sec != CMOS_READ(RTC_SECONDS));
++	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
++	  {
++	    BCD_TO_BIN(sec);
++	    BCD_TO_BIN(min);
++	    BCD_TO_BIN(hour);
++	    BCD_TO_BIN(day);
++	    BCD_TO_BIN(mon);
++	    BCD_TO_BIN(year);
++	  }
++	if ((year += 1900) < 1970)
++		year += 100;
++
++	return mktime(year, mon, day, hour, min, sec);
++}
++
++#endif /* !_MACH_TIME_H */
+diff -Nru linux/include/asm-i386/mach-default/mach_traps.h linux98/include/asm-i386/mach-default/mach_traps.h
+--- linux/include/asm-i386/mach-default/mach_traps.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-default/mach_traps.h	2002-11-05 22:42:05.000000000 +0900
+@@ -0,0 +1,29 @@
++/*
++ *  include/asm-i386/mach-default/mach_traps.h
++ *
++ *  Machine specific NMI handling for generic.
++ *  Split out from traps.c by Osamu Tomita <tomita@cinet.co.jp>
++ */
++#ifndef _MACH_TRAPS_H
++#define _MACH_TRAPS_H
++
++static inline void clear_mem_error(unsigned char reason)
++{
++	reason = (reason & 0xf) | 4;
++	outb(reason, 0x61);
++}
++
++static inline unsigned char get_nmi_reason(void)
++{
++	return inb(0x61);
++}
++
++static inline void reassert_nmi(void)
++{
++	outb(0x8f, 0x70);
++	inb(0x71);		/* dummy */
++	outb(0x0f, 0x70);
++	inb(0x71);		/* dummy */
++}
++
++#endif /* !_MACH_TRAPS_H */
+diff -Nru linux/include/asm-i386/mach-pc9800/calibrate_tsc.h linux98/include/asm-i386/mach-pc9800/calibrate_tsc.h
+--- linux/include/asm-i386/mach-pc9800/calibrate_tsc.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-pc9800/calibrate_tsc.h	2002-11-05 22:19:50.000000000 +0900
+@@ -0,0 +1,71 @@
++/*
++ *  include/asm-i386/mach-pc9800/calibrate_tsc.h
++ *
++ *  Machine specific calibrate_tsc() for PC-9800.
++ *  Written by Osamu Tomita <tomita@cinet.co.jp>
++ */
++
++/* ------ Calibrate the TSC ------- 
++ * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
++ * Too much 64-bit arithmetic here to do this cleanly in C.
++ * PC-9800:
++ *  CTC cannot be used because some models (especially
++ *  note-machines) may disable clock to speaker channel (#1)
++ *  unless speaker is enabled.  We use ARTIC instead.
++ */
++#ifndef _MACH_CALIBRATE_TSC_H
++#define _MACH_CALIBRATE_TSC_H
++
++#define CALIBRATE_LATCH	(5 * 307200/HZ) /* 0.050sec * 307200Hz = 15360 */
++#define CALIBRATE_TIME	(5 * 1000020/HZ)
++
++static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
++
++static inline unsigned long mach_calibrate_tsc(void)
++{
++
++	unsigned long startlow, starthigh;
++	unsigned long endlow, endhigh;
++	unsigned short count;
++
++	for (count = inw(0x5c); inw(0x5c) == count; )
++		;
++	rdtsc(startlow,starthigh);
++	count = inw(0x5c);
++	while ((unsigned short)(inw(0x5c) - count) < CALIBRATE_LATCH)
++		;
++	rdtsc(endlow,endhigh);
++
++	last_tsc_low = endlow;
++
++	/* 64-bit subtract - gcc just messes up with long longs */
++	__asm__("subl %2,%0\n\t"
++		"sbbl %3,%1"
++		:"=a" (endlow), "=d" (endhigh)
++		:"g" (startlow), "g" (starthigh),
++		 "0" (endlow), "1" (endhigh));
++
++	/* Error: ECPUTOOFAST */
++	if (endhigh)
++		goto bad_ctc;
++
++	/* Error: ECPUTOOSLOW */
++	if (endlow <= CALIBRATE_TIME)
++		goto bad_ctc;
++
++	__asm__("divl %2"
++		:"=a" (endlow), "=d" (endhigh)
++		:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
++
++	return endlow;
++
++	/*
++ 	* The CTC wasn't reliable: we got a hit on the very first read,
++ 	* or the CPU was so fast/slow that the quotient wouldn't fit in
++ 	* 32 bits..
++ 	*/
++bad_ctc:
++	return 0;
++}
++
++#endif /* !_MACH_CALIBRATE_TSC_H */
+diff -Nru linux/include/asm-i386/mach-pc9800/do_timer.h linux98/include/asm-i386/mach-pc9800/do_timer.h
+--- linux/include/asm-i386/mach-pc9800/do_timer.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-pc9800/do_timer.h	2002-10-16 13:20:29.000000000 +0900
+@@ -0,0 +1,80 @@
++/* defines for inline arch setup functions */
++
++/**
++ * do_timer_interrupt_hook - hook into timer tick
++ * @regs:	standard registers from interrupt
++ *
++ * Description:
++ *	This hook is called immediately after the timer interrupt is ack'd.
++ *	It's primary purpose is to allow architectures that don't possess
++ *	individual per CPU clocks (like the CPU APICs supply) to broadcast the
++ *	timer interrupt as a means of triggering reschedules etc.
++ **/
++
++static inline void do_timer_interrupt_hook(struct pt_regs *regs)
++{
++	do_timer(regs);
++/*
++ * In the SMP case we use the local APIC timer interrupt to do the
++ * profiling, except when we simulate SMP mode on a uniprocessor
++ * system, in that case we have to call the local interrupt handler.
++ */
++#ifndef CONFIG_X86_LOCAL_APIC
++	x86_do_profile(regs);
++#else
++	if (!using_apic_timer)
++		smp_local_timer_interrupt(regs);
++#endif
++}
++
++
++/* you can safely undefine this if you don't have the Neptune chipset */
++
++#define BUGGY_NEPTUN_TIMER
++
++/**
++ * do_timer_overflow - process a detected timer overflow condition
++ * @count:	hardware timer interrupt count on overflow
++ *
++ * Description:
++ *	This call is invoked when the jiffies count has not incremented but
++ *	the hardware timer interrupt has.  It means that a timer tick interrupt
++ *	came along while the previous one was pending, thus a tick was missed
++ **/
++static inline int do_timer_overflow(int count)
++{
++	int i;
++
++	spin_lock(&i8259A_lock);
++	/*
++	 * This is tricky when I/O APICs are used;
++	 * see do_timer_interrupt().
++	 */
++	i = inb(0x00);
++	spin_unlock(&i8259A_lock);
++	
++	/* assumption about timer being IRQ0 */
++	if (i & 0x01) {
++		/*
++		 * We cannot detect lost timer interrupts ... 
++		 * well, that's why we call them lost, don't we? :)
++		 * [hmm, on the Pentium and Alpha we can ... sort of]
++		 */
++		count -= LATCH;
++	} else {
++#ifdef BUGGY_NEPTUN_TIMER
++		/*
++		 * for the Neptun bug we know that the 'latch'
++		 * command doesnt latch the high and low value
++		 * of the counter atomically. Thus we have to 
++		 * substract 256 from the counter 
++		 * ... funny, isnt it? :)
++		 */
++		
++		count -= 256;
++#else
++		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
++#endif
++	}
++	return count;
++}
+diff -Nru linux/include/asm-i386/mach-pc9800/mach_resources.h linux98/include/asm-i386/mach-pc9800/mach_resources.h
+--- linux/include/asm-i386/mach-pc9800/mach_resources.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-pc9800/mach_resources.h	2002-10-26 17:35:19.000000000 +0900
+@@ -0,0 +1,192 @@
++/*
++ *  include/asm-i386/mach-pc9800/mach_resources.h
++ *
++ *  Machine specific resource allocation for PC-9800.
++ *  Written by Osamu Tomita <tomita@cinet.co.jp>
++ */
++#ifndef _MACH_RESOURCES_H
++#define _MACH_RESOURCES_H
++
++static char str_pic1[] = "pic1";
++static char str_dma[] = "dma";
++static char str_pic2[] = "pic2";
++static char str_calender_clock[] = "calender clock";
++static char str_system[] = "system";
++static char str_nmi_control[] = "nmi control";
++static char str_kanji_rom[] = "kanji rom";
++static char str_keyboard[] = "keyboard";
++static char str_text_gdc[] = "text gdc";
++static char str_crtc[] = "crtc";
++static char str_timer[] = "timer";
++static char str_graphic_gdc[] = "graphic gdc";
++static char str_dma_ex_bank[] = "dma ex. bank";
++static char str_beep_freq[] = "beep freq.";
++static char str_mouse_pio[] = "mouse pio";
++struct resource standard_io_resources[] = {
++	{ str_pic1, 0x00, 0x00, IORESOURCE_BUSY },
++	{ str_dma, 0x01, 0x01, IORESOURCE_BUSY },
++	{ str_pic1, 0x02, 0x02, IORESOURCE_BUSY },
++	{ str_dma, 0x03, 0x03, IORESOURCE_BUSY },
++	{ str_dma, 0x05, 0x05, IORESOURCE_BUSY },
++	{ str_dma, 0x07, 0x07, IORESOURCE_BUSY },
++	{ str_pic2, 0x08, 0x08, IORESOURCE_BUSY },
++	{ str_dma, 0x09, 0x09, IORESOURCE_BUSY },
++	{ str_pic2, 0x0a, 0x0a, IORESOURCE_BUSY },
++	{ str_dma, 0x0b, 0x0b, IORESOURCE_BUSY },
++	{ str_dma, 0x0d, 0x0d, IORESOURCE_BUSY },
++	{ str_dma, 0x0f, 0x0f, IORESOURCE_BUSY },
++	{ str_dma, 0x11, 0x11, IORESOURCE_BUSY },
++	{ str_dma, 0x13, 0x13, IORESOURCE_BUSY },
++	{ str_dma, 0x15, 0x15, IORESOURCE_BUSY },
++	{ str_dma, 0x17, 0x17, IORESOURCE_BUSY },
++	{ str_dma, 0x19, 0x19, IORESOURCE_BUSY },
++	{ str_dma, 0x1b, 0x1b, IORESOURCE_BUSY },
++	{ str_dma, 0x1d, 0x1d, IORESOURCE_BUSY },
++	{ str_dma, 0x1f, 0x1f, IORESOURCE_BUSY },
++	{ str_calender_clock, 0x20, 0x20, 0 },
++	{ str_dma, 0x21, 0x21, IORESOURCE_BUSY },
++	{ str_calender_clock, 0x22, 0x22, 0 },
++	{ str_dma, 0x23, 0x23, IORESOURCE_BUSY },
++	{ str_dma, 0x25, 0x25, IORESOURCE_BUSY },
++	{ str_dma, 0x27, 0x27, IORESOURCE_BUSY },
++	{ str_dma, 0x29, 0x29, IORESOURCE_BUSY },
++	{ str_dma, 0x2b, 0x2b, IORESOURCE_BUSY },
++	{ str_dma, 0x2d, 0x2d, IORESOURCE_BUSY },
++	{ str_system, 0x31, 0x31, IORESOURCE_BUSY },
++	{ str_system, 0x33, 0x33, IORESOURCE_BUSY },
++	{ str_system, 0x35, 0x35, IORESOURCE_BUSY },
++	{ str_system, 0x37, 0x37, IORESOURCE_BUSY },
++	{ str_nmi_control, 0x50, 0x50, IORESOURCE_BUSY },
++	{ str_nmi_control, 0x52, 0x52, IORESOURCE_BUSY },
++	{ "time stamp", 0x5c, 0x5f, IORESOURCE_BUSY },
++	{ str_kanji_rom, 0xa1, 0xa1, IORESOURCE_BUSY },
++	{ str_kanji_rom, 0xa3, 0xa3, IORESOURCE_BUSY },
++	{ str_kanji_rom, 0xa5, 0xa5, IORESOURCE_BUSY },
++	{ str_kanji_rom, 0xa7, 0xa7, IORESOURCE_BUSY },
++	{ str_kanji_rom, 0xa9, 0xa9, IORESOURCE_BUSY },
++	{ str_keyboard, 0x41, 0x41, IORESOURCE_BUSY },
++	{ str_keyboard, 0x43, 0x43, IORESOURCE_BUSY },
++	{ str_text_gdc, 0x60, 0x60, IORESOURCE_BUSY },
++	{ str_text_gdc, 0x62, 0x62, IORESOURCE_BUSY },
++	{ str_text_gdc, 0x64, 0x64, IORESOURCE_BUSY },
++	{ str_text_gdc, 0x66, 0x66, IORESOURCE_BUSY },
++	{ str_text_gdc, 0x68, 0x68, IORESOURCE_BUSY },
++	{ str_text_gdc, 0x6a, 0x6a, IORESOURCE_BUSY },
++	{ str_text_gdc, 0x6c, 0x6c, IORESOURCE_BUSY },
++	{ str_text_gdc, 0x6e, 0x6e, IORESOURCE_BUSY },
++	{ str_crtc, 0x70, 0x70, IORESOURCE_BUSY },
++	{ str_crtc, 0x72, 0x72, IORESOURCE_BUSY },
++	{ str_crtc, 0x74, 0x74, IORESOURCE_BUSY },
++	{ str_crtc, 0x74, 0x74, IORESOURCE_BUSY },
++	{ str_crtc, 0x76, 0x76, IORESOURCE_BUSY },
++	{ str_crtc, 0x78, 0x78, IORESOURCE_BUSY },
++	{ str_crtc, 0x7a, 0x7a, IORESOURCE_BUSY },
++	{ str_timer, 0x71, 0x71, IORESOURCE_BUSY },
++	{ str_timer, 0x73, 0x73, IORESOURCE_BUSY },
++	{ str_timer, 0x75, 0x75, IORESOURCE_BUSY },
++	{ str_timer, 0x77, 0x77, IORESOURCE_BUSY },
++	{ str_graphic_gdc, 0xa0, 0xa0, IORESOURCE_BUSY },
++	{ str_graphic_gdc, 0xa2, 0xa2, IORESOURCE_BUSY },
++	{ str_graphic_gdc, 0xa4, 0xa4, IORESOURCE_BUSY },
++	{ str_graphic_gdc, 0xa6, 0xa6, IORESOURCE_BUSY },
++	{ "cpu", 0xf0, 0xf7, IORESOURCE_BUSY },
++	{ "fpu", 0xf8, 0xff, IORESOURCE_BUSY },
++	{ str_dma_ex_bank, 0x0e05, 0x0e05, 0 },
++	{ str_dma_ex_bank, 0x0e07, 0x0e07, 0 },
++	{ str_dma_ex_bank, 0x0e09, 0x0e09, 0 },
++	{ str_dma_ex_bank, 0x0e0b, 0x0e0b, 0 },
++	{ str_beep_freq, 0x3fd9, 0x3fd9, IORESOURCE_BUSY },
++	{ str_beep_freq, 0x3fdb, 0x3fdb, IORESOURCE_BUSY },
++	{ str_beep_freq, 0x3fdd, 0x3fdd, IORESOURCE_BUSY },
++	{ str_beep_freq, 0x3fdf, 0x3fdf, IORESOURCE_BUSY },
++	/* All PC-9800 have (exactly) one mouse interface.  */
++	{ str_mouse_pio, 0x7fd9, 0x7fd9, 0 },
++	{ str_mouse_pio, 0x7fdb, 0x7fdb, 0 },
++	{ str_mouse_pio, 0x7fdd, 0x7fdd, 0 },
++	{ str_mouse_pio, 0x7fdf, 0x7fdf, 0 },
++	{ "mouse timer", 0xbfdb, 0xbfdb, 0 },
++	{ "mouse irq", 0x98d7, 0x98d7, 0 },
++};
++
++#define STANDARD_IO_RESOURCES (sizeof(standard_io_resources)/sizeof(struct resource))
++
++static struct resource tvram_resource = { "Text VRAM/CG window", 0xa0000, 0xa4fff, IORESOURCE_BUSY };
++static struct resource gvram_brg_resource = { "Graphic VRAM (B/R/G)", 0xa8000, 0xbffff, IORESOURCE_BUSY };
++static struct resource gvram_e_resource = { "Graphic VRAM (E)", 0xe0000, 0xe7fff, IORESOURCE_BUSY };
++
++/* System ROM resources */
++#define MAXROMS 6
++static struct resource rom_resources[MAXROMS] = {
++	{ "System ROM", 0xe8000, 0xfffff, IORESOURCE_BUSY }
++};
++
++static inline void probe_roms(void)
++{
++	int roms = 1;
++	int i;
++	__u8 *xrom_id;
++
++	request_resource(&iomem_resource, rom_resources+0);
++
++	xrom_id = (__u8 *) isa_bus_to_virt(PC9800SCA_XROM_ID + 0x10);
++
++	for (i = 0; i < 16; i++) {
++		if (xrom_id[i] & 0x80) {
++			int j;
++
++			for (j = i + 1; j < 16 && (xrom_id[j] & 0x80); j++)
++				;
++			rom_resources[roms].start = 0x0d0000 + i * 0x001000;
++			rom_resources[roms].end = 0x0d0000 + j * 0x001000 - 1;
++			rom_resources[roms].name = "Extension ROM";
++			rom_resources[roms].flags = IORESOURCE_BUSY;
++
++			request_resource(&iomem_resource,
++					  rom_resources + roms);
++			if (++roms >= MAXROMS)
++				return;
 +		}
 +	}
-+
-+	strcpy(card->driver, pcm->name);
-+	strcpy(card->shortname, pcm->name);
-+	sprintf(card->longname, "%s at 0x%lx, irq %i, dma %i",
-+		pcm->name,
-+		chip->port,
-+		irq[dev],
-+		dma1[dev]);
-+	if (dma1[dev] >= 0)
-+		sprintf(card->longname + strlen(card->longname), "&%d", dma2[dev]);
-+	if ((err = snd_card_register(card)) < 0) {
-+		snd_card_free(card);
-+		return err;
-+	}
-+	snd_pc98_cards[dev] = card;
-+	return 0;
 +}
 +
-+static int __init alsa_card_pc98_init(void)
++static inline void mach_request_resource(void)
 +{
-+	int dev, cards = 0;
++	int i;
 +
-+	for (dev = 0; dev < SNDRV_CARDS; dev++) {
-+		if (!enable[dev])
-+			continue;
-+		if (snd_card_pc98_probe(dev) >= 0)
-+			cards++;
++	if (PC9800_HIGHRESO_P()) {
++		tvram_resource.start = 0xe0000;
++		tvram_resource.end   = 0xe4fff;
++		gvram_brg_resource.name  = "Graphic VRAM";
++		gvram_brg_resource.start = 0xc0000;
++		gvram_brg_resource.end   = 0xdffff;
 +	}
-+	if (!cards) {
-+#ifdef MODULE
-+		printk(KERN_ERR IDENT " soundcard not found or device busy\n");
-+#endif
-+		return -ENODEV;
++
++	request_resource(&iomem_resource, &tvram_resource);
++	request_resource(&iomem_resource, &gvram_brg_resource);
++	if (!PC9800_HIGHRESO_P())
++		request_resource(&iomem_resource, &gvram_e_resource);
++
++	for (i = 0; i < STANDARD_IO_RESOURCES; i++)
++		request_resource(&ioport_resource, standard_io_resources + i);
++
++	if (PC9800_HIGHRESO_P() || PC9800_9821_P()) {
++		static char graphics[] = "graphics";
++		static struct resource graphics_resources[] = {
++			{ graphics, 0x9a0, 0x9a0, 0 },
++			{ graphics, 0x9a2, 0x9a2, 0 },
++			{ graphics, 0x9a4, 0x9a4, 0 },
++			{ graphics, 0x9a6, 0x9a6, 0 },
++			{ graphics, 0x9a8, 0x9a8, 0 },
++			{ graphics, 0x9aa, 0x9aa, 0 },
++			{ graphics, 0x9ac, 0x9ac, 0 },
++			{ graphics, 0x9ae, 0x9ae, 0 },
++		};
++
++#define GRAPHICS_RESOURCES (sizeof(graphics_resources)/sizeof(struct resource))
++
++		for (i = 0; i < GRAPHICS_RESOURCES; i++)
++			request_resource(&ioport_resource, graphics_resources + i);
 +	}
-+	return 0;
 +}
 +
-+static void __exit alsa_card_pc98_exit(void)
++#endif /* !_MACH_RESOURCES_H */
+diff -Nru linux/include/asm-i386/mach-pc9800/mach_time.h linux98/include/asm-i386/mach-pc9800/mach_time.h
+--- linux/include/asm-i386/mach-pc9800/mach_time.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-pc9800/mach_time.h	2002-10-21 11:23:06.000000000 +0900
+@@ -0,0 +1,136 @@
++/*
++ *  include/asm-i386/mach-pc9800/mach_time.h
++ *
++ *  Machine specific set RTC function for PC-9800.
++ *  Written by Osamu Tomita <tomita@cinet.co.jp>
++ */
++#ifndef _MACH_TIME_H
++#define _MACH_TIME_H
++
++#include <linux/upd4990a.h>
++
++/* for check timing call set_rtc_mmss() */
++/* used in arch/i386/time.c::do_timer_interrupt() */
++/*
++ * Because PC-9800's RTC (NEC uPD4990A) does not allow setting
++ * time partially, we always have to read-modify-write the
++ * entire time (including year) so that set_rtc_mmss() will
++ * take quite much time to execute.  You may want to relax
++ * RTC resetting interval (currently ~11 minuts)...
++ */
++#define TIME1	1000000
++#define TIME2	0
++
++static inline int mach_set_rtc_mmss(unsigned long nowtime)
 +{
-+	int idx;
++	int retval = 0;
++	int real_seconds, real_minutes, cmos_minutes;
++	struct upd4990a_raw_data data;
 +
-+	for (idx = 0; idx < SNDRV_CARDS; idx++)
-+		snd_card_free(snd_pc98_cards[idx]);
++	upd4990a_get_time(&data, 1);
++	cmos_minutes = (data.min >> 4) * 10 + (data.min & 0xf);
++
++	/*
++	 * since we're only adjusting minutes and seconds,
++	 * don't interfere with hour overflow. This avoids
++	 * messing with unknown time zones but requires your
++	 * RTC not to be off by more than 15 minutes
++	 */
++	real_seconds = nowtime % 60;
++	real_minutes = nowtime / 60;
++	if (((abs(real_minutes - cmos_minutes) + 15) / 30) & 1)
++		real_minutes += 30;	/* correct for half hour time zone */
++	real_minutes %= 60;
++
++	if (abs(real_minutes - cmos_minutes) < 30) {
++		u8 temp_seconds = (real_seconds / 10) * 16 + real_seconds % 10;
++		u8 temp_minutes = (real_minutes / 10) * 16 + real_minutes % 10;
++
++		if (data.sec != temp_seconds || data.min != temp_minutes) {
++			data.sec = temp_seconds;
++			data.min = temp_minutes;
++			upd4990a_set_time(&data, 1);
++		}
++	} else {
++		printk(KERN_WARNING
++		       "set_rtc_mmss: can't update from %d to %d\n",
++		       cmos_minutes, real_minutes);
++		retval = -1;
++	}
++
++	/* uPD4990A users' manual says we should issue Register Hold
++	 * command after reading time, or future Time Read command
++	 * may not work.  When we have set the time, this also starts
++	 * the clock.
++	 */
++	upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++
++	return retval;
 +}
 +
-+module_init(alsa_card_pc98_init)
-+module_exit(alsa_card_pc98_exit)
++#define RTC_SANITY_CHECK
 +
-+#ifndef MODULE
-+
-+/* format is: snd-pc98-cs4232=enable,index,id,port,
-+			 mpu_port,fm_port,
-+			 irq,mpu_irq,dma1,dma2,pc98ii */
-+
-+static int __init alsa_card_pc98_setup(char *str)
++static inline unsigned long mach_get_cmos_time(void)
 +{
-+	static unsigned __initdata nr_dev = 0;
++	int i;
++	u8 prev, cur;
++	unsigned int year;
++#ifdef RTC_SANITY_CHECK
++	int retry_count;
++#endif
 +
-+	if (nr_dev >= SNDRV_CARDS)
-+		return 0;
-+	(void)(get_option(&str,&enable[nr_dev]) == 2 &&
-+	       get_option(&str,&index[nr_dev]) == 2 &&
-+	       get_id(&str,&id[nr_dev]) == 2 &&
-+	       get_option(&str,(int *)&port[nr_dev]) == 2 &&
-+	       get_option(&str,(int *)&mpu_port[nr_dev]) == 2 &&
-+	       get_option(&str,(int *)&fm_port[nr_dev]) == 2 &&
-+	       get_option(&str,&irq[nr_dev]) == 2 &&
-+	       get_option(&str,&mpu_irq[nr_dev]) == 2 &&
-+	       get_option(&str,&dma1[nr_dev]) == 2 &&
-+	       get_option(&str,&dma2[nr_dev]) == 2 &&
-+	       get_option(&str,&pc98ii[nr_dev]) == 2);
-+	nr_dev++;
-+	return 1;
++	struct upd4990a_raw_data data;
++
++#ifdef RTC_SANITY_CHECK
++	retry_count = 0;
++ retry:
++#endif
++	/* Connect uPD4990A's DATA OUT pin to its 1Hz reference clock. */
++	upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++
++	/* Catch rising edge of reference clock.  */
++	prev = ~UPD4990A_READ_DATA();
++	for (i = 0; i < 1800000; i++) { /* may take up to 1 second... */
++		__asm__ ("outb %%al,%0" : : "N" (0x5f)); /* 0.6usec delay */
++		cur = UPD4990A_READ_DATA();
++		if (!(prev & cur & 1))
++			break;
++		prev = ~cur;
++	}
++
++	upd4990a_get_time(&data, 0);
++
++#ifdef RTC_SANITY_CHECK
++# define BCD_VALID_P(x, hi)	(((x) & 0x0f) <= 9 && (x) <= 0x ## hi)
++# define DATA			((const unsigned char *) &data)
++
++	if (!BCD_VALID_P(data.sec, 59) ||
++	    !BCD_VALID_P(data.min, 59) ||
++	    !BCD_VALID_P(data.hour, 23) ||
++	    data.mday == 0 || !BCD_VALID_P(data.mday, 31) ||
++	    data.wday > 6 ||
++	    data.mon < 1 || 12 < data.mon ||
++	    !BCD_VALID_P(data.year, 99)) {
++		printk(KERN_ERR "RTC clock data is invalid! "
++			"(%02X %02X %02X %02X %02X %02X) - ",
++			DATA[0], DATA[1], DATA[2], DATA[3], DATA[4], DATA[5]);
++		if (++retry_count < 3) {
++			printk("retrying (%d)\n", retry_count);
++			goto retry;
++		}
++		printk("giving up, continuing\n");
++	}
++
++# undef BCD_VALID_P
++# undef DATA
++#endif /* RTC_SANITY_CHECK */
++
++#define CVT(x)	(((x) & 0xF) + ((x) >> 4) * 10)
++	if ((year = CVT(data.year) + 1900) < 1995)
++		year += 100;
++	return mktime(year, data.mon, CVT(data.mday),
++		       CVT(data.hour), CVT(data.min), CVT(data.sec));
++#undef CVT
 +}
 +
-+__setup("snd-pc98-cs4232=", alsa_card_pc98_setup);
++#endif /* !_MACH_TIME_H */
+diff -Nru linux/include/asm-i386/mach-pc9800/mach_traps.h linux98/include/asm-i386/mach-pc9800/mach_traps.h
+--- linux/include/asm-i386/mach-pc9800/mach_traps.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-pc9800/mach_traps.h	2002-11-05 22:46:55.000000000 +0900
+@@ -0,0 +1,27 @@
++/*
++ *  include/asm-i386/mach-pc9800/mach_traps.h
++ *
++ *  Machine specific NMI handling for PC-9800.
++ *  Written by Osamu Tomita <tomita@cinet.co.jp>
++ */
++#ifndef _MACH_TRAPS_H
++#define _MACH_TRAPS_H
 +
-+#endif /* ifndef MODULE */
-diff -Nru linux/sound/isa/cs423x/pc9801_118_magic.h linux/sound/isa/cs423x/pc9801_118_magic.h
---- linux/sound/isa/cs423x/pc9801_118_magic.h	1970-01-01 09:00:00.000000000 +0100
-+++ linux/sound/isa/cs423x/pc9801_118_magic.h	2002-10-28 15:44:12.000000000 +0100
-@@ -0,0 +1,411 @@
-+		static unsigned char	Data0485_A9[] = {
-+		0x12, 0x03, 0x90, 0xc2, 0x2a, 0x75, 0x1e, 0x20,
-+		0xe4, 0x12, 0x2b, 0x9b, 0x22, 0xa9, 0x16, 0x77,
-+		0x33, 0xe9, 0x04, 0x54, 0x03, 0x44, 0xa8, 0xf5,
-+		0x16, 0xc2, 0x2f, 0x22, 0xa9, 0x16, 0x77, 0x42,
-+		0xe9, 0x04, 0x54, 0x03, 0x44, 0xa8, 0xf9, 0x77,
-+		0xf8, 0x04, 0x54, 0x03, 0x44, 0xa8, 0xf5, 0x16,
-+		0xc2, 0x2f, 0x22, 0x90, 0x25, 0x9f, 0x30, 0x04,
-+		0x05, 0xc2, 0x04, 0x12, 0x1f, 0x62, 0x30, 0x00,
-+		0x05, 0xc2, 0x00, 0x12, 0x15, 0xe6, 0x30, 0x01,
-+		0x05, 0xc2, 0x01, 0x12, 0x29, 0xaf, 0x30, 0x02,
-+		0x05, 0xc2, 0x02, 0x12, 0x29, 0xaf, 0x30, 0x05,
-+		0x05, 0xc2, 0x05, 0x12, 0x16, 0x65, 0x30, 0x06,
-+		0x08, 0xc2, 0x06, 0x12, 0x16, 0xb1, 0x12, 0x29,
-+		0xaf, 0x30, 0x07, 0x08, 0xc2, 0x07, 0x12, 0x16,
-+		0xe9, 0x12, 0x29, 0xaf, 0x22, 0x20, 0x97, 0x09,
-+		0x53, 0xa8, 0xfb, 0x12, 0x04, 0x2c, 0x43, 0xa8,
-+		0x04, 0x22, 0x71, 0xb8, 0x71, 0xb8, 0x71, 0xb8,
-+		0x22, 0x20, 0x4b, 0x04, 0x75, 0x4e, 0x02, 0x22,
-+		0xe5, 0x35, 0x24, 0xff, 0xf5, 0x35, 0xe5, 0x36,
-+		0x34, 0xff, 0xf5, 0x36, 0x75, 0x4e, 0x02, 0x22,
-+		0x10, 0x19, 0x02, 0x80, 0x08, 0x78, 0x00, 0xe2,
-+		0x78, 0x07, 0xf2, 0x61, 0x9b, 0x78, 0x11, 0xe2,
-+		0xc0, 0x01, 0xc0, 0xf0, 0xc0, 0xd0, 0xc0, 0x02,
-+		0x71, 0x14, 0xe5, 0x30, 0xb4, 0x01, 0x02, 0x61,
-+		0x93, 0x43, 0x08, 0x40, 0x12, 0x2a, 0x53, 0x61,
-+		0x93, 0x79, 0x03, 0xe3, 0xa2, 0xe2, 0x92, 0x26,
-+		0xa2, 0xe3, 0x92, 0x27, 0x22, 0xad, 0x2b, 0xbd,
-+		0x04, 0x07, 0xf5, 0x72, 0x78, 0x27, 0x02, 0x11,
-+		0x76, 0x02, 0x11, 0x30, 0x00, 0x00, 0x00, 0x12,
-+		0x28, 0xba, 0x79, 0x01, 0xe3, 0x75, 0x21, 0x3f,
-+		0x75, 0x49, 0x11, 0x75, 0x4c, 0x11, 0x31, 0xdc,
-+		0x75, 0x1a, 0x80, 0x51, 0x72, 0x75, 0x81, 0xe3,
-+		0x12, 0x25, 0xc9, 0x43, 0xa8, 0x01, 0x00, 0x53,
-+		0xa8, 0xfe, 0x10, 0x50, 0x02, 0x80, 0x03, 0x12,
-+		0x1a, 0x8d, 0xd1, 0x28, 0x12, 0x03, 0xd9, 0xd1,
-+		0xf2, 0x12, 0x2d, 0xf0, 0xb0, 0x11, 0x92, 0xe0,
-+		0xa2, 0x2a, 0xa0, 0xb5, 0x82, 0xe0, 0x50, 0x03,
-+		0x79, 0x0f, 0xe3, 0x71, 0xca, 0x51, 0x1e, 0x91,
-+		0xe4, 0x53, 0xa8, 0xfb, 0x10, 0x10, 0x02, 0x80,
-+		0x26, 0xc2, 0x8e, 0xd2, 0xab, 0xa2, 0x1c, 0x40,
-+		0x13, 0xa2, 0x1d, 0x50, 0x0a, 0x43, 0x08, 0x40,
-+		0x12, 0x1a, 0x01, 0xd1, 0xd7, 0x80, 0x0b, 0x12,
-+		0x26, 0x04, 0x61, 0x08, 0x43, 0x08, 0x40, 0x12,
-+		0x1a, 0x01, 0xd2, 0x1f, 0x12, 0x17, 0x7f, 0x43,
-+		0xa8, 0x04, 0x51, 0x1e, 0x91, 0xe4, 0x12, 0x13,
-+		0x34, 0x80, 0x98, 0xa2, 0x17, 0x72, 0x16, 0x72,
-+		0x15, 0x72, 0x2d, 0x50, 0x06, 0xfa, 0x12, 0x13,
-+		0x66, 0x80, 0x25, 0xc2, 0x13, 0x30, 0x28, 0x05,
-+		0x12, 0x02, 0xbe, 0x80, 0x1b, 0xb4, 0x10, 0x12,
-+		0x78, 0x00, 0xf2, 0xe5, 0x30, 0xb4, 0x01, 0x06,
-+		0x12, 0x03, 0x90, 0xd2, 0x19, 0x22, 0x12, 0x00,
-+		0xdd, 0x22, 0x75, 0x30, 0x00, 0x12, 0x00, 0xa1,
-+		0x22, 0x00, 0x00, 0x75, 0x1e, 0x00, 0x74, 0x0c,
-+		0x12, 0x2b, 0x9b, 0x74, 0x40, 0x79, 0x05, 0xf3,
-+		0x74, 0x49, 0x12, 0x2b, 0x9b, 0x74, 0x04, 0x79,
-+		0x05, 0xf3, 0x75, 0x15, 0x04, 0x74, 0x10, 0x12,
-+		0x2b, 0x9b, 0x74, 0x00, 0x79, 0x05, 0xf3, 0x74,
-+		0x17, 0x12, 0x2b, 0x9b, 0x74, 0x00, 0x79, 0x05,
-+		0xf3, 0x74, 0x1a, 0x12, 0x2b, 0x9b, 0x74, 0x00,
-+		0x79, 0x05, 0xf3, 0x74, 0x0a, 0x12, 0x2b, 0x9b,
-+		0x74, 0x20, 0x79, 0x05, 0xf3, 0x79, 0xe0, 0x77,
-+		0x20, 0x22, 0xd0, 0x02, 0xd0, 0xd0, 0xd0, 0xf0,
-+		0xd0, 0x01, 0xe5, 0x5f, 0xd0, 0xa8, 0x22, 0x00,
-+		0x00, 0x90, 0x25, 0x9f, 0x75, 0x26, 0xff, 0x75,
-+		0x27, 0xff, 0x75, 0x28, 0x03, 0x75, 0x13, 0xff,
-+		0x75, 0x1f, 0x00, 0x75, 0x14, 0xff, 0x22, 0x79,
-+		0x06, 0xe5, 0x29, 0x60, 0x0b, 0xe3, 0x30, 0xe1,
-+		0xf8, 0xe5, 0x4f, 0x64, 0x80, 0x79, 0x07, 0xf3,
-+		0x22, 0x10, 0x4c, 0x01, 0x22, 0x30, 0x4b, 0x0a,
-+		0xc2, 0x4b, 0xe5, 0x4d, 0x64, 0x80, 0xf5, 0x4f,
-+		0x80, 0x1d, 0xe5, 0x15, 0xa2, 0xe0, 0x82, 0xe6,
-+		0x40, 0x02, 0x80, 0x35, 0x30, 0x4a, 0x04, 0xb1,
-+		0xe6, 0x80, 0x0c, 0x30, 0x49, 0x04, 0x51, 0x2b,
-+		0x80, 0x05, 0x30, 0x48, 0x24, 0x91, 0x7e, 0x79,
-+		0x06, 0xe3, 0x30, 0xe0, 0x1a, 0x79, 0x06, 0xf3,
-+		0xe5, 0x4e, 0x24, 0xff, 0x50, 0x04, 0xf5, 0x4e,
-+		0x80, 0x0d, 0x79, 0x0f, 0xf3, 0x20, 0x2a, 0x07,
-+		0x12, 0x2b, 0x32, 0x75, 0x29, 0x00, 0x22, 0x91,
-+		0x1b, 0x22, 0x79, 0x0f, 0xe3, 0xc0, 0xa8, 0x75,
-+		0xa8, 0x00, 0x30, 0x2b, 0x03, 0xd0, 0xa8, 0x22,
-+		0x79, 0x0e, 0xf3, 0xd0, 0xa8, 0x22, 0x8a, 0xf0,
-+		0xe5, 0x50, 0x10, 0xf3, 0x10, 0x23, 0x23, 0x23,
-+		0x25, 0xf0, 0x12, 0x2c, 0xb8, 0xa2, 0xe7, 0x92,
-+		0xe4, 0xc2, 0xe7, 0x80, 0x08, 0x23, 0x23, 0x23,
-+		0x25, 0xf0, 0x12, 0x2c, 0x19, 0x25, 0x4f, 0x20,
-+		0xd2, 0x04, 0xf5, 0x4f, 0x80, 0x0a, 0x40, 0x05,
-+		0x75, 0x4f, 0x7f, 0x80, 0x03, 0x75, 0x4f, 0xff,
-+		0xea, 0x12, 0x2c, 0x3c, 0x25, 0x50, 0x20, 0xe7,
-+		0x05, 0xb4, 0x03, 0x07, 0x80, 0x0c, 0x75, 0x50,
-+		0x00, 0x80, 0x09, 0x40, 0x05, 0x75, 0x50, 0x03,
-+		0x80, 0x02, 0xf5, 0x50, 0x22, 0xe5, 0x4d, 0xc4,
-+		0x54, 0x0c, 0x03, 0x03, 0xfa, 0x91, 0xa9, 0x71,
-+		0xb8, 0xe5, 0x4d, 0xc4, 0x54, 0x03, 0xfa, 0x91,
-+		0xa9, 0x71, 0xb8, 0xe5, 0x4d, 0x54, 0x0c, 0x03,
-+		0x03, 0xfa, 0x91, 0xa9, 0x71, 0xb8, 0xe5, 0x4d,
-+		0x54, 0x03, 0xfa, 0x91, 0xa9, 0x71, 0xb8, 0x22,
-+		0x8a, 0xf0, 0xe5, 0x50, 0x23, 0x23, 0x25, 0xf0,
-+		0x12, 0x2b, 0xf6, 0x25, 0x4f, 0x20, 0xd2, 0x04,
-+		0xf5, 0x4f, 0x80, 0x0a, 0x40, 0x05, 0x75, 0x4f,
-+		0x7f, 0x80, 0x03, 0x75, 0x4f, 0xff, 0xea, 0x12,
-+		0x2c, 0x40, 0x25, 0x50, 0x20, 0xe7, 0x05, 0xb4,
-+		0x05, 0x07, 0x80, 0x0c, 0x75, 0x50, 0x00, 0x80,
-+		0x09, 0x40, 0x05, 0x75, 0x50, 0x05, 0x80, 0x02,
-+		0xf5, 0x50, 0x22, 0x30, 0x26, 0x03, 0x12, 0x1e,
-+		0xf5, 0x30, 0x27, 0x03, 0x12, 0x1f, 0x37, 0x30,
-+		0x25, 0x09, 0x12, 0x1f, 0x4e, 0x30, 0x23, 0x03,
-+		0x12, 0x1f, 0x1e, 0x10, 0x22, 0x02, 0x80, 0x0a,
-+		0xe5, 0x3b, 0xb4, 0xff, 0x02, 0xc2, 0x20, 0x12,
-+		0x1e, 0x79, 0x22, 0x78, 0x11, 0xe2, 0x20, 0xe0,
-+		0x07, 0xc0, 0x01, 0x12, 0x28, 0xba, 0xd0, 0x01,
-+		0x78, 0x00, 0xf2, 0x61, 0x9b, 0x12, 0x2b, 0x32,
-+		0x12, 0x17, 0x7f, 0x78, 0x00, 0xf2, 0xaa, 0x35,
-+		0xab, 0x36, 0xea, 0x24, 0xff, 0xfa, 0xeb, 0x34,
-+		0xff, 0xfb, 0x50, 0x03, 0xd2, 0x10, 0x22, 0x75,
-+		0x37, 0x01, 0x75, 0x38, 0x00, 0x75, 0x39, 0x00,
-+		0x12, 0x04, 0x04, 0xd2, 0x8e, 0x22, 0xa8, 0x2b,
-+		0xb8, 0x00, 0x02, 0x80, 0x03, 0x02, 0x11, 0xbd,
-+		0xf5, 0x74, 0x78, 0x2a, 0x12, 0x11, 0xec, 0xe5,
-+		0x74, 0x78, 0x29, 0x12, 0x11, 0xec, 0x22, 0xfa,
-+		0xe5, 0x2b, 0x60, 0x01, 0x22, 0xea, 0x78, 0x2b,
-+		0xf5, 0x75, 0x12, 0x11, 0xec, 0x22, 0x74, 0x10,
-+		0x12, 0x2b, 0x9b, 0x74, 0x20, 0x78, 0x05, 0xf2,
-+		0x74, 0x09, 0x12, 0x17, 0x75, 0xe5, 0x15, 0x44,
-+		0x80, 0x79, 0x05, 0xf3, 0xf5, 0x15, 0x12, 0x17,
-+		0x7f, 0x22, 0x12, 0x03, 0x84, 0x79, 0x0f, 0xe3,
-+		0x78, 0x00, 0xf2, 0x12, 0x2b, 0x28, 0xe5, 0x81,
-+		0x24, 0xfc, 0xf5, 0x81, 0x61, 0x93, 0xd2, 0x07,
-+		0x78, 0x11, 0xe2, 0x44, 0x11, 0xf5, 0x4c, 0xc2,
-+		0x0f, 0x12, 0x29, 0xa3, 0x61, 0x93, 0x02, 0x1b,
-+		0x77, 0x00, 0xe1, 0x81, 0xe1, 0x9a, 0xd2, 0x2c,
-+		0xa1, 0x0c, 0x20, 0x20, 0x02, 0xd2, 0x26, 0x02,
-+		0x1e, 0x35, 0x02, 0x1e, 0x61, 0x02, 0x1d, 0x8f,
-+		0xc2, 0x8e, 0x75, 0xa8, 0x9e, 0x22, 0x41, 0x49,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x02, 0x29, 0x91, 0x00, 0x00, 0x00, 0xa1, 0xbb,
-+		0xa1, 0xc3, 0x02, 0x1e, 0x6b, 0xe5, 0x4d, 0xc4,
-+		0x54, 0x0f, 0xfa, 0x91, 0x2f, 0x71, 0xb8, 0xe5,
-+		0x4d, 0x54, 0x0f, 0xfa, 0x91, 0x2f, 0x71, 0xb8,
-+		0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa1, 0xc6,
-+		0x02, 0x1d, 0x8f, 0xc2, 0x8e, 0xd2, 0xab, 0xc2,
-+		0x10, 0x79, 0x0f, 0xf3, 0x22, 0x00, 0x02, 0x2a,
-+		0x84, 0x00, 0xe1, 0xbc, 0xe1, 0xc8, 0x02, 0x1e,
-+		0x27, 0x00, 0x78, 0x00, 0xf2, 0x78, 0x0b, 0xe2,
-+		0xf4, 0xf5, 0x4d, 0xd2, 0x4c, 0x61, 0x9b, 0x30,
-+		0xb5, 0x02, 0xc2, 0x11, 0x22, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x79, 0xbd, 0xf1, 0x3d, 0x83,
-+		0x22, 0xdd, 0xbd, 0xbd, 0xbd, 0x61, 0xbd, 0x8d,
-+		0x7a, 0xbd, 0xbd, 0xbd, 0xbd, 0x30, 0xbd, 0xbd,
-+		0xbd, 0x55, 0xbd, 0xbd, 0xbd, 0x52, 0xbd, 0xb6,
-+		0xb6, 0xbd, 0xbd, 0xbd, 0xbd, 0x00, 0xbd, 0xbd,
-+		0xbd, 0xe8, 0xda, 0xbd, 0xbd, 0xcf, 0xb9, 0xbd,
-+		0xc4, 0xf1, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd,
-+		0xbd, 0x7b, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd,
-+		0xbd, 0x70, 0x6a, 0x57, 0x47, 0x34, 0xbd, 0xbd,
-+		0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0x29, 0xbd,
-+		0xbd, 0xbd, 0xb6, 0xb6, 0xbd, 0xbd, 0xbd, 0xbd,
-+		0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0x2e, 0x25,
-+		0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0xfe, 0xf5,
-+		0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0x19, 0xbd,
-+		0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0x21, 0x8f,
-+		0x09, 0xbd, 0xf9, 0x86, 0xbd, 0xbd, 0xbd, 0xd7,
-+		0xbd, 0xa9, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0x9b,
-+		0xd1, 0x9d, 0xbd, 0xae, 0xbd, 0xbd, 0xbd, 0xcb,
-+		0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd,
-+		0xb6, 0xa5, 0xbd, 0xc5, 0xbd, 0xbd, 0xbd, 0xc3,
-+		0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0xbd, 0x74, 0x10,
-+		0x12, 0x2b, 0x9b, 0xe4, 0x78, 0x05, 0xf2, 0x74,
-+		0x09, 0x12, 0x17, 0x75, 0xe5, 0x15, 0x54, 0x7f,
-+		0x79, 0x05, 0xf3, 0xf5, 0x15, 0x12, 0x17, 0x7f,
-+		0x22, 0x30, 0x51, 0x01, 0x22, 0x53, 0xa8, 0xfb,
-+		0x12, 0x2d, 0xf0, 0x50, 0x22, 0x79, 0x03, 0xe3,
-+		0x20, 0xe4, 0x1c, 0xaa, 0x35, 0xab, 0x36, 0xea,
-+		0x24, 0xf0, 0xfa, 0xeb, 0x34, 0xff, 0xfb, 0x50,
-+		0x0e, 0x10, 0x1f, 0x02, 0x80, 0x09, 0x20, 0x2a,
-+		0x03, 0x12, 0x2b, 0x32, 0x12, 0x2d, 0xd6, 0x43,
-+		0xa8, 0x04, 0x22, 0xa2, 0x1c, 0x72, 0x1d, 0x40,
-+		0x07, 0x53, 0x08, 0xbf, 0x78, 0x00, 0xf2, 0x22,
-+		0xb1, 0x1e, 0x22, 0x00, 0x79, 0x02, 0x12, 0x27,
-+		0x3d, 0x02, 0x2d, 0x37, 0x14, 0x54, 0xf0, 0x60,
-+		0x21, 0xe5, 0xf0, 0x24, 0xb6, 0xe5, 0xf0, 0x50,
-+		0x16, 0x24, 0x8b, 0x50, 0x15, 0xe5, 0xf0, 0x24,
-+		0x56, 0xe5, 0xf0, 0x50, 0x08, 0x24, 0x2f, 0x50,
-+		0x09, 0xe5, 0xf0, 0x24, 0xd9, 0x24, 0xd5, 0x24,
-+		0xf0, 0x22, 0x15, 0x81, 0x15, 0x81, 0xe9, 0x22,
-+		0x78, 0x13, 0x74, 0x00, 0xf2, 0x75, 0x2e, 0x01,
-+		0xd2, 0x6a, 0xc2, 0x69, 0xc2, 0x68, 0xc2, 0x6c,
-+		0x90, 0x25, 0x9f, 0x75, 0xb8, 0x07, 0x41, 0xa4,
-+		0xc0, 0x01, 0xc0, 0xf0, 0xc0, 0xd0, 0xc0, 0x02,
-+		0xe5, 0x3d, 0x54, 0x7d, 0x03, 0x10, 0xe5, 0x05,
-+		0x90, 0x28, 0x4b, 0x80, 0x03, 0x90, 0x2b, 0x7c,
-+		0x73, 0xe5, 0x3d, 0x30, 0xe5, 0x07, 0x74, 0xfd,
-+		0x78, 0x00, 0xf2, 0x61, 0x9b, 0x90, 0x1a, 0x97,
-+		0x74, 0xb6, 0xc0, 0xe0, 0x74, 0x27, 0xc0, 0xe0,
-+		0xc0, 0xa8, 0x02, 0x1b, 0xab, 0x90, 0x25, 0x9f,
-+		0xd0, 0xa8, 0x22, 0x90, 0x27, 0xb6, 0xc0, 0x82,
-+		0xc0, 0x83, 0xc0, 0xa8, 0x02, 0x1d, 0xa6, 0x90,
-+		0x27, 0xb6, 0xc0, 0x82, 0xc0, 0x83, 0xc0, 0xa8,
-+		0x02, 0x1e, 0x0a, 0xea, 0x24, 0xf0, 0xfa, 0xeb,
-+		0x34, 0xff, 0xfb, 0x50, 0x2e, 0x20, 0x0b, 0x05,
-+		0x85, 0x44, 0xe0, 0x80, 0x03, 0x75, 0xe0, 0x00,
-+		0x30, 0xe1, 0x20, 0xe5, 0x35, 0x24, 0xff, 0xf5,
-+		0x35, 0xe5, 0x36, 0x34, 0xff, 0xf5, 0x36, 0xc3,
-+		0xe5, 0x36, 0x13, 0xf5, 0x36, 0xe5, 0x35, 0x13,
-+		0xf5, 0x35, 0x75, 0x3a, 0x10, 0x12, 0x1a, 0x77,
-+		0x02, 0x18, 0x77, 0x75, 0x3a, 0x00, 0x12, 0x1a,
-+		0x77, 0x02, 0x18, 0x1b, 0x20, 0x4b, 0x04, 0x75,
-+		0x4e, 0x03, 0x22, 0xe5, 0x35, 0x24, 0xff, 0xf5,
-+		0x35, 0xe5, 0x36, 0x34, 0xff, 0xf5, 0x36, 0x75,
-+		0x4e, 0x03, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x22, 0x02, 0x2c,
-+		0x70, 0xd2, 0x00, 0x78, 0x11, 0xe2, 0x44, 0x11,
-+		0xf5, 0x3f, 0xc2, 0x08, 0x12, 0x29, 0xa3, 0x02,
-+		0x23, 0x93, 0x21, 0x62, 0x61, 0x40, 0x01, 0x3a,
-+		0x01, 0x73, 0x21, 0x76, 0x61, 0xa8, 0x21, 0x39,
-+		0x21, 0x4a, 0x02, 0x2a, 0x7b, 0x79, 0x06, 0xf3,
-+		0xc0, 0xd0, 0x12, 0x03, 0xd9, 0x78, 0x00, 0xf2,
-+		0xd0, 0xd0, 0x22, 0x00, 0x00, 0x00, 0x00, 0x02,
-+		0x2c, 0xb4, 0x78, 0x11, 0xe2, 0x44, 0x11, 0x54,
-+		0x0f, 0xf8, 0xc4, 0x48, 0xd2, 0x05, 0xf5, 0x48,
-+		0xc2, 0x0d, 0x31, 0xa3, 0x02, 0x23, 0x93, 0x20,
-+		0x4b, 0x04, 0x75, 0x4e, 0x01, 0x22, 0xe5, 0x35,
-+		0x24, 0xff, 0xf5, 0x35, 0xe5, 0x36, 0x34, 0xff,
-+		0xf5, 0x36, 0x75, 0x4e, 0x01, 0x22, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x79, 0xd0, 0x77, 0x1b, 0x79, 0xd1, 0x77, 0x18,
-+		0x79, 0xd2, 0x77, 0x77, 0x79, 0xd3, 0x77, 0x18,
-+		0x22, 0x75, 0x29, 0x00, 0x75, 0x25, 0x00, 0x75,
-+		0x34, 0x03, 0x75, 0x22, 0x00, 0x75, 0x23, 0x05,
-+		0x75, 0x4f, 0x00, 0x75, 0x50, 0x00, 0x75, 0x30,
-+		0x00, 0x79, 0xdc, 0x77, 0x03, 0xc2, 0x8e, 0x75,
-+		0x17, 0xa8, 0x75, 0x16, 0xa8, 0x74, 0xaa, 0x79,
-+		0x01, 0xf3, 0x79, 0xd7, 0x77, 0x74, 0x79, 0xd8,
-+		0x77, 0xff, 0x79, 0xd9, 0x77, 0x07, 0x79, 0xda,
-+		0x77, 0x00, 0x12, 0x25, 0x6f, 0x43, 0x08, 0x40,
-+		0x71, 0x32, 0x79, 0x0e, 0xe3, 0x10, 0x51, 0x1c,
-+		0x74, 0x06, 0x71, 0x9b, 0xe5, 0x11, 0x44, 0x80,
-+		0x79, 0x05, 0xf3, 0xf5, 0x11, 0x74, 0x07, 0x71,
-+		0x9b, 0xe5, 0x12, 0x44, 0x80, 0x79, 0x05, 0xf3,
-+		0xf5, 0x12, 0x80, 0x18, 0x53, 0x27, 0xa0, 0x53,
-+		0x28, 0x01, 0x75, 0x20, 0xf7, 0x12, 0x23, 0x4c,
-+		0x75, 0x11, 0x80, 0x75, 0x12, 0x80, 0x12, 0x1f,
-+		0xc0, 0x12, 0x21, 0xdc, 0x79, 0x06, 0xf3, 0x22,
-+		0xd2, 0x02, 0x78, 0x11, 0xe2, 0x44, 0x11, 0xf5,
-+		0x43, 0xc2, 0x0a, 0x12, 0x29, 0xa3, 0x02, 0x23,
-+		0x93, 0x78, 0x11, 0xe2, 0x44, 0x11, 0xf5, 0x44,
-+		0xc2, 0x0b, 0x12, 0x29, 0xa3, 0x02, 0x23, 0x93,
-+		0x78, 0x00, 0xe2, 0x90, 0x25, 0x9f, 0x02, 0x23,
-+		0x93, 0x78, 0x11, 0xe2, 0x75, 0x20, 0xf7, 0x75,
-+		0x21, 0x3f, 0x75, 0x49, 0x11, 0x75, 0x4c, 0x11,
-+		0x31, 0xa3, 0x02, 0x23, 0x93, 0x78, 0x11, 0xe2,
-+		0x44, 0x11, 0x54, 0x0f, 0xf8, 0xc4, 0x48, 0xf8,
-+		0xe5, 0x49, 0x45, 0x3f, 0x58, 0xf5, 0x49, 0xd2,
-+		0x06, 0xc2, 0x0e, 0x31, 0xa3, 0x02, 0x23, 0x93,
-+		0xc0, 0x01, 0x20, 0x2a, 0x04, 0x71, 0x32, 0xc2,
-+		0x11, 0x11, 0x5e, 0xc2, 0x1f, 0xd0, 0x01, 0x02,
-+		0x23, 0x9b, 0x12, 0x21, 0xdc, 0x78, 0x00, 0xf2,
-+		0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79, 0xda,
-+		0xe7, 0x70, 0x2b, 0x20, 0x0a, 0x05, 0x85, 0x43,
-+		0xe0, 0x80, 0x03, 0x75, 0xe0, 0x00, 0x30, 0xe1,
-+		0x1d, 0x20, 0xe2, 0x1f, 0x74, 0xe0, 0xca, 0x74,
-+		0x00, 0x71, 0x9b, 0xca, 0x79, 0x05, 0xf3, 0xf5,
-+		0x09, 0xca, 0x74, 0x01, 0x71, 0x9b, 0xca, 0x79,
-+		0x05, 0xf3, 0xf5, 0x0a, 0x80, 0x43, 0x12, 0x15,
-+		0x3e, 0x80, 0x3e, 0xe5, 0x0b, 0xb4, 0x17, 0x02,
-+		0x80, 0x0b, 0x50, 0x09, 0x74, 0x17, 0xc3, 0x95,
-+		0x0b, 0x44, 0x60, 0x80, 0x02, 0x74, 0x60, 0xca,
-+		0x74, 0x00, 0x71, 0x9b, 0xca, 0x79, 0x05, 0xf3,
-+		0xf5, 0x09, 0xe5, 0x0c, 0xb4, 0x17, 0x02, 0x80,
-+		0x0b, 0x50, 0x09, 0x74, 0x17, 0xc3, 0x95, 0x0c,
-+		0x44, 0x60, 0x80, 0x02, 0x74, 0x60, 0xca, 0x74,
-+		0x01, 0x71, 0x9b, 0xca, 0x79, 0x05, 0xf3, 0xf5,
-+		0x0a, 0x22, 0xd2, 0x04, 0x78, 0x11, 0xe2, 0x44,
-+		0x11, 0xf5, 0x46, 0xc2, 0x0c, 0x31, 0xa3, 0x02,
-+		0x23, 0x93, 0xd2, 0x05, 0x78, 0x11, 0xe2, 0x44,
-+		0x11, 0xf5, 0x48, 0xc2, 0x0d, 0x31, 0xa3, 0x02,
-+		0x23, 0x93, 0xd2, 0x06, 0x78, 0x11, 0xe2, 0x44,
-+		0x11, 0xf5, 0x49, 0xc2, 0x0e, 0x31, 0xa3, 0x02,
-+		0x23, 0x93, 0x30, 0x1c, 0x21, 0x20, 0x4d, 0x1e,
-+		0xe5, 0x29, 0x60, 0x1a, 0xc2, 0x1c, 0x12, 0x19,
-+		0xec, 0x12, 0x13, 0xcf, 0xd2, 0x4d, 0x12, 0x17,
-+		0x7f, 0x78, 0x00, 0xf2, 0x79, 0x06, 0xf3, 0x43,
-+		0xa8, 0x04, 0x12, 0x24, 0x1b, 0x22, 0x12, 0x27,
-+		0x24, 0x22, 0x78, 0x00, 0xe2, 0x90, 0x25, 0x9f,
-+		0x02, 0x23, 0x93, 0x78, 0x00, 0xe2, 0xa2, 0xe7,
-+		0x72, 0xe3, 0x92, 0xe7, 0x02, 0x1d, 0x85, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x79, 0x04, 0xe3, 0x54, 0x80, 0x70, 0xf9, 0x22,
-+		0xe5, 0x29, 0x79, 0xde, 0xf7, 0x75, 0x29, 0x00,
-+		0x70, 0x12, 0xe5, 0x15, 0x79, 0xdd, 0xf7, 0x12,
-+		0x2d, 0xf0, 0x40, 0x08, 0x20, 0x1c, 0x07, 0x20,
-+		0x1d, 0x04, 0x80, 0x02, 0x71, 0x32, 0x30, 0xb5,
-+		0x0c, 0x79, 0x06, 0xf3, 0x20, 0x2a, 0x06, 0x79,
-+		0xdd, 0xe7, 0x54, 0xfc, 0xf7, 0xd2, 0x2b, 0x12,
-+		0x25, 0x6f, 0x22, 0x00, 0x00, 0x00, 0x00, 0xe5,
-+		0x15, 0xa2, 0xe0, 0xb0, 0xe6, 0x40, 0x31, 0xa2,
-+		0xe1, 0xb0, 0xe7, 0x40, 0x38, 0x10, 0x2b, 0x02,
-+		0x80, 0x26, 0x79, 0xde, 0xe7, 0x70, 0x0b, 0x79,
-+		0xdd, 0xe7, 0x20, 0xe0, 0x12, 0x20, 0xe1, 0x28,
-+		0x80, 0x16, 0xf5, 0x29, 0x30, 0x4d, 0x11, 0x20,
-+		0x4c, 0x0e, 0x12, 0x24, 0x1b, 0x80, 0x09, 0x43,
-+		0x08, 0x40, 0x12, 0x13, 0xcf, 0x12, 0x17, 0x7f,
-+		0xe5, 0x13, 0x20, 0xe4, 0x05, 0x12, 0x18, 0x1b,
-+		0x80, 0x03, 0x12, 0x18, 0x77, 0xc2, 0x2b, 0x22,
-+		0x12, 0x26, 0xd7, 0x12, 0x13, 0xb7, 0x22, 0x78,
-+		0x04, 0x79, 0x00, 0xd9, 0xfe, 0xd8, 0xfa, 0x22,
-+		0x00, 0x74, 0x09, 0x71, 0x9b, 0xe5, 0x15, 0x54,
-+		0xfc, 0x79, 0x05, 0xf3, 0xf5, 0x15, 0x22, 0x78,
-+		0x11, 0xe2, 0x44, 0x11, 0x54, 0x0f, 0xf8, 0xc4,
-+		0x48, 0xf5, 0x46, 0xc2, 0x0c, 0xd2, 0x04, 0x31,
-+		0xa3, 0x02, 0x23, 0x93, 0x12, 0x26, 0xd7, 0x12,
-+		0x00, 0xb7, 0x22, 0x00, 0x79, 0x06, 0xf3, 0x74,
-+		0x0a, 0x71, 0x9b, 0x79, 0xe0, 0xe7, 0x44, 0x02,
-+		0xf7, 0x79, 0x05, 0xf3, 0x22, 0x74, 0x0a, 0x71,
-+		0x9b, 0x79, 0xe0, 0xe7, 0x54, 0xfd, 0xf7, 0x79,
-+		0x05, 0xf3, 0x22, 0x21, 0x59, 0x41, 0x23, 0x21,
-+		0x59, 0x41, 0x33, 0x41, 0x43, 0x21, 0x59, 0x21,
-+		0x59, 0x02, 0x25, 0x9f, 0x00, 0x74, 0x0d, 0x71,
-+		0x9b, 0x74, 0x4d, 0x79, 0x05, 0xf3, 0xd2, 0x52,
-+		0x22, 0x00, 0x53, 0x08, 0x40, 0x45, 0x08, 0x45,
-+		0x1e, 0x79, 0x04, 0xf3, 0xf5, 0x08, 0x22, 0xd2,
-+		0x01, 0x78, 0x11, 0xe2, 0x44, 0x11, 0xf5, 0x42,
-+		0xc2, 0x09, 0x31, 0xa3, 0x02, 0x23, 0x93, 0x00,
-+		0x00, 0x00, 0x00, 0x71, 0x6e, 0x74, 0x09, 0x12,
-+		0x17, 0x75, 0xe5, 0x15, 0x44, 0x40, 0x79, 0x05,
-+		0xf3, 0xf5, 0x15, 0x75, 0x3a, 0x00, 0x12, 0x1a,
-+		0x77, 0x02, 0x18, 0x1b, 0xf5, 0x38, 0xe5, 0x37,
-+		0x24, 0x01, 0xf5, 0x37, 0xe5, 0x38, 0x34, 0x00,
-+		0xf5, 0x38, 0x40, 0x05, 0x75, 0x39, 0x00, 0x80,
-+		0x03, 0x75, 0x39, 0x01, 0x12, 0x04, 0x04, 0xd2,
-+		0x8e, 0x02, 0x03, 0x8d, 0x00, 0xb4, 0x0d, 0x03,
-+		0x74, 0x14, 0x22, 0x04, 0x83, 0x22, 0x00, 0x02,
-+		0xff, 0x01, 0x00, 0x05, 0xfe, 0xff, 0x00, 0x0a,
-+		0xfc, 0xfe, 0x00, 0xc0, 0xf8, 0xfc, 0x00, 0x28,
-+		0xf0, 0xf8, 0x00, 0x30, 0xe0, 0xd0, 0x01, 0x88,
-+		0x04, 0x83, 0x22, 0x00, 0xff, 0xfe, 0xfd, 0xfc,
-+		0xfc, 0xfb, 0xfa, 0xfe, 0xfd, 0xfb, 0xf9, 0xf7,
-+		0xf7, 0xf5, 0xf3, 0xfc, 0xfa, 0xf6, 0xf2, 0xee,
-+		0xee, 0xea, 0xe6, 0xf8, 0xf4, 0xec, 0xe4, 0xdc,
-+		0xd4, 0xcc, 0xc4, 0x24, 0x21, 0x83, 0x22, 0x04,
-+		0x83, 0x22, 0xff, 0x01, 0xff, 0x01, 0x00, 0x00,
-+		0x00, 0x02, 0x22, 0x32, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff,
-+		0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0xff,
-+		0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x83,
-+		0x22, 0x8a, 0x01, 0x20, 0x01, 0x0b, 0xea, 0xf3,
-+		0xf9, 0x8b, 0x7e, 0x6b, 0xd5, 0x01, 0x00, 0x01,
-+		0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x01, 0x3a, 0x01, 0x38, 0x01, 0x4b, 0x01,
-+		0x49, 0x01, 0x5c, 0x01, 0x5a, 0x01, 0x08, 0x08,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x01, 0x15, 0x24, 0x48, 0x83, 0x22, 0x04,
-+		0x83, 0x22, 0x00, 0x01, 0x02, 0x03, 0x04, 0x06,
-+		0x07, 0x08, 0x00, 0x03, 0x05, 0x07, 0x09, 0x0d,
-+		0x0f, 0x81, 0x00, 0x06, 0x0a, 0x0e, 0x82, 0x8a,
-+		0x8e, 0x22, 0x00, 0x0c, 0x84, 0x8c, 0x24, 0x2c,
-+		0xa4, 0xac, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0xaa, 0x35, 0xab, 0x36,
-+		0x02, 0x27, 0xd4, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03,
-+		0x03, 0x03, 0x03, 0x03, 0x02, 0x02, 0x02, 0x25,
-+		0x03, 0x03, 0x2b, 0x03, 0x00, 0x03, 0x00, 0x03,
-+		0x00, 0x03, 0x00, 0x03, 0x00, 0x03, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03,
-+		0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
-+		0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x83, 0x22,
-+		0x00, 0x02, 0x02, 0x02, 0x01, 0x02, 0x02, 0x02,
-+		0x02, 0x02, 0x02, 0x02, 0x01, 0x02, 0x02, 0x02,
-+		0x2b, 0x02, 0x02, 0x02, 0x01, 0x02, 0x02, 0x02,
-+		0x02, 0x02, 0x02, 0x02, 0x01, 0x02, 0x02, 0x02,
-+		0x01, 0x01, 0x02, 0x02, 0x01, 0x01, 0x02, 0x01,
-+		0x01, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-+		0x01, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-+		0x01, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-+		0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-+		0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-+		0x02, 0x02, 0x02, 0x02, 0x02, 0x01, 0x01, 0x02,
-+		0x02, 0x02, 0x02, 0x02, 0x02, 0x00, 0x00, 0x02,
-+		0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-+		0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x01, 0x02,
-+		0x02, 0x01, 0x01, 0x02, 0x02, 0x02, 0x00, 0x02,
-+		0x21, 0x02, 0x02, 0x02, 0x02, 0x02, 0x01, 0x00,
-+		0x02, 0x02, 0x01, 0x02, 0x02, 0x02, 0x00, 0x02,
-+		0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x21,
-+		0x01, 0x02, 0x21, 0x02, 0x02, 0x02, 0x00, 0x02,
-+		0x02, 0x02, 0x02, 0x02, 0x02, 0x20, 0xb5, 0x05,
-+		0x79, 0x0f, 0xf3, 0xc2, 0x11, 0x22, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe5,
-+		0x15, 0xa2, 0xe0, 0xb0, 0xe6, 0x50, 0x01, 0x22,
-+		0xa2, 0xe1, 0xb0, 0xe7, 0x22, 0x02, 0x00};
-+		static unsigned char	Data0485_0C[] = {
-+		0x02, 0x27, 0x69};
-+		static unsigned char	Data0485_66[] = {
-+		0x02, 0x25, 0x47, 0x02, 0x25, 0x60};
-+		static unsigned char	Data0485_60[] = {
-+		0x02, 0x22, 0x7e};
-+		static unsigned char	Data0485_99[] = {
-+		0xc2, 0x53, 0x02, 0x12, 0x86};
-+		static unsigned char	Data0485_9E[] = {
-+		0x70, 0xf9, 0x22};
-+#ifdef OOKUBO_ORIGINAL
-+		static unsigned char	Data0485_36[] = {
-+		0x78, 0x00, 0xf2, 0xc2, 0x53, 0x74, 0x86, 0xc0,
-+		0xe0, 0x74, 0x12, 0xc0,	0xe0, 0x32};
-+#endif /* OOKUBO_ORIGINAL */
-diff -Nru linux/sound/isa/cs423x/sound_pc9800.h linux/sound/isa/cs423x/sound_pc9800.h
---- linux/sound/isa/cs423x/sound_pc9800.h	1970-01-01 09:00:00.000000000 +0100
-+++ linux/sound/isa/cs423x/sound_pc9800.h	2002-10-28 15:45:00.000000000 +0100
-@@ -0,0 +1,23 @@
-+#ifndef _SOUND_PC9800_H_
-+#define _SOUND_PC9800_H_
++static inline void clear_mem_error(unsigned char reason)
++{
++	outb(0x08, 0x37);
++	outb(0x09, 0x37);
++}
 +
-+#include <asm/io.h>
++static inline unsigned char get_nmi_reason(void)
++{
++	return (inb(0x33) & 6) ? 0x80 : 0;
++}
 +
-+#define PC9800_SOUND_IO_ID	0xa460
++static inline void reassert_nmi(void)
++{
++	outb(0x09, 0x50);	/* disable NMI once */
++	outb(0x09, 0x52);	/* re-enable it */
++}
 +
-+/* Sound Functions ID. */
-+#define PC9800_SOUND_ID()	((inb(PC9800_SOUND_IO_ID) >> 4) & 0x0f)
++#endif /* !_MACH_TRAPS_H */
+diff -Nru linux/include/asm-i386/mach-pc9800/smpboot_hooks.h linux98/include/asm-i386/mach-pc9800/smpboot_hooks.h
+--- linux/include/asm-i386/mach-pc9800/smpboot_hooks.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-pc9800/smpboot_hooks.h	2002-09-22 06:56:46.000000000 +0900
+@@ -0,0 +1,33 @@
++/* two abstractions specific to kernel/smpboot.c, mainly to cater to visws
++ * which needs to alter them. */
 +
-+#define PC9800_SOUND_ID_DO	0x0	/* PC-98DO+ Internal */
-+#define PC9800_SOUND_ID_GS	0x1	/* PC-98GS Internal */
-+#define PC9800_SOUND_ID_73	0x2	/* PC-9801-73 (base 0x18x) */
-+#define PC9800_SOUND_ID_73A	0x3	/* PC-9801-73/76 (base 0x28x) */
-+#define PC9800_SOUND_ID_86	0x4	/* PC-9801-86 and compatible (base 0x18x) */
-+#define PC9800_SOUND_ID_86A	0x5	/* PC-9801-86 (base 0x28x) */
-+#define PC9800_SOUND_ID_NF	0x6	/* PC-9821Nf/Np Internal */
-+#define PC9800_SOUND_ID_XMATE	0x7	/* X-Mate Internal and compatible */
-+#define PC9800_SOUND_ID_118	0x8	/* PC-9801-118 and compatible(CanBe Internal, etc.) */
++static inline void smpboot_clear_io_apic_irqs(void)
++{
++	io_apic_irqs = 0;
++}
 +
-+#define PC9800_SOUND_ID_UNKNOWN	0xf	/* Unknown (No Sound System or PC-9801-26) */
++static inline void smpboot_setup_warm_reset_vector(void)
++{
++	/*
++	 * Install writable page 0 entry to set BIOS data area.
++	 */
++	local_flush_tlb();
 +
-+#endif
-diff -Nru linux/sound/core/Makefile linux98/sound/core/Makefile
---- linux/sound/core/Makefile	2002-10-19 13:01:14.000000000 +0900
-+++ linux98/sound/core/Makefile	2002-10-30 13:52:52.000000000 +0900
-@@ -96,6 +96,7 @@
- obj-$(CONFIG_SND_YMFPCI) += snd-pcm.o snd-timer.o snd.o snd-rawmidi.o snd-hwdep.o
- obj-$(CONFIG_SND_POWERMAC) += snd-pcm.o snd-timer.o snd.o
- obj-$(CONFIG_SND_SA11XX_UDA1341) += snd-pcm.o snd-timer.o snd.o
-+obj-$(CONFIG_SND_PC98_CS4232) += snd-pcm.o snd-timer.o snd.o snd-rawmidi.o snd-hwdep.o
- ifeq ($(CONFIG_SND_SB16_CSP),y)
-   obj-$(CONFIG_SND_SB16) += snd-hwdep.o
-   obj-$(CONFIG_SND_SBAWE) += snd-hwdep.o
-diff -Nru linux-2.5.52/sound/drivers/mpu401/Makefile linux98-2.5.52/sound/drivers/mpu401/Makefile
---- linux-2.5.52/sound/drivers/mpu401/Makefile	2002-12-16 11:08:24.000000000 +0900
-+++ linux98-2.5.52/sound/drivers/mpu401/Makefile	2002-12-16 21:38:54.000000000 +0900
-@@ -39,5 +39,6 @@
- obj-$(CONFIG_SND_ALI5451) += snd-mpu401-uart.o
- obj-$(CONFIG_SND_TRIDENT) += snd-mpu401-uart.o
- obj-$(CONFIG_SND_YMFPCI) += snd-mpu401-uart.o
-+obj-$(CONFIG_SND_PC98_CS4232) += snd-mpu401-uart.o
- 
- obj-m := $(sort $(obj-m))
-diff -Nru linux/sound/drivers/opl3/Makefile linux98/sound/drivers/opl3/Makefile
---- linux/sound/drivers/opl3/Makefile	2002-12-24 14:19:25.000000000 +0900
-+++ linux98/sound/drivers/opl3/Makefile	2002-12-26 15:25:50.000000000 +0900
-@@ -26,6 +26,7 @@
- obj-$(CONFIG_SND_OPL3SA2) += $(OPL3_OBJS)
- obj-$(CONFIG_SND_AD1816A) += $(OPL3_OBJS)
- obj-$(CONFIG_SND_CS4232) += $(OPL3_OBJS)
-+obj-$(CONFIG_SND_PC98_CS4232) += $(OPL3_OBJS)
- obj-$(CONFIG_SND_CS4236) += $(OPL3_OBJS)
- obj-$(CONFIG_SND_ES1688) += $(OPL3_OBJS)
- obj-$(CONFIG_SND_GUSEXTREME) += $(OPL3_OBJS)
-diff -Nru linux/sound/drivers/mpu401/mpu401.c linux98/sound/drivers/mpu401/mpu401.c
---- linux/sound/drivers/mpu401/mpu401.c	2002-12-24 14:20:59.000000000 +0900
-+++ linux98/sound/drivers/mpu401/mpu401.c	2003-01-04 14:05:38.000000000 +0900
-@@ -40,7 +40,7 @@
- static int enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE;	/* Enable this card */
- static long port[SNDRV_CARDS] = SNDRV_DEFAULT_PORT;	/* MPU-401 port number */
- static int irq[SNDRV_CARDS] = SNDRV_DEFAULT_IRQ;	/* MPU-401 IRQ */
--#ifdef CONFIG_PC9800
-+#ifdef CONFIG_X86_PC9800
- static int pc98ii[SNDRV_CARDS];				/* PC98-II dauther board */
- #endif
- 
-@@ -59,7 +59,7 @@
- MODULE_PARM(irq, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
- MODULE_PARM_DESC(irq, "IRQ # for MPU-401 device.");
- MODULE_PARM_SYNTAX(irq, SNDRV_IRQ_DESC);
--#ifdef CONFIG_PC9800
-+#ifdef CONFIG_X86_PC9800
- MODULE_PARM(pc98ii, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
- MODULE_PARM_DESC(pc98ii, "Roland MPU-PC98II support.");
- MODULE_PARM_SYNTAX(pc98ii, SNDRV_BOOLEAN_FALSE_DESC);
-@@ -85,7 +85,7 @@
- 	if (card == NULL)
- 		return -ENOMEM;
- 	if (snd_mpu401_uart_new(card, 0,
--#ifdef CONFIG_PC9800
-+#ifdef CONFIG_X86_PC9800
- 				pc98ii[dev] ? MPU401_HW_PC98II :
- #endif
- 				MPU401_HW_MPU401,
-@@ -154,6 +154,9 @@
- 	(void)(get_option(&str,&enable[nr_dev]) == 2 &&
- 	       get_option(&str,&index[nr_dev]) == 2 &&
- 	       get_id(&str,&id[nr_dev]) == 2 &&
-+#ifdef CONFIG_X86_PC9800
-+	       get_option(&str,&pc98ii[nr_dev]) == 2 &&
-+#endif
- 	       get_option(&str,(int *)&port[nr_dev]) == 2 &&
- 	       get_option(&str,&irq[nr_dev]) == 2);
- 	nr_dev++;
++	/*
++	 * Paranoid:  Set warm reset code and vector here back
++	 * to default values.
++	 */
++	outb(0x0f, 0x37);	/* SHUT0 = 1 */
++
++	*((volatile long *) phys_to_virt(0x404)) = 0;
++}
++
++static inline void smpboot_setup_io_apic(void)
++{
++	/*
++	 * Here we can be sure that there is an IO-APIC in the system. Let's
++	 * go and set it up:
++	 */
++	if (!skip_ioapic_setup && nr_ioapics)
++		setup_IO_APIC();
++}

@@ -1,70 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263418AbTJLEYr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 00:24:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263422AbTJLEYr
+	id S263423AbTJLFLU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 01:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263425AbTJLFLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 00:24:47 -0400
-Received: from smtp1.att.ne.jp ([165.76.15.137]:15537 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S263418AbTJLEYp (ORCPT
+	Sun, 12 Oct 2003 01:11:20 -0400
+Received: from mail.tbdnetworks.com ([63.209.25.99]:42245 "EHLO stargazer")
+	by vger.kernel.org with ESMTP id S263423AbTJLFLP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 00:24:45 -0400
-Message-ID: <28fe01c39078$a4c0a630$5cee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: <Valdis.Kletnieks@vt.edu>
-Cc: <linux-kernel@vger.kernel.org>
-References: <228201c38fd6$32b82c90$5cee4ca5@DIAMONDLX60> <200310111443.h9BEhr6s022474@turing-police.cc.vt.edu>
-Subject: Re: 2.6.0-test7 + X11 + screen savers vs. user 
-Date: Sun, 12 Oct 2003 13:22:44 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sun, 12 Oct 2003 01:11:15 -0400
+Date: Sat, 11 Oct 2003 22:11:07 -0700
+To: linux-kernel@vger.kernel.org
+Cc: linux-usb-users@lists.sourceforge.net
+Subject: usb-storage kills lilo (2.6-test[67])
+Message-ID: <20031012051107.GA1881@defiant>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Norbert Kiesel <nkiesel@tbdnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis Kletnieks replied to me:
+(sorry for the flashy subject, but I could not come up with another one
+:-)
 
->> In 2.6.0-test1 through test7, when running X11, the screen saver kicks in
->> about every 5 minutes.  I haven't checked the configuration but have
->> confidence that it's obeying the timing correctly.  The problem is that
->> it doesn't care whether the keyboard and mouse have been used during
->> that time.
->
-> Which screen saver is this?
+Hi, I got problems with usb-storage and linux-2.6-test[67]. AFAICS,
+test5 works fine (still have to retest to make sure).
 
-In SuSE 8.2, KDE's configuration panel, it is "random".  It was installed
-that way by default during installation (at least when X11 and KDE defaults
-are installed by default).  The list of possible screen savers is too long
-to copy by hand, but anyway it doesn't seem to matter which one gets
-randomly selected.  Under kernel 2.6.0-test1 through test7, the portion of
-KDE or X11 that is supposed to be informed of keyboard or mouse activity
-doesn't seem to be informed.  The screen saver kicks in every 4 minutes
-according to KDE's configuration panel, which was also the default, and my
-estimate of 5 minutes was before looking at the settings.
+Problem is that inserting my USB flash memory disk makes /dev/sda (and
+/dev/sda1) appear in /proc/partitions, but removing it does not remove
+the entries from /proc/partitions.  lilo is reading /proc/partitions
+(verified trough strace) and dies because /dev/sda is gone.
 
-> jwz's xscreensaver 4.13 mostly works for me with XFree86 4.3.0, and
-> notices keyboard activity and mouse cursor movement, but fails to detect
-> mouse button events - so if you're in a mail program and reading a lot of
-> mail and hitting 'delete' over and over, the screensaver can kick in
-> anyhow.
+Possibly related to that is the next time I insert the flash disk, is
+shows up as /dev/sdb1 (and adds this to /proc/partiotions, too). 
 
-Originally I thought I was observing something like this, but then watched
-more closely and it is broader.  Mouse cursor movement is indeed being
-ignored.  I'm almost certain that keyboard input is also being ignored, but
-maybe should conduct another test while watch watching.
+System is a Debian-sid updated today morning (see below for details).
 
-> I have to admit I've not tracked down if this is xscreensaver's fault, or
-> the X server's fault, or the kernel's fault.
+Please CC (I read the kernel list but not the USB one).
 
-Under kernels 2.4.20, 2.4.19, and 2.4.18, I did not observe such a problem.
-The screen saver only kicked in after a period of inactivity.  However, the
-communication failure among the kernel, X11, KDE, etc., might not
-necessarily be the kernel's fault, if other components were depending on
-some characteristic of the 2.4 series which was undocumented or deprecated
-in 2.4 and/or intentionally removed in 2.6.
+so long
+	Norbert
 
+
+defiant% cat /proc/version
+Linux version 2.6.0-test7 (nkiesel@defiant) (gcc version 3.3.2 20031005 (Debian prerelease)) #8 Wed Oct 8 18:11:11 PDT 2003
+
+defiant% ls '/sys/devices/pci0000:00/0000:00:07.2/usb1/1-2/1-2.4/1-2.4.2/1-2.4.2:1.0/host1/1:0:0:0'
+block   detach_state    model   queue_depth  rev         type
+delete  device_blocked  online  rescan       scsi_level  vendor
+defiant% cat '/sys/devices/pci0000:00/0000:00:07.2/usb1/1-2/1-2.4/1-2.4.2/1-2.4.2:1.0/host1/1:0:0:0/type'
+0
+defiant% cat '/sys/devices/pci0000:00/0000:00:07.2/usb1/1-2/1-2.4/1-2.4.2/1-2.4.2:1.0/host1/1:0:0:0/model'
+DIGITAL FILM
+
+defiant% grep -E 'USB|IDE' .config | grep -v '^#'
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_USB=m
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_UHCI_HCD=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DEBUG=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_VISOR=m
+
+defiant% /usr/sbin/lsusb
+Bus 002 Device 001: ID 0000:0000  
+Bus 001 Device 006: ID 05dc:0080 Lexar Media, Inc. 
+Bus 001 Device 004: ID 058f:9254 Alcor Micro Corp. Hub
+Bus 001 Device 003: ID 0451:2046 Texas Instruments, Inc. TUSB2046 Hub
+Bus 001 Device 002: ID 045e:0040 Microsoft Corp. Wheel Mouse Optical
+Bus 001 Device 001: ID 0000:0000  
+
+defiant% cat /proc/partitions
+major minor  #blocks  name
+
+  22    64   11255328 hdd
+  22    65    3583912 hdd1
+  22    66          1 hdd2
+  22    69     255496 hdd5
+  22    70    3840448 hdd6
+  22    71    1024096 hdd7
+  22    72    2551216 hdd8
+  33    64    8901720 hdf
+  33    65    8901616 hdf1
+  34    64   20066251 hdh
+  34    65          1 hdh1
+  34    66     976752 hdh2
+  34    69   12287961 hdh5
+  34    70    6800944 hdh6
+   8     0     125952 sda
+   8     1     125296 sda1
+   8    16     125952 sdb
+   8    17     125296 sdb1
+
+defiant% mount
+rootfs on / type rootfs (rw)
+/dev/root on / type ext3 (rw)
+proc on /proc type proc (rw)
+devpts on /dev/pts type devpts (rw)
+/dev/hdd6 on /usr type ext3 (rw)
+/dev/hdd8 on /var type ext3 (rw)
+/dev/hdd7 on /tmp type ext3 (rw)
+/dev/hdh5 on /home type ext3 (rw)
+/dev/hdf1 on /ogg type ext3 (rw)
+sysfs on /sys type sysfs (rw)
+usbfs on /proc/bus/usb type usbfs (rw)
+dev:/a on /a type nfs (rw,nosuid,nodev,v3,rsize=8192,wsize=8192,hard,intr,udp,lock,addr=dev)
+dev:/b on /b type nfs (rw,nosuid,nodev,v3,rsize=8192,wsize=8192,hard,intr,udp,lock,addr=dev)
+dev:/space on /space type nfs (ro,nosuid,nodev,v3,rsize=8192,wsize=8192,hard,intr,udp,lock,addr=dev)
+dev:/local on /local type nfs (rw,nosuid,nodev,v3,rsize=8192,wsize=8192,hard,intr,udp,lock,addr=dev)
+//iota/repository on /iota type smbfs (rw,uid=511,gid=511,file_mode=0744,dir_mode=0755)
+automount(pid792) on /var/autofs/misc type autofs (rw)
+automount(pid808) on /var/autofs/net type autofs (rw)
+
+defiant% tail -n 30 /var/log/messages
+Oct 11 21:09:31 defiant kernel: hub 1-2.4:1.0: new USB device on port 2, assigned address 5
+Oct 11 21:09:31 defiant kernel: Initializing USB Mass Storage driver...
+Oct 11 21:09:31 defiant kernel: scsi0 : SCSI emulation for USB Mass Storage devices
+Oct 11 21:09:31 defiant kernel:   Vendor: LEXAR     Model: DIGITAL FILM      Rev: /W1.
+Oct 11 21:09:31 defiant kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
+Oct 11 21:09:31 defiant kernel: SCSI device sda: 251904 512-byte hdwr sectors (129 MB)
+Oct 11 21:09:31 defiant scsi.agent[1219]: how to add device type= at /devices/pci0000:00/0000:00:07.2/usb1/1-2/1-2.4/1-2.4.2/1-2.4.2:1.0/host0/0:0:0:0 ??
+Oct 11 21:09:31 defiant kernel: sda: Write Protect is off
+Oct 11 21:09:31 defiant kernel: sda: cache data unavailable
+Oct 11 21:09:31 defiant kernel:  sda:<7>usb-storage: queuecommand called
+Oct 11 21:09:31 defiant kernel:  sda1
+Oct 11 21:09:31 defiant kernel: Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+Oct 11 21:09:31 defiant kernel: Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
+Oct 11 21:09:31 defiant kernel: drivers/usb/core/usb.c: registered new driver usb-storage
+Oct 11 21:09:31 defiant kernel: USB Mass Storage support registered.
+Oct 11 21:11:18 defiant kernel: usb 1-2.4.2: USB disconnect, address 5
+Oct 11 21:11:28 defiant kernel: hub 1-2.4:1.0: new USB device on port 2, assigned address 6
+Oct 11 21:11:28 defiant kernel: scsi1 : SCSI emulation for USB Mass Storage devices
+Oct 11 21:11:28 defiant kernel:   Vendor: LEXAR     Model: DIGITAL FILM      Rev: /W1.
+Oct 11 21:11:28 defiant kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
+Oct 11 21:11:28 defiant kernel: SCSI device sdb: 251904 512-byte hdwr sectors (129 MB)
+Oct 11 21:11:28 defiant kernel: sdb: Write Protect is off
+Oct 11 21:11:28 defiant kernel: sdb: cache data unavailable
+Oct 11 21:11:28 defiant kernel:  sdb:<7>usb-storage: queuecommand called
+Oct 11 21:11:28 defiant kernel:  sdb1
+Oct 11 21:11:28 defiant kernel: Attached scsi removable disk sdb at scsi1, channel 0, id 0, lun 0
+Oct 11 21:11:28 defiant kernel: Attached scsi generic sg0 at scsi1, channel 0, id 0, lun 0,  type 0
+Oct 11 21:11:28 defiant scsi.agent[1321]: how to add device type= at /devices/pci0000:00/0000:00:07.2/usb1/1-2/1-2.4/1-2.4.2/1-2.4.2:1.0/host1/1:0:0:0 ??

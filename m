@@ -1,93 +1,211 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264960AbUD2UYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264959AbUD2U1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264960AbUD2UYT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 16:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264963AbUD2UYT
+	id S264959AbUD2U1R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 16:27:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbUD2U1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 16:24:19 -0400
-Received: from fed1rmmtao10.cox.net ([68.230.241.29]:47075 "EHLO
-	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S264960AbUD2UYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 16:24:13 -0400
-Date: Thu, 29 Apr 2004 13:24:13 -0700
-From: Jesse Allen <the3dfxdude@hotmail.com>
-To: Ross Dickson <ross@datscreative.com.au>
-Cc: Len Brown <len.brown@intel.com>, a.verweij@student.tudelft.nl,
-       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       Craig Bradney <cbradney@zip.com.au>, christian.kroener@tu-harburg.de,
-       linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
-       Ian Kumlien <pomac@vapor.com>, Allen Martin <AMartin@nvidia.com>
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] for idle=C1halt, 2.6.5
-Message-ID: <20040429202413.GA1982@tesore.local>
-Mail-Followup-To: Jesse Allen <the3dfxdude@hotmail.com>,
-	Ross Dickson <ross@datscreative.com.au>,
-	Len Brown <len.brown@intel.com>, a.verweij@student.tudelft.nl,
-	"Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-	Craig Bradney <cbradney@zip.com.au>,
-	christian.kroener@tu-harburg.de, linux-kernel@vger.kernel.org,
-	"Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-	Jamie Lokier <jamie@shareable.org>,
-	Daniel Drake <dan@reactivated.net>, Ian Kumlien <pomac@vapor.com>,
-	Allen Martin <AMartin@nvidia.com>
-References: <Pine.GHP.4.44.0404271807470.6154-100000@elektron.its.tudelft.nl> <200404282133.34887.ross@datscreative.com.au> <20040428205938.GA1995@tesore.local> <200404292144.37479.ross@datscreative.com.au>
+	Thu, 29 Apr 2004 16:27:17 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:59378 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S264959AbUD2U07
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 16:26:59 -0400
+Date: Thu, 29 Apr 2004 13:26:54 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+To: mochel@digitalimplant.org, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Cc: tpoynor@mvista.com
+Subject: [PATCH] Hotplug for device power state changes
+Message-ID: <20040429202654.GA9971@dhcp193.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200404292144.37479.ross@datscreative.com.au>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 09:44:37PM +1000, Ross Dickson wrote:
-> On Thursday 29 April 2004 06:59, Jesse Allen wrote:
-> > almost in unison with the sound coming from the computer.  Maybe the IDE or 
-> > hard drive is related, but it is too much related to C1 disconnect.
-> 
-> I think I might break out my oscilloscope this weekend and have a look at how 
-> clean the supply rails are around the cpu and northbridge and southbridge. 
-> Who knows I might get lucky and see some unexpected ripple or spikes.
+A patch to call a hotplug device-power agent when the power state of a
+device is modified at runtime (that is, individually via sysfs or by a
+driver call, not as part of a system suspend/resume).  Allows a power
+management application to be informed of changes in device power needs.
+This can be useful on platforms with dependencies between system
+clock/voltage settings and operation of certain devices (such as
+PXA27x), or, for example, on a cell phone where voiceband or network
+devices going inactive signals an opportunity to lower platform power
+levels to conserve battery life.
 
-I'd be interested in knowing the results.
-
-> > resonance can break systems.  But to think that my board is doing emmitting 
-> > noise like that is pretty bizarre.
-> 
-> Not as bizarre as you may think. I have heard coils and even capacitors "sing"
-> in years past whilst servicing electronics.
-
-Yes, I know that these things can theorectically happen.  But when it happens
-to me, it's a suprise.  To an electronics genius, he probably encounters it 
-more often. =)
-
-> > C1 handshake time?  Isn't that much like what your patch does?
-> 
-> I had not really thought about it from that perspective. Whilst my patch cannot 
-> alter the handshake times it does prevent consecutive C1 cycles from occurring
-> too close together. Too close together I think being less than about 800ns. I 
-
-ah, ok.
-
-> guess I could look at that with a cro too - use an appropriate pin as the 
-> trigger source and see if supply rails have load dump voltage rises when 
-> going into disconnect. Maybe rail voltage rings for about 700ns and might be 
-> out of tolerence inside Athlon during that time. Would be very interesting if
-> a few hundred picofarad of low esr decoupling cap placed on a supply rail 
-> near a chip makes a difference? A pinout of the nforce2 chipset would help a 
-> great deal here but I do not have one. Can anyone oblige me?
+Implemented via new class device-power, with which all devices register.
+I'm interested in comments on this approach and in alternate
+suggestions.  Perhaps device-power should be an "opt-in" class, since
+power state changes won't be a concern for most devices/platforms/applications.
 
 
-What I'd like to know is where the sound chip is really at on my board.  I've 
-tried looking before, but find myself confused.
+--- linux-2.6.5-orig/drivers/base/power/runtime.c	2004-03-11 15:02:22.000000000 -0800
++++ linux-2.6.5-pm/drivers/base/power/runtime.c	2004-04-28 16:51:37.000000000 -0700
+@@ -33,6 +33,7 @@
+ 	down(&dpm_sem);
+ 	runtime_resume(dev);
+ 	up(&dpm_sem);
++	dpm_notify(dev);
+ }
+ 
+ 
+@@ -53,8 +54,10 @@
+ 	if (dev->power.power_state)
+ 		runtime_resume(dev);
+ 
+-	if (!(error = suspend_device(dev,state)))
++	if (!(error = suspend_device(dev,state))) {
+ 		dev->power.power_state = state;
++		dpm_notify(dev);
++	}
+  Done:
+ 	up(&dpm_sem);
+ 	return error;
 
-A pic:
-http://us.shuttle.com/images/productimages/AN35.jpg
+--- linux-2.6.5-orig/drivers/base/power/sysfs.c	2004-03-11 14:57:55.000000000 -0800
++++ linux-2.6.5-pm/drivers/base/power/sysfs.c	2004-04-29 12:41:32.962625032 -0700
+@@ -3,6 +3,7 @@
+  */
+ 
+ #include <linux/device.h>
++#include <linux/init.h>
+ #include "power.h"
+ 
+ 
+@@ -57,12 +58,81 @@
+ 	.attrs	= power_attrs,
+ };
+ 
++#ifdef CONFIG_HOTPLUG
++static int
++device_power_hotplug(struct class_device *class_dev, char **envp,
++		     int num_envp, char *buffer, int buffer_size)
++{
++	struct device * dev = (struct device *) class_dev->class_data;
++	int i = 0;
++	int length = 0;
++
++	envp[i++] = buffer;
++	length += scnprintf (buffer, buffer_size - length, "STATE=%d",
++			     dev->power.power_state);
++	if ((buffer_size - length <= 0) || (i >= num_envp))
++		return -ENOMEM;
++	++length;
++
++	envp[i] = 0;
++
++	return 0;
++}
++#endif
++
++static void
++device_power_dev_release(struct class_device *class_dev)
++{
++	if (class_dev)
++		kfree(class_dev);
++}
++
++void dpm_notify(struct device * dev)
++{
++#ifdef CONFIG_HOTPLUG
++	kobject_hotplug("state-change", &dev->power.class_dev->kobj);
++#endif
++}
++
++static struct class device_power_class = {
++	.name		= "device-power",
++#ifdef CONFIG_HOTPLUG
++	.hotplug	= device_power_hotplug,
++#endif
++	.release	= device_power_dev_release,
++};
++
++
+ int dpm_sysfs_add(struct device * dev)
+ {
++	struct class_device *class_dev = kmalloc(sizeof(struct class_device), GFP_KERNEL);
++
++	if (class_dev) {
++		memset(class_dev, 0, sizeof (*class_dev));
++		dev->power.class_dev = class_dev;
++		class_dev->class = &device_power_class;
++		class_dev->class_data = dev;
++		strlcpy(class_dev->class_id, dev->bus_id, BUS_ID_SIZE);
++		class_device_register(class_dev);
++	}
++
+ 	return sysfs_create_group(&dev->kobj,&pm_attr_group);
+ }
+ 
+ void dpm_sysfs_remove(struct device * dev)
+ {
++	struct class_device *class_dev = dev->power.class_dev;
++
++	if (class_dev) {
++		class_device_unregister(class_dev);
++		dev->power.class_dev = NULL;
++	}
++
+ 	sysfs_remove_group(&dev->kobj,&pm_attr_group);
+ }
++
++int __init dpm_init(void)
++{
++	return class_register(&device_power_class);
++}
++
 
-According to a diagram that I have, it points to an AC'97 6-CH AUDIO as a chip
-near of the top of the board in the image that I link to, above 2nd PCI slot 
-left of the AGP.  But I'm am also left thinking, how does the NForce2 MCP come 
-into play.  Specs would help.  Maybe if we can figure out how the sound is 
-wired on the board, we could also trace the source of noise to the exact 
-component.
+--- linux-2.6.5-orig/drivers/base/power/power.h	2004-03-11 14:57:55.000000000 -0800
++++ linux-2.6.5-pm/drivers/base/power/power.h	2004-04-28 16:53:52.000000000 -0700
+@@ -54,6 +54,7 @@
+ 
+ extern int dpm_sysfs_add(struct device *);
+ extern void dpm_sysfs_remove(struct device *);
++extern void dpm_notify(struct device *);
+ 
+ /*
+  * resume.c 
 
-Jesse
+--- linux-2.6.5-orig/drivers/base/init.c	2004-03-11 15:02:22.000000000 -0800
++++ linux-2.6.5-pm/drivers/base/init.c	2004-04-28 16:56:25.000000000 -0700
+@@ -14,6 +14,7 @@
+ extern int buses_init(void);
+ extern int classes_init(void);
+ extern int firmware_init(void);
++extern int dpm_init(void);
+ extern int platform_bus_init(void);
+ extern int system_bus_init(void);
+ extern int cpu_dev_init(void);
+@@ -31,6 +32,7 @@
+ 	devices_init();
+ 	buses_init();
+ 	classes_init();
++	dpm_init();
+ 	firmware_init();
+ 
+ 	/* These are also core pieces, but must come after the 
+
+--- linux-2.6.5-orig/include/linux/pm.h	2004-03-11 14:58:50.000000000 -0800
++++ linux-2.6.5-pm/include/linux/pm.h	2004-04-28 16:55:31.000000000 -0700
+@@ -227,6 +227,7 @@
+  */
+ 
+ struct device;
++struct class_device;
+ 
+ struct dev_pm_info {
+ #ifdef	CONFIG_PM
+@@ -234,6 +235,7 @@
+ 	u8			* saved_state;
+ 	atomic_t		pm_users;
+ 	struct device		* pm_parent;
++	struct class_device	* class_dev;
+ 	struct list_head	entry;
+ #endif
+ };
+
+
+-- 
+Todd Poynor
+MontaVista Software
+

@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129632AbQK2BjT>; Tue, 28 Nov 2000 20:39:19 -0500
+        id <S129638AbQK2Bk7>; Tue, 28 Nov 2000 20:40:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129638AbQK2BjJ>; Tue, 28 Nov 2000 20:39:09 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:41245 "EHLO
-        penguin.e-mind.com") by vger.kernel.org with ESMTP
-        id <S129632AbQK2Bi6>; Tue, 28 Nov 2000 20:38:58 -0500
-Date: Wed, 29 Nov 2000 02:08:52 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, "David S. Miller" <davem@redhat.com>,
-        viro@math.psu.edu, linux-kernel@vger.kernel.org, tytso@valinux.com
-Subject: Re: 2.4.0-test11 ext2 fs corruption
-Message-ID: <20001129020852.C20971@athlon.random>
-In-Reply-To: <E2C40AB5D29@vcnet.vc.cvut.cz> <20001129014329.C23771@suse.de>
+        id <S130300AbQK2Bkt>; Tue, 28 Nov 2000 20:40:49 -0500
+Received: from jalon.able.es ([212.97.163.2]:53648 "EHLO jalon.able.es")
+        by vger.kernel.org with ESMTP id <S129638AbQK2Bkg>;
+        Tue, 28 Nov 2000 20:40:36 -0500
+Date: Wed, 29 Nov 2000 02:10:25 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes [solved]
+Message-ID: <20001129021025.A768@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <E140urK-0005FZ-00@the-village.bc.nu> <Pine.LNX.4.30.0011281639180.27174-100000@anime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001129014329.C23771@suse.de>; from axboe@suse.de on Wed, Nov 29, 2000 at 01:43:29AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.30.0011281639180.27174-100000@anime.net>; from goemon@anime.net on Wed, Nov 29, 2000 at 01:39:56 +0100
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Side note: that could generate mem/io corruption only on headactive devices
-(like IDE).
 
-Andrea
+On Wed, 29 Nov 2000 01:39:56 Dan Hollis wrote:
+> 
+> Dont forget the nvidia driver is completely SMP broken. As in, trash your
+> filesystems broken.
+> 
+
+Not so broken. I use it under SMP 2.2.18-pre23 and works fine. But under 2.4
+hangs. So I think it is something that changed between 2.2 and 2.4 (locking
+granularity???). And just hangs your box, does not corrupt anything.
+
+It is a pitty that any piece of copylefted code prevents nVivia of giving all
+of the drivers in source form.
+
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
+
+Linux 2.2.18-pre23-vm #3 SMP Wed Nov 22 22:33:53 CET 2000 i686 unknown
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

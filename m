@@ -1,107 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268294AbTGTUnu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 16:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbTGTUnu
+	id S268296AbTGTUrU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 16:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268396AbTGTUrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 16:43:50 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:50959
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S268294AbTGTUns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 16:43:48 -0400
-Date: Sun, 20 Jul 2003 13:51:36 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Hugo Mills <hugo-lkml@carfax.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SiI3112 lost interrupts
-In-Reply-To: <20030720203758.GB1247@carfax.org.uk>
-Message-ID: <Pine.LNX.4.10.10307201348530.29430-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 20 Jul 2003 16:47:19 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:46436 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S268296AbTGTUrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 16:47:02 -0400
+Subject: [NETWORKING] Re: More ACPI funnies in 2.6.0test1
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1058714000.2488.2.camel@aurora.localdomain>
+References: <1058714000.2488.2.camel@aurora.localdomain>
+Content-Type: text/plain
+Message-Id: <1058734920.3012.9.camel@aurora.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 20 Jul 2003 17:02:01 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok, I was mistaken.  ACPI has nothing to do with it.  I got an actual
+oops on shutdown without it.  It was in the ip 6 routing code.  Attached
+is a bunch of alt-sysrq-p from when it gets stuck trying to down eth0. 
+The program running at the time was ip... said something like ip 6 route
+del in ps xa.  That was the program running.  The oopses were induced,
+it is gzip because I have so many.  I will try to trigger the real oops
+and show it here in this thread.
 
-Well I just now got it refixed (for two environments) and discussing with
-SiI how to address this in a final solution.
+Actually, I will attach the log after I know that P and T in sysrq don't
+leak passwords and such.  I am not entirely sure what is or isn't in
+something like:
 
-Working the driver not to yeild CRC reports from the PATA core when they
-need to be address in the SATA layer from PHY level reporting.
+Jul 20 11:35:08 aurora kernel: spamd         S DBFB73FC 4278501676 
+2156      1          2165  2145 (NOTLB)
+Jul 20 11:35:08 aurora kernel: daed9eb4 00000082 daed9f44 dbfb73fc
+c0137e13 c110fa18 dbe8d300 00000000 
+Jul 20 11:35:08 aurora kernel:        7fffffff 00000006 00000006
+c0123951 c02562a4 dbae8190 dbfb73fc daed9f44 
+Jul 20 11:35:08 aurora kernel:        c0320880 00000020 00000005
+00000005 c0232e59 dbae8190 dbfb73e4 00000000 
 
-Cheers,
+Anyway, I will continue to try and get a real oops.  I will post this
+once someone lets me know it is safe.
 
-Andre Hedrick
-LAD Storage Consulting Group
+Trever
 
-On Sun, 20 Jul 2003, Hugo Mills wrote:
-
->    I bought a SiI3112-based SATA adapter (Adaptec 1210SA) and a 120Gb
-> drive for my computer a while ago. Unfortunately, I can't get them to
-> work in any sensible manner at the moment.
+On Sun, 2003-07-20 at 11:13, Trever L. Adams wrote:
+> Alright, same board here, Asus A7N8X-Deluxe (nVidia nForce 2).  I have
+> pci=noacpi.  However, if I leave ACPI on, I get two funnies:
 > 
->    I'm running 2.4.22-pre6-ac1, so by all accounts the chip should be
-> recognised (it is), and put into some form of DMA mode (it isn't) on
-> boot up. Any attempts to access the disk appear to work, but take a
-> _very_ long time, and cause lots of lost interrupts. 
+> 1) My disk seems to be more active, I hear it clicking much more
+> 2) When eth0 gets shutdown on power off, it freezes.  However, I just
+> tried to force it by manually shutting it off and it works fine.
 > 
->    The relevant sections from the logs when the machine starts up look
-> like this:
+> I will provide the sysrq output later today when I will have more paper
+> around to write down the output.
 > 
-> Adaptec AAR-1210SA: IDE controller at PCI slot 00:0b.0
-> PCI: Found IRQ 10 for device 00:0b.0
-> Adaptec AAR-1210SA: chipset revision 2
-> Adaptec AAR-1210SA: not 100% native mode: will probe irqs later
-> ide0: MMIO-DMA , BIOS settings: hda:pio, hdb:pio
-> ide1: MMIO-DMA , BIOS settings: hdc:pio, hdd:pio
-> ALI15X3: IDE controller at PCI slot 00:0f.0
-> ALI15X3: chipset revision 193
-> ALI15X3: not 100% native mode: will probe irqs later
-> ide2: BM-DMA at 0x9000-0x9007, BIOS settings: hde:DMA, hdf:pio
-> ide3: BM-DMA at 0x9008-0x900f, BIOS settings: hdg:pio, hdh:pio
-> hda: ST3120026AS, ATA DISK drive
-> hdc: no response (status = 0xfe)
-> hde: Maxtor 90648D3, ATA DISK drive
-> blk: queue c0340238, I/O limit 4095Mb (mask 0xffffffff)
-> hdg: Pioneer DVD-ROM ATAPIModel DVD-120S, ATAPI CD/DVD-ROM drive
-> ide0 at 0xd4816080-0xd4816087,0xd481608a on irq 10
-> ide2 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide3 at 0x170-0x177,0x376 on irq 15
-> hda: attached ide-disk driver.
-> hda: lost interrupt
-> hda: lost interrupt
-> hda: lost interrupt
-> hda: host protected area => 1
-> hda: lost interrupt
-> hda: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=14593/255/63
-> hda: lost interrupt
-> hda: lost interrupt
-> hde: attached ide-disk driver.
-> hde: host protected area => 1
-> hde: 12656448 sectors (6480 MB) w/512KiB Cache, CHS=787/255/63, UDMA(33)
-> Partition check:
-> /dev/ide/host0/bus0/target0/lun0:<3>hda: lost interrupt
-> p1 p2 p3
-> /dev/ide/host2/bus0/target0/lun0: p1
+> This box works fine with pci=noacpi and acpi=off.  So, I am just trying
+> to figure out how to get it to work fine with the power stuff working,
+> even if the irq related part is broken.  It would be nice to fix it all
+> actually.
 > 
->    I've tried most, if not all, of the "fixes" that people have
-> suggested on LKML for this chipset (all the hdparm invocations, for
-> example), and haven't managed to change any of the symptoms I
-> mentioned above. Can anyone suggest any way that I can get this [for
-> me] rather expensive and currently useless piece of hardware working
-> under Linux?
+> Trever
+> --
+> "It was as true as taxes is. And nothing's truer than them." -- Charles
+> Dickens (1812-70)
 > 
->    I know that Andre Hedrick has fixed some things in an unreleased
-> patch, but it's unclear exactly which problems he's fixed, or when the
-> patch is going to be released. Is anyone in a position to say whether
-> my problem is going to be fixed by his changes, or when that patch is
-> going to be released, if ever?
-> 
->    Thanks,
->    Hugo.
-> 
-> -- 
-> === Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
->   PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
->            --- There are three mistaiks in this sentance. ---            
-> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--
+"The era of setting this up as a competition between Apple and Microsoft
+is over, as far as I'm concerned." -- S. Jobs
 

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132499AbRACRJI>; Wed, 3 Jan 2001 12:09:08 -0500
+	id <S132535AbRACRMi>; Wed, 3 Jan 2001 12:12:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132507AbRACRI7>; Wed, 3 Jan 2001 12:08:59 -0500
-Received: from d185fcbd7.rochester.rr.com ([24.95.203.215]:28172 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S132499AbRACRIr>; Wed, 3 Jan 2001 12:08:47 -0500
-Date: Wed, 03 Jan 2001 11:37:46 -0500
-From: Chris Mason <mason@suse.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] filemap_fdatasync & related changes
-Message-ID: <428710000.978539866@tiny>
-In-Reply-To: <Pine.LNX.4.21.0012291446560.13194-100000@freak.distro.conectiva>
-X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+	id <S132507AbRACRM3>; Wed, 3 Jan 2001 12:12:29 -0500
+Received: from dsl-206.169.4.82.wenet.com ([206.169.4.82]:46865 "EHLO
+	phobos.illtel.denver.co.us") by vger.kernel.org with ESMTP
+	id <S132558AbRACRMK>; Wed, 3 Jan 2001 12:12:10 -0500
+Date: Wed, 3 Jan 2001 08:42:24 -0800 (PST)
+From: Alex Belits <abelits@phobos.illtel.denver.co.us>
+To: Daniel Phillips <phillips@innominate.de>
+cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+In-Reply-To: <3A5352ED.A263672D@innominate.de>
+Message-ID: <Pine.LNX.4.20.0101030838350.13243-100000@phobos.illtel.denver.co.us>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 3 Jan 2001, Daniel Phillips wrote:
 
-Hi guys,
+> I don't doubt that if the 'power switch' method of shutdown becomes
+> popular we will discover some applications that have windows where they
+> can be hurt by sudden shutdown, even will full filesystem data state
+> being preserved.  Such applications are arguably broken because they
+> will behave badly in the event of accidental shutdown anyway, and we
+> should fix them.  Well-designed applications are explicitly 'serially
+> reuseable', in other words, you can interrupt at any point and start
+> again from the beginning with valid and expected results.
 
-Just noticed the filemap_fdatasync code doesn't check the return value from
-writepage.  Linus, would you take a patch that redirtied the page, puts it
-back onto the dirty list (at the tail), and unlocks the page when writepage
-returns 1?
+  I strongly disagree. All valid ways to shut down the system involve
+sending SIGTERM to running applications -- only broken ones would
+live long enough after that to be killed by subsequent SIGKILL.
 
-That would loop forever if the writepage func kept returning 1 though...I
-think that's what we want, unless someone like ramfs made a writepage func
-that always returned 1.
+  A lot of applications always rely on their file i/o being done in some
+manner that has atomic (from the application's point of view) operations
+other than system calls -- heck, even make(1) does that.
 
-For the reiserfs code, I'd like to be able to tell page_launder and
-filemap_fdatasync to try the page again later.  reiserfs would clean and
-unlock the page if no io needs to be done at all.
+-- 
+Alex
 
--chris
+----------------------------------------------------------------------
+ Excellent.. now give users the option to cut your hair you hippie!
+                                                  -- Anonymous Coward
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

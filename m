@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129435AbRB1BXX>; Tue, 27 Feb 2001 20:23:23 -0500
+	id <S129723AbRB1Brh>; Tue, 27 Feb 2001 20:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129564AbRB1BXN>; Tue, 27 Feb 2001 20:23:13 -0500
-Received: from relay02.valueweb.net ([216.219.253.236]:64783 "EHLO
-	relay02.valueweb.net") by vger.kernel.org with ESMTP
-	id <S129435AbRB1BXI>; Tue, 27 Feb 2001 20:23:08 -0500
-Message-ID: <3A9C544A.AB7B9071@opersys.com>
-From: Karim Yaghmour <karym@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: "Collins, Tom" <Tom.Collins@Surgient.com>
-CC: "'richardj_moore@uk.ibm.com'" <richardj_moore@uk.ibm.com>,
-        Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dynamically altering code segments
-In-Reply-To: <A490B2C9C629944E85CE1F394138AF957FC3E3@bignorse.SURGIENT.COM>
+	id <S130045AbRB1Br1>; Tue, 27 Feb 2001 20:47:27 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:64539 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S129723AbRB1BrS>; Tue, 27 Feb 2001 20:47:18 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Sergey Kubushin" <ksi@cyberbills.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac6 
+In-Reply-To: Your message of "Tue, 27 Feb 2001 16:54:28 -0800."
+             <Pine.LNX.4.31ksi3.0102271652140.15248-100000@nomad.cyberbills.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Date: Tue, 27 Feb 2001 20:22:57 -0500
+Date: Wed, 28 Feb 2001 12:47:12 +1100
+Message-ID: <7784.983324832@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 27 Feb 2001 16:54:28 -0800 (PST), 
+"Sergey Kubushin" <ksi@cyberbills.com> wrote:
+>Menuconfig doesn't work. Worked fine in 2.4.2-ac5.
 
-"Collins, Tom" wrote:
-[snip]
-> I have one more question:  My trace code is currently
-> implemented as a kernel loadable module.  Would I need
-> to change that so that it is built as part of the kernel,
-> or can I keep it as a loadable module?  If I can keep it
-> as a module, I would ensure that the module would be the
-> only place that would enable/disable the trace, (don't
-> want the kernel jumping to a nonexistant address :O  ..)
-[snip]
+Against 2.4.2-ac6.
 
-No need to do that, except if you modify the binary dynamically.
-If that's the case, then you'll probably have to make it part
-of the kernel. But ... if you modify your code to use the
-pre-existing hooks that come with LTT, you may not need to
-modify anything more than what is provided with by the LTT
-patch. That is, you may want to know that LTT provides a
-hooking mechanism similar, but less flexible, than the one
-GKHI provides. The advantage, though, is that there are pre-defined
-hooks inserted with the LTT patch which can be used right
-away without further instrumentation.
+Index: 2.9/arch/i386/config.in
+--- 2.9/arch/i386/config.in Wed, 28 Feb 2001 12:44:01 +1100 kaos (linux-2.4/T/c/36_config.in 1.1.2.1.1.2 644)
++++ 2.9(w)/arch/i386/config.in Wed, 28 Feb 2001 12:46:03 +1100 kaos (linux-2.4/T/c/36_config.in 1.1.2.1.1.2 644)
+@@ -379,6 +379,6 @@ bool '  Memory mapped I/O debugging' CON
+ bool '  Magic SysRq key' CONFIG_MAGIC_SYSRQ
+ bool '  Spinlock debugging' CONFIG_DEBUG_SPINLOCK
+ bool '  Verbose BUG() reporting (adds 70K)' CONFIG_DEBUG_BUGVERBOSE
+-endmenu
+-
+ fi
++
++endmenu
 
-As this type of hooking comes more and more in need, I'm
-currently discussing with Richard the possibility of using
-the LTT pre-defined hooks with GKHI in order to provide an
-extensible hooking mechanism for the kernel that comes equipped
-with an already quite useful set of hooks, which, of course,
-can be dynamically enabled/disabled.
-
-Using this type of hooking, you only need to worry about
-registering/unregistering your callbacks since the kernel
-doesn't jump in your code, but in the hooks management code
-first.
-
-Best regards,
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karym@opersys.com
-          Operating System Consultant
- (Linux kernel, real-time and distributed systems)
-===================================================

@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263016AbTDNNc4 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:32:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbTDNNc4 (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 09:32:56 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:46298 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id S263016AbTDNNcz (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 09:32:55 -0400
-Date: Mon, 14 Apr 2003 15:44:48 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] M68k IDE updates
-In-Reply-To: <1050322915.25353.38.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.GSO.4.21.0304141544130.28305-100000@vervain.sonytel.be>
+	id S263241AbTDNNg1 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263288AbTDNNgN (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 09:36:13 -0400
+Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:24794 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S263241AbTDNNfD (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 09:35:03 -0400
+Date: Mon, 14 Apr 2003 07:46:47 -0600 (MDT)
+From: James Bourne <jbourne@hardrock.org>
+To: Alex Adriaanse <alex_a@caltech.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: VFS-Lock patch
+In-Reply-To: <JIEIIHMANOCFHDAAHBHOAECGDAAA.alex_a@caltech.edu>
+Message-ID: <Pine.LNX.4.44.0304140742440.22450-100000@cafe.hardrock.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Apr 2003, Alan Cox wrote:
-> On Llu, 2003-04-14 at 09:39, Geert Uytterhoeven wrote:
-> > Indeed. Ataris and Q40/Q60s have byteswapped IDE busses, but they expect
-> > on-disk data to be that way, for compatibility with e.g. TOS.
+On Sat, 5 Apr 2003, Alex Adriaanse wrote:
+
+> Hi,
 > 
-> That is a higher level problem. You need a byteswap mode for the loop device
-> it seems. Then you can read atari disks on any box..
+> I'm just curious, is there any reason why the VFS-lock patch provided by the
+> LVM people has not been included into the 2.4.x tree yet?
+> 
+> If I were to apply this patch to a stock 2.4.20 kernel, is it safe to use
+> LVM snapshots with ReiserFS on production machines, or are there any
+> stability issues with it (either with the LVM version that comes with
+> 2.4.20, or upgrading to LVM 1.0.7)?
 
-You're talking about a different problem.
+Hi,
+We have been using this in production for some time, with all the 2.4
+kernels since 2.4.17 and it has been stable.  Our version is at
 
-We want to read Atari disks on Ataris, too.
+http://www.hardrock.org/kernel/2.4.20
 
-Gr{oetje,eeting}s,
+You will have to follow the patch-order file and make sure to apply the ext3
+patch first as it will be required to use the LVM patch.
 
-						Geert
+BTW, we are still using LVM version 1.0.5.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Regards
+James Bourne
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+> Thanks,
+> 
+> Alex
+
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  
 

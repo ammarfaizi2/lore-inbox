@@ -1,60 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315856AbSEGPIY>; Tue, 7 May 2002 11:08:24 -0400
+	id <S315854AbSEGPJq>; Tue, 7 May 2002 11:09:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315858AbSEGPIX>; Tue, 7 May 2002 11:08:23 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:44083 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S315856AbSEGPIU>; Tue, 7 May 2002 11:08:20 -0400
-Message-Id: <5.1.0.14.2.20020507160303.022a90a0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 07 May 2002 16:08:45 +0100
-To: Martin Dalecki <dalecki@evision-ventures.com>
-From: Anton Altaparmakov <aia21@cantab.net>
+	id <S315858AbSEGPJn>; Tue, 7 May 2002 11:09:43 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:6322 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S315854AbSEGPJW>; Tue, 7 May 2002 11:09:22 -0400
+Message-ID: <3CD7EDC4.3090508@antefacto.com>
+Date: Tue, 07 May 2002 16:07:48 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>
+CC: Anton Altaparmakov <aia21@cantab.net>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.14 IDE 57
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CD7D842.8040003@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+In-Reply-To: <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com> <5.1.0.14.2.20020507140736.022aed90@pop.cus.cam.ac.uk> <3CD7C9F1.2000407@evision-ventures.com> <5.1.0.14.2.20020507144123.022ae2f0@pop.cus.cam.ac.uk> <20020507160825.S22215@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 14:36 07/05/02, Martin Dalecki wrote:
->Uz.ytkownik Anton Altaparmakov napisa?:
->>[aia21@drop hda]$ ideinfo
->>bash: ideinfo: command not found
->>Obviously distros haven't caught up with this development. )-:
->>Care to give me a URL? A quick google for "ideinfo Linux download" didn't 
->>bring up anything looking relevant.
->
->http://www.j2.ru/frozenfido/ru.unix.bsd/1329707b3e3f8.html
->
->Porting it should be fairly tirvial. Basically lspci +
->the parsing crap.
+Dave Jones wrote:
+> On Tue, May 07, 2002 at 02:57:46PM +0100, Anton Altaparmakov wrote:
+>  > How do I get this information with hdparm please?
+>  > 
+>  > [aia21@drop ide]$ cat via
+> 
+> Bartlomiej Zolnierkiewicz moved all this stuff to userspace
+> a long time ago in 'ideinfo'.
+> 
+>  > [aia21@drop hda]$ cat cache
+>  > 1916
+>  > [aia21@drop hda]$ cat capacity
+>  > 80418240
+>  > [aia21@drop hda]$ cat geometry
+>  > physical     79780/16/63
+>  > logical      5005/255/63
+>  > 
+>  > And hdparm never gives you the physical geometry AFAICS.
+> 
+> Why would a normal user ever need to know this info?
 
-I don't want to port anything. I don't know ide and I don't want to know 
-ide. I want to be able to use it. I am an ide USER. You are the ide 
-DEVELOPER. If you take away functionality YOU have to provide a 
-replacement. NOT tell me, the USER to write it.
+Well one application we have here is a backup script in a web
+interface (php running as nobody), which copies a whole disk
+(compact flash) to the client while indicating the total size
+to the client for feedback:
 
->>I like text parsing... It is not performance critical and makes info 
->>human readable... Whether existing text parsers are any good or not, I 
->>don't care, write a better one if you don't like the existing one or go 
->>beat up the people who wrote the bad ones... That seems to be Martin's 
->>standard reply, so I thought I would use it, too. (-;
->
->Feel free to do it yourself - in user space where it belongs.
+Header("Content-type: application/octet-stream");
+$flash_size=`cat /proc/ide/hda/capacity`;
+$flash_size=$flash_size*512;
+Header("Content-length: $flash_size");
+Header("Content-Disposition: attachment; filename=flash.img");
+passthru("/bin/suid_copy_flash");
 
-I don't want to do it myself. I want YOU to do it because YOU are taking 
-away the functionality that already exists.
+Now you could of course have a /bin/suid_get_flash_size
+but this is messy/less efficient?
 
-Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Padraig.
 

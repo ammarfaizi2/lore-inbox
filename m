@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266286AbSKGCDS>; Wed, 6 Nov 2002 21:03:18 -0500
+	id <S266285AbSKGCCo>; Wed, 6 Nov 2002 21:02:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266287AbSKGCDS>; Wed, 6 Nov 2002 21:03:18 -0500
-Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:41604 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S266286AbSKGCDQ>;
-	Wed, 6 Nov 2002 21:03:16 -0500
-Date: Wed, 6 Nov 2002 21:13:14 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Update serial PnP driver - 2.5.46 (6/6)
-Message-ID: <20021106211314.GQ316@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, greg@kroah.com,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S266286AbSKGCCo>; Wed, 6 Nov 2002 21:02:44 -0500
+Received: from pc132.utati.net ([216.143.22.132]:48257 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S266285AbSKGCCn> convert rfc822-to-8bit; Wed, 6 Nov 2002 21:02:43 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: "Guillaume Boissiere" <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  November 6, 2002
+Date: Wed, 6 Nov 2002 21:06:44 +0000
+User-Agent: KMail/1.4.3
+References: <3DC9402F.22787.27763DD6@localhost>
+In-Reply-To: <3DC9402F.22787.27763DD6@localhost>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211062106.44205.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates the serial PnP driver to the changes.
+On Wednesday 06 November 2002 21:15, Guillaume Boissiere wrote:
+> With Halloween behind us, I have regrouped all the remaining items on
+> the status list into 2 categories: 2.6 and post-2.6.
+> I'd be great if folks in the know could comment on the relevance of
+> the breakdown!
+>
+> The full list is at http://www.kernelnewbies.org/status/
+> Enjoy!
 
-Thanks,
-Adam
+Does your "in 2.6" category mean during the 2.6-pre stage?  I doubt James 
+Simmons's console layer rewrite would be dropped in between 2.6.3 and 2.6.4.  
+It might still go in because it was submitted by deadline and Linus still 
+seems to be chewing through the backlog a bit, but that does strike me as 
+something that people would want a crack at during the stabilization phase 
+(the 2.6-pre kernels).  But I think it has to be before 2.6.0.  (I think.)
 
+Ditto for the IPV6 rewrite, the people who are currently using IPV6 may want a 
+bit of warning about it.  (Unless they're going to do a new/old configuration 
+option nightmare thing, which seems really unlikely...)
 
+> o in 2.6  32bit dev_t  (?)
 
---- a/drivers/serial/8250_pnp.c	Thu Oct 31 00:41:37 2002
-+++ b/drivers/serial/8250_pnp.c	Sun Nov  3 15:44:43 2002
-@@ -316,6 +316,8 @@
- 	{	"",			0	}
- };
- 
-+MODULE_DEVICE_TABLE(pnp, pnp_dev_table);
-+
- static void inline avoid_irq_share(struct pnp_dev *dev)
- {
- 	unsigned int map = 0x1FF8;
-@@ -393,10 +395,10 @@
- 	if (flags & SPCI_FL_NO_SHIRQ)
- 		avoid_irq_share(dev);
- 	memset(&serial_req, 0, sizeof(serial_req));
--	serial_req.irq = dev->irq_resource[0].start;
--	serial_req.port = pci_resource_start(dev, 0);
-+	serial_req.irq = pnp_irq(dev,0);
-+	serial_req.port = pnp_port_start(dev, 0);
- 	if (HIGH_BITS_OFFSET)
--		serial_req.port = dev->resource[0].start >> HIGH_BITS_OFFSET;
-+		serial_req.port = pnp_port_start(dev, 0) >> HIGH_BITS_OFFSET;
- #ifdef SERIAL_DEBUG_PNP
- 	printk("Setup PNP port: port %x, irq %d, type %d\n",
- 	       serial_req.port, serial_req.irq, serial_req.io_type);
-@@ -407,7 +409,7 @@
- 	line = register_serial(&serial_req);
- 
- 	if (line >= 0)
--		dev->driver_data = (void *)(line + 1);
-+		pnp_set_drvdata(dev, (void *)(line + 1));
- 	return line >= 0 ? 0 : -ENODEV;
- 
- }
-@@ -442,5 +444,3 @@
- 
- MODULE_LICENSE("GPL");
- MODULE_DESCRIPTION("Generic 8250/16x50 PnP serial driver");
--/* FIXME */
--/*MODULE_DEVICE_TABLE(pnpbios, pnp_dev_table);*/
+I suspect this got bumped to 2.7, but haven't heard a thing about it from Alan 
+or Al.  Again, not a "during 2.6" item (that I know of), but that's just a 
+guess.
+
+Of course since it's coming from Al, he may not bother CCing the list and just 
+send it straight to Linus.  He's one of the few people who can get away with 
+that.  (And vi script patches.  He seems to have a personality that scares 
+bugs away...)
+
+Rob
+
+-- 
+http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
+CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?

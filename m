@@ -1,33 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUHHUbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266281AbUHHUnF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266274AbUHHUbf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 16:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266281AbUHHUbf
+	id S266281AbUHHUnF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 16:43:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUHHUnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 16:31:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56256 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266274AbUHHUbe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 16:31:34 -0400
-Date: Sun, 8 Aug 2004 13:29:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?UGF3ZV9f?= Sikora <pluto@pld-linux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] omnibook / CONFIG_ACPI is not set / missing -Exxxx
- defs.
-Message-Id: <20040808132922.2c924bca.akpm@osdl.org>
-In-Reply-To: <200408071828.18174.pluto@pld-linux.org>
-References: <200408071828.18174.pluto@pld-linux.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 8 Aug 2004 16:43:04 -0400
+Received: from mail.kroah.org ([69.55.234.183]:54204 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266281AbUHHUnD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 16:43:03 -0400
+Date: Sun, 8 Aug 2004 13:42:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: Marc Ballarin <Ballarin.Marc@gmx.de>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: dynamic /dev security hole?
+Message-ID: <20040808204242.GA9358@kroah.com>
+References: <1091969260.5759.125.camel@cube> <20040808175834.59758fc0.Ballarin.Marc@gmx.de> <1091977471.5761.144.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091977471.5761.144.camel@cube>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pawe__ Sikora <pluto@pld-linux.org> wrote:
->
->  --- linux-2.6.8-rc3/drivers/char/omnibook/ec.c.orig	2004-08-07 15:32:19.000000000 +0200
->  +++ linux-2.6.8-rc3/drivers/char/omnibook/ec.c	2004-08-07 18:25:18.604913976 +0200
+On Sun, Aug 08, 2004 at 11:04:31AM -0400, Albert Cahalan wrote:
+> Perhaps there are other ways to deal with the problem though.
 
-This file is not present in the 2.6 tree.
+Do what a number of distros do these days, make /dev a ramfs or tmpfs.
+That way no hardlinks outside /dev will work:
+	$ ln /dev/hda /tmp/foo
+	ln: creating hard link `/tmp/foo' to `/dev/hda': Invalid cross-device link
+
+thanks,
+
+greg k-h

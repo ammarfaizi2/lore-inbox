@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268030AbUIPMAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268028AbUIPMHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268030AbUIPMAH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 08:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268028AbUIPL60
+	id S268028AbUIPMHw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 08:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUIPMHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 07:58:26 -0400
-Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:12213 "EHLO
-	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
-	id S268037AbUIPL57 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 07:57:59 -0400
-Subject: Re: Suspend2 Merge: e820 table support.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040916113735.GG5467@elf.ucw.cz>
-References: <1095332590.3324.166.camel@laptop.cunninghams>
-	 <20040916111438.GB5467@elf.ucw.cz>
-	 <1095333881.4932.194.camel@laptop.cunninghams>
-	 <20040916112711.GD5467@elf.ucw.cz>
-	 <1095334545.4932.206.camel@laptop.cunninghams>
-	 <20040916113735.GG5467@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1095335962.5006.241.camel@laptop.cunninghams>
+	Thu, 16 Sep 2004 08:07:52 -0400
+Received: from pop.gmx.de ([213.165.64.20]:63938 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268028AbUIPMHh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 08:07:37 -0400
+X-Authenticated: #1725425
+Date: Thu, 16 Sep 2004 14:21:09 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: Peter Jones <pjones@redhat.com>
+Cc: alan@lxorguk.ukuu.org.uk, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH-NEW] allow root to modify raw scsi command permissions
+ list
+Message-Id: <20040916142109.6fc7223c.Ballarin.Marc@gmx.de>
+In-Reply-To: <1095291378.5945.4.camel@localhost.localdomain>
+References: <1095173470.5728.3.camel@localhost.localdomain>
+	<20040915230813.6eac1d04.Ballarin.Marc@gmx.de>
+	<1095284325.20749.8.camel@localhost.localdomain>
+	<20040916013351.1422170f.Ballarin.Marc@gmx.de>
+	<1095291378.5945.4.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 16 Sep 2004 21:59:26 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 15 Sep 2004 19:36:18 -0400
+Peter Jones <pjones@redhat.com> wrote:
 
-On Thu, 2004-09-16 at 21:37, Pavel Machek wrote:
-> Hi!
+> Yes.
 > 
-> > > Hmm, it also contains (saveable()):
-> > > 
-> > >         BUG_ON(PageReserved(page) && PageNosave(page));
-> > 
-> > How do you cover those HighMem pages that get marked Reserved and are
-> > unusable? (That's what the e820 logic was for, iirc. Think it was done
-> > about February!). Not handling them resulted in MCEs when trying to do
-> > the atomic copy or when restoring (seemed random).
-> 
-> This function is not use for highmem, AFAICS. If page is marked
-> reserved we do not touch it. Do you suggest that we need to save it
-> for highmem case?
+> Here's another version of the patch.  It does what yours did, as well as
+> that.  It also combines the read and write code so there's one of each,
+> with a parameter to tell which it's supposed to modify.
 
-I love trying to remember things from six months ago. Will have to look
-at the email from around then and get back to you.
+Looks *slightly* better than mine ;-)
 
-> MCEs... I see you have patch to disable them during suspend... That's
-> clearly wrong thing to do, right?
+But
 
-Yes, we shouldn't need to disable them if we have above right. I'll test
-removing that with some of the people who had MCE issues.
+> +static ssize_t rcf_cmds_store(struct rawio_cmd_filter *rcf, const char *page,
+> +			size_t count, int rw)
+	...
+> +		ss.from = (char *)page+ret;
+> +		ss.to = (char *)page+ret+1;
 
-Regards,
+needs to be
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+> +		ss.from = (char *)page+ret;
+> +		ss.to = (char *)page+ret+2;
 
-Many today claim to be tolerant. True tolerance, however, can cope with others
-being intolerant.
-
+Regards

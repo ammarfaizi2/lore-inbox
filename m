@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318162AbSIJVwG>; Tue, 10 Sep 2002 17:52:06 -0400
+	id <S318166AbSIJV6B>; Tue, 10 Sep 2002 17:58:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318165AbSIJVwG>; Tue, 10 Sep 2002 17:52:06 -0400
-Received: from mail.derbyworks.net ([208.16.191.4]:51728 "EHLO
-	mail.derbyworks.net") by vger.kernel.org with ESMTP
-	id <S318162AbSIJVwF>; Tue, 10 Sep 2002 17:52:05 -0400
-Message-ID: <000501c25915$5fb9e9c0$9f00000a@daa1>
-From: "David Hinkle" <hinkle@derbyworks.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Fix for promise RAID controllers not working as IDE controllers in 2.4.19
-Date: Tue, 10 Sep 2002 16:59:45 -0500
+	id <S318168AbSIJV6A>; Tue, 10 Sep 2002 17:58:00 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8964 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318166AbSIJV57>;
+	Tue, 10 Sep 2002 17:57:59 -0400
+Message-ID: <3D7E6BE2.4080009@mandrakesoft.com>
+Date: Tue, 10 Sep 2002 18:02:10 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Oliver Xymoron <oxymoron@waste.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "David S. Miller" <davem@redhat.com>, david-b@pacbell.net,
+       mdharm-kernel@one-eyed-alien.net, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+References: <Pine.LNX.3.96.1020910173301.8675A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When an a promise raid 20267 (and probably others) is used as an IDE device
-in 2.4.19 it won't detect using the non-raid driver as it would in 2.4.18.
-(So it can be used as a high performance ide controller).
+Bill Davidsen wrote:
+> I've often wondered if it wouldn't be better to allow the user to provide
+> a partition for oops use, where the kernel could write kmen and a few
+> chosen other bit of information. Get all the oops output formatting code
+> out of the kernel. Then the user could run tools like ksymoops against the
+> oops after reboot, and a small utility could wrap and compress the oops,
+> symbols table, config, etc, for future use by the user or developer. 
 
-The problem lies in the addition of some ifdefs checking the status of
-CONFIG_PDC202XX_FORCE in ide-pci.c.  On line 672 an ifdef needed to be
-changed
-to an ifndef, a bug found way back in RC2, but when it was changed the ifdef
-on line 405 got changed instead.
+IOW, Linux Kernel Crash Dumps, something I've wanted for a long while.
 
-To get everthing working properly change
-#ifndef CONFIG_PDC202XX_FORCE
-on line 405 to
-#ifdef CONFIG_PDC202XX_FORCE
-
-and change
-#ifdef CONFIG_PDC202XX_FORCE
-on line 672 to
-#ifdef CONFIG_PDC202XX_FORCE
-
-I'd quote the origional posts by my entire network just went down.
-
-TTYlater
-
-        David Hinkle
-        Chief Engineer
-        Derbyworks Systems
+http://lkcd.sourceforge.net/
 

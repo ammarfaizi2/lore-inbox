@@ -1,45 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUACVSk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 16:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUACVSj
+	id S264265AbUACVUy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 16:20:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbUACVUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 16:18:39 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:38674 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S264261AbUACVSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 16:18:38 -0500
-Date: Sat, 3 Jan 2004 22:18:16 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Soeren Sonnenburg <kernel@nn7.de>, Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-Message-ID: <20040103211816.GD3728@alpha.home.local>
-References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca> <1073161172.9851.260.camel@localhost> <200401040800.06529.kernel@kolivas.org>
+	Sat, 3 Jan 2004 16:20:53 -0500
+Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:48807 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S264265AbUACVTQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 16:19:16 -0500
+Subject: Re: does udev really require hotplug?
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: Andrea Barisani <lcars@gentoo.org>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       linux-hotplug-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>
+In-Reply-To: <20040102101051.GA12073@sole.infis.univ.trieste.it>
+References: <20040102101051.GA12073@sole.infis.univ.trieste.it>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gP1uqDMXYUIA89zYdPj2"
+Message-Id: <1073164919.6075.41.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401040800.06529.kernel@kolivas.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 03 Jan 2004 23:21:59 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Con,
 
-On Sun, Jan 04, 2004 at 08:00:06AM +1100, Con Kolivas wrote:
-> There is a BASH bug that Linus noticed brought out by the more sensitive 
-> timing in 2.6. The BASH developer has been informed it is there and it is 
-> fixed in the latest version. Perhaps you're both seeing that. Check the lkml 
-> archives.
+--=-gP1uqDMXYUIA89zYdPj2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I don't think it has anything to do with the bash bug, because it only
-involved pipes creation. Bash creates no pipe when you simply launch
-'ls -l' in an xterm.
+On Fri, 2004-01-02 at 12:10, Andrea Barisani wrote:
+> Hi everybody and happy new year!
+>=20
+> Just one simple question about a very simple matter that right now=20
+> I can't figure out: does udev need hotplug package presence?
+>=20
+> >From your README:
+>=20
+>   If for some reason you do not install the hotplug scripts, you must tel=
+l the
+>   kernel to point the hotplug binary at wherever you install udev at.  Th=
+is can
+>   be done by:
+> 	echo "/sbin/udev" > /proc/sys/kernel/hotplug
+>=20
+>=20
+> ...does this work properly?
 
-It seems that I'll start some new compilations this evening just to refresh
-my mind on this problem...
+Yes, you just miss all other events that hotplug usually handles, and
+not udev ...
 
-Cheers,
-Willy
+>  It's not clear if some features are lost by not having=20
+> hotplug script installed. Also is this policy subject to changes in the n=
+ear
+> future?
+>=20
+
+I do not think so, but Greg will have to comment ...
+
+
+--=20
+
+Martin Schlemmer
+
+
+
+
+--=-gP1uqDMXYUIA89zYdPj2
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQA/9zJ3qburzKaJYLYRAv2QAKCQkR1B7QEGcp8IknbtHtj77HLegACcCKTW
+bUb6wZWMt3PpDsceJWPXnHw=
+=5IbB
+-----END PGP SIGNATURE-----
+
+--=-gP1uqDMXYUIA89zYdPj2--
 

@@ -1,189 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261644AbSLZQal>; Thu, 26 Dec 2002 11:30:41 -0500
+	id <S262877AbSLZQe6>; Thu, 26 Dec 2002 11:34:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262877AbSLZQal>; Thu, 26 Dec 2002 11:30:41 -0500
-Received: from lennier.cc.vt.edu ([198.82.162.213]:8966 "EHLO
-	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S261644AbSLZQaj>; Thu, 26 Dec 2002 11:30:39 -0500
-Subject: 2.4.18 boot error
-From: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-GHhcpqUGx+flqjn56OK3"
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 26 Dec 2002 11:38:54 -0500
-Message-Id: <1040920734.1683.13.camel@oubop4.bursar.vt.edu>
+	id <S262887AbSLZQe6>; Thu, 26 Dec 2002 11:34:58 -0500
+Received: from hunnerberg.nijmegen.internl.net ([217.149.192.32]:30173 "EHLO
+	hunnerberg.nijmegen.internl.net") by vger.kernel.org with ESMTP
+	id <S262877AbSLZQe6>; Thu, 26 Dec 2002 11:34:58 -0500
+Date: Thu, 26 Dec 2002 17:42:29 +0100
+From: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Alot of DMA errors in 2.4.18, 2.4.20 and 2.5.52
+Message-ID: <20021226164229.GA26413@iapetus.localdomain>
+References: <1040815160.533.6.camel@devcon-x> <20021225115820.GB7348@louise.pinerecords.com> <20021226123710.GA2442@iapetus.localdomain> <20021226132228.GE7348@louise.pinerecords.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021226132228.GE7348@louise.pinerecords.com>
+User-Agent: Mutt/1.4i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 26, 2002 at 02:22:28PM +0100, Tomas Szepe wrote:
+> > 
+> > hdparm -X69 /dev/hda will put it into UDMA5/ata100 mode as well
+> > (69 == 64 + UDMA mode). No need to specify it at boot time.
+> 
+> Not true.  You definitely need to use the ideX boot param AND
+> run hdparm -X?? /dev/hd? to make use of UDMA3+ on newer PDC
+> controllers (unless you apply the patch posted on Dec 24 by
+> Nikolai Zhubr).
 
---=-GHhcpqUGx+flqjn56OK3
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Driver says otherwise on RH8.0 + 2.4.20:
+iapetus /proc/ide# cat pdc202xx 
 
-I think this error has something to do with the atapi Iomega 100MB zip
-drive, but I'm not sure. The kernel is 2.4.18 vanilla on an Intel P3.
-Here's a snip from the logs:
-
-Dec 26 11:13:37 free4 kernel: LVM version 1.0.1-rc4(ish)(03/10/2001)
-module loaded
-Dec 26 11:13:37 free4 kernel: hdc: ATAPI 48X CD-ROM drive, 120kB Cache
-Dec 26 11:13:37 free4 kernel: Uniform CD-ROM driver Revision: 3.12
-Dec 26 11:13:37 free4 kernel: cdrom: open failed.
-Dec 26 11:13:37 free4 kernel: ide-floppy driver 0.97.sv
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: hdd: 98304kB, 96/64/32 CHS, 4096 kBps, 512
-sector size, 2941 rpm
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D  0, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: ide-floppy: hdd: I/O error, pc =3D 1b, key
-=3D  2, asc =3D 3a, ascq =3D  0
-Dec 26 11:13:37 free4 kernel: hdd: No disk in drive
-Dec 26 11:13:37 free4 kernel: loop: loaded (max 8 devices)
-Dec 26 11:13:37 free4 kernel:  [events: 00000036]
-Dec 26 11:13:37 free4 kernel: md: autorun ...
-Dec 26 11:13:37 free4 kernel: md: considering
-ide/host0/bus0/target1/lun0/part2 ...
-Dec 26 11:13:37 free4 kernel: md:  adding
-ide/host0/bus0/target1/lun0/part2 ...
-Dec 26 11:13:37 free4 kernel: md:  adding
-ide/host0/bus0/target0/lun0/part2 ...
-Dec 26 11:13:37 free4 kernel: md: created md0
-Dec 26 11:13:37 free4 kernel: md:
-bind<ide/host0/bus0/target0/lun0/part2,1>
-Dec 26 11:13:37 free4 kernel: md:
-bind<ide/host0/bus0/target1/lun0/part2,2>
-Dec 26 11:13:37 free4 kernel: md: running:
-<ide/host0/bus0/target1/lun0/part2><ide/host0/bus0/target0/lun0/part2>
-Dec 26 11:13:37 free4 kernel: md: updating md0 RAID superblock on device
-Dec 26 11:13:37 free4 kernel: md: ... autorun DONE.
-
-This is a log server that we use for remote sysloging. It uses linear
-software raid to join a few disks together to make one big virtual unit
-for the logs. Other than this task, it does nothing else and appears to
-work just fine.=20
-
-The error hdd error message started today when we upgraded to the 2.4.18
-kernel. Is this something that we should be concerned about? Please cc
-me with any replies as I'm not on the kernel list.
-
-Thanks,
+PROMISE Ultra series driver Ver 1.20.0.7 2002-05-23 Adapter: Ultra100 TX2
+--------------- Primary Channel ---------------- Secondary Channel -------------
+                enabled                          enabled 
+66 Clocking     enabled                          enabled 
+Mode            MASTER                           MASTER
+--------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
+DMA enabled:    yes              no              no                no 
+UDMA Mode:      5                0               0                 0
+PIO Mode:       4                0               0                 0
 
 
---=-GHhcpqUGx+flqjn56OK3
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA+CzCdPJE6j+LlAWERAq/kAJ95XUhVIYyVp8Afc7yAFfv5C0EGXgCbBd5K
-F5qiO6xfTSO/AKUR0HdC0W8=
-=nGzz
------END PGP SIGNATURE-----
-
---=-GHhcpqUGx+flqjn56OK3--
-
+-- 
+Frank

@@ -1,88 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266094AbUBKTJE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 14:09:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266099AbUBKTJE
+	id S265769AbUBKTTa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 14:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266150AbUBKTTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 14:09:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:10981 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266094AbUBKTI7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 14:08:59 -0500
-Date: Wed, 11 Feb 2004 11:08:53 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: dsaxena@plexity.net
-Cc: mporter@kernel.crashing.org, lists@mdiehl.de, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] dma_sync_to_device
-Message-Id: <20040211110853.492f479b.davem@redhat.com>
-In-Reply-To: <20040211185725.GA25179@plexity.net>
-References: <20040211061753.GA22167@plexity.net>
-	<Pine.LNX.4.44.0402110729510.2349-100000@notebook.home.mdiehl.de>
-	<20040211111800.A5618@home.com>
-	<20040211103056.69e4660e.davem@redhat.com>
-	<20040211185725.GA25179@plexity.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 11 Feb 2004 14:19:30 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:18414 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S265769AbUBKTT3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 14:19:29 -0500
+Date: Wed, 11 Feb 2004 11:19:22 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Bryan Whitehead <driver@jpl.nasa.gov>
+Cc: M?ns Rullg?rd <mru@kth.se>, linux-kernel@vger.kernel.org, lm@bitmover.com
+Subject: Re: reiserfs for bkbits.net?
+Message-ID: <20040211191922.GA31404@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Bryan Whitehead <driver@jpl.nasa.gov>, M?ns Rullg?rd <mru@kth.se>,
+	linux-kernel@vger.kernel.org, lm@bitmover.com
+References: <200402111523.i1BFNnOq020225@work.bitmover.com> <20040211161358.GA11564@favonius> <yw1xisidino2.fsf@kth.se> <402A747C.8020100@jpl.nasa.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <402A747C.8020100@jpl.nasa.gov>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Feb 2004 11:57:25 -0700
-Deepak Saxena <dsaxena@plexity.net> wrote:
-
-> > 1) pci_map_single(), device DMA's from the buffer.
-> > 
-> > 2) pci_dma_sync_single().  Cpu writes some new command or
-> >    status flag into the buffer.
-> > 
-> > 3) pci_dma_sync_to_device_single(), now device is asked to DMA from the buffer
-> >    again.
-> > 
-> > Cache flushes are needed on MIPS for both step #2 and #3, and different kinds of
-> > flushes in fact.
-> > 
-> > Do you understand the need for this now?
+On Wed, Feb 11, 2004 at 10:29:16AM -0800, Bryan Whitehead wrote:
+> http://pcbunn.cacr.caltech.edu/gae/3ware_raid_tests.htm
 > 
-> Not really. Steps 2 and 3 can be done by simply calling pci_dma_sync_single()
-> with the appropriate direction flag.
+> They needed 200MByte/sec disk transfer speed. this is how they got it.
 
-No, direction says what device did or is going to do with the buffer.
-
-> I don't understand why a 
-> pci_dma_sync_single() is needed after the device does a DMA from the 
-> buffer and before the CPU writes a command.
-
-To flush PCI controller caches.
-
-> After the CPU writes data to the
-> buffer, it can do a pci_dma_sync_single(..., DMA_TO_DEVICE), which causes
-> a cache flush. Isn't this what we're already doing today?
-
-It is different.  pci_dma_sync_single(..., DMA_TO_DEVICE), on MIPS for example,
-would do absolutely nothing.  At mapping time, the local cpu cache was flushed,
-and assuming the MIPS pci controllers don't have caches of their own there is
-nothing to flush there either.
-
-Whereas pci_dma_sync_device_single() would flush the dirty lines from the cpu
-caches.  In fact, it will perform the same CPU cache flushes as pci_map_single()
-did, using MIPS as the example again.
-
-New sequence:
-
-1) pci_map_single(..., DMA_TO_DEVICE).  Flush dirty data from cpu caches to memory,
-   so device may see it.
-
-2) device reads buffer
-
-3) pci_dma_sync_single(... DMA_TO_DEVICE).  If PCI controller has caches, flush them.
-
-4) CPU writes new buffer data.
-
-5) pci_dma_sync_device_single(... DMA_TO_DEVICE).  Like #1, flush dirty data from cpu
-   caches to memory.
-
-6) Device reads buffer.
-
-Still disagree? :-)
+Our workload is MUCH less friendly than bonnie.  We typically have lots
+of traffic spread over lots of small files.  With 1-3 outstanding 
+requests (i.e., just at the point where disk sort does you little good).
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

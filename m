@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131244AbRAKLhf>; Thu, 11 Jan 2001 06:37:35 -0500
+	id <S129324AbRAKLg0>; Thu, 11 Jan 2001 06:36:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129610AbRAKLhZ>; Thu, 11 Jan 2001 06:37:25 -0500
-Received: from colorfullife.com ([216.156.138.34]:21522 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S131249AbRAKLhP>;
-	Thu, 11 Jan 2001 06:37:15 -0500
-From: Manfred <manfred@colorfullife.com>
-To: Troels Walsted Hansen <troels@thule.no>
-Subject: Re: [PATCH] klogd busy loop on zero byte (output from 3c59x driver)
-Message-ID: <979213311.3a5d9bffdea75@localhost>
-Date: Thu, 11 Jan 2001 06:41:51 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org, greg@wind.enjellic.com, joey@linux.de
-In-Reply-To: <CKECLHEEHJOPHGPCOCKPEECCCCAA.troels@thule.no>
-In-Reply-To: <CKECLHEEHJOPHGPCOCKPEECCCCAA.troels@thule.no>
+	id <S129610AbRAKLgQ>; Thu, 11 Jan 2001 06:36:16 -0500
+Received: from ns1.netbauds.net ([194.207.240.11]:5389 "EHLO ns1.netbauds.net")
+	by vger.kernel.org with ESMTP id <S129324AbRAKLgI>;
+	Thu, 11 Jan 2001 06:36:08 -0500
+Message-ID: <3A5D9A82.2568646B@netbauds.net>
+Date: Thu, 11 Jan 2001 11:35:30 +0000
+From: Darryl Miles <darryl@netbauds.net>
+X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.4.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 134.96.7.114
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: 2.4.0: Small observation in /proc/sys/net/unix/
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zitiere Troels Walsted Hansen <troels@thule.no>:
 
-> Hi all.
-> 
-> I found a bug in the sysklogd package version 1.4. When it encounters a
-> zero
-> byte in the kernel logging output, the text parser enters a busy loop.
+# ls -il /proc/sys/net/unix/
+total 24
+   4446 -rw-------   1 root     root            0 Jan 11 11:06
+max_dgram_qlen
+   4446 -rw-------   1 root     root            0 Jan 11 11:06
+max_dgram_qlen
 
-That finally explains the "klogd eats 100% cpu time" reports with ~2.2.10:
+Identical filenames, nothing bad appears to be happening it just looks
+weird.
 
-We (I and Andrea) fixed several bugs in the kernel code, but none of them
-explained why klogd entered a busy loop. 
-
-
---
-	Manfred
+-- 
+Darryl Miles
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267549AbRGNAvs>; Fri, 13 Jul 2001 20:51:48 -0400
+	id <S267514AbRGNCEa>; Fri, 13 Jul 2001 22:04:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267518AbRGNAvi>; Fri, 13 Jul 2001 20:51:38 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:33480 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S267491AbRGNAvW>; Fri, 13 Jul 2001 20:51:22 -0400
-Mime-Version: 1.0
-Message-Id: <p0510030ab77546a455f2@[10.128.7.49]>
-In-Reply-To: <200107132204.f6DM4TR3014602@webber.adilger.int>
-In-Reply-To: <200107132204.f6DM4TR3014602@webber.adilger.int>
-Date: Fri, 13 Jul 2001 17:49:55 -0700
-To: Andreas Dilger <adilger@turbolinux.com>, Chris Wedgwood <cw@f00f.org>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [PATCH] 64 bit scsi read/write
-Cc: Andreas Dilger <adilger@turbolinux.com>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Ben LaHaise <bcrl@redhat.com>,
-        Ragnar Kjxrstad <kernel@ragnark.vestdata.no>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mike@bigstorage.com, kevin@bigstorage.com, linux-lvm@sistina.com
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S267518AbRGNCES>; Fri, 13 Jul 2001 22:04:18 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:36362 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267514AbRGNCEC>; Fri, 13 Jul 2001 22:04:02 -0400
+Date: Fri, 13 Jul 2001 19:03:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: Abramo Bagnara <abramo@alsa-project.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        <nfs-devel@linux.kernel.org>, <nfs@lists.sourceforge.net>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: [NFS] [PATCH] Bug in NFS - should init be allowed to set umask???
+In-Reply-To: <15183.31372.316080.1208@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.33.0107131902420.1431-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 4:04 PM -0600 2001-07-13, Andreas Dilger wrote:
->**) As I said in my previous posting, it depends on if/how MD RAID does
->    write ordering of I/O to the data sector and the parity sector.  If
->    it holds back the parity write until the data I/O(s) are complete, and
->    trusts the data over parity on recovery, you should be OK unless you
->    have multiple failures (i.e. bad disk + crash).  If it doesn't do this
->    ordering, or trusts parity over data, then you are F***ed (I doubt it
->    would have this problem).
 
-That wouldn't help, would it, if >1 data sectors were being written.
+On Sat, 14 Jul 2001, Neil Brown wrote:
+>
+> I've found a 4th option.  We make it so that fs->umask does not affect
+> nfsd
 
-The fault mode of a sector simply not being written seems like a real 
-weak point of both RAID-1 and RAID-5. Not that RAID-5 parity ever 
-gets checked, I think, under normal circumstances, nor RAID-1 mirrors 
-get compared, but if they were check and there was an parity or 
-mirror-compare error and no other indication of a fault (eg CRC), 
-there's no way to recover correct data.
--- 
-/Jonathan Lundell.
+Me likee.
+
+Applied. I'd only like to double-check that you made sure you changed all
+callers?
+
+		Linus
+

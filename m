@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbUJXM1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbUJXM3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbUJXM1N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 08:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbUJXM1M
+	id S261455AbUJXM3R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 08:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbUJXM3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 08:27:12 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.51]:7821 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261454AbUJXM1I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 08:27:08 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Antonino Daplas <adaplas@pol.net>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Atyfb: kill assignment warnings on Atari due to __iomem changes
-Date: Sun, 24 Oct 2004 20:33:27 +0800
-User-Agent: KMail/1.5.4
-Cc: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0410241314550.27526@anakin>
-In-Reply-To: <Pine.LNX.4.61.0410241314550.27526@anakin>
+	Sun, 24 Oct 2004 08:29:16 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:61272 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261455AbUJXM3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 08:29:04 -0400
+Message-ID: <417BA006.3030305@yahoo.com.au>
+Date: Sun, 24 Oct 2004 22:28:54 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alastair Stevens <alastair@altruxsolutions.co.uk>
+CC: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-ck1: swap mayhem under UT2004
+References: <200410222346.32823.alastair@altruxsolutions.co.uk> <200410231722.59362.alastair@altruxsolutions.co.uk> <417B1A7F.2020607@yahoo.com.au> <200410241138.55618.alastair@altruxsolutions.co.uk>
+In-Reply-To: <200410241138.55618.alastair@altruxsolutions.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410242033.29075.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 October 2004 19:15, Geert Uytterhoeven wrote:
-> Atyfb: kill assignment warnings on Atari due to __iomem changes
+Alastair Stevens wrote:
+> On Sunday 24 October 2004 3:59, Nick Piggin wrote:
+> 
+>>Can you try the following patch to start with, please?
+>>(against 2.6.10-rc1, but should apply to most recent kernels I think)
+> 
+> 
+> [vm-pages_scanned-active_list.patch]
+> 
+> Thanks Nick - seems exemplary so far.  No stuttering or swap thrashing 
+> under the time-honoured UT2004 test, even with some phat desktop apps 
+> sitting in memory.
+> 
+> I'm still running on 2.6.9-ck1 for now.  Is there anything else you want 
+> me to try?
 
-I pushed a big mach64 patch (coming from various authors) to Andrew, and
-this will  get rejected.
+Not really - just make sure to really give it a good beating so
+you can be sure the problem isn't happening.
 
-Attached is an incremental patch for the big mach64 update.
+>  Presumably VM scanning work is ongoing for 2.6.10?
 
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
----
+Unfortunately yes. It is really just a few little niggles rather
+than anything fundamental, but they're quite annoying :(
 
----diff -Nru a/drivers/video/aty/atyfb_base.c b/drivers/video/aty/atyfb_base.c
---- a/drivers/video/aty/atyfb_base.c	2004-10-22 15:57:58 +08:00
-+++ b/drivers/video/aty/atyfb_base.c	2004-10-24 20:26:04 +08:00
-@@ -3457,8 +3457,10 @@
- 		 */
- 		info->screen_base = ioremap(phys_vmembase[m64_num], phys_size[m64_num]);
- 		info->fix.smem_start = (unsigned long)info->screen_base; /* Fake! */
--		par->ati_regbase = ioremap(phys_guiregbase[m64_num], 0x10000) + 0xFC00ul;
--		info->fix.mmio_start = par->ati_regbase; /* Fake! */
-+		par->ati_regbase = ioremap(phys_guiregbase[m64_num],
-+					   0x10000) + 0xFC00ul;
-+		info->fix.mmio_start =
-+			(unsigned long)par->ati_regbase; /* Fake! */
- 
- 		aty_st_le32(CLOCK_CNTL, 0x12345678, par);
- 		clock_r = aty_ld_le32(CLOCK_CNTL, par);
+>  I might 
+> give -rc1 a spin, just for fun....
+> 
 
+It would be a good idea to give -rc1 a spin (with, and without the
+patch).
 
-
+Thanks,
+Nick

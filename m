@@ -1,117 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272518AbTHKGvG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 02:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272512AbTHKGvG
+	id S272541AbTHKHN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 03:13:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272542AbTHKHN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 02:51:06 -0400
-Received: from 13.telemaxx.net ([213.144.13.149]:47823 "EHLO
-	gatekeeper.syskonnect.de") by vger.kernel.org with ESMTP
-	id S272458AbTHKGu6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 02:50:58 -0400
-From: <support@syskonnect.de>
-To: "'Adrian Bunk'" <bunk@fs.tum.de>
-Cc: <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <trivial@rustcorp.com.au>, <linux@syskonnect.de>
-Subject: RE: [2.6 patch] fix net/sk98lin/skge.c for !PROC_FS
-Date: Mon, 11 Aug 2003 08:47:00 +0200
-Message-ID: <000e01c35fd4$5e80a320$bc01090a@skd.de>
+	Mon, 11 Aug 2003 03:13:28 -0400
+Received: from sinma-gmbh.17.mind.de ([212.21.92.17]:39182 "EHLO gw.enyo.de")
+	by vger.kernel.org with ESMTP id S272541AbTHKHN2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 03:13:28 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test3] Hyperthreading gone
+References: <87llu2bvxg.fsf@deneb.enyo.de>
+	<20030809221706.GA2106@glitch.localdomain>
+	<87oeyyc7u9.fsf@deneb.enyo.de>
+	<20030810120032.GA14437@glitch.localdomain>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Mon, 11 Aug 2003 09:13:24 +0200
+In-Reply-To: <20030810120032.GA14437@glitch.localdomain> (Greg Norris's
+ message of "Sun, 10 Aug 2003 07:00:32 -0500")
+Message-ID: <87bruw1xbf.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
-In-Reply-To: <20030808201823.GE16091@fs.tum.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Adrian,
+Greg Norris <haphazard@kc.rr.com> writes:
 
-Thank you very much for your interest in SysKonnect products.
+> According to the 2.6.0-test3 menuconfig help text, the parameter is
+> required when CPU Enumeration Only is selected, and enables only
+> limited ACPI support.
 
-We will consider your suggestion during the next release.
+I don't think it's clear from the description.  It's certainly
+unexpected that a compile-time option doesn't activate a feature, but
+merely adds a boot option to do so.
 
-Thank you again for your cooperation.
-
-Best regards
-Karim
-
-SysKonnect GmbH
-A Marvell®Company
--------------------------------------
-Karim Jamal
-Technical Support Engineer
---------------------------------------
-Phone: +49 (0) 7243502-330
-Fax: +49 (0) 7243502-364
-Mail: support@syskonnect.de
-Web: http:\\www.syskonnect.de
-
-
-
-
------Original Message-----
-From: Adrian Bunk [mailto:bunk@fs.tum.de]
-Sent: Friday, August 08, 2003 10:18 PM
-To: linux@syskonnect.de
-Cc: linux-net@vger.kernel.org; linux-kernel@vger.kernel.org;
-trivial@rustcorp.com.au
-Subject: [2.6 patch] fix net/sk98lin/skge.c for !PROC_FS
-
-
-I got the following compile error compiling 2.6.0-test2-mm5 with
-!CONFIG_PROC_FS:
-
-<--  snip  -->
-
-...
-  CC      drivers/net/sk98lin/skge.o
-...
-drivers/net/sk98lin/skge.c:730: error: `proc_net' undeclared (first use
-in this function)
-drivers/net/sk98lin/skge.c:730: error: (Each undeclared identifier is
-reported only once
-drivers/net/sk98lin/skge.c:730: error: for each function it appears in.)
-make[3]: *** [drivers/net/sk98lin/skge.o] Error 1
-
-<--  snip  -->
-
-The following patch fixes it:
-
---- linux-2.6.0-test2-mm5/drivers/net/sk98lin/skge.c.old	2003-08-08
-20:24:50.000000000 +0200
-+++ linux-2.6.0-test2-mm5/drivers/net/sk98lin/skge.c	2003-08-08
-20:25:22.000000000 +0200
-@@ -724,6 +724,7 @@
- 			SK_MEMCPY(&SK_Root_Dir_entry, BootString,
- 				sizeof(SK_Root_Dir_entry) - 1);
-
-+#ifdef CONFIG_PROC_FS
- 			/*Create proc (directory)*/
- 			if(!proc_root_initialized) {
- 				pSkRootDir = create_proc_entry(SK_Root_Dir_entry,
-@@ -731,6 +732,7 @@
- 				pSkRootDir->owner = THIS_MODULE;
- 				proc_root_initialized = 1;
- 			}
-+#endif  /*  CONFIG_PROC_FS  */
-
- 		}
-
-
-
-Please apply
-Adrian
-
---
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
-
+Anyway, I can't test right now because 2.6 is still eating the file
+system. 8-(

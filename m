@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264920AbTBCIpg>; Mon, 3 Feb 2003 03:45:36 -0500
+	id <S261996AbTBCJSl>; Mon, 3 Feb 2003 04:18:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265305AbTBCIpg>; Mon, 3 Feb 2003 03:45:36 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:24711 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S264920AbTBCIpf>;
-	Mon, 3 Feb 2003 03:45:35 -0500
-Date: Mon, 3 Feb 2003 10:55:04 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH *] use 64 bit jiffies
-Message-ID: <20030203085504.GU821@mea-ext.zmailer.org>
-References: <20030203082800.GT821@mea-ext.zmailer.org> <Pine.LNX.4.33.0302030943590.26414-100000@gans.physik3.uni-rostock.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0302030943590.26414-100000@gans.physik3.uni-rostock.de>
+	id <S264665AbTBCJSl>; Mon, 3 Feb 2003 04:18:41 -0500
+Received: from gate.perex.cz ([194.212.165.105]:27663 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S261996AbTBCJSk>;
+	Mon, 3 Feb 2003 04:18:40 -0500
+Date: Mon, 3 Feb 2003 10:27:45 +0100 (CET)
+From: Jaroslav Kysela <perex@perex.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Adam Belay <ambx1@neo.rr.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "greg@kroah.com" <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH][RFC] Various Fixes and Improved Error Checking (3/4)
+In-Reply-To: <20030202203651.GA22836@neo.rr.com>
+Message-ID: <Pine.LNX.4.44.0302031026040.4023-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 03, 2003 at 09:47:00AM +0100, Tim Schmielau wrote:
-> On Mon, 3 Feb 2003, Matti Aarnio wrote:
-> > I do have a number of machines with 100 to 300 day uptimes, all
-> > with "mere" 32-bit jiffy.  With 1000 Hz clock that means at least
-> > one full wrap-around of jiffy.
-> 
-> Are these 2.5 machines? If so I'd really like to know whether or not
-> ps shows old processes as having started in the future.
-> With a simulated uptime it does, but I might have overlooked something.
+On Sun, 2 Feb 2003, Adam Belay wrote:
 
-300 day uptime with 2.5 ?  Do think again.
+> -	for (tmp = 0; tmp < 8 && pnp_port_valid(dev, tmp); tmp++)
+> -		isapnp_write_word(ISAPNP_CFG_PORT+(tmp<<1), pnp_port_start(dev, tmp));
+> -	for (tmp = 0; tmp < 2 && pnp_irq_valid(dev, tmp); tmp++) {
+> -		int irq = pnp_irq(dev, tmp);
+> +	for (tmp = 0; tmp < 8 && res->port_resource[tmp].flags & IORESOURCE_IO; tmp++)
+> +		isapnp_write_word(ISAPNP_CFG_PORT+(tmp<<1), res->port_resource[tmp].start);
+> +	for (tmp = 0; tmp < 2 && res->irq_resource[tmp].flags & IORESOURCE_IRQ; tmp++) {
+> +		int irq = res->irq_resource[tmp].start;
 
-These are 2.4 series kernels.  2.4.17, 2.4.18, 2.4.20
+Why you remove pnp_*_valid() checks? They are more robust. There is also 
+check for UNSET flag.
 
-With updated 'ps' tools the processes are definitely in the past,
-although seeing mere "2002" does not tell all that detailed about
-"when".  A "apr17" would be more usefull.  Any date in "future"
-means it is of previous year.
+						Jaroslav
 
-> Tim
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs
 
-/Matti Aarnio

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262593AbREZEc1>; Sat, 26 May 2001 00:32:27 -0400
+	id <S262596AbREZErA>; Sat, 26 May 2001 00:47:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262594AbREZEcR>; Sat, 26 May 2001 00:32:17 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:60945 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S262593AbREZEcD>;
-	Sat, 26 May 2001 00:32:03 -0400
-Date: Sat, 26 May 2001 01:31:51 -0300 (BRST)
+	id <S262594AbREZEqj>; Sat, 26 May 2001 00:46:39 -0400
+Received: from [200.203.199.88] ([200.203.199.88]:24338 "HELO netbank.com.br")
+	by vger.kernel.org with SMTP id <S262596AbREZEqa>;
+	Sat, 26 May 2001 00:46:30 -0400
+Date: Sat, 26 May 2001 01:45:27 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Ben LaHaise <bcrl@redhat.com>,
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Ben LaHaise <bcrl@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Linux-2.4.5
-In-Reply-To: <Pine.LNX.4.21.0105252107010.1520-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0105260129390.30264-100000@imladris.rielhome.conectiva>
+In-Reply-To: <20010526051156.S9634@athlon.random>
+Message-ID: <Pine.LNX.4.21.0105260137140.30264-100000@imladris.rielhome.conectiva>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,31 +21,51 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 May 2001, Linus Torvalds wrote:
-
-> This is why we always leave a few pages free, exactly to allow nested
-> page allocators to steal the reserved pages that we keep around. If
-> that deadlocks, then that's a separate issue altogether.
+On Sat, 26 May 2001, Andrea Arcangeli wrote:
+> On Fri, May 25, 2001 at 10:49:38PM -0400, Ben LaHaise wrote:
+> > Highmem.  0 free pages in ZONE_NORMAL.  Now try to allocate a buffer_head.
 > 
-> If people are able to trigger the "we run out of reserved pages"
-> behaviour under any load, that indicates that we either have too few
-> reserved pages per zone, or that we have a real thinko somewhere that
-> allows eating up the reserves we're supposed to have.
+> That's a longstanding deadlock, it was there the first time I read
+> fs/buffer.c, nothing related to highmem, we have it in 2.2 too. Also
+> getblk is deadlock prone in a smiliar manner.
 
-This is exactly what gets fixed in the patch I sent you.
-Feel free to reimplement it in a complex way if you want ;)
+Not only this, but the fix is _surprisingly_ simple...
+All we need to make sure of is that the following order
+of allocations is possible and that we back out instead
+of deadlock when we don't succeed at any step.
 
-> But sometimes the right solution is just to have more reserves.
+1) normal user allocation
+2) buffer allocation (bounce buffer + bufferhead)
+3) allocation from interrupt (for device driver)
 
-Won't work if the ethernet card is allocating memory
-at gigabit speed. And no, my patch won't protect against
-this thing either, only memory reservations can.
+This is fixed by the patch I sent because:
 
-All my patch does is give us a 2.4 kernel now which
-doesn't hang immediately as soon as you run on highmem
-machines with a heavy swapping load.
+1) user allocations stop when we reach zone->pages_min and
+   keep looping until we freed some memory ... well, these
+   don't just loop because we can guarantee that freeing
+   memory with GFP_USER or GFP_KERNEL is possible
 
-regards,
+2) GFP_BUFFER allocations can allocate down to the point
+   where free pages go to zone->pages_min * 3 / 4, so we
+   can continue to swapout highmem pages when userland
+   allocations have stopped ... this is needed because
+   otherwise we cannot always make progress on highmem
+   pages and we could have the effective amount of RAM
+   in the system reduced to less than 1GB, in really bad
+   cases not having this could even cause a deadlock
+
+3) If the device driver needs to allocate something, it
+   has from zone->pages_min*3/4 down to zone->pages_min/4
+   space to allocate stuff, this should be very useful
+   for swap or mmap() over the network, or to encrypted
+   block devices, etc...
+
+> Can you try to simply change NR_RESERVED to say 200*MAX_BUF_PER_PAGE
+> and see if it makes a difference?
+
+No Comment(tm)   *grin*
+
+cheers,
 
 Rik
 --

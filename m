@@ -1,69 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261487AbRFGPTA>; Thu, 7 Jun 2001 11:19:00 -0400
+	id <S261425AbRFGPXk>; Thu, 7 Jun 2001 11:23:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbRFGPSu>; Thu, 7 Jun 2001 11:18:50 -0400
-Received: from mpdr0.chicago.il.ameritech.net ([206.141.239.142]:57327 "EHLO
-	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
-	id <S261487AbRFGPSn>; Thu, 7 Jun 2001 11:18:43 -0400
-Message-ID: <3B1F9B5A.42BF726D@ameritech.net>
-Date: Thu, 07 Jun 2001 10:18:50 -0500
-From: watermodem <aquamodem@ameritech.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-ac9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table
-In-Reply-To: <15134.53268.965680.167845@pizda.ninka.net>
-		<CHEKKPICCNOGICGMDODJMECLDEAA.george@gator.com> <15135.5661.601195.943992@pizda.ninka.net>
+	id <S261490AbRFGPXa>; Thu, 7 Jun 2001 11:23:30 -0400
+Received: from ns.suse.de ([213.95.15.193]:49673 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S261425AbRFGPXW>;
+	Thu, 7 Jun 2001 11:23:22 -0400
+Date: Thu, 7 Jun 2001 17:22:51 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: 2.4.5-ac9 console NULL pointer pointer dereference
+Message-ID: <20010607172251.B29309@suse.de>
+In-Reply-To: <UTC200106071436.QAA224593.aeb@vlet.cwi.nl> <20010607165638.A19959@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010607165638.A19959@suse.de>; from olh@suse.de on Thu, Jun 07, 2001 at 04:56:38PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
-> George Bonser writes:
->  > There is, of course, one basic problem with that argument. While you can say
->  > (and probably rightly so) that such a change would not be included in Linus'
->  > kernel, I think anyone is allowed to post a patch that might make it
->  > possible to add protocols as modules. If anyone chooses to use it is each
->  > individual's decision but you could not prevent ACME from creating a patch
->  > that allows protocol modules as long as they distributed the patch. Also,  I
->  > know that you are allowed to distribute proprietary modules in binary form
->  > but are there any restrictions on what function these modules can perform?
->  > I don't remember seeing any such restrictions.
-> 
-> People can post whatever patches which do whatever, sure.
-> But this isn't what matters.
-> 
-> What matters is the API under which a binary-only module may interface
-> to the kernel.  Linus specifies that only the module exports in his
-> tree fall into this API.
-> 
-> As I stated in another email, the allowance of binary-only kernel
-> modules is a special exception to the licensing of the kernel made by
-> Linus.  The GPL by itself, does not allow this at all.
-> 
-> Later,
-> David S. Miller
-> davem@redhat.com
+On Thu, Jun 07, Olaf Hering wrote:
 
-David,
-
-   What is your real problem with La Monte's Code.
-   I don't buy your more "blessed than thou" argument.
-   It is a typical response one normally sees in large
-   organizations from folk with "empires" to protect.
-   Coming from the "land of warring tribes" firm it is
-   a attitude I have seen often.  My response is take 
-   a vacation, chill out and reassess.
-
-Watermodem 
+> On Thu, Jun 07, Andries.Brouwer@cwi.nl wrote:
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> >     From: Olaf Hering <olh@suse.de>
+> > 
+> >     this happend with 2.4.5-ac9 with serial console on i386.
+> > 
+> >     Unable to handle kernel NULL pointer dereference0x02f8 (irq = 3) at virtual address 00000004
+> >     Oops: 0000
+> >     >>EIP; c01967c7 <poke_blanked_console+1b/5c>   <=====
+> > 
+> > Sounds like this should help:
+> > 
+> > --- console.c~  Fri Feb  9 20:30:22 2001
+> > +++ console.c   Thu Jun  7 16:28:59 2001
+> > @@ -2684,7 +2684,7 @@
+> >  void poke_blanked_console(void)
+> >  {
+> >         del_timer(&console_timer);      /* Can't use _sync here: called from tasklet */
+> > -       if (vt_cons[fg_console]->vc_mode == KD_GRAPHICS)
+> > +       if (!vt_cons[fg_console] || vt_cons[fg_console]->vc_mode == KD_GRAPHICS)
+> >                 return;
+> >         if (console_blanked) {
+> >                 console_timer.function = unblank_screen_t;
+> 
+> That was ok, but:
+> ....
+> INIT: Id "1" respawning too fast: disabled for 5 minutes
+> INIT: Id "2" respawning too fast: disabled for 5 minutes
+> INIT: Id "3" respawning too fast: disabled for 5 minutes
+> INIT: Id "5" respawning too fast: disabled for 5 minutes
+> INIT: Id "6" respawning too fast: disabled for 5 minutes
+> INIT: Id "4" respawning too fast: disabled for 5 minutes
+> 
+> 
+> Welcome to SuSE Linux 7.2 (i386) - Kernel 2.4.5-ac9 (ttyS0).
+> ....
+
+Appearently not a .config bug. Any ideas?
+http://www.penguinppc.org/~olaf/bugs/245-ac9/config.gz
+
+
+
+Gruss Olaf
+
+-- 
+ $ man clone
+
+BUGS
+       Main feature not yet implemented...

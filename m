@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269756AbUJMR1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269759AbUJMR13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269756AbUJMR1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 13:27:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269759AbUJMR1Q
+	id S269759AbUJMR13 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 13:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269760AbUJMR13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 13:27:16 -0400
-Received: from mail.adebahr.de ([62.146.75.130]:58798 "EHLO mail.adebahr.de")
-	by vger.kernel.org with ESMTP id S269756AbUJMR1P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 13:27:15 -0400
-Date: Wed, 13 Oct 2004 19:27:13 +0200 (CEST)
-From: Peter Adebahr <adsys@adebahr.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc4-mm1
-In-Reply-To: <87r7o23gdu.fsf@barad-dur.crans.org>
-Message-ID: <Pine.LNX.4.61.0410131924110.16426@siraly.adebahr.de>
-References: <20041011032502.299dc88d.akpm@osdl.org> <1097672832.5500.60.camel@homer.blizzard.org>
- <87r7o23gdu.fsf@barad-dur.crans.org>
+	Wed, 13 Oct 2004 13:27:29 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:29622 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S269759AbUJMR1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 13:27:25 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+Date: Wed, 13 Oct 2004 19:29:11 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Stefan Seyfried <seife@suse.de>,
+       ncunningham@linuxmail.org, pascal.schmidt@email.de
+References: <2HO0C-4xh-29@gated-at.bofh.it> <200410112158.49203.rjw@sisk.pl> <20041012085510.GC2292@elf.ucw.cz>
+In-Reply-To: <20041012085510.GC2292@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410131929.11308.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Oct 2004, Mathieu Segaud wrote:
+On Tuesday 12 of October 2004 10:55, Pavel Machek wrote:
+> Hi!
+> 
+> > > > Ok... And I guess it is nearly impossible to trigger this on demand,
+> > > > right?
+> > 
+> > I think it is possible.  Seemingly, on my box it's only a question of the 
+> > number of apps started.  I think I can work out a method to trigger it
+> > 90% of the time or so.  Please let me know if it's worthy of doing.
+> 
+> Yes, it would certainly help with testing...
 
->
-> here's a fix
-> cd /usr/src/linux-2.6.9-rc4-mm1
-> wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/optimize-profile-path-slightly.patch
-> patch -R -p1 < optimize-profile-path-slightly.patch
->
-> this should fix the sources and so...
->
+So far, the most reliable method seems to be to use the box for a day after a 
+successful suspend/resume cycle (I've got an 8-order allocation failure 3 
+times out of 3 attempts).  Still, I'm working on something that's less 
+time-consuming. ;-)
 
-yes, helps here, too - on a redhat based (but otherwise self configured)
-system, w/ self compiled firefox.
+Greets,
+RJW
 
-pse include resp. remove in next -mm.
-
-thanks a lot!
-
-best regards,
-Peter
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264455AbTDXWin (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 18:38:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbTDXWin
+	id S264459AbTDXWj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 18:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263692AbTDXWj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 18:38:43 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:46469 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264455AbTDXWim
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 18:38:42 -0400
-Date: Thu, 24 Apr 2003 15:39:08 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Bill Davidsen <davidsen@tmr.com>, Andrew Theurer <habanero@us.ibm.com>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       ricklind@us.ibm.com
-Subject: Re: [patch] HT scheduler, sched-2.5.68-B2
-Message-ID: <1667780000.1051223948@flay>
-In-Reply-To: <Pine.LNX.3.96.1030424162544.11351D-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1030424162544.11351D-100000@gatekeeper.tmr.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Thu, 24 Apr 2003 18:39:59 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:32760 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264459AbTDXWj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 18:39:57 -0400
+Date: Fri, 25 Apr 2003 00:51:58 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+Message-ID: <20030424225158.GD15833@fs.tum.de>
+References: <20030424051510.GK8931@holomorphy.com> <Pine.LNX.4.44.0304232217550.19326-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0304232217550.19326-100000@home.transmeta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sorry if I misunderstand, but if HT is present, I would think that you
-> would want to start the child of a fork on the same runqueue, because the
-> cache is loaded, and to run the child first because in many cases the
-> child will do and exac. At that point it is probable that the exec'd
-> process run on another CPU would leave the cache useful to the parent.
-> 
-> I fully admit that this is "seems to me" rather than measured, but
-> protecting the cache is certainly a good thing in general.
+On Wed, Apr 23, 2003 at 10:43:37PM -0700, Linus Torvalds wrote:
+>...
+> And hey, the fact is (at least as far as I'm concerned), that as long as
+> you make the hardware, you can control what it runs.
+>...
 
-We don't do balance on exec for SMP. I think we should ;-)
-AFAIK, fork always stays on the same runqueue anyway.
+Linux is currently widely used and through this there comes some power. 
+Let me try to make examples where this might be important:
 
->> The key is that we want to agressively steal when 
->> nr_active(remote) - nr_active(idle) > 1 ... not > 0.
->> This will implicitly *never* happen on non HT machines, so it seems
->> like a nice algorithm ... ?
-> 
-> Is it really that simple? 
+Fact is:
+Cryptographic hardware isn't science fiction. It's not an unsolvable 
+technical problem to build a computer and to ensure that only 
+$signed_kernel with $binary_only_module loaded and no other modules 
+loaded runs on this computer.
 
-Well, *I* think so (obviously) ;-)
-Feel free to poke holes in the argument ...
+Two examples that might make it very important whether the licence of 
+Linux allows things like:
+1. all the companies participating in TCPA agree that only selected 
+   signed kernels run on future hardware
+2. [less likely] a big country like the USA makes a law that every OS 
+   must include a backdoor that allows unnoticed access for the NSA (it 
+   sounds strange but considering the DMCA and current legislative 
+   proposals in the USA I wouldn't say this is completely impossible)
 
-M.
+That's the point where the fact that Linux is used in many companies 
+including big ones becomes important:
+
+For companies it wouldn't be a big problem to use only signed kernels in 
+a scenario like the first one above (because of support rules of 
+companies like Oracle or SAP they are already often tied to some 
+specific kernels) if the licence of Linux allows it.
+
+If the licence of Linux doesn't allow this it would make many of the big 
+companies using Linux to opposers of such a proposal.
+
+> 			Linus
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

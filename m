@@ -1,165 +1,202 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262414AbSLAUdY>; Sun, 1 Dec 2002 15:33:24 -0500
+	id <S262430AbSLAUty>; Sun, 1 Dec 2002 15:49:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262416AbSLAUdY>; Sun, 1 Dec 2002 15:33:24 -0500
-Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:6530 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S262414AbSLAUdV>;
-	Sun, 1 Dec 2002 15:33:21 -0500
-Date: Sun, 1 Dec 2002 15:40:18 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: greg@kroah.com, perex@suse.cz, linux-kernel@vger.kernel.org,
-       pelaufer@adelphia.net
-Subject: Re: [PATCH][2.5] ALSA ISAPNP update for sound/isa/opl3sa2.c
-Message-ID: <20021201154018.GD333@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Zwane Mwaikambo <zwane@holomorphy.com>, greg@kroah.com,
-	perex@suse.cz, linux-kernel@vger.kernel.org, pelaufer@adelphia.net
-References: <Pine.LNX.4.50.0211300443090.2495-100000@montezuma.mastecende.com> <20021201013004.GA333@neo.rr.com> <Pine.LNX.4.50.0212010139460.1628-100000@montezuma.mastecende.com> <20021201130715.GB333@neo.rr.com> <Pine.LNX.4.50.0212011358150.10730-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0212011358150.10730-100000@montezuma.mastecende.com>
-User-Agent: Mutt/1.4i
+	id <S262446AbSLAUtx>; Sun, 1 Dec 2002 15:49:53 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:50102 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262430AbSLAUtv>; Sun, 1 Dec 2002 15:49:51 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.20-rmap15a
+Date: Sun, 1 Dec 2002 21:56:10 +0100
+User-Agent: KMail/1.4.3
+Organization: WOLK - Working Overloaded Linux Kernel
+Cc: Rik van Riel <riel@conectiva.com.br>
+MIME-Version: 1.0
+Message-Id: <200212012155.30534.m.c.p@wolk-project.de>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_MTKGRVJZAM140GIPS8EG"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 01, 2002 at 02:04:45PM -0500, Zwane Mwaikambo wrote:
-> On Sun, 1 Dec 2002, Adam Belay wrote:
-> 
-> > It caused an oops?  I'll bet the pnp layer got confused by it.  I'll add
-> > some busy flags to prevent drivers from calling this when the device is
-> > being used by the driver through the conventional driver-model style.
-> > Thanks for pointing this out.
->
-> Here is what the stack looked like;
->
->  EIP is at kfree+0xcd/0xe0
->  [<c024228d>] pnp_free_ids+0x1d/0x30
->  [<c0241beb>] pnp_release_device+0x1b/0x30
->  [<c02555a5>] device_release+0x15/0x20
->  [<c02390e3>] kobject_cleanup+0x73/0x80
->  [<c0241dac>] pnp_remove_device+0x1c/0xcd
->
-> We were releasing an already freed block of memory (this one was slab
-> poisoned).
 
-Maybe there's something wrong with the release code, I'll take a look at it.
+--------------Boundary-00=_MTKGRVJZAM140GIPS8EG
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-here's a copy of those functions from the latest version but they're
-essentially the same as they were in the version you're using.
+Hi Rik, Hi all,
 
-void __pnp_remove_device(struct pnp_dev *dev)
-{
-	spin_lock(&pnp_lock);
-	list_del_init(&dev->global_list);
-	list_del_init(&dev->protocol_list);
-	spin_unlock(&pnp_lock);
-	device_unregister(&dev->dev);
-}
+> This is a merge of rmap15a with marcelo's 2.4 bitkeeper tree,
+> which is identical to 2.4.20-rc4 (he didn't push the makefile
+> update).  The only thing left out of the merge for now is
+> Andrew Morton's read_latency patch, both because I'm not sure
+> how needed it is with the elevator updates and because this
+> part of the merge was too tricky to do at merge time; I'll port
+> over Andrew Morton's read_latency patch later...
+Well, it is needed. This makes a difference for the I/O pauses noticed in=
+=20
+2.4.19 and 2.4.20. Anyway, readlatency-2 won't make them go away, but tho=
+se=20
+stops/pauses are a bit less than before.
 
-static void pnp_free_ids(struct pnp_dev *dev)
-{
-	struct pnp_id * id;
-	struct pnp_id * next;
-	if (!dev)
-		return;
-	id = dev->id;
-	while (id) {
-		next = id->next;
-		kfree(id);
-		id = next;
-	}
-}
+So, here my patch proposal. Ontop of 2.4.20-rmap15a.
 
-static void pnp_release_device(struct device *dmdev)
-{
-	struct pnp_dev * dev = to_pnp_dev(dmdev);
-	if (dev->res)
-		pnp_free_resources(dev->res);
-	pnp_free_ids(dev);
-	kfree(dev);
-}
+ciao, Marc
+--------------Boundary-00=_MTKGRVJZAM140GIPS8EG
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="read-latency2-2.4.20-rmap15a.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="read-latency2-2.4.20-rmap15a.patch"
 
+--- linux-akpm/drivers/block/elevator.c~read-latency2	Sun Nov 10 19:53:53 2002
++++ linux-akpm-akpm/drivers/block/elevator.c	Sun Nov 10 19:59:21 2002
+@@ -80,25 +80,38 @@ int elevator_linus_merge(request_queue_t
+ 			 struct buffer_head *bh, int rw,
+ 			 int max_sectors)
+ {
+-	struct list_head *entry = &q->queue_head;
+-	unsigned int count = bh->b_size >> 9, ret = ELEVATOR_NO_MERGE;
++	struct list_head *entry;
++	unsigned int count = bh->b_size >> 9;
++	unsigned int ret = ELEVATOR_NO_MERGE;
++	int merge_only = 0;
++	const int max_bomb_segments = q->elevator.max_bomb_segments;
+ 	struct request *__rq;
++	int passed_a_read = 0;
++
++	entry = &q->queue_head;
+ 
+ 	while ((entry = entry->prev) != head) {
+ 		__rq = blkdev_entry_to_request(entry);
+ 
+-		/*
+-		 * we can't insert beyond a zero sequence point
+-		 */
+-		if (__rq->elevator_sequence <= 0)
+-			break;
++		if (__rq->elevator_sequence-- <= 0) {
++			/*
++			 * OK, we've exceeded someone's latency limit.
++			 * But we still continue to look for merges,
++			 * because they're so much better than seeks.
++			 */
++			merge_only = 1;
++		}
+ 
+ 		if (__rq->waiting)
+ 			continue;
+ 		if (__rq->rq_dev != bh->b_rdev)
+ 			continue;
+-		if (!*req && bh_rq_in_between(bh, __rq, &q->queue_head))
++		if (!*req && !merge_only &&
++				bh_rq_in_between(bh, __rq, &q->queue_head)) {
+ 			*req = __rq;
++		}
++		if (__rq->cmd != WRITE)
++			passed_a_read = 1;
+ 		if (__rq->cmd != rw)
+ 			continue;
+ 		if (__rq->nr_sectors + count > max_sectors)
+@@ -129,6 +142,57 @@ int elevator_linus_merge(request_queue_t
+ 		}
+ 	}
+ 
++	/*
++	 * If we failed to merge a read anywhere in the request
++	 * queue, we really don't want to place it at the end
++	 * of the list, behind lots of writes.  So place it near
++	 * the front.
++	 *
++	 * We don't want to place it in front of _all_ writes: that
++	 * would create lots of seeking, and isn't tunable.
++	 * We try to avoid promoting this read in front of existing
++	 * reads.
++	 *
++	 * max_bomb_segments becomes the maximum number of write
++	 * requests which we allow to remain in place in front of
++	 * a newly introduced read.  We weight things a little bit,
++	 * so large writes are more expensive than small ones, but it's
++	 * requests which count, not sectors.
++	 */
++	if (max_bomb_segments && rw == READ && !passed_a_read &&
++				ret == ELEVATOR_NO_MERGE) {
++		int cur_latency = 0;
++		struct request * const cur_request = *req;
++
++		entry = head->next;
++		while (entry != &q->queue_head) {
++			struct request *__rq;
++
++			if (entry == &q->queue_head)
++				BUG();
++			if (entry == q->queue_head.next &&
++					q->head_active && !q->plugged)
++				BUG();
++			__rq = blkdev_entry_to_request(entry);
++
++			if (__rq == cur_request) {
++				/*
++				 * This is where the old algorithm placed it.
++				 * There's no point pushing it further back,
++				 * so leave it here, in sorted order.
++				 */
++				break;
++			}
++			if (__rq->cmd == WRITE) {
++				cur_latency += 1 + __rq->nr_sectors / 64;
++				if (cur_latency >= max_bomb_segments) {
++					*req = __rq;
++					break;
++				}
++			}
++			entry = entry->next;
++		}
++	}
+ 	return ret;
+ }
+ 
+@@ -186,7 +250,7 @@ int blkelvget_ioctl(elevator_t * elevato
+ 	output.queue_ID			= elevator->queue_ID;
+ 	output.read_latency		= elevator->read_latency;
+ 	output.write_latency		= elevator->write_latency;
+-	output.max_bomb_segments	= 0;
++	output.max_bomb_segments	= elevator->max_bomb_segments;
+ 
+ 	if (copy_to_user(arg, &output, sizeof(blkelv_ioctl_arg_t)))
+ 		return -EFAULT;
+@@ -205,9 +269,12 @@ int blkelvset_ioctl(elevator_t * elevato
+ 		return -EINVAL;
+ 	if (input.write_latency < 0)
+ 		return -EINVAL;
++	if (input.max_bomb_segments < 0)
++		return -EINVAL;
+ 
+ 	elevator->read_latency		= input.read_latency;
+ 	elevator->write_latency		= input.write_latency;
++	elevator->max_bomb_segments	= input.max_bomb_segments;
+ 	return 0;
+ }
+ 
+--- linux-akpm/drivers/block/ll_rw_blk.c~read-latency2	Sun Nov 10 19:53:53 2002
++++ linux-akpm-akpm/drivers/block/ll_rw_blk.c	Sun Nov 10 19:53:53 2002
+@@ -432,9 +432,11 @@ static void blk_init_free_list(request_q
+ 
+ 	si_meminfo(&si);
+ 	megs = si.totalram >> (20 - PAGE_SHIFT);
+-	nr_requests = 128;
+-	if (megs < 32)
+-		nr_requests /= 2;
++	nr_requests = (megs * 2) & ~15;	/* One per half-megabyte */
++	if (nr_requests < 32)
++		nr_requests = 32;
++	if (nr_requests > 1024)
++		nr_requests = 1024;
+ 	blk_grow_request_list(q, nr_requests);
+ 
+ 	init_waitqueue_head(&q->wait_for_requests[0]);
 
->
-> > I see now.  The problem is that when the remove function is called, the pnp
-> > layer expects the device's resources to be freed and not in use.  I should
-> > add some checks for this as well.  The pnp layer will disable the device
-> > and this could cause big problems if the driver is used in between the time
-> > of the ALSA remove code path and this driver removal.  Furthermore, if there
-> > is more than one sound card and the driver-model wants to remove one, a
-> > problem would occur.  Perhaps this aspect of ALSA needs to be changed.
-> > Any ideas?
->
-> Hmm i thought ->remove was per device or do you iterate internally over
+--------------Boundary-00=_MTKGRVJZAM140GIPS8EG--
 
-You are right, ->remove is per device.
-
-> all registered driver devices? Thats why i originally did the
-> pnp_remove_device in the driver's card removal path. How about only
-
-You'll see why not to call pnp_remove_device below.
-
-> disabling registered devices on final driver unregister?
-
-If the driver isn't attached to them they should remain disabled so that other
-pnp devices can use their resources.  Things can get very tight if you have a
-lot of pnp devices.
-
-
-This may clear some things up for you.
-
-The PnP Device Life cycle.
-
-1.) A PnP protocol detects the device
-2.) the PnP protocol creates a pnp_dev structure and sets the values in it
-3.) the PnP protocol calls pnp_add_device
-4.) pnp_add_device names the device, calls any quirks, and sets aditional
-pnp specific values
-5.) pnp_add_device registers the device with the driver model
-6.) it then adds it to the global device lists and other device management
-lists
-7.) finally it attaches the sysfs interface to the device
-8.) from that point, the driver model takes over the device
-9.) it searches through the pool of existing drivers for a match.
-(uses pnp_match_device)
-10.) if a match isn't found it waits for a driver to be registered
-11.) after a match is found it calls the probe function
-12.) the pnp layer activates the device, does some housekeeping and then
-passes the device to the driver's probe function.
-13.) the driver's probe function then reads the resource configuration and
-passes the information to the rest of the driver
-14.) the device rests happily until the driver model requests that it is to
-be unbound from the driver
-15.) the driver model then tells the pnp_layer about this and the pnp_layer
-informs the driver that it must stop using the device. (->remove)
-16.) the driver releases all resources (io ports, irqs, etc) and informs the
-device that it is no longer needed.  This cannot fail and thus returns void.
-16.) the pnp layer then disables the device so its resource can be used by
-other devices.
-17.) as drivers are loaded and unloaded steps 8 - 16 repeat
-18.) finally the protocol calls pnp_remove device when it discovers that the
-device has been physically removed or when the protocol itself is removed.
-19.) pnp_remove_device prevents any new devices from matching with it
-20.) the driver model calls release when it's ready and all memory resources
-(kfree) are freed.
-
-* if the driver is unloaded it calls pnp_unregister driver.  The driver model
-then iterates through all devices registered through the driver and calls
-->remove (step 15)
-
-> As an aside where does this fit in with the whole pci_dev business?
->
-
-Before the driver model and the new pnp layer pci_dev was used as a universal
-structure for resource using devices.  Now that the driver model exists, every
-type of device can have its own structure.  If you look, pci_dev still has old
-isapnp code in it.  In fact, it's quite a mess becuase of it.  It needs to be
-removed but I haven't yet becuase it will cause all of these old pnp drivers
-to not be able to compile.  When enough drivers are converted I'll remove
-this stuff.
-
-Thanks,
-Adam

@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316258AbSILOuL>; Thu, 12 Sep 2002 10:50:11 -0400
+	id <S316070AbSILOrl>; Thu, 12 Sep 2002 10:47:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316289AbSILOuL>; Thu, 12 Sep 2002 10:50:11 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:25077 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S316258AbSILOuK>;
-	Thu, 12 Sep 2002 10:50:10 -0400
-Date: Fri, 13 Sep 2002 00:55:04 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fcntl.h consolidation
-Message-Id: <20020913005504.5aa453e9.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S316089AbSILOrl>; Thu, 12 Sep 2002 10:47:41 -0400
+Received: from 62-190-219-3.pdu.pipex.net ([62.190.219.3]:27915 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S316070AbSILOrl>; Thu, 12 Sep 2002 10:47:41 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209121500.g8CF0D30003216@darkstar.example.net>
+Subject: Re: XFS?
+To: linux-kernel@vger.kernel.org
+Date: Thu, 12 Sep 2002 16:00:13 +0100 (BST)
+In-Reply-To: <200209121542.21987.martin.knoblauch@mscsoftware.com> from "Martin Knoblauch" at Sep 12, 2002 03:42:21 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New version of the fcntl.h consolidation.  This time,
-linux/fcntl.h is a set of default values and structures that
-are overridden in the asm/fcntl.h files.
+> In my opinion the non-inclosure in the mainline kernel is the most 
+> important reason not to use XFS (or any other FS). Which in turn 
+> massively reduces the tester base. It is a shame, because for some type 
+> of applications it performs great, or better than anything else.
 
-The intention is to stop from happenning what happened to
-PPC and PPC64 - which are arbitrarily different but only in
-a couple of the defines.
+On the other hand, filesystem corruption bugs are one of the worst type to suffer from.  We absolutely don't want to include filesystems without at least a reasonable proven track record in the mainline kernel, and therefore encourage the various distributions to use them, incase any bugs do show up.  Look how long a buffer overflow existed in Zlib unnoticed.
 
-In each case, I have taken the most popular definition among all
-the architectures for linux/fcntl.h (this happens to reduce
-asm-i386/fcntl.h and a couple of others to effectively empty).
+EXT2 is a very capable filesystem, and has *years* of proven reliability.  That's why I'm not going to switch away from it for critical work any time soon.
 
-The patch is at http://www.canb.auug.org.au/~sfr/2.5.34-fcntl.2.diff.gz
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+John.

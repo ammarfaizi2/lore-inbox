@@ -1,90 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbUAXVhL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 16:37:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbUAXVhL
+	id S262360AbUAXVfd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 16:35:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbUAXVfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 16:37:11 -0500
-Received: from smtp.dei.uc.pt ([193.137.203.228]:38805 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S262687AbUAXVhE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 16:37:04 -0500
-Date: Sat, 24 Jan 2004 21:36:26 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Han Boetes <han@mijncomputer.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC]   "smack the penguin"
-In-Reply-To: <20040124103029.GL10487@boetes.org>
-Message-ID: <Pine.LNX.4.58.0401242135250.30233@student.dei.uc.pt>
-References: <401177DB.8010901@nortelnetworks.com> <20040124095208.GA20489@zombie.inka.de>
- <yw1xbrot7j89.fsf@ford.guide> <20040124103029.GL10487@boetes.org>
+	Sat, 24 Jan 2004 16:35:33 -0500
+Received: from gamma.utc.fr ([195.83.155.32]:6075 "EHLO gamma.utc.fr")
+	by vger.kernel.org with ESMTP id S262360AbUAXVfZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 16:35:25 -0500
+Message-ID: <1074979873.4012e421714b1@mailetu.utc.fr>
+Date: Sat, 24 Jan 2004 22:31:13 +0100
+From: eric.piel@tremplin-utc.net
+To: akpm@osdl.org
+Cc: Corey Minyard <minyard@acm.org>, George Anzinger <george@mvista.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Incorrect value for SIGRTMAX
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
-X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-DEI-MailScanner: Found to be clean
+Content-Type: multipart/mixed; boundary="-MOQ107497987312a0036ac08b8e794fbb216b2a2e3e53"
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Spam-Checked-By: gamma.utc.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This message is in MIME format.
+
+---MOQ107497987312a0036ac08b8e794fbb216b2a2e3e53
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+
+Hello,
+
+Few months ago, Corey Minyard corrected handling of incorrect values of signals.
+cf
+http://linux.bkbits.net:8080/linux-2.5/cset@1.1267.56.40?nav=index.html%7Csrc/%7Csrc/kernel%7Crelated/kernel/posix-timers.c
+
+Working on the High-Resolution Timers project, I noticed there is an error in
+good_sigevent() to catch the case when sigev_signo is 0. In this function, we
+want to return NULL when sigev_signo is 0. The one liner attached (used for a
+long time in the HRT patch) should do the trick, it's against vanilla 2.6.1 .
+
+Eric
 
 
-My record:
-1210.8
+---MOQ107497987312a0036ac08b8e794fbb216b2a2e3e53
+Content-Type: text/x-patch; name="good-sigevent-not-handling-null.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="good-sigevent-not-handling-null.patch"
 
-Trick:
-http://www.mironov.net/pingu/pingu3.swf
+LS0tIGxpbnV4LTIuNi4xL2tlcm5lbC9wb3NpeC10aW1lcnMuYy5vcmlnCTIwMDQtMDEtMjQgMTU6
+MTc6MzEuNjQ1MDYwMjQ4ICswMTAwCisrKyBsaW51eC0yLjYuMS9rZXJuZWwvcG9zaXgtdGltZXJz
+LmMJMjAwNC0wMS0yNCAxNToyMDo1Ni45Nzc4NDQ5MjAgKzAxMDAKQEAgLTM0NCw4ICszNDQsNyBA
+QAogCQlyZXR1cm4gTlVMTDsKIAogCWlmICgoZXZlbnQtPnNpZ2V2X25vdGlmeSAmIH5TSUdFVl9O
+T05FICYgTUlQU19TSUdFVikgJiYKLQkJCWV2ZW50LT5zaWdldl9zaWdubyAmJgotCQkJKCh1bnNp
+Z25lZCkgKGV2ZW50LT5zaWdldl9zaWdubyA+IFNJR1JUTUFYKSkpCisJICAgICgodW5zaWduZWQp
+IChldmVudC0+c2lnZXZfc2lnbm8gPiBTSUdSVE1BWCkgfHwgIWV2ZW50LT5zaWdldl9zaWdubykp
+CiAJCXJldHVybiBOVUxMOwogCiAJcmV0dXJuIHJ0bjsK
 
-
-Mind Booster Noori
-
-- --
-==================================================
-Marcos Daniel Marado Torres AKA Mind Booster Noori
-/"\               http://student.dei.uc.pt/~marado
-\ /                       marado@student.dei.uc.pt
- X   ASCII Ribbon Campaign
-/ \  against HTML e-mail and Micro$oft attachments
-==================================================
-
-On Sat, 24 Jan 2004, Han Boetes wrote:
-
-> Måns Rullgård wrote:
-> > Eduard Bloch wrote:
-> > > Chris Friesen wrote:
-> > > > Diversion for friday afternoon...how far can you get?
-> > > >
-> > > > Personal best is 586
-> > >
-> > > Which means that you are playing it either on a Windows box (what a
-> > > shame) or cheating somehow or you have a 5Ghz box or something else
-> > > is wrong on regular Linux systems. I do not any Linux user who got
-> > > more than 325.5 with the Linux version of the Shockwave plugin.
-> >
-> > I've gotten over 500 on my 2 GHz laptop running Linux 2.6.1. Even
-> > this fairly fast machine the flash thing frequently freezes for a
-> > split second.
->
-> If you download the flashfile and then open that file in your browser
-> you'll see a part hidden from the sight by the html-frame. Then you will
-> also understand the freeze. :)
->
->
->
-> # Han
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQFAEuVdmNlq8m+oD34RAuL7AJ4tqiVNDhbwx9U85h3hZ0xzL+45WgCg43UK
-4CtNVx4SlUPRcmFvX4V5j+E=
-=XOFj
------END PGP SIGNATURE-----
+---MOQ107497987312a0036ac08b8e794fbb216b2a2e3e53--
 

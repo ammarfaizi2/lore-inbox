@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264767AbUGSHbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264750AbUGSHmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264767AbUGSHbm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 03:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264750AbUGSHbm
+	id S264750AbUGSHmh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 03:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264781AbUGSHmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 03:31:42 -0400
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:20620 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264770AbUGSHbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 03:31:40 -0400
-Message-ID: <40FB78D5.1070604@yahoo.com.au>
-Date: Mon, 19 Jul 2004 17:31:33 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-CC: Dave Hansen <haveblue@us.ibm.com>,
-       "Matthew C. Dobson [imap]" <colpatch@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: sched domains bringup race?
-References: <1089944026.32312.47.camel@nighthawk> <20040718134559.A25488@unix-os.sc.intel.com>
-In-Reply-To: <20040718134559.A25488@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jul 2004 03:42:36 -0400
+Received: from big.switch.gts.cz ([195.39.57.241]:2717 "EHLO big.switch.gts.cz")
+	by vger.kernel.org with ESMTP id S264750AbUGSHmf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 03:42:35 -0400
+Date: Mon, 19 Jul 2004 09:42:31 +0200
+From: Petr Cisar <pc@big.switch.gts.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc1 and before: IO-APIC + DRI + RTL8139 = Disabling Ethernet IRQ
+Message-ID: <20040719074231.GA11015@big.switch.gts.cz>
+Reply-To: Petr Cisar <pc@gts.cz>
+References: <40F4635C.3090003@reolight.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <40F4635C.3090003@reolight.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keshavamurthy Anil S wrote:
-> On Thu, Jul 15, 2004 at 07:13:46PM -0700, Dave Hansen wrote:
-> 
->>I keep getting oopses for the non-boot CPU in find_busiest_group(). 
->>This occurs the first time that the CPU goes idle.  Those groups are set
->>up in sched_init_smp(), which is called after smp_init():
->>
->>static int init(void * unused)
->>{
->>	...
->>        fixup_cpu_present_map();
->>        smp_init();
->>        sched_init_smp();
->>
->>But, the idle threads for the secondary CPUs are initialized in
->>smp_init().  So, what happens when a CPU tries to schedule (using sched
->>domains) before sched_init_smp() completes?  I think it goes boom! :)
->>
->>Anyway, I was thinking that we should just hold the runqueue lock on the
->>non-boot CPUs until the sched domain init code is done.  Does that sound
->>feasible?
-> 
-> 
-> Even on my system which is Intel 865 chipset (P4 with HT enabled system) 
-> I see a bug check somewhere in the schedular_tick during boot.
-> However if I move the sched_init_smp() after do_basic_setup() the
-> kernel boots without any problem. Any clue here?
-> 
->  static int init(void * unused)
->  {
->  	...
->          fixup_cpu_present_map();
->          smp_init();
-> 	 populate_rootfs();
-> 	 do_basic_setup();
->  
->          sched_init_smp();
+I have the same problems with ATI Radeon 128. It occurs with when X (4.4) dies after using DRI. I tried with kernels 2.6.4 to 2.6.7 and the behaviour is identical.
 
-There shouldn't be any problem doing that if we have to, obviously we
-need to know why. Is it possible that cpu_sibling_map, or one of the
-CPU masks isn't set up correctly at the time of the call?
+It looks like it forgets to disable the interrupts in the video card. Commenting the DRI module out from XF86Config keeps it from happening. I don't have much expeirience with this stuff, so I can't tell whether the problem is in the X system or in the kernel driver.
+
+Petr
+
+> 
+> When loading as a module or into kernel, when DRM is loading, I cannot
+> use my network.
+> 
+> Here is a part of the dmesg:
+> 
+> [drm] Loading R200 Microcode
+> irq 19: nobody cared!
+>  [<c010732a>] __report_bad_irq+0x2a/0x8b
+>  [<c0107414>] note_interrupt+0x6f/0x9f
+>  [<c0107732>] do_IRQ+0x161/0x192
+>  [<c0105a00>] common_interrupt+0x18/0x20
+> handlers:
+> [<c0245383>] (rtl8139_interrupt+0x0/0x207)
+> Disabling IRQ #19
+> 
+> For the moment I can disabling IO-ACPI, but I'm thinking to change my
+> processor with an processor w/HT. So IO-ACPI is enabling by default.
+> 
+> How solve that ?
+> 
+> Thanks in advance,
+> 
+> -- 
+> Auzanneau Grégory
+> GPG 0x99137BEE
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

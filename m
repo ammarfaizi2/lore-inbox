@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131508AbQKRI0y>; Sat, 18 Nov 2000 03:26:54 -0500
+	id <S129219AbQKRKW6>; Sat, 18 Nov 2000 05:22:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131509AbQKRI0o>; Sat, 18 Nov 2000 03:26:44 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:35830 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S131508AbQKRI0d>;
-	Sat, 18 Nov 2000 03:26:33 -0500
-Date: Fri, 17 Nov 2000 23:56:24 -0800
-From: Greg KH <greg@wirex.com>
-To: Ben Ford <bford@talontech.com>
-Cc: David Ford <david@linux.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: test11-pre6 still very broken
-Message-ID: <20001117235624.B26341@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>, Ben Ford <bford@talontech.com>,
-	David Ford <david@linux.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet> <8v4306$sga$1@cesium.transmeta.com> <3A161337.6A1BE826@linux.com> <20001117223137.A26341@wirex.com> <3A162EFE.A980A941@talontech.com>
-Mime-Version: 1.0
+	id <S129352AbQKRKWj>; Sat, 18 Nov 2000 05:22:39 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:21650 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129219AbQKRKW2>; Sat, 18 Nov 2000 05:22:28 -0500
+To: David Mansfield <lkml@dm.ultramaster.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] semaphore fairness patch against test11-pre6
+In-Reply-To: <3A15D4F5.B39D61BD@dm.ultramaster.com>
+From: Christoph Rohland <cr@sap.com>
+Date: 18 Nov 2000 10:45:07 +0100
+In-Reply-To: David Mansfield's message of "Fri, 17 Nov 2000 20:01:41 -0500"
+Message-ID: <m3bsvdd36k.fsf@linux.local>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A162EFE.A980A941@talontech.com>; from bford@talontech.com on Fri, Nov 17, 2000 at 11:25:50PM -0800
-X-Operating-System: Linux 2.2.17-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2000 at 11:25:50PM -0800, Ben Ford wrote:
-> Here is lspci output from the laptop in question.  Is this not UHCI?
+Hi David,
 
-Yes it is.  Just a bit funny if you think about it, but with Intel and
-Via putting the UHCI core into their chipsets I guess it makes sense.
+David Mansfield <lkml@dm.ultramaster.com> writes:
+> If you can find the time to check this out more completely, I recommend
+> it, because it seems like a great improvement to be able to accurately
+> see vmstat numbers in times of system load.  I hope the other side
+> effects are beneficial as well :-)
 
-One note for the archives, if you are presented a choice between a OHCI
-or a UHCI controller, go for the OHCI.  It has a "cleaner" interface,
-handles more of the logic in the silicon, and due to this provides
-faster transfers.
+I wanted to point out that there may be some performance impacts by
+this: We had exactly the new behaviour on SYSV semaphores. It led to
+very bad behaviour in high load situations since for high frequency,
+short critical paths this led to very high context switch rates
+instead of using the available time slice for the program.
 
-In it's defense, the UHCI design was the first one, and OHCI
-capitalized on that by fixing some of its weaknesses.  Hopefully the
-same thing will not happen for USB 2.0, and everyone will like EHCI.
+We changed the behaviour of SYSV semaphores to the current kernel sem
+behaviour and never had problems with that change.
+
+I still think that your change is right since this is kernel space and
+you do not have the notion of a time slice.
+
+        Christoph
 
 
-greg k-h
-(who has UHCI in all of his machines except one.)
-
--- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

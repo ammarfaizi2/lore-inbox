@@ -1,78 +1,259 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266779AbUGUXwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266780AbUGUXzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266779AbUGUXwh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 19:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266780AbUGUXwh
+	id S266780AbUGUXzs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 19:55:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266782AbUGUXzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 19:52:37 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42965 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266779AbUGUXwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 19:52:33 -0400
-Date: Thu, 22 Jul 2004 01:52:28 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@osdl.org>
-Cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
-Subject: Re: New dev model (was [PATCH] delete devfs)
-Message-ID: <20040721235228.GZ14733@fs.tum.de>
-References: <40FEEEBC.7080104@quark.didntduck.org> <20040721231123.13423.qmail@lwn.net>
+	Wed, 21 Jul 2004 19:55:48 -0400
+Received: from berrymount.xs4all.nl ([82.92.47.16]:46697 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S266780AbUGUXzh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 19:55:37 -0400
+Date: Thu, 22 Jul 2004 01:54:44 +0200
+From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+To: Shesha Sreenivasamurthy <shesha@inostor.com>
+Cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+Subject: Re: O_DIRECT
+Message-Id: <20040722015444.6cbeaee0.robn@verdi.et.tudelft.nl>
+In-Reply-To: <40FEF9CD.9020308@inostor.com>
+References: <40FD561D.1010404@inostor.com>
+	<20040721020520.4d171db7.robn@verdi.et.tudelft.nl>
+	<40FEA382.8050700@inostor.com>
+	<20040721192042.11f9c3f5.robn@verdi.et.tudelft.nl>
+	<40FEAF70.4070407@inostor.com>
+	<20040721201532.7e6161ed.robn@verdi.et.tudelft.nl>
+	<40FEF9CD.9020308@inostor.com>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040721231123.13423.qmail@lwn.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 21, 2004 at 05:11:23PM -0600, Jonathan Corbet wrote:
+On Wed, 21 Jul 2004 16:18:37 -0700
+Shesha Sreenivasamurthy <shesha@inostor.com> wrote:
 
-> > Ok, is there anywhere else that isn't subscriber-only that has the scoop?
-> 
-> For those who weren't here, the basic scoop is this:
-> 
-> - 2.6 is doing great, despite the fact that (by Andrew's reckoning) some
->   10mb/month of patches are going into it.
-> 
-> - Linus is majorly pleased with how the partnership with Andrew has been
->   working, and few people feel that he shouldn't be.  He is a little
->   concerned about breaking a highly effective process when 2.7 forks.
-> 
-> - There is not a whole lot of pressure to create a 2.7 now, but a lot of
->   interest in getting patches into the mainstream quickly.
-> 
-> The end result is that there may not be a 2.7 for a while.  Instead,
-> significant patches will continue to go into 2.6, after a vetting period
-> in -mm.  Andrew stated his willingness to consider, for example,
-> four-level page tables, MODULE_PARM removal, API changes, and more.  2.7
-> will only be created when it becomes clear that there are sufficient
-> patches which are truly disruptive enough to require it.  When 2.7 *is*
-> created, it could be highly experimental, and may turn out to be a
-> throwaway tree.
-> 
-> Andrew's vision, as expressed at the summit, is that the mainline kernel
-> will be the fastest and most feature-rich kernel around, but not,
-> necessarily, the most stable.  Final stabilization is to be done by
-> distributors (as happens now, really), but the distributors are expected
-> to merge their patches quickly.
-> 
-> Anybody disagree with that summary?
+Hi Shesha,
 
-Thanksfor this mail, this is exactly the information that was missing.
+Your original question (and my answer) was about a different situation:
 
-Discussing the contents:
-Changes that remove functionally like Greg's patch are hopefully 
-still 2.7 stuff - 2.6 is a stable kernel series and smooth upgrades 
-inside a stable kernel series are a must for many users.
+        - partition with no filesystem
+        - access on this raw partition
 
-> jon
- 
-cu
-Adrian
+Now you start talking about various file-systems and I get the impression
+that you access the device through the file-system (although that is
+not very clear in your text) on a mounted fs.
 
--- 
+What I told you applied to straight partitions (without mounted a mounted fs).
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+I don't know the exact rules for the various file-systems.
+They might be different (and some might not support O_DIRECT at all).
+I expect the same "soft block size rules" to apply for the filesystems
+that *do* support O_DIRECT.  Note that mounting a partition might
+change the softblock size of that partition used by the kernel from thereon.
 
+
+	greetings,
+	Rob van Nieuwkerk
+
+PS1: what kernel are you using ?
+
+PS2: what are you trying to do ?
+
+PS3: you mention "our driver ..".  What is this driver ?
+
+
+
+> I could never get it working with 4096 block size.
+> 
+> I created an EXT3 with blockize=4096 (mkfs.ext3 -b 4096 /dev/sda11). 
+> Alligned memory to 4096 boundary. Read 8192 Bytes. -> UNSUCCESSFUL :(
+> I created an XFS with blockize=4096 (mkfs.xfs -f  -b size=4096 
+> /dev/sda11). Alligned memory to 4096 boundary. Read 8192 Bytes. -> 
+> UNSUCCESSFUL :(
+> 
+> SUCCESS HAPPEND ONLY WHEN ....
+> 
+> 1. I created an XFS with blockize=4096 (mkfs.xfs -f  -b size=4096 
+> /dev/sda11).
+>                                                        OR
+>     I created an EXT3 with blockize=4096 (mkfs.ext3 -b 4096 /dev/sda11).
+> 
+> 2. Changed blocksizeto 1024
+> 3. Alligned memory to 1024 boundary.
+> 4  Read 8192 Bytes. -> SUCCESSFUL :)
+> 
+> -Shesha
+> 
+> 
+> Rob van Nieuwkerk wrote:
+> 
+> >On Wed, 21 Jul 2004 11:01:20 -0700
+> >Shesha Sreenivasamurthy <shesha@inostor.com> wrote:
+> >
+> >Hi Shesha,
+> >
+> >  
+> >
+> >>ohhh OK, if the block size is 4096, then the read/write size must be 
+> >>integer multiple of 4096 ??? is it ???
+> >>In general should the read/write length be a multiple of block size?
+> >>    
+> >>
+> >
+> >Yes, see my previous emails.
+> >
+> >	greetings,
+> >	Rob van Nieuwkerk
+> >
+> >  
+> >
+> >>Rob van Nieuwkerk wrote:
+> >>
+> >>    
+> >>
+> >>>On Wed, 21 Jul 2004 10:10:26 -0700
+> >>>Shesha Sreenivasamurthy <shesha@inostor.com> wrote:
+> >>>
+> >>>Hi Shesha,
+> >>>
+> >>>You don't mention what the *size* of your read()/write() is.
+> >>>Besides a requirement on the alignment of the read/write buffer
+> >>>the size of the read()/write() must also be OK.
+> >>>
+> >>>	greetings,
+> >>>	Rob van Nieuwkerk
+> >>>
+> >>> 
+> >>>
+> >>>      
+> >>>
+> >>>>This is what I found ....
+> >>>>
+> >>>>Our driver sets the block size to be 4096. so BLKBSZGET will return 
+> >>>>4096. So if I allin the memory at 4096 boundary, I cannot read using 
+> >>>>O_DIRECT. But, if I set the block size to 512.  I can read/write 
+> >>>>successfully. It also works with 1024, but no with 4096
+> >>>>
+> >>>>So the recepie what I am following is ...
+> >>>>
+> >>>>BLKBSZGET -> Get original block size
+> >>>>BLKBSZSET ->  Set the block size to 512
+> >>>>READ | WRITE Successfully ;)
+> >>>>BLKBSZSET ->  Set back to the original block size
+> >>>>
+> >>>>-Shesha
+> >>>>
+> >>>>Rob van Nieuwkerk wrote:
+> >>>>
+> >>>>   
+> >>>>
+> >>>>        
+> >>>>
+> >>>>>On Tue, 20 Jul 2004 10:27:57 -0700
+> >>>>>Shesha Sreenivasamurthy <shesha@inostor.com> wrote:
+> >>>>>
+> >>>>>Hi Shesha,
+> >>>>>
+> >>>>>
+> >>>>>
+> >>>>>     
+> >>>>>
+> >>>>>          
+> >>>>>
+> >>>>>>I am having trouble with O_DIRECT. Trying to read or write from a block 
+> >>>>>>device partition.
+> >>>>>>
+> >>>>>>1. Can O_DIRECT be used on a plain block device partition say 
+> >>>>>>"/dev/sda11" without having a filesystem on it.
+> >>>>>>  
+> >>>>>>
+> >>>>>>       
+> >>>>>>
+> >>>>>>            
+> >>>>>>
+> >>>>>yes.
+> >>>>>
+> >>>>>
+> >>>>>
+> >>>>>     
+> >>>>>
+> >>>>>          
+> >>>>>
+> >>>>>>2. If no file system is created then what should be the softblock size. 
+> >>>>>>I am using the IOCTL "BLKBSZGET". Is this correct?
+> >>>>>>  
+> >>>>>>
+> >>>>>>       
+> >>>>>>
+> >>>>>>            
+> >>>>>>
+> >>>>>yes.
+> >>>>>
+> >>>>>
+> >>>>>
+> >>>>>     
+> >>>>>
+> >>>>>          
+> >>>>>
+> >>>>>>3. Can we use SEEK_END with O_DIRECT on a partition without filesystem.
+> >>>>>>  
+> >>>>>>
+> >>>>>>       
+> >>>>>>
+> >>>>>>            
+> >>>>>>
+> >>>>>yes.
+> >>>>>
+> >>>>>I'm using these exact things in an application.
+> >>>>>
+> >>>>>Note that with 2.4 kernels the "granularity" you can use for offset
+> >>>>>and r/w size is the softblock size (*).  For 2.6 the requirements are
+> >>>>>much more relaxed: it's the device blocksize (typically 512 byte).
+> >>>>>
+> >>>>>(*): actually one of offset or r/w size has a smaller minimum if
+> >>>>>I remember correctly.  Don't remember which one.  But if you assume
+> >>>>>the softblock size as a minimum for both you're allways safe.
+> >>>>>
+> >>>>>	greetings,
+> >>>>>	Rob van Nieuwkerk
+> >>>>>
+> >>>>>--
+> >>>>>Kernelnewbies: Help each other learn about the Linux kernel.
+> >>>>>Archive:       http://mail.nl.linux.org/kernelnewbies/
+> >>>>>FAQ:           http://kernelnewbies.org/faq/
+> >>>>>
+> >>>>>
+> >>>>>.
+> >>>>>
+> >>>>>
+> >>>>>
+> >>>>>     
+> >>>>>
+> >>>>>          
+> >>>>>
+> >>>--
+> >>>Kernelnewbies: Help each other learn about the Linux kernel.
+> >>>Archive:       http://mail.nl.linux.org/kernelnewbies/
+> >>>FAQ:           http://kernelnewbies.org/faq/
+> >>>
+> >>>
+> >>>.
+> >>>
+> >>> 
+> >>>
+> >>>      
+> >>>
+> >
+> >--
+> >Kernelnewbies: Help each other learn about the Linux kernel.
+> >Archive:       http://mail.nl.linux.org/kernelnewbies/
+> >FAQ:           http://kernelnewbies.org/faq/
+> >
+> >
+> >.
+> >
+> >  
+> >
+> 

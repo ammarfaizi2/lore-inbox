@@ -1,118 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264749AbSKRT3y>; Mon, 18 Nov 2002 14:29:54 -0500
+	id <S264679AbSKRT06>; Mon, 18 Nov 2002 14:26:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264745AbSKRT2r>; Mon, 18 Nov 2002 14:28:47 -0500
-Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:62629 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S264749AbSKRTYy> convert rfc822-to-8bit; Mon, 18 Nov 2002 14:24:54 -0500
+	id <S264756AbSKRTZC>; Mon, 18 Nov 2002 14:25:02 -0500
+Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:50429 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S264647AbSKRTYu> convert rfc822-to-8bit; Mon, 18 Nov 2002 14:24:50 -0500
 Content-Type: text/plain;
   charset="us-ascii"
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.48 s390 (14/16): warnings.
-Date: Mon, 18 Nov 2002 20:22:58 +0100
+Subject: [PATCH] 2.5.48 s390.
+Date: Mon, 18 Nov 2002 20:16:20 +0100
 X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200211182022.58758.schwidefsky@de.ibm.com>
+Message-Id: <200211182016.20240.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove some warnings.
+Hi Linus,
+some s390 patches for 2.5.48. The majority of the patches is to keep up
+with the common code changes. There is one bigger patch: the reworked
+sclp driver - formerly known as hwc. It is much smaller than the old
+code, still does the same and even has some comments...
+We are still very busy with the sysfs driver model changes. There is
+more to be done before the common io layer is in a state that won't
+change immediatly again. Arnd wanted to put a current version of
+it to linux-390.bkbit.net for interested parties. It is not ready
+for inclusion into the main kernel yet.
 
-diff -urN linux-2.5.48/arch/s390/kernel/smp.c linux-2.5.48-s390/arch/s390/kernel/smp.c
---- linux-2.5.48/arch/s390/kernel/smp.c	Mon Nov 18 05:29:20 2002
-+++ linux-2.5.48-s390/arch/s390/kernel/smp.c	Mon Nov 18 20:12:06 2002
-@@ -274,7 +274,7 @@
- 
- void do_ext_call_interrupt(struct pt_regs *regs, __u16 code)
- {
--        int bits;
-+        unsigned long bits;
- 
-         /*
-          * handle bit signal external calls
-@@ -282,9 +282,7 @@
-          * For the ec_schedule signal we have to do nothing. All the work
-          * is done automatically when we return from the interrupt.
-          */
--        do {
--                bits = atomic_read(&S390_lowcore.ext_call_fast);
--        } while (atomic_compare_and_swap(bits,0,&S390_lowcore.ext_call_fast));
-+	bits = xchg(&S390_lowcore.ext_call_fast, 0);
- 
- 	if (test_bit(ec_call_function, &bits)) 
- 		do_call_function();
-@@ -296,13 +294,12 @@
-  */
- static sigp_ccode smp_ext_bitcall(int cpu, ec_bit_sig sig)
- {
--        struct _lowcore *lowcore = lowcore_ptr[cpu];
-         sigp_ccode ccode;
- 
-         /*
-          * Set signaling bit in lowcore of target cpu and kick it
-          */
--        atomic_set_mask(1<<sig, &lowcore->ext_call_fast);
-+	set_bit(sig, (unsigned long *) &lowcore_ptr[cpu]->ext_call_fast);
-         ccode = signal_processor(cpu, sigp_external_call);
-         return ccode;
- }
-@@ -323,7 +320,7 @@
-                 /*
-                  * Set signaling bit in lowcore of target cpu and kick it
-                  */
--                atomic_set_mask(1<<sig, &lowcore->ext_call_fast);
-+		set_bit(sig, (unsigned long *) &lowcore_ptr[i]->ext_call_fast);
-                 while (signal_processor(i, sigp_external_call) == sigp_busy)
- 			udelay(10);
-         }
-diff -urN linux-2.5.48/arch/s390/kernel/time.c linux-2.5.48-s390/arch/s390/kernel/time.c
---- linux-2.5.48/arch/s390/kernel/time.c	Mon Nov 18 05:29:20 2002
-+++ linux-2.5.48-s390/arch/s390/kernel/time.c	Mon Nov 18 20:12:06 2002
-@@ -140,7 +140,6 @@
-  */
- static void do_comparator_interrupt(struct pt_regs *regs, __u16 error_code)
- {
--	int cpu = smp_processor_id();
- 	__u64 tmp;
- 	__u32 ticks;
- 
-diff -urN linux-2.5.48/arch/s390/mm/init.c linux-2.5.48-s390/arch/s390/mm/init.c
---- linux-2.5.48/arch/s390/mm/init.c	Mon Nov 18 05:29:51 2002
-+++ linux-2.5.48-s390/arch/s390/mm/init.c	Mon Nov 18 20:12:06 2002
-@@ -188,7 +188,7 @@
- 		free_page(addr);
- 		totalram_pages++;
-         }
--        printk ("Freeing unused kernel memory: %dk freed\n",
-+        printk ("Freeing unused kernel memory: %ldk freed\n",
- 		((unsigned long)&__init_end - (unsigned long)&__init_begin) >> 10);
- }
- 
-diff -urN linux-2.5.48/arch/s390x/kernel/time.c linux-2.5.48-s390/arch/s390x/kernel/time.c
---- linux-2.5.48/arch/s390x/kernel/time.c	Mon Nov 18 05:29:52 2002
-+++ linux-2.5.48-s390/arch/s390x/kernel/time.c	Mon Nov 18 20:12:06 2002
-@@ -126,7 +126,6 @@
-  */
- static void do_comparator_interrupt(struct pt_regs *regs, __u16 error_code)
- {
--	int cpu = smp_processor_id();
- 	__u64 tmp;
- 	__u32 ticks;
- 
-diff -urN linux-2.5.48/include/asm-s390/lowcore.h linux-2.5.48-s390/include/asm-s390/lowcore.h
---- linux-2.5.48/include/asm-s390/lowcore.h	Mon Nov 18 05:29:45 2002
-+++ linux-2.5.48-s390/include/asm-s390/lowcore.h	Mon Nov 18 20:12:06 2002
-@@ -136,7 +136,7 @@
- 
-         /* SMP info area: defined by DJB */
-         __u64        jiffy_timer;              /* 0xc80 */
--	atomic_t     ext_call_fast;            /* 0xc88 */
-+	__u32        ext_call_fast;            /* 0xc88 */
-         __u8         pad11[0xe00-0xc8c];       /* 0xc8c */
- 
-         /* 0xe00 is used as indicator for dump tools */
+01: Kconfig file fixes: remove options ISA/MCA/EISA, add some missing
+    help texts. Regenerate default configuration files. Update section
+    names in vmlinux.lds.S. Simplify some Makefiles.
+02: Add new system calls for event polling and set_tid_address.
+03: New memory management defines MAP_POPULATE/MAP_NONBLOCK .
+04: s390 needs a 64 bit sector_t for big disks accessed via scsi/zfcp.
+05: Add s390/s390x support for new kernel module loader.
+06: Compile fixes.
+07: Bug fix for copy_to_user/copy_from_user. If the copy faults, it is
+    possible that the information in the lowcore gets overwritten. The
+    new code is completly independent from program check information.
+    Fix compile for peculiar get_user() usage in drivers/scsi/scsi_ioctl.c
+08: Make the kernel compile with newer version of gcc.
+09: Fix ebcdic conversion for strings of n*256 + 1 characters.
+10: Don't set cpu_vm_mask if the mm isn't exclusive to the cpu.
+11: Remove the _PAGE_ISCLEAN bit in pte_mkwrite to make pte_mkwrite
+    work correctly even if it is not followed by a pte_mkdirty.
+12: Bug fixes for the 31 bit emulation layer. New interface
+    [un]register_ioctl32_conversion.
+13: xpram driver: remove unused variable and add missing return statement.
+14: Remove some warnings.
+15: Reworked sclp driver part 1 - remove hwc files
+16: Reworked sclp driver part 2 - add sclp files.
+
+blue skies,
+  Martin.
+
 

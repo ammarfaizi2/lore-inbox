@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVADRhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVADRiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbVADRhK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 12:37:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVADRhH
+	id S261794AbVADRiG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 12:38:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVADRha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 12:37:07 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:31377 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S261802AbVADRd6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 12:33:58 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CAD3@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: Matt Domsch <Matt_Domsch@Dell.com>,
-       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, brking@us.ibm.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>, bunk@fs.tum.de,
-       Andrew Morton <akpm@osdl.org>, "Ju, Seokmann" <sju@lsil.com>,
-       "Doelfel, Hardy" <hdoelfel@lsil.com>, "Mukker, Atul" <Atulm@lsil.com>
-Subject: RE: How to add/drop SCSI drives from within the driver?
-Date: Tue, 4 Jan 2005 12:25:54 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Tue, 4 Jan 2005 12:37:30 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:60943 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261754AbVADRdy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 12:33:54 -0500
+Date: Tue, 4 Jan 2005 18:33:52 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Domen Puncer <domen@coderock.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] maintainers: remove moderated arm list
+Message-ID: <20050104173352.GG3097@stusta.de>
+References: <20041225170825.GA31577@nd47.coderock.org> <20041225172155.A26504@flint.arm.linux.org.uk> <20050103175438.GL2980@stusta.de> <20050103182532.A3442@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050103182532.A3442@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->On Mon, 2005-01-03 at 18:02 -0500, Bagalkote, Sreenivas wrote:
->> o    Everybody understands that as long as the SCSI 
->scan/rescan is triggered
->> by 
->> the management app, there is no getting around knowing HCTL 
->mapping. The app
->> must know the HCTL quad of a logical drive.
->
->Actually, if that's all you're trying to do, what about
->
->echo '- - -' > /sys/class/scsi_host/host<n>/scan
->
->That'll trigger a rescan of the entire card and the device 
->will be found
->and added?
->
+On Mon, Jan 03, 2005 at 06:25:33PM +0000, Russell King wrote:
+> On Mon, Jan 03, 2005 at 06:54:38PM +0100, Adrian Bunk wrote:
+> > On Sat, Dec 25, 2004 at 05:21:55PM +0000, Russell King wrote:
+> > > If we must, I guess it's fine, but I expect *you* to provide the support
+> > > to people to people who don't know where to go for it if *you* remove this.
+> > 
+> > I'm sometimes doing patches that cover many files, and I want to Cc the 
+> > patches to the developers in question.
+> > 
+> > If after sending 10 patches I get 5 "this is a subscribers-only list" 
+> > mails, I'm not going to subscribe to 5 lists, forward the patches to 
+> > them and unsubscribe again after this (and repeat this if there's some 
+> > discussion regarding one of these patches).
+> > 
+> > In my experience, the best solution is a list policy that allows 
+> > subscribers to post and requires moderator approval for non-members.
+> > This policy that is already used by several lists listed in MAINTAINERS 
+> > is IMHO a good compromise between avoiding spam and allowing 
+> > non-subscribers to post to the list.
+> 
+> Well, that's precisely what happens with these lists - your post ends
+> up in the moderator approval queue.  They do generally find their way
+> from there into the appropriate peoples mailboxes (iow, mine).
 
-A minor point is that an application should ideally force scan only those
-drives
-that it has added. But more importantly, this will not help an application
-to delete
-the drives. Correct?
+OK, sorry, my comment was wrong.
 
-Sreenivas
+I confused moderated with subscribers-only .
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbUCGGJG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 01:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUCGGJG
+	id S261764AbUCGGL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 01:11:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbUCGGL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 01:09:06 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:35272 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S261760AbUCGGJB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 01:09:01 -0500
-Message-ID: <404ABC74.7030607@matchmail.com>
-Date: Sat, 06 Mar 2004 22:08:52 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+	Sun, 7 Mar 2004 01:11:57 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:22448
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S261764AbUCGGLz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 01:11:55 -0500
+Message-ID: <404ABD06.4060607@redhat.com>
+Date: Sat, 06 Mar 2004 22:11:18 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040306
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: "Ramy M. Hassan" <ramy@gawab.com>, linux-kernel@vger.kernel.org
-Subject: Re: Advanced storage management ( suggestion )
-References: <003801c402ea$44437190$ba10a8c0@ramy>	<404A9835.4020602@matchmail.com> <16458.42370.917655.953328@notabene.cse.unsw.edu.au>
-In-Reply-To: <16458.42370.917655.953328@notabene.cse.unsw.edu.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: mike@navi.cx
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Potential bug in fs/binfmt_elf.c?
+References: <1078508281.3065.33.camel@linux.littlegreen>	 <404A1C71.3010507@redhat.com> <1078607410.10313.7.camel@linux.littlegreen>
+In-Reply-To: <1078607410.10313.7.camel@linux.littlegreen>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> On Saturday March 6, mfedyk@matchmail.com wrote:
-> 
->>>2- Support for multi-disk/multi-host storage pool.
->>
->>You're mixing layers here.  MD and DM already work in this area.
->>
-> 
-> 
-> I would probably disagree here.
-> I think it makes much more sense for a filesystem to know about
-> multiple devices than for MD or DM to combine a bunch of devices into
-> the illusion of one big device, only to have the filesystem chop that
-> big device into little files....
-> 
-> (Note that I wouldn't expect a filesystem to include raid5 style
-> behaviour, and probably wouldn't expect raid1 like behaviour, but
-> having the filesystem do striping and inter-device migration itself
-> seems eminently sensible.)
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I saw something doing that in a SAN.  Don't know if it was at the 
-filesytem level though.
+Mike Hearn wrote:
 
-> However I don't see much value if the suggestion of a new layer that
-> provide lots of services of filesystems.  I strongly suspect that no
-> filesystem would want to use them.  Look at "jdb".  It is designed to
-> provide a journalling layer for any filesystem, but how many
-> filesystems use it?  Just one - ext3 - the one it was designed for.
+>   LOAD           0x000000 0x00000000 0x00000000 0x00bc4 0x00bc4 R E 0x1000
+>   LOAD           0x000bc4 0x00000bc4 0x00000bc4 0x00150 0x00154 RW  0x1000
+>   DYNAMIC        0x000bd0 0x00000bd0 0x00000bd0 0x00108 0x00108 RW  0x4
+>   LOAD           0x001000 0x00400000 0x00400000 0x00000 0x10000000 R   0x1000
 
-Since JBD is "Journaled Block Device", does that mean it's meant for 
-block based journaling instead of "virtual" (I don't think I'm using the 
-right term, so please someone correct me) journaling?
+Not everything which can be expressed in ELF is supported.  You don't
+want to load something, you want to reserve address space.  And you want
+it allocated in a certain way.  The ELF loader is no generic ELF
+interpreter.
 
-Mike
+Now, if the only problem is the overcommit and making the do_brk() call
+allocate the memory as read-only a change to the do_brk() interface
+might be acceptable (well, ask somebody doing mm hacking).  I wouldn't
+be entirely sure whether read-only pages alone are enough.  This does
+not open any new holes as far as I can see.
+
+I'd say experiment with it and add a flags parameter which is the right
+combination of VM_READ | VM_WRITE | VM_EXEC.  All calls but the one in
+binfmt_elf.c should pass all read bits, the one in binfmt_elf can
+respect the binaries flags.  You must be sure, though, that the last
+page of the data area (i.e., writable area) in a regular binary is not
+mapped read-only.
+
+- -- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFASr0L2ijCOnn/RHQRAjtZAJ931c+0Czw8jJc0kOv1+lIMyVLEOgCgtj3f
+aHnlBUWz8qFQitDqVBWyPpc=
+=f2UN
+-----END PGP SIGNATURE-----

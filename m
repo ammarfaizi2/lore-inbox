@@ -1,72 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbTL1XIR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 18:08:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTL1XIR
+	id S262130AbTL1XTE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 18:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbTL1XTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 18:08:17 -0500
-Received: from c-67-166-107-168.client.comcast.net ([67.166.107.168]:52358
-	"EHLO eglifamily.dnsalias.net") by vger.kernel.org with ESMTP
-	id S262161AbTL1XIM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 18:08:12 -0500
-Date: Sun, 28 Dec 2003 23:08:10 +0000 (UTC)
-From: dan@eglifamily.dnsalias.net
-To: Gabor MICSKO <gmicsko@szintezis.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Blank Screen in 2.6.0
-In-Reply-To: <1072640441.720.1.camel@sunshine>
-Message-ID: <Pine.LNX.4.44.0312282303340.15994-100000@eglifamily.dnsalias.net>
+	Sun, 28 Dec 2003 18:19:04 -0500
+Received: from asy06.as02.apl2.superonline.com ([195.33.208.130]:48134 "HELO
+	asy06.as02.apl2.superonline.com") by vger.kernel.org with SMTP
+	id S262153AbTL1XTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 18:19:00 -0500
+Message-ID: <b3-0rb-a9q0bc3j0$-k@keiu8>
+From: "Admin" <Personnel@selu.com.ar>
+To: linux-kernel@vger.kernel.org
+Subject: Attention All  Staff and Personnel:
+Date: Mon, 29 Dec 03 03:13:06 GMT
+X-Priority: 1
+X-MSMail-Priority: High
+X-Mailer: The Bat! (v1.52f) Business
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-SA-Exim-Mail-From: dan@eglifamily.dnsalias.net
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+Content-Type: multipart/alternative;
+	boundary="824.8EB3..02A.6C.13._037"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Dec 2003, Gabor MICSKO wrote:
+This is a multi-part message in MIME format.
 
-> http://www.linux.org.uk/~davej/docs/post-halloween-2.6.txt
-> 
-> 
-I tried that. 
+--824.8EB3..02A.6C.13._037
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+Attention All Staff and Personnel:
 
-Known gotchas.
-~~~~~~~~~~~~~~
-Certain known bugs are being reported over and over. Here are the
-workarounds.
-- Blank screen after decompressing kernel?
-  Make sure your .config has
-   CONFIG_INPUT=y
-   CONFIG_VT=y
-   CONFIG_VGA_CONSOLE=y
-   CONFIG_VT_CONSOLE=y
-  A lot of people have discovered that taking their .config from 2.4 and
-  running make oldconfig to pick up new options leads to problems, notably
-  with CONFIG_VT not being set.
+You Must Respond By 5 P.M. Tuesday, December 30, 2003
 
-ok, so I grep'ed the .config
+Through a special arrangement, Avtech Direct is offering a limited
+allotment of BRAND NEW, top of-the-line, name-brand desktop computers
+at 50% off MSRP to all who respond to this message
+before 5 P.M., Tuesday, December 30, 2003.
 
-[root@eglifamily kernel]# grep -wi config_input .config
-CONFIG_INPUT=y
-[root@eglifamily kernel]# grep -wi config_vt .config
-CONFIG_VT=y
-[root@eglifamily kernel]# grep -wi config_vga_console .config
-CONFIG_VGA_CONSOLE=y
-[root@eglifamily kernel]# grep -wi config_vt_console .config
-CONFIG_VT_CONSOLE=y
-[root@eglifamily kernel]#
+All desktop computers are brand-new packed in their original boxes,
+and come with a full manufacturer's warranty plus
+a 100% satisfaction guarantee.
 
+These professional grade Desktops are fully equipped with 2004
+next generation technology, making these the best performing
+computers money can buy.
 
-you can see that in the .config I attched:
+Avtech Direct is offering these feature rich, top performing
+Desktops with the latest Intel technology at an amazing price
+to All Staff and Personnel who call:
 
-> > CONFIG_INPUT=y
-> > CONFIG_VT=y
-> > CONFIG_VT_CONSOLE=y
-> > CONFIG_VGA_CONSOLE=y
+    1-800-884-9510 by 5 P.M.  Tuesday, December 30, 2003
 
-Any other ideas?
+The fast and powerful AT-2400 series Desktop features: 
 
---- Dan
+      * Intel 2.0Ghz Processor for amazing speed and performance
+      * 128MB DDR RAM,  Upgradeable to 1024
+      * 20 GB UDMA Hard Drive, Upgradeable to 80 GB
+      * 52X CD-Rom Drive, Upgradeable to DVD/CDRW 
+      * 1.44 Floppy disk drive
+      * Next Generation Technology
+      * ATI Premium video and sound
+      * Full Connectivity with Fax modem/Lan/IEE 1394/USB 2.0
+      * Soft Touch Keyboard and scroll mouse
+      * Internet Ready
+      * Network Ready
+      * 1 Year parts and labor warranty
+      * Priority customer service and tech support
 
+MSRP $699 ........................................ Your Cost $347
+
+How to qualify:
+
+  1. You must be a Medical Staff Member, Teacher or Student.
+  2. All desktop computers will be available on a
+     first come first serve basis.
+  3. You must call 1-800-884-9510 by 5 P.M. Tuesday, December 30, 2003
+     and we will hold the desktops you request on will call. 
+  4. You are not obligated in any way.
+  5. 100% Satisfaction Guaranteed.
+   
+   
+Call Avtech Direct
+1-800-884-9510 before 5 P.M. Tuesday, December 30, 2003
+--824.8EB3..02A.6C.13._037--
 

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278696AbRJXSIp>; Wed, 24 Oct 2001 14:08:45 -0400
+	id <S278698AbRJXSLz>; Wed, 24 Oct 2001 14:11:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278695AbRJXSIi>; Wed, 24 Oct 2001 14:08:38 -0400
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:55537 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S278694AbRJXSIT>; Wed, 24 Oct 2001 14:08:19 -0400
-Date: Wed, 24 Oct 2001 19:08:28 +0100 (BST)
-From: James Sutherland <jas88@cam.ac.uk>
-X-X-Sender: <jas88@green.csi.cam.ac.uk>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Jan Kara <jack@suse.cz>, Neil Brown <neilb@cse.unsw.edu.au>,
-        <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
-In-Reply-To: <Pine.LNX.4.33L.0110241540090.3690-100000@imladris.surriel.com>
-Message-ID: <Pine.SOL.4.33.0110241855590.12478-100000@green.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278697AbRJXSLf>; Wed, 24 Oct 2001 14:11:35 -0400
+Received: from maild.telia.com ([194.22.190.101]:61888 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id <S278695AbRJXSLb>;
+	Wed, 24 Oct 2001 14:11:31 -0400
+Date: Thu, 25 Oct 2001 20:15:08 +0200
+From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
+To: Linux-Kernel Development Mailinglist 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.13: some compilerwarnings...
+Message-ID: <20011025201508.B11646@telia.com>
+Mail-Followup-To: Linux-Kernel Development Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011024195342.A464@Zenith.starcenter>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20011024195342.A464@Zenith.starcenter>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Oct 2001, Rik van Riel wrote:
-> On Wed, 24 Oct 2001, James Sutherland wrote:
->
-> > Yep, you're right: you'd need to ascend the target directory tree,
-> > increasing the cumulative size all the way up, then do the move and
-> > decrement the old location's totals in the same way. All wrapped up in a
-> > transaction (on journalled FSs) or have fsck rebuild the totals on a dirty
-> > mount. Fairly clean and painless on a JFS,
->
-> It's only clean and painless when you have infinite journal
-> space. When your filesystem's journal isn't big enough to
-> keep track of all the quota updates from an arbitrarily deep
-> directory tree, you're in big trouble.
+Sven Vermeulen <sven.vermeulen@rug.ac.be> wrote:
 
-Good point. You should be able to do it in constant space, though:
-identify the directory being modified, and the "height" to which you have
-ascended so far. That'll allow you to back out or redo the transaction
-later, which is enough I think?
+> {standard input}:1040: Warning: indirect lcall without `*'
+> {standard input}:1125: Warning: indirect lcall without `*'
+> {standard input}:1208: Warning: indirect lcall without `*'
 
+I think Alan once mentioned that this was sort of a feature to make old
+versions of binutils work too. I'm not sure exactly how old those are
+though, and if they are older than the recommended 2.9.1.0.25 I vote for
+fixing these ugly warnings.
+-- 
 
-James.
-
+André Dahlqvist <andre.dahlqvist@telia.com>

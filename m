@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUFERjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbUFESBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUFERjW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 13:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUFERjW
+	id S261832AbUFESBq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 14:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbUFESBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 13:39:22 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:22712 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261763AbUFERjU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 13:39:20 -0400
-Date: Sat, 5 Jun 2004 19:39:00 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Peter Korsgaard <jacmet@sunsite.dk>,
-       James Simmons <jsimmons@infradead.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Rusty Trivial Russell <trivial@rustcorp.com.au>
-Subject: Re: [PATCH] Typo in Documentation/fb/framebuffer.txt
-In-Reply-To: <87zn7k4aw9.fsf@p4.48ers.dk>
-Message-ID: <Pine.GSO.4.58.0406051938320.12190@waterleaf.sonytel.be>
-References: <87zn7k4aw9.fsf@p4.48ers.dk>
+	Sat, 5 Jun 2004 14:01:45 -0400
+Received: from cyberhostplus.biz ([209.124.87.2]:51178 "EHLO
+	server.cyberhostplus.biz") by vger.kernel.org with ESMTP
+	id S261832AbUFESBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 14:01:43 -0400
+From: "Steve Lee" <steve@tuxsoft.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Who has record no. of  DriveReady SeekComplete DataRequest errors?
+Date: Sat, 5 Jun 2004 13:01:29 -0500
+Message-ID: <000401c44b27$24ba1880$8119fea9@pluto>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Importance: Normal
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - server.cyberhostplus.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - tuxsoft.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jun 2004, Peter Korsgaard wrote:
-> Vertical retrace is in lines, not pixels.
-
-That's correct. James, please apply.
-
-> --- Documentation/fb/framebuffer.txt.orig       2004-06-03 22:43:06.000000000 +0200
-> +++ Documentation/fb/framebuffer.txt    2004-06-03 22:43:50.000000000 +0200
-> @@ -190,7 +190,7 @@ We'll say that the horizontal scanrate i
->      1/(32.141E-6 s) = 31.113E3 Hz
+>Well since 2.6.3 I think I've been getting the record number of 
 >
->  A full screen counts 480 (yres) lines, but we have to consider the vertical
-> -retrace too (e.g. 49 `pixels'). So a full screen will take
-> +retrace too (e.g. 49 `lines'). So a full screen will take
+>hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+>hdd: status error: error=0x00
+>hdd: drive not ready for command
+>hdd: ATAPI reset complete
 >
->      (480+49)*32.141E-6 s = 17.002E-3 s
->
+>errors from my cdrw on hdd; and it's only one drive's worth.
 
-Gr{oetje,eeting}s,
 
-						Geert
+I've been witnessing almost exactly the same thing as you.  I assumed,
+perhaps falsely, that my AOpen CDRW was failing.  I just recently
+replaced it with a DVD-Rom drive and thus far have not seen these
+errors.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+hdd: status error: status=0x59 { DriveReady SeekComplete DataRequest
+Error }
+hdd: status error: error=0x20LastFailedSense 0x02
+hdd: drive not ready for command
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: status error: error=0x00
+hdd: drive not ready for command
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: status error: error=0x00
+hdd: drive not ready for command
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: status error: error=0x00
+hdd: DMA disabled
+hdd: drive not ready for command
+hdd: ATAPI reset complete
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Could this be a kernel bug?  Please CC me as I'm no longer subscribed to
+this list.
+
+Thanks,
+Steve
+
+

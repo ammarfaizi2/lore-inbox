@@ -1,85 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266021AbUFDVDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266002AbUFDVD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266021AbUFDVDM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 17:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266011AbUFDVBc
+	id S266002AbUFDVD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 17:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUFDVD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 17:01:32 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:1432 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266000AbUFDU7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 16:59:45 -0400
-Message-ID: <40C0E2BF.3040705@acm.org>
-Date: Fri, 04 Jun 2004 15:59:43 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-Cc: Holger Kiehl <Holger.Kiehl@dwd.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: IPMI hangup in 2.6.6-rc3
-References: <Pine.LNX.4.58.R0405040649310.15047@praktifix.dwd.de> <20040525165335.GA28905@titan.lahn.de>
-In-Reply-To: <20040525165335.GA28905@titan.lahn.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 4 Jun 2004 17:03:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:56017 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266014AbUFDVDu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 17:03:50 -0400
+Date: Fri, 4 Jun 2004 13:58:12 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] add NAPI help texts
+Message-Id: <20040604135812.3e5b31fb.davem@redhat.com>
+In-Reply-To: <20040604152352.GB7744@fs.tum.de>
+References: <20040604152352.GB7744@fs.tum.de>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Strange.  I don't know what changed to cause this.
 
-The best bet is to use printks to trace this back to see where the 
-message is being lost (handle_bmc_rsp, handle_new_recv_msg, and so forth).
-
--Corey
-
-Philipp Matthias Hahn wrote:
-
->Hi Holger, Corey, LKML!
->
->On Tue, May 04, 2004 at 07:05:12AM +0200, Holger Kiehl wrote:
->  
->
->>When compiling in IPMI (not as modules) my system hangs just after
->>it prints out detection of IPMI. 2.6.5 did work fine. Compiling
->>it as a module and inserting it with modprobe causes modprobe
->>to hang in D state, there is nothing unusual in /var/log/messages:
->>
->>May  4 08:46:34 apollo kernel: ipmi message handler version v31
->>May  4 08:46:34 apollo kernel: IPMI System Interface driver version v31, KCS version v31, SMIC version v31, BT version v31
->>May  4 08:46:34 apollo kernel: ipmi_si: Found SMBIOS-specified state machine at I/O address 0xca2
->>May  4 08:54:14 apollo kernel: ipmi device interface version v31
->>    
->>
->
->Same for me on one of our single Xeon with 2.6.7-rc1. Using SysRq-T I
->was able to track it somehow down to the following situation:
->
->modprobe      D C201AD20     0  3735   2415                     (NOTLB)
->f6b51f0c 00000082 00000000 c201ad20 c201a0a0 00008124 00000002 00000000
->       f7c03000 f6b51ee4 f8bda434 c04b5dc0 c201ad20 00000000 00000000 8ce9c0c0
->       000f431a c03b8d80 f75fccd0 f75fce80 00000246 00000003 f6b50000 f7c03000
->Call Trace:
-> [<f8bdb46d>] ipmi_register_smi+0x22a/0x386 [ipmi_msghandler]
-> [<f8b570a6>] init_one_smi+0x1e6/0x4c2 [ipmi_si]
-> [<f8b270c2>] init_ipmi_si+0xc2/0x203 [ipmi_si]
-> [<c0137910>] sys_init_module+0x116/0x24d
-> [<c0106053>] syscall_call+0x7/0xb
->
->modprobe hangs at linux-2.6.7-rc1/drivers/char/ipmi/ipmi_msghandler.c:1727
->	wait_event((*intf)->waitq, ((*intf)->curr_channel>=IPMI_MAX_CHANNELS));
->
->This event should be fired by channel_handler(), but isn't for some
->unknown reason. I verified this by adding some printk() there, which
->wheren't shown.
->
->When I tried a 2.4 kernel with the patches from openipmi.sf.net, I
->was somehow able to use IPMI, but got into problems later.
->
->Any idea, what I can do to track the problem further down?
->
->BYtE
->Philipp
->  
->
-
-
+Jeff, you got this?

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132739AbRDINLm>; Mon, 9 Apr 2001 09:11:42 -0400
+	id <S132736AbRDINQN>; Mon, 9 Apr 2001 09:16:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132736AbRDINLc>; Mon, 9 Apr 2001 09:11:32 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:6349 "EHLO
+	id <S132742AbRDINQE>; Mon, 9 Apr 2001 09:16:04 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:9165 "EHLO
 	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S132742AbRDINLP>; Mon, 9 Apr 2001 09:11:15 -0400
+	id <S132736AbRDINP6>; Mon, 9 Apr 2001 09:15:58 -0400
 To: linux-kernel@vger.kernel.org
 Path: forge.intermeta.de!not-for-mail
 From: "Henning P. Schmiedehausen" <hps@intermeta.de>
 Newsgroups: hometree.linux.kernel
-Subject: Re: Proper way to release binary driver?
-Date: Mon, 9 Apr 2001 13:11:12 +0000 (UTC)
+Subject: Re: Multi-function PCI devices
+Date: Mon, 9 Apr 2001 13:15:57 +0000 (UTC)
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9ascdh$rh3$1@forge.intermeta.de>
-In-Reply-To: <3ACDE5C5.CEB65D4A@raleigh.ibm.com> <E14lnvn-0007AS-00@the-village.bc.nu>
+Message-ID: <9ascmd$27d$1@forge.intermeta.de>
+In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com>
 Reply-To: hps@intermeta.de
 NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 986821872 24366 212.34.181.4 (9 Apr 2001 13:11:12 GMT)
+X-Trace: tangens.hometree.net 986822157 24657 212.34.181.4 (9 Apr 2001 13:15:57 GMT)
 X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Mon, 9 Apr 2001 13:11:12 +0000 (UTC)
+NNTP-Posting-Date: Mon, 9 Apr 2001 13:15:57 +0000 (UTC)
 X-Copyright: (C) 1996-2001 Henning Schmiedehausen
 X-No-Archive: yes
 X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 
->> We had hoped that MODVERSIONS would allow us to provide a single (or at
->> most a few) binary driver. Kernels with even minor version numbers are
->> supposed to be stable (even if they are buggy) ie. not have wildly
->> changing kernel interfaces.
+>Not so hard.
 
->They have a stable API. THe ABI thing is an irrelevance to free software.
->avoiding the ABI compatibility mess is one of the great things free
->software lets you do.
+>There is no need to register more than one driver per PCI device -- just
+>create a PCI driver whose probe routine registers serial and parallel,
+>and whose remove routine unregisters same.
 
-^free^open source
+Sigh. Register a small dummy driver, which takes the device and then hands
+out the parallel ports to the parallel driver and the serial ports to the
+serial driver. All you need are just two small hooks.
 
-	Ciao
+	Regards
 		Henning
 
 

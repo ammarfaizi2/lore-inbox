@@ -1,142 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbTH2PEN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 11:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbTH2PCL
+	id S261338AbTH2PZm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 11:25:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTH2PZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 11:02:11 -0400
-Received: from web12802.mail.yahoo.com ([216.136.174.37]:21114 "HELO
-	web12802.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261292AbTH2PBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 11:01:13 -0400
-Message-ID: <20030829150111.72151.qmail@web12802.mail.yahoo.com>
-Date: Fri, 29 Aug 2003 08:01:11 -0700 (PDT)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: [VM PATCH] Faster reclamation of dirty pages and unused inode/dcache entries in 2.4.22
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-827563270-1062169271=:72021"
+	Fri, 29 Aug 2003 11:25:42 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:18816 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261338AbTH2PZl (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 11:25:41 -0400
+Message-Id: <200308291525.h7TFPAGG003501@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext2 -> ext3 on the fly? 
+In-Reply-To: Your message of "Fri, 29 Aug 2003 10:27:22 EDT."
+             <20030829142722.GB12564@rdlg.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030829141619.GA12564@rdlg.net> <3F4F6233.5050809@davehollis.com>
+            <20030829142722.GB12564@rdlg.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_422732139P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 29 Aug 2003 11:25:10 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-827563270-1062169271=:72021
+--==_Exmh_422732139P
 Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
 
-Hi kernel hackers,
+On Fri, 29 Aug 2003 10:27:22 EDT, "Robert L. Harris" said:
 
-The VM subsystem in Linux 2.4.22 can cause spurious
-swapouts in the presence of lots of dirty pages. 
-Presently, as dirty pages are encountered,
-shrink_cache() schedules a writepage() and moves the
-page to the head of the inactive list.  When a lot of
-dirty pages are present, this can break the FIFO
-ordering of the inactive list because clean pages
-further down the list will be reclaimed first.  The
-following patch records the pages being laundered, and
-once SWAP_CLUSTER_MAX pages have been accumulated or
-the scan is complete, goes back and attempts to move
-them back to the tail of the list.
+> My thoughts exactly, just wanted someone else to say it so I can give it
+> to management.  Unfortunately I know their response will be that our
+> package management system will ensure this won't happen which
+> technically it shouldn't but I can think of a couple ways ti still
+> could.
 
-The second part of the patch reclaims unused
-inode/dentry/dquot entries more aggressively.  I have
-observed that on an NFS server where swap out activity
-is low, the VM can shrink the page cache to the point
-where most pages are used up by unused inode/dentry
-entries.  This is because page cache reclamation
-succeeds most of the time except when a swap_out()
-happens.
+Quite (possibly unintentionally) amusing, because...
 
-Feedback and comments are welcome.
+> :wq!
 
-Thanks,
-Shantanu Goel
+Getting one of these in the file is one of the ways, probably... :)
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
---0-827563270-1062169271=:72021
-Content-Type: application/octet-stream; name="2.4.22-vm-writeback-inode.patch"
-Content-Transfer-Encoding: base64
-Content-Description: 2.4.22-vm-writeback-inode.patch
-Content-Disposition: attachment; filename="2.4.22-vm-writeback-inode.patch"
+--==_Exmh_422732139P
+Content-Type: application/pgp-signature
 
-LS0tIHZtc2Nhbi5jLn4xfgkyMDAyLTExLTI4IDE4OjUzOjE1LjAwMDAwMDAw
-MCAtMDUwMAorKysgdm1zY2FuLmMJMjAwMy0wOC0yOCAxOTowOTo0OC4wMDAw
-MDAwMDAgLTA0MDAKQEAgLTIzLDYgKzIzLDExIEBACiAjaW5jbHVkZSA8bGlu
-dXgvaW5pdC5oPgogI2luY2x1ZGUgPGxpbnV4L2hpZ2htZW0uaD4KICNpbmNs
-dWRlIDxsaW51eC9maWxlLmg+CisjaW5jbHVkZSA8bGludXgvZnMuaD4KKyNp
-bmNsdWRlIDxsaW51eC9kY2FjaGUuaD4KKyNpZmRlZiBDT05GSUdfUVVPVEEK
-KyNpbmNsdWRlIDxsaW51eC9xdW90YS5oPgorI2VuZGlmCiAKICNpbmNsdWRl
-IDxhc20vcGdhbGxvYy5oPgogCkBAIC0zMzQsMTIgKzMzOSw1MiBAQAogCXJl
-dHVybiAwOwogfQogCisvKgorICogV2FpdCBmb3IgcGFnZXMgYmVpbmcgbGF1
-bmRlcmVkIGFuZCBtb3ZlIHRoZW0KKyAqIHRvIHRhaWwgb2YgaW5hY3RpdmUg
-bGlzdCBpZiB0aGV5IGFyZSBzdGlsbCBmcmVlYWJsZS4KKyAqLworc3RhdGlj
-IHZvaWQgcHJvY2Vzc19sYXVuZHJ5KHN0cnVjdCBwYWdlICoqbGF1bmRyeSwg
-aW50IG5yX3BhZ2VzKQoreworCWludCBpOworCXN0cnVjdCBwYWdlICpwYWdl
-OworCisJZm9yIChpID0gbnJfcGFnZXMgLSAxOyBpID49IDA7IGktLSkgewor
-CQlwYWdlID0gbGF1bmRyeVtpXTsKKwkJc3Bpbl9sb2NrKCZwYWdlbWFwX2xy
-dV9sb2NrKTsKKworCQlpZiAoIVBhZ2VMUlUocGFnZSkgfHwgUGFnZUFjdGl2
-ZShwYWdlKSkKKwkJCWdvdG8gbmV4dF9wYWdlOworCisJCWlmIChUcnlMb2Nr
-UGFnZShwYWdlKSkgeworCQkJaWYgKFBhZ2VMYXVuZGVyKHBhZ2UpKSB7CisJ
-CQkJc3Bpbl91bmxvY2soJnBhZ2VtYXBfbHJ1X2xvY2spOworCQkJCXdhaXRf
-b25fcGFnZShwYWdlKTsKKwkJCQlpKys7CisJCQkJY29udGludWU7CisJCQl9
-CisJCQlnb3RvIG5leHRfcGFnZTsKKwkJfQorCisJCWlmICghUGFnZURpcnR5
-KHBhZ2UpICYmICFQYWdlRXJyb3IocGFnZSkgJiYgcGFnZS0+bWFwcGluZyAm
-JiAocGFnZV9jb3VudChwYWdlKSAtICEhcGFnZS0+YnVmZmVycykgPT0gMikg
-eworCQkJbGlzdF9kZWwoJnBhZ2UtPmxydSk7CisJCQlsaXN0X2FkZF90YWls
-KCZwYWdlLT5scnUsICZpbmFjdGl2ZV9saXN0KTsKKwkJfQorCisJCVVubG9j
-a1BhZ2UocGFnZSk7CituZXh0X3BhZ2U6CisJCXNwaW5fdW5sb2NrKCZwYWdl
-bWFwX2xydV9sb2NrKTsKKwkJcGFnZV9jYWNoZV9yZWxlYXNlKHBhZ2UpOwor
-CX0KK30KKwogc3RhdGljIGludCBGQVNUQ0FMTChzaHJpbmtfY2FjaGUoaW50
-IG5yX3BhZ2VzLCB6b25lX3QgKiBjbGFzc3pvbmUsIHVuc2lnbmVkIGludCBn
-ZnBfbWFzaywgaW50IHByaW9yaXR5KSk7CiBzdGF0aWMgaW50IHNocmlua19j
-YWNoZShpbnQgbnJfcGFnZXMsIHpvbmVfdCAqIGNsYXNzem9uZSwgdW5zaWdu
-ZWQgaW50IGdmcF9tYXNrLCBpbnQgcHJpb3JpdHkpCiB7CiAJc3RydWN0IGxp
-c3RfaGVhZCAqIGVudHJ5OworCWludCBucl9sYXVuZHJ5ID0gMDsKIAlpbnQg
-bWF4X3NjYW4gPSBucl9pbmFjdGl2ZV9wYWdlcyAvIHByaW9yaXR5OwogCWlu
-dCBtYXhfbWFwcGVkID0gbWluKChucl9wYWdlcyA8PCAoMTAgLSBwcmlvcml0
-eSkpLCBtYXhfc2NhbiAvIDEwKTsKKwlzdHJ1Y3QgcGFnZSAqbGF1bmRyeVtT
-V0FQX0NMVVNURVJfTUFYXTsKIAogCXNwaW5fbG9jaygmcGFnZW1hcF9scnVf
-bG9jayk7CiAJd2hpbGUgKC0tbWF4X3NjYW4gPj0gMCAmJiAoZW50cnkgPSBp
-bmFjdGl2ZV9saXN0LnByZXYpICE9ICZpbmFjdGl2ZV9saXN0KSB7CkBAIC00
-MDgsOCArNDUzLDE0IEBACiAJCQkJcGFnZV9jYWNoZV9nZXQocGFnZSk7CiAJ
-CQkJc3Bpbl91bmxvY2soJnBhZ2VtYXBfbHJ1X2xvY2spOwogCi0JCQkJd3Jp
-dGVwYWdlKHBhZ2UpOwotCQkJCXBhZ2VfY2FjaGVfcmVsZWFzZShwYWdlKTsK
-KwkJCQlpZiAoIXdyaXRlcGFnZShwYWdlKSkgeworCQkJCQlsYXVuZHJ5W25y
-X2xhdW5kcnkrK10gPSBwYWdlOworCQkJCQlpZiAobnJfbGF1bmRyeSA9PSBT
-V0FQX0NMVVNURVJfTUFYKSB7CisJCQkJCQlwcm9jZXNzX2xhdW5kcnkobGF1
-bmRyeSwgbnJfbGF1bmRyeSk7CisJCQkJCQlucl9sYXVuZHJ5ID0gMDsKKwkJ
-CQkJfQorCQkJCX0gZWxzZQorCQkJCQlwYWdlX2NhY2hlX3JlbGVhc2UocGFn
-ZSk7CiAKIAkJCQlzcGluX2xvY2soJnBhZ2VtYXBfbHJ1X2xvY2spOwogCQkJ
-CWNvbnRpbnVlOwpAQCAtNDgzLDcgKzUzNCw3IEBACiAJCQkgKi8KIAkJCXNw
-aW5fdW5sb2NrKCZwYWdlbWFwX2xydV9sb2NrKTsKIAkJCXN3YXBfb3V0KHBy
-aW9yaXR5LCBnZnBfbWFzaywgY2xhc3N6b25lKTsKLQkJCXJldHVybiBucl9w
-YWdlczsKKwkJCWdvdG8gb3V0OwogCQl9CiAKIAkJLyoKQEAgLTUxOSw2ICs1
-NzAsOSBAQAogCQlicmVhazsKIAl9CiAJc3Bpbl91bmxvY2soJnBhZ2VtYXBf
-bHJ1X2xvY2spOworb3V0OgorCWlmIChucl9sYXVuZHJ5KQorCQlwcm9jZXNz
-X2xhdW5kcnkobGF1bmRyeSwgbnJfbGF1bmRyeSk7CiAKIAlyZXR1cm4gbnJf
-cGFnZXM7CiB9CkBAIC01NzIsMTQgKzYyNiwyMiBAQAogCXJlZmlsbF9pbmFj
-dGl2ZShyYXRpbyk7CiAKIAlucl9wYWdlcyA9IHNocmlua19jYWNoZShucl9w
-YWdlcywgY2xhc3N6b25lLCBnZnBfbWFzaywgcHJpb3JpdHkpOwotCWlmIChu
-cl9wYWdlcyA8PSAwKQotCQlyZXR1cm4gMDsKIAotCXNocmlua19kY2FjaGVf
-bWVtb3J5KHByaW9yaXR5LCBnZnBfbWFzayk7Ci0Jc2hyaW5rX2ljYWNoZV9t
-ZW1vcnkocHJpb3JpdHksIGdmcF9tYXNrKTsKKwkvKgorCSAqIEtlZXAgYW4g
-ZXllIG9uIHVudXNlZCBpbm9kZS9kY2FjaGUvcXVvdGEgZW50cmllcy4KKwkg
-Ki8KKwlyYXRpbyA9IChpbm9kZXNfc3RhdC5ucl91bnVzZWQgKiBzaXplb2Yo
-c3RydWN0IGlub2RlKSkgPj4gUEFHRV9TSElGVDsKKwlyYXRpbyArPSAoZGVu
-dHJ5X3N0YXQubnJfdW51c2VkICogc2l6ZW9mKHN0cnVjdCBkZW50cnkpKSA+
-PiBQQUdFX1NISUZUOworI2lmZGVmIENPTkZJR19RVU9UQQorCXJhdGlvICs9
-IChkcXN0YXRzLmZyZWVfZHF1b3RzICogc2l6ZW9mKHN0cnVjdCBkcXVvdCkp
-ID4+IFBBR0VfU0hJRlQ7CisjZW5kaWYKKwlpZiAobnJfcGFnZXMgPiAwIHx8
-IHJhdGlvID4gU1dBUF9DTFVTVEVSX01BWCkgeworCQlzaHJpbmtfZGNhY2hl
-X21lbW9yeShwcmlvcml0eSwgZ2ZwX21hc2spOworCQlzaHJpbmtfaWNhY2hl
-X21lbW9yeShwcmlvcml0eSwgZ2ZwX21hc2spOwogI2lmZGVmIENPTkZJR19R
-VU9UQQotCXNocmlua19kcWNhY2hlX21lbW9yeShERUZfUFJJT1JJVFksIGdm
-cF9tYXNrKTsKKwkJc2hyaW5rX2RxY2FjaGVfbWVtb3J5KHByaW9yaXR5LCBn
-ZnBfbWFzayk7CiAjZW5kaWYKKwl9CiAKIAlyZXR1cm4gbnJfcGFnZXM7CiB9
-Cg==
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
---0-827563270-1062169271=:72021--
+iD8DBQE/T3BVcC3lWbTT17ARAkSZAJ9d7r1+UJ+C3ELPxYUpVihE/z+L2gCfRzvH
+VovvJ6wuSqOpWBKF8rHqz9o=
+=BDTw
+-----END PGP SIGNATURE-----
+
+--==_Exmh_422732139P--

@@ -1,79 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267264AbSKVBOW>; Thu, 21 Nov 2002 20:14:22 -0500
+	id <S267261AbSKVBPU>; Thu, 21 Nov 2002 20:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267267AbSKVBOW>; Thu, 21 Nov 2002 20:14:22 -0500
-Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:37384 "EHLO
-	zoo.weinigel.se") by vger.kernel.org with ESMTP id <S267264AbSKVBOV>;
-	Thu, 21 Nov 2002 20:14:21 -0500
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, chris@qwirx.com
-Subject: wingel@nano-system.com
-From: Christer Weinigel <christer@weinigel.se>
-Organization: Weinigel Ingenjorsbyra AB
-Date: 22 Nov 2002 02:21:27 +0100
-Message-ID: <87heeav1pk.fsf@zoo.weinigel.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	id <S267263AbSKVBPU>; Thu, 21 Nov 2002 20:15:20 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:19729 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S267261AbSKVBPT>;
+	Thu, 21 Nov 2002 20:15:19 -0500
+Date: Thu, 21 Nov 2002 20:22:26 -0500 (EST)
+Message-Id: <200211220122.gAM1MQY305783@saturn.cs.uml.edu>
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+To: linux-kernel@vger.kernel.org
+Cc: kentborg@borg.org, alan@lxorguk.ukuu.org.uk, jgarzik@pobox.com
+Subject: Re: Where is ext2/3 secure delete ("s") attribute?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
 
-Hi,
+Alan Cox writes:
+> On Thu, 2002-11-21 at 19:05, Kent Borg wrote:
 
-Chris Wilson found and fixed a few bugs in the failure paths of the
-scx200_wdt driver that I'm the maintainer for.  Could you please apply
-this patch that fixes these.
+>> Another example of why this needs to be done in the file system.  (And
+>> that help is sometimes needed from the "disk" particularly in cases
+>> like flash IDE rives.)
+>
+> The file system can't do it
+> The flash device won't give you the info to do it
+> The ide disk wont give you the info to do it
 
-  /Christer 
+That's being an idealist. You can protect against everybody
+except the NSA and the disk manufacturer. Most likely they'd
+need to spend lots of money in a clean room to get your data.
 
+Forget the shred program. It's less useful than having the
+filesystem simply zero the blocks, because it's slow and you
+can't be sure to hit the OS-visible blocks. Aside from encryption,
+the useful options are:
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=scx200_wdt.patch
-
---- linux-2.5.47/drivers/char/scx200_wdt.c	Mon Nov 11 03:28:26 2002
-+++ linux-2.5.47-chris/drivers/char/scx200_wdt.c	Sun Nov 17 19:27:32 2002
-@@ -240,23 +240,28 @@
- 	}
- 
- 	scx200_wdt_update_margin();
- 	scx200_wdt_disable();
- 
- 	sema_init(&open_semaphore, 1);
- 
- 	r = misc_register(&scx200_wdt_miscdev);
--	if (r)
-+	if (r) {
-+		release_region(SCx200_CB_BASE + SCx200_WDT_OFFSET,
-+				SCx200_WDT_SIZE);
- 		return r;
-+	}
- 
- 	r = register_reboot_notifier(&scx200_wdt_notifier);
-         if (r) {
-                 printk(KERN_ERR NAME ": unable to register reboot notifier");
- 		misc_deregister(&scx200_wdt_miscdev);
-+		release_region(SCx200_CB_BASE + SCx200_WDT_OFFSET,
-+				SCx200_WDT_SIZE);
-                 return r;
-         }
- 
- 	return 0;
- }
- 
- static void __exit scx200_wdt_cleanup(void)
- {
-
---=-=-=
-
-
--- 
-"Just how much can I get away with and still go to heaven?"
-
-Freelance consultant specializing in device driver programming for Linux 
-Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se
-
---=-=-=--
+1. plain old rm  (protect from users)
+2. filesystem clears the blocks  (protect from root/kernel)
+3. physically destroy the disk  (protect from NSA & manufacturer)

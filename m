@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271627AbRIJTwM>; Mon, 10 Sep 2001 15:52:12 -0400
+	id <S271658AbRIJT4w>; Mon, 10 Sep 2001 15:56:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271655AbRIJTwC>; Mon, 10 Sep 2001 15:52:02 -0400
-Received: from d117.dhcp212-140.cybercable.fr ([212.198.140.117]:5979 "HELO
+	id <S271665AbRIJT4n>; Mon, 10 Sep 2001 15:56:43 -0400
+Received: from d117.dhcp212-140.cybercable.fr ([212.198.140.117]:7259 "HELO
 	pridamix.molteni.net") by vger.kernel.org with SMTP
-	id <S271627AbRIJTvu>; Mon, 10 Sep 2001 15:51:50 -0400
-Message-ID: <3B9D19EA.7F3AE823@molteni.net>
-Date: Mon, 10 Sep 2001 21:52:10 +0200
+	id <S271658AbRIJT43>; Mon, 10 Sep 2001 15:56:29 -0400
+Message-ID: <3B9D1B01.53B0A391@molteni.net>
+Date: Mon, 10 Sep 2001 21:56:49 +0200
 From: Olivier Molteni <olivier@molteni.net>
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: Erik DeBill <erik@www.creditminders.com>, linux-kernel@vger.kernel.org,
-        trond.myklebust@fys.uio.no
-Subject: Re: nfs client oops, all 2.4 kernels
-In-Reply-To: <20010910100202.A14106@www.creditminders.com> <20010910173420.11d2fa71.skraw@ithnet.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Oops NFS Locking in 2.4.x
+In-Reply-To: <3B9C0D36.3EA20B24@molteni.net> <shsae03fizs.fsf@charged.uio.no>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
-
-> On Mon, 10 Sep 2001 10:02:02 -0500 Erik DeBill <erik@www.creditminders.com>
-> wrote:
->
-> > I've been running into a repeatable oops in the NFS client code,
-> > apparently related to file locking.
->
+Trond Myklebust wrote:
 
 >
-> in linux/fs/locks.c I would say it fails either because thisfl_p is NULL or
-> *thisfl_p is NULL. Try securing it via:
+> Looks like 2 processes are trying to free the same lock. The problem
+> is that both processes can call filp_close() at the same
+> time (by calling sys_close()).
 >
-> static void locks_delete_lock(struct file_lock **thisfl_p, unsigned int wait)
-> {
->         struct file_lock *fl;
+> The bug boils down to:
 >
->         if (thisfl_p == NULL || *thisfl_p == NULL)
->                 return;
+>    -  locks_unlock_delete() assumes that the BKL (kernel_lock()) is
+>       sufficient to protect against *thisfl_p from disappearing
+>       beneath it due to some second process.
+> BUT
+>    -  The call to lock() in locks_unlock_delete() sleeps when the
+>       underlying filesystem is NFS, hence 2 processes can race despite
+>       the BKL assumption.
 >
->         fl = *thisfl_p;
->
->         *thisfl_p = fl->fl_next;
->         fl->fl_next = NULL;
->
-> ...
-> }
->
-> This is for sure not the cure, but may help your setup.
+> Cheers,
+>    Trond
 
-Hi, see my post and related answers [ Oops NFS Locking in 2.4.x] I have the same
-Problem.
-Returning on *thisfl_p == NULL don't fix the trouble... Kernel no more Oops, but
-process stay in wait state on IO (D).
+Hi,
+Thank for your help !!
 
-See the answers from Trond Myklebust, I think he is right...
+I'm not a developper, but I would like to try to do something about
+that...
+Do you think that trying to replace the sleep by an other type of waiting
+(at worst looping just to test the idea) could work ?
 
-Regards,
+Cheers,
 Olivier.
+
+
 
 

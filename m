@@ -1,1459 +1,4374 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264507AbTK0NCz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 08:02:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbTK0NCz
+	id S264506AbTK0M4j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 07:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264516AbTK0M4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 08:02:55 -0500
-Received: from stan.ping.de ([62.72.95.4]:63655 "EHLO stan.ping.de")
-	by vger.kernel.org with ESMTP id S264507AbTK0NBZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 08:01:25 -0500
-X-IMAP-Sender: rene
-Date: Thu, 27 Nov 2003 13:42:30 +0100
-X-OfflineIMAP-1751478889-52656d6f7465-494e424f582e4f7574626f78: 1069937673-0659173726416
-From: Rene Engelhard <rene@rene-engelhard.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test11: MII broken?
-Message-ID: <20031127124230.GA1275@rene-engelhard.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Thu, 27 Nov 2003 07:56:39 -0500
+Received: from smithers.nildram.co.uk ([195.112.4.54]:26382 "EHLO
+	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
+	id S264506AbTK0MxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 07:53:20 -0500
+Date: Thu, 27 Nov 2003 12:49:52 +0000
+From: Joe Thornber <thornber@sistina.com>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: [Patch 2/2] dm: remove v1 interface
+Message-ID: <20031127124952.GC470@reti>
+References: <20031127124626.GA470@reti>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="K8nIJk4ghYZn606h"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Operating-System: Debian GNU/Linux
-X-GnuPG-Key: $ finger rene@db.debian.org
+In-Reply-To: <20031127124626.GA470@reti>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---K8nIJk4ghYZn606h
-Content-Type: multipart/mixed; boundary="17pEHd4RhPHOinZp"
-Content-Disposition: inline
-
-
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-[ please Cc: me as I am not subscribed ]
-
-Hi,
-
-I wondered why my automatic network detection with whereami doesn't
-work anymore. Now I found it:
-
-rene@frodo:~$ sudo mii-tool eth0
-SIOCGMIIPHY on 'eth0' failed: Operation not supported
-
-rene@frodo:~$ sudo strace mii-tool eth0
-set_thread_area({entry_number:-1 -> 6, base_addr:0x40147460,
-limit:1048575, seg_32bit:1, contents:0, read_exec_only:0,
-limit_in_pages:1, seg_not_present:0, useable:1}) =3D 0
-munmap(0x40001000, 52493)               =3D 0
-socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) =3D 3
-ioctl(3, 0x89f0, 0x804a3e0)             =3D -1 EOPNOTSUPP (Operation not
-supported)
-write(2, "SIOCGMIIPHY on \'eth0\' failed: Op"..., 54SIOCGMIIPHY on
-'eth0' failed: Operation not supported
-) =3D 54
-close(3)                                =3D 0
-exit_group(1)                           =3D ?
-
-rene@frodo:~$ sudo ltrace mii-tool eth0
-getopt_long(2, 0xbffff8a4, "A:F:p:lrRvVw?", 0x0804a0e0, NULL) =3D -1
-socket(2, 2, 0)                                  =3D 3
-strncpy(0x0804a3e0, "eth0", 16)                  =3D 0x0804a3e0
-ioctl(3, 35312, 0x0804a3e0)                      =3D -1
-__errno_location()                               =3D 0x40147440
-strerror(95)                                     =3D "Operation not
-supported"
-fprintf(0x4013ce60, "SIOCGMIIPHY on '%s' failed: %s\n", "eth0",
-"Operation not supported"SIOCGMIIPHY on 'eth0' failed: Operation not
-supported
-) =3D 54
-close(3)                                         =3D 0
-+++ exited (status 1) +++
-
-So testmii in whereami fails to detect that eth0 is plugged in and has
-a link...
-
-CONFIG_MII=3Dy -- config is attached; the system is up to date Debian
-unstable with glibc 2.3.2 (TLS and NPTL).
-If you need more info, ask.
-
-Gr=FC=DFe/Regards,
-
-Ren=E9
-
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="config-2.6.0-test11-rene"
-
-#
-# Automatically generated make config: don't edit
-#
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-# CONFIG_STANDALONE is not set
-CONFIG_BROKEN_ON_SMP=y
-
-#
-# General setup
-#
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-# CONFIG_EMBEDDED is not set
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-
-#
-# Processor type and features
-#
-CONFIG_X86_PC=y
-# CONFIG_X86_VOYAGER is not set
-# CONFIG_X86_NUMAQ is not set
-# CONFIG_X86_SUMMIT is not set
-# CONFIG_X86_BIGSMP is not set
-# CONFIG_X86_VISWS is not set
-# CONFIG_X86_GENERICARCH is not set
-# CONFIG_X86_ES7000 is not set
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-# CONFIG_MPENTIUMII is not set
-# CONFIG_MPENTIUMIII is not set
-CONFIG_MPENTIUM4=y
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MK8 is not set
-# CONFIG_MELAN is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MCYRIXIII is not set
-# CONFIG_MVIAC3_2 is not set
-# CONFIG_X86_GENERIC is not set
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=7
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-# CONFIG_HPET_TIMER is not set
-# CONFIG_HPET_EMULATE_RTC is not set
-# CONFIG_SMP is not set
-# CONFIG_PREEMPT is not set
-# CONFIG_X86_UP_APIC is not set
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-# CONFIG_X86_MCE_NONFATAL is not set
-CONFIG_TOSHIBA=y
-# CONFIG_I8K is not set
-CONFIG_MICROCODE=m
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-# CONFIG_EDD is not set
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_MATH_EMULATION is not set
-# CONFIG_MTRR is not set
-
-#
-# Power management options (ACPI, APM)
-#
-CONFIG_PM=y
-CONFIG_SOFTWARE_SUSPEND=y
-CONFIG_PM_DISK=y
-CONFIG_PM_DISK_PARTITION=""
-
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_ASUS=m
-CONFIG_ACPI_TOSHIBA=y
-# CONFIG_ACPI_DEBUG is not set
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-# CONFIG_ACPI_RELAXED_AML is not set
-
-#
-# APM (Advanced Power Management) BIOS Support
-#
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-CONFIG_APM_DO_ENABLE=y
-CONFIG_APM_CPU_IDLE=y
-CONFIG_APM_DISPLAY_BLANK=y
-# CONFIG_APM_RTC_IS_GMT is not set
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-
-#
-# CPU Frequency scaling
-#
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_PROC_INTF=y
-CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
-# CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE is not set
-CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
-CONFIG_CPU_FREQ_GOV_POWERSAVE=y
-CONFIG_CPU_FREQ_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_24_API=y
-CONFIG_CPU_FREQ_TABLE=y
-
-#
-# CPUFreq processor drivers
-#
-CONFIG_X86_ACPI_CPUFREQ=y
-CONFIG_X86_ACPI_CPUFREQ_PROC_INTF=y
-# CONFIG_X86_POWERNOW_K6 is not set
-# CONFIG_X86_POWERNOW_K7 is not set
-# CONFIG_X86_POWERNOW_K8 is not set
-# CONFIG_X86_GX_SUSPMOD is not set
-# CONFIG_X86_SPEEDSTEP_CENTRINO is not set
-CONFIG_X86_SPEEDSTEP_ICH=y
-CONFIG_X86_SPEEDSTEP_SMI=y
-CONFIG_X86_SPEEDSTEP_LIB=y
-# CONFIG_X86_P4_CLOCKMOD is not set
-# CONFIG_X86_LONGRUN is not set
-# CONFIG_X86_LONGHAUL is not set
-
-#
-# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-#
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_EISA=y
-# CONFIG_EISA_VLB_PRIMING is not set
-CONFIG_EISA_PCI_EISA=y
-CONFIG_EISA_VIRTUAL_ROOT=y
-CONFIG_EISA_NAMES=y
-# CONFIG_MCA is not set
-# CONFIG_SCx200 is not set
-CONFIG_HOTPLUG=y
-
-#
-# PCMCIA/CardBus support
-#
-CONFIG_PCMCIA=y
-CONFIG_YENTA=y
-CONFIG_CARDBUS=y
-CONFIG_I82092=y
-CONFIG_I82365=y
-# CONFIG_TCIC is not set
-CONFIG_PCMCIA_PROBE=y
-
-#
-# PCI Hotplug Support
-#
-CONFIG_HOTPLUG_PCI=y
-# CONFIG_HOTPLUG_PCI_FAKE is not set
-# CONFIG_HOTPLUG_PCI_COMPAQ is not set
-CONFIG_HOTPLUG_PCI_ACPI=y
-# CONFIG_HOTPLUG_PCI_CPCI is not set
-
-#
-# Executable file formats
-#
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_MISC=y
-
-#
-# Device Drivers
-#
-
-#
-# Generic Driver Options
-#
-CONFIG_FW_LOADER=y
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-# CONFIG_PARPORT_PC_FIFO is not set
-# CONFIG_PARPORT_PC_SUPERIO is not set
-# CONFIG_PARPORT_PC_PCMCIA is not set
-# CONFIG_PARPORT_OTHER is not set
-# CONFIG_PARPORT_1284 is not set
-
-#
-# Plug and Play support
-#
-CONFIG_PNP=y
-# CONFIG_PNP_DEBUG is not set
-
-#
-# Protocols
-#
-CONFIG_ISAPNP=y
-CONFIG_PNPBIOS=y
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_BLK_DEV_XD is not set
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_CRYPTOLOOP=y
-CONFIG_BLK_DEV_NBD=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-# CONFIG_BLK_DEV_INITRD is not set
-# CONFIG_LBD is not set
-
-#
-# ATA/ATAPI/MFM/RLL support
-#
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_HD_IDE is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDECS is not set
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-CONFIG_BLK_DEV_IDESCSI=y
-# CONFIG_IDE_TASK_IOCTL is not set
-# CONFIG_IDE_TASKFILE_IO is not set
-
-#
-# IDE chipset support/bugfixes
-#
-CONFIG_BLK_DEV_CMD640=y
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_IDEPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_GENERIC is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-# CONFIG_IDEDMA_PCI_WIP is not set
-CONFIG_BLK_DEV_ADMA=y
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_TRIFLEX is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5520 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_SC1200 is not set
-CONFIG_BLK_DEV_PIIX=y
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_DMA_NONPCI is not set
-# CONFIG_BLK_DEV_HD is not set
-
-#
-# SCSI device support
-#
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=y
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=y
-# CONFIG_BLK_DEV_SR_VENDOR is not set
-CONFIG_CHR_DEV_SG=y
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-# CONFIG_SCSI_MULTI_LUN is not set
-# CONFIG_SCSI_REPORT_LUNS is not set
-# CONFIG_SCSI_CONSTANTS is not set
-# CONFIG_SCSI_LOGGING is not set
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_7000FASST is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AHA152X is not set
-# CONFIG_SCSI_AHA1542 is not set
-# CONFIG_SCSI_AHA1740 is not set
-# CONFIG_SCSI_AACRAID is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_AIC79XX is not set
-# CONFIG_SCSI_ADVANSYS is not set
-# CONFIG_SCSI_IN2000 is not set
-# CONFIG_SCSI_MEGARAID is not set
-# CONFIG_SCSI_SATA is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_CPQFCTS is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_DTC3280 is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_GENERIC_NCR5380 is not set
-# CONFIG_SCSI_GENERIC_NCR5380_MMIO is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_PPA is not set
-CONFIG_SCSI_IMM=m
-# CONFIG_SCSI_IZIP_EPP16 is not set
-# CONFIG_SCSI_IZIP_SLOW_CTR is not set
-# CONFIG_SCSI_NCR53C406A is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_PAS16 is not set
-# CONFIG_SCSI_PSI240I is not set
-# CONFIG_SCSI_QLOGIC_FAS is not set
-# CONFIG_SCSI_QLOGIC_ISP is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-# CONFIG_SCSI_SIM710 is not set
-# CONFIG_SCSI_SYM53C416 is not set
-# CONFIG_SCSI_DC395x is not set
-# CONFIG_SCSI_T128 is not set
-# CONFIG_SCSI_U14_34F is not set
-# CONFIG_SCSI_ULTRASTOR is not set
-# CONFIG_SCSI_NSP32 is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# PCMCIA SCSI adapter support
-#
-# CONFIG_PCMCIA_AHA152X is not set
-# CONFIG_PCMCIA_FDOMAIN is not set
-# CONFIG_PCMCIA_NINJA_SCSI is not set
-# CONFIG_PCMCIA_QLOGIC is not set
-
-#
-# Old CD-ROM drivers (not SCSI, not IDE)
-#
-# CONFIG_CD_NO_IDESCSI is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-# CONFIG_BLK_DEV_MD is not set
-CONFIG_BLK_DEV_DM=m
-# CONFIG_DM_IOCTL_V4 is not set
-
-#
-# Fusion MPT device support
-#
-# CONFIG_FUSION is not set
-
-#
-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
-#
-CONFIG_IEEE1394=y
-
-#
-# Subsystem Options
-#
-# CONFIG_IEEE1394_VERBOSEDEBUG is not set
-# CONFIG_IEEE1394_OUI_DB is not set
-
-#
-# Device Drivers
-#
-
-#
-# Texas Instruments PCILynx requires I2C bit-banging
-#
-CONFIG_IEEE1394_OHCI1394=y
-
-#
-# Protocol Drivers
-#
-# CONFIG_IEEE1394_VIDEO1394 is not set
-# CONFIG_IEEE1394_SBP2 is not set
-# CONFIG_IEEE1394_ETH1394 is not set
-# CONFIG_IEEE1394_DV1394 is not set
-# CONFIG_IEEE1394_RAWIO is not set
-# CONFIG_IEEE1394_CMP is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-
-#
-# Networking support
-#
-CONFIG_NET=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-# CONFIG_PACKET_MMAP is not set
-CONFIG_NETLINK_DEV=y
-CONFIG_UNIX=y
-# CONFIG_NET_KEY is not set
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-# CONFIG_IP_ADVANCED_ROUTER is not set
-CONFIG_IP_PNP=y
-CONFIG_IP_PNP_DHCP=y
-# CONFIG_IP_PNP_BOOTP is not set
-# CONFIG_IP_PNP_RARP is not set
-CONFIG_NET_IPIP=y
-CONFIG_NET_IPGRE=y
-CONFIG_NET_IPGRE_BROADCAST=y
-# CONFIG_IP_MROUTE is not set
-# CONFIG_ARPD is not set
-# CONFIG_INET_ECN is not set
-# CONFIG_SYN_COOKIES is not set
-# CONFIG_INET_AH is not set
-# CONFIG_INET_ESP is not set
-# CONFIG_INET_IPCOMP is not set
-# CONFIG_IPV6 is not set
-# CONFIG_DECNET is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_NETFILTER is not set
-CONFIG_XFRM=y
-CONFIG_XFRM_USER=y
-
-#
-# SCTP Configuration (EXPERIMENTAL)
-#
-CONFIG_IPV6_SCTP__=y
-# CONFIG_IP_SCTP is not set
-# CONFIG_ATM is not set
-# CONFIG_VLAN_8021Q is not set
-# CONFIG_LLC2 is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-CONFIG_NETDEVICES=y
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-CONFIG_DUMMY=m
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-CONFIG_TUN=y
-CONFIG_ETHERTAP=y
-# CONFIG_NET_SB1000 is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNGEM is not set
-# CONFIG_NET_VENDOR_3COM is not set
-# CONFIG_LANCE is not set
-# CONFIG_NET_VENDOR_SMC is not set
-# CONFIG_NET_VENDOR_RACAL is not set
-
-#
-# Tulip family network device support
-#
-# CONFIG_NET_TULIP is not set
-# CONFIG_AT1700 is not set
-# CONFIG_DEPCA is not set
-# CONFIG_HP100 is not set
-# CONFIG_NET_ISA is not set
-CONFIG_NET_PCI=y
-# CONFIG_PCNET32 is not set
-# CONFIG_AMD8111_ETH is not set
-# CONFIG_ADAPTEC_STARFIRE is not set
-# CONFIG_AC3200 is not set
-# CONFIG_APRICOT is not set
-# CONFIG_B44 is not set
-# CONFIG_CS89x0 is not set
-# CONFIG_DGRS is not set
-CONFIG_EEPRO100=y
-# CONFIG_EEPRO100_PIO is not set
-# CONFIG_E100 is not set
-# CONFIG_LNE390 is not set
-# CONFIG_FEALNX is not set
-# CONFIG_NATSEMI is not set
-# CONFIG_NE2K_PCI is not set
-# CONFIG_NE3210 is not set
-# CONFIG_ES3210 is not set
-# CONFIG_8139CP is not set
-# CONFIG_8139TOO is not set
-# CONFIG_SIS900 is not set
-# CONFIG_EPIC100 is not set
-# CONFIG_SUNDANCE is not set
-# CONFIG_TLAN is not set
-# CONFIG_VIA_RHINE is not set
-# CONFIG_NET_POCKET is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_E1000 is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_R8169 is not set
-# CONFIG_SIS190 is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_TIGON3 is not set
-
-#
-# Ethernet (10000 Mbit)
-#
-# CONFIG_IXGB is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-CONFIG_PLIP=y
-CONFIG_PPP=y
-# CONFIG_PPP_MULTILINK is not set
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=y
-# CONFIG_PPP_SYNC_TTY is not set
-# CONFIG_PPP_DEFLATE is not set
-# CONFIG_PPP_BSDCOMP is not set
-CONFIG_PPPOE=y
-CONFIG_SLIP=y
-CONFIG_SLIP_COMPRESSED=y
-# CONFIG_SLIP_SMART is not set
-# CONFIG_SLIP_MODE_SLIP6 is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-CONFIG_NET_RADIO=y
-
-#
-# Obsolete Wireless cards support (pre-802.11)
-#
-# CONFIG_STRIP is not set
-# CONFIG_ARLAN is not set
-# CONFIG_WAVELAN is not set
-# CONFIG_PCMCIA_WAVELAN is not set
-# CONFIG_PCMCIA_NETWAVE is not set
-
-#
-# Wireless 802.11 Frequency Hopping cards support
-#
-CONFIG_PCMCIA_RAYCS=y
-
-#
-# Wireless 802.11b ISA/PCI cards support
-#
-# CONFIG_AIRO is not set
-CONFIG_HERMES=y
-# CONFIG_PLX_HERMES is not set
-# CONFIG_TMD_HERMES is not set
-CONFIG_PCI_HERMES=y
-
-#
-# Wireless 802.11b Pcmcia/Cardbus cards support
-#
-CONFIG_PCMCIA_HERMES=y
-# CONFIG_AIRO_CS is not set
-# CONFIG_PCMCIA_ATMEL is not set
-# CONFIG_PCMCIA_WL3501 is not set
-CONFIG_NET_WIRELESS=y
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-# CONFIG_NET_FC is not set
-# CONFIG_RCPCI is not set
-# CONFIG_SHAPER is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-
-#
-# PCMCIA network device support
-#
-CONFIG_NET_PCMCIA=y
-# CONFIG_PCMCIA_3C589 is not set
-# CONFIG_PCMCIA_3C574 is not set
-# CONFIG_PCMCIA_FMVJ18X is not set
-CONFIG_PCMCIA_PCNET=y
-# CONFIG_PCMCIA_NMCLAN is not set
-# CONFIG_PCMCIA_SMC91C92 is not set
-# CONFIG_PCMCIA_XIRC2PS is not set
-# CONFIG_PCMCIA_AXNET is not set
-
-#
-# Amateur Radio support
-#
-# CONFIG_HAMRADIO is not set
-
-#
-# IrDA (infrared) support
-#
-CONFIG_IRDA=y
-
-#
-# IrDA protocols
-#
-CONFIG_IRLAN=m
-CONFIG_IRNET=m
-CONFIG_IRCOMM=m
-# CONFIG_IRDA_ULTRA is not set
-
-#
-# IrDA options
-#
-# CONFIG_IRDA_CACHE_LAST_LSAP is not set
-# CONFIG_IRDA_FAST_RR is not set
-# CONFIG_IRDA_DEBUG is not set
-
-#
-# Infrared-port device drivers
-#
-
-#
-# SIR device drivers
-#
-CONFIG_IRTTY_SIR=m
-
-#
-# Dongle support
-#
-# CONFIG_DONGLE is not set
-
-#
-# Old SIR device drivers
-#
-CONFIG_IRPORT_SIR=m
-
-#
-# Old Serial dongle support
-#
-# CONFIG_DONGLE_OLD is not set
-
-#
-# FIR device drivers
-#
-# CONFIG_USB_IRDA is not set
-# CONFIG_NSC_FIR is not set
-# CONFIG_WINBOND_FIR is not set
-# CONFIG_TOSHIBA_FIR is not set
-CONFIG_SMC_IRCC_FIR=m
-# CONFIG_ALI_FIR is not set
-# CONFIG_VLSI_FIR is not set
-# CONFIG_VIA_FIR is not set
-
-#
-# Bluetooth support
-#
-# CONFIG_BT is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN_BOOL is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_TSDEV is not set
-# CONFIG_INPUT_EVDEV is not set
-# CONFIG_INPUT_EVBUG is not set
-
-#
-# Input I/O drivers
-#
-# CONFIG_GAMEPORT is not set
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-# CONFIG_SERIO_CT82C710 is not set
-# CONFIG_SERIO_PARKBD is not set
-# CONFIG_SERIO_PCIPS2 is not set
-
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_PS2_SYNAPTICS is not set
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_INPORT is not set
-# CONFIG_MOUSE_LOGIBM is not set
-# CONFIG_MOUSE_PC110PAD is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-# CONFIG_INPUT_MISC is not set
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-# CONFIG_SERIAL_NONSTANDARD is not set
-
-#
-# Serial drivers
-#
-# CONFIG_SERIAL_8250 is not set
-
-#
-# Non-8250 serial port support
-#
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=y
-# CONFIG_LP_CONSOLE is not set
-# CONFIG_PPDEV is not set
-# CONFIG_TIPAR is not set
-
-#
-# I2C support
-#
-# CONFIG_I2C is not set
-
-#
-# I2C Algorithms
-#
-
-#
-# I2C Hardware Bus support
-#
-
-#
-# I2C Hardware Sensors Chip support
-#
-# CONFIG_I2C_SENSOR is not set
-
-#
-# Mice
-#
-# CONFIG_BUSMOUSE is not set
-# CONFIG_QIC02_TAPE is not set
-
-#
-# IPMI
-#
-# CONFIG_IPMI_HANDLER is not set
-
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-# CONFIG_HW_RANDOM is not set
-# CONFIG_NVRAM is not set
-CONFIG_RTC=y
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-# CONFIG_SONYPI is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=y
-# CONFIG_AGP_ALI is not set
-# CONFIG_AGP_ATI is not set
-# CONFIG_AGP_AMD is not set
-# CONFIG_AGP_AMD64 is not set
-CONFIG_AGP_INTEL=y
-CONFIG_AGP_NVIDIA=y
-# CONFIG_AGP_SIS is not set
-# CONFIG_AGP_SWORKS is not set
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-# CONFIG_DRM_TDFX is not set
-# CONFIG_DRM_GAMMA is not set
-# CONFIG_DRM_R128 is not set
-# CONFIG_DRM_RADEON is not set
-# CONFIG_DRM_I810 is not set
-# CONFIG_DRM_I830 is not set
-# CONFIG_DRM_MGA is not set
-# CONFIG_DRM_SIS is not set
-
-#
-# PCMCIA character devices
-#
-# CONFIG_SYNCLINK_CS is not set
-# CONFIG_MWAVE is not set
-# CONFIG_RAW_DRIVER is not set
-# CONFIG_HANGCHECK_TIMER is not set
-
-#
-# Multimedia devices
-#
-# CONFIG_VIDEO_DEV is not set
-
-#
-# Digital Video Broadcasting Devices
-#
-# CONFIG_DVB is not set
-
-#
-# Graphics support
-#
-CONFIG_FB=y
-# CONFIG_FB_CYBER2000 is not set
-# CONFIG_FB_IMSTT is not set
-# CONFIG_FB_VGA16 is not set
-# CONFIG_FB_VESA is not set
-CONFIG_VIDEO_SELECT=y
-# CONFIG_FB_HGA is not set
-CONFIG_FB_RIVA=y
-# CONFIG_FB_I810 is not set
-# CONFIG_FB_MATROX is not set
-# CONFIG_FB_RADEON is not set
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_ATY is not set
-# CONFIG_FB_SIS is not set
-# CONFIG_FB_NEOMAGIC is not set
-# CONFIG_FB_3DFX is not set
-# CONFIG_FB_VOODOO1 is not set
-# CONFIG_FB_TRIDENT is not set
-# CONFIG_FB_VIRTUAL is not set
-
-#
-# Console display driver support
-#
-CONFIG_VGA_CONSOLE=y
-# CONFIG_MDA_CONSOLE is not set
-CONFIG_DUMMY_CONSOLE=y
-# CONFIG_FRAMEBUFFER_CONSOLE is not set
-
-#
-# Logo configuration
-#
-CONFIG_LOGO=y
-# CONFIG_LOGO_LINUX_MONO is not set
-# CONFIG_LOGO_LINUX_VGA16 is not set
-CONFIG_LOGO_LINUX_CLUT224=y
-
-#
-# Sound
-#
-CONFIG_SOUND=y
-
-#
-# Advanced Linux Sound Architecture
-#
-# CONFIG_SND is not set
-
-#
-# Open Sound System
-#
-CONFIG_SOUND_PRIME=y
-# CONFIG_SOUND_BT878 is not set
-# CONFIG_SOUND_CMPCI is not set
-# CONFIG_SOUND_EMU10K1 is not set
-# CONFIG_SOUND_FUSION is not set
-# CONFIG_SOUND_CS4281 is not set
-# CONFIG_SOUND_ES1370 is not set
-# CONFIG_SOUND_ES1371 is not set
-# CONFIG_SOUND_ESSSOLO1 is not set
-# CONFIG_SOUND_MAESTRO is not set
-# CONFIG_SOUND_MAESTRO3 is not set
-CONFIG_SOUND_ICH=y
-# CONFIG_SOUND_SONICVIBES is not set
-# CONFIG_SOUND_TRIDENT is not set
-# CONFIG_SOUND_MSNDCLAS is not set
-# CONFIG_SOUND_MSNDPIN is not set
-# CONFIG_SOUND_VIA82CXXX is not set
-# CONFIG_SOUND_OSS is not set
-# CONFIG_SOUND_ALI5455 is not set
-# CONFIG_SOUND_FORTE is not set
-# CONFIG_SOUND_RME96XX is not set
-# CONFIG_SOUND_AD1980 is not set
-
-#
-# USB support
-#
-CONFIG_USB=y
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_DYNAMIC_MINORS is not set
-
-#
-# USB Host Controller Drivers
-#
-# CONFIG_USB_EHCI_HCD is not set
-CONFIG_USB_OHCI_HCD=y
-CONFIG_USB_UHCI_HCD=y
-
-#
-# USB Device Class drivers
-#
-# CONFIG_USB_AUDIO is not set
-# CONFIG_USB_BLUETOOTH_TTY is not set
-# CONFIG_USB_MIDI is not set
-# CONFIG_USB_ACM is not set
-CONFIG_USB_PRINTER=y
-CONFIG_USB_STORAGE=y
-# CONFIG_USB_STORAGE_DEBUG is not set
-# CONFIG_USB_STORAGE_DATAFAB is not set
-# CONFIG_USB_STORAGE_FREECOM is not set
-# CONFIG_USB_STORAGE_ISD200 is not set
-# CONFIG_USB_STORAGE_DPCM is not set
-# CONFIG_USB_STORAGE_HP8200e is not set
-# CONFIG_USB_STORAGE_SDDR09 is not set
-# CONFIG_USB_STORAGE_SDDR55 is not set
-# CONFIG_USB_STORAGE_JUMPSHOT is not set
-
-#
-# USB Human Interface Devices (HID)
-#
-# CONFIG_USB_HID is not set
-
-#
-# USB HID Boot Protocol drivers
-#
-# CONFIG_USB_KBD is not set
-# CONFIG_USB_MOUSE is not set
-# CONFIG_USB_AIPTEK is not set
-# CONFIG_USB_WACOM is not set
-# CONFIG_USB_KBTAB is not set
-# CONFIG_USB_POWERMATE is not set
-# CONFIG_USB_XPAD is not set
-
-#
-# USB Imaging devices
-#
-# CONFIG_USB_MDC800 is not set
-CONFIG_USB_SCANNER=y
-# CONFIG_USB_MICROTEK is not set
-# CONFIG_USB_HPUSBSCSI is not set
-
-#
-# USB Multimedia devices
-#
-# CONFIG_USB_DABUSB is not set
-
-#
-# Video4Linux support is needed for USB Multimedia device support
-#
-
-#
-# USB Network adaptors
-#
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_USBNET is not set
-
-#
-# USB port drivers
-#
-# CONFIG_USB_USS720 is not set
-
-#
-# USB Serial Converter support
-#
-CONFIG_USB_SERIAL=y
-# CONFIG_USB_SERIAL_DEBUG is not set
-# CONFIG_USB_SERIAL_CONSOLE is not set
-# CONFIG_USB_SERIAL_GENERIC is not set
-# CONFIG_USB_SERIAL_BELKIN is not set
-# CONFIG_USB_SERIAL_WHITEHEAT is not set
-# CONFIG_USB_SERIAL_DIGI_ACCELEPORT is not set
-# CONFIG_USB_SERIAL_EMPEG is not set
-# CONFIG_USB_SERIAL_FTDI_SIO is not set
-# CONFIG_USB_SERIAL_VISOR is not set
-# CONFIG_USB_SERIAL_IPAQ is not set
-# CONFIG_USB_SERIAL_IR is not set
-# CONFIG_USB_SERIAL_EDGEPORT is not set
-# CONFIG_USB_SERIAL_EDGEPORT_TI is not set
-# CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
-CONFIG_USB_SERIAL_KEYSPAN=y
-# CONFIG_USB_SERIAL_KEYSPAN_MPR is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA28 is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA28X is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA28XA is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA28XB is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA19 is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA18X is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA19W is not set
-CONFIG_USB_SERIAL_KEYSPAN_USA19QW=y
-# CONFIG_USB_SERIAL_KEYSPAN_USA19QI is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA49W is not set
-# CONFIG_USB_SERIAL_KEYSPAN_USA49WLC is not set
-# CONFIG_USB_SERIAL_KLSI is not set
-# CONFIG_USB_SERIAL_KOBIL_SCT is not set
-# CONFIG_USB_SERIAL_MCT_U232 is not set
-# CONFIG_USB_SERIAL_PL2303 is not set
-# CONFIG_USB_SERIAL_SAFE is not set
-# CONFIG_USB_SERIAL_CYBERJACK is not set
-# CONFIG_USB_SERIAL_XIRCOM is not set
-# CONFIG_USB_SERIAL_OMNINET is not set
-CONFIG_USB_EZUSB=y
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_TIGL is not set
-# CONFIG_USB_AUERSWALD is not set
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_BRLVGER is not set
-# CONFIG_USB_LCD is not set
-# CONFIG_USB_TEST is not set
-# CONFIG_USB_GADGET is not set
-
-#
-# File systems
-#
-CONFIG_EXT2_FS=y
-# CONFIG_EXT2_FS_XATTR is not set
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-# CONFIG_EXT3_FS_POSIX_ACL is not set
-# CONFIG_EXT3_FS_SECURITY is not set
-CONFIG_JBD=y
-CONFIG_JBD_DEBUG=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=m
-CONFIG_REISERFS_CHECK=y
-# CONFIG_REISERFS_PROC_INFO is not set
-# CONFIG_JFS_FS is not set
-# CONFIG_XFS_FS is not set
-CONFIG_MINIX_FS=m
-CONFIG_ROMFS_FS=y
-CONFIG_QUOTA=y
-CONFIG_QFMT_V1=y
-CONFIG_QFMT_V2=y
-CONFIG_QUOTACTL=y
-# CONFIG_AUTOFS_FS is not set
-CONFIG_AUTOFS4_FS=y
-
-#
-# CD-ROM/DVD Filesystems
-#
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=y
-CONFIG_UDF_FS=y
-
-#
-# DOS/FAT/NT Filesystems
-#
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_NTFS_FS=m
-# CONFIG_NTFS_DEBUG is not set
-# CONFIG_NTFS_RW is not set
-
-#
-# Pseudo filesystems
-#
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-# CONFIG_DEVFS_FS is not set
-CONFIG_DEVPTS_FS=y
-# CONFIG_DEVPTS_FS_XATTR is not set
-CONFIG_TMPFS=y
-# CONFIG_HUGETLBFS is not set
-# CONFIG_HUGETLB_PAGE is not set
-CONFIG_RAMFS=y
-
-#
-# Miscellaneous filesystems
-#
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BFS_FS is not set
-# CONFIG_EFS_FS is not set
-# CONFIG_CRAMFS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_HPFS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_SYSV_FS is not set
-CONFIG_UFS_FS=m
-# CONFIG_UFS_FS_WRITE is not set
-
-#
-# Network File Systems
-#
-CONFIG_NFS_FS=y
-# CONFIG_NFS_V3 is not set
-# CONFIG_NFS_V4 is not set
-# CONFIG_NFS_DIRECTIO is not set
-# CONFIG_NFSD is not set
-# CONFIG_ROOT_NFS is not set
-CONFIG_LOCKD=y
-# CONFIG_EXPORTFS is not set
-CONFIG_SUNRPC=y
-# CONFIG_SUNRPC_GSS is not set
-CONFIG_SMB_FS=y
-# CONFIG_SMB_NLS_DEFAULT is not set
-# CONFIG_CIFS is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_CODA_FS is not set
-# CONFIG_INTERMEZZO_FS is not set
-# CONFIG_AFS_FS is not set
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-CONFIG_NLS_CODEPAGE_850=y
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-CONFIG_NLS_ISO8859_1=y
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-CONFIG_NLS_ISO8859_15=y
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-CONFIG_NLS_UTF8=m
-
-#
-# Profiling support
-#
-# CONFIG_PROFILING is not set
-
-#
-# Kernel hacking
-#
-CONFIG_DEBUG_KERNEL=y
-# CONFIG_DEBUG_STACKOVERFLOW is not set
-# CONFIG_DEBUG_SLAB is not set
-# CONFIG_DEBUG_IOVIRT is not set
-CONFIG_MAGIC_SYSRQ=y
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_DEBUG_PAGEALLOC is not set
-# CONFIG_DEBUG_INFO is not set
-# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-CONFIG_FRAME_POINTER=y
-
-#
-# Security options
-#
-# CONFIG_SECURITY is not set
-
-#
-# Cryptographic options
-#
-CONFIG_CRYPTO=y
-# CONFIG_CRYPTO_HMAC is not set
-# CONFIG_CRYPTO_NULL is not set
-# CONFIG_CRYPTO_MD4 is not set
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=y
-# CONFIG_CRYPTO_SHA256 is not set
-# CONFIG_CRYPTO_SHA512 is not set
-CONFIG_CRYPTO_DES=y
-CONFIG_CRYPTO_BLOWFISH=y
-CONFIG_CRYPTO_TWOFISH=y
-# CONFIG_CRYPTO_SERPENT is not set
-CONFIG_CRYPTO_AES=y
-# CONFIG_CRYPTO_CAST5 is not set
-# CONFIG_CRYPTO_CAST6 is not set
-CONFIG_CRYPTO_DEFLATE=y
-CONFIG_CRYPTO_TEST=y
-
-#
-# Library routines
-#
-CONFIG_CRC32=y
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y
-
---17pEHd4RhPHOinZp--
-
---K8nIJk4ghYZn606h
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/xfE1+FmQsCSK63MRAu6QAKCERba7YAXK6dJAZvccd0DRGxPVugCfeYRf
-6Z6zHZOnSd1hThnlChzdBwI=
-=1u8H
------END PGP SIGNATURE-----
-
---K8nIJk4ghYZn606h--
+Remove version 1 of the ioctl interface.
+
+deleted:
+    include/linux/dm-ioctl-v1.h
+    drivers/md/dm-ioctl-v1.c
+    include/linux/dm-ioctl.h
+    drivers/md/dm-ioctl.c
+
+renamed:
+
+    drivers/md/dm-ioctl-v4.c	-> drivers/md/dm-ioctl.c
+    include/linux/dm-ioctl-v4.h -> include/linux/dm-ioctl.h
+--- diff/drivers/md/dm-ioctl.c	2003-11-27 12:24:10.000000000 +0000
++++ source/drivers/md/dm-ioctl.c	2003-11-25 15:47:38.000000000 +0000
+@@ -1,9 +1,1264 @@
+ /*
+- * Copyright (C) 2003 Sistina Software (UK) Limited.
++ * Copyright (C) 2001, 2002 Sistina Software (UK) Limited.
+  *
+  * This file is released under the GPL.
+  */
+ 
++#include "dm.h"
++
++#include <linux/module.h>
++#include <linux/vmalloc.h>
++#include <linux/miscdevice.h>
++#include <linux/init.h>
++#include <linux/wait.h>
++#include <linux/slab.h>
++#include <linux/devfs_fs_kernel.h>
+ #include <linux/dm-ioctl.h>
+ 
+-#include "dm-ioctl-v4.c"
++#include <asm/uaccess.h>
++
++#define DM_DRIVER_EMAIL "dm@uk.sistina.com"
++
++/*-----------------------------------------------------------------
++ * The ioctl interface needs to be able to look up devices by
++ * name or uuid.
++ *---------------------------------------------------------------*/
++struct hash_cell {
++	struct list_head name_list;
++	struct list_head uuid_list;
++
++	char *name;
++	char *uuid;
++	struct mapped_device *md;
++	struct dm_table *new_map;
++};
++
++#define NUM_BUCKETS 64
++#define MASK_BUCKETS (NUM_BUCKETS - 1)
++static struct list_head _name_buckets[NUM_BUCKETS];
++static struct list_head _uuid_buckets[NUM_BUCKETS];
++
++void dm_hash_remove_all(void);
++
++/*
++ * Guards access to both hash tables.
++ */
++static DECLARE_RWSEM(_hash_lock);
++
++static void init_buckets(struct list_head *buckets)
++{
++	unsigned int i;
++
++	for (i = 0; i < NUM_BUCKETS; i++)
++		INIT_LIST_HEAD(buckets + i);
++}
++
++int dm_hash_init(void)
++{
++	init_buckets(_name_buckets);
++	init_buckets(_uuid_buckets);
++	devfs_mk_dir(DM_DIR);
++	return 0;
++}
++
++void dm_hash_exit(void)
++{
++	dm_hash_remove_all();
++	devfs_remove(DM_DIR);
++}
++
++/*-----------------------------------------------------------------
++ * Hash function:
++ * We're not really concerned with the str hash function being
++ * fast since it's only used by the ioctl interface.
++ *---------------------------------------------------------------*/
++static unsigned int hash_str(const char *str)
++{
++	const unsigned int hash_mult = 2654435387U;
++	unsigned int h = 0;
++
++	while (*str)
++		h = (h + (unsigned int) *str++) * hash_mult;
++
++	return h & MASK_BUCKETS;
++}
++
++/*-----------------------------------------------------------------
++ * Code for looking up a device by name
++ *---------------------------------------------------------------*/
++static struct hash_cell *__get_name_cell(const char *str)
++{
++	struct list_head *tmp;
++	struct hash_cell *hc;
++	unsigned int h = hash_str(str);
++
++	list_for_each (tmp, _name_buckets + h) {
++		hc = list_entry(tmp, struct hash_cell, name_list);
++		if (!strcmp(hc->name, str))
++			return hc;
++	}
++
++	return NULL;
++}
++
++static struct hash_cell *__get_uuid_cell(const char *str)
++{
++	struct list_head *tmp;
++	struct hash_cell *hc;
++	unsigned int h = hash_str(str);
++
++	list_for_each (tmp, _uuid_buckets + h) {
++		hc = list_entry(tmp, struct hash_cell, uuid_list);
++		if (!strcmp(hc->uuid, str))
++			return hc;
++	}
++
++	return NULL;
++}
++
++/*-----------------------------------------------------------------
++ * Inserting, removing and renaming a device.
++ *---------------------------------------------------------------*/
++static inline char *kstrdup(const char *str)
++{
++	char *r = kmalloc(strlen(str) + 1, GFP_KERNEL);
++	if (r)
++		strcpy(r, str);
++	return r;
++}
++
++static struct hash_cell *alloc_cell(const char *name, const char *uuid,
++				    struct mapped_device *md)
++{
++	struct hash_cell *hc;
++
++	hc = kmalloc(sizeof(*hc), GFP_KERNEL);
++	if (!hc)
++		return NULL;
++
++	hc->name = kstrdup(name);
++	if (!hc->name) {
++		kfree(hc);
++		return NULL;
++	}
++
++	if (!uuid)
++		hc->uuid = NULL;
++
++	else {
++		hc->uuid = kstrdup(uuid);
++		if (!hc->uuid) {
++			kfree(hc->name);
++			kfree(hc);
++			return NULL;
++		}
++	}
++
++	INIT_LIST_HEAD(&hc->name_list);
++	INIT_LIST_HEAD(&hc->uuid_list);
++	hc->md = md;
++	hc->new_map = NULL;
++	return hc;
++}
++
++static void free_cell(struct hash_cell *hc)
++{
++	if (hc) {
++		kfree(hc->name);
++		kfree(hc->uuid);
++		kfree(hc);
++	}
++}
++
++/*
++ * devfs stuff.
++ */
++static int register_with_devfs(struct hash_cell *hc)
++{
++	struct gendisk *disk = dm_disk(hc->md);
++
++	devfs_mk_bdev(MKDEV(disk->major, disk->first_minor),
++		      S_IFBLK | S_IRUSR | S_IWUSR | S_IRGRP,
++		      DM_DIR "/%s", hc->name);
++	return 0;
++}
++
++static int unregister_with_devfs(struct hash_cell *hc)
++{
++	devfs_remove(DM_DIR"/%s", hc->name);
++	return 0;
++}
++
++/*
++ * The kdev_t and uuid of a device can never change once it is
++ * initially inserted.
++ */
++int dm_hash_insert(const char *name, const char *uuid, struct mapped_device *md)
++{
++	struct hash_cell *cell;
++
++	/*
++	 * Allocate the new cells.
++	 */
++	cell = alloc_cell(name, uuid, md);
++	if (!cell)
++		return -ENOMEM;
++
++	/*
++	 * Insert the cell into both hash tables.
++	 */
++	down_write(&_hash_lock);
++	if (__get_name_cell(name))
++		goto bad;
++
++	list_add(&cell->name_list, _name_buckets + hash_str(name));
++
++	if (uuid) {
++		if (__get_uuid_cell(uuid)) {
++			list_del(&cell->name_list);
++			goto bad;
++		}
++		list_add(&cell->uuid_list, _uuid_buckets + hash_str(uuid));
++	}
++	register_with_devfs(cell);
++	dm_get(md);
++	up_write(&_hash_lock);
++
++	return 0;
++
++ bad:
++	up_write(&_hash_lock);
++	free_cell(cell);
++	return -EBUSY;
++}
++
++void __hash_remove(struct hash_cell *hc)
++{
++	/* remove from the dev hash */
++	list_del(&hc->uuid_list);
++	list_del(&hc->name_list);
++	unregister_with_devfs(hc);
++	dm_put(hc->md);
++	if (hc->new_map)
++		dm_table_put(hc->new_map);
++	free_cell(hc);
++}
++
++void dm_hash_remove_all(void)
++{
++	int i;
++	struct hash_cell *hc;
++	struct list_head *tmp, *n;
++
++	down_write(&_hash_lock);
++	for (i = 0; i < NUM_BUCKETS; i++) {
++		list_for_each_safe (tmp, n, _name_buckets + i) {
++			hc = list_entry(tmp, struct hash_cell, name_list);
++			__hash_remove(hc);
++		}
++	}
++	up_write(&_hash_lock);
++}
++
++int dm_hash_rename(const char *old, const char *new)
++{
++	char *new_name, *old_name;
++	struct hash_cell *hc;
++
++	/*
++	 * duplicate new.
++	 */
++	new_name = kstrdup(new);
++	if (!new_name)
++		return -ENOMEM;
++
++	down_write(&_hash_lock);
++
++	/*
++	 * Is new free ?
++	 */
++	hc = __get_name_cell(new);
++	if (hc) {
++		DMWARN("asked to rename to an already existing name %s -> %s",
++		       old, new);
++		up_write(&_hash_lock);
++		kfree(new_name);
++		return -EBUSY;
++	}
++
++	/*
++	 * Is there such a device as 'old' ?
++	 */
++	hc = __get_name_cell(old);
++	if (!hc) {
++		DMWARN("asked to rename a non existent device %s -> %s",
++		       old, new);
++		up_write(&_hash_lock);
++		kfree(new_name);
++		return -ENXIO;
++	}
++
++	/*
++	 * rename and move the name cell.
++	 */
++	unregister_with_devfs(hc);
++
++	list_del(&hc->name_list);
++	old_name = hc->name;
++	hc->name = new_name;
++	list_add(&hc->name_list, _name_buckets + hash_str(new_name));
++
++	/* rename the device node in devfs */
++	register_with_devfs(hc);
++
++	up_write(&_hash_lock);
++	kfree(old_name);
++	return 0;
++}
++
++/*-----------------------------------------------------------------
++ * Implementation of the ioctl commands
++ *---------------------------------------------------------------*/
++/*
++ * All the ioctl commands get dispatched to functions with this
++ * prototype.
++ */
++typedef int (*ioctl_fn)(struct dm_ioctl *param, size_t param_size);
++
++static int remove_all(struct dm_ioctl *param, size_t param_size)
++{
++	dm_hash_remove_all();
++	param->data_size = 0;
++	return 0;
++}
++
++/*
++ * Round up the ptr to an 8-byte boundary.
++ */
++#define ALIGN_MASK 7
++static inline void *align_ptr(void *ptr)
++{
++	return (void *) (((size_t) (ptr + ALIGN_MASK)) & ~ALIGN_MASK);
++}
++
++/*
++ * Retrieves the data payload buffer from an already allocated
++ * struct dm_ioctl.
++ */
++static void *get_result_buffer(struct dm_ioctl *param, size_t param_size,
++			       size_t *len)
++{
++	param->data_start = align_ptr(param + 1) - (void *) param;
++
++	if (param->data_start < param_size)
++		*len = param_size - param->data_start;
++	else
++		*len = 0;
++
++	return ((void *) param) + param->data_start;
++}
++
++static int list_devices(struct dm_ioctl *param, size_t param_size)
++{
++	unsigned int i;
++	struct hash_cell *hc;
++	size_t len, needed = 0;
++	struct gendisk *disk;
++	struct dm_name_list *nl, *old_nl = NULL;
++
++	down_write(&_hash_lock);
++
++	/*
++	 * Loop through all the devices working out how much
++	 * space we need.
++	 */
++	for (i = 0; i < NUM_BUCKETS; i++) {
++		list_for_each_entry (hc, _name_buckets + i, name_list) {
++			needed += sizeof(struct dm_name_list);
++			needed += strlen(hc->name);
++			needed += ALIGN_MASK;
++		}
++	}
++
++	/*
++	 * Grab our output buffer.
++	 */
++	nl = get_result_buffer(param, param_size, &len);
++	if (len < needed) {
++		param->flags |= DM_BUFFER_FULL_FLAG;
++		goto out;
++	}
++	param->data_size = param->data_start + needed;
++
++	nl->dev = 0;	/* Flags no data */
++
++	/*
++	 * Now loop through filling out the names.
++	 */
++	for (i = 0; i < NUM_BUCKETS; i++) {
++		list_for_each_entry (hc, _name_buckets + i, name_list) {
++			if (old_nl)
++				old_nl->next = (uint32_t) ((void *) nl -
++							   (void *) old_nl);
++			disk = dm_disk(hc->md);
++			nl->dev = huge_encode_dev(MKDEV(disk->major, disk->first_minor));
++			nl->next = 0;
++			strcpy(nl->name, hc->name);
++
++			old_nl = nl;
++			nl = align_ptr(((void *) ++nl) + strlen(hc->name) + 1);
++		}
++	}
++
++ out:
++	up_write(&_hash_lock);
++	return 0;
++}
++
++static int check_name(const char *name)
++{
++	if (strchr(name, '/')) {
++		DMWARN("invalid device name");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++/*
++ * Fills in a dm_ioctl structure, ready for sending back to
++ * userland.
++ */
++static int __dev_status(struct mapped_device *md, struct dm_ioctl *param)
++{
++	struct gendisk *disk = dm_disk(md);
++	struct dm_table *table;
++	struct block_device *bdev;
++
++	param->flags &= ~(DM_SUSPEND_FLAG | DM_READONLY_FLAG |
++			  DM_ACTIVE_PRESENT_FLAG);
++
++	if (dm_suspended(md))
++		param->flags |= DM_SUSPEND_FLAG;
++
++	bdev = bdget_disk(disk, 0);
++	if (!bdev)
++		return -ENXIO;
++
++	param->dev = huge_encode_dev(MKDEV(disk->major, disk->first_minor));
++
++	/*
++	 * Yes, this will be out of date by the time it gets back
++	 * to userland, but it is still very useful ofr
++	 * debugging.
++	 */
++	param->open_count = bdev->bd_openers;
++	bdput(bdev);
++
++	if (disk->policy)
++		param->flags |= DM_READONLY_FLAG;
++
++	param->event_nr = dm_get_event_nr(md);
++
++	table = dm_get_table(md);
++	if (table) {
++		param->flags |= DM_ACTIVE_PRESENT_FLAG;
++		param->target_count = dm_table_get_num_targets(table);
++		dm_table_put(table);
++	} else
++		param->target_count = 0;
++
++	return 0;
++}
++
++static int dev_create(struct dm_ioctl *param, size_t param_size)
++{
++	int r;
++	struct mapped_device *md;
++
++	r = check_name(param->name);
++	if (r)
++		return r;
++
++	if (param->flags & DM_PERSISTENT_DEV_FLAG)
++		r = dm_create_with_minor(MINOR(huge_decode_dev(param->dev)), &md);
++	else
++		r = dm_create(&md);
++
++	if (r)
++		return r;
++
++	r = dm_hash_insert(param->name, *param->uuid ? param->uuid : NULL, md);
++	if (r) {
++		dm_put(md);
++		return r;
++	}
++
++	param->flags &= ~DM_INACTIVE_PRESENT_FLAG;
++
++	r = __dev_status(md, param);
++	dm_put(md);
++
++	return r;
++}
++
++/*
++ * Always use UUID for lookups if it's present, otherwise use name.
++ */
++static inline struct hash_cell *__find_device_hash_cell(struct dm_ioctl *param)
++{
++	return *param->uuid ?
++	    __get_uuid_cell(param->uuid) : __get_name_cell(param->name);
++}
++
++static inline struct mapped_device *find_device(struct dm_ioctl *param)
++{
++	struct hash_cell *hc;
++	struct mapped_device *md = NULL;
++
++	down_read(&_hash_lock);
++	hc = __find_device_hash_cell(param);
++	if (hc) {
++		md = hc->md;
++
++		/*
++		 * Sneakily write in both the name and the uuid
++		 * while we have the cell.
++		 */
++		strncpy(param->name, hc->name, sizeof(param->name));
++		if (hc->uuid)
++			strncpy(param->uuid, hc->uuid, sizeof(param->uuid)-1);
++		else
++			param->uuid[0] = '\0';
++
++		if (hc->new_map)
++			param->flags |= DM_INACTIVE_PRESENT_FLAG;
++		else
++			param->flags &= ~DM_INACTIVE_PRESENT_FLAG;
++
++		dm_get(md);
++	}
++	up_read(&_hash_lock);
++
++	return md;
++}
++
++static int dev_remove(struct dm_ioctl *param, size_t param_size)
++{
++	struct hash_cell *hc;
++
++	down_write(&_hash_lock);
++	hc = __find_device_hash_cell(param);
++
++	if (!hc) {
++		DMWARN("device doesn't appear to be in the dev hash table.");
++		up_write(&_hash_lock);
++		return -ENXIO;
++	}
++
++	__hash_remove(hc);
++	up_write(&_hash_lock);
++	param->data_size = 0;
++	return 0;
++}
++
++/*
++ * Check a string doesn't overrun the chunk of
++ * memory we copied from userland.
++ */
++static int invalid_str(char *str, void *end)
++{
++	while ((void *) str < end)
++		if (!*str++)
++			return 0;
++
++	return -EINVAL;
++}
++
++static int dev_rename(struct dm_ioctl *param, size_t param_size)
++{
++	int r;
++	char *new_name = (char *) param + param->data_start;
++
++	if (new_name < (char *) (param + 1) ||
++	    invalid_str(new_name, (void *) param + param_size)) {
++		DMWARN("Invalid new logical volume name supplied.");
++		return -EINVAL;
++	}
++
++	r = check_name(new_name);
++	if (r)
++		return r;
++
++	param->data_size = 0;
++	return dm_hash_rename(param->name, new_name);
++}
++
++static int do_suspend(struct dm_ioctl *param)
++{
++	int r = 0;
++	struct mapped_device *md;
++
++	md = find_device(param);
++	if (!md)
++		return -ENXIO;
++
++	if (!dm_suspended(md))
++		r = dm_suspend(md);
++
++	if (!r)
++		r = __dev_status(md, param);
++
++	dm_put(md);
++	return r;
++}
++
++static int do_resume(struct dm_ioctl *param)
++{
++	int r = 0;
++	struct hash_cell *hc;
++	struct mapped_device *md;
++	struct dm_table *new_map;
++
++	down_write(&_hash_lock);
++
++	hc = __find_device_hash_cell(param);
++	if (!hc) {
++		DMWARN("device doesn't appear to be in the dev hash table.");
++		up_write(&_hash_lock);
++		return -ENXIO;
++	}
++
++	md = hc->md;
++	dm_get(md);
++
++	new_map = hc->new_map;
++	hc->new_map = NULL;
++	param->flags &= ~DM_INACTIVE_PRESENT_FLAG;
++
++	up_write(&_hash_lock);
++
++	/* Do we need to load a new map ? */
++	if (new_map) {
++		/* Suspend if it isn't already suspended */
++		if (!dm_suspended(md))
++			dm_suspend(md);
++
++		r = dm_swap_table(md, new_map);
++		if (r) {
++			dm_put(md);
++			dm_table_put(new_map);
++			return r;
++		}
++
++		if (dm_table_get_mode(new_map) & FMODE_WRITE)
++			set_disk_ro(dm_disk(md), 0);
++		else
++			set_disk_ro(dm_disk(md), 1);
++
++		dm_table_put(new_map);
++	}
++
++	if (dm_suspended(md))
++		r = dm_resume(md);
++
++	if (!r)
++		r = __dev_status(md, param);
++
++	dm_put(md);
++	return r;
++}
++
++/*
++ * Set or unset the suspension state of a device.
++ * If the device already is in the requested state we just return its status.
++ */
++static int dev_suspend(struct dm_ioctl *param, size_t param_size)
++{
++	if (param->flags & DM_SUSPEND_FLAG)
++		return do_suspend(param);
++
++	return do_resume(param);
++}
++
++/*
++ * Copies device info back to user space, used by
++ * the create and info ioctls.
++ */
++static int dev_status(struct dm_ioctl *param, size_t param_size)
++{
++	int r;
++	struct mapped_device *md;
++
++	md = find_device(param);
++	if (!md)
++		return -ENXIO;
++
++	r = __dev_status(md, param);
++	dm_put(md);
++	return r;
++}
++
++/*
++ * Build up the status struct for each target
++ */
++static void retrieve_status(struct dm_table *table,
++			    struct dm_ioctl *param, size_t param_size)
++{
++	unsigned int i, num_targets;
++	struct dm_target_spec *spec;
++	char *outbuf, *outptr;
++	status_type_t type;
++	size_t remaining, len, used = 0;
++
++	outptr = outbuf = get_result_buffer(param, param_size, &len);
++
++	if (param->flags & DM_STATUS_TABLE_FLAG)
++		type = STATUSTYPE_TABLE;
++	else
++		type = STATUSTYPE_INFO;
++
++	/* Get all the target info */
++	num_targets = dm_table_get_num_targets(table);
++	for (i = 0; i < num_targets; i++) {
++		struct dm_target *ti = dm_table_get_target(table, i);
++
++		remaining = len - (outptr - outbuf);
++		if (remaining < sizeof(struct dm_target_spec)) {
++			param->flags |= DM_BUFFER_FULL_FLAG;
++			break;
++		}
++
++		spec = (struct dm_target_spec *) outptr;
++
++		spec->status = 0;
++		spec->sector_start = ti->begin;
++		spec->length = ti->len;
++		strncpy(spec->target_type, ti->type->name,
++			sizeof(spec->target_type));
++
++		outptr += sizeof(struct dm_target_spec);
++		remaining = len - (outptr - outbuf);
++
++		/* Get the status/table string from the target driver */
++		if (ti->type->status) {
++			if (ti->type->status(ti, type, outptr, remaining)) {
++				param->flags |= DM_BUFFER_FULL_FLAG;
++				break;
++			}
++		} else
++			outptr[0] = '\0';
++
++		outptr += strlen(outptr) + 1;
++		used = param->data_start + (outptr - outbuf);
++
++		align_ptr(outptr);
++		spec->next = outptr - outbuf;
++	}
++
++	if (used)
++		param->data_size = used;
++
++	param->target_count = num_targets;
++}
++
++/*
++ * Wait for a device to report an event
++ */
++static int dev_wait(struct dm_ioctl *param, size_t param_size)
++{
++	int r;
++	struct mapped_device *md;
++	struct dm_table *table;
++	DECLARE_WAITQUEUE(wq, current);
++
++	md = find_device(param);
++	if (!md)
++		return -ENXIO;
++
++	/*
++	 * Wait for a notification event
++	 */
++	set_current_state(TASK_INTERRUPTIBLE);
++	if (!dm_add_wait_queue(md, &wq, param->event_nr)) {
++		schedule();
++		dm_remove_wait_queue(md, &wq);
++	}
++ 	set_current_state(TASK_RUNNING);
++
++	/*
++	 * The userland program is going to want to know what
++	 * changed to trigger the event, so we may as well tell
++	 * him and save an ioctl.
++	 */
++	r = __dev_status(md, param);
++	if (r)
++		goto out;
++
++	table = dm_get_table(md);
++	if (table) {
++		retrieve_status(table, param, param_size);
++		dm_table_put(table);
++	}
++
++ out:
++	dm_put(md);
++	return r;
++}
++
++static inline int get_mode(struct dm_ioctl *param)
++{
++	int mode = FMODE_READ | FMODE_WRITE;
++
++	if (param->flags & DM_READONLY_FLAG)
++		mode = FMODE_READ;
++
++	return mode;
++}
++
++static int next_target(struct dm_target_spec *last, uint32_t next, void *end,
++		       struct dm_target_spec **spec, char **target_params)
++{
++	*spec = (struct dm_target_spec *) ((unsigned char *) last + next);
++	*target_params = (char *) (*spec + 1);
++
++	if (*spec < (last + 1))
++		return -EINVAL;
++
++	return invalid_str(*target_params, end);
++}
++
++static int populate_table(struct dm_table *table,
++			  struct dm_ioctl *param, size_t param_size)
++{
++	int r;
++	unsigned int i = 0;
++	struct dm_target_spec *spec = (struct dm_target_spec *) param;
++	uint32_t next = param->data_start;
++	void *end = (void *) param + param_size;
++	char *target_params;
++
++	if (!param->target_count) {
++		DMWARN("populate_table: no targets specified");
++		return -EINVAL;
++	}
++
++	for (i = 0; i < param->target_count; i++) {
++
++		r = next_target(spec, next, end, &spec, &target_params);
++		if (r) {
++			DMWARN("unable to find target");
++			return r;
++		}
++
++		r = dm_table_add_target(table, spec->target_type,
++					(sector_t) spec->sector_start,
++					(sector_t) spec->length,
++					target_params);
++		if (r) {
++			DMWARN("error adding target to table");
++			return r;
++		}
++
++		next = spec->next;
++	}
++
++	return dm_table_complete(table);
++}
++
++static int table_load(struct dm_ioctl *param, size_t param_size)
++{
++	int r;
++	struct hash_cell *hc;
++	struct dm_table *t;
++
++	r = dm_table_create(&t, get_mode(param), param->target_count);
++	if (r)
++		return r;
++
++	r = populate_table(t, param, param_size);
++	if (r) {
++		dm_table_put(t);
++		return r;
++	}
++
++	down_write(&_hash_lock);
++	hc = __find_device_hash_cell(param);
++	if (!hc) {
++		DMWARN("device doesn't appear to be in the dev hash table.");
++		up_write(&_hash_lock);
++		return -ENXIO;
++	}
++
++	if (hc->new_map)
++		dm_table_put(hc->new_map);
++	hc->new_map = t;
++	param->flags |= DM_INACTIVE_PRESENT_FLAG;
++
++	r = __dev_status(hc->md, param);
++	up_write(&_hash_lock);
++	return r;
++}
++
++static int table_clear(struct dm_ioctl *param, size_t param_size)
++{
++	int r;
++	struct hash_cell *hc;
++
++	down_write(&_hash_lock);
++
++	hc = __find_device_hash_cell(param);
++	if (!hc) {
++		DMWARN("device doesn't appear to be in the dev hash table.");
++		up_write(&_hash_lock);
++		return -ENXIO;
++	}
++
++	if (hc->new_map) {
++		dm_table_put(hc->new_map);
++		hc->new_map = NULL;
++	}
++
++	param->flags &= ~DM_INACTIVE_PRESENT_FLAG;
++
++	r = __dev_status(hc->md, param);
++	up_write(&_hash_lock);
++	return r;
++}
++
++/*
++ * Retrieves a list of devices used by a particular dm device.
++ */
++static void retrieve_deps(struct dm_table *table,
++			  struct dm_ioctl *param, size_t param_size)
++{
++	unsigned int count = 0;
++	struct list_head *tmp;
++	size_t len, needed;
++	struct dm_target_deps *deps;
++
++	deps = get_result_buffer(param, param_size, &len);
++
++	/*
++	 * Count the devices.
++	 */
++	list_for_each(tmp, dm_table_get_devices(table))
++		count++;
++
++	/*
++	 * Check we have enough space.
++	 */
++	needed = sizeof(*deps) + (sizeof(*deps->dev) * count);
++	if (len < needed) {
++		param->flags |= DM_BUFFER_FULL_FLAG;
++		return;
++	}
++
++	/*
++	 * Fill in the devices.
++	 */
++	deps->count = count;
++	count = 0;
++	list_for_each(tmp, dm_table_get_devices(table)) {
++		struct dm_dev *dd = list_entry(tmp, struct dm_dev, list);
++		deps->dev[count++] = huge_encode_dev(dd->bdev->bd_dev);
++	}
++
++	param->data_size = param->data_start + needed;
++}
++
++static int table_deps(struct dm_ioctl *param, size_t param_size)
++{
++	int r = 0;
++	struct mapped_device *md;
++	struct dm_table *table;
++
++	md = find_device(param);
++	if (!md)
++		return -ENXIO;
++
++	r = __dev_status(md, param);
++	if (r)
++		goto out;
++
++	table = dm_get_table(md);
++	if (table) {
++		retrieve_deps(table, param, param_size);
++		dm_table_put(table);
++	}
++
++ out:
++	dm_put(md);
++	return r;
++}
++
++/*
++ * Return the status of a device as a text string for each
++ * target.
++ */
++static int table_status(struct dm_ioctl *param, size_t param_size)
++{
++	int r;
++	struct mapped_device *md;
++	struct dm_table *table;
++
++	md = find_device(param);
++	if (!md)
++		return -ENXIO;
++
++	r = __dev_status(md, param);
++	if (r)
++		goto out;
++
++	table = dm_get_table(md);
++	if (table) {
++		retrieve_status(table, param, param_size);
++		dm_table_put(table);
++	}
++
++ out:
++	dm_put(md);
++	return r;
++}
++
++/*-----------------------------------------------------------------
++ * Implementation of open/close/ioctl on the special char
++ * device.
++ *---------------------------------------------------------------*/
++static ioctl_fn lookup_ioctl(unsigned int cmd)
++{
++	static struct {
++		int cmd;
++		ioctl_fn fn;
++	} _ioctls[] = {
++		{DM_VERSION_CMD, NULL},	/* version is dealt with elsewhere */
++		{DM_REMOVE_ALL_CMD, remove_all},
++		{DM_LIST_DEVICES_CMD, list_devices},
++
++		{DM_DEV_CREATE_CMD, dev_create},
++		{DM_DEV_REMOVE_CMD, dev_remove},
++		{DM_DEV_RENAME_CMD, dev_rename},
++		{DM_DEV_SUSPEND_CMD, dev_suspend},
++		{DM_DEV_STATUS_CMD, dev_status},
++		{DM_DEV_WAIT_CMD, dev_wait},
++
++		{DM_TABLE_LOAD_CMD, table_load},
++		{DM_TABLE_CLEAR_CMD, table_clear},
++		{DM_TABLE_DEPS_CMD, table_deps},
++		{DM_TABLE_STATUS_CMD, table_status}
++	};
++
++	return (cmd >= ARRAY_SIZE(_ioctls)) ? NULL : _ioctls[cmd].fn;
++}
++
++/*
++ * As well as checking the version compatibility this always
++ * copies the kernel interface version out.
++ */
++static int check_version(unsigned int cmd, struct dm_ioctl *user)
++{
++	uint32_t version[3];
++	int r = 0;
++
++	if (copy_from_user(version, user->version, sizeof(version)))
++		return -EFAULT;
++
++	if ((DM_VERSION_MAJOR != version[0]) ||
++	    (DM_VERSION_MINOR < version[1])) {
++		DMWARN("ioctl interface mismatch: "
++		       "kernel(%u.%u.%u), user(%u.%u.%u), cmd(%d)",
++		       DM_VERSION_MAJOR, DM_VERSION_MINOR,
++		       DM_VERSION_PATCHLEVEL,
++		       version[0], version[1], version[2], cmd);
++		r = -EINVAL;
++	}
++
++	/*
++	 * Fill in the kernel version.
++	 */
++	version[0] = DM_VERSION_MAJOR;
++	version[1] = DM_VERSION_MINOR;
++	version[2] = DM_VERSION_PATCHLEVEL;
++	if (copy_to_user(user->version, version, sizeof(version)))
++		return -EFAULT;
++
++	return r;
++}
++
++static void free_params(struct dm_ioctl *param)
++{
++	vfree(param);
++}
++
++static int copy_params(struct dm_ioctl *user, struct dm_ioctl **param)
++{
++	struct dm_ioctl tmp, *dmi;
++
++	if (copy_from_user(&tmp, user, sizeof(tmp)))
++		return -EFAULT;
++
++	if (tmp.data_size < sizeof(tmp))
++		return -EINVAL;
++
++	dmi = (struct dm_ioctl *) vmalloc(tmp.data_size);
++	if (!dmi)
++		return -ENOMEM;
++
++	if (copy_from_user(dmi, user, tmp.data_size)) {
++		vfree(dmi);
++		return -EFAULT;
++	}
++
++	*param = dmi;
++	return 0;
++}
++
++static int validate_params(uint cmd, struct dm_ioctl *param)
++{
++	/* Always clear this flag */
++	param->flags &= ~DM_BUFFER_FULL_FLAG;
++
++	/* Ignores parameters */
++	if (cmd == DM_REMOVE_ALL_CMD || cmd == DM_LIST_DEVICES_CMD)
++		return 0;
++
++	/* Unless creating, either name or uuid but not both */
++	if (cmd != DM_DEV_CREATE_CMD) {
++		if ((!*param->uuid && !*param->name) ||
++		    (*param->uuid && *param->name)) {
++			DMWARN("one of name or uuid must be supplied, cmd(%u)",
++			       cmd);
++			return -EINVAL;
++		}
++	}
++
++	/* Ensure strings are terminated */
++	param->name[DM_NAME_LEN - 1] = '\0';
++	param->uuid[DM_UUID_LEN - 1] = '\0';
++
++	return 0;
++}
++
++static int ctl_ioctl(struct inode *inode, struct file *file,
++		     uint command, ulong u)
++{
++	int r = 0;
++	unsigned int cmd;
++	struct dm_ioctl *param;
++	struct dm_ioctl *user = (struct dm_ioctl *) u;
++	ioctl_fn fn = NULL;
++	size_t param_size;
++
++	/* only root can play with this */
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++
++	if (_IOC_TYPE(command) != DM_IOCTL)
++		return -ENOTTY;
++
++	cmd = _IOC_NR(command);
++
++	/*
++	 * Check the interface version passed in.  This also
++	 * writes out the kernel's interface version.
++	 */
++	r = check_version(cmd, user);
++	if (r)
++		return r;
++
++	/*
++	 * Nothing more to do for the version command.
++	 */
++	if (cmd == DM_VERSION_CMD)
++		return 0;
++
++	fn = lookup_ioctl(cmd);
++	if (!fn) {
++		DMWARN("dm_ctl_ioctl: unknown command 0x%x", command);
++		return -ENOTTY;
++	}
++
++	/*
++	 * Trying to avoid low memory issues when a device is
++	 * suspended.
++	 */
++	current->flags |= PF_MEMALLOC;
++
++	/*
++	 * Copy the parameters into kernel space.
++	 */
++	r = copy_params(user, &param);
++	if (r) {
++		current->flags &= ~PF_MEMALLOC;
++		return r;
++	}
++
++	/*
++	 * FIXME: eventually we will remove the PF_MEMALLOC flag
++	 * here.  However the tools still do nasty things like
++	 * 'load' while a device is suspended.
++	 */
++
++	r = validate_params(cmd, param);
++	if (r)
++		goto out;
++
++	param_size = param->data_size;
++	param->data_size = sizeof(*param);
++	r = fn(param, param_size);
++
++	/*
++	 * Copy the results back to userland.
++	 */
++	if (!r && copy_to_user(user, param, param->data_size))
++		r = -EFAULT;
++
++ out:
++	free_params(param);
++	current->flags &= ~PF_MEMALLOC;
++	return r;
++}
++
++static struct file_operations _ctl_fops = {
++	.ioctl	 = ctl_ioctl,
++	.owner	 = THIS_MODULE,
++};
++
++static struct miscdevice _dm_misc = {
++	.minor 		= MISC_DYNAMIC_MINOR,
++	.name  		= DM_NAME,
++	.devfs_name 	= "mapper/control",
++	.fops  		= &_ctl_fops
++};
++
++/*
++ * Create misc character device and link to DM_DIR/control.
++ */
++int __init dm_interface_init(void)
++{
++	int r;
++
++	r = dm_hash_init();
++	if (r)
++		return r;
++
++	r = misc_register(&_dm_misc);
++	if (r) {
++		DMERR("misc_register failed for control device");
++		dm_hash_exit();
++		return r;
++	}
++
++	DMINFO("%d.%d.%d%s initialised: %s", DM_VERSION_MAJOR,
++	       DM_VERSION_MINOR, DM_VERSION_PATCHLEVEL, DM_VERSION_EXTRA,
++	       DM_DRIVER_EMAIL);
++	return 0;
++}
++
++void dm_interface_exit(void)
++{
++	if (misc_deregister(&_dm_misc) < 0)
++		DMERR("misc_deregister failed for control device");
++
++	dm_hash_exit();
++}
+--- diff/include/linux/dm-ioctl.h	2003-11-27 12:19:20.000000000 +0000
++++ source/include/linux/dm-ioctl.h	2003-08-20 14:16:15.000000000 +0100
+@@ -1,12 +1,237 @@
+ /*
+- * Copyright (C) 2003 Sistina Software (UK) Limited.
++ * Copyright (C) 2001 - 2003 Sistina Software (UK) Limited.
+  *
+  * This file is released under the LGPL.
+  */
+ 
+-#ifndef _LINUX_DM_IOCTL_H
+-#define _LINUX_DM_IOCTL_H
++#ifndef _LINUX_DM_IOCTL_V4_H
++#define _LINUX_DM_IOCTL_V4_H
+ 
+-#include "dm-ioctl-v4.h"
++#include <linux/types.h>
+ 
+-#endif
++#define DM_DIR "mapper"		/* Slashes not supported */
++#define DM_MAX_TYPE_NAME 16
++#define DM_NAME_LEN 128
++#define DM_UUID_LEN 129
++
++/*
++ * A traditional ioctl interface for the device mapper.
++ *
++ * Each device can have two tables associated with it, an
++ * 'active' table which is the one currently used by io passing
++ * through the device, and an 'inactive' one which is a table
++ * that is being prepared as a replacement for the 'active' one.
++ *
++ * DM_VERSION:
++ * Just get the version information for the ioctl interface.
++ *
++ * DM_REMOVE_ALL:
++ * Remove all dm devices, destroy all tables.  Only really used
++ * for debug.
++ *
++ * DM_LIST_DEVICES:
++ * Get a list of all the dm device names.
++ *
++ * DM_DEV_CREATE:
++ * Create a new device, neither the 'active' or 'inactive' table
++ * slots will be filled.  The device will be in suspended state
++ * after creation, however any io to the device will get errored
++ * since it will be out-of-bounds.
++ *
++ * DM_DEV_REMOVE:
++ * Remove a device, destroy any tables.
++ *
++ * DM_DEV_RENAME:
++ * Rename a device.
++ *
++ * DM_SUSPEND:
++ * This performs both suspend and resume, depending which flag is
++ * passed in.
++ * Suspend: This command will not return until all pending io to
++ * the device has completed.  Further io will be deferred until
++ * the device is resumed.
++ * Resume: It is no longer an error to issue this command on an
++ * unsuspended device.  If a table is present in the 'inactive'
++ * slot, it will be moved to the active slot, then the old table
++ * from the active slot will be _destroyed_.  Finally the device
++ * is resumed.
++ *
++ * DM_DEV_STATUS:
++ * Retrieves the status for the table in the 'active' slot.
++ *
++ * DM_DEV_WAIT:
++ * Wait for a significant event to occur to the device.  This
++ * could either be caused by an event triggered by one of the
++ * targets of the table in the 'active' slot, or a table change.
++ *
++ * DM_TABLE_LOAD:
++ * Load a table into the 'inactive' slot for the device.  The
++ * device does _not_ need to be suspended prior to this command.
++ *
++ * DM_TABLE_CLEAR:
++ * Destroy any table in the 'inactive' slot (ie. abort).
++ *
++ * DM_TABLE_DEPS:
++ * Return a set of device dependencies for the 'active' table.
++ *
++ * DM_TABLE_STATUS:
++ * Return the targets status for the 'active' table.
++ */
++
++/*
++ * All ioctl arguments consist of a single chunk of memory, with
++ * this structure at the start.  If a uuid is specified any
++ * lookup (eg. for a DM_INFO) will be done on that, *not* the
++ * name.
++ */
++struct dm_ioctl {
++	/*
++	 * The version number is made up of three parts:
++	 * major - no backward or forward compatibility,
++	 * minor - only backwards compatible,
++	 * patch - both backwards and forwards compatible.
++	 *
++	 * All clients of the ioctl interface should fill in the
++	 * version number of the interface that they were
++	 * compiled with.
++	 *
++	 * All recognised ioctl commands (ie. those that don't
++	 * return -ENOTTY) fill out this field, even if the
++	 * command failed.
++	 */
++	uint32_t version[3];	/* in/out */
++	uint32_t data_size;	/* total size of data passed in
++				 * including this struct */
++
++	uint32_t data_start;	/* offset to start of data
++				 * relative to start of this struct */
++
++	uint32_t target_count;	/* in/out */
++	int32_t open_count;	/* out */
++	uint32_t flags;		/* in/out */
++	uint32_t event_nr;      	/* in/out */
++	uint32_t padding;
++
++	uint64_t dev;		/* in/out */
++
++	char name[DM_NAME_LEN];	/* device name */
++	char uuid[DM_UUID_LEN];	/* unique identifier for
++				 * the block device */
++};
++
++/*
++ * Used to specify tables.  These structures appear after the
++ * dm_ioctl.
++ */
++struct dm_target_spec {
++	uint64_t sector_start;
++	uint64_t length;
++	int32_t status;		/* used when reading from kernel only */
++
++	/*
++	 * Offset in bytes (from the start of this struct) to
++	 * next target_spec.
++	 */
++	uint32_t next;
++
++	char target_type[DM_MAX_TYPE_NAME];
++
++	/*
++	 * Parameter string starts immediately after this object.
++	 * Be careful to add padding after string to ensure correct
++	 * alignment of subsequent dm_target_spec.
++	 */
++};
++
++/*
++ * Used to retrieve the target dependencies.
++ */
++struct dm_target_deps {
++	uint32_t count;	/* Array size */
++	uint32_t padding;	/* unused */
++	uint64_t dev[0];	/* out */
++};
++
++/*
++ * Used to get a list of all dm devices.
++ */
++struct dm_name_list {
++	uint64_t dev;
++	uint32_t next;		/* offset to the next record from
++				   the _start_ of this */
++	char name[0];
++};
++
++/*
++ * If you change this make sure you make the corresponding change
++ * to dm-ioctl.c:lookup_ioctl()
++ */
++enum {
++	/* Top level cmds */
++	DM_VERSION_CMD = 0,
++	DM_REMOVE_ALL_CMD,
++	DM_LIST_DEVICES_CMD,
++
++	/* device level cmds */
++	DM_DEV_CREATE_CMD,
++	DM_DEV_REMOVE_CMD,
++	DM_DEV_RENAME_CMD,
++	DM_DEV_SUSPEND_CMD,
++	DM_DEV_STATUS_CMD,
++	DM_DEV_WAIT_CMD,
++
++	/* Table level cmds */
++	DM_TABLE_LOAD_CMD,
++	DM_TABLE_CLEAR_CMD,
++	DM_TABLE_DEPS_CMD,
++	DM_TABLE_STATUS_CMD,
++};
++
++#define DM_IOCTL 0xfd
++
++#define DM_VERSION       _IOWR(DM_IOCTL, DM_VERSION_CMD, struct dm_ioctl)
++#define DM_REMOVE_ALL    _IOWR(DM_IOCTL, DM_REMOVE_ALL_CMD, struct dm_ioctl)
++#define DM_LIST_DEVICES  _IOWR(DM_IOCTL, DM_LIST_DEVICES_CMD, struct dm_ioctl)
++
++#define DM_DEV_CREATE    _IOWR(DM_IOCTL, DM_DEV_CREATE_CMD, struct dm_ioctl)
++#define DM_DEV_REMOVE    _IOWR(DM_IOCTL, DM_DEV_REMOVE_CMD, struct dm_ioctl)
++#define DM_DEV_RENAME    _IOWR(DM_IOCTL, DM_DEV_RENAME_CMD, struct dm_ioctl)
++#define DM_DEV_SUSPEND   _IOWR(DM_IOCTL, DM_DEV_SUSPEND_CMD, struct dm_ioctl)
++#define DM_DEV_STATUS    _IOWR(DM_IOCTL, DM_DEV_STATUS_CMD, struct dm_ioctl)
++#define DM_DEV_WAIT      _IOWR(DM_IOCTL, DM_DEV_WAIT_CMD, struct dm_ioctl)
++
++#define DM_TABLE_LOAD    _IOWR(DM_IOCTL, DM_TABLE_LOAD_CMD, struct dm_ioctl)
++#define DM_TABLE_CLEAR   _IOWR(DM_IOCTL, DM_TABLE_CLEAR_CMD, struct dm_ioctl)
++#define DM_TABLE_DEPS    _IOWR(DM_IOCTL, DM_TABLE_DEPS_CMD, struct dm_ioctl)
++#define DM_TABLE_STATUS  _IOWR(DM_IOCTL, DM_TABLE_STATUS_CMD, struct dm_ioctl)
++
++#define DM_VERSION_MAJOR	4
++#define DM_VERSION_MINOR	0
++#define DM_VERSION_PATCHLEVEL	0
++#define DM_VERSION_EXTRA	"-ioctl (2003-06-04)"
++
++/* Status bits */
++#define DM_READONLY_FLAG	(1 << 0) /* In/Out */
++#define DM_SUSPEND_FLAG		(1 << 1) /* In/Out */
++#define DM_PERSISTENT_DEV_FLAG	(1 << 3) /* In */
++
++/*
++ * Flag passed into ioctl STATUS command to get table information
++ * rather than current status.
++ */
++#define DM_STATUS_TABLE_FLAG	(1 << 4) /* In */
++
++/*
++ * Flags that indicate whether a table is present in either of
++ * the two table slots that a device has.
++ */
++#define DM_ACTIVE_PRESENT_FLAG   (1 << 5) /* Out */
++#define DM_INACTIVE_PRESENT_FLAG (1 << 6) /* Out */
++
++/*
++ * Indicates that the buffer passed in wasn't big enough for the
++ * results.
++ */
++#define DM_BUFFER_FULL_FLAG	(1 << 8) /* Out */
++
++#endif				/* _LINUX_DM_IOCTL_H */
+--- diff/drivers/md/dm-ioctl-v1.c	2003-11-25 15:47:38.000000000 +0000
++++ source/drivers/md/dm-ioctl-v1.c	1970-01-01 01:00:00.000000000 +0100
+@@ -1,1159 +0,0 @@
+-/*
+- * Copyright (C) 2001, 2002 Sistina Software (UK) Limited.
+- *
+- * This file is released under the GPL.
+- */
+-
+-#include "dm.h"
+-
+-#include <linux/module.h>
+-#include <linux/vmalloc.h>
+-#include <linux/miscdevice.h>
+-#include <linux/dm-ioctl.h>
+-#include <linux/init.h>
+-#include <linux/wait.h>
+-#include <linux/slab.h>
+-#include <linux/devfs_fs_kernel.h>
+-
+-#include <asm/uaccess.h>
+-
+-#define DM_DRIVER_EMAIL "dm@uk.sistina.com"
+-
+-/*-----------------------------------------------------------------
+- * The ioctl interface needs to be able to look up devices by
+- * name or uuid.
+- *---------------------------------------------------------------*/
+-struct hash_cell {
+-	struct list_head name_list;
+-	struct list_head uuid_list;
+-
+-	char *name;
+-	char *uuid;
+-	struct mapped_device *md;
+-};
+-
+-#define NUM_BUCKETS 64
+-#define MASK_BUCKETS (NUM_BUCKETS - 1)
+-static struct list_head _name_buckets[NUM_BUCKETS];
+-static struct list_head _uuid_buckets[NUM_BUCKETS];
+-
+-void dm_hash_remove_all(void);
+-
+-/*
+- * Guards access to all three tables.
+- */
+-static DECLARE_RWSEM(_hash_lock);
+-
+-static void init_buckets(struct list_head *buckets)
+-{
+-	unsigned int i;
+-
+-	for (i = 0; i < NUM_BUCKETS; i++)
+-		INIT_LIST_HEAD(buckets + i);
+-}
+-
+-int dm_hash_init(void)
+-{
+-	init_buckets(_name_buckets);
+-	init_buckets(_uuid_buckets);
+-	devfs_mk_dir(DM_DIR);
+-	return 0;
+-}
+-
+-void dm_hash_exit(void)
+-{
+-	dm_hash_remove_all();
+-	devfs_remove(DM_DIR);
+-}
+-
+-/*-----------------------------------------------------------------
+- * Hash function:
+- * We're not really concerned with the str hash function being
+- * fast since it's only used by the ioctl interface.
+- *---------------------------------------------------------------*/
+-static unsigned int hash_str(const char *str)
+-{
+-	const unsigned int hash_mult = 2654435387U;
+-	unsigned int h = 0;
+-
+-	while (*str)
+-		h = (h + (unsigned int) *str++) * hash_mult;
+-
+-	return h & MASK_BUCKETS;
+-}
+-
+-/*-----------------------------------------------------------------
+- * Code for looking up a device by name
+- *---------------------------------------------------------------*/
+-static struct hash_cell *__get_name_cell(const char *str)
+-{
+-	struct list_head *tmp;
+-	struct hash_cell *hc;
+-	unsigned int h = hash_str(str);
+-
+-	list_for_each (tmp, _name_buckets + h) {
+-		hc = list_entry(tmp, struct hash_cell, name_list);
+-		if (!strcmp(hc->name, str))
+-			return hc;
+-	}
+-
+-	return NULL;
+-}
+-
+-static struct hash_cell *__get_uuid_cell(const char *str)
+-{
+-	struct list_head *tmp;
+-	struct hash_cell *hc;
+-	unsigned int h = hash_str(str);
+-
+-	list_for_each (tmp, _uuid_buckets + h) {
+-		hc = list_entry(tmp, struct hash_cell, uuid_list);
+-		if (!strcmp(hc->uuid, str))
+-			return hc;
+-	}
+-
+-	return NULL;
+-}
+-
+-/*-----------------------------------------------------------------
+- * Inserting, removing and renaming a device.
+- *---------------------------------------------------------------*/
+-static inline char *kstrdup(const char *str)
+-{
+-	char *r = kmalloc(strlen(str) + 1, GFP_KERNEL);
+-	if (r)
+-		strcpy(r, str);
+-	return r;
+-}
+-
+-static struct hash_cell *alloc_cell(const char *name, const char *uuid,
+-				    struct mapped_device *md)
+-{
+-	struct hash_cell *hc;
+-
+-	hc = kmalloc(sizeof(*hc), GFP_KERNEL);
+-	if (!hc)
+-		return NULL;
+-
+-	hc->name = kstrdup(name);
+-	if (!hc->name) {
+-		kfree(hc);
+-		return NULL;
+-	}
+-
+-	if (!uuid)
+-		hc->uuid = NULL;
+-
+-	else {
+-		hc->uuid = kstrdup(uuid);
+-		if (!hc->uuid) {
+-			kfree(hc->name);
+-			kfree(hc);
+-			return NULL;
+-		}
+-	}
+-
+-	INIT_LIST_HEAD(&hc->name_list);
+-	INIT_LIST_HEAD(&hc->uuid_list);
+-	hc->md = md;
+-	return hc;
+-}
+-
+-static void free_cell(struct hash_cell *hc)
+-{
+-	if (hc) {
+-		kfree(hc->name);
+-		kfree(hc->uuid);
+-		kfree(hc);
+-	}
+-}
+-
+-/*
+- * devfs stuff.
+- */
+-static int register_with_devfs(struct hash_cell *hc)
+-{
+-	struct gendisk *disk = dm_disk(hc->md);
+-
+-	devfs_mk_bdev(MKDEV(disk->major, disk->first_minor),
+-		       S_IFBLK | S_IRUSR | S_IWUSR | S_IRGRP,
+-		       DM_DIR "/%s", hc->name);
+-	return 0;
+-}
+-
+-static int unregister_with_devfs(struct hash_cell *hc)
+-{
+-	devfs_remove(DM_DIR"/%s", hc->name);
+-	return 0;
+-}
+-
+-/*
+- * The kdev_t and uuid of a device can never change once it is
+- * initially inserted.
+- */
+-int dm_hash_insert(const char *name, const char *uuid, struct mapped_device *md)
+-{
+-	struct hash_cell *cell;
+-
+-	/*
+-	 * Allocate the new cells.
+-	 */
+-	cell = alloc_cell(name, uuid, md);
+-	if (!cell)
+-		return -ENOMEM;
+-
+-	/*
+-	 * Insert the cell into all three hash tables.
+-	 */
+-	down_write(&_hash_lock);
+-	if (__get_name_cell(name))
+-		goto bad;
+-
+-	list_add(&cell->name_list, _name_buckets + hash_str(name));
+-
+-	if (uuid) {
+-		if (__get_uuid_cell(uuid)) {
+-			list_del(&cell->name_list);
+-			goto bad;
+-		}
+-		list_add(&cell->uuid_list, _uuid_buckets + hash_str(uuid));
+-	}
+-	register_with_devfs(cell);
+-	dm_get(md);
+-	up_write(&_hash_lock);
+-
+-	return 0;
+-
+- bad:
+-	up_write(&_hash_lock);
+-	free_cell(cell);
+-	return -EBUSY;
+-}
+-
+-void __hash_remove(struct hash_cell *hc)
+-{
+-	/* remove from the dev hash */
+-	list_del(&hc->uuid_list);
+-	list_del(&hc->name_list);
+-	unregister_with_devfs(hc);
+-	dm_put(hc->md);
+-	free_cell(hc);
+-}
+-
+-void dm_hash_remove_all(void)
+-{
+-	int i;
+-	struct hash_cell *hc;
+-	struct list_head *tmp, *n;
+-
+-	down_write(&_hash_lock);
+-	for (i = 0; i < NUM_BUCKETS; i++) {
+-		list_for_each_safe (tmp, n, _name_buckets + i) {
+-			hc = list_entry(tmp, struct hash_cell, name_list);
+-			__hash_remove(hc);
+-		}
+-	}
+-	up_write(&_hash_lock);
+-}
+-
+-int dm_hash_rename(const char *old, const char *new)
+-{
+-	char *new_name, *old_name;
+-	struct hash_cell *hc;
+-
+-	/*
+-	 * duplicate new.
+-	 */
+-	new_name = kstrdup(new);
+-	if (!new_name)
+-		return -ENOMEM;
+-
+-	down_write(&_hash_lock);
+-
+-	/*
+-	 * Is new free ?
+-	 */
+-	hc = __get_name_cell(new);
+-	if (hc) {
+-		DMWARN("asked to rename to an already existing name %s -> %s",
+-		       old, new);
+-		up_write(&_hash_lock);
+-		kfree(new_name);
+-		return -EBUSY;
+-	}
+-
+-	/*
+-	 * Is there such a device as 'old' ?
+-	 */
+-	hc = __get_name_cell(old);
+-	if (!hc) {
+-		DMWARN("asked to rename a non existent device %s -> %s",
+-		       old, new);
+-		up_write(&_hash_lock);
+-		kfree(new_name);
+-		return -ENXIO;
+-	}
+-
+-	/*
+-	 * rename and move the name cell.
+-	 */
+-	unregister_with_devfs(hc);
+-
+-	list_del(&hc->name_list);
+-	old_name = hc->name;
+-	hc->name = new_name;
+-	list_add(&hc->name_list, _name_buckets + hash_str(new_name));
+-
+-	/* rename the device node in devfs */
+-	register_with_devfs(hc);
+-
+-	up_write(&_hash_lock);
+-	kfree(old_name);
+-	return 0;
+-}
+-
+-
+-/*-----------------------------------------------------------------
+- * Implementation of the ioctl commands
+- *---------------------------------------------------------------*/
+-
+-/*
+- * All the ioctl commands get dispatched to functions with this
+- * prototype.
+- */
+-typedef int (*ioctl_fn)(struct dm_ioctl *param, struct dm_ioctl *user);
+-
+-/*
+- * Check a string doesn't overrun the chunk of
+- * memory we copied from userland.
+- */
+-static int valid_str(char *str, void *begin, void *end)
+-{
+-	while (((void *) str >= begin) && ((void *) str < end))
+-		if (!*str++)
+-			return 0;
+-
+-	return -EINVAL;
+-}
+-
+-static int next_target(struct dm_target_spec *last, uint32_t next,
+-		       void *begin, void *end,
+-		       struct dm_target_spec **spec, char **params)
+-{
+-	*spec = (struct dm_target_spec *)
+-	    ((unsigned char *) last + next);
+-	*params = (char *) (*spec + 1);
+-
+-	if (*spec < (last + 1) || ((void *) *spec > end))
+-		return -EINVAL;
+-
+-	return valid_str(*params, begin, end);
+-}
+-
+-static int populate_table(struct dm_table *table, struct dm_ioctl *args)
+-{
+-	int r, first = 1;
+-	unsigned int i = 0;
+-	struct dm_target_spec *spec;
+-	char *params;
+-	void *begin, *end;
+-
+-	if (!args->target_count) {
+-		DMWARN("populate_table: no targets specified");
+-		return -EINVAL;
+-	}
+-
+-	begin = (void *) args;
+-	end = begin + args->data_size;
+-
+-	for (i = 0; i < args->target_count; i++) {
+-
+-		if (first)
+-			r = next_target((struct dm_target_spec *) args,
+-					args->data_start,
+-					begin, end, &spec, &params);
+-		else
+-			r = next_target(spec, spec->next, begin, end,
+-					&spec, &params);
+-
+-		if (r) {
+-			DMWARN("unable to find target");
+-			return -EINVAL;
+-		}
+-
+-		r = dm_table_add_target(table, spec->target_type,
+-					(sector_t) spec->sector_start,
+-					(sector_t) spec->length,
+-					params);
+-		if (r) {
+-			DMWARN("internal error adding target to table");
+-			return -EINVAL;
+-		}
+-
+-		first = 0;
+-	}
+-
+-	return dm_table_complete(table);
+-}
+-
+-/*
+- * Round up the ptr to the next 'align' boundary.  Obviously
+- * 'align' must be a power of 2.
+- */
+-static inline void *align_ptr(void *ptr, unsigned int align)
+-{
+-	align--;
+-	return (void *) (((unsigned long) (ptr + align)) & ~align);
+-}
+-
+-/*
+- * Copies a dm_ioctl and an optional additional payload to
+- * userland.
+- */
+-static int results_to_user(struct dm_ioctl *user, struct dm_ioctl *param,
+-			   void *data, uint32_t len)
+-{
+-	int r;
+-	void *ptr = NULL;
+-
+-	if (data) {
+-		ptr = align_ptr(user + 1, sizeof(unsigned long));
+-		param->data_start = ptr - (void *) user;
+-	}
+-
+-	/*
+-	 * The version number has already been filled in, so we
+-	 * just copy later fields.
+-	 */
+-	r = copy_to_user(&user->data_size, &param->data_size,
+-			 sizeof(*param) - sizeof(param->version));
+-	if (r)
+-		return -EFAULT;
+-
+-	if (data) {
+-		if (param->data_start + len > param->data_size)
+-			return -ENOSPC;
+-
+-		if (copy_to_user(ptr, data, len))
+-			r = -EFAULT;
+-	}
+-
+-	return r;
+-}
+-
+-/*
+- * Fills in a dm_ioctl structure, ready for sending back to
+- * userland.
+- */
+-static int __info(struct mapped_device *md, struct dm_ioctl *param)
+-{
+-	struct dm_table *table;
+-	struct block_device *bdev;
+-	struct gendisk *disk = dm_disk(md);
+-
+-	param->flags = DM_EXISTS_FLAG;
+-	if (dm_suspended(md))
+-		param->flags |= DM_SUSPEND_FLAG;
+-
+-	bdev = bdget_disk(disk, 0);
+-	if (!bdev)
+-		return -ENXIO;
+-
+-	param->dev = old_encode_dev(bdev->bd_dev);
+-	param->open_count = bdev->bd_openers;
+-	bdput(bdev);
+-
+-	if (disk->policy)
+-		param->flags |= DM_READONLY_FLAG;
+-
+-	table = dm_get_table(md);
+-	param->target_count = dm_table_get_num_targets(table);
+-	dm_table_put(table);
+-
+-	return 0;
+-}
+-
+-/*
+- * Always use UUID for lookups if it's present, otherwise use name.
+- */
+-static inline struct mapped_device *find_device(struct dm_ioctl *param)
+-{
+-	struct hash_cell *hc;
+-	struct mapped_device *md = NULL;
+-
+-	down_read(&_hash_lock);
+-	hc = *param->uuid ? __get_uuid_cell(param->uuid) :
+-		__get_name_cell(param->name);
+-	if (hc) {
+-		md = hc->md;
+-
+-		/*
+-		 * Sneakily write in both the name and the uuid
+-		 * while we have the cell.
+-		 */
+-		strlcpy(param->name, hc->name, sizeof(param->name));
+-		if (hc->uuid)
+-			strlcpy(param->uuid, hc->uuid, sizeof(param->uuid));
+-		else
+-			param->uuid[0] = '\0';
+-
+-		dm_get(md);
+-	}
+-	up_read(&_hash_lock);
+-
+-	return md;
+-}
+-
+-#define ALIGNMENT sizeof(int)
+-static void *_align(void *ptr, unsigned int a)
+-{
+-	register unsigned long align = --a;
+-
+-	return (void *) (((unsigned long) ptr + align) & ~align);
+-}
+-
+-/*
+- * Copies device info back to user space, used by
+- * the create and info ioctls.
+- */
+-static int info(struct dm_ioctl *param, struct dm_ioctl *user)
+-{
+-	struct mapped_device *md;
+-
+-	param->flags = 0;
+-
+-	md = find_device(param);
+-	if (!md)
+-		/*
+-		 * Device not found - returns cleared exists flag.
+-		 */
+-		goto out;
+-
+-	__info(md, param);
+-	dm_put(md);
+-
+-      out:
+-	return results_to_user(user, param, NULL, 0);
+-}
+-
+-static inline int get_mode(struct dm_ioctl *param)
+-{
+-	int mode = FMODE_READ | FMODE_WRITE;
+-
+-	if (param->flags & DM_READONLY_FLAG)
+-		mode = FMODE_READ;
+-
+-	return mode;
+-}
+-
+-static int check_name(const char *name)
+-{
+-	if (name[0] == '/') {
+-		DMWARN("invalid device name");
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+-static int create(struct dm_ioctl *param, struct dm_ioctl *user)
+-{
+-	int r;
+-	struct dm_table *t;
+-	struct mapped_device *md;
+-
+-	r = check_name(param->name);
+-	if (r)
+-		return r;
+-
+-	r = dm_table_create(&t, get_mode(param), param->target_count);
+-	if (r)
+-		return r;
+-
+-	r = populate_table(t, param);
+-	if (r) {
+-		dm_table_put(t);
+-		return r;
+-	}
+-
+-	if (param->flags & DM_PERSISTENT_DEV_FLAG)
+-		r = dm_create_with_minor(MINOR(old_decode_dev(param->dev)), &md);
+-	else
+-		r = dm_create(&md);
+-
+-	if (r) {
+-		dm_table_put(t);
+-		return r;
+-	}
+-
+-	/* suspend the device */
+-	r = dm_suspend(md);
+-	if (r) {
+-		DMWARN("suspend failed");
+-		dm_table_put(t);
+-		dm_put(md);
+-		return r;
+-	}
+-	/* swap in the table */
+-	r = dm_swap_table(md, t);
+-	if (r) {
+-		DMWARN("table swap failed");
+-		dm_table_put(t);
+-		dm_put(md);
+-		return r;
+-	}
+-
+-	/* resume the device */
+-	r = dm_resume(md);
+-	if (r) {
+-		DMWARN("resume failed");
+-		dm_table_put(t);
+-		dm_put(md);
+-		return r;
+-	}
+-
+-	dm_table_put(t);	/* md will have grabbed its own reference */
+-
+-	set_disk_ro(dm_disk(md), (param->flags & DM_READONLY_FLAG) ? 1 : 0);
+-	r = dm_hash_insert(param->name, *param->uuid ? param->uuid : NULL, md);
+-	dm_put(md);
+-
+-	return r ? r : info(param, user);
+-}
+-
+-/*
+- * Build up the status struct for each target
+- */
+-static int __status(struct mapped_device *md, struct dm_ioctl *param,
+-		    char *outbuf, size_t *len)
+-{
+-	unsigned int i, num_targets;
+-	struct dm_target_spec *spec;
+-	char *outptr;
+-	status_type_t type;
+-	struct dm_table *table = dm_get_table(md);
+-
+-	if (param->flags & DM_STATUS_TABLE_FLAG)
+-		type = STATUSTYPE_TABLE;
+-	else
+-		type = STATUSTYPE_INFO;
+-
+-	outptr = outbuf;
+-
+-	/* Get all the target info */
+-	num_targets = dm_table_get_num_targets(table);
+-	for (i = 0; i < num_targets; i++) {
+-		struct dm_target *ti = dm_table_get_target(table, i);
+-
+-		if (outptr - outbuf +
+-		    sizeof(struct dm_target_spec) > param->data_size) {
+-			dm_table_put(table);
+-			return -ENOMEM;
+-		}
+-
+-		spec = (struct dm_target_spec *) outptr;
+-
+-		spec->status = 0;
+-		spec->sector_start = ti->begin;
+-		spec->length = ti->len;
+-		strlcpy(spec->target_type, ti->type->name,
+-			sizeof(spec->target_type));
+-
+-		outptr += sizeof(struct dm_target_spec);
+-
+-		/* Get the status/table string from the target driver */
+-		if (ti->type->status)
+-			ti->type->status(ti, type, outptr,
+-					 outbuf + param->data_size - outptr);
+-		else
+-			outptr[0] = '\0';
+-
+-		outptr += strlen(outptr) + 1;
+-		_align(outptr, ALIGNMENT);
+-		spec->next = outptr - outbuf;
+-	}
+-
+-	param->target_count = num_targets;
+-	*len = outptr - outbuf;
+-	dm_table_put(table);
+-
+-	return 0;
+-}
+-
+-/*
+- * Return the status of a device as a text string for each
+- * target.
+- */
+-static int get_status(struct dm_ioctl *param, struct dm_ioctl *user)
+-{
+-	struct mapped_device *md;
+-	size_t len = 0;
+-	int ret;
+-	char *outbuf = NULL;
+-
+-	md = find_device(param);
+-	if (!md)
+-		/*
+-		 * Device not found - returns cleared exists flag.
+-		 */
+-		goto out;
+-
+-	/* We haven't a clue how long the resultant data will be so
+-	   just allocate as much as userland has allowed us and make sure
+-	   we don't overun it */
+-	outbuf = kmalloc(param->data_size, GFP_KERNEL);
+-	if (!outbuf)
+-		goto out;
+-	/*
+-	 * Get the status of all targets
+-	 */
+-	__status(md, param, outbuf, &len);
+-
+-	/*
+-	 * Setup the basic dm_ioctl structure.
+-	 */
+-	__info(md, param);
+-
+-      out:
+-	if (md)
+-		dm_put(md);
+-
+-	ret = results_to_user(user, param, outbuf, len);
+-
+-	if (outbuf)
+-		kfree(outbuf);
+-
+-	return ret;
+-}
+-
+-/*
+- * Wait for a device to report an event
+- */
+-static int wait_device_event(struct dm_ioctl *param, struct dm_ioctl *user)
+-{
+-	struct mapped_device *md;
+-	DECLARE_WAITQUEUE(wq, current);
+-
+-	md = find_device(param);
+-	if (!md)
+-		/*
+-		 * Device not found - returns cleared exists flag.
+-		 */
+-		goto out;
+-
+-	/*
+-	 * Setup the basic dm_ioctl structure.
+-	 */
+-	__info(md, param);
+-
+-	/*
+-	 * Wait for a notification event
+-	 */
+-	set_current_state(TASK_INTERRUPTIBLE);
+- 	if (!dm_add_wait_queue(md, &wq, dm_get_event_nr(md))) {
+- 		schedule();
+- 		dm_remove_wait_queue(md, &wq);
+- 	}
+-  	set_current_state(TASK_RUNNING);
+- 	dm_put(md);
+-
+-      out:
+-	return results_to_user(user, param, NULL, 0);
+-}
+-
+-/*
+- * Retrieves a list of devices used by a particular dm device.
+- */
+-static int dep(struct dm_ioctl *param, struct dm_ioctl *user)
+-{
+-	int r;
+-	unsigned int count;
+-	struct mapped_device *md;
+-	struct list_head *tmp;
+-	size_t len = 0;
+-	struct dm_target_deps *deps = NULL;
+-	struct dm_table *table;
+-
+-	md = find_device(param);
+-	if (!md)
+-		goto out;
+-	table = dm_get_table(md);
+-
+-	/*
+-	 * Setup the basic dm_ioctl structure.
+-	 */
+-	__info(md, param);
+-
+-	/*
+-	 * Count the devices.
+-	 */
+-	count = 0;
+-	list_for_each(tmp, dm_table_get_devices(table))
+-	    count++;
+-
+-	/*
+-	 * Allocate a kernel space version of the dm_target_status
+-	 * struct.
+-	 */
+-	if (array_too_big(sizeof(*deps), sizeof(*deps->dev), count)) {
+-		dm_table_put(table);
+-		dm_put(md);
+-		return -ENOMEM;
+-	}
+-
+-	len = sizeof(*deps) + (sizeof(*deps->dev) * count);
+-	deps = kmalloc(len, GFP_KERNEL);
+-	if (!deps) {
+-		dm_table_put(table);
+-		dm_put(md);
+-		return -ENOMEM;
+-	}
+-
+-	/*
+-	 * Fill in the devices.
+-	 */
+-	deps->count = count;
+-	count = 0;
+-	list_for_each(tmp, dm_table_get_devices(table)) {
+-		struct dm_dev *dd = list_entry(tmp, struct dm_dev, list);
+-		deps->dev[count++] = old_encode_dev(dd->bdev->bd_dev);
+-	}
+-	dm_table_put(table);
+-	dm_put(md);
+-
+-      out:
+-	r = results_to_user(user, param, deps, len);
+-
+-	kfree(deps);
+-	return r;
+-}
+-
+-static int remove(struct dm_ioctl *param, struct dm_ioctl *user)
+-{
+-	struct hash_cell *hc;
+-
+-	down_write(&_hash_lock);
+-	hc = *param->uuid ? __get_uuid_cell(param->uuid) :
+-		__get_name_cell(param->name);
+-	if (!hc) {
+-		DMWARN("device doesn't appear to be in the dev hash table.");
+-		up_write(&_hash_lock);
+-		return -EINVAL;
+-	}
+-
+-	/*
+-	 * You may ask the interface to drop its reference to an
+-	 * in use device.  This is no different to unlinking a
+-	 * file that someone still has open.  The device will not
+-	 * actually be destroyed until the last opener closes it.
+-	 * The name and uuid of the device (both are interface
+-	 * properties) will be available for reuse immediately.
+-	 *
+-	 * You don't want to drop a _suspended_ device from the
+-	 * interface, since that will leave you with no way of
+-	 * resuming it.
+-	 */
+-	if (dm_suspended(hc->md)) {
+-		DMWARN("refusing to remove a suspended device.");
+-		up_write(&_hash_lock);
+-		return -EPERM;
+-	}
+-
+-	__hash_remove(hc);
+-	up_write(&_hash_lock);
+-	return 0;
+-}
+-
+-static int remove_all(struct dm_ioctl *param, struct dm_ioctl *user)
+-{
+-	dm_hash_remove_all();
+-	return 0;
+-}
+-
+-static int suspend(struct dm_ioctl *param, struct dm_ioctl *user)
+-{
+-	int r;
+-	struct mapped_device *md;
+-
+-	md = find_device(param);
+-	if (!md)
+-		return -ENXIO;
+-
+-	if (param->flags & DM_SUSPEND_FLAG)
+-		r = dm_suspend(md);
+-	else
+-		r = dm_resume(md);
+-
+-	dm_put(md);
+-	return r;
+-}
+-
+-static int reload(struct dm_ioctl *param, struct dm_ioctl *user)
+-{
+-	int r;
+-	struct mapped_device *md;
+-	struct dm_table *t;
+-
+-	r = dm_table_create(&t, get_mode(param), param->target_count);
+-	if (r)
+-		return r;
+-
+-	r = populate_table(t, param);
+-	if (r) {
+-		dm_table_put(t);
+-		return r;
+-	}
+-
+-	md = find_device(param);
+-	if (!md) {
+-		dm_table_put(t);
+-		return -ENXIO;
+-	}
+-
+-	r = dm_swap_table(md, t);
+-	if (r) {
+-		dm_put(md);
+-		dm_table_put(t);
+-		return r;
+-	}
+-	dm_table_put(t);	/* md will have taken its own reference */
+-
+-	set_disk_ro(dm_disk(md), (param->flags & DM_READONLY_FLAG) ? 1 : 0);
+-	dm_put(md);
+-
+-	r = info(param, user);
+-	return r;
+-}
+-
+-static int rename(struct dm_ioctl *param, struct dm_ioctl *user)
+-{
+-	int r;
+-	char *new_name = (char *) param + param->data_start;
+-
+-	if (valid_str(new_name, (void *) param,
+-		      (void *) param + param->data_size)) {
+-		DMWARN("Invalid new logical volume name supplied.");
+-		return -EINVAL;
+-	}
+-
+-	r = check_name(new_name);
+-	if (r)
+-		return r;
+-
+-	return dm_hash_rename(param->name, new_name);
+-}
+-
+-
+-/*-----------------------------------------------------------------
+- * Implementation of open/close/ioctl on the special char
+- * device.
+- *---------------------------------------------------------------*/
+-static ioctl_fn lookup_ioctl(unsigned int cmd)
+-{
+-	static struct {
+-		int cmd;
+-		ioctl_fn fn;
+-	} _ioctls[] = {
+-		{DM_VERSION_CMD, NULL},	/* version is dealt with elsewhere */
+-		{DM_REMOVE_ALL_CMD, remove_all},
+-		{DM_DEV_CREATE_CMD, create},
+-		{DM_DEV_REMOVE_CMD, remove},
+-		{DM_DEV_RELOAD_CMD, reload},
+-		{DM_DEV_RENAME_CMD, rename},
+-		{DM_DEV_SUSPEND_CMD, suspend},
+-		{DM_DEV_DEPS_CMD, dep},
+-		{DM_DEV_STATUS_CMD, info},
+-		{DM_TARGET_STATUS_CMD, get_status},
+-		{DM_TARGET_WAIT_CMD, wait_device_event},
+-	};
+-
+-	return (cmd >= ARRAY_SIZE(_ioctls)) ? NULL : _ioctls[cmd].fn;
+-}
+-
+-/*
+- * As well as checking the version compatibility this always
+- * copies the kernel interface version out.
+- */
+-static int check_version(unsigned int cmd, struct dm_ioctl *user)
+-{
+-	uint32_t version[3];
+-	int r = 0;
+-
+-	if (copy_from_user(version, user->version, sizeof(version)))
+-		return -EFAULT;
+-
+-	if ((DM_VERSION_MAJOR != version[0]) ||
+-	    (DM_VERSION_MINOR < version[1])) {
+-		DMWARN("ioctl interface mismatch: "
+-		       "kernel(%u.%u.%u), user(%u.%u.%u), cmd(%d)",
+-		       DM_VERSION_MAJOR, DM_VERSION_MINOR,
+-		       DM_VERSION_PATCHLEVEL,
+-		       version[0], version[1], version[2], cmd);
+-		r = -EINVAL;
+-	}
+-
+-	/*
+-	 * Fill in the kernel version.
+-	 */
+-	version[0] = DM_VERSION_MAJOR;
+-	version[1] = DM_VERSION_MINOR;
+-	version[2] = DM_VERSION_PATCHLEVEL;
+-	if (copy_to_user(user->version, version, sizeof(version)))
+-		return -EFAULT;
+-
+-	return r;
+-}
+-
+-static void free_params(struct dm_ioctl *param)
+-{
+-	vfree(param);
+-}
+-
+-static int copy_params(struct dm_ioctl *user, struct dm_ioctl **param)
+-{
+-	struct dm_ioctl tmp, *dmi;
+-
+-	if (copy_from_user(&tmp, user, sizeof(tmp)))
+-		return -EFAULT;
+-
+-	if (tmp.data_size < sizeof(tmp))
+-		return -EINVAL;
+-
+-	dmi = (struct dm_ioctl *) vmalloc(tmp.data_size);
+-	if (!dmi)
+-		return -ENOMEM;
+-
+-	if (copy_from_user(dmi, user, tmp.data_size)) {
+-		vfree(dmi);
+-		return -EFAULT;
+-	}
+-
+-	*param = dmi;
+-	return 0;
+-}
+-
+-static int validate_params(uint cmd, struct dm_ioctl *param)
+-{
+-	/* Ignores parameters */
+-	if (cmd == DM_REMOVE_ALL_CMD)
+-		return 0;
+-
+-	/* Unless creating, either name of uuid but not both */
+-	if (cmd != DM_DEV_CREATE_CMD) {
+-		if ((!*param->uuid && !*param->name) ||
+-		    (*param->uuid && *param->name)) {
+-			DMWARN("one of name or uuid must be supplied");
+-			return -EINVAL;
+-		}
+-	}
+-
+-	/* Ensure strings are terminated */
+-	param->name[DM_NAME_LEN - 1] = '\0';
+-	param->uuid[DM_UUID_LEN - 1] = '\0';
+-
+-	return 0;
+-}
+-
+-static int ctl_ioctl(struct inode *inode, struct file *file,
+-		     uint command, ulong u)
+-{
+-	int r = 0;
+-	unsigned int cmd;
+-	struct dm_ioctl *param;
+-	struct dm_ioctl *user = (struct dm_ioctl *) u;
+-	ioctl_fn fn = NULL;
+-
+-	/* only root can play with this */
+-	if (!capable(CAP_SYS_ADMIN))
+-		return -EACCES;
+-
+-	if (_IOC_TYPE(command) != DM_IOCTL)
+-		return -ENOTTY;
+-
+-	cmd = _IOC_NR(command);
+-
+-	/*
+-	 * Check the interface version passed in.  This also
+-	 * writes out the kernels interface version.
+-	 */
+-	r = check_version(cmd, user);
+-	if (r)
+-		return r;
+-
+-	/*
+-	 * Nothing more to do for the version command.
+-	 */
+-	if (cmd == DM_VERSION_CMD)
+-		return 0;
+-
+-	fn = lookup_ioctl(cmd);
+-	if (!fn) {
+-		DMWARN("dm_ctl_ioctl: unknown command 0x%x", command);
+-		return -ENOTTY;
+-	}
+-
+-	/*
+-	 * Copy the parameters into kernel space.
+-	 */
+-	r = copy_params(user, &param);
+-	if (r)
+-		return r;
+-
+-	r = validate_params(cmd, param);
+-	if (r) {
+-		free_params(param);
+-		return r;
+-	}
+-
+-	r = fn(param, user);
+-	free_params(param);
+-	return r;
+-}
+-
+-static struct file_operations _ctl_fops = {
+-	.ioctl	 = ctl_ioctl,
+-	.owner	 = THIS_MODULE,
+-};
+-
+-static struct miscdevice _dm_misc = {
+-	.minor		= MISC_DYNAMIC_MINOR,
+-	.name		= DM_NAME,
+-	.devfs_name	= "mapper/control",
+-	.fops		= &_ctl_fops
+-};
+-
+-/*
+- * Create misc character device and link to DM_DIR/control.
+- */
+-int __init dm_interface_init(void)
+-{
+-	int r;
+-
+-	r = dm_hash_init();
+-	if (r)
+-		return r;
+-
+-	r = misc_register(&_dm_misc);
+-	if (r) {
+-		DMERR("misc_register failed for control device");
+-		dm_hash_exit();
+-		return r;
+-	}
+-
+-	DMINFO("%d.%d.%d%s initialised: %s", DM_VERSION_MAJOR,
+-	       DM_VERSION_MINOR, DM_VERSION_PATCHLEVEL, DM_VERSION_EXTRA,
+-	       DM_DRIVER_EMAIL);
+-	return 0;
+-
+-	if (misc_deregister(&_dm_misc) < 0)
+-		DMERR("misc_deregister failed for control device");
+-	dm_hash_exit();
+-	return r;
+-}
+-
+-void dm_interface_exit(void)
+-{
+-	if (misc_deregister(&_dm_misc) < 0)
+-		DMERR("misc_deregister failed for control device");
+-	dm_hash_exit();
+-}
+--- diff/drivers/md/dm-ioctl-v4.c	2003-11-25 15:47:38.000000000 +0000
++++ source/drivers/md/dm-ioctl-v4.c	1970-01-01 01:00:00.000000000 +0100
+@@ -1,1264 +0,0 @@
+-/*
+- * Copyright (C) 2001, 2002 Sistina Software (UK) Limited.
+- *
+- * This file is released under the GPL.
+- */
+-
+-#include "dm.h"
+-
+-#include <linux/module.h>
+-#include <linux/vmalloc.h>
+-#include <linux/miscdevice.h>
+-#include <linux/init.h>
+-#include <linux/wait.h>
+-#include <linux/slab.h>
+-#include <linux/devfs_fs_kernel.h>
+-#include <linux/dm-ioctl.h>
+-
+-#include <asm/uaccess.h>
+-
+-#define DM_DRIVER_EMAIL "dm@uk.sistina.com"
+-
+-/*-----------------------------------------------------------------
+- * The ioctl interface needs to be able to look up devices by
+- * name or uuid.
+- *---------------------------------------------------------------*/
+-struct hash_cell {
+-	struct list_head name_list;
+-	struct list_head uuid_list;
+-
+-	char *name;
+-	char *uuid;
+-	struct mapped_device *md;
+-	struct dm_table *new_map;
+-};
+-
+-#define NUM_BUCKETS 64
+-#define MASK_BUCKETS (NUM_BUCKETS - 1)
+-static struct list_head _name_buckets[NUM_BUCKETS];
+-static struct list_head _uuid_buckets[NUM_BUCKETS];
+-
+-void dm_hash_remove_all(void);
+-
+-/*
+- * Guards access to both hash tables.
+- */
+-static DECLARE_RWSEM(_hash_lock);
+-
+-static void init_buckets(struct list_head *buckets)
+-{
+-	unsigned int i;
+-
+-	for (i = 0; i < NUM_BUCKETS; i++)
+-		INIT_LIST_HEAD(buckets + i);
+-}
+-
+-int dm_hash_init(void)
+-{
+-	init_buckets(_name_buckets);
+-	init_buckets(_uuid_buckets);
+-	devfs_mk_dir(DM_DIR);
+-	return 0;
+-}
+-
+-void dm_hash_exit(void)
+-{
+-	dm_hash_remove_all();
+-	devfs_remove(DM_DIR);
+-}
+-
+-/*-----------------------------------------------------------------
+- * Hash function:
+- * We're not really concerned with the str hash function being
+- * fast since it's only used by the ioctl interface.
+- *---------------------------------------------------------------*/
+-static unsigned int hash_str(const char *str)
+-{
+-	const unsigned int hash_mult = 2654435387U;
+-	unsigned int h = 0;
+-
+-	while (*str)
+-		h = (h + (unsigned int) *str++) * hash_mult;
+-
+-	return h & MASK_BUCKETS;
+-}
+-
+-/*-----------------------------------------------------------------
+- * Code for looking up a device by name
+- *---------------------------------------------------------------*/
+-static struct hash_cell *__get_name_cell(const char *str)
+-{
+-	struct list_head *tmp;
+-	struct hash_cell *hc;
+-	unsigned int h = hash_str(str);
+-
+-	list_for_each (tmp, _name_buckets + h) {
+-		hc = list_entry(tmp, struct hash_cell, name_list);
+-		if (!strcmp(hc->name, str))
+-			return hc;
+-	}
+-
+-	return NULL;
+-}
+-
+-static struct hash_cell *__get_uuid_cell(const char *str)
+-{
+-	struct list_head *tmp;
+-	struct hash_cell *hc;
+-	unsigned int h = hash_str(str);
+-
+-	list_for_each (tmp, _uuid_buckets + h) {
+-		hc = list_entry(tmp, struct hash_cell, uuid_list);
+-		if (!strcmp(hc->uuid, str))
+-			return hc;
+-	}
+-
+-	return NULL;
+-}
+-
+-/*-----------------------------------------------------------------
+- * Inserting, removing and renaming a device.
+- *---------------------------------------------------------------*/
+-static inline char *kstrdup(const char *str)
+-{
+-	char *r = kmalloc(strlen(str) + 1, GFP_KERNEL);
+-	if (r)
+-		strcpy(r, str);
+-	return r;
+-}
+-
+-static struct hash_cell *alloc_cell(const char *name, const char *uuid,
+-				    struct mapped_device *md)
+-{
+-	struct hash_cell *hc;
+-
+-	hc = kmalloc(sizeof(*hc), GFP_KERNEL);
+-	if (!hc)
+-		return NULL;
+-
+-	hc->name = kstrdup(name);
+-	if (!hc->name) {
+-		kfree(hc);
+-		return NULL;
+-	}
+-
+-	if (!uuid)
+-		hc->uuid = NULL;
+-
+-	else {
+-		hc->uuid = kstrdup(uuid);
+-		if (!hc->uuid) {
+-			kfree(hc->name);
+-			kfree(hc);
+-			return NULL;
+-		}
+-	}
+-
+-	INIT_LIST_HEAD(&hc->name_list);
+-	INIT_LIST_HEAD(&hc->uuid_list);
+-	hc->md = md;
+-	hc->new_map = NULL;
+-	return hc;
+-}
+-
+-static void free_cell(struct hash_cell *hc)
+-{
+-	if (hc) {
+-		kfree(hc->name);
+-		kfree(hc->uuid);
+-		kfree(hc);
+-	}
+-}
+-
+-/*
+- * devfs stuff.
+- */
+-static int register_with_devfs(struct hash_cell *hc)
+-{
+-	struct gendisk *disk = dm_disk(hc->md);
+-
+-	devfs_mk_bdev(MKDEV(disk->major, disk->first_minor),
+-		      S_IFBLK | S_IRUSR | S_IWUSR | S_IRGRP,
+-		      DM_DIR "/%s", hc->name);
+-	return 0;
+-}
+-
+-static int unregister_with_devfs(struct hash_cell *hc)
+-{
+-	devfs_remove(DM_DIR"/%s", hc->name);
+-	return 0;
+-}
+-
+-/*
+- * The kdev_t and uuid of a device can never change once it is
+- * initially inserted.
+- */
+-int dm_hash_insert(const char *name, const char *uuid, struct mapped_device *md)
+-{
+-	struct hash_cell *cell;
+-
+-	/*
+-	 * Allocate the new cells.
+-	 */
+-	cell = alloc_cell(name, uuid, md);
+-	if (!cell)
+-		return -ENOMEM;
+-
+-	/*
+-	 * Insert the cell into both hash tables.
+-	 */
+-	down_write(&_hash_lock);
+-	if (__get_name_cell(name))
+-		goto bad;
+-
+-	list_add(&cell->name_list, _name_buckets + hash_str(name));
+-
+-	if (uuid) {
+-		if (__get_uuid_cell(uuid)) {
+-			list_del(&cell->name_list);
+-			goto bad;
+-		}
+-		list_add(&cell->uuid_list, _uuid_buckets + hash_str(uuid));
+-	}
+-	register_with_devfs(cell);
+-	dm_get(md);
+-	up_write(&_hash_lock);
+-
+-	return 0;
+-
+- bad:
+-	up_write(&_hash_lock);
+-	free_cell(cell);
+-	return -EBUSY;
+-}
+-
+-void __hash_remove(struct hash_cell *hc)
+-{
+-	/* remove from the dev hash */
+-	list_del(&hc->uuid_list);
+-	list_del(&hc->name_list);
+-	unregister_with_devfs(hc);
+-	dm_put(hc->md);
+-	if (hc->new_map)
+-		dm_table_put(hc->new_map);
+-	free_cell(hc);
+-}
+-
+-void dm_hash_remove_all(void)
+-{
+-	int i;
+-	struct hash_cell *hc;
+-	struct list_head *tmp, *n;
+-
+-	down_write(&_hash_lock);
+-	for (i = 0; i < NUM_BUCKETS; i++) {
+-		list_for_each_safe (tmp, n, _name_buckets + i) {
+-			hc = list_entry(tmp, struct hash_cell, name_list);
+-			__hash_remove(hc);
+-		}
+-	}
+-	up_write(&_hash_lock);
+-}
+-
+-int dm_hash_rename(const char *old, const char *new)
+-{
+-	char *new_name, *old_name;
+-	struct hash_cell *hc;
+-
+-	/*
+-	 * duplicate new.
+-	 */
+-	new_name = kstrdup(new);
+-	if (!new_name)
+-		return -ENOMEM;
+-
+-	down_write(&_hash_lock);
+-
+-	/*
+-	 * Is new free ?
+-	 */
+-	hc = __get_name_cell(new);
+-	if (hc) {
+-		DMWARN("asked to rename to an already existing name %s -> %s",
+-		       old, new);
+-		up_write(&_hash_lock);
+-		kfree(new_name);
+-		return -EBUSY;
+-	}
+-
+-	/*
+-	 * Is there such a device as 'old' ?
+-	 */
+-	hc = __get_name_cell(old);
+-	if (!hc) {
+-		DMWARN("asked to rename a non existent device %s -> %s",
+-		       old, new);
+-		up_write(&_hash_lock);
+-		kfree(new_name);
+-		return -ENXIO;
+-	}
+-
+-	/*
+-	 * rename and move the name cell.
+-	 */
+-	unregister_with_devfs(hc);
+-
+-	list_del(&hc->name_list);
+-	old_name = hc->name;
+-	hc->name = new_name;
+-	list_add(&hc->name_list, _name_buckets + hash_str(new_name));
+-
+-	/* rename the device node in devfs */
+-	register_with_devfs(hc);
+-
+-	up_write(&_hash_lock);
+-	kfree(old_name);
+-	return 0;
+-}
+-
+-/*-----------------------------------------------------------------
+- * Implementation of the ioctl commands
+- *---------------------------------------------------------------*/
+-/*
+- * All the ioctl commands get dispatched to functions with this
+- * prototype.
+- */
+-typedef int (*ioctl_fn)(struct dm_ioctl *param, size_t param_size);
+-
+-static int remove_all(struct dm_ioctl *param, size_t param_size)
+-{
+-	dm_hash_remove_all();
+-	param->data_size = 0;
+-	return 0;
+-}
+-
+-/*
+- * Round up the ptr to an 8-byte boundary.
+- */
+-#define ALIGN_MASK 7
+-static inline void *align_ptr(void *ptr)
+-{
+-	return (void *) (((size_t) (ptr + ALIGN_MASK)) & ~ALIGN_MASK);
+-}
+-
+-/*
+- * Retrieves the data payload buffer from an already allocated
+- * struct dm_ioctl.
+- */
+-static void *get_result_buffer(struct dm_ioctl *param, size_t param_size,
+-			       size_t *len)
+-{
+-	param->data_start = align_ptr(param + 1) - (void *) param;
+-
+-	if (param->data_start < param_size)
+-		*len = param_size - param->data_start;
+-	else
+-		*len = 0;
+-
+-	return ((void *) param) + param->data_start;
+-}
+-
+-static int list_devices(struct dm_ioctl *param, size_t param_size)
+-{
+-	unsigned int i;
+-	struct hash_cell *hc;
+-	size_t len, needed = 0;
+-	struct gendisk *disk;
+-	struct dm_name_list *nl, *old_nl = NULL;
+-
+-	down_write(&_hash_lock);
+-
+-	/*
+-	 * Loop through all the devices working out how much
+-	 * space we need.
+-	 */
+-	for (i = 0; i < NUM_BUCKETS; i++) {
+-		list_for_each_entry (hc, _name_buckets + i, name_list) {
+-			needed += sizeof(struct dm_name_list);
+-			needed += strlen(hc->name);
+-			needed += ALIGN_MASK;
+-		}
+-	}
+-
+-	/*
+-	 * Grab our output buffer.
+-	 */
+-	nl = get_result_buffer(param, param_size, &len);
+-	if (len < needed) {
+-		param->flags |= DM_BUFFER_FULL_FLAG;
+-		goto out;
+-	}
+-	param->data_size = param->data_start + needed;
+-
+-	nl->dev = 0;	/* Flags no data */
+-
+-	/*
+-	 * Now loop through filling out the names.
+-	 */
+-	for (i = 0; i < NUM_BUCKETS; i++) {
+-		list_for_each_entry (hc, _name_buckets + i, name_list) {
+-			if (old_nl)
+-				old_nl->next = (uint32_t) ((void *) nl -
+-							   (void *) old_nl);
+-			disk = dm_disk(hc->md);
+-			nl->dev = huge_encode_dev(MKDEV(disk->major, disk->first_minor));
+-			nl->next = 0;
+-			strcpy(nl->name, hc->name);
+-
+-			old_nl = nl;
+-			nl = align_ptr(((void *) ++nl) + strlen(hc->name) + 1);
+-		}
+-	}
+-
+- out:
+-	up_write(&_hash_lock);
+-	return 0;
+-}
+-
+-static int check_name(const char *name)
+-{
+-	if (strchr(name, '/')) {
+-		DMWARN("invalid device name");
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+-/*
+- * Fills in a dm_ioctl structure, ready for sending back to
+- * userland.
+- */
+-static int __dev_status(struct mapped_device *md, struct dm_ioctl *param)
+-{
+-	struct gendisk *disk = dm_disk(md);
+-	struct dm_table *table;
+-	struct block_device *bdev;
+-
+-	param->flags &= ~(DM_SUSPEND_FLAG | DM_READONLY_FLAG |
+-			  DM_ACTIVE_PRESENT_FLAG);
+-
+-	if (dm_suspended(md))
+-		param->flags |= DM_SUSPEND_FLAG;
+-
+-	bdev = bdget_disk(disk, 0);
+-	if (!bdev)
+-		return -ENXIO;
+-
+-	param->dev = huge_encode_dev(MKDEV(disk->major, disk->first_minor));
+-
+-	/*
+-	 * Yes, this will be out of date by the time it gets back
+-	 * to userland, but it is still very useful ofr
+-	 * debugging.
+-	 */
+-	param->open_count = bdev->bd_openers;
+-	bdput(bdev);
+-
+-	if (disk->policy)
+-		param->flags |= DM_READONLY_FLAG;
+-
+-	param->event_nr = dm_get_event_nr(md);
+-
+-	table = dm_get_table(md);
+-	if (table) {
+-		param->flags |= DM_ACTIVE_PRESENT_FLAG;
+-		param->target_count = dm_table_get_num_targets(table);
+-		dm_table_put(table);
+-	} else
+-		param->target_count = 0;
+-
+-	return 0;
+-}
+-
+-static int dev_create(struct dm_ioctl *param, size_t param_size)
+-{
+-	int r;
+-	struct mapped_device *md;
+-
+-	r = check_name(param->name);
+-	if (r)
+-		return r;
+-
+-	if (param->flags & DM_PERSISTENT_DEV_FLAG)
+-		r = dm_create_with_minor(MINOR(huge_decode_dev(param->dev)), &md);
+-	else
+-		r = dm_create(&md);
+-
+-	if (r)
+-		return r;
+-
+-	r = dm_hash_insert(param->name, *param->uuid ? param->uuid : NULL, md);
+-	if (r) {
+-		dm_put(md);
+-		return r;
+-	}
+-
+-	param->flags &= ~DM_INACTIVE_PRESENT_FLAG;
+-
+-	r = __dev_status(md, param);
+-	dm_put(md);
+-
+-	return r;
+-}
+-
+-/*
+- * Always use UUID for lookups if it's present, otherwise use name.
+- */
+-static inline struct hash_cell *__find_device_hash_cell(struct dm_ioctl *param)
+-{
+-	return *param->uuid ?
+-	    __get_uuid_cell(param->uuid) : __get_name_cell(param->name);
+-}
+-
+-static inline struct mapped_device *find_device(struct dm_ioctl *param)
+-{
+-	struct hash_cell *hc;
+-	struct mapped_device *md = NULL;
+-
+-	down_read(&_hash_lock);
+-	hc = __find_device_hash_cell(param);
+-	if (hc) {
+-		md = hc->md;
+-
+-		/*
+-		 * Sneakily write in both the name and the uuid
+-		 * while we have the cell.
+-		 */
+-		strncpy(param->name, hc->name, sizeof(param->name));
+-		if (hc->uuid)
+-			strncpy(param->uuid, hc->uuid, sizeof(param->uuid)-1);
+-		else
+-			param->uuid[0] = '\0';
+-
+-		if (hc->new_map)
+-			param->flags |= DM_INACTIVE_PRESENT_FLAG;
+-		else
+-			param->flags &= ~DM_INACTIVE_PRESENT_FLAG;
+-
+-		dm_get(md);
+-	}
+-	up_read(&_hash_lock);
+-
+-	return md;
+-}
+-
+-static int dev_remove(struct dm_ioctl *param, size_t param_size)
+-{
+-	struct hash_cell *hc;
+-
+-	down_write(&_hash_lock);
+-	hc = __find_device_hash_cell(param);
+-
+-	if (!hc) {
+-		DMWARN("device doesn't appear to be in the dev hash table.");
+-		up_write(&_hash_lock);
+-		return -ENXIO;
+-	}
+-
+-	__hash_remove(hc);
+-	up_write(&_hash_lock);
+-	param->data_size = 0;
+-	return 0;
+-}
+-
+-/*
+- * Check a string doesn't overrun the chunk of
+- * memory we copied from userland.
+- */
+-static int invalid_str(char *str, void *end)
+-{
+-	while ((void *) str < end)
+-		if (!*str++)
+-			return 0;
+-
+-	return -EINVAL;
+-}
+-
+-static int dev_rename(struct dm_ioctl *param, size_t param_size)
+-{
+-	int r;
+-	char *new_name = (char *) param + param->data_start;
+-
+-	if (new_name < (char *) (param + 1) ||
+-	    invalid_str(new_name, (void *) param + param_size)) {
+-		DMWARN("Invalid new logical volume name supplied.");
+-		return -EINVAL;
+-	}
+-
+-	r = check_name(new_name);
+-	if (r)
+-		return r;
+-
+-	param->data_size = 0;
+-	return dm_hash_rename(param->name, new_name);
+-}
+-
+-static int do_suspend(struct dm_ioctl *param)
+-{
+-	int r = 0;
+-	struct mapped_device *md;
+-
+-	md = find_device(param);
+-	if (!md)
+-		return -ENXIO;
+-
+-	if (!dm_suspended(md))
+-		r = dm_suspend(md);
+-
+-	if (!r)
+-		r = __dev_status(md, param);
+-
+-	dm_put(md);
+-	return r;
+-}
+-
+-static int do_resume(struct dm_ioctl *param)
+-{
+-	int r = 0;
+-	struct hash_cell *hc;
+-	struct mapped_device *md;
+-	struct dm_table *new_map;
+-
+-	down_write(&_hash_lock);
+-
+-	hc = __find_device_hash_cell(param);
+-	if (!hc) {
+-		DMWARN("device doesn't appear to be in the dev hash table.");
+-		up_write(&_hash_lock);
+-		return -ENXIO;
+-	}
+-
+-	md = hc->md;
+-	dm_get(md);
+-
+-	new_map = hc->new_map;
+-	hc->new_map = NULL;
+-	param->flags &= ~DM_INACTIVE_PRESENT_FLAG;
+-
+-	up_write(&_hash_lock);
+-
+-	/* Do we need to load a new map ? */
+-	if (new_map) {
+-		/* Suspend if it isn't already suspended */
+-		if (!dm_suspended(md))
+-			dm_suspend(md);
+-
+-		r = dm_swap_table(md, new_map);
+-		if (r) {
+-			dm_put(md);
+-			dm_table_put(new_map);
+-			return r;
+-		}
+-
+-		if (dm_table_get_mode(new_map) & FMODE_WRITE)
+-			set_disk_ro(dm_disk(md), 0);
+-		else
+-			set_disk_ro(dm_disk(md), 1);
+-
+-		dm_table_put(new_map);
+-	}
+-
+-	if (dm_suspended(md))
+-		r = dm_resume(md);
+-
+-	if (!r)
+-		r = __dev_status(md, param);
+-
+-	dm_put(md);
+-	return r;
+-}
+-
+-/*
+- * Set or unset the suspension state of a device.
+- * If the device already is in the requested state we just return its status.
+- */
+-static int dev_suspend(struct dm_ioctl *param, size_t param_size)
+-{
+-	if (param->flags & DM_SUSPEND_FLAG)
+-		return do_suspend(param);
+-
+-	return do_resume(param);
+-}
+-
+-/*
+- * Copies device info back to user space, used by
+- * the create and info ioctls.
+- */
+-static int dev_status(struct dm_ioctl *param, size_t param_size)
+-{
+-	int r;
+-	struct mapped_device *md;
+-
+-	md = find_device(param);
+-	if (!md)
+-		return -ENXIO;
+-
+-	r = __dev_status(md, param);
+-	dm_put(md);
+-	return r;
+-}
+-
+-/*
+- * Build up the status struct for each target
+- */
+-static void retrieve_status(struct dm_table *table,
+-			    struct dm_ioctl *param, size_t param_size)
+-{
+-	unsigned int i, num_targets;
+-	struct dm_target_spec *spec;
+-	char *outbuf, *outptr;
+-	status_type_t type;
+-	size_t remaining, len, used = 0;
+-
+-	outptr = outbuf = get_result_buffer(param, param_size, &len);
+-
+-	if (param->flags & DM_STATUS_TABLE_FLAG)
+-		type = STATUSTYPE_TABLE;
+-	else
+-		type = STATUSTYPE_INFO;
+-
+-	/* Get all the target info */
+-	num_targets = dm_table_get_num_targets(table);
+-	for (i = 0; i < num_targets; i++) {
+-		struct dm_target *ti = dm_table_get_target(table, i);
+-
+-		remaining = len - (outptr - outbuf);
+-		if (remaining < sizeof(struct dm_target_spec)) {
+-			param->flags |= DM_BUFFER_FULL_FLAG;
+-			break;
+-		}
+-
+-		spec = (struct dm_target_spec *) outptr;
+-
+-		spec->status = 0;
+-		spec->sector_start = ti->begin;
+-		spec->length = ti->len;
+-		strncpy(spec->target_type, ti->type->name,
+-			sizeof(spec->target_type));
+-
+-		outptr += sizeof(struct dm_target_spec);
+-		remaining = len - (outptr - outbuf);
+-
+-		/* Get the status/table string from the target driver */
+-		if (ti->type->status) {
+-			if (ti->type->status(ti, type, outptr, remaining)) {
+-				param->flags |= DM_BUFFER_FULL_FLAG;
+-				break;
+-			}
+-		} else
+-			outptr[0] = '\0';
+-
+-		outptr += strlen(outptr) + 1;
+-		used = param->data_start + (outptr - outbuf);
+-
+-		align_ptr(outptr);
+-		spec->next = outptr - outbuf;
+-	}
+-
+-	if (used)
+-		param->data_size = used;
+-
+-	param->target_count = num_targets;
+-}
+-
+-/*
+- * Wait for a device to report an event
+- */
+-static int dev_wait(struct dm_ioctl *param, size_t param_size)
+-{
+-	int r;
+-	struct mapped_device *md;
+-	struct dm_table *table;
+-	DECLARE_WAITQUEUE(wq, current);
+-
+-	md = find_device(param);
+-	if (!md)
+-		return -ENXIO;
+-
+-	/*
+-	 * Wait for a notification event
+-	 */
+-	set_current_state(TASK_INTERRUPTIBLE);
+-	if (!dm_add_wait_queue(md, &wq, param->event_nr)) {
+-		schedule();
+-		dm_remove_wait_queue(md, &wq);
+-	}
+- 	set_current_state(TASK_RUNNING);
+-
+-	/*
+-	 * The userland program is going to want to know what
+-	 * changed to trigger the event, so we may as well tell
+-	 * him and save an ioctl.
+-	 */
+-	r = __dev_status(md, param);
+-	if (r)
+-		goto out;
+-
+-	table = dm_get_table(md);
+-	if (table) {
+-		retrieve_status(table, param, param_size);
+-		dm_table_put(table);
+-	}
+-
+- out:
+-	dm_put(md);
+-	return r;
+-}
+-
+-static inline int get_mode(struct dm_ioctl *param)
+-{
+-	int mode = FMODE_READ | FMODE_WRITE;
+-
+-	if (param->flags & DM_READONLY_FLAG)
+-		mode = FMODE_READ;
+-
+-	return mode;
+-}
+-
+-static int next_target(struct dm_target_spec *last, uint32_t next, void *end,
+-		       struct dm_target_spec **spec, char **target_params)
+-{
+-	*spec = (struct dm_target_spec *) ((unsigned char *) last + next);
+-	*target_params = (char *) (*spec + 1);
+-
+-	if (*spec < (last + 1))
+-		return -EINVAL;
+-
+-	return invalid_str(*target_params, end);
+-}
+-
+-static int populate_table(struct dm_table *table,
+-			  struct dm_ioctl *param, size_t param_size)
+-{
+-	int r;
+-	unsigned int i = 0;
+-	struct dm_target_spec *spec = (struct dm_target_spec *) param;
+-	uint32_t next = param->data_start;
+-	void *end = (void *) param + param_size;
+-	char *target_params;
+-
+-	if (!param->target_count) {
+-		DMWARN("populate_table: no targets specified");
+-		return -EINVAL;
+-	}
+-
+-	for (i = 0; i < param->target_count; i++) {
+-
+-		r = next_target(spec, next, end, &spec, &target_params);
+-		if (r) {
+-			DMWARN("unable to find target");
+-			return r;
+-		}
+-
+-		r = dm_table_add_target(table, spec->target_type,
+-					(sector_t) spec->sector_start,
+-					(sector_t) spec->length,
+-					target_params);
+-		if (r) {
+-			DMWARN("error adding target to table");
+-			return r;
+-		}
+-
+-		next = spec->next;
+-	}
+-
+-	return dm_table_complete(table);
+-}
+-
+-static int table_load(struct dm_ioctl *param, size_t param_size)
+-{
+-	int r;
+-	struct hash_cell *hc;
+-	struct dm_table *t;
+-
+-	r = dm_table_create(&t, get_mode(param), param->target_count);
+-	if (r)
+-		return r;
+-
+-	r = populate_table(t, param, param_size);
+-	if (r) {
+-		dm_table_put(t);
+-		return r;
+-	}
+-
+-	down_write(&_hash_lock);
+-	hc = __find_device_hash_cell(param);
+-	if (!hc) {
+-		DMWARN("device doesn't appear to be in the dev hash table.");
+-		up_write(&_hash_lock);
+-		return -ENXIO;
+-	}
+-
+-	if (hc->new_map)
+-		dm_table_put(hc->new_map);
+-	hc->new_map = t;
+-	param->flags |= DM_INACTIVE_PRESENT_FLAG;
+-
+-	r = __dev_status(hc->md, param);
+-	up_write(&_hash_lock);
+-	return r;
+-}
+-
+-static int table_clear(struct dm_ioctl *param, size_t param_size)
+-{
+-	int r;
+-	struct hash_cell *hc;
+-
+-	down_write(&_hash_lock);
+-
+-	hc = __find_device_hash_cell(param);
+-	if (!hc) {
+-		DMWARN("device doesn't appear to be in the dev hash table.");
+-		up_write(&_hash_lock);
+-		return -ENXIO;
+-	}
+-
+-	if (hc->new_map) {
+-		dm_table_put(hc->new_map);
+-		hc->new_map = NULL;
+-	}
+-
+-	param->flags &= ~DM_INACTIVE_PRESENT_FLAG;
+-
+-	r = __dev_status(hc->md, param);
+-	up_write(&_hash_lock);
+-	return r;
+-}
+-
+-/*
+- * Retrieves a list of devices used by a particular dm device.
+- */
+-static void retrieve_deps(struct dm_table *table,
+-			  struct dm_ioctl *param, size_t param_size)
+-{
+-	unsigned int count = 0;
+-	struct list_head *tmp;
+-	size_t len, needed;
+-	struct dm_target_deps *deps;
+-
+-	deps = get_result_buffer(param, param_size, &len);
+-
+-	/*
+-	 * Count the devices.
+-	 */
+-	list_for_each(tmp, dm_table_get_devices(table))
+-		count++;
+-
+-	/*
+-	 * Check we have enough space.
+-	 */
+-	needed = sizeof(*deps) + (sizeof(*deps->dev) * count);
+-	if (len < needed) {
+-		param->flags |= DM_BUFFER_FULL_FLAG;
+-		return;
+-	}
+-
+-	/*
+-	 * Fill in the devices.
+-	 */
+-	deps->count = count;
+-	count = 0;
+-	list_for_each(tmp, dm_table_get_devices(table)) {
+-		struct dm_dev *dd = list_entry(tmp, struct dm_dev, list);
+-		deps->dev[count++] = huge_encode_dev(dd->bdev->bd_dev);
+-	}
+-
+-	param->data_size = param->data_start + needed;
+-}
+-
+-static int table_deps(struct dm_ioctl *param, size_t param_size)
+-{
+-	int r = 0;
+-	struct mapped_device *md;
+-	struct dm_table *table;
+-
+-	md = find_device(param);
+-	if (!md)
+-		return -ENXIO;
+-
+-	r = __dev_status(md, param);
+-	if (r)
+-		goto out;
+-
+-	table = dm_get_table(md);
+-	if (table) {
+-		retrieve_deps(table, param, param_size);
+-		dm_table_put(table);
+-	}
+-
+- out:
+-	dm_put(md);
+-	return r;
+-}
+-
+-/*
+- * Return the status of a device as a text string for each
+- * target.
+- */
+-static int table_status(struct dm_ioctl *param, size_t param_size)
+-{
+-	int r;
+-	struct mapped_device *md;
+-	struct dm_table *table;
+-
+-	md = find_device(param);
+-	if (!md)
+-		return -ENXIO;
+-
+-	r = __dev_status(md, param);
+-	if (r)
+-		goto out;
+-
+-	table = dm_get_table(md);
+-	if (table) {
+-		retrieve_status(table, param, param_size);
+-		dm_table_put(table);
+-	}
+-
+- out:
+-	dm_put(md);
+-	return r;
+-}
+-
+-/*-----------------------------------------------------------------
+- * Implementation of open/close/ioctl on the special char
+- * device.
+- *---------------------------------------------------------------*/
+-static ioctl_fn lookup_ioctl(unsigned int cmd)
+-{
+-	static struct {
+-		int cmd;
+-		ioctl_fn fn;
+-	} _ioctls[] = {
+-		{DM_VERSION_CMD, NULL},	/* version is dealt with elsewhere */
+-		{DM_REMOVE_ALL_CMD, remove_all},
+-		{DM_LIST_DEVICES_CMD, list_devices},
+-
+-		{DM_DEV_CREATE_CMD, dev_create},
+-		{DM_DEV_REMOVE_CMD, dev_remove},
+-		{DM_DEV_RENAME_CMD, dev_rename},
+-		{DM_DEV_SUSPEND_CMD, dev_suspend},
+-		{DM_DEV_STATUS_CMD, dev_status},
+-		{DM_DEV_WAIT_CMD, dev_wait},
+-
+-		{DM_TABLE_LOAD_CMD, table_load},
+-		{DM_TABLE_CLEAR_CMD, table_clear},
+-		{DM_TABLE_DEPS_CMD, table_deps},
+-		{DM_TABLE_STATUS_CMD, table_status}
+-	};
+-
+-	return (cmd >= ARRAY_SIZE(_ioctls)) ? NULL : _ioctls[cmd].fn;
+-}
+-
+-/*
+- * As well as checking the version compatibility this always
+- * copies the kernel interface version out.
+- */
+-static int check_version(unsigned int cmd, struct dm_ioctl *user)
+-{
+-	uint32_t version[3];
+-	int r = 0;
+-
+-	if (copy_from_user(version, user->version, sizeof(version)))
+-		return -EFAULT;
+-
+-	if ((DM_VERSION_MAJOR != version[0]) ||
+-	    (DM_VERSION_MINOR < version[1])) {
+-		DMWARN("ioctl interface mismatch: "
+-		       "kernel(%u.%u.%u), user(%u.%u.%u), cmd(%d)",
+-		       DM_VERSION_MAJOR, DM_VERSION_MINOR,
+-		       DM_VERSION_PATCHLEVEL,
+-		       version[0], version[1], version[2], cmd);
+-		r = -EINVAL;
+-	}
+-
+-	/*
+-	 * Fill in the kernel version.
+-	 */
+-	version[0] = DM_VERSION_MAJOR;
+-	version[1] = DM_VERSION_MINOR;
+-	version[2] = DM_VERSION_PATCHLEVEL;
+-	if (copy_to_user(user->version, version, sizeof(version)))
+-		return -EFAULT;
+-
+-	return r;
+-}
+-
+-static void free_params(struct dm_ioctl *param)
+-{
+-	vfree(param);
+-}
+-
+-static int copy_params(struct dm_ioctl *user, struct dm_ioctl **param)
+-{
+-	struct dm_ioctl tmp, *dmi;
+-
+-	if (copy_from_user(&tmp, user, sizeof(tmp)))
+-		return -EFAULT;
+-
+-	if (tmp.data_size < sizeof(tmp))
+-		return -EINVAL;
+-
+-	dmi = (struct dm_ioctl *) vmalloc(tmp.data_size);
+-	if (!dmi)
+-		return -ENOMEM;
+-
+-	if (copy_from_user(dmi, user, tmp.data_size)) {
+-		vfree(dmi);
+-		return -EFAULT;
+-	}
+-
+-	*param = dmi;
+-	return 0;
+-}
+-
+-static int validate_params(uint cmd, struct dm_ioctl *param)
+-{
+-	/* Always clear this flag */
+-	param->flags &= ~DM_BUFFER_FULL_FLAG;
+-
+-	/* Ignores parameters */
+-	if (cmd == DM_REMOVE_ALL_CMD || cmd == DM_LIST_DEVICES_CMD)
+-		return 0;
+-
+-	/* Unless creating, either name or uuid but not both */
+-	if (cmd != DM_DEV_CREATE_CMD) {
+-		if ((!*param->uuid && !*param->name) ||
+-		    (*param->uuid && *param->name)) {
+-			DMWARN("one of name or uuid must be supplied, cmd(%u)",
+-			       cmd);
+-			return -EINVAL;
+-		}
+-	}
+-
+-	/* Ensure strings are terminated */
+-	param->name[DM_NAME_LEN - 1] = '\0';
+-	param->uuid[DM_UUID_LEN - 1] = '\0';
+-
+-	return 0;
+-}
+-
+-static int ctl_ioctl(struct inode *inode, struct file *file,
+-		     uint command, ulong u)
+-{
+-	int r = 0;
+-	unsigned int cmd;
+-	struct dm_ioctl *param;
+-	struct dm_ioctl *user = (struct dm_ioctl *) u;
+-	ioctl_fn fn = NULL;
+-	size_t param_size;
+-
+-	/* only root can play with this */
+-	if (!capable(CAP_SYS_ADMIN))
+-		return -EACCES;
+-
+-	if (_IOC_TYPE(command) != DM_IOCTL)
+-		return -ENOTTY;
+-
+-	cmd = _IOC_NR(command);
+-
+-	/*
+-	 * Check the interface version passed in.  This also
+-	 * writes out the kernel's interface version.
+-	 */
+-	r = check_version(cmd, user);
+-	if (r)
+-		return r;
+-
+-	/*
+-	 * Nothing more to do for the version command.
+-	 */
+-	if (cmd == DM_VERSION_CMD)
+-		return 0;
+-
+-	fn = lookup_ioctl(cmd);
+-	if (!fn) {
+-		DMWARN("dm_ctl_ioctl: unknown command 0x%x", command);
+-		return -ENOTTY;
+-	}
+-
+-	/*
+-	 * Trying to avoid low memory issues when a device is
+-	 * suspended.
+-	 */
+-	current->flags |= PF_MEMALLOC;
+-
+-	/*
+-	 * Copy the parameters into kernel space.
+-	 */
+-	r = copy_params(user, &param);
+-	if (r) {
+-		current->flags &= ~PF_MEMALLOC;
+-		return r;
+-	}
+-
+-	/*
+-	 * FIXME: eventually we will remove the PF_MEMALLOC flag
+-	 * here.  However the tools still do nasty things like
+-	 * 'load' while a device is suspended.
+-	 */
+-
+-	r = validate_params(cmd, param);
+-	if (r)
+-		goto out;
+-
+-	param_size = param->data_size;
+-	param->data_size = sizeof(*param);
+-	r = fn(param, param_size);
+-
+-	/*
+-	 * Copy the results back to userland.
+-	 */
+-	if (!r && copy_to_user(user, param, param->data_size))
+-		r = -EFAULT;
+-
+- out:
+-	free_params(param);
+-	current->flags &= ~PF_MEMALLOC;
+-	return r;
+-}
+-
+-static struct file_operations _ctl_fops = {
+-	.ioctl	 = ctl_ioctl,
+-	.owner	 = THIS_MODULE,
+-};
+-
+-static struct miscdevice _dm_misc = {
+-	.minor 		= MISC_DYNAMIC_MINOR,
+-	.name  		= DM_NAME,
+-	.devfs_name 	= "mapper/control",
+-	.fops  		= &_ctl_fops
+-};
+-
+-/*
+- * Create misc character device and link to DM_DIR/control.
+- */
+-int __init dm_interface_init(void)
+-{
+-	int r;
+-
+-	r = dm_hash_init();
+-	if (r)
+-		return r;
+-
+-	r = misc_register(&_dm_misc);
+-	if (r) {
+-		DMERR("misc_register failed for control device");
+-		dm_hash_exit();
+-		return r;
+-	}
+-
+-	DMINFO("%d.%d.%d%s initialised: %s", DM_VERSION_MAJOR,
+-	       DM_VERSION_MINOR, DM_VERSION_PATCHLEVEL, DM_VERSION_EXTRA,
+-	       DM_DRIVER_EMAIL);
+-	return 0;
+-}
+-
+-void dm_interface_exit(void)
+-{
+-	if (misc_deregister(&_dm_misc) < 0)
+-		DMERR("misc_deregister failed for control device");
+-
+-	dm_hash_exit();
+-}
+--- diff/include/linux/dm-ioctl-v1.h	2003-09-30 15:46:20.000000000 +0100
++++ source/include/linux/dm-ioctl-v1.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,149 +0,0 @@
+-/*
+- * Copyright (C) 2001 Sistina Software (UK) Limited.
+- *
+- * This file is released under the LGPL.
+- */
+-
+-#ifndef _LINUX_DM_IOCTL_V1_H
+-#define _LINUX_DM_IOCTL_V1_H
+-
+-#include <linux/types.h>
+-
+-#define DM_DIR "mapper"	/* Slashes not supported */
+-#define DM_MAX_TYPE_NAME 16
+-#define DM_NAME_LEN 128
+-#define DM_UUID_LEN 129
+-
+-/*
+- * Implements a traditional ioctl interface to the device mapper.
+- */
+-
+-/*
+- * All ioctl arguments consist of a single chunk of memory, with
+- * this structure at the start.  If a uuid is specified any
+- * lookup (eg. for a DM_INFO) will be done on that, *not* the
+- * name.
+- */
+-struct dm_ioctl {
+-	/*
+-	 * The version number is made up of three parts:
+-	 * major - no backward or forward compatibility,
+-	 * minor - only backwards compatible,
+-	 * patch - both backwards and forwards compatible.
+-	 *
+-	 * All clients of the ioctl interface should fill in the
+-	 * version number of the interface that they were
+-	 * compiled with.
+-	 *
+-	 * All recognised ioctl commands (ie. those that don't
+-	 * return -ENOTTY) fill out this field, even if the
+-	 * command failed.
+-	 */
+-	uint32_t version[3];	/* in/out */
+-	uint32_t data_size;	/* total size of data passed in
+-				 * including this struct */
+-
+-	uint32_t data_start;	/* offset to start of data
+-				 * relative to start of this struct */
+-
+-	uint32_t target_count;	/* in/out */
+-	uint32_t open_count;	/* out */
+-	uint32_t flags;		/* in/out */
+-
+-	__kernel_old_dev_t dev;	/* in/out */
+-
+-	char name[DM_NAME_LEN];	/* device name */
+-	char uuid[DM_UUID_LEN];	/* unique identifier for
+-				 * the block device */
+-};
+-
+-/*
+- * Used to specify tables.  These structures appear after the
+- * dm_ioctl.
+- */
+-struct dm_target_spec {
+-	int32_t status;		/* used when reading from kernel only */
+-	uint64_t sector_start;
+-	uint32_t length;
+-
+-	/*
+-	 * Offset in bytes (from the start of this struct) to
+-	 * next target_spec.
+-	 */
+-	uint32_t next;
+-
+-	char target_type[DM_MAX_TYPE_NAME];
+-
+-	/*
+-	 * Parameter string starts immediately after this object.
+-	 * Be careful to add padding after string to ensure correct
+-	 * alignment of subsequent dm_target_spec.
+-	 */
+-};
+-
+-/*
+- * Used to retrieve the target dependencies.
+- */
+-struct dm_target_deps {
+-	uint32_t count;
+-
+-	__kernel_old_dev_t dev[0];	/* out */
+-};
+-
+-/*
+- * If you change this make sure you make the corresponding change
+- * to dm-ioctl.c:lookup_ioctl()
+- */
+-enum {
+-	/* Top level cmds */
+-	DM_VERSION_CMD = 0,
+-	DM_REMOVE_ALL_CMD,
+-
+-	/* device level cmds */
+-	DM_DEV_CREATE_CMD,
+-	DM_DEV_REMOVE_CMD,
+-	DM_DEV_RELOAD_CMD,
+-	DM_DEV_RENAME_CMD,
+-	DM_DEV_SUSPEND_CMD,
+-	DM_DEV_DEPS_CMD,
+-	DM_DEV_STATUS_CMD,
+-
+-	/* target level cmds */
+-	DM_TARGET_STATUS_CMD,
+-	DM_TARGET_WAIT_CMD
+-};
+-
+-#define DM_IOCTL 0xfd
+-
+-#define DM_VERSION       _IOWR(DM_IOCTL, DM_VERSION_CMD, struct dm_ioctl)
+-#define DM_REMOVE_ALL    _IOWR(DM_IOCTL, DM_REMOVE_ALL_CMD, struct dm_ioctl)
+-
+-#define DM_DEV_CREATE    _IOWR(DM_IOCTL, DM_DEV_CREATE_CMD, struct dm_ioctl)
+-#define DM_DEV_REMOVE    _IOWR(DM_IOCTL, DM_DEV_REMOVE_CMD, struct dm_ioctl)
+-#define DM_DEV_RELOAD    _IOWR(DM_IOCTL, DM_DEV_RELOAD_CMD, struct dm_ioctl)
+-#define DM_DEV_SUSPEND   _IOWR(DM_IOCTL, DM_DEV_SUSPEND_CMD, struct dm_ioctl)
+-#define DM_DEV_RENAME    _IOWR(DM_IOCTL, DM_DEV_RENAME_CMD, struct dm_ioctl)
+-#define DM_DEV_DEPS      _IOWR(DM_IOCTL, DM_DEV_DEPS_CMD, struct dm_ioctl)
+-#define DM_DEV_STATUS    _IOWR(DM_IOCTL, DM_DEV_STATUS_CMD, struct dm_ioctl)
+-
+-#define DM_TARGET_STATUS _IOWR(DM_IOCTL, DM_TARGET_STATUS_CMD, struct dm_ioctl)
+-#define DM_TARGET_WAIT   _IOWR(DM_IOCTL, DM_TARGET_WAIT_CMD, struct dm_ioctl)
+-
+-#define DM_VERSION_MAJOR	1
+-#define DM_VERSION_MINOR	0
+-#define DM_VERSION_PATCHLEVEL	6
+-#define DM_VERSION_EXTRA	"-ioctl (2002-10-15)"
+-
+-/* Status bits */
+-#define DM_READONLY_FLAG	0x00000001
+-#define DM_SUSPEND_FLAG		0x00000002
+-#define DM_EXISTS_FLAG		0x00000004
+-#define DM_PERSISTENT_DEV_FLAG	0x00000008
+-
+-/*
+- * Flag passed into ioctl STATUS command to get table information
+- * rather than current status.
+- */
+-#define DM_STATUS_TABLE_FLAG	0x00000010
+-
+-#endif				/* _LINUX_DM_IOCTL_H */
+--- diff/include/linux/dm-ioctl-v4.h	2003-08-20 14:16:15.000000000 +0100
++++ source/include/linux/dm-ioctl-v4.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,237 +0,0 @@
+-/*
+- * Copyright (C) 2001 - 2003 Sistina Software (UK) Limited.
+- *
+- * This file is released under the LGPL.
+- */
+-
+-#ifndef _LINUX_DM_IOCTL_V4_H
+-#define _LINUX_DM_IOCTL_V4_H
+-
+-#include <linux/types.h>
+-
+-#define DM_DIR "mapper"		/* Slashes not supported */
+-#define DM_MAX_TYPE_NAME 16
+-#define DM_NAME_LEN 128
+-#define DM_UUID_LEN 129
+-
+-/*
+- * A traditional ioctl interface for the device mapper.
+- *
+- * Each device can have two tables associated with it, an
+- * 'active' table which is the one currently used by io passing
+- * through the device, and an 'inactive' one which is a table
+- * that is being prepared as a replacement for the 'active' one.
+- *
+- * DM_VERSION:
+- * Just get the version information for the ioctl interface.
+- *
+- * DM_REMOVE_ALL:
+- * Remove all dm devices, destroy all tables.  Only really used
+- * for debug.
+- *
+- * DM_LIST_DEVICES:
+- * Get a list of all the dm device names.
+- *
+- * DM_DEV_CREATE:
+- * Create a new device, neither the 'active' or 'inactive' table
+- * slots will be filled.  The device will be in suspended state
+- * after creation, however any io to the device will get errored
+- * since it will be out-of-bounds.
+- *
+- * DM_DEV_REMOVE:
+- * Remove a device, destroy any tables.
+- *
+- * DM_DEV_RENAME:
+- * Rename a device.
+- *
+- * DM_SUSPEND:
+- * This performs both suspend and resume, depending which flag is
+- * passed in.
+- * Suspend: This command will not return until all pending io to
+- * the device has completed.  Further io will be deferred until
+- * the device is resumed.
+- * Resume: It is no longer an error to issue this command on an
+- * unsuspended device.  If a table is present in the 'inactive'
+- * slot, it will be moved to the active slot, then the old table
+- * from the active slot will be _destroyed_.  Finally the device
+- * is resumed.
+- *
+- * DM_DEV_STATUS:
+- * Retrieves the status for the table in the 'active' slot.
+- *
+- * DM_DEV_WAIT:
+- * Wait for a significant event to occur to the device.  This
+- * could either be caused by an event triggered by one of the
+- * targets of the table in the 'active' slot, or a table change.
+- *
+- * DM_TABLE_LOAD:
+- * Load a table into the 'inactive' slot for the device.  The
+- * device does _not_ need to be suspended prior to this command.
+- *
+- * DM_TABLE_CLEAR:
+- * Destroy any table in the 'inactive' slot (ie. abort).
+- *
+- * DM_TABLE_DEPS:
+- * Return a set of device dependencies for the 'active' table.
+- *
+- * DM_TABLE_STATUS:
+- * Return the targets status for the 'active' table.
+- */
+-
+-/*
+- * All ioctl arguments consist of a single chunk of memory, with
+- * this structure at the start.  If a uuid is specified any
+- * lookup (eg. for a DM_INFO) will be done on that, *not* the
+- * name.
+- */
+-struct dm_ioctl {
+-	/*
+-	 * The version number is made up of three parts:
+-	 * major - no backward or forward compatibility,
+-	 * minor - only backwards compatible,
+-	 * patch - both backwards and forwards compatible.
+-	 *
+-	 * All clients of the ioctl interface should fill in the
+-	 * version number of the interface that they were
+-	 * compiled with.
+-	 *
+-	 * All recognised ioctl commands (ie. those that don't
+-	 * return -ENOTTY) fill out this field, even if the
+-	 * command failed.
+-	 */
+-	uint32_t version[3];	/* in/out */
+-	uint32_t data_size;	/* total size of data passed in
+-				 * including this struct */
+-
+-	uint32_t data_start;	/* offset to start of data
+-				 * relative to start of this struct */
+-
+-	uint32_t target_count;	/* in/out */
+-	int32_t open_count;	/* out */
+-	uint32_t flags;		/* in/out */
+-	uint32_t event_nr;      	/* in/out */
+-	uint32_t padding;
+-
+-	uint64_t dev;		/* in/out */
+-
+-	char name[DM_NAME_LEN];	/* device name */
+-	char uuid[DM_UUID_LEN];	/* unique identifier for
+-				 * the block device */
+-};
+-
+-/*
+- * Used to specify tables.  These structures appear after the
+- * dm_ioctl.
+- */
+-struct dm_target_spec {
+-	uint64_t sector_start;
+-	uint64_t length;
+-	int32_t status;		/* used when reading from kernel only */
+-
+-	/*
+-	 * Offset in bytes (from the start of this struct) to
+-	 * next target_spec.
+-	 */
+-	uint32_t next;
+-
+-	char target_type[DM_MAX_TYPE_NAME];
+-
+-	/*
+-	 * Parameter string starts immediately after this object.
+-	 * Be careful to add padding after string to ensure correct
+-	 * alignment of subsequent dm_target_spec.
+-	 */
+-};
+-
+-/*
+- * Used to retrieve the target dependencies.
+- */
+-struct dm_target_deps {
+-	uint32_t count;	/* Array size */
+-	uint32_t padding;	/* unused */
+-	uint64_t dev[0];	/* out */
+-};
+-
+-/*
+- * Used to get a list of all dm devices.
+- */
+-struct dm_name_list {
+-	uint64_t dev;
+-	uint32_t next;		/* offset to the next record from
+-				   the _start_ of this */
+-	char name[0];
+-};
+-
+-/*
+- * If you change this make sure you make the corresponding change
+- * to dm-ioctl.c:lookup_ioctl()
+- */
+-enum {
+-	/* Top level cmds */
+-	DM_VERSION_CMD = 0,
+-	DM_REMOVE_ALL_CMD,
+-	DM_LIST_DEVICES_CMD,
+-
+-	/* device level cmds */
+-	DM_DEV_CREATE_CMD,
+-	DM_DEV_REMOVE_CMD,
+-	DM_DEV_RENAME_CMD,
+-	DM_DEV_SUSPEND_CMD,
+-	DM_DEV_STATUS_CMD,
+-	DM_DEV_WAIT_CMD,
+-
+-	/* Table level cmds */
+-	DM_TABLE_LOAD_CMD,
+-	DM_TABLE_CLEAR_CMD,
+-	DM_TABLE_DEPS_CMD,
+-	DM_TABLE_STATUS_CMD,
+-};
+-
+-#define DM_IOCTL 0xfd
+-
+-#define DM_VERSION       _IOWR(DM_IOCTL, DM_VERSION_CMD, struct dm_ioctl)
+-#define DM_REMOVE_ALL    _IOWR(DM_IOCTL, DM_REMOVE_ALL_CMD, struct dm_ioctl)
+-#define DM_LIST_DEVICES  _IOWR(DM_IOCTL, DM_LIST_DEVICES_CMD, struct dm_ioctl)
+-
+-#define DM_DEV_CREATE    _IOWR(DM_IOCTL, DM_DEV_CREATE_CMD, struct dm_ioctl)
+-#define DM_DEV_REMOVE    _IOWR(DM_IOCTL, DM_DEV_REMOVE_CMD, struct dm_ioctl)
+-#define DM_DEV_RENAME    _IOWR(DM_IOCTL, DM_DEV_RENAME_CMD, struct dm_ioctl)
+-#define DM_DEV_SUSPEND   _IOWR(DM_IOCTL, DM_DEV_SUSPEND_CMD, struct dm_ioctl)
+-#define DM_DEV_STATUS    _IOWR(DM_IOCTL, DM_DEV_STATUS_CMD, struct dm_ioctl)
+-#define DM_DEV_WAIT      _IOWR(DM_IOCTL, DM_DEV_WAIT_CMD, struct dm_ioctl)
+-
+-#define DM_TABLE_LOAD    _IOWR(DM_IOCTL, DM_TABLE_LOAD_CMD, struct dm_ioctl)
+-#define DM_TABLE_CLEAR   _IOWR(DM_IOCTL, DM_TABLE_CLEAR_CMD, struct dm_ioctl)
+-#define DM_TABLE_DEPS    _IOWR(DM_IOCTL, DM_TABLE_DEPS_CMD, struct dm_ioctl)
+-#define DM_TABLE_STATUS  _IOWR(DM_IOCTL, DM_TABLE_STATUS_CMD, struct dm_ioctl)
+-
+-#define DM_VERSION_MAJOR	4
+-#define DM_VERSION_MINOR	0
+-#define DM_VERSION_PATCHLEVEL	0
+-#define DM_VERSION_EXTRA	"-ioctl (2003-06-04)"
+-
+-/* Status bits */
+-#define DM_READONLY_FLAG	(1 << 0) /* In/Out */
+-#define DM_SUSPEND_FLAG		(1 << 1) /* In/Out */
+-#define DM_PERSISTENT_DEV_FLAG	(1 << 3) /* In */
+-
+-/*
+- * Flag passed into ioctl STATUS command to get table information
+- * rather than current status.
+- */
+-#define DM_STATUS_TABLE_FLAG	(1 << 4) /* In */
+-
+-/*
+- * Flags that indicate whether a table is present in either of
+- * the two table slots that a device has.
+- */
+-#define DM_ACTIVE_PRESENT_FLAG   (1 << 5) /* Out */
+-#define DM_INACTIVE_PRESENT_FLAG (1 << 6) /* Out */
+-
+-/*
+- * Indicates that the buffer passed in wasn't big enough for the
+- * results.
+- */
+-#define DM_BUFFER_FULL_FLAG	(1 << 8) /* Out */
+-
+-#endif				/* _LINUX_DM_IOCTL_H */

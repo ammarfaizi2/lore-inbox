@@ -1,86 +1,193 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131135AbQKUXC0>; Tue, 21 Nov 2000 18:02:26 -0500
+	id <S131692AbQKUXD4>; Tue, 21 Nov 2000 18:03:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131102AbQKUXCI>; Tue, 21 Nov 2000 18:02:08 -0500
-Received: from 7-ZARA-X12.libre.retevision.es ([62.82.225.7]:17924 "EHLO
-	head.redvip.net") by vger.kernel.org with ESMTP id <S129708AbQKUXBy>;
-	Tue, 21 Nov 2000 18:01:54 -0500
-Message-ID: <3A1AD460.AC55923B@zaralinux.com>
-Date: Tue, 21 Nov 2000 21:00:32 +0100
-From: Jorge Nerin <comandante@zaralinux.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i586)
-X-Accept-Language: es-ES, es, en
-MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ext2 compression: How about using the Netware principle?
-In-Reply-To: <3A193A12.9B384B61@karlsbakk.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131689AbQKUXDg>; Tue, 21 Nov 2000 18:03:36 -0500
+Received: from ppp12-pool1c.bham.zebra.net ([209.12.6.203]:14208 "HELO
+	bliss.penguinpowered.com") by vger.kernel.org with SMTP
+	id <S131688AbQKUXDf>; Tue, 21 Nov 2000 18:03:35 -0500
+Date: Tue, 21 Nov 2000 16:26:09 -0600
+From: "Forever shall I be." <zinx@microsoftisevil.com>
+To: linux-kernel@vger.kernel.org
+Subject: page 0 mapped memory in ELF binaries
+Message-ID: <20001121162608.A1539@bliss.zebra.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="OXfL5xGRrasGEqWY"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-GPG-Fingerprint: 5746 73A1 2184 A27A 9EC0  EDCC E132 BCEF 921B 1558
+X-PGP-Fingerprint: 1F 16 36 AF 28 80 62 20  05 18 A0 AF 47 95 0B 0E
+X-GPG-Public-Key: http://pgp5.ai.mit.edu:11371/pks/lookup?op=get&search=0x921B1558
+X-PGP-Public-Key: http://pgp5.ai.mit.edu:11371/pks/lookup?op=get&search=0xEB936011
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
-> 
-> Hi
-> 
-> With some years of practice with Novell NetWare, I've been wandering why
-> the (unused?) file system compression mechanism in ext2 is based on
-> doing realtime compression. To make compression efficient, it can't be
-> made this simple. Let's look at the type of volume (file system)
-> compression introduced with Novell NetWare 4.0 around '94:
-> 
-> - A file is saved to disk
-> - If the file isn't touched (read or written to) within <n> days
-> (default 14), the file is compressed.
-> - If the file isn't compressed more than <n> percent (default 20), the
-> file is flagged "can't compress".
-> - All file compression is done on low traffic times (default between
-> 00:00 and 06:00 hours)
-> - The first time a file is read or written to within the <n> days
-> interval mentioned above, the file is addressed using realtime
-> compression. The second time, the file is decompressed and commited to
-> disk (uncompressed).
-> 
-> Results:
-> A minimum of CPU time is wasted compressing/decompressing files.
-> The average server I've been out working with have an effective
-> compression of somewhere between 30 and 100 per cent.
-> 
-> PS: This functionality was even scheduled for Win2k, but was somewhere
-> lost... I don't know where...
-> 
-> Questions:
-> I'm really not a kernel hacker, but really...
-> - The daily (or nightly) compression job can run as a cron job. This can
-> be a normal user process running as root. Am I right?
-> - The decompress-and-perhaps-commit-decompressed-to-disk process should
-> be done by a kernel process within (or beside) the file system.
-> - The M$ folks will get even more problems braging about a less useful
-> product.
-> 
-> Please CC: to me, as I'm not on the list
-> 
-> Regards
-> 
-> Roy Sigurd Karlsbakk
-> 
 
-Well, filesystem compresion is in NT since 4.0, in fact you can compress
-a file, a directory, or the whole partition, but only under NTFS. I
-believe that it's [un]compressed on the fly, but I'm not sure about this
-fact.
+--OXfL5xGRrasGEqWY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The [un]compression mechanism could be a kernel thread calling a
-userspace program (gzip, bzip2, definable) doing the actual
-decompresion.
+Ok, I'm sure this isn't any sort of show stopper for the 2.4.0 series
+(or any other series for that matter, and they probably all have it),
+but when mapping memory to page 0 in the program header of an ELF,
+linux completely ignores the ph_memsz field.. I've attached a program
+to demonstrate.. nasm is needed for compilation... (nasm is available
+at http://www.cryogen.com/Nasm/)
 
-Don't know, just thoughts.
+Just so you know, what I want to do is have x bytes at 0x0, when
+only y bytes are in the file, and y will almost always be less than x..
+
+And yes, this is a little odd, but I really want to do it ;)
 
 -- 
-Jorge Nerin
-<comandante@zaralinux.com>
+Zinx Verituse                        (See headers for gpg/pgp key info)
+--OXfL5xGRrasGEqWY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="zeromap.asm"
+
+
+BITS 32
+
+;; Compile with: nasm -f bin zeromap.asm -o zeromap
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Set this to size you want mapped, and that much will get mapped.  This is
+;; the ph_filesz field, the ph_memsz is already at 4096*2, but Linux seems to
+;; completely ignore that when it's mapping to 0x0
+%define ZERO_MAPPED_FILE_SIZE 0
+
+;; You'll want to set this if you set the above, else you'll get bus errors,
+;; due to the file not actually being as big as you told the kernel it was.
+;; Note that I don't want a bigger file, just a bigger amount of memory.
+%define PADDING 0
+
+;; Define this if you want it to just loop over and over, so you can,
+;; say, type "cat /proc/`pidof zeromap`/maps" and get a picture of
+;; what all is happening ;)
+%define INFINITE_LOOP 0
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;
+;; Elf Header
+ORG 0x8048000
+elf_header:
+.e_ident:		db	0x7f, "ELF"
+.e_ident_class:		db	1		;ELFCLASS32
+.e_ident_encoding:	db	1		;ELFDATA2LSB
+.e_ident_version:	db	1		;EV_CURRENT
+.e_ident_padding:	db	0, 0, 0, 0, 0, 0, 0, 0, 0
+
+.e_type:		dw	2		;ET_EXEC
+.e_machine:		dw	3		;EM_386
+.e_version:		dd	1		;EV_CURRENT
+.e_entry:		dd	main
+.e_phoff:		dd	PROGRAM_HEADER
+.e_shoff:		dd	0
+.e_flags:		dd	0
+.e_ehsize:		dw	elf_header_size
+.e_phentsize:		dw	32
+.e_phnum:		dw	3
+.e_shentsize:		dw	0
+.e_shnum:		dw	0
+.e_shstrndx:		dw	0
+elf_header_size equ $ - elf_header
+
+;;;;;;;;;;;;;;;;;;;;
+;; Program Header
+
+PROGRAM_HEADER equ $-$$
+program_header_1:
+	.p_type:		dd	1		;PT_LOAD
+	.p_offset:		dd	main - $$
+	.p_vaddr:		dd	main
+	.p_paddr:		dd	0
+	.p_filesz:		dd	main_size
+	.p_memsz:		dd	main_size
+	.p_flags:		dd	1+2+4		;PF_X + PF_R + PF_W
+	.p_align:		dd	4
+
+; Linux 2.4.0-test10 (at least) doesn't like this one at all.
+program_header_2:
+	.p_type:		dd	1		;PT_LOAD
+	.p_offset:		dd	nomem - $$
+	.p_vaddr:		dd	0
+	.p_paddr:		dd	0
+	.p_filesz:		dd	ZERO_MAPPED_FILE_SIZE
+	.p_memsz:		dd	4096*2		;PAGE_SIZE*2
+	.p_flags:		dd	2+4		;PF_W + PF_R
+	.p_align:		dd	4
+
+; Yet, this one is fine... it's the exact same stuff, just mapped somewhere
+; other than 0x0
+program_header_3:
+	.p_type:		dd	1		;PT_LOAD
+	.p_offset:		dd	nomem - $$
+	.p_vaddr:		dd	nomem
+	.p_paddr:		dd	0
+	.p_filesz:		dd	0
+	.p_memsz:		dd	4096*2		;PAGE_SIZE*2
+	.p_flags:		dd	2+4		;PF_W + PF_R
+	.p_align:		dd	4
+
+main:
+	%if INFINITE_LOOP
+	jmp $
+	%endif
+
+	mov ebp, nomem
+	call try_access
+	mov ebp, 0x0
+	call try_access
+
+	mov eax, 1		; __NR_exit
+	xor ebx, ebx
+	int 0x80		; exit(0);
+
+try_access:
+	call write_ebp_msg
+	xor eax, eax
+.loop:
+	mov ecx, dword [ebp+eax*4]
+	inc eax
+	cmp eax, 0x2000
+	jg .loop
+
+	ret
+
+write_ebp_msg:
+	mov eax, ebp
+	mov ebx, 16
+	mov ecx, 8
+.loop:
+	xor edx, edx
+	div ebx
+	mov dl, [hex+edx]
+	mov [msg_try_mapped.addr+ecx-1], dl
+	loop .loop
+
+	mov eax, 4		; __NR_write
+	mov ebx, 2
+	mov ecx, msg_try_mapped
+	mov edx, msg_try_mapped.len
+	int 0x80		; write(2, msg_try_mapped, strlen(msg_try_mapped));
+	ret
+
+; NOT REACHED
+msg_try_mapped:	db "Accessing 4096*2 bytes of mapped(?) memory at 0x"
+	.addr:	db "00000000"
+		db 10
+	.len	equ $-msg_try_mapped
+hex:		db "0123456789abcdef"
+
+main_size equ $-main
+
+align 4096, db 0		; align to the page size
+nomem:
+times PADDING db 0
+
+--OXfL5xGRrasGEqWY--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264055AbTKGWCX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:02:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264040AbTKGWCG
+	id S261799AbTKGWOs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:14:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbTKGWOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:02:06 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46860 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264406AbTKGPYe
+	Fri, 7 Nov 2003 17:14:04 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:44812 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264393AbTKGPQr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 10:24:34 -0500
+	Fri, 7 Nov 2003 10:16:47 -0500
 To: linux-kernel@vger.kernel.org
 Path: gatekeeper.tmr.com!davidsen
 From: davidsen@tmr.com (bill davidsen)
 Newsgroups: mail.linux-kernel
-Subject: Re: Suspend to disk panicked in -test9.
-Date: 7 Nov 2003 15:14:06 GMT
+Subject: Re: ide-scsi "lost interrupt" (2.6.0-test9)
+Date: 7 Nov 2003 15:06:19 GMT
 Organization: TMR Associates, Schenectady NY
-Message-ID: <bogcru$l3g$1@gatekeeper.tmr.com>
-References: <200310291857.40722.rob@landley.net>
-X-Trace: gatekeeper.tmr.com 1068218046 21616 192.168.12.62 (7 Nov 2003 15:14:06 GMT)
+Message-ID: <bogcdb$l14$1@gatekeeper.tmr.com>
+References: <20031028230910.GM32594@ruvolo.net>
+X-Trace: gatekeeper.tmr.com 1068217579 21540 192.168.12.62 (7 Nov 2003 15:06:19 GMT)
 X-Complaints-To: abuse@tmr.com
 Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200310291857.40722.rob@landley.net>,
-Rob Landley  <rob@landley.net> wrote:
-| Unfortunately, while I was writing down the panic on a piece of paper, the 
-| screen blanking code kicked in while I was still copying down the register 
-| values.  I remember that the call trace mentioned some variant of a 
-| write_stuff_to_disk call, but that's not that useful...
-| 
-| When is the last time that the screen blanking code actually accomplished 
-| something useful?  These days it seems to exist for the purpose of destroying 
-| panic call traces and annoying people.  (I seem to remember that pressing a 
-| key used to make it come back, but now we're forced to use the input core 
-| that no longer seems to be the case...)
-| 
-| I also seem to remember a patch floating by on the list that would make 
-| console screen blanking go away.  I really think console screen blanking NOT 
-| being enabled should be the default these days.  Or at the very least, when 
-| there's a panic it should get shut off.  I'll add looking into that to my 
-| to-do list, but will probably get to it somewhere around 2009...
+In article <20031028230910.GM32594@ruvolo.net>,
+Chris Ruvolo  <chris+lkml@ruvolo.net> wrote:
 
-Or people who want it that way could put the setterm call in their
-rc.local, of course. No patches required and the rest of the world
-doesn't have to turn it on.
+| When attempting to use cdrecord under 2.6.0-test9 with a ide-scsi ATAPI
+| device, the burn fails and I get the following kernel output.  This has
+| happened both times I tried to burn a CD, at both 4x and 2x write.  This is
+| with DMA disabled via "/sbin/hdparm -d 0 /dev/hdc".
+| 
+| Any advise here?  (cdrecord with -dev=ATAPI doesn't seem to work)
+
+You probably need a newer version of cdrecord for that. Read on.
+
+| BTW, there doesn't seem to be a maintainer for the ide-scsi module.  Is that
+| correct?
+
+AFAIK.
+
+| Also, there's another ide-scsi problem I just noticed.  When unloading the
+| ide-scsi module and reloading it, it gets assigned a new bus.  On the
+| initial load my CD device as -dev=0,0,0.  Now it is -dev=2,0,0.  The code to
+| unregister the bus seems to have been removed between -test1 and -test9.
+| Can anyone say why?
+
+I think that's a kernel feature in general, if I unplug and replug my
+USB flash reader I get a new bus as well.
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc

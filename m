@@ -1,39 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266633AbUHQThh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266635AbUHQTjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266633AbUHQThh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 15:37:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266635AbUHQThh
+	id S266635AbUHQTjt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 15:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266646AbUHQTjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 15:37:37 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:13514 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266633AbUHQThg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 15:37:36 -0400
-Message-ID: <2a4f155d040817123712570ca0@mail.gmail.com>
-Date: Tue, 17 Aug 2004 22:37:34 +0300
-From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-Reply-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Subject: Re: 2.6.8.1-mm1 Tty problems?
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41225D16.2050702@microgate.com>
+	Tue, 17 Aug 2004 15:39:49 -0400
+Received: from ctb-mesg5.saix.net ([196.25.240.77]:40837 "EHLO
+	ctb-mesg5.saix.net") by vger.kernel.org with ESMTP id S266635AbUHQTjl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 15:39:41 -0400
+Subject: Re: [PATCH] 2.6.8.1 Mis-detect CRDW as CDROM
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Andreas Messer <andreas.messer@gmx.de>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Ballarin.Marc@gmx.de, fsteiner-mail@bio.ifi.lmu.de,
+       christer@weinigel.se
+In-Reply-To: <20040817155927.GA19546@proton-satura-home>
+References: <411FD919.9030702@comcast.net>
+	 <20040816231211.76360eaa.Ballarin.Marc@gmx.de>
+	 <4121A689.8030708@bio.ifi.lmu.de> <200408171311.06222.satura@proton>
+	 <20040817155927.GA19546@proton-satura-home>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3wed0bfL+7/4Nc71eEu9"
+Message-Id: <1092771779.8998.6.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <2a4f155d040817070854931025@mail.gmail.com> <412247FF.5040301@microgate.com> <2a4f155d0408171116688a87f1@mail.gmail.com> <4122501B.7000106@microgate.com> <2a4f155d04081712005fdcdd9b@mail.gmail.com> <41225D16.2050702@microgate.com>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 17 Aug 2004 21:43:00 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Aug 2004 14:31:34 -0500, Paul Fulghum <paulkf@microgate.com> wrote:
-> 
-> Try recreating /dev/tty as a char special file:
-> mknod -m 666 /dev/tty c 5 0
-> 
 
-Yes totally works! 
+--=-3wed0bfL+7/4Nc71eEu9
+Content-Type: multipart/mixed; boundary="=-1550X0upaSIJeLZAItPx"
 
-Cheers,
-ismail
 
--- 
-Time is what you make of
+--=-1550X0upaSIJeLZAItPx
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2004-08-17 at 17:59, Andreas Messer wrote:
+> Hello again,
+>=20
+> as i get informed, that the kmail emailclient has not made
+> what i want, i decided to use mutt for next time. I will
+> include the patch again to make it readable. I have also
+> changed the thing with MODE_SELECT_10 to write mode=20
+> because Christer Weinig figured out, that this CMD may
+> be insecure in connection with harddisks.
+> The changes to cdrom.h made by Marc Ballarin have not yet=20
+> been included.
+> But i think, that the security model should made more=20
+> precise - deciding only upon the commands does not give
+> the effekt of much improved security.
+>=20
+> Here ist the patch.
+>=20
+
+I am probably missing something, but cant something like attached
+work ?  I am definately not sure about the mode passed to the second
+verify_command in sg_scsi_ioctl ... (Note I have never really hacked
+anywhere near the scsi layer, or done userspace scsi coding, so be
+nice =3D)
+
+Patch is based on vanilla 2.6.8.1, with the bits from Andreas' last
+patch, with MODE_SELECT_10 changed to read again.
+
+
+Thanks,
+
+--=20
+Martin Schlemmer
+
+--=-1550X0upaSIJeLZAItPx
+Content-Disposition: attachment; filename=SG-allow-users-cdrecording.patch
+Content-Type: text/x-patch; name=SG-allow-users-cdrecording.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+LS0tIDEvZHJpdmVycy9ibG9jay9zY3NpX2lvY3RsLmMJMjAwNC0wOC0xNyAyMTozNjo1Ny42ODA3
+ODk2NDggKzAyMDANCisrKyAyL2RyaXZlcnMvYmxvY2svc2NzaV9pb2N0bC5jCTIwMDQtMDgtMTcg
+MjE6MzU6NTQuMDAwMDAwMDAwICswMjAwDQpAQCAtMTEwLDcgKzExMCw3IEBADQogI2RlZmluZSBz
+YWZlX2Zvcl9yZWFkKGNtZCkJW2NtZF0gPSBDTURfUkVBRF9TQUZFDQogI2RlZmluZSBzYWZlX2Zv
+cl93cml0ZShjbWQpCVtjbWRdID0gQ01EX1dSSVRFX1NBRkUNCiANCi1zdGF0aWMgaW50IHZlcmlm
+eV9jb21tYW5kKHN0cnVjdCBmaWxlICpmaWxlLCB1bnNpZ25lZCBjaGFyICpjbWQpDQorc3RhdGlj
+IGludCB2ZXJpZnlfY29tbWFuZChzdHJ1Y3QgZmlsZSAqZmlsZSwgdW5zaWduZWQgY2hhciAqY21k
+LCBpbnQgbW9kZSkNCiB7DQogCXN0YXRpYyBjb25zdCB1bnNpZ25lZCBjaGFyIGNtZF90eXBlWzI1
+Nl0gPSB7DQogDQpAQCAtMTU2LDIzICsxNTYsOTAgQEANCiAJCXNhZmVfZm9yX3dyaXRlKFdSSVRF
+XzE2KSwNCiAJCXNhZmVfZm9yX3dyaXRlKFdSSVRFX0JVRkZFUiksDQogCQlzYWZlX2Zvcl93cml0
+ZShXUklURV9MT05HKSwNCisNCisNCisJCS8qIFNvbWUgYWRkaXRpb25hbCBkZWZzIGZvciByZWNv
+cmRpbmcvcmVhZGluZyBDRHMgKi8NCisNCisJCS8qIDB4MDEgUkVaRVJPX1VOSVQgdXNlZCBieSBr
+M2IsIGJ1dCBhbHNvIHdvcmsgd2l0aG91dCAqLw0KKyAgICAgICAgICAgICAgIA0KKwkJLyogcmVh
+ZC1tb2RlICovDQorCQlzYWZlX2Zvcl9yZWFkKEdQQ01EX0dFVF9DT05GSUdVUkFUSU9OKSwNCisJ
+CXNhZmVfZm9yX3JlYWQoR1BDTURfR0VUX0VWRU5UX1NUQVRVU19OT1RJRklDQVRJT04pLA0KKwkJ
+c2FmZV9mb3JfcmVhZChHUENNRF9HRVRfUEVSRk9STUFOQ0UpLA0KKwkJc2FmZV9mb3JfcmVhZChH
+UENNRF9NRUNIQU5JU01fU1RBVFVTKSwNCisNCisJCS8qIHNob3VsZCB0aGlzIGFsbG93ZWQgZm9y
+IHJlYWQgPyAqLw0KKwkJc2FmZV9mb3JfcmVhZChHUENNRF9MT0FEX1VOTE9BRCksDQorCQlzYWZl
+X2Zvcl9yZWFkKEdQQ01EX1NFVF9TUEVFRCksDQorCQlzYWZlX2Zvcl9yZWFkKEdQQ01EX1BBVVNF
+X1JFU1VNRSksICAgLyogcGxheWluZyBhdWRpbyBjZCAqLw0KKwkJc2FmZV9mb3JfcmVhZChTRUVL
+XzEwKSwgICAgICAgICAgICAgIC8qIHBsYXlpbmcgYXVkaW8gY2QgKi8NCisJCXNhZmVfZm9yX3Jl
+YWQoR1BDTURfU0VUX1JFQURfQUhFQUQpLA0KKwkJc2FmZV9mb3JfcmVhZChHUENNRF9TRVRfU1RS
+RUFNSU5HKSwNCisJCXNhZmVfZm9yX3JlYWQoR1BDTURfU1RPUF9QTEFZX1NDQU4pLCAvKiBwbGF5
+aW5nIGF1ZGlvIGNkICovDQorDQorCQkvKiBrM2Igd29udCB3b3JrIHdpdGhvdXQgcmVhZCAtIG1h
+eWJlIGJ1ZyBpbiBrM2IgKi8gDQorCQlzYWZlX2Zvcl9yZWFkKEdQQ01EX01PREVfU0VMRUNUXzEw
+KSwgDQorDQorCQkvKiB3cml0ZS1tb2RlICovDQorCQlzYWZlX2Zvcl93cml0ZShHUENNRF9CTEFO
+SyksIA0KKwkJc2FmZV9mb3Jfd3JpdGUoR1BDTURfQ0xPU0VfVFJBQ0spLA0KKwkJc2FmZV9mb3Jf
+d3JpdGUoMHgyYyksICAgICAgICAvKiBFUkFTRV8xMCAqLyANCisJCXNhZmVfZm9yX3dyaXRlKEdQ
+Q01EX0ZPUk1BVF9VTklUKSwNCisJCXNhZmVfZm9yX3dyaXRlKEdQQ01EX1BSRVZFTlRfQUxMT1df
+TUVESVVNX1JFTU9WQUwpLA0KKwkJc2FmZV9mb3Jfd3JpdGUoMHg1YyksICAgICAgICAvKiBSRUFE
+X0JVRkZFUl9DQVBBQ0lUWSAqLw0KKwkJc2FmZV9mb3Jfd3JpdGUoR1BDTURfUkVBRF9GT1JNQVRf
+Q0FQQUNJVElFUyksDQorCQlzYWZlX2Zvcl93cml0ZShHUENNRF9SRVBBSVJfUlpPTkVfVFJBQ0sp
+LA0KKwkJc2FmZV9mb3Jfd3JpdGUoR1BDTURfUkVTRVJWRV9SWk9ORV9UUkFDSyksDQorCQlzYWZl
+X2Zvcl93cml0ZSgweDVkKSwgICAgICAgIC8qIFNFTkRfQ1VFX1NIRUVUICovDQorCQlzYWZlX2Zv
+cl93cml0ZSgweGJmKSwgICAgICAgIC8qIFNFTkRfRFZEX1NUUlVDVFVSRSAqLw0KKwkJc2FmZV9m
+b3Jfd3JpdGUoR1BDTURfU0VORF9LRVkpLA0KKwkJc2FmZV9mb3Jfd3JpdGUoR1BDTURfU0VORF9P
+UEMpLA0KKwkJc2FmZV9mb3Jfd3JpdGUoU1lOQ0hST05JWkVfQ0FDSEUpLA0KKwkJc2FmZV9mb3Jf
+d3JpdGUoVkVSSUZZKSwNCisNCisJCS8qIERpc2FibGVkLCBtYXkgY2hhbmdlIGZpcm13YXJlIA0K
+KwkJICAgc2FmZV9mb3Jfd3JpdGUoMHgzYiksICBXUklURV9CVUZGRVIgKi8NCisJCS8qIERpc2Fi
+bGVkIGR1ZSB1c2VsZXNzIHdpdGhvdXQgV1JJVEVfQlVGRkVSIA0KKwkJICAgc2FmZV9mb3Jfd3Jp
+dGUoMHgzYyksICBSRUFEX0JVRkZFUiAqLw0KKw0KIAl9Ow0KIAl1bnNpZ25lZCBjaGFyIHR5cGUg
+PSBjbWRfdHlwZVtjbWRbMF1dOw0KIA0KLQkvKiBBbnlib2R5IHdobyBjYW4gb3BlbiB0aGUgZGV2
+aWNlIGNhbiBkbyBhIHJlYWQtc2FmZSBjb21tYW5kICovDQotCWlmICh0eXBlICYgQ01EX1JFQURf
+U0FGRSkNCi0JCXJldHVybiAwOw0KLQ0KLQkvKiBXcml0ZS1zYWZlIGNvbW1hbmRzIGp1c3QgcmVx
+dWlyZSBhIHdyaXRhYmxlIG9wZW4uLiAqLw0KLQlpZiAodHlwZSAmIENNRF9XUklURV9TQUZFKSB7
+DQotCQlpZiAoZmlsZS0+Zl9tb2RlICYgRk1PREVfV1JJVEUpDQorCXN3aXRjaCAobW9kZSkgew0K
+KwljYXNlIFNHX0RYRkVSX0ZST01fREVWOg0KKwkJLyogQW55Ym9keSB3aG8gY2FuIG9wZW4gdGhl
+IGRldmljZSBjYW4gZG8gYSByZWFkLXNhZmUNCisJCSAqIGNvbW1hbmQgKi8NCisJCWlmICh0eXBl
+ICYgQ01EX1JFQURfU0FGRSkNCiAJCQlyZXR1cm4gMDsNCisJCWJyZWFrOw0KKwljYXNlIFNHX0RY
+RkVSX1RPX0ZST01fREVWOg0KKwkJLyogV2UgbmVlZCB0byBiZSBhYmxlIHRvIHJlYWQgYW5kIHdy
+aXRlIHRvIHRoZSBkZXZpY2UuLiAqLw0KKwkJaWYgKHR5cGUgJiBDTURfV1JJVEVfU0FGRSAmJiB0
+eXBlICYgQ01EX1JFQURfU0FGRSkgew0KKwkJCWlmIChmaWxlLT5mX21vZGUgJiBGTU9ERV9XUklU
+RSkNCisJCQkJcmV0dXJuIDA7DQorCQl9DQorCQlicmVhazsNCisJY2FzZSBTR19EWEZFUl9UT19E
+RVY6DQorCQkvKiBXcml0ZS1zYWZlIGNvbW1hbmRzIGp1c3QgcmVxdWlyZSBhIHdyaXRhYmxlIG9w
+ZW4uLiAqLw0KKwkJaWYgKHR5cGUgJiBDTURfV1JJVEVfU0FGRSkgew0KKwkJCWlmIChmaWxlLT5m
+X21vZGUgJiBGTU9ERV9XUklURSkNCisJCQkJcmV0dXJuIDA7DQorCQl9DQorCQlicmVhazsNCiAJ
+fQ0KIA0KIAkvKiBBbmQgcm9vdCBjYW4gZG8gYW55IGNvbW1hbmQuLiAqLw0KIAlpZiAoY2FwYWJs
+ZShDQVBfU1lTX1JBV0lPKSkNCiAJCXJldHVybiAwOw0KIA0KKyAgICAgICAgLyogQWRkZWQgZm9y
+IGRlYnVnZ2luZyovDQorICAgICAgIA0KKwlpZihmaWxlLT5mX21vZGUgJiBGTU9ERV9XUklURSkN
+CisJICBwcmludGsoS0VSTl9XQVJOSU5HICJTQ1NJLUNNRCBGaWx0ZXI6IDB4JXggbm90IGFsbG93
+ZWQgd2l0aCB3cml0ZS1tb2RlXG4iLGNtZFswXSk7DQorCWVsc2UNCisJICBwcmludGsoS0VSTl9X
+QVJOSU5HICJTQ1NJLUNNRCBGaWx0ZXI6IDB4JXggbm90IGFsbG93ZWQgd2l0aCByZWFkLW1vZGVc
+biIsY21kWzBdKTsNCisNCisNCiAJLyogT3RoZXJ3aXNlIGZhaWwgaXQgd2l0aCBhbiAiT3BlcmF0
+aW9uIG5vdCBwZXJtaXR0ZWQiICovDQogCXJldHVybiAtRVBFUk07DQogfQ0KQEAgLTE5Myw3ICsy
+NjAsNyBAQA0KIAkJcmV0dXJuIC1FSU5WQUw7DQogCWlmIChjb3B5X2Zyb21fdXNlcihjbWQsIGhk
+ci0+Y21kcCwgaGRyLT5jbWRfbGVuKSkNCiAJCXJldHVybiAtRUZBVUxUOw0KLQlpZiAodmVyaWZ5
+X2NvbW1hbmQoZmlsZSwgY21kKSkNCisJaWYgKHZlcmlmeV9jb21tYW5kKGZpbGUsIGNtZCwgaGRy
+LT5keGZlcl9kaXJlY3Rpb24pKQ0KIAkJcmV0dXJuIC1FUEVSTTsNCiANCiAJLyoNCkBAIC0zNDMs
+NyArNDEwLDcgQEANCiAJaWYgKGNvcHlfZnJvbV91c2VyKGJ1ZmZlciwgc2ljLT5kYXRhICsgY21k
+bGVuLCBpbl9sZW4pKQ0KIAkJZ290byBlcnJvcjsNCiANCi0JZXJyID0gdmVyaWZ5X2NvbW1hbmQo
+ZmlsZSwgcnEtPmNtZCk7DQorCWVyciA9IHZlcmlmeV9jb21tYW5kKGZpbGUsIHJxLT5jbWQsIGlu
+X2xlbiA/IFNHX0RYRkVSX1RPX0RFViA6IFNHX0RYRkVSX0ZST01fREVWKTsNCiAJaWYgKGVycikN
+CiAJCWdvdG8gZXJyb3I7DQogDQo=
+
+--=-1550X0upaSIJeLZAItPx--
+
+--=-3wed0bfL+7/4Nc71eEu9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBIl/DqburzKaJYLYRAiIkAJ9UJavTJsLI5SWcvLvGVihBv1zS4gCfS/Ik
+xy7elZkbtfxYhX35DfXmd34=
+=eoWq
+-----END PGP SIGNATURE-----
+
+--=-3wed0bfL+7/4Nc71eEu9--
+

@@ -1,34 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268061AbUHFOVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268059AbUHFOXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268061AbUHFOVL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 10:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUHFOVL
+	id S268059AbUHFOXx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 10:23:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268062AbUHFOXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 10:21:11 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:41364 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S268067AbUHFOVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 10:21:03 -0400
-Date: Fri, 6 Aug 2004 16:20:30 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408061420.i76EKUHp006230@burner.fokus.fraunhofer.de>
-To: erik@harddisk-recovery.com, schilling@fokus.fraunhofer.de
-Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Fri, 6 Aug 2004 10:23:53 -0400
+Received: from ida.rowland.org ([192.131.102.52]:56324 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S268059AbUHFOXw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 10:23:52 -0400
+Date: Fri, 6 Aug 2004 10:23:47 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Michael Guterl <mguterl@gmail.com>
+cc: David Brownell <david-b@pacbell.net>,
+       <linux-usb-devel@lists.sourceforge.net>,
+       =?ISO-8859-1?Q?Luis_Miguel_Garc=FD_Mancebo?= <ktech@wanadoo.es>,
+       Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       <akpm@osdl.org>
+Subject: Re: [linux-usb-devel] Re: USB troubles in rc2
+In-Reply-To: <944a037704080420574bb181f8@mail.gmail.com>
+Message-ID: <Pine.LNX.4.44L0.0408061020450.3136-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You know what a cut/paste error is?
+On Wed, 4 Aug 2004, Michael Guterl wrote:
 
-BTW: this could be avoided if Linux would supply correct termcap/terminfo
-entries for xterm so the screen would not go white on black on
-every odd try :-(
+> Okay, due to my lack of detail from previous posts, I thought I'd
+> restate everything with a little more detail.  Previously I was using
+> 2.6.7-mm7 (bk-acpi.patch and bk-usb.patch were reversed), everything
+> worked fine.  Upgraded to 2.6.8-rc2 and my machine would just stop at
+> starting cupsd.  Previous to reversing bk-acpi.patch and bk-usb.patch,
+> 2.6.7-mm7 showed the same behavior.  I unplugged all my USB devices,
+> and booted, and 2.6.8-rc2 started fine.  I plugged in the keyboard and
+> I tried to use the keyboard and the result was whichever key was
+> pressed, that character was repeated numerous times.  No matter what I
+> could not get a single character to appear, the always appeared like
+> "sssssssssssssssssssssss".  Went and grabbed an old PS/2 Keyboard, and
+> proceeded to gather the information David Brownell suggested.
 
+To me this suggests you may be seeing a problem with ACPI, not USB.  
+That's the only way to explain why starting cupsd could lead to problems.
 
-Jörg
+For more information, you could try turning on the USB debugging option in
+your kernel's configuration.
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+Alan Stern
+

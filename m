@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264932AbSJVTZc>; Tue, 22 Oct 2002 15:25:32 -0400
+	id <S264828AbSJVTUU>; Tue, 22 Oct 2002 15:20:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264940AbSJVTZc>; Tue, 22 Oct 2002 15:25:32 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:4556 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264932AbSJVTZS>;
-	Tue, 22 Oct 2002 15:25:18 -0400
-To: Ulrich Drepper <drepper@redhat.com>
-cc: Dave McCracken <dmccr@us.ibm.com>, Rik van Riel <riel@conectiva.com.br>,
-       Andrew Morton <akpm@digeo.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch 
-In-reply-to: Your message of Tue, 22 Oct 2002 12:11:34 PDT.
-             <3DB5A2E6.6000305@redhat.com> 
+	id <S264830AbSJVTUT>; Tue, 22 Oct 2002 15:20:19 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:37531 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264828AbSJVTUO>; Tue, 22 Oct 2002 15:20:14 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 22 Oct 2002 12:35:10 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "Charles 'Buck' Krasic" <krasic@acm.org>
+cc: Mark Mielke <mark@mark.mielke.cc>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+In-Reply-To: <xu48z0ql3hy.fsf@brittany.cse.ogi.edu>
+Message-ID: <Pine.LNX.4.44.0210221231330.1563-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <8499.1035314994.1@us.ibm.com>
-Date: Tue, 22 Oct 2002 12:29:54 -0700
-Message-Id: <E1844iw-0002D9-00@w-gerrit2>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DB5A2E6.6000305@redhat.com>, > : Ulrich Drepper writes:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Dave McCracken wrote:
-> 
-> >   3) The current large page implementation is only for applications
-> >      that want anonymous *non-pageable* shared memory.  Shared page
-> >      tables reduce resource usage for any shared area that's mapped
-> >      at a common address and is large enough to span entire pte pages.
-> 
-> 
-> Does this happen automatically (i.e., without modifying th emmap call)?
-> 
-> In any case, a system using prelinking will likely have all users of a
-> DSO mapping the DSO at the same address.  Will a system benefit in this
-> case?  If not directly, perhaps with some help from ld.so since we do
-> know when we expect the same is used everywhere.
+On 22 Oct 2002, Charles 'Buck' Krasic wrote:
 
-One important thing to watch out for is to make sure that the PLT
-and GOT fixups (where typically pages are mprotected to RW, modified,
-then back to RO) are not in the range of pages that are shared.
-And, it helps if everything that is shared read-only is 4 MB aligned.
-If ld.so could do that under linux, we'd have the biggest win.
+> So maybe epoll's moment of utility is only transient.  It should have
+> been in the kernel a long time ago.  Is it too late now that AIO is
+> imminent?
 
-gerrit
+This is not my call actually. But beside comparing actual performance
+between AIO and sys_epoll, one of the advantages that the patch had is
+this :
+
+arch/i386/kernel/entry.S  |    4
+drivers/char/Makefile     |    4
+fs/Makefile               |    4
+fs/file_table.c           |    4
+fs/pipe.c                 |   36 +
+include/asm-i386/poll.h   |    1
+include/asm-i386/unistd.h |    3
+include/linux/fs.h        |    4
+include/linux/list.h      |    5
+include/linux/pipe_fs_i.h |    4
+include/linux/sys.h       |    2
+include/net/sock.h        |   10
+net/ipv4/tcp.c            |    4
+
+That is, it has a very little "intrusion" in the original code by plugging
+in the existing architecture.
+
+
+
+- Davide
+
+

@@ -1,166 +1,201 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263576AbSIRDYJ>; Tue, 17 Sep 2002 23:24:09 -0400
+	id <S264210AbSIRDyW>; Tue, 17 Sep 2002 23:54:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264157AbSIRDYI>; Tue, 17 Sep 2002 23:24:08 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1805 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263576AbSIRDYH>; Tue, 17 Sep 2002 23:24:07 -0400
-Date: Tue, 17 Sep 2002 20:32:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux 2.5.36
-Message-ID: <Pine.LNX.4.33.0209172029400.2648-100000@penguin.transmeta.com>
+	id <S264257AbSIRDyW>; Tue, 17 Sep 2002 23:54:22 -0400
+Received: from pop018pub.verizon.net ([206.46.170.212]:61061 "EHLO
+	pop018.verizon.net") by vger.kernel.org with ESMTP
+	id <S264210AbSIRDyU>; Tue, 17 Sep 2002 23:54:20 -0400
+From: "Guillaume Boissiere" <boissiere@adiglobal.com>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 17 Sep 2002 23:59:02 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: [STATUS 2.5]  September 18, 2002
+Message-ID: <3D87C1C6.21599.33750A21@localhost>
+X-mailer: Pegasus Mail for Windows (v4.01)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop018.verizon.net from [64.152.17.166] using ID <vze4j2ca@verizon.net> at Tue, 17 Sep 2002 22:59:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Well, what a week!  XFS (the journaling filesystem from SGI), 
+UML (User-Mode Linux, that lets you run Linux inside Linux)
+and more POSIX threading work have been merged.
 
-Big patch, most of it due to the XFS merge. 
+The latest kernel status update is on the Web at:
+  http://www.kernelnewbies.org/status/
 
-The rest is pretty normal - more syncs with Andrew, some console code
-reorg by James, NTFS fixes for highmem, and IDE, USB and firewire updates.
+Enjoy!
 
-		Linus
+-- Guillaume
 
----
-Summary of changes from v2.5.35 to v2.5.36
-============================================
+----------------------------------------
+Linux Kernel 2.5 Status  -  September 18th, 2002
+(Latest kernel release is 2.5.36)
 
-Andrew Morton <akpm@digeo.com>:
-  o low-latency zap_page_range
-  o resurrect /proc/meminfo:Buffers
-  o hugetlb pages
-  o fix reverse map accounting leak
-  o add /proc/meminfo:Mapped
-  o ext3 ceanup: use EXT3_SB
-  o hold the page ref across ->readpage
-  o fix a bogus OOM condition for __GFP_NOFS allocations
-  o clean up the TLB takedown code, remove debug
-  o add dump_stack(): cross-arch backtrace
-  o various small cleanups
+Items in bold have changed since last week.
+Items in grey are post Halloween (feature freeze).
 
-<cattelan@sgi.com>:
-  o XFS: "AutoVersion"
+Features:
 
-Christoph Hellwig <hch@sgi.com>:
-  o XFS: update pagebuf comments
-  o XFS: Return -ENOMEM on vmap failure in _pagebuf_lookup_pages
-  o Import XFS CVS from 10092002
+Merged
+o in 2.5.1+   Rewrite of the block IO (bio) layer             (Jens Axboe)
+o in 2.5.2    Initial support for USB 2.0                     (David Brownell, Greg Kroah-Hartman, etc.)
+o in 2.5.2    Per-process namespaces, late-boot cleanups      (Al Viro, Manfred Spraul)
+o in 2.5.2+   New scheduler for improved scalability          (Ingo Molnar)
+o in 2.5.2+   New kernel device structure (kdev_t)            (Linus Torvalds, etc.)
+o in 2.5.3    IDE layer update                                (Andre Hedrick)
+o in 2.5.3    Support reiserfs external journal               (Reiserfs team)
+o in 2.5.3    Generic ACL (Access Control List) support       (Nathan Scott)
+o in 2.5.3    PnP BIOS driver                                 (Alan Cox, Thomas Hood, Dave Jones, etc.)
+o in 2.5.3+   New driver model & unified device tree          (Patrick Mochel)
+o in 2.5.4    Add preempt kernel option                       (Robert Love, MontaVista team)
+o in 2.5.4    Support for Next Generation POSIX Threading     (NGPT team)
+o in 2.5.5    Add ALSA (Advanced Linux Sound Architecture)    (ALSA team)
+o in 2.5.5    Pagetables in highmem support                   (Ingo Molnar, Arjan van de Ven)
+o in 2.5.5    New architecture: AMD 64-bit (x86-64)           (Andi Kleen, x86-64 Linux team)
+o in 2.5.5    New architecture: PowerPC 64-bit (ppc64)        (Anton Blanchard, ppc64 team)
+o in 2.5.6    Add JFS (Journaling FileSystem from IBM)        (JFS team)
+o in 2.5.6    per_cpu infrastructure                          (Rusty Russell)
+o in 2.5.6    HDLC (High-level Data Link Control) update      (Krzysztof Halasa)
+o in 2.5.6    smbfs Unicode and large file support            (Urban Widmark) 
+o in 2.5.7    New driver API for Wireless Extensions          (Jean Tourrilhes)
+o in 2.5.7    Video for Linux (V4L) redesign                  (Gerd Knorr)
+o in 2.5.7    Futexes (Fast Lightweight Userspace Semaphores) (Rusty Russell, etc.)
+o in 2.5.7+   NAPI network interrupt mitigation               (Jamal Hadi Salim, Robert Olsson, Alexey 
+Kuznetsov)
+o in 2.5.7+   ACPI (Advanced Configuration & Power Interface) (Andy Grover, ACPI team)
+o in 2.5.8    Syscall interface for CPU task affinity         (Robert Love)
+o in 2.5.8    Radix-tree pagecache                            (Momchil Velikov, Christoph Hellwig)
+o in 2.5.9    Smarter IRQ balancing                           (Ingo Molnar)
+o in 2.5.11   Replace old NTFS driver with NTFS TNG driver    (Anton Altaparmakov)
+o in 2.5.11   Fast walk dcache                                (Hanna Linder)
+o in 2.5.11+  Rewrite of the framebuffer layer                (James Simmons)
+o in 2.5.12+  Rewrite of the buffer layer                     (Andrew Morton)
+o in 2.5.14   Support for IDE TCQ (Tagged Command Queueing)   (Jens Axboe)
+o in 2.5.14   Bluetooth support (no longer experimental!)     (Maxim Krasnyansky, Bluetooth team)
+o in 2.5.17   New quota system supporting plugins             (Jan Kara)
+o in 2.5.17+  Move ISDN4Linux to CAPI based interface         (Kai Germaschewski, ISDN4Linux team)
+o in 2.5.18   Software suspend (to disk & RAM)                (Pavel Machek)
+o in 2.5.23   More complete IEEE 802.2 stack                  (Arnaldo, Jay Schullist, from Procom donated 
+code)
+o in 2.5.23+  Hotplug CPU support                             (Rusty Russell)
+o in 2.5.25   Faster internal kernel clock frequency          (Linus Torvalds)
+o in 2.5.26   Direct pagecache <-> BIO disk I/O               (Andrew Morton)
+o in 2.5.27+  New VM with reverse mappings                    (Rik van Riel)
+o in 2.5.28+  Serial driver restructure                       (Russell King)
+o in 2.5.28   Remove the "Big IRQ lock"                       (Ingo Molnar)
+o in 2.5.29+  Thread-Local Storage (TLS) support              (Ingo Molnar)
+o in 2.5.29+  Add Linux Security Module (LSM)                 (LSM team)
+o in 2.5.29+  Strict address space accounting                 (Alan Cox)
+o in 2.5.31+  Disk description cleanups                       (Al Viro)
+o in 2.5.31   Support insane number of processes              (Linus Torvalds)
+o in 2.5.32   New MTRR (Memory Type Range Register) driver    (Patrick Mochel)
+o in 2.5.32+  Porting all input devices over to input API     (Vojtech Pavlik, James Simmons)
+o in 2.5.32+  Asynchronous IO (aio) support                   (Ben LaHaise)
+o in 2.5.32+  Add support for NFS v4                          (NFS v4 team)
+* in 2.5.32+  Improved POSIX threading support                (Ingo Molnar)
+o in 2.5.33   SCTP (Stream Control Transmission Protocol)     (lksctp team)
+o in 2.5.33   TCP segmentation offload                        (Alexey Kuznetsov) 
+o in 2.5.34   discontigmem support (ia32)                     (Pat Gaughen, Martin Bligh, Jack Steiner, Tony 
+Luck)
+* in 2.5.34   POSIX threading support for signals             (Ingo Molnar)
+o in 2.5.35   Add User-Mode Linux (UML)                       (Jeff Dike)
+o in 2.5.36   Add XFS (A journaling filesystem from SGI)      (XFS team)
 
-Peter Anvin <hpa@zytor.com>:
-  o CPU detection fixes
+o in -dj      Rewrite of the console layer                    (James Simmons)
+o in -ac      PCMCIA Zoom video support                       (Alan Cox)
+o in -ac      Improved i2o (Intelligent Input/Ouput) layer    (Alan Cox)
 
-James Simmons <jsimmons@maxwell.earthlink.net>:
-  o These files missed the handle_sysrq change
-  o Removed selection.h header. It is not needed and in the future
-    selections will be a pure userland solution. Use set_current_state
-    instead in tty_ioctl.c
-  o Renames console.c and vt.c. The idea is to break these massive
-    files into smaller ones. The main goal is to move all the high end
-    tterminal emulation into one file. This way we can have a light
-    weight printk without the extra weight. nice for embedded systems
+o Ready       Read-Copy Update (RCU) Mutual Exclusion         (Dipankar Sarma, Rusty Russell, Andrea 
+Arcangeli, LSE Team)
+o Ready       Build option for Linux Trace Toolkit (LTT)      (Karim Yaghmour)
+o Ready       Remove the 2TB block device limit               (Peter Chubb)
+o Ready       Serial ATA support                              (Andre Hedrick)
+o Ready       Dynamic Probes                                  (dprobes team)
+o Ready       Zerocopy NFS                                    (Hirokazu Takahashi)
 
-Mark Lord <lord@sgi.com>:
-  o XFS: remove dead code paths from create/mkdir/link/symlink
-  o merge xfs up to 2.5.35
+o Beta        New IO scheduler                                (Jens Axboe)
+o Beta        Fix long-held locks for low scheduling latency  (Andrew Morton, Robert Love, etc.)
+o Beta        EVMS (Enterprise Volume Management System)      (EVMS team)
+o Beta        Device mapper for Logical Volume Manager (LVM2) (LVM team)
+o Beta        Page table sharing                              (Daniel Phillips, Dave McCracken)
+o Beta        ext2/ext3 online resize support                 (Andreas Dilger)
+o Beta        UDF Write support for CD-R/RW (packet writing)  (Jens Axboe, Peter Osterlund)
+o Beta        Better event logging for enterprise systems     (Larry Kessler, evlog team)
+o Beta        Add new CIFS (Common Internet File System)      (Steve French)
+o Beta        NUMA topology support                           (Matt Dobson)
+o Beta        Add hardware sensors drivers                    (lm_sensors team)
+o Beta        High resolution timers                          (George Anzinger, etc.)
+o Beta        Per-mountpoint read-only, union-mounts, unionfs (Al Viro)
+o Beta        More complete NetBEUI stack                     (Arnaldo Carvalho de Melo, from Procom donated 
+code)
 
-<mark@alpha.dyndns.org>:
-  o ov511 1.62 for 2.5.34
+o Alpha       Scalable Statistics Counter                     (Ravikiran Thirumalai)
+o Alpha       Linux Kernel Crash Dumps                        (Matt Robinson, LKCD team)
+o Alpha       ext2/ext3 large directory support: HTree index  (Daniel Phillips, Christopher Li, Ted Ts'o)
+o Alpha       Change all drivers to new driver model          (All maintainers)
+o Alpha       NUMA aware scheduler extensions                 (Erich Focht)     
+o Alpha       Basic NUMA API                                  (Matt Dobson)
+o Alpha       Non-linear memory support                       (Martin Bligh, Daniel Phillips)
+o Alpha       Parallelizing page replacement                  (William Lee Irwin)
+o Alpha       VM large page support                           (Simon Winwood, Hubertus Franke)
+o Alpha       Remove waitqueue heads from kernel structures   (William Lee Irwin)
+o Alpha       Remove the global tasklist                      (William Lee Irwin)
+o Alpha       New lightweight library (klibc)                 (H. Peter Anvin)
+o Alpha       Reiserfs v4                                     (Reiserfs team)
+o Alpha       Replace initrd by initramfs                     (H. Peter Anvin, Al Viro)
+o Alpha       Fix device naming issues                        (Patrick Mochel, Greg Kroah-Hartman)
+o Alpha       Add support for CPU clock/voltage scaling       (Erik Mouw, Dave Jones, Russell King, Arjan van 
+de Ven)
+* Alpha       New Linux configuration system                  (Roman Zippel)
+o Alpha       UMSDOS (Unix under MS-DOS) Rewrite              (Al Viro)
+o Alpha       Full compliance with IPv6                       (Alexey Kuznetsov, Jun Murai, Yoshifuji 
+Hideaki, USAGI team)
+o Alpha       Remove use of the BKL (Big Kernel Lock)         (Alan Cox, Robert Love, Neil Brown, Dave 
+Hansen, etc.)
+o Alpha       USB gadget support                              (Stuart Lynne, Greg Kroah-Hartman)
 
-<pdelaney@lsil.com>:
-  o Fusion-MPT driver update
+o Started     Make AppleTalk use shared skbs and refcounting  (Arnaldo Carvalho de Melo)
+o Started     NUMA aware slab allocator                       (Martin Bligh)
+* Started     x86 BIOS Enhanced Disk Device (EDD) polling     (Matt Domsch)
+o Started     SCSI multipath IO (with NUMA support)           (Patrick Mansfield, Mike Anderson)
+o Started     Overhaul PCMCIA support                         (David Woodhouse, David Hinds)
+o Started     InfiniBand support                              (InfiniBand team)
 
-<stern@rowland.harvard.edu>:
-  o USB storage:  Merging raw_bulk.c with transport.c
+o Planning    New mount API                                   (Al Viro)
+o Planning    Add thrashing control                           (Rik van Riel)
+o Planning    Remove all hardwired drivers from kernel        (Alan Cox, etc.)
 
-Anton Altaparmakov <aia21@cantab.net>:
-  o NTFS: Pages are no longer kmapped around calls to
 
-Ben Collins <bcollins@debian.org>:
-  o IEEE-1394 updates
+Cleanups:
 
-David Gibson <david@gibson.dropbear.id.au>:
-  o Remove CONFIG_SMP around wait_task_inactive()
+Merged
+o in 2.5.3    Break Configure.help into multiple files        (Linus Torvalds)
+o in 2.5.3    Untangle sched.h & fs.h include dependancies    (Dave Jones, Roman Zippel)
+o in 2.5.4    Per network protocol slabcache & sock.h         (Arnaldo Carvalho de Melo)
+o in 2.5.4    Per filesystem slabcache & fs.h                 (Daniel Phillips, Jeff Garzik, Al Viro)
+o in 2.5.6    Killing kdev_t for block devices                (Al Viro)
+o in 2.5.18+  ->getattr() ->setattr() ->permission() changes  (Al Viro)
+o in 2.5.21   Split up x86 setup.c into managable pieces      (Patrick Mochel)
+o in 2.5.23+  Major MD tool (RAID 5) cleanup                  (Neil Brown)
+o in 2.5.31   Rework datalink protocols to not use cli/sti    (Arnaldo Carvalho de Melo)
+o in 2.5.31   Remove incomplete SPX network stack             (Arnaldo Carvalho de Melo)
 
-David S. Miller <davem@redhat.com>:
-  o sparc64 2.5.x file corruptions found
+o Ready       Switch to ->get_super() for file_system_type    (Al Viro)
 
-David Woodhouse <dwmw2@infradead.org>:
-  o Add three functions for rbtree manipulation -- rb_next(), rb_prev()
-    and rb_replace_node()
-  o Remove bogus rb_root_t and rb_node_t typedefs in favour of 'struct
-    rb_node' and 'struct rb_root' Remove duplicate implementation of
-    rb_next() in net/sched/sch_htb.c while we're at it.
+o Beta        file.h and INIT_TASK                            (Benjamin LaHaise)
+o Beta        Proper UFS fixes, ext2 and locking cleanups     (Al Viro)
+o Beta        Lifting limitations on mount(2)                 (Al Viro)
+o Beta        Remove dcache_lock                              (Maneesh Soni, IBM team)
 
-Eric Sandeen <sandeen@sgi.com>:
-  o XFS: teach icmn_err about CE_WARN
-  o XFS: change symlink perms to 777
-  o XFS: add error checks to linvfs_direct_IO
+o Started     Reorder x86 initialization                      (Dave Jones, Randy Dunlap)
 
-Greg Kroah-Hartman <greg@kroah.com>:
-  o USB: change the contact email address for the omninet driver
-  o Driver Model: add dev_get_drvdata() and dev_set_drvdata() functions
-  o Driver Model: fix oops when device is removed from system
-  o USB: Convert the core code to use struct device_driver
-  o USB: convert usb-serial drivers to new driver model
-  o USB: convert the drivers/usb/class files to the new USB driver
-    model
-  o USB: convert the drivers/usb/image files to the new USB driver
-    model
-  o USB: convert the drivers/usb/input files to the new USB driver
-    model
-  o USB: convert the drivers/usb/media files to the new USB driver
-    model
-  o USB: convert the drivers/usb/misc files to the new USB driver model
-  o USB: convert the drivers/usb/net files to the new USB driver model
-  o USB: convert the drivers/usb/storage files to the new USB driver
-    model
-  o USB: convert the USB drivers that live outside of drivers/usb to
-    the new USB driver model
+Have some free time and want to help?  Check out the Kernel Janitor 
+TO DO list for a list of source code cleanups you can work on.  
+A great place to start learning more about kernel internals!
 
-Ingo Molnar <mingo@elte.hu>:
-  o thread-exec-fix-2.5.35-A5, BK-curr
 
-Jens Axboe <axboe@suse.de>:
-  o Cleanup Config.in, and remove unused options
-  o Make sure ide init happens in the right order
-  o Missing exports
-  o Move pio setup and blacklists to ide-lib
-  o Missing module_init()
-  o New IDE pci low level driver setup scheme
-  o Update promise drivers to new ide pci init scheme, remove now
-    unused
-  o Mistakenly enabled ide-tape, disable it again (update of it is
-    broken)
-  o piix_pci_info() needs to be __initdata, not __devinit
-  o ide.h needs to include pci.h
-  o limit size of bio_vec pools
-  o fix elevator_linus accounting
-  o ide irq problem
-  o hpt366 pci_tbl booboo
-  o remove pdc202xx.h
-
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>:
-  o kbuild: vmlinux.lds.s needs dependency on scripts/fixdep
-  o kbuild: Preprocess vmlinux.lds.S on all archs
-  o kbuild: Convert arm vmlinux.lds generation
-  o kbuild: Fix up CRIS vmlinux.lds.S
-  o kbuild: Fix up MIPS vmlinux.lds.S
-  o kbuild: Handle vmlinux linkscript from common code
-
-Linus Torvalds <torvalds@transmeta.com>:
-  o Make "in_atomic()" work right with preempt enabled
-  o Remove IDE "panic on controller remove" code, since it does
-    nothing, but makes it impossible to shut down cleanly.
-
-Matthew Dharm <mdharm-usb@one-eyed-alien.net>:
-  o USB storage: remove tests against EINPROGRESS
-  o USB storage: macro-ize address manipulation
-  o USB storage: minor compilation fixes
-  o USB storage: add error checks, remove useless code
-
-Nathan Scott <nathans@sgi.com>:
-  o XFS: code cleanup
 

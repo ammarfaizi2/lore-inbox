@@ -1,70 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262640AbTJXVYM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 17:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbTJXVYM
+	id S262647AbTJXVYx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 17:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbTJXVYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 17:24:12 -0400
-Received: from smtp3.Stanford.EDU ([171.64.14.172]:26288 "EHLO
-	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S262640AbTJXVYJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 17:24:09 -0400
-Message-ID: <3F999870.4050709@stanford.edu>
-Date: Fri, 24 Oct 2003 14:24:00 -0700
-From: Andy Lutomirski <luto@stanford.edu>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b; MultiZilla v1.5.0.1) Gecko/20031007
-X-Accept-Language: en-us, en
+	Fri, 24 Oct 2003 17:24:53 -0400
+Received: from smtp01.web.de ([217.72.192.180]:28932 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S262647AbTJXVYs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 17:24:48 -0400
+From: Heinz-Georg Sawicki <hgsawicki@web.de>
+Reply-To: hgsawicki@web.de
+To: linux-kernel@vger.kernel.org
+Subject: Bug+Bugfix: Serialdriver 2.6.0-test8(setting custum speed)
+Date: Fri, 24 Oct 2003 23:19:57 +0200
+User-Agent: KMail/1.5.3
 MIME-Version: 1.0
-To: David Wagner <daw@cs.berkeley.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: posix capabilities inheritance
-References: <fa.f26d55g.1qgijbi@ifi.uio.no> <fa.hq0dft9.9i0obd@ifi.uio.no>
-In-Reply-To: <fa.hq0dft9.9i0obd@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310242319.59470.hgsawicki@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-David Wagner wrote:
+First excuse me for my bad english.
+In case of custom speed the routine   uart_get_divisor  in  serial_core.c  
+must calcuate the custom baudrate and return it to the caller. It may look
+somewhat like this:
 
-> Andy Lutomirski  wrote:
-> 
->>I've been programming Windows for a long time, and windows has a 
->>capability system.  [...] All capabilities are disabled by default (almost -- 
->>there's a pointless exception, of course).  The result is that every 
->>program that uses a privileged function (e.g. change the time, restart, 
->>etc.) wraps that call with something that turns enables the capability 
->>at first, then disables it.  This has no benefit -- a hijacked 
->>privileged program can still enable them, and the admin never sees this, 
->>because everything enables them.
-> 
-> 
-> Actually, it does have some benefits.  If I do an open() somewhere
-> else in the code, I know that it is not going to unintentionally use
-> my elevated privileges.  That's useful.  Least privilege, and all that.
+unsigned int
+uart_get_divisor(struct uart_port *port, unsigned int* pBaud)
+{
+	unsigned int quot;
 
-Agreed, somewhat. The problem IMHO is that, even for caps like 
-CAP_DAC_READ_SEARCH, no existing code expects this behavior.  (Windows 
-example again: users with SeBackupPrivilege have a _very_ hard time 
-using it since few programs actually know what to do with it.)  If I'm a 
-user with CAP_DAC_READ_SEARCH, I don't want to have to rewrite all of 
-fileutils just to use that privilege.  Users can still have this 
-behavior, though, under my proposed evolution rules:
-pE' = pP' & (pE|fP)
+	/*
+	 * Old custom speed handling.
+	 */
+	if (*pBaud == 38400 && (port->flags & UPF_SPD_MASK) == UPF_SPD_CUST)
+    {
+		quot = port->custom_divisor;
+        *pBaud = port->uartclk / (16 * quot);
+    }
+	else
+		quot = port->uartclk / (16 * (*pBaud));
 
-Pretend that 'cap' is a bash builtin that did the obvious thing:
+	return quot;
+}
 
-~backupuser/.bashrc: cap all disable
-~backupuser/bin/privrun: cap all enable; exec $*
+This is necessary because  serial8250_set_termios  in   8250.c   uses the 
+baudrate for setting the fifotriggerlevel
 
-Now that user can't accidentally use CAP_DAC_READ_SEARCH, but s/he could 
-do 'privrun ls', for example, if necessary.  (I'm ignoring funny issues 
-with cd here.)  All of this is without the fE mask and without modifying 
-or breaking existing user tools.
+		if (baud < 2400)
+			fcr = UART_FCR_ENABLE_FIFO | UART_FCR_TRIGGER_1;
+#ifdef CONFIG_SERIAL_8250_RSA
+		else if (up->port.type == PORT_RSA)
+			fcr = UART_FCR_ENABLE_FIFO | UART_FCR_TRIGGER_14;
+#endif
+		else
+			fcr = UART_FCR_ENABLE_FIFO | UART_FCR_TRIGGER_8;
 
-If you can think of a use for fE, let me know :)
+In my case i setup a customdivisor of 11520 to get a baudrate of 10 baud, to 
+receive the dcf77-signal(UART 16550A, PC-Hardware). Instead of one byte per 
+second i received 8 bytes at once because of the wrong triggerlevel. By 
+setting the triggerlevel always to one 
+		:
+		else
+			fcr = UART_FCR_ENABLE_FIFO | UART_FCR_TRIGGER_1;
 
+i checked that this was the cause for the problem.
 
-Andy
+By the way, the comment
+
+	/*
+	 * Old custom speed handling.
+	 */
+ 
+says, that this is the old way for setting up a custom speed. Can you please 
+tell me the new way for doing this. Thanks.
+
+Have a nice day,
+
+	Heinz-Georg Sawicki
 

@@ -1,71 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265143AbTLMRvM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 12:51:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265235AbTLMRvM
+	id S265261AbTLMRyX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 12:54:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265265AbTLMRyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 12:51:12 -0500
-Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:25015 "EHLO
-	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S265143AbTLMRvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 12:51:10 -0500
-Message-ID: <20031213175101.32575.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Dec 2003 12:54:22 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:63808 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S265261AbTLMRyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 12:54:21 -0500
+Date: Sat, 13 Dec 2003 12:54:19 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: More questions about 2.6 /proc/meminfo was: (Mem: and Swap:
+ lines in /proc/meminfo)
+In-Reply-To: <20031213032330.GA1769@matchmail.com>
+Message-ID: <Pine.LNX.4.44.0312131010400.26386-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Surya prabhakar" <surya_prabhakar@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Sat, 13 Dec 2003 22:51:01 +0500
-Subject: In fs/proc/array.c error in function proc_pid_stat
-X-Originating-Ip: 203.200.54.66
-X-Originating-Server: ws5-8.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 12 Dec 2003, Mike Fedyk wrote:
 
-Hai all , 
-    When trying to compile 2.6.0-test11 . I am getting a compile time error as below
+> VmallocUsed is being reported in /proc/meminfo in 2.6 now.
+> 
+> Is VmallocUsed contained within any of the other memory reported below?
 
- CC      fs/proc/array.o
-fs/proc/array.c: In function `proc_pid_stat':
-fs/proc/array.c:398: Unrecognizable insn:
-(insn/i 1327 1662 1656 (parallel[ 
-            (set (reg:SI 0 eax)
-                (asm_operands ("") ("=a") 0[ 
-                        (reg:DI 1 edx)
-                    ] 
-                    [ 
-                        (asm_input:DI ("A"))
-                    ]  ("include/linux/times.h") 38))
-            (set (reg:SI 1 edx)
-                (asm_operands ("") ("=d") 1[ 
-                        (reg:DI 1 edx)
-                    ] 
-                    [ 
-                        (asm_input:DI ("A"))
-                    ]  ("include/linux/times.h") 38))
-            (clobber (reg:QI 19 dirflag))
-            (clobber (reg:QI 18 fpsr))
-            (clobber (reg:QI 17 flags))
-        ] ) -1 (insn_list 1321 (nil))
-    (nil))
-fs/proc/array.c:398: confused by earlier errors, bailing out
-make[2]: *** [fs/proc/array.o] Error 1
-make[1]: *** [fs/proc] Error 2
-make: *** [fs] Error 2
+No.
 
- I compilng it frame pointers disabled . 
+> How can I get VmallocUsed from userspace in earlier kernels (2.[024])?
 
-Any suggestion
+You can't.
 
-rgds
-Surya.
+> And the same questions with PageTables too. :)
+
+Same answers ;)
+
+Maybe I should send marcelo a patch to export the PageTables
+number in /proc somewhere ?
+
+> Are Dirty: and Writeback: counted in Inactive: or are they seperate?
+
+They're unrelated statistics to active/inactive and will
+overlap with active/inactive.
+
+> Does Mapped: include all files mmap()ed, or only the executable ones?
+
+Mapped: includes all mmap()ed pages, regardless of executable
+status.
+
 -- 
-______________________________________________
-Check out the latest SMS services @ http://www.linuxmail.org 
-This allows you to send and receive SMS through your mailbox.
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
-
-Powered by Outblaze

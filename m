@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317915AbSGWAjB>; Mon, 22 Jul 2002 20:39:01 -0400
+	id <S317901AbSGWAjD>; Mon, 22 Jul 2002 20:39:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317908AbSGWAiB>; Mon, 22 Jul 2002 20:38:01 -0400
-Received: from emory.viawest.net ([216.87.64.6]:13003 "EHLO emory.viawest.net")
-	by vger.kernel.org with ESMTP id <S317881AbSGWAgp>;
-	Mon, 22 Jul 2002 20:36:45 -0400
-Date: Mon, 22 Jul 2002 17:39:09 -0700
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: please DON'T run 2.5.27 with IDE!
-Message-ID: <20020723003909.GA18594@wizard.com>
-References: <Pine.SOL.4.30.0207222130040.27373-100000@mion.elka.pw.edu.pl>
+	id <S317907AbSGWAhw>; Mon, 22 Jul 2002 20:37:52 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:11268 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317901AbSGWAhf>;
+	Mon, 22 Jul 2002 20:37:35 -0400
+Date: Mon, 22 Jul 2002 17:40:51 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [BK PATCH] LSM changes for 2.5.27
+Message-ID: <20020723004051.GH660@kroah.com>
+References: <20020723003702.GA660@kroah.com> <20020723003806.GB660@kroah.com> <20020723003905.GC660@kroah.com> <20020723003935.GD660@kroah.com> <20020723003952.GE660@kroah.com> <20020723004007.GF660@kroah.com> <20020723004034.GG660@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0207222130040.27373-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <20020723004034.GG660@kroah.com>
 User-Agent: Mutt/1.4i
-X-Operating-System: Linux/2.5.25 (i686)
-X-uptime: 5:33pm  up 1 day, 30 min,  2 users,  load average: 0.00, 0.02, 0.00
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Mon, 24 Jun 2002 23:35:26 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 09:37:13PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> 
-> IDE 99 which is included in 2.5.27 introduced really nasty bug.
-> Possible lockups and data corruption. Please do not.
-> 
-> Regards
-> --
-> Bartlomiej
-
-        Okay.. I have to ask the question.. Which version of IDE does 2.5.27 
-have? you're saying IDE 99. According to the changelog Linus threw out with 
-2.5.27:
-
-Martin Dalecki <dalecki@evision-ventures.com>:
-  o 2.5.26 IDE 99
-  o IDE 100
-
-        With this, I'm assuming 2.5.27 has IDE 100 in it, patched up from IDE 
-99. Correct me if I'm wrong.
-
-                                                        BL.
--- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.683.1.5 -> 1.683.1.6
+#	             CREDITS	1.56    -> 1.57   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/07/22	chris@wirex.com	1.683.1.6
+# [PATCH] LSM: CREDITS entry
+# 
+# --------------------------------------------
+#
+diff -Nru a/CREDITS b/CREDITS
+--- a/CREDITS	Mon Jul 22 17:25:54 2002
++++ b/CREDITS	Mon Jul 22 17:25:54 2002
+@@ -3289,6 +3289,14 @@
+ S: Cambridge. CB1 7EG
+ S: England
+ 
++N: Chris Wright
++E: chris@wirex.com
++D: hacking on LSM framework and security modules.
++S: c/o WireX
++S: 920 SW 3rd, Ste. 100
++S: Portland, OR 97204
++S: USA
++
+ N: Frank Xia
+ E: qx@math.columbia.edu
+ D: Xiafs filesystem [defunct]

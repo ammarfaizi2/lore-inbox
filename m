@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265879AbUFUHiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266146AbUFUHmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265879AbUFUHiI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 03:38:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266148AbUFUHiH
+	id S266146AbUFUHmp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 03:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUFUHmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 03:38:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:55992 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265879AbUFUHh5 (ORCPT
+	Mon, 21 Jun 2004 03:42:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4028 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266155AbUFUHko (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 03:37:57 -0400
-Date: Mon, 21 Jun 2004 00:37:40 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Clemens Schwaighofer <cs@tequila.co.jp>,
-       "Matt H." <lkml@lpbproductions.com>
-cc: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.7-bk way too fast
-In-Reply-To: <40D688D1.7020308@tequila.co.jp>
-Message-ID: <Pine.LNX.4.58.0406210031160.11274@ppc970.osdl.org>
-References: <40D64DF7.5040601@pobox.com> <20040620210233.1e126ddc.akpm@osdl.org>
- <200406210200.42594.norberto+linux-kernel@bensa.ath.cx>
- <200406210239.28918.norberto+linux-kernel@bensa.ath.cx>
- <Pine.LNX.4.58.0406202313510.11274@ppc970.osdl.org> <40D688D1.7020308@tequila.co.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Jun 2004 03:40:44 -0400
+Date: Mon, 21 Jun 2004 00:39:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dan Aloni <da-x@colinux.org>
+Cc: da-x@gmx.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] missing NULL check in drivers/char/n_tty.c
+Message-Id: <20040621003944.48f4b4be.akpm@osdl.org>
+In-Reply-To: <20040621073644.GA10781@callisto.yi.org>
+References: <20040621063845.GA6379@callisto.yi.org>
+	<20040620235824.5407bc4c.akpm@osdl.org>
+	<20040621073644.GA10781@callisto.yi.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 21 Jun 2004, Clemens Schwaighofer wrote:
-> |
-> | Does it fix it to just remove that one line completely?
+Dan Aloni <da-x@gmx.net> wrote:
+>
+> On Sun, Jun 20, 2004 at 11:58:24PM -0700, Andrew Morton wrote:
+> > Dan Aloni <da-x@gmx.net> wrote:
+> > >
+> > > The rest of the kernel treats tty->driver->chars_in_buffer as a possible
+> > >  NULL. This patch changes normal_poll() to be consistent with the rest of
+> > >  the code.
+> > 
+> > It would be better to change the rest of the kernel - remove the tests.
+> > 
+> > If any driver fails to implement ->chars_in_buffer() then we get a nice
+> > oops which tells us that driver needs a stub handler.
 > 
-> Neither the first one or removing the line fixes it. My mail pingu in
-> gkrellm is still running as he would be totaly on drugs ...
+> Are you sure that it won't affect the logic in tty_wait_until_sent() 
+> drastically? It acts quite differently when ->chars_in_buffer == NULL.
 
-Ok, either we have two bugs with _exactly_ the same behaviour, or 
-something is just getting screwed up. That single change has definitely 
-been fingered as being the problem by a few people. And removing the one 
-line (if you have an x86-64 system you have to remove it in the x86-64 
-version of the file too) should undo the patch that seems to have caused 
-the problem in the first place.
+I did a quick grep and it appears that all drivers have set ->chars_in_buffer().
 
-Anyway, my one-liner patch won't have applied at all if you had applied 
-Andrew's patch, so the first thing to do is to double-check that it 
-actually got applied. I'm still hoping. But assuming it did, can you 
-enable APIC debugging in include/asm-i386/apic.h, and send the resulting 
-honking huge dmesg to me and the other suspects in this on-going saga? 
+I suspect there are no drivers which fail to set chars_in_buffer. 
+Otherwise normal_poll() would have been oopsing in 2.4, 2.5 and 2.6?
 
-Preferably both from a plain 2.6.7 kernel (well, "plain" except for the 
-DEBUG enable) and from the broken kernel..
-
-		Linus

@@ -1,68 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261819AbSIWOfG>; Mon, 23 Sep 2002 10:35:06 -0400
+	id <S261925AbSIWOf5>; Mon, 23 Sep 2002 10:35:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261925AbSIWOe4>; Mon, 23 Sep 2002 10:34:56 -0400
-Received: from mta.sara.nl ([145.100.16.144]:13805 "EHLO mta.sara.nl")
-	by vger.kernel.org with ESMTP id <S261855AbSIWOeq>;
-	Mon, 23 Sep 2002 10:34:46 -0400
-Date: Mon, 23 Sep 2002 16:39:49 +0200
-Subject: Re: 2.5.38 on ppc/prep
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v482)
-Cc: linux-kernel@vger.kernel.org
-To: Tom Rini <trini@kernel.crashing.org>
-From: Remco Post <r.post@sara.nl>
-In-Reply-To: <20020923142951.GO726@opus.bloom.county>
-Message-Id: <4FDC416F-CF02-11D6-A08A-000393911DE2@sara.nl>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.482)
+	id <S261855AbSIWOf5>; Mon, 23 Sep 2002 10:35:57 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:57730 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261925AbSIWOfu>; Mon, 23 Sep 2002 10:35:50 -0400
+Date: Mon, 23 Sep 2002 10:43:02 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Con Kolivas <conman@kolivas.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
+In-Reply-To: <1032791089.3d8f2431231ac@kolivas.net>
+Message-ID: <Pine.LNX.3.95.1020923102813.3315A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 24 Sep 2002, Con Kolivas wrote:
 
-On maandag, september 23, 2002, at 04:29 , Tom Rini wrote:
+> Quoting "Richard B. Johnson" <root@chaos.analogic.com>:
+> 
+> > On Mon, 23 Sep 2002, Ryan Anderson wrote:
+> > 
+> > > On Mon, Sep 23, 2002 at 08:30:21PM +1000, Con Kolivas wrote:
+> > > > Quoting Ingo Molnar <mingo@elte.hu>:
+> > > > > On Mon, 23 Sep 2002, Con Kolivas wrote:
+> > > > > 
+> > > > > how many times are you running each test? You should run them at
+> > least
+> > > > > twice (ideally 3 times at least), to establish some sort of
+> > statistical
+> > > > > noise measure. Especially IO benchmarks tend to fluctuate very
+> > heavily
+> > > > > depending on various things - they are also very dependent on the
+> > initial
+> > > > > state - ie. how the pagecache happens to lay out, etc. Ie. a
+> > meaningful
+> > > > > measurement result would be something like:
+> > > > 
+> > > > Yes you make a very valid point and something I've been stewing over
+> > privately
+> > > > for some time. contest runs benchmarks in a fixed order with a "priming"
+> > compile
+> > > > to try and get pagecaches etc back to some sort of baseline (I've been
+> > trying
+> > > > hard to make the results accurate and repeatable). 
+> > > 
+> > > Well, run contest once, discard the results.  Run it 3 more times, and
+> > > you should have started the second, third and fourth runs with similar
+> > initial conditions.
+> > > 
+> > > Or you could run the contest 3 times, rebooting between each run....
+> > > (automating that is a little harder, of course.)
+> > > 
+> > > IANAS, however.
+> > > 
+> > 
+> > (1)	Obtain statistics from a number of runs.
+> > (2)	Throw away the smallest and largest.
+> > (3)	Average whatever remains.
+> > 
+> > This works for many "real-world" things because it removes noise-spikes
+> > that could unfairly poison the average.
+> 
+> That is the system I was considering. I just need to run enough benchmarks to
+> make this worthwhile though. That means about 5 for each it seems - which may
+> take me a while. A basic mean will suffice for a measure of central tendency. I
+> also need to quote some measure of variability. Standard deviation?
+> 
+> Con
+> 
+> .... Standard deviation?
+       ^^^^^^^^^^^^^^^^^^^
 
-> On Mon, Sep 23, 2002 at 02:03:02PM +0200, Remco Post wrote:
->
->> after some tiny fixes to reiserfs and the makefile for prep bootfile
->> (using ../lib/lib.a vs. ../lib/libz.a) I managed to succesfully compile
->> a kernel. It even boots to the point where it frees unused kernel 
->> memory
->> and then stops... this includes succesfully mounting the root
->> filesystem...
->
-> What typo exactly?  The only 'lib' in the Makefile
-> (arch/ppc/boot/prep/Makefile) is:
-> LIBS = ../lib/zlib.a
->
+Yes I like that, but does this measure "goodness of the test" or
+something else? To make myself clear, let's look at some ridiculous
+extreme condition. Your test really takes 1 second, but during your
+tests there is a ping-flood that causes your test to take an hour.
+Since the ping-flood is continuous, it smoothes out the noise of
+your one-second test, making it 1/3600 of its true value. The
+standard deviation looks very good but instead of showing that
+your measurements were "good", it really shows that they are "bad".
 
-That one exactly... I don't recall calling it a typo, though ;-) I guess 
-that is more a relic from when the only lib routines were libz ones and 
-we called the lib to be linked libz.a....
-
-There is a simular entry in arch/ppc/boot/openfirmware/Makefile... 
-removing the z helped over there as well (don't recall exactly, I'm at 
-work now... ) (not that I dare booting Linus's 2.5 tree on my build 
-machine, it's falling apart even with stable software....  ;-(
+I think a goodness-of-the-test indicator relates to the ratio of
+the faster:slower tests. I don't know what you would call this, but
+if your average was generated by 3 fast tests plus 1 slow test, it
+would indicate a better "goodness" than 1 fast test and 3 slow ones.
+It shows that external effects are not influencing the test results
+as much with the "more-good" goodness.
 
 
-> --
-> Tom Rini (TR1265)
-> http://gate.crashing.org/~trini/
->
---
-Met vriendelijke groeten,
-
-Remco Post
-
-SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
-High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
-PGP keys at http://home.sara.nl/~remco/keys.asc
-
-"I really didn't foresee the Internet. But then, neither did the computer
-industry. Not that that tells us very much of course - the computer 
-industry
-didn't even foresee that the century was going to end." -- Douglas Adams
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266615AbUGPRdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266616AbUGPRee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266615AbUGPRdy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 13:33:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266616AbUGPRdy
+	id S266616AbUGPRee (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 13:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266617AbUGPRee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 13:33:54 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:12525 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S266615AbUGPRdx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 13:33:53 -0400
-Date: Fri, 16 Jul 2004 14:08:12 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Brian McEntire <brianm@fsg1.nws.noaa.gov>
-Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org, akpm@zip.com.au,
-       jgarzik@pobox.com, netdev@oss.sgi.com
-Subject: Re: Suggestions with hard lockup on 4 systems, have oops report
-Message-ID: <20040716140812.A8270@mail.kroptech.com>
-References: <Pine.LNX.4.44.0407161025030.20914-200000@fsg1.nws.noaa.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0407161025030.20914-200000@fsg1.nws.noaa.gov>; from brianm@fsg1.nws.noaa.gov on Fri, Jul 16, 2004 at 11:01:39AM -0400
+	Fri, 16 Jul 2004 13:34:34 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:46540 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S266616AbUGPRea (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 13:34:30 -0400
+Date: Fri, 16 Jul 2004 13:37:35 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel oops while shutting down (2.6.8rc1)
+In-Reply-To: <200407161011.36677.m.watts@eris.qinetiq.com>
+Message-ID: <Pine.LNX.4.58.0407161331090.26950@montezuma.fsmlabs.com>
+References: <200407161011.36677.m.watts@eris.qinetiq.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 16, 2004 at 11:01:39AM -0400, Brian McEntire wrote:
-> Thank you for taking time from your busy days to read this. You all
-> (kernel maintainers) rock!  :)
-> 
-> I have four Linux hosts, with identical hardware and OSs, that exhibit a
-> very tough to troubleshoot hang/freeze.  About once every two weeks (and
+On Fri, 16 Jul 2004, Mark Watts wrote:
 
-<snip>
+> Unable to handle kernel paging requested:
+> at virtual address d0967287
+> printing eip:
+> *pde = 0fe43067
+> *pte = 00000000
+> Oops: 0000 [#1]
+> PREEMPT
+> Modules linked in: sg st sr_mod sd_mod scsi_mod ide_cd cdrom i830 ipv6
+> i810_audio ac97_codec soundcore af_packet usbhid floppy airo_cs ds airo
+> pcmcia_core d
+> CPU:    0
+> EIP:    0060:[<d0967287>]    Not tainted
+> EFLAGS: 00010296   (2.6.8-rc1)
+> EIP is at 0xd0967287
+> eax: 00000000   ebx: 00375140   ecx: 00000008   edx: 00000001
+> esi: c1265cf8   edi: 00374366   ebp: c1265c00   esp: c03adfb4
+> ds: 007b   es: 007b   ss: 0068
+> Process swapper (pid: 0, threadinfo=c03ac000 task=c032ca40)
+> Stack: 00425007 d0967167 0000007b c03a007b 00000000 c03ac000 0009fb00 c03da120
+>        00425007 c01040dd 00000006 c03ae7cf c032ca40 00000000 c03d3774 00000018
+>        c03ae380 c03db580 c010019f
+> Call Trace:
+>  [<c01040dd>] cpu_idle+0x2d/0x40
+>  [<c03ae7cf>] start_kernel+0x18f/0x1d0
+>  [<c03ae380>] unknown_bootoption+0x0/0x170
+> Code:  Bad EIP value.
+> <0>Kernel panic: Attempted to kill the idle task!
+> In idle task - not syncing
 
-> The OS specifics:
->   RH 7.2 with latest patches except running kernel 2.4.9-31enterprise for 
-> CM reasons (at one point, I tried the latest available RH 7.2 kernel but 
-> it did not improve stability so I went back.)
->  bcm5700-7.1.22-1
->  nvidia ??  (no RPM listed, didn't know where to find the version.)
-
-You've really got to eliminate the binary bcm5700 and nvidia modules in
-order to diagnose this. Based on the oops, bcm5700 looks suspect, but it
-could just be the unlucky guy whose memory was stepped on by nvidia or
-some other part of the kernel.
-
-Switch to an open NIC like e1000 temporarily (or better yet,
-permanently) and see if the lockup persists. Do the same with nvidia. If
-you can reproduce the problem without ever having loaded either module
-(unloading the module once it's loaded is not sufficient), post the new
-oops and you'll have a solid foundation for debugging.
-
---Adam
+One of those driver modules probably has a function in the cleanup routine
+path unloaded/unmapped. Doing a cat /proc/modules before shutting down and
+taking copying the output would help speed up the search.
 

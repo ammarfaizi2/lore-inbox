@@ -1,54 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135941AbRDZV35>; Thu, 26 Apr 2001 17:29:57 -0400
+	id <S135945AbRDZVla>; Thu, 26 Apr 2001 17:41:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135942AbRDZV3u>; Thu, 26 Apr 2001 17:29:50 -0400
-Received: from cc885639-a.flushing1.mi.home.com ([24.182.96.34]:18436 "HELO
-	caesar.lynix.com") by vger.kernel.org with SMTP id <S135941AbRDZV33>;
-	Thu, 26 Apr 2001 17:29:29 -0400
-Date: Thu, 26 Apr 2001 17:30:16 +0000
-From: Subba Rao <subba9@home.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: init process in 2.2.19
-Message-ID: <20010426173016.C1125@home.com>
-Reply-To: Subba Rao <subba9@home.com>
+	id <S135946AbRDZVlT>; Thu, 26 Apr 2001 17:41:19 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:17682 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S135945AbRDZVlL>; Thu, 26 Apr 2001 17:41:11 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Marek P=?iso-8859-2?Q?=EAtlicki?= <marpet@buy.pl>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <86256A3A.00771A06.00@smtpnotes.altec.com>
+Date: Thu, 26 Apr 2001 16:40:41 -0500
+Subject: Re: binfmt_misc on 2.4.3-ac14
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: multipart/mixed; 
+	Boundary="0__=0u1j7JX5n1ThcKw02kcgtUxvymZJdd9aHtITb6Q5qyUqDZQ4oYTVwk26"
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--0__=0u1j7JX5n1ThcKw02kcgtUxvymZJdd9aHtITb6Q5qyUqDZQ4oYTVwk26
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I am trying to add a process which is to be managed by init. I have added the
-following entry to /etc/inittab
 
-SV:2345:respawn:env - PATH=/usr/local/bin:/usr/sbin:/usr/bin:/bin svscan /service </dev/null 2> dev/console
 
-After saving, I execute the following command:
+Marek P
+--0__=0u1j7JX5n1ThcKw02kcgtUxvymZJdd9aHtITb6Q5qyUqDZQ4oYTVwk26
+Content-type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-transfer-encoding: quoted-printable
 
-	# kill -HUP 1
 
-This does not start the process I have added. The process that I have added
-only starts when I do:
+=EAtlicki <marpet@buy.pl> wrote:
 
-	# init u
-or
-	# telinit u
+>The directory /proc/sys/fs/binfmt_misc/ exists, but nothing in it.
 
-PS - The process will not start even after a reboot. I have to manually do one
-of the above commands as root.
+Try this:
 
-My kernel version is : 2.2.19
-Distro : Slackware
-GCC : gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
 
-Any help appreciated.
+In the recent -ac versions, binfmt_misc must be mounted separately.  I =
+have the
+following in my /etc/rc.d/rc.local so that it will work with both Linus=
+' and
+Alan's kernels (the third variation was for an older -ac kernel that di=
+dn't
+create the binfmt_misc directory either; it's really not needed anymore=
+ but I
+left it in just in case):
 
--- 
+#
+# Register entries in binfmt_misc
+#
+if [ -f /proc/sys/fs/binfmt_misc/register ] ; then
+        echo ':DOSWin:M::MZ::/usr/local/bin/wine:' >
+/proc/sys/fs/binfmt_misc/register
+elif [ -d /proc/sys/fs/binfmt_misc ] ; then
+        mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
+        echo ':DOSWin:M::MZ::/usr/local/bin/wine:' >
+/proc/sys/fs/binfmt_misc/register
+else
+        mount -t binfmt_misc none /etc/binfmt_misc
+        echo ':DOSWin:M::MZ::/usr/local/bin/wine:' > /etc/binfmt_misc/r=
+egister
+fi
 
-Subba Rao
-subba9@home.com
-http://members.home.net/subba9/
 
-GPG public key ID 27FC9217
+Wayne
+=
+
+--0__=0u1j7JX5n1ThcKw02kcgtUxvymZJdd9aHtITb6Q5qyUqDZQ4oYTVwk26--
+

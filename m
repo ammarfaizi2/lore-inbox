@@ -1,27 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263810AbRFDGmu>; Mon, 4 Jun 2001 02:42:50 -0400
+	id <S263944AbRFDExO>; Mon, 4 Jun 2001 00:53:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264120AbRFDGmk>; Mon, 4 Jun 2001 02:42:40 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31240 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263810AbRFDGmd>; Mon, 4 Jun 2001 02:42:33 -0400
-Subject: Re: [PATCH] Remove nr_async_pages limit
-To: zlatko.calusic@iskon.hr
-Date: Mon, 4 Jun 2001 07:39:10 +0100 (BST)
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <874rtxoidx.fsf@atlas.iskon.hr> from "Zlatko Calusic" at Jun 03, 2001 02:30:34 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263945AbRFDEwz>; Mon, 4 Jun 2001 00:52:55 -0400
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:51517 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S263944AbRFDEwx>; Mon, 4 Jun 2001 00:52:53 -0400
+Date: Mon, 4 Jun 2001 00:52:51 -0400 (EDT)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] balance inactive_dirty list
+In-Reply-To: <87pucma6dd.fsf@atlas.iskon.hr>
+Message-ID: <Pine.LNX.4.10.10106040046300.7350-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E156o18-00059a-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch removes the limit on the number of async pages in the
-> flight.
+> while observing lots of different workloads (all I/O bound). Finally,
 
-I have this in all  2.4.5-ac. It does help a little but there are some other
-bits you have to deal with too, in paticular wrong aging. See the -ac version
+well, not all loads are IO-bound in the sense you're looking at.
+in particular, the test I usually run (make -j2 with mem=48m)
+is actually hurt by this patch.  but you're right, this change 
+does improve streaming IO.
+
+> We're trying to be too clever there, and that eventually hurts
+> performance because inactive_dirty list is too small for typical
+
+I certainly agree the code is dubious, but this is the reason 
+inactive_target exists, afaikt.
+
+> have tested. The patch simplifies code a lot and removes unnecessary
+> complex calculation. Code is now completely autotuning. I have a
+
+otoh, the "complex calculation" was always trivial, 
+and *more* autotuning than your suggested fix...
+
+> -	if (!target) {
+> -		int inactive = nr_free_pages() + nr_inactive_clean_pages() +
+> -						nr_inactive_dirty_pages;
+> -		int active = MAX(nr_active_pages, num_physpages / 2);
+> -		if (active > 10 * inactive)
+> -			maxscan = nr_active_pages >> 4;
+> -		else if (active > 3 * inactive)
+> -			maxscan = nr_active_pages >> 8;
+> -		else
+> -			return 0;
+> -	}
+> +	if (!target)
+> +		maxscan = nr_active_pages >> 4;
+

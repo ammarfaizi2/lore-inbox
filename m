@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266517AbTGEVzA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 17:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266518AbTGEVzA
+	id S266509AbTGEVxV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 17:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266514AbTGEVxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 17:55:00 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:20943 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S266517AbTGEVys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 17:54:48 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Jamie Lokier <jamie@shareable.org>
-Subject: Re: 2.5.74-mm1
-Date: Sun, 6 Jul 2003 00:10:25 +0200
-User-Agent: KMail/1.5.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-References: <20030703023714.55d13934.akpm@osdl.org> <200307052309.12680.phillips@arcor.de> <20030705214413.GA28824@mail.jlokier.co.uk>
-In-Reply-To: <20030705214413.GA28824@mail.jlokier.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 5 Jul 2003 17:53:21 -0400
+Received: from [163.118.102.59] ([163.118.102.59]:17331 "EHLO
+	mail.drunkencodepoets.com") by vger.kernel.org with ESMTP
+	id S266509AbTGEVxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 17:53:17 -0400
+Date: Sat, 5 Jul 2003 17:58:30 -0400
+From: paterley <paterley@DrunkenCodePoets.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.74-mm2
+Message-Id: <20030705175830.4ccfead8.paterley@DrunkenCodePoets.com>
+In-Reply-To: <20030705132528.542ac65e.akpm@osdl.org>
+References: <20030705132528.542ac65e.akpm@osdl.org>
+Organization: DrunkenCodePoets.com
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307060010.26002.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 July 2003 23:44, Jamie Lokier wrote:
-> Daniel Phillips wrote:
-> > Unfortunately, negative priority requires root privilege, at least
-> > on Debian.
-> >
-> > That's dumb.  By default, the root privilege requirement should kick
-> > in at something like -5 or -10, so ordinary users can set priorities
-> > higher than the default, as well as lower.  For the millions of
-> > desktop users out there, sound ought to work by default, not be
-> > broken by default.
->
-> The security problem, on a multi-user box, is that negative priority
-> apps can easily take all of the CPU and effectively lock up the box.
+On Sat, 5 Jul 2003 13:25:28 -0700
+Compiled nicely, now rebooting.
 
-I don't see that: the solution is to set the niceness any essential process 
-more negative than is possible for a normal user, which is just what we have 
-now.  The stupid thing is the making the most negative possible and the 
-default niceness the same.  What are you going to do if you have one 
-application you want to take priority, re-nice the other 50?
+Pat
 
-An alternate solution is to allow the user to specify the default niceness.  
-For all I know, there is such a way.  If not, there ought to be, and it 
-should be higher than the superuser cutoff by default.  Then the sound app 
-will come along and grab the highest priority it can, and it will actually 
-succeed in obtaining a higher priority than garden variety processes, which 
-is not what happens now.
 
-> Something I've often thought would fix this is to allow normal users
-> to set negative priority which is limited to using X% of the CPU -
-> i.e. those tasks would have their priority raised if they spent more
-> than a small proportion of their time using the CPU.
+Andrew Morton <akpm@osdl.org> wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.74/2.5.74-mm2/
+> 
+> . Various fixes for the cpumask_t (NR_CPUS > BITS_PER_LONG) patch.
+> . Framebuffer update
+> . Another CPU scheduler tweak from Con.
+> . Various bug fixes
+> Changes since 2.5.74-mm1:
+> 
+......
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-That's essentially SCHED_RR.  As I mentioned above, it's not clear to me why 
-SCHED_RR requires superuser privilege, since the amount of CPU you can burn 
-that way is bounded.  Well, the total of all SCHED_RR processes would need to 
-be bounded as well, which is straightforward.
 
-Regards,
-
-Daniel
-
+-- 

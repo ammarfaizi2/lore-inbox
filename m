@@ -1,43 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262843AbRE3WGJ>; Wed, 30 May 2001 18:06:09 -0400
+	id <S262842AbRE3WE3>; Wed, 30 May 2001 18:04:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262845AbRE3WF7>; Wed, 30 May 2001 18:05:59 -0400
-Received: from ns.caldera.de ([212.34.180.1]:52717 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S262843AbRE3WFs>;
-	Wed, 30 May 2001 18:05:48 -0400
-Date: Thu, 31 May 2001 00:05:05 +0200
-From: Marcus Meissner <Marcus.Meissner@caldera.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marcus Meissner <Marcus.Meissner@caldera.de>,
-        Marcus Meissner <mm@ns.caldera.de>, linux-kernel@vger.kernel.org
-Subject: Re: ln -s broken on 2.4.5
-Message-ID: <20010531000505.A30497@caldera.de>
-In-Reply-To: <20010530233005.A27497@caldera.de> <E155DqA-0006g7-00@the-village.bc.nu>
+	id <S262831AbRE3WET>; Wed, 30 May 2001 18:04:19 -0400
+Received: from alcove.wittsend.com ([130.205.0.20]:48514 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S262828AbRE3WEE>; Wed, 30 May 2001 18:04:04 -0400
+Date: Wed, 30 May 2001 18:03:44 -0400
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Harald Welte <laforge@gnumonks.org>
+Cc: Fabbione <fabbione@fabbione.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OFF-TOPIC] 4 ports ETH cards
+Message-ID: <20010530180344.A5304@alcove.wittsend.com>
+Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
+	Fabbione <fabbione@fabbione.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B135549.19CF8965@fabbione.net> <20010530183416.P14293@corellia.laforge.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E155DqA-0006g7-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, May 30, 2001 at 10:49:18PM +0100
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <20010530183416.P14293@corellia.laforge.distro.conectiva>; from laforge@gnumonks.org on Wed, May 30, 2001 at 06:34:16PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 30, 2001 at 10:49:18PM +0100, Alan Cox wrote:
-> > The problem is only there if you specify a directory for the linked to
-> > component.
+On Wed, May 30, 2001 at 06:34:16PM -0300, Harald Welte wrote:
+> On Tue, May 29, 2001 at 09:52:41AM +0200, Fabbione wrote:
+> > Hi all,
+> > 	sorry for the offtopic msg.
 > > 
-> > [marcus@wine /tmp]$ strace -f ln -s fupp/berk xxx
-> > execve("/bin/ln", ["ln", "-s", "fupp/berk", "xxx"], [/* 39 vars */]) = 0
-> > ... ld stuff ... locale stuff ... 
+> > Can someone point me to a 4 ports fast/eth card solution for linux?
+
+> D-Link DFE-570 has a reasonable pricing and is well supported by the 
+> tulip driver
+
+	Just got three of these suckers and I'm about to order a bunch
+more (happy camper)...
+
+> > I found some cards based on the DEC 21*4* chips but when
+> > I asked for more details I got a strange answer from the reseller
+> > like that this card is able to work only half-duplex and the chip has
+> > only one mac-address for the 4 eth cards (really strange).
+
+> nah. And even if so, you can always change the mac-address using ifconfig.
+
+	Each D-Link card has four MAC addresses (sequential).  I doubt
+other manufactures are any different.
+
+> What the guy most likely wanted to say, is that there is only one EEprom
+> containing all mac adresses for the four tulip chips, which I have seen
+> on multiple boards
+
+	What the guy was doing was having a bad case of optical rectitus.
+That would be typical of a "reseller" (AKA Salesman).  Most would not
+even have a CLUE that the cards were based on the tulip chipset / driver.
+
+	Because the D-Link cards were less than half of the nearest
+competitor [ < $180 vs > $360 for others and Compac was > $2400! ] I
+ordered only three not knowing for sure if they would work.  Turned on
+the tulip driver and them suckers fired right up.  Now I know they work,
+stock, right out of the box, and I can order a bunch more for the lab
+I'm working with.
+
+> > Thanks a lot
+> > Fabbione
 > 
-> bash-2.04$ ln -s foo/frob eep
-> bash-2.04$ ls -l eep
-> lrwxrwxrwx    1 alan     users           8 May 30 22:19 eep -> foo/frob
+> -- 
+> Live long and prosper
+> - Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
 
-*sigh*
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
 
-I just rebooted and it is no longer reproducable.
-
-Sorry for the confusion caused.
-
-Ciao, Marcus

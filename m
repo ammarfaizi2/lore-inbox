@@ -1,68 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130070AbRAHVJ0>; Mon, 8 Jan 2001 16:09:26 -0500
+	id <S132006AbRAHVK4>; Mon, 8 Jan 2001 16:10:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130516AbRAHVJH>; Mon, 8 Jan 2001 16:09:07 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:4558 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130070AbRAHVJB>;
-	Mon, 8 Jan 2001 16:09:01 -0500
-Date: Mon, 8 Jan 2001 16:08:58 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: "Mohammad A. Haque" <mhaque@haque.net>, linux-kernel@vger.kernel.org
-Subject: Re: `rmdir .` doesn't work in 2.4
-In-Reply-To: <20010108213036.T27646@athlon.random>
-Message-ID: <Pine.GSO.4.21.0101081537570.4061-100000@weyl.math.psu.edu>
+	id <S132029AbRAHVKq>; Mon, 8 Jan 2001 16:10:46 -0500
+Received: from mail.telcel.net.ve ([200.35.64.9]:32400 "EHLO
+	mail01.t-net.net.ve") by vger.kernel.org with ESMTP
+	id <S132006AbRAHVKo> convert rfc822-to-8bit; Mon, 8 Jan 2001 16:10:44 -0500
+Date: Mon, 8 Jan 2001 17:10:30 -0400 (VET)
+From: Ernesto Hernandez-Novich <emhn@telcel.net.ve>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Shared memory not enabled in 2.4.0?
+In-Reply-To: <882569CE.0069993A.00@hqoutbound.ops.3com.com>
+Message-ID: <Pine.LNX.4.21.0101081708310.758-100000@freakazoid.nuevomundo.seg>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 8 Jan 2001, Andrea Arcangeli wrote:
-
-> On Mon, Jan 08, 2001 at 01:04:24PM -0500, Alexander Viro wrote:
-> > Racy. Nonportable. Has portable and simple equivalent. Again, don't
-> > bother with chdir at all - if you know the name of directory even
-> > ../name will work. It's not about the current directory. It's about
-> > the invalid last component of the name.
+On Mon, 8 Jan 2001 Steven_Snyder@3com.com wrote:
+> For some reason shared memory is not being enabled on my system running kernel
+> v2.4.0 (on RedHat v6.2,  with all updates applied).
 > 
-> The last component of the name isn't invalid, it's a plain valid directory. If
-> according to you `rmdir ../name` and rmdir `pwd` makes sense  then according to
-> me `rmdir .` makes perfect sense too.
+> Per the documentation I have this line in my /etc/fstab:
+> 
+>      none  /dev/shm  shm defaults  0 0
+> 
+> Yes, I have created this subdirectory:
+> 
+>      # ls -l /dev | grep shm
+>      drwxrwxrwt    1 root     root            0 Jan  7 11:54 shm
+> 
+> No complaints are seen at startup, yet I still have no shared memory:
+> 
+>      # cat /proc/meminfo
+>              total:    used:    free:  shared: buffers:  cached:
+>      Mem:  130293760 123133952  7159808        0 30371840 15179776
+>      Swap: 136241152        0 136241152
+>      MemTotal:       127240 kB
+>      MemFree:          6992 kB
+>      MemShared:           0 kB
+>      Buffers:         29660 kB
+>      Cached:          14824 kB
+>      Active:           3400 kB
+>      Inact_dirty:     37872 kB
+>      Inact_clean:      3212 kB
+>      Inact_target:        4 kB
+>      HighTotal:           0 kB
+>      HighFree:            0 kB
+>      LowTotal:       127240 kB
+>      LowFree:          6992 kB
+>      SwapTotal:      133048 kB
+>      SwapFree:       133048 kB
 
-rmdir() works on _links_, not directories. Just as every other syscall of
-that sort. It's _not_ "find directory and kill what you've found", it's
-"find a link and destroy it; preserve the fs consistency".
+You should check shared memory with "ipcs" instead.
 
-	Code from another posting has a cute little property: it may kill a
-directory that has absolutely nothing to your pwd. And that's OK - you
-really can't get anything better than "kill whatever my pwd was called"
-without a lot of PITA. And yes, it can happen in 2.2, along with many other
-fun things.
+Make sure you enabled "System V IPC" under "General Setup" (it's a
+default value, though).
+-- 
+Ernesto Hernández-Novich - Running Linux 2.4.0 i686 - Unix: Live free or die!
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GCS/E d+(++) s+: a C+++$ UBLAVHIOSC*++++$ P++++$ L+++$ E- W+ N++ o K++ w--- O-
+M- V PS+ PE Y+ PGP>++ t+ 5 X+ R* tv+ b++ DI+++$ D++ G++ e++ h r++ y+
+-----END GEEK CODE BLOCK-----
 
-	Andrea, fix your code. Linux-only stuff is OK when there is no
-portable way to achieve the same result. In your situation such way indeed
-exists and is prefectly doable in userland. If you want a cute DoWhatIMean
-wrapper around rmdir(2) - fine, you've just written one of the variants.
-Any reasons to keep that in the kernel? None? Thank you, case closed.
-
-	"My code stopped working on 2.4" should actually be pronouced
-"My code wouldn't work on anything but 2.2 (let's ignore the related
-races that _are_ in 2.2), so could you please put a fix for my code into
-the 2.4? No, I don't want to put that wrapper into my code, put it in 
-the kernel". Sorry, not impressed.
-
-	If this wrapper is OK for your purposes (for 99% of situations
-it indeed is) - fine, use it. If you really need to destroy the directory
-that happens to be your pwd - sorry, no reliable way to do that without
-interesting locking. On _any_ UNIX out there. 2.2 included. It will
-happily give you -ENOENT and refuse to perform the action above in
-case if some other process renames your pwd. Yes, for rmdir(".");
-It will also return that if your directory had been already rmdir()'d.
-Have fun. Other Unices will return -EINVAL or -EBUSY - depends on
-the flavour.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

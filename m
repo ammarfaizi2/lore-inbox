@@ -1,45 +1,83 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315212AbSEFV45>; Mon, 6 May 2002 17:56:57 -0400
+	id <S314842AbSEFWFU>; Mon, 6 May 2002 18:05:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315213AbSEFV44>; Mon, 6 May 2002 17:56:56 -0400
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:14238 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S315212AbSEFV4z>; Mon, 6 May 2002 17:56:55 -0400
-Message-ID: <000701c1f548$fefd5430$0201a8c0@homer>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "skidley" <skidley@crrstv.net>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020506214152.GA2150@crrstv.net>
-Subject: Re: preemptible kernel
-Date: Mon, 6 May 2002 23:57:20 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S314870AbSEFWFT>; Mon, 6 May 2002 18:05:19 -0400
+Received: from heffalump.fnal.gov ([131.225.9.20]:25033 "EHLO fnal.gov")
+	by vger.kernel.org with ESMTP id <S314842AbSEFWFS>;
+	Mon, 6 May 2002 18:05:18 -0400
+Date: Mon, 06 May 2002 17:05:18 -0500
+From: Dan Yocum <yocum@fnal.gov>
+Subject: Re: Poor NFS client performance on 2.4.18?
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Message-id: <3CD6FE1E.A20384D@fnal.gov>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13SGI_XFS_1.0.2 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
+In-Reply-To: <3CC86BDC.C8784EA2@fnal.gov> <shsu1pyppnz.fsf@charged.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "skidley" <skidley@crrstv.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Monday, May 06, 2002 11:41 PM
-Subject: preemptible kernel
+Trond,
+
+OK, so backing out the rpc_tweaks dif fixed the performance problem,
+however, seems to have introduced another problem that appears to be
+stemming from the seekdir.dif.  Attempting to run an app from an IRIX client
+(that has the 32bitclients option set) freezes the NFS volume - one can't
+access it from the Linux side, anymore.
+
+You can read and write to the NFS volume *before* trying to run something
+from there, but not after.
+
+Ideas?
+
+Thanks,
+Dan
 
 
-> Is the preemptible kernel project dead on 2.4?
 
-Nope. Why would you think that?
 
-http://www.tech9.net/rml/linux/
+Trond Myklebust wrote:
+> 
+> >>>>> " " == Dan Yocum <yocum@fnal.gov> writes:
+> 
+>      > Trond, et al.  I'm getting poor NFS performance (~250KBps read
+>      > and write) on 2.4.18 and am wondering if I'm the only one.
+>      > There is no performance drop under other OSs or other kernel
+>      > versions, so I don't think it's the server.
+> 
+>      > Here's the the details:
+> 
+>      > 2.4.18 patched with:
+>      >  NFS client patches (linux-2.4.18-NFS_ALL.dif)
+>      >  xfs-1.1-PR1-2.4.18-all.patch Ingo's Foster IRQ patch (these
+>      >  are dual Xeons)
+> 
+>      > If you need any more details, let me know.
+> 
+> The latest NFS_ALL patches include experimental code that changes the
+> UDP congestion control. I'm basically trying to relax the algorithm to
+> what is standard on *BSD (i.e. we follow the standard Van Jacobson).
+> 
+> This would mean that we don't wait for the reply from the server
+> before we send off the next request. Unfortunately, there appears to
+> be a lot of setups out there that start to drop packets when this
+> occurs, and I haven't yet finished determining the root cause.
+> 
+> If I can manage to get my laptop to work again, I'll try to
+> investigate a bit more this weekend...
+> 
+> Cheers,
+>   Trond
 
-http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/
 
- _____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
 
+
+-- 
+Dan Yocum
+Sloan Digital Sky Survey, Fermilab  630.840.6509
+yocum@fnal.gov, http://www.sdss.org
+SDSS.  Mapping the Universe.

@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVCHIUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVCHIZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbVCHIUa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 03:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbVCHIUa
+	id S261776AbVCHIZK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 03:25:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVCHIZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 03:20:30 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:4049 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261875AbVCHIUW (ORCPT
+	Tue, 8 Mar 2005 03:25:10 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:31689 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261776AbVCHIZE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 03:20:22 -0500
-Date: Tue, 8 Mar 2005 09:19:22 +0100
-From: Ingo Molnar <mingo@elte.hu>
+	Tue, 8 Mar 2005 03:25:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=MPrTTKwqbrVPSrPyJa/JegkWK7VCbtfF89AYMv5Es/Nm2pM5Ya3bvB3z/zdtNCyDIMhw8z6oPOVRS8HybM9IxLyAhflnVP/abIWY8kp9WrMK2x5XNrZM1NonGl4KlpAgXmnvvbROm4eDZNhb+akQDi+RPE5+mPewriKkh53dUOo=
+Message-ID: <58cb370e0503080024adfea23@mail.gmail.com>
+Date: Tue, 8 Mar 2005 09:24:28 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Lameter <christoph@graphe.net>, roland@redhat.com,
-       shai@scalex86.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] del_timer_sync scalability patch
-Message-ID: <20050308081921.GA25679@elte.hu>
-References: <Pine.LNX.4.58.0503072244270.20044@server.graphe.net> <20050307233202.1e217aaa.akpm@osdl.org>
+Subject: Re: [2.6 patch] unexport complete_all
+Cc: mike@waychison.com, bunk@stusta.de, linux-kernel@vger.kernel.org
+In-Reply-To: <58cb370e050304051424b29c3d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050307233202.1e217aaa.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <422817C3.2010307@waychison.com>
+	 <58cb370e0503040240314120ea@mail.gmail.com>
+	 <20050304031504.4ea49f83.akpm@osdl.org>
+	 <58cb370e050304051424b29c3d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> Christoph Lameter <christoph@graphe.net> wrote:
+On Fri, 4 Mar 2005 14:14:39 +0100, Bartlomiej Zolnierkiewicz
+<bzolnier@gmail.com> wrote:
+> On Fri, 4 Mar 2005 03:15:04 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> > Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
+> > >
+> > > Andrew, what is the policy for adding exports for out of tree GPL code?
+> > >
 > >
-> > When a potential periodic timer is deleted through timer_del_sync, all
-> >  cpus are scanned to determine if the timer is running on that cpu. In a
-> >  NUMA configuration doing so will cause NUMA interlink traffic which limits
-> >  the scalability of timers.
-> > 
-> >  The following patch makes the timer remember where the timer was last
-> >  started. It is then possible to only wait for the completion of the timer
-> >  on that specific cpu.
+> > There isn't one.  Such things cause way too much email.
+> 
+> Lack of policy causes the same thing (ie. this thread).
+> 
+> > What complete_all() does is to permit more than one task to wait on a
+> > completion and for all those tasks to be woken by a single complete().
+> > Without it you'd need to record how many tasks are sleeping there and do
+> > complete() that many times.
+> >
+> > So it's a sensible part of the completion API from a regularity-of-the-API
+> 
+> This function was already part of in-kernel API, just wasn't exported
+> for modules because there were no in-kernel users.
+> 
+> > POV.  We use it in the coredump code and I don't think we'd be likely to want
+> > to rip it out.
 
-i'm not sure about this. The patch adds one more pointer to a very
-frequently used and frequently embedded data structure (struct
-timer_list), for the benefit of a rarely used API variant
-(timer_del_sync()).
+It was my misunderstanding w.r.t. 'We' here...
 
-Furthermore, timer->base itself is affine too, a timer always runs on
-the CPU belonging to timer->base. So a more scalable variant of
-del_timer_sync() would perhaps be possible by carefully deleting the
-timer and only going into the full loop if the timer was deleted before. 
-(and in which case semantics require us to synchronize on timer
-execution.) Or we could skip the full loop altogether and just
-synchronize with timer execution if _we_ deleted the timer. This should
-work fine as far as itimers are concerned.
+> OK, I understand that the unwritten policy is the following:
+> symbols for out-of-tree code used by OSDL are fine. 8)
 
-	Ingo
+/me takes this bad joke back and says sorry to Andrew
+
+> > In fact, I'd say that complete() should have always done it this way...

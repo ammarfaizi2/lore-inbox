@@ -1,83 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263546AbTDGQ7C (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 12:59:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263549AbTDGQ7C (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 12:59:02 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:13706 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263546AbTDGQ7B (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 12:59:01 -0400
-Date: Mon, 7 Apr 2003 19:10:37 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] New kernel tree for embedded linux
-Message-ID: <20030407171037.GB8178@wohnheim.fh-wedel.de>
+	id S263550AbTDGRAg (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 13:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263551AbTDGRAg (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 13:00:36 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:21745 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263550AbTDGRAe (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 13:00:34 -0400
+Subject: Re: [PATCH] new syscall: flink
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: Clayton Weaver <cgweav@email.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030407165009.13596.qmail@email.com>
+References: <20030407165009.13596.qmail@email.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+aD/1COj7MpFxMz+sqet"
+Organization: 
+Message-Id: <1049735496.14054.9.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 07 Apr 2003 19:11:37 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-Some days ago, I've started a -je [*] tree which will focus on memory
-reduction for the linux kernel.
+--=-+aD/1COj7MpFxMz+sqet
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The RATIONALE is that on a ppc with some flash, memory, network and
-nothing much else, I don't feel like parsing MS-DOS partitions,
-offering IPX networking etc., but that junk is still included in
-2.[45].current - unconditionally. And there is more...
+On Mon, 2003-04-07 at 18:50, Clayton Weaver wrote:
 
-My first GOAL is to add config options that rip the code out for any
-platform that doesn't need, yet keeps it in for everyone that does. If
-I don't know what the code is needed for, I'll just rip it out and
-wait for bug reports - hopefully.
+> The cases with potential security implications are all in the context of =
+flink()ing to an open fd for an inode that still corresponds to at least on=
+e directory entry.
 
-If I feel that any particular patch is clean enough for mainline, I'll
-forward it to Linus/Marcello.
+almost.
+there is of course always the case of a setuid app doing a userspace ACL
+like thing and only sending fd's to non-privileged apps based on some
+security scheme..... flink() would sort of break this thing entirely
 
-WHO should use this tree:
-- Anyone concerned about memory footprint of the linux kernel, both of
-the image and during runtime. This will mainly be embedded developers,
-I guess.
-- Anyone. :)
-Bugreports of any kind will help me to clean up the patches and get
-them included in mainline. I personally run them on my PIII notebook,
-right now, and things didn't break. (Yet?)
+--=-+aD/1COj7MpFxMz+sqet
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-HOW can you help:
-- Any patch that reduces the memory footprint on _any_ platform is
-welcome. Even the worst hacks should be cleaned up over time to work
-for everyone.
-- Test the patches and:
- - Send bugreports. They will help to clean up the patches.
- - Send works-for-me reports with a rough outline of the hardware
- used.  When things start to work for many people on many platforms,
- it may be time for mainline.
-- Send any other patches and convince me that they help embedded
-people by my definition (whichever that may be at that time).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-WHAT patches will I ignore/reject:
-- Anything that does not help embedded (my definition, see above).
-That stuff should go into -ac, -dj, -mm, -aa or whereever.
+iD8DBQA+kbFIxULwo51rQBIRAmvaAJ0UH7sAWqIkgHR0MvXx9E1Xhf7LRgCfdvKa
+xZGPOGma+NAWNwTg6YwAOvk=
+=KPSa
+-----END PGP SIGNATURE-----
 
-Finallly, WHERE can you get it:
-http://wh.fh-wedel.de/~joern/software/kernel/je/24/patch-2.4.20-je1
-http://wh.fh-wedel.de/~joern/software/kernel/je/25/patch-2.5.66-je1
-
-DISCLAIMER:
-No, the server does not support directory browsing, there is no
-mailing list and there are currently only three patches in the 2.4
-tree and two in the 2.5 tree. 2.5 is untested, looks broken and I
-should put some work in it.
-These patches may cost you time, money and precious hardware, I don't
-guarantee for anything and IANAL. Anything else?
-
-Jörn
-
-[*] Obviously, je stands for "just embedded", which means I only take
-patches that help some embedded platform. What have you thought?
-
--- 
-A surrounded army must be given a way out.
--- Sun Tzu
+--=-+aD/1COj7MpFxMz+sqet--

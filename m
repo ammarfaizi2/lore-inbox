@@ -1,134 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263258AbTDGDqJ (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbTDGDqJ (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:46:09 -0400
-Received: from chii.cinet.co.jp ([61.197.228.217]:48001 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP id S263258AbTDGDp7 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 23:45:59 -0400
-Date: Mon, 7 Apr 2003 12:55:42 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.66-ac2] PC-9800 sub architecture support (7/9) PCI
-Message-ID: <20030407035542.GG4840@yuzuki.cinet.co.jp>
-References: <20030407033627.GA4798@yuzuki.cinet.co.jp>
+	id S263229AbTDGEMd (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 00:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbTDGEMd (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 00:12:33 -0400
+Received: from [210.22.78.238] ([210.22.78.238]:47327 "HELO trust-mart.com")
+	by vger.kernel.org with SMTP id S263229AbTDGEMc (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 00:12:32 -0400
+From: hv <hv@trust-mart.com.cn>
+To: linux-kernel@vger.kernel.org
+Subject: compile error with 2.5.66-ac2
+Message-Id: <20030407122310.22b2023a.hv@trust-mart.com.cn>
+Organization: it-TM
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030407033627.GA4798@yuzuki.cinet.co.jp>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Date: Mon, 7 Apr 2003 00:12:32 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.66-ac2. (7/9)
+Hi,
+  When I compile 2.5.66-ac2 on HP LH6000,I get the follow error:
+arch/i386/kernel/apic.c: In function `setup_local_APIC':
+arch/i386/kernel/apic.c:454: unrecognizable insn:
+(insn 541 1623 1624 (set (strict_low_part (reg:QI 2 cl [58]))
+        (const_int 0 [0x0])) -1 (insn_list:REG_DEP_OUTPUT 530 (nil))
+    (nil))
+arch/i386/kernel/apic.c:454: Internal compiler error in insn_default_length, at
+insn-attrtab.c:356
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See <URL:http://bugzilla.redhat.com/bugzilla/> for instructions.
+make[1]: *** [arch/i386/kernel/apic.o] Error 1
+make: *** [arch/i386/kernel] Error 2
 
-Small changes for PCI support.
-Fix for difference of IRQ numbers and IO addresses.
-
-Regards,
-Osamu Tomita
-
-diff -Nru linux/arch/i386/pci/irq.c linux98/arch/i386/pci/irq.c
---- linux/arch/i386/pci/irq.c	2002-10-12 13:22:46.000000000 +0900
-+++ linux98/arch/i386/pci/irq.c	2002-10-12 14:18:52.000000000 +0900
-@@ -5,6 +5,7 @@
-  */
- 
- #include <linux/config.h>
-+#include <linux/pci_ids.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/pci.h>
-@@ -25,6 +26,7 @@
- 
- static struct irq_routing_table *pirq_table;
- 
-+#ifndef CONFIG_X86_PC9800
- /*
-  * Never use: 0, 1, 2 (timer, keyboard, and cascade)
-  * Avoid using: 13, 14 and 15 (FP error and IDE).
-@@ -36,6 +38,20 @@
- 	1000000, 1000000, 1000000, 1000, 1000, 0, 1000, 1000,
- 	0, 0, 0, 0, 1000, 100000, 100000, 100000
- };
-+#else
-+/*
-+ * Never use: 0, 1, 2, 7 (timer, keyboard, CRT VSYNC and cascade)
-+ * Avoid using: 8, 9 and 15 (FP error and IDE).
-+ * Penalize: 4, 5, 11, 12, 13, 14 (known ISA uses: serial, floppy, sound, mouse
-+ *                                 and parallel)
-+ */
-+unsigned int pcibios_irq_mask = 0xff78;
-+
-+static int pirq_penalty[16] = {
-+	1000000, 1000000, 1000000, 0, 1000, 1000, 0, 1000000,
-+	100000, 100000, 0, 1000, 1000, 1000, 1000, 100000
-+};
-+#endif
- 
- struct irq_router {
- 	char *name;
-@@ -612,6 +628,17 @@
- 		r->set(pirq_router_dev, dev, pirq, 11);
- 	}
- 
-+#ifdef CONFIG_X86_PC9800
-+	if ((dev->class >> 8) == PCI_CLASS_BRIDGE_CARDBUS) {
-+		if (pci_find_device(PCI_VENDOR_ID_INTEL,
-+				PCI_DEVICE_ID_INTEL_82439TX, NULL) != NULL) {
-+			if (mask & 0x0040) {
-+				mask &= 0x0040;	/* assign IRQ 6 only */
-+				printk("pci-irq: Use IRQ6 for CardBus controller\n");
-+			}
-+		}
-+	}
-+#endif
- 	/*
- 	 * Find the best IRQ to assign: use the one
- 	 * reported by the device if possible.
-diff -Nru linux-2.5.66-ac1/drivers/pcmcia/yenta.c linux98-2.5.66-ac1/drivers/pcmcia/yenta.c
---- linux-2.5.66-ac1/drivers/pcmcia/yenta.c	2003-03-28 08:40:15.000000000 +0900
-+++ linux98-2.5.66-ac1/drivers/pcmcia/yenta.c	2003-03-28 08:48:50.000000000 +0900
-@@ -8,6 +8,7 @@
-  * 	Dynamically adjust the size of the bridge resource
-  * 	
-  */
-+#include <linux/config.h>
- #include <linux/init.h>
- #include <linux/pci.h>
- #include <linux/sched.h>
-@@ -452,6 +453,7 @@
- 	add_timer(&socket->poll_timer);
- }
- 
-+#ifndef CONFIG_X86_PC9800
- /*
-  * Only probe "regular" interrupts, don't
-  * touch dangerous spots like the mouse irq,
-@@ -462,6 +464,10 @@
-  * Default to 11, 10, 9, 7, 6, 5, 4, 3.
-  */
- static u32 isa_interrupts = 0x0ef8;
-+#else
-+/* Default to 12, 10, 6, 5, 3. */
-+static u32 isa_interrupts = 0x1468;
-+#endif
- 
- static unsigned int yenta_probe_irq(pci_socket_t *socket, u32 isa_irq_mask)
- {
-diff -Nru linux/include/asm-i386/pci.h linux98/include/asm-i386/pci.h
---- linux/include/asm-i386/pci.h	2002-06-09 14:29:24.000000000 +0900
-+++ linux98/include/asm-i386/pci.h	2002-06-10 20:49:15.000000000 +0900
-@@ -17,7 +17,11 @@
- #endif
- 
- extern unsigned long pci_mem_start;
-+#ifdef CONFIG_X86_PC9800
-+#define PCIBIOS_MIN_IO		0x4000
-+#else
- #define PCIBIOS_MIN_IO		0x1000
-+#endif
- #define PCIBIOS_MIN_MEM		(pci_mem_start)
- 
- void pcibios_config_init(void);
+My linux is redhat8.0

@@ -1,89 +1,229 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269620AbUJWAhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269379AbUJWAhk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269620AbUJWAhE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 20:37:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269618AbUJWAfU
+	id S269379AbUJWAhk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 20:37:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269618AbUJWAhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 20:35:20 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:55301 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S269388AbUJWAY6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 20:24:58 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <jonathan@jonmasters.org>
-Cc: "brian wheeler" <bdwheele@indiana.edu>, <linux-kernel@vger.kernel.org>
-Subject: RE: Linux v2.6.9 and GPL Buyout
-Date: Fri, 22 Oct 2004 17:24:36 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKGEJBPDAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Fri, 22 Oct 2004 20:37:06 -0400
+Received: from gate.crashing.org ([63.228.1.57]:3004 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S269364AbUJWAYY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 20:24:24 -0400
+Subject: [PATCH] ppc64: Add mecanism to check existence of legacy ISA
+	devices
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1098490981.11740.109.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 23 Oct 2004 10:23:01 +1000
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <417990AE.5050806@drdos.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Fri, 22 Oct 2004 17:01:32 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Fri, 22 Oct 2004 17:01:33 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
-> Darl seemed like a nice enough sort, but he doesn't care much for Linux
-> or IBM and he's pretty harsh
-> on IBM. We argued for 30 minutes about SMP support in Linux and I think
-> he will just let this one go since
-> I pointed out that Novell had disclosed the Unixware SMP stuff at
-> Brainshare and he cannot claim
-> it as trade secrete any longer. He would not budge on RCU, NUMA, JFS, or
-> XFS however, and he
-> also said any IBM employee who contributed SMP code in his opinion may
-> have misappropriated it
-> and he would claim any contribution from any IBM employee in Linux.
+This patch adds an arch function that can be overriden by the various
+platforms at runtime, to query if a given legacy IO device actually
+exist on the platform (based on the standard base port). This, along
+with the 8250 patches posted separately, allow a single kernel image
+to boot pSeries and PowerMac machines without having the legacy drivers
+crashing the box on a PowerMac. This will be used by some new ppc64
+platforms that are coming soon too.
 
-	IANAL, but I'm pretty sure you can't go after innocent third parties for
-trade secrets or misappropriated intellectual property. That's what we have
-copyright and patent for. He can certainly go after the people who actually
-stole the trade secrets or misappropriated the intellectual property, but
-only copyright and patent provide the public notification requirements that
-permit one to sustain claims against innocent third parties (those who use
-the stolen/misappropriated property without any knowledge that it was stolen
-or misappropriated).
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-	If he's trying to claim that any use subsequent to some point at which we
-are supposed to have known that it was stolen or misappropriated, a listing
-by category is not anywhere near sufficient, IMO. Even files and line ranges
-don't suffice. He would have to provide us with sufficient information to
-*verify* the *credibility* of his claim. This has never been done. The
-biggest missing piece is *what* it is that has been stolen.
 
-	If it's conceptual ideas, like the idea of SMP but not the code, then he's
-just totally out of his mind. Only patent provides that type of broad
-protection. If it's a 'derived work' type argument (that we stole something
-from him and changed it, so it's not literally the same but still his
-property), then he's again totally out of his mind. Only copyright provides
-that type of protection.
-
-	In any event, it's self-defeating, IMO, to act on SCO's claims at this
-point. Until they're well enough defined that it's possible for us to
-investigate them, we are still innocent third party victims of someone
-else's misappropriation. And that's not our problem. Again, IANAL.
-
-	One other issue with trying to work with SCO just to prevent future
-problems -- SCO has already offered bogus immunities from liability. So I
-wouldn't trust any immunity you even think you have. Especially since we
-don't know what it is we're supposed to be immune *from*. (Is it copyright?
-Is it trade secret? Is it fruit of some kind of poisonous tree because IBM
-violated the spirit of some contract none of us are a party to?)
-
-	DS
+Index: linux-work/arch/ppc64/kernel/pSeries_setup.c
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/pSeries_setup.c	2004-10-23 09:38:24.178765968 +1000
++++ linux-work/arch/ppc64/kernel/pSeries_setup.c	2004-10-23 10:19:20.737312304 +1000
+@@ -476,6 +476,31 @@
+ 	setup_default_decr();
+ }
+ 
++static int pSeries_check_legacy_ioport(unsigned int baseport)
++{
++	struct device_node *np;
++
++#define I8042_DATA_REG	0x60
++#define FDC_BASE	0x3f0
++
++
++	switch(baseport) {
++	case I8042_DATA_REG:
++		np = of_find_node_by_type(NULL, "8042");
++		if (np == NULL)
++			return -ENODEV;
++		of_node_put(np);
++		break;
++	case FDC_BASE:
++		np = of_find_node_by_type(NULL, "fdc");
++		if (np == NULL)
++			return -ENODEV;
++		of_node_put(np);
++		break;
++	}
++	return 0;
++}
++
+ /*
+  * Called very early, MMU is off, device-tree isn't unflattened
+  */
+@@ -510,4 +535,5 @@
+ 	.set_rtc_time		= pSeries_set_rtc_time,
+ 	.calibrate_decr		= pSeries_calibrate_decr,
+ 	.progress		= pSeries_progress,
++	.check_legacy_ioport	= pSeries_check_legacy_ioport,
+ };
+Index: linux-work/arch/ppc64/kernel/pmac_setup.c
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/pmac_setup.c	2004-10-21 11:47:00.000000000 +1000
++++ linux-work/arch/ppc64/kernel/pmac_setup.c	2004-10-23 10:19:20.748310632 +1000
+@@ -420,6 +420,15 @@
+ #endif /* CONFIG_BOOTX_TEXT */
+ }
+ 
++/*
++ * pmac has no legacy IO, anything calling this function has to
++ * fail or bad things will happen
++ */
++static int pmac_check_legacy_ioport(unsigned int baseport)
++{
++	return -ENODEV;
++}
++
+ static int __init pmac_declare_of_platform_devices(void)
+ {
+ 	struct device_node *np;
+@@ -474,4 +483,5 @@
+       	.calibrate_decr		= pmac_calibrate_decr,
+ 	.feature_call		= pmac_do_feature_call,
+ 	.progress		= pmac_progress,
++	.check_legacy_ioport	= pmac_check_legacy_ioport
+ };
+Index: linux-work/include/asm-ppc64/floppy.h
+===================================================================
+--- linux-work.orig/include/asm-ppc64/floppy.h	2004-09-24 14:36:11.000000000 +1000
++++ linux-work/include/asm-ppc64/floppy.h	2004-10-23 10:19:20.749310480 +1000
+@@ -11,6 +11,7 @@
+ #define __ASM_PPC64_FLOPPY_H
+ 
+ #include <linux/config.h>
++#include <asm/machdep.h>
+ 
+ #define fd_inb(port)			inb_p(port)
+ #define fd_outb(value,port)		outb_p(value,port)
+Index: linux-work/include/asm-ppc64/machdep.h
+===================================================================
+--- linux-work.orig/include/asm-ppc64/machdep.h	2004-09-29 18:24:23.000000000 +1000
++++ linux-work/include/asm-ppc64/machdep.h	2004-10-23 10:19:20.750310328 +1000
+@@ -114,6 +114,9 @@
+ 	 */
+ 	long	 	(*feature_call)(unsigned int feature, ...);
+ 
++	/* Check availability of legacy devices like i8042 */
++	int 		(*check_legacy_ioport)(unsigned int baseport);
++
+ };
+ 
+ extern struct machdep_calls ppc_md;
+Index: linux-work/drivers/block/floppy.c
+===================================================================
+--- linux-work.orig/drivers/block/floppy.c	2004-09-24 14:33:36.000000000 +1000
++++ linux-work/drivers/block/floppy.c	2004-10-23 10:19:20.758309112 +1000
+@@ -4286,6 +4286,14 @@
+ 	}
+ 
+ 	use_virtual_dma = can_use_virtual_dma & 1;
++#if defined(CONFIG_PPC64)
++	if (ppc_md.check_legacy_ioport)
++		if (ppc_md.check_legacy_ioport(FDC1)) {
++			del_timer(&fd_timeout);
++			err = -ENODEV;
++			goto out_unreg_region;
++		}
++#endif
+ 	fdc_state[0].address = FDC1;
+ 	if (fdc_state[0].address == -1) {
+ 		del_timer(&fd_timeout);
+Index: linux-work/drivers/input/serio/i8042-io.h
+===================================================================
+--- linux-work.orig/drivers/input/serio/i8042-io.h	2004-09-24 14:34:02.000000000 +1000
++++ linux-work/drivers/input/serio/i8042-io.h	2004-10-23 10:19:20.759308960 +1000
+@@ -35,6 +35,10 @@
+ # define I8042_AUX_IRQ	12
+ #endif
+ 
++#ifdef CONFIG_PPC64
++#include <asm/machdep.h>
++#endif
++
+ /*
+  * Register numbers.
+  */
+@@ -96,7 +100,7 @@
+  * On ix86 platforms touching the i8042 data register region can do really
+  * bad things. Because of this the region is always reserved on ix86 boxes.
+  */
+-#if !defined(__i386__) && !defined(__sh__) && !defined(__alpha__) && !defined(__x86_64__) && !defined(__mips__)
++#if !defined(__i386__) && !defined(__sh__) && !defined(__alpha__) && !defined(__x86_64__) && !defined(__mips__) && !defined (CONFIG_PPC64)
+ 	if (!request_region(I8042_DATA_REG, 16, "i8042"))
+ 		return -1;
+ #endif
+@@ -110,12 +114,19 @@
+ 		i8042_noloop = 1;
+ #endif
+ 
++#if defined(CONFIG_PPC64)
++	if (ppc_md.check_legacy_ioport)
++		if (ppc_md.check_legacy_ioport(I8042_DATA_REG))
++			return -1;
++	if (!request_region(I8042_DATA_REG, 16, "i8042"))
++		return -1;
++#endif
+ 	return 0;
+ }
+ 
+ static inline void i8042_platform_exit(void)
+ {
+-#if !defined(__i386__) && !defined(__sh__) && !defined(__alpha__) && !defined(__x86_64__)
++#if !defined(__i386__) && !defined(__sh__) && !defined(__alpha__) && !defined(__x86_64__) && !defined(CONFIG_PPC64)
+ 	release_region(I8042_DATA_REG, 16);
+ #endif
+ }
+Index: linux-work/arch/ppc64/kernel/pSeries_pci.c
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/pSeries_pci.c	2004-10-20 13:01:00.000000000 +1000
++++ linux-work/arch/ppc64/kernel/pSeries_pci.c	2004-10-23 10:19:20.761308656 +1000
+@@ -619,25 +619,12 @@
+ 
+ static void __init pSeries_request_regions(void)
+ {
+-	struct device_node *i8042;
+-
+ 	request_region(0x20,0x20,"pic1");
+ 	request_region(0xa0,0x20,"pic2");
+ 	request_region(0x00,0x20,"dma1");
+ 	request_region(0x40,0x20,"timer");
+ 	request_region(0x80,0x10,"dma page reg");
+ 	request_region(0xc0,0x20,"dma2");
+-
+-#define I8042_DATA_REG 0x60
+-
+-	/*
+-	 * Some machines have an unterminated i8042 so check the device
+-	 * tree and reserve the region if it does not appear. Later on
+-	 * the i8042 code will try and reserve this region and fail.
+-	 */
+-	if (!(i8042 = of_find_node_by_type(NULL, "8042")))
+-		request_region(I8042_DATA_REG, 16, "reserved (no i8042)");
+-	of_node_put(i8042);
+ }
+ 
+ void __init pSeries_final_fixup(void)
 
 

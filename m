@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTLCWgw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 17:36:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbTLCWgw
+	id S262190AbTLCXFK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 18:05:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTLCXFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 17:36:52 -0500
-Received: from aples1.dom1.jhuapl.edu ([128.244.26.85]:16901 "EHLO
-	aples1.jhuapl.edu") by vger.kernel.org with ESMTP id S262063AbTLCWgq
+	Wed, 3 Dec 2003 18:05:10 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36107 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262190AbTLCXFD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 17:36:46 -0500
-Message-ID: <E37E01957949D611A4C30008C7E691E20915BBFC@aples3.dom1.jhuapl.edu>
-From: "Collins, Bernard F. (Skip)" <Bernard.Collins@jhuapl.edu>
-To: "'Greg KH'" <greg@kroah.com>,
-       "Collins, Bernard F. (Skip)" <Bernard.Collins@jhuapl.edu>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Visor USB hang
-Date: Wed, 3 Dec 2003 17:36:01 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Wed, 3 Dec 2003 18:05:03 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: aacraid and large memory problem (2.6.0-test11)
+Date: 3 Dec 2003 22:53:53 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bqlpi1$kbf$1@gatekeeper.tmr.com>
+References: <1070488662.21904.6.camel@markh1.pdx.osdl.net> <20031203222840.6A4E6F7C86@voldemort.scrye.com>
+X-Trace: gatekeeper.tmr.com 1070492033 20847 192.168.12.62 (3 Dec 2003 22:53:53 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I am running 2.4.23 on a RedHat 9 system. Whenever I try to sync my
-> > Visor Deluxe, the system hangs/freezes soon after I press the sync 
-> > button on my cradle. Trying to find the cause of the problem, I 
-> > preloaded the usbserial and visor modules with "debug=1". Nothing 
-> > obviously wrong appears in the logs. The last message before the 
-> > system freezes is a usb-uhci.c interrupt message.
-> 
-> Can you show the log with that enabled?
+In article <20031203222840.6A4E6F7C86@voldemort.scrye.com>,
+Kevin Fenzi  <kevin@tummy.com> wrote:
+| 
+| >>>>> "Mark" == Mark Haverkamp <markh@osdl.org> writes:
+| 
+| Mark> I set up my machine to boot on the aacraid disk and it booted OK
+| Mark> for me.  Maybe its a problem with a particular model?
+| 
+| Mark> lspci on mine says:
+| 
+| Mark> 02:04.0 RAID bus controller: Digital Equipment Corporation
+| Mark> DECchip 21554 (rev 01) Subsystem: Adaptec Adaptec 5400S
+| 
+| This one says: 
+| 
+| 05:01.0 RAID bus controller: Adaptec AAC-RAID (rev 01)
+|         Subsystem: Adaptec AAC-RAID
+|         Flags: bus master, fast Back2Back, 66Mhz, slow devsel, latency 64, IRQ 96
+|         Memory at f8000000 (32-bit, prefetchable) [size=64M]
+|         Expansion ROM at <unassigned> [disabled] [size=64K]
+|         Capabilities: [80] Power Management version 2
+| 
+| It's a 2200S controller. 
+| bios version 6008
+| 
+| Mark> -- Mark Haverkamp <markh@osdl.org>
+| 
+| kevin
 
-If you mean debug=1 enabled, the log excerpt I posted was generated with
-both the usbserial and visor modules modprobed with debug=1. Perhaps I am
-mistaken in assuming that my approach actually enables debugging. I
-modprobed both modules and hit the hotsync button. I am assuming that
-hotplug does not override the manually loaded module parameters. 
+02:03.0 RAID bus controller: Digital Equipment Corporation DECchip 21554 (rev 01)
+        Subsystem: Adaptec Dell PowerEdge RAID Controller 2
+        Flags: bus master, medium devsel, latency 32, IRQ 18
+        Memory at fe200000 (32-bit, non-prefetchable) [size=8K]
+        I/O ports at f800 [size=256]
+        Expansion ROM at fd000000 [disabled] [size=128K]
+        Capabilities: <available only to root>
 
-> What happens if you use the uhci.o module instead of usb-uhci.o?
-
-That is not terribly convenient to test right now. Can you suggest a simple
-way to unload usb-uhci and load uhci without disabling my usb keyboard and
-mouse?
-
-Skip
+Sorry - it's back on 2.4, just thought this might be useful.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

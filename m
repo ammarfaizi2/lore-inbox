@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312256AbSDEIBk>; Fri, 5 Apr 2002 03:01:40 -0500
+	id <S312361AbSDEIEK>; Fri, 5 Apr 2002 03:04:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312361AbSDEIBb>; Fri, 5 Apr 2002 03:01:31 -0500
-Received: from albireo.ucw.cz ([194.213.206.36]:9732 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id <S312256AbSDEIBS>;
-	Fri, 5 Apr 2002 03:01:18 -0500
-Date: Fri, 5 Apr 2002 10:01:15 +0200
-From: Martin Mares <mj@ucw.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 Boot enhancements, pic 16 4/9
-Message-ID: <20020405080115.GA409@ucw.cz>
-In-Reply-To: <m11ydwu5at.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S312364AbSDEIEA>; Fri, 5 Apr 2002 03:04:00 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:29902 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S312361AbSDEIDs>; Fri, 5 Apr 2002 03:03:48 -0500
+Date: Fri, 5 Apr 2002 10:03:47 +0200 (CEST)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@infcip10.uni-trier.de
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Q] reiserfs error message at boot-time
+Message-ID: <Pine.LNX.4.40.0204050959290.13705-100000@infcip10.uni-trier.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+hi!
 
-> Instead removes the assumption the code is linked to run at 0.  The
-> binary code is already PIC, this makes the build process the same way,
-> making the build requirements more flexible. 
+i just moved my linux partitition from ext3 to reiserfs.
+now my problem:
 
-What are the reasons to do this change? The assumption that "linked at 0"
-assumptions looks pretty harmless and the "-start"'s everywhere are ugly.
+when i boot, i get this error-message:
+reiserfs: Unrecognized mount option errors
+reiserfs: Unrecognized mount option errors
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Lottery -- a tax on people who can't do math.
+i get this message also at shutdown ... and on the next boot, reiserfs
+replays the logfile ...
+
+reiserfs: checking transaction log (device 03:02) ...
+Warning, log replay starting on readonly filesystem
+
+in /etc/fstab i mount the filesystem with "defaults" ...
+
+where is the problem ?
+what do i do wrong ?
+hope someone can give me a hint ...
+
+daniel
+
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
+

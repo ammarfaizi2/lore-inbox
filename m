@@ -1,37 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291454AbSBAAcr>; Thu, 31 Jan 2002 19:32:47 -0500
+	id <S291460AbSBAAkR>; Thu, 31 Jan 2002 19:40:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291457AbSBAAci>; Thu, 31 Jan 2002 19:32:38 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:33920 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S291454AbSBAAc1>;
-	Thu, 31 Jan 2002 19:32:27 -0500
-Date: Thu, 31 Jan 2002 16:30:54 -0800 (PST)
-Message-Id: <20020131.163054.41634626.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: vandrove@vc.cvut.cz, torvalds@transmeta.com, garzik@havoc.gtf.org,
-        linux-kernel@vger.kernel.org, paulus@samba.org, davidm@hpl.hp.com,
-        ralf@gnu.org
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E16WRmu-0003iO-00@the-village.bc.nu>
-In-Reply-To: <20020131.162549.74750188.davem@redhat.com>
-	<E16WRmu-0003iO-00@the-village.bc.nu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S291461AbSBAAkI>; Thu, 31 Jan 2002 19:40:08 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:8979 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S291460AbSBAAkA>; Thu, 31 Jan 2002 19:40:00 -0500
+Date: Thu, 31 Jan 2002 16:39:11 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Richard Zidlicky 
+	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
+cc: linux-m68k@lists.linux-m68k.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Q40 input api support.
+In-Reply-To: <20020201011543.A476@linux-m68k.org>
+Message-ID: <Pine.LNX.4.10.10201311631100.6830-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: Fri, 1 Feb 2002 00:42:44 +0000 (GMT)
-   
-   I'd like to eliminate lots of the magic weird cases in Config.in too - but
-   by making the language express it. Something like
-   
-   tristate_orif "blah" CONFIG_FOO $CONFIG_SMALL
-   
-This doesn't solve the CRC32 case.  What if you want
-CONFIG_SMALL, yet some net driver that needs the crc32
-routines?
+
+> > This patch ports q40 PS/2 controller support over to the input api. Please
+> > try it out. It is against the latest dave jones tree.
+> 
+> thanks, I will look at this over the weekend. Where do I get the DJ
+> tree?
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5
+
+
+> > +static inline void q40kbd_write(unsigned char val)
+> > +{
+> > +	/* FIXME! We need a way how to write to the keyboard! */
+> > +}
+> 
+> absolutely no way to write to the keyboard.
+
+That solves that.
+
+> > +	if (IRQ_KEYB_MASK & master_inb(INTERRUPT_REG))
+> > +		if (q40kbd_port.dev)
+> > +                         q40kbd_port.dev->interrupt(&q40kbd_port, master_inb(KEYCODE_REG), 0);
+>                                              ^^^^^^^^^
+> where is this defined?
+
+The way it works with the new input code is that it modularized the
+keyboard/mice from the controller chipsets. This file, q40kbd.c is the 
+file to sets up the controller chip. For the Q40 we have this as for the
+ix86 we have i8042.c. As for the mouse and keyboard driver themselves you
+pick PS/2 mouse support and AT keyboard support. These drivers are the
+same ones as the ix86 drivers for the mice and keyboard. In theory they
+should work on both platforms. Note the check for dev. This field is
+filled in when we register the keyboard if it is present.
+
+> > +	/* allocate the IRQ */
+> > +	request_irq(Q40_IRQ_KEYBOARD, keyboard_interrupt, 0, "q40kbd", NULL);
+> 				      ^^^^^^^^^^^^^^^^^^
+> should that be q40kbd_interrupt ?
+
+Yes. Fixed. 
+

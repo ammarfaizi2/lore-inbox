@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261376AbSKGS5r>; Thu, 7 Nov 2002 13:57:47 -0500
+	id <S261367AbSKGS7O>; Thu, 7 Nov 2002 13:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261559AbSKGS5r>; Thu, 7 Nov 2002 13:57:47 -0500
-Received: from mail2.uklinux.net ([80.84.72.32]:5870 "EHLO mail2.uklinux.net")
-	by vger.kernel.org with ESMTP id <S261376AbSKGS5p>;
-	Thu, 7 Nov 2002 13:57:45 -0500
-Date: Thu, 7 Nov 2002 19:04:24 +0000 (GMT)
-From: Peter Denison <lkml@marshadder.uklinux.net>
-X-X-Sender: peterd@marshall.localnet
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] IDE: correct partially initialised hw structures
-In-Reply-To: <Pine.LNX.4.10.10211031308240.27918-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.44.0211071845350.6917-100000@marshall.localnet>
+	id <S261478AbSKGS7O>; Thu, 7 Nov 2002 13:59:14 -0500
+Received: from sex.inr.ac.ru ([193.233.7.165]:50329 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S261367AbSKGS7N>;
+	Thu, 7 Nov 2002 13:59:13 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200211071905.WAA10317@sex.inr.ac.ru>
+Subject: Re: IPSEC FIRST LIGHT! (by non-kernel developer :-))
+To: ahu@ds9a.nl (bert hubert)
+Date: Thu, 7 Nov 2002 22:05:43 +0300 (MSK)
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20021107184125.GA840@outpost.ds9a.nl> from "bert hubert" at Nov 7, 2 07:41:25 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Nov 2002, Andre Hedrick wrote:
+Hello!
 
-> No major issues here; however does it not stomp on the preloaded defaults?
+> add 10.0.0.216 1.2.3.4 esp 34501 -E 3des-cbc "123456789012123456789012";
 
-Well, the patch cleans up the fact that preloaded defaults are stomped on
-by uninitialised data. Now they are stomped on by 0 !! Gradual
-improvement.
+should read:
 
-Actually, if the patch that moves ide_init_default_hwifs() is applied then
-maybe this isn't strictly necessary. The whole area needs cleaning up, but
-I was loathe to start doing major changes. I've done large parts of the
-call tree for the ide driver, and I _still_ don't fully understand what
-should be called when. Just as a sample, there's:
-	ide_init_data
-	ide_init_default_hwifs
-	ide_init_hwif_ports
-	init_hwif_data
-	ideprobe_init
-	probe_hwif_init
-	hwif_init
-	etc.
-with little or no explanation as to what they do, but more crucially, when
-they should be called. You can work out what they each do, but an idea of
-the initialisation architecture would really help sort out if there are
-branches that can now be got rid of.
+add 10.0.0.216 1.2.3.4 esp 34501
+    -m tunnel
+    -E 3des-cbc "123456789012123456789012";
 
-> On Sun, 27 Oct 2002, Peter Denison wrote:
->
-> > Summary: Initialise all parts of hw_regs_t structures before passing them
-> > to ide_register_hw
-> >
-> > The hw structure (specifically the hw->chipset field) held uninitialised
-> > data.  This (before the initialisation order fixup recently posted) meant
-> > that no chipset could ever get selected by an idex=<chipset> commandline
-> > (silently!).
-> >
-> > Only occurs on non-PCI platforms. All ARM platforms have already been
-> > fixed - though slightly differently.
+KAME allows to use single SA both for transport and for tunnel,
+we do not.
 
+Actually, if you used setkey -D and setkey -DP to look at SAD/SPD,
+you would notice this.
 
--- 
-Peter Denison <peterd at marshadder dot uklinux dot net>
-Please use the address above only for personal mail, not copied to any lists
-that are gatewayed to news or web pages unless the addresses are removed.
-
+Alexey

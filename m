@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293051AbSBWABV>; Fri, 22 Feb 2002 19:01:21 -0500
+	id <S293048AbSBWABV>; Fri, 22 Feb 2002 19:01:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293046AbSBWABO>; Fri, 22 Feb 2002 19:01:14 -0500
-Received: from bgp387566bgs.jersyc01.nj.comcast.net ([68.36.43.111]:64521 "EHLO
-	buggy.badula.org") by vger.kernel.org with ESMTP id <S293048AbSBWAA4>;
-	Fri, 22 Feb 2002 19:00:56 -0500
-Date: Fri, 22 Feb 2002 19:00:53 -0500
-Message-Id: <200202230000.g1N00rw21538@buggy.badula.org>
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: harish.vasudeva@amd.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Need some help with IP/TCP Checksum Offload
-In-Reply-To: <CB35231B9D59D311B18600508B0EDF2F04F280E6@caexmta9.amd.com>
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.17 (i586))
+	id <S293051AbSBWABN>; Fri, 22 Feb 2002 19:01:13 -0500
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:29712 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S293046AbSBWAAj>; Fri, 22 Feb 2002 19:00:39 -0500
+Date: Fri, 22 Feb 2002 17:00:36 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dlink DSL PCI Card
+Message-ID: <20020222170036.A2952@mail.harddata.com>
+In-Reply-To: <E788BA1D236784409F3F7138F1EABFDDE4DF@iteusa-nt.itexinc.com> <20020222174959.A16169@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020222174959.A16169@redhat.com>; from bcrl@redhat.com on Fri, Feb 22, 2002 at 05:49:59PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Feb 2002 14:57:22 -0800, harish.vasudeva@amd.com wrote:
+On Fri, Feb 22, 2002 at 05:49:59PM -0500, Benjamin LaHaise wrote:
+> On Fri, Feb 22, 2002 at 02:33:48PM -0800, Dave Rattay [ITeX] wrote:
+>
+> > Now if you
+> > have a request for a driver please let me know the kernel version being
+> > used as well as the ADSL protocol that you have.  I will see what I can
+> > do to get you a usable driver.
 > 
-> I am trying to offload checksum calculation to my hardware. What i am doing in my driver (kernel 2.4.6) is :
-> 
-> dev->features = NETIF_F_IP_CHECKSUM;
-> 
-> Then, in my start_xmit( ) routine, i am parsing for the right headers & when i get the IP/TCP header, i print out the checksum & it is already the right checksum. When does the OS/Protocol offload this task? Am i missing something here?
+> You're missing the point.
 
-I haven't looked at this in a long time, but at the time the checksum
-offloading support was introduced, the IP stack needed both NETIF_F_SG
-and NETIF_F_IP_CSUM in dev->features before it would start offloading.
+Well, with such kind offer maybe we should start by asking about a
+hundred of different binary drivers for various kernel versions,
+"mainline", testing and various vendors, with symbol versioning in
+modules and without and multiply that by all supported architectures -
+of course.  Next multiplier will be variants of ADSL protocols around.
+This is just a beginning as these requests will be constantly renewed
+with each new kernel.  So, the offer still stands?
 
-The idea was that cksum support without scatter-gather support is useless,
-because the csum gets calculated essentially for free while copying the data
-to linearize the skbuf.
+This is still not very close to what is really expected.
 
-Ion
+If this sounds riduculous then because it is as all people around
+here are trying to explain.
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+  Michal

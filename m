@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266135AbTBTRQL>; Thu, 20 Feb 2003 12:16:11 -0500
+	id <S266228AbTBTRRs>; Thu, 20 Feb 2003 12:17:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266186AbTBTRPi>; Thu, 20 Feb 2003 12:15:38 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:17936 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S266135AbTBTRP1>;
-	Thu, 20 Feb 2003 12:15:27 -0500
-Date: Thu, 20 Feb 2003 18:25:20 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Muli Ben-Yehuda <mulix@mulix.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix bug 376 - tiny extra echo in Makefile
-Message-ID: <20030220172520.GB978@mars.ravnborg.org>
-Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Muli Ben-Yehuda <mulix@mulix.org>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20030220124948.GC17614@actcom.co.il> <Pine.LNX.4.44.0302200935590.19487-100000@chaos.physics.uiowa.edu>
+	id <S266186AbTBTRQP>; Thu, 20 Feb 2003 12:16:15 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:17026 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S265402AbTBTRQI>; Thu, 20 Feb 2003 12:16:08 -0500
+Date: Thu, 20 Feb 2003 18:26:06 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: James Buchanan <jamesbuch@iprimus.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux kernel rant
+Message-ID: <20030220172606.GO1426@louise.pinerecords.com>
+References: <200302211551.28222.jamesbuch@iprimus.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302200935590.19487-100000@chaos.physics.uiowa.edu>
+In-Reply-To: <200302211551.28222.jamesbuch@iprimus.com.au>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 09:38:58AM -0600, Kai Germaschewski wrote:
-> > diff -Nru a/Makefile b/Makefile
-> > --- a/Makefile	Thu Feb 20 13:40:59 2003
-> > +++ b/Makefile	Thu Feb 20 13:40:59 2003
-> > @@ -325,7 +325,7 @@
-> >  define rule_vmlinux__
-> >  	set -e
-> >  	$(if $(filter .tmp_kallsyms%,$^),,
+> [jamesbuch@iprimus.com.au]
+>
+> I am just wondering if anyone thinks the same way.  I am thinking 
+> about going to BSD for good because of these things.
 
-While on the rule_vmlinux__ subject someone claimed that "set -e" does
-not make sense because it will be invoked in its private copy of the shell.
-Should the whole rule not be escaped "\", so it is executed in
-one go by make?
-Thats how other users of "set -e" works.
+Don't be naive, BSD people have to sign NDA's too if they want to have
+decent drivers for cheap hardware.
 
-	Sam
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,53 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbUCYO6a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 09:58:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUCYO6a
+	id S263184AbUCYPCn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 10:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263186AbUCYPCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 09:58:30 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:24709 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S263185AbUCYO62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 09:58:28 -0500
-Date: Thu, 25 Mar 2004 09:26:43 -0500
-From: Ben Collins <bcollins@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.0.x kernels and stack leak under high interrupt load
-Message-ID: <20040325142643.GP2255@phunnypharm.org>
+	Thu, 25 Mar 2004 10:02:42 -0500
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:25772 "EHLO
+	mailout.schmorp.de") by vger.kernel.org with ESMTP id S263184AbUCYPCk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 10:02:40 -0500
+Date: Thu, 25 Mar 2004 16:02:24 +0100
+From: Marc Lehmann <pcg@schmorp.de>
+To: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Cameron Patrick <cameron@patrick.wattle.id.au>,
+       Michael Frank <mhf@linuxmail.org>, Pavel Machek <pavel@suse.cz>,
+       Software Suspend - Mailing Lists 
+	<swsusp-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Swsusp-devel] lzf license
+Message-ID: <20040325150224.GC11633@schmorp.de>
+Mail-Followup-To: Arjan van de Ven <arjanv@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Cameron Patrick <cameron@patrick.wattle.id.au>,
+	Michael Frank <mhf@linuxmail.org>, Pavel Machek <pavel@suse.cz>,
+	Software Suspend - Mailing Lists <swsusp-devel@lists.sourceforge.net>
+References: <opr49atvpk4evsfm@smtp.pacific.net.th> <20040322094053.GO16890@patrick.wattle.id.au> <1079948988.5296.8.camel@laptop.fenrus.com> <20040322182121.GA21521@schmorp.de> <20040323114725.GD13666@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040323114725.GD13666@devserv.devel.redhat.com>
+X-Operating-System: Linux version 2.6.4 (root@cerebro) (gcc version 3.3.3 20040125 (prerelease) (Debian)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working on a problem I'm having in 2.0 kernels (embedded product, no
-chance of upgrading to 2.2/2.4/whatever, so that's not a good
-suggestion :)
+On Tue, Mar 23, 2004 at 12:47:26PM +0100, Arjan van de Ven <arjanv@redhat.com> wrote:
+> About bugfixes; I'd recommend using something like:
 
-The problem is that under heavy interrupt load, tasks that are in the
-middle of a syscall will get constantly rescheduled. Eventually one of
-these stacks will eat up all the kernel stack associated with it, and
-crash. I've put checks in do_bottom_half() to catch this and do a
-backtrace. The backtrace is full of nothing but ret_from_sys_call and
-do_bottom_half's (like 10 ret_from_sys_call's then a do_bottom_half).
+That sounds reasonable. Sorry for the delay, but I didn't receive your
+mail earlier (not being on the cc:).
 
-All of this rescheduling (because the interrupts come in so fast that
-the ret_from_sys_call cannot complete) eventually eats up the stack.
-When we first noticed this it just ended up being a gross backtrace that
-meant nothing (corrupted). The check in do_bottom_half allowed me to
-test the stack size and oops before it got corrupted.
+I have added this notice to all core files of the distribution and
+released it as 1.3, assuming that this solves all the problems. It can
+temporarily be found here: http://data.plan9.de/liblzf-1.3.tar.gz
 
-The high interrupt load in this case is caused by a constant high load
-of 64-byte UDP packets. This may not be normal load, but it's possible
-to generate this in some sort of DoS attempt. It is also unrelated to
-the ethernet driver. I've been able to reproduce this on several
-machines using different NIC's and drivers.
+The files in the kernel diverge a tiny bit (being a slight subset), and I
+think it's easiest to just add the additional notice to the files:
 
-Anyone seen this issue before or can suggest a fix?
+   kernel/power/lzf/lzf_c.c
+   kernel/power/lzf/lzf_d.c
+
+The following should be applied to both files:
+
+diff -u -p
+@@ -24,6 +24,16 @@
+  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTH-
+  * ERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+  * OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * the GNU General Public License version 2 (the "GPL"), in which case the
++ * provisions of the GPL are applicable instead of the above. If you wish to
++ * allow the use of your version of this file only under the terms of the
++ * GPL and not to allow others to use your version of this file under the
++ * BSD license, indicate your decision by deleting the provisions above and
++ * replace them with the notice and other provisions required by the GPL. If
++ * you do not delete the provisions above, a recipient may use your version
++ * of this file under either the BSD or the GPL.
+  */
+
+
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

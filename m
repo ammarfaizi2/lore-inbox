@@ -1,34 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUGRS7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUGRTBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbUGRS7K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 14:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbUGRS7K
+	id S264396AbUGRTBD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 15:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbUGRTBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 14:59:10 -0400
-Received: from web53801.mail.yahoo.com ([206.190.36.196]:39300 "HELO
-	web53801.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264389AbUGRS7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 14:59:09 -0400
-Message-ID: <20040718185909.22648.qmail@web53801.mail.yahoo.com>
-Date: Sun, 18 Jul 2004 11:59:09 -0700 (PDT)
+	Sun, 18 Jul 2004 15:01:03 -0400
+Received: from web53805.mail.yahoo.com ([206.190.36.200]:10670 "HELO
+	web53805.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264396AbUGRTBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 15:01:01 -0400
+Message-ID: <20040718190101.94441.qmail@web53805.mail.yahoo.com>
+Date: Sun, 18 Jul 2004 12:01:01 -0700 (PDT)
 From: Carl Spalletta <cspalletta@yahoo.com>
-Subject: [PATCH] Remove prototypes of nonexistent functions from fs/autofs4 files
+Subject: [PATCH] Remove prototypes of nonexistent functions from fs/befs files
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: raven@themaw.net, autofs@linux.kernel.org
+Cc: rathamahata@php4.ru
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -ru linux-2.6.7-orig/fs/autofs4/autofs_i.h linux-2.6.7-new/fs/autofs4/autofs_i.h
---- linux-2.6.7-orig/fs/autofs4/autofs_i.h      2004-06-15 22:19:42.000000000 -0700
-+++ linux-2.6.7-new/fs/autofs4/autofs_i.h       2004-07-18 08:49:11.000000000 -0700
-@@ -138,7 +138,6 @@
- }
+diff -ru linux-2.6.7-orig/fs/befs/befs.h linux-2.6.7-new/fs/befs/befs.h
+--- linux-2.6.7-orig/fs/befs/befs.h     2004-06-15 22:19:52.000000000 -0700
++++ linux-2.6.7-new/fs/befs/befs.h      2004-07-18 08:42:01.000000000 -0700
+@@ -96,7 +96,6 @@
+ void befs_dump_inode(const struct super_block *sb, befs_inode *);
+ void befs_dump_index_entry(const struct super_block *sb, befs_btree_super *);
+ void befs_dump_index_node(const struct super_block *sb, befs_btree_nodehead *);
+-void befs_dump_inode_addr(const struct super_block *sb, befs_inode_addr);
+ /****************************/
 
- struct inode *autofs4_get_inode(struct super_block *, struct autofs_info *);
--struct autofs_info *autofs4_init_inf(struct autofs_sb_info *, mode_t mode);
- void autofs4_free_ino(struct autofs_info *);
-
- /* Expiration */
 

@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262760AbTJJJg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 05:36:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTJJJg7
+	id S262767AbTJJJxO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 05:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbTJJJxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 05:36:59 -0400
-Received: from smtp3.att.ne.jp ([165.76.15.139]:26021 "EHLO smtp3.att.ne.jp")
-	by vger.kernel.org with ESMTP id S262760AbTJJJg6 (ORCPT
+	Fri, 10 Oct 2003 05:53:13 -0400
+Received: from holomorphy.com ([66.224.33.161]:11137 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262767AbTJJJxN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 05:36:58 -0400
-Message-ID: <1f8801c38f11$da95c410$5cee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test7 and HIDBP
-Date: Fri, 10 Oct 2003 18:34:45 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Fri, 10 Oct 2003 05:53:13 -0400
+Date: Fri, 10 Oct 2003 02:56:12 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Lorenzo Allegrucci <l.allegrucci@tiscali.it>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS] 2.6.0-test7
+Message-ID: <20031010095612.GD700@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Lorenzo Allegrucci <l.allegrucci@tiscali.it>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <200310101141.03064.l.allegrucci@tiscali.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310101141.03064.l.allegrucci@tiscali.it>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I already know that I'm half-blind, but now either I'm 75% blind or else
-these are facts:
+On Fri, Oct 10, 2003 at 11:41:03AM +0000, Lorenzo Allegrucci wrote:
+> Multiple oops, machine is a Athlon uniprocessor.
+> 100% reproducible.  Need more info? My .config?
+> (sorry >80 cols)
 
-make xconfig has options for HIDBP.
-make gconfig doesn't.
+Please try reverting:
 
-Of course I want full HID so this might not matter, but I have memories of
-needing HIDBP a few years ago.
+ChangeSet 1.1353, 2003/09/21 12:16:28-07:00, albert@users.sourceforge.net
+        [PATCH] fix for hidden-task problem
 
+until we figure out what's going wrong.
+
+Thanks.
+
+-- wli

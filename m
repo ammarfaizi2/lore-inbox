@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312486AbSEVLTg>; Wed, 22 May 2002 07:19:36 -0400
+	id <S312973AbSEVLZ7>; Wed, 22 May 2002 07:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312600AbSEVLTf>; Wed, 22 May 2002 07:19:35 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39185 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S312486AbSEVLTf>; Wed, 22 May 2002 07:19:35 -0400
-Date: Wed, 22 May 2002 12:19:29 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.17
-Message-ID: <20020522121929.A16934@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.44.0205202211040.949-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S313070AbSEVLZ6>; Wed, 22 May 2002 07:25:58 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:18702 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S312973AbSEVLZ6>; Wed, 22 May 2002 07:25:58 -0400
+Message-Id: <200205221121.g4MBLUY02306@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Subject: Re: AUDIT: copy_from_user is a deathtrap.
+Date: Wed, 22 May 2002 14:23:46 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+        acme@conectiva.com.br
+In-Reply-To: <5E5257A4137@vcnet.vc.cvut.cz>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 20, 2002 at 10:16:35PM -0700, Linus Torvalds wrote:
-> Various FS updates (including merges of quota and iget_locked), and
-> Makefile cleanups from Kai.
-> 
-> And yet more TLB shootdown stuff.
+> On 22 May 02 at 12:27, Denis Vlasenko wrote:
+> > > As Linus and others pointed out, copy_{to_from}_user has its uses and
+> > > will stay, but something like:
+> >
+> > I don't say 'kill it', I say 'rename it so that its name tells users what
+> > return value to expect'. However, one have to weigh
+>
+> Why?
 
-We seem to have inconsistent cache handling in the new TLB shootdown stuff.
-Or maybe its just my misunderstanding of what's going on; whatever it is,
-the new TLB shootdown stuff appears to be quite messy.
+Why what? Why rename copy_to_user? Because in its current form people
+misunderstand its return value and misuse it.
+We can keep unmodified version of copy_to_user for some time for
+compatibility.
 
-Lets look at the flow of the 3 places where tlb_gather_mmu is used:
+Or maybe your "why?" is related to something else, I fail
+to understand you in that case.
 
-zap_page_range		unmap_region		exit_mmap
-  flush_cache_range	  tlb_gather_mmu	  tlb_gather_mmu
-  tlb_gather_mmu	  unmap_page_range	  flush_cache_mm
-  unmap_page_range	  free_pgtables		  unmap_page_range
-  tlb_finish_mmu	  tlb_finish_mmu	  clear_page_tables
-						  tlb_finish_mmu
+> From copyin/out descriptions sent yesterday if you want same source code
+> running on all (BSD,SVR4,OSF/1) platforms, you must do
+>
+> if (copyin()) return [-]EFAULT;
 
-So we have 3 different functions, 2 different orders of gather_mmu
-and cache handling, and one with no cache handling what so ever.
-
-I think we have two options - either leave the cache handling up to
-tlb_start_vma() (in which case, flush_cache_range and flush_cache_mm
-are redundant and should be removed) or let it be up to the caller
-of tlb_gather_mmu to call the right cache handling function.
-
-I think which is actually function dependent - in zap_page_range,
-we're only removing one vma.  In exit_mmap, we're removing all vmas.
-In unmap_region, we're removing an unspecified number of vmas.
-Depending on which option we choose, we'll either end up calling
-flush_cache_range() many times, or flush_cache_mm() and flushing
-the cache for a munmap of a small area.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+But if I am new to Linux and just want to write my first piece of kernel
+code, copyout() is even worse than copy_to_user(): 
+it too lacks info of what it can return (0/1, 0/-EFAULT, # of copied bytes,
+# of bytes remaining?) *and* copy direction become unclear:
+copy out of *what*? out of kernel memery? out of user memory?
+--
+vda

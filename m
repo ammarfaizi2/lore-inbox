@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266996AbSLPSna>; Mon, 16 Dec 2002 13:43:30 -0500
+	id <S266995AbSLPSuE>; Mon, 16 Dec 2002 13:50:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266998AbSLPSna>; Mon, 16 Dec 2002 13:43:30 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:27378 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id <S266996AbSLPSn3>; Mon, 16 Dec 2002 13:43:29 -0500
-Date: Mon, 16 Dec 2002 11:47:29 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Michael Aldrich <maldrich@reserveamerica.com>
-Cc: mec@shout.net, linux-kernel@vger.kernel.org
-Subject: Re: RedHat Kernel Error
-Message-ID: <20021216114729.W1874@schatzie.adilger.int>
-Mail-Followup-To: Michael Aldrich <maldrich@reserveamerica.com>,
-	mec@shout.net, linux-kernel@vger.kernel.org
-References: <200212161344.15507.maldrich@reserveamerica.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200212161344.15507.maldrich@reserveamerica.com>; from maldrich@reserveamerica.com on Mon, Dec 16, 2002 at 01:44:15PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S267062AbSLPSs3>; Mon, 16 Dec 2002 13:48:29 -0500
+Received: from windsormachine.com ([206.48.122.28]:44292 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S267043AbSLPSsS>; Mon, 16 Dec 2002 13:48:18 -0500
+Date: Mon, 16 Dec 2002 13:56:09 -0500 (EST)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: Xavier LaRue <paxl@videotron.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: L2 Cache problem
+In-Reply-To: <20021216133016.64c75cac.paxl@videotron.ca>
+Message-ID: <Pine.LNX.4.33.0212161347580.25857-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 16, 2002  13:44 -0500, Michael Aldrich wrote:
-> I was trying to recompile my 2.4.18-3smp RedHat kernel
+On Mon, 16 Dec 2002, Xavier LaRue wrote:
 
-This is a very old kernel, known to have bugs, please get a newer one.
+> my dmesg will be online at http://paxl.no-ip.org/~paxl/dmesg.txt if somone mind.
+>
+>
+> Another fuzzy thing .. compiling my kernel normaly ( -j 1 ) take 30min
+> and when I make it with -j 2/8/16 it take 25min, I think this is due to
+> my L2 cache problem but that not normal, if somone have an idea.. I
+> should be realy interested.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+sounds like you've got your l2 turned off in the bios to me.
+
+Mike
 

@@ -1,32 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAIOxt>; Tue, 9 Jan 2001 09:53:49 -0500
+	id <S130613AbRAIOyj>; Tue, 9 Jan 2001 09:54:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131398AbRAIOxj>; Tue, 9 Jan 2001 09:53:39 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2060 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129324AbRAIOx1>; Tue, 9 Jan 2001 09:53:27 -0500
-Subject: Re: Change of policy for future 2.2 driver submissions
-To: mantel@suse.de (Hubert Mantel)
-Date: Tue, 9 Jan 2001 14:54:44 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <20010109154908.F20539@suse.de> from "Hubert Mantel" at Jan 09, 2001 03:49:08 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129562AbRAIOyU>; Tue, 9 Jan 2001 09:54:20 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:34558 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S130613AbRAIOyK>; Tue, 9 Jan 2001 09:54:10 -0500
+From: Christoph Rohland <cr@sap.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        "Sergey E. Volkov" <sve@raiden.bancorp.ru>,
+        linux-kernel@vger.kernel.org
+Subject: Re: VM subsystem bug in 2.4.0 ?
+In-Reply-To: <Pine.LNX.4.10.10101081003410.3750-100000@penguin.transmeta.com>
+	<Pine.LNX.4.21.0101081621590.21675-100000@duckman.distro.conectiva>
+	<20010109140932.E4284@redhat.com>
+Organisation: SAP LinuxLab
+Date: 09 Jan 2001 15:53:55 +0100
+In-Reply-To: "Stephen C. Tweedie"'s message of "Tue, 9 Jan 2001 14:09:32 +0000"
+Message-ID: <qwwhf387p4s.fsf@sap.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14G0Ag-0006ko-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> some official 2.2 kernel. In order to make it possible to switch between
-> kernel releases, every vendor now really is forced to integrate the new
-> RAID0.90 code to their 2.2 kernel. IMHO this code should be integrated to
-> the next official 2.2 kernel so people can use whatever they want.
+Hi Stephen,
 
-Then people using a newer 2.2 cannot go back to an older 2.2 thats really
-far far worse.
+On Tue, 9 Jan 2001, Stephen C. Tweedie wrote:
+> But again, how do you clear the bit?  Locking is a per-vma property,
+> not per-page.  I can mmap a file twice and mlock just one of the
+> mappings.  If you get a munlock(), how are you to know how many
+> other locked mappings still exist?
+
+It's worse: The issue we are talking about is SYSV IPC_LOCK. This is a
+per segment thing. A user can (un)lock a segment at any time. But we
+do not have the references to the vmas attached to the segemnts or to
+the pages allocated.
+
+Greetings
+		Christoph
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

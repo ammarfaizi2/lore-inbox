@@ -1,109 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266135AbTAIL5J>; Thu, 9 Jan 2003 06:57:09 -0500
+	id <S265909AbTAIMCz>; Thu, 9 Jan 2003 07:02:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265909AbTAIL5J>; Thu, 9 Jan 2003 06:57:09 -0500
-Received: from warden3-p.diginsite.com ([208.147.64.186]:29131 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id <S265894AbTAIL5G>; Thu, 9 Jan 2003 06:57:06 -0500
-Date: Thu, 9 Jan 2003 03:52:51 -0800 (PST)
-From: David Lang <dlang@diginsite.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: dipankar@in.ibm.com, <linux-scsi@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: aic7xxx broken in 2.5.53/54 ?
-In-Reply-To: <274040000.1041869813@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.4.44.0301090346180.28704-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265960AbTAIMCz>; Thu, 9 Jan 2003 07:02:55 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:45770 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S265909AbTAIMCy>; Thu, 9 Jan 2003 07:02:54 -0500
+Date: Thu, 9 Jan 2003 13:11:32 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [2.5 patch] correct help text for LOG_BUF_SHIFT
+Message-ID: <20030109121132.GP6626@fs.tum.de>
+References: <Pine.LNX.4.44.0301082033410.1438-100000@penguin.transmeta.com> <Pine.GSO.4.21.0301091202511.25052-100000@vervain.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0301091202511.25052-100000@vervain.sonytel.be>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just tried 2.5.55 and it still locks up. I will hook up my laptop and
-see if I can get aa serial console dump tomorrow night.
+On Thu, Jan 09, 2003 at 12:04:46PM +0100, Geert Uytterhoeven wrote:
+> On Wed, 8 Jan 2003, Linus Torvalds wrote:
+> > Andrew Morton <akpm@digeo.com>:
+> >   o move LOG_BUF_SIZE to header/config
+> 
+> I find the config a bit confusing:
+> 
+> | Kernel log buffer size (128 KB, 64 KB, 32 KB, 16 KB, 8 KB, 4 KB) [16 KB] (NEW) ?
+> | Select kernel log buffer size from this list (power of 2).
+> | Defaults:  17 (=> 128 KB for S/390)
+> |            16 (=> 64 KB for x86 NUMAQ or IA-64)
+> |            15 (=> 32 KB for SMP)
+> |            14 (=> 16 KB for uniprocessor)
+> | 
+> | Kernel log buffer size (128 KB, 64 KB, 32 KB, 16 KB, 8 KB, 4 KB) [16 KB] (NEW) 
+> 
+> E.g. should I enter `14' or `16 KB' (or `16') for `16 KB'?
 
-messages are
+After reading init/Kconfig it seems the following was intended:
 
-Slave Alloc 0
-launching DV thread
-begin domain validation
-scsi0:2477 going from state 0 to state 1
-scsi0:A:0:0: sending INQ
-scsi0:timeout while doing DV command 12
-scsi0:0:0:0 command completed status=0x90000
-scsi0:A:0:0 enntering ahc_linux_dv_transition, state=1 statis=0x14005, cmd->result=0x90000
-scsi0:2645 going from state 1 to state 1
+--- linux-2.5.55/init/Kconfig.old	2003-01-09 13:06:43.000000000 +0100
++++ linux-2.5.55/init/Kconfig	2003-01-09 13:08:44.000000000 +0100
+@@ -89,11 +89,11 @@
+ 	default LOG_BUF_SHIFT_15 if SMP
+ 	default LOG_BUF_SHIFT_14
+ 	help
+-	  Select kernel log buffer size from this list (power of 2).
+-	  Defaults:  17 (=> 128 KB for S/390)
+-		     16 (=> 64 KB for x86 NUMAQ or IA-64)
+-	             15 (=> 32 KB for SMP)
+-	             14 (=> 16 KB for uniprocessor)
++	  Select kernel log buffer size from this list.
++	  Defaults:  128 KB for S/390
++		     64 KB for x86 NUMAQ or IA-64
++	             32 KB for SMP
++	             16 KB for uniprocessor
+ 
+ config LOG_BUF_SHIFT_17
+ 	bool "128 KB"
 
-at this point all the messages between the 'going to state' messages
-repeat exactly, this happens for a couple min and then a whole bunch of
-other stuff scrolls by (I don't know if this happens on previous versions,
-I had given up before that much time had passed) the final message is
-something about a recovery sleep and then the machine stops responding (I
-waited 10 min this time to make sure it wasn't going to start working
-again)
 
-Daavid Lang
+> Gr{oetje,eeting}s,
+> 
+> 						Geert
 
- On Mon, 6 Jan 2003, Justin T. Gibbs wrote:
+cu
+Adrian
 
-> Date: Mon, 06 Jan 2003 09:16:53 -0700
-> From: Justin T. Gibbs <gibbs@scsiguy.com>
-> To: dipankar@in.ibm.com
-> Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-> Subject: Re: aic7xxx broken in 2.5.53/54 ?
->
-> > Hi Justin,
-> >
-> > On Fri, Jan 03, 2003 at 08:14:06AM -0700, Justin T. Gibbs wrote:
-> >> > Looks like the aic7xxx driver in 2.5.53 and 54 are broken on my
-> >> > hardware.
-> >>
-> >> It looks like the driver recovers fine.
-> >
-> > Not for long. It dies shortly afterwards.
->
-> In what fashion?
->
-> >> > aic7xxx: PCI Device 0:1:0 failed memory mapped test.  Using PIO.
-> >> > Uhhuh. NMI received for unknown reason 25 on CPU 0.
-> >>
-> >> SERR must be enabled by your BIOS.  I will change the driver so
-> >> that, should the memory mapped I/O test fail, an SERR (and thus an
-> >> NMI) is not generated.
-> >
-> > I guess having to use PIO with aic7xxx is bad. MMIO failure is
-> > what we need to investigate.
->
-> The only way that I know how to investigate these issues is
-> with a PCI bus analyzer.  We're in the process of going through
-> all of the systems we have in our lab to see which ones fail and
-> why, but I certainly don't have one of every failing system on
-> the planet. 8-)
->
-> >> Just out of curiosity, do you have any strange PCI options enabled
-> >> in your BIOS?  I remeber seeing memory mapped I/O failures on this
-> >> ServerWorks chipset under FreeBSD in the past, but an updated BIOS
-> >> resolved the issue for the affected users.  It seemed that the BIOS
-> >> incorrectly placed the Adaptec controller in a prefetchable region.
-> >>
-> >
-> > I didn't change anything in that box since it was delivered to me. FYI
-> > it is an IBM x250. Would it help if I can get a PCI space dump and mtrr
-> > dump ? FWIW, the older driver works fine. Does the older driver use
-> > only PIO ?
->
-> It would be good to know the chipset on the motherboard.  As to why
-> the old driver worked, for 6.X.X drivers, you may have just been lucky.
-> For 5.X.X drivers, they perform a read after every register write to
-> "manually" prevent any byte-merging.  These reads are actually more
-> expensive than just using PIO.  Neither of these older drivers included
-> a test to try and catch fishy behavior.
->
-> --
-> Justin
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

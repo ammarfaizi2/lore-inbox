@@ -1,75 +1,176 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbUCZU6B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 15:58:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbUCZU6B
+	id S261232AbUCZU7c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 15:59:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUCZU7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 15:58:01 -0500
-Received: from amalthea.dnx.de ([193.108.181.146]:34256 "EHLO amalthea.dnx.de")
-	by vger.kernel.org with ESMTP id S261221AbUCZU56 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 15:57:58 -0500
-Date: Fri, 26 Mar 2004 21:57:44 +0100
-From: Robert Schwebel <robert@schwebel.de>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] RNDIS Gadget Driver
-Message-ID: <20040326205744.GH16461@pengutronix.de>
-References: <20040325221145.GJ10711@pengutronix.de> <20040326115947.GA22185@outpost.ds9a.nl> <20040326121928.GC16461@pengutronix.de> <4064530C.5030308@pacbell.net> <20040326163543.GD16461@pengutronix.de> <40646C2B.6020306@pacbell.net> <20040326184142.GF16461@pengutronix.de> <40648876.9050902@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <40648876.9050902@pacbell.net>
-User-Agent: Mutt/1.4i
-X-Scan-Signature: 5003f175ed075e86e191ee2bc398b282
+	Fri, 26 Mar 2004 15:59:32 -0500
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:27261 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261232AbUCZU7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 15:59:18 -0500
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: marcelo.tosatti@cyclades.com
+Subject: [PATCH/2.4]: do_write_mem() return value check / v2
+Date: Thu, 25 Mar 2004 20:15:34 +0100
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_W/yYAyaDf7ZEXLA"
+Message-Id: <200403252015.34635.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 26, 2004 at 11:45:58AM -0800, David Brownell wrote:
-> Well, what I merge is necessarily going to work on more hardware than
-> just PXA ... it'll work over net2280 (at high speed), goku, and surely
-> other hardware.  In most cases that'll just require sanity testing.
-> Maybe I can get Julian to test on SH3, and it sounds like Andrew is
-> getting close on the MediaQ.
 
-A broader variety of controllers would indeed be helpful. When you have
-the stuff integrated the way you think it's right, just tell me and I'll
-test if it still works on our testbed. 
+--Boundary-00=_W/yYAyaDf7ZEXLA
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> Once I can see it work, then it'll be ready for that more widespread
-> testing. (Do penguins actually cry?)
+From: Andrew Morton, and me (I did a first fix for 2.6 and sent to him, he 
+checked everything and committed it and I changed the trivial bits for 2.4 + 
+did a little fix).
 
-Only if they have to read Microsoft specifications :-) 
+- remove unused `file *' arg from do_write_mem()
 
-> It's not as if the protocol actually _needs_ an interrupt endpoint,
-> though the MSFT spec says it does. It's actually simpler for the host
-> to poll for completion on the control endpoint; none of the requests
-> should take very long to finish anyway. An RNDIS host might not even
-> notice those "toggle broken" issues.
+- Add checking for copy_from_user() failures in do_write_mem()
 
-You probably underestimate the mental sensibility of Windows machines.
-We have seen cases where the Windows host just floods you with
-interrupts when it is not happy with things like these... 
+(Note: /dev/kmem can be written to only by root, so this *cannot* have 
+security implications)
 
-> Did you have any evidence that the MSFT host was actually using that
-> interrupt endpoint? Like CATC snooping showing it never tried to
-> collect responses until the interrupt packet arrived?
+- Return correct value from kmem writes() when a fault is encountered.  A
+  write()-style syscall's return values are:
 
-We have seen the packets with the protocol analyzer. I think we agree
-that using an interrupt endpoint just to announce that the gadget has a
-message for the host available, but that's how M$ designed it... 
+   0 when nothing was written and there was no error (someone tried to
+   write zero bytes)
 
-> Also, which versions of MS-Windows did you test against? Some of the
-> MSFT docs suggest version-specific protocol quirks.
+   >0: the number of bytes copied, whether or not there was an error. 
+   Userspace detects errors by noting that the write() return value is less
+   than was requested.
 
-Win 98, XP, 2000. Auerswald currently tests all available other
-variants, and the tests they invented are _really_ crazy ;)
+   <0: there was an error and no bytes were copied
 
-Robert
+- Fix this line:
++                              unwritten = copy_from_user(kbuf, buf, len);
++                              if (unwritten != len) {
+
+to this:
++                              unwritten = copy_from_user(kbuf, buf, len);
++                              if (unwritten != 0) {
+
+TODO: Do the same changes for read_mem() and read_kmem(). The code is more 
+messy so I must create do_read_mem() to avoid clumsy counting; I have posted 
+the patch first for 2.6, when it is accepted I'll backport it.
 -- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hornemannstraße 12,  31137 Hildesheim, Germany
-    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+
+
+
+
+
+
+
+
+
+
+
+--Boundary-00=_W/yYAyaDf7ZEXLA
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="do_write_kmem-return.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="do_write_kmem-return.patch"
+
+--- ./drivers/char/mem.c.fix	2004-02-22 18:35:31.000000000 +0100
++++ ./drivers/char/mem.c	2004-03-23 16:02:54.000000000 +0100
+@@ -43,10 +43,11 @@
+ extern void tapechar_init(void);
+ #endif
+      
+-static ssize_t do_write_mem(struct file * file, void *p, unsigned long realp,
++static ssize_t do_write_mem(void *p, unsigned long realp,
+ 			    const char * buf, size_t count, loff_t *ppos)
+ {
+ 	ssize_t written;
++	unsigned long uncopied;
+ 
+ 	written = 0;
+ #if defined(__sparc__) || defined(__mc68000__)
+@@ -61,8 +62,14 @@
+ 		written+=sz;
+ 	}
+ #endif
+-	if (copy_from_user(p, buf, count))
+-		return -EFAULT;
++	uncopied = copy_from_user(p, buf, count);
++	if (uncopied) {
++		ssize_t ret = written + (count - uncopied);
++
++		if (ret)
++			return ret;
++ 		return -EFAULT;
++	}
+ 	written += count;
+ 	*ppos += written;
+ 	return written;
+@@ -120,7 +127,7 @@
+ 		return 0;
+ 	if (count > end_mem - p)
+ 		count = end_mem - p;
+-	return do_write_mem(file, __va(p), p, buf, count, ppos);
++	return do_write_mem(__va(p), p, buf, count, ppos);
+ }
+ 
+ #ifndef pgprot_noncached
+@@ -287,11 +294,16 @@
+ 	char * kbuf; /* k-addr because vwrite() takes vmlist_lock rwlock */
+ 
+ 	if (p < (unsigned long) high_memory) {
++		ssize_t written;
++
+ 		wrote = count;
+ 		if (count > (unsigned long) high_memory - p)
+ 			wrote = (unsigned long) high_memory - p;
+ 
+-		wrote = do_write_mem(file, (void*)p, p, buf, wrote, ppos);
++		written = do_write_mem((void*)p, p, buf, wrote, ppos);
++		if (written != wrote)
++			return written;
++		wrote = written;
+ 
+ 		p += wrote;
+ 		buf += wrote;
+@@ -301,15 +313,22 @@
+ 	if (count > 0) {
+ 		kbuf = (char *)__get_free_page(GFP_KERNEL);
+ 		if (!kbuf)
+-			return -ENOMEM;
++			return wrote ? wrote : -ENOMEM;
+ 		while (count > 0) {
+ 			int len = count;
+ 
+ 			if (len > PAGE_SIZE)
+ 				len = PAGE_SIZE;
+-			if (len && copy_from_user(kbuf, buf, len)) {
+-				free_page((unsigned long)kbuf);
+-				return -EFAULT;
++			if (len) {
++				ssize_t unwritten;
++				unwritten = copy_from_user(kbuf, buf, len);
++				if (unwritten != len) {
++					ssize_t ret;
++
++					free_page((unsigned long)kbuf);
++					ret = wrote + virtr + (len - unwritten);
++					return ret ? ret : -EFAULT;
++				}
+ 			}
+ 			len = vwrite(kbuf, (char *)p, len);
+ 			count -= len;
+
+--Boundary-00=_W/yYAyaDf7ZEXLA--
+
+

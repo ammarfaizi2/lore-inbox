@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290966AbSAaGHl>; Thu, 31 Jan 2002 01:07:41 -0500
+	id <S290965AbSAaGKB>; Thu, 31 Jan 2002 01:10:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290965AbSAaGHb>; Thu, 31 Jan 2002 01:07:31 -0500
-Received: from bitmover.com ([192.132.92.2]:63150 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S290967AbSAaGHV>;
-	Thu, 31 Jan 2002 01:07:21 -0500
-Date: Wed, 30 Jan 2002 22:07:20 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Larry McVoy <lm@bitmover.com>, Rob Landley <landley@trommello.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130220720.I18381@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Keith Owens <kaos@ocs.com.au>, Larry McVoy <lm@bitmover.com>,
-	Rob Landley <landley@trommello.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020130215523.G18381@work.bitmover.com> <9787.1012456991@kao2.melbourne.sgi.com>
+	id <S290968AbSAaGJv>; Thu, 31 Jan 2002 01:09:51 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:47625 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S290965AbSAaGJg>; Thu, 31 Jan 2002 01:09:36 -0500
+Date: Thu, 31 Jan 2002 09:09:32 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Dave Jones <davej@suse.de>, Sebastian Dr?ge <sebastian.droege@gmx.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
+Message-ID: <20020131090932.B4574@namesys.com>
+In-Reply-To: <20020130151420.40e81aef.sebastian.droege@gmx.de> <20020130173715.B2179@namesys.com> <20020130163951.13daca94.sebastian.droege@gmx.de> <20020130190905.A820@namesys.com> <20020130174011.L24012@suse.de> <20020130201054.6e150f78.sebastian.droege@gmx.de> <20020130201757.Q24012@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <9787.1012456991@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Thu, Jan 31, 2002 at 05:03:11PM +1100
+In-Reply-To: <20020130201757.Q24012@suse.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 05:03:11PM +1100, Keith Owens wrote:
-> On Wed, 30 Jan 2002 21:55:23 -0800, 
-> Larry McVoy <lm@bitmover.com> wrote:
-> >On Thu, Jan 31, 2002 at 04:46:43PM +1100, Keith Owens wrote:
-> >> When I release a patch I pick a start
-> >> point (base 2.4.17, patch set 17.1) and an end point (kdb v2.1 2.4.17
-> >> common-2, patchset 17.37) and prcs diff -r 17.1 -r 17.37.  
-> >
-> >bk export -tpatch -r17.1,17.37
-> >
-> >Does exactly the same thing.
-> 
-> Now you've confused me :).  Does that replicate the history or not?
+Hello!
 
-Nope.
+On Wed, Jan 30, 2002 at 08:17:57PM +0100, Dave Jones wrote:
+> On Wed, Jan 30, 2002 at 08:10:54PM +0100, Sebastian Dr?ge wrote:
+>  > I have 3 partitions. Two reiserfs partitions, one mounted on /, one on /home
+>  Ok, my test box for reiserfs uses ext3 root, and reiser on a scratch disk.
+>  It could be Oleg's earlier guess that it may be reiser-on-root related.
+No. I can reproduce with ext2 root & reiserfs mounted separately.
+depmod -a -b /mnt causes a crash for me 100% of time.
+(of course you need correct /lib/modules/... for that)
 
-> I know that bk can generate a patch which is fine for people not using
-> bk, but one of the selling points of bk is the ability to replicate
-> history entries.  
+>  > It happens with the IDE layer version as in the dj tree and with
+>  > acb-io-2.5.3-p2.01212002 update (why haven't you included this in your tree,
+>  > Dave?)
+>  I never saw Andre pushing it on Linux-kernel (which is unusual for Andre 8)
+I dug the original message,
+it's subject is "DO NOT USE IT (Re: linux-2.5.3-pre1 and IDE Driver Trouble) FATAL"
+msgid is <Pine.LNX.4.10.10201161259270.29434-100000@master.linux-ide.org>
+It warns about 2.5.3-pre1 and 2.5.2 is unstable with IDE because there are
+conflicts between BIO & ACB. He promised to come up with the fix later.
+After that there were no messages from him with patches.
+At least not in the lkml.
 
-Yup.
-
-> My point is that full replication of history may be
-> too much detail for anybody except the original developer.  If bk can
-> consolidate a series of patchsets into one big patchset (not patch)
-> which becomes the unit of distribution then the problem of too much
-> history can be solved.
-
-If all you mean is that you don't want to have to tell it what to send,
-yes, it does that automatically.  If you start with 100 changes, 
-I clone your tree, you add 200 more, all I do to get them is say
-
-	bk pull
-
-it will send them all, quickly (works very nicely over a modem or 
-a long latency link like a satellite).
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Bye,
+    Oleg

@@ -1,85 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311735AbSCXH1I>; Sun, 24 Mar 2002 02:27:08 -0500
+	id <S311743AbSCXIIU>; Sun, 24 Mar 2002 03:08:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311737AbSCXH06>; Sun, 24 Mar 2002 02:26:58 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:51464 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S311735AbSCXH0o>; Sun, 24 Mar 2002 02:26:44 -0500
-Message-ID: <3C9D7F4B.45B1A766@zip.com.au>
-Date: Sat, 23 Mar 2002 23:24:59 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Updated -aa VM patches
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S311748AbSCXIIK>; Sun, 24 Mar 2002 03:08:10 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:29195 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S311743AbSCXIH7>;
+	Sun, 24 Mar 2002 03:07:59 -0500
+Date: Sun, 24 Mar 2002 00:07:29 -0800
+From: Greg KH <greg@kroah.com>
+To: Robert Love <rml@tech9.net>, Andrew Morton <akpm@zip.com.au>,
+        christophe =?iso-8859-1?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 3c59x and resume
+Message-ID: <20020324080729.GD16785@kroah.com>
+In-Reply-To: <20020323161647.GA11471@ufies.org> <3C9CCBEB.D39465A6@zip.com.au> <1016914030.949.20.camel@phantasy> <20020323224433.GB11471@ufies.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sun, 24 Feb 2002 05:05:43 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 23, 2002 at 05:44:33PM -0500, christophe barbé wrote:
+> With the 'everything is module' and 'everything is hotplug' approach in
+> mind (which is a appealing way and IMHO this is the way we are going),
+> I see two part for this problem:
+> 
+> . Persistence after plug out/plug in 
+> 
+> . Persistence after suspend/resume
+> 
+> The first one is a userland problem. The card identification could be
+> based on the MAC address (for NICs at least, in the case of cardbus the
+> bus position has no real signification). This should then be the
+> responsibility of the userspace tool (hotplug) to indicate the correct
+> option for this card. The problem is when the module is already loaded,
+> the userspace tool has no way to indicate this option.
 
-Slightly reworked, and a lot more testing.  The diffs against
-2.4.19-pre4 are at
+Untrue.  See
+	http://www.kroah.com/linux/hotplug/ols_2001_hotplug_talk/html/mgp00014.html
+for a 6 line version of /sbin/hotplug that always assigns the same
+"ethX" value to the same MAC address.  I think the patch to nameif has
+gone in to support this, but I'm not sure.
 
-	http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.19-pre4/aa3/
+And why is there a limitation of only 8 devices?  Why not do what all
+USB drivers do, and just create the structure that you need to use at
+probe() time, and destroy it at remove() time?
 
-- Removed the double underscores which offended hch.
-- Shuffled the order so that zone_accounting.patch comes
-  immediately before swap_out.patch.  This is the correct
-  ordering and the patch series now works OK at all steps.
-- I added aa-230-free_zone_bhs.patch to the series.
+Just my $0.02
 
-The latter is code which purportedly fixes the "ZONE_NORMAL
-full of buffer_heads" problem.  I wasn't able to reproduce
-this with a 15:1 highmem:normal split.  But the problem is real.
+thanks,
 
-This piece of code is not a thing of beauty, but I can't think of a
-different way of fixing the problem, and nobody else has proposed
-a different way, and the problem which it addresses is a box-killer.
-A killer of $100,000 boxes, indeed.  It has zilch performance
-impact on lesser machines (I instrumented it), it is stable and I
-think it should go in.
-
-I haven't done anything about the nr_dirty-doesn't-do-anything
-issue.  The code as it stands works well.  The management of
-writeback and dirty memory is the best I've ever seen in Linux.
-Sure, maybe we can get some additional benefit from making nr_dirty
-work as originally intended.  But that's a new feature which can
-potentially have subtle effects.  Now is not the time to be
-fiddling with it, somewhat invalidating all the testing which Andrea,
-SuSE, myself and others have performed.
-
-The other outstanding issue is the icache and dcache shrinkage
-ratios.  Again, I believe that tuning these should be a separate
-effort.  It's not causing any obvious problems.
-
-
-Proposed merge timing is:
-
-writeback changes:
-        aa-010-show_stack.patch
-        aa-020-sync_buffers.patch
-        aa-030-writeout_scheduling.patch
-        aa-040-touch_buffer.patch
-
-VM changes:
-        aa-093-vm_tunables.patch
-        aa-095-zone_accounting.patch
-        aa-096-swap_out.patch
-        aa-100-local_pages.patch
-        aa-120-try_to_free_pages_nozone.patch
-
-The rest:
-        aa-140-misc_junk.patch
-        aa-150-read_write_tweaks.patch
-        aa-160-lru_release_check.patch
-        aa-170-drain_cpu_caches.patch
-        aa-180-activate_page_cleanup.patch
-        aa-190-block_flushpage_check.patch
-        aa-200-active_page_swapout.patch
-        aa-230-free_zone_bhs.patch
-
--
+greg k-h

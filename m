@@ -1,113 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311752AbSFQMJJ>; Mon, 17 Jun 2002 08:09:09 -0400
+	id <S311885AbSFQMXW>; Mon, 17 Jun 2002 08:23:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311885AbSFQMJJ>; Mon, 17 Jun 2002 08:09:09 -0400
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:32142 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S311752AbSFQMJI>; Mon, 17 Jun 2002 08:09:08 -0400
-Importance: Normal
-Sensitivity: 
-Subject: (BUG?) loosing memory with interrupt registration/freeing
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF833B5691.F9F8B36C-ONC1256BDB.003609BB@de.ibm.com>
-From: "Stefan Koch4" <STK@de.ibm.com>
-Date: Mon, 17 Jun 2002 14:09:01 +0200
-X-MIMETrack: Serialize by Router on d12ml039/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 17/06/2002 14:09:02
+	id <S311898AbSFQMXV>; Mon, 17 Jun 2002 08:23:21 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:60086 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S311885AbSFQMXU>; Mon, 17 Jun 2002 08:23:20 -0400
+Date: Mon, 17 Jun 2002 13:55:50 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Hanno =?ISO-8859-1?Q?B=F6ck?= <hanno@gmx.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, Keith Owens <kaos@ocs.com.au>
+Subject: [PATCH][2.5] Make SMP/APIC config option earlier
+In-Reply-To: <20020617125905.5511b12c.hanno@gmx.de>
+Message-ID: <Pine.LNX.4.44.0206171351420.1263-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patch to reorder the APIC configuration so that dependencies are 
+determined beforehand for MCE. Keith Owens pointed this out a whiles back 
+actually.
 
-kernel: 2.4.19-pre4 from Montavista
-(in the linuxppc-embedded mailing list it was suggested
-to ask here regarding the following problem)
+Please apply,
+	Zwane
 
-hardware: 405GP (Walnut), i386 (see below)
+--- linux-2.5.22-mk/arch/i386/config.in.orig	Mon Jun 17 13:55:08 2002
++++ linux-2.5.22-mk/arch/i386/config.in	Mon Jun 17 14:03:16 2002
+@@ -153,9 +153,24 @@
+    define_bool CONFIG_X86_OOSTORE y
+ fi
+ 
++bool 'Symmetric multi-processing support' CONFIG_SMP
++bool 'Preemptible Kernel' CONFIG_PREEMPT
++if [ "$CONFIG_SMP" != "y" ]; then
++   bool 'Local APIC support on uniprocessors' CONFIG_X86_UP_APIC
++   dep_bool 'IO-APIC support on uniprocessors' CONFIG_X86_UP_IOAPIC $CONFIG_X86_UP_APIC
++   if [ "$CONFIG_X86_UP_APIC" = "y" ]; then
++      define_bool CONFIG_X86_LOCAL_APIC y
++   fi
++   if [ "$CONFIG_X86_UP_IOAPIC" = "y" ]; then
++      define_bool CONFIG_X86_IO_APIC y
++   fi
++else
++   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
++fi
++
+ bool 'Machine Check Exception' CONFIG_X86_MCE
+ dep_bool 'Check for non-fatal errors on Athlon/Duron' CONFIG_X86_MCE_NONFATAL $CONFIG_X86_MCE
+-dep_bool 'check for P4 thermal throttling interrupt.' CONFIG_X86_MCE_P4THERMAL $CONFIG_X86_MCE $CONFIG_X86_LOCAL_APIC
++dep_bool 'check for P4 thermal throttling interrupt.' CONFIG_X86_MCE_P4THERMAL $CONFIG_X86_MCE $CONFIG_X86_UP_APIC
+ 
+ 
+ tristate 'Toshiba Laptop support' CONFIG_TOSHIBA
+@@ -185,20 +200,6 @@
+ 
+ bool 'Math emulation' CONFIG_MATH_EMULATION
+ bool 'MTRR (Memory Type Range Register) support' CONFIG_MTRR
+-bool 'Symmetric multi-processing support' CONFIG_SMP
+-bool 'Preemptible Kernel' CONFIG_PREEMPT
+-if [ "$CONFIG_SMP" != "y" ]; then
+-   bool 'Local APIC support on uniprocessors' CONFIG_X86_UP_APIC
+-   dep_bool 'IO-APIC support on uniprocessors' CONFIG_X86_UP_IOAPIC $CONFIG_X86_UP_APIC
+-   if [ "$CONFIG_X86_UP_APIC" = "y" ]; then
+-      define_bool CONFIG_X86_LOCAL_APIC y
+-   fi
+-   if [ "$CONFIG_X86_UP_IOAPIC" = "y" ]; then
+-      define_bool CONFIG_X86_IO_APIC y
+-   fi
+-else
+-   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
+-fi
+ 
+ if [ "$CONFIG_SMP" = "y" -o "$CONFIG_PREEMPT" = "y" ]; then
+    if [ "$CONFIG_X86_CMPXCHG" = "y" ]; then
 
-problem:
-
-I discovered the following effect: I made a driver as a
-module. I created a regression test which was (also)
-loading/unloading the module about 20000 times.
-
-When running this test my kernel began to kill processes
-after 10000 cycles and finally it crashed.
-
-After some debugging I wrote a little test driver
-(see code below) and I found out that the reason for this
-problem is the registration / unregistration of the interrupt.
-
-Does anybody know what's wrong (if it is wrong) in the usage
-of request_irq(..) and free_irq(..) in this scenario??
-
-I also tried this testcase on my i386 box (Thinkpad21) and
-saw the memory slowly decreasing. There I did not wait untill
-any kernel problems.
-
-I took the memory value from /proc/meminfo Mem: free
-
-Any ideas?
-
-Thanks,
-Stefan Koch
-
-===========================================================
-CODE:
-
-/* just copy pasted the headers from another driver - not all is needed ;-)
-*/
-
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/version.h>
-#include <linux/sched.h>
-#include <linux/string.h>
-#include <linux/timer.h>
-#include <linux/ptrace.h>
-#include <linux/errno.h>
-#include <linux/ioport.h>
-#include <linux/slab.h>
-#include <linux/interrupt.h>
-#include <linux/version.h>
-#include <linux/pci.h>
-#include <linux/delay.h>
-#include <linux/init.h>
-#include <linux/netdevice.h>
-#include <linux/etherdevice.h>
-#include <linux/skbuff.h>
-#include <linux/proc_fs.h>
-#include <linux/modversions.h>
-
-static void inthnd (int irq, void *dev, struct pt_regs *regs)
-{
- return;
-}
-
-int init_module(void)
-{
- int c;
-
- printk("inttest start\n");
-
- for (c = 0; c < 100000; c++) {
-  if (request_irq( 8, inthnd, 0, "inttest", NULL) != 0) {
-   printk("inttest: %d cannot request irq\n", c);
-   break;
-  }
-  free_irq(8, NULL);
- }
- printk("inttest stop\n");
-
- return 0;
-}
-
-void cleanup_module(void)
-{
- printk("inttest cleanup\n");
-}
-
+		
 

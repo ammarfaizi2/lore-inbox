@@ -1,95 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267139AbSLDXdU>; Wed, 4 Dec 2002 18:33:20 -0500
+	id <S267153AbSLDXmm>; Wed, 4 Dec 2002 18:42:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267144AbSLDXdT>; Wed, 4 Dec 2002 18:33:19 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:44560 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S267139AbSLDXdS> convert rfc822-to-8bit; Wed, 4 Dec 2002 18:33:18 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] 2.4.20 resending cciss  patch 01 - adds support for the SA641, SA642 and SA6400 controllers.
-Date: Wed, 4 Dec 2002 17:40:45 -0600
-Message-ID: <A2C35BB97A9A384CA2816D24522A53BB03991728@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.4.20 resending cciss  patch 01 - adds support for the SA641, SA642 and SA6400 controllers.
-Thread-Index: AcKb48rIqn3VeHF2TYG9m/4OigiIRQ==
-From: "White, Charles" <Charles.White@hp.com>
-To: "Marcelo Tosatti" <marcelo@conectiva.com.br>, "Jens Axboe" <axboe@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Dec 2002 23:40:45.0799 (UTC) FILETIME=[910EE770:01C29BEE]
+	id <S267161AbSLDXml>; Wed, 4 Dec 2002 18:42:41 -0500
+Received: from [209.184.141.189] ([209.184.141.189]:26953 "HELO ubergeek")
+	by vger.kernel.org with SMTP id <S267153AbSLDXml>;
+	Wed, 4 Dec 2002 18:42:41 -0500
+Subject: 2.4.20aa1 patch reversing problems.
+From: GrandMasterLee <masterlee@digitalroadkill.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1039045781.4250.37.camel@UberGeek>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 04 Dec 2002 17:49:41 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I thought changing pci_ids.h should be a separate patch.. 
-But there is the patch again with the #ifdef CISSC removed, and
-pci_ids.h included.
+I got the full 2.4.20aa1 patch and patched a pristine 2.4.20. No
+problems there. I then wanted to reverse all the XFS patches to apply
+the latest stuff. To my surprise, I can't reverse several of the patches
+without error. (at least 3 of the 7{0,1}_* patches)
 
-The following patch adds support for the SA641, SA642 and SA6400
-controllers to the cciss driver in the 2.2.20 tree. 
+I'm not sure why this would be, I've gone in order, and reverse order,
+and I still get problems. It seems quite odd to me that this would
+happen...since I thought the split patches would be in the full patch as
+well. 
+
+Is something amiss here? Help and advice is much appreciated.
 
 
-
-
-diff -urN linux-2.4.20.orig/Documentation/cciss.txt
-linux-2.4.20.cciss_p01/Documentation/cciss.txt
---- linux-2.4.20.orig/Documentation/cciss.txt	Fri Aug  2 20:39:42 2002
-+++ linux-2.4.20.cciss_p01/Documentation/cciss.txt	Wed Dec  4
-15:05:43 2002
-@@ -9,6 +9,9 @@
- 	* SA 5i 
- 	* SA 532
- 	* SA 5312
-+	* SA 641
-+	* SA 642
-+	* SA 6400
- 
- If nodes are not already created in the /dev/cciss directory
- 
-diff -urN linux-2.4.20.orig/drivers/block/cciss.c
-linux-2.4.20.cciss_p01/drivers/block/cciss.c
---- linux-2.4.20.orig/drivers/block/cciss.c	Thu Nov 28 18:53:12 2002
-+++ linux-2.4.20.cciss_p01/drivers/block/cciss.c	Wed Dec  4
-17:32:22 2002
-@@ -66,6 +66,12 @@
-                         0x0E11, 0x4082, 0, 0, 0},
- 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSB,
-                         0x0E11, 0x4083, 0, 0, 0},
-+	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
-+                        0x0E11, 0x409A, 0, 0, 0},
-+	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
-+                        0x0E11, 0x409B, 0, 0, 0},
-+	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
-+                        0x0E11, 0x409C, 0, 0, 0},
- 	{0,}
- };
- MODULE_DEVICE_TABLE(pci, cciss_pci_device_id);
-@@ -81,6 +87,9 @@
- 	{ 0x40800E11, "Smart Array 5i", &SA5B_access},
- 	{ 0x40820E11, "Smart Array 532", &SA5B_access},
- 	{ 0x40830E11, "Smart Array 5312", &SA5B_access},
-+	{ 0x409A0E11, "Smart Array 641", &SA5_access},
-+	{ 0x409B0E11, "Smart Array 642", &SA5_access},
-+	{ 0x409C0E11, "Smart Array 6400", &SA5_access},
- };
- 
- /* How long to wait (in millesconds) for board to go into simple mode
-*/
-diff -urN linux-2.4.20.orig/include/linux/pci_ids.h
-linux-2.4.20.cciss_p01/include/linux/pci_ids.h
---- linux-2.4.20.orig/include/linux/pci_ids.h	Thu Nov 28 18:53:15 2002
-+++ linux-2.4.20.cciss_p01/include/linux/pci_ids.h	Wed Dec  4
-17:32:55 2002
-@@ -143,6 +143,7 @@
- #define PCI_DEVICE_ID_COMPAQ_NETEL100I	0xb011
- #define PCI_DEVICE_ID_COMPAQ_CISS	0xb060
- #define PCI_DEVICE_ID_COMPAQ_CISSB	0xb178
-+#define PCI_DEVICE_ID_COMPAQ_CISSC 	0x0046
- #define PCI_DEVICE_ID_COMPAQ_THUNDER	0xf130
- #define PCI_DEVICE_ID_COMPAQ_NETFLEX3B	0xf150
- 
+--The GrandMaster
+  <masterlee@digitalroadkill.net>

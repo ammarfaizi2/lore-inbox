@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274972AbRJJGq1>; Wed, 10 Oct 2001 02:46:27 -0400
+	id <S274991AbRJJGu6>; Wed, 10 Oct 2001 02:50:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274989AbRJJGqT>; Wed, 10 Oct 2001 02:46:19 -0400
-Received: from ns.suse.de ([213.95.15.193]:65038 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S274972AbRJJGqK>;
-	Wed, 10 Oct 2001 02:46:10 -0400
-Date: Wed, 10 Oct 2001 08:46:41 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Thomas Hood <jdthood@mail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: sysctl interface to bootflags?
-In-Reply-To: <1002596188.5283.17.camel@thanatos>
-Message-ID: <Pine.LNX.4.30.0110100844340.26743-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274990AbRJJGus>; Wed, 10 Oct 2001 02:50:48 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:38791 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S274989AbRJJGuc>; Wed, 10 Oct 2001 02:50:32 -0400
+Date: Wed, 10 Oct 2001 12:24:00 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
+Message-ID: <20011010122400.A17006@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Oct 2001, Thomas Hood wrote:
 
-> Well, it may run, but what it changed was NOT the SBF field.
-> When I restarted my machine the BIOS beeped and told me
-> there was an error in the nonvolatile RAM.  I was made to
-> reset the system date, and then the computer rebooted
-> normally.
+In article <Pine.LNX.4.33.0110092236210.1305-100000@penguin.transmeta.com> Linus Torvalds wrote:
 
-Ouch. Can you verify that the CMOS register its changing matches
-with what's listed in the BOOT record ?
-add a printk to bootflag.c to check.
+> Now, in all fairness I can imagine hacky lock-less removals too. To get
+> them to work, you have to (a) change the "next" pointer to point to the
+> next->next (and have some serialization between removals, but removals
+> only, to make sure you don't have next->next also going away from you) and
+> (b) leave the old "next" pointer (and thus the data structure) around
+> until you can _prove_ that nobody is looking anything up any more, and
+> that the now-defunct data structure can truly be removed.
 
-regards,
+This is exactly what Read-Copy Update does. You keep the old data
+structure around until you are sure that all the CPUs have lost
+references to it by context switching. There are more than
+one relatively non-intrusive ways of detecting completion of such a cycle
+and "deleted" data can be freed afterwards.
 
-Dave.
+The details are in http://lse.sourceforge.net/locking/rcupdate.html.
 
+Thanks
+Dipankar
 -- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
+Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

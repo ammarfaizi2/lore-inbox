@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267132AbSLKMPX>; Wed, 11 Dec 2002 07:15:23 -0500
+	id <S267131AbSLKMNC>; Wed, 11 Dec 2002 07:13:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267133AbSLKMOd>; Wed, 11 Dec 2002 07:14:33 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:57235 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S267132AbSLKMNG>;
-	Wed, 11 Dec 2002 07:13:06 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: James Simmons <jsimmons@infradead.org>
-Date: Wed, 11 Dec 2002 13:20:34 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [TRIVIAL PATCH] FBDEV: Small impact patch for fbdev
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       adaplas@pol.net
-X-mailer: Pegasus Mail v3.50
-Message-ID: <A042D564F44@vcnet.vc.cvut.cz>
+	id <S267132AbSLKMNC>; Wed, 11 Dec 2002 07:13:02 -0500
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:38156 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S267131AbSLKMM6>; Wed, 11 Dec 2002 07:12:58 -0500
+Date: Wed, 11 Dec 2002 12:20:37 +0000
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Cc: Kevin Corry <corryk@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lvm-devel@sistina.com
+Subject: Re: [PATCH] dm.c  -  device-mapper I/O path fixes
+Message-ID: <20021211122037.GD20782@reti>
+References: <02121016034706.02220@boiler> <20021211121749.GA20782@reti>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021211121749.GA20782@reti>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Dec 02 at 21:59, James Simmons wrote:
+Some fields in the duplicated bio weren't being set up properly in
+__split_page(). [Kevin Corry]
 
-> Fixed. Actually I used the following code.
-> 
-> int fb_pan_display(struct fb_var_screeninfo *var, struct fb_info *info)
-> {
->         int xoffset = var->xoffset;
->         int yoffset = var->yoffset;
->         int err;
-> 
->         if (xoffset < 0 || yoffset < 0 || info->fbops->fb_pan_display ||
-
-I'm probably missing something important, but do not you want
-                                           !info->fbops->fb_pan_display
-instead?
-                                                            Petr
-                                                                                                       
->             xoffset + info->var.xres > info->var.xres_virtual ||
->             yoffset + info->var.yres > info->var.yres_virtual)
->                 return -EINVAL;
->         if ((err = info->fbops->fb_pan_display(var, info)))
->                 return err;
->         info->var.xoffset = var->xoffset;
->         info->var.yoffset = var->yoffset;
->         if (var->vmode & FB_VMODE_YWRAP)
+--- diff/drivers/md/dm.c	2002-12-11 12:00:39.000000000 +0000
++++ source/drivers/md/dm.c	2002-12-11 12:00:44.000000000 +0000
+@@ -337,7 +337,7 @@
+ {
+ 	struct dm_target *ti = dm_table_find_target(ci->md->map, ci->sector);
+ 	struct bio *clone, *bio = ci->bio;
+-	struct bio_vec *bv = bio->bi_io_vec + (bio->bi_vcnt - 1);
++	struct bio_vec *bv = bio->bi_io_vec + ci->idx;
+ 
+ 	DMWARN("splitting page");
+ 
+@@ -349,11 +349,13 @@
+ 
+ 	clone->bi_sector = ci->sector;
+ 	clone->bi_bdev = bio->bi_bdev;
+-	clone->bi_flags = bio->bi_flags | (1 << BIO_SEG_VALID);
+ 	clone->bi_rw = bio->bi_rw;
++	clone->bi_vcnt = 1;
+ 	clone->bi_size = len << SECTOR_SHIFT;
+ 	clone->bi_end_io = clone_endio;
+ 	clone->bi_private = ci->io;
++	clone->bi_io_vec->bv_offset = bv->bv_len - clone->bi_size;
++	clone->bi_io_vec->bv_len = clone->bi_size;
+ 
+ 	ci->sector += len;
+ 	ci->sector_count -= len;

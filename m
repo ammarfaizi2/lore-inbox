@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbTFZTzr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 15:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTFZTzr
+	id S263638AbTFZT5T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 15:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263676AbTFZT5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 15:55:47 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:4474 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263205AbTFZTzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 15:55:44 -0400
-Date: Thu, 26 Jun 2003 13:10:05 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: phillips@arcor.de, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC] My research agenda for 2.7
-Message-Id: <20030626131005.4609acb5.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.53.0306262030500.5910@skynet>
-References: <200306250111.01498.phillips@arcor.de>
-	<20030625092938.GA13771@skynet.ie>
-	<200306262100.40707.phillips@arcor.de>
-	<Pine.LNX.4.53.0306262030500.5910@skynet>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Jun 2003 20:09:57.0489 (UTC) FILETIME=[EA58F610:01C33C1E]
+	Thu, 26 Jun 2003 15:57:19 -0400
+Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:48865 "EHLO
+	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
+	id S263638AbTFZT5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 15:57:14 -0400
+Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D551DF@axcs03.cos.agilent.com>
+From: yiding_wang@agilent.com
+To: tony.luck@intel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.5.72 doesn't boot solution
+Date: Thu, 26 Jun 2003 14:11:24 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman <mel@csn.ul.ie> wrote:
->
-> Buddy allocators, including the
->  one implemented in Linux, do not record what order allocation a struct
->  page belongs to.
+Tony,
 
-We can do that.
+I have compared the working configuration file and original one, and do see some possible setting issues.  I am tied up by other stuff and don't have time to confirm it now.  The suspicious parts are:
+
+CONFIG_BLK_DEV_INITRD
+CONFIG_SERIAL_8250
+CONFIG_VGA_CONSOLE
+CONFIG_SERIAL_CORE
+CONFIG_SERIAL_CORE_CONSOLE
+
+All above are set to yes in working configuration file but no in original file.
+
+Eddie
 
 
---- 25/mm/page_alloc.c~a	2003-06-26 13:09:11.000000000 -0700
-+++ 25-akpm/mm/page_alloc.c	2003-06-26 13:09:24.000000000 -0700
-@@ -123,6 +123,7 @@ static void prep_compound_page(struct pa
- 		SetPageCompound(p);
- 		p->lru.next = (void *)page;
- 	}
-+	page[1].index = order;
- }
+> -----Original Message-----
+> From: Luck, Tony [mailto:tony.luck@intel.com]
+> Sent: Wednesday, June 25, 2003 4:12 PM
+> To: yiding_wang@agilent.com
+> Subject: RE: 2.5.72 doesn't boot
+> 
+> 
+> Great!  Did can you compare the non-working and working
+> .config files to see what it causing this?  If you find
+> something post to the kernel mailing list, I'm sure it
+> will be of general interest (since at least two of us hit
+> this problem).
+> 
+> -Tony
  
- static void destroy_compound_page(struct page *page, unsigned long order)
-
-_
-

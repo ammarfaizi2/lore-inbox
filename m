@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263997AbSJJUm5>; Thu, 10 Oct 2002 16:42:57 -0400
+	id <S262197AbSJJVAp>; Thu, 10 Oct 2002 17:00:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263998AbSJJUm5>; Thu, 10 Oct 2002 16:42:57 -0400
-Received: from ns.suse.de ([213.95.15.193]:56837 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S263997AbSJJUm4>;
-	Thu, 10 Oct 2002 16:42:56 -0400
-To: Kevin Corry <corryk@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] EVMS core (3/9) discover.c
-References: <02101014305502.17770@boiler.suse.lists.linux.kernel> <02101014352905.17770@boiler.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 10 Oct 2002 22:48:42 +0200
-In-Reply-To: Kevin Corry's message of "10 Oct 2002 22:20:58 +0200"
-Message-ID: <p73n0pmow9h.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S262387AbSJJVAp>; Thu, 10 Oct 2002 17:00:45 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:28078 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262216AbSJJVAo>; Thu, 10 Oct 2002 17:00:44 -0400
+Subject: Re: Patch?: linux-2.5.41 multiprocessor vs. CONFIG_X86_TSC
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: john stultz <johnstul@us.ibm.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       "Adam J. Richter" <adam@yggdrasil.com>, mingo@redhat.com,
+       James.Bottomley@HansenPartnership.com,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1034274158.19093.28.camel@cog>
+References: <20021010050212.A383@baldur.yggdrasil.com> 
+	<20021010121757.GY12432@holomorphy.com>  <1034274158.19093.28.camel@cog>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Oct 2002 22:17:21 +0100
+Message-Id: <1034284641.6463.26.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin Corry <corryk@us.ibm.com> writes:
+On Thu, 2002-10-10 at 19:22, john stultz wrote:
+> Actually, the TSC is only guaranteed to be a valid time source on
+> uniprocessor machines. Linux tries its best to synchronize the TSCs
+> across cpus at boot, however larger systems where all the cups are not
 
-> +	list_for_each_entry(plugin, &plugin_head, headers) {
-> +		if (GetPluginType(plugin->id) == EVMS_DEVICE_MANAGER) {
-> +			spin_unlock(&plugin_lock);
-> +			DISCOVER(plugin, disk_list);
-> +			spin_lock(&plugin_lock);
-> +		}
+On a subset of uniprocessor machines...
 
-How do you know "plugin" and its successors are still valid when retaking 
-the spinlock? Looks like you need a reference count on the object here.
-
-Similar with other functions.
-
-> +
-> +	if (!gd) {
-> +		gd = alloc_disk();
-> +		BUG_ON(!gd);
-
-
-BUG_ON ? Can't this fail for legal reasons?
-
-
--Andi

@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290118AbSAQWGY>; Thu, 17 Jan 2002 17:06:24 -0500
+	id <S290485AbSAQWJe>; Thu, 17 Jan 2002 17:09:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290481AbSAQWGO>; Thu, 17 Jan 2002 17:06:14 -0500
-Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:34312 "EHLO
-	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
-	id <S290118AbSAQWGH>; Thu, 17 Jan 2002 17:06:07 -0500
-Subject: Re: hangs using opengl
-From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-To: J Sloan <jjs@lexus.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C47429B.7060306@lexus.com>
-In-Reply-To: <20020117191450.932B64ADB4@drie.kotnet.org>		<3C47284A.9080607@kabelfoon.nl>
-	 <1011300289.32057.18.camel@zeus> 	<3C473A57.3000206@lexus.com>
-	<1011302680.639.12.camel@zeus>  <3C47429B.7060306@lexus.com>
-Content-Type: text/plain
+	id <S290481AbSAQWJY>; Thu, 17 Jan 2002 17:09:24 -0500
+Received: from [65.114.209.169] ([65.114.209.169]:56588 "EHLO mail3.cdsw.com")
+	by vger.kernel.org with ESMTP id <S290485AbSAQWJM>;
+	Thu, 17 Jan 2002 17:09:12 -0500
+Message-ID: <3C474B9C.560DF747@excelco.com>
+Date: Thu, 17 Jan 2002 15:09:32 -0700
+From: root <howard@excelco.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-64GB-SMP i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: newbie with a qlogic host bus adapter
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 17 Jan 2002 16:04:17 -0600
-Message-Id: <1011305059.614.31.camel@zeus>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-01-17 at 15:31, J Sloan wrote:
-> >Stability wise,
-> >internal NvAGP worked better than agpgart on KX133 and 440BX.
-> >
-> OK - I am seeing no stability issues so
-> I guess I don't have to worry about that
-> bit -
+I have a Qlogic qla2200f host bus adapter for an optical SAN.  I am
+running SuSE linux 7.1, I just downloaded kernel 2.4.17 sources and want
+to compile a kernel.  But when I "make menuconfig" 
+I go into scsi support, and into scs low level drivers, the qlogic
+"qla2x00 QLC driver support" is not an option as it should be according
+to the documentation for the qla2200.
+how do i fix that?
 
-Interesting, as I said before, YMMV. On this system (cheap Korean
-mainboard), a previous BIOS rev completely hosed AGP altogether :-/.
+also i tried to just compile the drivers to be modules, but i get the
+error: /usr/src/linux-2.4/include/linux/modversions.h: No such file or
+directory
 
-> 
-> BTW I did notice some longish pauses
-> during RtCW when using nv agp, so I
-> am using the in-kernel agp....
+where can I get this file?
 
-Hmm, it's fine here. What chipset and video card are you using? I've
-been looking at Athlon boards and I'm curious about issues showing up in
-AGP, IDE, PCI among the various platforms -- specifically AMD and Via
-(maybe SiS too).
-
-I've heard some (dis?)information that AMD agpgart lacks errata
-workarounds? SiS lacks support for more than ATA66? Are there still
-problems with Via timers or PCI?
-
-Just curious,
-Reid
-
+Thankyou much.
+Howard

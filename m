@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVCORfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVCORiE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbVCORfh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 12:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVCORdW
+	id S261604AbVCORiE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 12:38:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVCORgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 12:33:22 -0500
-Received: from fed1rmmtao09.cox.net ([68.230.241.30]:60057 "EHLO
-	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S261656AbVCORc6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 12:32:58 -0500
-Date: Tue, 15 Mar 2005 10:32:54 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] ppc32: Fix a warning in planb video driver
-Message-ID: <20050315173253.GA30353@smtp.west.cox.net>
-References: <20050315170112.GQ8345@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050315170112.GQ8345@smtp.west.cox.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 15 Mar 2005 12:36:01 -0500
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:39694 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261543AbVCORe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 12:34:26 -0500
+Message-ID: <42370B14.50608@lougher.demon.co.uk>
+Date: Tue, 15 Mar 2005 16:19:32 +0000
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041012)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Mackall <mpm@selenic.com>
+CC: Paul Jackson <pj@engr.sgi.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [PATCH][1/2] SquashFS
+References: <4235BAC0.6020001@lougher.demon.co.uk> <20050315003802.GH3163@waste.org> <42363EAB.3050603@yahoo.com.au> <20050315004759.473f6a0b.pj@engr.sgi.com> <42370442.7020401@lougher.demon.co.uk> <20050315172724.GO32638@waste.org>
+In-Reply-To: <20050315172724.GO32638@waste.org>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 10:01:12AM -0700, Tom Rini wrote:
-> [ aside: This has been sitting in the linuxppc-2.5 bk tree for I don't
->   know how long.  And the driver is still horribly broken. ]
+Matt Mackall wrote:
+> On Tue, Mar 15, 2005 at 03:50:26PM +0000, Phillip Lougher wrote:
 > 
-> The following patch moves overlay_is_active to before its first use.  It
-> was originally written when gcc wouldn't complain, but now does, about
-> not having the definition before usage.
+>>Paul Jackson wrote:
+>>
+>>>In the overall kernel (Linus's bk tree) I count:
+>>>
+>>>	733 lines matching 'for *( *; *; *)'
+>>>	718 lines matching 'while *( *1 *)'
+>>>
+>>>In the kernel/*.c files, I count 15 of the 'for(;;)' style and 1 of the
+>>>'while(1)' style.
+>>>
+>>>Certainly the 'for(;;)' style is acceptable, and even slightly to
+>>>substantially dominant, depending on which piece of code you're in.
+>>>
+>>
+>>I prefer the 'while' style, and only used 'for' because that's what I 
+>>thought the kernel used.
+>>
+>>If no-one objects I'll change it back to while...
+>>
+>>Shouldn't issues like this be in the coding style document?
+> 
+> 
+> This particular point is rather trivial. Do whatever suits you.
+> 
 
-Oops,
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+It's a shame the 'rather trivial' issue got picked up in the first place 
+then :-)  I didn't raise the issue.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

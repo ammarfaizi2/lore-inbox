@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262883AbVCJW4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262861AbVCJW5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262883AbVCJW4A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 17:56:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbVCJWv7
+	id S262861AbVCJW5M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 17:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVCJW5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 17:51:59 -0500
-Received: from gate.crashing.org ([63.228.1.57]:27603 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262086AbVCJWtk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 17:49:40 -0500
-Subject: Re: [PATCH 2/2] No-exec support for ppc64
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jake Moilanen <moilanen@austin.ibm.com>
-Cc: Olof Johansson <olof@austin.ibm.com>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Anton Blanchard <anton@samba.org>
-In-Reply-To: <20050310162721.19003dac.moilanen@austin.ibm.com>
-References: <20050308165904.0ce07112.moilanen@austin.ibm.com>
-	 <20050308171326.3d72363a.moilanen@austin.ibm.com>
-	 <20050310032507.GC20789@austin.ibm.com> <1110438934.32524.203.camel@gaston>
-	 <20050310162721.19003dac.moilanen@austin.ibm.com>
-Content-Type: text/plain
-Date: Fri, 11 Mar 2005 09:44:28 +1100
-Message-Id: <1110494668.32525.283.camel@gaston>
+	Thu, 10 Mar 2005 17:57:07 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:47364 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263427AbVCJWxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 17:53:42 -0500
+Date: Thu, 10 Mar 2005 23:53:40 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 4/9] UML - Export gcov symbol based on gcc version
+Message-ID: <20050310225340.GD3205@stusta.de>
+References: <200503100216.j2A2G2DN015232@ccure.user-mode-linux.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503100216.j2A2G2DN015232@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
->  /* Free memory returned from module_alloc */
-> diff -puN arch/ppc64/mm/fault.c~nx-kernel-ppc64 arch/ppc64/mm/fault.c
-> --- linux-2.6-bk/arch/ppc64/mm/fault.c~nx-kernel-ppc64	2005-03-10 13:54:14 -06:00
-> +++ linux-2.6-bk-moilanen/arch/ppc64/mm/fault.c	2005-03-10 13:54:14 -06:00
-> @@ -76,6 +76,13 @@ static int store_updates_sp(struct pt_re
->  	return 0;
->  }
+On Wed, Mar 09, 2005 at 09:16:02PM -0500, Jeff Dike wrote:
+> The init function called by gcc when gcov is enabled is __gcov_init or
+> __bb_init_func, depending on the gcc version.  Anton is using 3.3.4 and 
+> seeing __gcov_init.  I'm using 3.3.2 and seeing __bb_init_func, so we need
+> to close that gap a bit.
+> 
+> Signed-off-by: Jeff Dike <jdike@addtoit.com>
+> 
+> Index: linux-2.6.11/arch/um/kernel/gmon_syms.c
+> ===================================================================
+> --- linux-2.6.11.orig/arch/um/kernel/gmon_syms.c	2005-03-07 10:53:03.000000000 -0500
+> +++ linux-2.6.11/arch/um/kernel/gmon_syms.c	2005-03-07 16:29:37.000000000 -0500
+> @@ -5,8 +5,14 @@
 >  
-> +pte_t *lookup_address(unsigned long address) 
-> +{ 
-> +	pgd_t *pgd = pgd_offset_k(address); 
-> +
-> +	return find_linux_pte(pgd, address);
-> +} 
+>  #include "linux/module.h"
+>  
+> +#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3) || \
+> +	(__GNUC__ == 3 && __GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ >= 4)
+>...
 
-static please, even inline in this case.
+This patch is still wrong.
 
-I've removed Andrew from CC upon his request, Paul, Anton or I will
-forward to him when it's ready, no need to clobber his mailbox in the
-meantime.
+It seems my comment on this [1] was lost:
 
-Ben.
+<--  snip  -->
 
+This line has to be something like
+
+( (__GNUC__ == 3 && __GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ >= 4) && \
+   HEAVILY_PATCHED_SUSE_GCC ) 
+
+I hope SuSE has added some #define to distinguish what they call 
+"gcc 3.3.4" from GNU gcc 3.3.4
+
+<--  snip  -->
+
+
+cu
+Adrian
+
+[1] http://www.ussg.iu.edu/hypermail/linux/kernel/0503.0/1876.html
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

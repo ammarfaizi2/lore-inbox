@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVBXU45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbVBXUyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbVBXU45 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 15:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVBXU45
+	id S262476AbVBXUyp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 15:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVBXUyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 15:56:57 -0500
-Received: from math.ut.ee ([193.40.36.2]:6097 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S262480AbVBXUzr (ORCPT
+	Thu, 24 Feb 2005 15:54:45 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:38472 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262476AbVBXUyj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 15:55:47 -0500
-Date: Thu, 24 Feb 2005 22:51:45 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: Sven Luther <sven.luther@wanadoo.fr>
-cc: Tom Rini <trini@kernel.crashing.org>, linuxppc-dev@ozlabs.org,
-       Sven Hartge <hartge@ds9.gnuu.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christian Kujau <evil@g-house.de>
-Subject: Re: [PATCH 2.6.10-rc3][PPC32] Fix Motorola PReP (PowerstackII Utah)
- PCI IRQ map
-In-Reply-To: <20050224170150.GA7746@pegasos>
-Message-ID: <Pine.SOC.4.61.0502242250050.21289@math.ut.ee>
-References: <20041206185416.GE7153@smtp.west.cox.net>
- <Pine.SOC.4.61.0502221031230.6097@math.ut.ee> <20050224074728.GA31434@pegasos>
- <Pine.SOC.4.61.0502241746450.21289@math.ut.ee> <20050224160657.GB11197@pegasos>
- <Pine.SOC.4.61.0502241832510.21289@math.ut.ee> <20050224170150.GA7746@pegasos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 24 Feb 2005 15:54:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=NZpzMzP/XgMGcImWVsrZgQNsub5J5kXgTafaFwjvy41UCDyw1nYGoqzOjjBDg1Xu3qD8mcySL/2uTZY744sP4xfglkAt5lyCJhVt3kUJF5KmzT82Zz0uRsz5EQ/Wri/pVokWN03YNNJCHhjsiz93WwztpMqlUNM3eZg+qaF/FCg=
+Message-ID: <42bf3386050224125455c8e6cc@mail.gmail.com>
+Date: Thu, 24 Feb 2005 21:54:33 +0100
+From: Thor Harald Johansen <thorhajo@gmail.com>
+Reply-To: Thor Harald Johansen <thorhajo@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: pegasus.c driver gives 'Tx timed out' on high traffic
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Then just dd your /boot/vmlinuz-2.6.10-powerpc to your prep partition, or
-> better yet to a tftp server, and try it out. If the scsi problems are there,
-> can you fill a bug report against kernel-source-2.6.10 ?
+[1.] One line summary of the problem:
+pegasus.c driver gives 'Tx timed out' on high traffic
 
-Thanks for the new kernel. Just filed a bug report on 
-kernel-source-2.6.10.
+[2.] Full description of the problem/report:
+The pegasus driver gives errors on Billionton 10/100 FastEthernet
+(USBE-100B2) adapters on Toshiba 2140CDS NEC-based USB controllers, in
+the form of "Tx timed out" and "Intr status -84", on anything but
+light traffic (<1 Mbit) lasting for more than a few seconds (5-7
+seconds). Card then stops conveying traffic for anywhere between 5 and
+20 seconds, then recouperates. Very annoying as it renders cards
+unusable. Doesn't happen with any other USB controller, nor any other
+USB device on the same controller (copying large files from/to an MP3
+player works fine).
 
-> You may probably want also to modify /etc/mkinitrd/mkinitrd:MODULES_DEP to dep
-> instead of MOST, or you may hit size problems with your initrd, i would be
-> interested in knowing that.
+[3.] Keywords (i.e., modules, networking, kernel):
+usb, networking, IRQs?
 
-It worked without changing the module list, with 5.2M resulting vmlinuz.
+[4.] Kernel version (from /proc/version):
+2.4.26 (has the issue been fixed in a newer kernel perhaps?)
+
+[7.2.] Processor information (from /proc/cpuinfo):
+AMD K6-2 450 MHz
+
+[X.] Other notes, patches, fixes, workarounds:
+Purposely slow down the network traffic? ;-)
+
+I sent it here because the person I assumed to be the original
+mainainer (the guy running pegasus2.sf.net) hasn't answered. If I
+remember right, he didn't answer 2 years ago either...
 
 -- 
-Meelis Roos (mroos@linux.ee)
+Thor

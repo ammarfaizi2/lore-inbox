@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318295AbSHPLOA>; Fri, 16 Aug 2002 07:14:00 -0400
+	id <S318300AbSHPLJy>; Fri, 16 Aug 2002 07:09:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318299AbSHPLOA>; Fri, 16 Aug 2002 07:14:00 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:61936 "EHLO
+	id <S318304AbSHPLJy>; Fri, 16 Aug 2002 07:09:54 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:59120 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318295AbSHPLN7>; Fri, 16 Aug 2002 07:13:59 -0400
-Subject: Re: [PATCH] tsc-disable_B9
+	id <S318300AbSHPLJx>; Fri, 16 Aug 2002 07:09:53 -0400
+Subject: Re: PCI MMIO flushing, write-combining etc
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: john stultz <johnstul@us.ibm.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, Leah Cunningham <leahc@us.ibm.com>,
-       wilhelm.nuesser@sap.com, paramjit@us.ibm.com, msw@redhat.com
-In-Reply-To: <20020815165617.GE14394@dualathlon.random>
-References: <1028771615.22918.188.camel@cog>
-	<1028812663.28883.32.camel@irongate.swansea.linux.org.uk>
-	<1028860246.1117.34.camel@cog>  <20020815165617.GE14394@dualathlon.random>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m3d6sjele5.fsf@defiant.pm.waw.pl>
+References: <m3d6sjele5.fsf@defiant.pm.waw.pl>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 16 Aug 2002 12:15:59 +0100
-Message-Id: <1029496559.31487.48.camel@irongate.swansea.linux.org.uk>
+Date: 16 Aug 2002 12:12:35 +0100
+Message-Id: <1029496355.31514.44.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-15 at 17:56, Andrea Arcangeli wrote:
-> sorry but I don't see the point of badtsc only in kernel.
-> 
-> If the TSC is bad that will be in particular bad from userspace where
-> there's no hope to know what CPU you're running on.
+On Fri, 2002-08-16 at 00:45, Krzysztof Halasa wrote:
+> I understand writes to PR1 can be reordered, merged, and delayed.
+> What should I do to flush the write buffers? I understand reading from
+> PR1 would do. Would reading from NPR2 flush PR1 write buffers?
+> Would writing to NPR2 flush them?
 
-You can still do meaningful measurements for things like profiling
-because the cpu hop is statistically uninteresting.
+That one I can't actually remember. 
 
-> How do you detect the NUMA hw? That would be a nice addition so the
-> numa-Q users won't be required to add notsc to the append lilo line.
+> Now NPR2, the non-prefetchable MMIO region.
+> Is it possible that the writes there are reordered, merged and/or
+> delayed (delayed = not making it to the PCI device when the writel()
+> completes)?
 
-The current Summit patches from IBM (the ones James did and merged in
--ac) do detection for Numa-Q and Summit. Those are pending for Marcelo
-right now so if you have a better way I'd like to know.
+All PCI writes are posted. Think of PCI as messages otherwise you'll go
+slowly insane debugging code. If you want to know your write completed
+you need to read, when the read returns both have completed
 
+> We have ioremap() and ioremap_nocache(). What is the exact difference
+> between them? Would the ioremap_nocache() disable all A) read- and
+> B) write-caching on a) prefetchable MMIO b) non-prefetchable MMIO ?
 
-Alan
+They make no difference
 

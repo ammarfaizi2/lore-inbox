@@ -1,82 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbULVPur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261995AbULVP6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261994AbULVPur (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 10:50:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261995AbULVPuq
+	id S261995AbULVP6k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 10:58:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbULVP6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 10:50:46 -0500
-Received: from svana.org ([203.20.62.76]:49167 "EHLO svana.org")
-	by vger.kernel.org with ESMTP id S261992AbULVPub (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 10:50:31 -0500
-Date: Wed, 22 Dec 2004 16:50:05 +0100
-From: Martijn van Oosterhout <kleptog@svana.org>
-To: Mandeep Sandhu <Mandeep_Sandhu@infosys.com>
-Cc: dima@s2io.com, Jeff Garzik <jgarzik@pobox.com>,
-       linux-newbie@vger.kernel.org, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       kernelnewbies <kernelnewbies@nl.linux.org>
-Subject: Re: zero copy issue while receiving the data (counter part of sendfil e)
-Message-ID: <20041222155003.GA29278@svana.org>
-Reply-To: Martijn van Oosterhout <kleptog@svana.org>
-References: <267988DEACEC5A4D86D5FCD780313FBB02C66FCA@exch-03.noida.hcltech.com> <1103649767.7217.100.camel@beastie> <41C879CB.3040600@pobox.com> <1103658190.7217.121.camel@beastie> <1103703718.3775.93.camel@samish.india.ascend.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
-Content-Disposition: inline
-In-Reply-To: <1103703718.3775.93.camel@samish.india.ascend.com>
-User-Agent: Mutt/1.3.28i
-X-PGP-Key-ID: Length=1024; ID=0x0DC67BE6
-X-PGP-Key-Fingerprint: 295F A899 A81A 156D B522  48A7 6394 F08A 0DC6 7BE6
-X-PGP-Key-URL: <http://svana.org/kleptog/0DC67BE6.pgp.asc>
+	Wed, 22 Dec 2004 10:58:40 -0500
+Received: from boa.mtg-marinetechnik.de ([62.153.155.10]:65518 "EHLO
+	cascabel.mtg-marinetechnik.de") by vger.kernel.org with ESMTP
+	id S261995AbULVP6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 10:58:37 -0500
+Message-ID: <41C99998.8040604@mtg-marinetechnik.de>
+Date: Wed, 22 Dec 2004 16:58:16 +0100
+From: Richard Ems <richard.ems@mtg-marinetechnik.de>
+Organization: MTG Marinetechnik GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, de, es
+MIME-Version: 1.0
+To: Jon Mason <jdmason@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+References: <200412171100.16601.richard.ems@mtg-marinetechnik.de>	 <8924577504121710054331bb54@mail.gmail.com>	 <8924577504121712527144a5cf@mail.gmail.com>	 <41C6E2E1.8030801@mtg-marinetechnik.de>	 <8924577504122009126c40c1fe@mail.gmail.com>	 <41C713EF.8050003@mtg-marinetechnik.de>	 <892457750412201231461415a1@mail.gmail.com>	 <41C7F204.3030503@mtg-marinetechnik.de>	 <89245775041221080238187402@mail.gmail.com>	 <41C93E93.5070704@mtg-marinetechnik.de> <892457750412220654918c785@mail.gmail.com>
+In-Reply-To: <892457750412220654918c785@mail.gmail.com>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Subject: Re: PROBLEM: Network hang: "eth0: Tx timed out (f0080), is buffer 
+  full?" (Plain)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jon Mason wrote:
+> still functioning.  I know you can't log in to the system because of
+> the nfs mounts, but can you see if the system is pingable before you
+> reboot it?
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+No, the system is not pingable.
+I'll trigger the error again and wait longer until the tx timeouts are 
+logged.
 
-On Wed, Dec 22, 2004 at 01:51:58PM +0530, Mandeep Sandhu wrote:
-> On Wed, 2004-12-22 at 01:13, Dmitry Yusupov wrote:
-> > indeed :)
-> > another words if you have modern NIC than you get "zero-copy"(except
-> > copy_to_user()) for free :)
-> what does "checksum on rx" mean??? Don't most of the NIC's support
-> DMA-ing to mem on rx-ing a packet? so what does "zero-copy for free"
-> mean here?
+Thanks, Richard
 
-It's if the network card will check the checksums of the packets on
-receiving. If it doesn't, the main CPU needs to read every byte in the
-packet to calculate the checksum itself. If the CPU is doing that
-anyway you can copy it elsewhere for free.=20
+-- 
+Richard Ems
+Tel: +49 40 65803 312
+Fax: +49 40 65803 392
+Richard.Ems@mtg-marinetechnik.de
 
-Generally, reading from memory takes time because the CPU has to wait,
-writing is free since it can be deferred in the cache (in theory
-indefinitly) until there's free cycle.
+MTG Marinetechnik GmbH - Wandsbeker Königstr. 62 - D 22041 Hamburg
 
-In other words, if the card isn't checksumming but does DMA you're not
-really saving any time over a manual copy.
+GF Dipl.-Ing. Ullrich Keil
+Handelsregister: Abt. B Nr. 11 500 - Amtsgericht Hamburg Abt. 66
+USt.-IdNr.: DE 1186 70571
 
-Hope this helps,
---=20
-Martijn van Oosterhout   <kleptog@svana.org>   http://svana.org/kleptog/
-> Patent. n. Genius is 5% inspiration and 95% perspiration. A patent is a
-> tool for doing 5% of the work and then sitting around waiting for someone
-> else to do the other 95% so you can sue them.
-
---TB36FDmn/VVEgNH/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQFByZeqY5Twig3Ge+YRAhqrAJ9xLO66LZpRLgD2D3wIzuUx0Jo1jgCgic+r
-NSxeItQ4wZKPxGjqv0VqGDo=
-=XEu8
------END PGP SIGNATURE-----
-
---TB36FDmn/VVEgNH/--

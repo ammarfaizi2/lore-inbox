@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269527AbUICRbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269716AbUICRhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269527AbUICRbt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 13:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269680AbUICRa0
+	id S269716AbUICRhO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 13:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269680AbUICRdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 13:30:26 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:25057 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S269527AbUICR22 (ORCPT
+	Fri, 3 Sep 2004 13:33:38 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:11907 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S269611AbUICRdT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 13:28:28 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Date: Fri, 3 Sep 2004 10:27:46 -0700
-User-Agent: KMail/1.7
-Cc: Greg KH <greg@kroah.com>, Matthew Wilcox <willy@debian.org>,
-       Martin Mares <mj@ucw.cz>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-References: <20040903014048.60310.qmail@web14922.mail.yahoo.com>
-In-Reply-To: <20040903014048.60310.qmail@web14922.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409031027.46354.jbarnes@engr.sgi.com>
+	Fri, 3 Sep 2004 13:33:19 -0400
+Date: Fri, 3 Sep 2004 10:33:15 -0700 (PDT)
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
+Message-Id: <20040903173318.15276.75455.31180@sam.engr.sgi.com>
+Subject: [PATCH] Cpusets - Dont export proc_cpuset_operations
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, September 2, 2004 6:40 pm, Jon Smirl wrote:
-> This is a repost of the pci-sysfs-rom-22.patch. No one has made any
-> comments on this version. All previous objections have been addressed.
-> Any objections to sending it upstream?
+Remove gratuitous EXPORT_SYMBOL of proc_cpuset_operations.
 
-Hm, the last one I tried worked fine, but this one makes my qla card stop 
-working, but not right way.  The system gets to init and then falls over, 
-maybe when it starts doing writes?  The last version I tried seems to work ok 
-though.  Has something changed in the PCI layer that would affect this?
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-Thanks,
-Jesse
+Index: 2.6.9-rc1/kernel/cpuset.c
+===================================================================
+--- 2.6.9-rc1.orig/kernel/cpuset.c	2004-09-03 09:02:29.000000000 -0700
++++ 2.6.9-rc1/kernel/cpuset.c	2004-09-03 09:02:34.000000000 -0700
+@@ -1500,4 +1500,3 @@ struct file_operations proc_cpuset_opera
+ 	.llseek		= seq_lseek,
+ 	.release	= single_release,
+ };
+-EXPORT_SYMBOL(proc_cpuset_operations);
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

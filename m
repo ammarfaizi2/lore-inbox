@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281451AbRKHEhe>; Wed, 7 Nov 2001 23:37:34 -0500
+	id <S281462AbRKHEkp>; Wed, 7 Nov 2001 23:40:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281463AbRKHEhY>; Wed, 7 Nov 2001 23:37:24 -0500
-Received: from guppy.vub.ac.be ([134.184.129.2]:23210 "EHLO guppy.vub.ac.be")
-	by vger.kernel.org with ESMTP id <S281451AbRKHEhF>;
-	Wed, 7 Nov 2001 23:37:05 -0500
-Date: Thu, 8 Nov 2001 05:36:53 +0100 (CET)
-From: Wouter Van Hemel <wouter@fort-knox.rave.org>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: kernel compilation failure, 'deactivate_page'
-In-Reply-To: <1228C3EC-D3FE-11D5-A423-00306569F1C6@haque.net>
-Message-ID: <Pine.LNX.4.33.0111080530280.4723-100000@fort-knox.rave.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281463AbRKHEke>; Wed, 7 Nov 2001 23:40:34 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:5518 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281462AbRKHEkX>;
+	Wed, 7 Nov 2001 23:40:23 -0500
+Date: Wed, 07 Nov 2001 20:39:54 -0800 (PST)
+Message-Id: <20011107.203954.118627544.davem@redhat.com>
+To: adilger@turbolabs.com
+Cc: tim@physik3.uni-rostock.de, jgarzik@mandrakesoft.com, andrewm@uow.edu.au,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        netdev@oss.sgi.com, ak@muc.de, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011107213218.U5922@lynx.no>
+In-Reply-To: <20011107173626.S5922@lynx.no>
+	<20011107.164426.35502643.davem@redhat.com>
+	<20011107213218.U5922@lynx.no>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Nov 2001, Mohammad A. Haque wrote:
+   From: Andreas Dilger <adilger@turbolabs.com>
+   Date: Wed, 7 Nov 2001 21:32:18 -0700
 
->
-> On Wednesday, November 7, 2001, at 10:26 PM, Wouter Van Hemel wrote:
->
-> >
-> > I can't get the (clean) 2.4.14 kernel to compile. In the end, during
-> > linking I guess, it fails with:
-> >
-> > [...]
-> > drivers/block/block.o: In function `lo_send':
-> > drivers/block/block.o(.text+0x854f): undefined reference to
-> > `deactivate_page'
-> > drivers/block/block.o(.text+0x8599): undefined reference to
-> > `deactivate_page'
-> > make: *** [vmlinux] Error 1
-> >
-> > And this is what happens before, while compiling loop.c:
-> > loop.c: In function `lo_send':
-> > loop.c:210: warning: implicit declaration of function `deactivate_page'
->
-> Durn it wouter, you creating problems here too? =P
->
+   I don't see that it harms anything to use the macros instead.
 
-arghl... caught. :)
+Maybe if this code were literally etched into the back your skull like
+it is for some of us, you'd understand what a detriment it is to make
+changes like this when it isn't necessary :-)
 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=100502447823220&w=2
->
-
-I did a search on www.uwsg.indiana.edu for 'deactivate_page', but nothing
-turned up... Thanks. That simple, huh? Everything works fine after just
-throwing that function out?
-
+Franks a lot,
+David S. Miller
+davem@redhat.com
 

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318421AbSGaRko>; Wed, 31 Jul 2002 13:40:44 -0400
+	id <S318420AbSGaRyf>; Wed, 31 Jul 2002 13:54:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318422AbSGaRko>; Wed, 31 Jul 2002 13:40:44 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:3577 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318421AbSGaRkm>; Wed, 31 Jul 2002 13:40:42 -0400
-Subject: Re: [BUGS] 2.5.29: scsi/pcmcia|sound/trident|devfs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nico Schottelius <nico-mutt@schottelius.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020731171517.GA818@schottelius.org>
-References: <20020731171517.GA818@schottelius.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 31 Jul 2002 20:00:14 +0100
-Message-Id: <1028142014.7886.105.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318419AbSGaRyf>; Wed, 31 Jul 2002 13:54:35 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:2830 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S318420AbSGaRye>; Wed, 31 Jul 2002 13:54:34 -0400
+Date: Wed, 31 Jul 2002 13:50:05 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Martin Mares <mj@ucw.cz>
+cc: Dave Jones <davej@suse.de>, Russell King <rmk@arm.linux.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: /proc/pci removal?
+In-Reply-To: <20020729162301.GA5377@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.3.96.1020731134349.10066B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-31 at 18:15, Nico Schottelius wrote:
+On Mon, 29 Jul 2002, Martin Mares wrote:
+
+> Hello, world!\n
 > 
-> make[3]: Entering directory `/usr/src/linux-2.5.29/drivers/scsi/pcmcia'
->   gcc -Wp,-MD,./.nsp_cs.o.d -D__KERNEL__ -I/usr/src/linux-2.5.29/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
->   -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include -DMODULE -include /usr/src/linux-2.5.29/include/linux/modversions.h
->   -DKBUILD_BASENAME=nsp_cs   -c -o nsp_cs.o nsp_cs.c
->   nsp_cs.c: In function `nsp_queuecommand':
-
-The author sent me an updated driver for this. I'm waiting for Linus to
-put out .30 so I can resync and send more patches. I'll probably also
-drop it into 2.4-ac.
-
+> > ISTR Linus was quite attached to it, so it got un-obsoleted.
 > 
-> make[2]: Entering directory `/usr/src/linux-2.5.29/sound/oss'
->   gcc -Wp,-MD,./.trident.o.d -D__KERNEL__ -I/usr/src/linux-2.5.29/include -Wall
->   -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include -DMODULE -include /usr/src/linux-2.5.29/include/linux/modversions.h
->    -DKBUILD_BASENAME=trident   -c -o trident.o trident.c
-> trident.c:2124: macro `synchronize_irq' used without args
-> trident.c:2131: macro `synchronize_irq' used without args
+> Exactly.  I've marked it as obsolete years ago, but when I wanted
+> to rip it out, Linus said he likes /proc/pci and it has to stay.
+> 
+> I still think that it's an extremely ugly interface, especially
+> because it requires the kernel to contain the list of vendor and device
+> names.
 
-I have this fixed in my tree. I have a seperate problem where the
-trident drivers blow up gcc 3.1 but thats reported and a gcc issue.
-Again I'll send this for .30 if its not done
+If for no other reason than allowing easy updates, this would be a good
+place for a module. Of course you can say that about the blacklisted
+chipsets, etc, as well.
 
-> CONFIG_PREEMPT=y
+I guess if it's a favorite feature it stays. I do use it, but there are
+other tools as mentioned.
 
-Be careful with this. Its still not safe for several things (kernel FPU
-using stuff for example)
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,125 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268177AbUJSA4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268180AbUJSBAZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268177AbUJSA4F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 20:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268180AbUJSA4F
+	id S268180AbUJSBAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 21:00:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268210AbUJSBAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 20:56:05 -0400
-Received: from mail.scitechsoft.com ([63.195.13.67]:31157 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S268177AbUJSAzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 20:55:53 -0400
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: Richard Smith <rsmith@bitworks.com>
-Date: Mon, 18 Oct 2004 17:55:16 -0700
-MIME-Version: 1.0
-Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
-CC: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Message-ID: <41740384.5783.12A07B14@localhost>
-In-reply-to: <41744505.4080507@bitworks.com>
-References: <9e47339104101814166bf4cfe5@mail.gmail.com>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Spam-Flag: NO
+	Mon, 18 Oct 2004 21:00:24 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:31619 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S268180AbUJSBAC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 21:00:02 -0400
+Subject: Re: [PATCH 2/3] ext3 reservation allow turn off for specifed file
+From: Mingming Cao <cmm@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: sct@redhat.com, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+In-Reply-To: <20041018164218.70fb08d3.akpm@osdl.org>
+References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
+	<1097856114.4591.28.camel@localhost.localdomain>
+	<1097858401.1968.148.camel@sisko.scot.redhat.com>
+	<1097872144.4591.54.camel@localhost.localdomain>
+	<1097878826.1968.162.camel@sisko.scot.redhat.com>
+	<1097879695.4591.61.camel@localhost.localdomain>
+	<1098140129.9754.1064.camel@w-ming2.beaverton.ibm.com> 
+	<20041018164218.70fb08d3.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Oct 2004 18:01:42 -0700
+Message-Id: <1098147705.8803.1084.camel@w-ming2.beaverton.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Smith <rsmith@bitworks.com> wrote:
-
-> Jon Smirl wrote:
+On Mon, 2004-10-18 at 16:42, Andrew Morton wrote:
+> Mingming Cao <cmm@us.ibm.com> wrote:
+> >
+> > Allow user shut down reservation-based allocation(using ioctl) on a specific file(e.g. for seeky random write).
 > 
-> > Every system has to be able to somehow indicate that it can find/load the
-> > kernel image or that the image is corrupt or that hardware diagnostics failed.
-> > Displaying this info is the responsibility of the BIOS.
+> Applications currently pass a seeky-access hint into the kernel via
+> posix_fadvise(POSIX_FADV_RANDOM).  It would be nice to hook into that
+> rather than adding an ext3-specific ioctl.  Maybe just peeking at
+> file->f_ra.ra_pages would suffice.
 > 
-> Jon, I agree with you 100%.  I was merely responding to a
-> statement I saw as false. 
 > 
-> If we could get the video chip manufacturers to provide me with
-> all the necessary documentation we embedded folk would be happy to
-> do exactly as you say.  We could code up a nice robust boot time
-> init procedure to serve our purposes.  OF would be great if all
-> the mfgs would support it. 
 
-Well being able to use this BIOS emulator logic to bring up the primary 
-video card in the firmware should solve this problem, right? Just ignore 
-the fact that the BIOS image we are using happens to be x86 code, and 
-think about is as a set of instructions that we execute using an 
-interpreter (ie: the same as Open Firmware really).
+Ha, I think I did not make this clear in the description: The patch did
+not add a new ext3-specific ioctl. We added two ioctl before for ext3
+reservation code to allow user to get and set reservation window size,
+so application could set it's desired reservation window size. It allows
+the window size to be 0, however the current reservation code just
+simply set the window size value to 0, but still try to allocate a size
+0 reservation window. We should skip doing reservation-based allocation
+at all if the desired window size is 0.
 
-> Its a sad fact though that we are (x86 anyway) dependant on some
-> amazingly fragile, stupid, usually binary only, legacy bloated, and
-> quite often buggy, 16-bit realmode video init code that should have
-> been put to pasture many years ago. 
-
-Actually there is nothing wrong with the x86 BIOS from the perspective of 
-functionality and useability (or bloat for that matter). It contains all 
-the functionality we need and armed with something like the x86 emulator 
-we can use it for what we need on any platform.
-
-Open Firmware may be a 'nicer' solution, but I guarantee that if the 
-vendors started supporting that it would be just a bug ridden as any 16-
-bit real mode BIOS code. For the Video BIOS the code always works for 
-what it is tested for. Some vendors spend more time testing the VBE BIOS 
-side of things fully (if they are smart they have licensed our VBETest 
-tools for this purpose). Unfortunatley some vendors do not test this 
-stuff thoroughly and it has problems. But the same testing issues would 
-exist whether the firmware was written as a 16-bit x86 blob or as an Open 
-Firmware blob.
-
-> LinuxBIOS has been trying to come up with a solution to the video
-> BOOT problems for good while now.  Emulation seems to be the only
-> thing that really has a chance of working. 
-
-IMHO that is the best solution to the problem because it will be using 
-code that has been heavily tested by the vendor. The one thing x86 Video 
-BIOS'es can do reliably is POST the graphics card ;-)
-
-> I don't currently (see next paragraph) need the kernel to try and
-> do all that stuff for me since I need it prior to when the kernel
-> loads.  But what I would like is to be able to use/build on kernel
-> framework without having to completely re-invent the wheel. 
-
-Assuming you put the video init code into the firmware, then yes, the 
-kernel does not need it. However part of the project to put this into the 
-kernel involves building a better VESA framebuffer console driver, and to 
-do that we either need vm86() services from kernel land (frowned upon by 
-the kernel community and inherently x86 centric) or support for x86 
-emulation.
-
-If you want to try and build a better standard than the x86 VESA VBE 
-BIOS, be my guest. I lobbied for years on the VESA Software Standards 
-Committee to build the next generation firmware that would be cross 
-platform, but nobody was interested. In fact the SSC eventually closed 
-due to lack of interest so we took all our technology and turned it into 
-SciTech SNAP. 
-
-I see Intel is trying to do something similar with EFI, but when will 
-that actually be here?
-
-So for now we have the x86 BIOS and it works today. We should use it.
-
-> Linux far exceeds the hardware support level and flexablity of any
-> bios and already does 90% of the job a bios does anyway. In most
-> cases better than the bios ever could.  Linux booting Linux is the
-> ultimate bios/bootloader. 
-
-That would be nice if you could trim it down ;-) Would certainly save a 
-lot of code bloat. But if you do that, then you would need this code in 
-the kernel since now it would be the boot loader as well ;-)
-
-Regards,
-
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
-
-~ SciTech SNAP - The future of device driver technology! ~
-
+Just thought seeky random write application could use the existing ioctl
+to let the kernel know it does not need reservation at all. Isn't that
+more straightforward?
 

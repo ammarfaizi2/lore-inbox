@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318792AbSG0Rnn>; Sat, 27 Jul 2002 13:43:43 -0400
+	id <S318796AbSG0SIE>; Sat, 27 Jul 2002 14:08:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318796AbSG0Rnn>; Sat, 27 Jul 2002 13:43:43 -0400
-Received: from mailb.telia.com ([194.22.194.6]:38111 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S318792AbSG0Rnm>;
-	Sat, 27 Jul 2002 13:43:42 -0400
-X-Original-Recipient: <linux-kernel@vger.kernel.org>
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+	id <S318797AbSG0SIE>; Sat, 27 Jul 2002 14:08:04 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18951 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318796AbSG0SID>; Sat, 27 Jul 2002 14:08:03 -0400
+Date: Sat, 27 Jul 2002 19:11:19 +0100
+From: Russell King <rmk@arm.linux.org.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Funding GPL projects or funding the GPL?
-Date: Sat, 27 Jul 2002 19:46:11 +0200
-User-Agent: KMail/1.4.5
-References: <20020727085931.X26813@work.bitmover.com> <Pine.LNX.4.44L.0207271302550.3086-100000@imladris.surriel.com> <20020727092223.B26813@work.bitmover.com>
-In-Reply-To: <20020727092223.B26813@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Cc: mingo@redhat.com
+Subject: Serial Oopsen caused by global IRQ chanes
+Message-ID: <20020727191119.C32766@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200207271946.11727.roger.larsson@skelleftea.mail.telia.com>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 27 July 2002 18.22, Larry McVoy wrote:
-> On Sat, Jul 27, 2002 at 01:06:56PM -0300, Rik van Riel wrote:
-> Actually, that's an interesting topic.  Other applications could use
-> the BK model of "free if you're out in the open" and pay otherwise.
-> It's pretty effective.  However, it doesn't work very well when the
-> community beats you to hell for not being GPLed.  I had a thick enough
-> skin to deal with it, I doubt others would, they'd give up.  It also
-> doesn't work when people refuse to obey the license because they 
-> don't agree with it (we had plenty of that).
+Hi,
 
-Trolltech does the same. And have taken the same amount of heat.
-(Probably A LOT more... since their Qt is the base for KDE)
+Two people have now reported to me a couple of oopsen which appear to be
+caused by a change in 2.5.29 to synchronize_irq(), which I believe has
+made synchronize_irq() useless.
 
-/RogerL
+In effect, we no longer guarantee that any IRQ handlers for a particular
+IRQ will have finished running by the time free_irq() returns.  So, code
+which has:
+
+int bar;
+int *foo = &bar;
+
+irq_handler()
+{
+	*foo = 0;
+}
+
+void module_exit(void)
+{
+	free_irq(irq, NULL);
+	foo = NULL;
+}
+
+is currently broken in two ways:
+
+1. it's possible for irq_handler to dereference foo on another CPU _after_
+   free_irq has returned.
+2. it's possible for the module to be unloaded while the irq_handler is
+   still running on another CPU.
+
+Would someone else (Ingo?) like to comment on the above please?
+The serial code regularly trips up because of this on SMP boxen.
+
+Thanks.
 
 -- 
-Roger Larsson
-Skellefteå
-Sweden
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,71 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270995AbTHSRjy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 13:39:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272372AbTHSRfh
+	id S272314AbTHSSZt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 14:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272309AbTHSSZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 13:35:37 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20753 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S272619AbTHSR1T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 13:27:19 -0400
-Date: Tue, 19 Aug 2003 13:17:44 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: willy@w.ods.org, richard@aspectgroup.co.uk, alan@lxorguk.ukuu.org.uk,
-       skraw@ithnet.com, carlosev@newipnet.com, lamont@scriptkiddie.org,
-       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-In-Reply-To: <20030819091414.512d80c4.davem@redhat.com>
-Message-ID: <Pine.LNX.3.96.1030819125244.7550A-100000@gatekeeper.tmr.com>
+	Tue, 19 Aug 2003 14:25:49 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:48610
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S272585AbTHSSOL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 14:14:11 -0400
+Message-ID: <3F4268C1.9040608@redhat.com>
+Date: Tue, 19 Aug 2003 11:13:21 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030731 Thunderbird/0.2a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: NFS regression in 2.6
+X-Enigmail-Version: 0.81.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003, David S. Miller wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Tue, 19 Aug 2003 11:53:29 -0400 (EDT)
-> Bill Davidsen <davidsen@tmr.com> wrote:
-> 
-> > I wonder if a change to add a flag preventing *any* packet from being sent
-> > on a NIC which doesn't have the proper source address would be politically
-> > acceptable.
-> 
-> This would disable things like MSG_DONTROUTE and many valid
-> uses of RAW sockets.
-> 
+This is a problem which pops up in the glibc test suite.  It's been like
+this for many weeks, even months.  I just hadn't time to investigate.
+But the problem is actually very easy.
 
-Probably would, but since it's a flag people could use it or not. I did
-that via a patch and it didn't show any problems in a tcp/udp environment.
-I would assume that source routing would produce the same problem in some
-cases, would it not? And I bet that using rp_filter can break some things
-as well, so there is precedent for having capabilities which could impact
-some valid procedures.
+Go into a directory mounted via NFS.  You need write access.  Then
+execute this little program:
 
-I appreciate your point (which I totally overlooked), but I don't see that
-we have avoided other capabilities which could cause problems if
-misconfigured. It is clearly the responsibility of the admin to do
-configuration, and this seems (based on my actual experience) to work in
-an environment where arp/tcp/udp are being used.
+#include <errno.h>
+#include <error.h>
+#include <stdlib.h>
+#include <unistd.h>
+int
+main (void)
+{
+  char tmp[] = "estale-test.XXXXXX";
+  int fd = mkstemp (tmp);
+  if (fd == -1)
+    error (EXIT_FAILURE, errno, "mkstemp failed");
+  if (unlink (tmp) != 0)
+    error (EXIT_FAILURE, errno, "unlink '%s' failed", tmp);
+  int fd2 = dup (fd);
+  if (fd2 == -1)
+    error (EXIT_FAILURE, errno, "dup failed");
+  if (ftruncate (fd2, 0) != 0)
+    error (EXIT_FAILURE, errno, "ftruncate failed");
+  return 0;
+}
 
-Unless you have additional issues, I would suggest that there are good
-reasons to add this capability.
-- no more dangerous than source routing and much easier to use
-- saves much discussion and time
-- much better to have one change done properly than lots of half-assed
-  patches
+The result is always, 100% of the time, a failure in ftruncate.  The
+kernel reports ESTALE.  This has not been a problem in 2.4 and not even
+in 2.6 until <mumble> months ago.  And of course it works with local disks.
 
-I understand your objections to the hidden patch, I think the approach I
-suggest could be done at the proper level and would provide a standard way
-to solve a common problem. If this can be reasonably done I would think
-you would support it just to be able to say "use default_source_routing"
-when the hidden patch visits the next time ;-)
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+iD8DBQE/QmjB2ijCOnn/RHQRAhMhAJ94N+/b7G1jC6XVUOwCv0/rZyeeIgCdH2zg
+JxbK7PqAuSMmUKQX76CjNVM=
+=XUXf
+-----END PGP SIGNATURE-----
 

@@ -1,87 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264709AbRF1WPl>; Thu, 28 Jun 2001 18:15:41 -0400
+	id <S264769AbRF1WTV>; Thu, 28 Jun 2001 18:19:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264745AbRF1WPb>; Thu, 28 Jun 2001 18:15:31 -0400
-Received: from cs159246.pp.htv.fi ([213.243.159.246]:16432 "EHLO
-	porkkala.cs140085.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S264709AbRF1WPT>; Thu, 28 Jun 2001 18:15:19 -0400
-Message-ID: <3B3BAC65.3ED4CBEF@pp.htv.fi>
-Date: Fri, 29 Jun 2001 01:15:01 +0300
-From: Jussi Laako <jlaako@pp.htv.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
+	id <S264759AbRF1WTM>; Thu, 28 Jun 2001 18:19:12 -0400
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:262 "EHLO
+	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S264764AbRF1WTE>; Thu, 28 Jun 2001 18:19:04 -0400
+Date: 29 Jun 2001 00:20:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <83lrQramw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.33.0106280732480.10308-100000@localhost.localdomain>
+Subject: Re: Cosmetic JFFS patch.
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
 MIME-Version: 1.0
-To: "Ryan W. Maple" <ryan@guardiandigital.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VIA 686B/Data Corruption
-In-Reply-To: <Pine.LNX.4.10.10106281741070.11750-100000@mastermind.inside.guardiandigital.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <20010627225421.A23843@vitelus.com> <Pine.LNX.4.33.0106280732480.10308-100000@localhost.localdomain>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ryan W. Maple" wrote:
-> 
-> I remember hearing something about Red Hat disabling UDMA on VIA chips
-> across the board.  Maybe that has something to do with it?
+chuckw@altaserv.net  wrote on 28.06.01 in <Pine.LNX.4.33.0106280732480.10308-100000@localhost.localdomain>:
 
-Dunno, if the kernel lies. There are four HDs on Promise and one HD and one
-CDROM on VIA. This is from currently running 2.4.2-2:
+> > > Linux NET4.0 for Linux 2.4
+> > > Based upon Swansea University Computer Society NET3.039
+> >
+> > The later line is not something of interest to most people, and if it
+> > happens to be they can research it rather than being force-fed history
+> > on bootup.
+>
+> I've never met a single person who shared that opinion. In fact, quite the
+> contrary. It's the main source of currency in this space. If you can't
+> toot your own horn and/or share credit what's all of this open source
+> stuff worth? We aren't all Mother Theresa now...
 
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     3.20
-South Bridge:                       VIA vt82c686b
-Revision:                           ISA 0x40 IDE 0x6
-BM-DMA base:                        0xb800
-PCI clock:                          33MHz
-Master Read  Cycle IRDY:            0ws
-Master Write Cycle IRDY:            0ws
-BM IDE Status Register Read Retry:  yes
-Max DRDY Pulse Width:               No limit
------------------------Primary IDE-------Secondary IDE------
-Read DMA FIFO flush:          yes                 yes
-End Sector FIFO flush:         no                  no
-Prefetch Buffer:               no                  no
-Post Write Buffer:             no                  no
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   40w                 40w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:       UDMA       PIO       PIO       PIO
+Does sed tell you who programmed it on startup?
 
-Address Setup:       30ns      30ns     120ns     120ns
-Cmd Active:          90ns      90ns     480ns     480ns
-Cmd Recovery:        30ns      30ns     480ns     480ns
-Data Active:         90ns      90ns     330ns     330ns
-Data Recovery:       30ns      30ns     270ns     270ns
-Cycle Time:          60ns      90ns      90ns      90ns
-Transfer Rate:   33.3MB/s  22.2MB/s  22.2MB/s  22.2MB/s
+Awk?
 
+Perl?
 
-                                PDC20265 Chipset.
-------------------------------- General Status ----------------------------
-Burst Mode                           : enabled
-Host Mode                            : Normal
-Bus Clocking                         : 33 PCI Internal
-IO pad select                        : 10 mA
-Status Polling Period                : 0
-Interrupt Check Status Polling Delay : 2
---------------- Primary Channel ---------------- Secondary Channel --------
-                enabled                          enabled 
-66 Clocking     enabled                          enabled 
-           Mode PCI                         Mode PCI   
-                FIFO Empty                       FIFO Empty  
---------------- drive0 --------- drive1 -------- drive0 ---------- drive1 -
-DMA enabled:    yes              yes             yes               yes
-DMA Mode:       UDMA 4           UDMA 4          UDMA 4            UDMA 4
-PIO Mode:       PIO 4            PIO 4           PIO 4             PIO 4
+Groff?
 
+Gcc?
 
- - Jussi Laako
+See a pattern here?
 
+I might add that the most-used program I was one of several authors of  
+*never* mentioned a single author in the program messages, with the single  
+exception that the initials of the author actually compiling the source  
+were part of the version string (in an attempt to control "just which  
+patch to 7.53 are you talking about?" syndrome). I can't say this ever  
+bothered me.
 
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+MfG Kai

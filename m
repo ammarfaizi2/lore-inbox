@@ -1,54 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263064AbUCYB3N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 20:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbUCYB3N
+	id S262942AbUCYBla (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 20:41:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUCYBla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 20:29:13 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:62932 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S262618AbUCYB3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 20:29:08 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Evan Felix <evan.felix@pnl.gov>
-Date: Thu, 25 Mar 2004 12:28:57 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16482.13785.605678.313900@notabene.cse.unsw.edu.au>
-Cc: Nathan D Tenney <Nathan.Tenney@pnl.gov>,
-       linux-raid <linux-raid@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       hpa@zytor.com (H. Peter Anvin)
-Subject: Re: Raid Array with 3.5Tb
-In-Reply-To: message from Evan Felix on Monday March 22
-References: <1074196167.1382.8.camel@e-linux>
-	<16391.51319.698137.120756@notabene.cse.unsw.edu.au>
-	<1079974452.13232.10.camel@e-linux>
-        <1080162888.1936.15.camel@e-linux>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Wed, 24 Mar 2004 20:41:30 -0500
+Received: from gprs214-165.eurotel.cz ([160.218.214.165]:58756 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263089AbUCYBl1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 20:41:27 -0500
+Date: Thu, 25 Mar 2004 02:41:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]]
+Message-ID: <20040325014107.GB6094@elf.ucw.cz>
+References: <20040323233228.GK364@elf.ucw.cz> <1080081653.22670.15.camel@calvin.wpcb.org.au> <20040323234449.GM364@elf.ucw.cz> <opr5ci61g54evsfm@smtp.pacific.net.th> <20040324101704.GA512@elf.ucw.cz> <opr5d1jave4evsfm@smtp.pacific.net.th> <20040324232338.GE290@elf.ucw.cz> <opr5d4r0il4evsfm@smtp.pacific.net.th> <20040325002302.GG290@elf.ucw.cz> <opr5d7ad0b4evsfm@smtp.pacific.net.th>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <opr5d7ad0b4evsfm@smtp.pacific.net.th>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday March 22, evan.felix@pnl.gov wrote:
-> Remember the 3.5Tb Array i've been trying to build, i finally got around
-> to getting some source code changes that seem to work much better. 
-> Attached you will find a patch that fixes the raid5 code to a point
-> where it seems to re-sync and recover without complaining about maps not
-> being correct.  The patch below is build against a 2.6.3, but will patch
-> 2.6.4 sources as well.  At this point i'd like to hear comments,
-> thoughts on the changes i've made.  Some notes:
+On Čt 25-03-04 08:50:27, Michael Frank wrote:
+> On Thu, 25 Mar 2004 01:23:02 +0100, Pavel Machek <pavel@ucw.cz> wrote:
 > 
-> 1. raid0 seems to work fine at 3.5T
-> 2. I have not looked at the raid6 code, but it does not work at 3.5Tb
-> 3. Formatting the array with ext3 takes a very long time, not sure why
-> yet.
+> >On Čt 25-03-04 07:56:14, Michael Frank wrote:
+> >>On Thu, 25 Mar 2004 00:23:38 +0100, Pavel Machek <pavel@ucw.cz> wrote:
 
-Thanks.
-I've added the equivalent changes to raid6 (to keep 5 and 6 in-sync)
-and forwarded it to Andrew.
+> >>I am sure that better qualified and properly supported/sponsored 
+> >>individuals
+> >>will queue up as long as it is an _official_ -nice tree with the good
+> >>purpose
+> >>of centralizing useful non-core functions :)
+> >
+> >I'd say that having official -anything tree is an oxymoron (is -ac
+> >tree official? is -mm tree official?), but yes, I hope someone picks
+> >this up
+> 
+> -mm or -ac are "private trees", albeit very credible and at least -mm is
+> experimental.
 
-NeilBrown
+Having credible "private" -nice tree would be enough, I guess.
+
+> >>Which is extremely ideal, but one thing at the time...
+> >
+> >Okay, lets not please add more of outside changes (for -linus merge).
+> 
+> Fine by me as long as it works.
+> 
+> Guess Nigel will come up with a spec soon and then it has to be decided
+> what functions you want in -Linus.
+
+My priorities are
+
+* highmem support (there are notebooks with 2GB ram; I have one too
+  close to me)
+  [I have hacky patch for this for swsusp1; at least its short]
+
+* smp support (HT notebooks are going to be more common, I'm afraid)
+
+Important but not at price of modifying too many files outside
+kernel/power
+
+* refrigerator should work (but if you have NFS server mounted, and
+  its down, you are on your own)
+
+* even if all memory is used, it should be possible to suspend
+
+"If it is very non-intrusive it might go in"
+
+* esc interrupts
+
+* I'd say that one compression method should be enough for everyone
+
+Features I'd prefer not to see in -linus kernel
+
+* splashscreen
+
+* /proc configuration
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,64 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263076AbTIAAUu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 20:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbTIAAUu
+	id S263107AbTIAASf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 20:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263112AbTIAASf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 20:20:50 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:61648 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263076AbTIAAUm
+	Sun, 31 Aug 2003 20:18:35 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:17801 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263107AbTIAASb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 20:20:42 -0400
-Date: Sun, 31 Aug 2003 17:20:32 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Roman Zippel <zippel@linux-m68k.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
+	Sun, 31 Aug 2003 20:18:31 -0400
+Date: Mon, 1 Sep 2003 01:18:19 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Larry McVoy <lm@work.bitmover.com>, Larry McVoy <lm@bitmover.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Pascal Schmidt <der.eremit@email.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030901002032.GC18458@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
-	Pascal Schmidt <der.eremit@email.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030831154450.GV24409@dualathlon.random> <20030831162243.GC18767@work.bitmover.com> <20030831163350.GY24409@dualathlon.random> <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <1062370358.12058.8.camel@dhcp23.swansea.linux.org.uk> <Pine.LNX.4.44.0309010136410.8124-100000@serv> <20030901000908.GA18458@work.bitmover.com>
+Message-ID: <20030901001819.GC29239@mail.jlokier.co.uk>
+References: <1062343891.10323.12.camel@dhcp23.swansea.linux.org.uk> <20030831154450.GV24409@dualathlon.random> <20030831162243.GC18767@work.bitmover.com> <20030831163350.GY24409@dualathlon.random> <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <20030831225639.GB16620@work.bitmover.com> <20030831231305.GE24409@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030901000908.GA18458@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+In-Reply-To: <20030831231305.GE24409@dualathlon.random>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 31, 2003 at 05:09:08PM -0700, Larry McVoy wrote:
-> On Mon, Sep 01, 2003 at 01:39:56AM +0200, Roman Zippel wrote:
-> > At first Larry wasn't talking about incoming bursts: "We do VOIP phones 
-> > and when you guys clone a repo our phones don't work".
+Andrea Arcangeli wrote:
+> On Sun, Aug 31, 2003 at 03:56:39PM -0700, Larry McVoy wrote:
+> > Yet you keep insisting it will work.  Why?  What is the theory that says
+> > you can keep the other end of the T1 line from being congested when you
+> > don't have control over that router?  And that router has several 100Mbit
 > 
-> Hey, let me make something clear in case it isn't.  This isn't your problem,
-> you have every right to clone away as fast as you want.  
+> it's absolutely trivial, your end only needs to drop 99% of your
+> outgoing acks and their incoming packets for every connection but voip
+> while you are at the phone, you won't kill the connections but everybody
+> but your voip will work. the exponential backoff and sstrash on the
+> other and will rate limit everything immediatly.
 
-I forgot to add that once we have this sorted out we'll do two other things
-that you'll like:
+Let's work it out.  We assume 99% means drop virtually everything:
 
-a) give you BK URL's that don't change (the current URL's are unstable, they
-   are based on revisions and revision numbers are unstable)
-b) make every changeset (or range of changesets) be something you can grab
-   as a regular diff -Nur style patch.  So all the BK users can post to the
-   kernel list and include a URL that you all can wget and there is the 
-   patch.  No need to use BK at all unless you want to, the data is right
-   there as a patch.
+  Every 19 seconds on average, 24x7, a new HTTP connection.
 
-All I'm trying to do is to underscore the point that none of you should "be
-nice" and not beat up on bkbits.net.  It's a service, we get at least some
-benefit from you using the service so bang on it all you want.  We'll solve
-the bandwidth problems.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+  Rate is not uniform throughout the day.  Let's take a wild guess and
+  say it is 10 times higher at peak times.
+
+  That's one connection every 1.9 seconds.
+
+  Let's assume you drop 99% of outgoing ACKs.
+
+  Then all connecting remote clients will retry their SYNs until they
+  get a connection or a timeout.  Default tcp_syn_retries (assuming Linux
+  clients) is 5.
+
+  That's one SYN every 0.38 seconds.   -> bad but not awful.
+
+Plus existing connections.  Let's pretend each connection take 100 seconds.
+
+  That's 100/1.9 or 52 concurrent connections, roughly.
+
+  Each of those will retry with an ACK if it has any pending ACK or data.
+
+  When you start using the phone, that's 100 ACKs total,
+  approximately, with exponential backoff.    --> bad but not awful.
+
+These calculations are horrendously inaccurate, but should be ok
+within a couple of orders of magnitude.
+
+So, near-total annihilation of bkbits.net when Larry or any of his
+team are on the phone should work.  You can either integrate the phone
+system with netfilter so it is automatic when a customer calls.
+Trivial ;)  Or disable bkbits.net during Larry's working day. ;)
+
+-- Jamie

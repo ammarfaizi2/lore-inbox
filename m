@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbTA1Vt3>; Tue, 28 Jan 2003 16:49:29 -0500
+	id <S261398AbTA1VqY>; Tue, 28 Jan 2003 16:46:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbTA1Vt3>; Tue, 28 Jan 2003 16:49:29 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:6408 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S261448AbTA1Vt2>;
-	Tue, 28 Jan 2003 16:49:28 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301282159.h0SLxPk7003050@darkstar.example.net>
-Subject: Re: Bootscreen
-To: b_adlakha@softhome.net (Balram Adlakha)
-Date: Tue, 28 Jan 2003 21:59:25 +0000 (GMT)
+	id <S261409AbTA1VqX>; Tue, 28 Jan 2003 16:46:23 -0500
+Received: from ns.suse.de ([213.95.15.193]:51716 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261398AbTA1VqW>;
+	Tue, 28 Jan 2003 16:46:22 -0500
+To: Jamie Lokier <jamie@shareable.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200301290318.20817.b_adlakha@softhome.net> from "Balram Adlakha" at Jan 29, 2003 03:18:20 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: {sys_,/dev/}epoll waiting timeout
+References: <20030122080322.GB3466@bjl1.asuk.net.suse.lists.linux.kernel> <Pine.LNX.4.33L2.0301281139570.30636-100000@dragon.pdx.osdl.net.suse.lists.linux.kernel> <20030128213621.GA29036@bjl1.asuk.net.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 28 Jan 2003 22:55:42 +0100
+In-Reply-To: Jamie Lokier's message of "28 Jan 2003 22:42:45 +0100"
+Message-ID: <p73hebtym5d.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> though i have recently subscribed to this list (OMG, 30 mails/hour!), I've 
-> read the whole thread about this bootscreen thing... I see absolutely _no_ 
-> reason why it should not be included in the kernel configuration, since there 
-> are patches available already to make it work, and there are already soo many 
-> useless options that adding another won't make a difference...
+Jamie Lokier <jamie@shareable.org> writes:
+> 
+> Which suggests that all the architectures are fine with all these
+> "int" returns, except IA64.
 
-Many old options are also removed, though.
+x86-64 needs long returns too.
 
-> I don't think adding the option to the kernel configuration would do any 
-> harm...exept that the kernel source may get enlarged by (200 kb?), and the 
-> kernel source gets enlarged every day anyway... 2.5 is HUGE compared to 
-> 2.2...
+I think I fixed all of them, if you noticed any missing please let me now.
 
-That's partly because it's a development tree.  There are big efforts
-to trim it down as much as possible.
-
-I don't see any real advantage to putting in to the mainstream kernel
-something which can be achieved easily with a custom bootloader, and
-kernel options.
-
-John.
+-Andi

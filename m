@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbTIUVIS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 17:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbTIUVIS
+	id S262567AbTIUVRn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 17:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbTIUVRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 17:08:18 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:26294 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262569AbTIUVIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 17:08:17 -0400
-Date: Sun, 21 Sep 2003 17:07:58 -0400 (EDT)
-From: Matt Hahnfeld <matth@everysoft.com>
-X-X-Sender: hahnfld@sotec
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SLOW machine when HIGHMEM enabled (1gb memory, kernel 2.4.22)
-In-Reply-To: <16238.2932.99763.591328@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.4.44.0309211657470.12232-100000@sotec>
+	Sun, 21 Sep 2003 17:17:43 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:58309 "EHLO
+	ponti.gallimedina.net") by vger.kernel.org with ESMTP
+	id S262567AbTIUVRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 17:17:43 -0400
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: linux-kernel@vger.kernel.org
+Subject: Re: Broken synaptics mouse..
+Date: Sun, 21 Sep 2003 23:17:40 +0200
+User-Agent: KMail/1.5.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309212317.40703.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael --
-
-Thanks for the help!
-
-I have posted my /proc/mtrr and /proc/meminfo to
-http://www.layover.com/matt/kernel/ .
-
-The "lowmem" ones are when HIGHMEM was disabled, the "highmem" ones are
-2.4.22 with CONF_HIGHMEM4G.  /proc/mtrr looks exatly the same whether or
-not highmem is enabled.
-
-I have the newest stable bios from Asus as of yesterday.
-
-What should I see if the high memory isn't cachable?
-
-On Sun, 21 Sep 2003, Mikael Pettersson wrote:
-
-> Matt Hahnfeld writes:
->  > I have an ASUS P4P800-VM motherboard with 2 sticks of 512mb PC3200 and
->  > a single 2.4 ghz P4 processor.  The kernel is vanilla 2.4.22 configured
->  > for SMP (hyperthreading).
->  >
->  > When I use a kernel with high memory support off, I get good
->  > performance (despite not being able to use some of my memory).  When I
->  > enable CONFIG_HIGHMEM4G the remaining memory is detected, but the
->  > machine takes a big performance hit and starts running very slow --
->  > ie. kernel compilation looks like it would take 5 days instead of 5
->  > minutes.  /proc/meminfo doesn't look particularly strange and no
->  > strange log messages show up -- everything just runs slow...
->  >
->  > CONFIG_HIGHMEM64G produces the same results...
->  >
->  > Any suggestions?
+>> linux-petero/drivers/input/mouse/synaptics.c | 68 +++++++++++------- 
+>> linux-petero/drivers/input/mousedev.c | 100 +++++++++++++++++++-------- 
+>> linux-petero/include/linux/input.h | 3 3 files changed, 118 
+>> insertions(+), 53 deletions(-)
 >
-> Sounds like maybe the high RAM isn't cacheable.
-> What does /proc/mtrr and dmesg look like?
->
-> Have you verified that you're running the latest BIOS?
->
+> Yes, this now looks very nice. Applied.
 
+Which patches are required to test it? (it can't be applied to -bk8).
+ 
+
+-- 
+  ricardo galli       GPG id C8114D34
+  http://mnm.uib.es/~gallir/
 

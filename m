@@ -1,69 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265255AbUFSIQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265264AbUFSITY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265255AbUFSIQU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 04:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUFSIQU
+	id S265264AbUFSITY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 04:19:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUFSITX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 04:16:20 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:57736 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S265255AbUFSIQS (ORCPT
+	Sat, 19 Jun 2004 04:19:23 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:53988 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S265264AbUFSITV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 04:16:18 -0400
-Date: Sat, 19 Jun 2004 10:06:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Sat, 19 Jun 2004 04:19:21 -0400
+Date: Sat, 19 Jun 2004 10:19:20 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] flexible-mmap-2.6.7-D5
-Message-ID: <20040619080643.GA13861@elte.hu>
-References: <20040618213814.GA589@elte.hu>
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040619081919.GV20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <40D33C58.1030905@am.sony.com> <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com> <20040618200848.GL20632@lug-owl.de> <Pine.LNX.4.56.0406182150500.26434@pentafluge.infradead.org> <20040618211000.GP20632@lug-owl.de> <20040618211352.GC7404@suse.de> <20040618213830.GT20632@lug-owl.de> <Pine.LNX.4.56.0406190009390.26434@pentafluge.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ME7r+4SZyDI9KdyM"
 Content-Disposition: inline
-In-Reply-To: <20040618213814.GA589@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.56.0406190009390.26434@pentafluge.infradead.org>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+--ME7r+4SZyDI9KdyM
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> - i also introduced a new personality bit (ADDR_COMPAT_LAYOUT) to signal
->   older binaries that dont have PT_GNU_STACK. x86 uses this to revert 
->   back to the stock layout. [...]
+On Sat, 2004-06-19 00:18:58 +0100, jsimmons@pentafluge.infradead.org <jsimm=
+ons@pentafluge.infradead.org>
+wrote in message <Pine.LNX.4.56.0406190009390.26434@pentafluge.infradead.or=
+g>:
 
-i've also attached a patch below against setarch that adds the -L option
-which turns on the old layout. Thus if there's any old broken app that
-relies on mmap()s being below 2GB then the following can be used:
+> much time can you put in it over say a week period. If you work for a=20
+> living doing something else there goes 40 hours working on a open source=
+=20
+> project.=20
 
-	setarch -L oldapp <params>
+That's not only 40 hours. Little over an hour per day for driving, and
+then there's overtime work, too....
 
-and 'oldapp' (and all its children) will run with the old layout. But
-this should be an extremely rare occurance, i've added it more for
-completeness and paranoia reasons than necessity.
+MfG, JBG
 
-	Ingo
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
---- setarch-1.4/setarch.c.orig
-+++ setarch-1.4/setarch.c
-@@ -118,6 +118,15 @@ int main(int argc, char *argv[])
-       if(got_arch)
- 	p = argv[0];
-     }
-+  if(!strcmp(p, "-L"))
-+    {
-+      argv++;
-+      argc--;
-+      options |= 0x0200000 /* ADDR_COMPAT_LAYOUT */;
-+      if(got_arch)
-+	p = argv[0];
-+    }
-+
- 
-   if(set_arch(p, options))
-     {
+--ME7r+4SZyDI9KdyM
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA0/cHHb1edYOZ4bsRAk9+AJ9U2u8WQzV1MJinMWHWV8ES+MlrcgCdEohD
+AcmtVeMZVuiKzYnocjVHx9A=
+=lcnk
+-----END PGP SIGNATURE-----
+
+--ME7r+4SZyDI9KdyM--

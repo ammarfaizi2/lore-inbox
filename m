@@ -1,38 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265804AbUE1E0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbUE1Eic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265804AbUE1E0f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 00:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUE1E0b
+	id S262213AbUE1Eic (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 00:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265794AbUE1Eic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 00:26:31 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:2525 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S265794AbUE1E0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 00:26:30 -0400
-Date: Fri, 28 May 2004 00:21:19 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: ftp.kernel.org
-In-Reply-To: <1130000.1085711344@[10.10.2.4]>
-Message-ID: <Pine.GSO.4.33.0405280018250.14297-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 28 May 2004 00:38:32 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:18118 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S262213AbUE1Eib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 00:38:31 -0400
+From: NeilBrown <neilb@cse.unsw.edu.au>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 28 May 2004 14:38:26 +1000
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH]  Avoid race when updating nr_unused count of unused dentries.
+References: <20040528143740.31687.patches@notabene>
+Message-Id: <E1BTZ8U-0008FT-RU@notabene.cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 May 2004, Martin J. Bligh wrote:
->They switched to vsftpd very recently ... presumably then.
 
-That would explain it.  The default is to turn it off.
+d_count == 1 is no guarantee that dentry is on the dentry_unused list,
+even if it has just been incremented inside dcache_lock, as dput can
+decrement at any time.
 
->Why would you mirror via ftp, instead of rsync anyway?
+This test from Greg Banks is much safer, and is more transparently correct.
 
-I have more control with mirror.  And I've been using mirror for
-*ahem* a decade.  I've been using rsync for mirroring debian, but
-it's slow and often fails to complete.  Mirror has never let me
-down ('tho it has deleted entire archives before *grin*)
+From: Greg Banks <gnb@melbourne.sgi.com>
+Signed-off-by: Neil Brown <neilb@cse.unsw.edu.au>
 
---Ricky
+ ----------- Diffstat output ------------
+ ./fs/dcache.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
-
+diff ./fs/dcache.c~current~ ./fs/dcache.c
+--- ./fs/dcache.c~current~	2004-05-28 14:20:00.000000000 +1000
++++ ./fs/dcache.c	2004-05-28 14:20:16.000000000 +1000
+@@ -259,7 +259,7 @@ int d_invalidate(struct dentry * dentry)
+ static inline struct dentry * __dget_locked(struct dentry *dentry)
+ {
+ 	atomic_inc(&dentry->d_count);
+-	if (atomic_read(&dentry->d_count) == 1) {
++	if (!list_empty(&dentry->d_lru)) {
+ 		dentry_stat.nr_unused--;
+ 		list_del_init(&dentry->d_lru);
+ 	}
+@@ -935,8 +935,9 @@ struct dentry *d_splice_alias(struct ino
+  * lookup is going on.
+  *
+  * dentry_unused list is not updated even if lookup finds the required dentry
+- * in there. It is updated in places such as prune_dcache, shrink_dcache_sb and
+- * select_parent. This laziness saves lookup from dcache_lock acquisition.
++ * in there. It is updated in places such as prune_dcache, shrink_dcache_sb,
++ * select_parent and __dget_locked. This laziness saves lookup from dcache_lock
++ * acquisition.
+  *
+  * d_lookup() is protected against the concurrent renames in some unrelated
+  * directory using the seqlockt_t rename_lock.

@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbUCHVXE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 16:23:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUCHVXD
+	id S261246AbUCHVZu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 16:25:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUCHVZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 16:23:03 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61123 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261248AbUCHVXA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 16:23:00 -0500
-Date: Mon, 8 Mar 2004 13:23:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in
- <=16G machines)
-Message-Id: <20040308132305.3c35e90a.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0403081238060.9575@ppc970.osdl.org>
-References: <20040308202433.GA12612@dualathlon.random>
-	<Pine.LNX.4.58.0403081238060.9575@ppc970.osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 8 Mar 2004 16:25:50 -0500
+Received: from 75.80-203-232.nextgentel.com ([80.203.232.75]:7142 "EHLO
+	lincoln.jordet.nu") by vger.kernel.org with ESMTP id S261246AbUCHVZt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 16:25:49 -0500
+Subject: Re: smbfs patch
+From: Stian Jordet <liste@jordet.nu>
+To: =?ISO-8859-1?Q?S=F8ren?= Hansen <sh@warma.dk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1078438839.10042.6.camel@luke>
+References: <1078438839.10042.6.camel@luke>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1078781118.4013.1.camel@buick.jordet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 08 Mar 2004 22:25:18 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> 
-> Andrew,
->  I certainly prefer this to the 4:4 horrors. So it sounds worth it to put
-> it into -mm if everybody else is ok with it.
+tor, 04.03.2004 kl. 23.20 skrev Søren Hansen:
+> I noticed that smbfs no longer respects the "uid" and "gid" mount
+> options passed to it by mount.(I think it stopped when the server was
+> upgraded to Samba 3.0. Not sure though, since my client was upgraded to
+> Linux 2.6.3 at around the same time). I've made this small patch that
+> fixes it (bear with me, this is my first patch to the kernel :-)  ):
 
-Sure.  To my amazement it applies without rejects, so we get both ;)
+I have the same problem as you have. I have not gotten around to test
+your patch yet (but will later tonight), but I read in another mail from
+you that you had discussed the patch with Urban Widmark. Is the any
+opinions against this patch? If not, will you try to submit it to
+Andrew/Linus?
 
-Hopefully the regresson which this patch adds (having to search across
-vma's which do not cover the pages which we're trying to unmap) will not
-impact too many workloads.  It will take some time to find out.  If it
-_does_ impact workloads then we have a case where 64-bit machines are
-suffering because of monster highmem requirements, which needs a judgement
-call.
+Anyway, thanks for the patch :)
 
-There is an architectural concern: we're now treating anonymous pages
-differently from file-backed ones.  But we already do that in some places
-anyway and the implementation is pretty straightforward.
-
-Other issues are how it will play with remap_file_pages(), and how it
-impacts Ingo's work to permit remap_file_pages() to set page permissions on
-a per-page basis.  This change provides large performance improvements to
-UML, making it more viable for various virtual-hosting applications.  I
-don't immediately see any reason why objrmap should kill that off, but if
-it does we're in the position of trading off UML virtual server performance
-against monster highmem viability.  That's less clear.
+Best regards,
+Stian
 

@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbTJ2ODV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 09:03:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbTJ2ODV
+	id S261345AbTJ2ONy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 09:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbTJ2ONy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 09:03:21 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:47328 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261321AbTJ2ODU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 09:03:20 -0500
-Date: Wed, 29 Oct 2003 15:03:17 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ACPI && vortex still broken in latest 2.4 and 2.6.0-test9
-Message-ID: <20031029140317.GF10693@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031029134848.GA949@hello-penguin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031029134848.GA949@hello-penguin.com>
-User-Agent: Mutt/1.5.4i
+	Wed, 29 Oct 2003 09:13:54 -0500
+Received: from nameserver1.brainwerkz.net ([209.251.159.130]:42644 "EHLO
+	nameserver1.mcve.com") by vger.kernel.org with ESMTP
+	id S261345AbTJ2ONx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 09:13:53 -0500
+Message-ID: <3F9FCB1F.9080606@mcve.com>
+Date: Wed, 29 Oct 2003 09:13:51 -0500
+From: Brad House <brad@mcve.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030921
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ross.alexander@uk.neceur.com
+Cc: Brad House <brad_mssw@gentoo.org>, linux-kernel@vger.kernel.org
+Subject: Re: nforce2 stability on 2.6.0-test5 and 2.6.0-test9
+References: <OF5F77CBA2.09E02070-ON80256DCE.00413294-80256DCE.0041A702@uk.neceur.com>
+In-Reply-To: <OF5F77CBA2.09E02070-ON80256DCE.00413294-80256DCE.0041A702@uk.neceur.com>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Oct 2003, Stefan Traby wrote:
+Hmm, interesting. The patches I submitted were strictly
+for IDE/ATA133 improvements, apparently your problems don't
+lie there.  I'd assume this was a kernel panic you had, any
+output available that would tell you where it paniced ?
 
-> I just want to note that ACPI+3c59x is still not
-> working on the latest kernels - the only solution
-> is "acpi=off".
+-Brad
 
-This "still broken" is too unspecific, 3c59x + ACPI works for me, in a
-Gigabyte 7ZX-R (VIA KT133 based) mainboard, with SuSE 8.2 distro kernel
-(ACPI 20030228), 2.4.22-pac1+acpi patches, and with latest 2.6.0-test9
-BK.
+ross.alexander@uk.neceur.com wrote:
+> Brad,
+> 
+> I'm running an ASUS A7N8X Deluxe mobo (nforce2 chipset) and still
+> getting hardlockups.  I applied your patch but my system still locked
+> up after about a day.  However 2.6.0-test5 seems to be stable.  I have
+> had my system up for over three weeks with APIC and ACPI turned on.
+> 
+> Just to let you know,
+> 
+> Ross
+> 
+> ---------------------------------------------------------------------------------
+> Ross Alexander                           "We demand clearly defined
+> MIS - NEC Europe Limited            boundaries of uncertainty and
+> Work ph: +44 20 8752 3394         doubt."
+> 
 
-I have two 3C905 and one 3C900Combo in a production router, everything
-is the old "Boomerang" chip version. Rest assured I WOULD know if these
-lost IRQs or were otherwise misconfigured.
 
-> Affected are at least
-> IBM Thinkpad T21  http://lkml.org/lkml/2003/6/15/111
-> IBM Thinkpad A21p (3c556B Laptop Hurricane)
-
-Might the problems you observe be related to the IBM BIOS?

@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284933AbRLPX4k>; Sun, 16 Dec 2001 18:56:40 -0500
+	id <S284937AbRLQACV>; Sun, 16 Dec 2001 19:02:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284934AbRLPX4a>; Sun, 16 Dec 2001 18:56:30 -0500
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:10639 "EHLO
-	phalynx") by vger.kernel.org with ESMTP id <S284933AbRLPX4X>;
-	Sun, 16 Dec 2001 18:56:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ryan Cumming <bodnar42@phalynx.dhs.org>
-To: Adam Schrotenboer <adam@tabris.net>
-Subject: Re: Is /dev/shm needed?
-Date: Sun, 16 Dec 2001 15:56:17 -0800
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16Fkqc-0001Z0-00@DervishD.viadomus.com> <20011216234748.3EDE9FB80D@tabris.net>
-In-Reply-To: <20011216234748.3EDE9FB80D@tabris.net>
+	id <S284942AbRLQACM>; Sun, 16 Dec 2001 19:02:12 -0500
+Received: from datela-1-3-128.dialup.vol.cz ([212.20.98.18]:9988 "HELO
+	ghost.ucw.cz") by vger.kernel.org with SMTP id <S284938AbRLQAB6>;
+	Sun, 16 Dec 2001 19:01:58 -0500
+Date: Mon, 17 Dec 2001 02:10:28 +0100 (MET)
+From: <brain@artax.karlin.mff.cuni.cz>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problems with OSS driver and GUS PnP card
+Message-ID: <Pine.LNX.4.30.0112170152450.770-100000@ghost.ucw.cz>
+X-Echelon: GRU Vatutinki Chodynka Khodinka Putin Suvorov USA Aquarium Russia Ladygin Lybia China Moscow missile reconnaissance agent spetsnaz security tactical target operation military nuclear force defense spy attack bomb explode tap MI5 IRS KGB CIA FBI NSA AK-47 MOSSAD M16 plutonium smuggle intercept plan intelligence war analysis president
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Fl8j-0000nA-00@phalynx>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 16, 2001 15:47, Adam Schrotenboer wrote:
-> I may be wrong about /tmp as well, but I have come to think that it is data
-> that ought be discarded after logout, and have sometimes considered writing
-> a script for it in the login/logout scripts.
+Hello.
 
-System daemons can legally use /tmp, and they may not apprechiate having 
-their files removed from underneath them everytime someone telnets in. ;)
+Since kernel 2.2 I've got permanent problems with my Gravis Ultrasound PnP card
+and the OSS driver. The problem is following: /dev/dsp0 isn't able to
+play/record sound because of "IRQ/DMA conflict" messages. /dev/dsp1 is playing
+without problems, but it isn't able to record :-(
 
--Ryan
+I have tried all possible settings of IO, IRQ and DMA. The problem persits. Can
+anybody help me? Can anybody explain me what does parameters io, irq, dma,
+dma16, gus16 and sb16 EXACTLY mean? The documentation is very poor and I'm not
+sure if it is io/irq/dma of the GF1 chip or of the "SB digital audio" (as in
+isapnp.conf). Is there any documentation on the gus driver?
+
+Don't tell me to use Alsa. It's a piece of crap - the sound is very noisy, like
+a waterfall in background.
+
+Thanx
+
+Brain
+
+--------------------------------
+Petr `Brain' Kulhavy
+<brain@artax.karlin.mff.cuni.cz>
+http://artax.karlin.mff.cuni.cz/~brain
+Faculty of Mathematics and Physics, Charles University Prague, Czech Republic
+
+---
+First Law of Bicycling:
+        No matter which way you ride, it's uphill and against the wind.
+

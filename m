@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263496AbTH3LV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 07:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263494AbTH3LVZ
+	id S262235AbTH3LL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 07:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTH3LL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 07:21:25 -0400
-Received: from anchor-post-39.mail.demon.net ([194.217.242.80]:30177 "EHLO
-	anchor-post-39.mail.demon.net") by vger.kernel.org with ESMTP
-	id S263496AbTH3LVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 07:21:24 -0400
-From: Matt Gibson <gothick@gothick.org.uk>
-Organization: The Wardrobe Happy Cow Emporium
-To: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4 and hardware reports a non fatal incident
-Date: Sat, 30 Aug 2003 11:49:19 +0100
-User-Agent: KMail/1.5.3
-References: <200308281548.44803.tomasz_czaus@go2.pl> <200308282002.00758.gothick@gothick.org.uk> <20030828151708.0b13dd82.rddunlap@osdl.org>
-In-Reply-To: <20030828151708.0b13dd82.rddunlap@osdl.org>
-X-Pointless-MIME-Header: yes
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Aug 2003 07:11:56 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:15519 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S262235AbTH3LLn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 07:11:43 -0400
+Date: Sat, 30 Aug 2003 13:11:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Fedor Karpelevitch <fedor@karpelevitch.net>
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test4][ACPI] STR, STD returns immidiately
+Message-ID: <20030830111124.GC386@elf.ucw.cz>
+References: <200308241537.54494.fedor@karpelevitch.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308301149.19944.gothick@gothick.org.uk>
+In-Reply-To: <200308241537.54494.fedor@karpelevitch.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 Aug 2003 23:17, Randy.Dunlap wrote:
-> Yes, the kernel has decided that your processor only has 1 Bank of
-> MCE register data to report.  I don't know how/why.  Sorry.
+Hi!
 
-Could it be something to do with this (in arch/i386/kernel/cpu/mcheck/k7.c)?
+> when I do 
+> echo mem > /sys/power/state
+> or
+> echo disk > /sys/power/state
+> 
+> it returns in a second without any effect and in sysslog I get this:
 
-	if (l & (1<<8))	/* Control register present ? */
-		wrmsr (MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
-	nr_mce_banks = l & 0xff;
-
-	for (i=1; i<nr_mce_banks; i++) {
-
-Check out the "for".  Or am I reading this wrong?
-
-M
-
+Patrick broke whole powermanagment in -test4. It is not worth even
+trying.
+								Pavel
 -- 
-"It's the small gaps between the rain that count,
- and learning how to live amongst them."
-	      -- Jeff Noon
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

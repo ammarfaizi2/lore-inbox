@@ -1,68 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262349AbSJIXg4>; Wed, 9 Oct 2002 19:36:56 -0400
+	id <S262060AbSJIXnl>; Wed, 9 Oct 2002 19:43:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262357AbSJIXg4>; Wed, 9 Oct 2002 19:36:56 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:22778 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262349AbSJIXgx>;
-	Wed, 9 Oct 2002 19:36:53 -0400
-Message-ID: <3DA4BECB.9C7D6119@mvista.com>
-Date: Wed, 09 Oct 2002 16:42:03 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
-References: <Pine.LNX.4.44.0210091613590.9234-100000@home.transmeta.com>
+	id <S262105AbSJIXnl>; Wed, 9 Oct 2002 19:43:41 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:60944 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S262060AbSJIXnk>; Wed, 9 Oct 2002 19:43:40 -0400
+Date: Wed, 9 Oct 2002 16:49:21 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+Message-ID: <20021009234921.GC14644@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.95.1021009074742.27056A-100000@chaos.analogic.com> <200210091917.g99JHkSP001461@darkstar.example.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200210091917.g99JHkSP001461@darkstar.example.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Wed, Oct 09, 2002 at 08:17:45PM +0100, jbradford@dial.pipex.com wrote:
+> > 
+> > On 9 Oct 2002, Alan Cox wrote:
+> > 
+> > > On Wed, 2002-10-09 at 08:37, Alexander Kellett wrote: 
+> > > > This talk of adeos reminds me of something that i'd
+> > > > "dreamed" of a while back. Whats the feasability of
+> > > > having a 70kb kernel that barely even provides support 
+> > > > for user space apps and is basically just an hardware 
+> > > > abstraction layer for "applications" that can be 
+> > > > written as kernel modules?
+> > > 
+> > > Its called FreeDOS,
+> > > 
+> > 
+> > -emm. Maybe he needs just a bit more.
 > 
-> On Wed, 9 Oct 2002, george anzinger wrote:
-> >
-> > This patch, in conjunction with the "core" high-res-timers
-> > patch implements high resolution timers on the i386
-> > platforms.
-> 
-> I really don't get the notion of partial ticks, and quite frankly, this
-> isn't going into my tree until some major distribution kicks me in the
-> head and explains to me why the hell we have partial ticks instead of just
-> making the ticks shorter.
-> 
-Well, the notion is to provide timers that have resolution
-down into the micro seconds.  Since this take a bit more
-overhead, we just set up an interrupt on an as needed
-basis.  This is why we define both a high res and a low res
-clock.  Timers on the low res clock will always use the 1/HZ
-tick to drive them and thus do not introduce any additional
-overhead.  If this is all that is needed the configure
-option can be left off and only these timers will be
-available.
+> Minix, maybe?
 
-On the other hand, if a user requires better resolution,
-s/he just turns on the high-res option and incures the
-overhead only when it is used and then only at timer expire
-time.  Note that the only way to access a high-res timer is
-via the POSIX clocks and timers API.  They are not available
-to select or any other system call.
+Now, be realistic.  What he asks here isn't that
+farfeteched.  Tell me one other OS that has drivers of the
+same quality.  I'll be the first to say (oops, Alan beat me
+to it) that a Linux stripped down that much wouldn't be
+Linux.
 
-Making ticks shorter causes extra overhead ALL the time,
-even when it is not needed.  Higher resolution is not free
-in any case, but it is much closer to free with this patch
-than by increasing HZ (which, of course, can still be
-done).  Overhead wise and resolution wise, for timers, we
-would be better off with a 1/HZ tick and the "on demand"
-high-res interrupts this patch introduces.
+However, it wouldn't be an unreasonable project to create
+sort of fork that strips Linux down to the bare minimum
+while still keeping the driver API.  I don't say that it can
+be done just that it might make a reasonable public project
+if enough embedded people wanted such a beast^Winsect.  The
+dificulty would be excising/replacing core code without
+breaking it, side-porting driver patches, and the periodic
+resyncing with Linux so new drivers and driver patches would
+still apply.  Painful indeed.
+
+Of course it wouldn't be Linux.  Maybe call it Minux or Minlin.
+And give it its own mailing list instead of linux-kernel.
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

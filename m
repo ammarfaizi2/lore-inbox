@@ -1,21 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264569AbTCZDTc>; Tue, 25 Mar 2003 22:19:32 -0500
+	id <S264575AbTCZDUl>; Tue, 25 Mar 2003 22:20:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264571AbTCZDTc>; Tue, 25 Mar 2003 22:19:32 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:52622 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S264569AbTCZDT2>;
-	Tue, 25 Mar 2003 22:19:28 -0500
-Date: Tue, 25 Mar 2003 22:33:19 +0000
+	id <S264571AbTCZDUj>; Tue, 25 Mar 2003 22:20:39 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:53390 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S264574AbTCZDUI>;
+	Tue, 25 Mar 2003 22:20:08 -0500
+Date: Tue, 25 Mar 2003 22:33:56 +0000
 From: Adam Belay <ambx1@neo.rr.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] PnP Changes for 2.5.66
-Message-ID: <20030325223319.GC1083@neo.rr.com>
+Subject: Re: [PATCH] PnP Changes for 2.5.66
+Message-ID: <20030325223356.GD1083@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
 	linux-kernel@vger.kernel.org
+References: <20030325223319.GC1083@neo.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030325223319.GC1083@neo.rr.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -24,175 +26,483 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.985.1.92 -> 1.985.1.93
-#	  drivers/pnp/card.c	1.10    -> 1.11   
-#	 include/linux/pnp.h	1.17    -> 1.18   
+#	           ChangeSet	1.985.1.93 -> 1.985.1.94
+#	drivers/pnp/pnpbios/core.c	1.27    -> 1.28   
+#	include/linux/pnpbios.h	1.8     -> 1.9    
+#	drivers/pnp/pnpbios/proc.c	1.7     -> 1.8    
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 03/03/25	anton@samba.org	1.989
-# Merge samba.org:/scratch/anton/linux-2.5
-# into samba.org:/scratch/anton/tmp3
-# --------------------------------------------
-# 03/03/24	ambx1@neo.rr.com	1.985.1.93
-# PnP Card Service Cleanups
+# 03/03/24	ambx1@neo.rr.com	1.985.1.94
+# PnPBIOS Update
 # 
-# Moves probing code to a central location and matches when new cards are 
-# added instead of only when new drivers are added.
+# - Prevents calling the node_info call more than necessary in order to take
+# load off the pnpbios
+# - intregrates the proc registration code with the device scanning code
+# - adds human readable error messages instead of number codes
+# - other small cleanups
 # --------------------------------------------
 #
-diff -Nru a/drivers/pnp/card.c b/drivers/pnp/card.c
---- a/drivers/pnp/card.c	Tue Mar 25 21:45:17 2003
-+++ b/drivers/pnp/card.c	Tue Mar 25 21:45:17 2003
-@@ -19,6 +19,7 @@
- #include "base.h"
- 
- LIST_HEAD(pnp_cards);
-+LIST_HEAD(pnp_card_drivers);
- 
- 
- static const struct pnp_card_id * match_card(struct pnp_card_driver * drv, struct pnp_card * card)
-@@ -32,21 +33,41 @@
- 	return NULL;
- }
- 
--static void generic_card_remove(struct pnp_dev * dev)
-+static void card_remove(struct pnp_dev * dev)
- {
- 	dev->card_link = NULL;
- }
--
--static void generic_card_remove_first(struct pnp_dev * dev)
+diff -Nru a/drivers/pnp/pnpbios/core.c b/drivers/pnp/pnpbios/core.c
+--- a/drivers/pnp/pnpbios/core.c	Tue Mar 25 21:45:11 2003
++++ b/drivers/pnp/pnpbios/core.c	Tue Mar 25 21:45:11 2003
+@@ -32,6 +32,18 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
 + 
-+static void card_remove_first(struct pnp_dev * dev)
++/* Change Log
++ *
++ * Adam Belay - <ambx1@neo.rr.com> - March 16, 2003
++ * rev 1.01	Only call pnp_bios_dev_node_info once
++ *		Added pnpbios_print_status
++ *		Added several new error messages and info messages
++ *		Added pnpbios_interface_attach_device
++ *		integrated core and proc init system
++ *		Introduced PNPMODE flags
++ *		Removed some useless includes
++ */
+ 
+ #include <linux/types.h>
+ #include <linux/module.h>
+@@ -46,9 +58,7 @@
+ #include <linux/mm.h>
+ #include <linux/smp.h>
+ #include <asm/desc.h>
+-#include <linux/ioport.h>
+ #include <linux/slab.h>
+-#include <linux/pci.h>
+ #include <linux/kmod.h>
+ #include <linux/completion.h>
+ #include <linux/spinlock.h>
+@@ -93,6 +103,7 @@
+ } pnp_bios_callpoint;
+ 
+ static union pnp_bios_expansion_header * pnp_bios_hdr = NULL;
++struct pnp_dev_node_info node_info;
+ 
+ /* The PnP BIOS entries in the GDT */
+ #define PNP_GDT    (GDT_ENTRY_PNPBIOS_BASE * 8)
+@@ -237,9 +248,46 @@
+  *
+  */
+ 
+-static void pnpbios_warn_unexpected_status(const char * module, u16 status)
++static void pnpbios_print_status(const char * module, u16 status)
  {
- 	struct pnp_card_driver * drv = to_pnp_card_driver(dev->driver);
- 	if (!dev->card || !drv)
- 		return;
- 	if (drv->remove)
- 		drv->remove(dev->card_link);
--	drv->link.remove = &generic_card_remove;
-+	drv->link.remove = &card_remove;
- 	kfree(dev->card_link);
--	generic_card_remove(dev);
-+	card_remove(dev);
-+}
-+
-+static int card_probe(struct pnp_card * card, struct pnp_card_driver * drv)
-+{
-+	const struct pnp_card_id *id = match_card(drv,card);
-+	if (id) {
-+		struct pnp_card_link * clink = pnp_alloc(sizeof(struct pnp_card_link));
-+		if (!clink)
-+			return 0;
-+		clink->card = card;
-+		clink->driver = drv;
-+		if (drv->probe) {
-+			if (drv->probe(clink, id)>=0)
-+				return 1;
-+			else
-+				kfree(clink);
-+		} else
-+			return 1;
+-	printk(KERN_ERR "PnPBIOS: %s: Unexpected status 0x%x\n", module, status);
++	switch(status) {
++	case PNP_SUCCESS:
++	printk(KERN_ERR "PnPBIOS: %s: function successful\n", module);
++	case PNP_NOT_SET_STATICALLY:
++	printk(KERN_ERR "PnPBIOS: %s: unable to set static resources\n", module);
++	case PNP_UNKNOWN_FUNCTION:
++	printk(KERN_ERR "PnPBIOS: %s: invalid function number passed\n", module);
++	case PNP_FUNCTION_NOT_SUPPORTED:
++	printk(KERN_ERR "PnPBIOS: %s: function not supported on this system\n", module);
++	case PNP_INVALID_HANDLE:
++	printk(KERN_ERR "PnPBIOS: %s: invalid handle\n", module);
++	case PNP_BAD_PARAMETER:
++	printk(KERN_ERR "PnPBIOS: %s: invalid parameters were passed\n", module);
++	case PNP_SET_FAILED:
++	printk(KERN_ERR "PnPBIOS: %s: unable to set resources\n", module);
++	case PNP_EVENTS_NOT_PENDING:
++	printk(KERN_ERR "PnPBIOS: %s: no events are pending\n", module);
++	case PNP_SYSTEM_NOT_DOCKED:
++	printk(KERN_ERR "PnPBIOS: %s: the system is not docked\n", module);
++	case PNP_NO_ISA_PNP_CARDS:
++	printk(KERN_ERR "PnPBIOS: %s: no isapnp cards are installed on this system\n", module);
++	case PNP_UNABLE_TO_DETERMINE_DOCK_CAPABILITIES:
++	printk(KERN_ERR "PnPBIOS: %s: cannot determine the capabilities of the docking station\n", module);
++	case PNP_CONFIG_CHANGE_FAILED_NO_BATTERY:
++	printk(KERN_ERR "PnPBIOS: %s: unable to undock, the system does not have a battery\n", module);
++	case PNP_CONFIG_CHANGE_FAILED_RESOURCE_CONFLICT:
++	printk(KERN_ERR "PnPBIOS: %s: could not dock due to resource conflicts\n", module);
++	case PNP_BUFFER_TOO_SMALL:
++	printk(KERN_ERR "PnPBIOS: %s: the buffer passed is too small\n", module);
++	case PNP_USE_ESCD_SUPPORT:
++	printk(KERN_ERR "PnPBIOS: %s: use ESCD instead\n", module);
++	case PNP_MESSAGE_NOT_SUPPORTED:
++	printk(KERN_ERR "PnPBIOS: %s: the message is unsupported\n", module);
++	case PNP_HARDWARE_ERROR:
++	printk(KERN_ERR "PnPBIOS: %s: a hardware failure has occured\n", module);
++	default:
++	printk(KERN_ERR "PnPBIOS: %s: unexpected status 0x%x\n", module, status);
 +	}
-+	return 0;
  }
  
- /**
-@@ -103,7 +124,7 @@
- int pnp_add_card(struct pnp_card * card)
+ void *pnpbios_kmalloc(size_t size, int f)
+@@ -299,7 +347,7 @@
  {
- 	int error;
--	struct list_head * pos;
-+	struct list_head * pos, * temp;
- 	if (!card || !card->protocol)
- 		return -EINVAL;
- 
-@@ -112,6 +133,7 @@
- 	card->dev.bus = NULL;
- 	card->dev.release = &pnp_release_card;
- 	error = device_register(&card->dev);
-+
- 	if (error == 0) {
- 		spin_lock(&pnp_lock);
- 		list_add_tail(&card->global_list, &pnp_cards);
-@@ -125,6 +147,12 @@
- 			struct pnp_dev *dev = card_to_pnp_dev(pos);
- 			__pnp_add_device(dev);
- 		}
-+
-+		/* match with card drivers */
-+		list_for_each_safe(pos,temp,&pnp_card_drivers){
-+			struct pnp_card_driver * drv = list_entry(pos, struct pnp_card_driver, global_list);
-+			card_probe(card,drv);
-+		}
- 	} else
- 		pnp_err("sysfs failure, card '%s' will be unavailable", card->dev.bus_id);
- 	return error;
-@@ -248,9 +276,9 @@
- 	if (!drv)
- 		return;
- 	down_write(&dev->dev.bus->subsys.rwsem);
--	drv->link.remove = &generic_card_remove;
-+	drv->link.remove = &card_remove;
- 	device_release_driver(&dev->dev);
--	drv->link.remove = &generic_card_remove_first;
-+	drv->link.remove = &card_remove_first;
- 	up_write(&dev->dev.bus->subsys.rwsem);
+ 	int status = __pnp_bios_dev_node_info( data );
+ 	if ( status )
+-		pnpbios_warn_unexpected_status( "dev_node_info", status );
++		pnpbios_print_status( "dev_node_info", status );
+ 	return status;
  }
  
-@@ -268,25 +296,16 @@
- 	drv->link.id_table = NULL;	/* this will disable auto matching */
- 	drv->link.flags = drv->flags;
- 	drv->link.probe = NULL;
--	drv->link.remove = &generic_card_remove_first;
-+	drv->link.remove = &card_remove_first;
+@@ -334,7 +382,7 @@
+ 	int status;
+ 	status =  __pnp_bios_get_dev_node( nodenum, boot, data );
+ 	if ( status )
+-		pnpbios_warn_unexpected_status( "get_dev_node", status );
++		pnpbios_print_status( "get_dev_node", status );
+ 	return status;
+ }
  
-+	spin_lock(&pnp_lock);
-+	list_add_tail(&drv->global_list, &pnp_card_drivers);
-+	spin_unlock(&pnp_lock);
- 	pnp_register_driver(&drv->link);
- 
- 	list_for_each_safe(pos,temp,&pnp_cards){
- 		struct pnp_card *card = list_entry(pos, struct pnp_card, global_list);
--		const struct pnp_card_id *id = match_card(drv,card);
--		if (id) {
--			struct pnp_card_link * clink = pnp_alloc(sizeof(struct pnp_card_link));
--			if (!clink)
--				continue;
--			clink->card = card;
--			clink->driver = drv;
--			if (drv->probe) {
--				if (drv->probe(clink, id)>=0)
--					count++;
--			} else
--				count++;
--		}
-+		count += card_probe(card,drv);
+@@ -362,7 +410,7 @@
+ 	int status;
+ 	status =  __pnp_bios_set_dev_node( nodenum, boot, data );
+ 	if ( status ) {
+-		pnpbios_warn_unexpected_status( "set_dev_node", status );
++		pnpbios_print_status( "set_dev_node", status );
+ 		return status;
  	}
+ 	if ( !boot ) { /* Update devlist */
+@@ -452,7 +500,7 @@
+ 	int status;
+ 	status = __pnp_bios_get_stat_res( info );
+ 	if ( status )
+-		pnpbios_warn_unexpected_status( "get_stat_res", status );
++		pnpbios_print_status( "get_stat_res", status );
+ 	return status;
+ }
+ 
+@@ -489,7 +537,7 @@
+ 	int status;
+ 	status = __pnp_bios_isapnp_config( data );
+ 	if ( status )
+-		pnpbios_warn_unexpected_status( "isapnp_config", status );
++		pnpbios_print_status( "isapnp_config", status );
+ 	return status;
+ }
+ 
+@@ -511,7 +559,7 @@
+ 	int status;
+ 	status = __pnp_bios_escd_info( data );
+ 	if ( status )
+-		pnpbios_warn_unexpected_status( "escd_info", status );
++		pnpbios_print_status( "escd_info", status );
+ 	return status;
+ }
+ 
+@@ -534,7 +582,7 @@
+ 	int status;
+ 	status = __pnp_bios_read_escd( data, nvram_base );
+ 	if ( status )
+-		pnpbios_warn_unexpected_status( "read_escd", status );
++		pnpbios_print_status( "read_escd", status );
+ 	return status;
+ }
+ 
+@@ -658,7 +706,7 @@
+ 				d = 1;
+ 				break;
+ 			default:
+-				pnpbios_warn_unexpected_status( "pnp_dock_thread", status );
++				pnpbios_print_status( "pnp_dock_thread", status );
+ 				continue;
+ 		}
+ 		if(d != docked)
+@@ -753,19 +801,17 @@
+ 
+ static int pnpbios_get_resources(struct pnp_dev * dev, struct pnp_resource_table * res)
+ {
+-	struct pnp_dev_node_info node_info;
+ 	u8 nodenum = dev->number;
+ 	struct pnp_bios_node * node;
+ 
+ 	/* just in case */
+ 	if(!pnpbios_is_dynamic(dev))
+ 		return -EPERM;
+-	if (pnp_bios_dev_node_info(&node_info) != 0)
+-		return -ENODEV;
++
+ 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
+ 	if (!node)
+ 		return -1;
+-	if (pnp_bios_get_dev_node(&nodenum, (char )0, node)) {
++	if (pnp_bios_get_dev_node(&nodenum, (char )PNPMODE_DYNAMIC, node)) {
+ 		kfree(node);
+ 		return -ENODEV;
+ 	}
+@@ -777,7 +823,6 @@
+ 
+ static int pnpbios_set_resources(struct pnp_dev * dev, struct pnp_resource_table * res)
+ {
+-	struct pnp_dev_node_info node_info;
+ 	u8 nodenum = dev->number;
+ 	struct pnp_bios_node * node;
+ 	int ret;
+@@ -785,18 +830,17 @@
+ 	/* just in case */
+ 	if (!pnpbios_is_dynamic(dev))
+ 		return -EPERM;
+-	if (pnp_bios_dev_node_info(&node_info) != 0)
+-		return -ENODEV;
++
+ 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
+ 	if (!node)
+ 		return -1;
+-	if (pnp_bios_get_dev_node(&nodenum, (char )1, node))
++	if (pnp_bios_get_dev_node(&nodenum, (char )PNPMODE_STATIC, node))
+ 		return -ENODEV;
+ 	if(!pnp_write_resources((char *)node->data,(char *)node->data + node->size,res)){
+ 		kfree(node);
+ 		return -1;
+ 	}
+-	ret = pnp_bios_set_dev_node(node->handle, (char)0, node);
++	ret = pnp_bios_set_dev_node(node->handle, (char)PNPMODE_DYNAMIC, node);
+ 	kfree(node);
+ 	if (ret > 0)
+ 		ret = -1;
+@@ -805,23 +849,18 @@
+ 
+ static int pnpbios_disable_resources(struct pnp_dev *dev)
+ {
+-	struct pnp_dev_node_info node_info;
+ 	struct pnp_bios_node * node;
+ 	int ret;
+ 	
+ 	/* just in case */
+ 	if(dev->flags & PNPBIOS_NO_DISABLE || !pnpbios_is_dynamic(dev))
+ 		return -EPERM;
+-	if (!dev || !dev->active)
+-		return -EINVAL;
+-	if (pnp_bios_dev_node_info(&node_info) != 0)
+-		return -ENODEV;
++
+ 	/* the value of this will be zero */
+ 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
+ 	if (!node)
+ 		return -ENOMEM;
+-	ret = pnp_bios_set_dev_node(dev->number, (char)0, node);
+-	dev->active = 0;
++	ret = pnp_bios_set_dev_node(dev->number, (char)PNPMODE_DYNAMIC, node);
+ 	kfree(node);
+ 	if (ret > 0)
+ 		ret = -1;
+@@ -879,6 +918,8 @@
+ 	dev->protocol = &pnpbios_protocol;
+ 
+ 	pnp_add_device(dev);
++	pnpbios_interface_attach_device(node);
++
+ 	return 0;
+ }
+ 
+@@ -903,8 +944,16 @@
+ 
+ 	for(nodenum=0; nodenum<0xff; ) {
+ 		u8 thisnodenum = nodenum;
+-		if (pnp_bios_get_dev_node(&nodenum, (char )0, node))
+-			break;
++		/* eventually we will want to use PNPMODE_STATIC here but for now
++		 * dynamic will help us catch buggy bioses to add to the blacklist.
++		 */
++		if (!pnpbios_dont_use_current_config) {
++			if (pnp_bios_get_dev_node(&nodenum, (char )PNPMODE_DYNAMIC, node))
++				break;
++		} else {
++			if (pnp_bios_get_dev_node(&nodenum, (char )PNPMODE_STATIC, node))
++				break;
++		}
+ 		nodes_got++;
+ 		dev =  pnpbios_kmalloc(sizeof (struct pnp_dev), GFP_KERNEL);
+ 		if (!dev)
+@@ -972,7 +1021,8 @@
+ 	if(pnpbios_disabled || (dmi_broken & BROKEN_PNP_BIOS)) {
+ 		printk(KERN_INFO "PnPBIOS: Disabled\n");
+ 		return -ENODEV;
+-	}
++	} else
++		printk(KERN_INFO "PnPBIOS: Scanning system for PnP BIOS support...\n");
+ 
+ 	/*
+  	 * Search the defined area (0xf0000-0xffff0) for a valid PnP BIOS
+@@ -1016,17 +1066,34 @@
+ 		}
+ 		break;
+ 	}
+-	if (!pnp_bios_present())
++	if (!pnp_bios_present()) {
++		printk(KERN_INFO "PnPBIOS: A PnP BIOS was not detected.\n");
+ 		return -ENODEV;
++	}
++
++	/*
++	 * we found a pnpbios, now let's load the rest of the driver
++	 */
++
++	/* read the node info */
++	if (pnp_bios_dev_node_info(&node_info)) {
++		printk(KERN_ERR "PnPBIOS: Unable to get node info.  Aborting.\n");
++		return -EIO;
++	}
++
++	/* register with the pnp layer */
+ 	pnp_register_protocol(&pnpbios_protocol);
+-	build_devlist();
+-	/*if ( ! dont_reserve_resources )*/
+-		/*reserve_resources();*/
++
+ #ifdef CONFIG_PROC_FS
++	/* start the proc interface */
+ 	r = pnpbios_proc_init();
+ 	if (r)
+ 		return r;
+ #endif
++
++	/* scan for pnpbios devices */
++	build_devlist();
++
+ 	return 0;
+ }
+ 
+diff -Nru a/drivers/pnp/pnpbios/proc.c b/drivers/pnp/pnpbios/proc.c
+--- a/drivers/pnp/pnpbios/proc.c	Tue Mar 25 21:45:11 2003
++++ b/drivers/pnp/pnpbios/proc.c	Tue Mar 25 21:45:11 2003
+@@ -31,7 +31,6 @@
+ 
+ static struct proc_dir_entry *proc_pnp = NULL;
+ static struct proc_dir_entry *proc_pnp_boot = NULL;
+-static struct pnp_dev_node_info node_info;
+ 
+ static int proc_read_pnpconfig(char *buf, char **start, off_t pos,
+                                int count, int *eof, void *data)
+@@ -136,7 +135,7 @@
+ 		/* 26 = the number of characters per line sprintf'ed */
+ 		if ((p - buf + 26) > count)
+ 			break;
+-		if (pnp_bios_get_dev_node(&nodenum, 1, node))
++		if (pnp_bios_get_dev_node(&nodenum, PNPMODE_STATIC, node))
+ 			break;
+ 		p += sprintf(p, "%02x\t%08x\t%02x:%02x:%02x\t%04x\n",
+ 			     node->handle, node->eisa_id,
+@@ -193,6 +192,30 @@
  	return count;
  }
-@@ -298,9 +317,10 @@
  
- void pnp_unregister_card_driver(struct pnp_card_driver * drv)
++int pnpbios_interface_attach_device(struct pnp_bios_node * node)
++{
++	char name[3];
++	struct proc_dir_entry *ent;
++
++	sprintf(name, "%02x", node->handle);
++	if ( !pnpbios_dont_use_current_config ) {
++		ent = create_proc_entry(name, 0, proc_pnp);
++		if (ent) {
++			ent->read_proc = proc_read_node;
++			ent->write_proc = proc_write_node;
++			ent->data = (void *)(long)(node->handle);
++		}
++	}
++	ent = create_proc_entry(name, 0, proc_pnp_boot);
++	if (ent) {
++		ent->read_proc = proc_read_node;
++		ent->write_proc = proc_write_node;
++		ent->data = (void *)(long)(node->handle+0x100);
++		return 0;
++	}
++	return -EIO;
++}
++
+ /*
+  * When this is called, pnpbios functions are assumed to
+  * work and the pnpbios_dont_use_current_config flag
+@@ -200,14 +223,6 @@
+  */
+ int __init pnpbios_proc_init( void )
  {
-+	spin_lock(&pnp_lock);
-+	list_del(&drv->global_list);
-+	spin_unlock(&pnp_lock);
- 	pnp_unregister_driver(&drv->link);
+-	struct pnp_bios_node *node;
+-	struct proc_dir_entry *ent;
+-	char name[3];
+-	u8 nodenum;
 -
--	pnp_dbg("the card driver '%s' has been unregistered", drv->name);
+-	if (pnp_bios_dev_node_info(&node_info))
+-		return -EIO;
+-	
+ 	proc_pnp = proc_mkdir("pnp", proc_bus);
+ 	if (!proc_pnp)
+ 		return -EIO;
+@@ -219,36 +234,6 @@
+ 	create_proc_read_entry("escd_info", 0, proc_pnp, proc_read_escdinfo, NULL);
+ 	create_proc_read_entry("escd", S_IRUSR, proc_pnp, proc_read_escd, NULL);
+ 	create_proc_read_entry("legacy_device_resources", 0, proc_pnp, proc_read_legacyres, NULL);
+-	
+-	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
+-	if (!node)
+-		return -ENOMEM;
+-
+-	for (nodenum=0; nodenum<0xff; ) {
+-		u8 thisnodenum = nodenum;
+-		if (pnp_bios_get_dev_node(&nodenum, 1, node) != 0)
+-			break;
+-		sprintf(name, "%02x", node->handle);
+-		if ( !pnpbios_dont_use_current_config ) {
+-			ent = create_proc_entry(name, 0, proc_pnp);
+-			if (ent) {
+-				ent->read_proc = proc_read_node;
+-				ent->write_proc = proc_write_node;
+-				ent->data = (void *)(long)(node->handle);
+-			}
+-		}
+-		ent = create_proc_entry(name, 0, proc_pnp_boot);
+-		if (ent) {
+-			ent->read_proc = proc_read_node;
+-			ent->write_proc = proc_write_node;
+-			ent->data = (void *)(long)(node->handle+0x100);
+-		}
+-		if (nodenum <= thisnodenum) {
+-			printk(KERN_ERR "%s Node number 0x%x is out of sequence following node 0x%x. Aborting.\n", "PnPBIOS: proc_init:", (unsigned int)nodenum, (unsigned int)thisnodenum);
+-			break;
+-		}
+-	}
+-	kfree(node);
+ 
+ 	return 0;
  }
+diff -Nru a/include/linux/pnpbios.h b/include/linux/pnpbios.h
+--- a/include/linux/pnpbios.h	Tue Mar 25 21:45:11 2003
++++ b/include/linux/pnpbios.h	Tue Mar 25 21:45:11 2003
+@@ -29,7 +29,7 @@
+ #include <linux/pci.h>
  
- EXPORT_SYMBOL(pnp_add_card);
-diff -Nru a/include/linux/pnp.h b/include/linux/pnp.h
---- a/include/linux/pnp.h	Tue Mar 25 21:45:17 2003
-+++ b/include/linux/pnp.h	Tue Mar 25 21:45:17 2003
-@@ -315,6 +315,7 @@
- #define	to_pnp_driver(drv) container_of(drv, struct pnp_driver, driver)
+ /*
+- * Status codes (warnings and errors)
++ * Return codes
+  */
+ #define PNP_SUCCESS                     0x00
+ #define PNP_NOT_SET_STATICALLY          0x7f
+@@ -75,6 +75,7 @@
+ #define PNPMSG_POWER_OFF		0x41
+ #define PNPMSG_PNP_OS_ACTIVE		0x42
+ #define PNPMSG_PNP_OS_INACTIVE		0x43
++
+ /*
+  * Plug and Play BIOS flags
+  */
+@@ -88,6 +89,12 @@
+ #define pnpbios_is_static(x) (((x)->flags & 0x0100) == 0x0000)
+ #define pnpbios_is_dynamic(x) ((x)->flags & 0x0080)
  
- struct pnp_card_driver {
-+	struct list_head global_list;
- 	char * name;
- 	const struct pnp_card_id *id_table;
- 	unsigned int flags;
++/*
++ * Function Parameters
++ */
++#define PNPMODE_STATIC 1
++#define PNPMODE_DYNAMIC 0
++
+ /* 0x8000 through 0xffff are OEM defined */
+ 
+ #pragma pack(1)
+@@ -125,8 +132,10 @@
+ 
+ /* non-exported */
+ extern int  pnpbios_dont_use_current_config;
++extern struct pnp_dev_node_info node_info;
+ extern void *pnpbios_kmalloc(size_t size, int f);
+ extern int pnpbios_init (void);
++extern int pnpbios_interface_attach_device(struct pnp_bios_node * node);
+ extern int pnpbios_proc_init (void);
+ extern void pnpbios_proc_exit (void);
+ 

@@ -1,116 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313434AbSDLToy>; Fri, 12 Apr 2002 15:44:54 -0400
+	id <S314140AbSDLTsO>; Fri, 12 Apr 2002 15:48:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314140AbSDLTox>; Fri, 12 Apr 2002 15:44:53 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:29403 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S313434AbSDLTow>;
-	Fri, 12 Apr 2002 15:44:52 -0400
-X-Flags: 1011
-Date: Fri, 12 Apr 2002 21:44:05 +0200
-From: Stefan Riha <s.riha@gmx.at>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-In-Reply-To: <14502.1017869163@www1.gmx.net>
-Subject: Freecom portable CD-RW writer IO errors
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0001624034@gmx.net
-X-Authenticated-IP: [62.47.204.180]
-Message-ID: <20274.1018036705@www42.gmx.net>
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+	id <S314141AbSDLTsN>; Fri, 12 Apr 2002 15:48:13 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:35983 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S314140AbSDLTsM>; Fri, 12 Apr 2002 15:48:12 -0400
 Content-Type: text/plain;
   charset="iso-8859-1"
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Peter =?iso-8859-1?q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Subject: Re: [PATCH] Futex Generalization Patch
+Date: Fri, 12 Apr 2002 14:48:50 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Bill Abt <babt@us.ibm.com>, drepper@redhat.com,
+        linux-kernel@vger.kernel.org, Martin.Wirth@dlr.de,
+        Rusty Russell <rusty@rustcorp.com.au>
+In-Reply-To: <OF0676911E.A8260761-ON85256B97.006AB10C@raleigh.ibm.com> <20020410194702.C8A6D3FE06@smtp.linux.ibm.com> <3CB6FEFC.DE282A91@loewe-komp.de>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Modified-Forwards: 2M.inbox
+Message-Id: <20020412194801.35FF13FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have asked the question on the parport mailing list on torque.net but 
-nobody have an answere for me. One people on the parport list has sayed to 
-me, that i should ask my question on the linux kernel mailing list.
-Now i hope that you can help me witch this question.
+On Friday 12 April 2002 11:36 am, Peter Wächtler wrote:
+> Hubertus Franke wrote:
+> > On Wednesday 10 April 2002 03:30 pm, Bill Abt wrote:
+> > > On 04/10/2002 at 02:10:59 PM AST, Hubertus Franke
+> > > <frankeh@watson.ibm.com>
+> > >
+> > > wrote:
+> > > > So you are OK with having only poll  or  select.  That seems odd.
+> > > > It seems you still need SIGIO on your fd to get the async
+> > > > notification.
+> > >
+> > > Duh...  You're right.  I forgot about that...
+> >
+> > Yes,
+> >
+> > The current interface is
+> >
+> > (A)
+> > async wait:
+> >         sys_futex (uaddr, FUTEX_AWAIT, value, (struct timespec*) sig);
+> > upon signal handling
+> >         sys_futex(uaddrs[], FUTEX_WAIT, size, NULL);
+> >         to retrieve the uaddrs that got woken up...
+> >
+> > If you simply want a notification with SIGIO (or whatever you desire)
+> > We can change that to
+> > (A)
+> > sys_futex(uaddr, FUTEX_WAIT, value, (truct timespec*) fd);
+> >
+> > I send a SIGIO and you can request via ioctl or read the pending
+> > notifications from fd.
+> > (B)        { struct futex *notarray[N]
+> >               int n = read( futex_fd, (void**)notarray,
+> >                             N*sizeof(struct futex));
+> >         }
+> > I am mainly concerned that SIGIO can be overloaded in a thread package ?
+> > How would you know whether a SIGIO came from the futex or from other file
+> > handle.
+>
+> I want to vote for using POSIX realtime signals. With them (and SA_SIGINFO)
+> you can carry small amounts of userdata, passed in the
+>
+> struct siginfo_t
+> ---susv2---
+> The <signal.h> header defines the siginfo_t type as a structure that
+> includes at least the following members:
+>
+>       int           si_signo  signal number
+>       int           si_errno  if non-zero, an errno value associated with
+>                               this signal, as defined in <errno.h>
+>       int           si_code   signal code
+>       pid_t         si_pid    sending process ID
+>       uid_t         si_uid    real user ID of sending process
+>       void         *si_addr   address of faulting instruction
+>       int           si_status exit value or signal
+>       long          si_band   band event for SIGPOLL
+>       union sigval  si_value  signal value
+>
+> [and further on]
+> Implementations may support additional si_code values not included in this
+> list, may generate values included in this list under circumstances other
+> than those described in this list, and may contain extensions or
+> limitations that prevent some values from being generated. Implementations
+> will not generate a different value from the ones described in this list
+> for circumstances described in this list.
+>
+> ---susv2---
+>
 
-Now my question:
+Need to digest your suggestion a bit more. Not too familiar with that 
+interface.
+One question I have though is whether information can get lost?  
 
-I want to use my Freecom portable CD-RW writer (2x2x24) under Linux.
-The writer is with a Freecom parallel port cable connected to my computer.
-For testing i have connected the writer on a 486 computer.
-Now i have installed RedHat 6.2 and when i want to mount a data CD i get the
-following errors.
-Now i have Installed Suse 7.2 and i get the same errors when i want to mount
-the data CD.
+Assume , I have a few notifications pending and signal the app.
+We signal the app? what would the app call upon notification.
+Remember, I don't want to pass in a heavy weight object into the futex kernel 
+call.
 
-Now an concrete description of what i have done under RedHat 6.2
+> So we could use  si_code=SI_QUEUE and pass the uaddr in sival_ptr
+> or even si_code=SIGPOLL and pass the data in si_band.
+>
+> We could also add our own si_code (SI_FUTEX) and add the tid in
+> siginfo_t (if needed for NGPT)
+>
+> Why pass this data over a file descriptor?
+> The user space library can block on sigtimedwait() for notifications.
+>
+> And with the DoS (letting the kernel pin too much memory on behalf
+> of a user process) we could use the "max locked memory" ulimit.
 
-#lsmod
-Module        Size    Used    by
-lockd         31912    1      (autoclean)
-sunrpc        53604    1      (autoclean) [locked]
-rtl8139       12132    1      (autoclean)
-
-#modprobe paride
-paride: version 1.04 installed
-
-#modprobe friq
-paride: friq registered as protocol 0
-
-#modprobe pcd
-pcd: pcd version 1.07, major 46, nice 0
-pcd0: Sharing parport0 at 0x378
-pcd0: friq 1.01, Freecom IQ ASCI-2 adapter at 0x378, mode 4 (EPP-32), delay
-1
-pcd0: Master R/RW 2x2x24
-
-#lsmod
-Module                  Size  Used by
-parport_probe           3272   0  (autoclean)
-parport_pc              7400   1  (autoclean)
-pcd                    11556   0  (unused)
-friq                    8544   1 
-paride                  3532   1  [pcd friq]
-parport                 7516   1  [parport_probe parport_pc paride]
-lockd                  31912   1  (autoclean)
-sunrpc                 53604   1  (autoclean) [lockd]
-rtl8139                12132   1  (autoclean)
-
-Als nächstes wollte ich eine Daten CD mounten:
-
-#mount /dev/pcd0 /mnt/cdrom
-pcd0: WARNING: ATAPI phase errors
-pcd0: Stuck DRQ 
-pcd0: lock door before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: Request sense before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: read block before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-end_request: I/O error, dev 2e:00 (PCD), sector 2 
-/dev/pcd0: Eingabe-/Ausgabefehler
-pcd0: unlock door before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: Request sense before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-mount: blockorientiertes Gerät /dev/pcd0 ist schreibgeschützt, es wird im
-       Nur-Lese-Modus gemountet
-pcd0: Request sense before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2  
-pcd0: unlock door before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: Request sense before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: Request sense before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: unlock door before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-pcd0: Request sense before command: alt=0x58 stat=0x58 err=0x100 loop=160001
-phase=2 
-mount: Kein Medium gefunden
-
-I hope you can help me.
-
-MFG
-Stefan Riha
-
---  To unsubscribe, send mail to: linux-parport-request@torque.net --
---  with the single word "unsubscribe" in the body of the message. --
-
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

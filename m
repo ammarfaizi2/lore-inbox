@@ -1,68 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263093AbUCMNOw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 08:14:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263091AbUCMNOw
+	id S263091AbUCMNUw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 08:20:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263092AbUCMNUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 08:14:52 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:14858 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263093AbUCMNOt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 08:14:49 -0500
-Date: Sat, 13 Mar 2004 13:14:48 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Chris Mason <mason@suse.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lockfs patch for 2.6
-Message-ID: <20040313131447.A25900@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
-References: <1078867885.25075.1458.camel@watt.suse.com>
+	Sat, 13 Mar 2004 08:20:52 -0500
+Received: from iwoars.net ([217.160.110.113]:22281 "HELO iwoars.net")
+	by vger.kernel.org with SMTP id S263091AbUCMNUt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 08:20:49 -0500
+Date: Sat, 13 Mar 2004 14:20:50 +0100
+From: Thomas Themel <themel@iwoars.net>
+To: linux-kernel@vger.kernel.org
+Subject: [themel@iwoars.net: PDC202XX_OLD regression between 2.6 and 2.4]
+Message-ID: <20040313132050.GW19928@iwoars.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1078867885.25075.1458.camel@watt.suse.com>; from mason@suse.com on Tue, Mar 09, 2004 at 04:31:25PM -0500
+User-Agent: Mutt/1.4i
+X-Jabber-ID: themel0r@jabber.at
+X-ICQ-UIN: 8774749
+X-Postal: Hauptplatz 8/4, 9500 Villach, Austria
+X-Phone: +43 676 846623 13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 09, 2004 at 04:31:25PM -0500, Chris Mason wrote:
-> Hello everyone,
-> 
-> In order to get consistent snapshots with the device mapper code, you
-> need to sync and lock down any filesystems sitting on top of the
-> device.  This isn't as critical in the 2.6 code since it can do writable
-> snapshots, but it is still nice to have things properly synced and
-> consistent.  
-> 
-> I've had various forms of this against 2.4, the ugly part was always the
-> locking to make sure a new FS wasn't mounted on the source while the
-> snapshot was being setup.  Here's my 2.6 version, with the DM code
-> contributed by Kevin Corry.  The basic idea is to add a semaphore to the
-> block device that gets used to make sure there are no new mounts.
+Hi,
 
-Okay, I actually took a look at the XFS freeze code and it seems the
-current infrastructure doesn't suite XFS very well.
+[Repost, I tried on linux-ide first, but the list seems to be somewhat dead
+(no traffic for the past three days other than someone who has similar
+problems), so here we go again. Also, it seems linux-ide is not archived
+anywhere.]
 
-What XFS currently does when freezing is
+I'm currently trying to set up a system that contains a Promise 20267
+controller, and it seems that DMA on that controller causes problems in
+2.6. 
 
-1.	set a flag in the mount structure that blocks all new writes
-2.	flush all file data
-3.	set a flag blocking all new transactions
-4.	flush any dirty inode state into buffers
-5.	push out all buffers to disk
-6.	mark the filesystem clean
+My test case consists of simply creating an empty ext3 file system and
+running bonnie++ on it. In 2.4.25, this works as expected. In 2.6.3-rc4,
+however, it breaks after a few seconds:
 
-Now how does this fit into generic freeze/thaw fs structure?
+Mar 11 17:27:19 sophokles kernel: hdg: dma_timer_expiry: dma status == 0x60
+Mar 11 17:27:19 sophokles kernel: hdg: DMA timeout retry
+Mar 11 17:27:19 sophokles kernel: PDC202XX: Secondary channel reset.
+Mar 11 17:27:19 sophokles kernel: PDC202XX: Primary channel reset.
+Mar 11 17:27:19 sophokles kernel: hdg: timeout waiting for DMA
+Mar 11 17:27:40 sophokles kernel: hdg: dma_timer_expiry: dma status == 0x60
+Mar 11 17:27:40 sophokles kernel: hdg: DMA timeout retry
+Mar 11 17:27:40 sophokles kernel: PDC202XX: Secondary channel reset.
+Mar 11 17:27:40 sophokles kernel: PDC202XX: Primary channel reset.
+Mar 11 17:27:40 sophokles kernel: hdg: timeout waiting for DMA
+Mar 11 17:28:02 sophokles kernel: hdg: dma_timer_expiry: dma status == 0x60
+Mar 11 17:28:02 sophokles kernel: hdg: DMA timeout retry
+Mar 11 17:28:02 sophokles kernel: PDC202XX: Secondary channel reset.
+Mar 11 17:28:02 sophokles kernel: PDC202XX: Primary channel reset.
+Mar 11 17:28:02 sophokles kernel: hdg: timeout waiting for DMA
+Mar 11 17:28:22 sophokles kernel: hdg: dma_timer_expiry: dma status == 0x60
+Mar 11 17:28:22 sophokles kernel: hdg: DMA timeout retry
+Mar 11 17:28:22 sophokles kernel: PDC202XX: Secondary channel reset.
+Mar 11 17:28:22 sophokles kernel: PDC202XX: Primary channel reset.
+Mar 11 17:28:22 sophokles kernel: hdg: timeout waiting for DMA
 
-1.	should probably move into the VFS (generic_file_write)
+Other information:
 
-2,4,5	basically is fsync_bdev except that we have no chance to block
-transaction that way.  So either we need two calls into the fs or have
-some trivial state in the superblock that tells xfs to block transaction,
-basically an enum { FS_UNFROZEN, FS_FROZEN_WRITE, FS_FROZEN_FULL };
+hdparm output is slightly different between 2.4 and 2.6 (hda is an
+identical drive on a vt8233a controller on the motherboard) - 
 
-and a function fs_check_frozen similar to xfs_check_frozen that makes the
-caller block until the fs is unfrozen.
+sophokles:~# diff -Nrua 2.4.25/ 2.6.4-rc3/
+diff -Nrua 2.4.25/hda 2.6.4-rc3/hda
+--- 2.4.25/hda  2004-03-11 19:48:29.000000000 +0100
++++ 2.6.4-rc3/hda       2004-03-11 19:52:28.000000000 +0100
+@@ -6,5 +6,5 @@
+  using_dma    =  1 (on)
+  keepsettings =  0 (off)
+  readonly     =  0 (off)
+- readahead    =  8 (on)
+- geometry     = 14593/255/63, sectors = 234441648, start = 0
++ readahead    = 256 (on)
++ geometry     = 16383/255/63, sectors = 234441648, start = 0
+diff -Nrua 2.4.25/hdg 2.6.4-rc3/hdg
+--- 2.4.25/hdg  2004-03-11 19:48:32.000000000 +0100
++++ 2.6.4-rc3/hdg       2004-03-11 19:52:31.000000000 +0100
+@@ -6,5 +6,5 @@
+  using_dma    =  1 (on)
+  keepsettings =  0 (off)
+  readonly     =  0 (off)
+- readahead    =  8 (on)
+- geometry     = 14593/255/63, sectors = 234441648, start = 0
++ readahead    = 256 (on)
++ geometry     = 16383/255/63, sectors = 234441648, start = 0
 
-Doing it that way would get rid of lots of mess in XFS so I'm all for it :)
+I am a bit confused by the geometry changes, but they can hardly
+cause the problem since hda works nicely under 2.6.
+
+Can I do anything to narrow this down, is there a way to get more
+debugging output? 
+
+ciao,
+-- 
+[*Thomas  Themel*]  While differing widely in the various little bits we know,
+[extended contact]  in our infinite ignorance we are all equal. 
+[info provided in]
+[*message header*]      - Karl Popper

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285783AbSAZRjc>; Sat, 26 Jan 2002 12:39:32 -0500
+	id <S285747AbSAZRwR>; Sat, 26 Jan 2002 12:52:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285747AbSAZRjW>; Sat, 26 Jan 2002 12:39:22 -0500
-Received: from mailgate5.cinetic.de ([217.72.192.165]:3811 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id <S285783AbSAZRjP> convert rfc822-to-8bit; Sat, 26 Jan 2002 12:39:15 -0500
-Date: Sat, 26 Jan 2002 18:39:09 +0100
-Message-Id: <200201261739.g0QHd9C14650@mailgate5.cinetic.de>
-MIME-Version: 1.0
-Organization: http://freemail.web.de/
-From: Patrick Scharrenberg <pittipatti@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Again: strange ext2-errror with 2.4.17
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S285935AbSAZRv6>; Sat, 26 Jan 2002 12:51:58 -0500
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:59270 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S285747AbSAZRvy>; Sat, 26 Jan 2002 12:51:54 -0500
+Date: Sat, 26 Jan 2002 17:48:00 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Martin Eriksson <nitrax@giron.wox.org>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] ACPI mentioned on lwn.net/kernel
+Message-ID: <20020126174800.D6724@kushida.apsleyroad.org>
+In-Reply-To: <200201251550.g0PFoIPa002738@tigger.cs.uni-dortmund.de> <200201250802.32508.bodnar42@phalynx.dhs.org> <jeelkes8y5.fsf@sykes.suse.de> <a2sv2s$ge3$1@penguin.transmeta.com> <20020126034106.F5730@kushida.apsleyroad.org> <012d01c1a687$faa11120$0201a8c0@HOMER> <3C52DD96.183322F9@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C52DD96.183322F9@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Jan 26, 2002 at 11:47:18AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jeff Garzik wrote:
+> > Hmm.. I tried to compile the kernel with -Os (gcc 2.96-98) and I just got a
+> > ~1% smaller vmlinux and a ~3% smaller bzImage. Maybe the size optimizations
+> > doesn't show on these files? Internal data structures that are much bigger
+> > than "real" code?
+> 
+> That doesn't tell us much unless you benchmark any speed
+> improvements/degradations noticed.  Hidden in that 1% may be more
+> favorable I-cache usage, better register usage... who knows.
+> 
+> It would also be interesting to compile key files like kernel/sched.c or
+> mm/vmscan.c in assembly using O2 and Os, and compare the output with
+> diff -u.
 
-last week (17.01.02) I wrote that I had these ext2 
-errors with 2.4.17, destroing my data.
+It'd be good to know why it's not achieving the quoted 30% space saving
+that other compilers manage for normal code, unless it's myth of course.
 
-After switching back to 2.4.10, fsck'ing and backing up the 
-remaining files I recompiled the 2.4.17 and started to rerun the 
-system with this kernel. 
-
-Today the error appeared again!!
-
-I shut down the system now, so that it is not destroying 
-itself too much.. :-(
-Sunday evening I can tell you more about it (if you like to)
-because the system is actual about 100 km away.
-
-So, if you need more information, please contact me. I can 
-send you any logs, etc. you need..
-
-c.u.
-..patrick
-______________________________________________________________________________
-Geben Sie Ihren Lottotipp gerne auf den letzten Drücker ab?Beim WEB.DE
-Lottoservice gibt's keine Warteschlangen. http://tippen2.web.de/?x=9
-
+-- Jamie

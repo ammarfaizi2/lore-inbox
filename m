@@ -1,53 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264590AbTFQFar (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 01:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264592AbTFQFar
+	id S264592AbTFQFo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 01:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264593AbTFQFo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 01:30:47 -0400
-Received: from mailf.telia.com ([194.22.194.25]:44522 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id S264590AbTFQFaq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 01:30:46 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Message-ID: <3EEEAA9C.5060801@telia.com>
-Date: Tue, 17 Jun 2003 07:43:56 +0200
-From: Peter Lundkvist <p.lundkvist@telia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
+	Tue, 17 Jun 2003 01:44:58 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:36876 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S264592AbTFQFoz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 01:44:55 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: linux-kernel@vger.kernel.org
+Subject: Resend: 2.4 bkbits.net not updated - 2.4.21 missing
+Date: Tue, 17 Jun 2003 13:58:30 +0800
+User-Agent: KMail/1.5.2
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-To: Jaakko Niemi <liiwi@lonesom.pp.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.71 go boom
-References: <87isr7cjra.fsf@jumper.lonesom.pp.fi> <20030615191125.I5417@flint.arm.linux.org.uk> <87el1vcdrz.fsf@jumper.lonesom.pp.fi> <20030615212814.N5417@flint.arm.linux.org.uk> <87he6qc3bb.fsf@jumper.lonesom.pp.fi> <20030616085403.A5969@flint.arm.linux.org.uk> <3EEE173A.8040802@telia.com> <20030616212700.J13312@flint.arm.linux.org.uk>
-In-Reply-To: <20030616212700.J13312@flint.arm.linux.org.uk>
-X-Enigmail-Version: 0.74.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200306171358.30412.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> Great, this helps a lot.  While I remove the bullet from my foot, could
-> you test this patch please?
-> 
-> --- linux/drivers/pcmcia/cs.c.old	Mon Jun 16 21:17:45 2003
-> +++ linux/drivers/pcmcia/cs.c	Mon Jun 16 21:24:23 2003
-> @@ -817,7 +817,8 @@
->  				if ((skt->state & SOCKET_PRESENT) &&
->  				     !(status & SS_DETECT))
->  					socket_shutdown(skt);
-> -				if (status & SS_DETECT)
-> +				if (!(skt->state & SOCKET_PRESENT) &&
-> +				    status & SS_DETECT)
->  					socket_insert(skt);
->  			}
->  			if (events & SS_BATDEAD)
+2.4.21 seems not be at  http://linux.bkbits.net/linux-2.4
+Tried thrice since sunday.
 
-A quick test with this patch against 2.5.71: Works OK now!
+Also tag for -rc8 is missing
 
-Thank you
+Regards
+Michael
 
-Peter
+P.S. pls cc me
+
+[mhf@mhfl2 11:52:41 linux-2.4]$ bk pull -R
+---------------------- Receiving the following csets -----------------------
+1.1201 1.1200 1.1199 1.1198 1.1197
+----------------------------------------------------------------------------
+ChangeSet: 5 deltas
+drivers/net/wan/lmc/lmc_proto.c: 2 deltas
+fs/ext2/balloc.c: 1 deltas
+net/sched/sch_ingress.c: 2 deltas
+---------------------------------------------------------------------------
+takepatch: saved entire patch in PENDING/2003-06-16.01
+---------------------------------------------------------------------------
+Applying   5 revisions to ChangeSet
+Applying   2 revisions to drivers/net/wan/lmc/lmc_proto.c
+Applying   1 revisions to fs/ext2/balloc.c
+Applying   2 revisions to net/sched/sch_ingress.c
+takepatch: 10 new revisions, 0 conflicts in 4 files
+1171 bytes uncompressed to 5488, 4.69X expansion
+
+[mhf@mhfl2 12:14:41 linux-2.4]$ bk resolve
+Using :0.0 as graphical display
+Verifying consistency of the RESYNC tree...
+resolve: applied 4 files in pass 4
+resolve: running consistency check, please wait...
+Consistency check passed, resolve complete.
+
+[mhf@mhfl2 12:18:27 linux-2.4]$ bk changes -t
+ChangeSet@1.1193, 2003-06-03 13:03:50-03:00, marcelo@freak.distro.conectiva
+    Changed EXTRAVERSION to -rc7
+  TAG: v2.4.21-rc7
+
+[mhf@mhfl2 12:48:44 linux-2.4]$ bk changes
+ChangeSet@1.1201, 2003-06-09 17:42:11-03:00, marcelo@freak.distro.conectiva
+  Cset exclude: geert@linux-m68k.org|ChangeSet|20030609201907|11405
+
+ChangeSet@1.1200, 2003-06-09 17:41:58-03:00, marcelo@freak.distro.conectiva
+  Cset exclude: geert@linux-m68k.org|ChangeSet|20030609201637|12385
+
+ChangeSet@1.1199, 2003-06-09 17:19:07-03:00, geert@linux-m68k.org
+  [PATCH] lmc_proto.c includes <asm/smp.h>
+
+  lmc_proto.c includes <asm/smp.h>, causing build failures on UMP-only
+  architectures
+
+ChangeSet@1.1198, 2003-06-09 17:17:55-03:00, geert@linux-m68k.org
+  [PATCH] Fix ext2fs warning
+
+  ext2fs: Fix incorrect printf() format (already fixed in 2.5)
+
+ChangeSet@1.1197, 2003-06-09 17:16:37-03:00, geert@linux-m68k.org
+  [PATCH] sch_ingress.c includes <asm/smp.h>
+
+  sch_ingress.c includes <asm/smp.h>, causing build failures on UMP-only
+  architectures
+
+ChangeSet@1.1196, 2003-06-05 18:05:17-03:00, hugh@veritas.com
+  [PATCH] Fix shmctl(SHM_LOCK/UNLOCK) deadlock
+
+  On Wed, 4 Jun 2003, Andrea Arcangeli wrote:
+  > this patch fixes an SMP deadlock that triggered in some production
+  > usage:
+
+  Yes, worth fixing in 2.4.21, thanks Andrea:
+  shmem_lock tried for a semaphore while sys_shmctl holds a spinlock.
+
+  Patch below against 2.4.21-rc7 - Andrea's patch against his own tree
+  may have deterred you!  As he said, using spin_lock here is actually
+  superfluous, but raises fewer eyebrows than omitting it.  I want to
+  send you patches in early 2.4.22 to bring many of the 2.5 tmpfs mods
+  into 2.4, which would fix this: but the hangfix is worth taking now.
+
+ChangeSet@1.1195, 2003-06-05 04:00:23-03:00, marcelo@freak.distro.conectiva
+    Changed EXTRAVERSION to -pre8
+
+ChangeSet@1.1194, 2003-06-04 13:52:56-03:00, marcelo@freak.distro.conectiva
+  Backout erroneous kiobuf dcache flush changes
+  Cset exclude: jsun@mvista.com|ChangeSet|20030425203656|60956
+
+
+
+-- 
+Powered by linux-2.5.71-mm1, compiled with gcc-2.95-3 because it's rock solid
+
+My current linux related activities in rough order of priority:
+- Testing of Swsusp for 2.4
+- Learning 2.5 kernel debugging with kgdb - it's in the -mm tree
+- Studying 2.5 serial and ide drivers, ACPI, S3
+
+The 2.5 kernel could use your usage. More info on setting up 2.5 kernel at 
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+
 

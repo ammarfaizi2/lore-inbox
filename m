@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTJAPKT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 11:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbTJAPKT
+	id S262333AbTJAPYg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 11:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTJAPYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 11:10:19 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:51100 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262328AbTJAPKM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 11:10:12 -0400
-Date: Wed, 1 Oct 2003 17:10:11 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] CONFIG_* In Comments Considered Harmful
-Message-ID: <20031001151011.GL31698@wohnheim.fh-wedel.de>
-References: <20031001132619.GL24824@parcelfarce.linux.theplanet.co.uk> <20031001143959.GI31698@wohnheim.fh-wedel.de> <20031001145206.GH29313@actcom.co.il>
+	Wed, 1 Oct 2003 11:24:36 -0400
+Received: from ns.suse.de ([195.135.220.2]:22985 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262333AbTJAPYE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 11:24:04 -0400
+Date: Wed, 1 Oct 2003 17:24:02 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, jamie@shareable.org, hugh@veritas.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
+Message-ID: <20031001152401.GM22333@wotan.suse.de>
+References: <20031001073132.GK1131@mail.shareable.org> <Pine.LNX.4.44.0310010900280.5501-100000@localhost.localdomain> <20031001093329.GA2649@mail.shareable.org> <20031001075151.4e595f99.akpm@osdl.org> <20031001145631.GK22333@wotan.suse.de> <20031001081910.70d4751b.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031001145206.GH29313@actcom.co.il>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20031001081910.70d4751b.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 October 2003 17:52:06 +0300, Muli Ben-Yehuda wrote:
-> > 
-> > Index: include/linux/mm.h
-> > ===================================================================
-> > RCS file: /var/cvs/linux-2.6/include/linux/mm.h,v
-> > retrieving revision 1.5
-> > diff -u -p -r1.5 mm.h
-> > --- a/include/linux/mm.h	28 Sep 2003 04:06:20 -0000	1.5
-> > +++ b/include/linux/mm.h	1 Oct 2003 13:15:53 -0000
-> > @@ -196,7 +196,7 @@ struct page {
-> >  #if defined(WANT_PAGE_VIRTUAL)
-> >  	void *virtual;			/* Kernel virtual address (NULL if
-> >  					   not kmapped, ie. highmem) */
-> > -#endif /* CONFIG_HIGMEM || WANT_PAGE_VIRTUAL */
-> > +#endif /* CONFIG_HIGHMEM || WANT_PAGE_VIRTUAL */
-> >  };
+> Why is it not sufficient to do something like:
 > 
-> This is broken, the CONFIG_HIG(H)MEM shouldn't be there at all. Look
-> at the #if defined(...) line. 
+> 	if (!(error_code & 4) && is_prefetch(...))
+> 		return;
+> 
+> near the start of do_page_fault()?
 
-include/linux/mm.h:353:
-#if defined(CONFIG_HIGHMEM) && !defined(WANT_PAGE_VIRTUAL)
-include/linux/mm.h:199:
-#endif /* CONFIG_HIGMEM || WANT_PAGE_VIRTUAL */
+That could fault recursively when the __get_user in is_prefetch faults. 
+You would have to check the exception table first too.
 
-Ah, crud!  The comment fits perfectly, it just sits at the wrong
-position.  Agreed, no comments are better than wrong comments.
-
-Scrap my patch.
-
-Jörn
-
--- 
-A defeated army first battles and then seeks victory.
--- Sun Tzu
+-Andi

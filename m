@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284948AbRLKKIz>; Tue, 11 Dec 2001 05:08:55 -0500
+	id <S284952AbRLKKRG>; Tue, 11 Dec 2001 05:17:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284952AbRLKKIp>; Tue, 11 Dec 2001 05:08:45 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:33034 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S284948AbRLKKId>; Tue, 11 Dec 2001 05:08:33 -0500
-Date: Tue, 11 Dec 2001 10:08:03 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: gspujar@hss.hns.com
-Cc: linux-kernel@vger.kernel.org, achowdhry@hss.hns.com
-Subject: Re: software watchdog
-Message-ID: <20011211100803.A3306@flint.arm.linux.org.uk>
-In-Reply-To: <65256B1F.002BF453.00@sandesh.hss.hns.com>
+	id <S284953AbRLKKQ4>; Tue, 11 Dec 2001 05:16:56 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:1039 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S284952AbRLKKQs>; Tue, 11 Dec 2001 05:16:48 -0500
+Date: Tue, 11 Dec 2001 11:14:58 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Cory Bell <cory.bell@usa.net>
+Cc: John Clemens <john@deater.net>,
+        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+Message-ID: <20011211111458.A15007@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.33.0112060938340.32381-100000@pianoman.cluster.toy> <1007685691.6675.1.camel@localhost.localdomain> <20011207213313.A176@elf.ucw.cz> <1007876254.17062.0.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <65256B1F.002BF453.00@sandesh.hss.hns.com>; from gspujar@hss.hns.com on Tue, Dec 11, 2001 at 01:33:04PM +0530
+In-Reply-To: <1007876254.17062.0.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 11, 2001 at 01:33:04PM +0530, gspujar@hss.hns.com wrote:
-> >>>printk(KERN_CRIT "SOFTDOG: Initiating system reboot.\n"); prints the
-> message on the console.
+Hi!
+
+> > Hey, this gross hack fixed USB on HP OmniBook xe3. Good! (Perhaps you
+> > know what interrupt is right for maestro3, also on omnibook? ;-).
 > 
-> I put a delay of 5secs with mdelay, and I can see the message on the console.
-> I wanted the message as a syslog,
+> On my Pavilion (and the other 5400's as far as I can tell), maestro's on
+> irq 5. Wanna send me a "dump_pirq" and a "lspci -vvvxxx"? Could you try
+> the patch below (inspired by/stolen from Kai Germaschewski)? Also, the
+> newest acpi patch will print out the acpi irq routing table - might have
+> your info. You can tell if the patch below had any effect because it
+> will say it ASSIGNED IRQ XX instead of FOUND.
 
-In order to log this message to syslog, you need to allow the syslog
-process to run.  If you're using a uniprocessor machine, using mdelay()
-doesn't allow syslog to run during this time.
+The patch should contain:
 
-Softdog has a "testing" mode, which can be enabled by defining
-ONLY_TESTING.  This disables the automatic reboot, but the system
-will log the timeout message.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+> The "honor the irq mask" approach (works on my machine):
+> --- /home/cbell/linux-2.4/arch/i386/kernel/pci-irq.c	Fri Dec  7 01:51:41 2001
+> +++ /home/cbell/linux-2.4-test/arch/i386/kernel/pci-irq.c	Sat Dec  8 21:04:37 2001
+> @@ -581,6 +581,7 @@
+>  	 * reported by the device if possible.
+>  	 */
+>  	newirq = dev->irq;
+> +	if (!((1 << newirq) & mask)) newirq = 0;
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+printk(KERN_ERR "$PIR table inconsistent; chipset dependend code told
+us interrupt is at %d, but irq mask is %lx\n", dev->irq, newirq);
+  
+We should never ever workaround BIOS problem without complaining.
 
+Otherwise patch looks sane. Did you try submitting it to
+linus/marcelo?
+								Pavel 
+-- 
+Casualities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

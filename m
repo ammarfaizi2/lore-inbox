@@ -1,70 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267880AbUIFMdC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267901AbUIFMfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267880AbUIFMdC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 08:33:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267879AbUIFMdC
+	id S267901AbUIFMfN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 08:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267889AbUIFMfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 08:33:02 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:4310 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S267880AbUIFMcr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 08:32:47 -0400
-Date: Mon, 6 Sep 2004 14:32:22 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <6010544610.20040906143222@tnonline.net>
-To: Pavel Machek <pavel@suse.cz>
-CC: Tonnerre <tonnerre@thundrix.ch>, Christer Weinigel <christer@weinigel.se>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
-       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040906105018.GB28111@atrey.karlin.mff.cuni.cz>
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
- <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
- <m3eklm9ain.fsf@zoo.weinigel.se> <20040905111743.GC26560@thundrix.ch>
- <1215700165.20040905135749@tnonline.net> <20040905115854.GH26560@thundrix.ch>
- <1819110960.20040905143012@tnonline.net>
- <20040906105018.GB28111@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 6 Sep 2004 08:35:12 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:11993 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S267901AbUIFMeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 08:34:17 -0400
+Subject: Re: [PATCH] tidy AMD 768MPX fix
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: alan@lxorguk.ukuu.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <E1C3HCK-0001aU-H4@localhost.localdomain>
+References: <E1C3HCK-0001aU-H4@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1094474049.14552.38720.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Mon, 06 Sep 2004 13:34:10 +0100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-09-03 at 17:46 +0100, Andy Whitcroft wrote:
+>   In that case perhaps we should at least fix the code indent
+> etc.  Revised patch below.
 
-  
+If it's only a cosmetic patch anyway, it seems silly to do it without
+also fixing the misspelling of 'erratum' :)
 
-> Hi!
-
->> >>   What if I do not use emacs, but vim, mcedit, gedit, or some other
->> >>   editor? It doesn't seem logical to have to patch every application
->> >>   that uses files.
->> 
->> > We would have to do that in  either case, so let's patch them to do it
->> > in a nonintrusive way. And as to reading and writing inside tar files,
->> > write and/or  use a really nice  userspace library to do  it. (As does
->> > MacOS/X, as does KDE, etc.)
->> 
->>   The problem with the userspace library is standardization. What
->>   would be needed is a userspace library that has a extensible plugin
->>   interface that is standardized. Otherwise we would need lots of
->>   different libraries, and I seriously doubt that 1) this will happen
->>   and 2) we get all Linux programs to be patched to use it.
-
-> libvfs from midnight commander (and anything build on the top of it)
-> already is very extensible.
-
-  This wasn't my point. My point was about all applications using it.
-  Most aren't.
-
-> 								Pavel
-
-
+-- 
+dwmw2
 

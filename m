@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVBXW02@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbVBXWZM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbVBXW02 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 17:26:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262518AbVBXW01
+	id S262512AbVBXWZM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 17:25:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbVBXWZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 17:26:27 -0500
-Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:40898 "EHLO
-	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262508AbVBXW0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 17:26:21 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Thu, 24 Feb 2005 17:25:11 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:20953 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262512AbVBXWZD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 17:25:03 -0500
+Message-ID: <421E546F.4070505@watson.ibm.com>
+Date: Thu, 24 Feb 2005 17:25:51 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Reply-To: nagar@watson.ibm.com
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Greg KH <greg@kroah.com>
+CC: Gerrit Huizenga <gh@us.ibm.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, Rik van Riel <riel@redhat.com>,
+       Chris Mason <mason@suse.com>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [ckrm-tech] Re: [PATCH] CKRM: 4/10 CKRM: Full rcfs support
+References: <20041129221548.GD19892@kroah.com> <E1D4FN0-0006v2-00@w-gerrit.beaverton.ibm.com> <20050224174230.GA10244@kroah.com>
+In-Reply-To: <20050224174230.GA10244@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16926.21614.267728.100131@wombat.chubb.wattle.id.au>
-Date: Fri, 25 Feb 2005 09:25:50 +1100
-To: "Chad N. Tindel" <chad@tindel.net>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Xterm Hangs - Possible scheduler defect?
-In-Reply-To: <20050224173356.GA11593@calma.pair.com>
-References: <20050223230639.GA33795@calma.pair.com>
-	<20050223183634.31869fa6.akpm@osdl.org>
-	<20050224052630.GA99960@calma.pair.com>
-	<421DD5CC.5060106@aitel.hist.no>
-	<20050224173356.GA11593@calma.pair.com>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Chad" == Chad N Tindel <chad@tindel.net> writes:
+Greg KH wrote:
+> 
+>>>>+config RCFS_FS
+>>>>+	tristate "Resource Class File System (User API)"
+>>>>+	depends on CKRM
+>>>>+	help
+>>>>+	  RCFS is the filesystem API for CKRM. This separate configuration 
+>>>>+	  option is provided only for debugging and will eventually disappear 
+>>>>+	  since rcfs will be automounted whenever CKRM is configured. 
+>>>>+
+>>>>+	  Say N if unsure, Y if you've enabled CKRM, M to debug rcfs 
+>>>>+	  initialization.
+>>>>+
+>>>
+>>>So is this option going to stay around, or should it always be enabled
+>>>if CKRM is enabled?  Why not just do that for the user?
+>>
+>>It may be a module, but yes, this should be auto-set in the future when
+>>CKRM is enabled.
+> 
+> 
+> Then fix it?  :)
+> 
+> greg k-h
 
-Chad> I would make the following assertion for any kernel:
+Sounds like a case is being made to make CONFIG_RCFS a "y" and eliminate
+the possibility of it being a loadable module ? If so, I don't think its 
+a good idea. While a kernel may have CKRM enabled, the user may choose 
+not to use it. In such a case, he should have the option of not loading 
+the rcfs module.
 
-Chad> No single userspace thread of execution running on an SMP system
-Chad> should be able to hose a box by going CPU-bound, bug in the
-Chad> software or no bug.  Any kernel should be able to handle this
-Chad> case and shift general work over to other processors.
+How does one restrict the choices of a tristate variable to exclude just 
+the N selection ? It wasn't clear from the kconfig-language.txt...any 
+pointers appreciated.
 
-In many Unices, crucial kernel threads run at realtime priority with a
-static priority higher than is accessible to user code.
 
-That being said, however, you've got to be a privileged user to set
-real time very high priority on a thread, and if you do, you'd better
-know what you're doing.  Any SCHED_FIFO thread should run for a time,
-then sleep for a time, or it *will* DOS everything else on the
-processor.
+-- Shailabh
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+
+

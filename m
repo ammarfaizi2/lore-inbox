@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267336AbTALJSu>; Sun, 12 Jan 2003 04:18:50 -0500
+	id <S267343AbTALJXb>; Sun, 12 Jan 2003 04:23:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267338AbTALJSu>; Sun, 12 Jan 2003 04:18:50 -0500
-Received: from h-64-105-35-9.SNVACAID.covad.net ([64.105.35.9]:43709 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267336AbTALJSs>; Sun, 12 Jan 2003 04:18:48 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 12 Jan 2003 01:27:10 -0800
-Message-Id: <200301120927.BAA17236@baldur.yggdrasil.com>
-To: paul@clubi.ie
-Subject: Re: Honest does not pay here ...
-Cc: andre@linux-ide.org, andrew@indranet.co.nz, linux-kernel@vger.kernel.org
+	id <S267344AbTALJXb>; Sun, 12 Jan 2003 04:23:31 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8651 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267343AbTALJXV>; Sun, 12 Jan 2003 04:23:21 -0500
+Date: Sun, 12 Jan 2003 10:32:05 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       support@moxa.com.tw
+Subject: Re: 2.5.55: static compilation of mxser.c doesn't work
+Message-ID: <20030112093205.GS21826@fs.tum.de>
+References: <20030110140313.GL6626@fs.tum.de> <1042211563.31612.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042211563.31612.0.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jakma writes:
->And frankly, courts in most parts of the world will look at community
->practice as a (slightly weaker than a court case) precedent [...]
+On Fri, Jan 10, 2003 at 03:12:43PM +0000, Alan Cox wrote:
+> On Fri, 2003-01-10 at 14:03, Adrian Bunk wrote:
+> > Hi Arnaldo,
+> > 
+> > the 2.5 Linux kernel contains your patch
+> > 
+> >    o mxser: add module_exit/module_init
+> >    This fixes the compilation problem in 2.5
+> > 
+> > This patch renames mxser_init to mxser_module_init causing a compile 
+> > error when trying to compile this driver statically into the kernel 
+> > since mxser_init is still called from drivers/char/tty_io.c.
+> 
+> You should be able to kill the call from tty_io.c
 
-	Since you imply that you are familiar with "courts in most
-parts of the world", I'd be interested if you could identify, and,
-ideally, quote the court decisions or laws that define this "community
-practice as a (slightly weaker than court case) precedent" doctrine,
-presumably some kind of extension of stare decisis that I haven't
-heard of before.
+Unfortunately I don't have the hardware to test whether the driver 
+actually works but the patch below fixes the compilation.
 
-	Apparently, findlaw hasn't heard of it either.  "community
-practice" only turned up one clearly inapplicable hit (in quotation
-marks so as not to turn up every page containing the words "community"
-and "practices") about "studies performed in community practice
-settings involving thousands of patients."  In comparison,
-"contributory infringement" turned up 75 hits, 129 hits for "stare
-decisis", 246 hits for "court precedent."  I don't see anything
-relevant from poking around google, but there were a lot of hits.
+cu
+Adrian
 
-	Anyhow, as far as I can tell, no copyright owner other than
-Linus has given permission to use their code with proprietary modules.
-If you want to give people permission to use _your_ code under terms
-essentially identical to the LGPL (since you can always write wrapper
-functions) then feel free to state that you are granting that
-permission, or, perhaps more simply, LGPL your contributions.
-
-	I'm not a lawyer.  This is not intended as legal advice.
-
-	Also, if you do not answer my question clearly and honestly or
-I otherwise think you've danced around it, then I may not be able to
-prioritize any more time to you respond further.  That does not imply
-agreement.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+--- linux-2.5.56/drivers/char/tty_io.c.old	2003-01-12 10:15:39.000000000 +0100
++++ linux-2.5.56/drivers/char/tty_io.c	2003-01-12 10:16:14.000000000 +0100
+@@ -2372,9 +2372,6 @@
+ 	rs_8xx_init();
+ #endif /* CONFIG_8xx */
+ 	pty_init();
+-#ifdef CONFIG_MOXA_SMARTIO
+-	mxser_init();
+-#endif	
+ #ifdef CONFIG_MOXA_INTELLIO
+ 	moxa_init();
+ #endif	

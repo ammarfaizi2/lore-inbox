@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280288AbRKNHfD>; Wed, 14 Nov 2001 02:35:03 -0500
+	id <S280293AbRKNH53>; Wed, 14 Nov 2001 02:57:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280281AbRKNHex>; Wed, 14 Nov 2001 02:34:53 -0500
-Received: from [212.3.242.3] ([212.3.242.3]:63501 "HELO mail.i4gate.net")
-	by vger.kernel.org with SMTP id <S280262AbRKNHei> convert rfc822-to-8bit;
-	Wed, 14 Nov 2001 02:34:38 -0500
-Message-Id: <5.1.0.14.2.20011114083532.00a816a8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 14 Nov 2001 08:35:40 +0100
-To: linux-kernel@vger.kernel.org
-From: DevilKin <devilkin@gmx.net>
-Subject: Re: usb-storage fails with datafab md2-usb (ide hdd on usb) on
-  newer kernels >2.4.8
+	id <S280306AbRKNH5T>; Wed, 14 Nov 2001 02:57:19 -0500
+Received: from 28.ppp1-3.hob.worldonline.dk ([212.54.85.28]:16516 "EHLO
+	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
+	id <S280293AbRKNH5B>; Wed, 14 Nov 2001 02:57:01 -0500
+Date: Wed, 14 Nov 2001 08:56:42 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Dave Jones <davej@suse.de>
+Cc: Brian Ristuccia <bristucc@sw.starentnetworks.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: elvtune fails with DAC960 and devfs on 2.4.14
+Message-ID: <20011114085642.G17933@suse.de>
+In-Reply-To: <20011113145315.T22467@osiris.978.org> <Pine.LNX.4.30.0111132206431.6089-100000@Appserv.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0111132206431.6089-100000@Appserv.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm... I've been experiencing the very same thing, but with a Digicam that 
-reports to the PC as a usb-storage device. Mount just hangs.... I haven't 
-had the patience to wait for it to time out (especially if i need my pics 
-fast)...
+On Tue, Nov 13 2001, Dave Jones wrote:
+> On Tue, 13 Nov 2001, Brian Ristuccia wrote:
+> 
+> > I can't seem to adjust the elevator parameters for this block device, but
+> > can't:
+> > # elvtune /dev/rd/disc0/disc
+> > ioctl get: Invalid argument
+> 
+> DAC960.c doesn't know about BLKELVSET / BLKELVGET, and control is
+> only passed down to the generic ioctl in the case of BLKBSZSET,
+> and doesn't have a default: entry in the switch statement of
+> DAC960_IOCTL()
+> 
+> I've not seen one of these devices, so I'm not sure if this makes
+> sense or not, but passing on requests to the lower level should
+> be a simple..
+> 
+> 	default:
+> 		return( blk_ioctl(Inode->i_rdev, Request, Argument));
+> 
+> Addition.
 
-Rebooting/halting usually causes an oops with me (while mount is still 
-hanging, that is)
+Or just add it to the BLKBSZGET etc string that pass it on to blk_ioctl
+anyways.
 
-DK
+> There may be other reasons this driver doesn't provide the
+> elevator ioctls though.
 
-At 01:04 14/11/2001 +0100, you wrote:
->On Wed, Nov 14, 2001 at 12:41:23AM +0100, Christoph Kampe wrote:
->... very much, but not the Problemdescription.
->
->Hi again,
->sorry i forget to write what went wrong with the DataFab Storage.
->
->Actually, with 2.4.8 when i connect the usb-storage it loads all
->necessary modules and a mount takes less then 1second.
->
->With 2.4.15-pre4 it loads the three modules too but, it gives
-> > kernel: usb-storage: *** thread sleeping.
-> > kernel: scsi: device set offline - not ready or command retry failed after
-> >   bus reset: host 0 channel 0 id 0 lun 0
-> > kernel:  I/O error: dev 08:05, sector 0
->in my log.
->as i wrote in my last mail (last 10 lines)
->a mount won´t work, takes some time and breaks with
->"I/O error:dev 08:05, sector 0"
->
->I dont´t know exactly if it fails because of the usb-storage or the
->scsi_mod module.
->
->Regards
->Christoph
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+None, it was simply never added.
+
+-- 
+Jens Axboe
 

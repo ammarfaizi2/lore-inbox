@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275973AbRJPKcc>; Tue, 16 Oct 2001 06:32:32 -0400
+	id <S275980AbRJPKjF>; Tue, 16 Oct 2001 06:39:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275980AbRJPKcW>; Tue, 16 Oct 2001 06:32:22 -0400
-Received: from chaos.psimation.co.za ([160.124.112.123]:26128 "EHLO
-	chaos.psimation.co.za") by vger.kernel.org with ESMTP
-	id <S275973AbRJPKcL>; Tue, 16 Oct 2001 06:32:11 -0400
-Message-ID: <3BCC0A5B.846C20E8@psimation.com>
-Date: Tue, 16 Oct 2001 12:22:19 +0200
-From: "P.Agenbag" <internet@psimation.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S275981AbRJPKiy>; Tue, 16 Oct 2001 06:38:54 -0400
+Received: from web11906.mail.yahoo.com ([216.136.172.190]:13331 "HELO
+	web11906.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S275980AbRJPKih>; Tue, 16 Oct 2001 06:38:37 -0400
+Message-ID: <20011016103906.97044.qmail@web11906.mail.yahoo.com>
+Date: Tue, 16 Oct 2001 03:39:06 -0700 (PDT)
+From: Kirill Ratkin <kratkin@yahoo.com>
+Subject: Very old kernel.
 To: linux-kernel@vger.kernel.org
-Subject: P4 problems
+In-Reply-To: <200110161123.f9GBNXw01262@spnew.snpe.co.yu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I have P4 1,4 running on Garibaldi Intel board. Can compile and boot
-the 2.4.7 kernel without problems (writing this message from the 2.4.7
-kernel). However, when trying to boot the 2.4.10 or 2.4.12 kernel, it
-hangs directly as booting starts.  The same hard drive transferred to an
-AMD athlon 1GHz boots up perfectly, even though the kernel is compiled
-for Intel P4!
+Hi. Do anybody know how to compile old kernel? (I need
+to compile 2.0.35 verion). I make config and make dep,
+when I do it I see error (during make dep). I found
+this problem as bus error in mkdep binary. I tried to
+take config scripts from 2.4.x kernel and it's ok but
+when I tried to compile I saw many error connected
+with asm statement and function type prefixes (like
+__constant_memcopy). I wouldn't like to install old
+gcc and old binutils. Are there ways to compile old
+kernel with new dev. tools?
 
-Please can someone help me, I need to get 2.4.10 or 2.4.12 running asap!
-
-Thanks.
+Regards,
 
 
+__________________________________________________
+Do You Yahoo!?
+Make a great connection at Yahoo! Personals.
+http://personals.yahoo.com

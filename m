@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276313AbRJCOLx>; Wed, 3 Oct 2001 10:11:53 -0400
+	id <S276302AbRJCOLn>; Wed, 3 Oct 2001 10:11:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276314AbRJCOLn>; Wed, 3 Oct 2001 10:11:43 -0400
-Received: from web14803.mail.yahoo.com ([216.136.224.219]:21260 "HELO
-	web14803.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S276313AbRJCOLb>; Wed, 3 Oct 2001 10:11:31 -0400
-Message-ID: <20011003141156.17014.qmail@web14803.mail.yahoo.com>
-Date: Wed, 3 Oct 2001 07:11:56 -0700 (PDT)
-From: Linux Bigot <linuxopinion@yahoo.com>
-Subject: how to get virtual address from dma address
+	id <S276314AbRJCOLd>; Wed, 3 Oct 2001 10:11:33 -0400
+Received: from web11903.mail.yahoo.com ([216.136.172.187]:34053 "HELO
+	web11903.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S276302AbRJCOLQ>; Wed, 3 Oct 2001 10:11:16 -0400
+Message-ID: <20011003141144.98896.qmail@web11903.mail.yahoo.com>
+Date: Wed, 3 Oct 2001 07:11:44 -0700 (PDT)
+From: Kirill Ratkin <kratkin@yahoo.com>
+Subject: Netfilter problem
 To: linux-kernel@vger.kernel.org
+In-Reply-To: <m1k7yc3ky5.fsf@frodo.biederman.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All programmers
+Hi.
 
-I am relatively new to linux kernel. Please advise
-what is the safe way to get the original virtaul
-address from dma address e.g., 
+I've a strange error when I try to check protocol type
+in netfilter hook function. 
 
+I see this message:
+kping.c: In function `knet_hook':
+kping.c:116: dereferencing pointer to incomplete type
+make: *** [kping.o] Error 1
 
-dma_addr = pci_map_single(dev, vaddr, sizeof(struct
-some), PCI_DMA_BIDIRECTIONAL);
-
-issue_command_to_the_controller();
-
-my_isr()
+This is part of my code:
+static
+unsigned int knet_hook(unsigned int hooknum,
+                      struct sk_buff** p_skb,
+                      const struct net_device* p_in,
+                      const struct net_device* p_out,
+                      int (*okfn)(struct sk_buff* ))
 {
-    struct some *some;
-
-    dma_addr = this_address_completed();
-
---->some = how_to_get_from_dma_addr(dma_addr);
+  ...
+  if((*p_skb)->nh.iph->protocol==
+	(unsigned char)IPPROTO_ICMP)
+  {
+    printk("<1>ICMP Packet killed\n");
+    return NF_DROP;
+  }
+  ...
 }
 
-Would ioremap work.
+It had compiled on 2.4.1 version.
 
-TIA
-   
+I don't understand why ... .
 
 
 __________________________________________________

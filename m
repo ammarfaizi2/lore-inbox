@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313027AbSDCDDb>; Tue, 2 Apr 2002 22:03:31 -0500
+	id <S313034AbSDCDFd>; Tue, 2 Apr 2002 22:05:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313032AbSDCDDX>; Tue, 2 Apr 2002 22:03:23 -0500
-Received: from zero.tech9.net ([209.61.188.187]:53515 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S313027AbSDCDDL>;
-	Tue, 2 Apr 2002 22:03:11 -0500
-Subject: [PATCH] 2.4: BUG_ON (2/2)
+	id <S313033AbSDCDFP>; Tue, 2 Apr 2002 22:05:15 -0500
+Received: from zero.tech9.net ([209.61.188.187]:55051 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S313032AbSDCDEN>;
+	Tue, 2 Apr 2002 22:04:13 -0500
+Subject: [PATCH] 2.4-ac: BUG_ON (2/2)
 From: Robert Love <rml@tech9.net>
-To: marcelo@conectiva.com.br
+To: alan@lxorguk.ukuu.org.uk
 Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 
-Date: 02 Apr 2002 22:03:11 -0500
-Message-Id: <1017802992.2940.602.camel@phantasy>
+Date: 02 Apr 2002 22:03:18 -0500
+Message-Id: <1017802999.2941.604.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+Alan,
 
 This patch, which requires the previous BUG_ON part 1 patch, changes a
 few uses of BUG -> BUG_ON in fast paths in the kernel, partly to
 demonstrate readability, partly for the optimization, mostly to give a
 reason to take part 1. ;)
 
-Patch is against 2.4.19-pre5, please apply.
+This is a separate patch from the Marcelo variant as part 2 does not
+apply cleanly to your tree due to various changes.
+
+Patch is against 2.4.19-pre4-ac3, please apply.
 
 	Robert Love
 
-diff -urN linux-2.4.19-pre5/arch/i386/kernel/smp.c linux/arch/i386/kernel/smp.c
---- linux-2.4.19-pre5/arch/i386/kernel/smp.c	Sat Mar 30 18:27:32 2002
-+++ linux/arch/i386/kernel/smp.c	Sat Mar 30 18:34:07 2002
+diff -urN linux-2.4.19-pre4-ac3/arch/i386/kernel/smp.c linux/arch/i386/kernel/smp.c
+--- linux-2.4.19-pre4-ac3/arch/i386/kernel/smp.c	Sat Mar 30 18:48:32 2002
++++ linux/arch/i386/kernel/smp.c	Sat Mar 30 18:49:22 2002
 @@ -301,8 +301,7 @@
   */
  static void inline leave_mm (unsigned long cpu)
@@ -43,10 +46,10 @@ diff -urN linux-2.4.19-pre5/arch/i386/kernel/smp.c linux/arch/i386/kernel/smp.c
  	clear_bit(cpu, &cpu_tlbstate[cpu].active_mm->cpu_vm_mask);
  }
  
-diff -urN linux-2.4.19-pre5/kernel/exit.c linux/kernel/exit.c
---- linux-2.4.19-pre5/kernel/exit.c	Sat Mar 30 18:26:41 2002
-+++ linux/kernel/exit.c	Sat Mar 30 18:34:07 2002
-@@ -316,7 +316,7 @@
+diff -urN linux-2.4.19-pre4-ac3/kernel/exit.c linux/kernel/exit.c
+--- linux-2.4.19-pre4-ac3/kernel/exit.c	Sat Mar 30 18:47:40 2002
++++ linux/kernel/exit.c	Sat Mar 30 18:49:22 2002
+@@ -362,7 +362,7 @@
  	mm_release();
  	if (mm) {
  		atomic_inc(&mm->mm_count);
@@ -55,10 +58,10 @@ diff -urN linux-2.4.19-pre5/kernel/exit.c linux/kernel/exit.c
  		/* more a memory barrier than a real lock */
  		task_lock(tsk);
  		tsk->mm = NULL;
-diff -urN linux-2.4.19-pre5/kernel/fork.c linux/kernel/fork.c
---- linux-2.4.19-pre5/kernel/fork.c	Sat Mar 30 18:26:41 2002
-+++ linux/kernel/fork.c	Sat Mar 30 18:34:07 2002
-@@ -251,7 +251,7 @@
+diff -urN linux-2.4.19-pre4-ac3/kernel/fork.c linux/kernel/fork.c
+--- linux-2.4.19-pre4-ac3/kernel/fork.c	Sat Mar 30 18:47:40 2002
++++ linux/kernel/fork.c	Sat Mar 30 18:49:22 2002
+@@ -275,7 +275,7 @@
   */
  inline void __mmdrop(struct mm_struct *mm)
  {
@@ -67,37 +70,64 @@ diff -urN linux-2.4.19-pre5/kernel/fork.c linux/kernel/fork.c
  	pgd_free(mm->pgd);
  	destroy_context(mm);
  	free_mm(mm);
-diff -urN linux-2.4.19-pre5/kernel/sched.c linux/kernel/sched.c
---- linux-2.4.19-pre5/kernel/sched.c	Sat Mar 30 18:26:41 2002
-+++ linux/kernel/sched.c	Sat Mar 30 18:34:07 2002
-@@ -556,7 +556,7 @@
+diff -urN linux-2.4.19-pre4-ac3/kernel/sched.c linux/kernel/sched.c
+--- linux-2.4.19-pre4-ac3/kernel/sched.c	Sat Mar 30 18:47:40 2002
++++ linux/kernel/sched.c	Sat Mar 30 18:49:22 2002
+@@ -749,8 +749,8 @@
+ 	list_t *queue;
+ 	int idx;
  
- 	spin_lock_prefetch(&runqueue_lock);
+-	if (unlikely(in_interrupt()))
+-		BUG();
++	BUG_ON(in_interrupt());
++
+ 	release_kernel_lock(prev, smp_processor_id());
+ 	prev->sleep_timestamp = jiffies;
+ 	spin_lock_irq(&rq->lock);
+diff -urN linux-2.4.19-pre4-ac3/mm/rmap.c linux/mm/rmap.c
+--- linux-2.4.19-pre4-ac3/mm/rmap.c	Sat Mar 30 18:47:40 2002
++++ linux/mm/rmap.c	Sat Mar 30 18:49:22 2002
+@@ -136,8 +136,7 @@
+ {
+ 	struct pte_chain * pc, * prev_pc = NULL;
  
--	if (!current->active_mm) BUG();
-+	BUG_ON(!current->active_mm);
- need_resched_back:
- 	prev = current;
- 	this_cpu = prev->processor;
-@@ -675,12 +675,12 @@
- 		struct mm_struct *mm = next->mm;
- 		struct mm_struct *oldmm = prev->active_mm;
- 		if (!mm) {
--			if (next->active_mm) BUG();
-+			BUG_ON(next->active_mm);
- 			next->active_mm = oldmm;
- 			atomic_inc(&oldmm->mm_count);
- 			enter_lazy_tlb(oldmm, next, this_cpu);
- 		} else {
--			if (next->active_mm != mm) BUG();
-+			BUG_ON(next->active_mm != mm);
- 			switch_mm(oldmm, mm, next, this_cpu);
- 		}
+-	if (!page || !ptep)
+-		BUG();
++	BUG_ON(!page || !ptep);
+ 	if (!VALID_PAGE(page) || PageReserved(page))
+ 		return;
  
-diff -urN linux-2.4.19-pre5/mm/slab.c linux/mm/slab.c
---- linux-2.4.19-pre5/mm/slab.c	Sat Mar 30 18:26:41 2002
-+++ linux/mm/slab.c	Sat Mar 30 18:34:07 2002
-@@ -665,8 +665,7 @@
+@@ -186,8 +185,7 @@
+ 	pte_t pte;
+ 	int ret;
+ 
+-	if (!mm)
+-		BUG();
++	BUG_ON(!mm);
+ 
+ 	/*
+ 	 * We need the page_table_lock to protect us from page faults,
+@@ -255,13 +253,10 @@
+ 	int ret = SWAP_SUCCESS;
+ 
+ 	/* This page should not be on the pageout lists. */
+-	if (!VALID_PAGE(page) || PageReserved(page))
+-		BUG();
+-	if (!PageLocked(page))
+-		BUG();
++	BUG_ON(!VALID_PAGE(page) || PageReserved(page));
++	BUG_ON(!PageLocked(page));
+ 	/* We need backing store to swap out a page. */
+-	if (!page->mapping)
+-		BUG();
++	BUG_ON(!page->mapping);
+ 
+ 	for (pc = page->pte_chain; pc; pc = next_pc) {
+ 		next_pc = pc->next;
+diff -urN linux-2.4.19-pre4-ac3/mm/slab.c linux/mm/slab.c
+--- linux-2.4.19-pre4-ac3/mm/slab.c	Sat Mar 30 18:47:40 2002
++++ linux/mm/slab.c	Sat Mar 30 18:49:22 2002
+@@ -666,8 +666,7 @@
  	 * Always checks flags, a caller might be expecting debug
  	 * support which isn't available.
  	 */
@@ -107,32 +137,6 @@ diff -urN linux-2.4.19-pre5/mm/slab.c linux/mm/slab.c
  
  	/* Get cache's description obj. */
  	cachep = (kmem_cache_t *) kmem_cache_alloc(&cache_cache, SLAB_KERNEL);
-diff -urN linux-2.4.19-pre5/mm/vmscan.c linux/mm/vmscan.c
---- linux-2.4.19-pre5/mm/vmscan.c	Sat Mar 30 18:26:41 2002
-+++ linux/mm/vmscan.c	Sat Mar 30 18:34:07 2002
-@@ -233,8 +233,7 @@
- 	pgdir = pgd_offset(mm, address);
- 
- 	end = vma->vm_end;
--	if (address >= end)
--		BUG();
-+	BUG_ON(address >= end);
- 	do {
- 		count = swap_out_pgd(mm, vma, pgdir, address, end, count, classzone);
- 		if (!count)
-@@ -353,10 +352,8 @@
- 
- 		page = list_entry(entry, struct page, lru);
- 
--		if (unlikely(!PageLRU(page)))
--			BUG();
--		if (unlikely(PageActive(page)))
--			BUG();
-+		BUG_ON(!PageLRU(page));
-+		BUG_ON(PageActive(page));
- 
- 		list_del(entry);
- 		list_add(entry, &inactive_list);
 
 
 

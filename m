@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263822AbTI2RO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbTI2RNJ
+	id S263793AbTI2RH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbTI2RHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:13:09 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:9861 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S263839AbTI2RLZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:11:25 -0400
-Date: Mon, 29 Sep 2003 18:11:13 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: Muli Ben-Yehuda <mulix@mulix.org>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] document optimizing macro for translating PROT_ to VM_ bits
-Message-ID: <20030929171113.GD21798@mail.jlokier.co.uk>
-References: <20030929090629.GF29313@actcom.co.il> <20030929153437.GB21798@mail.jlokier.co.uk> <200309291551.h8TFpZtH028192@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309291551.h8TFpZtH028192@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
+	Mon, 29 Sep 2003 13:07:07 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:20663 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S263793AbTI2REy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:04:54 -0400
+To: torvalds@osdl.org
+From: davej@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] K7 MCE handler fixes.
+Message-Id: <E1A41Rq-0000N7-00@hardwired>
+Date: Mon, 29 Sep 2003 18:04:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> Is this supposed to return the bitmask bit2, or (x & bit2)?  If the former,
-> then your code is right.  If the latter,  (x & bit1) ? (x & bit2) : 0
+Don't poke bank 0 on Athlon, some of them don't like it
+and raise spurious MCEs.
 
-The former.
-
-> I'm totally failing to see why the original did the bit1 == bit2 compare,
-> so maybe mhyself and Jamie are both missing some subtlety?
-
-"bit1 == bit2" was an optimisation.  It made the machine code smaller,
-without changing the result.
-
--- Jamie
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/arch/i386/kernel/cpu/mcheck/k7.c linux-2.5/arch/i386/kernel/cpu/mcheck/k7.c
+--- bk-linus/arch/i386/kernel/cpu/mcheck/k7.c	2003-09-08 00:44:57.000000000 +0100
++++ linux-2.5/arch/i386/kernel/cpu/mcheck/k7.c	2003-09-29 03:34:58.000000000 +0100
+@@ -31,7 +31,7 @@ static void k7_machine_check(struct pt_r
+ 	printk (KERN_EMERG "CPU %d: Machine Check Exception: %08x%08x\n",
+ 		smp_processor_id(), mcgsth, mcgstl);
+ 
+-	for (i=0; i<nr_mce_banks; i++) {
++	for (i=1; i<nr_mce_banks; i++) {
+ 		rdmsr (MSR_IA32_MC0_STATUS+i*4,low, high);
+ 		if (high&(1<<31)) {
+ 			if (high & (1<<29))
+@@ -81,6 +81,9 @@ void __init amd_mcheck_init(struct cpuin
+ 		wrmsr (MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
+ 	nr_mce_banks = l & 0xff;
+ 
++	/* Clear status for MC index 0 separately, we don't touch CTL,
++	 * as some Athlons cause spurious MCEs when its enabled. */
++	wrmsr (MSR_IA32_MC0_STATUS, 0x0, 0x0);
+ 	for (i=1; i<nr_mce_banks; i++) {
+ 		wrmsr (MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
+ 		wrmsr (MSR_IA32_MC0_STATUS+4*i, 0x0, 0x0);

@@ -1,110 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265339AbUFRWMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265268AbUFRWKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265339AbUFRWMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 18:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265334AbUFRWLp
+	id S265268AbUFRWKo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 18:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264641AbUFRWH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 18:11:45 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29315 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263713AbUFRWIf (ORCPT
+	Fri, 18 Jun 2004 18:07:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51942 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264906AbUFRVxS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 18:08:35 -0400
-Date: Fri, 18 Jun 2004 15:05:35 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: willy@w.ods.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] save kernel version in .config file
-Message-Id: <20040618150535.6a421bdb.rddunlap@osdl.org>
-In-Reply-To: <20040618205602.GC4441@mars.ravnborg.org>
-References: <20040617220651.0ceafa91.rddunlap@osdl.org>
-	<20040618053455.GF29808@alpha.home.local>
-	<20040618205602.GC4441@mars.ravnborg.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 18 Jun 2004 17:53:18 -0400
+Date: Fri, 18 Jun 2004 14:55:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, Robert.Picco@hp.com
+Subject: Re: [PATCH] HPET driver
+Message-Id: <20040618145531.015fbc12.akpm@osdl.org>
+In-Reply-To: <40D35740.8070206@pobox.com>
+References: <200406181616.i5IGGECd003812@hera.kernel.org>
+	<40D35740.8070206@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jun 2004 22:56:02 +0200 Sam Ravnborg wrote:
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> > 	[PATCH] HPET driver
+> > 	
+>
+> Was this posted on lkml, or simply snuck in?
 
-| On Fri, Jun 18, 2004 at 07:34:55AM +0200, Willy Tarreau wrote:
-| > On Thu, Jun 17, 2004 at 10:06:51PM -0700, Randy.Dunlap wrote:
-| > > 
-| > > Is this interesting to anyone besides me?
-| > > Save kernel version info when writing .config file.
-| > 
-| > Very good idea Randy ! I've already used some wrong config picked out of 20,
-| > and having a simple way to do a quick check is really an enhancement. BTW,
-| > does KERNELRELEASE include the build number ? and could we include the
-| > config date in the file too ?
-| 
-| Date seems worthwhile. buildnumber does not make sense since we do not
-| generate a new .config for each build.
+Was posted on lkml, was fairly widely reviewed, had comments from hch and
+others, had several fixes from myself and from Robert and a long discussion
+wrt the readq() implementation.
 
-OK, I've added date, based on Sam's comments, but someone tell me,
-when/why does filesystem-timestamp not work for this?
+I'm not very happy with the driver, if only because its size and its prior
+defect rate indicates that it probably has more problems.  But it provides
+support for new hardware which is being shipped in real products and we
+need it.  So ultimately one has to jam it into the tree in the hope that
+doing so will get it a bit more attention.
 
-Thanks for the replies.
+> This should NOT have been merged without changes.  Please fix ASAP, or 
+> revert and keep in -mm for a while.
 
---
-~Randy
+Translation: Andrew has to personally understand and review every line
+which goes into the kernel, unaided.  Sorry, that doesn't work.
 
+The patch was reviewed on lkml and has been in -mm for test and review for
+five weeks.  The initial reviews were not complete and sufficient attention
+was not paid to it while it was in -mm.
 
+To improve this process I need to find a way of provoking more attention
+toward patches which I am not particularly confident about (and this one
+certainly fell in that category).  Thus far I've done that by merging them
+into the main tree, which does work quite nicely.  Perhaps I should send
+these patches to lkml beforehand with big warning labels on them.
 
-Save kernel version info and date when writing .config file.
+wrt the readq() implementation: I reverted the generic implementation based
+on concerns raised on lkml by Eric Biederman.  As a generic readq/writeq
+implementation seems to be a new R&D project I decided to leave the
+implementation private to the HPET driver until someone takes all of this
+on.
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+wrt the hpets list locking: yeah, I noticed that, mentioned it to Robert
+then forgot all about it.  Mea Culpa.
 
+wrt the request_irq() bug: yipes.  Robert, please fix.
 
-diffstat:=
- scripts/kconfig/confdata.c |   14 ++++++++++++--
- 1 files changed, 12 insertions(+), 2 deletions(-)
+wrt the new miscdev minor: yes, devices.txt should be updated.  When the
+patch was first posted it was using a new major, but Robert changed that
+based on review comments.
 
-diff -Naurp ./scripts/kconfig/confdata.c~config_version ./scripts/kconfig/confdata.c
---- ./scripts/kconfig/confdata.c~config_version	2004-06-15 22:20:21.000000000 -0700
-+++ ./scripts/kconfig/confdata.c	2004-06-18 14:27:25.414950216 -0700
-@@ -8,6 +8,7 @@
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
-+#include <time.h>
- #include <unistd.h>
- 
- #define LKC_DIRECT_LINK
-@@ -268,6 +269,7 @@ int conf_write(const char *name)
- 	char dirname[128], tmpname[128], newname[128];
- 	int type, l;
- 	const char *str;
-+	time_t now;
- 
- 	dirname[0] = 0;
- 	if (name && name[0]) {
-@@ -301,14 +303,22 @@ int conf_write(const char *name)
- 		if (!out_h)
- 			return 1;
- 	}
-+	sym = sym_lookup("KERNELRELEASE", 0);
-+	time(&now);
- 	fprintf(out, "#\n"
- 		     "# Automatically generated make config: don't edit\n"
--		     "#\n");
-+		     "# Linux kernel version: %s\n"
-+		     "# %s"
-+		     "#\n",
-+		     (char *)sym->curr.val, ctime(&now));
- 	if (out_h)
- 		fprintf(out_h, "/*\n"
- 			       " * Automatically generated C config: don't edit\n"
-+			       " * Linux kernel version: %s\n"
-+			       " * %s"
- 			       " */\n"
--			       "#define AUTOCONF_INCLUDED\n");
-+			       "#define AUTOCONF_INCLUDED\n",
-+			       (char *)sym->curr.val, ctime(&now));
- 
- 	if (!sym_change_count)
- 		sym_clear_all_valid();

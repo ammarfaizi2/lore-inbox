@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263992AbRFEOXV>; Tue, 5 Jun 2001 10:23:21 -0400
+	id <S263997AbRFEOlL>; Tue, 5 Jun 2001 10:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263993AbRFEOXL>; Tue, 5 Jun 2001 10:23:11 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:60420 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S263992AbRFEOXD>;
-	Tue, 5 Jun 2001 10:23:03 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Stephen Wille Padnos <stephenwp@adelphia.net>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Exporting new functions from kernel 2.2.14 
-In-Reply-To: Your message of "Tue, 05 Jun 2001 10:10:26 MST."
-             <3B1D1282.9D74F4AF@adelphia.net> 
+	id <S264003AbRFEOlB>; Tue, 5 Jun 2001 10:41:01 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:46087 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S263997AbRFEOks>; Tue, 5 Jun 2001 10:40:48 -0400
+Date: Wed, 6 Jun 2001 02:40:44 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Vipin Malik <vipin.malik@daniel.com>
+Cc: Bjorn Wesen <bjorn.wesen@axis.com>, David Woodhouse <dwmw2@infradead.org>,
+        linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
+Subject: Re: Missing cache flush.
+Message-ID: <20010606024044.A23954@metastasis.f00f.org>
+In-Reply-To: <Pine.LNX.4.21.0106051105110.1078-100000@godzilla.axis.se> <3B1CEB15.FFB2EADB@daniel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 06 Jun 2001 00:22:57 +1000
-Message-ID: <17882.991750977@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B1CEB15.FFB2EADB@daniel.com>; from vipin.malik@daniel.com on Tue, Jun 05, 2001 at 09:22:13AM -0500
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 05 Jun 2001 10:10:26 -0700, 
-Stephen Wille Padnos <stephenwp@adelphia.net> wrote:
->Arthur had pointed out that modules.h should be included, then kernel.h.  Is
->there a place where I can find out more about header file order dependencies?
+On Tue, Jun 05, 2001 at 09:22:13AM -0500, Vipin Malik wrote:
 
-With the existing design for module symbol versions, module.h must
-appear before other headers, to obtain the mapping of normal symbols to
-hashed symbols.  That restriction will be removed in 2.5, when the
-broken Makefile design for module versions is replaced.
+    Here's a stupid question: Are there any processors out there that
+    have a cache but no explicit cache-flush command?
 
+Yes, and as Linus pointed out, some with the ability are broken
+anyhow.
+
+
+  --cw

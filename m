@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265399AbUAJV5k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 16:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265405AbUAJV5k
+	id S265405AbUAJWF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 17:05:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265408AbUAJWF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 16:57:40 -0500
-Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:42384
-	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
-	id S265399AbUAJV5i convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 16:57:38 -0500
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0401102100180.5835-100000@poirot.grange>
-References: <Pine.LNX.4.44.0401102100180.5835-100000@poirot.grange>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1073771855.3958.15.camel@nidelv.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 10 Jan 2004 16:57:36 -0500
+	Sat, 10 Jan 2004 17:05:57 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:44299 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S265405AbUAJWFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 17:05:46 -0500
+To: linux-kernel@vger.kernel.org
+CC: Roland Kwee <kweelist@xs4all.nl>
+Subject: Sony DSC-F505V USB broken in linux-2.6.0
+Reply-to: Roland Kwee <kweelist@xs4all.nl>
+Message-Id: <E1AfR8E-0000HN-00@toba.home>
+From: Roland Kwee <roland@tesla.xs4all.nl>
+Date: Sat, 10 Jan 2004 22:58:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På lau , 10/01/2004 klokka 15:04, skreiv Guennadi Liakhovetski:
-> Not change - keep (from 2.4). You see, the problem might be - somebody
-> updates the NFS-server from 2.4 to 2.6 and then suddenly some clients fail
-> to work with it. Seems a non-obvious fact, that after upgrading the server
-> clients' configuration might have to be changed. At the very least this
-> must be documented in Kconfig.
+Problem
+=======
 
-Non-obvious????? You have to change modutils, you have to upgrade
-nfs-utils, glibc, gcc... and that's only the beginning of the list.
+After upgrading from linux-2.4.21 to 2.6.0,
+my camera Sony DSC-F505V doesn't connect anymore.
 
-2.6.x is a new kernel it differs from 2.4.x, which again differs from
-2.2.x, ... Get over it! There are workarounds for your problem, so use
-them.
+What I tried myself
+===================
 
-Trond
+I had to change a module name: usb-uhci    (2.4.21) --> uhci-hcd    (2.6.0),
+and a hyphen:                  usb-storage (2.4.21) --> usb_storage (2.6.0)
+
+I noticed that the F505 entry in unusual_devs.h changed in 2.6.0.
+I fooled around with this a bit without seeing an improvement.
+
+What does work
+==============
+
+The usb-storage part seems to work. See /var/log/message:
+
+kernel: scsi0 : SCSI emulation for USB Mass Storage devices
+kernel:   Vendor: Sony      Model: Sony DSC          Rev: 2.10
+kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
+kernel: SCSI device sda: 126848 512-byte hdwr sectors (65 MB)
+
+What is still missing
+=====================
+
+What is missing in 2.6.0 is the 2.4.21 log message:
+
+   Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+
+Accordingly, 'mount' will fail with 'not a valid block device'.
+
+Any help is appreciated. Thanks in advance!
+Regards, Roland Kwee    (CC: to kweelist@xs4all.nl is appreciated)
+
+NB:
+
+$ lsmod
+sd_mod                 12992  0 
+usb_storage            28896  0 
+scsi_mod              113636  2 sd_mod,usb_storage
+uhci_hcd               40520  0 
+usbcore               121940  4 usb_storage,uhci_hcd
+

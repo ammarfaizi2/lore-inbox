@@ -1,107 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263647AbTJaWbo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 17:31:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263653AbTJaWbo
+	id S262092AbTJaWzV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 17:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263669AbTJaWzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 17:31:44 -0500
-Received: from smtp.mailix.net ([216.148.213.132]:45255 "EHLO smtp.mailix.net")
-	by vger.kernel.org with ESMTP id S263647AbTJaWbl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 17:31:41 -0500
-Date: Fri, 31 Oct 2003 23:31:39 +0100
-From: Alex Riesen <fork0@users.sf.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Matthew Dharm <mdharm-usb@one-eyed-alien.net>,
-       Greg Kroah-Hartman <greg@kroah.com>
-Subject: 2.6.0-test9: lilo tried to access just umounted medium
-Message-ID: <20031031223139.GA1059@steel.home>
-Reply-To: Alex Riesen <fork0@users.sf.net>
-Mail-Followup-To: Alex Riesen <fork0@users.sf.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Matthew Dharm <mdharm-usb@one-eyed-alien.net>,
-	Greg Kroah-Hartman <greg@kroah.com>
+	Fri, 31 Oct 2003 17:55:21 -0500
+Received: from griffin-can-au.getin2net.com ([203.43.225.34]:27144 "EHLO
+	griffin-can-au.getin2net.com") by vger.kernel.org with ESMTP
+	id S262092AbTJaWzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 17:55:16 -0500
+Subject: Re: RadeonFB [Re: 2.4.23pre8 - ACPI Kernel Panic on boot]
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Reply-To: benh@kernel.crashing.org
+To: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+Cc: Kronos <kronos@kronoz.cjb.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Javier Villavicencio <jvillavicencio@arnet.com.ar>
+In-Reply-To: <3FA2B4F4.8040404@enterprise.bidmc.harvard.edu>
+References: <20031029210321.GA11437@dreamland.darkstar.lan>
+	 <1067491238.1735.4.camel@ktkhome> <1067587196.715.1.camel@gaston>
+	 <3FA2B4F4.8040404@enterprise.bidmc.harvard.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1067640904.1700.14.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 01 Nov 2003 09:55:05 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.0-test9 + bk of 31 Oct.
+On Sat, 2003-11-01 at 06:16, Kristofer T. Karas wrote:
+> Benjamin Herrenschmidt wrote:
+> 
+> >Ok, first thing: XFree "radeon" _is_ accelerated, though it doesn't
+> >do 3D on recent cards
+> >
+> Hi Ben - Right, sorry, I mean to apply "accelerated" to the 3D effects; 
+> the private ATI driver is much faster on glxgears than the version that 
+> bundles with XFree.
+> 
+> >Then, the problem you are having is well known
+> >
+> I'm having two, actually.  The first is that YPAN is getting quite 
+> confused.  If I switch VCs, then switch back, the text has been 
+> re-arranged, the cursor is often invisible, and sometimes a page or two 
+> of new text must be written before anything starts to show up on the 
+> screen again.  Experimenting shows that setting VYRES = YRES works 
+> around this problem.
 
-Do not know, it may be a lilo (22.5.7.2, from gentoo) bug...
+I'll have to look at this in more details. I don't see why ypan would
+cause such screen re-arrangement though...
 
-I had a flash card mounted (usb reader, 6-in-1 thing, uhci).
-Looked over the pics on it, unmounted and removed the card.
-
-Edited lilo.conf, and called lilo:
-
-~ lilo
-Reading boot sector from /dev/hda2
-Warning: Kernel & BIOS return differing head/sector geometries for device 0x80
-    Kernel: 65535 cylinders, 16 heads, 63 sectors
-      BIOS: 1024 cylinders, 255 heads, 63 sectors
-Fatal: open /dev/sdb: No medium found
-
-sdb is the CF-card:
-
-SCSI device sdb: 63489 512-byte hdwr sectors (33 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 00 00 00 00
-sdb: assuming drive cache: write through
-SCSI device sdb: 63489 512-byte hdwr sectors (33 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 00 00 00 00
-sdb: assuming drive cache: write through
- sdb: sdb1
-
-Next attempt to run lilo was successful. I can reproduce the problem.
-I did not notice this before (in test6, for instance).
-
-strace:
-
-write(1, "Warning: Kernel & BIOS return di"..., 79) = 79
-write(1, "    Kernel: 65535 cylinders, 16 "..., 50) = 50
-write(1, "      BIOS: 1024 cylinders, 255 "..., 50) = 50
-open("/dev/hda1", O_RDONLY)             = 7
-read(7, "\353<\220MSWIN4.1\0\2 \1\0\2\0\2\0\0\370\277\0?\0\377\0"..., 512) = 512
-close(7)                                = 0
-stat64("/dev/hda2", {st_mode=S_IFBLK|0660, st_rdev=makedev(3, 2), ...}) = 0
-open("/dev/hda2", O_RDONLY)             = 7
-read(7, "\372\353 \1\265\1LILO\26\5A\334\242?\0\0\0\0Y\221\335<"..., 512) = 512
-close(7)                                = 0
-stat64("/dev/hda3", {st_mode=S_IFBLK|0660, st_rdev=makedev(3, 3), ...}) = 0
-open("/dev/hda3", O_RDONLY)             = 7
-read(7, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-close(7)                                = 0
-stat64("/dev/hda4", {st_mode=S_IFBLK|0660, st_rdev=makedev(3, 4), ...}) = 0
-open("/dev/hda4", O_RDONLY)             = 7
-read(7, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-close(7)                                = 0
-stat64("/dev/hda5", {st_mode=S_IFBLK|0660, st_rdev=makedev(3, 5), ...}) = 0
-stat64("/dev/hda6", {st_mode=S_IFBLK|0660, st_rdev=makedev(3, 6), ...}) = 0
-stat64("/dev/hda7", {st_mode=S_IFBLK|0660, st_rdev=makedev(3, 7), ...}) = 0
-stat64("/dev/hda8", {st_mode=S_IFBLK|0660, st_rdev=makedev(3, 8), ...}) = 0
-stat64("/dev/hda9", {st_mode=S_IFBLK|0660, st_rdev=makedev(3, 9), ...}) = 0
-stat64("/dev/hda10", {st_mode=S_IFBLK|0660, st_rdev=makedev(3, 10), ...}) = 0
-stat64("/dev/hda11", {st_mode=S_IFBLK|0660, st_rdev=makedev(3, 11), ...}) = 0
-stat64("/dev/hda12", {st_mode=S_IFBLK|0660, st_rdev=makedev(3, 12), ...}) = 0
-stat64("/dev/sdb", {st_mode=S_IFBLK|0660, st_rdev=makedev(8, 16), ...}) = 0
-stat64("/dev/sdb1", {st_mode=S_IFBLK|0660, st_rdev=makedev(8, 17), ...}) = 0
-open("/dev/sdb", O_RDONLY)              = -1 ENOMEDIUM (No medium found)
-write(1, "Fatal: open /dev/sdb: No medium "..., 38) = 38
-sync()                                  = 0
-munmap(0x40016000, 4096)                = 0
-_exit(1)                                = ?
-
-There are several suspicious things:
- - why it tries to probe for /dev/sdb (yes, the mass storage driver
-   recognizes all slots in the reader at load, but the card was already
-   removed!)
- - why probing for /dev/sdb is so special so it terminates (it is not
-   mentioned anywhere in lilo.conf)
- - why it enumerates devices at all (there are boot= and root= options in
-   lilo.conf). Well, this is more a question for lilo maintainers...
-
-
+> The second problem is of course the register contents issue when 
+> returning from certain graphics programs (e.g. X+fglr) to text mode..  I 
+> rather like your idea of doing a re-init when switching from KD_GRAPHICS 
+> to KD_TEXT, as the monitor blank during resolution switch will likely 
+> overshadow the re-init process.
+> 
+> >Can you verify that running fbset -accel 0 then back 1 cures the
+> >problem for you ?
+> >  
+> >
+> 
+> At work now, will try when I return home later...
+> 
+> Kris

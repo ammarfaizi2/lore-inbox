@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280633AbRKNPMk>; Wed, 14 Nov 2001 10:12:40 -0500
+	id <S280627AbRKNPQU>; Wed, 14 Nov 2001 10:16:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280632AbRKNPMb>; Wed, 14 Nov 2001 10:12:31 -0500
-Received: from [140.249.38.181] ([140.249.38.181]:29960 "EHLO
-	neptune.cuseeme.com") by vger.kernel.org with ESMTP
-	id <S280631AbRKNPMO>; Wed, 14 Nov 2001 10:12:14 -0500
-Message-ID: <6A5AF4EA59EB214BB0267741CE2C86EF0E0791@neptune.cuseeme.com>
-From: Brian Raymond <braymond@fvc.com>
-To: "'Alastair Stevens'" <alastair.stevens@mrc-bsu.cam.ac.uk>,
-        Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-Date: Wed, 14 Nov 2001 10:07:25 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S280632AbRKNPQK>; Wed, 14 Nov 2001 10:16:10 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:63142 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S280627AbRKNPP7>;
+	Wed, 14 Nov 2001 10:15:59 -0500
+Subject: Re: File server FS?
+From: Steve Lord <lord@sgi.com>
+To: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
+Cc: Sean Elble <S_Elble@yahoo.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        Brian <hiryuu@envisiongames.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200111141142227.SM00162@there>
+In-Reply-To: <200111132203.fADM3jW03006@demai05.mw.mediaone.net>
+	<20011113175348.B24864@mikef-linux.matchmail.com>
+	<028201c16cb0$f489ccc0$0a00a8c0@intranet.mp3s.com> 
+	<200111141142227.SM00162@there>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.11.08.57 (Preview Release)
+Date: 14 Nov 2001 09:10:17 -0600
+Message-Id: <1005750618.23586.14.camel@jen.americas.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Right from AMD's datasheet on the Athon XP..
+On Wed, 2001-11-14 at 04:41, Robert Szentmihalyi wrote:
+> Am Mittwoch, 14. November 2001 03:05 schrieb Sean Elble:
+> > I'd have to recommend XFS for you . . . it supports the kernel
+> > mode NFS server very well, it supports LVM, an XFS file system
+> > can be enlarged (not reduced), and XFS has great quota support,
+> > just be sure you use a 3.0 or greater quota tools package. Why
+> > use XFS over Ext3 you ask? XFS is faster, and scales better,
+> > IMHO. Again just my opinion, but I hope that helps.
+> >
+> 
+> ACK.
+> We have built an 800 GB file server for a customer about three 
+> month ago using XFS on a 3ware RAID.
+> The server performs great, even under heay load.
+> The only drawback is that group quotas were not yet supported then.
+> I don't know if this has changed yet, but it should be fairly easy 
+> to find out..... :-)
+> 
+> cheers,
+>  Robert
+> 
 
-Multiprocessing support: point-to-point topology, with number of processors
-in SMP systems determined by chipset implementation 
+XFS on linux has had group quota support for quite a while - certainly
+longer than 3 months. All the other features are available too.
 
-Looks like it supports SMP.
+Steve
 
-- Brian
+-- 
 
-
------Original Message-----
-From: Alastair Stevens [mailto:alastair.stevens@mrc-bsu.cam.ac.uk]
-Sent: Wednesday, November 14, 2001 10:04 AM
-To: Arjan van de Ven
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-
-
-> > Hi folks - I'm having real problems getting our new dual CPU server
-> > going. It's a 2x Athlon XP 1800+ on a Tyan mobo, AMD 760MP chipset, with
->
-> Ehm you know that XP cpu's don't support SMP configuration ?
-
-Erm, no....
-
-If this really is the case, then obviously my supplier doesn't know
-either, as he's quite definitively stuck two of them on my mobo!
-Linux happily detects two XP 1800+ CPUs on boot, but then both SMP
-and UP kernels fail in this strange way. If they didn't boot at all, it
-would almost be more helpful ;-)
-
-Cheers
-Alastair
-
-_____________________________________________
-Alastair Stevens
-MRC Biostatistics Unit
-Cambridge UK
----------------------------------------------
-phone - 01223 330383
-email - alastair.stevens@mrc-bsu.cam.ac.uk
-web - www.mrc-bsu.cam.ac.uk
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

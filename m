@@ -1,29 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131778AbRC1IHx>; Wed, 28 Mar 2001 03:07:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131777AbRC1IHo>; Wed, 28 Mar 2001 03:07:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1030 "EHLO www.linux.org.uk") by vger.kernel.org with ESMTP id <S131756AbRC1IHb>; Wed, 28 Mar 2001 03:07:31 -0500
-Date: Wed, 28 Mar 2001 09:06:38 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: LA Walsh <law@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: 64-bit block sizes on 32-bit systems
-Message-ID: <20010328090638.G7738@parcelfarce.linux.theplanet.co.uk>
-References: <3ABF70B9.573C2F85@sgi.com>
-Mime-Version: 1.0
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131542AbRC1JWC>; Wed, 28 Mar 2001 04:22:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131740AbRC1JVx>; Wed, 28 Mar 2001 04:21:53 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:59025 "EHLO smtpde02.sap-ag.de") by vger.kernel.org with ESMTP id <S131542AbRC1JVh>; Wed, 28 Mar 2001 04:21:37 -0500
+X-Gnus-Agent-Meta-Information: mail nil
+From: Christoph Rohland <cr@sap.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, Linus Torvalds <torvalds@transmeta.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Ben LaHaise <bcrl@redhat.com>
+Subject: Re: [PATCH] Fix races in 2.4.2-ac22 SysV shared memory
+References: <20010323011331.J7756@redhat.com>
+Organisation: SAP LinuxLab
+Message-ID: <m3g0fz3qd0.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+Date: 28 Mar 2001 11:18:16 +0200
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3ABF70B9.573C2F85@sgi.com>; from law@sgi.com on Mon, Mar 26, 2001 at 08:39:21AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 26, 2001 at 08:39:21AM -0800, LA Walsh wrote:
-> So...is it the plan, or has it been though about -- 'abstracting'
-> block numbes as a typedef 'block_nr', then at compile time
-> having it be selectable as to whether or not this was to
-> be a 32-bit or 64 bit quantity -- that way older systems would
+Hi Stephen,
 
-Oh, did no-one mention the words `Module ABI' yet?
+On Fri, 23 Mar 2001, Stephen C. Tweedie wrote:
+> @@ -234,11 +243,11 @@
+>  		return -ENOMEM;
+>  	}
+>  
+> -	spin_lock(&info->lock);
+> -	shmem_recalc_inode(page->mapping->host);
+>  	entry = shmem_swp_entry(info, page->index); 
+>	if (IS_ERR(entry)) /* this had been allocted on page allocation */
+>  		BUG();
+> +	spin_lock(&info->lock);
+> +	shmem_recalc_inode(page->mapping->host);
+>  	error = -EAGAIN;
+>  	if (entry->val) {
+>  		__swap_free(swap, 2);
 
--- 
-Revolutions do not require corporate support.
+I think this is wrong. The spinlock protects us against
+shmem_truncate. shmem_swp_entry cannot sleep in this case since the
+entry is allocated in nopage.
+
+Greetings
+		Christoph
+
+

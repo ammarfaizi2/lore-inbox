@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267248AbTAKPg3>; Sat, 11 Jan 2003 10:36:29 -0500
+	id <S267264AbTAKPuB>; Sat, 11 Jan 2003 10:50:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267257AbTAKPg3>; Sat, 11 Jan 2003 10:36:29 -0500
-Received: from smtp-101.nerim.net ([62.4.16.101]:26634 "EHLO kraid.nerim.net")
-	by vger.kernel.org with ESMTP id <S267248AbTAKPg2>;
-	Sat, 11 Jan 2003 10:36:28 -0500
-Message-ID: <3E203C00.5060403@inet6.fr>
-Date: Sat, 11 Jan 2003 16:45:04 +0100
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
+	id <S267265AbTAKPuA>; Sat, 11 Jan 2003 10:50:00 -0500
+Received: from hughes-fe01.direcway.com ([66.82.20.91]:25047 "EHLO
+	hughes-fe01.direcway.com") by vger.kernel.org with ESMTP
+	id <S267264AbTAKPt7>; Sat, 11 Jan 2003 10:49:59 -0500
+Message-ID: <002101c2b98a$3a4549c0$fe01a8c0@deepspace9>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: <robw@optonline.net>, "J Sloan" <joe@tmsusa.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com> <20030111025449.GJ9124@work.bitmover.com> <1042253924.1385.70.camel@RobsPC.RobertWilkens.com> <200301110316.WAA00987@onevista.com> <1042256140.1259.99.camel@RobsPC.RobertWilkens.com> <3E1FA07F.7000903@tmsusa.com> <1042260296.1278.181.camel@RobsPC.RobertWilkens.com>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Date: Sat, 11 Jan 2003 10:57:55 -0500
 MIME-Version: 1.0
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: choice of raid5 checksumming algorithm wrong ?
-References: <1042266405.14440.54.camel@sun>
-In-Reply-To: <1042266405.14440.54.camel@sun>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Soeren Sonnenburg wrote:
-
->Hi!
+> Anyway, I'm here to discuss the kernel.  The issue at hand was whether
+> the kernel should be renamed.  I didn't bring up the topic, I was only
+> chiming in with an opinion.  As the topic went on, things got further
+> off-topic as can happen.
 >
->I really do wonder whether the displayed message is wrong or why it
->always chooses the slowest checksumming function (happens with 2.4.19 -
->21pre3)
->  
->
-SSE is always preferred because unlike other checksumming code it 
-doesn't use the processor caches when reading/writing data/checksum.
-This is slower (if several GB/s can be considered slow) for the 
-checksumming but far better for the overall system performance.
+> "renaming of a kernel" is a topic relevant to a kernel mailing list.
 
-LB.
+Are you sure?  Based on reading the GNU page the stance seems to be that the
+"OS" should be called GNU/Linux.  I don't see anything that says the kernel
+should be renamed, only that when referring to the system as a whole it
+would be better to be called GNU/Linux.  That's what makes this discussion
+offtopic, it's not the kernel's name that GNU is complaining about and this
+is the kernel list.
+
+Later,
+Tom
 

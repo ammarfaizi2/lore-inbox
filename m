@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVBOXAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVBOXEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261935AbVBOXAu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 18:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVBOW7D
+	id S261940AbVBOXEy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 18:04:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVBOXDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 17:59:03 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31755 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261937AbVBOW5D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 17:57:03 -0500
-Date: Tue, 15 Feb 2005 22:56:56 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Peter Hagervall <hager@cs.umu.se>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] Kill some sparse warnings
-Message-ID: <20050215225655.A26733@flint.arm.linux.org.uk>
-Mail-Followup-To: Peter Hagervall <hager@cs.umu.se>,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <20050215224553.GA24630@peppar.cs.umu.se>
+	Tue, 15 Feb 2005 18:03:37 -0500
+Received: from dspnet.fr.eu.org ([62.73.5.179]:33554 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S261944AbVBOXCa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 18:02:30 -0500
+Date: Wed, 16 Feb 2005 00:02:26 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 10/13] Solaris nfsacl workaround
+Message-ID: <20050215230226.GA53551@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	linux-kernel@vger.kernel.org
+References: <20050122203326.402087000@blunzn.suse.de> <20050122203619.889966000@blunzn.suse.de> <1108488547.10073.39.camel@lade.trondhjem.org> <20050215203553.GA34621@dspnet.fr.eu.org> <1108507404.10073.228.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050215224553.GA24630@peppar.cs.umu.se>; from hager@cs.umu.se on Tue, Feb 15, 2005 at 11:45:53PM +0100
+In-Reply-To: <1108507404.10073.228.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 11:45:53PM +0100, Peter Hagervall wrote:
-> Cleaned up some address space issues in:
+On Tue, Feb 15, 2005 at 05:43:24PM -0500, Trond Myklebust wrote:
+> ty den 15.02.2005 Klokka 21:35 (+0100) skreiv Olivier Galibert:
+> > That's the second time I see you refusing an interoperability patch
+> > without bothering to say what would be acceptable.  Do we need a fork
+> > between knfsd-pure and knfsd-actually-works-in-the-real-world or what?
+> 
+> You appear to be under the misguided impression that if a patch is
+> reviewed, and rejected, then somehow the responsibility for resolving
+> your problem (and cleaning up the code) falls to the reviewer.
+> 
+> I'm not aware of any such rule.
 
-This is wrong, and highlights a problem with the "remote" dma pool API.
-dma_alloc_coherent() normally returns CPU-local memory, unless you've
-declared remote memory, in which case it's __iomem-type memory.
+Resolving the problem and/or cleaning the code, no.  Telling what kind
+of patch would be acceptable is your responsability, yes.  That's
+where the difference is between a reviewer and a naysayer.
 
-Therefore, I don't think we want to mark the return value of
-dma_alloc_coherent with __iomem, because in the vast majority of
-cases, it isn't.
+  OG.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

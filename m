@@ -1,76 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbTEAQLp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 12:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbTEAQLp
+	id S261158AbTEAQli (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 12:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbTEAQli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 12:11:45 -0400
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:22415 "EHLO
-	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
-	id S261408AbTEAQLn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 12:11:43 -0400
-Message-ID: <3EB122C4.4090901@blue-labs.org>
-Date: Thu, 01 May 2003 09:36:04 -0400
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030429
-X-Accept-Language: en-us, en
+	Thu, 1 May 2003 12:41:38 -0400
+Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:36801
+	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S261158AbTEAQlg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 12:41:36 -0400
+Message-ID: <3EB15127.2060409@rogers.com>
+Date: Thu, 01 May 2003 12:53:59 -0400
+From: Jeff Muizelaar <muizelaar@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Jens Ansorg <liste@ja-web.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68 and trouble with mouse setup on Notebook
-References: <1051683871.3692.42.camel@lisamobile>
-In-Reply-To: <1051683871.3692.42.camel@lisamobile>
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 0/4] NE2000 driver updates
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.43.126.4] using ID <muizelaar@rogers.com> at Thu, 1 May 2003 12:53:59 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I also have an Inspiron, the 8200.  I am using one mouse device in X, 
-/dev/input/mice and a USB mouse at times.  My glidepoint, stick, and USB 
-mouse all work.  USB mouse can be unplugged/replugged at any time and 
-still works.
+The first two patches are retransmits of the original PnP api patches
+updated to apply to a current tree.
 
-This is with 2.5.67, 2.5.68 wants to immediately reboot on me.
+The third patch is more of an RFC. It consolidates the creation/removal
+of the driver between the PnP code and the plain ISA code.  In doing so
+it changes the net_device allocation from static to dynamic and allows
+PnP support when the driver is compiled in.  This is probably how things
+will eventually have to be if there is ever driver model support for
+plain ISA devices.
 
-Have you tried 2.5.67?  If not, are you interested in my .config?
+The forth patch gets rid of the use of dev->mem_end as a bad flag.
 
-David
+Caveats:
+It appears that the patch will break any autoprobe ordering because it no
+longer uses Space.c when compiled into the kernel.
+Data size of object goes up about 100 bytes.
 
-Jens Ansorg wrote:
-
->hello,
->I have an Dell Inspiron Notebook that has two pointer devices build in:
->a Touchpad and a Trackstick (the mini Joystick placed in the keyboard
->area)
->
->while boot work fine in kernels of the 2.4.x series the Stick does not
->work with a current development kernen (2.5.68)
->
->
->The device just seems not there, no mention of it in the boot messages.
->
->I get just
->
->
->mice: PS/2 mouse device common for all mice
->...
->Found Synaptics Touchpad rev 5.7
->input: PS/2 Synaptics TouchPad on isa0060/serio1
->
->
-># ll /dev/input/
->total 0
->crw-r--r--    1 root     root      13,  63 Jan  1  1970 mice
->crw-r--r--    1 root     root      13,  32 Jan  1  1970 mouse0
->
->
->does anybody have an advice how to get the stick working?
->
->thanks
->Jens
->
->
->  
->
-
+-Jeff
 

@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281404AbRKTWFq>; Tue, 20 Nov 2001 17:05:46 -0500
+	id <S281410AbRKTWGg>; Tue, 20 Nov 2001 17:06:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281410AbRKTWFh>; Tue, 20 Nov 2001 17:05:37 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:58888 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S281404AbRKTWFV>;
-	Tue, 20 Nov 2001 17:05:21 -0500
-Date: Tue, 20 Nov 2001 20:05:05 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Dan Maas <dmaas@dcine.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Swap
-In-Reply-To: <037701c1720a$159ee9a0$1a01a8c0@allyourbase>
-Message-ID: <Pine.LNX.4.33L.0111202004220.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S281415AbRKTWG1>; Tue, 20 Nov 2001 17:06:27 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:47491 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S281410AbRKTWGW>; Tue, 20 Nov 2001 17:06:22 -0500
+Date: Tue, 20 Nov 2001 17:04:50 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Dale Amon <amon@vnl.com>
+cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: A return to PCI ordering problems...
+In-Reply-To: <20011120220206.E22590@vnl.com>
+Message-ID: <Pine.LNX.3.95.1011120170119.15039A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Nov 2001, Dan Maas wrote:
+On Tue, 20 Nov 2001, Dale Amon wrote:
 
-> > I bet they're getting mmap()d, like all mp3 programs seem to do
->
-> Just a note here - I see much fewer buffer underruns and more consistent
-> read-ahead/drop-behind behavior (i.e. no paging of other programs) when
-> using plain read(), as opposed to mmap().
+> On Tue, Nov 20, 2001 at 09:49:01PM +0000, David Woodhouse wrote:
+> 
+> > insmod dummy
+> > ip link set dummy0 name eth0
+> > ip link set eth0 address 01:02:03:04:05:06
+> 
+> Ewwwww... that's totally evyul. I love it.
 
-Consider this a VM bug, mmap() really should be more efficient.
+Yep! Just don't use ff:ff:ff:ff:ff:ff if you don't want your CPU
+to melt down. I'm told you get all the data in the universe, almost
+as bad as NETbeui  ;^)
 
-regards,
+Cheers,
+Dick Johnson
 
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-http://www.surriel.com/		http://distro.conectiva.com/
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268209AbUHXAwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266901AbUHXAyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268209AbUHXAwl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 20:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267792AbUHXAu0
+	id S266901AbUHXAyx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 20:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUHXAyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 20:50:26 -0400
-Received: from mail-12.iinet.net.au ([203.59.3.44]:52189 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S268180AbUHXAlX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 20:41:23 -0400
-Message-ID: <412A8EAD.3060907@cyberone.com.au>
-Date: Tue, 24 Aug 2004 10:41:17 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
+	Mon, 23 Aug 2004 20:54:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36825 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267494AbUHXAyb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 20:54:31 -0400
+Date: Mon, 23 Aug 2004 20:54:14 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>
+Subject: Re: [PATCH][2/7] xattr consolidation - LSM hook changes
+In-Reply-To: <1093288398.27211.257.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.44.0408232046290.16044-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Performance of -mm2 and -mm4
-References: <336080000.1093280286@[10.10.2.4]> <200408231431.25986.jbarnes@engr.sgi.com>
-In-Reply-To: <200408231431.25986.jbarnes@engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 23 Aug 2004, Stephen Smalley wrote:
+
+> On Mon, 2004-08-23 at 15:03, Christoph Hellwig wrote:
+
+> > Given that the actual methods take a dentry this sounds like a bad design.
+> > Can;t you just pass down the dentry through all of the ext2 interfaces?
+> 
+> Changing the methods to take an inode would be even better, IMHO, as the
+> dentry is unnecessary.  That would simplify SELinux as well.
+
+This could work for all in-tree filesystems with xattrs, except CIFS,
+which passes the dentry to it's own build_path_from_dentry() function.  
+
+(In this case, they probably want to use d_path() and have a vfsmnt added 
+to the methods?).
 
 
-Jesse Barnes wrote:
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
->On Monday, August 23, 2004 9:58 am, Martin J. Bligh wrote:
->
->>The -mm4 looks more like sched stuff to me (copy_to/from_user, etc),
->>but the -mm2 stuff looks like something else. Buggered if I know what.
->>-mm3 didn't compile cleanly, so I didn't bother, but I prob can if you
->>like.
->>
->
->If you suspect the scheduler, you could try bumping SD_NODES_PER_DOMAIN in 
->kernel/sched.c to a larger value (e.g. the number of nodes in your system).  
->That'll make the scheduler balance more aggressively across the whole system.
->
->
-
-Try increasing /proc/sys/kernel/base_timeslice as well.
 

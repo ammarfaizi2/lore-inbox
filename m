@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318834AbSHAMUZ>; Thu, 1 Aug 2002 08:20:25 -0400
+	id <S318711AbSHAMKg>; Thu, 1 Aug 2002 08:10:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318845AbSHAMUY>; Thu, 1 Aug 2002 08:20:24 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:54510 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318834AbSHAMTm>; Thu, 1 Aug 2002 08:19:42 -0400
-Subject: Re: 2.4.19-rc5 from 2.4.18
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bruce <bruce@toorak.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <v03110701b96eb942e5cb@[192.168.0.3]>
-References: <v03110701b96eb942e5cb@[192.168.0.3]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 01 Aug 2002 14:39:30 +0100
-Message-Id: <1028209170.14871.1.camel@irongate.swansea.linux.org.uk>
+	id <S318733AbSHAMJi>; Thu, 1 Aug 2002 08:09:38 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:64012 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S318723AbSHAMIn>;
+	Thu, 1 Aug 2002 08:08:43 -0400
+Date: Thu, 1 Aug 2002 14:12:05 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.4.19-rc5 - APM bug
+Message-ID: <20020801121205.GA168@pcw.home.local>
+References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-01 at 11:21, Bruce wrote:
-> I have a problem that has manifested itself since 2.4.19-rcx.
-> 
-> An ADSL driver (1483-2.4.16.o) for the DLINK dsl100d PCI ADSL modem
-> operational under 2.4.18 has been broken since 2.4.19,
-> specifically under rc3,rc4 and rc5. (Haven't tested rc2 or rc1)
-> 
-> It appears to get/interpret an incorrect hardware address from the card.
-> 
-> There is a constraint. The driver was originally compiled for ITEX/DLINK
-> under 2.4.16 and I don't have access to the source.
+Marcelo,
 
-You will need the source to deal with it. Binary only modules have to
-match the exact kernel properties, so you effectively threw away all the
-freedom you got from Linux by relying on it.
+I observe a kernel panic at boot time if I set apm=power-off. OK with apm=off.
+This is on an ASUS A7M266D with two Athlon XP 1800+. Since it works well on
+2.4.19-pre10, I'm recompiling intermediate versions to check which one brought
+the problem.
 
+This is rather strange, since the crash occurs in do_softirq, but 2 bytes after
+the beginning of an instruction :
+c0120d09 fa			cli
+c0120d0a 8b b5 80 17 3c c0	mov 0xc03c1780(%ebp),%esi
+
+The crash occurs at c0120d0c (80 17 3c c0 ...). Seems like a bad pointer
+somewhere.
+
+Regards,
+Willy
 

@@ -1,33 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131446AbREHHSr>; Tue, 8 May 2001 03:18:47 -0400
+	id <S131205AbREHHOR>; Tue, 8 May 2001 03:14:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131457AbREHHSh>; Tue, 8 May 2001 03:18:37 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:5132 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S131446AbREHHSU>;
-	Tue, 8 May 2001 03:18:20 -0400
-Date: Tue, 8 May 2001 09:18:11 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, alexander.eichhorn@rz.tu-ilmenau.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Question] Explanation of zero-copy networking
-Message-ID: <20010508091811.C17720@pcep-jamie.cern.ch>
-In-Reply-To: <E14wlUi-0003WQ-00@the-village.bc.nu> <Pine.LNX.3.95.1010507121212.4256A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.95.1010507121212.4256A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, May 07, 2001 at 12:12:57PM -0400
+	id <S131246AbREHHOH>; Tue, 8 May 2001 03:14:07 -0400
+Received: from hood.tvd.be ([195.162.196.21]:41760 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S131205AbREHHOA>;
+	Tue, 8 May 2001 03:14:00 -0400
+Date: Tue, 8 May 2001 09:12:32 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Lorenzo Marcantonio <lomarcan@tin.it>
+cc: Rob Turk <r.turk@chello.nl>, linux-kernel@vger.kernel.org
+Subject: Re: SCSI Tape corruption - update
+In-Reply-To: <Pine.LNX.4.31.0105072112590.1388-100000@eris.discordia.loc>
+Message-ID: <Pine.LNX.4.05.10105080904010.24912-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> However, PCI to memory copying runs at about 300 megabytes per
-> second on modern PCs and memory to memory copying runs at over 1,000
-> megabytes per second. In the future, these speeds will increase.
+On Mon, 7 May 2001, Lorenzo Marcantonio wrote:
+> On Mon, 7 May 2001, Rob Turk wrote:
+> > Have you ruled out hardware failures? There's been a few isolated reports
+> 
+> That tape drive (Sony SDT-9000, less than 2 years of service) works
+> perfectly on Windows NT (were it was before) and even on Linux 2.2
+> 
+> Also the cartridge was brand new.
 
-That would be "big expensive modern PCs" then.  Our clusters of 700MHz
-boxes are strictly limited to 132 megabytes per second over PCI...
+In the mean time I down/upgraded to 2.2.17 on my PPC box (CHRP LongTrail,
+Sym53c875, HP C5136A  DDS1) and I can confirm that the problem does not happen
+under 2.2.17 neither.
 
--- Jamie
+My experiences:
+  - reading works fine, writing doesn't
+  - 2.2.x works fine, 2.4.x doesn't (at least since 2.4.0-test1-ac10)
+  - hardware compression doesn't matter
+  - I have a sym53c875, Lorenzo has an Adaptec, so most likely it's not a
+    SCSI hardware driver bug
+  - I have a PPC, Lorenzo doesn't, so it's not CPU-specific
+  - corruption is always a block of 32 bytes being replaced by 32 bytes from
+    the previous tape block (depending on block size!) (approx. 6 errors per
+    256 MB)
+
+Lorenzo, can you please investigate the exact nature of the corruption on your
+system?
+  - How many successive bytes are corrupted?
+  - Where do the corrupted data come from?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

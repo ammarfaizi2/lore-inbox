@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbULTQrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbULTQzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbULTQrF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 11:47:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbULTQrE
+	id S261568AbULTQzl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 11:55:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbULTQzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 11:47:04 -0500
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:27730 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S261567AbULTQqx convert rfc822-to-8bit (ORCPT
+	Mon, 20 Dec 2004 11:55:41 -0500
+Received: from gate.crashing.org ([63.228.1.57]:8872 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261568AbULTQzf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 11:46:53 -0500
-X-Ironport-AV: i="3.88,76,1102312800"; 
-   d="scan'208"; a="163631515:sNHT1416332426"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
-Date: Mon, 20 Dec 2004 10:46:48 -0600
-Message-ID: <037BE7456155544096945D871C4709AA01A99EB3@ausx2kmps318.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
-Thread-Index: AcTmp+4KhIapSeZ7RNihhqmTFWXfoQACnDsg
-From: <Robert_Hentosh@Dell.com>
-To: <riel@redhat.com>, <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Dec 2004 16:46:49.0302 (UTC) FILETIME=[7FED7760:01C4E6B3]
+	Mon, 20 Dec 2004 11:55:35 -0500
+Subject: Re: [BUG] 2.6.10-rc3 snd-powermac crash
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <s5hr7lluei7.wl@alsa2.suse.de>
+References: <1103389648.5967.7.camel@gaston>
+	 <1103391238.5775.0.camel@gaston>  <s5hr7lluei7.wl@alsa2.suse.de>
+Content-Type: text/plain
+Date: Mon, 20 Dec 2004 17:55:17 +0100
+Message-Id: <1103561717.5301.2.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-12-20 at 17:21 +0100, Takashi Iwai wrote:
 
+> Well, the volume and PCM shouldn't be racy.  I'd first suspect another
+> bug in PCM OSS emulation code...
+> 
+> Could you compile with CONFIG_SND_DEBUG=y and see whether it catches
+> anything?
 
-> On Mon, 20 Dec 2004, Rik van Riel wrote:
->
->> Simply running "dd if=/dev/zero of=/dev/hd<one you can miss>"
->> will result in OOM kills, with the dirty pagecache
->> completely filling up lowmem.  This patch is part 1 to
->> fixing that problem.
->
-> What I forgot to say is that in order to trigger this OOM
-> Kill the dirty_limit of 40% needs to be more memory than
-> what fits in low memory.  So this will work on x86 with 
-> 4GB RAM, since the dirty_limit is 1.6GB, but the block 
-> device cache cannot grow that big because it is restricted
-> to low memory.
->
-> This has the effect of all low memory being tied up in
-> Dirty page cache and userspace try_to_free_pages() skipping
-> the writeout of these pages because the block device is
-> congested.
+Didn't catch anything. However, I reproduced it a bit differently this
+time, it didn't try to jump into a NULL pointer in the rate "plugin",
+but rather went into resample and died there on a data access exception
+to some corrupt pointer.
 
-I am just confirming that this is a real problem.  The problem 
-more frequently shows up with block sizes above 4k on the
-dd and also showed up on some platforms with just a mke2fs
-on a slower device such as a USB hard drive.
+I don't have a 100% reprocase yet, it seem to be related to playing with
+an OSS mixer while using an OSS app (like xmms), that is basically
+having 2 things opening the OSS emulation, and one of them closing it,
+or something like that, causing the rate plugin (and maybe more) to be
+tore down, while still in use by the other app (looks like a
+use-after-free).
 
-Rik's patch has solved the issue and has been running under
-stress (via ctcs) over the weekend without failure.  
+Ben.
 
-Regards,
-Robert
 

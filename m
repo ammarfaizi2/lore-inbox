@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286783AbRLVNrc>; Sat, 22 Dec 2001 08:47:32 -0500
+	id <S286714AbRLVODB>; Sat, 22 Dec 2001 09:03:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286784AbRLVNrT>; Sat, 22 Dec 2001 08:47:19 -0500
-Received: from f154.law8.hotmail.com ([216.33.241.154]:57101 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S286783AbRLVNrP>;
-	Sat, 22 Dec 2001 08:47:15 -0500
-X-Originating-IP: [24.45.107.83]
-From: "se d" <seandarcy@hotmail.com>
-To: davem@redhat.com
+	id <S286781AbRLVOCw>; Sat, 22 Dec 2001 09:02:52 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15114 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286714AbRLVOCg>; Sat, 22 Dec 2001 09:02:36 -0500
+Subject: Re: [patch] Assigning syscall numbers for testing
+To: kaos@sgi.com (Keith Owens)
+Date: Sat, 22 Dec 2001 14:12:45 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 build fails at network.o
-Date: Sat, 22 Dec 2001 08:47:09 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F154ScHLk1PVlhDq91m0000a4b9@hotmail.com>
-X-OriginalArrivalTime: 22 Dec 2001 13:47:10.0059 (UTC) FILETIME=[271503B0:01C18AEF]
+In-Reply-To: <8727.1009020535@kao2.melbourne.sgi.com> from "Keith Owens" at Dec 22, 2001 10:28:55 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16HmtJ-0004G7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes it is. But note the "defined but not used" warning. FWIW, I'm using 
-gcc-3.1-0.10.
+> User space code should open /proc/dynamic_syscalls, read the lines
+> looking for their syscall name, extract the number and call the glibc
+> syscall() function using that number.  Do not use the _syscalln()
+> functions, they require a constant syscall number at compile time.
+
+Simple brutal and to the point. Also it means a dynamic library can 
+switch to real syscalls and dynamic apps will migrate fine.
+
+One request - can we specify a namespace of the form
+
+['vendorid'].[call]
+
+vendorid is the wrong phrase but "some sane way of knowing whose syscall
+it is" - it would be bad for andrea-aio and ben-aio to use the same names..
 
 
-make[3]: Entering directory `/opt/kernel/linux-2.4.17/net/sunrpc'
-gcc -D__KERNEL__ -I/opt/kernel/linux-2.4.17/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686    -c -o clnt.o clnt.c
-/opt/kernel/linux-2.4.17/include/linux/sunrpc/xprt.h:205: warning: 
-`rpciod_tcp_dispatcher' defined but not used
-gcc -D__KERNEL__ -I/opt/kernel/linux-2.4.17/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686    -c -o xprt.o xprt.c
-In file included from /opt/kernel/linux-2.4.17/include/net/checksum.h:33,
-                 from xprt.c:64:
-/opt/kernel/linux-2.4.17/include/asm/checksum.h:72:30: warning: multi-line 
-string literals are deprecated
-/opt/kernel/linux-2.4.17/include/asm/checksum.h:105:17: warning: multi-line 
-string literals are deprecated
-/opt/kernel/linux-2.4.17/include/asm/checksum.h:121:13: warning: multi-line 
-string literals are deprecated
-/opt/kernel/linux-2.4.17/include/asm/checksum.h:161:17: warning: multi-line 
-string literals are deprecated
-/opt/kernel/linux-2.4.17/include/linux/sunrpc/xprt.h:205: warning: 
-`rpciod_tcp_dispatcher' defined but not used
-................
-
->From: "David S. Miller" <davem@redhat.com>
->To: seandarcy@hotmail.com
->CC: linux-kernel@vger.kernel.org
->Subject: Re: 2.4.17 build fails at network.o
->Date: Fri, 21 Dec 2001 20:52:14 -0800 (PST)
-....................................
->
->Is it building net/sunrpc/xprt.o at all?
->-
-
-
-
-
-
-_________________________________________________________________
-Chat with friends online, try MSN Messenger: http://messenger.msn.com
-
+Alan

@@ -1,65 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264310AbRFNCbL>; Wed, 13 Jun 2001 22:31:11 -0400
+	id <S264303AbRFNChb>; Wed, 13 Jun 2001 22:37:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264303AbRFNCbB>; Wed, 13 Jun 2001 22:31:01 -0400
-Received: from server1.cosmoslink.net ([208.179.167.101]:29748 "EHLO
-	server1.cosmoslink.net") by vger.kernel.org with ESMTP
-	id <S264310AbRFNCaw>; Wed, 13 Jun 2001 22:30:52 -0400
-Message-ID: <016c01c0f47a$08807e40$4fa6b3d0@Toshiba>
-From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGCEFCEEAA.rmager@vgkk.com>  <200106140200.f5E20NL3012987@typhaon.pacific.net.au>
-Subject: Re: Download process for a "split kernel" (was: obsolete code must die) 
-Date: Wed, 13 Jun 2001 19:30:52 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S264311AbRFNChW>; Wed, 13 Jun 2001 22:37:22 -0400
+Received: from femail14.sdc1.sfba.home.com ([24.0.95.141]:23467 "EHLO
+	femail14.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S264303AbRFNChF>; Wed, 13 Jun 2001 22:37:05 -0400
+Date: Wed, 13 Jun 2001 22:37:02 -0400
+From: Tom Vier <tmv5@home.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: obsolete code must die
+Message-ID: <20010613223702.A14050@zero>
+In-Reply-To: <Pine.LNX.4.10.10106131903190.16254-100000@clueserver.org> <alan@clueserver.org> <200106140141.f5E1fFL3012794@typhaon.pacific.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200106140141.f5E1fFL3012794@typhaon.pacific.net.au>; from david_luyer@pacific.net.au on Thu, Jun 14, 2001 at 11:41:15AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Or as a simpler design, something like;
->
->   * a copy of the kernel maintained in a CVS tree
->   * kernel download would pull down:
->         * the build script
->         * a file containing the list of filenames depended on by
->           each config option
->   * build script builds the config and then cvs updates the file list
->     and the files for each config option in question to the version as
->     tagged in the build script
->
-> Someone could relatively easily maintain this separate to all the kernel
-> developers, and it would mean only ever having to download files you were
-> actually using.
+i have a corvus 20meg drive and a xebec 10meg that both still spin up. those
+are from mid to late 80s. i have seagate hawks from '94 that still work, but
+quantums from the same period are all dead. the difference is that newer
+drives have much tighter tolerances and are much more sensitive to dust. it
+varies from drive to drive, of course.
 
-OR
+On Thu, Jun 14, 2001 at 11:41:15AM +1000, David Luyer wrote:
+> Even old Eagle drives from 1988 still spin up... given you have to flick the
+> starter switch to spin them up half a dozen times, but they still work...
+> seems they don't make disk drives like they used to.
 
-50 % of kernel size is from /linux/drivers
-25 % of kernel size is from machine dependent /linux/arch/XXXX and
-/linux/include/XXXX
-
-If  we are able to divide Linux tree in such a way that everyone can
-download it from from their personnal modems and enjoy linux.
-
-may be i am wrong .
-
-But i love downloading whole kernel and i usually refer different
-architectures.
-
-Thank you,
-
-Best Regards,
-
-Jaswinder.
---
-These are my opinions not 3Di.
-
-
+-- 
+Tom Vier <tmv5@home.com>
+DSA Key id 0x27371A2C

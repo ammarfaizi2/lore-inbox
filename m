@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbTKIPnE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 10:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTKIPnE
+	id S262598AbTKIPsz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 10:48:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbTKIPsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 10:43:04 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:11140 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262564AbTKIPnC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 10:43:02 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 9 Nov 2003 07:42:09 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Larry McVoy <lm@bitmover.com>
-cc: "H. Peter Anvin" <hpa@zytor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel.bkbits.net off the air
-In-Reply-To: <20031109152534.GA24312@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0311090737550.12198-100000@bigblue.dev.mdolabs.com>
+	Sun, 9 Nov 2003 10:48:55 -0500
+Received: from [202.54.110.230] ([202.54.110.230]:55431 "EHLO
+	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
+	id S262598AbTKIPsx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 10:48:53 -0500
+Message-ID: <1B3885BC15C7024C845AAC78314766C5A26687@EXCH-01>
+From: "Deepak Kumar Gupta, Noida" <dkumar@noida.hcltech.com>
+To: alex_williamson@hp.com, arjanv@redhat.com, eranian@hpl.hp.com
+Cc: "Deepak Kumar Gupta, Noida" <dkumar@noida.hcltech.com>,
+       linux-ia64@linuxia64.org, linux-kernel@vger.kernel.org
+Subject: problem in booting HP zx6000 with stock kernel 2.5.75
+Date: Sun, 9 Nov 2003 21:18:28 +0530 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Nov 2003, Larry McVoy wrote:
+Hello everybody
 
-> On Sun, Nov 09, 2003 at 07:16:15AM -0800, H. Peter Anvin wrote:
-> > That doesn't include anyone who uses the mirrored repository on the
-> > main kernel.org machines.  
-> 
-> Last I checked, kernel.org isn't offering pserver access, just ftp.  If you
-> want to take over the CVS access just say the word.
+I am trying to boot 2 CPU hp zx6000 machine (ia64, itanium2) from STOCK
+kernel version 2.5.75. I have followed following steps.
 
-It is faster for me to use rsync on the CVS root locally, and then use the 
-local repository instead. Rsync is better than CVS when it comes to syncs.
-Cvsps expecially, really wants a local repository when you start playing 
-heavily with -g.
+1. I have downloaded the kernel from www.kernel.org . Also I have applied
+ia64 patch (from
+http://www.kernel.org/pub/linux/kernel/ports/ia64/v2.5/linux-2.5.75-ia64-030
+712.diff.gz) on it  .
 
+2. Now I have build the kernel (using make compressed) for ia64 processor
+type hp-zx1. (With ia64 processor type "generic" I got errors on compilation
+like NR_NODES are not declared.. etc.). 
 
+3. I have copied vmlinuz.gz (using mcopy) to vfat mounted partition
+(/boot/efi/efi/redhat) and made appropriate entries in elilo.conf. 
 
-- Davide
+4. Now I have rebooted the system and tried to load the image using EFI
+shell.
 
+5. The kernel hangs after uncompressing the kernel successfully. Nothing is
+working here, neither keyboard nor anything else.
 
+Kindly provide me appropriate guidance.. , where am I wrong ?
+
+I have following doubts: -
+
+1. Is it possible to build and run _stock_ kernel (not redhat patched
+kernel, as redhat advanced distribution is available on my machine) on hp
+zx6000 machine ? Do I need additional patches the stock kernel + ia64 patch
+?
+
+PLEASE CC REPLY TO ME ALSO..
+
+Thanks in advance..
+
+Deepak Kumar Gupta
+HCL Technologies Limited
+NOIDA, UP
+INDIA.
+
+ 

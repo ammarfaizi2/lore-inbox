@@ -1,76 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272244AbRJQQut>; Wed, 17 Oct 2001 12:50:49 -0400
+	id <S276982AbRJQQwJ>; Wed, 17 Oct 2001 12:52:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276978AbRJQQu3>; Wed, 17 Oct 2001 12:50:29 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:52746 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S272244AbRJQQu0>; Wed, 17 Oct 2001 12:50:26 -0400
-Date: Wed, 17 Oct 2001 10:55:35 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: SCSI tape load problem with Exabyte Drive
-Message-ID: <20011017105535.C24698@vger.timpanogas.org>
-In-Reply-To: <20011016153623.A21324@vger.timpanogas.org> <Pine.LNX.4.33.0110170935300.2271-100000@kai.makisara.local>
+	id <S276984AbRJQQwA>; Wed, 17 Oct 2001 12:52:00 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:11648 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S276982AbRJQQvv>;
+	Wed, 17 Oct 2001 12:51:51 -0400
+Date: Wed, 17 Oct 2001 09:52:09 -0700 (PDT)
+Message-Id: <20011017.095209.39155760.davem@redhat.com>
+To: cary_dickens2@hp.com
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, erik_habbinga@hp.com
+Subject: Re: Problem with 2.4.14prex and qlogicfc
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D572@xfc01.fc.hp.com>
+In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D572@xfc01.fc.hp.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0110170935300.2271-100000@kai.makisara.local>; from Kai.Makisara@kolumbus.fi on Wed, Oct 17, 2001 at 09:43:42AM +0300
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 17, 2001 at 09:43:42AM +0300, Kai Makisara wrote:
-> On Tue, 16 Oct 2001, Jeff V. Merkey wrote:
-> 
-> >
-> >
-> > On 2.4.6 with st and AICXXXX driver, issuance of an MTLOAD command
-> > via st ioctl() calls results in a unit attention and failure of
-> > the drive while loading a tape from an EXB-480 robotics tape
-> > library.
-> >
-> > Code which generates this error is attached.  The error will not
-> > clear unless the code first closes the open handle to the device,
-> > then reopens the handle and retries the load command.  The failure
-> > scenario is always the same.  The first MTLOAD command triggers
-> > the tape drive to load the tape, then all subsequent commands
-> > fail until the handle is closed and the device is reopened and
-> > a second MTLOAD command gets issued, then the drive starts
-> > working.
-> >
-> This is a "feature" of the st driver: if you get UNIT ATTENTION anywhere
-> else than within open(), it is considered an error. In most cases this is
-> true but MTLOAD is an exception. I have not thought about this exception
-> and noone before you has reported it ;-)
-> 
-> As you say, the workaround is to close and reopen the device after MTLOAD.
-> You should not need the second MTLOAD.
-> 
-> I will think about a fix to this problem. The basic reason for not
-> allowing UNIT ATTENTION anywhere is that flushing the driver state
-> properly in any condition is complicated and there has been no legitimate
-> reason to allow this. However, here it should be sufficient to use a no-op
-> SCSI command after LOAD to get the UNIT ATTENTION.
-> 
-> 	Kai
->
+   From: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+   Date: Wed, 17 Oct 2001 12:01:54 -0400
+   
+   It is my off by one error.  2.4.13-pre1 works as well as 2.4.12.  Sorry
+   about that.
 
-Kai,
+So now please try the broken 2.4.13-preX kernels with
+CONFIG_SCSI_QLOGIC_FC_FIRMWARE set, does that
+make any difference?
 
-Thanks for the prompt response.  We will continue using the current
-recovery method since this appears to work based upon your 
-description of what is happening here.  I will remove the second MTLOAD 
-command and test with the robotics library.  Sounds like it should
-work OK.  Please let us know what you decide if you feel a workaround
-is needed for this problem, and we will be happy to test it for 
-you.
+I have a feeling that will make it work.
 
-Do-na-da Go-hv-e
-
-Wa-do
-
-Thanks
-
-Jeff
- 
+Franks a lot,
+David S. Miller
+davem@redhat.com

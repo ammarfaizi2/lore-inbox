@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287256AbSACFpt>; Thu, 3 Jan 2002 00:45:49 -0500
+	id <S287633AbSACFut>; Thu, 3 Jan 2002 00:50:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288210AbSACFpn>; Thu, 3 Jan 2002 00:45:43 -0500
-Received: from dsl-213-023-043-254.arcor-ip.net ([213.23.43.254]:41480 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S287256AbSACFpb>;
-	Thu, 3 Jan 2002 00:45:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Morton <akpm@zip.com.au>, "M. Edward Borasky" <znmeb@aracnet.com>
-Subject: Re: kswapd etc hogging machine
-Date: Thu, 3 Jan 2002 06:48:47 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Art Hays <art@lsr.nei.nih.gov>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201022214230.8413-100000@lsr-linux> <HBEHIIBBKKNOBLMPKCBBAECPEFAA.znmeb@aracnet.com> <3C33E8EA.FAF8E337@zip.com.au>
-In-Reply-To: <3C33E8EA.FAF8E337@zip.com.au>
+	id <S288200AbSACFuj>; Thu, 3 Jan 2002 00:50:39 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:59396 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S287633AbSACFuY>; Thu, 3 Jan 2002 00:50:24 -0500
+Message-ID: <3C33F01E.EC95DD82@zip.com.au>
+Date: Wed, 02 Jan 2002 21:46:06 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16M0kC-00012Q-00@starship.berlin>
+To: kees <kees@schoen.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] solves freeze due to serial comm. on SMP
+In-Reply-To: <Pine.LNX.4.33.0201022257001.12316-200000@schoen3.schoen.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 3, 2002 06:15 am, Andrew Morton wrote:
-> And we, the kernel developers, should hang our heads over this.  A
-> vendor-released, stable kernel is performing terribly with such a
-> simple workload.  One year after the release of 2.4.0!
+kees wrote:
+> 
+> Hi,
+> 
+> In the beginning of last year I reported a solid freeze problem with Linux
+> when I moved from UP to SMP. Some bughunting especially with kdb an hints
+> from AM I was able to nail it down to some SMP unsafe irq table handling
+> in serial.c.
+> I submitted the attached patch to Ted but that never made it to the
+> kernel. It _really_ solved the problem as I had a crash sometimes within
+> 15 minutes and after applying it I reached uptimes over 100 days.
+> 
 
-To be fair, in the year leading up to 2.4.0 much energy was expended on 
-getting the bugs out of the unified and heaviliy threaded page+buffer 
-cache[1], at the expense of work on the memory manager, so 2001 ended up 
-being like a whole new kernel cycle.  Anyway, the saving grace is that 2.2 
-managed to metamorphose from ugly duckling to... quite a nice duck, with 
-almost all the features of 2.4 from the user's point of view.  So everybody 
-has something to run.
+It looks like somebody has already had a go at fixing this in current
+kernels - the restore_flags() has been moved to the end of
+shutdown().  (It's not a complete fix, because request_irq() can
+schedule).
 
-With 20 20 hindsight, the VM work could have been managed better but I don't 
-see why anybody's head needs to be hung.  It was a bumpy road, we had to 
-change a few tires, but we got to the other side of the mountain.
-
---
-Daniel
-
-[1] According to Matt Dillon's interview today, FreeBSD went through the same 
-pain unifying their caches, and they have yet to seriously tackle the SMP 
-issues.
+Are you able to test 2.4.17?

@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135875AbRDYPFS>; Wed, 25 Apr 2001 11:05:18 -0400
+	id <S135873AbRDYPIS>; Wed, 25 Apr 2001 11:08:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135874AbRDYPFI>; Wed, 25 Apr 2001 11:05:08 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:21379 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S135873AbRDYPFB>;
-	Wed, 25 Apr 2001 11:05:01 -0400
-Message-ID: <3AE6E797.A31803BE@mandrakesoft.com>
-Date: Wed, 25 Apr 2001 11:04:55 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andres Salomon <dilinger@mp3revolution.net>
-Cc: Marcus Meissner <Marcus.Meissner@caldera.de>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: trident , pci_enable_device moved
-In-Reply-To: <20010425090438.A12672@caldera.de> <20010425130624.A3216@caldera.de> <20010425104949.A31649@mp3revolution.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135874AbRDYPII>; Wed, 25 Apr 2001 11:08:08 -0400
+Received: from geos.coastside.net ([207.213.212.4]:14037 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S135873AbRDYPH7>; Wed, 25 Apr 2001 11:07:59 -0400
+Mime-Version: 1.0
+Message-Id: <p05100305b70c987da573@[207.213.214.37]>
+In-Reply-To: <E14sJzL-0003x6-00@the-village.bc.nu>
+In-Reply-To: <E14sJzL-0003x6-00@the-village.bc.nu>
+Date: Wed, 25 Apr 2001 08:07:49 -0700
+To: linux-kernel@vger.kernel.org
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [PATCH] Single user linux
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andres Salomon wrote:
-> Just a warning; I was informed by Alan that doing this for video
-> drivers was unnecessary, since video devices were already enabled
-> during bootup.
+At 8:45 AM +0100 2001-04-25, Alan Cox wrote:
+> > True, but then imagine trying to hack C (no, that's a CURLY BRACE, and a
+>> tab! not space! you just broke my makefiles! aargh!), and compiling
+>> Netfilter (it takes HOW MANY hours to compile init/main.c?!?) on a PDA.
+>
+>Usual misguided assumptions
+>
+>1.	Many PDA's have a keyboard
+>2.	The ipaq has an optional fold up keyboard
+>3.	Modern PDA's have 200Mhz processors and XScale will see some of them
+>	hitting 600MHz+
 
-To clarify:  the primary display device is enabled and initialized, and
-its video BIOS executed, when during BIOS startup and before the Linux
-kernel gets control.  All other display devices are not only not
-initialized, but they are disabled as well.
-
-Marcus is doing sound ATM so I doubt this matters to him...
-
+4. Linux is only ever used for developing Linux kernels. Or, under extreme circumstances, Linux apps.
 -- 
-Jeff Garzik      | The difference between America and England is that
-Building 1024    | the English think 100 miles is a long distance and
-MandrakeSoft     | the Americans think 100 years is a long time.
-                 |      (random fortune)
+/Jonathan Lundell.

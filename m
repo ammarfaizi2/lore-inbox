@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275091AbTHLHlC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 03:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275093AbTHLHlC
+	id S275089AbTHLHhN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 03:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275091AbTHLHhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 03:41:02 -0400
-Received: from mail14.speakeasy.net ([216.254.0.214]:20161 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP id S275091AbTHLHlA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 03:41:00 -0400
-Date: Tue, 12 Aug 2003 00:40:52 -0700
-Message-Id: <200308120740.h7C7eqV20032@magilla.sf.frob.com>
+	Tue, 12 Aug 2003 03:37:12 -0400
+Received: from mx0.gmx.de ([213.165.64.100]:26645 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id S275089AbTHLHhM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 03:37:12 -0400
+Date: Tue, 12 Aug 2003 09:37:11 +0200 (MEST)
+From: Daniel Blueman <daniel.blueman@gmx.net>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Matt Wilson <msw@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] zap_other_threads() detaches thread group leader
-In-Reply-To: Matt Wilson's message of  Saturday, 9 August 2003 15:17:48 -0400 <20030809151748.B26520@devserv.devel.redhat.com>
-X-Shopping-List: (1) Pneumatic honey
-   (2) Latent pajamas
-   (3) Paradoxical circumcisions
-   (4) Reluctant melon Johnny Carson lookalikes
-   (5) Caustic deriders
+Subject: Re: 2.6.0-test3 cannot mount root fs
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0008973862@gmx.net
+X-Authenticated-IP: [194.202.174.101]
+Message-ID: <16056.1060673831@www54.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Because of other sticky issues still unresolved and the lack of apparent
-real need to support the troublesome case, at last check Linus was leaning
-towards disallowing CLONE_THREAD&~CLONE_DETACHED in copy_process so that
-the exit_signal = -1 change in zap_other_threads is no longer apropos and
-can be taken back out entirely.  Unless that is done, the != group_leader
-check most certainly has to go in.
+Norbert,
 
+Try changing the entry in /etc/fstab from 'LABEL=/' to '/dev/hda' (sda, hdb,
+etc) as appropriate.
 
+-- 
+Daniel J Blueman
 
-Thanks,
-Roland
+COMPUTERBILD 15/03: Premium-e-mail-Dienste im Test
+--------------------------------------------------
+1. GMX TopMail - Platz 1 und Testsieger!
+2. GMX ProMail - Platz 2 und Preis-Qualitätssieger!
+3. Arcor - 4. web.de - 5. T-Online - 6. freenet.de - 7. daybyday - 8. e-Post
+

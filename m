@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272333AbTHSRtq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 13:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272602AbTHSRIL
+	id S272639AbTHSSB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 14:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272619AbTHSSAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 13:08:11 -0400
-Received: from smtp7.wanadoo.fr ([193.252.22.29]:65216 "EHLO
-	mwinf0201.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S272765AbTHSQyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 12:54:35 -0400
-From: jjluza <jjluza@yahoo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: problem with test3-mm3 and nvidia drivers
-Date: Tue, 19 Aug 2003 18:54:44 +0200
-User-Agent: KMail/1.5.3
+	Tue, 19 Aug 2003 14:00:22 -0400
+Received: from granite.aspectgroup.co.uk ([212.187.249.254]:8433 "EHLO
+	letters.pc.aspectgroup.co.uk") by vger.kernel.org with ESMTP
+	id S272335AbTHSR4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 13:56:21 -0400
+Message-ID: <353568DCBAE06148B70767C1B1A93E625EAB5C@post.pc.aspectgroup.co.uk>
+From: Richard Underwood <richard@aspectgroup.co.uk>
+To: "'David S. Miller'" <davem@redhat.com>
+Cc: skraw@ithnet.com, willy@w.ods.org, alan@lxorguk.ukuu.org.uk,
+       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
+       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: RE: [2.4 PATCH] bugfix: ARP respond on all devices
+Date: Tue, 19 Aug 2003 18:56:18 +0100
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308191854.44075.jjluza@yahoo.fr>
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oups, sorry, 2 mistakes :
-- it's not "I worked with test3-mm1 and older release." but "It worked with 
-test3-mm1 and older release."
-- and I forgot the error message at compile time (really sorry) :
+David S. Miller wrote:
+> > 	When a HOST sends out an ARP request, it's NOT associated with a
+> > single connection, it's associated with the host. Why 
+> should it pick a
+> > "random" IP number to send as the source address?
+> 
+> It's not "random", it is using the IP address it intends
+> to use as the source in packets it will output once the
+> ARP completes.
+> 
+> In fact, if you look at the code in arp_solicit(), the source address
+> is coming directly from the packet we are trying to output.
+> 
+	Which nicely sums up the bug, really.
 
+1) The ARP response (or lack thereof) will be used for more than that
+connection, using a single packet's source IP address is meaningless and
+just a little aribtrary.
 
-make[1]: Entering directory `/usr/src/linux-2.6.0-test3-mm3'
-  CHK     include/linux/version.h
-make[2]: `arch/i386/kernel/asm-offsets.s' is up to date.
-*** Warning: Overriding SUBDIRS on the command line can cause
-***          inconsistencies
-  CC [M]  /usr/src/nvidia/deto/NVIDIA-Linux-x86-1.0-4496-pkg2/usr/src/nv/nv.o
-/usr/src/nvidia/deto/NVIDIA-Linux-x86-1.0-4496-pkg2/usr/src/nv/nv.c: In 
-function `nv_kern_read_agpinfo':
-/usr/src/nvidia/deto/NVIDIA-Linux-x86-1.0-4496-pkg2/usr/src/nv/nv.c:1964: 
-error: structure has no member named `name'
-make[2]: *** 
-[/usr/src/nvidia/deto/NVIDIA-Linux-x86-1.0-4496-pkg2/usr/src/nv/nv.o] Error 1
-make[1]: *** [/usr/src/nvidia/deto/NVIDIA-Linux-x86-1.0-4496-pkg2/usr/src/nv] 
-Error 2
-make[1]: Leaving directory `/usr/src/linux-2.6.0-test3-mm3'
-nvidia.ko failed to build!
-make: *** [module] Error 1
+2) Depending on which ARP request or reply gets seen first, packets may get
+routed over different interfaces or not sent out at all.
 
+3) The code is over-complex. There must already be perfectly good code to
+pick up the interface's IP address as this would HAVE to be the case when a
+packet has been routed from another host.
 
-> It worked for me under -mm2.
-Ok, so the changes are certainly made between mm2 and mm3
+	This sort of randomness is not acceptable in a reliable network.
 
+		Richard

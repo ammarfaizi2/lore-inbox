@@ -1,140 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbTKTTyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 14:54:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTKTTyZ
+	id S261780AbTKTTo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 14:44:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTKTTo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 14:54:25 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:54424
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S261812AbTKTTyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 14:54:21 -0500
-Message-ID: <3FBD1BD2.908@redhat.com>
-Date: Thu, 20 Nov 2003 11:53:54 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031118 Thunderbird/0.4a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: process file descriptor limit handling
-X-Enigmail-Version: 0.82.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------040408020107060702060001"
+	Thu, 20 Nov 2003 14:44:29 -0500
+Received: from tench.street-vision.com ([212.18.235.100]:55690 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id S261780AbTKTTo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 14:44:27 -0500
+Subject: Re: OT: why no file copy() libc/syscall ??
+From: Justin Cormack <justin@street-vision.com>
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <03112013081700.27566@tabby>
+References: <1068512710.722.161.camel@cube> <03111209360001.11900@tabby>
+	<20031120172143.GA7390@deneb.enyo.de>  <03112013081700.27566@tabby>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 20 Nov 2003 19:44:13 +0000
+Message-Id: <1069357453.26642.93.camel@lotte.street-vision.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040408020107060702060001
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+On Thu, 2003-11-20 at 19:08, Jesse Pollard wrote:
+> Now if you wanted the remote server to deny the network copy... could
+> be done - after all the credentials for both input and output files
+> are present on the server. If the server decides NOT to copy, then fine.
+> It would just cause the user to make the copy with a read/write loop.
+> 
+> I was only thinking of it as a way to gain access to any filesystem
+> support that may be available for copying files. If none is available,
+> then do it in user mode.
+> 
+> Personally, I'm not sure it is a good idea, partly because the semantics
+> of a file copy operation are not well defined (some of the following IS 
+> known).
+> 
+> 1. what happens if the copy is aborted?
+> 2. what happens if the network drops while the remote server continues?
+> 3. what about buffer synchronization?
+> 4. what errors should be reported ?
+> 5. what happens when the syscall is interupted? Especially if the remote
+>    copy may take a while (I've seen some require an hour or more - worst
+>    case: days due to a media error (completed after the disk was replaced)).
+> 6. what about a client opening the copy before it is finished copying?
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+If you really want a filesystem that supports efficient copying you
+probably want it to have the equivalent of COW blocks, so that a copy
+just sets up a few pointers, and the copy only happens when the original
+or copied files are changed.
 
-The current kernel (and all before as far as I can see) have a problem
-with the file system limit handling.  The behavior does not conform to
-the current POSIX spec.
+But basically you wont get a syscall until you have a filesystem with
+semantics that only maps onto this sort of operation.
 
-Look at the attached example code.  The programs opens descriptors up to
-the limit, then lowers the limit, closes a descriptor below the number
-given to the last setrlimit call, and tries to open a descriptor.  This
-currently succeeds.
-
-The problem is that RLIMIT_NOFILE is defined as the number of open
-descriptors.  In the example case, before the final open call, there are
-N1-1 open descriptors, with RLIMIT_NOFILE set to N2 (which is << N1).
-The open call should fail.  Another, more common solution, is to have
-the setrlimit call fail in case the new limit is larger than the largest
-file descriptor in use.  Returning EINVAL in this case is just fine and
-is apparently what other platforms do.
-
-
-One could also take the position that the current behavior has it's
-advantages.  A program could open all the file descriptors it needs, and
-then close a few which can be used to open some files for the normal
-mode of operation.  Possible, maybe even quite secure, but still smells
-a bit like a hack.
-
-It might also be that some wording is getting in the specification which
-will allow the current kernel behavior to continue to exist.  More
-through a loophole, but still.
+Justin
 
 
-Anyway, I think the existing behavior is probably an oversight.  Whether
-it is worth keeping is a question somebody (= Linus) will have to
-answer.  My  recommendation is probably, to make setrlimit fail.
-
-- --
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/vRvS2ijCOnn/RHQRAl4HAKDK3xp5vydo1bqfDNvVZUCxObukMQCeI/1l
-xFnOkWYL4iXmzqjVuIXfYWI=
-=ftW/
------END PGP SIGNATURE-----
-
---------------040408020107060702060001
-Content-Type: text/x-c;
- name="t.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="t.c"
-
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/resource.h>
-
-int
-main (void)
-{
-#define N1 100
-  struct rlimit r;
-  r.rlim_cur = N1;
-  r.rlim_max = N1;
-  setrlimit (RLIMIT_NOFILE, &r);
-  int i;
-  int fd[N1];
-  for (i = 0; ; ++i)
-    if ((fd[i] = open ("/dev/null", 0)) < 0)
-      {
-        if (i == N1 - 3)
-          printf ("fine, %d file descriptors open\n", N1);
-        else
-          {
-            puts ("*** make sure the parent doesn't open any descriptors other than 0, 1, 2");
-            return 1;
-          }
-        break;
-      }
-#define N2 50
-  r.rlim_cur = N2; 
-  r.rlim_max = N2; 
-  int e = setrlimit (RLIMIT_NOFILE, &r);
-  if (e == EINVAL)
-    {
-      puts ("good, setrlimit sees the open descriptors");
-      return 0;
-    }
-  getrlimit (RLIMIT_NOFILE, &r);
-  if (r.rlim_cur != N2 || r.rlim_max != N2)
-    {
-      puts ("getrlimit returned different values");
-      return 1;
-    }
-  close (fd[N2 - 4]);
-  fd[N2 - 4] = open ("/dev/null", 0);
-  if (fd[N2 - 4] != -1)
-    {
-      printf ("opening a new descriptor succeeded even though %d are open and the limit is %d\n",
-              N1 - 1, N2);
-      return 1;
-    }
-  return 0;
-}
-
---------------040408020107060702060001--

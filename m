@@ -1,67 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267724AbTGVQcN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 12:32:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270923AbTGVQcM
+	id S270930AbTGVQlO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 12:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270932AbTGVQlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 12:32:12 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:46857 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267724AbTGVQcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 12:32:11 -0400
-Date: Tue, 22 Jul 2003 17:47:04 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Samuel Flory <sflory@rackable.com>, Charles Lepple <clepple@ghz.cc>,
-       michaelm <admin@www0.org>, <linux-kernel@vger.kernel.org>,
-       <vojtech@suse.cz>
-Subject: Re: Make menuconfig broken
-In-Reply-To: <Pine.LNX.4.44.0307221146120.714-100000@serv>
-Message-ID: <Pine.LNX.4.44.0307221735160.5483-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Jul 2003 12:41:14 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:9088 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S270930AbTGVQlL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 12:41:11 -0400
+Date: Tue, 22 Jul 2003 17:56:15 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: BK Licence: Protocols and Research
+Message-ID: <20030722165615.GA3267@mail.jlokier.co.uk>
+References: <20030717120505.GA22304@zion.nuigalway.ie> <20030717145802.GC24697@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030717145802.GC24697@work.bitmover.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy wrote:
+> If you managed to stay close then we'd put digital signatures
+> into the protocol to prevent your clone from interoperating with BK.
 
-> >   Try this in 2.6.0-test1:
-> > rm .config
-> > make mrproper
-> > make menuconfig
-> > 
-> >   There is no option for CONFIG_VT, and CONFIG_VT_CONSOLE under 
-> > character devices in "make menuconfig.
-> 
-> Try enabling CONFIG_INPUT.
-> 
-> Vojtech, how about the patch below? This way CONFIG_VT isn't hidden behind 
-> CONFIG_INPUT, but CONFIG_INPUT is selected if needed.
-> 
-> Index: drivers/char/Kconfig
-> ===================================================================
-> RCS file: /home/other/cvs/linux/linux-2.6/drivers/char/Kconfig,v
-> retrieving revision 1.1.1.1
-> diff -u -p -r1.1.1.1 Kconfig
-> --- drivers/char/Kconfig	14 Jul 2003 09:22:00 -0000	1.1.1.1
-> +++ drivers/char/Kconfig	22 Jul 2003 08:08:26 -0000
-> @@ -6,7 +6,7 @@ menu "Character devices"
->  
->  config VT
->  	bool "Virtual terminal"
-> -	requires INPUT=y
-> +	select INPUT
->  	---help---
->  	  If you say Y here, you will get support for terminal devices with
->  	  display and keyboard devices. These are called "virtual" because you
+If this hypothetical scenario were to occur, I believe that reverse
+engineering specific parts of the software, for the specific purpose
+of getting the signature key, in order to use it specifically for
+interoperating with the software, would be allowed regardless of
+license here in Europe, and perhaps in the USA too.
 
-What about the keyboard being built in. People will still not set that. 
+This, however, is not legal advice and I would certainly consult a
+lawyer for such a sensitive question if I wanted to do that.  I have
+read that the penalties for misinterpreting include imprisonment in
+the USA.
 
-The proper solution would be to alter the build system on a default build 
-to scan the .config file for CONFIG_PC_KEYB, CONFIG_MOUSE, CONFIG_BUSMOUSE,
-CONFIG_PSMOUSE etc. Then convert them to what is needed for 2.6.X. The same 
-for framebuffer console stuff. We can scan for CONFIG_FB and if 
-CONFIG_FRAMEBUFFER_CONSOLE is not present set it. We only would need to do 
-this for a default build. 
-
-
-
+-- Jamie

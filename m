@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261735AbTCLPiu>; Wed, 12 Mar 2003 10:38:50 -0500
+	id <S261740AbTCLPlD>; Wed, 12 Mar 2003 10:41:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261736AbTCLPit>; Wed, 12 Mar 2003 10:38:49 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57616 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261735AbTCLPi0>; Wed, 12 Mar 2003 10:38:26 -0500
-Date: Wed, 12 Mar 2003 07:47:08 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Szakacsits Szabolcs <szaka@sienet.hu>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
-In-Reply-To: <20030312154311.H32093@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0303120744160.13807-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261745AbTCLPlC>; Wed, 12 Mar 2003 10:41:02 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:53989 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261740AbTCLPk2>;
+	Wed, 12 Mar 2003 10:40:28 -0500
+Date: Wed, 12 Mar 2003 16:51:05 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       scott thomason <scott-kernel@thomasons.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bio too big device
+Message-ID: <20030312155105.GJ834@suse.de>
+References: <20030312090943.GA3298@suse.de> <Pine.LNX.4.10.10303120205250.391-100000@master.linux-ide.org> <20030312101414.GB3950@suse.de> <20030312154440.GA4868@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030312154440.GA4868@win.tue.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 12 Mar 2003, Arjan van de Ven wrote:
->
-> On Wed, Mar 12, 2003 at 04:35:10PM +0100, Szakacsits Szabolcs wrote:
-> > If all vendors is Red Hat then I believe you. 
+On Wed, Mar 12 2003, Andries Brouwer wrote:
+> On Wed, Mar 12, 2003 at 11:14:14AM +0100, Jens Axboe wrote:
 > 
-> I say All Vendors simply because no vendor ships 2.5 kernels yet which
-> have the CONFIG option to NOT use -fomit-frame-pointer
+> > So I still think it's much better stick with the safe choice. Why do you
+> > think it's only one drive that has this bug? It basically boils down to
+> > whether That Other OS uses 256 sector commands or not. If it doesn't, I
+> > wouldn't trust the drives one bit.
+> 
+> I am not quite sure I understand your reasoning.
+> We have seen *zero* drives that do not understand 256 sector commands.
+> Maybe such drives exist, but so far there is zero evidence.
 
-Actually, that config option came from the 2.4.x gdb tree, since gdb users 
-want to be able to see "where". So any vendor that included the remote gdb 
-patch would have gotten it too.. (except in that kernel it's called 
-CONFIG_REMOTE_DEBUG and brings in a lot more).
+Have you read the thread? You are obviously mistaken.
 
-I don't know if any vendor kernels come with the kgdb patch..
-
-		Linus
+-- 
+Jens Axboe
 

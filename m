@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312358AbSDEHwK>; Fri, 5 Apr 2002 02:52:10 -0500
+	id <S312219AbSDEHzA>; Fri, 5 Apr 2002 02:55:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312361AbSDEHwA>; Fri, 5 Apr 2002 02:52:00 -0500
-Received: from bs1.dnx.de ([213.252.143.130]:14044 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S312358AbSDEHvr>;
-	Fri, 5 Apr 2002 02:51:47 -0500
-Date: Fri, 5 Apr 2002 09:26:39 +0200 (CEST)
-From: Robert Schwebel <robert@schwebel.de>
-X-X-Sender: <robert@callisto.local>
-Reply-To: <robert@schwebel.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: moving some boot code out of arch directories
-In-Reply-To: <m1u1qrqxfm.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.33.0204050920180.16178-100000@callisto.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312256AbSDEHyu>; Fri, 5 Apr 2002 02:54:50 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:32716 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S312219AbSDEHyp>; Fri, 5 Apr 2002 02:54:45 -0500
+Date: Fri, 5 Apr 2002 09:54:44 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [QUESTION] How to use interruptible_sleep_on() without races ?
+Message-ID: <20020405095444.A12558@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020404185232.B27209@bougret.hpl.hp.com> <E16tKGi-0007Sy-00@the-village.bc.nu> <20020404190848.C27209@bougret.hpl.hp.com> <a8jaco$avc$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Apr 2002, Eric W. Biederman wrote:
-> A have some thoughts but nothing to concrete right now.  On every
-> architecture booting seems to be a completely roll your own solution.
-> Which I find very annoying.  This one of the reasons I am also working
-> on general linux booting linux support.  If we could get as far as a
-> bootloader that works on multiple architectures perhaps we could start
-> to unify some of these things.
+On Fri, Apr 05, 2002 at 04:51:06AM +0000, Linus Torvalds wrote:
 
-You might want to have a look at PPCboot / ARMboot (the latter one is a
-recent port to ARM) which seems to be very interesting! Only a port to x86
-is missing (or, better, a unified project...)
+> I wouldn't mind a spring cleaning, but the fact is that right now in
+> 2.5.x I'd rather have driver writers wake up to the fact that we had a
+> spring cleaning in the block layer several months ago, rather than
+> introduce a new one ;)
 
-Robert
---
- +--------------------------------------------------------+
- | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
- | Pengutronix - Linux Solutions for Science and Industry |
- |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
- |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
- +--------------------------------------------------------+
+http://www.ibiblio.org/Dave/Dr-Fun/df200204/df20020402.jpg
 
+Couldn't resist :-)
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

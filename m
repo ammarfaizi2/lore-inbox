@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273544AbRIUOWb>; Fri, 21 Sep 2001 10:22:31 -0400
+	id <S273552AbRIUOXl>; Fri, 21 Sep 2001 10:23:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273552AbRIUOWV>; Fri, 21 Sep 2001 10:22:21 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:39686 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S273544AbRIUOWM>; Fri, 21 Sep 2001 10:22:12 -0400
-Date: Fri, 21 Sep 2001 10:17:29 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Lockup with 2.4.9-ac10 on Athlon 
-In-Reply-To: <10119.1001072532@redhat.com>
-Message-ID: <Pine.LNX.3.96.1010921101144.28645B-100000@gatekeeper.tmr.com>
+	id <S273556AbRIUOXb>; Fri, 21 Sep 2001 10:23:31 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:22797 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S273552AbRIUOXT>;
+	Fri, 21 Sep 2001 10:23:19 -0400
+Date: Fri, 21 Sep 2001 11:23:29 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: broken VM in 2.4.10-pre9
+In-Reply-To: <Pine.LNX.3.96.1010921095055.28645A-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.33L.0109211121100.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Sep 2001, David Woodhouse wrote:
+On Fri, 21 Sep 2001, Bill Davidsen wrote:
 
-> 
-> davidsen@tmr.com said:
-> >  Look for BIOS updates. I have a BP6 (dual Celeron) system, and I am
-> > really disappointed that the only way I can power it down under
-> > software control is to boot to another o/s. You may be able to get a
-> > BIOS which works.
-> 
-> Strange - mine works. Either with APM and 'apm=power-off' on the command 
-> line, or with ACPI and a hack to work around the incompetence of Abit's 
-> BIOS engineers.
+> The list is an okay way to determine rank within a class, but I still
+> think that there is a need for some balance between text, program data,
+> pages loaded via i/o, perhaps more. My disquiet with the new
+> implementation is based on a desire to avoid swapping program data to make
+> room for i/o data (using those terms in a loose way for identification).
 
-Is this something Linux could recognize and patch, like the Athlon problem
-with the VIA chipset? Linux works around many bugs, this would be just
-another in the init portion, which is released when complete and has no
-runtime penalty.
+Preference for evicting one kind of cache is indeed a bad
+thing. It might work for 90% of the workloads, but you can
+be sure it breaks horribly for the other 10%.
 
-However, I thought this was something disabled in SMP mode, since it used
-to work with a uni build. I'll have to look again, I would really like to
-have a clean power-down after running long term stuff to completion.
+I'm currently busy tweaking the old 2.4 VM (in the -ac kernels)
+to try and get optimal performance from that one, without giving
+preference to one kind of cache ... except in the situation where
+the amount of cache is excessive.
 
+> I would also like to have time to investigate what happens if the pages
+> associated with a program load are handled in larger blocks, meta-pages
+> perhaps, which would at least cause many to be loaded at once on a page
+> fault, rather than faulting them in one at a time.
+
+This is an interesting thing, too. Something to look into for
+2.5 and if it turns out simple enough we may even want to
+backport it to 2.4.
+
+regards,
+
+Rik
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

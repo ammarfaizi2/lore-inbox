@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVAMPgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVAMPdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVAMPgP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 10:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbVAMPdV
+	id S261655AbVAMPdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 10:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVAMPcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 10:33:21 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:44886 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261657AbVAMPc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 10:32:28 -0500
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Message-Flag: Warning: May contain useful information
-References: <20051121347.kR765yQEXhqhoLHL@topspin.com>
-	<20051121347.vxtR3merv690zIQY@topspin.com>
-	<20050113094532.GA31298@mellanox.co.il>
-From: Roland Dreier <roland@topspin.com>
-Date: Thu, 13 Jan 2005 07:32:15 -0800
-In-Reply-To: <20050113094532.GA31298@mellanox.co.il> (Michael S. Tsirkin's
- message of "Thu, 13 Jan 2005 11:45:32 +0200")
-Message-ID: <52acrds5ts.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [openib-general] [PATCH][5/18] InfiniBand/mthca: add needed
- rmb() in event queue poll
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 13 Jan 2005 15:32:21.0054 (UTC) FILETIME=[128EEDE0:01C4F985]
+	Thu, 13 Jan 2005 10:32:02 -0500
+Received: from www.ssc.unict.it ([151.97.230.9]:60932 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S261657AbVAMPbL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 10:31:11 -0500
+Subject: [patch 2/8] uml: readd CONFIG_MAGIC_SYSRQ for UML
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Thu, 13 Jan 2005 06:13:27 +0100
+Message-Id: <20050113051327.B173A6324B@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Michael> Since we are using the eqe here, it seems that
-    Michael> read_barrier_depends shall be sufficient (as well as in
-    Michael> the cq case)?
 
-    Michael> However, I see that read_barrier_depends is a nop on ppc,
-    Michael> and the comment indicates that problems were seen on ppc
-    Michael> 970.  What gives? do I misunderstand what a dependency
-    Michael> is?
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
 
-There is no dependency between the EQE ownership field and the rest of
-the EQE, so read_barrier_depends() is not sufficient.  I think you are
-misunderstanding what a dependency is.  The comments in
-asm-i386/system.h or http://lse.sourceforge.net/locking/wmbdd.html may
-help clear things up.
+This config option was lost during the creation of lib/Kconfig.debug, due to a
+bad expressed dependency; I also moved the option back to its original place
+for UML (it is near CONFIG_MCONSOLE since it depends on that).
 
- - R.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
+
+ linux-2.6.11-paolo/arch/um/Kconfig   |   19 +++++++++++++++++++
+ linux-2.6.11-paolo/lib/Kconfig.debug |    1 -
+ 2 files changed, 19 insertions(+), 1 deletion(-)
+
+diff -puN lib/Kconfig.debug~uml-readd-config-magic-sysrq lib/Kconfig.debug
+--- linux-2.6.11/lib/Kconfig.debug~uml-readd-config-magic-sysrq	2005-01-13 01:48:41.153139144 +0100
++++ linux-2.6.11-paolo/lib/Kconfig.debug	2005-01-13 01:48:41.157138536 +0100
+@@ -23,7 +23,6 @@ config MAGIC_SYSRQ
+ config MAGIC_SYSRQ
+ 	bool "Magic SysRq key"
+ 	depends on DEBUG_KERNEL && (H8300 || M68KNOMMU || V850)
+-	depends (USERMODE && MCONSOLE)
+ 	help
+ 	  Enables console device to interpret special characters as
+ 	  commands to dump state information.
+diff -puN arch/um/Kconfig~uml-readd-config-magic-sysrq arch/um/Kconfig
+--- linux-2.6.11/arch/um/Kconfig~uml-readd-config-magic-sysrq	2005-01-13 01:48:41.155138840 +0100
++++ linux-2.6.11-paolo/arch/um/Kconfig	2005-01-13 01:48:41.158138384 +0100
+@@ -145,6 +145,25 @@ config MCONSOLE
+ 
+         It is safe to say 'Y' here.
+ 
++config MAGIC_SYSRQ
++	bool "Magic SysRq key"
++	depends on MCONSOLE
++	---help---
++	If you say Y here, you will have some control over the system even
++	if the system crashes for example during kernel debugging (e.g., you
++	will be able to flush the buffer cache to disk, reboot the system
++	immediately or dump some status information). A key for each of the
++	possible requests is provided.
++
++	This is the feature normally accomplished by pressing a key
++	while holding SysRq (Alt+PrintScreen).
++
++	On UML, this is accomplished by sending a "sysrq" command with
++	mconsole, followed by the letter for the requested command.
++
++	The keys are documented in <file:Documentation/sysrq.txt>. Don't say Y
++	unless you really know what this hack does.
++
+ config HOST_2G_2G
+ 	bool "2G/2G host address space split"
+ 	default n
+_

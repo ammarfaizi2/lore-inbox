@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264616AbTIDDce (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 23:32:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264629AbTIDDa6
+	id S264629AbTIDDzF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 23:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbTIDDzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 23:30:58 -0400
-Received: from dp.samba.org ([66.70.73.150]:22208 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264619AbTIDDaT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 23:30:19 -0400
-From: Rusty Trivial Russell <trivial@rustcorp.com.au>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] eliminate warnings in mtrr_if.c when !CONFIG_PROC_FS
-Date: Thu, 04 Sep 2003 13:26:13 +1000
-Message-Id: <20030904033019.3E4342C225@lists.samba.org>
+	Wed, 3 Sep 2003 23:55:05 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:37544 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264629AbTIDDzA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 23:55:00 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 3 Sep 2003 20:47:49 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Larry McVoy <lm@bitmover.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scaling noise
+In-Reply-To: <20030904023446.GG5227@work.bitmover.com>
+Message-ID: <Pine.LNX.4.56.0309032015100.2146@bigblue.dev.mdolabs.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com>
+ <20030903173213.GC5769@work.bitmover.com> <89360000.1062613076@flay>
+ <20030904003633.GA5227@work.bitmover.com> <6130000.1062642088@[10.10.2.4]>
+ <20030904023446.GG5227@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  Stephen Hemminger <shemminger@osdl.org>
+On Wed, 3 Sep 2003, Larry McVoy wrote:
 
-  Patch against 2.6.0-test1 latest (post-bk2).  Get's rid of unused variable and function
-  warnings if /proc is not configured on.
+> Maybe because history has shown over and over again that your pet theory
+> doesn't work.  Mine might be wrong but it hasn't been proven wrong.  Yours
+> has.  Multiple times.
 
---- trivial-2.6.0-test4-bk5/arch/i386/kernel/cpu/mtrr/if.c.orig	2003-09-04 13:02:00.000000000 +1000
-+++ trivial-2.6.0-test4-bk5/arch/i386/kernel/cpu/mtrr/if.c	2003-09-04 13:02:00.000000000 +1000
-@@ -13,6 +13,7 @@
- /* RED-PEN: this is accessed without any locking */
- extern unsigned int *usage_table;
- 
-+#ifdef CONFIG_PROC_FS
- static int mtrr_seq_show(struct seq_file *seq, void *offset);
- 
- #define FILE_FCOUNT(f) (((struct seq_file *)((f)->private_data))->private)
-@@ -310,11 +311,9 @@
- 	.release = mtrr_close,
- };
- 
--#  ifdef CONFIG_PROC_FS
- 
- static struct proc_dir_entry *proc_root_mtrr;
- 
--#  endif			/*  CONFIG_PROC_FS  */
- 
- static int mtrr_seq_show(struct seq_file *seq, void *offset)
- {
-@@ -349,6 +348,8 @@
- 	return 0;
- }
- 
-+#  endif			/*  CONFIG_PROC_FS  */
-+
- static int __init mtrr_if_init(void)
- {
- #ifdef CONFIG_PROC_FS
--- 
-  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
-  Don't blame me: the Monkey is driving
-  File: Stephen Hemminger <shemminger@osdl.org>: [PATCH] eliminate warnings in mtrr_if.c when !CONFIG_PROC_FS
+Ok, who will be using this Larry ? Seriously. You tought us to be market
+and business driven, so please tell us why this should be done. Will business
+that are already using Beowulf style clusters migrate to SSI ? Why should
+they ? They already scale well because they're running apps that scale
+well on that type of cluster, and Beowulf style clusters are cheap and
+faster for apps that do not share. Will business that are using application
+servers like Java, .NET or whatever migrate to the super SSI ? Nahh, why
+should they. Their apps server will be probably running thousands of
+cluster-unaware threads (and sharing a shit-load of memory) that will make
+SSI to look pretty ugly compared to a standard SMP/NUMA. Ok, they will be
+cheaper if implemented with cheaper 1..4 way SMPs. But at the very end, to
+get maximum performance from SSI you must have apps with a little of
+awareness of the system they're running on. So you must force businesses
+to either migrate their apps (cost of HW wayyy cheaper than cost of
+developers) or to suffer from major performance problems. So my question
+to you splits in two parts. Why companies selling HW should go with this
+solution (cheaper for the customer) ? And more, why should business buy
+into it, with the plan of having to rewrite their server infrastructure
+to take full advantage of the new architecture ? Maybe, at the very end,
+their is a reason why nobody is doing it.
+
+
+
+- Davide
+

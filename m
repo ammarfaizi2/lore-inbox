@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263936AbTE3TpV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 15:45:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbTE3TpV
+	id S263949AbTE3Twb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 15:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263952AbTE3Twb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 15:45:21 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:16850 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263936AbTE3TpU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 15:45:20 -0400
-Date: Fri, 30 May 2003 12:58:41 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Bongani Hlope <bonganilinux@mweb.co.za>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, manfred@colorfullife.com
-Subject: Re: 2.5.70-mm1 Strangeness
-Message-Id: <20030530125841.61a12a9c.akpm@digeo.com>
-In-Reply-To: <20030530212559.76f0d1ea.bonganilinux@mweb.co.za>
-References: <20030529221622.542a6df5.bonganilinux@mweb.co.za>
-	<20030529135541.7c926896.akpm@digeo.com>
-	<20030529.171114.34756018.davem@redhat.com>
-	<20030529175135.7b204aaf.akpm@digeo.com>
-	<20030530212559.76f0d1ea.bonganilinux@mweb.co.za>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 30 May 2003 15:52:31 -0400
+Received: from auemail2.lucent.com ([192.11.223.163]:17542 "EHLO
+	auemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S263949AbTE3Twa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 15:52:30 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 May 2003 19:58:40.0365 (UTC) FILETIME=[DD98C9D0:01C326E5]
+Message-ID: <16087.47491.603116.892709@gargle.gargle.HOWL>
+Date: Fri, 30 May 2003 16:05:23 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.70-mm2
+In-Reply-To: <20030529042333.3dd62255.akpm@digeo.com>
+References: <20030529012914.2c315dad.akpm@digeo.com>
+	<20030529042333.3dd62255.akpm@digeo.com>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bongani Hlope <bonganilinux@mweb.co.za> wrote:
->
-> So it seems like CONFIG_DEBUG_PAGEALLOC was causing the problem.
+>>>>> "Andrew" == Andrew Morton <akpm@digeo.com> writes:
 
-hm, okay.  Thanks for your help in working all that out.
+>> . A couple more locking mistakes in ext3 have been fixed.
 
-Everything should have just balanced itself out - nothing in the memory
-reclaim area cares or knows about the actual size of the objects.
+Andrew> But not all of them.  The below is needed on SMP.
 
-You could run out of memory simply because the things are 20x bigger, but
-only if they were pinned - say, a larger number of files open, or a large
-number of files in ramfs or sysfs.
+Any hint on when -mm3 will be out, and if it will include the RAID1
+patches?  I haven't had time to play with -mm2, and all the stuff
+floating by about problems has made me a bit hesitant to try it out.
 
-But from your last-gasp slabinfo the three caches seem to be of a
-reasonable size.  It's a bit of a mystery.  
+John
+
+
 

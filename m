@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264807AbTFLK2o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 06:28:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264808AbTFLK2o
+	id S264808AbTFLK3G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 06:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264809AbTFLK3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 06:28:44 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:20957 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S264807AbTFLK2n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 06:28:43 -0400
-Date: Thu, 12 Jun 2003 12:41:42 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
-Subject: Re: Messing up driver model API
-Message-ID: <20030612104142.GB139@elf.ucw.cz>
-References: <20030611203652.GA599@elf.ucw.cz> <Pine.LNX.4.44.0306111407370.11379-100000@cherise>
+	Thu, 12 Jun 2003 06:29:06 -0400
+Received: from werbeagentur-aufwind.com ([217.160.128.76]:58541 "EHLO
+	mail.werbeagentur-aufwind.com") by vger.kernel.org with ESMTP
+	id S264808AbTFLK3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 06:29:03 -0400
+Subject: Re: ext[23]/lilo/2.5.{68,69,70} -- blkdev_put() problem?
+From: Christophe Saout <christophe@saout.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Andy Pfiffer <andyp@osdl.org>, adam@yggdrasil.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030611172958.5e4d3500.akpm@digeo.com>
+References: <1052507057.15923.31.camel@andyp.pdx.osdl.net>
+	 <1052510656.6334.8.camel@chtephan.cs.pocnet.net>
+	 <1052513725.15923.45.camel@andyp.pdx.osdl.net>
+	 <1055369326.1158.252.camel@andyp.pdx.osdl.net>
+	 <1055373692.16483.8.camel@chtephan.cs.pocnet.net>
+	 <1055377253.1222.8.camel@andyp.pdx.osdl.net>
+	 <20030611172958.5e4d3500.akpm@digeo.com>
+Content-Type: text/plain
+Message-Id: <1055414558.565.4.camel@chtephan.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0306111407370.11379-100000@cherise>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 12 Jun 2003 12:42:39 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Am Don, 2003-06-12 um 02.29 schrieb Andrew Morton:
 
-> > So you just had to mess it up... Having suspend(device *, state,
-> > level) might be bad, but having suspend(device *, state, level) in one
-> > piece of code and {suspend,save}(device *, state) is *way* worse. (And
-> > I did not see any proposal on l-k. I hope I just missed it).
-> 
-> Calm down, Pavel. From a technical standpoint, it's a superior
-> interface. 
+> But sync() should certainly write everything out, and lilo does perform a
+> sync.
 
->From a technical standpoint, its now mess with half a kernel using one
-interface and second one using another. And you did not bother to mail
-the patch to l-k for the review :-(, and then you call me a troll.
+Yep.
 
-> > So are you going to revert it or convert whole driver model to use
-> > {suspend,save}(device *, state)?
-> 
-> Today: neither. I'm going to see how this works, and if it does, then I 
-> may convert all the users of struct device_driver to use the same
-> model. 
+> I'd be interested in seeing the contents of /proc/meminfo immediately after
+> the lilo run, see if there's any dirty memory left around.
 
-So we are stuck with the mess in 2.6; not good.
+Yes, one page. After running lilo, there are 4k diry, running sync
+doesn't get it below 4k. Only flushb /dev/hda does (or waiting several
+minutes).
 
-								Pavel
+If you're interested, I've put an annotated version of
+
+( cat /proc/meminfo; lilo; cat /proc/meminfo; sync; cat /proc/meminfo;
+flushb /dev/hda; cat /proc/meminfo ) | buffer > meminfo.out.txt
+
+on my web space: http://www.saout.de/files/meminfo.out.txt
+
+(the kernel used was 2.5.70-mm7 with some unrelated patches backed out)
+
+BTW: I found out that now strace lilo freezes the machine...
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Christophe Saout <christophe@saout.de>
+

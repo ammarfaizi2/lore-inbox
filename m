@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQKPXEz>; Thu, 16 Nov 2000 18:04:55 -0500
+	id <S130073AbQKPXGf>; Thu, 16 Nov 2000 18:06:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130540AbQKPXEp>; Thu, 16 Nov 2000 18:04:45 -0500
-Received: from 62-6-231-42.btconnect.com ([62.6.231.42]:29575 "EHLO
-	saturn.homenet") by vger.kernel.org with ESMTP id <S129183AbQKPXEd>;
-	Thu, 16 Nov 2000 18:04:33 -0500
-Date: Thu, 16 Nov 2000 22:31:28 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: RFC: "SubmittingPatches" text
-In-Reply-To: <E13wX8W-0008Qt-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0011162229240.4961-100000@saturn.homenet>
+	id <S129814AbQKPXGZ>; Thu, 16 Nov 2000 18:06:25 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:29708 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129632AbQKPXGV>; Thu, 16 Nov 2000 18:06:21 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [BUG] Inconsistent behaviour of rmdir
+Date: 16 Nov 2000 14:35:53 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8v1ng9$omi$1@cesium.transmeta.com>
+In-Reply-To: <Pine.GSO.4.21.0011161317120.13047-100000@weyl.math.psu.edu> <4.3.2.7.2.20001116161327.00b2f810@postoffice.brown.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2000, Alan Cox wrote:
-
-> > 	The Unofficial Linus HOWTO
+Followup to:  <4.3.2.7.2.20001116161327.00b2f810@postoffice.brown.edu>
+By author:    David Feuer <David_Feuer@brown.edu>
+In newsgroup: linux.dev.kernel
 > 
-> 	'Care And Operation Of Your Linus Torvalds'
+> . and foo/. are also links, not directories... the directories themselves 
+> are filesystem internal objects, and not discussed by the standard.  I 
+> didn't know that linux supported hard links to directories... Isn't that 
+> just asking for trouble?
 > 
-> 
-> > 	mv linux linux-vanilla
-> > 	diff -urN linux-vanilla $MYSRC > /tmp/patch
-> 
-> Include Tigrans recommended exclude list and info
 
-Alan Cox is very concise. I shall interpret :)
+It is on filesystems which has ".." physically on disk.  Linux no
+longer requires this, although for example ext2 does have this.
 
-He refers to the dontdiff file I currently maintain on:
+I don't believe it's inherently impossible in Linux anymore.  In fact,
+vfsbinds provide a lot of the same kind of functionality; the main
+difference between vfsbinds and hard links are that the former (a) can
+cross filesystem boundaries and (b) aren't persistent.
 
-http://www.moses.uklinux.net/patches/dontdiff
-
-and the command line to make the patch would become:
-
-diff -urN -X dontdiif linux $MYSRC > /tmp/mysrc.patch
-
-Regards,
-Tigran
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

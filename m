@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263104AbUDEE41 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 00:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbUDEE41
+	id S263101AbUDEFDU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 01:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbUDEFDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 00:56:27 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:5711 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263104AbUDEE4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 00:56:23 -0400
+	Mon, 5 Apr 2004 01:03:20 -0400
+Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:42870 "HELO
+	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263101AbUDEFDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 01:03:16 -0400
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5 - panic when intensive disk access on 120GB firewire disk
-Date: Sun, 4 Apr 2004 23:56:19 -0500
+Subject: Re: [PANIC] ohci1394 & copy large files
+Date: Mon, 5 Apr 2004 00:03:10 -0500
 User-Agent: KMail/1.6.1
-Cc: Robert Gadsdon <robert@rgadsdon2.giointernet.co.uk>
-References: <40706EA2.7040900@rgadsdon2.giointernet.co.uk>
-In-Reply-To: <40706EA2.7040900@rgadsdon2.giointernet.co.uk>
+Cc: Ben Collins <bcollins@debian.org>, Marcel Lanz <marcel.lanz@ds9.ch>
+References: <20040404141600.GB10378@ds9.ch> <20040404141339.GW13168@phunnypharm.org>
+In-Reply-To: <20040404141339.GW13168@phunnypharm.org>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404042356.21109.dtor_core@ameritech.net>
+Message-Id: <200404050003.13758.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 April 2004 03:22 pm, Robert Gadsdon wrote:
-> Kernel panic from 2.6.5 'final' when running slocate (updatedb) 
-> accessing 120GB firewire disk:
+On Sunday 04 April 2004 09:13 am, Ben Collins wrote:
+> On Sun, Apr 04, 2004 at 04:16:00PM +0200, Marcel Lanz wrote:
+> > Since 2.6.4 and still in 2.6.5 I get regurarly a Kernel panic if I try
+> > to backup large files (10-35GB) to an external attached disc (200GB/JFS) via ieee1394/sbp2.
+> > 
+> > Has anyone similar problems ?
 > 
-> Oops: 00002 [#1]
-> PREEMPT SMP
-> CPU: 0
-> EIP: 0060:[<f8a10a27>]  Not tainted
-> EFLAGS: 00010047 (2.6.5)
-> EIP is at hpsb_packet_sent+0x27/0x90 [ieee1394]
+> Known issue, fixed in our repo. I still need to sync with Linus once I
+> iron one more issue and merge some more patches.
+> 
 
-Could you please try the patch below.
+I have some concerns that it is completely fixed in your tree - there is still
+a race - if hpsb_packet_received arrives before hosb_packet_sent then there is
+a chance that the code will try to put the same packet in the completion queue
+twice. With SVN tree it will cause kernel BUG in skb code, in BK tree kernel
+will just oops.
 
-Thank you.
+I wonder what was the reason to convert the code to abuse skbs aside for using
+skbs queues and their locking?
+
+Anyway, below is a backport of my patch from SVN to BK tree, I would like to
+know if it works for others...
+
 -- 
 Dmitry
 

@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbUCASYf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 13:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbUCASYe
+	id S261390AbUCAS3v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 13:29:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUCAS3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 13:24:34 -0500
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:17 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id S261389AbUCASYd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 13:24:33 -0500
-Date: Mon, 1 Mar 2004 15:23:12 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@dmt.cyclades
-To: Chuck Lever <cel@citi.umich.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Ibm Serveraid Problem with 2.4.25
-In-Reply-To: <Pine.BSO.4.33.0403011215410.6255-100000@citi.umich.edu>
-Message-ID: <Pine.LNX.4.44.0403011505150.5314-100000@dmt.cyclades>
+	Mon, 1 Mar 2004 13:29:51 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:54471 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S261390AbUCAS3t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 13:29:49 -0500
+From: "Nick Warne" <nick@ukfsn.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
+Date: Mon, 01 Mar 2004 18:29:47 -0000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: 2.6.3 - 8139too timeout debug info
+Message-ID: <4043811B.24524.33DB8886@localhost>
+In-reply-to: <87d67x91vs.fsf@devron.myhome.or.jp>
+References: <4041E38F.31264.2D8C0D2E@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 1 Mar 2004, Chuck Lever wrote:
-
-> hi marcelo-
+> Ok, thanks for debugging. Looks like this problem is not 8139too.
+> And same problem should happen with the old driver (probably, it appear
+> with "max_interrupt_work=1").
 > 
-> your "fix" will break readahead again for NFS.  with the ">=" as you
-> propose, the read ahead code will never be able to read the last page of
-> the file as a coalesced read, it will always be a separate 4KB read.
-> 
-> the problem is not the readahead code, it is the driver code that tries
-> to read beyond the end of the device.  my change merely exposed this
-> misbehavior.
-> 
-> so there is a broken assumption somewhere about how the index of the last
-> page of a file/device is computed.  i think it is a problem when the file
-> ends exactly on a page boundary.
->
-> alain, if you don't use the NFS client, marcelo's fix should work just
-> fine for you.  but i believe that in general it is incorrect.
+> Umm... I guess this problem is miss config of Edge/Level-Trigger or
+> something.  Sorry, I don't know detail.
 
-Okey, most drivers do no exhibit this problem indeed.
+Well, after running whatever patches you supplied for me to test, I 
+can confirm after running it for 30 hours, it works a treat - and 
+without having any true measuring devices on network performance, I 
+can tell you it is very much faster and responsive all round... on 
+downloads, web browsing, FTP - everything.  (as you do say, I did 
+used to get pauses sometimes during large file movement/downloads 
+etc., but just thought it was normal network activity - I do not get 
+them any more!).
 
-We should try to fix the problematic drivers, then.
+Insomuchso I have kept this debug 8139too.c build as a running kernel 
+now.
 
-If we can't do it easily and in a straightforward manner, I'm afraid we
-will have to undo your change because even if the "read end beyond of
-device" accesses are harmless (are they really harmless?), they must
-fixed.
+Thank you,
 
-Agreed?
+Nick
 
-I'll take a look at them later today, but I'm no expert, so help is very
-appreciated.
-
-We know that these have problems:
-
-- Promise ATA
-- ips (serveraid)
-
-
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."
 

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262191AbRETTq2>; Sun, 20 May 2001 15:46:28 -0400
+	id <S262186AbRETTo2>; Sun, 20 May 2001 15:44:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262189AbRETTqS>; Sun, 20 May 2001 15:46:18 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14602 "EHLO
+	id <S262189AbRETToK>; Sun, 20 May 2001 15:44:10 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9226 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262187AbRETTqB>; Sun, 20 May 2001 15:46:01 -0400
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Sun, 20 May 2001 20:41:49 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        viro@math.psu.edu (Alexander Viro), froese@gmx.de (Edgar Toernig),
-        bcrl@redhat.com (Ben LaHaise), linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-In-Reply-To: <3B0717CE.57613D4A@mandrakesoft.com> from "Jeff Garzik" at May 19, 2001 09:03:10 PM
+	id <S262183AbRETTn5>; Sun, 20 May 2001 15:43:57 -0400
+Subject: Re: VIA's Southbridge bug: Latest (pseudo-)patch
+To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
+Date: Sun, 20 May 2001 20:40:13 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        Axel.Thimm@physik.fu-berlin.de (Axel Thimm),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        doelf@au-ja.de (Au-Ja), YipingChen@via.com.tw (Yiping Chen),
+        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
+        john@grulic.org.ar (John R Lenton)
+In-Reply-To: <20010520024449.P754@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at May 20, 2001 02:44:49 AM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E151Z5J-0002mK-00@the-village.bc.nu>
+Message-Id: <E151Z3l-0002m3-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why are LVM and EVMS(competing LVM project) needed at all?
+> > If it had been a manufacturer in most respectable areas of business they'd be
+> > recalling and reissuing components, and paying for the end resllers to notify
+> > each customer 
+> 
+> This is consumer hardware. Consumer products are optimized for a
+> good buzzword count per $ ratio. Everything else is secondary.
 
-I prefer to think of it the other way around
+Its what I would describe as lack of enforcement by trading standards bodies,
+and I suspect what the US would call 'insufficient class action lawsuits'
 
-> Surely the same can be accomplished with
-> * md
-> * snapshot blkdev (attached in previous e-mail)
-> * giving partitions and blkdevs the ability to grow and shrink
-> * giving filesystems the ability to grow and shrink
-
-How about 'partitions are in inferior legacy form of LVM'
+Alan
 

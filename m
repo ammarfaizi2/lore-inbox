@@ -1,59 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316928AbSEVK0F>; Wed, 22 May 2002 06:26:05 -0400
+	id <S316933AbSEVKfs>; Wed, 22 May 2002 06:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316929AbSEVK0E>; Wed, 22 May 2002 06:26:04 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:39417 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S316928AbSEVK0D>; Wed, 22 May 2002 06:26:03 -0400
-Date: Wed, 22 May 2002 04:23:54 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Htree directory index for Ext2, updated
-Message-ID: <20020522102354.GB802@turbolinux.com>
-Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200205170736.g4H7aNj281162@saturn.cs.uml.edu> <E178xSu-0000Dc-00@starship> <20020518172634.GK21295@turbolinux.com> <E17ASeO-0001xB-00@starship>
-Mime-Version: 1.0
+	id <S316934AbSEVKfr>; Wed, 22 May 2002 06:35:47 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:7699 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S316933AbSEVKfr>;
+	Wed, 22 May 2002 06:35:47 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200205221035.g4MAZN9103286@saturn.cs.uml.edu>
+Subject: Re: suspend-to-{RAM,disk} for 2.5.17
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Wed, 22 May 2002 06:35:22 -0400 (EDT)
+Cc: xavier.bestel@free.fr (Xavier Bestel),
+        torvalds@transmeta.com (Linus Torvalds), pavel@ucw.cz (Pavel Machek),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        acpi-devel@lists.sourceforge.net (ACPI mailing list)
+In-Reply-To: <3CEB5EF4.604@evision-ventures.com> from "Martin Dalecki" at May 22, 2002 11:03:48 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 22, 2002  11:43 +0200, Daniel Phillips wrote:
-> On Saturday 18 May 2002 19:26, Andreas Dilger wrote:
-> > On May 18, 2002  08:13 +0200, Daniel Phillips wrote:
-> > > I cloned a repository that is arranged like:
-> > > 
-> > >   somedir
-> > >     |
-> > >     |--linux
-> > >     |    |
-> > >     |    The usual stuff
-> > >     |
-> > >      `---other things
-> > > 
-> > > Bitkeeper wants the destination for the import to be 'somedir', and
-> > > cannot figure out how to apply a patch that looks like:
-> > > +++ src/include/linux/someheader.h, for instance.
-> > 
-> > And that is bad in what way?
-> 
-> It is bad in that there is no way to import the patch into BitKeeper.
-> 
-> It looks like a hole in BitKeeper.  How do you suggest I apply my
-> perfectly normal patch?
+Martin Dalecki writes:
+> Uz.ytkownik Xavier Bestel napisa?:
 
-cd somedir/linux; patch -p1 < foo.diff; bk citool
+>> Compressing pages will speed up the process, and doing it on the fly
+>
+> Did you ever in you life tar czvf ./some_dir and have a look at top?!
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
-
+lzo isn't such a CPU hog

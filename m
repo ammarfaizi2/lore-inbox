@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268908AbRHFRUi>; Mon, 6 Aug 2001 13:20:38 -0400
+	id <S268896AbRHFRZ6>; Mon, 6 Aug 2001 13:25:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268906AbRHFRU2>; Mon, 6 Aug 2001 13:20:28 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:47364 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268903AbRHFRUV>; Mon, 6 Aug 2001 13:20:21 -0400
-Date: Mon, 6 Aug 2001 10:18:29 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Jakub Jelinek <jakub@redhat.com>, David Luyer <david_luyer@pacific.net.au>,
-        <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
+	id <S268906AbRHFRZt>; Mon, 6 Aug 2001 13:25:49 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16132 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268896AbRHFRZj>; Mon, 6 Aug 2001 13:25:39 -0400
 Subject: Re: /proc/<n>/maps growing...
-In-Reply-To: <20010806124952.G15925@athlon.random>
-Message-ID: <Pine.LNX.4.33.0108061017180.8972-100000@penguin.transmeta.com>
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Mon, 6 Aug 2001 18:26:52 +0100 (BST)
+Cc: jakub@redhat.com (Jakub Jelinek), andrea@suse.de (Andrea Arcangeli),
+        david_luyer@pacific.net.au (David Luyer), linux-kernel@vger.kernel.org,
+        davem@redhat.com (David S. Miller)
+In-Reply-To: <Pine.LNX.4.33.0108061015450.8972-100000@penguin.transmeta.com> from "Linus Torvalds" at Aug 06, 2001 10:17:02 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15To9U-0001PL-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Even worse, it means people not using -ac kernels cannot malloc a lot of
+> > memory but by recompiling the kernel.
+> 
+> Hey guys. Let's calm down a bit, and look at the problem.
+> 
+> Why the hell is glibc doing something so stupid in the first place? Yes,
+> we can work around it, but it sounds like the glibc apporoach is slow and
+> stupid even if we _did_ work around it. Mind explaining what the logic of
+> "fixing" the kernel is?
 
-On Mon, 6 Aug 2001, Andrea Arcangeli wrote:
->
-> in mainline it's not a sysctl, btw.
->
-> I never noticed this limit and personally I don't like it regardless of
-> the merge_segments (but of course without merge_segments it is can
-> trigger problems while switching between 2.2 and 2.4).
+Its two problems
 
-Whether you like it or not is immaterial.
+1.	mprotect not doing the right resource checks
+2.	mprotect not doing the simple merges
 
-It means that users cannot allocate tons of memory by mmap'ing every odd
-page, for example.
-
-And yes, this used to be a way to lock up a machine. With a exploit that
-was floating on the net.
-
-That limit is _needed_.
-
-		Linus
-
+The resource one is a kernel problem. I am curious why only specific apps
+trip the second case

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264479AbTFQAgs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 20:36:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264489AbTFQAg3
+	id S264490AbTFQAjM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 20:39:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTFQAjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 20:36:29 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:15338 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S264479AbTFQAfc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 20:35:32 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Jun 2003 20:39:12 -0400
+Received: from server0011.freedom2surf.net ([194.106.56.14]:47242 "EHLO
+	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S264490AbTFQAjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 20:39:03 -0400
+Date: Tue, 17 Jun 2003 01:52:55 +0100
+From: Ian Molton <spyro@f2s.com>
+To: linux-kernel@vger.kernel.org
+Subject: FRAMEBUFFER (and console)
+Message-Id: <20030617015255.3016cb99.spyro@f2s.com>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16110.26004.617247.908953@napali.hpl.hp.com>
-Date: Mon, 16 Jun 2003 17:49:24 -0700
-To: Art Haas <ahaas@airmail.net>
-Cc: David Mosberger-Tang <davidm@hpl.hp.com>, linux-ia64@linuxia64.org,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] C99 initializers for asm-ia64/include/xor.h
-In-Reply-To: <20030617004618.GC21500@artsapartment.org>
-References: <20030617004618.GC21500@artsapartment.org>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 16 Jun 2003 19:46:18 -0500, Art Haas <ahaas@airmail.net> said:
+Hi
 
-  Art> Hi.
-  Art> This patch converts the file to use C99 initializers. The patch is
-  Art> against the current BK and is untested as I don't have access to the
-  Art> hardware.
+Is there any way to give the console a kick in the pants?
 
-The patch won't apply on the current ia64 tree, but I'll make the
-analogous change.
+My framebuffer (and therefore system console, by definition) come up
+rather late.
 
-Thanks,
+It seems the console doesnt care to check for drivers comming up after a
+certain time, and thus I get no output despite the driver working.
 
-	--david
+I'd like to do something like console_rescan_my_damn_device() if
+possible :-)
+
+My only option right now appears to be to set up a dummy framebuffer
+prior to real one starting up.
+
+TIA.
+
+-- 
+Spyros lair: http://www.mnementh.co.uk/   ||||   Maintainer: arm26 linux
+
+Do not meddle in the affairs of Dragons, for you are tasty and good with
+ketchup.

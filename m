@@ -1,256 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUITTwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267278AbUITTzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267259AbUITTwo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 15:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267291AbUITTv0
+	id S267278AbUITTzi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 15:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUITTzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 15:51:26 -0400
-Received: from [69.28.190.101] ([69.28.190.101]:15532 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S267259AbUITTso (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 15:48:44 -0400
-Date: Mon, 20 Sep 2004 15:48:42 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: netdev-2.6 queue updated
-Message-ID: <20040920194842.GA21782@havoc.gtf.org>
-Reply-To: netdev@oss.sgi.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
+	Mon, 20 Sep 2004 15:55:38 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:45483 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S267278AbUITTyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 15:54:18 -0400
+Message-ID: <414F2D80.9090909@drdos.com>
+Date: Mon, 20 Sep 2004 13:20:32 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+Cc: jmerkey@galt.devicelogics.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2 bio sickness with large writes
+References: <4148D2C7.3050007@drdos.com> <20040916063416.GI2300@suse.de> <4149C176.2020506@drdos.com> <20040917073653.GA2573@suse.de> <20040917201604.GA12974@galt.devicelogics.com> <414F0F87.9040903@drdos.com> <20040920180957.GB7616@suse.de>
+In-Reply-To: <20040920180957.GB7616@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
 
-BK users:
-bk pull bk://gkernel.bkbits.net/netdev-2.6
+>>page and offset sematics in the interface are also somewhat burdensome. 
+>>Wouldn't a more reasonable
+>>interface for async IO be:
+>>
+>>address
+>>length
+>>address
+>>length
+>>
+>>rather than
+>>
+>>page structure
+>>offset in page structure
+>>page structure
+>>offset in page structure
+>>    
+>>
+>
+>No, because { address, length } cannot fully describe all memory in any
+>given machine.
+>
+>  
+>
+This response I don't understand. How memory is described in a machine 
+for DMA addressibility
+is pretty standard (with the exception of memory on intel machine in 32 
+bit systems above 4GBthat need page tables) --
+a physical numerical address. But who is going to DMA into memory not in 
+the address space.
 
-Patch:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.9-rc2-bk6-netdev1.patch.bz2
 
-This will update the following files:
+>Any chunk of memory has a page associated with it, but it may not have a
+>kernel address mapping associated with it. So some identifier was needed
+>other than a virtual address, a page is as good as any so making one up
+>would be silly.
+>
+>Once you understand this, it doesn't seem so odd. You need to pass in a
+>single page or sg table to map for dma anyways, the sg table holds page
+>pointers as well.
+>
+>  
+>
+>>I can assume from the interface as designed that if you pass an offset 
+>>for a page that is not page aligned,
+>>and ask for a 4K write, then you will end up dropping the data on the 
+>>floor than spans beyond the end of the page.
+>>    
+>>
+>
+>What kind of bogus example is that? Asking for a 4K write from a 4K page
+>but asking to start 1K in that page is just stupid and not even remotely
+>valid.
+>
+>  
+>
+Hardware doesn't care about page boundries. It sees hardware addresses 
+and lengths, at
+least most SG hardware I've worked with does. For ease of submission, an 
+interface that
+takes <address,length> would suffice. Why on earth would someone need a 
+context
+pointer into the kernel's page tables to submit an SG into a device, 
+apart from performing
+virtual-to-physical translation?
 
- arch/cris/arch-v10/drivers/ethernet.c     |  140 ++----
- drivers/ieee1394/eth1394.c                |   95 +---
- drivers/media/dvb/dvb-core/dvb_net.c      |    9 
- drivers/net/3c509.c                       |  151 ++-----
- drivers/net/8139cp.c                      |   80 ++-
- drivers/net/8139too.c                     |   14 
- drivers/net/Kconfig                       |   21 -
- drivers/net/acenic.c                      |  163 +++----
- drivers/net/acenic.h                      |   23 -
- drivers/net/amd8111e.c                    |  248 +++++------
- drivers/net/atp.c                         |    2 
- drivers/net/b44.c                         |  102 ++--
- drivers/net/b44.h                         |  113 -----
- drivers/net/defxx.c                       |  144 +++---
- drivers/net/defxx.h                       |    2 
- drivers/net/dl2k.c                        |  267 +++++-------
- drivers/net/e100.c                        |   12 
- drivers/net/e1000/e1000.h                 |    2 
- drivers/net/e1000/e1000_ethtool.c         |    6 
- drivers/net/e1000/e1000_hw.c              |  115 +++++
- drivers/net/e1000/e1000_main.c            |   41 -
- drivers/net/e1000/e1000_osdep.h           |    6 
- drivers/net/eepro100.c                    |  425 +++++++++-----------
- drivers/net/ewrk3.c                       |  326 +++++++--------
- drivers/net/forcedeth.c                   |  111 +----
- drivers/net/hamachi.c                     |  157 +++----
- drivers/net/hamradio/hdlcdrv.c            |    2 
- drivers/net/ibmlana.c                     |    9 
- drivers/net/iseries_veth.c                |   81 +--
- drivers/net/ixgb/ixgb_ethtool.c           |  494 +++++++----------------
- drivers/net/ixgb/ixgb_main.c              |   24 -
- drivers/net/mac8390.c                     |    4 
- drivers/net/meth.c                        |   26 -
- drivers/net/natsemi.c                     |  273 +++++--------
- drivers/net/ne2k-pci.c                    |   31 +
- drivers/net/ns83820.c                     |   61 --
- drivers/net/pcmcia/smc91c92_cs.c          |  181 ++++----
- drivers/net/r8169.c                       |  606 +++++++++++++++++++++-------
- drivers/net/sis900.c                      |  258 ++++++------
- drivers/net/sk_mca.c                      |    9 
- drivers/net/smc91x.h                      |   43 ++
- drivers/net/starfire.c                    |  191 ++++-----
- drivers/net/sundance.c                    |  187 ++++----
- drivers/net/tulip/de4x5.c                 |    2 
- drivers/net/tulip/tulip_core.c            |   34 -
- drivers/net/tulip/winbond-840.c           |    2 
- drivers/net/tulip/xircom_tulip_cb.c       |  194 ++++-----
- drivers/net/typhoon.c                     |  245 +++++------
- drivers/net/wan/lmc/lmc_main.c            |    9 
- drivers/net/wireless/airo.c               |   45 +-
- drivers/net/wireless/netwave_cs.c         |   12 
- drivers/net/wireless/prism54/isl_38xx.c   |   15 
- drivers/net/wireless/prism54/isl_38xx.h   |    4 
- drivers/net/wireless/prism54/isl_ioctl.c  |  629 ++++++++++++++++++++++++++----
- drivers/net/wireless/prism54/isl_ioctl.h  |    2 
- drivers/net/wireless/prism54/isl_oid.h    |    9 
- drivers/net/wireless/prism54/islpci_dev.c |   35 -
- drivers/net/wireless/prism54/islpci_dev.h |    4 
- drivers/net/wireless/prism54/islpci_eth.c |    5 
- drivers/net/wireless/prism54/oid_mgt.c    |  121 +++++
- drivers/net/wireless/prism54/oid_mgt.h    |    3 
- drivers/net/wireless/wavelan.c            |   19 
- drivers/net/wireless/wavelan.p.h          |    3 
- drivers/net/wireless/wavelan_cs.c         |  181 +++-----
- drivers/net/wireless/wavelan_cs.p.h       |    3 
- drivers/net/wireless/wl3501_cs.c          |   53 --
- drivers/net/yellowfin.c                   |   62 +-
- drivers/usb/gadget/ether.c                |   73 +--
- drivers/usb/net/catc.c                    |  122 +----
- drivers/usb/net/kaweth.c                  |   34 -
- drivers/usb/net/pegasus.c                 |  297 +++++---------
- drivers/usb/net/rtl8150.c                 |  186 +++-----
- include/linux/netdevice.h                 |    4 
- include/linux/wireless.h                  |   64 ++-
- include/net/iw_handler.h                  |   60 ++
- net/core/dev.c                            |    2 
- net/core/wireless.c                       |  212 ++++++----
- net/irda/irlan/irlan_client.c             |    2 
- 78 files changed, 4075 insertions(+), 3927 deletions(-)
+>It's not difficult at all. Apparently you don't understand it so you
+>think it's difficult, that's only natural. But you have access to the
+>page mapping of any given piece of data always, or if you have the
+>virtual address only it's trivial to go to the { page, offset } mapping.
+>  
+>
+No, I do understand, and using page/offset at a low level SG interface 
+IS burdensome.
+I mean, if this is what I have to support I guess I have to use it, but 
+it will be just another
+section of code where I have another **FAT** layer to waste more CPU 
+cycles calculating
+offset/page (oh yeah I have to lookup the struct page * structure also) 
+when it would be much
+simpler to just submit address/len in i386 systems. With this type of 
+interface, If I have for instance
+an on-disk structure that starts in the middle of a 4K page due to other 
+headers, etc. than spans
+a page, I cannot just submit the address and length, I have to break it 
+into two bio requests instead
+of one with a for () loop from hell and calculate the offsets and rumage 
+around in memory looking
+up struct page * addresses.
 
-through these ChangeSets:
+>I can only imagine that you are used to a very different interface on
+>some other OS so you think it's difficult to use. Most of your
+>complaints seem to be based on false assumptions or because you don't
+>understand why certain design decisions were made.
+>
+>  
+>
 
-<davem:davemloft.net>:
-  o eepro100.c iomap conversion
+No. I am used to programming to hardware with SG devices that all OS 
+use. Is there somewhere a page based
+SG device (other than SCI) for disk drive?. I don't think so, I think 
+they operate address/len, address/len, etc.
 
-<jolt:tuxbox.org>:
-  o [netdrvr b44] clean up SiliconBackplane definitions/functions
-  o [netdrvr b44] ignore carrier lost errors
+:-)
 
-Alexander Viro:
-  o (27/27) catc ethtool conversion
-  o (26/27) kaweth ethtool conversion
-  o (25/27) pegasus ethtool conversion
-  o (24/27) rtl8150 ethtool conversion
-  o (23/27) gadget ethtool conversion
-  o (22/27) amd8111e ethtool conversion
-  o (21/27) dl2k ethtool conversion
-  o (20/27) eepro100 ethtool conversion
-  o (19/27) ewrk3 ethtool conversion
-  o (18/27) forcedeth ethtool conversion
-  o (17/27) hamachi ethtool conversion
-  o (16/27) veth ethtool conversion
-  o (15/27) natsemi ethtool conversion
-  o (14/27) ns83820 ethtool conversion
-  o (13/27) starfire ethtool conversion
-  o (12/27) sundance ethtool conversion
-  o (11/27) typhoon ethtool conversion
-  o (10/27) yellowfin ethtool conversion
-  o (9/27) wl3501_cs ethtool conversion
-  o (8/27) wavelan ethtool conversion
-  o (7/27) xircom ethtool conversion
-  o (6/27) tulip ethtool conversion
-  o (5/27) smc91c92_cs ethtool conversion
-  o (4/27) 3c509 ethtool conversion
-  o (3/27) ixgb ethtool conversion
-  o (2/27) cris ethtool conversion
-  o (1/27) eth1394 ethtool conversion
-  o [netdrvr starfire] use netdev_priv
-  o [netdrvr starfire] fix unregister_netdev call site
-  o [netdrvr] use netdev_priv in dl2k, hamachi
-  o [netdrvr] netdev_priv for sundance, typhoon, yellowfin
-  o [netdrvr] netdev_priv for ewrk3, xircom_tulip_cb, wavelan_cs
-  o [netdrvr usb] use netdev_priv
-  o [netdrvr eth1394] use netdev_priv
+Jeff
 
-Andrew Morton:
-  o pegasus.c fixes
-  o de4x5 warning fix
-
-Daniele Venzano:
-  o [netdrvr sis900] whitespace and codingstyle updates
-
-David Dillow:
-  o PCI cleanups and convert to ethtool_ops
-
-François Romieu:
-  o via-velocity: wrong module name in Kconfig documentation
-  o r8169: default on disabling PCIDAC
-  o r8169: Mac identifier extracted from Realtek's driver v2.2
-  o r8169: TSO support
-  o r8169: hint for Tx flow control
-  o r8169: miscalculation of available Tx descriptors
-  o 8139cp: SG support fixes
-  o r8169: vlan support
-  o r8169: Rx checksum support
-  o r8169: advertise DMA to high memory
-  o r8169: Tx checksum offload
-  o r8169: comment a gcc 2.95.x bug
-  o r8169: sync the names of a few bits with the 8139cp driver
-  o r8169: bump version number
-  o r8169: enable MWI
-  o r8169: code cleanup
-  o r8169: per device receive buffer size
-  o r8169: add ethtool_ops.{get_regs_len/get_regs}
-
-Ganesh Venkatesan:
-  o e1000 - Ethtool -- 82545 do not support WoL
-  o e1000 - Polarity reversal workaround for 10F/10H links
-  o e1000 - Fix VLAN filter setup errors (while running on PPC)
-  o e1000 Check value returned by from pci_enable_device
-  o e1000 - Removed support for advanced TCO features
-  o e1000 - use pci_device_name for syslog messages till registering netdevice.
-  o e100 driver version number update
-  o e100 - use NET_IP_ALIGN to set rx data buffer alignment
-  o e100 - Use pci_device_name for syslog messages till registering netdevice
-
-Jean Tourrilhes:
-  o wireless-drivers-update-for-we-17.patch
-  o wireless-extension-v17-for-linus.patch
-
-Jeff Garzik:
-  o [netdrvr eepro100] fix pci_iomap() args and info msg that follows
-  o [netdrvr b44] update MODULE_AUTHORS
-  o [netdrvr 8139cp] TSO support
-  o [netdev] Remove no-op in-driver implementations of ->set_config()
-
-Kenji Kaneshige:
-  o add missing pci_disable_device for e1000
-
-Maciej W. Rozycki:
-  o defxx device name fixes
-  o defxx trivial updates
-
-Marc Singer:
-  o adding smc91x ethernet to lpd7a40x
-
-Margit Schubert-While:
-  o prism54 fix wpa_supplicant frequency parsing
-  o prism54 initial WPA support
-  o prism54 add WE17 support
-  o prism54 remove module params
-  o prism54 Code cleanup
-
-Mika Kukkonen:
-  o sparse: fix warnings in net/irda/*
-
-Olaf Hering:
-  o remove old version check from mac8390
-
-Pavel Machek:
-  o swsuspend for ne2k-pci cards
-
-Pekka Pietikäinen:
-  o b44: use bounce buffers to workaround chip DMA bug/limitations
-
-Ralf Bächle:
-  o Stop queue on close in hdlcdrv
-
-Rene Herman:
-  o 8139too Interframe Gap Time
-
-Roger Luethi:
-  o mc_filter on big-endian arch
-
-Stephen Hemminger:
-  o 8139cp - module_param
-  o (4/4) acenic - don't spin forever in hard_start_xmit
-  o (3/4) acenic - __iomem warnings cleanup
-  o (2/4) acenic - eliminate MAX_SKB_FRAGS #if
-  o (1/4) acenic - use netdev_priv
 

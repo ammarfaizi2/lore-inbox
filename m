@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbTIPPsp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 11:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbTIPPsp
+	id S261968AbTIPPoq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 11:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTIPPop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 11:48:45 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:7179 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S261920AbTIPPso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 11:48:44 -0400
-Message-ID: <3F6730F6.8040508@techsource.com>
-Date: Tue, 16 Sep 2003 11:49:10 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Tue, 16 Sep 2003 11:44:45 -0400
+Received: from pat.uio.no ([129.240.130.16]:46562 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261968AbTIPPoo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 11:44:44 -0400
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: df hangs on nfs automounter in 2.6.0-current
+References: <Pine.GSO.4.44.0309161732480.19310-100000@math.ut.ee>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 16 Sep 2003 11:44:40 -0400
+In-Reply-To: <Pine.GSO.4.44.0309161732480.19310-100000@math.ut.ee>
+Message-ID: <shsznh4d9g7.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Stephan von Krawczynski <skraw@ithnet.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       neilb@cse.unsw.edu.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: experiences beyond 4 GB RAM with 2.4.22
-References: <20030916102113.0f00d7e9.skraw@ithnet.com>	 <Pine.LNX.4.44.0309161009460.1636-100000@logos.cnet>	 <20030916153658.3081af6c.skraw@ithnet.com>	 <1063722973.10037.65.camel@dhcp23.swansea.linux.org.uk>	 <20030916172057.148a5741.skraw@ithnet.com> <1063726141.10036.130.camel@dhcp23.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Meelis Roos <mroos@linux.ee> writes:
 
+     > Current 2.6.0 (2.6.0-test5+BK as of 16.09) hangs on df when the
+     > am_utils automounter is in use. It displays hda* partitions and
+     > next by mountpoint list is amd but then df hangs, wchan is
+     > rpc_execu*
 
-Alan Cox wrote:
-> The kernel has no idea what you will do with given ram. It does try to
-> make some guesses but you are basically trying to paper over hardware
-> limits.
+Please reproduce using ordinary 'mount'...
 
-
-Maybe not what you WILL DO, but what you HAVE DONE.  Those tasks which 
-have done the most DMA-requiring I/O could get preference for low 
-memory.  No?
-
-Yeah, I know.. show you the code.  :)
-
+Cheers,
+  Trond

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbTKHRzm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 12:55:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTKHRzm
+	id S261914AbTKHRxE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 12:53:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTKHRxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 12:55:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41604 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261929AbTKHRzk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 12:55:40 -0500
-Message-ID: <3FAD2E04.3020800@pobox.com>
-Date: Sat, 08 Nov 2003 12:55:16 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sat, 8 Nov 2003 12:53:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59018 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261914AbTKHRxC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 12:53:02 -0500
+Date: Sat, 8 Nov 2003 09:52:52 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ragnar Hojland Espinosa <ragnar@linalco.com>
+cc: Bill Davidsen <davidsen@tmr.com>, John Bradford <john@grabjohn.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <20031108150654.GA19980@linalco.com>
+Message-ID: <Pine.LNX.4.44.0311080950520.2787-100000@home.osdl.org>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4] forcedeth
-References: <3FAC837F.2070601@gmx.net> <20031108085415.C18856@infradead.org>
-In-Reply-To: <20031108085415.C18856@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Sat, Nov 08, 2003 at 06:47:43AM +0100, Carl-Daniel Hailfinger wrote:
+
+On Sat, 8 Nov 2003, Ragnar Hojland Espinosa wrote:
 > 
->>Attached is forcedeth: A new driver for the ethernet interface of the
->>NVIDIA nForce chipset, licensed under GPL.
-> 
-> 
-> Any chance to give the driver a more descriptive name, say nforce_eth?
-> Traditionally we tend to name like drivers after the hardware's name or
-> codename, not the development methology used.
+> Well, I hope its in better state than the Mitsumi driver, because last
+> time I tried it was broken (oopsed in a simple cat) since a 2.3.xx
+> IIRC [0]
 
+Since 2._3_.xx?
 
-I agree with you on this -- but -- in this special case, it seems wise 
-to avoid using a potential trademark as a filename...
+> [0]  Tracked it down to a -pre if anyone is interested and its still
+>      broken.. 
 
-I would prefer to avoid the issue completely, rather have to chase down 
-some lawyers and get a definitive answer.
+Quite frankly, if it's literally been broken since 2.3.x, I think the best 
+thing to do would be to remove the driver entirely.
 
-	Jeff
+Yeah, there's probably a fair number of those old CD-ROM drivers that 
+nobody uses with modern kernels (ie they might be used on some router that 
+hasn't been touched in forever, still running 2.2.x on a 8MB 386SX-16).
 
-
+		Linus
 

@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbUK0ESn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUK0ESm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbUK0ESn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 23:18:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbUK0EOS
+	id S261914AbUK0ESm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 23:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbUK0D7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 23:14:18 -0500
-Received: from lucidpixels.com ([66.45.37.187]:42725 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S262110AbUKZTNz (ORCPT
+	Fri, 26 Nov 2004 22:59:55 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:42947 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262367AbUKZTae (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:13:55 -0500
-Date: Fri, 26 Nov 2004 07:07:12 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: Robert Olsson <Robert.Olsson@data.slu.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_TULIP_NAPI_HW_MITIGATION latency question.
-In-Reply-To: <16806.1163.601015.670054@robur.slu.se>
-Message-ID: <Pine.LNX.4.61.0411260707100.19733@p500>
-References: <Pine.LNX.4.61.0411231242090.3740@p500> <16806.1163.601015.670054@robur.slu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 26 Nov 2004 14:30:34 -0500
+Date: Thu, 25 Nov 2004 19:40:53 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 23/51: PPC support.
+Message-ID: <20041125184053.GL1417@openzaurus.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101296245.5805.282.camel@desktop.cunninghams>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101296245.5805.282.camel@desktop.cunninghams>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the info.
+Hi!
 
-On Thu, 25 Nov 2004, Robert Olsson wrote:
+> Not updated for a while, so I'm not sure if it still works. If not, it
+> shouldn't take much to get it going again.
 
->
->
->
-> Justin Piszcz writes:
-> > "at the cost of a small latency"
-> >
-> > How much additional latency is added with this option enabled?
-> >
-> > 5ms? 10ms?
-> >
-> > -> Use Interrupt Mitigation
-> >    x CONFIG_TULIP_NAPI_HW_MITIGATION:
-> >    x Use HW to reduce RX interrupts. Not strict necessary since NAPI
-> > reduces RX interrupts but itself. Although this reduces RX interrupts even at
-> > low levels traffic at the cost of a small latency.
-> > x
-> >    x If in doubt, say Y.
->
-> Hello!
->
-> It's in usec and the tulip only enables this latency when it's needed it
-> really tries to keep latency down.
->
-> It has three steeps of input control.
->
-> Low rate:     No driver latency. No interrupt delay at all.
-> Medium rate:  Samll driver latency.
-> High rate:    Polling via ->poll
->
-> 						--ro
->
+It should have a lot in common with hugang's swsusp1/ppc support, right?
+Can you coordinate with him and get that in?
+
+				Pavel
+
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

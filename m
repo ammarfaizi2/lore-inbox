@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270441AbTHLOs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 10:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270443AbTHLOs5
+	id S270391AbTHLOrh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 10:47:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270436AbTHLOrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 10:48:57 -0400
-Received: from rzaixsrv2.rrz.uni-hamburg.de ([134.100.32.71]:30713 "EHLO
-	rzaixsrv2.rrz.uni-hamburg.de") by vger.kernel.org with ESMTP
-	id S270441AbTHLOsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 10:48:40 -0400
-Message-ID: <1060699703.3f38fe37b8a1f@rzaixsrv6.rrz.uni-hamburg.de>
-Date: Tue, 12 Aug 2003 16:48:23 +0200
-From: in7y118@public.uni-hamburg.de
-To: linux-kernel@vger.kernel.org
-Cc: rhythmbox-devel@gnome.org, gstreamer-devel@lists.sourceforge.net
-Subject: Linux 2.6 doesn't like Rhythmbox
+	Tue, 12 Aug 2003 10:47:37 -0400
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:3593 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270391AbTHLOrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 10:47:36 -0400
+Message-ID: <3F38FE5B.1030102@yahoo.com>
+Date: Tue, 12 Aug 2003 10:48:59 -0400
+From: Brandon Stewart <rbrandonstewart@yahoo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2
+To: linux kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Requested FAQ addition - Mandrake and partial-i686 platforms
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi people,
+Apparently, there is an issue with glibc on versions less than 2.3.1-15 
+(and maybe others), where it mistakenly treats CPUs as full i686 
+compliant when they only execute a subset of the i686 instructions. For 
+example, the VIA C3 supports pretty much everything i686 except CMOV, 
+yet the broken versions of glibc will detect it as fully i686 compliant.
 
-I'm running Linux 2.6.0-test2 now and found our "itunes clone" Rhythmbox (see 
-http://rhythmbox.org) to have choppy playback. Simpler command-line players 
-like madplay did not have this problem. (The heavily threaded gst-player had 
-this problem, however.) I don't remember having choppy playback with Linux 
-2.4.21-preempt either.
+ From someone who emailed me privately, this apparently affects K6-III 
+as well. Possibly other Cyrix or AMD CPUs are affected, though I don't 
+have a complete list.
 
-Reproducing this is simple if you run Gnome 2 and the snail-fast gnome-terminal:
-Get Rhythmbox (I used the 0.4.99.2 prerelease from the website), play some 
-sound with it and get your CPU to 100% with a fairly high-prio app (I like to 
-switch tabs in gnome-terminal). Sound then starts having hickups.
+The problem is that Mandrake 9.1 ships with a broken glibc. So you would 
+expect that the incorrectly detected CPUs just wouldn't work. But 
+apparently, Mandrake added a CMOV instruction emulator patch to their 
+kernel, both the one that ships precompiled and the source rpm.
 
-More or less by accident I was looking at the output of top and found out that 
-the audio playback thread had a worse priority than normal (top reported 
-between 20 and 25). I then reniced the playback thread to -10 upon thread 
-creation and was given problemless playback (top still reported the priority 
-going up to 15 again).
+So people will find that compiling the Mandrake version works fine, yet 
+any kernel downloaded from kernel.org, 2.6 or other, will not work at 
+all. The symptom is that booting the shiny new kernel will hang after 
+"Freeing unused kernel memory". Doing a magic sysreq will reveal that 
+/sbin/init is executing do_invalid_op(). You can keep pressing the magic 
+sysreq stack dump key, and you will keep getting a new stack trace. 
+Caps-lock works, and CTRL-ALT-DEL will reboot the machine.
 
-Let me explain how threads in Rhythmbox work: The main thread is used for the 
-GUI, other threads (mostly idle) take care of the library - reading out 
-artist/title/... tags and monitoring file changes so the playlists gets updated 
-automagically - and then there is a playback thread. This thread is spawned 
-when playback of a file starts (a new one for each file). It starts by 
-inspecting the file and constructing a pipeline depending on the file type (ogg 
-decoder vs mp3 decoder vs ...). This takes half a second, maybe less. After 
-that it proceeds to do read - decode - output to soundcard looping until the 
-song is done playing.
-The priority according to top starts becoming worse from the beginning of 
-playback and gets worse during playback.
+There are three possible workarounds:
+1) Upgrade glibc to a working version. I haven't done this myself, so I 
+don't know if the bug has been fixed yet. But it would be the best solution.
+2) Remove i686 libraries from glibc. This can be done by 'mv /lib/i686 
+/lib/i686.invalid'. This is what I did, and it works. While some 
+performance is lost, it's not noticeable, especially given that the 
+stock Mandrake kernel is i386 compatible, and so has limited optimization.
+3) Reapply the CMOV emulation patch to your downloaded kernel. Not 
+recommended since it turns one CPU cycle into 400.
 
+-Brandon
 
-My question now is simple: Who shall I blame for this?
-
-
-Cheers,
-
-Benjamin

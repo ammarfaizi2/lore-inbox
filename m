@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267505AbUJIWWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267508AbUJIWui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267505AbUJIWWK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 18:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUJIWWJ
+	id S267508AbUJIWui (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 18:50:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267511AbUJIWui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 18:22:09 -0400
-Received: from mail.broadpark.no ([217.13.4.2]:36522 "EHLO mail.broadpark.no")
-	by vger.kernel.org with ESMTP id S267505AbUJIWWB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 18:22:01 -0400
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, ext-rt-dev@mvista.com
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-References: <41677E4D.1030403@mvista.com> <yw1xk6u0hw2m.fsf@mru.ath.cx>
-	<1097356829.1363.7.camel@krustophenia.net>
-	<yw1xis9ja82z.fsf@mru.ath.cx>
-	<1097358925.1363.17.camel@krustophenia.net>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
-Date: Sun, 10 Oct 2004 00:21:50 +0200
-In-Reply-To: <1097358925.1363.17.camel@krustophenia.net> (Lee Revell's
- message of "Sat, 09 Oct 2004 17:55:25 -0400")
-Message-ID: <yw1x4ql3a5xd.fsf@mru.ath.cx>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Sat, 9 Oct 2004 18:50:38 -0400
+Received: from smtpq2.home.nl ([213.51.128.197]:483 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S267508AbUJIWug (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 18:50:36 -0400
+Message-ID: <41686A40.3060305@keyaccess.nl>
+Date: Sun, 10 Oct 2004 00:46:24 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Denis Zaitsev <zzz@anda.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BUG][2.6.8.1] Something wrong with ISAPnP and serial driver
+References: <20041010015206.A30047@natasha.ward.six> <4168479C.5080306@keyaccess.nl> <20041010033820.B30047@natasha.ward.six> <41685E04.3070103@keyaccess.nl> <20041010043443.A1639@natasha.ward.six>
+In-Reply-To: <20041010043443.A1639@natasha.ward.six>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> writes:
+Denis Zaitsev wrote:
 
-> On Sat, 2004-10-09 at 17:35, Måns Rullgård wrote:
->> Lee Revell <rlrevell@joe-job.com> writes:
->> 
->> > On Sat, 2004-10-09 at 09:15, Måns Rullgård wrote:
->> >> I got this thing to build by adding a few EXPORT_SYMBOL, patch below.
->> >> Now it seems to be running quite well.  I am, however, getting
->> >> occasional "bad: scheduling while atomic!" messages, all alike:
->> >> 
->> >
->> > I am getting the same message.   Also, leaving all the default debug
->> > options on, I got this debug output, but it did not coincide with the
->> > "bad" messages.
->> >
->> > Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
->> > Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
->> > Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
->> > Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
->> > Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
->> > Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
->> 
->> Well, those don't give me any clues.
->> 
->> I had the system running that kernel for a bit over an hour and got
->> five of the "bad" messages, approximately evenly spaced in a
->> two-minute interval about 20 minutes after boot.
->> 
->
-> I am getting these too:
->
-> bad: scheduling while atomic!
->  [<c0279c5a>] schedule+0x62a/0x630
->  [<c013b137>] kmutex_unlock+0x37/0x50
->  [<c013ab0d>] __p_mutex_down+0x1ed/0x360
->  [<c013b1e0>] kmutex_is_locked+0x20/0x40
->  [<c01cba47>] journal_dirty_data+0x77/0x230
->  [<c01bf2e2>] ext3_journal_dirty_data+0x12/0x40
+> With the device ID added all the things just work.  Ok.  Thanks.  I'm
+> sending the patch.
 
-My machine is mostly XFS, which might explain why I haven't seen any
-of those.  I've found XFS to perform better with the multi-gigabyte
-files I often deal with.
+Good.
 
--- 
-Måns Rullgård
-mru@mru.ath.cx
+> /proc/tty/driver/serial shows the correct info for now.  Does the fact
+> that it used to do not means that something wrong with sysfs PnP
+> activation mechanics?
+
+That would appear to be the case yes. Adam Belay <ambx1@neo.rr.com> is 
+the person to talk to concerning PnP issues, if you care to.
+
+Rene.
+
+

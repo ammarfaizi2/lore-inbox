@@ -1,53 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129232AbRCBPNE>; Fri, 2 Mar 2001 10:13:04 -0500
+	id <S129146AbRCBPSp>; Fri, 2 Mar 2001 10:18:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129227AbRCBPMy>; Fri, 2 Mar 2001 10:12:54 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:29408 "EHLO
-	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S129232AbRCBPMs>; Fri, 2 Mar 2001 10:12:48 -0500
-Message-ID: <3A9FB760.15E6321F@nortelnetworks.com>
-Date: Fri, 02 Mar 2001 10:08:17 -0500
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
-X-Accept-Language: en
+	id <S129227AbRCBPSf>; Fri, 2 Mar 2001 10:18:35 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:9344 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129146AbRCBPSY>; Fri, 2 Mar 2001 10:18:24 -0500
+Date: Fri, 2 Mar 2001 10:18:00 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Admin Mailing Lists <mlist@intergrafix.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: gids in kernel
+In-Reply-To: <Pine.LNX.4.10.10103020954140.11082-100000@athena.intergrafix.net>
+Message-ID: <Pine.LNX.3.95.1010302100451.1504A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: John Being <olonho@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: strange nonmonotonic behavior of gettimeoftheday -- seen similar 
-         problem on PPC
-In-Reply-To: <F104TJcu8Puwo7hGP4E00009f3d@hotmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@americasm01.nt.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Being wrote:
+On Fri, 2 Mar 2001, Admin Mailing Lists wrote:
 
-> gives following result on box in question
-> root@******:# ./clo
-> Leap found: -1687 msec
-> and prints nothing on all other  my boxes.
-> This gives me bunch of troubles with occasional hang ups and I found nothing
-> in kernel archives at
-> http://www.uwsg.indiana.edu/hypermail/linux/kernel/index.html
-> just some notes about smth like this for SMP boxes with ntp. Is this issue
-> known, and how can I fix it?
+> 
+> apache documentation states:
+> #  NOTE that some kernels refuse to setgid(Group) or semctl(IPC_SET)
+> #  when the value of (unsigned)Group is above 60000;
+> #  don't use Group nobody on these systems!
+> 
+> does this apply to linux in either the 2.2 or 2.4 kernels?
+> i'd like to use a block of uids from maybe 63000-65000, with
+> gids of the same number, for web domains, and want to know if i'll have
+> any problems.
+> 
+> Thanx,
 
-I've run into non-monotonic gettimeofday() on a PPC system with 2.2.17, but it
-always seemed to be almost exactly a jiffy out, as though it was getting
-hundredths of a second from the old tick, and microseconds from the new tick. 
-Your leap seems to be more unusual, and the first one I've seen on an x86 box.
+Works here.
 
-Have you considered storing the results to see what happens on the next call? 
-Does it make up the difference, or do you just lose that time?
+foo:x:65534:65534:Foo test:/tmp:/bin/bash
 
-Chris
+Script started on Fri Mar  2 10:07:17 2001
+# ls -ls /tmp
+total 0
+   0 -rw-r--r--   1 65534    65534           0 Mar  2 10:03 foo
+# exit
+Script done on Fri Mar  2 10:07:32 2001
+
+Execute this as root. You will find that there's no problem.
+
+int main()
+{
+    setuid(65535);
+    setgid(65535);
+    system("whoami");
+    return 0;
+}
+
+FYI, you can readily test all this stuff yourself. The Apache
+documentation you quote seems strange. I don't think the
+UID/GID alias problem exists on systems where Apache is likely
+to be run (20 MHz VAXen running Ultrix don't make good Web Servers) 
 
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbTIBGmQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 02:42:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263579AbTIBGmQ
+	id S263564AbTIBGnR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 02:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263569AbTIBGnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 02:42:16 -0400
-Received: from dp.samba.org ([66.70.73.150]:53977 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263573AbTIBGmQ (ORCPT
+	Tue, 2 Sep 2003 02:43:17 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:18862 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263564AbTIBGnO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 02:42:16 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Petri Koistinen <petri.koistinen@iki.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL] include/asm-i386/module.h defined() fix 
-In-reply-to: Your message of "Sat, 30 Aug 2003 17:42:45 +0300."
-             <Pine.LNX.4.56.0308301717480.18600@dsl-hkigw4a35.dial.inet.fi> 
-Date: Tue, 02 Sep 2003 15:14:50 +1000
-Message-Id: <20030902064215.CC6092C14D@lists.samba.org>
+	Tue, 2 Sep 2003 02:43:14 -0400
+Date: Tue, 2 Sep 2003 08:33:50 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Tejun Huh <tejun@aratech.co.kr>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH] Race condition in del_timer_sync (2.5)
+In-Reply-To: <20030902025927.GA12121@atj.dyndns.org>
+Message-ID: <Pine.LNX.4.56.0309020820330.3654@localhost.localdomain>
+References: <20030902025927.GA12121@atj.dyndns.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.56.0308301717480.18600@dsl-hkigw4a35.dial.inet.fi> you w
-rite:
-> Hi!
-> 
-> Take a look at The C Programming Language (2nd ed.) page 91. "The
-> expression defined(name) in a #if is 1 if the name has been defined, and 0
-> otherwise." So defined should be used with parenthesis, I think. At least
-> most of Linux kernel source code is doing so. Ok?
 
-And page 232 indicates that the brackets are not required (hey, I had
-to check, too).
+On Tue, 2 Sep 2003, Tejun Huh wrote:
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+>  This patch fixes a race between del_timer_sync and recursive timers.
+> Current implementation allows the value of timer->base that is used for
+> timer_pending test to be fetched before finishing running_timer test, so
+> it's possible for a recursive time to be pending after del_timer_sync.  
+> Adding smp_rmb before timer_pending removes the race.
+
+good catch. Have you ever trigger this bug, or did you find it via code
+review?
+
+just to explore the scope of this problem a bit more: at first glance all
+other timer_pending() uses seem to be safe. del_timer_sync()'s
+timer_pending() use is special, because it's next to the ->running_timer
+check without any barriers inbetween - so we could indeed in theory end up
+with having the two reads reordered and a freshly added timer (on another
+CPU) not being recognized properly. Also, this is the only timer API call
+that guarantees the complete stopping of a timer.
+
+	Ingo

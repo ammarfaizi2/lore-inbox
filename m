@@ -1,41 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268025AbUIGMrA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268005AbUIGMrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268025AbUIGMrA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 08:47:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268024AbUIGMq7
+	id S268005AbUIGMrj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 08:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267994AbUIGMrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 08:46:59 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:63760 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S268019AbUIGMqv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 08:46:51 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: util@deuroconsult.ro (Catalinux aka Dino BOIE)
-Subject: Re: [PATCH] Trivial fix for out of bounds array access in xfrm4_policy_check
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <Pine.LNX.4.61.0409071322100.8637@hosting.rdsbv.ro>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.26-1-686-smp (i686))
-Message-Id: <E1C4fMc-000817-00@gondolin.me.apana.org.au>
-Date: Tue, 07 Sep 2004 22:46:22 +1000
+	Tue, 7 Sep 2004 08:47:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29122 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268005AbUIGMrb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 08:47:31 -0400
+Date: Tue, 7 Sep 2004 14:47:26 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: attribute warn_unused_result
+Message-ID: <20040907124726.GF8237@devserv.devel.redhat.com>
+References: <413DA83A.7010704@kolivas.org> <1094560688.2801.11.camel@laptop.fenrus.com> <413DAD07.3030306@kolivas.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="27ZtN5FSuKKSZcBU"
+Content-Disposition: inline
+In-Reply-To: <413DAD07.3030306@kolivas.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Catalinux aka Dino BOIE <util@deuroconsult.ro> wrote:
-> 
-> Coverity found a bug in accessing xfrm4_policy_check using XFRM_POLICY_FWD 
-> (=2) as index in sk->sk_policy.
-> 
-> sk->sk_policy[] is defined in sock.h as:
-> 
-> struct xfrm_policy *sk_policy[2];
-> 
-> Attached is the fix.
 
-This is bogus as if the packet is forwarded then sk == NULL.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--27ZtN5FSuKKSZcBU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, Sep 07, 2004 at 10:43:51PM +1000, Con Kolivas wrote:
+> Arjan van de Ven wrote:
+> >On Tue, 2004-09-07 at 14:23, Con Kolivas wrote:
+> >
+> >>Gcc3.4.1 has recently been complaining of a number of unused results 
+> >>from function with attribute warn_unused_result set. I'm not sure of how 
+> >>you want to tackle this so I'm avoiding posting patches. Should we 
+> >>remove the attribute (seems the likely option) or set some dummy 
+> >>variable (sounds stupid now that I ask it).
+> >
+> >
+> >that attribute is supposed to only be set for functions you really ought
+> >to check the result for.... so how about checking/using the result ?
+> 
+> I understand the concept... these are functions that seem to work fine 
+> without using the return value... unless of course the original coders 
+> aren't yet aware of that fact then I'm sorry. Here's the list just with 
+> my config on 2.6.9-rc1-bk13:
+
+> fs/binfmt_elf.c:273: warning: ignoring return value of `copy_to_user', 
+> declared with attribute warn_unused_result
+
+you really are supposed to use the return value of copy_to_user and friends.
+
+--27ZtN5FSuKKSZcBU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBPa3dxULwo51rQBIRAoHOAJ4j/ZVC53HPNk81DlQt33p53Ca3jgCeNfU/
+mKF+K7YnLN00Y2Bp5fsTzc4=
+=veb7
+-----END PGP SIGNATURE-----
+
+--27ZtN5FSuKKSZcBU--

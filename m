@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbTKHHfK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 02:35:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbTKHHfK
+	id S261645AbTKHHqg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 02:46:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbTKHHqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 02:35:10 -0500
-Received: from mxsf25.cluster1.charter.net ([209.225.28.225]:48651 "EHLO
-	mxsf25.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S261626AbTKHHfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 02:35:05 -0500
-Date: Sat, 8 Nov 2003 02:34:09 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: nforce2 random lockups - still no solution ?
-Message-ID: <20031108073409.GA7970@forming>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <3F95748E.8020202@tuwien.ac.at> <200311060111.06729.vda@port.imtp.ilyichevsk.odessa.ua> <3FAA2653.9020002@tuwien.ac.at> <1068234006.3fabf5162fd7b@horde.sandall.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 8 Nov 2003 02:46:36 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:13458
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261645AbTKHHqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 02:46:35 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6: value 0x37ffffff truncated to 0x37ffffff
+Date: Sat, 8 Nov 2003 01:42:44 -0600
+User-Agent: KMail/1.5
+References: <Pine.LNX.4.51.0311071628470.5963@dns.toxicfilms.tv>
+In-Reply-To: <Pine.LNX.4.51.0311071628470.5963@dns.toxicfilms.tv>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1068234006.3fabf5162fd7b@horde.sandall.us>
-X-Editor: GNU Emacs 21.1
-X-Operating-System: Debian GNU/Linux 2.6.0-test9-mm2 i686
-X-Processor: Athlon XP 2000+
-X-Uptime: 02:30:04 up 11:42,  2 users,  load average: 0.08, 0.02, 0.01
-User-Agent: Mutt/1.5.4i
-From: Josh McKinney <forming@charter.net>
+Message-Id: <200311080142.45003.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On approximately Fri, Nov 07, 2003 at 11:40:06AM -0800, Eric Sandall wrote:
-> Quoting Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>:
-> > It was local APIC ! After recompiling 2.4.22 without local apic 
-> > everything works smoothly since several  weeks. I wonder when there'll 
-> > be a kernel
-> > patch that really solves these nforce2/amd issues.
-> > Sam
-> 
-> Disabling local APIC on 2.6.0-test9-mm2 also fixes this (I haven't tried on
-> earlier kernels).
-> 
-> -sandalle
-> 
+On Friday 07 November 2003 09:36, Maciej Soltysiak wrote:
+> Hi,
+>
+> during make bzImage on 2.6 I notoriously get this warning:
+>
+> [exerpt]
+>   LD      vmlinux
+>   AS      arch/i386/boot/setup.o
+> arch/i386/boot/setup.S: Assembler messages:
+> arch/i386/boot/setup.S:165: Warning: value 0x37ffffff truncated to
+> 0x37ffffff LD      arch/i386/boot/setup
+>   OBJCOPY arch/i386/boot/compressed/vmlinux.bin
+> [eo exerpt]
+>
+> I have been browsing through the archives and I got the feeling
+> that this has been already been approached. But I am getting this
+> since I ever tried 2.5 (about 2.5.53). By 2.6.0-test9-bk11 it is
+> still there. I have been compiling on 2 different machines. I have
+> their specs.
+>
+> Is there anything I could supply to try to resolve this?
 
-I am seeing the same thing here.  Disk activity and APIC don't seem to
-do well.  What kind of performance hit if any are we taking by disabling
-APIC?
+What version of the tools you're using to compile it, maybe?  (Distro, gcc 
+version, binutils version, etc...  And if it's a non-intel system or 
+cross-compiling or something, that might be good to mention too...)
 
--- 
-Josh McKinney		     |	Webmaster: http://joshandangie.org
---------------------------------------------------------------------------
-                             | They that can give up essential liberty
-Linux, the choice       -o)  | to obtain a little temporary safety deserve 
-of the GNU generation    /\  | neither liberty or safety. 
-                        _\_v |                          -Benjamin Franklin
+Rob

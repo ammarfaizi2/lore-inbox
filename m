@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317678AbSGOXFx>; Mon, 15 Jul 2002 19:05:53 -0400
+	id <S317689AbSGOXGe>; Mon, 15 Jul 2002 19:06:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317687AbSGOXFw>; Mon, 15 Jul 2002 19:05:52 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:53649 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S317678AbSGOXFw>;
-	Mon, 15 Jul 2002 19:05:52 -0400
-Date: Tue, 16 Jul 2002 02:08:45 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Ketil Froyn <ketil-kernel@froyn.net>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-Message-ID: <20020716020845.Z28720@mea-ext.zmailer.org>
-References: <s5g7kjwsn12.fsf@egghead.curl.com> <Pine.LNX.4.44.0207152356430.19217-100000@lexx.infeline.org>
+	id <S317688AbSGOXGd>; Mon, 15 Jul 2002 19:06:33 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:54257 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317687AbSGOXGb>; Mon, 15 Jul 2002 19:06:31 -0400
+Subject: [PATCH] fix memory leak in socket.c
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 15 Jul 2002 16:09:26 -0700
+Message-Id: <1026774566.940.496.camel@sinai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207152356430.19217-100000@lexx.infeline.org>; from ketil-kernel@froyn.net on Mon, Jul 15, 2002 at 11:59:48PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 15, 2002 at 11:59:48PM +0200, Ketil Froyn wrote:
-> On 15 Jul 2002, Patrick J. LoPresti wrote:
-> > Without calling fsync(), you *never* know when the data will hit the
-> > disk.
-> 
-> Doesn't bdflush ensure that data is written to disk within 30 seconds or 
-> some tunable number of seconds?
+This fixes a memory leak in sock_fasync :: net/socket.c.
 
-  It TRIES TO, it does not guarantee anything.
+I sent a fix to Linus and it is now in 2.5.
 
-  The MTA systems are an example of software suites which have
-  transaction requirements.  The goal has been usually stated
-  as:  must not fail to deliver.
+2.4 and 2.4-ac still require the fix... the following patch applies to
+2.4.19-rc1 and 2.4.19-rc1-ac5.
 
-  Practical implementations without full-blown all encompassing
-  transactions will usually mean that the message "will be delivered
-  at least once", e.g. double-delivery can happen.
+	Robert Love
 
-  One view to MTA behaviour is moving the message from one substate
-  to another during its processing.
+diff -urN linux-2.4.19-sausage/net/socket.c linux/net/socket.c
+--- linux-sausage/net/socket.c	Mon Jun 10 15:26:30 2002
++++ linux/net/socket.c	Mon Jun 10 15:37:48 2002
+@@ -743,11 +743,13 @@
+ 			return -ENOMEM;
+ 	}
+ 
+-
+ 	sock = socki_lookup(filp->f_dentry->d_inode);
+ 	
+-	if ((sk=sock->sk) == NULL)
++	if ((sk=sock->sk) == NULL) {
++		if (fna)
++			kfree(fna);
+ 		return -EINVAL;
++	}
+ 
+ 	lock_sock(sk);
+ 
 
-  These days, usually, the transaction database for MTAs is UNIX
-  filesystem.   For ZMailer I have considered (although not actually
-  done - yet) using SleepyCat DB files for the transaction subsystem.
-  There are great challenges in failure compartementalisation, and
-  integrity, when using that kind of integrated database mechanisms.
-  Getting SEGV is potentially _very_ bad thing!
 
-> Ketil
 
-/Matti Aarnio

@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262931AbTELWQx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 18:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbTELWQw
+	id S262794AbTELWWE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 18:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262842AbTELWWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 18:16:52 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:48429 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S262931AbTELWQv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 18:16:51 -0400
-Subject: Re: PCMCIA 2.5.X sleeping from illegal context
-From: Paul Fulghum <paulkf@microgate.com>
+	Mon, 12 May 2003 18:22:03 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:22920 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262794AbTELWWA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 18:22:00 -0400
+Message-Id: <200305122229.h4CMTqJ5032241@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Hinds <dahinds@users.sourceforge.net>,
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052773631.31825.18.camel@dhcp22.swansea.linux.org.uk>
-References: <1052775331.1995.49.camel@diemos>
-	 <1052773631.31825.18.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052742964.1467.3.camel@doobie>
+Subject: Re: The disappearing sys_call_table export. 
+In-Reply-To: Your message of "Mon, 12 May 2003 22:19:51 BST."
+             <1052774389.31825.21.camel@dhcp22.swansea.linux.org.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <200305121754_MC3-1-388D-BC60@compuserve.com> <200305122212.h4CMCDJ5031682@turing-police.cc.vt.edu>
+            <1052774389.31825.21.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 12 May 2003 07:36:05 -0500
+Content-Type: multipart/signed; boundary="==_Exmh_-1753501222P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 12 May 2003 18:29:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-12 at 16:07, Alan Cox wrote:
-> On Llu, 2003-05-12 at 22:35, Paul Fulghum wrote:
-> > The 2.5.X PCMCIA kernel support seems to have a problem
-> > with drivers/pcmcia/rsrc_mgr.c in function undo_irq().
-> 
-> Does this still happen with all the patches Russell King posted
-> that everyone else is ignoring ?
+--==_Exmh_-1753501222P
+Content-Type: text/plain; charset=us-ascii
 
-I don't know, I've been ignoring them :-)
+On Mon, 12 May 2003 22:19:51 BST, Alan Cox said:
 
-Seriously, are they centralized someplace or
-should I scan back and try to extract them
-from the lk archive? Do you know about when
-they were posted?
+> 1. Base Linux is not C2 certified
+> 2. C2 is obsolete
 
-Thanks,
-Paul
+Right.. but the point was that the object-reuse stuff was known 20 years ago
+to have to be inside the TCB....  And in the Linux world, having /etc/rc?.d/
+and all the dependent code inside the TCB is just... ugly.. ;)
 
-Paul Fulghum
-paulkf@microgate.com
+--==_Exmh_-1753501222P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQE+wCBfcC3lWbTT17ARAnSqAKC/4NadCUMKhmaRiEhZBZzBhc5nggCfYbva
+hu2PEnh1/j7M0gsu305rhnE=
+=iXiR
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1753501222P--

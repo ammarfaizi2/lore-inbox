@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276347AbRJKN6z>; Thu, 11 Oct 2001 09:58:55 -0400
+	id <S276380AbRJKODZ>; Thu, 11 Oct 2001 10:03:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276370AbRJKN6f>; Thu, 11 Oct 2001 09:58:35 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:27367 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S276347AbRJKN62>;
-	Thu, 11 Oct 2001 09:58:28 -0400
-Date: Thu, 11 Oct 2001 09:58:59 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Vincent Sweeney <v.sweeney@dexterus.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Lost Partition
-In-Reply-To: <3BC5A493.3ED48320@dexterus.com>
-Message-ID: <Pine.GSO.4.21.0110110955391.22698-100000@weyl.math.psu.edu>
+	id <S276377AbRJKODP>; Thu, 11 Oct 2001 10:03:15 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:54492 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S276364AbRJKODA>; Thu, 11 Oct 2001 10:03:00 -0400
+Message-ID: <F4C5F64C4EBBD51198AD009027D61DB31C8154@otcexc01.otc.adaptec.com>
+From: "Bonds, Deanna" <Deanna_Bonds@adaptec.com>
+To: "'jkniiv@hushmail.com'" <jkniiv@hushmail.com>,
+        "Bonds, Deanna" <Deanna_Bonds@adaptec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: RE: Dilemma: Replace Escalade with Adaptec 2400A or Promise S
+	uper trak66?
+Date: Thu, 11 Oct 2001 10:03:22 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> <rant small=small>
+> Aha, then this is a matter of miscommunication, obviously! 
+> When looking at your Linux Downloads page, the last official 
+> version made available is for Red Hat 7.0, kernel 2.2.16-22. 
+> Navigating to the Unsupported RAID Drivers (presumably this 
+> means not "completely qualified") page, one finds drivers for 
+> more recent kernels but only a vague phrase "Applies to: All 
+> DPT I2O architecture based RAID cards". This hints of the 
+> *possibility* of the drivers working with a 2400A ATA RAID 
+> controller. But this is important pre-sales info: not all of 
+> us know reading from the product description that the 2400A 
+> is based on I2O or that it's compatible enough to be 
+> supported by your I2O family drivers! Please clarify this for 
+> prospective Linux customers.
+> </rant>
+
+Point noted.  We are in the process of making the web site clearer.  This is
+one of those things that I guess our linux group will just have to do
+ourselves.  While we are at it we are adding a message board so questions
+like this can be asked.
 
 
-On Thu, 11 Oct 2001, Vincent Sweeney wrote:
-
-> No luck I'm afraid. The patch applied successfully bit I still get
-> exactly the same problem.
-
-Please, do the following:
-
-dd if=/dev/hdb of=p0 bs=512 count=1
-dd if=/dev/hdb of=p1 bs=512 count=1 skip=1076355
-
-and mail the contents of p0 and p1.
-
+> Thanks for your clarifying comments, Deanna! I'll probably 
+> try my luck with your product next.
+> 
+Cool :-)

@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266626AbSLJFtl>; Tue, 10 Dec 2002 00:49:41 -0500
+	id <S266576AbSLJFvv>; Tue, 10 Dec 2002 00:51:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266627AbSLJFtl>; Tue, 10 Dec 2002 00:49:41 -0500
-Received: from grebe.mail.pas.earthlink.net ([207.217.120.46]:1154 "EHLO
-	grebe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S266626AbSLJFtk>; Tue, 10 Dec 2002 00:49:40 -0500
-Date: Mon, 9 Dec 2002 22:49:58 -0800 (PST)
+	id <S266578AbSLJFvv>; Tue, 10 Dec 2002 00:51:51 -0500
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:1767 "EHLO
+	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S266576AbSLJFvu>; Tue, 10 Dec 2002 00:51:50 -0500
+Date: Mon, 9 Dec 2002 22:52:18 -0800 (PST)
 From: James Simmons <jsimmons@infradead.org>
 X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Allan Duncan <allan.d@bigpond.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.51
-In-Reply-To: <3DF57FE0.7090300@bigpond.com>
-Message-ID: <Pine.LNX.4.33.0212092243260.2617-100000@maxwell.earthlink.net>
+To: CaT <cat@zip.com.au>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.51 (fbcon issues)
+In-Reply-To: <20021210055205.GA615@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0212092250400.2617-100000@maxwell.earthlink.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > The AGP reorg, fbdev merge, and the s390 updates also help make the patch
->                   ^^^^^^^^^^^
-> > quite large.
+> On Mon, Dec 09, 2002 at 07:17:19PM -0800, Linus Torvalds wrote:
+> >   o Ported riva and vga16fb over to new api. Thanks Antonia Daplas!!!
+> >     More optimizations in fbcon.c
 >
-> Unfortunately not all went well with this:
+> Almost but not quite. It boots fine by default but if I try to set the
+> vga setting to a 1024x768 screen in garbles a 640x480 rectangle in the
+> middle of my laptop screen and freezes. This mode worked fine under
+> 2.4.x so I know the chip is capable.
 >
-> drivers/video/matrox/matroxfb_base.h:52:25: video/fbcon.h: No such file or directory
+> lilo.conf
 >
-> ... and downwards thereafter.
+> image=/boot/vmlinuz
+>         label=linux
+>         alias=l
+>         read-only
+>         vga=0x317
+>         append="video=vesa:ywrap,mtrr"
+>
+> relevant bit out of .config:
+>
+> CONFIG_FB=y
+> CONFIG_FB_VGA16=y
 
-The matrox driver hasn't be ported yet. About 1/2 are now ported to the
-final api. Over the following week I will porting a bunch of new drivers.
-This is the final changes in the api so drivers can now be ported!!!! If
-you need help porting them email me and I'm here to help.
+Remove that. I bet its getting confussed between VESA and the vga16fb
+driver.
 
-P.S
-   I even was donated a SPARC 10 station!!! Thanks Chris!!!
+I would recommend you also disable VGA_CONSOLE.
 
-P.S.S
-
-   What I really need is a Radeon card :-)
-
+> CONFIG_FB_VESA=y
+> CONFIG_VIDEO_SELECT=y
+> CONFIG_VGA_CONSOLE=y
+> CONFIG_DUMMY_CONSOLE=y
+> CONFIG_FRAMEBUFFER_CONSOLE=y
+> CONFIG_PCI_CONSOLE=y
+> CONFIG_FONT_8x8=y
+> CONFIG_FONT_8x16=y
 
 

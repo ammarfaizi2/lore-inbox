@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267340AbSLEPsO>; Thu, 5 Dec 2002 10:48:14 -0500
+	id <S267339AbSLEPte>; Thu, 5 Dec 2002 10:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267341AbSLEPsO>; Thu, 5 Dec 2002 10:48:14 -0500
-Received: from herrmann.cherheim.etc.tu-bs.de ([134.169.163.222]:20229 "EHLO
-	herrmann.priv.cher.sinus.tu-bs.de") by vger.kernel.org with ESMTP
-	id <S267340AbSLEPsN>; Thu, 5 Dec 2002 10:48:13 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Felix Maibaum <f.maibaum@tu-bs.de>
+	id <S267341AbSLEPte>; Thu, 5 Dec 2002 10:49:34 -0500
+Received: from twinlark.arctic.org ([208.44.199.239]:44685 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id <S267339AbSLEPtd>; Thu, 5 Dec 2002 10:49:33 -0500
+Date: Thu, 5 Dec 2002 07:57:08 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.20 locks up after ide init on tyan s2460
-Date: Thu, 5 Dec 2002 16:55:43 +0100
-User-Agent: KMail/1.4.3
+Subject: HTB unsable? (was Re: 2.4.20-ac1 unstable on dual athlon)
+In-Reply-To: <Pine.LNX.4.50.0212041511240.31554-100000@twinlark.arctic.org>
+Message-ID: <Pine.LNX.4.50.0212050752150.26454-100000@twinlark.arctic.org>
+References: <Pine.LNX.4.50.0212041511240.31554-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200212051655.43554.f.maibaum@tu-bs.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 4 Dec 2002, dean gaudet wrote:
 
-fine-print first: I am sorry if this is a stupid question, I know you're all 
-very busy, but I have no other explanation for this than a kernel bug, so 
-here it goes:
+> i've got a dual athlon 1.4GHz / 760MP (tyan 2462) which has been solid on
+> 2.4.19-pre7-ac4, but which reboot twice in 2 days with 2.4.20-ac1.
+>
+> i then added "noapic" and the 2.4.20-ac1 kernel lasted all of 5 minutes
+> before rebooting.
+>
+> no messages appeared on serial console.
+>
+> the kernel configs differed only in that i enabled HTB on the 2.4.20-ac1
+> kernel.  i've now patched the 2.4.19-pre7-ac4 kernel with HTB and i'll run
+> with this for a while.  below is the config i used for 2.4.20-ac1.
 
-I compiled 2.4.20 on my Tyan s2460 with 2 AMD XP1700+,
-and after the ide init of the promise Ultra66 contoller I get the following 
-message:
+the system rebooted after 8 hours with the 2.4.19-pre7-ac4 + HTB kernel as
+well... so perhaps the relevent change is the use of HTB.
 
-blk: queue c032d16c, I/O limit 4095Mb (mask 0xffffffff)
+or perhaps my hardware has gone bad.
 
-and the system locks up (no NumLock, no magic sysreq.).
-This happened with the vanilla kernel as well as with the sources from debian.
-To avoid an attachment I put my kernel config up at:
+these reboots without anything logged are frustrating.
 
-http://www.tu-bs.de/~y0013531/kernel_config_2.4.20
-
-other hardware in the system is:
-512M of main memory, 80G maxtor on hde, 30 and 45G IBM on hdg and hdh, this is 
-the promise ultra66.
-on the onboard controller there is a toshiba DVD, a plextor 12X CD/RW and a 
-Pioneer DVD-R/RW,
-NVIDIA Geforce2pro,
-3com Boomerang 10/100 Ethernet
-creative SBLive 1024
-
-Since I don't subscribe to the list for traffic reasons, please cc me or 
-answer directly. If more data is needed I'll be glad to provide it.
-
-Thanks
-
-Felix
-
+-dean

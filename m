@@ -1,40 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266846AbTAORrJ>; Wed, 15 Jan 2003 12:47:09 -0500
+	id <S266936AbTAORzH>; Wed, 15 Jan 2003 12:55:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266848AbTAORrI>; Wed, 15 Jan 2003 12:47:08 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:26117 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S266846AbTAORrI>; Wed, 15 Jan 2003 12:47:08 -0500
-Message-ID: <3E258CE7.D5E34C6E@linux-m68k.org>
-Date: Wed, 15 Jan 2003 17:31:35 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] add module reference to struct tty_driver
-References: <20030113054708.GA3604@kroah.com> <20030114200719.B4077@flint.arm.linux.org.uk> <20030114220859.GA17226@kroah.com> <20030115100001.D31372@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266938AbTAORzH>; Wed, 15 Jan 2003 12:55:07 -0500
+Received: from dialin-145-254-149-038.arcor-ip.net ([145.254.149.38]:39552
+	"HELO schottelius.net") by vger.kernel.org with SMTP
+	id <S266936AbTAORzF>; Wed, 15 Jan 2003 12:55:05 -0500
+Date: Wed, 15 Jan 2003 14:32:17 +0100
+From: Nico Schottelius <schottelius@wdt.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.4.21pre2 trident / ali5451
+Message-ID: <20030115133217.GA814@schottelius.org>
+References: <20021228021630.GA324@schottelius.org> <20030114231141.GF15211@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
+Content-Disposition: inline
+In-Reply-To: <20030114231141.GF15211@fs.tum.de>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux flapp 2.5.54
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> On Tue, Jan 14, 2003 at 02:08:59PM -0800, Greg KH wrote:
-> > Woah!  Hm, this is going to cause lots of problems in drivers that have
-> > been assuming that the BKL is grabbed during module unload, and during
-> > open().  Hm, time to just fallback on the argument, "module unloading is
-> > unsafe" :(
-> 
-> Note that its the same in 2.4 as well.  iirc, the BKL was removed from
-> module loading/unloading sometime in the 2.3 timeline.
 
-Um, my copy of 2.4 module.c still has lock_kernel()/unlock_kernel() all
-over it and I'm quite sure that didn't change until 2.5.47.
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-bye, Roman
+Adrian Bunk [Wed, Jan 15, 2003 at 12:11:42AM +0100]:
+> On Sat, Dec 28, 2002 at 02:16:30AM +0000, Nico Schottelius wrote:
+> > trident.o doesn load anymore...
+> > while trying to insert it, the whole system hangs.
+> >=20
+> > flapp:/home/user/nico/ccc/video # modprobe trident
+> > /lib/modules/2.4.21-pre2/kernel/drivers/sound/trident.o: init_module: N=
+o such device
+> > Hint: insmod errors can be caused by incorrect module parameters, inclu=
+ding invalid IO or IRQ parameters.
+> >       You may find more information in syslog or the output from dmesg
+> > /lib/modules/2.4.21-pre2/kernel/drivers/sound/trident.o: insmod /lib/mo=
+dules/2.4.21-pre2/kernel/drivers/sound/trident.o failed
+> > /lib/modules/2.4.21-pre2/kernel/drivers/sound/trident.o: insmod trident=
+ failed
+> >...
+> > In 2.4.19 it worked, in 2.5.53 the alsa device works, but trident not, =
+again.
+>=20
+> Did 2.4.20 work?
 
+yes, afai can remember. I turned to 2.5.series very early, because of the
+ide driver problem in 2.4.19/20.
 
+> If not, please undo the changes below in 2.4.20 (pipe this mail to
+> "patch -p1 -R") and check whether this modified 2.4.20 works for you.
+
+can you send me plain modified 2.4.20 trident.c, so I can simlpt insert it
+into 2.4.21pre3 ?
+
+Nico
+
+--FL5UXtIhxfXey3p5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE+JWLhtnlUggLJsX0RAkgFAKCgeWCS1FZ5emjg7YLbh9/33BnzugCdEQro
+EPFJDn1Xu9Hb7IWygIPdigg=
+=OC2P
+-----END PGP SIGNATURE-----
+
+--FL5UXtIhxfXey3p5--

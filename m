@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261384AbREQJs4>; Thu, 17 May 2001 05:48:56 -0400
+	id <S261385AbREQJwr>; Thu, 17 May 2001 05:52:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261385AbREQJsq>; Thu, 17 May 2001 05:48:46 -0400
-Received: from uunet-gw.macroscoop.nl ([195.193.201.73]:17933 "EHLO
-	mondriaan.macroscoop.nl") by vger.kernel.org with ESMTP
-	id <S261384AbREQJsc> convert rfc822-to-8bit; Thu, 17 May 2001 05:48:32 -0400
-From: Pim Zandbergen <P.Zandbergen@macroscoop.nl>
-To: ps <ps@rzeczpospolita.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RH 7.1 on IBM xSeries 240
-Date: Thu, 17 May 2001 11:48:25 +0200
-Organization: Macroscoop BV
-Message-ID: <t977gtcpq17r85vlggngi9mk3a1k6qt01u@4ax.com>
-In-Reply-To: <fa.fhhq4kv.gguq9t@ifi.uio.no> <fa.fuo78ov.ikad9g@ifi.uio.no>
-In-Reply-To: <fa.fuo78ov.ikad9g@ifi.uio.no>
-X-Mailer: Forte Agent 1.8/32.548
+	id <S261386AbREQJwh>; Thu, 17 May 2001 05:52:37 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:21697 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S261385AbREQJwc>;
+	Thu, 17 May 2001 05:52:32 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
+Message-ID: <15107.40572.438895.503360@harpo.it.uu.se>
+Date: Thu, 17 May 2001 11:48:44 +0200
+To: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: CPU overheat with 2.2
+In-Reply-To: <Pine.LNX.4.31.0105170949430.29086-500000@phobos.fachschaften.tu-muenchen.de>
+In-Reply-To: <Pine.LNX.4.31.0105170949430.29086-500000@phobos.fachschaften.tu-muenchen.de>
+X-Mailer: VM 6.76 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Simon Richter writes:
+ > I just switched my brother's computer to a 2.2 kernel, and now the CPU
+ > overheats under Linux after about half an hour (reproducible). It works
+ > fine under Windows 95b and worked under Linux 2.0.38.
+ > 
+ > CPU is a Pentium 166 MMX on an Asus TX97 mainboard, ISA cards are a 3c509
+ > and a Soundblaster.
+ > ...
+ > CONFIG_APM=y
+ > CONFIG_APM_DO_ENABLE=y
+ > CONFIG_APM_CPU_IDLE=y
+ > CONFIG_APM_DISPLAY_BLANK=y
 
->Yes, I have the newest BIOS and SR Firmware.
->I have 2 x 1GHz CPUs and IBM PCI ServeRAID 4.71.00  <ServeRAID 4L>
+Try leaving CONFIG_APM_CPU_IDLE unset. I've learned the hard way that this
+option doesn't do any good on many boards, and actually can _increase_ the
+CPU temperature by preventing Linux' ordinary "hlt when idle" from triggering.
+My ASUS P3B-F + PIII dropped 10+ degrees C when I unset CONFIG_APM_CPU_IDLE.
+YMMW, of course.
 
-You mean all of BIOS, firmware and Linux driver are at version 4.71?
-
-Where did you find BIOS 4.71 and firmware 4.71?
-The latest BIOS & firmware I could find is 4.50.
-
-There is, however a driver version 4.72 in the latest 2.4.4-ac
-kernels.
-
-Pim
+/Mikael

@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbTIPXxk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 19:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbTIPXxk
+	id S262576AbTIPXpo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 19:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTIPXpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 19:53:40 -0400
-Received: from ns.schottelius.org ([213.146.113.242]:61580 "HELO
-	flapp.schottelius.org") by vger.kernel.org with SMTP
-	id S262580AbTIPXxi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 19:53:38 -0400
-Date: Wed, 17 Sep 2003 01:51:04 +0200
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: linux-net@vger.kernel.org
-Subject: 3com problems
-Message-ID: <20030916235104.GA27089@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-net@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
-Content-Disposition: inline
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux flapp 2.6.0-test5
-User-Agent: Mutt/1.5.4i
+	Tue, 16 Sep 2003 19:45:43 -0400
+Received: from ns.suse.de ([195.135.220.2]:18832 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262576AbTIPXpl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 19:45:41 -0400
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Options for handling  buggy PCI/PCI-X hardware when MSI is enabled
+References: <7F740D512C7C1046AB53446D3720017304AF60@scsmsx402.sc.intel.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 17 Sep 2003 01:45:38 +0200
+In-Reply-To: <7F740D512C7C1046AB53446D3720017304AF60@scsmsx402.sc.intel.com.suse.lists.linux.kernel>
+Message-ID: <p73ekygnvq5.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Nakajima, Jun" <jun.nakajima@intel.com> writes:
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> "Blacklist" approach using PCI_quirks.c
+> ---------------------------------------
+> Pros
+>    - Places the burden to fix broken HW on the HW owners
+>    - Consistent with the current MSI patch (enable all by default)
+>    - A simple fix and minimum patch size (Patch already exists)
+> Cons
+>    - Core kernel impact (larger image size)
 
-since using test2 the 3com cards 3c90x transfer _very_ slow.
-this is reported by a friend a verified here.
-2.4.22 is fine.
+And worse one has to submit patches for the core kernel all the time.
+And it's a single table, which means there will be lots of conflicts 
+when merging patches.
 
-any changes in test3-test5?
+I think the new API approach is much better. Best would be if there
+was a relatively simple standard way to add it to drivers  (like a 
+standard module option). Then one could add it to a lot of drivers 
+with default to off. Users can test then and if it works the default
+can be changed.
 
-Nico
-
---=20
-quote:   there are two time a day you should do nothing: before 12 and afte=
-r 12
-         (Nico Schottelius after writin' a very senseless email)
-cmd:     echo God bless America | sed 's/.*\(A.*\)$/Why \1?/'
-pgp:     new id: 0x8D0E27A4 | ftp.schottelius.org/pub/family/nico/pgp-key.n=
-ew
-url:     http://nerd-hosting.net - domains for nerds (from a nerd)
-
---BXVAT5kNtrzKuDFl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/Z6HozGnTqo0OJ6QRAjHbAJ0YdhFFCNhJLmIcQHXEPv3PI6WLMwCguP90
-KFvyw0OXrvPhKiZYAVgtT2M=
-=Nl4Z
------END PGP SIGNATURE-----
-
---BXVAT5kNtrzKuDFl--
+-Andi

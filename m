@@ -1,38 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263517AbRFANyX>; Fri, 1 Jun 2001 09:54:23 -0400
+	id <S263078AbRFANwd>; Fri, 1 Jun 2001 09:52:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263523AbRFANyD>; Fri, 1 Jun 2001 09:54:03 -0400
-Received: from sovereign.org ([209.180.91.170]:59103 "EHLO lux.homenet")
-	by vger.kernel.org with ESMTP id <S263522AbRFANyA>;
-	Fri, 1 Jun 2001 09:54:00 -0400
-From: Jim Freeman <jfree@sovereign.org>
-Date: Fri, 1 Jun 2001 07:54:27 -0600
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: Remaining undocumented Configure.help symbols
-Message-ID: <20010601075427.A23321@sovereign.org>
-In-Reply-To: <20010529145940.A11498@thyrsus.com> <20010530185542.R14293@corellia.laforge.distro.conectiva> <20010530182012.D1305@thyrsus.com> <20010531144328.A16811@sovereign.org> <20010531191055.A13056@thyrsus.com>
+	id <S263522AbRFANwN>; Fri, 1 Jun 2001 09:52:13 -0400
+Received: from isolaweb.it ([213.82.132.2]:27911 "EHLO web.isolaweb.it")
+	by vger.kernel.org with ESMTP id <S263078AbRFANwC>;
+	Fri, 1 Jun 2001 09:52:02 -0400
+Message-Id: <5.1.0.14.2.20010601153759.00a31550@mail.tekno-soft.it>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 01 Jun 2001 15:49:26 +0200
+To: linux-kernel@vger.kernel.org
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: HDD Errors ?!
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010531191055.A13056@thyrsus.com>
-User-Agent: Mutt/1.3.18i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
-On Thu, May 31, 2001 at 07:10:55PM -0400, Eric S. Raymond wrote:
-> Jim Freeman <jfree@sovereign.org>:
-> > The verbiage in these entries seems 'make config' / text-interaction
-> > -centric.  Granted, that's likely the context most kernel builders will
-> > use, but it would seem fair to at least consider a broader audience
-> > who may be using more gui-ish tools wrapped around extant content.
-> 
-> This is a general problem with almost all the existing entries, and
-> will have to await a future editing pass for solution.  For now I think
-> it's more important to have consistent cues that users can recognize,
-> even if they're not literally appropriate.
+today I found this in my /var/log/messages:
 
-Agreed - in the meantime, just wanted to have the issue acknowledged
-and put on the roadmap.
+Jun  1 05:26:47 radius kernel: hda: read_intr: status=0x59 { DriveReady 
+SeekComplete DataRequest Error }
+Jun  1 05:26:47 radius kernel: hda: read_intr: error=0x40 { 
+UncorrectableError }, LBAsect=25358813, sector=25165970
+Jun  1 05:26:47 radius kernel: end_request: I/O error, dev 03:06 (hda), 
+sector 25165970
+Jun  1 05:26:47 radius kernel: EXT2-fs error (device ide0(3,6)): 
+ext2_read_inode: unable to read inode block - inode=1570229, block=3145746
+Jun  1 05:26:53 radius kernel: hda: read_intr: status=0x59 { DriveReady 
+SeekComplete DataRequest Error }
+Jun  1 05:26:53 radius kernel: hda: read_intr: error=0x40 { 
+UncorrectableError }, LBAsect=25358813, sector=25165970
+Jun  1 05:26:53 radius kernel: end_request: I/O error, dev 03:06 (hda), 
+sector 25165970
+Jun  1 05:26:53 radius kernel: EXT2-fs error (device ide0(3,6)): 
+ext2_write_inode: unable to read inode block - inode=1570229, block=3145746
+Jun  1 05:27:18 radius kernel: hda: read_intr: status=0x59 { DriveReady 
+SeekComplete DataRequest Error }
+Jun  1 05:27:18 radius kernel: hda: read_intr: error=0x40 { 
+UncorrectableError }, LBAsect=25096667, sector=24903824
+Jun  1 05:27:18 radius kernel: end_request: I/O error, dev 03:06 (hda), 
+sector 24903824
+Jun  1 05:27:18 radius kernel: EXT2-fs error (device ide0(3,6)): 
+ext2_read_inode: unable to read inode block - inode=1553880, block=3112978
+Jun  1 05:27:23 radius kernel: hda: read_intr: status=0x59 { DriveReady 
+SeekComplete DataRequest Error }
+Jun  1 05:27:23 radius kernel: hda: read_intr: error=0x40 { 
+UncorrectableError }, LBAsect=25096667, sector=24903824
+Jun  1 05:27:23 radius kernel: end_request: I/O error, dev 03:06 (hda), 
+sector 24903824
+Jun  1 05:27:23 radius kernel: EXT2-fs error (device ide0(3,6)): 
+ext2_write_inode: unable to read inode block - inode=1553880, block=3112978
+
+It's a disk error or a FS error ? What can I do to fix the problem ? I 
+500Km distant from this machine :-(
+and I want made some check remotely before reboot it.
+
+Any suggestion ?
+
+Thanks in advance.
+
+
+Roberto Fichera.
+

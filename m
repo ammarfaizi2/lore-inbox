@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133038AbQLHWEj>; Fri, 8 Dec 2000 17:04:39 -0500
+	id <S132857AbQLHWJB>; Fri, 8 Dec 2000 17:09:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132857AbQLHWE3>; Fri, 8 Dec 2000 17:04:29 -0500
-Received: from smtp-fwd.valinux.com ([198.186.202.196]:45317 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S133038AbQLHWER>;
-	Fri, 8 Dec 2000 17:04:17 -0500
-Date: Fri, 8 Dec 2000 13:34:58 -0800
-From: David Hinds <dhinds@valinux.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: tytso@mit.edu, rgooch@ras.ucalgary.ca,
-        jgarzik@mandrakesoft.mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: Serial cardbus code.... for testing, please.....
-Message-ID: <20001208133458.A24163@valinux.com>
-In-Reply-To: <200012081805.eB8I5AT08790@snap.thunk.org> <Pine.LNX.4.10.10012081319010.11626-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.6i
-In-Reply-To: <Pine.LNX.4.10.10012081319010.11626-100000@penguin.transmeta.com>; from Linus Torvalds on Fri, Dec 08, 2000 at 01:27:51PM -0800
+	id <S133021AbQLHWIu>; Fri, 8 Dec 2000 17:08:50 -0500
+Received: from gw.lowendale.com.au ([203.26.242.120]:40482 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S132857AbQLHWIm>; Fri, 8 Dec 2000 17:08:42 -0500
+Date: Sat, 9 Dec 2000 09:03:25 +1100 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18pre21 oops reading /proc/apm
+In-Reply-To: <E144O1a-0003vF-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.05.10012090901180.16389-100000@marina.lowendale.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2000 at 01:27:51PM -0800, Linus Torvalds wrote:
+On Fri, 8 Dec 2000, Alan Cox wrote:
+
+> > Is there anything else I can contribute?
 > 
-> (Of course, I use tulip instead of epic100, so maybe there's an epic
-> driver bug, but it's definitely hotplug-aware).
+> The latitude and longtitude of the bios writers current position, and
+> a ballistic missile.
 
-There could be a problem in the epic driver; I've never had a card
-that uses this driver and have only limited user feedback.  Some
-people say it works, others not... but I have not even been able to
-tell if the problems are actually in the epic driver or elsewhere.
+;-)
 
--- Dave
+> Please boot 2.2.18pre24 (not pre25) [...]
+
+Please pardon the naive question: is pre-patch-2.2.18-24 to be applied
+over 2.2.17?
+
+Thanks,
+Neale.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,123 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129810AbRAZV5b>; Fri, 26 Jan 2001 16:57:31 -0500
+	id <S130329AbRAZWAK>; Fri, 26 Jan 2001 17:00:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130329AbRAZV5J>; Fri, 26 Jan 2001 16:57:09 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:1540 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129810AbRAZV5C>; Fri, 26 Jan 2001 16:57:02 -0500
-Date: Fri, 26 Jan 2001 16:40:28 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Kjartan Maraas <kmaraas@online.no>
-cc: "Trever L. Adams" <trever_Adams@bigfoot.com>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Total loss with 2.4.0 (release)
-In-Reply-To: <200101251354.OAA08991@mail50.fg.online.no>
-Message-ID: <Pine.LNX.4.32.0101261611300.791-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131141AbRAZWAA>; Fri, 26 Jan 2001 17:00:00 -0500
+Received: from alcove.wittsend.com ([130.205.0.20]:4370 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S130329AbRAZV7o>; Fri, 26 Jan 2001 16:59:44 -0500
+Date: Fri, 26 Jan 2001 16:59:13 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: sl@fireplug.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+Message-ID: <20010126165913.D1432@alcove.wittsend.com>
+Mail-Followup-To: sl@fireplug.net, linux-kernel@vger.kernel.org
+In-Reply-To: <980523239.30846@whiskey.enposte.net> <94sriq$4b7$1@whiskey.enposte.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <94sriq$4b7$1@whiskey.enposte.net>; from sl@whiskey.fireplug.net on Fri, Jan 26, 2001 at 01:52:26PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Jan 2001, Kjartan Maraas wrote:
+On Fri, Jan 26, 2001 at 01:52:26PM -0800, Stuart Lynne wrote:
+> In article <980523239.30846@whiskey.enposte.net>,
+> James Sutherland <jas88@cam.ac.uk> wrote:
+> >On Fri, 26 Jan 2001, Lars Marowsky-Bree wrote:
 
->> Whwnever you install/upgrade any OS and especially M$ ones on a
->> multiboot machine, you should always ensure ahead of time that
->> they will play nicely together, agree on geometry translation
->> schemes, partitioning schemes, etc, and that any option to take
->> over the whole machine is turned off.  Windows NT defaults to
->> "fry the whole disk", but I don't know about ME or W2K as they
->> are IMHO just bloat + new pictures, etc..
->>
->> I know if you have a 8G drive or larger, and install NT4 on it it
->> will fry everything entirely unless you stand on your head and
->> read about 50 MS kb articles.  Thankfully, I will _never_ have to
->> encounter this sort of thing again though.  ;o)
->>
->I'm sitting here doing an install of NT4 on a box with a 10 gig
->
->drive containing three partitions (two W2K and one ext2). The nice NT4
->install asked me nicely which partition I wanted to install on:
->NTFS      4GB
->Unknown 1 GB (ext2)
->NTFS      5GB
->
->This doesn't look like "default to fry everything" to me. It's nicer if
->we stick to the facts...
+> >Except you can't retry without ECN, because DaveM wants to do a Microsoft
+> >and force ECN on everyone, whether they like it or not. If ECN is so
 
-Yes, lets do that.  Lets stick to some facts:
+> No, he just wants them to ignore it like they are supposed to do if
+> they don't know what it is.
 
-1) One single person (you) not having a problem does not mean in
-   any way that this is the way it occurs for 100% of the
-   userbase.  There are way too many different computer systems
-   in use today, with varying hardware problems, software
-   problems, etc.  Making a carte blanche statement which more or
-   less says "it works for me so you don't know what you're
-   talking about" is arrogant and does not help anyone.
+> >wonderful, why doesn't anybody actually WANT to use it anyway?
 
-2) I've installed systems like this a LOT and _have_ had problems
-   with NT4 on ALL of them that had disks larger than 8G.
+> Because they are stupid and don't want to take the time and energy
+> to upgrade their systems. 
 
-3) The solution to the problems I (and numerous others have had)
-   for these NT related problems are acknowledged problems with
-   Microsuck NT, and are dealt with by Microsoft Knowledgebase
-   articles.
+> Most ISP's have the generic rule, if it ain't broke, don't fuck with it.
+> Even the mighty microsoft learned just two days ago what happens if you
+> make mistakes changing routing information.
 
-These knowledgebase articles point out many problems NT has with
-large disks both during install time as well as after install
-time, numerous problems NT has with partition sizes and
-locations, especially on large IDE hard disks.
+	No...  Microsoft learned, just two days ago, something that has
+been part of best practices for over 15 years.  Do NOT put all of your
+DNS servers on the same network!  The technical error may have triggered
+the meltdown but if they had distributed their DNS the way they were
+suppose to, it would have NOT taken them totally out.  It wasn't the
+technician's mistake.  It was the single point of failure (and subsequently
+the single point of attack).  He just triggered it.
 
-Due to these problems, if you do not follow exact procedures
-carefully, and have an OS installed on such a disk, you can and
-most likely _will_ fry all OS's and data when installing Windows
-NT4 (both WS and SRV).
+> -- 
+>                                             __O 
+> Lineo - For Emedded Linux Solutions       _-\<,_ 
+> PGP Fingerprint: 28 E2 A0 15 99 62 9A 00 (_)/ (_) 88 EC A3 EE 2D 1C 15 68
+> Stuart Lynne <sl@fireplug.net>       www.fireplug.net        604-461-7532
 
-Actually, just so we're being "factual" here, and so this thread
-doesn't go on to the "oh yeah? lets see page numbers then" stage,
-I will spend the 10 minutes to cut this thread dead right now for
-everyone.
-
-For your viewing pleasure - the "facts":
-
-Afticle Q114841: Windows NT Boot Process and Hard Disk Constraints
-http://support.microsoft.com/support/kb/articles/Q114/8/41.ASP
-
-Article Q119497: Boot Partition Created During Setup Limited to 4 Gigabytes
-http://support.microsoft.com/support/kb/articles/Q119/4/97.ASP
-
-Article Q197667: Installing Windows NT on a Large IDE Hard Disk
-http://support.microsoft.com/support/kb/articles/Q197/6/67.ASP
-
-Article Q224526: Windows NT 4.0 Supports Maximum of 7.8-GB System Partition
-http://support.microsoft.com/support/kb/articles/Q224/5/26.ASP
-
-Fortunately I still had the above links bookmarked so it was
-painless nor time consuming to educate you.
-
-Are there any other facts that you'd like to discuss?
-Preferably not ones about Microsoft... I hate their damned
-website.  Doesn't work with Mozilla either...  (custom build of
-a CVS snapshot before you try to say "mozilla works for me on
-their site")...
-
-
-
-
-
-
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-If you're interested in computer security, and want to stay on top of the
-latest security exploits, and other information, visit:
-
-http://www.securityfocus.com
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311871AbSECN2h>; Fri, 3 May 2002 09:28:37 -0400
+	id <S311884AbSECNbQ>; Fri, 3 May 2002 09:31:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311884AbSECN2g>; Fri, 3 May 2002 09:28:36 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1545 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311871AbSECN2g>; Fri, 3 May 2002 09:28:36 -0400
-Subject: Re: Linux 2.4.19-pre8
-To: bunk@fs.tum.de (Adrian Bunk)
-Date: Fri, 3 May 2002 14:43:25 +0100 (BST)
-Cc: marcelo@conectiva.com.br (Marcelo Tosatti),
-        linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <Pine.NEB.4.44.0205031239430.2605-100000@mimas.fachschaften.tu-muenchen.de> from "Adrian Bunk" at May 03, 2002 12:42:46 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E173dLJ-0006L4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S311898AbSECNbP>; Fri, 3 May 2002 09:31:15 -0400
+Received: from smtp.comcast.net ([24.153.64.2]:24142 "EHLO mtaout05")
+	by vger.kernel.org with ESMTP id <S311884AbSECNbO>;
+	Fri, 3 May 2002 09:31:14 -0400
+Date: Fri, 03 May 2002 09:25:12 -0400
+From: Russell Leighton <russ@elegant-software.com>
+Subject: Linux 2.4 as a router, when is it appropriate?
+To: linux-kernel@vger.kernel.org
+Message-id: <3CD28FB8.40204@elegant-software.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.9)
+ Gecko/20020311
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 8253xdbg.o 8253xplx.o 8253xtty.o 8253xchr.o 8253xint.o amcc5920.o
-> 8253xmcs.o 8253xutl.o
-> make[4]: *** No rule to make target `8253xcfg.c', needed by `8253xcfg'.
-> Stop.
-> make[4]: Leaving directory
-> `/home/bunk/linux/kernel-2.4/linux/drivers/net/wan/8253x'
 
-Oops. I probably forgot to send Marcelo the makefile tweak
+Could someone please tell me (or refer me to docs) on when
+using the Linux on PC hardware as a router is an appropriate
+solution and when one should consider a "real" router (e.g., Cisco)?
 
-> It seems 8253xcfg.c was accidentially not included.
+I have heard that performance wise, if you have a fast CPU,
+much memory and good NICs that Linux can be as good
+all but the high end routers. Are there important missing
+features or realiability issues that make using Linux not
+suitable for "enterprise" use?
 
-Remove it from the makefile and it should all be happy
+Thanks.
 
-Alan
---
-'On the other hand, you sometimes wish the world, like nethack, had some sort
- of "Genocide All Stupid People" key sequence.'  - Alec Muffett
+Russ
+
+
+

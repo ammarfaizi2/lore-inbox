@@ -1,83 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbUAYAjR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 19:39:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbUAYAjQ
+	id S262714AbUAYAtO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 19:49:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbUAYAtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 19:39:16 -0500
-Received: from dsl081-085-091.lax1.dsl.speakeasy.net ([64.81.85.91]:60289 "EHLO
+	Sat, 24 Jan 2004 19:49:14 -0500
+Received: from dsl081-085-091.lax1.dsl.speakeasy.net ([64.81.85.91]:61569 "EHLO
 	mrhankey.megahappy.net") by vger.kernel.org with ESMTP
-	id S261262AbUAYAjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 19:39:14 -0500
-Date: Sat, 24 Jan 2004 16:38:20 -0800 (PST)
+	id S262714AbUAYAtM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 19:49:12 -0500
+Date: Sat, 24 Jan 2004 16:48:18 -0800 (PST)
 From: Bryan Whitehead <driver@megahappy.net>
 X-X-Sender: driver@mrhankey.homeip.net
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, nathans@sgi.com,
-       owner-xfs@oss.sgi.com
-Subject: Re: [PATCH 2.6.2-rc1-mm2] fs/xfs/xfs_log_recover.c
-In-Reply-To: <20040124082606.A3107@infradead.org>
-Message-ID: <Pine.LNX.4.58.0401241633440.20068@mrhankey.homeip.net>
-References: <20040124073111.34B2313A354@mrhankey.megahappy.net>
- <20040124082606.A3107@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       tulip-users@lists.sourceforge.net
+Subject: Re: [PATCH 2.6.2-rc1-mm2] drivers/net/tulip/tulip_core.c
+In-Reply-To: <4012E0DA.7050808@pobox.com>
+Message-ID: <Pine.LNX.4.58.0401241646240.32008@mrhankey.homeip.net>
+References: <20040124080217.ED53113A354@mrhankey.megahappy.net>
+ <4012E0DA.7050808@pobox.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I should have been more clear in the frist email. Sorry.
+You needed -p0 or I'm still on crack and don't know how to diff... Either 
+way let me know...
 
-The variable "flags" is used in an if statement without having a value 
-assigned.
-
-There is 2 switch statements that do this: (ITEM_TYPE(itemq) They execute 
-one right after the other with no returns. So it is redundant.
-
-I think the patch fixes a cut/paste accident...
-
-Here is a more complete diff so you can see what is going on:
---- fs/xfs/xfs_log_recover.c.orig       2004-01-23 23:17:35.402907768 
--0800
-+++ fs/xfs/xfs_log_recover.c    2004-01-23 23:19:09.368622808 -0800
-@@ -1539,27 +1539,20 @@
-                itemq_next = itemq->ri_next;
-                buf_f = (xfs_buf_log_format_t *)itemq->ri_buf[0].i_addr;
-                switch (ITEM_TYPE(itemq)) {
-                case XFS_LI_BUF:
-                        flags = buf_f->blf_flags;
-                        break;
-                case XFS_LI_6_1_BUF:
-                case XFS_LI_5_3_BUF:
-                        obuf_f = (xfs_buf_log_format_v1_t*)buf_f;
-                        flags = obuf_f->blf_flags;
--                       break;
--               }
--
--               switch (ITEM_TYPE(itemq)) {
--               case XFS_LI_BUF:
--               case XFS_LI_6_1_BUF:
--               case XFS_LI_5_3_BUF:
-                        if (!(flags & XFS_BLI_CANCEL)) {
-                                
-xlog_recover_insert_item_frontq(&trans->r_itemq,
-                                                                itemq);
-                                break;
-                        }
-                case XFS_LI_INODE:
-                case XFS_LI_6_1_INODE:
-                case XFS_LI_5_3_INODE:
-                case XFS_LI_DQUOT:
-                case XFS_LI_QUOTAOFF:
+This should work for patch -sp1:
+--- linux-2.6.2-rc1-mm2/drivers/net/tulip/tulip_core.c.orig     2004-01-24 
+16:41:06.799528688 -0800
++++ linux-2.6.2-rc1-mm2/drivers/net/tulip/tulip_core.c  2004-01-24 
+16:40:14.521476160 -0800
+@@ -246,21 +246,23 @@
+ static void tulip_tx_timeout(struct net_device *dev);
+ static void tulip_init_ring(struct net_device *dev);
+ static int tulip_start_xmit(struct sk_buff *skb, struct net_device *dev);
+ static int tulip_open(struct net_device *dev);
+ static int tulip_close(struct net_device *dev);
+ static void tulip_up(struct net_device *dev);
+ static void tulip_down(struct net_device *dev);
+ static struct net_device_stats *tulip_get_stats(struct net_device *dev);
+ static int private_ioctl(struct net_device *dev, struct ifreq *rq, int 
+cmd);
+ static void set_rx_mode(struct net_device *dev);
++#ifdef CONFIG_NET_POLL_CONTROLLER
+ static void poll_tulip(struct net_device *dev);
++#endif
+  
+  
+ static void tulip_set_power_state (struct tulip_private *tp,
+                                   int sleep, int snooze)
+ {
+        if (tp->flags & HAS_ACPI) {
+                u32 tmp, newtmp;
+                pci_read_config_dword (tp->pdev, CFDD, &tmp);
+                newtmp = tmp & ~(CFDD_Sleep | CFDD_Snooze);
+                if (sleep)
 
 
+On Sat, 24 Jan 2004, Jeff Garzik wrote:
 
-On Sat, 24 Jan 2004, Christoph Hellwig wrote:
-
-> On Fri, Jan 23, 2004 at 11:31:11PM -0800, Bryan Whitehead wrote:
+> Bryan Whitehead wrote:
+> > This fixes a warning if CONFIG_NET_POLL_CONTROLLER is NOT set.
 > > 
-> > This fixes a warning on compile of the xfs fs module.
+> > --- drivers/net/tulip/tulip_core.c.orig 2004-01-23 23:53:17.484261904 -0800
+> > +++ drivers/net/tulip/tulip_core.c      2004-01-23 23:53:53.675759960 -0800
+> > @@ -253,7 +253,9 @@
+> >  static struct net_device_stats *tulip_get_stats(struct net_device *dev);
+> >  static int private_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+> >  static void set_rx_mode(struct net_device *dev);
+> > +#ifdef CONFIG_NET_POLL_CONTROLLER
+> >  static void poll_tulip(struct net_device *dev);
+> > +#endif
 > 
-> This patch looks very strange.  What error do you get without it?
+> 
+> Hum... doesn't apply here, and also it breaks my automated
+> "patch -sp1 < patch" script :/
+> 
 > 
 
 -- 

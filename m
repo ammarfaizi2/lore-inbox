@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135898AbRDVIvN>; Sun, 22 Apr 2001 04:51:13 -0400
+	id <S135942AbRDVI6P>; Sun, 22 Apr 2001 04:58:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135938AbRDVIvD>; Sun, 22 Apr 2001 04:51:03 -0400
-Received: from [164.164.83.132] ([164.164.83.132]:21257 "EHLO
-	arianne.in.ishoni.com") by vger.kernel.org with ESMTP
-	id <S135898AbRDVIuy>; Sun, 22 Apr 2001 04:50:54 -0400
-Reply-To: <raghav@ishoni.com>
-From: "Raghav P" <raghav@ishoni.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Question about console driver switch
-Date: Sun, 22 Apr 2001 14:23:37 +0530
-Message-ID: <E0FDC90A9031D511915D00C04F0CCD2503996F@leonoid.in.ishoni.com>
+	id <S135947AbRDVI6G>; Sun, 22 Apr 2001 04:58:06 -0400
+Received: from CPE-61-9-151-92.vic.bigpond.net.au ([61.9.151.92]:50427 "EHLO
+	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S135942AbRDVI5z>;
+	Sun, 22 Apr 2001 04:57:55 -0400
+Message-ID: <3AE29CFD.C438C8B9@eyal.emu.id.au>
+Date: Sun, 22 Apr 2001 18:57:33 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac12
+In-Reply-To: <E14rA0N-0004sv-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> 2.4.3-ac12
 
-I am porting a serial driver on my MIPS board and have to provide support
-for serial console. After  going thru the initialisation sequence: Looks
-like in the initial stages before the interrupts and memory is set up; a
-serial driver is set up by some brute force method in the function
-serial_console_init() and the write function address is registered to the
-printk module.  After interrupts and memory are available; the old
-memory(and hence the old UART driver) is freed using init_freemem() and
-full-fledged UART driver is setup.
+gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4/include -Wall
+-Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE
+-DMODVERSIONS -include
+/data2/usr/local/src/linux-2.4/include/linux/modversions.h   -c -o
+inode.o inode.c
+inode.c: In function `affs_notify_change':
+inode.c:236: void value not ignored as it ought to be
+make[2]: *** [inode.o] Error 1
+make[2]: Leaving directory `/data2/usr/local/src/linux-2.4/fs/affs'
 
-Now the doubts are:
-(i) After the old serial driver is thrown out using init_freemem and new
-driver is installed; register_console() is not invoked again. I tried
-printing the address of the write function in printk and they remain the
-same. Now how does printk start throwing out the messages using the new
-driver?
-(ii) Does init_freemem free both text and data? If so should care be taken
-for including code before free_initmem is called?
-
-Since I do not belong to this mailing list; It would be nice if I am replied
-back to my official e-mail: raghav@ishoni.com
-
-Thanks in advance
-
-Raghav
-
-_________________________________________________
-P.Raghavan
-ishoni Networks (India) Pvt Ltd (http://www.ishoni.com)
-...Broadband for everyone
-email:raghav@ishoni.com
-Phone: +91-80-2292125 (Work)
-Fax: +91-80-2995545 (Work)
-
-
-
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>

@@ -1,32 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276942AbRJDSis>; Thu, 4 Oct 2001 14:38:48 -0400
+	id <S277202AbRJDSoK>; Thu, 4 Oct 2001 14:44:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277201AbRJDSii>; Thu, 4 Oct 2001 14:38:38 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:270 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276942AbRJDSi3>; Thu, 4 Oct 2001 14:38:29 -0400
-Subject: Re: 100% sync block device on 2.2 ?
-To: pit@root.at (Karl Pitrich)
-Date: Thu, 4 Oct 2001 19:44:11 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0110041629170.1056-100000@warp.root.at> from "Karl Pitrich" at Oct 04, 2001 04:35:46 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15pDTg-0003gD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S277208AbRJDSn7>; Thu, 4 Oct 2001 14:43:59 -0400
+Received: from f36.pav2.hotmail.com ([64.4.37.36]:54034 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S277201AbRJDSnt>;
+	Thu, 4 Oct 2001 14:43:49 -0400
+X-Originating-IP: [128.173.125.231]
+From: "End Sp4m" <one_wanderer_nosp4m@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Apparently 2.4.10 not compatible with ABIT KT7-RAID if CONFIG_BLK_DEV_VIA82CXXX
+Date: Thu, 04 Oct 2001 14:44:13 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F36hht0lLRa8174jDJa00016c8b@hotmail.com>
+X-OriginalArrivalTime: 04 Oct 2001 18:44:13.0837 (UTC) FILETIME=[903F73D0:01C14D04]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i wrote a block driver for a custom battery-backup'ed sram-isa card
-> which is io mapped. (kernel is 2.2.16, switch to 2.4.x impossible)
-> i have a minix fs on it.
-> everything works fine, except that i need my sram-disk _absolutely_
-> in sync. i mounted -o sync, but the kernel does'nt seem to sync
-> immediately.
-> so after any reboot my data is corrupt, which is a problem.
+Kernel folks,
 
-You cannot achieve what you are trying to do without a journalling or
-logging file system. JFFS and ext3 are available as 2.4 patches
+I posted this to nntp://mlist.linux.kernel but apparently that isn't the 
+same as sending to the list itself. ;)
+
+All of the hard disks on ide channels 1 and 2 (hda,hdb,hdc,hdd) on my abit 
+kt7-raid were giving me dma_intr errors eg as follows:
+
+hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+
+I would get TONS (many per second during disk access) of these even while 
+booting.  Eventually it would stop when the kernel switched to a lower speed 
+access mode.  I thought it was a hardware issue because I have another 
+system with the identical motherboard and didn't have any problems using 
+UDMA.  Then as I was toying with the kernel configuration for the two 
+systems I found that CONFIG_BLK_DEV_VIA82CXXX was enabled on the system that 
+DID NOT work and disabled on the one that DID work.  So I disabled it and 
+now the system works fine.  It doesn't show the hard disk as using UDMA in 
+dmesg but hdparm -vi <device> shows it happily chugging away using
+udma4 (with CONFIG_BLK_DEV_VIA82CXXX enabled it had to be forced down to 
+mdma2 following streams of warning messages before it would start working).
+
+And yes, I am using 80 conductor cables, and I have tried tons of different 
+cables and none of them eliminated the problem.
+
+Note, this is a VIA KT133, not KT133A based motherboard.
+
+So if hdparm reports the drive as using udma (but not dmesg) then is the 
+drive actually using udma?  And if it works correctly without 
+CONFIG_BLK_DEV_VIA82CXXX enabled then why does this kerenl option exist at 
+all?  And being that it exists why does it give me MAJOR problems when I 
+enable it?
+
+Thanks,
+
+Scott Bartlett
+
+remove _nosp4m to get my still-spambait hotmail address.
+
+
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+

@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319718AbSIMRRp>; Fri, 13 Sep 2002 13:17:45 -0400
+	id <S319728AbSIMRXI>; Fri, 13 Sep 2002 13:23:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319719AbSIMRRp>; Fri, 13 Sep 2002 13:17:45 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:42727 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S319718AbSIMRRo>; Fri, 13 Sep 2002 13:17:44 -0400
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DE5D@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Marc Giger'" <gigerstyle@gmx.ch>, linux-kernel@vger.kernel.org
-Cc: acpi-devel@sourceforge.net
-Subject: RE: ACPI Status
-Date: Fri, 13 Sep 2002 10:22:21 -0700
+	id <S319729AbSIMRXI>; Fri, 13 Sep 2002 13:23:08 -0400
+Received: from packet.digeo.com ([12.110.80.53]:29151 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S319728AbSIMRXG>;
+	Fri, 13 Sep 2002 13:23:06 -0400
+Message-ID: <3D8223BE.31C564F2@digeo.com>
+Date: Fri, 13 Sep 2002 10:43:26 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+CC: linux-kernel@vger.kernel.org, janetmor@us.ibm.com
+Subject: Re: [patch] readv/writev rework
+References: <3D81A200.C1B6A293@digeo.com> <20020913.182350.43012479.taka@valinux.co.jp>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Sep 2002 17:27:52.0152 (UTC) FILETIME=[E373CD80:01C25B4A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Marc Giger [mailto:gigerstyle@gmx.ch] 
-> What is the current status of acpi in 2.4 / 2.5 kernels???
+Hirokazu Takahashi wrote:
 > 
-> The most things on http://acpi.sourceforge.net/ are outdated:-((
-> To acpi developers: Is it possible to make a Changelog like 
-> Linus, Alan and Marcello and Co does??
-> And it would be nice, if there were a document which 
-> describes the current development status..(what is already 
-> implemented and what not)
+> Hello,
+> 
+> I fixed the patch.
 
-Oops, web content a little stale...
+Thanks again.
 
-Try checking out the sf.net acpi project page - sf.net/projects/acpi. You
-can d/l releases there and each release has a changelog.
+> But I have one more question.
+> 
+> Please consider...
+> while a process sleep in copy_*_user() another one may call kmap_atomic
+> and kunmap_atomic. And the process will restart and might access the
+> wrong page as kunmap_atomic do nothing without CONFIG_DEBUG_HIGHMEM flag.
+> I mean it wouldn't any faults as another page is still kmapped.
 
-As to development status:
+Yes; this is why it is illegal to sleep, or to switch CPUs by any means
+while holding an atomic kmap:
 
-Everything is code complete (more or less) EXCEPT:
 
-- S3/S4 support
-- userspace library
-- using ACPI for device PnP and resource determination
+	kmap_atomic(...);
+	__copy_*_user(...);
+	kunmap_atomic(...);
 
-If you're interested with following ACPI progress, I'd recommend subscribing
-to the acpi-devel mailing list.
+the kmap_atomic() will increment the preempt count (even on CONFIG_PREEMPT=n).
 
-Regards -- Andy
+- The incremented preempt count pins this code path onto this CPU
+  while the kmap is held. (This is only relevant to CONFIG_PREEMPT=y)
+
+- The incremented preempt count tells do_page_fault() that we cannot
+  handle a pagefault; if a fault is encountered during the copy_*_user(),
+  do_page_fault() will arrange for the __copy_*_user() to return a short
+  copy.
+
+So.  The code path is atomic, and is pinned to a single CPU.  The atomic
+kmap pool uses a different batch of virtual addresses for each CPU (it's
+a per-CPU pool of addresses).

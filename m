@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131368AbRACQ6I>; Wed, 3 Jan 2001 11:58:08 -0500
+	id <S132404AbRACRA6>; Wed, 3 Jan 2001 12:00:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131998AbRACQ56>; Wed, 3 Jan 2001 11:57:58 -0500
-Received: from smtp1.mail.yahoo.com ([128.11.69.60]:20741 "HELO
-	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S131368AbRACQ5u>; Wed, 3 Jan 2001 11:57:50 -0500
-X-Apparently-From: <quintaq@yahoo.co.uk>
-Date: Wed, 3 Jan 2001 16:28:16 +0000
-From: quintaq@yahoo.co.uk
-To: linux-kernel@vger.kernel.org
-Subject: Re: Fw: UDMA on 815e chipset
-In-Reply-To: <3A5337EB.56172C60@windsormachine.com>
-In-Reply-To: <20010103121218Z130812-439+8159@vger.kernel.org>
-	<3A5337EB.56172C60@windsormachine.com>
-Reply-To: quintaq@yahoo.co.uk
-X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.8; Linux 2.2.16; i686)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S132507AbRACRAt>; Wed, 3 Jan 2001 12:00:49 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:15632 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S132404AbRACRAj>;
+	Wed, 3 Jan 2001 12:00:39 -0500
+Message-ID: <3A5352ED.A263672D@innominate.de>
+Date: Wed, 03 Jan 2001 17:27:25 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-prerelease i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+In-Reply-To: <Pine.LNX.4.30.0101031253130.6567-100000@springhead.px.uk.com> <Pine.LNX.4.21.0101031325270.1403-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20010103165751Z131368-439+8222@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike / Mark,
+Rik van Riel wrote:
+> 
+> On Wed, 3 Jan 2001, Dr. David Gilbert wrote:
+> 
+> >   I got wondering as to whether the various journaling file
+> > system activities were designed to survive the occasional
+> > unclean shutdown or were designed to allow the user to just pull
+> > the plug as a regular means of shutting down.
+> 
+> 1. a journaling filesystem is designed to be "consistent"
+>    (or rather, easily recoverable) all of the time
+> 2. there's no difference between the "2 situations" you
+>    describe above
 
-Thank-you very much for your replies.
+Welllllll... crashes tend to produce different effects from sudden power
+interruptions.  In the first case parts of the system keep running, and
+bizarre results are possible.  An even bigger difference is the matter
+of intent.
 
-With regard to Mike, (a) I am using a PIII 800, so I really should be seeing better results than your Celeron.  It seems, therefore, that my setup may be defective in more fundamental ways than I had imagined.  (b) I do appreciate that I may not see any real benefit from Ultra/66 at this stage - I was just keen to experiment and see that the hardware was working.
+Tux2 is explicitly designed to legitimize pulling the plug as a valid
+way of shutting down.  Metadata-only journalling filesystems are not
+designed to be used this way, and even with full-data journalling you
+should bear in mind that your on-disk filesystem image remains in an
+invalid state until the journal recovery program has run successfully. 
+You would not want to upgrade your OS with your filesystem in this
+state, nor would you want to remove a disk drive that didn't have the
+journal file on it.
 
-In reply to Mark : (a) my HDD was certainly sold as UDMA 5 capable, and hdparm reports that it is.  (b) I do not think you meant to suggest that I would solve the problem by deleting the -c and -m switches, but I deleted them anyway and the problem remains. (c) I wish I knew why the hell SuSE would include an obsolete kernel in their relatively new, flagship, v7 "Professional".  So far as I can see, kernel 2.4 is not even an option on their ftp site.  I use this machine for my business and cannot afford a major crash precipitated by a piece of inept kernel-tinkering on my part.
+Being able to shut down by hitting the power switch is a little luxury
+for which I've been willing to invest more than a year of my life to
+attain.  Clueless newbies don't know why it should be any other way, and
+it's essential for embedded devices.
 
-I do have a spare machine (bx board though),and I suppose that the way ahead is to play around installing the current kernel on that until I have the confidence to put it in this box.
+I don't doubt that if the 'power switch' method of shutdown becomes
+popular we will discover some applications that have windows where they
+can be hurt by sudden shutdown, even will full filesystem data state
+being preserved.  Such applications are arguably broken because they
+will behave badly in the event of accidental shutdown anyway, and we
+should fix them.  Well-designed applications are explicitly 'serially
+reuseable', in other words, you can interrupt at any point and start
+again from the beginning with valid and expected results.
 
-One final thought.  When I installed the OS I was offered the option to "use DMA", which I accepted. I see this set at an early stage in the boot-process (long before my boot.local executes).  Is there any way this could be obstructing the subsequent instruction to use UDMA ?
-
-Thanks again,
-
-Geoff
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

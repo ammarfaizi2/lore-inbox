@@ -1,98 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132101AbRAUAI1>; Sat, 20 Jan 2001 19:08:27 -0500
+	id <S132135AbRAUAJh>; Sat, 20 Jan 2001 19:09:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132135AbRAUAIS>; Sat, 20 Jan 2001 19:08:18 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:30726 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S132101AbRAUAII>;
-	Sat, 20 Jan 2001 19:08:08 -0500
-Date: Sat, 20 Jan 2001 17:05:27 -0700
-From: yodaiken@fsmlabs.com
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: nigel@nrg.org, "David S. Miller" <davem@redhat.com>,
-        linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-Message-ID: <20010120170527.A15918@hq.fsmlabs.com>
-In-Reply-To: <200101110519.VAA02784@pizda.ninka.net> <Pine.LNX.4.05.10101111233241.5936-100000@cosmic.nrg.org> <3A5F0706.6A8A8141@uow.edu.au>
+	id <S132429AbRAUAJ1>; Sat, 20 Jan 2001 19:09:27 -0500
+Received: from vitelus.com ([64.81.36.147]:47112 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S132135AbRAUAJL>;
+	Sat, 20 Jan 2001 19:09:11 -0500
+Date: Sat, 20 Jan 2001 16:08:43 -0800
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Daniel Stone <daniel@kabuki.eyep.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and ipmasq modules
+Message-ID: <20010120160843.A17947@vitelus.com>
+In-Reply-To: <20010120144616.A16843@vitelus.com> <E14K7UY-0004hB-00@kabuki.eyep.net> <20010120153403.A17269@vitelus.com> <E14K83B-0004lQ-00@kabuki.eyep.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <3A5F0706.6A8A8141@uow.edu.au>; from Andrew Morton on Sat, Jan 13, 2001 at 12:30:46AM +1100
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <E14K83B-0004lQ-00@kabuki.eyep.net>; from daniel@kabuki.eyep.net on Sun, Jan 21, 2001 at 11:08:00AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 21, 2001 at 11:08:00AM +1100, Daniel Stone wrote:
+> > That option seems to conflict with "ipfwadm (2.0-style) support".
+> > Preferably, I'd like to stay with friendly old ipfwadm rather than
+> > switching firewalling tools _again_.
+> 
+> "I'd rather stay with my friendly old pushbike than my car!"
+> So don't complain when you can't use cruise control.
 
-Let me just point out that Nigel (I think) has previously stated that
-the purpose of this approach is to bring the stunning success of 
-IRIX style "RT" to Linux. Since some of us believe that IRIX is a virtual
-handbook of OS errors, it really comes down to a design style. I think
-that simplicity and "does the main job well" wins every time over 
-"really cool algorithms" and "does everything badly". Others 
-disagree.
-
-
-On Sat, Jan 13, 2001 at 12:30:46AM +1100, Andrew Morton wrote:
-> Nigel Gamble wrote:
-> > 
-> > Spinlocks should not be held for lots of time.  This adversely affects
-> > SMP scalability as well as latency.  That's why MontaVista's kernel
-> > preemption patch uses sleeping mutex locks instead of spinlocks for the
-> > long held locks.
-> 
-> Nigel,
-> 
-> what worries me about this is the Apache-flock-serialisation saga.
-> 
-> Back in -test8, kumon@fujitsu demonstrated that changing this:
-> 
-> 	lock_kernel()
-> 	down(sem)
-> 	<stuff>
-> 	up(sem)
-> 	unlock_kernel()
-> 
-> into this:
-> 
-> 	down(sem)
-> 	<stuff>
-> 	up(sem)
-> 
-> had the effect of *decreasing* Apache's maximum connection rate
-> on an 8-way from ~5,000 connections/sec to ~2,000 conn/sec.
-> 
-> That's downright scary.
-> 
-> Obviously, <stuff> was very quick, and the CPUs were passing through
-> this section at a great rate.
-> 
-> How can we be sure that converting spinlocks to semaphores
-> won't do the same thing?  Perhaps for workloads which we
-> aren't testing?
-> 
-> So this needs to be done with caution.
-> 
-> As davem points out, now we know where the problems are
-> occurring, a good next step is to redesign some of those
-> parts of the VM and buffercache.  I don't think this will
-> be too hard, but they have to *want* to change :)
-> 
-> Some of those algorithms are approximately O(N^2), for huge
-> values of N.
-> 
-> 
-> -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+ipfwadm used to support the modules. Why have the modules for ipfwadm
+been removed from the kernel source?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266219AbUAGUP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 15:15:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266245AbUAGUP4
+	id S265632AbUAGUaA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 15:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266314AbUAGUaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 15:15:56 -0500
-Received: from sitemail3.everyone.net ([216.200.145.37]:61161 "EHLO
-	omta08.mta.everyone.net") by vger.kernel.org with ESMTP
-	id S266219AbUAGUPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 15:15:53 -0500
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jan 2004 15:30:00 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:263 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265632AbUAGU36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 15:29:58 -0500
+Date: Wed, 7 Jan 2004 20:29:51 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@colin2.muc.de>,
+       Mika Penttil? <mika.penttila@kolumbus.fi>, Andi Kleen <ak@muc.de>,
+       David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
+Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
+Message-ID: <20040107202951.B18708@flint.arm.linux.org.uk>
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@colin2.muc.de>,
+	Mika Penttil? <mika.penttila@kolumbus.fi>, Andi Kleen <ak@muc.de>,
+	David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
+References: <20040106081203.GA44540@colin2.muc.de> <3FFA7BB9.1030803@kolumbus.fi> <20040106094442.GB44540@colin2.muc.de> <Pine.LNX.4.58.0401060726450.2653@home.osdl.org> <20040106153706.GA63471@colin2.muc.de> <m1brpgn1c3.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.58.0401061554010.9166@home.osdl.org> <m13casmk28.fsf@ebiederm.dsl.xmission.com> <20040107093143.A29200@flint.arm.linux.org.uk> <m1wu83lrxf.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-Date: Wed, 7 Jan 2004 12:15:35 -0800 (PST)
-From: john moser <bluefoxicy@linux.net>
-To: linux-kernel@vger.kernel.org
-Subject: Entry points for execution
-Reply-To: bluefoxicy@linux.net
-X-Originating-Ip: [68.33.187.247]
-Message-Id: <20040107201535.13922393A@sitemail.everyone.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m1wu83lrxf.fsf@ebiederm.dsl.xmission.com>; from ebiederm@xmission.com on Wed, Jan 07, 2004 at 08:06:04AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I need to make a slight alteration to every task_struct for every task.  I've put my code into do_fork() but it seems that init (pid 1) has a parent process, as I checked for if (p->parent) and it evidently connected to. . . something.
+On Wed, Jan 07, 2004 at 08:06:04AM -0700, Eric W. Biederman wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> writes:
+> 
+> > On Tue, Jan 06, 2004 at 09:58:23PM -0700, Eric W. Biederman wrote:
+> > > ffff0000-ffffffff : reserved
+> > > 
+> > > That last reserved region is 64K.  Which looking at the pci registers
+> > > is technically correct at the moment.  Only 64K happen to be decoded.
+> > 
+> > We already have this distinction between in use (or busy) resources and
+> > allocated resources.  Surely the BIOS ROM region should be an allocation
+> > resource not a busy resource, so that the MTD driver can obtain a busy
+> > resource against it?
+> 
+> Nope the BIOS region is allocated as BUSY, at least as it comes
+> out of the E820 map.
+> 
+> >From arch/i386/kernel/setup.c:legacy_init_iomem_resources
+> ....
+> 		res -> start = e820.map[i].addr;
+> 		res -> end = res->start + e820.map[i].size - 1;
+> 		res -> flags = IORESOURCE_MEM | IORESOURCE_BUSY;
+> 		request_resource(&iomem_resource, res);
 
-#ifdef CONFIG_LINUX_JAIL
-                /*
-                 * If we have no parent (parent == 0, i.e. init), then NULL our
-                 * jail.  Else, connect to the jail of the parent.
-                 */
-                 p->pjail = NULL;
-                 if (p->parent)
-                        linux_jail_attatch(p->parent->pjail, p);
-#endif
+I was hoping someone was going to take my comments as a suggestion for
+a possible solution to the problem.
 
-The thing is, it denies me chroot when I try to choot with restricted chroot (no chroot in chroot).  Now, the code I have all looks correct, so I'm thinking, it has to be that init is the child of pid 0, and that pid 0 is started in some other way, and thus I'm not clipping the tsk->pjail.
-
-My new code is:
-
-#ifdef CONFIG_LINUX_JAIL
-                /*
-                 * If we have no parent (parent == 0, i.e. init), then NULL our
-                 * jail.  Else, connect to the jail of the parent.
-                 */
-                 p->pjail = NULL;
-                 if (p->pid != 1 && p->parent)
-                        linux_jail_attatch(p->parent->pjail, p);
-#endif
-
-I'm thinking, the idle task maybe?  Or does that "not exist" physically?  If init has a parent then I'd PREFER to set that parent's pjail to NULL, not because it's magic and might blow up, but because I want things done *cleanly*, and even if the pointer will *NEVER* be examined, having a pointer pointing to something that doesn't belong to the struct is NOT my style.
-
-Can anyone give me all of the lowest level entry points for tasks (i.e. all the places where I can modify a task_struct->* before the task begins execution at its earliest point in creation)?
-
---Bluefox
-
-_____________________________________________________________
-Linux.Net -->Open Source to everyone
-Powered by Linare Corporation
-http://www.linare.com/
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

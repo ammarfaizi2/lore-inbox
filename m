@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267457AbRGMNbA>; Fri, 13 Jul 2001 09:31:00 -0400
+	id <S267475AbRGMNdu>; Fri, 13 Jul 2001 09:33:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267475AbRGMNau>; Fri, 13 Jul 2001 09:30:50 -0400
-Received: from pat.uio.no ([129.240.130.16]:21978 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S267457AbRGMNad>;
-	Fri, 13 Jul 2001 09:30:33 -0400
-To: Alan Cox <alan@redhat.com>
-Cc: neilb@cse.unsw.edu.au (Neil Brown),
-        abramo@alsa-project.org (Abramo Bagnara),
-        linux-kernel@vger.kernel.org (Linux Kernel),
-        nfs-devel@linux.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: [NFS] [PATCH] Bug in NFS - should umask be allowed to set umask???
-In-Reply-To: <200107131212.f6DCC0v16274@devserv.devel.redhat.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 13 Jul 2001 15:30:21 +0200
-In-Reply-To: Alan Cox's message of "Fri, 13 Jul 2001 08:12:00 -0400 (EDT)"
-Message-ID: <shsu20hvtw2.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267481AbRGMNdk>; Fri, 13 Jul 2001 09:33:40 -0400
+Received: from ns.suse.de ([213.95.15.193]:41226 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S267475AbRGMNd2>;
+	Fri, 13 Jul 2001 09:33:28 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BUG?] vtund broken by tun driver changes in 2.4.6
+In-Reply-To: <009601c106ff$a3cb2070$6baaa8c0@kevin.suse.lists.linux.kernel>
+In-Reply-To: <Pine.LNX.4.33.0107070058350.29490-100000@mackman.net.suse.lists.linux.kernel> <009601c106ff$a3cb2070$6baaa8c0@kevin.suse.lists.linux.kernel>
+Message-Id: <20010713133329.DDCEB19A57@lamarr.suse.de>
+Date: Fri, 13 Jul 2001 15:33:29 +0200 (CEST)
+From: jreuter@suse.de (Joerg Reuter)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Alan Cox <alan@redhat.com> writes:
+>Recompile your VTUND daemon with the new kernel headers (and also updated to
+>2.5 vtund, it has some small patches) and you will be fine.
 
-    >> 1/ Claim that redhat is broken. Leave them to fix SysVinit.  2/
-    >> Have nfsd over-write the umask setting that /sbin/init imposed.
-    >> This is effectively what your patch does.  3/ Decide that it is
-    >> inappropriate for nfsd to share the current->fs fs_struct with
-    >> init.  Unfortunately this means changing or replacing
-    >> daemonize().
+Probably not:
 
-     > #3 seems right. Of course its not clear whose fs struct should
-     > #be shared
+        #define TUNSETNOCSUM  _IOW('T', 200, int)
+        #define TUNSETDEBUG   _IOW('T', 201, int)
+        #define TUNSETIFF     _IOW('T', 202, int)
+        #define TUNSETPERSIST _IOW('T', 203, int)
+        #define TUNSETOWNER   _IOW('T', 204, int)
 
-Well, you can either use the fs_struct from init, or that of the first
-process to call nfsd. I'm not sure if there's any real point in having
-a chrooted nfsd, but it's easy to implement.
+Which is (apart from some extensions) the same as it ever was. However 
+adding a
 
-In either case, the principle is the same: use copy_fs_struct() on
-whatever you want to clone, then have all the nfsd daemons and the
-lockd daemon attach to the new shared fs_struct when they get set up.
-No need to replace daemonize...
+	printk(KERN_INFO "tun_chr_ioctl() called with cmd=%4.4X
+		(TUNSETIFF=%4.4X, tun is%s set)\n",
+		cmd, TUNSETIFF, tun? "":" not");
 
-Cheers,
-  Trond
+in tun_chr_ioctl() reveals:
+
+	tun_chr_ioctl() called with cmd=54CA (TUNSETIFF=400454CA, tun is not set)
+
+Now, where does the 0x400454CA come from? What happened to the _IOW()
+macros? (Tested with 2.4.6 vanilla kernel sources and gcc-2.95.3)
+
+And BTW, you shouldn't include kernel headers from user space programs,
+should you.
+
+Regards,
+-- 
+Joerg Reuter                                    http://yaina.de/jreuter
+And I make my way to where the warm scent of soil fills the evening air. 
+Everything is waiting quietly out there....                 (Anne Clark)

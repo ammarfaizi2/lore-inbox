@@ -1,75 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbTFNWgL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 18:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbTFNWgL
+	id S261216AbTFNWgO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 18:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbTFNWgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 18:36:11 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:42624 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261188AbTFNWgK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 18:36:10 -0400
-Date: Sun, 15 Jun 2003 00:49:55 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Gabriel Devenyi <devenyga@mcmaster.ca>
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Linux 2.5.68 - Fix gameport_close(gameport); after return in drivers/input/gameport/gameport.c
-Message-ID: <20030615004955.A27599@ucw.cz>
-References: <200305011610.07281.devenyga@mcmaster.ca>
+	Sat, 14 Jun 2003 18:36:14 -0400
+Received: from 216-229-91-229-empty.fidnet.com ([216.229.91.229]:46353 "EHLO
+	mail.icequake.net") by vger.kernel.org with ESMTP id S261216AbTFNWgM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 18:36:12 -0400
+Date: Sat, 14 Jun 2003 17:50:01 -0500
+From: Ryan Underwood <nemesis-lists@icequake.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: mga dualhead console + gpm = instant reboot
+Message-ID: <20030614225001.GS867@dbz.icequake.net>
+References: <20030614014212.GC1010@dbz.icequake.net> <20030614214114.GE2776@vana.vc.cvut.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200305011610.07281.devenyga@mcmaster.ca>; from devenyga@mcmaster.ca on Thu, May 01, 2003 at 04:10:06PM -0400
+In-Reply-To: <20030614214114.GE2776@vana.vc.cvut.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 01, 2003 at 04:10:06PM -0400, Gabriel Devenyi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Sat, Jun 14, 2003 at 11:41:14PM +0200, Petr Vandrovec wrote:
+> On Fri, Jun 13, 2003 at 08:42:12PM -0500, Ryan Underwood wrote:
+> > Hello,
+> > 
+> > I run the mga dualhead console.  It works ok for the most part (some
+> > strange behavior on the second head happens that can be noticed in e.g.
+> > lynx when the cursor is blinking).  However, if I move the gpm mouse on
+> > the first head, switch to a console on the second head, move gpm mouse
+> > again, then switch back to a console on the first head, moving the mouse
+> > thereafter results in an instant reboot of the system.
+> > 
+> > Since there does not appear to be any kernel panic or oops, I am at a
+> > loss how to track the problem down.  Any ideas?
 > 
-> This patch applies to 2.5.68, it is listed on kbugs.org. The gameport is never closed after calibrating it.
-> 
-> Please CC me with any discussion.
+> Kernel version? And if it is 2.4.x, did you boot with
+> 'video=scrollback:0' ? If not, then please do so...
 
-Thanks, applied.
+Sorry, fresh 2.4.21, but it has happened on previous 2.4 kernels too.  I
+will look into the scrollback option.  What does that accomplish with
+respect to the mouse cursor?
 
-> - ---FILE---
-> 
-> - --- linux-2.5.68/drivers/input/gameport/gameport.c	2003-04-19 22:49:31.000000000 -0400
-> +++ linux-2.5.68-changed/drivers/input/gameport/gameport.c	2003-05-01 14:57:51.000000000 -0400
-> @@ -84,6 +84,7 @@
->  		if ((t = DELTA(t2,t1) - DELTA(t3,t2)) < tx) tx = t;
->  	}
->  
-> +	gameport_close(gameport);
->  	return 59659 / (tx < 1 ? 1 : tx);
->  
->  #else
-> @@ -93,11 +94,10 @@
->  	j = jiffies; while (j == jiffies);
->  	j = jiffies; while (j == jiffies) { t++; gameport_read(gameport); }
->  
-> +	gameport_close(gameport);
->  	return t * HZ / 1000;
->  
->  #endif
-> - -
-> - -	gameport_close(gameport);
->  }
->  
->  static void gameport_find_dev(struct gameport *gameport)
-> 
-> - ---ENFILE---
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.1 (GNU/Linux)
-> 
-> iD8DBQE+sX8e7I5UBdiZaF4RAv8DAKCPpHLHADzNWUmRpHrHw7ldAfUdeACgklGx
-> 9V+o3A+iUO8Jzb7T1Mr/6eU=
-> =EABS
-> -----END PGP SIGNATURE-----
-> 
-
+thanks,
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Ryan Underwood, <nemesis at icequake.net>, icq=10317253

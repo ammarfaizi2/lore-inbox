@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbQLRMUF>; Mon, 18 Dec 2000 07:20:05 -0500
+	id <S129391AbQLRMUf>; Mon, 18 Dec 2000 07:20:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129778AbQLRMTz>; Mon, 18 Dec 2000 07:19:55 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:7357 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129325AbQLRMTq>;
-	Mon, 18 Dec 2000 07:19:46 -0500
-Date: Mon, 18 Dec 2000 06:49:17 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: trond.myklebust@fys.uio.no, "M.H.VanLeeuwen" <vanl@megsinet.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at /usr/src/linux/include/linux/nfs_fs.h:167! -
- reproducible
-In-Reply-To: <14909.62565.397454.950907@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.GSO.4.21.0012180631290.22952-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129778AbQLRMUQ>; Mon, 18 Dec 2000 07:20:16 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:26117 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130791AbQLRMUI>;
+	Mon, 18 Dec 2000 07:20:08 -0500
+Date: Mon, 18 Dec 2000 11:46:12 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Russell Cattelan <cattelan@thebarn.com>, linux-kernel@vger.kernel.org
+Subject: Re: Test12 ll_rw_block error.
+Message-ID: <20001218114612.E21351@redhat.com>
+In-Reply-To: <20001215105148.E11931@redhat.com> <Pine.LNX.4.21.0012170027060.28849-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0012170027060.28849-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Sun, Dec 17, 2000 at 12:38:17AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-
-On Mon, 18 Dec 2000, Neil Brown wrote:
-
-> On Monday December 18, trond.myklebust@fys.uio.no wrote:
-> > >>>>> " " == M H VanLeeuwen <vanl@megsinet.net> writes:
-> > 
-> >      > Trond, Neil I don't know if this is a loopback bug or an NFS
-> >      > bug but since nfs_fs.h was implicated so I thought one of you
-> >      > may be interested.
-> >  
-> >      > Could you let me know if you know this problem has already been
-> >      > fixed or if you need more info.
-> > 
-> > Hi,
-> >  
-> > As far as I'm concerned, it's a loopback bug.
+On Sun, Dec 17, 2000 at 12:38:17AM -0200, Marcelo Tosatti wrote:
+> On Fri, 15 Dec 2000, Stephen C. Tweedie wrote:
 > 
-> I read it the same way.
-> Actually, I cannot see the point of copying the "struct file"!  Why
-> not just take a reference to it?  The comment tries to justify it, but
-> I don't buy it.
+> Stephen,
+> 
+> The ->flush() operation (which we've been discussing a bit) would be very
+> useful now (mainly for XFS).
+> 
+> At page_launder(), we can call ->flush() if the given page has it defined.
+> Otherwise use try_to_free_buffers() as we do now for filesystems which
+> dont care about the special flushing treatment. 
 
-Wish I remembered who had complained when I proposed to kill that copying...
-It was introduced back in 2.1.110 and back then comment looked so:
+As of 2.4.0test12, page_launder() will already call the
+per-address-space writepage() operation for dirty pages.  Do you need
+something similar for clean pages too, or does Linus's new laundry
+code give you what you need now?
 
-+               /* Backed by a regular file - we need to hold onto
-+                  a file structure for this file.  We'll use it to
-+                  write to blocks that are not already present in
-+                  a sparse file.  We create a new file structure
-+                  based on the one passed to us via 'arg'.  This is
-+                  to avoid changing the file structure that the
-+                  caller is using */
-+
-
-I would be happy to get rid of that crap - it was the only reason why I
-had to add the sodding file_moveto() and world would be better without it.
-If we can kill it off - let's do it and let's take fs/file_table:file_moveto()
-along.
-
-IOW, I also think that copying the struct file is wrong. IIRC, complaints were
-bogus - losetup requires enough priviliges to make worrying about security
-implications somewhat pointless.
-
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279166AbRKMVMP>; Tue, 13 Nov 2001 16:12:15 -0500
+	id <S279201AbRKMVMP>; Tue, 13 Nov 2001 16:12:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279156AbRKMVMG>; Tue, 13 Nov 2001 16:12:06 -0500
-Received: from unknown.Level3.net ([63.210.233.154]:29715 "EHLO
-	cinshrexc01.shermfin.com") by vger.kernel.org with ESMTP
-	id <S279166AbRKMVL7>; Tue, 13 Nov 2001 16:11:59 -0500
-Message-ID: <35F52ABC3317D511A55300D0B73EB8056FCC0A@cinshrexc01.shermfin.com>
-From: "Rechenberg, Andrew" <ARechenberg@shermanfinancialgroup.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "Banasik, Bob" <BBanasik@shermanfinancialgroup.com>
-Subject: kupdated high load with heavy disk I/O
-Date: Tue, 13 Nov 2001 16:11:50 -0500
+	id <S279170AbRKMVMF>; Tue, 13 Nov 2001 16:12:05 -0500
+Received: from ns.suse.de ([213.95.15.193]:60431 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S279156AbRKMVL4>;
+	Tue, 13 Nov 2001 16:11:56 -0500
+Date: Tue, 13 Nov 2001 22:11:53 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Brian Ristuccia <bristucc@sw.starentnetworks.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: elvtune fails with DAC960 and devfs on 2.4.14
+In-Reply-To: <20011113145315.T22467@osiris.978.org>
+Message-ID: <Pine.LNX.4.30.0111132206431.6089-100000@Appserv.suse.de>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 13 Nov 2001, Brian Ristuccia wrote:
 
-I have read some previous threads about kupdated consuming 99% of CPU under
-intense disk I/O in kernel 2.4.x on the archives of this list (April 2001),
-but have yet to find any suggestions or fixes.  I am currently experiencing
-the same issue and was wondering if anyone has any thoughts or suggestions
-on the issue.  I am not subscribed to the list so would you please CC: me
-directly on any responses?  Thank you.
+> I can't seem to adjust the elevator parameters for this block device, but
+> can't:
+> # elvtune /dev/rd/disc0/disc
+> ioctl get: Invalid argument
 
-The issue that I am having is that when there is a heavy amount a disk I/O,
-the box becomes slightly unresponsive and kupdated is using 99.9% in 'top.'
-Sometimes the box appears to totally lock up.  If one waits several seconds
-to a couple of minutes the system appears to 'unlock' and runs sluggishly
-for a while.  This cycle will repeat itself until the I/O subsides.
+DAC960.c doesn't know about BLKELVSET / BLKELVGET, and control is
+only passed down to the generic ioctl in the case of BLKBSZSET,
+and doesn't have a default: entry in the switch statement of
+DAC960_IOCTL()
 
-The issue appears in kernel 2.4.14 compiled directly from source from
-kernel.org with no patches.  These problems manifest themselves with only
-one user doing heavy disk I/O.  The normal user load on the box can run
-between 350-450 users so this behavior would be unacceptable because the
-application that is being run is interactive.  With 450 users, and the same
-process running on a 2.2 kernel the performance of the box is great, with
-only a very slightly noticeable slow down.
+I've not seen one of these devices, so I'm not sure if this makes
+sense or not, but passing on requests to the lower level should
+be a simple..
 
-I am running the Informix database UniVerse version 9.6.2.4 on a 4 processor
-700MHz Xeon Dell PowerEdge 6400.  The disk subsystem is controlled by a PERC
-2/DC RAID card with 128MB on-board cache (megaraid driver compiled directly
-in to the kernel).  Data array is on 5 36GB 10K Ultra160 disks in a RAID5
-configuration.  The box has 4GB RAM, but is only using 2GB due to the move
-back to the 2.2 kernel.
+	default:
+		return( blk_ioctl(Inode->i_rdev, Request, Argument));
 
-If you need any more detailed info, please let me know.  Any help on this
-problem would be immensely appreciated.  Thanks in advance.
+Addition.
 
-Regards,
-Andrew Rechenberg
-Network Team, Sherman Financial Group
-arechenberg@shermanfinancialgroup.com
-Phone: 513.677.7809
-Fax:   513.677.7838
+There may be other reasons this driver doesn't provide the
+elevator ioctls though.
+
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

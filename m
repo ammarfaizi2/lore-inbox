@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310240AbSCLAhk>; Mon, 11 Mar 2002 19:37:40 -0500
+	id <S310253AbSCLAwK>; Mon, 11 Mar 2002 19:52:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310243AbSCLAhb>; Mon, 11 Mar 2002 19:37:31 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:22459 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S310240AbSCLAhQ>; Mon, 11 Mar 2002 19:37:16 -0500
-Date: Mon, 11 Mar 2002 16:36:57 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>,
-        Adam K Kirchhoff <adamk@voicenet.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SMP & APIC problem.
-Message-ID: <132630000.1015893417@flay>
-In-Reply-To: <Pine.LNX.4.33.0203111920430.1437-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.33.0203111920430.1437-100000@coffee.psychology.mcmaster.ca>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S310252AbSCLAwA>; Mon, 11 Mar 2002 19:52:00 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:27868 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S310253AbSCLAvt>;
+	Mon, 11 Mar 2002 19:51:49 -0500
+Date: Tue, 12 Mar 2002 01:51:42 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200203120051.BAA20236@harpo.it.uu.se>
+To: marcelo@conectiva.com.br
+Subject: Re: Linux 2.4.19-pre3
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo wrote in the 2.4.19-pre3 announcement:
+>pre3:
+>- Fix off-by-one error in bluesmoke			(Dave Jones)
 
->> My second question:  Is there any chance of getting this working with
->> APIC, if not in 2.4.* maybe in a future release?
-> 
-> given that it's a hardware problem, no.  but it *would* be cool
-> if the kernel noticed repeated APIC warnings and just turned 
-> off apic use (as if you had booted with noapic).  I'm guessing
-> this would be ugly, since APIC setup is probably discarded after boot...
+NO NO NO! This is the same broken patch that somehow got into
+2.2.21pre4 as well. The patch changes the code to write to the
+IA32_MC0_CTL MSR, which is a big no-no. Intel's IA32 Vol3 manual
+(#245472-03) sections 13.3.2.1 and 13.5 make that point quite clear.
 
-There were some patches floating around to do exactly this (don't
-remember where, sorry ;-) )
+I have several P6 boxes that hang hard in MCE init trying to boot
+vanilla 2.2.21pre4 and 2.4.19-pre3. The issue is real.
 
-There's also an esr_disable flag variable I put in a while back
-when doing bringup of NUMA-Q to smack the ESR into submission. 
-You might want to try tweaking that on in smp.h. It's not like we
-actually do anything with the errors anyway. (all assuming my
-mind isn't faulty, and this is actually the same thing). The read / 
-write protocol for ESR is really .... wierd, and it seems to need
-smacking multiple times to accept a write.
+Please apply the backup patch below.
 
-M.
+/Mikael
 
+--- linux-2.4.19-pre3/arch/i386/kernel/bluesmoke.c.~1~	Tue Mar 12 00:25:53 2002
++++ linux-2.4.19-pre3/arch/i386/kernel/bluesmoke.c	Tue Mar 12 01:11:58 2002
+@@ -169,7 +169,7 @@
+ 	if(l&(1<<8))
+ 		wrmsr(MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
+ 	banks = l&0xff;
+-	for(i=0;i<banks;i++)
++	for(i=1;i<banks;i++)
+ 	{
+ 		wrmsr(MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
+ 	}

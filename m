@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136474AbRA1CZH>; Sat, 27 Jan 2001 21:25:07 -0500
+	id <S136609AbRA1C2k>; Sat, 27 Jan 2001 21:28:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136609AbRA1CY6>; Sat, 27 Jan 2001 21:24:58 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:36902 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S136474AbRA1CYl>; Sat, 27 Jan 2001 21:24:41 -0500
-Message-ID: <3A738289.4F7CBBFA@sgi.com>
-Date: Sat, 27 Jan 2001 18:23:05 -0800
-From: Linda Walsh <law@sgi.com>
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.0 i686)
-X-Accept-Language: fr, en
+	id <S136645AbRA1C2a>; Sat, 27 Jan 2001 21:28:30 -0500
+Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:6716 "EHLO
+	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S136609AbRA1C21>; Sat, 27 Jan 2001 21:28:27 -0500
+Message-ID: <3A7383B2.19DDD006@linux.com>
+Date: Sun, 28 Jan 2001 02:28:03 +0000
+From: David Ford <david@linux.com>
+Organization: Blue Labs Software
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 Cpu usuage (display oddities more than anything)
-In-Reply-To: <3A7381C2.C512B76C@sgi.com>
+To: devfs@oss.sgi.com, rgooch@atnf.csiro.au
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] devfsd, compiling on glibc22x
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some oddities w/kapmd(2.4.0)...  If I sit in X and do nothing other than run top or
-"vmstat 5", I get down to as low as 60% idle and 40% in system -- with kapmd getting
-'charged' for the 40%.
+This patch is simple, defines RTLD_NEXT if not previously defined.
 
-Then I go and run 'freeamp' and the CPU usage goes to 100% idle, presumably because
-kapmd never gets called because it's never in the idle loop for longer than 333ms.
+--- devfsd.c.orig       Sat Jan 27 18:14:19 2001
++++ devfsd.c    Sat Jan 27 18:15:46 2001
+@@ -165,6 +165,7 @@
+     Last updated by Richard Gooch   3-JUL-2000: Added "-C
+/etc/modules.devfs"
+   when calling modprobe(8). Fail if a configuration line has EXECUTE
+modprobe.
 
-It's just weird and unnatural.
++    Updated by      David Ford      27-JAN-2001: Added RTLD_NEXT define
 
-Also forgive my ignorance but is it really possible playing VBR MP3's takes 0 measurable
-CPU?  I've run the program for hours and a ps of 'freeamp' show either no measured cpu 
-time or maybe 1 second...the kernel runs at at 100% idle for most of the time.
-I thought mp3 decompression was a cpu intensive operation....weird...
 
-I guess I'm thinking -- maybe time in kapmd should be counted as 'idle'?
+ */
+ #include <unistd.h>
+@@ -221,6 +222,10 @@
+ #define AC_MKNEWCOMPAT              8
+ #define AC_RMOLDCOMPAT              9
+ #define AC_RMNEWCOMPAT              10
++
++#ifndef RTLD_NEXT
++# define RTLD_NEXT     ((void *) -1l)
++#endif
 
--l
+ struct permissions_type
+ {
+
+
+--
+  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
+  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262655AbRFTWyl>; Wed, 20 Jun 2001 18:54:41 -0400
+	id <S262719AbRFTW4B>; Wed, 20 Jun 2001 18:56:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262922AbRFTWyb>; Wed, 20 Jun 2001 18:54:31 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:6639 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262655AbRFTWy1>; Wed, 20 Jun 2001 18:54:27 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200106202253.f5KMrX2X029668@webber.adilger.int>
-Subject: Re: Unknown PCI Net Device
-In-Reply-To: <Pine.LNX.4.21.0106201401060.1874-100000@maestro.symsys.com>
- "from Greg Ingram at Jun 20, 2001 02:19:00 pm"
-To: Greg Ingram <ingram@symsys.com>
-Date: Wed, 20 Jun 2001 16:53:33 -0600 (MDT)
-CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
-MIME-Version: 1.0
+	id <S262922AbRFTWzv>; Wed, 20 Jun 2001 18:55:51 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:7687 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S262719AbRFTWzm>; Wed, 20 Jun 2001 18:55:42 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: linux-kernel@vger.kernel.org
+Message-ID: <86256A71.007DEAD9.00@smtpnotes.altec.com>
+Date: Wed, 20 Jun 2001 17:53:44 -0500
+Subject: Re: The latest Microsoft FUD. This time from BillG, himself.
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg writes:
-> I picked up a network card that claims to use the "most reliable Realtek
-> LAN chip".  The big chip is labelled "LAN-8139" so naturally I tried the
-> 8139too driver.  It doesn't find the device.  I'm wondering if maybe it's
-> just something in the device ID tables.  Here's some info:
-> 
-> 00:0b.0 Ethernet controller: MYSON Technology Inc: Unknown device 0803
-> 	Subsystem: MYSON Technology Inc: Unknown device 0803
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
 
-Add the PCI vendor ID and device ID (0803) to drivers/net/8139too.c, in
-the rtl8139_pci_tbl[] and board_info[] and if it works, send a patch to
-Jeff (CC'd).
 
-Jeff, is there a reason why you have numeric vendor and device IDs instead
-of using the definitions in <linux/pci_ids.h>?
+On 06/20/2001 at 05:33:45 PM Larry McVoy <lm@bitmover.com> wrote:
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+>You can scream all you want that "it isn't free software" but the fact
+>of the matter is that you all scream that and then go do your slides for
+>your Linux talks in PowerPoint.
+
+Not I.  The slides for my last meeting were done as TIFF files and I used xv to
+display them.  Plus, the most recent documentation I wrote for one of our
+mainframe applications was done with vi and LaTeX.  "What, in addition to the
+printed copies, you want a copy of the Word document?  There is no Word
+document.  But I'll convert it to Rich Text for you and you can take it from
+there."  If my employer didn't require me to use them occasionally, I'd delete
+every Microsoft product on my laptop.  It's not that I have anything against
+proprietary software.  It's just Microsoft that I despise.
+
+

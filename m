@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264026AbUEHSTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264022AbUEHSaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264026AbUEHSTu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 14:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264042AbUEHSTu
+	id S264022AbUEHSaX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 14:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264042AbUEHSaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 14:19:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60324 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264026AbUEHSTs (ORCPT
+	Sat, 8 May 2004 14:30:22 -0400
+Received: from main.gmane.org ([80.91.224.249]:40411 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264022AbUEHSaR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 14:19:48 -0400
-Date: Sat, 8 May 2004 11:19:22 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: akpm@osdl.org, manfred@colorfullife.com, davej@redhat.com,
-       wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: dentry bloat.
-Message-Id: <20040508111922.02e2c2ec.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org>
-References: <20040506200027.GC26679@redhat.com>
-	<20040506150944.126bb409.akpm@osdl.org>
-	<409B1511.6010500@colorfullife.com>
-	<20040508012357.3559fb6e.akpm@osdl.org>
-	<20040508022304.17779635.akpm@osdl.org>
-	<20040508031159.782d6a46.akpm@osdl.org>
-	<Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Sat, 8 May 2004 14:30:17 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ari Pollak <ajp@aripollak.com>
+Subject: Re: 2.6.6-rc3-mm2 oops in psmouse/serio after resuming from APM suspend-to-ram
+Date: Sat, 08 May 2004 14:30:13 -0400
+Message-ID: <c7j8vk$rhf$1@sea.gmane.org>
+References: <409BEF21.6040206@aripollak.com> <200405071716.15523.dtor_core@ameritech.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: wve202.resnet.neu.edu
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
+In-Reply-To: <200405071716.15523.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 May 2004 10:28:29 -0700 (PDT)
-Linus Torvalds <torvalds@osdl.org> wrote:
+This patch did indeed fix the problem; thanks! Hopefully it will be in 
+the next -mm update.
 
-> > +	unsigned short len;
-> > +} __attribute__((packed));
- ...
-> I think you just made
-> "name" be unaligned, which can cause serious problems. Because I think
-> "packed" _also_ means that it doesn't honor the alignment of the thing
-> when laying it out in structures.
+One of these days I need to learn how to debug my own crashes.
 
-That's correct, alignment concerns are thrown out the door once
-you specify packed to the compiler.
+Dmitry Torokhov wrote:
+> I think this should take care of your oops:
+> 
+> ===== drivers/input/mouse/psmouse-base.c 1.57 vs edited =====
+> --- 1.57/drivers/input/mouse/psmouse-base.c	Mon May  3 18:34:11 2004
+> +++ edited/drivers/input/mouse/psmouse-base.c	Fri May  7 17:12:22 2004
+> @@ -424,17 +424,17 @@
+>  		if (set_properties) {
+>  			psmouse->vendor = "Synaptics";
+>  			psmouse->name = "TouchPad";
+> -		}
+>  
+> -		if (max_proto > PSMOUSE_IMEX) {
+> -			if (synaptics_init(psmouse) == 0)
+> -				return PSMOUSE_SYNAPTICS;
+> +			if (max_proto > PSMOUSE_IMEX) {
+> +				if (synaptics_init(psmouse) == 0)
+> +					return PSMOUSE_SYNAPTICS;
+>  /*
+>   * Some Synaptics touchpads can emulate extended protocols (like IMPS/2).
+>   * Unfortunately Logitech/Genius probes confuse some firmware versions so
+>   * we'll have to skip them.
+>   */
+> -			max_proto = PSMOUSE_IMEX;
+> +				max_proto = PSMOUSE_IMEX;
+> +			}
+>  		}
+>  /*
+>   * Make sure that touchpad is in relative mode, gestures (taps) are enabled
+

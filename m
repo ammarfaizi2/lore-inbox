@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275662AbTHOCv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 22:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275663AbTHOCv4
+	id S275648AbTHOCs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 22:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275643AbTHOCs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 22:51:56 -0400
-Received: from inova102.correio.tnext.com.br ([200.222.67.102]:63400 "HELO
-	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
-	id S275662AbTHOCvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 22:51:55 -0400
-X-Analyze: Velop Mail Shield v0.0.3
-Date: Thu, 14 Aug 2003 23:51:48 -0300 (E. South America Standard Time)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <0@pervalidus.tk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: How do IDE chipset drivers work as modules ?
-Message-ID: <Pine.WNT.4.56.0308142338470.3912@pervalidus>
-X-X-Sender: fredlwm@postaccesslite.com@[212.15.85.11]
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 14 Aug 2003 22:48:56 -0400
+Received: from main.gmane.org ([80.91.224.249]:60345 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S275648AbTHOCsz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 22:48:55 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Charles Lepple <clepple@ghz.cc>
+Subject: Re: finding which pci device works as ide controller for root fs
+Date: Thu, 14 Aug 2003 22:39:22 -0400
+Message-ID: <bhhh4r$n16$1@sea.gmane.org>
+References: <200308141826.30735.arekm@pld-linux.org> <20030815001552.GA4776@kroah.com> <200308150238.30618.arekm@pld-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+In-Reply-To: <200308150238.30618.arekm@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.6.0-test3. First time I try this. Does initrd make it
-work ?
+Arkadiusz Miskiewicz wrote:
+> On Friday 15 of August 2003 02:15, Greg KH wrote:
+> 
+>>On Thu, Aug 14, 2003 at 06:26:30PM +0200, Arkadiusz Miskiewicz wrote:
+>>
+>>>[arekm@mobarm arekm]$ ls -l /sys/block/hda/device
+>>>lrwxrwxrwx    1 root     root           46 2003-08-14 00:49
+>>>/sys/block/hda/device -> ../../devices/pci0000:00/0000:00:11.1/ide0/0.0
+>>>
+>>>Is it possible to get PCI ID from sysfs for specified device?
+>>
+>>It's right there in the path to the ide device "0000:00:11.1"
+> 
+> How's that related to awk ' { print $2 } ' /proc/bus/pci/devices?
 
-I thought modprobe via82cxxx, but:
+If you're looking for the vendor and product IDs, they're in 
+/sys/devices/pci..../..../{vendor,device}
 
-Aug 14 17:00:36 pervalidus kernel: VP_IDE: IDE controller at PCI slot 0000:00:11.1
-Aug 14 17:00:36 pervalidus kernel: VP_IDE: chipset revision 6
-Aug 14 17:00:36 pervalidus kernel: VP_IDE: not 100%% native mode: will probe irqs later
-Aug 14 17:00:36 pervalidus kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-Aug 14 17:00:36 pervalidus kernel: VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
-Aug 14 17:00:36 pervalidus kernel:     ide0: BM-DMA at 0xe800-0xe807, BIOS settings: hda:DMA, hdb:pio
-Aug 14 17:00:36 pervalidus kernel:     ide1: BM-DMA at 0xe808-0xe80f, BIOS settings: hdc:DMA, hdd:DMA
-Aug 14 17:00:36 pervalidus kernel: ide0: I/O resource 0x3F6-0x3F6 not free.
-Aug 14 17:00:36 pervalidus kernel: hda: ERROR, PORTS ALREADY IN USE
-Aug 14 17:00:36 pervalidus kernel: register_blkdev: cannot get major 3 for ide0
-Aug 14 17:00:36 pervalidus kernel: ide1: I/O resource 0x376-0x376 not free.
-Aug 14 17:00:36 pervalidus kernel: hdc: ERROR, PORTS ALREADY IN USE
-Aug 14 17:00:36 pervalidus kernel: hdd: ERROR, PORTS ALREADY IN USE
-Aug 14 17:00:36 pervalidus kernel: register_blkdev: cannot get major 22 for ide 1
-Aug 14 17:00:36 pervalidus kernel: Module via82cxxx cannot be unloaded due to unsafe usage in include/linux/module.h:483
+-- 
+Charles Lepple <ghz.cc!clepple>
+
+

@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266427AbUIVRKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266473AbUIVRK4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266427AbUIVRKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 13:10:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266457AbUIVRKJ
+	id S266473AbUIVRK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 13:10:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266465AbUIVRKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 13:10:09 -0400
-Received: from mail3.utc.com ([192.249.46.192]:5766 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S266427AbUIVRKD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 13:10:03 -0400
-Message-ID: <4151B1C8.5050807@cybsft.com>
-Date: Wed, 22 Sep 2004 12:09:28 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@Raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S3
-References: <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu>
-In-Reply-To: <20040922103340.GA9683@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Sep 2004 13:10:51 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:56006 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S266463AbUIVRKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 13:10:41 -0400
+Date: Wed, 22 Sep 2004 10:10:30 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[4/6]-Dynamic cpu register/unregister support
+Message-ID: <20040922101029.B2631@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20040920092520.A14208@unix-os.sc.intel.com> <20040920094106.F14208@unix-os.sc.intel.com> <20040922173400.4e717946.tokunaga.keiich@jp.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040922173400.4e717946.tokunaga.keiich@jp.fujitsu.com>; from tokunaga.keiich@jp.fujitsu.com on Wed, Sep 22, 2004 at 05:34:00PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i've released the -S3 VP patch:
+On Wed, Sep 22, 2004 at 05:34:00PM +0900, Keiichiro Tokunaga wrote:
+> On Mon, 20 Sep 2004 09:41:07 -0700 Keshavamurthy Anil S wrote:
+> > ---
+> > Name:topology.patch
+> > Status:Tested on 2.6.9-rc2
+> > Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+> > Depends:	
+> > Version: applies on 2.6.9-rc2	
+> > Description:
+> > Extends support for dynamic registration and unregistration of the cpu,
+> > by implementing and exporting arch_register_cpu()/arch_unregister_cpu().
+> > Also combines multiple implementation of topology_init() functions to
+> > single topology_init() in case of ia64 architecture.
+> > ---
 > 
->    http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S3
+> > +void arch_unregister_cpu(int num)
+> > +{
+> > +	struct node *parent = NULL;
+> > +
+> > +#ifdef CONFIG_NUMA
+> > +	int node = cpu_to_node(num);
+> > +	if (node_online(node))
+> > +		parent = &sysfs_nodes[node];
+> > +#endif /* CONFIG_NUMA */
+> > +
+> > +	return unregister_cpu(&sysfs_cpus[num].cpu, parent);
+> > +}
 > 
+> I don't think that the check 'if (node_online(node))' is necessary
+> because sysfs_nodes[node] is there no matter if the node is online
+> or offline.  sysfs_nodes[] is cleared only when unregister_node()
+> is called and it would be always called after unregister_cpu().
 
-OK. Bad things seem to happen with this patch. Each time I booted it 
-(twice) several telnet connections get dropped before I get a prompt 
-(this is without any load on the system). The system SEEMED a bit less 
-responsive. I can't be sure about that because I booted it remotely. 
-After starting stress-kernel and logging out, I couldn't get back into 
-the system remotely. Telnet and ssh both would just hang indefinitely. 
-The console was still useable I think (according to my wife being my 
-remote hands and eyes.) I saw no indications in the log of any 
-unhappiness or any indications of why connections were dropping and 
-hanging. Also the highest latency reported was 252 usec.
-
-kr
-
+Yes, I agree with you. I will remove the check, or simply apply your patch:)
+thanks,
+Anil

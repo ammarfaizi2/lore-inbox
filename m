@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317023AbSGIQlb>; Tue, 9 Jul 2002 12:41:31 -0400
+	id <S317326AbSGIQmn>; Tue, 9 Jul 2002 12:42:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317300AbSGIQla>; Tue, 9 Jul 2002 12:41:30 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:45540 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317023AbSGIQl3>;
-	Tue, 9 Jul 2002 12:41:29 -0400
-Subject: 2.4.19-rc1 sending SIGALRM to exec'd process
-From: Paul Larson <plars@austin.ibm.com>
-To: Marcelo Tosati <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
+	id <S317302AbSGIQml>; Tue, 9 Jul 2002 12:42:41 -0400
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:64269 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317326AbSGIQmf>; Tue, 9 Jul 2002 12:42:35 -0400
+Subject: Re: freezing afer switching from graphical to console
+From: Michael Gruner <stockraser@yahoo.de>
+To: Bernd Schubert <bernd-schubert@web.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200207091227.15957.bernd-schubert@web.de>
+References: <1026193021.1076.29.camel@highflyer> 
+	<200207091227.15957.bernd-schubert@web.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 09 Jul 2002 11:33:41 -0500
-Message-Id: <1026232422.32159.3.camel@plars.austin.ibm.com>
+Message-Id: <1026232702.757.9.camel@highflyer>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 09 Jul 2002 18:39:24 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.19-rc1 seems to be having trouble sending a SIGALRM process that
-have been exec'd on one of my test boxes.  From the Linux Test Project,
-alarm04 test:
+Hi,
 
-sig_rev     1  FAIL  :  alarm() fails to send SIGALRM to execed
-                                  process
+ok, did it as you say: in the BIOS I switched to Vsync/blank screen.
+Let's see what happens.
 
-Also, the gettimeofday02 test fails when execed from the test driver,
-but not when you run it alone.  This test also sends a SIGALRM to know
-when it's done.
+BTW: My graphics card isn't a nvidia as many of you suggested but an ATI
+Rage pro (what did you wrote Bernd? ;-) ).
 
-Machine is a PIII-600
+Another interesting thing I got back in mind today was: one day my XMMS
+played a mp3 song and I switched to console (oooops...you know what
+happend) but the song kept on playing in a loop that was some
+milliseconds until I powered the box off. I don't know what to think
+about that.
 
-Thanks,
-Paul Larson
+best regards,
+ michael
+
+Am Die, 2002-07-09 um 12.27 schrieb Bernd Schubert:
+> Hi, 
+> 
+> we have seen it, too. Seems to be graphics card dependend (ati ones are not 
+> effected, but nvidia cards are ) and what powersaving mode is enabled in the 
+> BIOS (Suspend for the Monitor causes a lock up when switching from X to the 
+> console, but when using VSync/empty screen (or something like this) all works 
+> fine).
+> 
+> Bernd
+> 
+-- 
+Windmuehlenweg 22 07907 Schleiz
+mobil: +491628955029
+e-Mail: Michael.Gruner@fh-hof.de
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

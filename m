@@ -1,49 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319164AbSILX0N>; Thu, 12 Sep 2002 19:26:13 -0400
+	id <S319165AbSILX0k>; Thu, 12 Sep 2002 19:26:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319165AbSILX0M>; Thu, 12 Sep 2002 19:26:12 -0400
-Received: from CPE-144-132-190-206.nsw.bigpond.net.au ([144.132.190.206]:23959
-	"EHLO orthos") by vger.kernel.org with ESMTP id <S319164AbSILX0M>;
-	Thu, 12 Sep 2002 19:26:12 -0400
-Subject: Re: [Bluez-users] keyboard and mouse lost when bluez does things
-From: "Mikolaj J. Habryn" <dichro-evo@rcpt.to>
-To: "Maksim (Max)  " Krasnyanskiy <maxk@qualcomm.com>
-Cc: bluez-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20020912111832.0669a0b8@mail1.qualcomm.com>
-References: <5.1.0.14.2.20020912111832.0669a0b8@mail1.qualcomm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 13 Sep 2002 09:30:56 +1000
-Message-Id: <1031873456.21031.135.camel@orthos>
+	id <S319167AbSILX0h>; Thu, 12 Sep 2002 19:26:37 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:6153 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S319165AbSILX0e>;
+	Thu, 12 Sep 2002 19:26:34 -0400
+Date: Thu, 12 Sep 2002 16:27:53 -0700
+From: Greg KH <greg@kroah.com>
+To: marcelo@conectiva.com.br
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB changes for 2.4.20-pre6
+Message-ID: <20020912232752.GA22390@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-13 at 04:19, Maksim (Max) Krasnyanskiy wrote:
-> At 02:27 PM 9/12/2002 +1000, Mikolaj J. Habryn wrote:
-> >I have a Brainboxes CF card inside a Toshiba Portege 2000. When I do
-> >just about anything with it - hciattach, for example - the keyboard and
-> >mouse stop responding. The interrupt counts in /proc/interrupts for them
-> >stop incrementing (*boggle*). Switching into and out of X fixes it. Any
-> >suggestions?
-> I never seen this kind of thing before.
-> What kernel is this ?
+Hi,
 
-I was afraid of that :P I see it with 2.4.20-pre{5,6}, 2.4.19 (I think),
-and 2.5.32. It's a Toshiba Portege 2000, and I guess that means that
-something excitingly wacky is happening with the interrupt hardware.
-linux-kernel cc'd in case anyone there has ideas.
+Here are some USB updates for 2.4.20-pre6.
 
-I did do some instrumenting inside the bluez code, and it appears to
-lose the plot within the serial code somewhere - but not necessarily on
-any given call into there. The behaviour is quite odd - for example,
-starting an l2ping will immediately lock out the keyboard and mouse, and
-the first ping response will show an RTT of ~5500 ms, following which
-the remainder will come back within ~45ms. If I leave l2ping running
-while restoring the keyboard and mouse by switching in and out of X,
-they'll almost immediately freeze up again and there'll be another ~5500
-ms burp in the l2ping replies.
+Pull from:  bk://linuxusb.bkbits.net/marcelo-2.4
 
-m.
+The individual patches will be sent in follow up messages to this email.
+
+thanks,
+
+greg k-h
+
+ Documentation/Configure.help   |    8 ++++
+ drivers/usb/devices.c          |    2 +
+ drivers/usb/hc_sl811.c         |    1 
+ drivers/usb/hcd.c              |   23 ++++++-------
+ drivers/usb/hcd.h              |   66 ++++++++++++++++++++++++++++++++++++++
+ drivers/usb/hpusbscsi.c        |    6 +++
+ drivers/usb/hub.c              |   57 +++++++++++++-------------------
+ drivers/usb/scanner.c          |    6 +--
+ drivers/usb/serial/belkin_sa.c |    1 
+ drivers/usb/serial/belkin_sa.h |    1 
+ drivers/usb/serial/usbserial.c |    6 +--
+ drivers/usb/uhci.c             |    3 +
+ drivers/usb/usb-ohci.c         |   20 ++---------
+ drivers/usb/usb-uhci.c         |    3 +
+ drivers/usb/usb.c              |   71 ++++++++++++++++++++++++-----------------
+ include/linux/usb.h            |   69 +++++++++++++++++++++++++--------------
+ 16 files changed, 222 insertions(+), 121 deletions(-)
+-----
+
+ChangeSet@1.655, 2002-09-12 15:46:54-07:00, bunk@fs.tum.de
+  [PATCH] add Configure.help entries for CONFIG_USB_SERIAL_KEYSPAN_USA19Q{W,I}
+  
+  the patch below adds Configure.help entries for
+  CONFIG_USB_SERIAL_KEYSPAN_USA19QW and CONFIG_USB_SERIAL_KEYSPAN_USA19QI
+  which were introduced in 2.4.20-pre.
+
+ Documentation/Configure.help |    8 ++++++++
+ 1 files changed, 8 insertions(+)
+------
+
+ChangeSet@1.654, 2002-09-12 15:46:33-07:00, zwane@mwaikambo.name
+  [PATCH] trivial ohci fixes
+  
+  This is just a trivial patch for the following, and also a
+  buglet (clear_bit usb_register/derister race there?) fix
+  
+  usb-uhci.c: $Revision: 1.1.1.1 $ time 21:43:25 Sep  8 2002
+  usb-uhci.c: High bandwidth mode enabled
+  usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
+  usb-ohci.c: USB OHCI at membase 0xd0012000, IRQ 11
+  usb-ohci.c: usb-00:01.2, Silicon Integrated Systems [SiS] 7001
+  usb-ohci.c: USB HC TakeOver failed!
+  usb.c: USB bus -1 deregistered <--
+
+ drivers/usb/usb-ohci.c |    3 ++-
+ drivers/usb/usb.c      |    3 +--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+------
+
+ChangeSet@1.653, 2002-09-12 15:42:06-07:00, greg@kroah.com
+  USB serial: added device path to the proc file now that usb_make_path() is available.
+
+ drivers/usb/serial/usbserial.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+------
+
+ChangeSet@1.651, 2002-09-12 15:32:19-07:00, mlang@delysid.org
+  [PATCH] HandyTech HandyLink patch
+  
+  HandyTech's Braille displays support a USB port, those are
+  implemented with a GoHubs usb serial converter.  The only difference
+  is that the pID is 0x1200, not 0x1000.
+
+ drivers/usb/serial/belkin_sa.c |    1 +
+ drivers/usb/serial/belkin_sa.h |    1 +
+ 2 files changed, 2 insertions(+)
+------
+
+ChangeSet@1.650, 2002-09-12 15:31:46-07:00, fzago@austin.rr.com
+  [PATCH] [PATCH] (repost) fix for big endian machines in scanner.c
+  
+  This patch fixes a problem with big endian machines and scanner drivers which
+  use the SCANNER_IOCTL_CTRLMSG ioctl. The big endian to little endian swap was
+  done twice, resulting in a no-op.
+
+ drivers/usb/scanner.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+------
+
+ChangeSet@1.649, 2002-09-12 15:25:24-07:00, oliver@neukum.name
+  [PATCH] new ids for hpusbscsi
+  
+
+ drivers/usb/hpusbscsi.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
+------
+

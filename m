@@ -1,55 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267334AbUJBQoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267386AbUJBQrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267334AbUJBQoE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 12:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267386AbUJBQoD
+	id S267386AbUJBQrp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 12:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267385AbUJBQrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 12:44:03 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:40563 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267334AbUJBQoA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 12:44:00 -0400
-Message-ID: <58cb370e04100209432ec9c9ee@mail.gmail.com>
-Date: Sat, 2 Oct 2004 18:43:59 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Adam Sherman <adam@sherman.ca>
-Subject: Re: DMA timeout error
+	Sat, 2 Oct 2004 12:47:45 -0400
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:5383 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S267387AbUJBQrm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 12:47:42 -0400
+Date: Sat, 2 Oct 2004 18:48:28 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <cjmk3s$gjs$1@sea.gmane.org>
+Subject: Re: mmap() on cdrom files fails in 2.6.9-rc2-mmX
+Message-Id: <20041002184828.2d9fefda.khali@linux-fr.org>
+In-Reply-To: <20041002004221.33510f46.akpm@osdl.org>
+References: <20040928214246.41b80d30.khali@linux-fr.org>
+	<20041002004221.33510f46.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <cjmk3s$gjs$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 01 Oct 2004 14:56:42 -0400, Adam Sherman <adam@sherman.ca> wrote:
-> I have a VIA M6000 board with an ATA CompactFlash adaptor containing a
-> 512MB SanDisk card.
+> Jean Delvare <khali@linux-fr.org> wrote:
+> >
+> > I think I found a bug in 2.6.9-rc2-mm4. It doesn't seem to be able
+> > to mmap() files located on cdroms. Same problem with -mm3 and -mm1.
+> > 2.6.9-rc2 works fine. I reproduced it on two completely different
+> > systems, so I guess it isn't device dependant.
+> > 
 > 
-> I get the following error during boot:
+> So I tried your .config
 > 
-> hdb: dma_timer_expiry: dma status == 0x41
-> hdb: DMA timeout error
-> hdb: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+> > ...
+> > # CONFIG_BLK_DEV_IDECD is not set
 > 
-> hdb: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> hm.  You're not using an IDE CDROM?
 > 
-> hdb: drive not ready for command
-> hdb: dma_timer_expiry: dma status == 0x41
-> hdb: DMA timeout error
-> hdb: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+> > CONFIG_BLK_DEV_SR=m
 > 
-> hdb: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-> 
-> hdb: drive not ready for command
-> 
-> Any ideas?
+> but you are using a SCSI CDROM, correct?
 
-If this is a new CF capable of DMA but CF-to-IDE adapter doesn't support
-DMA (most don't) then "ide=nodma" kernel command line parameter should
-do the job.  It might be also bug in via82cxxx host driver.
+Correct, on my desktop system. However, I have a laptop with an IDE
+CDROM, and am able to reproduce the problem there with 2.6.9-rc2-mm1.
 
-Maybe DMA should be off by default for CF but it requires fixing almost
-every IDE host driver and why punish good hardware.
+> I tried your test app on both IDE CD with my .config and on SCSI CD
+> with your .config.  Works fine.
+
+Mmm, that's odd. There is next to nothing in common between my two
+systems (desktop is AMD-based with VIA chipset and SYM/NCR SCSI adapter,
+laptop is Intel-based with Intel chipset). Oh, the only common point I
+can think of is the underlying Linux distro, namely up-to-date Slackware
+9.1.
+
+...
+
+Being admittedly lost, I decided to do the only thing I could...
+Starting from 2.6.9-rc2-bk1, I incrementally applied all changesets from
+bk1 to bk2 as found on linux.bkbits.net:8080/linux-2.5, and test each
+time. I wasted quite a few hours on this, but not in vain. The changeset
+triggering the problem is this one:
+
+http://linux.bkbits.net:8080/linux-2.5/cset@1.1891
+
+It looks totally unrelated. As to why it causes a problem to only me,
+don't ask, I have no idea.
+
+Does it help?
+
+Thanks.
+
+-- 
+Jean Delvare
+http://khali.linux-fr.org/

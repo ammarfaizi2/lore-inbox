@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUDVUii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264666AbUDVUlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264665AbUDVUii (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 16:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUDVUii
+	id S264666AbUDVUlO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 16:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUDVUlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 16:38:38 -0400
-Received: from [200.246.178.5] ([200.246.178.5]:40453 "EHLO
-	bichopapao.itambeadm.com.br") by vger.kernel.org with ESMTP
-	id S264665AbUDVUie convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 16:38:34 -0400
-To: linux-kernel@vger.kernel.org
-Date: Thu, 22 Apr 2004 17:42:42 -0300
-X-Priority: 3 (Normal)
-From: Internet@itambe.net
-Subject: File blocked - ScanMail for Lotus Notes --> take it
-Message-ID: <OFB38668AB.527D8F8A-ON03256E7E.0071C607@itambeadm.com.br>
-X-MIMETrack: Serialize by Router on Internet/Itambe(Release 5.0.12  |February 13, 2003) at
- 04/22/2004 05:42:48 PM
+	Thu, 22 Apr 2004 16:41:14 -0400
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:35570 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S264666AbUDVUlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 16:41:11 -0400
+Date: Thu, 22 Apr 2004 21:41:10 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: fabian.frederick@prov-liege.be
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] 2.6.4v SFS instead of NTFS mp
+In-Reply-To: <S263475AbUDVJJd/20040422090933Z+101@vger.kernel.org>
+Message-ID: <Pine.SOL.4.58.0404222139100.15577@orange.csi.cam.ac.uk>
+References: <S263475AbUDVJJd/20040422090933Z+101@vger.kernel.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Por motivos de segurança e não proliferação de possíveis vírus,  o tráfego
-de arquivos com esta extensão é bloqueado em nossa rede interna.
-Se for um arquivo de cunho comercial, favor enviar novamente para o
-endereço
-itambe@terra.com.br , com o nome do destinatário no assunto.
-Qualquer dúvida , favor contatar Divisão de Informática   (11) 5080-0091.
-Contamos com vossa compreensão,
-Cordialmente
-Grupo Itambé
-=============================================================================================
-We are currently unable to receive  this email due to the attached file.
-Any emails
-containing files with this specific extension, are automatically blocked by
-our internal
-security system.   If this specific email relates to business, please send
-it to itambe@terra.com.br,
-with the name of the receiver as the subject. Any questions please contact
-our Information
-Center at  55-11- 5080-0091.
-Sincerely
-Itambe Group
-=============================================================================================
+On Thu, 22 Apr 2004 fabian.frederick@prov-liege.be wrote:
+>      Using vanilla 2.6.4 with ntfs module, when fdisk /dev/hdb which is
+> some 80Gb multi-partionned ntfs, it appears as mono-block SFS ...
+> Strange behaviour !?
+>
+> PS : Please reply ; not subscribed to lkml.
 
+Normal behaviour.  The disk in question is a dynamic disk as created by
+Windows 2k/xp or later.  You need to compile in windows dynamic disk (LDM)
+support into your kernel and then your disk's partitions will be
+recognised properly.  Note AFAIK there are no tools in existence for Linux
+that will allow you to modify the dynamic disk partition layout.
 
-Date: 04/22/2004 05:42:42 PM
-Subject:  take it
-Virus:
-File: birth.zip
-From: linux-kernel@vger.kernel.org
-To:   ana.nicolas@itambe.net
-Action:     Blocked by Filter Rules;
+Best regards,
 
-Scanned by ScanMail for Lotus Notes 2.6
-with scanengine 7.000-1004
-and patternfile lpt$vpn.865
-
-
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

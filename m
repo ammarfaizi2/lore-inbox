@@ -1,30 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275291AbRIZQS2>; Wed, 26 Sep 2001 12:18:28 -0400
+	id <S275295AbRIZQUS>; Wed, 26 Sep 2001 12:20:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275294AbRIZQSS>; Wed, 26 Sep 2001 12:18:18 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25348 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275291AbRIZQSH>; Wed, 26 Sep 2001 12:18:07 -0400
-Subject: Re: [PATCH] core file naming option
-To: padraig@antefacto.com (Padraig Brady)
-Date: Wed, 26 Sep 2001 17:22:59 +0100 (BST)
-Cc: eli.carter@inet.com (Eli Carter), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3BB1BC51.4070102@antefacto.com> from "Padraig Brady" at Sep 26, 2001 12:30:25 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S275294AbRIZQUJ>; Wed, 26 Sep 2001 12:20:09 -0400
+Received: from 65-45-81-178.customer.algx.net ([65.45.81.178]:27140 "EHLO
+	master.aslab.com") by vger.kernel.org with ESMTP id <S273668AbRIZQT6>;
+	Wed, 26 Sep 2001 12:19:58 -0400
+Date: Wed, 26 Sep 2001 09:04:33 -0700 (PDT)
+From: Andre Hedrick <andre@aslab.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: BSD-Linux FlameWar over SoftRAID.
+In-Reply-To: <E15mHJc-0000kH-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.31.0109260900550.5107-100000@postbox.aslab.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15mHSd-0000mh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Other Unix' have used core.pid as the name. Wouldn't this be better?
-> Especially when the process name is already stored in a core file
-> (`file core` will give you this). Hmm I wonder could we use this
-> core.pid format to dump the core for each thread (probably a bad idea).
 
-The -ac tree and latest -linus can use core.pid for each thread already
+Alan,
+
+The real problem is that the header content is incomplete and wrong for
+complete feature usage.  I will write a signature header file for the
+various flavors and document the ownership of the IP and the terms of
+usage.
+
+This should be an optimal solution.
+
+I gather you are point to me as the 1% for the Linux KOOKs ;-)
+
+Cheers,
+
+Andre Hedrick
+CTO ASL, Inc.
+Linux ATA Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                    Tel: (510) 857-0055 x103
+38875 Cherry Street                          Fax: (510) 857-0010
+Newark, CA 94560                             Web: www.aslab.com
+
+On Wed, 26 Sep 2001, Alan Cox wrote:
+
+> > It is clear that BSD is going off the deep end.
+>
+> Andre - 99% of the BSD developers are sane reasonable people. They have
+> their kooks we have ours. Since both headers appear to be representations
+> of a third party datastructure the matter is also completely irrelevant.
+> I would suggest folks read up a little on copyright law with regard to
+> interfaces and definitions.
+>
+> Now if Arjan did copy the stuff by reference to the BSD drivers, then no
+> he didn't do anything wrong - but I agree it would have been polite to have
+> duly credited it. It would also have been polite if the BSD person concerned
+> had contacted him privately and asked too
+>
+> Alan
+>
 

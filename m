@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277882AbRJISPO>; Tue, 9 Oct 2001 14:15:14 -0400
+	id <S277892AbRJISaQ>; Tue, 9 Oct 2001 14:30:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277883AbRJISPE>; Tue, 9 Oct 2001 14:15:04 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:20934 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S277882AbRJISOv>; Tue, 9 Oct 2001 14:14:51 -0400
-Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
-To: Richard Henderson <rth@twiddle.net>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        Rusty Russell <rusty@rustcorp.com.au>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFE6E773ED.47F04939-ON88256AE0.00616553@boulder.ibm.com>
-From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
-Date: Tue, 9 Oct 2001 10:46:46 -0700
-X-MIMETrack: Serialize by Router on D03NM045/03/M/IBM(Release 5.0.8 |June 18, 2001) at
- 10/09/2001 12:15:14 PM
+	id <S277888AbRJISaH>; Tue, 9 Oct 2001 14:30:07 -0400
+Received: from c009-h018.c009.snv.cp.net ([209.228.34.131]:57015 "HELO
+	c009.snv.cp.net") by vger.kernel.org with SMTP id <S277890AbRJIS3v>;
+	Tue, 9 Oct 2001 14:29:51 -0400
+X-Sent: 9 Oct 2001 18:30:18 GMT
+Date: Tue, 9 Oct 2001 11:31:28 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@desktop>
+To: "Trever L. Adams" <trever_adams@yahoo.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
+In-Reply-To: <1002648616.2580.18.camel@aurora>
+Message-ID: <Pine.LNX.4.33.0110091129190.209-100000@desktop>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9 Oct 2001, Trever L. Adams wrote:
 
-> On Tue, Oct 09, 2001 at 07:03:37PM +1000, Rusty Russell wrote:
-> > I don't *like* making Alpha's wmb() stronger, but it is the
-> > only solution which doesn't touch common code.
+> On Tue, 2001-10-09 at 13:07, Jeffrey W. Baker wrote:
+> > I see this too.  iptables is refusing packets on locally-initiated TCP
+> > connections when the RELATED,ESTABLISHED rule should be letting them
+> > through.
+> >
+> > I mentioned this problem on the netfilter list but my message fell into
+> > a black hole and was apparently beyond the horizon of the developers.
+> >
+> > -jwb
 >
-> It's not a "solution" at all.  It's so heavy weight you'd be
-> much better off with locks.  Just use the damned rmb_me_harder.
+> Maybe I misunderstand you, define locally-initiated.  Do you mean net or
+> do you mean box?  Mine happens on connections made by the firewall
+> (proxy for web) and on other connections initiated internally.  We
+> currently only allow identd and a few others from external (identd is
+> spoofed more or less).
 
-There are a number of cases where updates are extremely rare.
-FD management and module unloading are but two examples.  In
-such cases, the overhead of the IPIs in the extremely rare updates
-is overwhelmed by the reduction in overhead in the very common
-accesses.
+I mean connections originating from userland processes running on the
+machine with iptables configured.  This machine does not act as a NAT or
+router for any other machine.
 
-And getting rid of rmb() or rmb_me_harder() makes the read-side
-code less complex.
+We make about 200000 outbound connections to web sites in a day.  Of these
+connections, a few thousand get fucked up by iptables (iptables suddenly
+decides to drop packets on this connection).
 
-                              Thanx, Paul
+-jwb
 

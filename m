@@ -1,65 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbUDHLHG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 07:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUDHLHG
+	id S261668AbUDHLLE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 07:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbUDHLLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 07:07:06 -0400
-Received: from meyering.net1.nerim.net ([62.212.115.149]:54519 "EHLO
-	elf.meyering.net") by vger.kernel.org with ESMTP id S261615AbUDHLHD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 07:07:03 -0400
-To: Paul Eggert <eggert@CS.UCLA.EDU>
-Cc: bug-coreutils@gnu.org, Andrew Morton <akpm@osdl.org>,
-       Bruce Allen <ballen@gravity.phys.uwm.edu>, linux-kernel@vger.kernel.org,
-       Andy Isaacson <adi@hexapodia.org>
-Subject: Re: dd PATCH: add conv=direct
-In-Reply-To: <87r7uzlzz7.fsf@penguin.cs.ucla.edu> (Paul Eggert's message of "Wed, 07 Apr 2004 23:56:28 -0700")
-References: <Pine.GSO.4.21.0404071627530.9017-100000@dirac.phys.uwm.edu>
-	<87r7uzlzz7.fsf@penguin.cs.ucla.edu>
-From: Jim Meyering <jim@meyering.net>
-Date: Thu, 08 Apr 2004 13:07:30 +0200
-Message-ID: <85k70qsp71.fsf@pi.meyering.net>
+	Thu, 8 Apr 2004 07:11:03 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:56206 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S261668AbUDHLLA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 07:11:00 -0400
+Message-ID: <4075333B.4C90934C@nospam.org>
+Date: Thu, 08 Apr 2004 13:10:51 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
+Reply-To: Zoltan.Menyhart@bull.net
+Organization: Bull S.A.
+X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: David Gibson <david@gibson.dropbear.id.au>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev@lists.linuxppc.org
+Subject: Re: RFC: COW for hugepages
+References: <20040407074239.GG18264@zax> <4073C33B.7B7808E7@nospam.org> <20040408015327.GB20320@zax>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Eggert <eggert@CS.UCLA.EDU> wrote:
-> At the end of this message is a proposed patch to implement everything
-> people other than myself have asked for so far, along with several
-> other things since I was in the neighborhood.
+David Gibson wrote:
 
-Thanks for that nice patch!
-I've applied it, and made these additional changes:
+> > Why not just add a flag for a VMA telling if you want / do not want to
+> > copy it on "fork()" ? E.g.:
+> >
+> > dup_mmap():
+> >
+> >       for (mpnt = current->mm->mmap ; mpnt ; mpnt = mpnt->vm_next) {
+> >
+> >               if (mpnt->vm_flags & VM_HUGETLB_DONT_COPY)
+> >                       <do nothing>
+> >       }
+> >
+> 
+> Um.. why would that be useful?
 
-2004-04-08  Jim Meyering  <jim@meyering.net>
+I think there are 2 major cases:
 
-	* src/dd.c (set_fd_flags): Don't OR in -1 when fcntl fails.
-	Rename parameter, flags, to avoid shadowing global.
+- A big hugepage-using program creates threads to take advantage
+  of all of the CPUs => use clone2(...CLONEVM...), it works today.
+- Another big hugepage-using program calling a little shell function
+  with system() => just skip the VMA of the huge page area in
+	do_fork():
+		copy_process():
+			copy_mm():
+				dup_mmap()
+  The child will have no copy of the huge page area. No problem, it will
+  exec() soon, and the stack, the usual data, the malloc()'ed data, etc.
+  are not in the huge page area => exec() will will work correctly.
 
-Index: dd.c
-===================================================================
-RCS file: /fetish/cu/src/dd.c,v
-retrieving revision 1.155
-diff -u -p -r1.155 dd.c
---- a/dd.c	8 Apr 2004 10:22:05 -0000	1.155
-+++ b/dd.c	8 Apr 2004 11:02:20 -0000
-@@ -1017,12 +1017,12 @@ copy_with_unblock (char const *buf, size
-    in FLAGS.  The file's name is NAME.  */
- 
- static void
--set_fd_flags (int fd, int flags, char const *name)
-+set_fd_flags (int fd, int add_flags, char const *name)
- {
--  if (flags)
-+  if (add_flags)
-     {
-       int old_flags = fcntl (fd, F_GETFL);
--      int new_flags = old_flags | flags;
-+      int new_flags = old_flags < 0 ? add_flags : (old_flags | add_flags);
-       if (old_flags < 0
- 	  || (new_flags != old_flags && fcntl (fd, F_SETFL, new_flags) == -1))
- 	error (EXIT_FAILURE, errno, _("setting flags for %s"), quote (name));
+I do not think we need a COW of the huge pages.
 
+Regards,
 
+Zoltán Menyhárt

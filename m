@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265626AbTFSGLU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 02:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265627AbTFSGLU
+	id S265627AbTFSGLq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 02:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265661AbTFSGLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 02:11:20 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:11448 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S265626AbTFSGLT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 02:11:19 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Thu, 19 Jun 2003 02:11:46 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:50374 "EHLO
+	rwcrmhc12.attbi.com") by vger.kernel.org with ESMTP id S265627AbTFSGLg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 02:11:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Eric Altendorf <EricAltendorf@orst.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Nathaniel W. Filardo" <nwf@andrew.cmu.edu>,
+       swsusp-devel-request@lists.sourceforge.net
+Subject: Re: RTC causes hard lockups in 2.5.70-mm8
+Date: Tue, 17 Jun 2003 12:34:00 -0700
+User-Agent: KMail/1.4.3
+References: <Pine.LNX.4.55L-032.0306122205210.4915@unix48.andrew.cmu.edu> <1055492730.5162.0.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1055492730.5162.0.camel@dhcp22.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16113.22348.748334.416581@napali.hpl.hp.com>
-Date: Wed, 18 Jun 2003 23:25:16 -0700
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: common name for the kernel DSO
-In-Reply-To: <bcrkiq$dta$1@cesium.transmeta.com>
-References: <16112.47509.643668.116939@napali.hpl.hp.com>
-	<bcrkiq$dta$1@cesium.transmeta.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200306171232.27887.EricAltendorf@orst.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 18 Jun 2003 23:18:02 -0700, "H. Peter Anvin" <hpa@zytor.com> said:
+On Friday 13 June 2003 01:25, Alan Cox wrote:
+> On Gwe, 2003-06-13 at 03:12, Nathaniel W. Filardo wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> > If I set CONFIG_RTC=m and rebuild, when the kernel autoloads
+> > rtc.ko the system immediately locks hard, not responding even to
+> > magic SysRq series. Backing out either of the rtc-* patches from
+> > -mm8 does not seem to fix the problem.
+>
+> It seems to be ALI + ACPI related but I dont yet understand what is
+> going on
+>
 
-  HPA> It's a pretty ugly name, quite frankly, since it doesn't explain what
-  HPA> it is a gate from or to.  linux-syscall.so.1 or linux-kernel.so.1
-  HPA> would make a lot more sense.
+I'm running a Toshiba Libretto L2 (Crusoe, ACPI, ALI).  I don't have 
+any troubles with 2.5.63 (which happens to be my current stable 
+kernel).  However, I've been playing with 2.4.21 with just the swsusp 
+patches (not -ac) and with most builds I've tried there, invoking 
+hwclock always hangs the machine (which I assume is rtc related).
 
-Umh, it does say _linux_-gate, so I think it's pretty
-self-explanatory.  I considered linux-kernel.so, but think it would
-cause a lot of confusion vis-a-vis, say, kernel32.dll (I didn't write
-that, did I??).  I'm not terribly fond of linux-syscall, but I could
-live with it.
+Let me know if I can provide any more information...
 
-	--david
+Eric
+
+

@@ -1,107 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbTJHRPK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 13:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbTJHRPK
+	id S261705AbTJHRYN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 13:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbTJHRYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 13:15:10 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54452 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261687AbTJHRPB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 13:15:01 -0400
-Date: Wed, 8 Oct 2003 10:06:03 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Amir Hermelin" <amir@montilio.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Format of an 'oops' call trace (in show_trace)
-Message-Id: <20031008100603.53c1cf75.rddunlap@osdl.org>
-In-Reply-To: <018e01c38d8e$efd4a9b0$0401a8c0@CARTMAN>
-References: <20031007122631.4f028e62.rddunlap@osdl.org>
-	<018e01c38d8e$efd4a9b0$0401a8c0@CARTMAN>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Oct 2003 13:24:12 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:25357 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S261705AbTJHRYJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 13:24:09 -0400
+Message-ID: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F71F@mail-sc-6.nvidia.com>
+From: Allen Martin <AMartin@nvidia.com>
+To: "'ookhoi@humilis.net'" <ookhoi@humilis.net>, linux-kernel@vger.kernel.org
+Subject: RE: disable ACPI as a solution for "NETDEV WATCHDOG: eth0: transm
+	it timed out"?
+Date: Wed, 8 Oct 2003 10:23:48 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Oct 2003 13:25:44 +0200 "Amir Hermelin" <amir@montilio.com> wrote:
+> /proc/interrupts
+>            CPU0
+>   0: 1918692128    IO-APIC-edge  timer
+>   1:    3397768    IO-APIC-edge  i8042
+>   2:          0          XT-PIC  cascade
+>   3: 1969607482    IO-APIC-edge  NVidia NForce2
+>   9:          0   IO-APIC-level  acpi
+>  11:  127934187    IO-APIC-edge  eth0
+>  12:   95839554    IO-APIC-edge  i8042
+>  14:   27125149    IO-APIC-edge  ide0
+> NMI:          0
+> LOC: 1854644890
+> ERR:          0
+> MIS:          0
 
-| Oops, 
-| I forgot that part :)  It's RH 2.4.20-8
-| 
-| Thanks,
-| Amir.
-| 
-| 
-| On Tue, 7 Oct 2003 17:56:38 +0200 "Amir Hermelin" <amir@montilio.com> wrote:
-| 
-| | Hi,
-| | Can someone please point me to a description of what I see in the Call 
-| | of the oops dump?  I tried looking into show_trace and lookup_symbol 
-| | functions, but I couldn't understand some things.  For example, in 
-| | this following trace:
+There's your problem, eth0 should have a level triggered interrupt.
+Disabling ACPI or APIC will help.
 
-The basic format (in RH 2.4.20-8) is:
-
-[<address>] symbol_name [module_name] 0xoffset_from_symbol (where address is on stack)
-
-offset_from_symbol is hex bytes from symbol to <address>, so 0x0 is
-an exact match.
-
-| | joji kernel: [<e01bae00>] reqrdata [mymod] 0x0 (0xd5543fb4))
-| | joji kernel: [<e01a5220>] mymod [mymod] 0x0 (0xd5543fe0))
-
-| | I don't understand the relevance to reqrdata (since it's not a function,
-| but
-| | a data structure, and isn't the parameter to the mymod function).
-
-It looks for any addresses in the kernel text (code) space and tries
-to find symbol names for them.
-
-| | And could
-| | someone please explain what the 0x0 in the lines mean? From the code I
-| | understood it to be the offset of the symbol within the module, but that
-| | can't be right if both symbols translate to the same offset - so I must've
-| | understood it wrong.
-
-See above.
-
-| | joji kernel:  printing eip:
-| | joji kernel: e01b090b
-| | joji kernel: *pde = 00000000
-| | joji kernel: Oops: 0002
-| | joji kernel: CPU:    0
-| | joji kernel: EIP:    0060:[<e01b090b>]    Not tainted
-| | joji kernel: EFLAGS: 00010282
-| | joji kernel:
-| | joji kernel: EIP is at rtp_recv [mymod] 0x5b (2.4.20-8custom)
-| | joji kernel: eax: 00000000   ebx: d5542000   ecx: 00000001
-| | edx: c0374c88
-| | joji kernel: esi: e01bae00   edi: d76aa400   ebp: d5543fcc
-| | esp: d5543f98
-| | joji kernel: ds: 0068   es: 0068   ss: 0068
-| | joji kernel: Process mymod (pid: 6978, stackpage=d5543000)
-| 
-| | joji kernel: Stack: e01bae00 d76aa400 d5542000 00000000
-| | d76aa400 ffffffff e01a5308 e01bae00 
-| | joji kernel:        d76aa400 d5543fcc d5542000 d5542000
-| | dbd15900 00000000 d54f3fd0 d5533fd0 
-| | joji kernel:        d5542000 00000000 e01a5220 00000000
-| | 00000000 00000000 c010742d d76aa400 
-| | joji kernel: Call Trace:
-| |   [<e01bae00>] reqrdata [mymod] 0x0 (0xd5543f98))
-| | joji kernel: [<e01a5308>] mymod [mymod] 0xe8 (0xd5543fb0))
-| 
-| | joji kernel: [<e01bae00>] reqrdata [mymod] 0x0 (0xd5543fb4))
-| | 
-| | joji kernel: [<e01a5220>] mymod [mymod] 0x0 (0xd5543fe0))
-| | joji kernel: [<c010742d>] kernel_thread_helper [kernel] 0x5 (0xd5543ff0)) 
-
-HTH.
-
---
-~Randy
+-Allen

@@ -1,75 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264856AbSKUVrI>; Thu, 21 Nov 2002 16:47:08 -0500
+	id <S264886AbSKUVqm>; Thu, 21 Nov 2002 16:46:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264857AbSKUVrI>; Thu, 21 Nov 2002 16:47:08 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:6594 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264856AbSKUVrG>;
-	Thu, 21 Nov 2002 16:47:06 -0500
-Date: Thu, 21 Nov 2002 13:47:52 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Sam Ravnborg <sam@ravnborg.org>, john stultz <johnstul@us.ibm.com>,
-       "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] subarch cleanup
-Message-ID: <239070000.1037915272@flay>
-In-Reply-To: <20021121193407.A13944@flint.arm.linux.org.uk>
-References: <1037750429.4463.71.camel@w-jstultz2.beaverton.ibm.com> <20021121183304.GA1144@mars.ravnborg.org> <228760000.1037903743@flay> <20021121193407.A13944@flint.arm.linux.org.uk>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S264856AbSKUVqm>; Thu, 21 Nov 2002 16:46:42 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:7053 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264848AbSKUVql>; Thu, 21 Nov 2002 16:46:41 -0500
+Date: Thu, 21 Nov 2002 16:55:09 -0500
+From: Doug Ledford <dledford@redhat.com>
+To: Kevin Corry <corryk@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Steven Dake <sdake@mvista.com>,
+       Joel Becker <Joel.Becker@oracle.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-raid@vger.kernel.org
+Subject: Re: RFC - new raid superblock layout for md driver
+Message-ID: <20021121215509.GJ14063@redhat.com>
+Mail-Followup-To: Kevin Corry <corryk@us.ibm.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Steven Dake <sdake@mvista.com>,
+	Joel Becker <Joel.Becker@oracle.com>,
+	Neil Brown <neilb@cse.unsw.edu.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-raid@vger.kernel.org
+References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au> <1037914176.9122.2.camel@irongate.swansea.linux.org.uk> <20021121212251.GI14063@redhat.com> <02112114532304.06518@boiler>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <02112114532304.06518@boiler>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Header files go under include ....
+On Thu, Nov 21, 2002 at 02:53:23PM -0600, Kevin Corry wrote:
 > 
-> In this instance I'd disagree.  Think about UML.  UML has:
+> LVM doesn't handle the filesystem resizing, the filesystem tools do. The only 
+> thing you need is something in user-space to ensure the correct ordering. For 
+> an expand, the MD device must be expanded first. When that is complete, 
+> resizefs is called to expand the filesystem.
 > 
-> 	include/asm-um/*.h
-> 	include/asm-um/arch -> include/asm-i386
-> 
-> When building for UML, what happens if you need to get to a machine
-> specific file for something, and the i386 include files do:
-> 
-> 	#include <asm/mach-generic/foo.h>
-> 
-> Yep, it fails.
+> MD currently doesn't allow resize of RAID 0, 4 or 5, because expanding 
+> striped devices is way ugly.
 
-I don't understand what UML is trying to do here, but if it wants
-the architecture specific stuff, it has to do it in the same way 
-as the arch itself. That's UML's problem ... it sounds like it's
-just making invalid assumptions. Maybe the include paths
-need to be in a seperate makefile to avoid maintainance problems.
- 
-> Now guess why we in the ARM community haven't even bothered to look at
-> UML yet?  There's over 1MB of include files that would need to be moved,
-> along with countless #include statements needing to be fixed up.
-> 
-> For something that would be nice to have, and probably run quite well on
-> the ARM architecture (due to some nice features ARM has, especially for
-> UML's jail mode) there isn't enough interest in it to warrant such a
-> painful reorganisation.
-> 
-> I'd therefore strongly recommend NOT going down the path of adding
-> subdirectories to include/asm-*.
+MD doesn't, raidreconf does but not online.
 
-Another way to fix this (which might be simpler anyway) is to leave
-the Makefiles alone and create:
+> If it was determined to be possible, the MD 
+> driver may need additional support to allow online resize.
 
-include/asm-i386/mach_apic.h
-	#ifdef CONFIG_XYZ_MACHINE
-		#include <asm/mach-xyz/mach_apic.h>
-	#else
-		#include <asm/mach-generic/mach_apic.h>
+Yes, it would.  It's not impossible, just difficult.
 
-Or something along those lines.
+> But it is just as 
+> easy to add this support to MD rather than have to merge MD and DM.
 
-Whilst it's a nice idea in principle, the current subarch system does 
-not scale to any real number of subarches beyond 1 or 2, and need some 
-rejigging.
+Well, merging the two would actually be rather a simple task I think since 
+you would still keep each md mode a separate module, the only difference 
+might be some inter-communication call backs between LVM and MD, but even 
+those aren't necessarily required.  The prime benefit I would see from 
+making the two into one is being able to integrate all the disparate 
+superblocks into a single superblock format that helps to avoid any 
+possible startup errors between the different logical mapping levels.
 
-M.
-
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

@@ -1,111 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVCGCIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVCGC5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbVCGCIs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 21:08:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVCGCHr
+	id S261628AbVCGC5T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 21:57:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVCGC5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 21:07:47 -0500
-Received: from www.rapidforum.com ([80.237.244.2]:25580 "HELO rapidforum.com")
-	by vger.kernel.org with SMTP id S261625AbVCGCHZ (ORCPT
+	Sun, 6 Mar 2005 21:57:19 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:12706 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S261628AbVCGC5K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 21:07:25 -0500
-Message-ID: <422BB755.1020507@rapidforum.com>
-Date: Mon, 07 Mar 2005 03:07:17 +0100
-From: Christian Schmid <webmaster@rapidforum.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
-X-Accept-Language: de, en
+	Sun, 6 Mar 2005 21:57:10 -0500
+Message-ID: <422BC303.9060907@candelatech.com>
+Date: Sun, 06 Mar 2005 18:57:07 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
+To: Christian Schmid <webmaster@rapidforum.com>
 CC: linux-kernel@vger.kernel.org
 Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
-References: <4229E805.3050105@rapidforum.com> <422BAAC6.6040705@candelatech.com>
-In-Reply-To: <422BAAC6.6040705@candelatech.com>
-Content-Type: multipart/mixed;
- boundary="------------030705020307070000000509"
+References: <4229E805.3050105@rapidforum.com> <422BAAC6.6040705@candelatech.com> <422BB548.1020906@rapidforum.com>
+In-Reply-To: <422BB548.1020906@rapidforum.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030705020307070000000509
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Christian Schmid wrote:
+> Ben Greear wrote:
+> 
 
-> I have a tool that can also generate TCP traffic on a large number of
-> sockets.  If I can understand what you are trying to do, I may be able
-> to reproduce the problem.  My biggest machine at present has only
-> 2GB of RAM, however...not sure if that matters or not.
+>> I have a tool that can also generate TCP traffic on a large number of
+>> sockets.  If I can understand what you are trying to do, I may be able
+>> to reproduce the problem.  My biggest machine at present has only
+>> 2GB of RAM, however...not sure if that matters or not.
+> 
+> It should not matter. Low-memory is both just 1 GB if you have default 
+> 32 bit with 3/1 split.
+> 
+>> Are you sending traffic in only one direction, or more of a full-duplex
+>> configuration?
+> 
+> Its a full-duplex. Its a download-service with 3000 downloaders all over 
+> the world.
 
-But if the problem is what I think it is, you should get the problem by doing the following.
+So actually it's really mostly one-way traffic, ie in the download direction.
+Anything significant at all going upstream, other than ACKs, etc?
 
-Best use 2.6.11 since the problem got even worse there compared to 2.6.10.
+>>  Is each socket running the same bandwidth?
+> 
+> No. It ranges from 3 kb/sec to 100 kb/sec. 100 kb/sec is the limit 
+> because of the send-buffer limits.
+> 
+>> What is this bandwidth?
+> 
+> 1000 MBit
+> 
+>> Are you setting the send & rcv buffers in the socket creation
+>> code?  (To what values if so?)
+> 
+> Yes. send-buffer to 64 kbytes and receive buffer to 16 kbytes.
 
-Create a server on one machine. This server should wait for incoming sockets and when they come, 
-just send out bytes ("x" or whatever, it just doesn't matter) to that sockets. Please use a 
-send-buffer of 64 kbytes.
+With regard to this note in the 'man 7 socket' man page:
 
-On the other machine you just create clients, which connect to the server and read the data. They 
-just need to read them, nothing more. Please limit the reading to once per 300 ms, so they only read 
-around 200 kb/sec each. Then watch your traffic as you create more sockets. When you reach 2000 
-sockets on 2.6.11, it should slow down more and more. You should see the same like me on the 
-attached graph.
+NOTES
+        Linux assumes that half of the send/receive buffer is used for internal kernel struc-
+        tures; thus the sysctls are twice what can be observed on the wire.
 
-First one 2.6.11, second one 2.6.10
+What value are you using for the sockopt call?
 
-Chris
+>> How many bytes are you sending with each call to write()/sendto() 
+>> whatever?
+>  
+> I am using sendfile-call every 100 ms per socket with the poll-api. So 
+> basically around 40 kb per round.
 
---------------030705020307070000000509
-Content-Type: image/png;
- name="traffic3.png"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="traffic3.png"
+My application is single-threaded, uses non-blocking IO, and sends/rcvs from/to memory.
+It will be a good test of the TCP stack, but will not use the sendfile logic,
+nor will it touch the HD.
 
-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
---------------030705020307070000000509--
+>> Is there any significant latency between your sender and receiver 
+>> machine?
+>> If so, how much?
+> 
+> 3000 different downloaders, 3000 different locations, 3000 different 
+> machines ;)
+
+I can emulate delay if I need to, but I'd rather just stick with one
+delay setting and not have to set up a separate delay for each connection.
+
+Maybe 30ms is average for round-trip time?
+
+Have you tried benchmarking your app in a controlled manner, or are you just
+letting a random 3000 machines hit it and start downloading?  If the latter,
+then I'd suggest getting more controll over your testing environment, otherwise
+it may be impossible to really figure out where the problem lies.
+
+I'll set up a configuration similar to the values discussed above and see
+what I can see.  Will probably be late tomorrow before I can do the
+test though...
+
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

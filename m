@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278852AbRJVT6u>; Mon, 22 Oct 2001 15:58:50 -0400
+	id <S278630AbRJVT6T>; Mon, 22 Oct 2001 15:58:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278854AbRJVT6k>; Mon, 22 Oct 2001 15:58:40 -0400
-Received: from 20dyn46.com21.casema.net ([213.17.90.46]:11783 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S278852AbRJVT6b>; Mon, 22 Oct 2001 15:58:31 -0400
-Message-Id: <200110221958.VAA23485@cave.bitwizard.nl>
-Subject: Re:  Linux 2.2.20pre10
-To: Wayne.Brown@altec.com
-Date: Mon, 22 Oct 2001 21:58:58 +0200 (MEST)
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S278858AbRJVT6J>; Mon, 22 Oct 2001 15:58:09 -0400
+Received: from cx552039-a.elcjn1.sdca.home.com ([24.177.44.17]:17598 "EHLO
+	tigger.unnerving.org") by vger.kernel.org with ESMTP
+	id <S278630AbRJVT6B>; Mon, 22 Oct 2001 15:58:01 -0400
+Date: Mon, 22 Oct 2001 12:56:47 -0700 (PDT)
+From: Gregory Ade <gkade@bigbrother.net>
+X-X-Sender: <gkade@tigger.unnerving.org>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: bill davidsen <davidsen@tmr.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <Pine.LNX.4.33L.0110221432490.22127-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0110221245530.31371-100000@tigger.unnerving.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Mon, 22 Oct 2001, Rik van Riel wrote:
+
+> That's tough, they're a democratic country, they can
+> change the law if it hurts them too much.
+
+No, it's a Republic.  More specifically, a representative democracy, which
+means that we're at the mercy of the people we've given license to
+represent us.  They make all sorts of promises to get in office, and then
+go do their own damn thing anyway.
+
+Unfortunately, the people I vote for never make it in to office, but
+that's fodder for an entirely off-topic debate (flamewar?) on American
+Politics.  But, because I at least voted, I reserve the right to bitch
+about what the people in office are doing. =)
+
+I've written my representatives and voiced my opinions, but apparently
+I'm of such a small minority that I think I'm being ignored.
+
+- -- 
+Gregory K. Ade <gkade@unnerving.org>
+http://unnerving.org/~gkade
+OpenPGP Key ID: EAF4844B  keyserver: pgpkeys.mit.edu
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE71HoGeQUEYOr0hEsRAuf1AKCEwe84VvLtomt1KYvSRWMIQCozhQCfZHrM
+WjIEixxaffGjwl6aecjHxew=
+=wkYl
+-----END PGP SIGNATURE-----
 
 
-> How about those European sites that made strong encryption available
-> to circumvent the US export restrictions on encryption technology?  I
-> never heard of the FBI raiding any of them.
-
-
-There is one important difference there: Publishing ecryption outside
-the US was and is completely legal (apart from stupid local rules). 
-
-In the case of the DMCA, it has been shown that someone who publishes
-a "circumvention device" outside the US can be arrested once in the
-US.
-
-In this case "the bug" could be labelled "circumvention device":
-Suppose the bug is a "remote buffer overflow" (*) then if you have
-copyrighted info on your server which is programmed so that that
-non-paying people can't access the copyrighted material. Someone with
-knowledge of the bug will be able to break in an access the
-copyrighted material.
-
-Anyone who publishes the bug risks getting arrested if they set foot
-in the US.
-
-			Roger. 
-
-(*) It probably isn't. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 

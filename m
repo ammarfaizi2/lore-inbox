@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261882AbSI3Ayj>; Sun, 29 Sep 2002 20:54:39 -0400
+	id <S261867AbSI3Avr>; Sun, 29 Sep 2002 20:51:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261892AbSI3Ayj>; Sun, 29 Sep 2002 20:54:39 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:25107 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S261882AbSI3Ayh>; Sun, 29 Sep 2002 20:54:37 -0400
-Message-Id: <200209300059.g8U0xoNa025046@pincoya.inf.utfsm.cl>
-To: Gerald Britton <gbritton@alum.mit.edu>
-cc: Dominik Brodowski <linux@brodo.de>, linux-kernel@vger.kernel.org,
-       cpufreq@www.linux.org.uk
-Subject: Re: [PATCH] Re: [2.5.39] (3/5) CPUfreq i386 drivers 
-In-Reply-To: Message from Gerald Britton <gbritton@alum.mit.edu> 
-   of "Sun, 29 Sep 2002 15:56:48 -0400." <20020929155648.A20308@light-brigade.mit.edu> 
-Date: Sun, 29 Sep 2002 20:59:50 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S261873AbSI3Avr>; Sun, 29 Sep 2002 20:51:47 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:27051 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261867AbSI3Avr>;
+	Sun, 29 Sep 2002 20:51:47 -0400
+Date: Sun, 29 Sep 2002 17:50:23 -0700 (PDT)
+Message-Id: <20020929.175023.21499170.davem@redhat.com>
+To: zaitcev@redhat.com
+Cc: szepe@pinerecords.com, linux-kernel@vger.kernel.org
+Subject: Re: sparc32 sunrpc.o
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020929195612.A3218@devserv.devel.redhat.com>
+References: <20020928.232350.33317317.davem@redhat.com>
+	<20020929102238.GD4323@louise.pinerecords.com>
+	<20020929195612.A3218@devserv.devel.redhat.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerald Britton <gbritton@alum.mit.edu> said:
-> On Sun, Sep 29, 2002 at 12:10:18PM +0200, Dominik Brodowski wrote:
-> > I think I found the problem: it should be GFP_ATOMIC and not GFP_KERNEL in
-> > the allocation of struct cpufreq_driver. Will be fixed in the next release.
-> 
-> Nope.  That should be fine, it's in a process context and not holding any
-> locks, so GFP_KERNEL should be fine.  I found the bug though:
->  
-> -driver->policy = (struct cpufreq_policy *) (driver + sizeof(struct cpufreq_dri
-> ver));
-> +driver->policy = (struct cpufreq_policy *) (driver + 1);
->  
-> Remember your pointer arithmetic.
+   From: Pete Zaitcev <zaitcev@redhat.com>
+   Date: Sun, 29 Sep 2002 19:56:12 -0400
+   
+   The rest of the patch is sane, as far as I can tell. I do not
+   have a ready to run 2.4 sparc box, sorry. Please ask sparclinux@vger
+   people to test, especially Uzi.
 
-Perhaps you should create a local variable of the right type:
-
-   struct cpufreq_policy *local_var = (struct cpufreq_policy *)driver;
-
-   driver->policy = &local_var[1];
-
-(gcc should be smart enough to loose it)
-
-[In any case, making this part of driver point at itself looks wrong to me...]
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Let me know when new acceptable and tested patch is available.

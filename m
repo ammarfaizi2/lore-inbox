@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316901AbSE3Whk>; Thu, 30 May 2002 18:37:40 -0400
+	id <S316902AbSE3Wia>; Thu, 30 May 2002 18:38:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316902AbSE3Whk>; Thu, 30 May 2002 18:37:40 -0400
-Received: from exchange.macrolink.com ([64.173.88.99]:37637 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S316901AbSE3Whj>; Thu, 30 May 2002 18:37:39 -0400
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A785D@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)
-	]
-Date: Thu, 30 May 2002 15:37:29 -0700
+	id <S316903AbSE3Wi3>; Thu, 30 May 2002 18:38:29 -0400
+Received: from pD9E23CC6.dip.t-dialin.net ([217.226.60.198]:60861 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316902AbSE3Wi1>; Thu, 30 May 2002 18:38:27 -0400
+Date: Thu, 30 May 2002 16:38:25 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: KBuild-2.5 getting more serious
+Message-ID: <Pine.LNX.4.44.0205301634510.29405-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 26, 2002, Alan Cox wrote:
-> 
-> That helps Linux in the sense that part of the strategy is 
-> to build a system that is shared cost and testing over many 
-> vendors and many products, but it doesn't alter the basic 
-> problem that computer science isn't really up to it. Right 
-> now we are building cathedrals in the same way as a mediaeval 
-> master mason, by intuition, experience, and testing. We have 
-> no more idea than they do if any given edifice will come 
-> crashing down (as several large medaeival ones indeed did).
+Hi,
 
-It's another reason to pray when in a cathedral. :)
+You have seen some implementations by Stingr to linux-2.4. Now it's 
+getting even more serious.
 
-The tallest cathedrals that fell were usually doomed by soil instability
-rather than design of the cathedral itself. Kind of like running Linux on a
-bargain PC ...
+Some people say they had hacks for kbuild-2.5. I'm quite satisfied with 
+the new kbuild, so if you have your hacks saved somewhere, please send 
+them to me! I'll eval them and see if they're useful.
 
----------------------------------------------------------------- 
-Ed Vance              edv@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
+It all ends up in either a big mess or a cleaner tree which even Linus 
+might accept.
+
+Regards,
+Thunder
+-- 
+ship is leaving right on time	|	Thunder from the hill at ngforever
+empty harbour, wave goodbye	|
+evacuation of the isle		|	free inhabitant not directly
+caveman's paintings drowning	|	belonging anywhere
 

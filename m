@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263792AbUACXDU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 18:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbUACXDU
+	id S264272AbUACXIr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 18:08:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264285AbUACXIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 18:03:20 -0500
-Received: from [68.114.43.143] ([68.114.43.143]:57237 "EHLO wally.rdlg.net")
-	by vger.kernel.org with ESMTP id S263792AbUACXDK (ORCPT
+	Sat, 3 Jan 2004 18:08:47 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:15112 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S264272AbUACXIq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 18:03:10 -0500
-Date: Sat, 3 Jan 2004 18:03:10 -0500
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Might this help with SCO?
-Message-ID: <20040103230309.GA2247@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+	Sat, 3 Jan 2004 18:08:46 -0500
+Date: Sun, 4 Jan 2004 00:08:40 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Rob Love <rml@ximian.com>,
+       rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040104000840.A3625@pclin040.win.tue.nl>
+References: <1072917113.11003.34.camel@fur> <200401010634.28559.rob@landley.net> <1072970573.3975.3.camel@fur> <20040101164831.A2431@pclin040.win.tue.nl> <1072972440.3975.29.camel@fur> <Pine.LNX.4.58.0401021238510.5282@home.osdl.org> <20040103040013.A3100@pclin040.win.tue.nl> <Pine.LNX.4.58.0401022033010.10561@home.osdl.org> <20040103141029.B3393@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031423180.2162@home.osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0401031423180.2162@home.osdl.org>; from torvalds@osdl.org on Sat, Jan 03, 2004 at 02:27:47PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 03, 2004 at 02:27:47PM -0800, Linus Torvalds wrote:
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> > Sure. It is not "need". It is "quality of implementation".
+> > Consider NFS.
 
+> And then a high-quality implementation actually ends up being 
+> _detrimental_. It's hiding problems that can still happen, they just 
+> happen rarely enough that the bugs don't get found and fixed.
 
-  I just went digging through my old boxes for something I thought I
-had.  Seems I have an old SLS Linux digribution, Release 0.99.  The date
-on the postmark is June 23, 1993.  It's 30 5.25 Floppies but doesn't
-list what kernel is on the floppies.  If any of the guru's think it
-might be worth getting ahold of any packages on it I can see if I have a
-working 5.25" floppy around somewhere.
+Empty talk. This is not about finding and fixing bugs.
+We know very precisely what properties the NFS protocol has.
+Now one can have a system that works as well as possible with NFS.
+And one can have a worse system.
 
-Robert
+Andries
 
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Life is not a destination, it's a journey.
-  Microsoft produces 15 car pileups on the highway.
-    Don't stop traffic to stand and gawk at the tragedy.
-
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQE/90ot8+1vMONE2jsRAvysAKDAhIAjLObh2z2L96UTnIJj2+YyWgCeMODq
-hO+gdEevRfiCPUdKgvlrBwM=
-=0c1/
------END PGP SIGNATURE-----
-
---LZvS9be/3tNcYl/X--

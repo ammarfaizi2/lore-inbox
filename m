@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVBTECY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVBTEhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbVBTECY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 23:02:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVBTECX
+	id S261573AbVBTEhW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 23:37:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVBTEhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 23:02:23 -0500
-Received: from fire.osdl.org ([65.172.181.4]:41155 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261511AbVBTECT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 23:02:19 -0500
-Date: Sat, 19 Feb 2005 20:02:36 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>
-Subject: Re: IBM Thinkpad G41 PCMCIA problems [Was: Yenta TI: ... no PCI
- interrupts. Fish. Please report.]
-In-Reply-To: <1108870731.8413.163.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0502192000140.14916@ppc970.osdl.org>
-References: <1108858971.8413.147.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0502191648110.14176@ppc970.osdl.org> 
- <1108863372.8413.158.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0502191757170.14706@ppc970.osdl.org>
- <1108870731.8413.163.camel@localhost.localdomain>
+	Sat, 19 Feb 2005 23:37:21 -0500
+Received: from adsl-64-161-106-9.dsl.snfc21.pacbell.net ([64.161.106.9]:30920
+	"EHLO eden.trestle.com") by vger.kernel.org with ESMTP
+	id S261573AbVBTEhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 23:37:17 -0500
+From: Scott Bronson <bronson@rinspin.com>
+To: Roland Dreier <roland@topspin.com>
+Subject: Re: Getting the page size of currently running kernel
+Date: Sat, 19 Feb 2005 20:39:38 -0800
+User-Agent: KMail/1.7.2
+References: <200502191901.57425.bronson@rinspin.com> <521xbbucys.fsf@topspin.com>
+In-Reply-To: <521xbbucys.fsf@topspin.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502192039.38390.bronson@rinspin.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 19 Feb 2005, Steven Rostedt wrote:
+On Saturday 19 February 2005 19:28, Roland Dreier wrote:
+> I'm not sure exactly how to call it from perl, but from C one can use
+> sysconf(3) like:
 >
-> On Sat, 2005-02-19 at 18:10 -0800, Linus Torvalds wrote:
-> 
-> > I _think_ it's the code in arch/i386/pci/fixup.c that does this. See the
-> > 
-> > 	static void __devinit pci_fixup_transparent_bridge(struct pci_dev *dev)
-> > 
-> > thing, and try to disable it. Maybe that rule is wrong, and triggers much 
-> > too often?
-> > 
-> 
-> Linus,
-> 
-> Thank you very much! That was it.  The following patch made everything
-> look good.
+>  page_size = sysconf(_SC_PAGESIZE);
+>
+> (one can also use getpagesize(2) to do exactly the same thing)
 
-Ok. I've fired off an email to some Intel people asking what the
-real rules are wrt Intel PCI-PCI bridges. It may be that it's not that 
-particular chip, but some generic rule (like "all Intel bridges act like 
-they are subtractive decode _except_ if they actually have the IO 
-start/stop ranges set" or something like that).
+And I was going nuts looking all over /proc and /sys for it.  :)  _SC_PAGESIZE 
+is a part of Perl's POSIX module.  Thanks Roland and Jan.
 
-If anybody on the list can figure the Intel bridge decoding rules out, 
-please holler..
-
-			Linus
+    - Scott

@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUDLVCE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 17:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUDLVCE
+	id S263095AbUDLVEV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 17:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUDLVEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 17:02:04 -0400
-Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:49039
-	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
-	id S263100AbUDLVCA convert rfc822-to-8bit (ORCPT
+	Mon, 12 Apr 2004 17:04:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2998 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263095AbUDLVEP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 17:02:00 -0400
-Subject: Re: NFS file handle cached incorrectly
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: David Mansfield <lkml@dm.cobite.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0404121407530.23214@dhcp07.cobite.com>
-References: <Pine.LNX.4.58.0404121407530.23214@dhcp07.cobite.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1081803713.7181.26.camel@lade.trondhjem.org>
+	Mon, 12 Apr 2004 17:04:15 -0400
+Date: Mon, 12 Apr 2004 14:06:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Samium Gromoff <deepfire@sic-elvis.zel.ru>
+Cc: linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>
+Subject: Re: [2.6.5][MIPS] oneliners somehow not made it into mainline [3/3]
+Message-Id: <20040412140628.4836d778.akpm@osdl.org>
+In-Reply-To: <87hdvpp8km.wl@canopus.ns.zel.ru>
+References: <87k70lp8q8.wl@canopus.ns.zel.ru>
+	<87hdvpp8km.wl@canopus.ns.zel.ru>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 12 Apr 2004 14:01:53 -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På m , 12/04/2004 klokka 13:38, skreiv David Mansfield:
-
-> rm foo; date >foo; sleep 1; cat foo; \
-> ssh -x othermachine 'touch foo.new; rm foo; mv foo.new foo'; cat foo; date
+Samium Gromoff <deepfire@sic-elvis.zel.ru> wrote:
+>
+> Without this one it fails to run the earlyinitcall stuff, and hence
+> explodes at some point.
 > 
-> Basically, what happens is that the inode (on server) of the file 'foo'
-> changes 'out from under' the client (by another client, 'othermachine',
-> that has mounted same directory).  Client then uses the cached file handle
-> and gets a 'stale nfs handle' error visible to user space for the last
-> 'cat foo'.
+> diff -urN -X './#cdiff.pattern' ./linux-2.6.5/include/linux/init.h ./mc-2.6.5/include/linux/init.h
+> --- ./linux-2.6.5/include/linux/init.h  2004-04-12 16:07:45.000000000 +0400
+> +++ ./mc-2.6.5/include/linux/init.h     2004-04-12 18:05:28.000000000 +0400
+> @@ -83,6 +83,7 @@
+>         static initcall_t __initcall_##fn __attribute_used__ \
+>         __attribute__((__section__(".initcall" level ".init"))) = fn
 > 
-> If more than one second passes between the rename on 'othermachine' and 
-> the 'cat foo' on the client, the problem doesn't appear.
-> 
-> In reality, this is adversely affecting 'ssh' with X11 forwarding (funny
-> things happening with the xauth program on either end of the ssh).
-> 
-> Could we retry the LOOKUP if the fh comes from the cache and we get a 
-> stale file handle error automatically?
+> +#define early_initcall(fn)             __define_initcall(".early1",fn)
+>  #define core_initcall(fn)              __define_initcall("1",fn)
+>  #define postcore_initcall(fn)          __define_initcall("2",fn)
+>  #define arch_initcall(fn)              __define_initcall("3",fn)
 
-No! The file handle is assumed to be correct if the directory
-revalidated without any errors. It is cached until it is needed. The
-ESTALE occurs long after we've exited from LOOKUP.
+early_initcall() is a mips-specific thing.  If we add this macro to
+<linux/init.h> then someone will use it in generic code and all the other
+architectures explode.
 
-> Any other ideas?
+We need to either make this entirely mips-private, or rework the mips code
+to not use it at all, or justify its introduction and then introduce it for
+all architectures.
 
-I am sorry: you are simply violating the NFS caching premises. This is
-something that is not *ever* guaranteed to work whether or not you have
-READDIRPLUS enabled.
-The problem here is rather that you are making remote modifications to
-the NFS server's directory within < 1second (which is the resolution on
-"mtime" on Linux 2.4.x) of the previous modification. Linux (and all
-other NFS clients that I'm aware of) uses the mtime in order to decide
-whether or not a file/directory/... has been modified since the cache
-was last updated (unless it is a modification that was made by this
-client).
-
-The only "solution" to your problem here is to upgrade the *server* to
-Linux-2.6.x: the latter has 1 nanosecond resolution on the "mtime", and
-so can register modifications that are far smaller than 1second.
-
-Cheers,
-  Trond

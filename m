@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267517AbUHXXnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268678AbUHXXrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267517AbUHXXnN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 19:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268540AbUHXXnM
+	id S268678AbUHXXrg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 19:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268506AbUHXXra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 19:43:12 -0400
-Received: from web12308.mail.yahoo.com ([216.136.173.106]:31660 "HELO
-	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267517AbUHXXiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 19:38:55 -0400
-Message-ID: <20040824233855.4759.qmail@web12308.mail.yahoo.com>
-Date: Tue, 24 Aug 2004 16:38:55 -0700 (PDT)
-From: Dr NoName <spamacct11@yahoo.com>
-Subject: NForce 2 support
-To: linux-kernel@vger.kernel.org
+	Tue, 24 Aug 2004 19:47:30 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:6673 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S268678AbUHXXq1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 19:46:27 -0400
+Message-ID: <412BD377.60601@nvidia.com>
+Date: Tue, 24 Aug 2004 16:47:03 -0700
+From: achew <achew@nvidia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: ak@suse.de
+Subject: [PATCH 2.6.9-rc1] mpspec.h (x86_64)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Aug 2004 23:46:21.0125 (UTC) FILETIME=[8EC25750:01C48A34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello kernel hackers,
+MAX_MP_BUSSES needs to be increased to support some MP systems.
 
-I have a quick question: what is the current state of
-support for NVidia NForce 2 chipset? I am planning to
-get a new Athlon XP rig and just wondering if NForce
-(specifically Abit NF7-S) is a good choice. I can
-compile a custom kernel and don't mind installing
-nvidia drivers separately but I do want everything to
-work and be rock-solid (ide, agp, sound, network,
-etc.). So will NForce work or should I stick with VIA?
-
-thanks in advance,
-
-Eugene
+This patch increases it to the maximum addressable range, given the 8-bit bus ID field of MP table bus entries.
+Derived from mpspec.h from the 2.4-series kernel.
 
 
-		
-_______________________________
-Do you Yahoo!?
-Win 1 of 4,000 free domain names from Yahoo! Enter now.
-http://promotions.yahoo.com/goldrush
+--- linux-2.6.9-rc1/include/asm-x86_64/mpspec.h	2004-08-13 22:36:57.000000000 -0700
++++ linux/include/asm-x86_64/mpspec.h	2004-08-24 16:29:37.193956560 -0700
+@@ -156,8 +156,8 @@
+  *	7	2 CPU MCA+PCI
+  */
+ 
+-#define MAX_IRQ_SOURCES 256
+-#define MAX_MP_BUSSES 32
++#define MAX_MP_BUSSES 257
++#define MAX_IRQ_SOURCES (MAX_MP_BUSSES*4)
+ enum mp_bustype {
+ 	MP_BUS_ISA = 1,
+ 	MP_BUS_EISA,
+
+

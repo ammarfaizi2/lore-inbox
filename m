@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbUKVWpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbUKVWxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbUKVWpS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 17:45:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbUKVWmu
+	id S261210AbUKVWxn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 17:53:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbUKVWwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 17:42:50 -0500
-Received: from mail1.infiniconsys.com ([65.219.193.230]:44434 "EHLO
-	mail.infiniconsys.com") by vger.kernel.org with ESMTP
-	id S261171AbUKVWlJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 17:41:09 -0500
-From: "Fab Tillier" <ftillier@infiniconsys.com>
-To: "'Greg KH'" <greg@kroah.com>, "Roland Dreier" <roland@topspin.com>
-Cc: <linux-kernel@vger.kernel.org>, <openib-general@openib.org>
-Subject: RE: [openib-general] Re: [PATCH][RFC/v1][4/12] Add InfiniBand SA(Subnet Administration) query support
-Date: Mon, 22 Nov 2004 14:40:45 -0800
-Message-ID: <000401c4d0e4$4edb43d0$655aa8c0@infiniconsys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-reply-to: <20041122222507.GB15634@kroah.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
-X-OriginalArrivalTime: 22 Nov 2004 22:41:03.0175 (UTC) FILETIME=[58A81D70:01C4D0E4]
+	Mon, 22 Nov 2004 17:52:13 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:26143 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S261194AbUKVWvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 17:51:16 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+Message-Id: <5.1.0.14.2.20041123094109.04003720@171.71.163.14>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 23 Nov 2004 09:50:36 +1100
+To: "Jeff V. Merkey" <jmerkey@devicelogics.com>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: Linux 2.6.9 pktgen module causes INIT process respawning 
+  and sickness
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41A21C82.3060105@devicelogics.com>
+References: <5.1.0.14.2.20041122144144.04e3d9f0@171.71.163.14>
+ <419E6B44.8050505@devicelogics.com>
+ <419E6B44.8050505@devicelogics.com>
+ <5.1.0.14.2.20041122144144.04e3d9f0@171.71.163.14>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Monday, November 22, 2004 2:25 PM
-> 
-> > +struct ib_sa_hdr {
-> > +	u64			sm_key;
-> > +	u16			attr_offset;
-> > +	u16			reserved;
-> > +	ib_sa_comp_mask		comp_mask;
-> > +} __attribute__ ((packed));
-> 
-> Why is this packed?
-> 
-> > +struct ib_sa_mad {
-> > +	struct ib_mad_hdr	mad_hdr;
-> > +	struct ib_rmpp_hdr	rmpp_hdr;
-> > +	struct ib_sa_hdr	sa_hdr;
-> > +	u8			data[200];
-> > +} __attribute__ ((packed));
-> 
-> Same here?
+Jeff,
 
-These describe on-the-wire IB structures, and their definition matches the
-IB spec (Version 1.1, Volume 1)
+At 04:06 AM 23/11/2004, Jeff V. Merkey wrote:
+>I've studied these types of problems for years, and I think it's possible 
+>even for Linux.
 
-struct ib_mad_hdr matches "Standard MAD Header", Figure 144
-struct ib_rmpp_hdr matches "RMPP MAD Header", Figure 168
-struct ib_sa_hdr and struct ib_sa_mad match "SA Header", Figure 193
+so you have the source code --if its such a big deal for you, how about you 
+contribute the work to make this possible ?
 
-Hope that answers your question - let us know if it doesn't.
+the fact is, large-packet-per-second generation fits into two categories:
+  (a) script kiddies / haxors who are interested in building DoS tools
+  (b) folks that spend too much time benchmarking.
 
-Cheers,
+for the (b) case, typically the PPS-generation is only part of it.  getting 
+meaningful statistics on reordering (if any) as well as accurate latency 
+and ideally real-world traffic flows is important.  there are specialized 
+tools out there to do this: Spirent, Ixia, Agilent et al make them.
 
-- Fab
+>[..]
+>I see no other way for OS to sustain high packet loading about 500,000 
+>packets per second on Linux
+>or even come close to dealing with small packets or full 10 gigabite 
+>ethernet without such a model.
+
+10GbE NICs are an entirely different beast from 1GbE.
+as you pointed out, with real-world packet sizes today, one can sustain 
+wire-rate 1GbE today (same holds true for 2Gbps Fibre Channel also).
+
+i wouldn't call pushing minimum-packet-size @ 1GbE (which is 46 payload, 72 
+bytes on the wire btw) "real world".  and its 1.488M packets/second.
+
+>The bus speeds are actually fine for dealing with this on current hardware.
+
+its fine when you have meaningful interrupt coalescing going on & large 
+packets to DMA.
+it fails when you have inefficient DMA (small) with the overhead of setting 
+up & tearing down the DMA and associated arbitration overhead.
+
+
+
+cheers,
+
+lincoln.
 

@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316089AbSGQRsj>; Wed, 17 Jul 2002 13:48:39 -0400
+	id <S316113AbSGQRpv>; Wed, 17 Jul 2002 13:45:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316106AbSGQRsj>; Wed, 17 Jul 2002 13:48:39 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:60303 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S316089AbSGQRsh>; Wed, 17 Jul 2002 13:48:37 -0400
-Date: Wed, 17 Jul 2002 11:51:31 -0600
-Message-Id: <200207171751.g6HHpVc07197@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Elladan <elladan@eskimo.com>, Stevie O <stevie@qrpff.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Zack Weinberg <zack@codesourcery.com>, linux-kernel@vger.kernel.org
-Subject: Re: close return value (was Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks)
-In-Reply-To: <20020717171722.GA1352@win.tue.nl>
-References: <1026867782.1688.108.camel@irongate.swansea.linux.org.uk>
-	<20020716232225.GH358@codesourcery.com>
-	<5.1.0.14.2.20020717001624.00ab8c00@whisper.qrpff.net>
-	<20020717043853.GA31493@eskimo.com>
-	<20020717171722.GA1352@win.tue.nl>
+	id <S316089AbSGQRpv>; Wed, 17 Jul 2002 13:45:51 -0400
+Received: from lri.lri.fr ([129.175.15.1]:39602 "EHLO lri.lri.fr")
+	by vger.kernel.org with ESMTP id <S316070AbSGQRp3>;
+	Wed, 17 Jul 2002 13:45:29 -0400
+Date: Wed, 17 Jul 2002 19:34:03 +0200
+From: Thomas HERAULT <Thomas.Herault@lri.fr>
+To: linux-smp@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: sfr@gmx.net
+Subject: Bug : 2.4.18, Network and SMP
+Message-Id: <20020717193403.63e5f962.Thomas.Herault@lri.fr>
+Organization: Laboratoire de Recherche en Informatique (parallelisme)
+X-Mailer: Sylpheed version 0.8.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer writes:
-> On Tue, Jul 16, 2002 at 09:38:53PM -0700, Elladan wrote:
-> 
-> > The question is, does the OS standard guarantee that the fd is closed,
-> > even if close() returns EINTR or EIO?  Just going by the normal usage of
-> > EINTR, one might think otherwise.  It doesn't appear to be documented
-> > one way or another.
-> > 
-> > Alan said you could just issue close again to make sure - the example
-> > shows that this is not the case.  A second close is either required or
-> > forbidden in that example - and the behavior has to be well defined or
-> > you won't know which to do.
-> 
-> No, the behaviour is not well-defined at all.
-> The standard explicitly leaves undefined what happens when close
-> returns EINTR or EIO.
+Hi,
 
-However, the only sane thing to do is to explicitly define one way or
-another. The standard is broken. Consider a threaded application,
-where one thread tries to call close(), gets an error and re-tries,
-because it's not sure if the fd was closed or not. If the fd *is*
-closed, and the thread loops calling close(), checking for EBADF,
-there is a race if another thread tries calling open()/creat()/dup().
+I just experienced a similar problem as the one stated in
+mail http://www.uwsg.iu.edu/hypermail/linux/kernel/0204.0/0026.html
+When subject to heavy load, the tcp/ip stack of 2.4.18 smp kernel seems to
+loose some packets. These packets are never sended again by the other
+end. Few minutes after the lost of the packets, the recipient of the lost packets
+closes the connection. The connection is never closed at the other end (at
+least one hour later). 
+Compiled without smp support, whatever is the network load, tcp works.
+I haven't tested with 2.4.19-rc* or 2.5.*, but I will and let you know if this is 
+fixed or not.
 
-The ambiguity in the standard thus results in the impossibility of
-writing a race-free application. And no, forcing the application to
-protect system calls with mutexes isn't a solution.
+If you want any information / further testing, send a mail directly, I'm not on
+lkml or smp-ml.
 
-Linux should define explicitly what happens on error return from
-close(). Let that be the new standard.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Cheers, Thomas

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbTHSTPr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbTHSTPd
+	id S261284AbTHST2T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbTHST17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:15:33 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:22678 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261332AbTHSTKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:10:15 -0400
-Subject: RE: [2.4 PATCH] bugfix: ARP respond on all devices
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Richard Underwood <richard@aspectgroup.co.uk>
-Cc: "'David S. Miller'" <davem@redhat.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>, willy@w.ods.org,
-       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
-       bloemsaa@xs4all.nl, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
-       torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>
-References: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>
+	Tue, 19 Aug 2003 15:27:59 -0400
+Received: from relay.pair.com ([209.68.1.20]:60420 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S261243AbTHST1v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:27:51 -0400
+X-pair-Authenticated: 68.40.145.213
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: Andi Kleen <ak@colin2.muc.de>
+Cc: Andi Kleen <ak@muc.de>, Lars Marowsky-Bree <lmb@suse.de>, davem@redhat.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030819192125.GD92576@colin2.muc.de>
+References: <mdtk.Zy.1@gated-at.bofh.it> <mgUv.3Wb.39@gated-at.bofh.it>
+	 <mgUv.3Wb.37@gated-at.bofh.it> <miMw.5yo.31@gated-at.bofh.it>
+	 <m365ktxz3k.fsf@averell.firstfloor.org>
+	 <1061320620.3744.16.camel@athena.fprintf.net>
+	 <20030819192125.GD92576@colin2.muc.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1061320099.30567.55.camel@dhcp23.swansea.linux.org.uk>
+Message-Id: <1061321268.3744.20.camel@athena.fprintf.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 19 Aug 2003 20:08:20 +0100
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 19 Aug 2003 15:27:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-08-19 at 15:34, Richard Underwood wrote:
-> # arp -d 172.24.0.80
-> # ping -I 172.20.240.2 172.24.0.80
+On Tue, 2003-08-19 at 15:21, Andi Kleen wrote:
+> On Tue, Aug 19, 2003 at 03:17:00PM -0400, Daniel Gryniewicz wrote:
+> > On Tue, 2003-08-19 at 14:48, Andi Kleen wrote:
+> > > In my experience everybody who wants a different behaviour use some
+> > > more or less broken stateful L2/L3 switching hacks (like ipvs) or
+> > > having broken routing tables. While such hacks may be valid for some
+> > > uses they should not impact the default case.
+> > 
+> > So, changing your default route is a "hack"?  That's all that's
+> > necessary.  You can even do it with "route del/route add".
 > 
-> 	I see:
-> 
-> 16:18:40.856328 arp who-has 172.24.0.80 tell 172.20.240.2
-> 16:18:40.856431 arp reply 172.24.0.80 is-at 0:50:da:44:f:37
+> Necessary to do what exactly? 
 
-Fine
-
-> 	But if I was to do this in the other direction (arp -d 172.20.240.1;
-> ping -I 172.24.0.1 172.20.240.1) then I'd lose connectivity over my default
-> route because 172.20.240.1 won't accept ARP packets from IP numbers not on
-> the connected subnet. The <incomplete> ARP entry will block any further ARP
-> requests from valid IP numbers.
-
-One thing I agree with you about is that an ARP resolution for an
-address via one path should not block a resolution for it by another
-path since to begin with the two paths may be to different routers
-one of which is down.
-
+Cause Linux to issue an arp request with a tell address not on the
+interface sending the arp.
+-- 
+Daniel Gryniewicz <dang@fprintf.net>

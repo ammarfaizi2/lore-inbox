@@ -1,547 +1,323 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbVCIWba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVCIWb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbVCIWba (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 17:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbVCIW0H
+	id S262412AbVCIWb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 17:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVCIWba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 17:26:07 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:44497 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261390AbVCIWH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 17:07:28 -0500
-Date: Wed, 9 Mar 2005 22:06:35 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/15] ptwalk: p?d_none_or_clear_bad
-In-Reply-To: <Pine.LNX.4.61.0503092201070.6070@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0503092205450.6070@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503092201070.6070@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 9 Mar 2005 17:31:30 -0500
+Received: from dsl027-162-124.atl1.dsl.speakeasy.net ([216.27.162.124]:61844
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S262428AbVCIWNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 17:13:33 -0500
+Date: Wed, 9 Mar 2005 16:57:40 -0500
+From: Sonny Rao <sonny@burdell.org>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] Re: inode cache, dentry cache, buffer heads usage
+Message-ID: <20050309215740.GA10757@kevlar.burdell.org>
+References: <1110394558.24286.203.camel@dyn318077bld.beaverton.ibm.com> <20050309212732.GA5036@in.ibm.com> <1110403763.24286.213.camel@dyn318077bld.beaverton.ibm.com> <20050309215349.GD4663@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ew6BAiZeqk4r7MaW"
+Content-Disposition: inline
+In-Reply-To: <20050309215349.GD4663@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace the repetitive p?d_none, p?d_bad, p?d_ERROR, p?d_clear clauses
-by pgd_none_or_clear_bad, pud_none_or_clear_bad, pmd_none_or_clear_bad
-inlines throughout common and i386 - avoids a sprinkling of "unlikely"s.
 
-Tests inline, but unlikely error handling in mm/memory.c - so the ERROR
-file and line won't tell much; but it comes too late anyway, and hardly
-ever seen outside development.
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Let mremap use them in get_one_pte_map, as it already did in _nested;
-but leave follow_page and untouched_anonymous page just skipping _bad
-as before - they don't have quite the same ownership of the mm.
+On Thu, Mar 10, 2005 at 03:23:49AM +0530, Dipankar Sarma wrote:
+> On Wed, Mar 09, 2005 at 01:29:23PM -0800, Badari Pulavarty wrote:
+> > On Wed, 2005-03-09 at 13:27, Dipankar Sarma wrote:
+> > > On Wed, Mar 09, 2005 at 10:55:58AM -0800, Badari Pulavarty wrote:
+> > > > Hi,
+> > > > 
+> > > > We have a 8-way P-III, 16GB RAM running 2.6.8-1. We use this as
+> > > > our server to keep source code, cscopes and do the builds.
+> > > > This machine seems to slow down over the time. One thing we
+> > > > keep noticing is it keeps running out of lowmem. Most of 
+> > > > the lowmem is used for ext3 inode cache + dentry cache +
+> > > > bufferheads + Buffers. So we did 2:2 split - but it improved
+> > > > thing, but again run into same issues.
+> > > > 
+> > > > So, why is these slab cache are not getting purged/shrinked even
+> > > > under memory pressure ? (I have seen lowmem as low as 6MB). What
+> > > > can I do to keep the machine healthy ?
+> > > 
+> > > How does /proc/sys/fs/dentry-state look when you run low on lowmem ?
+> > 
+> > 
+> > 
+> > badari@kernel:~$ cat /proc/sys/fs/dentry-state
+> > 1434093 1348947 45      0       0       0
+> > badari@kernel:~$ grep dentry /proc/slabinfo
+> > dentry_cache      1434094 1857519    144   27    1 : tunables  120  
+> > 60    8 : slabdata  68797  68797      0
+> 
+> Hmm.. so we are not shrinking dcache despite a large number of
+> unsed dentries. That is where we need to look. Will dig a bit
+> tomorrow.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+Here's my really old patch where I saw some improvement for this scenario...
 
- arch/i386/kernel/vm86.c       |   21 +--------
- include/asm-generic/pgtable.h |   44 ++++++++++++++++++++
- mm/memory.c                   |   89 +++++++++++++++---------------------------
- mm/mprotect.c                 |   21 +--------
- mm/mremap.c                   |   24 +++--------
- mm/msync.c                    |   21 +--------
- mm/swapfile.c                 |   21 +--------
- mm/vmalloc.c                  |   21 +--------
- 8 files changed, 100 insertions(+), 162 deletions(-)
+I haven't tried this in a really long time, so I have no idea if it'll
+work :-) 
 
---- 2.6.11-bk5/arch/i386/kernel/vm86.c	2005-03-02 07:38:52.000000000 +0000
-+++ ptwalk1/arch/i386/kernel/vm86.c	2005-03-09 01:35:49.000000000 +0000
-@@ -145,29 +145,14 @@ static void mark_screen_rdonly(struct ta
- 	preempt_disable();
- 	spin_lock(&tsk->mm->page_table_lock);
- 	pgd = pgd_offset(tsk->mm, 0xA0000);
--	if (pgd_none(*pgd))
-+	if (pgd_none_or_clear_bad(pgd))
- 		goto out;
--	if (pgd_bad(*pgd)) {
--		pgd_ERROR(*pgd);
--		pgd_clear(pgd);
--		goto out;
--	}
- 	pud = pud_offset(pgd, 0xA0000);
--	if (pud_none(*pud))
--		goto out;
--	if (pud_bad(*pud)) {
--		pud_ERROR(*pud);
--		pud_clear(pud);
-+	if (pud_none_or_clear_bad(pud))
- 		goto out;
--	}
- 	pmd = pmd_offset(pud, 0xA0000);
--	if (pmd_none(*pmd))
--		goto out;
--	if (pmd_bad(*pmd)) {
--		pmd_ERROR(*pmd);
--		pmd_clear(pmd);
-+	if (pmd_none_or_clear_bad(pmd))
- 		goto out;
--	}
- 	pte = mapped = pte_offset_map(pmd, 0xA0000);
- 	for (i = 0; i < 32; i++) {
- 		if (pte_present(*pte))
---- 2.6.11-bk5/include/asm-generic/pgtable.h	2005-03-09 01:12:48.000000000 +0000
-+++ ptwalk1/include/asm-generic/pgtable.h	2005-03-09 01:35:49.000000000 +0000
-@@ -135,4 +135,48 @@ static inline void ptep_set_wrprotect(st
- #define pgd_offset_gate(mm, addr)	pgd_offset(mm, addr)
- #endif
+
+Sonny
+
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-2.6.8-rc1-dcache-reclaim-rb.patch"
+
+--- fs/dcache.c.original	2004-08-02 15:43:42.629539312 -0500
++++ fs/dcache.c	2004-08-03 18:16:45.007809144 -0500
+@@ -31,6 +31,7 @@
+ #include <linux/seqlock.h>
+ #include <linux/swap.h>
+ #include <linux/bootmem.h>
++#include <linux/rbtree.h>
  
-+#ifndef __ASSEMBLY__
-+/*
-+ * When walking page tables, we usually want to skip any p?d_none entries;
-+ * and any p?d_bad entries - reporting the error before resetting to none.
-+ * Do the tests inline, but report and clear the bad entry in mm/memory.c.
-+ */
-+void pgd_clear_bad(pgd_t *);
-+void pud_clear_bad(pud_t *);
-+void pmd_clear_bad(pmd_t *);
-+
-+static inline int pgd_none_or_clear_bad(pgd_t *pgd)
-+{
-+	if (pgd_none(*pgd))
-+		return 1;
-+	if (unlikely(pgd_bad(*pgd))) {
-+		pgd_clear_bad(pgd);
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+static inline int pud_none_or_clear_bad(pud_t *pud)
-+{
-+	if (pud_none(*pud))
-+		return 1;
-+	if (unlikely(pud_bad(*pud))) {
-+		pud_clear_bad(pud);
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+static inline int pmd_none_or_clear_bad(pmd_t *pmd)
-+{
-+	if (pmd_none(*pmd))
-+		return 1;
-+	if (unlikely(pmd_bad(*pmd))) {
-+		pmd_clear_bad(pmd);
-+		return 1;
-+	}
-+	return 0;
-+}
-+#endif /* !__ASSEMBLY__ */
-+
- #endif /* _ASM_GENERIC_PGTABLE_H */
---- 2.6.11-bk5/mm/memory.c	2005-03-09 01:12:53.000000000 +0000
-+++ ptwalk1/mm/memory.c	2005-03-09 01:35:49.000000000 +0000
-@@ -83,6 +83,30 @@ EXPORT_SYMBOL(high_memory);
- EXPORT_SYMBOL(vmalloc_earlyreserve);
+ /* #define DCACHE_DEBUG 1 */
  
- /*
-+ * If a p?d_bad entry is found while walking page tables, report
-+ * the error, before resetting entry to p?d_none.  Usually (but
-+ * very seldom) called out from the p?d_none_or_clear_bad macros.
-+ */
+@@ -60,12 +61,61 @@ static unsigned int d_hash_mask;
+ static unsigned int d_hash_shift;
+ static struct hlist_head *dentry_hashtable;
+ static LIST_HEAD(dentry_unused);
++static struct rb_root dentry_tree = RB_ROOT;
 +
-+void pgd_clear_bad(pgd_t *pgd)
++#define RB_NONE (2)
++#define ON_RB(node)	((node)->rb_color != RB_NONE)
++#define RB_CLEAR(node)	((node)->rb_color = RB_NONE )
+ 
+ /* Statistics gathering. */
+ struct dentry_stat_t dentry_stat = {
+ 	.age_limit = 45,
+ };
+ 
++
++/* take a dentry safely off the rbtree */
++static void drb_delete(struct dentry* dentry)
 +{
-+	pgd_ERROR(*pgd);
-+	pgd_clear(pgd);
++  //  printk("drb_delete: 0x%p (%s) proc %d\n",dentry,dentry->d_iname,smp_processor_id());
++	if (ON_RB(&dentry->d_rb)) {
++		rb_erase(&dentry->d_rb, &dentry_tree);
++		RB_CLEAR(&dentry->d_rb);
++	} else {
++		/* All allocated dentry objs should be in the tree */
++		BUG_ON(1);
++	}
 +}
 +
-+void pud_clear_bad(pud_t *pud)
++static  
++struct dentry * drb_insert(struct dentry * dentry)
 +{
-+	pud_ERROR(*pud);
-+	pud_clear(pud);
++	struct rb_node ** p = &dentry_tree.rb_node;
++	struct rb_node * parent = NULL;
++	struct rb_node * node    = &dentry->d_rb;
++	struct dentry  * cur    = NULL;
++
++	//	printk("drb_insert: 0x%p (%s)\n",dentry,dentry->d_iname);
++
++	while (*p)
++	{
++		parent = *p;
++		cur = rb_entry(parent, struct dentry, d_rb);
++
++		if (dentry < cur)
++			p = &(*p)->rb_left;
++		else if (dentry > cur)
++			p = &(*p)->rb_right;
++		else {
++			return cur;
++		}
++	}
++
++	rb_link_node(node, parent, p);
++	rb_insert_color(node,&dentry_tree); 
++	return NULL;
 +}
 +
-+void pmd_clear_bad(pmd_t *pmd)
-+{
-+	pmd_ERROR(*pmd);
-+	pmd_clear(pmd);
-+}
 +
-+/*
-  * Note: this doesn't free the actual pages themselves. That
-  * has been handled earlier when unmapping all the memory regions.
-  */
-@@ -90,13 +114,8 @@ static inline void clear_pmd_range(struc
+ static void d_callback(struct rcu_head *head)
  {
- 	struct page *page;
- 
--	if (pmd_none(*pmd))
-+	if (pmd_none_or_clear_bad(pmd))
- 		return;
--	if (unlikely(pmd_bad(*pmd))) {
--		pmd_ERROR(*pmd);
--		pmd_clear(pmd);
--		return;
--	}
- 	if (!((start | end) & ~PMD_MASK)) {
- 		/* Only clear full, aligned ranges */
- 		page = pmd_page(*pmd);
-@@ -112,14 +131,8 @@ static inline void clear_pud_range(struc
- 	unsigned long addr = start, next;
- 	pmd_t *pmd, *__pmd;
- 
--	if (pud_none(*pud))
-+	if (pud_none_or_clear_bad(pud))
- 		return;
--	if (unlikely(pud_bad(*pud))) {
--		pud_ERROR(*pud);
--		pud_clear(pud);
--		return;
--	}
--
- 	pmd = __pmd = pmd_offset(pud, start);
- 	do {
- 		next = (addr + PMD_SIZE) & PMD_MASK;
-@@ -144,14 +157,8 @@ static inline void clear_pgd_range(struc
- 	unsigned long addr = start, next;
- 	pud_t *pud, *__pud;
- 
--	if (pgd_none(*pgd))
-+	if (pgd_none_or_clear_bad(pgd))
- 		return;
--	if (unlikely(pgd_bad(*pgd))) {
--		pgd_ERROR(*pgd);
--		pgd_clear(pgd);
--		return;
--	}
--
- 	pud = __pud = pud_offset(pgd, start);
- 	do {
- 		next = (addr + PUD_SIZE) & PUD_MASK;
-@@ -374,13 +381,8 @@ static int copy_pmd_range(struct mm_stru
- 		next = (addr + PMD_SIZE) & PMD_MASK;
- 		if (next > end || next <= addr)
- 			next = end;
--		if (pmd_none(*src_pmd))
--			continue;
--		if (pmd_bad(*src_pmd)) {
--			pmd_ERROR(*src_pmd);
--			pmd_clear(src_pmd);
-+		if (pmd_none_or_clear_bad(src_pmd))
- 			continue;
--		}
- 		err = copy_pte_range(dst_mm, src_mm, dst_pmd, src_pmd,
- 							vma, addr, next);
- 		if (err)
-@@ -406,13 +408,8 @@ static int copy_pud_range(struct mm_stru
- 		next = (addr + PUD_SIZE) & PUD_MASK;
- 		if (next > end || next <= addr)
- 			next = end;
--		if (pud_none(*src_pud))
--			continue;
--		if (pud_bad(*src_pud)) {
--			pud_ERROR(*src_pud);
--			pud_clear(src_pud);
-+		if (pud_none_or_clear_bad(src_pud))
- 			continue;
--		}
- 		err = copy_pmd_range(dst_mm, src_mm, dst_pud, src_pud,
- 							vma, addr, next);
- 		if (err)
-@@ -441,13 +438,8 @@ int copy_page_range(struct mm_struct *ds
- 		next = (addr + PGDIR_SIZE) & PGDIR_MASK;
- 		if (next > end || next <= addr)
- 			next = end;
--		if (pgd_none(*src_pgd))
-+		if (pgd_none_or_clear_bad(src_pgd))
- 			goto next_pgd;
--		if (pgd_bad(*src_pgd)) {
--			pgd_ERROR(*src_pgd);
--			pgd_clear(src_pgd);
--			goto next_pgd;
--		}
- 		err = copy_pud_range(dst, src, dst_pgd, src_pgd,
- 							vma, addr, next);
- 		if (err)
-@@ -469,13 +461,8 @@ static void zap_pte_range(struct mmu_gat
- 	unsigned long offset;
- 	pte_t *ptep;
- 
--	if (pmd_none(*pmd))
-+	if (pmd_none_or_clear_bad(pmd))
- 		return;
--	if (unlikely(pmd_bad(*pmd))) {
--		pmd_ERROR(*pmd);
--		pmd_clear(pmd);
--		return;
--	}
- 	ptep = pte_offset_map(pmd, address);
- 	offset = address & ~PMD_MASK;
- 	if (offset + size > PMD_SIZE)
-@@ -553,13 +540,8 @@ static void zap_pmd_range(struct mmu_gat
- 	pmd_t * pmd;
- 	unsigned long end;
- 
--	if (pud_none(*pud))
--		return;
--	if (unlikely(pud_bad(*pud))) {
--		pud_ERROR(*pud);
--		pud_clear(pud);
-+	if (pud_none_or_clear_bad(pud))
- 		return;
--	}
- 	pmd = pmd_offset(pud, address);
- 	end = address + size;
- 	if (end > ((address + PUD_SIZE) & PUD_MASK))
-@@ -577,13 +559,8 @@ static void zap_pud_range(struct mmu_gat
- {
- 	pud_t * pud;
- 
--	if (pgd_none(*pgd))
--		return;
--	if (unlikely(pgd_bad(*pgd))) {
--		pgd_ERROR(*pgd);
--		pgd_clear(pgd);
-+	if (pgd_none_or_clear_bad(pgd))
- 		return;
--	}
- 	pud = pud_offset(pgd, address);
- 	do {
- 		zap_pmd_range(tlb, pud, address, end - address, details);
---- 2.6.11-bk5/mm/mprotect.c	2005-03-09 01:12:53.000000000 +0000
-+++ ptwalk1/mm/mprotect.c	2005-03-09 01:35:49.000000000 +0000
-@@ -32,13 +32,8 @@ change_pte_range(struct mm_struct *mm, p
- 	pte_t * pte;
- 	unsigned long base, end;
- 
--	if (pmd_none(*pmd))
-+	if (pmd_none_or_clear_bad(pmd))
- 		return;
--	if (pmd_bad(*pmd)) {
--		pmd_ERROR(*pmd);
--		pmd_clear(pmd);
--		return;
--	}
- 	pte = pte_offset_map(pmd, address);
- 	base = address & PMD_MASK;
- 	address &= ~PMD_MASK;
-@@ -69,13 +64,8 @@ change_pmd_range(struct mm_struct *mm, p
- 	pmd_t * pmd;
- 	unsigned long base, end;
- 
--	if (pud_none(*pud))
--		return;
--	if (pud_bad(*pud)) {
--		pud_ERROR(*pud);
--		pud_clear(pud);
-+	if (pud_none_or_clear_bad(pud))
- 		return;
--	}
- 	pmd = pmd_offset(pud, address);
- 	base = address & PUD_MASK;
- 	address &= ~PUD_MASK;
-@@ -96,13 +86,8 @@ change_pud_range(struct mm_struct *mm, p
- 	pud_t * pud;
- 	unsigned long base, end;
- 
--	if (pgd_none(*pgd))
--		return;
--	if (pgd_bad(*pgd)) {
--		pgd_ERROR(*pgd);
--		pgd_clear(pgd);
-+	if (pgd_none_or_clear_bad(pgd))
- 		return;
--	}
- 	pud = pud_offset(pgd, address);
- 	base = address & PGDIR_MASK;
- 	address &= ~PGDIR_MASK;
---- 2.6.11-bk5/mm/mremap.c	2005-03-09 01:12:53.000000000 +0000
-+++ ptwalk1/mm/mremap.c	2005-03-09 01:35:49.000000000 +0000
-@@ -30,26 +30,16 @@ static pte_t *get_one_pte_map_nested(str
- 	pte_t *pte = NULL;
- 
- 	pgd = pgd_offset(mm, addr);
--	if (pgd_none(*pgd))
-+	if (pgd_none_or_clear_bad(pgd))
- 		goto end;
- 
- 	pud = pud_offset(pgd, addr);
--	if (pud_none(*pud))
-+	if (pud_none_or_clear_bad(pud))
- 		goto end;
--	if (pud_bad(*pud)) {
--		pud_ERROR(*pud);
--		pud_clear(pud);
--		goto end;
--	}
- 
- 	pmd = pmd_offset(pud, addr);
--	if (pmd_none(*pmd))
--		goto end;
--	if (pmd_bad(*pmd)) {
--		pmd_ERROR(*pmd);
--		pmd_clear(pmd);
-+	if (pmd_none_or_clear_bad(pmd))
- 		goto end;
--	}
- 
- 	pte = pte_offset_map_nested(pmd, addr);
- 	if (pte_none(*pte)) {
-@@ -67,15 +57,17 @@ static pte_t *get_one_pte_map(struct mm_
- 	pmd_t *pmd;
- 
- 	pgd = pgd_offset(mm, addr);
--	if (pgd_none(*pgd))
-+	if (pgd_none_or_clear_bad(pgd))
- 		return NULL;
- 
- 	pud = pud_offset(pgd, addr);
--	if (pud_none(*pud))
-+	if (pud_none_or_clear_bad(pud))
- 		return NULL;
-+
- 	pmd = pmd_offset(pud, addr);
--	if (!pmd_present(*pmd))
-+	if (pmd_none_or_clear_bad(pmd))
- 		return NULL;
-+
- 	return pte_offset_map(pmd, addr);
+ 	struct dentry * dentry = container_of(head, struct dentry, d_rcu);
+@@ -189,6 +239,7 @@ kill_it: {
+   		list_del(&dentry->d_child);
+ 		dentry_stat.nr_dentry--;	/* For d_free, below */
+ 		/*drops the locks, at that point nobody can reach this dentry */
++		drb_delete(dentry);
+ 		dentry_iput(dentry);
+ 		parent = dentry->d_parent;
+ 		d_free(dentry);
+@@ -351,6 +402,7 @@ static inline void prune_one_dentry(stru
+ 	__d_drop(dentry);
+ 	list_del(&dentry->d_child);
+ 	dentry_stat.nr_dentry--;	/* For d_free, below */
++	drb_delete(dentry);
+ 	dentry_iput(dentry);
+ 	parent = dentry->d_parent;
+ 	d_free(dentry);
+@@ -360,7 +412,7 @@ static inline void prune_one_dentry(stru
  }
  
---- 2.6.11-bk5/mm/msync.c	2005-03-02 07:38:55.000000000 +0000
-+++ ptwalk1/mm/msync.c	2005-03-09 01:35:49.000000000 +0000
-@@ -45,13 +45,8 @@ static int filemap_sync_pte_range(pmd_t 
- 	pte_t *pte;
- 	int error;
+ /**
+- * prune_dcache - shrink the dcache
++ * prune_lru - shrink the lru list
+  * @count: number of entries to try and free
+  *
+  * Shrink the dcache. This is done when we need
+@@ -372,7 +424,7 @@ static inline void prune_one_dentry(stru
+  * all the dentries are in use.
+  */
+  
+-static void prune_dcache(int count)
++static void prune_lru(int count)
+ {
+ 	spin_lock(&dcache_lock);
+ 	for (; count ; count--) {
+@@ -410,6 +462,93 @@ static void prune_dcache(int count)
+ 	spin_unlock(&dcache_lock);
+ }
  
--	if (pmd_none(*pmd))
-+	if (pmd_none_or_clear_bad(pmd))
- 		return 0;
--	if (pmd_bad(*pmd)) {
--		pmd_ERROR(*pmd);
--		pmd_clear(pmd);
--		return 0;
--	}
- 	pte = pte_offset_map(pmd, address);
- 	if ((address & PMD_MASK) != (end & PMD_MASK))
- 		end = (address & PMD_MASK) + PMD_SIZE;
-@@ -74,13 +69,8 @@ static inline int filemap_sync_pmd_range
- 	pmd_t * pmd;
- 	int error;
++/**
++ * prune_dcache - try and "intelligently" shrink the dcache
++ * @requested - num of dentrys to try and free
++ *
++ * The basic strategy here is to scan through our tree of dentrys
++ * in-order and put them at the end of the lru - free list
++ * Why in-order?  Because, we want the chances of actually freeing
++ * all 15-27 (depending on arch) dentrys on a given page, instead
++ * of just in random lru order, which tends to lower dcache utilization
++ * and not free many pages.
++ */
++static void prune_dcache(unsigned  requested)
++{
++	/* ------ debug --------- */
++	//static int mod = 0;
++	//int flag = 0, removed = 0;
++	/* ------ debug --------- */
++
++	unsigned found = 0;
++	unsigned count;
++	struct rb_node * next;
++	struct dentry *dentry;
++#define NUM_LRU_PTRS 8
++	struct rb_node *lru_ptrs[NUM_LRU_PTRS];
++	struct list_head *cur;
++	int i;
++
++	spin_lock(&dcache_lock);
++	
++       	cur = dentry_unused.prev;
++
++	/* grab NUM_LRU_PTRS entrys off the end of lru list */
++	/* we'll use these as pseudo-random starting points in the tree */
++	for (i = 0 ; i < NUM_LRU_PTRS ; i++ ){
++		if ( cur == &dentry_unused ) {
++			/* if there aren't NUM_LRU_PTRS entrys, we probably
++			   can't even free a page now, give up */
++			spin_unlock(&dcache_lock);
++			return;
++		}
++		lru_ptrs[i] = &(list_entry(cur,struct dentry, d_lru)->d_rb); 
++		cur = cur->prev;
++	}
++	
++	i = 0;
++	
++	do {
++		count = 4 * PAGE_SIZE / sizeof(struct dentry) ; /* abitrary heuristic */
++		next = lru_ptrs[i];
++		for (; count ; count--) {
++			if( ! next ) {
++				//flag = 1;  /* ------ debug --------- */
++				break;
++			}
++			dentry = list_entry(next, struct dentry, d_rb);
++			next = rb_next(next);
++			prefetch(next);
++			if( ! list_empty( &dentry->d_lru) ) {
++				list_del_init(&dentry->d_lru);
++				dentry_stat.nr_unused--;
++			}
++			if (atomic_read(&dentry->d_count)) {
++				//removed++; 	/* ------ debug --------- */
++				continue;
++			} else {
++				list_add_tail(&dentry->d_lru, &dentry_unused);
++				dentry_stat.nr_unused++;
++				found++;
++			}
++		}
++		i++;
++	} while ( (found < requested / 2) && (i < NUM_LRU_PTRS ) );
++#undef NUM_LRU_PTRS
++
++	spin_unlock(&dcache_lock);
++	
++	/* ------ debug --------- */
++	//mod++;	
++	//if ( ! (mod & 64) ) {
++	//	mod = 0;
++	//	printk("prune_dcache: i %d flag %d, found %d removed %d\n",i,flag,found,removed);
++	//}
++	/* ------ debug --------- */
++
++	prune_lru(found);
++}
++
+ /*
+  * Shrink the dcache for the specified super block.
+  * This allows us to unmount a device without disturbing
+@@ -604,7 +743,7 @@ void shrink_dcache_parent(struct dentry 
+ 	int found;
  
--	if (pud_none(*pud))
--		return 0;
--	if (pud_bad(*pud)) {
--		pud_ERROR(*pud);
--		pud_clear(pud);
-+	if (pud_none_or_clear_bad(pud))
- 		return 0;
--	}
- 	pmd = pmd_offset(pud, address);
- 	if ((address & PUD_MASK) != (end & PUD_MASK))
- 		end = (address & PUD_MASK) + PUD_SIZE;
-@@ -100,13 +90,8 @@ static inline int filemap_sync_pud_range
- 	pud_t *pud;
- 	int error;
+ 	while ((found = select_parent(parent)) != 0)
+-		prune_dcache(found);
++		prune_lru(found);
+ }
  
--	if (pgd_none(*pgd))
--		return 0;
--	if (pgd_bad(*pgd)) {
--		pgd_ERROR(*pgd);
--		pgd_clear(pgd);
-+	if (pgd_none_or_clear_bad(pgd))
- 		return 0;
--	}
- 	pud = pud_offset(pgd, address);
- 	if ((address & PGDIR_MASK) != (end & PGDIR_MASK))
- 		end = (address & PGDIR_MASK) + PGDIR_SIZE;
---- 2.6.11-bk5/mm/swapfile.c	2005-03-09 01:12:53.000000000 +0000
-+++ ptwalk1/mm/swapfile.c	2005-03-09 01:35:49.000000000 +0000
-@@ -441,13 +441,8 @@ static unsigned long unuse_pmd(struct vm
- 	pte_t *pte;
- 	pte_t swp_pte = swp_entry_to_pte(entry);
+ /**
+@@ -642,7 +781,7 @@ void shrink_dcache_anon(struct hlist_hea
+ 			}
+ 		}
+ 		spin_unlock(&dcache_lock);
+-		prune_dcache(found);
++		prune_lru(found);
+ 	} while(found);
+ }
  
--	if (pmd_none(*dir))
-+	if (pmd_none_or_clear_bad(dir))
- 		return 0;
--	if (pmd_bad(*dir)) {
--		pmd_ERROR(*dir);
--		pmd_clear(dir);
--		return 0;
--	}
- 	pte = pte_offset_map(dir, address);
- 	do {
- 		/*
-@@ -483,13 +478,8 @@ static unsigned long unuse_pud(struct vm
- 	unsigned long next;
- 	unsigned long foundaddr;
+@@ -730,6 +869,7 @@ struct dentry *d_alloc(struct dentry * p
+ 	if (parent)
+ 		list_add(&dentry->d_child, &parent->d_subdirs);
+ 	dentry_stat.nr_dentry++;
++	drb_insert(dentry);
+ 	spin_unlock(&dcache_lock);
  
--	if (pud_none(*pud))
--		return 0;
--	if (pud_bad(*pud)) {
--		pud_ERROR(*pud);
--		pud_clear(pud);
-+	if (pud_none_or_clear_bad(pud))
- 		return 0;
--	}
- 	pmd = pmd_offset(pud, address);
- 	do {
- 		next = (address + PMD_SIZE) & PMD_MASK;
-@@ -513,13 +503,8 @@ static unsigned long unuse_pgd(struct vm
- 	unsigned long next;
- 	unsigned long foundaddr;
+ 	return dentry;
+--- include/linux/dcache.h.original	2004-08-03 18:20:40.800963136 -0500
++++ include/linux/dcache.h	2004-08-02 15:36:19.886846432 -0500
+@@ -9,6 +9,7 @@
+ #include <linux/cache.h>
+ #include <linux/rcupdate.h>
+ #include <asm/bug.h>
++#include <linux/rbtree.h>
  
--	if (pgd_none(*pgd))
--		return 0;
--	if (pgd_bad(*pgd)) {
--		pgd_ERROR(*pgd);
--		pgd_clear(pgd);
-+	if (pgd_none_or_clear_bad(pgd))
- 		return 0;
--	}
- 	pud = pud_offset(pgd, address);
- 	do {
- 		next = (address + PUD_SIZE) & PUD_MASK;
---- 2.6.11-bk5/mm/vmalloc.c	2005-03-09 01:12:53.000000000 +0000
-+++ ptwalk1/mm/vmalloc.c	2005-03-09 01:35:49.000000000 +0000
-@@ -29,13 +29,8 @@ static void unmap_area_pte(pmd_t *pmd, u
- 	unsigned long base, end;
- 	pte_t *pte;
+ struct nameidata;
+ struct vfsmount;
+@@ -94,6 +95,7 @@ struct dentry {
+ 	struct hlist_head *d_bucket;	/* lookup hash bucket */
+ 	struct qstr d_name;
  
--	if (pmd_none(*pmd))
-+	if (pmd_none_or_clear_bad(pmd))
- 		return;
--	if (pmd_bad(*pmd)) {
--		pmd_ERROR(*pmd);
--		pmd_clear(pmd);
--		return;
--	}
- 
- 	pte = pte_offset_kernel(pmd, address);
- 	base = address & PMD_MASK;
-@@ -63,13 +58,8 @@ static void unmap_area_pmd(pud_t *pud, u
- 	unsigned long base, end;
- 	pmd_t *pmd;
- 
--	if (pud_none(*pud))
--		return;
--	if (pud_bad(*pud)) {
--		pud_ERROR(*pud);
--		pud_clear(pud);
-+	if (pud_none_or_clear_bad(pud))
- 		return;
--	}
- 
- 	pmd = pmd_offset(pud, address);
- 	base = address & PUD_MASK;
-@@ -91,13 +81,8 @@ static void unmap_area_pud(pgd_t *pgd, u
- 	pud_t *pud;
- 	unsigned long base, end;
- 
--	if (pgd_none(*pgd))
--		return;
--	if (pgd_bad(*pgd)) {
--		pgd_ERROR(*pgd);
--		pgd_clear(pgd);
-+	if (pgd_none_or_clear_bad(pgd))
- 		return;
--	}
- 
- 	pud = pud_offset(pgd, address);
- 	base = address & PGDIR_MASK;
++	struct rb_node   d_rb;
+ 	struct list_head d_lru;		/* LRU list */
+ 	struct list_head d_child;	/* child of parent list */
+ 	struct list_head d_subdirs;	/* our children */
+
+--ew6BAiZeqk4r7MaW--

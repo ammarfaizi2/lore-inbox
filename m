@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262953AbTJQKPY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 06:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbTJQKPX
+	id S263363AbTJQKSb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 06:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbTJQKSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 06:15:23 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:49624 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263385AbTJQKPU
+	Fri, 17 Oct 2003 06:18:31 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:58864 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263363AbTJQKS3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 06:15:20 -0400
-Message-ID: <3F8FC135.8060501@namesys.com>
-Date: Fri, 17 Oct 2003 14:15:17 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Fri, 17 Oct 2003 06:18:29 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Torben Mathiasen <torben.mathiasen@hp.com>
+Subject: Re: [RFT][PATCH] fix ServerWorks PIO auto-tuning
+Date: Fri, 17 Oct 2003 12:22:29 +0200
+User-Agent: KMail/1.5.4
+Cc: Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
+References: <200310162344.09021.bzolnier@elka.pw.edu.pl> <20031017095117.GB1690@tmathiasen>
+In-Reply-To: <20031017095117.GB1690@tmathiasen>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Norman Diamond <ndiamond@wta.att.ne.jp>,
-       Wes Janzen <superchkn@sbcglobal.net>,
-       Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       nikita@namesys.com, Pavel Machek <pavel@ucw.cz>
-Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors
- numbered strangely, and what happens to them?)
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net> <3F8BBC08.6030901@namesys.com> <11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60> <20031017095840.GB9173@elf.ucw.cz>
-In-Reply-To: <20031017095840.GB9173@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310171222.29796.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-
+On Friday 17 of October 2003 11:51, Torben Mathiasen wrote:
+> On Thu, Oct 16 2003, Bartlomiej Zolnierkiewicz wrote:
+> > Hi,
+> >
+> > I wonder if this patch fixes problems (reported back in 2.4.21 days)
+> > with CSB5 IDE and Compaq Proliant machines.  Please test it if you can.
 >
+> Hi Bart,
 >
->[BTW your subject made me delete the mail with "spam", until Hans
->replied to it...]
->								Pavel
->  
+> Funny you should send this as I was just looking at it. The good news is
+> that it works!. We're not seeing any failed commands during boot anymore. I
+> tested it on both 2.4.23-pre7 and 2.6.0-test7.
+
+Great!
+
+> Also, the previous problem we had where Linux would enable DMA on a device
+> (system) not supporting it has also been fixed now that we look at the
+> dma_stat bits to determine whether the BIOS indicated DMA. We're currently
+
+Can I assume that "biostimings" option is no longer needed for ServerWorks?
+
+If so I will remove it because it is dangerous on many chipsets.
+Even if some chipset needs it in the future it should be reimplemented
+in specific chipset driver, not in generic IDE code.
+
+> making sure that all of our servers does proper BIOS IDE setup to make
+> things work as expected.
 >
-I wonder if spam filters will eventually result in a modest reduction in 
-the level of hyperbole in non-spam.;-)
+> Thanks for the patch, please include it.
 
--- 
-Hans
+Sure.
 
+thanks,
+--bartlomiej
 

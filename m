@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbULWBtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbULWCUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbULWBtc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 20:49:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbULWBtL
+	id S261159AbULWCUL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 21:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbULWCUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 20:49:11 -0500
-Received: from THUNK.ORG ([69.25.196.29]:42912 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261172AbULWBsy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 20:48:54 -0500
-Date: Wed, 22 Dec 2004 20:45:27 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Rob Browning <rlb@defaultvalue.org>
-Cc: Pete Zaitcev <zaitcev@redhat.com>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: RFC: [2.6 patch] let BLK_DEV_UB depend on EMBEDDED
-Message-ID: <20041223014527.GA25558@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Rob Browning <rlb@defaultvalue.org>,
-	Pete Zaitcev <zaitcev@redhat.com>,
-	Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-	Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20041220001644.GI21288@stusta.de> <20041220003146.GB11358@kroah.com> <20041220013542.GK21288@stusta.de> <20041219205104.5054a156@lembas.zaitcev.lan> <41C65EA0.7020805@osdl.org> <20041220062055.GA22120@one-eyed-alien.net> <20041219223723.3e861fc5@lembas.zaitcev.lan> <87u0qepxd3.fsf@trouble.defaultvalue.org>
+	Wed, 22 Dec 2004 21:20:11 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:49639 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261156AbULWCUF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 21:20:05 -0500
+Date: Wed, 22 Dec 2004 20:19:01 -0600
+From: "Jose R. Santos" <jrsantos@austin.ibm.com>
+To: Brent Casavant <bcasavan@sgi.com>
+Cc: Anton Blanchard <anton@samba.org>,
+       "Jose R. Santos" <jrsantos@austin.ibm.com>, Andi Kleen <ak@suse.de>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
+Message-ID: <20041223021901.GA27746@rx8.austin.ibm.com>
+References: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com> <50260000.1103061628@flay> <20041215045855.GH27225@wotan.suse.de> <20041215144730.GC24000@krispykreme.ozlabs.ibm.com> <20041216050248.GG32718@wotan.suse.de> <20041216051323.GI24000@krispykreme.ozlabs.ibm.com> <20041216141814.GA10292@rx8.austin.ibm.com> <20041220165629.GA21231@rx8.austin.ibm.com> <20041221114605.GB21710@krispykreme.ozlabs.ibm.com> <Pine.SGI.4.61.0412211019150.48124@kzerza.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87u0qepxd3.fsf@trouble.defaultvalue.org>
+In-Reply-To: <Pine.SGI.4.61.0412211019150.48124@kzerza.americas.sgi.com>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 22, 2004 at 02:10:00AM -0600, Rob Browning wrote:
-> The sample Kconfig warnings I saw posted later in this thread would
-> certainly have given enough information to know to avoid the driver,
-> though if true, this might be even clearer:
-> 
->   Note: this driver does not coexist well with usb-storage, and
->   usb-storage is is often the best driver for common devices like
->   external drive enclosures.  At the moment, usb-storage may peform
->   dramatically better for those devices.
-> 
->   If you're not certain you need this driver, you should probably
->   say 'N' here, and choose usb-storage instead.
+Brent Casavant <bcasavan@sgi.com> [041221]:
+> I didn't realize this was ppc64 testing.  What was the exact setup
+> for the testing?  The patch as posted (and I hope clearly explained)
+> only turns on the behavior by default when both CONFIG_NUMA and
+> CONFIG_IA64 were active.  It could be activated on non-IA64 by setting
+> hashdist=1 on the boot line, or by modifying the patch.
 
-The other caveat which is worth adding is that currently, the UB
-device only supports a single LUN.  Some devices, most notably USB
-readers that support multiple types of compact flash/secure
-digital/smart media/et.al., and the PalmOne T5 PDA export multiple
-LUN's.  
+I wasn't aware of the little detail.  I re-tested with hashdist=1 and
+this time it shows a slowdown of about 3%-4% on a 4-Way Power5 system 
+(2 NUMA nodes) with 64GB.  Don't see a big problem if the things is off
+by default on non IA64 systems though.
 
-(I was scratching my head for a while trying to figure out why the T5
-documentation claimed that you could access both the internal flash
-memory as well as the Secure Digital external memory via the USB
-interface until I realized it was because I was using the UB driver,
-and it didn't support multiple LUN's.)
+> I would hate to find out that the testing didn't actually enable the
+> new behavior.
 
-						- Ted
+Serves me right for not reading the entire thread. :)
+
+-JRS

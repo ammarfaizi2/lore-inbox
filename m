@@ -1,137 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264591AbUD2OHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264563AbUD2OO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264591AbUD2OHg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 10:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUD2OHg
+	id S264563AbUD2OO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 10:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264601AbUD2OO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 10:07:36 -0400
-Received: from gonzo.one-2-one.net ([217.115.142.69]:64195 "EHLO
-	gonzo.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S264591AbUD2OHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 10:07:30 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-Date: Thu, 29 Apr 2004 16:06:57 +0200
-From: stefan.eletzhofer@eletztrick.de
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] 2.6 I2C re-add i2c_get_client()
-Message-ID: <20040429140657.GC23468@gonzo.local>
-Reply-To: stefan.eletzhofer@eletztrick.de
-Mail-Followup-To: stefan.eletzhofer@eletztrick.de,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+	Thu, 29 Apr 2004 10:14:29 -0400
+Received: from mail9.messagelabs.com ([194.205.110.133]:2690 "HELO
+	mail9.messagelabs.com") by vger.kernel.org with SMTP
+	id S264563AbUD2OO1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 10:14:27 -0400
+X-VirusChecked: Checked
+X-Env-Sender: icampbell@arcom.com
+X-Msg-Ref: server-17.tower-9.messagelabs.com!1083248197!7972094
+X-StarScan-Version: 5.2.10; banners=arcom.com,-,-
+X-Originating-IP: [194.200.159.164]
+Subject: Re: [PATCH] 2.6 I2C epson 8564 RTC chip
+From: Ian Campbell <icampbell@arcom.com>
+To: stefan.eletzhofer@eletztrick.de
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Russell King - ARM Linux <linux@arm.linux.org.uk>
+In-Reply-To: <20040429135829.GB23468@gonzo.local>
+References: <20040429120250.GD10867@gonzo.local>
+	 <1083242482.26762.30.camel@icampbell-debian>
+	 <20040429135408.G16407@flint.arm.linux.org.uk>
+	 <20040429135829.GB23468@gonzo.local>
+Content-Type: text/plain
+Organization: Arcom Control Systems
+Message-Id: <1083248064.26762.46.camel@icampbell-debian>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="X1bOJ3K7DJ5YkBrT"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-Organization: Eletztrick Computing
-X-HE-MXrcvd: no
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 29 Apr 2004 15:14:24 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-04-29 at 14:58, stefan.eletzhofer@eletztrick.de wrote:
+> On Thu, Apr 29, 2004 at 01:54:08PM +0100, Russell King wrote:
+> > If you look at the last 2.6-rmk patch, you'll notice that it contains
+> > an abstracted RTC driver - I got peed off with writing the same code
+> > to support the user interfaces to the variety of RTCs over and over
+> > again.  (Ones which are simple 32-bit second counters with alarms
+> > through to ones which return D/M/Y H:M:S.C format.)
+> 
+> Oh, I wasn't aware of that. I assume that one is not in linus bk tree already?
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I don't think so. I found it in patch-2.6.0-test9-rmk1. In particular
+arch/arm/common/rtctime.c and include/asm-arm/rtc.h which implement the
+generic RTC bit. drivers/char/sa1100-rtc.c and
+linux/arch/arm/mach-integrator/time.c have been ported to use it.
 
-Hi,
-here's a patch which re-adds i2c_get_client() back to i2c_core.c.
-That call was removed in 2003 because there were no users of that
-function at that time.
+It looks very useful, and it would be pretty easy to make an i2c RTC use
+it as well.
 
-I think this call is needed for I2C chip drivers which provide functionality to
-be used by other driver modules, for example RTC chips or EEPROMs. These chip
-drivers tend to encapsulate raw i2c chip access and provide function calls
-for other modulesi, for example via the i2c_driver->command() method.
-
-I tried to get the locking right, so please comment. The patch is
-against 2.6.6-rc3 and works quite fine with my i2c rtc chip.
-
-Thanks,
-	Stefan E.
-
+Ian.
 -- 
-Eletztrick Computing - Customized Linux Development
-Stefan Eletzhofer, Marktstrasse 43, DE-88214 Ravensburg
-http://www.eletztrick.de
+Ian Campbell, Senior Design Engineer
+                                        Web: http://www.arcom.com
+Arcom, Clifton Road, 			Direct: +44 (0)1223 403 465
+Cambridge CB1 7EA, United Kingdom	Phone:  +44 (0)1223 411 200
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="i2c-get-client.patch"
 
-Add back missing i2c_get_client() call.
+_____________________________________________________________________
+The message in this transmission is sent in confidence for the attention of the addressee only and should not be disclosed to any other party. Unauthorised recipients are requested to preserve this confidentiality. Please advise the sender if the addressee is not resident at the receiving end.  Email to and from Arcom is automatically monitored for operational and lawful business reasons.
 
-#
-# Patch managed by http://www.mn-logistik.de/unsupported/pxa250/patcher
-#
-
---- linux-ra_alpha-update/drivers/i2c/i2c-core.c~i2c-get-client
-+++ linux-ra_alpha-update/drivers/i2c/i2c-core.c
-@@ -412,6 +412,57 @@
- 	return res;
- }
- 
-+struct i2c_client *i2c_get_client(int driver_id, int adapter_id, 
-+					struct i2c_client *prev)
-+{
-+	struct list_head *adap_list;
-+	struct list_head *item, *_n;
-+	struct i2c_adapter *adap;
-+	struct i2c_client *client;
-+	int found;
-+
-+	down(&core_lists);
-+
-+	adap_list = &adapters;
-+	if ( prev ) {
-+		/* we start searching at the previous clients adapter */
-+		adap_list = &prev->adapter->list;
-+	}
-+
-+	found = 0;
-+	client = NULL;
-+	list_for_each_entry(adap, adap_list, list) {
-+		dev_dbg(&adap->dev, "examining adapter id=%08x\n", adap->id);
-+		
-+		if ( adapter_id && adap->id != adapter_id )
-+			continue; /* not the adapter id we want */
-+		
-+		list_for_each_safe(item, _n, &adap->clients) {
-+			client = list_entry(item, struct i2c_client, list);
-+			dev_dbg(&client->dev, "examining client\n");
-+			dev_dbg(&client->dev, "driver id=%08x\n", client->driver->id);
-+
-+			if ( prev && prev == client ) {
-+				prev = NULL;
-+				continue;
-+			}
-+			
-+			if (client->driver->id != driver_id)
-+				continue; /* not the driver id we want */
-+
-+			if ( client->flags & I2C_CLIENT_ALLOW_USE ) {
-+				dev_dbg(&client->dev, "found client\n");
-+				found = 1;
-+				goto out_unlock;
-+			}
-+		}
-+	}
-+
-+out_unlock:
-+	up(&core_lists);
-+	return found?client:NULL;
-+}
-+
- static int i2c_inc_use_client(struct i2c_client *client)
- {
- 
-@@ -1261,6 +1312,7 @@
- EXPORT_SYMBOL(i2c_del_driver);
- EXPORT_SYMBOL(i2c_attach_client);
- EXPORT_SYMBOL(i2c_detach_client);
-+EXPORT_SYMBOL(i2c_get_client);
- EXPORT_SYMBOL(i2c_use_client);
- EXPORT_SYMBOL(i2c_release_client);
- EXPORT_SYMBOL(i2c_clients_command);
-
---X1bOJ3K7DJ5YkBrT--
+This message has been virus scanned by MessageLabs.

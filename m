@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318281AbSGRRlV>; Thu, 18 Jul 2002 13:41:21 -0400
+	id <S318280AbSGRRjs>; Thu, 18 Jul 2002 13:39:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318284AbSGRRlV>; Thu, 18 Jul 2002 13:41:21 -0400
-Received: from breeze.research.telcordia.com ([192.4.6.9]:55177 "EHLO
-	breeze.research.telcordia.com") by vger.kernel.org with ESMTP
-	id <S318281AbSGRRlU>; Thu, 18 Jul 2002 13:41:20 -0400
-Date: Thu, 18 Jul 2002 13:44:07 -0400
-From: Allen McIntosh <mcintosh@research.telcordia.com>
-Message-Id: <200207181744.NAA24845@mc-pc.research.telcordia.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18 and 19-rc1 IDE lockup on Dell Latitude
+	id <S318281AbSGRRjs>; Thu, 18 Jul 2002 13:39:48 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:8434 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S318280AbSGRRjr>; Thu, 18 Jul 2002 13:39:47 -0400
+Subject: Re: [PATCH] strict VM overcommit for stock 2.4
+From: Robert Love <rml@tech9.net>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0207181806220.30902-100000@divine.city.tvnet.hu>
+References: <Pine.LNX.4.30.0207181806220.30902-100000@divine.city.tvnet.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Jul 2002 10:42:41 -0700
+Message-Id: <1027014161.1086.123.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.18 and 2.4.19-rc1 lock up after a suspend/resume on my Dell Latitude
-CPi D300XT.
+On Thu, 2002-07-18 at 09:36, Szakacsits Szabolcs wrote:
 
-To recreate:  Suspend (using the suspend key, by closing the top, or
-using the apm command), then hit the power button for resume.  When the
-system wakes up some IDE I/O occurs (with flashing disk light and
-audible head motion), then the disk light comes on and stays on.
-Switching consoles is possible, and typed characters echo, but
-no commands run.  The system can be powered down by holding the power
-button down for 10 seconds, but that's about it.
+> This is what I would do first [make sure you don't hit any resource,
+> malloc, kernel memory mapping, etc limits -- this is a simulation that
+> must eat all available memory continually]:
+> main(){void *x;while(1)if(x=malloc(4096))memset(x,666,4096);}
+> 
+> When the above used up all the memory try to ssh/login to the box as
+> root and clean up the mess. Can you do it?
 
-The system seems stable otherwise.  It stayed up all last weekend, for
-example.
+Three points:
 
-If you wait in the locked state long enough, the 2.4.14 and 2.4.18 kernels
-usually (but not always) output the following to the console:
+- with strict overcommit and the "allocations must meet backing store"
+rule (policy #3) the above can never use all physical memory
 
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+- if your point is that a rogue user can use all of the systems memory,
+then you need per-user resource accounting.
 
-Kernel versions I've tried this on:
+- the point of this patch is to not use MORE memory than the system
+has.  I say nothing else except that I am trying to avoid OOM and push
+the allocation failures into the allocations themselves.  Assuming the
+accounting is correct (and it seems to be) then Alan and I have
+succeeded.
 
-2.4.14, 2.4.18 (vanilla), 2.4.18-3 (RedHat), 2.4.19-rc1, 2.4.19-rc1-ac5
-
-
-4-year old stuff on http://www.pihl.org/linux/linux-dell.html associates
-a similar problem with pcmcia being active; however I get the same
-symptoms without loading any pcmcia related modules.
-
-I can provide more details to interested parties; willing to apply/try
-patches.
+	Robert Love
 

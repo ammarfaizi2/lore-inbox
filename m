@@ -1,91 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277369AbRJJVWw>; Wed, 10 Oct 2001 17:22:52 -0400
+	id <S277127AbRJJVZm>; Wed, 10 Oct 2001 17:25:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277127AbRJJVWm>; Wed, 10 Oct 2001 17:22:42 -0400
-Received: from a29102.upc-a.chello.nl ([62.163.29.102]:18569 "EHLO
-	nerys.ehv.lx") by vger.kernel.org with ESMTP id <S276075AbRJJVWb>;
-	Wed, 10 Oct 2001 17:22:31 -0400
-Date: Wed, 10 Oct 2001 23:22:59 +0200
-Message-Id: <200110102122.f9ALMx424058@nerys.ehv.lx>
-From: Rudi Sluijtman <rudi@sluijtman.com>
-To: linux-kernel@vger.kernel.org
-X-Mailer: GNU Emacs 20.7.1
-Subject: [patch] .version, newversion in Makefile
+	id <S277410AbRJJVZc>; Wed, 10 Oct 2001 17:25:32 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:43272 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S277127AbRJJVZS>; Wed, 10 Oct 2001 17:25:18 -0400
+Date: Wed, 10 Oct 2001 18:25:27 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: <kernelnewbies@nl.linux.org>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [CFT][PATCH] smoother VM for -ac
+In-Reply-To: <20011010164823.A17860@redhat.com>
+Message-ID: <Pine.LNX.4.33L.0110101815140.26495-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+On Wed, 10 Oct 2001, Benjamin LaHaise wrote:
+> On Wed, Oct 10, 2001 at 05:25:30PM -0300, Rik van Riel wrote:
+> > 4) in page_alloc.c, the "slowdown" reschedule has been
+> >    made stronger by turning it into a try_to_free_pages(),
 
-Due to a change in the main Makefile the .version file is overwritten
-by a new empty one since at least 2.4.10-pre12, so the version becomes
-or remains 1 after each recompile.
+> There's a small problem with this one: I know that during
+> testing of earlier 2.4 kernels we saw a livelock which was
+> caused by the vm subsystem spinning without scheduling.  This
+> can happen in a couple of cases like NFS where another task has
+> to be allowed to run in order to make progress in clearing
+> pages.
 
->From the xfs cvs tree (http://oss.sgi.com/cgi-bin/cvsweb.cgi/linux-2.4-xfs/):
+OK, I'll add back the reschedule() to fix this case.
 
-> --- linux-2.4-xfs/linux/Makefile        2001/09/17 02:09:52     1.123
-> +++ linux-2.4-xfs/linux/Makefile        2001/09/21 16:28:50     1.124
-> @@ -1,7 +1,7 @@
->  VERSION = 2
->  PATCHLEVEL = 4
->  SUBLEVEL = 10
-> -EXTRAVERSION =-pre10-xfs
-> +EXTRAVERSION =-pre12-xfs
->   .
->   .
->  newversion:
-> -       @if [ ! -f .version ]; then \
-> -               echo 1 > .version; \
-> -       else \
-> -               expr 0`cat .version` + 1 > .version; \
-> -       fi
-> +       . scripts/mkversion > .version
+I don't like it too much, but I wouldn't know of an
+easier way to fix the NFS thing. I guess we could delay
+it to the zone->pages_min point though ... should cut
+down on the number of reschedules ;)
 
-The script does the same as the lines in the Makefile, except that it does
-not specify stdout.
+regards,
 
-The script cats .version, but, this has just been overwritten because of
-the redirection: "scripts/mkversion > .version", so it is empty before
-the script can read it.
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
 
-I do no know why the lines in the Makefile have been moved to a script,
-but this is obviously not the way to do it.
-
-A small change to mkversion and leaving out the "> .version" in the
-Makefile for instance can do the trick:
-
-A patch for this against linux-2.4.11:
-
-diff -u --recursive --new-file linux-2.4.11/Makefile linux/Makefile
---- linux-2.4.11/Makefile	Wed Oct 10 22:59:03 2001
-+++ linux/Makefile	Wed Oct 10 23:01:58 2001
-@@ -300,7 +300,7 @@
- $(TOPDIR)/include/linux/compile.h: include/linux/compile.h
- 
- newversion:
--	. scripts/mkversion > .version
-+	. scripts/mkversion
- 
- include/linux/compile.h: $(CONFIGURATION) include/linux/version.h newversion
- 	@echo -n \#define UTS_VERSION \"\#`cat .version` > .ver
-@@ -530,6 +530,6 @@
- 	tar -cvz --exclude CVS -f $(KERNELPATH).tar.gz $(KERNELPATH)/. ; \
- 	rm $(KERNELPATH) ; \
- 	cd $(TOPDIR) ; \
--	. scripts/mkversion > .version ; \
-+	. scripts/mkversion ; \
- 	rpm -ta $(TOPDIR)/../$(KERNELPATH).tar.gz ; \
- 	rm $(TOPDIR)/../$(KERNELPATH).tar.gz
-diff -u --recursive --new-file linux-2.4.11/scripts/mkversion linux/scripts/mkversion
---- linux-2.4.11/scripts/mkversion	Wed Oct 10 22:59:34 2001
-+++ linux/scripts/mkversion	Wed Oct 10 23:03:30 2001
-@@ -1,6 +1,6 @@
- if [ ! -f .version ]
- then
--    echo 1
-+    echo 1 > .version
- else
--    expr 0`cat .version` + 1
-+    expr 0`cat .version` + 1 > .version
- fi
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265658AbSJXVKN>; Thu, 24 Oct 2002 17:10:13 -0400
+	id <S265649AbSJXVJa>; Thu, 24 Oct 2002 17:09:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265661AbSJXVKN>; Thu, 24 Oct 2002 17:10:13 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:53001 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id <S265658AbSJXVKH>;
-	Thu, 24 Oct 2002 17:10:07 -0400
-Date: Thu, 24 Oct 2002 23:16:08 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Manfred Spraul <manfred@colorfullife.com>, Robert Love <rml@tech9.net>
-Subject: Re: [CFT] faster athlon/duron memory copy implementation
-Message-ID: <20021024211608.GB486@pcw.home.local>
-References: <200210242251.26776.Dieter.Nuetzel@hamburg.de>
+	id <S265653AbSJXVJa>; Thu, 24 Oct 2002 17:09:30 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:45757 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265649AbSJXVJ3>;
+	Thu, 24 Oct 2002 17:09:29 -0400
+Message-Id: <200210242115.g9OLFgm01694@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18 - iostat problem with DAC960
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210242251.26776.Dieter.Nuetzel@hamburg.de>
-User-Agent: Mutt/1.4i
+Date: Thu, 24 Oct 2002 14:15:42 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 10:51:26PM +0200, Dieter N?tzel wrote:
-> copy_page by 'even_faster'       took 5616 cycles (1112.9 MB/s)
 
-something bothers me here : with PC2100 RAM, you copy 1113 MB/s, that
-is 1113 MB in + 1113 MB out !
+We are running some benchmarks with raw disk connected to a DAC960 
+controller. We are having issues with getting proper stats from iostat.
 
-I tried your code and code somewhat same results (dual xp1800+, pc2100, 760MPX).
-but I pasted the no_prefetch_copy_page() function into it and now it says that I
-copy 1455 MB/s ! I didn't look deep through the code, but I suspect that there's
-some static work that is not accounted, or a subtract between two counters, or
-something like that.
+We've tried the latest version we could find ( sysstat version 4.0.6 ) 
+In normal use, we get bizzare numbers, like this:
+Device:    rrqm/s wrqm/s   r/s   w/s  rsec/s  wsec/s    rkB/s    wkB/s 
+avgrq-sz avgqu-sz   await  svctm  %util
+/dev/rd/c0d0
+             0.00   0.00  0.00  0.00    0.00    0.00     0.00     0.00     
+0.00 42933903.02    0.00   0.00 100.00
 
-Cheers,
-Willy
+Looking at /proc/partitions, we are also confused, since we see 0 for wio and 
+rio (and we just did a big dd ) :
+[root@dev8-004 root]# cat /proc/partitions | grep c0d0
+major minor  #blocks   name     rio rmerge   rsect     ruse wio wmerge   wsect 
+    wuse running  use      aveq
+48     0     107504640 rd/c0d0  0   11734288 105255266 0    0   12286553 
+104803536 0     2232980 36066697 37688171
+
+Any suggestions? 
+cliffw
+
 

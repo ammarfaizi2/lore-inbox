@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273895AbRI0Uwh>; Thu, 27 Sep 2001 16:52:37 -0400
+	id <S273896AbRI0VAt>; Thu, 27 Sep 2001 17:00:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273896AbRI0Uw1>; Thu, 27 Sep 2001 16:52:27 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:9877 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S273895AbRI0UwM>;
-	Thu, 27 Sep 2001 16:52:12 -0400
-Date: Thu, 27 Sep 2001 21:52:35 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Jesper Juhl <juhl@eisenstein.dk>,
-        Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: OOM killer
-Message-ID: <1123696067.1001627554@[195.224.237.69]>
-In-Reply-To: <3BB20C27.4125F9BA@eisenstein.dk>
-In-Reply-To: <3BB20C27.4125F9BA@eisenstein.dk>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S273900AbRI0VAj>; Thu, 27 Sep 2001 17:00:39 -0400
+Received: from t2.redhat.com ([199.183.24.243]:54512 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S273896AbRI0VAY>; Thu, 27 Sep 2001 17:00:24 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010927202435.A19466@artax.karlin.mff.cuni.cz> 
+In-Reply-To: <20010927202435.A19466@artax.karlin.mff.cuni.cz> 
+To: Jan Hudec <bulb@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Suggest TASK_KILLABLE state to overcome most D state trouble 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 27 Sep 2001 22:00:50 +0100
+Message-ID: <19318.1001624450@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+bulb@ucw.cz said:
+>  Does a patch adding a TASK_KILLABLE state have a chance to get in (in
+> 2.5)? Or can anybody thik of more elegant solution?
 
---On Wednesday, 26 September, 2001 7:11 PM +0200 Jesper Juhl 
-<juhl@eisenstein.dk> wrote:
+Often there's kernel state which needs to be kept consistent, and locks
+which need to be released - just bailing out (as if you got an oops) isn't
+sufficient.
 
-> Or maybe make it a configure option if Linux should over commit memory or
-> not.
-
-deja vu
-
-shed:~# cat /proc/sys/vm/overcommit_memory
-0
-shed:~# echo 1 >/proc/sys/vm/overcommit_memory
-shed:~# cat /proc/sys/vm/overcommit_memory
-1
-shed:~# echo 0 >/proc/sys/vm/overcommit_memory
-shed:~# cat /proc/sys/vm/overcommit_memory
-0
+What's wrong with the plan of just implementing the appropriate cleanup code
+in each buggy or lazy piece of code which sleeps in state
+TASK_UNINTERRUPTIBLE, and letting each be interruptible instead?
 
 --
-Alex Bligh
+dwmw2
+
+

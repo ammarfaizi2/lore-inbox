@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284710AbRLEVEK>; Wed, 5 Dec 2001 16:04:10 -0500
+	id <S284728AbRLEVHS>; Wed, 5 Dec 2001 16:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284728AbRLEVDj>; Wed, 5 Dec 2001 16:03:39 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:24057 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S284729AbRLEVD0>; Wed, 5 Dec 2001 16:03:26 -0500
-Date: Wed, 05 Dec 2001 13:02:24 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
+	id <S284709AbRLEVGW>; Wed, 5 Dec 2001 16:06:22 -0500
+Received: from bitmover.com ([192.132.92.2]:31874 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S284741AbRLEVFt>;
+	Wed, 5 Dec 2001 16:05:49 -0500
+Date: Wed, 5 Dec 2001 13:05:47 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
         Lars Brinkhoff <lars.spam@nocrew.org>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
         linux-kernel@vger.kernel.org
 Subject: Re: SMP/cc Cluster description [was Linux/Pro]
-Message-ID: <2534997012.1007557344@mbligh.des.sequent.com>
-In-Reply-To: <20011205111115.T11801@work.bitmover.com>
-X-Mailer: Mulberry/2.0.8 (Win32)
-MIME-Version: 1.0
+Message-ID: <20011205130547.X11801@work.bitmover.com>
+Mail-Followup-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
+	Lars Brinkhoff <lars.spam@nocrew.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011205111115.T11801@work.bitmover.com> <2534997012.1007557344@mbligh.des.sequent.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <2534997012.1007557344@mbligh.des.sequent.com>; from Martin.Bligh@us.ibm.com on Wed, Dec 05, 2001 at 01:02:24PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> If I give you 16 SMP systems, each with 4 processors and a gigabit
->> ethernet card, and connect those ethers through a switch, would that
->> be sufficient hardware?
+> > What I am proposing is to cluster *OS* images on a *single* SMP as a way of
+> > avoiding most of the locks necessary to scale up a single OS image on the 
+> > same number of CPUs.
 > 
-> You've completely misunderstood the message, sorry, I must not have been clear.
+> Which, to me, makes the whole thing much less interesting, since there aren't
+> SMP systems about that are really large that I know of anyway. Scaling to 
+> the size of current SMP systems is a much less difficult problem than scaling
+> to the size of NUMA systems.
 
-Oops ... that's twice now ;-) Maybe I'm reading it with too many preconceived
-notions of what you're doing from conversations I've had with other people
-about ccClusters. I'll try to do a mental reset, and start from a clean slate.
+We don't agree on any of these points.  Scaling to a 16 way SMP pretty much 
+ruins the source base, even when it is done by very careful people.
 
-> What I am proposing is to cluster *OS* images on a *single* SMP as a way of
-> avoiding most of the locks necessary to scale up a single OS image on the 
-> same number of CPUs.
+> The main advantage of starting with a single OS image, as I see it, is
+> that you have a system that works fine, but performs badly, from the
+> outset. 
 
-Which, to me, makes the whole thing much less interesting, since there aren't
-SMP systems about that are really large that I know of anyway. Scaling to 
-the size of current SMP systems is a much less difficult problem than scaling
-to the size of NUMA systems.
+Hey, I can make one of those :-)
 
-BUT ... much of the rest of the message I sent you still applies anyway.
-You can create virtual "pools" or "resource domains" within an SMP system
-in the same way nodes exist on NUMA and work from the starting point of
-a single OS image, instead of multiple.
-
-The main advantage of starting with a single OS image, as I see it, is
-that you have a system that works fine, but performs badly, from the
-outset. Makes it easier to do development on - that's where I have the
-NUMA-Q platform at the moment - it thinks it's an SMP box.
-
-Martin.
-
+Seriously, I went through this at SGI, that's exactly what they did, and it
+was a huge mistake and it never worked.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

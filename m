@@ -1,152 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268248AbUIPUeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268236AbUIPUgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268248AbUIPUeh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 16:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268246AbUIPUee
+	id S268236AbUIPUgi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 16:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268257AbUIPUgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 16:34:34 -0400
-Received: from gprs214-49.eurotel.cz ([160.218.214.49]:4736 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268253AbUIPUdT (ORCPT
+	Thu, 16 Sep 2004 16:36:37 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:35732 "EHLO ucw.cz")
+	by vger.kernel.org with ESMTP id S268236AbUIPUfL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 16:33:19 -0400
-Date: Thu, 16 Sep 2004 22:32:55 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: JBeulich@novell.com, Andrew Morton <akpm@zip.com.au>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>, seife@suse.de
-Subject: swsusp: fix x86-64 [was Re: swsusp: solving build issue leads to crash on x86-64]
-Message-ID: <20040916203255.GA1257@elf.ucw.cz>
-References: <20040916192208.GA1009@elf.ucw.cz>
+	Thu, 16 Sep 2004 16:35:11 -0400
+Date: Thu, 16 Sep 2004 22:34:51 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Christoph Lameter <clameter@sgi.com>,
+       linux-kernel@vger.kernel.org, Bob Picco <Robert.Picco@hp.com>,
+       venkatesh.pallipadi@intel.com
+Subject: Re: device driver for the SGI system clock, mmtimer
+Message-ID: <20040916203451.GA5260@ucw.cz>
+References: <200409161003.39258.bjorn.helgaas@hp.com> <200409160909.12840.jbarnes@engr.sgi.com> <20040916181426.GA5052@ucw.cz> <200409161135.52987.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040916192208.GA1009@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <200409161135.52987.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-I could not get accessing __nosave variables from assembly right, so I
-simply eliminated memory accesses and cleaned up code at the same
-time. Please apply,
-								Pavel
-
-
-> Do you remember that build issue, where you needed to added ', "aw"'
-> to make linker happy? Well, too late I found that it breaks swsusp in
-> quite a ugly way. Try it on x86-64: it works without "aw", breaks with
-> it.
+On Thu, Sep 16, 2004 at 11:35:52AM -0700, Jesse Barnes wrote:
+> On Thursday, September 16, 2004 11:14 am, Vojtech Pavlik wrote:
+> > On Thu, Sep 16, 2004 at 09:09:12AM -0700, Jesse Barnes wrote:
+> > > On Thursday, September 16, 2004 9:03 am, Bjorn Helgaas wrote:
+> > > > Christoph Lameter wrote:
+> > > > > The timer hardware was designed around the multimedia timer
+> > > > > specification by Intel but to my knowledge only SGI has implemented
+> > > > > that standard. The driver was written by Jesse Barnes.
+> > > >
+> > > > As far as I can see, drivers/char/hpet.c talks to the same hardware.
+> > > > HP sx1000 machines (and probably others) also implement the HPET.
+> > >
+> > > No, it's different hardware.
+> >
+> > mmtimer and hpet are the same hardware actually, just a different
+> > specification revision, hpet being the newer one.
 > 
-> I'm doing this for now. I'll probably just rewrite assemlby not to
-> require those variables, but understanding what went wrong there would
-> be welcome.
+> Well, the SHub RTC hardware (which mmtimer accesses) isn't really HPET or 
+> mmtimer hardware, but I tried to make the mmtimer *API* useful for HPET style 
+> hardware.  The idea was to have several drivers supporting the mmtimer API 
+> with different hardware underneath.
+
+Sorry, I got confused by the driver name.
+
+> > HPET registers are MMIO so it's in theory possible, while not really
+> > useful if you're using it as your system timer as well.
 > 
-> #       .section .data.nosave, "aw"
->         .section .data.nosave
->         .align 8
-> loop:
->         .quad 0
-> loop2:
->         .quad 0
->         .previous
+> I don't think anyone does this.
 
-
---- linux-mm/arch/x86_64/kernel/suspend_asm.S	2004-09-15 12:58:08.000000000 +0200
-+++ linux64/arch/x86_64/kernel/suspend_asm.S	2004-09-16 22:20:21.000000000 +0200
-@@ -39,29 +39,28 @@
- 	/* set up cr3 */	
- 	leaq	init_level4_pgt(%rip),%rax
- 	subq	$__START_KERNEL_map,%rax
--	movq %rax,%cr3
-+	movq	%rax,%cr3
- 
- 	movq	mmu_cr4_features(%rip), %rax
- 	movq	%rax, %rdx
--	
- 	andq	$~(1<<7), %rdx	# PGE
--	movq %rdx, %cr4;  # turn off PGE     
--	movq %cr3, %rcx;  # flush TLB        
--	movq %rcx, %cr3;                     
--	movq %rax, %cr4;  # turn PGE back on 
-+	movq	%rdx, %cr4;  # turn off PGE     
-+	movq	%cr3, %rcx;  # flush TLB        
-+	movq	%rcx, %cr3;                     
-+	movq	%rax, %cr4;  # turn PGE back on 
- 
- 	movl	nr_copy_pages(%rip), %eax
- 	xorl	%ecx, %ecx
--	movq	$0, loop(%rip)
-+	movq	$0, %r10
- 	testl	%eax, %eax
--	je	.L108
-+	jz	done
- .L105:
- 	xorl	%esi, %esi
--	movq	$0, loop2(%rip)
-+	movq	$0, %r11
- 	jmp	.L104
- 	.p2align 4,,7
--.L111:
--	movq	loop(%rip), %rcx
-+copy_one_page:
-+	movq	%r10, %rcx
- .L104:
- 	movq	pagedir_nosave(%rip), %rdx
- 	movq	%rcx, %rax
-@@ -71,27 +70,26 @@
- 	movzbl	(%rsi,%rax), %eax
- 	movb	%al, (%rsi,%rcx)
- 
--	movq %cr3, %rax;  # flush TLB 
--	movq %rax, %cr3;              
-+	movq	%cr3, %rax;  # flush TLB 
-+	movq	%rax, %cr3;              
- 
--	movq	loop2(%rip), %rax
-+	movq	%r11, %rax
- 	incq	%rax
- 	cmpq	$4095, %rax
- 	movq	%rax, %rsi
--	movq	%rax, loop2(%rip)
--	jbe	.L111
--	movq	loop(%rip), %rax
-+	movq	%rax, %r11
-+	jbe	copy_one_page
-+	movq	%r10, %rax
- 	incq	%rax
- 	movq	%rax, %rcx
--	movq	%rax, loop(%rip)
-+	movq	%rax, %r10
- 	mov	nr_copy_pages(%rip), %eax
- 	cmpq	%rax, %rcx
- 	jb	.L105
--.L108:
--	.align 4
-+done:
- 	movl	$24, %eax
--
--	movl %eax, %ds
-+	movl	%eax, %ds
-+	
- 	movq saved_context_esp(%rip), %rsp
- 	movq saved_context_ebp(%rip), %rbp
- 	movq saved_context_eax(%rip), %rax
-@@ -111,11 +109,3 @@
- 	pushq saved_context_eflags(%rip) ; popfq
- 	call	swsusp_restore
- 	ret
--
--	.section .data.nosave, "aw"
--	.align 8
--loop:
--	.quad 0
--loop2:	
--	.quad 0		
--	.previous
-
+x86-64 does if SMP is enabled and HPET is present.
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Vojtech Pavlik
+SuSE Labs, SuSE CR

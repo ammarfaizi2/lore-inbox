@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265415AbUBIUoR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 15:44:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265423AbUBIUoR
+	id S264485AbUBIUxV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 15:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbUBIUxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 15:44:17 -0500
-Received: from pool-64-222-172-33.man.east.verizon.net ([64.222.172.33]:966
-	"EHLO mx.wuff.dhs.org") by vger.kernel.org with ESMTP
-	id S265415AbUBIUoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 15:44:16 -0500
-Subject: HT CPU handling - 2.6.2
-From: Hod McWuff <hod@wuff.dhs.org>
+	Mon, 9 Feb 2004 15:53:21 -0500
+Received: from web40509.mail.yahoo.com ([66.218.78.126]:50477 "HELO
+	web40509.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264485AbUBIUxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 15:53:18 -0500
+Message-ID: <20040209205317.18517.qmail@web40509.mail.yahoo.com>
+Date: Mon, 9 Feb 2004 12:53:17 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: glibc kernel headers for linux 2.6
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1076359454.32765.5.camel@siberian.wuff.dhs.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 09 Feb 2004 15:44:14 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Anyone know where they can be obtained from??
+Or how they can be generated?
 
-I've got a 2.0A GHz P4, advertised as non-hyperthread, that seems to be
-reporting the presence of a second CPU. It also seems to be disabled by
-setting bit 7 of its ID. I've tried compiling with support for 130 CPU's
-and nothing changed. What would have to be done to get this disabled
-CPU half back online?
+Thanks
 
-Feb  9 04:45:03 pug ACPI: Local APIC address 0xfee00000
-Feb  9 04:45:03 pug ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-Feb  9 04:45:03 pug Processor #0 15:2 APIC version 20
-Feb  9 04:45:03 pug ACPI: LAPIC (acpi_id[0x02] lapic_id[0x81] disabled)
-Feb  9 04:45:03 pug Processor #129 invalid (max 16)
-Feb  9 04:45:03 pug ACPI: LAPIC_NMI (acpi_id[0x01] dfl dfl lint[0x1])
-Feb  9 04:45:03 pug ACPI: LAPIC_NMI (acpi_id[0x02] dfl dfl lint[0x1])
+-Alex
 
+=====
+I code, therefore I am
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Finance: Get your refund fast by filing online.
+http://taxes.yahoo.com/filing.html

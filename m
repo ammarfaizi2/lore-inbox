@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281038AbRKGWf5>; Wed, 7 Nov 2001 17:35:57 -0500
+	id <S281034AbRKGWh1>; Wed, 7 Nov 2001 17:37:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281036AbRKGWfr>; Wed, 7 Nov 2001 17:35:47 -0500
-Received: from Campbell.cwx.net ([216.17.176.12]:30225 "EHLO campbell.cwx.net")
-	by vger.kernel.org with ESMTP id <S281026AbRKGWfh>;
-	Wed, 7 Nov 2001 17:35:37 -0500
-Date: Wed, 7 Nov 2001 15:35:34 -0700
-From: Allen Campbell <lkml@campbell.cwx.net>
-To: "Daniel R. Warner" <drwarner@mail.myrealbox.com>
+	id <S281030AbRKGWhS>; Wed, 7 Nov 2001 17:37:18 -0500
+Received: from zero.tech9.net ([209.61.188.187]:24080 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S281024AbRKGWhG>;
+	Wed, 7 Nov 2001 17:37:06 -0500
+Subject: Re: AGPGART build problem in 2.4.14
+From: Robert Love <rml@tech9.net>
+To: Brandon Barker <bebarker@meginc.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Yet another design for /proc. Or actually /kernel.
-Message-ID: <20011107153534.A82149@const.>
-In-Reply-To: <slrn9uj1nf.5lj.spamtrap@dexter.hensema.xs4all.nl> <3BE98EB8.6000802@mail.myrealbox.com>
+In-Reply-To: <200111070323.WAA01534@sioux.meginc.com>
+In-Reply-To: <200111070323.WAA01534@sioux.meginc.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
+Date: 07 Nov 2001 17:37:07 -0500
+Message-Id: <1005172631.939.6.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3BE98EB8.6000802@mail.myrealbox.com>; from drwarner@mail.myrealbox.com on Wed, Nov 07, 2001 at 02:42:48PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 02:42:48PM -0500, Daniel R. Warner wrote:
-> Erik Hensema wrote:
-> 
-> > - Multiple values per file when needed
-> > 	A file is a two dimensional array: it has lines and every line
-> > 	can consist of multiple fields.
-> > 	A good example of this is the current /proc/mounts.
-> > 	This can be parsed very easily in all languages.
-> 
-> 
-> > 	No need for single-value files, that's oversimplification.
-> <snip>
-> 
-> 
-> This is fine for reading, but it makes it harder for humans to change 
-> values in /proc - eg, echo 0 > /proc/sys/net/ipv4/tcp_ecn
-> 
+On Tue, 2001-11-06 at 22:27, Brandon Barker wrote:
+> The following problem occured while building linux 2.4.14 while trying to 
+> make the agpgart driver (system is Intel/Redhat 7.2):
 
-'Multiple value' files can be made easy to 'write'.  The only
-requirement is each 'field' in the file have a unique label.  Then
-it's a common associative array, requiring some generic filesystem
-write magic to handle the input:
+> If this problem is resolved please tell me, I'd be very appreciative.
+> Brandon Barker
 
-echo "label:1" > /proc/...
+I can't duplicate the problem.  Have you tried recompiling since the
+post?
 
-The 'generic write magic' would require (at least, without even
-more magic) that all /proc files conform to the schema.  This is
-probably a _good_ thing.
+Do a full clean `make oldconfig dep clean bzImage'
 
--- 
-  Allen Campbell       |  Lurking at the bottom of the
-  allenc@verinet.com   |   gravity well, getting old.
+I can't figure why your flush isn't being defined, since it should be as
+long as __i386__ is defined.
+
+	Robert Love
+

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282991AbRLDAVB>; Mon, 3 Dec 2001 19:21:01 -0500
+	id <S280825AbRLDBGM>; Mon, 3 Dec 2001 20:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284711AbRLDAPw>; Mon, 3 Dec 2001 19:15:52 -0500
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:5381 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S284594AbRLCOPe>;
-	Mon, 3 Dec 2001 09:15:34 -0500
-Subject: thinkpad t21 lockup when using pcmcia package
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S284530AbRLDBFZ>; Mon, 3 Dec 2001 20:05:25 -0500
+Received: from sm14.texas.rr.com ([24.93.35.41]:28087 "EHLO sm14.texas.rr.com")
+	by vger.kernel.org with ESMTP id <S278818AbRLDBDf>;
+	Mon, 3 Dec 2001 20:03:35 -0500
+Message-ID: <3C0C0534.2080201@austin.rr.com>
+Date: Mon, 03 Dec 2001 17:05:24 -0600
+From: Manoj Iyer <manjo@austin.rr.com>
+Reply-To: manjo@austin.rr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011202
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Thinkpad T20 2.4.16 hangs on resume after suspend. 
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 03 Dec 2001 09:15:04 -0500
-Message-Id: <1007388908.974.0.camel@zaphod>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I seem to have narrowed down my lockups to when I use a recent 2.4
-kernel (currently on 2.4.15-pre8) and the external pcmcia source
-(currently have 3.1.29 on my system).  The main reason I use the pcmcia
-source is that I can't get my orinoco card to work with the kernel's
-modules, though it works out of the box with the pcmcia source.
+My thinkpad IBM Thinkpad T20 hangs on resume after a suspend. I have a 
+pcmcia wireless modem, on suspending the thinkpad, it goes into sleep 
+neatly but fails on resume. This happens only with 2.4.14 and later 
+kernels, my 2.4.6 kernel (with no pcmcia modules) has no problem in 
+resuming. Is this a known issue? is there a tmp workaround or proper 
+solution?? Any input is greatly appriciated. I find it very inconvinent 
+having to shutdown and reboot each time. I searched the archives but 
+yielded no answers.
 
-The problem I'm having is that if I leave my laptop on overnight (with
-the (kernel + pcmcia package combo) it locks up sometime during the
-night after a few hours of inactivity on console.  If I leave an ssh
-session into it doing stuff it still locks up.  However, if I apm
---suspend it.  It surives the night fine.  It also seems to survive find
-if I use the built into kernel pcmcia package.
+Do I have to chose some wired option when I build the kernel in APM coz 
+I have pcmcia?? or is this a config issue/bug??
 
-As this is just a case of "hanging" and there's no messages in syslog on
-reboot, anybody have any clues on how to diagnore this, and fix this
-(and I'd personally think that understanding how to get my orinoco card
-to work with the in kernel source drivers to be a fix)
+Save me from this pain.......
 
-thanks,
+-- Manoj Iyer
 
-shaya
--- 
-spotter@{cs.columbia.edu,yucs.org}
-http://yucs.org/~spotter/
+***********************************************************
+	The greatest risk is in not taking one
+***********************************************************
+
 

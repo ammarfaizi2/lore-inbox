@@ -1,131 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUHAWUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUHAWkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266195AbUHAWUr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 18:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUHAWUr
+	id S266196AbUHAWkc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 18:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266197AbUHAWkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 18:20:47 -0400
-Received: from mail.dif.dk ([193.138.115.101]:15331 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S266189AbUHAWUh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 18:20:37 -0400
-Date: Mon, 2 Aug 2004 00:25:10 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Francois Romieu <romieu@cogenit.fr>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-net@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: [PATCH] fix inline related gcc 3.4 build failures in
- drivers/net/wan/dscc4.c
-In-Reply-To: <20040801215625.GA29505@se1.cogenit.fr>
-Message-ID: <Pine.LNX.4.60.0408020022520.28700@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.60.0408012113530.2535@dragon.hygekrogen.localhost>
- <20040801215625.GA29505@se1.cogenit.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 Aug 2004 18:40:32 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:45572 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S266196AbUHAWk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 18:40:29 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O2
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mingo@redhat.com
+In-Reply-To: <20040801193043.GA20277@elte.hu>
+References: <20040713143947.GG21066@holomorphy.com>
+	 <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe>
+	 <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe>
+	 <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe>
+	 <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu>
+	 <20040729222657.GA10449@elte.hu>  <20040801193043.GA20277@elte.hu>
+Content-Type: text/plain
+Date: Mon, 02 Aug 2004 00:40:24 +0200
+Message-Id: <1091400024.2092.2.camel@glass.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.91 (1.5.91-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Aug 2004, Francois Romieu wrote:
-
-> Jesper Juhl <juhl-lkml@dif.dk> :
-> [inline fixes]
-> > drivers/net/wan/dscc4.c: In function `dscc4_found1':
-> > drivers/net/wan/dscc4.c:369: sorry, unimplemented: inlining failed in call to 'dscc4_set_quartz': function body not available
-> > drivers/net/wan/dscc4.c:898: sorry, unimplemented: called from here
-> > 
-> > This one I fixed by moving the function before the point of its first use 
-> > since it's quite small.
+On Sun, 2004-08-01 at 21:30 +0200, Ingo Molnar wrote:
+> here's the latest version of the voluntary-preempt patch:
+>   
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-O2
 > 
-> Fine. You forgot to include the patch which removes the forward declaration
-> though.
+> this patch is mainly a stabilization effort. I dropped the irq-threads
+> code added in -M5 and rewrote it from scratch based on -L2 - it is
+> simpler and should be more robust.
 > 
+> The same /proc/irq/* configuration switches are still present, but i
+> added the following additional rule: if _any_ handler of a given IRQ is
+> marked as non-threaded then all handlers will be executed non-threaded
+> as well.
+> 
+> E.g. if you have the following handlers on IRQ 10:
+> 
+>  10:      11584   IO-APIC-level  eth0, eth1, eth2
+> 
+> and you change /proc/irq/16/eth1/threaded from 1 to 0 then the eth0 and
+> eth2 handlers will be executed non-threaded as well. (This rule only
+> enforces what the hardware enforces anyway, none of the previous patches
+> allowed true separation of these handlers.)
+> 
+> i also changed the IO-APIC level-triggered code to be robust when
+> redirection is done. The noapic workaround should not be necessary
+> anymore.
+> 
+> the keyboard lockups are now hopefully all gone too - i've tested
+> IO-APIC and non-IO-APIC setups as well and NumLock/ScrollLock works fine
+> in all sorts of workloads.
+> 
+> Let me know if you still have any problems.
 
-Whoops, you are right, that's of course no longer needed. Here's a fixed 
-patch that does that as well.
+I'll be away on vacations for about two weeks, but before leaving, I
+wanted to test run 2.6.8-rc2-bk11 plus voluntary-preempt-O2 on my P4 box
+with both ACPI and IO/APIC enabled, voluntary-preempt=3 and preempt=1
+and it seems to be working fine (I still haven't seen any hard locks).
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+# cat /proc/interrupts
+           CPU0
+  0:     114044    IO-APIC-edge  timer
+  1:        497    IO-APIC-edge  i8042
+  8:          1    IO-APIC-edge  rtc
+  9:          0   IO-APIC-level  acpi
+ 14:       9289    IO-APIC-edge  ide0
+ 15:         54    IO-APIC-edge  ide1
+ 17:       1299   IO-APIC-level  Intel 82801BA-ICH2
+ 19:      13408   IO-APIC-level  uhci_hcd
+ 20:        279   IO-APIC-level  eth0
+ 23:          0   IO-APIC-level  uhci_hcd
+NMI:          0
+LOC:     113967
+ERR:          0
+MIS:          0
 
-diff -up linux-2.6.8-rc2-mm1-orig/drivers/net/wan/dscc4.c linux-2.6.8-rc2-mm1/drivers/net/wan/dscc4.c
---- linux-2.6.8-rc2-mm1-orig/drivers/net/wan/dscc4.c	2004-07-31 13:09:41.000000000 +0200
-+++ linux-2.6.8-rc2-mm1/drivers/net/wan/dscc4.c	2004-08-02 00:21:25.000000000 +0200
-@@ -351,8 +351,8 @@ struct dscc4_dev_priv {
- #endif
- 
- /* Functions prototypes */
--static inline void dscc4_rx_irq(struct dscc4_pci_priv *, struct dscc4_dev_priv *);
--static inline void dscc4_tx_irq(struct dscc4_pci_priv *, struct dscc4_dev_priv *);
-+static void dscc4_rx_irq(struct dscc4_pci_priv *, struct dscc4_dev_priv *);
-+static void dscc4_tx_irq(struct dscc4_pci_priv *, struct dscc4_dev_priv *);
- static int dscc4_found1(struct pci_dev *, unsigned long ioaddr);
- static int dscc4_init_one(struct pci_dev *, const struct pci_device_id *ent);
- static int dscc4_open(struct net_device *);
-@@ -366,7 +366,6 @@ static void dscc4_tx_timeout(struct net_
- static irqreturn_t dscc4_irq(int irq, void *dev_id, struct pt_regs *ptregs);
- static int dscc4_hdlc_attach(struct net_device *, unsigned short, unsigned short);
- static int dscc4_set_iface(struct dscc4_dev_priv *, struct net_device *);
--static inline int dscc4_set_quartz(struct dscc4_dev_priv *, int);
- #ifdef DSCC4_POLLING
- static int dscc4_tx_poll(struct dscc4_dev_priv *, struct net_device *);
- #endif
-@@ -866,6 +865,18 @@ static void dscc4_init_registers(struct 
- 	//scc_writel(0x00250008 & ~RxActivate, dpriv, dev, CCR2);
- }
- 
-+static inline int dscc4_set_quartz(struct dscc4_dev_priv *dpriv, int hz)
-+{
-+	int ret = 0;
-+
-+	if ((hz < 0) || (hz > DSCC4_HZ_MAX))
-+		ret = -EOPNOTSUPP;
-+	else
-+		dpriv->pci_priv->xtal_hz = hz;
-+
-+	return ret;
-+}
-+
- static int dscc4_found1(struct pci_dev *pdev, unsigned long ioaddr)
- {
- 	struct dscc4_pci_priv *ppriv;
-@@ -1340,18 +1351,6 @@ static int dscc4_ioctl(struct net_device
- 	return ret;
- }
- 
--static inline int dscc4_set_quartz(struct dscc4_dev_priv *dpriv, int hz)
--{
--	int ret = 0;
--
--	if ((hz < 0) || (hz > DSCC4_HZ_MAX))
--		ret = -EOPNOTSUPP;
--	else
--		dpriv->pci_priv->xtal_hz = hz;
--
--	return ret;
--}
--
- static int dscc4_match(struct thingie *p, int value)
- {
- 	int i;
-@@ -1531,7 +1530,7 @@ out:
- 	return IRQ_RETVAL(handled);
- }
- 
--static inline void dscc4_tx_irq(struct dscc4_pci_priv *ppriv,
-+static void dscc4_tx_irq(struct dscc4_pci_priv *ppriv,
- 				struct dscc4_dev_priv *dpriv)
- {
- 	struct net_device *dev = dscc4_to_dev(dpriv);
-@@ -1700,7 +1699,7 @@ try:
- 	goto try;
- }
- 
--static inline void dscc4_rx_irq(struct dscc4_pci_priv *priv,
-+static void dscc4_rx_irq(struct dscc4_pci_priv *priv,
- 				    struct dscc4_dev_priv *dpriv)
- {
- 	struct net_device *dev = dscc4_to_dev(dpriv);
+# grep . /proc/irq/*/*/threaded
+/proc/irq/14/ide0/threaded:1
+/proc/irq/15/ide1/threaded:1
+/proc/irq/17/Intel 82801BA-ICH2/threaded:1
+/proc/irq/19/uhci_hcd/threaded:1
+/proc/irq/1/i8042/threaded:1
+/proc/irq/20/eth0/threaded:1
+/proc/irq/23/uhci_hcd/threaded:1
+/proc/irq/8/rtc/threaded:1
+/proc/irq/9/acpi/threaded:1
 
-
-
---
-Jesper Juhl <juhl-lkml@dif.dk>
 

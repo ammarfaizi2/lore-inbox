@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270609AbTGaWrK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 18:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274867AbTGaWrK
+	id S270516AbTGaWwO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 18:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270583AbTGaWwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 18:47:10 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:16653 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S270609AbTGaWrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 18:47:05 -0400
-Date: Thu, 31 Jul 2003 17:41:50 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Timothy Miller <miller@techsource.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       James Simmons <jsimmons@infradead.org>, Charles Lepple <clepple@ghz.cc>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Turning off automatic screen clanking
-In-Reply-To: <20030731152007.GA6658@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.53.0307311741090.3779@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org>
- <Pine.LNX.4.53.0307291338260.6166@chaos> <Pine.LNX.4.53.0307292015580.11053@montezuma.mastecende.com>
- <20030730012533.GA18663@mail.jlokier.co.uk> <Pine.LNX.4.53.0307292136050.11053@montezuma.mastecende.com>
- <3F2928AD.90501@techsource.com> <Pine.LNX.4.53.0307311056540.9348@montezuma.mastecende.com>
- <20030731152007.GA6658@mail.jlokier.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 31 Jul 2003 18:52:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62168 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270516AbTGaWwK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 18:52:10 -0400
+Date: Thu, 31 Jul 2003 15:40:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: mbligh@aracnet.com, linux-kernel@vger.kernel.org
+Subject: Re: Panic on 2.6.0-test1-mm1
+Message-Id: <20030731154020.61e15723.akpm@osdl.org>
+In-Reply-To: <20030731224148.GJ15452@holomorphy.com>
+References: <5110000.1059489420@[10.10.2.4]>
+	<20030731223710.GI15452@holomorphy.com>
+	<20030731224148.GJ15452@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jul 2003, Jamie Lokier wrote:
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> You may now put the "aggravated" magnet beneath the "wli" position on
+> the fridge.
 
-> Zwane Mwaikambo wrote:
-> > On Thu, 31 Jul 2003, Timothy Miller wrote:
-> > > This looks like it prevents blanking after panic.  What about UNblanking 
-> > > during panic?
-> > 
-> > iirc the screen already unblanks. But it's been a while since i've looked 
-> > at a panic'ing box via the screen.
-> 
-> That's still not good enough if the boot-time crash is not a panic.
+I never, ever, at any stage was told that highpmd.patch offered any
+benefits wrt lock contention or node locality.  I was only told that it
+saved a little bit of memory on highmem boxes.
 
-You mean oopses?
+It would be useful to actually tell me what your patches do.  And to
+provide test results which demonstrate the magnitude of the performance
+benefits.
 
--- 
-function.linuxpower.ca

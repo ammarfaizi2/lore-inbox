@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129223AbQJ3BjQ>; Sun, 29 Oct 2000 20:39:16 -0500
+	id <S129247AbQJ3B5p>; Sun, 29 Oct 2000 20:57:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129247AbQJ3BjH>; Sun, 29 Oct 2000 20:39:07 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:44805 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129223AbQJ3Biz>; Sun, 29 Oct 2000 20:38:55 -0500
-Date: Sun, 29 Oct 2000 18:35:31 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Message-ID: <20001029183531.A7155@vger.timpanogas.org>
-In-Reply-To: <39FCB09E.93B657EC@timpanogas.org> <E13q2R7-0006S7-00@the-village.bc.nu>
+	id <S129556AbQJ3B5f>; Sun, 29 Oct 2000 20:57:35 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:37905 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129247AbQJ3B53>;
+	Sun, 29 Oct 2000 20:57:29 -0500
+From: Daniel Phillips <news-innominate.list.linux.kernel@innominate.de>
+Reply-To: Daniel Phillips <phillips@innominate.de>
+X-Newsgroups: innominate.list.linux.kernel
+Subject: Re: page->mapping == 0
+Date: Mon, 30 Oct 2000 02:57:26 +0100
+Organization: innominate
+Distribution: local
+Message-ID: <news2mail-39FCD586.E5F480A7@innominate.de>
+In-Reply-To: <Pine.LNX.4.10.10010291100030.18939-100000@penguin.transmeta.com> <Pine.LNX.4.10.10010291118140.19109-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E13q2R7-0006S7-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 30, 2000 at 12:04:23AM +0000
+Content-Transfer-Encoding: 7bit
+X-Trace: mate.bln.innominate.de 972871047 22177 10.0.0.90 (30 Oct 2000 01:57:27 GMT)
+X-Complaints-To: news@innominate.de
+To: Linus Torvalds <torvalds@transmeta.com>
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 12:04:23AM +0000, Alan Cox wrote:
-> > It's still got some problems with NFS (I am seeing a few RPC timeout
-> > errors) so I am backreving to 2.2.17 for the Ute-NWFS release next week,
-> > but it's most impressive.
+Linus Torvalds wrote:
+> Now, I don't think this is really a valid usage pattern, so it's most
+> likely to be a result of a buggy application, but I can imagine having
+> some strange kind of user-space VM memory management scheme that depends
+> on SIGBUS to maintain a file length. I've never heard of such a thing, but
+> I could imagine somebody doing some kind of persistent data object store
+> in user space this way.
 > 
-> Can you send a summary of the NFS reports to nfs-devel@linux.kernel.org
+> Does anybody actually know of an application that does something like
+> this? Because I'm more and more inclined to just going with the half-fix
+> for now. It would at least guarantee internal kernel data consistency (and
+> no oopses, of course).
+> 
+> Don't get me wrong - we need to clean this part up, but as far as I can
+> tell we have never done this "right", so in that sense it's not a new
+> 2.4.x bug and it can't break existing applications.
 
-Yes.  I just went home, so I am emailing from my house.  I'll post late 
-tonight or in the morning.  Performance on 100Mbit with NFS going 
-Linux->Linux is getting better throughput than IPX NetWare Client -> 
-NetWare 5.x on the same network by @ 3%.  When you start loading up a 
-Linux server, it drops off sharply and NetWare keeps scaling, however, 
-this does indicate that the LAN code paths are equivalent relative to 
-latency vs. MSM/TSM/HSM in NetWare.  NetWare does better caching 
-(but we'll fix this in Linux next).  I think the ring transitions to 
-user space daemons are what are causing the scaling problems 
-Linux vs. NetWare.
+Strace shows that the history really is updated with no locking:
 
-:-)
+  4030  open("/home/phillips/.bash_history", O_WRONLY|O_TRUNC) = 4
+  4030  write(4, "l\nless README\ne ../*test8/fs/ext"..., 7546) = 7546
+  4030  close(4)                          =
+0                                                                                                
 
-Jeff
+There's no reason to continue doing the read after you've detected the
+page was pulled out from under you - clearly it's a user error state,
+the only question is: return the error and break the buggy application? 
+Or gloss over it.  And it seems like returning the error might actually
+break bash - maybe it deserves it... but...
+
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

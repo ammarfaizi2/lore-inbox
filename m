@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268179AbUI2D4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268183AbUI2D7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268179AbUI2D4l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 23:56:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268180AbUI2D4l
+	id S268183AbUI2D7x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 23:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268177AbUI2D7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 23:56:41 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:13540 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268179AbUI2DzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 23:55:01 -0400
-Message-ID: <415A3216.8010708@comcast.net>
-Date: Tue, 28 Sep 2004 23:55:02 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040916)
-X-Accept-Language: en-us, en
+	Tue, 28 Sep 2004 23:59:53 -0400
+Received: from tip.gotadsl.co.uk ([62.3.226.232]:11350 "HELO ag.arizona.edu")
+	by vger.kernel.org with SMTP id S268183AbUI2D7j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 23:59:39 -0400
+Message-ID: <7f0101c4a5ca$656fa950$f8f0f145@lfeeclarkaklmvb>
+Reply-To: "JENNIFER RODRIGUEZ" <lfeeclarkaklmvb@ag.arizona.edu>
+From: "JENNIFER RODRIGUEZ" <lfeeclarkaklmvb@ag.arizona.edu>
+To: "Business" <linux-kernel@vger.kernel.org>
+Subject: Don't ever ga-mb-le with your well earned money!
+Date: Tue, 28 Sep 2004 21:16:57 -0500
 MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Compressed filesystems:  Better compression?
-References: <415A302E.5090402@comcast.net>
-In-Reply-To: <415A302E.5090402@comcast.net>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > For other LZMA code,
+Hello, this is Brad again,
+are you ready to make the only step necessary to ensure your financial
+dreams become a reality? No time to enjoy the sweeter things in life? Your
+family perhaps? Your friends? A vacation? Tired of shift work? Allow me to
+guide you to freedom! 
+After shortest time I am now averaging twelvethousand USdollars monthly and
+am personally coaching each entrepreneur in our team.
+Email me at:     Freedom1000@mighty.co.za
+and put "FREEDOM Info" in the sub-ject.
 
-http://sourceforge.net/projects/p7zip/  or that.
+You won't regret it.
 
--- 
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+
+To re-move yourself, just email to  offlist@mighty.co.za  with "re-move" in
+the sub-ject. 
+
+Sincerely, 
+Brad  c/o Thornton-Group
+

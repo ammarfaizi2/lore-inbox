@@ -1,34 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280641AbRKJNcT>; Sat, 10 Nov 2001 08:32:19 -0500
+	id <S280648AbRKJNe7>; Sat, 10 Nov 2001 08:34:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280637AbRKJNcC>; Sat, 10 Nov 2001 08:32:02 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:8064 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S280638AbRKJNbt>;
-	Sat, 10 Nov 2001 08:31:49 -0500
-Date: Sat, 10 Nov 2001 05:31:42 -0800 (PST)
-Message-Id: <20011110.053142.63130496.davem@redhat.com>
-To: sven.vermeulen@rug.ac.be
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Networking: repeatable oops in 2.4.15-pre2
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011110132139.A872@Zenith.starcenter>
-In-Reply-To: <20011110132139.A872@Zenith.starcenter>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S280646AbRKJNeu>; Sat, 10 Nov 2001 08:34:50 -0500
+Received: from [196.31.58.45] ([196.31.58.45]:8840 "EHLO
+	montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S280634AbRKJNeg>; Sat, 10 Nov 2001 08:34:36 -0500
+Message-Id: <200111101336.fAADapr02433@montezuma.mastecende.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Lockup in IDE code
+Date: Sat, 10 Nov 2001 15:36:51 +0200
+X-Mailer: KMail [version 1.2.3]
+Cc: rgooch@ras.ucalgary.ca
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Sven Vermeulen <sven.vermeulen@rug.ac.be>
-   Date: Sat, 10 Nov 2001 13:21:39 +0100
-   
-   I'm not using OpenSSH 3.0 yet (2.9p2). I'm not running any firewall or
-   transparent proxying.
 
-You will only see the bug if you are using netfilter.
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 21
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:pio, hdb:DMA
+    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
+hdb: CRD-8480B, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+He only has the one device on IDE as you can see that the probe only shows 
+hdb, and i have a PIIX4 too and they do UDMA33 well enough, in fact i'm not 
+aware of any DMA problems with the PIIX4. Richard, have you tried disabling 
+CONFIG_IDEDMA_AUTO and CONFIG_PIIX_TUNING ?
+
+But looking at the code in ide-features.c it doesn't look like we have 
+enabled DMA by the time we get to that code.
+
+     if (error) {
+                (void) ide_dump_status(drive, "set_drive_speed_status", stat);
+                return error;
+        }
+
+<----- snip ----- >
+#if defined(CONFIG_BLK_DEV_IDEDMA) && !defined(CONFIG_DMA_NONPCI)
+        if (speed > XFER_PIO_4) {
+                outb(inb(hwif->dma_base+2)|(1<<(5+unit)), hwif->dma_base+2);  
+      } else {
+                outb(inb(hwif->dma_base+2) & ~(1<<(5+unit)), 
+hwif->dma_base+2);
+        }
+#endif /* (CONFIG_BLK_DEV_IDEDMA) && !(CONFIG_DMA_NONPCI) */
+
+But bear in mind i'm far from being remotely knowledgeable about this 
+specific code ;)

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135837AbRDTJg6>; Fri, 20 Apr 2001 05:36:58 -0400
+	id <S135835AbRDTJdi>; Fri, 20 Apr 2001 05:33:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135836AbRDTJgs>; Fri, 20 Apr 2001 05:36:48 -0400
-Received: from [193.228.81.158] ([193.228.81.158]:14573 "EHLO stefan.sime.com")
-	by vger.kernel.org with ESMTP id <S135838AbRDTJgb>;
-	Fri, 20 Apr 2001 05:36:31 -0400
-Date: Fri, 20 Apr 2001 11:36:06 +0200
-From: Stefan Traby <stefan@hello-penguin.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: stefan@hello-penguin.com, Andi Kleen <ak@suse.de>, Dave <daveo@osdn.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: bizarre TCP behavior
-Message-ID: <20010420113606.A1113@stefan.sime.com>
-Reply-To: Stefan Traby <stefan@hello-penguin.com>
-In-Reply-To: <20010414141208.A31782@stefan.sime.com> <E14oR1o-00051n-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14oR1o-00051n-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Apr 14, 2001 at 03:27:53PM +0100
-Organization: Stefan Traby Services && Consulting
-X-Operating-System: Linux 2.4.3 (i686)
-X-APM: 100% 400 min
-X-MIL: A-6172171143
-X-Lotto: Suggested Lotto numbers (Austrian 6 out of 45): 12 14 21 22 40 45
+	id <S135836AbRDTJd3>; Fri, 20 Apr 2001 05:33:29 -0400
+Received: from quechua.inka.de ([212.227.14.2]:21550 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S135835AbRDTJdN>;
+	Fri, 20 Apr 2001 05:33:13 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: light weight user level semaphores
+In-Reply-To: <E14qHRp-0007Yc-00@the-village.bc.nu> <Pine.LNX.4.31.0104190944090.4074-100000@penguin.transmeta.com>
+Organization: private Linux site, southern Germany
+Date: Fri, 20 Apr 2001 11:29:31 +0200
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E14qXEU-0005xo-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 14, 2001 at 03:27:53PM +0100, Alan Cox wrote:
-> > For example the Zyxel 681 SDSL-Router breaks ECN by
-> > stripping 0x80 (ECN Cwnd Reduced) but not 0x40 (ECN Echo)
-> > (TOS bits) on all SYN packets (!).
-> > 
-> > I complained because of this two times more than a month ago
-> > but they do not even respond.
-> 
-> If the router claims to be RFC compliant then you may want to investigate
-> trading standards bodies. In the UK at least things like the advertising 
-> standards agency get upset by people who claim standards compliance, are shown
-> not to be compliant and are not fixing things..
+> Ehh.. I will bet you $10 USD that if libc allocates the next file
+> descriptor on the first "malloc()" in user space (in order to use the
+> semaphores for mm protection), programs _will_ break.
 
-FYI: I just tested a beta firmare that does not break ECN.
-(ZyXEL firmware v2.50(T.05)b6 | 03/28/2001)
+Of course, but this is a result from sloppy coding. In general, open()
+can just return anything and about the only case where you can even
+think of ignoring its result is this:
+ close(0); close(1); close(2);
+ open("/dev/null", O_RDWR); dup(0); dup(0);
+(which is even not clean for other reasons).
 
-I hope that Zyxel will make a release soon, the last official firmare
-does not support it. (Ahm, people that are willing to upgrade should
-do it on _both_ sides)
+I can't imagine depending on the "fact" that the first fd I open is 3,
+the next is 4, etc. And what if the routine in question is not
+malloc() but e.g. getpwuid()? Both are just arbitrary library
+functions, and one of them clearly does open file descriptors,
+depending on their implementation.
 
--- 
+What would the reason[1] be for wanting contiguous fd space anyway?
 
-  ciao - 
-    Stefan
+Olaf
+
+[1] apart from not having understood how poll() works of course.

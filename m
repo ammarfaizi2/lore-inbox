@@ -1,73 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbUCGGjh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 01:39:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUCGGjh
+	id S261530AbUCGGvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 01:51:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbUCGGvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 01:39:37 -0500
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:17508 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261766AbUCGGje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 01:39:34 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Ben Collins <bcollins@debian.org>
-Subject: OOPS when copying data from local to an external drive (ieee1394)
-Date: Sun, 7 Mar 2004 01:39:30 -0500
-User-Agent: KMail/1.6
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 7 Mar 2004 01:51:09 -0500
+Received: from mailgate2.mysql.com ([213.136.52.47]:31395 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S261530AbUCGGvG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 01:51:06 -0500
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
+	end)
+From: Peter Zaitsev <peter@mysql.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+       riel@redhat.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20040305150225.GA13237@elte.hu>
+References: <20040228072926.GR8834@dualathlon.random>
+	 <Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com>
+	 <20040229014357.GW8834@dualathlon.random>
+	 <1078370073.3403.759.camel@abyss.local>
+	 <20040303193343.52226603.akpm@osdl.org>
+	 <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu>
+	 <20040305141504.GY4922@dualathlon.random> <20040305143425.GA11604@elte.hu>
+	 <20040305145947.GA4922@dualathlon.random>  <20040305150225.GA13237@elte.hu>
+Content-Type: text/plain
+Organization: MySQL
+Message-Id: <1078642207.2600.848.camel@abyss.local>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 06 Mar 2004 22:50:08 -0800
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403070139.30268.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2004-03-05 at 07:02, Ingo Molnar wrote:
+> * Andrea Arcangeli <andrea@suse.de> wrote:
+> 
+> > I thought time() wouldn't be called more than 1 per second anyways,
+> > why would anyone call time more than 1 per second?
+> 
+> if mysql in fact calls time() frequently, then it should rather start a
+> worker thread that updates a global time variable every second.
 
-I started getting oopses when cpying data from local IDE to an external
-Firewire drive. Not always, but quite often. The kernel is a bk pull a
-day before 2.6.4-rc2 was released, I do not see any ieee1394 updates
-since.
+Ingo, Andrea,
 
-Unfortunately the oops was not saves in the logs, so here is what I managed
-to write down:
+I would not say MySQL calls time that often, it is normally 2 times per
+query (to measure query execution time), might be couple of times more.
 
-Oops: 00002 [#1]
-PREEMPT
-CPU: 0
-EIP: 0060 [<c0243d087>] Tainted: P
-EFLAGS: 00010047
-EIP is at hpsb_packet_sent+0x86/0x90
-eax: 00100100 ebx: dfd74000 ecx: dd6edfb0 edx: 00200200
-esi: 00000001 edi: dd6cdf60 ebp: c03e3ee0 esp: c03c3edc
-ds: 007b es: 007b ss: 0068
-Process swapper (pid: 0; threadinfo=c03c2000, task=c034a800)
-....
-Call trace:
-[<co25306e>] dma_trm_tasklet+0xae/0x1b0
-recal_task_prio+0xb4/0x1f0
-tasklet_action
-do_softirq
-do_IRQ
-common_interrupt
-acpi_process_idle
-default_idle
-rest_init
-default_init
-rest_init
-cpu_idle
-start_kernel
-unknown_bootparam
+Looking at typical profiling results it takes much less than 1% of time,
+even for  very simple query loads. 
 
-Code: ...
-Kernel panic: Fatal exception in interrupt
-In interrupt handler - not synching
+Rather than changing design how time is computed I think we would better
+to go to better accuracy - nowadays 1 second is far too raw.
 
-
-This OOPS is with NVIDIA module loaded but I have seen exactly the
-same trace without the module loaded.
 
 -- 
-Dmitry
+Peter Zaitsev, Senior Support Engineer
+MySQL AB, www.mysql.com
+
+Meet the MySQL Team at User Conference 2004! (April 14-16, Orlando,FL)
+  http://www.mysql.com/uc2004/
+

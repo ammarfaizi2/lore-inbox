@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318373AbSGRWRp>; Thu, 18 Jul 2002 18:17:45 -0400
+	id <S318380AbSGRWTa>; Thu, 18 Jul 2002 18:19:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318374AbSGRWRp>; Thu, 18 Jul 2002 18:17:45 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:57103 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S318373AbSGRWRo>; Thu, 18 Jul 2002 18:17:44 -0400
-Date: Thu, 18 Jul 2002 19:20:26 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: willy@debian.org, jsimmons@transvirtual.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.26 broken on headless boxes
-Message-ID: <20020718222026.GH2740@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Petr Vandrovec <vandrove@vc.cvut.cz>, willy@debian.org,
-	jsimmons@transvirtual.com, linux-kernel@vger.kernel.org
-References: <20020718221619.GA16292@vana.vc.cvut.cz>
+	id <S318381AbSGRWTa>; Thu, 18 Jul 2002 18:19:30 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:31188 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP
+	id <S318380AbSGRWT3>; Thu, 18 Jul 2002 18:19:29 -0400
+Date: Fri, 19 Jul 2002 01:25:35 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, kaos@ocs.com.au
+Subject: Re: Generic modules documentation is outdated
+Message-ID: <20020718232535.GB8165@bylbo.nowhere.earth>
+References: <20020704212240.GB659@bylbo.nowhere.earth> <20020718210259.GJ19580@bylbo.nowhere.earth> <1027032521.8154.48.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020718221619.GA16292@vana.vc.cvut.cz>
+In-Reply-To: <1027032521.8154.48.camel@irongate.swansea.linux.org.uk>
 User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+From: Yann Dirson <ydirson@altern.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Jul 19, 2002 at 12:16:19AM +0200, Petr Vandrovec escreveu:
-> so we did not registered VT subsystem and panic did not happened:
-> instead of that you got 'cannot open initial console' or something
-> like that...
+On Thu, Jul 18, 2002 at 11:48:41PM +0100, Alan Cox wrote:
+> On Thu, 2002-07-18 at 22:02, Yann Dirson wrote:
+> > - I have installed no proprietary driver, all loaded drivers declare to be
+> > "GPL" or "Dual BSD/GPL". 
+> 
+> Something you loaded was missing a MODULE_LICENSE tag - modern insmod
+> will warn on this one
 
-Hummm, maybe this is what was biting me yesterday... I'll check RSN,
-as soon as I arrive at home 8)
+I wrote:
+> I found a good candidate in the Apple HFS module
 
-- Arnaldo
+Hm, no, I found the real one (although HFS has the problem):
+
+# modprobe ppp_deflate
+Warning: loading /lib/modules/2.4.18+preempt/kernel/drivers/net/ppp_deflate.o will taint the kernel: non-GPL license - BSD without advertisement clause
+
+I'm pretty sure the "BSD without advertisement clause" license should not
+taint the kernel, should it ?
+
+And even if there is an obscure license incompatibility, there is a problem
+in that this module is in the stock kernels, and should then be advertised
+as such (or maybe removed).
+
+Regards,
+-- 
+Yann Dirson    <ydirson@altern.org> |    Why make M$-Bill richer & richer ?
+Debian-related: <dirson@debian.org> |   Support Debian GNU/Linux:
+Pro:    <yann.dirson@fr.alcove.com> |  Freedom, Power, Stability, Gratuity
+     http://ydirson.free.fr/        | Check <http://www.debian.org/>

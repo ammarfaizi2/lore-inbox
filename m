@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbUCLGmG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 01:42:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbUCLGmG
+	id S261991AbUCLHAj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 02:00:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbUCLHAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 01:42:06 -0500
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:46009 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S262008AbUCLGl4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 01:41:56 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] per-backing dev unplugging #2
-Date: Fri, 12 Mar 2004 07:41:16 +0100
-User-Agent: KMail/1.6
-Cc: Jens Axboe <axboe@suse.de>
-References: <20040311083619.GH6955@suse.de>
-In-Reply-To: <20040311083619.GH6955@suse.de>
+	Fri, 12 Mar 2004 02:00:39 -0500
+Received: from 69-90-55-107.fastdsl.ca ([69.90.55.107]:12166 "EHLO
+	TMA-1.brad-x.com") by vger.kernel.org with ESMTP id S261991AbUCLHAh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 02:00:37 -0500
+Message-ID: <4051615B.1030009@brad-x.com>
+Date: Fri, 12 Mar 2004 02:06:03 -0500
+From: Brad Laue <brad@brad-x.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040222
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200403120741.18455.ioe-lkml@rameria.de>
+To: "Hmamouche, Youssef" <youssef@ece.utexas.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ksoftirqd using mysteriously high amounts of CPU time
+References: <Pine.LNX.4.21.0403111916570.3466-100000@linux08.ece.utexas.edu>
+In-Reply-To: <Pine.LNX.4.21.0403111916570.3466-100000@linux08.ece.utexas.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hmamouche, Youssef wrote:
+  > Is there any way you could replace one of the network cards and 
+test? I have a
+> feeling it's a hardware problem where the interrupt never gets acknowledged in
+> some situations - ksoftirq gets crazy.
+> 
+> you
 
-Hi Jens,
+This has occurred on any combination of the following six things:
 
-On Thursday 11 March 2004 09:36, Jens Axboe wrote:
-> diff -ur -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.4-mm1/kernel/power/pmdisk.c linux-2.6.4-mm1/kernel/power/pmdisk.c
-> --- /opt/kernel/linux-2.6.4-mm1/kernel/power/pmdisk.c	2004-03-11 03:55:28.000000000 +0100
-> +++ linux-2.6.4-mm1/kernel/power/pmdisk.c	2004-03-11 09:07:12.000000000 +0100
-> @@ -859,7 +859,6 @@
->  
->  static void wait_io(void)
->  {
-> -	blk_run_queues();
->  	while(atomic_read(&io_done))
->  		io_schedule();
->  }
-> @@ -895,6 +894,7 @@
->  		goto Done;
->  	}
->  
-> +	rw |= BIO_RW_SYNC;
->  	if (rw == WRITE)
->  		bio_set_pages_dirty(bio);
->  	start_io();
+Network cards:
+Realtek 8139
+SiS 900 Integrated
+NE2K
+3Com 3c905b
 
-These last 3 lines look bogus. The condition will never trigger. 
-Maybe you meant to move the assignment either down or change bio->bi_rw
-instead of rw.
+Motherboard chipsets:
+ALI M1541
+SiS 740
+AMD 760
 
-Regards
+On the following kernel versions: 2.4.20, 2.4.21, 2.4.22, 2.4.23 (and 
+-aa variants of 2.4.22, .23), 2.6.1, 2.6.2, 2.6.3.
 
-Ingo Oeser
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAUVuMU56oYWuOrkARAlxlAJ0Su6cddbBEu6j4lg9s880ZGI7YhQCgiXYU
-zxumQHLdGy/UcBIbx56IG1k=
-=vbeO
------END PGP SIGNATURE-----
+It could well be a BIOS setting I'm habitually setting and forgetting 
+about which is common to all motherboards, I'll have to check on that. 
+Are there any of these I should be looking out for?

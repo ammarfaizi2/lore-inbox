@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288159AbSAIG2k>; Wed, 9 Jan 2002 01:28:40 -0500
+	id <S288882AbSAIG3W>; Wed, 9 Jan 2002 01:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288876AbSAIG2a>; Wed, 9 Jan 2002 01:28:30 -0500
-Received: from pool-141-154-202-101.bos.east.verizon.net ([141.154.202.101]:48646
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S288159AbSAIG2V>; Wed, 9 Jan 2002 01:28:21 -0500
-To: Doug Ledford <dledford@redhat.com>
-Cc: willy tarreau <wtarreau@yahoo.fr>, Mario Mikocevic <mozgy@hinet.hr>,
-        linux-kernel@vger.kernel.org
-Subject: Re: i810_audio
-In-Reply-To: <20020108163141.57751.qmail@web20507.mail.yahoo.com>
-	<3C3B4F7F.8010901@redhat.com>
-From: Nick Papadonis <nick@coelacanth.com>
-Organization: None
-X-Face: 01-z%.O)i7LB;Cnxv)c<Qodw*J*^HU}]Y-1MrTwKNn<1_w&F$rY\\NU6U\ah3#y3r<!M\n9
- <vK=}-Z{^\-b)djP(pD{z1OV;H&.~bX4Tn'>aA5j@>3jYX:)*O6:@F>it.>stK5,i^jk0epU\$*cQ9
- !)Oqf[@SOzys\7Ym}:2KWpM=8OCC`
-Date: 09 Jan 2002 01:28:15 -0500
-In-Reply-To: <3C3B4F7F.8010901@redhat.com> (Doug Ledford's message of "Tue, 08 Jan 2002 14:58:55 -0500")
-Message-ID: <m3sn9g2g3k.fsf@localhost.localdomain>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Civil Service)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S288900AbSAIG3M>; Wed, 9 Jan 2002 01:29:12 -0500
+Received: from smtp.comcast.net ([24.153.64.2]:52027 "EHLO mtaout45-01")
+	by vger.kernel.org with ESMTP id <S288882AbSAIG3C>;
+	Wed, 9 Jan 2002 01:29:02 -0500
+Date: Wed, 09 Jan 2002 01:29:04 -0500
+From: Brian <hiryuu@envisiongames.net>
+Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
+In-Reply-To: <20020108193904.A1068@w-mikek2.beaverton.ibm.com>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <0GPN00CMLRC7U8@mtaout45-01.icomcast.net>
+MIME-version: 1.0
+X-Mailer: KMail [version 1.3.2]
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.33.0201072122290.14092-100000@localhost.localdomain>
+ <20020108193904.A1068@w-mikek2.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford <dledford@redhat.com> writes:
-> Someone posted one of the DMA Overrun on write error messages to me,
-> and that allowed me to see that on the SiS hardware we are getting
-> garbage in the upper 3 bits of the LVI register (presumably because we
-> read garbage from the upper 3 bits of the CIV register).  So, I've put
-> a 0.15 version of my driver on my site that now bounds our LVI and CIV
-> reads so that we mask out any possible garbage.  And, since writing
-> garbage to LVI could keep the hardware going in loops forever and
-> other sorts of bad things, it might solve your problem.  Please give
-> it a try and let me know how it works.
-> 
+Can this be correct?
 
-0.15 works better then 0.13 for me.  I haven't had any problems yet.
+Intuitively, I would expect several CPUs hammering away at the compile to 
+finish faster than one.  Given these numbers, I would have to conclude 
+that is not just wrong, but absolutely wrong.  Compile time increases 
+linearly with the number of jobs, regardless of the number of CPUs.
+
+What would cause this?  Severe memory bottlenecks?
+
+	-- Brian
+
+On Tuesday 08 January 2002 10:39 pm, Mike Kravetz wrote:
+> --------------------------------------------------------------------
+> mkbench - Time how long it takes to compile the kernel.
+>         We use 'make -j 8' and increase the number of makes run
+>         in parallel.  Result is average build time in seconds.
+>         Lower is better.
+> --------------------------------------------------------------------
+> # CPUs      # Makes         Vanilla         O(1)	haMQ
+> --------------------------------------------------------------------
+> 2           1                188             192        184
+> 2           2                366             372        362
+> 2           4                730             742        600
+> 2           6               1096            1112        853
+> 4           1                102             101         95
+> 4           2                196             198        186
+> 4           4                384             386        374
+> 4           6                576             579        487
+> 8           1                 58              57         58
+> 8           2                109             108        105
+> 8           4                209             213        186
+> 8           6                309             312        280

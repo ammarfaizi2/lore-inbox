@@ -1,73 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289577AbSAON4t>; Tue, 15 Jan 2002 08:56:49 -0500
+	id <S289580AbSAON4j>; Tue, 15 Jan 2002 08:56:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289579AbSAON4j>; Tue, 15 Jan 2002 08:56:39 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:41231 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289577AbSAON4a>;
-	Tue, 15 Jan 2002 08:56:30 -0500
-Date: Tue, 15 Jan 2002 14:55:49 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Joel Becker <jlbec@evilplan.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] O_DIRECT with hardware blocksize alignment
-Message-ID: <20020115145549.M31878@suse.de>
-In-Reply-To: <20020109195606.A16884@parcelfarce.linux.theplanet.co.uk> <20020112133122.I1482@inspiron.school.suse.de> <20020115032126.F1929@parcelfarce.linux.theplanet.co.uk> <20020115132026.F22791@athlon.random> <20020115140852.I31878@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020115140852.I31878@suse.de>
+	id <S289579AbSAON43>; Tue, 15 Jan 2002 08:56:29 -0500
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:59647 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S289577AbSAON4T>; Tue, 15 Jan 2002 08:56:19 -0500
+Subject: Re: [BUG] 2.4.18.3, ide-patch, read_dev_sector hangs in read_cache_page
+To: preining@logic.at
+Date: Tue, 15 Jan 2002 13:54:57 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, andre@linuxdiskcert.org
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16QU3F-0005g6-00@libra.cus.cam.ac.uk>
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15 2002, Jens Axboe wrote:
-> On Tue, Jan 15 2002, Andrea Arcangeli wrote:
-> > actually we could also forbid merging at the ll_rw_block layer if b_size
-> > is not equal, maybe that's the simpler solution to that problem after
-> > all, merging between kiovec I/O and buffered I/O probably doesn't
-> > matter.
-> 
-> Agreed, this is also what I suggested.
+Hi Norbert,
 
-Here's the right version, sorry. This still potentially decrements
-elevator sequence wrongly for a missed front merge, but that's an issue
-I can definitely live with :-)
+Could you try this patchlet to fs/partitions/check.c::read_dev_sector() and look if there is any output by dmesg? It's
+a bit of a shot in the dark but will at least exclude this as the source for the peoblem...
 
---- /opt/kernel/linux-2.4.18-pre3/drivers/block/ll_rw_blk.c	Tue Jan 15 14:06:13 2002
-+++ drivers/block/ll_rw_blk.c	Tue Jan 15 14:54:20 2002
-@@ -694,10 +694,11 @@
- 	switch (el_ret) {
+diff -u -ur linux-2.4.18-pre3-ac2/fs/partitions/check.c linux-2.4.18-pre3-ac2-aia1/fs/partitions/check.c
+--- linux-2.4.18-pre3-ac2/fs/partitions/check.c	Fri Oct 12 01:25:10 2001
++++ linux-2.4.18-pre3-ac2-aia1/fs/partitions/check.c	Tue Jan 15 13:21:24 2002
+@@ -410,6 +410,14 @@
+ 	int sect = PAGE_CACHE_SIZE / 512;
+ 	struct page *page;
  
- 		case ELEVATOR_BACK_MERGE:
--			if (!q->back_merge_fn(q, req, bh, max_segments)) {
--				insert_here = &req->queue;
-+			insert_here = &req->queue;
-+			if (req->current_nr_sectors != count)
-+				break;
-+			if (!q->back_merge_fn(q, req, bh, max_segments))
- 				break;
--			}
- 			elevator->elevator_merge_cleanup_fn(q, req, count);
- 			req->bhtail->b_reqnext = bh;
- 			req->bhtail = bh;
-@@ -708,10 +709,11 @@
- 			goto out;
- 
- 		case ELEVATOR_FRONT_MERGE:
--			if (!q->front_merge_fn(q, req, bh, max_segments)) {
--				insert_here = req->queue.prev;
-+			insert_here = req->queue.prev;
-+			if (req->current_nr_sectors != count)
-+				break;
-+			if (!q->front_merge_fn(q, req, bh, max_segments))
- 				break;
--			}
- 			elevator->elevator_merge_cleanup_fn(q, req, count);
- 			bh->b_reqnext = req->bh;
- 			req->bh = bh;
++	if (mapping->a_ops->sync_page != block_sync_page) {
++		if (mapping->a_ops->sync_page)
++			printk(KERN_CRIT "read_dev_sector: mapping->a_ops->sync_page != block_sync_page!\n");
++		else {
++			printk(KERN_CRIT "read_dev_sector: mapping->a_ops->sync_page is NULL! Setting to default block_sync_page!\n");
++			mapping->a_ops->sync_page = block_sync_page;
++		}
++	}
+ 	page = read_cache_page(mapping, n/sect,
+ 			(filler_t *)mapping->a_ops->readpage, NULL);
+ 	if (!IS_ERR(page)) {
 
+
+Best regards,
+
+	Anton
 -- 
-Jens Axboe
-
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/

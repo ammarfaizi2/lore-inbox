@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267454AbTBNIkI>; Fri, 14 Feb 2003 03:40:08 -0500
+	id <S268240AbTBNIpv>; Fri, 14 Feb 2003 03:45:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268240AbTBNIkI>; Fri, 14 Feb 2003 03:40:08 -0500
-Received: from [196.41.29.142] ([196.41.29.142]:50956 "EHLO
-	andromeda.cpt.sahara.co.za") by vger.kernel.org with ESMTP
-	id <S267454AbTBNIkH>; Fri, 14 Feb 2003 03:40:07 -0500
-Subject: Re: Problems with 2.5.*'s SCSI headers and cdrtools
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030214063225.A19016@infradead.org>
-References: <1045201685.5971.78.camel@workshop.saharact.lan>
-	 <20030214055822.A18415@infradead.org>
-	 <1045202851.5971.83.camel@workshop.saharact.lan>
-	 <20030214062109.A18761@infradead.org>
-	 <1045204070.5971.92.camel@workshop.saharact.lan>
-	 <20030214063225.A19016@infradead.org>
-X-scanner: scanned by Sistech VirusWall 2.3/cpt
-Content-Type: text/plain
-Organization: 
-Message-Id: <1045212517.3285.96.camel@workshop.saharact.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1- 
-Date: 14 Feb 2003 10:48:38 +0200
+	id <S268246AbTBNIpt>; Fri, 14 Feb 2003 03:45:49 -0500
+Received: from host88-156.pool80116.interbusiness.it ([80.116.156.88]:21888
+	"EHLO igor.opun.it") by vger.kernel.org with ESMTP
+	id <S268240AbTBNIps>; Fri, 14 Feb 2003 03:45:48 -0500
+Message-ID: <3E4CAEFC.92914AB3@libero.it>
+Date: Fri, 14 Feb 2003 09:55:24 +0100
+From: Abramo Bagnara <abramo.bagnara@libero.it>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en, it
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Synchronous signal delivery..
+References: <Pine.LNX.4.44.0302131452450.4232-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-14 at 08:32, Christoph Hellwig wrote:
-
-> Either your distributions setup is broken and overwrites
-> /usr/include/scsi/scsi.h (check whether it has the FSF copyright,
-> they took the kernel header verbatim and just slapped their copyright
-> boilerplate over it..) or cdrtools is broken enough to explicitly
-> add the kernel source to it's include dirs.  Both would need fixing,
-> the first is easy, the second needs conviencing Joerg which might
-> become difficult :)
+Linus Torvalds wrote:
 > 
+> On Thu, 13 Feb 2003, Davide Libenzi wrote:
+> >
+> > It does not have necessarily to be just another ioctl/fcntl, it can be a
+> > write. About security, chages might be allowed only to the task that
+> > created the fd, if you're concerned. It's not that someone will starve
+> > w/out such functionality though.
+> 
+> I'd actually like to reserve writes to _sending_ signals. Especially if
+> you have another process that listens in on the signals you get, it might
+> want to also force the signals through.
 
-Thanks.  Ill look into this, and also check with Joerg why it have to
-use the current kernel headers if it is what its doing.  I just
-basically wanted the opinion of what should be the right way to handle
-it before I submit a bug report to the correct people.
+This reminds me the unfortunate (and much needed) lack of an unified way
+to send/receive out-of-band data to/from a regular fd.
 
-Are scsi stuff in 2.5 going to change drastically in the future ?
+Something like:
+	oob = fd_open(fd, channel, flags);
+	write(oob, ...)
+	read(oob, ....)
+	close(oob);
 
-
-Regards,
+Don't you think it's time to introduce it and to start to avoid the
+proliferation of different tricky ways to do the same things?
 
 -- 
-Martin Schlemmer
-Gentoo Linux Developer, Desktop Team
-Cape Town, South Africa
+Abramo Bagnara                       mailto:abramo.bagnara@libero.it
 
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy

@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262404AbTJNN0D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 09:26:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbTJNN0D
+	id S262384AbTJNNYc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 09:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbTJNNYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 09:26:03 -0400
-Received: from lech.pse.pl ([194.92.3.7]:25765 "EHLO lech.pse.pl")
-	by vger.kernel.org with ESMTP id S262404AbTJNN0B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 09:26:01 -0400
-Date: Tue, 14 Oct 2003 15:25:59 +0200
-From: Lech Szychowski <lech.szychowski@pse.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23-pre7-pac2
-Message-ID: <20031014132559.GA29532@lech.pse.pl>
-Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.56.0310141354120.3892@dot.kde.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.56.0310141354120.3892@dot.kde.org>
-Organization: Polskie Sieci Elektroenergetyczne S.A.
-User-Agent: Mutt/1.5.4i
+	Tue, 14 Oct 2003 09:24:32 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:58127 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262384AbTJNNYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 09:24:31 -0400
+Date: Tue, 14 Oct 2003 09:24:17 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Marco Fioretti <m.fioretti@inwind.it>
+cc: wli <wli@holomorphy.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
+In-Reply-To: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it>
+Message-ID: <Pine.LNX.4.44.0310140917540.3754-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> - Update ACPI
+On Tue, 14 Oct 2003, Marco Fioretti wrote:
 
-Is ACPI required now for SMP kernels? When compiling for SMP
-I get the same errors someone already posted in the
-"2.4.23-pre7-pac1" thread (missing acpi_... symbols)?
+> There are literally thousands of schools, all over the world, which
+> simply cannot afford any money on computers. The "HW is cheap" slogan is
+> very cruel when recited in places where 64 MB of RAM are one month's
+> salary. I am not kidding.
+
+I am very happy to see that there is a project to take
+care of the needs of people with older hardware.
+
+If you ever need help on the kernel side, let me know.
+
+I know a lot of friends in various countries who simply
+don't have the money to buy a new computer. Granted, 64MB
+isn't anywhere near a monthly salary for most of them,
+but after paying their bills they still don't have enough
+money left to buy a new computer (and if they had, they
+should buy something else with it ... there really isn't
+a good excuse on why software is getting this much more
+bloated).
 
 -- 
-	Leszek.
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
--- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
--- speaking just for myself...

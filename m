@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132313AbQLQW0S>; Sun, 17 Dec 2000 17:26:18 -0500
+	id <S132134AbQLQWmf>; Sun, 17 Dec 2000 17:42:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132497AbQLQW0I>; Sun, 17 Dec 2000 17:26:08 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:49935 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132313AbQLQWZ4>; Sun, 17 Dec 2000 17:25:56 -0500
-Date: Sun, 17 Dec 2000 13:55:09 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: test13-pre3
-Message-ID: <Pine.LNX.4.10.10012171353270.2052-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132497AbQLQWmY>; Sun, 17 Dec 2000 17:42:24 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:3076 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S132134AbQLQWmK>;
+	Sun, 17 Dec 2000 17:42:10 -0500
+Message-ID: <20001217231107.C474@bug.ucw.cz>
+Date: Sun, 17 Dec 2000 23:11:07 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: recursive exports && linux nfs
+In-Reply-To: <20001212103652.A13501@cerebro.laendle> <20001215235446.H9506@bug.ucw.cz> <20001217104242.B9034@fuji.laendle>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20001217104242.B9034@fuji.laendle>; from Marc Lehmann on Sun, Dec 17, 2000 at 10:42:42AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-The most noticeable part of this is that the run_task_queue fix should
-cure the lockup that some people have seen.
+> > > 2) using: I can do cd /nfs/fs, but the directoy is always empty, and when I
+> > >    try to step into a subdirectory I always get "No such file or directory".
+> > > 
+> > > Thanks a lot for any insights, even if this means "this is not supported"
+> > > ;)
+> > 
+> > This can't be supported, afaict, because nfs handles have limited
+> > size.
+> 
+> Ehrm, did you really read my mail? Most people told me something like
+> "recursive exports are not supported" (actually, they are and they work),
+> and it seems nobody really read what I wrote :(
 
-The shmfs cleanup should be unnoticeable except to users who use SAP with
-huge shared memory segments, where Christoph Rohlands work not only
-makes the code much more readable, it should also make it dependable..
+They do not work too well. They break guarantee that handles are
+persistent across reboots. Recursive exports are huge kludge. They
+have to be.
 
-		Linus
+[Sorry, I did not read your mail too carefully]
 
-----
+> My problem is that autofs doesn't work. Example:
+> 
+> /	reiserfs
+> /fs	autofs
+> /fs/big	ext2
+> 
+> When I exportfs /, /fs AND /fs/big then I can mount /fs on another box,
+> but it is always empty, even if something (e.g. /fs/big) is mounted and
+> can be accessed fine the whole time. Automounting doesn't work, either, of
+> course.
+> 
+> Another (less grave) problem is that exportfs (and/or rpc.nfsd) require
+> network access and access to the volume, so they a) mount all automounted
+> directories (VERY expensive) and require network access (making all
+> clients NOT survive a reboot).
+> 
 
- - pre3:
-   - Christian Jullien: smc9194: proper dev_kfree_skb_irq
-   - Cort Dougan: new-style PowerPC Makefiles
-   - Andrew Morton, Petr Vandrovec: fix run_task_queue
-   - Christoph Rohland: shmfs for shared memory handling
-
- - pre2:
-   - Kai Germaschewski: ISDN update (including Makefiles)
-   - Jens Axboe: cdrom updates
-   - Petr Vandrovec; Matrox G450 support
-   - Bill Nottingham: fix FAT32 filesystems on 64-bit platforms
-   - David Miller: sparc (and other) Makefile fixup
-   - Andrea Arkangeli: alpha SMP TLB context fix (and cleanups)
-   - Niels Kristian Bech Jensen: checkconfig, USB warnings
-   - Andrew Grover: large ACPI update
-
- - pre1:
-   - me: drop support for old-style Makefiles entirely. Big.
-   - me: check b_end_io at the IO submission path
-   - me: fix "ptep_mkdirty()" (so that swapoff() works correctly)
-   - fix fault case in copy_from_user() with a constant size, where
-     ((size & 3) == 3)
-
-
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

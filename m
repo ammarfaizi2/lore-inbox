@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289014AbSAFTfU>; Sun, 6 Jan 2002 14:35:20 -0500
+	id <S289017AbSAFTh7>; Sun, 6 Jan 2002 14:37:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289017AbSAFTfO>; Sun, 6 Jan 2002 14:35:14 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:45987 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S289014AbSAFTfD>; Sun, 6 Jan 2002 14:35:03 -0500
-Date: Sun, 6 Jan 2002 12:34:49 -0700
-Message-Id: <200201061934.g06JYnZ15633@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Matt Dainty <matt@bodgit-n-scarper.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] DevFS support for /dev/cpu/X/(cpuid|msr)
-In-Reply-To: <20020106181749.A714@butterlicious.bodgit-n-scarper.com>
-In-Reply-To: <20020106181749.A714@butterlicious.bodgit-n-scarper.com>
+	id <S289018AbSAFTht>; Sun, 6 Jan 2002 14:37:49 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:2678 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S289017AbSAFThc>; Sun, 6 Jan 2002 14:37:32 -0500
+To: jtv <jtv@xs4all.nl>
+Cc: dewar@gnat.com, jbuck@synopsys.COM, gcc@gcc.gnu.org,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
+        paulus@samba.org, trini@kernel.crashing.org, velco@fadata.bg
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <20020103001241.E37DFF2EC6@nile.gnat.com>
+	<20020103013240.F19933@xs4all.nl>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: GCC Team, Red Hat
+Date: 06 Jan 2002 17:37:07 -0200
+In-Reply-To: jtv's message of "Thu, 3 Jan 2002 01:32:40 +0100"
+Message-ID: <oradvrgtjw.fsf@free.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.0805 (Gnus v5.8.5) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Dainty writes:
-> Please find attached a patch to add support for devfs to the i386 cpuid and
-> msr drivers. Not only that, but it fixes a problem with loading these
-> drivers as modules in that the exit hooks on the module never run, (simply
-> changing the function prototypes to include 'static' seems to fix this).
-> 
-> Patch is against 2.4.17. SMP environment isn't tested, but I can't see any
-> reason why it wouldn't work...
+On Jan  2, 2002, jtv <jtv@xs4all.nl> wrote:
 
-Looks mostly reasonable, except for:
+> (Yes, I'm a pedant.  I'm pining for the day when gcc will support the
+> options "-ffascist -Wanal")
 
-> -void __exit cpuid_exit(void)
-> +static void __exit cpuid_exit(void)
->  {
-> -  unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");
-> +  int i;
-> +  devfs_handle_t parent;
-> +
-> +  for(i = 0; i < NR_CPUS; i++) {
-> +    parent = devfs_get_parent(devfs_handle[i]);
-> +    devfs_unregister(devfs_handle[i]);
-> +    if(devfs_get_first_child(parent) == NULL)
-> +      devfs_unregister(parent);
-> +  }
-> +  devfs_unregister_chrdev(CPUID_MAJOR, "cpu/%d/cpuid");
->  }
+How about introducing the options `-flame -War' :-)
 
-There is no need to remove the parent /dev/cpu/%d directory, and in
-fact it's better not to. All you need is this simpler loop:
-	for(i = 0; i < NR_CPUS; i++)
-		devfs_unregister(devfs_handle[i]);
-
-You do something similar in the MSR driver.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-- 
+Alexandre Oliva   Enjoy Guarana', see http://www.ic.unicamp.br/~oliva/
+Red Hat GCC Developer                  aoliva@{cygnus.com, redhat.com}
+CS PhD student at IC-Unicamp        oliva@{lsd.ic.unicamp.br, gnu.org}
+Free Software Evangelist    *Please* write to mailing lists, not to me

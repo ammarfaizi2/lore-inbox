@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUHRNLW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266598AbUHRNLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265222AbUHRNLW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 09:11:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266379AbUHRNKA
+	id S266598AbUHRNLX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 09:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUHRNHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 09:10:00 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2229 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266598AbUHRNFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 09:05:52 -0400
-Date: Wed, 18 Aug 2004 15:03:49 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: [patch] enums to clear suspend-state confusion
-Message-ID: <20040818130348.GB1810@openzaurus.ucw.cz>
-References: <20040812120220.GA30816@elf.ucw.cz> <20040817212510.GA744@elf.ucw.cz> <20040817152742.17d3449d.akpm@osdl.org> <20040817223700.GA15046@elf.ucw.cz> <20040817161245.50dd6b96.akpm@osdl.org> <20040818002711.GD15046@elf.ucw.cz> <1092794687.10506.169.camel@gaston> <20040818061227.GA7854@elf.ucw.cz> <1092812149.9932.180.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092812149.9932.180.camel@gaston>
-User-Agent: Mutt/1.3.27i
+	Wed, 18 Aug 2004 09:07:48 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:10876 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S266244AbUHRNFf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 09:05:35 -0400
+Message-ID: <41235417.9080602@microgate.com>
+Date: Wed, 18 Aug 2004 08:05:27 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.8.1-mm1 Tty problems?
+References: <2a4f155d040817070854931025@mail.gmail.com>	 <412271EF.6040201@microgate.com> <1092831738.26566.68.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1092831738.26566.68.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Stephen Smalley wrote:
+> I find that puzzling, given that flush_unauthorized_files is only called
+> if the process is changing SIDs on exec, and running less certainly
+> doesn't involve a SID transition (at least for any policy that I have
+> seen).  I tried the sequence shown with 2.6.8.1-mm1 with SELinux enabled
+> and disabled, and did not see the behavior he describes.  Is the bug
+> reproducible?  Was he running with SELinux enabled or disabled?  What
+> policy did he have loaded?
 
-> > Yes, that's exactly what I did... Unfortunately typedef means ugly
-> > code. So I'll just switch it back to enum system_state, and lets care
-> > about device power managment when it hits us, okay?
-> 
-> I don't agree... with this approach, we'll have to change all drivers
-> _twice_ when we move to something more descriptive than a scalar
-> 
+According to Ismail:
+* The problem is reproducible.
+* SELinux is disabled.
+* With the patch the problem occurs.
+* With the patch reversed, the problem went away.
 
-I'm not entirely concinced we need anything more than a scalar.
-I think we could simply create PM_RUNTIME_0 .. PM_RUNTIME_9, and that will work
-as long as all devices have <= 10 power managment states.
+Unfortunately, this appears to be mixed up with
+another 2.6.8.1-mm1 change causing udev to garble
+the creation of /dev/tty and pty devices.
 
-That can well mean "forever".
+Applying/reversing the controlling-tty patch in isolation
+creates/corrects the symptom with the less program,
+so there seems to be some relation.
 
-Besides, when enums are in place, you can just searcg&replace.
-Search part is way harder with u32s.
-
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+--
+Paul Fulghum
+paulkf@microgate.com

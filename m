@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313293AbSDTXYX>; Sat, 20 Apr 2002 19:24:23 -0400
+	id <S313236AbSDTXaf>; Sat, 20 Apr 2002 19:30:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313297AbSDTXYW>; Sat, 20 Apr 2002 19:24:22 -0400
-Received: from p5088794B.dip.t-dialin.net ([80.136.121.75]:11184 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S313293AbSDTXYU>; Sat, 20 Apr 2002 19:24:20 -0400
-Date: Sat, 20 Apr 2002 17:24:08 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-cc: Rob Landley <landley@trommello.org>,
-        Thunder from the hill <thunder@ngforever.de>,
-        Christian Schoenebeck <christian.schoenebeck@epost.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: power off (again)
-In-Reply-To: <1019342816.1165.0.camel@aurora>
-Message-ID: <Pine.LNX.4.44.0204201722470.26337-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313242AbSDTXae>; Sat, 20 Apr 2002 19:30:34 -0400
+Received: from holomorphy.com ([66.224.33.161]:1703 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S313236AbSDTXad>;
+	Sat, 20 Apr 2002 19:30:33 -0400
+Date: Sat, 20 Apr 2002 16:29:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        lse-tech@lists.sourceforge.net, Martin.Bligh@us.ibm.com
+Subject: Re: [PATCH] rmap 13
+Message-ID: <20020420232938.GH21206@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, lse-tech@lists.sourceforge.net,
+	Martin.Bligh@us.ibm.com
+In-Reply-To: <Pine.LNX.4.44L.0204201731220.1960-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Apr 20, 2002 at 05:32:19PM -0300, Rik van Riel wrote:
+> Better SMP scalability, first batch of lock breakup work. Still
+> experimental, but testing is very much welcome...
+...
+[general comments]
+> My big TODO items for a next release are:
+>   - O(1) page launder - currently functional but slow, needs to be tuned
+>   - pte-highmem
 
-On 20 Apr 2002, Trever L. Adams wrote:
-> It is reversed.  If you want power off, you do need the -p.
-Sure. I accidently mixed those files... As you could see, the halt was 
-removed, the halt~ inserted...
+If I can clarify a bit, I'm deferring submission of the subsequent bits
+of the lock breakups in order to to expose the various stages of it to
+wider testing individually. One can't be too careful with these changes.
 
-Regards,
-Thunder
--- 
-                                                  Thunder from the hill.
-Not a citizen of any town.                   Not a citizen of any state.
-Not a citizen of any country.               Not a citizen of any planet.
-                         Citizen of our universe.
+Also, Martin Bligh is the original author of the per-page pte_chain
+locking patch.
 
+
+More to come,
+Bill

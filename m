@@ -1,75 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263127AbUC3Fes (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 00:34:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUC3Fes
+	id S263121AbUC3FeF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 00:34:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263127AbUC3FeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 00:34:48 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:18373 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263127AbUC3Feq (ORCPT
+	Tue, 30 Mar 2004 00:34:05 -0500
+Received: from gate.crashing.org ([63.228.1.57]:52373 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263121AbUC3Fd7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 00:34:46 -0500
-Date: Tue, 30 Mar 2004 11:05:15 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, Robert Olsson <Robert.Olsson@data.slu.se>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Dave Miller <davem@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Morton <akpm@osdl.org>,
-       rusty@au1.ibm.com
-Subject: Re: route cache DoS testing and softirqs
-Message-ID: <20040330053515.GA4815@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20040329184550.GA4540@in.ibm.com> <20040329222926.GF3808@dualathlon.random> <20040330050614.GA4669@in.ibm.com>
+	Tue, 30 Mar 2004 00:33:59 -0500
+Subject: [PATCH] ppc32: Even more preempt fixes
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1080624830.1216.1.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040330050614.GA4669@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 30 Mar 2004 15:33:51 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 10:36:14AM +0530, Srivatsa Vaddagiri wrote:
-> kthread_stop does:
-> 
-> 	1. kthread_stop_info.k = k;
->         2. wake_up_process(k);
-> 
-> and if ksoftirqd were to do :
-> 
-> 	a. while (!kthread_should_stop()) {
->         b.         __set_current_state(TASK_INTERRUPTIBLE);
->         c.         schedule();
->            }
-> 
-> 
-> There is a (narrow) possibility here that a) happens _after_ 1) as well as 
-> b) _after_ 2).
+Add a warning if enable_kernel_{fp,altivec} is called with preempt
+enabled since this is always an error, and make sure the alignement
+exception handler properly disables preempt when doing FP operations.
 
-hmm .. I meant a) happening _before_ 1) and b) happening _after_ 2) ..
+Please, apply,
+Ben.
 
-> 
->         a. __set_current_state(TASK_INTERRUPTIBLE);
-> 	b. while (!kthread_should_stop()) {
->         c.         schedule();
->         d.         __set_current_state(TASK_INTERRUPTIBLE);
->            }
-> 
->         e. __set_current_state(TASK_RUNNING);
-> 
-> In this case, even if b) happens _after_ 1) and c) _after_ 2), 
+diff -urN linux-2.5/arch/ppc/kernel/align.c linuxppc-2.5-benh/arch/ppc/kernel/align.c
+--- linux-2.5/arch/ppc/kernel/align.c	2004-03-30 08:55:49.000000000 +1000
++++ linuxppc-2.5-benh/arch/ppc/kernel/align.c	2004-03-30 13:00:44.000000000 +1000
+@@ -325,14 +325,18 @@
+ 	 * the kernel with -msoft-float so it doesn't use the
+ 	 * fp regs for copying 8-byte objects. */
+ 	case LD+F+S:
++		preempt_disable();
+ 		enable_kernel_fp();
+ 		cvt_fd(&data.f, &current->thread.fpr[reg], &current->thread.fpscr);
+ 		/* current->thread.fpr[reg] = data.f; */
++		preempt_enable();
+ 		break;
+ 	case ST+F+S:
++		preempt_disable();
+ 		enable_kernel_fp();
+ 		cvt_df(&current->thread.fpr[reg], &data.f, &current->thread.fpscr);
+ 		/* data.f = current->thread.fpr[reg]; */
++		preempt_enable();
+ 		break;
+ 	default:
+ 		printk("align: can't handle flags=%x\n", flags);
+diff -urN linux-2.5/arch/ppc/kernel/process.c linuxppc-2.5-benh/arch/ppc/kernel/process.c
+--- linux-2.5/arch/ppc/kernel/process.c	2004-03-29 12:54:12.000000000 +1000
++++ linuxppc-2.5-benh/arch/ppc/kernel/process.c	2004-03-30 14:55:42.000000000 +1000
+@@ -163,7 +163,8 @@
+ void
+ enable_kernel_altivec(void)
+ {
+-	preempt_disable();
++	WARN_ON(current_thread_info()->preempt_count == 0 && !irqs_disabled());
++
+ #ifdef CONFIG_SMP
+ 	if (current->thread.regs && (current->thread.regs->msr & MSR_VEC))
+ 		giveup_altivec(current);
+@@ -172,14 +173,15 @@
+ #else
+ 	giveup_altivec(last_task_used_altivec);
+ #endif /* __SMP __ */
+-	preempt_enable();
+ }
++EXPORT_SYMBOL(enable_kernel_altivec);
+ #endif /* CONFIG_ALTIVEC */
+ 
+ void
+ enable_kernel_fp(void)
+ {
+-	preempt_disable();
++	WARN_ON(current_thread_info()->preempt_count == 0 && !irqs_disabled());
++
+ #ifdef CONFIG_SMP
+ 	if (current->thread.regs && (current->thread.regs->msr & MSR_FP))
+ 		giveup_fpu(current);
+@@ -188,8 +190,8 @@
+ #else
+ 	giveup_fpu(last_task_used_math);
+ #endif /* CONFIG_SMP */
+-	preempt_enable();
+ }
++EXPORT_SYMBOL(enable_kernel_fp);
+ 
+ int
+ dump_task_fpu(struct task_struct *tsk, elf_fpregset_t *fpregs)
 
-Again I meant "even if b) happens _before_ 1) and c) _after_ 2) !!
 
-> schedule simply returns immediately because task's state would have been set 
-> to TASK_RUNNING by 2). It goes back to the kthread_should_stop() check and 
-> exits!
-
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

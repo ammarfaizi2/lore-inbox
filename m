@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267217AbSLKRCy>; Wed, 11 Dec 2002 12:02:54 -0500
+	id <S267222AbSLKREr>; Wed, 11 Dec 2002 12:04:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267221AbSLKRCy>; Wed, 11 Dec 2002 12:02:54 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:58642 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267217AbSLKRCx>; Wed, 11 Dec 2002 12:02:53 -0500
+	id <S267223AbSLKREm>; Wed, 11 Dec 2002 12:04:42 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:64005 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267222AbSLKREj>;
+	Wed, 11 Dec 2002 12:04:39 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212111723.gBBHNxuE008792@darkstar.example.net>
+Subject: [TRIVIAL] [PATCH] fix spelling mistake
 To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: how do you successful compile or install 2.5.50?
-Date: 11 Dec 2002 17:09:07 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <at7rfi$iiv$1@gatekeeper.tmr.com>
-References: <3DF5EC8E.9050603@centurytel.net>
-X-Trace: gatekeeper.tmr.com 1039626547 19039 192.168.12.62 (11 Dec 2002 17:09:07 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+Date: Wed, 11 Dec 2002 17:23:58 +0000 (GMT)
+Cc: linux-scsi@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="%--multipart-mixed-boundary-1.8785.1039627438--%"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3DF5EC8E.9050603@centurytel.net>,
-eric lin  <fsshl@centurytel.net> wrote:
 
-|    I also download from kernel.org 2.5.50, it have error at make modules 
-| or make install
+--%--multipart-mixed-boundary-1.8785.1039627438--%
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Description: ASCII English text
+Content-Disposition: attachment; filename="patch"
 
+--- linux-2.4.20-pre1-orig/drivers/scsi/README.ncr53c8xx	2002-12-11 17:14:48.000000000 +0000
++++ linux-2.4.20-pre1/drivers/scsi/README.ncr53c8xx	2002-12-11 17:18:24.000000000 +0000
+@@ -1025,7 +1025,7 @@
+ then it will for sure win the next SCSI BUS arbitration.
+ 
+ Since, there is no way to know what devices are trying to arbitrate for the 
+-BUS, using this feature can be extremally unfair. So, you are not advised 
++BUS, using this feature can be extremely unfair. So, you are not advised 
+ to enable it, or at most enable this feature for the case the chip lost 
+ the previous arbitration (boot option 'iarb:1').
+ 
 
-|    highly appreciate your experience on compile or install new kernel 
-| especailly experiamental kernel
-
-
-I highly commend disabling module support and building everything
-directly in the kernel. If you get this working you can visit the list
-archives and read about modules after 2.5.47, and decide if you really
-need modules in 2.5 kernels, and what to change if you do.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+--%--multipart-mixed-boundary-1.8785.1039627438--%--

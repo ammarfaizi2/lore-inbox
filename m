@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314634AbSEYOSR>; Sat, 25 May 2002 10:18:17 -0400
+	id <S314602AbSEYOVm>; Sat, 25 May 2002 10:21:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314637AbSEYOSQ>; Sat, 25 May 2002 10:18:16 -0400
-Received: from ivimey.org ([194.106.52.201]:62023 "EHLO gatemaster.ivimey.org")
-	by vger.kernel.org with ESMTP id <S314634AbSEYOSP>;
-	Sat, 25 May 2002 10:18:15 -0400
-Date: Sat, 25 May 2002 15:18:00 +0100 (BST)
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-X-X-Sender: ruthc@sharra.ivimey.org
-To: Jeremy White <jwhite@codeweavers.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: isofs unhide option:  troubles with Wine
-In-Reply-To: <1022301029.2443.28.camel@jwhiteh>
-Message-ID: <Pine.LNX.4.44.0205251513280.10327-100000@sharra.ivimey.org>
+	id <S314609AbSEYOVl>; Sat, 25 May 2002 10:21:41 -0400
+Received: from [80.120.128.82] ([80.120.128.82]:48146 "EHLO hofr.at")
+	by vger.kernel.org with ESMTP id <S314602AbSEYOVl>;
+	Sat, 25 May 2002 10:21:41 -0400
+From: Der Herr Hofrat <der.herr@mail.hofr.at>
+Message-Id: <200205251326.g4PDQot16579@hofr.at>
+Subject: Re: can't find startup messages since april in /var/log/messages using
+ 2.4.18
+In-Reply-To: <3a.2744d23a.2a20b7ec@aol.com> from "Floydsmith@aol.com" at "May
+ 25, 2002 05:48:28 am"
+To: Floydsmith@aol.com
+Date: Sat, 25 May 2002 15:26:50 +0200 (CEST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 May 2002, Jeremy White wrote:
-
->Greetings,
+> 
+> For some strange reason I can't find where my "startup messagges" are being 
+> stored. I booted up twice this morning (052502) and only get only 1 line in 
+> /var/log/messages which is:
+> May 25 05:10:05 localhost syslogd 1.3-3: restart.
+> 
+> All boots since April 11 have only one such entry recorded. "dmesg" and a 
+> "vi" of "messages" show a full log journal for April 11.
+> I have did a "df" and all file sytems have free space.
+> 
+> Of course, the meesages do appear on the console at startup.
+> 
+> Any suggestions?
 >
->When installing Microsoft Office with Wine, we find that some
->MS CDs have certain files marked as hidden on the CD.
+check your init scripts , you might have some entry/error in /etc/rc.d/boot (or where ever you init scripts lie that clears the buffer befor syslogd/klogd get started. (my /etc/init.d/boot does dmesg -c > /var/log/boot.msg so I get the relevant messages during operation without screens of boot up infos, no boot messages in /var/log/messages this way ither.)
 
->Unfortunately, I don't have a strong feeling for what the
->'right' solution is.  I see several options:
->
->    1.  Invert the logic of the option, make it 'hide' instead
->        of unhide, and so unhide is the default.
-
-I don't see the point of this...
-
->    2.  Make it possible to set this mount option from user
->        space (I don't like this, but it would get me around
->        the problem).
-
-?? do you mean use of -oremount ?  possible, I suppose. Doesn't seem much 
-better than (1) to me though.
-
->    3.  Make it so that isofs/dir.c still strips out hidden
->        files, but enable isofs/namei.c to return a hidden file that
->        is opened directly by name.
-
-Yes. Do this, or something like it.
-
-AFAIK, Windows "hidden" files are supposed to behave much like Unix 'dot' 
-files (.login, etc), so IMO the kernel should not use the hidden bit at all. 
-Instead, it should be 'ls' et al that do this. Now, I guess this isn't 
-particularly practical without changing fileutils and many other things, so I 
-would suggest that the kernel is changed to pass on, if possible, but 
-basically ignore the 'hidden' bit.
-
-Regards,
-
-Ruth
-
--- 
-Ruth Ivimey-Cook
-Software engineer and technical writer.
-
+hofrat

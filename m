@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270194AbTGZQv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 12:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270427AbTGZQv4
+	id S272564AbTGZRCl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 13:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272569AbTGZRCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 12:51:56 -0400
-Received: from mail.kroah.org ([65.200.24.183]:12973 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270194AbTGZQvy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 12:51:54 -0400
-Date: Sat, 26 Jul 2003 13:07:14 -0400
-From: Greg KH <greg@kroah.com>
-To: "J.C. Wren" <jcwren@jcwren.com>
-Cc: Andrey Borzenkov <arvidjaar@mail.ru>, linux-kernel@vger.kernel.org
-Subject: Re: Does sysfs really provides persistent hardware path to devices?
-Message-ID: <20030726170714.GC3168@kroah.com>
-References: <200307262036.13989.arvidjaar@mail.ru> <200307261259.03517.jcwren@jcwren.com>
+	Sat, 26 Jul 2003 13:02:41 -0400
+Received: from [216.208.38.106] ([216.208.38.106]:64762 "EHLO
+	brinquendo.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S272564AbTGZRCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 13:02:31 -0400
+Date: Sat, 26 Jul 2003 14:20:48 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Voicu Liviu <pacman@mscc.huji.ac.il>
+Cc: alexander.riesen@synopsys.COM, linux-kernel@vger.kernel.org
+Subject: Re: IPX support to kernel 2.6
+Message-ID: <20030726172048.GB1189@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Voicu Liviu <pacman@mscc.huji.ac.il>, alexander.riesen@synopsys.COM,
+	linux-kernel@vger.kernel.org
+References: <3F1FAE0C.4090608@mscc.huji.ac.il> <20030724135347.GK13611@Synopsys.COM> <3F1FDB97.7060907@mscc.huji.ac.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307261259.03517.jcwren@jcwren.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <3F1FDB97.7060907@mscc.huji.ac.il>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 26, 2003 at 12:59:03PM -0400, J.C. Wren wrote:
-> 	Specifically using your example of USB memories, I have seen devices move 
-> around just because of rebooting.  I have a Sandisk SDDR-31 (MMC) and a 
-> SDDR-33 (CF) that remain plugged into the same USB ports all the time.  
-> Occasionally, they come up swapped (normally the MMC reader is /dev/sda), 
-> which is really infuriating, since my scripts for building MMC and CF cards 
-> then exhibit much breakage.
+Em Thu, Jul 24, 2003 at 04:13:59PM +0300, Voicu Liviu escreveu:
+> Alex Riesen wrote:
+> >Voicu Liviu, Thu, Jul 24, 2003 11:59:40 +0200:
+> >>Problem:
+> >>
+> >>Hi guys, I wanted to add IPX support to kernel 2.6 in order to mount 
+> >>novell volumes but it seems not tu exist!
+> >
+> >It is renamed:
+> >ANSI/IEEE 802.2 - aka LLC (IPX, Appletalk, Token Ring)
+> >under Networking support/Networking options.
+> >
+> Wow, I appreciate your help
 
-Test out udev's ability to name devices based on bus topology (the USB
-bus topology doesn't change for you.)  It should solve your problem.
+It was not renamed, it just requires that LLC be selected first, then one has
+to select IPX as before.
 
-thanks,
+I plan to make the LLC1 part, that is all that is needed for IPX, Appletalk and
+Token Ring to be separated from the big llc module, and making those depending
+only on LLC1 to be top level in the config, triggering the selection of LLC1
+automatically, this will help as well on not having to have LLC2 when all one
+wants is IPX, Appletalk or Token Ring.
 
-greg k-h
+- Arnaldo

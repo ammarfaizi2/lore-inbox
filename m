@@ -1,51 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbTDDUZX (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 15:25:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTDDUZX (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 15:25:23 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7187 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261304AbTDDUZW (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 15:25:22 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: VGER's filters..
-Date: 4 Apr 2003 12:36:20 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b6kqc4$2td$1@cesium.transmeta.com>
-References: <20030404181054.GT29167@mea-ext.zmailer.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	id S261358AbTDDUcU (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 15:32:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbTDDUcU (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 15:32:20 -0500
+Received: from enigma.lanl.gov ([128.165.250.185]:32387 "EHLO enigma.lanl.gov")
+	by vger.kernel.org with ESMTP id S261353AbTDDUcP (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 15:32:15 -0500
+Date: Fri, 4 Apr 2003 13:43:45 -0700
+From: hendriks@lanl.gov
+To: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Syscall numbers for BProc
+Message-ID: <20030404204344.GF15620@lanl.gov>
+References: <20030404193218.GD15620@lanl.gov> <20030404203531.A29501@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030404203531.A29501@infradead.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030404181054.GT29167@mea-ext.zmailer.org>
-By author:    Matti Aarnio <matti.aarnio@zmailer.org>
-In newsgroup: linux.dev.kernel
+On Fri, Apr 04, 2003 at 08:35:31PM +0100, Christoph Hellwig wrote:
+> On Fri, Apr 04, 2003 at 12:32:18PM -0700, Erik Hendriks wrote:
+> > Is it possible to get a Linux system call number allocated for BProc?
+> > (http://sourceforge.net/projects/bproc) I've been using arbitrary
+> > system call numbers for a while but there have been collisions with
+> > new kernel features.  I'd like to avoid that in the future.  BProc
+> > currently works on 2.4.x kernels on x86, alpha and ppc (32bit).
 > 
-> With Yahoo I had at first immense problems to get any email from them,
-> as their SMTP email sender uses INVALID protocol:
-> 
-> <<-  MAIL FROM: <yahoo-dev-null@yahoo-inc.com>
-> ->>  501 5.1.7 strangeness between ':' and '<': <yahoo-dev-null@yahoo-inc.com>
-> When you read really carefully RFC 821 / 2821 syntax about that,
-> you will see that it does not allow space in that place.
-> Sendmail does, and that has forced others to extend the syntax alike.
-> 
+> Please explain why you need syscalls and the exact APIs.
 
-Sendmail, and a whole bunch of other mailers, have taken the more
-liberal approach of allowing any RFC 822-compliant address in this
-place (which is a *lot* more liberal than an RFC 821-compliant
-reverse-path.)  This is consistent with the "be liberal in what you
-accept, conservative in what you send" philosophy of network
-interoperability.
+bproc provides a bunch of transparent remote management for remote
+processes in a cluster.  (i.e. 'ps' shows everythign in the cluster,
+kills work remotely, etc.)  There are also process migration
+mechanisms to place processes on different nodes in the cluster.
 
-I suspect in Sendmail it naturally falls out of using a single set of
-canonicalization rules for all syntax.
+The process migration stuff is what I want the system call for.  The
+simplest case is the "bproc_move(int x)" call which a process uses to
+move itself to another node.  In order to migrate a process to another
+node, BProc needs access to ALL the processors's state.  Normally,
+this stuff is saved at system call entry and it appears on the stack
+for the system call handler.  However, on some architectures
+(e.g. alpha) not all the cpu state is saved there.  Some of the
+registers (the callee-saved ones - I'm a little fuzzy on terminology
+here) are saved elsewhere (to unpredictable locations on the stack)
+and I can't get to them anymore if the syscall handler doesn't get
+called directly.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+As a result, on alpha, I have a special bit of ASM code as the syscall
+handler which saves all the registers right away.  This system call
+entry is very similar to the special system call entry for fork on
+that architecture.
+
+The same problem exists on the receiving end of the process migration
+- except in that case the process registers need to be written.
+
+On most architectures you might be able to get away with the
+assumption that registers are at offset X from the beginning of the
+kernel stack.  I would regard that as pretty ugly though.
+
+- Erik
+
+
+
+
+BProc's process migration and 
+The way it's implemented today, the process migration calls depend on
+stack build-up at syscall entry.
+
+  Specifically, if bproc is going to
+replace the contents of a process it needs to be able to modify all
+the registers in the user process.
+
+On some architectures (e.g. alpha) not everything is saved at syscall entry.
+
+- Erik

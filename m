@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263381AbTE3Hz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 03:55:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTE3Hz6
+	id S263349AbTE3HxU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 03:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbTE3HxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 03:55:58 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:47881 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263375AbTE3Hz4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 03:55:56 -0400
-Date: Fri, 30 May 2003 10:09:00 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: marcelo@conectiva.com.br
-Cc: m.c.p@wolk-project.de, willy@w.ods.org, gibbs@scsiguy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Undo aic7xxx changes
-Message-Id: <20030530100900.768ceeef.skraw@ithnet.com>
-In-Reply-To: <20030526164404.GA11381@alpha.home.local>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-	<20030524111608.GA4599@alpha.home.local>
-	<20030525125811.68430bda.skraw@ithnet.com>
-	<200305251447.34027.m.c.p@wolk-project.de>
-	<20030526170058.105f0b9f.skraw@ithnet.com>
-	<20030526164404.GA11381@alpha.home.local>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 30 May 2003 03:53:20 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:5024 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S263349AbTE3HxC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 03:53:02 -0400
+From: Rusty Russell <rusty@au1.ibm.com>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] sx tty_driver add .owner field remove MOD_INC_DEC_USE_COUNT 
+In-reply-to: Your message of "Thu, 29 May 2003 14:35:10 MST."
+             <12430000.1054244110@w-hlinder> 
+Date: Fri, 30 May 2003 18:05:24 +1000
+Message-Id: <20030530080556.EC79C17DE1@ozlabs.au.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Marcelo,
+In message <12430000.1054244110@w-hlinder> you write:
+> --On Thursday, May 29, 2003 12:02:50 PM -0700 Greg KH <greg@kroah.com> wrote:
+> 
+> > 
+> > Ick, this patch should be reverted, it should not be removing
+> > sx_hungup() for no reason.  I think Hanna agrees with this.
+> 
+> Yup. Sorry. Not sure what happened there. Here is the patch
+> to replace the sx_hangup function. This is based off 2.5.70-bk3
+> and I have compiled it but dont have the hardware to test it.
 
-I tried plain rc6 now and have to tell you it does not survive a single day of
-my usual tests. It freezes during tar from 3ware-driven IDE to aic-driven SDLT.
-This is identical to all previous rc (and some pre) releases of 2.4.21. So far
-I can tell you that the only thing that has recently cured this problem is
-replacing the aic-driver with latest of justins' releases.
-As plain rc6 does definitely not work I will now switch over to
-rc6+aic-20030523. Remember that rc3+aic-20030523 already worked quite ok (4
-days test survived).
+Yes, but I don't think you need to put back the comment about
+decrementing use counts 8)
 
-My personal opinion is a known-to-be-broken 2.4.21 should not be released, as a
-lot of people only try/use the releases and therefore an immediately released
-2.4.22-pre1 with justins driver will not be a good solution.
+> +/* I haven't the foggiest why the decrement use count has to happen
+> +   here. The whole linux serial drivers stuff needs to be redesigned.
+> +   My guess is that this is a hack to minimize the impact of a bug
+> +   elsewhere. Thinking about it some more. (try it sometime) Try
+> +   running minicom on a serial port that is driven by a modularized
+> +   driver. Have the modem hangup. Then remove the driver module. Then
+> +   exit minicom.  I expect an "oops".  -- REW */
 
-Regards,
-Stephan
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

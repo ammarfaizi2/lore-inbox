@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263526AbTLIX6l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 18:58:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263527AbTLIX6l
+	id S263527AbTLIX77 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 18:59:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTLIX77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 18:58:41 -0500
-Received: from holomorphy.com ([199.26.172.102]:39648 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263526AbTLIX6k (ORCPT
+	Tue, 9 Dec 2003 18:59:59 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:22040 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S263527AbTLIX76 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 18:58:40 -0500
-Date: Tue, 9 Dec 2003 15:58:23 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Jakma <paul@clubi.ie>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Joe Thornber <thornber@sistina.com>, linux-kernel@vger.kernel.org
-Subject: Re: Device-mapper submission for 2.4
-Message-ID: <20031209235823.GT8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Jakma <paul@clubi.ie>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Joe Thornber <thornber@sistina.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312092047450.1289-100000@logos.cnet> <Pine.LNX.4.56.0312092329280.30298@fogarty.jakma.org>
+	Tue, 9 Dec 2003 18:59:58 -0500
+Date: Wed, 10 Dec 2003 10:58:32 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Christoph Hellwig <hch@lst.de>, pinotj@club-internet.fr, torvalds@osdl.org,
+       neilb@cse.unsw.edu.au, manfred@colorfullife.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+Message-ID: <20031209235832.GG783@frodo>
+References: <mnet2.1070931455.23402.pinotj@club-internet.fr> <20031209020322.GA1798@frodo> <20031209072131.GD24599@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.56.0312092329280.30298@fogarty.jakma.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031209072131.GD24599@lst.de>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 09, 2003 at 11:46:13PM +0000, Paul Jakma wrote:
-> This leaves 2.4 LVM1 users with a /huge/ leap to take if they wish to
-> test 2.6. Backward compatibility is awkward because of the DM tools
-> issue (need both old and new installed and some way to pick at boot,
-> or manually setup LVM), and you're ruling out the other option of
-> adding forwards compatibility to 2.4.
-> This isnt a new fs which 2.4 users wont be using, its an existing 
-> feature that has been reworked during 2.5 and is now incompatible in 
-> 2.6 with 2.4. More over, its a feature on which access to data 
-> depends.
+On Tue, Dec 09, 2003 at 08:21:32AM +0100, Christoph Hellwig wrote:
+> On Tue, Dec 09, 2003 at 01:03:22PM +1100, Nathan Scott wrote:
+> > [ Christoph, is this failure expected?  I think you/Steve made
+> > some changes there to use __GFP_NOFAIL and assume it wont fail?
+> > (in 2.4 we do memory allocations differently to better handle
+> > failures, but that code was removed...) ]
+> 
+> It looks like the slab allocator doesn't like __GFP_NOFAIL, we'll
+> probably have to revert the XFS memory allocation wrappers to the
+> 2.4 versions.
+> 
 
-Just apply the patch if you're for some reason terrified of 2.6.
+OK, thanks - I'll look into it.
 
+cheers.
 
--- wli
+-- 
+Nathan

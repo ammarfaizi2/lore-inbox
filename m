@@ -1,41 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbTKLWfh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 17:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbTKLWfh
+	id S261664AbTKLW40 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 17:56:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbTKLW40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 17:35:37 -0500
-Received: from [217.73.128.98] ([217.73.128.98]:11397 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S261670AbTKLWfg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 17:35:36 -0500
-Date: Thu, 13 Nov 2003 00:35:30 +0200
-Message-Id: <200311122235.hACMZUDT017881@car.linuxhacker.ru>
-From: Oleg Drokin <green@linuxhacker.ru>
-Subject: Re: reiserfs 3.6 problem with test9
-To: rouquier.p@wanadoo.fr, linux-kernel@vger.kernel.org
-References: <87smkt63xu.wl@drakkar.ibe.miee.ru> <1068663075.17051.12.camel@Genesyme>
+	Wed, 12 Nov 2003 17:56:26 -0500
+Received: from dialin-212-144-182-177.arcor-ip.net ([212.144.182.177]:384 "EHLO
+	dbintra.dmz.lightweight.ods.org") by vger.kernel.org with ESMTP
+	id S261664AbTKLW4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 17:56:24 -0500
+Date: Wed, 12 Nov 2003 23:56:24 +0100
+From: Thunder Anklin <thunder@keepsake.ch>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6] VC (keyboard) doesn't clean up its buffers
+Message-ID: <20031112225624.GA922@dbintra.dmz.lightweight.ods.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
+Content-Disposition: inline
+X-GPG-KeyID: 0xDEBA90FF
+X-GPG-Fingerprint: 6288 DAF3 13F7 276D 77A5  0914 CA04 0D20 DEBA 90FF
+X-Location: Dorndorf-Steudnitz, TH (Germany)
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-Philippe <rouquier.p@wanadoo.fr> wrote:
-P> Note: I kept the original reiserfs partition with the errors. So if
-P> someone needs any log to figure out where the problem comes from I have
-P> everything at hand. I'm also willing to perform other tests. 
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Errors you've shown from your log suggest that somehow garbage appeared
-in some blocks that were supposed to be reiserfs metadata blocks.
-How this happened is unclear.
-Also lots of people (including myself) use reiserfs on a daily basis with high
-loads (and on latest 2.6.0-test kernels, too) and have not seen anything like
-that so either there is something wrong with memory or with writing
-to your disk, I think.
-Of course I might be wrong.
-There are disk testing programs out there (sorry forgot the names) (not
-badblocks) that put a lot of load on disk and see how it does.
-May be you want to try one of those too.
+Salut,
 
-Bye,
-    Oleg
+I've  got into  trouble with  the Linux  2.6 keyboard  layer  of Linux
+2.6.0-test9* (That is, I've tested the  original as well as BK and the
+mm1 and mm2 patches.) The problem is the keyboard buffer.
+
+tty->filp.char_buf is filled correctly by my typings. The buffer state
+goes  up,  and  once  I've   typed  255  characters,  of  course  it's
+full. *But* the big deal  with the keyboard buffer is usually somebody
+who's  reading  out  the  contents  and processing  it,  so  that  the
+characters  I typed  are processed.  This is  *not* taking  place. The
+buffer just fills up and there we are.
+
+I'm of course trying to solve  that problem on my own (I remember that
+last time I've  had a problem no  one even read my email),  but I'd be
+glad if you'd give me some additional hints on what to do.
+
+If I  use SysRq, the  whole thing works,  of course, as  SysRqs aren't
+read from the input buffer.
+
+(The input is  processed corectly all the way  from the keyboard (PS/2
+or USB, doesn't matter, as it  works both ways.) into the buffers. The
+up/down events are  handled correctly. The only thing  that's wrong is
+that nobody is reading out the buffer afterwards.)
+
+Thanks a lot for every helpful response.
+
+				Thunder
+
+--wac7ysb48OaltWcw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/srqYygQNIN66kP8RAi7xAJ9hVUlDBv5kvn8eyOe8AVZPbTnJ+QCbBGpo
+SBEwq+YcabFnt4d73APIFZw=
+=FSne
+-----END PGP SIGNATURE-----
+
+--wac7ysb48OaltWcw--

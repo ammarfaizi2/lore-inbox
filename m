@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262462AbULOTQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbULOTSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262462AbULOTQR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 14:16:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbULOTNf
+	id S262466AbULOTSb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 14:18:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbULOTQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 14:13:35 -0500
-Received: from bay22-f36.bay22.hotmail.com ([64.4.16.86]:65079 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262452AbULOTMN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 14:12:13 -0500
-Message-ID: <BAY22-F36D1DB23581F79AE638F0FA9AD0@phx.gbl>
-X-Originating-IP: [198.160.148.250]
-X-Originating-Email: [listsub@hotmail.com]
-From: "mike mike" <listsub@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2g/2g split
-Date: Wed, 15 Dec 2004 13:09:44 -0600
+	Wed, 15 Dec 2004 14:16:29 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:59036 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262453AbULOTPi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 14:15:38 -0500
+Date: Wed, 15 Dec 2004 11:15:23 -0800
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] select HOTPLUG
+Message-ID: <20041215191523.GA10005@kroah.com>
+References: <20041202024254.GL5148@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 15 Dec 2004 19:10:01.0466 (UTC) FILETIME=[AD30E5A0:01C4E2D9]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041202024254.GL5148@stusta.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I am looking for some instructions as to how to do a '2g/2g', '1g/3g' 
-splits (user/kernel space memory) on a linux system with a 2.4 based kernel.
+On Thu, Dec 02, 2004 at 03:42:54AM +0100, Adrian Bunk wrote:
+> The patch below changes all dependencies on HOTPLUG to selects.
+> 
+> The help text of HOTPLUG is adjusted in a way, that manually selecting 
+> it is only required for external modules.
+> 
+> If an option already depends on PCMCIA or selects FW_LOADER an explicit 
+> select of HOTPLUG is not required.
 
-  Thanks in advance.
+Applied, thanks.
 
-M
-
-_________________________________________________________________
-FREE pop-up blocking with the new MSN Toolbar – get it now! 
-http://toolbar.msn.click-url.com/go/onm00200415ave/direct/01/
-
+greg k-h

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135734AbRDXUPr>; Tue, 24 Apr 2001 16:15:47 -0400
+	id <S135733AbRDXUN1>; Tue, 24 Apr 2001 16:13:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135735AbRDXUPh>; Tue, 24 Apr 2001 16:15:37 -0400
-Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:39691 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S135734AbRDXUP2>; Tue, 24 Apr 2001 16:15:28 -0400
-Date: Tue, 24 Apr 2001 14:15:25 -0600
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BUG: Global FPU corruption in 2.2
-Message-ID: <20010424141525.A1066@mail.harddata.com>
-In-Reply-To: <cpx7l0g3mfk.fsf@goat.cs.wisc.edu> <20010423161148.6465.qmail@theseus.mathematik.uni-ulm.de> <9c48gv$fbk$1@penguin.transmeta.com> <20010424165632.3728.qmail@theseus.mathematik.uni-ulm.de>
-Mime-Version: 1.0
+	id <S135734AbRDXUNR>; Tue, 24 Apr 2001 16:13:17 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29966 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135733AbRDXUNH>; Tue, 24 Apr 2001 16:13:07 -0400
+Subject: Re: orinoco_cs & IrDA
+To: jt@hpl.hp.com
+Date: Tue, 24 Apr 2001 20:47:30 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux kernel mailing list),
+        david@gibson.dropbear.id.au (David Gibson)
+In-Reply-To: <20010424113920.B31666@bougret.hpl.hp.com> from "Jean Tourrilhes" at Apr 24, 2001 11:39:20 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010424165632.3728.qmail@theseus.mathematik.uni-ulm.de>; from ehrhardt@mathematik.uni-ulm.de on Tue, Apr 24, 2001 at 06:56:32PM +0200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14s8mc-0002n9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 06:56:32PM +0200, Christian Ehrhardt wrote:
-> On Tue, Apr 24, 2001 at 09:10:07AM -0700, Linus Torvalds wrote:
-> > ptrace only operates on processes that are stopped. So there are no
-> > locking issues - we've synchronized on a much higher level than a
-> > spinlock or semaphore.
-> 
-> This is only true for requests other than PTRACE_ATTACH and
-> PTRACE_ATTACH is exactly what I'm worried about.
+> patch (without feedback), whereas Alan picked it up (if I remember
+> correctly it was included in his 'patch-2.4.2-ac28').
+> 	So now, what should I do with the rest of my updates and the
+> new one that have accumulated since ? Should I wait until you grab the
+> first patch from Alan's tree ? Should I send the new patches directly
+> to Alan so that he can accumulate a monster patch ? Should I just
+> accumulate the patches on my web page ?
 
-May I remind everybody that at the beginning of this thread I posted
-another example, from an SMP Alpha, of FPU problems.  It certainly
-was not exactly like the one under discussion but it looked that
-it had a similar "smell" to it.
+Im happy to accumulate them but please send them to Linus too. I tend not to
+submit stuff on to Linus where there is an active maintainer and assume the
+maintainer will do it when ready.
 
-It looks like that to reproduce this Alpha example one needs processors
-with a rather fast clock and this hardware version is not yet very
-widely available.
-
-  Michal

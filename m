@@ -1,143 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261995AbVATAaS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbVATAeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261995AbVATAaS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 19:30:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVATA3p
+	id S262002AbVATAeV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 19:34:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVATAdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 19:29:45 -0500
-Received: from mail.mellanox.co.il ([194.90.237.34]:3378 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261995AbVATA1k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 19:27:40 -0500
-Date: Thu, 20 Jan 2005 02:28:06 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, akpm@osdl.org, hch@infradead.org,
-       linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: Re: [PATCH 1/5] compat_ioctl call seems to miss a security hook
-Message-ID: <20050120002806.GA16674@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20050118072133.GB76018@muc.de> <20050118103418.GA23099@mellanox.co.il> <20050118072133.GB76018@muc.de> <20050118104515.GA23127@mellanox.co.il> <20050118112220.X24171@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050118112220.X24171@build.pdx.osdl.net>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 19 Jan 2005 19:33:23 -0500
+Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:51341 "EHLO
+	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262008AbVATAcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 19:32:22 -0500
+Message-ID: <41EEFC4F.1090704@kolivas.org>
+Date: Thu, 20 Jan 2005 11:33:19 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: utz lehmann <lkml@s2y4n2c.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       rlrevell@joe-job.com, paul@linuxaudiosystems.com, joq@io.com,
+       CK Kernel <ck@vds.kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       alexn@dsv.su.se
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt	scheduling
+References: <41EEE1B1.9080909@kolivas.org> <1106180177.4036.27.camel@segv.aura.of.mankind>
+In-Reply-To: <1106180177.4036.27.camel@segv.aura.of.mankind>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-Quoting r. Chris Wright (chrisw@osdl.org) "Re: [PATCH 1/5] compat_ioctl call seems to miss a security hook":
-> * Michael S. Tsirkin (mst@mellanox.co.il) wrote:
-> > diff -rup linux-2.6.10-orig/fs/compat.c linux-2.6.10-ioctl-sym/fs/compat.c
-> > --- linux-2.6.10-orig/fs/compat.c	2005-01-18 10:58:33.609880024 +0200
-> > +++ linux-2.6.10-ioctl-sym/fs/compat.c	2005-01-18 10:54:26.289478440 +0200
-> > @@ -437,6 +437,11 @@ asmlinkage long compat_sys_ioctl(unsigne
-> >  	if (!filp)
-> >  		goto out;
-> >  
-> > +	/* RED-PEN how should LSM module know it's handling 32bit? */
-> > +	error = security_file_ioctl(filp, cmd, arg);
-> > + 	if (error)
-> > + 		goto out_fput;
-> > +
+utz lehmann wrote:
+> @@ -2406,6 +2489,10 @@ void scheduler_tick(void)
+>  	task_t *p = current;
+>  
+>  	rq->timestamp_last_tick = sched_clock();
+> +	if (iso_task(p) && !rq->iso_refractory)
+> +		inc_iso_ticks(rq, p);
+> +	else 
+> +		dec_iso_ticks(rq, p);
 > 
-> This is now called twice in the plain do_ioctl: case.  A generic vfs handler
-> could alleviate that.
+> scheduler_tick() is not only called by the timer interrupt but also form
+> the fork code. Is this intended? I think the accounting for
 
-I'm all for it, but the way the patch below works, we could end up
-calling ->ioctl or ->unlocked_ioctl from the compat 
-syscall, and we dont want that.
+The calling from fork code only occurs if there is one millisecond of 
+time_slice left so it will only very rarely be hit. I dont think this 
+accounting problem is worth worrying about.
 
-MST
+> iso_refractory is wrong. Isn't calling it from
+> timer.c::update_process_times() better?
+> 
+> And shouldn't real RT task also counted? If RT tasks use 40% cpu you can
+> lockup the system as unprivileged user with SCHED_ISO because it doesn't
+> reach the 70% cpu limit.
 
+Ah yes. Good point. Will add that to the equation.
 
+> Futher on i see a fundamental problem with this accounting for
+> iso_refractory. What if i manage as unprivileged user to run a SCHED_ISO
+> task which consumes all cpu and only sleeps very short during the timer
+> interrupt? I think this will nearly lockup or very slow down the system.
+> The iso_cpu limit can't guaranteed.
 
-> ===== fs/ioctl.c 1.15 vs edited =====
-> --- 1.15/fs/ioctl.c	2005-01-15 14:31:01 -08:00
-> +++ edited/fs/ioctl.c	2005-01-18 11:18:33 -08:00
-> @@ -77,21 +77,10 @@ static int file_ioctl(struct file *filp,
->  	return do_ioctl(filp, cmd, arg);
->  }
->  
-> -
-> -asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
-> +int vfs_ioctl(struct file *filp, unsigned int fd, unsigned int cmd, unsigned long arg)
->  {
-> -	struct file * filp;
->  	unsigned int flag;
-> -	int on, error = -EBADF;
-> -	int fput_needed;
-> -
-> -	filp = fget_light(fd, &fput_needed);
-> -	if (!filp)
-> -		goto out;
-> -
-> -	error = security_file_ioctl(filp, cmd, arg);
-> -	if (error)
-> -		goto out_fput;
-> +	int on, error = 0;
->  
->  	switch (cmd) {
->  		case FIOCLEX:
-> @@ -157,6 +146,24 @@ asmlinkage long sys_ioctl(unsigned int f
->  				error = do_ioctl(filp, cmd, arg);
->  			break;
->  	}
-> +	return error;
-> +}
-> +
-> +asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
-> +{
-> +	struct file * filp;
-> +	int error = -EBADF;
-> +	int fput_needed;
-> +
-> +	filp = fget_light(fd, &fput_needed);
-> +	if (!filp)
-> +		goto out;
-> +
-> +	error = security_file_ioctl(filp, cmd, arg);
-> +	if (error)
-> +		goto out_fput;
-> +
-> +	error = vfs_ioctl(filp, fd, cmd, arg);
->   out_fput:
->  	fput_light(filp, fput_needed);
->   out:
-> ===== fs/compat.c 1.48 vs edited =====
-> --- 1.48/fs/compat.c	2005-01-15 14:31:01 -08:00
-> +++ edited/fs/compat.c	2005-01-18 11:07:56 -08:00
-> @@ -437,6 +437,11 @@ asmlinkage long compat_sys_ioctl(unsigne
->  	if (!filp)
->  		goto out;
->  
-> +	/* RED-PEN how should LSM module know it's handling 32bit? */
-> +	error = security_file_ioctl(filp, cmd, arg);
-> +	if (error)
-> +		goto out_fput;
-> +
->  	if (filp->f_op && filp->f_op->compat_ioctl) {
->  		error = filp->f_op->compat_ioctl(filp, cmd, arg);
->  		if (error != -ENOIOCTLCMD)
-> @@ -477,7 +482,7 @@ asmlinkage long compat_sys_ioctl(unsigne
->  
->  	up_read(&ioctl32_sem);
->   do_ioctl:
-> -	error = sys_ioctl(fd, cmd, arg);
-> +	error = vfs_ioctl(filp, fd, cmd, arg);
->   out_fput:
->  	fput_light(filp, fput_needed);
->   out:
-> ===== include/linux/fs.h 1.373 vs edited =====
-> --- 1.373/include/linux/fs.h	2005-01-15 14:31:01 -08:00
-> +++ edited/include/linux/fs.h	2005-01-18 11:10:54 -08:00
-> @@ -1564,6 +1564,8 @@ extern int vfs_stat(char __user *, struc
->  extern int vfs_lstat(char __user *, struct kstat *);
->  extern int vfs_fstat(unsigned int, struct kstat *);
->  
-> +extern int vfs_ioctl(struct file *, unsigned int, unsigned int, unsigned long);
-> +
->  extern struct file_system_type *get_fs_type(const char *name);
->  extern struct super_block *get_super(struct block_device *);
->  extern struct super_block *user_get_super(dev_t);
+Right you are. The cpu accounting uses primitive on-interrupt run time 
+which as we know is not infallible. To extend this I'll have to keep a 
+timer based on the sched_clock which is already implemented. That's 
+something for me to work on.
+
+> sysrq-n causes a reboot.
+
+And that will need looking into.
+
+Thanks very much for your comments!
+
+Cheers,
+Con

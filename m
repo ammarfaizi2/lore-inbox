@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280037AbRJ3REz>; Tue, 30 Oct 2001 12:04:55 -0500
+	id <S280036AbRJ3RD0>; Tue, 30 Oct 2001 12:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280053AbRJ3REq>; Tue, 30 Oct 2001 12:04:46 -0500
-Received: from www-cache.iisc.ernet.in ([144.16.64.3]:60427 "EHLO
-	iisc.ernet.in") by vger.kernel.org with ESMTP id <S280035AbRJ3RE1>;
-	Tue, 30 Oct 2001 12:04:27 -0500
-Date: Tue, 30 Oct 2001 22:35:00 +0530 (GMT+05:30)
-From: "V.Muni Chandra Reddy" <mcreddy@ece.iisc.ernet.in>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Panic :  Unable to mount root fs on 03:06
-Message-ID: <Pine.SUN.3.96.1011030223256.24724A-100000@eis>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280032AbRJ3RDP>; Tue, 30 Oct 2001 12:03:15 -0500
+Received: from hq2.fsmlabs.com ([209.155.42.199]:44550 "HELO hq2.fsmlabs.com")
+	by vger.kernel.org with SMTP id <S280001AbRJ3RDF>;
+	Tue, 30 Oct 2001 12:03:05 -0500
+Date: Tue, 30 Oct 2001 09:57:57 -0700
+From: Victor Yodaiken <yodaiken@fsmlabs.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, Andrea Arcangeli <andrea@suse.de>,
+        Benjamin LaHaise <bcrl@redhat.com>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: please revert bogus patch to vmscan.c
+Message-ID: <20011030095757.A9956@hq2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110300835140.8603-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.18i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Oct 30, 2001 at 08:38:31AM -0800, Linus Torvalds wrote:
+> > It's simply not true on eg PPC.
+> 
+> Now, it's not true on _all_ PPC's.
+> 
+> The sane PPC setups actually have a regular soft-filled TLB, and last I
+> saw that actually performed _better_ than the stupid architected hash-
+> chains. And for the broken OS's (ie AIX) that wants the hash-chains, you
+> can always make the soft-fill TLB do the stupid thing..
 
-I recently upgraded my Thinkpad with 20GB HDD, and installed Redhat 7.1
-with kernel version 2.4.2-2. After this, I am facing a strange problem
-booting
-under Linux. BTW, my machine also has Windows :) 
-
-Whenever I am in Linux, and _softboot_ the system by choosing Linux at the
-lilo prompt, the boot process stops with the following message.
-
----------------------------------------------------------------------------
-EXT2-fs: unable to read superblock
-isofs_read_super: bread failed, dev=03:06, iso_blknum=16,block=32
-Kernel panic: Unable to mount root fs on 03:06
----------------------------------------------------------------------------
-
-Surprisingly, whenever I _hardboot_ the system and choose Linux at the
-lilo
-the system boots normally without any problem.
-
-Can you help me out with this problem ?
+You can't turn off hardware hash-chains on anything past 603, sadly enough.
+So all Macs, many embedded boards, ...
 
 
-Regards,
-M.C.Reddy.
+
 

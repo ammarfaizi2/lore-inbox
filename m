@@ -1,67 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273068AbTHKTni (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 15:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273015AbTHKTmW
+	id S273292AbTHKTrS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273033AbTHKTrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 15:42:22 -0400
-Received: from pop.gmx.net ([213.165.64.20]:46007 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S272980AbTHKTly (ORCPT
+	Mon, 11 Aug 2003 15:47:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:14259 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S273298AbTHKTqU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 15:41:54 -0400
-Message-Id: <5.2.1.1.2.20030811212837.01975fa0@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Mon, 11 Aug 2003 21:46:00 +0200
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH]O14int [SCHED_SOFTRR please]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200308112019.38613.roger.larsson@skelleftea.mail.telia.com
- >
-References: <5.2.1.1.2.20030810122144.019bdb00@pop.gmx.net>
- <200308091036.18208.kernel@kolivas.org>
- <5.2.1.1.2.20030810122144.019bdb00@pop.gmx.net>
+	Mon, 11 Aug 2003 15:46:20 -0400
+Date: Mon, 11 Aug 2003 12:43:17 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Greg Nate" <Greg_Nate@adp.com>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+Subject: Re: Kernel 2.4.21 Crashing
+Message-Id: <20030811124317.07f7a426.rddunlap@osdl.org>
+In-Reply-To: <BF2EFB3523C48E47806C1C94D4EFB80301245729@nexus.plaza.ds.adp.com>
+References: <BF2EFB3523C48E47806C1C94D4EFB80301245729@nexus.plaza.ds.adp.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:19 PM 8/11/2003 +0200, Roger Larsson wrote:
->On Sunday 10 August 2003 13.17, Mike Galbraith wrote:
-> > At 01:48 AM 8/10/2003 -0700, Simon Kirby wrote:
-> > >I am seeing similar starvation problems that others are seeing in these
-> > >threads.  At first it was whenever I clicked a link in Mozilla -- xmms
-> > >would stop, sometimes for a second or so, on a Celeron 466 MHz machine.
-> >
-> > Do you see this with test-X and Ingo's latest changes too?  I can only
-> > imagine one scenario off the top of my head where this could happen; if
-> > xmms exhausted a slice while STARVATION_LIMIT is exceeded, it could land in
-> > the expired array and remain unserviced for the period of time it takes for
-> > all tasks remaining in the active array to exhaust their slices.  Seems
-> > like that should be pretty rare though.
-> >
->
->xmms is a RT process - it does not really have interactivity problems...
->It will be extremely hard to fix this in a generic scheduler, instead
->let xmms be the RT process it is with SCHED_SOFTRR (or whatever
->it will be named).
->Do this for arts, and other audio/video path applications.
+On Mon, 11 Aug 2003 10:19:56 -0700 "Greg Nate" <Greg_Nate@adp.com> wrote:
 
-(For the scenario described, it doesn't matter what scheduler policy is used)
+| This example would be a good opportunity for explanation.  Hopefully, I am not the only one that has trouble deciphering the output from an Oops or panic.
+| 
+| If anyone is in the "know" and has the time, could you please give a little explanation as to what is being displayed below.  I understand that the there is a stack trace and register dumps, but I am not all that familiar with the registers being displayed, their significance and meaning.
 
->Then start the race for interactivity tuning
->  (X, X applications, console, login, etc)
->
->interactivity = two-way
->         http://www.m-w.com/cgi-bin/dictionary?va=interactive
->
->Listening to music is not interactive.
 
-?!?  <tilt> What makes you say that?  What in the world am I doing when I 
-fire up xmms?
-(can't be the two way thing... that's happening until I stop listening)
+kernelnewbies.org (web, email, wiki, or irc) would be a good place
+for such documentation....
 
-         -Mike
+and please use hard returns so that your lines are max 72 characters.
 
-         -Mike 
+This (below) is all very x86 specific.
+It helps (probably an understatement) to know how stacks grow,
+how compilers generate code, how registers are used, etc.
 
+
+| On Sun, 10 Aug 2003, war wrote:
+| 
+| > Unable to handle kernel NULL pointer dereference at virtual address 00000000
+
+Some code tried to reference address 0.  There is nothing mapped
+at address 0 on purpose, to catch errant code such as this.
+
+| >  printing eip:
+| > c0131906
+
+EIP is the (Extended) Instruction Pointer register, aka the next
+instruction pointer.  It points just beyond the current (faulting)
+instruction.
+
+| > *pde = 00000000
+| > Oops: 0002
+
+This value is the page fault error code: (from source code):
+ * error_code:
+ *	bit 0 == 0 means no page found, 1 means protection fault
+ *	bit 1 == 0 means read, 1 means write
+ *	bit 2 == 0 means kernel, 1 means user-mode
+
+| > CPU:    0
+| > EIP:    0010:[<c0131906>]    Not tainted
+0010 is the CS register value (Code segment selector).
+
+| > EFLAGS: 00010246
+
+i386 EFlags register
+
+| > eax: c0306a18   ebx: 00000000   ecx: c250fffc   edx: 00000000
+
+i386 general-purpose (GP) registers
+
+| > esi: c250ffe0   edi: 0001328a   ebp: c0306c40   esp: c2821f40
+
+i386 index and stack registers
+
+| > ds: 0018   es: 0018   ss: 0018
+
+These are the other i386 segment/selector registers.
+
+| > Process kswapd (pid: 5, stackpage=c2821000)
+| > Stack: c2095dd0 000001d0 000001ff 000001d0 00000016 0000001f 000001d0 00000020
+| >        00000006 c0131ca3 00000006 c0306b90 c0306c40 000001d0 00000006 c0306c40
+| >        00000000 c0131d1e 00000020 c0306c40 00000002 c2820000 c0131e3c c0306c40
+
+Kernel stack, beginning at top of stack.
+
+| > Call Trace:    [<c0131ca3>] [<c0131d1e>] [<c0131e3c>] [<c0131eb8>] [<c0131fe8>]
+| >   [<c0131f50>] [<c0105000>] [<c01057ae>] [<c0131f50>]
+
+show_trace() tries to pick out kernel text addresses from the stack
+and only print those addresses.  Running this thru ksymoops
+with a matching System.map file will decode these addresses into
+kernel function names.
+
+| > Code: 89 02 c7 01 00 00 00 00 89 50 04 a1 18 6a 30 c0 89 48 04 89
+
+
+That was fairly straightforward.  Did it help any?
+
+--
+~Randy

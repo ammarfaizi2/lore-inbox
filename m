@@ -1,75 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVDDUyo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVDDUyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbVDDUyo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 16:54:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVDDUw1
+	id S261389AbVDDUyq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 16:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVDDUx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 16:52:27 -0400
-Received: from smtp6.poczta.onet.pl ([213.180.130.36]:12953 "EHLO
-	smtp6.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S261400AbVDDUsj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 16:48:39 -0400
-Message-ID: <4251A8C4.60007@poczta.onet.pl>
-Date: Mon, 04 Apr 2005 22:51:16 +0200
-From: Wiktor <victorjan@poczta.onet.pl>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050329)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andreas Hartmann <andihartmann@freenet.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: crypting filesystems
-References: <42511AE5.1060603@pD9F8754D.dip0.t-ipconnect.de>
-In-Reply-To: <42511AE5.1060603@pD9F8754D.dip0.t-ipconnect.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 4 Apr 2005 16:53:26 -0400
+Received: from mail.velocity.net ([66.211.211.55]:37602 "EHLO
+	mail.velocity.net") by vger.kernel.org with ESMTP id S261390AbVDDUu6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 16:50:58 -0400
+X-AV-Checked: Mon Apr  4 16:50:58 2005 clean
+Subject: Re: [patch] inotify 0.22
+From: Dale Blount <linux-kernel@dale.us>
+To: Robert Love <rml@novell.com>
+Cc: John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1112644936.6736.7.camel@betsy>
+References: <1112644936.6736.7.camel@betsy>
+Content-Type: text/plain
+Date: Mon, 04 Apr 2005 16:50:55 -0400
+Message-Id: <1112647855.520.20.camel@dale.velocity.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> inotify is intended to correct the deficiencies of dnotify, particularly
+> its inability to scale and its terrible user interface:
+> 
+>         * dnotify requires the opening of one fd per each directory
+>           that you intend to watch. This quickly results in too many
+>           open files and pins removable media, preventing unmount.
+>         * dnotify is directory-based. You only learn about changes to
+>           directories. Sure, a change to a file in a directory affects
+>           the directory, but you are then forced to keep a cache of
+>           stat structures.
+>         * dnotify's interface to user-space is awful.  Signals?
+> 
+> inotify provides a more usable, simple, powerful solution to file change
+> notification:
+> 
+>         * inotify's interface is a device node, not SIGIO.  You open a 
+>           single fd to the device node, which is select()-able.
+>         * inotify has an event that says "the filesystem that the item
+>           you were watching is on was unmounted."
+>         * inotify can watch directories or files.
+> 
 
-I'm using the following method and it seems to be working fine 
-(involving crypto-loop):
+Robert and others,
 
-i have normal ext3 /boot partition, where i store kernel image & initrd. 
-after lilo boots the kernel, initrd sets up /dev/loop0 to be 
-crypto-loop/blowfish for /dev/hda1 (losetup /dev/loop0 /dev/hda1 -e 
-blowfish). losetup asks for passphrase, and (if entered correctly), 
-/dev/loop0 is mounted as root filesystem (it can be done also by simple 
-mount call: mount /dev/hda1 /some-place -o rw,encryption=blowfish). for 
-encrypting more filesystems with one passphrase, you can read it in 
-shell script in non-echo-mode (if such exists, i'm not sure), and pass 
-it to mount or losetup. crypto-loop makes possible to switch encryption 
-type without modifying whole initrd.
+Will inotify watch directories recursively?  A quick browse through the
+source doesn't look like it, but I very well could be wrong.  Last I
+checked, dnotify did not either.  I am looking for a way to synchronize
+files in as-real-as-possible-time when they are modified.  The ideal
+implementation would be a kernel "hook" like d/inotify and a client
+application that watches changes and copies them to a remote server for
+redundancy purposes.   A scheduled rsync works decently, but has a lag
+time of 2-3 (or more) hours on certain files on a large filesystem.
+Will inotify work for this, or does someone else have another
+recommended solution to the problem?
 
-Regarding your questions:
+Thanks,
 
- > 1. In order to put in the passphrase just once a time at booting, I 
-put the passphrase in a gpg-crypted file (cipher AES256 and 256Bit key 
-size), which is decrypted at boot-time to /tmp (-> tmpfs) and 
-immediately removed with shred, after activating the three partitions. 
-Is it possible to see the cleartext password after this action in tmpfs?
+Dale
 
-Disk encryption usually protects from hardware-attacks (when hacker has 
-physical access to the hardware). if you keep passphrase 
-reversible-encrypted, attacker can read it and run brute-force attack 
-using some huge-computing-capacity. is this what you want?
-
- > 2. Is it possible to gain the passphrase from the active encrypted 
-partitions (because the passphrase is somewhere held in the RAM)?
-
-Only when attacker has root privileges. But i'm not sure if it is 
-possible to extract passphrase knowing both encrypted and not encrypted 
-data. What i mean is that usually each filesystem begins with 
-filesystem-specyfic-header, which is constant or similar to each other. 
-so, if attacker has encrypted form of this header and can estimate 
-unencryptes form, it can possibly gain the passphrase. (but therse are 
-only my ideas, i don't know how the encryptino-algorithm works).
-
- > 4. Are there any master keys existing, which could be used to open 
-every encrypted filesystem?
-
-We all wish they are no such 'features'.
-
---
-wixor
-May the Source be with you.

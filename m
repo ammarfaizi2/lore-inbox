@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261827AbRESPT1>; Sat, 19 May 2001 11:19:27 -0400
+	id <S261837AbRESPTR>; Sat, 19 May 2001 11:19:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261834AbRESPTR>; Sat, 19 May 2001 11:19:17 -0400
-Received: from unthought.net ([212.97.129.24]:49567 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S261827AbRESPTD>;
-	Sat, 19 May 2001 11:19:03 -0400
-Date: Sat, 19 May 2001 17:19:01 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: linux-kernel@vger.kernel.org
-Subject: Negative inode-nr ?
-Message-ID: <20010519171901.A10204@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
+	id <S261834AbRESPTI>; Sat, 19 May 2001 11:19:08 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:51081 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261824AbRESPS4>;
+	Sat, 19 May 2001 11:18:56 -0400
+Date: Sat, 19 May 2001 11:18:55 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Abramo Bagnara <abramo@alsa-project.org>
+cc: Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
+ w/info-PATCH]device arguments from lookup)
+In-Reply-To: <3B068D00.95338099@alsa-project.org>
+Message-ID: <Pine.GSO.4.21.0105191117580.5339-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello all,
 
-I was investigating a problem we believed we had with our monitoring
-software (from sysorb.com), where it failed to report the number of
-free and allocated inodes.
+On Sat, 19 May 2001, Abramo Bagnara wrote:
 
-However, looking into the problem I found that it's the kernel that's
-returning bogus values.
+> Can't this easily avoided if the needed action is not
+> 
+> < /dev/zero/start_nuclear_war 
+> or
+> > /dev/zero/start_nuclear_war
+> 
+> but
+> 
+> echo "I'm evil" > /dev/zero/start_nuclear_war
 
-What do you think of this ?
-[root]# cat /proc/sys/fs/inode-nr 
-157097	-180
+Sure. And that's the right thing to do (not the implied action, that is -
+_that_ would be too messy).
 
-The number of free inodes is negative !  I find it hard to believe that
-that's correct.
-
-Kernel:  2.4.4 on i686
-
-All filesystems are ext2fs.
-
-If you need more information, let me know.
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:

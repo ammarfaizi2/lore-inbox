@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317148AbSHAU4G>; Thu, 1 Aug 2002 16:56:06 -0400
+	id <S317023AbSHAUu1>; Thu, 1 Aug 2002 16:50:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317140AbSHAU4F>; Thu, 1 Aug 2002 16:56:05 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:37105 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317141AbSHAU4B>; Thu, 1 Aug 2002 16:56:01 -0400
-Subject: Re: [PATCH] solved APM bug with -rc5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Willy TARREAU <willy@w.ods.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020801203520.GA244@pcw.home.local>
-References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva>
-	<20020801121205.GA168@pcw.home.local> <20020801133202.GA200@pcw.home.local>
-	<1028213732.14865.50.camel@irongate.swansea.linux.org.uk>
-	<20020801135623.GA19879@alpha.home.local>
-	<20020801152459.GA19989@alpha.home.local>
-	<1028220826.14865.69.camel@irongate.swansea.linux.org.uk> 
-	<20020801203520.GA244@pcw.home.local>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 01 Aug 2002 23:16:23 +0100
-Message-Id: <1028240183.15022.99.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317066AbSHAUtU>; Thu, 1 Aug 2002 16:49:20 -0400
+Received: from p50887441.dip.t-dialin.net ([80.136.116.65]:47033 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315455AbSHAUtR>; Thu, 1 Aug 2002 16:49:17 -0400
+Date: Thu, 1 Aug 2002 14:52:28 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Miguel A Bolanos <mike@costarica.net>
+cc: Shanti Katta <katta@csee.wvu.edu>, <sparclinux@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: what version of gcc can be used to build kernels on Linux/sparc64?
+In-Reply-To: <Pine.LNX.4.33.0207301613370.20597-100000@mail.costarica.net>
+Message-ID: <Pine.LNX.4.44.0208011448020.5119-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-01 at 21:35, Willy TARREAU wrote:
+Hi,
 
->  
-> +#ifdef CONFIG_SMP
-> +	/* 2002/08/01 - WT
-> +	 * This is to avoid random crashes at boot time during initialization
-> +	 * on SMP systems in case of "apm=power-off" mode. Seen on ASUS A7M266D.
-> +	 * Some bioses don't like being called from CPU != 0.
-> +	 */
-> +	while (cpu_number_map(smp_processor_id()) != 0) {
-> +		schedule();
-> +	}
-> +#endif
+On Tue, 30 Jul 2002, Miguel A Bolanos wrote:
+> Just use egc64 if its only for the kernel, or if you want to for the
+> kernel and some packages  use gcc3
 
-What guarantees that loop will ever exit ?
+Problems:
+
+egcs64:	fails to compile 2.5 for me, because it doesn't support the 
+	current syntax
+gcc3.1:	1 unexpected failure is not too bad, but 25 unexpected successes 
+	aren't too encouraging...
+
+			Thunder
+-- 
+.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
 

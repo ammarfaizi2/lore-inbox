@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277585AbRJHWtF>; Mon, 8 Oct 2001 18:49:05 -0400
+	id <S277589AbRJHWxP>; Mon, 8 Oct 2001 18:53:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277577AbRJHWsz>; Mon, 8 Oct 2001 18:48:55 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41606 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S277587AbRJHWsk>;
-	Mon, 8 Oct 2001 18:48:40 -0400
-Date: Mon, 08 Oct 2001 15:46:50 -0700 (PDT)
-Message-Id: <20011008.154650.48796051.davem@redhat.com>
-To: dwmw2@infradead.org
-Cc: frival@zk3.dec.com, paulus@samba.org, Martin.Bligh@us.ibm.com,
-        alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, jay.estabrook@compaq.com,
-        rth@twiddle.net
-Subject: Re: [PATCH] change name of rep_nop 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <13962.1002580586@redhat.com>
-In-Reply-To: <1573466920.1002300846@mbligh.des.sequent.com>
-	<15294.24873.866942.423260@cargo.ozlabs.ibm.com>
-	<13962.1002580586@redhat.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S277577AbRJHWxG>; Mon, 8 Oct 2001 18:53:06 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:49083 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S277588AbRJHWww>;
+	Mon, 8 Oct 2001 18:52:52 -0400
+Date: Mon, 08 Oct 2001 23:53:18 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
+        linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: %u-order allocation failed
+Message-ID: <653073165.1002585197@[195.224.237.69]>
+In-Reply-To: <Pine.LNX.3.96.1011009001720.20446A-100000@artax.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.3.96.1011009001720.20446A-100000@artax.karlin.mff.cuni
+ .cz>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Woodhouse <dwmw2@infradead.org>
-   Date: Mon, 08 Oct 2001 23:36:26 +0100
 
-   While we're on the subject of stupidly named routines and x86-isms, I'm 
-   having trouble reconciling this text in Documentation/cachetlb.txt:
-   
-   	1) void flush_cache_all(void)
-   
-   	        The most severe flush of all.  After this interface runs,
-   	        the entire cpu cache is flushed.
-   
-   ... with this implementation in include/asm-i386/pgtable.h:
-   
-   	#define flush_cache_all()			do { } while (0)
-   
-   That really doesn't seem to be doing what it says on the tin.
-   
-"for the purposes of having the processor maintain cache coherency
- due to a kernel level TLB mapping change"
 
-Yes, I know the text isn't there, but that is the implication.
-Add the text, don't add a stupid "simon_says.." interface.
+--On Tuesday, 09 October, 2001 12:21 AM +0200 Mikulas Patocka 
+<mikulas@artax.karlin.mff.cuni.cz> wrote:
 
-The mtrr stuff, if it really does need the flush, should probably
-make it's own macro/inline with a huge comment about it explaining
-why the flush is actually needed.
+> If you have more than half of virtual space free, you can always find two
+> consecutive free pages. Period.
 
-   Some people have asserted, falsely, that it's never sane to want an i386 to
-   flush its cache.
+Now calculate the probability of not being able to do this in physical
+space, assuming even page dispersion, and many pages free. You will
+find it is very small. This may give you a clue as to what the problem
+actually is.
 
-"for the purposes of having the processor maintain cache coherency
- due to a kernel level TLB mapping change"
-
-All of these flush_foo interfaces are about cache flushes needed when
-address space changes occur.  They are not meant to be a way to deal
-with all sorts of other cache details, for those we have the PCI DMA
-interfaces, flush_dcache_page etc.
-
-   Even if that were true, it wouldn't really be an excuse for
-   the above discrepancy.
-   
-There is no discrepancy, only missing text in cachetlb.txt, please
-add it, but I thought that the location of the routine made it obvious
-what context it is meant to operate and be used.
-
-Franks a lot,
-David S. Miller
-davem@redhat.com
+--
+Alex Bligh

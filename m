@@ -1,172 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263013AbTCWKhu>; Sun, 23 Mar 2003 05:37:50 -0500
+	id <S263016AbTCWKrg>; Sun, 23 Mar 2003 05:47:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263014AbTCWKhu>; Sun, 23 Mar 2003 05:37:50 -0500
-Received: from verein.lst.de ([212.34.181.86]:57865 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S263013AbTCWKhr>;
-	Sun, 23 Mar 2003 05:37:47 -0500
-Date: Sun, 23 Mar 2003 11:48:51 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] don't include swap.h in mm.h
-Message-ID: <20030323114851.A28050@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S263017AbTCWKrg>; Sun, 23 Mar 2003 05:47:36 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:24213 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S263016AbTCWKre>;
+	Sun, 23 Mar 2003 05:47:34 -0500
+Date: Sun, 23 Mar 2003 11:58:37 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marco Roeland <marco.roeland@xs4all.nl>,
+       Duncan Sands <baldrick@wanadoo.fr>
+cc: Alan Cox <alan@redhat.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       parisc-linux@parisc-linux.org,
+       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: Linux 2.5.65-ac2 (drivers/char/genrtc.c compile failure on i386)
+In-Reply-To: <20030322202201.GA32386@localhost>
+Message-ID: <Pine.GSO.4.21.0303231155380.9116-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-swap.h is basically the header for MM internals instead of the
-public API (mm_internal.h would have been a better name..).  Stop
-including it in mm.h - this only needs moving one function that
-should be in swap.h anyway to the right place and fixing up a bunch
-of places using it.
+On Sat, 22 Mar 2003, Marco Roeland wrote:
+> On Friday March 21st 2003 at 12:41 Alan Cox wrote:
+> > Linux 2.5.65-ac2
+> >       ...
+> > o	M68K rtc updates				(Geert Uytterhoeven)
+> 
+> The file drivers/char/genrtc.c was updated, but include/arch-generic/rtc.h
+> which is used on i386 wasn't (yet?), leading to compile failures on i386:
+> (the missing define is only the first symptom)
 
+Oops, until last Friday I didn't even know genrtc was used on ia32...
 
---- 1.159/drivers/block/ll_rw_blk.c	Sun Mar 23 01:14:13 2003
-+++ edited/drivers/block/ll_rw_blk.c	Sun Mar 23 09:40:11 2003
-@@ -26,6 +26,7 @@
- #include <linux/bootmem.h>	/* for max_pfn/max_low_pfn */
- #include <linux/completion.h>
- #include <linux/slab.h>
-+#include <linux/swap.h>
+Anyway, can you please give this a try? I also updated PPC and PA-RISC, the
+other two known users of genrtc I forgot to update.
+
+--- linux-2.5.x/include/asm-generic/rtc.h.orig	Mon Feb 10 21:59:25 2003
++++ linux-2.5.x/include/asm-generic/rtc.h	Sun Mar 23 11:47:24 2003
+@@ -22,9 +22,8 @@
+ #define RTC_AIE 0x20		/* alarm interrupt enable */
+ #define RTC_UIE 0x10		/* update-finished interrupt enable */
  
- static void blk_unplug_work(void *data);
- static void blk_unplug_timeout(unsigned long data);
---- 1.40/fs/bio.c	Tue Feb 25 12:18:00 2003
-+++ edited/fs/bio.c	Sun Mar 23 09:40:11 2003
-@@ -7,7 +7,6 @@
-  *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+-extern void gen_rtc_interrupt(unsigned long);
 -
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-  *
-@@ -17,6 +16,7 @@
-  *
-  */
- #include <linux/mm.h>
-+#include <linux/swap.h>
- #include <linux/bio.h>
- #include <linux/blk.h>
- #include <linux/slab.h>
---- 1.113/include/linux/mm.h	Sun Mar 23 01:14:57 2003
-+++ edited/include/linux/mm.h	Sun Mar 23 09:40:11 2003
-@@ -8,10 +8,8 @@
+ /* some dummy definitions */
++#define RTC_BATT_BAD 0x100	/* battery bad */
+ #define RTC_SQWE 0x08		/* enable square-wave output */
+ #define RTC_DM_BINARY 0x04	/* all time/date values are BCD if clear */
+ #define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
+@@ -43,7 +42,7 @@
+ 	return uip;
+ }
  
- #include <linux/config.h>
- #include <linux/gfp.h>
--#include <linux/string.h>
- #include <linux/list.h>
- #include <linux/mmzone.h>
--#include <linux/swap.h>
- #include <linux/rbtree.h>
- #include <linux/fs.h>
+-static inline void get_rtc_time(struct rtc_time *time)
++static inline unsigned int get_rtc_time(struct rtc_time *time)
+ {
+ 	unsigned long uip_watchdog = jiffies;
+ 	unsigned char ctrl;
+@@ -108,6 +107,8 @@
+ 		time->tm_year += 100;
  
-@@ -142,6 +140,7 @@
- /* forward declaration; pte_chain is meant to be internal to rmap.c */
- struct pte_chain;
- struct mmu_gather;
-+struct inode;
- 
- /*
-  * Each physical page in the system has a struct page associated with
-@@ -490,10 +489,7 @@
- extern void mem_init(void);
- extern void show_mem(void);
- extern void si_meminfo(struct sysinfo * val);
--#ifdef CONFIG_NUMA
- extern void si_meminfo_node(struct sysinfo *val, int nid);
--#endif
--extern void swapin_readahead(swp_entry_t);
- 
- /* mmap.c */
- extern void insert_vm_struct(struct mm_struct *, struct vm_area_struct *);
---- 1.72/include/linux/swap.h	Sun Mar  2 21:14:31 2003
-+++ edited/include/linux/swap.h	Sun Mar 23 09:40:11 2003
-@@ -144,6 +144,9 @@
- /* linux/mm/oom_kill.c */
- extern void out_of_memory(void);
- 
-+/* linux/mm/memory.c */
-+extern void swapin_readahead(swp_entry_t);
+ 	time->tm_mon--;
 +
- /* linux/mm/page_alloc.c */
- extern unsigned long totalram_pages;
- extern unsigned long totalhigh_pages;
---- 1.38/kernel/sysctl.c	Fri Jan 17 09:49:15 2003
-+++ edited/kernel/sysctl.c	Sun Mar 23 09:40:12 2003
-@@ -20,6 +20,7 @@
++	return RTC_24H;
+ }
  
- #include <linux/config.h>
- #include <linux/mm.h>
-+#include <linux/swap.h>
- #include <linux/slab.h>
- #include <linux/sysctl.h>
- #include <linux/proc_fs.h>
---- 1.48/kernel/timer.c	Thu Mar 20 03:40:57 2003
-+++ edited/kernel/timer.c	Sun Mar 23 09:40:12 2003
-@@ -24,6 +24,7 @@
- #include <linux/percpu.h>
- #include <linux/init.h>
- #include <linux/mm.h>
-+#include <linux/swap.h>
- #include <linux/notifier.h>
- #include <linux/thread_info.h>
- #include <linux/time.h>
---- 1.185/mm/filemap.c	Sun Mar 23 01:14:49 2003
-+++ edited/mm/filemap.c	Sun Mar 23 09:40:12 2003
-@@ -17,6 +17,7 @@
- #include <linux/aio.h>
- #include <linux/kernel_stat.h>
- #include <linux/mm.h>
-+#include <linux/swap.h>
- #include <linux/mman.h>
- #include <linux/pagemap.h>
- #include <linux/file.h>
---- 1.6/mm/fremap.c	Sun Mar 23 01:14:57 2003
-+++ edited/mm/fremap.c	Sun Mar 23 09:40:12 2003
-@@ -7,6 +7,7 @@
-  */
+ /* Set the current date and time in the real time clock. */
+--- linux-2.5.x/include/asm-parisc/rtc.h.orig	Wed Aug 28 08:33:46 2002
++++ linux-2.5.x/include/asm-parisc/rtc.h	Sun Mar 23 11:52:15 2003
+@@ -24,7 +24,7 @@
+ #define RTC_AIE 0x20		/* alarm interrupt enable */
+ #define RTC_UIE 0x10		/* update-finished interrupt enable */
  
- #include <linux/mm.h>
-+#include <linux/swap.h>
- #include <linux/file.h>
- #include <linux/mman.h>
- #include <linux/pagemap.h>
---- 1.41/mm/highmem.c	Tue Mar 18 00:32:02 2003
-+++ edited/mm/highmem.c	Sun Mar 23 09:40:12 2003
-@@ -17,6 +17,7 @@
-  */
+-extern void gen_rtc_interrupt(unsigned long);
++#define RTC_BATT_BAD 0x100	/* battery bad */
  
- #include <linux/mm.h>
-+#include <linux/swap.h>
- #include <linux/bio.h>
- #include <linux/pagemap.h>
- #include <linux/mempool.h>
---- 1.58/mm/page-writeback.c	Mon Mar 17 01:33:14 2003
-+++ edited/mm/page-writeback.c	Sun Mar 23 09:40:12 2003
-@@ -15,6 +15,7 @@
- #include <linux/spinlock.h>
- #include <linux/fs.h>
- #include <linux/mm.h>
-+#include <linux/swap.h>
- #include <linux/slab.h>
- #include <linux/pagemap.h>
- #include <linux/writeback.h>
---- 1.21/mm/rmap.c	Sun Mar 23 01:06:03 2003
-+++ edited/mm/rmap.c	Sun Mar 23 09:40:12 2003
-@@ -22,6 +22,7 @@
-  */
- #include <linux/mm.h>
- #include <linux/pagemap.h>
-+#include <linux/swap.h>
- #include <linux/swapops.h>
- #include <linux/slab.h>
- #include <linux/init.h>
+ /* some dummy definitions */
+ #define RTC_SQWE 0x08		/* enable square-wave output */
+@@ -44,14 +44,14 @@
+ 	{ 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
+ };
+ 
+-static int get_rtc_time(struct rtc_time *wtime)
++static inline unsigned int get_rtc_time(struct rtc_time *wtime)
+ {
+ 	struct pdc_tod tod_data;
+ 	long int days, rem, y;
+ 	const unsigned short int *ip;
+ 
+ 	if(pdc_tod_read(&tod_data) < 0)
+-		return -1;
++		return RTC_24H | RTC_BATT_BAD;
+ 
+ 	
+ 	// most of the remainder of this function is:
+@@ -93,7 +93,7 @@
+ 	wtime->tm_mon = y;
+ 	wtime->tm_mday = days + 1;
+ 	
+-	return 0;
++	return RTC_24H;
+ }
+ 
+ static int set_rtc_time(struct rtc_time *wtime)
+--- linux-2.5.x/include/asm-ppc/rtc.h.orig	Tue Feb 18 10:08:44 2003
++++ linux-2.5.x/include/asm-ppc/rtc.h	Sun Mar 23 11:47:31 2003
+@@ -35,15 +35,14 @@
+ #define RTC_AIE 0x20		/* alarm interrupt enable */
+ #define RTC_UIE 0x10		/* update-finished interrupt enable */
+ 
+-extern void gen_rtc_interrupt(unsigned long);
+-
+ /* some dummy definitions */
++#define RTC_BATT_BAD 0x100	/* battery bad */
+ #define RTC_SQWE 0x08		/* enable square-wave output */
+ #define RTC_DM_BINARY 0x04	/* all time/date values are BCD if clear */
+ #define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
+ #define RTC_DST_EN 0x01	        /* auto switch DST - works f. USA only */
+ 
+-static inline void get_rtc_time(struct rtc_time *time)
++static inline unsigned int get_rtc_time(struct rtc_time *time)
+ {
+ 	if (ppc_md.get_rtc_time) {
+ 		unsigned long nowtime;
+@@ -55,6 +54,7 @@
+ 		time->tm_year -= 1900;
+ 		time->tm_mon -= 1; /* Make sure userland has a 0-based month */
+ 	}
++	return RTC_24H;
+ }
+ 
+ /* Set the current date and time in the real time clock. */
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

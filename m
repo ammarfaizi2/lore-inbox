@@ -1,93 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317676AbSGKF5A>; Thu, 11 Jul 2002 01:57:00 -0400
+	id <S317680AbSGKGIK>; Thu, 11 Jul 2002 02:08:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317680AbSGKF47>; Thu, 11 Jul 2002 01:56:59 -0400
-Received: from gw.compusonic.fi ([195.255.196.126]:4306 "EHLO opensound.com")
-	by vger.kernel.org with ESMTP id <S317676AbSGKF46>;
-	Thu, 11 Jul 2002 01:56:58 -0400
-Date: Thu, 11 Jul 2002 09:03:38 +0300 (EEST)
-From: Hannu Savolainen <hannu@opensound.com>
-To: george anzinger <george@mvista.com>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       Linux <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-In-Reply-To: <3D2CA278.49BE1ADA@mvista.com>
-Message-ID: <Pine.LNX.4.10.10207110847170.6183-100000@zeus.compusonic.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317694AbSGKGIJ>; Thu, 11 Jul 2002 02:08:09 -0400
+Received: from h-64-105-137-27.SNVACAID.covad.net ([64.105.137.27]:32442 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S317680AbSGKGII>; Thu, 11 Jul 2002 02:08:08 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 10 Jul 2002 23:09:53 -0700
+Message-Id: <200207110609.XAA20931@adam.yggdrasil.com>
+To: akpm@zip.com.au, dougg@torque.net, ingo.oeser@informatik.tu-chemnitz.de
+Subject: Re: direct-to-BIO for O_DIRECT
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, martin@dalecki.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Douglas Gilbert wrote:
+>Ingo Oeser wrote:
+[...]
+>> It would be nice if we could just map a set of user pages to a scatterlist.
+>
+>After disabling kiobufs in sg I would like such a drop
+>in replacement.
+>
+>> Developers of mass transfer devices (video grabbers, dsp devices, sg and
+>> many others) would just LOVE you for this ;-)
+>
+>Agreed. Tape devices could be added to your list.
+>Large page support will make for very efficient zero
+>copy IO.
+>
+>> Block devices are the common case worth optimizing for, but character
+>> devices just need to reimplement most of this, if they want the same 
+>> optimizations. Some devices need mass transfers and are NOT blockdevices.
+>
+>> Please consider supporting them better for 2.5 in stuff similiar to BIOs
+>> and DMA to/from user pages.
+>
+>CIOs?
 
-IMHO the easiest solution is just making HZ selectable (100 or 1000 or
-maybe 1024) when configuring the kernel. Also there has to be a variable
-that exports the configured HZ value to modules. In that way users can
-select HZ depending on their needs.
+	This is what I want to accomplish in my proposal to
+pull most of the DMA transfer optimization code up from block
+devices by generalizing DMA targets and turning struct scatterlist
+into a linked list, discussed here:
 
-There are users who don't use power management. Instead they need higher
-HZ for various reasons. Kernels compiled with HZ=1000 have been used
-successfully since year 0 without any major problems. Making HZ
-configurable just makes life easier for such users.
+	http://marc.theaimsgroup.com/?t=102487685000002&r=1&w=2
 
-OTOH the higher wakeup rate during low power states can be cured by
-temporarily lowering the hw clock rate from 1000 to 100. The timer
-interrupt handler just increases jiffies by 10 (instead of 1). All code
-compiled with HZ=1000 still works but there may be latency problems during
-low power states.
+	I have not started coding this yet because:
 
-On Wed, 10 Jul 2002, george anzinger wrote:
+	1. I'm tracking down a bug in the next revision of my proposed
+	   bio_append patch (which eliminates {read,write}_full_page from
+	   fs/buffers.c), and I want to hit that ball out of my court first.
 
-> "Grover, Andrew" wrote:
-> > 
-> > I'd like to see HZ closer to 100 than 1000, for CPU power reasons. Processor
-> > power states like C3 may take 100 microseconds+ to enter/leave - time when
-> > both the CPU isn't doing any work, but still drawing power as if it was. We
-> > pop out of C3 whenever there is an interrupt, so reducing timer interrupts
-> > is good from a power standpoint by amortizing the transition penalty over a
-> > longer period of power savings.
-> > 
-> > But on the other hand, increasing HZ has perf/latency benefits, yes? Have
-> > these been quantified? I'd either like to see a HZ that has balanced
-> > power/performance, or could we perhaps detect we are on a system that cares
-> > about power (aka a laptop) and tweak its value at runtime?
-> 
-> HZ is used in a LOT of places.  I suspect "tweaking" at run
-> time would be a bit difficult.  
-This is not a problem at all. Just define HZ as:
+	2. I want to look at aio to see if it has a better way or if it
+	   could benefit from this.
 
-extern int system_hz;
-#define HZ system_hz
+	3. I want to accomodate Dave Miller's request for a non-PCI
+	   generalization of pci_alloc_consistent, pci_map_single, etc.,
+	   first, and that will depend on struct device, for which there are
+	   some relevant changes working their way from Patrick Mochel
+	   to Linus.
 
-After that all code will use variable HZ. Changing HZ on fly will be
-dangerous. However HZ can be made a boot time (LILO) parameter.
+	4. After getting a general dma_alloc_consistent, etc. interface,
+	   then I want to create a struct dma_target, to abstract
+	   out the DMA capabilities currently maintained by the block
+	   layer.  I hope that by doing this in stages, that it will be
+	   more palatable to Jens, who expressed concern that the
+	   my proposal to go to a linked list for struct scatterlist
+	   was a bit too much change.
 
-> The high-res-timers patch give high resolution timers with
-> out changing HZ.  Interrupts are scheculed as needed,
-> between the 1/HZ ticks, so a quite system will have few (if
-> any) interrupts between the ticks.
-> 
-> -- 
-> George Anzinger   george@mvista.com
-> High-res-timers: 
-> http://sourceforge.net/projects/high-res-timers/
-> Real time sched:  http://sourceforge.net/projects/rtsched/
-> Preemption patch:
-> http://www.kernel.org/pub/linux/kernel/people/rml
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+	Then, I think we'll be in a better position to go to a struct
+scatterlist linked list or something similar that can be used by most
+if not all big producers of IO.
 
+	In the meantime, killing off kiobufs should be helpful.
 
-Best regards,
-
-Hannu
------
-Hannu Savolainen (hannu@opensound.com)
-http://www.opensound.com (Open Sound System (OSS))
-http://www.compusonic.fi (Finnish OSS pages)
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

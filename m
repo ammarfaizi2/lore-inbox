@@ -1,74 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268913AbUHMA3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268926AbUHMAdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268913AbUHMA3p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 20:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268914AbUHMA3f
+	id S268926AbUHMAdA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 20:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268925AbUHMAbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 20:29:35 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:53500 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S268913AbUHMA2H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 20:28:07 -0400
-Date: Thu, 12 Aug 2004 17:27:56 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       James.Bottomley@SteelEye.com
-Subject: Re: [patch] 2.6 -- add IOI Media Bay to SCSI quirk list
-Message-ID: <20040813002756.GA21763@beaverton.ibm.com>
-References: <200408122137.i7CLbGU13688@ra.tuxdriver.com> <20040812225118.GA20904@beaverton.ibm.com> <411BF6A5.2030306@tuxdriver.com>
+	Thu, 12 Aug 2004 20:31:03 -0400
+Received: from waste.org ([209.173.204.2]:45788 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S268914AbUHMA3w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 20:29:52 -0400
+Date: Thu, 12 Aug 2004 19:29:31 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Stelian Pop <stelian@popies.net>,
+       jgarzik@pobox.com
+Subject: Re: [patch] fix netconsole hang with alt-sysrq-t
+Message-ID: <20040813002931.GH16310@waste.org>
+References: <16659.56343.686372.724218@segfault.boston.redhat.com> <20040806195237.GC16310@waste.org> <16659.58271.979999.616045@segfault.boston.redhat.com> <20040806202649.GE16310@waste.org> <16667.55966.317888.504243@segfault.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <411BF6A5.2030306@tuxdriver.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <16667.55966.317888.504243@segfault.boston.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 12, 2004 at 07:00:53PM -0400, John W. Linville wrote:
-> Patrick Mansfield wrote:
+On Thu, Aug 12, 2004 at 05:01:18PM -0400, Jeff Moyer wrote:
+> ==> Regarding Re: [patch] fix netconsole hang with alt-sysrq-t; Matt Mackall <mpm@selenic.com> adds:
 > 
-> >We seem to be getting quite a few of these. In theory we could add a line
-> >like this for every multi-lun SCSI device.
-> > 
-> >
+> mpm> On Fri, Aug 06, 2004 at 04:01:35PM -0400, Jeff Moyer wrote:
+> >> ==> Regarding Re: [patch] fix netconsole hang with alt-sysrq-t; Matt
+> >> Mackall <mpm@selenic.com> adds:
+> >> 
+> mpm> On Fri, Aug 06, 2004 at 03:29:27PM -0400, Jeff Moyer wrote:
+> >> >> Hi, Matt,
+> >> >> 
+> >> >> Here's the patch.  Sorry it took me so long, been busy with other
+> >> work.  >> Two things which need perhaps more thinking, can netpoll_poll
+> >> be called >> recursively (it didn't look like it to me)
+> >> 
+> mpm> It can if the poll function does a printk or the like and wants to
+> mpm> recurse via netconsole. We could short-circuit that with an in_netpoll
+> mpm> flag, but let's worry about that separately.
+
+We've got about 5 different issues in this thread/patch, and they need to be
+broken up. I was going to do this, but I'm moving to another city in 4
+days. Jeff, if you'd be so kind (otherwise I'll get to it in about a
+week and a half):
+
+>  	spin_lock(&np->dev->xmit_lock);
+>  	np->dev->xmit_lock_owner = smp_processor_id();
+>  
+> +	if (netif_queue_stopped(np->dev)) {
+> +		np->dev->xmit_lock_owner = -1;
+> +		spin_unlock(&np->dev->xmit_lock);
+> +
+> +		netpoll_poll(np);
+> +		goto repeat;
+> +	}
+> +
+
+Separate patch to revert this hunk with its own comment, please. This
+should go in first.
+
+> Without this test, we would go ahead and call hard_start_xmit even though
+> the queue was stopped.
 > 
-> Isn't that what the quirk list is for?
-
-We should not add to the list for devices that behave as expected. I would
-hope the number of borken BLIST_NOLUN devices is much smaller than the number
-of good BLIST_FORCELUN devices.
-
-The list is backwards compatible, so we have flags in there that are not
-required, like BLIST_FORCELUN.
-
-> >Can you instead try booting with scsi_mod.max_luns=8 (or such) or build
-> >with SCSI_MULTI_LUN enabled?
-> > 
-> >
+> Thanks!
 > 
-> That works for my box, but what about for others?  Like those who may 
-> have both a multi-lun device and a single-lun device that hangs on a 
-> non-zero lun?  What about the average luser who can't be bothered to 
-> hack-up his startup scripts or *gasp* rebuild his kernel?
+> Jeff
+> 
+> --- linux-2.6.7/include/linux/netdevice.h.orig	2004-08-06 13:01:39.000000000 -0400
+> +++ linux-2.6.7/include/linux/netdevice.h	2004-08-06 13:01:41.000000000 -0400
+> @@ -462,7 +462,7 @@
+>  						     unsigned char *haddr);
+>  	int			(*neigh_setup)(struct net_device *dev, struct neigh_parms *);
+>  	int			(*accept_fastpath)(struct net_device *, struct dst_entry*);
+> -#ifdef CONFIG_NETPOLL_RX
+> +#ifdef CONFIG_NETPOLL
 
-Users should first set max_luns (or use a kernel built with
-SCSI_MULTI_LUN), and then if they find a device that breaks have it added
-to the quirks as BLIST_NOLUN. In the meantime they can boot using the
-devinfo flag with BLIST_NOLUN.
+And a separate bit to kill _RX
 
-I do not recall any reports (on linux-scsi) of devices that can't handle
-LUN 0 requests, there is no change in the number of SCSI_NOLUN devices
-from 2.4.21 to 2.6 (but I didn't check older kernels).
+>  	int			netpoll_rx;
+>  #endif
+>  #ifdef CONFIG_NET_POLL_CONTROLLER
+> --- linux-2.6.7/net/core/netpoll.c.orig	2004-08-06 11:13:45.000000000 -0400
+> +++ linux-2.6.7/net/core/netpoll.c	2004-08-12 16:32:04.151624208 -0400
+> @@ -36,7 +36,11 @@
+>  static spinlock_t rx_list_lock = SPIN_LOCK_UNLOCKED;
+>  static LIST_HEAD(rx_list);
+>  
+> -static int trapped;
+> +static atomic_t trapped;
 
-I had thought it was best to build without SCSI_MULTI_LUN, but given
-the lack of SCSI_NOLUN additions, most users are better off with it on.
+And one for making trapped atomic.
 
-> It seems like the quirk list is there for a reason.  If we start 
-> rejecting certain devices, then what is the criteria for a device to 
-> actually make it on the list?
+> +spinlock_t netpoll_poll_lock = SPIN_LOCK_UNLOCKED;
 
-Only add borken devices to the list, so it is a list of bad devices rather
-than a list of good ones.
+And one for globalizing the lock.
 
--- Patrick Mansfield
+> +
+> +#define NETPOLL_RX_ENABLED  1
+> +#define NETPOLL_RX_DROP     2
+>  
+>  #define MAX_SKB_SIZE \
+>  		(MAX_UDP_CHUNK + sizeof(struct udphdr) + \
+> @@ -61,7 +65,8 @@
+>  
+>  void netpoll_poll(struct netpoll *np)
+>  {
+> -	int budget = 1;
+> +	int budget = 16;
+
+And this one-liner could use a comment and its own patch as well.
+
+> +	unsigned long flags;
+>  
+>  	if(!np->dev || !netif_running(np->dev) || !np->dev->poll_controller)
+>  		return;
+> @@ -70,9 +75,19 @@
+>  	np->dev->poll_controller(np->dev);
+>  
+>  	/* If scheduling is stopped, tickle NAPI bits */
+> -	if(trapped && np->dev->poll &&
+> -	   test_bit(__LINK_STATE_RX_SCHED, &np->dev->state))
+> +	spin_lock_irqsave(&netpoll_poll_lock, flags);
+> +	if (np->dev->poll &&
+> +	    test_bit(__LINK_STATE_RX_SCHED, &np->dev->state)) {
+> +		np->dev->netpoll_rx |= NETPOLL_RX_DROP;
+> +		atomic_inc(&trapped);
+> +
+>  		np->dev->poll(np->dev, &budget);
+> +
+> +		atomic_dec(&trapped);
+> +		np->dev->netpoll_rx &= ~NETPOLL_RX_DROP;
+> +	}
+> +	spin_unlock_irqrestore(&netpoll_poll_lock, flags);
+> +
+>  	zap_completion_queue();
+>  }
+
+And a new patch that brings in the new RX/trapped logic.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

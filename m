@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263697AbUCUSpf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 13:45:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263698AbUCUSpe
+	id S263689AbUCUSos (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 13:44:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263696AbUCUSor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 13:45:34 -0500
-Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:27015 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S263697AbUCUSp1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 13:45:27 -0500
-Message-ID: <405DE2B6.7060003@backtobasicsmgmt.com>
-Date: Sun, 21 Mar 2004 11:45:10 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back To Basics Network Management
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-CC: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Wilfried Weissmann <Wilfried.Weissmann@gmx.at>,
-       Device mapper devel list <dm-devel@redhat.com>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: ATARAID/FakeRAID/HPTRAID/PDCRAID as dm targets?
-References: <405C8B39.8080609@gmx.net> <405CAEC7.9080104@pobox.com> <405CFC85.70004@backtobasicsmgmt.com> <405DD9E2.4030308@pobox.com> <405DE18B.7090505@gmx.net>
-In-Reply-To: <405DE18B.7090505@gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Mar 2004 13:44:47 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:47535 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S263689AbUCUSoq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 13:44:46 -0500
+Message-Id: <200403210333.i2L3XQiw024997@eeyore.valparaiso.cl>
+To: Richard Browning <richard@redline.org.uk>
+cc: Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       linux-kernel@vger.kernel.org,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Subject: Re: ANYONE? Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze 
+In-Reply-To: Message from Richard Browning <richard@redline.org.uk> 
+   of "Sat, 20 Mar 2004 17:26:32 GMT." <200403201726.32595.richard@redline.org.uk> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Sat, 20 Mar 2004 23:33:26 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger wrote:
+Richard Browning <richard@redline.org.uk> said:
+> On Saturday 20 March 2004 14:33, Richard Browning wrote:
+> > Is there anyone in kernelland who is tackling this? I'm currently in the
+> > throes of recompiling everything with -march=pentium3 -O2 to see if these
+> > simple flags make a difference (as I reiterate, Windoze XP works without
+> > problem). I refuse to believe that I will have to use XP in order to get my
+> > money's worth. I've always thought anything Doze can do, GNU/Linux does
+> > better!
 
-> - Would an EVMS plugin or a simple script calling dmsetup be the way to
-> go? If I go the dmsetup route, is there any chance to get partition
-> detection on top of the ATARAID for free (by calling another dm tool)?
+> It's been pointed out to me that this Doze-vs-Linux comparison won't
+> help. If you're offended by it, please don't be. I've been a supporter
+> and contributer to the GNU cause for the last six years and I'm not going
+> to stop. However this is the first serious issue that I've come across
+> re: the kernel and incompatible hardware and I would like to see it
+> fixed. Like I've said, I want to help pinpoint the problem - but no-one's
+> asking.
 
-This was posted a while back; I don't know what the status of it being 
-merged into util-linux is.
-
-http://lwn.net/Articles/13958/
+In my experience, when Linux crashes, Windows works fine it is flaky
+hardware. Has variously been overclocking, bad fans (CPU overheating), bad
+RAM. You have to rule all that out first. Might need a BIOS update...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

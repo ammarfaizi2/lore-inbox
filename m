@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVB1VyD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVB1VyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbVB1VyD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 16:54:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVB1VyC
+	id S261774AbVB1VyL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 16:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVB1VyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 16:54:02 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65288 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261759AbVB1Vx4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 16:53:56 -0500
-Date: Mon, 28 Feb 2005 22:53:55 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Christoph Hellwig <hch@infradead.org>, andrew.vasquez@qlogic.com,
-       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/scsi/qla2xxx/: cleanups
-Message-ID: <20050228215355.GQ4021@stusta.de>
-References: <20050228210024.GM4021@stusta.de> <20050228212920.GA18162@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050228212920.GA18162@infradead.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 28 Feb 2005 16:54:08 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:33019 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S261773AbVB1Vx5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 16:53:57 -0500
+Date: Mon, 28 Feb 2005 16:50:54 -0500
+From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Subject: Re: ext3 bug
+In-reply-to: <4223393D.3040908@utah-nac.org>
+To: jmerkey <jmerkey@utah-nac.org>
+Cc: Parag Warudkar <kernel-stuff@comcast.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Message-id: <1109627454.7940.60.camel@localhost>
+Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
+MIME-version: 1.0
+X-Mailer: Evolution 2.0.3
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
+References: <1109487896.8360.16.camel@localhost>
+ <200502271406.30690.kernel-stuff@comcast.net>
+ <1109545130.7940.2.camel@localhost> <4223393D.3040908@utah-nac.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 28, 2005 at 09:29:20PM +0000, Christoph Hellwig wrote:
-> On Mon, Feb 28, 2005 at 10:00:24PM +0100, Adrian Bunk wrote:
-> > This patch contains the following cleanups:
-> > - make needlessly global code static
-> > - kill the unused global *_version and *_version_str variables
-> >   in the firmware files
-> 
-> The firmware files are generated, so it'd be better to leave them
-> alone.
+Le lundi 28 février 2005 à 08:31 -0700, jmerkey a écrit :
+> I see this problem infrequently on systems that have low memory 
+> conditions and
+> with heavy swapping.    I have not seen it on 2.6.9 but I have seen it 
+> on 2.6.10. 
 
-Agreed.
+My machine has 1 GB RAM and I wasn't using much of it at that time (2GB
+free on the swap), so I doubt that's the problem in my case.
 
-But can't the generation of these files omit these needless variables 
-(there are already #define's containing the version information)?
-
-cu
-Adrian
+	Jean-Marc
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Université de Sherbrooke
 

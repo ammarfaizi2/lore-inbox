@@ -1,85 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317469AbSGEOM4>; Fri, 5 Jul 2002 10:12:56 -0400
+	id <S317470AbSGEOND>; Fri, 5 Jul 2002 10:13:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317470AbSGEOM4>; Fri, 5 Jul 2002 10:12:56 -0400
-Received: from molly.vabo.cz ([160.216.153.99]:3335 "EHLO molly.vabo.cz")
-	by vger.kernel.org with ESMTP id <S317469AbSGEOMy>;
-	Fri, 5 Jul 2002 10:12:54 -0400
-Date: Fri, 5 Jul 2002 16:15:21 +0200 (CEST)
-From: Tomas Konir <moje@molly.vabo.cz>
-X-X-Sender: moje@moje.ich.vabo.cz
-To: venom@sns.it
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM Desktar disk problem?
-In-Reply-To: <Pine.LNX.4.43.0207051524480.9092-100000@cibs9.sns.it>
-Message-ID: <Pine.LNX.4.44L0.0207051606050.32493-100000@moje.ich.vabo.cz>
-References: <Pine.LNX.4.43.0207051524480.9092-100000@cibs9.sns.it>
+	id <S317471AbSGEONC>; Fri, 5 Jul 2002 10:13:02 -0400
+Received: from moutvdomng1.kundenserver.de ([195.20.224.131]:57071 "EHLO
+	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317470AbSGEONA>; Fri, 5 Jul 2002 10:13:00 -0400
+Date: Fri, 5 Jul 2002 08:15:24 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Shaya Potter <spotter@cs.columbia.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: prevent breaking a chroot() jail?
+In-Reply-To: <1025877004.11004.59.camel@zaphod>
+Message-ID: <Pine.LNX.4.44.0207050804250.10105-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jul 2002 venom@sns.it wrote:
+Hi,
 
-> On Fri, 5 Jul 2002, Jens Axboe wrote:
+On 5 Jul 2002, Shaya Potter wrote:
+> What should I be aware of?  I figure devices (no need to run mknod in
+> this jail) and chroot (as per man page), is there any other way of
+> breaking the chroot jail (at a syscall level or otherwise)?
 > 
-> > Date: Fri, 5 Jul 2002 12:40:37 +0200
-> > From: Jens Axboe <axboe@suse.de>
-> > To: venom@sns.it
-> > Cc: linux-kernel@vger.kernel.org
-> > Subject: Re: IBM Desktar disk problem?
-> >
-> > On Fri, Jul 05 2002, venom@sns.it wrote:
-> > >
-> > > HI,
-> > > I was trying kernel 2.5 with TCQ enabled.
-> > > I tried it on three Desktar disk (manufactured in Thailand
-> > > in february 2001) model dtla 305020.
-> > >
-> > > All three disk died after some week, without
-> > > any signal of being dying.
-> > > I was starting to suspect about an HW problem.
-> > >
-> > > With 2.4 kernels, no tcq, they could work
-> > > without any problem for almost 8 months, but now,
-> > > I moved those disk to test systems to test tcq support
-> > > and all died badly. This is not an heat problem, since
-> > > thay staty in a CED conditioned at 18C.
-> >
-> > This is a puzzling report. I wouldn't recommend that anyone use tcq in
-> > 2.5 actually, since even I do not know what state it is currently in. I
-> > would seriously recommend 2.4 + tcq patches instead.
-> >
-> > That said, are your disks completely dead now? As in they do not work
-> > with a regular 2.4 kernel anymore?!
-> 
-> Right now they are good just for the trash box.
-> There is no way they could work, and I listen a noisy
-> tic-tac frrr tic-tac from the head of the disks...
-> 
-> 
-> I would think to an HW problem, but why all three together?
-> and why exacly when I tested tcq?
-> 
+> or is this 100% impossible?
 
-hi i have similar problem.
-No dead disks, but after two days testing tcq patches (on 2.4). I 
-got the two ATA errors (smartctl said). 
-I think that it's no good to test tcq on IBM disks. My disk was without 
-any problems one year. Two problems now is not normal.
-For final i think, that tcq patch is not fully stable, becouse on high 
-disk load i get oops and have to reboot. I have no problem when i remove 
-tcq patches.
-(high load i mean copy cca 20GiB between two IBM disks).
+Well, since we're talking about root:
 
+ - If you had saved the old root before chroot()ing, use that one.
+ - If you have your whole disk exported via NFS, the prisoner process 
+   could use nfs to read files outside the jail
+ - If you have access to a /dev directory, use /dev/sd?? to do the disc
+   access
+ - If not, use mknod("dideldei", 600, {68,1}); open("dideldei", O_SYNC);
+   and do as you like.
 
-	MOJE
+However, if you aren't running anything you find as root, it's relatively 
+secure.
 
-
+							Regards,
+							Thunder
 -- 
-Tomas Konir
-Brno
-ICQ 25849167
-
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

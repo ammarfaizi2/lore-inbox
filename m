@@ -1,79 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262548AbTD3Xgi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 19:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbTD3Xgh
+	id S262636AbTD3XlD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 19:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbTD3XlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 19:36:37 -0400
-Received: from smtp-out.comcast.net ([24.153.64.115]:23328 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S262548AbTD3Xge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 19:36:34 -0400
-Date: Wed, 30 Apr 2003 19:46:13 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: Kernel source tree splitting
-To: linux-kernel@vger.kernel.org
-Message-id: <200304301946130000.01139CC8@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
+	Wed, 30 Apr 2003 19:41:03 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:57102
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S262636AbTD3XlC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 19:41:02 -0400
+Subject: Re: must-fix list for 2.6.0
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Rick Lindsley <ricklind@us.ibm.com>, solt@dns.toxicfilms.tv,
+       linux-kernel@vger.kernel.org, frankeh@us.ibm.com
+In-Reply-To: <20030430162108.09dbd019.akpm@digeo.com>
+References: <20030430121105.454daee1.akpm@digeo.com>
+	 <200304302311.h3UNB2H27134@owlet.beaverton.ibm.com>
+	 <20030430162108.09dbd019.akpm@digeo.com>
+Content-Type: text/plain
+Message-Id: <1051746805.17629.35.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.2 (1.3.2-1) (Preview Release)
+Date: 30 Apr 2003 19:53:25 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eh, Linus won't be happy making a bunch of tarballs.
-I've made it less work if you read the message here...
+On Wed, 2003-04-30 at 19:21, Andrew Morton wrote:
 
-The message mirrored at:
+> A few kernels ago, OpenOffice would take sixty seconds to just flop down a
+> menu if there was a kernel build happening at the same time.  That is just
+> utterly broken, so if we're going to leave the sched.c code as-is then we
+> *require* that all applications be updated to not spin on sched_yield.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105173077417526&w=2
+Just as a note (I know its not an excuse), Red Hat 9 has Open Office
+with the dumb sched_yield() calls removed.  It runs quite nice.
 
-Shows my pre-thought on this subject.  I thought a bit more,
-and began to come up with a simple sketch to lead the
-way in case anyone becomes interested.
+> Has anyone looked at what Andrea did in -aa?  I assume some suitable
+> compromise was achieved there.
 
-First off, the kernel tarballs would be built by a script
-that splits the source tree apart appropriately and tar's it
-up.  How this is done is explained.
+Well, his base O(1) scheduler does not have 2.5's sched_yield()... but
+he has a patch (I guess that he wrote) on top which changes the
+semantics a bit.  It looks like he drops the task one priority level
+each call, but if it is ever to-be-moved to a queue all by its lonesome,
+the task is put on the expired array instead.
 
-Second off, there's always a script to download that runs
-wget and gets the source tree from which it was downloaded.
-The whole thing.  As in, every tarball is downloaded and
-untar'd for the user, assembling the full kernel source
-tree (as it would be if you untar'd it now).
+Also, he has a check at the start that, if it is in a queue all by
+itself (even before it is moved) the call just returns.
 
-Now, I explained LOD's in that message above in small
-detail.  But, for clarity, LOD's are files which explain
-which pieces of source in the kernel tree belong to the
-LOD; what gets added to the config; where their makefiles
-are; what config options depend on other linux options;
-and what groups these LOD's are in.
+Not sure what all these changes add up to...
 
-A command such as `make disttree` should read the LOD's,
-split apart each linux option, tar 'em together, and
-then compress the tar's.  Then Linus could just scp the
-new directory of tar's and a script up.
-
-As for download, the script that goes up can be
-downloaded (duh), and then run (... why do I bother?).
-Now this script would run in "dumb mode" (unless the
-user tells it not to maybe?) and rip down the whole
-tree, untar it, and rebuild the original source tree.
-I think.  I'm not sure, I really haven't tried yet.
-I'll tell you how it works after it's implimented, if
-ever that happens.  This would likely require wget.
-
-Of course there's always the ftp method.  Go download
-the pieces you want, untar 'em, copy 'em to the same
-directory, and the build system adjusts.  but newbies
-and developers, for completely opposite reasons, will
-want to use the script in dumb mode.
-
-For experienced users, this will make configuration
-somewhat easier, as the user can avoid being prompted
-for irrelavent drivers.  This is just a concept idea,
-not a fully thought-out idea.  What do you think?
-
---Bluefox Icy
-
+	Robert Love
 

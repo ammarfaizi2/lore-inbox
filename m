@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280410AbRLRQxK>; Tue, 18 Dec 2001 11:53:10 -0500
+	id <S284272AbRLRRCa>; Tue, 18 Dec 2001 12:02:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284220AbRLRQxB>; Tue, 18 Dec 2001 11:53:01 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:31645 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S280410AbRLRQwt>;
-	Tue, 18 Dec 2001 11:52:49 -0500
-Date: Tue, 18 Dec 2001 16:48:40 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Telford002@aol.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TTY Driver Open and Close Logic
-Message-ID: <20011218164840.B13126@flint.arm.linux.org.uk>
-In-Reply-To: <e5.10e6703a.29509786@aol.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <e5.10e6703a.29509786@aol.com>; from Telford002@aol.com on Tue, Dec 18, 2001 at 07:58:46AM -0500
+	id <S284282AbRLRRCW>; Tue, 18 Dec 2001 12:02:22 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60173 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284272AbRLRRCN>; Tue, 18 Dec 2001 12:02:13 -0500
+Date: Tue, 18 Dec 2001 09:00:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler ( was: Just a second ) ...
+In-Reply-To: <E16GKvk-0007Sc-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0112180854070.2867-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 18, 2001 at 07:58:46AM -0500, Telford002@aol.com wrote:
-> I have been working on various serial drivers and I notice that physical
-> driver close routine is called in all cases even if the physical driver
-> open routine fails.  That suggests to me that a lot of the MOD_DEC/INC_COUNT
-> logic in serial.c and other physical serial drivers is incorrect.  As
-> serial.c seems usually to be compiled into the kernel the issue
-> is not so important, but a lot of the other logic associated with
-> open counts also seems incorrect.  Is this observation correct?
 
-Absolutely 100% correct.
+On Tue, 18 Dec 2001, Alan Cox wrote:
+>
+> The scheduler is eating 40-60% of the machine on real world 8 cpu workloads.
+> That isn't going to go away by sticking heads in sand.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Did you _read_ what I said?
+
+We _have_ patches. You apparently have your own set.
+
+Fight it out. Don't involve me, because I don't think it's even a
+challenging thing. I wrote what is _still_ largely the algorithm in 1991,
+and it's damn near the only piece of code from back then that even _has_
+some similarity to the original code still. All the "recompute count when
+everybody has gone down to zero" was there pretty much from day 1 (*).
+
+Which makes me say: "oh, a quick hack from 1991 works on most machines in
+2001, so how hard a problem can it be?"
+
+Fight it out. People asked whether I was interested, and I said "no". Take
+a clue: do benchmarks on all the competing patches, and try to create the
+best one, and present it to me as a done deal.
+
+		Linus
+
+(*) The single biggest change from day 1 is that it used to iterate over a
+global array of process slots, and for scalability reasons (not CPU
+scalability, but "max nr of processes in the system" scalability) the
+array was gotten rid of, giving the current doubly linked list. Everything
+else that any scheduler person complains about was pretty much there
+otherwise ;)
 

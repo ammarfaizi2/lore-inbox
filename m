@@ -1,87 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265772AbUEZSyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265769AbUEZTC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbUEZSyV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 14:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265774AbUEZSyV
+	id S265769AbUEZTC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 15:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265777AbUEZTC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 14:54:21 -0400
-Received: from fed1rmmtao07.cox.net ([68.230.241.32]:49651 "EHLO
-	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S265772AbUEZSyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 14:54:18 -0400
-Message-ID: <40B4E90C.6000202@easyco.com>
-Date: Wed, 26 May 2004 11:59:24 -0700
-From: Doug Dumitru <doug@easyco.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7b) Gecko/20040316
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Hard Hang with __alloc_pages: 0-order allocation failed (gfp=0x20/1)
- - Not out of memory
-References: <40B3C816.6030802@easyco.com> <20040525161212.6478216e.davem@redhat.com> <20040526125921.GJ6439@logos.cnet>
-In-Reply-To: <20040526125921.GJ6439@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 26 May 2004 15:02:56 -0400
+Received: from waste.org ([209.173.204.2]:38275 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S265769AbUEZTCz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 15:02:55 -0400
+Date: Wed, 26 May 2004 14:02:22 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: J?rn Engel <joern@wohnheim.fh-wedel.de>, mingo@elte.hu, andrea@suse.de,
+       riel@redhat.com, torvalds@osdl.org, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 4k stacks in 2.6
+Message-ID: <20040526190216.GA5414@waste.org>
+References: <Pine.LNX.4.44.0405251549530.26157-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525211522.GF29378@dualathlon.random> <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526111222.4159a771.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040526111222.4159a771.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-
-> On Tue, May 25, 2004 at 04:12:12PM -0700, David S. Miller wrote:
+On Wed, May 26, 2004 at 11:12:22AM -0700, David S. Miller wrote:
+> On Wed, 26 May 2004 14:50:14 +0200
+> J?rn Engel <joern@wohnheim.fh-wedel.de> wrote:
 > 
->>On Tue, 25 May 2004 15:26:30 -0700
->>Doug Dumitru <doug@easyco.com> wrote:
->>
->>
->>>This is the original trap dump from a __page_alloc error
->>>
->>>__alloc_pages: 0-order allocation failed (gfp=0x20/1)
->>
->>0x20 means GFP_ATOMIC which means it's fine to fail
->>and e1000 is doing nothing wrong.  GFP_ATOMIC in interrupts
->>is a fine condition.
+> > Change gcc to catch stack overflows before the fact and disallow
+> > module load unless modules have those checks as well.
 > 
-> 
-> Yeap, but the crash is not a fine condition... I suspect
-> what can be happening is extreme gigabit traffic resulting in 
-> memory shortage.
-> 
-> Doug said the load average is really high. Doug, you're not
-> using NAPI, right? Can you try it?
+> That's easy, just enable profiling then implement a suitable
+> _mcount that checks for stack overflow.  I bet someone has done
+> this already.
 
-Prior to the __page_alloc hang, the loadavg shoots way up, so something 
-is spinning, but it is hard to tell what.  This has persisted for as 
-long as 8-10 minutes on one hang, although it is usually shorter (1-2 
-minutes).  One of my concerns is that the e1000 issue might only be a 
-symptom of the page tables getting clobbered by something else.  I have 
-been trying to get the system to hang during more "controlled" usage, 
-but have been unable to.  I have even run tsl (telnet scripting 
-language) scripts to logon 250 processes and beat the CPU and disk up, 
-creating and destroying processes along the way.  I was able to drive 
-loadavg > 50 and LowFree to < 5000K, but could never create a hang.  I 
-suspect that I might need truely "random" inbound traffic to find the 
-bug (but this is a guess).
+There was a patch floating around for this in the 2.2 era that I
+ported to 2.4 on one occassion. It won't tell you worst case though,
+just worst observed case.
 
-In terms of network traffic, the system is busy, but not obnoxiously so. 
-  The load on the server is primarily terminal traffic from about 200 
-"real humans", so there are a lot of small, random packets.  In terms of 
-network bandwidth, it is not all that bad, maybe 2-3 megabits (a guess). 
-  The arp table is reasonably big (> 200 entries) but this is not that 
-bad either.  I have not looked for arp storms or other network anomolies 
-on the LAN.  The system is on a local LAN and gets no internet traffic.
-
-I am unfamiliar with NAPI, so I have not tried it.
-
-On another topic, I am trying to build a 2.4.26 kernel that reserves 
-more LowFree.  The mm/page_alloc.c file describes a boot parameter 
-called "lower_zone_reserve" that should tune this.  Unfortunately, this 
-parameter seems to be read after the zone tables are initialized (which 
-is probably a bug).
+Sparse is probably not a bad place to put a real call chain stack analysis.
 
 -- 
-
---------------------------------------------------------------------
-Doug Dumitru     800-470-2756     (610-237-2000)
-EasyCo LLC       doug@easyco.com  http://easyco.com
---------------------------------------------------------------------
+Mathematics is the supreme nostalgia of our time.

@@ -1,114 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265062AbUD3Eiz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265057AbUD3Enq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265062AbUD3Eiz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 00:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265065AbUD3Eiy
+	id S265057AbUD3Enq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 00:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUD3Enq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 00:38:54 -0400
-Received: from adsl-67-65-14-122.dsl.austtx.swbell.net ([67.65.14.122]:54738
-	"EHLO laptop.michaels-house.net") by vger.kernel.org with ESMTP
-	id S265062AbUD3Eiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 00:38:51 -0400
-Subject: Re: [PATCH 2.4] add SMBIOS information to /proc/smbios -- UPDATED
-From: Michael Brown <mebrown@michaels-house.net>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
-In-Reply-To: <20040430033408.GR17014@parcelfarce.linux.theplanet.co.uk>
-References: <1083291712.1203.2914.camel@debian>
-	 <20040430033408.GR17014@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Message-Id: <1083299856.1195.2924.camel@debian>
+	Fri, 30 Apr 2004 00:43:46 -0400
+Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:34998
+	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S265057AbUD3Eno (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 00:43:44 -0400
+Date: Fri, 30 Apr 2004 00:43:44 -0400
+From: Sean Estabrooks <seanlkml@rogers.com>
+To: Marc Boucher <marc@linuxant.com>
+Cc: koke@sindominio.net, linux-kernel@vger.kernel.org, paul@wagland.net,
+       rusty@rustcorp.com.au, riel@redhat.com, david@gibson.dropbear.id.au,
+       torvalds@osdl.org, miller@techsource.com
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Message-Id: <20040430004344.663acf90.seanlkml@rogers.com>
+In-Reply-To: <3A39091E-9A4C-11D8-B83D-000A95BCAC26@linuxant.com>
+References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com>
+	<4FE43C97-9A20-11D8-B804-000A95CD704C@wagland.net>
+	<4091757B.3090209@techsource.com>
+	<200404292347.17431.koke_lkml@amedias.org>
+	<0CAE0144-9A2C-11D8-B83D-000A95BCAC26@linuxant.com>
+	<20040429195553.4fba0da7.seanlkml@rogers.com>
+	<3A39091E-9A4C-11D8-B83D-000A95BCAC26@linuxant.com>
+Organization: 
+X-Mailer: Sylpheed version 0.9.9-gtk2-20040229 (GTK+ 2.2.4; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 29 Apr 2004 23:37:37 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.103.219.176] using ID <seanlkml@rogers.com> at Fri, 30 Apr 2004 00:43:39 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good stuff! Thanks for the feedback Al. Give me a few minutes and I will
-send an updated patch.
+On Thu, 29 Apr 2004 22:15:19 -0400
+Marc Boucher <marc@linuxant.com> wrote:
 
-Comments/Questions below.
+<snip>
+> However we also believe that pragmatically bringing in support for key 
+> hardware (which currently cannot otherwise be easily handled in the 
+> traditional open-source approach) will benefit Linux, help it gain even 
+> more usefulness/acceptance, and make larger numbers of exposed people 
+> realize the natural advantages of open-source, then become 
+> contributors. On the other hand, forcing open-source down throats with 
+> impractical "tainting" schemes, scare tactics or other coercive methods 
+> may achieve the opposite effect or turn Linux into just an 
+> ideological/political movement rather than the ubiquitous operating 
+> system it deserves to be.
+<snip>
 
-On Thu, 2004-04-29 at 22:34, viro@parcelfarce.linux.theplanet.co.uk
-wrote:
-> On Thu, Apr 29, 2004 at 09:21:52PM -0500, Michael Brown wrote:
-> > +	u32 fp = 0xF0000;
-> > +	while (fp < 0xFFFFF) {
-> > +		isa_memcpy_fromio(table_eps, fp, sizeof(*table_eps));
-> > +		if (memcmp(table_eps->anchor, "_SM_", 4)==0 &&
-> > +					checksum_eps(table_eps)) {
-> > +			return 0;
-> > +		}
-> > +		fp += 16;
-> > +	}
-> 
-> Stilistic note:
-> 	for (fp = 0xf0000; fp < 0xfffff; fp += 16) {
-> 		isa_memcpy_fromio(table_eps, fp, sizeof(*table_eps));
-> 		if (memcmp(table_eps->anchor, "_SM_", 4) != 0)
-> 			continue;
-> 		if (checksum_eps(table_eps))
-> 			return 0;
-> 	}
+Dear Marc,
 
-Will change. I like your version.
+Who decided that the goal was to become ubiquitous at any cost?  How
+are you so sure that removing the incentive/reward for hardware vendors
+to release open source drivers is best for Linux in the long run?   
 
-Originally copied from Alan Cox's stuff, so if Alan's style is off, oh
-well... :-)
+In any case, should your goals trump those of active and senior kernel
+maintainers?  They decided that tainting the kernel was appropriate. 
+Forgive me for saying you seem more self righteous than sorry about your
+underhanded dealings with people you claim to respect.
 
-> 
-> > +	while(keep_going && ((ptr - buf) <= max_length) && count < max_count){
-> > +		if (ptr[0] == 0x7F)   /* ptr[0] is type */
-> > +			keep_going = 0;
-> > +
-> > +		ptr += ptr[1]; /* ptr[1] is length, skip structure */
-> > +		/* skip strings at end of structure */
-> > +		while((ptr-buf) < max_length && (ptr[0] || ptr[1]))
-> > +			++ptr;
-> 
-> It looks like an off-by-one - if ptr reaches buf + max_length - 1, ptr[1]
-> appears to be beyond the area it's OK to dereference.
-
-Great spot. Updating, changed "<= max_length" to "<= (max_length-1)".
-
-> 
-> > +                size_t count, loff_t *ppos)
-> > +{
-> > +	unsigned long origppos = *ppos;
-> > +	unsigned long max_off = the_smbios_device.smbios_table_real_length;
-> > +	u8 *ptr;
-> > +
-> > +	if(*ppos >= max_off)
-> > +		return 0;
-> 
-> Note that *ppos is signed here.  llseek() to negative and you've got a problem.
-
-Added "|| *ppos < 0" to the check.
-
-> 
-> > +	while (*ppos < max_off) {
-> > +		put_user(readb(ptr + *ppos), buf);
-> > +		++(*ppos); ++buf;
-> > +	}
-> 
-> Eeek...
-> 
-> 	a) that's called copy_to_user()
-> 	b) you'd better check the return value (either of put_user() or
-> copy_to_user()).
-
-Ok, will update, but I have one question. for (A), is this equivalent to
-copy_to_user() even with the readb() in there? Sorry if this is a stupid
-question.
-
-If I get a bad return from either of these, is "return -EINVAL"
-appropriate?
---
-Michael
-
-
-
-
-
-
+Regards,
+Sean.

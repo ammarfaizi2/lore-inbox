@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313083AbSELMzR>; Sun, 12 May 2002 08:55:17 -0400
+	id <S313087AbSELNEX>; Sun, 12 May 2002 09:04:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313087AbSELMzQ>; Sun, 12 May 2002 08:55:16 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:20999 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S313083AbSELMzP>; Sun, 12 May 2002 08:55:15 -0400
-Date: Sun, 12 May 2002 14:54:39 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.19-pre8-ac2 kbuild 2.4 tmp_include_depends
-Message-ID: <20020512125439.GE3749@louise.pinerecords.com>
-In-Reply-To: <20020512103946.GB3749@louise.pinerecords.com> <22944.1021206179@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 1 day, 4:41)
+	id <S313128AbSELNEW>; Sun, 12 May 2002 09:04:22 -0400
+Received: from urtica.linuxnews.pl ([217.67.200.130]:19716 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
+	id <S313118AbSELNEV>; Sun, 12 May 2002 09:04:21 -0400
+Date: Sun, 12 May 2002 15:04:01 +0200 (CEST)
+From: Pawel Kot <pkot@linuxnews.pl>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19pre8-ac2
+In-Reply-To: <20020512125151.GD3749@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.33.0205121501190.493-100000@urtica.linuxnews.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [Keith Owens <kaos@ocs.com.au>, May-12 2002, Sun, 22:22 +1000]
-> On Sun, 12 May 2002 12:39:46 +0200, 
-> Tomas Szepe <szepe@pinerecords.com> wrote:
-> >> [Keith Owens <kaos@ocs.com.au>, May-12 2002, Sun, 20:11 +1000]
-> >> Missed one occurrence of .tmp_include_depends.  Edit Makefile, find
-> >> $(patsubst %, _dir_%, $(SUBDIRS)) and change .tmp_include_depends to
-> >> tmp_include_depends (no '.' at start).
-> >> 
-> >> Corrected patch against 2.4.19-pre8-ac2.
+On Sun, 12 May 2002, Tomas Szepe wrote:
+
+> > [Alan Cox <alan@redhat.com>, May-11 2002, Sat, 19:47 -0400]
 > >
-> >Great work, Keith!
-> >"make modules_install" takes like 2 seconds w/ -ac now!
-> 
-> That was not the aim (although I will accept the praise :).  The patch
-> ensures that cross directory header dependencies are done correctly on
-> kbuild 2.4.  Any speed up as a side effect of removing .hdepend from
-> Rules.make is a bonus.
+> > Linux 2.4.19pre8-ac2
+>
+> Alan, do you suppose you could integrate the new backported NTFS code in
+> -ac at some not-so-distant point in time? I reckon that would be a generally
+> appreciated decision, as demand of decent NTFS access has existed for
+> quite a bit of time already and 2.6 will yet take a while to land.
 
-Now these are some side effects I like!
+Current version (2.0.7a) of the backported NTFS will not work with -ac
+kernels with preemption enabled. I just finished adding preemption patch
+for it and hopefully after (successful) tests will release 2.0.7b.
 
-<cut>
-2.4.19-pre8-ac1:
-$ time make dep clean bzImage modules
-...
-real    6m22.176s
+I think I can provide a patch against the recent -ac patch as well.
 
-$ time su -c 'make modules_install'
-...
-real    0m6.963s
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
 
-----
-
-2.4.19-pre8-ac2 + patch-2.4.19-pre8-ac2-kbuildfix2:
-$ time make dep clean bzImage modules
-...
-real    5m57.509s
-
-$ time su -c 'make modules_install'
-...
-real    0m2.255s
-<cut>
-
-> kbuild mantra - correctness first, speed second.
-
-Thumbs up!
-
-
-T.

@@ -1,88 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVB1U2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbVB1Uad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbVB1U2e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 15:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVB1U2e
+	id S261722AbVB1Uad (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 15:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVB1Uac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 15:28:34 -0500
-Received: from fire.osdl.org ([65.172.181.4]:10908 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261711AbVB1U2S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 15:28:18 -0500
-Date: Mon, 28 Feb 2005 12:29:26 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: two pipe bugfixes
-In-Reply-To: <20050228195556.GL8880@opteron.random>
-Message-ID: <Pine.LNX.4.58.0502281227300.25732@ppc970.osdl.org>
-References: <20050228042544.GA8742@opteron.random>
- <Pine.LNX.4.58.0502272143500.25732@ppc970.osdl.org> <20050228190437.GI8880@opteron.random>
- <Pine.LNX.4.58.0502281113380.25732@ppc970.osdl.org> <20050228195556.GL8880@opteron.random>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 28 Feb 2005 15:30:32 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:26375 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261726AbVB1UaG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 15:30:06 -0500
+Date: Mon, 28 Feb 2005 21:30:02 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "emmanuel.colbus@ensimag.imag.fr" <colbuse@ensisun.imag.fr>
+Cc: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: [patch 3/2] drivers/char/vt.c: remove unnecessary code
+Message-ID: <20050228203002.GH4021@stusta.de>
+References: <20050228164456.GB17559@sd291.sivit.org> <Pine.GSO.4.40.0502281817001.27182-100000@ensisun>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.40.0502281817001.27182-100000@ensisun>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 28 Feb 2005, Andrea Arcangeli wrote:
+On Mon, Feb 28, 2005 at 06:29:39PM +0100, emmanuel.colbus@ensimag.imag.fr wrote:
 > 
-> Thanks, I'll check it in the next bk snapshot.
+> 
+> On Mon, 28 Feb 2005, Stelian Pop wrote:
+> 
+> > On Mon, Feb 28, 2005 at 04:06:14PM +0100, colbuse@ensisun.imag.fr wrote:
+> >
+> > > +               /* Setting par[]'s elems at 0.  */
+> > > +               memset(par, 0, NPAR*sizeof(unsigned int));
+> >
+> > No need for the comment here, everybody understands C.
+> 
+> 
+> I knew this code would be understood, but I like comments :-) .
+> 
+> Well, without it, it gives :
+> 
+> 
+> 
+> --- old/drivers/char/vt.c 2004-12-24 22:35:25.000000000 +0100
+> +++ new/drivers/char/vt.c 2005-02-28 18:19:11.782717810 +0100
+> @@ -1655,8 +1655,8 @@
+> vc_state = ESnormal;
+> return;
+> case ESsquare:
+> - for(npar = 0 ; npar < NPAR ; npar++)
+> - par[npar] = 0;
+> + memset(par, 0, NPAR*sizeof(unsigned int));
+>...
+> Any other comments/remarks, or is _this_ patch version acceptable?
 
-Here's my version of the poll changes. The EPIPE one is just your original 
-first patch hunk (with a properly updated commit message).
+- whitespace damage
+- your sizeof is extremely fragile
+  why don't you run sizeof on the array?
+- please do any development against -mm
+  you'll note that the code you are working against has significantely
+  changed in -mm
 
-		Linus
+> Emmanuel Colbus
 
------
+cu
+Adrian
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2005/02/28 08:36:14-08:00 torvalds@ppc970.osdl.org 
-#   Make pipe "poll()" take direction of pipe into account.
-#   
-#   The pipe code has traditionally not cared about which end-point of the
-#   pipe you are polling, meaning that if you poll the write-only end of a
-#   pipe, it will still set the "this pipe is readable" bits if there is
-#   data to be read on the read side.
-#   
-#   That makes no sense, and together with the new bigger buffers breaks
-#   python-twisted.
-#   
-#   Based on debugging/patch by Andrea Arcangeli and testcase from
-#   Thomas Crhak
-# 
-# fs/pipe.c
-#   2005/02/28 08:36:06-08:00 torvalds@ppc970.osdl.org +11 -6
-#   Make pipe "poll()" take direction of pipe into account.
-# 
-diff -Nru a/fs/pipe.c b/fs/pipe.c
---- a/fs/pipe.c	2005-02-28 12:28:35 -08:00
-+++ b/fs/pipe.c	2005-02-28 12:28:35 -08:00
-@@ -398,13 +398,18 @@
- 
- 	/* Reading only -- no need for acquiring the semaphore.  */
- 	nrbufs = info->nrbufs;
--	mask = (nrbufs > 0) ? POLLIN | POLLRDNORM : 0;
--	mask |= (nrbufs < PIPE_BUFFERS) ? POLLOUT | POLLWRNORM : 0;
-+	mask = 0;
-+	if (filp->f_mode & FMODE_READ) {
-+		mask = (nrbufs > 0) ? POLLIN | POLLRDNORM : 0;
-+		if (!PIPE_WRITERS(*inode) && filp->f_version != PIPE_WCOUNTER(*inode))
-+			mask |= POLLHUP;
-+	}
- 
--	if (!PIPE_WRITERS(*inode) && filp->f_version != PIPE_WCOUNTER(*inode))
--		mask |= POLLHUP;
--	if (!PIPE_READERS(*inode))
--		mask |= POLLERR;
-+	if (filp->f_mode & FMODE_WRITE) {
-+		mask |= (nrbufs < PIPE_BUFFERS) ? POLLOUT | POLLWRNORM : 0;
-+		if (!PIPE_READERS(*inode))
-+			mask |= POLLERR;
-+	}
- 
- 	return mask;
- }
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

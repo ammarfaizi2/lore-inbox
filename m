@@ -1,65 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264067AbUEHEQT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263708AbUEHEr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264067AbUEHEQT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 00:16:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbUEHEQS
+	id S263708AbUEHEr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 00:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUEHEr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 00:16:18 -0400
-Received: from gate.crashing.org ([63.228.1.57]:18631 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264067AbUEHEQR (ORCPT
+	Sat, 8 May 2004 00:47:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60135 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263708AbUEHEry (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 00:16:17 -0400
-Subject: [PATCH] Fix CTS handling in pmac-zilog.c
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1083989323.19985.151.camel@gaston>
+	Sat, 8 May 2004 00:47:54 -0400
+Date: Fri, 7 May 2004 21:45:54 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <dongzai007@sohu.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vid&pid problems in usb_probe()
+Message-Id: <20040507214554.13011f55.rddunlap@osdl.org>
+In-Reply-To: <4830745.1083988124818.JavaMail.postfix@mx0.mail.sohu.com>
+References: <4830745.1083988124818.JavaMail.postfix@mx0.mail.sohu.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 08 May 2004 14:08:44 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(From: Paul Mackerras <paulus@samba.org>)
+On Sat, 8 May 2004 11:48:44 +0800 (CST) <dongzai007@sohu.com> wrote:
 
-This patch fixes a bug in the pmac-zilog driver where if you enable
-CRTSCTS mode, it won't output data when CTS is asserted.  On
-powermacs, the CTS input is inverted.  It also fixes a logic bug in
-testing for CTS and DCD changes.
+| 
+| 
+| I am writting an usb driver.You know function usb_probe(...) is used to determine whether the usbdevices just pluged in is what the driver is for.
 
-diff -urN linux-2.5/drivers/serial/pmac_zilog.c pmac-2.5/drivers/serial/pmac_zilog.c
---- linux-2.5/drivers/serial/pmac_zilog.c	2004-04-01 06:59:37.000000000 +1000
-+++ pmac-2.5/drivers/serial/pmac_zilog.c	2004-05-07 21:06:49.000000000 +1000
-@@ -352,13 +352,14 @@
- 		/* The Zilog just gives us an interrupt when DCD/CTS/etc. change.
- 		 * But it does not tell us which bit has changed, we have to keep
- 		 * track of this ourselves.
-+		 * The CTS input is inverted for some reason.  -- paulus
- 		 */
--		if ((status & DCD) ^ uap->prev_status)
-+		if ((status ^ uap->prev_status) & DCD)
- 			uart_handle_dcd_change(&uap->port,
- 					       (status & DCD));
--		if ((status & CTS) ^ uap->prev_status)
-+		if ((status ^ uap->prev_status) & CTS)
- 			uart_handle_cts_change(&uap->port,
--					       (status & CTS));
-+					       !(status & CTS));
- 
- 		wake_up_interruptible(&uap->port.info->delta_msr_wait);
- 	}
-@@ -595,7 +596,7 @@
- 		ret |= TIOCM_CAR;
- 	if (status & SYNC_HUNT)
- 		ret |= TIOCM_DSR;
--	if (status & CTS)
-+	if (!(status & CTS))
- 		ret |= TIOCM_CTS;
- 
- 	return ret;
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+a.  Please learn to use the Enter/Return key around character position
+70 (or before) on each line.
 
+b.  what kernel version?   (*always*)
+
+c.  You should ask this on the linux-usb-development mailing list:
+linux-usb-devel@lists.sf.net
+
+
+| The Vid and Pid of my usb device are 0x1111 and 0x0000 respectively.
+| 
+| the program is :
+| 
+| static void* usb_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id)
+| {
+|     ..............
+|     ..............
+|     
+|     printk("<1>Vid:%x\nPid:%x\n",udev->descriptor.idVendor,udev->descriptor.idProduct);
+| 
+|     if ((udev->descriptor.idVendor!=0x1111)
+|          ||(udev->descriptor.idProduct!=0x0000)) return NULL;
+| 
+|     ..............
+| }
+| 
+| when I plug the device whose vid & pid is 0x1111 & 0x0000 respectively.
+| this Module displayed
+| 
+| 
+| Vid:0
+| Pid:201
+| 
+| usb.c ........ no active driver for this device;
+| 
+| and when I plug another device , I also got wrong vid & pid.
+| 
+| But when I wrote program as below:
+| 
+| __u16 tmp=0x1111;
+| printk("<1>%x",tmp);
+| 
+| it can print "1111" on the screen. That means my syntax is correct.
+| I mean, the problem may be at the data transfered into function usb_probe()
+| Maybe data transfered into function usb_probe() is wrong.
+| 
+| I wonder where is the problem, how can i solve.
+
+Seeing more (or all) of your source code could help.
+I'm especially curious (suspicious) about your USB descriptor data
+structures.
+
+--
+~Randy

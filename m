@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130148AbQKUMDJ>; Tue, 21 Nov 2000 07:03:09 -0500
+	id <S130177AbQKUMG3>; Tue, 21 Nov 2000 07:06:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130177AbQKUMC7>; Tue, 21 Nov 2000 07:02:59 -0500
-Received: from [203.200.144.37] ([203.200.144.37]:22789 "HELO
-	nest.stpt.soft.net") by vger.kernel.org with SMTP
-	id <S130148AbQKUMCq>; Tue, 21 Nov 2000 07:02:46 -0500
-Organization: NeST India
-Message-ID: <F6E1228667B6D411BAAA00306E00F2A520CF60@pdc2.nestec.net>
-From: MOHAMMED AZAD <mohammedazad@nestec.net>
-To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Asynchronous processing...
-Date: Tue, 21 Nov 2000 17:02:05 +0530
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S130363AbQKUMGT>; Tue, 21 Nov 2000 07:06:19 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:35847 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130177AbQKUMGK>;
+	Tue, 21 Nov 2000 07:06:10 -0500
+Date: Tue, 21 Nov 2000 12:36:08 +0100
+From: Jens Axboe <axboe@suse.de>
+To: kumon@flab.fujitsu.co.jp
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [PATCH] livelock in elevator scheduling
+Message-ID: <20001121123608.F10007@suse.de>
+In-Reply-To: <200011210838.RAA27382@asami.proc.flab.fujitsu.co.jp> <20001121112836.B10007@suse.de> <200011211130.UAA27961@asami.proc.flab.fujitsu.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200011211130.UAA27961@asami.proc.flab.fujitsu.co.jp>; from kumon@flab.fujitsu.co.jp on Tue, Nov 21, 2000 at 08:30:33PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Tue, Nov 21 2000, kumon@flab.fujitsu.co.jp wrote:
+>  > Believe it or not, but this is intentional. In that regard, the
+>  > function name is a misnomer -- call it i/o scheduler instead :-)
+> 
+> I never believe it intentional.  If it is true, the current kernel
+> will be suffered from a kind of DOS attack.  Yes, actually I'm a
+> victim of it.
 
-I am working on a crypto driver on linux kernel 2.2.14.. Currently my app
-provides data to the driver and the driver process the data (say encrypt)
-and gives it back to the app... This is a synchronous transfer mode.. But i
-want to do this in an asynchronous manner.... ie user app supplies data and
-the function supplying the data returns.. say after processing the data..
-the driver informs the user app by some mechanism that the data is processed
-and now the user app may get back the result....
+The problem is caused by the too high sequence numbers in stock
+kernel, as I said. Plus, the sequence decrementing doesn't take
+request/buffer size into account. So the starvation _is_ limited,
+the limit is just too high.
 
-These are the possible ways i think i can proceed.. 
+> By Running ZD's ServerBench, not only the performance down, but my
+> machine blocks all commands execution including /bin/ps, /bin/ls... ,
+> and those are not ^C able unless the benchmark is stopped. Those
+> commands are read from disks but the requests are wating at the end of
+> I/O queue, those won't be executed.
 
-One way is to signal the app say from my bottom half that the packet
-processing is over... and now u can take the data... for this i will have to
-maintain a shared memory of some sort right...???.. 
+If performance is down, then that problem is most likely elsewhere.
+I/O limited benchmarking typically thrives on lots of request
+latency -- with that comes better throughput for individual threads.
 
-or
+> Anyway, I'll try your patch.
 
-After getting the signal in the signal handler the user app sends another
-request to get the data from the driver.. right??.. now i can copy the
-result back to the user memory using copy_to_user.... 
+Thanks
 
-which one of the methods is best???... or is there any other way to do this
-kind of async transfer.?????... 
-I think implemnting the shared memory and managing it will be more complex
-than the later one.... 
-
-And this driver i am working on needs high throughput for packet
-processing... and thus i would like to avoid copying data to and fro from
-user memory and all... 
-
-Or for avoiding copying should i use mmap and all.... pls guide me on
-this... 
-
-or is there any mechanism by which i can send data also while issuing
-signals....
-
-any pointers in this area is very much appreciated....
-
-thank u all
-
-azad
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

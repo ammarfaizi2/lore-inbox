@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285156AbRLMUao>; Thu, 13 Dec 2001 15:30:44 -0500
+	id <S285160AbRLMUfe>; Thu, 13 Dec 2001 15:35:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285159AbRLMUae>; Thu, 13 Dec 2001 15:30:34 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:29828 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285156AbRLMUa1> convert rfc822-to-8bit;
-	Thu, 13 Dec 2001 15:30:27 -0500
-Date: Thu, 13 Dec 2001 12:30:08 -0800 (PST)
-Message-Id: <20011213.123008.21927765.davem@redhat.com>
-To: groudier@free.fr
-Cc: andrea@suse.de, axboe@suse.de, gibbs@scsiguy.com, LB33JM16@yahoo.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: highmem, aic7xxx, and vfat: too few segs for dma mapping
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011213165932.L1871-100000@gerard>
-In-Reply-To: <20011212.162603.28785873.davem@redhat.com>
-	<20011213165932.L1871-100000@gerard>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S285161AbRLMUfY>; Thu, 13 Dec 2001 15:35:24 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57362 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285160AbRLMUfN>; Thu, 13 Dec 2001 15:35:13 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: User/kernelspace stuff to set/get kernel variables
+Date: 13 Dec 2001 12:34:49 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9vb3d9$9jk$1@cesium.transmeta.com>
+In-Reply-To: <20011213155532Z284289-18284+114@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Gérard Roudier <groudier@free.fr>
-   Date: Thu, 13 Dec 2001 17:17:22 +0100 (CET)
-   
-   PS: Don't take the wrong way my statements against Sun stuff. In fact, I
-       dislike almost everything that comes and came from them. :)
+Followup to:  <20011213155532Z284289-18284+114@vger.kernel.org>
+By author:    DevilKin <devilkin@gmx.net>
+In newsgroup: linux.dev.kernel
+>
+> Hello
+> 
+> I've been looking on the web, and couldn't really find what i would want...
+> 
+> Basically: is it possible to - one way or another - set variables at
+> kernel boot and read those using userspace utilities?
+> 
 
-Unfortunately the things you complain about are anything but Sun or
-Sparc specific.  PPC64, MIPS64, Alpha, HPPA, and probably others I
-have forgotten (oh yes and IA64 in the future if Intel gets their
-heads out of their asses) all have IOMMU mechanisms in their PCI
-controllers.
+The entire kernel command line is quoted verbatim in /proc/cmdline.
 
-This disease may even some day infect x86 systems.  In fact
-technically it already has, most AMD chipsets use a slightly modified
-Alpha PCI controller which does have an IOMMU hidden deep down inside
-of it :-)
+Additionally, items of the form foo=bar that are not recognized by the
+kernel become environment variables to init, and items not of that
+form *sometimes* become command-line options to init...
 
-Like I said before, the fact that PCI allows this to work is a feature
-that is actually better for PCI's relevance and longevity, not worse.
-
-Or do you suggest that it is wiser to use bounce buffering to handle
-32-bit cards on systems with more than 4GB of ram? :-)  Using all
-64-bit capable cards is not an answer, especially when the big
-advantage of PCI is how commoditized and flooded the market is with
-32-bit cards.
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

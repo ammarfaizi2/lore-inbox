@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266150AbUA1UYs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 15:24:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266152AbUA1UYs
+	id S266152AbUA1UZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 15:25:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266029AbUA1UZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 15:24:48 -0500
-Received: from 213-84-216-119.adsl.xs4all.nl ([213.84.216.119]:64392 "EHLO
-	morannon.frodo.local") by vger.kernel.org with ESMTP
-	id S266150AbUA1UYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 15:24:46 -0500
-From: Frodo Looijaard <frodol@dds.nl>
-Date: Wed, 28 Jan 2004 21:24:43 +0100
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH to access old-style FAT fs
-Message-ID: <20040128202443.GA9246@frodo.local>
-References: <20040126173949.GA788@frodo.local> <bv3qb3$4lh$1@terminus.zytor.com> <87n0898sah.fsf@devron.myhome.or.jp> <4016B316.4060304@zytor.com> <87ad4987ti.fsf@devron.myhome.or.jp> <20040128115655.GA696@arda.frodo.local> <87y8rr7s5b.fsf@devron.myhome.or.jp>
+	Wed, 28 Jan 2004 15:25:59 -0500
+Received: from nevyn.them.org ([66.93.172.17]:15521 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S266152AbUA1UZz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 15:25:55 -0500
+Date: Wed, 28 Jan 2004 15:25:51 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: long long on 32-bit machines
+Message-ID: <20040128202551.GA16884@nevyn.them.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <26879984$107531702940180925001758.71044950@config16.schlund.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87y8rr7s5b.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <26879984$107531702940180925001758.71044950@config16.schlund.de>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 29, 2004 at 05:08:32AM +0900, OGAWA Hirofumi wrote:
+On Wed, Jan 28, 2004 at 08:22:01PM +0100, Arnd Bergmann wrote:
 > 
-> "stop when DIR_Name[0] == 0" should be added after cleanup. The option
-> is not needed.
+> H.P.A wrote:
+> 
+> > Does anyone happen to know if there are *any* 32-bit architectures (on 
+> > which Linux runs) for which the ABI for a "long long" is different from 
+> > passing two "longs" in the appropriate order, i.e. (hi,lo) for bigendian 
+> > or (lo,hi) for littleendian?
+> 
+> Some architectures require long long arguments to be passed as an
+> even/odd register pair. For example on s390, 
+> 
+>    void f(int a, int b, long long x) 
+> 
+> uses registers 2, 3, 4 and 5, while 
+> 
+>    void f(int a, long long x, int b)
+> 
+> uses registers 2, 4, 5 and 6. AFAIK, mips does the same, probably others
+> as well.
 
-OK. That would be nice. Like I said, I just hope it does not break other
-FAT implementations, but that is not very likely. At least, that would
-allow read-only mounted EPOC FAT partitions to be handled correctly.
- 
-> Honestly, I wouldn't like to add the "add a new DIR_Name[0] = 0" part.
-> The option is added easy, but it is not removed easy. And we must
-> maintain it. 
-
-I understand. I could always maintain that patch separately for those
-who need it (for read-write mounted EPOC FAT partitions).
-
-> (BTW, looks like that patch is buggy)
-
-Could well be. Any suggestions what to look out for?
-
-Thanks,
-  Frodo
+Yes.  Also, IIRC, one of SH3 and SH4 requires the padding, and the
+other doesn't.
 
 -- 
-Frodo Looijaard <frodol@dds.nl>  PGP key and more: http://huizen.dds.nl/~frodol
-Defenestration n. (formal or joc.):
-  The act of removing Windows from your computer in disgust, usually followed
-  by the installation of Linux or some other Unix-like operating system.
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

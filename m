@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbUAUFEy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 00:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265939AbUAUFEx
+	id S265912AbUAUE4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 23:56:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265933AbUAUE4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 00:04:53 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:63676 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261827AbUAUFEv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 00:04:51 -0500
-Date: Wed, 21 Jan 2004 10:39:33 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Tim Hockin <thockin@hockin.org>, Rusty Russell <rusty@au1.ibm.com>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       rml@tech9.net
-Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR
-Message-ID: <20040121103933.B3236@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <400CD4B5.6020507@cyberone.com.au> <20040120073032.GB12638@hockin.org> <400CDCA1.5070200@cyberone.com.au> <20040120075409.GA13897@hockin.org> <400CE354.8060300@cyberone.com.au> <20040120082943.GA15733@hockin.org> <400CE8DC.70307@cyberone.com.au> <20040120084352.GD15733@hockin.org> <20040121093633.A3169@in.ibm.com> <400DFC8B.7020906@cyberone.com.au>
+	Tue, 20 Jan 2004 23:56:54 -0500
+Received: from h80ad25db.async.vt.edu ([128.173.37.219]:8065 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265912AbUAUE4u (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 23:56:50 -0500
+Message-Id: <200401210456.i0L4uXTJ009209@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-mm4 
+In-Reply-To: Your message of "Wed, 21 Jan 2004 15:06:57 +1100."
+             <20040121043608.6E4BB2C0CB@lists.samba.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040121043608.6E4BB2C0CB@lists.samba.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <400DFC8B.7020906@cyberone.com.au>; from piggin@cyberone.com.au on Wed, Jan 21, 2004 at 03:14:03PM +1100
+Content-Type: multipart/signed; boundary="==_Exmh_-1066928032P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 20 Jan 2004 23:56:33 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 21, 2004 at 03:14:03PM +1100, Nick Piggin wrote:
-> Yes, that is with the cpu-is-down hotplug event, right?
+--==_Exmh_-1066928032P
+Content-Type: text/plain; charset=us-ascii
 
-right.
+On Wed, 21 Jan 2004 15:06:57 +1100, Rusty Russell said:
 
- 
-> *Before* that happens, tasks that don't handle the signal should just
-> have their affinity changed to all cpus.
+> > E.g. the new argument needed to make the mouse work on KVMs is
+> > mindboogling, could be nearly a Windows registry entry.
+> 
+> I have no idea what you are talking about. 8(
 
-Currently, handle or not handle the signal, affinity is changed
-to all cpus for tasks that are bound only to the dying CPU.
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs
 
--- 
+That's the name of a registry entry. I don't think iwe're quite THAT bad. ;)
 
+--==_Exmh_-1066928032P
+Content-Type: application/pgp-signature
 
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFADgaAcC3lWbTT17ARAv0wAKDuwzgBgp1M0A6JurqV7lrobusaCwCgqsBz
+tshVB5WoJsbqsJzF0ZoHazo=
+=W0IC
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1066928032P--

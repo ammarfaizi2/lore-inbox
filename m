@@ -1,85 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263905AbTEFQVP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 12:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263928AbTEFQUD
+	id S263993AbTEFRDT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 13:03:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263994AbTEFRDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 12:20:03 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:53246 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263905AbTEFQMm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 12:12:42 -0400
-Subject: [PATCH] Move security_d_instantiate hook calls 2.5.69
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       lsm <linux-security-module@wirex.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1052238293.1377.1002.camel@moss-huskers.epoch.ncsc.mil>
+	Tue, 6 May 2003 13:03:19 -0400
+Received: from mail.gmx.net ([213.165.64.20]:57899 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263993AbTEFRDS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 13:03:18 -0400
+Reply-to: Wolfgang Fritz <wolfgang.fritz@gmx.net>
+To: linux-kernel@vger.kernel.org
+From: Wolfgang Fritz <wolfgang.fritz@gmx.net>
+Subject: Re: ISDN massive packet drops while DVD burn/verify
+Date: Tue, 06 May 2003 18:46:06 +0200
+Organization: None
+Message-ID: <b98osj$sj8$1@fritz38552.news.dfncis.de>
+References: <20030416151221.71d099ba.skraw@ithnet.com>	<Pine.LNX.4.44.0304161056430.5477-100000@chaos.physics.uiowa.edu>	<20030419193848.0811bd90.skraw@ithnet.com>	<1050789691.3955.17.camel@dhcp22.swansea.linux.org.uk>	<20030505164653.GA30015@pingi3.kke.suse.de>	<20030505192652.7f17ea9e.skraw@ithnet.com>	<1052218412.28797.18.camel@dhcp22.swansea.linux.org.uk>	<20030506143902.2b3fcecd.skraw@ithnet.com>	<1052225795.1201.11.camel@dhcp22.swansea.linux.org.uk> <20030506160153.44ea4eee.skraw@ithnet.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 May 2003 12:24:53 -0400
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en, de-de
+In-Reply-To: <20030506160153.44ea4eee.skraw@ithnet.com>
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.7; AVE: 6.19.0.3; VDF: 6.19.0.11; host: gurke)
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.7; AVE: 6.19.0.3; VDF: 6.19.0.11; host: gurke)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch against 2.5.69 moves the security_d_instantiate hook calls in
-d_instantiate and d_splice_alias after the inode has been attached to
-the dentry.  This change is necessary so that security modules can
-internally call the getxattr inode operation (which takes a dentry
-parameter) from this hook to obtain the inode security label.  Al, if
-you approve of this change, please acknowledge.  If not, please advise
-as to what must change.  Thanks.
+Stephan von Krawczynski wrote:
+> On 06 May 2003 13:56:37 +0100
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> 
+> 
+>>On Maw, 2003-05-06 at 13:39, Stephan von Krawczynski wrote:
+>>
+>>> HDIO_GET_MULTCOUNT failed: Invalid argument
+>>> IO_support   =  0 (default 16-bit)
+>>> unmaskirq    =  0 (off)
+>>> using_dma    =  1 (on)
+>>> keepsettings =  0 (off)
+>>> readonly     =  0 (off)
+>>> BLKRAGET failed: Invalid argument
+>>> HDIO_GETGEO failed: Invalid argument
+>>> 
+>>>
+>>>using_dma means it's using dma for transfer, right?
+>>
+>>Except for certain operations like audio cd ripping
+> 
+> 
+> Not used here.
+> We are using the DVDs (DVD-R) for data backups, some dozens a month.
+> And keep in mind: the problem occurs currently only while writing to DVD, not
+> while reading it.
+> 
 
- dcache.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+DVD writing seems to be problematic in other places too. I lose several
+minutes of system time when I write a DVD. This is with SuSE 8.2 (SuSE
+vendor kernel 2.4.20 based)
 
-Index: linux-2.5/fs/dcache.c
-diff -u linux-2.5/fs/dcache.c:1.1.1.6 linux-2.5/fs/dcache.c:1.7
---- linux-2.5/fs/dcache.c:1.1.1.6	Mon May  5 09:17:36 2003
-+++ linux-2.5/fs/dcache.c	Mon May  5 13:04:55 2003
-@@ -770,12 +770,12 @@
- void d_instantiate(struct dentry *entry, struct inode * inode)
- {
- 	if (!list_empty(&entry->d_alias)) BUG();
--	security_d_instantiate(entry, inode);
- 	spin_lock(&dcache_lock);
- 	if (inode)
- 		list_add(&entry->d_alias, &inode->i_dentry);
- 	entry->d_inode = inode;
- 	spin_unlock(&dcache_lock);
-+	security_d_instantiate(entry, inode);
- }
- 
- /**
-@@ -903,12 +903,12 @@
- 	struct dentry *new = NULL;
- 
- 	if (inode && S_ISDIR(inode->i_mode)) {
--		security_d_instantiate(dentry, inode);
- 		spin_lock(&dcache_lock);
- 		if (!list_empty(&inode->i_dentry)) {
- 			new = list_entry(inode->i_dentry.next, struct dentry, d_alias);
- 			__dget_locked(new);
- 			spin_unlock(&dcache_lock);
-+			security_d_instantiate(dentry, inode);
- 			d_rehash(dentry);
- 			d_move(new, dentry);
- 			iput(inode);
-@@ -917,6 +917,7 @@
- 			list_add(&dentry->d_alias, &inode->i_dentry);
- 			dentry->d_inode = inode;
- 			spin_unlock(&dcache_lock);
-+			security_d_instantiate(dentry, inode);
- 			d_rehash(dentry);
- 		}
- 	} else
+Wolfgang
 
+> Regards,
+> Stephan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
 

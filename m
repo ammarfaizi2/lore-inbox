@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272466AbRIFSZS>; Thu, 6 Sep 2001 14:25:18 -0400
+	id <S270990AbRIFSXs>; Thu, 6 Sep 2001 14:23:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272484AbRIFSZI>; Thu, 6 Sep 2001 14:25:08 -0400
-Received: from spike.porcupine.org ([168.100.189.2]:46601 "EHLO
-	spike.porcupine.org") by vger.kernel.org with ESMTP
-	id <S272466AbRIFSY6>; Thu, 6 Sep 2001 14:24:58 -0400
+	id <S270989AbRIFSXj>; Thu, 6 Sep 2001 14:23:39 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34066 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272466AbRIFSXa>; Thu, 6 Sep 2001 14:23:30 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias
-In-Reply-To: <15255.48233.706962.451093@tzadkiel.efn.org> "from Steve VanDevender
- at Sep 6, 2001 11:11:53 am"
-To: Steve VanDevender <stevev@efn.org>
-Date: Thu, 6 Sep 2001 14:25:18 -0400 (EDT)
-Cc: Wietse Venema <wietse@porcupine.org>, linux-kernel@vger.kernel.org
-X-Time-Zone: USA EST, 6 hours behind central European time
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+ bug 2.4.9 and 2.2.19]
+Date: 6 Sep 2001 11:23:29 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9n8ev1$qba$1@cesium.transmeta.com>
+In-Reply-To: <20010906212303.A23595@castle.nmd.msu.ru> <20010906173948.502BFBC06C@spike.porcupine.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20010906182518.3C907BC06C@spike.porcupine.org>
-From: wietse@porcupine.org (Wietse Venema)
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve VanDevender:
-> Wietse Venema writes:
->  > If an MTA receives a mail relaying request for user@domain.name
->  > then it would be very useful if Linux could provide the MTA with
->  > the necessary information to distinguish between local subnetworks
->  > and the rest of the world. Requiring the local sysadmin to enumerate
->  > all local subnetwork blocks by hand is not practical.
+Followup to:  <20010906173948.502BFBC06C@spike.porcupine.org>
+By author:    wietse@porcupine.org (Wietse Venema)
+In newsgroup: linux.dev.kernel
 > 
-> I think you're making a couple of unjustified assumptions here:
+> The SMTP RFC requires that user@[ip.address] is correctly recognized
+> as a final destination.  This requires that Linux provides the MTA
+> with information about IP addresses that correspond with INADDR_ANY.
+> 
+> I am susprised that it is not possible to ask such information up
+> front (same with netmasks), and that an application has to actually
+> query a complex oracle, again and again, for every IP address.
+> 
 
-You are making unjustified assumptions:
+In autofs, I use the following technique to determine if the IP number
+for a host is local (and therefore vfsbinds can be used rather than
+NFS mounts):
 
-If the kernel knows about subnets, then an application should be
-able to find out about them. Whether or not you agree with the
-application's reasons does not matter.
+connect a datagram socket (which won't produce any actual traffic) to
+the remote host with INADDR_ANY as the local address, and then query
+the local address.  If the local address is the same as the remote
+address, the address is local.
 
-To close with yet another analogy:
-
-A musician complained to Mozart that his music was so difficult to
-play. Mozart asked: are these notes on your instrument? The musician
-replied: yes. Mozart said: so play these notes.
-
-	Wietse
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

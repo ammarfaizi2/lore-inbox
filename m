@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129942AbRBFSXH>; Tue, 6 Feb 2001 13:23:07 -0500
+	id <S129862AbRBFS2h>; Tue, 6 Feb 2001 13:28:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129945AbRBFSW6>; Tue, 6 Feb 2001 13:22:58 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:8965 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S129833AbRBFSWs>;
-	Tue, 6 Feb 2001 13:22:48 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-Date: Tue, 6 Feb 2001 19:21:24 MET-1
+	id <S129921AbRBFS21>; Tue, 6 Feb 2001 13:28:27 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:21858 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129740AbRBFS2Q>; Tue, 6 Feb 2001 13:28:16 -0500
+Date: Tue, 6 Feb 2001 13:25:07 -0500 (EST)
+From: Ben LaHaise <bcrl@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        <kiobuf-io-devel@lists.sourceforge.net>,
+        Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.30.0102061841170.6277-100000@elte.hu>
+Message-ID: <Pine.LNX.4.30.0102061321110.15204-100000@today.toronto.redhat.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Matrox G450 problems with 2.4.0 and xfree
-CC: J Brook <jbk@postmark.net>, <linux-kernel@vger.kernel.org>
-X-mailer: Pegasus Mail v3.40
-Message-ID: <14BA879D6F34@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  6 Feb 01 at 13:16, Mike A. Harris wrote:
-> On Wed, 31 Jan 2001, Petr Vandrovec wrote:
-> 
-> >>  I don't have Windows installed on my machine, but I find that if I
-> >> cold boot to 2.2 (RH7) first and start up X (4.0.2 with Matrox driver
-                                                             ^^^^^^^^^^^^^
-> >> 1.00.04 compiled in), I am then able to "shutdown -r now" and warm
-     ^^^^^^^^^^^^^^^^^^^
-> >
-> >Yes, they use same secret code... At least I think...
-> 
-> Are you refering to Windows or Red Hat Linux?  I can assure you
-> that Red Hat Linux's XFree package doesn't have any secret code
-> in it with 110% certainty.  Nor will it have in the future.
+On Tue, 6 Feb 2001, Ingo Molnar wrote:
 
-He is using XF4.0.2 with Matrox large-blob driver, not with XFree one.
-I'm 111% sure that this module contains code which is not freely 
-available to mortals.
+> - higher levels do not have the kind of state to eg. merge requests done
+>   by different users. The only chance for merging is often the lowest
+>   level, where we already know what disk, which sector.
 
-XFree4.0.2 mga driver does not work with G450 at all. I'm not sure whether
-you (or RedHat) applied G450 patches flying around. But it is still first
-head only, no digital LCD...
-                                    Best regards,
-                                        Petr Vandrovec
-                                        vandrove@vc.cvut.cz
+That's what a readaround buffer is for, and I suspect that readaround will
+give use a big performance boost.
 
+> - merging is not even *required* for some devices - and chances are high
+>   that we'll get away from this inefficient and unreliable 'rotating array
+>   of disks' business of storing bulk data in this century. (solid state
+>   disks, holographic storage, whatever.)
+
+Interesting that you've brought up this point, as its an example
+
+> i'm truly shocked that you and Stephen are both saying this.
+
+Merging != sorting.  Sorting of requests has to be carried out at the
+lower layers, and the specific block device should be able to choose the
+Right Thing To Do for the next item in a chain of sequential requests.
+
+		-ben
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

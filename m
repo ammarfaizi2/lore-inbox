@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265128AbTLWNBc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 08:01:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265129AbTLWNBc
+	id S265125AbTLWNAl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 08:00:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265128AbTLWNAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 08:01:32 -0500
-Received: from main.gmane.org ([80.91.224.249]:26571 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265128AbTLWNBa (ORCPT
+	Tue, 23 Dec 2003 08:00:41 -0500
+Received: from camus.xss.co.at ([194.152.162.19]:62980 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id S265125AbTLWNAj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 08:01:30 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Per Jessen <per@computer.org>
-Subject: Re: make menuconfig loops ??
-Date: Tue, 23 Dec 2003 14:01:27 +0100
-Message-ID: <bs9eb7$hsm$1@sea.gmane.org>
-References: <20031221144427.57D00DAA81@mail.local.net>
-Mime-Version: 1.0
+	Tue, 23 Dec 2003 08:00:39 -0500
+Message-ID: <3FE83C6B.6040908@xss.co.at>
+Date: Tue, 23 Dec 2003 14:00:27 +0100
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: mpt_linux_developer@lsil.com
+Subject: 2.4.23, 2.4.24-pre: Boot option "nosmp" broken?
+X-Enigmail-Version: 0.74.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: KNode/0.7.2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Per Jessen wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> I have a problem when trying to build a kernel. It appears that make
-> menuconfig starts to loop -
-> after writing "Preparing scripts: functions, parsing ...done."
-> This is 2.4.23, jfs114, gcc3.3.2.
+Hi!
 
-All, this problem has now miraculously disappeared!  Obviously I must've
-changed something, I just can't think of what it might have been.  
+When I try to boot an SMP kernel on an Dual Xeon system
+(Asus PR-DLS533 motherboard) with option "nosmp", the
+Fusion MPT driver does not work anymore: It prints a startup
+message, can't find any device on the SCSI bus and keeps
+resetting the bus on and on.
 
+Messages look something like this (copied from memory by hand,
+as the system obviously can't write logfiles to the disk... ;-):
+[...]
+Fusion MPT base driver 2.05.05+
+Copyright (c) 1999-2002 LSI Logic Corporation
+mptbase: Initiating ioc0 bringup
+ioc0: 53C1030: Capabilities={Initiator}
+mptbase: Initiating ioc0 recovery
+mptbase: Initiating ioc0 recovery
+mptbase: Initiating ioc0 recovery
+[...]
 
-/Per
+I verified this behaviour with linux 2.4.23 and 2.4.24-pre2
+and Fusion MPT drivers 2.05.05+ (original) and 2.05.10 (patched)
 
+- - andreas
 
--- 
-Per Jessen, Zurich
-http://www.dansklisten.org - for alle danskere i udlandet!
+- --
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE/6DxpxJmyeGcXPhERAk05AJ9blmW44tfQUIkO+SAizxdecv74hACePG2/
+0KwfHv0kd2w55EnHWggFQ+I=
+=eX3J
+-----END PGP SIGNATURE-----
 

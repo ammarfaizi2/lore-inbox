@@ -1,117 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269318AbRHJOZT>; Fri, 10 Aug 2001 10:25:19 -0400
+	id <S269824AbRHJOuI>; Fri, 10 Aug 2001 10:50:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269317AbRHJOZK>; Fri, 10 Aug 2001 10:25:10 -0400
-Received: from srvr2.telecom.lt ([212.59.0.1]:25613 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id <S269318AbRHJOZB>;
-	Fri, 10 Aug 2001 10:25:01 -0400
-Message-Id: <200108101425.QAA1285141@mail.takas.lt>
-Date: Fri, 10 Aug 2001 16:09:06 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re[2]: [PATCH] vfat write wrong value into lcase flag
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1804289383-997452546=:1721"
-In-Reply-To: <87wv4er2kt.fsf@devron.myhome.or.jp>
-	<200108082020.WAA1347968@mail.takas.lt>
- <874rrhf69p.fsf@devron.myhome.or.jp>
-In-Reply-To: <874rrhf69p.fsf@devron.myhome.or.jp>
-X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
+	id <S269774AbRHJOt7>; Fri, 10 Aug 2001 10:49:59 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:60939 "HELO dvmwest.gt.owl.de")
+	by vger.kernel.org with SMTP id <S269766AbRHJOtu>;
+	Fri, 10 Aug 2001 10:49:50 -0400
+Date: Fri, 10 Aug 2001 16:49:59 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: "Linux-Kernel (Lista Correo)" <linux-kernel@vger.kernel.org>
+Subject: Re: Can I have a serial display output and a kbd PS/2 input?
+Message-ID: <20010810164959.E760@lug-owl.de>
+Mail-Followup-To: "Linux-Kernel (Lista Correo)" <linux-kernel@vger.kernel.org>
+In-Reply-To: <001b01c12194$a34a3370$66011ec0@frank>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <001b01c12194$a34a3370$66011ec0@frank>; from frank@ingecom.net on Fri, Aug 10, 2001 at 02:04:37PM +0200
+X-Operating-System: Linux mail 2.4.5 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---8323328-1804289383-997452546=:1721
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
+On Fri, 2001-08-10 14:04:37 +0200, Frank Torres <frank@ingecom.net>
+wrote in message <001b01c12194$a34a3370$66011ec0@frank>:
+> Sorry to be insistent in this point, but perhaps requesting the problem this
+> way someone figures out what I am trying to do.
+> The display is already configured and sending getty line from inittab waits
+> for an input from serial so it doesn't work.
+> Any other ideas? This is my last try.
 
-On 10 Aug 2001 03:16:34 +0900 OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+I think something like "console=ttyS1 console=tty0" should do.
 
-OH> Nerijus Baliunas <nerijus@users.sourceforge.net> writes:
-OH> 
-OH> > On 09 Aug 2001 00:30:58 +0900 OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
-OH> > 
-OH> > OH> The current vfat is writeing wrong value into lcase flag.  It is
-OH> > OH> writing the lowercase flag, although filename is uppercase.
-OH> > 
-OH> > Hello,
-OH> > 
-OH> > In December 1999 I sent my investigation about short filenames in vfat:
-OH> 
-OH> [...]
-OH> 
-OH> > I think Linux should create files like win98
-OH> > (because NT shows them correctly) and show like NT.
-OH> 
-OH> The _current vfat_ uses the following rule.
-OH> 
-OH>   name                   attribute                         used direntry
-OH> -----------------------------------------------------------------------------
-OH> foo.txt  LONG_FILENAME, CASE_LOWER_BASE | CASE_LOWER_EXT         2
-OH> foo.TXT  LONG_FILENAME, CASE_LOWER_BASE | CASE_LOWER_EXT         2
-OH> FOO.txt  LONG_FILENAME, CASE_LOWER_BASE | CASE_LOWER_EXT         2
-OH> FOO.TXT               , CASE_LOWER_BASE | CASE_LOWER_EXT         1
-OH> Foo.TXT  LONG_FILENAME, CASE_LOWER_BASE | CASE_LOWER_EXT         2
-OH> FOO.Txt  LONG_FILENAME, CASE_LOWER_BASE | CASE_LOWER_EXT         2
-OH> 
-OH> I missed something?
+This (as boot parameters) means: "output to all defined consoles
+and input from tty0" as your keyboard is connected to tty0.
 
-I don't know. Sorry, I didn't look at the code, but current (2.4.7) kernel still shows
-filenames as I wrote in 1999. I am talking about filenames _without_ long entries.
-Didn't test what current kernel writes, though.
-I'm attaching floppy image, ungzip and loop mount it.
+MfG, JBG
 
-Regards,
-Nerijus
-
---8323328-1804289383-997452546=:1721
-Content-Type: APPLICATION/X-GZIP; NAME="fdd_vfat.gz"
-Content-Transfer-Encoding: BASE64
-Content-Disposition: INLINE; FILENAME="fdd_vfat.gz"
-
-H4sICFhUTTgAA2ZkZF92ZmF0AO3aTUtUYRgG4GemLMtFUZvcuRMhBhQC3SVl
-JNmMUGarfkBaRgVtJAT31r5NGwlq1a4PqP5A+zZBa9v0QRER2HG+X5yI4tQB
-ua7FvAM375wH7t2c5/3U3ZFaZfjY9OkTUS6Vovwujg982BeHohwdI+X7b6er
-taHq5NmpocypyfOjY9nZSE/F99FXa2/WXv14GqUXsfwyVj6vb1yK6H9SKj+P
-5Wcr8bQUrw9f79uI5YjXg0E+VqIUpdKh2tb34wN/fn/u4YfNzW93NrvlPSMA
-AAAARfL/DwAAAMDONjkT01GNuZiNA/Eoovt/oK3Pmenq3OxQ3cEjcf/C6vDq
-cNTPxn5Yls/U5lv5ejPfOnfV85O1c+37naeOzK8O727l7fud/GiW99W/TYy3
-rmf57cvzjd9fyM49jfknYjwWYyluZfM/3j7/xHjr57P7F68071/Nzr31+/Nj
-ZzrzjX1caOSfsrO/lbfn67/3pZl/zc599bx6vmu+ytJiI7+Wnfubeef5/btu
-NPOb2fkX61oAAAAAAADwG5WhtoPR4/1epfKrvODByUXa//b3t2n/3XnBg5OL
-tP+Wzvv5tP/u/D8Pyj/Ru//O/kXv/o/qf4dI+h9caO7HLLb3a5L+k7zgwclF
-0v+D7ftRSf9JXvDg5CLpv8f+W9J/khc8OLlI+u+x35j0n+QFD04ukv577K8m
-/Sd5wYOTi6T/HvvJSf9JXvDgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAADsKD8BXP2xAwA+FgA=
-
---8323328-1804289383-997452546=:1721--

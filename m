@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262983AbUBZUb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 15:31:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbUBZUb7
+	id S262974AbUBZUeu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 15:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbUBZUeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 15:31:59 -0500
-Received: from 64-186-161-006.cyclades.com ([64.186.161.6]:31378 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262977AbUBZUbt
+	Thu, 26 Feb 2004 15:34:50 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:61571 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262974AbUBZUes
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 15:31:49 -0500
-Date: Thu, 26 Feb 2004 18:18:55 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       Russell King <rmk@arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.58L.0402261746280.8840@logos.cnet>
-Message-ID: <Pine.LNX.4.58L.0402261814030.8840@logos.cnet>
-References: <Pine.LNX.4.58L.0402261746280.8840@logos.cnet>
+	Thu, 26 Feb 2004 15:34:48 -0500
+Message-ID: <403E5853.2080702@matchmail.com>
+Date: Thu, 26 Feb 2004 12:34:27 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
-Subject: Re: [PATCH] cyclades async driver update
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+CC: lkml <linux-kernel@vger.kernel.org>, wolk-devel@lists.sourceforge.net,
+       wolk-announce@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] WOLK v1.0 for Kernel v2.6.3
+References: <200402260248.52516@WOLK>
+In-Reply-To: <200402260248.52516@WOLK>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marc-Christian Petersen wrote:
+> o   added:    extend memstats					(me)
 
+What does this do?
 
-On Thu, 26 Feb 2004, Marcelo Tosatti wrote:
+> o   added:    Application Layer 7 Packet Classifier v0.4.1b	(Ethan Sommer)
 
->
-> Hi,
->
-> The following patch is the first of several planned fixes for the cyclades
-> multiserial cards driver.
->
-> Its mostly a sync with in-house driver:
->
-> - Prevent users from opening non-existing Z ports
-> - Implement special XON/XOFF character handling in Z cards
-> - Prevent data-loss on Z cards
-> - Throttling fix for Z card
-> - Only throttle if CTS/RTS are set
-> - Fix accounting of received data
->
-> Kudos to Cyclades R&D
->
-> Please apply.
+Where can I find more info on this?
 
-Patch adds unused variables, please apply this on top (my bad):
+> o   added:    initrd support for cramfs				(Herbert Xu)
 
---- linux-2.6.3/include/linux/cyclades.h.orig	2004-02-26 17:14:30.000000000 -0300
-+++ linux-2.6.3/include/linux/cyclades.h	2004-02-26 17:12:53.000000000 -0300
-@@ -111,8 +111,6 @@
- #define CYGETCARDINFO		0x435911
- #define	CYSETWAIT		0x435912
- #define	CYGETWAIT		0x435913
--#define CYSETHIGHWATERMARK      0x435914
--#define CYGETHIGHWATERMARK      0x435915
+I'd love to see this merged upstream.
 
-
- /*************** CYCLOM-Z ADDITIONS ***************/
+Mike

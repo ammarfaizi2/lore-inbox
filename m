@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbUJaPr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbUJaPul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbUJaPr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 10:47:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbUJaPr2
+	id S261211AbUJaPul (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 10:50:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbUJaPul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 10:47:28 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:24496 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261171AbUJaPr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 10:47:26 -0500
-Subject: Re: [OT] Re: code bloat [was Re: Semaphore assembly-code bug]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ken Moffat <ken@kenmoffat.uklinux.net>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Tim Hockin <thockin@hockin.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0410310155080.11293@ppg_penguin.kenmoffat.uklinux.net>
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>
-	 <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>
-	 <20041030222720.GA22753@hockin.org>
-	 <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua>
-	 <1099178405.1441.7.camel@krustophenia.net>
-	 <1099176751.25194.12.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0410310155080.11293@ppg_penguin.kenmoffat.uklinux.net>
-Content-Type: text/plain
+	Sun, 31 Oct 2004 10:50:41 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:5554 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261211AbUJaPud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 10:50:33 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.10-rc1-mm2: konqueror crash because of cputime patches
+Date: Sun, 31 Oct 2004 16:51:23 +0100
+User-Agent: KMail/1.6.2
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
+References: <200410291823.34175.rjw@sisk.pl> <20041030155252.GA11515@wotan.suse.de> <200410301837.25828.rjw@sisk.pl>
+In-Reply-To: <200410301837.25828.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1099233850.16420.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 31 Oct 2004 14:44:11 +0000
+Message-Id: <200410311651.23631.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-10-31 at 01:09, Ken Moffat wrote:
-> and the time to load it is irrelevant.  Since then I've had an anecdotal
-> report that -Os is known to cause problems with gnome.  I s'pose people
-> will say it serves me right for doing my initial testing on ppc which
-> didn't have this problem ;)  The point is that -Os is *much* less tested
-> than -O2 at the moment.
+On Saturday 30 of October 2004 18:37, Rafael J. Wysocki wrote:
+> On Saturday 30 of October 2004 17:52, Andi Kleen wrote:
+> > > Have you tested this on an SMP machine?  Mine is a UP.  I'll chek a dual 
+> > 
+> > Yes, on a Dual Opteron with web browsing.  Similar with firefox.
+> 
+> Can you, please, send me your .config?
+> 
+> There's something nasty going on here.
+> 
+> For konqueror vs 2.6.10-rc1-mm2, I have the problem reproduced on the dual 
+> Opteron machine, although the konqueror itself is different (3.3.1) than on 
+> the UP box (3.2.3): it (ie the konqueror) starts normally, but crashes when
+> try to open an arbitrary web page (eg linuxtoday.com).
 
-I've seen no real problems - x86-32 or x86-64, and my gnumeric appears
-happy. Could be that the Red Hat gcc 3.3 has the relevant fixes already
-in it from upstream I guess.
+Well, an arbitrary web page need not be sufficient.  Apparently, the web page 
+needs to contain JavaScript to make konqueror crash.  Also, when JavaScript 
+is disabled in konqueror, it works normally, so I assume that it crashes on 
+an attempt to execute JavaScript.
 
+[-- snip]
+> I think I'll first try to play with the .config settings.  Then, I'll search 
+> through the patches.
+
+Done.  Evidently, if the cputime patches:
+
+cputime-introduce-cputime-fix.patch
+cputime-introduce-cputime.patch
+cputime-missing-pieces.patch
+
+are reversed, konqueror works fine again on 2.6.10-rc1-mm2 (verified on two 
+different systems).
+
+I have created a bugzilla entry for it at:
+http://bugzilla.kernel.org/show_bug.cgi?id=3675
+
+If you need any more information, please let me know and I'll post it there.
+
+Greets,
+RJW
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266347AbUAVSRm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 13:17:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266344AbUAVSRm
+	id S264929AbUAVTTL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 14:19:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUAVTTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 13:17:42 -0500
-Received: from quechua.inka.de ([193.197.184.2]:47275 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S266347AbUAVSQw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 13:16:52 -0500
-Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed
-	to public posts
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@wildopensource.com>, Zan Lynx <zlynx@acm.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4010040C.6020505@blue-labs.org>
-References: <ecartis-01212004203954.14209.1@mail.convergence2.de>
-	 <20040121194315.GE9327@redhat.com>
-	 <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
-	 <1074717499.18964.9.camel@localhost.localdomain>
-	 <20040121211550.GK9327@redhat.com>
-	 <20040121213027.GN23765@srv-lnx2600.matchmail.com>
-	 <pan.2004.01.21.23.40.00.181984@dungeon.inka.de>
-	 <1074731162.25704.10.camel@localhost.localdomain>
-	 <yq0hdyo15gt.fsf@wildopensource.com>  <401000C1.9010901@blue-labs.org>
-	 <1074790901.2055.109.camel@nidelv.trondhjem.org>
-	 <4010040C.6020505@blue-labs.org>
-Content-Type: text/plain
-Message-Id: <1074795480.1368.16.camel@simulacron>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 22 Jan 2004 19:18:00 +0100
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 22 Jan 2004 14:19:11 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:23172 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S264929AbUAVTTI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 14:19:08 -0500
+Date: Fri, 23 Jan 2004 08:21:45 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: A question about terminology.
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1074799304.12771.93.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: multipart/signed; boundary="=-X1nq8hlBaXWJI2tXpCF/";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford is the typical challange responce user:
-He writes emails, e.g. to me, but does not whitelist
-me. I was fooled, answered his email, and now his
-software wants me to confirm myself.
 
-<insert some very unfriendly words here/>
+--=-X1nq8hlBaXWJI2tXpCF/
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I should experiment with newsreaders to read mail,
-that way I could plonk him.
+Hi again.
 
-Andreas
+When I began work on swapfile support, I looked for an efficient method
+to store all the information on which blocks were used. The process led
+me to develop something I called ranges, which Pavel later looked at and
+said something like 'Oh. Extents.'
+
+Throughout the code, I still call them ranges (I have, for example
+struct range and struct rangechain). In preparation for merging, should
+I go through an rename ranges to extents, or will they be okay as it is?
+
+Regards,
+
+Nigel
+--=20
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
+
+--=-X1nq8hlBaXWJI2tXpCF/
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAECLIVfpQGcyBBWkRApCNAKCYBDZrCtiOrXHia/Zl8ep/c2rwDwCeKJg1
+bLvAjUxU2HuwHd8Gf/luCq4=
+=CB/0
+-----END PGP SIGNATURE-----
+
+--=-X1nq8hlBaXWJI2tXpCF/--
 

@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282792AbRLKT6v>; Tue, 11 Dec 2001 14:58:51 -0500
+	id <S282812AbRLKUEl>; Tue, 11 Dec 2001 15:04:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282812AbRLKT6l>; Tue, 11 Dec 2001 14:58:41 -0500
-Received: from pl475.nas921.ichikawa.nttpc.ne.jp ([210.165.235.219]:62994 "EHLO
-	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S282792AbRLKT6b>;
-	Tue, 11 Dec 2001 14:58:31 -0500
-Date: Wed, 12 Dec 2001 04:58:23 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: Brian Horton <go_gators@mail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how to debug a deadlock'ed kernel?
-Message-Id: <20011212045823.0bf53af9.bruce@ask.ne.jp>
-In-Reply-To: <3C166540.DC0BDBEE@mail.com>
-In-Reply-To: <3C166540.DC0BDBEE@mail.com>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.6; i686-pc-linux-gnu)
-X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S282815AbRLKUEb>; Tue, 11 Dec 2001 15:04:31 -0500
+Received: from stud.fbi.fh-darmstadt.de ([141.100.40.65]:31665 "EHLO
+	stud.fbi.fh-darmstadt.de") by vger.kernel.org with ESMTP
+	id <S282814AbRLKUEX>; Tue, 11 Dec 2001 15:04:23 -0500
+Date: Tue, 11 Dec 2001 20:58:46 +0100 (CET)
+From: Jan-Marek Glogowski <glogow@stud.fbi.fh-darmstadt.de>
+To: Samuel Maftoul <maftoul@esrf.fr>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [OT?] SuSe kernel
+In-Reply-To: <20011211193048.A22075@pcmaftoul.esrf.fr>
+Message-ID: <Pine.LNX.4.30.0112112051310.7727-100000@stud.fbi.fh-darmstadt.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Dec 2001 13:57:52 -0600
-Brian Horton <go_gators@mail.com> wrote:
+Hi Sam
 
-> Anyone got any good tips on how to debug a SMP system that is locked up
-> in a deadlock situation in the kernel? I'm working on a kernel module,
-> and after some number of hours of stress testing, the box locks up. None
-> of the sysrq options show anything on the display, though the reBoot
-> option does reboot the system. RedHat 6.2 and its 2.2.14 kernel. Doesn't
-> hang for me on 2.4, so I need to debug it here... 
-> 
-> Any hints? 
+> In SuSe's kernel there is a nice feature but I cannot  found where is
+> the code that does it and so I cannot play with it 8-).
+> The thing I'm talking about is grpahical boot + graphical first console.
+> I glanced at include/asm-i386/linux_logo.h but it doesn't differ.
+> Can someone help me ?
 
-Try using a serial console (activate it in your kernel config and hook up
-another PC to the serial port - if it's oopsing, you should see the oops over
-the serial line.)
-Also, I believe you can use kdb via serial as well (although I've never tried).
+Install the package "kernel-source" from zq (source) series.
+The patch in the archives you have to look for is named ...boot-splash...
+The important files in the patched kernel tree are:
 
+linux/drivers/video/fbcon-splash.[ch]
 
-Bruce
+There are some more changes in the whole fbcon* files (for alpha blending
+etc.).
+
+HTH
+
+Jan-Marek
 

@@ -1,59 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbUDXVlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262596AbUDXVvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbUDXVlb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 17:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbUDXVlb
+	id S262596AbUDXVvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 17:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUDXVvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 17:41:31 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5083 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262585AbUDXVla (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 17:41:30 -0400
-Date: Sat, 24 Apr 2004 23:41:22 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "R. J. Wysocki" <rjwysocki@sisk.pl>, Dag Brattli <dagb@cs.uit.no>,
-       shemminger@osdl.org
-Cc: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
-Subject: Re: 2.6.5-rc3: unknown symbol in tekram.ko
-Message-ID: <20040424214121.GD10976@fs.tum.de>
-References: <200403311042.25265.rjwysocki@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403311042.25265.rjwysocki@sisk.pl>
-User-Agent: Mutt/1.4.2i
+	Sat, 24 Apr 2004 17:51:09 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:20422 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S262596AbUDXVvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Apr 2004 17:51:08 -0400
+Date: Sat, 24 Apr 2004 17:51:35 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Matti Arnio <matti.arnio@zmailer.org>
+Subject: Re: [PATCH][2.6] SubmittingPatches diffing update.
+In-Reply-To: <Pine.LNX.4.58.0404241213180.3745@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.58.0404241513080.3745@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0404241213180.3745@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 31, 2004 at 10:42:24AM +0200, R. J. Wysocki wrote:
-> I get something like this after 'make modules_install':
-> 
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.5-rc3; fi
-> WARNING: /lib/modules/2.6.5-rc3/kernel/drivers/net/irda/tekram.ko needs 
-> unknown symbol irda_task_delete
+On Sat, 24 Apr 2004, Zwane Mwaikambo wrote:
 
-Thanks for this report, and sorry for the late answer.
+> A kernel janitor recently got confused by the advice in SubmittingPatches
+> and was sending patches with the wrong strip level, i think just about
+> everyone would prefer standard patches. Also mention various patch
+> management scripts for batching up large deltas.
 
-drivers/net/irda/tekram.c uses irda_task_delete, but this function is 
-not EXPORT_SYMBOL'ed in net/irda/irda_device.c .
-
-The most simple solution would be to change TEKRAM_DONGLE_OLD to be a 
-bool (as does the patch below), but perhaps the IrDA people know a 
-better solution.
-
-cu
-Adrian
-
---- linux-2.6.6-rc2-mm1-full/drivers/net/irda/Kconfig.old	2004-04-24 23:34:06.000000000 +0200
-+++ linux-2.6.6-rc2-mm1-full/drivers/net/irda/Kconfig	2004-04-24 23:40:26.000000000 +0200
-@@ -189,8 +189,8 @@
- 	  "irattach -d actisys" or "irattach -d actisys+".
- 
- config TEKRAM_DONGLE_OLD
--	tristate "Tekram IrMate 210B dongle"
--	depends on DONGLE_OLD && IRDA
-+	bool "Tekram IrMate 210B dongle"
-+	depends on DONGLE_OLD && IRDA=y
- 	help
- 	  Say Y here if you want to build support for the Tekram IrMate 210B
- 	  dongle.  To compile it as a module, choose M here.  The Tekram dongle
+I appear to have sent 2 additional copies of this email, could be that
+uni-stuttgart.de has a misbehaving MTA.

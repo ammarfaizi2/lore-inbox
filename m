@@ -1,113 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317359AbSHOTwA>; Thu, 15 Aug 2002 15:52:00 -0400
+	id <S317373AbSHOT7D>; Thu, 15 Aug 2002 15:59:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317362AbSHOTwA>; Thu, 15 Aug 2002 15:52:00 -0400
-Received: from mail.gmx.de ([213.165.64.20]:39748 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S317359AbSHOTv7>;
-	Thu, 15 Aug 2002 15:51:59 -0400
-Date: Thu, 15 Aug 2002 21:55:23 +0200
-From: gigerstyle@gmx.ch
-To: linux-kernel@vger.kernel.org
-Subject: Problem with PCMCIA 8139too
-Message-Id: <20020815215523.3071a528.gigerstyle@gmx.ch>
-X-Mailer: Sylpheed version 0.8.1claws (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S317385AbSHOT7D>; Thu, 15 Aug 2002 15:59:03 -0400
+Received: from richardson.uni2.net ([130.227.52.104]:14028 "EHLO
+	richardson.uni2.net") by vger.kernel.org with ESMTP
+	id <S317373AbSHOT7B>; Thu, 15 Aug 2002 15:59:01 -0400
+Subject: Re: promise ultra 133 tx2 lets system standby during use...?
+From: Thomas Munck Steenholdt <tmus@get2net.dk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1029418059.29816.30.camel@irongate.swansea.linux.org.uk>
+References: <200208151227.g7FCR8P03099@eday-fe9.tele2.ee> 
+	<1029418059.29816.30.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 15 Aug 2002 22:02:52 +0200
+Message-Id: <1029441779.1637.8.camel@frasier>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 2002-08-15 at 15:27, Alan Cox wrote:
+> On Thu, 2002-08-15 at 13:27, Thomas Munck Steenholdt wrote:
+> > OK, I'll try the apm=off first to see if that resolves my problem...
+> > are there any examples/places to look if i decided to update the
+> > APM monitor list from linux? Anywhere I could get an idea of how that
+> > could be done?
+> > I don't know the chipset atm.
+> 
+> lspci will tell you the chipset identifiers. Generally the first few
+> listed devices are the chipset itself (00:00.0 is the north bridge, then
+> the other stuff follows).
+> 
+lspci:--8<-------------
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge
+(rev 03)
+00:02.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:02.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:02.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:02.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100]
+(rev 05)
+00:10.0 Unknown mass storage controller: Promise Technology, Inc. 20269
+(rev 02)
+00:14.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX]
+(rev a1)
+01:01.0 VGA compatible controller: S3 Inc. Trio 64 3D (rev 01)
+-->8---------------
 
-I have successfully installed the PCMCIA CardBus NIC with realtek 8139 chip. I'm using the yenta_socket module and of course the 8139too module.
+This is what I have - but anyway, the apm=off option seems to work for
+the 2.4.19 kernel, so I guess i'll leave it at that for the time being.
+I suspect that the option will work with the distribution kernel as
+well.
+If the task of poke'ing an additional IRQ into the APM monitor list is
+simply just doing a pokeb or pokew at the right port somewhere, then I
+just might have a look at it... I really don't know where to start
+tough.
 
-As test I set up the interface with 
+Anyway, thanks alot :-) at least now i'm pretty sure what's causing my
+problems, and happy that i did NOT go out after another ATA133
+controller, just to try that out - the result would likely have been the
+same and a lot of money would have been wasted.
 
-	ifconfig eth0 192.168.0.5 up
+Thanks again
 
-and made a ping to another host.
-
-Seems all to be ok.. no problems there.
-
-
-When I put my Notebook in sleeping mode and resume it, ifconfig shows still the same network configuration, BUT now I can't ping any other hosts.
-
-A
-	ifconfig eth0 down
-and
-	ifconfig eth0 192.168.0.5 up
-
-doesn't help.
-
-Ping says only:
-
-PING 192.168.0.1 (192.168.0.1) from 192.168.0.5 : 56(84) bytes of data.
->From 192.168.0.5: icmp_seq=1 Destination Host Unreachable
->From 192.168.0.5 icmp_seq=1 Destination Host Unreachable
->From 192.168.0.5 icmp_seq=2 Destination Host Unreachable
->From 192.168.0.5 icmp_seq=3 Destination Host Unreachable
->From 192.168.0.5 icmp_seq=4 Destination Host Unreachable
->From 192.168.0.5 icmp_seq=5 Destination Host Unreachable
->From 192.168.0.5 icmp_seq=6 Destination Host Unreachable
-
---- 192.168.0.1 ping statistics ---
-10 packets transmitted, 0 received, +7 errors, 100% loss, time 9025ms
-
-
-Have also tried many other things like reloading modules,
-shutting down pcmcia before sleeping etc etc....
-As last I used the hotplugging scripts...but also without success.
-
-There are no errors in message or something else:-(
-After a standby I have to reboot the Notebook for a proper working NIC:-(
-
-Is there any way that it will work? I like standby and hate booting;-)
-
-Other cards have no problems (older realtek, aironet 340) but they aren't cardbus.
-
-
-/varr/log/messages:
-
-Aug 15 21:18:59 vaio kernel: cs: cb_alloc(bus 6): vendor 0x10ec, device 0x8139
-Aug 15 21:18:59 vaio kernel: PCI: Enabling device 06:00.0 (0000 -> 0003)
-Aug 15 21:19:00 vaio cardmgr[533]: socket 1: CardBus hotplug device
-Aug 15 21:19:00 vaio kernel: 8139too Fast Ethernet driver 0.9.25
-Aug 15 21:19:00 vaio kernel: PCI: Setting latency timer of device 06:00.0 to 64
-Aug 15 21:19:00 vaio kernel: eth0: RealTek RTL8139 Fast Ethernet at 0xccb99000, 00:30:4f:1d:53:7a, IRQ 9
-Aug 15 21:19:00 vaio kernel: eth0:  Identified 8139 chip type 'RTL-8139C'
-Aug 15 21:19:00 vaio insmod: Using /lib/modules/2.4.19/kernel/drivers/net/mii.o
-Aug 15 21:19:00 vaio insmod: Symbol version prefix ''
-Aug 15 21:19:00 vaio insmod: Using /lib/modules/2.4.19/kernel/drivers/net/8139too.o
-Aug 15 21:19:19 vaio kernel: eth0: Setting 100mbps half-duplex based on auto-negotiated partner ability 40a1.
-
-Loaded modules:
-
-Module                  Size  Used by    Not tainted
-8139too                14272   1
-mii                     1056   0  [8139too]
-soundcore               3268   0  (autoclean)
-ipv6                  124928  -1  (autoclean)
-ds                      6368   2
-yenta_socket            8704   2
-pcmcia_core            34240   0  [ds yenta_socket]
-isa-pnp                27388   0  (unused)
-joydev                  6816   0  (unused)
-evdev                   4096   0  (unused)
-mousedev                3808   1
-hid                    18944   0  (unused)
-usbmouse                1792   0  (unused)
-input                   3072   0  [joydev evdev mousedev hid usbmouse]
-uhci                   23816   0  (unused)
-usbcore                54272   1  [hid usbmouse uhci]
-nls_iso8859-1           2848   1  (autoclean)
-nls_cp437               4384   1  (autoclean)
-
-
-Ah before I forget: I'm using Kernel Version 2.4.19
-
-More info needed? No problem..
-
-
-Marc Giger
+Thomas
 

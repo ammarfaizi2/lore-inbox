@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290809AbSBFVEM>; Wed, 6 Feb 2002 16:04:12 -0500
+	id <S290808AbSBFVIw>; Wed, 6 Feb 2002 16:08:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290808AbSBFVEC>; Wed, 6 Feb 2002 16:04:02 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:26304 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S290810AbSBFVD7>; Wed, 6 Feb 2002 16:03:59 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200202062103.g16L3ng07109@eng2.beaverton.ibm.com>
-Subject: kernel BUG at ll_rw_blk.c:1336 using RAW IO
-To: linux-kernel@vger.kernel.org
-Date: Wed, 6 Feb 2002 13:03:48 -0800 (PST)
-X-Mailer: ELM [version 2.5 PL3]
+	id <S290810AbSBFVIe>; Wed, 6 Feb 2002 16:08:34 -0500
+Received: from quark.didntduck.org ([216.43.55.190]:61445 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S290808AbSBFVIR>; Wed, 6 Feb 2002 16:08:17 -0500
+Message-ID: <3C619B36.95E43E0D@didntduck.org>
+Date: Wed, 06 Feb 2002 16:08:06 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Applying 2.5.4-pre1 patch
+In-Reply-To: <3C6119E2.2060504@wanadoo.fr> <3C619586.92EAED50@mandrakesoft.com> <3C619927.2020601@wanadoo.fr>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Pierre Rousselet wrote:
+> 
+> Jeff Garzik wrote:
+> > Pierre Rousselet wrote:
+> >
+> >>Patching drivers/char/gameport with /dev/null doesn't work for me. What
+> >>is the trick ?
+> >>
+> >
+> > /dev/null indicates a new, or a removed, file.
+> 
+> 'patch -p0 < patch' is confused by this : "sure you want to delete this
+> file ?"
+> 
+> Are there some arguments to add on the cmd line ?
 
-I and ran into following BUG() while doing RAW IO (2.5.3-pre6).
+Use patch -p1.  Also, make sure you are using an up to date version of
+patch.
 
-	 kernel BUG at ll_rw_blk.c:1336
+--
 
-Actual code is:
-
-	BUG_ON(bio_sectors(bio) > q->max_sectors);
-
-I am doing 64k IOs on QLOGIC SCSI controller/disks.
-So
-	bio_sectors(bio) is 128
-	q->max_sectors is 64
-
-Is this a QLOGIC driver bug ? I changed qlogicisp.c and set
-host->max_sectors to 128. Now RAW IO seem to work fine. But
-I get system hangs and filesystem gets corrupted. Any idea
-on how to fix it ?
-
-Thanks,
-Badari
+				Brian Gerst

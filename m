@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269118AbUHXX1v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269105AbUHXXiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269118AbUHXX1v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 19:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269113AbUHXXXP
+	id S269105AbUHXXiu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 19:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUHXXiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 19:23:15 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:54192 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269109AbUHXXWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 19:22:35 -0400
-Subject: Re: Scheduler fairness problem on 2.6 series (Attn: Nick Piggin
-	and others)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: spaminos-ker@yahoo.com, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <412BC984.6060408@bigpond.net.au>
-References: <20040824211141.13585.qmail@web13921.mail.yahoo.com>
-	 <412BC984.6060408@bigpond.net.au>
-Content-Type: text/plain
-Message-Id: <1093389752.841.9.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 24 Aug 2004 19:22:32 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Aug 2004 19:38:50 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:63025 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S269114AbUHXXhC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 19:37:02 -0400
+To: Chris Leech <chris.leech@gmail.com>
+Cc: "Nguyen, Tom L" <tom.l.nguyen@intel.com>, cramerj <cramerj@intel.com>,
+       "Ronciak, John" <john.ronciak@intel.com>,
+       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>,
+       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [broken?] Add MSI support to e1000
+X-Message-Flag: Warning: May contain useful information
+References: <C7AB9DA4D0B1F344BF2489FA165E50240619D5A0@orsmsx404.amr.corp.intel.com>
+	<52u0utvka4.fsf@topspin.com>
+	<41b516cb0408241449464de5a7@mail.gmail.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 24 Aug 2004 16:36:26 -0700
+In-Reply-To: <41b516cb0408241449464de5a7@mail.gmail.com> (Chris Leech's
+ message of "Tue, 24 Aug 2004 14:49:22 -0700")
+Message-ID: <523c2cf6rp.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 24 Aug 2004 23:36:26.0201 (UTC) FILETIME=[2C282490:01C48A33]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-24 at 19:04, Peter Williams wrote:
-> spaminos-ker@yahoo.com wrote:
-> > 
-> > Could I do something more useful than just displaying those deltas? Maybe I
-> > could dump the process list in some way, or enable some debugging code in the
-> > kernel to find out what is going on?
-> 
-> You could try Lee Revell's (rlrevell@joe-job.com) latency measuring 
-> patches and also try applying Ingo Molnar's (mingo@elte.hu) 
-> voluntary-preempt patches.
-> 
+    Chris> Unfortunately, there are issues with current PRO/1000
+    Chris> devices that make MSI unusable.  Other testing has show
+    Chris> similar results to what you are reporting, under low load a
+    Chris> few interrupts can be observed to work but the part stops
+    Chris> working when stressed.  This is why MSI has not already
+    Chris> been enabled in the e1000 driver.
 
-Most of the tools I am using are probably too specific to the audio
-subsystem to be of much use to you.  Just use Ingo's voluntary
-preemption patch; if this is a scheduler/preemption problem, then it
-will definitely show up in the traces.
+OK, thanks for the info.  Oh well...
 
-Lee
-
+ - Roland

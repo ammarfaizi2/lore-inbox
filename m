@@ -1,93 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbTFOMOM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 08:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbTFOMOL
+	id S262170AbTFOMPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 08:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbTFOMPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 08:14:11 -0400
-Received: from [211.167.76.68] ([211.167.76.68]:2437 "HELO soulinfo")
-	by vger.kernel.org with SMTP id S262169AbTFOMOI (ORCPT
+	Sun, 15 Jun 2003 08:15:16 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:26023 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262170AbTFOMPD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 08:14:08 -0400
-Date: Sun, 15 Jun 2003 20:28:03 +0800
-From: hugang <hugang@soulinfo.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: dahinds@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Pcmcia GPRS cards not works in linux.
-Message-Id: <20030615202803.51fcf72e.hugang@soulinfo.com>
-In-Reply-To: <20030615103456.B27533@flint.arm.linux.org.uk>
-References: <20030615104322.496279e1.hugang@soulinfo.com>
-	<20030615103456.B27533@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	Sun, 15 Jun 2003 08:15:03 -0400
+Date: Sun, 15 Jun 2003 14:28:38 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Joseph Fannin <jhf@rivenstone.net>,
+       Jens Taprogge <jens.taprogge@rwth-aachen.de>
+Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
+Message-ID: <20030615142838.A3291@ucw.cz>
+References: <m2smqhqk4k.fsf@p4.localdomain> <20030615001905.A27084@ucw.cz> <m2he6rv8i6.fsf@telia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 8bit
- =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= Russell King <rmk@arm.linux.org.uk>
- =?ISO-8859-1?Q?=B3=AD=CB=CD=A3=BA:?= dahinds@users.sourceforge.net,linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m2he6rv8i6.fsf@telia.com>; from petero2@telia.com on Sun, Jun 15, 2003 at 02:18:57PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Jun 2003 10:34:56 +0100
-Russell King <rmk@arm.linux.org.uk> wrote:
-
->  Could you include the information below and the output of cardctl
->  status please?
+On Sun, Jun 15, 2003 at 02:18:57PM +0200, Peter Osterlund wrote:
+> Vojtech Pavlik <vojtech@suse.cz> writes:
 > 
-Thank you very much.
+> > > * Multi finger tapping.
+> > > * Vertical and horizontal scrolling.
+> > > * Edge scrolling during drag operations.
+> > > * Palm detection.
+> > > * Corner tapping.
+> > 
+> > ... you may want to put these nice features into the mousedev.c driver
+> > for now, so that the touchpad works with standard XFree without the
+> > event based driver.
+> 
+> No need. There is now a working XFree86 driver here:
+> 
+>         http://w1.894.telia.com/~u89404340/touchpad/index.html
 
->  I think I can tell you what's happening.  Your card contains two
->  configuration table entries (0x30 and 0x31).  The first, 0x30,
->  tells us that the card supports 3.3V in this configuration.  The
->  second indicates that the card supports 5V with this configuration.
-  Your are right. With this patch it works fine.
---- cs.c.old    Sun Jun 15 19:46:26 2003
-+++ cs.c        Sun Jun 15 19:52:51 2003
-@@ -1765,8 +1765,10 @@
-        return CS_CONFIGURATION_LOCKED;
- 
-     /* Do power control.  We don't allow changes in Vcc. */
--    if (s->socket.Vcc != req->Vcc)
--       return CS_BAD_VCC;
-+       printk("VCC: %d, %d\n", s->socket.Vcc, req->Vcc);
-+    /*if (s->socket.Vcc != req->Vcc)
-+       return CS_BAD_VCC;*/
-+       printk("Vpp1: %d, %d\n", req->Vpp1, req->Vpp2);
-     if (req->Vpp1 != req->Vpp2)
-        return CS_BAD_VPP;
-     s->socket.Vpp = req->Vpp1;
+Cool.
 
----2.5.71-------without-hacker
-hugang:/home/hugang/download/module-init# uname -a
-Linux hugang 2.5.71 #4 ÈÕ 6ÔÂ 15 11:44:04 CST 2003 i686 unknown
-hugang:/home/hugang/download/module-init# cardctl config
-Socket 0:
-  Vcc 3.3V  Vpp1 3.3V  Vpp2 3.3V
-hugang:/home/hugang/download/module-init# cardctl status
-Socket 0:
-  3.3V 16-bit PC Card
-  function 0: [ready], [wp], [bat low]
---with-hacker--
-VCC: 33, 50
-Vpp1: 0, 0
-ttyS0 at I/O 0x100 (irq = 3) is a 16550A
-hugang:~# cardctl status
-Socket 0:
-  3.3V 16-bit PC Card
-  function 0: [ready]
-hugang:~# cardctl config
-Socket 0:
-  Vcc 5.0V  Vpp1 0.0V  Vpp2 0.0V
-  interface type is "memory and I/O"
-  irq 3 [exclusive] [level]
-  speaker output is enabled
-  function 0:
-    config base 0x0400
-      option 0x70
-    io 0x0100-0x010f [8bit]
+> diff -u -r -N --exclude='.*' --exclude='*.o' --exclude='*.ko' --exclude='*~' ../../linus/main/linux/drivers/input/mouse/Kconfig linux/drivers/input/mouse/Kconfig
+> --- ../../linus/main/linux/drivers/input/mouse/Kconfig	Sun Jun 15 14:10:15 2003
+> +++ linux/drivers/input/mouse/Kconfig	Sun Jun 15 13:53:38 2003
+> @@ -37,7 +37,7 @@
+>  	  This touchpad is found on many modern laptop computers.
+>  	  Note that you also need a user space driver to interpret the data
+>  	  generated by the kernel. A compatible driver for XFree86 is available
+> -	  from http://...
+> +	  from http://w1.894.telia.com/~u89404340/touchpad/index.html
+
+Perfect.
+
+>>  
+> -	if (hw.w != priv->old_w) {
+> -		input_event(dev, EV_MSC, MSC_GESTURE, hw.w);
+> -		priv->old_w = hw.w;
+> -	}
+> +	/*
+> +	 * This will generate an event even if w is unchanged, but that is
+> +	 * exactly what we want, because user space drivers may depend on
+> +	 * this for gesture decoding.
+> +	 */
+> +	input_event(dev, EV_MSC, MSC_GESTURE, hw.w);
+
+This assumption is not nice. It should instead rely on input_sync() /
+EV_SYN, SYN_REPORT events for complete packet decoding. Can you do
+something about that?
+
+---
+
+By the way, obviously you're skilled in X driver programming. Could you
+possibly also implement an /dev/input/event mouse and tablet/touchscreen
+drivers so that mousedev.c would be replaced completely?
+
 -- 
-Hu Gang / Steve
-Email        : huagng@soulinfo.com, steve@soulinfo.com
-GPG FinePrint: 4099 3F1D AE01 1817 68F7  D499 A6C2 C418 86C8 610E
-http://soulinfo.com/~hugang/HuGang.asc
-ICQ#         : 205800361
-Registered Linux User : 204016
+Vojtech Pavlik
+SuSE Labs, SuSE CR

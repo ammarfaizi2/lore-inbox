@@ -1,54 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268210AbTALDcJ>; Sat, 11 Jan 2003 22:32:09 -0500
+	id <S268213AbTALDgo>; Sat, 11 Jan 2003 22:36:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268211AbTALDcJ>; Sat, 11 Jan 2003 22:32:09 -0500
-Received: from xyzzy.bubble.org ([132.238.254.34]:42001 "EHLO xyzzy.bubble.org")
-	by vger.kernel.org with ESMTP id <S268210AbTALDcI>;
-	Sat, 11 Jan 2003 22:32:08 -0500
-Message-ID: <3E20E3C7.208@xyzzy.bubble.org>
-Date: Sat, 11 Jan 2003 22:40:55 -0500
-From: Jeffrey Ross <jeff@xyzzy.bubble.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: kernel OOPS
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268214AbTALDgn>; Sat, 11 Jan 2003 22:36:43 -0500
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.31]:22954 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S268213AbTALDgk>; Sat, 11 Jan 2003 22:36:40 -0500
+Date: Sat, 11 Jan 2003 22:43:29 -0500
+From: Rob Wilkens <robw@optonline.net>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+In-reply-to: <20030112033325.GA14644@mark.mielke.cc>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: Kurt Garloff <kurt@garloff.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+Reply-to: robw@optonline.net
+Message-id: <1042343009.1033.142.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com>
+ <1042250324.1278.18.camel@RobsPC.RobertWilkens.com>
+ <20030111020738.GC9373@work.bitmover.com>
+ <1042251202.1259.28.camel@RobsPC.RobertWilkens.com>
+ <20030111021741.GF9373@work.bitmover.com>
+ <1042252717.1259.51.camel@RobsPC.RobertWilkens.com>
+ <20030111214437.GD9153@nbkurt.casa-etp.nl>
+ <1042322012.1034.6.camel@RobsPC.RobertWilkens.com>
+ <20030111222619.GG9153@nbkurt.casa-etp.nl>
+ <1042327403.1033.71.camel@RobsPC.RobertWilkens.com>
+ <20030112033325.GA14644@mark.mielke.cc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bear with me, this is my first attempt at sending the output of a kernel 
-oops.  I believe I have all the desired information.  Here goes...
+On Sat, 2003-01-11 at 22:33, Mark Mielke wrote:
+> On Sat, Jan 11, 2003 at 06:23:23PM -0500, Rob Wilkens wrote:
+> > On Sat, 2003-01-11 at 17:26, Kurt Garloff wrote:
+> > > It is presumptuous. Very much so.
+> > I'll accept that on face value, and take your comments five comments as
+> > good pieces of information which I'll comment only briefly on.
+> 
+> Also take into account that your claim to faim -- vxWorks, a real time
+> commercial operating system, may not of the same calibre as Linux.
 
-The system appears to randomly lock up, with X running, without X 
-running etc.  it appears to be occuring whenever the CD drives are accessed.
+I never mentioned VxWorks (This is bad, someone is actually keeping
+track and researching my background).  But that was a product at a
+company I used to work for.. Joe Korty (whom I saw just submitted a
+patch from a machine I used to have an account on) who works for that
+company can probably tell you more about VxWorks than I can.  Hopefully
+he doesn't remember me.
 
-The multi question form:
+VxWorks, or PowerMAX or PowerUX or whatever they're calling it now
+(names changed several times while I worked there) was basically AT&T
+SVR4, with some custom enhancements.
 
-[1-3] I'm not sure exactly how to answer
-[4] Linux version 2.4.21-pre3-ac3 (root@wisdom2) (gcc version 3.2 
-20020903 (Red Hat
-Linux 8.0 3.2-7)) #6 Sat Jan 11 14:29:12 EST 2003
-[5] see http://www.bubble.org/~jeff/crash.tar.gz (includes console 
-output from bootup until the crash plus everything asked for in 
-"oops-tracing.txt" (I think)
-[6] I don't think its possible
-[7] not sure ??
-[7.X] all files are included in the tar file
+> Why do I doubt the calibre of vxWorks? People I trust who work on RT systems
 
-I've tried to make the contents of the files self explanitory.
+The company probably went downhill after I left in 1998 :-).  I was
+releasing (personally) at least 7-10 modifications to the kernel a week
+on average.  Joe Korty was probably the only other developer there who
+was almost as productive at the time.  The rest of their team were a
+bunch of very knowledgeable yet "comfortable" people who looked like
+they were basically happy to rest on their laurels (they had fast
+performing hardware, and they had exclusive knowledge of the software,
+so they didn't "have" to work harder).  There were of course several
+contractors there who were productive, but anyone working on a contract
+is going to be more productive than a salaried person for the sole
+reason that they _have_ to prove their worth.
 
-Although I'm not a programmer, I am willing to help out in any way I can 
-to find and squash this problem.
+Yep, If there is anyone reading this list whom I ever hoped to use as a
+personal reference in the future, I probably just ruled that out :-).  I
+figure as long as the career is in the toilet, might as well flush.
 
-Other information...
+> For your suggestion that writing an operating system is not hard -- I
+> agree with your chosen qualification of 'a'. Most anybody who passes
+> 1st year in CS at university can complete 'a' DOS-like operating
+> system.
 
-System Motherboard is an Intel Model# D845GBV the BIOS is the dated 
-November 20,2002 on Intel's website.
+Thank You, that was my only point.  Of course, I would say 3rd or 4th
+year -- at least in a U.S. university.  As per whether "anybody" could
+take it to the next level, that is just an elitist viewpoint you have
+which you are free to keep.  When you think of what is involved in, for
+example, memory management, it's not all that complicated.  I downloaded
+the document that Mel Gorman wrote (a thesis, it claims) and while it's
+nice, so far I've read the first 14 pages of the text and haven't even
+seen anything about the VMM -- it's all been about what a tar is, how
+big the kernel has grown, why CVS isn't used (which is interesting to
+read), but nothing yet about the virtual memory manager which is what I
+picked up the document for.  I guess for free one can't complain.
 
-Both CDrom drivers are IDE and I'm using the IDE to scsi shim.
+> Also, FYI, most of the patches that I see coming through here are patches
+> to *other* people's code, usually code that has not existed more than a
+> few months. Which doesn't mean that Linus' code is flawless.
 
-Jeff
+Can you explain, then, why I submitted a patch to the floppy driver
+minutes ago :-).  You would think that's the kind of thing they would've
+gotten working long ago.  Of course, I don't know enough to get a floppy
+drive working at all, so I'm duly impressed with that basic ability.
+
+> Just -- evolution has a price. 
+
+Actually, you can download it free at www.ximian.com .. They may sell it
+to you on CD for a price, though.  It's what I'm using to write this
+e-mail.
+
+-Rob
 

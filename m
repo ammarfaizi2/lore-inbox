@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135594AbRALXd4>; Fri, 12 Jan 2001 18:33:56 -0500
+	id <S135590AbRALXep>; Fri, 12 Jan 2001 18:34:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135619AbRALXdp>; Fri, 12 Jan 2001 18:33:45 -0500
-Received: from c837140-a.vncvr1.wa.home.com ([65.0.81.146]:49167 "EHLO
-	cyclonehq.dnsalias.net") by vger.kernel.org with ESMTP
-	id <S135594AbRALXdj>; Fri, 12 Jan 2001 18:33:39 -0500
-Message-Id: <5.0.2.1.0.20010112153102.021f34e8@10.0.0.254>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Fri, 12 Jan 2001 15:32:57 -0800
-To: linux-kernel@vger.kernel.org
-From: Dan B <db@cyclonehq.dnsalias.net>
-Subject: Re: [eepro100] Ok, I'm fed up now
-In-Reply-To: <20010111141435.C12616@valinux.com>
-In-Reply-To: <LAW2-F8403oHMwVN7mi0000e9c6@hotmail.com>
- <LAW2-F8403oHMwVN7mi0000e9c6@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S135571AbRALXe0>; Fri, 12 Jan 2001 18:34:26 -0500
+Received: from sc-66-27-47-84.socal.rr.com ([66.27.47.84]:12807 "EHLO
+	falcon.bellfamily.org") by vger.kernel.org with ESMTP
+	id <S135619AbRALXeS>; Fri, 12 Jan 2001 18:34:18 -0500
+Message-ID: <3A5F9491.20109@bellfamily.org>
+Date: Fri, 12 Jan 2001 15:34:41 -0800
+From: "Robert J. Bell" <rob@bellfamily.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+CC: kernel-list <linux-kernel@vger.kernel.org>
+Subject: Re: USB Mass Storage in 2.4.0
+In-Reply-To: <3A5F8956.9040305@bellfamily.org> <20010112151008.A5798@one-eyed-alien.net> <3A5F9108.4030706@bellfamily.org> <20010112152415.B5798@one-eyed-alien.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone gotten Intel's (non-GPL) e100 driver working in 2.4.x yet?  What 
-about their e100-ANS driver that supports FEC 800mbps?
+Unfortunately I lost everything on my system (the one that worked) and I 
+don't believe I ever looked in /proc/scsi/scsi because It was working 
+and I didn't feel the need to go poking around.  I had this problem 
+initially the first time I compiled 2.4.0 but I went back and added SCSI 
+Generic "on" and that seemed to fix it.  I am just confused why it 
+thinks this is a scanner. IS there any way to force it to detect it as a 
+scsi disk?
 
-Dan Browning, Cyclone Computer Systems, 
-danb@cyclone.computers.coZZZZZZZZZZZZZZm
+I must have recompiled this kernel 50 times trying to recreate the the 
+scenario where this worked. I can send you my .config if you think that 
+will help.
 
-At 02:14 PM 1/11/2001 -0800, you wrote:
->On Tue, Jan 09, 2001, Kambo Lohan <kambo77@hotmail.com> wrote:
->; I am having the same problems, I have duplicated the hard lockups / 
->ethernet
->; hangs on two intel 815EE boards.  It happens when send traffic through the
->; onboard eepro100 is high, and sometimes running something like vmstat 1 in
->; the background triggers the lockup faster.  When it locks up there is
->; nothing in the log, no oops or anything.  Sometimes it just hangs eth0 with
->; the (cmd timeout) msgs and an ifconfig down/up fixes it temporarily.
->;
->
->
->Kambo,
->
->can you run the driver with a high debug flag and log what is going on,
->make sure you have alot of space since it talks alot.
->
->The card seems to be locking up with a couple of commands in the register that
->are not known to me, my specs don't list them, hopefully the new specs talk
->about it. At this time it's not known where the command comes from, I am
->working on a patch that will tell a bit more about that...
+Robert
+
+
+
+
+
+Matthew Dharm wrote:
+
+> Hrm... from these logs, everything looks okay, except for the fact that the
+> device refuses to return any INQUIRY data.
+> 
+> Can you reproduce the conditions under which it was working and send logs
+> from that?  Or at least remember what the /proc/scsi/scsi info looked like?
+> 
+> Matt
+> 
+> On Fri, Jan 12, 2001 at 03:19:36PM -0800, Robert J. Bell wrote:
+> 
+>> Matthew here is the info you requested, thanks for your help.
+>> 
+>> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,67 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268792AbRHRWE5>; Sat, 18 Aug 2001 18:04:57 -0400
+	id <S268848AbRHRWN3>; Sat, 18 Aug 2001 18:13:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268809AbRHRWEs>; Sat, 18 Aug 2001 18:04:48 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:53005 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S268792AbRHRWEf>;
-	Sat, 18 Aug 2001 18:04:35 -0400
-Date: Sat, 18 Aug 2001 23:04:41 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Dewet Diener <dewet@dewet.org>
-cc: Stephen C Tweedie <sct@redhat.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 partition unmountable
-In-Reply-To: <20010818235211.A24646@darkwing.flatlit.net>
-Message-ID: <Pine.LNX.4.33.0108182257490.9206-100000@infradead.org>
+	id <S268865AbRHRWNL>; Sat, 18 Aug 2001 18:13:11 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:43025 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S268848AbRHRWMx>; Sat, 18 Aug 2001 18:12:53 -0400
+Message-ID: <3B7EE86F.49906C18@zip.com.au>
+Date: Sat, 18 Aug 2001 15:13:03 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: ptb@it.uc3m.es
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: scheduling with io_lock held in 2.4.6
+In-Reply-To: <3B7EC41C.9811D384@zip.com.au> from "Andrew Morton" at "Aug 18,
+	 2001 12:38:04 pm" <200108182157.f7ILvt832092@oboe.it.uc3m.es>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dewet.
+"Peter T. Breuer" wrote:
+> 
+> "A month of sundays ago Andrew Morton wrote:"
+> > "Peter T. Breuer" wrote:
+> > >
+> > > "Andrew Morton wrote:"
+> > > > "Peter T. Breuer" wrote:
+> > > > >   Aug 17 01:41:01 xilofon kernel: Scheduling with io lock held in process 1141
+> > >
+> > > > Replace the printk with a BUG(), feed the result into ksymooops.
+> > > > Or use show_trace(0).
+> 
+> > Suggest you add the BUG() when it occurs, feed it into ksymoops
+> > and post it.  All will be revealed.
+> 
+> Whilst I've viewed dozens of the oopses, the call trace hasn't
+> enlightened me (there's usually an interrupt in it, which throws me),
 
- >> If I'm reading the files right it looks like:
- >> #define EXT3_FEATURE_INCOMPAT_COMPRESSION 0x0001
+Yes, there are often interrupt entrails on the stack.  If you can,
+generate that trace and send it....
 
- >> Did you compress the file system?
+> and adding the oops seemed to destabilize the kernel. Does "atomic_set"
+> really work? It seems to be just an indirected write. I am suspicious
+> that the atomic writes I tried to do for the data aren't atomic. The
+> expansion of atomic_set(&io_request_lock_pid, current_pid()) is:
+> 
+>  ((( &io_request_lock_pid )->counter) = (  current_pid() )) ;
 
- > Not knowingly, no. Is that a mount option?
+That's OK - this is the x86 version of atomic_set and yes, we
+assume that the compiler will generate a single write for the
+store.  All the x86 MP cache coherency stuff takes care of
+the atomicity wrt other CPUs.
+ 
+> ...
+> I'll see ... btw, the problem seemed to track further to
+> blkdev_release_request. Aha aha aha aha aha ... the comment at the
+> top of that function says that not only must the io_request_lock be
+> held but irqs must be disabled. Do they mean locally or globally? I'm
+> holding them off locally (via spin_lock_irqsave).
 
-The relevant mount option is to specify the ext3 rather than the ext2
-file system, and the flag you refer to gets set if ANYBODY sets the
-"COMPRESS THIS FILE" flag on ANY file on that file system. As far as I
-can tell, nothing ever resets that flag, even if the last file that
-was compressed gets uncompressed.
+Locally.  You need to take spin_lock_irqsave(&io_request_lock)
+before calling that function.  It doesn't call anything which
+sleeps, either.
 
-I suggested a while back that fsck should check whether there are any
-compressed files on the filesystem, and reset that flag if not, but as
-far as I can tell, nothing was ever done to implement that suggestion.
+It may simplify your oops tracing to remove all the `inline'
+qualifiers in ll_rw_blk.c, BTW.  They tend to obscure things.
+They should in fact be taken out permanently - someone went
+absolutely insane there.
 
- > I'm mounting them the same on both sides, so its rather
- > strange...
-
- >> Do a "tune2fs -l /dev/hdc" and see what features are set.
-
- > Heh, not much more useful:
-
- > # tune2fs -l /dev/hdd1
- > tune2fs 1.22, 22-Jun-2001 for EXT2 FS 0.5b, 95/08/09
- > tune2fs: Filesystem has unsupported feature(s) while trying to open /dev/hdd1
- > Couldn't find valid filesystem superblock.
-
-You have an old version of tune2fs, and need to get the one that knows
-about ext3 or alternatively apply the patch that was distributed some
-time ago and recompile - I'm not sure which.
-
-Stephen: What's the current status regarding tune2fs and ext3, I'm a
-tad out of date in this respect?
-
- > I'll probably have to take the drive back, and see if it now mounts
- > in the original system :-/
-
-That might help...
-
-Best wishes from Riley.
-
+-

@@ -1,96 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265013AbSJRG6c>; Fri, 18 Oct 2002 02:58:32 -0400
+	id <S265038AbSJRHDg>; Fri, 18 Oct 2002 03:03:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265025AbSJRG6c>; Fri, 18 Oct 2002 02:58:32 -0400
-Received: from mithra.wirex.com ([65.102.14.2]:34062 "EHLO mail.wirex.com")
-	by vger.kernel.org with ESMTP id <S265013AbSJRG6a>;
-	Fri, 18 Oct 2002 02:58:30 -0400
-Message-ID: <3DAFB260.5000206@wirex.com>
-Date: Fri, 18 Oct 2002 00:04:00 -0700
-From: Crispin Cowan <crispin@wirex.com>
-Organization: WireX Communications, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Greg KH <greg@kroah.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [PATCH] remove sys_security
-References: <20021017195015.A4747@infradead.org> <20021017185352.GA32537@kroah.com> <20021017195838.A5325@infradead.org> <20021017190723.GB32537@kroah.com> <20021017210402.A7741@infradead.org> <20021017201030.GA384@kroah.com> <20021017211223.A8095@infradead.org>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-md5;
- protocol="application/pgp-signature";
- boundary="------------enigC84BE6F65036E67936B49E99"
+	id <S265028AbSJRHCy>; Fri, 18 Oct 2002 03:02:54 -0400
+Received: from chunk.voxel.net ([207.99.115.133]:31157 "EHLO chunk.voxel.net")
+	by vger.kernel.org with ESMTP id <S265038AbSJRHCY>;
+	Fri, 18 Oct 2002 03:02:24 -0400
+Date: Fri, 18 Oct 2002 03:08:26 -0400
+From: Andres Salomon <dilinger@mp3revolution.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.5.43
+Message-ID: <20021018070826.GA1110@chunk.voxel.net>
+References: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="TB36FDmn/VVEgNH/"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux chunk 2.4.18-ac3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC84BE6F65036E67936B49E99
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Christoph Hellwig wrote:
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->On Thu, Oct 17, 2002 at 01:10:31PM -0700, Greg KH wrote:
->  
->
->>>>How would they be done differently now?  Multiple different syscalls?
->>>>        
->>>>
->>>Yes.
->>>      
->>>
->>Hm, in looking at the SELinux documentation, here's a list of the
->>syscalls they need:
->>	http://www.nsa.gov/selinux/docs2.html
->>
->>That's a lot of syscalls :)
->>    
->>
->I know.  but hiding them doesn't make them any better..
->
-Actuall, yes it does, and that is the point. You don't have to like 
-SELinux's system calls, or any other module's syscalls. The whole point 
-of LSM was to decouple security design from the Linux kernel development.
+This patch is required to successfully compile 2.5.43 on an ultrasparc.
+time.c is missing a header file.
 
-There are a butt-load of different access control models, and many of 
-them are not compatible with one another. You wouldn't want to support 
-them all--that would be serious bloat. So instead, LSM lets each user 
-choose the model that suits them:
 
-    * server users can choose a highly secure model
-    * workstation users can choose something desktop oriented
-    * embedded people can choose nothing at all, or the specific
-      narrow-cast model that they need
-
-On the other hand: what is the big cost here? One system call. Isn't 
-that actually *lower* overhead than the (say) half dozen 
-security-oriented syscalls we might convince you to accept if we drop 
-the sys_security syscall as you suggest? Why the fierce desire to remove 
-something so cheap?
-
-Crispin
+On Tue, Oct 15, 2002 at 08:44:10PM -0700, Linus Torvalds wrote:
+> 
+> 
+> A huge merging frenzy for the feature freeze, although I also spent a few
+> days getting rid of the need for ide-scsi.c and the SCSI layer to burn
+> CD-ROM's with the IDE driver (it still needs an update to cdrecord, I sent 
+> those off to the maintainer).
+> 
+> The most fundamental stuff is probably RCU and oprofile, but there's stuff 
+> all over the map here..
+> 
+> 		Linus
+> 
+> ------
+> 
+> Summary of changes from v2.5.42 to v2.5.43
+> ============================================
+> 
+[...]
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Crispin Cowan, Ph.D.
-Chief Scientist, WireX                      http://wirex.com/~crispin/
-Security Hardened Linux Distribution:       http://immunix.org
-Available for purchase: http://wirex.com/Products/Immunix/purchase.html
+It's not denial.  I'm just selective about the reality I accept.
+	-- Bill Watterson
 
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="time.c.diff"
 
---------------enigC84BE6F65036E67936B49E99
-Content-Type: application/pgp-signature
+--- a/arch/sparc64/kernel/time.c	2002-10-18 02:31:36.000000000 -0400
++++ b/arch/sparc64/kernel/time.c	2002-10-18 02:33:38.000000000 -0400
+@@ -22,6 +22,7 @@
+ #include <linux/ioport.h>
+ #include <linux/mc146818rtc.h>
+ #include <linux/delay.h>
++#include <linux/profile.h>
+ 
+ #include <asm/oplib.h>
+ #include <asm/mostek.h>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE9r7Jp5ZkfjX2CNDARAQdaAJ4h2wU6j66EGH1kjPoP4nfNd8U5TQCfS0rP
-d7GrvMlnI2gOz1WIZGqnD1w=
-=a9fm
------END PGP SIGNATURE-----
-
---------------enigC84BE6F65036E67936B49E99--
-
+--TB36FDmn/VVEgNH/--

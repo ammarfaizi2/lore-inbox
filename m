@@ -1,30 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUFNMdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262873AbUFNMsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbUFNMdV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 08:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUFNMdV
+	id S262873AbUFNMsG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 08:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUFNMsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 08:33:21 -0400
-Received: from [212.175.6.160] ([212.175.6.160]:10502 "HELO toti.net")
-	by vger.kernel.org with SMTP id S262476AbUFNMdU (ORCPT
+	Mon, 14 Jun 2004 08:48:06 -0400
+Received: from utilsc01.rightnowtech.com ([216.136.168.81]:4525 "EHLO
+	utilsc01.rightnowtech.com") by vger.kernel.org with ESMTP
+	id S262873AbUFNMsD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 08:33:20 -0400
-From: "Toti Bilgisayar Personeli" <pehlivan@toti.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Sitemiz Yenilendi
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-9"
-Date: Mon, 14 Jun 2004 15:34:16 +0300
-Content-Transfer-Encoding: 8bit
-Message-Id: <S262476AbUFNMdU/20040614123320Z+993@vger.kernel.org>
+	Mon, 14 Jun 2004 08:48:03 -0400
+MIME-Version: 1.0
+Message-Id: <40CD9E82.000003.31067@websc-utils01.int.rightnowtech.com>
+Date: Mon, 14 Jun 2004 05:48:02 -0700 (PDT)
+To: linux-kernel@vger.kernel.org
+From: support@lantronix.com
+Reply-To: support@lantronix.com
+Subject: Re: Hi
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Toti Bilgisayar'ýn yeni web sitesi üzerinden ihtiyaç 
-duyduðunuz tüm Biliþim ürünleri satýn alabilirsiniz.
-Ayrýca Tekzen Maðazamýz her gece  saat 22'ye kadar açýktýr
-Hep daha iyiye
+Response
+---------------------------------------------------------------
+Dear Customer,
 
-Toti Bilgisayar
-www.toti.net
-(0212) 543 8888
+Your question has NOT been submitted.
+
+To submit a question to Lantronix Support, please click one of the links below:
+Post-Sales:
+http://ltxfaq.custhelp.com/cgi-bin/ltxfaq.cfg/php/enduser/ask.php 
+
+Pre-Sales:
+http://www.lantronix.com/howtobuy/salesinfo/index.html 
+
+You may also call our Technical Support Department during our normal business hours (between 6:00 am 5:30 pm Pacific Time, Monday through Friday) at 800-422-7044 (U.S. & Canada) or 949-453-3990 (worldwide).
+
+You may also find the answer to your questions in our Technical FAQ section of our WebSite at:
+http://www.lantronix.com/support 
+
+To download a manual for your Lantronix product, click the link below:
+http://www.lantronix.com/support/docs/ 
+
+Regards,
+Lantronix Technical Services
+---------------------------------------------------------------
+***************************************************************
+
+

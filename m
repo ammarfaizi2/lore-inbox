@@ -1,50 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbUDRRbn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 13:31:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUDRRbn
+	id S262596AbUDRRfn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 13:35:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbUDRRfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 13:31:43 -0400
-Received: from florence.buici.com ([206.124.142.26]:12929 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S262213AbUDRRbl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 13:31:41 -0400
-Date: Sun, 18 Apr 2004 10:31:39 -0700
-From: Marc Singer <elf@buici.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>, Marc Singer <elf@buici.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: NFS and kernel 2.6.x
-Message-ID: <20040418173139.GA28744@flea>
-References: <1082093346.7141.159.camel@lade.trondhjem.org> <pan.2004.04.17.16.44.00.630010@smurf.noris.de> <1082225747.2580.18.camel@lade.trondhjem.org> <20040417183219.GB3856@flea> <1082228313.2580.25.camel@lade.trondhjem.org> <20040417222258.GA12893@flea> <1082249866.3619.43.camel@lade.trondhjem.org> <20040418050141.GA19414@flea> <408221DE.4050002@nortelnetworks.com> <20040418085619.A4239@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040418085619.A4239@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 18 Apr 2004 13:35:43 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:60024 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262215AbUDRRfb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 13:35:31 -0400
+Message-ID: <4082BC85.9010800@sgi.com>
+Date: Sun, 18 Apr 2004 12:36:05 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "'David Gibson'" <david@gibson.dropbear.id.au>
+CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       "'Andy Whitcroft'" <apw@shadowen.org>,
+       "'Andrew Morton'" <akpm@osdl.org>
+Subject: Re: [Lse-tech] Re: hugetlb demand paging patch part [2/3]
+References: <20040416032725.GG12735@zax> <200404160413.i3G4DcF13729@unix-os.sc.intel.com> <20040416044917.GB26707@zax> <40802E69.7040506@sgi.com> <20040417120540.GC32444@zax>
+In-Reply-To: <20040417120540.GC32444@zax>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 18, 2004 at 08:56:19AM +0100, Russell King wrote:
-> On Sun, Apr 18, 2004 at 02:36:14AM -0400, Chris Friesen wrote:
-> > Marc Singer wrote:
-> > 
-> > > Client is a 200MHz ARM; server is a Linux host running 2.6.3 with the
-> > > kernel nfs daemon; network is 100Mib.  There is nothing else on the
-> > > network except intermittent broadband traffic.  Async is set on the
-> > > server side.
-> > 
-> > Is the ARM that slow?  under 2MB/s seems odd to me...but them maybe I'm 
-> > used to faster machines.
+
+
+'David Gibson' wrote:
+
 > 
-> It's probably the SMC91c111 ether chip causing all the problem - it's
-> only able to store about 4 packets before it starts dropping, which
-> isn't that much on a 100mbit network.
+> 
+> My main interest in it is as a prerequisite for various methods of
+> "automatically" using hugepages for programs where it is difficult to
+> manually code them to use hugetlbfs.  In particular, think HPC
+> monsters written in FORTRAN.  e.g. automatically putting suitable
+> aligned anonymous mmap()s in hugepages under some circumstances (I
+> can't say I like that idea much), using an LD_PRELOAD to put
+> malloc()ated memory into hugepages, or using a hacked ELF loader to
+> put the BSS section (again, think FORTRAN) into hugepages (actually
+> easier and less ugly than it sounds).
+> 
 
-I suspect that it might be a CPU issue.  On transmit only, it never
-gets above 18Mib.
+Well, that certainly is a laudable goal.  At the moment, one usually has to 
+resort to such things as POINTER variables and the like to get access to 
+hugetlbpage segments.  Unfortunately, some of our experiments with the Intel 
+compiler for ia64 have indicated  that the generated code can be significantly 
+slower when arrays are referenced off of POINTER variables than when the same 
+arrays are referenced out of COMMON, thus eliminating the performance gain of 
+HUGETLB pages.
 
-> Running with rsize=4096 works wonders with this chip.
+My question was really intended to address applying development effort to 
+things that the users of hugetlbpages will likely actually use.  For example, 
+it seems pointless to worry too much about demand paging of hugetlbpages out 
+to disk.  Anyone who uses hugetlbpages for the performance boost they give 
+will also likely have rightsized their problem or machine configuration to 
+eliminate any swapping.
 
-Already there.
+> In any of these cases having the memory have different semantics
+> (MAP_SHARED) to normal anonymous memory would clearly be a Bad Thing.
+> 
+> 
+> 
+> 
+
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
 

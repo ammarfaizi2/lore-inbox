@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267578AbUIULoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267585AbUIULpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267578AbUIULoe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 07:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267585AbUIULoe
+	id S267585AbUIULpE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 07:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267587AbUIULpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 07:44:34 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:10257 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S267578AbUIULoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 07:44:32 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Pavel Machek <pavel@ucw.cz>, Stas Sergeev <stsp@aknet.ru>
-Subject: Re: ESP corruption bug - what CPUs are affected?
-Date: Tue, 21 Sep 2004 14:43:37 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <4149D243.5050501@aknet.ru> <414C14CD.7030200@aknet.ru> <20040921111900.GA7515@elf.ucw.cz>
-In-Reply-To: <20040921111900.GA7515@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Tue, 21 Sep 2004 07:45:04 -0400
+Received: from gate.crashing.org ([63.228.1.57]:49352 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267585AbUIULo7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 07:44:59 -0400
+Subject: Re: [PATCH] ppc64: Fix __raw_* IO accessors
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>
+In-Reply-To: <1095761113.30931.13.camel@localhost.localdomain>
+References: <1095758630.3332.133.camel@gaston>
+	 <1095761113.30931.13.camel@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1095766919.3577.138.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 21 Sep 2004 21:41:59 +1000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409211443.37854.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 September 2004 14:19, Pavel Machek wrote:
-> Hi!
+On Tue, 2004-09-21 at 20:05, Alan Cox wrote:
+> On Maw, 2004-09-21 at 10:23, Benjamin Herrenschmidt wrote:
+> > Hi !
+> > 
+> > Linus, I don't know if you did that on purpose, but you removed the
+> > "volatile" statement from the definition of the __raw_* IO accessors
+> > on ppc64, which cause some real bad optisations to happen in some
+> > fbdev's like matroxfb to happen (just imagine that matroxfb loops
+> > reading an IO register waiting for a bit to change).
 > 
-> > >for subsequent push/pop/call/ret operations.
-> > >But if code uses full ESP, thinking that upper 16 bits are zero,
-> > >it will crash badly. Correct me if I'm wrong.
-> >
-> > That's correct. But you should note that the
-> > program not just "thinks" that the upper 16 bits
-> > are zero. It writes zero there itself, and a few
-> > instructions later - oops, it is no longer zero...
-> 
-> Hmm, perhaps this can also be viewed as a "information leak"? Program
-> running under dosemu is not expected to know high bits of kernel
-> %esp...
+> Why is it using __raw if it cares about ordering and not using barriers
+> ? Way back when the original definition was that __raw didnt do
+> barriers. Thats why I2O for example uses __raw_ so that messages can be
+> generated as efficiently as possible.
 
-Yes.
+It uses __raw for non-byteswap... The problem is that __raw does both
+non-byteswap and non-barriers and there is no simple way to get one
+and not the other...
 
-I must admit that Stas was right and I was wrong.
-This is a 386 CPU bug.
+Ben.
 
-Since then it seems to be codified in i86 architecture
-and duplicated in all successors.
-Incredible... :(
---
-vda
 

@@ -1,62 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVCQG3v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVCQGhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261828AbVCQG3v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 01:29:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVCQG3v
+	id S261856AbVCQGhg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 01:37:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVCQGhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 01:29:51 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:40181 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261828AbVCQG3s
+	Thu, 17 Mar 2005 01:37:36 -0500
+Received: from v-1635.easyco.net ([69.26.169.185]:19716 "EHLO
+	mail.intworks.biz") by vger.kernel.org with ESMTP id S261856AbVCQGhO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 01:29:48 -0500
-Message-ID: <423923D9.4050801@mvista.com>
-Date: Wed, 16 Mar 2005 22:29:45 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Liu, Hong" <hong.liu@intel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] fix POSIX timers expire before their scheduled time
-References: <1111026022.2994.54.camel@devlinux-hong>
-In-Reply-To: <1111026022.2994.54.camel@devlinux-hong>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Mar 2005 01:37:14 -0500
+Date: Wed, 16 Mar 2005 22:36:59 -0800
+From: jayalk@intworks.biz
+Message-Id: <200503170636.j2H6axCe024553@intworks.biz>
+To: gregkh@suse.de
+Subject: [PATCH 2.6.11.2 1/1] PCI Allow OutOfRange PIRQ table address
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Liu, Hong wrote:
-> POSIX says: POSIX timers should not expire before their scheduled time.
-> 
-> Due to the timer started between jiffies, there are cases that the timer
-> will expire before its scheduled time.
-> This patch ensures timers will not expire early.
-> 
-> --- a/kernel/posix-timers.c     2005-03-10 15:46:27.329333664 +0800
-> +++ b/kernel/posix-timers.c     2005-03-10 15:50:11.884196136 +0800
-> @@ -957,7 +957,8 @@
->                             &expire_64, &(timr->wall_to_prev))) {
->                 return -EINVAL;
->         }
-> -       timr->it_timer.expires = (unsigned long)expire_64;
-> +       timr->it_timer.expires = (unsigned long)expire_64 + 1;
->         tstojiffie(&new_setting->it_interval, clock->res, &expire_64);
->         timr->it_incr = (unsigned long)expire_64;
-> 
-Has this happened??  The following code (in adjust_abs_time()) is supposed to 
-prevent this sort of thing:
+Hi Greg, PCI folk,
 
-	if (oc.tv_sec | oc.tv_nsec) {
-		oc.tv_nsec += clock->res;
-		timespec_norm(&oc);
-	}
+I updated this to remove unnecessary variable initialization, make 
+check_routing be inline only and not __init, and formatting fixes as per
+Randy Dunlap's recommendations. Let me know if it's okay. Thanks. 
 
-Also, we run rather extensive tests for this sort of thing.
+---
 
+I updated this to change pirq_table_addr to a long, and to add a warning
+msg if the PIRQ table wasn't found at the specified address, as per thread
+with Matthew Wilcox. 
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+In our hardware situation, the BIOS is unable to store or generate it's PIRQ
+table in the F0000h-100000h standard range. This patch adds a pci kernel
+parameter, pirqaddr to allow the bootloader (or BIOS based loader) to inform
+the kernel where the PIRQ table got stored. A beneficial side-effect is that,
+if one's BIOS uses a static address each time for it's PIRQ table, then
+pirqaddr can be used to avoid the $pirq search through that address block each
+time at boot for normal PIRQ BIOSes.
 
+---
+
+Signed-off-by:	Jaya Kumar	<jayalk@intworks.biz>
+
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/common.c linux-2.6.11.2/arch/i386/pci/common.c
+--- linux-2.6.11.2-vanilla/arch/i386/pci/common.c	2005-03-10 16:31:25.000000000 +0800
++++ linux-2.6.11.2/arch/i386/pci/common.c	2005-03-17 12:58:45.246032136 +0800
+@@ -25,7 +25,8 @@ unsigned int pci_probe = PCI_PROBE_BIOS 
+ 
+ int pci_routeirq;
+ int pcibios_last_bus = -1;
+-struct pci_bus *pci_root_bus = NULL;
++unsigned long pirq_table_addr;
++struct pci_bus *pci_root_bus;
+ struct pci_raw_ops *raw_pci_ops;
+ 
+ static int pci_read(struct pci_bus *bus, unsigned int devfn, int where, int size, u32 *value)
+@@ -188,6 +189,9 @@ char * __devinit  pcibios_setup(char *st
+ 	} else if (!strcmp(str, "biosirq")) {
+ 		pci_probe |= PCI_BIOS_IRQ_SCAN;
+ 		return NULL;
++	} else if (!strncmp(str, "pirqaddr=", 9)) {
++		pirq_table_addr = simple_strtol(str+9, NULL, 0);
++		return NULL;
+ 	}
+ #endif
+ #ifdef CONFIG_PCI_DIRECT
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2/arch/i386/pci/irq.c
+--- linux-2.6.11.2-vanilla/arch/i386/pci/irq.c	2005-03-10 16:31:25.000000000 +0800
++++ linux-2.6.11.2/arch/i386/pci/irq.c	2005-03-17 14:04:22.924414032 +0800
+@@ -58,6 +58,35 @@ struct irq_router_handler {
+ int (*pcibios_enable_irq)(struct pci_dev *dev) = NULL;
+ 
+ /*
++ *  Check passed address for the PCI IRQ Routing Table signature 
++ *  and perform checksum verification.
++ */
++
++static inline struct irq_routing_table * pirq_check_routing_table(u8 *addr)
++{
++	struct irq_routing_table *rt;
++	int i;
++	u8 sum;
++
++	rt = (struct irq_routing_table *) addr;
++	if (rt->signature != PIRQ_SIGNATURE ||
++	    rt->version != PIRQ_VERSION ||
++	    rt->size % 16 ||
++	    rt->size < sizeof(struct irq_routing_table))
++		return NULL;
++	sum = 0;
++	for (i=0; i < rt->size; i++)
++		sum += addr[i];
++	if (!sum) {
++		DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
++		return rt;
++	}
++	return NULL;
++}
++
++
++
++/*
+  *  Search 0xf0000 -- 0xfffff for the PCI IRQ Routing Table.
+  */
+ 
+@@ -65,23 +94,17 @@ static struct irq_routing_table * __init
+ {
+ 	u8 *addr;
+ 	struct irq_routing_table *rt;
+-	int i;
+-	u8 sum;
+ 
++	if (pirq_table_addr) {
++		rt = pirq_check_routing_table((u8 *) __va(pirq_table_addr));
++		if (rt)
++			return rt;
++		printk(KERN_WARNING "PCI: PIRQ table NOT found at pirqaddr\n"); 
++	}
+ 	for(addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
+-		rt = (struct irq_routing_table *) addr;
+-		if (rt->signature != PIRQ_SIGNATURE ||
+-		    rt->version != PIRQ_VERSION ||
+-		    rt->size % 16 ||
+-		    rt->size < sizeof(struct irq_routing_table))
+-			continue;
+-		sum = 0;
+-		for(i=0; i<rt->size; i++)
+-			sum += addr[i];
+-		if (!sum) {
+-			DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
++		rt = pirq_check_routing_table(addr);
++		if (rt) 
+ 			return rt;
+-		}
+ 	}
+ 	return NULL;
+ }
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/pci.h linux-2.6.11.2/arch/i386/pci/pci.h
+--- linux-2.6.11.2-vanilla/arch/i386/pci/pci.h	2005-03-10 16:31:25.000000000 +0800
++++ linux-2.6.11.2/arch/i386/pci/pci.h	2005-03-17 08:54:36.000000000 +0800
+@@ -27,6 +27,7 @@
+ #define PCI_ASSIGN_ALL_BUSSES	0x4000
+ 
+ extern unsigned int pci_probe;
++extern unsigned long pirq_table_addr;
+ 
+ /* pci-i386.c */
+ 
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt linux-2.6.11.2/Documentation/kernel-parameters.txt
+--- linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt	2005-03-10 16:31:44.000000000 +0800
++++ linux-2.6.11.2/Documentation/kernel-parameters.txt	2005-03-17 13:01:20.000000000 +0800
+@@ -967,6 +967,10 @@ running once the system is up.
+ 		irqmask=0xMMMM		[IA-32] Set a bit mask of IRQs allowed to be assigned
+ 					automatically to PCI devices. You can make the kernel
+ 					exclude IRQs of your ISA cards this way.
++		pirqaddr=0xAAAAA	[IA-32] Specify the physical address
++					of the PIRQ table (normally generated
++					by the BIOS) if it is outside the
++					F0000h-100000h range.
+ 		lastbus=N		[IA-32] Scan all buses till bus #N. Can be useful
+ 					if the kernel is unable to find your secondary buses
+ 					and you want to tell it explicitly which ones they are.

@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261615AbSJFODW>; Sun, 6 Oct 2002 10:03:22 -0400
+	id <S263393AbSJFOL7>; Sun, 6 Oct 2002 10:11:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261618AbSJFODW>; Sun, 6 Oct 2002 10:03:22 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36103 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261615AbSJFODV>; Sun, 6 Oct 2002 10:03:21 -0400
-Date: Sun, 6 Oct 2002 15:08:54 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "David S. Miller" <davem@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Larry McVoy <lm@bitmover.com>, Ulrich Drepper <drepper@redhat.com>,
-       bcollins@debian.org, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BK MetaData License Problem?
-Message-ID: <20021006150854.C31147@flint.arm.linux.org.uk>
-References: <20021006144821.B31147@flint.arm.linux.org.uk> <Pine.LNX.4.44.0210061601040.7386-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210061601040.7386-100000@localhost.localdomain>; from mingo@elte.hu on Sun, Oct 06, 2002 at 04:10:46PM +0200
+	id <S261619AbSJFOL7>; Sun, 6 Oct 2002 10:11:59 -0400
+Received: from daimi.au.dk ([130.225.16.1]:41696 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S263393AbSJFOL6>;
+	Sun, 6 Oct 2002 10:11:58 -0400
+Message-ID: <3DA045F1.8E0FDCEA@daimi.au.dk>
+Date: Sun, 06 Oct 2002 16:17:21 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-10smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjanv@redhat.com>
+CC: Andy Pfiffer <andyp@osdl.org>, Michal Jaegermann <michal@harddata.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: export of sys_call_table
+References: <20021003153943.E22418@openss7.org>
+		<1033682560.28850.32.camel@irongate.swansea.linux.org.uk> 
+		<20021003171013.B22986@mail.harddata.com>  <1033691520.28254.6.camel@andyp> <1033723207.1733.4.camel@localhost.localdomain>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 06, 2002 at 04:10:46PM +0200, Ingo Molnar wrote:
-> it *is* a BK problem caused by BK becase now this whole can of worms got
-> silently exported to the kernel tree, and while BM itself is safe via its
-> license, the kernel tree 'as a whole' is exposed.
+Arjan van de Ven wrote:
+> 
+> I wonder why kmonte can't just use a reboot notifier.... existing
+> infrastructure already ;(
 
-Actually, the more I think about it, the more you are correct.
+Because it doesn't hook sys_reboot to get notified about reboots.
+It hooks sys_reboot to add new calls, it could have been a new
+system call, but what monte does is slightly related to a reboot.
 
-The way BK openlogging works, it exports personal information out of the
-EU.  This is explicitly prohibited under EU law, unless the owner of that
-personal information has explicitly granted that it may be used in that
-manner.
+I have myself added a feature to monte where it was essential to
+hook the sys_reboot call and do something else when a reboot was
+requested. Maybe I could have used a reboot notifier.
 
-Therefore, I'd stronlg advise people in the EU not to use BK's BK_USER/
-BK_HOST feature when importing patches.
+What really bothers me about monte is:
+1) Doesn't work on SMP
+2) Doesn't seem to be maintened (does it even work on 2.5)?
+3) Is not completely stable
+4) Only available as a module, cannot be compiled in kernel.
+5) I couldn't get my additional feature working with the latest
+   version of monte.
 
-The following question remains though: peoples names are "personal
-information."  Personal information falls under the UK data protection
-act, which is one implementation of the EU law.  This means that unless
-Alan has an explicit agreement with every person who has sent him a patch,
-he has no right to publish the list of names in his change log, especially
-when that information travels leaves the EU.
-
-This is certainly an interesting problem.
+Perhaps there is some better alternative which I don't know?
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:aaarep@daimi.au.dk
+or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk

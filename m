@@ -1,179 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbUL3I7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbUL3JEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbUL3I7z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 03:59:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUL3I6V
+	id S261630AbUL3JEf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 04:04:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbUL3JCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 03:58:21 -0500
-Received: from smtp.knology.net ([24.214.63.101]:57306 "HELO smtp.knology.net")
-	by vger.kernel.org with SMTP id S261584AbUL3Ish (ORCPT
+	Thu, 30 Dec 2004 04:02:49 -0500
+Received: from smtp.knology.net ([24.214.63.101]:58074 "HELO smtp.knology.net")
+	by vger.kernel.org with SMTP id S261590AbUL3Isi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 03:48:37 -0500
-Date: Thu, 30 Dec 2004 03:48:36 -0500
+	Thu, 30 Dec 2004 03:48:38 -0500
+Date: Thu, 30 Dec 2004 03:48:37 -0500
 To: netdev@oss.sgi.com
 Cc: linux-kernel@vger.kernel.org, dave@thedillows.org
 From: David Dillow <dave@thedillows.org>
-Subject: [RFC 2.6.10 12/22] ethtool: Add support for crypto offload
-Message-Id: <20041230035000.21@ori.thedillows.org>
-References: <20041230035000.20@ori.thedillows.org>
+Subject: [RFC 2.6.10 17/22] typhoon: split out setting of offloaded tasks
+Message-Id: <20041230035000.26@ori.thedillows.org>
+References: <20041230035000.25@ori.thedillows.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 # This is a BitKeeper generated diff -Nru style patch.
 #
 # ChangeSet
-#   2004/12/30 00:51:19-05:00 dave@thedillows.org 
-#   Add support for querying and changing the status of the
-#   IPSEC crypto offload feature of a NIC.
+#   2004/12/30 00:57:35-05:00 dave@thedillows.org 
+#   Move the setting of the currently offloaded tasks to its own
+#   function, as we'll be making use of it to change the crypto
+#   offload status when adding/removing xfrms.
 #   
 #   Signed-off-by: David Dillow <dave@thedillows.org>
 # 
-# net/core/ethtool.c
-#   2004/12/30 00:51:00-05:00 dave@thedillows.org +54 -0
-#   Add support for querying and changing the status of the IPSEC
-#   crypto offload feature of a NIC.
-#   
-#   Turn on/off the feature flag before informing the xfrm engine
-#   of the change so that existing xfrms get the new settings.
+# drivers/net/typhoon.c
+#   2004/12/30 00:57:17-05:00 dave@thedillows.org +26 -15
+#   Move the setting of the currently offloaded tasks to its own
+#   function, as we'll be making use of it to change the crypto
+#   offload status when adding/removing xfrms.
 #   
 #   Signed-off-by: David Dillow <dave@thedillows.org>
 # 
-# include/linux/ethtool.h
-#   2004/12/30 00:51:00-05:00 dave@thedillows.org +8 -0
-#   Add support for querying and changing the status of the
-#   IPSEC crypto offload feature of a NIC.
-#   
-#   Signed-off-by: David Dillow <dave@thedillows.org>
-# 
-diff -Nru a/include/linux/ethtool.h b/include/linux/ethtool.h
---- a/include/linux/ethtool.h	2004-12-30 01:09:49 -05:00
-+++ b/include/linux/ethtool.h	2004-12-30 01:09:49 -05:00
-@@ -260,6 +260,8 @@
- int ethtool_op_set_sg(struct net_device *dev, u32 data);
- u32 ethtool_op_get_tso(struct net_device *dev);
- int ethtool_op_set_tso(struct net_device *dev, u32 data);
-+u32 ethtool_op_get_ipsec(struct net_device *dev);
-+int ethtool_op_set_ipsec(struct net_device *dev, u32 data);
+diff -Nru a/drivers/net/typhoon.c b/drivers/net/typhoon.c
+--- a/drivers/net/typhoon.c	2004-12-30 01:08:45 -05:00
++++ b/drivers/net/typhoon.c	2004-12-30 01:08:45 -05:00
+@@ -304,6 +304,7 @@
+ 	u16			xcvr_select;
+ 	u16			wol_events;
+ 	u32			offload;
++	spinlock_t		offload_lock;
  
- /**
-  * &ethtool_ops - Alter and report network device settings
-@@ -293,6 +295,8 @@
-  * get_strings: Return a set of strings that describe the requested objects 
-  * phys_id: Identify the device
-  * get_stats: Return statistics about the device
-+ * get_ipsec: Report whether IPSEC crypto offload is enabled
-+ * set_ipsec: Turn IPSEC crypto offload on or off
-  *
-  * Description:
-  *
-@@ -345,6 +349,8 @@
- 	int	(*set_sg)(struct net_device *, u32);
- 	u32	(*get_tso)(struct net_device *);
- 	int	(*set_tso)(struct net_device *, u32);
-+	u32	(*get_ipsec)(struct net_device *);
-+	int	(*set_ipsec)(struct net_device *, u32);
- 	int	(*self_test_count)(struct net_device *);
- 	void	(*self_test)(struct net_device *, struct ethtool_test *, u64 *);
- 	void	(*get_strings)(struct net_device *, u32 stringset, u8 *);
-@@ -388,6 +394,8 @@
- #define ETHTOOL_GSTATS		0x0000001d /* get NIC-specific statistics */
- #define ETHTOOL_GTSO		0x0000001e /* Get TSO enable (ethtool_value) */
- #define ETHTOOL_STSO		0x0000001f /* Set TSO enable (ethtool_value) */
-+#define ETHTOOL_GIPSEC		0x00000020 /* Get IPSEC enable (ethtool_value) */
-+#define ETHTOOL_SIPSEC		0x00000021 /* Set IPSEC enable (ethtool_value) */
- 
- /* compatibility with older code */
- #define SPARC_ETH_GSET		ETHTOOL_GSET
-diff -Nru a/net/core/ethtool.c b/net/core/ethtool.c
---- a/net/core/ethtool.c	2004-12-30 01:09:49 -05:00
-+++ b/net/core/ethtool.c	2004-12-30 01:09:49 -05:00
-@@ -14,6 +14,7 @@
- #include <linux/errno.h>
- #include <linux/ethtool.h>
- #include <linux/netdevice.h>
-+#include <net/xfrm.h>
- #include <asm/uaccess.h>
- 
- /* 
-@@ -72,6 +73,24 @@
- 	return 0;
+ 	u16			tx_sa_max;
+ 	u16			rx_sa_max;
+@@ -725,11 +726,28 @@
+ 	return err;
  }
  
-+u32 ethtool_op_get_ipsec(struct net_device *dev)
++static int
++typhoon_set_offload(struct typhoon *tp)
 +{
-+	return (dev->features & NETIF_F_IPSEC) != 0;
++	/* Caller should hold tp->offload_lock, or otherwise guarantee
++         * exclusitivity to this routine.
++         */
++	struct cmd_desc xp_cmd;
++
++	smp_rmb();
++	if(tp->card_state != Running)
++		return 0;
++
++	INIT_COMMAND_WITH_RESPONSE(&xp_cmd, TYPHOON_CMD_SET_OFFLOAD_TASKS);
++	xp_cmd.parm2 = tp->offload;
++	xp_cmd.parm3 = tp->offload;
++	return typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
 +}
 +
-+int ethtool_op_set_ipsec(struct net_device *dev, u32 data)
-+{
-+	if (data) {
-+		dev->features |= NETIF_F_IPSEC;
-+		xfrm_accel_add(dev);
-+	} else {
-+		dev->features &= ~NETIF_F_IPSEC;
-+		xfrm_accel_flush(dev);
-+	}
-+
-+	return 0;
-+}
-+
- /* Handlers for each ethtool command */
- 
- static int ethtool_get_settings(struct net_device *dev, void __user *useraddr)
-@@ -548,6 +567,33 @@
- 	return dev->ethtool_ops->set_tso(dev, edata.data);
- }
- 
-+static int ethtool_get_ipsec(struct net_device *dev, char __user *useraddr)
-+{
-+	struct ethtool_value edata = { ETHTOOL_GIPSEC };
-+
-+	if (!dev->ethtool_ops->get_ipsec)
-+		return -EOPNOTSUPP;
-+
-+	edata.data = dev->ethtool_ops->get_ipsec(dev);
-+
-+	if (copy_to_user(useraddr, &edata, sizeof(edata)))
-+		return -EFAULT;
-+	return 0;
-+}
-+
-+static int ethtool_set_ipsec(struct net_device *dev, char __user *useraddr)
-+{
-+	struct ethtool_value edata;
-+
-+	if (!dev->ethtool_ops->set_ipsec)
-+		return -EOPNOTSUPP;
-+
-+	if (copy_from_user(&edata, useraddr, sizeof(edata)))
-+		return -EFAULT;
-+
-+	return dev->ethtool_ops->set_ipsec(dev, edata.data);
-+}
-+
- static int ethtool_self_test(struct net_device *dev, char __user *useraddr)
+ static void
+ typhoon_vlan_rx_register(struct net_device *dev, struct vlan_group *grp)
  {
- 	struct ethtool_test test;
-@@ -783,6 +829,12 @@
- 	case ETHTOOL_STSO:
- 		rc = ethtool_set_tso(dev, useraddr);
- 		break;
-+	case ETHTOOL_GIPSEC:
-+		rc = ethtool_get_ipsec(dev, useraddr);
-+		break;
-+	case ETHTOOL_SIPSEC:
-+		rc = ethtool_set_ipsec(dev, useraddr);
-+		break;
- 	case ETHTOOL_TEST:
- 		rc = ethtool_self_test(dev, useraddr);
- 		break;
-@@ -813,7 +865,9 @@
- EXPORT_SYMBOL(ethtool_op_get_link);
- EXPORT_SYMBOL(ethtool_op_get_sg);
- EXPORT_SYMBOL(ethtool_op_get_tso);
-+EXPORT_SYMBOL(ethtool_op_get_ipsec);
- EXPORT_SYMBOL(ethtool_op_get_tx_csum);
- EXPORT_SYMBOL(ethtool_op_set_sg);
- EXPORT_SYMBOL(ethtool_op_set_tso);
-+EXPORT_SYMBOL(ethtool_op_set_ipsec);
- EXPORT_SYMBOL(ethtool_op_set_tx_csum);
+ 	struct typhoon *tp = netdev_priv(dev);
+-	struct cmd_desc xp_cmd;
+ 	int err;
+ 
+ 	spin_lock_bh(&tp->state_lock);
+@@ -737,25 +755,16 @@
+ 		/* We've either been turned on for the first time, or we've
+ 		 * been turned off. Update the 3XP.
+ 		 */
++		spin_lock_bh(&tp->offload_lock);
+ 		if(grp)
+ 			tp->offload |= TYPHOON_OFFLOAD_VLAN;
+ 		else
+ 			tp->offload &= ~TYPHOON_OFFLOAD_VLAN;
++		err = typhoon_set_offload(tp);
++		spin_unlock_bh(&tp->offload_lock);
+ 
+-		/* If the interface is up, the runtime is running -- and we
+-		 * must be up for the vlan core to call us.
+-		 *
+-		 * Do the command outside of the spin lock, as it is slow.
+-		 */
+-		INIT_COMMAND_WITH_RESPONSE(&xp_cmd,
+-					TYPHOON_CMD_SET_OFFLOAD_TASKS);
+-		xp_cmd.parm2 = tp->offload;
+-		xp_cmd.parm3 = tp->offload;
+-		spin_unlock_bh(&tp->state_lock);
+-		err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+ 		if(err < 0)
+ 			printk("%s: vlan offload error %d\n", tp->name, -err);
+-		spin_lock_bh(&tp->state_lock);
+ 	}
+ 
+ 	/* now make the change visible */
+@@ -1486,6 +1495,7 @@
+ 
+ 	spin_lock_init(&tp->command_lock);
+ 	spin_lock_init(&tp->state_lock);
++	spin_lock_init(&tp->offload_lock);
+ }
+ 
+ static void
+@@ -2218,12 +2228,13 @@
+ 	if(err < 0)
+ 		goto error_out;
+ 
++	/* tp->card_state != Running, so nothing will change this out
++	 * from under us.
++	 */
+ 	INIT_COMMAND_NO_RESPONSE(&xp_cmd, TYPHOON_CMD_SET_OFFLOAD_TASKS);
+-	spin_lock_bh(&tp->state_lock);
+ 	xp_cmd.parm2 = tp->offload;
+ 	xp_cmd.parm3 = tp->offload;
+ 	err = typhoon_issue_command(tp, 1, &xp_cmd, 0, NULL);
+-	spin_unlock_bh(&tp->state_lock);
+ 	if(err < 0)
+ 		goto error_out;
+ 

@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264896AbUGHNQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUGHNPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264896AbUGHNQk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 09:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbUGHNQk
+	id S264396AbUGHNPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 09:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbUGHNPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 09:16:40 -0400
-Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:29964 "EHLO
-	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S264658AbUGHNPr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 09:15:47 -0400
-From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] warning `comparison is always false due to limited range of data type'
-Date: Thu, 8 Jul 2004 15:15:43 +0200
-User-Agent: KMail/1.6.2
+	Thu, 8 Jul 2004 09:15:25 -0400
+Received: from cantor.suse.de ([195.135.220.2]:43744 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264396AbUGHNMV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 09:12:21 -0400
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+References: <20040707122525.X1924@build.pdx.osdl.net>
+	<E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+	<20040707202746.1da0568b.davem@redhat.com>
+	<buo7jtfi2p9.fsf@mctpc71.ucom.lsi.nec.co.jp>
+	<Pine.LNX.4.58.0407072220060.1764@ppc970.osdl.org>
+	<20040708111829.GA3449@gondor.apana.org.au>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I'm thinking about DIGITAL READ-OUT systems and
+ computer-generated IMAGE FORMATIONS..
+Date: Thu, 08 Jul 2004 15:10:11 +0200
+In-Reply-To: <20040708111829.GA3449@gondor.apana.org.au> (Herbert Xu's
+ message of "Thu, 8 Jul 2004 21:18:29 +1000")
+Message-ID: <jebriqtzkc.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_/jU7AeQgpWeR5Y/"
-Message-Id: <200407081515.43055.pluto@pld-linux.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Herbert Xu <herbert@gondor.apana.org.au> writes:
 
---Boundary-00=_/jU7AeQgpWeR5Y/
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> But it is ironic that you call people who use 0 in a pointer context
+> K&R-C bigots.  One of the principal reason why NULL exists at all
+> is in fact the lack of prototypes in K&R...
 
+There is one place where even prototypes won't help, which is varargs
+functions like execl.  But I don't think the kernel uses functions with
+execl-like argument lists.
+
+Andreas.
 
 -- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
-
-                           #define say(x) lie(x)
-
---Boundary-00=_/jU7AeQgpWeR5Y/
-Content-Type: text/x-diff;
-  charset="iso-8859-2";
-  name="gcc-ad1889.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="gcc-ad1889.patch"
-
-
-=A0 CC [M] =A0sound/oss/ad1889.o
-=A0 =A0 =A0 =A0 =A0 sound/oss/ad1889.c: In function `ad1889_ac97_init':
-=A0 =A0 =A0 =A0 =A0 sound/oss/ad1889.c:854: warning: comparison is always f=
-alse
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 due to =
-limited range of data type
-
-=2D-- linux-2.6.7/sound/oss/ad1889.c.orig	2004-06-16 07:19:12.000000000 +02=
-00
-+++ linux-2.6.7/sound/oss/ad1889.c	2004-07-08 14:36:04.048339480 +0200
-@@ -851,7 +851,7 @@
- 	}
-=20
- 	eid =3D ad1889_codec_read(ac97, AC97_EXTENDED_ID);
-=2D	if (eid =3D=3D 0xffffff) {
-+	if (eid =3D=3D 0xffff) {
- 		printk(KERN_WARNING DEVNAME ": no codec attached?\n");
- 		goto out_free;
- 	}
-
---Boundary-00=_/jU7AeQgpWeR5Y/--
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

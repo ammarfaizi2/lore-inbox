@@ -1,38 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268477AbRGXVlS>; Tue, 24 Jul 2001 17:41:18 -0400
+	id <S268483AbRGXVrI>; Tue, 24 Jul 2001 17:47:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268479AbRGXVlI>; Tue, 24 Jul 2001 17:41:08 -0400
-Received: from ohiper1-3.apex.net ([209.250.47.18]:39693 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S268477AbRGXVk4>; Tue, 24 Jul 2001 17:40:56 -0400
-Date: Tue, 24 Jul 2001 16:40:14 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: "Paul G. Allen" <pgallen@randomlogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Winbond Support
-Message-ID: <20010724164014.A5801@hapablap.dyn.dhs.org>
-In-Reply-To: <3B5DEACE.B4C794ED@randomlogic.com>
-Mime-Version: 1.0
+	id <S268481AbRGXVrD>; Tue, 24 Jul 2001 17:47:03 -0400
+Received: from D8FA50AA.ptr.dia.nextlink.net ([216.250.80.170]:43532 "EHLO
+	mail.applianceware.com") by vger.kernel.org with ESMTP
+	id <S268483AbRGXVqu>; Tue, 24 Jul 2001 17:46:50 -0400
+Message-ID: <3B5DECD6.B4351288@applianceware.com>
+Date: Tue, 24 Jul 2001 14:47:02 -0700
+From: Craig Spurgeon <cspurgeon@applianceware.com>
+Reply-To: cspurgeon@applianceware.com
+Organization: ApplianceWare
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: NatSemi DP83820 driver problem
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B5DEACE.B4C794ED@randomlogic.com>; from pgallen@randomlogic.com on Tue, Jul 24, 2001 at 02:38:22PM -0700
-X-Uptime: 4:37pm  up 2 days,  1:05,  0 users,  load average: 1.27, 1.10, 1.08
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 24, 2001 at 02:38:22PM -0700, Paul G. Allen wrote:
-> Does the Linux kernel (or any add-ons) support the Winbond W83782D Harware Monitoring chip? This is the chip that is on the Tyan K7 Thunder board.
-> 
-> PGA
+We have an Asante GigaNIX 1000T Gigabit Ethernet adapter that we are
+trying to get to work under kernel 2.4.6ac5.
 
-Yes, it is quite well supported by the lm_sensors project, which is a
-patch to the Linux kernel.  See here:
+National supplied their driver for the chip to Asante, and Asante
+sent it to us. It would not compile as shipped, due to a reference
+to skb->dataref.
 
-http://www.netroedge.com/~lm78/
+I contacted Asante tech support and National tech support, no
+response from either.
+
+So I changed the skb->dataref to the counter field at the end
+of skb_shared_info and it compiled.
+
+I installed it and the adapter worked, but it came up at 100Mbit
+and half-duplex. The default according to the source code is
+1000Mbit full-duplex.
+
+No parameters were supplied on the module load line.
+
+Does anyone have any experience getting this driver to come up
+successfully under 2.4.x?
+
+Also, I emailed Donald Becker at Scyld, he told me to use the ns820.c
+file in the scyld.com ftp site which was in the test directory.
+
+He said that version should work under 2.4, and he was working on
+transceiver issues still.
+
+That driver was missing the new task code used for notifying higher-
+level layers of the ability of the card to send data, so it won't
+work.
+
+I have emailed him asking for that change, however, we are leaning
+in the direction of wanting to use the driver from National.
+
+If anyone has gotten the Scyld driver to work under 2.4.x, we'd
+really appreciate the info.
+
+TIA
+
+-Craig Spurgeon
 -- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+
+-----------------------------------------------------------------------------
+Craig Spurgeon, Linux Architect        |  Microsoft Innovations List
+ApplianceWare, Inc.                    |           (empty)
+510-580-5148                           |
+-----------------------------------------------------------------------------

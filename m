@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269034AbTBXAkF>; Sun, 23 Feb 2003 19:40:05 -0500
+	id <S269035AbTBXAve>; Sun, 23 Feb 2003 19:51:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269035AbTBXAkF>; Sun, 23 Feb 2003 19:40:05 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:30874 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP
-	id <S269034AbTBXAkF>; Sun, 23 Feb 2003 19:40:05 -0500
-Message-Id: <5.1.0.14.0.20030223164708.00a76630@incoming.verizon.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 23 Feb 2003 16:48:03 -0800
-To: Andries Brouwer <aebr@win.tue.nl>
-From: "Randy.Dunlap" <randy.dunlap@verizon.net>
-Subject: Re: [RFC] seq_file_howto
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030223101033.GA13356@win.tue.nl>
-References: <3E584805.DE41B7E9@verizon.net>
- <3E584805.DE41B7E9@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [4.64.238.61] at Sun, 23 Feb 2003 18:50:10 -0600
+	id <S269036AbTBXAve>; Sun, 23 Feb 2003 19:51:34 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40197 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269035AbTBXAvd>; Sun, 23 Feb 2003 19:51:33 -0500
+Date: Sun, 23 Feb 2003 16:59:03 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Scott Murray <scottm@somanetworks.com>, <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] Make hot unplugging of PCI buses work
+In-Reply-To: <20030223212432.J20405@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0302231654370.1690-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:10 AM 2/23/2003 +0100, Andries Brouwer wrote:
->On Sat, Feb 22, 2003 at 08:03:17PM -0800, Randy.Dunlap wrote:
->
-> > acme prodded me into doing this a few weeks (or months?) ago.
-> > It still needs some additional info for using single_open()
-> > and single_release(), but I'd like to get some comments on it
-> > and then add it to linux/Documentation/filesystems/ or post it
-> > on the web somewhere, like kernelnewbies.org.
-> >
-> > Comments, corrections?
->
->By some coincidence I also wrote some text recently.
->Take whatever you want from the below.
->(For example, this mentions the use of private_data.)
->
->Andries
 
-Thanks, I'll merge them.
-I was going to add some data structure info as well.
+On Sun, 23 Feb 2003, Russell King wrote:
+> 
+> However, whether x86 PCs will survive bus renumbering or not remains to
+> be seen.  We currently try to leave as much of the configuration intact
+> from the BIOS.
 
-~Randy
+Note that I made cardbus bus numbering _ignore_ the BIOS-setup numbering 
+even on PC's, exactly because of issues like this - trying to keep the 
+original BIOS numbering just won't work if the BIOS sets the wrong numbers 
+(I saw a BIOS that had happily assigned the _same_ PCI bus number to both 
+cardbus functions, whee).
 
+I think we can (and should) make all hotpluggable PCI bridges use that 
+same cardbus logic.
+
+The real problematic case I see is if there are transparent hotplug
+bridges, with some devices just magically appear and disappear from a part 
+of a bus because of some invisible bridge. I don't know if such things 
+exist or even _can_ exist, but the perverse nature of PC hardware makes me 
+suspect they do.
+
+			Linus
 

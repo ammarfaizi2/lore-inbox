@@ -1,85 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265245AbUGANj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265283AbUGANvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265245AbUGANj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 09:39:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265248AbUGANj6
+	id S265283AbUGANvg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 09:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbUGANvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 09:39:58 -0400
-Received: from mail1.village.tin.it ([195.14.96.132]:61708 "EHLO
-	village.telecomitalia.it") by vger.kernel.org with ESMTP
-	id S265245AbUGANjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 09:39:55 -0400
-Message-ID: <40E41504.9030609@gandalf.sssup.it>
-Date: Thu, 01 Jul 2004 15:43:32 +0200
-From: michael trimarchi <trimarchi@gandalf.sssup.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Real time
-References: <40E3C9AF.4000306@gandalf.sssup.it> <Pine.LNX.4.53.0407010650240.13048@chaos>
-In-Reply-To: <Pine.LNX.4.53.0407010650240.13048@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jul 2004 09:51:36 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53641 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S265283AbUGANvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 09:51:32 -0400
+Date: Thu, 1 Jul 2004 15:11:59 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@osdl.org>, vojtech@suse.cz
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       PARISC list <parisc-linux@lists.parisc-linux.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix the cpumask rewrite
+Message-ID: <20040701131158.GP698@openzaurus.ucw.cz>
+References: <1088266111.1943.15.camel@mulgrave> <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org> <1088268405.1942.25.camel@mulgrave> <Pine.LNX.4.58.0406260948070.14449@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406260948070.14449@ppc970.osdl.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
+Hi!
 
->On Thu, 1 Jul 2004, michael trimarchi wrote:
->
->  
->
->>Hi,
->>I'm working on porting modular real time scheduler on linux layer ...
->>I'm using only kernel thread... Actually I dont't call the
->>kernel_thread(init, .... and I inizialize my scheduler and OS struct...
->>I schedule my kernel thread... I'm trying to use the printk in the
->>kernel_thread but sometimes I dont't having result on the console. The
->>console does't print my debug on screen... Is there an unburred printk?
->>
->>Best regards
->>Michael Trimarchi
->>
->>    
->>
->
->You probably need to set up your kernel thread correctly. You should
->use:
->	kernel_thread(your_thread, NULL, CLONE_FS|CLONE_FILES);
->
->your_thread(void *whatever)
->{
->    exit_files(current);
->    daemonize();
->    /.../ fix up signals, etc.
->}
->
->Without CLONE_FILES, the file-descriptors and handles ultimately
->used for printk() may not work.
->
->Cheers,
->Dick Johnson
->Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
->            Note 96.31% of all statistics are fiction.
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-I use CLONE_KERNEL but in my body I dont't call exit_files and
-demonize... I change the linux scheduler width my scheduler and I use
-only the switch_to  for context_switch from a task to another... I have
-a task descriptor with a pointer to the task_t * ... At this time I have
-a linux task_t struct and my personal task struct...
+> And the same is true of "volatile" for the bitop functions. They are 
+> volatile not because they require the data to be volatile, but because 
+> they have at least traditionally been used for various cases, _including_ 
+> volatile.
+> 
+> Now, we could say that we don't do that any more, and decide that the 
+> regular bitop functions really cannot be used on volatile stuff. But 
+> that's a BIG decision. And it's certainly not a decision that parisc 
+> users should make.
 
-Best regards
-Michael
+Heh, with vojtech we introduced locking into input layer
+(there was none before)... using test_bit/set_bit.
 
+(I just hope set_bit etc implies memory barrier... or we'll have to do
+it once more)
 
+			Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263572AbTEIXFf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 19:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTEIXFe
+	id S263573AbTEIXMX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 19:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTEIXMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 19:05:34 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:12941 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263572AbTEIXFd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 19:05:33 -0400
-Date: Fri, 9 May 2003 16:17:57 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Larry McVoy <lm@bitmover.com>, Nicolas Pitre <nico@cam.org>,
-       Dax Kelson <dax@gurulabs.com>,
-       "Downing, Thomas" <Thomas.Downing@ipc.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-ID: <20030509231757.GA25657@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Pavel Machek <pavel@ucw.cz>, Larry McVoy <lm@bitmover.com>,
-	Nicolas Pitre <nico@cam.org>, Dax Kelson <dax@gurulabs.com>,
-	"Downing, Thomas" <Thomas.Downing@ipc.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030430172107.GA25347@work.bitmover.com> <Pine.LNX.4.44.0304301443410.1611-100000@xanadu.home> <20030501022037.GC8676@work.bitmover.com> <20030509110414.GB2895@zaurus.ucw.cz>
-Mime-Version: 1.0
+	Fri, 9 May 2003 19:12:22 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:28309
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S263573AbTEIXMW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 19:12:22 -0400
+Message-ID: <3EBC38C1.6020305@redhat.com>
+Date: Fri, 09 May 2003 16:24:49 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030506
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Timothy Miller <miller@techsource.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: hammer: MAP_32BIT
+References: <3EBB5A44.7070704@redhat.com> <20030509092026.GA11012@averell> <16059.37067.925423.998433@gargle.gargle.HOWL> <20030509113845.GA4586@averell> <b9gr03$42n$1@cesium.transmeta.com> <3EBC0084.4090809@redhat.com> <3EBC15B5.4070604@zytor.com> <3EBC2164.6050605@redhat.com> <3EBC29A5.1050005@techsource.com> <3EBC2A3C.8040409@redhat.com> <3EBC3167.2030302@techsource.com>
+In-Reply-To: <3EBC3167.2030302@techsource.com>
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030509110414.GB2895@zaurus.ucw.cz>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 09, 2003 at 01:04:14PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > Those people ought to consider the benefits that BK has provided, the
-> > fact that any free replacement is years away, and the fact that we could
-> > pull the plug tomorrow and shut down the free use of BK.  Balance your
-> 
-> So you are essentially blackmailing us,
-> and expect us to like it? (What's above
-> statement, if not blackmail?) Either
-> pull the plug today, or stop flaming this
-> list. Better pull the plug.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Pavel, someone gave me some really good insight when he said "When's the
-last time you saw something from Pavel that wasn't a troll?"  I think
-you do post a some useful stuff but he does have a point, and I'll pass
-on rising to the bait, this troll is a little too blatant.
+Timothy Miller wrote:
 
-If you really want to know how I feel on the topic, Dave stated it nicely:
+> Why does there ever need to be an explicit HINT that you would prefer a
+> <32 bit address, when it's known a priori that <32 is better?  Why
+> doesn't the mapping code ALWAYS try to use 32-bit addresses before
+> resorting to 64-bit?
 
-> From: "David S. Miller" <davem@redhat.com>
-> 
-> See, it's not about what you're allowed to do, it's about being nice to
-> people especially the ones that help you.
+Because not all memory is addressed via GDT entries.  In fact, almost
+none is, only thread stacks and similar gimicks.  If all mmap memory
+would by default be served from the low memory pool you soon run out of
+it and without any good reason.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+vDjB2ijCOnn/RHQRAnHmAJ9V3BwxGTAUs7hw1YXowv0K0cEFFACePj6t
+vLI+B5BlYG4ox5WcyFrwg8A=
+=IGO2
+-----END PGP SIGNATURE-----
 

@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264296AbUGMOAj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUGMOCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264296AbUGMOAj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 10:00:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUGMOAg
+	id S265051AbUGMOCN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 10:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUGMOCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 10:00:36 -0400
-Received: from [64.76.47.59] ([64.76.47.59]:63193 "HELO
-	multivac.xnetcuyo.com.ar") by vger.kernel.org with SMTP
-	id S264296AbUGMOAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 10:00:31 -0400
-Date: Tue, 13 Jul 2004 10:00:27 -0400
-From: Cristian Gimenez <cgimenez@xnetcuyo.com.ar>
-To: linux-kernel@vger.kernel.org
-Subject: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost
- synchronization
-Message-Id: <20040713100027.3aab63bb.cgimenez@xnetcuyo.com.ar>
-Organization: XNET Cuyo S.A.
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
-X-Face: 0%qTv?~llL?5e@Mf$9&g{+rnmciA-h~4WnaB&5Fezr5_3~RNiW8Z`j$.6W>{os0Rq?e]*t'
- /HHF}L82>=-rn<S,BN7Eg9[~HUs+ybDG.zYG>d1s)ZuMY!<_|gf_6~zwuARKQs6lOM#L`%]p-sTT"l
- VbO3fjwL>B0{Qph(>f"
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 13 Jul 2004 10:02:13 -0400
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:8457 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S265051AbUGMOCF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 10:02:05 -0400
+From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+To: lorenzo@gnu.org, pageexec@freemail.hu
+Subject: Re: Kernel hacking option "Debug memory allocations" possible leak of PaX memory randomization
+Date: Tue, 13 Jul 2004 16:01:39 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <1089726693.3283.21.camel@localhost>
+In-Reply-To: <1089726693.3283.21.camel@localhost>
+X-Operating-System: Linux 2.6.5-wolk3.0 i686 GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Organization: Linux-Systeme GmbH
+Message-Id: <200407131601.39909@WOLK>
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 13 July 2004 15:51, Lorenzo Hernandez Garcia-Hierro wrote:
 
- I have this message with a motherboard asus a7n8x-e deluxe with the
-nforce2 ultra 400 chipset, tried a lot:
+Hi Lorenzo,
 
- with/without acpi
- with/without apic
- with psmouse.proto=bare in the kernel command line 
- with 2.6.7 and 2.6.8-rc1 
+> Is anyone of you having the same situation, is it an unexpected behavior or
+> it's a bug on the kernel source?
+> Is that option non-compatible with PaX RANDSTACK and the rest of PaX's
+> memory randomization features?
 
- my genius ps2/usb mouse works fine with my old abit kd7 motherboard with
- chipset via..
+CC pageexec at freemail dot hu - He's the PaX programmer.
 
- any idea.. suggestion?
-
-
--- 
-
-  Cristian Gimenez
-
+ciao, Marc

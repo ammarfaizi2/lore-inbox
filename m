@@ -1,86 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbUGBPad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263184AbUGBPjV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262882AbUGBPad (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 11:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbUGBPac
+	id S263184AbUGBPjV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 11:39:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263713AbUGBPjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 11:30:32 -0400
-Received: from mailrelay.nefonline.de ([212.114.153.196]:20461 "EHLO
-	mailrelay1.nefonline.de") by vger.kernel.org with ESMTP
-	id S262882AbUGBPaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 11:30:30 -0400
-Date: Fri, 2 Jul 2004 17:30:28 +0200
-From: Hermann Gottschalk <hg@ostc.de>
-To: linux-kernel@vger.kernel.org
-Subject: Strange Network behaviour
-Message-ID: <20040702153028.GD15170@ostc.de>
+	Fri, 2 Jul 2004 11:39:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42171 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263184AbUGBPjT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 11:39:19 -0400
+Date: Fri, 2 Jul 2004 08:34:57 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Vladislav Bolkhovitin <vst@vlnb.net>
+Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: Dependant modules question
+Message-Id: <20040702083457.7677d0e9.rddunlap@osdl.org>
+In-Reply-To: <40E56E96.3050702@vlnb.net>
+References: <40E556E5.90708@vlnb.net>
+	<Pine.LNX.4.53.0407020952270.3789@chaos>
+	<40E56E96.3050702@vlnb.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-PGP-Key: 1024D/0B2D8EEA 2004-06-07 Hermann Gottschalk (OSTC) <hg@ostc.de>
-X-PGP-Fingerprint: 9A36 D20E B7FB BE5D 11DB  3006 3ADA D083 0B2D 8EEA
-X-Operating-System: Linux 2.4.21-226-default
-X-message-flag: Please do NOT send HTML e-mail or MS Word attachments - use plain text instead
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 02 Jul 2004 18:17:58 +0400 Vladislav Bolkhovitin wrote:
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+| Richard B. Johnson wrote:
+| > Did you execute `depmod -a` after putting your modules into the
+| > default  directories and their information into /etc/modules.conf ?
+|  >
+| > Example:
+| > /etc/modules.conf
+| > alias char-major-177  module-a		# First to load
+| > alias char-major-177  module-b		# Second to load
+| > alias char-major-177  off		# All done
+| > 
+| > 
+| > # cp module-a.o /lib/modules/`uname -r`/kernel/drivers/char
+| > # cp module-b.o /lib/modules/`uname -r`/kernel/drivers/char
+| > # depmod -a
+| > 
+| > The first time anybody tries to access a device with the major
+| > number of 177, its modules will be loaded in the correct order
+| > by modprobe.
+| > 
+| > Cheers,
+| > Dick Johnson
+| > Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+| >             Note 96.31% of all statistics are fiction.
+| 
+| Sure, I did. That works fine if A is built in the kernel tree (i.e. the 
+| sources of A stays there), not when both A and B are external modules.
+| 
+| Actually, the problem is a bit different: compiled B know nothing about 
+| A and doesn't reffer to it, so depmod and friends can't help. Ever if A 
+| already loaded, B refused to load (can't find the symbols). I suspect, I 
+| need to add something in the Makefile of A/B/both. But what?
 
-Hi,
-following Situation:
+Rusty's module testsuite has a sample/test that might help you.
+Look in http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+for module-init-tools-testsuite-3.0.tar.gz  (or bz2).
 
-4 Servers=20
-involved Hardware:
-  - Motherboard: MSI MS-6728=20
-  - Onboard Gigabit NetworkInterface: Intel 82562EZ (e1000)
-  - 100 MBit NetworkInterface: D-Link DFE-530TX (via-rhine)
-
-Connected through a 1GB-Switch and a 100MBit-Switch. The second
-connects about 40 X-Terminals too.
-
-On all Servers is a SuSE Linux 9.0 professional installed; online
-updates every night.  When they start up, everything is fine. After
-some hours when i want to do a tcpdump on one of the Interfaces i get:
-
-'tcpdump: socket: Address family not supported by protocol' =20
-
-ethereal doesn't find any interface.
-
-Sometimes some of the 100MBit-IFs didn't answer anymore. The only
-cure was to reboot. Neither rcnetwork restart nore unloading the
-network-module did help.
-
-This happend for a long time until there was a kernel patch from
-2.4.21-215 to 2.4.21-266. Since it is installed this error doesn't
-appear anymore.
-
-On my home-system with a sis900 NW-IF the same happend once. But
-there too is kernel 2.4.21-266 now.
-
-Does someone has have made the same experience or does someone has
-an idea what was the reason.
-
-Thanks for any ideas in advance
-
-Greetings
-Hermann
-
---0F1p//8PRICkK4MW
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQFA5X+TOtrQgwstjuoRAmUWAJ9/l6Vjs8tCHDAOR84k9njURbmKnwCgycJK
-xDE4TuEpV3PVOM2y2vlKLAA=
-=XYUq
------END PGP SIGNATURE-----
-
---0F1p//8PRICkK4MW--
+--
+~Randy

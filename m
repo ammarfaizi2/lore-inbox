@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267642AbTACUWC>; Fri, 3 Jan 2003 15:22:02 -0500
+	id <S267648AbTACUXs>; Fri, 3 Jan 2003 15:23:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267644AbTACUWC>; Fri, 3 Jan 2003 15:22:02 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:38849 "EHLO
+	id <S267655AbTACUXg>; Fri, 3 Jan 2003 15:23:36 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:48065 "EHLO
 	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S267642AbTACUWB>; Fri, 3 Jan 2003 15:22:01 -0500
+	id <S267648AbTACUWY>; Fri, 3 Jan 2003 15:22:24 -0500
 From: Richard Stallman <rms@gnu.org>
-To: mark@mark.mielke.cc
-CC: billh@gnuppy.monkey.org, paul@clubi.ie, riel@conectiva.com.br,
-       Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
-In-reply-to: <20030103075134.GA31357@mark.mielke.cc> (message from Mark Mielke
-	on Fri, 3 Jan 2003 02:51:34 -0500)
-Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+To: lm@bitmover.com
+CC: mark@mark.mielke.cc, billh@gnuppy.monkey.org, paul@clubi.ie,
+       riel@conectiva.com.br, Hell.Surfers@cwctv.net,
+       linux-kernel@vger.kernel.org
+In-reply-to: <20030103040612.GA10651@work.bitmover.com> (message from Larry
+	McVoy on Thu, 2 Jan 2003 20:06:12 -0800)
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
 Reply-to: rms@gnu.org
-References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103075134.GA31357@mark.mielke.cc>
-Message-Id: <E18UYSe-0004v1-00@fencepost.gnu.org>
-Date: Fri, 03 Jan 2003 15:30:32 -0500
+References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com>
+Message-Id: <E18UYT2-0004xV-00@fencepost.gnu.org>
+Date: Fri, 03 Jan 2003 15:30:56 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    You don't seem to mind the fact that my freedom to use Linux would be
-    hampered if you successfully prove that [non-free] modules for
-    Linux are illegal.
+    Yeah, if only the company that has invested millions in trying to scratch
+    out a place to stand, if only they would give us their intellectual
+    property for free,
 
-I'm not trying to prove this--as I see it, Linus gave permission for
-them, which means they are legal.  I regret his decision to do this,
-but I cannot change it.
+The term "intellectual property" lumps together copyrights, patents,
+trademarks and other more obscure areas of law, all of which are
+totally different.  (See http://www.gnu.org/philosophy/words-to-avoid.html.)
+Its main use is to obfuscate the difference between these areas and
+discourage careful clear thinking.
 
-But let's suppose that that were changed.  It would not affect your
-"freedom" to use Linux (and GNU/Linux), only whether it runs on a
-certain computer.  It is true that this might mean a practical
-sacrifice--you might have to get a different kind of computer, for
-instance.  I don't see that as a horrible thing.  We look for
-computers that work with free drivers; you can too.
+The clear part of your statement is your attitude toward our
+community.  You express derision for the very idea of asking a company
+to contribute to free software.  We are fortunate that Netscape, Sun,
+and IBM, and the people who won their partial cooperation, did not
+take your advice.
 
-You don't really have freedom now, if you need a non-free module.  In
-the long run, your best chance of being able to use a fully free
-GNU/Linux system on the hardware you use is if we stand firm together
-for the freedom of the system.
+Of all the programs in our community, your hostility falls most
+squarely on kernels, since kernels are where most drivers go.  Every
+Linux developer should take note of the wishes you have just implied
+for the future development of Linux.
 
-    If open source is so good, companies with closed source products will
-    change.
+    Give it up, Stallman, we live in a capitalistic world.  The Russians
+    tried communism and it didn't work.
 
-I don't support the open source movement, but I know what they say
-about this.  They say that open source usually leads to more powerful
-and reliable software.  Nothing assures us that will persuade all
-companies to adopt the practice.  You have simplified their position
-to a point where they would not recognize it.
+The free software movement has always existed within Capitalism, and
+fits within the Capitalist system.  Our views have little in common
+with Communism--we encourage business as long as it respects other
+people's freedom to cooperate.  Nothing could be more different from
+the command economy that failed than the decentralized free software
+community.
 
-You seem to be saying that we should sit back and let these inevitable
-forces either convince all companies to make software free--or not.
-If we had such a passive attitude, no free system would exist.
-GNU/Linux exists because of people who were willing to work to have
-freedom.  Freedom does not yet prevail, and we have plenty more work
-to do to make that happen.  And after we fully have freedom, we will
-still have to work, to make sure we don't lose it.
+Inaccurate though it is, our enemies sometimes call us Communists.
+Perhaps because Communism is easier to attack than our real views.
 
-
-
-
+It is the world of proprietary software and other non-free information
+that resembles the Soviet Union.  The Soviet Union made strenuous
+efforts to prevent and punish forbidden copying.  The US today is
+using analogous repressive methods to do the same thing.  See
+http://www.gnu.org/philosophy/why-free.html.

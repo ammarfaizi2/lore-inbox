@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132140AbRDDUPb>; Wed, 4 Apr 2001 16:15:31 -0400
+	id <S132142AbRDDUQm>; Wed, 4 Apr 2001 16:16:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132137AbRDDUPV>; Wed, 4 Apr 2001 16:15:21 -0400
-Received: from platan.vc.cvut.cz ([147.32.240.81]:27652 "EHLO
-	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
-	id <S132124AbRDDUPN>; Wed, 4 Apr 2001 16:15:13 -0400
-Message-ID: <3ACB8098.DFEC12D7@vc.cvut.cz>
-Date: Wed, 04 Apr 2001 13:14:16 -0700
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac28-4g i686)
-X-Accept-Language: cz, cs, en
-MIME-Version: 1.0
-To: Wade Hampton <whampton@staffnet.com>
-CC: Carsten Langgaard <carstenl@mips.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pcnet32 (maybe more) hosed in 2.4.3
-In-Reply-To: <20010330190137.A426@indiana.edu> <Pine.LNX.4.30.0103311541300.406-100000@fs131-224.f-secure.com> <20010403202127.A316@bacchus.dhis.org> <3ACB2323.C1653236@mips.com> <3ACB3CA5.D978EF41@staffnet.com>
+	id <S132137AbRDDUQc>; Wed, 4 Apr 2001 16:16:32 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:21764 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S132124AbRDDUQU>;
+	Wed, 4 Apr 2001 16:16:20 -0400
+Message-ID: <20010404010759.A102@bug.ucw.cz>
+Date: Wed, 4 Apr 2001 01:07:59 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: softirq buggy [Re: Serial port latency]
+In-Reply-To: <000401c0b319517fea9@local> <20010325231013.A34@(none)> <000401c0b828$bbdf7380$5517fea9@local> <20010331003645.F1579@atrey.karlin.mff.cuni.cz> <3AC6559E.575C4BAA@colorfullife.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3AC6559E.575C4BAA@colorfullife.com>; from Manfred Spraul on Sun, Apr 01, 2001 at 12:09:34AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wade Hampton wrote:
-> 
-> Carsten Langgaard wrote:
-> >
-> > I'm not sure what the problem is, but the whole deal about checking whether the
-> > controller runs in 16 bit or 32 bit mode, is a little bit tricky.
-> >[snip]
-> Without the changes listed in this thread, 2.4.3 crashed vmware 2.0.3
-> Linux. It did not OOPS the kernel, it caused vmware to go down in
-> flames....  Changing the code per the previous mail fixed it and
-> my VM now works fine.  THANKS!
-> 
-> Is this list non-causal?  The answer was posted to the list as I
-> was getting ready to build 2.4.3 on my VM, before I found the
-> problem or even had to ask the question!
+Hi!
 
-VMware is working on implementation PCnet 32bit mode in emulation (there
-is no such thing now because of no OS except FreeBSD needs it). But
-my question is - is there some real benefit in running chip in
-32bit mode? All registers except CSR88 use only low 16 bits anyway,
-so is 32bit mode needed for bigendian ports, or what's reasoning
-behind it? AFAIK all chips support 16bit mode, and having only 16bit
-mode in code could save at least one indirect jump on each chip access.
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+> > Seems floppy and console is buggy, then.
+> >
+> 
+> No. The softirq implementation is buggy.
+> I can trigger the problem with the TASKLET_HI (floppy), and both net rx
+> and tx (ping -l)
+> 
+> > > What about creating a special cpu_is_idle() function that the idle
+> > > functions must call before sleeping?
+> > 
+> > I'd say just fix all the bugs.
+> >
+> 
+> Ok, there are 2 bugs that are (afaics) impossible to fix without
+> checking for pending softirq's in cpu_idle():
+> 
+> a)
+> queue_task(my_task1, tq_immediate);
+> mark_bh();
+> schedule();
+> ;within schedule: do_softirq()
+> ;within my_task1:
+> mark_bh();
+> ; bh returns, but do_softirq won't loop
+> ; do_softirq returns.
+> ; schedule() clears current->need_resched
+> ; idle thread scheduled.
+> --> idle can run although softirq's are pending
+
+Or anything else can run altrough softirqs are pending. If it is
+computation job, softinterrupts are delayed quiet a bit, right?
+
+So right fix seems to be "loop in do_softirq".
+
+								Pavel
+
+> I assume I trigger this race with the floppy driver.
+> 
+> b)
+> hw interrupt
+> do_softirq
+> within the net_rx handler: another hw interrupt, additional packets are
+> queued
+> do_softirq won't loop.
+> returns to idle thread. --> packets delayed unnecessary.
+> 
+> What about the attached patch? Obviously the other idle cpu must be
+> converted to use the function as well.
+
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

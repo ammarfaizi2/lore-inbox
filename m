@@ -1,73 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272838AbRIWFRy>; Sun, 23 Sep 2001 01:17:54 -0400
+	id <S273282AbRIWFUf>; Sun, 23 Sep 2001 01:20:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273282AbRIWFRo>; Sun, 23 Sep 2001 01:17:44 -0400
-Received: from hall.mail.mindspring.net ([207.69.200.60]:26649 "EHLO
-	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S272838AbRIWFRd>; Sun, 23 Sep 2001 01:17:33 -0400
-Subject: Re: [PATCH][RFC] preemptive kernel: ptrace fix
-From: Robert Love <rml@ufl.edu>
+	id <S273289AbRIWFUZ>; Sun, 23 Sep 2001 01:20:25 -0400
+Received: from h24-76-60-12.vf.shawcable.net ([24.76.60.12]:3200 "HELO
+	g-box.vf.shawcable.net") by vger.kernel.org with SMTP
+	id <S273282AbRIWFUO>; Sun, 23 Sep 2001 01:20:14 -0400
+Date: Sat, 22 Sep 2001 22:20:13 -0700 (PDT)
+From: GregoryFinch@home.com
+Reply-To: GregoryFinch@home.com
+Subject: More benchmarks of Preemptable Kernel
 To: Robert Love <rml@tech9.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1001217135.1390.19.camel@phantasy>
-In-Reply-To: <1001217135.1390.19.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Evolution-Format: text/plain
-X-Mailer: Evolution/0.13.99+cvs.2001.09.21.20.26 (Preview Release)
-Date: 23 Sep 2001 01:18:08 -0400
-Message-Id: <1001222290.864.3.camel@phantasy>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <20010923052017.0F7B8597D3@g-box.vf.shawcable.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-09-22 at 23:52, Robert Love wrote:
-> However, doing an `strace strace whatever' (ie, stracing strace), it
-> still enters a stopped state about 20% of the time (before the patch, it
-> locked almost 100%).  I can't figure out why.  Comments?
+Here are my latest results with preempt patch.
 
-I fixed it.  I am not overly sure why it fixes it, but the following
-patch (on top of the previous) fixes all the ptrace problems I can find.
+Dual P3-550, 256MB ram, no swap, both kernels with CONFIG_SMP=y, 440BX,
+2-20GB 5400rpm drives, all partitions now mounted with noatime option as
+I've noticed a nice speed improvement, and don't have any software that
+cares about atimes.
 
-In auditing the code, I fixed another problem which I will explain...
+All benchmarks running in an Eterm on E on XF86-4.1.0-DRI with xmms running to
+listen for latency probs. Benchmarks run as root, everything else as regular
+user.
 
-I'll put out a final patch in a bit...
+linux-2.4.10-pre14
 
+Throughput 35.8872 MB/sec (NB=44.859 MB/sec  358.872 MBit/sec)
+Throughput 36.6262 MB/sec (NB=45.7827 MB/sec  366.262 MBit/sec)
+Throughput 34.7709 MB/sec (NB=43.4636 MB/sec  347.709 MBit/sec)
+Throughput 35.7473 MB/sec (NB=44.6841 MB/sec  357.473 MBit/sec)
+Throughput 35.6551 MB/sec (NB=44.5689 MB/sec  356.551 MBit/sec)
+loadavg around 11
 
-diff -urN linux-2.4.9-ac14-preempt/arch/i386/kernel/signal.c linux/arch/i386/kernel/signal.c
---- linux-2.4.9-ac14-preempt/arch/i386/kernel/signal.c	Sat Sep 22 23:20:41 2001
-+++ linux/arch/i386/kernel/signal.c	Sun Sep 23 00:51:15 2001
-@@ -611,9 +611,11 @@
- 		if ((current->ptrace & PT_PTRACED) && signr != SIGKILL) {
- 			/* Let the debugger run.  */
- 			current->exit_code = signr;
-+			ctx_sw_off();
- 			current->state = TASK_STOPPED;
- 			notify_parent(current, SIGCHLD);
- 			schedule();
-+			ctx_sw_on();
- 
- 			/* We're back.  Did the debugger cancel the sig?  */
- 			if (!(signr = current->exit_code))
-@@ -667,11 +669,13 @@
- 				/* FALLTHRU */
- 
- 			case SIGSTOP:
-+				ctx_sw_off();
- 				current->state = TASK_STOPPED;
- 				current->exit_code = signr;
- 				if (!(current->p_pptr->sig->action[SIGCHLD-1].sa.sa_flags & SA_NOCLDSTOP))
- 					notify_parent(current, SIGCHLD);
- 				schedule();
-+				ctx_sw_on();
- 				continue;
- 
- 			case SIGQUIT: case SIGILL: case SIGTRAP:
+Bonnie
+              -------Sequential Output-------- ---Sequential Input-- --Random--
+              -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --Seeks---
+Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU  /sec %CPU
+         1024  9211 99.8 17227 16.0  6085  9.7  6208 79.4 22711 21.6  96.7  1.9
 
+System is buttery smooth during above benchmarks, as well as with a
+dbench 32, although throughput drops off to the same as
+linux-2.4.10pre6. A dbench 64 starts impacting usability and causes
+quite a few short skips in xmms. The recent changes to the vm and vfs
+components of the kernel have really improved things.
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+linux-2.4.10-pre14 with rml netdev-random-pre13 patch and rml-preempt-pre13 patch
+(both applied cleanly to pre14)
+
+Throughput 32.1798 MB/sec (NB=40.2248 MB/sec  321.798 MBit/sec)
+Throughput 35.9245 MB/sec (NB=44.9057 MB/sec  359.245 MBit/sec)
+Throughput 36.0735 MB/sec (NB=45.0918 MB/sec  360.735 MBit/sec)
+Throughput 32.8641 MB/sec (NB=41.0801 MB/sec  328.641 MBit/sec)
+Throughput 33.5652 MB/sec (NB=41.9565 MB/sec  335.652 MBit/sec)
+loadavg around 10
+
+Bonnie
+              -------Sequential Output-------- ---Sequential Input-- --Random--
+              -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --Seeks---
+Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU  /sec %CPU
+         1024  9145 99.6 17213 15.6  6109  9.4  6199 79.9 23509 21.6  95.7  1.7
+
+System is almost the same as with the vanilla kernel. Perfectly smooth
+for the above benchmarks, as well as with dbench 32. The difference is
+with dbench 64. System is much better behaved, X froze twice, once for
+20 secs, once for 10 secs. There were also about 10 short (less than
+1sec) glitches in X as well. xmms didn't skip once. All in all, I'm
+really impressed at the usability of my system with the preempt patch.
+During the dbench 64 run, I started up another Eterm to see what the
+loadavg was. It only took about 1 sec longer to start than when the
+system is unloaded, and that's with a loadavg of 66!
+
+I'm looking forward to playing with 2.5 and hopefully seeing something
+similar to this idea making it into linus' tree.
+
+--
+Gregory Finch
 

@@ -1,41 +1,322 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263660AbTJCE2I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 00:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbTJCE2I
+	id S263681AbTJCFVS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 01:21:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263685AbTJCFVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 00:28:08 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:19419 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S263660AbTJCE2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 00:28:06 -0400
-Message-ID: <3F7CFAD1.4020003@nortelnetworks.com>
-Date: Fri, 03 Oct 2003 00:28:01 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: compiling futex-2.2
-References: <3F7CED08.9080200@nortelnetworks.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Oct 2003 01:21:18 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:48007 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263681AbTJCFVK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 01:21:10 -0400
+Date: Fri, 3 Oct 2003 06:19:18 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: linux-kernel@vger.kernel.org
+Cc: Hugh Dickins <hugh@veritas.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Klaus Dittrich <kladit@t-online.de>, Andrew Morton <akpm@zip.com.au>,
+       Boris Hu <boris.hu@intel.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: [PATCH] fix to futex locking fix
+Message-ID: <20031003051918.GA15691@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Friesen, Christopher [CAR:7Q26:EXCH] wrote:
+Patch: futex_lock_fix2-2.6.0-test6
+Depends on: futex_refs_and_lock_fix-2.6.0-test6
 
-As an alternate fix I tried wrapping the two function declarations with 
-"ifdef __KERNEL__", and added the missing parm to the syscall in the 
-futex library.  This seemed to work, so maybe this would be cleaner?
+I had an inkling when I sent out the recent futex hashed-lock fix that
+there was a race condition, but I was too tired to be sure or to work
+out a solution.
 
-Chris
+This patch fixes it.  In unqueue_me(), if certain events occur in
+another task we take the wrong spinlock.  I realised that yesterday, but
+proving that the fix works to my satisfaction required a state of higher
+consciousness not normally attained until 5am (and soon lost...).
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+The form of the fix is inspired by an idea from Rusty.
 
+Please folks, take a look at the fix in unqueue_me().  It looks simple
+but the proof isn't obvious.
+
+Oh, and some comment formatting requested by Andrew Morton. :)
+
+Thanks,
+-- Jamie
+
+--- futex1-2.6.0-test6/kernel/futex.c	2003-10-03 05:27:59.000000000 +0100
++++ dual-2.6.0-test6/kernel/futex.c	2003-10-03 06:05:05.000000000 +0100
+@@ -256,18 +256,24 @@
+ 	}
+ }
+ 
+-/* The hash bucket lock must be held when this is called.
+-   Afterwards, the futex_q must not be accessed. */
++/*
++ * The hash bucket lock must be held when this is called.
++ * Afterwards, the futex_q must not be accessed.
++ */
+ static inline void wake_futex(struct futex_q *q)
+ {
+ 	list_del_init(&q->list);
+ 	if (q->filp)
+ 		send_sigio(&q->filp->f_owner, q->fd, POLL_IN);
+-	/* The lock in wake_up_all() is a crucial memory barrier after the
+-	   list_del_init() and also before assigning to q->lock_ptr. */
++	/*
++	 * The lock in wake_up_all() is a crucial memory barrier after the
++	 * list_del_init() and also before assigning to q->lock_ptr.
++	 */
+ 	wake_up_all(&q->waiters);
+-	/* The waiting task can free the futex_q as soon as this is written,
+-	   without taking any locks.  This must come last. */
++	/*
++	 * The waiting task can free the futex_q as soon as this is written,
++	 * without taking any locks.  This must come last.
++	 */
+ 	q->lock_ptr = 0;
+ }
+ 
+@@ -397,15 +403,34 @@
+ }
+ 
+ /* Return 1 if we were still queued (ie. 0 means we were woken) */
+-static inline int unqueue_me(struct futex_q *q)
++static int unqueue_me(struct futex_q *q)
+ {
+ 	int ret = 0;
+-	spinlock_t *lock_ptr = q->lock_ptr;
++	spinlock_t *lock_ptr;
+ 
+ 	/* In the common case we don't take the spinlock, which is nice. */
++ retry:
++	lock_ptr = q->lock_ptr;
+ 	if (lock_ptr != 0) {
+ 		spin_lock(lock_ptr);
+-		if (!list_empty(&q->list)) {
++		/*
++		 * q->lock_ptr can change between reading it and
++		 * spin_lock(), causing us to take the wrong lock.  This
++		 * corrects the race condition.
++		 *
++		 * Reasoning goes like this: if we have the wrong lock,
++		 * q->lock_ptr must have changed (maybe several times)
++		 * between reading it and the spin_lock().  It can
++		 * change again after the spin_lock() but only if it was
++		 * already changed before the spin_lock().  It cannot,
++		 * however, change back to the original value.  Therefore
++		 * we can detect whether we acquired the correct lock.
++		 */
++		if (unlikely(lock_ptr != q->lock_ptr)) {
++			spin_unlock(lock_ptr);
++			goto retry;
++		}
++		if (likely(!list_empty(&q->list))) {
+ 			list_del(&q->list);
+ 			ret = 1;
+ 		}
+@@ -462,8 +487,10 @@
+ 	/* add_wait_queue is the barrier after __set_current_state. */
+ 	__set_current_state(TASK_INTERRUPTIBLE);
+ 	add_wait_queue(&q.waiters, &wait);
+-	/* !list_empty() is safe here without any lock.
+-	   q.lock_ptr != 0 is not safe, because of ordering against wakeup. */
++	/*
++	 * !list_empty() is safe here without any lock.
++	 * q.lock_ptr != 0 is not safe, because of ordering against wakeup.
++	 */
+ 	if (likely(!list_empty(&q.list)))
+ 		time = schedule_timeout(time);
+ 	__set_current_state(TASK_RUNNING);
+@@ -505,18 +532,16 @@
+ 			       struct poll_table_struct *wait)
+ {
+ 	struct futex_q *q = filp->private_data;
+-	spinlock_t *lock_ptr;
+-	int ret = POLLIN | POLLRDNORM;
++	int ret = 0;
+ 
+ 	poll_wait(filp, &q->waiters, wait);
+ 
+-	lock_ptr = q->lock_ptr;
+-	if (lock_ptr != 0) {
+-		spin_lock(lock_ptr);
+-		if (!list_empty(&q->list))
+-			ret = 0;
+-		spin_unlock(lock_ptr);
+-	}
++	/*
++	 * list_empty() is safe here without any lock.
++	 * q->lock_ptr != 0 is not safe, because of ordering against wakeup.
++	 */
++	if (list_empty(&q->list))
++		ret = POLLIN | POLLRDNORM;
+ 
+ 	return ret;
+ }
+@@ -526,8 +551,10 @@
+ 	.poll		= futex_poll,
+ };
+ 
+-/* Signal allows caller to avoid the race which would occur if they
+-   set the sigio stuff up afterwards. */
++/*
++ * Signal allows caller to avoid the race which would occur if they
++ * set the sigio stuff up afterwards.
++ */
+ static int futex_fd(unsigned long uaddr, int signal)
+ {
+ 	struct futex_q *q;
+@@ -582,8 +609,10 @@
+ 		return err;
+ 	}
+ 
+-	/* queue_me() must be called before releasing mmap_sem, because
+-	   key->shared.inode needs to be referenced while holding it. */
++	/*
++	 * queue_me() must be called before releasing mmap_sem, because
++	 * key->shared.inode needs to be referenced while holding it.
++	 */
+ 	filp->private_data = q;
+ 
+ 	queue_me(q, ret, filp);
+--- futex1-2.6.0-test6/kernel/futex.c	2003-10-03 05:27:59.000000000 +0100
++++ dual-2.6.0-test6/kernel/futex.c	2003-10-03 06:05:05.000000000 +0100
+@@ -256,18 +256,24 @@
+ 	}
+ }
+ 
+-/* The hash bucket lock must be held when this is called.
+-   Afterwards, the futex_q must not be accessed. */
++/*
++ * The hash bucket lock must be held when this is called.
++ * Afterwards, the futex_q must not be accessed.
++ */
+ static inline void wake_futex(struct futex_q *q)
+ {
+ 	list_del_init(&q->list);
+ 	if (q->filp)
+ 		send_sigio(&q->filp->f_owner, q->fd, POLL_IN);
+-	/* The lock in wake_up_all() is a crucial memory barrier after the
+-	   list_del_init() and also before assigning to q->lock_ptr. */
++	/*
++	 * The lock in wake_up_all() is a crucial memory barrier after the
++	 * list_del_init() and also before assigning to q->lock_ptr.
++	 */
+ 	wake_up_all(&q->waiters);
+-	/* The waiting task can free the futex_q as soon as this is written,
+-	   without taking any locks.  This must come last. */
++	/*
++	 * The waiting task can free the futex_q as soon as this is written,
++	 * without taking any locks.  This must come last.
++	 */
+ 	q->lock_ptr = 0;
+ }
+ 
+@@ -397,15 +403,34 @@
+ }
+ 
+ /* Return 1 if we were still queued (ie. 0 means we were woken) */
+-static inline int unqueue_me(struct futex_q *q)
++static int unqueue_me(struct futex_q *q)
+ {
+ 	int ret = 0;
+-	spinlock_t *lock_ptr = q->lock_ptr;
++	spinlock_t *lock_ptr;
+ 
+ 	/* In the common case we don't take the spinlock, which is nice. */
++ retry:
++	lock_ptr = q->lock_ptr;
+ 	if (lock_ptr != 0) {
+ 		spin_lock(lock_ptr);
+-		if (!list_empty(&q->list)) {
++		/*
++		 * q->lock_ptr can change between reading it and
++		 * spin_lock(), causing us to take the wrong lock.  This
++		 * corrects the race condition.
++		 *
++		 * Reasoning goes like this: if we have the wrong lock,
++		 * q->lock_ptr must have changed (maybe several times)
++		 * between reading it and the spin_lock().  It can
++		 * change again after the spin_lock() but only if it was
++		 * already changed before the spin_lock().  It cannot,
++		 * however, change back to the original value.  Therefore
++		 * we can detect whether we acquired the correct lock.
++		 */
++		if (unlikely(lock_ptr != q->lock_ptr)) {
++			spin_unlock(lock_ptr);
++			goto retry;
++		}
++		if (likely(!list_empty(&q->list))) {
+ 			list_del(&q->list);
+ 			ret = 1;
+ 		}
+@@ -462,8 +487,10 @@
+ 	/* add_wait_queue is the barrier after __set_current_state. */
+ 	__set_current_state(TASK_INTERRUPTIBLE);
+ 	add_wait_queue(&q.waiters, &wait);
+-	/* !list_empty() is safe here without any lock.
+-	   q.lock_ptr != 0 is not safe, because of ordering against wakeup. */
++	/*
++	 * !list_empty() is safe here without any lock.
++	 * q.lock_ptr != 0 is not safe, because of ordering against wakeup.
++	 */
+ 	if (likely(!list_empty(&q.list)))
+ 		time = schedule_timeout(time);
+ 	__set_current_state(TASK_RUNNING);
+@@ -505,18 +532,16 @@
+ 			       struct poll_table_struct *wait)
+ {
+ 	struct futex_q *q = filp->private_data;
+-	spinlock_t *lock_ptr;
+-	int ret = POLLIN | POLLRDNORM;
++	int ret = 0;
+ 
+ 	poll_wait(filp, &q->waiters, wait);
+ 
+-	lock_ptr = q->lock_ptr;
+-	if (lock_ptr != 0) {
+-		spin_lock(lock_ptr);
+-		if (!list_empty(&q->list))
+-			ret = 0;
+-		spin_unlock(lock_ptr);
+-	}
++	/*
++	 * list_empty() is safe here without any lock.
++	 * q->lock_ptr != 0 is not safe, because of ordering against wakeup.
++	 */
++	if (list_empty(&q->list))
++		ret = POLLIN | POLLRDNORM;
+ 
+ 	return ret;
+ }
+@@ -526,8 +551,10 @@
+ 	.poll		= futex_poll,
+ };
+ 
+-/* Signal allows caller to avoid the race which would occur if they
+-   set the sigio stuff up afterwards. */
++/*
++ * Signal allows caller to avoid the race which would occur if they
++ * set the sigio stuff up afterwards.
++ */
+ static int futex_fd(unsigned long uaddr, int signal)
+ {
+ 	struct futex_q *q;
+@@ -582,8 +609,10 @@
+ 		return err;
+ 	}
+ 
+-	/* queue_me() must be called before releasing mmap_sem, because
+-	   key->shared.inode needs to be referenced while holding it. */
++	/*
++	 * queue_me() must be called before releasing mmap_sem, because
++	 * key->shared.inode needs to be referenced while holding it.
++	 */
+ 	filp->private_data = q;
+ 
+ 	queue_me(q, ret, filp);

@@ -1,60 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbUL3Alo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUL3AqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbUL3Alo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 19:41:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbUL3Ajs
+	id S261474AbUL3AqK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 19:46:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbUL3An4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 19:39:48 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:26586 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261474AbUL3Aiz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 19:38:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=g/mKZ1l1DVDT+8YSlEvCfKJgQgjntxhzDycBfcfNOx6BB/Vq7533CpV6wUtvI6pxgIJWvM60NXamPRRYgtJIF6fXjhFSt4Ltoq9VO3vk9OvAumKCIlUMzF0gYk/+GovnQ8nV6amjzZqweSxcm+tTPpAfwSPLRilHt25+6Fl4pe8=
-Message-ID: <41D34E16.2040503@gmail.com>
-Date: Thu, 30 Dec 2004 01:38:46 +0100
-From: Mateusz Berezecki <mateuszb@gmail.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+	Wed, 29 Dec 2004 19:43:56 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:33238 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261474AbUL3Ajy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 19:39:54 -0500
+Message-ID: <41D34E3A.3090708@zytor.com>
+Date: Wed, 29 Dec 2004 16:39:22 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: include/linux/ipv6.h  error?
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       SYSLINUX@zytor.com
+Subject: [PATCH] /proc/sys/kernel/bootloader_type
+Content-Type: multipart/mixed;
+ boundary="------------000709070200040702040002"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-inet_sk(__sk) returns pointer to inet_sock structure which has pinet6 
-field defined
-or not defined depending on kernel configuration during compilation time
+This is a multi-part message in MIME format.
+--------------000709070200040702040002
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
-        struct ipv6_pinfo       *pinet6;
-#endif
+This patch exports to userspace the boot loader ID which has been 
+exported by (b)zImage boot loaders since boot protocol version 2.
 
-the function below causes compilation error in kernel configs with 
-neither CONFIG_IPV6 nor
-CONFIG_IPV6_MODULE defined.
+Tested on i386 and x86-64; as far as I know those are the only 
+architectures which use zImage/bzImage format.
 
-should these functions be included between
-#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
-
-static inline struct ipv6_pinfo * inet6_sk(const struct sock *__sk)
-{
-        return inet_sk(__sk)->pinet6;
-}
-
-static inline struct raw6_opt * raw6_sk(const struct sock *__sk)
-{
-        return &((struct raw6_sock *)__sk)->raw6;
-}
-#endif
+	-hpa
 
 
-?? or should the #ifdef directive be removed from ipv6.h header file?
+Signed-Off-By: H. Peter Anvin <hpa@zytor.com>
 
 
-regards
--mb
+--------------000709070200040702040002
+Content-Type: text/x-patch;
+ name="bootloader_type.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="bootloader_type.patch"
+
+Index: linux-2.5/arch/i386/Makefile
+===================================================================
+RCS file: /home/hpa/kernel/bkcvs/linux-2.5/arch/i386/Makefile,v
+retrieving revision 1.73
+diff -u -r1.73 Makefile
+--- linux-2.5/arch/i386/Makefile	24 Dec 2004 21:09:54 -0000	1.73
++++ linux-2.5/arch/i386/Makefile	28 Dec 2004 04:56:17 -0000
+@@ -20,6 +20,10 @@
+ LDFLAGS_vmlinux :=
+ CHECKFLAGS	+= -D__i386__
+ 
++# This allows compilation with an x86-64 compiler
++CC_M32		:= $(call cc-option,-m32)
++CC 		+= $(CC_M32)
++
+ CFLAGS += -pipe -msoft-float
+ 
+ # prevent gcc from keeping the stack 16 byte aligned
+Index: linux-2.5/arch/i386/kernel/setup.c
+===================================================================
+RCS file: /home/hpa/kernel/bkcvs/linux-2.5/arch/i386/kernel/setup.c,v
+retrieving revision 1.128
+diff -u -r1.128 setup.c
+--- linux-2.5/arch/i386/kernel/setup.c	27 Dec 2004 18:21:04 -0000	1.128
++++ linux-2.5/arch/i386/kernel/setup.c	29 Dec 2004 22:10:30 -0000
+@@ -97,6 +97,9 @@
+ /* For PCI or other memory-mapped resources */
+ unsigned long pci_mem_start = 0x10000000;
+ 
++/* Boot loader ID as an integer, for the benefit of proc_dointvec */
++int bootloader_type;
++
+ /* user-defined highmem size */
+ static unsigned int highmem_pages = -1;
+ 
+@@ -1338,6 +1341,7 @@
+ 		BIOS_revision = SYS_DESC_TABLE.table[2];
+ 	}
+ 	aux_device_present = AUX_DEVICE_INFO;
++	bootloader_type = LOADER_TYPE;
+ 
+ #ifdef CONFIG_BLK_DEV_RAM
+ 	rd_image_start = RAMDISK_FLAGS & RAMDISK_IMAGE_START_MASK;
+Index: linux-2.5/arch/x86_64/kernel/setup.c
+===================================================================
+RCS file: /home/hpa/kernel/bkcvs/linux-2.5/arch/x86_64/kernel/setup.c,v
+retrieving revision 1.59
+diff -u -r1.59 setup.c
+--- linux-2.5/arch/x86_64/kernel/setup.c	2 Nov 2004 23:06:28 -0000	1.59
++++ linux-2.5/arch/x86_64/kernel/setup.c	29 Dec 2004 23:46:41 -0000
+@@ -78,6 +78,9 @@
+ /* For PCI or other memory-mapped resources */
+ unsigned long pci_mem_start = 0x10000000;
+ 
++/* Boot loader ID as an integer, for the benefit of proc_dointvec */
++int bootloader_type;
++
+ unsigned long saved_video_mode;
+ 
+ #ifdef CONFIG_SWIOTLB
+@@ -452,6 +455,7 @@
+ 	edid_info = EDID_INFO;
+ 	aux_device_present = AUX_DEVICE_INFO;
+ 	saved_video_mode = SAVED_VIDEO_MODE;
++	bootloader_type = LOADER_TYPE;
+ 
+ #ifdef CONFIG_BLK_DEV_RAM
+ 	rd_image_start = RAMDISK_FLAGS & RAMDISK_IMAGE_START_MASK;
+Index: linux-2.5/include/asm-i386/processor.h
+===================================================================
+RCS file: /home/hpa/kernel/bkcvs/linux-2.5/include/asm-i386/processor.h,v
+retrieving revision 1.78
+diff -u -r1.78 processor.h
+--- linux-2.5/include/asm-i386/processor.h	27 Dec 2004 18:21:04 -0000	1.78
++++ linux-2.5/include/asm-i386/processor.h	29 Dec 2004 23:45:34 -0000
+@@ -283,6 +283,9 @@
+ extern unsigned int BIOS_revision;
+ extern unsigned int mca_pentium_flag;
+ 
++/* Boot loader type from the setup header */
++extern int bootloader_type;
++
+ /*
+  * User space process size: 3GB (default).
+  */
+Index: linux-2.5/include/asm-x86_64/processor.h
+===================================================================
+RCS file: /home/hpa/kernel/bkcvs/linux-2.5/include/asm-x86_64/processor.h,v
+retrieving revision 1.48
+diff -u -r1.48 processor.h
+--- linux-2.5/include/asm-x86_64/processor.h	27 Dec 2004 18:21:04 -0000	1.48
++++ linux-2.5/include/asm-x86_64/processor.h	29 Dec 2004 23:45:31 -0000
+@@ -456,5 +456,7 @@
+ #define cache_line_size() (boot_cpu_data.x86_cache_alignment)
+ 
+ extern unsigned long boot_option_idle_override;
++/* Boot loader type from the setup header */
++extern int bootloader_type;
+ 
+ #endif /* __ASM_X86_64_PROCESSOR_H */
+Index: linux-2.5/include/linux/sysctl.h
+===================================================================
+RCS file: /home/hpa/kernel/bkcvs/linux-2.5/include/linux/sysctl.h,v
+retrieving revision 1.82
+diff -u -r1.82 sysctl.h
+--- linux-2.5/include/linux/sysctl.h	20 Oct 2004 15:36:36 -0000	1.82
++++ linux-2.5/include/linux/sysctl.h	29 Dec 2004 22:11:14 -0000
+@@ -134,6 +134,7 @@
+ 	KERN_SPARC_SCONS_PWROFF=64, /* int: serial console power-off halt */
+ 	KERN_HZ_TIMER=65,	/* int: hz timer on or off */
+ 	KERN_UNKNOWN_NMI_PANIC=66, /* int: unknown nmi panic flag */
++	KERN_BOOTLOADER_TYPE=67, /* int: boot loader type */
+ };
+ 
+ 
+Index: linux-2.5/kernel/sysctl.c
+===================================================================
+RCS file: /home/hpa/kernel/bkcvs/linux-2.5/kernel/sysctl.c,v
+retrieving revision 1.96
+diff -u -r1.96 sysctl.c
+--- linux-2.5/kernel/sysctl.c	2 Nov 2004 23:04:07 -0000	1.96
++++ linux-2.5/kernel/sysctl.c	29 Dec 2004 22:10:41 -0000
+@@ -624,6 +624,16 @@
+ 		.proc_handler   = &proc_unknown_nmi_panic,
+ 	},
+ #endif
++#if defined(CONFIG_X86)
++	{
++		.ctl_name	= KERN_BOOTLOADER_TYPE,
++		.procname	= "bootloader_type",
++		.data		= &bootloader_type,
++		.maxlen		= sizeof (int),
++		.mode		= 0444,
++		.proc_handler	= &proc_dointvec,
++	},
++#endif
+ 	{ .ctl_name = 0 }
+ };
+ 
+
+--------------000709070200040702040002--

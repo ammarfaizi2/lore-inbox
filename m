@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268668AbUHTTHD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268690AbUHTTHC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268668AbUHTTHD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 15:07:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268662AbUHTTEo
+	id S268690AbUHTTHC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 15:07:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268681AbUHTTEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 15:04:44 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:61589 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268678AbUHTTC4 (ORCPT
+	Fri, 20 Aug 2004 15:04:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59350 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268662AbUHTS7o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 15:02:56 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: mita akinobu <amgta@yacht.ocn.ne.jp>
-Subject: Re: [PATCH] shows Active/Inactive on per-node meminfo
-Date: Fri, 20 Aug 2004 15:01:31 -0400
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Matthew Dobson <colpatch@us.ibm.com>
-References: <200408210302.25053.amgta@yacht.ocn.ne.jp> <200408201448.22566.jbarnes@engr.sgi.com>
-In-Reply-To: <200408201448.22566.jbarnes@engr.sgi.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 20 Aug 2004 14:59:44 -0400
+Date: Fri, 20 Aug 2004 11:55:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm3
+Message-Id: <20040820115541.3e68c5be.akpm@osdl.org>
+In-Reply-To: <200408201257.42064.jbarnes@engr.sgi.com>
+References: <20040820031919.413d0a95.akpm@osdl.org>
+	<200408201144.49522.jbarnes@engr.sgi.com>
+	<200408201257.42064.jbarnes@engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408201501.31542.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, August 20, 2004 2:48 pm, Jesse Barnes wrote:
-> On Friday, August 20, 2004 2:02 pm, mita akinobu wrote:
-> > +	for (i = 0; i < MAX_NR_ZONES; i++) {
-> > +		*active += zones[i].nr_active;
-> > +		*inactive += zones[i].nr_inactive;
-> > +		*free += zones[i].free_pages;
-> > +	}
-> > +}
-> > +
-> > -		*free += zone->free_pages;
-> > +	for_each_pgdat(pgdat) {
-> > +		unsigned long l, m, n;
-> > +		__get_zone_counts(&l, &m, &n, pgdat);
-> > +		*active += l;
-> > +		*inactive += m;
-> > +		*free += n;
-> >  	}
+Jesse Barnes <jbarnes@engr.sgi.com> wrote:
 >
-> Just FYI, loops like this are going to be very slow on a large machine.
-> Iterating over every node in the system involves a TLB miss on every
-> iteration along with an offnode reference and possibly cacheline demotion.
+> I applied wli's per-cpu profiling patch, added some tweaks that he and I 
+> discussed on irc and things look pretty good.  We can now profile all 512 
+> CPUs in the system w/o livelocking :)
 
-...but I see that you're just adding the info to the per-node meminfo files, 
-so it should be ok as long as people access a node's meminfo file from a 
-local cpu.  /proc/meminfo will still hurt a lot though.
+OK..
 
-I bring this up because I ran into it once.  I created a file 
-called /proc/discontig which printed out detailed per-node memory stats, one 
-node per line.  On a large system it would literally take several seconds to 
-cat the file due to the overhead of looking at all the pages and zone 
-structures.
+> Here's the output part way through a kernbench run:
 
-Jesse
+(This doesn't sound like the sort of workload which people would buy an
+Altix for?)
 
+> [root@ascender root]# time readprofile -m System.map-2.6.8.1-mm3 | sort -nr | 
+> head -20
+> 62551761 total                                      9.6980
+> 27173178 default_idle                             70763.4844
+
+> 27081955 ia64_pal_call_static                     141051.8490
+> 3175264 ia64_load_scratch_fpregs                 49613.5000
+> 3166434 ia64_save_scratch_fpregs                 49475.5312
+
+What do the above three mean?
+
+> 1603765 ia64_spinlock_contention                 16705.8854
+
+That's 0.04% of total non-idle CPU time.  This seems wrong.
+
+> 135010 rcu_check_quiescent_state                351.5885
+>  11457 del_timer_sync                            22.3770
+>  10003 clear_page_tables                          7.6242
+>   9948 memset                                     9.4205
+>   7845 copy_page                                 30.6445
+>   7652 __d_lookup                                 8.5402
+>   7379 clear_page                                46.1187
+>   7177 zap_pte_range                              3.7380
+>   6044 __copy_user                                2.5873
+>   5168 file_move                                 23.0714
+>   4611 xfs_ilock                                  9.0059
+>   4230 atomic_dec_and_lock                       16.5234
+>   4035 finish_task_switch                        14.0104
+>   3938 file_kill                                 17.5804
+> 
+> real    1m32.554s
+> user    0m0.215s
+> sys     1m32.375s

@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbUKKPqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbUKKPtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbUKKPqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 10:46:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbUKKPor
+	id S262282AbUKKPtv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 10:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbUKKPtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 10:44:47 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:47491
-	"EHLO x30.random") by vger.kernel.org with ESMTP id S262253AbUKKPmr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 10:42:47 -0500
-Date: Thu, 11 Nov 2004 16:42:38 +0100
-From: Andrea Arcangeli <andrea@novell.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Nick Piggin <piggin@cyberone.com.au>, Rik van Riel <riel@redhat.com>,
-       Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>, tglx@linutronix.de
-Subject: Re: [PATCH] fix spurious OOM kills
-Message-ID: <20041111154238.GD18365@x30.random>
-References: <20041111112922.GA15948@logos.cnet>
+	Thu, 11 Nov 2004 10:49:11 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:31498 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262272AbUKKPr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 10:47:27 -0500
+Date: Thu, 11 Nov 2004 16:46:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Len Brown <len.brown@intel.com>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] [2.6 patch] drivers/acpi: #ifdef unused functions away
+Message-ID: <20041111154656.GE8417@stusta.de>
+References: <1099707007.13834.1969.camel@d845pe> <20041106114844.GK1295@stusta.de> <418CEE3A.40503@conectiva.com.br> <20041106212917.GP1295@stusta.de> <418D403E.30608@conectiva.com.br> <1099933263.13831.9547.camel@d845pe> <20041110012134.GB4089@stusta.de> <20041111151727.GB1108@parcelfarce.linux.theplanet.co.uk> <20041111153650.GD8417@stusta.de> <20041111154017.GC1108@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041111112922.GA15948@logos.cnet>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20041111154017.GC1108@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 11, 2004 at 09:29:22AM -0200, Marcelo Tosatti wrote:
-> Hi,
+On Thu, Nov 11, 2004 at 03:40:17PM +0000, Matthew Wilcox wrote:
+> On Thu, Nov 11, 2004 at 04:36:50PM +0100, Adrian Bunk wrote:
+> > On Thu, Nov 11, 2004 at 03:17:27PM +0000, Matthew Wilcox wrote:
+> > > On Wed, Nov 10, 2004 at 02:21:34AM +0100, Adrian Bunk wrote:
+> > > > This patch only #ifdef's completely unused code away - it does not make 
+> > > > the many global functions only used inside the file they are defined in 
+> > > > static.
+> > > 
+> > > It also ifdefs out the acpi_install_gpe_handler and acpi_remove_gpe_handler
+> > > calls I use in the driver I posted on Sunday.  Please fix this.
+> > 
+> > ????
+> > 
+> > My patch doesn't #ifdef these functions away.
 > 
-> This is an improved version of OOM-kill-from-kswapd patch.
+> Sorry, acpi_remove_gpe_block, not acpi_remove_gpe_handler:
 > 
-> I believe triggering the OOM killer from task reclaim context 
-> is broken because the chances that it happens increases as the amount
-> of tasks inside reclaim increases - and that approach ignores efforts 
-> being done by kswapd, who is the main entity responsible for
-> freeing pages.
-> 
-> There have been a few problems pointed out by others (Andrea, Nick) on the 
-> last patch - this one solves them.
+> @@ -383,6 +398,7 @@
+>  acpi_status
+>  acpi_remove_gpe_block (
+>         acpi_handle                     gpe_device);
+> +#endif  /*  ACPI_FUTURE_USAGE  */
 
-I disagree about the design of killing anything from kswapd. kswapd is
-an async helper like pdflush and it has no knowledge on the caller (it
-cannot know if the caller is ok with the memory currently available in
-the freelists, before triggering the oom). I'm just about to move the
-oom killing away from vmscan.c to page_alloc.c which is basically the
-opposite of moving the oom invocation from the task context to kswapd.
-page_alloc.c in the task context is the only one who can know if
-something has to be killed, vmscan.c cannot know. vmscan.c can only know
-if something is still freeable, but if something isn't freeable it
-doesn't mean that we've to kill anything (for example if a task exited
-or some dma or normal-zone or highmem memory was released by another
-task while we were paging waiting for I/O). Every allocation is
-different and page_alloc.c is the only one who knows what has to be done
-for every single allocation.
+I didn't saw your patch on linux-kernel, and although Len has said that 
+he'd apply my patches I have yet to hear an answer indicating either 
+problems in my patches or that he'd applied them.
+
+Did Len already integrate your driver into his tree?
+
+If yes, I will correct the acpi_remove_gpe_block case (it's only this 
+one function?) as soon as his tree appears in the next -mm.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266578AbTAFPX7>; Mon, 6 Jan 2003 10:23:59 -0500
+	id <S266994AbTAFPjp>; Mon, 6 Jan 2003 10:39:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266958AbTAFPX7>; Mon, 6 Jan 2003 10:23:59 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:18143 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266578AbTAFPX7>;
-	Mon, 6 Jan 2003 10:23:59 -0500
-Date: Mon, 6 Jan 2003 15:30:48 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Stephen Thomas <mail@stephenthomas.uklinux.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: E7205/E7505 support in 2.4
-Message-ID: <20030106153047.GA5178@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Stephen Thomas <mail@stephenthomas.uklinux.net>,
-	linux-kernel@vger.kernel.org
-References: <3E199EBA.7040807@stephenthomas.uklinux.net>
+	id <S266995AbTAFPjp>; Mon, 6 Jan 2003 10:39:45 -0500
+Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:17326
+	"HELO ghanima.endorphin.org") by vger.kernel.org with SMTP
+	id <S266994AbTAFPjo>; Mon, 6 Jan 2003 10:39:44 -0500
+Date: Mon, 6 Jan 2003 16:41:39 +0100
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20aa1 ide-scsi crashes
+Message-ID: <20030106154138.GA2588@ghanima.endorphin.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E199EBA.7040807@stephenthomas.uklinux.net>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.3.28i
+From: Fruhwirth Clemens <clemens@endorphin.org>
+X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 03:20:26PM +0000, Stephen Thomas wrote:
+under heavy I/O load for my scsi-emulated cdrom 2.4.20aa1 crashes at
 
- > I notice that 2.5 kernels now have explicit support for this
- > chipset, while 2.4 don't seem to.  So, if I ran a 2.4 kernel
- > on such a machine, would it a) not work, b) work fine, or
- > c) work OK but not as well as it could do?
+drivers/scsi/scsi_dma:155 with 
+panic("scsi_free:Trying to free unused memory")
 
-The only part I'm aware of in 2.5 is the AGPGART support which
-recently got added. 2.4 lacks AGP3.0 support which this relies
-upon, so in 2.4 you'll get unaccelerated 3d (DRI won't work)
-unless you add the 2.4 patch that was posted a while back.
+panic(..) somehow refuses to print the call trace because "IEEE in interrupt
+handler - no sync".
 
-Jeff Hartmann has been working on agpgart silently all this time,
-and aparently has AGP3.0 patches for 2.4 pending, so it could
-turn around quite soon.
+The only scsi module I'm using is ide-scsi. As I browsed the aa patch I
+recognized that a few &io_request_lock have been exchanged for
+"q->queue_lock". But ide-scsi is still locking on io_request_lock. This is
+probably the source of the race condition. However I'm not sure because I
+think q->queue_lock is being initialized to &io_request_lock, so it should
+still be the same lock.
 
-		Dave
+See drivers/scsi/ide-scsi:295 or 
+    drivers/scsi/ide-scsi:850 (Why isn't there a lock in that case?)
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+(done) referrs to sr.c:rw_intr which calls scsi_io_completion which calls
+the panic(..)-ing scsi_free)
+
+Any guesses?
+
+Regards, Clemens
+Please CC answers, /me not on list.

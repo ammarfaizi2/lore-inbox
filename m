@@ -1,75 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131666AbRCURcf>; Wed, 21 Mar 2001 12:32:35 -0500
+	id <S131663AbRCUR0F>; Wed, 21 Mar 2001 12:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131713AbRCURc0>; Wed, 21 Mar 2001 12:32:26 -0500
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:7677 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S131666AbRCURcN>; Wed, 21 Mar 2001 12:32:13 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200103211731.f2LHVEX19566@webber.adilger.int>
-Subject: Re: ext2_unlink fun
-In-Reply-To: <Pine.LNX.4.32.0103211016570.15278-100000@viper.haque.net> from
- "Mohammad A. Haque" at "Mar 21, 2001 10:24:36 am"
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Date: Wed, 21 Mar 2001 10:31:14 -0700 (MST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S131718AbRCURZ4>; Wed, 21 Mar 2001 12:25:56 -0500
+Received: from ip164-145.fli-ykh.psinet.ne.jp ([210.129.164.145]:26819 "EHLO
+	standard.erephon") by vger.kernel.org with ESMTP id <S131663AbRCURZp>;
+	Wed, 21 Mar 2001 12:25:45 -0500
+Message-ID: <3AB8E3E8.F3204180@yk.rim.or.jp>
+Date: Thu, 22 Mar 2001 02:24:56 +0900
+From: Ishikawa <ishikawa@yk.rim.or.jp>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: ja, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Interesting post from the MC project to linux-kernel. :block while 
+ spinlock held... 
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mohammad A. Haque writes:
-> My machine locked hard last night for an unknown reason under
-> 2.4.3-pre4. Rebooted and it did it's fsck thing. Got alot of errors
-> about missing '..', fixed alot of things and moved some stuff to
-> /lost+found.
-> 
-> Some files got screwed up so I can't delete them.
-> 
-> [mhaque@viper html-blah]$ rm -r mac3dfx/
-> rm: cannot remove `mac3dfx/news/1999/08/199908231702.txt': Input/output
-> error
-> rm: cannot remove `mac3dfx/news/1999/08/199908231802.txt': Input/output
-> error
-> rm: cannot remove directory `mac3dfx/news/1999/08': Directory not empty
-> rm: cannot remove directory `mac3dfx/news/1999': Directory not empty
-> rm: cannot remove directory `mac3dfx/news': Directory not empty
-> rm: cannot remove `mac3dfx/dat': Input/output error
-> rm: cannot remove directory `mac3dfx': Directory not empty
-> 
-> My filesystem is probably really screwed up so I'm going to format. But
-> for future reference, how would one get rid of those files? Or does this
-> indicate that it's time to reformat and not even consider trying to
-> delete those files?
+Hi,
 
-It would be nice to determine _why_ you can't unlink these files.  If
-it was just an issue of size > 2GB, you should get EFBIG error or so.
-People have been reporting undeletable files several times now...  Before
-you reformat, could you do some debugging?
+I suppose that many SCSI maintainers do read the linux-kernel
+mailing list. However, just in case, I am quoting one of the
+very interesting postings that come from people at Stanford.
+They seem to be doing mechanical verification / checking of
+linux source code to hunt for potentical bugs. In the last week or so,
+many potential bugs were identified and fixed.
 
-It appears a reasonable spot to get the EIO from is in ext2_delete_entry()
-where we are validating the de in ext2_check_dir_entry().  Can you check
-your syslog for any error messages, like:
+Here is one that might be of interest to SCSI developers.
+The checkers are known to produce false positives. So beware.
 
-	ext2_delete_entry: bad entry in directory X: 199908231702.txt ...
+--- begin quote ---
+> enclosed are 163 potential bugs in 2.4.1 where blocking functions are
+> called with either interrupts disabled or a spin lock held. The
+> checker works by:
 
-It would be _nice_ to be able to delete a dir entry even if it is corrupt
-(considering we want to delete it, so we don't really care about that dir
-entry), but that may cause further corruption of the previous dir entry
-(which we DO want to keep).
+Here's the file manifest. Apologies.
 
-The only other place I can see we return EIO is in ext2_unlink when
-comparing de->inode to inode->i_ino.  However, this could only happen
-if a file of the same name was created in the directory, OR the dir entry
-was changed after we had done the lookup.  Strange, but unlikely here.
+drivers/atm/idt77105.c
+drivers/atm/iphase.c
+drivers/atm/uPD98402.c
+drivers/block/cciss.c
+drivers/block/cpqarray.c
+drivers/char/applicom.c
+    ...
+drivers/scsi/aha1542.c            <--- some scsi files
+drivers/scsi/atp870u.c             <----
+drivers/scsi/psi240i.c               <----
+drivers/scsi/sym53c416.c        <----
+drivers/scsi/tmscsim.c              <----
+    ...
+[the rest omiitted]
 
-Obviously e2fsck doesn't fix the problem?  Could you run debugfs on this
-filesystem, cd to the "mac3dfx/news/1999/08" directory, and "stat" each
-of these broken files?  This may help to identify what is wrong with the
-files that e2fsck isn't fixing.
+--- end quote ---
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

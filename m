@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264240AbTLEQBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 11:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbTLEQBQ
+	id S264323AbTLEP53 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 10:57:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264324AbTLEP53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 11:01:16 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:41602
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S264256AbTLEQBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 11:01:13 -0500
-Date: Fri, 5 Dec 2003 11:00:11 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Paul Rolland <rol@witbe.net>
-cc: linux-smp@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: WARNING: MP table in the EBDA can be UNSAFE
-In-Reply-To: <200312051518.hB5FIQD29335@tag.witbe.net>
-Message-ID: <Pine.LNX.4.58.0312051053481.10913@montezuma.fsmlabs.com>
-References: <200312051518.hB5FIQD29335@tag.witbe.net>
+	Fri, 5 Dec 2003 10:57:29 -0500
+Received: from ezoffice.mandrakesoft.com ([212.11.15.34]:8377 "EHLO
+	vador.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id S264323AbTLEP52 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 10:57:28 -0500
+To: "Kendall Bennett" <KendallB@scitechsoft.com>
+Cc: Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+X-URL: <http://www.linux-mandrake.com/
+References: <20031204235055.62846.qmail@web21503.mail.yahoo.com>
+	<3FCF77FF.18046.447204E6@localhost>
+From: Thierry Vignaud <tvignaud@mandrakesoft.com>
+Organization: MandrakeSoft
+Date: Fri, 05 Dec 2003 15:57:27 +0000
+In-Reply-To: <3FCF77FF.18046.447204E6@localhost> (Kendall Bennett's message
+ of "Thu, 04 Dec 2003 18:07:59 -0800")
+Message-ID: <m2y8tr2r6g.fsf@vador.mandrakesoft.com>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Dec 2003, Paul Rolland wrote:
+"Kendall Bennett" <KendallB@scitechsoft.com> writes:
 
-> Our Linux, running on an IBM X-Series 445, says :
-> (excerpt from dmesg) :
->
-> found SMP MP-table at 0009dd40
-> hm, page 0009d000 reserved twice.
-> hm, page 0009e000 reserved twice.
-> hm, page 0009e000 reserved twice.
-> hm, page 0009f000 reserved twice.
-> WARNING: MP table in the EBDA can be UNSAFE, contact linux-smp@vger.kernel.org if you experience SMP problems!
+> Then again, it appears that most developers are using wrapped to
+> avoid this situation, such that their private code does not include
+> any Linux headers, only the GPL'ed wrapper.
 
-This bit is ok and can be safely ignored.
+wrappers are gpl-ed.
+i do not think they offer so much "work" that their authors have the
+right to tell "here's there's a boundary; our binary module can
+legally use our wrapper".
 
-> LAPIC (acpi_id[0x0000] id[0x0] enabled[1])
-> CPU 0 (0x0000) enabledProcessor #0 Pentium 4(tm) XEON(tm) APIC version 16
->
-> LAPIC (acpi_id[0x0001] id[0x12] enabled[1])
-> CPU 1 (0x1200) enabled<4>Processor #18 INVALID - (Max ID: 16).
-> LAPIC (acpi_id[0x0002] id[0x20] enabled[1])
-> CPU 1 (0x2000) enabled<4>Processor #32 INVALID - (Max ID: 16).
-> LAPIC (acpi_id[0x0003] id[0x32] enabled[1])
-> CPU 1 (0x3200) enabled<4>Processor #50 INVALID - (Max ID: 16).
->
-> Is there any known solution to re-enable the CPU 1, CPU 2 and CPU 3 ?
->
-> Is this an IBM bug ?
-
-Did you compile your kernel with the following option?
-IBM x440 Summit/EXA support
-
-CONFIG_X86_SUMMIT

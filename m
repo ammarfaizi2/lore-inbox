@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262784AbREOP3c>; Tue, 15 May 2001 11:29:32 -0400
+	id <S262786AbREOPdw>; Tue, 15 May 2001 11:33:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262785AbREOP3W>; Tue, 15 May 2001 11:29:22 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:43170 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262784AbREOP3M>;
-	Tue, 15 May 2001 11:29:12 -0400
-Date: Tue, 15 May 2001 11:29:10 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.21.0105150803230.1802-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0105151112410.21081-100000@weyl.math.psu.edu>
+	id <S262790AbREOPdm>; Tue, 15 May 2001 11:33:42 -0400
+Received: from ns-inetext.inet.com ([199.171.211.140]:37253 "EHLO
+	ns-inetext.inet.com") by vger.kernel.org with ESMTP
+	id <S262786AbREOPdf>; Tue, 15 May 2001 11:33:35 -0400
+Message-ID: <3B014C4C.F2FDE3FD@inet.com>
+Date: Tue, 15 May 2001 10:33:32 -0500
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jonathan Corbet <corbet-lk@lwn.net>
+CC: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>, linux-kernel@vger.kernel.org
+Subject: Re: Linux kernel programming for beginners
+In-Reply-To: <20010515142722.30278.qmail@eklektix.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 15 May 2001, Linus Torvalds wrote:
-
-> What is the horrible app that does something like this? 
-
-eject(1), for one thing. And yes, it's ugly beyond belief - don't read
-without a barfbag. BTW, LILO is not better, to put it _very_ mildly.
-
-> > 	/* Use scsi if possible [scsi, ide-scsi, usb-scsi, ...] */
-> > 	if(HAS_FEATURE_SET(fd, "scsi-tape"))
-> > 		...
-> > 	else if(HAS_FEATURE_SET(fd, "floppy-tape"))
-> > 		..
+Jonathan Corbet wrote:
 > 
-> doesn't look horrible, and I don't see why we couldn't expose the "driver
-> name" for any file descriptor. We already do for some: "fstatfs()" is
-> largely the same thing on another level.
+> > Does anybody know any nice resource for beginners to try to write
+> > some device drivers/other interesting stuff ?
+> 
+> <self-serving-stuff>
+> 
+> Well... if you can wait just a little longer, O'Reilly tells me that the
+> second edition of Linux Device Drivers should hit the shelves on June 28.
+> We're still working on the right license for the online release - if people
+> have suggestions, I would be glad to receive them privately.
+> 
+> </self-serving-stuff>
 
-Well, yes, if you can extract fs type from fstatfs() output. I don't
-think that ->s_magic (i.e. ->f_type) is a good way to do that, though.
-We have unused space in struct statfs and IMO putting the name there
-is a good idea. Has an additional nice property of killing the crap
-like switch by magic numbers.
+Do make an announcement on l-k when it's available.  It might be
+considered SPAM by some, but it seems completely on-topic to me...
 
+> jon  (who's glad we didn't tell people how to request major device
+>       numbers...)
+
+*chuckle*  :)
+
+Eli
+-----------------------.   No wonder we didn't get this right first time
+Eli Carter             |      through. It's not really all that horribly 
+eli.carter(at)inet.com `- complicated, but the _details_ kill you. Linus

@@ -1,32 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVBVGwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVBVG6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbVBVGwF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 01:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVBVGwF
+	id S262225AbVBVG6m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 01:58:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVBVG6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 01:52:05 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:45593 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262219AbVBVGwC (ORCPT
+	Tue, 22 Feb 2005 01:58:41 -0500
+Received: from gate.crashing.org ([63.228.1.57]:22231 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262225AbVBVG6d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 01:52:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=RkPckf9GvAh1Zm+ys3QiPcK6PM+ge25KOOj+p+rZGgxz524S3tyvF/6kwuI8TKFANB4XxqCpFP7FmDPMU3YmQElS01jqZZ35w7vOjkTPEv2T4RJo2fXSnwU3o6jXTrGAon52YC0q1h5zr8SCHrvpLrfRki5/IJTrjAN3oxfNY1Q=
-Message-ID: <9e47339105022122526338b2c9@mail.gmail.com>
-Date: Tue, 22 Feb 2005 01:52:02 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+	Tue, 22 Feb 2005 01:58:33 -0500
 Subject: Re: POSTing of video cards (WAS: Solo Xgl..)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jon Smirl <jonsmirl@gmail.com>
 Cc: Alex Deucher <alexdeucher@gmail.com>, Dave Airlie <airlied@linux.ie>,
        dri-devel@lists.sourceforge.net,
        Linux Kernel list <linux-kernel@vger.kernel.org>,
        xorg@lists.freedesktop.org
-In-Reply-To: <1109053960.5326.91.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <9e47339105022122526338b2c9@mail.gmail.com>
 References: <Pine.LNX.4.58.0502201049480.18753@skynet>
 	 <1108973275.5326.8.camel@gaston>
 	 <9e47339105022111082b2023c2@mail.gmail.com>
@@ -37,22 +27,57 @@ References: <Pine.LNX.4.58.0502201049480.18753@skynet>
 	 <1109049217.5412.79.camel@gaston>
 	 <9e4733910502212203671eec73@mail.gmail.com>
 	 <1109053960.5326.91.camel@gaston>
+	 <9e47339105022122526338b2c9@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 22 Feb 2005 17:57:46 +1100
+Message-Id: <1109055466.5326.99.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does the kernel need to keep a bit that says the device has been
-posted, don't do it again? Should removing/inserting a driver cause a
-repost? I was going to add bit in pci_dev that tracks the reset status
-so that it will persist across unloads. Do we have code to tell if
-hardware needs a reset without the tracking bit?
+On Tue, 2005-02-22 at 01:52 -0500, Jon Smirl wrote:
+> Does the kernel need to keep a bit that says the device has been
+> posted, don't do it again?
 
-On the x86 DRM will run without fbdev loaded. So DRM needs to also be
-able to do the post and well as fbdev. Or we can just leave the old
-drivers alone and only implement this in a merged fbdev/drm driver?
+No. The kernel have no idea about what POSTing means in fact. That is
+also driver specific.
 
-When current X loads it's going to reset the cards again, that may
-stomp anything the driver has set up.
+> Should removing/inserting a driver cause a repost?
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+The driver should be able to determine that looking at the state of the
+device. Things like vgacon may need some massaging, but that is not
+something we need to care too much about :)
+
+> I was going to add bit in pci_dev that tracks the reset status
+> so that it will persist across unloads. Do we have code to tell if
+> hardware needs a reset without the tracking bit?
+
+That doesn't have room in pci_dev, that only concerns a minority of HW
+and I don't think we need to track it accross load/unload.
+
+> On the x86 DRM will run without fbdev loaded. So DRM needs to also be
+> able to do the post and well as fbdev. Or we can just leave the old
+> drivers alone and only implement this in a merged fbdev/drm driver?
+
+I think we need _at_least_ to make a common "stub" driver for fbdev/drm,
+and if possible, only implement that in the merged driver when that
+happens. We are talking about the future here. Existing users already
+have X happily POST'ing their cards.
+
+> When current X loads it's going to reset the cards again, that may
+> stomp anything the driver has set up.
+
+Yes, and X need to be fixed for that, this is _WRONG_, one of the
+numerous x86-centric assumptions in X. Note that the fbdev driver is
+currently aware that anything can happen to the card when in KD_GRAPHICS
+mode (and thus, the driver loses ownership). I restore as much as I need
+hopefully when coming back. So we may end up having a non-issue there.
+Once we have an Xgl on top of mesa solo, the problem will not happen.
+
+Ben.
+
+
+
+

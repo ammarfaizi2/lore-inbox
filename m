@@ -1,66 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266265AbUBDCom (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 21:44:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266277AbUBDCom
+	id S266247AbUBDCkq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 21:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266285AbUBDCkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 21:44:42 -0500
-Received: from 82-69-47-17.dsl.in-addr.zen.co.uk ([82.69.47.17]:41860 "EHLO
-	brain.pulsesol.com") by vger.kernel.org with ESMTP id S266265AbUBDCok
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 21:44:40 -0500
-Date: Wed, 4 Feb 2004 02:44:39 +0000
-From: Antony Gelberg <antony@antgel.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: CD-ROMs not working in 2.6
-Message-ID: <20040204024439.GK25786@brain.pulsesol.com>
+	Tue, 3 Feb 2004 21:40:46 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50564
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S266247AbUBDCko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 21:40:44 -0500
+Date: Wed, 4 Feb 2004 03:40:42 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Jamie Lokier <jamie@shareable.org>, johnstul@us.ibm.com,
+       drepper@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+Message-ID: <20040204024042.GE26076@dualathlon.random>
+References: <1075344395.1592.87.camel@cog.beaverton.ibm.com.suse.lists.linux.kernel> <401894DA.7000609@redhat.com.suse.lists.linux.kernel> <20040201012803.GN26076@dualathlon.random.suse.lists.linux.kernel> <401F251C.2090300@redhat.com.suse.lists.linux.kernel> <20040203085224.GA15738@mail.shareable.org.suse.lists.linux.kernel> <20040203162515.GY26076@dualathlon.random.suse.lists.linux.kernel> <20040203173716.GC17895@mail.shareable.org.suse.lists.linux.kernel> <20040203181001.GA26076@dualathlon.random.suse.lists.linux.kernel> <20040203182310.GA18326@mail.shareable.org.suse.lists.linux.kernel> <p73znbzlgu3.fsf@verdi.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <p73znbzlgu3.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Wed, Feb 04, 2004 at 03:27:16AM +0100, Andi Kleen wrote:
+> Jamie Lokier <jamie@shareable.org> writes:
+> 
+> > Andrea Arcangeli wrote:
+> > > vsyscalls will never execute anything like execve. They can at most
+> > > modify userspace memory a fixed address, so if the userspace isn't
+> > > fixed, then nothing can be done with a vsyscall.
+> > 
+> > Are we talking about the same x86_64?
+> > 
+> > I see this in arch/x86_64/vsyscall.S:
+> > 
+> > __kernel_vsyscall:
+> > .LSTART_vsyscall:
+> > 	push	%ebp
+> > .Lpush_ebp:
+> > 	movl	%ecx, %ebp
+> > 	syscall
+> > 
+> > Is that page not mapped into userspace?
+> 
+> It is. It is needed for the vsyscall fallback for UML (UML cannot
+> support fixed address vsyscalls) and when we have to disable user
+> space vgettimeofday for other reasons (e.g. to use alternative time
+> sources that cannot be mapped to user space or doing time workarounds
+> that require real locks)
 
-I'd appreciate a CC as I'm not subbed.
+the fallback in gettimeofday which may be needed in some system would
+require a syscall instruction at fixed address too indeed (however in
+most systems that is not necessary so the uml fallback seems to be the
+one inserting the syscall instruction in common hardware).
 
-I'm running 2.6.0 from the Debian source packages.  All is good, except
-my CDROM drives don't work.  Here's some relevant output from
-/var/log/dmesg:
+> But any security advantages of not having it are at best illusionary.
+> If you don't believe me just grep any random executable for 
+> 0xf 0x05 (= syscall) or 0xcd 0x80 (= int $0x80). Even if it wasn't 
+> in the vsyscall page you just have to find these two bytes somewhere
+> (doesn't have to be an own instruction, they occur commonly as part
+> of other instructions or data) and jump to them. Executables are
+> at fixed addresses.
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-VP_IDE: IDE controller at PCI slot 0000:00:11.1
-ACPI: No IRQ known for interrupt pin A of device 0000:00:11.1 - using
-IRQ 255
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
-    ide0: BM-DMA at 0x8800-0x8807, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0x8808-0x880f, BIOS settings: hdc:DMA, hdd:pio
-hdc: 54X CD-ROM, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-end_request: I/O error, dev hdc, sector 0
-hdc: ATAPI 52X CD-ROM drive, 128kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-libata version 0.81 loaded.
-sata_promise version 0.86
-ata1: SATA max UDMA/133 cmd 0xE0824200 ctl 0xE0824238 bmdma 0x0 irq 17
-ata2: SATA max UDMA/133 cmd 0xE0824280 ctl 0xE08242B8 bmdma 0x0 irq 17
+agreed.
 
-Now lspci:
-00:11.1 IDE interface: VIA Technologies, Inc.
-VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-
-Can anyone shed any light on this?  I've tried a different IDE cable.  I
-disconnected the other drive that was the slave, but no dice.  hdc and
-hdd both reported the I/O error when they were both connected.  The
-system doesn't recognise data or audio discs.
-
-I won't post my kernel config without request as it's 1151 lines long.
-
-A
+And if they really want to relocate the vsyscall page, it's possible to
+implement with a new syscall without having to slowdown or change the
+API. We simply need to change the pte during context switch, but it will
+force some invlpg at every context switch. I agree it doesn't worth as
+far as the executable is the same on all systems.

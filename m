@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267342AbSLRTWU>; Wed, 18 Dec 2002 14:22:20 -0500
+	id <S267333AbSLRTTl>; Wed, 18 Dec 2002 14:19:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267343AbSLRTWU>; Wed, 18 Dec 2002 14:22:20 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:17425 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267342AbSLRTWT>;
-	Wed, 18 Dec 2002 14:22:19 -0500
-Date: Wed, 18 Dec 2002 11:27:40 -0800
-From: Greg KH <greg@kroah.com>
-To: Jaroslav Kysela <perex@perex.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA update
-Message-ID: <20021218192740.GC32190@kroah.com>
-References: <20021218182135.GD31197@kroah.com> <Pine.LNX.4.33.0212182013070.550-100000@pnote.perex-int.cz>
+	id <S267334AbSLRTTl>; Wed, 18 Dec 2002 14:19:41 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:62952
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267333AbSLRTTk>; Wed, 18 Dec 2002 14:19:40 -0500
+Subject: Re: 3ware driver in 2.4.x and 2.5.x not compatible with 6x00 series
+	cards
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nathan Neulinger <nneul@umr.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, uetrecht@umr.edu
+In-Reply-To: <20021218181052.GA26465@umr.edu>
+References: <20021218181052.GA26465@umr.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Dec 2002 20:08:05 +0000
+Message-Id: <1040242085.24561.22.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0212182013070.550-100000@pnote.perex-int.cz>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 18, 2002 at 08:17:55PM +0100, Jaroslav Kysela wrote:
-> 
-> Not much. We have 9 #ifdef's and all trying to resolve the conflicts with 
-> new function prototypes which is difficult to replace with defines or 
-> inline functions. Perhaps, you'll have an idea to solve this problem.
+On Wed, 2002-12-18 at 18:10, Nathan Neulinger wrote:
+> According to 3Ware, the driver in the 2.4.x and (I assume) 2.5.x is no
+> longer compatible with the 6xxx series cards. 
 
-Short of keeping a 2.4 version and a 2.5/2.6 version, no, I do not have
-any ideas, sorry.  The USB core has changed a lot between those two
-trees, as you know.
+Please give the name of your 3ware contact so someone competent in 3ware
+so they can be 're-educated'
 
-> For us, it's very important to have only one code base for all kernels, 
-> but on the other hand, we're trying to leave the 2.2/2.4 kernel code 
-> specific parts separate in our CVS repository if possible.
+I use the new driver with an old card, it works.
 
-Then you might want to leave the OLD_USB stuff out of the 2.5 kernel :)
-
-thanks,
-
-greg k-h

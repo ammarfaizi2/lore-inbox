@@ -1,37 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264301AbTFDXlo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 19:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTFDXlo
+	id S264324AbTFDXmf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 19:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTFDXmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 19:41:44 -0400
-Received: from mta01-svc.ntlworld.com ([62.253.162.41]:60603 "EHLO
-	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S264301AbTFDXln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 19:41:43 -0400
-Date: Thu, 5 Jun 2003 00:55:12 +0100
-Mime-Version: 1.0 (Apple Message framework v552)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: robotics, linux and PCI ADC  
-From: jones <little.jones.family@ntlworld.com>
-To: linux-kernel@vger.kernel.org
+	Wed, 4 Jun 2003 19:42:35 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:46967 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264324AbTFDXm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 19:42:28 -0400
+Message-ID: <3EDE870C.1EFA566C@digeo.com>
+Date: Wed, 04 Jun 2003 16:55:56 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.70-mm3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Torrey Hoffman <thoffman@arnor.net>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Another must-fix: sbp2 and firewire hard disk crashes hard.
+References: <1054770509.1198.79.camel@torrey.et.myrio.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <FB576BE5-96E7-11D7-8DC3-00050291EC35@ntlworld.com>
-X-Mailer: Apple Mail (2.552)
+X-OriginalArrivalTime: 04 Jun 2003 23:55:57.0704 (UTC) FILETIME=[D7C71080:01C32AF4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dear all
+Torrey Hoffman wrote:
+> 
+> as soon as the SBP2 driver in
+> 2.5.(recent) sees my firewire drive, either during kernel boot or later
+> if I turn on / plug in the drive, the system crashes and dumps a
+> seemingly endless stack trace.
 
-I would like to find a PCI card that has Analogue to Digital Converters 
-so that I can make a monitor
-(I need about 16 channels preferably 32 )
+Please apply the below patch, which should prevent the info
+from scrolling away.  Then send a full report to
+linux1394-devel@lists.sourceforge.net
 
-have you used or know of a card like this ?
 
-if so mail me !
+diff -puN arch/i386/kernel/traps.c~stop-trace arch/i386/kernel/traps.c
+--- 25/arch/i386/kernel/traps.c~stop-trace	Wed Jun  4 16:48:41 2003
++++ 25-akpm/arch/i386/kernel/traps.c	Wed Jun  4 16:50:13 2003
+@@ -96,6 +96,7 @@ void show_trace(unsigned long * stack)
+ {
+ 	int i;
+ 	unsigned long addr;
++	int count = 0;
+ 
+ 	if (!stack)
+ 		stack = (unsigned long*)&stack;
+@@ -111,6 +112,8 @@ void show_trace(unsigned long * stack)
+ 			printk(" [<%08lx>] ", addr);
+ 			print_symbol("%s\n", addr);
+ 		}
++		if (count++ > 12)
++			break;
+ 	}
+ 	printk("\n");
+ }
+@@ -146,6 +149,8 @@ void show_stack(unsigned long * esp)
+ 	}
+ 	printk("\n");
+ 	show_trace(esp);
++	for ( ; ; )
++		;
+ }
+ 
+ /*
 
-cheers
-
-John Jones
-
+_

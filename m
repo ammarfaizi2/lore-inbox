@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbTKGXWg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 18:22:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTKGWUW
+	id S261797AbTKGWWe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbTKGWWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:20:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:40138 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264386AbTKGPKl (ORCPT
+	Fri, 7 Nov 2003 17:22:09 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:43530 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S264097AbTKGL7a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 10:10:41 -0500
-Date: Fri, 7 Nov 2003 07:09:32 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Mark Gross <mgross@linux.co.intel.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SMP signal latency fix up.
-In-Reply-To: <Pine.LNX.4.56.0311070918310.18447@earth>
-Message-ID: <Pine.LNX.4.44.0311070701370.1842-100000@home.osdl.org>
+	Fri, 7 Nov 2003 06:59:30 -0500
+Date: Fri, 7 Nov 2003 12:59:28 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Question: Returning values from kernel FIFO to userspace
+Message-ID: <Pine.LNX.4.44.0311071247410.26063-100000@gaia.cela.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I have a kernel FIFO for special keyboard events (considered asynchronous 
+to normal keypresses) and a userspace script (invoked by keyboard_signal 
+from init) which reads them (one at a time).
 
-On Fri, 7 Nov 2003, Ingo Molnar wrote:
-> On Thu, 6 Nov 2003, Linus Torvalds wrote:
-> 
-> > So I've got a feeling that 
-> >  - we should remove the "kick" argument from "try_to_wake_up()"
-> >  - the signal wakeup case should instead do a _regular_ wakeup.
-> >  - we should kick the process if the wakeup _fails_.
-> 
-> agreed - and this essential mechanism was my intention when i added the
-> kick argument originally. The problem is solved the simplest way via the
-> patch below - ie. i missed the other !success branch within
-> try_to_wake_up().
+And no, these keys can't be handled like normal extended keys as they use 
+_a very_ different route to reach the kernel -- and neither would I want 
+to - they're of the: lock keyboard, turn off screen, disk, sleep, 
+hibernate, etc variety.
 
-The thing is, that simple patch does NOT solve the problem, as Mark
-already noted. Why? Because while it makes "try_to_waker_up()" do the
-rigth thing, it doesn't make "wake_up_process_kick()" do the right thing.
+Currently, I'm using a mangled proc interface (which is very much a 
+hack: reading /proc/special_keycode returns the current value at the head 
+of the FIFO, and if the seek offset was 0 then it pops the FIFO.  This 
+last part is due to 'cat /proc/file' doing two reads, the first for the 
+data with a 1K buffer and the second to determine we're at EOF, both call
+the proc read interface.  nb. this means that if proc exports a value that 
+is variable length (like jiffies), it is possible for cat /proc/file to 
+return junk (at the end of the file) if the proc file length increases 
+between first and second read invocation (unlikely, but possible...) - 
+perhaps this should be fixed more globally - but how? by cacheing? 
+remembering a given proc fd has already EOF'ed and not invoking the 
+proc read procedure a second time?).
 
-The "mask" argument isn't supported by "wake_up_process_kick()", so the
-_caller_ has to do
+What would be considered 'the right way' to return an integer
+from a 30-value integer FIFO in the kernel to a userspace script (and 
+pop the FIFO at the same time).
+This is called very very rarely (once a couple minutes, sometimes 
+even hours) as it only happens when the user actually presses some 
+unusual key-combination.  However a FIFO is necessary because a single 
+keypress combination usually results in 2-3 events.
 
-	if (mask & state)
-		wake_up_process_kick()
-
-so now you have _another_ case where the kicking isn't done (in the 
-caller).
-
-That's why I think the whole interface is scrogged, and why the "simpler" 
-patch is not very workable.
-
-> but i fully agree with your other suggestion - there's no problem with
-> sending the IPI later and outside of the wakeup spinlock. In fact doing so
-> removes a variable from the wakeup hotpath and cleans up stuff. Hence i'd
-> suggest to apply the attached patch which implements your suggestion. I've
-> tested it and it solves the latency problem of the code Mark posted. It
-> compiles & boots on both UP and SMP x86.
-
-This seems to work for me, and I obviously agree with it. I'll have to 
-think for a bit whether I can call this an important enough bug to care 
-for 2.6.0, since it's only a performance regression. 
-
-(It _looks_ obvious enough, but can you check that there are no pointers
-that we might be following in the "is it running" checks that could be
-stale because we don't hold the runqueue lock any more).
-
-			Linus
+Thanks,
+MaZe.
 

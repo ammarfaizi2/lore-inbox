@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbUJXOew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbUJXOlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbUJXOew (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 10:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbUJXOew
+	id S261503AbUJXOlz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 10:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbUJXOlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 10:34:52 -0400
-Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:61662 "EHLO
-	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261501AbUJXOeo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 10:34:44 -0400
-Message-ID: <417BBD7E.8080803@kolivas.org>
-Date: Mon, 25 Oct 2004 00:34:38 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Sun, 24 Oct 2004 10:41:55 -0400
+Received: from mail.lindows.com ([130.94.123.204]:50148 "EHLO mail.lindows.com")
+	by vger.kernel.org with ESMTP id S261503AbUJXOlx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 10:41:53 -0400
+Message-ID: <417BBF32.7050808@linspireinc.com>
+Date: Sun, 24 Oct 2004 07:41:54 -0700
+From: Clifford Beshers <clifford.beshers@linspireinc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040525 Debian/1.6-5.1.0.50.lindows0.2
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux <linux-kernel@vger.kernel.org>
-Cc: CK Kernel <ck@vds.kolivas.org>
-Subject: Re: 2.6.9-ck2
-References: <417BB099.1050501@kolivas.org>
-In-Reply-To: <417BB099.1050501@kolivas.org>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC5D270E6F1A81BE43585A55D"
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: 2.6.9-mm1
+References: <20041022032039.730eb226.akpm@osdl.org> <4179425A.3080903@namesys.com>
+In-Reply-To: <4179425A.3080903@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Lindows-Footer: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC5D270E6F1A81BE43585A55D
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Con Kolivas wrote:
-> http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9-ck2/patch-2.6.9-ck2.bz2
+Hans Reiser wrote:
 
-Looks like I forgot to include the buildfix from ck1 for the occasional 
-compiler out there that has an "Internal Compiler Error" with 2.6.9 
-building. If you are having that trouble, add this patch:
+> Lindows is planning on shipping with reiser4 in its next release. I 
+> would very much like to see our inclusion before that.
 
-http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9-ck2/patches/buildfix.diff
+Yes, and we would very much like to see it in the mainstream kernel, 
+rather than an mm branch.   It is perfectly acceptable to turn off the 
+namespace features and trim anything else that might introduce 
+incompatibility or instability.  Our goal is to ship it as an advanced 
+but integrated feature, i.e., we do not want to ship two kernels and/or 
+lose other features such as bootsplash, software suspend, etc.
+--
 
-Sorry about that, comes from doing this so late at night...
-
-Cheers,
-Con
-
---------------enigC5D270E6F1A81BE43585A55D
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBe71+ZUg7+tp6mRURAqMoAKCPCoED4DK/7kM3Kvy7RQh8MEnrTQCfXxIe
-NnLNWw+HmInSdHwkK6bTJq8=
-=59Eo
------END PGP SIGNATURE-----
-
---------------enigC5D270E6F1A81BE43585A55D--
+This message contains information which may be confidential and privileged. Unless you are the 
+addressee (or authorized to receive for the addressee), you may not use, copy or disclose to anyone 
+the message or any information contained in the message. If you have received the message in error, 
+please advise the sender and delete the message.  Thank you.

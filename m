@@ -1,87 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262590AbUBZCEq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 21:04:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUBZCEq
+	id S261355AbUBZCSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 21:18:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbUBZCSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 21:04:46 -0500
-Received: from alt.aurema.com ([203.217.18.57]:57506 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S262604AbUBZCEn (ORCPT
+	Wed, 25 Feb 2004 21:18:25 -0500
+Received: from alt.aurema.com ([203.217.18.57]:61340 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S261355AbUBZCSX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 21:04:43 -0500
-Date: Thu, 26 Feb 2004 13:04:32 +1100 (EST)
-From: John Lee <johnl@aurema.com>
-To: Timothy Miller <miller@techsource.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-In-Reply-To: <403D3E47.4080501@techsource.com>
-Message-ID: <Pine.GSO.4.03.10402261238410.8776-100000@swag.sw.oz.au>
+	Wed, 25 Feb 2004 21:18:23 -0500
+Message-ID: <403D576A.6030900@aurema.com>
+Date: Thu, 26 Feb 2004 13:18:18 +1100
+From: Peter Williams <peterw@aurema.com>
+Organization: Aurema Pty Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Timothy Miller <miller@techsource.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
+References: <Pine.GSO.4.03.10402260834530.27582-100000@swag.sw.oz.au> <403D3E47.4080501@techsource.com>
+In-Reply-To: <403D3E47.4080501@techsource.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Timothy Miller wrote:
+ > <snip>
+> In fact, that may be the only "flaw" in your design.  It sounds like 
+> your scheduler does an excellent job at fairness with very low overhead. 
+>  The only problem with it is that it doesn't determine priority 
+> dynamically.
 
+This (i.e. automatic renicing of specified programs) is a good idea but 
+is not really a function that should be undertaken by the scheduler 
+itself.  Two possible solutions spring to mind:
 
-On Wed, 25 Feb 2004, Timothy Miller wrote:
+1. modify the do_execve() in fs/exec.c to renice tasks when they execute 
+specified binaries
+2. have a user space daemon poll running tasks periodically and renice 
+them if they are running specified binaries
 
-> > Hm, I would have thought the vast majority of xmms users would be running
-> > it on their own machines, to which they have root access. Hope I'm not 
-> > missing something here... :-)
-> 
-> It's a security concern to have to login as root unnecessarily.  It's 
-> bad enough we have to do that to change X11 configuration, but we 
-> shouldn't have to do that every time we want to start xmms.  And just 
-> suid root is also a security concern.
+Both of these solutions have their advantages and disadvantages, are 
+(obviously) complicated than I've made them sound and would require a 
+great deal of care to be taken during their implementation.  However, I 
+think that they are both doable.  My personal preference would be for 
+the in kernel solution on the grounds of efficiency.
 
-Ah, OK. Security point taken.
-
-> > Assuming that all/most xmms users do have root permissions, I would think
-> > that this is a very minor inconvenience... isn't xmms something which you
-> > tend to start up once and leave running until you log out?
-
-<snip>
-
-> What about computer labs of Linux boxes where users do not own the 
-> computers and are therefore not allowed to login as root.  Should they 
-> be prohibited from running xmms properly?
->
-> If someone does not own the box they're using, but they want to, say, 
-> contribute to xmms development, they're going to be starting and 
-> stopping the program quite frequently.  They're not going to have any 
-> way to set the nice level.
-> 
-> Consider what happens if some other user logs in remotely to that 
-> workstation and starts a large compile.
-
-Valid points. I guess I've been too accustomed to playing MP3s on my own
-box :-(.
-
-> >From my testing so far, X and xmms have been the only candidates for a
-> 
-> They are the most talked about, so you tested them.  Fine.  But we all 
-> know that they are not representative samples.  There are bound to be 
-> numerous other programs that have similar problems.
-
-No others that I've noticed yet, but yes you're probably right. Which is
-why I'm really looking forward to getting feedback in this area.
-
-> The way your scheduler works, USERS cannot "allocate CPU to their tasks 
-> in any way they deem fit".  Only system administrators can.
-
-Correct, I used the wrong word. Another symptom of too much play on my own
-boxes...
-
-> I read your paper, and I think you have some wonderful ideas.  Don't get 
-> me wrong.  I think that your ideas, coupled with an interactivity 
-> estimator, have an excellent chance of producing a better scheduler.
-
-Thanks :-).
-
-And thanks for your feedback.
-
-Cheers,
-
-John
+Peter
+-- 
+Dr Peter Williams, Chief Scientist                peterw@aurema.com
+Aurema Pty Limited                                Tel:+61 2 9698 2322
+PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
+79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
 
 

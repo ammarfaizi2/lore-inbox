@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVBTKVC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVBTKZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbVBTKVC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 05:21:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVBTKVC
+	id S261789AbVBTKZa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 05:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVBTKZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 05:21:02 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48652 "EHLO
+	Sun, 20 Feb 2005 05:25:30 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51729 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261780AbVBTKUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 05:20:46 -0500
-Date: Sun, 20 Feb 2005 10:20:37 +0000
+	id S261789AbVBTKZV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 05:25:21 -0500
+Date: Sun, 20 Feb 2005 10:25:16 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Steven Rostedt <rostedt@goodmis.org>, Linus Torvalds <torvalds@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>
-Subject: Re: IBM Thinkpad G41 PCMCIA problems [Was: Yenta TI: ... no PCI interrupts. Fish. Please report.]
-Message-ID: <20050220102037.C9509@flint.arm.linux.org.uk>
-Mail-Followup-To: Steven Rostedt <rostedt@goodmis.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>
-References: <1108858971.8413.147.camel@localhost.localdomain> <Pine.LNX.4.58.0502191648110.14176@ppc970.osdl.org> <1108863372.8413.158.camel@localhost.localdomain> <20050220082226.A7093@flint.arm.linux.org.uk>
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       =?iso-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: IBM Thinkpad G41 PCMCIA problems
+Message-ID: <20050220102516.E9509@flint.arm.linux.org.uk>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	=?iso-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>,
+	linux-kernel@vger.kernel.org
+References: <20050220092208.GA12738@hardeman.nu> <20050220092659.A9509@flint.arm.linux.org.uk> <20050220095211.GB12738@hardeman.nu> <20050220102059.GA17462@isilmar.linta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050220082226.A7093@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Sun, Feb 20, 2005 at 08:22:26AM +0000
+In-Reply-To: <20050220102059.GA17462@isilmar.linta.de>; from linux@dominikbrodowski.net on Sun, Feb 20, 2005 at 11:20:59AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 20, 2005 at 08:22:26AM +0000, Russell King wrote:
-> On Sat, Feb 19, 2005 at 08:36:12PM -0500, Steven Rostedt wrote:
-> > Linux version 2.6.10 (root@bilbo) (gcc version 3.3.5 (Debian 1:3.3.5-8)) #13 SMP Sat Feb 19 20:12:19 EST 2005
-> > BIOS-provided physical RAM map:
-> >  BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
-> >  BIOS-e820: 000000000009f000 - 00000000000a0000 (reserved)
-> >  BIOS-e820: 00000000000d0000 - 00000000000d4000 (reserved)
-> >  BIOS-e820: 00000000000dc000 - 0000000000100000 (reserved)
-> >  BIOS-e820: 0000000000100000 - 000000000f6f0000 (usable)
-> >  BIOS-e820: 000000000f6f0000 - 000000000f700000 (reserved)
-> >  BIOS-e820: 000000000f700000 - 000000003fef0000 (usable)
-> >  BIOS-e820: 000000003fef0000 - 000000003fef8000 (ACPI data)
-> >  BIOS-e820: 000000003fef8000 - 000000003fefa000 (ACPI NVS)
-> >  BIOS-e820: 000000003ff00000 - 0000000040000000 (reserved)
+On Sun, Feb 20, 2005 at 11:20:59AM +0100, Dominik Brodowski wrote:
+> > Is the hole between 0x36f6fa000 and 0x3f700000?
+> > 
+> > And what would be the proper way of fixing it (assuming that IBM won't 
+> > issue a fixed BIOS)?
 > 
-> Your BIOS is broken.  You probably have 1GB of RAM which extends from
-> 0x00000000 to 0x40000000.  However, there's a hole in the ACPI map
-> between 0x3fefa000 and 0x3ff00000.
+> passing "reserve=0x3f6fa000,0x600" as kernel boot option. Please also post
+> /proc/iomem for further debugging, especially if this didn't help.
 
-BTW, try passing:
-
-	reserve=0x3fefa000,0x6000
-
-to the kernel - this will mark the "hole" reserved and should reallocate
-the resources which are clashing with the RAM.
+You're missing a zero in the length. 8)
 
 -- 
 Russell King

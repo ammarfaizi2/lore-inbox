@@ -1,75 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315754AbSGFSeT>; Sat, 6 Jul 2002 14:34:19 -0400
+	id <S315758AbSGFSq1>; Sat, 6 Jul 2002 14:46:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315758AbSGFSeS>; Sat, 6 Jul 2002 14:34:18 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:55551 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S315754AbSGFSeS>; Sat, 6 Jul 2002 14:34:18 -0400
-Date: Sat, 6 Jul 2002 20:36:26 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Grega Fajdiga <Gregor.Fajdiga@telemach.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Where is Martin Dalecki?
-In-Reply-To: <Pine.LNX.4.10.10207061009290.25668-100000@master.linux-ide.org>
-Message-ID: <Pine.SOL.4.30.0207062024150.3164-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315779AbSGFSq0>; Sat, 6 Jul 2002 14:46:26 -0400
+Received: from jalon.able.es ([212.97.163.2]:44454 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S315758AbSGFSqZ>;
+	Sat, 6 Jul 2002 14:46:25 -0400
+Date: Sat, 6 Jul 2002 20:48:55 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-BProc <bproc-users@lists.sourceforge.net>,
+       Lista Linux-Cluster <linux-cluster@nl.linux.org>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Is 'transname' still alive ?
+Message-ID: <20020706184855.GA8343@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all...
 
-On Sat, 6 Jul 2002, Andre Hedrick wrote:
+I was looking info about ClusterNFS, and I found some info on 'transname',
+ie, do the same as cNFS but on the kernel server.
 
-> With any luck gone and Bartlomiej who actually knows something about the
-> hardware and driver design is now going to be running the show.
-> I gather his latest patch revert many of the bogus bugs designed by MD.
-> You should pray he does not come back!
->
-> Bartlomiej is significantly more capable and more of a storage architect.
-> I trust he will be doing the correct thing.
->
-> Cheers,
+Is that project still alive ? Is there any patch for 2.4 ?
 
-Thanks for warm words, but please dont discard MD yet.
+TIA
 
-To the time I cooperated with Martin just fine, he makes mistakes but
-everyone does. He can admit them.
-
-He should be more careful and spent more time on thinking about changes
-and their impact instead of simply trying them out.
-
-If he does, it will be all right...
-
---
-Bartlomiej
-
-> On Sat, 6 Jul 2002, Grega Fajdiga wrote:
->
-> > Good day,
-> >
-> > There has been a while since any IDE patches have gone into main tree.
-> > Also, it's been a while since Martin Dalecki released an IDE patch.
-> > Where is he? In lat two weeks or so only Bartolmej (did I spell this
-> > correctly?) has been releasing them. Could anyone elaborate?
-> >
-> > Regards,
-> > Grega Fajdiga
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
-> Andre Hedrick
-> LAD Storage Consulting Group
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+-- 
+J.A. Magallon             \   Software is like sex: It's better when it's free
+mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
+Linux werewolf 2.4.19-rc1-jam1, Mandrake Linux 8.3 (Cooker) for i586
+gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.7mdk)

@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269981AbTG2ISp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 04:18:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271207AbTG2ISp
+	id S271207AbTG2IYk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 04:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271335AbTG2IYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 04:18:45 -0400
-Received: from mgr2.xmission.com ([198.60.22.202]:18542 "EHLO
-	mgr2.xmission.com") by vger.kernel.org with ESMTP id S269981AbTG2ISo
+	Tue, 29 Jul 2003 04:24:40 -0400
+Received: from hmbg-d9ba879c.pool.mediaWays.net ([217.186.135.156]:29449 "EHLO
+	streik.no-ip.org") by vger.kernel.org with ESMTP id S271207AbTG2IYj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 04:18:44 -0400
-Date: Tue, 29 Jul 2003 02:18:37 -0600
-From: "S. Anderson" <sa@xmission.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "S. Anderson" <sa@xmission.com>, pavel@xal.co.uk,
-       linux-kernel@vger.kernel.org, adaplas@pol.net
-Subject: Re: OOPS 2.6.0-test2, modprobe i810fb
-Message-ID: <20030729021837.A2457@xmission.xmission.com>
-References: <20030728171806.GA1860@xal.co.uk> <20030728201954.A16103@xmission.xmission.com> <20030728202600.18338fa9.akpm@osdl.org> <20030728231812.A20738@xmission.xmission.com> <20030728225914.4f299586.akpm@osdl.org> <20030729012417.A18449@xmission.xmission.com> <20030729005456.495c89c4.akpm@osdl.org>
+	Tue, 29 Jul 2003 04:24:39 -0400
+Date: Tue, 29 Jul 2003 10:24:32 +0200
+From: Groove Over <groove.over@blankenese.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: rivafb
+Message-Id: <20030729102432.58cf7d21.groove.over@blankenese.de>
+Reply-To: Groove.Over@blankenese.de
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030729005456.495c89c4.akpm@osdl.org>; from akpm@osdl.org on Tue, Jul 29, 2003 at 12:54:56AM -0700
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.WJDaGh_tFlOXs("
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 29, 2003 at 12:54:56AM -0700, Andrew Morton wrote:
-> "S. Anderson" <sa@xmission.com> wrote:
-> >
-> >  Jul 29 00:40:12 localhost kernel: pci_match_device: &ids->vendor = d094ee7c
-> >  Jul 29 00:40:12 localhost kernel: Unable to handle kernel paging request at virtual address d094ee7c
-> 
-> wtf?  So the memory at d094ee7c (which contains i810fb's pci table) became
-> unmapped from kernel virtual address space as a result of you inserting
-> your carbus card.
-> 
-> I am impressed.
-> 
-> Jsut as a crazy test, could you delete /sbin/rmmod and see if it still
-> happens?  Maybe something is removing the module at an embarrassing time or
-> something.
-> 
+--=.WJDaGh_tFlOXs(
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-I moved /sbin/rmmod* out of my path and I still get the oop. :-)
+Hi...
+The rivafb and the nvidia-accelerated drivers conflict, yes, but you can own situation if you tell X to use the rivafb-framebuffer instead the nvidia-one.
 
-I will try to hack something together to find out if inserting a carbus
-card unmaps i810fb's pci table, or if something else is doing it.
+Section "Device"
+        Identifier      "GeForce"
+        Driver          "nvidia"
+        BusID           "1:0:0"
+        Option          "UseFBDev"      "true"
+EndSection
 
-thanks,
-Shawn Anderson
+This should fix the problem.
+
+And, I have my own question, too... How do I switch my resolution?
+
+"kernel /boot/gentoo-2.4.20-r5-bo.nvidia root=/dev/hda3 video=rivafb:1280x1024-32@100" doesn't work for me.
+What is wrong? 
+
+Thanks a lot for solutions, 
+
+kraM
+
+--=.WJDaGh_tFlOXs(
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/Ji9EX39/uNMye18RAqpzAJ44Qi7ac33Ak9fvmUe7FM9rDeh+qACeKsWT
+xVXmpuUk79ZonbakcsoliHI=
+=vOBj
+-----END PGP SIGNATURE-----
+
+--=.WJDaGh_tFlOXs(--

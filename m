@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289832AbSAWMcw>; Wed, 23 Jan 2002 07:32:52 -0500
+	id <S289833AbSAWMgY>; Wed, 23 Jan 2002 07:36:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289833AbSAWMcm>; Wed, 23 Jan 2002 07:32:42 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:169 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S289832AbSAWMc1>; Wed, 23 Jan 2002 07:32:27 -0500
-Date: Wed, 23 Jan 2002 14:28:54 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Alexander Viro <viro@math.psu.edu>
-Subject: Re: 2.5.2-pre2-3 SMP broken on UP boxen
-In-Reply-To: <Pine.LNX.4.44.0201231420270.20635-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.LNX.4.44.0201231426500.20902-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289825AbSAWMgO>; Wed, 23 Jan 2002 07:36:14 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:24448 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S289833AbSAWMgB>;
+	Wed, 23 Jan 2002 07:36:01 -0500
+Date: Wed, 23 Jan 2002 04:34:41 -0800 (PST)
+Message-Id: <20020123.043441.112625212.davem@redhat.com>
+To: velco@fadata.bg
+Cc: manfred@colorfullife.com, masp0008@stud.uni-saarland.de,
+        drobbins@gentoo.org, linux-kernel@vger.kernel.org
+Subject: Re: Athlon/AGP issue update
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <87wuy9b62u.fsf@fadata.bg>
+In-Reply-To: <3C4E9291.8DA0BD7F@stud.uni-saarland.de>
+	<20020123.034411.71089598.davem@redhat.com>
+	<87wuy9b62u.fsf@fadata.bg>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, Zwane Mwaikambo wrote:
+   From: Momchil Velikov <velco@fadata.bg>
+   Date: 23 Jan 2002 14:32:57 +0200
 
-> Al Viro just asked me to try something, patch coming in...
+   Erm, why would the granularity of mapping matter at all ?
 
-Here's Al's suggestion, unfortunately the box is at home so i can't test 
-it right now.
+Because on a TLB miss the speculative store would be cancelled.
+With 4MB pages the TLB can hit, with 4K pages it cannot.
 
-
-Cheers,
-	Zwane Mwaikambo
-
---- linux-2.5.3-pre3/arch/i386/kernel/smpboot.c.orig	Wed Jan 23 14:23:49 2002
-+++ linux-2.5.3-pre3/arch/i386/kernel/smpboot.c	Wed Jan 23 14:24:33 2002
-@@ -1018,7 +1018,7 @@
- 	boot_cpu_logical_apicid = logical_smp_processor_id();
- 	map_cpu_to_boot_apicid(0, boot_cpu_apicid);
- 
--	global_irq_holder = 0;
-+	global_irq_holder = NO_PROC_ID;
- 	current->cpu = 0;
- 	smp_tune_scheduling();
- 
-
-
+Franks a lot,
+David S. Miller
+davem@redhat.com
+   

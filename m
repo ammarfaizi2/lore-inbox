@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVCDCEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262805AbVCDCSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbVCDCEo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 21:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbVCDBoP
+	id S262805AbVCDCSy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 21:18:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVCDCSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 20:44:15 -0500
-Received: from fire.osdl.org ([65.172.181.4]:23250 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262730AbVCDADg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 19:03:36 -0500
-Date: Thu, 3 Mar 2005 16:03:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: greg@kroah.com, jgarzik@pobox.com, torvalds@osdl.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-Id: <20050303160330.5db86db7.akpm@osdl.org>
-In-Reply-To: <20050303234523.GS8880@opteron.random>
-References: <42268F93.6060504@pobox.com>
-	<4226969E.5020101@pobox.com>
-	<20050302205826.523b9144.davem@davemloft.net>
-	<4226C235.1070609@pobox.com>
-	<20050303080459.GA29235@kroah.com>
-	<4226CA7E.4090905@pobox.com>
-	<Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
-	<422751C1.7030607@pobox.com>
-	<20050303181122.GB12103@kroah.com>
-	<20050303151752.00527ae7.akpm@osdl.org>
-	<20050303234523.GS8880@opteron.random>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 3 Mar 2005 21:18:33 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:50683 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262866AbVCDCK6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 21:10:58 -0500
+Message-ID: <4227C3AA.6090505@mvista.com>
+Date: Thu, 03 Mar 2005 18:10:50 -0800
+From: Todd Poynor <tpoynor@mvista.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org, linux-pm@osdl.org
+Subject: Re: [linux-pm] [PATCH] Custom power states for non-ACPI systems
+References: <20050302020306.GA5724@slurryseal.ddns.mvista.com> <20050302085619.GA1364@elf.ucw.cz> <42263719.7030004@mvista.com> <20050302221150.GE1616@elf.ucw.cz> <422659B1.9090608@mvista.com> <20050303145522.GA3485@openzaurus.ucw.cz>
+In-Reply-To: <20050303145522.GA3485@openzaurus.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> On Thu, Mar 03, 2005 at 03:17:52PM -0800, Andrew Morton wrote:
-> > That's the only way it _can_ work.  The maintainer of 2.6.x.y shouldn't be
+Pavel Machek wrote:
+...
+>>In most of the cases I'm thinking of, it wouldn't be a user 
+>>requesting a state but rather software (say, a cell phone 
+>>progressively entering lower power states due to inactivity).  I 
+>>haven't noticed a platform with more than 3 low-power modes so far, 
 > 
-> Andrew, what about my suggestion of shifting left x.y of 8 bits? ;) Do
-> we risk the magic 2.7 number to get us stuck in unstable mode for 2
-> years instead of 2 months? Doesn't 2.6.x.y pose the same risk but
-> by also breaking the numbering and the stable kernel identification for
-> no good reason? (ignoring the "2.6." part that carries no useful info
-> anymore ;)
+> 
+> Are not your power states more like cpu power states?
+> These are expected to be system states, and sleeping system
+> does not take calls, etc...
 
-I think this is all a bit of a storm in a teacup, really.
+There's a great variety of behaviors and usage models out there, not 
+sure I can draw a useful distinction between cpu power states vs. system 
+states, but the net effect could be considered to be approximately the 
+same in typical embedded uses: the drivers are called to place 
+appropriate devices in a low(er)-power state, various platform thingies 
+are slowed or powered off, and the system stops waiting for something to 
+wake it up.  In some cases the system does not wake up until an explicit 
+user action (button press, etc.), but more commonly 
+wake-on-device-activity (including ring from telephony unit) or 
+time-based actions (including wake on alarm from event in user's 
+datebook) is also wanted (rather like wake-on-LAN et al).  I don't think 
+this would correspond well to hardware-managed CPU power states like 
+ACPI C states, for example.  Thanks,
 
-2.6.x is making good progress but there have been a handful of prominent
-regressions which seem to be making people think that the whole process is
-bust.  I don't believe that this has been proven yet.
 
-There is still potential to make good improvements to the existing
-processes, and the main way of doing this is for the various subsystems to
-be a bit more disciplined.  That means:
-
-a) Have all your 2.6.n stuff ready to go when 2.6.n-1 is released.
-
-b) Merge your 2.6.n stuff promptly - within two weeks of the 2.6.n-1 release.
-
-c) Then, keep your sticky paws off it.  New development and
-   not-completely-trustworthy development goes into your subsystem tree and
-   Linus's tree just gets bugfixes.
-
-That's how it _should_ work, and I'm not sure that we're sufficiently close
-to it now.
-
-Or, to put it another way, we're getting a small number of irritating
-regressions, mainly in device drivers which is giving the whole thing a bad
-rep.  Is there some way in which we can fix that problem without
-reinventing the whole world?
+-- 
+Todd

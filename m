@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290878AbSARXku>; Fri, 18 Jan 2002 18:40:50 -0500
+	id <S290880AbSARXxd>; Fri, 18 Jan 2002 18:53:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290879AbSARXkb>; Fri, 18 Jan 2002 18:40:31 -0500
-Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:42173 "EHLO
-	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S290878AbSARXkU>; Fri, 18 Jan 2002 18:40:20 -0500
-Date: Fri, 18 Jan 2002 18:40:15 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.16
-Message-ID: <20020118234015.GA3694@opeth.ath.cx>
-In-Reply-To: <3C3E7F89.AB2F629@zip.com.au> <1011395469.850.8.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
-Content-Disposition: inline
-In-Reply-To: <1011395469.850.8.camel@phantasy>
-User-Agent: Mutt/1.3.25i
-From: Dan Chen <crimsun@email.unc.edu>
+	id <S290882AbSARXxY>; Fri, 18 Jan 2002 18:53:24 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:24357 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S290880AbSARXxP> convert rfc822-to-8bit; Fri, 18 Jan 2002 18:53:15 -0500
+Date: Sat, 19 Jan 2002 00:52:02 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Kent E Yoder <yoder1@us.ibm.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes
+In-Reply-To: <E16RiHs-0008CD-00@the-village.bc.nu>
+Message-ID: <20020119004144.F2500-100000@gerard>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---W/nzBZO5zC0uMSeA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Similar experience here. Has withstood abuse on my UP and SMP machines
-(a variety of 2.4.17 and 2.4.18-pre4). Thanks!
+On Fri, 18 Jan 2002, Alan Cox wrote:
 
-On Fri, Jan 18, 2002 at 06:10:29PM -0500, Robert Love wrote:
-> On Fri, 2002-01-11 at 01:00, Andrew Morton wrote:
-> > A small ext3 update.  It fixes a few hard-to-hit but potentially
-> > serious problems.  The patch is against 2.4.18-pre3, and is also
-> > applicable to 2.4.17.
->=20
-> I didn't see any feedback so I wanted to confirm success on my
-> 2.4.18-pre4 UP machine.  Survived prolonged use and some initial
-> stressing.  Good job.
+> >   BTW, I don't know what PCI posting effects are...
+>
+> Ok given
+>
+> 	writel(foo, dev->reg);
+> 	udelay(5);
+> 	writel(bar, dev->reg);
+>
+> The pci bridge is at liberty to delay the first write until the second or a
+> read from that device comes along (and wants to do so to merge bursts). It
+> tends to bite people
+>
+> 	-	When they do a write to clear the IRQ status and don't do
+> 		a read so they keep handling lots of phantom level triggered
+> 		interrupts.
 
---=20
-Dan Chen                 crimsun@email.unc.edu
-GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
+Not only (when the write is intended to clear some interrupt condition).
 
---W/nzBZO5zC0uMSeA
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+As the actual clear of the interrupt condition is delayed, then it may
+just also clear a sub-sequent condition and this condition may be missed
+by the driver interrupt routine. Due to this a race, interrupt stall can
+occur.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+> 	-	When there is a delay (reset is common) that has to be observed
+>
+> 	-	At the end of a DMA transfer when people unmap stuff early
+> 		and the "stop the DMA" command got delayed
 
-iD8DBQE8SLJfMwVVFhIHlU4RAvzfAJ0RA4+8gR47n5q/Zr6HrnIy/o52ZgCfcrrN
-xzc93KJuUVuZEmfVmN/gh8w=
-=zKGQ
------END PGP SIGNATURE-----
+  Gérard.
 
---W/nzBZO5zC0uMSeA--

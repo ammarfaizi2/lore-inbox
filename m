@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVDEHrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVDEHvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVDEHrR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 03:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVDEHqh
+	id S261616AbVDEHvf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 03:51:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVDEHpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 03:46:37 -0400
-Received: from smtp7.wanadoo.fr ([193.252.22.24]:31052 "EHLO smtp7.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261615AbVDEHkt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 03:40:49 -0400
-X-ME-UUID: 20050405074043788.C08D410000A1@mwinf0703.wanadoo.fr
-Message-ID: <425240A2.6020504@innova-card.com>
-Date: Tue, 05 Apr 2005 09:39:14 +0200
-From: Franck Bui-Huu <franck.bui-huu@innova-card.com>
-Reply-To: franck.bui-huu@innova-card.com
-Organization: Innova Card
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
+	Tue, 5 Apr 2005 03:45:51 -0400
+Received: from host201.dif.dk ([193.138.115.201]:25866 "EHLO
+	diftmgw2.backbone.dif.dk") by vger.kernel.org with ESMTP
+	id S261611AbVDEHjV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 03:39:21 -0400
+Date: Tue, 5 Apr 2005 09:37:44 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Jesper Juhl <juhl-lkml@dif.dk>, Steve French <smfrench@austin.rr.com>,
+       Steven French <sfrench@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] cifs: cleanup asn1.c
+In-Reply-To: <20050405073559.GC26208@infradead.org>
+Message-ID: <Pine.LNX.4.62.0504050936450.15967@jjulnx.backbone.dif.dk>
+References: <Pine.LNX.4.62.0504042254540.2496@dragon.hyggekrogen.localhost>
+ <20050405073559.GC26208@infradead.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [BOOTMEM] bad physical address convertions.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 5 Apr 2005, Christoph Hellwig wrote:
 
-I'm porting linux on an embedded system based on MIPS proc. I've 
-encountered several
-problems and one of these is related to the physical memory which 
-doesn't start to 0.
-This is actually not a big issue if code that makes physical address 
-convertions uses the
-appropriate macros that do the job.
-Unfortunately there are some places in linux where this is not the case.
-"bootmem.c" is one of these places. For instance, it does "addr >> 
-PAGE_SHIFT"
-instead of using "phys_to_pfn" macro in order to convert a physical 
-address into a page
-frame number.
+> Date: Tue, 5 Apr 2005 08:35:59 +0100
+> From: Christoph Hellwig <hch@infradead.org>
+> To: Jesper Juhl <juhl-lkml@dif.dk>
+> Cc: Steve French <smfrench@austin.rr.com>, Steven French <sfrench@us.ibm.com>,
+>     linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH 0/4] cifs: cleanup asn1.c
+> 
+> On Mon, Apr 04, 2005 at 10:59:32PM +0200, Jesper Juhl wrote:
+> > 
+> > Hi Steve,
+> > 
+> > More fs/cifs/ cleanups for you. This time for asn1.c
+> 
+> Btw, shouldn't asn1.c move to lib/?
+> 
+Perhaps, I don't know, not my call. Steve will have to be the judge of 
+that, I'm merely cleaning up the files found in fs/cifs/ atm.
 
-Are there any interests for a patch which will fix that ?
+-- 
+Jesper
 
-Regards,
-
-          Franck.
 

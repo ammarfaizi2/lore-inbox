@@ -1,84 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbUKGBYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbUKGBbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbUKGBYw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 20:24:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbUKGBYw
+	id S261509AbUKGBbm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 20:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbUKGBbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 20:24:52 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:52666 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261508AbUKGBYp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 20:24:45 -0500
-Message-ID: <418D7959.4020206@g-house.de>
-Date: Sun, 07 Nov 2004 02:24:41 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-DE, de, en-us, en
+	Sat, 6 Nov 2004 20:31:41 -0500
+Received: from serio.al.rim.or.jp ([202.247.191.123]:28853 "EHLO
+	serio.al.rim.or.jp") by vger.kernel.org with ESMTP id S261509AbUKGBbj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 20:31:39 -0500
+Message-ID: <418D7AF4.5090500@yk.rim.or.jp>
+Date: Sun, 07 Nov 2004 10:31:32 +0900
+From: Chiaki <ishikawa@yk.rim.or.jp>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: alsa-devel@lists.sourceforge.net, perex@suse.cz
-Subject: Oops in 2.6.10-rc1
-References: <4180F026.9090302@g-house.de> <Pine.LNX.4.58.0410281526260.31240@pnote.perex-int.cz> <4180FDB3.8080305@g-house.de> <418A47BB.5010305@g-house.de>
-In-Reply-To: <418A47BB.5010305@g-house.de>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+To: linux-kernel@vger.kernel.org
+CC: Chiaki <ishikawa@yk.rim.or.jp>
+Subject: Re: Configuration system bug? : tmpfs listing in /proc/filesystems
+ when TMPFS was not configured!?
+References: <418D0EFB.2040002@yk.rim.or.jp>
+In-Reply-To: <418D0EFB.2040002@yk.rim.or.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Chiaki wrote:
+> (Please cc: me since I am not subscribed to linux-kernel list.)
+> 
+> I think there is something fishy about kernel 2.6.9.
+> 
+> I failed to enable TMPFS during configuration of
+> my linux kernel 2.6.9.
+> 
+> However, somehow /proc/filesystems lists "nodev tmpfs" line !?
+> 
+> Is this to be expected?
+>
 
-hi again,
+Just in case, the compilation of the kernel used stale object files, or
+something,
+I recompiled the kernel after running make clean.
 
-i *think* i found the ChangeSet leading to the bug i tried to report in
- http://marc.theaimsgroup.com/?l=linux-kernel&m=109888178603516&w=2
+Still, "tmpfs" shows up in /proc/filesystems
+listing although TMPFS was not configured.
 
-the error is sill present here (and only here? strange...), the latest -BK
-does not fix it. i had some difficulties in telling BK to do the right
-thing. to summarise the error:
+I tried to figure out where "tmpfs" was
+exported to /proc/filesystems, but could
+not.
 
-- - upon loading of snd_ens1371 the Oops occurs. system is still stable
-then, but no sound available.
-- - this occured somewhere between 2.6.9 (released 15-Oct-2004) and 2.6.9-10
-(released 22-Oct-2004)
+This bug may bite more users in subtle ways
+in the future.
 
-one interesting changeset was:
+BTW, the kernel version is 2.6.9
+(-test-tmscsim suffix to the version string below
+is added to remind me that I was testing tmscsim SCSI driver module.)
 
-ChangeSet@1.2000.7.1, 2004-10-20 20:33:06+02:00, perex@suse.cz
-  Merge suse.cz:/home/perex/bk/linux-sound/linux-2.5
-  into suse.cz:/home/perex/bk/linux-sound/linux-sound
+ishikawa@duron$ uname -a
+Linux duron 2.6.9-test-tmscsim #11 Sun Nov 7 03:28:42 JST 2004 i686 
+GNU/Linux
 
-i tried to back it out:
-
-$ bk clone -r1.2000.7.1 linux-2.6-BK linux-2.6-BK-test
-
-but the said ChangeSet was still there (of course). i tried to back it out
-(now for sure):
-
-$ bk undo -a1.2010
-(hm: the changesets get renumbered everytime i "do" something with the
-tree) this one reverted quite a few ChangeSets but i let it happen.
-
-compiling & booting this thing goes fine and i am now running 2,6,9-BK(?)
-with working snd_ens1371.
-
-if someone could give me a hint here what to do next or perhaps tell me
-that the whole things was totally pointless - please say so.
-i am somehow lost as to which is the right person to bug here.
-
-thank you for your time,
-Christian.
-- --
-BOFH excuse #328:
-
-Fiber optics caused gas main leak
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBjXlZ+A7rjkF8z0wRAqaVAJ9ljiIpxi01SblgEg/ce/Vd/uYksQCfeuJ9
-hRGA0/17ttZ83xRQDb8jfhs=
-=DQYp
------END PGP SIGNATURE-----
+Is there a specific sub-system module to whose maintainer
+I should submit a bug report?

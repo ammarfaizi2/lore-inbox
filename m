@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261663AbSIXMuR>; Tue, 24 Sep 2002 08:50:17 -0400
+	id <S261661AbSIXMtf>; Tue, 24 Sep 2002 08:49:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261664AbSIXMuR>; Tue, 24 Sep 2002 08:50:17 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:10250 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S261663AbSIXMuO>; Tue, 24 Sep 2002 08:50:14 -0400
-Date: Tue, 24 Sep 2002 13:55:27 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] oprofile 2.5.38 patch
-Message-ID: <20020924125527.GA53972@compsoc.man.ac.uk>
-References: <20020923222933.GA33523@compsoc.man.ac.uk.suse.lists.linux.kernel> <p73r8fjsgl8.fsf@oldwotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73r8fjsgl8.fsf@oldwotan.suse.de>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
+	id <S261662AbSIXMtf>; Tue, 24 Sep 2002 08:49:35 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:48132 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S261661AbSIXMte>; Tue, 24 Sep 2002 08:49:34 -0400
+Date: Tue, 24 Sep 2002 22:54:36 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: "Michel Eyckmans (MCE)" <mce@pi.be>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, <netfilter-devel@lists.samba.org>
+Subject: [PATCH] export find_task_by_pid() for 2.5.38
+In-Reply-To: <200209230019.g8N0JmvC003642@jebril.pi.be>
+Message-ID: <Mutt.LNX.4.44.0209242252160.1028-100000@blackbird.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 24, 2002 at 02:43:47PM +0200, Andi Kleen wrote:
+On Mon, 23 Sep 2002, Michel Eyckmans (MCE) wrote:
 
-> wouldn't an on stack buffer do nicely to format a single number ? 
+> By the way, 2.3.38 gives me this:
+> 
+> depmod: *** Unresolved symbols in /lib/modules/2.5.38/kernel/net/ipv4/netfilter/ipt_owner.o
+> depmod:         find_task_by_pid
+> 
 
-Yes, this was a lazy adaption of other code. Will fix.
+Below is a patch which exports the function, which used to be an inline.  
+(This is also an issue for ip6t_owner).
 
-> it doesn't length limit count before passing to kmalloc - hole.
-> Also has overflow bugs (consider someone passing 0xffffffff-1). 
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
-Thanks.
+diff -urN -X dontdiff linux-2.5.38.orig/kernel/Makefile linux-2.5.38.w1/kernel/Makefile
+--- linux-2.5.38.orig/kernel/Makefile	Tue Sep 24 19:23:03 2002
++++ linux-2.5.38.w1/kernel/Makefile	Tue Sep 24 22:14:47 2002
+@@ -3,7 +3,7 @@
+ #
+ 
+ export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
+-		printk.o platform.o suspend.o dma.o
++		printk.o platform.o suspend.o dma.o pid.o
+ 
+ obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
+ 	    module.o exit.o itimer.o time.o softirq.o resource.o \
+diff -urN -X dontdiff linux-2.5.38.orig/kernel/pid.c linux-2.5.38.w1/kernel/pid.c
+--- linux-2.5.38.orig/kernel/pid.c	Tue Sep 24 19:23:03 2002
++++ linux-2.5.38.w1/kernel/pid.c	Tue Sep 24 22:23:56 2002
+@@ -23,6 +23,7 @@
+ #include <linux/slab.h>
+ #include <linux/init.h>
+ #include <linux/bootmem.h>
++#include <linux/module.h>
+ 
+ #define PIDHASH_SIZE 4096
+ #define pid_hashfn(nr) ((nr >> 8) ^ nr) & (PIDHASH_SIZE - 1)
+@@ -217,3 +218,5 @@
+ 		attach_pid(current, i, 0);
+ 	}
+ }
++
++EXPORT_SYMBOL(find_task_by_pid);
 
-> The sys_lookup_dcookie call looks like a security hole to me. After
-
-I'll make it CAP_SYS_ADMIN ?
-
-> Adding a list_head to task_struct looks quite ugly to me. Is there
-> surely no better way ? e.g. you could just put it in a file private
-> structure and the daemon keeps the file open.
-
-Well, if I'm going to "hard code" the unregister I can just remove the
-registration and let the oprofile code call dcookie_init/exit on event
-buffer open/release.
-
-thanks
-john

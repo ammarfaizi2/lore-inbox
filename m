@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267422AbUHDVEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267425AbUHDVGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267422AbUHDVEa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 17:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUHDVE3
+	id S267425AbUHDVGS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 17:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUHDVGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 17:04:29 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:37193 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S267422AbUHDVEO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 17:04:14 -0400
-Date: Wed, 4 Aug 2004 23:05:39 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Can't cross compile IA32 kernels using separate build directory
-Message-ID: <20040804210538.GA7275@mars.ravnborg.org>
-Mail-Followup-To: Peter Chubb <peterc@gelato.unsw.edu.au>,
-	sam@ravnborg.org, linux-kernel@vger.kernel.org
-References: <E1BrpeA-0002QH-00@berry.gelato.unsw.EDU.AU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1BrpeA-0002QH-00@berry.gelato.unsw.EDU.AU>
-User-Agent: Mutt/1.5.6i
+	Wed, 4 Aug 2004 17:06:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54173 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267425AbUHDVGL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 17:06:11 -0400
+Date: Wed, 4 Aug 2004 17:06:08 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@dhcp83-102.boston.redhat.com
+To: Chris Wright <chrisw@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, Arjan Van de Ven <arjanv@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mlock-as-user for 2.6.8-rc2-mm2
+In-Reply-To: <20040804140102.O1924@build.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0408041705130.9630-100000@dhcp83-102.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03, 2004 at 01:07:26PM +1000, Peter Chubb wrote:
-> 
-> Hi Sam,
->    Trying to cross compile a kernel for IA32, on a system without an asm/boot.h
-> fails (e.g., IA64)
-> 
-> Here's a patch to add in -Iinclude2 when building tools/build.o so that 
-> asm/boot.h is picked up from the right place.
+On Wed, 4 Aug 2004, Chris Wright wrote:
 
-I have boot.h in /usr/include/ thats why I did not see it. Running i386 as
-you already guessed.
-Knowledge of include2 should be restricted to the core kbuild files though,
-so I will se if I can come up with something smarter.
+> The default lockable amount is one page now (first patch is was 0).
+> Why don't we keep it as 0, with the CAP_IPC_LOCK overrides in place?
 
-That would require splitting CPPFLAGS in two parts and we already have
-enough variables...
+My mistake, I went from Arjan's 2.6 submitted version to
+the version in Fedora.  The 0 limits are probably better
+for upstream.
 
-	Sam
+> Incremental update below.  Ran some simple sanity tests on this plus my
+> patch below and didn't find any problems.
 
-> 
-> Index: linux-2.6-wip/arch/i386/boot/Makefile
-> ===================================================================
-> --- linux-2.6-wip.orig/arch/i386/boot/Makefile	2004-08-03 12:58:02.287223257 +1000
-> +++ linux-2.6-wip/arch/i386/boot/Makefile	2004-08-03 12:59:34.661245563 +1000
-> @@ -31,7 +31,7 @@
->  
->  host-progs	:= tools/build
->  
-> -HOSTCFLAGS_build.o := -Iinclude
-> +HOSTCFLAGS_build.o := -Iinclude -Iinclude2
->  
->  # ---------------------------------------------------------------------------
->  
+Looks good to me.
+
+Andrew, could you please apply Chris's patch in addition
+to mine ?
+
+thanks,
+
+Rik
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

@@ -1,175 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263226AbUEWRhq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263188AbUEWRkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263226AbUEWRhq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 13:37:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263188AbUEWRhq
+	id S263188AbUEWRkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 13:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263219AbUEWRkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 13:37:46 -0400
-Received: from gprs214-26.eurotel.cz ([160.218.214.26]:20864 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263226AbUEWRgL (ORCPT
+	Sun, 23 May 2004 13:40:25 -0400
+Received: from kiuru.kpnet.fi ([193.184.122.21]:31926 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S263188AbUEWRkB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 13:36:11 -0400
-Date: Sun, 23 May 2004 19:35:59 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: samg <samg@seven4sky.com>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Smp swsusp testing wanted
-Message-ID: <20040523173559.GA1558@elf.ucw.cz>
-References: <20040522143628.A6D3927327@smtp.etmail.cz> <40B0014B.1030002@seven4sky.com> <20040523173457.GB804@elf.ucw.cz>
+	Sun, 23 May 2004 13:40:01 -0400
+Subject: Problems with 2.6.6-bk9
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1085333998.3245.1.camel@midux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040523173457.GB804@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 23 May 2004 20:39:58 +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello, I get this oops on boot with 2.6.6-bk9, I don't know what it is
+caused by:
+irq 5: nobody cared!
+ [<c0107b1a>] __report_bad_irq+0x2a/0x90
+ [<c0107c10>] note_interrupt+0x70/0xa0
+ [<c0107e3c>] do_IRQ+0xdc/0xe0
+ [<c0106278>] common_interrupt+0x18/0x20
+ [<c011c770>] __do_softirq+0x30/0x80
+ [<c011c7e6>] do_softirq+0x26/0x30
+ [<c0107e23>] do_IRQ+0xc3/0xe0
+ [<c0106278>] common_interrupt+0x18/0x20
+ [<c024728b>] pci_bus_read_config_byte+0x4b/0x60
+ [<f8dc422c>] ehci_start+0x2cc/0x360 [ehci_hcd]
+ [<c01197e1>] printk+0x121/0x150
+ [<c02c9b17>] usb_register_bus+0x137/0x160
+ [<c02ce84b>] usb_hcd_pci_probe+0x2ab/0x4e0
+ [<c024aac2>] pci_device_probe_static+0x52/0x70
+ [<c024ab1b>] __pci_device_probe+0x3b/0x50
+ [<c024ab5c>] pci_device_probe+0x2c/0x50
+ [<c026608f>] bus_match+0x3f/0x70
+ [<c02661b9>] driver_attach+0x59/0x90
+ [<c0266461>] bus_add_driver+0x91/0xb0
+ [<c026691f>] driver_register+0x2f/0x40
+ [<c024ad4c>] pci_register_driver+0x5c/0x90
+ [<f8d99023>] init+0x23/0x30 [ehci_hcd]
+ [<c012cf67>] sys_init_module+0x107/0x1d0
+ [<c010590b>] syscall_call+0x7/0xb
 
-> > >Hi! If you have smp machine where swsusp works with only one procesor and 
-> > >can test patches, please let me know. --p
-> 
-> > I have  (1) smp machine (dual proc), running 2.4.18/2.6.5/2.6.6,  If you 
-> > have a patch I can test it for you.
-> 
-> Please verify that swsusp works in "UP" mode, first. Then apply this
-> and go to "SMP" mode, and see if it still works.
-> 
-> I have SMP machine here but swsusp will not work there even in "UP"
-> mode; I'll need to debug it. 
+handlers:
+[<c02ca7a0>] (usb_hcd_irq+0x0/0x70)
+Disabling IRQ #5
+PCI: cache line size of 64 is not supported by device 0000:00:02.2
 
-Sorry, here it is.
-								Pavel
+This is my lspci:
+0000:00:00.0 Host bridge: nVidia Corporation nForce2 AGP (different
+version?) (rev c1)
+0000:00:00.1 RAM memory: nVidia Corporation nForce2 Memory Controller 1
+(rev c1)
+0000:00:00.2 RAM memory: nVidia Corporation nForce2 Memory Controller 4
+(rev c1)
+0000:00:00.3 RAM memory: nVidia Corporation nForce2 Memory Controller 3
+(rev c1)
+0000:00:00.4 RAM memory: nVidia Corporation nForce2 Memory Controller 2
+(rev c1)
+0000:00:00.5 RAM memory: nVidia Corporation nForce2 Memory Controller 5
+(rev c1)
+0000:00:01.0 ISA bridge: nVidia Corporation nForce2 ISA Bridge (rev a4)
+0000:00:01.1 SMBus: nVidia Corporation nForce2 SMBus (MCP) (rev a2)
+0000:00:02.0 USB Controller: nVidia Corporation nForce2 USB Controller
+(rev a4)
+0000:00:02.1 USB Controller: nVidia Corporation nForce2 USB Controller
+(rev a4)
+0000:00:02.2 USB Controller: nVidia Corporation nForce2 USB Controller
+(rev a4)
+0000:00:04.0 Ethernet controller: nVidia Corporation nForce2 Ethernet
+Controller (rev a1)
+0000:00:06.0 Multimedia audio controller: nVidia Corporation nForce2
+AC97 Audio Controler (MCP) (rev a1)
+0000:00:08.0 PCI bridge: nVidia Corporation nForce2 External PCI Bridge
+(rev a3)
+0000:00:09.0 IDE interface: nVidia Corporation nForce2 IDE (rev a2)
+0000:00:1e.0 PCI bridge: nVidia Corporation nForce2 AGP (rev c1)
+0000:01:06.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1
+(rev 07)
+0000:01:06.1 Input device controller: Creative Labs SB Live! MIDI/Game
+Port (rev 07)
+0000:01:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139/8139C/8139C+ (rev 10)
+0000:01:0d.0 FireWire (IEEE 1394): Lucent Microelectronics FW323 (rev
+61)
+0000:02:00.0 VGA compatible controller: nVidia Corporation NV 36
+[GeForce 5700 Ultra] (rev a1)
 
---- clean/include/linux/suspend.h	2004-05-20 23:11:46.000000000 +0200
-+++ linux/include/linux/suspend.h	2004-05-21 15:02:33.000000000 +0200
-@@ -81,6 +81,14 @@
- }
- #endif	/* CONFIG_PM */
- 
-+#ifdef CONFIG_SMP
-+extern void smp_freeze(void);
-+extern void smp_restart(void);
-+#else
-+static inline void smp_freeze(void) {}
-+static inline void smp_restart(void) {}
-+#endif
-+
- asmlinkage void do_magic(int is_resume);
- asmlinkage void do_magic_resume_1(void);
- asmlinkage void do_magic_resume_2(void);
---- clean/kernel/power/Makefile	2003-09-28 22:06:44.000000000 +0200
-+++ linux/kernel/power/Makefile	2004-05-21 14:22:50.000000000 +0200
-@@ -1,4 +1,5 @@
- obj-y				:= main.o process.o console.o pm.o
-+obj-$(CONFIG_SMP)		+= smp.o
- obj-$(CONFIG_SOFTWARE_SUSPEND)	+= swsusp.o
- obj-$(CONFIG_PM_DISK)		+= disk.o pmdisk.o
- 
---- clean/kernel/power/smp.c	2004-05-21 14:08:45.000000000 +0200
-+++ linux/kernel/power/smp.c	2004-05-21 14:46:40.000000000 +0200
-@@ -0,0 +1,62 @@
-+/*
-+ * drivers/power/smp.c - Functions for stopping other CPUs.
-+ *
-+ * Copyright 2004 Pavel Machek <pavel@suse.cz>
-+ * Copyright (C) 2002-2003 Nigel Cunningham <ncunningham@clear.net.nz>
-+ *
-+ * This file is released under the GPLv2.
-+ */
-+
-+#undef DEBUG
-+
-+#include <linux/smp_lock.h>
-+#include <linux/interrupt.h>
-+#include <linux/suspend.h>
-+#include <linux/module.h>
-+#include <asm/atomic.h>
-+
-+static atomic_t cpu_counter, freeze;
-+
-+static void smp_pause(void * data)
-+{
-+	atomic_inc(&cpu_counter);
-+	while (atomic_read(&freeze)) {
-+		cpu_relax();
-+		barrier();
-+		{
-+			int i;
-+			for (i=0; i<10000; i++)
-+				barrier();
-+		}
-+	}
-+	atomic_dec(&cpu_counter);
-+}
-+
-+void smp_freeze(void)
-+{
-+	/* FIXME: for this to work, all the CPUs must be running
-+	 * "idle" thread (or we deadlock). Is that guaranteed? */
-+	printk("Freezing CPUs...");
-+	atomic_set(&cpu_counter, 0);
-+	atomic_set(&freeze, 1);
-+	smp_call_function(smp_pause, NULL, 0, 0);
-+	if (num_online_cpus() != 2)
-+		printk("not HT machine?");
-+	while (atomic_read(&cpu_counter) < (num_online_cpus() - 1)) {
-+		cpu_relax();
-+		barrier();
-+	}
-+	printk("ok\n");
-+}
-+
-+void smp_restart(void)
-+{
-+	printk("Restarting CPUs...");
-+	atomic_set(&freeze, 0);
-+	while (atomic_read(&cpu_counter)) {
-+		cpu_relax();
-+		barrier();
-+	}
-+	printk("ok\n");
-+}
-+
---- clean/kernel/power/swsusp.c	2004-05-21 09:49:11.000000000 +0200
-+++ linux/kernel/power/swsusp.c	2004-05-21 14:39:38.000000000 +0200
-@@ -859,6 +859,8 @@
- 
- 		free_some_memory();
- 		
-+		mdelay(1000);
-+		smp_freeze();
- 		/* Save state of all device drivers, and stop them. */		   
- 		if ((res = device_suspend(4))==0)
- 			/* If stopping device drivers worked, we proceed basically into
-@@ -872,6 +874,7 @@
- 			 */
- 			do_magic(0);
- 		thaw_processes();
-+		smp_restart();
- 	} else
- 		res = -EBUSY;
- 	software_suspend_enabled = 1;
-@@ -1195,8 +1198,7 @@
- static int __init software_resume(void)
- {
- 	if (num_online_cpus() > 1) {
--		printk(KERN_WARNING "Software Suspend has malfunctioning SMP support. Disabled :(\n");	
--		return -EINVAL;
-+		printk(KERN_WARNING "SMP support is very experimental.\n");	
- 	}
- 	/* We enable the possibility of machine suspend */
- 	software_suspend_enabled = 1;
-@@ -1223,6 +1225,8 @@
- 	printk( "resuming from %s\n", resume_file);
- 	if (read_suspend_image(resume_file, 0))
- 		goto read_failure;
-+	mdelay(1000);
-+	smp_freeze();
- 	device_suspend(4);
- 	do_magic(1);
- 	panic("This never returns");
+        Markus
 
-
--- 
-934a471f20d6580d5aad759bf0d97ddc

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261624AbSIXJmR>; Tue, 24 Sep 2002 05:42:17 -0400
+	id <S261628AbSIXJrZ>; Tue, 24 Sep 2002 05:47:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261626AbSIXJmR>; Tue, 24 Sep 2002 05:42:17 -0400
-Received: from unthought.net ([212.97.129.24]:59371 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S261624AbSIXJmQ>;
-	Tue, 24 Sep 2002 05:42:16 -0400
-Date: Tue, 24 Sep 2002 11:47:29 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Oleg Drokin <green@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS buglet
-Message-ID: <20020924094728.GG2442@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Hans Reiser <reiser@namesys.com>, Oleg Drokin <green@namesys.com>,
-	linux-kernel@vger.kernel.org
-References: <20020924072455.GE2442@unthought.net> <20020924132110.A22362@namesys.com> <20020924092720.GF2442@unthought.net> <3D903381.2030605@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3D903381.2030605@namesys.com>
-User-Agent: Mutt/1.3.28i
+	id <S261629AbSIXJrY>; Tue, 24 Sep 2002 05:47:24 -0400
+Received: from [80.120.128.82] ([80.120.128.82]:8708 "EHLO hofr.at")
+	by vger.kernel.org with ESMTP id <S261628AbSIXJrY>;
+	Tue, 24 Sep 2002 05:47:24 -0400
+From: Der Herr Hofrat <der.herr@mail.hofr.at>
+Message-Id: <200209240854.g8O8sr407036@hofr.at>
+Subject: Re: mmap question
+In-Reply-To: <200209240726.g8O7QNA06595@hofr.at> from Der Herr Hofrat at "Sep
+ 24, 2002 09:26:23 am"
+Date: Tue, 24 Sep 2002 10:54:53 +0200 (CEST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 24, 2002 at 01:42:25PM +0400, Hans Reiser wrote:
-> Jakob Oestergaard wrote:
 > 
-..
-> > 
-> >
-> What was the model and brand?
-> 
+> int
+> init_module(void){
+> 	...
+> 	kmalloc_area=kmalloc(LEN,GFP_USER);
+> 	strncpy(kmalloc_area,init_msg,sizeof(init_msg));
+> 	...
+> }
 
-Quantum Fireball 1GB IDE
+found the problem (naturally after posting....) - forgot to mark 
+the page as reserved...
 
-Old one, I know  :)   However, I doubt that newer disks are emulating
-antiquated IDE closer than this one...  I guess we will see stranger
-write patterns on disks the more modern they get.
+	struct page *page;
+	kmalloc_area=kmalloc(LEN,GFP_USER);
+	page = virt_to_page(kmalloc_area); 
+	mem_map_reserve(page);
+	memcpy(kmalloc_area,msg,sizeof(msg));
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+hofrat

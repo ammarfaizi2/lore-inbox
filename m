@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271116AbTHCJQD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 05:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271117AbTHCJQD
+	id S270319AbTHCJjL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 05:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271089AbTHCJjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 05:16:03 -0400
-Received: from wrzx28.rz.uni-wuerzburg.de ([132.187.3.28]:52203 "EHLO
-	wrzx28.rz.uni-wuerzburg.de") by vger.kernel.org with ESMTP
-	id S271116AbTHCJP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 05:15:59 -0400
-Message-ID: <3F2CD2CD.8050608@physik.uni-wuerzburg.de>
-Date: Sun, 03 Aug 2003 11:15:57 +0200
-From: Tobias Muck <muck@physik.uni-wuerzburg.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en, de-de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: System locks up hard when i delete a file while burning a DVD-R
- (seems reiserfs related)
-References: <g8G5.v2.13@gated-at.bofh.it> <g996.Tx.13@gated-at.bofh.it>
-In-Reply-To: <g996.Tx.13@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Aug 2003 05:39:11 -0400
+Received: from zero.aec.at ([193.170.194.10]:14599 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S270319AbTHCJjK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 05:39:10 -0400
+Date: Sun, 3 Aug 2003 11:38:57 +0200
+From: Andi Kleen <ak@muc.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Don't trigger NMI watchdog for panic delay
+Message-ID: <20030803093857.GA11181@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Schniedermeyer wrote:
-> On Sat, Aug 02, 2003 at 07:45:40PM +0200, Matthias Schniedermeyer wrote:
 
-> Deleting files from another HDD doesn't make a difference.
-> (I created the next image to burn, while burning the prior. The moment i
-> deleted the source-files (4.5 GB in total) the system locked up hard)
+In some cases panic can be called with interrupts off. Don't trigger
+the NMI watchdog in this case when a panic= parameter is specified.
 
-Hi!
+-Andi
 
-The same happend to me on friday:
-while burning a DVD-RW and deleting the source files of the image, the
-system locked up hard (SuSE Linux 8.2, Kernel 2.4.20-64GB-SMP, reiserfs,
-pentium 4).
-
-Tobias
-
-
-
+--- linux-2.6.0test2-amd64/kernel/panic.c-o	2003-05-27 03:00:58.000000000 +0200
++++ linux-2.6.0test2-amd64/kernel/panic.c	2003-07-29 19:36:12.000000000 +0200
+@@ -71,12 +71,16 @@
+ 
+ 	if (panic_timeout > 0)
+ 	{
++		int i;
+ 		/*
+ 	 	 * Delay timeout seconds before rebooting the machine. 
+ 		 * We can't use the "normal" timers since we just panicked..
+ 	 	 */
+ 		printk(KERN_EMERG "Rebooting in %d seconds..",panic_timeout);
+-		mdelay(panic_timeout*1000);
++		for (i = 0; i < panic_timeout; i++) { 
++			touch_nmi_watchdog();
++			mdelay(1000);
++		} 
+ 		/*
+ 		 *	Should we run the reboot notifier. For the moment Im
+ 		 *	choosing not too. It might crash, be corrupt or do

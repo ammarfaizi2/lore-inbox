@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbUGEXim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUGEXmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbUGEXim (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 19:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbUGEXim
+	id S262114AbUGEXmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 19:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUGEXmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 19:38:42 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:58769 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261987AbUGEXil
+	Mon, 5 Jul 2004 19:42:15 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46261 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262114AbUGEXmI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 19:38:41 -0400
-Subject: quite big breakthrough in the BAD network performance, which mm6
-	did not fix
-From: Redeeman <lkml@metanurb.dk>
-To: LKML Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 06 Jul 2004 01:38:40 +0200
-Message-Id: <1089070720.14870.6.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9 
+	Mon, 5 Jul 2004 19:42:08 -0400
+Message-ID: <40E9E73B.5080002@pobox.com>
+Date: Mon, 05 Jul 2004 19:41:47 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michael Thonke <TK-SHOCKWAVE@web.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Disabled SATA (ICH5R) support cause hard seeks to disks and APIC
+ errors on i875P chipset
+References: <971519831@web.de>
+In-Reply-To: <971519831@web.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hey, i have had a breakthrough in the investigation...
-it turns out that some sites does not load.. but you know all about
-that, and a "fix" with sysctl fixes some of it.
+Michael Thonke wrote:
+> So a nother question accodring APIC and SATA on a Pentium 4 HT enabled and Intel 875P Chipset
+> 
+> Maybe Jeff Garzik or Andrew can answer it..
+> 
+> Since 2.6.4-mm* I get wired problemes when I disable the SATA Drive for the Intel ICH5R Controller on a Abit-IC7 Mainboard. I want to use the normal Intel IDE driver. But when I diasbled it in kernel + recompile and reboot the machine my harddrives make hard seeks and fancy noises also I get APIC error on CPU0 without any hints or oops and few minutes later after using the machine it freezes the harddisk (maybe power off,I noticed it on reset that the disks power on with SATA support it does not appear). If the SATA driver under SCSI is turned on no problems.
 
-networking was generally slow - or not!
-it seems that its only HTTP transfers going insanely slow. which also
-probably is those ipv4 issues, so now we just need to figure out what
-changed, and what we need to change to fix it, so that we again can get
-all sites loading, and HTTP protocol fully functionel again.
+How are you disabling the SATA drive?  BIOS?  Kernel configuration?
 
-hope someone has some ideas.
--- 
-Regards, Redeeman
-redeeman@metanurb.dk
+	Jeff
+
+
 

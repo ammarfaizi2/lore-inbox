@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbVAZHG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVAZH0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262371AbVAZHG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 02:06:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVAZHG1
+	id S262374AbVAZH0f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 02:26:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbVAZH0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 02:06:27 -0500
-Received: from smtp-vbr12.xs4all.nl ([194.109.24.32]:28174 "EHLO
-	smtp-vbr12.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262371AbVAZHGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 02:06:24 -0500
-Date: Wed, 26 Jan 2005 08:06:11 +0100
-From: Jurriaan on adsl-gate <thunder7@xs4all.nl>
-To: "sudhir@digitallink.com.np" <sudhir@digitallink.com.np>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: error while recompinling linux kernel
-Message-ID: <20050126070611.GA12515@gates.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <48470-22005132664441773@M2W062.mail2web.com>
+	Wed, 26 Jan 2005 02:26:32 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:34970
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262372AbVAZH03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 02:26:29 -0500
+Subject: Re: User space out of memory approach
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Mauricio Lin <mauriciolin@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3f250c71050125161175234ef9@mail.gmail.com>
+References: <3f250c71050110134337c08ef0@mail.gmail.com>
+	 <4d6522b9050110144017d0c075@mail.gmail.com>
+	 <20050110200514.GA18796@logos.cnet>
+	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
+	 <20050111083837.GE26799@dualathlon.random>
+	 <3f250c71050121132713a145e3@mail.gmail.com>
+	 <3f250c7105012113455e986ca8@mail.gmail.com>
+	 <20050122033219.GG11112@dualathlon.random>
+	 <3f250c7105012513136ae2587e@mail.gmail.com>
+	 <1106689179.4538.22.camel@tglx.tec.linutronix.de>
+	 <3f250c71050125161175234ef9@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 26 Jan 2005 08:26:27 +0100
+Message-Id: <1106724387.4538.36.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <48470-22005132664441773@M2W062.mail2web.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 01:44:41AM -0500, sudhir@digitallink.com.np wrote:
-> Hi,
+On Tue, 2005-01-25 at 20:11 -0400, Mauricio Lin wrote:
+> > Can you please show the kernel messages ?
 > 
-> I am a beginer in linux. I tried to recomplile kernel 2.4.9 and I
-> encountered following error 
-> 
-> make[3]: *** [am79c961a.o] Error 1
-> make[3]: Leaving directory `/usr/src/linux/drivers/net'
-> make[2]: *** [first_rule] Error 2
-> make[2]: Leaving directory `/usr/src/linux/drivers/net'
-> make[1]: *** [_subdir_net] Error 2
-> make[1]: Leaving directory `/usr/src/linux/drivers'
-> make: *** [_dir_drivers] Error 2
-> 
-> can you someone help me please?
-> 
-The interesting line is just above the part you posted - the actual
-error message. Also, 2.4.9 is ancient - current kernel is 2.4.29 IIRC.
+> OK. We will try to reach a situation that the printk messages can be
+> written entirely in the log file and show you the kernel messages. But
+> as I said: usually the printks messages are not written in the log
+> file using Andrea's patch. But using the original OOM Killer we can
+> see the messages in the log file. The syslog.conf file is the same for
+> both OOM Killer(Andrea and Original). Do you have any idea what is
+> happening to log file?
 
-Good luck,
-Jurriaan
+Add "console=ttyS0,115200" to your commandline so you get all the
+messages on the serial console.
+
+tglx
+
+

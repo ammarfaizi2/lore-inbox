@@ -1,136 +1,260 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263562AbTDCX3f (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 18:29:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTDCX3f (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 18:29:35 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:52709 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263562AbTDCX3d (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 18:29:33 -0500
-Message-ID: <3E8CC41D.90003@us.ibm.com>
-Date: Thu, 03 Apr 2003 15:30:37 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org, mbligh@aracnet.com, hch@infradead.org,
-       zeppegno.paolo@seat.it, ak@muc.de, lse-tech@lists.sourceforge.net,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [rfc][patch] Memory Binding Take 2 (1/1)
-References: <3E8BCB96.6090908@us.ibm.com>	<3E8BCD21.2050307@us.ibm.com> <20030402223736.1277755f.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S263595AbTDCXfB (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 18:35:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbTDCXfA (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 18:35:00 -0500
+Received: from adsl-67-121-155-183.dsl.pltn13.pacbell.net ([67.121.155.183]:16608
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S263595AbTDCXez (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 18:34:55 -0500
+Date: Thu, 3 Apr 2003 15:46:23 -0800
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: torvalds@transmeta.com
+Subject: [PATCH] Kconfig fixes
+Message-ID: <20030403234623.GA1002@triplehelix.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2B/JsCI69OhZNC5r"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Matthew Dobson <colpatch@us.ibm.com> wrote:
-> 
->>+#define __NR_mbind		223
-> 
-> 
-> What was wrong with "membind"?
-Well, there was nothing wrong with it, per se, I just liked Paolo's 
-suggestion to align the naming with mmap, munmap, mremap, etc.  The 
-syscalls that manipulate a processes address space tend to be called 
-m(something).  Right now it isn't as generic as I'd like it to be, but 
-all in good time.
 
->>+/* Translate a cpumask to a nodemask */
->>+static inline void cpumask_to_nodemask(bitmap_t cpumask, bitmap_t nodemask)
->>+{
->>+	int i;
->>+
->>+	for (i = 0; i < NR_CPUS; i++)
->>+		if (test_bit(i, cpumask))
-> 
-> 
-> That's a bit weird.  test_bit is only permitted on longs, so why introduce
-> bitmap_t?
-Erm...  Good point.  I really wanted to try and maintain the abstraction 
-of a bitmap type.  I hoped that we could, via macros and typedefs, keep 
-the underlying data type obscured, and have a good facsimile of variable 
-length bitmaps.  It's proving too difficult to hide the fact that 
-they're just unsigned long[]'s, so I'll give up the ghost and pass them 
-as unsigned long *'s.
+--2B/JsCI69OhZNC5r
+Content-Type: multipart/mixed; boundary="AhhlLboLdkugWU4S"
+Content-Disposition: inline
 
->>+/* Top-level function for allocating a binding for a region of memory */
->>+static inline struct binding *alloc_binding(bitmap_t nodemask)
->>+{
->>+	struct binding *binding;
->>+	int node, zone_num;
->>+
->>+	binding = (struct binding *)kmalloc(sizeof(struct binding), GFP_KERNEL);
->>+	if (!binding)
->>+		return NULL;
->>+	memset(binding, 0, sizeof(struct binding));
->>+
->>+	/* Build binding zonelist */
->>+	for (node = 0, zone_num = 0; node < MAX_NUMNODES; node++)
->>+		if (test_bit(node, nodemask) && node_online(node))
->>+			zone_num = add_node(NODE_DATA(node), 
->>+				&binding->zonelist, zone_num);
->>+	binding->zonelist.zones[zone_num] = NULL;
->>+
->>+	if (zone_num == 0) {
->>+		/* No zones were added to the zonelist.  Let the caller know. */
->>+		kfree(binding);
->>+		binding = NULL;
->>+	}
->>+	return binding;
->>+} 
-> 
-> It looks like this function needs to be able to return a real errno (see
-> below).
-True.  EFAULT is a sorta decent catchall, but not appropriate for 
-something like no memory, etc.
 
->>+	struct vm_area_struct *vma = NULL;
->>+	struct address_space *mapping;
->>+	int copy_len, error = 0;
->>+
->>+	/* Deal with getting cpu_mask from userspace & translating to node_mask */
->>+	copy_len = min(mask_len, (unsigned int)NR_CPUS);
->>+	CLEAR_BITMAP(cpu_mask, NR_CPUS);
->>+	CLEAR_BITMAP(node_mask, MAX_NUMNODES);
->>+	if (copy_from_user(cpu_mask, mask_ptr, (copy_len+7)/8)) {
->>+		error = -EFAULT;
->>+		goto out;
->>+	}
->>+	cpumask_to_nodemask(cpu_mask, node_mask);
->>+
->>+	vma = find_vma(current->mm, start);
->>+	if (!(vma && vma->vm_file && vma->vm_ops && 
->>+		vma->vm_ops->nopage == shmem_nopage)) {
->>+		/* This isn't a shm segment.  For now, we bail. */
->>+		error = -EINVAL;
->>+		goto out;
->>+	}
->>+
->>+	mapping = vma->vm_file->f_dentry->d_inode->i_mapping;
->>+	mapping->binding = alloc_binding(node_mask);
->>+	if (!mapping->binding)
->>+		error = -EFAULT;
-> 
-> 
-> It returns EFAULT on memory exhaustion?
-No longer...  That'll be fixed in version 3.
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> btw, can you remind me again why this is only available to tmpfs pagecache?
-I can try! ;)  I originally wanted to do just a shared memory binding 
-call, but people (correctly) suggested a more generic memory binding 
-would be more useful.  So I've basically just set up a lot of the 
-infrastructure for a more generic call, but haven't fully implemented 
-it.  This patch is intended to be a starting point, from which it will 
-be easy to incrementally add more functionality and power to the binding 
-call.  The underlying code (syscalls, structures, .c files, allocator 
-changes) won't have to change too much.  So this patch works for any 
-shared memory segment.  It'd be straightforward to extend this to any 
-file-backed vma (because it already has a struct address_space, with a 
-struct binding in it), so I hope to grow this into something more.
+I came across some ambiguity and some obvious typos in a few of the
+Kconfig files, and a patch is attached. There's more to come, as I
+stumble upon a few I will correct them.
 
-Cheers!
+Also, I corrected occurences of '.o' by removing the suffix. It
+shouldn't matter to users who use modprobe -- people using insmod will
+know that modules end in .ko in 2.5 kernels. (I suppose this is
+debateable. Comments?)
 
--Matt
+The patch against 2.5.66 is attached.
 
+Regards
+Josh
+
+--=20
+New PGP public key: 0x27AFC3EE
+
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="clarify_kconfig.diff"
+Content-Transfer-Encoding: quoted-printable
+
+--- a/drivers/net/wireless/Kconfig	2003-03-17 13:43:49.000000000 -0800
++++ b/drivers/net/wireless/Kconfig	2003-04-03 15:19:52.000000000 -0800
+@@ -134,7 +134,7 @@
+ 	depends on NET_RADIO && PCMCIA
+=20
+ config PCMCIA_RAYCS
+-	tristate "Aviator/Raytheon 2.4MHz wireless support"
++	tristate "Aviator/Raytheon 2.4GHz wireless support"
+ 	depends on NET_RADIO && PCMCIA
+ 	---help---
+ 	  Say Y here if you intend to attach an Aviator/Raytheon PCMCIA
+@@ -189,6 +189,8 @@
+ 	  configure your card and that /etc/pcmcia/wireless.opts works :
+ 	  <http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html>
+=20
++	  If you compile this as a module, it will be called "hermes".
++
+ config APPLE_AIRPORT
+ 	tristate "Apple Airport support (built-in)"
+ 	depends on ALL_PPC && HERMES
+@@ -196,7 +198,9 @@
+ 	  Say Y here to support the Airport 802.11b wireless Ethernet hardware
+ 	  built into the Macintosh iBook and other recent PowerPC-based
+ 	  Macintosh machines. This is essentially a Lucent Orinoco card with=20
+-	  a non-standard interface
++	  a non-standard interface.
++
++	  If you compile this as a module, it will be called "airport".
+=20
+ config PLX_HERMES
+ 	tristate "Hermes in PLX9052 based PCI adaptor support (Netgear MA301 etc.=
+) (EXPERIMENTAL)"
+@@ -212,6 +216,8 @@
+ 	  Support for these adaptors is so far still incomplete and buggy.
+ 	  You have been warned.
+=20
++	  If you compile this as a module, it will be called "orinoco_plx".
++
+ config PCI_HERMES
+ 	tristate "Prism 2.5 PCI 802.11b adaptor support (EXPERIMENTAL)"
+ 	depends on PCI && HERMES && EXPERIMENTAL
+@@ -222,6 +228,8 @@
+ 	  common.  Some of the built-in wireless adaptors in laptops are of
+ 	  this variety.
+=20
++	  If you compile this as a module, it will be called "orinoco_pci."
++
+ # If Pcmcia is compiled in, offer Pcmcia cards...
+ comment "Wireless 802.11b Pcmcia/Cardbus cards support"
+ 	depends on NET_RADIO && PCMCIA
+@@ -246,6 +254,8 @@
+ 	  configure your card and that /etc/pcmcia/wireless.opts works:
+ 	  <http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html>.
+=20
++	  If you compile this as a module, it will be called "orinoco_cs".
++
+ config AIRO_CS
+ 	tristate "Cisco/Aironet 34X/35X/4500/4800 PCMCIA cards"
+ 	depends on NET_RADIO && PCMCIA
+@@ -259,7 +269,7 @@
+ 	  supports OEM of Cisco such as the DELL TrueMobile 4800 and Xircom
+ 	  802.11b cards.
+=20
+-	  This driver support both the standard Linux Wireless Extensions
++	  This driver supports both the standard Linux Wireless Extensions
+ 	  and Cisco proprietary API, so both the Linux Wireless Tools and the
+ 	  Cisco Linux utilities can be used to configure the card.
+=20
+@@ -268,6 +278,8 @@
+ 	  for location).  You also want to check out the PCMCIA-HOWTO,
+ 	  available from <http://www.linuxdoc.org/docs.html#howto>.
+=20
++	  If you compile this as a module, it will be called "airo_cs".
++
+ # yes, this works even when no drivers are selected
+ config NET_WIRELESS
+ 	bool
+--- a/drivers/serial/Kconfig	2003-04-01 21:58:50.000000000 -0800
++++ b/drivers/serial/Kconfig	2003-04-03 15:23:04.000000000 -0800
+@@ -73,7 +73,7 @@
+=20
+ 	  This driver is also available as a module ( =3D code which can be
+ 	  inserted in and removed from the running kernel whenever you want).
+-	  The module will be called serial_cs.  If you want to compile it as
++	  The module will be called 8250_cs.  If you want to compile it as
+ 	  a module, say M here and read <file:Documentation/modules.txt>.
+ 	  If unsure, say N.
+=20
+--- a/drivers/char/watchdog/Kconfig	2003-03-17 13:44:19.000000000 -0800
++++ /tmp/diffwOjj2c	2003-04-03 15:37:03.000000000 -0800
+@@ -364,8 +364,7 @@
+ 	  This driver is also available as a module ( =3D code which can be
+ 	  inserted in and removed from the running kernel whenever you want).
+ 	  If you want to compile it as a module, say M here and read
+-	  Documentation/modules.txt. The module will be called
+-	  wafer5823wdt.o
++	  Documentation/modules.txt. The module will be called "wafer5823wdt".
+=20
+ config CPU5_WDT
+ 	tristate "SMA CPU5 Watchdog"
+@@ -374,7 +373,7 @@
+ 	  TBD.
+ 	  This driver is also available as a module ( =3D code which can be
+ 	  inserted in and removed from the running kernel whenever you want).
+-	  The module is called cpu5wdt.o.  If you want to compile it as a
++	  The module is called "cpu5wdt".  If you want to compile it as a
+ 	  module, say M here and read <file:Documentation/modules.txt>.
+=20
+ endmenu
+--- a/drivers/s390/net/Kconfig	2003-03-17 13:44:43.000000000 -0800
++++ /tmp/diffpyWjrd	2003-04-03 15:37:55.000000000 -0800
+@@ -9,7 +9,7 @@
+   	   or zSeries. This device driver supports Token Ring (IEEE 802.5),
+   	   FDDI (IEEE 802.7) and Ethernet.=20
+ 	   This option is also available as a module which will be
+-	   called lcs.o . If you do not know what it is, it's safe to say "Y".
++	   called "lcs". If you do not know what it is, it's safe to say "Y".
+=20
+ config CTC
+ 	tristate "CTC device support"
+@@ -20,7 +20,7 @@
+ 	  coupling using ESCON. It also supports virtual CTCs when running
+ 	  under VM. It will use the channel device configuration if this is
+ 	  available.  This option is also available as a module which will be
+-	  called ctc.o.  If you do not know what it is, it's safe to say "Y".
++	  called "ctc".  If you do not know what it is, it's safe to say "Y".
+=20
+ config IUCV
+ 	tristate "IUCV device support (VM only)"
+@@ -28,7 +28,7 @@
+ 	help
+ 	  Select this option if you want to use inter-user communication
+ 	  vehicle networking under VM or VIF.  This option is also available
+-	  as a module which will be called iucv.o. If unsure, say "Y".
++	  as a module which will be called "iucv". If unsure, say "Y".
+=20
+ config CCWGROUP
+  	tristate
+--- a/drivers/net/Kconfig	2003-04-01 21:58:49.000000000 -0800
++++ /tmp/diffXVXENg	2003-04-03 15:38:21.000000000 -0800
+@@ -762,7 +762,7 @@
+=20
+ 	  This driver is also available as a module ( =3D code which can be
+ 	  inserted in and removed from the running kernel whenever you want).
+-	  The module will be called typhoon.o.  If you want to compile it as a
++	  The module will be called "typhoon".  If you want to compile it as a
+ 	  module, say M here and read <file:Documentation/modules.txt> as well
+ 	  as <file:Documentation/networking/net-modules.txt>.
+=20
+--- a/drivers/input/keyboard/Kconfig	2003-04-01 21:57:10.000000000 -0800
++++ /tmp/diffYpoxzU	2003-04-03 15:38:42.000000000 -0800
+@@ -99,6 +99,6 @@
+=20
+ 	  This driver is also available as a module ( =3D code which can be
+ 	  inserted in and removed from the running kernel whenever you want).
+-	  The module will be called xtkbd.o. If you want to compile it as a
++	  The module will be called xtkbd. If you want to compile it as a
+ 	  module, say M here and read <file:Documentation/modules.txt>.
+=20
+--- a/drivers/input/serio/Kconfig	2003-04-01 21:57:10.000000000 -0800
++++ /tmp/difffKNbAi	2003-04-03 15:39:39.000000000 -0800
+@@ -116,6 +116,6 @@
+=20
+ 	  This driver is also available as a module ( =3D code which can be
+ 	  inserted in and removed from the running kernel whenever you want).
+-	  The module will be called rpckbd.o. If you want to compile it as a
++	  The module will be called rpckbd. If you want to compile it as a
+ 	  module, say M here and read <file:Documentation/modules.txt>.
+=20
+--- a/drivers/input/mouse/Kconfig	2003-04-01 21:57:10.000000000 -0800
++++ /tmp/diff4fp5UN	2003-04-03 15:39:52.000000000 -0800
+@@ -130,6 +130,6 @@
+=20
+ 	  This driver is also available as a module ( =3D code which can be
+ 	  inserted in and removed from the running kernel whenever you want).
+-	  The module will be called logibm.o. If you want to compile it as a
++	  The module will be called logibm. If you want to compile it as a
+ 	  module, say M here and read <file.:Documentation/modules.txt>.
+=20
+--- a/drivers/bluetooth/Kconfig	2003-03-17 13:44:04.000000000 -0800
++++ /tmp/diffTHnAud	2003-04-03 15:40:23.000000000 -0800
+@@ -105,7 +105,7 @@
+ 	     Anycom Bluetooth CF Card
+=20
+ 	  Say Y here to compile support for HCI BlueCard devices into the
+-	  kernel or say M to compile it as module (bluecard_cs.o).
++	  kernel or say M to compile it as module (bluecard_cs).
+=20
+ config BT_HCIBTUART
+ 	tristate "HCI UART (PC Card) device driver"
+
+--AhhlLboLdkugWU4S--
+
+--2B/JsCI69OhZNC5r
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+jMfOT2bz5yevw+4RAvgxAKCno5Ep7iF6X/8SxGMpezEALeb9wQCgwHhW
+SquODGzxvudVSK+kP31ocok=
+=YMog
+-----END PGP SIGNATURE-----
+
+--2B/JsCI69OhZNC5r--

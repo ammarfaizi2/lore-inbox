@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264930AbSJ3WkA>; Wed, 30 Oct 2002 17:40:00 -0500
+	id <S264941AbSJ3WpV>; Wed, 30 Oct 2002 17:45:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264932AbSJ3WkA>; Wed, 30 Oct 2002 17:40:00 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:24766 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264930AbSJ3Wj7>;
-	Wed, 30 Oct 2002 17:39:59 -0500
-Date: Wed, 30 Oct 2002 14:36:15 -0800 (PST)
-Message-Id: <20021030.143615.10738219.davem@redhat.com>
-To: yoshfuji@linux-ipv6.org
-Cc: boissiere@adiglobal.com, kuznet@ms2.inr.ac.ru,
-       linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5] October 30, 2002
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021031.005535.67557509.yoshfuji@linux-ipv6.org>
-References: <3DBFB0D2.21734.21E3A6B@localhost>
-	<20021031.005535.67557509.yoshfuji@linux-ipv6.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+	id <S264943AbSJ3WpV>; Wed, 30 Oct 2002 17:45:21 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33803 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264941AbSJ3WpT>; Wed, 30 Oct 2002 17:45:19 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Are x86 trap gate handlers safe for preemption?
+Date: Wed, 30 Oct 2002 22:51:10 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <appnou$jof$1@penguin.transmeta.com>
+References: <15808.17731.311432.596865@kim.it.uu.se>
+X-Trace: palladium.transmeta.com 1036018277 19269 127.0.0.1 (30 Oct 2002 22:51:17 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 30 Oct 2002 22:51:17 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
-   Date: Thu, 31 Oct 2002 00:55:35 +0900 (JST)
+In article <15808.17731.311432.596865@kim.it.uu.se>,
+Mikael Pettersson  <mikpe@csd.uu.se> wrote:
+>Consider an exception handler like vector 7, device_not_available:
+>
+>ENTRY(device_not_available)
+>        pushl $-1                       # mark this as an int
+>        SAVE_ALL
+>        movl %cr0, %eax
+>        testl $0x4, %eax                # EM (math emulation bit)
+>        jne device_not_available_emulate
+>        preempt_stop
+>
+>Since this is invoked via a trap gate and not an interrupt gate,
+>what's preventing this code from being preempted and resumed on
+>another CPU before the read from %cr0?
 
-   > o in 2.5.45  IPsec support  (Alexey Kuznetsov, Dave Miller, USAGI team)  
-   
-   How is the status of IPsec for IPv6?
-   
-It will be done after ipv4 side is fully functional.
-   
-     - IPv6 source address selection; which will be mandated by the 
-       node requirement.
+Well, since %cr0 should be stable across the task switche, that
+shouldn't actually matter.
 
-We told you several times how this USAGI patch is not currently in an
-acceptable form and needs to be reimplemented via the routing code.
+>				 Another example is the
+>machine_check vector (also trap gate) whose handlers access MSRs.
 
-     - IPsec for IPv6
+This one looks like a real bug. The fix should be to make it an
+interrupt gate, I suspect. Comments?
 
-Alexey and I will implement this, it is basically reading RFCs and
-typing at the keyboard, no more.
+On the whole, I think it is probably a good idea to make all exceptions
+be interrupt gates, and then on a case-by-case basis show why some don't
+need to (ie clearly the system calls should _not_ be interrupt gates,
+but we've long since made the page fault path use an interrupt gate for
+similar special register stability reasons).
 
-     - several enhancements on specification conformity
-       (neighbour discovery etc.)
-
-Where are these patches?  I've applied everything you've submitted.
+		Linus

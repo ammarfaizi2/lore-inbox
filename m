@@ -1,85 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263785AbUDPUfR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 16:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbUDPUex
+	id S263702AbUDPUcS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 16:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbUDPUcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 16:34:53 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:35846 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263782AbUDPUeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 16:34:21 -0400
-Date: Fri, 16 Apr 2004 21:34:17 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Timothy Miller <miller@techsource.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: radeonfb broken
-In-Reply-To: <40800213.8010106@techsource.com>
-Message-ID: <Pine.LNX.4.44.0404162134060.9917-100000@phoenix.infradead.org>
+	Fri, 16 Apr 2004 16:32:07 -0400
+Received: from web60707.mail.yahoo.com ([216.109.117.230]:56154 "HELO
+	web60707.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263782AbUDPUbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 16:31:49 -0400
+Message-ID: <20040416203149.67958.qmail@web60707.mail.yahoo.com>
+Date: Fri, 16 Apr 2004 13:31:49 -0700 (PDT)
+From: VINOD GOPAL <vinod_gopal74@yahoo.com>
+Subject: Kdb on Sus9 (x86_64)
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <002501c40e02$1ff8f7b0$0716a8c0@carbon>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+ I am working on Suse9.0 x86_64 kernel (2.4.21-102)
+In the /usr/sc/linux/ dir , I can see kdb directory
+with some files.
+In the /boot/config file, it seems KERNEL_DEBUG is
+enabled.
+In documentation , it is said that we can enable in on
+boot setting kdb=on.
+Unable to find /proc/sys/kernel/kdb.
 
-Thanks for the fix.
+Any one got kdb working with Suse 9.0.
+
+thanks
+vinod
 
 
-On Fri, 16 Apr 2004, Timothy Miller wrote:
-
-> 
-> Andrew Morton asked me to repost the patch for the Radeon FB off-by-one 
-> bug.  I'll see about making a proper patch when I get home, but if you 
-> want to fix it quicker, I'll just tell you what to change.
-> 
-> 
-> In the druvers/video/radeonfb.c, there is a function called 
-> fbcon_radeon_bmove.  In there, you'll see this code:
-> 
-> 	if (srcy < dsty) {
->                  srcy += height;
->                  dsty += height;
->          } else
->                  dp_cntl |= DST_Y_TOP_TO_BOTTOM;
-> 
->          if (srcx < dstx) {
->                  srcx += width;
->                  dstx += width;
->          } else
->                  dp_cntl |= DST_X_LEFT_TO_RIGHT;
-> 
-> 
-> Those adds need to be reduced by one.  The code should look like this:
-> 
-> 
-> 	if (srcy < dsty) {
->                  srcy += height - 1;
->                  dsty += height - 1;
->          } else
->                  dp_cntl |= DST_Y_TOP_TO_BOTTOM;
-> 
->          if (srcx < dstx) {
->                  srcx += width - 1;
->                  dstx += width - 1;
->          } else
->                  dp_cntl |= DST_X_LEFT_TO_RIGHT;
-> 
-> 
-> 
-> This bug is in the mainline kernel, and since I have direct experience 
-> programming for the Radeon, I knew how to fix it, but I also noticed 
-> that the Red Hat kernel "2.4.18-27.7.x" has the proper fix in it.
-> 
-> 
-> Whenever I download a new 2.4 kernel for gentoo, I have to manually make 
-> that fix.  I'm also disappointed that acceleration for Radeon has 
-> disappeared completely from 2.6.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+	
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Tax Center - File online by April 15th
+http://taxes.yahoo.com/filing.html

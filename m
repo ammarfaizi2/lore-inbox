@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVALVYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbVAMBS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbVALVYE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 16:24:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVALVWH
+	id S261412AbVAMBS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 20:18:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVAMBSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 16:22:07 -0500
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:12173 "HELO
-	server5.heliogroup.fr") by vger.kernel.org with SMTP
-	id S261458AbVALVOz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 16:14:55 -0500
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: akpm@osdl.org, torvalds@ppc970.osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: thoughts on kernel security issues
-Date: Wed, 12 Jan 2005 20:49:55 GMT
-Message-ID: <050LZ7812@server5.heliogroup.fr>
-X-Mailer: Pliant 93
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 12 Jan 2005 20:18:00 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:39078 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261470AbVALVrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 16:47:49 -0500
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: 
+X-Mailer: Roland's Patchbomber
+Date: Wed, 12 Jan 2005 13:46:21 -0800
+Message-Id: <20051121346.ovB7UajyiLcLxIWH@topspin.com>
+Mime-Version: 1.0
+To: akpm@osdl.org
+From: Roland Dreier <roland@topspin.com>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH][0/18] InfiniBand: updates for 2.6.11-rc1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 12 Jan 2005 21:46:22.0141 (UTC) FILETIME=[28134ED0:01C4F8F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Where is 2.6.10.1 with the security fix only ?
+Here are updates since the initial merge to drivers/infiniband taken
+from the OpenIB repository.  This is a mix of cleanups, bug fixes and
+small features.  There shouldn't be anything controversial or risky.
 
-I have not yet finished to deal with the TCP troubles moving to 2.6.10 generated
-on my production server, and now, I should apply another large set of mainly
-untested patches just to fill the security hole. This just cannot be done in
-a fiew days because on many organisations, the new kernel has to pass several
-days on secondary servers before reaching the main ones.
-
-Now assuming that I have other production servers still running older kernels,
-I have no way to get the simple fix from kernel.org and backport it to 2.6.8
-and 2.6.9, unless I'm a kernel fulltime worker that reads all messages on kernel
-mailing list.
-
-Basically, you are currently leaving non distribution related users alone in the
-cold and this is really really bad for the confidence we have in Linux,
-so please publish a 2.6.10.1 with the short term solution to fix the hole.
-Of course this does not prevent to publish 2.6.10.2 when you found a better
-solution, or use a different fix in 2.6.11 since they are not based on 2.6.10.1
-
-Regards,
-Hubert Tonneau
-
-
-PS: I believe that it would also be a very good idea, since Linux is now
-expected to be a mature organisation, to automatically publish 2.6.x.y new holes
-only fix patch for each stable kernel that has been released less than a year ago.
-This would enable smoother upgrade of highly important production servers.
+Thanks,
+  Roland
 

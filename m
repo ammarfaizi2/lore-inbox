@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbUEQTJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbUEQTLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262205AbUEQTJj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 15:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUEQTJj
+	id S262215AbUEQTLN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 15:11:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUEQTLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 15:09:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13290 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262205AbUEQTJg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 15:09:36 -0400
-Date: Mon, 17 May 2004 12:09:25 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Sebastien Chaumat <schaumat@free.fr>
-Cc: linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: please apply the old patch from Georg Acher in 2.4 tree
-Message-Id: <20040517120925.44ae3af1.zaitcev@redhat.com>
-In-Reply-To: <1083011181.982.6.camel@muetdhiver>
-References: <1083011181.982.6.camel@muetdhiver>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 17 May 2004 15:11:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47254 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262215AbUEQTK4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 15:10:56 -0400
+Message-ID: <40A90E31.7060203@pobox.com>
+Date: Mon, 17 May 2004 15:10:41 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Len Brown <len.brown@intel.com>
+CC: Robert Fendt <fendt@physik.uni-dortmund.de>, linux-kernel@vger.kernel.org,
+       James P Ketrenos <james.p.ketrenos@intel.com>
+Subject: Re: peculiar problem with 2.6, 8139too + ACPI
+References: <A6974D8E5F98D511BB910002A50A6647615FB5FE@hdsmsx403.hd.intel.com>	 <1084584998.12352.306.camel@dhcppc4>	 <20040517123011.7e12d297.fendt@physik.uni-dortmund.de> <1084818282.12349.334.camel@dhcppc4>
+In-Reply-To: <1084818282.12349.334.camel@dhcppc4>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Apr 2004 22:26:21 +0200
-Sebastien Chaumat <schaumat@free.fr> wrote:
-
->  I tried the patch from Georg Acher (posted 2001/08). It saved me from a
-> lot of troubles with a brand news USB2 hub that refuses to take an
-> address with  my nforce2 motherboard.
+Len Brown wrote:
+> On Mon, 2004-05-17 at 06:30, Robert Fendt wrote:
 > 
-> @@ -2177,18 +2178,31 @@
->  	dev->epmaxpacketin [0] = 8;
->  	dev->epmaxpacketout[0] = 8;
->  
-> -	err = usb_set_address(dev);
-> -	if (err < 0) {
-> -		err("USB device not accepting new address=%d (error=%d)",
-> -			dev->devnum, err);
-> -		clear_bit(dev->devnum, &dev->bus->devmap.devicemap);
-> -		dev->devnum = -1;
-> -		return 1;
-> -	}
-> +	for(m=0;m<2;m++) {
-> +		for(n=0;n<2;n++) {			
-> +			err = usb_set_address(dev);
-> +			if (err>=0)
-> +				break;
-> +			wait_ms(200);
-> +		}
+>>On 14 May 2004 21:36:38 -0400
+>>Len Brown <len.brown@intel.com> wrote:
+>>
+>>
+>>>If the 8139too has statistics counters showing if it gets
+>>>RX buffer over-runs, that would be interseting to observe.
+>>
+> 
+>>a) with 'processor' loaded
+>>
+>>robert@betazed:~$ wget http://download.sourcemage.org/iso/smgl-i386-2.6.5-20040414.iso.bz2
+>>--12:27:16--  http://download.sourcemage.org/iso/smgl-i386-2.6.5-20040414.iso.bz2
+>>           => `smgl-i386-2.6.5-20040414.iso.bz2'
+>>Resolving download.sourcemage.org... 152.2.210.81
+>>Connecting to download.sourcemage.org[152.2.210.81]:80... connected.
+>>HTTP request sent, awaiting response... 200 OK
+>>Length: 142,065,569 [text/plain]
+>>
+>> 0% [                                     ] 202,609        2.30K/s ETA 10:17:41
+>>
+>>
+>>robert@betazed:~$ /sbin/ifconfig
+>>eth0      Link encap:Ethernet  HWaddr 00:0C:6E:8A:DD:BA  
+>>          inet addr:129.217.168.125  Bcast:129.217.168.255  Mask:255.255.255.0
+>>          inet6 addr: fe80::20c:6eff:fe8a:ddba/64 Scope:Link
+>>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+>>          RX packets:933 errors:117 dropped:212 overruns:117 frame:0
+> 
+> 
+> BINGO
+> 
+> There may be a way to get more detailed stats out of the driver with
+> netstat or something, Jeff would know.
 
-I see this was admitted to 2.6, with nice symbolic constants, too.
-But before taking this, I would like someone to do this:
- 1. posess a device which flakes like the above
- 2. take the 2.6 version rediff and test it
- 3. explain to me why he or she cannot just run 2.6 and be content
 
-If Sebastien is willing to clear these hurdles I erected (and mentions the
-vendor and device number of his hub), I'll think about it. But it would be
-best if someone else came forward.
+Almost all the standard stats are listed in /proc/net/dev...  8139 
+hardware doesn't have any NIC-specific stats besides the Rx-Missed 
+counter either, IIRC.
 
--- Pete
+	Jeff
+
+
+

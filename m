@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136938AbREKPMK>; Fri, 11 May 2001 11:12:10 -0400
+	id <S137153AbREKPOW>; Fri, 11 May 2001 11:14:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137153AbREKPMA>; Fri, 11 May 2001 11:12:00 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:21840 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S136938AbREKPLs>; Fri, 11 May 2001 11:11:48 -0400
-Date: Fri, 11 May 2001 17:11:24 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mauelshagen@sistina.com, linux-kernel@vger.kernel.org, mge@sistina.com
-Subject: Re: LVM 1.0 release decision
-Message-ID: <20010511171124.M30355@athlon.random>
-In-Reply-To: <20010511162745.B18341@sistina.com> <E14yDyI-0000yE-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S137154AbREKPOL>; Fri, 11 May 2001 11:14:11 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:38029 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S137153AbREKPNy>;
+	Fri, 11 May 2001 11:13:54 -0400
+Message-ID: <3AFC01B1.2D1D9121@mandrakesoft.com>
+Date: Fri, 11 May 2001 11:13:53 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: tulip@scyld.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RFT: New Tulip ethernet driver update
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E14yDyI-0000yE-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, May 11, 2001 at 03:32:46PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 11, 2001 at 03:32:46PM +0100, Alan Cox wrote:
-> Please fix the binary incompatibility in the on disk format between the current
-> code and your new release _before_ you do that. The last patches I was sent
-> would have screwed every 64bit LVM user.
+A new development version of the Tulip ethernet driver for 2.4 kernels
+has been posted at 
+	http://sourceforge.net/projects/tulip/
 
-I just switched to the >=beta4 lvm IOP for all 64bit archs. The previous
-one (the 2.4 mainline one) isn't feasible on the archs with 32bit
-userspace and 64bit kernel (it uses long). The IOP didn't changed btw,
-only the structures changed silenty.
+This version incorporates a number of fixes which I would like to get
+tested heavily before incorporating into the kernel.  Update summary is
+in tulip.txt in the driver tarball, as well as a more technical
+ChangeLog listing all changes.
 
-> A new format is fine but import old ones properly. And if you do a new format
+The driver requires kernel 2.4.3 or later.
 
-It's not a matter of the ondisk format, the on-disk format didn't
-changed of course, it's the ioctl format between userspace and kernel 
-that changed and the userspace only knows about 1 format. Once IOP
-changes (or IOP breaks silenty as in this case) you have to upgrade
-userspace with the current design.
+Feedback is welcome.  I'm especially interested to know if this driver
+fails to work on any -working- 2.4 configurations (it shouldn't). 
+Please report bug to the bug tracker on the web page listed above.
 
-Andrea
+Thanks all, and viva la open source!
+
+-- 
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263173AbREWRVB>; Wed, 23 May 2001 13:21:01 -0400
+	id <S263175AbREWR1v>; Wed, 23 May 2001 13:27:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263174AbREWRUm>; Wed, 23 May 2001 13:20:42 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:30216 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S263173AbREWRUe>;
-	Wed, 23 May 2001 13:20:34 -0400
-Date: Wed, 23 May 2001 13:23:46 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: What's up with GT96100 in the MIPS config file?
-Message-ID: <20010523132346.A16993@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
+	id <S263176AbREWR1m>; Wed, 23 May 2001 13:27:42 -0400
+Received: from turnover.lancs.ac.uk ([148.88.17.220]:25072 "EHLO
+	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
+	id <S263175AbREWR12>; Wed, 23 May 2001 13:27:28 -0400
+Message-Id: <l03130303b731a2526a34@[192.168.239.105]>
+In-Reply-To: <Pine.LNX.4.33.0105231233070.311-100000@duckman.distro.conectiva>
+In-Reply-To: <20010521223212.C4934@khan.acc.umu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Type: text/plain; charset="us-ascii"
+Date: Wed, 23 May 2001 18:24:05 +0100
+To: Rik van Riel <riel@conectiva.com.br>, David Weinehall <tao@acc.umu.se>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
+Cc: Pavel Machek <pavel@suse.cz>, Mike Galbraith <mikeg@wen-online.de>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Near line 55 of drivers/net/Config.in there is code that reads like this:
+>Time to hunt around for a 386 or 486 which is limited to such
+>a small amount of RAM ;)
 
-   if [ "$CONFIG_MIPS_GT96100" = "y" ]; then
-      bool '  MIPS GT96100 Ethernet support' CONFIG_MIPS_GT96100ETH
-   fi
+I've got an old knackered 486DX/33 with 8Mb RAM (in 30-pin SIMMs, woohoo!),
+a flat CMOS battery, a 2Gb Maxtor HD that needs a low-level format every
+year, and no case.  It isn't running anything right now...
 
-All very well except that CONFIG_MIPS_GT96100 is never set (or even
-used) anywhere else.  My cross-reference generator shows this:
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-snark:~/src/linux$ scripts/kxref.py | grep GT96    
-CONFIG_MIPS_GT96100: drivers/net/Config.in
-CONFIG_MIPS_GT96100ETH: drivers/net/Makefile drivers/net/Config.in drivers/net/gt96100eth.c
+The key to knowledge is not to rely on people to teach you it.
 
-The simplest guess is that the guard part is just wrong.  Can anybody shed
-any light on this?
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
-The saddest life is that of a political aspirant under democracy. His
-failure is ignominious and his success is disgraceful.
-        -- H.L. Mencken
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
+
+

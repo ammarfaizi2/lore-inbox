@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261842AbTENLg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 07:36:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTENLg7
+	id S261861AbTENLhO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 07:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTENLhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 07:36:59 -0400
-Received: from nmail1.systems.pipex.net ([62.241.160.130]:38091 "EHLO
-	nmail1.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S261842AbTENLgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 07:36:48 -0400
-To: Steven Cole <elenstev@mesatop.com>
-Subject: Re: 2.6 must-fix list, v2
-Message-ID: <1052912961.3ec22d4114bd0@netmail.pipex.net>
-Date: Wed, 14 May 2003 12:49:21 +0100
-From: "Shaheed R. Haque" <srhaque@iee.org>
-Cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-References: <1050146434.3e97f68300fff@netmail.pipex.net>  <1050177383.3e986f67b7f68@netmail.pipex.net>  <1050177751.2291.468.camel@localhost>  <1050222609.3e992011e4f54@netmail.pipex.net>  <1050244136.733.3.camel@localhost>  <1052826556.3ec0dbbc1d993@netmail.pipex.net>  <20030513130257.78ab1a2e.akpm@digeo.com>  <1052865981.3ec175bd59bc9@netmail.pipex.net> <1052880133.21270.131.camel@spc>
-In-Reply-To: <1052880133.21270.131.camel@spc>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: PIPEX NetMail 2.2.0-pre13
-X-PIPEX-username: aozw65%dsl.pipex.com
-X-Originating-IP: 195.166.116.245
-X-Usage: Use of PIPEX NetMail is subject to the PIPEX Terms and Conditions of use
+	Wed, 14 May 2003 07:37:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47560 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261861AbTENLhH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 07:37:07 -0400
+Date: Wed, 14 May 2003 12:49:53 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+Subject: Re: [PATCH] PAG support, try #2
+Message-ID: <20030514114953.GS29534@parcelfarce.linux.theplanet.co.uk>
+References: <24225.1052909011@warthog.warthog>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <24225.1052909011@warthog.warthog>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 14, 2003 at 11:43:31AM +0100, David Howells wrote:
+> +typedef int		__kernel_pag_t;
 
-Quoting Steven Cole <elenstev@mesatop.com>:
+> +typedef __kernel_pag_t		pag_t;
 
-> Is this related or not to processor shielding used by RedHawk Linux?
-> Here is a link to their page:
-> 
-> http://www.ccur.com/realtime/sys_rdhwklnx.html
-> 
-> I saw a presentation by these guys over a year ago.  I'm not sure what
-> they're up to now.
+> +static pag_t vfs_pag_next = 1;
 
-Yes, if I correctly read the description of this feature, it seems to be the 
-same thing.
+> +	vfspag->pag = vfs_pag_next++;
+> +	if (vfspag->pag < 1)
+> +		vfspag->pag = 1;
 
+Is there a reason pag_t isn't an unsigned int?  Seems to me you'll have
+2^31 good times followed by 2^31 bad times.  Also, isn't signed overflow
+one of these undefined things?  I wouldn't mention it except that gcc
+seem to be more and more fond of obeying the letter of the standard
+rather than doing useful stuff.
 
-
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

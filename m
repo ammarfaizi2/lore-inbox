@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266288AbUBLFr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 00:47:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUBLFr1
+	id S266286AbUBLFqa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 00:46:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266288AbUBLFqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 00:47:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44163 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266288AbUBLFrU (ORCPT
+	Thu, 12 Feb 2004 00:46:30 -0500
+Received: from ozlabs.org ([203.10.76.45]:27351 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266286AbUBLFq3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 00:47:20 -0500
-Date: Wed, 11 Feb 2004 21:46:59 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, benh@ozlabs.org
-Subject: Re: PPC64 PowerMac G5 support available
-In-Reply-To: <1076563481.2285.167.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0402112143270.5816@home.osdl.org>
-References: <1076563481.2285.167.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 Feb 2004 00:46:29 -0500
+Subject: [PATCH] fix rivafb build on ppc64
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1076564635.866.170.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 12 Feb 2004 16:43:56 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus, Andrew !
+
+rivafb is part of the g5 defconfig, but will cause a build error
+on ppc64 due to a missing #include, here is a fix, please apply:
+
+===== drivers/video/riva/fbdev.c 1.51 vs edited =====
+--- 1.51/drivers/video/riva/fbdev.c	Wed Feb  4 16:29:30 2004
++++ edited/drivers/video/riva/fbdev.c	Thu Feb 12 16:39:59 2004
+@@ -44,6 +44,10 @@
+ #ifdef CONFIG_MTRR
+ #include <asm/mtrr.h>
+ #endif
++#ifdef CONFIG_PPC_OF
++#include <asm/prom.h>
++#include <asm/pci-bridge.h>
++#endif
+ 
+ #include "rivafb.h"
+ #include "nvreg.h"
 
 
-On Thu, 12 Feb 2004, Benjamin Herrenschmidt wrote:
-> 
-> You can pull from bk://ppc.bkbits.net/for-linus-ppc
-
-Pulling. And yes, I didn't realize that the whole aty/radeon driver was 
-new. Regardless, the bits above look obvious enough, and I'll take the new 
-radeon driver too once it's ready.
-
-> Finally, ieee1394 triggers an oops in kobject since 2.6.3-rc2, 100%
-> reproduceable for me (and apparently x86 users too), so that's also
-> unrelated to the G5 code.
-
-Hmm.. I've got ieee1394 built into my standard machine without any oopses,
-but I don't have any actual devices connected to it, just the host. I 
-assume the problems happen only with devices plugged in?
-
-		Linus

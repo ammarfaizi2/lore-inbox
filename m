@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315708AbSGJMbd>; Wed, 10 Jul 2002 08:31:33 -0400
+	id <S315720AbSGJMbs>; Wed, 10 Jul 2002 08:31:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315717AbSGJMbc>; Wed, 10 Jul 2002 08:31:32 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:41919 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S315708AbSGJMbb> convert rfc822-to-8bit; Wed, 10 Jul 2002 08:31:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Erich Focht <efocht@ess.nec.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: O(1) scheduler "complex" macros
-Date: Wed, 10 Jul 2002 14:34:07 +0200
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ia64 <linux-ia64@linuxia64.org>
-References: <Pine.LNX.4.44.0207111111280.6835-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0207111111280.6835-100000@localhost.localdomain>
+	id <S315734AbSGJMbr>; Wed, 10 Jul 2002 08:31:47 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:9196 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S315720AbSGJMbo>; Wed, 10 Jul 2002 08:31:44 -0400
+Date: Wed, 10 Jul 2002 14:34:21 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Thomas Tonino <ttonino@users.sourceforge.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Terrible VM in 2.4.11+?
+In-Reply-To: <3D2BF3CC.3040409@users.sf.net>
+Message-ID: <Pine.NEB.4.44.0207101429410.24665-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207101434.07804.efocht@ess.nec.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+On Wed, 10 Jul 2002, Thomas Tonino wrote:
 
-> there is one more detail - wait_task_inactive() needs to consider the
-> ->switch_lock as well - otherwise exit() might end up freeing the
-> pagetables earlier than the context-switch has truly finished. The
-> udelay(100) test should trigger this race.
->
-> i've fixed this and uploaded the -A8 patch:
->
->         http://redhat.com/~mingo/O(1)-scheduler/sched-2.5.25-A8
->
-> does this fix the ia64 crashes? you need to define an ia64-specific
+>...
+> So we're going with 2.4.19-pre9-aa2 for now. I don't yet understand the
+> -aa series, for example how 2.4.19-rc1-aa1 would relate to
+> 2.4.19-pre9-aa2, so I'm a bit wary of just upgrading in the -aa series
+> right now.
 
-looks good! Rock solid despite udelay. Though a bit slower than before...
+The -aa patches are usually against the most recent 2.4 kernel (they are
+usually only available against one specific kernel), IOW the following are
+increasing version numbers:
 
-Thanks a lot for the help!
+2.4.18-aa1
+2.4.18-pre8-aa1
+2.4.19-pre9-aa1
+2.4.19-pre9-aa2
+2.4.19-rc1-aa1  (rc = "release candidate")
+2.4.19-aa1
+2.4.20-pre1-aa1
 
-Erich
+> Thomas
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
 

@@ -1,231 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264282AbTCXRqf>; Mon, 24 Mar 2003 12:46:35 -0500
+	id <S264469AbTCXRie>; Mon, 24 Mar 2003 12:38:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264293AbTCXRqf>; Mon, 24 Mar 2003 12:46:35 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:52872 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP
-	id <S264282AbTCXRpt>; Mon, 24 Mar 2003 12:45:49 -0500
-Message-ID: <3E7ED5F6.9090301@cyclades.com>
-Date: Mon, 24 Mar 2003 09:55:02 +0000
-From: Henrique Gobbi <henrique2.gobbi@cyclades.com>
-Reply-To: henrique.gobbi@cyclades.com
-Organization: Cyclades Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
+	id <S264470AbTCXRie>; Mon, 24 Mar 2003 12:38:34 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:41644 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S264469AbTCXRib>; Mon, 24 Mar 2003 12:38:31 -0500
+Date: Mon, 24 Mar 2003 09:49:36 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 484] New: Oops in packet_read_proc
+Message-ID: <94400000.1048528176@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: davej@codemonkey.org.uk
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: cyclades region handling updates from 2.4
-References: <200303241641.h2OGft35008188@deviant.impure.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+http://bugme.osdl.org/show_bug.cgi?id=484
 
-What is this patch for ? How extensively did you test it.
-This driver is working and I don't wanna it broken. There are too many 
-customers counting on it.
-
-Another thing. Why do you want to put Ivan Passos as the maintainer ? I 
-talk to him everyday and I know he is not, and he doesn't want to be, 
-the maintainer of the driver.
-
-kind regards
-Henrique
-cyclades.c maintainer
+           Summary: Oops in packet_read_proc
+    Kernel Version: 2.5.65
+            Status: NEW
+          Severity: normal
+             Owner: acme@conectiva.com.br
+         Submitter: dave.beckett@bristol.ac.uk
 
 
-davej@codemonkey.org.uk wrote:
-> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/cyclades.c linux-2.5/drivers/char/cyclades.c
-> --- bk-linus/drivers/char/cyclades.c	2003-03-08 09:56:57.000000000 +0000
-> +++ linux-2.5/drivers/char/cyclades.c	2003-03-17 23:42:15.000000000 +0000
-> @@ -12,7 +12,7 @@ static char rcsid[] =
->   *
->   * Initially written by Randolph Bentson <bentson@grieg.seaslug.org>.
->   * Modified and maintained by Marcio Saito <marcio@cyclades.com>.
-> - * Currently maintained by Henrique Gobbi <henrique.gobbi@cyclades.com>.
-> + * Currently maintained by Ivan Passos <ivan@cyclades.com>.
->   *
->   * For Technical support and installation problems, please send e-mail
->   * to support@cyclades.com.
-> @@ -883,7 +883,9 @@ static void cyz_poll(unsigned long);
->  static long cyz_polling_cycle = CZ_DEF_POLL;
->  
->  static int cyz_timeron = 0;
-> -static struct timer_list cyz_timerlist = TIMER_INITIALIZER(cyz_poll, 0, 0);
-> +static struct timer_list cyz_timerlist = {
-> +	.function = cyz_poll
-> +};
->  
->  #else /* CONFIG_CYZ_INTR */
->  static void cyz_rx_restart(unsigned long);
-> @@ -4944,17 +4946,16 @@ cy_detect_pci(void)
->  
->    struct pci_dev	*pdev = NULL;
->    unsigned char		cyy_rev_id;
-> -  unsigned char         cy_pci_irq = 0;
-> -  uclong		cy_pci_phys0, cy_pci_phys1, cy_pci_phys2;
-> +  unsigned char		cy_pci_irq = 0;
-> +  uclong		cy_pci_phys0, cy_pci_phys2;
->    uclong		cy_pci_addr0, cy_pci_addr2;
-> -  unsigned short        i,j,cy_pci_nchan, plx_ver;
-> -  unsigned short        device_id,dev_index = 0;
-> +  unsigned short	i,j,cy_pci_nchan, plx_ver;
-> +  unsigned short	device_id,dev_index = 0;
->    uclong		mailbox;
->    uclong		Ze_addr0[NR_CARDS], Ze_addr2[NR_CARDS], ZeIndex = 0;
->    uclong		Ze_phys0[NR_CARDS], Ze_phys2[NR_CARDS];
-> -  unsigned char         Ze_irq[NR_CARDS];
-> -  struct resource *resource;
-> -  unsigned long res_start, res_len;
-> +  unsigned char		Ze_irq[NR_CARDS];
-> +  struct pci_dev	*Ze_pdev[NR_CARDS];
->  
->          for (i = 0; i < NR_CARDS; i++) {
->                  /* look for a Cyclades card by vendor and device id */
-> @@ -4976,7 +4977,6 @@ cy_detect_pci(void)
->                  /* read PCI configuration area */
->  		cy_pci_irq = pdev->irq;
->  		cy_pci_phys0 = pci_resource_start(pdev, 0);
-> -		cy_pci_phys1 = pci_resource_start(pdev, 1);
->  		cy_pci_phys2 = pci_resource_start(pdev, 2);
->  		pci_read_config_byte(pdev, PCI_REVISION_ID, &cyy_rev_id);
->  
-> @@ -5002,15 +5002,10 @@ cy_detect_pci(void)
->  		/* Although we don't use this I/O region, we should
->  		   request it from the kernel anyway, to avoid problems
->  		   with other drivers accessing it. */
-> -		resource = request_region(cy_pci_phys1,
-> -					CyPCI_Yctl, "Cyclom-Y");
-> -		if (resource == NULL) {
-> -			printk(KERN_ERR "cyclades: failed to allocate IO "
-> -					"resource at 0x%lx\n", cy_pci_phys1);
-> +		if (pci_request_regions(pdev, "Cyclom-Y") != 0) {
-> +			printk(KERN_ERR "cyclades: failed to reserve PCI resources\n");
->  			continue;
->  		}
-> -		res_start = cy_pci_phys1;
-> -		res_len = CyPCI_Yctl;
->  
->  #if defined(__alpha__)
->                  if (device_id  == PCI_DEVICE_ID_CYCLOM_Y_Lo) { /* below 1M? */
-> @@ -5081,10 +5076,7 @@ cy_detect_pci(void)
->                  cy_card[j].bus_index = 1;
->                  cy_card[j].first_line = cy_next_channel;
->                  cy_card[j].num_chips = cy_pci_nchan/4;
-> -		cy_card[j].resource = resource;
-> -		cy_card[j].res_start = res_start;
-> -		cy_card[j].res_len = res_len;
-> -		resource = NULL;	/* For next card */
-> +		cy_card[j].pdev = pdev;
->  	
->                  /* enable interrupts in the PCI interface */
->  		plx_ver = cy_readb(cy_pci_addr2 + CyPLX_VER) & 0x0f;
-> @@ -5164,15 +5156,10 @@ cy_detect_pci(void)
->  		/* Although we don't use this I/O region, we should
->  		   request it from the kernel anyway, to avoid problems
->  		   with other drivers accessing it. */
-> -		resource = request_region(cy_pci_phys1,
-> -				CyPCI_Zctl, "Cyclades-Z");
-> -		if (resource == NULL) {
-> -			printk(KERN_ERR "cyclades: failed ot allocate IO resource "
-> -					"at 0x%lx\n", cy_pci_phys1);
-> +		if (pci_request_regions(pdev, "Cyclades-Z") != 0) {
-> +			printk(KERN_ERR "cyclades: failed to reserve PCI resources\n");
->  			continue;
->  		}
-> -		res_start = cy_pci_phys1;
-> -		res_len = CyPCI_Zctl;
->  	
->  		if (mailbox == ZE_V1) {
->  		    cy_pci_addr2 = (ulong)ioremap(cy_pci_phys2, CyPCI_Ze_win);
-> @@ -5187,6 +5174,7 @@ cy_detect_pci(void)
->  			Ze_addr0[ZeIndex] = cy_pci_addr0;
->  			Ze_addr2[ZeIndex] = cy_pci_addr2;
->  			Ze_irq[ZeIndex] = cy_pci_irq;
-> +			Ze_pdev[ZeIndex] = pdev;
->  			ZeIndex++;
->  		    }
->  		    i--;
-> @@ -5271,10 +5259,7 @@ cy_detect_pci(void)
->                  cy_card[j].bus_index = 1;
->                  cy_card[j].first_line = cy_next_channel;
->                  cy_card[j].num_chips = -1;
-> -		cy_card[j].resource = resource;
-> -		cy_card[j].res_start = res_start;
-> -		cy_card[j].res_len = res_len;
-> -		resource = NULL;	/* For next card */
-> +		cy_card[j].pdev = pdev;
->  
->                  /* print message */
->  #ifdef CONFIG_CYZ_INTR
-> @@ -5302,12 +5287,14 @@ cy_detect_pci(void)
->  	    cy_pci_addr0 = Ze_addr0[0];
->  	    cy_pci_addr2 = Ze_addr2[0];
->  	    cy_pci_irq = Ze_irq[0];
-> +	    pdev = Ze_pdev[0];
->  	    for (j = 0 ; j < ZeIndex-1 ; j++) {
->  		Ze_phys0[j] = Ze_phys0[j+1];
->  		Ze_phys2[j] = Ze_phys2[j+1];
->  		Ze_addr0[j] = Ze_addr0[j+1];
->  		Ze_addr2[j] = Ze_addr2[j+1];
->  		Ze_irq[j] = Ze_irq[j+1];
-> +		Ze_pdev[j] = Ze_pdev[j+1];
->  	    }
->  	    ZeIndex--;
->  		mailbox = (uclong)cy_readl(&((struct RUNTIME_9060 *) 
-> @@ -5365,6 +5352,7 @@ cy_detect_pci(void)
->                  cy_card[j].bus_index = 1;
->                  cy_card[j].first_line = cy_next_channel;
->                  cy_card[j].num_chips = -1;
-> +		cy_card[j].pdev = pdev;
->  
->                  /* print message */
->  #ifdef CONFIG_CYZ_INTR
-> @@ -5797,8 +5785,8 @@ cy_cleanup_module(void)
->  #endif /* CONFIG_CYZ_INTR */
->  	    )
->  		free_irq(cy_card[i].irq, &cy_card[i]);
-> -		if (cy_card[i].resource)
-> -			release_region(cy_card[i].res_start, cy_card[i].res_len);
-> +		if (cy_card[i].pdev)
-> +			pci_release_regions(cy_card[i].pdev);
->          }
->      }
->      if (tmp_buf) {
-> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/include/linux/cyclades.h linux-2.5/include/linux/cyclades.h
-> --- bk-linus/include/linux/cyclades.h	2003-03-08 09:57:57.000000000 +0000
-> +++ linux-2.5/include/linux/cyclades.h	2003-03-08 07:24:39.000000000 +0000
-> @@ -515,9 +515,7 @@ struct cyclades_card {
->      int nports;		/* Number of ports in the card */
->      int bus_index;	/* address shift - 0 for ISA, 1 for PCI */
->      int	intr_enabled;	/* FW Interrupt flag - 0 disabled, 1 enabled */
-> -    struct resource *resource;
-> -    unsigned long res_start;
-> -	unsigned long res_len;
-> +    struct pci_dev *pdev;
->  #ifdef __KERNEL__
->      spinlock_t card_lock;
->  #else
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Distribution: Debian unstable/sid
+Hardware Environment: AMD XP1700, VIA VT8366, RTL-8139, HPT372A, MGA G550
+Software Environment: XFree86 4.2.1-6
+Problem Description: Oops in packet_read_proc
+
+Repeatably happens when I log out of X and the kdm is shutting down and
+restarting the X server - the process that dies is 'cat' so it must
+be somewhere in the guts of the logout/reset.
+
+Steps to reproduce:
+> From kdm, log into X, log out.
+
+===================================================================
+
+Output of scripts/ver_linux:
+
+Linux foo 2.5.65 #1 Tue Mar 18 08:55:44 GMT 2003 i686 unknown unknown
+GNU/Linux  
+Gnu C                  3.2.3
+Gnu make               3.80
+util-linux             2.11y
+mount                  2.11y
+module-init-tools      0.9.10
+e2fsprogs              1.32
+jfsutils               1.1.1
+PPP                    2.4.1
+Linux C Library        2.3.1
+Dynamic linker (ldd)   2.3.1
+Procps                 3.1.6
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               4.5.10
+Modules Loaded         parport_pc lp parport snd_pcm_oss snd_mixer_oss
+snd_ens1371 snd_rawmidi snd_pcm snd_timer snd_ac97_codec snd iptable_mangle
+iptable_filter ipt_MASQUERADE ip_nat_ftp iptable_nat ip_conntrack_ftp
+ip_conntrack 8139too natsemi crc32 uhci_hcd usbcore raid1 es1371 ac97_codec
+
+===================================================================
+
+ksymoops 2.4.8 on i686 2.5.65.  Options used
+     -v /usr/src/linux-2.5.65/vmlinux (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.65/ (default)
+     -m /boot/System.map-2.5.65 (default)
+
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Oops: 0002
+CPU:    0
+EIP:    0060:[<c02bc327>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00013246
+eax: 00000000   ebx: 00000059   ecx: 00000059   edx: 0804c091
+esi: 0804c038   edi: 00015002   ebp: d3d11f1c   esp: d3d11f0c
+ds: 007b   es: 007b   ss: 0068
+Stack: 00000053 00000059 d8389580 00000059 d3d11f70 c0156058 00015002
+0804c038         00000059 00000059 00000000 d7fff280 d3d10000 d3d10000
+00015002 d3d10000         d83895e8 00000001 00000059 00000000 0804d000
+0804e000 d7fc6cc0 00000000  Call Trace:
+ [<c0156058>] pipe_write+0x278/0x2c0
+ [<c014a896>] vfs_write+0xb6/0x190
+ [<c014a9fc>] sys_write+0x3c/0x50
+ [<c010ae5b>] syscall_call+0x7/0xb
+Code: f3 aa 58 59 e9 16 a2 f1 ff 66 c7 05 b1 66 1d c0 eb 1a e9 8f 
 
 
+>> EIP; c02bc327 <packet_read_proc+c27/131f>   <=====
 
--- 
-regards
---
-Henrique Gobbi
-Software Engineer
+>> ebp; d3d11f1c <_end+1395b508/3fc494f0>
+>> esp; d3d11f0c <_end+1395b4f8/3fc494f0>
 
-Cyclades Corporation
-41829 Albrae St
-Fremont, CA 94538
+Trace; c0156058 <pipe_write+278/2c0>
+Trace; c014a896 <vfs_write+b6/190>
+Trace; c014a9fc <sys_write+3c/50>
+Trace; c010ae5b <syscall_call+7/b>
+
+Code;  c02bc327 <packet_read_proc+c27/131f>
+00000000 <_EIP>:
+Code;  c02bc327 <packet_read_proc+c27/131f>   <=====
+   0:   f3 aa                     repz stos %al,%es:(%edi)   <=====
+Code;  c02bc329 <packet_read_proc+c29/131f>
+   2:   58                        pop    %eax
+Code;  c02bc32a <packet_read_proc+c2a/131f>
+   3:   59                        pop    %ecx
+Code;  c02bc32b <packet_read_proc+c2b/131f>
+   4:   e9 16 a2 f1 ff            jmp    fff1a21f <_EIP+0xfff1a21f>
+Code;  c02bc330 <packet_read_proc+c30/131f>
+   9:   66 c7 05 b1 66 1d c0      movw   $0x1aeb,0xc01d66b1
+Code;  c02bc337 <packet_read_proc+c37/131f>
+  10:   eb 1a 
+Code;  c02bc339 <packet_read_proc+c39/131f>
+  12:   e9 8f 00 00 00            jmp    a6 <_EIP+0xa6>
+
+
+1 error issued.  Results may not be reliable.
+
 

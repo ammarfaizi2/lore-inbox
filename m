@@ -1,82 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288677AbSAIBLQ>; Tue, 8 Jan 2002 20:11:16 -0500
+	id <S288671AbSAIBJy>; Tue, 8 Jan 2002 20:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288678AbSAIBLH>; Tue, 8 Jan 2002 20:11:07 -0500
-Received: from gear.torque.net ([204.138.244.1]:6670 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S288673AbSAIBK7>;
-	Tue, 8 Jan 2002 20:10:59 -0500
-Message-ID: <3C3B9853.740E71DA@torque.net>
-Date: Tue, 08 Jan 2002 20:09:39 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.2-pre9 i686)
-X-Accept-Language: en
+	id <S288672AbSAIBJe>; Tue, 8 Jan 2002 20:09:34 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:26124 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S288671AbSAIBJ0>;
+	Tue, 8 Jan 2002 20:09:26 -0500
+Date: Wed, 9 Jan 2002 02:09:08 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Andrea Arcangeli <andrea@suse.de>, Anton Blanchard <anton@samba.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>,
+        George Anzinger <george@mvista.com>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <200201090014.g090Efpn002215@Expansa.sns.it>
+Message-ID: <Pine.LNX.4.33.0201090148550.2471-100000@Expansa.sns.it>
 MIME-Version: 1.0
-To: admin@nextframe.net
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] drivers/scsi/psi240i.c - io_request_lock fix
-In-Reply-To: <20020108150738.B6168@sexything>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Morten Helgesen wrote:
-> 
-> Hey Linus and the rest of you.
-> 
-> A simple fix for the io_request_lock issue leftovers in drivers/scsi/psi240i.c.
-> Not tested, but compiles. Diffed against 2.5.2-pre10. Please apply.
-> 
-
-Morten,
-There is a bit more involved than just switching
-io_request_lock to host_lock. The former is global
-so it could be called from anywhere.
-
->From the look of this line in the patch:
-> +       struct Scsi_Host *host = PsiHost[irq - 10];
-
-It will work if the first controller is allocated irq 10,
-the second one irq 11, etc.   Unlikely ...
-
-Looking at that driver it seems that it will need a
-bit of surgery to pass perhaps a Scsi_Cmnd pointer
-through the request_irq() function so you can
-follow a pointer chain in do_Irq_Handler() to get
-hold of the appropriate host_lock.
-
-In the lk 2.5 series host_lock should indeed be held
-when the callback "scsi_done" is invoked and that
-most likely occurs in Irq_Handler(). So that is right.
-
-BTW To get a better idea of what is involved, diff the
-sym53c8xx driver in lk 2.4.15 and the one in the
-lk 2.5 series now [kudos to Gerard Roudier].
 
 
-Having been burnt by a well meaning advansys patch that
-converted a kernel compile time error into a kernel
-boot time freeze, it is a bit worrying the number
-of "untested" patches of this nature appearing on lkml.
+On Wed, 9 Jan 2002, Dieter [iso-8859-15] Nützel wrote:
 
-Doug Gilbert
+> On Wednesday, 9. January 2002 00:02, Luigi Genoni wrote:
+> > On Tue, 8 Jan 2002, Daniel Phillips wrote:
+> > > On January 8, 2002 04:29 pm, Andrea Arcangeli wrote:
+> [-]
+> > > > I also don't want to devaluate the preemptive kernel approch (the mean
+> > > > latency it can reach is lower than the one of the lowlat kernel,
+> > > > however I personally care only about worst case latency and this is why
+> > > > I don't feel the need of -preempt),
+> > >
+> > > This is exactly the case that -preempt handles well.  On the other hand,
+> > > trying to show that scheduling hacks satisfy any given latency bound is
+> > > equivalent to solving the halting problem.
+> > >
+> > > I thought you had done some real time work?
+> > >
+> > > > but I just wanted to make clear that the
+> > > > idea that is floating around that preemptive kernel is all goodness is
+> > > > very far from reality, you get very low mean latency but at a price.
+> > >
+> > > A price lots of people are willing to pay
+> >
+> > Probably sometimes they are not making a good business. In the reality
+> > preempt is good in many scenarios, as I said, and I agree that for
+> > desktops, and dedicated servers where just one application runs, and
+> > probably the CPU is idle the most of the time,
+>
+> OK, good. You are much at the same line than I am.
+>
+> Should we starting not only to differentiate between UP and SMP systems but
+> allthought between desktop and (big) servers?
+> I remember one saying. "Think, this patch is worth only for ~0.05% of the
+> Linux users..." (He meant the multi SMP system users.)
+Linux is suitable for many use, with a lot of HW.
+There are a lot of thing you MUST differentiate, not just desktop and
+servers, and uniprocessor and multi SMP
+Just think to this, Linux runs on
+sprac64, alpha, ia64, pa-risc, ppc and so on, and all those platforms have
+work well with it.
+Don't you see?
+And please, lkml is the place to differentiate, because here people talk
+about development, and how to do it at best.
+>
+> Allmost 99.95% of the Linux users running desktops and I am somewhat tiered
+> of saying, "sorry, Linux is under development..."
+> Look at the imprint of the famous German ct magazine (they are not even known
+> as Linux bashers...;-). It shows little penguins falling like domino stones
+> (starting with 2.4.17).
+yes and no. Maybe 95% of linux box out here are desktops, and they would
+benefit of preemption. For the others, it's an option not to enable it.
+But what we were discussing here was if preemption is a greek panacea or
+not. And if not, why. And then, How could things be improoved. It is
+important to discuss those topics here.
+>
+> Let me rephrase it:
+> I appreciate all your great work and I know "only" some (little) internals of
+> it but we should do some interactivity improvements for the 2.4 kernel, too.
+> I know what it's worth Andrew's (lowlatency patch) and Robert's (George
+> Anzinger's) preempt patch. In short the system (bigger desktop) flies.
+yes, but this is mostly 2.5 stuff. Then it can be backported.
+>
+>
+> > indeed users have a speed
+> > feeling. Please consider that on eavilly loaded servers, with 40 and more
+> > users, some are running gcc, others g77, others g++ compilations, someone
+> > runs pine or mutt or kmail, and netscape, and mozilla, and emacs (someone
+> > form xterm kde or gnome), and and
+> > and... You can have also 4/8 CPU butthey are not infinite ;) (but I talk
+> > mainly thinking of dualAthlon systems).
+> > there is a lot of memory and disk I/O.
+> > This is not a strange scenary on the interactive servers used at SNS.
+> > Here preempt has a too high price
+>
+> That's why preempt is a compile time option, btw.
+>
+> > > By the way, have you measured the cost of -preempt in practice?
+> >
+> > Yes, I did a lot of tests, and with current preempt patch definitelly
+> > I was seeing a too big performance loss.
+>
+> Have you tried with stock 2.4.17 or with additional patches?
+> 2.4.17-rc2aa2 (10_vm-21)?
+Obviously. This is an important part of my work (and hobby).
+>
+> The later make big differences in throughput for me (with and without
+> preempt).
+for me too, 2.4.17+rc2aa2 is specially good with medium sized databases.
+>
+> I am under preparation of some numbers.
+> Anybody want some special tests?
+> dbench (yes, I know...) with and without MP3 during run
+> latencytest0.42-png
+> bonnie++
+> getc_putc
+very interested in what you will get.
+>
+> Thank you for all your serious answers. This was definitely not intended as a
+> flamewar start.
+and this was not a flamewar...
 
-
-> --- vanilla-linux-2.5.2-pre10/drivers/scsi/psi240i.c    Tue Jan  8 10:57:31 2002
-> +++ patched-linux-2.5.2-pre10/drivers/scsi/psi240i.c    Tue Jan  8 14:48:56 2002
-> @@ -370,10 +370,11 @@
->  static void do_Irq_Handler (int irq, void *dev_id, struct pt_regs *regs)
->         {
->         unsigned long flags;
-> +       struct Scsi_Host *host = PsiHost[irq - 10];
-> 
-> -       spin_lock_irqsave(&io_request_lock, flags);
-> +       spin_lock_irqsave(&host->host_lock, flags);
->         Irq_Handler(irq, dev_id, regs);
-> -       spin_unlock_irqrestore(&io_request_lock, flags);
-> +       spin_unlock_irqrestore(&host->host_lock, flags);
->         }
->  /****************************************************************
->   *     Name:   Psi240i_QueueCommand

@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133068AbRD3DWX>; Sun, 29 Apr 2001 23:22:23 -0400
+	id <S135477AbRD3Dkq>; Sun, 29 Apr 2001 23:40:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133102AbRD3DWM>; Sun, 29 Apr 2001 23:22:12 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:5129 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S133068AbRD3DV6>;
-	Sun, 29 Apr 2001 23:21:58 -0400
-Date: Sun, 29 Apr 2001 23:23:12 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: CML2 1.3.3 is available
-Message-ID: <20010429232312.A3775@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S136442AbRD3Dkf>; Sun, 29 Apr 2001 23:40:35 -0400
+Received: from www.microgate.com ([216.30.46.105]:21006 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP
+	id <S135477AbRD3Dka>; Sun, 29 Apr 2001 23:40:30 -0400
+Message-ID: <3AECECAF.10508@microgate.com>
+Date: Sun, 29 Apr 2001 22:40:15 -0600
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i686; en-US; 0.8.1) Gecko/20010421
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: deregister?
+In-Reply-To: <20010429211049.A17111@mp3revolution.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at http://www.tuxedo.org/~esr/cml2/
+Andres Salomon wrote:
 
-Release 1.3.3: Sun Apr 29 23:00:33 EDT 2001
-	* Resync with 2.4.4.
-	* Help texts merged into symbols file; the `helpfile' declaration
-	  is gone.  (Text is merged in from Documentation/Configure.help
-	  at CML2 installation time.)
-	* Tweaked the appearance of inactive help buttons by popular demand.
+> I'm kind of curious; "deregister" is used quite often in the kernel:
+> 
+> pcmcia_deregister_client
+...
 
-My clever plan worked.  Less than three hours after I pronounced 1.3.1
-"stable", somebody turned in the first crash bug in three weeks.  Fortunately
-it was pretty trivial to fix, a loose end from one of my speedups.  Fixed in
-yesterday's 1.3.2.
+> matroxfb_dh_deregisterfb
+> 
+> Not to mention in various comments and documentation.  Deregister,
+> according to www.m-w.com (and many other dictionaries), is not a word.
+> Is there some sort of historical significance to this being used, in
+> place of "unregister"?
 
-The big news in this version is that all the help texts have been merged into
-the CML2 rules files.  A typical symbol declaration now looks like this:
+Linux kernel source vs. the English language.
+One of them will have to bend...
+let's get ready to rumble!
 
-GONK_5523		'Support for B5523 adaptive gonkulator'	text
-Say Y here to compile in support for the Bollix 5523 adaptive gonkulator.
-.
+Now that it has been pointed out it will mildly
+irritate people (myself included) until it
+*is* corrected (I guess ignorance was bliss :-)
 
-Help texts are merged into the CML2 symbols file at CML2 installation time.
-The `helpfile' declaration is gone.  Among other things, this means you no
-longer need to run CML2 inside a kernel source tree; you can test the scripts 
-anywhere.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Paul Fulghum
+paulkf@microgate.com
 
-See, when the GOVERNMENT spends money, it creates jobs; whereas when the money
-is left in the hands of TAXPAYERS, God only knows what they do with it.  Bake
-it into pies, probably.  Anything to avoid creating jobs.
-	-- Dave Barry
+
+

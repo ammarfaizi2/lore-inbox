@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267323AbUHIWev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267328AbUHIWk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267323AbUHIWev (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 18:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267318AbUHIWev
+	id S267328AbUHIWk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 18:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267327AbUHIWk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 18:34:51 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:15744 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S267323AbUHIWcV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 18:32:21 -0400
-Date: Tue, 10 Aug 2004 00:27:56 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Max Asbock <masbock@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ibmasm: add missing pci_enable_device()
-Message-ID: <20040809222756.GA1555@electric-eye.fr.zoreil.com>
-References: <200408041532.55146.bjorn.helgaas@hp.com> <1092071925.3711.17.camel@w-amax> <200408091128.35896.bjorn.helgaas@hp.com>
+	Mon, 9 Aug 2004 18:40:27 -0400
+Received: from gate.crashing.org ([63.228.1.57]:47059 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267328AbUHIWkV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 18:40:21 -0400
+Subject: Re: [PATCH] Remove unneeded #ifdef kernel from ppc unaligned.h
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: GOTO Masanori <gotom@debian.or.jp>
+Cc: Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <81pt60680s.wl@omega.webmasters.gr.jp>
+References: <81smaw6gd2.wl@omega.webmasters.gr.jp>
+	 <1092038864.14100.42.camel@gaston>  <81pt60680s.wl@omega.webmasters.gr.jp>
+Content-Type: text/plain
+Message-Id: <1092091050.14102.50.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408091128.35896.bjorn.helgaas@hp.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 08:37:31 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas <bjorn.helgaas@hp.com> :
-[...]
-> > > ===== drivers/misc/ibmasm/module.c 1.2 vs edited =====
-> > > --- 1.2/drivers/misc/ibmasm/module.c	2004-05-14 06:00:50 -06:00
-> > > +++ edited/drivers/misc/ibmasm/module.c	2004-08-04 13:15:46 -06:00
-> > > @@ -62,10 +62,17 @@
-> > >  	int result = -ENOMEM;
-> > >  	struct service_processor *sp;
-> > >  
-> > > +	if (pci_enable_device(pdev)) {
-> > > +		printk(KERN_ERR "%s: can't enable PCI device at %s\n",
-> > > +			DRIVER_NAME, pci_name(pdev));
-> > > +		return -ENODEV;
+On Mon, 2004-08-09 at 18:16, GOTO Masanori wrote:
+> At Mon, 09 Aug 2004 18:07:45 +1000,
+> Benjamin Herrenschmidt wrote:
+> > On Mon, 2004-08-09 at 15:16, GOTO Masanori wrote:
+> > > This patch removes unneeded #ifdef __KERNEL__ from ppc unaligned.h.
+> > > There's no reason to enclose __KERNEL__, similar to other
+> > > architectures.  It also fixes the compilation failure building
+> > > userland helper application reiserfsprogs on ppc which includes
+> > > asm/unaligned.h.
+> > 
+> > Well, userland isn't supposed to use those ...
+> 
+> I know.  It's just side effect.  But there's no reason to enclose
+> #ifdef __KERNEL__.
 
-Btw, pci_enable_device returns a perfectly fine status code. There is no
-reason to override it ('result = pci_enable_device(...' and you can even 
-remove the previous ENOMEM initialization).
+Hrm... I'd say there is no reason not to enclose it in it, but I'll
+let Paul make a final decision here.
 
-[...]
-> > >  	sp = kmalloc(sizeof(struct service_processor), GFP_KERNEL);
-> > >  	if (sp == NULL) {
-> > >  		dev_err(&pdev->dev, "Failed to allocate memory\n");
-> > > -		return result;
-> > > +		result = -ENOMEM;
-> > > +		goto error_kmalloc;
+Ben.
 
-You may consider calling it err_pci_disable (or such). This way:
-- one can check that the kmalloc is preceeded by a pci_enable;
-- one can locally check that the unroll path does its job
-  (error_pci_disable is followed by a pci_disable_xxx -> makes sense).
 
---
-Ueimor

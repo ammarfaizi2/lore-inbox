@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbUCLBXn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 20:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbUCLBXn
+	id S261885AbUCLBbM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 20:31:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUCLBbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 20:23:43 -0500
-Received: from holomorphy.com ([207.189.100.168]:51986 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261879AbUCLBXe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 20:23:34 -0500
-Date: Thu, 11 Mar 2004 17:23:27 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       kenneth.w.chen@intel.com
-Subject: Re: [PATCH] per-backing dev unplugging #2
-Message-ID: <20040312012327.GA655@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jens Axboe <axboe@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, kenneth.w.chen@intel.com
-References: <20040311083619.GH6955@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040311083619.GH6955@suse.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 11 Mar 2004 20:31:12 -0500
+Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:1934 "EHLO
+	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S261885AbUCLBbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 20:31:09 -0500
+Message-ID: <405112DD.2020009@blueyonder.co.uk>
+Date: Fri, 12 Mar 2004 01:31:09 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Max Valdez <maxvalde@fis.unam.mx>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NVIDIA and 2.6.4?
+References: <405082A2.5040304@blueyonder.co.uk> <200403111326.08055.maxvalde@fis.unam.mx>
+In-Reply-To: <200403111326.08055.maxvalde@fis.unam.mx>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Mar 2004 01:31:08.0570 (UTC) FILETIME=[B1CBCFA0:01C407D1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11, 2004 at 09:36:19AM +0100, Jens Axboe wrote:
-> Final version, unless something stupid pops up. Changes:
-> - Adapt to 2.6.4-mm1
-> - Cleaned up the dm bits, much nicer with the lockless unplugging
->   (thanks Joe)
-> - md and loop unplugging, stacked devices should unplug their targets.
->   Otherwise they'll end up waiting for the unplug timer, which sucks.
-> - XFS fixed up, I hope. XFS folks still encouraged to look at this,
->   looks better this time around though (and works, I tested).
-> - blk_run_* inlined in blkdev.h
-> Against 2.6.4-mm1 (note you need other attached patch to boot it).
+Max Valdez wrote:
 
-There was a decent improvement here. I'll get some numbers up after
-I rerun (ETA 2 hours) since I blew away the results in reformatting.
+>That's weird:
+>uname -a
+>Linux garaged 2.6.4-rc2-mm1 #1 SMP Wed Mar 10 20:27:04 CST 2004 i686 Intel(R) 
+>Pentium(R) 4 CPU 2.80GHz GenuineIntel GNU/Linux
+>
+>$ lsmod | grep nv
+>nvidia               2075144  12
+>
+>
+>Running KDE, using kdm, with nvidia module, no problem, I notice a slight 
+>difference on fonts, but I dont know if it's my imagination.
+>
+>Been using nvidia modules for quite a few 2.6.x kernels, most of them mmX. 
+>without problems
+>
+>Max
+>  
+>
+Something strange happened, I shall try 2.6.4-mm1 shortly to see if it 
+is still the same. I reckon though that I've suffered a filesystem 
+corruption.
+Regards
+Sid.
 
-
--- wli
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
 

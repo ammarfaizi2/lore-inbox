@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135644AbRAQTaA>; Wed, 17 Jan 2001 14:30:00 -0500
+	id <S135425AbRAQTdK>; Wed, 17 Jan 2001 14:33:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135682AbRAQT3v>; Wed, 17 Jan 2001 14:29:51 -0500
-Received: from mail08.voicenet.com ([207.103.0.34]:33412 "HELO mail08")
-	by vger.kernel.org with SMTP id <S135644AbRAQT3k>;
-	Wed, 17 Jan 2001 14:29:40 -0500
-Message-ID: <3A65F297.8090103@voicefx.com>
-Date: Wed, 17 Jan 2001 14:29:27 -0500
-From: "John O'Donnell" <johnod@voicefx.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20010115
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: .br blacklisted ?
-In-Reply-To: <Pine.LNX.4.31.0101171635401.5464-100000@localhost.localdomain> <3A6553C8.5030408@voicefx.com> <20010117090610.A21493@grobbebol.xs4all.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S135522AbRAQTdA>; Wed, 17 Jan 2001 14:33:00 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:60946 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135556AbRAQTcs>; Wed, 17 Jan 2001 14:32:48 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Is sendfile all that sexy?
+Date: 17 Jan 2001 11:32:35 -0800
+Organization: Transmeta Corporation
+Message-ID: <944s0j$9lt$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.30.0101171454340.29536-100000@baphomet.bogo.bogus>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roeland Th. Jansen wrote:
+In article <Pine.LNX.4.30.0101171454340.29536-100000@baphomet.bogo.bogus>,
+Ben Mansell  <linux-kernel@slimyhorror.com> wrote:
+>On 14 Jan 2001, Linus Torvalds wrote:
+>
+>> And no, I don't actually hink that sendfile() is all that hot. It was
+>> _very_ easy to implement, and can be considered a 5-minute hack to give
+>> a feature that fit very well in the MM architecture, and that the Apache
+>> folks had already been using on other architectures.
+>
+>The current sendfile() has the limitation that it can't read data from
+>a socket. Would it be another 5-minute hack to remove this limitation, so
+>you could sendfile between sockets? Now _that_ would be sexy :)
 
-> On Wed, Jan 17, 2001 at 03:11:52AM -0500, John O'Donnell wrote:
-> 
->> Please tell me I just didn't just see this message??!?!?!?!
->> Please??!?!?!?  What are you doing?
->> I mean no one person here any disrespect - please do the same.
-> 
-> 
-> you just got paid for what you did I guess. if you block a whole TLD,
-> you should oversee the consequences as well. 
+I don't think that would be all that sexy at all.
 
+You have to realize, that sendfile() is meant as an optimization, by
+being able to re-use the same buffers that act as the in-kernel page
+cache as buffers for sending data. So you avoid one copy.
 
- > John O'Donnell (johnod@voicefx.com)
- > Sun, 07 Jan 2001 17:53:16 -0500
- > I have taken this one in particular out just for you.... :-)
+However, for socket->socket, we would not have such an advantage.  A
+socket->socket sendfile() would not avoid any copies the way the
+networking is done today.  That _may_ change, of course.  But it might
+not.  And I'd rather tell people using sendfile() that you get EINVAL if
+it isn't able to optimize the transfer.. 
 
-I dislike SPAM more than these games.
-Eh - "You take the consequences" - Oh well...
-Apologies Rik - I admire your toughness.  :-)
-Johnny O
-
--- 
-<SomeLamer> what's the difference between chattr and chmod?
-<SomeGuru> SomeLamer: man chattr > 1; man chmod > 2; diff -u 1 2 | less
-	-- Seen on #linux on irc
-=== Never ask a geek why, just nod your head and slowly back away.===
-+==============================+====================================+
-| John O'Donnell (Sr. Systems Engineer, Net Admin, Webmaster, etc.) |
-| Voice FX Corporation (a subsidiary of Student Advantage)          |
-| One Plymouth Meeting         |     E-Mail: johnod@voicefx.com     |
-| Suite 610                    |           www.voicefx.com          |
-| Plymouth Meeting, PA 19462   |         www.campusdirect.com       |
-+==============================+====================================+
-
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

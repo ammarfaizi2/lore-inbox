@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288655AbSANCNy>; Sun, 13 Jan 2002 21:13:54 -0500
+	id <S288657AbSANCOY>; Sun, 13 Jan 2002 21:14:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288643AbSANCNk>; Sun, 13 Jan 2002 21:13:40 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:13585 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S288639AbSANCNX>; Sun, 13 Jan 2002 21:13:23 -0500
-Date: Sun, 13 Jan 2002 21:13:21 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Adam Kropelin <akropel1@rochester.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18pre3-ac1
-Message-ID: <20020113211321.C32700@redhat.com>
-In-Reply-To: <028b01c19c90$87300760$02c8a8c0@kroptech.com> <E16PvI2-0008WI-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16PvI2-0008WI-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 14, 2002 at 12:47:54AM +0000
+	id <S288660AbSANCOP>; Sun, 13 Jan 2002 21:14:15 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:14008 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S288643AbSANCN6>; Sun, 13 Jan 2002 21:13:58 -0500
+Date: Sun, 13 Jan 2002 19:14:58 -0700
+Message-Id: <200201140214.g0E2Ewx12117@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v199.7 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 12:47:54AM +0000, Alan Cox wrote:
-> That is very useful information actually. That does rather imply that some
-> of the performance hit came from the block I/O elevator differences in the
-> old ac tree (the ones Linus hated ;)). Now the question (and part of the
-> reason Linus didnt like them) - is why ?
+  Hi, all. Version 199.7 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-Iirc, Linus just didn't like the low/high watermarks for starting & stopping 
-io.  Personally, I liked it and wanted to use that mechanism for deciding 
-when to submit additional blocks from the buffer cache for the device (it 
-provides a nice means of encouraging batching).  The problem that started 
-this whole mess was a combination of the missing wake_up in the block layer 
-that I found, plus the horrendous io latency that we hit with a long io queue 
-and no priorities.  The critical pages for swap in and program loading, as 
-well as background write outs need to have a priority boost so that 
-interactive feel is better.  Of course, with quite a few improvements in 
-when we wait on ios going into the vm between 2.4.7 and 2.4.17, we don't 
-wait as indiscriminately on io as we did back then.  But write out latency 
-can still harm us.
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
-In effect, it is a latency vs thruput tradeoff.
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
-		-ben
+This is against 2.4.18-pre3. Highlights of this release:
+
+- Unregister /dev/root symlink prior to creating second one (for
+  initrd)
+
+- Added support for multiple Compaq cpqarray controllers
+
+- Fixed (rare, old) race in <devfs_lookup>
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310300AbSCMMW5>; Wed, 13 Mar 2002 07:22:57 -0500
+	id <S310560AbSCMNFt>; Wed, 13 Mar 2002 08:05:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310306AbSCMMWr>; Wed, 13 Mar 2002 07:22:47 -0500
-Received: from ip68-4-123-226.oc.oc.cox.net ([68.4.123.226]:49393 "HELO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
-	id <S310300AbSCMMWb>; Wed, 13 Mar 2002 07:22:31 -0500
-Subject: Re: USB-to-serial 2303
-To: davidchow@shaolinmicro.com (David Chow)
-Date: Wed, 13 Mar 2002 04:22:34 -0800 (PST)
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Reply-To: barryn@pobox.com
-In-Reply-To: <1016020663.31918.10.camel@star8.planet.rcn.com.hk> from "David Chow" at Mar 13, 2002 07:57:42 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S310564AbSCMNFj>; Wed, 13 Mar 2002 08:05:39 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:53260 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S310560AbSCMNFf>; Wed, 13 Mar 2002 08:05:35 -0500
+Date: Wed, 13 Mar 2002 14:05:23 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: linux-kernel@vger.kernel.org
+cc: Martin Dalecki <dalecki@evision-ventures.com>
+Subject: 2.5.6: ide driver broken in PIO mode 
+Message-ID: <Pine.LNX.4.21.0203131339050.26768-100000@serv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20020313122234.2E6B789CBE@cx518206-b.irvn1.occa.home.com>
-From: barryn@pobox.com (Barry K. Nathan)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi, I've got a pl2303 adapter running 2.4.17 . I cannot write any
-> commands to my modem but I still read "RING" with some corrupted output
-> from my /dev/ttyUSB0 port. Is this driver still in beta or not working?
-> I would like to get some hints thanks.
+Hi,
 
-Hmmm... I use this driver on an almost-daily basis (it's hooked up to an
-ISDN "modem" at 230.4Kbps since my cable modem service is often down) and
-it seems to work perfectly for me. Some of its behavior was a bit odd
-several releases back (2.4.11 or so??) but it's been stable for me for a
-while now (probably since 2.4.14, if I had to guess).
+I first noticed the problem on my Amiga, but I can reproduce it on an ia32
+machine, when I turn off dma with hdparm. After a while the driver stops
+working with:
 
-The only suggestion I can think of is to make sure you're setting the
-port's speed properly in whatever program you're using for the testing
-(personally, I find minicom useful for this kind of stuff).
+hda: lost interrupt
 
--Barry K. Nathan <barryn@pobox.com>
+After rebooting e2fsck has some serious damage to repair, so the driver
+even writes garbage back to disk before stopping.
+I can reproduce the problem pretty easily (some disk activity like from a
+kernel compile is already enough) and it happens on two completely
+different systems, so it should be reproducable on other systems too.
+
+bye, Roman
+

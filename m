@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262070AbSJNRCy>; Mon, 14 Oct 2002 13:02:54 -0400
+	id <S261986AbSJNRHM>; Mon, 14 Oct 2002 13:07:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262076AbSJNRCy>; Mon, 14 Oct 2002 13:02:54 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:29156 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262070AbSJNRCx>;
-	Mon, 14 Oct 2002 13:02:53 -0400
-Date: Mon, 14 Oct 2002 18:11:01 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Austin Gonyou <austin@coremetrics.com>
-Cc: linux-lvm@sistina.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-lvm] Re: [PATCH] 2.5 version of device mapper submission
-Message-ID: <20021014171101.GA13897@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Austin Gonyou <austin@coremetrics.com>, linux-lvm@sistina.com,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Joe Thornber <joe@fib011235813.fsnet.co.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1034453946.15067.22.camel@irongate.swansea.linux.org.uk> <1034614756.29775.5.camel@UberGeek.coremetrics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1034614756.29775.5.camel@UberGeek.coremetrics.com>
-User-Agent: Mutt/1.4i
+	id <S262007AbSJNRHM>; Mon, 14 Oct 2002 13:07:12 -0400
+Received: from mail6.home.nl ([213.51.128.20]:26583 "EHLO mail6-sh.home.nl")
+	by vger.kernel.org with ESMTP id <S261986AbSJNRHL>;
+	Mon, 14 Oct 2002 13:07:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jogchem de Groot <bighawk@kryptology.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: poll() incompatability with POSIX.1-2001
+Date: Mon, 14 Oct 2002 19:13:43 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <Pine.LNX.3.95.1021014110505.12302A-100000@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.3.95.1021014110505.12302A-100000@chaos.analogic.com>
+Cc: root@chaos.analogic.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20021014171302.ERYV394.mail6-sh.home.nl@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 11:59:17AM -0500, Austin Gonyou wrote:
- > Just curious, but device-mapper and 2.5.42 do not seem to jive very
- > well. Please advise.
+Hello, 
 
-You need device-jiver. Doubtful it'll make the freeze in time though.
-Seriously, what exactly does this bug report mean ?
+This is a failure to connect! The socket is therefore not ready for
+writing  or reading -ever. This behavior may not be correct, not
+because of a failure to set the POLLOUT bit, but because the POLLIN
+bit is set. Check if this is really true. I can't duplicate this
+on 2.4.18 here because it's hard to get a deferred connect with my
+setup.
 
-		Dave
+It's really true:..
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+Here is some strace output:
+
+Case where connect() succeeds:
+
+connect(3, {sin_family=AF_INET, sin_port=htons(111), 
+sin_addr=inet_addr("127.0.0.1")}}, 16) = -1 EINPROGRESS (Operation now in 
+progress)
+poll([{fd=3, events=POLLIN|POLLOUT, revents=POLLOUT}], 1, -1) = 1
+getsockopt(3, SOL_SOCKET, SO_ERROR, [0], [4]) = 0
+
+As you can see SO_ERROR returns '0', connection succeeded.
+
+Case where connect() fails:
+
+connect(3, {sin_family=AF_INET, sin_port=htons(110), 
+sin_addr=inet_addr("127.0.0.1")}}, 16) = -1 EINPROGRESS (Operation now in 
+progress)
+poll([{fd=3, events=POLLIN|POLLOUT, revents=POLLIN|POLLERR|POLLHUP}], 1, -1) 
+= 1
+getsockopt(3, SOL_SOCKET, SO_ERROR, [111], [4]) = 0
+
+As you can see SO_ERROR returns '111', connection failed.
+
+   bighawk

@@ -1,81 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266103AbTLIU7W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 15:59:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266107AbTLIU7V
+	id S266111AbTLIVMz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 16:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266130AbTLIVMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 15:59:21 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20489 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S266103AbTLIU7T
+	Tue, 9 Dec 2003 16:12:55 -0500
+Received: from massena-4-82-67-197-146.fbx.proxad.net ([82.67.197.146]:26497
+	"EHLO perso.free.fr") by vger.kernel.org with ESMTP id S266111AbTLIVMx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 15:59:19 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Linux GPL and binary module exception clause?
-Date: 9 Dec 2003 20:47:58 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <br5cdu$ngd$1@gatekeeper.tmr.com>
-References: <200312091322.33506.andrew@walrond.org> <1070979148.16262.63.camel@oktoberfest>
-X-Trace: gatekeeper.tmr.com 1071002878 24077 192.168.12.62 (9 Dec 2003 20:47:58 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 9 Dec 2003 16:12:53 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+Date: Tue, 9 Dec 2003 22:12:51 +0100
+User-Agent: KMail/1.5.4
+Cc: David Brownell <david-b@pacbell.net>, Vince <fuzzy77@free.fr>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, <mfedyk@matchmail.com>,
+       <zwane@holomorphy.com>, <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>
+References: <Pine.LNX.4.44L0.0312091037070.1033-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0312091037070.1033-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312092212.51627.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1070979148.16262.63.camel@oktoberfest>,
-Dale Whitchurch  <dalew@sealevel.com> wrote:
-| A question for this thread:
-| 
-| Is the GPL in effect for the kernel so that anybody can enhance the
-| current drivers and add support for any other device?  If two companies
-| develop competing products and those products (albeit a few slight
-| differences) perform the same operations using almost the same hardware,
-| do we want one company to use the others driver? 
+> > EIP is at hcd_pci_release+0x19/0x20 [usbcore]
 
-  If company A writes a driver which is not GPL it doesn't concern the
-Open Source community. Not even if it's open source but proprietary.
-Yes, dual license exists, I don't think that changes things here.
+> I don't understand this stack dump.  The EIP address is _after the end_ of
+> hcd_pci_release, as you can see from the fact that the following code is
+> nothing but a long string of NOPs.
 
-  If company A writes a GPL driver company B may modify it as long as
-they release source.
+Hi Alan, I'm not sure what you mean.  0x19/0x20 seems to be inside the code
+to me :)  On my machine, this is what it corresponds to:
 
-  If company B offered the modified driver for kernel inclusion,
-there's a high probability one of the penguins would tell them to fold
-the changes into the original module and make it dual-purpose (unless
-there were a LOT of changes).
+static void hcd_pci_release(struct usb_bus *bus)
+{
+   0:   55                      push   %ebp
+   1:   89 e5                   mov    %esp,%ebp
+   3:   83 ec 04                sub    $0x4,%esp
+        struct usb_hcd *hcd = bus->hcpriv;
+   6:   8b 45 08                mov    0x8(%ebp),%eax
+   9:   8b 50 30                mov    0x30(%eax),%edx
 
-  Company B could decline and ship the GPL driver with their hardware,
-source and a binary loadable module included. Given the hassle factor I
-bet they wouldn't. Nvadia must be really tired of getting every problem
-related to a tainted kernel.
+        if (hcd)
+   c:   85 d2                   test   %edx,%edx
+   e:   74 0c                   je     1c <hcd_pci_release+0x1c>
+                hcd->driver->hcd_free(hcd);
+  10:   8b 82 38 01 00 00       mov    0x138(%edx),%eax
+  16:   89 14 24                mov    %edx,(%esp,1)
+  19:   ff 50 28                call   *0x28(%eax)      <= HERE
+}
+  1c:   c9                      leave
+  1d:   c3                      ret
+  1e:   89 f6                   mov    %esi,%esi
 
-| In another sense, does the kernel evolve to reflect this?  If the
-| overall driver acts the same minus a few hardware differences, does the
-| kernel source change by abstracting the similarities and allow both
-| companies to write the device specific code?  Does it instead say that
-| both cards must have independent source code?  Or do we only allow the
-| first driver into the source tree?
+So if Vince's disassembly is the same, the problem is that
+hcd->driver or hcd->driver->hcd_free is stuffed.
 
-  Once GPL'd the choices are clear, it could be separate or added
-functionality on a technical basis, no need for one policy to fit all.
-| 
-| There are no evil overtones in this email, nor any disgruntled developer
-| feelings.  I am just reading at this thread and asking myself, "Is the
-| overall goal for everyone to get along?"
-| 
-| Dale Whitchurch
-| 
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
-| 
+> Also, I don't understand the cause of
+> the oops.  What does the PREEMPT mean?  There's no indication that a null
+> pointer was dereferenced.  None of the registers contains 0.
 
+I guess PREEMPT means it's a kernel with preempt support.  There is
+indeed no indication that a NULL pointer was dereferenced.  Maybe it
+is use-after-free.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+> But if you think that's the problem, try adding a printk to
+> hcd_pci_release to display the values of bus, hcd->driver, and
+> hcd->driver->hcd_free.  Knowing which one is NULL ought to help your
+> analysis.
+
+I will send Vince a patch.
+
+Ciao,
+
+Duncan.

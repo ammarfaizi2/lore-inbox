@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262461AbREXWkQ>; Thu, 24 May 2001 18:40:16 -0400
+	id <S262458AbREXWjZ>; Thu, 24 May 2001 18:39:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262465AbREXWkG>; Thu, 24 May 2001 18:40:06 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:33665 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S262461AbREXWjs>; Thu, 24 May 2001 18:39:48 -0400
-Message-Id: <5.1.0.14.2.20010524233919.051932a0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 24 May 2001 23:40:17 +0100
-To: Dawson Engler <engler@csl.Stanford.EDU>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and
-  2.4.4-ac8
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200105242110.OAA29766@csl.Stanford.EDU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S262461AbREXWjF>; Thu, 24 May 2001 18:39:05 -0400
+Received: from elaine24.Stanford.EDU ([171.64.15.99]:2002 "EHLO
+	elaine24.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S262458AbREXWi6>; Thu, 24 May 2001 18:38:58 -0400
+Date: Thu, 24 May 2001 15:38:50 -0700 (PDT)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Willem Riede <wriede@home.com>
+cc: Dawson Engler <engler@csl.stanford.edu>, <linux-kernel@vger.kernel.org>,
+        <mc@CS.Stanford.EDU>
+Subject: Re: [CHECKER] null bugs in 2.4.4 and 2.4.4-ac8
+In-Reply-To: <3B0D85E6.7E509F3E@home.com>
+Message-ID: <Pine.GSO.4.31.0105241532450.11846-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 22:10 24/05/2001, Dawson Engler wrote:
-[snip]
->---------------------------------------------------------
->[BUG]
->/u2/engler/mc/oses/linux/2.4.4-ac8/fs/ntfs/super.c:352:ntfs_get_free_cluster_count: 
->ERROR:VAR:352:352: suspicious var 'bits' = 2048 bytes:352 [nbytes=2048]
+On Thu, 24 May 2001, Willem Riede wrote:
+
+> Dawson Engler wrote:
+> >
+> > Hi All,
+> >
+> > Enclosed are 103 potential errors where code gets a pointer from a
+> > possibly-failing routine (kmalloc, etc) and dereferences it without
+> >
+> > [BUG] osst_do_scsi will never return NULL if argument SRpnt isn't NULL. But they copy SRpnt back by *aSRpnt, implies it could be NULL
 >
->static int nc[16]={4,3,3,2,3,2,2,1,3,2,2,1,2,1,1,0};
+> No. It implies SRpnt could have changed. The functions flagged
+> (osst_read_back_buffer_and_rewrite and osst_reposition_and_retry)
+> cannot be reached with SRpnt == NULL. So these are false alarms.
+
+these are false positives if osst_read_back_buffer_and rewrite can't be
+reached with SRpnt == NULL. It seems that osst_do_scsi will not change
+SRpnt unless it is NULL though. In other words, SRpnt is changed by
+osst_do_scsi <=> the initial argument SRpnt == NULL. Probabaly the pointer
+aSRpnt is useless.
+
 >
->int ntfs_get_free_cluster_count(ntfs_inode *bitmap)
->{
+> > /u2/engler/mc/oses/linux/2.4.4/drivers/scsi/osst.c:1163:osst_read_back_buffer_and_rewrite: ERROR:NULL:1111:1163: Using unknown ptr "SRpnt" illegally! set by 'osst_do_scsi':1163 [nbytes = 216]
+> > #if DEBUG
+> >                 if (debugging)
+> >                         printk(OSST_DEB_MSG "osst%d: About to attempt to write to frame %d\n", dev, new_block+i);
+> > #endif
+> >                 SRpnt = osst_do_scsi(SRpnt, STp, cmd, OS_FRAME_SIZE, SCSI_DATA_WRITE,
+> > Start --->
+> >                                             STp->timeout, MAX_WRITE_RETRIES, TRUE);
+> >
+> >         ... DELETED 46 lines ...
+> >
+> >                         }
+> >                 }
+> >                 if (flag) {
+> >                         if ((SRpnt->sr_sense_buffer[ 2] & 0x0f) == 13 &&
+> >                              SRpnt->sr_sense_buffer[12]         ==  0 &&
+> > Error --->
+> >                              SRpnt->sr_sense_buffer[13]         ==  2) {
+> >                                 printk(KERN_ERR "osst%d: Volume overflow in write error recovery\n", dev);
+> >                                 vfree((void *)buffer);
+> >                                 return (-EIO);                  /* hit end of tape = fail */
+> >
 >
->Error --->
->         unsigned char bits[2048];
->---------------------------------------------------------
-
-Thanks. I was just about to submit a large patch anyway, so I will fix this 
-and submit shortly.
-
-Anton
-
-
-
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sf.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+> Regards. Willem Riede.
+>
 

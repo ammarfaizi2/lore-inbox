@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264592AbTLEXCj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 18:02:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264594AbTLEXCj
+	id S264583AbTLEWzp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 17:55:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264592AbTLEWzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 18:02:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:7891 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264592AbTLEXCe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 18:02:34 -0500
-Date: Fri, 5 Dec 2003 15:02:15 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: pinotj@club-internet.fr
-cc: nathans@sgi.com, neilb@cse.unsw.edu.au, manfred@colorfullife.com,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-In-Reply-To: <mnet1.1070665046.1802.pinotj@club-internet.fr>
-Message-ID: <Pine.LNX.4.58.0312051458540.9125@home.osdl.org>
-References: <mnet1.1070665046.1802.pinotj@club-internet.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Dec 2003 17:55:45 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:30089
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264583AbTLEWzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 17:55:44 -0500
+Date: Fri, 5 Dec 2003 23:56:15 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Kristian Peters <kristian.peters@korseby.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: oom killer in 2.4.23
+Message-ID: <20031205225615.GE2121@dualathlon.random>
+References: <Z6Iv-7O2-29@gated-at.bofh.it> <Z8Ag-3BK-3@gated-at.bofh.it> <Zbyn-23P-29@gated-at.bofh.it> <20031205140520.39289a3a.kristian.peters@korseby.net> <20031205223825.GQ29119@mis-mike-wstn.matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031205223825.GQ29119@mis-mike-wstn.matchmail.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 05, 2003 at 02:38:25PM -0800, Mike Fedyk wrote:
+> On Fri, Dec 05, 2003 at 02:05:20PM +0100, Kristian Peters wrote:
+> 
+> > Dec  5 13:34:41 adlib kernel: VM: killing process khexedit
+> > Dec  5 13:37:27 adlib kernel: VM: killing process mozilla-bin
+> > Dec  5 13:37:56 adlib kernel: VM: killing process mozilla-bin
+> > Dec  5 13:40:32 adlib kernel: VM: killing process XFree86
+> 
+> This is with 2.4.23?
+> 
+> Why is the VM killing anything if the oom-killer is removed?
 
+the 2.4.23 kernel will kill the task that triggered the oom condition,
+it has to kill something of course, and the task that triggered the oom
+during the page fault is the only one we can kill synchronously easily,
+in turn guaranteeing that the machine won't deadlock in omm.
 
-On Fri, 5 Dec 2003 pinotj@club-internet.fr wrote:
->
-> 1. Is it still usefull to get all the backtraces of the last xfs oops ?
-
-No, I'm assuming that was due to the slab interaction.
-
-> 2. I will test patch-slab and patch-xfs on test11,
-> CONFIG_DEBUG_PAGEALLOC (only). Test on XFS root and ext3 with "small"
-> and "big" kernels.
-
-Sounds good.
-
-> 3. What about patch-bio of Manfred ? I didn't have much time to try it
-> yet but seems to stabilize too. Should I use it alone or with the others
-> patchs ?
-
-It would be interesting to hear as much as possible about this: if
-Manfred's bio patch makes a difference, it's less intrusive than mine, and
-as such interesting.
-
-On the other hand, despite the small size of Manfred's patch, it does have
-a big impact: since 128 bytes is a "watermark" for the slab debugging, the
-patch which appears less intrusive does in fact still cause a big amount
-of changes.
-
-Anyway, the more you feel like testing, the better. But use your own
-judgements.
-
-Thanks a lot for the effort, btw,
-
-		Linus
+the oom killer normally is meant as the heuristc that chooses a special
+task to kill, instead of the one that triggered the oom condition. But
+choosing a different task and not the one that triggered the oom in the
+page fault, isn't math safe w.r.t deadlocks.

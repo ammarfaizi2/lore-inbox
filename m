@@ -1,62 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290109AbSAORjh>; Tue, 15 Jan 2002 12:39:37 -0500
+	id <S290121AbSAORkH>; Tue, 15 Jan 2002 12:40:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290119AbSAORj2>; Tue, 15 Jan 2002 12:39:28 -0500
-Received: from [66.89.142.2] ([66.89.142.2]:60462 "EHLO starship.berlin")
-	by vger.kernel.org with ESMTP id <S290109AbSAORjO>;
-	Tue, 15 Jan 2002 12:39:14 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] update: preemptive kernel for O(1) sched
-Date: Tue, 15 Jan 2002 15:58:11 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: kpreempt-tech@lists.sourceforge.net
-In-Reply-To: <1010961108.814.12.camel@phantasy> <1010982884.1527.52.camel@phantasy>
-In-Reply-To: <1010982884.1527.52.camel@phantasy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16QXbx-0000wW-00@starship.berlin>
+	id <S290119AbSAORj6>; Tue, 15 Jan 2002 12:39:58 -0500
+Received: from uucp.cistron.nl ([195.64.68.38]:64523 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S290114AbSAORjr>;
+	Tue, 15 Jan 2002 12:39:47 -0500
+From: wichert@cistron.nl (Wichert Akkerman)
+Subject: Re: [ANNOUNCE][PATCH] New fs to control access to system resources
+Date: 15 Jan 2002 18:38:59 +0100
+Organization: Cistron Internet Services
+Message-ID: <a21pfj$amj$1@picard.cistron.nl>
+In-Reply-To: <87k7uj61tk.fsf@tigram.bogus.local> <200201151653.g0FGrlG12428@vindaloo.ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 14, 2002 05:34 am, Robert Love wrote:
-> A version of preempt-stats for the 2.5 series kernel is available at:
-> 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-stats
-> 
-> and your favorite mirror.  Patches for 2.4 are available, too.
-> 
-> This patch, used on top of preempt-kernel, allows the measuring of
-> periods of non-preemptible so that we can identify long-held locks.  The
-> patch creates a proc entry, latencytimes, which contains the top 20
-> worst-case recorded periods since it was last read.  To begin recording,
-> read the file once.  Subsequent reads will return the results. I.e.,
+In article <200201151653.g0FGrlG12428@vindaloo.ras.ucalgary.ca>,
+Richard Gooch  <rgooch@ras.ucalgary.ca> wrote:
+>Having to set the permissions like this on each boot seems a bit
+>painful. Why not have permissions persistence like devfs has?
 
-Nice, but you need a way to turn it off, for example:
+Maybe you could abstract that persistency from devfs and move
+it into a general layer that other filesytems can also use.
 
-   echo >/proc/latencytimes
+Wichert.
 
-i.e., truncate.
-
-> [23:25:08]rml@langston:~$ cat /proc/latencytimes 
-> Worst 20 latency times of 277 measured in this period.
->   usec      cause     mask   start line/file      address   end line/file
->   9982  spin_lock        0   488/sched.c         c0117ee2   645/irq.c
->    968        BKL        0   666/tty_io.c        c0193d58   645/irq.c
->    430  spin_lock        0    69/i387.c          c010f34f    96/mmx.c
->    103       ide0        0   583/irq.c           c010ab1c   645/irq.c
->    100        BKL        0  2562/buffer.c        c014abda  2565/buffer.c
->     54        BKL        0   702/tty_io.c        c019406b   704/tty_io.c
-> ... etc
-
-A more typical form for the file/line would be, e.g., irq.c:645
-
-> The goal would be to identity the problem areas and fix them.
-
-Yep, sorry about the nits but that's the way we nitbots are programmed.
-
---
-Daniel
+-- 
+  _________________________________________________________________
+ /       Nothing is fool-proof to a sufficiently talented fool     \
+| wichert@wiggy.net                   http://www.liacs.nl/~wichert/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
 

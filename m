@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272245AbRILWua>; Wed, 12 Sep 2001 18:50:30 -0400
+	id <S272322AbRILXQL>; Wed, 12 Sep 2001 19:16:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272322AbRILWuU>; Wed, 12 Sep 2001 18:50:20 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:5643 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S272245AbRILWuL>;
-	Wed, 12 Sep 2001 18:50:11 -0400
-Date: Wed, 12 Sep 2001 15:48:38 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Hotplug PCI driver for 2.4.10-pre8
-Message-ID: <20010912154838.A14658@kroah.com>
+	id <S272602AbRILXQC>; Wed, 12 Sep 2001 19:16:02 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:37649 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S272322AbRILXPs>; Wed, 12 Sep 2001 19:15:48 -0400
+Date: Thu, 13 Sep 2001 01:16:06 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: chris@boojiboy.eorbit.net
+Cc: bmacy@macykids.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9-ac9 APM w/Compaq 16xx laptop...
+Message-ID: <20010913011606.H20118@arthur.ubicom.tudelft.nl>
+In-Reply-To: <200109122343.QAA20586@boojiboy.eorbit.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200109122343.QAA20586@boojiboy.eorbit.net>; from chris@boojiboy.eorbit.net on Wed, Sep 12, 2001 at 04:43:05PM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Sep 12, 2001 at 04:43:05PM -0700, chris@boojiboy.eorbit.net wrote:
+> This was discussed awhile back, maybe there are answer.  
+> 
+> Compaq Presario 1685.
+> My bios supports ACPI
+> 
+> the roboot option  "shutdown -r" does
+> not work with this laptop when I compile
+> either APM or ACPI.  The behavior is a little
+> different with each one.
+> 
+> When my bios is set ACPI=NO, and APM is compiled in:
+> A 'shutdown -r' hangs after the "Restarting System" message.  
+> Depressing the power switch cause a power off.
 
-Another release of the Compaq Hotplug PCI driver is available at:
-	http://www.kroah.com/linux/hotplug/pci-hotplug-2001_09_12-2.4.10-pre8.patch.gz
+Try "Use real mode APM BIOS call to power off".
 
-This is a _unstable_ release, you have been warned :)
+> When my bios is set ACPI=YES, and ACPI is compiled in:
+> A 'shutdown -r' hangs after the "Restarting system" message.  
+> Depressing the power switch causes a reboot.
+> 
+> I have a feeling this is ReiserFS related. 
 
-Changes since the last release:
-	- forward ported to 2.4.10-pre8
-	- first cut at moving the driver into two separate pieces.
+I don't. Why would a filesystem have anything to do with APM or ACPI?
 
-I'm actively working on splitting the driver up into a "generic" hotplug
-pci controller code, and a Compaq specific hotplug pci driver.  Right
-now only the character driver piece has been split out.  Because of
-the changes that were done to the ioctl interface, the existing
-userspace tools will not work.  A version of the GTK+ tool that works
-with this patch can be found in the cvs tree at sourceforge:
-	http://sourceforge.net/cvs/?group_id=32538
 
-Any comments on the current interface from groups that are working with
-other hotplug pci controllers is very welcome.
+Erik
 
-thanks,
-
-greg k-h
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131217AbRBWSue>; Fri, 23 Feb 2001 13:50:34 -0500
+	id <S131532AbRBWSzd>; Fri, 23 Feb 2001 13:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131651AbRBWSuX>; Fri, 23 Feb 2001 13:50:23 -0500
-Received: from viper.haque.net ([64.0.249.226]:4234 "EHLO viper.haque.net")
-	by vger.kernel.org with ESMTP id <S131217AbRBWSuM>;
-	Fri, 23 Feb 2001 13:50:12 -0500
-Date: Fri, 23 Feb 2001 13:50:11 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: loop-6 patch and 2.4.2
-Message-ID: <Pine.LNX.4.32.0102231346350.32010-100000@viper.haque.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131651AbRBWSzO>; Fri, 23 Feb 2001 13:55:14 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:28924 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S131532AbRBWSzM>; Fri, 23 Feb 2001 13:55:12 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200102231854.f1NIsSR04313@webber.adilger.net>
+Subject: Re: filesystem statistics
+In-Reply-To: <UTC200102221534.QAA243062.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl"
+ at "Feb 22, 2001 04:34:25 pm"
+To: Andries.Brouwer@cwi.nl
+Date: Fri, 23 Feb 2001 11:54:28 -0700 (MST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is anyone else using 2.4.2 patched with loop-6? Does load goto about 1
-and stay there even though mounting things via loop seem to work fine?
+Andries Brouwer writes:
+> Now that people are discussing the right hash function to use,
+> and the amount of space taken by filenames in various schemes,
+> I wondered how these things are on a random machine.
+> Here some statistics.
 
+Can you generate statistics on the number of files in each directory,
+and the total size of each directory?  For total directory size, it
+may be useful to have not only size in kB and/or disk blocks, but also
+the sum of raw dentry sizes as well, because directories always show
+full block sizes.
+
+This would also be helpful to determine how often indexing will be used
+in an "average" system.
+
+Cheers, Andreas
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,123 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266290AbUAHTrw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 14:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266293AbUAHToR
+	id S266118AbUAHTeL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 14:34:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266180AbUAHTeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 14:44:17 -0500
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:30344 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S266290AbUAHTmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 14:42:11 -0500
-Date: Thu, 08 Jan 2004 14:41:52 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-In-reply-to: <3FFD9498.6030905@zytor.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ian Kent <raven@themaw.net>, Mike Waychison <Michael.Waychison@Sun.COM>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <3FFDB280.90504@sun.com>
-MIME-version: 1.0
-Content-type: multipart/signed;
- boundary=------------enigAA93FE809B62A8103D1642D5;
- protocol="application/pgp-signature"; micalg=pgp-sha1
-X-Accept-Language: en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107
- Debian/1.5-3
-X-Enigmail-Version: 0.82.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <Pine.LNX.4.44.0401081827070.285-100000@donald.themaw.net>
- <Pine.LNX.4.44.0401081827070.285-100000@donald.themaw.net>
- <3FFD9498.6030905@zytor.com>
+	Thu, 8 Jan 2004 14:34:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48006 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266118AbUAHTdN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 14:33:13 -0500
+Date: Thu, 8 Jan 2004 11:29:03 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: bluefoxicy@linux.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops 0002
+Message-Id: <20040108112903.04a1b9a7.rddunlap@osdl.org>
+In-Reply-To: <20040108184935.BD5E3E4B8@sitemail.everyone.net>
+References: <20040108184935.BD5E3E4B8@sitemail.everyone.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigAA93FE809B62A8103D1642D5
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 8 Jan 2004 10:49:35 -0800 (PST) john moser <bluefoxicy@linux.net> wrote:
 
-H. Peter Anvin wrote:
-> Ian Kent wrote:
-> 
->>
->> If wildcard map entries are not in autofs v3 then Jeremy implemented this
->> in v4.
->>
-> 
-> v3 has had wildcard map entries and substitutions for a very, very, very 
-> long time... it was a v2 feature, in fact.
-> 
->> And yes the host map is basically a program map and that's all. Worse, as
->> pointed out in the paper it mounts everything under it. This is a source
->> of stress for mount and umount. I have put in a fair bit of time on ugly
->> hacks to work around this. This same problem is also evident in startup
->> and shutdown for master maps with a good number of entries (~50 or more).
->> A consequence of the current multiple daemon approach.
-> 
-> 
-> This is why one wants to implement a mount tree with "direct mount 
-> pads"; which also means keeping some state in the daemon.
-> 
-> For example, let's say one has a mount tree like:
-> 
-> /foo        server1:/export/foo \
-> /foo/bar    server1:/export/bar \
-> /bar        server2:/export/bar
-> 
-> ... then you actually have four diffenent filesystems involved: first, 
-> some kind of "scaffolding" (this can be part of the autofs filesystem 
-> itself or a ramfs) that hold the "foo" and "bar" directories, and then 
-> foo, foo/bar, and bar.
-> 
-> Consider the following implementation: when one encounters the above, 
-> the daemon stashes this away as an already-encountered map entry (in 
-> case the map entries change, we don't want to be inconsistent), creates 
-> a ramfs for the scaffolding, creates the "foo" and "bar" subdirectories 
-> and mount-traps "foo" and "bar".  Then it releases userspace.  When it 
-> encounters an access on "foo", it gets invoked again, looks it up in its 
-> "partial mounts" state, then mounts "foo" and mount-traps "foo/bar", 
-> then releases userspace.
-> 
-> In many ways this returns to the simplicity of the autofs v3 design 
-> where the atomicity constraints where guaranteed by the VFS itself, *as 
-> long as* mount traps can be atomically destroyed with umounting the 
-> underlying filesystem.
-> 
+| icebox regression # ./memkmemport_test
+| Testing denied write of /dev/mem... : FAILED
+| Testing denied mmap write of /dev/kmem... : FAILED
+| Testing denied open of /dev/port... : FAILED
+| <1>Unable to handle kernel NULL pointer dereference at virtual address
+| 00000000
+|  printing eip:
+| c0387645
+| *pde = 00000000
+| Oops: 0002 [#3]
+| CPU:    0
+| EIP:    0060:[<c0387645>]    Tainted: PF
+| EFLAGS: 00010246
+| eax: 00000000   ebx: 00000004   ecx: 00000004   edx: 00000000
+| esi: 080487eb   edi: 00000000   ebp: 080487ef   esp: d0f55e80
+| ds: 007b   es: 007b   ss: 0068
+| Process memkmemport_tes (pid: 7355, threadinfo=d0f54000 task=dbdd0c80)
+| Stack: 00000004 00000004 efd516c0 c02b7523 ef5aa9c0 00000004 00000000 c02b6a48
+|        00000000 080487eb 00000004 e69cd140 c02b6dd0 00000004 e69cd160 080487eb
+|        c02b6e39 e69cd140 00000000 00000000 080487eb 00000004 e69cd160 e69cd140
+| Call Trace: [<c02b7523>]  [<c02b6a48>]  [<c02b6dd0>]  [<c02b6e39>]
+| [<c02b6dd0>]  [<c01ed0e8>]  [<c01ed212>]  [<c019d417>]  [<c019d42f>]
+| Code: f3 aa 58 59 e9 fc 4c f0 ff b8 f2 ff ff ff e9 b3 9e f0 ff b8
+|  Segmentation fault
+| 
+| 
+| regression tools that I pulled out of the grsecurity.net cvs and tested on a PaX patched kernel AND a kernel that I'm working a bit on (without pax), neither should oops.  I don't readily reboot to run vanillas. This is a NULL dereference INSIDE the kernel, right?  Something's broke, and it does this on 2.6.1-rc2 so whatever it is is probably still broke.
 
-Great!
+Yes, it's a NULL reference inside (some) kernel.
 
-This is exactly what I found when looking into the situation.  However, 
-namespaces still break automounting unless you can rid yourself of the 
-daemon.  Move events into call_usermodehelper calls in current's 
-namespace and maintain what little state you need as a set of tokens.
+1.  Please wrap email lines around 70-72 characters.
+
+2.  What kernel version is this?  What patches applied?
+
+3.  This is the 3rd oops for this kernel.  What were the first 2?
+
+4.  Please use CONFIG_KALLSYMS=y so that addresses will be
+converted to symbols, or run the oops thru ksymoops.
 
 
--- 
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-mailto: Michael.Waychison@Sun.COM
-http://www.sun.com
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
---------------enigAA93FE809B62A8103D1642D5
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
-
-iD8DBQE//bKEdQs4kOxk3/MRAgI3AJkB83e2YDhKTcCi/d7/QJXWC3ScNwCfQkHx
-q94YjVZTGng0sHH7zMYXS30=
-=mJpZ
------END PGP SIGNATURE-----
-
---------------enigAA93FE809B62A8103D1642D5--
-
+--
+~Randy
+MOTD:  Always include version info.

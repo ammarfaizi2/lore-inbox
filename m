@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310750AbSCHJLV>; Fri, 8 Mar 2002 04:11:21 -0500
+	id <S310754AbSCHJPn>; Fri, 8 Mar 2002 04:15:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310751AbSCHJLC>; Fri, 8 Mar 2002 04:11:02 -0500
-Received: from tassadar.physics.auth.gr ([155.207.123.25]:49544 "EHLO
-	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
-	id <S310750AbSCHJKp>; Fri, 8 Mar 2002 04:10:45 -0500
-Date: Fri, 8 Mar 2002 11:10:43 +0200 (EET)
-From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
-To: linux-kernel@vger.kernel.org
-Subject: strange message from swapper , 2.4.18-ac2 + bridge-nf-0.0.6-against-2.4.18.diff
-Message-ID: <Pine.LNX.4.44.0203081100260.31976-100000@tassadar.physics.auth.gr>
+	id <S310755AbSCHJPb>; Fri, 8 Mar 2002 04:15:31 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:47377 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S310754AbSCHJPV>; Fri, 8 Mar 2002 04:15:21 -0500
+Message-ID: <3C8880EF.5030602@evision-ventures.com>
+Date: Fri, 08 Mar 2002 10:14:23 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Arjan van de Ven <arjan@fenrus.demon.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
+In-Reply-To: <200203080823.g288NC514338@fenrus.demon.nl> <3C8877D7.2020708@evision-ventures.com> <20020308085028.A14375@fenrus.demon.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven wrote:
+> On Fri, Mar 08, 2002 at 09:35:35AM +0100, Martin Dalecki wrote:
+> 
+>>Please look closer at my posting. I just think, that since there
+>>are apparently no tru hardware raid devices out there it would
+>>be sufficient to expand the detection code to not ignore
+>>RAID class devices at all. This would just prevent
+>>us from having two different entries in the
+>>device detection list. Not much more involved I think.
+>>
+> 
+> There's one tiny glitch: there are exactly 2 "real" raid devices out there
+> (that I know of at least). But anyway, a "don't look at" list will be
+> MUCH shorter than a "look also at" list.
 
-Hello ,
-
-Yesterday i got those messages in my linux bridge logfile . Apart from
-them , the box continues to operate normally . The box was not doing
-anything at all at this moment .
-
-Mar  7 14:21:30 none kernel:
-Mar  7 14:21:30 none kernel: Pid: 0, comm:              swapper
-Mar  7 14:21:30 none kernel: EIP: 0010:[default_idle+35/40] CPU: 0 EFLAGS: 00000246    Not tainted
-Mar  7 14:21:30 none kernel: EAX: 00000000 EBX: c0252000 ECX: c10e2260 EDX: c10e2260
-Mar  7 14:21:30 none kernel: ESI: c0105150 EDI: ffffe000 EBP: 0008e000 DS: 0018 ES: 0018
-Mar  7 14:21:30 none kernel: CR0: 8005003b CR2: 0804cf54 CR3: 017c4000 CR4: 00000010
-Mar  7 14:21:30 none kernel: Call Trace: [cpu_idle+63/84] [rest_init+0/40] [rest_init+39/40]
-Mar  7 14:21:30 none kernel:
-Mar  7 14:21:30 none kernel: Pid: 0, comm:              swapper
-Mar  7 14:21:30 none kernel: EIP: 0010:[default_idle+35/40] CPU: 0 EFLAGS: 00000246    Not tainted
-Mar  7 14:21:30 none kernel: EAX: 00000000 EBX: c0252000 ECX: c10e6260 EDX: c10e6260
-Mar  7 14:21:30 none kernel: ESI: c0105150 EDI: ffffe000 EBP: 0008e000 DS: 0018 ES: 0018
-Mar  7 14:21:30 none kernel: CR0: 8005003b CR2: 080bd000 CR3: 01cba000 CR4: 00000010
-Mar  7 14:21:30 none kernel: Call Trace: [cpu_idle+63/84] [rest_init+0/40] [rest_init+39/40]
-Mar  7 14:21:31 none kernel:
-Mar  7 14:21:31 none kernel: Pid: 0, comm:              swapper
-Mar  7 14:21:31 none kernel: EIP: 0010:[default_idle+35/40] CPU: 0 EFLAGS: 00000246    Not tainted
-Mar  7 14:21:31 none kernel: EAX: 00000000 EBX: c0252000 ECX: c10e6260 EDX: c10e6260
-Mar  7 14:21:31 none kernel: ESI: c0105150 EDI: ffffe000 EBP: 0008e000 DS: 0018 ES: 0018
-Mar  7 14:21:31 none kernel: CR0: 8005003b CR2: 080bd000 CR3: 01cba000 CR4: 00000010
-Mar  7 14:21:31 none kernel: Call Trace: [cpu_idle+63/84] [rest_init+0/40] [rest_init+39/40]
-
-
-Linux none 2.4.18-ac2 #1 Thu Feb 28 22:42:29 EET 2002 i586 unknown
-
-The distribution is slackware 8 .
-
- Kind regards
---
-=============================================================================
-
-Dimitris Zilaskos
-
-Department of Physics @ Aristotle Univercity of Thessaloniki , Greece
-=============================================================================
+Would you dare to tell me which those are? And are you sure
+they don't expose themself as SCSI hosts to the system on PCI?
 

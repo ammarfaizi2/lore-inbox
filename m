@@ -1,95 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311530AbSC1Cmc>; Wed, 27 Mar 2002 21:42:32 -0500
+	id <S311519AbSC1Cwo>; Wed, 27 Mar 2002 21:52:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311547AbSC1CmW>; Wed, 27 Mar 2002 21:42:22 -0500
-Received: from ns.suse.de ([213.95.15.193]:11535 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S311530AbSC1CmM>;
-	Wed, 27 Mar 2002 21:42:12 -0500
-Date: Thu, 28 Mar 2002 03:42:11 +0100
-From: Andi Kleen <ak@suse.de>
-To: linux-kernel@vger.kernel.org, announce@x86-64.org
-Subject: [ANNOUNCEMENT] New x86-64 kernel snapshot based on 2.4.19pre4 
-Message-ID: <20020328034211.A14622@wotan.suse.de>
-Mime-Version: 1.0
+	id <S311547AbSC1Cwe>; Wed, 27 Mar 2002 21:52:34 -0500
+Received: from host-8166.digeo.com ([12.110.81.66]:32689 "EHLO
+	khem.blackfedora.com") by vger.kernel.org with ESMTP
+	id <S311519AbSC1CwX>; Wed, 27 Mar 2002 21:52:23 -0500
+To: linux-kernel@vger.kernel.org
+Subject: How to tell how much to expect from a fd
+From: Mark Atwood <mra@pobox.com>
+Date: 27 Mar 2002 18:52:39 -0800
+In-Reply-To: <20010804132159.F18108@weta.f00f.org>
+Message-ID: <m3663hjte0.fsf_-_@khem.blackfedora.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-A new 2.4.19pre4 based x86-64 linux kernel snapshot has been released. This is
-a port of the Linux kernel to the x86-64 architecture, as implemented by the AMD
-Hammer family of CPUs and the Virtutech VirtuHammer simulator. For more 
-information about x86-64 see http://www.x86-64.org 
+Does there exist a fcntl or some other way to tell how much data is
+"ready to be read" from a fd?
 
-This is a major update for the x86-64 kernel. It has so many bugs fixed over
-previous kernels that I would recommend every x86-64 user to update to
-this kernel version.
+I'm doing this thing where I make the fd non-blocking, select on it,
+and then read on it into a buffer that I am pregrowing with realloc.
 
-This release requires new binutils and a recent gcc to build. The changed
-signal ABI requires a new glibc. Working versions of gcc, glibc and binutils can 
-be downloaded from ftp://ftp.x86-64.org/pub/stable-tools/current/ 
-It also requires an updated gdb. Documentation on how to build the toolchain
-and glibc can be found at http://www.x86-64.org/documentation
+When the high water mark is up to the top of the buffer, I realloc the
+buffer to make it bigger.  At present, I'm just adding a constant
+value to the buffer size each time I need to do this, but if there was
+a way to easily tell how much was "ready to be read" from the fd.
 
-This is a newer x86-64 codebase than the version in the 2.5 kernel with much
-more testing. 2.5 will be synced with this tree soon. 
+It's not necessary to be exact. If more becomes available between the
+time I do this wanted magic and do the read, read's 3rd parameter will
+keep me safe, and if it's too low, like if a dup of the fd already
+snarfed the data, also no big deal, I'm non-blocking and check the
+return value.
 
-Please report any problems to bugs@x86-64.org.  The discussion list is 
-discuss@x86-64.org. See http://www.x86-64.org/mailinglists for archives
-and subscribe/unsubscribe options.
+So, is this "nice to have" available?
 
-You can download the x86-64 kernel source as a full tarball at: 
 
-ftp://ftp.x86-64.org/pub/linux-x86_64/v2.4/linux-x86_64-2.4.19pre4-1.tar.bz2
-
-MD5: 
-e90765227be6956ffd002e18aa2a9e3a  linux-x86_64-2.4.19pre4-1.tar.bz2
-
-or as a patch against plain Linux 2.4.19pre4 as released by Marcelo: 
-
-ftp://ftp.x86-64.org/pub/linux-x86_64/v2.4/x86_64-2.4.19pre4-1.bz2
-
-MD5: 
-807df0308052b4065df2089cc9a49499  x86_64-2.4.19pre4-1.bz2
-
-This is a snapshot of the CVS tree at cvs.x86-64.org. The current CVS tree can be 
-accessed anonymously, for details see http://www.x86-64.org/cvs 
-Note that the code in the CVS tree HEAD can be unstable sometimes.
-
-Known problems: 
-- MTRR breaks on SMP and can oops at booting. It is disabled ATM. 
-- Still some problems in 64bit LTP runs, which could be partly kernel bugs.
-- 32bit lspci breaks on the 64bit kernel because the /proc/pci structures
-are not compatible.
-- 32bit personality setting ("linux32") doesn't work. 
-- NMI watchdog doesn't work.
-- String/memory functions unoptimized and use a lot of CPU time. 
-- 32bit setserial crashes.
-
-Changes:
-- Merge to 2.4.19pre4. This has a reduced struct page which saves several
-MB of memory in a 64bit build.
-- SMP and APIC code functional now
-- 8257 timer is now accurate
-- Some signal handling bugs fixed.
-- modify_ldt for 32bit and 64bit implemented
-- IA32 emulation enhanced with a few new calls and ioctls and various bugs 
-fixed.
-- 32bit ptrace support.
-- Some driver support for AMD 8111: Sound card, IDE, USB 2.0 (Vojtech Pavlik) 
-- AMD 8111 Random Generator based on the AMD768 RNG driver.
-- Audited on all inline assembly: this found and fixed various bugs. 
-- New struct user and signal frame formats.  This is an ABI change.
-- Doesn't require 32bit tools for building anymore.
-- New kernel mapping that in theory supports ~120TB of physical memory per
-system. 
-- Kernel modules functional now. Fixed some vmalloc/ioremap bugs.
-- More efficient signal handling. Does FXSAVE directly into and out 
-of user space now.
-- WCHAN support added.
-- Various other bug fixes.
-
--Andi Kleen, SuSE Labs.
+-- 
+Mark Atwood   | Well done is better than well said.
+mra@pobox.com | http://www.pobox.com/~mra

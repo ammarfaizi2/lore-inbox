@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270978AbTGVSE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 14:04:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270979AbTGVSE0
+	id S270983AbTGVSHM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 14:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270984AbTGVSHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 14:04:26 -0400
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:7176 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S270978AbTGVSEX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 14:04:23 -0400
-Message-ID: <3F1D81A2.1060402@kolumbus.fi>
-Date: Tue, 22 Jul 2003 21:25:38 +0300
-From: =?ISO-8859-15?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Jason Baron <jbaron@redhat.com>,
-       Rene Mayrhofer <rene.mayrhofer@gibraltar.at>,
-       vda@port.imtp.ilyichevsk.odessa.ua,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pivot_root seems to be broken in 2.4.21-ac4
-References: <Pine.LNX.4.44.0307221331090.2754-100000@dhcp64-178.boston.redhat.com> <1058895650.4161.23.camel@dhcp22.swansea.linux.org.uk>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 22.07.2003 21:20:49,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 22.07.2003 21:20:16,
-	Serialize complete at 22.07.2003 21:20:16
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Tue, 22 Jul 2003 14:07:12 -0400
+Received: from gandalph.mad.hu ([193.225.158.7]:6410 "EHLO gandalph.mad.hu")
+	by vger.kernel.org with ESMTP id S270983AbTGVSHK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 14:07:10 -0400
+Date: Tue, 22 Jul 2003 20:22:54 +0200
+From: Gergely Nagy <algernon@bonehunter.rulez.org>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.0-test1 on PPC
+Message-ID: <20030722182254.GA15636@gandalph.mad.hu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+I've tried to compile linux 2.6.0-test1 on ppc, and so far, ran into two
+easily fixable problems: first, in arch/ppc/kernel/time.c
+do_settimeofday has new_sec and new_nsec defined twice. When I removed
+one of the definitions (I chose to remove the ones that were not
+explictly initialised). Then drivers/ide/ppc/pmac.c failed to compile,
+due to a missing ide_dma_intr and others. I looked into
+includes/linux/ide.h, and noticed that these are only defined if
+CONFIG_BLK_DEV_IDE_DMA_PCI is defined, and my config didn't have that,
+only CONFIG_BLK_DEV_IDE_DMA_PPC. So - as a quick and rude solution - I
+changed the ifdef in ide.h, which is probably the wrong solution.
 
-Alan Cox wrote:
+The kernel is still compiling, but I don't expect other failures.. If
+anyone wants a patch for the above two trivial thingies, or has a
+pointer to a ppc tree that is likely to be more up-to-date, please shout
+:)
 
->On Maw, 2003-07-22 at 18:37, Jason Baron wrote:
->  
->
->>>I tell init to re-execute itself (after pivot_root and thus from the new 
->>>root fs), which causes init to close its old fds and open new ones from 
->>>the new root fs with. This is necessary because init already runs as pid 
->>>1 when I start the root fs switching. Maybe something changed with the 
->>>kernel process fds from 2.4.21-rc2 to 2.4.21-ac4 ?
->>>
->>>      
->>>
->>yes, see the addition of the unshare_files function in kernel/fork.c
->>    
->>
->
->Shouldnt really have changed anything except for security exploits and
->threaded apps doing weird stuff. In normal situations the files count is
->one so we should actually be executing nothing more exciting that an
->atomic_inc/atomic_dec.
->
->I wonder what is going on here.
->
->-
->  
->
-But kernel threads may be incrementing init's files->count before user 
-space init execs, so unshare_files() after execve("/sbin/init") ends up 
-copying files.
-
---Mika
-
-
+Cheers,
+-- 
+Gergely Nagy

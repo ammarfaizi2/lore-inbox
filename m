@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263564AbTLOMIe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 07:08:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTLOMIe
+	id S263500AbTLOMDv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 07:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTLOMDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 07:08:34 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:17835 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263564AbTLOMId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 07:08:33 -0500
-Date: Mon, 15 Dec 2003 13:08:31 +0100
-From: Jan Kara <jack@suse.cz>
-To: linux-kernel@vger.kernel.org
-Subject: ATI Rage 128 problem with 2.4.23 & 2.6.0-test11
-Message-ID: <20031215120830.GB11418@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+	Mon, 15 Dec 2003 07:03:50 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:11910 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S263500AbTLOMDu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 07:03:50 -0500
+To: davidm@hpl.hp.com
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, jbarnes@sgi.com,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch] quite down SMP boot messages
+References: <yq0fzfr32ib.fsf@wildopensource.com>
+	<20031212221609.GC314@elf.ucw.cz>
+	<16346.16576.987077.529284@napali.hpl.hp.com>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 15 Dec 2003 06:57:09 -0500
+In-Reply-To: <16346.16576.987077.529284@napali.hpl.hp.com>
+Message-ID: <yq0ekv6z42y.fsf@wildopensource.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+>>>>> "David" == David Mosberger <davidm@napali.hpl.hp.com> writes:
 
-  I have a problem with acceleration on ATI Rage 128 on both 2.4.23 and
-2.6.0-test11. If I run X with DRI enabled and some game using it then
-shortly kernel starts printing message like:
- *ERROR* r128_freelist_get() returning NULL!
+David> Sounds promising to me.  I also dislike the verbosity, but
+David> getting rid of the messages completely makes me nervous, too,
+David> because sometimes things do fail and then it's invaluable to
+David> have some idea of how far the boot got (even if the person
+David> booting the machines has no clue what the funny symbols on his
+David> screen actually mean).
 
-At that moment X freeze completely... Is there some solution for this
-problem?
+This is exactly why I added the smpverbose boot option so one can
+reenable all the messages.
 
-The machine is MSI KT4AVL board with Barton 2500+. agpgart is not
-working in 2.4.23 but in 2.6.0-test11 it works perfectly (it runs in 1x
-mode). If some more information or testing is needed please ask.
-
-									Honza
-
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Cheers,
+Jes

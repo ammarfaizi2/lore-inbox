@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262779AbUKXRRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262795AbUKXRTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262779AbUKXRRN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 12:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbUKXRPQ
+	id S262795AbUKXRTu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 12:19:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUKXRO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 12:15:16 -0500
-Received: from lucidpixels.com ([66.45.37.187]:56211 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S262722AbUKXRFa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 12:05:30 -0500
-Date: Wed, 24 Nov 2004 12:05:27 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: Adrian Bunk <bunk@stusta.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 SCSI driver compile error w/gcc-3.4.2.
-In-Reply-To: <20041124170327.GB19873@stusta.de>
-Message-ID: <Pine.LNX.4.61.0411241205240.19627@p500>
-References: <Pine.LNX.4.61.0411240812220.19627@p500> <20041124170327.GB19873@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 24 Nov 2004 12:14:57 -0500
+Received: from mail9.messagelabs.com ([194.205.110.133]:30620 "HELO
+	mail9.messagelabs.com") by vger.kernel.org with SMTP
+	id S262772AbUKXRN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 12:13:56 -0500
+X-VirusChecked: Checked
+X-Env-Sender: icampbell@arcom.com
+X-Msg-Ref: server-23.tower-9.messagelabs.com!1101316434!14183883!1
+X-StarScan-Version: 5.4.2; banners=arcom.com,-,-
+X-Originating-IP: [194.200.159.164]
+Subject: Re: "deadlock" between smc91x driver and link_watch
+From: Ian Campbell <icampbell@arcom.com>
+To: Nicolas Pitre <nico@cam.org>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+In-Reply-To: <Pine.LNX.4.61.0411241125280.8946@xanadu.home>
+References: <1101230194.14370.12.camel@icampbell-debian>
+	 <20041123153158.6f20a7d7.akpm@osdl.org>
+	 <1101289309.10841.9.camel@icampbell-debian>
+	 <20041124014650.47af8ae4.akpm@osdl.org>
+	 <1101290297.10841.15.camel@icampbell-debian>
+	 <Pine.LNX.4.61.0411241014160.8946@xanadu.home>
+	 <1101311558.31459.21.camel@icampbell-debian>
+	 <Pine.LNX.4.61.0411241125280.8946@xanadu.home>
+Content-Type: text/plain
+Organization: Arcom Control Systems
+Date: Wed, 24 Nov 2004 17:13:52 +0000
+Message-Id: <1101316432.31459.24.camel@icampbell-debian>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
+X-IMAIL-SPAM-VALHELO: (411173084)
+X-IMAIL-SPAM-VALREVDNS: (411173084)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahh, ok thanks!
+On Wed, 2004-11-24 at 11:57 -0500, Nicolas Pitre wrote:
 
-On Wed, 24 Nov 2004, Adrian Bunk wrote:
+I'll have a go at all this tomorrow.
 
-> On Wed, Nov 24, 2004 at 08:13:06AM -0500, Justin Piszcz wrote:
->> Under slackware-current, gcc-3.4.2.
->>
->> root@p500b:/usr/src/linux# make modules
->>   CHK     include/linux/version.h
->> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->>   CC [M]  drivers/scsi/cpqfcTScontrol.o
->> drivers/scsi/cpqfcTScontrol.c:609:2: #error This is too much stack
->> drivers/scsi/cpqfcTScontrol.c:721:2: #error This is too much stack
->> make[2]: *** [drivers/scsi/cpqfcTScontrol.o] Error 1
->> ...
->
-> This compile error (as well as the other two compile errors you
-> reported) comes from the fact, that you disabled the option
->
->  Code maturity level options
->    Prompt for development and/or incomplete code/drivers
->      Select only drivers expected to compile cleanly
->
->
-> It's known that some drivers do not compile and marked in the Kconfig
-> files. But if you choose to try to compile them anyway, they don't
-> compile.
->
->
-> cu
-> Adrian
->
-> -- 
->
->       "Is there not promise of rain?" Ling Tan asked suddenly out
->        of the darkness. There had been need of rain for many days.
->       "Only a promise," Lao Er said.
->                                       Pearl S. Buck - Dragon Seed
->
+Cheers,
+Ian.
+
+-- 
+Ian Campbell, Senior Design Engineer
+                                        Web: http://www.arcom.com
+Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
+Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
+
+
+_____________________________________________________________________
+The message in this transmission is sent in confidence for the attention of the addressee only and should not be disclosed to any other party. Unauthorised recipients are requested to preserve this confidentiality. Please advise the sender if the addressee is not resident at the receiving end.  Email to and from Arcom is automatically monitored for operational and lawful business reasons.
+
+This message has been virus scanned by MessageLabs.

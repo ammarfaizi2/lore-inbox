@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288005AbSABXR4>; Wed, 2 Jan 2002 18:17:56 -0500
+	id <S288015AbSABXW3>; Wed, 2 Jan 2002 18:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287968AbSABXQf>; Wed, 2 Jan 2002 18:16:35 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:26382 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S287983AbSABXQN>;
-	Wed, 2 Jan 2002 18:16:13 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S288017AbSABXU1>; Wed, 2 Jan 2002 18:20:27 -0500
+Received: from svr3.applink.net ([206.50.88.3]:10761 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S287989AbSABXSv>;
+	Wed, 2 Jan 2002 18:18:51 -0500
+Message-Id: <200201022317.g02NHwSr023105@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: skidley <skidley@crrstv.net>, Timothy Covell <timothy.covell@ashavan.org>
+Subject: Re: system.map
+Date: Wed, 2 Jan 2002 17:14:17 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: Keith Owens <kaos@ocs.com.au>, adrian kok <adriankok2000@yahoo.com.hk>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.43.0201021853300.2334-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.43.0201021853300.2334-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15411.37817.753683.914033@argo.ozlabs.ibm.com>
-Date: Thu, 3 Jan 2002 10:11:53 +1100 (EST)
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg>
-	<20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini writes:
+On Wednesday 02 January 2002 17:01, skidley wrote:
+> On Wed, 2 Jan 2002, Timothy Covell wrote:
+> > However, I'm concerned about searching in "/usr/src/linux" for it.
+> > Linus has taken great pains to point out that we shouldn't be building
+> > our kernels in /usr/src/linux, it would seem that this is reenforcing a
+> > mistake.
+>
+> I'm curious as to why kernels shouldn't be built in /usr/src/linux. Also
+> this may be a dumb question but if I have built my kernels in /usr/src and
+> want to move them to /home for eg. will that screw up things? Installing
+> some apps from source sometimes they search for the kernel source during
+> configure. If a kernel was compiled and moved to a different dir will this
+> matter?
 
-> Okay, here's a summary of all of the options we have:
-> 1) Change this particular strcpy to a memcpy
-> 2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
-> optimization comes back on with this flag later on, it would be a
-> compiler bug, yes?)
-> 3) Modify the RELOC() marco in such a way that GCC won't attempt to
-> optimize anything which touches it [1]. (Franz, again by Jakub)
-> 4) Introduce a function to do the calculations [2]. (Corey Minyard)
-> 5) 'Properly' set things up so that we don't need the RELOC() macros
-> (-mrelocatable or so?), and forget this mess altogether.
+The issue was that libc include files could step on kernel include
+files due to symlinks in /usr/include/linux to /usr/src/linux/include.
+IIRC the issue is that include files must point to those with which
+the libc was compiled for proper userland compilations.   
 
-I would add:
+The latest File Hierarchy Standard states that for glibc based systems,
+/usr/src can be whatever it wants but that for libc5 based systems,
 
-6) change strcpy to string_copy so gcc doesn't think it knows what the
-   function does
-7) code RELOC etc. in assembly, which would let us get rid of the
-	offset = reloc_offset();
-   at the beginning of each function which uses RELOC.
+6.1.7 /usr/include :
+Header files included by C programs These symbolic links are required if a C 
+or C++ compiler is installed and only for systems not based on glibc. 
+/usr/include/asm -> /usr/src/linux/include/asm-<arch> 
+/usr/include/linux -> /usr/src/linux/include/linux
 
-Maybe 7 is the way to go, at least it will shut the bush-lawyers up.
+Thus, practice dictated that it was safer to build the linux kernel somewhere 
+other than /usr/src/linux.   Since the kernel is shipped with it's own 
+include files, it works just fine building the kernel anywhere else; I am 
+building under /home/kernel/linux-x.y.z.
 
-Paul.
+
+-- 
+timothy.covell@ashavan.org.

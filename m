@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315624AbSENLwL>; Tue, 14 May 2002 07:52:11 -0400
+	id <S315619AbSENLwW>; Tue, 14 May 2002 07:52:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315619AbSENLwK>; Tue, 14 May 2002 07:52:10 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17171 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315624AbSENLv4>; Tue, 14 May 2002 07:51:56 -0400
-Subject: Re: [PATCH] 2.5.15 IDE 61
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Tue, 14 May 2002 13:10:58 +0100 (BST)
-Cc: dalecki@evision-ventures.com (Martin Dalecki),
-        nconway.list@ukaea.org.uk (Neil Conway), linux-kernel@vger.kernel.org
-In-Reply-To: <20020514123830.A18118@flint.arm.linux.org.uk> from "Russell King" at May 14, 2002 12:38:30 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315625AbSENLwV>; Tue, 14 May 2002 07:52:21 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:47371 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315619AbSENLwU>; Tue, 14 May 2002 07:52:20 -0400
+Message-ID: <3CE0EBAB.4060705@evision-ventures.com>
+Date: Tue, 14 May 2002 12:49:15 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Neil Conway <nconway.list@ukaea.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.15 IDE 61
+In-Reply-To: <3CE0DDBE.F9EC80AC@ukaea.org.uk> <3CE0D067.6010302@evision-ventures.com> <3CE0E306.6171045B@ukaea.org.uk> <3CE0D952.7080403@evision-ventures.com> <3CE0F08A.5C41CAFA@ukaea.org.uk> <3CE0E538.5040502@evision-ventures.com> <20020514123830.A18118@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E177b8s-0007lm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Uz.ytkownik Russell King napisa?:
+> On Tue, May 14, 2002 at 12:21:44PM +0200, Martin Dalecki wrote:
+> 
+>>Well in the next patch round the hwgroup will be replaced with
+>>a spin lock, which is supposed to be shared between channels which need
+>>forced access serialization between them. Please look
+>>at patches 62a and 63 :-).
+> 
+> 
 > Something here smells fishy here - you shouldn't hold a spinlock for a long
 > time (a long time === spinlocking, setting up the drive, possibly scheduling,
-
-You can't hold it while scheduling or you may deadlock
-
 > transferring data, getting status, then unlocking).  Also, remember,
 > spinlocks are no-ops on uniprocessor systems.
 
-Its possible it can be done with a semaphore but the whole business is
-pretty tricky. IDE command processing occurs a fair bit at interrupt level
-and you definitely don't want to block interrupts for long periods.
+Well, let's just have a look at how to share request queues between
+channels which need this treatment in addition then?
 
-If the queue abstraction is right then the block layer should do all the
-synchronization work that is required. It may cost a few cycles on the odd
-case you can do overlapped command setup but that versus a nasty locking
-mess its got to be better to lose those few cycles.
-
-I don't even Martin here, the ide locking is currently utterly vile

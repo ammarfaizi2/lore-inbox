@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbUJZVy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbUJZV7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbUJZVy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 17:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbUJZVy1
+	id S261502AbUJZV7M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 17:59:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbUJZV7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 17:54:27 -0400
-Received: from mail.tmr.com ([216.238.38.203]:39181 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261496AbUJZVyM (ORCPT
+	Tue, 26 Oct 2004 17:59:11 -0400
+Received: from a.mail.sonic.net ([64.142.16.245]:6319 "EHLO a.mail.sonic.net")
+	by vger.kernel.org with ESMTP id S261502AbUJZV6x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 17:54:12 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: PROPOSAL:  New NEW development model
-Date: Tue, 26 Oct 2004 17:56:41 -0400
-Organization: TMR Associates, Inc
-Message-ID: <417EC819.7030809@tmr.com>
-References: <1098817715.9350.2.camel@weaponx.rchland.ibm.com><1098817715.9350.2.camel@weaponx.rchland.ibm.com> <417EA486.7070105@comcast.net>
+	Tue, 26 Oct 2004 17:58:53 -0400
+Date: Tue, 26 Oct 2004 14:58:45 -0700
+From: David Hinds <dhinds@sonic.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Lincoln D. Durey" <durey@EmperorLinux.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Emperor Research <research@EmperorLinux.com>
+Subject: Re: Sony S170 + 1GB ram => Yenta: ISA IRQ mask 0x0000
+Message-ID: <20041026215845.GA24541@sonic.net>
+References: <200410261342.33924.durey@EmperorLinux.com> <Pine.LNX.4.58.0410261117530.28839@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1098827155 14946 192.168.12.100 (26 Oct 2004 21:45:55 GMT)
-X-Complaints-To: abuse@tmr.com
-Cc: Josh Boyer <jdub@us.ibm.com>, William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-To: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-In-Reply-To: <417EA486.7070105@comcast.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410261117530.28839@ppc970.osdl.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser wrote:
-
-> Still, a month or two to adapt to a new task scheduler out of 6 months
-> leaves 4-5 months per stable release if the Volatile branch decides to
-> hack up the scheduler.  This is still a better scenario then "VM and
-> scheduler infrastructures may change on any given release."
+On Tue, Oct 26, 2004 at 11:28:25AM -0700, Linus Torvalds wrote:
 > 
+> So the question is: 
+>  - why have you done any user override at all
+>  - and having done so, why aren't the ACPI regions there, marked reserved?
 > 
-> 
-> So OK, that's what's good here; so what's wrong with it?  We've already
-> established that there will be a minimal level of added work for a
-> maintainer to keep the Stable up.  Are there any other drawbacks?  If
-> not, any objections to trying to sell this one to Linus and Andrew?  :)
+> It looks like the BIOS is doing everything right, and the problem is 
+> entirely with the user-defined values..
 
-Knock yourself out, I would be happy if they would just agree not to 
-take features out of a stable series or intentionally break them. If new 
-features don't break the old ones I don't think there's a persuasive 
-argument to keep them out.
+Maybe "grub" is mucking things up.  Though, the grub manual claims
+that it should default to not passing a --mem= option to kernels later
+than 2.4.18.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+http://www.gnu.org/software/grub/manual/html_node/kernel.html
+
+-- Dave

@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267522AbUIPBOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267416AbUIPBSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267522AbUIPBOa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 21:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267527AbUIPBO3
+	id S267416AbUIPBSz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 21:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267405AbUIPBSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 21:14:29 -0400
-Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:896 "EHLO
-	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S267427AbUIPBOH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 21:14:07 -0400
-Date: Wed, 15 Sep 2004 21:18:21 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: monoholitic, hybrid or not monoholitic?
-Message-ID: <20040916011821.GA689@kurtwerks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <4148271D.9050009@devilcode.de> <20040915141237.GB2429@teh.ath.cx> <20040915192231.1153a0d4.Tommy.Reynolds@MegaCoder.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040915192231.1153a0d4.Tommy.Reynolds@MegaCoder.com>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.4.26
-X-Woot: Woot!
+	Wed, 15 Sep 2004 21:18:50 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:33130 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267401AbUIPBSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 21:18:06 -0400
+Message-ID: <4148E9C6.9010001@yahoo.com.au>
+Date: Thu, 16 Sep 2004 11:17:58 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
+References: <2EJTp-7bx-1@gated-at.bofh.it> <m3vfefa61l.fsf@averell.firstfloor.org> <20040915201158.GA18915@elte.hu>
+In-Reply-To: <20040915201158.GA18915@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 07:22:31PM -0500, Tommy Reynolds took 69 lines to write:
+Ingo Molnar wrote:
 
-[mumble]
+> code using lock_kernel()/unlock_kernel() will see very similar semantics
+> as they got from the BKL, so correctness should be fully preserved.
+> Per-CPU assumptions still work, locking exclusion and lock-recursion
+> still works the same way as it did with the BKL.
+> 
 
-> All else is quibbling about the color of the ribbon used to wrap up
-> the module code ;-)
+Hi Ingo,
 
-Or what color to paint the bike shed.
+One change is that lock_kernel now sleeps, while it previously didn't, I
+think?
 
-Kurt
--- 
-Whatever is not nailed down is mine.  What I can pry loose is not
-nailed down.
-	-- Collis P. Huntingdon
+Is this going to be a problem? Or have you checked the remaining bkl users
+to ensure this is OK? Am I on drugs? :)
+
+Nick

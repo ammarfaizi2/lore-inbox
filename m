@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315200AbSEURAA>; Tue, 21 May 2002 13:00:00 -0400
+	id <S315227AbSEURCy>; Tue, 21 May 2002 13:02:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315216AbSEUQ77>; Tue, 21 May 2002 12:59:59 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18191 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315200AbSEUQ76>; Tue, 21 May 2002 12:59:58 -0400
-Date: Tue, 21 May 2002 09:59:39 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 IDE 65
-In-Reply-To: <3CEA6881.2070701@evision-ventures.com>
-Message-ID: <Pine.LNX.4.44.0205210954210.2471-100000@home.transmeta.com>
+	id <S315230AbSEURCx>; Tue, 21 May 2002 13:02:53 -0400
+Received: from relay1.pair.com ([209.68.1.20]:45321 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S315227AbSEURCw>;
+	Tue, 21 May 2002 13:02:52 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <3CEA7ECB.8DCD7673@kegel.com>
+Date: Tue, 21 May 2002 10:07:23 -0700
+From: Dan Kegel <dank@kegel.com>
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: re: DCOM coming?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Siegfried wrote:
+> [Let's put DCOM in the kernel.  That's the best way to make
+>  sure it's universally available, isn't it?]
 
+Putting stuff in the kernel is very dangerous; it's only done
+if there's absolutely no other way.  Since DCOM is just 
+a library for doing TCP/IP RPC, kinda, the only reason to put
+it in the kernel would be speed.  (That's why RPC code is in
+the kernel; the NFS kernel modules need it, and they really
+do require maximal speed.)
 
-On Tue, 21 May 2002, Martin Dalecki wrote:
+Somebody *has* put something very similar to DCOM into the
+kernel already; see http://korbit.sourceforge.net/
+However, that was mostly done as an intellectual exercise;
+nobody seriously uses it, and it's not in the main kernel.
 
-> - Make the synchronization token active resident on the same level as the
->    spin lock. They interact with each other until the generic queue handling
->    gets sanitized to not attach hardware properties like the hard sector size
->    to the queue entities. This is a design mistake in ll_rw_blk biting everybody
->    out there.
+Your basic assumption -- that putting DCOM in the kernel is
+the best way to make sure it's available to everyone -- is
+mistaken.  After all, the program '/bin/ls' is available to
+everyone, and it's not in the kernel.  To make DCOM available
+to everyone, just implement it as a good user-level library,
+and people will pick it up as they need it.
 
-This does not parse. It is _not_ a design mistake in ll_rw_blk - if it
-bites you, you're doing something wrong.
+If you want to help, there is a project implementing DCOM on Linux
+at http://freedce.sourceforge.net/
+Improving that project is the way to go; later, if performance
+concerns merit it, you could consider doing whacky things
+like moving it into the kernel.
 
-The queue should be a per-device thing. If you have multiple devices with
-different hard-sector-sizes (or other queue attributes) on the same queue,
-that's _your_ problem, not the problem of ll_rw_block.
-
-Sure, ll_rw_block _allows_ you to use the same queue for multiple devices,
-but if you do that you only have yourself to blame, and you get:
-
- - shared values (like the hardsector-size above)
- - worse elevator performance (longer queues to traverse)
- - worse elevator schedules (mixing devices will caused mixed queue
-   contents, which makes it basically impossible to do a good ordering)
-
-I thought the IDE layer already did the "one queue per device" thing, is
-there somewhere where this isn't true?
-
-In short, I think whatever synchronization token problem there is is
-completely an internal IDE problem, and no blame should be laid at anybody
-else.
-
-		Linus
-
+Or you might consider convincing The Open Group to release
+their DCOM on Unix compliance test suite as open source.
+They'll do it for the right price, I'm pretty sure.
+- Dan

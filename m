@@ -1,96 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264061AbUCZPwy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 10:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264068AbUCZPwy
+	id S264066AbUCZPxU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 10:53:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264065AbUCZPxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 10:52:54 -0500
-Received: from mail004.syd.optusnet.com.au ([211.29.132.145]:55508 "EHLO
-	mail004.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264061AbUCZPwv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 10:52:51 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.4-ck2
-Date: Sat, 27 Mar 2004 02:49:36 +1100
-User-Agent: KMail/1.6.1
-MIME-Version: 1.0
+	Fri, 26 Mar 2004 10:53:20 -0500
+Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:64130 "EHLO
+	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
+	id S264068AbUCZPxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 10:53:16 -0500
+Date: Fri, 26 Mar 2004 16:53:15 +0100
+From: Gabor Gombas <gombasg@sztaki.hu>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Cc: debian-devel@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: Binary-only firmware covered by the GPL?
+Message-ID: <20040326155315.GA8724@boogie.lpds.sztaki.hu>
+References: <20040325225423.GT9248@cheney.cx> <MDEHLPKNGKAHNMBLJOLKCEEOLEAA.davids@webmaster.com> <20040326131629.GB26910@zombie.inka.de> <40643BFA.1000302@stesmi.com> <20040326142917.GB30664@zombie.inka.de> <40644071.9090900@stesmi.com> <20040326145506.GA31759@zombie.inka.de> <40644629.9090602@stesmi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200403270252.46873.kernel@kolivas.org>
+In-Reply-To: <40644629.9090602@stesmi.com>
+X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Mar 26, 2004 at 04:03:05PM +0100, Stefan Smietanowski wrote:
 
-Updated my patchset:
-These are patches designed to improve system responsiveness and add features 
-with specific emphasis on the desktop.
+> To draw a parallel between a WAV or PNG file (a well-known standard)
+> to a firmware for a specific card (a closed standard) is thin.
+> 
+> Even though I can modify a PNG or WAV file using a hex editor it
+> is _NOT_ preferred form, and neither is modifying the firmware
+> using a hex editor, neither to me nor to the people doing the cards.
 
-http://kernel.kolivas.org
+You are mixing the preferred form with the editor. If you do not have
+the GIMP (or other similar tool) then you _do_ have to edit the PNG file
+with a hex editor, but the binary PNG file is still the preferred form
+for editing.
 
-Full feature list:
-am
- Autoregulates the virtual memory swappiness.
-domains
- Sched_domains support for better hyperthreading and SMP support including my
- smt nice changes
-stair
- A complete scheduler policy rewrite for interactivity and responsiveness
-batch
- Batch scheduling.
-iso
- Isochronous scheduling.
-cfqioprio
- Complete Fair Queueing disk scheduler and I/O priorities
-schedioprio
- Set initial I/O priorities according to cpu scheduling policy and nice
-sng204
- Supermount-NG v2.0.4
-bs314
- Bootsplash v3.1.4
-reiser4
- Reiser4 filesystem
-cddma
- DMA for cd audio
-grsec
- Greater security (not included in default patch). 
+If a firmware author uses a proprietary tool that reads the binary
+firmware image, let's the user edit it, and again writes out a binary
+image, then that binary image _is_ the preferred form simply because no
+other form exists. And it is completely irrelevant if the proprietaty
+editor represented the firmware image on the screen in a high-level
+language or as assembler code or as graphics or as anything else.
 
+So unless you can _prove_ that the author of the firmware image does
+indeed use some other form as the source of the image (guessing is not
+enough), this whole thread is meaningless.
 
-Changelog
-Additions:
-+ Staircase scheduler - my complete scheduler policy rewrite for interactivity 
-built on top of the current O(1) scheduler
-+ CD audio DMA
-+ Grsec (optional only in experimental dir as it breaks compile if disabled)
+Gabor
 
-Changes:
-~New batch scheduling (idle scheduling) policy from scratch based on new 
-scheduler is much simpler and less prone to system starvation issues
-~New isochronous scheduling (low latency, non real time scheduling for 
-non-privileged users)
-~Updated sched_domains
-~Updated bootsplash v3.1.4
-~Updated reiser4 snapshot (2004.03.25)
-
-Unchanged:
-Autoregulated vm swappiness
-Supermount-NG v 2.0.4
-CFQ I/O scheduler with I/O priority support.
-
-
-This is my parting gesture as I'll be on extended leave from 31st March till 
-the end of May.
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAZFESZUg7+tp6mRURAqWoAJ93P2eVEzJIwc6zN7X2d49omEJDQgCfWaDA
-V6CEcS0wiWmigxNP9OFdtR0=
-=iGeC
------END PGP SIGNATURE-----
+-- 
+     ---------------------------------------------------------
+     MTA SZTAKI Computer and Automation Research Institute
+                Hungarian Academy of Sciences
+     ---------------------------------------------------------

@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268447AbUI2PNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268646AbUI2PSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268447AbUI2PNt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 11:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268589AbUI2OxJ
+	id S268646AbUI2PSu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 11:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268602AbUI2PRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 10:53:09 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:3042 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S268527AbUI2Osy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 10:48:54 -0400
-Message-ID: <415ACACE.1020008@ammasso.com>
-Date: Wed, 29 Sep 2004 09:46:38 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Christoph Hellwig <hch@infradead.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kernelnewbies@nl.linux.org
-Subject: Re: get_user_pages() still broken in 2.6
-References: <4159E85A.6080806@ammasso.com>	 <20040929000325.A6758@infradead.org> <1096413678.16198.16.camel@localhost>
-In-Reply-To: <1096413678.16198.16.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 29 Sep 2004 11:17:46 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:36769 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S268633AbUI2PJ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 11:09:26 -0400
+Subject: Re: Reiser4
+From: Vladimir Saveliev <vs@namesys.com>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <4d8e3fd30409280820460341cf@mail.gmail.com>
+References: <4d8e3fd3040928054313c64050@mail.gmail.com>
+	 <1096380380.1927.26.camel@tribesman.namesys.com>
+	 <4d8e3fd30409280820460341cf@mail.gmail.com>
+Content-Type: text/plain
+Message-Id: <1096470624.2092.135.camel@tribesman.namesys.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 29 Sep 2004 19:10:25 +0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
+Hello
 
-> You probably want mlock(2) to keep the kernel from messing with the ptes
-> at all.
+On Tue, 2004-09-28 at 19:20, Paolo Ciarrocchi wrote:
+> On Tue, 28 Sep 2004 18:06:22 +0400, Vladimir Saveliev <vs@namesys.com> wrote:
+> > Hello
+> > 
+> > On Tue, 2004-09-28 at 16:43, Paolo Ciarrocchi wrote:
+> > > What's the status of this FS ?
+> > > It's definitely out ?
+> > 
+> > it is included into mm serie of kernel since 2.6.8.1-mm2.
+> 
+> Yup, I thought it was dropped.
+> Do you know if Andrew/Linus are planning to merge it in mainline anytime soon ?
+> 
 
-mlock() can only be called via sys_mlock(), which is a user-space call. 
-  Not only that, but only root can call sys_mlock().  This is not 
-compatible with our needs.
+When reiser4 will become more mature. It is curretly too raw.
 
- >  But, you should probably really be thinking about why you're
-> accessing the page tables at all.  I count *ONE* instance in drivers/
-> where page tables are accessed directly.
+> Thanks you.
+> 
+> Ciao,
 
-I access PTEs to get the physical addresses of a user-space buffer, so 
-that we can DMA to/from it directly.
-
--- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com

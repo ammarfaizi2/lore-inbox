@@ -1,59 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264128AbTLUVMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 16:12:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTLUVMQ
+	id S264110AbTLUVIn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 16:08:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbTLUVIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 16:12:16 -0500
-Received: from adsl-216-158-28-251.cust.oldcity.dca.net ([216.158.28.251]:19072
-	"EHLO fukurou.paranoiacs.org") by vger.kernel.org with ESMTP
-	id S264128AbTLUVML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 16:12:11 -0500
-Date: Sun, 21 Dec 2003 16:12:03 -0500
-From: Ben Slusky <sluskyb@paranoiacs.org>
-To: Mika Penttil? <mika.penttila@kolumbus.fi>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       jariruusu@users.sourceforge.net
-Subject: Re: [PATCH] loop.c patches, take two
-Message-ID: <20031221211201.GC4721@fukurou.paranoiacs.org>
-Mail-Followup-To: Ben Slusky <sluskyb@paranoiacs.org>,
-	Mika Penttil? <mika.penttila@kolumbus.fi>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	jariruusu@users.sourceforge.net
-References: <20031030134137.GD12147@fukurou.paranoiacs.org> <3FA15506.B9B76A5D@users.sourceforge.net> <20031030133000.6a04febf.akpm@osdl.org> <20031031005246.GE12147@fukurou.paranoiacs.org> <20031031015500.44a94f88.akpm@osdl.org> <20031101002650.GA7397@fukurou.paranoiacs.org> <20031102204624.GA5740@fukurou.paranoiacs.org> <20031221195534.GA4721@fukurou.paranoiacs.org> <3FE6076B.3090908@kolumbus.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FE6076B.3090908@kolumbus.fi>
-User-Agent: Mutt/1.4i
+	Sun, 21 Dec 2003 16:08:42 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:20707 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S264110AbTLUVIl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 16:08:41 -0500
+Message-ID: <3FE60BCC.5090305@colorfullife.com>
+Date: Sun, 21 Dec 2003 22:08:28 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC,PATCH] use rcu for fasync_lock
+References: <3FE492EF.2090202@colorfullife.com> <8765ga6moe.fsf@devron.myhome.or.jp> <3FE5F116.9020608@colorfullife.com> <Pine.LNX.4.58.0312211250370.13039@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312211250370.13039@home.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Dec 2003 22:49:47 +0200, Mika Penttil? wrote:
-> Yet another Big Loop Patch... :)
-> 
-> It's not obvious which parts are bug fixes, and which performance 
-> improvements. What exactly breaks loops on journalling filesystems, and 
-> how do you solve it?
+Linus Torvalds wrote:
 
-See <URL:http://www.ussg.iu.edu/hypermail/linux/kernel/0310.3/1151.html>...
-I'd submitted these patches a while back. Andrew observed that the
-problems they fixed did not manifest in file-backed loops, so his
-solution (which was merged into -mm but not mainstream) was to cut out
-the block-backed code path entirely. THAT is what breaks journaling
-filesystems on loops (note: not vice versa).
+>On Sun, 21 Dec 2003, Manfred Spraul wrote:
+>  
+>
+>>Initially I tried to keep the patch as tiny as possible, thus I avoided 
+>>adding an inline function. But Stephen Hemminger convinced me to update 
+>>the network code, and thus it didn't matter and I've switched to an 
+>>inline function.
+>>What do you think about the attached patch?
+>>    
+>>
+>
+>Please, NO!
+>
+>Stuff like this
+>
+>	-       write_lock_irq(&fasync_lock);
+>	+       if (s)
+>	+               lock_sock(s);
+>	+       else
+>	+               spin_lock(&fasync_lock);
+>	+
+>
+>should not be allowed. That's especially true since the choice really is a 
+>static one depending on the caller.
+>
+>Just make the caller do the locking.
+>  
+>
+It's not that simple: the function does
+    kmalloc();
+    spin_lock();
+    use_allocation.
+If the caller does the locking, then the kmalloc would have to use 
+GFP_ATOMIC, or the caller would have to do the alloc.
+But: as far as I can see, these lines usually run under lock_kernel(). 
+If this is true, then the spin_lock(&fasync_lock) won't cause any 
+scalability regression, and I'll use that lock instead of lock_sock, 
+even for network sockets.
 
-> What's the clone_bio() business? Why on reads only?
+--
+    Manfred
 
-There's no need to allocate memory for a second copy of the data on
-a read. This is a performance improvenment but I'd say it's closely
-related to the main point of the patch (i.e. take what pages you can get
-and recycle them); I'm making the block-backed code path significantly
-more complex and at the same time having reads take a shortcut. But I
-could split that into a separate patch if desired.
-
--- 
-Ben Slusky                      | Yakka foob mog. Grug pubbawup
-sluskyb@paranoiacs.org          | zink wattoom gazork. Chumble
-sluskyb@stwing.org              | spuzz.
-PGP keyID ADA44B3B              |               -Calvin

@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273588AbRKSIIa>; Mon, 19 Nov 2001 03:08:30 -0500
+	id <S274789AbRKSIXS>; Mon, 19 Nov 2001 03:23:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273622AbRKSIIU>; Mon, 19 Nov 2001 03:08:20 -0500
-Received: from zero.tech9.net ([209.61.188.187]:47878 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S273588AbRKSIIH>;
-	Mon, 19 Nov 2001 03:08:07 -0500
-Subject: Re: [RFC] tree-based bootmem
-From: Robert Love <rml@tech9.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Martin Mares <mj@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011117160134.A11913@holomorphy.com>
-In-Reply-To: <20011117011415.B1180@holomorphy.com>
-	<20011118001657.A467@ucw.cz>  <20011117160134.A11913@holomorphy.com>
-Content-Type: text/plain
+	id <S274368AbRKSIXI>; Mon, 19 Nov 2001 03:23:08 -0500
+Received: from mail016.syd.optusnet.com.au ([203.2.75.176]:64430 "EHLO
+	mail016.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S273622AbRKSIW5>; Mon, 19 Nov 2001 03:22:57 -0500
+Message-ID: <001401c170d3$ea40cc10$1e50a8c0@kinslayer>
+From: "Joel Beach" <joelbeach@optushome.com.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: Maximum (efficient) partition sizes for various filesystem types...
+Date: Mon, 19 Nov 2001 19:26:40 +1100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 19 Nov 2001 03:08:07 -0500
-Message-Id: <1006157288.869.0.camel@phantasy>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 18, 2001 at 12:16:57AM +0100, Martin Mares wrote:
-> I don't understand why does it use segment trees instead of a simple
-> linked list. Bootmem allocations are obviously not going to be time
-> critical and shaving off a couple of ms during the boot process is
-> not worth the extra complexity involved.
-> 
-> (Nevertheless, treaps are a very nice structure...)
+Hi everyone,
 
-I think there is merit in using segment trees here.  Previously I have
-replied demonstrating the benefit of the finer granularity in
-addressing, which results in a couple KB increase in total memory on my
-machines.  This is not the greatest benefit, IMO.
+Have just put a new 30GB hard drive for my server at home, and am wondering
+what the optimal sizes for partitioning are.
 
-What really stands out to me is the design; and I think segment trees
-are applicable here.  While I doubt performance of the bootmem allocator
-is ever a _terrible_ concern, it probably does have tight spots.
+For instance, the Debian guide says that, due to Ext2 efficiency, partitions
+greater than 6-7GB shouldn't be created. Is this true for Ext3/ReiserFS.
 
-The beauty is in the implementation.  With a linked list implementation,
-you have an exhaustive search and and at-worst O(n) insertion and
-searching complexity.  We also don't end up with any clean way to say
-"memory a belongs to x".  This is where the segment tree comes in, a
-segment tree stores intervals: it is a binary tree where each node
-represents an interval from a to b.  We only need to store nodes that
-have allocated intervals of memory, and insertion is O(log n). 
-Searching is even easier as you just walk the intervals until we get to
-what we want.  Searching would be O(log(n+s)) where s is the number of
-segments we had to walk.  OK, you know this, but my point is its is
-quite applicable.  Besides a performance boost, we end up with a nice
-way to interface with other code to work with bootmem and I think that
-is the main benefit here.
+Am also not sure which file systems to choose. I'm planning on having a 3GB
+parition for the actual system, and formatting this using ReiserFS
+(generally smaller files). However, is Reiser also a good choice for
+download archives (where average file size is about 5-10MB) still a good
+choice?
 
-Of course, the downside would be "good lord the complexity here is
-grossly overkill" but I think this doesn't have that problem.
-
-just my two bits, 
-
-	Robert Love
+Joel
 

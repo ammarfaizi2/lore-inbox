@@ -1,65 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262938AbSJGI7F>; Mon, 7 Oct 2002 04:59:05 -0400
+	id <S262941AbSJGI6F>; Mon, 7 Oct 2002 04:58:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262939AbSJGI7F>; Mon, 7 Oct 2002 04:59:05 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:35498 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262938AbSJGI7D>;
-	Mon, 7 Oct 2002 04:59:03 -0400
-Date: Mon, 7 Oct 2002 11:04:39 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.40 (-ac3) and 2.4.19-ck5: mousedev interfere with parport ;-(
-Message-ID: <20021007110439.D63229@ucw.cz>
-References: <200210060129.41010.Dieter.Nuetzel@hamburg.de>
+	id <S262938AbSJGI6F>; Mon, 7 Oct 2002 04:58:05 -0400
+Received: from rj.sgi.com ([192.82.208.96]:63942 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S262956AbSJGI6D>;
+	Mon, 7 Oct 2002 04:58:03 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Andreas Schuldei <andreas@schuldei.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kdb against memory corruption? 
+In-reply-to: Your message of "Sun, 06 Oct 2002 22:08:01 +0200."
+             <20021006200801.GD1316@lukas> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210060129.41010.Dieter.Nuetzel@hamburg.de>; from Dieter.Nuetzel@hamburg.de on Sun, Oct 06, 2002 at 01:29:40AM +0200
+Date: Mon, 07 Oct 2002 19:03:26 +1000
+Message-ID: <10888.1033981406@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 06, 2002 at 01:29:40AM +0200, Dieter N?tzel wrote:
-> While printing with latest hpijs-1.2.2-rss.1 (patched for older HP9xx 
-> printers) at 1200x1200 DPI on 2.5.40-ac3 I found critical bug in the 
-> "mousedev" module.
-> 
-> Symptoms:
-> 
-> Total system hang.
-> Nothing in the logs :-(
-> Reboot
-> CUPS restart and boom, again and again,...
-> 
-> Then I went back to 2.4.19-ck5 and boom...
-> Several hpijs-1.2.1/1.2.2 versions rechecked. -> Nothing.
-> 
-> After some thought.
-> I have to use "mousedev" and "psmouse" modules since 2.5.40 (-ac3).
-> Commented both in my "/etc/rc.d/boot.local" file and started 2.4.19-ck5, 
-> again. Bingo ;-)
-> 
-> But what should I do with 2.5.40+?
-> I need my mouse.
-> 
-> System:
-> dual Athlon MP 1900+
-> MSI MS-6501 (aka K7D Master-L), Rev 1.0, AMD 760MPX
-> 
-> Regards,
-> 	Dieter
-> 
-> BTW 2.5.40 is so GREAT on my mixed server/desktop/3D graphics devel maschine.
+On Sun, 6 Oct 2002 22:08:01 +0200, 
+Andreas Schuldei <andreas@schuldei.org> wrote:
+>I think i found a case of memory corruption in the backport of
+>the linuxconsole-ruby patch to 2.4.19.
+>
+>Some parts (not sure which yet) of the tty_struct get
+>overwritten. I do not yet know when that happens or how, but i
+>intend to find out with kdb and its bph brakepoint feature.
+>
+>Unfortunatly my initial attempts to find the instance where the
+>memory segment gets corrupted failed. I specified a certain
+>address, a length of 4 byte and DATAW as arguments to the bph
+>command.
+>
+>but reading the kdb manpage i get the impression that
+>startaddress and length have to match precisly:
+>
+>DATAW   Enters  the  kernel  debugger  when  data of length
+>        length is written to the specified address.
+>
+>how can i use this to find the cause of the corruption? Anyone
+>done this before? i would want to be alerted whenever anything
+>withing a certain memory range gets overwritten.
 
-Hmm how do you know it's mousedev? (99.9% it cannot be the problem.
-psmouse could, theoretically, but it's still very unlikely).
+bph dataw uses the debug registers to set a write breakpoint.
+>From ia32 volume 3 section 15.2.5:
 
-Note that you exchanged the whole 2.5 kernel with a 2.4. The crash
-could have been anywhere in the kernel, not just the psmouse/mousedev
-modules.
+----------------------------------------------------------------------
 
--- 
-Vojtech Pavlik
-SuSE Labs
+The breakpoint address registers (debug registers DR0 through DR3) and
+the LENn fields for each breakpoint define a range of sequential byte
+addresses for a data or I/O breakpoint. The LENn fields permit
+specification of a 1-, 2-, or 4-byte range beginning at the linear
+address spec- ified in the corresponding debug register (DRn).
+Two-byte ranges must be aligned on word boundaries and 4-byte ranges
+must be aligned on doubleword boundaries. I/O breakpoint addresses are
+zero extended from 16 to 32 bits for purposes of comparison with the
+breakpoint address in the selected debug register. These requirements
+are enforced by the processor; it uses the LENn field bits to mask the
+lower address bits in the debug registers. Unaligned data or I/O
+breakpoint addresses do not yield the expected results.
+
+A data breakpoint for reading or writing data is triggered if any of
+the bytes participating in an access is within the range defined by a
+breakpoint address register and its LENn field. Table 15-1 gives an
+example setup of the debug registers and the data accesses that would
+subsequently trap or not trap on the breakpoints.
+
+Table 15-1.  Breakpointing Examples
+
+           Debug Register Setup
+Debug Register    R/Wn               Breakpoint Address    LENn
+      DR0     R/W0 = 11 (Read/Write)    A0001H          LEN0 = 00 (1 byte)
+      DR1     R/W1 = 01 (Write)         A0002H          LEN1 = 00 (1 byte)
+      DR2     R/W2 = 11 (Read/Write)    B0002H          LEN2 = 01 (2 bytes)
+      DR3     R/W3 = 01 (Write)         C0000H          LEN3 = 11 (4 bytes)
+
+           Data Accesses
+                            Access Length 
+     Operation    Address   (In Bytes)
+Data operations that trap
+- Read or write    A0001H    1
+- Read or write    A0001H    2
+- Write            A0002H    1
+- Write            A0002H    2
+- Read or write    B0001H    4
+- Read or write    B0002H    1
+- Read or write    B0002H    2
+- Write            C0000H    4
+- Write            C0001H    2
+- Write            C0003H    1
+Data operations that do not trap
+- Read or write    A0000H    1
+- Read             A0002H    1
+- Read or write    A0003H    4
+- Read or write    B0000H    2
+- Read             C0000H    2
+- Read or write    C0004H    4
+
+A data breakpoint for an unaligned operand can be constructed using two
+breakpoints, where each breakpoint is byte-aligned, and the two
+breakpoints together cover the operand. These breakpoints generate
+exceptions only for the operand, not for any neighboring bytes.
+Instruction breakpoint addresses must have a length specification of 1
+byte (the LENn field is set to 00). The behavior of code breakpoints
+for other operand sizes is undefined. The processor recognizes an
+instruction breakpoint address only when it points to the first byte of
+an instruction. If the instruction has any prefixes, the breakpoint
+address must point to the first prefix.
+
+----------------------------------------------------------------------
+
+I just ran some tests to make sure and kdb bph works as described
+above.  Things to watch out for :-
+
+  bph is current cpu only, use bpha for all cpus.  Is your box SMP?
+
+  Address must be a multiple of the length.
+
+It is easier to pick a single byte that you know is being changed and
+just watch that byte, with bpha <address> dataw 1.
+

@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286261AbSAMPhg>; Sun, 13 Jan 2002 10:37:36 -0500
+	id <S286297AbSAMPvt>; Sun, 13 Jan 2002 10:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286297AbSAMPh0>; Sun, 13 Jan 2002 10:37:26 -0500
-Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:11404 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S286261AbSAMPhO>;
-	Sun, 13 Jan 2002 10:37:14 -0500
-Date: Sun, 13 Jan 2002 15:36:02 +0000
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S286316AbSAMPvk>; Sun, 13 Jan 2002 10:51:40 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47623 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286297AbSAMPva>; Sun, 13 Jan 2002 10:51:30 -0500
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020113153602.GA19130@fenrus.demon.nl>
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <3C41A545.A903F24C@linux-m68k.org>
-Mime-Version: 1.0
+To: landley@trommello.org (Rob Landley)
+Date: Sun, 13 Jan 2002 16:03:13 +0000 (GMT)
+Cc: zippel@linux-m68k.org (Roman Zippel), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <20020113070906.OUZZ28486.femail48.sdc1.sfba.home.com@there> from "Rob Landley" at Jan 12, 2002 06:07:10 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C41A545.A903F24C@linux-m68k.org>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Pn6H-0007Ij-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 13, 2002 at 04:18:29PM +0100, Roman Zippel wrote:
+> Obvioiusly, Alan, you know more about the networking stack than I do. :)  But 
+> could you define "large periods of time running other code"?
 
-> What somehow got lost in this discussion, that both patches don't
-> necessarily conflict with each other, they both attack the same problem
-> with different approaches, which complement each other. I prefer to get
-> the best of both patches.
+10ths of a second if there is a lot to let run instead of this thread. Even
+1/100th is bad news. 
 
-If you do this (and I've seen the results of doing both at once vs only
-either of then vs pure) then there's NO benifit for the preemption left.
-Sure AVERAGE latency goes down slightly, however this is talking in the usec
-range since worst case is already 1msec or less. Below the 1msec range it
-really doesn't matter anymore however. 
+> There ISN'T an upper bound on interrupts.  We've got some nasty interrupts in 
+> the system.  How long does the PCI bus get tied up with spinning video cards 
+> flooding the bus to make their benchmarks look 5% better?  How long of a 
 
-At that point you're adding all the complexity for the negliable-to-no-gain
-case...
+They dont flood the bus with interrupts, the lock the bus off for several
+millseconds worst case. Which btw you'll note means that lowlatency already
+achieves the best value you can get
 
-Greetings,
-   Arjan van de Ven
+> latency spike did we (until recently) get switching between graphics and text 
+> consoles?  (I heard that got fixed, moved into a tasklet or some such.  
+> Haven't looked at it yet.)  Without Andre's IDE patches, how much latency can 
+
+Been fixed in -ac for ages, and finally made Linus tree.
+
+> the disk insert at random?
+
+IDE with or without Andre's changes can insert multiple millisecond delays
+on the bus in some situations. Again pre-empt patch can offer you nothing 
+because the hardware limit is easily met by low latency
+
+> One other fun little thing about the scheduler: a process that is submitting 
+> network packets probably isn't entirely CPU bound, is it?  It's doing I/O.  
+
+Network packets get submitted from _outside_
+
+Alan

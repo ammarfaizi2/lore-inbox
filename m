@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267614AbUHMWHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267635AbUHMWLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267614AbUHMWHX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 18:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267610AbUHMWGy
+	id S267635AbUHMWLz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 18:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267615AbUHMWKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 18:06:54 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:50596 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267602AbUHMWFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 18:05:48 -0400
-Subject: Re: Linux 2.6.8-rc4 [RESEND] via-rhine: Really call
-	rhine_power_init()
-From: Lee Revell <rlrevell@joe-job.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Roger Luethi <rl@hellgate.ch>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0408130834010.1839@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0408091958450.1839@ppc970.osdl.org>
-	 <20040810083350.GA23771@k3.hellgate.ch> <1092372311.3450.5.camel@mindpipe>
-	 <Pine.LNX.4.58.0408130834010.1839@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1092434787.803.1.camel@mindpipe>
+	Fri, 13 Aug 2004 18:10:55 -0400
+Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:21769 "EHLO
+	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S264704AbUHMWKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 18:10:02 -0400
+Date: Fri, 13 Aug 2004 17:09:23 -0500
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: marcelo.tosatti@cyclades.com, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: cciss update [5/5] maintainers update for HP drivers
+Message-ID: <20040813220923.GE1016@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 13 Aug 2004 18:06:28 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-13 at 11:34, Linus Torvalds wrote:
-> On Fri, 13 Aug 2004, Lee Revell wrote:
-> > 
-> > Argh, this is *still* not fixed in -rc4!  How loud does one have to yell
-> > to get an absolutely FATAL bug with a trivial fix merged?
-> 
-> How about checking the snapshots instead of whining?
-> 
-
-OK, I can confirm that this is fixed in 2.6.8-rc4-bk3.  I apologize
-again for the outburst.
+Patch 5 of 5.
+This patch updates the MAINTAINERS for HP drivers.
+Applies to 2.4.27. Please consider this for inclusion.
 
 Thanks,
-
-Lee
-
+mikem
+-------------------------------------------------------------------------------
+diff -burNp lx2427-p004/MAINTAINERS lx2427/MAINTAINERS
+--- lx2427-p004/MAINTAINERS	2004-08-07 18:26:04.000000000 -0500
++++ lx2427/MAINTAINERS	2004-08-13 16:21:04.527090112 -0500
+@@ -456,14 +456,20 @@ L:	omnibook@zurich.ai.mit.edu
+ S:      Maintained
+ 
+ 
++HP 66Mhz FIBRE CHANNEL DRIVER
++P:	Chirag Kantharia
++M:	chirag.kantharia@hp.com
++L:	iss_storagedev@hp.com
++S:	Maintained
++
+ HP SMART2 RAID DRIVER
+-P:     Francis Wiran
+-M:     francis.wiran@hp.com
++P:	Chirag Kantharia
++M:	chirag.kantharia@hp.com
+ L:     iss_storagedev@hp.com
+-S:	Odd Fixes
++S:	Maintained
+ 
+-HP SMART CISS RAID DRIVER
+-P:     Mike Miller, Michael Ni
++HP SMART ARRAY CISS RAID DRIVER (cciss)
++P:	Mike Miller
+ M:     mike.miller@hp.com
+ L:     iss_storagedev@hp.com
+ S:	Supported

@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264011AbRFEPUq>; Tue, 5 Jun 2001 11:20:46 -0400
+	id <S264013AbRFEPbR>; Tue, 5 Jun 2001 11:31:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264012AbRFEPUg>; Tue, 5 Jun 2001 11:20:36 -0400
-Received: from mx2out.umbc.edu ([130.85.253.52]:3512 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S264011AbRFEPU2>;
-	Tue, 5 Jun 2001 11:20:28 -0400
-Date: Tue, 5 Jun 2001 11:20:26 -0400
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: <linux-kernel@vger.kernel.org>
-cc: <kdb@oss.sgi.com>
-Subject: strange network hangs using kdb
-Message-ID: <Pine.SGI.4.31L.02.0106051115190.11523908-100000@irix2.gl.umbc.edu>
+	id <S264014AbRFEPbH>; Tue, 5 Jun 2001 11:31:07 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:57314 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S264013AbRFEPbC>;
+	Tue, 5 Jun 2001 11:31:02 -0400
+Message-ID: <3B1CFB31.ABC11036@mandrakesoft.com>
+Date: Tue, 05 Jun 2001 11:30:57 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: George Bonser <george@gator.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.6-pre1 unresolved symbols
+In-Reply-To: <Pine.LNX.4.30.0106051123270.142-100000@coredump.sh0n.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Shawn Starr wrote:
+> 
+> I have noticed unresolves symbols for the netfilter modules. this occurs
+> durning depmod -a.
 
-We have two similar systems, using acenic gigabit cards, plugged into a
-3com Superstack 3 10/100/1000 switch.
+Note they are the same unresolved symbol.
 
-When we use kdb on one of the systems, the other system stops receiving
-packets.
+Ingo Molnar has posted a patch for this, entitled
+	[patch] softirq-2.4.6-B4
 
-We've seen this from kernel 2.4.2 with the kdb patches from oss.sgi.com to
-2.4.4 with the patches.
+or you can edit kernel/ksyms.c yourself, and add the lines
 
-Are there any thoughts on this? Any other information that may prove to be
-useful?
+	EXPORT_SYMBOL(do_softirq);
+	EXPORT_SYMBOL(tasklet_schedule);
+	EXPORT_SYMBOL(tasklet_hi_schedule);
 
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
-
-
+-- 
+Jeff Garzik      | An expert is one who knows more and more about
+Building 1024    | less and less until he knows absolutely everything
+MandrakeSoft     | about nothing.

@@ -1,86 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315451AbSGBBCH>; Mon, 1 Jul 2002 21:02:07 -0400
+	id <S315971AbSGBBd1>; Mon, 1 Jul 2002 21:33:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315971AbSGBBCG>; Mon, 1 Jul 2002 21:02:06 -0400
-Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:44306 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S315451AbSGBBCF>;
-	Mon, 1 Jul 2002 21:02:05 -0400
-Date: Mon, 1 Jul 2002 17:31:25 -0400 (EDT)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com
-Subject: 2.5.24 : fs/intermezzo/psdev.c compile error
-Message-ID: <Pine.LNX.4.44.0207011726210.860-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316569AbSGBBd0>; Mon, 1 Jul 2002 21:33:26 -0400
+Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:48595 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S315971AbSGBBd0>;
+	Mon, 1 Jul 2002 21:33:26 -0400
+Date: Mon, 1 Jul 2002 22:40:34 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Michael Nguyen <mnguyen@ariodata.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RE2: [OKS] Module removal
+Message-ID: <20020701224034.C2295@almesberger.net>
+References: <8A098FDFC6EED94B872CA2033711F86F0EC115@orion.ariodata.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8A098FDFC6EED94B872CA2033711F86F0EC115@orion.ariodata.com>; from mnguyen@ariodata.com on Mon, Jul 01, 2002 at 01:21:57PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-   Does a patch exist for the following compile error? I thought that one 
-existed, but can't find one in the linux-kernel archives. If not, I can 
-work on one.
-Regards,
-Frank
+Michael Nguyen wrote:
+> I saw this mail flashes thru the reflector. It is worrying to know
+> that this great feature is on the discussion table for removal.
 
-psdev.c: In function `presto_psdev_write':
-psdev.c:138: warning: unused variable `error'
-psdev.c: In function `presto_psdev_ioctl':
-psdev.c:279: warning: unused variable `error'
-psdev.c:278: warning: unused variable `tmp'
-psdev.c:277: warning: unused variable `user_readmount'
-psdev.c:275: warning: unused variable `outlen'
-psdev.c:275: warning: unused variable `len'
-psdev.c:274: warning: unused variable `minor'
-psdev.c:289: `len' undeclared (first use in this function)
-psdev.c:289: (Each undeclared identifier is reported only once
-psdev.c:289: for each function it appears in.)
-psdev.c:289: `readmount' undeclared (first use in this function)
-psdev.c:290: `minor' undeclared (first use in this function)
-psdev.c:291: `tmp' undeclared (first use in this function)
-psdev.c:297: `outlen' undeclared (first use in this function)
-psdev.c:309: `error' undeclared (first use in this function)
-psdev.c:311: `user_readmount' undeclared (first use in this function)
-psdev.c:323: case label not within a switch statement
-psdev.c:348: case label not within a switch statement
-psdev.c:387: case label not within a switch statement
-psdev.c:425: case label not within a switch statement
-psdev.c:473: case label not within a switch statement
-psdev.c:521: case label not within a switch statement
-psdev.c:551: warning: statement with no effect
-psdev.c:591: case label not within a switch statement
-psdev.c:606: case label not within a switch statement
-psdev.c:607: case label not within a switch statement
-psdev.c:656: case label not within a switch statement
-psdev.c:680: case label not within a switch statement
-psdev.c:694: case label not within a switch statement
-psdev.c:708: case label not within a switch statement
-psdev.c:722: case label not within a switch statement
-psdev.c:736: case label not within a switch statement
-psdev.c:750: case label not within a switch statement
-psdev.c:764: case label not within a switch statement
-psdev.c:774: incompatible type for argument 3 of `lento_mknod'
-psdev.c:779: case label not within a switch statement
-psdev.c:882: case label not within a switch statement
-psdev.c:884: warning: unused variable `error'
-psdev.c:904: case label not within a switch statement
-psdev.c:919: case label not within a switch statement
-psdev.c:921: warning: unused variable `error'
-psdev.c:960: case label not within a switch statement
-psdev.c:962: warning: unused variable `error'
-psdev.c:1002: case label not within a switch statement
-psdev.c:1035: case label not within a switch statement
-psdev.c:1037: warning: unused variable `error'
-psdev.c:1070: case label not within a switch statement
-psdev.c:1173: case label not within a switch statement
-psdev.c:1215: default label not within a switch statement
-psdev.c: At top level:
-psdev.c:1223: parse error before `return'
-make[2]: *** [psdev.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/fs/intermezzo'
-make[1]: *** [intermezzo] Error 2
-make[1]: Leaving directory `/usr/src/linux/fs'
-make: *** [fs] Error 2
+One work-around that was suggested was to allow modules to be
+superseded, i.e. the old module stays forever, but a new
+version can be loaded in parallel. I must say that I'm very
+sceptic about this idea, as it seems likely to just mask more
+severe problems.
 
+If I remember right, the main arguments why module removal can
+race with references were:
+
+ - buggy modules that don't even know themselves if they still
+   serve a purpose or not (solution: fix 'em)
+ - likewise, but with the excuse that correctness was
+   sacrificed on the altar of performance
+ - references getting copied without the module knowing. Looks
+   like a problem in the subsystem managing the references.
+   (This was discussed mainly in the context of automating
+   reference tracking.)
+ - removal happening immediately after module usage count is
+   decremented to zero may unload module before module has
+   executed "return" instruction
+
+While I can accept the theoretical possibility that some code
+may indeed not be able to afford handling the module usage
+count, I kind of doubt that such conditions exist in real life.
+
+For the removal-before-return problem, I thought a bit about it
+on my return flight. It would seem to me that an "atomic"
+"decrement_module_count_and_return" function would do the trick.
+
+That function would prepare to return from its caller, then
+decrement the module count, and finally do the return. That way,
+no resources of the caller would be used after the module usage
+counter drops to zero. Obviously, any related cleanup would have
+to happen before this. Also, you couldn't call
+decrement_module_count_and_return from a function that gets
+called from another function in the same module.
+
+Not sure if such a solution for removal-before-return has been
+considered/rejected yet. It would seem obvious enough.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://icapeople.epfl.ch/almesber/_____________________________________/

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbUCFO6G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 09:58:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbUCFO6G
+	id S261682AbUCFPAs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 10:00:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbUCFPAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 09:58:06 -0500
-Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:23487 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S261678AbUCFO6D
+	Sat, 6 Mar 2004 10:00:48 -0500
+Received: from ambr.mtholyoke.edu ([138.110.1.10]:26126 "EHLO
+	ambr.mtholyoke.edu") by vger.kernel.org with ESMTP id S261682AbUCFPAl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 09:58:03 -0500
-Message-ID: <4049E6BE.6080905@stesmi.com>
-Date: Sat, 06 Mar 2004 15:57:02 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7a) Gecko/20040219
-X-Accept-Language: en-us, en
+	Sat, 6 Mar 2004 10:00:41 -0500
+Date: Sat, 6 Mar 2004 10:00:40 -0500 (EST)
+From: Ron Peterson <rpeterso@MtHolyoke.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: network / performance problems
+In-Reply-To: <Pine.OSF.4.21.0403060952000.393748-100000@mhc.mtholyoke.edu>
+Message-ID: <Pine.OSF.4.21.0403060958530.393748-100000@mhc.mtholyoke.edu>
 MIME-Version: 1.0
-To: "J. Ryan Earl" <heretic@clanhk.org>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 3Com 3C2000-T support in 2.6?
-References: <4049AE4F.7080605@clanhk.org>
-In-Reply-To: <4049AE4F.7080605@clanhk.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-> I was wondering, has anyone gotten the 3C2000-T gigE card up under 2.6?  
-> It apparently comes with driver source for the 2.4 kernel on its CD.  
-> Nice specs: 
-> http://www.3com.com/products/en_US/detail.jsp?tab=features&sku=3C2000-T&pathtype=support 
-> 
-> 
-> Nice sized buffers and IP offload in a cheap package.
+On Sat, 6 Mar 2004, Ron Peterson wrote:
 
-I don't know about 2.6 but in 2.4, use the sk98lin driver.
+> My understanding is that the kernel profile information will become
+> interesting when the machine starts thrashing.  If it would be useful for
+> me to dump anything before then, let me know.
 
-The 3C2000 is the same as the 3C940 and it works here.
+On a related note...
 
-// Stefan
+What kind of performance hit do you take for booting with kernel profiling
+turned on?  If not much, I would consider always booting this way, so that
+if a machine starts sinking, I could maybe capture some useful
+information.  Is that wise?
+
+_________________________
+Ron Peterson
+Network & Systems Manager
+Mount Holyoke College
+

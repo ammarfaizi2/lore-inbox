@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbUJ1Rny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbUJ1RnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbUJ1Rny (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 13:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUJ1Rny
+	id S261728AbUJ1RnY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 13:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbUJ1RnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 13:43:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46762 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262012AbUJ1Rnk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 13:43:40 -0400
-Date: Thu, 28 Oct 2004 13:01:45 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Chris Ross <chris@tebibyte.org>
-Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       javier@marcet.info, linux-kernel@vger.kernel.org, kernel@kolivas.org,
-       barry <barry@disus.com>
-Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
-Message-ID: <20041028150145.GF5741@logos.cnet>
-References: <Pine.LNX.4.44.0410251823230.21539-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0410251833210.21539-100000@chimarrao.boston.redhat.com> <20041028120650.GD5741@logos.cnet> <41810FD6.9020202@tebibyte.org>
+	Thu, 28 Oct 2004 13:43:23 -0400
+Received: from fms.tor.istop.com ([66.11.182.43]:6533 "EHLO
+	maximus.fullmotions.com") by vger.kernel.org with ESMTP
+	id S261728AbUJ1RnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 13:43:14 -0400
+Subject: Re: SSH and 2.6.9
+From: Danny Brow <dan@fullmotions.com>
+To: Rajsekar <raj--cutme--sekar@cse.iDELTHISitm.ernet.in>,
+       Kernel-List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m3u0sfs0fm.fsf@rajsekar.pc>
+References: <1098906712.2972.7.camel@hanzo.fullmotions.com>
+	 <Pine.LNX.4.61.0410272247460.3284@dragon.hygekrogen.localhost>
+	 <1098912301.4535.1.camel@hanzo.fullmotions.com>
+	 <1098913797.3495.0.camel@hanzo.fullmotions.com>
+	 <m3u0sfs0fm.fsf@rajsekar.pc>
+Content-Type: text/plain
+Date: Thu, 28 Oct 2004 13:44:14 -0400
+Message-Id: <1098985454.9722.9.camel@hanzo.fullmotions.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41810FD6.9020202@tebibyte.org>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 2.0.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 28, 2004 at 05:27:18PM +0200, Chris Ross wrote:
+On Thu, 2004-10-28 at 14:07 +0530, Rajsekar wrote:
+>  No, that is not the actual problem (even though it seems to solve it).
+> The thing is, /dev/tty should be rw for everyone.
+> What happens is (it happened to me and CONFIG_LEGACY_PTYS is `n' in my
+> case),  that ssh tries to open /dev/tty and fails and ends up trying to use
+> ssh-askpass (some other way to ask for password).
 > 
+> But I am still not sure how CONFIG_LEGACY_PTYS=n solves it.
 > 
-> Marcelo Tosatti escreveu:
-> >Can you please test Rik's patch with your spurious OOM kill testcase?
+> Change the permissions of /dev/tty to something like 0666 or if you have
+> udev, edit the permissions.d/* files
 > 
-> Do you have a particular test case in mind? 
+> Please give me your feedback.
+> 
 
-Anonymous memory intensive loads. It was easy to trigger the 
-problem with "fillmem" from Quintela's memtest suite.
+ I think when udev creates the ptys nodes dynamically it corrupts the
+Legacy ones already create. With CONFIG_LEGACY_PTYS turned off there
+never created and udev is free to do what it wants. It could be the
+complete reverse though.
 
-> Is it accessible to the rest 
-> of us? If you send it to me I will run it on my 64MB P2 machine, which 
-> makes a very good test rig for the oom_killer because it is normally 
-> plagued by it.
-> 
-> I have already run Rik's patch to great success using my test case of 
-> compiling umlsim. Without the patch this fails every time at the linking 
-> the UML kernel stage.
+By the way th settings in permissions.d are 660 for most things
+including ptys. I'm running slackware.
 
-Cool!
+Dan.
+

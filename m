@@ -1,60 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285180AbRLMVAo>; Thu, 13 Dec 2001 16:00:44 -0500
+	id <S285178AbRLMVCY>; Thu, 13 Dec 2001 16:02:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285169AbRLMVAe>; Thu, 13 Dec 2001 16:00:34 -0500
-Received: from zok.sgi.com ([204.94.215.101]:25248 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S285178AbRLMVAT>;
-	Thu, 13 Dec 2001 16:00:19 -0500
-Subject: Re: highmem, aic7xxx, and vfat: too few segs for dma mapping
-From: Steve Lord <lord@sgi.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Jens Axboe <axboe@suse.de>, LBJM <LB33JM16@yahoo.com>,
-        linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200112132048.fBDKmog10485@aslan.scsiguy.com>
-In-Reply-To: <200112132048.fBDKmog10485@aslan.scsiguy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.13.08.57 (Preview Release)
-Date: 13 Dec 2001 14:58:31 -0600
-Message-Id: <1008277112.22093.7.camel@jen.americas.sgi.com>
+	id <S285181AbRLMVCG>; Thu, 13 Dec 2001 16:02:06 -0500
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:35499 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S285169AbRLMVCB>; Thu, 13 Dec 2001 16:02:01 -0500
+Message-Id: <5.1.0.14.2.20011213205108.04fc3760@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 13 Dec 2001 21:01:54 +0000
+To: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: reiser4 (was Re: [PATCH] Revised extended attributes 
+  interface)
+Cc: Hans Reiser <reiser@namesys.com>, Nathan Scott <nathans@sgi.com>,
+        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
+In-Reply-To: <20011213102729.B3812@pimlott.ne.mediaone.net>
+In-Reply-To: <3C1873A2.1060702@namesys.com>
+ <20011205143209.C44610@wobbly.melbourne.sgi.com>
+ <20011207202036.J2274@redhat.com>
+ <20011208155841.A56289@wobbly.melbourne.sgi.com>
+ <3C127551.90305@namesys.com>
+ <20011211134213.G70201@wobbly.melbourne.sgi.com>
+ <5.1.0.14.2.20011211184721.04adc9d0@pop.cus.cam.ac.uk>
+ <3C1678ED.8090805@namesys.com>
+ <20011212204333.A4017@pimlott.ne.mediaone.net>
+ <3C1873A2.1060702@namesys.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-12-13 at 14:48, Justin T. Gibbs wrote:
-> >So according to this, zero.
-> 
-> Thanks for the info - its the first useful report I've gotten todate. 8-)
-> I believe I've found and fixed the bug.  I've changed a few other things
-> in the driver for the 6.2.5 release, so once I've tested them I'll release
-> new patches.  In the mean time, you should be able to avoid the problem by
-> moving the initialization of scb->sg_count to 0 in the function:
-> 
-> 	aic7xxx_linux.c:ahc_linux_run_device_queue()
-> 
-> to before the statement:
-> 
-> 	if (cmd->use_sg != 0) {
-> 
-> I'd give you diffs, but these other changes in my tree need more testing
-> before I'll feel comfortable releasing them.  I also don't have a 2.5 tree
-> downloaded yet to verify that the driver functions there.
-> 
-> In order to reproduce the bug, you need to issue a command that uses
-> all of the segments of a given transaction and then have a command with
-> use_sg == 0 be the next command to use that same SCB.  This explains why
-> I was not able to reproduce the problem here.
+At 15:27 13/12/01, Andrew Pimlott wrote:
+>(Anton, does NTFS define any reserved filename characters, or only
+>win32?)
 
-Thanks, I will test it out here and let you know, looks like David
-Miller is proposing the same assignment in a different place.
+It does. RTFS. (-8
 
-Steve
+ From ntfs-driver-tng/linux/fs/ntfs/layout.h:
 
-> 
-> --
-> Justin
+/*
+  * The maximum allowed length for a file name.
+  */
+#define MAXIMUM_FILE_NAME_LENGTH 255
+
+/*
+  * Possible namespaces for filenames in ntfs (8-bit).
+  */
+typedef enum {
+         FILE_NAME_POSIX                 = 0x00,
+                 /* This is the largest namespace. It is case sensitive and
+                    allows all Unicode characters except for: '\0' and '/'.
+                    Beware that in WinNT/2k files which eg have the same name
+                    except for their case will not be distinguished by the
+                    standard utilities and thus a "del filename" will delete
+                    both "filename" and "fileName" without warning. */
+         FILE_NAME_WIN32                 = 0x01,
+                 /* The standard WinNT/2k NTFS long filenames. Case 
+insensitive.
+                    All Unicode chars except: '\0', '"', '*', '/', ':', '<',
+                    '>', '?', '\' and '|'. Further, names cannot end with a '.'
+                    or a space. */
+         FILE_NAME_DOS                   = 0x02,
+                 /* The standard DOS filenames (8.3 format). Uppercase only.
+                    All 8-bit characters greater space, except: '"', '*', '+',
+                    ',', '/', ':', ';', '<', '=', '>', '?' and '\'. */
+         FILE_NAME_WIN32_AND_DOS         = 0x03,
+                 /* 3 means that both the Win32 and the DOS filenames are
+                    identical and hence have been saved in this single filename
+                    record. */
+} __attribute__ ((__packed__)) FILE_NAME_TYPE_FLAGS;
+
+The whole of layout.h can be viewed here (link to view of CVS):
+
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/linux-ntfs/ntfs-driver-tng/linux/fs/ntfs/layout.h?rev=1.6&content-type=text/vnd.viewcvs-markup
+
+Anton
+
+
 -- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com

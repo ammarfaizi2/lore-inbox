@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266472AbUGKAOC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266049AbUGKAcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266472AbUGKAOC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 20:14:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266469AbUGKAOC
+	id S266049AbUGKAcn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 20:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266461AbUGKAcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 20:14:02 -0400
-Received: from c-67-171-146-69.client.comcast.net ([67.171.146.69]:58523 "EHLO
-	tp-timw.internal.splhi.com") by vger.kernel.org with ESMTP
-	id S266463AbUGKAN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 20:13:59 -0400
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-From: Tim Wright <timw@splhi.com>
-Reply-To: timw@splhi.com
-To: Paul Jackson <pj@sgi.com>
-Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040710165207.477efad6.pj@sgi.com>
-References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
-	 <Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org>
-	 <m1fz80c406.fsf@ebiederm.dsl.xmission.com>
-	 <40EFB775.8020408@eyal.emu.id.au>  <20040710165207.477efad6.pj@sgi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Splhi
-Message-Id: <1089504763.1473.28.camel@tp-timw.internal.splhi.com>
+	Sat, 10 Jul 2004 20:32:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50318 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266049AbUGKAcl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 20:32:41 -0400
+Date: Sun, 11 Jul 2004 01:32:40 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Thomas Moestl <moestl@ibr.cs.tu-bs.de>, linux-kernel@vger.kernel.org
+Subject: Re: umount() and NFS races in 2.4.26
+Message-ID: <20040711003240.GS12308@parcelfarce.linux.theplanet.co.uk>
+References: <20040708180709.GA7704@timesink.dyndns.org> <20040709143242.GB11168@logos.cnet> <1089495528.5406.10.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 10 Jul 2004 17:12:43 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089495528.5406.10.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It was because
+On Sat, Jul 10, 2004 at 04:38:48PM -0500, Trond Myklebust wrote:
+ 
+> Known problem, but a fix is not trivial since the unlink() procedure
+> does not take a nameidata structure argument (which would be needed in
+> order to figure out which vfs_mount struct to mntget()).
 
-if (0 = i)
+Why the hell would you need a vfsmount for that?  You want to duplicate
+an active reference to superblock and you want it to be dropped later.
+Which means atomic_inc(&sb->s_active) and kill_super(sb) resp.
 
-will give an error where you obviously meant '=='. It prevents
-accidental "assignment in conditional context".
+NFS itself has a right to do that - we know that caller of ->unlink()
+is holding a reference to vfsmount, so there's an active reference
+that won't go away until nfs_unlink() is finished.
 
-Tim
-
-On Sat, 2004-07-10 at 16:52, Paul Jackson wrote:
-> (off-topic alert)
-> 
-> >	if (0 != i)
-> 
-> Does anyone know of the origins of writing such tests this way, rather
-> than:
-> 
-> 	if (i != 0)
-> 
-> I read the first as testing whether "0" has a certain property, which is
-> a silly thing to test, since the properties of "0" are rather constant.
-> 
-> The second form I read as testing a property of "i" - much more
-> interesting.  Logically, the same, of course.  Just a question of which
-> form is more idiomatic.
-> 
-> Back in the days when it was Ken, Dennis and Brian, not K & R, I don't
-> recall seeing the first form used much.  Even now I see _zero_ matches
-> on "if (0 " in kernel or mm - only in arch, drivers, net, scripts, and
-> sound (with a single time.h exception).
-> 
-> If I were Linus, I'd vote the first form off the island.  Then again,
-> if I were Linus, you would never have heard of Linux ;).
+Filesystem code can hold active references to superblocks of given type,
+provided that it takes care to drop them eventually on its own...

@@ -1,88 +1,136 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130154AbRAVN0U>; Mon, 22 Jan 2001 08:26:20 -0500
+	id <S129446AbRAWJ0z>; Tue, 23 Jan 2001 04:26:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132069AbRAVN0K>; Mon, 22 Jan 2001 08:26:10 -0500
-Received: from femail3.rdc1.on.home.com ([24.2.9.90]:32148 "EHLO
-	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S130154AbRAVNZ4>; Mon, 22 Jan 2001 08:25:56 -0500
-Message-ID: <3A61DBFC.F8BC0F98@home.com>
-Date: Sun, 14 Jan 2001 12:03:56 -0500
-From: John Cavan <johncavan@home.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-ac9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Networking strangeness 2.4.0-ac9 and earlier
+	id <S129445AbRAWJ0p>; Tue, 23 Jan 2001 04:26:45 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:44762 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129401AbRAWJ0c>;
+	Tue, 23 Jan 2001 04:26:32 -0500
+Date: Sat, 20 Jan 2001 03:39:50 -0500
+From: Andy Galasso <andy@adgsoftware.com>
+To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA chipset discussion
+Message-ID: <20010120033950.A16350@adgsoftware.com>
+In-Reply-To: <Pine.LNX.4.21.0101171358020.1171-100000@ns-01.hislinuxbox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.11i
+In-Reply-To: <Pine.LNX.4.21.0101171358020.1171-100000@ns-01.hislinuxbox.com>; from pgpkeys@hislinuxbox.com on Wed, Jan 17, 2001 at 02:02:17PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+I'm not sure how relevant it is, but FWIW here's what I've got:
 
-I've seen this for a while... the output from netstat and ifconfig do
-not agree on the MTU of the device:
+MSI 694D Pro Motherboard 2xPIII-800 100MHz FSB
+Linux-2.4.0-prerelease SMP
+Promise FastTrak100 controller card
+4 IBM DTLA-307030 drives attached to Promise card
+boot params: ide2=0xac00 ide3=0xb400
 
-[root@lion /root]# netstat -r
-Kernel IP routing table
-Destination     Gateway         Genmask         Flags   MSS Window  irtt
-Iface
-10.1.11.0       *               255.255.255.0   U        40 0          0
-eth0
-127.0.0.0       *               255.0.0.0       U        40 0          0
-lo
-default         spqr            0.0.0.0         UG       40 0          0
-eth0
+Here's an excerpt of what I get when trying to boot:
 
-[root@lion /root]# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:10:4B:2B:12:80  
-          inet addr:10.1.11.76  Bcast:10.1.11.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:3648 errors:77 dropped:0 overruns:0 frame:144
-          TX packets:3863 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100 
-          Interrupt:11 Base address:0xd800 
+VP_IDE: IDE controller on PCI bus 00 dev 39
+VP_IDE: chipset revision 16
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt82c686a IDE UDMA66 controller on pci0:7.1
+    ide0: BM-DMA at 0x9000-0x9007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0x9008-0x900f, BIOS settings: hdc:DMA, hdd:pio
+PDC20267: IDE controller on PCI bus 00 dev 70
+PDC20267: chipset revision 2
+PDC20267: not 100% native mode: will probe irqs later
+PDC20267: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER Mode.
+PDC20267: neither IDE port enabled (BIOS)
+hde: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+hde: IBM-DTLA-307030, ATA DISK drive
+hdf: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+hdf: IBM-DTLA-307030, ATA DISK drive
+hdg: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+hdg: IBM-DTLA-307030, ATA DISK drive
+hdh: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+hdh: IBM-DTLA-307030, ATA DISK drive
+ide1 at 0x170-0x177,0x376 on irq 15
+ide2 at 0xac00-0xac07,0xae06 on irq 16
+ide3 at 0xb400-0xb407,0xb606 on irq 16 (shared with ide2)
+hde: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
+hdf: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
+hdg: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
+hdh: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
+Partition check:
+ hde:hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+ide2: reset: master: error (0x00?)
+hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+hde: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+ide2(?): unexpected interrupt, status=0x58, count=1
+ide2: reset: master: error (0x00?)
+hde: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+end_request: I/O error, dev 21:00 (hde), sector 0
+hde: drive not ready for command
+ unable to read partition table
+ hdf:hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdf: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+ide2(?): unexpected interrupt, status=0x58, count=2
+ide2: reset: master: error (0x00?)
+hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdf: drive not ready for command
+hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdf: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+ide2(?): unexpected interrupt, status=0x58, count=3
+ide2: reset: master: error (0x00?)
+hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+end_request: I/O error, dev 21:40 (hdf), sector 0
+hdf: drive not ready for command
+ unable to read partition table
+...
+(similar for hdg ... hdh ...)
+...
+  
+-Andy Galasso
 
-lo        Link encap:Local Loopback  
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16192  Metric:1
-          RX packets:139 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:139 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0 
 
-AFAIK, the MSS value should be about 40 less than the MTU, not 40,
-though on other Linux boxes I have, the MSS column from netstat shows 0
-(both of them are 2.2 kernels and single proc machines). This machine is
-a dual P3-500 with 512mb of RAM and a 3COM 3c905 card. I understand that
-the MSS column should actually read the MTU, but I don't know if that is
-the case. Either way cat /proc/net/route shows:
-
-Iface   Destination     Gateway         Flags   RefCnt  Use     Metric 
-Mask     MTU     Window 
-IRTT                                                       
-eth0    000B010A        00000000        0001    0       0       0      
-00FFFFFF 40      0      
-0                                                                              
-lo      0000007F        00000000        0001    0       0       0      
-000000FF 40      0      
-0                                                                                
-eth0    00000000        FE0B010A        0003    0       0       0      
-00000000 40      0       0
-
-One of the things that seem to be symptomatic of the problem is web
-browsing to my Ultra 5 (Solaris 2.6 with recommended patches). A single
-web page can take several minutes to load with all images on my local
-LAN, but on the other Linux machines, it blows in before you can blink
-(as would be expected). Similar behaviour can be seen browsing against
-other Linux machines as well, though not as bad. Other network protocols
-are slower as well (FTP, telnet), though not once it gets through the
-firewall, oddly enough.
-
-Any help appreciated.
-
-Thanks,
-John
+On Wed, Jan 17, 2001 at 02:02:17PM -0800, David D.W. Downey wrote:
+> 
+> Could those that were involved in the VIA chipset discussion email me
+> privately at pgpkeys@hislinuxbox.com?
+> 
+> I'm truly interested in solving this issue. I personally think it's more
+> than just the chipset causing the problems.
+> 
+> 
+> I'm looking for members of the list that are using the kernel support for
+> the following
+> 
+> 
+> VIA chipset
+> Promise controller (PDC2026# with specifics on the PDC20265 (ATA100))
+> SMP support
+> IDE + SCSI mix in the system.
+> 
+> 
+> I'm trying to track a number of POSSIBLE bugs (can't say they are for
+> sure) and any input from folks with this mix of drivers would be
+> exponentially useful, even if for nothing more than discounting some of my
+> thoughts.
+> 
+> 
+> Also, can anyone summurize the already known and specific problems with
+> combinations of the above requirements? I would truly appreciate that. 
+> 
+> David D.W. Downey
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262195AbTIMU6G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 16:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTIMU6F
+	id S262192AbTIMU4T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 16:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbTIMU4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 16:58:05 -0400
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:32914 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S262195AbTIMU6A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 16:58:00 -0400
-Date: Sun, 14 Sep 2003 02:28:10 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Ravikiran G Thirumalai <kiran@in.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
-Subject: Re: [patch] Make slab allocator work with SLAB_MUST_HWCACHE_ALIGN
-Message-ID: <20030913205810.GA2184@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20030910081654.GA1129@llm08.in.ibm.com> <1063208464.700.35.camel@localhost> <20030911055428.GA1140@llm08.in.ibm.com> <20030911110853.GB3700@llm08.in.ibm.com> <3F60A08A.7040504@colorfullife.com> <20030912085921.GB1128@llm08.in.ibm.com> <3F6378B0.8040606@colorfullife.com>
+	Sat, 13 Sep 2003 16:56:19 -0400
+Received: from adsl-67-124-157-90.dsl.pltn13.pacbell.net ([67.124.157.90]:992
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S262192AbTIMU4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 16:56:17 -0400
+Date: Sat, 13 Sep 2003 13:56:15 -0700
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Molina <tmolina@cablespeed.com>, rmk@arm.linux.org.uk
+Subject: Re: presario laptop pcmcia loading problems
+Message-ID: <20030913205615.GK27104@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org, linux-kernel@vger.kernel.org,
+	Thomas Molina <tmolina@cablespeed.com>, rmk@arm.linux.org.uk
+References: <Pine.LNX.4.44.0309121603280.1579-800000@localhost.localdomain> <20030913212719.A23169@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="x+RZeZVNR8VILNfK"
 Content-Disposition: inline
-In-Reply-To: <3F6378B0.8040606@colorfullife.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030913212719.A23169@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 13, 2003 at 10:06:08PM +0200, Manfred Spraul wrote:
-> Ravikiran G Thirumalai wrote:
-> >I wouldn't be using the slab at all because using slabs would mean using
-> >NR_CPUs pointers and one extra dereference which is bad as we had found out
-> >earlier.  But I guess slab will have to do node local allocations for
-> >other applications.
-> > 
-> >
-> Interesting. Slab internally uses lots of large per-cpu arrays. 
-> Alltogether something like around 40 kB/cpu. Right now implemented with 
-> NR_CPUs pointers. In the long run I'll try to switch to your allocator.
-> 
-> But back to the patch that started this thread: Do you still need the 
-> ability to set an explicit alignment for slab allocations? If yes, then 
-> I'd polish my patch, double check all kmem_cache_create callers and then 
-> send the patch to akpm. Otherwise I'd wait - the patch is not a bugfix.
 
-This is the problem - the current dynamic per-cpu allocator
-(alloc_percpu()) is broken. I uses kmalloc() to allocate each
-CPU's data, but kmalloc() doesn't gurantee cache line alignment
-(only SLAB_HWCACHE_ALIGN). This may result in some per-CPU statistics
-bouncing between CPUs specially on the ones with large L1 cache lines.
+--x+RZeZVNR8VILNfK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-We have a number of options -
+On Sat, Sep 13, 2003 at 09:27:19PM +0100, Russell King wrote:
+> > # CONFIG_ISA is not set
+>=20
+> Turn this on.
 
-1. Force kmalloc() to strictly align on cache line boundary, but will
-   result in wastage of space elsewhere (with your strict align patch)
-   but alloc_percpu() will never result in cache line sharing.
-2. Make alloc_percpu() use its own caches for various sizes with your
-   strictly align patch. The rest of the kernel is not affected.
-3. Let alloc_percpu() use its own allocator which supports NUMA
-   and does not use an offset table.
+How about requiring CONFIG_ISA for CONFIG_PCMCIA_HERMES? This problem is
+happening quite often...
 
-#2 and #3 has less impact in the kernel and we should consider those,
-IMO.
+--- linux/drivers/net//wireless/Kconfig~	2003-09-13 13:54:54.000000000 -0700
++++ linux/drivers/net//wireless/Kconfig	2003-09-13 13:55:21.000000000 -0700
+@@ -241,7 +241,7 @@
+=20
+ config PCMCIA_HERMES
+ 	tristate "Hermes PCMCIA card support"
+-	depends on NET_RADIO && PCMCIA && HERMES
++	depends on NET_RADIO && PCMCIA && HERMES && ISA
+ 	---help---
+ 	  A driver for "Hermes" chipset based PCMCIA wireless adaptors, such
+ 	  as the Lucent WavelanIEEE/Orinoco cards and their OEM (Cabletron/
 
-Thanks
-Dipankar
+--=20
+Joshua Kwan
+
+--x+RZeZVNR8VILNfK
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iQIVAwUBP2OEbqOILr94RG8mAQIxMRAAjdlfchooL2pZ9S0kqU1Tx48HiDN2ruhz
+C6b32238/gAuYAzysvhK1dqiavf28VpN7pv3qEXvcnEWlD4xwHeU9zrS+gbOvwCi
+s288+7Eg6+tvajQenhbw/Ku1nH/FUkKZGHM0aBh/MXMqssMIVcYdVcWBh9T3mlMg
+iyBSbXic/dTaobn1Zu2i05i5i1sL1jB20Qy1T191zdRLGYAx6zKYJUy6Bg7iPJ9A
+hDZFfIkhsgyaabC3Vl2LJVpmUjuXK8/Uxva7KRqCG6DW3fEjb9KV56g8WvgmrnBh
+sFze+G7+M2AuURtQ2chqAFiSzEdgAmyWZ5TcBgL9ermxOuCcRUF6gt85SCAyuu0F
+Ay36EknMdVDDDKL5qX9DZ+FdwDlPWCR7N8strY1Erps+uxJDq9sSQM6nH0stXskc
+TOEhJ3k3XRcoQiWBPi9AzlWI6Vx+XnhgdLZUQ5wspD4+qKcCoPAi7/2pzQKn9kxu
+7SCc/Y2k/isGYzYq+nrBVWI+p4H5FaDn653G2bAdAR8J7ELKhoYoDuuBwCiZzJBl
+/N7wcR6ouJqg28bqd5/xCkPz0pFGkebBGLUFqmDiBfNYr7KWLpbvxRydPL/pv9Si
+hfa8rY+GbyoRauLvwlngWTy9cASSPHuQQ5+wSxba8B3pc4iju48F6C52DC7Clk3B
+AjPIx+Qdth0=
+=N8cH
+-----END PGP SIGNATURE-----
+
+--x+RZeZVNR8VILNfK--

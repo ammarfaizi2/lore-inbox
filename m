@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267476AbUH1Rwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267503AbUH1Rya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267476AbUH1Rwx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 13:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267387AbUH1Rwx
+	id S267503AbUH1Rya (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 13:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267515AbUH1Rya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 13:52:53 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:25767 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267476AbUH1Rwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 13:52:51 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q0
-From: Lee Revell <rlrevell@joe-job.com>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Felipe Alfaro Solana <lkml@felipe-alfaro.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@raytheon.com
-In-Reply-To: <4130B7BD.5070801@cybsft.com>
-References: <20040823221816.GA31671@yoda.timesys>
-	 <20040824061459.GA29630@elte.hu> <20040828120309.GA17121@elte.hu>
-	 <200408281818.28159.lkml@felipe-alfaro.com>  <4130B7BD.5070801@cybsft.com>
-Content-Type: text/plain
-Message-Id: <1093715573.8611.38.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 28 Aug 2004 13:52:57 -0400
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Aug 2004 13:54:30 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:28102 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id S267503AbUH1RyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 13:54:15 -0400
+Date: Sat, 28 Aug 2004 10:53:50 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       clemtaylor@comcast.net, qg@biodome.org, rogers@isi.edu
+Subject: Re: reverse engineering pwcx
+In-Reply-To: <1093710358.8611.22.camel@krustophenia.net>
+Message-ID: <Pine.LNX.4.61.0408281039470.16039@twin.uoregon.edu>
+References: <1093709838.434.6797.camel@cube> <1093710358.8611.22.camel@krustophenia.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-08-28 at 12:50, K.R. Foley wrote:
-> Felipe Alfaro Solana wrote:
-> > On Saturday 28 August 2004 14:03, Ingo Molnar wrote:
-> > 
-> > 
-> >>Similarly, there are 4 independent options for the .config:
-> >>CONFIG_PREEMPT, CONFIG_PREEMPT_VOLUNTARY, CONFIG_PREEMPT_SOFTIRQS and
-> >>CONFIG_PREEMPT_HARDIRQS. (In theory all of these options should compile
-> >>independently, but i've only tested all-enabled so far.)
-> > 
-> > 
-> > I must be missing something, but after applying diff-bk-040828-2.6.8.1.bz2 and 
-> > voluntary-preempt-2.6.9-rc1-bk4-Q1 on top of 2.6.8.1, I'm unable to find 
-> > neither CONFIG_PREEMPT_VOLUNTARY, CONFIG_PREEMPT_SOFTIRQS, nor 
-> > CONFIG_PREEMPT_HARDIRQS.
-> > 
-> > Any ideas are welcome.
-> 
-> Looks like all of these config options are missing from Q1 also. I was 
-> just looking myself.
-> 
+On Sat, 28 Aug 2004, Lee Revell wrote:
 
-Same results here, none of those config options seem to exist.  I also
-get this warning a lot:
+> Right, as someone else pointed out, this is wrong.
+>
+> How do you account for the Slashdot poster's assertion that it's
+> physically impossible to cram 640 x 480 worth of data down a USB 1.1
+> pipe?
 
-include/linux/rwsem.h: In function `down_read':
-include/linux/rwsem.h:43: warning: implicit declaration of function `cond_resched'
+640x480 = 307200 pixels
+x 24 bits = 7372800 bits per frame (.9MB)
+x 30 fps = 221184000
 
-Lee
+so that's 221mb/s for uncompressed 640x480. dv with 16bit pcm is 25Mb/s 
+typically which is still a bit more than double what you can reasonably 
+push through a usb1.1 port. raw you can push about 1.6 fp/s at 640x480 
+through usb so your compression ratio needs to be order of 15 to 1 make 
+it fit reasonably with room for overhead.
+
+> Lee
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu 
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 

@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265312AbUGGSwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265314AbUGGSyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265312AbUGGSwr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 14:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265311AbUGGSwq
+	id S265314AbUGGSyl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 14:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265311AbUGGSyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 14:52:46 -0400
-Received: from mailrelay.nefonline.de ([212.114.153.196]:12218 "EHLO
-	mailrelay1.nefonline.de") by vger.kernel.org with ESMTP
-	id S265313AbUGGSwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 14:52:39 -0400
-Subject: [Virus detected]
-X-Priority: 3 (Normal)
-Date: Wed, 7 Jul 2004 20:52:38 +0200
-From: MailMonitor_on_UF-Intern%UNTERNEHMERFABRIK@unternehmerfabrik.de
-To: linux-kernel@vger.kernel.org
-Reply-To: thomas.frenz@unternehmerfabrik.de
-Message-ID: <OF35EA207A.47C1BB36-ONC1256ECA.0067B255@unternehmerfabrik.de>
-X-MIMETrack: Serialize by Router on UF-Intern/Unternehmerfabrik(Release 5.0.9 |November
- 16, 2001) at 07.07.2004 20:52:40
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Wed, 7 Jul 2004 14:54:40 -0400
+Received: from BACHE.ECE.CMU.EDU ([128.2.129.23]:384 "EHLO bache.ece.cmu.edu")
+	by vger.kernel.org with ESMTP id S265315AbUGGSy0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 14:54:26 -0400
+Subject: Re: In-kernel Authentication Tokens (PAGs)
+From: John Bucy <bucy@gloop.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: David Howells <dhowells@redhat.com>, Blair Strang <bls@asterisk.co.nz>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <D3C62886-C9EE-11D8-947A-000393ACC76E@mac.com>
+References: <643CA25E-C091-11D8-8574-000393ACC76E@mac.com>
+	 <984AC744-BFFB-11D8-8574-000393ACC76E@mac.com>
+	 <FC6EBB12-BF27-11D8-95EB-000393ACC76E@mac.com>
+	 <1087282990.13680.13.camel@lade.trondhjem.org>
+	 <772741DF-BC19-11D8-888F-000393ACC76E@mac.com>
+	 <1087080664.4683.8.camel@lade.trondhjem.org>
+	 <D822E85F-BCC8-11D8-888F-000393ACC76E@mac.com>
+	 <1087084736.4683.17.camel@lade.trondhjem.org>
+	 <DD67AB5E-BCCF-11D8-888F-000393ACC76E@mac.com>
+	 <87smcxqqa2.fsf@asterisk.co.nz> <8666.1087292194@redhat.com>
+	 <10430.1087397355@redhat.com> <30952.1087472906@redhat.com>
+	 <5447.1087993789@redhat.com> <D3C62886-C9EE-11D8-947A-000393ACC76E@mac.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1089226465.862.54.camel@catalepsy.pdl.cmu.edu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 07 Jul 2004 14:54:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sophos Plc MailMonitor for Domino/D R1.0(4.003c)
-Server: UF-Intern
------------------------------------------------------------------------
 
-Your email contained infected attachment(s).  For advice consult your
-system administrator.
+Speaking as a member of the AFS community, I'm thrilled to see this
+coming along since PAGs are the major stumbling block for openafs in
+2.6.  I won't speak for Coda and NFSv4 but hopefully, this can help them
+out as well.
 
------------------------------------------------------------------------
-Mail-Info
+The policy that a number of AFS people want is that (1) processes with
+different UIDs can share the same keyring and that (2) a number of
+processes with the same UID can opt not to share the same keyring.  (1)
+e.g. I have AFS creds (krb5 tickets) and want to run a setuid binary
+with my creds.  (2) e.g. I want to have a bunch of xterms some with
+administrative rights and some with normal rights.  Maybe I'm running
+stuff out of cron or something under my UID that gets creds from a
+ticket file, etc, and don't want it to interfere with my interactive use
+of the machine.
 
-From:       linux-kernel@vger.kernel.org
-To:         info@roth.de
-Rec.: scheuerlein@unternehmerfabrik.de
-Date:       07.07.2004 21:09:10
-Subject:    Re: Your document
-
------------------------------------------------------------------------
-File: [your_document]   State: [file contains virus]
+>From my reading of the posts so far, it looks like (1) is no problem
+since setuid() wouldn't touch the keyrings.  I'm less sure about (2). 
+Does creating a new keyring (KEYCTL_NEW_RING) replace one of my existing
+keyrings?  Which one?  To implement (2), do I need the ability to
+explicitly zero-out some of my keyring associations?
+ 
 
 
-
-
-
+john

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284866AbRLFADs>; Wed, 5 Dec 2001 19:03:48 -0500
+	id <S284870AbRLFAIi>; Wed, 5 Dec 2001 19:08:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284870AbRLFADj>; Wed, 5 Dec 2001 19:03:39 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:23284 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S284866AbRLFADb>; Wed, 5 Dec 2001 19:03:31 -0500
-Date: Wed, 5 Dec 2001 15:55:09 -0800
-From: Chris Wright <chris@wirex.com>
-To: "Garst R. Reese" <reese@isn.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.17-pre4 extra-version
-Message-ID: <20011205155509.B9588@figure1.int.wirex.com>
-Mail-Followup-To: "Garst R. Reese" <reese@isn.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C0EB178.4A599A31@isn.net>
+	id <S284873AbRLFAI3>; Wed, 5 Dec 2001 19:08:29 -0500
+Received: from peace.netnation.com ([204.174.223.2]:4069 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S284870AbRLFAIR>; Wed, 5 Dec 2001 19:08:17 -0500
+Date: Wed, 5 Dec 2001 16:08:16 -0800
+From: Simon Kirby <sim@netnation.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [FS] Why doesn't this patch work?
+Message-ID: <20011205160816.A26214@netnation.com>
+In-Reply-To: <20011205152834.A11289@netnation.com> <1007595982.848.4.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C0EB178.4A599A31@isn.net>; from reese@isn.net on Wed, Dec 05, 2001 at 07:44:56PM -0400
+X-Mailer: Mutt 1.0i
+In-Reply-To: <1007595982.848.4.camel@phantasy>; from rml@tech9.net on Wed, Dec 05, 2001 at 06:46:21PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Garst R. Reese (reese@isn.net) wrote:
-> It really does help to keep extra version uptodate ;)
+On Wed, Dec 05, 2001 at 06:46:21PM -0500, Robert Love wrote:
 
-seem fine to me...
+> On Wed, 2001-12-05 at 18:28, Simon Kirby wrote:
+> > I'm attempting to write this little dinky patch to see who calls fsync()
+> > or fdatasync(), but it's spitting out compiler warnings.  I can't figure
+> > out why, though.  What did I do wrong?
+> > 
+> > buffer.c: In function `report_culprit':
+> > buffer.c:409: warning: assignment from incompatible pointer type
+> > buffer.c:410: warning: passing arg 2 of `d_path' from incompatible pointer type
+> > buffer.c:420: warning: passing arg 1 of `mntput' from incompatible pointer type
+> 
+> s/struct vfsmnt/struct vfsmount/
 
-<from patch-2.4.17-pre4.bz2>
+Doh!
 
-diff --exclude=CVS -Nur linux-2.4.16/Makefile linux/Makefile
---- linux-2.4.16/Makefile       Mon Nov 26 08:35:11 2001
-+++ linux/Makefile      Wed Dec  5 16:49:45 2001
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 4
--SUBLEVEL = 16
--EXTRAVERSION =
-+SUBLEVEL = 17
-+EXTRAVERSION = -pre4
+Simon-
 
-cheers,
--chris
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

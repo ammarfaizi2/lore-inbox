@@ -1,48 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbUJZSuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbUJZSyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbUJZSuV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 14:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbUJZSuV
+	id S261397AbUJZSyL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 14:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbUJZSyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 14:50:21 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:48005 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261400AbUJZSuQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 14:50:16 -0400
-Date: Tue, 26 Oct 2004 20:50:44 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Michael Geithe <warpy@gmx.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: 2.6.10-rc1-bk4 and kernel/futex.c:542
-Message-ID: <20041026185044.GA10894@elte.hu>
-References: <200410261135.51035.warpy@gmx.de> <20041026133126.1b44fb38@mango.fruits.de> <20041026112415.GA21015@elte.hu> <200410261338.00341.warpy@gmx.de> <417E3D4C.2010909@yahoo.com.au>
+	Tue, 26 Oct 2004 14:54:11 -0400
+Received: from smtp.terra.es ([213.4.129.129]:12154 "EHLO tsmtp3.ldap.isp")
+	by vger.kernel.org with ESMTP id S261397AbUJZSyJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 14:54:09 -0400
+Date: Tue, 26 Oct 2004 20:53:48 +0200
+From: Diego Calleja <diegocg@teleline.es>
+To: hzhong@cisco.com
+Cc: nigelenki@comcast.net, espenfjo@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: My thoughts on the "new development model"
+Message-Id: <20041026205348.70b8a88f.diegocg@teleline.es>
+In-Reply-To: <014d01c4bb7d$0baba180$ca41cb3f@amer.cisco.com>
+References: <417E7EE6.50900@comcast.net>
+	<014d01c4bb7d$0baba180$ca41cb3f@amer.cisco.com>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <417E3D4C.2010909@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+El Tue, 26 Oct 2004 09:58:41 -0700 "Hua Zhong" <hzhong@cisco.com> escribió:
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> The fact is, these days nobody wants to be a stable-release maintainer
+> anymore. It's boring.
 
-> >Oct 26 11:02:19 h2so4 kernel: Badness in futex_wait at kernel/futex.c:542
-
-> Hi,
-> Can you try the following patch and see what it says?
-
-i found the bug that most likely caused the PREEMPT_REALTIME one
-reported by Florian - it was a spurious wakeup caused by that patch, so
-upstream is not affected.
-
-	Ingo
+I doubt it. People like Alan Cox or Marcello have done it in the past, and I 
+bet many others could do it. Not everybody uses the latest -mm available in
+their machines.

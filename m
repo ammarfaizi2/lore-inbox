@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbUEBGW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbUEBGW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbUEBGW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 02:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUEBGVx
+	id S261605AbUEBGW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 02:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUEBGVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 02:21:53 -0400
-Received: from mail.kroah.org ([65.200.24.183]:45965 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261605AbUEBGVo (ORCPT
+	Sun, 2 May 2004 02:21:49 -0400
+Received: from mail.kroah.org ([65.200.24.183]:45709 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261505AbUEBGVo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 2 May 2004 02:21:44 -0400
-Date: Sat, 1 May 2004 22:42:29 -0700
+Date: Sat, 1 May 2004 23:01:09 -0700
 From: Greg KH <greg@kroah.com>
-To: Fabian Fenaut <fabian.fenaut@free.fr>
-Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: Re: Sensors (W83627HF) in Tyan S2882
-Message-ID: <20040502054229.GD31886@kroah.com>
-References: <1082387882.4083edaa52780@imp.gcu.info> <200404191600.i3JG0ElX089970@zone3.gcu-squad.org> <20040419190133.351d1401.khali@linux-fr.org> <40840A18.8070907@free.fr> <20040419195034.24664469.khali@linux-fr.org> <4084192E.1040708@free.fr> <20040419204911.50cea556.khali@linux-fr.org> <40842F22.40009@free.fr>
+To: stefan.eletzhofer@eletztrick.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] 2.6 I2C re-add i2c_get_client()
+Message-ID: <20040502060109.GF31886@kroah.com>
+References: <20040429140657.GC23468@gonzo.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40842F22.40009@free.fr>
+In-Reply-To: <20040429140657.GC23468@gonzo.local>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 19, 2004 at 09:57:22PM +0200, Fabian Fenaut wrote:
-> Jean Delvare wrote:
-> >>>Except that it doesn't apply, yes ;)
-> >>>
-> >>>I suspect that your email client is converting tabs to spaces.
-> >>
-> >>Sorry, see attachment.
-> >
-> >
-> >I forgot to tell you... Patches are prefered in such a form that
-> >patch -p1 from inside the linux directory works. Yours don't. I don't
-> >think Greg will like it. That said, I don't think Greg likes patches
-> >as attachements anyway ;)
+On Thu, Apr 29, 2004 at 04:06:57PM +0200, stefan.eletzhofer@eletztrick.de wrote:
+> Hi,
+> here's a patch which re-adds i2c_get_client() back to i2c_core.c.
+> That call was removed in 2003 because there were no users of that
+> function at that time.
 > 
+> I think this call is needed for I2C chip drivers which provide functionality to
+> be used by other driver modules, for example RTC chips or EEPROMs. These chip
+> drivers tend to encapsulate raw i2c chip access and provide function calls
+> for other modulesi, for example via the i2c_driver->command() method.
 > 
-> Ok, same player shoot again...
+> I tried to get the locking right, so please comment. The patch is
+> against 2.6.6-rc3 and works quite fine with my i2c rtc chip.
 
-For some reason this patch doesn't apply at all.  Care to rediff against
-the next -mm release and resend it to me?
+Locking looks correct, but you also need to increment either the
+device's reference count, and/or the module reference count for the
+client.
+
+Care to fix that up?
 
 thanks,
 

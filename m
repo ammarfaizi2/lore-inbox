@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268111AbUJHDVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267645AbUJHDLy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268111AbUJHDVM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 23:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267515AbUJHDQq
+	id S267645AbUJHDLy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 23:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267686AbUJHDHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 23:16:46 -0400
-Received: from mail-12.iinet.net.au ([203.59.3.44]:7385 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S267487AbUJHDP7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 23:15:59 -0400
-Message-ID: <4166066C.3030008@cyberone.com.au>
-Date: Fri, 08 Oct 2004 13:15:56 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
+	Thu, 7 Oct 2004 23:07:53 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44172 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267487AbUJGS0b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 14:26:31 -0400
+Date: Thu, 7 Oct 2004 11:26:12 -0700 (PDT)
+From: Ray Bryant <raybry@sgi.com>
 To: Andrew Morton <akpm@osdl.org>
-CC: chrisw@osdl.org, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: kswapd in tight loop 2.6.9-rc3-bk-recent
-References: <20041007142019.D2441@build.pdx.osdl.net>	<20041007164044.23bac609.akpm@osdl.org>	<4165E0A7.7080305@yahoo.com.au>	<20041007174242.3dd6facd.akpm@osdl.org>	<20041007184134.S2357@build.pdx.osdl.net>	<20041007185131.T2357@build.pdx.osdl.net>	<20041007185352.60e07b2f.akpm@osdl.org>	<4165FF7B.1070302@cyberone.com.au> <20041007200109.57ce24ae.akpm@osdl.org>
-In-Reply-To: <20041007200109.57ce24ae.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Ray Bryant <raybry@sgi.com>, John Hawkes <hawkes@sgi.com>,
+       Ray Bryant <raybry@austin.rr.com>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Message-Id: <20041007182612.30713.16318.72016@tomahawk.engr.sgi.com>
+Subject: [PATCH 1/1] lockmeter: lockmeter-lockmeter-fix-for-generic_read_trylock.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew,
 
+The patch in the mm tree named: lockmeter-lockmeter-fix-for-generic_read_trylock.patch
+is incorrect.  It should be as shown be replaced by this patch.  (generic_raw_read_trylock()
+should be a copy of what is in kernel/spinlock.c and should not call _metered_read_lock()).
 
-Andrew Morton wrote:
+The incorrect patch breaks lockmeter on any platform that uses generic_raw_read_trylock().
+(This is part of the problem with lockmeter for Altix.)
 
->Nick Piggin <piggin@cyberone.com.au> wrote:
->
->>>Chris Wright <chrisw@osdl.org> wrote:
->>>
->> >
->> >>(whereas I could get the mainline code, and the
->> >> one-liner to spin right off).  
->> >>
->> >
->> >How?  (up to and including .config please).
->> >
->> >
->> >
->>
->> Ah, free_pages <= pages_high, ie. 0 <= 0, which is true;
->> commence spinning.
->>
->
->Maybe.  It requires that the zonelists be screwy:
->
->
+(Thanks to John Hawkes for finding this.)
 
-Note that if this *was* the problem, then it would not be the fault of
-my recent patch, rather *every* allocation (when memory is lowish)
-would cause kswapd to wind through its priority loop then stop.
-Probably not using enough CPU for anyone to really notice though.
+From: Ray Bryant <raybry@sgi.com>
 
+Update lockmeter.c with generic_raw_read_trylock fix.
+
+Signed-off-by: Ray Bryant <raybry@sgi.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/kernel/lockmeter.c |   12 ++++++++++++
+ 1 files changed, 12 insertions(+)
+
+diff -puN kernel/lockmeter.c~lockmeter-lockmeter-fix-for-generic_read_trylock kernel/lockmeter.c
+--- 25/kernel/lockmeter.c~lockmeter-lockmeter-fix-for-generic_read_trylock	2004-09-16 21:32:25.175963856 -0700
++++ 25-akpm/kernel/lockmeter.c	2004-09-16 21:32:25.180963096 -0700
+@@ -1213,6 +1213,18 @@ __read_lock_failed: \
+  * except for the fact tht calls to _raw_ routines are replaced by
+  * corresponding calls to the _metered_ routines
+  */
++
++/*
++ * Generic declaration of the raw read_trylock() function,
++ * architectures are supposed to optimize this:
++ */
++int __lockfunc generic_raw_read_trylock(rwlock_t *lock)
++{
++	_raw_read_lock(lock);
++	return 1;
++}
++EXPORT_SYMBOL(generic_raw_read_trylock);
++
+ int __lockfunc _spin_trylock(spinlock_t *lock)
+ {
+ 	preempt_disable();
+_
+
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+Ray Bryant                       raybry@sgi.com
+The box said: "Requires Windows 98 or better",
+           so I installed Linux.
+-----------------------------------------------

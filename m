@@ -1,55 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129508AbQKRSQG>; Sat, 18 Nov 2000 13:16:06 -0500
+	id <S130367AbQKRSS1>; Sat, 18 Nov 2000 13:18:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130211AbQKRSPs>; Sat, 18 Nov 2000 13:15:48 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:19465 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129508AbQKRSPq>;
-	Sat, 18 Nov 2000 13:15:46 -0500
-Message-ID: <3A16C01C.8421220A@mandrakesoft.com>
-Date: Sat, 18 Nov 2000 12:45:00 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S130364AbQKRSSR>; Sat, 18 Nov 2000 13:18:17 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:7694 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S130211AbQKRSSG>;
+	Sat, 18 Nov 2000 13:18:06 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200011181747.UAA16349@ms2.inr.ac.ru>
+Subject: Re: Linux 2.2.18pre21
+To: R.E.Wolff@BitWizard.NL (Rogier Wolff)
+Date: Sat, 18 Nov 2000 20:47:56 +0300 (MSK)
+Cc: R.E.Wolff@BitWizard.NL, linux-kernel@vger.kernel.org
+In-Reply-To: <200011181734.SAA14485@cave.bitwizard.nl> from "Rogier Wolff" at Nov 18, 0 06:34:34 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: EXPORT_NO_SYMBOLS vs. (null) ?
-In-Reply-To: <200011181740.SAA14504@cave.bitwizard.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogier Wolff wrote:
-> 
-> Alan Cox wrote:
-> > > What is the difference between a module that exports no symbols and
-> > > includes EXPORT_NO_SYMBOLS reference, and such a module that lacks
-> > > EXPORT_NO_SYMBOLS?
-> > >
-> > > Alan once upbraided me for assuming they were the same :)
-> >
-> > EXPORT_NO_SYMBOLS             -       nothing exported
-> > MODULE_foo                    -       export specific symbol
-> >
-> > none of the above, export all globals but without modvers
->                                 ^^^^^^^ and statics!!!!
-> 
-> I consider that a bug, but...
+Hello!
 
-eh?  Can you give an example of this?  This should definitely -not- be
-the case.
+> Well, because lots of people seem to THINK that chroot imprisons
+> someone. And "jail" actually does....
 
-	Jeff
+Also many of people work to add to linux jail-like functionality,
+which is expected to be real security tool unlike bsd jail.
 
+I think from the same source where you read about jail
+you know that jail is full of holes like colander. 8)
 
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

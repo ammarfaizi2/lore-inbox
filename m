@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276689AbRJBVGc>; Tue, 2 Oct 2001 17:06:32 -0400
+	id <S276688AbRJBVJC>; Tue, 2 Oct 2001 17:09:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276693AbRJBVGX>; Tue, 2 Oct 2001 17:06:23 -0400
-Received: from mailc.telia.com ([194.22.190.4]:22233 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id <S276689AbRJBVGI>;
-	Tue, 2 Oct 2001 17:06:08 -0400
-Message-ID: <3BBA2C54.772BA971@canit.se>
-Date: Tue, 02 Oct 2001 23:06:28 +0200
-From: Kenneth Johansson <ken@canit.se>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: System reset on Kernel 2.4.10
-In-Reply-To: <Pine.LNX.4.33.0110022110070.21544-100000@vela.salleURL.edu>
-	 <3BBA1409.6AAA553D@welho.com> <1091577748.20011002230931@port.imtp.ilyichevsk.odessa.ua>
+	id <S276687AbRJBVIm>; Tue, 2 Oct 2001 17:08:42 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:45053 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S276693AbRJBVIf>; Tue, 2 Oct 2001 17:08:35 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Tue, 2 Oct 2001 15:08:20 -0600
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        linux-lvm@sistina.com
+Subject: Re: partition table read incorrectly
+Message-ID: <20011002150820.N8954@turbolinux.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org, linux-lvm@sistina.com
+In-Reply-To: <20011002202934.G14582@wiggy.net> <E15oUUf-0005Xw-00@the-village.bc.nu> <20011002220053.H14582@wiggy.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011002220053.H14582@wiggy.net>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-VDA wrote:
+On Oct 02, 2001  22:00 +0200, Wichert Akkerman wrote:
+> Previously Alan Cox wrote:
+> > Does it complain about wrong block sizes ?
+> 
+> No
+>  
+> > The partition code will look for tables. That bit is fine
+> 
+> If that bit is fine then how can it differ in opinion from fdisk?
 
-> Tuesday, October 02, 2001, 9:22:49 PM,
-> Mika Liljeberg <Mika.Liljeberg@welho.com> wrote:
->
-> ML> Carles Pina i Estany wrote:
-> >> The Kernel works fine. But for error I execute /usr/src/linux/vmlinux as
-> >> root user. Then the system is rebooted (without unmounting anything)
-> >>
-> >> Curious.
->
-> ML> And like a headstrong child, I refused to believe, instead thrusting my
-> ML> finger into the fire.
-> ML> Ouch! Curious indeed.
->
-> Come on guys, that can't be true! Linux can't fail that miserably!
-> Look:
->
-> # su user
-> $ ./vmlinux
-> Segmentation fault
-> *** screen went blank, then POST screen appears ***
->
-> Eh... Oh... So... it actually can.   8-(
->
+What does the first 512 bytes of the disk show (od -Ax -tx1 /dev/)?
+Maybe there is still "0xaa55" on the disk at 0x1fe and the kernel
+thinks it is a DOS partition?
 
-I installed reiserfs this weekend so I tried it and yes me to :))
+> > The exact error would be good too
+> 
+>  I/O error: dev 08:11, sector 0
 
-I have another one that happens with stuff that use SDL (loki stuff) but then
-the computer turns off like I had pressed the power button. So  I can use both
-shutdown -h or plaympeg to turn the computer off :)
+Hmm, this is sda11, so you would need both a primary and extended
+partition table to get that.  What does /proc/partitions show?
 
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

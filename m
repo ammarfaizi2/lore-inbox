@@ -1,35 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287520AbRLaNFq>; Mon, 31 Dec 2001 08:05:46 -0500
+	id <S287516AbRLaNHQ>; Mon, 31 Dec 2001 08:07:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287514AbRLaNFe>; Mon, 31 Dec 2001 08:05:34 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:38921 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S287513AbRLaNFN>;
-	Mon, 31 Dec 2001 08:05:13 -0500
-Date: Mon, 31 Dec 2001 14:04:55 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: merge in progress.
-Message-ID: <20011231140455.F7130@suse.de>
-In-Reply-To: <20011231031506.A1537@suse.de> <E16L2F5-00050A-00@the-village.bc.nu>
+	id <S287506AbRLaNG5>; Mon, 31 Dec 2001 08:06:57 -0500
+Received: from elektroni.ee.tut.fi ([130.230.131.11]:28690 "HELO
+	elektroni.ee.tut.fi") by vger.kernel.org with SMTP
+	id <S287509AbRLaNGq>; Mon, 31 Dec 2001 08:06:46 -0500
+Date: Mon, 31 Dec 2001 15:06:44 +0200
+From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: zImage not supported for 2.2.20?
+Message-ID: <20011231150644.A10045@elektroni.ee.tut.fi>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <4.3.2.7.2.20011228124704.00abba70@192.168.124.1> <20011228121228.GA9920@emma1.emma.line.org> <4.3.2.7.2.20011228124704.00abba70@192.168.124.1> <4.3.2.7.2.20011228173505.00aa3da0@192.168.124.1> <a0ie3s$s71$1@cesium.transmeta.com> <4.3.2.7.2.20011231121112.00b0e940@192.168.124.1>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E16L2F5-00050A-00@the-village.bc.nu>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4.3.2.7.2.20011231121112.00b0e940@192.168.124.1>; from linux-kernel-l@nta-monitor.com on Mon, Dec 31, 2001 at 12:16:57PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 31 2001, Alan Cox wrote:
-> > Things unlikely to merge yet.
-> > o  Alans aacraid driver (not bio aware)
-> 
-> Thats fine. I don't plan to worry about that until 2.5 is a lot more stable.
+On Mon, Dec 31, 2001 at 12:16:57PM +0000, Roy Hills wrote:
+> Although the Tecra problem has been solved, the zImage bug remains,
+> although I'm not concerned about it now that I can use bzImage.
 
-I'm assuming you mean stable wrt code base changes, otherwise I'd like
-to hear about any instability of the kernel wrt bio.
-
--- 
-Jens Axboe
-
+My machines boot 2.2.21pre1 zImages ok.

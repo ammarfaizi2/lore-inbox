@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129477AbQLSW4r>; Tue, 19 Dec 2000 17:56:47 -0500
+	id <S130107AbQLSXYj>; Tue, 19 Dec 2000 18:24:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129610AbQLSW4h>; Tue, 19 Dec 2000 17:56:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32261 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129477AbQLSW4T>;
-	Tue, 19 Dec 2000 17:56:19 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200012192225.WAA00449@raistlin.arm.linux.org.uk>
+	id <S130464AbQLSXY3>; Tue, 19 Dec 2000 18:24:29 -0500
+Received: from waste.org ([209.173.204.2]:4656 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S130107AbQLSXYT>;
+	Tue, 19 Dec 2000 18:24:19 -0500
+Date: Tue, 19 Dec 2000 16:53:46 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>, <Andries.Brouwer@cwi.nl>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: set_rtc_mmss: can't update from 0 to 59
-To: oxymoron@waste.org (Oliver Xymoron)
-Date: Tue, 19 Dec 2000 22:25:24 +0000 (GMT)
-Cc: mdharm-kernel@one-eyed-alien.net (Matthew Dharm), Andries.Brouwer@cwi.nl,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0012191510570.18938-100000@waste.org> from "Oliver Xymoron" at Dec 19, 2000 03:13:03 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL1]
+In-Reply-To: <200012192225.WAA00449@raistlin.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.30.0012191633350.18938-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron writes:
-> On Mon, 18 Dec 2000, Russell King wrote:
-> > So, why don't we update the hours and be done with it?  We would have to
-> > play the same game with the days of the month vs hours.  Also, we don't
-> > know if the CMOS clock is programmed for UTC time or not (the kernel's
-> > idea of time is UTC.  Your CMOS may be programmed for EST for instance).
-> 
-> Sounds like its still broken then - there are time zones which are not
-> even multiples of 60 minutes.
+On Tue, 19 Dec 2000, Russell King wrote:
 
-Correct; please examine the code and you will find the answer to this.
-Specifically, look at the lines around the following comment:
+> Oliver Xymoron writes:
+> > On Mon, 18 Dec 2000, Russell King wrote:
+> > > So, why don't we update the hours and be done with it?  We would have to
+> > > play the same game with the days of the month vs hours.  Also, we don't
+> > > know if the CMOS clock is programmed for UTC time or not (the kernel's
+> > > idea of time is UTC.  Your CMOS may be programmed for EST for instance).
+> >
+> > Sounds like its still broken then - there are time zones which are not
+> > even multiples of 60 minutes.
+>
+> Correct; please examine the code and you will find the answer to this.
+> Specifically, look at the lines around the following comment:
+>
+> 	/* correct for half hour time zone */
 
-	/* correct for half hour time zone */
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+Uhh.. Kathmandu? Chatham Island? +5:45 and +13:45 (DST) respectively.
+
+At any rate, the printk should go - do_timer_interrupt already expects the
+"bug"  its reporting.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

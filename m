@@ -1,66 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264558AbSIQTxJ>; Tue, 17 Sep 2002 15:53:09 -0400
+	id <S264588AbSIQT6l>; Tue, 17 Sep 2002 15:58:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264559AbSIQTxJ>; Tue, 17 Sep 2002 15:53:09 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:39907 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S264558AbSIQTxI>; Tue, 17 Sep 2002 15:53:08 -0400
-Subject: Re: [PATCH] BUG(): sched.c: Line 944
-From: Steven Cole <elenstev@mesatop.com>
-To: Robert Love <rml@tech9.net>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1032290611.4592.206.camel@phantasy>
-References: <Pine.LNX.4.44.0209172055550.13829-100000@localhost.localdomain> 
-	<1032290611.4592.206.camel@phantasy>
-Content-Type: text/plain
+	id <S264590AbSIQT6l>; Tue, 17 Sep 2002 15:58:41 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:8140 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S264588AbSIQT6j>; Tue, 17 Sep 2002 15:58:39 -0400
+Message-ID: <3D878A90.F5E4B8B0@us.ibm.com>
+Date: Tue, 17 Sep 2002 15:03:28 -0500
+From: Duc Vianney <dvianney@us.ibm.com>
+X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Hyperthreading performance on 2.4.19 and 2.5.32
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 17 Sep 2002 13:54:28 -0600
-Message-Id: <1032292468.11907.44.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-17 at 13:23, Robert Love wrote:
-> On Tue, 2002-09-17 at 14:57, Ingo Molnar wrote:
-> 
-> > i'd do (a). current->state is to be used anyway, and the default-untaken
-> > first branch should be cheap. Plus by moving things down the splitup of
-> > the function would create more code duplication than necessery i think.
-> 
-> Note by moving it down, the only gain over keeping it at the top is not
-> having to check for the BKL...
-> 
-> Anyhow, I would appreciate it if you could give this a try (with kernel
-> preemption enabled)... any comments are appreciated.
-> 
-> (Note you need a 2.5.35-bk release to get the dump_stack().  Otherwise
-> use show_trace(0).)
-> 
-> 	Robert Love
-> 
-I applied that patch to 2.5.35-bk3 and with PREEMPT enabled.  And it
-booted without any of the usual complaints with preempt and the
-in_atomic check.  But then, I ran
+The following are data comparing the effects of hyperthreading (HT)on
+stock kernel 2.4.19 and 2.5.32.
+Hardware under test. The hardware is a Xeon 1-CPU MP, 1.6 gigahertz,
+and 2.5 GB RAM.
+Kernel under test. When testing under 2.4.19, the kernel was built
+as an SMP kernel, and was run on the hardware with HT enabled through
+the boot option 'noht'. When testing under 2.5.32, the kernel was
+built as an SMP kernel, and was run on the hardware with HT enabled
+through selecting ACPI in configuration.
+Benchmarks. For multithreaded benchmarks: chat, dbench and tbench.
+Summary of results. The results on Linux kernel 2.4.19 show HT might
+improve multithreaded application by as much as 30%. On kernel 2.5.32,
+HT may provide speed-up as high as 60%.
+Observations. There are two major differences between 2.4.19 and
+2.5.32 which could affect HT performance: O(1)scheduler and Ingo's
+shared runqueue patch for HT that went in 2.5.32. However, Ingo's HT
+patch is for handling load balancing, affinity, and task pickup. Those
+are problems that exist in systems with >= 2CPUs. Since I have only
+1-CPU in my test, I think the O(1) scheduler has had greater impact
+than the runqueue patch. On 2.5.32, the chat workload seems to benefit
+the most, followed by tbench and dbench.
+The data for each number of chat rooms run (e.g., 20) represents the
+geometric mean of five runs. Same method was also used for each number
+of clients run in dbench and tbench.
 
-1) dbench 1 OK
-2) dbench 2 OK
-3) dbench 3 blam!  
+chat workload     2.4.19     2.5.32
+No. chat rooms   Speed-up   Speed-up
+     20            24%        51%
+     30            22%        41%
+     40            22%        60%
+     50            28%        39%
+Geometric Mean     24%        45%
 
-Running dbench 3 resulted in the dbench clients hanging and being
-unkillable with kill -9 in the D state.
+dbench workload   2.4.19     2.5.32
+No.clients       Speed-up   Speed-up
+     20            29%        27%
+     30            29%         9%
+     60            12%         1%
+     90             9%         4%
+    120            16%        23%
+Geometric Mean     18%        12%
 
-steven    1046  0.0  0.0  1440  472 ?        D    13:46   0:00 ./dbench 3
-steven    1047  0.0  0.0  1440  420 ?        D    13:46   0:00 ./dbench 3
-steven    1048  0.0  0.0  1440  472 ?        D    13:46   0:00 ./dbench 3
+tbench workload   2.4.19     2.5.32
+No.clients       Speed-up   Speed-up
+     20            31%        36%
+     30            30%        36%
+     60            26%        36%
+     90            22%        35%
+    120            27%        33%
+Geometric Mean     27%        35%
 
-I can ssh and enter my user password, but it hangs after that with
-no bash prompt.  Other ssh sessions which I started previously are still
-responsive.
-
-Test box is 2-way pIII, kernel SMP.
-
-Steven
+Duc Vianney - dvianney@us.ibm.com
 

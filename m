@@ -1,98 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267072AbTBXNg4>; Mon, 24 Feb 2003 08:36:56 -0500
+	id <S267090AbTBXNy1>; Mon, 24 Feb 2003 08:54:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267079AbTBXNgz>; Mon, 24 Feb 2003 08:36:55 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:60300 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S267072AbTBXNgy>; Mon, 24 Feb 2003 08:36:54 -0500
-Date: Mon, 24 Feb 2003 08:46:56 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Message-Id: <200302241346.h1ODkuue028665@locutus.cmf.nrl.navy.mil>
-To: davem@redhat.com
-Subject: [PATCH][ATM] get minimum frame size right in lec.c
+	id <S267098AbTBXNy1>; Mon, 24 Feb 2003 08:54:27 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:35848 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S267090AbTBXNy0>;
+	Mon, 24 Feb 2003 08:54:26 -0500
+Date: Mon, 24 Feb 2003 15:04:13 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Tomas Szepe <szepe@pinerecords.com>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with IDE-SCSI in 2.4.21-pre4/2.4.20
+Message-Id: <20030224150413.3beca89a.skraw@ithnet.com>
+In-Reply-To: <20030224124317.GD27646@louise.pinerecords.com>
+References: <20030224122259.7a468c82.skraw@ithnet.com>
+	<20030224113002.GC27646@louise.pinerecords.com>
+	<20030224132909.068d0ce9.skraw@ithnet.com>
+	<20030224124317.GD27646@louise.pinerecords.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the minimum frame size for token ring (802.5) pdus is 16 octets.  also,
-count the pdus that failed to copy as dropped.  also, skb_copy_expand()
-now seems to be the right way to do this.
+On Mon, 24 Feb 2003 13:43:17 +0100
+Tomas Szepe <szepe@pinerecords.com> wrote:
 
-Index: linux/net/atm/lec.c
-===================================================================
-RCS file: /home/chas/CVSROOT/linux/net/atm/lec.c,v
-retrieving revision 1.5
-retrieving revision 1.6
-diff -u -d -b -w -r1.5 -r1.6
---- linux/net/atm/lec.c	22 Feb 2003 19:23:22 -0000	1.5
-+++ linux/net/atm/lec.c	24 Feb 2003 13:24:45 -0000	1.6
-@@ -223,7 +223,8 @@
-         struct lecdatahdr_8023 *lec_h;
-         struct atm_vcc *send_vcc;
- 	struct lec_arp_table *entry;
--        unsigned char *nb, *dst;
-+        unsigned char *dst;
-+	int min_frame_size;
- #ifdef CONFIG_TR
-         unsigned char rdesc[ETH_ALEN]; /* Token Ring route descriptor */
- #endif
-@@ -294,26 +295,24 @@
- #endif /* DUMP_PACKETS > 0 */
- 
-         /* Minimum ethernet-frame size */
--        if (skb->len <62) {
--                if (skb->truesize < 62) {
--                        printk("%s:data packet %d / %d\n",
--                               dev->name,
--                               skb->len,skb->truesize);
--                        nb=(unsigned char*)kmalloc(64, GFP_ATOMIC);
--                        if (nb == NULL) {
-+#ifdef CONFIG_TR
-+        if (priv->is_trdev)
-+                min_frame_size = LEC_MINIMUM_8025_SIZE;
-+	else
-+#endif
-+        min_frame_size = LEC_MINIMUM_8023_SIZE;
-+        if (skb->len < min_frame_size) {
-+                if (skb->truesize < min_frame_size) {
-+                        skb2 = skb_copy_expand(skb, 0,
-+                            min_frame_size - skb->truesize, GFP_ATOMIC);
-                                 dev_kfree_skb(skb);
-+                        if (skb2 == NULL) {
-+                                priv->stats.tx_dropped++;
-                                 return 0;
-                         }
--                        memcpy(nb,skb->data,skb->len);
--                        kfree(skb->head);
--                        skb->head = skb->data = nb;
--                        skb->tail = nb+62;
--                        skb->end = nb+64;
--                        skb->len=62;
--                        skb->truesize = 64;
--                } else {
--                        skb->len = 62;
-+                        skb = skb2;
-                 }
-+		skb_put(skb, min_frame_size - skb->len);
-         }
-         
-         /* Send to right vcc */
-Index: linux/net/atm/lec.h
-===================================================================
-RCS file: /home/chas/CVSROOT/linux/net/atm/lec.h,v
-retrieving revision 1.2
-retrieving revision 1.3
-diff -u -d -b -w -r1.2 -r1.3
---- linux/net/atm/lec.h	22 Feb 2003 19:29:27 -0000	1.2
-+++ linux/net/atm/lec.h	24 Feb 2003 13:24:46 -0000	1.3
-@@ -38,6 +38,9 @@
-   unsigned char h_source[ETH_ALEN];
- };
- 
-+#define LEC_MINIMUM_8023_SIZE   62
-+#define LEC_MINIMUM_8025_SIZE   16
-+
- /*
-  * Operations that LANE2 capable device can do. Two first functions
-  * are used to make the device do things. See spec 3.1.3 and 3.1.4.
+> Serverworks.  Well, you definitely want to try -ac.  :)
+
+I just tried -ac6, but has the same problem.
+
+-- 
+Regards,
+Stephan
+

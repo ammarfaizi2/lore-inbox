@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271042AbTGQHjF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 03:39:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271071AbTGQHjF
+	id S271269AbTGQHqy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 03:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271119AbTGQHqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 03:39:05 -0400
-Received: from pd146.bielsko.sdi.tpnet.pl ([217.96.247.146]:61965 "EHLO
-	aquila.wombb.edu.pl") by vger.kernel.org with ESMTP id S271042AbTGQHjD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 03:39:03 -0400
-Date: Thu, 17 Jul 2003 09:24:32 +0200
-From: =?ISO-8859-2?B?UHJ6ZW15c7NhdyBTdGFuaXOzYXc=?= Knycz 
-	<zolw@wombb.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [linux-2.6.0-test1] Missing #include lines with alsa at alpha
-Message-Id: <20030717092432.5737d88c.zolw@wombb.edu.pl>
-Organization: RODN "WOM" =?ISO-8859-2?B?QmllbHNrby1CaWGzYQ==?=
-X-Mailer: Sylpheed version 0.8.2claws (GTK+ 1.2.10; )
+	Thu, 17 Jul 2003 03:46:54 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:58350 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S271269AbTGQHqx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 03:46:53 -0400
+Subject: Re: 2.6.0-test1 + nvidia 4363 driver
+From: Martin Schlemmer <azarah@gentoo.org>
+To: oford <oford@ev1.net>
+Cc: KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1058401871.3319.1.camel@spider.hotmonkeyporn.com>
+References: <20030714162056.27616c6c.martin.zwickel@technotrend.de>
+	 <1058377174.7568.1.camel@bubbles.imr-net.com>
+	 <3F15D498.4080503@mail.usfq.edu.ec>
+	 <1058401871.3319.1.camel@spider.hotmonkeyporn.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1058428911.13515.1524.camel@workshop.saharacpt.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 17 Jul 2003 10:01:51 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-07-17 at 02:31, oford wrote:
+> On Wed, 2003-07-16 at 17:41, Fernando Sanchez wrote:
+> > hello Joshua,
+> > is there any mirror for the patch? I can't get to the site you pointed. 
+> > Thanks,
+> > 
+> > Fernando
+> > 
+> > Joshua Schmidlkofer wrote:
+> > > http://www.minion.de posted updated patches.  They work pretty find for
+> > > me.
+> 
+> Several gentoo folks were having trouble reaching that site as well.
+> 
+> So here is a mirror:
+> 
+> http://www.arghblech.com/NVIDIA_FreeBSD-1.0-3203-5.0.diff
 
-I've noticed that alsa_lib.c have missed afair #include linux/module.h
-or init.h. Somebody is more oriented at this problem ? I've fixed it,
-but i must test it, after that i can send the patch ;)
+Ok, but why do the Gentoo folk hassle ?  I already updated
+nvidia-kernel-1.0.4363-r3 to work fine with 2.6.0-test1 on
+the 14th ...
 
-cheers
+
+Cheers,
 
 -- 
-.----[ a d m i n at w o m b b dot e d u dot p l ]----.
-| Przemys³aw Stanis³aw Knycz,  djrzulf@jabber.gda.pl |
-| Net/Sys Administrator, PLD Developer,  RLU: 213344 |
-`------ "Linux - the choice of GNU generation" ------'
+Martin Schlemmer
+
+

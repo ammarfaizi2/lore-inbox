@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284902AbRLFAjS>; Wed, 5 Dec 2001 19:39:18 -0500
+	id <S284906AbRLFAkI>; Wed, 5 Dec 2001 19:40:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284908AbRLFAjJ>; Wed, 5 Dec 2001 19:39:09 -0500
-Received: from node1500a.a2000.nl ([24.132.80.10]:57304 "HELO mail.alinoe.com")
-	by vger.kernel.org with SMTP id <S284907AbRLFAjE>;
-	Wed, 5 Dec 2001 19:39:04 -0500
-Date: Thu, 6 Dec 2001 01:38:57 +0100
-From: Carlo Wood <carlo@alinoe.com>
+	id <S284908AbRLFAkA>; Wed, 5 Dec 2001 19:40:00 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:32189 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S284906AbRLFAjn>; Wed, 5 Dec 2001 19:39:43 -0500
+Date: Wed, 5 Dec 2001 19:39:41 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: kqueue, kevent - kernel event notification mechanism
-Message-ID: <20011206013857.A17313@alinoe.com>
+Cc: zaitcev@redhat.com
+Subject: Patch for oopses if sd_init fails
+Message-ID: <20011205193941.A23288@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -18,32 +19,82 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya,
+This patch does not fix _all_ of oopses, I am working on
+a worse one yet in scsi.c. This whole area is a rat hole.
+However, I would appreciate if Marcelo
+added those now - if nobody disagrees.
 
-are there any plans to implement the kqueue, kevent system calls
-in the linux kernel?
+Ask me for precise oops scenarios, if anything is unclear.
 
-There is no substitute for them currently; select() and poll()
-both suffer from dramatic cpu usage when a daemon is loaded with
-a few thousand clients.
+-- Pete
 
-It would be good for linux to implement event-driven i/o, if not
-by means of kqueue/kevent (BSD-ish interface) then at least in
-some other way.
-
-It has been shown that a heavily loaded networking daemon like
-an IRC daemon uses 35% less cpu on freeBSD by using event-driven
-i/o instead of poll().
-
-For those who are not into this material, allow me to explain
-the difference.  The current i/o calls, select and poll, scan all
-open file descriptors for events, every call.  This is clearly
-not scalable.  Event driven means that the kernel never scans
-all open file descriptors but queues events as they happen on
-the network card - the latter would in principle be scalable
-to any number of open file descriptors, as long as there is
-enough memory and as long as there is a limited number of
-file descriptors active per time unit.
-
--- 
-Carlo Wood <carlo@alinoe.com>
+diff -ur -X dontdiff linux-2.4.17-pre4/drivers/scsi/sd.c linux-2.4.17-pre4-p3/drivers/scsi/sd.c
+--- linux-2.4.17-pre4/drivers/scsi/sd.c	Fri Nov  9 14:05:06 2001
++++ linux-2.4.17-pre4-p3/drivers/scsi/sd.c	Wed Dec  5 15:10:50 2001
+@@ -1175,7 +1175,8 @@
+ 		kfree(sd_gendisks[i].de_arr);
+ 		kfree(sd_gendisks[i].flags);
+ 	}
+-	kfree(sd_gendisks);
++	if (sd_gendisks != &sd_gendisk)
++		kfree(sd_gendisks);
+ cleanup_sd_gendisks:
+ 	kfree(sd);
+ cleanup_sd:
+@@ -1188,6 +1189,7 @@
+ 	kfree(sd_sizes);
+ cleanup_disks:
+ 	kfree(rscsi_disks);
++	rscsi_disks = NULL;
+ cleanup_devfs:
+ 	for (i = 0; i < N_USED_SD_MAJORS; i++) {
+ 		devfs_unregister_blkdev(SD_MAJOR(i), "sd");
+@@ -1251,7 +1253,7 @@
+ 	if (SDp->type != TYPE_DISK && SDp->type != TYPE_MOD)
+ 		return 0;
+ 
+-	if (sd_template.nr_dev >= sd_template.dev_max) {
++	if (sd_template.nr_dev >= sd_template.dev_max || rscsi_disks == NULL) {
+ 		SDp->attached--;
+ 		return 1;
+ 	}
+@@ -1347,6 +1349,9 @@
+ 	int i, j;
+ 	int max_p;
+ 	int start;
++
++	if (rscsi_disks == NULL)
++		return;
+ 
+ 	for (dpnt = rscsi_disks, i = 0; i < sd_template.dev_max; i++, dpnt++)
+ 		if (dpnt->device == SDp) {
+diff -ur -X dontdiff linux-2.4.17-pre4/drivers/scsi/sr.c linux-2.4.17-pre4-p3/drivers/scsi/sr.c
+--- linux-2.4.17-pre4/drivers/scsi/sr.c	Thu Oct 25 13:58:35 2001
++++ linux-2.4.17-pre4-p3/drivers/scsi/sr.c	Wed Dec  5 15:32:09 2001
+@@ -542,7 +542,7 @@
+ 	if (SDp->type != TYPE_ROM && SDp->type != TYPE_WORM)
+ 		return 1;
+ 
+-	if (sr_template.nr_dev >= sr_template.dev_max) {
++	if (sr_template.nr_dev >= sr_template.dev_max || scsi_CDs == NULL) {
+ 		SDp->attached--;
+ 		return 1;
+ 	}
+@@ -830,6 +830,7 @@
+ 	kfree(sr_sizes);
+ cleanup_cds:
+ 	kfree(scsi_CDs);
++	scsi_CDs = NULL;
+ cleanup_devfs:
+ 	devfs_unregister_blkdev(MAJOR_NR, "sr");
+ 	sr_registered--;
+@@ -904,6 +905,9 @@
+ {
+ 	Scsi_CD *cpnt;
+ 	int i;
++
++	if (scsi_CDs == NULL)
++		return;
+ 
+ 	for (cpnt = scsi_CDs, i = 0; i < sr_template.dev_max; i++, cpnt++)
+ 		if (cpnt->device == SDp) {

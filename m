@@ -1,170 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283119AbRLDSXU>; Tue, 4 Dec 2001 13:23:20 -0500
+	id <S283203AbRLDSZV>; Tue, 4 Dec 2001 13:25:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283203AbRLDSWL>; Tue, 4 Dec 2001 13:22:11 -0500
-Received: from web20206.mail.yahoo.com ([216.136.226.61]:13830 "HELO
-	web20206.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S281547AbRLDSUZ>; Tue, 4 Dec 2001 13:20:25 -0500
-Message-ID: <20011204182023.87068.qmail@web20206.mail.yahoo.com>
-Date: Tue, 4 Dec 2001 13:20:23 -0500 (EST)
-From: Michael Zhu <apiggyjj@yahoo.ca>
-Reply-To: apiggyjj@yahoo.ca
-Subject: Re: Insmod problems
-To: Tyler BIRD <BIRDTY@uvsc.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <sc0ca5e8.017@mail-smtp.uvsc.edu>
-MIME-Version: 1.0
+	id <S277380AbRLDSXZ>; Tue, 4 Dec 2001 13:23:25 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:61608
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S283254AbRLDSWf>; Tue, 4 Dec 2001 13:22:35 -0500
+Date: Tue, 4 Dec 2001 11:22:36 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: raul@viadomus.com
+Cc: linux-kernel@vger.kernel.org, matthias.andree@stud.uni-dortmund.de,
+        esr@thyrsus.com, hch@caldera.de, kaos@ocs.com.au,
+        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Message-ID: <20011204182236.GM17651@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've changed my source file like this:
-#define MODULE
+On Tue, Dec 04, 2001 at 06:08:57PM +0100, Ra?l N??ez de Arenas Coronado wrote:
+>     Hi Matthias :)
+> 
+> >Creating a dependency on Python? Is a non-issue.
+> 
+>     Maybe for you. For me it *is* an issue. I don't like more and
+> more dependencies for the kernel. I mean, if I can drop kbuild and
+> keep on building the kernel with the old good 'make config' I won't
+> worry, but otherwise I don't think that kernel building depends on
+> something like Python.
 
-#include <linux/module.h>
+One of the things that I _think_ is happening is that lots of other
+scripts/ files are being redone, and thus removing them from the list,
+so in effect we're trading out one or two for just Python.
 
-int init_module(void)  { printk("<1>Hello, world\n");
-return 0; }
-void cleanup_module(void) { printk("<1>Goodbye cruel
-world\n"); }
+>     Why must I install Python in order to compile the kernel? I don't
+> understand this. I think there are better alternatives, but kbuild
+> seems to be imposed any way.
 
-And I use the following command line to build the
-module.
+kbuild != CML2.  It all boils down to the current 'language' having no
+real definitive spec, and having 3+ incompatible parsers.  We could
+either try and tweak the language slightly (and probably make it even
+harder on external parsers) or throw it out and try again.  ESR wrote
+CML2 with a Python interpreter, so it uses Python.  The spec for CML2 is
+out there, and there's even a CML2-in-C project.  If you don't want to
+use Python, go help (I believe Greg Banks is who ESR mentioned is in
+charge of it) that project out and then convince Linus to include it.
 
-gcc -c -D__KERNEL__ hello.c
+> >You don't make the pen yourself when writing a letter either.
+> 
+>     I don't like to be forced in a particular pen, that's the reason
+> why I use and develop for linux.
 
-But when I use insmod to load the module I got the
-following error message:
+To carry this analogy out a bit more, the details on how to make a pen
+exist, so if you don't like ESRs pen, go make your own.  That's why a
+lot of people use Linux too.
 
-hello.o : kernel-module version mismatch
-         hello.o was compiled for kernel version
-2.4.12
-         while this kernel is version 2.4.8
+> >What are the precise issues with Python? Just claiming it is an
+> >issue is not useful for discussing this. Archive pointers are
+> >welcome.
+> 
+>     Well, let's start writing kernel drivers with Python, Perl, PHP,
+> awk, etc... And, why not, C++, Ada, Modula, etc...
+> 
+>     The kernel should depend just on the compiler and assembler, IMHO.
 
-What is wrong? My kernel version is 2.4.8. Is there
-something wrong with the gcc compilier? My gcc
-compilier is gcc-2.95.
+The right tools for the right job.  C is good for the kernel.  Python is
+good at manipulating strings.
 
-Thanks to everyone. Your help is very beneficial to
-me.
-
-Michael
-
-
-
-
---- Tyler BIRD <BIRDTY@uvsc.edu> wrote:
-> Try this
-> 
-> ¯--------
-> 
-> #define MODULE
-> 
-> #include <linux/module.h>
-> int init_module(void) { printk("<1>Hello World");
-> return 0;}
-> void cleanup_module(void) {printk("<1>Goodbye cruel
-> world\n"); }
-> ¯---
-> 
-> gcc -c -D__KERNEL__ hello.c
-> 
-> compiled and loaded fine on my system
-> 
-> I think linux/module.h defines
-> the kernel version. Make sure that you have the
-> kernel source headers installed under /usr/include
-> which is a link to /usr/src/linux/include.
-> 
-> you oughta put the above include/module.h at the
-> begining of your source.
-> 
-> 
-> 
-> Also there has been a macro lately to
-> delate which routines will be init_module,
-> cleanup_module22
-> 
-> >>> Michael Zhu <apiggyjj@yahoo.ca> 12/04/01 10:06AM
-> >>>
-> I've define these two when I compile the module. The
-> command line is:
-> 
-> gcc -D_KERNEL_ -DMODULE -c hello.c
-> 
-> 
-> --- Tyler BIRD <BIRDTY@uvsc.edu> wrote:
-> > You need to define the __KERNEL__ and MODULE
-> symbols
-> > 
-> > #define __KERNEL__
-> > #define MODULE
-> > 
-> > 
-> > >>> Nav Mundi <nmundi@karthika.com> 12/04/01
-> 09:33AM
-> > >>>
-> > What are we doing wrong? - Nav & Michael
-> > **************************************************
-> > 
-> > hello.c Source:
-> > 
-> > #include "/home/mzhu/linux/include/linux/config.h"
-> 
-> > /*retrieve the CONFIG_* macros */
-> > #if defined(CONFIG_MODVERSIONS) &&
-> > !defined(MODVERSIONS)
-> > #define MODVERSIONS  /* force it on */
-> > #endif
-> > 
-> > #ifdef MODVERSIONS
-> > #include
-> > "/home/mzhu/linux/include/linux/modversions.h"
-> > #endif
-> > 
-> > #include "/home/mzhu/linux/include/linux/module.h"
-> > 
-> > int init_module(void)  { printk("<1>Hello,
-> > world\n");  return 0; }
-> > void cleanup_module(void) { printk("<1>Goodbye
-> cruel
-> > world\n"); }
-> > 
-> > Output:
-> > 
-> > #>gcc -D_KERNEL_ -DMODULE -c hello.c
-> > 
-> > [This builds the hello.o file. ]
-> > 
-> > #>insmod hello.o
-> > 
-> > hello.o : unresolved symbol printk
-> > hello.o : Note: modules without a GPL compatible
-> > license cannot use 
-> > GPONLY_symbols
-> > 
-> > 
-> > 
-> > 
-> > -
-> > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> 
-> > More majordomo info at 
-> > http://vger.kernel.org/majordomo-info.html 
-> > Please read the FAQ at  http://www.tux.org/lkml/ 
-> > 
-> 
-> 
->
-______________________________________________________
-> 
-> Send your holiday cheer with
-> http://greetings.yahoo.ca
-> 
-
-
-______________________________________________________ 
-Send your holiday cheer with http://greetings.yahoo.ca
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267773AbUIPJBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267863AbUIPJDn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267773AbUIPJBV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 05:01:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267864AbUIPJBV
+	id S267863AbUIPJDn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 05:03:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267864AbUIPJDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 05:01:21 -0400
-Received: from cantor.suse.de ([195.135.220.2]:40578 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267773AbUIPJBU (ORCPT
+	Thu, 16 Sep 2004 05:03:43 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:63704 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S267863AbUIPJDk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 05:01:20 -0400
-Date: Thu, 16 Sep 2004 11:01:18 +0200
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Zwane Mwaikambo <zwane@fsmlabs.com>, linux-kernel@vger.kernel.org,
-       wli@holomorphy.com
-Subject: Re: [PATCH] remove LOCK_SECTION from x86_64 spin_lock asm
-Message-ID: <20040916090117.GA23621@wotan.suse.de>
-References: <20040916061359.GA12915@wotan.suse.de> <20040916062759.GA10527@elte.hu> <20040916064428.GD12915@wotan.suse.de> <20040916065101.GA11726@elte.hu> <20040916065342.GE12915@wotan.suse.de> <20040916065805.GA12244@elte.hu> <20040916070902.GF12915@wotan.suse.de> <20040916071931.GA12876@elte.hu> <20040916072959.GH12915@wotan.suse.de> <20040916074431.GA13713@elte.hu>
+	Thu, 16 Sep 2004 05:03:40 -0400
+Date: Thu, 16 Sep 2004 11:03:28 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Netdev <netdev@oss.sgi.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The ultimate TOE design
+Message-ID: <20040916090328.GO26852@marowsky-bree.de>
+References: <4148991B.9050200@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040916074431.GA13713@elte.hu>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4148991B.9050200@pobox.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 09:44:31AM +0200, Ingo Molnar wrote:
-> 
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > Something is mixed up here:
-> > 
-> > The whole problem only happens on kernels using frame pointer. I never
-> > saw it, simply because I don't use frame pointers.
-> >
-> > On a frame pointer less kernel profiling works just fine, and with
-> > this fix it should work the same on a FP kernel.
-> 
-> it only works on pointer less kernels because the spinlock profile 
-> unwinding is _conditional_ on an FP kernel right now:
+On 2004-09-15T15:33:47,
+   Jeff Garzik <jgarzik@pobox.com> said:
 
-Actually my idea doesn't work  because there is a one instruction
-race where rbp is not set up on the stack yet. I think I give up and just save
-%rbp in this case.
+> Then, your host system OS will communicate with the Linux kernel running 
+> on the card across the PCI bus, using IP packets (64K fixed MTU).
+> 
+> This effectively:
 
--Andi
+Actually, given that there's almost no reason to offload TCP/IP
+processing for speed (better spent the money on CPU / memory for the
+main system), I like the idea of this for security: Off-load the packet
+filtering to create an additional security barrier. (Different CPU
+architecture and all that.)
+
+(With two cards, one could even use the conntrack fail-over internally.
+- A Linux-running NIC with builtin firewalling, sell to all the windows
+weenies... ;)
+
+With dedicated processors, maybe a IP/Sec accelerator would also be
+cool, but I'd think a crypto accelerator for the main system would again
+be saner here (unless, of course, the argument of the security domain
+isolation is applied again).
+
+Admittedely, one can solve all these differently, but it still might be
+cool. ;-)
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX AG - A Novell company
+

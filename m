@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263884AbTDYLpm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 07:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263886AbTDYLpm
+	id S263889AbTDYLuM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 07:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTDYLuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 07:45:42 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:29379 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S263884AbTDYLpl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 07:45:41 -0400
-Subject: Re: [RFC/PATCH] IDE Power Management try 1
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alexander Atanasov <alex@ssi.bg>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1051271538.15078.27.camel@gaston>
-References: <1051189194.13267.23.camel@gaston> <3EA90176.2080304@ssi.bg>
-	 <1051270378.15078.22.camel@gaston>  <20030425114932.GL1012@suse.de>
-	 <1051271538.15078.27.camel@gaston>
-Content-Type: text/plain
+	Fri, 25 Apr 2003 07:50:12 -0400
+Received: from [80.190.48.67] ([80.190.48.67]:6662 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263889AbTDYLuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 07:50:11 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: andersen@codepoet.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA and 2.4.x
+Date: Fri, 25 Apr 2003 14:01:36 +0200
+User-Agent: KMail/1.5.1
+References: <20030424212508.GI14661@codepoet.org>
+In-Reply-To: <20030424212508.GI14661@codepoet.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051271853.14994.32.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 25 Apr 2003 13:57:33 +0200
+Content-Disposition: inline
+Message-Id: <200304251401.36430.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-04-25 at 13:52, Benjamin Herrenschmidt wrote:
-> > If you add REQ_DRIVE_INTERNAL, and kill the other ones I mentioned, fine
-> > with me then.
-> > 
-> > 	rq->flags & REQ_DRIVE_INTERNAL
-> > 		rq->cmd[0] == PM
-> > 			pm stuf
-> > 		rq->cmd[0] = taskfile
-> > 			taskfile
-> > 
-> > etc. Make sense?
-> 
-> As I just wrote, I'd rather go the whole way then and break up flags
-> (which is a very bad name btw) into req_type & req_subtype, though
-> that would mean a bit of driver fixing....
+On Thursday 24 April 2003 23:25, Erik Andersen wrote:
 
-Also, I noticed that my patch has a nice bug in the resume path, I
-use ide_preempt, which doesn't wait for the request to complete,
-but the request & struct state are allocated on the stack... ouch...
+Hi Erik,
 
-It would be interesting to not wait for completion of the resume
-still here, there's no reason why resume of the disk can't be done
-asynchronously since we only release the request queue once completed,
-so I probably need to allocate the suspend request and release it from
-interrupt.
+> > Is there a ALSA backport to 2.4.x anywhere?
+> I was crazy enough to take ALSA 0.9.2 and made it into a patch vs
+> 2.4.x a week or two ago.  I just prefer to have ALSA be part of
+> the kernel rather than needing to compile it seperately all the
+> time.  The patch, along with various other things, is included as
+> part of my 2.4.21-rc1-erik kernel:
+Are you sure that this is 0.9.2 ALSA? I am afraid it is 0.9.0-rc6.
 
-Also, having a separate structure pointed to by ->special only makes
-this more complicated, there are plenty of fields in struct request
-that I could indeed use for my state information (like the cmd[] stuff)
-
-Ben.
-
+ciao, Marc

@@ -1,57 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289761AbSAOXnb>; Tue, 15 Jan 2002 18:43:31 -0500
+	id <S289759AbSAOXnR>; Tue, 15 Jan 2002 18:43:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289764AbSAOXnR>; Tue, 15 Jan 2002 18:43:17 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:60551
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S289761AbSAOXnI>; Tue, 15 Jan 2002 18:43:08 -0500
-Date: Tue, 15 Jan 2002 18:52:45 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to compile 2.4.14 on alpha
-Message-ID: <20020115185245.A20198@animx.eu.org>
-In-Reply-To: <20020114212550.A17323@animx.eu.org> <20020115113213.A1539@werewolf.able.es> <20020115115530.A19073@animx.eu.org> <20020116002642.A1838@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20020116002642.A1838@werewolf.able.es>; from J.A. Magallon on Wed, Jan 16, 2002 at 12:26:42AM +0100
+	id <S289764AbSAOXnH>; Tue, 15 Jan 2002 18:43:07 -0500
+Received: from postfix2-2.free.fr ([213.228.0.140]:19646 "EHLO
+	postfix2-2.free.fr") by vger.kernel.org with ESMTP
+	id <S289759AbSAOXm6> convert rfc822-to-8bit; Tue, 15 Jan 2002 18:42:58 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: xavier <tyro_no_spam_@bartica.org>
+To: linux-kernel@vger.kernel.org
+Subject: hang after modprobe hisax
+Date: Wed, 16 Jan 2002 00:37:03 +0100
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <02011600370300.01886@balthus.xanadu>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, 2.4.17:
-gcc -D__KERNEL__ -I/usr/src/2.4.17/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev4 -Wa,-mev6 -DMODULE   -DEXPORT_SYMTAB -c DAC960.c
-DAC960.c: In function `DAC960_V2_EnableMemoryMailboxInterface':
-DAC960.c:1054: internal error--unrecognizable insn:
-(insn 949 477 474 (set (reg:DI 2 $2)
-        (plus:DI (reg:DI 30 $30)
-            (const_int 4398046511104 [0x40000000000]))) -1 (nil)
-    (nil))
-cpp0: output pipe has been closed
-make[2]: *** [DAC960.o] Error 1
-make[2]: Leaving directory `/usr/src/2.4.17/drivers/block'
-make[1]: *** [_modsubdir_block] Error 2
-make[1]: Leaving directory `/usr/src/2.4.17/drivers'
-make: *** [_mod_drivers] Error 2
 
-any ideas?  gcc-3.0 compiles it but I don't know if that's a good idea or not.
-the kernel compiled with 2.95.4
 
-> Recent binutils warn about symbols marked as discardable but referenced
-> when the driver is built-in instead of modularized. Older ones just shut up.
-> 
-> Original explanation:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=100753194504523&w=2
-> 
-> Corrected mainly in 2.4.17-pre6 (and some leftovers in following pres).
-> >From ChangeLog-2.4.17:
-> 
-> pre6:
-> ...
-> - Create __devexit_p() function and use that on 
->   drivers which need it to make it possible to
->   use newer binutils                (Keith Owens)
-> ...
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Hi,
+I own a passiv ISDN card (model : Gazel PCI 128[R753], vendor : Bewan) which is badly initialized by the bios.
+The io ports are not rightly configured after the boot of my linux box.
+The result is a complete hang of the machine after typing an "modprobe hisax type=34 protocol=2".
+The last words of the console are "Gazel: PCI card automatic recognition".
+Albeit I've upgraded to the latest bios available for my motherboard (an MSI 5169), nothing changed.
+
+Karsten Keil wrote a hack called "pcitst" for setting the right io ports for the card.
+Alas, this module was written for the 2.2 kernel serie, and doesn't work with the 2.4 one.
+
+I'm not enough competent to port it for the new serie.
+Does someone know about a new version of pcitst ?
+
+This is really painful to keep stuck to the 2.2 serie, cause some new package are no more compatible with it (nfs, cdrecord ...)
+
+I thought that a way to solve the problem would be to manually set the io using setpci.
+I've started my box with the old kernel.
+In order to know the wrong detected settings, I typed "lspci -vv -s 10.0" and I got this :
+
+
+00:10.0 Network controller: PLX Technology, Inc.: Unknown device 1152 (rev 01)
+	Subsystem: PLX Technology, Inc.: Unknown device 1152
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 5
+	Region 0: Memory at dfffff80 (32-bit, non-prefetchable)
+	Region 1: I/O ports at d880
+	Region 2: I/O ports at dff0
+
+After having loaded the pcitst module in order to get the working settings, I obtained :
+
+	(...)
+	Region 0: Memory at dfffff80 (32-bit, non-prefetchable)
+	Region 1: I/O ports at 6100
+	Region 2: I/O ports at dff0
+	Region 3: [virtual] I/O ports at 6200
+
+After rebooting whith my 2.4.17 kernel, I naively tried
+"setpci -d 10b5:1152 BASE_ADDRESS_1=0x6101 BASE_ADDRESS_3=0x6201"
+but didn't get what I had expected.
+I get
+	(...)
+	Region 1: I/O ports at d880
+
+Which isn't what I meant.
+
+Does anyone have a clue ?
+
+Since I do not belong to the lkmailing list,
+could you please CC any answer to my address (whithout the _no_spam_, of course).
+Thanks.
+
+

@@ -1,153 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262870AbUCWWEB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 17:04:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbUCWWEB
+	id S262876AbUCWWG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 17:06:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbUCWWG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 17:04:01 -0500
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:42756 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S262870AbUCWWD4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 17:03:56 -0500
-Subject: [PATCH][Documentation]Add BINFMT_MISC support for Mono .NET-based
-	binaries
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-HizFsbYBMWLCqh2VaznR"
-Message-Id: <1080079353.868.13.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Tue, 23 Mar 2004 23:02:34 +0100
+	Tue, 23 Mar 2004 17:06:26 -0500
+Received: from arhont1.eclipse.co.uk ([81.168.98.121]:6567 "EHLO
+	pingo.core.arhont.com") by vger.kernel.org with ESMTP
+	id S262876AbUCWWGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 17:06:21 -0500
+Message-ID: <4060B4C7.8060107@arhont.com>
+Date: Tue, 23 Mar 2004 22:05:59 +0000
+From: Andrei Mikhailovsky <mlists@arhont.com>
+Reply-To: andrei@arhont.com
+Organization: Arhont Information Security
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040312 Debian/1.6-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hans-Peter Jansen <hpj@urpla.net>
+CC: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org
+Subject: Re: VMware-workstation-4.5.1 on linux-2.6.4-x86_64 host fails on
+ virtual ethernet setup
+References: <200403232233.46879.hpj@urpla.net>
+In-Reply-To: <200403232233.46879.hpj@urpla.net>
+X-Enigmail-Version: 0.83.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.9 (----)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have successfully installed (well actually upgraded) to 4.5.1 from 
+4.0.5. No patches where required and everything seems to work like a charm.
 
---=-HizFsbYBMWLCqh2VaznR
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+--
+Andrei Mikhailovsky
+Arhont Ltd
 
-Just as there is documentation for BINFMT_MISC and Java bytecodes
-support, I thought it could be interesting to add documentation on how
-to add BINFMT_MISC support for directly running .NET ".exe" binaries
-using the Mono CLR.
+Web: http://www.arhont.com
+Tel: +44 (0)870 4431337
+Fax: +44 (0)117 9690141
+PGP: Key ID - 0xFF67A4F4
+PGP: Server - keyserver.pgp.com
 
-Attached is patch against 2.6.5-rc2-bk3 but should apply against
-2.6.5-rc2-mm1.
 
-Please, consider it for inclusion. Thanks!
-
---=-HizFsbYBMWLCqh2VaznR
-Content-Disposition: attachment; filename=mono-binfmt-documentation.patch
-Content-Type: text/x-diff; name=mono-binfmt-documentation.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -uNr linux-2.6.5-rc2-bk3.old/Documentation/java.txt linux-2.6.5-rc2-bk3/Documentation/java.txt
---- linux-2.6.5-rc2-bk3.old/Documentation/java.txt	2004-03-11 03:55:35.000000000 +0100
-+++ linux-2.6.5-rc2-bk3/Documentation/java.txt	2004-03-23 22:46:42.323851618 +0100
-@@ -22,7 +22,7 @@
-    the kernel (CONFIG_BINFMT_MISC) and set it up properly.
-    If you choose to compile it as a module, you will have
-    to insert it manually with modprobe/insmod, as kmod
--   can not easy be supported with binfmt_misc. 
-+   can not easily be supported with binfmt_misc. 
-    Read the file 'binfmt_misc.txt' in this directory to know
-    more about the configuration process.
- 
-diff -uNr linux-2.6.5-rc2-bk3.old/Documentation/mono.txt linux-2.6.5-rc2-bk3/Documentation/mono.txt
---- /dev/null					1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.5-rc2-bk3/Documentation/mono.txt	2004-03-23 22:51:02.498954581 +0100
-@@ -0,0 +1,66 @@
-+               Mono(tm) Binary Kernel Support for Linux
-+               -----------------------------------------
-+
-+To configure Linux to automatically execute Mono-based .NET binaries
-+(in the form of .exe files) without the need to use the mono CLR
-+wrapper, you can use the BINFMT_MISC kernel support.
-+
-+This will allow you to execute Mono-based .NET binaries just like any
-+other program after you have done the following:
-+
-+1) You MUST FIRST install the Mono CLR support, either by downloading
-+   a binary package, a source tarball or by installing from CVS. Binary
-+   packages for several distributions can be found at:
-+
-+	http://go-mono.com/download.html
-+
-+   Instructions for compiling Mono can be found at:
-+
-+	http://www.go-mono.com/compiling.html
-+
-+   Once the Mono CLR support has been installed, just check that
-+   /usr/bin/mono (which could be located elsewhere, for example
-+   /usr/local/bin/mono) is working.
-+
-+2) You have to compile BINFMT_MISC either as a module or into
-+   the kernel (CONFIG_BINFMT_MISC) and set it up properly.
-+   If you choose to compile it as a module, you will have
-+   to insert it manually with modprobe/insmod, as kmod
-+   can not be easily supported with binfmt_misc. 
-+   Read the file 'binfmt_misc.txt' in this directory to know
-+   more about the configuration process.
-+
-+3) Add the following enries to /etc/rc.local or similar script
-+   to be run at system startup:
-+
-+# Insert BINFMT_MISC module into the kernel
-+if [ ! -e /proc/sys/fs/binfmt_misc/register ]; then
-+        /sbin/modprobe binfmt_misc
-+	# Some distributions, like Fedora Core, perform
-+	# the following command automatically when the
-+	# binfmt_misc module is loaded into the kernel.
-+	# Thus, it is possible that the following line
-+	# is not needed at all. Look at /etc/modprobe.conf
-+	# to check whether this is applicable or not.
-+        mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
-+fi
-+
-+# Register support for .NET CLR binaries
-+if [ -e /proc/sys/fs/binfmt_misc/register ]; then
-+	# Replace /usr/bin/mono with the correct pathname to
-+	# the Mono CLR runtime (usually /usr/local/bin/mono
-+	# when compiling from sources or CVS).
-+        echo ':CLR:M::MZ::/usr/bin/mono:' > /proc/sys/fs/binfmt_misc/register
-+else
-+        echo "No binfmt_misc support"
-+        exit 1
-+fi
-+
-+4) Check that .exe binaries can be ran without the need of a
-+   wrapper script, simply by launching the .exe file directly
-+   from a command prompt, for example:
-+
-+	/usr/bin/xsd.exe
-+
-+   NOTE: If this fails with a permission denied error, check
-+         that the .exe file has execute permissions.
-diff -uNr linux-2.6.5-rc2-bk3.old/fs/Kconfig.binfmt linux-2.6.5-rc2-bk3/fs/Kconfig.binfmt
---- linux-2.6.5-rc2-bk3.old/fs/Kconfig.binfmt	2004-03-23 22:42:51.097554452 +0100
-+++ linux-2.6.5-rc2-bk3/fs/Kconfig.binfmt	2004-03-23 22:54:31.191339272 +0100
-@@ -99,7 +99,7 @@
- 	---help---
- 	  If you say Y here, it will be possible to plug wrapper-driven binary
- 	  formats into the kernel. You will like this especially when you use
--	  programs that need an interpreter to run like Java, Python or
-+	  programs that need an interpreter to run like Java, Python, .NET or
- 	  Emacs-Lisp. It's also useful if you often run DOS executables under
- 	  the Linux DOS emulator DOSEMU (read the DOSEMU-HOWTO, available from
- 	  <http://www.tldp.org/docs.html#howto>). Once you have
-@@ -109,8 +109,9 @@
- 
- 	  You can do other nice things, too. Read the file
- 	  <file:Documentation/binfmt_misc.txt> to learn how to use this
--	  feature, and <file:Documentation/java.txt> for information about how
--	  to include Java support.
-+	  feature, <file:Documentation/java.txt> for information about how
-+	  to include Java support. and <file:Documentation/mono.txt> for
-+          information about how to include Mono-based .NET support.
- 
-           To use binfmt_misc, you will need to mount it:
- 		mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
-
---=-HizFsbYBMWLCqh2VaznR--
-
+Hans-Peter Jansen wrote:
+> [CCing LKML in order to give other people, which may suffer from this 
+>  in the future something to google for ;-)]
+> 
+> Hi Petr,
+> 
+> I'm suffering from a strange problem here. I tried to reach you on
+> vmware.for-linux.experimental without success (got a trollish answer only).
+> 
+> Here it is:
+> I'm trying to get VMware-workstation-4.5.1-7568.i386.rpm working on SuSE 
+> 9.1b1, based on linux-2.6.4-x86_64. Thanks to some googling, I found related 
+> hints from you and your vmware-any-any-update54, which got me around the 
+> compile issues in vmmon with this patch:
+> 
+> --- vmmon-only/linux/hostif.c.orig	2004-03-21 20:53:35.042565778 +0100
+> +++ vmmon-only/linux/hostif.c	2004-03-21 20:53:40.284442570 +0100
+> @@ -516,13 +516,13 @@
+>  ClearNXBit(VA vaddr)
+>  {
+>     pgd_t *pgd = pgd_offset_k(vaddr);
+> -   pmd_t *pmd = pmd_offset(pgd, vaddr);
+> +   pmd_t *pmd = pmd_offset_map(pgd, vaddr);
+>     pte_t *pte;
+>  
+>     if (pmd_val(*pmd) & _PAGE_PSE) {
+>        pte = (pte_t*)pmd;
+>     } else {
+> -      pte = pte_offset(pmd, vaddr);
+> +      pte = pte_offset_map(pmd, vaddr);
+>     }
+>     if (pte_val(*pte) & _PAGE_NX) {
+>        pte_val(*pte) &= ~_PAGE_NX;
+> 
+> 
+> vmware-config.pl and /etc/init.d/vmware both fail at the same point,
+> setting up virtual networking [the latter with VMWARE_DEBUG=yes]:
+> 
+> Starting VMware services:
+>    Virtual machine monitor                                             done
+>    Virtual ethernet                                                    done
+>    Bridged networking on /dev/vmnet0cd /usr/bin && /usr/bin/vmnet-bridge
+> -d /var/run/vmnet-bridge-0.pid /dev/vmnet0 eth0
+> eth0: Not a valid Ethernet interface
+>                                                                       failed
+> 
+> 
+> This triggers these syslog messages:
+> 
+> Mar 22 21:45:57 tyrex kernel: /dev/vmmon: Module vmmon: registered with major=10 minor=165
+> Mar 22 21:45:57 tyrex kernel: /dev/vmmon: Module vmmon: initialized
+> Mar 22 21:45:57 tyrex kernel: vmnet: module license 'unspecified' taints kernel.
+> Mar 22 21:45:57 tyrex kernel: /dev/vmnet: open called by PID 4871 (vmnet-bridge)
+> Mar 22 21:45:57 tyrex kernel: /dev/vmnet: hub 0 does not exist, allocating memory.
+> Mar 22 21:45:57 tyrex kernel: /dev/vmnet: port on hub 0 successfully opened
+> Mar 22 21:45:57 tyrex kernel: ioctl32(vmnet-bridge:4871): Unknown cmd fd(5) cmd(00008941){00} 
+> arg(ffffd268) on /dev/vmnet0
+> 
+> Replacing vmnet.tar with yours suffers from the same problem.
+> 
+> stracing vmnet-bridge command:
+> execve("/usr/bin/vmnet-bridge", ["vmnet-bridge", "-d", "/var/run/vmnet-bridge-0.pid", 
+> "/dev/vmnet0", "eth0"], [/* 72 vars */]) = 0
+> [ Process PID=4910 runs in 32 bit mode. ]
+> eth0: Not a valid Ethernet interface
+> 
+> syslog:
+> Mar 22 21:51:40 tyrex kernel: /dev/vmnet: open called by PID 4910
+> (vmnet-bridge)
+> Mar 22 21:51:40 tyrex kernel: /dev/vmnet: port on hub 0 successfully opened
+> Mar 22 21:51:40 tyrex kernel: ioctl32(vmnet-bridge:4910): Unknown cmd fd(5) cmd(00008941){00}
+> arg(ffffd288) on /dev/vmnet0
+> 
+> Surely, eth0 is up and running (I highly depend on a working lan here ;-)
+> 
+> Obviously it's some problem with i386 <-> x86_64 interfacing.
+> 
+> Any ideas, what to try next?
+> 
+> TIA,
+> Pete
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291592AbSBAHlB>; Fri, 1 Feb 2002 02:41:01 -0500
+	id <S291599AbSBAH6t>; Fri, 1 Feb 2002 02:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291591AbSBAHkv>; Fri, 1 Feb 2002 02:40:51 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:14475 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S291590AbSBAHkh>; Fri, 1 Feb 2002 02:40:37 -0500
-Message-Id: <200201312226.g0VMQIKV001568@tigger.cs.uni-dortmund.de>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Radix tree page cache 
-In-Reply-To: Message from Andrea Arcangeli <andrea@suse.de> 
-   of "Thu, 31 Jan 2002 03:25:40 +0100." <20020131032540.W1309@athlon.random> 
-Date: Thu, 31 Jan 2002 23:26:18 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S291600AbSBAH6j>; Fri, 1 Feb 2002 02:58:39 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:57361 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S291599AbSBAH60>;
+	Fri, 1 Feb 2002 02:58:26 -0500
+To: <mingo@elte.hu>
+Cc: Anton Blanchard <anton@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Rik van Riel <riel@conectiva.com.br>, John Stoffel <stoffel@casc.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+In-Reply-To: <Pine.LNX.4.33.0202010958220.2111-100000@localhost.localdomain>
+X-No-CC: Reply to lists, not to me.
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <Pine.LNX.4.33.0202010958220.2111-100000@localhost.localdomain>
+Date: 01 Feb 2002 09:59:51 +0200
+Message-ID: <87u1t1ws20.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> said:
-> On Wed, Jan 30, 2002 at 10:25:44PM +0200, Momchil Velikov wrote:
-> > Linus,
-> > 
-> > Please, consider for inclusion in 2.5.3 series the following radix
-> > tree page cache patch.
-> 
-> Please benchmark on files 10giga large, only do cached I/O (reads are
-> fine) between 9G and 10G offset for example.
+>>>>> "Ingo" == Ingo Molnar <mingo@elte.hu> writes:
 
-All published data I've seen on file size distribution on Unix show that
-the overwhelming mayority of files is a few KiB long, so this is a corner
-case. Why benchmark it expressly?
--- 
-Horst von Brand			     http://counter.li.org # 22616
+Ingo> On Fri, 1 Feb 2002, Anton Blanchard wrote:
+
+>> There were a few solutions (from davem and ingo) to allocate a larger
+>> hash but with the radix patch we no longer have to worry about this.
+
+Ingo> there is one big issue we forgot to consider.
+
+Ingo> in the case of radix trees it's not only search depth that gets worse with
+
+Hmm, worse, yes, the same way as page tables get "worse" with larger
+address spaces.
+
+Ingo> big files. The thing i'm worried about is the 'big pagecache lock' being
+Ingo> reintroduced again. If eg. a database application puts lots of data into a
+
+Yes, though I'd strongly suspect big database engines can/should/do
+benefit from doing their application specific caching and indexing,
+outperforming whatever cache implementation the OS has.
+
+Ingo> single file (multiple gigabytes - why not), then the
+mapping-> i_shared_lock becomes a 'big pagecache lock' again, causing
+Ingo> serious SMP contention for even the read() case. Benchmarks show that it's
+Ingo> the distribution of locks that matters on big boxes.
+
+So, we can use a read-write spinlock instead ->i_shared_lock, ok ?
+
+Regards,
+-velco

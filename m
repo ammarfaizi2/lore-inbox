@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262676AbSJTIeR>; Sun, 20 Oct 2002 04:34:17 -0400
+	id <S262730AbSJTIkF>; Sun, 20 Oct 2002 04:40:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262730AbSJTIeR>; Sun, 20 Oct 2002 04:34:17 -0400
-Received: from findaloan-online.cc ([216.209.85.42]:21773 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S262676AbSJTIeQ>;
-	Sun, 20 Oct 2002 04:34:16 -0400
-Date: Sun, 20 Oct 2002 04:40:56 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Zac Hansen <xaxxon@chopper.slackworks.com>
-Cc: Nicholas Wourms <nwourms@netscape.net>, linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper outrage, old and new
-Message-ID: <20021020084056.GD5064@mark.mielke.cc>
-References: <aot5a4$894$1@main.gmane.org> <Pine.LNX.4.44.0210200155580.4306-100000@chopper.slackworks.com>
+	id <S262782AbSJTIkF>; Sun, 20 Oct 2002 04:40:05 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:5775 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262750AbSJTIkE>;
+	Sun, 20 Oct 2002 04:40:04 -0400
+Date: Sun, 20 Oct 2002 10:46:01 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jens Axboe <axboe@suse.de>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Jan Dittmer <jan@jandittmer.de>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: Oops on boot with TCQ enabled (VIA KT133A)
+Message-ID: <20021020104601.C8606@ucw.cz>
+References: <200210190241.49618.jan@jandittmer.de> <20021019091518.GG871@suse.de> <20021019222403.B3018@ucw.cz> <20021019230434.A800@ucw.cz> <20021020003834.GJ871@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210200155580.4306-100000@chopper.slackworks.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021020003834.GJ871@suse.de>; from axboe@suse.de on Sun, Oct 20, 2002 at 02:38:34AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 20, 2002 at 01:58:26AM -0400, Zac Hansen wrote:
-> I disagree with your statement that his rants are off topic.  Unless you 
-> believe that the purpose of Linux isn't the advancement of Free software, 
-> then debating the merits of using non-Free software in the development 
-> process of a major cornerstone of the Free software movement is 
-> fundamentally on topic.  
+On Sun, Oct 20, 2002 at 02:38:34AM +0200, Jens Axboe wrote:
+> On Sat, Oct 19 2002, Vojtech Pavlik wrote:
+> > On Sat, Oct 19, 2002 at 10:24:03PM +0200, Vojtech Pavlik wrote:
+> > 
+> > > > It's not an oops, and it's not causes by TCQ either. The above is simply
+> > > > a reminder to fix the ide init sequence, because it's probe sequence
+> > > > tries to use drive->disk before it has been set up. That is worked
+> > > > around, but stack is dumped for good measure. So you can feel
+> > > > comfortable using 2.5.44 regardless.
+> > > > 
+> > > > But I'm curious about TCQ on your system, since another VIA user
+> > > > reported problems. Does it appear to work for you?
+> > > 
+> > > It definitely works on my VIA just fine.
+> > 
+> > Famous last words. I tried to play with the /proc using_tcq setting and
+> > got a filesystem corruption immediately.
+> 
+> There _may_ be issues with changing depth on the fly. So if you could
+> just test without fiddling with changing depths that would be great.
 
-Ask Richard if GCC was ever initially bootstrapped using a non-GPL
-compiler suite.
-
-In the answer to that question lies the truth about the merits of Richard's
-rant against those with dissimilar opinions to his own.
-
-mark
+Ok. No changes in /proc using_tcq after boot, assuming it's enabled
+automatically (checked that in kernel config0, it works perfectly fine.
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Vojtech Pavlik
+SuSE Labs

@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264035AbSIQKeg>; Tue, 17 Sep 2002 06:34:36 -0400
+	id <S264040AbSIQKix>; Tue, 17 Sep 2002 06:38:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264036AbSIQKeg>; Tue, 17 Sep 2002 06:34:36 -0400
-Received: from mail.cyberus.ca ([216.191.240.111]:21964 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S264035AbSIQKef>;
-	Tue, 17 Sep 2002 06:34:35 -0400
-Date: Tue, 17 Sep 2002 06:31:03 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: "David S. Miller" <davem@redhat.com>
-cc: <linux-kernel@vger.kernel.org>, <todd-lkml@osogrande.com>,
-       <tcw@tempest.prismnet.com>, <netdev@oss.sgi.com>, <pfeather@cs.unm.edu>
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-In-Reply-To: <20020916.125211.82482173.davem@redhat.com>
-Message-ID: <Pine.GSO.4.30.0209170622440.1371-100000@shell.cyberus.ca>
+	id <S264042AbSIQKix>; Tue, 17 Sep 2002 06:38:53 -0400
+Received: from k100-28.bas1.dbn.dublin.eircom.net ([159.134.100.28]:1298 "EHLO
+	corvil.com.") by vger.kernel.org with ESMTP id <S264040AbSIQKix>;
+	Tue, 17 Sep 2002 06:38:53 -0400
+Message-ID: <3D870734.9080301@corvil.com>
+Date: Tue, 17 Sep 2002 11:43:00 +0100
+From: Padraig Brady <padraig.brady@corvil.com>
+Organization: Corvil Networks
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dominik Brodowski <linux@brodo.de>
+CC: torvalds@transmeta.com, hpa@transmeta.com, linux-kernel@vger.kernel.org,
+       cpufreq@www.linux.org.uk
+Subject: Re: [PATCH][2.5.35] CPU frequency and voltage scaling (0/5)
+References: <20020917113047.C25385@brodo.de>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dominik Brodowski wrote:
+> Hi Linus, hpa, lkml,
+> 
+> The following patches add CPU frequency and volatage scaling
+> support (Intel SpeedStep, AMD PowerNow, etc.) to kernel 2.5.35.
+> 
+> As was discussed last time, the cpufreq patches have been reworked to use a
+> policy-based approach now. A cpufreq policy consists of four values:
+> cpu	-	the affected CPU nr., or CPUFREQ_ALL_CPUS for all cpus
+> min	-	minimum frequency in kHz
+> max	-	maximum frequency in kHz
+> policy	-	CPUFREQ_POLICY_PERFORMANCE or CPUFREQ_POLICY_POWERSAVE
+> 
 
+This is much better, but I preferred Dave Jones' suggestion of
+supporting stackable policies as I can see no end to them:
+max_cpu_temp, temp_hysteresis, favor_fast_{fsb,multiplier}, ...
 
-On Mon, 16 Sep 2002, David S. Miller wrote:
-
->    From: todd-lkml@osogrande.com
->    Date: Mon, 16 Sep 2002 08:16:47 -0600 (MDT)
->
->    are there any standards in progress to support this.
->
-> Your question makes no sense, it is a hardware optimization
-> of an existing standard.  The chip merely is told what flows
-> exist and it concatenates TCP data from consequetive packets
-> for that flow if they arrive in sequence.
->
-
-Hrm. Again, the big Q:
-How "thmart" is this NIC going to be (think congestion control and
-the du-jour flavor).
-
-cheers,
-jamal
+Pádraig.
 

@@ -1,79 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUI0NIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUI0NJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbUI0NIz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 09:08:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbUI0NIz
+	id S265805AbUI0NJn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 09:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUI0NJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 09:08:55 -0400
-Received: from 104.engsoc.carleton.ca ([134.117.69.104]:19652 "EHLO
-	certainkey.com") by vger.kernel.org with ESMTP id S264503AbUI0NIx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 09:08:53 -0400
-Date: Mon, 27 Sep 2004 09:07:28 -0400
-From: Jean-Luc Cooke <jlcooke@certainkey.com>
-To: linux@horizon.com
-Cc: jmorris@redhat.com, cryptoapi@lists.logix.cz, tytso@mit.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
-Message-ID: <20040927130728.GE28317@certainkey.com>
-References: <20040926052308.GB8314@thunk.org> <20040927005033.14622.qmail@science.horizon.com>
+	Mon, 27 Sep 2004 09:09:43 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:33998 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S265805AbUI0NJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 09:09:40 -0400
+Date: Mon, 27 Sep 2004 15:09:19 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: heap-stack-gap for 2.6
+Message-ID: <20040927130919.GE28865@dualathlon.random>
+References: <20040925162252.GN3309@dualathlon.random> <1096272553.6572.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040927005033.14622.qmail@science.horizon.com>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <1096272553.6572.3.camel@laptop.fenrus.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 12:50:33AM -0000, linux@horizon.com wrote:
-> > SHA-1 without padding, sure.
+On Mon, Sep 27, 2004 at 10:09:13AM +0200, Arjan van de Ven wrote:
 > 
-> > hash("a") = hash("a\0") = hash("a\0\0") = ...
-> > hash("b") = hash("b\0") = hash("b\0\0") = ...
-> > hash("c") = hash("c\0") = hash("c\0\0") = ...
+> > I didn't check the topdown model, in theory it should be extended to
+> > cover that too, this is only working for the legacy model right now
+> > because those apps aren't going to use topdown anyways.
 > 
-> And how do I hash one byte with SHA-1 *without padding*?  The only
-> hashing code I can find in random.c works 64 bytes at a time.
-> What are the other 63 bytes?
-> 
-> (I agree that that *naive* padding leads to collisions, but random.c
-> doesn't do ANY padding.)
+> which "those apps" ?
 
-And I guess it is my fault to assume "no padding" is naive padding.
+those apps that wants to allocate as close as possible to the stack.
+They're already using /proc/self/mapped_base, the gap of topdown isn't
+configurable.
 
-> > I see.  And in the -mm examples, is the code easily readable for other
-> > os-MemMgt types?  If no, then I guess random.c is not the exception and I
-> > apologize.
-> 
-> The Linux core -mm code is a fairly legendary piece of Heavy Wizardry.
-> To paraphrase, "do not meddle in the affairs of /usr/src/linux/mm/, for
-> it is subtle and quick to anger."  There *are* people who understand it,
-> and it *is* designed (not a decaying pile of old hacks that *nobody*
-> understands how it works like some software), but it's also a remarkably
-> steep learning curve.  A basic overview isn't so hard to acquire, but the
-> locking rules have subtle details.  There are places where someone very good
-> noticed that a given lock doesn't have to be taken on a fast path if you
-> avoid doing certain things anywhere else that you'd think would be legal.
-> 
-> And so if someone tries to add code to do the "obvious" thing, the
-> lock-free fast path develops a race condition.  And we all know what
-> fun race conditions are to debug.
-> 
-> Fortunately, some people see this as a challenge and Linux is blessed with
-> some extremely skilled VM hackers.  And some of them even write and publish
-> books on the subject.  But while a working VM system can be clear, making it
-> go fast leads to a certain amount of tension with the clarity goal.
-
-Freightning ... but informative thank you.
-
-> > And the ring-buffer system which delays the expensive mixing stages untill a
-> > a sort interrupt does a great job (current and my fortuna-patch).  Difference
-> > being, fortuna-patch appears to be 2x faster.
-> 
-> Ooh, cool!  Must play with to steal the speed benefits.  Thank you!
-
-I'll have a patch for a "enable in crypto options" and "blocking with entropy
-estimation" random-fortuna.c patch this week.  My fiance is out of town and
-there should be time to hack one up.
-
-JLC
+Also topdown may screwup some MAP_FIXED usage below the 1G mark, no?

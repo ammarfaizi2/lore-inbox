@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbUIAKZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265928AbUIAKkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265808AbUIAKZK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 06:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266014AbUIAKZK
+	id S265928AbUIAKkv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 06:40:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266014AbUIAKkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 06:25:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44167 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265808AbUIAKZD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 06:25:03 -0400
-Subject: Re: Embedded Linux :: How different is it?
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: prasad@atc.tcs.co.in
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <51980.203.200.212.145.1094033022.squirrel@203.200.212.145>
-References: <51980.203.200.212.145.1094033022.squirrel@203.200.212.145>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aivQBqd299nonYaF4Rw/"
-Organization: Red Hat UK
-Message-Id: <1094034205.2947.6.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 01 Sep 2004 12:23:26 +0200
+	Wed, 1 Sep 2004 06:40:51 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:49924 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S265928AbUIAKkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 06:40:49 -0400
+Message-ID: <4135A834.50002@hist.no>
+Date: Wed, 01 Sep 2004 12:45:08 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm2 Inconsistent kallsyms
+References: <20040830235426.441f5b51.akpm@osdl.org>	<41343C0F.5020508@hist.no> <20040831020206.191c0d01.akpm@osdl.org>
+In-Reply-To: <20040831020206.191c0d01.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
---=-aivQBqd299nonYaF4Rw/
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>Helge Hafting <helge.hafting@hist.no> wrote:
+>  
+>
+>>This compiled, but failed anyway (after make mrproper):
+>>
+>>   LD      vmlinux
+>>   SYSMAP  System.map
+>>   SYSMAP  .tmp_System.map
+>> Inconsistent kallsyms data, try setting CONFIG_KALLSYMS_EXTRA_PASS
+>>    
+>>
+>
+>It can happen I guess, depending on which way the wind was blowing when
+>your binutils was released.
+>
+>Do you try doing what it said?
+>  
+>
+I tried it, and it worked.  This is posted using 2.6.9-rc1-mm2
 
-On Wed, 2004-09-01 at 12:03, prasad@atc.tcs.co.in wrote:
-
-> How different is a embedded linux kernel from the normal mainstream
-> one. e.g. I have seen linux run on a mobile phone. When i buy it, am
-> i not entitled to get the source-code???
-
-yes you absolutely are entitled to the full source code including
-"all the source code for all modules it contains, plus any
-associated interface definition files, plus the scripts used to
-control compilation and installation"
-
-In fact the vendor of the phone is required to either ship the source
-with the phone (rare) or include a written offer to give you the source.
-
-
---=-aivQBqd299nonYaF4Rw/
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBNaMdxULwo51rQBIRAspdAJ42/yjtiv56M6RIh3VTGkgDkAGYGgCeI+LE
-koGcd8bFyXWFs0zo13t0fsU=
-=UW1w
------END PGP SIGNATURE-----
-
---=-aivQBqd299nonYaF4Rw/--
-
+Helge Hafting

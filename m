@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262505AbSIZMX5>; Thu, 26 Sep 2002 08:23:57 -0400
+	id <S262504AbSIZMWK>; Thu, 26 Sep 2002 08:22:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262506AbSIZMX5>; Thu, 26 Sep 2002 08:23:57 -0400
-Received: from holomorphy.com ([66.224.33.161]:9125 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262505AbSIZMX4>;
-	Thu, 26 Sep 2002 08:23:56 -0400
-Date: Thu, 26 Sep 2002 05:29:09 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.38-mm3
-Message-ID: <20020926122909.GN3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dipankar Sarma <dipankar@in.ibm.com>,
-	Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-	"linux-mm@kvack.org" <linux-mm@kvack.org>
-References: <3D92BE07.B6CDFE54@digeo.com> <20020926175445.B18906@in.ibm.com>
+	id <S262505AbSIZMWK>; Thu, 26 Sep 2002 08:22:10 -0400
+Received: from pc-62-31-66-34-ed.blueyonder.co.uk ([62.31.66.34]:63106 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S262504AbSIZMWJ>; Thu, 26 Sep 2002 08:22:09 -0400
+Date: Thu, 26 Sep 2002 13:27:23 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Jakob Oestergaard <jakob@unthought.net>,
+       "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: jbd bug(s) (?)
+Message-ID: <20020926132723.D2721@redhat.com>
+References: <20020924072117.GD2442@unthought.net> <20020925173605.A12911@redhat.com> <20020926122124.GS2442@unthought.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <20020926175445.B18906@in.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020926122124.GS2442@unthought.net>; from jakob@unthought.net on Thu, Sep 26, 2002 at 02:21:24PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 05:54:45PM +0530, Dipankar Sarma wrote:
-> Updated 2.5.38 RCU core and dcache_rcu patches are now available
-> at http://sourceforge.net/project/showfiles.php?group_id=8875&release_id=112473
-> The differences since earlier versions are -
-> rcu_ltimer - call_rcu() fixed for preemption and the earlier fix I had sent
->              to you.
-> read_barrier_depends - fixes list_for_each_rcu macro compilation error.
-> dcache_rcu - uses list_add_rcu in d_rehash and list_for_each_rcu in d_lookup
->              making the read_barrier_depends() fix I had sent to you
->              earlier unnecessary.
+Hi,
 
-Is there an update to the files_struct stuff too? I'm seeing large
-overheads there also.
+On Thu, Sep 26, 2002 at 02:21:24PM +0200, Jakob Oestergaard wrote:
 
+> Originally it was my impression that the index was written fairly
+> frequently, *and* that you did not have the atomic-sector-write
+> guarantee.
 
-Thanks,
-Bill
+The index is only updated when we purge stuff out of the journal.
+That can still be quite frequent on a really busy journal, but it's
+definitely not a required part of a transaction.  
+
+That's deliberate --- the ext3 journal is designed to be written as
+sequentially as possible, so seeking to the index block is an expense
+which we try to avoid.
+
+> RAID wouldn't save me in the case where the journal index is screwed due
+> to a partial sector write and a power loss.
+
+A partial sector write is essentially impossible.  It's unlikely that
+the data on disk would be synchronised beyond the point at which the
+write stopped, and even if it was, the CRC would be invalid, so you'd
+get a bad sector error return on subsequent attempts to read that data
+--- you'd not be given silently corrupt data.
+
+Making parts of the disk suddenly unreadable on power-fail is
+generally considered a bad thing, though, so modern disks go to great
+lengths to ensure the write finishes.
+
+--Stephen

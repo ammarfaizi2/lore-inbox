@@ -1,71 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266887AbUBRAWl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:22:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUBRAWK
+	id S265925AbUBRAWk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 19:22:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266887AbUBRAWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:22:10 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:53519 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S266906AbUBRAVO (ORCPT
+	Tue, 17 Feb 2004 19:22:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:25565 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265925AbUBRAUd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 19:21:14 -0500
-Date: Wed, 18 Feb 2004 01:15:16 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, GCS <gcs@lsc.hu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.3-rc4
-In-Reply-To: <20040217200545.GP1308@fs.tum.de>
-Message-ID: <Pine.LNX.4.58.0402172118510.7851@serv>
-References: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
- <20040217184543.GA18495@lsc.hu> <Pine.LNX.4.58.0402171107040.2154@home.osdl.org>
- <20040217200545.GP1308@fs.tum.de>
+	Tue, 17 Feb 2004 19:20:33 -0500
+Date: Tue, 17 Feb 2004 16:20:26 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Robert White <rwhite@casabyte.com>
+cc: tridge@samba.org, "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       "'Al Viro'" <viro@parcelfarce.linux.theplanet.co.uk>,
+       "'Neil Brown'" <neilb@cse.unsw.edu.au>
+Subject: RE: UTF-8 and case-insensitivity
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAABSIByOpdrUqd8yc+ZmEhqQEAAAAA@casabyte.com>
+Message-ID: <Pine.LNX.4.58.0402171619010.2154@home.osdl.org>
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAABSIByOpdrUqd8yc+ZmEhqQEAAAAA@casabyte.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, 17 Feb 2004, Adrian Bunk wrote:
 
-> > Which implies a configuration error (but the Kconfig file looks correct,
-> > so I wonder if you found a bug in the configurator).
+On Tue, 17 Feb 2004, Robert White wrote:
 >
-> Most likely the problem is CONFIG_I2C=m and the fact that FB_RADEON_I2C
-> is a bool.
+> OK, so I wrote the below, but then in the summary I realized that there was
+> a significant factor that doesn't fit in with the rest of the post.  Case
+> insensitivity, and more generally locale equivalence rules, is a security
+> nightmare.  Consider the number of different file names that "su" could map
+> to if you apply case insensitivity (4) and/or worse yet the various accents
+> and umlats (?,etc) that sort-equivalent for "u" in some locales.  The user
+> types "su" and runs "S(u-umlat)" etc. 
 
-Try the patch below. I noticed that problem recently and I hoped I could
-get away with it after 2.6.3. :)
-When calculating the select expression it should only use the config
-symbol itself not the complete dependency, otherwise a boolean could be
-turned into a tristate.
+This is but one reason why I will _refuse_ to make case insensitivity
+magically start happening on regular "open()" etc calls.
 
-bye, Roman
+You'd literally have to use a _different_ system call to do a 
+case-insensitive file open. Exactly because anything else would be very 
+confusing to existing apps (and thus be potential security holes).
 
---- linux/scripts/kconfig/menu.c	18 Jul 2003 21:22:54 -0000	1.1.1.1
-+++ linux/scripts/kconfig/menu.c	17 Feb 2004 20:18:28 -0000
-@@ -172,16 +172,16 @@ void menu_finalize(struct menu *parent)
- 				if (prop->menu != menu)
- 					continue;
- 				dep = expr_transform(prop->visible.expr);
--				dep = expr_alloc_and(expr_copy(basedep), dep);
--				dep = expr_eliminate_dups(dep);
--				if (menu->sym && menu->sym->type != S_TRISTATE)
--					dep = expr_trans_bool(dep);
--				prop->visible.expr = dep;
- 				if (prop->type == P_SELECT) {
- 					struct symbol *es = prop_get_symbol(prop);
- 					es->rev_dep.expr = expr_alloc_or(es->rev_dep.expr,
- 							expr_alloc_and(expr_alloc_symbol(menu->sym), expr_copy(dep)));
- 				}
-+				dep = expr_alloc_and(expr_copy(basedep), dep);
-+				dep = expr_eliminate_dups(dep);
-+				if (menu->sym && menu->sym->type != S_TRISTATE)
-+					dep = expr_trans_bool(dep);
-+				prop->visible.expr = dep;
- 			}
- 		}
- 		for (menu = parent->list; menu; menu = menu->next)
+		Linus

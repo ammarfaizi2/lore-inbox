@@ -1,44 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264898AbUASNFX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 08:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264903AbUASNFX
+	id S264916AbUASNRW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 08:17:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUASNRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 08:05:23 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:3515 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S264898AbUASNFT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 08:05:19 -0500
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org, jbarnes@sgi.com, steiner@sgi.com,
-       torvalds@osdl.org
-Subject: [patch] increse MAX_NR_MEMBLKS to same as MAX_NUMNODES on NUMA
-Message-Id: <E1AiZ5h-00043I-00@jaguar.mkp.net>
-From: Jes Sorensen <jes@trained-monkey.org>
-Date: Mon, 19 Jan 2004 08:05:17 -0500
+	Mon, 19 Jan 2004 08:17:22 -0500
+Received: from gizmo08bw.bigpond.com ([144.140.70.18]:28381 "HELO
+	gizmo08bw.bigpond.com") by vger.kernel.org with SMTP
+	id S264916AbUASNRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 08:17:19 -0500
+Message-ID: <400BD910.2000608@snapgear.com>
+Date: Mon, 19 Jan 2004 23:18:08 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH]: linux-2.6.1-uc0 (MMU-less fix ups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Since we now support # of CPUs > BITS_PER_LONG with cpumask_t it would
-be nice to be able to support more than BITS_PER_LONG memory blocks.
+Hi All,
 
-Patch relative to 2.6.1-mm4.
+An update of the uClinux (MMU-less) fixups against linux-2.6.1.
+Quite a few small fixes here, mostly carried forward from previous
+patch sets. One important new fix to the page_alloc code for MMUless
+systems.
 
-Cheers,
-Jes
+You can get it at:
 
---- orig/linux-2.6.1-mm4/include/linux/mmzone.h	Fri Jan 16 01:59:20 2004
-+++ linux-2.6.1-mm4/include/linux/mmzone.h	Mon Jan 19 04:44:37 2004
-@@ -296,7 +296,7 @@
- 					  void *, size_t *);
- 
- #ifdef CONFIG_NUMA
--#define MAX_NR_MEMBLKS	BITS_PER_LONG /* Max number of Memory Blocks */
-+#define MAX_NR_MEMBLKS	MAX_NUMNODES /* Max number of Memory Blocks */
- #else /* !CONFIG_NUMA */
- #define MAX_NR_MEMBLKS	1
- #endif /* CONFIG_NUMA */
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.1-uc0.patch.gz
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+Snapgear - A CyberGuard Company             PHONE:       +61 7 3279 1822
+825 Stanley St,                             FAX:         +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

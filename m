@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130920AbRCFEdQ>; Mon, 5 Mar 2001 23:33:16 -0500
+	id <S130926AbRCFEyK>; Mon, 5 Mar 2001 23:54:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130922AbRCFEdF>; Mon, 5 Mar 2001 23:33:05 -0500
-Received: from smtp.bellnexxia.net ([209.226.175.26]:17642 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S130920AbRCFEcq>; Mon, 5 Mar 2001 23:32:46 -0500
-Message-ID: <005101c0a5f6$798a0480$9666a8c0@centerlight.net>
-From: "Nicolas Cadou" <niccad@virtuel.qc.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: Console driver and printing
-Date: Mon, 5 Mar 2001 23:32:37 -0500
+	id <S130927AbRCFEyA>; Mon, 5 Mar 2001 23:54:00 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:42119 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130926AbRCFExv>;
+	Mon, 5 Mar 2001 23:53:51 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Message-ID: <15012.27969.175306.527274@pizda.ninka.net>
+Date: Mon, 5 Mar 2001 20:53:21 -0800 (PST)
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: David Brownell <david-b@pacbell.net>,
+        Manfred Spraul <manfred@colorfullife.com>, zaitcev@redhat.com,
+        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: SLAB vs. pci_alloc_xxx in usb-uhci patch
+In-Reply-To: <20010305232053.A16634@flint.arm.linux.org.uk>
+In-Reply-To: <001f01c0a5c0$e942d8f0$5517fea9@local>
+	<00d401c0a5c6$f289d200$6800000a@brownell.org>
+	<20010305232053.A16634@flint.arm.linux.org.uk>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I would like to know if know if there is any support for printing in the
-console driver. I mean, can the console receive from an application an
-mc4/mc5 sequence as defined in a terminfo entry and print what was sent in
-between? If so is there any way to configure the device to which the data
-would be sent?
 
-I hope I do not abuse this list by posting this question here, but I
-couldn't find any information anywhere else.
+Russell King writes:
+ > A while ago, I looked at what was required to convert the OHCI driver
+ > to pci_alloc_consistent, and it turns out that the current interface is
+ > highly sub-optimal.  It looks good on the face of it, but it _really_
+ > does need sub-page allocations to make sense for USB.
+ > 
+ > At the time, I didn't feel like creating a custom sub-allocator just
+ > for USB, and since then I haven't had the inclination nor motivation
+ > to go back to trying to get my USB mouse or iPAQ communicating via USB.
+ > (I've not used this USB port for 3 years anyway).
 
-If I can't print through the console, would anybody have any experience
-about configuring an xterm (which can print, I tested it) to use a cp437
-(IBM) encoding?
+Gerard Roudier wrote for the sym53c8xx driver the exact thing
+UHCI/OHCI need for this.
 
-I've always managed to find everything myself, but I'm running short on time
-and this is the last problem before installing linux in 50 to 100 stores, so
-I could use a little help :-)
+I think people are pissing their pants over the pci_alloc_consistent
+interface for no reason.  It gives PAGE<<order sized/aligned chunks
+back to the caller at the request of Linus so that drivers did not
+have to guess "is this 16-byte aligned..." etc.
 
-Nicolas Cadou
-
+Later,
+David S. Miller
+davem@redhat.com

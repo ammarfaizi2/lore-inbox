@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317665AbSGLEoV>; Fri, 12 Jul 2002 00:44:21 -0400
+	id <S317670AbSGLFBA>; Fri, 12 Jul 2002 01:01:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317670AbSGLEoU>; Fri, 12 Jul 2002 00:44:20 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12043 "EHLO
+	id <S317675AbSGLFBA>; Fri, 12 Jul 2002 01:01:00 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52235 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317665AbSGLEoT>; Fri, 12 Jul 2002 00:44:19 -0400
-Message-ID: <3D2E5F40.9050202@zytor.com>
-Date: Thu, 11 Jul 2002 21:46:56 -0700
+	id <S317670AbSGLFA7>; Fri, 12 Jul 2002 01:00:59 -0400
+To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: linux-kernel@vger.kernel.org
 Subject: Re: IDE/ATAPI in 2.5
-References: <agl7ov$p91$1@cesium.transmeta.com> <20020712041320.GA2046@codepoet.org> <3D2E585F.2010302@zytor.com> <20020712044413.GA2436@codepoet.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: 11 Jul 2002 22:03:33 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <aglnv5$qkg$1@cesium.transmeta.com>
+References: <agl7ov$p91$1@cesium.transmeta.com> <E17Son2-0001yp-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
->>
->>Lovely.  Let's make EACH APPLICATION support two disjoint APIs for no 
->>good reason.
+Followup to:  <E17Son2-0001yp-00@the-village.bc.nu>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
+>
+> > Please consider deprecating or removing ide-floppy/ide-tape/ide-cdrom
+> > and treat all ATAPI devices as what they really are -- SCSI over IDE.
 > 
-> Lovely.  Lets rip off a sarcastic answer without spending two
-> seconds to think.  Why would anybody need to support two APIs?  
-> The existing CDROM_SEND_PACKET ioctl is an ATAPI/SCSI pass
-> through interface, and is sufficient to operate both IDE and 
-> SCSI cd writers.
+> They aren't.
+> 
+> o	Not all ide cdrom devices are ATAPI capable
+> o	Many ide floppy devices can do ATAPI but get it horribly wrong
+> o	ide-tape is -totally- weird and unrelated to st
 > 
 
-That's fine, but it still only supports CD writers.  We have a generic 
-packet interface for a good reason -- we should be able to access it 
-regardless of device type.
-
-It's a specific solution to a generic problem.
+OK, non-ATAPI devices need not apply, obviously, but the argument
+still applies for ATAPI devices...
 
 	-hpa
-
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

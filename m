@@ -1,54 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbUD1VUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbUD1VUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261980AbUD1VUa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 17:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbUD1VU1
+	id S262194AbUD1VUK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 17:20:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUD1VTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 17:20:27 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:60300 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S262142AbUD1VTg
+	Wed, 28 Apr 2004 17:19:09 -0400
+Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:20486 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S261248AbUD1VOX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 17:19:36 -0400
-Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: busterbcook@yahoo.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0404281534110.3044@ozma.hauschen>
-References: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen>
-	 <20040427230203.1e4693ac.akpm@osdl.org>
-	 <Pine.LNX.4.58.0404280826070.31093@ozma.hauschen>
-	 <20040428124809.418e005d.akpm@osdl.org>
-	 <Pine.LNX.4.58.0404281534110.3044@ozma.hauschen>
-Content-Type: text/plain
+	Wed, 28 Apr 2004 17:14:23 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: Jonathan Sambrook <jonathan.sambrook@dsvr.co.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
+Subject: Re: REMINDER: 2.4.25 and 2.6.x yenta detection issue
+Date: Wed, 28 Apr 2004 23:10:28 +0200
+User-Agent: KMail/1.5.2
+References: <Pine.LNX.4.44.0403191509280.2227-100000@dmt.cyclades> <20040319210720.J14431@flint.arm.linux.org.uk> <20040428195434.GA27783@jsambrook>
+In-Reply-To: <20040428195434.GA27783@jsambrook>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1083187174.2856.162.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 28 Apr 2004 17:19:34 -0400
+Content-Disposition: inline
+Message-Id: <200404282310.28403.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-28 at 16:39, Brent Cook wrote:
-> > Could you please capture the contents of /proc/meminfo and /proc/vmstats
-> > when it's happening?
-> >
-> > Thanks.
-> >
+On Wednesday 28 April 2004 21:54, Jonathan Sambrook wrote:
+> At 21:07 on Fri 19/03/04, rmk+lkml@arm.linux.org.uk masquerading as 'Russell King' wrote:
+> > On Fri, Mar 19, 2004 at 03:14:54PM -0300, Marcelo Tosatti wrote:
+> > > It seems the problem reported by Silla Rizzoli is still present in 2.6.x
+> > > and 2.4.25 (both include the voltage interrogation patch by rmk).
+> > > 
+> > > Daniel Ritz made some efforts to fix it, but did not seem to get it right. 
+> > 
+> > And that effort is still going on.  Daniel and Pavel have been trying
+> > to find a good algorithm for detecting and fixing misconfigured TI
+> > interrupt routing, and this effort is still on-going.
+> > 
+> > What would be useful is if Silla could test some of Daniel's patches
+> > and provide feedback.
+> > 
+> > The latest 2.6 patch from Daniel is at:
 > 
-> Here is the top of top for one machine:
+> Any movement on 2.4.x w.r.t this?
+> Even a patch to get back 2.4.23 functionality whihc worked fine here
+> would be good (need > 2.4.25 for XFS).
 > 
->  15:36:55  up  7:09,  1 user,  load average: 1.00, 1.00, 1.00
-> 48 processes: 46 sleeping, 2 running, 0 zombie, 0 stopped
-> CPU states:   0.1% user  99.8% system   0.0% nice   0.0% iowait   0.0% idle
-> Mem:   256992k av,  117644k used,  139348k free,       0k shrd,   36464k buff
->         50968k active,              51592k inactive
-> Swap:  514040k av,       0k used,  514040k free                   61644k cached
-> 
->   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU COMMAND
->     7 root      25   0     0    0     0 RW   99.4  0.0 415:26   0 pdflush
 
-Could you please also supply the mount options you are using as well as
-the contents of /proc/mounts corresponding to your NFS partition.
+well, the 2.4 of the TI interrupt routing that is merged in 2.6 is is here since april 6:
+http://ritz.dnsalias.org/linux/pcmcia-ti-routing-9_v24.patch
+(yes, the 2.6 version is nicer 'cos of the nicer override handling there)
 
-Cheers,
-  Trond
+the problem silla rizzoli has is different. the patch that solved it:
+
+--- snip ---
+the CB_CDETECT1 and CB_CDETECT2 bits both needs to be 0 for the card being
+recognized correctly (and one of the voltage bits need to be set).
+
+with the patch we always redo the interrogation as longs as we're not sure
+a card is really there (it would be bad to do so on some bridges). this solves
+hangs of the bridge seen at least on one TI1520.
+
+the if-statement was originally added 'cos some bridges misbehave if the
+interrogation is done when a card is already correctly recognised. this is
+still true with the patch.
+
+the ti1520 that silla rizzoli has shoots itself in the head (read: hangs) and does not
+regognise card insert/removal event. the card only works there if it was inserted on
+boot. redoing the interrogation when there's no card kicks the bridge back into the
+right state making it work...
+
+--- 1.15/drivers/pcmcia/yenta.c	Tue Jan  6 11:55:05 2004
++++ edited/drivers/pcmcia/yenta.c	Fri Feb 20 23:17:54 2004
+@@ -677,10 +677,9 @@
+ 
+ 	/* Redo card voltage interrogation */
+ 	state = cb_readl(socket, CB_SOCKET_STATE);
+-	if (!(state & (CB_CDETECT1 | CB_CDETECT2 | CB_5VCARD |
+-			CB_3VCARD | CB_XVCARD | CB_YVCARD)))
+-		
+-	cb_writel(socket, CB_SOCKET_FORCE, CB_CVSTEST);
++	if (!(state & (CB_5VCARD | CB_3VCARD | CB_XVCARD | CB_YVCARD)) ||
++	    (state & (CB_CDETECT1 | CB_CDETECT2)))
++		cb_writel(socket, CB_SOCKET_FORCE, CB_CVSTEST);
+ }
+ 
+ /* Called at resume and initialization events */
+

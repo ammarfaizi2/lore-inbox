@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313722AbSDHU2B>; Mon, 8 Apr 2002 16:28:01 -0400
+	id <S313749AbSDIGDK>; Tue, 9 Apr 2002 02:03:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313723AbSDHU2A>; Mon, 8 Apr 2002 16:28:00 -0400
-Received: from barrichello.cs.ucr.edu ([138.23.169.5]:31935 "HELO
-	barrichello.cs.ucr.edu") by vger.kernel.org with SMTP
-	id <S313722AbSDHU17>; Mon, 8 Apr 2002 16:27:59 -0400
-Date: Mon, 8 Apr 2002 13:27:49 -0700 (PDT)
-From: John Tyner <jtyner@cs.ucr.edu>
+	id <S313755AbSDIGDJ>; Tue, 9 Apr 2002 02:03:09 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:31892 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S313749AbSDIGDI>;
+	Tue, 9 Apr 2002 02:03:08 -0400
+Message-ID: <00bb01be824f$af09b9b0$13123b80@endo>
+From: "Dinesh K Subhraveti" <dinesh@cs.columbia.edu>
 To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] list_del_all
-Message-ID: <Pine.LNX.4.30.0204081327150.26582-100000@hill.cs.ucr.edu>
+Subject: Isn't wait4 amenable to interception?
+Date: Fri, 9 Apr 1999 02:10:35 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS perl-6
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- include/linux/list.h.orig	Mon Apr  8 13:10:55 2002
-+++ include/linux/list.h	Mon Apr  8 13:22:48 2002
-@@ -170,7 +170,23 @@
- #define list_for_each_prev(pos, head) \
- 	for (pos = (head)->prev, prefetch(pos->prev); pos != (head); \
-         	pos = pos->prev, prefetch(pos->prev))
--
-+
-+/**
-+ * list_del_all -               delete all entries in list and call func for each entry
-+ * @head:       the head for your list
-+ * @func:       callback that should be called for each entry
-+ * @type:       the type of the struct this is embedded in
-+ * @member:     the name of the list_struct within the struct
-+ */
-+#define list_del_all( head, func, type, member )                        \
-+        do {                                                            \
-+                struct list_head *curr, *next;                          \
-+                list_for_each_safe( curr, next, head ) {                \
-+                        type *var = list_entry( curr, type, member );   \
-+                        list_del( curr );                               \
-+                        func( var );                                    \
-+                }                                                       \
-+        } while ( 0 )
+Hello,
 
- #endif /* __KERNEL__ || _LVM_H_INCLUDE */
+I am trying to intercept wait4 and having problems with it. Does wait4
+differ from other system calls in any peculiar way? The new system call
+routine just returns original sys_wait4. After inserting the module, system
+works just fine. But rmmod causes a kernel oops with "Bad EIP" message and
+shell gets killed. After kernel oops everything seems just fine too. I'd
+greatly appreciate any insight on this. Am attaching the code below. Please
+reply to dinesh@cs.columbia.edu.
+
+Thanks in advance,
+Dinesh
+
+-----------------------------------------------
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/resource.h>
+#include <sys/syscall.h>
+
+extern void *sys_call_table[];
+
+static int (*original_sys_wait4) (pid_t, int*, int, struct rusage*);
+
+asmlinkage int my_wait4 (pid_t a, int *b, int c, struct rusage *d)
+{
+   return original_sys_wait4 (a, b, c, d);
+}
+
+int init_module()
+{
+   original_sys_wait4 = sys_call_table[__NR_wait4];
+   sys_call_table[__NR_wait4] = my_wait4;
+   return 0;
+}
+
+void cleanup_module()
+{
+   sys_call_table[__NR_wait4] = original_sys_wait4;
+}
 
 

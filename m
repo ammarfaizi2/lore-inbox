@@ -1,40 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130932AbRBXAbp>; Fri, 23 Feb 2001 19:31:45 -0500
+	id <S130839AbRBXA1Z>; Fri, 23 Feb 2001 19:27:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130939AbRBXAbf>; Fri, 23 Feb 2001 19:31:35 -0500
-Received: from UX4.SP.CS.CMU.EDU ([128.2.198.104]:37722 "HELO
-	ux4.sp.cs.cmu.edu") by vger.kernel.org with SMTP id <S130932AbRBXAbX>;
-	Fri, 23 Feb 2001 19:31:23 -0500
-Message-ID: <3A970055.1C6FD23A@cs.cmu.edu>
-Date: Fri, 23 Feb 2001 19:29:09 -0500
-From: Sourav Ghosh <sourav@cs.cmu.edu>
-Organization: Carnegie Mellon University
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.15-timesys-u-16Jan01 i686)
-X-Accept-Language: en
+	id <S130939AbRBXA1Q>; Fri, 23 Feb 2001 19:27:16 -0500
+Received: from k2.llnl.gov ([134.9.1.1]:3580 "EHLO k2.llnl.gov")
+	by vger.kernel.org with ESMTP id <S130932AbRBXA1J>;
+	Fri, 23 Feb 2001 19:27:09 -0500
+From: Reto Baettig <baettig@k2.llnl.gov>
+Message-Id: <200102240026.QAA09446@k2.llnl.gov>
+Subject: RFC: vmalloc improvements
+To: linux-mm@kvack.org (MM Linux), linux-kernel@vger.kernel.org (Kernel Linux)
+Date: Fri, 23 Feb 2001 16:26:56 -0800 (PST)
+Cc: frey@scs.ch (Martin Frey), baettig@scs.ch
+Reply-To: Reto Baettig <baettig@scs.ch>
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: jacob.blain.christen@entheal.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: creation of sock
-In-Reply-To: <3A96C858.5C8FB714@cs.cmu.edu> <3A96E014.AFBD4859@entheal.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jacob L E Blain Christen wrote:
+Hi
 
-> looking further at
-> net/ipv4/tcp_ipv4.c:tcp_create_openreq_child() (for 2.2.16)
-> and
-> net/ipv4/tcp_minisocks.c:tcp_create_openreq_child() (for 2.4.x)
->
-> immediately after the sk_alloc() call (if it successful) it calls
->         memcpy(newsk, sk, sizeof(*newsk))
-> i suggest setting your NULL initial values immediately after this line.
->
-> sorry for the premature email
+We have an application that makes extensive use of vmalloc (we need
+lots of large virtual contiguous buffers. The buffers don't have to be
+physically contiguous).
 
-Didn't help.
-The problem persists.
+vmalloc/vfree is very slow when the vmlist gets long.
+
+I don't know if this problem is already on a todo list or if we are the
+first ones who want to use vmalloc extensively. Maybe We're also missing
+something.
+
+We would volounteer to improve vmalloc if there is any chance of
+getting it into the main kernel tree. We also have an idea how we
+Could do that (quite similar to the process address space management):
+
+1.      Create a generic avl-tree headerfile (similar to list.h)
+
+2.      We change the vm_struct to something like:
+
+struct vm_struct {
+        unsigned long flags;
+        void * addr;
+        unsigned long size;
+        struct avl_entry avl;
+        struct list_head empty_list;
+        struct list_head vm_list;
+};
+
+with struct avl_entry:
+
+struct avl_entry {
+        unsigned long key;
+        short height;
+        struct avl_entry * avl_left;
+        struct avl_entry * avl_right;
+}
+
+3.      We have a avl-tree (vm_avl_used) for the used memory areas (sorted
+by the address), a hashtable for the unused memory areas (vm_hash_unused,
+hashed by the size) and a sorted linear list (vm_list) of all the memory
+areas (used and unused). The vm_hash_unused hashtable is initially empty
+and gets only filled when previously used areas are freed and the memory
+space gets segmented.
+
+4.      When we free an area, we first find it in the avl tree. After we
+have the vm_struct, we can look in the vm_list if there are any direct
+neighbours. If yes and the neighbour is also free, the areas get merged.
+
+5.      When we have to allocate a new area (get_free_area)
+and the hash table can not satisfy the request, we allocate a new area
+starting after the end of the used memory areas.
+
+Is this something that makes sense to do and that could make it
+into the 2.4 or the 2.5 kernel?
+
+Reto
 

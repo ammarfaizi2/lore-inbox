@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263174AbUFLH6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264669AbUFLI07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263174AbUFLH6d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 03:58:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264669AbUFLH6d
+	id S264669AbUFLI07 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 04:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264670AbUFLI06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 03:58:33 -0400
-Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:15022 "HELO
-	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263174AbUFLH6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 03:58:32 -0400
-Message-ID: <40CAB7A4.3020106@yahoo.com.au>
-Date: Sat, 12 Jun 2004 17:58:28 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Sat, 12 Jun 2004 04:26:58 -0400
+Received: from node-d-4940.a2000.nl ([62.195.73.64]:45189 "EHLO mail.ennes.net")
+	by vger.kernel.org with ESMTP id S264669AbUFLI05 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 04:26:57 -0400
+Message-ID: <40CABE4F.1040104@spam.ennes.net>
+Date: Sat, 12 Jun 2004 10:26:55 +0200
+From: Pieter Ennes <lkml@spam.ennes.net>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040526)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH] Performance regression in 2.6.7-rc3
-References: <200406121028.06812.kernel@kolivas.org>
-In-Reply-To: <200406121028.06812.kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.7-rc3-mm1 and advansys driver failes to mount
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I'm having troubles getting the advansys driver to work in
+2.6.7-rc3-mm1. dmesg output seems OK, but when mounting
+no filesystem can be found on the partitions.
 
-Con Kolivas wrote:
+2.6.7-rc3 is fine. I noticed a few changes in drivers/scsi/advansys.c,
+but i'm not much of a hacker to sort it out...
 
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->Hi all
->
->The OSDL robot monkeys revealed a massive reproducible regression in the 
->dbt3-pgsql benchmark which could be related to MBligh's measure regression.
->
->
+scsi1 : AdvanSys SCSI 3.3GJ: PCI Ultra-Wide: PCIMEM 
+0xE0BE0000-0xE0BE003F, IRQ 0x13
+   Vendor: SEAGATE   Model: ST39173W          Rev: 6244
+   Type:   Direct-Access                      ANSI SCSI revision: 02
+SCSI device sdb: 17783240 512-byte hdwr sectors (9105 MB)
+SCSI device sdb: drive cache: write back
+  /dev/scsi/host1/bus0/target2/lun0: unknown partition table
+Attached scsi disk sdb at scsi1, channel 0, id 2, lun 0
+Attached scsi generic sg1 at scsi1, channel 0, id 2, lun 0,  type 0
+   Vendor: IBM       Model: IC35L036UWD210-0  Rev: S5CQ
+   Type:   Direct-Access                      ANSI SCSI revision: 03
+SCSI device sdc: 71687340 512-byte hdwr sectors (36704 MB)
+SCSI device sdc: drive cache: write back
+  /dev/scsi/host1/bus0/target6/lun0: unknown partition table
+Attached scsi disk sdc at scsi1, channel 0, id 6, lun 0
+Attached scsi generic sg2 at scsi1, channel 0, id 6, lun 0,  type 0
 
-OK thanks, I'm looking into it.
+Cheers,
+-- 
+  - Pieter
 

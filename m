@@ -1,66 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbTJWXPP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 19:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTJWXPP
+	id S261871AbTJWXVB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 19:21:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTJWXVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 19:15:15 -0400
-Received: from D7194.d.pppool.de ([80.184.113.148]:12736 "EHLO
-	karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S261861AbTJWXPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 19:15:09 -0400
-Subject: Re: srfs - a new file system.
-From: Daniel Egger <degger@fhm.edu>
-To: Eric Sandall <eric@sandall.us>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1066934851.3f982243bc9a8@horde.sandall.us>
-References: <Pine.LNX.4.44_heb2.09.0310201031150.20172-100000@nexus.cs.bgu.ac.il>
-	 <1066683638.3f944cf6e6763@horde.sandall.us>
-	 <1066907220.1686.22.camel@sonja>
-	 <1066934851.3f982243bc9a8@horde.sandall.us>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-BRhSXcWU6cfFZufkr/Rk"
-Message-Id: <1066943094.1686.36.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 24 Oct 2003 01:15:00 +0200
+	Thu, 23 Oct 2003 19:21:01 -0400
+Received: from mail-06.iinet.net.au ([203.59.3.38]:35249 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261871AbTJWXU4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 19:20:56 -0400
+Message-ID: <3F986276.4010409@cyberone.com.au>
+Date: Fri, 24 Oct 2003 09:21:26 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@arcor.de>
+CC: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ide write barrier support
+References: <20031013140858.GU1107@suse.de> <200310231822.36023.phillips@arcor.de> <20031023162310.GQ6461@suse.de> <200310231920.39888.phillips@arcor.de>
+In-Reply-To: <200310231920.39888.phillips@arcor.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-BRhSXcWU6cfFZufkr/Rk
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-Am Don, den 23.10.2003 schrieb Eric Sandall um 20:47:
+Daniel Phillips wrote:
 
-> Agreed, more DFS' are always good.  As for Coda, it has compiled fine for=
- me for
-> the last year (with some bison patches), but I have not actually tried it=
- yet.=20
-> NFS may be slow, but at least it works and I haven't lost any files due t=
-o
-> using it.
+>On Thursday 23 October 2003 18:23, Jens Axboe wrote:
+>
+>>On Thu, Oct 23 2003, Daniel Phillips wrote:
+>>
+>>>I'm specifically interested in working out the issues related to stacked
+>>>virtual devices, and there are many.  Let me start with an easy one.
+>>>
+>>>Consider a multipath virtual device that is doing load balancing and
+>>>wants to handle write barriers efficiently, not just allow the
+>>>downstream queues to drain before allowing new writes.  This device
+>>>wants to send a write barrier to each of the downstream devices,
+>>>however, we have only one write request to carry the barrier bit.  How
+>>>do you recommend handling this situation?
+>>>
+>>That needs something to hold the state in, and a bio per device. As
+>>they complete, mark them as such. When they all have completed, barrier
+>>is done.
+>>
+>>That's just an idea, I'm sure there are other ways. Depending on how
+>>complex it gets, it might not be a bad idea to just let the queues drain
+>>though. I think I'd prefer that approach.
+>>
+>
+>These are essentially the same, they both rely on draining the downstream 
+>queues.  But if we could keep the downstream queues full, bus transfers for 
+>post-barrier writes will overlap the media transfers for pre-barrier writes, 
+>which would seem to be worth some extra effort.
+>
+>To keep the downstream queues full, we must submit write barriers to all the 
+>downstream devices and not wait for completion.  That is, as soon as a 
+>barrier is issued to a given downstream device we can start passing through 
+>post-barrier writes to it.
+>
+>Assuming this is worth doing, how do we issue N barriers to the downstream 
+>devices when we have only one incoming barrier write?
+>
 
-The slowless of NFS is not an issue for me (actually I'm getting quite
-good performance over a switched 100Mbit network). However it doesn't
-replicate which is annoying when being much on the road but normally
-also using lots of computers in the lab.
+You would do this in the multipath code, wouldn't you?
 
---=20
-Servus,
-       Daniel
+Anyway, I might be missing something, but I don't think draining the
+queue will guarantee that writeback caches will go to permanent storage.
 
---=-BRhSXcWU6cfFZufkr/Rk
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/mEJ1chlzsq9KoIYRAlUgAJsFwRZPWut6vmEkEmtAJDJlJS/WcgCfXn1s
-QBUOwL3i4BRCQVTM/MuxZJs=
-=Eo6/
------END PGP SIGNATURE-----
-
---=-BRhSXcWU6cfFZufkr/Rk--
 

@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263157AbRE1VPl>; Mon, 28 May 2001 17:15:41 -0400
+	id <S263154AbRE1VQb>; Mon, 28 May 2001 17:16:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263154AbRE1VPb>; Mon, 28 May 2001 17:15:31 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:21517 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S263152AbRE1VPN>; Mon, 28 May 2001 17:15:13 -0400
-Date: Mon, 28 May 2001 16:38:49 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: "Leeuw van der, Tim" <tim.leeuwvander@nl.unisys.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac2
-In-Reply-To: <Pine.LNX.4.33.0105282126550.366-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0105281636160.1261-100000@freak.distro.conectiva>
+	id <S263159AbRE1VQV>; Mon, 28 May 2001 17:16:21 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19461 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263154AbRE1VQF>; Mon, 28 May 2001 17:16:05 -0400
+Subject: Re: [2.4.5] buz.c won't compile
+To: jfbeam@bluetopia.net (Ricky Beam)
+Date: Mon, 28 May 2001 22:08:46 +0100 (BST)
+Cc: sembera@centrum.cz (Jan Sembera), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.04.10105281512050.1601-100000@beaker.bluetopia.net> from "Ricky Beam" at May 28, 2001 03:15:04 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E154UFq-0003XG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Actually, it broke at 2.4.3.  Go look at the first change to buz.c from
+> that patch.
 
-On Mon, 28 May 2001, Mike Galbraith wrote:
+buz was broken before 2.4.0
 
-> On Mon, 28 May 2001, Leeuw van der, Tim wrote:
-> 
-> > The VM in 2.4.5 might be largely 'fixed' and I know that the VM changes in
-> > -ac were considered to be but still broken, however for me they worked
-> > better than what is in 2.4.5.
-> 
-> The VM changes in 2.4.5 fixed a very serious performance problem.  IMHO,
-> 2.4.5 is a step in the right direction.  (and I hope more steps are in
-> the offing;)
+> PS: I really hate it when people break "functional" things in the "stable"
+>     tree. (functional and stable are both open to debate.)
 
-It did not fixed any interactivity problem. 
-
+buz was never functional in 2.4
 

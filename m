@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266203AbTALN23>; Sun, 12 Jan 2003 08:28:29 -0500
+	id <S266307AbTALNnh>; Sun, 12 Jan 2003 08:43:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266307AbTALN22>; Sun, 12 Jan 2003 08:28:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:25062 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S266203AbTALN22>;
-	Sun, 12 Jan 2003 08:28:28 -0500
-Date: Sun, 12 Jan 2003 14:37:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Paul Rolland <rol@witbe.net>, linux-kernel@vger.kernel.org
-Cc: "'Sam Ravnborg'" <sam@ravnborg.org>, rol@as2917.net
-Subject: Re: [BUG 2.5.56] IDE/CDROM Oops at boot time without /proc
-Message-ID: <20030112133700.GF14017@suse.de>
-References: <009401c2ba3f$3780a940$2101a8c0@witbe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <009401c2ba3f$3780a940$2101a8c0@witbe>
+	id <S266367AbTALNnh>; Sun, 12 Jan 2003 08:43:37 -0500
+Received: from hibernia.jakma.org ([212.17.36.87]:46989 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S266307AbTALNnh>; Sun, 12 Jan 2003 08:43:37 -0500
+Date: Sun, 12 Jan 2003 13:52:01 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: andre@linux-ide.org, <andrew@indranet.co.nz>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Honest does not pay here ...
+In-Reply-To: <200301120927.BAA17236@baldur.yggdrasil.com>
+Message-ID: <Pine.LNX.4.44.0301121346150.20816-100000@fogarty.jakma.org>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 12 2003, Paul Rolland wrote:
-> One easy trick would be to have :
-> #ifdef CONFIG_PROC_FS
->         cdrom_root_table->child->de->owner = THIS_MODULE;
-> #endif
-> 
-> but as this doesn't seem to be the favorite approach from people on
-> the mailing list, I'll leave this one to people in charge of
-> the module to apply the best approach patch to fix this.
-> 
-> Please note that, however, I've tested this change, and it is 
-> working fine on my machine.
+On Sun, 12 Jan 2003, Adam J. Richter wrote:
 
-Thanks for the raport, the proposed change is fine with me. Care to
-generate a real patch?
+> Paul Jakma writes:
+> >And frankly, courts in most parts of the world will look at community
+> >practice as a (slightly weaker than a court case) precedent [...]
 
+i didnt write what you have quoted. 
+
+(do you have msgid if i did? i dont remember writing it, and i dont 
+see any mail with that subject in my sent-mail)
+
+> Adam J. Richter     __     ______________   575 Oroville Road
+> adam@yggdrasil.com     \ /                  Milpitas, California 95035
+> +1 408 309-6081         | g g d r a s i l   United States of America
+>                          "Free Software For The Rest Of Us."
+
+regards,
 -- 
-Jens Axboe
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+Anarchy may not be a better form of government, but it's better than no
+government at all.
 

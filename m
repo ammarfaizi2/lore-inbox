@@ -1,52 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVCTXmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVCTX6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVCTXmd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 18:42:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVCTXmc
+	id S261378AbVCTX6k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 18:58:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVCTX6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 18:42:32 -0500
-Received: from smtp007.bizmail.sc5.yahoo.com ([66.163.170.10]:26488 "HELO
-	smtp007.bizmail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261366AbVCTXm3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 18:42:29 -0500
-Message-ID: <423E0A63.7050802@embeddedalley.com>
-Date: Sun, 20 Mar 2005 15:42:27 -0800
-From: Pete Popov <ppopov@embeddedalley.com>
-Reply-To: ppopov@embeddedalley.com
-Organization: Embedded Alley Solutions, Inc
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
+	Sun, 20 Mar 2005 18:58:40 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:27824 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261378AbVCTX6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 18:58:35 -0500
+From: Ron Gage <ron@rongage.org>
+To: linux-kernel@vger.kernel.org
+Subject: Major problem with PCMCIA/Yenta system
+Date: Sun, 20 Mar 2005 18:53:47 -0500
+User-Agent: KMail/1.6.1
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Ralf Baechle <ralf@linux-mips.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
-Subject: Re: Bitrotting serial drivers
-References: <20050319172101.C23907@flint.arm.linux.org.uk> <20050319141351.74f6b2a5.akpm@osdl.org> <20050320224028.GB6727@linux-mips.org> <423DFE7C.7040406@embeddedalley.com> <20050320232438.B31657@flint.arm.linux.org.uk>
-In-Reply-To: <20050320232438.B31657@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200503201853.48201.ron@rongage.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Sun, Mar 20, 2005 at 02:51:40PM -0800, Pete Popov wrote:
-> 
->>>>>- __register_serial, register_serial, unregister_serial
->>>>> (this driver doesn't support PCMCIA cards, all of which are based on
->>>>>  8250-compatible devices.)
->>
->>I tried a couple of times to cleanly add support to the 8250 for the Au1x 
->>serial. The uart is just different enough to make that hard, though I admit I 
->>never spent too much time on it. Sounds like it's time to revisit it again.
-> 
-> 
-> I would prefer to have a patch to remove (or ack to do so myself) the
-> above three mentioned functions so I can avoid breaking your driver,
-> rather than a large update to it.
+Greetings:
 
-Go for it. I'll test the driver afterwards and think about getting it into the 
-8250 again.
+I have been trying to get a recently acquired Cardbus based USB 2.0 card 
+working under 2.6 for the past weekend.  It's not going well.
 
-Thanks,
+Everytime I plug the card into the computer, the entire PCMCIA system just 
+dies, taking my network connectivity with it.  I have to do a power off reset 
+to recover.
 
-Pete
+The cardbus card is based on the ALI USB chipset.  This shows up as both an 
+EHCI and an OHCI device under 2.6.11.5.  My laptop, an older HP Pavilion 
+N5150 has a UHCI based chipset:
+
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 
+03)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 
+03)
+00:04.0 CardBus bridge: Texas Instruments PCI1420
+00:04.1 CardBus bridge: Texas Instruments PCI1420
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
+00:08.0 Multimedia audio controller: ESS Technology ES1988 Allegro-1 (rev 12)
+01:01.0 VGA compatible controller: S3 Inc. 86C270-294 Savage/IX-MV (rev 11)
+02:00.0 Ethernet controller: Digital Equipment Corporation DECchip 21142/43 
+(rev 41)
+
+
+My ethernet card is a generic cardbus device.
+
+When I insert the new USB 2.0 card, the kernel reports that it's killing off 
+IRQ 11.  Here is the actual dump from dmesg:
+
+Mar 20 18:38:13 port2 kernel: irq 11: nobody cared!
+Mar 20 18:38:13 port2 kernel:  [<c013089a>] __report_bad_irq+0x2a/0xa0
+Mar 20 18:38:13 port2 kernel:  [<c01303a0>] handle_IRQ_event+0x30/0x70
+Mar 20 18:38:13 port2 kernel:  [<c01309a0>] note_interrupt+0x70/0xb0
+Mar 20 18:38:13 port2 kernel:  [<c01304c1>] __do_IRQ+0xe1/0xf0
+Mar 20 18:38:13 port2 kernel:  [<c0104a69>] do_IRQ+0x19/0x30
+Mar 20 18:38:13 port2 kernel:  [<c0103182>] common_interrupt+0x1a/0x20
+Mar 20 18:38:13 port2 kernel:  [<c011b2be>] __do_softirq+0x2e/0xa0
+Mar 20 18:38:13 port2 kernel:  [<c011b356>] do_softirq+0x26/0x30
+Mar 20 18:38:13 port2 kernel:  [<c0104a6e>] do_IRQ+0x1e/0x30
+Mar 20 18:38:13 port2 kernel:  [<c0103182>] common_interrupt+0x1a/0x20
+Mar 20 18:38:13 port2 kernel:  [<c025e229>] acpi_processor_idle+0x238/0x288
+Mar 20 18:38:13 port2 kernel:  [<c0101030>] default_idle+0x0/0x30
+Mar 20 18:38:13 port2 kernel:  [<c01010ec>] cpu_idle+0x4c/0x60
+Mar 20 18:38:13 port2 kernel:  [<c04547ac>] start_kernel+0x13c/0x160
+Mar 20 18:38:13 port2 kernel:  [<c0454340>] unknown_bootoption+0x0/0x200
+Mar 20 18:38:13 port2 kernel: handlers:
+Mar 20 18:38:13 port2 kernel: [<e085a8e0>] (yenta_interrupt+0x0/0x40 
+[yenta_socket])
+Mar 20 18:38:13 port2 kernel: [<e085a8e0>] (yenta_interrupt+0x0/0x40 
+[yenta_socket])
+Mar 20 18:38:13 port2 kernel: [<c02baa70>] (tulip_interrupt+0x0/0x9c0)
+Mar 20 18:38:13 port2 kernel: Disabling IRQ #11
+Mar 20 18:38:14 port2 kernel: PCI: Enabling device 0000:06:00.0 (0000 -> 0002)
+Mar 20 18:38:14 port2 kernel: PCI: Enabling device 0000:06:00.3 (0000 -> 0002)
+Mar 20 18:38:16 port2 kernel: ohci_hcd 0000:06:00.0: Unlink after no-IRQ?  
+Controller is probably using the wrong IRQ.
+
+Again, when the USB card in inserted, the entire PCMCIA system shuts down and 
+remains unusuable until powered off.
+
+Kernel is stock 2.6.11.5.  I also tried with 2.6.11, 2.6.10, 2.6.9 and 2.6.7 - 
+same result.  Distribution is Slackware 9.1 - gcc is 3.2.3
+
+HELP!!!
+
+
+-- 
+Ron Gage - Pontiac, Michigan
+(MCP, LPIC1, A+, Net+)

@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130349AbRAJBUC>; Tue, 9 Jan 2001 20:20:02 -0500
+	id <S129406AbRAJBXx>; Tue, 9 Jan 2001 20:23:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131150AbRAJBTw>; Tue, 9 Jan 2001 20:19:52 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:47372 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S130349AbRAJBTj>;
-	Tue, 9 Jan 2001 20:19:39 -0500
-Date: Wed, 10 Jan 2001 02:19:20 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Dave Zarzycki <dave@zarzycki.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <Pine.LNX.4.30.0101091708410.1796-100000@batman.zarzycki.org>
-Message-ID: <Pine.LNX.4.30.0101100217460.12258-100000@e2>
+	id <S129431AbRAJBXn>; Tue, 9 Jan 2001 20:23:43 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:61452 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129406AbRAJBXX>;
+	Tue, 9 Jan 2001 20:23:23 -0500
+Message-ID: <3A5BB985.8A249BE1@mandrakesoft.com>
+Date: Tue, 09 Jan 2001 20:23:17 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Updated zerocopy patch up on kernel.org
+In-Reply-To: <200101100055.QAA07674@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"David S. Miller" wrote:
+> 
+> Nothing interesting or new, just merges up with the latest 2.4.1-pre1
+> patch from Linus.
+> 
+> ftp.kernel.org:/pub/linux/kernel/people/davem/zerocopy-2.4.1p1-1.diff.gz
+> 
+> I haven't had any reports from anyone, which must mean that it is
+> working perfectly fine and adds no new bugs, testers are thus in
+> nirvana and thus have nothing to report.  :-)
 
-On Tue, 9 Jan 2001, Dave Zarzycki wrote:
+Is there any value to supporting fragments in a driver which doesn't do
+hardware checksumming?  IIRC Alexey had a patch to do such for Tulip,
+but I don't see it in the above patchset.
 
-> In user space, how do you know when its safe to reuse the buffer that
-> was handed to sendmsg() with the MSG_NOCOPY flag? Or does sendmsg()
-> with that flag block until the buffer isn't needed by the kernel any
-> more? If it does block, doesn't that defeat the use of non-blocking
-> I/O?
+	Jeff
 
-sendmsg() marks those pages COW and copies the original page into a new
-one for further usage. (the old page is used until the packet is
-released.) So for maximum performance user-space should not reuse such
-buffers immediately.
 
-	Ingo
-
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

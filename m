@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265104AbRFUSwa>; Thu, 21 Jun 2001 14:52:30 -0400
+	id <S265108AbRFUS4u>; Thu, 21 Jun 2001 14:56:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265108AbRFUSwK>; Thu, 21 Jun 2001 14:52:10 -0400
-Received: from mcp.csh.rit.edu ([129.21.60.9]:27403 "EHLO mcp.csh.rit.edu")
-	by vger.kernel.org with ESMTP id <S265104AbRFUSwD>;
-	Thu, 21 Jun 2001 14:52:03 -0400
-Date: Thu, 21 Jun 2001 14:51:57 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-To: Jeff Golds <jgolds@resilience.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S265109AbRFUS4l>; Thu, 21 Jun 2001 14:56:41 -0400
+Received: from smtp.snet.net ([204.60.6.55]:35983 "EHLO smtp.snet.net")
+	by vger.kernel.org with ESMTP id <S265108AbRFUS4X>;
+	Thu, 21 Jun 2001 14:56:23 -0400
 Subject: Re: Controversy over dynamic linking -- how to end the panic
-Message-ID: <20010621145156.B5801@fury.csh.rit.edu>
-In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com> <3B323F51.BEDC7712@resilience.com>
+From: Wei Weng <wweng@kencast.com>
+To: Timur Tabi <ttabi@interactivesi.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <qi1bhC.A.lfF.ZEkM7@dinero.interactivesi.com>
+In-Reply-To: <qi1bhC.A.lfF.ZEkM7@dinero.interactivesi.com>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 21 Jun 2001 16:01:58 -0400
+Message-Id: <993153729.7844.3.camel@Monet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3B323F51.BEDC7712@resilience.com>; from jgolds@resilience.com on Thu, Jun 21, 2001 at 11:39:13AM -0700
-X-Operating-System: SunOS 5.8 (sun4u)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 21, 2001 at 11:39:13AM -0700, Jeff Golds wrote:
-> "Eric S. Raymond" wrote:
-> > ------------------------------------------------------------------------
-> > The GPL license reproduced below is copyrighted by the Free Software
-> > Foundation, but the Linux kernel is copyrighted by me and others who
-> > actually wrote it.
-> > 
-> > The GPL license requires that derivative works of the Linux kernel
-> > also fall under GPL terms, including the requirement to disclose
-> > source.  The meaning of "derivative work" has been well established
-> > for traditional media, and those precedents can be applied to
-> > inclusion of source code in a straightforward way.  But as of
-> > mid-2001, neither case nor statute law has yet settled under what
-> > circumstances *binary* linkage of code to a kernel makes that code a
-> > derivative work of the kernel.
-> > 
+On 21 Jun 2001 13:46:48 -0500, Timur Tabi wrote:
+> ** Reply to message from "Eric S. Raymond" <esr@snark.thyrsus.com> on Thu, 21
+> Jun 2001 14:14:42 -0400
+> 
+> 
 > > To calm down the lawyers, I as the principal kernel maintainer and
 > > anthology copyright holder on the code am therefore adding the
 > > following interpretations to the kernel license:
@@ -50,48 +37,50 @@ On Thu, Jun 21, 2001 at 11:39:13AM -0700, Jeff Golds wrote:
 > > 
 > > 3. A kernel module loaded at runtime, after kernel build, *is not*
 > >    to be considered a derivative work.
-> > 
-> > These terms are to be considered part of the kernel license, applying
-> > to all code included in the kernel distribution.  They define your
-> > rights to use the code in *this* distribution, however any future court
-> > may rule on the underlying legal question and regardless of how the
-> > license or interpretations attached to future distributions may change.
 > 
-> I disagree with 2.  Consider the following:
+> Although these are good things to add, I don't think they're compatible with
+> the GPL.  That is, Linus can't just state these "interpretations" and add them
+> to the GPL, because it will weaken the GPL as a whole.  I say that because you
+> do not include any language that clarifies that from a legal sense.
+Hell, why does the linux community need to care about other *greedy*
+people who don't want to GPL their work anyway? If you want to protect
+GPL as the principle in Linux, well, screw the device driver makers!
+
+> I heard recently that kernel modules are technically, from the GPL
+> point-of-view, a derivative work, because they include kernel header files.
+> However, since Linus understands that this precludes binary-only modules, he has
+> "made an exception" to the Linux kernel license.
 > 
-> - GPL library foo is used by application bar.  bar must be GPL because
-> foo is.  I agree with this.
-> - Non-GPL library foo is used by GPL application bar.  foo does NOT
-> become GPL just because bar is, even if bar statically linked foo in.
+> The problem with that is that I have never seen any written evidence of this.
 > 
-> The kernel is the equivalent of an application.  If someone needs to
-> statically link in a driver, which is the equivalent of a library, I
-> don't see how that should make the driver GPL.
+> IANAL, but IMO, there are only two solutions:
 > 
+> 1. License the Linux kernel under a different license that is effectively the
+> GPL but with additional text that clarifies the binary module issue.
+> Unfortunately, this license cannot be called the GPL.  Politically, this would
+> probably be a bad idea.
 > 
-> -Jeff
+> 2. License the Linux kernel under TWO licenses, one the GPL, and another which
+> talks about the binary module issue.  Unfortunately, this would probably not
+> work either, as technically these two licenses are incompatible.
 > 
-> P.S.  I don't claim to be a lawyer, this is just my opinion.
+> I guess what I'm trying to say is that this issue won't be resolve simply by
+> some "interpretations" by Linus as to what is and is not a derived work.  I
+> think the FSF needs to be involved in this.
+> 
+> To be honest, I disagree that #include'ing a GPL header file should force your
+> app to be GPL as well.  That may be how the license reads, but I think it's a
+> very bad idea.  I could write 1 million lines of original code, but if someone
+> told me that but simply adding #include <stdio.h> my code is now a derivative of
+> the stdio.h, I'd tell him to go screw himself.
+What is the difference between including kernel header file and
+including GPLed header file? 
 
-    http://www.gnu.org/copyleft/gpl-faq.html#WritingFSWithNFLibs offers some
-    insight on linking free software with non-free libraries.
 
-    However, I'm not sure I agree with your interpretation of the relationship
-    between kernel and driver.
+Best Regards,
 
-    The kernel is fully functional (excluding use of the hardware for which
-    the driver provides an interface) without the driver code - however, the
-    driver requires the kernel to be usable. Still using your analogy, it would
-    seem the driver is the application, and the kernel is the library.
-    The facilities that the driver provides to the kernel don't seem to be
-    much more than callbacks used in traditional library schemes to implement
-    application specific behavior as part of a larger library framework.
 
-    My 2c.
+Wei
 
-    -Jeff
 
--- 
-Jeff Mahoney
-jeffm@suse.com
-jeffm@csh.rit.edu
+

@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262260AbTH3CIo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 22:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTH3CIo
+	id S261358AbTH3Ch7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 22:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbTH3Ch7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 22:08:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3300 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262260AbTH3CIn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 22:08:43 -0400
-Date: Sat, 30 Aug 2003 03:08:41 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Matt Tolentino <metolent@snoqualmie.dp.intel.com>,
-       davidm@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
-       Matt_Domsch@Dell.com, linux-kernel@vger.kernel.org,
-       matthew.e.tolentino@intel.com
-Subject: Re: [PATCH] efivars update
-Message-ID: <20030830020841.GD13467@parcelfarce.linux.theplanet.co.uk>
-References: <200308292124.h7TLOCAZ000785@snoqualmie.dp.intel.com> <Pine.LNX.4.33.0308291448340.944-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0308291448340.944-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Fri, 29 Aug 2003 22:37:59 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:54031 "HELO
+	127.0.0.1") by vger.kernel.org with SMTP id S261358AbTH3Ch5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 22:37:57 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: insecure <insecure@mail.od.ua>
+Reply-To: insecure@mail.od.ua
+To: "J.A. Magallon" <jamagallon@able.es>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4] gcc3 warns about type-punned pointers ?
+Date: Sat, 30 Aug 2003 05:37:49 +0300
+X-Mailer: KMail [version 1.4]
+References: <20030828223511.GA23528@werewolf.able.es>
+In-Reply-To: <20030828223511.GA23528@werewolf.able.es>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308300537.49700.insecure@mail.od.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 29, 2003 at 02:59:43PM -0700, Patrick Mochel wrote:
-> That patch is below. I'll be sending it to Linus once he gets back from
-> vacation, unless anyone has any serious objections to it. Note that it
-> completely removes any limitation on the length of a kobject (and sysfs
-> directory) name.
+> A collateral question: why is the reason for this function ?
+> long long assignments are not atomic in gcc ?
 
-Why keep another copy of the name?  Why not use kobj->dentry->qstr->name?
-I thoroughly approve of kobject_name() though -- hide the implementation.
+Another question: why do we do _double_ store here?
 
+static inline void __set_64bit (unsigned long long * ptr,
+                unsigned int low, unsigned int high)
+{
+        __asm__ __volatile__ (
+                "\n1:\t"
+                "movl (%0), %%eax\n\t"
+                "movl 4(%0), %%edx\n\t"
+                "lock cmpxchg8b (%0)\n\t"
+                "jnz 1b"
+                : /* no outputs */
+                :       "D"(ptr),
+                        "b"(low),
+                        "c"(high)
+                :       "ax","dx","memory");
+}
+
+This will execute expensive locked load-compare-store operation twice
+almost always (unless previous value was already equal
+to the value we are about to store)
+
+AFAIK we can safely drop that loop (jnz instruction)
 -- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+vda

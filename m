@@ -1,43 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262391AbUCRFOH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 00:14:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbUCRFOH
+	id S262400AbUCRFni (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 00:43:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUCRFni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 00:14:07 -0500
-Received: from alt.aurema.com ([203.217.18.57]:6298 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S262391AbUCRFOD (ORCPT
+	Thu, 18 Mar 2004 00:43:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14558 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262400AbUCRFnf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 00:14:03 -0500
-Message-ID: <40593015.9090507@aurema.com>
-Date: Thu, 18 Mar 2004 16:13:57 +1100
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: XFree86 seems to be being wrongly accused of doing the wrong thing
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 18 Mar 2004 00:43:35 -0500
+Date: Wed, 17 Mar 2004 21:43:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4 ext3fs half order of magnitude slower than xfs - bulk
+ write
+Message-Id: <20040317214331.420a9cc1.akpm@osdl.org>
+In-Reply-To: <20040316015445.GA17564@merlin.emma.line.org>
+References: <20040315214741.GA5042@merlin.emma.line.org>
+	<20040315152355.32a1b054.akpm@osdl.org>
+	<20040316015445.GA17564@merlin.emma.line.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.6.4 I'm getting the following messages very early in the boot 
-long before XFree86 is started:
+Matthias Andree <matthias.andree@gmx.de> wrote:
+>
+> Andrew Morton:
+> 
+> > It should be possible to generate a simple testcase which demonstrates this
+> > problem on that machine.  Is that something you can do?
+> > 
+> > From your description, write-and-fsync.c from
+> > 
+> > 	http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz
+> > 
+> > would be a good starting point.
+> 
+> I've run "write-and-fsync -m SIZE -f SOMEFILE" where size is given in
+> each section and SOMEFILE was chosen for some real-life but idle file
+> system. I hope this is what you meant. I did one run per test.
 
-Mar 18 16:05:31 mudlark kernel: atkbd.c: Unknown key released 
-(translated set 2, code 0x7a on isa0060/serio0).
-Mar 18 16:05:31 mudlark kernel: atkbd.c: This is an XFree86 bug. It 
-shouldn't access hardware directly.
+Cannot reproduce, sorry.  Kernel is 2.6.5-rc1, disk is a "MAXTOR 6L080J4"
 
-They are repeated 6 times and are NOT the result of any keys being 
-pressed or released.
 
-Peter
--- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+time write-and-fsync -m 256 -f foo
 
+writeback caching off, ext3/ordered:
+  write-and-fsync -m 256 -f foo  0.00s user 1.19s system 4% cpu 24.247 total
+
+writeback caching off, XFS:
+  write-and-fsync -m 256 -f foo  0.00s user 0.57s system 2% cpu 24.041 total
+
+writeback caching on, ext3/ordered:
+  write-and-fsync -m 256 -f foo  0.00s user 1.16s system 14% cpu 8.169 total
+
+writeback caching on, XFS:
+  write-and-fsync -m 256 -f foo  0.00s user 0.58s system 8% cpu 6.950 total
+  write-and-fsync -m 256 -f foo  0.00s user 0.54s system 6% cpu 8.109 total
+  write-and-fsync -m 256 -f foo  0.00s user 0.55s system 5% cpu 10.057 total
+  write-and-fsync -m 256 -f foo  0.00s user 0.56s system 8% cpu 6.870 total
+
+(quite some variability in XFS)
+
+
+So...   Maybe you could test some other disks or something?

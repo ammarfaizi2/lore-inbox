@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264023AbTKJR7R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 12:59:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264005AbTKJR7R
+	id S264020AbTKJR6w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 12:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264023AbTKJR6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 12:59:17 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:59039 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S264023AbTKJR7N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 12:59:13 -0500
-Message-ID: <3FAFD1E5.5070309@zytor.com>
-Date: Mon, 10 Nov 2003 09:59:01 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en, sv, es, fr
-MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel.bkbits.net off the air
-References: <Pine.LNX.4.44.0311100952280.2097-100000@bigblue.dev.mdolabs.com>
-In-Reply-To: <Pine.LNX.4.44.0311100952280.2097-100000@bigblue.dev.mdolabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Nov 2003 12:58:51 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:19669 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264020AbTKJR6u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 12:58:50 -0500
+Date: Mon, 10 Nov 2003 18:58:42 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] give SATA its' own menu
+Message-ID: <20031110175842.GO22185@fs.tum.de>
+References: <20031026001554.GC23291@fs.tum.de> <20031026011145.GB23690@vana.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031026011145.GB23690@vana.vc.cvut.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> On Mon, 10 Nov 2003, Andrea Arcangeli wrote:
+On Sun, Oct 26, 2003 at 02:11:46AM +0100, Petr Vandrovec wrote:
+> On Sun, Oct 26, 2003 at 02:15:54AM +0200, Adrian Bunk wrote:
+> > Hi Jeff,
+> > 
+> > for an average user it's non-obvious to search for SATA support under 
+> > SCSI. The patch below moves SATA suport out of SCSI and gives it an own 
+> > menu below SCSI.
 > 
-> 
->>the updates shows up on kernel.org, rsync can't even hang on per-file
->>locks, sure it can't be coherent as a whole.
->>
->>The best way to fix this isn't to add locking to rsync, but to add two
->>files inside or outside the tree, each one is a sequence number, so you
->>fetch file1 first, then you rsync and you fetch file2, then you compare
->>them. If they're the same, your rsync copy is coherent. It's the same
->>locking we introduced with vgettimeofday.
->>
->>Ideally rsync could learn to check the sequence numbers by itself but I
->>don't mind a bit of scripting outside of rsync.
-> 
-> Wouldn't a simpler  "stop-rsync -> update-root -> start-rsync" work? If 
-> you'll hit an update you will get a error from your local rsync, that will 
-> let you know to retry the operation.
-> 
+> Will users know that they have to enable SCSI disk & cdrom support to get
+> it really to work?
 
-Part of the problem is that there are multiple steps in the rsync chain, 
-some of which can't be stopped in this way.
+I don't know the internals of the SATA driver, but this is unchanged 
+from the current dependencies.
 
-The sequence number idea looks sensible to me.  Larry, would it be too 
-much work to have the cvs repository generator generate these files?
+If this is required, I can send a patch that adds disk an cdrom options 
+to SATA and select's the appropriate SCSI options.
 
-	-hpa
+> 								Petr
+>  
+> > +config SCSI_SATA
+> > +	bool "Serial ATA (SATA) support"
+> > +	depends on EXPERIMENTAL
+> > +	select SCSI
+> > +	help
+> > +	  This driver family supports Serial ATA host controllers
+> > +	  and devices.
+> > +
+> > +	  If unsure, say N.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262713AbVAFEB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262714AbVAFEQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262713AbVAFEB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 23:01:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbVAFEB4
+	id S262714AbVAFEQx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 23:16:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVAFEQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 23:01:56 -0500
-Received: from fmr14.intel.com ([192.55.52.68]:35477 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262713AbVAFEBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 23:01:54 -0500
-Subject: Re: [PATCH 0/4]Bind physical devices with ACPI devices - take 2
-From: Len Brown <len.brown@intel.com>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Greg <greg@kroah.com>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Pavel Machek <pavel@suse.cz>, Adam Belay <ambx1@neo.rr.com>
-In-Reply-To: <1104893444.5550.127.camel@sli10-desk.sh.intel.com>
-References: <1104893444.5550.127.camel@sli10-desk.sh.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1104984055.18173.239.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 05 Jan 2005 23:00:55 -0500
+	Wed, 5 Jan 2005 23:16:53 -0500
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:3407 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262714AbVAFEQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 23:16:50 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Roey Katz <roey@sdf.lonestar.org>
+Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
+Date: Wed, 5 Jan 2005 23:16:47 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org> <Pine.NEB.4.61.0501040543490.25801@sdf.lonestar.org> <200501040117.28803.dtor_core@ameritech.net>
+In-Reply-To: <200501040117.28803.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200501052316.48443.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-04 at 21:50, Li Shaohua wrote:
-> Hi,
-> The series of patches implement binding physical devices with ACPI
-> devices. With it, device drivers can utilize methods provided by
-> firmware (ACPI). These patches are against 2.6.10, please give your
-> comments.
+On Tuesday 04 January 2005 01:17 am, Dmitry Torokhov wrote:
+> On Tuesday 04 January 2005 12:49 am, Roey Katz wrote:
+> > Dmitry,
+> > 
+> > I have tried kernels 2.6.9-rc2-bk3 and 2.6.9-rc2-bk4. I first copied the 
+> > .config from the stripped-down 2.6.10 into the 2.6.9- directories and then 
+> > ran make oldconfig (hopefully make oldconfig works in reverse?).  Then I 
+> > built and ran the kernels. Both exhibit the same behavior as 2.6.10 
+> > regarding the keyboard.
+> > 
+> > The /var/log/{dmesg,syslog,messages,kern.log} files for both kernels are 
+> > available at:
+> > 
+> >   http://roey.freeshell.org/mystuff/kernel/
+> > 
+> > 
+> > - Roey
+> > 
+> > PS:  I forgot the log_buf_len=131072, hope it's ok for you...
+> > PPS: I also forgot "acpi=off".  Should I re-run these tests?
+> > 
+> 
+> Ok, it looks that the big input update is not to blame. Just to make sure
+> could you re-run the tests with -bk3 and -bk4 but with powering the box
+> down instead of simply rebooting to ensure that noth kernels get completely
+> fresh start. If keyboard still does not work I am afraid you will have to
+> resort to binary search to figure out which 2.6.9-*-bk is at fault. 
+> 
 
-I think we'll save some significant power when ACPI D-states
-are invoked for the devices that supply them.  While many
-PCI devices support PCI power management and thus don't need/use
-ACPI D-states, I think it will be even more important to add
-this functionality to the legacy devices which never have
-PCI power management and thus always depend on ACPI for D-states.
+Roey,
 
-It looks like some device drivers scribble on dev->platform_data;
-and we need to fix those drivers before deploying this patch.
-Alternatively, we could add a new field to struct device,
-but then we'd probably never get rid of it...
+I just realized that -bk3 also had input changes. Could you try booting -bk2?
 
-I'm a little unformforable with platform_notify
-and platform_notify_remove available as globals.
-We should probably BUG_ON if we
-find them set before ACPI writes on them.
-
-We'll need to update this patch to handle erroneous
-but real platforms that don't have _BBN
-by using _CRS to get PCI bus number.
-
-Unclear to me if/how this association of ACPI capability
-should be reflected in the sysfs device tree.
-
-thanks,
--Len
-
-
+-- 
+Dmitry

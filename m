@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311618AbSCXGiT>; Sun, 24 Mar 2002 01:38:19 -0500
+	id <S311609AbSCXGn7>; Sun, 24 Mar 2002 01:43:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311622AbSCXGiK>; Sun, 24 Mar 2002 01:38:10 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:16651 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S311618AbSCXGhz>;
-	Sun, 24 Mar 2002 01:37:55 -0500
-Date: Sat, 23 Mar 2002 22:37:31 -0800
-From: Greg KH <greg@kroah.com>
-To: Witek Krecicki <adasi@kernel.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.7] Oops while connecting a device to USB port (khubd)
-Message-ID: <20020324063731.GA16612@kroah.com>
-In-Reply-To: <Pine.LNX.4.44.0203232149240.18904-200000@ep09.kernel.pl>
+	id <S311634AbSCXGnu>; Sun, 24 Mar 2002 01:43:50 -0500
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:60680
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S311609AbSCXGnj>; Sun, 24 Mar 2002 01:43:39 -0500
+Message-Id: <5.1.0.14.2.20020324013457.022907d0@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 24 Mar 2002 01:38:17 -0500
+To: Pavel Machek <pavel@suse.cz>, Jeff Garzik <jgarzik@mandrakesoft.com>
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: fadvise syscall?
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20020322160542.G37@toy.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sun, 24 Feb 2002 03:37:33 -0800
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 23, 2002 at 09:52:56PM +0100, Witek Krecicki wrote:
-> Oops is happening when I'm loading a module while having scanner 
-> connected to USB (HP SJ 4470c) or when the module is already loaded and 
-> i'm connecting the scanner. It does not depend on usb modularization: if 
-> usb is in core, oopsa happens at boot time.
-> WK
-> P.S. ksymoops output in attachment
+At 04:05 PM 3/22/2002 +0000, Pavel Machek wrote:
+>> 
+>> 
+>> I disagree, and here's the main reasons:
+>> 
+>> * fadvise(2) usefulness extends past open(2).  It may be useful to call 
+>> it at various points during runtime.
+>
+>open(/proc/self/fd/0, O_NEW_FLAGS)?
 
-Do you have CONFIG_DEBUG_SLAB enabled in your .config?  If so, this is a
-known bug the uhci.c author is trying to track down, please send this
-info directly to him.  In the meantime, use usb-uhci.o to get your
-machine to work properly.
+So to use fadvise(), the system must have /proc mounted?
 
-thanks,
 
-greg k-h
+
+Not everybody mounts /proc -- it provides a lot of potential information to anybody who can access it ("hmm... they  have a QZ48257 ethernet chipset [cat /proc/pci] -- lets see, sending this specific sequence of bytes in a TCP packet will lock up the receiver...").
+
+
+--
+Stevie-O
+
+Real programmers use COPY CON PROGRAM.EXE
+

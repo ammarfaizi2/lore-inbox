@@ -1,85 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVBWWRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVBWWSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVBWWRN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 17:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVBWWOa
+	id S261621AbVBWWSv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 17:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVBWWRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 17:14:30 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:43476 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S261648AbVBWWKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 17:10:46 -0500
-Message-ID: <421CFF5E.4030402@mesatop.com>
-Date: Wed, 23 Feb 2005 15:10:38 -0700
-From: Steven Cole <elenstev@mesatop.com>
-User-Agent: Mozilla Thunderbird 1.0 (Macintosh/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1 (VFS: Cannot open root device "301")
-References: <20050223014233.6710fd73.akpm@osdl.org>	<421CB161.7060900@mesatop.com> <20050223121759.5cb270ee.akpm@osdl.org>
-In-Reply-To: <20050223121759.5cb270ee.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 23 Feb 2005 17:17:36 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:21399 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261620AbVBWWNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 17:13:51 -0500
+Subject: Re: More latency regressions with 2.6.11-rc4-RT-V0.7.39-02
+From: Lee Revell <rlrevell@joe-job.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0502232048330.14747@goblin.wat.veritas.com>
+References: <1109182061.16201.6.camel@krustophenia.net>
+	 <Pine.LNX.4.61.0502231908040.13491@goblin.wat.veritas.com>
+	 <1109187381.3174.5.camel@krustophenia.net>
+	 <Pine.LNX.4.61.0502231952250.14603@goblin.wat.veritas.com>
+	 <Pine.LNX.4.61.0502232048330.14747@goblin.wat.veritas.com>
+Content-Type: text/plain
+Date: Wed, 23 Feb 2005 17:13:44 -0500
+Message-Id: <1109196824.4009.1.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Steven Cole <elenstev@mesatop.com> wrote:
-
->> I am having trouble getting recent -mm kernels to boot on my test box.
->> For 2.6.11-rc3-mm2 and 2.6.11-rc4-mm1 I get the following:
->>
->> VFS: Cannot open root device "301" or unknown-block(3,1)
->> Please append a correct "root=" boot option
->> Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(3,1)
->>
-[snipped]
+On Wed, 2005-02-23 at 20:53 +0000, Hugh Dickins wrote:
+> On Wed, 23 Feb 2005, Hugh Dickins wrote:
+> > Please replace by new patch below, which I'm now running through lmbench.
 > 
-> Please set CONFIG_BASE_FULL=y.  Check that this causes CONFIG_BASE_SMALL=0,
-> then retest.
+> That second patch seems fine, and I see no lmbench regression from it.
 
-Yes, that worked.  2.6.11-rc4-mm1 now boots OK, but hdb1 seems to be missing.
+Should go into 2.6.11, right?
 
-[root@spc1 steven]# uname -r
-2.6.11-rc4-mm1-GX110
-[root@spc1 steven]# mount -t reiser4 /dev/hdb1 /reiser4_testing
-mount: special device /dev/hdb1 does not exist
+Lee
 
-Reading another post (and looking in /dev), I tried hdq:
-
-[root@spc1 steven]# mount -t reiser4 /dev/hdq1 /reiser4_testing
-[root@spc1 steven]# df -T
-Filesystem    Type    Size  Used Avail Use% Mounted on
-/dev/hda1     ext3    304M   75M  214M  26% /
-/dev/hda9 reiserfs    8.3G  3.9G  4.4G  48% /home
-/dev/hda8     ext3    464M  8.1M  432M   2% /tmp
-/dev/hda6     ext3    7.4G  1.7G  5.4G  24% /usr
-/dev/hda7     ext3    1.9G   86M  1.7G   5% /var
-/dev/hdq1  reiser4     18G  217M   18G   2% /reiser4_testing
-
-Snipped from dmesg:
-
-hda: ST320423A, ATA DISK drive
-hdb: WDC WD200BB-75AUA1, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: SONY CD-RW CRX160E, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-Probing IDE interface ide2...
-Probing IDE interface ide3...
-Probing IDE interface ide4...
-Probing IDE interface ide5...
-hda: max request size: 128KiB
-hda: 40011300 sectors (20485 MB) w/512KiB Cache, CHS=39693/16/63, UDMA(66)
-hda: cache flushes not supported
-  /dev/ide/host0/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 p9 >
-hdb: max request size: 128KiB
-hdb: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=38792/16/63, UDMA(66)
-hdb: cache flushes not supported
-  /dev/ide/host0/bus0/target1/lun0: p1
-
-
-Steven

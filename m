@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264879AbTF0WpK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 18:45:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbTF0WpK
+	id S264880AbTF0WuG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 18:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264887AbTF0WuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 18:45:10 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19849
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264879AbTF0WpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 18:45:07 -0400
-Subject: Re: PATCH 2.4.21 fix: kswapd can fail starting
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Walter Harms <Walter.Harms@Informatik.Uni-Oldenburg.DE>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E19Vzla-000CR0-00@grossglockner.Informatik.Uni-Oldenburg.DE>
-References: <E19Vzla-000CR0-00@grossglockner.Informatik.Uni-Oldenburg.DE>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056754583.5463.3.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 27 Jun 2003 18:50:06 -0400
+Received: from bay8-f20.bay8.hotmail.com ([64.4.27.20]:18952 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S264880AbTF0WuE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 18:50:04 -0400
+X-Originating-IP: [66.189.39.1]
+X-Originating-Email: [gpc01532@hotmail.com]
+From: "G. C." <gpc01532@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: gpc01532@hotmail.com
+Subject: How to Avoid GPL Issue
+Date: Fri, 27 Jun 2003 19:04:18 -0400
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Jun 2003 23:56:24 +0100
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY8-F20kf6etlmIWMA00004812@hotmail.com>
+X-OriginalArrivalTime: 27 Jun 2003 23:04:19.0244 (UTC) FILETIME=[7073D6C0:01C33D00]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-06-27 at 21:24, Walter Harms wrote:
-> Hi list,
-> when i was looking for non checked returns of kernel_thread() i noticed
-> that vmscan.c never checks. This patch changes that. Note that
-> kswapd_init() can fail. I have no idea what to do then perhaps somebody
-> should take a look at that also ?
+Dear Sir or Madam,
 
-I suspect this one is at best a
+We are trying to port a third party hardware driver into Linux kernel and 
+this third party vendor does not allow us to publish the source code. Is 
+there any approach that we can avoid publicizing the third party code while 
+porting to Linux? Do we need to write some shim layer code in Linux kernel 
+to interface the third party code? How can we do that? Is there any document 
+or samples?
 
-BUG_ON(blah < 0)
+Thank you very much in advance,
+
+GC
+
+_________________________________________________________________
+MSN 8 with e-mail virus protection service: 2 months FREE*  
+http://join.msn.com/?page=features/virus
 

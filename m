@@ -1,88 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262735AbVBYPnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262738AbVBYPsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262735AbVBYPnS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 10:43:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVBYPmt
+	id S262738AbVBYPsU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 10:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbVBYPrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 10:42:49 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:34255 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262727AbVBYPmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 10:42:25 -0500
-Subject: Re: [PATCH] audit: handle loginuid through proc
-From: Albert Cahalan <albert@users.sf.net>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>, sds@epoch.ncsc.mil,
-       Andrew Morton OSDL <akpm@osdl.org>, serue@us.ibm.com,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050225064909.GD28536@shell0.pdx.osdl.net>
-References: <1109312092.5125.187.camel@cube>
-	 <20050225064909.GD28536@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Fri, 25 Feb 2005 10:15:47 -0500
-Message-Id: <1109344547.5125.228.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Feb 2005 10:47:35 -0500
+Received: from 242.69-93-110.reverse.theplanet.com ([69.93.110.242]:9436 "EHLO
+	ns1.avapajoohesh.com") by vger.kernel.org with ESMTP
+	id S262727AbVBYPop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 10:44:45 -0500
+Message-ID: <56349.69.93.110.242.1109346680.squirrel@69.93.110.242>
+In-Reply-To: <16927.17446.834879.371263@segfault.boston.redhat.com>
+References: <52765.69.93.110.242.1109288148.squirrel@69.93.110.242>
+    <200502251517.56254.linux-kernel@borntraeger.net>
+    <16927.14697.76256.482062@segfault.boston.redhat.com>
+    <53739.69.93.110.242.1109344057.squirrel@69.93.110.242>
+    <16927.17446.834879.371263@segfault.boston.redhat.com>
+Date: Fri, 25 Feb 2005 19:21:20 +0330 (IRST)
+Subject: Re: how to capture kernel panics
+From: "shabanip" <shabanip@avapajoohesh.com>
+To: jmoyer@redhat.com
+Cc: "shabanip" <shabanip@avapajoohesh.com>, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a-1
+X-Mailer: SquirrelMail/1.4.3a-1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-24 at 22:49 -0800, Chris Wright wrote:
-> * Albert Cahalan (albert@users.sourceforge.net) wrote:
+thanks for the help.
+does anything else left to configure?
 
-> > Assuming you'd like ps to print the LUID, how about
-> > putting it with all the others? There are "Uid:"
-> > lines in the /proc/*/status files.
-> 
-> It's also set (written) via /proc, so it should probably stay separate.
+Payam Shabanian
+shabanip -at- avapajoohesh.com
 
-Gross. Please rip this out before it hits the streets.
-(it's an interface change that might need eternal support)
-Consider that:
 
-1. Every other UID is handled by system calls:
-   getuid, setuid, geteuid, setreuid,
-   setresuid, getresuid, setfsuid
-
-2. HP's Tru64 has getluid() and setluid() system calls
-   that Linux should be compatible with. SecureWare has a
-   version too, which looks more-or-less compatible with
-   what HP is offering. (the descriptions do not conflict,
-   but one has more details) It looks like ssh, apache,
-   and sendmail (huh?) already knows to use these system
-   calls even. 
-
-The <prot.h> header is used. Prototypes are the obvious.
-The setuid() call returns 0 on success.
-
-Tru64 notes that the login UID is sometimes called the
-audit UID (AUID) because it is recorded with most audit
-events.
-
-getluid() returns an error if the LUID (AUID) is unset.
-
-SecureWare additionally notes that setuid() and setgid() will
-also fail when the luid is unset, to ensure that the LUID
-is set before any other identity changes. (probably Linux
-should just disable setting LUID after that point)
-
-------------
-
-Just to be complete, here's what Sun did:
-
-Sun has getauid() and setauid() syscalls which are
-somewhat similar. They take pointers to the ID, and they
-require privilege (PRIV_SYS_AUDIT and PRIV_PROC_AUDIT
-for setauid, or just PRIV_PROC_AUDIT for getauid)
-These calls have been superceded by getaudit_addr() and
-setaudit_addr(), which use structs containing:
-
-au_id_t       ai_auid;     // audit user ID
-au_mask_t     ai_mask;     // preselection mask
-au_tid_addr_t ai_termid;   // terminal ID
-au_asid_t     ai_asid;     // audit session ID
-
-(the terminal ID is variable length, containing a
-network address and a length value for it)
-
+> ==> Regarding Re: how to capture kernel panics; "shabanip"
+> <shabanip@avapajoohesh.com> adds:
+>
+> shabanip> as i see netconsole is a kernel module.  so i just need to load
+> shabanip> netconsole module with server:port parameters.  am i right?
+>
+> MODULE_PARM_DESC(netconsole, "
+> netconsole=[src-port]@[src-ip]/[dev],[tgt-port]@<tgt-ip>/[tgt-macaddr]\n");
+>
+> So, for example:
+>
+> modprobe netconsole
+> netconsole=6666@192.168.1.1/eth0,6666@192.168.1.100/00:40:95:9A:12:34
+>
+> -Jeff
+>
+>
+> shabanip> Payam Shabanian shabanip -at- avapajoohesh.com
+>
+>>> ==> Regarding Re: how to capture kernel panics; Christian Borntraeger
+>>> <linux-kernel@borntraeger.net> adds:
+>>>
+> linux-kernel> shabanip wrote:
+>>>>> is there any way to capture and log kernel panics on disk or ...?
+>>>
+> linux-kernel> In former times, the Linux kernel tried to sync in the panic
+> linux-kernel> function. (If the panic did not happen in interrupt context)
+> linux-kernel> Unfortunately this had severe side effects in cases where
+>>> the
+> linux-kernel> panic was triggered by file system block device code or any
+> linux-kernel> other part which is necessary for syncing. In most cases the
+> linux-kernel> call trace never made it onto disk anyway. So currently the
+> linux-kernel> kernel does not support saving a panic.
+>>>
+> linux-kernel> Apart from using a serial console, you might have a look at
+> linux-kernel> several kexec/kdump/lkcd tools where people are working on
+> linux-kernel> being able to dump the memory of a paniced kernel.
+>>> Or netconsole, which will dump printk's do the server:port of your
+>>> choosing.
+>>>
+>>> -Jeff
+>>>
+>
+> shabanip> - To unsubscribe from this list: send the line "unsubscribe
+> shabanip> linux-kernel" in the body of a message to
+> shabanip> majordomo@vger.kernel.org More majordomo info at
+> shabanip> http://vger.kernel.org/majordomo-info.html Please read the FAQ
+> at
+> shabanip> http://www.tux.org/lkml/
+>
 

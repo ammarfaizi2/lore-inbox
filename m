@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbULUNPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbULUNXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbULUNPm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 08:15:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbULUNPl
+	id S261754AbULUNXc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 08:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbULUNXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 08:15:41 -0500
-Received: from gate.adanco.com ([212.25.16.151]:22029 "EHLO johnny.adanco.com")
-	by vger.kernel.org with ESMTP id S261753AbULUNPX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 08:15:23 -0500
-From: Adrian von Bidder <avbidder@fortytwo.ch>
-To: linux-kernel@vger.kernel.org, linux lover <linux.lover2004@gmail.com>
-Subject: Re: how to solve kernel oops message
-Date: Tue, 21 Dec 2004 14:15:17 +0100
-User-Agent: KMail/1.7.1
-Cc: kernelnewbies@nl.linux.org
-References: <72c6e37904122101137698b6a1@mail.gmail.com>
-In-Reply-To: <72c6e37904122101137698b6a1@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart55201089.GQEJr9uoiD";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200412211415.22276@fortytwo.ch>
+	Tue, 21 Dec 2004 08:23:32 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:65250 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S261754AbULUNXa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 08:23:30 -0500
+Date: Tue, 21 Dec 2004 14:22:55 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: James Pearson <james-p@moving-picture.com>
+Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reducing inode cache usage on 2.4?
+Message-ID: <20041221132255.GI2143@dualathlon.random>
+References: <41C316BC.1020909@moving-picture.com> <20041217151228.GA17650@logos.cnet> <41C37AB6.10906@moving-picture.com> <20041217172104.00da3517.akpm@osdl.org> <20041220192046.GM4630@dualathlon.random> <41C80A04.9070504@moving-picture.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41C80A04.9070504@moving-picture.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart55201089.GQEJr9uoiD
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, Dec 21, 2004 at 11:33:24AM +0000, James Pearson wrote:
+> Setting vm_mapped_ratio to 20 seems to give a 'better' memory usage 
+> using my very contrived test - running a find will result in about 900Mb 
+> of dcache/icache, but then running a cat to /dev/null will shrink the 
+> dcache/icache down to between 100-300Mb - running the find and cat at 
+> the same time results in about the same dcache/icache usage.
+> 
+> I'll give this a go on the production NFS server and I'll see if it 
+> improves things.
 
-On Tuesday 21 December 2004 10.13, linux lover wrote:
-> Hi all,
->             I need urgent help on kernel oops message. Can anybody
-[..]
+Ok great. If 20 isn't enough just set it to 40, just be careful that if
+you set it too high the system may swap a bit too early.
 
-This information is next to useless. At least report
- - what did you do that caused the oops message?
- - what kernel version, exactly, are you using
-   - can you reproduce it with other (newer) kernel versions, too?
-   - can you reproduce it on other machines, too?
- - how does your kernel configuration look like?
-
-(btw, your previous message about loading a module makes me wonder if you=20
-understand enough of Linux to understand what people here might propose=20
-that you do to solve the problem.  There are are many places where people=20
-who are new to Linux can request help, but the kernel mailing list is=20
-probably not one of those...)
-
-greetings
-=2D- vbi
-
-
-=2D-=20
-Beware of the FUD - know your enemies. This week
-    * The Alexis de Toqueville Institue *
-http://fortytwo.ch/opinion/adti
-
---nextPart55201089.GQEJr9uoiD
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: get my key from http://fortytwo.ch/gpg/92082481
-
-iKcEABECAGcFAkHIIepgGmh0dHA6Ly9mb3J0eXR3by5jaC9sZWdhbC9ncGcvZW1h
-aWwuMjAwMjA4MjI/dmVyc2lvbj0xLjUmbWQ1c3VtPTVkZmY4NjhkMTE4NDMyNzYw
-NzFiMjVlYjcwMDZkYTNlAAoJECqqZti935l6aIQAniw291nfP3UK+VOf7nSBYsjy
-CTJ0AJ9CcuCVaS2+RnMO37NFzuovzC52LQ==
-=mhAq
------END PGP SIGNATURE-----
-
---nextPart55201089.GQEJr9uoiD--
+Overall this is still a workaround, real fix would be a background
+scanning of the icache/dcache collisions in the hash buckets but that's
+not for 2.4 ;).

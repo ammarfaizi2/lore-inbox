@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbUCXWaf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 17:30:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUCXWaf
+	id S262493AbUCXWu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 17:50:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbUCXWu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 17:30:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:31370 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262227AbUCXWac (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 17:30:32 -0500
-Date: Wed, 24 Mar 2004 14:30:28 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: Re: Compile problem on sparc64
-Message-Id: <20040324143028.747af65c.davem@redhat.com>
-In-Reply-To: <1080160367.2309.71.camel@pegasus>
-References: <1080130448.2515.108.camel@pegasus>
-	<20040324121914.00fb9bf9.davem@redhat.com>
-	<1080160367.2309.71.camel@pegasus>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Mar 2004 17:50:29 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:38559 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S262493AbUCXWu2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 17:50:28 -0500
+Date: Thu, 25 Mar 2004 06:46:12 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
+Cc: "Nigel Cunningham" <ncunningham@users.sourceforge.net>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Swsusp mailing list" <swsusp-devel@lists.sourceforge.net>,
+       "Andrew Morton" <akpm@osdl.org>
+References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <20040323095318.GB20026@hmmn.org> <20040323214734.GD364@elf.ucw.cz> <200403231743.01642.dtor_core@ameritech.net> <20040323233228.GK364@elf.ucw.cz> <1080081653.22670.15.camel@calvin.wpcb.org.au> <20040323234449.GM364@elf.ucw.cz> <opr5ci61g54evsfm@smtp.pacific.net.th> <20040324101704.GA512@elf.ucw.cz>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opr5d1jave4evsfm@smtp.pacific.net.th>
+In-Reply-To: <20040324101704.GA512@elf.ucw.cz>
+User-Agent: Opera M2/7.50 (Linux, build 615)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Mar 2004 21:32:47 +0100
-Marcel Holtmann <marcel@holtmann.org> wrote:
+May I request that you leave the authors headers intact when quoting. Thank you.
 
-> > > I am using Debian Sid with GCC 3.3.3 (Debian 20040320) and I got the
-> > > following error on my sparc64 platform while compiling the latest
-> > > Bitkeeper sources from 2.6:
-> > 
-> > This should cure it, let me know if it doesn't.
-> 
-> Seems that this is not enough. Now I get this one:
-> 
->   CC      arch/sparc64/kernel/process.o
-> arch/sparc64/kernel/process.c: In function `flush_thread':
-> arch/sparc64/kernel/process.c:435: warning: use of cast expressions as lvalues is deprecated
+On Wed, 24 Mar 2004 11:17:04 +0100, Pavel Machek <pavel@ucw.cz> wrote:
 
-I'm not getting these, I wonder why.  I'm using something similar
-to you for builds:
+>> >>So why aren't you arguing against bootsplash too? That definitely
+>> >>obscures such an error :> Of course we could argue that such an error
+>> >>shouldn't happen and/or will be obvious via other means (assuming it
+>> >>indicates hardware failure).
+>> >
+>> >Of course I *am* against bootsplash. Unfortunately I've probably lost
+>> >that war already. But at least it is not in -linus tree (and that's
+>> >what I use anyway) => I gave up with bootsplash-equivalents, as long
+>> >as they don't come to linus.
+>> >
+>> >[And I believe Linus would shoot down bootsplash-like code, anyway.]
 
-davem@nuts:/disk1/BK/sparc-2.6$ gcc --version
-gcc (GCC) 3.3.3 (Debian)
-Copyright (C) 2003 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+Why? Joe consumer wants it.
 
-davem@nuts:/disk1/BK/sparc-2.6$
+As to the ever growing size of the kernel, there could be a official addons/tools
+tree with non-core functions maintained by a seperate maintainer. Things like
+debuggers, profiling or (swsusp) debug support could go there as well...
 
-Please also send me your .config under seperate cover if you'd be so
-kind, thanks.
+>>
+>> Solution: Auto switch to non-swsusp VT on error showing the error message.
+>
+> Hmm, at that point you loose context, like now you know what error
+> happened, but do not know at which phase of suspend. That's pretty bad
+> too.
+
+Right, Good idea!  Just  print always "ugly" swsusp context on a text VT - plus any
+error messages  - and switch over to this VT in printk when not in interrupt
+context. 10 lines of code or so in printk ;)
+
+Michael
+
+
+
+
+

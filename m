@@ -1,63 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270992AbRHOBgU>; Tue, 14 Aug 2001 21:36:20 -0400
+	id <S270999AbRHOCFv>; Tue, 14 Aug 2001 22:05:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270993AbRHOBgK>; Tue, 14 Aug 2001 21:36:10 -0400
-Received: from think.faceprint.com ([166.90.149.11]:43787 "EHLO
-	think.faceprint.com") by vger.kernel.org with ESMTP
-	id <S270992AbRHOBf6>; Tue, 14 Aug 2001 21:35:58 -0400
-Date: Tue, 14 Aug 2001 21:36:01 -0400
-To: "Udo A. Steinberg" <reality@delusion.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.8-ac5
-Message-ID: <20010814213601.A10359@faceprint.com>
-In-Reply-To: <20010814221556.A7704@lightning.swansea.linux.org.uk> <3B79B43D.B9350226@delusion.de>
+	id <S271000AbRHOCFn>; Tue, 14 Aug 2001 22:05:43 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:61637 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S270999AbRHOCFY>;
+	Tue, 14 Aug 2001 22:05:24 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Brad Chapman <kakadu_croc@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Broken QoS and PPPoE with 2.4.8 
+In-Reply-To: Your message of "Tue, 14 Aug 2001 18:24:38 MST."
+             <20010815012438.54245.qmail@web10901.mail.yahoo.com> 
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
-Content-Disposition: inline
-In-Reply-To: <3B79B43D.B9350226@delusion.de>
-User-Agent: Mutt/1.3.20i
-From: faceprint@faceprint.com (Nathan Walp)
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 15 Aug 2001 12:05:25 +1000
+Message-ID: <32214.997841125@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 14 Aug 2001 18:24:38 -0700 (PDT), 
+Brad Chapman <kakadu_croc@yahoo.com> wrote:
+>c021baa0 pfifo_qdisc_ops_R__ver_pfifo_qdisc_ops
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+FAQ: http://www.tux.org/lkml/#s8-8
 
-> Hi Alan,
->=20
-> 2.4.8-ac5 makes the kpnpbios kernel thread go zombie here every time right
-> during boot. I know that 2.4.8-ac1 didn't have this problem, but didn't t=
-ry
-> -ac2 to -ac4. If you want me to check which -ac release was the last that
-> got it right, just say and I'll check.
->=20
-
-ac4 does it too, on an old system I have at home...detail available if need=
-ed.
-
-
---=20
-Nathan Walp             || faceprint@faceprint.com
-GPG Fingerprint:        ||   http://faceprint.com/
-5509 6EF3 928B 2363 9B2B  DA17 3E46 2CDC 492D DB7E
-
-
---EeQfGwPcQSOJBaQU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7edIBPkYs3Ekt234RAmBtAKDS5YwRX3PgT17lIs8M3lKRPTB3HQCbB7LV
-Fz4lkITQl1VxwpaySSCcixw=
-=70YY
------END PGP SIGNATURE-----
-
---EeQfGwPcQSOJBaQU--

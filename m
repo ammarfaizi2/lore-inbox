@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290707AbSBHEK5>; Thu, 7 Feb 2002 23:10:57 -0500
+	id <S291406AbSBHEZa>; Thu, 7 Feb 2002 23:25:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291391AbSBHEKr>; Thu, 7 Feb 2002 23:10:47 -0500
-Received: from ns.suse.de ([213.95.15.193]:18950 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290707AbSBHEKf>;
-	Thu, 7 Feb 2002 23:10:35 -0500
-Date: Fri, 8 Feb 2002 05:10:34 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Skip Ford <skip.ford@verizon.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: linux 2.5.4-pre3 and IDE changes
-In-Reply-To: <20020208035851.KOPJ10804.out006.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
-Message-ID: <Pine.LNX.4.33.0202080508410.29741-100000@Appserv.suse.de>
+	id <S291401AbSBHEZL>; Thu, 7 Feb 2002 23:25:11 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51207 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S291400AbSBHEZD>; Thu, 7 Feb 2002 23:25:03 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: 2.4.18-pre9: iptables screwed?
+Date: 7 Feb 2002 20:24:28 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a3vjts$r7l$1@cesium.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.33.0202080508412.29741@Appserv.suse.de>
-Content-Disposition: INLINE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Feb 2002, Skip Ford wrote:
+I get the following error with iptables on 2.4.18-pre9:
 
-> This is the patch that Jens posted, though he posted it before this
-> kernel was even released.  His post said it fixed a compile error
-> in pre2, but pre2 compiled fine.  It _does_ fix the compile error in
-> pre3 though.
+sudo iptables-restore < /etc/sysconfig/iptables
+iptables-restore: libiptc/libip4tc.c:384: do_check: Assertion
+`h->info.valid_hooks == (1 << 0 | 1 << 3)' failed.
+Abort (core dumped)
 
-As more developers start pulling Linus' bitkeeper tree, you'll probably
-see more bugs getting fixed before they're reported 8-)
+However, if I apply the rules manually (using iptables), I have no
+problem; only if I'm using iptables-save or iptables-restore do I get
+a dump...
 
+	-hpa
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

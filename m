@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313202AbSFVO4q>; Sat, 22 Jun 2002 10:56:46 -0400
+	id <S314284AbSFVPKu>; Sat, 22 Jun 2002 11:10:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313687AbSFVO4p>; Sat, 22 Jun 2002 10:56:45 -0400
-Received: from holomorphy.com ([66.224.33.161]:48325 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S313202AbSFVO4p>;
-	Sat, 22 Jun 2002 10:56:45 -0400
-Date: Sat, 22 Jun 2002 07:56:14 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] floppy requests
-Message-ID: <20020622145614.GG22961@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-References: <200206221033.MAA15741@harpo.it.uu.se>
-Mime-Version: 1.0
+	id <S315971AbSFVPKt>; Sat, 22 Jun 2002 11:10:49 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13838 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314284AbSFVPKs>; Sat, 22 Jun 2002 11:10:48 -0400
+Subject: Re: Linux, the microkernel (was Re: latest linus-2.5 BK broken)
+To: landley@trommello.org (Rob Landley)
+Date: Sat, 22 Jun 2002 16:31:36 +0100 (BST)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik), lm@bitmover.com (Larry McVoy),
+       ebiederm@xmission.com (Eric W. Biederman),
+       torvalds@transmeta.com (Linus Torvalds), cort@fsmlabs.com (Cort Dougan),
+       bcrl@redhat.com (Benjamin LaHaise),
+       rusty@rustcorp.com.au (Rusty Russell), rml@tech9.net (Robert Love),
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <200206220132.g5M1WjI160594@pimout3-int.prodigy.net> from "Rob Landley" at Jun 21, 2002 03:34:23 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <200206221033.MAA15741@harpo.it.uu.se>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17LmrQ-0002vp-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Jun 2002 16:04:17 -0700, William Lee Irwin III wrote:
->> generic_make_request: Trying to access nonexistent block-device fd(2,0) (0)
->> Unable to handle kernel NULL pointer dereference at virtual address 000000a0
+> A microkernel design was actually made to work once, with good performance.  
+> It was about fifteen years ago, in the amiga.  Know how they pulled it off?  
+> Commodore used a mutant ultra-cheap 68030 that had -NO- memory management 
+> unit.
 
-On Sat, Jun 22, 2002 at 12:33:57PM +0200, Mikael Pettersson wrote:
-> Search the LKML archives, keyword floppy.
-> Floppies work in raw mode with a patch, but FS access to mounted
-> floppies will hang your kernel or destroy data.
-
-I've no idea why grub wants to get at a floppy, I'm trying to get
-at /dev/sdk and there are literally no floppy drives or controllers
-in the system.
-
-
-Cheers,
-Bill
+Vanilla 68000 actually. And it never worked well - the UI folks had
+to use a library not threads. The fs performance sucked

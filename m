@@ -1,88 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271401AbUJVQAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271382AbUJVQGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271401AbUJVQAB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 12:00:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271400AbUJVQAB
+	id S271382AbUJVQGA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 12:06:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271395AbUJVQGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 12:00:01 -0400
-Received: from kalmia.hozed.org ([209.234.73.41]:63120 "EHLO kalmia.hozed.org")
-	by vger.kernel.org with ESMTP id S271404AbUJVP7y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 11:59:54 -0400
-Date: Fri, 22 Oct 2004 10:59:53 -0500
-From: Troy Benjegerdes <hozer@hozed.org>
-To: Timothy Miller <miller@techsource.com>
-Cc: John Ripley <jripley@rioaudio.com>,
-       "'Greg Buchholz'" <linux@sleepingsquirrel.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Message-ID: <20041022155953.GD8088@kalmia.hozed.org>
-References: <82D5E38355314D46AF3015FF55F6955802F83515@CORPMAIL3> <4177FF47.5040005@techsource.com>
+	Fri, 22 Oct 2004 12:06:00 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:30372
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S271382AbUJVQF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 12:05:57 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+In-Reply-To: <41792427.8020100@cybsft.com>
+References: <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+	 <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+	 <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
+	 <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
+	 <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu>
+	 <20041021132717.GA29153@elte.hu>  <4177FADC.6030905@cybsft.com>
+	 <1098384016.27089.42.camel@thomas>  <41780687.8030408@cybsft.com>
+	 <1098385049.27089.51.camel@thomas>  <41791564.20200@cybsft.com>
+	 <1098456218.8955.373.camel@thomas>  <41792427.8020100@cybsft.com>
+Content-Type: text/plain
+Organization: linutronix
+Message-Id: <1098460673.8955.387.camel@thomas>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 22 Oct 2004 17:57:53 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <4177FF47.5040005@techsource.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 02:26:15PM -0400, Timothy Miller wrote:
+On Fri, 2004-10-22 at 17:15, K.R. Foley wrote:
+> Thomas Gleixner wrote:
+> > On Fri, 2004-10-22 at 16:12, K.R. Foley wrote:
+> > 
+> >>I am not sure why the tulip driver is being loaded,unloaded,reloaded 
+> >>every time on boot? Anyway, I wanted to check to see if I could generate 
+> >>the above bug on subsequent unloads of the module. I downed the network 
+> >>and the unloaded the tulip module. I did get the message below when 
+> >>unloading the module but no "BUG: atomic counter underflow" message.
+> >>
+> >>Oct 22 05:43:33 porky kernel: tulip 0000:04:0a.0: Device was removed 
+> >>without properly calling pci_disable_device(). This may need fixing.
+> >>Oct 22 05:43:33 porky net.agent[921]: remove event not handled
+> > 
+> > 
+> > Can you please verify this against vanilla 2.6.9 and 2.6.9-mm1 ?
+> > 
+> > tglx
+> > 
 > 
+> I will verify it against 2.6.9 when I get time. I did verify the "Device 
+> was removed without properly calling pci_disable_device(). This may need 
+> fixing." message is generated with 2.6.9-rc3-mm3 without preempt 
+> patches. Also thanks to Mark Johnson's suggestion I verified that the 
+> reason the driver is being loaded twice is because kudzu is loading it 
+> once then unloading it.
 > 
-> John Ripley wrote:
-> 
-> >
-> >It would also really reduce the cost and effort involved in producing the
-> >card. It wouldn't take much (heh) to get it up and running as a simple 
-> >frame
-> >buffer + blitter, but it could be scaled to do fancy multi-texture ops over
-> >time - all just by reprogramming the FPGA. All the manufacturer needs to
-> >provide is a "getting started" FPGA file and output to a video DAC. The
-> >community would do the rest over time.
-> >
-> >I think "Open" hardware is one thing, but open *and* completely
-> >reprogrammable is a far greater hook, at least for me. I'd be prepared to
-> >shell out a few $100 for something as hackable as that. Hey, it's an FPGA 
-> >on
-> >a PCI Express card at the end of the day, what can't you do with it!
-> >
-> 
-> 
-> Ok, I'll bite.  What you're suggesting is that instead of developing 
-> just a graphics card, I should develop a card populated with a bunch of 
-> FPGA's that's reprogrammable.  Putting aside the logic design tool issue 
-> (which may be difficult), what you'd get is a very expensive 
-> reprogrammable card with some RAM and some video output hardware.
-> 
-> How much would you pay for THIS card?  $2000?
-> 
-> Now, the thing is, this card is SO generic that Tech Source would have 
-> very little value-add.  Say we populate it with a bunch of Spartan 3 
-> 400's... well, you'd download Xilinx's WebPack, code up your design in 
-> Verilog (Do you want to learn chip design???  It's not like programming 
-> in C!!!), and then use our open source utility to upload your code.
-> 
-> GREAT... until some other company comes along and clones it, which would 
-> be WAY too easy to do.  Now, for the users of this sort of product, it's 
-> a fine thing.  But it becomes a pointless investment for Tech Source, 
-> which is where I work and who pays me to work on this stuff, which they 
-> wouldn't do if it's not worth it.
+> kr
 
-Make a PCI-Express card -> dual DVI output, with whatever number of
-FPGA's gets you to $500 cost. If people want to play with reconfigurable
-whatever, let them go ahead.
+--- 2.6.9-rc4-mm1/drivers/net/tulip/tulip_core.c	2004-10-12
+09:41:27.000000000 +0200
++++ 2.6.9-rc4-mm1-U9-E0/drivers/net/tulip/tulip_core.c	2004-10-22
+17:54:31.000000000 +0200
+@@ -1784,6 +1784,7 @@
+ #endif
+ 	free_netdev (dev);
+ 	pci_release_regions (pdev);
++	pci_disable_device (pdev);
+ 	pci_set_drvdata (pdev, NULL);
+ 
+ 	/* pci_power_off (pdev, -1); */
 
-Techsource's value-add is an *optimized* high-performance bitstream that
-implements a nice graphics card that has fully documented open-source
-linux drivers. You can sell the hardware at cost, but what people really
-want (and will pay for) is the fastest high-end 3d rendering stuff for
-engineering and technical applications. They will probably also pay for
-subscribtion updates where techsource takes the latest innovate ideas
-that someone implemented on this hardware as a research project, and
-then someone with the experience in graphics and hardware design can
-make it go fast and work with the rest of the other optimized features.
 
-You could go so far as to do something like ghostscript and release the
-verilog source after 2 years when nobody cares about the old hardware it
-runs on anymore (execept the hobbyists).

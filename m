@@ -1,90 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132925AbRASUjK>; Fri, 19 Jan 2001 15:39:10 -0500
+	id <S131353AbRASUmr>; Fri, 19 Jan 2001 15:42:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131353AbRASUjB>; Fri, 19 Jan 2001 15:39:01 -0500
-Received: from front1m.grolier.fr ([195.36.216.51]:45757 "EHLO
-	front1m.grolier.fr") by vger.kernel.org with ESMTP
-	id <S132587AbRASUiv> convert rfc822-to-8bit; Fri, 19 Jan 2001 15:38:51 -0500
-Date: Fri, 19 Jan 2001 20:37:57 +0100 (CET)
-From: Gérard Roudier <groudier@club-internet.fr>
-To: Bob Frey <bfrey@turbolinux.com.cn>
-cc: Stephen Kitchener <stephen@g6dzj.demon.co.uk>, linux-scsi@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Scanning problems - machine lockups
-In-Reply-To: <20010119094130.A7816@bfrey.dev.cn.tlan>
-Message-ID: <Pine.LNX.4.10.10101192006260.1579-100000@linux.local>
+	id <S135432AbRASUmg>; Fri, 19 Jan 2001 15:42:36 -0500
+Received: from mtiwmhc25.worldnet.att.net ([204.127.131.50]:12541 "EHLO
+	mtiwmhc25.worldnet.att.net") by vger.kernel.org with ESMTP
+	id <S131353AbRASUmX>; Fri, 19 Jan 2001 15:42:23 -0500
+Message-ID: <3A68A7D0.FF534B97@att.net>
+Date: Fri, 19 Jan 2001 15:47:12 -0500
+From: Michael Lindner <mikel@att.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: select() on TCP socket sleeps for 1 tick even if data available
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[1.] select() sleeps for 1 tick even if data available
+[2.] Full description of the problem/report:
+	If select() is waiting for data to become available on a TCP socket FD,
+and
+	data becomes available, it doesn't return until the next clock tick.
+This
+	produces large latencies when passing data between processes several
+times,
+	since each transaction (which requires microseconds) does not occur
+until
+	the next clock tick, limiting the entire throughput of the system to
+100
+	transactions/second.
+[3.] Keywords: select, socket, networking
+[4.] Kernel version (from /proc/version): 2.2.18
+[5.] Output of Oops.. message (not applicable)
+[6.] A small shell script or example program which triggers the
+     problem (if possible)
 
+	#include <sys/time.h>
+	#include <sys/types.h>
+	#include <unistd.h>
 
-On Fri, 19 Jan 2001, Bob Frey wrote:
+	/* this program should take 1 second to complete, but takes 10 */
+	/* yes i know, it doesn't do any I/O, but the behavior is the
+		same as if it did */
+	main()
+	{
+	        for (int i = 0; i < 1000; i++) {
+			struct timeval to;
+			to.tv_sec = 0;
+			to.tv_usec = 1000;
+			select(0, 0, 0, 0, &to);
+		}
+		return 0;
+	}
 
-> On Thu, Jan 18, 2001 at 11:24:54PM +0000, Stephen Kitchener wrote:
-> > The only thing that might be odd is that the scanner's scsi card and the 
-> > display card are using the same IRQ, but I thought that IRQ sharing was ok in 
-> > the new kernels. The display card is an AGP type and the scsi card is pci.
-> >
-> > As you might have guessed, I am at a loss as to what to do next. Any help 
-> > appriciated, even suggestions as to how I can track down what I haven't done 
-> > (yet!)
-> Sharing interrupts could be the problem. Interrupt sharing is supported
-> in the kernel as far as two different drivers being able to register a
-> handler for the same interrupt, but not much beyond that. From studying
-> the code I don't find any handling of unclaimed or spurious interrupts.
-> 
-> Some drivers (like video cards) do not register a handler for their card's
-> interrupt. So when another driver (like the advansys driver) shares an
-> interrupt with this card's "unregistered" interrupt there is no one left
-> to handle the interrupt. The system will loop taking an interrupt from
-> the card. I've observed this using the frame buffer driver. Note: this
-> problem is unnoticed if the (video) card does not share an interrupt with
-> another driver, because (at least on x86) Linux does not enable the
-> PIC IRQ bit for IRQs that do not have registered interrupted handlers.
-> 
-> For Linux I think the right way to handle this is to have each (SA_SHIRQ)
-> sharing capable interrupt handler return a TRUE or FALSE value indicating
-> whether the interrupt belongs to the driver. In kernel/irq.c:handle_IRQ_event()
-> check the return value. If after one pass through all of the interrupt
-> (action) handlers no one has claimed the inerrupt then log a warning message
-> (spurious interrupt) and clear the interrupt. The difficult/painstaking
-> problem is that all SA_SHIRQ drivers need to be changed to return a return
-> value to make this work.
+[7.] Environment
+	Red Hat 7.0 with kernel upgraded to 2.2.18
 
-There is no ordering of interrupts with respect to transactions in PCI.
-As a result, getting interrupts that does not match a pending interrupt
-condition as seen by driver can happen, without the interrupt being
-spurious.
+[7.1.] Software (add the output of the ver_linux script here)
+	ver_linux di dnot appear to work. However, here's its output.
 
-As a result, the 2 following assertions:
-- All interrupts in PCI are spurious
-- No interrupt is PCI is spurious
-Are less wrong than asserting that some interrupts in PCI are relevant and
-some are spurious. :-)
+Linux mlindner-ras.sonusnet.com 2.2.18 #8 Wed Jan 3 01:40:29 EST 2001
+i586 unknown
+Kernel modules         found
+Gnu C                  2.96
+Binutils               2.10.0.18
+Linux C Library        ..
+ldd: missing file arguments
+Try `ldd --help' for more information.
+ls: /usr/lib/libg++.so: No such file or directory
+Procps                 2.0.7
+Mount                  2.10m
+Net-tools              (2000-05-21)
+Kbd                    [option...]
+Sh-utils               2.0
+Sh-utils               Parker.
+Sh-utils               
+Sh-utils               Inc.
+Sh-utils               NO
+Sh-utils               PURPOSE.
 
-And btw, some hardwares, notably Intel ones, seems to ensure coherency
-prior to deliver interrupts. This is a useless work when the IRQ is
-actually shared and does only make sense for ISA or ISA-like PCI devices
-and in situations where the IRQ is not actually shared.
+[7.2.] Processor information (from /proc/cpuinfo):
 
-> Anyway the simplest solution for you is probably if you can is to put
-> assign the video card its own interrupt. Putting the two advansys cards
-> on the same interrupt is fine. I have used interrupt sharing between
-> multiple advansys cards and and ethernet cards without a problem.
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 5
+model           : 8
+model name      : AMD-K6(tm) 3D processor
+stepping        : 12
+cpu MHz         : 451.033
+cache size      : 64 KB
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mmx 3dnow
+bogomips        : 897.84
 
-In theory, the O/S should warn _loudly_ if any PCI device hasn't a
-software driver attached, for the reason there is no generic way to
-actually quiesce completely a PCI device. As a result, loading drivers
-after boot or just loading drivers with interrupt enabled at boot is
-unsafe with PCI devices. This shall be considered, even if the risk of a
-breakage is generally very low.
+[7.3.] Module information (from /proc/modules): N/A
+[7.4.] SCSI information (from /proc/scsi/scsi) N/A
+[7.5.] Other information that might be relevant to the problem
+       (please look in /proc and include all information that you
+       think to be relevant):
+[X.] Other notes, patches, fixes, workarounds:
 
-  Gérard.
-
+--
+Mike Lindner
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

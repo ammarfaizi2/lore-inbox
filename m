@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263972AbUGFPtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264048AbUGFPuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263972AbUGFPtk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 11:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbUGFPtk
+	id S264048AbUGFPuG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 11:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbUGFPuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 11:49:40 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:30552 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S263972AbUGFPti
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 11:49:38 -0400
-Subject: Re: quite big breakthrough in the BAD network performance, which
-	mm6 did not fix
-From: Redeeman <lkml@metanurb.dk>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040706135303.GG20237@harddisk-recovery.com>
-References: <1089070720.14870.6.camel@localhost>
-	 <200407051754.38690.lkml@lpbproductions.com>
-	 <1089120330.10626.8.camel@localhost>
-	 <20040706135303.GG20237@harddisk-recovery.com>
-Content-Type: text/plain
-Date: Tue, 06 Jul 2004 17:49:37 +0200
-Message-Id: <1089128977.10626.11.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9 
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Jul 2004 11:50:06 -0400
+Received: from mailout1.samsung.com ([203.254.224.24]:23231 "EHLO
+	mailout1.samsung.com") by vger.kernel.org with ESMTP
+	id S264048AbUGFPt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 11:49:58 -0400
+Date: Wed, 07 Jul 2004 00:48:04 +0900
+From: "Hyok S. Choi" <hyok.choi@samsung.com>
+Subject: [PATCH] armnommu patch for 2.6.7 is available!
+To: linux-arm-kernel@lists.arm.linux.org.uk,
+       Linux-Kernel List <linux-kernel@vger.kernel.org>,
+       uClinux development list <uclinux-dev@uclinux.org>
+Message-id: <0I0F00F2RTB779@mmp1.samsung.com>
+Organization: Samsung Electronics Co.,Ltd.
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Thread-index: AcRjcJ/JtIdErBkxSA6yyjKze+7fmw==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-06 at 15:53 +0200, Erik Mouw wrote:
-> On Tue, Jul 06, 2004 at 03:25:30PM +0200, Redeeman wrote:
-> > i am aware of this, however, what i use to benchmark is kernel.org, as i
-> > can see they have alot bandwith free.
-> > if i use kernel.org http i get 50kb/s, if i use ftp, i can easily fetch
-> > with 200kb/s
-> 
-> That could be easily explained by the fact that the www.kernel.org ftp
-> and http services are handled by different programs (vsftpd vs.
-> Apache).
-yeah it could.. however it isnt. because 2.6.5 can easily take 200kb/s
-from kernel.org http, and it sound strange too, that with 2.6.7 ALL http
-adresses only give 50kb/s, and with 2.6.5 it gives 200 :>
-> 
-> 
-> Erik
-> 
+Hello,
+
+Glad to introduce 2.6.7-hsc0 patch set, the armnommu support for linux-2.6.7
+kernel.
+Which means uClinux/ARM patch against 2.6.7 in alternative. You can find the
+patch at :
+http://opensrc.sec.samsung.com
+or directly,
+http://opensrc.sec.samsung.com/download/linux-2.6.7-hsc0.patch.gz
+
+It is generated against vanilla 2.6.7 kernel.
+
+ChangeLog:
+   a. new platform (s3c4510b,ESPD) is supported, with 4510b specialized
+cache codes and ethernet driver.
+       by Curt Brune [curt@acm.org] (thanks!)
+   b. new platform (s3c44b0x) is supported, with 44b0x cache codes and
+rtl8019.
+       by Nickmit Zheng [nickmit_zheng@eastday.com] (thanks!)
+   c. merged with internal 2.6.6-hsc1 patch and several fixes for 2.6.7.
+
+Best Regards,
+Hyok
+
+P.S. : armnommu architecture directory have been used for uClinux/ARM
+support, like m68knommu.
+     Some people suggest merging into arm architecture, and I have a part of
+the idea as my plan sent to RMK.
+     If anyone has a good idea to co-operate with arm and armnommu without
+maintaining trouble,
+     please let me know. :-)
+    
+
+<EOT>
+
+CHOI, HYOK-SUNG
+Engineer (Linux System Software)
+S/W Platform Lab, Digital Media R&D Center
+Samsung Electronics Co.,Ltd.
+tel: +82-31-200-8594  fax: +82-31-200-3427
+e-mail: hyok.choi@samsung.com <mailto:hyok.choi@samsung.com> 
+Linux 2.6 armnommu maintainer : http://opensrc.sec.samsung.com
+
+
+ 
+
+ 
+
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264512AbUDZKcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264493AbUDZKgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264512AbUDZKcB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 06:32:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbUDZKbe
+	id S264493AbUDZKgN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 06:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbUDZKeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 06:31:34 -0400
-Received: from ns.suse.de ([195.135.220.2]:61141 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264490AbUDZK2w (ORCPT
+	Mon, 26 Apr 2004 06:34:04 -0400
+Received: from ns.suse.de ([195.135.220.2]:61653 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264493AbUDZK2w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 26 Apr 2004 06:28:52 -0400
-Subject: [PATCH 6/11] nfsacl-lazy-alloc
+Subject: [PATCH 8/11] qsort
 From: Andreas Gruenbacher <agruen@suse.de>
 To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Organization: SUSE Labs, SUSE LINUX AG
-Message-Id: <1082975192.3295.76.camel@winden.suse.de>
+Message-Id: <1082975201.3295.78.camel@winden.suse.de>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.4 
 Date: Mon, 26 Apr 2004 12:28:48 +0200
@@ -22,155 +22,303 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow to allocate pages in the receive buffers lazily
+Add qsort
 
-Patch from Olaf Kirch <okir@suse.de>: Replies to the GETACL remote
-procedure call can become quite big, yet in the common case replies will
-be very small.  This patch checks of argument pages have already been
-allocated, and allocates pages up to the maximum length of the xdr_buf
-when this is not the case.
+This is qsort from glibc. We need it in nfsacl.
 
   Andreas Gruenbacher <agruen@suse.de>, SUSE Labs
 
-Index: linux-2.6.6-rc2/include/linux/sunrpc/xdr.h
+Index: linux-2.6.6-rc2/include/linux/kernel.h
 ===================================================================
---- linux-2.6.6-rc2.orig/include/linux/sunrpc/xdr.h
-+++ linux-2.6.6-rc2/include/linux/sunrpc/xdr.h
-@@ -169,7 +169,7 @@ typedef struct {
+--- linux-2.6.6-rc2.orig/include/linux/kernel.h
++++ linux-2.6.6-rc2/include/linux/kernel.h
+@@ -80,6 +80,8 @@ extern int sscanf(const char *, const ch
+ 	__attribute__ ((format (scanf,2,3)));
+ extern int vsscanf(const char *, const char *, va_list);
  
- typedef size_t (*skb_read_actor_t)(skb_reader_t *desc, void *to, size_t len);
- 
--extern void xdr_partial_copy_from_skb(struct xdr_buf *, unsigned int,
-+extern int xdr_partial_copy_from_skb(struct xdr_buf *, unsigned int,
- 		skb_reader_t *, skb_read_actor_t);
- 
- struct socket;
-Index: linux-2.6.6-rc2/net/sunrpc/xdr.c
++extern void qsort(void *, size_t, size_t, int (*)(const void *,const void *));
++
+ extern int get_option(char **str, int *pint);
+ extern char *get_options(const char *str, int nints, int *ints);
+ extern unsigned long long memparse(char *ptr, char **retptr);
+Index: linux-2.6.6-rc2/lib/Kconfig
 ===================================================================
---- linux-2.6.6-rc2.orig/net/sunrpc/xdr.c
-+++ linux-2.6.6-rc2/net/sunrpc/xdr.c
-@@ -303,7 +303,7 @@ void xdr_kunmap(struct xdr_buf *xdr, siz
- 	}
- }
+--- linux-2.6.6-rc2.orig/lib/Kconfig
++++ linux-2.6.6-rc2/lib/Kconfig
+@@ -12,6 +12,9 @@ config CRC32
+ 	  kernel tree does. Such modules that use library CRC32 functions
+ 	  require M here.
  
--void
-+int
- xdr_partial_copy_from_skb(struct xdr_buf *xdr, unsigned int base,
- 			  skb_reader_t *desc,
- 			  skb_read_actor_t copy_actor)
-@@ -317,7 +317,7 @@ xdr_partial_copy_from_skb(struct xdr_buf
- 		len -= base;
- 		ret = copy_actor(desc, (char *)xdr->head[0].iov_base + base, len);
- 		if (ret != len || !desc->count)
--			return;
-+			return 0;
- 		base = 0;
- 	} else
- 		base -= len;
-@@ -337,6 +337,13 @@ xdr_partial_copy_from_skb(struct xdr_buf
- 	do {
- 		char *kaddr;
++config QSORT
++	bool "Quick Sort"
++
+ #
+ # compression support is select'ed if needed
+ #
+Index: linux-2.6.6-rc2/lib/Makefile
+===================================================================
+--- linux-2.6.6-rc2.orig/lib/Makefile
++++ linux-2.6.6-rc2/lib/Makefile
+@@ -19,6 +19,7 @@ ifneq ($(CONFIG_HAVE_DEC_LOCK),y) 
+ endif
  
-+		/* ACL likes to be lazy in allocating pages - ACLs
-+		 * are small by default but can get huge. */
-+		if (unlikely(*ppage == NULL)) {
-+			if (!(*ppage = alloc_page(GFP_ATOMIC)))
-+				return -ENOMEM;
+ obj-$(CONFIG_CRC32)	+= crc32.o
++obj-$(CONFIG_QSORT)	+= qsort.o
+ 
+ obj-$(CONFIG_ZLIB_INFLATE) += zlib_inflate/
+ obj-$(CONFIG_ZLIB_DEFLATE) += zlib_deflate/
+Index: linux-2.6.6-rc2/lib/qsort.c
+===================================================================
+--- linux-2.6.6-rc2.orig/lib/qsort.c
++++ linux-2.6.6-rc2/lib/qsort.c
+@@ -0,0 +1,249 @@
++/* Copyright (C) 1991, 1992, 1996, 1997, 1999 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++   Written by Douglas C. Schmidt (schmidt@ics.uci.edu).
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++/* If you consider tuning this algorithm, you should consult first:
++   Engineering a sort function; Jon Bentley and M. Douglas McIlroy;
++   Software - Practice and Experience; Vol. 23 (11), 1249-1265, 1993.  */
++
++# include <linux/module.h>
++# include <linux/slab.h>
++# include <linux/string.h>
++
++MODULE_LICENSE("GPL");
++
++/* Byte-wise swap two items of size SIZE. */
++#define SWAP(a, b, size)						      \
++  do									      \
++    {									      \
++      register size_t __size = (size);					      \
++      register char *__a = (a), *__b = (b);				      \
++      do								      \
++	{								      \
++	  char __tmp = *__a;						      \
++	  *__a++ = *__b;						      \
++	  *__b++ = __tmp;						      \
++	} while (--__size > 0);						      \
++    } while (0)
++
++/* Discontinue quicksort algorithm when partition gets below this size.
++   This particular magic number was chosen to work best on a Sun 4/260. */
++#define MAX_THRESH 4
++
++/* Stack node declarations used to store unfulfilled partition obligations. */
++typedef struct
++  {
++    char *lo;
++    char *hi;
++  } stack_node;
++
++/* The next 5 #defines implement a very fast in-line stack abstraction. */
++/* The stack needs log (total_elements) entries (we could even subtract
++   log(MAX_THRESH)).  Since total_elements has type size_t, we get as
++   upper bound for log (total_elements):
++   bits per byte (CHAR_BIT) * sizeof(size_t).  */
++#define CHAR_BIT 8
++#define STACK_SIZE	(CHAR_BIT * sizeof(size_t))
++#define PUSH(low, high)	((void) ((top->lo = (low)), (top->hi = (high)), ++top))
++#define	POP(low, high)	((void) (--top, (low = top->lo), (high = top->hi)))
++#define	STACK_NOT_EMPTY	(stack < top)
++
++
++/* Order size using quicksort.  This implementation incorporates
++   four optimizations discussed in Sedgewick:
++
++   1. Non-recursive, using an explicit stack of pointer that store the
++      next array partition to sort.  To save time, this maximum amount
++      of space required to store an array of SIZE_MAX is allocated on the
++      stack.  Assuming a 32-bit (64 bit) integer for size_t, this needs
++      only 32 * sizeof(stack_node) == 256 bytes (for 64 bit: 1024 bytes).
++      Pretty cheap, actually.
++
++   2. Chose the pivot element using a median-of-three decision tree.
++      This reduces the probability of selecting a bad pivot value and
++      eliminates certain extraneous comparisons.
++
++   3. Only quicksorts TOTAL_ELEMS / MAX_THRESH partitions, leaving
++      insertion sort to order the MAX_THRESH items within each partition.
++      This is a big win, since insertion sort is faster for small, mostly
++      sorted array segments.
++
++   4. The larger of the two sub-partitions is always pushed onto the
++      stack first, with the algorithm then concentrating on the
++      smaller partition.  This *guarantees* no more than log (total_elems)
++      stack size is needed (actually O(1) in this case)!  */
++
++void
++qsort(void *const pbase, size_t total_elems, size_t size,
++      int(*cmp)(const void *,const void *))
++{
++  register char *base_ptr = (char *) pbase;
++
++  const size_t max_thresh = MAX_THRESH * size;
++
++  if (total_elems == 0)
++    /* Avoid lossage with unsigned arithmetic below.  */
++    return;
++
++  if (total_elems > MAX_THRESH)
++    {
++      char *lo = base_ptr;
++      char *hi = &lo[size * (total_elems - 1)];
++      stack_node stack[STACK_SIZE];
++      stack_node *top = stack + 1;
++
++      while (STACK_NOT_EMPTY)
++        {
++          char *left_ptr;
++          char *right_ptr;
++
++	  /* Select median value from among LO, MID, and HI. Rearrange
++	     LO and HI so the three values are sorted. This lowers the
++	     probability of picking a pathological pivot value and
++	     skips a comparison for both the LEFT_PTR and RIGHT_PTR in
++	     the while loops. */
++
++	  char *mid = lo + size * ((hi - lo) / size >> 1);
++
++	  if ((*cmp) ((void *) mid, (void *) lo) < 0)
++	    SWAP (mid, lo, size);
++	  if ((*cmp) ((void *) hi, (void *) mid) < 0)
++	    SWAP (mid, hi, size);
++	  else
++	    goto jump_over;
++	  if ((*cmp) ((void *) mid, (void *) lo) < 0)
++	    SWAP (mid, lo, size);
++	jump_over:;
++
++	  left_ptr  = lo + size;
++	  right_ptr = hi - size;
++
++	  /* Here's the famous ``collapse the walls'' section of quicksort.
++	     Gotta like those tight inner loops!  They are the main reason
++	     that this algorithm runs much faster than others. */
++	  do
++	    {
++	      while ((*cmp) ((void *) left_ptr, (void *) mid) < 0)
++		left_ptr += size;
++
++	      while ((*cmp) ((void *) mid, (void *) right_ptr) < 0)
++		right_ptr -= size;
++
++	      if (left_ptr < right_ptr)
++		{
++		  SWAP (left_ptr, right_ptr, size);
++		  if (mid == left_ptr)
++		    mid = right_ptr;
++		  else if (mid == right_ptr)
++		    mid = left_ptr;
++		  left_ptr += size;
++		  right_ptr -= size;
 +		}
++	      else if (left_ptr == right_ptr)
++		{
++		  left_ptr += size;
++		  right_ptr -= size;
++		  break;
++		}
++	    }
++	  while (left_ptr <= right_ptr);
 +
- 		len = PAGE_CACHE_SIZE;
- 		kaddr = kmap_atomic(*ppage, KM_SKB_SUNRPC_DATA);
- 		if (base) {
-@@ -353,13 +360,15 @@ xdr_partial_copy_from_skb(struct xdr_buf
- 		flush_dcache_page(*ppage);
- 		kunmap_atomic(kaddr, KM_SKB_SUNRPC_DATA);
- 		if (ret != len || !desc->count)
--			return;
-+			return 0;
- 		ppage++;
- 	} while ((pglen -= len) != 0);
- copy_tail:
- 	len = xdr->tail[0].iov_len;
- 	if (base < len)
- 		copy_actor(desc, (char *)xdr->tail[0].iov_base + base, len - base);
++          /* Set up pointers for next iteration.  First determine whether
++             left and right partitions are below the threshold size.  If so,
++             ignore one or both.  Otherwise, push the larger partition's
++             bounds on the stack and continue sorting the smaller one. */
 +
-+	return 0;
- }
- 
-
-Index: linux-2.6.6-rc2/net/sunrpc/xprt.c
-===================================================================
---- linux-2.6.6-rc2.orig/net/sunrpc/xprt.c
-+++ linux-2.6.6-rc2/net/sunrpc/xprt.c
-@@ -693,7 +693,8 @@ csum_partial_copy_to_xdr(struct xdr_buf 
- 		goto no_checksum;
- 
- 	desc.csum = csum_partial(skb->data, desc.offset, skb->csum);
--	xdr_partial_copy_from_skb(xdr, 0, &desc, skb_read_and_csum_bits);
-+	if (xdr_partial_copy_from_skb(xdr, 0, &desc, skb_read_and_csum_bits) < 0)
-+		return -1;
- 	if (desc.offset != skb->len) {
- 		unsigned int csum2;
- 		csum2 = skb_checksum(skb, desc.offset, skb->len - desc.offset, 0);
-@@ -705,7 +706,8 @@ csum_partial_copy_to_xdr(struct xdr_buf 
- 		return -1;
- 	return 0;
- no_checksum:
--	xdr_partial_copy_from_skb(xdr, 0, &desc, skb_read_bits);
-+	if (xdr_partial_copy_from_skb(xdr, 0, &desc, skb_read_bits) < 0)
-+		return -1;
- 	if (desc.count)
- 		return -1;
- 	return 0;
-@@ -872,6 +874,7 @@ tcp_read_request(struct rpc_xprt *xprt, 
- 	struct rpc_rqst *req;
- 	struct xdr_buf *rcvbuf;
- 	size_t len;
-+	int r;
- 
- 	/* Find and lock the request corresponding to this xid */
- 	spin_lock(&xprt->sock_lock);
-@@ -892,16 +895,30 @@ tcp_read_request(struct rpc_xprt *xprt, 
- 		len = xprt->tcp_reclen - xprt->tcp_offset;
- 		memcpy(&my_desc, desc, sizeof(my_desc));
- 		my_desc.count = len;
--		xdr_partial_copy_from_skb(rcvbuf, xprt->tcp_copied,
--					  &my_desc, tcp_copy_data);
-+		r = xdr_partial_copy_from_skb(rcvbuf, xprt->tcp_copied,
-+					      &my_desc, tcp_copy_data);
- 		desc->count -= len;
- 		desc->offset += len;
- 	} else
--		xdr_partial_copy_from_skb(rcvbuf, xprt->tcp_copied,
--					  desc, tcp_copy_data);
-+		r = xdr_partial_copy_from_skb(rcvbuf, xprt->tcp_copied,
-+					      desc, tcp_copy_data);
- 	xprt->tcp_copied += len;
- 	xprt->tcp_offset += len;
- 
-+	if (r < 0) {
-+		/* Error when copying to the receive buffer,
-+		 * usually because we weren't able to allocate
-+		 * additional buffer pages. All we can do now
-+		 * is turn off XPRT_COPY_DATA, so the request
-+		 * will not receive any additional updates,
-+		 * and time out.
-+		 * Any remaining data from this record will
-+		 * be discarded.
-+		 */
-+		xprt->tcp_flags &= ~XPRT_COPY_DATA;
-+		goto out;
-+	}
++          if ((size_t) (right_ptr - lo) <= max_thresh)
++            {
++              if ((size_t) (hi - left_ptr) <= max_thresh)
++		/* Ignore both small partitions. */
++                POP (lo, hi);
++              else
++		/* Ignore small left partition. */
++                lo = left_ptr;
++            }
++          else if ((size_t) (hi - left_ptr) <= max_thresh)
++	    /* Ignore small right partition. */
++            hi = right_ptr;
++          else if ((right_ptr - lo) > (hi - left_ptr))
++            {
++	      /* Push larger left partition indices. */
++              PUSH (lo, right_ptr);
++              lo = left_ptr;
++            }
++          else
++            {
++	      /* Push larger right partition indices. */
++              PUSH (left_ptr, hi);
++              hi = right_ptr;
++            }
++        }
++    }
 +
- 	if (xprt->tcp_copied == req->rq_private_buf.buflen)
- 		xprt->tcp_flags &= ~XPRT_COPY_DATA;
- 	else if (xprt->tcp_offset == xprt->tcp_reclen) {
-@@ -914,6 +931,7 @@ tcp_read_request(struct rpc_xprt *xprt, 
- 				req->rq_task->tk_pid);
- 		xprt_complete_rqst(xprt, req, xprt->tcp_copied);
- 	}
-+out:
- 	spin_unlock(&xprt->sock_lock);
- 	tcp_check_recm(xprt);
- }
++  /* Once the BASE_PTR array is partially sorted by quicksort the rest
++     is completely sorted using insertion sort, since this is efficient
++     for partitions below MAX_THRESH size. BASE_PTR points to the beginning
++     of the array to sort, and END_PTR points at the very last element in
++     the array (*not* one beyond it!). */
++
++  {
++    char *end_ptr = &base_ptr[size * (total_elems - 1)];
++    char *tmp_ptr = base_ptr;
++    char *thresh = min(end_ptr, base_ptr + max_thresh);
++    register char *run_ptr;
++
++    /* Find smallest element in first threshold and place it at the
++       array's beginning.  This is the smallest array element,
++       and the operation speeds up insertion sort's inner loop. */
++
++    for (run_ptr = tmp_ptr + size; run_ptr <= thresh; run_ptr += size)
++      if ((*cmp) ((void *) run_ptr, (void *) tmp_ptr) < 0)
++        tmp_ptr = run_ptr;
++
++    if (tmp_ptr != base_ptr)
++      SWAP (tmp_ptr, base_ptr, size);
++
++    /* Insertion sort, running from left-hand-side up to right-hand-side.  */
++
++    run_ptr = base_ptr + size;
++    while ((run_ptr += size) <= end_ptr)
++      {
++	tmp_ptr = run_ptr - size;
++	while ((*cmp) ((void *) run_ptr, (void *) tmp_ptr) < 0)
++	  tmp_ptr -= size;
++
++	tmp_ptr += size;
++        if (tmp_ptr != run_ptr)
++          {
++            char *trav;
++
++	    trav = run_ptr + size;
++	    while (--trav >= run_ptr)
++              {
++                char c = *trav;
++                char *hi, *lo;
++
++                for (hi = lo = trav; (lo -= size) >= tmp_ptr; hi = lo)
++                  *hi = *lo;
++                *hi = c;
++              }
++          }
++      }
++  }
++}
++EXPORT_SYMBOL(qsort);
 

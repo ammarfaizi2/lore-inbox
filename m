@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129227AbQKNRvK>; Tue, 14 Nov 2000 12:51:10 -0500
+	id <S129994AbQKNSEP>; Tue, 14 Nov 2000 13:04:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130201AbQKNRvB>; Tue, 14 Nov 2000 12:51:01 -0500
-Received: from grad.physics.sunysb.edu ([129.49.56.86]:46349 "EHLO
-	grad.physics.sunysb.edu") by vger.kernel.org with ESMTP
-	id <S129227AbQKNRuu>; Tue, 14 Nov 2000 12:50:50 -0500
-Date: Tue, 14 Nov 2000 12:20:19 -0500 (EST)
-From: Rui Sousa <rsousa@grad.physics.sunysb.edu>
-To: Hans Grobler <grobh@sun.ac.za>
-cc: "Willis L. Sarka" <wlsarka@the-republic.org>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Hard lockup using emu10k1-based sound card
-In-Reply-To: <Pine.LNX.4.21.0011132009020.6877-100000@ccs.sun.ac.za>
-Message-ID: <Pine.LNX.4.21.0011141216450.18636-100000@grad.physics.sunysb.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130191AbQKNSEG>; Tue, 14 Nov 2000 13:04:06 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:55876 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129994AbQKNSD5>; Tue, 14 Nov 2000 13:03:57 -0500
+Date: Tue, 14 Nov 2000 18:34:07 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Cc: Josue.Amaro@oracle.com, linux-kernel@vger.kernel.org
+Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
+Message-ID: <20001114183407.A6576@athlon.random>
+In-Reply-To: <200011141459.IAA413471@tomcat.admin.navo.hpc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200011141459.IAA413471@tomcat.admin.navo.hpc.mil>; from pollard@tomcat.admin.navo.hpc.mil on Tue, Nov 14, 2000 at 08:59:49AM -0600
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2000, Hans Grobler wrote:
+On Tue, Nov 14, 2000 at 08:59:49AM -0600, Jesse Pollard wrote:
+>    I (meaning me) would like the ability to audit every system call. (yes,
+>    this is horrendous, if everything is logged, but I want to be able to
+>    choose how much is logged at the source of the data, rather than at
+>    the destination. That would reduce the total data flood to what is
+>    manageable or desired.
 
-> On Mon, 13 Nov 2000, Willis L. Sarka wrote:
-> > I get a hard lockup when trying to play a mp3 with XMMS;
-> > Sound Blaster Live card.  The first second loops, and I lose all
-> > connectivity to the machine; I can't ping it, can't to a an Alt-Sysq,
-> > nothing.
-> 
-> Just for reference, I've been use the ALSA drivers for most of the
-> 2.4.0-testX kernels without any problems (provided you use the driver
-> version that matches the kernel version). Even under high memory
-> preasure, swapping, NFS traffic, etc. the worst that happens is sporadic
-> skipping. XMMS and mpg123 in use. I've tried the kernel emu10k1 a few
-> times but also got similar lockup's.
+Yes, you really need to control the logging at the source of the data. To do
+that we need to use to use self modifying tricks as dprobes and GKHI does to
+provide "fast unregistered hooks".
 
-Which was the latest kernel you tried? A (easy to trigger) deadlock was
-fixed around 2.4.0-test...
+o	with dprobes the hooks will be _absolutely_ zero cost if they're
+	unregistered but they're very costly (basically enter/exit kernel
+	for every hook) when they're registered (so they're ok if
+	your auditing doesn't happen all the time).
 
-Rui Sousa
+	dprobe hooks also binds you to a certain binary image (not a generic
+	interface stable across different kernel binaries)
 
+o	GKHI provides fast unregistered hooks too, if implemented with
+	5 nops as suggested they will cost around 3 cycles when they're
+	unregistered, and they will provide good performance also when
+	they're registered (no enter/exit kernel as dprobes needs
+	to do) and you can control them via userspace without being dependent
+	on binary offsets (just like with every other hook we have in kernel
+	just now but with the difference that our current hooks aren't self
+	modifying so they adds branches also when they're unregistered so
+	they're bad for usages like syscall auditing). However bloating every
+	syscall with tons of GKHI hooks isn't possible either or it will become
+	a performance problem too eventually. It depends what you need exactly.
+	I'd say one GKHI hook per syscall shouldn't have measurable impact on
+	performance.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,107 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263638AbTE3NH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 09:07:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263642AbTE3NH7
+	id S263645AbTE3NWi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 09:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263652AbTE3NWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 09:07:59 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:8558 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263638AbTE3NH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 09:07:57 -0400
-Date: Fri, 30 May 2003 14:21:12 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org,
-       Stephen Tweedie <sct@redhat.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4 bug: fifo-write causes diskwrites to read-only fs !
-Message-ID: <20030530132112.GA9572@redhat.com>
-References: <Pine.LNX.4.53.0305281612160.13968@chaos> <200305282052.h4SKqUBw016537@verdi.et.tudelft.nl>
+	Fri, 30 May 2003 09:22:38 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:62886
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S263645AbTE3NWf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 09:22:35 -0400
+Date: Fri, 30 May 2003 09:35:54 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: marcelo@conectiva.com.br, m.c.p@wolk-project.de, willy@w.ods.org,
+       gibbs@scsiguy.com, linux-kernel@vger.kernel.org
+Subject: Re: Undo aic7xxx changes
+Message-ID: <20030530133554.GB22969@gtf.org>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva> <20030524111608.GA4599@alpha.home.local> <20030525125811.68430bda.skraw@ithnet.com> <200305251447.34027.m.c.p@wolk-project.de> <20030526170058.105f0b9f.skraw@ithnet.com> <20030526164404.GA11381@alpha.home.local> <20030530100900.768ceeef.skraw@ithnet.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="y0ulUmNC+osPPQO6"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200305282052.h4SKqUBw016537@verdi.et.tudelft.nl>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030530100900.768ceeef.skraw@ithnet.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 30, 2003 at 10:09:00AM +0200, Stephan von Krawczynski wrote:
+> Hello Marcelo,
+> 
+> I tried plain rc6 now and have to tell you it does not survive a single day of
+> my usual tests. It freezes during tar from 3ware-driven IDE to aic-driven SDLT.
+> This is identical to all previous rc (and some pre) releases of 2.4.21. So far
+> I can tell you that the only thing that has recently cured this problem is
+> replacing the aic-driver with latest of justins' releases.
+> As plain rc6 does definitely not work I will now switch over to
+> rc6+aic-20030523. Remember that rc3+aic-20030523 already worked quite ok (4
+> days test survived).
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Also, does the aic7xxx_old driver work for you?
 
-Hi,
+The "old" part is only in regards to lack of support for very-new
+aic7xxx hardware.
 
-On Wed, May 28, 2003 at 10:52:30PM +0200, Rob van Nieuwkerk wrote:
+	Jeff
 
-> I don't have the POSIX spec, but maybe it specifies what "read-only"
-> is supposed to mean somewhere too ..
 
-SingleUnix says:
 
-http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap04.html#tag_04_07
 
-"Marks for update, and updates themselves, are not done for files on
-read-only file systems"
-
-So we're wrong here.  Patch below fixes it for me for 2.4.
-
-Cheers,
- Stephen
-
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="4202-vfs-mctime-rofs.patch"
-
---- linux-2.4-odirect/fs/inode.c.=K0004=.orig
-+++ linux-2.4-odirect/fs/inode.c
-@@ -1194,6 +1194,24 @@ void update_atime (struct inode *inode)
- 	mark_inode_dirty_sync (inode);
- }   /*  End Function update_atime  */
- 
-+/**
-+ *	update_mctime	-	update the mtime and ctime
-+ *	@inode: inode accessed
-+ *
-+ *	Update the modified and changed times on an inode for writes to special
-+ *	files such as fifos.  No change is forced if the timestamps are already
-+ *	up-to-date or if the filesystem is readonly.
-+ */
-+ 
-+void update_mctime (struct inode *inode)
-+{
-+	if (inode->i_mtime == CURRENT_TIME && inode->i_ctime == CURRENT_TIME)
-+		return;
-+	if ( IS_RDONLY (inode) ) return;
-+	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
-+	mark_inode_dirty (inode);
-+}   /*  End Function update_mctime  */
-+
- 
- /*
-  *	Quota functions that want to walk the inode lists..
---- linux-2.4-odirect/fs/pipe.c.=K0004=.orig
-+++ linux-2.4-odirect/fs/pipe.c
-@@ -230,8 +230,7 @@ pipe_write(struct file *filp, const char
- 	/* Signal readers asynchronously that there is more data.  */
- 	wake_up_interruptible(PIPE_WAIT(*inode));
- 
--	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
--	mark_inode_dirty(inode);
-+	update_mctime(inode);
- 
- out:
- 	up(PIPE_SEM(*inode));
---- linux-2.4-odirect/include/linux/fs.h.=K0004=.orig
-+++ linux-2.4-odirect/include/linux/fs.h
-@@ -201,6 +201,7 @@ extern int leases_enable, dir_notify_ena
- #include <asm/byteorder.h>
- 
- extern void update_atime (struct inode *);
-+extern void update_mctime (struct inode *);
- #define UPDATE_ATIME(inode) update_atime (inode)
- 
- extern void buffer_init(unsigned long);
-
---y0ulUmNC+osPPQO6--

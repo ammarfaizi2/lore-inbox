@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265339AbSJXHwA>; Thu, 24 Oct 2002 03:52:00 -0400
+	id <S265343AbSJXHyb>; Thu, 24 Oct 2002 03:54:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265340AbSJXHv7>; Thu, 24 Oct 2002 03:51:59 -0400
-Received: from packet.digeo.com ([12.110.80.53]:16895 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265339AbSJXHv7>;
-	Thu, 24 Oct 2002 03:51:59 -0400
-Message-ID: <3DB7A80C.7D13C750@digeo.com>
-Date: Thu, 24 Oct 2002 00:58:04 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
+	id <S265344AbSJXHya>; Thu, 24 Oct 2002 03:54:30 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60208 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S265343AbSJXHy3>; Thu, 24 Oct 2002 03:54:29 -0400
+To: Amol Kumar Lad <amolk@ishoni.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gzip compression of vmlinux
+References: <1035243705.2202.3.camel@amol.in.ishoni.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 24 Oct 2002 01:58:51 -0600
+In-Reply-To: <1035243705.2202.3.camel@amol.in.ishoni.com>
+Message-ID: <m1d6q0s1xg.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [long]2.5.44-mm3 UP went into unexpected trashing
-References: <3DB7A581.9214EFCC@aitel.hist.no>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Oct 2002 07:58:04.0969 (UTC) FILETIME=[153D6990:01C27B33]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> 
-> 2.5.44-mm3 just began trashing.  I ran debsums -s in order
-> to verify installed packages.  This checksums all
-> binaries.  Things got a little sluggish, but it finished.
-> 
-> Then I started a compile for 2.5.44-mm4, and the machine
-> became so hopeless that I stopped the compile.  That
-> haven't happened before, I have 256M.
-> 
-> Looking at a running vmstat I saw lots of swapping,
-> almost no free memory (as usual) but _cache_
-> was down to 4004 too!
+Amol Kumar Lad <amolk@ishoni.com> writes:
 
-Memory leak.
+> Hi,
+>  Currently we use gzip to compress vmlinux ( and finally form bzImage).
+> I am planning to replace it with bzip2 . Should I go ahead with it ?
+> Will it find its place in the latest kernel ? 
+> We save some 35k of compressed bzImage using bzip2
 
+You might also want to take a look at upx.  It's compressor
+is roughly of the same quality as gzip, but it's decompresser
+is only a couple of hundred bytes.  I don't know which will
+buy you more in practice.  I smaller decompresser, or a larger
+decompresser with that compresses a little smaller.  Or possibly
+you just want to pass -9 to gzip?
 
-> dentry_cache      1174824 1174824    140 41958 41958    1 :  248  124 : 1174824 1174923 41958    0    0    0  276 : 1131352  43467      0      0
+Eric
 
-160 megabytes of dcache.
-
-Hopefully the rcu fix in -mm4 will cure this.

@@ -1,26 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261512AbRERUFZ>; Fri, 18 May 2001 16:05:25 -0400
+	id <S261514AbRERUGP>; Fri, 18 May 2001 16:06:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261514AbRERUFP>; Fri, 18 May 2001 16:05:15 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40207 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261512AbRERUE6>; Fri, 18 May 2001 16:04:58 -0400
-Subject: Re: Q: missing or broken mmap().
-To: bohdan@kivc.vstu.vinnica.ua (Bohdan Vlasyuk)
-Date: Fri, 18 May 2001 21:01:24 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010518202111.A12397@kivc.vstu.vinnica.ua> from "Bohdan Vlasyuk" at May 18, 2001 08:21:11 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E150qRA-0007cI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S261516AbRERUGH>; Fri, 18 May 2001 16:06:07 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:27913 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S261514AbRERUFw>; Fri, 18 May 2001 16:05:52 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: esr@thyrsus.com
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Message-ID: <86256A50.006E3D90.00@smtpnotes.altec.com>
+Date: Fri, 18 May 2001 15:04:43 -0500
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm wondering what it may mean - something to be implemented in linux,
-> of poorly configured system:
 
-Strange. Linux definitely has mmap()
+
+On 05/18/2001 at 02:44:07 PM esr@thyrsus.com wrote:
+
+>But the real question is whether the old tools have enough value to be
+>worth the effort.  What problem are you trying to solve here?
+
+
+How about:
+
+
+
+1.  Some of us are perfectly satisfied with the existing tools and don't want
+      them to be yanked out from under us.
+
+2.  Some of us have no interest in Python and don't like being forced to deal
+      with installing/upgrading it just for CML2.
+
+
+
+Wayne
+
+

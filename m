@@ -1,80 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135244AbRDLSJB>; Thu, 12 Apr 2001 14:09:01 -0400
+	id <S135248AbRDLSVg>; Thu, 12 Apr 2001 14:21:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135246AbRDLSIv>; Thu, 12 Apr 2001 14:08:51 -0400
-Received: from pD953898E.dip.t-dialin.net ([217.83.137.142]:6391 "EHLO
-	tolot.escape.de") by vger.kernel.org with ESMTP id <S135244AbRDLSIq>;
-	Thu, 12 Apr 2001 14:08:46 -0400
-Date: Thu, 12 Apr 2001 19:59:11 +0200
-From: Jochen Striepe <jochen@tolot.escape.de>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Dave Jones <davej@suse.de>, esr@thyrsus.com,
-        Aaron Lehmann <aaronl@vitelus.com>,
-        Michael Elizabeth Chastain <chastain@cygnus.com>,
-        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Re: CML2 1.0.0 release announcement
-Message-ID: <20010412195911.A13744@tolot.escape.de>
-In-Reply-To: <Pine.LNX.4.30.0104121400420.7530-100000@Appserv.suse.de> <01041206002400.19748@gopnik.dom-duraki>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <01041206002400.19748@gopnik.dom-duraki>; from elenstev@mesatop.com on Thu, Apr 12, 2001 at 06:00:24AM -0600
-X-Editor: vim/5.7.28
-X-Signature-Color: blue
+	id <S135249AbRDLSV0>; Thu, 12 Apr 2001 14:21:26 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:34270 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S135248AbRDLSVF>; Thu, 12 Apr 2001 14:21:05 -0400
+Message-ID: <3AD5F112.E78436F@uow.edu.au>
+Date: Thu, 12 Apr 2001 11:16:50 -0700
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18-0.22 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Howells <dhowells@cambridge.redhat.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 4th try: i386 rw_semaphores fix
+In-Reply-To: Your message of "Wed, 11 Apr 2001 17:37:10 BST."
+				             <17213.987007030@warthog.cambridge.redhat.com> <17794.987025299@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-        Hi,
-
-On 12 Apr 2001, Steven Cole <elenstev@mesatop.com> wrote:
->=20
-> Excuse me, but this seems to be something of a red herring.  I've got
-> a crowd of Pentium-90 and 100 machines at work, and they get new kernels
-> occasionally, but I haven't built a kernel using that class of machine
-> in 5 years or so.  I build new kernels using a dual 733 PIII.  Just for
-> "fun", I built a kernel using a uniprocessor 266 PII a few months ago, but
-> I have much better things to do with my time.
-
-I have an AMD K6/2-400. But I do know _many_ people who do own slower
-Hardware, and run Linux on it. They do not want and cannot afford to buy
-the newest shiny box. And, they have better things to do with their time
-as well. Please note, I live in a country where people are not _poor_.
-Just think of others some time, not only of yourself.=20
+David Howells wrote:
+> 
+> Here's the RW semaphore patch attempt #4. This fixes the bugs that Andrew
+> Morton's test cases showed up.
+> 
 
 
-So long,
+It still doesn't compile with gcc-2.91.66 because of the
+"#define rwsemdebug(FMT, ...)" thing.  What can we do
+about this?
 
-Jochen Striepe.
+I cooked up a few more tests, generally beat the thing
+up.  This code works.  Good stuff.  I'll do some more testing
+later this week - put some delays inside the semaphore code
+itself to stretch the timing windows, but I don't see how
+it can break it.
 
---=20
-"He was so narrow minded he could see through a keyhole with both
-eyes ..."
+Manfred says the rep;nop should come *before* the memory
+operation, but I don't know if he's been heard...
+
+parisc looks OK.  ppc tried hard, but didn't get it
+right.  The spin_lock_irqsave() in up_read/up_write shouldn't be
+necessary plus it puts the readers onto the
+waitqueue with add_wait_queue_exclusive, so an up_write
+will only release one reader.  Looks like they'll end
+up with stuck readers.  Other architectures need work.
+If they can live with a spinlock in the fastpath, then
+the code at http://www.uow.edu.au/~andrewm/linux/rw_semaphore.tar.gz
+is bog-simple and works.
 
 
---Qxx1br4bt0+wmkIi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Now I think we should specify the API a bit:
 
-iQEVAwUBOtXs76rOdlPj1wR/AQFc+Af/ZMPUQZ5TUcY+c9N/1EqLr2ZwHzRHFZku
-vlTO/kau4x8fFCGPR6O4kLUT4fmEhRYmigSkidcP1Pa9eK0zm3KdOwV7b+Kin2xq
-5wO1pLEShGYXsW2fftktCT31QjB0F3Yp8BgC7jZCX4SzDLUtf9OKn/C5vfRly7VH
-QStz2WDotwlDCeORnWVEmzheBg2R2u9ZTC+XOI4nYoz+6WYzglLMBnwcnOu4n0AB
-doBn7IdvYoYM3cHnCkrztjVx9rrG5e8NcGqrNpoMm4rM1T+Vt0pUFNhv/6sdfUZ/
-gm1LOxUvujiBEi4ns3IrVKLvcZaJNHMcTXn9wFJxbSYkTFFDP5GQFg==
-=mWO2
------END PGP SIGNATURE-----
+* A task is not allowed to down_read() the same rwsem
+more than once time.  Otherwise another task can
+do a down_write() in the middle and cause deadlock.
+(I don't think this has been specified for read_lock()
+and write_lock().  There's no such deadlock on the
+x86 implementation of these.  Other architectures?
+Heaven knows.  They're probably OK).
 
---Qxx1br4bt0+wmkIi--
+* up_read() and up_write() may *not* be called from
+interrupt context.
+
+The latter is just a suggestion.  It looks like your
+code is safe for interrupt-context upping - but it
+isn't tested for this.  The guys who are going to
+support rwsems for architectures which have less
+rich atomic ops are going to *need* to know the rules
+here.   Let's tell 'em.
+
+If we get agreement on these points, then please
+drop a comment in there and I believe we're done.
+
+In another email you said:
+
+> schedule() disabled:
+>  reads taken: 585629
+>  writes taken: 292997
+
+That's interesting.  With two writer threads and
+four reader threads hammering the rwsem, the write/read
+grant ratio is 0.5003.  Neat, but I'd have expected
+readers to do better.  Perhaps the writer-wakes-multiple
+readers stuff isn't happening.  I'll test for this.
+
+
+There was some discussion regarding contention rates a few
+days back.  I did dome instrumentation on the normal semaphores.
+The highest contention rate I could observe was during a `make
+-j3 bzImage' on dual CPU.  With this workload, down() enters
+__down() 2% of the time.  That's a heck of a lot.  It means that
+the semaphore slow path is by a very large margin the most
+expensive part.
+
+The most contention was on i_sem in real_lookup(), then pipe_sem
+and vfork_sem.  ext2_lookup is slow; no news there.
+
+But tweaking the semaphore slowpath won't help here
+because when a process slept in __down(), it was always
+the only sleeper.
+
+With `dbench 12' the contention rate was much lower
+(0.01%).  But when someone slept, there was almost
+always another sleeper, so the extra wake_up() at
+the end of __down() is worth attention.
+
+I don't have any decent multithread workloads which would
+allow me to form an opinion on whether we need to optimise
+the slowpath, or to more finely thread the contention areas.
+Could be with some workloads the contention is significant and
+threading is painful. I'll have another look at it sometime...

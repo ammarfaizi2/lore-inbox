@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265065AbSKNRd5>; Thu, 14 Nov 2002 12:33:57 -0500
+	id <S265140AbSKNR12>; Thu, 14 Nov 2002 12:27:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265074AbSKNRd5>; Thu, 14 Nov 2002 12:33:57 -0500
-Received: from ns.suse.de ([213.95.15.193]:46602 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265065AbSKNRd4>;
-	Thu, 14 Nov 2002 12:33:56 -0500
-Date: Thu, 14 Nov 2002 18:40:49 +0100
-From: Andi Kleen <ak@suse.de>
-To: John Alvord <jalvo@mbay.net>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: module mess in -CURRENT
-Message-ID: <20021114184049.A28183@wotan.suse.de>
-References: <p731y5owj0x.fsf@oldwotan.suse.de> <Pine.LNX.4.20.0211140929080.28420-100000@otter.mbay.net>
+	id <S265154AbSKNR12>; Thu, 14 Nov 2002 12:27:28 -0500
+Received: from sb0-cf9a4971.dsl.impulse.net ([207.154.73.113]:32269 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id <S265140AbSKNR11>;
+	Thu, 14 Nov 2002 12:27:27 -0500
+Subject: Re: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
+From: Ray Lee <ray-lk@madrabbit.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: hps@intermeta.de, schwab@suse.de,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L2.0211122241490.29595-100000@dragon.pdx.osdl.net>
+References: <Pine.LNX.4.33L2.0211122241490.29595-100000@dragon.pdx.osdl.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1037295254.27832.11.camel@orca.madrabbit.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.20.0211140929080.28420-100000@otter.mbay.net>
-User-Agent: Mutt/1.3.22.1i
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 14 Nov 2002 09:34:14 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Owens' kbuild-2.5 handled it a different way and didn't need exact
-> timings. That is especially important since nanosecond time accuracy is
+(Sorry for taking so long to review something so short, btw.)
 
-You may not believe it, but there are projects other than the kernel
-that do use make too.
+On Tue, 2002-11-12 at 23:06, Randy.Dunlap wrote:
+> On 11 Nov 2002, Ray Lee wrote:
+> | Explicitly, in the scan conversion you'd do a:
+> |   unsigned int *u = (unsigned int *) va_arg(args,long long *);
+> |   *u = (unsigned int) converted_value;
 
-> impossible if you are handling a collection of machines doing the
-> work. NTP is accurate, but not that accurate.
+(Luckily you didn't follow my code snippet too closely. Oops.)
 
-The patch does not actually implement nanosecond resolution, but
-jiffies resolution (1ms on 2.5), which is easily reachable with NTP.
+> See if this is close...
+<snip>
+> I think that this patch (to 2.5.47) gets the kernel close
+> to the same semantics as C's sscanf() function, which is
+> usually a good thing.  What say you?
 
--Andi
+The sample conversions and patch look correct. Time to forward it
+onward, me thinks.
+
+Ray
+

@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318221AbSHUQzK>; Wed, 21 Aug 2002 12:55:10 -0400
+	id <S318234AbSHURBm>; Wed, 21 Aug 2002 13:01:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318428AbSHUQzK>; Wed, 21 Aug 2002 12:55:10 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:2015 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318221AbSHUQzK>;
-	Wed, 21 Aug 2002 12:55:10 -0400
-Date: Wed, 21 Aug 2002 09:56:29 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: "Feldman, Scott" <scott.feldman@intel.com>,
-       "'Troy Wilson'" <tcw@tempest.prismnet.com>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-       tcw@prismnet.com
-Subject: Re: mdelay causes BUG, please use udelay
-Message-ID: <2547745934.1029923788@[10.10.2.3]>
-In-Reply-To: <3D63C3B1.328A872F@nortelnetworks.com>
-References: <3D63C3B1.328A872F@nortelnetworks.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318470AbSHURBm>; Wed, 21 Aug 2002 13:01:42 -0400
+Received: from pop.gmx.de ([213.165.64.20]:1879 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S318234AbSHURBl>;
+	Wed, 21 Aug 2002 13:01:41 -0400
+Date: Wed, 21 Aug 2002 19:07:44 +0200
+From: Marc Giger <gigerstyle@gmx.ch>
+To: linux-kernel@vger.kernel.org
+Subject: PCI device reset
+Message-Id: <20020821190744.14cb4f45.gigerstyle@gmx.ch>
+X-Mailer: Sylpheed version 0.8.1claws (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I currently work on an embedded device and if we detect given 
-> network connection isn't working at all our first response is 
-> to switch to a working connection, then we reload the device 
-> driver for the non-working one.  Since we may be doing other 
-> things at the same time, having this stall the machine for 
-> extended periods of time is definately not a good thing.
+Hi all!
 
-That's great, IF you have a spare drop out to that net. 
+A short question:
 
-M.
+Is it possible to reset a pci device on runtime like that the device has the feeling, it is a restart of the computer?
 
+Does anybody know what I mean?:-)
+
+My cardbus bridge needs a hard reset after a suspend..:-(
+
+Thank you
+
+Marc Giger

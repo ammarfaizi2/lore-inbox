@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264489AbTIJB5n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 21:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264626AbTIJB5n
+	id S264512AbTIJCU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 22:20:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTIJCU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 21:57:43 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:52929 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S264489AbTIJB5i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 21:57:38 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Tue, 9 Sep 2003 22:20:56 -0400
+Received: from law10-oe47.law10.hotmail.com ([64.4.14.19]:51984 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264626AbTIJCUy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 22:20:54 -0400
+X-Originating-IP: [208.48.228.132]
+X-Originating-Email: [jyau_kernel_dev@hotmail.com]
+From: "John Yau" <jyau_kernel_dev@hotmail.com>
+To: <piggin@cyberone.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: 
+Date: Tue, 9 Sep 2003 22:20:45 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16222.34064.900764.487152@napali.hpl.hp.com>
-Date: Tue, 9 Sep 2003 18:57:36 -0700
-To: Ian Wienand <ianw@gelato.unsw.edu.au>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: milstone reached: ia64 linux builds out of Linus' tree
-In-Reply-To: <20030910005317.GE23661@cse.unsw.EDU.AU>
-References: <200308041737.h74HbdCf015443@napali.hpl.hp.com>
-	<16174.59114.386209.649300@wombat.chubb.wattle.id.au>
-	<16174.60868.750901.704560@napali.hpl.hp.com>
-	<20030813000751.GD25474@cse.unsw.edu.au>
-	<20030910005317.GE23661@cse.unsw.EDU.AU>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <Law10-OE471DczmBlrP0000b07a@hotmail.com>
+X-OriginalArrivalTime: 10 Sep 2003 02:20:53.0604 (UTC) FILETIME=[2901DA40:01C37742]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 10 Sep 2003 10:53:17 +1000, Ian Wienand <ianw@gelato.unsw.edu.au> said:
+>Your mechanism is basically "backboost". Its how you get X to keep a
+>high piroirity, but quite unpredictable. Giving a boost to a process
+>holding a semaphore is an interesting idea, but it doesn't address the
+>X problem.
 
-  Ian> On Wed, Aug 13, 2003 at 10:07:51AM +1000, Ian Wienand wrote:
+Hmm...I'm actually curious why you called it "backboosting".  In academia
+this approach first described in the paper here:
 
-  >> We're still working on automated testing (i.e. booting on the
-  >> simulator, maybe real hardware).
+L. Sha, R. Rajkumar, and J. P. Lehoczky. Priority Inheritance Protocols: An
+Approach to Real-Time Synchronization. In IEEE Transactions on Computers,
+vol. 39, pp. 1175-1185, Sep. 1990.
 
-  Ian> For those who are interested, we now attempt to boot the autobuilt
-  Ian> kernels on the simulator daily.  See
+is referred to as priority inheritance.  Is there significant difference
+between your implementation and priority inheritance schemes implemented in
+other OSes?  If so, why backboosting?
 
-  Ian> http://www.gelato.unsw.edu.au/kerncomp/simboot.php
+I was under the impression that pipes and IPC in general are synchronized
+using some sort of semaphores/mutex...or does Linux use a different
+mechanism for IPC and does away with user space synchronization all together
+(e.g. flip-flop buffers with the kernel arbitrating all contention)?  IIRC
+processes don't write to X directly and has to send data to X via IPC.  If
+some futex derivative is used to synchronize the producers with X, then
+making priority inheritable futexes would solve the problem.
 
-Very nice! (The test setup & web-page, not the fact that the boot
-failed... ;-).
+>The scheduler in Linus' tree is basically obsolete now, so there isn't
+>any point testing it really. Test Con's or my patches, and let us know
+>if you're still having problems with sir dumps-a-lot.
 
-As for perfmon under Ski: the latest perfmon should have the necessary
-code, but I don't remember whether it made it into test5 already (and
-I don't have CONFIG_PERFMON enabled in my Ski setup).  If it's not
-there already, it should be there tomorrow, as Linus pulled on the
-ia64 repository a couple of hours ago.
+Okay enough said, you and Con should get your patches merged into that tree
+ASAP if they're ready.
 
-	--david
+
+John Yau

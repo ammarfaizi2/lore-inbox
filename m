@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265019AbTFRAH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 20:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265020AbTFRAH3
+	id S265023AbTFRALQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 20:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbTFRALQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 20:07:29 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:31980 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S265019AbTFRAH2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 20:07:28 -0400
-content-class: urn:content-classes:message
+	Tue, 17 Jun 2003 20:11:16 -0400
+Received: from mail.casabyte.com ([209.63.254.226]:42502 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP id S265023AbTFRALN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 20:11:13 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       "Christoph Hellwig" <hch@infradead.org>, <linux-kernel@vger.kernel.org>,
+       "Brian Jackson" <brian@mdrx.com>,
+       "Mark Hahn" <hahn@physics.mcmaster.ca>
+Subject: RE: [PATCH] make cramfs look less hostile
+Date: Tue, 17 Jun 2003 17:24:52 -0700
+Message-ID: <PEEPIDHAKMCGHDBJLHKGMECMDAAA.rwhite@casabyte.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [BK PATCH] 2.4 ACPI update
-Date: Tue, 17 Jun 2003 17:21:21 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A84725A2F6@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BK PATCH] 2.4 ACPI update
-Thread-Index: AcM1JmPOoFth9MqOR5qZDNP5ACBOdQAAwQ5w
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Cc: "lkml" <linux-kernel@vger.kernel.org>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-X-OriginalArrivalTime: 18 Jun 2003 00:21:21.0679 (UTC) FILETIME=[8B81F1F0:01C3352F]
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20030615181424.GJ1063@wohnheim.fh-wedel.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Marcelo Tosatti [mailto:marcelo@conectiva.com.br] 
-> Andrew,
-> 
-> I've changed my mind with respect to the ACPI merge in 2.4.22.
-> 
-> I'm willing to do it in .22 timeline.
-> 
-> I feel its better if we do the merge in separate parts, not in a huge
-> patch.
-> 
-> What you think ?
+The "cut to the quick" version is that the message should be changed to
+something both useful and non threatening.  Something to make the message
+stand out as informational.
 
-Hi Marcelo,
+how about:
 
-Great!
+"cramfs: info: device is not a cramfs filesystem: wrong magic"
 
-I've been maintaining the ACPI branch in a bk tree for the past year, so
-there are 100+ changesets nicely commented. Just doing a bk pull from
-that would be the best way to maintain checkin comments. bk pull
-http://linux-acpi.bkbits.net/linux-2.4-acpi .
+Then add a note to the docs that says: this message means the system was
+trying to see if this was a cramfs.  In the absence of a later message
+saying something like "could not mount device" this message is harmless.
 
-I can also export the changesets if you'd like to review them, but they
-won't apply cleanly to the tip, since they originally were against a
-much older version.
+There is then the "no-duh" factor to at least club people over the head with
+for not doing their research.
 
-Another option would be to take the raw .diff and re-carve it by files
-modified - the arch/i386 changes, the interpreter changes, the old ospm
-removal, the new ospm addition, all the headers moving to include/acpi.
-I'm certainly willing to do that but that would lose the changelogs and
-patch attributions.
+This, of course, would make more sense if every filesystem mount attempt had
+a similar message as well as a "thingyfs: file system mounted" too.  Of
+course that would be ugly.
 
-Thanks -- Regards -- Andy
+Since that isn't going to happen, stick to the simple human engineering
+solution and make the message scream "info" duck the terseness... 8-)
+
+Rob.
+

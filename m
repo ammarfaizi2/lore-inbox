@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263128AbUCPAat (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 19:30:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbUCPASi
+	id S262966AbUCPAed (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 19:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263306AbUCPAeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 19:18:38 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:8205 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S262991AbUCPAKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:10:08 -0500
-Date: Tue, 16 Mar 2004 02:00:36 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Marc Giger <gigerstyle@gmx.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4 on Alpha uninterruptible sleep of processes
-Message-ID: <20040316020035.A4123@jurassic.park.msu.ru>
-References: <20040312184115.B680@jurassic.park.msu.ru> <20040312165907.626d4a08@hdg.gigerstyle.ch> <20040312224649.A750@den.park.msu.ru> <20040312215215.1041889a@hdg.gigerstyle.ch> <20040313020141.B4021@den.park.msu.ru> <20040313111021.4af73b9e@hdg.gigerstyle.ch> <20040314170627.A11159@den.park.msu.ru> <20040314195203.78abbef9@vaio.gigerstyle.ch> <20040315145145.A31703@jurassic.park.msu.ru> <20040315190249.19263f4f@vaio.gigerstyle.ch>
+	Mon, 15 Mar 2004 19:34:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59021 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262966AbUCPA31 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 19:29:27 -0500
+Date: Mon, 15 Mar 2004 16:31:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ian Romanick <idr@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: [Dri-devel] Re: DRM reorganization
+Message-Id: <20040315163131.1b03b49f.akpm@osdl.org>
+In-Reply-To: <40564723.4010105@us.ibm.com>
+References: <40562AEC.9080509@us.ibm.com>
+	<20040315152621.43a5bcef.akpm@osdl.org>
+	<40564723.4010105@us.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040315190249.19263f4f@vaio.gigerstyle.ch>; from gigerstyle@gmx.ch on Mon, Mar 15, 2004 at 07:02:49PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15, 2004 at 07:02:49PM +0100, Marc Giger wrote:
-> How long did you let your machine run?
+Ian Romanick <idr@us.ibm.com> wrote:
+>
+> >>When we do this move, we're open to the possibility of reorganizing the 
+> >>file structure.  What can we do to make it easier for kernel release 
+> >>maintainers to merge changes into their trees?
+> > 
+> > - Make sure that the files in the main kernel distribution are up to date.
+> > 
+> > - Prepare a shell script which does all the relevant file moves, send to
+> >   Linus, along with a diff which fixes up Kconfig and Makefiles.
+> > 
+> > - Start patching the files in their new locations.
+> 
+> I'm not 100% sure what you mean.  Right now the files in our CVS are 
+> split between two directories.  There's a "common" directory, which is 
+> used on both Linux & BSD, and a Linux-specific directory.  Our intention 
+> is to shift around where some of the files are in our CVS.  I don't 
+> think we intend to move where things are in the Linux source tree.
+> 
+> That's part of why I'm asking.  From talking to Linus in the past, I 
+> know that merging in changes is a PITA due to our funky directory 
+> structure.  I'd like to make that easier. :)
 
-$ uptime
- 01:40:40 up 3 days,  6:31,  4 users,  load average: 25.23, 24.16, 23.73
+Oh.  So what was the question again?
 
-It's with unpatched 2.6.4. Before that the machine was running 2.6.1-rc1
-for 2 months.
+As far as I know, there's nobody in DRI-land who actually prepares and
+sends patches.  Fixing that would be a good first step ;)
 
-> In my case, it has to run the whole night until it happens.
+I've had a 130k DRM patch in -mm since February 8th.  Presumably it's out
+of date.  As far as I know nobody is pushing more recent patches upstream.
 
-Perhaps there is a memory leak somewhere, and your systems just
-starts swapping.
+What's the process here, and who should I be dealing with?
 
-> I don't know if it helps but I think the
-> first processes that are in uninterruptible sleep are apache and mysql.
-> Also, as you can see in my first e-mail (ps -aux output), the pdflush
-> and kswapd0 are in in uninterruptible sleep state.
-
-Well, I can see something like that when I compile kernel with "make -j 15".
-The system starts swapping like crazy, most processes are in the D-state
-waiting for disk, but all goes back to normal after compilation is finished.
-What's wrong with it? :-)
-
-Ivan.
+Thanks.

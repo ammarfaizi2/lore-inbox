@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265383AbSKEXzB>; Tue, 5 Nov 2002 18:55:01 -0500
+	id <S265362AbSKEXtb>; Tue, 5 Nov 2002 18:49:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265382AbSKEXzA>; Tue, 5 Nov 2002 18:55:00 -0500
-Received: from 209-76-113-226.ded.pacbell.net ([209.76.113.226]:37396 "EHLO
-	siamese.engr.3ware.com") by vger.kernel.org with ESMTP
-	id <S265380AbSKEXyq>; Tue, 5 Nov 2002 18:54:46 -0500
-Message-ID: <A1964EDB64C8094DA12D2271C04B812672C817@tabby>
-From: Adam Radford <aradford@3WARE.com>
-To: "'Manish Lachwani'" <manish@Zambeel.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: 0x40 errors reported by 3ware controllers ...
-Date: Tue, 5 Nov 2002 16:01:16 -0800 
+	id <S265375AbSKEXtb>; Tue, 5 Nov 2002 18:49:31 -0500
+Received: from dp.samba.org ([66.70.73.150]:53403 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265373AbSKEXt3>;
+	Tue, 5 Nov 2002 18:49:29 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15816.23157.790358.720568@argo.ozlabs.ibm.com>
+Date: Wed, 6 Nov 2002 10:55:33 +1100
+To: linux-kernel@vger.kernel.org
+Cc: davidm@snapgear.com
+Subject: [RANT] Totally inadequate commenting in flat.h
+X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manish,
+Looking over the recent changes in Linus' tree, I saw there was this
+new file, include/linux/flat.h.  Hmmm, uninformative name, what's this
+file about?  I look in the file and here is how it starts:
 
-We are not aware of any issue regarding misreporting of ECC errors.  All
-uncorrectable
-errors seen by the controller are actually uncorrectable errors passed
-through from the
-drives.  ECC could be due to vibration, shocks, heating, etc, related to
-your enclosure.
+/* Copyright (C) 1998  Kenneth Albanowski <kjahds@kjahds.com>
+ *                     The Silver Hammer Group, Ltd.
+ * Copyright (C) 2002  David McCullough <davidm@snapgear.com>
+ */
 
-Please email 3ware output from /var/log/messages and firmware log to
-support@3ware.com
-and we will take a look at this issue.  
+#ifndef _LINUX_FLAT_H
+#define _LINUX_FLAT_H
 
---
-Adam Radford
-Software Engineer
-3ware, Inc.
+#define	FLAT_VERSION			0x00000004L
 
------Original Message-----
-From: Manish Lachwani [mailto:manish@Zambeel.com]
-Sent: Tuesday, November 05, 2002 1:43 PM
-To: 'linux-kernel@vger.kernel.org'
-Cc: Manish Lachwani
-Subject: 0x40 errors reported by 3ware controllers ...
+/*
+ * To make everything easier to port and manage cross platform
+ * development,  all fields are in network byte order.
+ */
 
+struct flat_hdr {
+	char magic[4];
+	unsigned long rev;          /* version (as above) */
 
-Hello,
-We are making use of 3ware 7x50 controllers with Maxtor and Seagate drives.
-In one such setup, the operating temperature of the drives/controllers is
-between 45-55 C. Numerous 0x40 Error messages are reported by the 3ware
-firmware. We are making use of 7.5 latest firmware and the latest 3ware
-driver with the 2.4.17 kernel. 
-I spoke with Maxtor and Seagate support and they claim that ECC errors are
-rarely seen on their drives at even higher temperatures. Are there any
-issues with the 3ware controllers/firmware that may cause it to misreport
-ECC errors? Maxtor even claimed that it could be errors with the SRAM on the
-controller. Could that be possible? Has this been seen? I noticed that the
-operating temperature of the controllers is 40C. What kind of errors can
-occur because of these ambient conditions?
-We are seeing these errors accross different types of drives too ...
-Thanks
+etc.
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+*Completely* uninformative.  How is anyone supposed to know what this
+relates to?  Is it something to do with a network device, or a
+filesystem, or an executable format, or what?
+
+[And no, don't reply to this telling me what it's about, add some
+comments to the file instead.]
+
+Paul.

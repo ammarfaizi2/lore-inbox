@@ -1,60 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288120AbSACBze>; Wed, 2 Jan 2002 20:55:34 -0500
+	id <S288122AbSACCE5>; Wed, 2 Jan 2002 21:04:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288109AbSACBzY>; Wed, 2 Jan 2002 20:55:24 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:15627
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S288108AbSACBzS>; Wed, 2 Jan 2002 20:55:18 -0500
-Date: Wed, 2 Jan 2002 17:52:30 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Chris Friesen <chris_friesen@sympatico.ca>
-cc: Aaron Lehmann <aaronl@vitelus.com>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] DRM OS
-In-Reply-To: <3C338600.B019EED9@sympatico.ca>
-Message-ID: <Pine.LNX.4.10.10201021425380.11866-100000@master.linux-ide.org>
+	id <S288126AbSACCEs>; Wed, 2 Jan 2002 21:04:48 -0500
+Received: from intra.cyclades.com ([209.81.55.6]:16903 "HELO
+	intra.cyclades.com") by vger.kernel.org with SMTP
+	id <S288122AbSACCEa>; Wed, 2 Jan 2002 21:04:30 -0500
+Message-ID: <3C33BCF3.20BE9E92@cyclades.com>
+Date: Wed, 02 Jan 2002 18:07:47 -0800
+From: Ivan Passos <ivan@cyclades.com>
+Organization: Cyclades Corporation
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en,pdf
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Serial Driver Name Question (kernels 2.4.x)
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-http://www.lsilogic.com/techlib/marketing_docs/consumer/ACF394.pdf
+(Please CC your answer to me, as I'm not a subscriber of this list.)
 
-Merry Christmas -- 
+Hello,
 
-On Wed, 2 Jan 2002, Chris Friesen wrote:
+By looking at tty_io.c:_tty_make_name(), it seems that the TTY 
+subsystem in the Linux 2.4.x kernel series expects driver.name to be 
+in the form "ttyX%d", even if you're not using devfs. I say that 
+because as of now the definition in serial.c for this variable is:
 
-> Aaron Lehmann wrote:
-> > 
-> > On Fri, Dec 14, 2001 at 01:15:48AM -0800, Andre Hedrick wrote:
-> > > CPU(crypto)<->Memory(crypto)<->Framebuffer(crypto)
-> > > ata(clean)<->diskcontroller(crypto)<->Memory(crypto)<->CPU(crypto)
-> > > scsi(crypto)<->diskcontroller(crypto)<->Memory(crypto)<->CPU(crypto)
-> > > CPU(crypto)<->Bridge(crypto)<->Memory(crypto)
-> > >
-> > > Just watch and see!
-> > 
-> > Why would crypto help at all?
-> 
-> That's just the point!  The hardware manufacturers are going to implement the
-> crypto so that only valid digitally signed files can be played on that hardware,
-> and there will be crypto at every step to try and prevent people from getting at
-> the unencrypted bytestream.
-> 
-> They want to keep us from doing cd/mp3 or DVD/DivX type conversions.
-> 
-> Chris
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-Linux ATA Development
+#if defined(CONFIG_DEVFS_FS)
+        serial_driver.name = "tts/%d";
+#else
+        serial_driver.name = "ttyS";
+#endif
 
 
+, when it seems it should be:
+
+#if defined(CONFIG_DEVFS_FS)
+        serial_driver.name = "tts/%d";
+#else
+        serial_driver.name = "ttyS%d";
+#endif
+
+to work properly with the _tty_make_name() function (otherwise, in 
+case you're not using devfs, it'll just print "ttyS" without any 
+reference to the port number the msg is referring to).
+
+This was spotted by a Cyclades customer who was getting overrun msgs 
+as:
+
+ttyC: 1 input overrun(s)
+
+After he changed the driver.name to be "ttyC%d", he started to get 
+properly formatted msgs, such as:
+
+ttyC39: 1 input overrun(s)
+
+
+This problem would happen on any msg that used the function 
+tty_name() to get the TTY name, and after the change the problem 
+disappeared completely.
+
+After checking the kernel code, I believe that he's found a bug that 
+should be fixed in all drivers that define driver.name.
+
+Please advise so that we may change the Cyclades driver to behave 
+properly. 
+
+Regards,
+-- 
+Ivan Passos							 -o)
+Integration Manager, Cyclades	- http://www.cyclades.com	 /\\
+Project Leader, NetLinOS	- http://www.netlinos.org	_\_V
+--------------------------------------------------------------------

@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVDEHkC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVDEHpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVDEHkC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 03:40:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVDEHiu
+	id S261623AbVDEHpf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 03:45:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVDEHpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 03:38:50 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:26844 "EHLO
+	Tue, 5 Apr 2005 03:45:34 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:33500 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261602AbVDEHg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 03:36:27 -0400
-Date: Tue, 5 Apr 2005 08:35:59 +0100
+	id S261602AbVDEHi4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 03:38:56 -0400
+Date: Tue, 5 Apr 2005 08:38:28 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Steve French <smfrench@austin.rr.com>, Steven French <sfrench@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] cifs: cleanup asn1.c
-Message-ID: <20050405073559.GC26208@infradead.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] biarch compiler support for i386
+Message-ID: <20050405073828.GD26208@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jesper Juhl <juhl-lkml@dif.dk>,
-	Steve French <smfrench@austin.rr.com>,
-	Steven French <sfrench@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0504042254540.2496@dragon.hyggekrogen.localhost>
+	"H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <42522CB8.1010007@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504042254540.2496@dragon.hyggekrogen.localhost>
+In-Reply-To: <42522CB8.1010007@zytor.com>
 User-Agent: Mutt/1.4.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 04, 2005 at 10:59:32PM +0200, Jesper Juhl wrote:
+On Mon, Apr 04, 2005 at 11:14:16PM -0700, H. Peter Anvin wrote:
+> This allows the i386 architecture to be built on a system with a biarch 
+> compiler that defaults to x86-64, merely by specifying ARCH=i386.
 > 
-> Hi Steve,
-> 
-> More fs/cifs/ cleanups for you. This time for asn1.c
+> As previously discussed, this uses the equivalent logic to the ppc port.
 
-Btw, shouldn't asn1.c move to lib/?
+Given that the same logic applies to various other ports maybe it should
+go into a common Makefile fragment?
 

@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272327AbRHXVMi>; Fri, 24 Aug 2001 17:12:38 -0400
+	id <S272333AbRHXVS2>; Fri, 24 Aug 2001 17:18:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272329AbRHXVM2>; Fri, 24 Aug 2001 17:12:28 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56837 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272327AbRHXVMN>; Fri, 24 Aug 2001 17:12:13 -0400
-Subject: Re: Is it bad to have lots of sleeping tasks?
-To: hzhong@cisco.com (Hua Zhong)
-Date: Fri, 24 Aug 2001 22:15:21 +0100 (BST)
-Cc: ddade@digitalstatecraft.com, alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <005a01c12cd9$2f153950$103147ab@cisco.com> from "Hua Zhong" at Aug 24, 2001 01:13:04 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272334AbRHXVSW>; Fri, 24 Aug 2001 17:18:22 -0400
+Received: from relay3.zonnet.nl ([62.58.50.52]:48851 "EHLO smtp03.zonnet.nl")
+	by vger.kernel.org with ESMTP id <S272333AbRHXVRg>;
+	Fri, 24 Aug 2001 17:17:36 -0400
+Message-ID: <3B86C472.DBE32E99@linux-m68k.org>
+Date: Fri, 24 Aug 2001 23:17:38 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Bill Pringlemeir <bpringle@sympatico.ca>
+CC: David Woodhouse <dwmw2@infradead.org>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: macro conflict
+In-Reply-To: <6208.998658929@ocs3.ocs-net> <16800.998659058@redhat.com> <m2k7ztwne7.fsf@sympatico.ca>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15aOIT-0006Xa-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So why not do it?  Or implement a nicer scheduler?  There are many good
-> ones.  There are o(1) schedulers that provide much better proportional
-> sharing.  They scale and also perform well even in "few running processes"
-> case.  They are also not hard to implement (I once implemented such a
-> scheduler with 100 lines of patch, and that fitted in the existing Linux
-> runqueue framework).  What's the resistence to scheduler changes?
+Hi,
 
-The resistance I've seen has been to schedulers that perform more poorly
-with < 3 running processes - that being the normal case.
+> sizeof() test isn't even needed due to promotion.  Just the signs are
+> important (afaik) and a test for pointer and integral mixing which I
+> cann't think of.  Maybe some clever use of arrays or "+ *x" or
+> something.
 
-Its also suprisingly hard to find a very simple scheduler that provides
-fairness and cache optimal behaviour while working well SMP. Uniprocessor
-is easy, uniprocessor with real time isnt too bad, SMP gets tricky.
+Try '-W' or '-Wsign-compare'. pointer/integer compare already results in
+a warning without any option.
 
-I'd definitely like to see a better scheduler in the kernel, providing its
-as fast for the < 3 processes case too.
-
-Alan
+bye, Roman

@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261506AbSJCO2c>; Thu, 3 Oct 2002 10:28:32 -0400
+	id <S263319AbSJCOrw>; Thu, 3 Oct 2002 10:47:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261540AbSJCO2c>; Thu, 3 Oct 2002 10:28:32 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:23820 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261506AbSJCO2a>; Thu, 3 Oct 2002 10:28:30 -0400
-Date: Thu, 3 Oct 2002 15:32:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
+	id <S263330AbSJCOrw>; Thu, 3 Oct 2002 10:47:52 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:21992 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263319AbSJCOqR>;
+	Thu, 3 Oct 2002 10:46:17 -0400
+Date: Thu, 3 Oct 2002 10:51:39 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
 To: Kevin Corry <corryk@us.ibm.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
        evms-devel@lists.sourceforge.net
 Subject: Re: EVMS Submission for 2.5
-Message-ID: <20021003153256.B17513@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Kevin Corry <corryk@us.ibm.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-References: <02100216332002.18102@boiler>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <02100216332002.18102@boiler>; from corryk@us.ibm.com on Wed, Oct 02, 2002 at 04:33:20PM -0500
+In-Reply-To: <02100308045305.05904@boiler>
+Message-ID: <Pine.GSO.4.21.0210031042210.15787-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 04:33:20PM -0500, Kevin Corry wrote:
-> EVMS provides a new, stand-alone subsystem to the kernel
-
-i.e. it duplictes existing block layer/volume managment functionality..
-
-> subdirectories were created: drivers/evms/ for the main source code,
-> and include/linux/evms/ for the header files. 
-
-What's the reason to not have the headers under drivers/evms.  And why
-don'T you just use drivers-md like all other volume managment drivers?
-
-> - Add a table entry and a short function to init/do_mounts.c to
->   allow an EVMS volume to be specified as the root filesystem with
->   the kernel command line option "root="
-
-Could you explain the details of how this works?
-
-> version of EVMS was released. EVMS has been accepted into the
-> Debian (Woody and Sid versions)
-
-Can't find evms in my stock woody or sid kernel images.. (neither in the
-sarge ones, btw..)
-
-> and UnitedLinux distributions,
-
-UL has so far merged everything IBM sent them..
 
 
-It would be nice if you could attach the code you want merged,
-otherwise it's pretty hards to review it
+On Thu, 3 Oct 2002, Kevin Corry wrote:
+
+> > I might agree with something along the lines of
+> > 	* when evms is initialized, it's notified of all existing gendisks
+> > 	* whenever disk is added after evms initialization, we notify evms
+> > 	* whenever disk is removed, we notify evms
+> 
+> This sounds like it would be exactly what EVMS needs. The only thing we would 
+> want to add to this list is: "*whenever a disk is modified, notify evms". For 
+> example, with removable media drives (such as Zip and Jaz), when a cartidge 
+> is changed, the capacity of the drive might change, and we would like to be 
+> notified of that event.
+
+Umm...  OK.  There were some plans to add a notifier chain for such events
+and EVMS looks like a possible user of that beast.  However, it's not
+obvious whether we need to do any of that in the kernel - we definitely
+can have userland up and running before _any_ block devices are initialized,
+so it might be a work for userland helper.
+
+Speaking of which...  Linus, mind if I start feeding initramfs stuff?
+
+> > However, I doubt that it's what you really want.  In particular, you
+> > probably want to see partitioning changes as well as gendisk ones
+> > (and no, "evms will handle all partitioning" is _not_ an acceptable
+> > answer).
+> 
+> EVMS won't really be interested in partitioning changes. It only cares about 
+> whole devices, i.e. minor_shift == 0.
+> 
+> > Moreover, "gendisk is here" != "something is in the drive".
+> 
+> Will there be a common method for determining "media present"? The current 
+> method EVMS uses to determine "media changes" is somewhat inconsistent 
+> between IDE and SCSI.
+
+There's none.  We need some way to deal with that, but for that we need
+at least sane and stable interfaces.  Right now _all_ "media changed"
+stuff on the driver side is ad-hackery.
+
+> > IOW, the real question is what are you going to do with that list of
+> > gendisks?
+> 
+> EVMS will try to read volume metadata from each device and activate volumes 
+> if it finds any pertinent metadata.
+
+_Ouch_.  "Each" as in...?  E.g. do you want to do that for floppies?  Cdroms?
+EVMS volumes themselves?  Things like /dev/loop? (and if yes, at which point
+do you do that?)
+

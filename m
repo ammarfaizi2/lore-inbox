@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263635AbTDIRZT (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 13:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263641AbTDIRZT (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 13:25:19 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:41712 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263635AbTDIRZS (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 13:25:18 -0400
-Date: Wed, 9 Apr 2003 10:37:33 -0700
-From: Greg KH <greg@kroah.com>
-To: Stian Jordet <liste@jordet.nu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: i2c questions in kernel 2.5.67
-Message-ID: <20030409173733.GA14064@kroah.com>
-References: <1049902006.1362.6.camel@chevrolet.hybel> <20030409162537.GB1518@kroah.com> <1049909342.1269.0.camel@chevrolet.hybel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1049909342.1269.0.camel@chevrolet.hybel>
-User-Agent: Mutt/1.4.1i
+	id S263646AbTDIRhR (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 13:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263649AbTDIRhR (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 13:37:17 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:1958 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S263646AbTDIRhR (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 13:37:17 -0400
+Date: Wed, 9 Apr 2003 13:48:51 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: msync() more expensive than fsync()?
+In-Reply-To: <3E92FAE6.8000300@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.44.0304091347000.2515-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 09, 2003 at 07:29:03PM +0200, Stian Jordet wrote:
-> ons, 09.04.2003 kl. 18.25 skrev Greg KH:
-> > On Wed, Apr 09, 2003 at 05:26:46PM +0200, Stian Jordet wrote:
-> > > Hi,
-> > > 
-> > > I have a Asus CUV266-DLS motherboard, with a as99127f hardware monitor
-> > > chip. This is supposed to be supported by the W83781D sensor driver.
-> > 
-> > Does this motherboard work with this driver on 2.4?  (I'd recommend
-> > getting the lm_sensors package from their web site to check this out.)
+On Tue, 8 Apr 2003, Chris Friesen wrote:
+
+> If I msync() only the pages that were touched in writing (usually 3
+> pages) it takes 39 usecs to log a message.
 > 
-> Of course I should have checked this better before I sent the first
-> mail. I need the i2c-viapro module (in 2.4), which hasn't been ported
-> yet.
+> If I fsync() the entire file (200KB) it takes 12 usec to log a message.
+> 
+> Why the additional cost for msync()?
 
-No problem, want to port that driver and send me a patch?  :)
+If you only write into the file through an mmap()d area, then
+I guess that fsync() is a NOP since it doesn't check the page
+tables for dirty bits, while msync() does check the page tables.
 
-I sent out a document to the list a week or so ago on the changes
-necessary to do this if you're interested.
+This also means that fsync() won't see any dirty bits as long
+as they're still only in the page tables, and consequently won't
+write anything to disk, while msync() will write.
 
-thanks,
+Note that I don't remember the details 100%, but IIRC it was
+something like this.
 
-greg k-h

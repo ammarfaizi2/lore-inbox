@@ -1,179 +1,206 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbTISAIM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 20:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbTISAIM
+	id S262221AbTISAM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 20:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbTISAM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 20:08:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:65258 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262201AbTISAID (ORCPT
+	Thu, 18 Sep 2003 20:12:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56301 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262221AbTISAMw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 20:08:03 -0400
-Message-Id: <200309190007.h8J07vU15192@mail.osdl.org>
-Date: Thu, 18 Sep 2003 17:07:54 -0700 (PDT)
+	Thu, 18 Sep 2003 20:12:52 -0400
+Message-Id: <200309190012.h8J0ClU15905@mail.osdl.org>
+Date: Thu, 18 Sep 2003 17:12:44 -0700 (PDT)
 From: markw@osdl.org
-Subject: Hackbench STP Results History for 2.5/2.6
+Subject: Hackbench STP Results History for 2.5 mm/2.6 mm
 To: linux-kernel@vger.kernel.org, linstab@osdl.org
 MIME-Version: 1.0
 Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a history of results that we have for hackbench from STP over
-the base 2.5 and 2.6 kernels.  I have them separated by the number of
-processors from 1-, 2-, 4- and 8-processor systems.
+More history from hackbench from STP from the 2.5 and 2.6 mm kernels.
+These are also separated by the number of processors from 1-, 2-, 4- and
+8-processor systems.  I think there might be a few anomalies in this list...
 
 1-way:
 Kernel               Metric Change (%)  URL
 -------------------- ------ ----------  ----------------------------------------
-linux-2.5.28           57.8        N/A  http://khack.osdl.org/stp/3969/
-linux-2.5.30           55.0       -4.8  http://khack.osdl.org/stp/4089/
-linux-2.5.31           56.0        1.7  http://khack.osdl.org/stp/4347/
-linux-2.5.32           54.7       -2.4  http://khack.osdl.org/stp/4786/
-linux-2.5.33           36.1      -34.0  http://khack.osdl.org/stp/4960/
-linux-2.5.34           54.0       49.9  http://khack.osdl.org/stp/5127/
-linux-2.5.36           17.2      -68.2  http://khack.osdl.org/stp/5418/
-linux-2.5.44           34.5      100.6  http://khack.osdl.org/stp/6557/
-linux-2.5.47           36.8        6.8  http://khack.osdl.org/stp/7062/
-linux-2.5.48           36.8       -0.0  http://khack.osdl.org/stp/7410/
-linux-2.5.49           36.8       -0.0  http://khack.osdl.org/stp/8020/
-linux-2.5.50           36.5       -0.9  http://khack.osdl.org/stp/8368/
-linux-2.5.51           36.9        1.0  http://khack.osdl.org/stp/7672/
-linux-2.5.52           36.6       -0.7  http://khack.osdl.org/stp/8600/
-linux-2.5.53           36.9        0.8  http://khack.osdl.org/stp/8824/
-linux-2.5.54           17.7      -52.0  http://khack.osdl.org/stp/8836/
-linux-2.5.57           17.9        0.8  http://khack.osdl.org/stp/12028/
-linux-2.5.58           17.9        0.3  http://khack.osdl.org/stp/12087/
-linux-2.5.59           17.9       -0.2  http://khack.osdl.org/stp/12171/
-linux-2.5.60           18.1        1.2  http://khack.osdl.org/stp/265616/
-linux-2.5.61           18.4        1.8  http://khack.osdl.org/stp/266133/
-linux-2.5.62           18.4        0.2  http://khack.osdl.org/stp/266213/
-linux-2.5.63           18.4       -0.3  http://khack.osdl.org/stp/266672/
-linux-2.5.64           18.5        0.8  http://khack.osdl.org/stp/268044/
-linux-2.5.65           17.1       -7.9  http://khack.osdl.org/stp/268757/
-linux-2.5.66           16.7       -2.4  http://khack.osdl.org/stp/269927/
-linux-2.5.67           16.8        0.8  http://khack.osdl.org/stp/270224/
-linux-2.5.68           17.5        4.3  http://khack.osdl.org/stp/270660/
-linux-2.5.69           16.9       -3.5  http://khack.osdl.org/stp/271601/
-linux-2.5.70           17.1        0.9  http://khack.osdl.org/stp/272668/
-linux-2.5.72           17.0       -0.0  http://khack.osdl.org/stp/274156/
-linux-2.5.74           17.0        0.0  http://khack.osdl.org/stp/275173/
-linux-2.5.75           17.0       -0.6  http://khack.osdl.org/stp/275652/
-linux-2.6.0-test1      15.0      -11.3  http://khack.osdl.org/stp/280083/
-linux-2.6.0-test2      16.9       12.3  http://khack.osdl.org/stp/276551/
-linux-2.6.0-test3      17.1        1.5  http://khack.osdl.org/stp/277357/
-linux-2.6.0-test4      15.5       -9.8  http://khack.osdl.org/stp/280143/
-linux-2.6.0-test5      15.5        0.2  http://khack.osdl.org/stp/280075/
+2.5.62-mm1             18.1        N/A  http://khack.osdl.org/stp/266295/
+2.5.62-mm3             14.4      -20.3  http://khack.osdl.org/stp/266948/
+2.5.63-mm1             14.2       -1.4  http://khack.osdl.org/stp/267564/
+2.5.63-mm2             14.1       -0.5  http://khack.osdl.org/stp/267808/
+2.5.64-mm4             14.1       -0.2  http://khack.osdl.org/stp/268444/
+2.5.64-mm6             14.1       -0.0  http://khack.osdl.org/stp/268552/
+2.5.65-mm1             13.6       -3.8  http://khack.osdl.org/stp/268824/
+2.5.65-mm2             13.6        0.1  http://khack.osdl.org/stp/268882/
+2.5.65-mm3             13.2       -2.8  http://khack.osdl.org/stp/268954/
+2.5.65-mm4             13.8        4.6  http://khack.osdl.org/stp/269011/
+2.5.66-mm1             13.6       -1.3  http://khack.osdl.org/stp/269497/
+2.5.66-mm2             14.0        2.6  http://khack.osdl.org/stp/269679/
+2.5.66-mm3             13.8       -1.1  http://khack.osdl.org/stp/270049/
+2.5.67-mm1             13.8       -0.2  http://khack.osdl.org/stp/270280/
+2.5.67-mm2             13.8       -0.0  http://khack.osdl.org/stp/270435/
+2.5.67-mm4             14.0        1.2  http://khack.osdl.org/stp/270599/
+2.5.68-mm1             14.1        1.2  http://khack.osdl.org/stp/270714/
+2.5.68-mm2             34.1      141.2  http://khack.osdl.org/stp/270888/
+2.5.68-mm3             33.7       -1.1  http://khack.osdl.org/stp/271132/
+2.5.68-mm4             33.1       -1.8  http://khack.osdl.org/stp/271286/
+2.5.69-mm2             32.8       -1.1  http://khack.osdl.org/stp/271846/
+2.5.69-mm3             32.9        0.6  http://khack.osdl.org/stp/271956/
+2.5.69-mm5             32.5       -1.5  http://khack.osdl.org/stp/272207/
+2.5.69-mm6             32.7        0.8  http://khack.osdl.org/stp/272278/
+2.5.70-mm3             33.3        1.8  http://khack.osdl.org/stp/273203/
+2.5.70-mm5             17.7      -47.0  http://khack.osdl.org/stp/273458/
+2.5.70-mm7             17.3       -2.2  http://khack.osdl.org/stp/273645/
+2.5.70-mm9             17.2       -0.7  http://khack.osdl.org/stp/273904/
+2.5.72-mm1             17.2        0.4  http://khack.osdl.org/stp/274215/
+2.5.73-mm1             17.5        1.5  http://khack.osdl.org/stp/274824/
+2.5.73-mm2             17.6        0.5  http://khack.osdl.org/stp/275094/
+2.5.74-mm2             18.4        4.4  http://khack.osdl.org/stp/275388/
+2.5.74-mm3             17.4       -5.2  http://khack.osdl.org/stp/275517/
+2.6.0-test1-mm1        18.1        4.2  http://khack.osdl.org/stp/276034/
+2.6.0-test1-mm2        17.3       -4.7  http://khack.osdl.org/stp/276254/
+2.6.0-test2-mm1        16.7       -3.6  http://khack.osdl.org/stp/276491/
+2.6.0-test2-mm2        16.1       -3.5  http://khack.osdl.org/stp/276821/
+2.6.0-test2-mm3        17.9       11.1  http://khack.osdl.org/stp/277017/
+2.6.0-test2-mm4        17.4       -2.8  http://khack.osdl.org/stp/277086/
+2.6.0-test2-mm5        16.7       -3.8  http://khack.osdl.org/stp/277282/
+2.6.0-test3-mm1        16.8        0.9  http://khack.osdl.org/stp/277418/
+2.6.0-test4-mm1        15.1      -10.3  http://khack.osdl.org/stp/280107/
+2.6.0-test4-mm2        15.4        1.7  http://khack.osdl.org/stp/280103/
+2.6.0-test4-mm4        15.8        3.0  http://khack.osdl.org/stp/280099/
+2.6.0-test4-mm5        16.3        2.7  http://khack.osdl.org/stp/280095/
+2.6.0-test4-mm6        15.3       -6.1  http://khack.osdl.org/stp/280091/
+2.6.0-test5-mm2        15.3        0.3  http://khack.osdl.org/stp/280087/
 
 
 2-way:
 Kernel               Metric Change (%)  URL
 -------------------- ------ ----------  ----------------------------------------
-linux-2.5.30           25.9        N/A  http://khack.osdl.org/stp/4090/
-linux-2.5.31           26.3        1.6  http://khack.osdl.org/stp/4348/
-linux-2.5.32           25.5       -3.1  http://khack.osdl.org/stp/4787/
-linux-2.5.33           25.2       -1.0  http://khack.osdl.org/stp/4961/
-linux-2.5.34           25.4        0.7  http://khack.osdl.org/stp/5128/
-linux-2.5.35           15.4      -39.5  http://khack.osdl.org/stp/5360/
-linux-2.5.36           15.5        0.7  http://khack.osdl.org/stp/5419/
-linux-2.5.37           15.4       -0.7  http://khack.osdl.org/stp/5478/
-linux-2.5.38           15.3       -0.4  http://khack.osdl.org/stp/5537/
-linux-2.5.49           27.7       81.0  http://khack.osdl.org/stp/8038/
-linux-2.5.50           27.3       -1.7  http://khack.osdl.org/stp/8386/
-linux-2.5.51           27.5        0.7  http://khack.osdl.org/stp/7690/
-linux-2.5.52           27.5        0.1  http://khack.osdl.org/stp/8618/
-linux-2.5.53           27.3       -0.6  http://khack.osdl.org/stp/8713/
-linux-2.5.57           14.3      -47.7  http://khack.osdl.org/stp/12046/
-linux-2.5.58           14.4        1.0  http://khack.osdl.org/stp/12105/
-linux-2.5.59           14.5        0.5  http://khack.osdl.org/stp/12189/
-linux-2.5.60           14.6        0.3  http://khack.osdl.org/stp/265638/
-linux-2.5.61           14.7        0.9  http://khack.osdl.org/stp/266155/
-linux-2.5.62           14.9        1.5  http://khack.osdl.org/stp/266235/
-linux-2.5.63           14.6       -2.3  http://khack.osdl.org/stp/266694/
-linux-2.5.64           14.6        0.2  http://khack.osdl.org/stp/268218/
-linux-2.5.65           13.6       -6.7  http://khack.osdl.org/stp/268776/
-linux-2.5.66           13.3       -2.4  http://khack.osdl.org/stp/269946/
-linux-2.5.67           13.3       -0.1  http://khack.osdl.org/stp/270243/
-linux-2.5.68           13.0       -2.0  http://khack.osdl.org/stp/270679/
-linux-2.5.69           13.1        1.0  http://khack.osdl.org/stp/272109/
-linux-2.5.71           12.8       -2.3  http://khack.osdl.org/stp/274023/
-linux-2.5.72           12.7       -1.1  http://khack.osdl.org/stp/274155/
-linux-2.5.73           13.0        2.4  http://khack.osdl.org/stp/274702/
-linux-2.5.74           12.7       -2.8  http://khack.osdl.org/stp/275172/
-linux-2.5.75           12.9        2.2  http://khack.osdl.org/stp/275651/
-linux-2.6.0-test1      12.6       -2.7  http://khack.osdl.org/stp/275843/
-linux-2.6.0-test2      11.6       -7.4  http://khack.osdl.org/stp/277481/
-linux-2.6.0-test3      12.8        9.9  http://khack.osdl.org/stp/277356/
-linux-2.6.0-test4      11.8       -8.1  http://khack.osdl.org/stp/278013/
-linux-2.6.0-test5      11.9        0.9  http://khack.osdl.org/stp/280076/
+2.5.64-mm4             11.2        N/A  http://khack.osdl.org/stp/268445/
+2.5.64-mm5             11.1       -1.5  http://khack.osdl.org/stp/268487/
+2.5.64-mm6             11.4        3.3  http://khack.osdl.org/stp/268571/
+2.5.65-mm1             11.3       -1.2  http://khack.osdl.org/stp/268843/
+2.5.65-mm2             11.4        0.9  http://khack.osdl.org/stp/268901/
+2.5.65-mm3             11.1       -2.5  http://khack.osdl.org/stp/268973/
+2.5.66-mm1             11.3        1.3  http://khack.osdl.org/stp/269516/
+2.5.66-mm3             11.4        1.5  http://khack.osdl.org/stp/270068/
+2.5.67-mm1             11.1       -2.7  http://khack.osdl.org/stp/270299/
+2.5.67-mm2             11.3        1.3  http://khack.osdl.org/stp/270454/
+2.5.67-mm4             11.2       -0.3  http://khack.osdl.org/stp/270618/
+2.5.68-mm1             11.2       -0.2  http://khack.osdl.org/stp/270733/
+2.5.68-mm2             23.6      110.7  http://khack.osdl.org/stp/270907/
+2.5.68-mm4             22.9       -2.8  http://khack.osdl.org/stp/271285/
+2.5.69-mm3             22.4       -2.2  http://khack.osdl.org/stp/271955/
+2.5.69-mm5             22.9        1.8  http://khack.osdl.org/stp/272206/
+2.5.70-mm5             13.3      -41.6  http://khack.osdl.org/stp/273457/
+2.5.70-mm6             12.8       -3.8  http://khack.osdl.org/stp/273548/
+2.5.70-mm9             12.9        0.3  http://khack.osdl.org/stp/273903/
+2.5.72-mm2             13.0        1.0  http://khack.osdl.org/stp/274359/
+2.5.73-mm1             13.1        0.5  http://khack.osdl.org/stp/274823/
+2.5.73-mm2             12.9       -1.3  http://khack.osdl.org/stp/275093/
+2.5.74-mm2             13.4        4.0  http://khack.osdl.org/stp/275387/
+2.5.74-mm3             13.2       -1.8  http://khack.osdl.org/stp/275516/
+2.5.75-mm1             13.4        1.5  http://khack.osdl.org/stp/275713/
+2.6.0-test1-mm1        13.4       -0.2  http://khack.osdl.org/stp/276033/
+2.6.0-test1-mm2        13.6        1.6  http://khack.osdl.org/stp/276253/
+2.6.0-test2-mm1        12.7       -6.3  http://khack.osdl.org/stp/276490/
+2.6.0-test2-mm2        12.9        1.7  http://khack.osdl.org/stp/276820/
+2.6.0-test2-mm3        13.2        2.4  http://khack.osdl.org/stp/277016/
+2.6.0-test2-mm4        13.7        3.6  http://khack.osdl.org/stp/277085/
+2.6.0-test2-mm5        13.7        0.1  http://khack.osdl.org/stp/277281/
+2.6.0-test3-mm1        12.5       -9.0  http://khack.osdl.org/stp/277417/
+2.6.0-test4-mm1        11.2      -10.4  http://khack.osdl.org/stp/280108/
+2.6.0-test4-mm2        11.7        4.4  http://khack.osdl.org/stp/280104/
+2.6.0-test4-mm4        11.7        0.0  http://khack.osdl.org/stp/280100/
+2.6.0-test4-mm5        12.5        6.6  http://khack.osdl.org/stp/280096/
+2.6.0-test4-mm6        11.8       -5.2  http://khack.osdl.org/stp/280092/
+2.6.0-test5-mm2        11.8       -0.5  http://khack.osdl.org/stp/280088/
 
 
 4-way:
 Kernel               Metric Change (%)  URL
 -------------------- ------ ----------  ----------------------------------------
-linux-2.5.30           16.1        N/A  http://khack.osdl.org/stp/4091/
-linux-2.5.31           16.0       -0.2  http://khack.osdl.org/stp/4349/
-linux-2.5.32           15.6       -2.4  http://khack.osdl.org/stp/4788/
-linux-2.5.33           15.6       -0.5  http://khack.osdl.org/stp/4962/
-linux-2.5.34           15.4       -1.2  http://khack.osdl.org/stp/5129/
-linux-2.5.35           10.9      -29.1  http://khack.osdl.org/stp/5361/
-linux-2.5.36           10.9        0.4  http://khack.osdl.org/stp/5420/
-linux-2.5.37           11.0        0.9  http://khack.osdl.org/stp/5479/
-linux-2.5.38           11.1        0.4  http://khack.osdl.org/stp/5538/
-linux-2.5.39           36.1      225.9  http://khack.osdl.org/stp/5976/
-linux-2.5.49           20.7      -42.7  http://khack.osdl.org/stp/8053/
-linux-2.5.50           20.6       -0.4  http://khack.osdl.org/stp/8401/
-linux-2.5.51           20.6       -0.1  http://khack.osdl.org/stp/7705/
-linux-2.5.52           20.7        0.4  http://khack.osdl.org/stp/8748/
-linux-2.5.53           20.6       -0.4  http://khack.osdl.org/stp/8728/
-linux-2.5.57           11.0      -46.4  http://khack.osdl.org/stp/12061/
-linux-2.5.58           11.1        0.5  http://khack.osdl.org/stp/12120/
-linux-2.5.59           11.0       -1.0  http://khack.osdl.org/stp/12204/
-linux-2.5.60           11.3        2.5  http://khack.osdl.org/stp/265651/
-linux-2.5.63           11.2       -0.9  http://khack.osdl.org/stp/266707/
-linux-2.5.64           11.3        0.8  http://khack.osdl.org/stp/268219/
-linux-2.5.66           10.4       -7.1  http://khack.osdl.org/stp/269962/
-linux-2.5.67           10.0       -4.4  http://khack.osdl.org/stp/270259/
-linux-2.5.68            9.9       -1.1  http://khack.osdl.org/stp/270695/
-linux-2.5.69            9.9        0.0  http://khack.osdl.org/stp/272384/
-linux-2.5.71           10.1        2.5  http://khack.osdl.org/stp/274022/
-linux-2.5.72           10.1       -0.3  http://khack.osdl.org/stp/274154/
-linux-2.5.73           10.2        0.6  http://khack.osdl.org/stp/274701/
-linux-2.5.74           10.2        0.2  http://khack.osdl.org/stp/275171/
-linux-2.5.75           10.1       -1.1  http://khack.osdl.org/stp/275650/
-linux-2.6.0-test1       9.2       -8.4  http://khack.osdl.org/stp/280085/
-linux-2.6.0-test2      10.2       10.5  http://khack.osdl.org/stp/276549/
-linux-2.6.0-test3       9.4       -8.2  http://khack.osdl.org/stp/280081/
-linux-2.6.0-test4       9.2       -2.1  http://khack.osdl.org/stp/280145/
-linux-2.6.0-test5       9.4        2.1  http://khack.osdl.org/stp/280077/
+2.5.66-mm1              9.6        N/A  http://khack.osdl.org/stp/269532/
+2.5.66-mm3              9.3       -3.3  http://khack.osdl.org/stp/270084/
+2.5.67-mm1              8.9       -3.7  http://khack.osdl.org/stp/270315/
+2.5.67-mm2              9.5        6.0  http://khack.osdl.org/stp/270470/
+2.5.67-mm4              9.2       -2.4  http://khack.osdl.org/stp/270634/
+2.5.68-mm1              9.2        0.2  http://khack.osdl.org/stp/270749/
+2.5.68-mm2             17.2       86.1  http://khack.osdl.org/stp/270923/
+2.5.68-mm4             17.1       -0.8  http://khack.osdl.org/stp/271284/
+2.5.69-mm1             16.7       -2.0  http://khack.osdl.org/stp/271654/
+2.5.69-mm3             16.7        0.1  http://khack.osdl.org/stp/271954/
+2.5.69-mm5             16.7       -0.3  http://khack.osdl.org/stp/272205/
+2.5.70-mm5              9.6      -42.8  http://khack.osdl.org/stp/273456/
+2.5.70-mm9             10.3        7.4  http://khack.osdl.org/stp/273902/
+2.5.72-mm2             10.2       -0.9  http://khack.osdl.org/stp/274358/
+2.5.73-mm1             10.3        1.3  http://khack.osdl.org/stp/274822/
+2.5.73-mm2             10.4        1.2  http://khack.osdl.org/stp/275092/
+2.5.74-mm2             10.4        0.1  http://khack.osdl.org/stp/275386/
+2.5.74-mm3             10.6        1.5  http://khack.osdl.org/stp/275515/
+2.5.75-mm1             10.5       -1.0  http://khack.osdl.org/stp/275712/
+2.6.0-test1-mm1        10.3       -1.9  http://khack.osdl.org/stp/276032/
+2.6.0-test1-mm2        11.0        7.3  http://khack.osdl.org/stp/276252/
+2.6.0-test2-mm1         9.9      -10.4  http://khack.osdl.org/stp/276489/
+2.6.0-test2-mm2        10.3        4.2  http://khack.osdl.org/stp/276819/
+2.6.0-test2-mm3         9.4       -9.2  http://khack.osdl.org/stp/277015/
+2.6.0-test2-mm5        10.4       11.0  http://khack.osdl.org/stp/277280/
+2.6.0-test3-mm1         9.4       -9.6  http://khack.osdl.org/stp/277416/
+2.6.0-test3-mm3         8.7       -6.9  http://khack.osdl.org/stp/277862/
+2.6.0-test4-mm1         8.1       -7.3  http://khack.osdl.org/stp/280109/
+2.6.0-test4-mm2         8.3        2.7  http://khack.osdl.org/stp/280105/
+2.6.0-test4-mm4         8.3       -0.8  http://khack.osdl.org/stp/280101/
+2.6.0-test4-mm5         8.6        4.6  http://khack.osdl.org/stp/280097/
+2.6.0-test4-mm6         8.3       -3.4  http://khack.osdl.org/stp/280093/
+2.6.0-test5-mm2         8.4        0.1  http://khack.osdl.org/stp/280089/
 
 
 8-way:
 Kernel               Metric Change (%)  URL
 -------------------- ------ ----------  ----------------------------------------
-linux-2.5.30           11.2        N/A  http://khack.osdl.org/stp/4092/
-linux-2.5.31           11.1       -0.5  http://khack.osdl.org/stp/4350/
-linux-2.5.32           10.8       -2.7  http://khack.osdl.org/stp/4789/
-linux-2.5.33           11.0        1.6  http://khack.osdl.org/stp/4963/
-linux-2.5.34           10.9       -1.0  http://khack.osdl.org/stp/5130/
-linux-2.5.35            8.1      -25.4  http://khack.osdl.org/stp/5362/
-linux-2.5.36            8.1       -0.6  http://khack.osdl.org/stp/5421/
-linux-2.5.64            8.5        4.8  http://khack.osdl.org/stp/268029/
-linux-2.5.65            8.3       -1.5  http://khack.osdl.org/stp/268802/
-linux-2.5.66            8.4        1.3  http://khack.osdl.org/stp/269972/
-linux-2.5.67            8.1       -4.1  http://khack.osdl.org/stp/270269/
-linux-2.5.68            8.1       -0.3  http://khack.osdl.org/stp/270704/
-linux-2.5.69            8.2        1.3  http://khack.osdl.org/stp/272385/
-linux-2.5.70            7.9       -2.8  http://khack.osdl.org/stp/272665/
-linux-2.5.72            7.7       -2.8  http://khack.osdl.org/stp/274153/
-linux-2.5.73            7.6       -1.8  http://khack.osdl.org/stp/274700/
-linux-2.5.74            7.3       -3.9  http://khack.osdl.org/stp/280037/
-linux-2.5.75            7.3       -0.0  http://khack.osdl.org/stp/280036/
-linux-2.6.0-test1       7.3       -0.2  http://khack.osdl.org/stp/280169/
-linux-2.6.0-test2       7.2       -0.5  http://khack.osdl.org/stp/277479/
-linux-2.6.0-test3       7.8        7.3  http://khack.osdl.org/stp/277354/
-linux-2.6.0-test4       7.5       -2.8  http://khack.osdl.org/stp/280146/
-linux-2.6.0-test5       7.5       -1.1  http://khack.osdl.org/stp/280078/
+2.5.64-mm6              7.5        N/A  http://khack.osdl.org/stp/268597/
+2.5.65-mm1              7.5        0.6  http://khack.osdl.org/stp/268869/
+2.5.65-mm2              7.7        1.4  http://khack.osdl.org/stp/268927/
+2.5.65-mm3              7.7        0.0  http://khack.osdl.org/stp/268999/
+2.5.65-mm4              7.6       -0.6  http://khack.osdl.org/stp/269056/
+2.5.66-mm1              7.6       -0.1  http://khack.osdl.org/stp/269542/
+2.5.66-mm3              7.5       -0.8  http://khack.osdl.org/stp/270094/
+2.5.67-mm1              7.4       -1.4  http://khack.osdl.org/stp/270325/
+2.5.67-mm4              6.8       -9.0  http://khack.osdl.org/stp/270643/
+2.5.68-mm1              6.7       -0.7  http://khack.osdl.org/stp/270758/
+2.5.68-mm2             11.8       75.1  http://khack.osdl.org/stp/270932/
+2.5.68-mm4             11.4       -2.8  http://khack.osdl.org/stp/271283/
+2.5.69-mm1             11.3       -0.9  http://khack.osdl.org/stp/271653/
+2.5.69-mm2             11.3        0.2  http://khack.osdl.org/stp/271843/
+2.5.69-mm3             11.3       -0.5  http://khack.osdl.org/stp/271953/
+2.5.69-mm5             11.3        0.4  http://khack.osdl.org/stp/272204/
+2.5.69-mm6             11.2       -1.1  http://khack.osdl.org/stp/272275/
+2.5.69-mm7             11.6        3.9  http://khack.osdl.org/stp/272333/
+2.5.69-mm9             12.6        7.9  http://khack.osdl.org/stp/272543/
+2.5.70-mm1             11.7       -7.3  http://khack.osdl.org/stp/272726/
+2.5.70-mm5              7.4      -36.9  http://khack.osdl.org/stp/273455/
+2.5.70-mm9              7.9        6.8  http://khack.osdl.org/stp/273901/
+2.5.72-mm1              7.9        0.3  http://khack.osdl.org/stp/274212/
+2.5.72-mm2              7.8       -1.4  http://khack.osdl.org/stp/274357/
+2.5.73-mm1              8.0        2.5  http://khack.osdl.org/stp/274821/
+2.5.73-mm2              7.9       -0.9  http://khack.osdl.org/stp/275091/
+2.5.74-mm2             15.8      100.6  http://khack.osdl.org/stp/275385/
+2.5.74-mm3              8.0      -49.6  http://khack.osdl.org/stp/275514/
+2.5.75-mm1             26.3      229.9  http://khack.osdl.org/stp/275711/
+2.6.0-test1-mm1         7.8      -70.5  http://khack.osdl.org/stp/276031/
+2.6.0-test1-mm2         8.2        5.2  http://khack.osdl.org/stp/276251/
+2.6.0-test2-mm1         7.9       -3.9  http://khack.osdl.org/stp/276488/
+2.6.0-test2-mm2         8.0        2.2  http://khack.osdl.org/stp/276818/
+2.6.0-test2-mm5         7.9       -1.2  http://khack.osdl.org/stp/277279/
+2.6.0-test3-mm1         7.3       -8.5  http://khack.osdl.org/stp/277415/
+2.6.0-test3-mm3         7.1       -2.7  http://khack.osdl.org/stp/277882/
+2.6.0-test4-mm1         6.6       -7.2  http://khack.osdl.org/stp/280110/
+2.6.0-test4-mm2         6.8        3.2  http://khack.osdl.org/stp/280106/
+2.6.0-test4-mm4         6.7       -0.2  http://khack.osdl.org/stp/280102/
+2.6.0-test4-mm6         6.8        1.3  http://khack.osdl.org/stp/280094/
+2.6.0-test5-mm2         6.8        0.2  http://khack.osdl.org/stp/280163/
 
 Kernels not listed either do not have results or the kernel was not
 able to be used on STP.
@@ -182,6 +209,7 @@ processes.
 Smaller numbers are better as well as a (-) change.
 'Change' refers to a percentage change in the metric from the last
 completed test with results.
+
 
 -- 
 Mark Wong - - markw@osdl.org

@@ -1,103 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263133AbVCJUcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262986AbVCJUal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263133AbVCJUcD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 15:32:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263132AbVCJUcC
+	id S262986AbVCJUal (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 15:30:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263048AbVCJU2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 15:32:02 -0500
-Received: from hfcmsw01.instinet.com ([198.178.39.150]:7951 "EHLO
-	hfcmsw01.esn.instinet.com") by vger.kernel.org with ESMTP
-	id S263024AbVCJUW6 convert rfc822-to-8bit (ORCPT
+	Thu, 10 Mar 2005 15:28:23 -0500
+Received: from fire.osdl.org ([65.172.181.4]:49842 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262973AbVCJUZ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 15:22:58 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: netdev= kernel boot commands and the Intel e1000 nic
-Date: Thu, 10 Mar 2005 15:22:49 -0500
-Message-ID: <13A26154A563124B876A26F0EF0CE1ED0213718A@HFCCINFEXCH501.AMERICAS.CORP.LOCAL>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: netdev= kernel boot commands and the Intel e1000 nic
-Thread-Index: AcUlru3DbTL0S9jzSOCFszNfsXvBSA==
-From: "Alex Upton" <AUpton@island.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 10 Mar 2005 20:22:49.0904 (UTC) 
-    FILETIME=[EE186300:01C525AE]
+	Thu, 10 Mar 2005 15:25:59 -0500
+Date: Thu, 10 Mar 2005 12:25:48 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Netdev <netdev@oss.sgi.com>, stable@kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [stable] [BK PATCHES] 2.6.x net driver oops fixes
+Message-ID: <20050310202548.GV5389@shell0.pdx.osdl.net>
+References: <422F59E8.2090707@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <422F59E8.2090707@pobox.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
+* Jeff Garzik (jgarzik@pobox.com) wrote:
 
-For about 3.5 days now I've been trying to swap eth0 and eth1 devices
-through use of the netdev kernel boot switch.
+> This will update the following files:
+> 
+>  drivers/net/sis900.c    |   41 +++++++++++++++++++++--------------------
+>  drivers/net/via-rhine.c |    3 +++
 
-The scenario:
+The via-rhine fix is already in the stable queue.  But the sis900 oops
+fix does not apply to the stable tree.  It relies on a few intermediate
+patches.  Appears to still be an issue for the older version which is in
+2.6.11.  Here's a stab at a backport.  Would you like to review/validate
+or drop this one?
 
-We have a system with onboard NICS and a PCI Intel e1000 Fiber NIC
-installed. This particular system by default forces the NIC inside the
-PCI slot to always default to eth0. We want to have ultimate control as
-to which NIC is deemed worthy enough to become eth0. We are using an
-entirely monolithic kernel via a PXE driven build and prefer not to
-support use of modules.
+thanks,
+-chris
 
-Reading through the kernel-parameters.txt I found the "netdev=" command
-which suggests the following usage:
-
-  netdev=	NET] Network devices parameters
-            Format: <irq>,<io>,<mem_start>,<mem_end>,<name>
-            Note that mem_start is often overloaded to mean
-            something different and driver-specific.
-
-We have tried the following methods based on this info and other peoples
-examples found in google land without success.
-
-netdev=21,0x2800,0xf6fa,0xf6fd,eth1
-netdev=21,0x2800,0xf6fa0000,0xf6fd0000,eth1
-netdev=21,0x2800,1,32,eth1
-netdev=irq=21,io=0x2800,name=eth1
-
-We have also tried to use "nameif" as a second approach, unfortunately
-nameif seems to be limited to only having the capability to change any
-logical Ethernet device name other than eth0.
-
-We've even attempted use of the "pci=" commands with hopes of reversing
-the PCI search order, and forced bios values, again without success.
-
-If anyone has any suggestions or insight on how to work with netdev and
-the e1000 properly it would be greatly appreciated! 
-
-Thanks very much
--Alex
-
-Alex.upton@inetats.com
-
-
-
-*****************************************************************
-<<<Disclaimer>>>
-
-In compliance with applicable rules and regulations, Instinet
-reviews and archives incoming and outgoing email communications,
-copies of which may be produced at the request of regulators.
-This message is intended only for the personal and confidential
-use of the recipients named above.  If the reader of this email
-is not the intended recipient, you have received this email in
-error and any review, dissemination, distribution or copying is
-strictly prohibited. If you have received this email in error,
-please notify the sender immediately by return email and
-permanently delete the copy you received.  
-
-Instinet accepts no liability for any content contained in the
-email, or any errors or omissions arising as a result of email
-transmission. Any opinions contained in this email constitute
-the sender's best judgment at this time and are subject to change
-without notice.   Instinet does not make recommendations of a
-particular security and the information contained in this email
-should not be considered as a recommendation, an offer or a
-solicitation of an offer to buy and sell securities.
-
-*****************************************************************
-
+===== drivers/net/sis900.c 1.62 vs edited =====
+--- 1.62/drivers/net/sis900.c	2005-01-10 08:52:27 -08:00
++++ edited/drivers/net/sis900.c	2005-03-10 12:23:49 -08:00
+@@ -236,7 +236,7 @@ static int __devinit sis900_get_mac_addr
+ 	signature = (u16) read_eeprom(ioaddr, EEPROMSignature);    
+ 	if (signature == 0xffff || signature == 0x0000) {
+ 		printk (KERN_INFO "%s: Error EERPOM read %x\n", 
+-			net_dev->name, signature);
++			pci_name(pci_dev), signature);
+ 		return 0;
+ 	}
+ 
+@@ -268,7 +268,7 @@ static int __devinit sis630e_get_mac_add
+ 	if (!isa_bridge)
+ 		isa_bridge = pci_get_device(PCI_VENDOR_ID_SI, 0x0018, isa_bridge);
+ 	if (!isa_bridge) {
+-		printk("%s: Can not find ISA bridge\n", net_dev->name);
++		printk("%s: Can not find ISA bridge\n", pci_name(pci_dev));
+ 		return 0;
+ 	}
+ 	pci_read_config_byte(isa_bridge, 0x48, &reg);
+@@ -456,10 +456,6 @@ static int __devinit sis900_probe(struct
+ 	net_dev->tx_timeout = sis900_tx_timeout;
+ 	net_dev->watchdog_timeo = TX_TIMEOUT;
+ 	net_dev->ethtool_ops = &sis900_ethtool_ops;
+-	
+-	ret = register_netdev(net_dev);
+-	if (ret)
+-		goto err_unmap_rx;
+ 		
+ 	/* Get Mac address according to the chip revision */
+ 	pci_read_config_byte(pci_dev, PCI_CLASS_REVISION, &revision);
+@@ -476,7 +472,7 @@ static int __devinit sis900_probe(struct
+ 
+ 	if (ret == 0) {
+ 		ret = -ENODEV;
+-		goto err_out_unregister;
++		goto err_unmap_rx;
+ 	}
+ 	
+ 	/* 630ET : set the mii access mode as software-mode */
+@@ -486,7 +482,7 @@ static int __devinit sis900_probe(struct
+ 	/* probe for mii transceiver */
+ 	if (sis900_mii_probe(net_dev) == 0) {
+ 		ret = -ENODEV;
+-		goto err_out_unregister;
++		goto err_unmap_rx;
+ 	}
+ 
+ 	/* save our host bridge revision */
+@@ -496,6 +492,10 @@ static int __devinit sis900_probe(struct
+ 		pci_dev_put(dev);
+ 	}
+ 
++	ret = register_netdev(net_dev);
++	if (ret)
++		goto err_unmap_rx;
++
+ 	/* print some information about our NIC */
+ 	printk(KERN_INFO "%s: %s at %#lx, IRQ %d, ", net_dev->name,
+ 	       card_name, ioaddr, net_dev->irq);
+@@ -505,8 +505,6 @@ static int __devinit sis900_probe(struct
+ 
+ 	return 0;
+ 
+- err_out_unregister:
+- 	unregister_netdev(net_dev);
+  err_unmap_rx:
+ 	pci_free_consistent(pci_dev, RX_TOTAL_SIZE, sis_priv->rx_ring,
+ 		sis_priv->rx_ring_dma);
+@@ -533,6 +531,7 @@ static int __devinit sis900_probe(struct
+ static int __init sis900_mii_probe(struct net_device * net_dev)
+ {
+ 	struct sis900_private * sis_priv = net_dev->priv;
++	const char *dev_name = pci_name(sis_priv->pci_dev);
+ 	u16 poll_bit = MII_STAT_LINK, status = 0;
+ 	unsigned long timeout = jiffies + 5 * HZ;
+ 	int phy_addr;
+@@ -582,21 +581,20 @@ static int __init sis900_mii_probe(struc
+ 					mii_phy->phy_types =
+ 					    (mii_status & (MII_STAT_CAN_TX_FDX | MII_STAT_CAN_TX)) ? LAN : HOME;
+ 				printk(KERN_INFO "%s: %s transceiver found at address %d.\n",
+-				       net_dev->name, mii_chip_table[i].name,
++				       dev_name, mii_chip_table[i].name,
+ 				       phy_addr);
+ 				break;
+ 			}
+ 			
+ 		if( !mii_chip_table[i].phy_id1 ) {
+ 			printk(KERN_INFO "%s: Unknown PHY transceiver found at address %d.\n",
+-			       net_dev->name, phy_addr);
++			       dev_name, phy_addr);
+ 			mii_phy->phy_types = UNKNOWN;
+ 		}
+ 	}
+ 	
+ 	if (sis_priv->mii == NULL) {
+-		printk(KERN_INFO "%s: No MII transceivers found!\n",
+-			net_dev->name);
++		printk(KERN_INFO "%s: No MII transceivers found!\n", dev_name);
+ 		return 0;
+ 	}
+ 
+@@ -621,7 +619,7 @@ static int __init sis900_mii_probe(struc
+ 			poll_bit ^= (mdio_read(net_dev, sis_priv->cur_phy, MII_STATUS) & poll_bit);
+ 			if (time_after_eq(jiffies, timeout)) {
+ 				printk(KERN_WARNING "%s: reset phy and link down now\n",
+-					net_dev->name);
++				       dev_name);
+ 				return -ETIME;
+ 			}
+ 		}
+@@ -691,7 +689,7 @@ static u16 sis900_default_phy(struct net
+ 		sis_priv->mii = default_phy;
+ 		sis_priv->cur_phy = default_phy->phy_addr;
+ 		printk(KERN_INFO "%s: Using transceiver found at address %d as default\n",
+-					net_dev->name,sis_priv->cur_phy);
++		       pci_name(sis_priv->pci_dev), sis_priv->cur_phy);
+ 	}
+ 	
+ 	status = mdio_read(net_dev, sis_priv->cur_phy, MII_CONTROL);

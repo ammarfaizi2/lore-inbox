@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130941AbRCGWoi>; Wed, 7 Mar 2001 17:44:38 -0500
+	id <S131207AbRCGV4H>; Wed, 7 Mar 2001 16:56:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129197AbRCGWoS>; Wed, 7 Mar 2001 17:44:18 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:12297 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S131155AbRCGWoK>; Wed, 7 Mar 2001 17:44:10 -0500
-Message-Id: <200103072243.f27MhdO31896@aslan.scsiguy.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Knernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.4.3 and new aic7xxx 
-In-Reply-To: Your message of "Wed, 07 Mar 2001 16:55:50 EST."
-             <3AA6AE66.700D806@mandrakesoft.com> 
-Date: Wed, 07 Mar 2001 15:43:39 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S131210AbRCGVz6>; Wed, 7 Mar 2001 16:55:58 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:61189 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S131207AbRCGVzn>;
+	Wed, 7 Mar 2001 16:55:43 -0500
+Date: Wed, 7 Mar 2001 22:54:35 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org, urban@teststation.com
+Subject: [PATCH] ncpfs and CONFIG_DEBUG_SLAB
+Message-ID: <20010307225435.B1907@vana.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I would prefer to sort the list at probe not boot time.  That makes it
->easy to reverse the order on the fly, depending on what the driver
->requests at runtime.  It's SMP-friendly, because I can grab a private
->copy of the PCI device list, sort it, and scan it.  You don't have to
->re-sort at every pci_insert_device, for hotplug machines.  The only
->potential downside is I need to check and see if the bootmem case needs
->to be handled, when making a private copy of the pci devices list for
->sorting.
+Hi Alan,
+   if you are going to apply patch I saw today morning on linux-kernel
+to disable redzoning on SLAB_HWCACHE aligned areas, drop this one into
+wastebasket.
+   If not, please apply this. When CONFIG_DEBUG_SLAB is enbled,
+dentries do not live on 16bytes boundary, but on x*8 + 4 :-( So I
+can validate only two low bits.
+   This patch is for 2.4.2-ac13 with applied patch I sent just few
+minutes ago.
+   Urban's smbfs has same problem, as it uses almost same validate
+code...
+					    Thanks,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
-How often is the list manipulated?  My guess is not very often.
-You can allow people to read the list without taking a spinlock and
-only acquire the spinlock on list manipulations.  Inserting an
-element can be performed atomically so there isn't an SMP issue
-so long as you don't allow more than one processor to insert at
-the same time.  This would allow you to perform insertion sort
-meaning that everything from /proc to device drivers auto-magically
-sees the devices in the order they were probed.  For hot plug devices
-you might want to insert them at the end to follow the "order probed"
-motif.
 
---
-Justin
+--- linux/fs/ncpfs/dir.c	Wed Mar  7 22:40:12 2001
++++ linux/fs/ncpfs/dir.c	Wed Mar  7 21:09:36 2001
+@@ -332,7 +332,11 @@
+ {
+ 	unsigned long dent_addr = (unsigned long) dentry;
+ 	const unsigned long min_addr = PAGE_OFFSET;
++#ifdef CONFIG_DEBUG_SLAB
++	const unsigned long align_mask = 0x03;
++#else
+ 	const unsigned long align_mask = 0x0F;
++#endif
+ 	unsigned int len;
+ 
+ 	if (dent_addr < min_addr)

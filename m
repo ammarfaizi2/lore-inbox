@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261205AbTBJLky>; Mon, 10 Feb 2003 06:40:54 -0500
+	id <S267403AbTBJLvm>; Mon, 10 Feb 2003 06:51:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267403AbTBJLky>; Mon, 10 Feb 2003 06:40:54 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:62731 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S261205AbTBJLkt>; Mon, 10 Feb 2003 06:40:49 -0500
-Date: Mon, 10 Feb 2003 11:50:34 +0000
-From: John Levon <levon@movementarian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Switch APIC (+nmi, +oprofile) to driver model
-Message-ID: <20030210115034.GF22600@compsoc.man.ac.uk>
-References: <200302091407.PAA14076@kim.it.uu.se> <20030210110108.GE2838@atrey.karlin.mff.cuni.cz>
+	id <S267444AbTBJLvl>; Mon, 10 Feb 2003 06:51:41 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:5293
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267403AbTBJLvi>; Mon, 10 Feb 2003 06:51:38 -0500
+Subject: Re: Setjmp/Longjmp in the kernel?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "John W. M. Stevens" <john@betelgeuse.us>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030209221044.GA8761@morningstar.nowhere.lie>
+References: <20030209221044.GA8761@morningstar.nowhere.lie>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044882041.418.1.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030210110108.GE2838@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18iCSI-000E29-00*etZy/tMi.gI*
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 10 Feb 2003 13:00:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 10, 2003 at 12:01:09PM +0100, Pavel Machek wrote:
+On Sun, 2003-02-09 at 22:10, John W. M. Stevens wrote:
+> Among these is a simple exception support system.  The core
+> of this system is based on the existence of a setjmp/longjmp
+> facility.  In digging through the source code, I've found a
+> few, architechturally specific implementations of such a
+> facility, but no generalized, multi-platform support.
 
-> Yes, whole oprofile/nmi interaction is ugly like hell. This way it is
-> at least explicit, so people *know* its ugly.
+setjmp/longjmp are normally very hard to follow and maintain,
+especially when the kernel has locks, sleeping rules and
+multiple threads flying around.
 
-That's no reason not do something like Mikael or I suggested.
+You will see lots of code which does either
 
-john
+
+int foo_func()
+{
+	alloc this
+	alloc that
+	_foo_func()
+	free this
+	free that
+}
+
+or has a single exit path and uses goto out type constructs 
+
+instead
+

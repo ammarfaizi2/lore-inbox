@@ -1,175 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132526AbRDARzp>; Sun, 1 Apr 2001 13:55:45 -0400
+	id <S132521AbRDASwb>; Sun, 1 Apr 2001 14:52:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132529AbRDARz0>; Sun, 1 Apr 2001 13:55:26 -0400
-Received: from bitmover.com ([207.181.251.162]:5673 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S132526AbRDARzW>;
-	Sun, 1 Apr 2001 13:55:22 -0400
-From: Larry McVoy <lm@bitmover.com>
-Date: Sun, 1 Apr 2001 10:54:40 -0700
-Message-Id: <200104011754.KAA20725@work.bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: bug database braindump from the kernel summit
+	id <S132531AbRDASwV>; Sun, 1 Apr 2001 14:52:21 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:57575 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S132521AbRDASwN>;
+	Sun, 1 Apr 2001 14:52:13 -0400
+Message-ID: <3AC7773F.9090401@optibase.com>
+Date: Sun, 01 Apr 2001 20:45:19 +0200
+From: Constantine Gavrilov <const-g@optibase.com>
+Organization: Optibase
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac26customSMP i686; en-US; 0.8) Gecko/20010211
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Anton.Safonov@bestlinux.net, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PCMCIA problems on IBM ThinkPad 600X
+In-Reply-To: <Pine.LNX.3.96.1010401123249.28121B-100000@mandrakesoft.mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks, since bug tracking is the next thing we are attacking here at
-BitMover, I have a great deal of interest in the bug tracking discussion
-which happened last night at the summit.  We already have a prototyped bug
-tracking system which we are integrating into BitKeeper, but as usual,
-it isn't good enough for the kernel team who have an interesting set
-of requirements.
+Jeff Garzik wrote:
 
-We want to make sure that the BK bug tracking system _could_ be used for
-the kernel effort.  Whether it is or not will be decided after years of
-licensing flamewars, etc., etc.  We're not going to go there so please
-don't try.
+> On Sun, 1 Apr 2001, Constantine Gavrilov wrote:
+> 
+>> There are problems with some PCMCIA drivers included in the kernel. For 
+>> example, support for cardbus 3com cards was moved to 3c59x.o driver. It 
+>> works (on 600X at least) only of you compile it in. It will not work as 
+>> a module.
+> 
+> 
+> It works just fine as a module.  What problems are you seeing?
+> 
+Exactly as reported by Anton.  "cs: socket XXXXX timed out during reset" 
+messages on the console when loading the module. This is at least on IBM 
+Thinkpad 600X. 16-bit cards work fine.
 
-Where I want to go is a discussion of requirements, then we converge on
-a strawman proposal, and then all of the people who care enough about
-this can go implement an answer and Linus and/or Alan and/or whoever can
-choose one.
+> 
+>> I think a much better solution right now is to use drivers from 
+>> pcmcia-cs package. It always works. If you do not configure any support 
+>> for pcmcia in your kernel, when you build pcmcia-cs it will build kernel 
+>> drivers from its own source tree. Just make sure you use the latest 
+>> version. This also allows configuration files interoperbility with 2.2.x 
+>> kernel, if you wish to use that as well.
+> 
+> 
+> pcmcia-cs does not always work, and it puts your nice 32-bit hardware
+> into 16-bit compatibility mode AFAIK.
+> 
+> If you have 2.4 bugs, please report them instead of spewing B.S.
+> 
+> 	Jeff
+> 
+> 
+Several points:
+* this bug and the workaround have been reported several times on 
+several mailing lists, probably on linux-kernel as well. Explanations 
+also stated that it has been broken and reported since 2.4.0-preX (I do 
+not remember which pre-release). So it is not a hidden knowledge and I 
+do not have to report a known bug.
 
-Let's stay focussed on arriving at a good set of agreed on requirements.
+* I do not think pcmcia-cs puts cardbus cards into 16-bit compatibility 
+mode. According to David Hinds, pcmcia code has been integrated into 
+2.4, so 2.4 uses a similar code base. My tests of bonding code showed 2 
+Mbit/sec with PCMCIA (100% CPU utilization) and 12 Mbit/sec with CardBus 
+(<5% CPU utilization).
 
-I've done a brain dump below.  I'll track this mail thread and update this
-doc as the discussion unfolds.  I'll post updates as it is needed.  If this
-discussion takes on a life of its own, I may try and grab all the mail and
-archive it so that people can browse; we'll see, it may be that everyone
-is so busy that this will be the first and last message on the topic.
+* The letter has not been addressed to you, but to the list. Why are you 
+taking this personal? What I said is no BS. The bug has been known and 
+reported. I personally use multiple versions of 2.2.x and 2.4.x kernels 
+installed on my machine for research and development. These include 
+various experimental patches and pre-releases. For people in my 
+situation, it is more convenient to use drivers from pcmcia-cs mainly 
+for two reasons: 1) I can use the same PCMCIA configuration for all 
+kernels; 2) I do not have to recompile kernel to upgrade PCMCIA drivers. 
+Why should it bother you?
 
---lm
+David's stuff happens to work better right now. So what? There are 
+several quite logical reasons for it:
+* PCMCIA code has been integrated relatively recently and not all 
+integration problems have been solved yet. "Official" and "unofficial" 
+Linux documentation state this and recommend pcmcia-cs in the case of 
+problems.
+* Since 2.4 has come out, a lot of efforts are made to fix bugs. Some 
+changes in the code incidentally break "other" stuff. Since David has to 
+concentrate on PCMCIA only, he can respond quickly to fix integration 
+problems. He is not bound to kernel release schedules and can release 
+more frequently. In the current situation, it helps.
+* When you (or somebody else) update network drivers, you cannot 
+possibly make sure that changes work across all card models. For David, 
+on the other hand, it is by far much easier to insure compatibility, 
+since he has to deal with CardBus and PCMCIA only. He also has had a lot 
+of experince doing this and his releases have always being of high quality.
 
-Brain dump on the bug tracking problem from the Kernel Summit discussions
+So, you do not have to get angry. I did not reflect on the quality of 
+your code and  the thought has not even occurred to me. After all, if 
+you update epro100 code, for instance, these changes appear in pcmcia-cs 
+package rather quickly. Part of David's job has been to make sure that 
+network drivers written in whole or in large part by other people work 
+WELL with PCMCIA and CardBus cards. He has been doing an excellent job 
+-- why should it bother you?
 
-		[SCCS/s.BUGS vers 1.2 2001/04/01 10:46:55]
+-- 
+----------------------------------------
+Constantine Gavrilov
+Linux Leader
+Optibase Ltd
+7 Shenkar St, Herzliya 46120, Israel
+Phone: (972-9)-970-9140
+Fax:   (972-9)-958-6099
+----------------------------------------
 
-Outline
-	Problems
-	Problem details
-	Past experiences
-	Requirements
-
-Problems
-    - getting quality bug reports
-    - not losing any bugs
-    - sorting low signal vs high signal into a smaller high signal pile
-    - simplified, preferably NNTP, access to the bug database (Linus
-      would use this; he's unlikely to use anything else)
-
-Problem details
-    Bug report quality
-    	There was lots of discussion on this.  The main agreement was that we
-	wanted the bug reporting system to dig out as much info as possible
-	and prefill that.  There was a lot of discussion about possible tools
-	that would dig out the /proc/pci info; there was discussion about
-	Andre's tools which can tell you if you can write your disk; someone
-	else had something similar.
-
-	But the main thing was to extract all the info we could
-	automatically.	One thing was the machine config (hardware and
-	at least kernel version).  The other thing was extract any oops
-	messages and get a stack traceback.
-
-	The other main thing was to define some sort of structure to the
-	bug report and try and get the use to categorize if they could.
-	In an ideal world, we would use the maintainers file and the
-	stack traceback to cc the bug to the maintainer.  I think we want
-	to explore this a bit.	I'm not sure that the maintainer file is
-	the way to go, what if we divided it up into much broader chunks
-	like "fs", "vm", "network drivers", and had a mail forwarder
-	for each area.	That could fan out to the maintainers.
-
-    Not losing bugs
-	While there was much discussion about how to get rid of bad,
-	incorrect, and/or duplicate bug reports, several people - Alan
-	in particular - made the point that having a complete collection
-	of all bug reports was important.  You can do data mining across
-	all/part of them and look for patterns.  The point was that there
-	is some useful signal amongst all the noise so we do not want to
-	lose that signal.
-    
-    Signal/noise
-	We had a lot of discussion about how to deal with signal/noise.
-	The bugzilla proponents thought we could do this with some additional
-	hacking to bugzilla.  I, given the BitKeeper background, thought 
-	that we could do this by having two databases, one with all the 
-	crud in it and another with just the screened bugs in it.  No matter
-	how it is done, there needs to be some way to both keep a full list,
-	which will likely be used only for data mining, and another, much
-	smaller list of screened bugs.  Jens wants there to be a queue of 
-	new bugs and a mechanism where people can come in the morning, pull
-	a pile of bugs off of the queue, sort them, sending some to the real
-	database.  This idea has a lot of merit, it needs some pondering as
-	DaveM would say, to get to the point that we have a workable mechanism
-	which works in a distributed fashion.
-
-	The other key point seemed to be that if nobody picked up a bug and
-	nobody said that this bug should be picked up, then the bug expires
-	out of the pending queue.  It gets stashed in the bug archive for
-	mining purposes and it can be resurrected if it later becomes a real
-	bug, but the key point seems to be that it _automatically_ disappears
-	out of the pending queue.  I personally am very supportive of this
-	model.  We need some way to just let junk stay junk.  If junk has to
-	be pruned out of the system by humans, the system sucks.  The system,
-	not humans, needs to autoprune.
-    
-    Simplified access: browsing and updating
-	Linus made the point that mailing lists suck.  He isn't on any and
-	refuses to join any.  He reads lists with a news reader.  I think
-	people should sit up and listen to that - it's a key point.  If your
-	mailing list isn't gatewayed to a newsgroup, he isn't reading it and
-	a lot of other people aren't either.
-
-	There was a fair bit of discussion about how to get the bug database
-	connected to news.  There doesn't seem to be any reason that the
-	bug system couldn't be a news server/gateway.  You should be able to
-	browse
-	    bitbucket.kernel.bugs - all the unscreened crud
-	    screened.kernel.bugs - all bugs which have been screened
-	    fs.kernel.bugs - screened bugs in the "fs" category
-	    ext2.kernel.bugs - screened bugs in the "ext2" category
-	    eepro.kernel.bugs - screened bugs in the "eepro" category
-	    etc.
-
-	Furthermore, the bugs should be structured once they are screened,
-	i.e., they have a set of fields like (this is a strawman):
-
-	    Synopsis - one line man-page like summary of the bug
-	    Severity - how critical is this bug?
-	    Priority - how soon does it need to be fixed?
-	    Category - subsystem in which the bug occurs
-	    Description - details on the bug, oops, stack trace, etc.
-	    Hardware - hardware info
-	    Software - kernel version, glibc version, etc.
-	    Suggested fix - any suggestion on how to fix it
-	    Interest list - set of email addresses and/or newsgroups for updates
-	
-	It ought to work that if someone posts a followup to the bug then if
-	the followup changes any of the fields that gets propagated to the
-	underlying bug database.  If this is done properly the news reader will
-	be the only interface that most people use.
-
-Past experiences
-    This is a catch all for sound bytes that we don't want to forget...
-
-    - Sorting bugs by hand is a pain in the ass (Ted burned out on it and
-      Alan refuses to say that it is the joy of his life to do it)
-    - bug systems tend to "get in the way".  Unless they are really trivial
-      to submit, search, update then people get tired of using them and go
-      back to the old way
-    - one key observation: let bugs "expire" much like news expires.  If
-      nobody has been whining enough that it gets into the high signal 
-      bug db then it probably isn't real.  We really want a way where no
-      activity means let it expire.
-    - Alan pointed out that having all of the bugs someplace is useful,
-      you can search through the 200 similar bugs and notice that SMP
-      is the common feature.  
-
-Requirements
-    This section is mostly empty, it's here as a catch all for people's
-    bullet items.  
-
-    - it would be very nice to be able to cross reference bugs to bug fixes
-      in the source management system, as well as the other way around.

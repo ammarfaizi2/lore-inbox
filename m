@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266059AbRGRBIM>; Tue, 17 Jul 2001 21:08:12 -0400
+	id <S266750AbRGRBJn>; Tue, 17 Jul 2001 21:09:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266523AbRGRBIC>; Tue, 17 Jul 2001 21:08:02 -0400
-Received: from suntan.tandem.com ([192.216.221.8]:55513 "EHLO
-	suntan.tandem.com") by vger.kernel.org with ESMTP
-	id <S266059AbRGRBHt>; Tue, 17 Jul 2001 21:07:49 -0400
-Message-ID: <3B54DEF5.B85F57E4@compaq.com>
-Date: Tue, 17 Jul 2001 17:57:25 -0700
-From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S266723AbRGRBJd>; Tue, 17 Jul 2001 21:09:33 -0400
+Received: from protactinium.btinternet.com ([194.73.73.176]:18684 "EHLO
+	protactinium") by vger.kernel.org with ESMTP id <S266523AbRGRBJQ>;
+	Tue, 17 Jul 2001 21:09:16 -0400
+Date: Wed, 18 Jul 2001 02:09:23 +0000 (GMT)
+From: James Stevenson <mistral@stev.org>
+To: Steven Walter <srwalter@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: serious cd writer kernel bug 2.4.x
+In-Reply-To: <20010717195622.A22955@hapablap.dyn.dhs.org>
+Message-ID: <Pine.LNX.4.30.0107180208420.2237-100000@cyrix.stev.org>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-        schoebel@eicheinformatik.uni-stuttgart.de
-Subject: Common hash table implementation
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple of days ago, I was thinking about a common hash table
-implementation, ala include/linux/list.h. Then I came across
-include/linux/ghash.h, and thought that someone's already done it.
-After that I noticed the copyright line said 1997, and a quick check
-in cscope showed that nobody's including it.
 
-Does anyone know if this file is worth studying and working with? I
-have to wonder if nobody's using it after four years.
+Hi
 
-Does anyone see a problem with a common hash table implementation?
-I've implemented a few hash tables from scratch for our clustering
-work, and it's starting to get a little old. Something easy to use
-like list.h would be a lot nicer.
+hum strange it does not get an opps anymore but still gets the
+errors and still does not work.
+
+i might try the IDE patch in the morning
+
+On Tue, 17 Jul 2001, Steven Walter wrote:
+
+> I had a problem similar to this until I turned off DMA to the drive
+> (hdparm -d0 /dev/hdc).  Additionally, my drive now works with DMA after
+> apply Andre Hedrick's IDE patch.
+>
+>
 
 -- 
-Brian Watson             | "The common people of England... so 
-Linux Kernel Developer   |  jealous of their liberty, but like the 
-Open SSI Clustering Lab  |  common people of most other countries 
-Compaq Computer Corp     |  never rightly considering wherein it 
-Los Angeles, CA          |  consists..."
-                         |      -Adam Smith, Wealth of Nations, 1776
+---------------------------------------------
+Web: http://www.stev.org
+Mobile: +44 07779080838
+E-Mail: mistral@stev.org
+  2:00am  up  2:05,  6 users,  load average: 0.00, 0.00, 0.00
 
-mailto:Brian.J.Watson@compaq.com
-http://opensource.compaq.com/

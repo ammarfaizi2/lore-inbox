@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262861AbTFXSQx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 14:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTFXSQw
+	id S262562AbTFXSUB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 14:20:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263245AbTFXSUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 14:16:52 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:40465 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264292AbTFXSOl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 14:14:41 -0400
-Date: Tue, 24 Jun 2003 14:22:13 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andi Kleen <ak@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Initial Vector Fix for loop.c.
-In-Reply-To: <20030620102455.GC26678@wotan.suse.de>
-Message-ID: <Pine.LNX.3.96.1030624141844.6519E-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Jun 2003 14:20:00 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:14343 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S262562AbTFXSRv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 14:17:51 -0400
+Date: Tue, 24 Jun 2003 20:31:56 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: John Cherry <cherry@osdl.org>
+Cc: Adrian Bunk <bunk@fs.tum.de>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.73 compile results
+Message-ID: <20030624183156.GA11266@mars.ravnborg.org>
+Mail-Followup-To: John Cherry <cherry@osdl.org>,
+	Adrian Bunk <bunk@fs.tum.de>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <1056475577.9839.110.camel@cherrypit.pdx.osdl.net> <20030624173900.GV3710@fs.tum.de> <1056478596.9839.118.camel@cherrypit.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1056478596.9839.118.camel@cherrypit.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jun 2003, Andi Kleen wrote:
+On Tue, Jun 24, 2003 at 11:16:37AM -0700, John Cherry wrote:
+> Unfortunately, the build continues even when it runs into compile or
+> link errors.
+I just wnat to add here that the build continue because 'make -k' is
+used because the script counts all errors that occur - not just the first
+one is see.
 
-> On Fri, Jun 20, 2003 at 12:14:52PM +0200, Fruhwirth Clemens wrote:
+John - any progress in sparse support - or too noisy?
 
-> > There is no cryptoloop installation which is affected by this. Read my mail
-> > properly. Every cryptoloop setup out there uses loop-AES or kerneli's
-> > patch-int. And both fixed this issue a _long_ time ago. (Have a look at
-> 
-> That's completely wrong. I know of several independent implementation
-> and installations.
-
-Could you point to these implementations?
-
-> 
-> > Again: _no_ userbase is affected by this change. Every userbase which
-> > could have ever been affected has done the fix for itself.
-> 
-> That's also incorrect.
-
-I think the point is that if moving to another device will really break
-data, then this is a good time to fix the problem. Breaking things is
-allowed, look at modules.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+	Sam

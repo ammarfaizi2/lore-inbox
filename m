@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136594AbREAICy>; Tue, 1 May 2001 04:02:54 -0400
+	id <S136610AbREALTZ>; Tue, 1 May 2001 07:19:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136592AbREAICn>; Tue, 1 May 2001 04:02:43 -0400
-Received: from [203.143.19.4] ([203.143.19.4]:48145 "EHLO kitul.learn.ac.lk")
-	by vger.kernel.org with ESMTP id <S136591AbREAICg>;
-	Tue, 1 May 2001 04:02:36 -0400
-Date: Mon, 30 Apr 2001 18:19:55 +0600 (LKT)
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: David Konerding <dek_ml@konerding.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: traceroute breaks with 2.4.4
-In-Reply-To: <3AEC6A23.4844DC4C@konerding.com>
-Message-ID: <Pine.LNX.4.21.0104301819300.359-100000@presario>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136613AbREALTQ>; Tue, 1 May 2001 07:19:16 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:4100 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S136610AbREALTF>;
+	Tue, 1 May 2001 07:19:05 -0400
+Message-ID: <20010430104231.C3294@bug.ucw.cz>
+Date: Mon, 30 Apr 2001 10:42:31 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+In-Reply-To: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain> <20010428215301.A1052@gruyere.muc.suse.de> <200104282256.f3SMuRW15999@vindaloo.ras.ucalgary.ca> <9cg7t7$gbt$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <9cg7t7$gbt$1@cesium.transmeta.com>; from H. Peter Anvin on Sat, Apr 28, 2001 at 10:13:11PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Isn't it "kernel-user netlink socket"?
+> > > In x86-64 there are special vsyscalls btw to solve this problem that export
+> > > a lockless kernel gettimeofday()
+> > 
+> > Whatever happened to that hack that was discussed a year or two ago?
+> > The one where (also on IA32) a magic page was set up by the kernel
+> > containing code for fast system calls, and the kernel would write
+> > calibation information to that magic page. The code written there
+> > would use the TSC in conjunction with that calibration data.
+> > 
+> > There was much discussion about this idea, even Linus was keen on
+> > it. But IIRC, nothing ever happened.
+> > 
+> 
+> We discussed this at the Summit, not a year or two ago.  x86-64 has
+> it, and it wouldn't be too bad to do in i386... just noone did.
 
-Anuradha
+Just wait what kind of problems it is able to bring on i386.
 
-On Sun, 29 Apr 2001, David Konerding wrote:
+								Pavel
+PS: Hmm, how do you do timewarp for just one userland appliation with
+this installed?
 
-> David Konerding wrote:
-> 
-> > As far as I can tell, somewhere between 2.4.2 and 2.4.4, traceroute
-> > stopped working.
-> > I see the problem on RH7.x.  Regular kernel compile with near-defaults
-> > for networking,
-> > no firewalling is enabled.  Rebootiing to a similar config under 2.4.2
-> > works OK.
-> 
-> OK, I'm unable to fix this by reverting to 2.4.2 using the same config as
-> 2.4.2.
-> However, an older compiled 2.4.2 worked, so I think I must have changed
-> some configuration which affects it.  Can't for the life of me figure out what
-> it is,
-> tho'.
-> 
-> Dave
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

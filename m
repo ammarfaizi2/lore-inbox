@@ -1,153 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVDBPXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVDBPzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbVDBPXw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 10:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVDBPXw
+	id S261585AbVDBPzV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 10:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVDBPzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 10:23:52 -0500
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:8700 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S261559AbVDBPXh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 10:23:37 -0500
-Date: Sat, 2 Apr 2005 17:22:19 +0200 (CEST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [BK PATCHES] ide-2.6 update
-Message-ID: <Pine.GSO.4.62.0504021718270.24415@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 2 Apr 2005 10:55:21 -0500
+Received: from [194.85.82.4] ([194.85.82.4]:6056 "EHLO mailer.campus.mipt.ru")
+	by vger.kernel.org with ESMTP id S261585AbVDBPyn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 10:54:43 -0500
+Date: Sat, 2 Apr 2005 19:22:06 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, guillaume.thouvenin@bull.net,
+       jlan@engr.sgi.com, efocht@hpce.nec.com, linuxram@us.ibm.com,
+       gh@us.ibm.com, elsa-devel@lists.sourceforge.net, greg@kroah.com
+Subject: Re: [1/1] CBUS: new very fast (for insert operations) message bus
+ based on kenel connector.
+Message-ID: <20050402192206.5e6f749f@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050401111134.49a8af5f.akpm@osdl.org>
+References: <20050320112336.2b082e27@zanzibar.2ka.mipt.ru>
+	<20050331162758.44aeaf44.akpm@osdl.org>
+	<1112337814.9334.42.camel@uganda>
+	<20050331232625.09057712.akpm@osdl.org>
+	<1112341514.9334.103.camel@uganda>
+	<20050331235927.6d104665.akpm@osdl.org>
+	<1112345400.9334.157.camel@uganda>
+	<20050401012547.68c26523.akpm@osdl.org>
+	<1112350615.9334.194.camel@uganda>
+	<20050401023004.2a83dbe5.akpm@osdl.org>
+	<1112352955.9334.225.camel@uganda>
+	<20050401032023.3d05d42f.akpm@osdl.org>
+	<1112361177.12969.23.camel@uganda>
+	<20050401111134.49a8af5f.akpm@osdl.org>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (mailer.campus.mipt.ru [194.85.82.4]); Sat, 02 Apr 2005 19:53:57 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 1 Apr 2005 11:11:34 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-Hi Linus,
+> >  CBUS was designed to provide very fast _insert_ operation.
+> 
+> I just don't see any point in doing this.  If the aggregate system load is
+> unchanged (possibly increased) then why is cbus desirable?
+> 
+> The only advantage I can see is that it permits irq-context messaging.
 
-short ChangeLog:
-* ide-default pseudo-driver is gone
-* VIA resume failure is fixed
+As one and not main advantage.
 
-Bartlomiej
+> >  It is needed not only for fork() accounting, but for any
+> >  fast path, when we do not want to slow process down just to
+> >  send notification about it, instead we can create such a notification,
+> >  and deliver it later.
+> 
+> And when we deliver it later, we slow processes down!
+> 
+> >  Why do we defer all work from HW IRQ into BH context?
+> 
+> To enable more interrupts to come in while we're doing that work.
 
-Please do a
+Exactly(!) for this reason CBUS was designed and implemented - 
+to allow more inserts to arrive and process _them_, thus
+do not slow down fast path, but not to make the whole delivering faster.
+ 
+> >  Because while we are in HW IRQ we can not perform other tasks,
+> >  so with connector and CBUS we have the same situation.
+> 
+> I agree that being able to send from irq context would be handy.  If we had
+> any code which wants to do that, and at present we do not.
 
- 	bk pull bk://bart.bkbits.net/ide-2.6
+It is not main advantage.
 
-This will update the following files:
+> But I fail to see any advantage in moving work out of fork() context, into
+> kthread context and incurring additional context switch overhead.  Apart
+> from conceivably better CPU cache utilisation.
 
-  drivers/ide/ide-default.c   |   76 ---------------------------
-  drivers/ide/Makefile        |    3 -
-  drivers/ide/ide-cd.c        |   71 ++++++++++++++++---------
-  drivers/ide/ide-cd.h        |    2
-  drivers/ide/ide-disk.c      |   30 ++++++++--
-  drivers/ide/ide-dma.c       |    8 ++
-  drivers/ide/ide-floppy.c    |   48 ++++++++++++-----
-  drivers/ide/ide-io.c        |   46 ++++++++++++----
-  drivers/ide/ide-probe.c     |  122 +++++++++++++++++++++++---------------------
-  drivers/ide/ide-proc.c      |   12 +---
-  drivers/ide/ide-tape.c      |   41 ++++++++++++--
-  drivers/ide/ide-taskfile.c  |   11 ++-
-  drivers/ide/ide.c           |   86 ++++++++++++-------------------
-  drivers/ide/pci/via82cxxx.c |    7 --
-  drivers/scsi/ide-scsi.c     |   44 ++++++++++++---
-  include/linux/ide.h         |    6 +-
-  16 files changed, 338 insertions(+), 275 deletions(-)
+And not event that is the main reason.
 
-through these ChangeSets:
+> The fact that deferred delivery can cause an arbitrarily large backlog and,
+> ultimately, deliberate message droppage or oom significantly impacts the
+> reliability of the whole scheme and means that well-designed code must use
+> synchronous delivery _anyway_.  The deferred delivery should only be used
+> from IRQ context for low-bandwidth delivery rates.
 
-<bzolnier@trik.(none)> (05/04/02 1.2351)
-    [ide] fix via82cxxx resume failure
+Not at all, OOM can not happen with limited queue length.
+CBUS will fallback to the direct cn_netlink_send() in that case.
 
-    With David Woodhouse <dwmw2@infradead.org>.
+Cache utilisation and ability to send events from any context are
+significant issues, but not they are the most important reasons.
+Ability to not slow down fast pathes - that is the main reason,
+even with higher delivery price.
+Concider situation when one may want to have notification 
+of each new write system call - let's say without such
+notification it took about 1 second to write one page from userspace,
+now with notification sending, which is not so fast, it will take
+1.5 seconds, but with CBUS write() still costs 1 second plus
+later, when we do not care about writing performance and scheduler
+decides to run CBUS thread, those notifications will take additional
+0.7 seconds instead of 0.5 and will be delivered.
+But if one requires not delayed fact of the notification, but
+almost immediate event - one can still use direct connector's methods.
 
-    On resume from sleep, via_set_speed() doesn't reinstate the correct
-    mode, because it thinks the drive is already configured correctly.
+> >  While we are sending a low priority event, we stops actuall work,
+> >  which is not acceptible in many situations.
+> 
+> Have you tested the average forking rate on a uniprocessor machine with
+> this patch?  If the forking continues for (say) one second, does the patch
+> provide any performance benefit?
 
-    Also kill redundant printk, ide_config_drive_speed() warns about errors.
+Yes, as I said I run CBUS test with non-SMP machine too 
+[it is still SMP with nosmp kernel option and SMP kernel].
 
-    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+On my the nearest test SMP machine it took ~930 - 950 msec average for fork
+for both processors, so it is about 1850-1900 per processor 
+[both with CBUS with fork connector and without fork connector compiled].
+With CBUS and 1 CPU fork() + exit() time takes about 1780 - 1800 msec.
 
-<bzolnier@trik.(none)> (05/04/02 1.2350)
-    [ide] kill ide-default
+I can rerun test on Monday on diferent [and faster] machines, 
+if you want.
 
-    * add ide_drives list to list devices without a driver
-    * add __ide_add_setting() and use it for adding no auto remove entries
-    * kill ide-default pseudo-driver
+	Evgeniy Polyakov
 
-    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-
-<bzolnier@trik.(none)> (05/04/02 1.2349)
-    [ide] get driver from rq->rq_disk->private_data
-
-    * add ide_driver_t * to device drivers objects
-    * set it to point at driver's ide_driver_t
-    * store address of this entry in disk->private_data
-    * fix ide_{cd,disk,floppy,tape,scsi}_g accordingly
-    * use rq->rq_disk->private_data instead of drive->driver
-      to obtain driver (this allows us to kill ide-default)
-
-    ide_dma_intr() OOPS fixed by Tejun Heo <htejun@gmail.com>.
-
-    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-
-<bzolnier@trik.(none)> (05/04/02 1.2348)
-    [ide] kill ide_drive_t->disk
-
-    * move ->disk from ide_drive_t to driver specific objects
-    * make drivers allocate struct gendisk and setup rq->rq_disk
-      (there is no need to do this for REQ_DRIVE_TASKFILE requests)
-    * add ide_init_disk() helper and kill alloc_disks() in ide-probe.c
-    * kill no longer needed ide_open() and ide_fops[] in ide.c
-
-    ide_init_disk() fixed by Andrew Morton <akpm@osdl.org>.
-
-    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-
-<bzolnier@trik.(none)> (05/04/02 1.2347)
-    [ide] add ide_{un}register_region()
-
-    Add ide_{un}register_region() and fix ide-{tape,scsi}.c to register
-    block device number ranges.  In ata_probe() only probe for modules.
-
-    Behavior is unchanged because:
-    * if driver is already loaded and attached to drive ata_probe()
-      is not called et all
-    * if driver is loaded by ata_probe() it will register new number range
-      for a drive and this range will be found by kobj_lookup()
-
-    If this is not clear please read http://lwn.net/Articles/25711/
-    and see drivers/base/map.c.
-
-    This patch makes it possible to move drive->disk allocation from
-    ide-probe.c to device drivers.
-
-    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-
-<bzolnier@trik.(none)> (05/04/02 1.2346)
-    [ide] destroy_proc_ide_device() cleanup
-
-    When this function is called device is already unbinded from a
-    driver so there are no driver /proc entries to remove.
-
-    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-
-<bzolnier@trik.(none)> (05/04/02 1.2345)
-    [ide] drive->dsc_overlap fix
-
-    drive->dsc_overlap is supported only by ide-{cd,tape} drivers.
-    Add missing clearing of ->dsc_overlap to ide_{cd,tape}_release()
-    and move ->dsc_overlap setup from ide_register_subdriver() to
-    ide_cdrom_setup() (ide-tape enables it unconditionally).
-
-    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-
-<bzolnier@trik.(none)> (05/04/02 1.2344)
-    [ide] drive->nice1 fix
-
-    It is drive's property independent of the driver being used so move
-    drive->nice1 setup from ide_register_subdriver() to probe_hwif() in
-    ide-probe.c.  As a result changing a driver which controls the drive
-    no longer affects this flag.
-
-    Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-
+Only failure makes us experts. -- Theo de Raadt

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264117AbTI2SHj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 14:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTI2SFi
+	id S264017AbTI2RwX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264012AbTI2Rvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 14:05:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12968 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264117AbTI2SBR (ORCPT
+	Mon, 29 Sep 2003 13:51:49 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:30642 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S263969AbTI2Ru3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 14:01:17 -0400
-Date: Mon, 29 Sep 2003 10:53:21 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "M.S. Lucas" <mslucas@taos-it.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test6: Make menuconfig error
-Message-Id: <20030929105321.3d048b0b.rddunlap@osdl.org>
-In-Reply-To: <031e01c3865c$75a078b0$0301a8c0@taosit>
-References: <031e01c3865c$75a078b0$0301a8c0@taosit>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 29 Sep 2003 13:50:29 -0400
+Date: Mon, 29 Sep 2003 13:50:26 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: davej@redhat.com
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Correct address in MAINTAINERS
+Message-ID: <20030929175026.GE6526@gtf.org>
+References: <E1A41Rq-0000Mv-00@hardwired>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1A41Rq-0000Mv-00@hardwired>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Sep 2003 09:36:55 +0200 "M.S. Lucas" <mslucas@taos-it.nl> wrote:
+On Mon, Sep 29, 2003 at 06:04:34PM +0100, davej@redhat.com wrote:
+> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/MAINTAINERS linux-2.5/MAINTAINERS
+> --- bk-linus/MAINTAINERS	2003-09-24 19:48:35.000000000 +0100
+> +++ linux-2.5/MAINTAINERS	2003-09-24 20:19:53.000000000 +0100
+> @@ -624,7 +624,7 @@ DIGIBOARD PC/XE AND PC/XI DRIVER
+>  P:	Christoph Lameter
+>  M:	christoph@lameter.com
+>  W:	http://www.digi.com
+> -L:	digilnux@dgii.com
+> +L:	digilnux@digi.com
+>  S:	Orphaned
 
-| The options for 
-| 
-| Amateur Radio Support
-| ISDN subsystem
-| Telephony support
-| 
-| are at the button of Networking support
-| 
-| In test5 everything is alright
+Actually both addresses work equally well...
 
-Yes, it's different.  Is it an error?  Is it bad?  Why?
+	Jeff
 
-One could argue that we also need to move ISDN subsystem and
-Telephony Support under Networking support.
 
---
-~Randy
+

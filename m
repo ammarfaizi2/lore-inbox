@@ -1,73 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbTHYReJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 13:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTHYReJ
+	id S261901AbTHYRa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 13:30:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTHYRa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 13:34:09 -0400
-Received: from fed1mtao07.cox.net ([68.6.19.124]:22999 "EHLO
-	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S262069AbTHYReF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 13:34:05 -0400
-Date: Mon, 25 Aug 2003 10:34:04 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Patrick Mochel <mochel@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       torvalds@osdl.org, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PM] Patrick: which part of "maintainer" and "peer review" needs explaining to you?
-Message-ID: <20030825103404.D28149@home.com>
-References: <20030823114738.B25729@flint.arm.linux.org.uk> <Pine.LNX.4.44.0308250840360.1157-100000@cherise> <20030825172737.E16790@flint.arm.linux.org.uk> <20030825095720.B28149@home.com> <20030825181415.F16790@flint.arm.linux.org.uk>
+	Mon, 25 Aug 2003 13:30:27 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44772 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261901AbTHYRaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 13:30:15 -0400
+Date: Mon, 25 Aug 2003 19:30:07 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, Fox Chen <mhchen@golf.ccl.itri.org.tw>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Gustavo Niemeyer <niemeyer@conectiva.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-net@vger.kernel.org
+Subject: 2.6.0-test4-mm1: wl3501_cs.c doesn't compile
+Message-ID: <20030825173007.GT7038@fs.tum.de>
+References: <20030824171318.4acf1182.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030825181415.F16790@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Mon, Aug 25, 2003 at 06:14:15PM +0100
+In-Reply-To: <20030824171318.4acf1182.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 25, 2003 at 06:14:15PM +0100, Russell King wrote:
-> On Mon, Aug 25, 2003 at 09:57:20AM -0700, Matt Porter wrote:
-> > Alternatively, you could leave the platform model as is (it's only
-> > for really dumb devices).
-> 
-> Thing is that we use the platform model for off chip devices as well.
-> On ARM, its gets used for any device which the platform code knows
-> where it is located.  ie, a platform device.
-> 
-> > On PPC, we have an OCP (on chip peripheral)
-> > model that is mostly integrated into the device model now.  OCP is
-> > just another bus/driver type and so PM works in the normal fashion.
-> 
-> Ah, but OCP can't be used to describe a platform dependent SMC91x
-> network interface that some random designer decided to drop into
-> their design - it isn't part of the SoC.
+I got the following compile error in 2.6.0-test4-mm1:
 
-There's nothing inherent in OCP (except the name) that prevents this.
-In fact, that's one of the directions we wanted to go with it because
-of PPC4xx external bus controller devices that are board specific.
- 
-> > There's a driver API around it as well so we can cleanly share drivers
-> > across various SoC implementations with different base address,
-> > IRQ mappings, etc.  It might be more useful to extende this across
-> > the architectures that need it.
-> 
-> Note that we've already done some public work on providing flexible
-> platform device support to satisfy the needs of platform people -
-> by adding the variable number of resources to the platform device.
+<--  snip  -->
 
-Yes, I recall asking for more interrupt resources when I thought it
-might be useful.  However, the PPC4xx stuff is requiring a move
-to a finer grained specification of internal bus types to properly
-implement PM.  It's necessary to know if a device is a child of
-the PLB, OPB, EBC, etc. to know when to power down various internal
-bus drivers as well.  I don't see that happening with platform
-devices even with the addition of PM ops.  Perhaps this isn't
-applicable to more than PPC, though.
+...
+  CC      drivers/net/wireless/wl3501_cs.o
+drivers/net/wireless/wl3501_cs.c: In function `wl3501_mgmt_join':
+drivers/net/wireless/wl3501_cs.c:641: unknown field `id' specified in 
+initializer
+drivers/net/wireless/wl3501_cs.c:641: warning: missing braces around 
+initializer
+drivers/net/wireless/wl3501_cs.c:641: warning: (near initialization for 
+`sig.ds_pset.el')
+drivers/net/wireless/wl3501_cs.c:642: unknown field `el' specified in 
+initializer
+drivers/net/wireless/wl3501_cs.c:643: unknown field `chan' specified in 
+initializer
+drivers/net/wireless/wl3501_cs.c: In function `wl3501_mgmt_start':
+drivers/net/wireless/wl3501_cs.c:658: unknown field `id' specified in 
+initializer
+drivers/net/wireless/wl3501_cs.c:658: warning: missing braces around 
+initializer
+drivers/net/wireless/wl3501_cs.c:658: warning: (near initialization for 
+`sig.ds_pset.el')
+drivers/net/wireless/wl3501_cs.c:659: unknown field `el' specified in 
+initializer
+drivers/net/wireless/wl3501_cs.c:660: unknown field `chan' specified in 
+initializer
+drivers/net/wireless/wl3501_cs.c:663: unknown field `id' specified in 
+initializer
+drivers/net/wireless/wl3501_cs.c:664: unknown field `el' specified in 
+initializer
+drivers/net/wireless/wl3501_cs.c:665: unknown field `data_rate_labels' 
+specified in initializer
+drivers/net/wireless/wl3501_cs.c:673: unknown field `id' specified in 
+initializer
+drivers/net/wireless/wl3501_cs.c:674: unknown field `el' specified in 
+initializer
+drivers/net/wireless/wl3501_cs.c:675: unknown field `data_rate_labels' 
+specified in initializer
+drivers/net/wireless/wl3501_cs.c:683: unknown field `id' specified in 
+initializer
+drivers/net/wireless/wl3501_cs.c:684: unknown field `el' specified in 
+initializer
+drivers/net/wireless/wl3501_cs.c:685: unknown field `atim_window' 
+specified in initializer
+drivers/net/wireless/wl3501_cs.c: In function 
+`wl3501_mgmt_scan_confirm':
+drivers/net/wireless/wl3501_cs.c:702: parse error before `)'
+drivers/net/wireless/wl3501_cs.c:705: parse error before `)'
+drivers/net/wireless/wl3501_cs.c:740: parse error before `)'
+drivers/net/wireless/wl3501_cs.c: In function `wl3501_mgmt_auth':
+drivers/net/wireless/wl3501_cs.c:899: parse error before `)'
+drivers/net/wireless/wl3501_cs.c: In function `wl3501_mgmt_association':
+drivers/net/wireless/wl3501_cs.c:913: parse error before `)'
+drivers/net/wireless/wl3501_cs.c: In function 
+`wl3501_mgmt_join_confirm':
+drivers/net/wireless/wl3501_cs.c:923: parse error before `)'
+drivers/net/wireless/wl3501_cs.c: In function 
+`wl3501_md_confirm_interrupt':
+drivers/net/wireless/wl3501_cs.c:982: parse error before `)'
+drivers/net/wireless/wl3501_cs.c: In function 
+`wl3501_get_confirm_interrupt':
+drivers/net/wireless/wl3501_cs.c:1038: parse error before `)'
+drivers/net/wireless/wl3501_cs.c: In function 
+`wl3501_start_confirm_interrupt':
+drivers/net/wireless/wl3501_cs.c:1050: parse error before `)'
+drivers/net/wireless/wl3501_cs.c: In function 
+`wl3501_assoc_confirm_interrupt':
+drivers/net/wireless/wl3501_cs.c:1062: parse error before `)'
+drivers/net/wireless/wl3501_cs.c: In function 
+`wl3501_auth_confirm_interrupt':
+drivers/net/wireless/wl3501_cs.c:1074: parse error before `)'
+drivers/net/wireless/wl3501_cs.c: In function `wl3501_rx_interrupt':
+drivers/net/wireless/wl3501_cs.c:1090: parse error before `)'
+drivers/net/wireless/wl3501_cs.c: In function `wl3501_exit_module':
+drivers/net/wireless/wl3501_cs.c:2350: parse error before `)'
+make[3]: *** [drivers/net/wireless/wl3501_cs.o] Error 1
 
-> Also note that most of the x86 ISA PCMCIA devices _are_ platform
-> devices today.  As of this new power management model, they're
-> broken due to the fact that they no longer receive power management
-> events.
 
-I see.
+<--  snip  -->
 
--Matt
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

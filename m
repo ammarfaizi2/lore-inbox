@@ -1,56 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290988AbSAaJMg>; Thu, 31 Jan 2002 04:12:36 -0500
+	id <S289037AbSAaJO0>; Thu, 31 Jan 2002 04:14:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290987AbSAaJM0>; Thu, 31 Jan 2002 04:12:26 -0500
-Received: from dark.pcgames.pl ([195.205.62.2]:41929 "EHLO dark.pcgames.pl")
-	by vger.kernel.org with ESMTP id <S289037AbSAaJMP>;
-	Thu, 31 Jan 2002 04:12:15 -0500
-Date: Thu, 31 Jan 2002 10:12:05 +0100 (CET)
-From: Krzysztof Oledzki <ole@ans.pl>
-X-X-Sender: <ole@dark.pcgames.pl>
-To: Tim Moore <timothymoore@bigfoot.com>
-cc: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.21pre2; ide_set_handler; DMA timeout
-In-Reply-To: <3C56FF07.304AFB48@bigfoot.com>
-Message-ID: <Pine.LNX.4.33.0201310959510.21465-100000@dark.pcgames.pl>
+	id <S290990AbSAaJOQ>; Thu, 31 Jan 2002 04:14:16 -0500
+Received: from mail0.epfl.ch ([128.178.50.57]:5898 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id <S289037AbSAaJOC>;
+	Thu, 31 Jan 2002 04:14:02 -0500
+Message-ID: <3C590AD8.2050908@epfl.ch>
+Date: Thu, 31 Jan 2002 10:14:00 +0100
+From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Organization: LTS-DE-EPFL
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stuffed Crust <pizza@shaftnet.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BUG:  broken I830MP AGP support in 2.4.17 and 2.4.18pre7
+In-Reply-To: <fa.g3ut1lv.1q56hbd@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stuffed Crust wrote:
 
 
-On Tue, 29 Jan 2002, Tim Moore wrote:
+> When trying to load up the agpgart module under 2.4.17, I get:
+> 
+> 
+>>Linux agpgart interface v0.99 (c) Jeff Hartmann
+>>agpgart: Maximum main memory to use for agp memory: 262M
+>>agpgart: Detected an Intel 830M, but could not find the secondary device.
+>>
 
-> > driver. You may check some more recent version of IDE backport from
-> > 2.4.x: http://www.ans.pl/ide/testing - the latest is ide.2.2.21.01282002-Ole,
-> > but the new version of hpt driver has not been yet backported. I'm going
-> > to do it tomorrow.
-> I'll test the backport hpt driver when available.
 
-OK, please try this:
-http://www.ans.pl/ide/testing/ide.2.2.21.01312002-Ole.patch.gz
+This is normal. 2.4.17 does not support i830MP.
 
-ide.2.2.21.01302002-Ole for linux kernel 2.2.21pre2: (test version)
-o       new file: drivers/ide/idecomp.h with:
-                create_proc_read_entry() for ide-proc.c
-                pci_for_each_dev() for ide-pci.c and cs5530.c
-                ARRAY_SIZE() for sis5513.c
-                cpu_relax() for serverworks.c
-o       backport from linux-2.4.17+ide.2.4.16.12102001.patch:
-                alim15x3.c - 0.10
-                hpt366.c - 0.22
-                slc90e66.c
-o       enable 80-pin cable detection for DELL and SUN in serverworks.c
-o       use create_proc_info_entry() and proc_mkdir() in ide-proc.c.
-o       enable "IDE Taskfile Access" and "IDE Taskfile IO" in Config.in
 
-Is there any reason why you compiled kernel with IDE SCSI emulation?
+> Fine, I see that 2.4.18pre supposedly has fixes for the I830MP.  So I
+> compile it, slap it in place.. and get:  (with 2.4.17pre7)
+> 
+> 
+>>Linux agpgart interface v0.99 (c) Jeff Hartmann
+>>agpgart: Maximum main memory to use for agp memory: 262M
+>>agpgart: unsupported bridge
+>>agpgart: no supported devices found.
+>>
+> 
+> lspci yields:
+> 
+>>00:00.0 Host bridge: Intel Corporation: Unknown device 3575 (rev 02)
+>>       Flags: bus master, fast devsel, latency 0
+>>       Memory at d0000000 (32-bit, prefetchable) [size=256M]
+>>       Capabilities: [40] #09 [0105]
+>>       Capabilities: [a0] AGP version 2.0
+>>
+> 
 
-BTW: Do you really have 36MHz PCI clock?
+This is much stranger... And even if the 830mp stuff does not work 
+(several people have been able to use it), loading the agpgart module 
+with the 'try_unsupported=1' option should do the trick (at least in 
+2.4.18-pre7)... Can you send the full output of lspci ?
 
-Best regards,
+Best regards.
 
-				Krzysztof Oledzki
+Nicolas.
+-- 
+Nicolas Aspert      Signal Processing Institute (ITS)
+Swiss Federal Institute of Technology (EPFL)
 

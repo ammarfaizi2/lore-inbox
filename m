@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbUCKNPq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 08:15:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUCKNPq
+	id S261252AbUCKNPv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 08:15:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUCKNPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 08:15:46 -0500
-Received: from zero.aec.at ([193.170.194.10]:32006 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261253AbUCKNPD (ORCPT
+	Thu, 11 Mar 2004 08:15:51 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:61093 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261252AbUCKNPN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 08:15:03 -0500
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1
-References: <1ysXv-wm-11@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 18 Mar 2004 00:21:25 +0100
-In-Reply-To: <1ysXv-wm-11@gated-at.bofh.it> (Andrew Morton's message of
- "Thu, 11 Mar 2004 08:40:09 +0100")
-Message-ID: <m3lllzawlm.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Mar 2004 08:15:13 -0500
+Subject: Re: interruptible_sleep_on() from tasklet?
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: "Jinu M." <jinum@esntechnologies.co.in>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1118873EE1755348B4812EA29C55A9721764AB@esnmail.esntechnologies.co.in>
+References: <1118873EE1755348B4812EA29C55A9721764AB@esnmail.esntechnologies.co.in>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yKb4tQsJryxrAUHig8YT"
+Organization: Red Hat, Inc.
+Message-Id: <1079010904.4446.5.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 11 Mar 2004 14:15:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
 
-> - The CPU scheduler changes in -mm (sched-domains) have been hanging about
->   for too long.  I had been hoping that the people who care about SMT and
->   NUMA performance would have some results by now but all seems to be silent.
->
->   I do not wish to merge these up until the big-iron guys can say that they
->   suit their requirements, with a reasonable expectation that we will not
->   need to churn this code later in the 2.6 series.
->
->   So.  If you have been testing, please speak up.  If you have not been
->   testing, please do so.
+--=-yKb4tQsJryxrAUHig8YT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I tested them on Opteron NUMA systems and they are worse on simple
-tests than the stock scheduler (e.g. the parallelized STREAM test,
-which is a bit silly, but still fairly important)
+On Thu, 2004-03-11 at 13:48, Jinu M. wrote:
+> Hi All,
+>=20
+> Can we do interruptible_sleep_on or interruptible_sleep_on_timeout from a=
+ tasklet?
 
-For SMT there is a patch from Intel pending that teaches x86-64
-to set up the SMT scheduler. They said they got slightly better
-benchmark results. The SMT setup seems to be racy though.
+no.
 
-Some kind of SMT scheduler is definitely needed, we have a serious
-regression compared to 2.4 here right now. I'm not sure this 
-is the right approach though, it seems to be far too complex.
+In fact you should *NEVER* use interruptible_sleep_on(_timeout) but
+especially not from tasklets/irq handlers.
 
--Andi
+--=-yKb4tQsJryxrAUHig8YT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAUGZYxULwo51rQBIRApFwAKCPD1DXhqk4XJzhtEpHuyawrgf+jACfTIjJ
+3gjKBUZ7zHqvec6X6mrlxoE=
+=7GF/
+-----END PGP SIGNATURE-----
+
+--=-yKb4tQsJryxrAUHig8YT--
 

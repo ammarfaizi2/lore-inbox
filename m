@@ -1,81 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262626AbTJXVCU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 17:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbTJXVCU
+	id S262622AbTJXVBy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 17:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbTJXVBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 17:02:20 -0400
-Received: from [63.226.249.57] ([63.226.249.57]:14526 "EHLO nymph.dleonard.net")
-	by vger.kernel.org with ESMTP id S262626AbTJXVCM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 17:02:12 -0400
-Date: Fri, 24 Oct 2003 14:27:32 -0700 (PDT)
-From: <dleonard@dleonard.net>
-To: Pavel Roskin <proski@gnu.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Copying .config to /lib/modules/`uname -r`/kernel
-In-Reply-To: <Pine.LNX.4.58.0310240406230.17536@portland.hansa.lan>
-Message-ID: <Pine.LNX.4.31.0310241423120.24862-100000@nymph.dleonard.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 24 Oct 2003 17:01:53 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:2313 "EHLO
+	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S262622AbTJXVBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 17:01:51 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [RFC] frandom - fast random generator module
+Date: Fri, 24 Oct 2003 20:59:42 +0000 (UTC)
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <bnc3ru$kab$2@abraham.cs.berkeley.edu>
+References: <3F8E552B.3010507@users.sf.net> <20031022122251.A3921@borg.org> <3F97498D.9050704@storm.ca> <bnbo18$49b$1@gatekeeper.tmr.com>
+Reply-To: daw@cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1067029182 20811 128.32.153.211 (24 Oct 2003 20:59:42 GMT)
+X-Complaints-To: usenet@abraham.cs.berkeley.edu
+NNTP-Posting-Date: Fri, 24 Oct 2003 20:59:42 +0000 (UTC)
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Personally I like to put it in the same place as the kernel itself and the
-System.map.  Then I tack the full version number on the end just like I do
-with System.map.  Even for non-modular kernels it is frequently convenient
-to have access to the .config so when you boot up a random isolinux CD you
-know exactly what support you are going to have.
+bill davidsen wrote:
+>I know someone noted that frandom couldn't just replace urandom, but I
+>don't recall why.
 
--- 
-
-<Douglas Leonard>
-<dleonard@dleonard.net>
-
-On Fri, 24 Oct 2003, Pavel Roskin wrote:
-
-> Hello!
->
-> Many drivers are developed outside the kernel tree.  Many drivers start
-> their existence as separate projects.  It's essential that they are tested
-> by the users of particular hardware, even if those users don't want to
-> recompile their kernels.
->
-> There should be a standard place for .config in kernel packages.
-> /proc/config.gz may or may not be popular with distributors.  Besides, it
-> only gives information for the currently running kernel, but not for e.g.
-> newly upgraded kernel before the reboot.
->
-> Cannot we just install .config to the same directory as modules?  If the
-> kernel doesn't support modules, then there is no point to compile any new
-> modules against it.  But if it does, then we can be sure that the modules
-> correspond to that configuration file, because the modules and .config
-> would be installed by the same command.
->
-> That's why I prefer the "kernel" subdirectory.  It's fully replaced by
-> "make modules_install", so that the old .config will go away for sure.
->
-> Patch against 2.6.0-test8
-> =====================
-> --- Makefile
-> +++ Makefile
-> @@ -690,6 +690,7 @@
->  	@rm -rf $(MODLIB)/kernel
->  	@rm -f $(MODLIB)/build
->  	@mkdir -p $(MODLIB)/kernel
-> +	@cp -f .config $(MODLIB)/kernel
->  	@ln -s $(TOPDIR) $(MODLIB)/build
->  	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modinst
->
-> =====================
->
-> --
-> Regards,
-> Pavel Roskin
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Because we don't have enough confidence in the cryptographic
+security of frandom.

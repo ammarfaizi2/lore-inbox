@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280951AbRKORX4>; Thu, 15 Nov 2001 12:23:56 -0500
+	id <S280952AbRKORZQ>; Thu, 15 Nov 2001 12:25:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280952AbRKORXs>; Thu, 15 Nov 2001 12:23:48 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:58130 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S280951AbRKORXg>; Thu, 15 Nov 2001 12:23:36 -0500
-Message-ID: <3BF3F9ED.17D55B35@zip.com.au>
-Date: Thu, 15 Nov 2001 09:22:53 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ben Collins <bcollins@debian.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bug in ext3
-In-Reply-To: <20011115092452.Z329@visi.net>
+	id <S280953AbRKORY7>; Thu, 15 Nov 2001 12:24:59 -0500
+Received: from chunnel.redhat.com ([199.183.24.220]:24312 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S280952AbRKORYh>; Thu, 15 Nov 2001 12:24:37 -0500
+Date: Thu, 15 Nov 2001 17:24:29 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Oktay Akbal <oktay.akbal@s-tec.de>
+Cc: arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: Numbers: ext2/ext3/reiser Performance (ext3 is slow)
+Message-ID: <20011115172429.A14221@redhat.com>
+In-Reply-To: <E162ZQN-00069u-00@fenrus.demon.nl> <Pine.LNX.4.40.0111101831440.14552-100000@omega.hbh.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.40.0111101831440.14552-100000@omega.hbh.net>; from oktay.akbal@s-tec.de on Sat, Nov 10, 2001 at 06:41:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins wrote:
-> 
-> I recently compiled support for ext3 into the kernel (2.4.15-pre4) and
-> booted that kernel onto a system that didn't have any ext3 partitions.
-> On boot I got these messages:
-> 
-> JBD: no valid journal superblock found
-> JBD: no valid journal superblock found
-> EXT3-fs: error loading journal.
-> 
+Hi,
 
-It sounds like the superblock claims to be an ext3 fs, but something
-has scrogged the journal file.
+On Sat, Nov 10, 2001 at 06:41:15PM +0100, Oktay Akbal wrote:
 
-e2fsck should have removed the journal in this situation, with
-the message "*** ext3 journal has been deleted - filesystem is
-now ext2 only ***".
+> The question is, when to use what mode. I would use data=journal on my
+> CVS-Archive, and maybe writeback on a news-server.
+> But what to use for an database like mysql ?
 
-Please send the output of dumpe2fs, and of `fsck -fy'.
+For a database, your application will be specifying the write
+ordering explicitly with fsync and/or O_SYNC.  For the filesystem to
+try to sync its IO in addition to that is largely redundant.
+writeback is entirely appriopriate for databases.
 
-Probably you can repair it by booting with `init=/bin/sh' and
-running `tune2fs -O ^has-journal' agains the fs, and then fscking
-it.
+Remember, the key condition that ordered mode guards against is
+finding stale blocks in the middle of recently-allocated files.  With
+databases, that's not a huge concern.  Except during table creation,
+most database writes are into existing allocated blocks; and the data
+in the database is normally accessed directly only by a specified
+database process, not by normal client processes, so any leaks that do
+occur if the database extends its file won't be visible to normal
+users.
+
+Cheers,
+ Stephen

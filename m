@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261518AbSJYR4X>; Fri, 25 Oct 2002 13:56:23 -0400
+	id <S261525AbSJYSN3>; Fri, 25 Oct 2002 14:13:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261520AbSJYR4X>; Fri, 25 Oct 2002 13:56:23 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:28880 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S261518AbSJYR4W>;
-	Fri, 25 Oct 2002 13:56:22 -0400
-Date: Fri, 25 Oct 2002 20:02:36 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200210251802.UAA18166@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org, minyard@acm.org
-Subject: Re: NMI watchdog not ticking at the right intervals
+	id <S261527AbSJYSN3>; Fri, 25 Oct 2002 14:13:29 -0400
+Received: from bozo.vmware.com ([65.113.40.131]:38660 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id <S261525AbSJYSN2>; Fri, 25 Oct 2002 14:13:28 -0400
+Date: Fri, 25 Oct 2002 11:20:23 -0700
+From: chrisl@vmware.com
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to get number of physical CPU in linux from user space?
+Message-ID: <20021025182023.GA1397@vmware.com>
+References: <20021024230229.GA1841@vmware.com> <2897727591.1035509219@[10.10.2.3]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2897727591.1035509219@[10.10.2.3]>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Oct 2002 09:09:10 -0500, Corey Minyard wrote:
->As I have been working on my NMI patch, I have noticed that the NMI 
->watchdog does not seem to be ticking correctly.  I've tried 2.4 and 2.5 
->kernels, and I get the same results.  From my reading of the code, it 
->should tick once a second.  However, I have had the time between ticks 
->vary from around 33 to over 100 seconds.  Tbe time between ticks is 
->different on every boot, but is consistent once booted.  Is there some 
->divider register that's not getting initialized?
->
->Here's my cpuinfo:
->
->processor    : 0
->cpu_package    : 0
->vendor_id    : GenuineIntel
->cpu family    : 6
->model        : 11
->model name    : Intel(R) Pentium(R) III Mobile CPU      1066MHz
 
-(Me thinks "speedstep?")
+On Fri, Oct 25, 2002 at 01:27:00AM -0700, Martin J. Bligh wrote:
+> Define "physical CPU number" ;-) If you want to deteact which
 
-Do you boot with nmi_watchdog=1 or 2?
-The perfctr + local-APIC driven NMI watchdog is dependent
-on the CPU's clock frequency. If this changes, the NMI rate
-will change accordingly.
+I mean the number of cpu chip you can count on the mother board.
 
-The NMI rate may also be affected by APM/ACPI and how often
-the kernel executes HLT.
+> ones are paired up, I believe that if all but the last bit
+> of the apicid is the same, they're siblings. You might have to
+> dig the apicid out of the bootlog if the cpuinfo stuff doesn't
+> tell you.
 
-/Mikael
+And you are right. Those apicid, after mask out the siblings,
+are put in phys_cpu_id[] array in kernel.
+
+I think about look at bootlog too, but that is not a reliable
+way because bootlog might already been flush out after some
+time.
+
+Cheers
+
+Chris
+
+
+

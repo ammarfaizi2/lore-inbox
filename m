@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbTLXAYg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 19:24:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbTLXAYg
+	id S263015AbTLXAa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 19:30:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTLXAa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 19:24:36 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:54975 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S262838AbTLXAYf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 19:24:35 -0500
-Date: Tue, 23 Dec 2003 16:24:30 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Dale Amon <amon@vnl.com>, Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Question on LFS in Redhat
-Message-ID: <20031224002430.GY6438@matchmail.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>,
-	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-References: <20031223151042.GE9089@vnl.com> <1072193917.5262.1.camel@laptop.fenrus.com> <20031223235827.GK9089@vnl.com>
+	Tue, 23 Dec 2003 19:30:58 -0500
+Received: from gw.mgpenguin.net ([150.101.216.218]:7396 "EHLO
+	mail.mgpenguin.net") by vger.kernel.org with ESMTP id S263015AbTLXAa5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 19:30:57 -0500
+Message-Id: <5.1.0.14.2.20031224112919.02c8e110@mail.mgpenguin.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 24 Dec 2003 11:36:09 +1100
+To: Greg KH <greg@kroah.com>
+From: Kieran Morrissey <linux@mgpenguin.net>
+Subject: PATCH: 2.6.0 PCI Name database
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031223233957.GF16315@kroah.com>
+References: <5.1.0.14.2.20031224102409.02cd1730@192.168.1.1>
+ <5.1.0.14.2.20031224102409.02cd1730@192.168.1.1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031223235827.GK9089@vnl.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 11:58:27PM +0000, Dale Amon wrote:
-> But you wouldn't be able to handle file systems larger
-> than 2TB then I presume?
+For the benefit of those cc:ed -
 
-Correct, I'd suggest 2.6 instead of patching your 2.4 kernel.  The 2.6
-drivers have had more testing with large filesystems/block devices, and
-that's very light, and even lighter on patched 2.4.
+This patch replaces the 2.6.0 PCI Names database with the one from 2.4.23, 
+which is considerably newer (May 2003 vs Dec 2002).
+
+
+At 03:39 PM 23/12/2003 -0800, you wrote:
+>Can you send it, not compressed so I can apply it (see
+>Documentation/SubmittingPatches for more info.)
+>
+>thanks,
+>
+>greg k-h
+
+In keeping with said documentation, since it's 60kb, I've put it on the web:
+
+http://digital.mgpenguin.net/linux/
+
+Sorry about that, first time for everything.. :)
+
+Cheers,
+
+         Kieran Morrissey
+

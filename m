@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131574AbQLVTOA>; Fri, 22 Dec 2000 14:14:00 -0500
+	id <S129933AbQLVTtg>; Fri, 22 Dec 2000 14:49:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131803AbQLVTNt>; Fri, 22 Dec 2000 14:13:49 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:41476 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131574AbQLVTNl>; Fri, 22 Dec 2000 14:13:41 -0500
-Date: Fri, 22 Dec 2000 11:35:30 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Pauline Middelink <middelin@polyware.nl>, linux-kernel@vger.kernel.org,
-        jmerkey@timpanogas.org
-Cc: jmerkey@timpanogas.org
-Subject: Re: bigphysarea support in 2.2.19 and 2.4.0 kernels
-Message-ID: <20001222113530.A14479@vger.timpanogas.org>
-In-Reply-To: <20001221144247.A10273@vger.timpanogas.org> <E149DKS-0003cX-00@the-village.bc.nu> <20001221154446.A10579@vger.timpanogas.org> <20001221155339.A10676@vger.timpanogas.org> <20001222093928.A30636@polyware.nl> <20001222111105.B14232@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001222111105.B14232@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Fri, Dec 22, 2000 at 11:11:05AM -0700
+	id <S129652AbQLVTt1>; Fri, 22 Dec 2000 14:49:27 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:26373 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130073AbQLVTtS>; Fri, 22 Dec 2000 14:49:18 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: recommended gcc compiler version
+Date: 22 Dec 2000 11:17:58 -0800
+Organization: Transmeta Corporation
+Message-ID: <9209d6$7nt$1@penguin.transmeta.com>
+In-Reply-To: <0012212320430F.02217@comptechnews> <001901c06bdf$1d6c74e0$3b42b0d1@pittscomp.com> <20001221230819.A1678@scutter.internal.splhi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 11:11:05AM -0700, Jeff V. Merkey wrote:
-> On Fri, Dec 22, 2000 at 09:39:28AM +0100, Pauline Middelink wrote:
-> > On Thu, 21 Dec 2000 around 15:53:39 -0700, Jeff V. Merkey wrote:
-> 
+In article <20001221230819.A1678@scutter.internal.splhi.com>,
+Tim Wright  <timw@splhi.com> wrote:
+>
+>So....
+>egcs-1.1.2 is good for either, 2.7.2 is OK for 2.2, bad for 2.4. 2.95.2 and
+>later are risky. RedHat just released a bugfixed "2.96" which is an unknown
+>quantity AFAIK. Anybody brave enough to try it should probably post their
+>results.
 
-Pauline/Alan,
+Note that despite my public comments about it beign a bad idea to ship
+extremely untested compilers in a major release, I actually think that
+it would be wonderful to have people who are ready to face the
+consequences to try the new 2.96. 
 
-I have been studying the SCI code and I think I may have a workaround that
-won't need the patch, but it will require pinning large chunks of memory 
-with the existing __get_free_pages() functions.  I will need to make the 
-changes and test them.   This change will require significant testing.  I will
-ping you guys if I have questions.  If we can reach a compromise on the 
-bigphysarea patch, it would be great, but absent this, I will be looking
-at this alternate solution.
+It's not been all that widely tested, but if you kno a bit about what
+you're doing (or want to learn), gcc-2.96 _does_ potentially create
+better code, and if nobody is willing to test it, any potential bugs (be
+they in the kernel sources and triggered by a smarter compiler, or in
+the compiler itself) won't be found. 
 
-The real question is how to guarantee that these pages will be contiguous
-in memory.  The slab allocator may also work, but I think there are size
-constraints on how much I can get in one pass.
+So please do try it out, but please mention the fact if you end up
+having to report a bug (it won't make your bug-report be ignored, don't
+ever worry about something like that. But i would be good to have an
+older compiler handy to correlate the bug with the compiler for sure).
 
-:-)
+In fact, I'd love to hear about experiences even with the CVS snapshots.
+I just don't like them showing up in distributions ;)
 
-Jeff
-
-> 
-> 
-> 
-> > -- 
-> > GPG Key fingerprint = 2D5B 87A7 DDA6 0378 5DEA  BD3B 9A50 B416 E2D0 C3C2
-> > For more details look at my website http://www.polyware.nl/~middelink
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

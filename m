@@ -1,74 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264940AbTBEVbs>; Wed, 5 Feb 2003 16:31:48 -0500
+	id <S264788AbTBEVl5>; Wed, 5 Feb 2003 16:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264943AbTBEVbs>; Wed, 5 Feb 2003 16:31:48 -0500
-Received: from pop015pub.verizon.net ([206.46.170.172]:44936 "EHLO
-	pop015.verizon.net") by vger.kernel.org with ESMTP
-	id <S264940AbTBEVbr>; Wed, 5 Feb 2003 16:31:47 -0500
-Message-ID: <3E418492.A7039AB3@verizon.net>
-Date: Wed, 05 Feb 2003 13:39:30 -0800
-From: "Randy.Dunlap" <randy.dunlap@verizon.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.54 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] do_mounts memory leak
-Content-Type: multipart/mixed;
- boundary="------------2F62E058EC51D62807BE2E5C"
-X-Authentication-Info: Submitted using SMTP AUTH at pop015.verizon.net from [4.64.238.61] at Wed, 5 Feb 2003 15:41:17 -0600
+	id <S264931AbTBEVl5>; Wed, 5 Feb 2003 16:41:57 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:61419 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S264788AbTBEVl4>;
+	Wed, 5 Feb 2003 16:41:56 -0500
+Subject: Re: [PATCH][2.5.59-bk]Sysfs interface for ZT5550 Redundant Host
+	Controller
+From: Rusty Lynch <rusty@linux.co.intel.com>
+To: Scott Murray <scottm@somanetworks.com>
+Cc: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>,
+       Stanley Wang <stanley.wang@linux.co.intel.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0302051606530.29820-100000@rancor.yyz.somanetworks.com>
+References: <Pine.LNX.4.44.0302051606530.29820-100000@rancor.yyz.somanetworks.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Feb 2003 13:40:36 -0800
+Message-Id: <1044481237.2134.26.camel@vmhack>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------2F62E058EC51D62807BE2E5C
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Wed, 2003-02-05 at 13:14, Scott Murray wrote:
+> On 5 Feb 2003, Rusty Lynch wrote:
+> 
+> > Here is a second version of the zt5550 reduncant host controller sysfs
+> > interface patch.  I have first of all removed several of the more advanced
+> > (and therefore more dangerous) chip features, and also moved the root
+> > of these files to the 'zt5550_hc' directory that was already being created
+> > in bus/pci/drivers/ so that the directory view now looks like:
+> 
+> I'll likely poke around a bit more, but I can probably live with something 
+> along these lines.  My objection to exposing stuff like the HCC, ISOC, and 
+> ARBC registers is that my gut feel is that it would be a pain to handle 
+> them getting changed arbitrarily from userspace inside the driver,
+> especially if someone does the work to make it RSS capable.
+> 
+> Scott
+> 
+> PS: Are you still interested in changes to handle the ZT5550C versus 
+>     ZT5550D issues, or are things working to your satisfaction at the 
+>     moment?
+> 
 
-Hi,
+Since Stanley is seeing his ZT5550C work correctly with your latest
+patches, I am assuming that I probably have some early engineering
+version of the ZT5550C, and it isn't worth worrying about.
 
-The Stanford Checker identified a memory leak in
-init/do_mounts.c.  This patch to 2.5.59 corrects it.
-Please apply.
+    --rustyl  
 
-Thanks,
-~Randy
---------------2F62E058EC51D62807BE2E5C
-Content-Type: text/plain; charset=us-ascii;
- name="mounts-memleak.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mounts-memleak.patch"
+> 
+> -- 
+> Scott Murray
+> SOMA Networks, Inc.
+> Toronto, Ontario
+> e-mail: scottm@somanetworks.com
+> 
 
-diff -Naur ./init/do_mounts.c%LEAK ./init/do_mounts.c
---- ./init/do_mounts.c%LEAK	Thu Jan 16 18:22:02 2003
-+++ ./init/do_mounts.c	Tue Feb  4 21:46:58 2003
-@@ -653,12 +653,6 @@
- 	/*
- 	 * OK, time to copy in the data
- 	 */
--	buf = kmalloc(BLOCK_SIZE, GFP_KERNEL);
--	if (buf == 0) {
--		printk(KERN_ERR "RAMDISK: could not allocate buffer\n");
--		goto done;
--	}
--
- 	if (sys_ioctl(in_fd, BLKGETSIZE, (unsigned long)&devblocks) < 0)
- 		devblocks = 0;
- 	else
-@@ -669,6 +663,12 @@
- 
- 	if (devblocks == 0) {
- 		printk(KERN_ERR "RAMDISK: could not determine device size\n");
-+		goto done;
-+	}
-+
-+	buf = kmalloc(BLOCK_SIZE, GFP_KERNEL);
-+	if (buf == 0) {
-+		printk(KERN_ERR "RAMDISK: could not allocate buffer\n");
- 		goto done;
- 	}
- 
-
---------------2F62E058EC51D62807BE2E5C--
 

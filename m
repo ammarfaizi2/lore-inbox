@@ -1,83 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263005AbTJ0PvA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 10:51:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbTJ0PvA
+	id S263128AbTJ0P4g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 10:56:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTJ0P4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 10:51:00 -0500
-Received: from msgdirector3.onetel.net.uk ([212.67.96.159]:54577 "EHLO
-	msgdirector3.onetel.net.uk") by vger.kernel.org with ESMTP
-	id S263005AbTJ0Pu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 10:50:56 -0500
-Message-ID: <3F9D3EBC.4010004@tungstengraphics.com>
-Date: Mon, 27 Oct 2003 15:50:20 +0000
-From: Keith Whitwell <keith@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+	Mon, 27 Oct 2003 10:56:36 -0500
+Received: from savages.net ([12.154.202.18]:26017 "EHLO savages.net")
+	by vger.kernel.org with ESMTP id S263128AbTJ0P4d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 10:56:33 -0500
+Message-ID: <3F9D402F.9050509@savages.net>
+Date: Mon, 27 Oct 2003 07:56:31 -0800
+From: Shaun Savage <savages@savages.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Egbert Eich <eich@xfree86.org>,
-       Jon Smirl <jonsmirl@yahoo.com>, Eric Anholt <eta@lclark.edu>,
-       kronos@kronoz.cjb.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net,
-       dri-devel <dri-devel@lists.sourceforge.net>
-Subject: Re: [Dri-devel] Re: [Linux-fbdev-devel] DRM and pci_driver conversion
-References: <Pine.LNX.4.44.0310251116140.4083-100000@home.osdl.org> <3F9ACC58.5010707@pobox.com> <3F9D3643.9030400@tungstengraphics.com> <20031027153824.GA19711@gtf.org>
-In-Reply-To: <20031027153824.GA19711@gtf.org>
+To: jgarzik@pobox.com, linux-kernel@vger.kernel.org, edt@aei.ca,
+       nuno.silva@vgertech.com
+Subject: Re: kernel 2.6t9 SATA slower than 2.4.20
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> On Mon, Oct 27, 2003 at 03:14:11PM +0000, Keith Whitwell wrote:
-> 
->>Jeff Garzik wrote:
->>
->>>Thank you for saying it.  This is what I have been preaching (quietly) 
->>>for years -- command submission and synchronization (and thus, DMA/irq 
->>>handling) needs to be in the kernel.  Everything else can be in 
->>>userspace (excluding hardware enable/enumerate, of course).
->>
->>To enable secure direct rendering on current hardware (ie without secure 
->>command submission mechanisms), you need command valididation somewhere.  
->>This could be a layer on top of the minimal dma engine Linus describes.
-> 
-> 
-> Certainly.
-> 
-> 
-> 
->>>Graphics processors are growing more general, too -- moving towards 
->>>generic vector/data processing engines.  I bet you'll see an optimal 
->>>model emerge where you have some sort of "JIT" for GPU microcode in 
->>>userspace.  
->>
->>You mean like the programmable fragment and vertex hardware that has been 
->>in use for a couple of years now?
-> 
-> 
-> I mean, taking current fragment and vertex processing and making it
-> even _more_ general.  Which has already happened, on one particular chip
-> maker's chip...
-
-I think that generally you can view all the current generation of hardware as 
-arbitary programmable devices, and most of the graphics drivers are doing 
-code-generation for that hardware on the fly.  This isn't exactly new ground 
-for graphics drivers as graphics hardware has alternated (I'm told) between 
-fixed function and programmable cores multiple times now.
-
-In addition, graphics drivers have been doing on-the-fly codegen for the host 
-cpu since year dot.  The orignal software-rasterization SGI opengl drivers for 
-windows were supposed to be pretty much state of the art in this respect.
-
-Now that the barriers for codegen have lowered so dramatically (see, eg. 
-http://fabrice.bellard.free.fr/tcc/), it is now feasible to talk of building a 
-code-generating software rasterizer for mesa.
-
-Keith
 
 
-Keith
+ >Are you using CONFIG_SCSI_SATA in 2.6?
+
+No, but I am trying now.
+GREAT is works,
+but the disk went from hda back to hde
+
+
+ >    Jeff
+
+===================================================================
+
+ >I bet it's the "beat to death in lkml" issue with readahead.
+
+ >What's the output of cat /proc/ide/hdX?
+
+it hda   see attached file "proc_ide_hda"
+
+now the disk is hde again, do you want another proc files file?
+
+ >Regards,
+ >Nuno Silva
+
+--------------------------------------------------------------------
+
+ >What happens with you really test?  ie. using programs (bonnie, iozone 
+etc)
+ >to test disk speed?  Is it still slower?  I think that hdparm does not 
+ >tell the complete
+ >story.
+
+No I have not but I will.   But I assume that from 55M to 15M something 
+is not configured correct.
+
+ >Ed Tomlinson
+
+
+
+
+---------------------------------------------------------------------
+ > I have just compiled and installed kernel 2.6t9 on my RH9 / Asus 
+A7N8X Deluxe.  I find the disk access is slower using the 2.6 kernel 
+than the 2.4.20 kernel.
+ >
+ > To get it to work for 2.4.20 kernel I have to use
+ > # hdparm -d1 -X88 /dev/hde
+ > then the buffered disk read goes from 1.5M to 55M
+ >
+ > On the 2.6 kernel the buffered disk read is only 16M
+ >
+ > What do I have to do to increase the disk speed for kernel 2.6t9?
+ >
+
+I
 

@@ -1,86 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267793AbUGWP0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267795AbUGWPa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267793AbUGWP0z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 11:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267794AbUGWP0z
+	id S267795AbUGWPa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 11:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267796AbUGWPa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 11:26:55 -0400
-Received: from web52904.mail.yahoo.com ([206.190.39.181]:57753 "HELO
-	web52904.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267793AbUGWP0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 11:26:53 -0400
-Message-ID: <20040723152421.52282.qmail@web52904.mail.yahoo.com>
-Date: Fri, 23 Jul 2004 17:24:21 +0200 (CEST)
-From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
-Subject: Re: A users thoughts on the new dev. model
-To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <cdr5i3$568$1@terminus.zytor.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 23 Jul 2004 11:30:28 -0400
+Received: from cfcafwp.sgi.com ([192.48.179.6]:43305 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S267795AbUGWPa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 11:30:27 -0400
+Date: Fri, 23 Jul 2004 10:30:22 -0500
+From: Dimitri Sivanich <sivanich@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] consolidate sched domains
+Message-ID: <20040723153022.GA16563@sgi.com>
+References: <41008386.9060009@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41008386.9060009@yahoo.com.au>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- "H. Peter Anvin" <hpa@zytor.com> a écrit : > Followup to: 
-<cdpee5$otu$1@gatekeeper.tmr.com>
-> By author:    Bill Davidsen <davidsen@tmr.com>
-> In newsgroup: linux.dev.kernel
+On Fri, Jul 23, 2004 at 01:18:30PM +1000, Nick Piggin wrote:
+> The attached patch is against 2.6.8-rc1-mm1. Tested on SMP, UP and SMP+HT
+> here and it seems to be OK.
 > 
-> Thus:
-> 
-> 	- Andrew will put experimental patches into -mm;
-> 	- Andrew will continue to forward-port 2.6 mainstream fixes
-> to
-> 	  -mm;
-> 	- Patches which have proven themselves stable and useful get
-> 	  backported to 2.6;
-> 	- If the delta between 2.6 and -mm becomes too great we'll
-> 	  consider a hard fork AT THAT TIME, i.e. fork lazily instead
-> 	  of the past model of forking eagerly.
-> 
-> Why the change?  Because the model already has proven itself,
-> and
-> shown itself to be more functional than what we've had in the
-> past.
-> 2.6 is probably the most stable mainline tree we've had since
-> 1.2 or
-> so, and yet Linus and Andrew process *lots* of changes.  The
-> -mm tree
-> has become a very effective filter for what should go into
-> mainline,
-> whereas the odd-number forks generally *haven't* been, because
-> backporting to mainline has usually been an afterthought.
-> 
-> I for one welcome our new -mm overlords.
-> 
-> 	-hpa
+> I have included the cpu_sibling_map for ppc64, although Anton said he did
+> have an implementation floating around which he would probably prefer, but
+> I'll let him deal with that.
 
-Thank you for clarifying this.
-So linux 2.6 from kernel.org stay stable.
-And 2.6x-mm is like a 2.7 development tree (thought not that 
-experimental ;-) )
+Do other architectures need to define their own cpu_sibling_maps, or am I
+missing something that would define that for IA64 and others?
 
-
->From the LWM story i understood that linux will be like windows:
-lots of "features" but no stability, except if you use a
- distribution kernel. And that seriously made me think about
- using another free *nix for a stable system.  
-
-Calin
-
-=====
---
-A mouse is a device used to point at 
-the xterm you want to type in.
-Kim Alm on a.s.r.
-
-
-	
-
-	
-		
-Vous manquez d’espace pour stocker vos mails ? 
-Yahoo! Mail vous offre GRATUITEMENT 100 Mo !
-Créez votre Yahoo! Mail sur http://fr.benefits.yahoo.com/
-
-Le nouveau Yahoo! Messenger est arrivé ! Découvrez toutes les nouveautés pour dialoguer instantanément avec vos amis. A télécharger gratuitement sur http://fr.messenger.yahoo.com

@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264346AbUEXQrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263325AbUEXQyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264346AbUEXQrg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 12:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264337AbUEXQrg
+	id S263325AbUEXQyh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 12:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264337AbUEXQyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 12:47:36 -0400
-Received: from mail.kroah.org ([65.200.24.183]:4076 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264346AbUEXQr1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 12:47:27 -0400
-Date: Mon, 24 May 2004 09:46:31 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Zabolotny <zap@homelink.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: class_device_find()
-Message-ID: <20040524164630.GB1543@kroah.com>
-References: <20040523002309.2ec5965e.zap@homelink.ru> <20040524051303.GC27371@kroah.com> <20040524103921.7957533a.zap@homelink.ru>
+	Mon, 24 May 2004 12:54:37 -0400
+Received: from wblv-36-95.telkomadsl.co.za ([165.165.36.95]:60311 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S263325AbUEXQyf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 12:54:35 -0400
+Subject: Re: [PATCH] scaled-back caps, take 4
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Cc: Andy Lutomirski <luto@myrealbox.com>, Chris Wright <chrisw@osdl.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       Albert Cahalan <albert@users.sourceforge.net>, Valdis.Kletnieks@vt.edu,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <87pt8upmjf.fsf@goat.bogus.local>
+References: <fa.i8g63r1.9jata3@ifi.uio.no> <fa.hjocttu.1cgcc3q@ifi.uio.no>
+	 <40B0F65F.3020706@myrealbox.com>  <87pt8upmjf.fsf@goat.bogus.local>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-w9RGmARV8OqcCytYm4OX"
+Message-Id: <1085417722.9516.4.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040524103921.7957533a.zap@homelink.ru>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 24 May 2004 18:55:22 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 24, 2004 at 10:39:21AM +0400, Andrew Zabolotny wrote:
-> The class_device_find() function returns a pointer to a class_device, but the
-> reference counter of that object is not incremented. This looks to me somewhat
-> racy, unless there are some details I'm missing.
 
-There were lots of problems with that function, and that's one reason
-it's not in the kernel tree :)
+--=-w9RGmARV8OqcCytYm4OX
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Because in the first case if class_device_get succeeds, but class_id is empty,
-> the kobject will remain in a referenced state.
 
-Good catch.  But your fix is not quite correct, we should call
-class_device_put() on the class_dev variable before returning -EINVAL
-instead.
+> > And no, I don't think this patch is necessary, or that it should be
+> > applied or used by itself.  I think it makes a good starting point to
+> > fix caps
+> > (which a lot of people seem to think are broken).
+>=20
+> Well, I know, that I don't have a strong following. :-)
+>=20
 
-> I know patches are preferred, but our CVS is down right now and I don't have
-> an older copy of class.c.
+It might just be that not many are familiar with the code, or really
+care.  If your patch really have 100% the same behaviour as the
+original, and maybe some comments might be added as in how things
+work, it can really help future debugging/additions/whatever, as
+its so much easier (IMHO, not really caring much myself, but somebody
+looking is better than nobody).  You might check with Andrew if he
+wants to kick it around a bit in -mm ... ?
 
-Patches are preferred.
 
-> And yet one more comment. What is the purpose of class_device_get at the
-> beginning and class_device_put at the end of the above function? I think if
-> someone calls class_device_rename, then it already holds a reference to the
-> class_device, so it can't go away while class_rename() is doing its work. And
-> if the caller *doesn't* hold a lock on it, it is simply wrong code since the
-> device may easily go away before class_rename() gets the lock.
+Cheers,
 
-We are just being safe.
+--=20
+Martin Schlemmer
 
-thanks,
+--=-w9RGmARV8OqcCytYm4OX
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-greg k-h
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAsij6qburzKaJYLYRAq1fAJ91vB7KMOlmfzxie7qhNpGh1WuGYACfciFz
+yrsaIzyOVl92lu2gYNPkbpg=
+=3cZd
+-----END PGP SIGNATURE-----
+
+--=-w9RGmARV8OqcCytYm4OX--
+

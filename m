@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262100AbVCNKW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVCNK2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbVCNKW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 05:22:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVCNKW2
+	id S262096AbVCNK2y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 05:28:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVCNK2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 05:22:28 -0500
-Received: from rev.193.226.232.162.euroweb.hu ([193.226.232.162]:53639 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262100AbVCNKWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 05:22:25 -0500
-To: mrmacman_g4@mac.com
-CC: yjf@stanford.edu, linux-kernel@vger.kernel.org,
-       fuse-devel@lists.sourceforge.net, mc@cs.stanford.edu
-In-reply-to: <0EFE5EBF-93C7-11D9-A59F-000393ACC76E@mac.com> (message from Kyle
-	Moffett on Sun, 13 Mar 2005 08:51:54 -0500)
-Subject: Re: [MC] [CHECKER] Need help on mmap on FUSE (linux user-land file system)
-References: <Pine.GSO.4.44.0503122327090.7685-100000@elaine24.Stanford.EDU> <0EFE5EBF-93C7-11D9-A59F-000393ACC76E@mac.com>
-Message-Id: <E1DAmi5-0001OI-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 14 Mar 2005 11:22:05 +0100
+	Mon, 14 Mar 2005 05:28:54 -0500
+Received: from extgw-uk.mips.com ([62.254.210.129]:60955 "EHLO
+	mail.linux-mips.net") by vger.kernel.org with ESMTP id S262096AbVCNK2w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 05:28:52 -0500
+Date: Fri, 11 Mar 2005 23:24:28 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 4/5] audit mips fix
+Message-ID: <20050311232428.GA4402@linux-mips.org>
+References: <200503042117.j24LHI7l017973@shell0.pdx.osdl.net> <20050310171429.GB26269@linux-mips.org> <20050311095839.77d7a350.yuasa@hh.iij4u.or.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050311095839.77d7a350.yuasa@hh.iij4u.or.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Forget to mention, we are checking linux 2.6.  It appears to us
-> > that mmap doesnt' work for FUSE in linux 2.6.
+On Fri, Mar 11, 2005 at 09:58:39AM +0900, Yoichi Yuasa wrote:
+
+> > > Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+> > > Signed-off-by: Andrew Morton <akpm@osdl.org>
+> > 
+> > > @@ -307,7 +308,7 @@ asmlinkage void do_syscall_trace(struct 
+> > >  {
+> > >  	if (unlikely(current->audit_context)) {
+> > >  		if (!entryexit)
+> > > -			audit_syscall_entry(current, regs->orig_eax,
+> > > +			audit_syscall_entry(current, regs->regs[2],
+> > 
+> > Wrong.  regs[2] can will contain the syscall return value and can be
+> > modified by ptrace also.
 > 
-> IIRC, the reason mmap doesn't work on FUSE is because when it
-> dirties pages they cannot be flushed reliably, because writing them
-> out involves calling a userspace process which may allocate RAM,
-> etc.
+> Thank you for your comment,
+> I consider a good way based on your comment. 
+> 
+> Do you already have a good idea?
 
-Yes.  To be precise this only affects writable shared mmap(), which is
-not used by the great majority of applications.  Any other kind of
-memory mapping should work OK.
+Basically do what x86 did, keep a copy of the the original regs[2] around.
+The only potencial problem with this approach is debuggers might be
+affected so I want to look into that first.
 
-Thanks,
-Miklos
+  Ralf

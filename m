@@ -1,49 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265226AbTFROKP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 10:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265234AbTFROKN
+	id S265219AbTFROL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 10:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265225AbTFROKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 10:10:13 -0400
-Received: from granite.he.net ([216.218.226.66]:28676 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S265226AbTFROJ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 10:09:28 -0400
-Date: Wed, 18 Jun 2003 07:22:07 -0700
-From: Greg KH <greg@kroah.com>
-To: Margit Schubert-While <margitsw@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] More i2c driver changes for 2.5.70
-Message-ID: <20030618142206.GA16055@kroah.com>
-References: <5.1.0.14.2.20030612120959.00aec370@pop.t-online.de> <5.1.0.14.2.20030612120959.00aec370@pop.t-online.de> <5.1.0.14.2.20030618141052.00af0b50@pop.t-online.de>
-Mime-Version: 1.0
+	Wed, 18 Jun 2003 10:10:55 -0400
+Received: from auemail2.lucent.com ([192.11.223.163]:59031 "EHLO
+	auemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S265219AbTFROIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 10:08:39 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20030618141052.00af0b50@pop.t-online.de>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16112.30053.342115.873654@gargle.gargle.HOWL>
+Date: Wed, 18 Jun 2003 10:21:25 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, stoffel@lucent.com,
+       gibbs@scsiguy.com, linux-kernel@vger.kernel.org, willy@w.ods.org,
+       green@namesys.com
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+In-Reply-To: <20030618130533.1f2d7205.skraw@ithnet.com>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+	<2804790000.1052441142@aslan.scsiguy.com>
+	<20030509120648.1e0af0c8.skraw@ithnet.com>
+	<20030509120659.GA15754@alpha.home.local>
+	<20030509150207.3ff9cd64.skraw@ithnet.com>
+	<41560000.1055306361@caspian.scsiguy.com>
+	<20030611222346.0a26729e.skraw@ithnet.com>
+	<16103.39056.810025.975744@gargle.gargle.HOWL>
+	<20030613114531.2b7235e7.skraw@ithnet.com>
+	<Pine.LNX.4.55L.0306171744280.10802@freak.distro.conectiva>
+	<20030618130533.1f2d7205.skraw@ithnet.com>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 18, 2003 at 02:18:51PM +0200, Margit Schubert-While wrote:
-> The lm85, adm1021 patches also apply cleanly to 2.5.72 :-)
 
-Yes, I have them in a bk tree and will be sending them to Linus later
-today :)
+Stephan> 7 days continuous test
+Stephan> one file data corruption on day 1
+Stephan> one file data corruption on day 4
+Stephan> two file data corruptions on day 6
+ 
+Stephan> Test is performed as follows:
 
-> Question to Greg, Philip :
-> Is there really a race conditon with the update function ?
+Stephan> around 70-100 GB of data is transferred to a nfs-server with
+Stephan> rc8 onto a RAID5 on 3ware-controller.  The data is then
+Stephan> copied via tar onto a SDLT drive connected to an aic
+Stephan> controller.  Afterwards the data is verified by tar.
 
-Where do you think the race is?
+Is the data verified after the transfer to the NFS server?  Does it
+pass muster then using MD5 sums on the files?
 
-> If so, all sensors are incorrect (also in CVS lmsensors).
-> Comments ?
-> 
-> Is any thought being given to merging ACPI and sensors ?
+What happens if you cut the tape drive out of the loop and copy the
+data to another partition on the 3ware controller and do the compare
+then?
 
-The way we report the sensor values to userspace, yes, I have talked
-with the acpi people about this in the past.  But it looks like a 2.7
-thing at the earliest.
+I assume you're doing:
 
-thanks,
+  tar -c -f /dev/tape --verify /path/to/files
 
-greg k-h
+and that's when you get the errors?  Or are you writing to tape, and
+then doing a compare with:
+
+  tar -c -f /dev/tape /path/to/files
+  tar -d -f /dev/tape /path/to/files
+
+Stephan> Since rc8 this runs stable (froze before during the first
+Stephan> day).
+
+How much RAM is in the box, and how much free space is on the
+filesystem?  I've been trying to replicate this type of test on
+2.5.7x, but I've been having issues.  I'm also just dumping a pile of
+MP3s to tape and reading them back to check.
+
+Stephan> Most of the several files tar'ed are beyond the 2 GB file
+Stephan> size. They vary from around 100MB upto about 15 GB per file,
+Stephan> around 70 GB minimum summed up.  Of course I exchanged the
+Stephan> tapes and the drive. Didn't get better.
+
+This is an interesting data point.  What happens if you make all the
+files be 2.5gb in size, do you get corruption more consistently then?  
+
+I'm interested in this issue because I want to make sure that tape
+backups work reliably on Linux.  
+
+John

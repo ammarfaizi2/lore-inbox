@@ -1,95 +1,220 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135764AbRDTASZ>; Thu, 19 Apr 2001 20:18:25 -0400
+	id <S135765AbRDTATz>; Thu, 19 Apr 2001 20:19:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135765AbRDTASQ>; Thu, 19 Apr 2001 20:18:16 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:31237 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S135764AbRDTAR6>; Thu, 19 Apr 2001 20:17:58 -0400
-Message-ID: <3ADF802A.1043DB0F@delusion.de>
-Date: Fri, 20 Apr 2001 02:17:46 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac9 i686)
-X-Accept-Language: en, de
+	id <S135767AbRDTATi>; Thu, 19 Apr 2001 20:19:38 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:33808 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135765AbRDTATP>; Thu, 19 Apr 2001 20:19:15 -0400
+Date: Thu, 19 Apr 2001 17:05:49 -0700 (PDT)
+From: Patrick Mochel <mochel@transmeta.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-pm-devel@lists.sourceforge.net,
+        linux-power@phobos.fachschaften.tu-muenchen.de
+Subject: Re: PCI power management
+In-Reply-To: <19031231222908.21882@mailhost.mipsys.com>
+Message-ID: <Pine.LNX.4.10.10104191607280.7690-100000@nobelium.transmeta.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ac10 ide-cd oopses on boot
-In-Reply-To: <E14qNWF-0008Jc-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+
+>  - There need to be some arch "hooks" in this mecanism. Some machines
+> have the ability (from the arch specific code, by tweaking ASIC bits)
+> to remove clock and/or power from selected devices. That mean power
+> management can be done even with devices not supporting PCI PM provided
+> that the driver can recover them from a PowerOn reset.
+
+All devices should handle having power removed from them. And, all of the
+drivers should as well, since that is the only way we're going to get
+power management out of legacy devices and other things on the board. This
+involves saving the current context on suspend, and reinitializing the
+device, and restoring the context as much as possible when we resume. It
+should behave almost identically to the boot-time init code.
+
+>  - Some devices just can't be brought back to life from D3 state without
+> a PCI reset (ATI Rage M3 for example) and that require some arch specific
+> support (when it's possible at all).
+
+When a device comes out of D3[hot], the equivalent of a soft reset is
+performed. From D3[cold], PCI RST# is asserted, and the device must be
+completely reinitialized.
+
+>  - The current scheme provide no way for the kernel to "know" if a
+> driver can handle recovering the device from a PowerOn reset. Some
+> drivers can, some can't (the video drivers usually can't as they
+> require the board's PLL to be properly setup by the BIOS). Some
+> advanced PM modes we use on pmacs will cause the motherboard ASIC to
+> turn off power to PCI & AGP cards when putting the machine to sleep.
+> We need a way to prevent/allow this "deep sleep" mode depending
+> on what the card supports.
+
+It's not about what the device supports, it's about what the driver
+supports. STR and STD imply that all devices will lose power. The drivers
+are responsible for reinitializing the devices, regardless of what that
+may involve. 
+
+>  - Ordering of power management may matter. On PowerBooks, we run
+> through all notifiers first with a "sleep request" message. None of
+> the drivers will actually put anything to sleep at this point, but
+> they will allocate all the memory the might need for doing so (saving
+> state, saving a framebuffer in some cases, etc...). Once all devices
+> have accepted the request (they can refuse it), I then send a 
+> "sleep now" message. This way, I can make sure all memory allocations
+> have been performed and disks properly sync'ed before putting the swap
+> devices to sleep and such things. 
+
+Hmm. How about doing two walks of the device tree - the first calls a
+save_state() function for each device, which gives it the opportunity to
+allocate memory and save appropriate registers, etc. The second actually
+places the device in a low power state.  
+
+This could give the kernel the chance to disable swap, or for the action 
+to be cancelled before anything is actually put to sleep.
+
+>  - On SMP, we need some way to stop other CPUs in the scheduler
+> while running the last round of sleep (putting devices to sleep) at least
+> until all IO layers in Linux can properly handle blocking of IO queues
+> while the device sleeps.
+
+Ugh. SMP. Not yet.
+
+>  - We need a generic (non-x86 APM or ACPI dependant) way of including
+> userland process that request it in the loop. Some userland process
+> that bang hardware directly (X, but not only X) need to be properly
+> suspended (and the kernel has to wait for ack from them before continuing
+> with devices sleep).
+
+Hmm. Like init?
+
+> Yup. They should also be able to return an error (fail or just limit
+> to a higher level like D2). They should also be able to tell the kernel
+> if they support recovering from a power down.
+
+Another sleep level is not acceptable when entering a system sleep state,
+except for S2, but I've never seen a system that supports that. Power will
+be cut to all devices, and there is no getting around it. If the driver
+can't support reinitializing the device, it should return an error and the
+sleep request be cancelled.
+
+The PCI PM Capabilities can be read from a device's config space. The PCI
+PM Spec has register descriptions. There are also #defines for the fields
+in pci.h. So a driver can know exactly what is expected of it.
+
+> >It is up to the drivers to implement ::suspend() and ::resume(), and few
+> >do.  The few that do, even fewer work well in practice.
 > 
-> > Just built 2.4.3-ac10 and got an oops when booting. It tries to detect
-> > the CD and gives the oops.
+> I would have preferred that a PM node be created for each PCI node and
+> have the PM nodes organised as a tree structure. That way, arch fixup
+> hooks can re-arrange the tree as the PCI bus->child dependency may not
+> be true. On some portables, some ASICs located on the PCI bus are not
+> dependent on their parent host bridge power plane.
 
-I'm getting a similar oops with -ac10. I initially thought this might be
-a result of switching to gcc-2.95.3, because -ac9 runs fine when built
-with gcc-2.95.2, but if others have seen this too, it's probably the
-cdrom code indeed.
+I favor the idea of having a tree view of _all_ devices in the system, but
+that's another story, and something I discussed in a post to the
+linux-power list.
 
-> Can you back out the ide-cd changes Jens did and see if that fixes it ?
+The PCI bus-child dependency and ordering should always be true, AFAIK.
+Some PCI functions may have another source of power, but should only be
+to support the generation of wake events when the device is in D3[cold] -
+it must maintain some of its capability state.
 
-I'll try that tomorrow, too.
+> Right. And we need a equivalent power down function. For example, some
+> drivers may improve power management by powering down the device when
+> it's /dev node is not opened (or when the device have been idle for some
+> time). However, those power up/down functions have to be arch-dependant,
+> you can't rely on the PCI power management to be the only PM scheme.
 
-Regards,
-Udo.
+Possibly a better term is bus-dependent? 
 
---
+> >2) AFAICT, it is safe to turn off a PCI device's bus-mastering bit and
+> >take the device to D3, if it exports the PCI PM capability.  My
+> >previously-submitted pci_disable_function function turns off the
+> >bus-mastering bit, and should probably take the device to D3 too.
+> 
+> No, D3 is not safe on all devices. However, if pci_disable_function() is
+> under driver control, then the driver may decide not to call it. In some
+> case, D2 is the only acceptable mode. In other cases, the device doesn't
+> support PM but the motherboard has ways to shut the clock down or the
+> power supply.
 
-ksymoops 2.3.7 on i686 2.4.3-ac9.  Options used
-     -v /usr/src/linux/vmlinux (specified)
-     -K (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.3-ac10 (specified)
-     -m /boot/System.map-2.4.3-ac10 (specified)
+How is D3 not safe on all devices? You mean to tell me that I cannot turn
+my workstation off because it is not safe to cut power to some device?
+Every device supports that state. When placing the system in a sleep
+state, you have no choice. D0-D2 are not an option. It's the _driver_ that
+has problems and must be fixed if it can't recover from D3. 
 
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Oops: 0000
-CPU: 0
-EIP: 0010:[<c01b9bac>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010297
-eax: 0000000d  ebx: ffffffff  ecx: 00000000  edx: 00000000
-esi: 00000000  edi: c1469ae8  ebp: 00000021  ebp: cffe5ee0
-ds: 0018  es: 0018  ss: 0018
-Process swapper (pid: 1, stackpage=cffe5000)
-Stack: c0276018 c0275fb4 c01b9dbf c1469a00 c02e31f4 c1469b18 c02e3100 00000001
-       00000286 00000001 00000001 c0113623 c02b5fe1 00000246 c0113574 c0244e02
-       c0244e9d c1469a00 c02e3100 c01b91cb c02448ec c02e3100 c1469037 c0244fc0
-Call Trace: [<c01b9dbf>] [<c0113623>] [<c0113574>] [<c01b91cb>] [<c01b8d0c>]
-            [<c01b976a>] [<c01b9af1>] [<c0105007>] [<c0105488>]
-Code: 8b 04 8a 83 f8 ff 75 0c 83 c6 20 eb e7 8d b4 26 00 00 00 00
- 
->>EIP; c01b9bac <cdrom_get_entry+1c/50>   <=====
-Trace; c01b9dbf <register_cdrom+1bf/250>
-Trace; c0113623 <release_console_sem+73/80>
-Trace; c0113574 <printk+124/130>
-Trace; c01b91cb <ide_cdrom_probe_capabilities+3eb/400>
-Trace; c01b8d0c <ide_cdrom_register+13c/150>
-Trace; c01b976a <ide_cdrom_setup+49a/4e0>
-Trace; c01b9af1 <ide_cdrom_init+e1/180>
-Trace; c0105007 <init+7/110>
-Trace; c0105488 <kernel_thread+28/40>
-Code;  c01b9bac <cdrom_get_entry+1c/50>
-00000000 <_EIP>:
-Code;  c01b9bac <cdrom_get_entry+1c/50>   <=====
-   0:   8b 04 8a                  movl   (%edx,%ecx,4),%eax   <=====
-Code;  c01b9baf <cdrom_get_entry+1f/50>
-   3:   83 f8 ff                  cmpl   $0xffffffff,%eax
-Code;  c01b9bb2 <cdrom_get_entry+22/50>
-   6:   75 0c                     jne    14 <_EIP+0x14> c01b9bc0 <cdrom_get_entry+30/50>
-Code;  c01b9bb4 <cdrom_get_entry+24/50>
-   8:   83 c6 20                  addl   $0x20,%esi
-Code;  c01b9bb7 <cdrom_get_entry+27/50>
-   b:   eb e7                     jmp    fffffff4 <_EIP+0xfffffff4> c01b9ba0 <cdrom_get_entry+10/50>
-Code;  c01b9bb9 <cdrom_get_entry+29/50>
-   d:   8d b4 26 00 00 00 00      leal   0x0(%esi,1),%esi
- 
-<0>Kernel panic: Attempted to kill init!
+> I beleive it's up to each driver to handle that. Maybe some "framework"
+> for this can be provided with the generic PM nodes...
+
+You mean a ... policy? 
+
+Yes, it is definitely needed, and should be able to be genericized for all
+PM schemes and all types (buses).
+
+> Indeed, but those are in the arch side. We definitely to have a way
+> for the arch to hook deeply into the sleep process. There can be some
+> weird dependencies going on on portable motherboards or embedded
+> devices, like an ethernet device beeing also used to provide reset
+> signals to another PCI device, etc...
+
+It is the responsibility of the PM layer to ensure that this doesn't
+happen. This is not the fault of the device or the driver, but must be
+disabled.
+
+> That's why I prefer the idea of having the PM nodes in a tree and
+> a node for each PCI device. The arch would then "hook" on the
+> pci_register_pm_node() or whatever we call it and have the ability
+> to move the node elsewhere in the tree depending on motherboard
+> details.
+
+I don't understand why you would want to change the parent of a device. A
+device will always sit behind a bridge, logically if nothing else. It
+should adhere to the semantics to the bus on which it resides. This could
+just be fanciful idealism, but damn it, it makes sense.
+
+Though, I can see the need for a driver to have multiple nodes in the
+device tree. If it were a PCI card, it would have one that was a child of
+the root PCI bus. But it could also implement some logical ACPI object,
+such as a wake-enabled device, in which case another node would be a child
+of the root bus. Maybe.
+
+> So busses like USB, FireWire, etc... need a similar "tree" architecture. I
+> strongly beleive generalizing the PM node is the way to go. Beeing
+> a "notifier" like mecanism, it allows to add specific messages if needed
+> (for example, USB bus suspend is different than machine sleep, that could
+> be an additional PM message sent by the host controller to USB drivers,
+> etc...)
+
+What about considering just the USB root host or Firewire equivalent as
+nodes in the tree. When they are put to sleep, they handle walking the
+device scheme that lies behind them, much in the same manner that PCI does
+it now. This way, a bus-specific implementation could be achieved,
+depending on what is needed.
+
+There are a couple of things that I wanted to respond to. First, it is
+evident that a PM scheme must be implemented for the bridges. They support
+various power states, as well as have state that must be preserved across
+suspend. 
+
+A tree view of the all the devices in the system is needed to support
+proper ordering when suspending and resuming. At the moment, it's not
+necessary to modify anything to obtain, at least for PCI. PCI handles
+walking its own device tree, which is not a bad model for the rest of
+the buses present on the system.
+
+But, I also can see a benefit in a two-stage approach, where a call is
+made to save the state of each device, then another is called to put the
+device to sleep. In this case, a complete tree view almost seems
+necessary. Or at least like we would only have to implement the interface
+once, instead of n times.
+
+	-pat
+
+p.s. Every device supports D3. It must. The drivers must be fixed to do so
+as well. It's absolutely necessary in order to support system sleep
+states.
+

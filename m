@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVALWJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVALWJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbVALWJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 17:09:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVALWIr
+	id S261468AbVALWJR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 17:09:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVALWIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 17:08:47 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:5014 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261491AbVALWCX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 17:02:23 -0500
-Date: Wed, 12 Jan 2005 17:01:43 -0500
-From: Dave Jones <davej@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: debugfs directory structure
-Message-ID: <20050112220142.GO24518@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-	Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
-	openib-general@openib.org
-References: <52d5watlqs.fsf@topspin.com> <20050112210945.GN24518@redhat.com> <20050112214108.GA13801@kroah.com>
+	Wed, 12 Jan 2005 17:08:34 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:31172 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261468AbVALVyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 16:54:24 -0500
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: "Jack O'Quin" <joq@io.com>, Chris Wright <chrisw@osdl.org>,
+       Paul Davis <paul@linuxaudiosystems.com>, Matt Mackall <mpm@selenic.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20050112074906.GB5735@devserv.devel.redhat.com>
+References: <20050111214152.GA17943@devserv.devel.redhat.com>
+	 <200501112251.j0BMp9iZ006964@localhost.localdomain>
+	 <20050111150556.S10567@build.pdx.osdl.net> <87y8ezzake.fsf@sulphur.joq.us>
+	 <20050112074906.GB5735@devserv.devel.redhat.com>
+Content-Type: text/plain
+Date: Wed, 12 Jan 2005 16:12:45 -0500
+Message-Id: <1105564365.3357.3.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050112214108.GA13801@kroah.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 01:41:08PM -0800, Greg KH wrote:
- > On Wed, Jan 12, 2005 at 04:09:45PM -0500, Dave Jones wrote:
- > > On Wed, Jan 12, 2005 at 12:50:51PM -0800, Roland Dreier wrote:
- > >  > Hi Greg,
- > >  > 
- > >  > Now that debugfs is merged into Linus's tree, I'm looking at using it
- > >  > to replace the IPoIB debugging pseudo-filesystem (ipoib_debugfs).  Is
- > >  > there any guidance on what the structure of debugfs should look like?
- > >  > Right now I'm planning on putting all the debug info files under an
- > >  > ipoib/ top level directory.  Does that sound reasonable?
- > > 
- > > How about mirroring the toplevel kernel source structure ?
- > > 
- > > Ie, you'd make drivers/infiniband/ulp/ipoib ?
- > 
- > But who would be in charge of createing the "drivers/" subdirectory?
- > debugfs can't handle "/" in a directory name, like procfs does.
+On Wed, 2005-01-12 at 08:49 +0100, Arjan van de Ven wrote: 
+> On Tue, Jan 11, 2005 at 07:43:29PM -0600, Jack O'Quin wrote:
+> > > This is straying from the core issue...  But, Arjan's saying that an RT
+> > > (non-root) task could trash the filesystem if it deadlocks the machine
+> > > (because those important fs and IO threads don't run).
+> > 
+> > Lexicographic ambiguity: Lee and Paul are using "trash" for things
+> > like installing a hidden suid root shell or co-opting sendmail into an
+> > open spam relay.  Arjan just means crashing the system which forces
+> > reboot to run fsck.
+> 
+> I actually meant data corruption.
 
-maybe it should ?
+OK, so the ability to run RT tasks implies the ability to possibly
+corrupt data.  It appears that this can't be fixed until we have a real
+isochronous scheduling class; for the forseeable future RT tasks will
+need SCHED_FIFO and nonroot users will need to run them.
 
- > > It could get ugly quickly without some structure at least to
- > > the toplevel dir.
- > I say ipoib/ is fine, remember, this is for debugging stuff, it will
- > quickly get ugly anyway :)
+Anyway it's good to see the problem finally being taken seriously.
 
-with no heirarchy, what happens when two drivers want to make
-the same directory / filenames ?
-
-		Dave
+Lee
 

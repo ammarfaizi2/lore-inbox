@@ -1,32 +1,27 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317181AbSEXQWU>; Fri, 24 May 2002 12:22:20 -0400
+	id <S314529AbSEXQYF>; Fri, 24 May 2002 12:24:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317186AbSEXQWT>; Fri, 24 May 2002 12:22:19 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:43965 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317181AbSEXQWR>;
-	Fri, 24 May 2002 12:22:17 -0400
-Date: Fri, 24 May 2002 12:22:17 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: negative dentries wasting ram
-In-Reply-To: <Pine.LNX.4.44.0205240737400.26171-100000@home.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0205241215340.9792-100000@weyl.math.psu.edu>
+	id <S317195AbSEXQYE>; Fri, 24 May 2002 12:24:04 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28941 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314529AbSEXQYD>; Fri, 24 May 2002 12:24:03 -0400
+Subject: Re: It hurts when I shoot myself in the foot
+To: kasperd@daimi.au.dk (Kasper Dupont)
+Date: Fri, 24 May 2002 16:50:17 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux-Kernel)
+In-Reply-To: <3CEE5A2D.77EA2E66@daimi.au.dk> from "Kasper Dupont" at May 24, 2002 05:20:13 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17BHKb-0006hz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> If the kernel knew multipliers couldn't it actually use the TSCs
+> anyway? Of course it would take some work, but is there any
+> reason why it would not be posible?
 
-
-On Fri, 24 May 2002, Linus Torvalds wrote:
-
-> However, you're right that it probably doesn't help to do this after
-> "unlink()" - it's probably only worth doing when actually doing a
-> "lookup()" that fails.
-
-Depends on many things, including the amount of userland code that does
-	unlink(name);
-	open(name, O_CREAT|O_EXCL..., ...);
-
+In 2.4 yes. In 2.5 it would be close to impossible due to the pre-empt code

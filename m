@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316594AbSE3ME3>; Thu, 30 May 2002 08:04:29 -0400
+	id <S316342AbSE3MEo>; Thu, 30 May 2002 08:04:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSE3ME3>; Thu, 30 May 2002 08:04:29 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:29715 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S316594AbSE3ME1>; Thu, 30 May 2002 08:04:27 -0400
-Date: Thu, 30 May 2002 12:05:05 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.19 daemonize calls reparent_init for you
-Message-ID: <20020530120505.H681@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <E17DI7X-00030e-00@wagner.rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S316598AbSE3MEn>; Thu, 30 May 2002 08:04:43 -0400
+Received: from spook.vger.org ([213.204.128.210]:35052 "HELO
+	kenny.worldonline.se") by vger.kernel.org with SMTP
+	id <S316342AbSE3MEk>; Thu, 30 May 2002 08:04:40 -0400
+Date: Thu, 30 May 2002 14:42:02 +0200 (CEST)
+From: me@vger.org
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>
+Subject: Re: Strange RAID2 behavier...
+In-Reply-To: <15606.5268.471724.793301@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.21.0205301441000.20123-100000@kenny.worldonline.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 30, 2002 at 03:05:07PM +1000, Rusty Russell wrote:
-> daemonize() should call reparent_to_init: a classic mistake (I made it
-> recently).
+On Thu, 30 May 2002, Neil Brown wrote:
+
+> On Thursday May 30, me@vger.org wrote:
+> > 
+> > # raidstop --all /dev/md3
+> > /dev/md3: Device or resource busy
 > 
-> Future potential cleanups:
-> 	daemonize() should take mask of signals to allow
-> 	kernel_thread() should take a name to copy into ->comm.
+> This just means that /dev/md3 is busy.
+> Is it mounted?  Does any process have it open?
+> 
 
-Why no generating kernel threads by basically cloning "init"? 
+md3 is unmounted and not in use by anything.
 
-This is what we do anyway (creating a clone of init with special
-properties) but by cloning the current process and adjusting
-everything needed later to make it appear of a mixture of init
-clone and idle process clone.
+> There is a bug in one version of raidtools that causes raidstop to
+> incorrectly report this error, but I think that bug only affects
+> /dev/md0..
+> What does
+>    strace raidstop /dev/md3
+> show?
+> 
 
-Comments?
+cant do that now =) because ive already "fixed" the problem (read my other
+mails).
 
-Regards
 
-Ingo Oeser
--- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+

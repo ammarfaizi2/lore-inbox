@@ -1,44 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267271AbTAGAqB>; Mon, 6 Jan 2003 19:46:01 -0500
+	id <S267219AbTAGAi5>; Mon, 6 Jan 2003 19:38:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267277AbTAGAqB>; Mon, 6 Jan 2003 19:46:01 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:12482 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id <S267271AbTAGAqA>;
-	Mon, 6 Jan 2003 19:46:00 -0500
-Subject: [2.5.54 Bug]: in function zaurus_tx_fixup
-From: Steven Barnhart <sbarn03@softhome.net>
-To: linux-kernel@vger.kernel.org
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Jan 2003 19:54:36 -0500
-Message-Id: <1041900881.20314.19.camel@sbarn.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S267221AbTAGAi5>; Mon, 6 Jan 2003 19:38:57 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:33204 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267219AbTAGAix>;
+	Mon, 6 Jan 2003 19:38:53 -0500
+Date: Mon, 6 Jan 2003 16:44:11 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Andrew Morton <akpm@digeo.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] configurable LOG_BUF_SIZE (update-2)
+In-Reply-To: <3E1A17DB.D400C900@digeo.com>
+Message-ID: <Pine.LNX.4.33L2.0301061620150.15416-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Mon, 6 Jan 2003, Andrew Morton wrote:
 
-For some reason after just pulling from Linus' tree I get the following
-errorin built_in.o. I hate these bugs as I have no idea what file its in
-so I can't actually hack/botch it :( Anyways here it is:
---snip--
-ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o
---start-group  usr/built-in.o  arch/i386/kernel/built-in.o 
-arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o 
-kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o 
-security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a 
-drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o 
-arch/i386/oprofile/built-in.o  net/built-in.o --end-group  -o
-.tmp_vmlinux1
-drivers/built-in.o: In function `zaurus_tx_fixup':
-drivers/built-in.o(.text+0xd0c2d): undefined reference to `crc32_le'
-make: *** [.tmp_vmlinux1] Error 1
---end snip--
+| "Randy.Dunlap" wrote:
+| >
+| > ...
+| >  21 files changed, 540 insertions(+), 45 deletions(-)
+|
+| Oh gack.   And you've got stuff like "if numaq" in the sparc64
+| config files.
+|
+| You did have a version which instantiated a common $TOPDIR/kernel/Kconfig
+| and just included that in arch/<arch>/Kconfig.  Seems a better
+| approach to me.
+
+Andrew, I don't see a need just now for the new kernel/Kconfig file
+since dependency/ordering issues are (supposed to be) gone in Kconfig
+vs. old config.in files.
+
+However, having the Log Buffer size selection in only one place instead
+of in 20 arch-specific files is a good thing IMO.
+
+Here's a much smaller patch that just changes the current (2.5.54-bk4)
+Kconfig to depend on DEBUG_KERNEL (could be EXPERIMENTAL though) instead
+of always making it visible, and makes it one number (a shift value).
+
+I'd like to have this version applied to 2.5.54++.  Linus, how is it?
+
+Thanks,
 -- 
-Steven
-sbarn03@softhome.net
-GnuPG Fingerprint: 9357 F403 B0A1 E18D 86D5  2230 BB92 6D64 D516 0A94
+~Randy
+
+
+
+
+--- ./init/Kconfig%LGBUF	Mon Jan  6 16:01:55 2003
++++ ./init/Kconfig	Mon Jan  6 16:38:35 2003
+@@ -82,50 +82,21 @@
+ 	  building a kernel for install/rescue disks or your system is very
+ 	  limited in memory.
+
+-choice
+-	prompt "Kernel log buffer size"
+-	default LOG_BUF_SHIFT_17 if ARCH_S390
+-	default LOG_BUF_SHIFT_16 if X86_NUMAQ || IA64
+-	default LOG_BUF_SHIFT_15 if SMP
+-	default LOG_BUF_SHIFT_14
+-	help
+-	  Select kernel log buffer size from this list (power of 2).
+-	  Defaults:  17 (=> 128 KB for S/390)
+-		     16 (=> 64 KB for x86 NUMAQ or IA-64)
+-	             15 (=> 32 KB for SMP)
+-	             14 (=> 16 KB for uniprocessor)
+-
+-config LOG_BUF_SHIFT_17
+-	bool "128 KB"
+-	default y if ARCH_S390
+-
+-config LOG_BUF_SHIFT_16
+-	bool "64 KB"
+-	default y if X86_NUMAQ || IA64
+-
+-config LOG_BUF_SHIFT_15
+-	bool "32 KB"
+-	default y if SMP
+-
+-config LOG_BUF_SHIFT_14
+-	bool "16 KB"
+-
+-config LOG_BUF_SHIFT_13
+-	bool "8 KB"
+-
+-config LOG_BUF_SHIFT_12
+-	bool "4 KB"
+-
+-endchoice
+-
+ config LOG_BUF_SHIFT
+-	int
+-	default 17 if LOG_BUF_SHIFT_17=y
+-	default 16 if LOG_BUF_SHIFT_16=y
+-	default 15 if LOG_BUF_SHIFT_15=y
+-	default 14 if LOG_BUF_SHIFT_14=y
+-	default 13 if LOG_BUF_SHIFT_13=y
+-	default 12 if LOG_BUF_SHIFT_12=y
++	int "Kernel log buffer size" if DEBUG_KERNEL
++	default 17 if ARCH_S390
++	default 16 if X86_NUMAQ || IA64
++	default 15 if SMP
++	default 14
++	help
++	  Select kernel log buffer size as a power of 2.
++	  Defaults and Examples:
++	  	     17 => 128 KB for S/390
++		     16 => 64 KB for x86 NUMAQ or IA-64
++	             15 => 32 KB for SMP
++	             14 => 16 KB for uniprocessor
++		     13 =>  8 KB
++		     12 =>  4 KB
+
+ endmenu
+
+
 

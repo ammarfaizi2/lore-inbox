@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289351AbSAOBkp>; Mon, 14 Jan 2002 20:40:45 -0500
+	id <S289347AbSAOBoZ>; Mon, 14 Jan 2002 20:44:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289350AbSAOBkZ>; Mon, 14 Jan 2002 20:40:25 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:31110
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S289347AbSAOBkX>; Mon, 14 Jan 2002 20:40:23 -0500
-Date: Mon, 14 Jan 2002 18:39:54 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
-Subject: Re: Penelope builds a kernel
-Message-ID: <20020115013954.GB3814@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20020114165909.A20808@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020114165909.A20808@thyrsus.com>
-User-Agent: Mutt/1.3.25i
+	id <S289350AbSAOBoF>; Mon, 14 Jan 2002 20:44:05 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:35590 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S289347AbSAOBoA>;
+	Mon, 14 Jan 2002 20:44:00 -0500
+Message-Id: <200201150143.CAA24288@webserver.ithnet.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org
+Date: Tue, 15 Jan 2002 02:43:51 +0100
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+To: Jussi Laako <jussi.laako@kolumbus.fi>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+MIME-Version: 1.0
+User-Agent: IMHO/0.97.1 (Webmail for Roxen)
+In-Reply-To: <3C435995.24B8880B@kolumbus.fi>
+From: Stephan von Krawczynski <skraw@ithnet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 04:59:09PM -0500, Eric S. Raymond wrote:
-
-[snip]
-> She's just heard about a PCMCIA card that has a MEMS array of chemical
-> sensors on it.  The thing could replace the bulky, balky
-> gel-chromatography setup she's using now, and make it unnecessary for
-> her to fight other students for bench time.  There's even a Linux
-> driver for the card (and user-space utilities to talk to it) on one of
-> the bio sites she uses -- way too specialized an item for her distro
-> to carry, and anyway she doesn't want to wait for the next release.
-> 
-> Penelope needs to build a kernel to support her exotic driver, but she
-> hasn't got more than the vaguest idea how to go about it.  The
-[snip]
-
-Wrong.  She needs to compile a new module for her kernel.  What might be
-useful is some automagic tool that will find the vendor-provided kernel
-source tree and config (which is usually /boot/config-`uname -r`, but
-still findable anyhow) and then compile said module for her, toss it
-into the modules dir and maybe even add it to the always-loaded module
-list (just incase hotplug doesn't grok it).
-
-With some support from people writing external drivers, you could even
-have a file that lists things like which files are needed, a URL and
-version info, and store it someplace too.
-
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+> Alan Cox wrote:                                                     
+> >                                                                   
+> > > > In eepro100.c, wait_for_cmd_done() can busywait for one       
+millisecond                                                           
+> > > > and is called multiple times under spinlock.                  
+> > >                                                                 
+> > > Did I get that right, as long as spinlocked no sense in         
+> > > conditional_schedule()                                          
+> >                                                                   
+> > No conditional schedule, no pre-emption. You would need to rewrite
+that                                                                  
+> > code to do something like try for 100uS then queue a 1 tick timer 
+to                                                                    
+> > retry asynchronously. That makes the code vastly more complex for 
+an                                                                    
+> > error case and for some drivers where irq mask is required during 
+reset                                                                 
+> > waits won't help.                                                 
+>                                                                     
+> That wait_for_cmd_done() and similar functions in other drivers are 
+called                                                                
+> let's say 3 times in interrupt handler or spinlocked routine and 20 
+times in                                                              
+> non-interrupts disabled nor spinlocked functions.                   
+>                                                                     
+> Spinlocked reqions are usually protected by spin_lock_irqsave().    
+                                                                      
+Now I have really waited for this one: _usually_.                     
+My servers work usually, except for the days they hit that other      
+rather unusual part of the code...                                    
+                                                                      
+> So the code reads                                                   
+>                                                                     
+> 	if (!spin_is_locked(sl))                                           
+> 		conditional_schedule();                                           
+>                                                                     
+> This doesn't make the whole problem go away, but could make the     
+situation a                                                           
+> little bit better for most of the time?                             
+                                                                      
+Time to take out these big hats and rename ourself to Gandalf or the  
+like. What do you expect your server to do, having no problem "most of
+the time"? Please read Albert E. Time can be pretty relative to your  
+personal point of view...                                             
+                                                                      
+Regards,                                                              
+Stephan                                                               
+                                                                      
+                                                                      

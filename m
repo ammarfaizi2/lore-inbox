@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271833AbTGYABe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 20:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271832AbTGYABe
+	id S271832AbTGYAG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 20:06:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271834AbTGYAG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 20:01:34 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:26307 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S271833AbTGYABa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 20:01:30 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Vojtech Pavlik <vojtech@suse.cz>
-Date: Fri, 25 Jul 2003 02:16:25 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: touchpad doesn't work under 2.6.0-test1-ac2
-Cc: schierlm@gmx.de, linux-kernel@vger.kernel.org, pavel@suse.cz
-X-mailer: Pegasus Mail v3.50
-Message-ID: <82F70261D3A@vcnet.vc.cvut.cz>
+	Thu, 24 Jul 2003 20:06:58 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:17883 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S271832AbTGYAG5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 20:06:57 -0400
+Date: Thu, 24 Jul 2003 17:21:53 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Michael Bernstein <michael@seven-angels.net>
+Cc: Larry McVoy <lm@bitmover.com>, Stephan von Krawczynski <skraw@ithnet.com>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>, diegocg@teleline.es,
+       gmicsko@szintezis.hu, Hurley Nick <hurley@cis.ohio-state.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: SCO offers UnixWare licenses for Linux
+Message-ID: <20030725002153.GC20064@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Michael Bernstein <michael@seven-angels.net>,
+	Larry McVoy <lm@bitmover.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+	diegocg@teleline.es, gmicsko@szintezis.hu,
+	Hurley Nick <hurley@cis.ohio-state.edu>,
+	linux-kernel@vger.kernel.org
+References: <20030724234213.GA20064@work.bitmover.com> <92A3044A-BE34-11D7-B1B8-000A95773C00@seven-angels.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <92A3044A-BE34-11D7-B1B8-000A95773C00@seven-angels.net>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Jul 03 at 2:11, Vojtech Pavlik wrote:
-> On Fri, Jul 25, 2003 at 12:57:45AM +0200, Pavel Machek wrote:
-> > 
-> > > This all happens on Compaq EVO N800C. I strongly believe that we need a
-> > > build time option for disabling Synaptics detection, or at least input_synaptics=0
-> > > runtime option, until it can work at least as well as it works like ps/2
-> > > device.
-> > 
-> > Agreed, I even send a patch to vojtech, he said he is going to apply
-> > it and I have not heard about that patch after that...
-> 
-> For proper Synaptics support an XFree86 driver is available (get it at
-> http://w1.894.telia.com/~u89404340/touchpad/index.html). This will allow
-> for full support, including gesture recongition. Passthrough support for
-
-I do not use XFree. I'm using 1600x1200 radeonfb consoles.
-
-> enabling the touchpoint or external mice chained to the Synaptics pad is
-> pending in my patch queue and will be merged as soon as I return from
-> Ottawa.
-> 
-> Support for touchpads is nonexistent in mousedev.c, it only supports
-> mice, digitizers and touchscreens. Just adding an entry to the device
-> table is futile, you'd need much much more than that.
-
-What's difference between touchscreen and touchpad? Both use absolute
-directions, and rest are just buttons... As I need working gpm, without 
-mousedev support Synaptics mode is of no use for me.
-                                                            Petr
-                                                            
-
+Hey, Michael, I replied privately because the list is sick of this.  How
+about you do the list a favor and keep it private?
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

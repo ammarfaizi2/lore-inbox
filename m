@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbUJ2Tjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbUJ2Tj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbUJ2Tjb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 15:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbUJ2Tin
+	id S261797AbUJ2Tj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 15:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUJ2TjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:38:43 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:53516 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261573AbUJ2S6T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 14:58:19 -0400
-Message-ID: <418292C7.2090707@domdv.de>
-Date: Fri, 29 Oct 2004 20:58:15 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040918
-X-Accept-Language: en-us, en, de
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-os@analogic.com, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: Semaphore assembly-code bug
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>  <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com>  <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net> <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com> <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com> <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org> <41826A7E.6020801@domdv.de> <Pine.LNX.4.61.0410291255400.17270@chaos.analogic.com> <Pine.LNX.4.58.0410291103000.28839@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0410291103000.28839@ppc970.osdl.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Oct 2004 15:39:08 -0400
+Received: from ss05.shared.server-system.net ([64.207.138.2]:54504 "EHLO
+	ss05.shared.server-system.net") by vger.kernel.org with ESMTP
+	id S261797AbUJ2TG3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 15:06:29 -0400
+Date: Fri, 29 Oct 2004 12:06:28 -0700
+Message-Id: <200410291906.i9TJ6S227968@ss05.shared.server-system.net>
+To: linux-kernel@vger.kernel.org
+Subject: Onyro.com | Athens Greece
+From: "onyro.com" <onylist@onyro.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Somebody should check what the Pentium M does. It might just notice that 
-> "lea 4(%esp),%esp" is the same as "add 4 to esp", but it's entirely 
-> possible that lea will confuse its stack engine logic and cause 
-> stack-related address generation stalls..
 
-Now especially Intel tells everybody in their Pentium Optimization 
-manuals to *use* lea whereever possible as this operation doesn't depend 
-on the ALU and is processed in other parts of the CPU.
+Onyro.com is proud to announce that it has successfully re-opened its doors for business in Athens, Greece. 
 
-Sample quote from said manual (P/N 248966-05):
-"Use the lea instruction and the full range of addressing modes to do 
-address calculation"
+Our new clients include: Toyota Hellas, Unibrain & EuroLease and we are in search for many more. Please view our website for more info.
 
-I would guess Intel would add caveats about such stalls in this manual 
-if there would be any.
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+http://www.onyro.com
+
+Our new address is now Onyro Evs, Paraschou 11, 15233, Chalandri,   Athens, Greece 
+Tel.: +30 210 6830882
+
+----
+  Anthony Kyriazis
+  Creative Managing Director
+
+  http://www.onyro.com
+
+  Onyro Ltd
+  Paraschou 11, 15233, Chalandri, 
+  Athens, Greece 
+
+  Tel.: +30 210 6830882
+  Mob.: +30 6937484510
+
+  -----------------------
+----
+  Hosted by (mt) mediatemple 
+  http://www.mediatemple.net
+----
+  -----------------------
+  Email Disclaimer:
+  The information in this email is confidential and may be legally privileged.
+  It is intended solely for the addressee. Access to this email by anyone else
+  is unauthorized. If you are not the intended recipient, any disclosure,
+  copying, distribution or any action taken or omitted to be taken in reliance
+  on it, is prohibited and may be unlawful.
+  -----------------------
+----
+
+

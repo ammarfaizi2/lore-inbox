@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264973AbTFYT3A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 15:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264978AbTFYT3A
+	id S264980AbTFYTkI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 15:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264989AbTFYTkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 15:29:00 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:59047 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264973AbTFYT25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 15:28:57 -0400
-Date: Wed, 25 Jun 2003 21:42:50 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Marcus Metzler <mocm@metzlerbros.de>
-Cc: Christoph Hellwig <hch@infradead.org>, mocm@mocm.de,
-       Michael Hunold <hunold@convergence.de>, Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: DVB Include files
-Message-ID: <20030625194250.GF1770@wohnheim.fh-wedel.de>
-References: <20030625175513.A28776@infradead.org> <16121.55366.94360.338786@sheridan.metzler> <20030625181606.A29104@infradead.org> <16121.55873.675690.542574@sheridan.metzler> <20030625182409.A29252@infradead.org> <16121.56382.444838.485646@sheridan.metzler> <20030625185036.C29537@infradead.org> <16121.58735.59911.813354@sheridan.metzler> <20030625191532.A1083@infradead.org> <16121.60747.537424.961385@sheridan.metzler>
+	Wed, 25 Jun 2003 15:40:08 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:24083 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S264980AbTFYTkE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 15:40:04 -0400
+Date: Wed, 25 Jun 2003 21:46:06 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, sfrost@snowman.net, laforge@netfilter.org
+Subject: [patch] 2.5.73bk - leak in "recent" iptables
+Message-ID: <20030625214606.A23937@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <16121.60747.537424.961385@sheridan.metzler>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 June 2003 20:43:23 +0200, Marcus Metzler wrote:
-> Christoph Hellwig writes:
->  > On Wed, Jun 25, 2003 at 08:09:51PM +0200, Marcus Metzler wrote:
->  > >  > If the structures change incompatibly you're fucked anyway.  Better
->  > > 
->  > > Not necessarily, e.g. changing
->  > > 
->  > > #define AUDIO_SET_ATTRIBUTES       _IOW('o', 17, audio_attributes_t)
->  > > #define AUDIO_SET_KARAOKE          _IOW('o', 18, audio_karaoke_t)
->  > > 
->  > > to 
->  > > 
->  > > #define AUDIO_SET_ATTRIBUTES       _IOW('o', 47, audio_attributes_t)
->  > > #define AUDIO_SET_KARAOKE          _IOW('o', 48, audio_karaoke_t)
->  > > 
->  > > or
->  > 
->  > In that case yes, you are screwed.  Your ABI just changed incompatibly.
-> 
-> Not if you recompile.
+ip_recent_ctrl(): locally allocated variables aren't freed during error path.
+No reference to these variables exists outside of ip_recent_ctrl().
 
-Isn't the point of an application _binary_ interface, that you don't
-have to recompile?
+<remark>
+module already used both "if(foo)" and "if (foo)" before the change.
+</remark>
 
-Jörn
+ net/ipv4/netfilter/ipt_recent.c |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
 
--- 
-It does not matter how slowly you go, so long as you do not stop.
--- Confucius
+diff -puN net/ipv4/netfilter/ipt_recent.c~janitor-leak-iptables-recent net/ipv4/netfilter/ipt_recent.c
+--- linux-2.5.73-1.1348.16.4-to-1.1448/net/ipv4/netfilter/ipt_recent.c~janitor-leak-iptables-recent	Wed Jun 25 21:17:10 2003
++++ linux-2.5.73-1.1348.16.4-to-1.1448-fr/net/ipv4/netfilter/ipt_recent.c	Wed Jun 25 21:27:48 2003
+@@ -300,9 +300,15 @@ static int ip_recent_ctrl(struct file *f
+ 	info->name[IPT_RECENT_NAME_LEN-1] = '\0';
+ 
+ 	skb = kmalloc(sizeof(struct sk_buff),GFP_KERNEL);
+-	if(!skb) { return -ENOMEM; }
++	if (!skb) {
++		used = -ENOMEM;
++		goto out_free_info;
++	}
+ 	skb->nh.iph = kmalloc(sizeof(struct iphdr),GFP_KERNEL);
+-	if(!skb->nh.iph) { return -ENOMEM; }
++	if (!skb->nh.iph) {
++		used = -ENOMEM;
++		goto out_free_skb;
++	}
+ 
+ 	skb->nh.iph->saddr = addr;
+ 	skb->nh.iph->daddr = 0;
+@@ -311,7 +317,9 @@ static int ip_recent_ctrl(struct file *f
+ 	match(skb,NULL,NULL,info,0,NULL);
+ 
+ 	kfree(skb->nh.iph);
++out_free_skb:
+ 	kfree(skb);
++out_free_info:
+ 	kfree(info);
+ 
+ #ifdef DEBUG
+
+_

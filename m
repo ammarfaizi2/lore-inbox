@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266736AbUGLG41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUGLG67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266736AbUGLG41 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 02:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266740AbUGLG40
+	id S266741AbUGLG67 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 02:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266744AbUGLG67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 02:56:26 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:48608 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S266736AbUGLG4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 02:56:25 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Mon, 12 Jul 2004 08:55:09 +0200
-MIME-Version: 1.0
-Subject: Murphy hits (Kernel 2.6, ext2, "check=strict"): corrupted filesystem
-Message-ID: <40F251F1.1057.35E0C3@rkdvmks1.ngate.uni-regensburg.de>
-X-mailer: Pegasus Mail for Windows (4.21a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.25/Sophos-3.80+2.19+2.07.060+05 April 2004+90300@20040712.064816Z
+	Mon, 12 Jul 2004 02:58:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35515 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266741AbUGLG64 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 02:58:56 -0400
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Daniel Phillips <phillips@istop.com>, sdake@mvista.com,
+       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040711210624.GC3933@marowsky-bree.de>
+References: <200407050209.29268.phillips@redhat.com>
+	 <200407101657.06314.phillips@redhat.com>
+	 <1089501890.19787.33.camel@persist.az.mvista.com>
+	 <200407111544.25590.phillips@istop.com>
+	 <20040711210624.GC3933@marowsky-bree.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-azJ49vyQPUwZhzBbmuk3"
+Organization: Red Hat UK
+Message-Id: <1089615523.2806.5.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 12 Jul 2004 08:58:46 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody,
 
-I'd like to present a little story how to shredder your ext2 filesystem:
+--=-azJ49vyQPUwZhzBbmuk3
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I was installing SuSE Linux 9.1 when the kernel froze rather late during 
-installation. So I had to reset the PC. There is a minor bug in the forementioned 
-distribution that prevents a filesystem check of the root filesystem after such a 
-crash it seems. Anyway, the system booted without a fsck being run. I realized 
-that and shut down (maybe it would have been better to hit the reset button 
-immediately), but during the manual fsck, the system reported (among a lot of 
-others) about 1700 inodes that share blocks. You can imagine what that means...
 
-Why I'm writing this: If something can go wrong, eventually it will. For a true 
-disaster you always need more than just one problem (1: Kernel freeze, 2: no fsck 
-being run, 3: kernel happily mounts unclean filesystem for read-write).
+>=20
+> This however is not true; clusters have managed just fine running in
+> user-space (realtime priority, mlocked into (pre-allocated) memory
+> etc).
 
-In Kernel 2.2 there was a "check=strict" that caused some extra checks during 
-mounting a filesystem. In 2.4 the option was ignored, and a warning was presented 
-instead. In 2.6 it seems that "check=strict" prevents the filesystem from being 
-mounted read-write (I ended up with an read-only root filesystem when having that 
-option).
+(ignoring the entire context and argument)
 
-I'll have to spend a few more days to cleanup the mess in the root filesystem 
-(which is everything except /home and /boot), but the lession to learn might be 
-this: The kernel should not mount a unclean filesystem read-write. Maybe also if a 
-filesystem code results in an attempt to access a partition outside its limits, 
-the filesystem should trtigger a panic immediately instead of going on.
+Running realtime and mlocked (prealloced) is most certainly not
+sufficient for causes like this; any system call that internally
+allocates memory (even if it's just for allocating the kernel side of
+the filename you handle to open) can lead to this RT, mlocked process to
+cause VM writeout elsewhere.=20
 
-I think nobody really wants to read reports where Linux has shreddered a 
-filesystem, do we?
+While I can't say how this affects your argument, everyone should be
+really careful with the "just mlock it" argument because it just doesn't
+help the worst case in scenarios like this. (It most obviously helps the
+average case so for soft-realtime use it's a good approach)
 
-Regards,
-Ulrich
+--=-azJ49vyQPUwZhzBbmuk3
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA8jajxULwo51rQBIRApBbAJ4/Ko1zIE0rfLF3DgX6WBVnapaZRgCgpbAu
+N4oq1C8BhfGoGPhAkb0TVME=
+=jr7S
+-----END PGP SIGNATURE-----
+
+--=-azJ49vyQPUwZhzBbmuk3--
 

@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273305AbRI3L0T>; Sun, 30 Sep 2001 07:26:19 -0400
+	id <S273345AbRI3MUk>; Sun, 30 Sep 2001 08:20:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273328AbRI3L0K>; Sun, 30 Sep 2001 07:26:10 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:26780 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S273305AbRI3L0B>;
-	Sun, 30 Sep 2001 07:26:01 -0400
-Date: Sun, 30 Sep 2001 13:26:28 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200109301126.NAA24615@harpo.it.uu.se>
-To: sshah@progress.com
-Subject: Re: Broken APIC detection 2.4.10?
-Cc: linux-kernel@vger.kernel.org
+	id <S273349AbRI3MU3>; Sun, 30 Sep 2001 08:20:29 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:31975 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S273345AbRI3MUP>; Sun, 30 Sep 2001 08:20:15 -0400
+Date: Sun, 30 Sep 2001 06:19:04 -0600
+Message-Id: <200109301219.f8UCJ4H16858@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>
+Subject: Re: [patch] Race between init_idle and reschedule_idle
+In-Reply-To: <1076429074.1001803809@[10.10.1.2]>
+In-Reply-To: <1076429074.1001803809@[10.10.1.2]>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Sep 2001 18:21:54 -0400, Sujal Shah wrote:
+Martin J. Bligh writes:
+> Thanks to Alan Cox & Andrew Morton for showing me how to serialise
+> the cpus to make the panic legible. The following patch holds back
+> the boot cpu at the end of smp_init until all the secondarys have
+> done init_idle:
 
->I just switched up to 2.4.10 on my Sony Vaio N505VX.  In the boot
->messages, I see near the top:
->
->Local APIC disabled by BIOS -- reenabling.
->Could not enable APIC!
->
->/proc/interrupts shows XT-PIC for all the interrupts.  This was not the
->case before.  Of course, I'm seeing other weirdness which is related
->(the YMFPCI based sound card won't reset on reboot without shutting down
->completely).
+One thing that bothers me about your patch is how it limits the number
+of CPU's to the number of bits in an unsigned long. While I realise
+there are other places that do the same (last time I looked), we
+shouldn't be perpeturating these kinds of limitations.
 
-Please elaborate: What does "This" in "This was not the case before."
-refer to? The "Could not enable APIC!" boot message or the XT-PIC in
-/proc/interrupts?
+I'd suggest you use an atomic_t instead. Increment for each CPU, and
+decrement when each CPU is ready. Just test for 0 in your wait loop.
+One less piece of code we have to overhaul later.
 
-2.4.10 merged code from 2.4-ac which (in some .configs) will attempt
-to enable the CPU's local APIC. The boot message above is printed if
-your CPU doesn't have one.
+				Regards,
 
->Anyone have any ideas why this is?  The APIC stuff was getting detected
->fine in 2.4.7.
-
-Can you send me your .configs and boot logs for both 2.4.7 and 2.4.10?
-I don't think there is an actual problem, but I'd like to make sure.
-
-/Mikael
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVCTVhC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVCTVjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbVCTVhC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 16:37:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVCTVhC
+	id S261284AbVCTVjF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 16:39:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVCTVjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 16:37:02 -0500
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:22542 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S261276AbVCTVg6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 16:36:58 -0500
-Date: Sun, 20 Mar 2005 13:38:24 -0800
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: tglx@linutronix.de, Ingo Molnar <mingo@elte.hu>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, dipankar@in.ibm.com,
-       shemminger@osdl.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, rusty@au1.ibm.com, tgall@us.ibm.com,
-       jim.houston@comcast.net, gh@us.ibm.com,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Real-Time Preemption and RCU
-Message-ID: <20050320213824.GA23167@nietzsche.lynx.com>
-References: <20050318002026.GA2693@us.ibm.com> <20050318091303.GB9188@elte.hu> <20050318092816.GA12032@elte.hu> <423BB299.4010906@colorfullife.com> <20050319162601.GA28958@elte.hu> <423D19FE.7020902@colorfullife.com> <1111310736.17944.24.camel@tglx.tec.linutronix.de> <423DAB73.2030904@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <423DAB73.2030904@colorfullife.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Sun, 20 Mar 2005 16:39:04 -0500
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:43434 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261284AbVCTVio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 16:38:44 -0500
+Date: Sun, 20 Mar 2005 22:43:15 +0100 (CET)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, Vojtech Pavlik <vojtech@suse.cz>,
+       video4linux-list@redhat.com
+Subject: [PATCH 2.6.11.2][2/2] printk with anti-cluttering-feature
+In-Reply-To: <Pine.LNX.4.58.0503202151360.2869@be1.lrz>
+Message-ID: <Pine.LNX.4.58.0503202235380.3051@be1.lrz>
+References: <Pine.LNX.4.58.0503200528520.2804@be1.lrz> <423D6353.5010603@tls.msk.ru>
+ <Pine.LNX.4.58.0503201425080.2886@be1.lrz> <Pine.LNX.4.58.0503202151360.2869@be1.lrz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 20, 2005 at 05:57:23PM +0100, Manfred Spraul wrote:
-> That was just one random example.
-> Another one would be :
-> 
-> drivers/chat/tty_io.c, __do_SAK() contains
->    read_lock(&tasklist_lock);
->    task_lock(p);
-> 
-> kernel/sys.c, sys_setrlimit contains
->    task_lock(current->group_leader);
->    read_lock(&tasklist_lock);
-> 
-> task_lock is a shorthand for spin_lock(&p->alloc_lock). If read_lock is 
-> a normal spinlock, then this is an A/B B/A deadlock.
+Update some functions to use printk_nospam
 
-That code was already dubious in the first place just because it
-contained that circularity. If you had a rwlock that block on an
-upper read count maximum a deadlock situation would trigger anyways,
-say, upon a flood of threads trying to do that sequence of aquires.
+Signed-Off-By: Bodo Eggert <7eggert@gmx.de>
 
-I'd probably experiment with using the {spin,read,write}-trylock
-logic and release the all locks contains in a sequence like that
-on the failure to aquire any of the locks in the chain as an
-initial fix. A longer term fix might be to break things up a bit
-so that whatever ordering being done would have that circularity.
-
-BTW, the runtime lock cricularity detector was designed to trigger
-on that situtation anyways.
-
-That's my thoughts on the matter.
-
-bill
-
+diff -purNXdontdiff linux-2.6.11/drivers/block/scsi_ioctl.c linux-2.6.11.new/drivers/block/scsi_ioctl.c
+--- linux-2.6.11/drivers/block/scsi_ioctl.c	2005-03-03 15:41:28.000000000 +0100
++++ linux-2.6.11.new/drivers/block/scsi_ioctl.c	2005-03-20 14:56:55.000000000 +0100
+@@ -547,7 +547,7 @@ int scsi_cmd_ioctl(struct file *file, st
+ 		 * old junk scsi send command ioctl
+ 		 */
+ 		case SCSI_IOCTL_SEND_COMMAND:
+-			printk(KERN_WARNING "program %s is using a deprecated SCSI ioctl, please convert it to SG_IO\n", current->comm);
++			printk_nospam(2296159591, KERN_WARNING "program %s is using a deprecated SCSI ioctl, please convert it to SG_IO\n", current->comm);
+ 			err = -EINVAL;
+ 			if (!arg)
+ 				break;
+diff -purNXdontdiff linux-2.6.11/drivers/input/keyboard/atkbd.c linux-2.6.11.new/drivers/input/keyboard/atkbd.c
+--- linux-2.6.11/drivers/input/keyboard/atkbd.c	2005-03-03 15:41:33.000000000 +0100
++++ linux-2.6.11.new/drivers/input/keyboard/atkbd.c	2005-03-20 14:56:55.000000000 +0100
+@@ -320,7 +320,7 @@ static irqreturn_t atkbd_interrupt(struc
+ 			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
+ 			goto out;
+ 		case ATKBD_RET_ERR:
+-			printk(KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
++			printk_nospam(2260620158, KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
+ 			goto out;
+ 	}
+ 
+diff -purNXdontdiff linux-2.6.11/drivers/media/video/tuner.c linux-2.6.11.new/drivers/media/video/tuner.c
+--- linux-2.6.11/drivers/media/video/tuner.c	2005-03-20 20:54:54.000000000 +0100
++++ linux-2.6.11.new/drivers/media/video/tuner.c	2005-03-20 14:56:55.000000000 +0100
+@@ -1048,7 +1048,7 @@ static void set_tv_freq(struct i2c_clien
+ 		   right now we don't have that in the config
+ 		   struct and this way is still better than no
+ 		   check at all */
+-		printk("tuner: TV freq (%d.%02d) out of range (%d-%d)\n",
++		printk_nospam(1801459135, "tuner: TV freq (%d.%02d) out of range (%d-%d)\n",
+ 		       freq/16,freq%16*100/16,tv_range[0],tv_range[1]);
+ 		return;
+ 	}

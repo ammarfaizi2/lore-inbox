@@ -1,95 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130349AbRAAUY2>; Mon, 1 Jan 2001 15:24:28 -0500
+	id <S129752AbRAAUYS>; Mon, 1 Jan 2001 15:24:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130368AbRAAUYS>; Mon, 1 Jan 2001 15:24:18 -0500
-Received: from sm8.texas.rr.com ([24.93.35.220]:1809 "EHLO sm8.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S130349AbRAAUYC>;
-	Mon, 1 Jan 2001 15:24:02 -0500
-Message-ID: <3A50E0BC.ADD9BEDB@austin.rr.com>
-Date: Mon, 01 Jan 2001 13:55:40 -0600
-From: Anwar <anwar@austin.rr.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-prerelease i686)
-X-Accept-Language: en
+	id <S130368AbRAAUYI>; Mon, 1 Jan 2001 15:24:08 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:15625
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129752AbRAAUX5>; Mon, 1 Jan 2001 15:23:57 -0500
+Date: Mon, 1 Jan 2001 11:53:00 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Chipsets, DVD-RAM, and timeouts....
+In-Reply-To: <E14DAOg-0001Ce-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10101011124160.22396-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i810_audio.c in 2.4.0-prerelease (fixes RealPlayer for one)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch from Tjeerd Mulder that is already in 2.4.0-prerelease fixes a 
-lot of issues with i810_audio, but it still does not seem to enable
-variable rates 
-(non 48K rates).  I am not sure if VRA works for everybody else with the
-current
-code, but I needed the patch below for VRA to work on my Dell Optiplex
-GX110.
+On Mon, 1 Jan 2001, Alan Cox wrote:
 
-So the patch below specifically enables VRA during rate 
-change requests (based on code from Jim Studt, posted to LKML on Dec
-29).  This
-is needed for things like Real Player to work , because the first thing
-RealPlayer 
-does is to set the DAC rate to 44100Hz.
+> > > as it apparently makes CONFIG_IDEDMA_IVB a complete no-op?
+> > 
+> > Exactly what it is designed to do, Ignore Validity Bits, because the whole
+> > damn messedup the rules between ATA-4 and ATA-6
+> 
+> I think the question is more - so why not lose the ifdef
+> -
 
-Also, the patch already in 2.4.0.-prerelease introduced a bug in the
-driver that we 
-get a divide-by-zero error if we just do "fd=open("/dev/dsp", O_WRONLY)
-; close (fd);".  
-This is also fixed below (the last hunk).
+Because there are the exceptions that get it correct based on the level of
+ATA support reported in the IDENTIFY page.
 
---- linux/drivers/sound/i810_audio.c.old        Sat Dec 30 13:23:14 2000
-+++ linux/drivers/sound/i810_audio.c    Mon Jan  1 13:24:36 2001
-@@ -383,6 +383,7 @@
- {
-        struct dmabuf *dmabuf = &state->dmabuf;
-        u32 dacp;
-+       u16 extended_status;
-        struct ac97_codec *codec=state->card->ac97_codec[0];
+When I state that it is all screwed up, I mean in a contigious nature of
+the Standard.  The rules for ATA-4 with ATA-4 limited support is correct
+as is ATA-5 with ATA-5, and ATA-6 with ATA-6, but ATA-4 rules do not mix
+with ATA-5 nor ATA-6.  This is the mess in front of me to sort.
 
-        if(!(state->card->ac97_features&0x0001))
-@@ -410,6 +411,10 @@
+So we default a full test of both bits 13 and 14, but it you have a
+hardware combination that fails the rules.
 
-        if(rate != i810_ac97_get(codec, AC97_PCM_FRONT_DAC_RATE))
-        {
-+               /* Reset variable rate mode */
-+               extended_status = i810_ac97_get(codec,
-AC97_EXTENDED_STATUS);
-                i810_ac97_set(codec, AC97_POWER_CONTROL, dacp|0x0200);
-@@ -433,6 +438,7 @@
- {
-        struct dmabuf *dmabuf = &state->dmabuf;
-        u32 dacp;
-+       u16 extended_status;
-        struct ac97_codec *codec=state->card->ac97_codec[0];
- 
-        if(!(state->card->ac97_features&0x0001))
-@@ -460,6 +466,10 @@
- 
-        if(rate != i810_ac97_get(codec, AC97_PCM_LR_DAC_RATE))
-        {
-+               /* Reset variable rate mode */
-+               extended_status = i810_ac97_get(codec,
-AC97_EXTENDED_STATUS);
-+               if (!(extended_status&1))
-+                       i810_ac97_set(codec, AC97_EXTENDED_STATUS,
-extended_status|1);
-                /* Power down the ADC */
-                dacp=i810_ac97_get(codec, AC97_POWER_CONTROL);
-                i810_ac97_set(codec, AC97_POWER_CONTROL, dacp|0x0100);
-@@ -770,7 +780,10 @@
-        swptr = dmabuf->swptr;
-        spin_unlock_irqrestore(&state->card->lock, flags);
- 
--       len = swptr % (dmabuf->dmasize/SG_LEN);
-+       if (dmabuf->dmasize)
-+               len = swptr % (dmabuf->dmasize/SG_LEN);
-+       else
-+               len = 0;
- 
-        memset(dmabuf->rawbuf + swptr, silence, len);
+ATA-4 is HOST side and Device side based on Bit 13 only
+ATA-5 is HOST side and Device side based on Bit 14 only
+ATA-6 is HOST side and Device side based on Bit 14 and Bit 13
+
+ATA-6 is the correct method...
+
+Cheers,
+
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

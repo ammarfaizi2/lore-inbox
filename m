@@ -1,70 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262438AbTCMPBg>; Thu, 13 Mar 2003 10:01:36 -0500
+	id <S262414AbTCMO6Z>; Thu, 13 Mar 2003 09:58:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262441AbTCMPBg>; Thu, 13 Mar 2003 10:01:36 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:7809 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262438AbTCMPBf>; Thu, 13 Mar 2003 10:01:35 -0500
-Date: Thu, 13 Mar 2003 10:13:49 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Mark Mielke <mark@mark.mielke.cc>
-cc: James Stevenson <james@stev.org>, pd dd <parviz_kernel@yahoo.com>,
-       "M. Soltysiak" <msoltysiak@hotmail.com>,
+	id <S262421AbTCMO6Z>; Thu, 13 Mar 2003 09:58:25 -0500
+Received: from [196.41.29.142] ([196.41.29.142]:17649 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id <S262414AbTCMO6W>; Thu, 13 Mar 2003 09:58:22 -0500
+Subject: Re: Linux BUG: Memory Leak
+From: Martin Schlemmer <azarah@gentoo.org>
+To: James Stevenson <james@stev.org>
+Cc: pd dd <parviz_kernel@yahoo.com>, "M. Soltysiak" <msoltysiak@hotmail.com>,
        ML-linux-kernel <linux-kernel@vger.kernel.org>,
        William Stearns <wstearns@pobox.com>
-Subject: Re: Linux BUG: Memory Leak
-In-Reply-To: <20030313151047.GA20516@mark.mielke.cc>
-Message-ID: <Pine.LNX.3.95.1030313100813.21600A-100000@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <01f901c2e96c$98b1e3d0$0cfea8c0@ezdsp.com>
+References: <20030313091315.14044.qmail@web20504.mail.yahoo.com>
+	 <01f901c2e96c$98b1e3d0$0cfea8c0@ezdsp.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047567997.3504.80.camel@workshop.saharact.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2- 
+Date: 13 Mar 2003 17:06:37 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Mar 2003, Mark Mielke wrote:
-
-> On Thu, Mar 13, 2003 at 09:42:39AM -0500, Richard B. Johnson wrote:
-> > But it's a memory leak in the game, not the kernel. They should
-> > complain to the game makers. If a game runs the system out of
-> > memory so a user can't log in on the root account and kill off
-> > the game, it's a problem with the game.
+On Thu, 2003-03-13 at 16:26, James Stevenson wrote:
+> > With all due respect to all the great programmers and
+> > minds in this mailing list. I could not read this and
+> > not reply to this guy:
+> >
+> > Maybe you should take your games and movies to windows
+> > and leave linux for more serious stuff. That'll fix
+> > your memory leak.
 > 
-> I would like to encourage the camp of people who believe that UNIX can
-> be a stable server platform to innovate ways of ensuring that if a game
-> (or other memory intensive program) does run the system out of memory,
-> an administrator could login as root and kill the game.
+> correct me if i am wrong here but i know alot of students
+> who use linux todo serious stuff and get really pissed off have to
+> reboot into windows to play games because they dont work
+> under windows and for various other things that also cause
+> problems in linux. Actually quite alot of them end up
+> dumping linux because any of the serious games wont work on there
+> system because they would have to tear much of it apart toget
+> them to work.
 > 
-> So I don't agree with your conclusion. I think "your system crashed? well
-> contact the application designer..." is a mindset that was strongly
-> encoduraged by companies such as Microsoft, as it allowed them to release
-> half baked kernels and call them stable. Thankfully, even Microsoft has
-> learned that this isn't the best approach, and WinXP is quite a deal more
-> solid than Win95.
+> this isnt a serious problem then ?
 > 
-> Yes, Linux is the result of (mostly) volunteer effort contributed to the
-> community. No, I don't think that means it is acceptable for it to contain
-> security exploits, or for it to be any less robust than other operating
-> systems in its class such as AIX or Solaris. We have smart people. Let's
-> use them. Let's not be satisfied with less.
-> 
-> mark
 
-For the most part we are getting people who don't know about
-CTL-ALT-BACKSPACE, and have never even seen a shell, and don't
-know that the GUI is not the normal interface, complaining because
-the machine "locks" after they play some lossy games. You don't
-have to reboot, you need to restart the X-Server (that will kill off
-the memory-hogging games). Most distributions don't even configure
-to allow the X-Server to be restarted. Still, it's not a kernel
-problem and it can't be "fixed" or "worked around" in the kernel.
-When you hang the user inteface, you can interface with users.
-It's really that simple.
+Ok, I do agree that when doing support for something like Linux
+where most of your free time are spent at no charge, the way
+help is asked, do make a difference.  However, we should try to
+refrain from chasing people away when they do approach things with
+a slight offensive attitude ....
+
+Anyhow, as for your problem James, I did experience similar issues
+in the past.  It was basically related to a gtk+ theme engine that
+leaked memory like hell.  Try to change gtk+/kde/whatever themes.
+Also maybe try to update your XFree86 if Slackware do have later
+revisions out, as I really wont rule X out of being totally free
+of major memory leaks (No offense toward xfree.org, you guys are
+doing a great job =).  On the other hand ... XFree86 4.3.0 is out,
+so you might try to compile that by hand just as a test.
+
+Then, do not rule out the nvidia drivers for being totally bug free.
+The version before 4191 had some serious page_alloc.c bugs, which
+should partly be fixed by 4191.  It does still have issues though
+if you are using rmap.  You can get patches for it here:
+
+  http://www.minion.de/nvidia/
+
+Also, I think there are another patch somewhere to fix one or other
+problem, but cannot find it now.
+
+Then kernel .... Did you try earlier versions to verify your suspicion ?
+Or if the same thing with earlier kernel, maybe try it with 2.5.64 ?
+Patches to get it working with 2.5 can be found above.
+
+I am running a Geforce3 Ti5 here, and UT2003, UT, Quake3, etc are
+working just fine.  Same thing for 2.4.19 (before I switched to
+2.5 kernel) ... meaning if you have the same issues with 2.4.19,
+then it is very possible that it is something else at fault.  Yes,
+this is not clear cut, but ....
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Regards,
 
+-- 
+Martin Schlemmer
+Gentoo Linux Developer, Desktop Team
+Cape Town, South Africa
 

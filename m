@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbVAQR0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbVAQRcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262349AbVAQR0k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 12:26:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVAQR0k
+	id S262376AbVAQRcS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 12:32:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVAQRcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 12:26:40 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:9647 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262349AbVAQR0i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 12:26:38 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Thomas Zehetbauer <thomasz@hostmaster.org>
-Subject: Re: usb-storage on SMP?
-Date: Mon, 17 Jan 2005 18:26:33 +0100
-User-Agent: KMail/1.7.1
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <1105982247.21895.26.camel@hostmaster.org>
-In-Reply-To: <1105982247.21895.26.camel@hostmaster.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Jan 2005 12:32:18 -0500
+Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:34447 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S262376AbVAQRcO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 12:32:14 -0500
+Date: Mon, 17 Jan 2005 12:32:13 -0500
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] shared subtrees
+Message-ID: <20050117173213.GC24830@fieldses.org>
+References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk> <20050116160213.GB13624@fieldses.org> <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050116184209.GD13624@fieldses.org> <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501171826.33496.rjw@sisk.pl>
+In-Reply-To: <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.6+20040907i
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 17 of January 2005 18:17, Thomas Zehetbauer wrote:
-> Hi,
-> 
-> can anyone confirm that writing to usb-storage devices is working on SMP
-> systems?
+On Mon, Jan 17, 2005 at 06:11:50AM +0000, Al Viro wrote:
+> No - I have been missing a typo.  Make that "if mountpoint of what we
+> are moving...".
 
-Generally, it is.  Recently, I've written some stuff to a USB pendrive (using
-2.6.10-ac7 or -ac9).
+OK, got it, so the point is that its not clear how you'd propagate the
+removal of the subtree from the vfsmount of the source mountpoint.
 
-Greets,
-RJW
+By the way, I wrote up some notes this weekend in an attempt to explain
+the shared subtrees RFC to myself.  They may or may not be helpful to
+anyone else:
 
+http://www.fieldses.org/~bfields/kernel/viro_mount_propagation.txt
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+--b.

@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbUL0RAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbUL0RGj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261927AbUL0RAI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 12:00:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbUL0RAH
+	id S261928AbUL0RGj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 12:06:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUL0RGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 12:00:07 -0500
-Received: from f32.mail.ru ([194.67.57.71]:20998 "EHLO f32.mail.ru")
-	by vger.kernel.org with ESMTP id S261927AbUL0RAE (ORCPT
+	Mon, 27 Dec 2004 12:06:39 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:64664 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261928AbUL0RGh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 12:00:04 -0500
-From: Samium Gromoff <_deepfire@mail.ru>
+	Mon, 27 Dec 2004 12:06:37 -0500
+Date: Mon, 27 Dec 2004 18:06:35 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
 To: linux-kernel@vger.kernel.org
-Subject: controlling the initcall order
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 192.168.1.102 via proxy [80.92.98.198]
-Date: Mon, 27 Dec 2004 20:00:01 +0300
-Reply-To: Samium Gromoff <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1CiyDx-0008NU-00._deepfire-mail-ru@f32.mail.ru>
+Subject: Cannot compile without sysctl (+semi-patch)
+Message-ID: <Pine.LNX.4.61.0412271803300.10322@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I`d like to make excuses in advance if this question was already 
-explained somewhere, but i took some effort and found nothing 
-satisfactorily clarifying. 
- 
-So, in this case i have a subarch-specific block device driver which 
-resides in arch/$ARCH/$SUBARCH. Yes, it only makes sense on that subarch. 
- 
-Its init routine is module_init()`d and gets called before the io 
-schedulers have a chance to get themselves registered. Boom. 
- 
-So how do i get my init routine called later? 
- 
---- 
-cheers, 
-   Samium Gromoff 
+Hi,
+
+
+in trying to make the smallest possible kernel for an old pc's needs (read: 
+386sx) disabling sysctl support (CONFIG_SYSCTL) does not work, sys_setgroups 
+and sys_setgroups16 still require it. (I get a linking error.)
+It's not a blocker, but it would be nice if this got wrapped up in #ifdef or 
+something :-) so that either sysctl is always on or sys_setgroups behaves a 
+little different.
+
+Preferably:
+include/linux/limits.h:
+#ifdef __KERNEL__
+extern int ngroups_max;
+# define NGROUPS_MAX ngroups_max
+#else
+# define NGROUPS_MAX __NGROUPS_MAX
+#endif
+
+to
+
+#if defined(__KERNEL__) && defined(CONFIG_SYSCTL)
+# define NGROUPS_MAX ngroups_max
+#else
+# define NGROUPS_MAX __NGROUPS_MAX
+#endif
+
+
+
+
+Jan Engelhardt
+-- 
+ENOSPC

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbUCSJnF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 04:43:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbUCSJnF
+	id S262079AbUCSJt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 04:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbUCSJt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 04:43:05 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:54734 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S261983AbUCSJnD (ORCPT
+	Fri, 19 Mar 2004 04:49:56 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:57251 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262079AbUCSJtz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 04:43:03 -0500
-Date: Fri, 19 Mar 2004 10:42:53 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: unionfs
-Message-ID: <20040319094253.GB17938@wohnheim.fh-wedel.de>
-References: <20040315235243.GA21416@wohnheim.fh-wedel.de> <200403161618.i2GGITKK004831@eeyore.valparaiso.cl> <20040316171038.GA27046@wohnheim.fh-wedel.de> <20040319091148.GC2650@mail.shareable.org>
+	Fri, 19 Mar 2004 04:49:55 -0500
+Date: Fri, 19 Mar 2004 10:50:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [BENCHMARKS] 2.6.4 vs 2.6.4-mm1
+Message-ID: <20040319095047.GA6301@elte.hu>
+References: <40525C1F.5030705@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040319091148.GC2650@mail.shareable.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <40525C1F.5030705@cyberone.com.au>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 March 2004 09:11:48 +0000, Jamie Lokier wrote:
-> [...]
-> 
-> So my vote is for the very simple COW hard link attribute, and leave
-> the rest to userspace.
 
-That makes an overwhelming majority of 100% so far, congratulations!
+* Nick Piggin <piggin@cyberone.com.au> wrote:
 
-I'll merge Sytse's fixes and post a new patch soon, followed by a
-userspace copyfile() implementation.
+> volanomark (MPS):
+> This one starts getting huge mmap_sem contention at 150+ coming
+> from futexes. Don't know what is taking the mmap_sem for writing.
+> Maybe just brk or mmap.
 
-Jörn
+are you sure it's down_write() contention? down_read() can create
+contention just as much, simply due to the fact that hundreds of threads
+and a dozen CPUs are pounding in on the same poor lock.
 
--- 
-The cost of changing business rules is much more expensive for software
-than for a secretaty.
--- unknown
+i do think there should be a rw-semaphore variant that is per-cpu for
+the read path. (This would also fix the 4:4 threading overhead.)
+
+	Ingo

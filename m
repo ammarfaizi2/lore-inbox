@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131670AbRCSXoU>; Mon, 19 Mar 2001 18:44:20 -0500
+	id <S131654AbRCSX6l>; Mon, 19 Mar 2001 18:58:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131671AbRCSXoL>; Mon, 19 Mar 2001 18:44:11 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:58916 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S131670AbRCSXoB>;
-	Mon, 19 Mar 2001 18:44:01 -0500
-Message-ID: <20010320004317.A1414@win.tue.nl>
-Date: Tue, 20 Mar 2001 00:43:17 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Torrey Hoffman <torrey.hoffman@myrio.com>,
-        "'Jeremy Jackson'" <jerj@coplanar.net>, root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: on /etc/mtab vs. /proc/mounts
-In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B42@mail0.myrio.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B42@mail0.myrio.com>; from Torrey Hoffman on Mon, Mar 19, 2001 at 03:05:55PM -0800
+	id <S131665AbRCSX6b>; Mon, 19 Mar 2001 18:58:31 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:9477 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131654AbRCSX6S>; Mon, 19 Mar 2001 18:58:18 -0500
+Date: Mon, 19 Mar 2001 19:13:28 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: David Raufeisen <david@fortyoz.org>
+Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: 2.4.3-pre1 oops w/ rsync & ReiserFS
+In-Reply-To: <20010319152842.A11014@fortyoz.org>
+Message-ID: <Pine.LNX.4.21.0103191912460.8220-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 19, 2001 at 03:05:55PM -0800, Torrey Hoffman wrote:
 
-> In fact, the "mount" man page on my Mandrake 7.2 system says:
+
+On Mon, 19 Mar 2001, David Raufeisen wrote:
+
+> Getting oops every time I run rsync today.. happens after it receives file list and is starting to stat all the files.. filesystem is reiser.
 > 
-> "It is possible to replace /etc/mtab by a symbolic link to 
-> /proc/mounts..."  and then goes on to describe some of the issues and
-> problems with doing so - loopback, and paths with spaces seem to
-> be the significant ones.
+> Linux prototype 2.4.3-pre1 #2 Thu Mar 15 00:24:43 PST 2001 i686 unknown
+> 
+> 15:25:28 up 1 day, 20:05,  4 users,  load average: 0.00, 0.03, 0.00
+> 
+> Linux prototype 2.4.3-pre1 #2 Thu Mar 15 00:24:43 PST 2001 i686 unknown
 
-The spaces part was fixed in patch-2.4.0-test7.
+David,
 
-Today there is a different flaw again:
-After "mount --bind somedir mountpoint" there is no
-indication of somedir in /proc/mounts.
+Can you please use "memtest86" to check if your RAM does not have
+problems? 
 
-Andries

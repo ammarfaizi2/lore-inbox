@@ -1,91 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279570AbRK0OLk>; Tue, 27 Nov 2001 09:11:40 -0500
+	id <S279629AbRK0OSv>; Tue, 27 Nov 2001 09:18:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279790AbRK0OLb>; Tue, 27 Nov 2001 09:11:31 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:11539 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S279570AbRK0OLP>; Tue, 27 Nov 2001 09:11:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [BUG] Bad #define, nonportable C, missing {}
-Date: Tue, 27 Nov 2001 16:03:54 -0200
-X-Mailer: KMail [version 1.2]
-Cc: mathijs@knoware.nl (Mathijs Mohlmann), bulb@ucw.cz (Jan Hudec),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <E168SMG-0006k2-00@the-village.bc.nu>
-In-Reply-To: <E168SMG-0006k2-00@the-village.bc.nu>
+	id <S279778AbRK0OSn>; Tue, 27 Nov 2001 09:18:43 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:59909 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S279629AbRK0OSY>;
+	Tue, 27 Nov 2001 09:18:24 -0500
+Message-ID: <XFMail.20011127151356.ast@domdv.de>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Message-Id: <01112716035401.00872@manta>
-Content-Transfer-Encoding: 7BIT
+In-Reply-To: <01112715491900.00872@manta>
+Date: Tue, 27 Nov 2001 15:13:56 +0100 (CET)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: RE: [BUG] 2.4.16pre1: minix initrd does not work, ext2 does
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 November 2001 18:28, Alan Cox wrote:
-> > > MODINC(x,y) (x = (x % y) + 1)
-> >
-> > drivers/message/i2o/i2o_config.c:#define MODINC(x,y) (x = x++ % y)
-> >
-> > Alan, can you clarify what this macro is doing?
-> > What about making it less confusing?
->
-> Nothing to do with me 8). I didnt write that bit of the i2o code. I agree
-> its both confusing and buggy. Send a fix ?
+Well, no pointer but the same effect with 2.4.15pre7 and romfs (as posted
+earlier to the list). It seems initrd handling is fs type picky :-(
 
-This is a test to be sure my replacement is equivalent:
---------------------
-#include <stdio.h>
-#define MODINC(x,y) (x = x++ % y)
-#define MODULO_INC(x,y) ((x) = ((x)%(y))+1)
-int main() {
-    int x1=1;
-    int x2=1;
-    int y=7;
-    int i;
-    for(i=0;i<22;i++) {
-	printf("%d,%d -> ",x1,x2);
-	MODINC(x1,y);
-	MODULO_INC(x2,y);
-	printf("%d,%d\n",x1,x2);
-    }
-}
+Just to repeat myself:
 
-Patch is below
---
-vda
+1. the romfs initrd is fine, loop mounting it works.
+2. the romfs initrd is detected at boot time.
+3. the romfs initrd is not root mounted at boot time, thus without a root fs
+   the kernel panics.
+4. Doing the same with an ext2 initrd works fine.
 
+Not really nice for systems where the only reason ext2 is compiled in the kernel
+is this initrd behaviour.
 
---- i2o_config.c.new	Mon Oct 22 13:39:56 2001
-+++ i2o_config.c.orig	Tue Nov 27 16:03:19 2001
-@@ -45,7 +45,7 @@
- static spinlock_t i2o_config_lock = SPIN_LOCK_UNLOCKED;
- struct wait_queue *i2o_wait_queue;
+On 27-Nov-2001 vda wrote:
+> Hi,
+> 
+> I have 2 slackware initrds, one with minix fs on it, other with ext2.
+> 
+> I compiled 2.4.13 and it panics (can't mount root fs) (don't remember with 
+> both initrds or only with minix one...).
+> 
+> I copied .config to 2.4.10, did make oldconfig and all that other reqd makes,
+> and it boots both initrds.
+> 
+> Finally I tried it with 2.4.16pre1 (came .config again) 
+> and it cannot mount minix initrd.
+> ("FAT: bogus sector size 0","VFS: unable to mount root fs")
+> I further tested and that initrd CAN be mounted by 2.4.16pre1 
+> over loopback device with
+> 
+># mount -o loop /tmp/initrd.minix /mnt/mnt
+> 
+> and
+> 
+># mount -t fat,minix -o loop /tmp/initrd.minix /mnt/mnt
+> 
+> (so we can't blame FAT for first saying "Yes it's fat, don't probe for 
+> others" and then "it is corrupted, can't use")
+> 
+> Seems there is some problem with fs detection order during root fs mount.
+> (minix isn't tried at all?) However, I failed to grok what affect order of fs
+> type guessing at boot... can somebody point me where to look?
+> --
+> vda
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
--#define MODINC(x,y) (x = x++ % y)
-+#define MODULO_INC(x,y) ((x) = ((x)%(y))+1)
-
- struct i2o_cfg_info
- {
-@@ -144,10 +144,10 @@
- 				inf->event_q[inf->q_in].data_size);
-
- 		spin_lock(&i2o_config_lock);
--		MODINC(inf->q_in, I2O_EVT_Q_LEN);
-+		MODULO_INC(inf->q_in, I2O_EVT_Q_LEN);
- 		if(inf->q_len == I2O_EVT_Q_LEN)
- 		{
--			MODINC(inf->q_out, I2O_EVT_Q_LEN);
-+			MODULO_INC(inf->q_out, I2O_EVT_Q_LEN);
- 			inf->q_lost++;
- 		}
- 		else
-@@ -803,7 +803,7 @@
- 	}
-
- 	memcpy(&kget.info, &p->event_q[p->q_out], sizeof(struct i2o_evt_info));
--	MODINC(p->q_out, I2O_EVT_Q_LEN);
-+	MODULO_INC(p->q_out, I2O_EVT_Q_LEN);
- 	spin_lock_irqsave(&i2o_config_lock, flags);
- 	p->q_len--;
- 	kget.pending = p->q_len;
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

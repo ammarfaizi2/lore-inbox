@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263563AbTDGRko (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 13:40:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbTDGRko (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 13:40:44 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:14042 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263563AbTDGRko (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 13:40:44 -0400
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E010107D3CA@orsmsx402.jf.intel.com>
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: Teodor Iacob <Teodor.Iacob@astral.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Bug Intel e100 driver 2.4.20-8 redhat 9
-Date: Mon, 7 Apr 2003 10:51:45 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id S263564AbTDGRvR (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 13:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263569AbTDGRvR (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 13:51:17 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:64010 "EHLO
+	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP id S263564AbTDGRvQ (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 13:51:16 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [PATCH] new syscall: flink
+Date: 7 Apr 2003 17:37:36 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <b6sd10$45g$1@abraham.cs.berkeley.edu>
+References: <20030407165009.13596.qmail@email.com>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1049737056 4272 128.32.153.211 (7 Apr 2003 17:37:36 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 7 Apr 2003 17:37:36 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When I load the e100 driver with the UTP cable plugged into 
-> the adapter I get the following:
-> 
-> Intel(R) PRO/100 Network Driver - version 2.1.29-k2
-> Copyright (c) 2002 Intel Corporation
-> 
-> e100: selftest OK.
-> e100: hw init failed
-> e100: Failed to initialize, instance #0
->
-> The machine is an Intel SCB2 with e100 on-board.
+Clayton Weaver wrote:
+>Once a process unlinks the last directory entry referencing a particular
+>inode that it has an
+>open fd for and then passes the open fd to some other process
+>(regardless of exactly how it does that), it seems to me that it has
+>conceded any interest in the previous security constraints associated
+>with that inode or with the recently
+>unlinked last directory entry for it.
 
-Try the latest e100,v2.2.21 driver from sf.net/projects/e1000.
+Huh?  That's not the Unix model.  If I pass you a read-only file
+descriptor, you're not supposed to be able to get write access to
+the fd.  If you can, that's a security hole.  This is true whether
+the fd refers to an inode still linked into the filesystem or not.
 
-This driver includes a TCO workaround for 82559 wired to the SMBus.
+>The cases with potential security implications are all in the context of
+>flink()ing to an open fd for an inode that still corresponds to at least
+>one directory entry.
 
-This workaround didn't make it into the RH 9.0 e100 driver.
-
--scott
+No, that's not correct.

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280624AbRKFWO6>; Tue, 6 Nov 2001 17:14:58 -0500
+	id <S280627AbRKFWOk>; Tue, 6 Nov 2001 17:14:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280625AbRKFWOl>; Tue, 6 Nov 2001 17:14:41 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:10679 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S280624AbRKFWOf>;
-	Tue, 6 Nov 2001 17:14:35 -0500
-Date: Tue, 6 Nov 2001 17:14:27 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ricky Beam <jfbeam@bluetopia.net>
-cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-In-Reply-To: <Pine.GSO.4.33.0111061611080.17287-100000@sweetums.bluetronic.net>
-Message-ID: <Pine.GSO.4.21.0111061709340.29465-100000@weyl.math.psu.edu>
+	id <S280625AbRKFWO3>; Tue, 6 Nov 2001 17:14:29 -0500
+Received: from mout04.kundenserver.de ([195.20.224.89]:32124 "EHLO
+	mout04.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S280624AbRKFWOX>; Tue, 6 Nov 2001 17:14:23 -0500
+From: "Sascha Andres" <linux-kernel@programmers-world.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: SYN - Flood protection
+Date: Tue, 6 Nov 2001 23:15:21 +0100
+Message-ID: <002c01c16710$873a3100$0328a8c0@keasanb>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Nov 2001, Ricky Beam wrote:
+hi,
 
-[snip]
-> And those who *will* complain that binary structures are hard to work with,
-> (you're idiots too :-)) a struct is far easier to deal with than text
-> processing, esp. for anyone who knows what they are doing.  Yes, changes
+i use found that in the bugtraq mailinglist:
 
-Learn C, then learn some respect to your betters[1], then come back.
+'SuSE Security Announcement: kernel (update) (SuSE-SA:2001:039)'
 
-*PLONK*
+i have several systems with tcp_syncookies turned on.
+i turned this feature on because it makes really sense
+on this systems. SuSE says one should use the rpms to update
+the system. well i do not use the suse kernels, i use
+the official kernel series from www.kernel.org.
 
-[1] like, say it, guys who had invented UNIX and C.
+so my question is now, how to fix this bug (?) in the
+official release. is it fixed with 2.4.14?
+
+sascha
+
 

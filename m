@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284448AbRLCIvi>; Mon, 3 Dec 2001 03:51:38 -0500
+	id <S284364AbRLCIvt>; Mon, 3 Dec 2001 03:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284446AbRLCIuZ>; Mon, 3 Dec 2001 03:50:25 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:14863 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S284896AbRLCI2Q>;
-	Mon, 3 Dec 2001 03:28:16 -0500
-Message-Id: <200112030253.fB32r8In024135@sleipnir.valparaiso.cl>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Linux-Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH 2.4.17.2: make ext2 smaller 
-In-Reply-To: Your message of "Sun, 02 Dec 2001 06:31:17 CDT."
-             <3C0A1105.18B76D64@mandrakesoft.com> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Sun, 02 Dec 2001 23:53:08 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S284366AbRLCItg>; Mon, 3 Dec 2001 03:49:36 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:12050 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S284799AbRLCFve>; Mon, 3 Dec 2001 00:51:34 -0500
+Message-ID: <3C0B12C5.F8F05016@zip.com.au>
+Date: Sun, 02 Dec 2001 21:51:01 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "ext3-users@redhat.com" <ext3-users@redhat.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: ext3-0.9.16 against linux-2.4.17-pre2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> said:
-> This patch applies an obvious technique to the kernel:  increase the
-> amount of code compiled in a single compilation unit, to increase the
-> overall knowledge the compiler has of the code, to allow for better
-> optimization and dead code removal.  KDE does this, with definite
-> success, though they definitely are not the first to do this.
+An ext3 update which also applies to linux-2.4.16 is available at
 
-[...]
+	http://www.zip.com.au/~akpm/linux/ext3/
 
-> Results from 2.4.17-pre2 plus the attached patch:  1135 bytes saved in
-> vmlinux, simply from making all the functions static.
+Quite a lot of miscellany here.  It would be appreciated if interested
+parties could please test it in preparation for sending upstream.  Thanks.
 
-File size tells you nothing, it is influenced by symbol tables and
-whatnot. What does size(1) say?
+Changelog:
 
-In any case, 1Kb out of 2Mb is 0.05%...
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 
+- Merged several ext2 sync-up patches from Christoph Hellwig
+
+- Drop the big kernel lock across the call to block_prepare_write.
+  This was causing excessive contention on large SMP machines.  Thanks
+  to Anton ("dbench") Blanchard for finding this.
+
+- Fixed a couple of potential kmap leaks on error paths.
+
+  There is some question whether the core kernel should be changed so
+  that this is not necessary, but it is right for current kernels.
+
+- Fixed bugs concerning the use of bit operations on 32 bit quantities,
+  which could cause problems on 64-bit hardware.  Thanks davem.
+
+- Fix failure to return EFBIG when an attempt is made to lengthen an
+  ext3 file to more than the maximum file size via ftruncate().
+
+- Current ext3 can cause an assertion failure and take down the machine
+  when an I/O error is encountered while mapping journal blocks in
+  preparation for writing to the journal.  Fix from Stephen turns the
+  filesystem readonly when this occurs.
+
+- ext3 is presently marking data dirty itself, which defeats the core
+  kernel's dirty buffer balancing.  Take that out and let the generic
+  layer mark the buffers dirty.
+
+  This change, along with core kernel changes in 2.4.17-pre2 can
+  potentially reduce system congestion under heavy write loads.
+
+- Update Documentation/Changes to reflect requirement for e2fsprogs
+  version (1.25)
+
+- Update Documentation/Locking to describe the two address_space
+  methods which ext3 introduced.

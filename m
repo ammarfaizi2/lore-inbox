@@ -1,165 +1,178 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129370AbQKLQuZ>; Sun, 12 Nov 2000 11:50:25 -0500
+	id <S129055AbQKLSlJ>; Sun, 12 Nov 2000 13:41:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129213AbQKLQuO>; Sun, 12 Nov 2000 11:50:14 -0500
-Received: from jake.canberra.net.au ([203.29.91.119]:7187 "EHLO
-	smtp.canberra.net.au") by vger.kernel.org with ESMTP
-	id <S129370AbQKLQuE>; Sun, 12 Nov 2000 11:50:04 -0500
-Message-ID: <000901c04cc8$0ff70130$0200a8c0@W2K>
-From: "Nick Piggin" <piggin@cyberone.com.au>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: bkl usage
-Date: Mon, 13 Nov 2000 03:45:58 +1100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S129105AbQKLSk7>; Sun, 12 Nov 2000 13:40:59 -0500
+Received: from [24.219.13.61] ([24.219.13.61]:3592 "HELO kroah.com")
+	by vger.kernel.org with SMTP id <S129055AbQKLSku>;
+	Sun, 12 Nov 2000 13:40:50 -0500
+Date: Sun, 12 Nov 2000 10:41:12 -0800
+From: Greg KH <greg@kroah.com>
+To: "Dunlap, Randy" <randy.dunlap@intel.com>
+Cc: wgreathouse@smva.com, linux-usb-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] fix compile problem in belkin_sa.c
+Message-ID: <20001112104112.A13058@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="R3G7APHDIzY6R/pk"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.2.14-12 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. In my efforts to understand the linux kernel v2.4 I found the bkl being
-used in kernel/acct.c to lock seemingly local data. Would someone please
-explain what races this prevents vs. say:
+
+--R3G7APHDIzY6R/pk
+Content-Type: multipart/mixed; boundary="82I3+IH0IqGh5yIs"
+Content-Disposition: inline
 
 
---- linux/kernel/acct.c Mon Oct 30 01:02:56 2000
-+++ linux-2.4.0-test10/kernel/acct.c Mon Oct 30 01:10:20 2000
-@@ -41,6 +41,10 @@
-  * Oh, fsck... Oopsable SMP race in do_process_acct() - we must hold
-  * ->mmap_sem to walk the vma list of current->mm. Nasty, since it leaks
-  * a struct file opened for write. Fixed. 2/6/2000, AV.
-+ *
-+ *  2000-10-27 Modified by Nick <piggin@cyberone.com.au> to remove usage
-+ *  of the big kernel lock in favour of a local spinlock
-+ *
-  */
+--82I3+IH0IqGh5yIs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- #include <linux/config.h>
-@@ -77,6 +81,7 @@
- static struct file *acct_file;
- static struct timer_list acct_timer;
- static void do_acct_process(long, struct file *);
-+static spinlock_t acct_lock = SPIN_LOCK_UNLOCKED;
 
- /*
-  * Called whenever the timer says to check the free space.
-@@ -95,11 +100,11 @@
-  int res;
-  int act;
+Hi,
 
-- lock_kernel();
-+        spin_lock(&acct_lock);
-  res = acct_active;
-  if (!file || !acct_needcheck)
--  goto out;
-- unlock_kernel();
-+  goto out_unlock;
-+        spin_unlock(&acct_lock);
+Here's a patch that fixes the compile time problem in 2.4.0-test11-pre3
+for the belkin_sa.c usb serial driver.  It also takes care of the two
+compile time warnings.
 
-  /* May block */
-  if (vfs_statfs(file->f_dentry->d_inode->i_sb, &sbuf))
-@@ -113,14 +118,14 @@
-   act = 0;
+Thanks,
 
-  /*
--  * If some joker switched acct_file under us we'ld better be
-+  * If some joker switched acct_file under us we'd better be
-   * silent and _not_ touch anything.
-   */
-- lock_kernel();
-+        spin_lock(&acct_lock);
-  if (file != acct_file) {
-   if (act)
-    res = act>0;
--  goto out;
-+  goto out_unlock;
-  }
+greg k-h
 
-  if (acct_active) {
-@@ -140,8 +145,8 @@
-  acct_timer.expires = jiffies + ACCT_TIMEOUT*HZ;
-  add_timer(&acct_timer);
-  res = acct_active;
--out:
-- unlock_kernel();
-+out_unlock:
-+        spin_unlock(&acct_lock);
-  return res;
- }
+--=20
+greg@(kroah|wirex).com
 
-@@ -182,7 +187,7 @@
-  }
+--82I3+IH0IqGh5yIs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="usb-belkin-2.4.0-test11-pre3.diff"
+Content-Transfer-Encoding: quoted-printable
 
-  error = 0;
-- lock_kernel();
-+        spin_lock(&acct_lock);
-  if (acct_file) {
-   old_acct = acct_file;
-   del_timer(&acct_timer);
-@@ -200,7 +205,7 @@
-   acct_timer.expires = jiffies + ACCT_TIMEOUT*HZ;
-   add_timer(&acct_timer);
-  }
-- unlock_kernel();
-+        spin_unlock(&acct_lock);
-  if (old_acct) {
-   do_acct_process(0,old_acct);
-   filp_close(old_acct, NULL);
-@@ -214,10 +219,24 @@
-
- void acct_auto_close(kdev_t dev)
- {
-- lock_kernel();
-- if (acct_file && acct_file->f_dentry->d_inode->i_dev == dev)
--  sys_acct(NULL);
-- unlock_kernel();
-+        struct file *old_acct;
+diff -Naur -X /home/greg/linux/dontdiff linux-2.4.0-test11-pre3/drivers/usb=
+/serial/belkin_sa.c linux-2.4.0-test11-pre3-greg/drivers/usb/serial/belkin_=
+sa.c
+--- linux-2.4.0-test11-pre3/drivers/usb/serial/belkin_sa.c	Sun Nov 12 10:07=
+:33 2000
++++ linux-2.4.0-test11-pre3-greg/drivers/usb/serial/belkin_sa.c	Sun Nov 12 =
+10:23:12 2000
+@@ -85,13 +85,35 @@
+ static int  belkin_sa_ioctl		(struct usb_serial_port *port, struct file * =
+file, unsigned int cmd, unsigned long arg);
+ static void belkin_sa_break_ctl		(struct usb_serial_port *port, int break_=
+state );
+=20
 +
-+        spin_lock(&acct_lock);
-+ if (acct_file && acct_file->f_dentry->d_inode->i_dev == dev) {
++static __devinitdata struct usb_device_id id_table_combined [] =3D {
++	{ idVendor: BELKIN_SA_VID,	idProduct: BELKIN_SA_PID },
++	{ idVendor: BELKIN_OLD_VID,	idProduct: BELKIN_OLD_PID },
++	{ idVendor: PERACOM_VID,	idProduct: PERACOM_PID },
++	{ }							/* Terminating entry */
++};
 +
-+                /* Run the same code as sys_acct(NULL) here. This
-simplifies locking */
-+                old_acct = acct_file;
-+                del_timer(&acct_timer);
-+                acct_active = 0;
-+                acct_needcheck = 0;
-+                acct_file = NULL;
++static __devinitdata struct usb_device_id belkin_sa_table [] =3D {
++	{ idVendor: BELKIN_SA_VID,	idProduct: BELKIN_SA_PID },
++	{ }							/* Terminating entry */
++};
 +
-+                spin_unlock(&acct_lock);
++static __devinitdata struct usb_device_id belkin_old_table [] =3D {
++	{ idVendor: BELKIN_OLD_VID,	idProduct: BELKIN_OLD_PID },
++	{ }							/* Terminating entry */
++};
 +
-+                do_acct_process(0, old_acct);
-+                filp_close(old_acct, NULL);
-+        } else
-+                spin_unlock(&acct_lock);
- }
++static __devinitdata struct usb_device_id peracom_table [] =3D {
++	{ idVendor: PERACOM_VID,	idProduct: PERACOM_PID },
++	{ }							/* Terminating entry */
++};
++
++MODULE_DEVICE_TABLE (usb, id_table_combined);
++
+ /* All of the device info needed for the Belkin serial converter */
+-static __u16	belkin_sa_vendor_id	=3D BELKIN_SA_VID;
+-static __u16	belkin_sa_product_id	=3D BELKIN_SA_PID;
+ struct usb_serial_device_type belkin_sa_device =3D {
+ 	name:			"Belkin F5U103 USB Serial Adapter",
+-	idVendor:		&belkin_sa_vendor_id,		/* the Belkin vendor ID */
+-	idProduct:		&belkin_sa_product_id,		/* the Belkin F5U103 product id */
++	id_table:		belkin_sa_table,		/* the Belkin F5U103 device */
+ 	needs_interrupt_in:	MUST_HAVE,			/* this device must have an interrupt in=
+ endpoint */
+ 	needs_bulk_in:		MUST_HAVE,			/* this device must have a bulk in endpoint =
+*/
+ 	needs_bulk_out:		MUST_HAVE,			/* this device must have a bulk out endpoin=
+t */
+@@ -111,12 +133,9 @@
+=20
+=20
+ /* This driver also supports the "old" school Belkin single port adaptor */
+-static __u16	belkin_old_vendor_id	=3D BELKIN_OLD_VID;
+-static __u16	belkin_old_product_id	=3D BELKIN_OLD_PID;
+ struct usb_serial_device_type belkin_old_device =3D {
+ 	name:			"Belkin USB Serial Adapter",
+-	idVendor:		&belkin_old_vendor_id,		/* the Belkin vendor ID */
+-	idProduct:		&belkin_old_product_id,		/* the Belkin product id */
++	id_table:		belkin_old_table,		/* the old Belkin device */
+ 	needs_interrupt_in:	MUST_HAVE,			/* this device must have an interrupt in=
+ endpoint */
+ 	needs_bulk_in:		MUST_HAVE,			/* this device must have a bulk in endpoint =
+*/
+ 	needs_bulk_out:		MUST_HAVE,			/* this device must have a bulk out endpoin=
+t */
+@@ -135,12 +154,9 @@
+ };
+=20
+ /* this driver also works for the Peracom single port adapter */
+-static __u16	peracom_vendor_id	=3D PERACOM_VID;
+-static __u16	peracom_product_id	=3D PERACOM_PID;
+ struct usb_serial_device_type peracom_device =3D {
+ 	name:			"Peracom single port USB Serial Adapter",
+-	idVendor:		&peracom_vendor_id,		/* the Peracom vendor ID */
+-	idProduct:		&peracom_product_id,		/* the Peracom product id */
++	id_table:		peracom_table,			/* the Peracom device */
+ 	needs_interrupt_in:	MUST_HAVE,			/* this device must have an interrupt in=
+ endpoint */
+ 	needs_bulk_in:		MUST_HAVE,			/* this device must have a bulk in endpoint =
+*/
+ 	needs_bulk_out:		MUST_HAVE,			/* this device must have a bulk out endpoin=
+t */
+@@ -284,7 +300,6 @@
+ 	struct usb_serial_port *port =3D (struct usb_serial_port *)urb->context;
+ 	struct belkin_sa_private *priv =3D (struct belkin_sa_private *)port->priv=
+ate;
+ 	struct usb_serial *serial;
+-	struct tty_struct *tty;
+ 	unsigned char *data =3D urb->transfer_buffer;
+=20
+ 	/* the urb might have been killed. */
+@@ -360,7 +375,7 @@
+ 	unsigned int cflag =3D port->tty->termios->c_cflag;
+ 	unsigned int old_iflag =3D old_termios->c_iflag;
+ 	unsigned int old_cflag =3D old_termios->c_cflag;
+-	__u16 urb_value; /* Will hold the new flags */
++	__u16 urb_value =3D 0; /* Will hold the new flags */
+ =09
+ 	/* Set the baud rate */
+ 	if( (cflag&CBAUD) !=3D (old_cflag&CBAUD) ) {
 
- /*
-@@ -348,15 +367,15 @@
- int acct_process(long exitcode)
- {
-  struct file *file = NULL;
-- lock_kernel();
-+        spin_lock(&acct_lock);
-  if (acct_file) {
-   file = acct_file;
-   get_file(file);
--  unlock_kernel();
-+                spin_unlock(&acct_lock);
-   do_acct_process(exitcode, acct_file);
-   fput(file);
-  } else
--  unlock_kernel();
-+                spin_unlock(&acct_lock);
-  return 0;
- }
+--82I3+IH0IqGh5yIs--
 
+--R3G7APHDIzY6R/pk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6DuRIMUfUDdst+ykRAh04AJ9YTSKPmoMh+v2kmTs7kjAczUyY9gCgtCJ9
+2HFUf5Os7FCaLs6izp9yIEM=
+=SrX/
+-----END PGP SIGNATURE-----
+
+--R3G7APHDIzY6R/pk--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

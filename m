@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268881AbUHZN6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268977AbUHZODE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268881AbUHZN6I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 09:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268914AbUHZN6I
+	id S268977AbUHZODE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 10:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268978AbUHZOCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 09:58:08 -0400
-Received: from nysv.org ([213.157.66.145]:48014 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S268881AbUHZN54 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 09:57:56 -0400
-Date: Thu, 26 Aug 2004 16:56:22 +0300
+	Thu, 26 Aug 2004 10:02:24 -0400
+Received: from mail.shareable.org ([81.29.64.88]:11462 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S268882AbUHZOA2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 10:00:28 -0400
+Date: Thu, 26 Aug 2004 14:59:36 +0100
+From: Jamie Lokier <jamie@shareable.org>
 To: Rik van Riel <riel@redhat.com>
-Cc: Hans Reiser <reiser@namesys.com>, Jeremy Allison <jra@samba.org>,
-       Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+Cc: Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>, wichert@wiggy.net,
+       jra@samba.org, torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
+       flx@namesys.com, reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826135622.GY1284@nysv.org>
-References: <412DA26C.5060604@namesys.com> <Pine.LNX.4.44.0408260927100.26316-100000@chimarrao.boston.redhat.com>
+Message-ID: <20040826135936.GC5733@mail.shareable.org>
+References: <20040826024956.08b66b46.akpm@osdl.org> <Pine.LNX.4.44.0408260935130.26316-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0408260927100.26316-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.5.6i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+In-Reply-To: <Pine.LNX.4.44.0408260935130.26316-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 09:27:52AM -0400, Rik van Riel wrote:
->
->1) how do you back up and restore files with streams inside ?
+Rik van Riel wrote:
+> > All of which can be handled in userspace library code.
+> > 
+> > What compelling reason is there for doing this in the kernel?
+> 
+> There's a compelling reason to do it in userspace.  If an
+> unaware program copies or moves such a file with streams
+> inside, it doesn't break the streams and aware programs will
+> continue to see them.
+> 
+> OTOH, if we had the streams in the kernel, unaware applications
+> would continuously break the metadata and streams that the
+> streams aware programs expect !
 
-With a program that supports files with streams inside.
+You appear not to have read any of my mails on this topic.
 
->2) how do standard unix utilities handle them ?
+Properly implemented metadata can:
 
-Most likely they don't ;) That is, until they are fixed or replaced.
-I've heard of people who want xattrs to be backed up so they use star, 
-not gnu tar, already.
+  (1) operate in both modes simultaneously;
+  (2) work with unaware applications;
+  (3) provide performance enhancements to aware applications;
+  (4) provide storage enhancements to both;
+  (5) provide useful features that work with standard unmodified unix tools,
 
--- 
-mjt
+all at once.  That includes program copies.
 
+-- Jamie

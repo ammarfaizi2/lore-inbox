@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbTKZMNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 07:13:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbTKZMNQ
+	id S261569AbTKZMSw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 07:18:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbTKZMSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 07:13:16 -0500
-Received: from nimbus19.internetters.co.uk ([209.61.216.65]:41632 "HELO
-	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
-	id S261188AbTKZMNP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 07:13:15 -0500
-Subject: Re: Networking gets extremely laggy after a random amount of time.
-From: Alex Bennee <kernel-hacker@bennee.com>
-To: Maciej =?iso-8859-2?Q?So=B3tysiak?= <solt@dns.toxicfilms.tv>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <001c01c3b40c$3e7666a0$0e25fe0a@pysiak>
-References: <001c01c3b40c$3e7666a0$0e25fe0a@pysiak>
-Content-Type: text/plain; charset=iso-8859-2
-Organization: Hackers Inc
-Message-Id: <1069848605.5514.6.camel@cambridge.braddahead.com>
+	Wed, 26 Nov 2003 07:18:52 -0500
+Received: from attila.bofh.it ([213.92.8.2]:42447 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id S261569AbTKZMSv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 07:18:51 -0500
+Date: Wed, 26 Nov 2003 12:05:19 +0100
+From: "Marco d'Itri" <md@Linux.IT>
+To: Hanasaki JiJi <hanasaki@hanaden.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: via kt600 based motherboard compatibility
+Message-ID: <20031126110519.GC2501@wonderland.linux.it>
+References: <3FC41800.2020400@hanaden.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk 
-Date: Wed, 26 Nov 2003 12:10:05 +0000
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FC41800.2020400@hanaden.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-11-26 at 10:58, Maciej So³tysiak wrote:
-<snip>
-> Networking gets extremely laggy after a random amount of time.
-> Sometimes it is 5 minutes, sometimes 30hours, sometimes 5 days.
-> 
-> By laggy, I mean that each connection that is established from or to
-> the linux box (even on the same LAN) is very slow and jitters.
-<snip>
-> It propably is NIC related, but I do not know how to investigate
-> this. I have two 3com 3c905c-tx NICs. One of them is connected
-> to the LAN, and the other is connected to a hub and is sometimes
-> used to listen in promiscous mode to investigate traffic.
-> 
-> I would appreciate any pointers on where to look for problems.
+On Nov 26, Hanasaki JiJi <hanasaki@hanaden.com> wrote:
 
-Whenever I've come across problems with multiple NIC systems the first
-thing I check is the routing is what I expect. Use "route -n" and check
-that your WAN traffic really does go straight to the WAN and your LAN
-traffic is as you expect.
-
-Is your local LAN connections laggy as well? If not it could be your
-problems are at the WAN end (BB connection?).
+ >Asus A7V600
+ >http://www.asus.com/prog/spec.asp?m=A7V600&langs=01
+ >	- ADI AD1980 audio sound
+ >	- eCom 3C940 gigabit ethernet
+ >		does it have a driver?
+ >		does it work on 10/100 too?
+I bought this one two weeks ago. The gigaethernet port works well and
+I'm using it at 10 Mbps half duplex with the sk98 driver. It has a built
+in cable tester, but it's not supported by linux.
+The sound card works too, but I had to transplant in my kernel an
+updated driver from ALSA CVS. This is annoying because ALSA CVS cannot
+easily be compiled standalone for a 2.6. kernel.
+There are a few problems (currently being debugged) with the IDE adapter
+if you do not use the APIC, be sure to enable it when building the
+kernel.
+I have no SATA hardware, but I remember reading that the controller is
+supported.
 
 -- 
-Alex, homepage: http://www.bennee.com/~alex/
-Lazlo's Chinese Relativity Axiom:
-	No matter how great your triumphs or how tragic your defeats --
-	approximately one billion Chinese couldn't care less.
-
+ciao, |
+Marco | [3290 l'48jB9jyWEdM]

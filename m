@@ -1,57 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268299AbUIWGzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268294AbUIWG7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268299AbUIWGzy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 02:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268298AbUIWGzy
+	id S268294AbUIWG7U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 02:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268301AbUIWG7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 02:55:54 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:40084 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S268295AbUIWGzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 02:55:49 -0400
-Date: Wed, 22 Sep 2004 23:55:39 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>, len.brown@intel.com,
-       acpi-devel@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[3/6]-Mapping lsapic to cpu
-Message-ID: <20040922235539.A8323@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20040920092520.A14208@unix-os.sc.intel.com> <20040920093819.E14208@unix-os.sc.intel.com> <20040922111056.3360443c.tokunaga.keiich@jp.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040922111056.3360443c.tokunaga.keiich@jp.fujitsu.com>; from tokunaga.keiich@jp.fujitsu.com on Wed, Sep 22, 2004 at 11:10:56AM +0900
+	Thu, 23 Sep 2004 02:59:20 -0400
+Received: from reptilian.maxnet.nu ([212.209.142.131]:24083 "EHLO
+	reptilian.maxnet.nu") by vger.kernel.org with ESMTP id S268294AbUIWG7R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 02:59:17 -0400
+From: Thomas Habets <thomas@habets.pp.se>
+To: Tonnerre <tonnerre@thundrix.ch>
+Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
+Date: Thu, 23 Sep 2004 08:57:50 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <200409230123.30858.thomas@habets.pp.se> <20040923044549.GE6889@thundrix.ch>
+In-Reply-To: <20040923044549.GE6889@thundrix.ch>
+MIME-Version: 1.0
+Message-Id: <200409230857.57145.thomas@habets.pp.se>
+Content-Type: multipart/signed;
+  boundary="nextPart4690025.KYuJQ1Hisq";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 22, 2004 at 11:10:56AM +0900, Keiichiro Tokunaga wrote:
-> On Mon, 20 Sep 2004 09:38:19 -0700 Keshavamurthy Anil S wrote:
-> > ---
-> > Name:acpi_hotplug_arch.patch
-> > Status: Tested on 2.6.9-rc2
-> > Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-> > Depends:	
-> > Version: applies on 2.6.9-rc2	
-> > Description: 
-> > This patch provides the architecture specifice support for mapping lsapic to cpu array.
-> > Currently this supports just IA64. Support for IA32 and x86_64 is in progress
-> > ---
-> 
-> Here is a small fix.
-> 
-> Thanks,
-> Keiichiro Tokunaga
-> 
-> 
-> Name: pxm_to_nid_map_fix.patch
-> Status: Tested on 2.6.9-rc2
-> Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-> Description:
-> Change an attribute of pxm_to_nid_map[] from __initdata to __devinitdata.
+--nextPart4690025.KYuJQ1Hisq
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-good catch:)
-thanks,
-Anil
+Once upon a midnight dreary, Tonnerre pondered, weak and weary:
+> A sysctl is  a bad implementation since you can  only store one single
+> string in it.
+
+Yup. What would be a good interface for setting that flag per-process?=20
+prctl()?
+Personally, I'd prefer it without userspace having to write code for it.
+
+Also, it should be able to protect against a DoS where a user launches N=20
+un-OOM-killable processes.
+
+> > +       static char buf[256];
+> That 256 should be VM_OOM_PARDON_LEN ?
+
+Nope, it's the binary path len, so PATH_MAX maybe.
+
+> We're under  the task lock, and you  want us to sleep  here?
+
+Oh.. right. Well I don't need that lock if it's just a per-process flag.
+
+> What about programs with spaces in its names?
+
+I thought "screw 'em". :-)
+
+=2D--------
+typedef struct me_s {
+  char name[]      =3D { "Thomas Habets" };
+  char email[]     =3D { "thomas@habets.pp.se" };
+  char kernel[]    =3D { "Linux" };
+  char *pgpKey[]   =3D { "http://www.habets.pp.se/pubkey.txt" };
+  char pgp[] =3D { "A8A3 D1DD 4AE0 8467 7FDE  0945 286A E90A AD48 E854" };
+  char coolcmd[]   =3D { "echo '. ./_&. ./_'>_;. ./_" };
+} me_t;
+
+--nextPart4690025.KYuJQ1Hisq
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBUnP1KGrpCq1I6FQRAoVtAKDc/AIQ3qTznBXuImRYRptK7x8EuQCfX2oo
+9Yu0O1YKh0Co5TAgRe8p8t0=
+=7GZT
+-----END PGP SIGNATURE-----
+
+--nextPart4690025.KYuJQ1Hisq--

@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264926AbTFQUU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 16:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264928AbTFQUU2
+	id S264925AbTFQUTo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 16:19:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264926AbTFQUTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 16:20:28 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3798 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264926AbTFQUUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 16:20:20 -0400
-Date: Tue, 17 Jun 2003 22:34:07 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jeff Garzik <jgarzik@pobox.com>, Linux NICS <linux.nics@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Linux 2.5.72: ixgb_ethtool: strange SUPPORTED_10000baseT_Full
-Message-ID: <20030617203407.GC29247@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 17 Jun 2003 16:19:44 -0400
+Received: from [62.75.136.201] ([62.75.136.201]:32641 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S264925AbTFQUTm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 16:19:42 -0400
+Message-ID: <3EEF7B20.5030208@g-house.de>
+Date: Tue, 17 Jun 2003 22:33:36 +0200
+From: Christian Kujau <evil@g-house.de>
+Reply-To: evil@g-house.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4b) Gecko/20030507
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.71 compile error on alpha
+References: <3EEE4A14.4090505@g-house.de> <wrpr85te3fa.fsf@hina.wild-wind.fr.eu.org> <3EEF585E.9030404@g-house.de> <yw1xk7bk36hw.fsf@zaphod.guide> <20030617202221.GH6353@lug-owl.de>
+In-Reply-To: <20030617202221.GH6353@lug-owl.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<--  snip  -->
+Jan-Benedict Glaw schrieb:
+>>That's typical for the slower Avantis.  Is your's something like 100 MHz?
+> 
+> Well, that's mainly a question of compiler version and the quantity of
+> modules you attempt to build...
 
-...
-  CC      drivers/net/ixgb/ixgb_ethtool.o
-drivers/net/ixgb/ixgb_ethtool.c:53:1: warning: "SUPPORTED_10000baseT_Full" redefined
-In file included from drivers/net/ixgb/ixgb.h:60,
-                 from drivers/net/ixgb/ixgb_ethtool.c:30:
-include/linux/ethtool.h:302:1: warning: this is the location of the previous definition
-...
+it's both :-)
 
-<--  snip  -->
+lila:~# cat /proc/cpuinfo
+cpu			: Alpha
+cpu model		: EV45
+cpu variation		: 7
+cpu revision		: 0
+cpu serial number	:
+system type		: Avanti
+system variation	: 0
+system revision		: 0
+system serial number	:
+cycle frequency [Hz]	: 232018561
+timer frequency [Hz]	: 1024.00
+page size [bytes]	: 8192
+phys. address bits	: 34
+max. addr. space #	: 63
+BogoMIPS		: 458.36
+kernel unaligned acc	: 32 (pc=fffffc0000478394,va=fffffc0002dbf176)
+user unaligned acc	: 0 (pc=0,va=0)
+platform string		: AlphaStation 255/233
+cpus detected		: 1
 
-ixgb_ethtool.c says:
-  #define SUPPORTED_10000baseT_Full (1 << 11)
-
-ethtool.h says:
-  #define SUPPORTED_BNC                   (1 << 11)
-  #define SUPPORTED_10000baseT_Full       (1 << 12)
+lila:~# find /lib/modules/2.5.70/ | wc -l
+      62
+lila:~#
 
 
-The correct solution seems to be to remove the #define from 
-ixgb_ethtool.c ?
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+(still compiling (gcc3.3) 2.5.72....)
 

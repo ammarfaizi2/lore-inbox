@@ -1,74 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279798AbSAGQvV>; Mon, 7 Jan 2002 11:51:21 -0500
+	id <S280126AbSAGQ7P>; Mon, 7 Jan 2002 11:59:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280126AbSAGQvM>; Mon, 7 Jan 2002 11:51:12 -0500
-Received: from pat.uio.no ([129.240.130.16]:4284 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S279798AbSAGQvF>;
-	Mon, 7 Jan 2002 11:51:05 -0500
+	id <S280588AbSAGQ7G>; Mon, 7 Jan 2002 11:59:06 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:39946 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S280126AbSAGQ7A>;
+	Mon, 7 Jan 2002 11:59:00 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 7 Jan 2002 17:58:14 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15417.53743.840597.686135@charged.uio.no>
-Date: Mon, 7 Jan 2002 17:50:55 +0100
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: NFS "dev_t" issues..
-In-Reply-To: <Pine.LNX.4.33.0201011402560.13397-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0201011402560.13397-100000@penguin.transmeta.com>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: "APIC error on CPUx" - what does this mean?
+CC: cw@f00f.org (Chris Wedgwood), swsnyder@home.com,
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        alan@lxorguk.ukuu.org.uk
+X-mailer: Pegasus Mail v3.40
+Message-ID: <E3B8D7A16F6@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
+On  7 Jan 02 at 13:33, Alan Cox wrote:
+> > whether IRQ7 happens directly when we send confirmation to 8259,
+> > or whether it happens due to some noise on IRQ line.
+> > 
+> > AFAIK it happens only on VIA based boards, and only if (AMD) CPU is using 
+> > APIC.
+> 
+> Are you using an AMD northbridge and VIA southbridge together ?
 
-     > I made a pre6, which contains a new-and-anal "kdev_t".
+No. It is fully-VIA motherboard (Asus A7V), VIA KT133 as a northbridge 
+and VIA686A as a southbridge, with 1GHz Athlon. And spurious IRQ happen 
+when either of (massive) IRQ sources (Promise UDMA, tulip-based network 
+card, an es137x soundcard) emits interrupts.
 
-<snip>
+Problem is best visible when Promise is used in PIO mode with block size=512,
+as in such case you can get thousands of IRQs from Promise in second, and
+tenths of spurious IRQ7. But even if Promise emits in average one IRQ each 
+second (== idle system with running cron and atime updates on), I get 
+~10 of spurious IRQ7 during one hour.
 
-     > I fixed up the stuff I use and which showed up in compiles (on
-     > a source level, it's so far totally untested), but I'd really
-     > like people to check out their own subsystems. _Especially_ NFS
-     > and NFSD, which had several cases of mixing the two dev_t's
-     > around, and which also used them as numbers. Trond, Neil?
-
-Hi Linus & Marcelo,
-
-  Sorry I'm a bit late in replying. AFAICS as of 2.5.2-pre9, all is
-more or less well, however when reviewing that code, I noticed what is
-probably a bug:
-
-  Given that (for character devices) the value of inode->i_cdev in
-2.[45].x depends on the i_rdev, it would appear to be a bug for us to
-be able to change inode->i_rdev *after* we've called
-init_special_inode().
-For this reason, I'd advocate removing the lines in
-nfs_refresh_inode() that reset the inode->i_rdev (as per the patch
-below) and instead rely on the ordinary stale inode checks to tell us
-if/when the inode->i_rdev has changed.
-
-It's hardly a new bug. It's been around ever since we added
-init_special_inode(), so it's clearly not one that bites us every day
-of the year. Even so, the same patch should probably be applied to
-2.4.x.
-
-Cheers,
-  Trond
-
-
-diff -u --recursive --new-file linux-2.5.2-pre9/fs/nfs/inode.c linux-2.5.2-fix/fs/nfs/inode.c
---- linux-2.5.2-pre9/fs/nfs/inode.c	Mon Jan  7 16:57:18 2002
-+++ linux-2.5.2-fix/fs/nfs/inode.c	Mon Jan  7 17:08:42 2002
-@@ -1107,9 +1107,6 @@
-  		inode->i_blocks = fattr->du.nfs2.blocks;
-  		inode->i_blksize = fattr->du.nfs2.blocksize;
-  	}
-- 	inode->i_rdev = NODEV;
-- 	if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode))
-- 		inode->i_rdev = to_kdev_t(fattr->rdev);
-  
- 	/* Update attrtimeo value */
- 	if (!invalid && time_after(jiffies, NFS_ATTRTIMEO_UPDATE(inode)+NFS_ATTRTIMEO(inode))) {
+I can get complete lspci -vvv at home, if you want.
+                                                Best regards,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261990AbUCIPIb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 10:08:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUCIPIa
+	id S261906AbUCIPGf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 10:06:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbUCIPGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 10:08:30 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:4021 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261990AbUCIPI3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 10:08:29 -0500
-Date: Tue, 9 Mar 2004 16:09:42 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
-Message-ID: <20040309150942.GA8224@elte.hu>
-References: <20040308202433.GA12612@dualathlon.random> <Pine.LNX.4.58.0403081238060.9575@ppc970.osdl.org> <20040308132305.3c35e90a.akpm@osdl.org> <20040308230247.GC12612@dualathlon.random> <20040308152126.54f4f681.akpm@osdl.org> <20040308234014.GG12612@dualathlon.random> <20040309083103.GB8021@elte.hu> <20040309090326.GA10039@elte.hu> <20040309145130.GC8193@dualathlon.random>
+	Tue, 9 Mar 2004 10:06:35 -0500
+Received: from fed1mtao06.cox.net ([68.6.19.125]:52723 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S261906AbUCIPGe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 10:06:34 -0500
+Date: Tue, 9 Mar 2004 08:06:32 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       george@mvista.com, pavel@ucw.cz
+Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
+Message-ID: <20040309150632.GH15065@smtp.west.cox.net>
+References: <200403081504.30840.amitkale@emsyssoft.com> <20040308022602.766be828.akpm@osdl.org> <200403081619.16771.amitkale@emsyssoft.com> <200403091459.54161.amitkale@emsyssoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040309145130.GC8193@dualathlon.random>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <200403091459.54161.amitkale@emsyssoft.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 09, 2004 at 02:59:54PM +0530, Amit S. Kale wrote:
+[snip]
+> I attempted it and found that it works better than my expectation! I am 
+> attaching revised core-lite.patch with this email and sending i386-lite.patch 
+> as a reply.
+[snip]
+> Index: linux-2.6.4-rc2-bk3-kgdb/include/linux/kgdb.h
+[snip]
+> +#ifndef KGDB_MAX_NO_CPUS
+> +#if CONFIG_NR_CPUS > 8
+> +#error KGDB can handle max 8 CPUs
+> +#endif
+> +#define KGDB_MAX_NO_CPUS 8
+> +#endif
 
-* Andrea Arcangeli <andrea@suse.de> wrote:
+We need to remove all of that in favor of s/KGDB_MAX_NO_CPUS/NR_CPUS/g,
+and remove the check on 8.
 
-> first of all that this algorithm is running in production just fine in
-> the workloads you're talking about, it's not like I didn't even try
-> it, even the ones that have to swap (see the end of the email).
-
-could you just try test-mmap2.c on such a box, and hit swap?
-
-	Ingo
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

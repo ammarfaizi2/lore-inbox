@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264262AbTLBA6R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 19:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264264AbTLBA6R
+	id S264266AbTLBBIM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 20:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264273AbTLBBIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 19:58:17 -0500
-Received: from main.gmane.org ([80.91.224.249]:42728 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264262AbTLBA6P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 19:58:15 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: 2.6 security patches merged? was: Linux 2.4 future
-Date: Tue, 02 Dec 2003 01:58:12 +0100
-Message-ID: <yw1x3cc4ujbv.fsf@kth.se>
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <200312011226.04750.nbensa@gmx.net>
- <20031201233025.GK1566@mis-mike-wstn.matchmail.com>
- <20031201160649.A9693@osdlab.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:OHl2bbVnSy5mbCBzI3+mc7AefEg=
+	Mon, 1 Dec 2003 20:08:12 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:53771 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S264266AbTLBBIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 20:08:09 -0500
+Date: Tue, 2 Dec 2003 09:09:53 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: <raven@wombat.indigo.net.au>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4 future
+In-Reply-To: <20031201153316.B3879@infradead.org>
+Message-ID: <Pine.LNX.4.33.0312020905070.11316-100000@wombat.indigo.net.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.6, required 8, AWL,
+	BAYES_20, EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright <chrisw@osdl.org> writes:
+On Mon, 1 Dec 2003, Christoph Hellwig wrote:
 
->> That reminds me, have all of the security patches that went into 2.4 been
->> forward ported to 2.6 and merged already?
+> On Mon, Dec 01, 2003 at 11:04:21PM +0800, Ian Kent wrote:
+> > Would you be willing to consider autofs4 patches that I would like
+> > included in 2.4?
 >
-> Forward ported: yes.  Merged: still underway.
+> What autofs4 patches?  bugfixes, features?  if they aren't in
+> 2.6 yet I don't think it makes sense trying to get them into
+> 2.4 anymore at all.
+>
 
-And the merging won't be complete before 2.6 hits the streets, or what?
+Yep.
+
+I have just finished porting them to 2.6 and will be attempting to get
+the help of autofs list inhabitants for initail testing in the next few
+days. I have one volunteer so far.
+
+Anyone else got time, a 2.6 environment and willing to help?
 
 -- 
-Måns Rullgård
-mru@kth.se
+
+   ,-._|\    Ian Kent
+  /      \   Perth, Western Australia
+  *_.--._/   E-mail: raven@themaw.net
+        v    Web: http://themaw.net/
 

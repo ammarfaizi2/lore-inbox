@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263002AbTLWXIO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 18:08:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbTLWXH2
+	id S262328AbTLWXAs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 18:00:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTLWXAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 18:07:28 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37785 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262859AbTLWXF5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 18:05:57 -0500
-Date: Tue, 23 Dec 2003 23:05:55 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Hua Zhong <hzhong@cisco.com>
-Cc: "'Rob Love'" <rml@ximian.com>,
-       "'Jari Soderholm'" <Jari.Soderholm@edu.stadia.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: DEVFS is very good compared to UDEV
-Message-ID: <20031223230555.GF4176@parcelfarce.linux.theplanet.co.uk>
-References: <1072216884.6987.52.camel@fur> <008401c3c9a3$0d11abe0$ca41cb3f@amer.cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <008401c3c9a3$0d11abe0$ca41cb3f@amer.cisco.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 23 Dec 2003 18:00:48 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:5999 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S262328AbTLWXAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 18:00:47 -0500
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'Rob Love'" <rml@ximian.com>
+Cc: "'Jari Soderholm'" <Jari.Soderholm@edu.stadia.fi>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: DEVFS is very good compared to UDEV
+Date: Tue, 23 Dec 2003 15:00:43 -0800
+Organization: Cisco Systems
+Message-ID: <008901c3c9a8$97ac5c50$ca41cb3f@amer.cisco.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <1072218603.6987.57.camel@fur>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 02:21:03PM -0800, Hua Zhong wrote:
+> I do not know the time line of the flames vs. any decisions made by
+> Richard, though.
 
-> But I do have sth fair to say about this "unmaintained" part.
-> 
-> >From my memory, at some point in time, somebody (Al Viro?) reviewed
-> devfs code and flamed the author in public (klml), throwing lots of bad
-> impolite words to him, which I think was the biggest reason that the
-> author stopped maintaining it.
+I believe this is what I saw but I am not exactly sure:
 
-Oh, really?  That "flame in public" was after _many_ months of pointing
-to the same problems in private - with zero effect.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0110.3/0712.html
 
-If maintainer sits on exploitable holes for ~18 months and does not care to do
-anything, his code is unmaintained.  If same maintainer keeps pretending in
-public that everything is fine, he can expect to have the truthfulness of his
-statements challenged.  Also in public.  If the situation persists even after
-that, then yes, there will be rather unflattering things to say.
+And at that time Richard claimed he was still active.
 
-Don't delude yourself - critical parts of devfs had not been maintained for
-quite a while before Richard had disappeared.  It's not the effect of flames
-- it's their cause and it predates them by _far_.
+> And, yes, Al flames very hard and a bit rude -- but
+> I have never seen him wrong, that is for sure ;-)
+
+Me neither :-) and when he is not flaming me (which I have not got the
+chance yet), it's fun to read. But I hate him, you know, because I now
+tend to be influenced by the way he (and several others on this list)
+writes emails, and that's not nice in a corporate environment!!
+
+> So I cannot comment over _why_ defvs is unmaintained, but that is not
+> the point: either way, it stands that devfs is unmaintained.  
+> That is a problem in and of itself.
+
+It's just my impression that around that time core developers had
+decided to replace devfs with a new model. If I were in ths same shoes,
+I would probably also stop maintaining it. Then 2 years later when
+somebody asks, the reason to replace my code shouldn't be
+"unmaintained". Just the technical reasons should be enough. :-)
+
+> 	Rob Love
+

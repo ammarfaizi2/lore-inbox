@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263062AbREWMGv>; Wed, 23 May 2001 08:06:51 -0400
+	id <S263061AbREWMRw>; Wed, 23 May 2001 08:17:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263058AbREWMGm>; Wed, 23 May 2001 08:06:42 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:3171 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263064AbREWMGc>; Wed, 23 May 2001 08:06:32 -0400
-Date: Wed, 23 May 2001 12:37:59 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, Larry McVoy <lm@bitmover.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: Getting FS access events
-Message-ID: <20010523123759.G27177@redhat.com>
-In-Reply-To: <200105140117.f4E1HqN07362@vindaloo.ras.ucalgary.ca> <Pine.LNX.4.21.0105131824090.20981-100000@penguin.transmeta.com> <20010513184509.P2103@work.bitmover.com> <200105140239.f4E2dNd08399@vindaloo.ras.ucalgary.ca> <20010515163701.A13399@metastasis.f00f.org>
-Mime-Version: 1.0
+	id <S263063AbREWMRm>; Wed, 23 May 2001 08:17:42 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44041 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263061AbREWMRg>; Wed, 23 May 2001 08:17:36 -0400
+Subject: Re: [PATCH] struct char_device
+To: Andries.Brouwer@cwi.nl
+Date: Wed, 23 May 2001 13:13:50 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com, jgarzik@mandrakesoft.com,
+        linux-kernel@vger.kernel.org, viro@math.psu.edu
+In-Reply-To: <UTC200105231157.NAA80659.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at May 23, 2001 01:57:20 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010515163701.A13399@metastasis.f00f.org>; from cw@f00f.org on Tue, May 15, 2001 at 04:37:01PM +1200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E152XWQ-0003Wa-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> It is entirely possible to remove all partition table handling code
+> from the kernel. User space can figure out where the partitions
+> are supposed to be and tell the kernel.
+> For the initial boot this user space can be in an initrd,
+> or it could just be a boot parameter: rootdev=/dev/hda,
+> rootpartition:offset=N,length=L, rootfstype=ext3.
 
-On Tue, May 15, 2001 at 04:37:01PM +1200, Chris Wedgwood wrote:
-> On Sun, May 13, 2001 at 08:39:23PM -0600, Richard Gooch wrote:
-> 
->     Yeah, we need a decent unfragmenter. We can do that now with
->     bmap().
-> 
-> SCT wrote a defragger for ext2 but it only handles 1k blocks :(
+Not if you want compatibility.
 
-Actually, I wrote it for extfs, and Alexey Vovenko ported it to ext2.
-Extfs *really* needed a defragmenter, because it had weird behaviour
-patterns which included allocating all of the blocks of a file in
-descending disk blocks at times.  
 
-Cheers,
- Stephen

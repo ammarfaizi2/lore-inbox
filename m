@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269072AbUINAV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269073AbUINAXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269072AbUINAV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 20:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269073AbUINAV0
+	id S269073AbUINAXG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 20:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269077AbUINAXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 20:21:26 -0400
-Received: from mail6.speakeasy.net ([216.254.0.206]:10423 "EHLO
-	mail6.speakeasy.net") by vger.kernel.org with ESMTP id S269072AbUINAVY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 20:21:24 -0400
-Date: Mon, 13 Sep 2004 17:21:20 -0700
-Message-Id: <200409140021.i8E0LKcB030581@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Sep 2004 20:23:06 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:49320
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S269073AbUINAW7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 20:22:59 -0400
+Date: Mon, 13 Sep 2004 17:21:06 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm5 bug in tcp_recvmsg?
+Message-Id: <20040913172106.44f0a3b8.davem@davemloft.net>
+In-Reply-To: <200409131703.48395.jbarnes@engr.sgi.com>
+References: <20040913015003.5406abae.akpm@osdl.org>
+	<200409131654.27727.jbarnes@engr.sgi.com>
+	<20040913165557.568cdffb.davem@davemloft.net>
+	<200409131703.48395.jbarnes@engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-X-Fcc: ~/Mail/linus
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] exec: fix posix-timers leak and pending signal loss
-In-Reply-To: Andrew Morton's message of  Monday, 13 September 2004 16:26:45 -0700 <20040913162645.448e6131.akpm@osdl.org>
-X-Zippy-Says: I can't decide which WRONG TURN to make first!!  I wonder if BOB
-   GUCCIONE has these problems!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The patch comes at an awkward time - I'd prefer that the leak fix be merged
-> up immediately, but the rest appears less serious.  And you're playing in
-> an area which likes to explode in our faces.
+On Mon, 13 Sep 2004 17:03:48 -0700
+Jesse Barnes <jbarnes@engr.sgi.com> wrote:
 
-Frankly, I think the old code is much more prone to unforeseen problems
-than the new.  
+> On Monday, September 13, 2004 4:55 pm, David S. Miller wrote:
+> > On Mon, 13 Sep 2004 16:54:27 -0700
+> >
+> > Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+> > > tg3.  I saw one trace that included do_poll (iirc) and another last week
+> > > that had sys_select in it.  I'll try to gather some more info.
+> >
+> > What you're seeing might be due to the bug fixed by this patch:
+ ..
+> Ok, I guess that would explain why I haven't seen this in 2.6.9-rc2.  I was 
+> getting my backtraces confused too--I've only seen this one for this bug.  
+> I'll keep an eye out and report anything I see with the latest bk tree.
 
-> Had you not rolled three distinct patches into one (hint) I'd have
-> forwarded along the leak fix and sat on the rest for post-2.6.9.
+The patch isn't in the tree yet, you would see the problem in
+2.6.9-rc2
 
-I don't like being an enabler of bad code.  So I didn't do a separate fix
-inside something that I already knew needed to be ripped out.  If you want
-an untested minimal fix for just the leak potential, leaving the semantics
-frotzed in multiple ways, you can try the following.
-
-
-Index: linux-2.6/exec.c
-===================================================================
-RCS file: /home/roland/redhat/bkcvs/linux-2.5/fs/exec.c,v
-retrieving revision 1.138
-diff -u -b -B -p -r1.138 exec.c
---- linux-2.6/exec.c 27 Aug 2004 17:36:15 -0000 1.138
-+++ linux-2.6/exec.c 14 Sep 2004 00:19:43 -0000
-@@ -741,8 +741,10 @@ no_thread_group:
- 	spin_unlock(&oldsighand->siglock);
- 	write_unlock_irq(&tasklist_lock);
- 
--	if (newsig && atomic_dec_and_test(&oldsig->count))
-+	if (newsig && atomic_dec_and_test(&oldsig->count)) {
-+		exit_itimers(oldsig);
- 		kmem_cache_free(signal_cachep, oldsig);
-+	}
- 
- 	if (atomic_dec_and_test(&oldsighand->count))
- 		kmem_cache_free(sighand_cachep, oldsighand);
+Please try to get a clean backtrace with a current tree plus
+the patch I posted, and I'll scratch my head some more.
+:-)

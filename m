@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262233AbSIZHi5>; Thu, 26 Sep 2002 03:38:57 -0400
+	id <S262229AbSIZHi0>; Thu, 26 Sep 2002 03:38:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262232AbSIZHi4>; Thu, 26 Sep 2002 03:38:56 -0400
-Received: from merkur.ipht-jena.de ([194.94.32.22]:41942 "EHLO
-	merkur.ipht-jena.de") by vger.kernel.org with ESMTP
-	id <S262233AbSIZHiy>; Thu, 26 Sep 2002 03:38:54 -0400
-Message-ID: <3D92BAB8.9090601@hh59.org>
-Date: Thu, 26 Sep 2002 09:43:52 +0200
-From: "Axel H. Siebenwirth" <axel@hh59.org>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.2b) Gecko/20020924
+	id <S262232AbSIZHi0>; Thu, 26 Sep 2002 03:38:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50706 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262229AbSIZHhJ>;
+	Thu, 26 Sep 2002 03:37:09 -0400
+Message-ID: <3D92BA42.7040306@pobox.com>
+Date: Thu, 26 Sep 2002 03:41:54 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre8
-References: <Pine.LNX.4.44.0209252031350.15076-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+CC: "David S. Miller" <davem@redhat.com>, wli@holomorphy.com, axboe@suse.de,
+       akpm@digeo.com, patman@us.ibm.com, andmike@us.ibm.com
+Subject: Re: [PATCH] deadline io scheduler
+References: <20020926070615.GX22942@holomorphy.com>	<20020926.000620.27781675.davem@redhat.com>	<3D92B450.2090805@pobox.com> <20020926.001343.57159108.davem@redhat.com> <3D92B83E.3080405@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Jeff Garzik wrote:
+> Just dug up the URL, in case anybody is interested:
+> http://www.feral.com/isp.html
 
-it would be very nice if you could, as Linus does, give a short rough 
-outline about what has changed in the released kernel version. 
-Just major and important changes because not everyone wants to read 
-through all of it. Even in official kernel series many people would 
-probably like to see such a short outline.
+And I just noticed this:
 
-Best regards,
-Axel Siebenwirth
-
-
-Marcelo Tosatti wrote:
-
->So here goes -pre8.
->
->
->Summary of changes from v2.4.20-pre7 to v2.4.20-pre8
->============================================
->
-><adam@nmt.edu>:
->  o 3ware driver update for 2.4.20-pre7 (resend)
->
-><defouwj@purdue.edu>:
->  o net/ipv4/ip_options.c: IPOPT_END padding needs to increment optptr
->
-><info@usblcd.de>:
->  o USBLCD updates
->
-><kafai0928@yahoo.com>:
->  o Use SET_MODULE_OWNER in eepro100 net driver instead of MOD_{INC,DEC}_USE_COUNT, eliminating a small race
->  
->
-....
+The QLogic driver bundle is also now available under read-only BitKeeper 
+(see http://www.bitkeeper.com for information). The BK URL is: 
+bk://bitkeeper.feral.com:9002.
 

@@ -1,73 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316568AbSE0RXG>; Mon, 27 May 2002 13:23:06 -0400
+	id <S316577AbSE0R3a>; Mon, 27 May 2002 13:29:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316577AbSE0RXF>; Mon, 27 May 2002 13:23:05 -0400
-Received: from relay03.valueweb.net ([216.219.253.237]:58372 "EHLO
-	relay03.valueweb.net") by vger.kernel.org with ESMTP
-	id <S316568AbSE0RXF>; Mon, 27 May 2002 13:23:05 -0400
-Message-ID: <3CF26AFC.50ED6A6A@opersys.com>
-Date: Mon, 27 May 2002 13:21:00 -0400
-From: Karim Yaghmour <karim@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+	id <S316695AbSE0R33>; Mon, 27 May 2002 13:29:29 -0400
+Received: from pD952A637.dip.t-dialin.net ([217.82.166.55]:56514 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316577AbSE0R32>; Mon, 27 May 2002 13:29:28 -0400
+Date: Mon, 27 May 2002 11:27:57 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Abdij Bhat <Abdij.Bhat@kshema.com>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        Prasad HA <prasad@kshema.com>, Prakash P <Prakash@kshema.com>
+Subject: Re: IP Forwarding Problem
+In-Reply-To: <91A7E7FABAF3D511824900B0D0F95D10137099@BHISHMA>
+Message-ID: <Pine.LNX.4.44.0205271123490.15928-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Real-time patent problem discussion summary
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Given that the real-time patent problem discussion has taken a life
-of its own and that there are a very large number of messages on the
-subject, I take this opportunity to summarize. 
+On Mon, 27 May 2002, Abdij Bhat wrote:
+>  I am trying to deploy IP Forwarding on an embedded system running on Linux
+> [ Kernel > 2.4 ] with mips target.
+>  I do a "echo "1" > /proc/sys/net/ipv4/ip_forward" to enable and "echo "0" >
+> /proc/sys/net/ipv4/ip_forward" to disable the IP Forwarding feature.
+> 
+>  The hardware setup i have is as below
+> 
+> 1. Linux PC [ Ref PC A ] with eth0 IP Address say 192.168.100.5
+> 2. Linux PC [ Ref PC B ] with eth0 IP Address say 192.168.101.5
+> 3. The embedded target has 2 NIC's. eth0 IP Address is 192.168.100.6 and
+> eth1 IP Address is 192.168.101.6.
+> 4. A hub connecting subnet 100 machines
+> 5. A hub connecting subnet 101 machines
+> 
+>  I setup the default gateways on both the Reference PC's to reflect their
+> own IP Address. Each of the Ref PC's can ping to the machines on their
+> subnet.
+>  But when i ping Ref PC A to Ref PC B; the give the error "Destination host
+> is unreachable".
+> 
+>  I tried to resolve the problem and found a few info on the net. Based on
+> that i found that
+> 1. there was no /etc/sysconfig directory on the target embedded system 
+> 2. there was no /etc/sysconfig/network-scripts directory
+> 3. no /etc/sysconfig/network-scripts/ifcfg-eth0, eth1, eth0:1 and eth1:0
+> files 
+> 4. there was no /etc/sysconfig/network file
 
-Responding to a message by Andrea, I pointed out that the rtlinux
-patent was indeed a show-stopper for Linux in its deployment in
-embedded/rt applications.
+They are altogether used by RedHat compatible startup scripts, and should 
+not be necessary on embedded systems if your interfaces are ifconfig'ed. 
+Is your routing table (route -n) set up correctly?
 
-I, and many others, detailed this claim in response to many postings
-by the various members of this list, including Linus and Larry.
+Try tracerouting from ref host A to ref host B while running tcpdump on 
+the embedded penguin.
 
-At this point, given Victor's silence and refusal to answer the
-very questions he had promised to answer and Larry's killfiling of
-this discussion, the concerns I raised remain in their entirety.
+However, I don't believe this is an issue to linux-kernel, we should 
+consider private talks...
 
-Unfortunately for all the parties involved, this discussion
-highlights profound political rifts which cannot be solved by
-a purely technical discussion.
+>  I created all of the above [ i have pasted the contents of each file below
+> ]. Yet i get the same error. Can somebody tell what am i not doing or what
+> am i doing wrong?
 
-Regardless of the political rifts and disagreeing technical
-perspectives, the initial problem remains: Linux is not being used
-in embedded/rt applications because of uncertainties regarding
-the legal implications of the rtlinux patent.
+You're expecting files to be applied.
 
-The fact that Larry chose to direct part of this discussion on
-matters of copyright ownership in RTAI and RTLinux (
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102235915105756&w=2)
-and the ensuing deluge of postings on this matter, changes nothing
-to Linux's lack of viability in the embedded/rt world (as I pointed
-out later:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102239453820847&w=2)
+Regards,
+Thunder
+-- 
+Was it a black who passed along in the sand?
+Was it a white who left his footprints?
+Was it an african? An indian?
+Sand says, 'twas human.
 
-I would also like to reiterate my lack of enthusiasm of having
-to undertake this task of pointing out a serious problem with
-Linux. There was no glory in this, but a problem is a problem
-and it must pointed pointed out for what it is.
 
-I hope that my intervention will have stirred some interest to
-this problem and I hope that this interest will eventually result,
-in some way, in Linux freeing itself from the current limitations
-imposed by this patent.
-
-Best regards,
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================

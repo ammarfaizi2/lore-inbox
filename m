@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318242AbSGQIcR>; Wed, 17 Jul 2002 04:32:17 -0400
+	id <S318244AbSGQIyE>; Wed, 17 Jul 2002 04:54:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318244AbSGQIcQ>; Wed, 17 Jul 2002 04:32:16 -0400
-Received: from flurry.inode.at ([195.58.161.103]:45517 "EHLO flurry.inode.at")
-	by vger.kernel.org with ESMTP id <S318242AbSGQIcQ>;
-	Wed, 17 Jul 2002 04:32:16 -0400
-Subject: Problem with Via Rhine- Kernel 2.4.18
-To: linux-kernel@vger.kernel.org
-From: "Joseph Wenninger" <kernel@jowenn.at>
-X-Mailer: INODE :: webmail (http://www.inode.at)
-X-Comment: This message was sent from 128.131.80.225
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary=b6bc5280bd9af7dc5d1762de4efb493d4
-Message-Id: <E17UkHA-0003x1-00@flurry.inode.at>
-Date: Wed, 17 Jul 2002 10:35:12 +0200
+	id <S318246AbSGQIyD>; Wed, 17 Jul 2002 04:54:03 -0400
+Received: from ns.suse.de ([213.95.15.193]:57355 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318244AbSGQIyB>;
+	Wed, 17 Jul 2002 04:54:01 -0400
+Date: Wed, 17 Jul 2002 10:56:50 +0200
+From: Dave Jones <davej@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: John Schaper <schaper@inet.net.nz>, linux-kernel@vger.kernel.org
+Subject: Re: A kernel bug of sorts...
+Message-ID: <20020717105650.I2994@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	John Schaper <schaper@inet.net.nz>, linux-kernel@vger.kernel.org
+References: <000501c22d48$e6940230$0200a8c0@john> <1026896093.2119.124.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1026896093.2119.124.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encoded message.
+On Wed, Jul 17, 2002 at 09:54:53AM +0100, Alan Cox wrote:
+ > On Wed, 2002-07-17 at 05:17, John Schaper wrote:
+ > > Just a quick note... it appears that "i2c-old.h" has been omitted from the
+ > > 2.5.25 kernel source (tar.bz2).
+ > 
+ > This is intentional to encourage people to finish porting to the newer
+ > i2c code
 
---b6bc5280bd9af7dc5d1762de4efb493d4
-Content-Type: text/plain
-Content-Transfer-Encoding: base64
+Frank Davis and others have done some conversions in my tree.  Either
+no-one has tried these, or they're perfect.  I'll push them to Linus
+as soon as I get back from Germany and resync with current.
 
-SGkgDQogDQpJJ20gbmV3IHRvIHRoZSBsaW51eCBrZXJuZWwsIHNvIHBsZWFzZSBiZSBwYXRpZW50
-LiANCiANCkkgaGF2ZSBhIFA0IG5vdGVib29rIHdpdGggYSB2aWEgY2hpcHNldCBhbmQgYSBtb2Jp
-bGUgUDQuIEluIFdpbmRvd3MgWFAgbXkgDQpidWlsdCBpbiBuZXR3b3JrIGRldmljZSB3b3JrcyB3
-aXRob3V0IHByb2JsZW1zLiBJbiBsaW51eCB0aGUgZGV2aWNlIGhhbmdzIGEgDQphZnRlciBzb21l
-IHRpbWUgb2YgPjkwa0IvcyBkYXRhdHJhbnNmZXJzLiBJIGhhdmUgdG8gY29tcGxldGVseSByZXNl
-dCBteSANCm5vdGVib29rIHRvIGdldCBpdCB3b3JraW5nIGFnYWluIA0KIA0KSSdtIG5vdCBzdXJl
-IGlmIGl0IGlzIGEgaGFyZHdhcmUgb3IgYSBrZXJuZWwgcHJvYmxlbS4gSG93IGNhbiBJIGRlYnVn
-IHRoaXMgDQp0byBmaW5kIG91dCBpZiBpdCBpcyBhIGtlcm5lbCBidWcgYW5kIHdoZXJlIGl0IGlz
-ID8gDQogDQpJIGhhdmUgdG8gdXNlIHBjaT1iaW9zaXJxLCBvdGhlcndpc2UgdGhlIGtlcm5lbCB3
-YXJucyBtZSwgdGhhdCBpdCBjYW4ndCANCmNoYW5nZSB0aGUgaW50ZXJ1cHRzIGZvciBteSBkZXZj
-aWVzLiANCiANCiANCkF0IGJvb3R1cCB0aGUgZGV2aWNlIGlkZW50aWZpZXMgaXRzZWxmIGFzICAN
-CnZpYS1yaGluZS5jOnYxLjEwLUxLMS4xLjEzICBOb3YtMTctMjAwMSAgV3JpdHRlbiBieSBEb25h
-bGQgQmVja2VyIA0KICBodHRwOi8vd3d3LnNjeWxkLmNvbS9uZXR3b3JrL3ZpYS1yaGluZS5odG1s
-IA0KZXRoMDogVklBIFZUNjEwMiBSaGluZS1JSSBhdCAweGQwMDAsIDAwOjQwOjQ1OjA3OmJhOjA2
-LCBJUlEgMTEuIA0KZXRoMDogTUlJIFBIWSBmb3VuZCBhdCBhZGRyZXNzIDEsIHN0YXR1cyAweDc4
-NmQgYWR2ZXJ0aXNpbmcgMDVlMSBMaW5rIDAwMjEuIA0KIA0KV2hlbiBpdCBzdG9wcyB3b3JraW5n
-IEkgZ2V0IGEgbG90IG9mIG1lc3NhZ2VzIGxpa2U6IA0Ka2VybmVsIGV0aDA6IFRyYW5zbWl0IHRp
-bWVkIG91dCwgc3RhdHVzIDAwMDAsIFBIWSBzdGF0dXMgNzg2ZCwgcmVzZXR0aW5nLi4uIA0Ka2Vy
-bmVsIGV0aDA6IFJlc2V0IGRpZCBub3QgIGNvbXBsZXRlIGluIDEwbXMuIA0KIA0KQW5vdGhlciBt
-ZXNzYWdlIEkgcXVpdGUgb2Z0ZW4gZ2V0IGlzOiANCm10cnI6IG5vIG1vcmUgTVRSUnMgYXZhaWxh
-YmxlIA0KIA0KIA0KSSdtIHRoYW5rZnVsbCBmb3IgYW55IGhlbHAgDQogDQpLaW5kIHJlZ2FyZHMg
-DQpKb3NlcGggV2VubmluZ2VyIA==
+        Dave
 
---b6bc5280bd9af7dc5d1762de4efb493d4--
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

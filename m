@@ -1,38 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUGSMWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265082AbUGSMvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265051AbUGSMWE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 08:22:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUGSMWE
+	id S265082AbUGSMvM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 08:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUGSMvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 08:22:04 -0400
-Received: from cavan.codon.org.uk ([213.162.118.85]:55773 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S265051AbUGSMWC
+	Mon, 19 Jul 2004 08:51:12 -0400
+Received: from mail.convergence.de ([212.84.236.4]:16321 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S265082AbUGSMvK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 08:22:02 -0400
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Message-Id: <1090239727.7459.10.camel@tyrosine>
+	Mon, 19 Jul 2004 08:51:10 -0400
+Date: Mon, 19 Jul 2004 14:51:06 +0200
+From: Johannes Stezenbach <js@convergence.de>
+To: linux-kernel@vger.kernel.org
+Cc: Kai Germaschewski <kai@germaschewski.name>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH] modpost warnings with external modules w/o modversions
+Message-ID: <20040719125106.GA29131@convergence.de>
+Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
+	linux-kernel@vger.kernel.org,
+	Kai Germaschewski <kai@germaschewski.name>,
+	Sam Ravnborg <sam@ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 19 Jul 2004 13:22:07 +0100
-X-SA-Exim-Connect-IP: 213.162.118.93
-X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
-Subject: Resume failing in get_cmos_time()
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 4.0 (built Sat, 24 Apr 2004 12:31:30 +0200)
-X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On around 20% of ACPI resume attempts, the resume hangs during
-time_resume(). I've traced this down to the get_cmos_time() call - a
-printk before that appears, one afterwards doesn't. The rest of the
-time, resume works correctly. Interestingly, this only seems to happen
-if I use the patch from http://bugzilla.kernel.org/show_bug.cgi?id=2643
-or a similar one for the IO-APIC. Does anyone have any idea why this
-might result in this sort of failure mode? I'm considering just removing
-the call for now and resetting the clock from userspace.
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Hi,
 
+when building external modules (DVB drivers in this case)
+for a kernel without CONFIG_MODVERSIONS I get a number of:
+
+make[1]: Entering directory `/usr/src/linux-2.6.8-rc1'
+  Building modules, stage 2.
+  MODPOST
+*** Warning: "dvb_unregister_frontend_new" [.../dvb-kernel/build-2.6/ves1x93.ko] has no CRC!
+
+
+I believe that there is a small bug in modpost.c which the
+patch below attempts to fix.
+
+
+--- linux-2.6.8-rc1/scripts/modpost.c.orig	2004-07-16 19:22:24.000000000 +0200
++++ linux-2.6.8-rc1/scripts/modpost.c	2004-07-16 19:22:37.000000000 +0200
+@@ -649,7 +649,6 @@ read_dump(const char *fname)
+ 
+ 		if (!(mod = find_module(modname))) {
+ 			if (is_vmlinux(modname)) {
+-				modversions = 1;
+ 				have_vmlinux = 1;
+ 			}
+ 			mod = new_module(NOFAIL(strdup(modname)));
+
+Johannes

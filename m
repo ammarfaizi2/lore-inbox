@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269379AbTGUHtn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 03:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269334AbTGUHtn
+	id S269333AbTGUHsI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 03:48:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269334AbTGUHsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 03:49:43 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:36527 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S269392AbTGUHtl
+	Mon, 21 Jul 2003 03:48:07 -0400
+Received: from 0x503e3f58.boanxx7.adsl-dhcp.tele.dk ([80.62.63.88]:5858 "HELO
+	mail.hswn.dk") by vger.kernel.org with SMTP id S269333AbTGUHsG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 03:49:41 -0400
-Message-ID: <3F1B9F37.509@free.fr>
-Date: Mon, 21 Jul 2003 10:07:19 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: akpm@osdl.org, andrew.grover@intel.com, sziwan@hell.org.pl,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Linux 2.6-pre-mm2 Fix crash on boot on ASUS L3800C if
- enabing APIC => add this machine to DMI black list
-References: <200307210114.h6L1El7M018996@harpo.it.uu.se>
-In-Reply-To: <200307210114.h6L1El7M018996@harpo.it.uu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jul 2003 03:48:06 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Henrik Storner <henrik-kernel@hswn.dk>
+Newsgroups: linux.kernel
+Subject: Re: Problems contacting Linus
+Date: Mon, 21 Jul 2003 08:03:07 +0000 (UTC)
+Organization: Linux Users Inc.
+Message-ID: <bfg6nr$ekr$1@ask.hswn.dk>
+References: <200307210744.h6L7iUDW000468@81-2-122-30.bradfords.org.uk>
+NNTP-Posting-Host: osiris.hswn.dk
+X-Trace: ask.hswn.dk 1058774587 15003 172.16.10.100 (21 Jul 2003 08:03:07 GMT)
+X-Complaints-To: news@ask.hswn.dk
+NNTP-Posting-Date: Mon, 21 Jul 2003 08:03:07 +0000 (UTC)
+User-Agent: nn/6.6.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
+In <200307210744.h6L7iUDW000468@81-2-122-30.bradfords.org.uk> John Bradford <john@grabjohn.com> writes:
 
-> While I don't dispute your machine has some problem, please
-> do the following first before we completely blacklist it:
-> - ensure you have the latest BIOS (ftp.asuscom.de has the ones for
->   their desktop mainboards, presumably the laptop BIOSen are also there)
+>> Some of my mails to Linus return with:
+>> <torvalds@osdl.com>: host mail.goweb.com[211.174.63.240] said: 550 5.7.1
+>>     <torvalds@osdl.com>... Relaying denied. Proper authentication
+>> required.
 
-Have the latest BIOS from 3 June...
+Try using "osdl.ORG" instead of "osdl.COM"
 
-> - in what way is ACPI mandatory? does it fail to boot, or does it
->   just lose some specific feature? If you just want suspend support,
->   try APM if the machine has it
 
-Many ACPI managed buttons, Fans, ...
-
+Henrik
 -- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
-
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
-
+Henrik Storner <henrik@hswn.dk> 

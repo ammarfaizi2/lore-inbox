@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267313AbUGVWXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267312AbUGVWZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267313AbUGVWXN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 18:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUGVWXN
+	id S267312AbUGVWZn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 18:25:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUGVWZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 18:23:13 -0400
-Received: from mail.tmr.com ([216.238.38.203]:39186 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S267313AbUGVWXE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 18:23:04 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: A users thoughts on the new dev. model
-Date: Thu, 22 Jul 2004 18:25:46 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cdpee5$otu$1@gatekeeper.tmr.com>
-References: <40FFD760.8060504@unix.eng.ua.edu>
-Mime-Version: 1.0
+	Thu, 22 Jul 2004 18:25:43 -0400
+Received: from ns.indranet.co.nz ([210.54.239.210]:9687 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id S267312AbUGVWZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 18:25:40 -0400
+Date: Fri, 23 Jul 2004 10:25:07 +1200
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Florian Schmidt <mista.tapas@gmx.net>,
+       "The Linux Audio Developers' Mailing List" 
+	<linux-audio-dev@music.columbia.edu>
+cc: rlrevell@joe-job.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary	Kernel
+ Preemption Patch
+Message-ID: <848056B606F178CF9FBDDAC2@[192.168.1.247]>
+In-Reply-To: <20040721125352.7e8e95a1@mango.fruits.de>
+References: <20040712163141.31ef1ad6.akpm@osdl.org>
+ 	<1090306769.22521.32.camel@mindpipe>	<20040720071136.GA28696@elte.hu>
+ 	<200407202011.20558.musical_snake@gmx.de>
+ 	<1090353405.28175.21.camel@mindpipe>	<40FDAF86.10104@gardena.net>
+ 	<1090369957.841.14.camel@mindpipe>
+ <20040721125352.7e8e95a1@mango.fruits.de>
+X-Mailer: Mulberry/3.1.4 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1090534661 25534 192.168.12.100 (22 Jul 2004 22:17:41 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
-X-Accept-Language: en-us, en
-In-Reply-To: <40FFD760.8060504@unix.eng.ua.edu>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evan Hisey wrote:
-> To the Dev list:
->    First, thanks for all the work on the kernel. I try to keep up with 
-> the list via both KernelTrap and  Kerneltraffic. Today I just saw the 
-> discussion on the new development model.  As an end use of the vanilla 
-> tree, I would like to point out that a large number of people and 
-> projects rely on the vanilla kernel to be the stable tree do to the 
-> overly varied and random patching nature of vendor supplied kernels 
-> making them hard to call reliable. In the case of my preferred distro 
-> Slackware,  the distro itself expects the vanilla tree to be stable and 
-> reliable enough to not need any patches.  I believe this is the case for 
-> a large number off distro' s and end users. Thank you for your time. 
-> Please send any flames,comments, or complaints via CC, as I am not 
-> sucribed to the list.
 
-I confess I feel that this new model is a return to the bad old days 
-when the stable tree wasn't. Sounds as if Andrew is bored with the idea 
-of letting 2.7 be the development tree and just being the gatekeeper of 
-STABLE new features for 2.6. Perhaps 2.7 should be opened and Andrew 
-will have a place to play, and features can drift to 2.6 more slowly.
 
-I agree that vendor kernels often have unexpected behaviour, 
-"improvements" on the API, etc. They sometimes protect the user from 
-himself, so that code which works fine on a vendor kernel fails 
-miserably on a mainline kernel.
+--On Wednesday, 21 July 2004 12:53 p.m. +0200 Florian Schmidt 
+<mista.tapas@gmx.net> wrote:
 
-I'm sure developers will do whatever they please, but I think a 
-development kernel would be nice about now, so people could try new 
-things without restriction, and people who like to use a stable kernel 
-could have one.
+> Hi,
+>
+> interesting that you mention the Xserver. I use a dual graphics card
+> setup atm [Nvidia GF3 TI and some matrox pci card]. The nvidia card seems
+> to work flawlessly even with HW accelleration [i use nvidias evil binary
+> only drivers]. The matrox card OTH disturbs the soundcard severely.
+> Whenever i have activity on my second monitor i get sound artefacts in
+> jack's output [no cracklling, it's rather as if the volume is set to 0
+> for short moments and then back to normal]. There's a certain chance that
+> this artefact produces an xrun. I suppose it's because the card is on the
+> pci bus.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+<snip>
+
+> Should i try a different 2nd gfx card? Should i avoid pci gfx cards at
+> all costs? Will i just have to live w/o second monitor?  How do i find
+> out which hw resources X is really using?
+>
+> Florian Schmidt
+
+
+It is a PCI bus issue.  You simply don't have enough PCI bus cycles 
+available to do what you want to do.  The resource you're running out of is 
+bus bandwidth, and there's nothing to be done about it, other than remove 
+the PCI gfx card from the system.
+
+If you get another dualhead AGP graphics card (anything will do), the 
+problem should go away.  We have a developer who does lowlatency 
+multichannel sound stuff on a machine with a Matrox G450 dualhead card no 
+problem.  I expect my own system (Radeon 9800 Pro and M-Audio 1010LT audio) 
+would be fine dualhead too, although I only run it singlehead at the 
+moment.  The 1010LT is 10 channels in and out of 24-bit 96kHz audio and 
+works great down to 1.5ms buffers, so it is no small bus load itself.
+
+Andrew
+
+
+---------
+Andrew McGregor
+Director, Scientific Advisor
+IndraNet Technologies Ltd
+http://www.indranet-technologies.com/
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GS/E/B/PA/SS d+(++) s+:+ a C++$ ULS++++ !P+++(---)$ L++++$ E++ W++ !N
+w(+++) !O() M++ V--() Y+$ PGP+ t- !5? X- !R !tv@ b++(++++) DI++ D+++@ G
+e+++ h(*)@ r%
+------END GEEK CODE BLOCK------

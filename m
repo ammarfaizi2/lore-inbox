@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261750AbSI0PuD>; Fri, 27 Sep 2002 11:50:03 -0400
+	id <S262518AbSI0P6y>; Fri, 27 Sep 2002 11:58:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261911AbSI0PuD>; Fri, 27 Sep 2002 11:50:03 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:772 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261750AbSI0PuC>; Fri, 27 Sep 2002 11:50:02 -0400
-Date: Fri, 27 Sep 2002 17:55:13 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Andi Kleen <ak@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Put modules into linear mapping
-In-Reply-To: <p73d6qzsav0.fsf@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.44.0209271745230.8911-100000@serv>
+	id <S262514AbSI0P6x>; Fri, 27 Sep 2002 11:58:53 -0400
+Received: from sopris.net ([216.237.72.68]:61195 "EHLO mail.sopris.net")
+	by vger.kernel.org with ESMTP id <S262518AbSI0P6w>;
+	Fri, 27 Sep 2002 11:58:52 -0400
+Message-ID: <001901c2663f$a1125060$f101010a@nathan>
+From: "Nathan" <etherwolf@sopris.net>
+To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
+Subject: PING: Failed to install socket filter after kernel update
+Date: Fri, 27 Sep 2002 10:04:58 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Okay I finally made it through my kernel recompile with iptables 1.2.7a in
+there, and it seems to be working (I can do a #iptables -L and it lists my
+default chains) but there's about a 10-second delay with anything
+network-related now. When I ssh to the box, it used to come up immediately,
+now there's the delay. When I lynx to a site, delay. When I ping, I get
+useful info, then a delay.
 
-On 27 Sep 2002, Andi Kleen wrote:
+The is the output of a simple ping apple.com:
 
-> > Why is i386 only? This is generic code and other archs will benefit from
-> > it as well (or at least it won't hurt).
->
-> Because some arcitectures have a different module_map() (e.g. x86-64 or
-> sparc64)
+PING apple.com (17.254.3.183) from 10.1.1.8 : 56(84) bytes of data.
+WARNING: failed to install socket filter
+: Protocol not available
+64 bytes from apple.com (17.254.3.183): icmp_seq=1 ttl=51 time=49.8 ms
+64 bytes from apple.com (17.254.3.183): icmp_seq=2 ttl=51 time=50.5 ms
+64 bytes from apple.com (17.254.3.183): icmp_seq=3 ttl=51 time=56.7 ms
+64 bytes from apple.com (17.254.3.183): icmp_seq=4 ttl=51 time=58.8 ms
 
-As I already said in the last mail, these functions look like vmalloc
-reimplementations.
+--- apple.com ping statistics ---
+4 packets transmitted, 4 received, 0% loss, time 15398ms
+rtt min/avg/max/mdev = 49.835/53.987/58.830/3.877 ms
 
-> and because the VMALLOC_START/END trick doesn't work on all.
 
-Where doesn't it work? vmalloc wouldn't work there either.
+Notice the time 15398ms... It comes up after a couple seconds with the
+WARNING, then delays about 5 seconds, then spits out the ping info slowly,
+even though the return times may be under 10ms.
 
-> > > +void *alloc_exact(unsigned int size)
-> >
-> > Wouldn't it be better to add a gfp argument?
->
-> I don't see a need for it. GFP_ATOMIC doesn't make sense for > order 0,
-> and > order 0 is the only case that is interesting for alloc_exact.
-> GFP_DMA is not needed here, and GFP_HIGHUSER neither supports > order 0
-> properly (because of kmap)
+So what's up with the failing to install socket filter stuff? What did I do
+to my kernel? :-)
 
-If it's supposed to be a generic function, it makes sense, otherwise we
-could just put it into module.c.
+Machine info: RH 7.3 on a Dell PE 350, with a newly compiled 2.4.19 kernel
+and compiled iptables 1.2.7a (tried 1.2.6a with same results). I have
+completely removed ipchains.
 
-bye, Roman
+If anyone wants to see my kernel config file, or some of the flags from it,
+lemme know.
+
+Thanks!!
+# Nathan
 

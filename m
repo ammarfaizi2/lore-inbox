@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261456AbREOUbS>; Tue, 15 May 2001 16:31:18 -0400
+	id <S261457AbREOUbs>; Tue, 15 May 2001 16:31:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261457AbREOUbJ>; Tue, 15 May 2001 16:31:09 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:8200 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261456AbREOUay>; Tue, 15 May 2001 16:30:54 -0400
-Message-ID: <3B0191E5.508CAB9@transmeta.com>
-Date: Tue, 15 May 2001 13:30:29 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S261458AbREOUbi>; Tue, 15 May 2001 16:31:38 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:21940 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261457AbREOUbe>;
+	Tue, 15 May 2001 16:31:34 -0400
+Date: Tue, 15 May 2001 16:31:32 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Getting FS access events
+In-Reply-To: <3B0190F6.9D08D9CE@transmeta.com>
+Message-ID: <Pine.GSO.4.21.0105151628340.21081-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: James Simmons <jsimmons@transvirtual.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.GSO.4.21.0105151607100.21081-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> On Tue, 15 May 2001, James Simmons wrote:
-> 
-> > > only one _device_node_, you can have multiple fd's. In fact, you can, with
-> > > the Linux VFS layer, fairly easily do things like
-> > >
-> > >     mknod /dev/fd0 c X Y
-> > >
-> > > and then use
-> > >
-> > >     fd = open("/dev/fd0/colourspace", O_RDWR);
-> >
-> > Yipes!! I have to say UNIX has a tendency to teach you ioctl is the only
-> > way. I have never thought outside of the box nor see anyone else in this
-> > manner. This is absolutely brillant!!! I can see alot of possibilties with
-> > this.
-> 
-> The thing being, why thet hell create these device/directory hybrids?
-> 
 
-Permission management.  The permissions on the subnodes are inherited
-from the main node, which is stored on a persistent medium.
 
-	-hpa
+On Tue, 15 May 2001, H. Peter Anvin wrote:
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+> Alexander Viro wrote:
+> > >
+> > > What else could it be, since it's a "struct inode *"?  NULL?
+> > 
+> > struct block_device *, for one thing. We'll have to do that as soon
+> > as we do block devices in pagecache.
+> > 
+> 
+> How would you know what datatype it is?  A union?  Making "struct
+> block_device *" a "struct inode *" in a nonmounted filesystem?  In a
+> devfs?  (Seriously.  Being able to do these kinds of data-structural
+> equivalence is IMO the nice thing about devfs & co...)
+
+void *.
+
+Look, methods of your address_space certainly know what they hell they
+are dealing with. Just as autofs_root_readdir() knows what inode->u.generic_ip
+really points to.
+
+Anybody else has no business to care about the contents of ->host.
+

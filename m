@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315374AbSIJUfy>; Tue, 10 Sep 2002 16:35:54 -0400
+	id <S316768AbSIJUg3>; Tue, 10 Sep 2002 16:36:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316768AbSIJUfy>; Tue, 10 Sep 2002 16:35:54 -0400
-Received: from angband.namesys.com ([212.16.7.85]:55941 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S315374AbSIJUfx>; Tue, 10 Sep 2002 16:35:53 -0400
-Date: Wed, 11 Sep 2002 00:40:36 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BK] ReiserFS changesets for 2.4 (performs writes more than 4k at a time)
-Message-ID: <20020911004036.A3137@namesys.com>
-References: <20020910190950.A1064@namesys.com> <Pine.LNX.4.44.0209101504590.16518-100000@freak.distro.conectiva>
+	id <S318113AbSIJUg3>; Tue, 10 Sep 2002 16:36:29 -0400
+Received: from crack.them.org ([65.125.64.184]:16647 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S316768AbSIJUg1>;
+	Tue, 10 Sep 2002 16:36:27 -0400
+Date: Tue, 10 Sep 2002 16:41:20 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Frank Peters <frank.peters@intralab.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ptrace probs?
+Message-ID: <20020910204120.GA4230@nevyn.them.org>
+Mail-Followup-To: Frank Peters <frank.peters@intralab.de>,
+	linux-kernel@vger.kernel.org
+References: <000d01c258fb$8cf72d40$0242a8c0@alpha.de> <20020910182125.GA30999@nevyn.them.org> <008b01c25911$60c7ad10$0242a8c0@alpha.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209101504590.16518-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <008b01c25911$60c7ad10$0242a8c0@alpha.de>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, Sep 10, 2002 at 10:31:00PM +0100, Frank Peters wrote:
+> Kernel: 2.4.18
+> maybe it's a glibc prob.
 
-On Tue, Sep 10, 2002 at 03:16:51PM -0300, Marcelo Tosatti wrote:
+Try waitpid (PID, &status, 0) first.  You can't do anything until the
+process stops, that's normal.
 
-> 
-> Huh, now that I released -pre6 _with_ this stuff by accident its too late.
-> Silly me.
-> Can you make me a tree which backouts the big write code please?
 
-Can you execute bk cset -x1.594,1.595,1.596
-And that will remove our code for now.
-
-Actually you can only do bk cset -x1.594,1.595
-So that while our code is gone, stuff that exports VFS functions will stay.
-
-Is this enough for your purposes? (I hope it is).
-
-> Will be releasing a -pre7 shortly due to that.
-
-That's your decision of course.
-
-Bye,
-    Oleg
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

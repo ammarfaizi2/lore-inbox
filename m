@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbUCKXhn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 18:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbUCKXhn
+	id S261827AbUCKXna (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 18:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbUCKXn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 18:37:43 -0500
-Received: from colin2.muc.de ([193.149.48.15]:36100 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261848AbUCKXhW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 18:37:22 -0500
-Date: 12 Mar 2004 00:37:20 +0100
-Date: Fri, 12 Mar 2004 00:37:20 +0100
-From: Andi Kleen <ak@muc.de>
-To: Joe Thornber <thornber@redhat.com>
-Cc: Andi Kleen <ak@muc.de>, Mickael Marchand <marchand@kde.org>,
-       linux-kernel@vger.kernel.org, dm@uk.sistina.com
-Subject: Re: 2.6.4-mm1
-Message-ID: <20040311233720.GB46488@colin2.muc.de>
-References: <1ysXv-wm-11@gated-at.bofh.it> <1yxuq-6y6-13@gated-at.bofh.it> <m3hdwnawfi.fsf@averell.firstfloor.org> <200403111445.35075.marchand@kde.org> <20040311144829.GA22284@colin2.muc.de> <20040311214354.GM18345@reti>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040311214354.GM18345@reti>
-User-Agent: Mutt/1.4.1i
+	Thu, 11 Mar 2004 18:43:29 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:7901 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261827AbUCKXn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 18:43:27 -0500
+Date: Thu, 11 Mar 2004 23:43:31 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Rik van Riel <riel@redhat.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: anon_vma RFC2
+In-Reply-To: <Pine.LNX.4.44.0403111551050.29254-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.44.0403112315220.2671-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11, 2004 at 09:43:54PM +0000, Joe Thornber wrote:
-> On Thu, Mar 11, 2004 at 03:48:29PM +0100, Andi Kleen wrote:
-> > Maybe they have broken data structures again, most likely
-> > because of different long long alignment. A lot of people
-> > who attempt to design data structures that don't need translation
-> > get that wrong unfortunately.
+On Thu, 11 Mar 2004, Rik van Riel wrote:
+> On Thu, 11 Mar 2004, Hugh Dickins wrote:
 > 
-> I'd thought we'd been careful about this.  You're suggesting that the
-> size of this structure has changed between kernel versions ?!
+> > length of your essay on vma merging, it strikes me that you've taken
+> > a wrong direction in switching from my anon mm to your anon vma.
+> > 
+> > Go by vmas and you have tiresome problems as they are split and merged,
+> > very commonly.  Plus you have the overhead of new data structure per vma.
 > 
-> struct dm_ioctl {
->         uint32_t version[3];
->         uint32_t data_size;
+> There's of course a blindingly simple alternative.  
 > 
->         uint32_t data_start;
-> 
->         uint32_t target_count;
->         int32_t open_count;
->         uint32_t flags;
->         uint32_t event_nr;
->         uint32_t padding;
-> 
->         uint64_t dev;
-> 
->         char name[DM_NAME_LEN];
->         char uuid[DM_UUID_LEN];
+> Add every anonymous page to an "anon_memory" inode.  Then
+> everything is in effect file backed.  Using the same page
+> refcounting we already do, holes get shot into that "file".
 
-Are DM_NAME_LEN and DM_UUID_LEN not both a multiple of 8?
+Okay, Rik, the two extremes belong to you: one anon memory
+object in total (above), and one per page (your original rmap);
+whereas Andrea is betting on one per vma, and I go for one per mm.
+Each way has its merits, I'm sure - and you've placed two bets!
 
-> };
+> The swap cache code provides a filesystem like mapping
+> from the anon_memory "files" to the on-disk stuff, or the
+> anon_memory file pages are resident in memory.
 
-There are more structures here, right?
+For 2.7 something like that may well be reasonable.
+But let's beware the fancy bloat of extra levels.
 
-If yes, that's the problem.
+> As a side effect, it also makes it possible to get rid
+> of the swapoff code, simply move the anon_memory file
+> pages from disk into memory...
 
--Andi
+Wonderful if that code could disappear: but I somehow doubt
+it'll fall out quite so easily - swapoff is inevitably
+backwards from sanity, isn't it?
+
+Hugh
+

@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267372AbTAOVxE>; Wed, 15 Jan 2003 16:53:04 -0500
+	id <S267376AbTAOVxh>; Wed, 15 Jan 2003 16:53:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267373AbTAOVxE>; Wed, 15 Jan 2003 16:53:04 -0500
-Received: from h-64-105-35-200.SNVACAID.covad.net ([64.105.35.200]:15232 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267372AbTAOVxD>; Wed, 15 Jan 2003 16:53:03 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 15 Jan 2003 14:01:36 -0800
-Message-Id: <200301152201.OAA02047@adam.yggdrasil.com>
-To: mochel@osdl.org
-Subject: Re: Patch: linux-2.5.58/drivers/base/bus.c ignored pre-existing devices
-Cc: felix-linuxkernel@fefe.de, greg@kroah.com, linux-kernel@vger.kernel.org,
-       tomlins@cam.org
+	id <S267380AbTAOVxh>; Wed, 15 Jan 2003 16:53:37 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:17087 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267376AbTAOVxf>; Wed, 15 Jan 2003 16:53:35 -0500
+Date: Wed, 15 Jan 2003 14:01:38 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Protasevich, Natalie" <Natalie.Protasevich@Unisys.Com>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>
+cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
+       "'anton@samba.org'" <anton@samba.org>,
+       "'Nakajima, Jun'" <jun.nakajima@intel.com>,
+       Zwane Mwaikambo <zwane@holomorphy.com>
+Subject: Re: 48GB NUMA-Q boots, with major IO-APIC hassles
+Message-ID: <156310000.1042668097@titus>
+In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C022BD904@usslc-exch-4.slc.unisys.com>
+References: <3FAD1088D4556046AEC48D80B47B478C022BD904@usslc-exch-4.slc.unisys.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-01-15, Patrick Mochel wrote:
->The extra code was an attempt at properly handling failure of ->probe(),
->and to make sure that an error from ->probe() (e.g. -ENOMEM) is propogated
->up.
->
->The cause of the problem you're seeing is that if a device wasn't bound to 
->a driver, -ENODEV was returned, causing it to be removed from the bus's 
->list of devices. 
->
->To remedy this, I've changed the semantics of bus_match() to return the 
->following:
->
->* 1     if device was bound to a driver.
->* 0     if it wasn't 
->* <0    if drv->probe() returned an error. 
->
->This allows the caller to know if binding happened, as well as bubble the 
->error up.
+>> (3) setup_ioapic_ids_from_mpc() panic()'s.
+>> -- the clustered_apic_mode check and/or its current equivalent
+>> -- no longer suffices with 16 IO-APIC's. Turn off all the
+>> -- renumbering logic and hardcode the numbers to alternate
+>> -- between 13 and 14, where they belong.
+>> -- The real issue here is that the phys_id_present_map is not
+>> -- properly per- APIC bus. The physid's of IO-APIC's are
+>> -- irrelevant from the standpoint of the rest of the kernel,
+>> -- but are inexplicably used to identify them throughout the
+>> -- rest of arch/i386/ when physids are nothing resembling
+>> -- unique identifiers in multiple APIC bus systems. This
+> 
+> I also have a problem with setup_ioapic_ids_from_mpc(). I opt for 0xFF as
+> max io_apic phys_id (and leave it alone!), because even though we have fewer
+> IO-APICs than that, I'd like to keep the actual numbers from MP table or
+> ACPI, because all APIC and IO-APIC id's on ES7000 are 8 bit, unique, and
+> meaningful (used as a bitmaps) when I have to implement CPU, PCI hot plug
+> and dynamic partitioning (I hate to think of possible confusing tables and
+> dependencies I will have to maintain otherwise...). 
+> 
+> Could this routine be made with alternative architecturally private path (as
+> a hook or with a hook inside)?
 
-	I have't tried your patch, but, from reading it, I infer that
-your patch would not work with drivers that do further matching
-in their probe function and return -ENODEV, which should be handled
-as if match() function failed.  I suggest you use my patch.
+I don't think changing the Linux data structures is a problem, but you
+need to be really careful not to change anything for normal machines
+when writing out to / reading from the IO-APIC - that stuff is too fragile, 
+and breaks on strange machines in wierd ways. 
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+If you can find a clean way to change the internal stuff, and just wrap 
+the in/out interfaces, that would seem best to me ...
+
+M.
+

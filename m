@@ -1,94 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262665AbTCTWF6>; Thu, 20 Mar 2003 17:05:58 -0500
+	id <S262650AbTCTWNj>; Thu, 20 Mar 2003 17:13:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262672AbTCTWF6>; Thu, 20 Mar 2003 17:05:58 -0500
-Received: from wg-vm-oavm.inext.cz ([212.111.5.106]:43509 "HELO
-	wg-vm-oavm.inext.cz") by vger.kernel.org with SMTP
-	id <S262665AbTCTWFt>; Thu, 20 Mar 2003 17:05:49 -0500
-Message-ID: <9fz-v7c6-n8m-4$85yl9$2-20-mdalr@d0e.b.yi6ilu>
-From: "Roberto Clarke" <PayOff4u@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Make $3,000+ per day! NO SPONSORING REQUIRED!
-Date: Fri, 21 Mar 03 01:15:51 GMT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="D.4E__..B6.6"
+	id <S262646AbTCTWNi>; Thu, 20 Mar 2003 17:13:38 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:8855 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262284AbTCTWNh>;
+	Thu, 20 Mar 2003 17:13:37 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 20 Mar 2003 23:24:33 +0100 (MET)
+Message-Id: <UTC200303202224.h2KMOXC01107.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, zippel@linux-m68k.org
+Subject: Re: major/minor split
+Cc: Joel.Becker@oracle.com, akpm@digeo.com, andrey@eccentric.mae.cornell.edu,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+> There is a point I'd like to get clear: where should the
+> 16bit<->32bit dev_t conversion happen?
 
---D.4E__..B6.6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I am not sure I understand the question, but if I do
+the answer is "nowhere", there is no conversion
+(other than the lengthening that happens when one
+casts an unsigned short to an unsigned int).
 
-Nothing like this has ever hit the internet before! Get in early and Reap =
-the Rewards! NO SPONSORING REQUIRED!
+For dev_t (8,1) is 0x00000801, but (8,256) is 0x00080100.
+(In case of a 16+16 split. Not that I advocate that,
+it is just easy talking.)
 
-No sponsoring required to get paid(just like GMT but pays quicker)
+For kdev_t (8,1) is 0x00080001 and (8,256) is 0x00080100.
+So kdev_t allows simple fast composition and decomposition,
+but is restricted to the kernel.
+While dev_t requires a conditional, since it has to remain
+compatible with the old 8+8 userspace.
 
- * A ton of helpful Information products
- * No selling
- * Couple of weeks old
- * Pays daily
- * One time payment of $179
- * can pay you up to $2500 per day
- * Pays you via debit card (Usually have money on card when you receive it=
-)
- * International online/offline opportunity
- * Company uses a million dollar tracking software
- * Professional self replicating website sells for you
- * Company has combined experience of 50 years in business
- * 24 hour information line 212-461-2506
- * Live conference Calls 
-  
-   This Program will be very well received due to the fact that members ca=
-n be paid without recruiting others. However, those who do share the progr=
-am with others will earn matching bonuses 2 levels deep. This is one of th=
-e very best comp plans I have seen.
+> how can software create nodes for a specific device?
 
-Thank You,
-GDP,
+You do not mean using mknod?
 
-
-Need more Information go to:
-
-
-                        .::CLICK ON THE LINK BELOW TO REPLY TO THIS AD BY =
-E-MAIL::.
-                               mailto:frank53@buythebest.us?subject=3DREPL=
-Y_RETURN
-                  
-                  
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-                  
-###################################
-To be removed from this mailing list
-go here: mailto:alice14@buythebest.us?subject=3DREMOVE_ME
- 
-###################################
-
-      
-kwvuxrgakqu
-qc jhekbf  qyuzvbfx p
-slng k wvscxckefyblxvy
---D.4E__..B6.6--
-
+Andries

@@ -1,72 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130753AbRBVS4G>; Thu, 22 Feb 2001 13:56:06 -0500
+	id <S129122AbRBVS74>; Thu, 22 Feb 2001 13:59:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130707AbRBVSz4>; Thu, 22 Feb 2001 13:55:56 -0500
-Received: from mcdc-us-smtp5.cdc.gov ([198.246.97.21]:47631 "EHLO
-	mcdc-us-smtp5.cdc.gov") by vger.kernel.org with ESMTP
-	id <S130109AbRBVSzj>; Thu, 22 Feb 2001 13:55:39 -0500
-Message-ID: <B7F9A3E3FDDDD11185510000F8BDBBF2049E810D@mcdc-atl-5.cdc.gov>
-X-Sybari-Space: 00000000 00000000 00000000
-From: Heitzso <xxh1@cdc.gov>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: trouble with 2.4.2 just released
-Date: Thu, 22 Feb 2001 13:55:28 -0500
+	id <S129131AbRBVS7r>; Thu, 22 Feb 2001 13:59:47 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:16132 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129122AbRBVS7c>; Thu, 22 Feb 2001 13:59:32 -0500
+Date: Thu, 22 Feb 2001 10:59:20 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jens Axboe <axboe@suse.de>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ll_rw_block/submit_bh and request limits
+In-Reply-To: <20010222145642.D17276@suse.de>
+Message-ID: <Pine.LNX.4.10.10102221052000.8403-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two boxes that I immediately
-tried upgrading the OS on.  In both
-cases I use a script to automate the
-build with a saved off .config file.
-simplified ..
- untar linux tar ball
- cp config.blat linux/.config
- cd linux
- make oldconfig
- make menuconfig
- cp .config ../config.blat
- make bzImage
- make modules
- make modules_install
- ... copy files around ...
- lilo
 
-On one box the build completed but 
-with half a dozen C warnings and
-a block of assembler warnings (RH7).  
-These will always leave a sys admin 
-nervous about running a kernel.
 
-On the other box I have yet to get a
-successful build (using a .config that
-runs 2.4.2-pre4 fine).  ld complains
-about a missing binary file.
+On Thu, 22 Feb 2001, Jens Axboe wrote:
 
-ld: cannot open binary: no such file or directory
+> On Thu, Feb 22 2001, Marcelo Tosatti wrote:
+> > The following piece of code in ll_rw_block() aims to limit the number of
+> > locked buffers by making processes throttle on IO if the number of on
+> > flight requests is bigger than a high watermaker. IO will only start
+> > again if we're under a low watermark.
+> > 
+> >                 if (atomic_read(&queued_sectors) >= high_queued_sectors) {
+> >                         run_task_queue(&tq_disk);
+> >                         wait_event(blk_buffers_wait,
+> >                         	atomic_read(&queued_sectors) < low_queued_sectors);
+> >                 }
+> > 
+> > 
+> > However, if submit_bh() is used to queue IO (which is used by ->readpage()
+> > for ext2, for example), no throttling happens.
+> > 
+> > It looks like ll_rw_block() users (writes, metadata reads) can be starved
+> > by submit_bh() (data reads). 
+> > 
+> > If I'm not missing something, the watermark check should be moved to
+> > submit_bh(). 
+> 
+> We might as well put it there, the idea was to not lock this one
+> buffer either but I doubt this would make any different in reality :-)
 
-email be directly at xxh1@cdc.gov if
-someone has a specific question re how
-the kernel broke or if they want a copy
-of my .config file
+I'd prefer for this check to be a per-queue one.
 
-Note I'm running debian unstable/woody
-on the system that's failing to build 
-2.4.2, but this same system handled 
-2.4.2-pre4 albeit with the warnings fine.
+Right now a slow device (like a floppy) would artifically throttle a fast
+one, if I read the above right. So instead of moving it down the
+call-chain, I'd rather remove the check completely as it looks wrong to
+me.
 
-Also, feel free to throw the standard
-idiot questions at me, I may have made
-an idiot mistake.  My /usr partition
-that has /usr/src/linux tree has 4G
-avail, so I'm not running out of drive
-space.  I'm running the script as root.
-I tried both bz2 and gz versions of tarball.
-... what am I missing ... ?
+Now, if people want throttling, I'd much rather see that done per-queue.
 
-Heitzso
-xxh1@cdc.gov
+(There's another level of throttling that migth make sense: right now the
+swap-out code has this "nr_async_pages" throttling which is very different
+from the queue throttling. It might make sense to move that _VM_-level
+throttling to writepage too - so that syncing of dirty mmap's will not
+cause an overload of pages in flight. This was one of the reasons I
+changed the semantics of write-page - so that shared mappings could do
+that kind of smoothing too).
+
+		Linus
+

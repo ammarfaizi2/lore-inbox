@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280344AbRJaRhc>; Wed, 31 Oct 2001 12:37:32 -0500
+	id <S280339AbRJaRec>; Wed, 31 Oct 2001 12:34:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280346AbRJaRhX>; Wed, 31 Oct 2001 12:37:23 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:4616 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S280344AbRJaRhS>;
-	Wed, 31 Oct 2001 12:37:18 -0500
-Date: Wed, 31 Oct 2001 15:37:45 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Timur Tabi <ttabi@interactivesi.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Module Licensing?
-In-Reply-To: <3BE034F6.8070201@interactivesi.com>
-Message-ID: <Pine.LNX.4.33L.0110311535250.2963-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280348AbRJaReR>; Wed, 31 Oct 2001 12:34:17 -0500
+Received: from sovereign.org ([209.180.91.170]:62370 "EHLO lux.homenet")
+	by vger.kernel.org with ESMTP id <S280335AbRJaRcU>;
+	Wed, 31 Oct 2001 12:32:20 -0500
+From: Jim Freeman <jfree@sovereign.org>
+Date: Wed, 31 Oct 2001 10:34:30 -0700
+To: MichaelM <michail@manegakis.freeserve.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The new X-Kernel !
+Message-ID: <20011031103430.B18607@sovereign.org>
+In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Oct 2001, Timur Tabi wrote:
-> Rik van Riel wrote:
->
-> > Since your program, which happens to consist of one open
-> > source part and one proprietary part, is partly a derived
-> > work from the kernel source (by using kernel header files
-> > and the inline functions in it) your whole work must be
-> > distributed under the GPL.
->
-> I contest your meaning of the word "work".  The open source portion of
-> my module is one "work", and the closed source portion is another
-> "work".  I could deliver these two works as separate tarballs, if I
-> wanted.
+On Sat, Oct 20, 2001 at 10:30:00PM +0100, MichaelM wrote:
+> People need a nice stable Operating System for Desktop and Multimedia
+> purposes and this doesn't exist. We should create a new stable X-Kernel with
+> build in support for X. Pressing Alt-F1 a console should pop up.
 
-Let me quote you, from 2 emails back in the thread:
+Name's already taken?
 
- "The fact that the open source portions and the closed source portions
-  can't function on their own is irrelevant, IMHO."
-
-The irrelevance here is IYHO ... it may well be judged that
-since these two portions of the work need each other in order
-to function, the thing really is one work.
-
-You're well into the danger zone here...
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
+	http://www.cs.princeton.edu/nsg/xkernel/
 
 
+And a successor project that targets multimedia, and has some Linux
+support?
+
+	http://www.cs.princeton.edu/nsg/scout/

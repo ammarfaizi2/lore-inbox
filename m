@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131219AbRDGT5C>; Sat, 7 Apr 2001 15:57:02 -0400
+	id <S131346AbRDGUKi>; Sat, 7 Apr 2001 16:10:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131346AbRDGT4x>; Sat, 7 Apr 2001 15:56:53 -0400
-Received: from ns.suse.de ([213.95.15.193]:24331 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131219AbRDGT4m>;
-	Sat, 7 Apr 2001 15:56:42 -0400
-Date: Sat, 7 Apr 2001 21:56:40 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: <linux-kernel@vger.kernel.org>, <bert@dutepp0.et.tudelft.nl>,
-        <jeanpaul@dutepp0.et.tudelft.nl>
-Subject: Re: P-III Oddity. 
-In-Reply-To: <200104071933.VAA19651@cave.bitwizard.nl>
-Message-ID: <Pine.LNX.4.30.0104072149510.10936-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131347AbRDGUK1>; Sat, 7 Apr 2001 16:10:27 -0400
+Received: from [195.55.70.99] ([195.55.70.99]:1798 "EHLO mozart")
+	by vger.kernel.org with ESMTP id <S131346AbRDGUKN>;
+	Sat, 7 Apr 2001 16:10:13 -0400
+Message-Id: <m14lysQ-001PHqC@mozart>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Paul McKenney" <Paul.McKenney@us.ibm.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+        nigel@nrg.org
+Subject: Re: [PATCH for 2.5] preemptible kernel 
+In-Reply-To: Your message of "Fri, 06 Apr 2001 18:25:36 MST."
+             <OF37B0793C.6B15F182-ON88256A27.0007C3EF@LocalDomain> 
+Date: Sun, 08 Apr 2001 05:59:49 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Apr 2001, Rogier Wolff wrote:
+In message <OF37B0793C.6B15F182-ON88256A27.0007C3EF@LocalDomain> you write:
+> > Priority inversion is not handled in Linux kernel ATM BTW, there
+> > are already situations where a realtime task can cause a deadlock
+> > with some lower priority system thread (I believe there is at least
+> > one case of this known with realtime ntpd on 2.4)
+> 
+> I see your point here, but need to think about it.  One question:
+> isn't it the case that the alternative to using synchronize_kernel()
+> is to protect the read side with explicit locks, which will themselves
+> suppress preemption?  If so, why not just suppress preemption on the read
+> side in preemptible kernels, and thus gain the simpler implementation
+> of synchronize_kernel()?  You are not losing any preemption latency
+> compared to a kernel that uses traditional locks, in fact, you should
+> improve latency a bit since the lock operations are more expensive than
+> are simple increments and decrements.  As usual, what am I missing
+> here?  ;-)
 
-> One machine regularly crashes.
-> Linux version 2.2.16-3 (root@porky.devel.redhat.com) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Mon Jun 19 19:11:44 EDT 2000
+Already preempted tasks.
 
-Probably unrelated to the issue below. Try a more recent 2.2 ?
+> Another approach would be to define a "really low" priority that noone
+> other than synchronize_kernel() was allowed to use.  Then the UP
+> implementation of synchronize_kernel() could drop its priority to
+> this level, yield the CPU, and know that all preempted tasks must
+> have obtained and voluntarily yielded the CPU before synchronize_kernel()
+> gets it back again.
 
-> cpuid level     : 2
+Or "never", because I'm running RC5 etc. 8(.
 
-CPU serial number disabled.
-
-> cpuid level     : 3
-
-CPU serial number enabled.
-
-
-You should be able to confirm this with my x86info tool.
-ftp://ftp.suse.com/pub/people/davej/x86info/x86info-1.0.tgz
-
-If this isn't the case, can you send me the output of
-x86info -a on both CPUs ?
-
-Note, that 2.4 should be disabling the serial number by
-default.
-(Unless you booted with the `serialnumber' bootarg.)
-
-regards,
-
-Dave.
-
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

@@ -1,47 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132600AbRANTVb>; Sun, 14 Jan 2001 14:21:31 -0500
+	id <S132365AbRANTfh>; Sun, 14 Jan 2001 14:35:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135259AbRANTVZ>; Sun, 14 Jan 2001 14:21:25 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:4362 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132600AbRANTVM>; Sun, 14 Jan 2001 14:21:12 -0500
-Date: Sun, 14 Jan 2001 11:20:45 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Rohland <cr@sap.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SetPageDirty in shmem_nopage
-In-Reply-To: <m3zoguf115.fsf@linux.local>
-Message-ID: <Pine.LNX.4.10.10101141116550.4086-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132545AbRANTf1>; Sun, 14 Jan 2001 14:35:27 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:35449
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S132365AbRANTfT>; Sun, 14 Jan 2001 14:35:19 -0500
+Date: Sun, 14 Jan 2001 20:35:09 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Roman.Hodek@informatik.uni-erlangen.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make drivers/scsi/atari_scsi.c check request_irq (240p3)
+Message-ID: <20010114203509.D602@jaquet.dk>
+In-Reply-To: <20010114195323.B602@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20010114195323.B602@jaquet.dk>; from rasmus@jaquet.dk on Sun, Jan 14, 2001 at 07:53:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi again and sorry for the noise.
+
+Hans Grobler kindly pointed me towards scsi_unregister which I heppily had
+ignored. The following patch includes this function in the exit paths.
+Otherwise it is identical to the earlier one.
 
 
-On 14 Jan 2001, Christoph Rohland wrote:
-> 
-> Since we do not mark the page dirty at allocation time the vm can drop
-> it at any time as long as it is not written to. But shmem never
-> adjusts its accounting to that and will happily increase the use
-> counter for both the inode and the fs.
+--- linux-ac9/drivers/scsi/atari_scsi.c.org	Sun Jan 14 19:41:56 2001
++++ linux-ac9/drivers/scsi/atari_scsi.c	Sun Jan 14 20:29:30 2001
+@@ -690,19 +690,29 @@
+ 		/* This int is actually "pseudo-slow", i.e. it acts like a slow
+ 		 * interrupt after having cleared the pending flag for the DMA
+ 		 * interrupt. */
+-		request_irq(IRQ_TT_MFP_SCSI, scsi_tt_intr, IRQ_TYPE_SLOW,
+-		            "SCSI NCR5380", scsi_tt_intr);
++		if (!request_irq(IRQ_TT_MFP_SCSI, scsi_tt_intr, IRQ_TYPE_SLOW,
++				 "SCSI NCR5380", scsi_tt_intr)) {
++			printk(KERN_ERR "atari_scsi_detect: cannot allocate irq %d, aborting",IRQ_TT_MFP_SCSI);
++			scsi_unregister(atari_scsi_host);
++			atari_stram_free(atari_dma_buffer);
++			atari_dma_buffer = 0;
++			return 0;
++		}
+ 		tt_mfp.active_edge |= 0x80;		/* SCSI int on L->H */
+ #ifdef REAL_DMA
+ 		tt_scsi_dma.dma_ctrl = 0;
+ 		atari_dma_residual = 0;
+-#endif /* REAL_DMA */
+-#ifdef REAL_DMA
+ #ifdef CONFIG_TT_DMA_EMUL
+ 		if (MACH_IS_HADES) {
+-			request_irq(IRQ_AUTO_2, hades_dma_emulator,
+-				    IRQ_TYPE_PRIO, "Hades DMA emulator",
+-				    hades_dma_emulator);
++			if (!request_irq(IRQ_AUTO_2, hades_dma_emulator,
++					 IRQ_TYPE_PRIO, "Hades DMA emulator",
++					 hades_dma_emulator)) {
++				printk(KERN_ERR "atari_scsi_detect: cannot allocate irq %d, aborting (MACH_IS_HADES)",IRQ_AUTO_2);
++				scsi_unregister(atari_scsi_host);
++				atari_stram_free(atari_dma_buffer);
++				atari_dma_buffer = 0;
++				return 0;
++			}
+ 		}
+ #endif
+ 		if (MACH_IS_MEDUSA || MACH_IS_HADES) {
+@@ -719,9 +729,8 @@
+ 			 * the rest data bug is fixed, this can be lowered to 1.
+ 			 */
+ 			atari_read_overruns = 4;
+-		}
+-#endif
+-		
++		}		
++#endif /*REAL_DMA*/
+ 	}
+ 	else { /* ! IS_A_TT */
+ 		
 
-Why do you increment the use counter at all in nopage?
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-There's something wrong here. You shouldn't need to calculate any of this.
-The VM layer already keeps track of how many pages are associated with a
-mapping in "mapping->nr_pages".  Why do you maintain extra counters that
-do not give you anything at all?
-
-You should count how many swap cache entries you have allocated for this
-inode, and nothing more - the VM keeps track of everything else for you
-already. It looks like this code is all historical baggage from when the
-shm code didn't use the VM page cache? I'd rather remove it than try to
-edit it, no?
-
-		Linus
-
+Without censorship, things can get terribly confused in the
+public mind. -General William Westmoreland, during the war in Viet Nam
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

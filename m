@@ -1,94 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVDDIOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVDDIQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbVDDIOo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 04:14:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVDDIOn
+	id S261169AbVDDIQW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 04:16:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261163AbVDDIQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 04:14:43 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:13045 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261167AbVDDIOj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 04:14:39 -0400
-Date: Mon, 4 Apr 2005 13:45:38 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: hien@us.ibm.com, SystemTAP <systemtap@sources.redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12-rc1-mm3] [1/2]  kprobes += function-return
-Message-ID: <20050404081538.GF1715@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
+	Mon, 4 Apr 2005 04:16:22 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:20608 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S261169AbVDDIQH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 04:16:07 -0400
+Date: Mon, 4 Apr 2005 10:16:00 +0200
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: 2.6.12-rc1-mm4 and suspend2ram (and synaptics)
+Message-ID: <20050404081600.GA2424@gamma.logic.tuwien.ac.at>
+References: <20050331220822.GA22418@gamma.logic.tuwien.ac.at> <20050401113335.GA13160@elf.ucw.cz> <20050403224557.GB1015@gamma.logic.tuwien.ac.at> <20050403225929.GE13466@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050403225929.GE13466@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Hien,
+Hi Pavel!
 
-This patch looks good to me, but I have some comments on this patch.
+On Mon, 04 Apr 2005, Pavel Machek wrote:
+> I'd like to fix the problem, but first I need to know where the
+> problem is.  If it works with minimal config, I know that it is one of
+> drivers you deselected.
 
->This patch adds function-return probes (AKA exit probes) to kprobes. 
-> When establishing a probepoint at the entry to a function, you can also 
->establish a handler to be run when the function returns.
+It's b44. It *was* working with b44 insmod-ed and up and running, but
+now as soon as b44-eth0 is ifup-ed while suspending, the resume freezes.
+If I do a ifdown eth0 before suspending, it works.
 
->The subsequent post give example of how function-return probes can be used.
+Best wishes
 
->Two new registration interfaces are added to kprobes:
+Norbert
 
->int register_kretprobe(struct kprobe *kp, struct rprobe *rp);
->Registers a probepoint at the entry to the function whose address is 
->kp->addr.  Each time that function returns, rp->handler will be run.
-
->int register_jretprobe(struct jprobe *jp, struct rprobe *rp);
->Like register_kretprobe, except a jprobe is established for the probed 
->function.
-
-Why two interfaces for the same feature?
-You can provide a simple interface like
-
-register_exitprobe(struct rprobe *rp) {
-	....................
-}
-
-or 
-int register_returnprobe(struct rprobe *rp) {
-
-	....................
-}
-
-whichever you feel is a good name. 
-
-
-independent of kprobe and jprobe.
-This routine should take care to register entry handler internally if not 
-present. This routine can check if there are already entry point kprobe/jprobe
-and use some flags internally to say if the entry jprobe/kprobe already exists.
-
->To unregister, you still use unregister_kprobe or unregister_jprobe. To 
->probe only a function's returns, call register_kretprobe() and specify 
->NULL handlers for the kprobe.
-
-make unregister exitprobes independent of kprobe/jprobe.
-
-To unregister provide this interface 
-
-unregister_exitprobe(struct rpobe *rp) { 
-	....................
-}
-
-This routine should check if entry point kprobe/jprobe belows to user/ 
-registered by exit probe. Remove the entry probe if no user has registered 
-entry point kprobe/jprobe. If user has already registered entry point probes,
-just leave the entry point probes and remove only the exit point probes.
-
-Please let me know if you need more information.
-
-Thanks
-Prasanna
-- 
-
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>                 Università di Siena
+sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+PUDSEY (n.)
+The curious-shaped flat wads of dough left on a kitchen table after
+someone has been cutting scones out of it.
+			--- Douglas Adams, The Meaning of Liff

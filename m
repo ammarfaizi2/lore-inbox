@@ -1,75 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283616AbRK3LYG>; Fri, 30 Nov 2001 06:24:06 -0500
+	id <S283618AbRK3L20>; Fri, 30 Nov 2001 06:28:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283619AbRK3LX4>; Fri, 30 Nov 2001 06:23:56 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:49918 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S283618AbRK3LXp>; Fri, 30 Nov 2001 06:23:45 -0500
-Date: Fri, 30 Nov 2001 20:23:36 +0900
-Message-Id: <200111301123.UAA23808@asami.proc.flab.fujitsu.co.jp>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 8139too.c
-Reply-to: kumon@flab.fujitsu.co.jp
-From: kumon@flab.fujitsu.co.jp
-Cc: kumon@flab.fujitsu.co.jp
-X-Mailer: Handmade Mailer version 1.0
+	id <S283619AbRK3L2R>; Fri, 30 Nov 2001 06:28:17 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:53777 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S283618AbRK3L2F>;
+	Fri, 30 Nov 2001 06:28:05 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Gianni Tedesco <gianni@ecsc.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PANIC]: Panic out of the blue in timer_bh (possibly bogus) 
+In-Reply-To: Your message of "30 Nov 2001 09:49:50 -0000."
+             <1007113790.22600.0.camel@lemsip> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 30 Nov 2001 22:27:51 +1100
+Message-ID: <4594.1007119671@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 8139too.c, skb is used after it is freed.
-Look at the argument of RTL_W32_F() in the following patch.
+On 30 Nov 2001 09:49:50 +0000, 
+Gianni Tedesco <gianni@ecsc.co.uk> wrote:
+>Ksymoops gives a couple of warnings, im not sure exactly how relevent
+>they are but I'm pretty damn sure its using the correct ksyms/system.map
+>etc.
+>
+>Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base
+>says c029b670, System.map says c014e3e0.  Ignoring ksyms_base entry
 
-8 % diff -u -10 8139too.c  /tmp/8139too.c 
---- 8139too.c	Sun Nov 25 10:46:36 2001
-+++ /tmp/8139too.c	Fri Nov 30 19:50:48 2001
-@@ -1635,40 +1635,40 @@
- {
- 	struct rtl8139_private *tp = dev->priv;
- 	void *ioaddr = tp->mmio_addr;
- 	unsigned int entry;
- 
- 	/* Calculate the next Tx descriptor entry. */
- 	entry = tp->cur_tx % NUM_TX_DESC;
- 
- 	if (likely(skb->len < TX_BUF_SIZE)) {
- 		skb_copy_and_csum_dev(skb, tp->tx_buf[entry]);
--		dev_kfree_skb(skb);
- 	} else {
- 		dev_kfree_skb(skb);
- 		tp->stats.tx_dropped++;
- 		return 0;
-   	}
- 
- 	/* Note: the chip doesn't have auto-pad! */
- 	spin_lock_irq(&tp->lock);
- 	RTL_W32_F (TxStatus0 + (entry * sizeof (u32)),
- 		   tp->tx_flag | (skb->len >= ETH_ZLEN ? skb->len : ETH_ZLEN));
- 
- 	dev->trans_start = jiffies;
- 
- 	tp->cur_tx++;
- 	wmb();
- 
- 	if ((tp->cur_tx - NUM_TX_DESC) == tp->dirty_tx)
- 		netif_stop_queue (dev);
- 	spin_unlock_irq(&tp->lock);
-+	dev_kfree_skb(skb);
- 
- 	DPRINTK ("%s: Queued Tx packet at %p size %u to slot %d.\n",
- 		 dev->name, skb->data, skb->len, entry);
- 
- 	return 0;
- }
- 
- 
- static void rtl8139_tx_interrupt (struct net_device *dev,
- 				  struct rtl8139_private *tp,
+Two symbols called partition_name, one of which is exported.  Can you
+say "bad choice of name"?
 
+>Warning (compare_maps): mismatch on symbol tulip_max_interrupt_work  ,
+>tulip says d09a26ec, /lib/modules/2.4.9/kernel/drivers/net/tulip/tulip.o
+>says d09a1cac.  Ignoring
+>/lib/modules/2.4.9/kernel/drivers/net/tulip/tulip.o entry
+>Warning (compare_maps): mismatch on symbol tulip_rx_copybreak  , tulip
+>says d09a26f0, /lib/modules/2.4.9/kernel/drivers/net/tulip/tulip.o says
+>d09a1cb0.  Ignoring /lib/modules/2.4.9/kernel/drivers/net/tulip/tulip.o
+>entry
 
---
-Software Laboratory, Fujitsu Labs.
-kumon@flab.fujitsu.co.jp
+Bug in address calculation for exported bss symbols, fixed in ksymoops
+2.4.2.
+

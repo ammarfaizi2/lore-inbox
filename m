@@ -1,131 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUD0W2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264379AbUD0Wfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbUD0W2t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 18:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbUD0W2t
+	id S264379AbUD0Wfp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 18:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbUD0Wfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 18:28:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21433 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264377AbUD0W2d (ORCPT
+	Tue, 27 Apr 2004 18:35:45 -0400
+Received: from ns.suse.de ([195.135.220.2]:1162 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264379AbUD0Wfn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 18:28:33 -0400
-Date: Tue, 27 Apr 2004 15:28:30 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Erik Jacobson <erikj@subway.americas.sgi.com>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Process Aggregates (PAGG) support for the 2.6 kernel
-Message-ID: <20040427152830.C21045@build.pdx.osdl.net>
-References: <Pine.SGI.4.53.0404261656230.591647@subway.americas.sgi.com> <20040426163955.X21045@build.pdx.osdl.net> <Pine.SGI.4.53.0404271546410.632984@subway.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Apr 2004 18:35:43 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SUSE Labs
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Subject: Re: [PATCH 4/11] sunrpc-xdr-words
+Date: Wed, 28 Apr 2004 00:37:15 +0200
+User-Agent: KMail/1.6.2
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <1082975183.3295.74.camel@winden.suse.de> <20040427211926.GA4319@fieldses.org>
+In-Reply-To: <20040427211926.GA4319@fieldses.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SGI.4.53.0404271546410.632984@subway.americas.sgi.com>; from erikj@subway.americas.sgi.com on Tue, Apr 27, 2004 at 03:51:56PM -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404280037.15274.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Erik Jacobson (erikj@subway.americas.sgi.com) wrote:
-> I didn't choose to change the macros at this time - however, I'm not against
-> changing them either - I just haven't done it yet.
+Hi Bruce,
 
-OK.  I still think it's a good idea for readability and type safety.
+thanks, we can move both functions into include/linux/sunrpc/xdr.h; they are 
+trivial enough.
 
-> On Mon, 26 Apr 2004, Chris Wright wrote:
-> > This looks like it's just the infrastructure, i.e. nothing is using it.
-> > It seems like PAGG could be done on top of CKRM (albeit, with more
-> > code).  But if the goal is to do some basic accounting, scheduling, etc.
-> > on a resource group, wouldn't CKRM be more generic?
-> 
-> Right.  A couple examples of things we have that use it are CSA
-> (oss.sgi.com/csa) and job.  job provides inescapable job containers that
-> are also used by csa.
-> 
-> But what I presented here was just the infrastructure as you said.
-> 
-> Patches for inescapable job containers ('job') are available on the pagg web
-> site as well (oss.sgi.com/pagg).
+On Tuesday 27 April 2004 23:19, J. Bruce Fields wrote:
+> On Mon, Apr 26, 2004 at 12:28:48PM +0200, Andreas Gruenbacher wrote:
+> > Encode 32-bit words in xdr_buf's
+> > +extern int read_u32_from_xdr_buf(struct xdr_buf *, int, u32 *);
+>
+> Note that the same function is defined as a static inline in
+> net/sunrpc/auth_gss/svcauth_gss.c, so gcc will complain if
+> CONFIG_SUNRPC_GSS is also defined.
+>
+> --Bruce Fields
 
-OK, thanks, I'll take a look.
-
-> > > +       char		*name;	/* Name Key - restricted to 32 characters */
-> >
-> > why the restriction?
-> 
-> I'm open to suggestions.  Right now, this is usually set to something like
-> "job" or similar.  The max length is enforced by the module that makes use
-> of pagg.  For example, with the job package:
-
-Right, if it's a pointer, and you guarantee it's NULL terminated, then I
-don't see the point.  Otherwise, strncmp() or something?
-
-> I fixed the tasklist issue you were concerned about.  Again, I didn't address
-> the macro issue at this moment.
-
-Alright, see below.
-
-> > This looks like it leaks the just alloc'd to_pagg.
-> 
-> I agree that it looks suspect but I think it's OK.
-> 
-> You're talking about the case where the pagg was allocated, but couldn't
-> attach I assume.
-> 
-> The alloc_pagg function adds that allocated pagg to the pagg list.  In
-> error_return, detach_pagg_list is called so this pagg should be freed then.
-
-Yes, I see it now, thanks.  BTW, I see a common idiom here of:
-
- if (!list_empty) {
-	list_for_each() {
-	}
-
- }
-
-Seems like mostly an empty optimization, since list_for_each essentially
-does that list_empty() check, no?
-
-> +unregister_pagg_hook(struct pagg_hook *pagg_hook_old)
-> +{
-<snip>
-> +	down_write(&pagg_hook_list_sem);
-<snip>
-> +		read_lock(&tasklist_lock);
-> +		for_each_process(task) {
-> +			struct pagg *pagg = NULL;
-> +
-> +			get_task_struct(task); /* So the task doesn't vanish on us */
-> +			read_unlock(&tasklist_lock);
-
-dropped tasklist_lock, task could exit, and unlink and potentially drop the 
-only other ref.
-
-> +			read_lock_pagg_list(task);
-> +			pagg = get_pagg(task, pagg_hook_old->name);
-> +			put_task_struct(task);
-
-and this could have totally freed the memory to task.
-
-still looks unsafe to me.
-
-> +			/* 
-> +			 * We won't be accessing pagg's memory, just need
-> +			 * to see if one existed - so we can release the task
-> +			 * lock now.
-> +			 */
-> +			read_unlock_pagg_list(task);
-> +			if (pagg) {
-> +				up_write(&pagg_hook_list_sem);
-> +				return -EBUSY;
-> +			}
-> +
-> +			/* lock the task list again so we get a valid task in the loop */
-> +			read_lock(&tasklist_lock);
-> +		}
-> +		read_unlock(&tasklist_lock);
-> +		list_del_init(&pagg_hook->entry);
-> +		up_write(&pagg_hook_list_sem);
-
-thanks,
--chris
+Cheers,
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG

@@ -1,129 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263137AbTK3JTS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 04:19:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTK3JTS
+	id S262397AbTK3JJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 04:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbTK3JJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 04:19:18 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:49628 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id S263137AbTK3JTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 04:19:10 -0500
-Date: Sun, 30 Nov 2003 10:19:07 +0100 (MET)
-From: Sebastiaan <S.Breedveld@ewi.tudelft.nl>
+	Sun, 30 Nov 2003 04:09:57 -0500
+Received: from play.smurf.noris.de ([192.109.102.42]:30168 "EHLO
+	play.smurf.noris.de") by vger.kernel.org with ESMTP id S262397AbTK3JJz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 04:09:55 -0500
 To: linux-kernel@vger.kernel.org
-Subject: PowerMac floppy (SWIM-3) doesn't compile
-Message-ID: <Pine.GHP.4.44.0311301013160.3052-100000@elektron.its.tudelft.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: What exactly are the issues with 2.6.0-test10 preempt?
+Date: Sun, 30 Nov 2003 10:09:28 +0100
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2003.11.30.09.09.28.112431@smurf.noris.de>
+References: <20031124191459.99375.qmail@web40902.mail.yahoo.com>
+NNTP-Posting-Host: linux.smurf.noris.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: play.smurf.noris.de 1070183368 11686 192.109.102.39 (30 Nov 2003 09:09:28 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Sun, 30 Nov 2003 09:09:28 +0000 (UTC)
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi, Bradley Chapman wrote:
 
-I am trying to build the 2.6.0-test11 kernel for my PowerMac 7300/166, but
-the floppy controller doesn't want to compile. I have:
+> So what exactly is the problem?
 
-CONFIG_MAC_FLOPPY=y
+I'm seeing
+- User Interface corruption under X. That shows as random processes
+crashing with SIGFPE (interestingly, often two unrelated X processes crash
+at the same time -- sometimes one of them is the server) or SEGV, 
 
-After a while 'make all' fails with:
+I just switched to -test11 and turned off preemption. I don't see any more
+crashes or weird behavior, but now performance sucks -- console scrolling
+(frame buffer) stalls for seconds, keyboard repeat likewise, and the X
+server suddenly decides it wants twice the CPU (60% instead of 30%).
 
-  CC      drivers/block/swim3.o
-drivers/block/swim3.c:224: parse error before `*'
-drivers/block/swim3.c:224: warning: function declaration isn't a prototype
-drivers/block/swim3.c:292: parse error before `*'
-drivers/block/swim3.c:293: warning: function declaration isn't a prototype
-drivers/block/swim3.c: In function `do_fd_request':
-drivers/block/swim3.c:302: warning: implicit declaration of function `sti'
-drivers/block/swim3.c: In function `start_request':
-drivers/block/swim3.c:315: warning: implicit declaration of function `elv_next_request'
-drivers/block/swim3.c:315: warning: assignment makes pointer from integer without a cast
-drivers/block/swim3.c:324: dereferencing pointer to incomplete type
-drivers/block/swim3.c:324: dereferencing pointer to incomplete type
-drivers/block/swim3.c:325: warning: implicit declaration of function `end_request'
-drivers/block/swim3.c:328: dereferencing pointer to incomplete type
-drivers/block/swim3.c:337: warning: implicit declaration of function `rq_data_dir'
-drivers/block/swim3.c:346: dereferencing pointer to incomplete type
-drivers/block/swim3.c:347: dereferencing pointer to incomplete type
-drivers/block/swim3.c: In function `set_timeout':
-drivers/block/swim3.c:363: warning: implicit declaration of function `save_flags'
-drivers/block/swim3.c:363: warning: implicit declaration of function `cli'
-drivers/block/swim3.c:371: warning: implicit declaration of function `restore_flags'
-drivers/block/swim3.c: In function `setup_transfer':
-drivers/block/swim3.c:422: dereferencing pointer to incomplete type
-drivers/block/swim3.c:430: dereferencing pointer to incomplete type
-drivers/block/swim3.c:431: dereferencing pointer to incomplete type
-drivers/block/swim3.c:443: dereferencing pointer to incomplete type
-drivers/block/swim3.c:447: dereferencing pointer to incomplete type
-drivers/block/swim3.c: In function `xfer_timeout':
-drivers/block/swim3.c:598: dereferencing pointer to incomplete type
-drivers/block/swim3.c:599: dereferencing pointer to incomplete type
-drivers/block/swim3.c:601: dereferencing pointer to incomplete type
-drivers/block/swim3.c: In function `swim3_interrupt':
-drivers/block/swim3.c:623: warning: long unsigned int format, unsigned int arg (arg 3)
-drivers/block/swim3.c:695: dereferencing pointer to incomplete type
-drivers/block/swim3.c:696: dereferencing pointer to incomplete type
-drivers/block/swim3.c:697: dereferencing pointer to incomplete type
-drivers/block/swim3.c:706: dereferencing pointer to incomplete type
-drivers/block/swim3.c:715: warning: long unsigned int format, unsigned int arg (arg 3)
-drivers/block/swim3.c:721: dereferencing pointer to incomplete type
-drivers/block/swim3.c:722: dereferencing pointer to incomplete type
-drivers/block/swim3.c:723: dereferencing pointer to incomplete type
-drivers/block/swim3.c:724: dereferencing pointer to incomplete type
-drivers/block/swim3.c: In function `floppy_ioctl':
-drivers/block/swim3.c:817: dereferencing pointer to incomplete type
-drivers/block/swim3.c: In function `floppy_open':
-drivers/block/swim3.c:843: dereferencing pointer to incomplete type
-drivers/block/swim3.c: In function `floppy_release':
-drivers/block/swim3.c:909: dereferencing pointer to incomplete type
-drivers/block/swim3.c: In function `floppy_check_change':
-drivers/block/swim3.c:920: dereferencing pointer to incomplete type
-drivers/block/swim3.c: In function `floppy_revalidate':
-drivers/block/swim3.c:926: dereferencing pointer to incomplete type
-drivers/block/swim3.c: In function `swim3_init':
-drivers/block/swim3.c:999: warning: implicit declaration of function `alloc_disk'
-drivers/block/swim3.c:999: warning: assignment makes pointer from integer without a cast
-drivers/block/swim3.c:1004: `FLOPPY_MAJOR' undeclared (first use in this function)
-drivers/block/swim3.c:1004: (Each undeclared identifier is reported only once
-drivers/block/swim3.c:1004: for each function it appears in.)
-drivers/block/swim3.c:1009: warning: implicit declaration of function `blk_init_queue'
-drivers/block/swim3.c:1009: warning: assignment makes pointer from integer without a cast
-drivers/block/swim3.c:1017: dereferencing pointer to incomplete type
-drivers/block/swim3.c:1018: dereferencing pointer to incomplete type
-drivers/block/swim3.c:1019: dereferencing pointer to incomplete type
-drivers/block/swim3.c:1020: dereferencing pointer to incomplete type
-drivers/block/swim3.c:1021: dereferencing pointer to incomplete type
-drivers/block/swim3.c:1022: dereferencing pointer to incomplete type
-drivers/block/swim3.c:1023: dereferencing pointer to incomplete type
-drivers/block/swim3.c:1024: warning: implicit declaration of function `set_capacity'
-drivers/block/swim3.c:1025: warning: implicit declaration of function `add_disk'
-drivers/block/swim3.c:1033: warning: implicit declaration of function `put_disk'
-drivers/block/swim3.c: In function `swim3_add_device':
-drivers/block/swim3.c:1084: warning: implicit declaration of function `request_irq'
-drivers/block/swim3.c: At top level:
-drivers/block/swim3.c:962: warning: `floppy_off' defined but not used
-make[2]: *** [drivers/block/swim3.o] Error 1
-make[1]: *** [drivers/block] Error 2
-make: *** [drivers] Error 2
+I'll rebuild test11 with preempt and check whether there are any changes.
+(Yes I know, changing two variables at the same time was somewhat stupid.)
 
-
-With my limiting knowledge about C and kernel sources I tried to locate
-the error, but I haven't succeeded.
-
-Setting CONFIG_MAC_FLOPPY=n will build the whole kernel.
-
-Greetz,
-Sebastiaan
-
-
---
-
-English written by Dutch people is easily recognized by the improper use of 'In principle ...'
-
-The software box said 'Requires Windows 95 or better', so I installed Linux.
-
-Als Pacman in de jaren '80 de kinderen zo had be?nvloed zouden nu veel jongeren rondrennen
-in donkere zalen terwijl ze pillen eten en luisteren naar monotone electronische muziek.
-(Kristian Wilson, Nintendo, 1989)
-
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+If you're careful enough, nothing bad or good will ever happen to you.
 

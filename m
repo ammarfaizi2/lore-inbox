@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbULWJeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbULWJv2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbULWJeD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 04:34:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbULWJeC
+	id S261194AbULWJv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 04:51:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbULWJv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 04:34:02 -0500
-Received: from dgate2.fujitsu-siemens.com ([217.115.66.36]:52633 "EHLO
-	dgate2.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S261195AbULWJdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 04:33:50 -0500
-X-SBRSScore: None
-X-IronPort-AV: i="3.88,83,1102287600"; 
-   d="scan'208"; a="1213388:sNHT24389848"
-Message-ID: <41CA90F4.8000800@fujitsu-siemens.com>
-Date: Thu, 23 Dec 2004 10:33:40 +0100
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Thu, 23 Dec 2004 04:51:27 -0500
+Received: from pop.gmx.net ([213.165.64.20]:38296 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261194AbULWJvX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 04:51:23 -0500
+X-Authenticated: #4512188
+Message-ID: <41CA9515.4010106@gmx.de>
+Date: Thu, 23 Dec 2004 10:51:17 +0100
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc3, i386: fpu handling on sigreturn
-References: <41C9B21F.90802@fujitsu-siemens.com.suse.lists.linux.kernel> <p73mzw5zzk2.fsf@verdi.suse.de> <41CA0813.1070707@fujitsu-siemens.com> <20041222235448.GA17720@verdi.suse.de>
-In-Reply-To: <20041222235448.GA17720@verdi.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Kristian Eide <kreide@online.no>, linux-kernel@vger.kernel.org
+Subject: Re: raid5 crash
+References: <200412222304.36585.kreide@online.no> <16841.65119.240314.917998@cse.unsw.edu.au>
+In-Reply-To: <16841.65119.240314.917998@cse.unsw.edu.au>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig51CF4494C56325E4984ED2D4"
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Thu, Dec 23, 2004 at 12:49:39AM +0100, Bodo Stroesser wrote:
-> 
->>Andi Kleen wrote:
->>
->>>Bodo Stroesser <bstroesser@fujitsu-siemens.com> writes:
->>>
->>>
->>>>Now, the interrupted processes fpu no longer is cleared!
->>>
->>>
->>>I agree it's a bug, although it's probably pretty obscure so people
->>>didn't notice it.  The right fix would be to just clear_fpu again
->>>in this case.  The problem has been in Linux forever.
->>
->>Wouldn't it be better to also reset used_math to 0? (As it has been,
->>before the sighandler was started)
-> 
-> 
-> It would only be an optimization, and i doubt it's worth to optimize for 
-> such an obscure case. 
-> 
-> -Andi
-Sorry, I don't agree. AFAICS, if used_math isn't reset, on the next
-attempt of the process to use the fpu, it will be reloaded with the
-values, that come from the sighandler and that still reside in
-thread.i387. Thus, clear_cpu() without resetting used_math has no
-effect to the userspace task.
-Resetting current->used_math to 0 would make math_state_restore()
-calling init_fpu(), that clears thread.i387 before the fpu is loaded.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig51CF4494C56325E4984ED2D4
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Bodo
+Neil Brown schrieb:
+> On Wednesday December 22, kreide@online.no wrote:
+> 
+>>I am running kernel 2.6.9-gentoo-r10 on an Athlon XP 2400+ computer with a SiI 
+>>3114 SATA controller hosting 4 WD2500JD-00G drives. I have combined these 
+>>drives into a raid5 array using software raid, but unfortunately the array is 
+>>not stable. I have tried several filesystems (ext3, reiserfs, xfs), but after 
+>>copying several gigabytes of data into the array (using scp) and then trying 
+>>to read them back (using rsync to compare over the network) always results in 
+>>data corruption. Here is the output from 'dmesg':
+>>
+>>kernel BUG at drivers/md/raid5.c:813!
+
+Have you a bios option called ext-p2p discard time? Try setting it 
+higher. I posted another thread about sii3112 at lkml about this issue...
+
+Prakash
+
+--------------enig51CF4494C56325E4984ED2D4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBypUZxU2n/+9+t5gRAo0bAJwKbKPFteqkmoKA4naW8bUNtrxJXgCg6I92
+9+JkJ/e2zCHl67+EkN8aQhs=
+=t9Zr
+-----END PGP SIGNATURE-----
+
+--------------enig51CF4494C56325E4984ED2D4--

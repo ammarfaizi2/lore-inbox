@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266046AbRF1RWp>; Thu, 28 Jun 2001 13:22:45 -0400
+	id <S266048AbRF1R1z>; Thu, 28 Jun 2001 13:27:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266042AbRF1RWk>; Thu, 28 Jun 2001 13:22:40 -0400
-Received: from t2.redhat.com ([199.183.24.243]:12786 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S266046AbRF1RWL>; Thu, 28 Jun 2001 13:22:11 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <01062811090501.01130@spc.esa.lanl.gov> 
-In-Reply-To: <01062811090501.01130@spc.esa.lanl.gov> 
-To: scole@lanl.gov
-Cc: linux-kernel@vger.kernel.org, esr@thyrsus.com
-Subject: Re: 2.4.5-ac20 five more undocumented symbols 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 28 Jun 2001 18:21:52 +0100
-Message-ID: <6505.993748912@redhat.com>
+	id <S266050AbRF1R1p>; Thu, 28 Jun 2001 13:27:45 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:39440 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266048AbRF1R1d>; Thu, 28 Jun 2001 13:27:33 -0400
+Date: Thu, 28 Jun 2001 10:26:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <chuckw@altaserv.net>, Vipin Malik <vipin.malik@daniel.com>,
+        Aaron Lehmann <aaronl@vitelus.com>,
+        David Woodhouse <dwmw2@infradead.org>, <jffs-dev@axis.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Cosmetic JFFS patch.
+In-Reply-To: <E15FfQy-0007IY-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106281024160.15199-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-scole@lanl.gov said:
-> CONFIG_MTD_CFI_BE_BYTE_SWAP CONFIG_MTD_CFI_LART_BIT_SWAP
-> CONFIG_MTD_CFI_LE_BYTE_SWAP CONFIG_MTD_CFI_VIRTUAL_ER 
+On Thu, 28 Jun 2001, Alan Cox wrote:
+>
+> > As to the credit argument: put your copyright at the top of the source
+> > file. The people who care and matter will see it. And do NOT hide the
+> > copyright with reams of changelog information. Put that in a separate file
+> > if you must.
+>
+> Managers at places like Cisco see boot messages and it gets into
+> their brains. They certainly don't all read the source code.
 
-Read the l-k archives.
+I agree that they won't read the sources.
 
---
-dwmw2
+HOWEVER, it's also clearly unworkable to have everybody list their name,
+This is what we have MAINTAINERS and CREDITS for.
 
+Quote frankly, I doubt "managers" read the boot messages. They tend to ask
+engineers who is responsible. I know I look in the MAINTAINERS file first,
+then in the actual source code (some people don't want to be listed as
+maintainers), and I don't think I've ever looked at a boot message on who
+to worry about.
+
+		Linus
 

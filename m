@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264139AbRFDMDJ>; Mon, 4 Jun 2001 08:03:09 -0400
+	id <S264311AbRFDPMu>; Mon, 4 Jun 2001 11:12:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264209AbRFDMC7>; Mon, 4 Jun 2001 08:02:59 -0400
-Received: from 246.35.232.212.infosources.fr ([212.232.35.246]:39941 "HELO
-	fjord.dyndns.org") by vger.kernel.org with SMTP id <S264139AbRFDMCr>;
-	Mon, 4 Jun 2001 08:02:47 -0400
-Date: Mon, 4 Jun 2001 14:02:07 +0200
-To: linux-kernel@vger.kernel.org
-Subject: ide retry on 2.4.5-ac7
-Message-ID: <20010604140207.A529@alezan.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-From: profeta@crans.ens-cachan.fr (PROFETA Mickael)
+	id <S264312AbRFDPMj>; Mon, 4 Jun 2001 11:12:39 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:36623 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S264311AbRFDPMT>; Mon, 4 Jun 2001 11:12:19 -0400
+Date: Mon, 4 Jun 2001 11:13:03 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@vesta.nine.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: CONFIG_X86_UP_APIC undocumented
+Message-ID: <Pine.LNX.4.33.0106041103440.25918-100000@vesta.nine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hello, Eric!
 
-	Since my first try on 2.4 kernel, I had trouble with DMA when I select
-	activate on boot time because it selects udma4, whereas my HD is only able
-	to do udma2. I correct that with hdparm, but I was quite happy of the patch
-	in ac4 whixh detect ide lost interrupt and retry with a value lower of dma.
-	But it seems that this patch does not work anymore in ac7?? I can not see
-	in the changelog that you come back or made other change in ide?? Should it
-	work in the same way or not?
+For some reason CONFIG_X86_UP_APIC doesn't appear in your list of
+undocumented symbols. You may need to adjust your checker. It is used in
+2.4.5-ac7 kernel in arch/i386/config.in:
 
-	My hardware: via 686a of course, with Athlon 500 on a k7m MB
+bool 'APIC support on uniprocessors' CONFIG_X86_UP_APIC
 
-		Thanks
+The entry for CONFIG_X86_UP_IOAPIC seems to talk both about APIC and
+IO-APIC. Maybe it just needs splitting. But I'm leaving it to somebody
+more competent in the matter.
 
-		Mickael
-
-	PS: CC to profeta@crans.org please.
+It would also be nice to have some info about the difference between APIC
+and IO-APIC and why only the former works on uniprocessor VIA boards.
 
 -- 
--- 
-Unix IS user-friendly. It just chooses its friends carefully
+Regards,
+Pavel Roskin
+

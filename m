@@ -1,92 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277798AbRJRQiw>; Thu, 18 Oct 2001 12:38:52 -0400
+	id <S277804AbRJRQmW>; Thu, 18 Oct 2001 12:42:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277803AbRJRQim>; Thu, 18 Oct 2001 12:38:42 -0400
-Received: from palrel1.hp.com ([156.153.255.242]:1229 "HELO palrel1.hp.com")
-	by vger.kernel.org with SMTP id <S277798AbRJRQi0>;
-	Thu, 18 Oct 2001 12:38:26 -0400
-Message-ID: <C5C45572D968D411A1B500D0B74FF4A80418D57B@xfc01.fc.hp.com>
-From: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
-To: "Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
-Cc: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
-Subject: Kernel performance in reference to 2.4.5pre1
-Date: Thu, 18 Oct 2001 09:38:55 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S277805AbRJRQmM>; Thu, 18 Oct 2001 12:42:12 -0400
+Received: from peace.netnation.com ([204.174.223.2]:17669 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S277804AbRJRQlz>; Thu, 18 Oct 2001 12:41:55 -0400
+Date: Thu, 18 Oct 2001 09:42:22 -0700
+From: Simon Kirby <sim@netnation.com>
+To: Andi Kleen <andi@firstfloor.org>, kuznet@ms2.inr.ac.ru,
+        linux-kernel@vger.kernel.org
+Subject: Awfully slow /proc/net/tcp, netstat, in.identd in 2.4 (updated)
+Message-ID: <20011018094222.A31919@netnation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.5pre1 is the base for comparison, but because privacy issues and company
-policies, I can't give out anything but comparative numbers.  These should
-be enough to see what has been happening over the last couple of months of
-kernel development. 
+There is definitely something really broken here.  One of our web servers
+that was having the problem before has now decided to hit a load average
+of 50 because identd is taking so long to parse /proc/net/tcp and give
+back ident information.
 
-The tests performed on the same equipment and networks using SPEC SFS NFS
-benchmark testing.  We have attempted to limit as many variables as we can.
+stracing a process, I see:
 
+open("/proc/net/tcp", O_RDONLY)         = 4
+fstat(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+mmap(0, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40009000
+read(4, "  sl  local_address rem_address "..., 4096) = 4096
+read(4, "00000000 01:0000023B 00000000   "..., 4096) = 4096
+read(4, "0374800 2 c9ae0a60 25 4 0 2 -1  "..., 4096) = 4096
+read(4, "           \n  81: 0CDFAECC:0050"..., 4096) = 4096
+read(4, "06 00000000:00000000 03:0000131F"..., 4096) = 4096
+read(4, "0        0 0 2 e3a92800         "..., 4096) = 4096
 
-Hardware:
-- 4 Pentium III Xeon processors, 4GB ram
-- 45 fibre channel drives, set up in hardware RAID 0/1
-- 2 direct Gigabit Ethernet connections between SPEC SFS prime client and
-system under test
-- reiserfs
-- all NFS filesystems exported with sync,no_wdelay to insure O_SYNC writes
-to storage
-- NFS v3 UDP
-- LVM
+...Switching to "strace -tt" on the same process which still hadn't
+exited by the time I had typed "strace -tt", I see:
 
-2.4.7 kernel series
-      2.4.7	56%
-	2.4.7 (patches: reiserfs osync and Arjan's high memory patch)	81%
-	2.4.7 (patches: Mark Hemment's performance(NFS kernel lock) and
-Arjan's high memory patch)  79%
-	2.4.7 (patches: Mark Hemment's performance(NFS kernel lock)  and
-reiserfs osync)  67%
-		
-2.4.9 kernel series
-	2.4.9-ac10		48%
-	2.4.9-ac13		40%
-	2.4.9-ac13 (patches: Rik's page aging) 40%
-	2.4.9-ac15		52%
-	2.4.9-ac15	(patches: Rik's page aging and launder patches) 57%
-2.4.9-ac16		56%
-	2.4.10-pre4	20%
-	2.4.10-pre8	40%
-	2.4.10-pre10	28%
-	2.4.10-pre10aa1	25%
-	2.4.10-pre11	33%
-	2.4.10-pre12	27%
-	2.4.10-pre12 (patches: reiserfs performance patch) 20%
-	2.4.10-pre13	13%
-	2.4.10-pre13 (patches: Linus' allocate patch) 28%
-	2.4.10pre14	43%
+09:25:45.481608 read(4, "0                               "..., 4096) = 4096
+09:25:46.843441 read(4, " \n 354: 17612840:0050 23925BC0:"..., 4096) = 4096
+09:25:47.542388 read(4, "0:00000000 03:00000B6C 00000000 "..., 4096) = 4096
+09:25:49.649454 read(4, " 10385399 2 c9ae0a60 96 4 7 2 -1"..., 4096) = 4096
+09:25:51.743338 read(4, "", 4096)       = 0
 
-2.4.10 kernel series
-	2.4.10		46%
-2.4.10 (patches: Andrea's vmtweak) 62%
-	2.4.10(patches: Andrea's vmtweaks2) 62%
-2.4.10-ac4		57%
-	2.4.11pre2		51%
-	2.4.11pre2	(patches: irq rewrite patch with default setting of
-20000) 50%
-	2.4.11pre2 (patches: irq rewrite patch with setting of 10000) 50%
-2.4.11pre2 (patches: irq rewrite patch with setting of 30000) 49%
-2.4.11pre3aa1	50%
-2.4.11pre6aa1	46%
-2.4.11pre6aa1(patches: uses the older lvm instead.) 47%
-	
+Each 4k block is taking 2 seconds!  It's probably competing with other
+processes, but still, this is crazy.
 
-2.4.12 kernel series
-2.4.12		45%
-	2.4.13pre1		51%
-	2.4.12-ac2		54%
-	2.4.12-ac3		55%
+[sroot@pro:/root]# time wc -l /proc/net/tcp
+    427 /proc/net/tcp
+0.000u 0.650s 0:01.38 47.1%     0+0k 0+0io 69pf+0w
 
+Also, other servers running exactly the same kernel on the exact same
+hardware have _more_ entries in the table and are much faster:
 
-Cary Dickens
-Hewlett-Packard
+[sroot@bridge:/root]# time wc -l /proc/net/tcp
+    805 /proc/net/tcp
+0.010u 0.100s 0:00.10 100.0%    0+0k 0+0io 68pf+0w
 
+Also, some inactive servers exactly the same kernel return instantly,
+which is why I don't understand why walking too big a hash table can be
+the problem:
+
+[sroot@devel:/root]# time wc -l /proc/net/tcp
+     10 /proc/net/tcp
+0.000u 0.000s 0:00.00 0.0%      0+0k 0+0io 113pf+0w
+
+What gives?
+
+Simon-
+
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUHGOqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbUHGOrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUHGOqR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 10:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUHGOqQ
+	id S262768AbUHGOrf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 10:47:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUHGOrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 10:46:16 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:56844 "EHLO
+	Sat, 7 Aug 2004 10:47:35 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:58380 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262730AbUHGOqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 10:46:13 -0400
-Date: Sat, 7 Aug 2004 15:46:00 +0100
+	id S262768AbUHGOr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 10:47:28 -0400
+Date: Sat, 7 Aug 2004 15:47:17 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Keith Whitwell <keith@tungstengraphics.com>
-Cc: Ian Romanick <idr@us.ibm.com>, Jon Smirl <jonsmirl@yahoo.com>,
-       Dave Airlie <airlied@linux.ie>,
+To: Dave Airlie <airlied@linux.ie>
+Cc: Jon Smirl <jonsmirl@yahoo.com>,
+       Keith Whitwell <keith@tungstengraphics.com>,
+       Ian Romanick <idr@us.ibm.com>,
        "DRI developer's list" <dri-devel@lists.sourceforge.net>,
        lkml <linux-kernel@vger.kernel.org>
 Subject: Re: DRM function pointer work..
-Message-ID: <20040807154600.B18510@infradead.org>
+Message-ID: <20040807154717.C18510@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
 	Keith Whitwell <keith@tungstengraphics.com>,
-	Ian Romanick <idr@us.ibm.com>, Jon Smirl <jonsmirl@yahoo.com>,
-	Dave Airlie <airlied@linux.ie>,
+	Ian Romanick <idr@us.ibm.com>,
 	DRI developer's list <dri-devel@lists.sourceforge.net>,
 	lkml <linux-kernel@vger.kernel.org>
-References: <20040806024907.13024.qmail@web14923.mail.yahoo.com> <4113B2AE.8090706@us.ibm.com> <4113B7DC.6000000@tungstengraphics.com>
+References: <20040806171641.14189.qmail@web14928.mail.yahoo.com> <Pine.LNX.4.58.0408070100360.13601@skynet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4113B7DC.6000000@tungstengraphics.com>; from keith@tungstengraphics.com on Fri, Aug 06, 2004 at 05:54:52PM +0100
+In-Reply-To: <Pine.LNX.4.58.0408070100360.13601@skynet>; from airlied@linux.ie on Sat, Aug 07, 2004 at 01:11:21AM +0100
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 05:54:52PM +0100, Keith Whitwell wrote:
-> Yes, while I support the current rework and de-templatization of the code, I 
-> don't support any attempt to split the drm modules to try and share code at 
-> runtime - ie. I don't support a core/submodule approach.
+On Sat, Aug 07, 2004 at 01:11:21AM +0100, Dave Airlie wrote:
+> fbdev only has one distribution vector - the kernel, DRM has multiple
+> distribution vectors, kernel, DRI snapshots, X releases, they all contain
+> their own DRM modules, also people with older kernels should be able to
 
-We had that argument already in 2000/2001 when we had the big XFree 4.1 DRM
-update.  There's no reason drm should be different from all other kernel
-subsystems.  If you really fear this is a problem add a monotonely increasing
-DRM_VERSION define for driver to check against and even better don't make any
-not backwards-compatible changes unless you're doing a major version bump.
-
+which is the root problem.  Make sure the kernel is the canonical source and
+all those problems magically disappear.

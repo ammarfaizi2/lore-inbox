@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314961AbSDVXoW>; Mon, 22 Apr 2002 19:44:22 -0400
+	id <S314960AbSDVXoI>; Mon, 22 Apr 2002 19:44:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314962AbSDVXoV>; Mon, 22 Apr 2002 19:44:21 -0400
-Received: from cabal.xs4all.nl ([213.84.101.140]:18611 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id <S314961AbSDVXoU>;
-	Mon, 22 Apr 2002 19:44:20 -0400
-Date: Tue, 23 Apr 2002 01:44:19 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: XFS in the main kernel
-Message-ID: <20020422234419.GQ2470@wiggy.net>
-Mail-Followup-To: Wichert Akkerman <wichert@wiggy.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <aa1f9o$519$1@picard.cistron.nl> <6047.1019518162@ocs3.intra.ocs.com.au>
+	id <S314961AbSDVXoH>; Mon, 22 Apr 2002 19:44:07 -0400
+Received: from jalon.able.es ([212.97.163.2]:51336 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S314960AbSDVXoH>;
+	Mon, 22 Apr 2002 19:44:07 -0400
+Date: Tue, 23 Apr 2002 01:44:01 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: m.c.p@gmx.net
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre7-jam4
+Message-ID: <20020422234401.GA11590@werewolf.able.es>
+In-Reply-To: <200204221036.24880.m.c.p@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Keith Owens wrote:
-> dpkg uses mmap?
 
-To read all its data files, just.
+[Forwarding to the list, 'cuase I think it is a genreal problem...]
 
-> There was a bug in XFS and mmapped files where incorrect blocks were
-> flushed to disk under high load, but that was fixed around January 30.
+On 2002.04.22 Marc-Christian Petersen wrote:
+>Hi J.A.,
+>
+>tried your patch + the fix for the yield problem. Here it goes:
+>
+>gcc -D__KERNEL__ -I/usr/src/linux-2.4.19-pre7-jam4/include -Wall 
+>-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+>-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE  
+>-nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include 
+>-DKBUILD_BASENAME=psdev  -c -o psdev.o psdev.c
+>psdev.c: In function `presto_psdev_ioctl':
+>psdev.c:269: `TCGETS' undeclared (first use in this function)
+>psdev.c:269: (Each undeclared identifier is reported only once
+>psdev.c:269: for each function it appears in.)
+>psdev.c:270: warning: unreachable code at beginning of switch statement
+>make[2]: *** [psdev.o] Error 1
+>make[2]: Leaving directory `/usr/src/linux-2.4.19-pre7-jam4/fs/intermezzo'
+>make[1]: *** [_modsubdir_intermezzo] Error 2
+>make[1]: Leaving directory `/usr/src/linux-2.4.19-pre7-jam4/fs'
+>make: *** [_mod_fs] Error 2
+>
+>2.4.18 + 2.4.19pre7 patch + 2.4.19pre7-jam4 patch.
+>
 
-That would produce corrupt files which does not seem to be the case.
-If memory serves me corrrectly one of the problems was that rename(2)
-returned an error in rare cases that should not be possible (might have
-been ENOENT even though both we have verified in advance that can't be
-true).
+-jam4 does not touch intermezzo fs (really, any file named psdev.c).
+So I think it is a plain -pre7 problem.
 
-Wichert
+Bandaid: put an #include <asm/ioctls.h> in fs/intermezzo/psdev.c.
+But perchaps it should go on any other place.
 
 -- 
-  _________________________________________________________________
- /wichert@wiggy.net         This space intentionally left occupied \
-| wichert@deephackmode.org            http://www.liacs.nl/~wichert/ |
-| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre7-jam4 #1 SMP lun abr 22 00:52:56 CEST 2002 i686

@@ -1,91 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261537AbTCOUOs>; Sat, 15 Mar 2003 15:14:48 -0500
+	id <S261505AbTCOUNn>; Sat, 15 Mar 2003 15:13:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261538AbTCOUOr>; Sat, 15 Mar 2003 15:14:47 -0500
-Received: from pasky.ji.cz ([62.44.12.54]:13049 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S261537AbTCOUOl>;
-	Sat, 15 Mar 2003 15:14:41 -0500
-Date: Sat, 15 Mar 2003 21:25:28 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: Mitch Adair <mitch@theneteffect.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: 2.5.64: menuconfig: help within choice blocks doesn't show?
-Message-ID: <20030315202528.GA31875@pasky.ji.cz>
-Mail-Followup-To: Mitch Adair <mitch@theneteffect.com>,
-	linux-kernel@vger.kernel.org
-References: <200303151942.h2FJgwP19650@mako.theneteffect.com>
+	id <S261508AbTCOUNn>; Sat, 15 Mar 2003 15:13:43 -0500
+Received: from packet.digeo.com ([12.110.80.53]:49806 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261505AbTCOUNl>;
+	Sat, 15 Mar 2003 15:13:41 -0500
+Date: Sat, 15 Mar 2003 12:24:32 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: bzzz@tmi.comex.ru, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] remove BKL from ext2's readdir
+Message-Id: <20030315122432.1e3f8bd5.akpm@digeo.com>
+In-Reply-To: <m3smto4cjd.fsf@lexa.home.net>
+References: <m3vfyluedb.fsf@lexa.home.net>
+	<20030315023614.3e28e67b.akpm@digeo.com>
+	<20030315030322.792fa598.akpm@digeo.com>
+	<m3wuj0fvls.fsf@lexa.home.net>
+	<20030315121125.48294975.akpm@digeo.com>
+	<m3smto4cjd.fsf@lexa.home.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303151942.h2FJgwP19650@mako.theneteffect.com>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Mar 2003 20:24:18.0648 (UTC) FILETIME=[DB172580:01C2EB30]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sat, Mar 15, 2003 at 08:42:58PM CET, I got a letter,
-where Mitch Adair <mitch@theneteffect.com> told me, that...
-> I've noticed the help text for menuconfig options doesn't show if it's inside
-> a Kconfig choice block.  For example under "Processor type and features" ->
-> "Processor family" none of the help shows for the processor types even
-> though the help texts are present in the Kconfig file.
+Alex Tomas <bzzz@tmi.comex.ru> wrote:
+>
+> fs/ext2/dir.c:
 > 
-> Is anybody else seeing this?
+> struct file_operations ext2_dir_operations = {
+>         .read           = generic_read_dir,
+>         .readdir        = ext2_readdir,
+>         .ioctl          = ext2_ioctl,
+>         .fsync          = ext2_sync_file,
+> };
 
-Me too, the following patch does it differently, although still wrong ;-).
+ah, OK.  How about this?
 
-  Hello,
+diff -puN fs/ext2/dir.c~lseek-ext2_readdir fs/ext2/dir.c
+--- 25/fs/ext2/dir.c~lseek-ext2_readdir	2003-03-15 03:20:22.000000000 -0800
++++ 25-akpm/fs/ext2/dir.c	2003-03-15 12:21:56.000000000 -0800
+@@ -259,8 +259,6 @@ ext2_readdir (struct file * filp, void *
+ 	int need_revalidate = (filp->f_version != inode->i_version);
+ 	int ret = 0;
+ 
+-	lock_kernel();
+-
+ 	if (pos > inode->i_size - EXT2_DIR_REC_LEN(1))
+ 		goto done;
+ 
+@@ -313,7 +311,6 @@ done:
+ 	filp->f_pos = (n << PAGE_CACHE_SHIFT) | offset;
+ 	filp->f_version = inode->i_version;
+ 	UPDATE_ATIME(inode);
+-	unlock_kernel();
+ 	return 0;
+ }
+ 
+@@ -660,6 +657,7 @@ not_empty:
+ }
+ 
+ struct file_operations ext2_dir_operations = {
++	.llseek		= generic_file_llseek,
+ 	.read		= generic_read_dir,
+ 	.readdir	= ext2_readdir,
+ 	.ioctl		= ext2_ioctl,
+diff -puN fs/ext3/dir.c~lseek-ext2_readdir fs/ext3/dir.c
+--- 25/fs/ext3/dir.c~lseek-ext2_readdir	2003-03-15 03:20:22.000000000 -0800
++++ 25-akpm/fs/ext3/dir.c	2003-03-15 12:22:14.000000000 -0800
+@@ -37,10 +37,11 @@ static int ext3_release_dir (struct inod
+ 				struct file * filp);
+ 
+ struct file_operations ext3_dir_operations = {
++	.llseek		= generic_file_llseek,
+ 	.read		= generic_read_dir,
+ 	.readdir	= ext3_readdir,		/* we take BKL. needed?*/
+ 	.ioctl		= ext3_ioctl,		/* BKL held */
+-	.fsync		= ext3_sync_file,		/* BKL held */
++	.fsync		= ext3_sync_file,	/* BKL held */
+ #ifdef CONFIG_EXT3_INDEX
+ 	.release	= ext3_release_dir,
+ #endif
+@@ -98,8 +99,7 @@ static int ext3_readdir(struct file * fi
+ 	struct super_block * sb;
+ 	int err;
+ 	struct inode *inode = filp->f_dentry->d_inode;
+-
+-	lock_kernel();
++	int ret = 0;
+ 
+ 	sb = inode->i_sb;
+ 
+@@ -110,8 +110,8 @@ static int ext3_readdir(struct file * fi
+ 	     ((inode->i_size >> sb->s_blocksize_bits) == 1))) {
+ 		err = ext3_dx_readdir(filp, dirent, filldir);
+ 		if (err != ERR_BAD_DX_DIR) {
+-			unlock_kernel();
+-			return err;
++			ret = err;
++			goto out;
+ 		}
+ 		/*
+ 		 * We don't set the inode dirty flag since it's not
+@@ -191,8 +191,8 @@ revalidate:
+ 				filp->f_pos = (filp->f_pos |
+ 						(sb->s_blocksize - 1)) + 1;
+ 				brelse (bh);
+-				unlock_kernel();
+-				return stored;
++				ret = stored;
++				goto out;
+ 			}
+ 			offset += le16_to_cpu(de->rec_len);
+ 			if (le32_to_cpu(de->inode)) {
+@@ -222,8 +222,8 @@ revalidate:
+ 		brelse (bh);
+ 	}
+ 	UPDATE_ATIME(inode);
+-	unlock_kernel();
+-	return 0;
++out:
++	return ret;
+ }
+ 
+ #ifdef CONFIG_EXT3_INDEX
+diff -puN fs/ext2/file.c~lseek-ext2_readdir fs/ext2/file.c
 
-  this patch (against 2.5.64) will display help of the actually selected item
-inside of a choice menu, instead of the choice's item itself. Ie. for processor
-type item dialog, it will display help for the currently chosen processor
-(Pentium 4) instead of the generic help for the "Processor type" menu.
+_
 
-  This is not meant to be merged, not even used, as it is confusing this way.
-It doesn't care about the item being _selected_ (by cursor keys), but _chosen_
-(by space or enter being pressed). So if the value of processor type is P4, it
-will show help for P4 even if the cursor is now at i486. Unfortunately with the
-current output of lxdialog we can't do it in the right way, one more reason for
-me to finally finish the lxdialog integration ;-). In the meantime, if anyone
-wants to, he might hack lxdialog and mconf together and provide sufficient
-output to implement this in the right way. Let this be the inspiration.
 
-  Duh, this description is crap (and took me more time to write than the patch
-itself :). Better go and see yourself, if you want.
-
- scripts/kconfig/mconf.c |   20 +++++++++++++++++++-
- 1 files changed, 19 insertions(+), 1 deletion(-)
-
-  Kind regards,
-				Petr Baudis
-
---- linux+pasky/scripts/kconfig/mconf.c	Wed Feb  5 12:11:02 2003
-+++ linux/scripts/kconfig/mconf.c	Sat Mar 15 21:08:47 2003
-@@ -618,7 +618,25 @@ static void conf_choice(struct menu *men
- 			sym_set_tristate_value(menu->sym, yes);
- 			return;
- 		case 1:
--			show_help(menu);
-+			{
-+				struct menu *active_menu = NULL;
-+
-+				/* Show help for the actual choice, if available. */
-+
-+				for (child = menu->list; child; child = child->next) {
-+					if (menu_is_visible(child)
-+					    && child->sym == active) {
-+						if (!child->sym->help)
-+							break;
-+						active_menu = child;
-+					}
-+				}
-+
-+				if (active_menu)
-+					show_help(active_menu);
-+				else
-+					show_help(menu);
-+			}
- 			break;
- 		case 255:
- 			return;

@@ -1,79 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268955AbUJTSH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268928AbUJTSUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268955AbUJTSH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 14:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268919AbUJTSHp
+	id S268928AbUJTSUW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 14:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268982AbUJTSRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 14:07:45 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:36253 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268728AbUJTRzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 13:55:38 -0400
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-From: Lee Revell <rlrevell@joe-job.com>
-To: Timothy Miller <miller@techsource.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Andrea Arcangeli <andrea@novell.com>,
-       Hugh Dickins <hugh@veritas.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <4176A749.8050306@techsource.com>
-References: <593560000.1094826651@[10.10.2.4]>
-	 <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
-	 <20040910151538.GA24434@devserv.devel.redhat.com>
-	 <20040910152852.GC15643@x30.random>
-	 <20040910153421.GD24434@devserv.devel.redhat.com>
-	 <41768858.8070709@techsource.com>
-	 <20041020153521.GB21556@devserv.devel.redhat.com>
-	 <1098290345.1429.65.camel@krustophenia.net>
-	 <4176A749.8050306@techsource.com>
+	Wed, 20 Oct 2004 14:17:14 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:56028 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S268987AbUJTSN4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 14:13:56 -0400
+Subject: Re: gradual timeofday overhaul
+From: john stultz <johnstul@us.ibm.com>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, george anzinger <george@mvista.com>
+In-Reply-To: <Pine.LNX.4.53.0410200441210.11067@gockel.physik3.uni-rostock.de>
+References: <Pine.LNX.4.61.0410192015420.6471@knorkaan.xs4all.nl>
+	 <1098216701.20778.78.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.53.0410200233280.9510@gockel.physik3.uni-rostock.de>
+	 <1098233967.20778.93.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.53.0410200441210.11067@gockel.physik3.uni-rostock.de>
 Content-Type: text/plain
-Message-Id: <1098294932.1429.153.camel@krustophenia.net>
+Message-Id: <1098296039.20778.150.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 20 Oct 2004 13:55:33 -0400
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 20 Oct 2004 11:13:59 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-20 at 13:58, Timothy Miller wrote:
-> Lee Revell wrote:
-> > On Wed, 2004-10-20 at 11:35, Arjan van de Ven wrote:
-> > 
-> >>On Wed, Oct 20, 2004 at 11:46:32AM -0400, Timothy Miller wrote:
-> >>
-> >>>The rules about how long a hard irq would be allowed to run would have 
-> >>>to be draconian.
-> >>
-> >>they already are.
-> > 
-> > 
-> > The IDE I/O completion in hardirq context means that one can run for
-> > almost 3ms.  Apparently at OLS it was decided that the target for
-> > desktop responsiveness was 1ms.  So this is a real problem.
+On Tue, 2004-10-19 at 20:05, Tim Schmielau wrote:
+> On Tue, 19 Oct 2004, john stultz wrote:
 > 
-> What is happening that takes 3ms, and why can't it be broken up?
+> > As for the timeofday overhaul, I've had zero time to work on it
+> > recently. I hate that I dropped code and then went missing for weeks.
+> > I'll have to see if I can get a few cycles at home to sync up my current
+> > tree and send it out. 
 > 
-
-http://lkml.org/lkml/2004/7/24/26
-
-> Are you talking here about PIO?  Is there a limited amount of time you 
-> have to do the PIO before the data goes away?  It may be acceptable to 
-> just live with PIO being slow, since high-performance systems will all 
-> be using DMA anyhow.
+> I still haven't looked at your code and it's discussion. From what I
+> remember, I liked your proposal very much. It's surely where we want to
+> end up someday. But from the above mail it strikes me that we just don't
+> have enough manpower to get there all at once, so we should have a plan 
+> for the time code to gradually evolve into what we finally want. I think 
+> we could do it in the following steps:
 > 
-
-Nope, DMA.
-
-> > 
-> > What exactly do you mean by "draconian"?
+>   1. Sync up jiffies with the monotonic clock...
 > 
-> In this case, I mean extremely harsh and restrictive.  Usually, it means 
-> "excessively harsh", but in this case, I mean that in a good way.  :)
+>   2. Decouple jiffies from the actual interrupt counter...
 > 
+>   3. Increase HZ all the way up to 1e9....
+> Thoughts?
 
-Heh, I know what the word means, I was asking what the specific rules
-are that could be considered as such.
+They all sound good. I like the notion of basing jiffies off of system
+time, rather then interrupt counts. However, I'm a little cautious of
+changing the meaning of jiffies too drastically. 
 
-Lee
+Right now jiffies has two core meanings:
+1. Count of the number of timer ticks that have passed.
+2. Accurate system uptime, measured in units of 1/HZ
+(Let me know if I forgot any others)
+
+The problem being, neither of those meaning are 100% true. 
+#1 isn't true because when we loose timer ticks, we try to compensate
+for them (i386 specifically). But at the same time #2 isn't true because
+the timer interrupts don't necessarily run at exactly HZ (again, i386
+specifically).
+
+Basically due to our hardware constraints, we need to break one of these
+two assumptions. The problem is which do we choose? 
+
+Do we base jiffies off of monotonic_clock(), guaranteeing #2 and
+possibly breaking anyone who is assuming #1? Or do we change all users
+of jiffies for time to use monotonic_clock, guaranteeing #1, which will
+require quite a bit of work.
+
+And which choice makes it harder for folks to create tickless systems?
+Its a tough call.
+
+On top of that, we still have the issue that the current  interpolation
+used in the time of day subsystem is broken (in my opinion), and we need
+to fix that before we can have a reliable monotonic_clock. 
+
+The joke being of course that I'll need to set my /etc/ntp/ntp.drift
+file to 500 to find the time to work on any of this. And really, anyone
+who really found that funny needs to go home.
+
+thanks
+-john
 

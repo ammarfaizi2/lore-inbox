@@ -1,41 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbUKLWky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262649AbUKLW7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbUKLWky (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 17:40:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbUKLWkx
+	id S262649AbUKLW7G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 17:59:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbUKLW7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 17:40:53 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:39873
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262648AbUKLWio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 17:38:44 -0500
-Date: Fri, 12 Nov 2004 14:24:58 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Jay Vosburgh <fubar@us.ibm.com>
-Cc: radheka.godse@intel.com, bonding-devel@lists.sourceforge.net,
-       ctindel@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Bonding-devel][PATCH]Zero Copy Transmit Support (Update)
-Message-Id: <20041112142458.51ca5921.davem@davemloft.net>
-In-Reply-To: <200411122220.iACMKpjw014426@death.nxdomain.ibm.com>
-References: <20041112134918.305379c4.davem@davemloft.net>
-	<200411122220.iACMKpjw014426@death.nxdomain.ibm.com>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Fri, 12 Nov 2004 17:59:06 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:16634 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262649AbUKLW7A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 17:59:00 -0500
+Date: Fri, 12 Nov 2004 14:58:51 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] More Driver Core patches for 2.6.10-rc1
+Message-ID: <20041112225850.GA6550@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Nov 2004 14:20:51 -0800
-Jay Vosburgh <fubar@us.ibm.com> wrote:
+Hi,
 
-> 	Would it be preferrable to duplicate that logic in bonding, or
-> push it out to an inline or some such?
+Here are a few driver core and sysfs patches and fixes for 2.6.10-rc1.
+They fix some minor bugs in sysfs, add some more environment variables
+to /sbin/hotplug to make userspace easier, and shrink the size of struct
+device.
 
-It's present also in the ethtool methods used to change
-these things, so you might consider making ethtool calls
-to change the bits as well.
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/driver-2.6
 
-It's a pretty bad idea for folks to be changing the ->features
-bits directly in drivers after device registry.
+thanks,
+
+greg k-h
+
+p.s. I'll send these as patches in response to this email to lkml for
+those who want to see them.
+
+ arch/arm/common/locomo.c        |    3 ---
+ arch/arm/common/sa1111.c        |   23 +++++++++++++++--------
+ arch/arm/mach-sa1100/neponset.c |   23 +++++++++++++++--------
+ drivers/base/bus.c              |    2 +-
+ drivers/base/class.c            |    6 ++++++
+ drivers/base/core.c             |   21 +++++++++++++++++++++
+ drivers/block/genhd.c           |    6 ++++++
+ drivers/video/aty/aty128fb.c    |   10 +++++-----
+ drivers/video/aty/atyfb_base.c  |   10 +++++-----
+ drivers/video/aty/radeon_pm.c   |    6 +++---
+ fs/sysfs/dir.c                  |    8 ++++----
+ include/linux/device.h          |    5 -----
+ include/linux/kobject_uevent.h  |    1 +
+ lib/kobject_uevent.c            |    8 +++++---
+ 14 files changed, 87 insertions(+), 45 deletions(-)
+-----
+
+Anil Keshavamurthy:
+  o Add KOBJ_ONLINE
+
+David Brownell:
+  o driver core: shrink struct device a bit
+
+Greg Kroah-Hartman:
+  o sysfs: fix odd patch error
+  o driver core: fix up some missed power_state changes from David's patch
+
+Kay Sievers:
+  o print hotplug SEQNUM as unsigned
+  o add the bus name to the hotplug environment
+  o add the driver name to the hotplug environment
+
+Maneesh Soni:
+  o sysfs: fix duplicate driver registration error
+
+Milton D. Miller II:
+  o fix sysfs backing store error path confusion
+

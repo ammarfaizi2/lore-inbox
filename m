@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbTE1VzT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 17:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbTE1VzT
+	id S261222AbTE1V43 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 17:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbTE1V43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 17:55:19 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:8817 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S261180AbTE1VzS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 17:55:18 -0400
-Date: Wed, 28 May 2003 15:06:10 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: must-fix list, v5
-Message-Id: <20030528150610.3df70031.akpm@digeo.com>
-In-Reply-To: <20030528215551.GB255@elf.ucw.cz>
-References: <20030521152255.4aa32fba.akpm@digeo.com>
-	<20030521152334.4b04c5c9.akpm@digeo.com>
-	<20030526093717.GC642@zaurus.ucw.cz>
-	<20030528144839.47efdc4f.akpm@digeo.com>
-	<20030528215551.GB255@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 28 May 2003 17:56:29 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:25843 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S261222AbTE1V40
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 17:56:26 -0400
+Subject: [announce] procps 2.0.13 with NPTL enhancements
+From: Robert Love <rml@tech9.net>
+To: procps-list@redhat.com
+Cc: linux-kernel@vger.kernel.org, riel@nl.linux.org
+Content-Type: text/plain
+Message-Id: <1054134550.783.102.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.3.92 (1.3.92-1) (Preview Release)
+Date: 28 May 2003 15:09:10 +0000
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 May 2003 22:08:34.0809 (UTC) FILETIME=[AE9F0E90:01C32565]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> wrote:
->
-> Here is common part. That should enable architecture maintainers to
-> pick it up when *they* need. So it is late but it should not be
-> intrusive. Here it is.
+I am ecstatic beyond words to announce the release of procps version
+2.0.13. This release contains a number of NPTL-related enhancements,
+courtesy of Alexander Larsson of Red Hat. Some of the enhancements are
+generic in nature, and thus also benefit non-NPTL applications.
 
- 25-akpm/fs/compat_ioctl.c | 2491 ++++++++++++++++++++++++++++++++++++++++++++++
+I encourage everyone to give this a try, especially 2.5 users.
 
-I am utterly clueless when it comes to this 32-bit compat stuff.  How does
-the architecture actually use this?  #include it?
+Tarball, RPM packages, and CVS information is available at:
 
-Have any architectures been converted?  Any example implementations
-available?
+	http://tech9.net/rml/procps/
+	http://sources.redhat.com/procps/
+
+Change Log:
+
+        - fix top(1) -p flag behavior (Lars Holmberg)
+        - do not qsort the process list if we are not sorting  
+          (Alexander Larsson)
+        - read tgid from /proc/pid/status if it exists
+          (Alexander Larsson)
+        - PROC_SKIPTHREADS flag for ps_readproc() to force only 
+          reading of (tgid != pid) to avoid lots of syscalls
+          (Alexander Larsson)
+        - Look at PM->flags in ps_readproc() to avoid reading
+          /proc files files that are not needed. (Alexander Larsson)
+        - Support FILLMEM, FILLCMD, FILLENV, FILLWCHAN for above.
+          (Alexander Larsson)
+        - Fix wchan decoding bug (Alexander Larsson)
+        - Fix for ticks going backward and cleanup (Denis Vlasenko)
+
+And other misc. cleanups and changes.
+
+Enjoy,
+
+	Robert "Why the Hell am I maintaining this" Love
 

@@ -1,38 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288248AbSCKTFs>; Mon, 11 Mar 2002 14:05:48 -0500
+	id <S288936AbSCKTP2>; Mon, 11 Mar 2002 14:15:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285229AbSCKTFj>; Mon, 11 Mar 2002 14:05:39 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:16395 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S288248AbSCKTFa>; Mon, 11 Mar 2002 14:05:30 -0500
-Message-ID: <3C8CFFB8.70008@evision-ventures.com>
-Date: Mon, 11 Mar 2002 20:04:24 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S288953AbSCKTPS>; Mon, 11 Mar 2002 14:15:18 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:2055 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S288936AbSCKTO5>; Mon, 11 Mar 2002 14:14:57 -0500
+Date: Mon, 11 Mar 2002 11:14:13 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Gunther Mayer <gunther.mayer@gmx.net>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19, return of taskfile
+In-Reply-To: <3C8CFF64.1B55CDBB@gmx.net>
+Message-ID: <Pine.LNX.4.10.10203111112170.10583-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.6 IDE 19
-In-Reply-To: <E16kRZp-0000or-00@the-village.bc.nu> <3C8CDA0D.7020703@evision-ventures.com> <3C8CEEFC.8137F5C0@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->>And apparently we see that there is nothing special about them... Just don't
->>enable the write cache and all should be well with a timeout of 30 seconds.
->>
-> 
-> Quite a few controllers enable the write cache in their bootstrap before
-> the OS gets involved.
-> Just "don't enable" is not an option.
 
-Right. But that can be already handled by the hdparm utility at boot.
-Please note as well that the controller we are talking about
-is basically the CardBus PCI-ISA bridge kind of ;-).
-It doesn't do much setup. (Fingers corssed becouse I didn't
-check the cs code thus far.)
+Gunther,
+
+http://www.t13.org/technical/d99114r0.pdf
+
+See in working documents we use the terms we all know,
+
+Cheers,
+
+Andre Hedrick
+The Second Linux X-IDE guy
+
+On Mon, 11 Mar 2002, Gunther Mayer wrote:
+
+> Andre Hedrick wrote:
+> 
+> > On Mon, 11 Mar 2002, Martin Dalecki wrote:
+> >
+> > >
+> > > It wasn't a claim but just a suspiction. So this is cleared.
+> > > But apparently there is no special IBM command using taskfile
+> > > to do magic things to it. So therefore it's still valid:
+> > > your example was indeed a mock-up.
+> >
+> > No, mine has there real test base, I goto there Lab people and submit
+> > examples and questions and learn.  I doubt they will listen to you reading
+> > your code base, since you have claimed taskfile is wrong.  It was
+> > developed in concert with IBM.
+> >
+> 
+> The ANSI/NCITS ATA Standard documents lack proper definition what
+> a "task file" or "taskfile" is !  ATA-1, -2, -3 don't mention this (at least acroread
+> didn't find),
+> ATAPI-4 has 3 references but no definition. This is a serious omission for a
+> well-written standard !
+> Andre, will this be corrected in some newer standard you participate? ( Don't know
+> about ata-5/6 yet)
+> 
+> These two meanings certainly explain some confusion about "taskfile":
+> 1) The IDE register set (e.g. 0x1f0-0x1f7) used by a special state-machine (e.g.
+> ATAPI)
+> 2)  Andres implementation to export the "task file" to user mode
+>       (as in his patches which were refused by Linus)
+> 
+> Andre, your approach to "parse" the takfile access and let only known commands
+> through
+> must be weighted against a "generic" taskfile ioctl, where _I_ give all needed
+> state-machine information
+> (incl. state-machine as needed) to serve my reuqest.
+> 
+> Currently your taskfile access is hardcoded in tables in your ide patches and this is
+> 
+> inflexible (e.g. cannot support future commands, unknown at the time of your writing)
+> !
+> 
+> Your "case" structures and accompanying code are considered kernel bloat, because
+> it can be done in user code (with a "generic ioctl" and a "generic task file state
+> machine" which surely
+> can be extracted from your patch).
+> 
+> Regards, Gunther
+> 
+> P.S.
+> For some more fun read
+> http://support.microsoft.com/default.aspx?scid=kb;EN-US;q239700
+> 
+> 
+
 

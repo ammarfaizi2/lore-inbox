@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269474AbRHCQxV>; Fri, 3 Aug 2001 12:53:21 -0400
+	id <S269477AbRHCRAm>; Fri, 3 Aug 2001 13:00:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269476AbRHCQxK>; Fri, 3 Aug 2001 12:53:10 -0400
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:23310
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S269474AbRHCQxI>; Fri, 3 Aug 2001 12:53:08 -0400
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200108031639.f73GdJB23498@www.hockin.org>
-Subject: Re: PCI bus speed
-To: chen_xiangping@emc.com (chen, xiangping)
-Date: Fri, 3 Aug 2001 09:39:19 -0700 (PDT)
-Cc: todd@unm.edu ('Todd'), linux-kernel@vger.kernel.org
-In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC53A@elway.lss.emc.com> from "chen, xiangping" at Aug 03, 2001 10:27:10 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S269481AbRHCRAc>; Fri, 3 Aug 2001 13:00:32 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46606 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269477AbRHCRAT>; Fri, 3 Aug 2001 13:00:19 -0400
+Subject: Re: DoS with tmpfs #3
+To: iive@yahoo.com (Ivan Kalvatchev)
+Date: Fri, 3 Aug 2001 18:02:10 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "Ivan Kalvatchev" at Aug 03, 2001 09:34:09 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15SiKw-0003aC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> yes. I see some items with flags listed as:
-> 	Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 10    
+> The same horrible think happens to ramfs, but this
+> could be expected. Ramfs don't have size check so that
+> hack cannot be used for it.  In this case ramfs must
+> be marked as dangerous. 
 
-I think that reflects the '66 MHz CAPABLE' bit.  That means that IFF every
-device on the segment and IFF the bridge ALL can run at 66MHz, you MIGHT be
-at 66 MHz.  Or anywhere between 33 and 66, or for that matter, less than
-33.
+Ramfs and tmpfs in the -ac tree should behave a lot better. The 
+fact you see high pages being a factor sounds to me like a VM rather than
+a tmpfs bug. Specifically you should have seen KDE apps terminating with
+out of memory kills. 
 
-Tim
+In paticular in the -ac tree ramfs supports setting limits on the max fs
+size, which is essential if you want to use it on something like an iPAQ
+where ramfs is a real useful fs to have.
+
+tmpfs would I suspect also benefit immensely from quota support
+
+Alan

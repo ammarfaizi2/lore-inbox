@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270740AbTGVNqq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 09:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270832AbTGVNqp
+	id S270852AbTGVNuC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 09:50:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270847AbTGVNtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 09:46:45 -0400
-Received: from web20704.mail.yahoo.com ([216.136.226.177]:53276 "HELO
-	web20704.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270740AbTGVNoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 09:44:09 -0400
-Message-ID: <20030722135912.72029.qmail@web20704.mail.yahoo.com>
-Date: Tue, 22 Jul 2003 15:59:12 +0200 (CEST)
-From: =?iso-8859-1?q?Tode=20Dim?= <tode_dim@yahoo.dk>
-Subject: [PATCH] trivial 2.6-test1 - removes unused function.
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-79142091-1058882352=:71315"
-Content-Transfer-Encoding: 8bit
+	Tue, 22 Jul 2003 09:49:36 -0400
+Received: from anor.ics.muni.cz ([147.251.4.35]:14210 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S270775AbTGVNsp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 09:48:45 -0400
+Date: Tue, 22 Jul 2003 16:03:46 +0200
+From: Jan Kasprzak <kas@informatics.muni.cz>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Non-ASCII chars in visor.c messages
+Message-ID: <20030722160345.A7372@fi.muni.cz>
+References: <20030722143821.C26218@fi.muni.cz> <20030722125039.GA2310@kroah.com> <20030722150941.E26218@fi.muni.cz> <20030722131832.GB2389@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030722131832.GB2389@kroah.com>; from greg@kroah.com on Tue, Jul 22, 2003 at 09:18:32AM -0400
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-79142091-1058882352=:71315
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+Greg KH wrote:
+: > 	Why Latin-1 and not UTF-8? I think UTF-8 is more "correct", while
+: > ASCII is "works for all". Latin-1 is neither "correct" nor "works for all".
+: 
+: So how do you encode that character in UTF-8?
+: 
+: If we are going to print device names, I want to be correct in their
+: usage...
 
- hi,
+It is \303\251 in octal (0xc3 0xa9 in hex).
 
- The function reset_vivideobiosfter_s3() seems
-to be not used in arch/i386/kernel/dmdmican.c.
+-Yenya
 
- This patch removes it.
-
-Yahoo! Mail (http://dk.mail.yahoo.com) - Gratis: 6 MB lagerplads, spamfilter og virusscan
---0-79142091-1058882352=:71315
-Content-Type: text/plain; name="2.6-test1_dmi_scan.diff"
-Content-Description: 2.6-test1_dmi_scan.diff
-Content-Disposition: inline; filename="2.6-test1_dmi_scan.diff"
-
-diff -Nru linux-2.6.0-test1/arch/i386/kernel/dmi_scan.c linux-2.6.0-test1~/arch/i386/kernel/dmi_scan.c
---- linux-2.6.0-test1/arch/i386/kernel/dmi_scan.c	2003-06-17 10:04:30.000000000 -0300
-+++ linux-2.6.0-test1~/arch/i386/kernel/dmi_scan.c	2003-07-22 09:24:38.000000000 -0300
-@@ -444,13 +444,6 @@
- 	acpi_video_flags |= 2;
- 	return 0;
- }
--
--static __init int reset_videobios_after_s3(struct dmi_blacklist *d)
--{
--	extern long acpi_video_flags;
--	acpi_video_flags |= 1;
--	return 0;
--}
- #endif
- 
- /*
-
---0-79142091-1058882352=:71315--
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+|__ If you want "aesthetics", go play with microkernels. -Linus Torvalds __|

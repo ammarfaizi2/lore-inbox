@@ -1,42 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262204AbSJDVpW>; Fri, 4 Oct 2002 17:45:22 -0400
+	id <S262100AbSJDVkK>; Fri, 4 Oct 2002 17:40:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262206AbSJDVpW>; Fri, 4 Oct 2002 17:45:22 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:59577 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S262204AbSJDVpV>;
-	Fri, 4 Oct 2002 17:45:21 -0400
-Date: Fri, 4 Oct 2002 23:50:49 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Allan Duncan <allan.d@bigpond.com>
+	id <S262092AbSJDVkE>; Fri, 4 Oct 2002 17:40:04 -0400
+Received: from mail2.ameuro.de ([62.208.90.8]:60395 "EHLO mail2.ameuro.de")
+	by vger.kernel.org with ESMTP id <S262069AbSJDVjd>;
+	Fri, 4 Oct 2002 17:39:33 -0400
+Date: Fri, 4 Oct 2002 23:45:03 +0200
+From: Anders Larsen <al@alarsen.net>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40 etc and IDE HDisk geometry
-Message-ID: <20021004215049.GA20192@win.tue.nl>
-References: <3D9D9BE4.32421A87@bigpond.com>
+Subject: [PATCH] 2.5.40 qnx4fs (2/2): recognize qnx6 file-systems
+Message-ID: <20021004214503.GE12158@errol.alarsen.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <3D9D9BE4.32421A87@bigpond.com>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 11:47:16PM +1000, Allan Duncan wrote:
+Hi Linus,
+this patch (forward ported from 2.4.19) replaces the check for the QNX
+boot-sector signature by a check for another signature in the superblock
+(the (invariant) name of the root dir) - this allows us to mount
+partitions created with QNX 6.1 (that don't have the boot-sector
+signature we used to check for), without breaking existing
+functionality.
+The corresponding updates to fs/Config.help have already found their way
+into your tree...
+Please apply.
 
-> Question is - what is determining that initial value that becomes the "logical"
-> CHS, and does it matter?
+Cheers
+  Anders (maintainer)
 
-No, it does not matter at all.
-CHS are meaningless numbers not used anywhere anymore in Linux.
 
-If you want to influence what geometry *fdisk will use, give it
-the appropriate options or commands. No need to go via the kernel.
-But only in rare cases is it necessary to worry about geometry.
+diff -ur linux-2.5.40-qnx4fs-patch1/fs/qnx4/inode.c linux-2.5.40/fs/qnx4/inode.c
+--- linux-2.5.40-qnx4fs-patch1/fs/qnx4/inode.c	Fri Oct  4 22:23:09 2002
++++ linux-2.5.40/fs/qnx4/inode.c	Fri Oct  4 23:04:07 2002
+@@ -356,26 +356,19 @@
+ 
+ 	sb_set_blocksize(s, QNX4_BLOCK_SIZE);
+ 
+-	/* Check the boot signature. Since the qnx4 code is
++	/* Check the superblock signature. Since the qnx4 code is
+ 	   dangerous, we should leave as quickly as possible
+ 	   if we don't belong here... */
+-	bh = sb_bread(s, 0);
++	bh = sb_bread(s, 1);
+ 	if (!bh) {
+-		printk("qnx4: unable to read the boot sector\n");
++		printk("qnx4: unable to read the superblock\n");
+ 		goto outnobh;
+ 	}
+-	if ( memcmp( (char*)bh->b_data + 4, "QNX4FS", 6 ) ) {
++	if ( le32_to_cpu( *(__u32*)bh->b_data ) != QNX4_SUPER_MAGIC ) {
+ 		if (!silent)
+-			printk("qnx4: wrong fsid in boot sector.\n");
++			printk("qnx4: wrong fsid in superblock.\n");
+ 		goto out;
+ 	}
+-	brelse(bh);
+-
+-	bh = sb_bread(s, 1);
+-	if (!bh) {
+-		printk("qnx4: unable to read the superblock\n");
+-		goto outnobh;
+-	}
+ 	s->s_op = &qnx4_sops;
+ 	s->s_magic = QNX4_SUPER_MAGIC;
+ #ifndef CONFIG_QNX4FS_RW
+@@ -583,7 +576,7 @@
+ 		return err;
+ 	}
+ 
+-	printk("QNX4 filesystem 0.2.2 registered.\n");
++	printk("QNX4 filesystem 0.2.3 registered.\n");
+ 	return 0;
+ }
+ 
 
-Andries
-
-> Aside - RedHat has dropped cfdisk from util-linux in their distro versions 7.2 ff.
-> Given the bad words said about fdisk, what did cfdisk do to be ostracised?
-
-RedHat thought cfdisk is buggy.
-They were mistaken.

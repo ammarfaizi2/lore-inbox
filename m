@@ -1,29 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268713AbRGZWX2>; Thu, 26 Jul 2001 18:23:28 -0400
+	id <S268715AbRGZWZI>; Thu, 26 Jul 2001 18:25:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268715AbRGZWXS>; Thu, 26 Jul 2001 18:23:18 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34066 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268713AbRGZWXJ>; Thu, 26 Jul 2001 18:23:09 -0400
-Subject: Re: read() details
-To: sim@netnation.com (Simon Kirby)
-Date: Thu, 26 Jul 2001 23:24:28 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010726144719.A2098@netnation.com> from "Simon Kirby" at Jul 26, 2001 02:47:19 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268717AbRGZWY6>; Thu, 26 Jul 2001 18:24:58 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:36490 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S268715AbRGZWYl>;
+	Thu, 26 Jul 2001 18:24:41 -0400
+Date: Thu, 26 Jul 2001 23:24:37 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@alex.org.uk
+Cc: Dawson Engler <engler@csl.Stanford.EDU>, Evan Parker <nave@stanford.edu>,
+        linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [CHECKER] repetitive/contradictory comparison bugs for 2.4.7
+Message-ID: <611713474.996189877@[169.254.62.211]>
+In-Reply-To: <E15PtGc-0004ad-00@the-village.bc.nu>
+In-Reply-To: <E15PtGc-0004ad-00@the-village.bc.nu>
+X-Mailer: Mulberry/2.1.0b1 (Win32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15PtYS-0004dn-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> Is it safe to assume that when a single read() call of x bytes a file
-> (the file being locked against other processes appending to it) returns
-> less than x bytes, the next read() will always return 0?  If so, is it
+<alan@lxorguk.ukuu.org.uk> wrote:
+>> How will this be guaranteed to help handle a race, when gcc is
+>> likely either to have tmp_buf in a register (not declared
+>> volatile), or perhaps even optimize out the second reference.
+>
+> The function call is a synchronization pointAlan,
 
-No. Posix allows any read to be interrupted. Unix doesn't do this. Even so
-another writer in parallel on the same file will cause what you describe
+Ooops - indeed, yes. Though the cli()/restore_flags() doesn't seem
+like the right way to perform a lock. My naive interpretation is
+that either it needs a (faster) real lock that doesn't disable IRQs on
+multiple CPUs etc., or lock_kernel does the job in which
+case cli()/restore_flags() is redundant, and, indeed, so is the
+check itself. May be I have missed something (again).
+
+I am presuming even an inline cli() is a synchronization point too,
+else there would still be a race if the read of tmp_buf in
+if(tmp_buf) and the cli() were reordered.
+
+--
+Alex Bligh

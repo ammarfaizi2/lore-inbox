@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVCPJpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262307AbVCPJwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbVCPJpO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 04:45:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVCPJpO
+	id S262307AbVCPJwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 04:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbVCPJwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 04:45:14 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:52234 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262308AbVCPJom
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 04:44:42 -0500
-Date: Wed, 16 Mar 2005 20:44:06 +1100
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Can no longer build ipv6 built-in (2.6.11, today's BK head)
-Message-ID: <20050316094406.GA4784@gondor.apana.org.au>
-References: <200503160353.j2G3rTKr015647@mail02.syd.optusnet.com.au> <20050315200651.6c0eb372.davem@davemloft.net>
+	Wed, 16 Mar 2005 04:52:16 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:5009 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262307AbVCPJwM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 04:52:12 -0500
+Date: Wed, 16 Mar 2005 10:51:55 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rostedt@goodmis.org, rlrevell@joe-job.com, linux-kernel@vger.kernel.org
+Subject: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
+Message-ID: <20050316095155.GA15080@elte.hu>
+References: <Pine.LNX.4.58.0503140427560.697@localhost.localdomain> <Pine.LNX.4.58.0503140509170.697@localhost.localdomain> <Pine.LNX.4.58.0503141024530.697@localhost.localdomain> <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain> <20050315120053.GA4686@elte.hu> <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain> <20050315133540.GB4686@elte.hu> <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain> <20050316085029.GA11414@elte.hu> <20050316011510.2a3bdfdb.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050315200651.6c0eb372.davem@davemloft.net>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <20050316011510.2a3bdfdb.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 08:06:51PM -0800, David S. Miller wrote:
-> On Wed, 16 Mar 2005 14:53:29 +1100
-> Peter Chubb <peterc@gelato.unsw.edu.au> wrote:
-> 
-> > A simple fix is to delete the __exit from the various functions now that
-> > they're called other than at module_exit.
+
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> > > Damn! The answer was right there in front of my eyes! Here's the
+> > > cleanest solution. I forgot about wait_on_bit_lock.  I've converted
+> > > all the locks to use this instead. [...]
 > > 
-> > Signed-off-by: Peter Chubb <peterc@gelato.unsw.edu.au>
+> > ah, indeed, this looks really nifty. Andrew?
+> > 
 > 
-> Applied, thanks Peter.
+> There's a little lock ranking diagram in jbd.h which tells us that
+> these locks nest inside j_list_lock and j_state_lock.  So I guess
+> you'll need to turn those into semaphores.
 
-Thanks guys.
+indeed. I did this (see the three followup patches, against BK-curr),
+and it builds/boots/works just fine on an ext3 box. Do we want to try
+this in -mm?
 
-Calling an __exit function from an __init function is actually fairly
-common.  I wonder if it would be useful to have an __initexit marker
-that gets dropped when both __init and __exit would be dropped.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+one worry would be that while spinlocks are NOP on UP, semaphores are
+not. OTOH, this could relax some of the preemptability constraints
+within ext3 and could make it more hackable. These patches enabled the
+removal of some of the lock-break code for example and could likely
+solve some of the remaining ext3 latencies.
+
+	Ingo

@@ -1,75 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVAQX45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVAQX6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbVAQX45 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 18:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVAQXxt
+	id S261548AbVAQX6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 18:58:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVAQX5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 18:53:49 -0500
-Received: from opersys.com ([64.40.108.71]:266 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262958AbVAQXuE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 18:50:04 -0500
-Message-ID: <41EC50E6.2080706@opersys.com>
-Date: Mon, 17 Jan 2005 18:57:26 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Mon, 17 Jan 2005 18:57:51 -0500
+Received: from [194.109.195.176] ([194.109.195.176]:63443 "EHLO
+	scrub.xs4all.nl") by vger.kernel.org with ESMTP id S261531AbVAQX5c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 18:57:32 -0500
+Date: Tue, 18 Jan 2005 00:57:11 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Karim Yaghmour <karim@opersys.com>
+cc: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: 2.6.11-rc1-mm1
+In-Reply-To: <41EC2DCA.50904@opersys.com>
+Message-ID: <Pine.LNX.4.61.0501172323310.30794@scrub.home>
+References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
+ <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
+ <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home>
+ <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home>
+ <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home>
+ <41EA0307.6020807@opersys.com> <Pine.LNX.4.61.0501161648310.30794@scrub.home>
+ <41EADA11.70403@opersys.com> <Pine.LNX.4.61.0501171403490.30794@scrub.home>
+ <41EC2DCA.50904@opersys.com>
 MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: Roman Zippel <zippel@linux-m68k.org>, Tim Bird <tim.bird@am.sony.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-Subject: Re: [RFC] Instrumentation (was Re: 2.6.11-rc1-mm1)
-References: <20050114002352.5a038710.akpm@osdl.org>	 <1105742791.13265.3.camel@tglx.tec.linutronix.de>	 <41E8543A.8050304@am.sony.com>	 <1105794499.13265.247.camel@tglx.tec.linutronix.de>	 <41E9CCEF.50401@opersys.com> <Pine.LNX.4.61.0501160352130.6118@scrub.home>	 <41E9EC5A.7070502@opersys.com>	 <1105919017.13265.275.camel@tglx.tec.linutronix.de>	 <41EB1AEC.3000106@opersys.com>	 <1105957604.13265.388.camel@tglx.tec.linutronix.de>	 <41EC2157.1070504@opersys.com> <1106000307.13265.462.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1106000307.13265.462.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Thomas Gleixner wrote:
-> If we add another hardwired implementation then we do not have said
-> benefits.
+On Mon, 17 Jan 2005, Karim Yaghmour wrote:
 
-Please stop handwaving. Folks like Andrew, Christoph, Zwane, Roman,
-and others actually made specific requests for changes in the code.
-What makes you think you're so special that you think you are
-entitled to stay on the side and handwave about concepts.
+> > Periodically can also mean a buffer start call back from relayfs 
+> > (although that would mean the first entry is not guaranteed) or a 
+> > (per cpu) eventcnt from the subsystem. The amount of needed search would 
+> > be limited. The main point is from the relayfs POV the buffer structure 
+> > has always the same (simple) structure.
+> 
+> But two e-mails ago, you told us to drop the start_reserve and end_reserve
+> and move the details of the buffer management into relayfs and out of
+> ltt? Either we have a callback, like you suggest, and then we need to
+> reserve some space to make sure that the callback is guaranteed to have
+> the first entry, or we drop the callback and provide an option to the
+> user for relayfs to write this first entry for him. Providing a callback
+> without reservation is no different than relying purely on the heartbeat,
+> which, like I said before and for the reasons illustrated below, is
+> unrealistic.
 
-If there is a limitation with the code, please present actual
-snippets that need to be changed and suggest alternatives. That's
-what everyone else does on this list.
+Why is so important that it's at the start of the buffer? What's wrong 
+with a special event _near_ the start of a buffer?
 
-If you want to clean-up the existing tracing code in the kernel,
-then here are some ltt calls you may be interested in:
-int ltt_create_event(char *event_type,
-		     char *event_desc,
-		     int format_type,
-		     char *format_data);
-int ltt_log_raw_event(int event_id, int event_size, void *event_data);
+> > Why is it "totally unrealistic"?
+> 
+> Ok, let's expand a little here on the amount of data. Say you're getting
+> 2MB/s of data (which is not unrealistic on a loaded system.) That means
+> that if I'm tracing for 2 days, I've got 345GB of data (~7.5GB/hour).
+> In practice, users aren't necessarily interested in plowing through the
+> entire 345GB, they just want to view a given portion of it. Now, if I
+> follow what you are suggesting, I have to go through the entire 345GB to:
+> a) create indexes, b) reorder events, and likely c) have to rewrite
+> another 345GB of data. And I haven't yet discussed the kind of problems
+> you would encounter in trying to reorder such a beast that contains,
+> by definition, variable-sized events. For one thing, if event N+1 doesn't
+> follow N, then you would be forced to browse forward until you actually
+> found it before you could write a properly ordered trace. And it just
+> takes a few processes that are interrupted and forced to sleep here and
+> there to make this unusable. That's without the RAM or fs space required
+> to store those index tables ... At 3 to 12 bytes per events, that's a lot
+> of space for indexes ...
+> 
+> If I keep things as they are with ordered events and delimiters on buffer
+> boundaries, I can skip to any place within this 345GB and start processing
+> from there.
 
-And here's an actual example:
-...
-  delta_id = ltt_create_event("Delta",
-                              NULL,
-                              CUSTOM_EVENT_FORMAT_TYPE_HEX,
-                              NULL);
-...
-  ltt_log_raw_event(delta_id, sizeof(a_delta_event), &a_delta_event);
-...
-  ltt_destroy_event(delta_id);
+What gives you the idea, that you can't do this with what I proposed?
+You can still seek freely within the data at buffer boundaries and you 
+only have to search a little into the buffer to find the delimiter. Events 
+are not completely at random, so that the little reordering can be done at 
+runtime. Sorry, but I don't get what kind of unsolvable problems you see 
+here.
 
-You can then use LibLTT to read the trace and extract your custom
-events and format your binary data as it suits you.
+> Rhetorical: Couldn't the ad-hoc mode case be a special case of the
+> managed mode?
 
-Save the bandwidth and start cleaning.
+Wrong question. What compromises can be made on both sides to create a 
+common simple framework? Your unwillingness to compromise a little on the 
+ltt requirements really amazes me.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+bye, Roman

@@ -1,83 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267535AbUBSUNS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 15:13:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267544AbUBSUNS
+	id S267542AbUBSUTM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 15:19:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267543AbUBSUTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 15:13:18 -0500
-Received: from mail.inter-page.com ([12.5.23.93]:40718 "EHLO
-	mail.inter-page.com") by vger.kernel.org with ESMTP id S267535AbUBSUNM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 15:13:12 -0500
-From: "Robert White" <rwhite@casabyte.com>
-To: <tridge@samba.org>, "'Theodore Ts'o'" <tytso@mit.edu>
-Cc: "'Pascal Schmidt'" <der.eremit@email.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: UTF-8 and case-insensitivity
-Date: Thu, 19 Feb 2004 12:12:53 -0800
-Organization: Casabyte, Inc.
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAbPwgm2TzqEOBzzQJdkcBxAEAAAAA@casabyte.com>
+	Thu, 19 Feb 2004 15:19:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:23215 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267542AbUBSUTI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 15:19:08 -0500
+Date: Thu, 19 Feb 2004 12:23:53 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Tridge <tridge@samba.org>, Jamie Lokier <jamie@shareable.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
+In-Reply-To: <20040219200554.GE31035@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0402191217050.1439@ppc970.osdl.org>
+References: <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org>
+ <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org>
+ <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
+ <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
+ <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+ <20040219200554.GE31035@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <16436.11148.231014.822067@samba.org>
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I may, of course, be overly naive... but a thought occurs... 8-)
-
-It would seem that the there is a moment of opportunity at the
-dentry_operations invocation point to harvest all the information you would
-need to maintain a specialized dcache in a separate module.  Unfortunately,
-since the individual file systems get to tweak their own pointer(s) to
-this/these struct-of-calls it could get hard to hijack things at that level.
-
-With two changes to core Linux behavior, which could easily be implemented
-as a configurable kernel option, you could create an advisory hook.
-
-1) add a usually-null pointer(*) to dentry_operations structure to the
-superblock data structure in vfs (and, of course, an install/remove
-structure call pair) as a look-aside mechanism, and
-
-2) if-not-null "parallel" invocations of these "advisory" calls are then
-added to the fixed vfs invocation points along side the normal dentry
-notices...
-
-You could then add any imaginable advisory behavior to any file system.  A
-well crafted module could then attach to file systems, flag directories (+),
-and get low-level advisory service at core dentry action time.
-
-A module so attached could answer all your negative enquiries quickly and
-yet remain nicely segregated.  You could probably create the magic_open
-dream logic of your choice and net near, if not absolute, race elimination.
 
 
-You still might have to readdir a whole dirctory from time to time just to
-clean-up a partily aged cache, but there would be no need for the stepwise
-transfer of this information into the user context.
+On Thu, 19 Feb 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-100% of the native function of each file system is preserved and there are
-probably other applications for this look-aside feature like low-level
-security auditing or semantic mirroring (a-la real-time rdist). 
+> On Thu, Feb 19, 2004 at 11:48:50AM -0800, Linus Torvalds wrote:
+> > The VFS rule is:
+> >  - all new dentries start off with the two magic bits clear
+> >  - whenever we shrink a dentry, we clear the two magic bits in the parent
+> > 
+> > and that is _all_ the VFS layer ever does. Even Al won't find this 
+> > obnoxious (yeah, we might clear the bits after a timeout on things that 
+> > need re-validation, but that's in the noise).
+>  
+> > Notice what the above does? After the above loop, bit two will be set IFF 
+> > the dentry cache now contains every single name in the directory. 
+> > Otherwise it will be clear. Bit two will basically be a "dcache complete" 
+> > bit.
+> 
+> What about dentry getting dropped in the middle of that loop _and_
+> another task setting the first bit again before the loop ends?
 
-But, you know, just a thought...
+Hey, you snipped the part where I said that the application has to have 
+its own locking around the loop and around the lookup to avoid races. 
 
-Rob.
+We can avoid that requirement by using sequence numbers and making it a
+bit more complex, but the simple version was for samba only (ie "only one
+app that wants this").
 
+Realize that none of this makes the internal kernel (or filesystem) data
+structures be wrong, so even if the app has a bug and doesn't do the right
+locking, at worst that just results in problems for that application, not
+for the rest of the system.
 
+But yes, if we want to make others use this, we'd need to have the kernel 
+actually support some kind of locking, probably by just making the whole 
+readdir loop be inside the kernel itself (at which point we can use the 
+inode semaphore for this).
 
+The "dcache full" bit could be potentially useful regardless of any
+case-ignorant operating system emulation crap, although I don't see any
+really obvious applications (we could speed up regular "readdir()", but we
+don't have the d_offset thing, so..)
 
-
-(*) this should, if enabled, be arranged as a linked list of structures so
-that multiple modules could be installed for different purposes.
-
-(+) flagging and un-flagging directories of interest ad-hoc is needed to
-prevent saturation of resources.
-
-
-
+		Linus

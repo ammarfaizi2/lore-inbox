@@ -1,51 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267576AbRGZD3B>; Wed, 25 Jul 2001 23:29:01 -0400
+	id <S267458AbRGZDyJ>; Wed, 25 Jul 2001 23:54:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267591AbRGZD2u>; Wed, 25 Jul 2001 23:28:50 -0400
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:58328 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267576AbRGZD2f>; Wed, 25 Jul 2001 23:28:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-Date: Wed, 25 Jul 2001 23:27:52 -0400
-X-Mailer: KMail [version 1.2.9]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S267594AbRGZDx7>; Wed, 25 Jul 2001 23:53:59 -0400
+Received: from research.suspicious.org ([209.236.159.254]:49519 "EHLO
+	research.suspicious.org") by vger.kernel.org with ESMTP
+	id <S267458AbRGZDxm>; Wed, 25 Jul 2001 23:53:42 -0400
+Date: Wed, 25 Jul 2001 23:53:29 -0400 (EDT)
+From: Phil <phil@research.suspicious.org>
 To: linux-kernel@vger.kernel.org
-Cc: Daniel Phillips <phillips@bonn-fries.net>
-Subject: Re: [RFC] Optimization for use-once pages
-Message-Id: <20010726032753.2C45C1225@oscar.casa.dyndns.org>
+Subject: oops on suspend
+Message-ID: <Pine.BSO.4.21.0107252351500.17078-200000@research.suspicious.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-1210263702-996119609=:17078"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Here are some more figures.  
-
-2.4.7 + ide patch + ide dma timeout fix + lvm beta8 + reiserfs fs
-
-Throughput 19.3959 MB/sec (NB=24.2449 MB/sec  193.959 MBit/sec)
-dbench 20  24.88s user 70.89s system 69% cpu 2:17.23 total
-
-Throughput 19.0447 MB/sec (NB=23.8059 MB/sec  190.447 MBit/sec)
-dbench 20  24.37s user 69.24s system 67% cpu 2:19.63 total
-
-tob -f - -full misc > misc-0725.tob  235.80s user 321.73s system 42% cpu 21:52.49 total
+--0-1210263702-996119609=:17078
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-2.4.7 + ide patch + ide dma timeout fix + lvm beta8 + reiserfs fs
+Hey there,
 
-Throughput 19.3395 MB/sec (NB=24.1744 MB/sec  193.395 MBit/sec)
-dbench 20  23.70s user 70.68s system 68% cpu 2:17.52 total
+     This happens on suspend on an HP pavillion laptop, hanging the screen
+or stopping pcmcia. 
 
-Throughput 19.1872 MB/sec (NB=23.9841 MB/sec  191.872 MBit/sec)
-dbench 20  24.30s user 69.42s system 67% cpu 2:18.60 total
+--0-1210263702-996119609=:17078
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="fmtted_dump.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.BSO.4.21.0107252353290.17078@research.suspicious.org>
+Content-Description: 
+Content-Disposition: attachment; filename="fmtted_dump.txt"
 
-tob -f - -full misc > /back/misc-0725.tob  229.64s user 326.26s system 43% cpu 21:11.77 total
-
-Basicily no big changes here - which is good news.
-
-Ed Tomlinson
+a3N5bW9vcHMgMi40LjEgb24gaTU4NiAyLjQuNy4gDQoNClVuYWJsZSB0byBo
+YW5kbGUga2VybmVsIE5VTEwgcG9pbnRlciBkZXJlZmVyZW5jZSBhdCB2aXJ0
+dWFsIGFkZHJlc3MgMDAwMDAwMDANCmM0ODA4NWQ1DQoqcGRlID0gMDAwMDAw
+MDANCk9vcHM6IDAwMDINCkNQVTogICAgMA0KRUlQOiAgICAwMDEwOls8YzQ4
+MDg1ZDU+XQ0KVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYz
+Mi1pMzg2IC1hIGkzODYNCkVGTEFHUzogMDAwMTAyMDYNCmVheDogMDAwMDAw
+MDAgICBlYng6IGMzNzk5ZTAwICAgZWN4OiAwMDAwMDAwMiAgIGVkeDogMDAw
+MGZmZmYNCmVzaTogMDAwMDAwMDAgICBlZGk6IDAwMDAwMDAwICAgZWJwOiAw
+MDAwMDAwMyAgIGVzcDogYzM3YjdlZTQNCmRzOiAwMDE4ICAgZXM6IDAwMTgg
+ICBzczogMDAxOA0KUHJvY2VzcyBrYXBtLWlkbGVkIChwaWQ6IDMsIHN0YWNr
+cGFnZT1jMzdiNzAwMCkNClN0YWNrOiBjMzc5OWUwMCAwMDAwMDAwMiAwMDAw
+MDAwMCBjMzdiZmMwOCBjMzdjMTQ1NCBjMzdjMTQ0MCAwMDAwMDAwMyBjMDFh
+YzBmMw0KICAgICAgIGMzN2JmYzAwIDAwMDAwMDAzIGMwMWFjMWFjIGMzN2Jm
+YzAwIDAwMDAwMDAzIGMzN2MxNDQwIDAwMDAwMDAzIDAwMDAwMDAzDQogICAg
+ICAgMDAwMDAwMDAgYzAxYWMyNjcgYzM3YzE0NDAgMDAwMDAwMDMgYzM3Y2Yy
+NjAgMDAwMDAwMDAgYzAxYWMyZTYgMDAwMDAwMDMNCkNhbGwgVHJhY2U6IFs8
+YzAxYWMwZjM+XSBbPGMwMWFjMWFjPl0gWzxjMDFhYzI2Nz5dIFs8YzAxYWMy
+ZTY+XSBbPGMwMTFkYjBjPl0gWzxjMDExZGJjOT5dDQpbPGMwMTBlYzNjPl0g
+WzxjMDEwZWU5Nz5dIFs8YzAxMGVmYjE+XSBbPGMwMTBmMDdlPl0gWzxjMDEw
+Zjk5NT5dIFs8YzAxMDU0M2Y+XSBbPGMwMTA1NDQ4Pl0NCkNvZGU6IDY2IDg5
+IDE0IDc4IDQ3IDgzIGM0IDBjIDQ2IDgxIGZlIGZmIDBiIDAwIDAwIDdlIGRl
+IGJlIDAwIDEwDQoNCj4+RUlQOyBjNDgwODVkNSA8W3NuZC1jYXJkLW1hZXN0
+cm8zXXNuZF9tM19zdXNwZW5kKzgxL2RjPiAgIDw9PT09PQ0KVHJhY2U7IGMw
+MWFjMGYzIDxwY2lfcG1fc3VzcGVuZF9kZXZpY2UrMWYvMjQ+DQpUcmFjZTsg
+YzAxYWMxYWMgPHBjaV9wbV9zdXNwZW5kX2J1cyszYy80Yz4NClRyYWNlOyBj
+MDFhYzI2NyA8cGNpX3BtX3N1c3BlbmQrMWYvM2M+DQpUcmFjZTsgYzAxYWMy
+ZTYgPHBjaV9wbV9jYWxsYmFjayszMi80ND4NClRyYWNlOyBjMDExZGIwYyA8
+cG1fc2VuZCs2NC85Yz4NClRyYWNlOyBjMDExZGJjOSA8cG1fc2VuZF9hbGwr
+NDUvOTA+DQpUcmFjZTsgYzAxMGVjM2MgPHNlbmRfZXZlbnQrMjAvNzg+DQpU
+cmFjZTsgYzAxMGVlOTcgPGNoZWNrX2V2ZW50cytmNy8xOTg+DQpUcmFjZTsg
+YzAxMGVmYjEgPGFwbV9ldmVudF9oYW5kbGVyKzc5LzdjPg0KVHJhY2U7IGMw
+MTBmMDdlIDxhcG1fbWFpbmxvb3ArY2EvMTAwPg0KVHJhY2U7IGMwMTBmOTk1
+IDxhcG0rMjgxLzI5Yz4NClRyYWNlOyBjMDEwNTQzZiA8a2VybmVsX3RocmVh
+ZCsxZi8zOD4NClRyYWNlOyBjMDEwNTQ0OCA8a2VybmVsX3RocmVhZCsyOC8z
+OD4NCkNvZGU7ICBjNDgwODVkNSA8W3NuZC1jYXJkLW1hZXN0cm8zXXNuZF9t
+M19zdXNwZW5kKzgxL2RjPg0KMDAwMDAwMDAgPF9FSVA+Og0KQ29kZTsgIGM0
+ODA4NWQ1IDxbc25kLWNhcmQtbWFlc3RybzNdc25kX20zX3N1c3BlbmQrODEv
+ZGM+ICAgPD09PT09DQogICAwOiAgIDY2IDg5IDE0IDc4ICAgICAgICAgICAg
+ICAgbW92ICAgICVkeCwoJWVheCwlZWRpLDIpICAgPD09PT09DQpDb2RlOyAg
+YzQ4MDg1ZDkgPFtzbmQtY2FyZC1tYWVzdHJvM11zbmRfbTNfc3VzcGVuZCs4
+NS9kYz4NCiAgIDQ6ICAgNDcgICAgICAgICAgICAgICAgICAgICAgICBpbmMg
+ICAgJWVkaQ0KQ29kZTsgIGM0ODA4NWRhIDxbc25kLWNhcmQtbWFlc3RybzNd
+c25kX20zX3N1c3BlbmQrODYvZGM+DQogICA1OiAgIDgzIGM0IDBjICAgICAg
+ICAgICAgICAgICAgYWRkICAgICQweGMsJWVzcA0KQ29kZTsgIGM0ODA4NWRk
+IDxbc25kLWNhcmQtbWFlc3RybzNdc25kX20zX3N1c3BlbmQrODkvZGM+DQog
+ICA4OiAgIDQ2ICAgICAgICAgICAgICAgICAgICAgICAgaW5jICAgICVlc2kN
+CkNvZGU7ICBjNDgwODVkZSA8W3NuZC1jYXJkLW1hZXN0cm8zXXNuZF9tM19z
+dXNwZW5kKzhhL2RjPg0KICAgOTogICA4MSBmZSBmZiAwYiAwMCAwMCAgICAg
+ICAgIGNtcCAgICAkMHhiZmYsJWVzaQ0KQ29kZTsgIGM0ODA4NWU0IDxbc25k
+LWNhcmQtbWFlc3RybzNdc25kX20zX3N1c3BlbmQrOTAvZGM+DQogICBmOiAg
+IDdlIGRlICAgICAgICAgICAgICAgICAgICAgamxlICAgIGZmZmZmZmVmIDxf
+RUlQKzB4ZmZmZmZmZWY+IGM0ODA4NWM0IDxbc25kLWNhcmQtbWFlc3RybzNd
+c25kX20zX3N1c3BlbmQrNzAvZGM+DQpDb2RlOyAgYzQ4MDg1ZTYgPFtzbmQt
+Y2FyZC1tYWVzdHJvM11zbmRfbTNfc3VzcGVuZCs5Mi9kYz4NCiAgMTE6ICAg
+YmUgMDAgMTAgMDAgMDAgICAgICAgICAgICBtb3YgICAgJDB4MTAwMCwlZXNp
+DQoNCg0KMSB3YXJuaW5nIGlzc3VlZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSBy
+ZWxpYWJsZS4NCg==
+--0-1210263702-996119609=:17078--

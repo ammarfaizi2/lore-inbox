@@ -1,83 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbUDOSWP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 14:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUDOSSg
+	id S263963AbUDOSWc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 14:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbUDOSWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 14:18:36 -0400
-Received: from emulex.emulex.com ([138.239.112.1]:18646 "EHLO
-	emulex.emulex.com") by vger.kernel.org with ESMTP id S263365AbUDOSK3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 14:10:29 -0400
-Message-ID: <3356669BBE90C448AD4645C843E2BF2802C0168B@xbl.ma.emulex.com>
-From: "Smart, James" <James.Smart@Emulex.com>
-To: "'root@chaos.analogic.com'" <root@chaos.analogic.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: persistence of kernel object attribute ??
-Date: Thu, 15 Apr 2004 14:10:15 -0400
+	Thu, 15 Apr 2004 14:22:32 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:53969 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264355AbUDOSWN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 14:22:13 -0400
+Date: Thu, 15 Apr 2004 20:21:55 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Corey Minyard <minyard@mvista.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: ipmi compile failure
+Message-ID: <Pine.GSO.4.58.0404152013240.10525@waterleaf.sonytel.be>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes - I was well aware of this, and considered it an "automation" of the
-user funciton.
+	Hi Corey,
 
-Unfortunately, this won't work, as it doesn't address the case where the
-driver is part of the boot process (e.g. it's the hba used to reach the boot
-disk). I'm looking for something that addresses this too..
+While compiling drivers/char/ipmi/ipmi_si_intf.c in 2.6.6-rc1 on m68k, I
+noticed a missing include (needed for disable_irq_nosync() and enable_irq()):
 
--- James
+--- linux-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c.orig	2004-04-15 11:44:09.000000000 +0200
++++ linux-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c	2004-04-15 20:18:51.000000000 +0200
+@@ -51,6 +51,7 @@
+ #include <linux/list.h>
+ #include <linux/pci.h>
+ #include <linux/ioport.h>
++#include <linux/irq.h>
+ #ifdef CONFIG_HIGH_RES_TIMERS
+ #include <linux/hrtime.h>
+ # if defined(schedule_next_int)
 
-> -----Original Message-----
-> From: Richard B. Johnson [mailto:root@chaos.analogic.com]
-> Sent: Thursday, April 15, 2004 2:07 PM
-> To: Smart, James
-> Cc: 'linux-kernel@vger.kernel.org'
-> Subject: Re: persistence of kernel object attribute ??
-> 
-> 
-> On Thu, 15 Apr 2004, Smart, James wrote:
-> 
-> >
-> > I've been looking at everything I can find, asked a few 
-> questions, and don't
-> > have an answer to the following issue.
-> >
-> > I have a driver that wants to export attributes per 
-> instance. I'd like the
-> > ability for the user to modify an attribute dynamically 
-> (sysfs works well) -
-> > but I'd like the new value to be persistent the next time the driver
-> > unloads/loads or the system reboots.  I don't want to have to update
-> > constants in source and recompile the driver.  I'm looking 
-> for something
-> > similar (cringe!) to the MS registry.  Is there a facility 
-> available to
-> > kernel objects to allow for persistent attributes to be 
-> set/retrieved? If
-> > not, any recommendations on how to implement this ?
-> >
-> > -- james
-> >
-> 
-> Make a program that executes upon startup, using the Sys-V startup
-> convention. That program interfaces with your driver using a standard
-> ioctl() call. It can send or receive anything it wants, which it can
-> get or put to any accessible file-system.
-> 
-> FYI this is the standard Unix/Linux way. You'd be surprised the
-> large number of users who haven't got a clue about how Unix starts
-> up. They vaguely remember something about "init" and that's it.
-> To refresh your memory, look in /etc/rc.d and the sub-directories
-> for each run-level. Believe me, you don't want or need a "registry".
-> Just put a link to your startup-script in there.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.24 on an i686 machine (5596.77 BogoMips).
->             Note 96.31% of all statistics are fiction.
-> 
-> 
+Furthermore none of CONFIG_ACPI_INTERPETER, CONFIG_X86, and CONFIG_PCI were
+set, and thus IPMI_MEM_ADDR_SPACE and IPMI_IO_ADDR_SPACE are not defined, but
+they are used:
+
+|   CC      drivers/char/ipmi/ipmi_si_intf.o
+| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c: In function `try_init_port':
+| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c:1011: warning: implicit declaration of function `is_new_interface'
+| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c:1011: `IPMI_IO_ADDR_SPACE' undeclared (first use in this function)
+| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c:1011: (Each undeclared identifier is reported only once
+| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c:1011: for each function it appears in.)
+| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c: In function `try_init_mem':
+| /home/geert/linux/testing/linux-m68k-2.6.6-rc1/drivers/char/ipmi/ipmi_si_intf.c:1087: `IPMI_MEM_ADDR_SPACE' undeclared (first use in this function)
+| make[3]: *** [drivers/char/ipmi/ipmi_si_intf.o] Error 1
+
+Either something is wrong with the #ifdef logic, or that driver should be
+disabled completely on non-supported architectures.
+
+Gr{oetje,eeting}s,
+
+				    Geert, let's compile as much as possible
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

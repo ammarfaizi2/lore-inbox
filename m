@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288184AbSAHRLs>; Tue, 8 Jan 2002 12:11:48 -0500
+	id <S288185AbSAHRNH>; Tue, 8 Jan 2002 12:13:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288185AbSAHRLh>; Tue, 8 Jan 2002 12:11:37 -0500
-Received: from mxzilla4.xs4all.nl ([194.109.6.48]:54544 "EHLO
-	mxzilla4.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S288184AbSAHRL1>; Tue, 8 Jan 2002 12:11:27 -0500
-Date: Tue, 8 Jan 2002 18:11:21 +0100
-From: jtv <jtv@xs4all.nl>
-To: Anthony DeRobertis <asd@suespammers.org>
-Cc: Jacques Gelinas <jack@solucorp.qc.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Whizzy New Feature: Paged segmented memory
-Message-ID: <20020108181121.A12696@xs4all.nl>
-In-Reply-To: <20020107224525.8a899969dbcd@remtk.solucorp.qc.ca> <BD98BECA-0407-11D6-804A-00039355CFA6@suespammers.org> <20020108122225.B11855@xs4all.nl> <E16NwsH-0005Ud-00@asd.ppp0.com>
+	id <S287417AbSAHRM5>; Tue, 8 Jan 2002 12:12:57 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:57566 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S288185AbSAHRMt>;
+	Tue, 8 Jan 2002 12:12:49 -0500
+Date: Tue, 8 Jan 2002 18:12:24 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Nicholas Knight <nknight@pocketinet.com>
+Cc: =?iso-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>,
+        Linux <linux-kernel@vger.kernel.org>
+Subject: Re: Bounce from andre@linuxdiskcert.org
+Message-ID: <20020108181224.M5235@khan.acc.umu.se>
+In-Reply-To: <20011230122500.E859-100000@gerard> <WHITEvJ1xKjtgZe0J64000008b1@white.pocketinet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16NwsH-0005Ud-00@asd.ppp0.com>; from asd@suespammers.org on Tue, Jan 08, 2002 at 02:05:09PM +0000
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <WHITEvJ1xKjtgZe0J64000008b1@white.pocketinet.com>; from nknight@pocketinet.com on Sun, Dec 30, 2001 at 06:59:22AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 02:05:09PM +0000, Anthony DeRobertis wrote:
+On Sun, Dec 30, 2001 at 06:59:22AM -0800, Nicholas Knight wrote:
+> On Sunday 30 December 2001 03:33 am, Gérard Roudier wrote:
+> > Hello Andre,
+> >
+> > I already said you that my replies get not accepted by your email
+> > agents.
+> >
+> > If you want to post to an open list then you want to accept messages
+> > from people subscribed to that list. Doing different is just
+> > impoliteness.
 > 
-> Change gcc. Recompile world. All should work, assuming your gcc changes are 
-> bug-free, no one made assumptions about stack layout, no one wrote assembly 
-> code, etc. [In other words, after 4 months of debugging you might get X 
-> running again...] 
- 
-And, of course, the same for all other software.  But for a highly secure
-project, for instance, that might be worth it.
+> 
+> Andre isn't the only one that does this. It seems many people enjoy 
+> blocking people with access to only one smtp server. Esspecialy when 
+> that server is on a very small, isolated ISP, or an ISP that people 
+> just ASSUME is up to bad things.
+> 
+> David Weinehall sent me a private email recently, to which I responded, 
+> but didn't go through because, oh wonder of wonders, the pocketinet 
+> smtp server is listed on A spam list, and an apparent alias, 
+> white.pocketinet.com, is on two.
+> 
+> Now, aren't all these spam lists supposed to try and CONTACT the 
+> providers to get the issue resolved before blacklisting them? I know 
+> for a fact that if someone had actually contacted pocketinet about the 
+> problem customer that sent spam, they would have taken care of it 
+> promptly. It's a very small ISP in a remote area of Washington State, 
+> and it's run by friendly and competent people.
+
+Hmmm. I guess you could e-mail me through tao@kernel.org instead.
 
 
-> Some architectures have hardware assistance for downward growing stacks. One 
-> example is 68K. I think x86 does too. OTOH, I don't think PPC does, though I 
-> haven't read the Green Book recently. 
-
-68K has predecrement/postincrement addressing modes (I'm not sure that
-counts as "forcing" the stack to grow downwards); PPC has a symmetrical
-load/store-with-update IIRC.
-
-
-Jeroen
-
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,42 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbUKLOnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbUKLOnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262544AbUKLOnj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 09:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUKLOmk
+	id S262538AbUKLOnk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 09:43:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbUKLOnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 09:42:40 -0500
-Received: from cimice4.lam.cz ([212.71.168.94]:35207 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S262537AbUKLOhW (ORCPT
+	Fri, 12 Nov 2004 09:43:00 -0500
+Received: from mail45.messagelabs.com ([140.174.2.179]:63891 "HELO
+	mail45.messagelabs.com") by vger.kernel.org with SMTP
+	id S262545AbUKLOlu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 09:37:22 -0500
-Date: Fri, 12 Nov 2004 14:37:21 +0000
-From: Karel Kulhavy <clock@twibright.com>
-To: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc/bus/i2c is missing
-Message-ID: <20041112143721.GA19867@beton.cybernet.src>
-References: <2E314DE03538984BA5634F12115B3A4E01BC4070@email1.mitretek.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2E314DE03538984BA5634F12115B3A4E01BC4070@email1.mitretek.org>
-User-Agent: Mutt/1.4.2.1i
-X-Orientation: Gay
+	Fri, 12 Nov 2004 09:41:50 -0500
+X-VirusChecked: Checked
+X-Env-Sender: justin.piszcz@mitretek.org
+X-Msg-Ref: server-7.tower-45.messagelabs.com!1100270509!7297310!1
+X-StarScan-Version: 5.4.2; banners=-,-,-
+X-Originating-IP: [66.10.26.57]
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: /proc/bus/i2c is missing
+Date: Fri, 12 Nov 2004 09:41:47 -0500
+Message-ID: <2E314DE03538984BA5634F12115B3A4E01BC4072@email1.mitretek.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: /proc/bus/i2c is missing
+Thread-Index: AcTIxSFZSQ828/HuQ7WIEcvpjrud1gAADdCQ
+From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+To: "Karel Kulhavy" <clock@twibright.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Ah, the documentation is outdated; I no longer have /proc/bus/i2c
+either.  You may need to update the other software that used
+/proc/bus/i2c, as it should now use /sys/bus/i2c.
+
+You are correct, <*> I2C support should encompass the i2c_core.
+
+In addition, you may want to install lm_sensors and run the
+sensors-detect script, which will help detect all the required modules
+necessary for your hardware.
+
+Curious, what are you trying to get working with I2C that involves the
+parallel port?
+
+-----Original Message-----
+From: Karel Kulhavy [mailto:clock@twibright.com] 
+Sent: Friday, November 12, 2004 9:37 AM
+To: Piszcz, Justin Michael
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/bus/i2c is missing
 
 On Fri, Nov 12, 2004 at 09:22:46AM -0500, Piszcz, Justin Michael wrote:
 > You need the core i2c modules loaded.
 
-I have "<*> I2C support" and "<*> I2C device interface" switched on in make
-menuconfig (non-modular). I skimmed through the whole I2C support submenu
-and didn't find any i2c core. Just i2c core debugging messages, but it isn't
+I have "<*> I2C support" and "<*> I2C device interface" switched on in
+make
+menuconfig (non-modular). I skimmed through the whole I2C support
+submenu
+and didn't find any i2c core. Just i2c core debugging messages, but it
+isn't
 probably what you mean.
 
 Which option in make menuconfig is i2c_core?
 
 And btw I found this:
-root@oberon:/usr/src/linux-2.6.8.1-patched/drivers/i2c/busses# find /sys/bus/i2c/sys/bus/i2c
+root@oberon:/usr/src/linux-2.6.8.1-patched/drivers/i2c/busses# find
+/sys/bus/i2c/sys/bus/i2c
 /sys/bus/i2c/drivers
 /sys/bus/i2c/drivers/pcf8591
 /sys/bus/i2c/drivers/lm85
@@ -76,7 +109,8 @@ Cl<
 > 
 > linux 2.6.8.1
 > 
-> I insmoded i2c-parport and pcf8591 modules and i2c-1 appeared in my /dev
+> I insmoded i2c-parport and pcf8591 modules and i2c-1 appeared in my
+/dev
 > (previously, only i2c-0 was there):
 > 
 > 	clock@oberon:~$ ls /dev/i2* 
@@ -86,7 +120,8 @@ Cl<
 > 	0  1
 > 
 > /usr/src/linux/Documentation/i2c says "You can
-> examine /proc/bus/i2c to see what number corresponds to which adapter."
+> examine /proc/bus/i2c to see what number corresponds to which
+adapter."
 > I don't have any /proc/i2c:
 > 
 > 	clock@oberon:~$ ls /proc/i2c
@@ -121,13 +156,15 @@ Cl<
 > 
 > Cl<
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel"
 > in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/

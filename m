@@ -1,141 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129772AbRBAMns>; Thu, 1 Feb 2001 07:43:48 -0500
+	id <S129840AbRBAMxK>; Thu, 1 Feb 2001 07:53:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129835AbRBAMnk>; Thu, 1 Feb 2001 07:43:40 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:35450 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S129772AbRBAMnc>; Thu, 1 Feb 2001 07:43:32 -0500
-Message-ID: <3A7959E9.E62F4581@linux.com>
-Date: Thu, 01 Feb 2001 04:43:22 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre11 i686)
-X-Accept-Language: en
+	id <S129835AbRBAMxA>; Thu, 1 Feb 2001 07:53:00 -0500
+Received: from [64.160.188.242] ([64.160.188.242]:6407 "HELO
+	mail.hislinuxbox.com") by vger.kernel.org with SMTP
+	id <S129714AbRBAMw4>; Thu, 1 Feb 2001 07:52:56 -0500
+Date: Thu, 1 Feb 2001 04:51:03 -0800 (PST)
+From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+To: David Riley <oscar@the-rileys.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VT82C686A corruption with 2.4.x
+In-Reply-To: <3A786E7E.781C910@the-rileys.net>
+Message-ID: <Pine.LNX.4.21.0102010442070.15634-100000@ns-01.hislinuxbox.com>
 MIME-Version: 1.0
-To: Ed Tomlinson <tomlins@cam.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VM brokenness, possibly related to reiserfs
-In-Reply-To: <01020107391500.07626@oscar>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Correct, the point of the matter is to find stress points.  It will do the exact
-same thing when it reaches the end of swap.  I suspect a relation to reiserfs
-fighting for buffers perhaps.  This fight occurs a few megs before the OOM
-routine trips.
+Yeah, I'm seriously beginning to think it's a board specific issue. If I
+drop the RAM count down to 768MB I get far less drops in app deaths
+now. I'm living in Sunnyvale CA which is part of the Rolling Blackouts
+designated spots in CA. Ever since the power companies have been
+instituting this I've seen equipment that otherwise ran great all of a
+sudden start flaking.
 
--d
+I've got this particular machine connected to a UPS so I figured the
+voltage regulation would be right on the money. Now, I'm not so sure since
+a number of people have brought this up. I'm going to drop her down to
+768MB and then try a 128MB DIMM in there. I want to see if it can handle
+that. Since the 128s have less draw than the 256s do, maybe this will
+work.
 
-Ed Tomlinson wrote:
+Right now I've got the full 1GB in there. What I'm seeing now is
+application deaths, occational X11 lockups, but SUPRIZE! SUPRIZE! no more
+drive corruptions since I removed the DMA flag from the drives, disabled
+DMA use in the BIOS and replaced the ATA66 cable with an ATA33.
 
-> Hi,
->
-> Gather this is with no swap space allocated...  And the question is why does
-> the oom handler not get triggered?
->
-> Ed Tomlinson
->
-> David Ford wrote:
->
-> > (Chris, changing JOURNAL_MAX_BATCH from 900 to 100 didn't affect
-> > anything).
-> >
-> > Ok, having approached this slightly more intelligently here are [better]
-> > results.
-> >
-> > The dumps are large so they are located at http://stuph.org/VM/.  Here's
-> > the story.  I boot and startx, I load xmms and netscape to eat away
-> > memory.  When free buffers/cache falls below 7M the system stalls and
-> > the only recovery is sysrq-E or reboot.  At the moment of stall the disk
-> > will grind continuously for about 25 to 30 minutes then go silent.  At
-> > this point in time the only recovery is reboot, sysrq-E won't work.
-> >
-> > If I move the mouse or type a key within 30 seconds of this incident,
-> > that user input will take about 5 minutes to register.  After that
-> > initial minute, nothing more will happen.
-> >
-> > Kernel 2.4.1, with reiserfs, devfs, no patches applied.
-> >
-> > "klog-X" are basically the same thing but I'm running top, syslogd, and
-> > klogd with -20 priority.  I didn't note anything out of the ordinary in
-> > top.  These are snapshots where I've managed to murder processes and
-> > restart the problem without rebooting.
-> >
-> > In the second instance, I had my finger on the kill button and managed
-> > to kill netscape and recover partially.  However the system was heavily
-> > loaded even after the kill.
-> >
-> > I have xmms in STOPped state so it's just waiting.
-> >
-> > kswapd is taking 12.2% of the CPU according to ps, and kapm-idled is
-> > taking 26.9%.  bdflush is taking 2.7%, X 3.5%, all others are nominal.
-> > The system load was hovering at 1.00 for a few minutes then dropped to
-> > zero.  However scrolling text in an rxvt is slow enough to watch blocks
-> > move.  Running "ps aux" takes nearly one third of a second for total
-> > time.  Total number of processes is ~40.
-> >
-> > Jan 31 22:31:51 nifty kernel: kapm-idled  S CBF77F94  4124     3
-> > 1        (L-TLB)       4     2
-> > Jan 31 22:31:51 nifty kernel: Call Trace: [schedule_timeout+115/148]
-> > [process_timeout+0/72] [apm_mainloop+221/256] [apm+668/692]
-> > [kernel_thread+31/56] [kernel_thread+40/56]
-> >
-> > Jan 31 22:31:51 nifty kernel: kswapd    S CBF75FAC  5704     4
-> > 1        (L-TLB)       5     3
-> > Jan 31 22:31:51 nifty kernel: Call Trace: [schedule_timeout+115/148]
-> > [process_timeout+0/72] [interruptible_sleep_on_timeout+66/92]
-> > [kswapd+213/244] [kernel_thread+40/56]
-> >
-> > Jan 31 22:31:52 nifty kernel: bdflush   S CBF70000  5912     6
-> > 1        (L-TLB)       7     5
-> > Jan 31 22:31:52 nifty kernel: Call Trace: [bdflush+206/216]
-> > [kernel_thread+40/56]
-> >
-> >
-> > In the fourth snapshot, I have put xmms in STOP state again inside the
-> > memory shortage, memory is at 4800 free buffers/cache and 1592 free mem.
-> >
-> > As I entered this shortage period I started a 'ps -eo ... > file' to try
-> > and record data there.  This is the only disk activity happening.  Load
-> > is ~4.00.  I have now killed the ps.
-> >
-> > Load has dropped significantly and I have tolerable but quite laggy user
-> > input responsiveness now.
-> >
-> > Memory is currently 4900/1588 like above.  Load is about 2.00 and will
-> > continue dropping if I don't do anything.  Any processes I exec which
-> > need to be loaded from disk take several seconds.  I.e. 'uptime' takes
-> > about 4 seconds to execute.
-> >
-> > Snapshot #5 will be the last one and I will reboot.  Once memory is
-> > freed from xmms (back to 150megs free), everything is peachy.
-> >
-> >
-> > -d
-> >
-> > --
-> >   There is a natural aristocracy among men. The grounds of this are virtue
-> and talents.
-> >   Thomas Jefferson The good thing about standards is that there are so many
-> to choose
-> >   from. Andrew S. Tanenbaum
-> >
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
-> >
+For everyone out there that's assisted in tracking this down and assisted
+in getting a working fix going.. .THANK YOU!
 
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+For now, I'm going to have to play keep in step with the kernel, patches,
+and the VIA driver. Voj, can you directly add me to whatever ANNOUNCE list
+you use for announcing the latest release of the driver?
+
+Once again thanks folks. It's still not totally stable here, but it's a
+DAMN sight farther than it was before. While not TOTALLY convinced that
+it's a local hardware issue, I do thank folks for their 2 cents. :-)
 
 
+On Wed, 31 Jan 2001, David Riley
+wrote:
+
+> Mark Hahn wrote:
+> > 
+> > >>From what I gather this chipset on 2.4.x is only stable if you cripple just about everything that makes
+> > > it worth having (udma, 2nd ide channel  etc etc)  ?    does it even work when all that's done now or is
+> > > it fully functional?
+> > 
+> > it seems to be fully functional for some or most people,
+> > with two, apparently, reporting major problems.
+> > 
+> > my via (kt133) is flawless in 2.4.1 (a drive on each channel,
+> > udma enabled and in use) and has for all the 2.3's since I got it.
+> 
+> Not to make a "mee too" post but...
+> 
+> It's worked flawlessly for me.  Always.  Since it seems to work fine for
+> just about everyone else, I'd venture to say that it's a board specific
+> issue, quite likely with the BIOS.  Some other problems seem to have to
+> do with the memory; I remember the KX133 had some definite problems with
+> memory timing, especially with large amounts (3 DIMMS were a problem on
+> some motherboards that were loosely laid out).
+> 
+> My 2 cents,
+> 	David
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

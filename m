@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262853AbTJPLlt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 07:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbTJPLlt
+	id S262873AbTJPLxe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 07:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbTJPLxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 07:41:49 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58248 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262853AbTJPLlr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 07:41:47 -0400
-Message-ID: <3F8E83ED.9010608@pobox.com>
-Date: Thu, 16 Oct 2003 07:41:33 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Thu, 16 Oct 2003 07:53:33 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:53508
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S262873AbTJPLx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 07:53:29 -0400
+Date: Thu, 16 Oct 2003 04:47:25 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: id ol <idol4232003@yahoo.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, vatsa@in.ibm.com,
+       lkcd-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: PRD Table
+In-Reply-To: <20031013174101.52992.qmail@web10003.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.10.10310160446460.15306-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Daniel Blueman <daniel.blueman@gmx.net>
-CC: wind@cocodriloo.com, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] [2.4.21] 8139too 'too much work at interrupt'...
-References: <3F8E757A.5010008@pobox.com> <26145.1066303100@www7.gmx.net>
-In-Reply-To: <26145.1066303100@www7.gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Blueman wrote:
-> Yes, the 8139too driver is doing it's job correctly - I was just thinking
 
-I didn't say this, because it is obviously not doing it job correctly.
+First question is why, and if you are doing lkcd, the answer is no.
 
-It needs NAPI to do this.  For now, the driver _should_ stay up, even 
-with these 'too much work...' messages.
+Andre Hedrick
+LAD Storage Consulting Group
 
+On Mon, 13 Oct 2003, id ol wrote:
 
-> about the source of the starvation, ie the cause of the effect. I.e. the
-> brokeness is elsewhere, in other drivers etc.
-
-Quoting from my original reply:
-
-	It's due to the 8139 hardware
-
-Tons of tiny packets can be sent before RTL8139 will throttle, which can 
-easily be far more than your system can handle at that particular time, 
-especially if it's experiencing high load elsewhere.
-
-You need either NAPI (perfect solution) or "cap interrupt work limit at 
-X packets" (stopgap solution) to prevent your 8139 hardware from being 
-DoS'd off the network.
-
-	Jeff
-
-
+> Hi all,
+> 
+> I am running into some possible DMA-related problems
+> with my system.  I am wondering, what is the easiest
+> way to make the PRD Table region uncacheable?  I
+> appreciate any tips that will point me in the right
+> direction.
+> 
+> Thanks!
+> 
+> __________________________________
+> Do you Yahoo!?
+> The New Yahoo! Shopping - with improved product search
+> http://shopping.yahoo.com
+> 
 

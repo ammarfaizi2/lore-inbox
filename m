@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280940AbRKGUDA>; Wed, 7 Nov 2001 15:03:00 -0500
+	id <S280961AbRKGUKJ>; Wed, 7 Nov 2001 15:10:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280943AbRKGUCt>; Wed, 7 Nov 2001 15:02:49 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64443 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S280940AbRKGUCl>;
-	Wed, 7 Nov 2001 15:02:41 -0500
-Date: Wed, 7 Nov 2001 15:02:29 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: Stephen Tweedie <sct@redhat.com>, ext2-devel@lists.sourceforge.net,
-        m@mo.optusnet.com.au, Andrew Morton <akpm@zip.com.au>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Mike Fedyk <mfedyk@matchmail.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] ext2/ialloc.c cleanup
-In-Reply-To: <20011107123430.D5922@lynx.no>
-Message-ID: <Pine.GSO.4.21.0111071446020.4283-100000@weyl.math.psu.edu>
+	id <S280956AbRKGUKB>; Wed, 7 Nov 2001 15:10:01 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:32781 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S280950AbRKGUJu>; Wed, 7 Nov 2001 15:09:50 -0500
+Message-ID: <3BE993CD.32E73DD6@zip.com.au>
+Date: Wed, 07 Nov 2001 12:04:29 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Martin Dalecki <dalecki@evision-ventures.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Using %cr2 to reference "current"
+In-Reply-To: <3BE93E77.6E4E3C95@evision-ventures.com> from "Martin Dalecki" at Nov 07, 2001 03:00:23 PM <E161SuY-000498-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> 
+> > With the following options enabled we get:
+> > -freg-struct-return -mrtd -mregparm=3
+> >
+> >    text    data     bss     dec     hex filename
+> > 1302372  260804  288080 1851256  1c3f78 vmlinux
+> >
+> > Quite significant difference if you ask me!!!
+> 
+> 30K is nice have but still a scratch on the surface compared with 500K 8)
+> 
 
+It's a lot of L1 though.
 
-On Wed, 7 Nov 2001, Andreas Dilger wrote:
+If this sort of change breaks the ability to build with
+conventional argument passing and no-omit-frame-pointer then
+the happy kgdb users of this world will be most aggrieved.
 
-> Minor nits, from my changes to this same function:
-> 1) please replace use of "i" for best block group in find_cg_*, to
->    something better like "group", just for clarity.
-
-Consider that done.
-
-> 2) in find_cg_*, when you fail the quadratic search, the linear search
->    should skip groups that were previously checked in the quadratic search,
->    with slight changes to both loops:
-
-I'm not actually sure that it's a good thing.  The different between the
-sequences we do is that I do
-	n n+1 n+3 n+7 ... n+2 (linear)
-and you do
-	n n+1 n+2 n+4 n+8 ... n+3 (linear)
-which has slightly worse properties.  You avoid duplicated check on n+3,
-but lose a very nice property - shifting the old sequence is guaranteed
-not to have many intersections with original in the beginning (distances
-between elements do not repeat).  With your sequence it's no longer true.
-
-> 3) I know that "cylinder groups" were used in old FFS/whatever implementation,
->    but all of the ext2 code/documentation refers to these as block groups.
->    Can you stick with that for ext2 (e.g. gdp, not cg; bg_foo, not cg_foo)?
-
-Ehh... Try to read that aloud.  Maybe it's just me, but "gdp" sounds (and
-looks) bad...
-
-> 4) sbi can be gotten by "EXT2_SB(sb)".
-
-True, consider that done.
-
-Right now I'm doing alternative strategy for directory allocation, as soon
-as I finish that I'll put the result on usual place.
-
+-

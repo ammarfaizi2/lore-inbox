@@ -1,82 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265869AbTLaAS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 19:18:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265875AbTLaAS6
+	id S265907AbTLaAd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 19:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbTLaAd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 19:18:58 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:9215 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265869AbTLaAS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 19:18:56 -0500
-Message-ID: <3FF215EE.9000509@why.dont.jablowme.net>
-Date: Tue, 30 Dec 2003 19:18:54 -0500
-From: Jim Crilly <jim@why.dont.jablowme.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Tue, 30 Dec 2003 19:33:56 -0500
+Received: from [24.35.117.106] ([24.35.117.106]:32384 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265907AbTLaAdy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 19:33:54 -0500
+Date: Tue, 30 Dec 2003 19:33:06 -0500 (EST)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
+To: Roger Luethi <rl@hellgate.ch>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Andy Isaacson <adi@hexapodia.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0 performance problems
+In-Reply-To: <20031230222403.GA8412@k3.hellgate.ch>
+Message-ID: <Pine.LNX.4.58.0312301921510.3193@localhost.localdomain>
+References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
+ <20031230012551.GA6226@k3.hellgate.ch> <Pine.LNX.4.58.0312292031450.6227@localhost.localdomain>
+ <20031230132145.B32120@hexapodia.org> <20031230194051.GD22443@holomorphy.com>
+ <20031230222403.GA8412@k3.hellgate.ch>
 MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Joshua Schmidlkofer <kernel@pacrimopen.com>,
-       "David B. Stevens" <dsteven3@maine.rr.com>, Jos Hulzink <josh@stack.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.7 (future kernel) wish
-References: <200312232342.17532.josh@stack.nl> <20031226233855.GA476@hh.idb.hist.no> <3FECCAF9.7070209@maine.rr.com> <1072507896.27022.226.camel@menion.home> <3FEE47F5.6090406@why.dont.jablowme.net> <20031230142004.GA14655@hh.idb.hist.no>
-In-Reply-To: <20031230142004.GA14655@hh.idb.hist.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> On Sat, Dec 27, 2003 at 10:03:17PM -0500, Jim Crilly wrote:
-> 
->>>Sometimes Windows 2k or XP dump (BSOD), or maybe you just get an error. 
->>>
->>>
->>>
->>
->>Generally it just complains that you pulled out the device prematurely, 
-> 
-> 
-> Depends on what the device is used for, I guess.
+On Tue, 30 Dec 2003, Roger Luethi wrote:
 
-Of course different things may happen depending on what's using the 
-device, but IME I've never seen the OS give a STOP error from that.
+> I'm not sure how to classify the bk export. It may be the qsbench type
+> or something new. If it is the former, then 2.5.39 performs a lot worse
+> than 2.5.38 (and 2.6.0, for that matter).
+> 
+> It would also be interesting to see the numbers for 2.5.27: That's when
+> physical scanning was introduced -- IMO that performance should be the
+> minimal goal for 2.6.
 
-> 
-> 
->>I've never seen one give a STOP error from that but I guess a bad driver 
->>or USB controller could cause anything.
->>
-> 
-> Well, try having a partially loaded system dll on removable
-> media when you pull the plug - it won't be pretty.
 
-If you go through all the work to get Windows to use a system file from 
-  removable device then pull it out while using it, you deserve what you 
-get. The only thing you could do is page in the entire system file if 
-you notice it's on a removable device then put a copy in swap for the 
-case that someone pulls it out, but I don't think the special case would 
-be worth it on Windows or Linux. Not that I have any proof Windows 
-doesn't attempt to do that already =)
+It seems to me that the bk export test is a measure of memory pressure and 
+io performance.  On my good system with plenty of resources I see very 
+little difference between 2.4 and 2.6.  On my laptop with a slower 
+processor, less memory, and a slower hard drive I get dramatic 
+differences, depending on workload.  
 
-> 
-> 
->>When you insert a device like a USB stick Windows puts a little icon 
->>next to the clock in the system tray that you're supposed to use to stop 
->>the device before pulling it, effectively it unmounts and stops (or 
->>atleast releases the device from) the driver so the device can be 
->>'safely' removed. I also believe Windows mounts any removable device 
->>synchronously so that if you do pull it out prematurely the damage done 
->>is limited.
-> 
-> 
-> Linux has sync mounts too. :-)  the rest is a gui thing, i.e. not kernel.
+I'm not sure what to think of the bk export test to tell you the truth.  
+i've noticed for some time that 2.6 seemed to perform worse than 2.4.  It 
+was a simple "real world" test that I could use to gather real performance 
+data.  
 
-I know, but I felt like mentioning the rest because it's relevant to a 
-number of people on the list.
-
-> 
-> Helge Hafting
-
-Jim.
+If I am understanding you, you would like data on 2.5.27, 2.5.38, and 
+2.5.39.  I'll do it if it will help something.  I'll look at it in the 
+next couple of days.

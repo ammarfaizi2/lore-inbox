@@ -1,88 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261504AbSJAHQ0>; Tue, 1 Oct 2002 03:16:26 -0400
+	id <S261503AbSJAHP5>; Tue, 1 Oct 2002 03:15:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261505AbSJAHQ0>; Tue, 1 Oct 2002 03:16:26 -0400
-Received: from landfill.ihatent.com ([217.13.24.22]:2025 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S261504AbSJAHQX>;
-	Tue, 1 Oct 2002 03:16:23 -0400
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br
-Subject: Re: CPU/cache detection wrong
-References: <m3hegaxpp0.fsf@lapper.ihatent.com>
-	<1033403655.16933.20.camel@irongate.swansea.linux.org.uk>
-	<m3wup3bcgb.fsf@lapper.ihatent.com> <20020930221536.GA6987@suse.de>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 01 Oct 2002 09:21:26 +0200
-In-Reply-To: <20020930221536.GA6987@suse.de>
-Message-ID: <m3smzqipzd.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S261504AbSJAHP5>; Tue, 1 Oct 2002 03:15:57 -0400
+Received: from mail.ccur.com ([208.248.32.212]:60682 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id <S261503AbSJAHP4>;
+	Tue, 1 Oct 2002 03:15:56 -0400
+Message-ID: <3D994CD9.3FDFA09F@ccur.com>
+Date: Tue, 01 Oct 2002 03:20:57 -0400
+From: Jim Houston <jim.houston@ccur.com>
+Reply-To: jim.houston@ccur.com
+Organization: Concurrent Computer Corp.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Jim Houston <jim.houston@attbi.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: O(1) Scheduler (tuning problem/live-lock)
+References: <200209061844.g86IiF701825@linux.local> <20020930161019.GH1235@dualathlon.random>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@codemonkey.org.uk> writes:
+Hi Andrea, Ingo,
 
-> On Mon, Sep 30, 2002 at 07:43:16PM +0200, Alexander Hoogerhuis wrote:
-> 
->  > PU: Before vendor init, caps: 3febf9ff 00000000 00000000, vendor = 0
->  > Cache info byte: 50
-> 
-> Instruction TLB (ignored)
-> 
->  > Cache info byte: 5B
-> 
-> Data TLB (ignored)
-> 
->  > Cache info byte: 66
-> 
-> 8K L1 data cache
->  
->  > Cache info byte: 00
->  > Cache info byte: 00
->  > Cache info byte: 00
->  > Cache info byte: 00
->  > Cache info byte: 00
->  > Cache info byte: 00
->  > Cache info byte: 00
->  > Cache info byte: 00
-> 
-> Null
->  
->  > Cache info byte: 40
-> 
-> No 3rd level cache.
-> 
->  > Cache info byte: 70
-> 
-> 12K-uops trace cache
-> 
->  > Cache info byte: 7B
-> 
-> 512K L2 cache
-> 
->  > Cache info byte: 00
-> 
-> Null.
->  
->  > CPU: L1 I cache: 0K, L1 D cache: 8K
->  > CPU: L2 cache: 512K
-> 
+Andrea I tried your patch and it does solve the live-lock
+in the LTP waitpid06 test.  The mouse movement gets a bit
+jerky but atleast it doesn't lock up.
 
-Here we go:
+I guess the next question is how does it do on normal work loads?
 
-CPU: Trace cache: 12K uops, L1 D cache: 8K
-CPU: L2 cache: 512K
+I like the idea of making the child processes start with a smaller
+sleep_avg value.  Maybe it should just be a constant rather than a
+fraction of the parents sleep_avg?  Its really the child processes
+inheriting the favorable sleep_avg that caused the problem with
+waitpid06.
 
-But my BIOS still say I should have 8Kb/8Kb I/D L1 cache... oh
-well. I'm sure Alan Cox would just write it up as marketing, since
-thats about how reliable a BIOS is :)
+I liked the idea of giving interactive tasks special treatment. 
+Andrea please don't remove this.  Always putting processes
+(which have used up there time slice) into the rq->expired array
+makes all processes round robin at the same priority.  It makes
+sense to do this to fail gracefully if the system is overloaded
+but not all the time.
 
-ttfn,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+I hope this make sense.  I'm falling asleep writing it:-)
+
+Jim Houston - Concurrent Computer Corp.

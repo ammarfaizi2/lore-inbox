@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276643AbRJBTZI>; Tue, 2 Oct 2001 15:25:08 -0400
+	id <S276646AbRJBTlN>; Tue, 2 Oct 2001 15:41:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276644AbRJBTY6>; Tue, 2 Oct 2001 15:24:58 -0400
-Received: from mail.gurulabs.com ([209.140.75.28]:27798 "HELO
-	mail.gurulabs.com") by vger.kernel.org with SMTP id <S276643AbRJBTYn>;
-	Tue, 2 Oct 2001 15:24:43 -0400
-Date: Tue, 2 Oct 2001 13:25:11 -0600 (MDT)
-From: Dax Kelson <dax@gurulabs.com>
-X-X-Sender: <dkelson@mail.gurulabs.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: ECN now on "Standards Track" RFC 3168
-In-Reply-To: <qwwpu8bigoi.fsf@decibel.fi.muni.cz>
-Message-ID: <Pine.LNX.4.33.0110021321390.27163-100000@mail.gurulabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276649AbRJBTlC>; Tue, 2 Oct 2001 15:41:02 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:34788 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S276646AbRJBTk5>;
+	Tue, 2 Oct 2001 15:40:57 -0400
+Date: Tue, 2 Oct 2001 21:41:24 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200110021941.VAA13062@harpo.it.uu.se>
+To: lior@netvision.net.il
+Subject: Re: Strange CD-writing problem
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2 Oct 2001 19:41:53 +0200 (IST), Lior Okman wrote:
 
-http://www.faqs.org/rfcs/rfc3168.html
+>I recently bought a new IDE cd-rw (a Plextor W1610A).
+>While trying to burn with it, I had some trouble fixating the disks.
+>The burn process would work fine, but when the fixating started, the
+>ide-scsi emulation started resetting the IDE bus, or just timing out.
+>This is true for every 2.4 kernel, from 2.4.0 to 2.4.10 including selected
+>ac versions.
+> 
+>The cd writer is connected to the computer as a primary device of the
+>third IDE bus (an onboard Promise chip) ...
 
-Firewall/Loadbalancing vendors and websites can no longer play the "we
-don't support experimental protocols" card.
+I'd move that ATAPI cd-rw to the primary controller, and reserve
+the Promise controller for UDMA(33) and above disks. Promise chips
+seem to require explicit driver support for handling ATAPI devices,
+and I'm not confident that Linux' driver has that. Quoting from the
+box my Promise Ultra100 card came in:
 
-Dax Kelson
-Guru Labs
+"Supports ATAPI: Yes(*)
+ (*) Non-Windows environments require manufacturer device drivers."
 
+which I think says it all.
+
+/Mikael

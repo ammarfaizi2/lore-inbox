@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263084AbUC2SuX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 13:50:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUC2SuX
+	id S263063AbUC2S4f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 13:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUC2S4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 13:50:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:18853 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263084AbUC2SuP (ORCPT
+	Mon, 29 Mar 2004 13:56:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42971 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263063AbUC2S4b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 13:50:15 -0500
-Date: Mon, 29 Mar 2004 10:50:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CAN-2003-0018 vs 2.6?
-Message-Id: <20040329105009.08b0a38a.akpm@osdl.org>
-In-Reply-To: <20040329131536.GA6296@lst.de>
-References: <20040329131536.GA6296@lst.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 29 Mar 2004 13:56:31 -0500
+Subject: Re: [EXT3/JBD] Periodic journal flush not enough?
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>,
+       Andreas Dilger <adilger@clusterfs.com>
+In-Reply-To: <20040326154851.7a3ad417.akpm@osdl.org>
+References: <20040326231958.GA484@gondor.apana.org.au>
+	 <20040326154851.7a3ad417.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1080586577.2285.107.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 29 Mar 2004 19:56:17 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@lst.de> wrote:
->
-> CAN-2003-0018 (Linux O_DIRECT Direct Input/Output Information Leak
-> Vulnerability) is still not fixed in mainline 2.6.
-> 
-> Last time I pinged you you said you didn't like the fixes but we're
-> getting to the point where 2.6 gets seriously used and we should start
-> to care.  In fact SuSE has been adding the patches to their tree now
-> which means an direct I/O API change which is kinda messy to maintain
-> for XFS (which isn't even affected by the vulnerability due to it's own
-> locking) that's supposed to supply vendors with uptodas.
-> 
-> So any plans to gets this in?
+Hi,
 
-The fixes for this have been ready to go for a week or so.  It's 2.6.6-pre
-material.
+On Fri, 2004-03-26 at 23:48, Andrew Morton wrote:
+> Herbert Xu <herbert@gondor.apana.org.au> wrote:
+> >
+> > I've encountered a problem with the journal flush timer.  The problem
+> > is that when a filesystem is short on space, relying on a timer-based
+> > flushing mechanism is no longer adequate.  For example, on my P4 2GHz
+> > I can trigger an ENOSPC error by doing
+> > 
+> > while :; do echo test > a; [ -s a ] || break; rm a; done; echo Out of space
+> > 
+> > on an ext3 file system with 12Mb of free space using the usual 5s
+> > journal flush timer.
+> 
+> I cannot reproduce this.  Please send more details.  Journalling mode,
+> kernel version, etc.
+
+Sounds like it's due to the "b_committed_data" avoidance code.  Ext3
+cannot immediately reuse disk space after a delete, because of lazy
+writeback --- until the final writeback of the delete hits disk, we have
+to be able to undo it.  And because in non-data-journaled modes we allow
+new disk writes to hit disk before a transaction commit, that means we
+can't reuse deleted blocks until after they are committed.
+
+I've never seen it reported as a problem outside of artificial test
+scenarios, but if it is something we need to address, Andreas Dilger's
+patch looks good.
+
+Cheers,
+ Stephen
+
 

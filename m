@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317860AbSFSMB6>; Wed, 19 Jun 2002 08:01:58 -0400
+	id <S317861AbSFSMFB>; Wed, 19 Jun 2002 08:05:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317871AbSFSMB5>; Wed, 19 Jun 2002 08:01:57 -0400
-Received: from mail.gmx.de ([213.165.64.20]:25337 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S317860AbSFSMB5>;
-	Wed, 19 Jun 2002 08:01:57 -0400
-Message-ID: <3D1072AF.ED527AF3@gmx.net>
-Date: Wed, 19 Jun 2002 14:01:51 +0200
-From: Richard Ems <r.ems.home@gmx.net>
-Reply-To: r.ems@gmx.net
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,de,es
+	id <S317862AbSFSMFA>; Wed, 19 Jun 2002 08:05:00 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64520 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317861AbSFSME6>; Wed, 19 Jun 2002 08:04:58 -0400
+Date: Wed, 19 Jun 2002 08:00:33 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Allan Sandfeld Jensen <snowwolf@one2one-networks.com>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dual Athlon 2000 XP MP nightmare
+In-Reply-To: <200206161429.15653.snowwolf@one2one-networks.com>
+Message-ID: <Pine.LNX.3.96.1020619075514.1119H-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: r.ems@gmx.net, linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Hubert Mantel <mantel@suse.de>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: kernel OOPS: 2.4.18, nscd, nfsd
-References: <3D104DF4.A8053F67@gmx.net> <3D105B63.FEB5F52E@gmx.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 16 Jun 2002, Allan Sandfeld Jensen wrote:
 
-Richard Ems wrote:
+> On Sunday 16 June 2002 10:30, Mark Hounschell wrote:
 
-> I already noticed that SuSE's k_deflt-2.4.18-174 has nfsd compiled as a module and the k_deflt-2.4.18-58 kernel that came with SuSE 8.0 had it compiled in ...???
+> > First make sure you have MP cpus NOT XP's. The XP's are not certified by
+> > amd to run SMP. Second, try append="mem=nopentium" in your lilo.conf file.
+> > I have a dual 1900+ MP box and without that I have random lockups also.
+> >
+> BS and FUD! 
 
-This is NOT TRUE..
-On both kernels is nfsd compiled as a module!
+What's wrong with this suggestion, from someone who believes it works?
+Other than suggesting that it be hand entered instead of put in lilo?
+Disabling 4M pages is unlikely to solve the problem, but (a) the poster
+has tried it and I bet you haven't, and (b) all the things you suggest
+require hardware action, while a boot option can be done with less effort
+and chance of damage.
 
-Thanks, Richard
+What you suggest is more likely to work, but I see no reason not to try
+the simple fix first, with low time and effort budget.
+ 
+> First try to remove one processor, and test the motherboard in single CPU 
+> configuration. If you still see crashes replace the motherboard. I also have 
+> a defective Asus A7M266-D. It crashes in any configuration of CPUs, power 
+> supplies and video cards.
 
---
-Richard Ems
-... e-mail: r.ems@gmx.net
-... Computer Science, University of Hamburg
-
-Unix IS user friendly. It's just selective about who its friends are.
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

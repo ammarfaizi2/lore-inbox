@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263078AbRFANwd>; Fri, 1 Jun 2001 09:52:33 -0400
+	id <S263524AbRFAOBD>; Fri, 1 Jun 2001 10:01:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263522AbRFANwN>; Fri, 1 Jun 2001 09:52:13 -0400
-Received: from isolaweb.it ([213.82.132.2]:27911 "EHLO web.isolaweb.it")
-	by vger.kernel.org with ESMTP id <S263078AbRFANwC>;
-	Fri, 1 Jun 2001 09:52:02 -0400
-Message-Id: <5.1.0.14.2.20010601153759.00a31550@mail.tekno-soft.it>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 01 Jun 2001 15:49:26 +0200
-To: linux-kernel@vger.kernel.org
-From: Roberto Fichera <kernel@tekno-soft.it>
-Subject: HDD Errors ?!
+	id <S263523AbRFAOAx>; Fri, 1 Jun 2001 10:00:53 -0400
+Received: from [203.34.97.3] ([203.34.97.3]:15364 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S263527AbRFAOAp>;
+	Fri, 1 Jun 2001 10:00:45 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Matt Chapman <matthewc@cse.unsw.edu.au>
+cc: Dag Brattli <dag@brattli.net>, linux-kernel@vger.kernel.org,
+        linux-irda@pasta.cs.uit.no
+Subject: Re: [PATCH] for Linux IRDA initialisation bug 2.4.5 
+In-Reply-To: Your message of "Fri, 01 Jun 2001 23:32:46 +1000."
+             <20010601233245.A10478@cse.unsw.edu.au> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 01 Jun 2001 23:59:13 +1000
+Message-ID: <6679.991403953@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Fri, 1 Jun 2001 23:32:46 +1000, 
+Matt Chapman <matthewc@cse.unsw.edu.au> wrote:
+>I've found that if you compile IRDA into the kernel, irda_proto_init
+>gets called twice - once at do_initcalls time, and once explicitly
+>in do_basic_setup - eventually resulting in a hang (as
+>register_netdevice_notifier gets called twice with the same struct,
+>and it's list becomes circular).
 
-today I found this in my /var/log/messages:
+The suggested patch has one non-obvious side effect which somebody in
+irda needs to verify is OK.  Previously irda_proto_init() and
+irda_device_init() were called after every other driver had
+initialized.  Now irda_proto_init() is called based on the object order
+in the top level Makefile, so irda is initialized before i2c,
+telephony, acpi and mddev.  Is this a valid initialization order?  If
+not, move
 
-Jun  1 05:26:47 radius kernel: hda: read_intr: status=0x59 { DriveReady 
-SeekComplete DataRequest Error }
-Jun  1 05:26:47 radius kernel: hda: read_intr: error=0x40 { 
-UncorrectableError }, LBAsect=25358813, sector=25165970
-Jun  1 05:26:47 radius kernel: end_request: I/O error, dev 03:06 (hda), 
-sector 25165970
-Jun  1 05:26:47 radius kernel: EXT2-fs error (device ide0(3,6)): 
-ext2_read_inode: unable to read inode block - inode=1570229, block=3145746
-Jun  1 05:26:53 radius kernel: hda: read_intr: status=0x59 { DriveReady 
-SeekComplete DataRequest Error }
-Jun  1 05:26:53 radius kernel: hda: read_intr: error=0x40 { 
-UncorrectableError }, LBAsect=25358813, sector=25165970
-Jun  1 05:26:53 radius kernel: end_request: I/O error, dev 03:06 (hda), 
-sector 25165970
-Jun  1 05:26:53 radius kernel: EXT2-fs error (device ide0(3,6)): 
-ext2_write_inode: unable to read inode block - inode=1570229, block=3145746
-Jun  1 05:27:18 radius kernel: hda: read_intr: status=0x59 { DriveReady 
-SeekComplete DataRequest Error }
-Jun  1 05:27:18 radius kernel: hda: read_intr: error=0x40 { 
-UncorrectableError }, LBAsect=25096667, sector=24903824
-Jun  1 05:27:18 radius kernel: end_request: I/O error, dev 03:06 (hda), 
-sector 24903824
-Jun  1 05:27:18 radius kernel: EXT2-fs error (device ide0(3,6)): 
-ext2_read_inode: unable to read inode block - inode=1553880, block=3112978
-Jun  1 05:27:23 radius kernel: hda: read_intr: status=0x59 { DriveReady 
-SeekComplete DataRequest Error }
-Jun  1 05:27:23 radius kernel: hda: read_intr: error=0x40 { 
-UncorrectableError }, LBAsect=25096667, sector=24903824
-Jun  1 05:27:23 radius kernel: end_request: I/O error, dev 03:06 (hda), 
-sector 24903824
-Jun  1 05:27:23 radius kernel: EXT2-fs error (device ide0(3,6)): 
-ext2_write_inode: unable to read inode block - inode=1553880, block=3112978
+  DRIVERS-$(CONFIG_IRDA) += drivers/net/irda/irda.o
 
-It's a disk error or a FS error ? What can I do to fix the problem ? I 
-500Km distant from this machine :-(
-and I want made some check remotely before reboot it.
-
-Any suggestion ?
-
-Thanks in advance.
-
-
-Roberto Fichera.
+to the end of the drivers list and document why it needs to be there.
 

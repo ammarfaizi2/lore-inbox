@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318844AbSHLWLb>; Mon, 12 Aug 2002 18:11:31 -0400
+	id <S318842AbSHLWKw>; Mon, 12 Aug 2002 18:10:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318845AbSHLWLb>; Mon, 12 Aug 2002 18:11:31 -0400
-Received: from c-180-196-67.ka.dial.de.ignite.net ([62.180.196.67]:12418 "EHLO
-	c-180-196-67.ka.dial.de.ignite.net") by vger.kernel.org with ESMTP
-	id <S318844AbSHLWLa>; Mon, 12 Aug 2002 18:11:30 -0400
-Date: Mon, 12 Aug 2002 09:45:48 +0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: gcc@gcc.gnu.org, Linus Torvalds <torvalds@transmeta.com>,
-       Andrew Morton <akpm@zip.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: GCC still keeps empty loops?  (was: [patch 4/21] fix ARCH_HAS_PREFETCH)
-Message-ID: <20020812094548.A22879@bacchus.dhis.org>
-References: <3D56B13A.D3F741D1@zip.com.au> <Pine.LNX.4.44.0208111203520.9930-100000@home.transmeta.com> <20020811210718.B3206@kushida.apsleyroad.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020811210718.B3206@kushida.apsleyroad.org>; from lk@tantalophile.demon.co.uk on Sun, Aug 11, 2002 at 09:07:18PM +0100
-X-Accept-Language: de,en,fr
+	id <S318845AbSHLWKw>; Mon, 12 Aug 2002 18:10:52 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:27140 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S318842AbSHLWKw>; Mon, 12 Aug 2002 18:10:52 -0400
+Date: Tue, 13 Aug 2002 00:13:51 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Greg Banks <gnb@alphalink.com.au>,
+       Peter Samuelson <peter@cadcamlab.org>, <linux-kernel@vger.kernel.org>,
+       <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
+In-Reply-To: <20020812214032.GD20176@opus.bloom.county>
+Message-ID: <Pine.LNX.4.44.0208122352440.28515-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 11, 2002 at 09:07:18PM +0100, Jamie Lokier wrote:
+Hi,
 
-> Unbelievably, 3.1 doesn't remove empty loops either.
-> I think there's a case for a compiler flag, `-fremove-empty-loops'.
+On Mon, 12 Aug 2002, Tom Rini wrote:
 
-Indeed ...  It's sad having to scatter ifdefs over the code just because
-gcc lacks this optimization ...
+> > More examples of the cml1 limitations can be found in arch/ppc/config.in -
+> > a single choice statement needs to be splitted into multiple choice
+> > statements.
+>
+> Er, which are you referring to here?  All of the choice statements are
+> done for clarity here. :)  Tho I was (and have been) pondering creating
+> arch/ppc/platforms/Config-[468]xx.in, which would rather nicely move all
+> of the options related to IBM 4xx processors to one file, Motorola 8xx
+> to another, and general PPC's nicely.
 
-  Ralf
+There is still a bit of overlap. Roughly it's possible to sort the machine
+types by cpu type, but IMO it's not the best solution. I think it would be
+better to sort them by general machine type.
+
+bye, Roman
+

@@ -1,84 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262609AbTJ3QE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 11:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbTJ3QE5
+	id S262598AbTJ3P7u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 10:59:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbTJ3P7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 11:04:57 -0500
-Received: from web10504.mail.yahoo.com ([216.136.130.154]:61584 "HELO
-	web10504.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262609AbTJ3QEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 11:04:53 -0500
-Message-ID: <20031030160452.49444.qmail@web10504.mail.yahoo.com>
-Date: Thu, 30 Oct 2003 08:04:52 -0800 (PST)
-From: Kothi Raja <kothi_raja@yahoo.com>
-Subject: PCI: Failed to allocate resource 6(df000000-deffffff)
+	Thu, 30 Oct 2003 10:59:50 -0500
+Received: from janus1.ktb.net ([198.175.228.34]:48146 "EHLO janus1.ktb.net")
+	by vger.kernel.org with ESMTP id S262598AbTJ3P7t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 10:59:49 -0500
+Date: Thu, 30 Oct 2003 07:59:45 -0800
+From: ashley@alumni.caltech.edu
 To: linux-kernel@vger.kernel.org
+Subject: 2.6 crashes when IP-forwarding
+Message-ID: <3FA13571.nail4NJ12O97N@alumni.caltech.edu>
+User-Agent: nail 10.5 4/27/03
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting these errors with kernel 2.4.22 while it's
-trying to set up a PCI Sun QFE card. 
-My hardware consists of:
-MB: Rioworks SDVIA-100 (VIA Apollo Pro 694 + 686B)
-Processor: Single P3 933
-Memory: 256MB SDRAM.
-Matrox Millenium PCI 4MB RAM.
-Sun QFE PCI 4 Port Fast Ethernet.
+I am sorry that I can't be more specific now, but I have spent
+the last several days trying to track down a kernel-panic problem.
+I first thought it was hardware and I swapped it all out.
 
-I'm running a self-built kernel 2.4.22 compiled using
-GCC 3.3.2.
+System:
+1.33 MHz Athlon
+Asus mb
+1Gb memory
+either tulip or 8139too ethernet card.
 
-The first ethernet port gets initialized correctly but
-the subsequent ones report this error. When I try to 
-ifconfig eth1 add 192.168.1.111 netmask 255.255.255.0
-I get:
-SIOCSIFNETMASK: Cannot assign requested address
+Symptom: system works perfectly with a ppp dialup until
+a second machine on the net routes IP requests through
+the this machine. Then this machine either crashes with
+a kernel panic or simply locks up completely.
 
-Here's the relevent portion of the system log.
+I started with the 2.6 test4 kernel which had been working
+for several weeks. Then I applied the sequence of patches
+all the way up to test9. The system was stable with test4
+but unstable with test9.
 
-Oct 31 09:40:09 alexa2 kernel: sunhme.c:v2.01
-26/Mar/2002 David S. Miller (davem@redhat.com)
-Oct 31 09:40:09 alexa2 kernel: divert: allocating
-divert_blk for eth0
-Oct 31 09:40:09 alexa2 kernel: eth0-3: Quattro HME
-(PCI/CheerIO) 10/100baseT Ethernet DEC 21153 PCI
-Bridge
-Oct 31 09:40:09 alexa2 kernel: eth0: Quattro HME slot
-0 (PCI/CheerIO) 10/100baseT Ethernet 08:00:20:ce:74:75
+Then I went back to test4 and applied the patches up
+to test7, and the lockup/kernel-panic problem exists
+for test7.
 
-Oct 31 09:40:09 alexa2 kernel: PCI: Failed to allocate
-resource 6(df000000-deffffff) for 02:01.1
-Oct 31 09:40:09 alexa2 kernel: divert: allocating
-divert_blk for eth1
-Oct 31 09:40:09 alexa2 kernel: eth1: Quattro HME slot
-1 (PCI/CheerIO) 10/100baseT Ethernet 22:6e:ad:00:00:00
+Along the way I downloaded all the patches a second time
+and tried to verify that the downloads were valid. I
+noted that the patch8 is now different from what it was
+when I originally downloaded it.
 
-Oct 31 09:40:09 alexa2 kernel: PCI: Failed to allocate
-resource 6(df000000-deffffff) for 02:02.1
-Oct 31 09:40:09 alexa2 kernel: divert: allocating
-divert_blk for eth2
-Oct 31 09:40:09 alexa2 kernel: eth2: Quattro HME slot
-2 (PCI/CheerIO) 10/100baseT Ethernet a7:5f:10:00:00:00
-
-Oct 31 09:40:09 alexa2 kernel: PCI: Failed to allocate
-resource 6(df000000-deffffff) for 02:03.1
-Oct 31 09:40:09 alexa2 kernel: divert: allocating
-divert_blk for eth3
-Oct 31 09:40:09 alexa2 kernel: eth3: Quattro HME slot
-3 (PCI/CheerIO) 10/100baseT Ethernet ea:1d:02:00:00:00
-
-Does anyone have an idea what the issue might be?
-I will post the complete system log and any other info
-if required.
-
-Thanks in advance,
-Krishna.
-
-
-__________________________________
-Do you Yahoo!?
-Exclusive Video Premiere - Britney Spears
-http://launch.yahoo.com/promos/britneyspears/

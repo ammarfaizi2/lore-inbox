@@ -1,80 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285047AbRLZXhc>; Wed, 26 Dec 2001 18:37:32 -0500
+	id <S285031AbRLZXfc>; Wed, 26 Dec 2001 18:35:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285048AbRLZXhX>; Wed, 26 Dec 2001 18:37:23 -0500
-Received: from odin.allegientsystems.com ([208.251.178.227]:17280 "EHLO
-	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
-	id <S285047AbRLZXhO>; Wed, 26 Dec 2001 18:37:14 -0500
-Message-ID: <3C2A5F24.6090501@allegientsystems.com>
-Date: Wed, 26 Dec 2001 18:37:08 -0500
-From: Nathan Bryant <nbryant@allegientsystems.com>
-Organization: Allegient Systems
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: saidani@info.unicaen.fr, dledford@redhat.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] TEST of patch proposed for i810 audio
-In-Reply-To: <3C2A56C7.5050801@allegientsystems.com>
-Content-Type: multipart/mixed;
- boundary="------------030305030506080109010702"
+	id <S285047AbRLZXfW>; Wed, 26 Dec 2001 18:35:22 -0500
+Received: from msp-150.man.olsztyn.pl ([213.184.31.150]:17282 "EHLO
+	msp-150.man.olsztyn.pl") by vger.kernel.org with ESMTP
+	id <S285031AbRLZXfP>; Wed, 26 Dec 2001 18:35:15 -0500
+Date: Thu, 27 Dec 2001 00:34:13 +0100
+From: Dominik Mierzejewski <dominik@aaf16.warszawa.sdi.tpnet.pl>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help editorial policy
+Message-ID: <20011226233413.GA17037@msp-150.man.olsztyn.pl>
+In-Reply-To: <20011223174608.A25335@thyrsus.com> <Pine.LNX.4.21.0112261718150.32161-100000@Consulate.UFP.CX> <20011227091702.A8528@zapff.research.canon.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011227091702.A8528@zapff.research.canon.com.au>
+User-Agent: Mutt/1.3.24i
+X-Linux-Registered-User: 134951
+X-Homepage: http://home.elka.pw.edu.pl/~dmierzej/
+X-PGP-Key-Fingerprint: B546 B96A 4258 02EF 5CAB  E867 3CDA 420F 7802 6AFE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030305030506080109010702
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wednesday, 26 December 2001, Cameron Simpson wrote:
+> On Wed, Dec 26, 2001 at 05:44:36PM +0000, Riley Williams <rhw@memalpha.cx> wrote:
+> | >> I take it this is your way of volunteering to always keep all
+> | >> kernel documentation accurate as well as answer questions from
+> | >> newbies who've never seen 'KiB' before ? ;)
+> | 
+> | > One of the arguments for the KiB declaration, despite the ugliness
+> | > of "kibibytes", is that a newbie seeing "32KiB" is quite likely to
+> | > deduce what's meant from context.  Let's not exaggerate the
+> | > difficulties here.
+> | 
+> | Alternatively, deal with this problem the same way the "This may also be
+> | built as a module..." comment is - either include it several thousand
+> | times in Configure.help or (better still) have the configuration tools
+> | spit it out automatically every time the need for it crops up. The
+> | following ruleset could easily be implemented even in the `make config`
+> | and `make menuconfig` parsers, and should be just as easy in CML2.
+> | Applying rule (1) will result in a considerable reduction in the size of
+> | the file Documentation/Configure.help as it currently stands.
+> | 
+> | Comments, anybody?
+> 
+> I like this!
 
-Nathan Bryant wrote:
+I second this. Being a translator of the file in question, I have to deal
+with ten slightly different versions of "You may also compile this as
+a module...". So I have ten slighlty different translations of this text,
+too, in the name of accuracy.
 
->
-> maybe this patch will solve your problem, samir, maybe it won't; 
-> regardless, it should fix at least one corner case and is either 
-> obviously correct or start_*c is not ;-)
->
-> patch is against doug's 0.12.
-
-[snip]
-
-attached is a slightly more anal retentive version of my previous patch. 
-as in the previous patch, the goal is to make update_lvi completely 
-self-contained, ie resistant to changes in higher-level code, ie not 
-deadlock even if somebody really sets it up with bad state, also 
-eliminates one if/then/else thinko in 0.12 that could theoretically 
-cause dac to be started when you're trying to record, which would cause 
-a deadlock.
-
---------------030305030506080109010702
-Content-Type: text/plain;
- name="new.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="new.diff"
-
---- i810_audio.c.12	Wed Dec 19 02:04:06 2001
-+++ linux/drivers/sound/i810_audio.c	Wed Dec 26 18:22:37 2001
-@@ -952,12 +952,16 @@
- 	 * the CIV value to the next sg segment to be played so that when
- 	 * we call start_{dac,adc}, things will operate properly
- 	 */
--	if (!dmabuf->enable && dmabuf->trigger) {
--		if(rec && dmabuf->count != dmabuf->dmasize) {
-+	if (!dmabuf->enable && dmabuf->ready) {
-+		if(rec && dmabuf->count < dmabuf->dmasize &&
-+		   (dmabuf->trigger & PCM_ENABLE_INPUT))
-+		{
- 			outb((inb(port+OFF_CIV)+1)&31, port+OFF_LVI);
- 			__start_adc(state);
- 			while( !(inb(port + OFF_CR) & ((1<<4) | (1<<2))) ) ;
--		} else if(dmabuf->count) {
-+		} else if (!rec && dmabuf->count &&
-+			   (dmabuf->trigger & PCM_ENABLE_OUTPUT))
-+		{
- 			outb((inb(port+OFF_CIV)+1)&31, port+OFF_LVI);
- 			__start_dac(state);
- 			while( !(inb(port + OFF_CR) & ((1<<4) | (1<<2))) ) ;
-
---------------030305030506080109010702--
-
+Although I thought there was an agreement that decimal kilobyte is kB,
+and binary kilobyte is KiB, decimal megabyte is MB, binary megabyte is MB
+and so on, wasn't there?
+ 
+-- 
+"The Universe doesn't give you any points for doing things that are easy."
+        -- Sheridan to Garibaldi in Babylon 5:"The Geometry of Shadows"
+Dominik 'Rathann' Mierzejewski <rathann(at)we.are.one.pl>

@@ -1,57 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265535AbUAPTaK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 14:30:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265507AbUAPTaK
+	id S265209AbUAPTYR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 14:24:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbUAPTYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 14:30:10 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:57475 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265701AbUAPTaG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 14:30:06 -0500
-Date: Fri, 16 Jan 2004 14:32:39 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: cliff white <cliffw@osdl.org>
-cc: Adrian Bunk <bunk@fs.tum.de>, piggin@cyberone.com.au, mpm@selenic.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [1/4] better i386 CPU selection
-In-Reply-To: <20040116111501.70200cf3.cliffw@osdl.org>
-Message-ID: <Pine.LNX.4.53.0401161425110.31018@chaos>
-References: <20040106054859.GA18208@waste.org> <3FFA56D6.6040808@cyberone.com.au>
- <20040106064607.GB18208@waste.org> <3FFA5ED3.6040000@cyberone.com.au>
- <20040110004625.GB25089@fs.tum.de> <20040110005232.GD25089@fs.tum.de>
- <20040116111501.70200cf3.cliffw@osdl.org>
+	Fri, 16 Jan 2004 14:24:17 -0500
+Received: from smtp3.wanadoo.fr ([193.252.22.28]:14680 "EHLO
+	mwinf0304.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S265209AbUAPTYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 14:24:14 -0500
+Message-ID: <40083A5F.4060802@wanadoo.fr>
+Date: Fri, 16 Jan 2004 20:24:15 +0100
+From: claude parisot <Claude.PARISOT@wanadoo.fr>
+Reply-To: Claude.PARISOT@wanadoo.fr
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: Claude.PARISOT@wanadoo.fr
+Subject: DMA problem 
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Jan 2004, cliff white wrote:
+  Hello !
 
-> On Sat, 10 Jan 2004 01:52:32 +0100
-> Adrian Bunk <bunk@fs.tum.de> wrote:
->
->
-> > Changes:
+Sorry to post a seconfd message on the list, I am only trying
+to get an answern for this - it seems so - DMA-problem ??
 
-> > - AMD Elan is a different subarch, you can't configure a kernel that
-> >   runs on both the AMD Elan and other i386 CPUs
 
-NO! NO!  This prevents development of an AMD embeded system on an
-"ordinary" machine like this one (Pentium IV). The fact that the
-timer runs at a different speed means nothing, one just sets the
-workstation time every day. Please do NOT do this. It prevents
-important usage.
+I have some
+problems with a brand new Plextor-drive, PX-W5224TA/T3B, I cannot
+mount any CD or burn a CDR or CD-RW, except if I disable DMA with
+following command :# hdparm -d0 /dev/hdd , a little bit annoying,
+isn't it ?
 
-> > - added optimizing CFLAGS for the AMD Elan
+If I insert a cdrom in the drive the led doesn't go out, it flashes
+as usual but it stays green.
 
-There are no such different "optimizations" for ELAN.
+It seems to be a DMA-problem or a kernel-bug ???
+Its only a supposition, I am a Linux-newbie, and I am looking
+for an explanation and a solution ....
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+By mounting a cdrom I get following error messages :
+
+Jan 11 20:46:00 ishwara kernel: scsi : aborting command due to timeout
+: pid 102, scsi0, channel 0, id 1, lun 0 0x28 00 00 00 00 10 00 00 01 00
+Jan 11 20:46:00 ishwara kernel: hdd: error waiting for DMA
+Jan 11 20:46:00 ishwara kernel: hdd: dma timeout retry: status=0x7f {
+DriveReady DeviceFault SeekComplete DataRequest CorrectedError Index
+Error } Jan 11 20:46:00 ishwara kernel: hdd: dma timeout retry:
+error=0x7f Jan 11 20:46:00 ishwara kernel: hdd: DMA disabled
+Jan 11 20:46:00 ishwara kernel: hdd: ATAPI reset complete
+Jan 11 20:46:00 ishwara kernel: hdd: irq timeout: status=0x80 { Busy }
+Jan 11 20:46:00 ishwara kernel: hdd: ATAPI reset complete
+Jan 11 20:46:00 ishwara kernel: hdd: irq timeout: status=0x80 { Busy }
+Jan 11 20:46:00 ishwara kernel: hdd: ATAPI reset complete
+Jan 11 20:46:07 ishwara kernel: hdd: irq timeout: status=0x80 { Busy }
+Jan 11 20:46:07 ishwara kernel: scsi0 channel 0 : resetting for second
+half of retries. Jan 11 20:46:07 ishwara kernel: SCSI bus is being reset
+for host 0 channel 0. Jan 11 20:46:07 ishwara kernel: hdd: status
+timeout: status=0x80 { Busy } Jan 11 20:46:07 ishwara kernel: hdd: drive
+not ready for command Jan 11 20:46:07 ishwara kernel: hdd: ATAPI reset
+complete Jan 11 20:46:32 ishwara kernel: scsi : aborting command due to
+timeout : pid 103, scsi0, channel 0, id 1, lun 0 0x28 00 00 00 00 10 00
+rive not ready for command
+
+And then I have a freeze or at least a blocking of the sysem.
+I have to reboot.
+
+Could someone give me an explanation of what is happening and a way to
+solve the problem .... is this a kernel-bug ? Or an incompatibility
+between the motherboard and the drive ??
+
+If you choose to help me, please don't be to esoteric, as I already
+said, I am a newbie.
+
+Please, could you Cc all answers to the adress :
+
+Claude.PARISOT@wanadoo.fr
+
+My apologizes for my english ....
+
+
+Claude
+
+System : Pentium 2,8C
+Asus P4P800 DeLuxe
+Intel I865PE
+
+
+
+
+
+
+
+
+
+
+
 
 

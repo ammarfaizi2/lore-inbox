@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264647AbSKSORY>; Tue, 19 Nov 2002 09:17:24 -0500
+	id <S265409AbSKSOSR>; Tue, 19 Nov 2002 09:18:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265396AbSKSORY>; Tue, 19 Nov 2002 09:17:24 -0500
-Received: from ns.suse.de ([213.95.15.193]:44036 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S264647AbSKSORX>;
-	Tue, 19 Nov 2002 09:17:23 -0500
-To: Paul Larson <plars@linuxtestproject.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [LTP] Re: LTP - gettimeofday02 FAIL
-References: <200211190127.gAJ1RWg11023@linux.local.suse.lists.linux.kernel> <1037713044.24031.15.camel@plars.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 19 Nov 2002 15:24:25 +0100
-In-Reply-To: Paul Larson's message of "19 Nov 2002 14:45:46 +0100"
-Message-ID: <p73adk5vdra.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S265475AbSKSOSQ>; Tue, 19 Nov 2002 09:18:16 -0500
+Received: from inet-mail2.oracle.com ([148.87.2.202]:21698 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S265409AbSKSOSJ>; Tue, 19 Nov 2002 09:18:09 -0500
+Message-ID: <3DDA4921.30403@oracle.com>
+Date: Tue, 19 Nov 2002 15:22:25 +0100
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Consulting Premium Services
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Oracle 9.2 OOMs again at startup in 2.5.4[78]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Larson <plars@linuxtestproject.org> writes:
+...just like it did a few kernels ago (the current->mm issue in 2.5.19
+  that eventually got fixed in 2.5.30 or thereabouts, introduced for the
+  bk-enabled by cset 1.373.221.1).
 
-> This has been noticed, I've posted to lkml about it.  The only person
-> who replied to me seems to be suggesting it is a hardware issue, but I
-> can't believe it is impossible to work around.
+I'll go building a 2.5.44 kernel (think it's the only one I didn't have
+  too much trouble building / booting in the 2.5.4x series before .47)
+  and see whether it works or not.
 
-It is very hard to solve properly and efficiently. When you search the
-list archives you will find long threads about the problem
-(search for "TSC" and gettimeofday and perhaps HPET or cyclone). Last one 
-was one or two weeks ago.
 
-The problem has been there always in some way in linux, now it is just
-exposed in LTP because it tests for it.
+Later,
 
--Andi
+--alessandro
+
+  "Seems that you can't get any more than half free"
+        (Bruce Springsteen, "Straight Time")
+

@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284144AbSBJWRj>; Sun, 10 Feb 2002 17:17:39 -0500
+	id <S284300AbSBJWYT>; Sun, 10 Feb 2002 17:24:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284300AbSBJWR2>; Sun, 10 Feb 2002 17:17:28 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:48394 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S284144AbSBJWRN>; Sun, 10 Feb 2002 17:17:13 -0500
-Date: Sun, 10 Feb 2002 23:17:12 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Dave Jones <davej@suse.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [patch][looking for maintainers] jiffies compare fixups
-In-Reply-To: <Pine.LNX.4.33.0202102137560.29486-100000@Appserv.suse.de>
-Message-ID: <Pine.LNX.4.33.0202102308070.31683-100000@gans.physik3.uni-rostock.de>
+	id <S284305AbSBJWX7>; Sun, 10 Feb 2002 17:23:59 -0500
+Received: from ip68-4-123-226.oc.oc.cox.net ([68.4.123.226]:52212 "HELO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
+	id <S284300AbSBJWX6>; Sun, 10 Feb 2002 17:23:58 -0500
+Subject: Re: [RAID-soft,ATA,WD] problems with a RAID5 disc not detected
+To: cyrille@chepelov.org (Cyrille Chepelov)
+Date: Sun, 10 Feb 2002 14:24:09 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, neilb@cse.unsw.edu.au,
+        andre@linux-ide.org, jmontpezat@nerim.net
+In-Reply-To: <20020210205653.GA20212@calixo.net> from "Cyrille Chepelov" at Feb 10, 2002 09:56:53 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020210222409.B11EC8974E@cx518206-b.irvn1.occa.home.com>
+From: barryn@pobox.com (Barry K. Nathan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Feb 2002, Dave Jones wrote:
+Cyrille Chepelov wrote:
+> Blam! the BIOS refuses to detect the WD disc, unless it's the only disc on
+> its ribbon cable (even with a 80-wire cable). Fortunately, Linux doesn't
+> really care, and it was possible to make use of this bad boy.
 
-> On Sun, 10 Feb 2002, Tim Schmielau wrote:
->
-> > On the other hand, about the same fraction of the mails weren't replied
-> > to, while these patches also haven't yet appeared in Marcelo's tree.
->
-> Your pine seems to be eating trailing whitespace making a lot of these
-> not apply. This could be one of the reasons why they haven't been
-> accepted either by the maintainer, or marcelo/linus.
->
+Note that "Master" and "Single" are generally two different jumper
+settings on WD disks; you need to use the "Master" setting when there are
+two drives on the cable and the "Single" setting when there's only one...
 
-Just to set the record straight: I was not complaining about Marcelo or
-Linus. Marcelo did apply the (maintainer approved) patches I sent directly
-to him to the next prerelease, while I have not yet submitted any patches
-to Linus for 2.5.
-
-Tim
-
+-Barry K. Nathan <barryn@pobox.com>

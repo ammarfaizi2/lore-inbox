@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263589AbSLSNrR>; Thu, 19 Dec 2002 08:47:17 -0500
+	id <S264795AbSLSNwE>; Thu, 19 Dec 2002 08:52:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264004AbSLSNrR>; Thu, 19 Dec 2002 08:47:17 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:51277 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S263589AbSLSNrQ>; Thu, 19 Dec 2002 08:47:16 -0500
-Date: Thu, 19 Dec 2002 14:55:15 +0100 (CET)
-From: bart@etpmod.phys.tue.nl
-Reply-To: bart@etpmod.phys.tue.nl
-Subject: Re: Intel P6 vs P7 system call performance
-To: davej@codemonkey.org.uk
-Cc: torvalds@transmeta.com, lk@tantalophile.demon.co.uk, hpa@transmeta.com,
-       terje.eggestad@scali.com, drepper@redhat.com, matti.aarnio@zmailer.org,
-       hugh@veritas.com, mingo@elte.hu, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-Message-Id: <20021219135517.7E78051FB6@gum12.etpnet.phys.tue.nl>
+	id <S264856AbSLSNwE>; Thu, 19 Dec 2002 08:52:04 -0500
+Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:6088 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP
+	id <S264795AbSLSNwD>; Thu, 19 Dec 2002 08:52:03 -0500
+Date: Thu, 19 Dec 2002 14:59:59 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH 2.4.21-pre2 RESEND] CREDITS update
+Message-ID: <20021219145959.B8394@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Dec, Dave Jones wrote:
-> On Thu, Dec 19, 2002 at 02:22:36PM +0100, bart@etpmod.phys.tue.nl wrote:
->  > > However, there's another issue, namely process startup cost. I personally 
->  > > want it to be as light as at all possible. I hate doing an "strace" on 
->  > > user processes and seeing tons and tons of crapola showing up. Just for 
->  > So why not map the magic page at 0xffffe000 at some other address as
->  > well? 
->  > Static binaries can just directly jump/call into the magic page.
-> 
-> .. and explode nicely when you try to run them on an older kernel
-> without the new syscall magick. This is what Linus' first
-> proof-of-concept code did.
+Hi,
+
+This patch updates my current CREDITS entry.
+
+Marcelo, please apply.
+
+Stelian.
 
 
-True, but unless I really don't get it, compatibility of a new static
-binary with an old kernel is going to break anyway. 
-My point was that the double-mapped page trick adds no overhead in the
-case of a static binary, and just one extra mmap in case of a shared
-binary.
-
-Bart
-
-> 
-> 		Dave
-> 
-
+===== CREDITS 1.63 vs edited =====
+--- 1.63/CREDITS	Mon Dec 16 07:22:25 2002
++++ edited/CREDITS	Thu Dec 19 09:38:27 2002
+@@ -2404,13 +2404,10 @@
+ D: CDROM driver "sonycd535" (Sony CDU-535/531)
+ 
+ N: Stelian Pop
+-E: stelian.pop@fr.alcove.com
++E: stelian@popies.net
+ P: 1024D/EDBB6147 7B36 0E07 04BC 11DC A7A0  D3F7 7185 9E7A EDBB 6147
+ D: sonypi, meye drivers, mct_u232 usb serial hacks
+-S: Alcôve
+-S: 153, bd. Anatole France 
+-S: 93200 Saint Denis
+-S: France
++S: Paris, France
+ 
+ N: Frederic Potter 
+ E: fpotter@cirpack.com
 -- 
-Bart Hartgers - TUE Eindhoven 
-http://plasimo.phys.tue.nl/bart/contact.html
+Stelian Pop <stelian@popies.net>

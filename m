@@ -1,171 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbTGWJWt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 05:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbTGWJWs
+	id S262872AbTGWJ3S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 05:29:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTGWJ3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 05:22:48 -0400
-Received: from exzh001.alcatel.ch ([212.243.156.171]:18963 "HELO
-	exzh001.alcatel.ch") by vger.kernel.org with SMTP id S262116AbTGWJWm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 05:22:42 -0400
-Message-ID: <000d01c350fd$e625c9d0$a61fc682@alcatel.ch>
-From: "Daniel Ritz" <daniel.ritz@gmx.ch>
-To: "Javier Achirica" <achirica@telefonica.net>
-Cc: "Jeff Garzik" <jgarzik@pobox.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "linux-net" <linux-net@vger.kernel.org>,
-       "Jean Tourrilhes" <jt@bougret.hpl.hp.com>,
-       "Mike Kershaw" <dragorn@melchior.nerv-un.net>
-References: <Pine.SOL.4.30.0307221014290.3338-100000@tudela.mad.ttd.net>
-Subject: Re: [PATCH 2.5] fixes for airo.c
-Date: Wed, 23 Jul 2003 11:36:31 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 23 Jul 2003 05:29:18 -0400
+Received: from mail.gmx.de ([213.165.64.20]:21155 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262872AbTGWJ3S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 05:29:18 -0400
+Date: Wed, 23 Jul 2003 11:44:21 +0200
+From: Dominik Brugger <dominik83@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test1] ACPI slowdown
+Message-Id: <20030723114421.34eb7149.dominik83@gmx.net>
+In-Reply-To: <878yqpptez.fsf@deneb.enyo.de>
+References: <878yqpptez.fsf@deneb.enyo.de>
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok, now the braindamaged thing called sourceforge showed the changes, but:
-- i don't think the race is fixed. just remove the whole down_trylock()
-  crap in the xmit altogether and replace it with a single down(). faster,
-  simpler, not racy...and with the schedule_work you win nothing, you lose
-speed
-- please don't commit bugfixes and new features in the same changeset...
-- the loop-forever fix in transmit_allocate: you should have copied the
-comment
-  changes from my patch too, so the spin-forever-comment goes away...
+On Wed, 23 Jul 2003 09:57:08 +0200
+Florian Weimer <fw@deneb.enyo.de> wrote:
 
-i look closer when i'm home, having a real operating system to work on, not
-this
-winblows box at work now..
+> If I enable ACPI on my box (Athlon XP at 1.6 GHz, Epox EP-8KHa+
+> mainboard), it becomes very slow (so slow that it's unusable).
+> 
+> Is this a known issue?  Maybe the thermal limits are misconfigured,
+> and the CPU clock is throttled unnecessarily (if something like this
+> is supported at all).
 
--daniel
+I use the same board with ACPI enabled, no slow down.
+The only problem I experience is that USB doesnt wakeup after resume from S3, reloading all of the related modules doesnt help, the port seems to be unpowered (usb optical mouse blinks for a few miliseconds after reloading uhci_hcd, maybe there is some little power left).
 
-
-Javier Achirica wrote:
->
-> Today I updated the CVS and Sourceforge (airo-linux.sf.net) with the
-> latest version (1.53) that (I hope) fixes the race problem. If everything
-> is fine, I'll commit the changes to the kernel tree.
->
-> Javier Achirica
->
-> On Mon, 21 Jul 2003, Daniel Ritz wrote:
->
-> > On Mon July 21 2003 21:44, Javier Achirica wrote:
-> > >
-> > > On Mon, 21 Jul 2003, Daniel Ritz wrote:
-> > >
-> > > > On Mon July 21 2003 13:00, Javier Achirica wrote:
-> > > > >
-> > > > > Daniel,
-> > > > >
-> > > > > Thank you for your patch. Some comments about it:
-> > > > >
-> > > > > - I'd rather fix whatever is broken in the current code than going
-back to
-> > > > > spinlocks, as they increase latency and reduce concurrency. In any
-case,
-> > > > > please check your code. I've seen a spinlock in the interrupt
-handler that
-> > > > > may lock the system.
-> > > >
-> > > > but we need to protect from interrupts while accessing the card and
-waiting for
-> > > > completion. semaphores don't protect you from that.
-spin_lock_irqsave does. the
-> > > > spin_lock in the interrupt handler is there to protect from
-interrupts from
-> > > > other processors in a SMP system (see Documentation/spinlocks.txt)
-and is btw.
-> > > > a no-op on UP. and semaphores are quite heavy....
-> > >
-> > > Not really. You can still read the received packets from the card (as
-> > > you're not issuing any command and are using the other BAP) while a
-> > > command is in progress. There are some specific cases in which you
-need
-> > > to have protection, and that cases are avoided with the down_trylock.
-> > >
-> >
-> > ok, i think i have to look closer...if the card can handle that then we
-don't need
-> > to irq-protect all the areas i did protect...but i do think that those
-down_trylock and
-> > then the schedule_work should be replaced by a simple
-spinlock_irq_save...
-> >
-> > i look closer at it tomorrow.
-> > you happen to have the tech spec lying aroung?
-> >
-> > > AFAIK, interrupt serialization is assured by the interrupt handler, so
-you
-> > > don't need to do that.
-> > >
-> > > > > - The fix for the transmit code you mention, is about fixing the
-returned
-> > > > > value in case of error? If not, please explain it to me as I don't
-see any
-> > > > > other changes.
-> > > >
-> > > > fixes:
-> > > > - return values
-> > > > - when to free the skb, when not
-> > > > - disabling the queues
-> > > > - netif_wake_queue called from the interrupt handler only (and on
-the right
-> > > >   net_device)
-> > > > - i think the priv->xmit stuff and then the schedule_work is evil:
-> > > >   if you return 0 from the dev->hard_start_xmit then the network
-layer assumes
-> > > >   that the packet was kfree_skb()'ed (which does only frees the
-packet when the
-> > > >   refcount drops to zero.) this is the cause for the keventd
-killing, for sure!
-> > > >
-> > > >   if you return 0 you already kfree_skb()'ed the packet. and that's
-it.
-> > >
-> > > This is where I have the biggest problems. As I've read in
-> > > Documentation/networking/driver.txt, looks like the packet needs to be
-> > > freed "soon", but doesn't require to be before returning 0 in
-> > > hard_start_xmit. Did I get it wrong?
-> > >
-> >
-> > no, i got it wrong. but still...it's the xmit where the oops comes
-from....
-> >
-> > wait. isn't there a race in airo_do_xmit? at high xfer rates (when it
-oopses) the
-> > queue can wake right after it is stopped in the down_trylock section. so
-you can
-> > happen to loose an skb 'cos the write to priv->xmit is not protected at
-all and
-> > there should be a check so that only one skb can be queue there. no?
-> > (and then the irq-handler can wake the queue too)
-> >
-> > ok, i think i got it now. i'll do a new patch tomorrow or so that tries:
-> > - to fix the transmit not to oops
-> > - to avoid disabling the irq's whenever possible
-> > - using spinlocks instead of the heavier semaphores ('cos i think if
-it's done cleaner
-> >   than i did it now, it's faster than the semas, and to make hch happy
-:)
-> >
-> >
-> > > Thanks for your help,
-> > > Javier Achirica
-> > >
-> >
-> > rgds
-> > -daniel
-> >
-> >
-> >
->
-
+-Dominik Brugger

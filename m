@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263511AbTDMN3X (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 09:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbTDMN3X (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 09:29:23 -0400
-Received: from port-212-202-185-162.reverse.qdsl-home.de ([212.202.185.162]:18573
-	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S263511AbTDMN3W (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 09:29:22 -0400
-Message-ID: <3E9968FB.8050409@trash.net>
-Date: Sun, 13 Apr 2003 15:41:15 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
+	id S263515AbTDMNxm (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 09:53:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263517AbTDMNxm (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 09:53:42 -0400
+Received: from lucidpixels.com ([66.45.37.187]:6787 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S263515AbTDMNxl (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 09:53:41 -0400
+Date: Sun, 13 Apr 2003 10:05:27 -0400 (EDT)
+From: war <war@lucidpixels.com>
+X-X-Sender: war@p300
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-pre7 ipv6 compile error
+Message-ID: <Pine.LNX.4.51.0304131004230.31429@p300>
 MIME-Version: 1.0
-To: Kevin Buhr <buhr@telus.net>
-CC: Maciej Soltysiak <solt@dns.toxicfilms.tv>, netfilter-devel@lists.samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: BUG somewhere in NAT mechanism [was: my linux box does not learn
- from redirects]
-References: <Pine.LNX.4.51.0304121406180.24111@dns.toxicfilms.tv> <8765pj6lg9.fsf@saurus.asaurus.invalid> <3E99574B.5060306@trash.net>
-In-Reply-To: <3E99574B.5060306@trash.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+GCC 2.95.3
+Latest binutils.
 
-
-Patrick McHardy wrote:
-
->> Maciej Soltysiak <solt@dns.toxicfilms.tv> writes:
->>  
->> It looks like the relevant bit of code is:
->>
->> ip_nat_core.c:881 (in 2.4.20)
->>        /* Redirects on non-null nats must be dropped, else they'll
->>           start talking to each other without our translation, and be
->>           confused... --RR */
->>        if (hdr->type == ICMP_REDIRECT) {
->>                /* Don't care about races here. */
->>                if (info->initialized
->>                    != ((1 << IP_NAT_MANIP_SRC) | (1 << 
->> IP_NAT_MANIP_DST))
->>
->
-> Apart from what you're saying, it should be:
->
->                            if (info->initialized
->                                 & ((1 << IP_NAT_MANIP_SRC) | (1 << 
-> IP_NAT_MANIP_DST))
->
-> otherwise (maybe that's what Maciej is seeing) redirects for 
-> connections without natbindings
-> will be dropped too. 
-
-
-Sorry this was wrong, it seems because of null_bindings every connection 
-has at least one
-binding per direction.
-
-Bye
-Patrick
-
-
+make -C ipv6/netfilter
+make[2]: Entering directory `/usr/src/linux-2.4.20/net/ipv6/netfilter'
+make all_targets
+make[3]: Entering directory `/usr/src/linux-2.4.20/net/ipv6/netfilter'
+rm -f netfilter.o
+ld -m elf_i386  -r -o netfilter.o ip6_tables.o ip6t_limit.o ip6t_mark.o
+ip6t_length.o ip6t_mac.o ip6t_rt.o ip6t_hbh.o ip6t_dst.o ip6t_ipv6header.o
+ip6t_frag.o ip6t_esp.o ip6t_ah.o ip6t_eui64.o ip6t_multiport.o
+ip6t_owner.o ip6table_filter.o ip6table_mangle.o ip6t_MARK.o ip6_queue.o
+ip6t_LOG.o
+ip6t_hbh.o: In function `ipv6_ext_hdr':
+ip6t_hbh.o(.text+0x0): multiple definition of `ipv6_ext_hdr'
+ip6t_rt.o(.text+0x0): first defined here
+ip6t_dst.o: In function `ipv6_ext_hdr':
+ip6t_dst.o(.text+0x0): multiple definition of `ipv6_ext_hdr'
+ip6t_rt.o(.text+0x0): first defined here
+ip6t_ipv6header.o: In function `ipv6_ext_hdr':
+ip6t_ipv6header.o(.text+0x0): multiple definition of `ipv6_ext_hdr'
+ip6t_rt.o(.text+0x0): first defined here
+ip6t_frag.o: In function `ipv6_ext_hdr':
+ip6t_frag.o(.text+0x0): multiple definition of `ipv6_ext_hdr'
+ip6t_rt.o(.text+0x0): first defined here
+ip6t_esp.o: In function `ipv6_ext_hdr':
+ip6t_esp.o(.text+0x0): multiple definition of `ipv6_ext_hdr'
+ip6t_rt.o(.text+0x0): first defined here
+ip6t_ah.o: In function `ipv6_ext_hdr':
+ip6t_ah.o(.text+0x0): multiple definition of `ipv6_ext_hdr'
+ip6t_rt.o(.text+0x0): first defined here
+make[3]: *** [netfilter.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.20/net/ipv6/netfilter'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.20/net/ipv6/netfilter'
+make[1]: *** [_subdir_ipv6/netfilter] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.20/net'
+make: *** [_dir_net] Error 2
+Command exited with non-zero status 2
+23.21user 2.53system 0:27.85elapsed 92%CPU (0avgtext+0avgdata
+0maxresident)k
+0inputs+0outputs (38979major+27482minor)pagefaults 0swaps
+root@p300:/usr/src/linux#

@@ -1,90 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284726AbRLUQh7>; Fri, 21 Dec 2001 11:37:59 -0500
+	id <S284728AbRLUQjJ>; Fri, 21 Dec 2001 11:39:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284728AbRLUQht>; Fri, 21 Dec 2001 11:37:49 -0500
-Received: from altus.drgw.net ([209.234.73.40]:17934 "EHLO altus.drgw.net")
-	by vger.kernel.org with ESMTP id <S284726AbRLUQhl>;
-	Fri, 21 Dec 2001 11:37:41 -0500
-Date: Fri, 21 Dec 2001 10:29:40 -0600
-From: Troy Benjegerdes <hozer@drgw.net>
-To: =?iso-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-Cc: Andre Hedrick <andre@linux-ide.org>, jlm <jsado@mediaone.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Poor performance during disk writes
-Message-ID: <20011221102940.W25200@altus.drgw.net>
-In-Reply-To: <Pine.LNX.4.10.10112181043110.21250-100000@master.linux-ide.org> <20011218183059.L1832-100000@gerard>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011218183059.L1832-100000@gerard>; from groudier@free.fr on Tue, Dec 18, 2001 at 06:42:49PM +0100
+	id <S284732AbRLUQjA>; Fri, 21 Dec 2001 11:39:00 -0500
+Received: from ntmail.avint.net ([198.165.75.239]:6675 "EHLO NTMAIL.avint.net")
+	by vger.kernel.org with ESMTP id <S284728AbRLUQik>;
+	Fri, 21 Dec 2001 11:38:40 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Brendan Pike <spike@superweb.ca>
+Reply-To: spike@superweb.ca
+Organization: Linux User
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] DRM OS
+Date: Fri, 21 Dec 2001 12:38:33 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20011218121034.B23308@vitelus.com> <Pine.LNX.4.33L.0112181843520.28489-100000@duckman.distro.conectiva> <20011220234045.34089a2b.markoer@markoer.org>
+In-Reply-To: <20011220234045.34089a2b.markoer@markoer.org>
+MIME-Version: 1.0
+Message-Id: <01122112383300.01237@spikes>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 18, 2001 at 06:42:49PM +0100, Gérard Roudier wrote:
-> 
-> 
-> On Tue, 18 Dec 2001, Andre Hedrick wrote:
-> 
-> > File './Bonnie.2276', size: 1073741824, volumes: 1
-> > Writing with putc()...  done:  72692 kB/s  83.7 %CPU
-> > Rewriting...            done:  25355 kB/s  12.0 %CPU
-> > Writing intelligently...done: 103022 kB/s  40.5 %CPU
-> > Reading with getc()...  done:  37188 kB/s  67.5 %CPU
-> > Reading intelligently...done:  40809 kB/s  11.4 %CPU
-> > Seeker 2...Seeker 1...Seeker 3...start 'em...done...done...done...
-> >               ---Sequential Output (nosync)--- ---Sequential Input-- --Rnd Seek-
-> >               -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --04k (03)-
-> > Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU   /sec %CPU
-> >        1*1024 72692 83.7 103022 40.5 25355 12.0 37188 67.5 40809 11.4  382.1  2.4
+On Thursday 20 December 2001 06:40 pm, Marco Ermini wrote:
+> On Tue, 18 Dec 2001 18:44:41 -0200 (BRST)
+>
+> Rik van Riel <riel@conectiva.com.br> wrote:
+> > On Tue, 18 Dec 2001, Aaron Lehmann wrote:
+> > > On Tue, Dec 18, 2001 at 09:05:55PM +0100, Dave Jones wrote:
+> > > > Remember DMCA ? Remember SSSCA ?
+> > >
+> > > I watch DVD's with DeCSS. Come and get me.
 > >
-> > Maybe this is the kind of performance you want out your ATA subsystem.
-> > Maybe if I could get a patch in to the kernels we could all have stable
-> > and fast IO.
-> 
-> I rather see lots of wasting rather than performance, here. Bonnie says
-> that your subsystem can sustain 103 MB/s write but only 41 MB/s read. This
-> looks about 60% throughput wasted for read.
+> > Punishable by fines of up to $500,000 and 5 years
+> > in prison, per violation.
+>
+> But not in Europe. Only in the USA. Algorithms may not be subjected to
+> patents in Europe (by now).
+>
+> Anyway, maybe you may not get catched in the intimacy of your room. But I
+> could understand that it's not acceptable as a legitimate proposal for a
+> worldwide used OS, as Linux is, to suggest to every single user to violate
+> the law in the intimacy of their room to be able to use it. I may feel safe
+> in my own room and I may use these tools if I'm able to, but I can't
+> propose to anyone to use these such tools, that's the point.
+>
+>
+> bye
 
-Uh, well, um, what drive is he writing too?? He could very well have 2 gig 
-of memory in this box and half the writes were cached. 41MB/s seems 
-reasonable for most common IDE disks. Of course I know Andre has some 
-rather 'uncommon' IDE drives :P
+I feel i should have my opinions voiced here too. First of all, the USA has 
+to many weird laws regarding to copyright. As a Canadian myself, i dont feel 
+its fair that someone can go to jail for such a long time because of watching 
+thier _own_ dvd disk they bought out of thier _own_ money. Its all about 
+greed. If thier wasent so much greed from these billionaires, the world would 
+be a better place. And seeing them _trying_ to make hardware standard to stop 
+copying is even more sick. And them trying to change the laws to the worst by 
+using the anti-terrorism bill is enough to make one puke. The RIAA wanted 
+rights to literally _hack_ thier way into peoples boxes and delete all of 
+thier stolen MP3s. Ive heard this, and i laughed so hard anyone could hear 
+me. Now that they didnt get those rights, thier trying to get sound card 
+makers to put crap in thier products since they couldnt get the hard disk 
+manufacturers to. Will they ever stop? Thier "DRM OS" and "DRM hardware" is 
+what they drool over, even tho thiers _ways_ to get by any form of methods. 
+And heck, who will buy this kinda crap hardware? And do ya think the rest of 
+the world is going to manufacturer such hardware when its only the USA 
+whining to get such hardware? Remember the DVD? "Oh, thier never going to 
+crack by its encryption."
 
-Does bonnie actually do any sort of 'sync' operation to ensure data 
-writen is on the disk? Is that 100mb/sec write real, or just because of 
-block layer caching?
+just my 2 cents,
 
-> 
-> Note that if you intend to use it only for write-only applications,
-> performance are not that bad, even if just dropping the data on the floor
-> would give you infinite throughput without any difference in
-> functionnality. :-)
-> 
-> 
-> Gérard Roudier
-> Not CEO, not President of anything.
-> 
-> > Regards,
-> >
-> >
-> > Andre Hedrick
-> > CEO/President, LAD Storage Consulting Group
-> > Linux ATA Development
-> > Linux Disk Certification Project
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Brendan
 
--- 
-Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
------"If this message isn't misspelled, I didn't write it" -- Me -----
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's 
-why I draw cartoons. It's my life." -- Charles Schulz
+

@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267013AbSKWMtY>; Sat, 23 Nov 2002 07:49:24 -0500
+	id <S267024AbSKWMwF>; Sat, 23 Nov 2002 07:52:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267015AbSKWMtY>; Sat, 23 Nov 2002 07:49:24 -0500
-Received: from murphys.services.quay.plus.net ([212.159.14.225]:14221 "HELO
-	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S267013AbSKWMtX>; Sat, 23 Nov 2002 07:49:23 -0500
-Date: Sat, 23 Nov 2002 12:27:07 +0000
+	id <S267025AbSKWMwF>; Sat, 23 Nov 2002 07:52:05 -0500
+Received: from marstons.services.quay.plus.net ([212.159.14.223]:13482 "HELO
+	marstons.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S267024AbSKWMwE>; Sat, 23 Nov 2002 07:52:04 -0500
+Date: Sat, 23 Nov 2002 12:29:47 +0000
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.49: compile problem with allnoconfig
-Message-ID: <20021123122707.GA13358@arwen.brautaset.org>
+Subject: 2.5.49: compile problem with allnoconfig (actually show error this time)
+Message-ID: <20021123122947.GA13747@arwen.brautaset.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -71,3 +71,8 @@ make -f scripts/Makefile.build obj=init
   gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version -DKBUILD_MODNAME=version   -c -o init/version.o init/version.c
    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o init/initramfs.o
   	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  net/built-in.o --end-group  -o vmlinux
+net/built-in.o: In function `sock_ioctl':
+net/built-in.o(.text+0x976): undefined reference to `dev_ioctl'
+net/built-in.o: In function `__kfree_skb':
+net/built-in.o(.text+0x31cc): undefined reference to `__secpath_destroy'
+make: *** [vmlinux] Error 1

@@ -1,94 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263840AbTJ1Dwt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 22:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbTJ1Dwt
+	id S263848AbTJ1EEj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 23:04:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbTJ1EEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 22:52:49 -0500
-Received: from dhcp160178171.columbus.rr.com ([24.160.178.171]:14857 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S263840AbTJ1Dwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 22:52:47 -0500
-Date: Mon, 27 Oct 2003 22:52:44 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: [PATCH] PS/2 mouse rate setting
-Message-ID: <20031028035244.GA20145@rivenstone.net>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel@vger.kernel.org, vojtech@suse.cz
-References: <20031027140217.GA1065@averell> <Pine.LNX.4.44.0310270830060.1699-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+	Mon, 27 Oct 2003 23:04:39 -0500
+Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:19935 "EHLO
+	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S263848AbTJ1EEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 23:04:36 -0500
+Message-ID: <20031028040421.98826.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310270830060.1699-100000@home.osdl.org>
-User-Agent: Mutt/1.5.4i
-From: <jhf@rivenstone.net>
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "David Liontooth" <liontooth@post.com>
+To: linux-kernel@vger.kernel.org
+Cc: "Manfred Spraul" <manfred@colorfullife.com>
+Date: Mon, 27 Oct 2003 23:04:20 -0500
+Subject: [2.6.0-test-9] natsemi oops
+X-Originating-Ip: 128.97.184.97
+X-Originating-Server: ws1-7.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The natsemi oops is triggered in 2.6.0-test9 too. 
 
-On Mon, Oct 27, 2003 at 08:32:15AM -0800, Linus Torvalds wrote:
->=20
-> On Mon, 27 Oct 2003, Andi Kleen wrote:
-> >=20
-> > Overall as KVM user I must say I'm not very happy with the 2.6 mouse
-> > driver. 2.4 pretty much worked out of the box, but 2.6 needs
-> > lots of strange options (psmouse_noext, psmouse_rate=3D80)=20
-> > because it does things very differently out of the box.
->=20
-> I agree. The keyboard driver has also deteriorated, I think.=20
->=20
-> I'd suggest we _not_ set the rate by default at all (and let the default
-> thing just happen). And only set the rate if the user _asks_ for it with
-> your setup thing. Mind sending me that kind of patch?
->=20
+kernel BUG at include/linux/module.h:296
 
-    I need this patch to use the scroll wheel on my Logitech mouse
-with my Belkin KVM switch in 2.6. This patch was in -mm for a while
-before some changes there broke the diff, and I got some mail from
-people who said it was helpful.  I didn't hear about any problems.
+Everything freezes. 
 
-    Linus, will you please consider applying it?
+Am I the only one to get this? 
 
-    The new mouse autodetection sets my mouse up to use the Logitech
-ps2++ protocol, but Belkin KVMs speak only the Microsoft Intellimouse
-protocol and plain ps2.  In 2.4, with X and GPM set up to use the
-imps2 protocol, things work fine -- my mouse also speaks imps2 -- but
-in 2.6 I don't get a choice.
+I don't know when it started, but 2.5.69 has no problems.
 
-    One person also used it to disable the Synaptic touchpad driver at
-runtime without disabling the scroll wheel on their external mouse.  I
-think the parameter this patch adds should cover most regressions that
-have to do with the mouse autodetection, since the Intellimouse
-protocol seems to be kind of a lowest common denominator because
-Windows supports it out of the box.
+Cheers,
+David
 
-    Unfortunately, I was unable to get any sort of comment from
-Vojtech Pavlik about this patch. =20
 
---=20
-Joseph Fannin
-jhf@rivenstone.net
+----- Original Message -----
+From: "David Liontooth" <liontooth@post.com>
+Date: Mon, 20 Oct 2003 21:05:13 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test-7] natsemi oops
 
-"That's all I have to say about that." -- Forrest Gump.
+> 
+> Correction: I get the oops also when natsemi is compiled as a module. 
+> It is triggered not when the module is loaded, but when it is used 
+> the first time. Oops (some fragments below) followed by a total freeze;
+> nothing gets logged.
+> 
+> Is this a known problem? 
+> 
+> Is there a workaround?
+> 
+> Cheers,
+> David
+> 
+> 
+> ----- Original Message -----
+> From: David Liontooth
+> Date: Mon, 20 Oct 2003 05:24:52 -0500
+> To: linux-kernel@vger.kernel.org
+> Subject: [2.6.0-test-7] natsemi oops
+> 
+> > 
+> > The 2.6.0-test-7 boots fine and works great -- until I plug
+> > in the ethernet cable. Within a second I get an oops and
+> > everything freezes. Booting with "acpi=off" makes no difference.
+> > If I boot with the ethernet cable plugged in, I get to the 
+> > login prompt, and it oopses within a second. If I time it right,
+> > I can log into the machine remotely for one second before it 
+> > oopses (so the natsemi driver is working). Very reproducible! 
+> > /proc/kmsg is empty. 
+> > 
+> > If I compile natsemi as a module, I don't get the oops. 
+> > However, now the driver is not working -- I can't ping out.
+> > Everything works fine in 2.5.69, which I've been running
+> > since early July.
+> > 
+> > Here's some of the oops, taken by hand:
+> > 
+> > Process swapper (pid: 0, threadinfo=c042a000 task c03a47a0)
+> > 
+> > Stack
+> > 
+> > Call trace:
+> > 
+> > ipxitf_auto_create
+> > ipx_rcv
+> > netif_receive_skb
+> > process_backlog
+> > net_rx_action
+> > do_softirq
+> > do_IRQ
+> > _stext
+> > common_interrupt
+> > acpi_processor_idle
+> > cpu_idle
+> > start_kernel
+> > unknown_bootoption
+> > 
+> > Kernel panic: Fatal exception in interrupt
+> > In interrupt handler -- not syncing
+> > 
+> > Configuration, lspci, and dmesg attached.
+> > 
+> > Cheers,
+> > David
+> > 
+> > 
+> > 
+> << config-2.6.0-test7-3 >>
+> << dmesg-2.6.0-test7-7 >>
+> << lspci-2.6.0-test7 >>
+> 
+> -- 
+> __________________________________________________________
+> Sign-up for your own personalized E-mail at Mail.com
+> http://www.mail.com/?sr=signup
+> 
+> CareerBuilder.com has over 400,000 jobs. Be smarter about your job search
+> http://corp.mail.com/careers
+> 
 
---dDRMvlgZJXvWKvBx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+-- 
+__________________________________________________________
+Sign-up for your own personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+CareerBuilder.com has over 400,000 jobs. Be smarter about your job search
+http://corp.mail.com/careers
 
-iD8DBQE/negMWv4KsgKfSVgRAlAMAKCSzj4UppzdU0G4K4ckQp6nE5H6sgCfcJVA
-VDFlHaqQjJReX6hUFDJuBHo=
-=n9vV
------END PGP SIGNATURE-----
-
---dDRMvlgZJXvWKvBx--

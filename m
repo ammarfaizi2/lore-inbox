@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267290AbRGKMI6>; Wed, 11 Jul 2001 08:08:58 -0400
+	id <S267292AbRGKMO3>; Wed, 11 Jul 2001 08:14:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267292AbRGKMIs>; Wed, 11 Jul 2001 08:08:48 -0400
-Received: from [193.120.224.170] ([193.120.224.170]:29342 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S267290AbRGKMIi>;
-	Wed, 11 Jul 2001 08:08:38 -0400
-Date: Wed, 11 Jul 2001 13:08:58 +0100 (IST)
-From: Paul Jakma <paulj@alphyra.ie>
-To: Nick DeClario <nick@guardiandigital.com>
-cc: Peter Zaitsev <pz@spylog.ru>, <linux-kernel@vger.kernel.org>
-Subject: Re: Is  Swapping on software RAID1 possible  in linux 2.4 ?
-In-Reply-To: <3B447FAD.1E4724C9@guardiandigital.com>
-Message-ID: <Pine.LNX.4.33.0107111305250.22124-100000@rossi.itg.ie>
+	id <S267293AbRGKMOU>; Wed, 11 Jul 2001 08:14:20 -0400
+Received: from mercury.Sun.COM ([192.9.25.1]:8699 "EHLO mercury.Sun.COM")
+	by vger.kernel.org with ESMTP id <S267292AbRGKMOB>;
+	Wed, 11 Jul 2001 08:14:01 -0400
+Message-ID: <3B4C4306.D59ABCA5@Sun.COM>
+Date: Wed, 11 Jul 2001 14:13:58 +0200
+From: Julien Laganier <Julien.Laganier@Sun.COM>
+Organization: Sun Microsystems
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ferenc Kubinszky <ferenc.kubinszky@wit.mht.bme.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sending a packet
+In-Reply-To: <Pine.LNX.4.02.10107111350310.831-100000@wit.wit.mht.bme.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jul 2001, Nick DeClario wrote:
+Ferenc Kubinszky wrote:
+> 
+> Hello,
+> 
+> I'd like to generate and send an IP packet from a kernel module.
+> Can anybody recommend a guide or a howto on using the skb_buff stucture ?
+> 
 
-> RAID1 would also mirror your swap.  Why would you want that?
+There's a very good stuff writed by Alan Cox, but i have forgotten the
+URL.Try yo search 'network buffers and memory management' with google.
 
-redundancy. no point having your data redundant if your swap isn't -
-1 drive failure will take out the box the moment it tries to access
-swap on the failed drive.
 
-PS: i have 2 boxes deployed running RH's 2.4.2, with swap on top of
-LVM on top of RAID1. no problems sofar, even during resync.
+> Best regards,
+> Ferenc
+> 
 
-> Regards,
-> 	-Nick
+-- 
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+--
 
---paulj
-
+    Julien Laganier
+     Student Intern
+Sun Microsystem Laboratories

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271437AbTGQLwj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 07:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271438AbTGQLwj
+	id S271439AbTGQLzU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 07:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271440AbTGQLzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 07:52:39 -0400
-Received: from frink.nuigalway.ie ([140.203.56.30]:5046 "EHLO
-	frink.nuigalway.ie") by vger.kernel.org with ESMTP id S271437AbTGQLwh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 07:52:37 -0400
-From: Rory Browne <robro@compsoc.nuigalway.ie>
-Date: Thu, 17 Jul 2003 13:05:05 +0100
-To: linux-kernel@vger.kernel.org
-Subject: BK Licence: Protocols and Research
-Message-ID: <20030717120505.GA22304@zion.nuigalway.ie>
+	Thu, 17 Jul 2003 07:55:19 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:63726 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S271439AbTGQLzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 07:55:10 -0400
+Subject: Re: devfsd/2.6.0-test1
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Cc: KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200307171017.56778.m.watts@eris.qinetiq.com>
+References: <200307171017.56778.m.watts@eris.qinetiq.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1058443807.13515.1530.camel@workshop.saharacpt.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-URL: http://student.nuigalway.ie
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 17 Jul 2003 14:10:08 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Thu, 2003-07-17 at 11:17, Mark Watts wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> I'm running devfs on a 2.6.0-test1 box (Mandrake 9.1 with the new kernel)
+> 
+> Every time I boot, it complains that I don't have an /etc/modprobe.devfs.
+> If I symlink modules.devfs, I get a wad of errors about 'probeall'.
+> What should a modprobe.devfs look like for a 2.5/6 kernel?
+> 
 
-I don't mean to start/restart/prolong a flame war about Bitkepper, but,
-I have a few things I'd like to have clarified.
+The module-init-tools tarball should include one.
 
-Would the conduction of research(and publication of results of same) on 
-the bitkeeper formats/protocols, preclude users from using the Free version 
-of Bitkeeper, for the research project?
 
-Would the carrying out of such research using the free version of
-Bitkeeper, prevent them from developing a product which contains
-substantially similar capabilities of the BitKeeper Software in the
-Future, assuming that all copies of Bitkeeper were destroyed before the
-development started?
+Regards,
 
-Would previous activity in the area of developing a product which
-contains substantially similary features to Bitkeeper preclude users from
-using the Free Bitkeeper software?
+-- 
+Martin Schlemmer
 
-I apologise if you consider that this post would be better placed on a
-different mailing list, but I felt I could get the most fulfilling
-unbiased, and educational feedback here. 
 
-Regards 
-
-Rory

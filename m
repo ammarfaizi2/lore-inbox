@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVBGUDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVBGUHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbVBGUDY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 15:03:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVBGUBM
+	id S261309AbVBGUHc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 15:07:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVBGUFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 15:01:12 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58042 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261302AbVBGUAr (ORCPT
+	Mon, 7 Feb 2005 15:05:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28862 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261309AbVBGUFU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 15:00:47 -0500
-Date: Mon, 7 Feb 2005 12:00:41 -0800
+	Mon, 7 Feb 2005 15:05:20 -0500
+Date: Mon, 7 Feb 2005 12:05:16 -0800
 From: Chris Wright <chrisw@osdl.org>
-To: =?iso-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
-	<lorenzo@gnu.org>
+To: John Richard Moser <nigelenki@comcast.net>
 Cc: Chris Wright <chrisw@osdl.org>,
+       =?iso-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
+	<lorenzo@gnu.org>,
        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] Filesystem linking protections
-Message-ID: <20050207120041.Z24171@build.pdx.osdl.net>
-References: <1107802626.3754.224.camel@localhost.localdomain> <20050207111235.Y24171@build.pdx.osdl.net> <1107805243.3754.240.camel@localhost.localdomain>
+Message-ID: <20050207120516.A24171@build.pdx.osdl.net>
+References: <1107802626.3754.224.camel@localhost.localdomain> <20050207111235.Y24171@build.pdx.osdl.net> <4207C4C7.8080704@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <1107805243.3754.240.camel@localhost.localdomain>; from lorenzo@gnu.org on Mon, Feb 07, 2005 at 08:40:43PM +0100
+In-Reply-To: <4207C4C7.8080704@comcast.net>; from nigelenki@comcast.net on Mon, Feb 07, 2005 at 02:43:03PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lorenzo Hernández García-Hierro (lorenzo@gnu.org) wrote:
-> About what things it can break, I haven't noticed any issue on it (at
-> least regarding grSecurity or OpenWall), but of course I would
-> appreciate a lot any information on them, so, I could report to the
-> developers that are currently using this in their own solutions.
+* John Richard Moser (nigelenki@comcast.net) wrote:
+> I've yet to see this break anything on Ubuntu or Gentoo; Brad Spengler
+> claims this breaks nothing on Debian.  On the other hand, this could
+> potentially squash the second most prevalent security bug.
 
-In the past it has broken atd and courier.  The hardlink restrictions
-had to be relaxed in both cases.
+Yes I know, I've worked on distro with it as well in the past.  And it
+has broken atd and courier in the past.  This is something that also
+can be done in userspace using sane subdirs in +t world writable dirs,
+or O_EXCL so there's work to be done in userspace.
 
 thanks,
 -chris

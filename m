@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136291AbRDVVLB>; Sun, 22 Apr 2001 17:11:01 -0400
+	id <S135318AbRDVVTN>; Sun, 22 Apr 2001 17:19:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136294AbRDVVKw>; Sun, 22 Apr 2001 17:10:52 -0400
-Received: from mnh-1-22.mv.com ([207.22.10.54]:47368 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S136290AbRDVVKg>;
-	Sun, 22 Apr 2001 17:10:36 -0400
-Message-Id: <200104222223.RAA04313@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Matthew Wilcox <matthew@wil.cx>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Architecture-specific include files 
-In-Reply-To: Your message of "Sun, 22 Apr 2001 21:01:18 +0100."
-             <20010422210118.Z18464@parcelfarce.linux.theplanet.co.uk> 
-Mime-Version: 1.0
+	id <S135335AbRDVVTD>; Sun, 22 Apr 2001 17:19:03 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:60939 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S135318AbRDVVS4>; Sun, 22 Apr 2001 17:18:56 -0400
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200104222119.XAA04028@green.mif.pg.gda.pl>
+Subject: [PATCH] cmsfs 2.4.3-ac12 compile fix
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Sun, 22 Apr 2001 23:19:08 +0200 (CEST)
+Cc: linux-kernel@vger.kernel.org (kernel list)
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 22 Apr 2001 17:23:21 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-matthew@wil.cx said:
-> Would anyone have a problem with this change? 
+Hi,
 
-UML already has a arch/um/include for private headers that the rest of the 
-kernel is not allowed to see.
+cmsfs does not compile without this fix.
 
-It would mean moving it, which is not a big deal.
+Andrzej
 
-				Jeff
+diff -ur linux-2.4.3-ac12/fs/cmsfs/cmsfsvfs.c linux/fs/cmsfs/cmsfsvfs.c
+--- linux-2.4.3-ac12/fs/cmsfs/cmsfsvfs.c	Sun Apr 22 14:48:52 2001
++++ linux/fs/cmsfs/cmsfsvfs.c	Sun Apr 22 16:18:40 2001
+@@ -26,6 +26,7 @@
+ #include        <linux/mm.h>
+ #include        <linux/locks.h>
+ #include	<linux/init.h>
++#include	<linux/blkdev.h>
+ 
+ #include        <asm/uaccess.h>
+  
 
 
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

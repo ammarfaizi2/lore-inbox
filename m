@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269770AbUJALv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269766AbUJALwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269770AbUJALv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 07:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269767AbUJALv5
+	id S269766AbUJALwA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 07:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269764AbUJALwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 07:51:57 -0400
-Received: from open.hands.com ([195.224.53.39]:23233 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S269764AbUJALvO (ORCPT
+	Fri, 1 Oct 2004 07:52:00 -0400
+Received: from [210.124.151.16] ([210.124.151.16]:32017 "HELO aluprint.com.mx")
+	by vger.kernel.org with SMTP id S269766AbUJALv0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 07:51:14 -0400
-Date: Fri, 1 Oct 2004 13:02:22 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+	Fri, 1 Oct 2004 07:51:26 -0400
+Message-ID: <4ade01c4a7ad$03c8b775$0b343bfd@aluprint.com.mx>
+From: "Twila E. Beatty" <te_beatty_qb@adamssherwood.ca>
 To: linux-kernel@vger.kernel.org
-Subject: making an in-memory hashing table ["name" -> ino_t] with thousands of entries
-Message-ID: <20041001120222.GA8507@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+Subject: Get  =?ISO-8859-1?Q?=20v=ECagra?= for a great price.
+Date: Fri, 01 Oct 2004 10:55:45 -0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dear kernel hackers,
+Hi,
 
-i seek advice on how to do an in-kernel lookup table capable of storing
-thousands, potentially hundreds of thousands, of entries.
+We have a new offer for you. Buy cheap Vìagra through our online store.
+- Private online ordering 
+- No prescription required
+- World wide shipping
 
-the reason for this is to move the fuse userspace inode lookup
-tables into the kernel.
+Order your drugs offshore and save over 70%!
 
-fuse userspace servers have their own in-memory database of
-unique inode numbers which represent the file names, and there is a
-communication mechanism between userspace and kernelspace that transfers
-those inode numbers, amongst other things.
+Click here: http://888-luvu.com/meds/
 
-is there any _sane_ way to do this or should i leave the inode lookup
-table where it presently is - in userspace?
+Best regards,
+Donald Cunfingham
 
-bearing in mind that for every file accessed via a fuse
-filesystem, a cache entry is created, and therefore the number
-of entries could potentially run into hundreds of thousands
-of entries.
 
-l.
 
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+No thanks: http://888-luvu.com/rm.html
 

@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUFFQK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUFFQMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUFFQK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 12:10:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUFFQK2
+	id S263772AbUFFQMj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 12:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUFFQMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 12:10:28 -0400
-Received: from may.priocom.com ([213.156.65.50]:44030 "EHLO may.priocom.com")
-	by vger.kernel.org with ESMTP id S263770AbUFFQKW (ORCPT
+	Sun, 6 Jun 2004 12:12:39 -0400
+Received: from may.priocom.com ([213.156.65.50]:42239 "EHLO may.priocom.com")
+	by vger.kernel.org with ESMTP id S263772AbUFFQMf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 12:10:22 -0400
-Subject: [PATCH] 2.6.6 memory allocation checks in eth1394_update()
+	Sun, 6 Jun 2004 12:12:35 -0400
+Subject: [PATCH] 2.6.6 memory allocation checks in mtdblock_open()
 From: Yury Umanets <torque@ukrpost.net>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1086538251.2793.74.camel@firefly>
+Message-Id: <1086538383.2793.78.camel@firefly>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 06 Jun 2004 19:10:51 +0300
+Date: Sun, 06 Jun 2004 19:13:03 +0300
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds memory allocation checks in eth1394_update().
+Fixes memory allocation check in mtdblock_open()
 
- ./linux-2.6.6-modified/drivers/ieee1394/eth1394.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
+ ./linux-2.6.6-modified/drivers/mtd/mtdblock.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
 Signed-off-by: Yury Umanets <torque@ukrpost.net>
 
-diff -rupN ./linux-2.6.6/drivers/ieee1394/eth1394.c
-./linux-2.6.6-modified/drivers/ieee1394/eth1394.c
---- ./linux-2.6.6/drivers/ieee1394/eth1394.c	Mon May 10 05:32:52 2004
-+++ ./linux-2.6.6-modified/drivers/ieee1394/eth1394.c	Wed Jun  2
-14:19:59 2004
-@@ -431,9 +431,12 @@ static int eth1394_update(struct unit_di
- 		if (!node)
- 			return -ENOMEM;
+diff -rupN ./linux-2.6.6/drivers/mtd/mtdblock.c
+./linux-2.6.6-modified/drivers/mtd/mtdblock.c
+--- ./linux-2.6.6/drivers/mtd/mtdblock.c	Mon May 10 05:32:28 2004
++++ ./linux-2.6.6-modified/drivers/mtd/mtdblock.c	Wed Jun  2 14:27:36
+2004
+@@ -275,7 +275,7 @@ static int mtdblock_open(struct mtd_blkt
+ 	
+ 	/* OK, it's not open. Create cache info for it */
+ 	mtdblk = kmalloc(sizeof(struct mtdblk_dev), GFP_KERNEL);
+-	if (!mtdblks)
++	if (!mtdblk)
+ 		return -ENOMEM;
  
--
- 		node_info = kmalloc(sizeof(struct eth1394_node_info),
- 				    in_interrupt() ? GFP_ATOMIC : GFP_KERNEL);
-+		if (!node_info) {
-+			kfree(node);
-+			return -ENOMEM;
-+                }
- 
- 		spin_lock_init(&node_info->pdg.lock);
- 		INIT_LIST_HEAD(&node_info->pdg.list);
+ 	memset(mtdblk, 0, sizeof(*mtdblk));
+
 
 -- 
 umka

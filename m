@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261885AbSJIRwX>; Wed, 9 Oct 2002 13:52:23 -0400
+	id <S261994AbSJIRzq>; Wed, 9 Oct 2002 13:55:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261894AbSJIRwX>; Wed, 9 Oct 2002 13:52:23 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:29332 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S261885AbSJIRvv>;
-	Wed, 9 Oct 2002 13:51:51 -0400
-Subject: Re: Looking for testers with these NICs
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: Adam Kropelin <akropel1@rochester.rr.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200210091744.g99HiKp31184@Port.imtp.ilyichevsk.odessa.ua>
-References: <200210091637.g99Gbmp30784@Port.imtp.ilyichevsk.odessa.ua>
-	<20021009171452.GA9682@www.kroptech.com> 
-	<200210091744.g99HiKp31184@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 09 Oct 2002 19:57:31 +0200
-Message-Id: <1034186251.615.44.camel@tux>
-Mime-Version: 1.0
+	id <S261914AbSJIRzq>; Wed, 9 Oct 2002 13:55:46 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:12719 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S261994AbSJIRyo>;
+	Wed, 9 Oct 2002 13:54:44 -0400
+Date: Wed, 9 Oct 2002 11:02:18 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [bk/patch] driver model update: device_unregister()
+In-Reply-To: <Pine.LNX.4.44.0210091050330.7355-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0210091058230.16276-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-10 at 00:37, Denis Vlasenko wrote:
 
-> I'd suggest SMP/preempt heavy IO. Is there stress test software for NICs?
-> What is pktgen?
+On Wed, 9 Oct 2002, Linus Torvalds wrote:
 
-A kernelmodule that's capable of generating over a million packets per
-second on a fast enough machine. It stresstests NIC's and NIC-drivers a
-lot.
+> 
+> On Wed, 9 Oct 2002, Alexander Viro wrote:
+> > 
+> > Sorry, no.  Which partition is the backing store for this filesystem is
+> > question to some filesystem drivers.  Not even every fs driver that
+> > happens to use block devices - some of them use more than one (e.g
+> > for journal).
+> > 
+> > IOW, it's not a partition property.
+> 
+> I didn't say it was a partition. I said it was a _filesystem_ property.  
+> And yes, it can be a list of multiple partitions - the same way LVM is a
+> list of _multiple_ partitions.
+> 
+> The point being that a partition is a real entity, and should have a node 
+> of its own - so that you can point to it (and "node" may of course be 
+> "subdirectory" if you want to have multiple things associated with it). 
 
--- 
-/Martin
+It doesn't have to be a struct device, either. 
 
-Never argue with an idiot. They drag you down to their level, then beat
-you with experience.
+What describes partitions, struct hd_struct? By adding a struct 
+driver_dir_entry (yes, crappy name; will change) and a bit of glue logic, 
+we can create driverfs directories for them, and start adding attributes 
+to the partitions themselves. 
+
+Volume managers can have their own top-level directories, and one 
+directory for each volume, with symlinks to the partition directories 
+under the disk node directories that make up the volume. 
+
+The code shouldn't be that bad, and I can whip something this afternoon, 
+if interested..
+
+	-pat
+

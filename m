@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318335AbSG3PAg>; Tue, 30 Jul 2002 11:00:36 -0400
+	id <S315218AbSG3PK0>; Tue, 30 Jul 2002 11:10:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318336AbSG3PAg>; Tue, 30 Jul 2002 11:00:36 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:31621 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S318332AbSG3PAf>;
-	Tue, 30 Jul 2002 11:00:35 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200207301503.TAA03733@sex.inr.ac.ru>
-Subject: Re: Weirdness with AF_INET listen() backlog [2.4.18]
-To: m.kerrisk@gmx.NET (Michael Kerrisk)
-Date: Tue, 30 Jul 2002 19:03:49 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7911.1028039755@www55.gmx.net> from "Michael Kerrisk" at Jul 30, 2 06:45:02 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S317852AbSG3PKZ>; Tue, 30 Jul 2002 11:10:25 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:128 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S315218AbSG3PKZ>; Tue, 30 Jul 2002 11:10:25 -0400
+Date: Tue, 30 Jul 2002 17:21:19 +0200
+Organization: Pleyades
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Clearing the terminal portably
+Message-ID: <3D46AEEF.mail2H19I8Z8@viadomus.com>
+User-Agent: nail 9.31 6/18/02
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+From: DervishD <raul@pleyades.net>
+Reply-To: DervishD <raul@pleyades.net>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+    Hi all :))
 
-> Is this all expected behaviour?
+    I want to clear a terminal more or less 'portably' but without
+using curses (that's forced). I must work at least for the TERM
+'linux' and it would be great if it works on all linux platforms. The
+portability is intended *only* within different linux archs, not
+more.
 
-Yes.
+    I currently write 'ESC c' to the terminal and it works (it is the
+reset code for a 'linux' TERM), but I wonder if there is a better way.
 
-> If so, is there a way of getting
-
-No.
-
-Alexey
+    Thanks a lot :)
+    Raúl

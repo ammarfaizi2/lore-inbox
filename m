@@ -1,61 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265422AbTGHWyu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 18:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265440AbTGHWyu
+	id S267852AbTGHXCj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 19:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267857AbTGHXCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 18:54:50 -0400
-Received: from devil.servak.biz ([209.124.81.2]:18140 "EHLO devil.servak.biz")
-	by vger.kernel.org with ESMTP id S265422AbTGHWyt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 18:54:49 -0400
-Subject: Re: compactflash cards dying in < hour?
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030708204931.GA602@elf.ucw.cz>
-References: <20030708204931.GA602@elf.ucw.cz>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1057700055.3414.71.camel@torrey.et.myrio.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 08 Jul 2003 14:34:16 -0700
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - devil.servak.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - arnor.net
+	Tue, 8 Jul 2003 19:02:39 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:63430 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S267852AbTGHXCg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 19:02:36 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C345A7.0FAF303D"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: Redundant memset in AIO read_events
+Date: Tue, 8 Jul 2003 16:17:12 -0700
+Message-ID: <41F331DBE1178346A6F30D7CF124B24B2A4889@fmsmsx409.fm.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: Redundant memset in AIO read_events
+Thread-Index: AcNFpw+WoE2hkhMBRfCQ7mi+SkIgxQ==
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Cc: <linux-aio@kvack.org>
+X-OriginalArrivalTime: 08 Jul 2003 23:17:12.0690 (UTC) FILETIME=[10019520:01C345A7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have some SanDisk CF's here which have withstood at least 20 cycles
-of fdisk, mke3fs, and installation of a mini-linux distribution.  They
-are all still running ok.  (64 MB mostly, some 128 MB)
+This is a multi-part message in MIME format.
 
-They have been accessed through SanDisk USB-to-CF adapters, and also
-directly to the IDE channel of Geode-based embedded systems.
+------_=_NextPart_001_01C345A7.0FAF303D
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Torrey Hoffman
-torrey.hoffman@myrio.com (work) - thoffman@arnor.net (home)		
+OK, here is another one.  In the top level read_events() function in
+fs/aio.c, a struct io_event is instantiated on the stack (variable ent).
+It calls aio_read_evt() function which will fill the entire io_event
+structure into variable ent.  What's the point of zeroing when copy
+covers the same memory area?  Possible a debug code left around?
 
-On Tue, 2003-07-08 at 13:49, Pavel Machek wrote:
-> Hi!
-> 
-> I had three diferent CF cards, from two different manufacturers
-> (Apacer and Transcend), and both died *really fast*.
-> 
-> Last one (transcend) died in less than 10 minutes: mke2fs, cat
-> /dev/urandom > foo; md5sum foo (few times); cat /dev/urandom > foo and
-> I could no longer do cat /dev/urandom because of disk errors.
-> 
-> I know CompactFlash cards are *crap*, but they should not be *so*
-> crappy...?! [I'm testing them from toshiba satellite 4030cdt via
-> Apacer PCMCIA-to-CF adapter and in sharp zaurus].
-> 
-> Are there "known good" 256MB compact flash cards?
-> 
-> 							Pavel
+- Ken
+ <<aio.ent.patch>>=20
 
+------_=_NextPart_001_01C345A7.0FAF303D
+Content-Type: application/octet-stream;
+	name="aio.ent.patch"
+Content-Transfer-Encoding: base64
+Content-Description: aio.ent.patch
+Content-Disposition: attachment;
+	filename="aio.ent.patch"
 
+ZGlmZiAtTnVyIGxpbnV4LTIuNS43NC9mcy9haW8uYyBsaW51eC0yLjUuNzQuYWlvL2ZzL2Fpby5j
+DQotLS0gbGludXgtMi41Ljc0L2ZzL2Fpby5jCVN1biBKdW4gMjIgMTE6MzI6NDMgMjAwMw0KKysr
+IGxpbnV4LTIuNS43NC5haW8vZnMvYWlvLmMJVHVlIEp1bCAgOCAxNjoxMTo1MCAyMDAzDQpAQCAt
+ODA1LDEwICs4MDUsNiBAQA0KIAlzdHJ1Y3QgaW9fZXZlbnQJCWVudDsNCiAJc3RydWN0IHRpbWVv
+dXQJCXRvOw0KIA0KLQkvKiBuZWVkZWQgdG8gemVybyBhbnkgcGFkZGluZyB3aXRoaW4gYW4gZW50
+cnkgKHRoZXJlIHNob3VsZG4ndCBiZSANCi0JICogYW55LCBidXQgQyBpcyBmdW4hDQotCSAqLw0K
+LQltZW1zZXQoJmVudCwgMCwgc2l6ZW9mKGVudCkpOw0KIAlyZXQgPSAwOw0KIA0KIAl3aGlsZSAo
+bGlrZWx5KGkgPCBucikpIHsNCg==
+
+------_=_NextPart_001_01C345A7.0FAF303D--

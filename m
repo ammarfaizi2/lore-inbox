@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314413AbSEXSuC>; Fri, 24 May 2002 14:50:02 -0400
+	id <S314491AbSEXSwj>; Fri, 24 May 2002 14:52:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314491AbSEXSuB>; Fri, 24 May 2002 14:50:01 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10501 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314413AbSEXSuB>; Fri, 24 May 2002 14:50:01 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: ehci-hcd on CARDBUS hangs when stopping card service
-Date: Fri, 24 May 2002 18:49:29 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <acm1vp$2ak$1@penguin.transmeta.com>
-In-Reply-To: <20020523171326.GA11562@kroah.com> <3CED6E0B.8020501@pacbell.net>
-X-Trace: palladium.transmeta.com 1022266200 12746 127.0.0.1 (24 May 2002 18:50:00 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 24 May 2002 18:50:00 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S314829AbSEXSwi>; Fri, 24 May 2002 14:52:38 -0400
+Received: from line103-203.adsl.actcom.co.il ([192.117.103.203]:55301 "HELO
+	alhambra.merseine.nu") by vger.kernel.org with SMTP
+	id <S314491AbSEXSwh>; Fri, 24 May 2002 14:52:37 -0400
+Date: Fri, 24 May 2002 21:49:35 +0300
+From: Muli Ben-Yehuda <mulix@actcom.co.il>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: David Woodhouse <dwmw2@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: change ppp_deflate.o module license string [was: ppp_deflate.o taints the kernel?]
+Message-ID: <20020524214935.B18922@actcom.co.il>
+In-Reply-To: <E17BGhc-0006V7-00@the-village.bc.nu> <29311.1022254271@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3CED6E0B.8020501@pacbell.net>,
-David Brownell  <david-b@pacbell.net> wrote:
->
->Is there a clean way to detect the "card ejected before anything calls 
->pci_dev->remove()" case?  I don't really like the idea of wrapping code
->around every PCI register access to detect such cases.
+Marcelo, 
 
-You don't have much choice with CardBus, I'm afraid.
+Please apply trivial patch to ppp_deflate.o to change module license
+to dual BSD/GPL, like 2.5, in order to avoid needlessly tainting the
+kernel. 
 
-Even if the user were to do the rmmod "before" yanking out the card,
-assuming that the rmmod took a bit of time and started the "remove()"
-call at the same time the card was actually removed, you'll end up in
-the same situation.
+diff -ur linux-2.4.19-pre8-vanilla/drivers/net/ppp_deflate.c linux-2.4.19-pre8/drivers/net/ppp_deflate.c
+--- linux-2.4.19-pre8-vanilla/drivers/net/ppp_deflate.c	Sun Sep 30 21:26:07 2001
++++ linux-2.4.19-pre8/drivers/net/ppp_deflate.c	Fri May 24 21:43:44 2002
+@@ -657,4 +657,4 @@
+ 
+ module_init(deflate_init);
+ module_exit(deflate_cleanup);
+-MODULE_LICENSE("BSD without advertisement clause");
++MODULE_LICENSE("Dual BSD/GPL");
 
-It's just a fact of life with any hot-plug thing that can be removed
-without software first freeing it.
+On Fri, May 24, 2002 at 04:31:11PM +0100, David Woodhouse wrote:
+> 
+> alan@lxorguk.ukuu.org.uk said:
+> >  FAQ item - BSD license doesnt guarantee we have source. If its GPL
+> > compatible someone should slap a GPL header on our copy and be done
+> > with it
+> 
+> It's already marked 'Dual BSD/GPL' in your tree and in 2.5, I believe.
+> I fixed it when I did the zlib changes.
+-- 
+Trewsday 2 Forelithe 7466
 
-On most (practically all?) machines, a device that no longer exists will
-return a nice floating 0xff for device reads, so it's usually reasonably
-simple to detect (0xff is often not a legal status register value for
-most devices for example). 
-
-Also, it's generally a good idea to "just say no" to endless loops in
-drivers. Hardware bugs _do_ happen, and it's a lot more pleasant to have
-the driver do a
-
-	printk("Device does not respond\n");
-
-than for the kernel to hang.
-
-		Linus
+http://vipe.technion.ac.il/~mulix/
+http://syscalltrack.sf.net/

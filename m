@@ -1,58 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269222AbTGORqS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 13:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269249AbTGORo2
+	id S269033AbTGORtq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 13:49:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269414AbTGORsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 13:44:28 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:62621 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S269222AbTGORnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 13:43:18 -0400
-Date: Tue, 15 Jul 2003 18:57:59 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, dank@reflexsecurity.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test1-ac1 Matrox Compile Error
-Message-ID: <20030715175758.GC15505@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	James Simmons <jsimmons@infradead.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, dank@reflexsecurity.com,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1058290204.3857.51.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.44.0307151833310.7746-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307151833310.7746-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.5.4i
+	Tue, 15 Jul 2003 13:48:50 -0400
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:19848 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S269185AbTGORqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 13:46:46 -0400
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: <koala.gnu@tiscalinet.it>, "'Riley Williams'" <Riley@Williams.Name>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: Linux boot code
+Date: Tue, 15 Jul 2003 11:01:33 -0700
+Organization: Cisco Systems
+Message-ID: <04fc01c34afb$20854f00$743147ab@amer.cisco.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <3F13C6BA.80102@tiscalinet.it>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 06:43:32PM +0100, James Simmons wrote:
+How It Works: 
+DOS Floppy Disk Boot Sector
 
- >    This still doesn't solve the issue with the input api. The input layer 
- > can be modular on many levels. Even if we force the input core to be built in 
- > this will not stop people from building the keyabord drivers as modules. 
+http://www.ata-atapi.com/hiwdos.htm#T8
 
-That issue seems to have worked itself out now. I think someone already
-munged the relevant Kconfig. It's been a while since l-k got a flood of
-"I booted 2.5 and my keyboard doesn't work any more", whereas if you
-look at all the "2.6test doesn't boot" bug reports of the last week,
-and count how many of them were due to CONFIG_VT=n, you'll notice a much
-bigger ratio.
-
- > Having PS/2 support always turned to Y will not also work since there are 
- > systems that use just USB. Their is a point where users will just have to 
- > read the README and follow directions. We can't make people do the right 
- > thing.
- >    Also doing this kind of thing only covers up broken framebuffer 
- > drivers. Unfortunetly its going to take me months to cleanup and make the 
- > fbdev drivers behave right. 
-
-One bug at a time. With the CONFIG_EMBEDDED hack, yes it will 'hide'
-this problem, but it'll likely be many months before embedded folks
-start thinking of using 2.6 anyways.
-
-		Dave
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Koala GNU
+> Sent: Tuesday, July 15, 2003 2:18 AM
+> To: Riley Williams; linux-kernel
+> Subject: Re: Linux boot code
+> 
+> 
+> Hi, Riley,
+> 
+> thanks for your reply.
+> 
+> I noticed the native boot code for floppy is not supported 
+> any more. In 
+> fact in the current code display a message and reboot the 
+> machine after 
+> the press of a key.
+> 
+> But I am interested on how the old native boot code worked.
+> 
+> Do you know if there is a particular reason why the boot 
+> sector is moved 
+> to 0x9000:0 (excuse me if I repeat the question, but I need 
+> help on this)?
+> 
+> I hope someone else can point me a site where is reported the 
+> format of 
+> the floppy parameter table at address 0x0:0x78.
+> 
+> Thanks in advance and excuse me for this other post.
+> 
+> Riley Williams wrote:
+> 
+> >Hi.
+> >
+> > > I am looking at the boot code in bootsect.S and I have some doubt.
+> > > I tried to search the answers to my questions on
+> > > marc.theaimsgroup.com and on Google but I haven't found them.
+> >
+> >I know nothing about the former site, so can't comment thereon.
+> >
+> > > Probably these are newbie question but I'll appreciate if someone
+> > > of you help me.
+> >
+> >I'll do what I can.
+> >
+> > > 1) In the bootsect code the first thing that is done is to copy
+> > >    the boot sector to 0x90000 and move the program count to
+> > >    0x9000, go. Why it is necessary move the code there? Is it not
+> > >    possible continue the process from 0x7C00?
+> >
+> >Following moving the boot code there, the next step is to load the
+> >kernel image, either from 0x10000 (64k) or from 1M upwards, this
+> >being dependent on various factors. However, the boot sector holds
+> >several flags whose values are important AFTER the kernel image has
+> >been loaded, so is moved out the way first.
+> >
+> > > 2) Another step is to move the parameters table from 0x78:0 to
+> > >    0x9000:0x4000-12. What are the info contained in this table?
+> > >    Can you send me a link to a site that specify these info?
+> > >    Without these info I am not able to understand these three
+> > >    line of code
+> > >
+> > >        movb    $36, 0x4(%di)           # patch sector count
+> > >        movw    %di, %fs:(%bx)
+> > >        movw    %es, %fs:2(%bx)
+> >
+> >That area of memory contains parameters configured by the BIOS of
+> >the machine in question. I would suspect it's the parameters for
+> >the floppy drives, and the code that follows is presumably that
+> >used to determine how many sectors per track the floppy in /dev/fd0
+> >actually has.
+> >
+> > > Thanks in advance for your help
+> >
+> >No problem.
+> >
+> >Best wishes from Riley.
+> >---
+> > * Nothing as pretty as a smile, nothing as ugly as a frown.
+> >
+> >---
+> >Outgoing mail is certified Virus Free.
+> >Checked by AVG anti-virus system (http://www.grisoft.com).
+> >Version: 6.0.500 / Virus Database: 298 - Release Date: 10-Jul-2003
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >  
+> >
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

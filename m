@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314380AbSEMTFC>; Mon, 13 May 2002 15:05:02 -0400
+	id <S314351AbSEMTLD>; Mon, 13 May 2002 15:11:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314381AbSEMTFB>; Mon, 13 May 2002 15:05:01 -0400
-Received: from angband.namesys.com ([212.16.7.85]:44160 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S314380AbSEMTFA>; Mon, 13 May 2002 15:05:00 -0400
-Date: Mon, 13 May 2002 23:05:00 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Eugenio Mastroviti <eugeniom@gointernet.co.uk>
-Cc: "John O'Donnell" <johnnyo@mindspring.com>, linux-kernel@vger.kernel.org
-Subject: Re: Reiserfs has killed my root FS!?!
-Message-ID: <20020513230500.A1897@namesys.com>
-In-Reply-To: <Pine.LNX.4.44.0205121613430.4369-100000@hawkeye.luckynet.adm> <Pine.GSO.4.21.0205121838230.27629-100000@weyl.math.psu.edu> <20020512225623.GG1020@louise.pinerecords.com> <3CDF1F1B.1090302@mindspring.com> <20020513104615.A10664@namesys.com> <3CDFE8DC.1090803@gointernet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S314383AbSEMTLC>; Mon, 13 May 2002 15:11:02 -0400
+Received: from h24-71-223-10.cg.shawcable.net ([24.71.223.10]:56009 "EHLO
+	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id <S314351AbSEMTK4>; Mon, 13 May 2002 15:10:56 -0400
+Date: Mon, 13 May 2002 15:09:28 -0700
+From: Andre LeBlanc <ap.leblanc@shaw.ca>
+Subject: 2.4.19-pre8, network connection disapperead (was: More UDMA Troubles)
+To: linux-kernel@vger.kernel.org
+Message-id: <007501c1faca$da37eac0$2000a8c0@metalbox>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+I installed kernel 2.4.19-pre8 in hopes of getting UDMA Working on my debian
+installation, i still see some wierd errors fly by on the boot up, but i
+can't figure out what they say :)  i tried to apt-get install hdparm but my
+network connection disappeared, the ethernet card is still detected, but i
+can't even ping my firewall, I see some DHCP Errors go by, i think one of
+them mentions dhclient.pid but again, they go by too fast and I can't read
+them... I compiled the right driver for my ethernet card so I don't know
+what else i could have changed, If I boot the 2.2.20 kernel it works fine.
 
-On Mon, May 13, 2002 at 05:25:00PM +0100, Eugenio Mastroviti wrote:
+oh, and in 2.4.19-pre8 something is wrong with ioapic.c, the compilation
+broke there. i just took it out of the kernle config and it worked fine.
 
-> >build it somewhere, boot off rescue media of some kind, and then run
-> >reiserfsck with --rebuild-tree argument (and a path to your partition of
-> Sorry to bother you, but are you sure you spelled it correctly? The 
+Andre
 
-I am.
-
-> latest I could find was 3.x.1c-pre3 on the namesys ftp server.
-
-Hm. -pre4 is not public yet, it seems.
-
-> I have the same problem on a machine (made worse by the fact that the 
-> filesystem was a RAID0 partition).
-> I keep getting "wrong superblock", even after I told reiserfsck to 
-> rebuild the superblock.
-
-You mean, after the --rebuild-sb command?
-
-What exactly have happened to your FS, BTW?
-
-> I won't pretend I know much about filesystems, so - is my situation 
-> hopeless? (meaning, does RAID mess things up even worse?) Am I doing 
-> something wrong? Is there a difference between -pre3 and -pre4 which 
-> might change the response of --rebuild-tree?
-
---rebuild-tree needs valid superblock, I think.
-
-Bye,
-    Oleg

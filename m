@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbULZNxD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbULZOUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbULZNxD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 08:53:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbULZNxC
+	id S261578AbULZOUj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 09:20:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbULZOUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 08:53:02 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:31458 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S261653AbULZNwq
+	Sun, 26 Dec 2004 09:20:39 -0500
+Received: from frankvm.xs4all.nl ([80.126.170.174]:60556 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S261578AbULZOUe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 08:52:46 -0500
-From: James Nelson <james4765@verizon.net>
+	Sun, 26 Dec 2004 09:20:34 -0500
+Date: Sun, 26 Dec 2004 15:20:33 +0100
+From: Frank van Maarseveen <frankvm@frankvm.com>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, marcelo.tosatti@cyclades.com,
-       James Nelson <james4765@verizon.net>
-Message-Id: <20041226135306.11762.53625.55036@localhost.localdomain>
-Subject: [PATCH] cyclades: Put README.cycladeZ in Documentation/serial
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [209.158.220.243] at Sun, 26 Dec 2004 07:52:45 -0600
-Date: Sun, 26 Dec 2004 07:52:46 -0600
+Subject: 2.6.10 des ECB encryption test5 setkey() failed
+Message-ID: <20041226142033.GA7508@janus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Put README.cycladesZ in Documentation/serial.
+I'm not using crypto but it gets compiled in anyway. I noticed this in dmesg:
 
-Firmware is still needed, but the README file shouldn't be in drivers/char.
+testing des ECB encryption
+test 1 (64 bit key):
+c95744256a5ed31d
+pass
+test 2 (64 bit key):
+f79c892a338f4a8b
+pass
+test 3 (64 bit key):
+690f5b0d9a26939b
+pass
+test 4 (64 bit key):
+c95744256a5ed31df79c892a338f4a8bb49926f71fe1d490
+pass
+test 5 (64 bit key):
+setkey() failed flags=100100
+c95744256a5ed31d
+pass
 
-Signed-off-by: James Nelson <james4765@gmail.com>
 
-diff -urN --exclude='*~' linux-2.6.10-original/Documentation/README.cycladesZ linux-2.6.10/Documentation/README.cycladesZ
---- linux-2.6.10-original/Documentation/README.cycladesZ	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.10/Documentation/README.cycladesZ	2004-12-24 16:34:58.000000000 -0500
-@@ -0,0 +1,8 @@
-+
-+The Cyclades-Z must have firmware loaded onto the card before it will
-+operate.  This operation should be performed during system startup,
-+
-+The firmware, loader program and the latest device driver code are
-+available from Cyclades at
-+    ftp://ftp.cyclades.com/pub/cyclades/cyclades-z/linux/
-+
-diff -urN --exclude='*~' linux-2.6.10-original/drivers/char/README.cycladesZ linux-2.6.10/drivers/char/README.cycladesZ
---- linux-2.6.10-original/drivers/char/README.cycladesZ	2004-12-24 16:34:58.000000000 -0500
-+++ linux-2.6.10/drivers/char/README.cycladesZ	1969-12-31 19:00:00.000000000 -0500
-@@ -1,8 +0,0 @@
--
--The Cyclades-Z must have firmware loaded onto the card before it will
--operate.  This operation should be performed during system startup,
--
--The firmware, loader program and the latest device driver code are
--available from Cyclades at
--    ftp://ftp.cyclades.com/pub/cyclades/cyclades-z/linux/
--
+system: dual PIII, gcc version 3.2 20020903 (Red Hat Linux 8.0 3.2-7)
+
+
+-- 
+Frank

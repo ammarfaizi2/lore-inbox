@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269512AbRGaWdF>; Tue, 31 Jul 2001 18:33:05 -0400
+	id <S269508AbRGaWkZ>; Tue, 31 Jul 2001 18:40:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269508AbRGaWcp>; Tue, 31 Jul 2001 18:32:45 -0400
-Received: from anime.net ([63.172.78.150]:18703 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S269507AbRGaWcm>;
-	Tue, 31 Jul 2001 18:32:42 -0400
-Date: Tue, 31 Jul 2001 15:32:39 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Jussi Laako <jlaako@pp.htv.fi>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <3B672C6B.9AC418B0@pp.htv.fi>
-Message-ID: <Pine.LNX.4.30.0107311526360.13810-100000@anime.net>
+	id <S269517AbRGaWkF>; Tue, 31 Jul 2001 18:40:05 -0400
+Received: from srvr2.telecom.lt ([212.59.0.1]:2526 "EHLO mail.takas.lt")
+	by vger.kernel.org with ESMTP id <S269508AbRGaWjz>;
+	Tue, 31 Jul 2001 18:39:55 -0400
+Message-Id: <200107312240.AAA1557144@mail.takas.lt>
+Date: Wed, 1 Aug 2001 00:37:45 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: cannot copy files larger than 40 MB from CD
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Wed, 1 Aug 2001, Jussi Laako wrote:
-> I'd be very happy with full data journalling even with 50% performance
-> penalty... There are applications that require extreme data integrity all
-> times no matter what happens.
+Hello,
 
-How about an idea I proposed a while back, 'integrity loopback'?
+Just began to use 2.4.7 instead of 2.2.19. If I copy file larger than 40 MB,
+only these 40 MB are copied (40960000 bytes exactly), and then cp
+segfaults (the same happens with mc). The same problem is with mkisofs -
+only 40 MB of image is created. I get "File size limit exceeded".
 
-A loopback device which writes a CRC with each block and checks the CRC
-when read back.
+Regards,
+Nerijus
 
-So if you have a flaky DMA controller, bad cables, etc you will know
-instantly. It would at least help catch the 'silent corruption' cases.
-
--Dan
-
--- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
 

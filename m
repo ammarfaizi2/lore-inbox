@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268107AbUIKLgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268097AbUIKLj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268107AbUIKLgv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 07:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268097AbUIKLgv
+	id S268097AbUIKLj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 07:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268108AbUIKLj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 07:36:51 -0400
-Received: from convulsion.choralone.org ([212.13.208.157]:38924 "EHLO
-	convulsion.choralone.org") by vger.kernel.org with ESMTP
-	id S268108AbUIKLf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 07:35:58 -0400
-Date: Sat, 11 Sep 2004 12:35:25 +0100
-From: Dave Jones <davej@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: Tim Hockin <thockin@hockin.org>, Kay Sievers <kay.sievers@vrfy.org>,
-       Robert Love <rml@ximian.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-Message-ID: <20040911113525.GA7148@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-	Tim Hockin <thockin@hockin.org>, Kay Sievers <kay.sievers@vrfy.org>,
-	Robert Love <rml@ximian.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <1093989924.4815.56.camel@betsy.boston.ximian.com> <20040902083407.GC3191@kroah.com> <1094142321.2284.12.camel@betsy.boston.ximian.com> <20040904005433.GA18229@kroah.com> <1094353088.2591.19.camel@localhost> <20040905121814.GA1855@vrfy.org> <20040906020601.GA3199@vrfy.org> <20040910235409.GA32424@kroah.com> <20040911001849.GA321@hockin.org> <20040911004827.GA8139@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040911004827.GA8139@kroah.com>
-User-Agent: Mutt/1.3.28i
+	Sat, 11 Sep 2004 07:39:56 -0400
+Received: from pointblue.com.pl ([81.219.144.6]:24332 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S268097AbUIKLja (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 07:39:30 -0400
+Message-ID: <4142E3EB.3080308@pointblue.com.pl>
+Date: Sat, 11 Sep 2004 13:39:23 +0200
+From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Major XFS problems...
+References: <20040908123524.GZ390@unthought.net>
+In-Reply-To: <20040908123524.GZ390@unthought.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 05:48:27PM -0700, Greg KH wrote:
+Jakob Oestergaard wrote:
 
- > > What happened to a formatted string argument?  The signal argument can 
- > > become the pre-formatted string, and someone can provide a wrapper
- > > that takes a printf() like format and args.
- > > 	kobject_uevent_printf(kobj, "something bad: 0x%08x", err);
- > 
- > Use an attribute, and have userspace read that formatted argument if
- > need be.  This keeps the kernel interface much simpler, and doesn't
- > allow you to abuse it for things it is not intended for (like error
- > reporting stuff...)
+><frustrated_admin mode="on">
+>
+>Does anyone actually use XFS for serious file-serving?  (yes, I run it
+>on my desktop at home and I don't have problems there - such reports are
+>not really relevant).
+>
+>Is anyone actually maintaining/bugfixing XFS?  Yes, I know the
+>MAINTAINERS file, but I am a little bit confused here - seeing that
+>trivial-to-trigger bugs that crash the system and have simple fixes,
+>have not been fixed in current mainline kernels.
+>
+>If XFS is a no-go because of lack of support, is there any realistic
+>alternatives under Linux (taking our need for quota into account) ?
+>
+>And finally, if Linux is simply a no-go for high performance file
+>serving, what other suggestions might people have?  NetApp?
+>
+></>
+>
+>  
+>
+In my expierence XFS, was right after JFS the worst and the slowest 
+filesystem ever made.
+Since than, I am using reiserfs 3.6. I don't need quota for my servers, 
+but there is patch avaliable for it I belive, from SuSE.
+ReiserFS is da most reliable FS for linux (with journaling). If you 
+don't need journaling, ext2 is da choice.
 
-Erm, no. This will just encourage folks to sprintf to a buffer first
-and pass the result to kobject_uevent_printf().
-
-nitpick: Also, if this isn't taking formatted input, shouldn't the name of the
-function lose the 'f' ?
-
-		Dave
+--
+GJ
 

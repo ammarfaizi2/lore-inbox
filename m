@@ -1,94 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262455AbUCaUhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 15:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUCaUhQ
+	id S262459AbUCaUiK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 15:38:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbUCaUiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 15:37:16 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24012 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262455AbUCaUhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 15:37:13 -0500
-Date: Wed, 31 Mar 2004 22:37:04 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: [2.6 patch] fix ALSA au88x0 compilation
-Message-ID: <20040331203704.GQ6551@fs.tum.de>
-References: <Pine.LNX.4.58.0403311458260.27373@pnote.perex-int.cz>
+	Wed, 31 Mar 2004 15:38:10 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:14589 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262459AbUCaUiG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 15:38:06 -0500
+Subject: [PATCH] RPA PCI Hotplug - redundant free
+From: John Rose <johnrose@austin.ibm.com>
+To: Greg KH <gregkh@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1080765544.1889.13.camel@verve.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403311458260.27373@pnote.perex-int.cz>
-User-Agent: Mutt/1.4.2i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 31 Mar 2004 14:39:04 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 31, 2004 at 03:02:19PM +0200, Jaroslav Kysela wrote:
->...
-> <perex@suse.cz> (04/03/30 1.1720)
->    ALSA CVS update - Jaroslav Kysela <perex@suse.cz>
->    au88x0 driver
->    Cleanups - removed duplicate PCI IDs
->...
+Hi Greg-
 
+Apologies for the resend, messed up the lkml address.  Please commit the
+following patch, which removes a redundant call to a
+cleanup function from an error path of the module init code.
 
-They weren't exactly duplicated, resulting in the following compile 
-error:
+Thanks-
+John
 
-
-<--  snip  -->
-
-...
-  CC [M]  sound/pci/au88x0/au8810.o
-sound/pci/au88x0/au8810.c:4: `PCI_DEVICE_ID_AUREAL_ADVANTAGE' undeclared 
-here (not in a function)
-sound/pci/au88x0/au8810.c:4: initializer element is not constant
-sound/pci/au88x0/au8810.c:4: (near initialization for 
-`snd_vortex_ids[0].device')
-In file included from sound/pci/au88x0/au8810.c:9:
-sound/pci/au88x0/au88x0_core.c: In function `vortex_connect_default':
-sound/pci/au88x0/au88x0_core.c:2059: `PCI_DEVICE_ID_AUREAL_VORTEX' 
-undeclared (first use in this function)
-sound/pci/au88x0/au88x0_core.c:2059: (Each undeclared identifier is 
-reported only once
-sound/pci/au88x0/au88x0_core.c:2059: for each function it appears in.)
-sound/pci/au88x0/au88x0_core.c:2059: `PCI_DEVICE_ID_AUREAL_VORTEX2' 
-undeclared (first use in this function)
-sound/pci/au88x0/au88x0_core.c:2059: `PCI_DEVICE_ID_AUREAL_ADVANTAGE' 
-undeclared (first use in this function)
-make[3]: *** [sound/pci/au88x0/au8810.o] Error 1
-
-<--  snip  -->
-
-
-The following patch fixes this problem:
-
-
---- linux-2.6.5-rc3-modular/include/linux/pci_ids.h.old	2004-03-31 22:00:54.000000000 +0200
-+++ linux-2.6.5-rc3-modular/include/linux/pci_ids.h	2004-03-31 22:01:26.000000000 +0200
-@@ -1634,8 +1634,9 @@
- #define PCI_SUBDEVICE_ID_CHASE_PCIRAS8		0xF010
- 
- #define PCI_VENDOR_ID_AUREAL		0x12eb
--#define PCI_DEVICE_ID_AUREAL_VORTEX_1	0x0001
--#define PCI_DEVICE_ID_AUREAL_VORTEX_2	0x0002
-+#define PCI_DEVICE_ID_AUREAL_VORTEX	0x0001
-+#define PCI_DEVICE_ID_AUREAL_VORTEX2	0x0002
-+#define PCI_DEVICE_ID_AUREAL_ADVANTAGE	0x0003
- 
- #define PCI_VENDOR_ID_ELECTRONICDESIGNGMBH 0x12f8
- #define PCI_DEVICE_ID_LML_33R10		0x8a02
+diff -Nru a/drivers/pci/hotplug/rpaphp_pci.c b/drivers/pci/hotplug/rpaphp_pci.c
+--- a/drivers/pci/hotplug/rpaphp_pci.c	Tue Mar 30 18:50:32 2004
++++ b/drivers/pci/hotplug/rpaphp_pci.c	Tue Mar 30 18:50:32 2004
+@@ -304,7 +304,6 @@
+ 	if (slot->hotplug_slot->info->adapter_status == NOT_VALID) {
+ 		dbg("%s: NOT_VALID: skip dn->full_name=%s\n",
+ 		    __FUNCTION__, slot->dn->full_name);
+-		dealloc_slot_struct(slot);
+ 		return (-1);
+ 	}
+ 	return (0);
 
 
 
-Please apply
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

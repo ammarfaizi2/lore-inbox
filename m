@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266242AbUALU7n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 15:59:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUALU7a
+	id S265610AbUALUzK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 15:55:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265626AbUALUzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 15:59:30 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:24982 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266242AbUALU7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 15:59:11 -0500
-Date: Thu, 8 Jan 2004 22:42:41 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-Message-ID: <20040108214240.GD467@openzaurus.ucw.cz>
-References: <20040107174939.GK1882@matchmail.com> <Pine.LNX.4.44.0401071908320.1840-100000@poirot.grange>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0401071908320.1840-100000@poirot.grange>
-User-Agent: Mutt/1.3.27i
+	Mon, 12 Jan 2004 15:55:10 -0500
+Received: from smtpq2.home.nl ([213.51.128.197]:15237 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S265610AbUALUzF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 15:55:05 -0500
+Message-ID: <400308DA.40107@keyaccess.nl>
+Date: Mon, 12 Jan 2004 21:51:38 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031029
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Takashi Iwai <tiwai@suse.de>
+CC: Rene Herman <rene.herman@keyaccess.nl>,
+       Santiago Garcia Mantinan <manty@manty.net>,
+       linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>
+Subject: Re: ALSA in 2.6 failing to find the OPL chip of the sb cards
+References: <20040107212916.GA978@man.manty.net>	<s5hy8sixsor.wl@alsa2.suse.de>	<20040109171715.GA933@man.manty.net>	<s5hn08xgh06.wl@alsa2.suse.de>	<20040109201423.GA1677@man.manty.net>	<3FFFA8C3.6040609@keyaccess.nl> <s5hu131b2tx.wl@alsa2.suse.de>
+In-Reply-To: <s5hu131b2tx.wl@alsa2.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Takashi Iwai wrote:
 
-> > > It is not just a problem of 2.6 with those specific network configurations
-> > > - ftp / http / tftp transfers work fine. E.g. wget of the same file on the
-> > > PXA with 2.6.0 from the PC1 with 2.4.21 over http takes about 2s. So, it
-> > > is 2.6 + NFS.
-> > >
-> > > Is it fixed somewhere (2.6.1-rcx?), or what should I try / what further
-> > > information is required?
-> >
-> > You will probably need to look at some tcpdump output to debug the problem...
-> 
-> Yep, just have done that - well, they differ... First obvious thing that I
-> noticed is that 2.6 is trying to read bigger blocks (32K instead of 8K),
-> but then - so far I cannot interpret what happens after the start of the
+[ OPl3 not in /proc/ioports for SB16/AWE ]
 
-I've seen slow machine (386sx with ne1000) that could not receive 7 full-sized packets
-back-to-back. You are sending 22 full packets back-to-back.
-I'd expect some of them to be (almost deterministicaly) lost,
-and no progress ever made.
+> it's a bug.  the attached patch should fix it.
 
-In same scenario, TCP detects "congestion" and works mostly okay.
-On ne1000 machine, TCP was still able to do 200KB/sec on
-10Mbps network. Check if your slow machines are seeing all the packets you
-send.
-				Pavel
+It does:
+
+0388-0389 : OPL2/3 (left)
+038a-038b : OPL2/3 (right)
+
+With both patches applied, sb16 is fine again.
+
+Rene.
 

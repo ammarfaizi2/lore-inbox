@@ -1,40 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272368AbTHOXND (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 19:13:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272381AbTHOXND
+	id S272478AbTHOXS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 19:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272485AbTHOXS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 19:13:03 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:63361 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S272368AbTHOXM7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 19:12:59 -0400
-Date: Sat, 16 Aug 2003 00:12:49 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Charles Lepple <clepple@ghz.cc>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: PIT, TSC and power management [was: Re: 2.6.0-test3 "loosing ticks"]
-Message-ID: <20030815231249.GE19707@mail.jlokier.co.uk>
-References: <20030813014735.GA225@timothyparkinson.com> <1060793667.10731.1437.camel@cog.beaverton.ibm.com> <20030814171703.GA10889@mail.jlokier.co.uk> <1060882084.10732.1588.camel@cog.beaverton.ibm.com> <3F3C272E.7060702@ghz.cc> <1060969733.10731.1604.camel@cog.beaverton.ibm.com>
+	Fri, 15 Aug 2003 19:18:29 -0400
+Received: from mail.cybertrails.com ([162.42.150.35]:40967 "EHLO
+	mail3.cybertrails.com") by vger.kernel.org with ESMTP
+	id S272478AbTHOXS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 19:18:26 -0400
+Date: Fri, 15 Aug 2003 16:18:19 -0700
+From: Paul Dickson <dickson@permanentmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Missing cardbus label in /proc/interrupts
+Message-Id: <20030815161819.4ff4ad0a.dickson@permanentmail.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1060969733.10731.1604.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> Well, depending on how ntp is compiled, it could use stime, rather then
-> settimeofday. This causes ntp to set the time on average .5 seconds off
-> the desired time. Since .5 is outside the .128 sec slew boundary, ntp 
-> will do another step adjustment which has the same poor accuracy. This
-> results in ntp just hopping back and forth around the desired time. 
+Seen in 2.6.0-test3's /proc/interrupts:
 
-On my more-or-less Red Hat 9 system, it would be quite surprising if
-the ntpd which works with 2.4 suddenly stopped working...
+           CPU0       
+  0:  179268180          XT-PIC  timer
+  1:      36175          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  3:       1248          XT-PIC  ide2
+  5:     820479          XT-PIC  ESS Maestro 2
+  8:          1          XT-PIC  rtc
+ 11:    3548209          XT-PIC  uhci-hcd, , , eth0
+ 14:     518106          XT-PIC  ide0
+ 15:     714841          XT-PIC  ide1
+NMI:          0 
+ERR:      18176
 
-Though it would be less of a surprise if ntpd had always had this
-problem in this box, and I just didn't notice with 2.4.
+The cardbus devices aren't listed.  I'm using the network card in one and
+the CF card is readable in the other.  This is probably a trivial bug.
 
--- Jamie
+[root@violet 16:08:54 root]# lspci -v
+  ...
+00:04.0 CardBus bridge: Texas Instruments PCI1220 (rev 02)
+        Subsystem: Dell Computer Corporation: Unknown device 0085
+        Flags: bus master, medium devsel, latency 168, IRQ 11
+        Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
+        Bus: primary=00, secondary=02, subordinate=05, sec-latency=176
+        Memory window 0: 10400000-107ff000 (prefetchable)
+        Memory window 1: 10800000-10bff000
+        I/O window 0: 00001000-000010ff
+        I/O window 1: 00001400-000014ff
+        16-bit legacy interface ports at 0001
+ 
+00:04.1 CardBus bridge: Texas Instruments PCI1220 (rev 02)
+        Subsystem: Dell Computer Corporation: Unknown device 0085
+        Flags: bus master, medium devsel, latency 168, IRQ 11
+        Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
+        Bus: primary=00, secondary=06, subordinate=09, sec-latency=176
+        Memory window 0: 10c00000-10fff000 (prefetchable)
+        Memory window 1: 11000000-113ff000
+        I/O window 0: 00001800-000018ff
+        I/O window 1: 00001c00-00001cff
+        16-bit legacy interface ports at 0001
+  ...
+
+I noticed this after several card insertions, so I rebooted the system,
+but this seems to be constant.
+
+	-Paul
+

@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbUK3ThY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbUK3TdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262287AbUK3ThY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 14:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbUK3ThW
+	id S262291AbUK3TdI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 14:33:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbUK3TbC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 14:37:22 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:20488 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262295AbUK3Tgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 14:36:50 -0500
+	Tue, 30 Nov 2004 14:31:02 -0500
+Received: from fw.osdl.org ([65.172.181.6]:33988 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262282AbUK3T3a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 14:29:30 -0500
+Date: Tue, 30 Nov 2004 11:29:03 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Jeff Mahoney <jeffm@suse.com>, James Morris <jmorris@redhat.com>,
+       Chris Wright <chrisw@osdl.org>
 Subject: Re: 2.6.10-rc2-mm4
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041130103218.513b8ce0.akpm@osdl.org>
-References: <20041130095045.090de5ea.akpm@osdl.org>
-	 <1101837994.2640.67.camel@laptop.fenrus.org>
-	 <20041130102105.21750596.akpm@osdl.org>
-	 <1101839110.2640.69.camel@laptop.fenrus.org>
-	 <20041130103218.513b8ce0.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1101843401.2640.73.camel@laptop.fenrus.org>
+Message-ID: <20041130112903.C2357@build.pdx.osdl.net>
+References: <20041130095045.090de5ea.akpm@osdl.org> <1101842310.4401.111.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 30 Nov 2004 20:36:41 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1101842310.4401.111.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Tue, Nov 30, 2004 at 02:18:30PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-30 at 10:32 -0800, Andrew Morton wrote:
-> "This helps mainly graphic drivers who really need a lot of memory below
-> the 4GB area.
+* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
+> On Tue, 2004-11-30 at 12:50, Andrew Morton wrote:
+> > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm4/
+> <snip>
+> > selinux-adds-a-private-inode-operation.patch
+> >   selinux: adds a private inode operation
+> 
+> Below is a re-base to 2.6.10-rc2-mm4 of a patch I posted earlier during
+> the original discussion of the above referenced patch.  This patch
+> removes the unnecessary code in inode_doinit_with_dentry, replaces the
+> unused inherits flag field (legacy from earlier code) with a private
+> flag field, does not set the SID in selinux_inode_mark_private (leaving
+> it with the unlabeled SID, which will ensure that we notice it if it
+> ever reaches a SELinux permission check), and modifies SELinux
+> permission checking functions and post_create() to test for the private
+> flag and skip SELinux processing in that case.  Please include if/when
+> the reiserfs/selinux patchset goes upstream.  I know that Chris Wright
+> had raised the question of whether we should be using i_flags to convey
+> the "private" nature of the inode rather than using a security hook, but
+> didn't see any resolution of that issue.
 
-oh.. it's a hook for the binary nvidia module.... 
-might as well call the patch that then :)
+My concerns are that the check has to be duplicated in any module,
+and that thus far we've tried to keep out fs -> module communication,
+letting vfs do it.  This could at least be fs -> vfs communication,
+and then either vfs or security framework could check flags and never
+call into module on fs private objects.
 
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

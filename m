@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264670AbUEaPTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264673AbUEaPeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264670AbUEaPTe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 11:19:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264671AbUEaPTd
+	id S264673AbUEaPeK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 11:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUEaPeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 11:19:33 -0400
-Received: from [212.209.10.220] ([212.209.10.220]:31467 "EHLO
-	miranda.se.axis.com") by vger.kernel.org with ESMTP id S264670AbUEaPTc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 11:19:32 -0400
-Date: Mon, 31 May 2004 18:14:02 +0200 (CEST)
-From: Bjorn Wesen <bjorn.wesen@axis.com>
-X-X-Sender: <bjornw@godzilla.se.axis.com>
-To: Dan Kegel <dank@kegel.com>
-cc: Mikael Starvik <mikael.starvik@axis.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Delete cris architecture?
-In-Reply-To: <40BB3751.6060200@kegel.com>
-Message-ID: <Pine.LNX.4.33.0405311807550.14955-100000@godzilla.se.axis.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 May 2004 11:34:10 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:30469 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S264673AbUEaPeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 11:34:08 -0400
+Subject: Re: swsusp fails short on memory
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040527193641.GE509@openzaurus.ucw.cz>
+References: <1085582116.1785.6.camel@teapot.felipe-alfaro.com>
+	 <20040527193641.GE509@openzaurus.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1086017644.1694.0.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
+Date: Mon, 31 May 2004 17:34:05 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The CRIS architecture is stable and supported by Axis Communications 
-officially in 2.4, but the 2.6 port is work-in-progress, thus you could 
-expect problems building it from the vanilla kernel source. It works 
-in-house on 2.6, but perhaps all patches have not trickled out to the 
-official kernel yet (although they should have I think, so it's good that 
-you mention stuff like this).
+On Thu, 2004-05-27 at 21:36, Pavel Machek wrote:
+> Hi!
+> 
+> > I'm somewhat ignorant on the inner workings of swsusp. I have a 256MB
+> > laptop machine running 2.6.7-rc1-bk2 + ACPI + swsusp two swap
+> > partitions, a 256MB swap partition on /dev/hda4 plus another 256MB swap
+> > on /dev/hda5. When trying to hibernate to disk, swsusp fails with the
+> > following error message:
+> 
+> You need just one swap partition (256MB
+> should be enough).
+>  Try suspending from single user mode.
 
-In the meantime, I would recommend using 2.4 if you want to compile a CRIS 
-kernel.
-
-Regards
-
-Bjorn W
-
-On Mon, 31 May 2004, Dan Kegel wrote:
-
-> on linux-2.6.6, 'make oldconfig' fails on cris with
-> 
-> scripts/kconfig/conf -o arch/cris/Kconfig
-> arch/cris/Kconfig:158: can't open file "arch/cris/drivers/Kconfig"
-> make[1]: *** [oldconfig] Error 1
-> 
-> This was reported about a year ago on 2.6.0-test2:	
-> http://mhonarc.axis.se/dev-etrax/msg03456.html
-> but it seems nothing has been done about it.
-> 
-> Since step 1 of building a linux kernel for cris seems to have
-> been dead in the water for almost a year with no
-> action from the port's maintainer, perhaps the port
-> should be deleted from the main kernel tree.
-> 
-> Or perhaps the maintainer could submit a fix.  His choice :-)
-> - Dan
-> 
-> 
+/proc/sys/vm/swappiness = 0 was the culprit of all my problems :)
+Thanks!
 

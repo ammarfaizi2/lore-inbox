@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265652AbUAIFRM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 00:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266207AbUAIFRM
+	id S266289AbUAIFek (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 00:34:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266283AbUAIFek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 00:17:12 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:61028 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S265652AbUAIFRL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 00:17:11 -0500
-Date: Thu, 8 Jan 2004 21:17:06 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: akpm@osdl.org, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
-       linux-ia64@linuxia64.org
-Subject: Re: [2.6 patch] use range for NR_CPUS
-Message-Id: <20040108211706.7772da92.pj@sgi.com>
-In-Reply-To: <20040109013850.GI13867@fs.tum.de>
-References: <20040109013850.GI13867@fs.tum.de>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jan 2004 00:34:40 -0500
+Received: from web12609.mail.yahoo.com ([216.136.173.179]:16767 "HELO
+	web12609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266277AbUAIFeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 00:34:37 -0500
+Message-ID: <20040109053433.3812.qmail@web12609.mail.yahoo.com>
+Date: Thu, 8 Jan 2004 21:34:33 -0800 (PST)
+From: Joilnen Leite <pidhash@yahoo.com>
+Subject: about ipmr
+To: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: davem@redhat.com
+In-Reply-To: <200401071534.i07FY8IY032449@green.mif.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The help text on ia64 didn't suggest any values. Could someone tell the 
-> correct values for ia64 (and if it's only a minimum value of 2)?
+excuse me for my english bad :) !
 
-It keeps moving.  We've announced experimental versions up to 512 CPUs,
-I believe.  We being SGI, and our SN product, which uses ia64 arch.  So
-I guess you can put that in.
+alloc_netdev func can return NULL and I think that is
+not right to use dev pointer in this case without a
+test.
+so maybe it is better ? !
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+---------------------------------------------
+
+--- knl_src/net/ipv4/ipmr.c	2003-11-25
+16:02:59.000000000 -0300
++++ ipmr_patch.c	2004-01-08 10:21:22.000000000 -0300
+@@ -205,7 +205,7 @@
+ 	dev = alloc_netdev(sizeof(struct net_device_stats),
+"pimreg",
+ 			   reg_vif_setup);
+ 
+-	if (register_netdevice(dev)) {
++	if (dev&&register_netdevice(dev)) {
+ 		kfree(dev);
+ 		return NULL;
+ 	}
+
+----------------------------------------------
+
+sorry if is a dumb question and thanks for atention
+
+pub  1024D/5139533E Joilnen Batista Leite 
+F565 BD0B 1A39 390D 827E  03E5 0CD4 0F20 5139 533E
+
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Hotjobs: Enter the "Signing Bonus" Sweepstakes
+http://hotjobs.sweepstakes.yahoo.com/signingbonus

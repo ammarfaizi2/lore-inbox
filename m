@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316035AbSETOJQ>; Mon, 20 May 2002 10:09:16 -0400
+	id <S316047AbSETOK4>; Mon, 20 May 2002 10:10:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316042AbSETOJP>; Mon, 20 May 2002 10:09:15 -0400
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:58012 "EHLO
-	mailout.schmorp.de") by vger.kernel.org with ESMTP
-	id <S316035AbSETOJN>; Mon, 20 May 2002 10:09:13 -0400
-Date: Mon, 20 May 2002 16:09:09 +0200
-From: Marc Lehmann <schmorp@schmorp.de>
-To: John Ruttenberg <rutt@chezrutt.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dell Inspiron i8100 with 2 batteries
-Message-ID: <20020520140909.GA29491@schmorp.de>
-Mail-Followup-To: John Ruttenberg <rutt@chezrutt.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <15589.4802.37068.931146@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux version 2.4.18-pre8-ac3 (root@cerebro) (gcc version 2.95.4 20010319 (prerelease)) 
+	id <S316049AbSETOKx>; Mon, 20 May 2002 10:10:53 -0400
+Received: from anvers-smtp.planetinternet.be ([195.95.30.152]:8976 "EHLO
+	yoda.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S316047AbSETOKt>; Mon, 20 May 2002 10:10:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ken Van Eyndonck <Ken.vaneyndonck@planetinternet.be>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: firewire & linux
+Date: Mon, 20 May 2002 16:09:59 +0200
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020520141039.DC50936E3B@yoda.planetinternet.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 17, 2002 at 10:25:06AM -0400, John Ruttenberg <rutt@chezrutt.com> wrote:
-> I am using 2.4.18 and have a Dell I8100 with 2 batteries.  If combined charge
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I also have this notebook, and the APM bios is rather broken. You might try
-downgrading your BIOS to A07 or so, that *could* help (it helped here).
+hi
 
-ACPI doesn't work stably on that machine (not here, at least), and doesn't
-seem to be desirable, as reading battery status freezes the machine for
-0.2s ;)
+i don't know if it is the right question for this list but... here goes.
 
--- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+How stable is the implementation for firewire support
+and can linux(cdrecord)  use the iomega cd-rw (firewire) at 40 speed?
+i use the 2.4.18 kernel compiled with firewire
+
+if i shouldn't ask this question here could you point me to a mailing list 
+where i can?
+
+greets
+Ken
+ 
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.8
+
+iQA/AwUBPOkDunbvQ8h/YgNnEQIjpgCg6YcLbkulIZSiVBJBhLilLm3v3LcAmQHK
+AfL8GnJZUl2dojvrczilmcyM
+=OGoa
+-----END PGP SIGNATURE-----

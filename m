@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264387AbTDXFO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 01:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbTDXFO0
+	id S264411AbTDXF1o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 01:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTDXF1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 01:14:26 -0400
-Received: from dp.samba.org ([66.70.73.150]:17311 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264387AbTDXFO0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 01:14:26 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, info@convergence.de
-Subject: Re: Bad url in ioctl numbers [DVD decoder driver] 
-In-reply-to: Your message of "Wed, 23 Apr 2003 15:52:50 +0200."
-             <20030423135250.GA332@elf.ucw.cz> 
-Date: Thu, 24 Apr 2003 15:21:49 +1000
-Message-Id: <20030424052634.BE1272C11D@lists.samba.org>
+	Thu, 24 Apr 2003 01:27:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21208 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264411AbTDXF1n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 01:27:43 -0400
+Date: Thu, 24 Apr 2003 06:39:50 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+Message-ID: <20030424053950.GV10374@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0304232146020.19326-100000@home.transmeta.com> <3EA76FFE.5070007@tequila.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EA76FFE.5070007@tequila.co.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030423135250.GA332@elf.ucw.cz> you write:
-> Hi!
-> 
-> This warns about bad url. I do not know what better to do with this.
+On Thu, Apr 24, 2003 at 02:02:54PM +0900, Clemens Schwaighofer wrote:
+ 
+> Point for me is, that with a DRM you could 100% verify that foreign
+> module Y is 100% from company Z. Or that binary product F is 100% from
+> the company and can be trusted to run here or there.
 
-If you don't have a better one, just leave it.  I don't think this
-patch helps.
+Excuse me, but I don't get the last part.  You know that
+	F had been built in environment of unspecified degree of security
+	from source that had been kept in <--->
+	written by programmers you don't know
+	who had been hired in conformace with criteria <--->
+	and released after passing QA of unknown quality (but you can bet
+that they had missed some security holes in the past)
+	under a license that almost certainly disclaims any responsibility.
 
->  0xA2    00-0F   DVD decoder driver      in development:
-> -                                        <http://linuxtv.org/dvd/api/>
-> +					URL no longer works: http://linuxtv.org/dvd/api/
-
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Care to explain how does one get from the trust in above to "trusted to run"?

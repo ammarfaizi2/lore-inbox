@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264346AbTGBS3k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 14:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264362AbTGBS3k
+	id S264362AbTGBS36 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 14:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTGBS35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 14:29:40 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:6135 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S264346AbTGBS3j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 14:29:39 -0400
-Subject: Re: scheduling with spinlocks held ?
-From: Robert Love <rml@tech9.net>
-To: Muthian Sivathanu <muthian_s@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030702183645.79164.qmail@web40611.mail.yahoo.com>
-References: <20030702183645.79164.qmail@web40611.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1057171587.1988.3408.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 02 Jul 2003 11:46:27 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Jul 2003 14:29:57 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:31113 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S264362AbTGBS34 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 14:29:56 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 2 Jul 2003 20:44:18 +0200 (MEST)
+Message-Id: <UTC200307021844.h62IiIQ19914.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, akpm@digeo.com
+Subject: Re: [PATCH] cryptoloop
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-07-02 at 11:36, Muthian Sivathanu wrote:
+akpm:
 
-> Is there a version of Ingo Molnar's patch for the 2.4
-> line kernels ?
+> You'll note that loop.c goes from (page/offset/len) to (addr/len),
+> and this transfer function then immediately goes from (addr,len)
+> to (page/offset/len). That's rather silly ..
 
-No idea.
+Changing that would kill all existing modules that use the loop device.
 
-I do not have a repository of Ingo's patches, I just remember him
-posting the SCHED_BATCH stuff a couple times. Like I said, google.
+Maybe nobody cares. Then we can do so in a subsequent patch.
 
-	Robert Love
-
-
+Andries

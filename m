@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVAAWvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVAAWxC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVAAWvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 17:51:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVAAWvQ
+	id S261194AbVAAWxC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 17:53:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVAAWxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 17:51:16 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:16541 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261195AbVAAWvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 17:51:14 -0500
-Subject: Re: Asus P4C800-E Deluxe and Intel Pro/1000
-From: Lee Revell <rlrevell@joe-job.com>
-To: Terry Hardie <terryh@orcas.net>
-Cc: Bill Davidsen <davidsen@tmr.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501011326120.3717@orcas.net>
-References: <41D5C459.8050601@tmr.com>
-	 <6.1.1.1.0.20041108074026.01dead50@ptg1.spd.analog.com>
-	 <Pine.LNX.4.58.0412311715190.3717@orcas.net> <41D70885.3080208@tmr.com>
-	 <Pine.LNX.4.58.0501011326120.3717@orcas.net>
-Content-Type: text/plain
-Date: Sat, 01 Jan 2005 17:51:12 -0500
-Message-Id: <1104619873.7264.14.camel@krustophenia.net>
+	Sat, 1 Jan 2005 17:53:02 -0500
+Received: from gprs215-173.eurotel.cz ([160.218.215.173]:27266 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261194AbVAAWwx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 17:52:53 -0500
+Date: Sat, 1 Jan 2005 23:52:38 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: John M Flinchbaugh <john@hjsoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10: e100 network broken after swsusp/resume
+Message-ID: <20050101225238.GA22388@elf.ucw.cz>
+References: <20041228144741.GA2969@butterfly.hjsoft.com> <20050101172344.GA1355@elf.ucw.cz> <20050101221722.GA28045@butterfly.hjsoft.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050101221722.GA28045@butterfly.hjsoft.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-01-01 at 13:26 -0800, Terry Hardie wrote:
-> On Sat, 1 Jan 2005, Bill Davidsen wrote:
+Hi!
+
+> > e100 seems to have some suspend/resume support [but if even reloading
+> > e100 does not help, fault is not in e100]. Are you running with APIC
+> > enabled? Try noapic. Try acpi=off.
 > 
-> > > Since I flashed my bios, no more problems, so I've had no more failures
-> >
-> > I hesitate to try that, since the web page says you must use "real DOS"
-> > and gives instructions for creating the FD using that. Since I lack both
-> > DOS and a floppy, that does present problems...
+> it had been fine in 2.6.9.  i think i had switched to using apic back
+> with 2.6.9 (to facilitate nmi_watchdog, maybe).
 > 
-> Not even a windows XP machine you can use to make a boot floppy?
+> i'll try these options.  ultimately, though, i'm going to need acpi. :)
 
-You don't need an XP machine.  Google for "dos boot disk images" or
-something and use dd.  I cannot vouch for the legality of whatever you
-find ;-)
-
-Lee
-
+Ok, so if everything else fails, just find which changeset broke it
+for you.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264479AbTE1CRK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 22:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264480AbTE1CRK
+	id S264480AbTE1CxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 22:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264481AbTE1CxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 22:17:10 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:47564 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S264479AbTE1CRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 22:17:09 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Ricky Beam <jfbeam@bluetronic.net>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Linux 2.5.70
-Date: Wed, 28 May 2003 04:30:27 +0200
-User-Agent: KMail/1.5.1
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.33.0305271245290.4448-100000@sweetums.bluetronic.net>
-In-Reply-To: <Pine.GSO.4.33.0305271245290.4448-100000@sweetums.bluetronic.net>
+	Tue, 27 May 2003 22:53:25 -0400
+Received: from web13607.mail.yahoo.com ([216.136.175.118]:1798 "HELO
+	web13607.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264480AbTE1CxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 22:53:24 -0400
+Message-ID: <20030528030639.38916.qmail@web13607.mail.yahoo.com>
+Date: Tue, 27 May 2003 20:06:39 -0700 (PDT)
+From: Slack Ware <slack_ware@yahoo.com>
+Subject: Printing IDT on Linux 2.4.20
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305280430.27941.phillips@arcor.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 May 2003 18:58, Ricky Beam wrote:
-> On Mon, 26 May 2003, Linus Torvalds wrote:
-> >... to start the "pre-2.6" series ...
->
-> You're kidding, right?  2.5 is no where near ready to be called anything
-> like "2.6".
-
-Don't freak out too much - remember how long the -test series lasted last time 
-(most of a year).  Hopefully it will be faster this time, but even twice as 
-fast will still give people time to beat on their favorite features and 
-drivers.
-
+Hi everybody!
+I've a problem with the checkidt utility provided by
+Phrack Issue #59, I think.
+The checkidt utility is for 2.4.x kernels, supposedly,
+but I compiled it under 2.4.20 and it couldn't read
+/dev/kmem.
+Anyway, I would like to print the IDT on kernel 2.4.20
+with checkidt or not.
+Any suggestions are welcome.
 Regards,
 
-Daniel
+
+                                          Slack
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Calendar - Free online calendar with sync to Outlook(TM).
+http://calendar.yahoo.com

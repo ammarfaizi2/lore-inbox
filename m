@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269641AbTGOUPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 16:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269645AbTGOUPJ
+	id S269645AbTGOUb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 16:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269646AbTGOUb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 16:15:09 -0400
-Received: from code.and.org ([63.113.167.33]:29902 "EHLO mail.and.org")
-	by vger.kernel.org with ESMTP id S269641AbTGOUPG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 16:15:06 -0400
-To: "David Schwartz" <davids@webmaster.com>
-Cc: "Davide Libenzi" <davidel@xmailserver.org>,
-       "Eric Varsanyi" <e0206@foo21.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch][RFC] epoll and half closed TCP connections
-References: <MDEHLPKNGKAHNMBLJOLKGEFKEFAA.davids@webmaster.com>
-From: James Antill <james@and.org>
-Content-Type: text/plain; charset=US-ASCII
-Date: 15 Jul 2003 16:27:56 -0400
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEFKEFAA.davids@webmaster.com>
-Message-ID: <m3y8yz3583.fsf@code.and.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Tue, 15 Jul 2003 16:31:59 -0400
+Received: from keetweej.xs4all.nl ([213.84.46.114]:32409 "EHLO
+	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
+	id S269645AbTGOUb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 16:31:58 -0400
+From: Folkert van Heusden <folkert@vanheusden.com>
+Reply-To: folkert@vanheusden.com
+Organization: vanheusdendotcom
+To: linux-kernel@vger.kernel.org
+Subject: v2.6.0-test1 - no keyboard/mouse
+Date: Tue, 15 Jul 2003 22:46:57 +0200
+User-Agent: KMail/1.5.2
+WebSite: http://www.vanheusden.com/
 MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307152246.57389.folkert@vanheusden.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Schwartz" <davids@webmaster.com> writes:
+Ehrm, hello? Has this list became silent suddenly?
+Anyway: I just tried 2.6.0-test1 on my celeron. Boots up flawlessly. Rather 
+quick and all. X boots up, all fine.
+Only one minor problem: the keyboard and the mouse do not work.
+I *have* included input-core, etc.:
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_INPUT_UINPUT=y
+Anyone got a suggestion?
+You'll find the complete .config at vanheusden.com/config260 (not
+attached to reduce unneccessary traffic).
 
-> 	This is really just due to bad coding in 'poll', or more precisely very bad
-> for this case. For example, why is it allocating a wait queue buffer if the
-> odds that it will need to wait are basically zero? Why is it adding file
-> descriptors to the wait queue before it has determined that it needs to
-> wait?
 
- Because this is much easier to do in userspace, it's just not very
-well documented that you should almost always call poll() with a zero
-timeout first. However it's been there for years, and things have used
-it[1].
- There are still optimizations that could have been done to poll() to
-speed it up but Linus has generally refused to add them.
+Folkert van Heusden
 
-[1] http://www.and.org/socket_poll/
+p.s. please CC me: I'm not sure if I'm still on this list or not
 
--- 
-# James Antill -- james@and.org
-:0:
-* ^From: .*james@and\.org
-/dev/null
++--------------------------------------------------------------------------+
+| UNIX sysop? Then give MultiTail ( http://www.vanheusden.com/multitail/ ) |
+| a try, it brings monitoring logfiles (and such) to a different level!    |
++---------------------------------------------------= www.vanheusden.com =-+
+

@@ -1,63 +1,244 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVAMM7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVAMNCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVAMM7H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 07:59:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVAMM7H
+	id S261616AbVAMNCs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 08:02:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVAMNCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 07:59:07 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:10183 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S261610AbVAMM7D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 07:59:03 -0500
-Subject: Re: PCI lost interrupts and PLX chips
-From: Dimitris Lampridis <soth@softhome.net>
-To: linux-os@analogic.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0501130728520.10535@chaos.analogic.com>
-References: <1105573129.3218.11.camel@localhost>
-	 <Pine.LNX.4.61.0501130647420.10398@chaos.analogic.com>
-	 <1105617881.3203.4.camel@localhost>
-	 <Pine.LNX.4.61.0501130728520.10535@chaos.analogic.com>
-Message-Id: <1105621134.3203.22.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 13 Jan 2005 08:02:40 -0500
+Received: from gsc-game.kiev.ua ([62.244.14.42]:59862 "EHLO
+	redhat.gsc-game.kiev.ua") by vger.kernel.org with ESMTP
+	id S261611AbVAMNC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 08:02:29 -0500
+X-Privacy-Violation: The copy of this message was sent to <mailspy@gsc-game.kiev.ua> due to business requirements
+Message-ID: <000f01c4f970$202f4a40$e310f43e@manowar>
+Reply-To: "Serguei I. Ivantsov" <manowar@gsc-game.kiev.ua>
+From: "Serguei I. Ivantsov" <manowar@gsc-game.kiev.ua>
+To: <linux-kernel@vger.kernel.org>
+Subject: Can't make D-Link DFE-580TX 4 port Server Adapter working - problems with PCI?
+Date: Thu, 13 Jan 2005 15:02:24 +0200
+Organization: GSC Game World
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 13 Jan 2005 14:58:54 +0200
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3790.1218
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1218
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First of all, thanks for your concern.
+Hi!
 
-On Thu, 2005-01-13 at 14:49, linux-os wrote:
-> You can look at /proc/interrupts to see if your device ever interrupted.
-> If it did, then got shut off, you probably forgot to return IRQ_HANDLED
-> in the interrupt-service-routine. The newer code requires a return-value
-> from the ISR.
-> 
-No interrupt at /proc/interrupts. The ISR never gets called. If it
-would, it returns IRQ_HANDLED.
-As I mentioned on the first mail, using a logical analyzer I saw the
-device generating interrupts behind the PCI bridge, but I didn't see
-them pass through the bridge, so I didn't expect to read something at
-/proc/interrupts.
+I browse the Internet with this problem. There is a lot of people with the
+same , but no solutions.
 
-> If it got a bunch of spurious interrupts that made it impossible
-> to initialize the device properly, then use some flag to tell
-> your ISR that the device wasn't enabled yet. If it got an interrupt
-> before the device was enabled, the ISR writes 0 to the PLX CSR after
-> reading and throwing away the existing value. That will quiet the
-> device until it can be properly initialized.
-> 
-Same here, ISR never gets called.
+My config:
 
-> If you never got any interrupts, then you have some other bug.
-> You can readily force the PLX to generate interrupts for testing
-> purposes.
+Fedora Core 3. Linux 2.6.10.
+VIA KM400/AMD Athlon XP 1700+/256MB/onboard VIA RhineII/PCI D-Link
+DFE-580TX/USB off/AC97 off
 
-How can I do that? Don't bother explaining everything. Maybe a link 
-to somewhere on the net where I can learn more?
+cut from
+dmesg: ---------------------------------------------------------------------
+---------------------------------------------
+..
+sundance.c:v1.01+LK1.09a 10-Jul-2003  Written by Donald Becker
+  http://www.scyld.com/network/sundance.html
+ACPI: PCI interrupt 0000:02:04.0[A] -> GSI 11 (level, low) -> IRQ 11
+eth1: D-Link DFE-580TX 4 port Server Adapter at 0xcf804000,
+6f:ef:6f:ef:6f:ef, IRQ 11.
+eth1: No MII transceiver found, aborting.  ASIC status f000ef6f
+ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 7
+PCI: setting IRQ 7 as level-triggered
+ACPI: PCI interrupt 0000:02:05.0[A] -> GSI 7 (level, low) -> IRQ 7
+eth1: D-Link DFE-580TX 4 port Server Adapter at 0xcf804000,
+6f:ef:6f:ef:6f:ef, IRQ 7.
+eth1: No MII transceiver found, aborting.  ASIC status f000ef6f
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 10
+PCI: setting IRQ 10 as level-triggered
+ACPI: PCI interrupt 0000:02:06.0[A] -> GSI 10 (level, low) -> IRQ 10
+eth1: D-Link DFE-580TX 4 port Server Adapter at 0xcf804000,
+6f:ef:6f:ef:6f:ef, IRQ 10.
+eth1: No MII transceiver found, aborting.  ASIC status f000ef6f
+ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 10
+ACPI: PCI interrupt 0000:02:07.0[A] -> GSI 10 (level, low) -> IRQ 10
+eth1: D-Link DFE-580TX 4 port Server Adapter at 0xcf804000,
+6f:ef:6f:ef:6f:ef, IRQ 10.
+eth1: No MII transceiver found, aborting.  ASIC status f000ef6f
+..
+cut from
+lspci:----------------------------------------------------------------------
+-----------------------------------------------
+..
+00:00.0 Host bridge: VIA Technologies, Inc. VT8378 [KM400/A] Chipset Host
+Bridge
+ Subsystem: VIA Technologies, Inc. VT8378 [KM400/A] Chipset Host Bridge
+ Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+ Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort+ >SERR- <PERR-
+ Latency: 8
+ Region 0: Memory at e8000000 (32-bit, prefetchable) [size=32M]
+ Capabilities: [80] AGP version 3.5
+  Status: RQ=32 Iso- ArqSz=0 Cal=2 SBA+ ITACoh- GART64- HTrans- 64bit- FW-
+AGP3- Rate=x1,x2,x4
+  Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
+ Capabilities: [c0] Power Management version 2
+  Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-Thanks,
-Dimitris
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge (prog-if 00
+[Normal decode])
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR+ FastB2B-
+ Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 0
+ Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+ Memory behind bridge: ea000000-ebffffff
+ Prefetchable memory behind bridge: e4000000-e7ffffff
+ Secondary status: 66Mhz+ FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort+ <SERR- <PERR+
+ BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+ Capabilities: [80] Power Management version 2
+  Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:05.0 PCI bridge: Intel Corp. 21152 PCI-to-PCI Bridge (prog-if 00 [Normal
+decode])
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR+ FastB2B-
+ Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 32, Cache Line Size 08
+ Bus: primary=00, secondary=02, subordinate=02, sec-latency=32
+ I/O behind bridge: 0000d000-0000dfff
+ Memory behind bridge: ec000000-ec0fffff
+ Secondary status: 66Mhz- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort+ <SERR- <PERR-
+ BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+ Capabilities: [dc] Power Management version 2
+  Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+  Bridge: PM- B3+
+
+00:0f.0 IDE interface: VIA Technologies, Inc.
+VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06) (prog-if 8a
+[Master SecP PriP])
+ Subsystem: VIA Technologies, Inc. VT82C586/B/VT82C686/A/B/VT8233/A/C/VT8235
+PIPC Bus Master IDE
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+ Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 32
+ Interrupt: pin A routed to IRQ 11
+ Region 4: I/O ports at e000 [size=16]
+ Capabilities: [c0] Power Management version 2
+  Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [KT600/K8T800
+South]
+ Subsystem: VIA Technologies, Inc. VT8237 ISA bridge [KT600/K8T800 South]
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping+ SERR- FastB2B-
+ Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 0
+ Capabilities: [c0] Power Management version 2
+  Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev
+78)
+ Subsystem: Micro-Star International Co., Ltd.: Unknown device 7061
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+ Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 32 (750ns min, 2000ns max), Cache Line Size 08
+ Interrupt: pin A routed to IRQ 11
+ Region 0: I/O ports at e500 [size=256]
+ Region 1: Memory at ec101000 (32-bit, non-prefetchable) [size=256]
+ Capabilities: [40] Power Management version 2
+  Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: VIA Technologies, Inc. VT8378 [S3
+UniChrome] Integrated Video (rev 01) (prog-if 00 [VGA])
+ Subsystem: Micro-Star International Co., Ltd.: Unknown device 7061
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+ Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 32 (500ns min)
+ Interrupt: pin A routed to IRQ 11
+ Region 0: Memory at e4000000 (32-bit, prefetchable) [size=64M]
+ Region 1: Memory at ea000000 (32-bit, non-prefetchable) [size=16M]
+ Capabilities: [60] Power Management version 2
+  Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+ Capabilities: [70] AGP version 2.0
+  Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW-
+AGP3- Rate=x1,x2,x4
+  Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
+
+02:04.0 Ethernet controller: D-Link System Inc DL10050 Sundance Ethernet
+(rev 14)
+ Subsystem: D-Link System Inc DFE-580TX
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+ Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 32 (2500ns min, 2500ns max), Cache Line Size 08
+ Interrupt: pin A routed to IRQ 11
+ Region 0: I/O ports at d000 [size=128]
+ Capabilities: [50] Power Management version 2
+  Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
+  Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+02:05.0 Ethernet controller: D-Link System Inc DL10050 Sundance Ethernet
+(rev 14)
+ Subsystem: D-Link System Inc DFE-580TX
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+ Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 32 (2500ns min, 2500ns max), Cache Line Size 08
+ Interrupt: pin A routed to IRQ 7
+ Region 0: I/O ports at d100 [size=128]
+ Capabilities: [50] Power Management version 2
+  Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
+  Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+02:06.0 Ethernet controller: D-Link System Inc DL10050 Sundance Ethernet
+(rev 14)
+ Subsystem: D-Link System Inc DFE-580TX
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+ Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 32 (2500ns min, 2500ns max), Cache Line Size 08
+ Interrupt: pin A routed to IRQ 10
+ Region 0: I/O ports at d200 [size=128]
+ Capabilities: [50] Power Management version 2
+  Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
+  Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+02:07.0 Ethernet controller: D-Link System Inc DL10050 Sundance Ethernet
+(rev 14)
+ Subsystem: D-Link System Inc DFE-580TX
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+ Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 32 (2500ns min, 2500ns max), Cache Line Size 08
+ Interrupt: pin A routed to IRQ 10
+ Region 0: I/O ports at d300 [size=128]
+ Capabilities: [50] Power Management version 2
+  Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
+  Status: D0 PME-Enable- DSel=0 DScale=2 PME-
 

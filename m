@@ -1,147 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUG0BKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266212AbUG0CBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266216AbUG0BKU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 21:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbUG0BKB
+	id S266212AbUG0CBn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 22:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266218AbUG0CBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 21:10:01 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:49568 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S266214AbUG0BFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 21:05:19 -0400
-MIME-Version: 1.0
-Date: Tue, 27 Jul 2004 10:05:24 +0900
-Subject: [PATCH] ia64 memory hotplug for hugetlbpages [1/3]
-From: Nobuhiko Yoshida <n-yoshida@pst.fujitsu.com>
-To: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
-Message-ID: <JS200407271005246.5173171@pst.fujitsu.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
-X-Mailer: JsvMail 5.5 (Shuriken Pro3)
-X-Priority: 3
+	Mon, 26 Jul 2004 22:01:43 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:37803 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S266212AbUG0CBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 22:01:41 -0400
+Date: Mon, 26 Jul 2004 21:01:34 -0500
+From: Dimitri Sivanich <sivanich@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH] Locking optimization for cache_reap
+Message-ID: <20040727020134.GA23967@sgi.com>
+References: <20040723190555.GB16956@sgi.com> <20040726180104.62c480c6.akpm@osdl.org> <20040727014757.GA23937@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040727014757.GA23937@sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -dupr linux-2.6.7/arch/ia64/mm/hugetlbpage.c linux-2.6.7-FAULT/arch/ia64/mm/hugetlbpage.c
---- linux-2.6.7/arch/ia64/mm/hugetlbpage.c	2004-06-16 14:19:23.000000000 +0900
-+++ linux-2.6.7-FAULT/arch/ia64/mm/hugetlbpage.c	2004-07-09 15:28:25.000000000 +0900
-@@ -105,10 +105,12 @@ int copy_hugetlb_page_range(struct mm_st
- 			goto nomem;
- 		src_pte = huge_pte_offset(src, addr);
- 		entry = *src_pte;
--		ptepage = pte_page(entry);
--		get_page(ptepage);
-+		if (!pte_none(entry)) {
-+			ptepage = pte_page(entry);
-+			get_page(ptepage);
-+			dst->rss += (HPAGE_SIZE / PAGE_SIZE);
-+		}
- 		set_pte(dst_pte, entry);
--		dst->rss += (HPAGE_SIZE / PAGE_SIZE);
- 		addr += HPAGE_SIZE;
- 	}
- 	return 0;
-@@ -130,6 +132,10 @@ follow_hugetlb_page(struct mm_struct *mm
- 	do {
- 		pstart = start & HPAGE_MASK;
- 		ptep = huge_pte_offset(mm, start);
-+		if (!ptep || pte_none(*ptep)) {
-+			hugetlb_fault(mm, vma, 0, start);
-+			ptep = huge_pte_offset(mm, start);
-+		}
- 		pte = *ptep;
- 
- back1:
-@@ -167,6 +173,13 @@ struct page *follow_huge_addr(struct mm_
- 	if (!ptep || pte_none(*ptep))
- 		return NULL;
- 	page = pte_page(*ptep);
-+	if (!page) {
-+		struct vm_area_struct *vma = find_vma(mm, addr);
-+		if (!vma)
-+			return NULL;
-+		hugetlb_fault(mm, vma, 0, addr);
-+		page = pte_page(*ptep);
-+	}
- 	page += ((addr & ~HPAGE_MASK) >> PAGE_SHIFT);
- 	return page;
- }
-@@ -250,8 +263,8 @@ void unmap_hugepage_range(struct vm_area
- 		page = pte_page(*pte);
- 		put_page(page);
- 		pte_clear(pte);
-+		mm->rss -= (HPAGE_SIZE / PAGE_SIZE);
- 	}
--	mm->rss -= (end - start) >> PAGE_SHIFT;
- 	flush_tlb_range(vma, start, end);
- }
- 
-@@ -308,6 +321,68 @@ out:
- 	return ret;
- }
- 
-+int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma, int write_access, unsigned long address)
-+{
-+	struct file *file = vma->vm_file;
-+	struct address_space *mapping = file->f_dentry->d_inode->i_mapping;
-+	struct page *page;
-+	unsigned long idx;
-+	pte_t *pte = huge_pte_alloc(mm, address);
-+	int ret;
-+
-+	BUG_ON(vma->vm_start & ~HPAGE_MASK);
-+	BUG_ON(vma->vm_end & ~HPAGE_MASK);
-+
-+	spin_lock(&mm->page_table_lock);
-+
-+	if (!pte) {
-+		ret = VM_FAULT_SIGBUS;
-+		goto out;
-+	}
-+
-+	if (!pte_none(*pte)) {
-+		ret = VM_FAULT_MINOR;
-+		goto out;
-+	}
-+
-+	idx = ((address - vma->vm_start) >> HPAGE_SHIFT)
-+		+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
-+again:
-+	page = find_get_page(mapping, idx);
-+
-+	if (!page) {
-+		/* charge the fs quota first */
-+		if (hugetlb_get_quota(mapping)) {
-+			ret = VM_FAULT_SIGBUS;
-+			goto out;
-+		}
-+		page = alloc_huge_page();
-+		if (!page) {
-+			hugetlb_put_quota(mapping);
-+			ret = VM_FAULT_SIGBUS;
-+			goto out;
-+		}
-+		ret = add_to_page_cache(page, mapping, idx, GFP_ATOMIC);
-+		if (ret) {
-+			hugetlb_put_quota(mapping);
-+			put_page(page);
-+			goto again;
-+		}
-+	}
-+	if (pte_none(*pte)) {
-+		set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
-+		flush_tlb_range(vma, address, address + HPAGE_SIZE);
-+		update_mmu_cache(vma, address, *pte);
-+	} else {
-+		put_page(page);
-+	}
-+	ret = VM_FAULT_MINOR;
-+out:
-+	spin_unlock(&mm->page_table_lock);
-+	unlock_page(page);
-+	return ret;
-+}
-+
- unsigned long hugetlb_get_unmapped_area(struct file *file, unsigned long addr, unsigned long len,
- 		unsigned long pgoff, unsigned long flags)
- {
+On Mon, Jul 26, 2004 at 08:47:57PM -0500, Dimitri Sivanich wrote:
+> 
+> While you've got irq's disabled, drain_array() (the function my patch removes)
+> acquires the cache spin_lock, then releases it.  Cache_reap then acquires
+> it again (with irq's having been off the entire time).  My testing has found
+> that simply acquiring the lock once while irq's are off results in fewer
+> excessively long latencies.
+> 
+> Results probably vary somewhat depending on the circumstance.
+
+Of course, I should add that all of this is from the perspective of the
+cpu doing the cache_reap.  If others feel that this may add too much
+latency to other paths, other solutions may be in order.

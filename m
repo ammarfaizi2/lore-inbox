@@ -1,64 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270775AbTGVSmV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 14:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270854AbTGVSmV
+	id S271003AbTGVSnU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 14:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271006AbTGVSnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 14:42:21 -0400
-Received: from web41509.mail.yahoo.com ([66.218.93.92]:22373 "HELO
-	web41509.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270775AbTGVSmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 14:42:15 -0400
-Message-ID: <20030722185718.18428.qmail@web41509.mail.yahoo.com>
-Date: Tue, 22 Jul 2003 11:57:18 -0700 (PDT)
-From: Carl Spalletta <cspalletta@yahoo.com>
-Subject: Re: 2.6: marking individual directories as synchronous?
+	Tue, 22 Jul 2003 14:43:19 -0400
+Received: from rrcs-sw-24-73-247-26.biz.rr.com ([24.73.247.26]:9870 "HELO
+	engine.infodancer.org") by vger.kernel.org with SMTP
+	id S271003AbTGVSnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 14:43:06 -0400
+Date: Tue, 22 Jul 2003 13:58:10 -0500
+From: Matthew Hunter <matthew@infodancer.org>
 To: linux-kernel@vger.kernel.org
-Cc: dbehman@hotmail.com
-MIME-Version: 1.0
+Subject: Re: 2.4.21, NFS v3, and 3com 920
+Message-ID: <20030722185810.GE18532@infodancer.org>
+References: <20030722054245.GA768@infodancer.org> <200307221319.h6MDJVgf007961@turing-police.cc.vt.edu> <3F1D7D43.5070401@rackable.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F1D7D43.5070401@rackable.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is further info on the use of IS_DIRSYNC in ext2.
+On Tue, Jul 22, 2003 at 11:06:59AM -0700, Samuel Flory <sflory@rackable.com> wrote:
+> >Try nailing the devices on both ends of the cat-5 to the same thing (full 
+> >or half).  This can of course be interesting if you have an 
+> >unmanaged hub that doesn't give you a choice...
+>  You should be able to use mii-tool, or ethtool (one or both should 
+> work) to check the state your ethernet controller thinks it is set to, 
+> and change the settings.
 
-ext2_alloc_branch() is used only in the O_DIRECT path.
-ext2_commit_chunk() is called indirectly in the following paths, which provide
-functionality comparable to that of ext3:
+So far I've seen several people point to this, and I just now had 
+the chance to test the advice.  Here are the results:
 
-[linux-2.6.0-test1]$ fscope -func=ext2_commit_chunk
+image:~# mii-tool -v eth0
+eth0: negotiated 100baseTx-FD, link ok
+  product info: vendor 00:10:5a, model 0 rev 0
+  basic mode:   autonegotiation enabled
+  basic status: autonegotiation complete, link ok
+  capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+  advertising:  100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD flow-control
+  link partner: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
 
-ext2_commit_chunk ext2_add_link ext2_add_nondir ext2_create
-ext2_commit_chunk ext2_add_link ext2_add_nondir ext2_link
-ext2_commit_chunk ext2_add_link ext2_add_nondir ext2_mknod
-ext2_commit_chunk ext2_add_link ext2_add_nondir ext2_symlink
-ext2_commit_chunk ext2_add_link ext2_mkdir
-ext2_commit_chunk ext2_add_link ext2_rename
-ext2_commit_chunk ext2_delete_entry ext2_rename
-ext2_commit_chunk ext2_delete_entry ext2_unlink ext2_rmdir
-ext2_commit_chunk ext2_make_empty ext2_mkdir
-ext2_commit_chunk ext2_set_link ext2_rename
+That's the default.  OK, the hub thinks it's FD, the adapter 
+thinks its FD.  Should be a match.  
 
-FOR CLARITY:
+Test with a large file transfer: 80 KB/s, about as expected (ie, 
+the problem still exists.
 
-items 1-4 rotated:
-ext2_create        ext2_link          ext2_mknod         ext2_symlink
-ext2_add_nondir    ext2_add_nondir    ext2_add_nondir    ext2_add_nondir
-ext2_add_link      ext2_add_link      ext2_add_link      ext2_add_link
-ext2_commit_chunk  ext2_commit_chunk  ext2_commit_chunk  ext2_commit_chunk
+Let's assume the hub is smoking something interesting and 
+force HD.  (The hub is unmanaged, so I can't force it to do 
+anything).
 
-items 5-8 rotated:
-(null)             (null)             (null)             ext2_rmdir
-ext2_mkdir         ext2_rename        ext2_rename        ext2_unlink
-ext2_add_link      ext2_add_link      ext2_delete_entry  ext2_delete_entry
-ext2_commit_chunk  ext2_commit_chunk  ext2_commit_chunk  ext2_commit_chunk
+image:~# mii-tool --force=100baseTx-HD eth0         
+image:~# mii-tool -v eth0
+eth0: 100 Mbit, half duplex, link ok
+  product info: vendor 00:10:5a, model 0 rev 0
+  basic mode:   100 Mbit, half duplex
+  basic status: link ok
+  capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+  advertising:  100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD flow-control
 
-items 9-10 rotated:
-ext2_mkdir         ext2_rename
-ext2_make_empty    ext2_set_link
-ext2_commit_chunk  ext2_commit_chunk
+OK, adapter forced to half duplex.
 
-(See this list for tool 'fscope'.)
+Test with a large file transfer -- no change, still about 80 
+KB/s.
 
-_
+Let's try to autonegotiate for the same result...
 
+image:~# mii-tool --reset eth0
+resetting the transceiver...
+image:~# mii-tool --advertise=100baseTx-HD eth0 
+restarting autonegotiation...
+image:~# mii-tool -v eth0
+eth0: negotiated 100baseTx-HD, link ok
+  product info: vendor 00:10:5a, model 0 rev 0
+  basic mode:   autonegotiation enabled
+  basic status: autonegotiation complete, link ok
+  capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+  advertising:  100baseTx-HD flow-control
+  link partner: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+
+OK, looks fine.  Test... no change.
+
+I predict hardware swaps in my future when I get home.
+
+Just for giggles, I'll try 10baseT.
+
+image:~# mii-tool --reset eth0
+resetting the transceiver...
+image:~# mii-tool --advertise=10baseT-FD eth0 
+restarting autonegotiation...
+image:~# mii-tool -v eth0
+eth0: negotiated 10baseT-FD, link ok
+  product info: vendor 00:10:5a, model 0 rev 0
+  basic mode:   autonegotiation enabled
+  basic status: autonegotiation complete, link ok
+  capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+  advertising:  10baseT-FD flow-control
+  link partner: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+
+Low-and-behold, 1.1 MB/s!  
+
+Note that this is supposedly a fast ethernet hub and a fast 
+ethernet adapter.  The other hosts on the hub all think so.
+
+I wonder if I'm plugged into a special port or something.  
+I'll play with that when I'm near the hardware later on tonight.
+
+Thanks for your help, all of you.  I think I have the answers 
+that I wanted -- namely, it's probably not a kernel problem.  
+
+I am unsure if this explains the NFS problem (ie, NFS breaks with 
+v3 enabled), but since it works via tcp, I'm not of any mind to 
+complain.  If anyone is interested, I can try without tcp but 
+with the ethernet controller in better shape and see if I can 
+still cause the same symptoms.
+
+-- 
+Matthew Hunter (matthew@infodancer.org)
+Public Key: http://matthew.infodancer.org/public_key.txt
+Homepage: http://matthew.infodancer.org/index.jsp
+Politics: http://www.triggerfinger.org/index.jsp

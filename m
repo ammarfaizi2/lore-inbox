@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287549AbRLaPzH>; Mon, 31 Dec 2001 10:55:07 -0500
+	id <S287552AbRLaQAr>; Mon, 31 Dec 2001 11:00:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287551AbRLaPy5>; Mon, 31 Dec 2001 10:54:57 -0500
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:23047 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S287549AbRLaPyl>; Mon, 31 Dec 2001 10:54:41 -0500
-Subject: Re: ATA RAID-0 FYI-Did the Impossible.
-From: Miles Lane <miles@megapathdsl.net>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10112310558030.4280-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10112310558030.4280-100000@master.linux-ide.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99+cvs.2001.12.29.08.57 (Preview Release)
-Date: 31 Dec 2001 07:55:28 -0800
-Message-Id: <1009814128.1407.59.camel@stomata.megapathdsl.net>
-Mime-Version: 1.0
+	id <S287551AbRLaQAh>; Mon, 31 Dec 2001 11:00:37 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:61956 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287552AbRLaQAT>;
+	Mon, 31 Dec 2001 11:00:19 -0500
+Date: Mon, 31 Dec 2001 14:00:02 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: <brian@worldcontrol.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Bounce from andre@linuxdiskcert.org
+In-Reply-To: <20011231163800.57cda2f7.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.33L.0112311359090.24031-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-12-31 at 06:05, Andre Hedrick wrote:
+On Mon, 31 Dec 2001, Stephan von Krawczynski wrote:
+> On Mon, 31 Dec 2001 01:38:17 -0800
+> brian@worldcontrol.com wrote:
+>
+> > [...]
+> > Would you like to be cc'ed on my spam folder?  50 to 100 spams a day?
 
-<snip>
+[snip]
 
-> If you want your system to have this kind of performance, that raise hell
-> to get the patches adopted into the main kernel.
+> > Some people have spam filters, some don't.
+>
+> In the end it's all a matter of who to trust more: yourself or others.
 
-Have you asked Linus and Marcelo why your patches aren't being 
-accepted?  Linus and Hans Reiser eventually sorted out what 
-was required for getting reiserfs into the kernel, though it 
-took some negotiation and compromise of the part of the reiserfs
-folks.  I imagine you can do the same.
+It's my mailbox, I'll filter it the way I want it filtered.
 
-It's a no-brainer that we all want fast disk I/O.
+> And to end it: I don't want to have _any_ worldcontrol ;-)
 
-	Miles
+So why are you telling us how to (not) filter our email ? ;)
+
+regards,
+
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

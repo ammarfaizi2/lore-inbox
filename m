@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129283AbQKVOTS>; Wed, 22 Nov 2000 09:19:18 -0500
+        id <S129892AbQKVOk5>; Wed, 22 Nov 2000 09:40:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129412AbQKVOTI>; Wed, 22 Nov 2000 09:19:08 -0500
-Received: from north.net.CSUChico.EDU ([132.241.66.18]:19460 "EHLO
-        north.net.csuchico.edu") by vger.kernel.org with ESMTP
-        id <S129283AbQKVOTB>; Wed, 22 Nov 2000 09:19:01 -0500
-Date: Wed, 22 Nov 2000 05:48:48 -0800
-From: John Kennedy <jk@csuchico.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.2.18pre22
-Message-ID: <20001122054848.A29453@north.csuchico.edu>
-In-Reply-To: <E13xJ14-0002Do-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E13xJ14-0002Do-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Nov 19, 2000 at 01:11:33AM +0000
+        id <S129412AbQKVOkr>; Wed, 22 Nov 2000 09:40:47 -0500
+Received: from PTP283.UNI-MUENSTER.DE ([128.176.197.201]:17024 "EHLO
+        pt2037.uni-muenster.de") by vger.kernel.org with ESMTP
+        id <S129283AbQKVOki>; Wed, 22 Nov 2000 09:40:38 -0500
+From: Bernd Nottelmann <nottelm@uni-muenster.de>
+Organization: Universitaet Muenster
+Date: Wed, 22 Nov 2000 15:10:31 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+In-Reply-To: <00111022341900.16665@pt2037> <20001111051829.A484@suse.de>
+In-Reply-To: <20001111051829.A484@suse.de>
+Subject: Success with 2.4.0-test11(-final) [was: Re: Oops with 2.4.0-test10 during ripping an audio cd with cdda2wav]
+Cc: linux-kernel@vger.kernel.org.nottelm@uni-muenster.de
+MIME-Version: 1.0
+Message-Id: <00112215103100.01219@pt2037>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 19, 2000 at 01:11:33AM +0000, Alan Cox wrote:
-> Anything which isnt a strict bug fix or previously agreed is now 2.2.19
-> material.
+On Saturday 11 November 2000 05:18, you wrote:
+ [...]
+>
+> This looks like cdrom.c:mmc_ioctl, CDROMREADAUDIO, kmalloc'ing too
+> much memory, which triggers the BUG() in slab.c. I'm not quite sure
+> how this is happening though, unless cdda2wav sets a negative ra.nframes
+> (a quick browse on a version I have here shows it does not, maybe you
+> have a different version).
+>
+> Is it reproducable? If so, could you try with this patch?
 
-  I needed to add this to get my kernel to compile.  I was trying to
-get pci_resource_start to be defined.  It was only an issue with this
-one object file, so this may or may not be the right place.
+As I already told you, the bug was reproducible, as well in 2.4.0-test10 as in
+2.4.0-test11. Today I tried it with 2.4.0-test11, the oops did happen again.
+After applying your patch I ripped the song again (I figured out that it
+was only one song, not the whole cd) and oops occured. Additionally
+I checked the song out and it was ok.
 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
---- ./drivers/scsi/megaraid.c.OLD	Tue Nov 21 07:04:57 2000
-+++ ./drivers/scsi/megaraid.c	Tue Nov 21 20:16:08 2000
-@@ -248,6 +248,8 @@
- #include <asm/uaccess.h>
- #endif
- 
-+#include <linux/kcomp.h>
-+
- #include "sd.h"
- #include "scsi.h"
- #include "hosts.h"
+  Bernd
+
+PS: for unknown reasons your attached patch was included twice
+in the file I saved on disk from it, so it came to this weird error messages
+I mentioned in my last mail.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

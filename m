@@ -1,60 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264740AbTIJILh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 04:11:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264741AbTIJILh
+	id S264737AbTIJIJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 04:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264740AbTIJIJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 04:11:37 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:53486 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S264740AbTIJIKY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 04:10:24 -0400
-Subject: Re: softraid + serverraid locking FS
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: elmer@linking.ee
+	Wed, 10 Sep 2003 04:09:58 -0400
+Received: from dp.samba.org ([66.70.73.150]:48534 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264737AbTIJIJz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 04:09:55 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <2739.195.80.106.123.1063183974.squirrel@mail.linking.ee>
-References: <2739.195.80.106.123.1063183974.squirrel@mail.linking.ee>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-FaNAC3rJm8sG09A/0/Xa"
-Organization: Red Hat, Inc.
-Message-Id: <1063181415.5021.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Wed, 10 Sep 2003 10:10:16 +0200
+Subject: Re: [RFC] add kobject to struct module 
+In-reply-to: Your message of "Tue, 09 Sep 2003 21:11:22 MST."
+             <20030910041122.GE9760@kroah.com> 
+Date: Wed, 10 Sep 2003 18:07:35 +1000
+Message-Id: <20030910080955.9318E2C0EB@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <20030910041122.GE9760@kroah.com> you write:
+> On Wed, Sep 10, 2003 at 01:31:02PM +1000, Rusty Russell wrote:
+> > Because kobject does not have a "struct module *owner", we can't
+> > simply add in the refcount.
+> 
+> Um, I don't understand.  There is no "struct module *owner in struct
+> kobject.  There is one in struct attribute, but I don't set it, so it
+> doesn't matter for this usage.
 
---=-FaNAC3rJm8sG09A/0/Xa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Your parser broke, I think 8)
 
-On Wed, 2003-09-10 at 10:52, elmer@linking.ee wrote:
->  cp -dpR lotsfiles2GB /testcopy
->=20
->                     SMP x335   UP x335
-> serverraid-serverraid  OK          OK
-> softraid-softraid      OK          OK
-> softraid-serverraid    OK          OK
-> serverraid5E-softraid  SLEEPY
-> serverraid1E-softraid                PROBLEM
->=20
-> it is redhat AS 2.4.9-25 kernel, SMP kernel for both.
+> > The module reference count is defined to never go from zero to one
+> > when the module is dying, which means callers must use
+> > try_module_get().  I grab the reference on read/write, which means
+> > opening the file won't hold the module, either.
+> 
+> read/write of what?  The attribute?  Sure, why not set the module
+> attribute sysfs file to the module that way the reference count will be
+> incremented if the sysfs file is opened.
 
-that kernel is very old and heavily patched; lkml is not the place to
-report problems, your Red Hat support contact is...
+Hmm, because there's one attribute: which module would own it?  You're
+going to creation attributes per module later (for module parameters),
+so when you do that it might make sense to do this too.
 
---=-FaNAC3rJm8sG09A/0/Xa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> But in looking at your patch, I don't see why you want to separate the
+> module from the kobject?  What benefit does it have?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+The lifetimes are separate, each controlled by their own reference
+count.  I *know* this will work even if someone holds a reference to
+the kobject (for some reason in the future) even as the module is
+removed.
 
-iD8DBQA/XtxnxULwo51rQBIRAvvTAJwOxXNi9AyMO3OE8uG8ID2xzn4drQCfaSZn
-9ms7X6YapuZU3bH6eCk/H0g=
-=GLM5
------END PGP SIGNATURE-----
+> > Were you intending to put all the info currently in /proc/modules
+> > under sysfs?  Makes sense I think.  For the options you'll need a
+> > subdir to avoid name clashes.
+> 
+> Yes, I was going to add it, this patch was more of a "test" to see how
+> receptive you were to it.
 
---=-FaNAC3rJm8sG09A/0/Xa--
+More more! 8)
+
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+

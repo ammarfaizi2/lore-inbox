@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270795AbRIJMKr>; Mon, 10 Sep 2001 08:10:47 -0400
+	id <S270847AbRIJM0D>; Mon, 10 Sep 2001 08:26:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270774AbRIJMKg>; Mon, 10 Sep 2001 08:10:36 -0400
-Received: from mailgwa0.bmwgroup.com ([192.109.190.231]:49973 "EHLO
-	mailgwa0.bmwgroup.com") by vger.kernel.org with ESMTP
-	id <S270795AbRIJMK3>; Mon, 10 Sep 2001 08:10:29 -0400
-Message-Id: <3B9CADC3.EE8BFF63@partner.bmw.de>
-Date: Mon, 10 Sep 2001 14:10:43 +0200
-From: Roderich Schupp <Roderich.Schupp@partner.bmw.de>
-Organization: argumentum GmbH
-X-Mailer: Mozilla 4.72 [de]C-CCK-MCD   (WinNT; U)
-X-Accept-Language: de,en
+	id <S270814AbRIJMZy>; Mon, 10 Sep 2001 08:25:54 -0400
+Received: from spike.porcupine.org ([168.100.189.2]:55055 "EHLO
+	spike.porcupine.org") by vger.kernel.org with ESMTP
+	id <S270797AbRIJMZm>; Mon, 10 Sep 2001 08:25:42 -0400
+Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
+In-Reply-To: <20010910100537.W26627@khan.acc.umu.se> "from David Weinehall at
+ Sep 10, 2001 10:05:37 am"
+To: David Weinehall <tao@acc.umu.se>
+Date: Mon, 10 Sep 2001 08:26:03 -0400 (EDT)
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Wietse Venema <wietse@porcupine.org>,
+        kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, netdev@oss.sgi.com
+X-Time-Zone: USA EST, 6 hours behind central European time
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problems with SCSI emulation and suspend
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20010910122603.80CA4BC06C@spike.porcupine.org>
+From: wietse@porcupine.org (Wietse Venema)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-recently I noticed the following strange behaviour with
-my laptop (Toshiba Satellite 4300 series):
+David Weinehall:
+> Are you saying that Linux should implement compability with _new_
+> features in FreeBSD 4.x, while at the same time frowning at the fact
+> that Linux introduces a new API?! The mind boggles at the thought.
 
-When I have a CDROM mounted and then suspend/resume, I get
-errors accessing the files on the CDROM (at least those
-whose contents are not in the page cache). Applications
-trying to read get EIO and syslog shows:
+SIOCGIFNETMASK is not "new". It exists in systems as ancient as
+SunOS 4.x, which pre dates FreeBSD 4.x by about 10 years. 
 
-Sep 09 12:21:04 click kernel:  I/O error: dev 0b:00, sector 292748
+Evidence: RTFM the Postfix source code :-)
 
-and sometimes also
+In other words, SIOCGIFNETMASK existed long before Linux could plug
+into a network.
 
-Sep 09 12:26:08 click kernel: SCSI cdrom error : host 0 channel 0 id 0
-lun 0 return code = 28000000
-Sep 09 12:26:08 click kernel: ILI Current sd0b:00: sense key Illegal
-Request
-Sep 09 12:26:08 click kernel: Additional sense indicates Illegal mode
-for this track
-Sep 09 12:26:08 click kernel:  I/O error: dev 0b:00, sector 315304
-
-Note that I use SCSI over IDE emulation to access the CDROM drive.
-The problem doesn't show when I switch to "pure" IDE access.
-Also, even when using IDE SCSI, it's just that accesses via the
-filesystem fail, reading the device with e.g. dd shows
-no problems.
-
-Kernel is vanilla 2.4.9-pre4.
-
-Cheers, Roderich
-
-
- 
-------------------------------------------------------------------
-      sw-engineering & production environment at BMW group
-------------------------------------------------------------------
-roderich schupp                     roderich.schupp@partner.bmw.de       
-dipl.math.                          tel  : +49 (0)89 382   -34944
-argumentum gmbh                     fax  : +49 (0)89 38270 -34944
+	Wietse

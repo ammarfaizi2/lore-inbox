@@ -1,71 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289080AbSAGCSv>; Sun, 6 Jan 2002 21:18:51 -0500
+	id <S289090AbSAGCXB>; Sun, 6 Jan 2002 21:23:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289081AbSAGCSn>; Sun, 6 Jan 2002 21:18:43 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:28168 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289080AbSAGCS3>;
-	Sun, 6 Jan 2002 21:18:29 -0500
-Date: Mon, 7 Jan 2002 00:18:13 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
-        Legacy Fishtank <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org,
-        ext2-devel@lists.sourceforge.net, Alexander Viro <viro@math.psu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC] [PATCH] Clean up fs.h union for ext2
-Message-ID: <20020107021813.GA2686@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Anton Altaparmakov <aia21@cam.ac.uk>,
-	Legacy Fishtank <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org,
-	ext2-devel@lists.sourceforge.net, Alexander Viro <viro@math.psu.edu>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <5.1.0.14.2.20020106035716.02c49b80@pop.cus.cam.ac.uk> <5.1.0.14.2.20020107000736.04eb1c90@pop.cus.cam.ac.uk> <20020107012739.GB1920@conectiva.com.br> <E16NPGi-0001N0-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16NPGi-0001N0-00@starship.berlin>
-User-Agent: Mutt/1.3.25i
-X-Url: http://advogato.org/person/acme
+	id <S289083AbSAGCWv>; Sun, 6 Jan 2002 21:22:51 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:43272 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289082AbSAGCWd>;
+	Sun, 6 Jan 2002 21:22:33 -0500
+Date: Mon, 7 Jan 2002 00:22:09 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Ken Brownfield <brownfld@irridia.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <Pine.LNX.4.33L.0201062342150.872-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.33L.0201070021180.872-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Jan 07, 2002 at 03:12:06AM +0100, Daniel Phillips escreveu:
-> On January 7, 2002 02:27 am, Arnaldo Carvalho de Melo wrote:
-> > When I did similar work for the network protocols, cleaning up
-> > include/net/fs.h DaveM asked for benchmarks to see if the new approach,
-> > i.e., using per network family slabcaches would lead to a performance drop,
-> > I did it and we realized that it lead to performance _gains_, that in turn
-> > made DaveM ask for a per network protocol slabcache, which made furter
-> > memory savings and lead to further performance gains.
-> 
-> Oh, so that's why you were too busy to do the fs.h patch ;-)
+On Sun, 6 Jan 2002, Rik van Riel wrote:
+> On Sat, 5 Jan 2002, Stephan von Krawczynski wrote:
+>
+> > I am pretty impressed by Martins test case where merely all VM patches
+> > fail with the exception of his own :-)
+>
+> No big wonder if both -aa and -rmap only get tested without swap ;)
 
-*grin* And I still have to break the ipv6_sk_cachep into tcp6_sk_cachep,
-udp6_sk_cachep and raw6_sk_cachep and test if moving the IPv4 identity
-members in struct sock (sport, dport, saddr, rcv_saddr, daddr, etc) to
-struct inet_opt is ok performance wise, doing that would remove the last
-remnants of protocol specific stuff from include/net/sock.h 8)
+To be clear ... -aa and -rmap should of course also work
+nicely without swap, no excuses for the bad behaviour
+shown in Martin's test, but at the moment they simply
+don't seem tuned for it.
 
-<SNIP>
- 
-> Even if we leave the generic_ip in the common inode, we will for sure remove 
-> the union at some point, meaning that even filesystems that use the 
-> generic_ip now will have to do a big edit to clean up the fallout.  Which 
-> isn't such a bad thing I suppose.
+regards,
 
-yes, in the sock.h cleanup the protinfo big union turned into just a void
-pointer.
- 
-> If we wanted to be lazy, we could just leave the union there, with one 
-> element, the generic_ip.  How ugly would that be?
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
 
-Well, it can be left for later, first step would be to abstract the access
-to the private areas in all the filesystems, but hey, don't worry as as
-from the quick look I had some of the filesystems already use abstractions
-for such access, like MSDOS_I, ext3 already does, NTFS NG also, etc 8)
+http://www.surriel.com/		http://distro.conectiva.com/
 
-- Arnaldo

@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVAYUda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVAYUdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbVAYUda (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 15:33:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbVAYUbK
+	id S262121AbVAYUdb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 15:33:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVAYUax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 15:31:10 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:30618
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262117AbVAYUa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:30:28 -0500
-Subject: Re: wait_for_completion API extension addition
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <41F6AA83.20306@sun.com>
-References: <41F6AA83.20306@sun.com>
-Content-Type: text/plain
-Date: Tue, 25 Jan 2005 21:30:22 +0100
-Message-Id: <1106685023.4538.18.camel@tglx.tec.linutronix.de>
+	Tue, 25 Jan 2005 15:30:53 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4245 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262120AbVAYUa3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 15:30:29 -0500
+Date: Tue, 25 Jan 2005 12:30:14 -0800
+From: Greg KH <greg@kroah.com>
+To: Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SuperHyway bus support
+Message-ID: <20050125203014.GA12154@kroah.com>
+References: <20041027075248.GA26760@pointless.research.nokia.com> <20050107072222.GB24441@kroah.com> <20050107094103.GA7408@pointless.research.nokia.com> <20050107162945.GA19043@pointless.research.nokia.com> <20050112081722.GA2745@kroah.com> <20050112124836.GA9315@pointless.research.nokia.com> <20050125140844.GB8375@linux-sh.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050125140844.GB8375@linux-sh.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-25 at 15:22 -0500, Mike Waychison wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Hi Ingo,
-> 
-> I noticed that the wait_for_completion API extensions made it into mainline.
-> 
-> However, I posted that the patch in question is broken a while back:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=110131832828126&w=2
-> 
-> Can we fix this?
+On Tue, Jan 25, 2005 at 04:08:44PM +0200, Paul Mundt wrote:
+> On Wed, Jan 12, 2005 at 02:48:36PM +0200, Paul Mundt wrote:
+> > > Did you forget a .h file with these function prototypes?
+> > > 
+> > Yes, it would seem that way. Here we go again:
+> > 
+> I haven't heard anything else from you about this since the last update,
+> do you have any more issues with this code? If not, can you merge this?
 
-We reposted a fixed version. It should not be the one from October which
-made it upstream.
+I don't have any more issues, it's in my TODO queue, and I should get to
+it tonight or tomorrow (supposed to be working on my house this week,
+not merging patches...)
 
-tglx
+thanks,
 
-
+greg k-h

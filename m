@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267188AbTA0Mgo>; Mon, 27 Jan 2003 07:36:44 -0500
+	id <S266712AbTA0Nlp>; Mon, 27 Jan 2003 08:41:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267190AbTA0Mgo>; Mon, 27 Jan 2003 07:36:44 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:8452 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267188AbTA0Mgn>;
-	Mon, 27 Jan 2003 07:36:43 -0500
-Date: Mon, 27 Jan 2003 13:42:44 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: David Wagner <daw@mozart.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider)
-Message-ID: <20030127124241.GB650@elf.ucw.cz>
-References: <20030124154935.GB20371@elf.ucw.cz> <20030124171415.34636.qmail@web80310.mail.yahoo.com> <20030124180255.GF1099@marowsky-bree.de> <b0sqag$mau$1@abraham.cs.berkeley.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b0sqag$mau$1@abraham.cs.berkeley.edu>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S266952AbTA0Nlp>; Mon, 27 Jan 2003 08:41:45 -0500
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:31628 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S266712AbTA0Nlp> convert rfc822-to-8bit;
+	Mon, 27 Jan 2003 08:41:45 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Jens Axboe <axboe@suse.de>, Mark Hahn <hahn@physics.mcmaster.ca>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: ATA TCQ  problems in 2.5.59
+Date: Mon, 27 Jan 2003 14:50:59 +0100
+User-Agent: KMail/1.4.1
+References: <200301261605.00539.roy@karlsbakk.net> <Pine.LNX.4.44.0301261116390.16853-100000@coffee.psychology.mcmaster.ca> <20030126162120.GO889@suse.de>
+In-Reply-To: <20030126162120.GO889@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301271450.59304.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > but it's a flag, not a count.  use CONFIG_BLK_DEV_IDE_TCQ_DEPTH
+> > if you want something other than the default depth of 1.
+>
+> It's a flag, correct. The default depth is 32 though, not 1. And with
+> newer hdparms you can use -Q to set/query the tag depth of the drive. Be
+> careful with that though, it's not too well tested. IDE TCQ in 2.5 needs
+> a bit of work, I hope to do so soonish...
 
-> >All alternatives I have seen to UML (plex, vmware, UMLinux) suck IMHO.
-> 
-> It seems plausible to expect that it might be easier to verify security
-> in plex86-based approaches than it is to verify security in UML.
+but shouldn't the 'echo using_tcq:32' be equivilent of hdparm -Q?
 
-As plex86 uses pretty obscure tricks (like PVI -- is it even
-documented in official Intel docs?), I doubt it is going to be easier
-to verify.
-								Pavel
+roy
 
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

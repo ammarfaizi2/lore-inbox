@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130617AbRCEFJd>; Mon, 5 Mar 2001 00:09:33 -0500
+	id <S130619AbRCEFWx>; Mon, 5 Mar 2001 00:22:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130620AbRCEFJY>; Mon, 5 Mar 2001 00:09:24 -0500
-Received: from trna.ximian.com ([63.140.225.254]:26628 "EHLO trna.ximian.com")
-	by vger.kernel.org with ESMTP id <S130617AbRCEFJK>;
-	Mon, 5 Mar 2001 00:09:10 -0500
-Date: Mon, 5 Mar 2001 00:08:32 -0500 (EST)
-From: Ettore Perazzoli <ettore@ximian.com>
-To: Jonathan Morton <chromi@cyberspace.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Interesting fs corruption story
-In-Reply-To: <l03130300b6c8c71f0c7c@[192.168.239.101]>
-Message-ID: <Pine.LNX.4.21.0103042335560.11673-100000@trna.ximian.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130622AbRCEFWo>; Mon, 5 Mar 2001 00:22:44 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:29848 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S130621AbRCEFWl>; Mon, 5 Mar 2001 00:22:41 -0500
+Message-Id: <l03130301b6c8cc2a3bd4@[192.168.239.101]>
+In-Reply-To: <3AA2E7B4.37945C66@netaccess.co.nz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 5 Mar 2001 04:54:15 +0000
+To: alastair@netaccess.co.nz, linux-kernel@vger.kernel.org
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: Index of Kernel Configuration Options
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You could try turning off DMA (rebuild your kernel again, and turn off "use
-> DMA by default").  
+>Does anyone know whereabouts I could go to get an index of all
+>configurations options (i.e. drivers, etc.) that are available in the
+>latest Linux kernel? I am waiting on a kernel mode driver for my USB
+>digital camera, but I don't want to go ahead and download the full 24Mb
+>just to find out if the support is available yet.
 
-Would this be in any way different from just `hdparm -d0 /dev/hda'?
+No idea, but if nobody else has a better idea, you could download one
+kernel and inspect it, then simply monitor the *patches* (which are much
+smaller) to see when your camera gets support.
 
-> UDMA is known to work reliably only with a (reasonably
-> broad) subset of chipsets, and it is likely that laptop chipsets get the
-> least testing.  If turning off DMA fixes the problem for you, we at least
-> know where to start looking.
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-Sure I can try this, although it's hard to safely say if the problem is
-fixed or not, as it's not reliably reproduceable.
+The key to knowledge is not to rely on people to teach you it.
 
-BTW, the Inspiron seemed to work just fine with DMA turned on, before the
-drive was replaced, with the 2.2.16 kernel that Red Hat ships.  (I always
-had DMA turned on, and that was for about six months, without any problems
-ever.)
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
-Also, I have some friends using T20s with the same drive without any
-problems, with DMA turned on.
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
+-----END GEEK CODE BLOCK-----
 
-Is there any kind of IDE DMA test I could run to see if it works reliably?
-
--- 
-Ettore
 

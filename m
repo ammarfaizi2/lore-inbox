@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317505AbSGERMq>; Fri, 5 Jul 2002 13:12:46 -0400
+	id <S317506AbSGERRz>; Fri, 5 Jul 2002 13:17:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317506AbSGERMp>; Fri, 5 Jul 2002 13:12:45 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:43426 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S317505AbSGERMo>;
-	Fri, 5 Jul 2002 13:12:44 -0400
-Date: Fri, 5 Jul 2002 10:09:26 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Greg KH <gregkh@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove BKL from driverfs
-In-Reply-To: <3D23EA93.7090106@us.ibm.com>
-Message-ID: <Pine.LNX.4.33.0207051001560.8496-100000@geena.pdx.osdl.net>
+	id <S317512AbSGERRy>; Fri, 5 Jul 2002 13:17:54 -0400
+Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:39059 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S317506AbSGERRx>;
+	Fri, 5 Jul 2002 13:17:53 -0400
+Message-ID: <3D25D550.6060109@candelatech.com>
+Date: Fri, 05 Jul 2002 10:20:16 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Question concerning ifconfig
+References: <180577A42806D61189D30008C7E632E8793972@boca213a.boca.ssc.siemens.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 3 Jul 2002, Dave Hansen wrote:
-
-> I saw your talk about driverfs at OLS and it got my attention.  When 
-> my BKL debugging patch showed some use of the BKL in driverfs, I was 
-> very dissapointed (you can blame Greg if you want).
-
-I'm sorry to hear about your distress. Hopefully you've had a chance to 
-talk to someone about it and calm down a bit. 
-
-> text from dmesg after BKL debugging patch:
-> release of recursive BKL hold, depth: 1
-> [ 0]main:492
-> [ 1]inode:149
+Bloch, Jack wrote:
+> I am running a Red Hat 7.2 load (Kernel version 2.4.7-10). I am trying to
+> enter the following command to change the MAC address on my device.
 > 
-> I see no reason to hold the BKL in your situation.  I replaced it with 
-> i_sem in some places and just plain removed it in others.  I believe 
-> that you get all of the protection that you need from dcache_lock in 
-> the dentry insert and activate.  Can you prove me wrong?
+> ifconfig ifp0 hw ether A2:A5:A5:01:00:00
+> 
+> ifp0 is my own device which replaces eth0. The system gives me a response
+> "SIOCSIFHWADDR : device or resources busy"
+> The same exact command works on my 2.2.16 Kernel. Any ideas why the error.
+> Please CC me directly in any responses.
 
-No, and I'm not about to try very hard. It appears that the place you 
-removed it should be fine. In driverfs_unlink, you replace it with i_sem. 
-ramfs, which driverfs mimmicks, doesn't hold any lock during unlink. It 
-seems it could be removed altogether. 
+ifconfig ifp0 down
 
-The other replacement happens in _lseek. That looks fine, though I 
-think that entire function can be replaced with one of the generic lseek 
-functions...
+first, then it should work.
 
-Patch applied. Thanks,
+Ben
 
-	-pat
+> 
+> Thanks in advance,  
+> 
+> Jack Bloch
+> Siemens Carrier Networks
+> e-mail    : jack.bloch@icn.siemens.com
+> phone     : (561) 923-6550
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

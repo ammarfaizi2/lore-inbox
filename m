@@ -1,450 +1,313 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267825AbTAHRLl>; Wed, 8 Jan 2003 12:11:41 -0500
+	id <S267681AbTAHRMx>; Wed, 8 Jan 2003 12:12:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267831AbTAHRLk>; Wed, 8 Jan 2003 12:11:40 -0500
-Received: from [213.171.53.133] ([213.171.53.133]:55826 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id <S267825AbTAHRLe>;
-	Wed, 8 Jan 2003 12:11:34 -0500
-Date: Wed, 8 Jan 2003 20:20:13 +0300 (MSK)
-From: "Ruslan U. Zakirov" <cubic@miee.ru>
-To: linux-kernel@vger.kernel.org
-cc: ambx1@neo.rr.com
-Subject: [2.5.54][PATCH] SB16 convertation to new PnP layer.
-Message-ID: <Pine.BSF.4.05.10301081959130.88742-100000@wildrose.miee.ru>
+	id <S267683AbTAHRMx>; Wed, 8 Jan 2003 12:12:53 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:34565 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id <S267681AbTAHRMp>; Wed, 8 Jan 2003 12:12:45 -0500
+Date: Wed, 8 Jan 2003 12:21:12 -0500 (EST)
+From: root <root@oddball-en.prodigy.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG] 2.5.54-mm3 OOPS in apm
+Message-ID: <Pine.LNX.4.44.0301081217450.1131-202000@oddball.prodigy.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-715327198-1042046472=:1131"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Adam and All.
-Here is patch to sb16.c that makes it posible to compile and use this
-driver under 2.5.54-vanilla.
-It working for me as module and built in kernel, but it's need testing.
-                            Ruslan. 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---- sound/isa/sb/sb16.c~	2003-01-04 17:32:00.000000000 +0300
-+++ sound/isa/sb/sb16.c	2003-01-09 19:25:50.000000000 +0300
-@@ -23,11 +23,7 @@
- #include <asm/dma.h>
- #include <linux/init.h>
- #include <linux/slab.h>
--#ifndef LINUX_ISAPNP_H
--#include <linux/isapnp.h>
--#define isapnp_card pci_bus
--#define isapnp_dev pci_dev
--#endif
-+#include <linux/pnp.h>
- #include <sound/core.h>
- #include <sound/sb.h>
- #include <sound/sb16_csp.h>
-@@ -77,7 +73,7 @@
- static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
- static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
- static int enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_ISAPNP; /* Enable this card */
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- static int isapnp[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = 1};
- #endif
- static long port[SNDRV_CARDS] = SNDRV_DEFAULT_PORT;	/* 0x220,0x240,0x260,0x280 */
-@@ -106,7 +102,7 @@
- MODULE_PARM(enable, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
- MODULE_PARM_DESC(enable, "Enable SoundBlaster 16 soundcard.");
- MODULE_PARM_SYNTAX(enable, SNDRV_ENABLE_DESC);
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- MODULE_PARM(isapnp, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
- MODULE_PARM_DESC(isapnp, "ISA PnP detection for specified soundcard.");
- MODULE_PARM_SYNTAX(isapnp, SNDRV_ISAPNP_DESC);
-@@ -150,161 +146,130 @@
- 
- struct snd_sb16 {
- 	struct resource *fm_res;	/* used to block FM i/o region for legacy cards */
--#ifdef __ISAPNP__
--	struct isapnp_dev *dev;
-+#ifdef CONFIG_PNP
-+	struct pnp_dev *dev;
- #ifdef SNDRV_SBAWE_EMU8000
--	struct isapnp_dev *devwt;
-+	struct pnp_dev *devwt;
- #endif
- #endif
- };
- 
- static snd_card_t *snd_sb16_cards[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
- 
--#ifdef __ISAPNP__
--
--static struct isapnp_card *snd_sb16_isapnp_cards[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
--static const struct isapnp_card_id *snd_sb16_isapnp_id[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
-+#ifdef CONFIG_PNP
- 
--#define ISAPNP_SB16(_va, _vb, _vc, _device, _audio) \
--	{ \
--		ISAPNP_CARD_ID(_va, _vb, _vc, _device), \
--		devs : { ISAPNP_DEVICE_ID(_va, _vb, _vc, _audio), } \
--	}
--#define ISAPNP_SBAWE(_va, _vb, _vc, _device, _audio, _awe) \
--	{ \
--		ISAPNP_CARD_ID(_va, _vb, _vc, _device), \
--		devs : { ISAPNP_DEVICE_ID(_va, _vb, _vc, _audio), \
--			 ISAPNP_DEVICE_ID(_va, _vb, _vc, _awe), } \
--	}
-+static struct pnp_card *snd_sb16_isapnp_cards[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
-+static const struct pnp_card_id *snd_sb16_isapnp_id[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
- 
--static struct isapnp_card_id snd_sb16_pnpids[] __devinitdata = {
-+static struct pnp_card_id snd_sb16_pnpids[] = {
- #ifndef SNDRV_SBAWE
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x0024,0x0031),
-+	{.id = "CTL0024", .driver_data=0, devs: { {.id="CTL0031"}, }},
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x0025,0x0031),
-+	{.id = "CTL0025", .driver_data=0, devs: { {.id="CTL0031"}, }},
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x0026,0x0031),
-+	{.id = "CTL0026", .driver_data=0, devs: { {.id="CTL0031"}, }},
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x0027,0x0031),
-+	{.id = "CTL0027", .driver_data=0, devs: { {.id="CTL0031"}, }},
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x0028,0x0031),
-+	{.id = "CTL0028", .driver_data=0, devs: { {.id="CTL0031"}, }},
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x0029,0x0031),
-+	{.id = "CTL0029", .driver_data=0, devs: { {.id="CTL0031"}, }},
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x002a,0x0031),
-+	{.id = "CTL002a", .driver_data=0, devs: { {.id="CTL0031"}, }},
- 	/* Sound Blaster 16 PnP */
- 	/* Note: This card has also a CTL0051:StereoEnhance device!!! */
--	ISAPNP_SB16('C','T','L',0x002b,0x0031),
-+	{.id = "CTL002b", .driver_data=0, devs: { {.id="CTL0031"}, }},
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x002c,0x0031),	
-+	{.id = "CTL002c", .driver_data=0, devs: { {.id="CTL0031"}, }},
- 	/* Sound Blaster Vibra16S */
--	ISAPNP_SB16('C','T','L',0x0051,0x0001),
-+	{.id = "CTL0051", .driver_data=0, devs: { {.id="CTL0001"}, }},
- 	/* Sound Blaster Vibra16C */
--	ISAPNP_SB16('C','T','L',0x0070,0x0001),
-+	{.id = "CTL0070", .driver_data=0, devs: { {.id="CTL0001"}, }},
- 	/* Sound Blaster Vibra16CL - added by ctm@ardi.com */
--	ISAPNP_SB16('C','T','L',0x0080,0x0041),
-+	{.id = "CTL0080", .driver_data=0, devs: { {.id="CTL0041"}, }},
- 	/* Sound Blaster Vibra16X */
--	ISAPNP_SB16('C','T','L',0x00f0,0x0043),
-+	{.id = "CTL00f0", .driver_data=0, devs: { {.id="CTL0043"}, }}
- #else  /* SNDRV_SBAWE defined */
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0035,0x0031,0x0021),
-+	{.id = "CTL0035", .driver_data=0, devs: { {.id="CTL0031"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0039,0x0031,0x0021),
-+	{.id = "CTL0039", .driver_data=0, devs: { {.id="CTL0031"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0042,0x0031,0x0021),
-+	{.id = "CTL0042", .driver_data=0, devs: { {.id="CTL0031"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0043,0x0031,0x0021),
-+	{.id = "CTL0043", .driver_data=0, devs: { {.id="CTL0031"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster AWE 32 PnP */
- 	/* Note: This card has also a CTL0051:StereoEnhance device!!! */
--	ISAPNP_SBAWE('C','T','L',0x0044,0x0031,0x0021),
-+	{.id = "CTL0044", .driver_data=0, devs: { {.id="CTL0031"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster AWE 32 PnP */
- 	/* Note: This card has also a CTL0051:StereoEnhance device!!! */
--	ISAPNP_SBAWE('C','T','L',0x0045,0x0031,0x0021),
-+	{.id = "CTL0045", .driver_data=0, devs: { {.id="CTL0031"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0046,0x0031,0x0021),
-+	{.id = "CTL0046", .driver_data=0, devs: { {.id="CTL0031"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0047,0x0031,0x0021),
-+	{.id = "CTL0047", .driver_data=0, devs: { {.id="CTL0031"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0048,0x0031,0x0021),
-+	{.id = "CTL0048", .driver_data=0, devs: { {.id="CTL0031"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0054,0x0031,0x0021),
-+	{.id = "CTL0054", .driver_data=0, devs: { {.id="CTL0031"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x009a,0x0041,0x0021),
-+	{.id = "CTL009a", .driver_data=0, devs: { {.id="CTL0041"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x009c,0x0041,0x0021),
-+	{.id = "CTL009c", .driver_data=0, devs: { {.id="CTL0041"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x009f,0x0041,0x0021),
-+	{.id = "CTL009f", .driver_data=0, devs: { {.id="CTL0041"}, {.id="CTL0021"}, }},
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x009d,0x0042,0x0022),
-+	{.id = "CTL009d", .driver_data=0, devs: { {.id="CTL0042"}, {.id="CTL0022"}, }},
- 	/* Sound Blaster AWE 64 PnP Gold */
--	ISAPNP_SBAWE('C','T','L',0x009e,0x0044,0x0023),
-+	{.id = "CTL009e", .driver_data=0, devs: { {.id="CTL0044"}, {.id="CTL0023"}, }},
- 	/* Sound Blaster AWE 64 PnP Gold */
--	ISAPNP_SBAWE('C','T','L',0x00b2,0x0044,0x0023),
-+	{.id = "CTL00b2", .driver_data=0, devs: { {.id="CTL0044"}, {.id="CTL0023"}, }},
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x00c1,0x0042,0x0022),
-+	{.id = "CTL00c1", .driver_data=0, devs: { {.id="CTL0042"}, {.id="CTL0022"}, }},
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x00c3,0x0045,0x0022),
-+	{.id = "CTL00c3", .driver_data=0, devs: { {.id="CTL0045"}, {.id="CTL0022"}, }},
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x00c5,0x0045,0x0022),
-+	{.id = "CTL00c5", .driver_data=0, devs: { {.id="CTL0045"}, {.id="CTL0022"}, }},
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x00c7,0x0045,0x0022),
-+	{.id = "CTL00c7", .driver_data=0, devs: { {.id="CTL0045"}, {.id="CTL0022"}, }},
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x00e4,0x0045,0x0022),
-+	{.id = "CTL00e4", .driver_data=0, devs: { {.id="CTL0045"}, {.id="CTL0022"}, }},
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x00e9,0x0045,0x0022),
--	/* Sound Blaster 16 PnP (AWE) */
--	ISAPNP_SBAWE('C','T','L',0x00ed,0x0041,0x0070),
-+	{.id = "CTL00e9", .driver_data=0, devs: { {.id="CTL0045"}, {.id="CTL0022"}, }},
-+	/* Sound Blaster 16 PnP (AWE} */
-+	{.id = "CTL00ed", .driver_data=0, devs: { {.id="CTL0041"}, {.id="CTL0070"}, }},
- 	/* Generic entries */
--	ISAPNP_SBAWE('C','T','L',ISAPNP_ANY_ID,0x0031,0x0021),
--	ISAPNP_SBAWE('C','T','L',ISAPNP_ANY_ID,0x0041,0x0021),
--	ISAPNP_SBAWE('C','T','L',ISAPNP_ANY_ID,0x0042,0x0022),
--	ISAPNP_SBAWE('C','T','L',ISAPNP_ANY_ID,0x0044,0x0023),
--	ISAPNP_SBAWE('C','T','L',ISAPNP_ANY_ID,0x0045,0x0022),
-+	{.id = "CTLXXXX", .driver_data=0, devs: { {.id="CTL0031"}, {.id="CTL0021"}, }},
-+	{.id = "CTLXXXX", .driver_data=0, devs: { {.id="CTL0041"}, {.id="CTL0021"}, }},
-+	{.id = "CTLXXXX", .driver_data=0, devs: { {.id="CTL0042"}, {.id="CTL0022"}, }},
-+	{.id = "CTLXXXX", .driver_data=0, devs: { {.id="CTL0044"}, {.id="CTL0023"}, }},
-+	{.id = "CTLXXXX", .driver_data=0, devs: { {.id="CTL0045"}, {.id="CTL0022"}, }},
- #endif /* SNDRV_SBAWE */
--	{ ISAPNP_CARD_END, }
-+	{.id="", }
- };
- 
--ISAPNP_CARD_TABLE(snd_sb16_pnpids);
-+/*ISAPNP_CARD_TABLE(snd_sb16_pnpids);*/
- 
- static int __init snd_sb16_isapnp(int dev, struct snd_sb16 *acard)
- {
--	const struct isapnp_card_id *id = snd_sb16_isapnp_id[dev];
--	struct isapnp_card *card = snd_sb16_isapnp_cards[dev];
--	struct isapnp_dev *pdev;
--
--	acard->dev = isapnp_find_dev(card, id->devs[0].vendor, id->devs[0].function, NULL);
--	if (acard->dev->active) {
--		acard->dev = NULL;
--		return -EBUSY;
-+	const struct pnp_card_id *id = snd_sb16_isapnp_id[dev];
-+	struct pnp_card *card = snd_sb16_isapnp_cards[dev];
-+	struct pnp_dev *pdev;
-+
-+	acard->dev = pnp_request_card_device(card, id->devs[0].id, NULL);
-+	if (!acard->dev) {
-+		printk(KERN_ERR PFX "isapnp configure failure (no device or busy)\n");
-+		return -ENODEV;
- 	}
- #ifdef SNDRV_SBAWE_EMU8000
--	acard->devwt = isapnp_find_dev(card, id->devs[1].vendor, id->devs[1].function, NULL);
--	if (acard->devwt->active) {
--		acard->dev = acard->devwt = NULL;
--		return -EBUSY;
-+	acard->devwt = pnp_request_card_device(card, id->devs[1].id, NULL);
-+	if (!acard->devwt) {
-+		printk(KERN_ERR PFX "isapnp configure failure (no device or busy)\n");
-+		return -ENODEV;
- 	}
- #endif	
--	/* Audio initialization */
- 	pdev = acard->dev;
--	if (pdev->prepare(pdev) < 0)
--		return -EAGAIN;
--	if (port[dev] != SNDRV_AUTO_PORT)
--		isapnp_resource_change(&pdev->resource[0], port[dev], 16);
--	if (mpu_port[dev] != SNDRV_AUTO_PORT)
--		isapnp_resource_change(&pdev->resource[1], mpu_port[dev], 2);
--	if (fm_port[dev] != SNDRV_AUTO_PORT)
--		isapnp_resource_change(&pdev->resource[2], fm_port[dev], 4);
--	if (dma8[dev] != SNDRV_AUTO_DMA)
--		isapnp_resource_change(&pdev->dma_resource[0], dma8[dev], 1);
--	if (dma16[dev] != SNDRV_AUTO_DMA)
--		isapnp_resource_change(&pdev->dma_resource[1], dma16[dev], 1);
--	if (irq[dev] != SNDRV_AUTO_IRQ)
--		isapnp_resource_change(&pdev->irq_resource[0], irq[dev], 1);
--	if (pdev->activate(pdev) < 0) {
--		printk(KERN_ERR PFX "isapnp configure failure (out of resources?)\n");
--		return -EBUSY;
--	}
- 	port[dev] = pdev->resource[0].start;
- 	mpu_port[dev] = pdev->resource[1].start;
- 	fm_port[dev] = pdev->resource[2].start;
-@@ -318,7 +283,7 @@
- #ifdef SNDRV_SBAWE_EMU8000
- 	/* WaveTable initialization */
- 	pdev = acard->devwt;
--	if (pdev->prepare(pdev)<0) {
-+/*	if (pdev->prepare(pdev)<0) {
- 		acard->dev->deactivate(acard->dev);
- 		return -EAGAIN;
- 	}
-@@ -331,28 +296,13 @@
- 		printk(KERN_ERR PFX "WaveTable isapnp configure failure (out of resources?)\n");
- 		acard->dev->deactivate(acard->dev);		
- 		return -EBUSY;
--	}
-+	}*/
- 	awe_port[dev] = pdev->resource[0].start;
- 	snd_printdd("isapnp SB16: wavetable port=0x%lx\n", pdev->resource[0].start);
- #endif
- 	return 0;
- }
--
--static void snd_sb16_deactivate(struct snd_sb16 *acard)
--{
--	if (acard->dev) {
--		acard->dev->deactivate(acard->dev);
--		acard->dev = NULL;
--	}
--#ifdef SNDRV_SBAWE_EMU8000
--	if (acard->devwt) {
--		acard->devwt->deactivate(acard->devwt);
--		acard->devwt = NULL;
--	}
--#endif
--}
--
--#endif /* __ISAPNP__ */
-+#endif /* CONFIG_PNP */
- 
- static void snd_sb16_free(snd_card_t *card)
- {
-@@ -364,8 +314,9 @@
- 		release_resource(acard->fm_res);
- 		kfree_nocheck(acard->fm_res);
- 	}
--#ifdef __ISAPNP__
--	snd_sb16_deactivate(acard);
-+#ifdef CONFIG_PNP
-+	acard->devwt=NULL;
-+	acard->dev=NULL;
- #endif
- }
- 
-@@ -392,7 +343,7 @@
- 		return -ENOMEM;
- 	acard = (struct snd_sb16 *) card->private_data;
- 	card->private_free = snd_sb16_free;
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 	if (isapnp[dev] && snd_sb16_isapnp(dev, acard) < 0) {
- 		snd_card_free(card);
- 		return -EBUSY;
-@@ -402,7 +353,7 @@
- 	xirq = irq[dev];
- 	xdma8 = dma8[dev];
- 	xdma16 = dma16[dev];
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 	if (!isapnp[dev]) {
- #endif
- 	if (xirq == SNDRV_AUTO_IRQ) {
-@@ -434,7 +385,7 @@
- 	/* non-PnP AWE port address is hardwired with base port address */
- 	awe_port[dev] = port[dev] + 0x400;
- #endif
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 	}
- #endif
- 
-@@ -455,7 +406,7 @@
- 		return -ENODEV;
- 	}
- 	chip->mpu_port = mpu_port[dev];
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 	if (!isapnp[dev] && (err = snd_sb16dsp_configure(chip)) < 0) {
- #else
- 	if ((err = snd_sb16dsp_configure(chip)) < 0) {
-@@ -563,7 +514,7 @@
- 	for ( ; dev < SNDRV_CARDS; dev++) {
- 		if (!enable[dev] || port[dev] != SNDRV_AUTO_PORT)
- 			continue;
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 		if (isapnp[dev])
- 			continue;
- #endif
-@@ -576,10 +527,10 @@
- 	return -ENODEV;
- }
- 
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 
--static int __init snd_sb16_isapnp_detect(struct isapnp_card *card,
--					 const struct isapnp_card_id *id)
-+static int __init snd_sb16_isapnp_detect(struct pnp_card *card,
-+					 const struct pnp_card_id *id)
- {
- 	static int dev;
- 	int res;
-@@ -599,7 +550,22 @@
- 	return -ENODEV;
- }
- 
--#endif /* __ISAPNP__ */
-+static void snd_sb16_isapnp_remove(struct pnp_card * card)
-+{
-+	/*FIX ME*/
-+}
-+
-+static struct pnpc_driver sb16_pnpc_driver = {
-+#ifndef SNDRV_SBAWE
-+	.name		= "sb16",
-+#else
-+	.name		= "sbawe",
-+#endif
-+	.id_table	= snd_sb16_pnpids,
-+	.probe		= snd_sb16_isapnp_detect,
-+	.remove		= snd_sb16_isapnp_remove
-+};
-+#endif /* CONFIG_PNP */
- 
- static int __init alsa_card_sb16_init(void)
- {
-@@ -610,7 +576,7 @@
- 	for (dev = 0; dev < SNDRV_CARDS; dev++) {
- 		if (!enable[dev] || port[dev] == SNDRV_AUTO_PORT)
- 			continue;
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 		if (isapnp[dev])
- 			continue;
- #endif
-@@ -624,9 +590,9 @@
- 	}
- 	/* legacy auto configured cards */
- 	cards += snd_legacy_auto_probe(possible_ports, snd_sb16_probe_legacy_port);
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 	/* ISA PnP cards at last */
--	cards += isapnp_probe_cards(snd_sb16_pnpids, snd_sb16_isapnp_detect);
-+	cards += pnpc_register_driver(&sb16_pnpc_driver);
- #endif
- 
- 	if (!cards) {
-@@ -691,7 +657,7 @@
- 	       get_option(&str,&seq_ports[nr_dev]) == 2
- #endif
- 	       );
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 	if (pnp != INT_MAX)
- 		isapnp[nr_dev] = pnp;
- #endif
------------
+--8323328-715327198-1042046472=:1131
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
+dmesg, config and lsmod attached.
+
+ksymoops 2.4.4 on i686 2.5.54-mm3.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.54-mm3/ (default)
+     -m /boot/System.map-2.5.54-mm3 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+e100: selftest OK.
+e100: eth0: Intel(R) 82558-based Integrated Ethernet with Wake on LAN*
+e100: eth0 NIC Link is Up 10 Mbps Half duplex
+Unable to handle kernel paging request at virtual address c685b000
+c685b000
+*pde = 04083067
+Oops: 0000
+CPU:    0
+EIP:    0060:[<c685b000>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000102   ebx: c68463a0   ecx: c43c58c0   edx: c52ca000
+esi: ffffffff   edi: ffffffff   ebp: 00000000   esp: c52cbfc8
+ds: 007b   es: 007b   ss: 0068
+Stack: c6846428 c037ebd4 00000000 00000000 00000000 00000000 0000007b 0000007b 
+       00000000 00000000 c0108ac1 00000000 00000000 00000000 
+ [<c6846428>] apm+0x88/0x2b0 [apm]
+ [<c0108ac1>] show_regs+0x5/0x14
+Code:  Bad EIP value.
+
+>>EIP; c685b000 <END_OF_CODE+64b5c0c/????>   <=====
+
+ <6>warning: process `update' used the obsolete bdflush system call
+warning: process `update' used the obsolete bdflush system call
+
+1 warning and 1 error issued.  Results may not be reliable.
+
+--8323328-715327198-1042046472=:1131
+Content-Type: APPLICATION/octet-stream; name="OOPS1.dmesg"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0301081217451.1131@oddball.prodigy.com>
+Content-Description: 
+Content-Disposition: attachment; filename="OOPS1.dmesg"
+
+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
+--8323328-715327198-1042046472=:1131
+Content-Type: APPLICATION/x-gzip; name="OOPS1.cfg.gz"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0301081217452.1131@oddball.prodigy.com>
+Content-Description: 
+Content-Disposition: attachment; filename="OOPS1.cfg.gz"
+
+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
+--8323328-715327198-1042046472=:1131
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="OOPS1.lsmod"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0301081217453.1131@oddball.prodigy.com>
+Content-Description: 
+Content-Disposition: attachment; filename="OOPS1.lsmod"
+
+TW9kdWxlICAgICAgICAgICAgICAgICAgU2l6ZSAgVXNlZCBieQ0KYXBtICAg
+ICAgICAgICAgICAgICAgICAxNTE0MA0KcGFycG9ydF9wYyAgICAgICAgICAg
+ICAzMzMyMA0KcGFycG9ydCAgICAgICAgICAgICAgICAzNDQ5Ng0K
+--8323328-715327198-1042046472=:1131--

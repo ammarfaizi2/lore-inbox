@@ -1,86 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUHGSOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUHGSWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUHGSOW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 14:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264045AbUHGSOW
+	id S264098AbUHGSWv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 14:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUHGSWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 14:14:22 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:57524 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S262605AbUHGSOR
+	Sat, 7 Aug 2004 14:22:51 -0400
+Received: from imo-d02.mx.aol.com ([205.188.157.34]:49102 "EHLO
+	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP id S264098AbUHGSWq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 14:14:17 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: architectures with their own "config PCMCIA"
-Date: Sat, 7 Aug 2004 20:12:56 +0200
-User-Agent: KMail/1.6.2
-Cc: Christoph Hellwig <hch@infradead.org>, wli@holomorphy.com,
-       davem@redhat.com, geert@linux-m68k.org, schwidefsky@de.ibm.com,
-       linux390@de.ibm.com, sparclinux@vger.kernel.org,
-       linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org
-References: <20040807170122.GM17708@fs.tum.de> <20040807181051.A19250@infradead.org> <20040807172518.GA25169@fs.tum.de>
-In-Reply-To: <20040807172518.GA25169@fs.tum.de>
+	Sat, 7 Aug 2004 14:22:46 -0400
+Date: Sat, 07 Aug 2004 14:22:44 -0400
+From: consolebandit@netscape.net (Maurice)
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.xSMP and IPv4 issues
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_suRFB4KiDJLgURv";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408072013.01168.arnd@arndb.de>
+Message-ID: <07C92DE0.0827324A.345005B1@netscape.net>
+X-Mailer: Atlas Mailer 2.0
+X-AOL-IP: 216.227.167.63
+X-AOL-Language: english
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Note: I've posted this to the linux-smp list, also... Forgive the newbie in me.
 
---Boundary-02=_suRFB4KiDJLgURv
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-> On Sat, Aug 07, 2004 at 06:10:51PM +0100, Christoph Hellwig wrote:
-> > What about switching them to use drivers/Kconfig instead?
+I'm unable to get IPv4 running correctly when using a 2.6.xSMP kernel,
+but the "same" 2.6.x non-SMP kernel will allown IPv4 to function.
 
-I'd prefer not to switch s390 to use drivers/Kconfig unless someone
-volunteers to clean up all included Kconfig files by adding proper
-'depends on PCI' etc. flags. Otherwise too many broken options are
-offered.
+I have tried a short list of the basics and searched google for help, I
+also posted to my local LUG and tried a few additional things.
 
-On Samstag, 7. August 2004 19:25, Adrian Bunk wrote:
-> Is there eny reason for such options that are never visible nor enabled, =
-=20
-> or could they be removed?
+The hardware this is happening on is;
 
-Yes, the reason is that some other options depend on them. We added the
-PCMCIA option to arch/s390/Kconfig to stop kbuild from asking about
-some drivers that won't work anyway.
+motherboard: ECS (elitegroup) D6VAA
+NIC: netgear FA311
+DHCP server: Coyote Linux, has run for about two years.
 
-E.g. drivers/scsi/pcmcia starts with
 
-menu "PCMCIA SCSI adapter support"
-	depends on SCSI!=3Dn && PCMCIA!=3Dn && MODULES
 
-which evaluate to true if the PCMCIA option is not known. Changing
-that to
+Below is the posting, two parts, to my local LUG, seeking help with the issue;
 
-menu "PCMCIA SCSI adapter support"
-	depends on SCSI && PCMCIA && MODULES
 
-solves this in a different way, but I'm not 100% sure if it still has
-the same meaning.
+Part I
 
-	Arnd <><
+I have a box at home that's ran RH9 for about two years (or when ever 
+RH9 first came out plus a month) and I've done regular RHN updates as 
+time went by.
 
---Boundary-02=_suRFB4KiDJLgURv
-Content-Type: application/pgp-signature
-Content-Description: signature
+About a week ago I used some very good online directions to take my RH9 
+box to Fedora C1 (using some basic RPM's and YUM) and eventhing went 
+fairly well, just had to make a few adjustments...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Then a week after the now FC1 box proved to be stable and correctly 
+operational I used the directions from the same site to update the FC1 
+to FC2, and that seemed to go well -- better than the RH9 to FC1, or so 
+it seemed.
 
-iD8DBQBBFRus5t5GS2LDRf4RAgYxAJ9C9wsxWgp8j939QEdqZdW1BWLtIQCeP5Sx
-o/OFG73rGq3bI4Jw7AEm5xY=
-=LmTS
------END PGP SIGNATURE-----
+I re-booted to see what, if anything, would fail on start-up.
 
---Boundary-02=_suRFB4KiDJLgURv--
+I did have a failure, the FA311 NIC card could no longer get an address 
+from the DHCP server???
+Seems that the NIC now only "runs" IPv6, and the info I've gathered from
+ the Net isn't helping me correct this -- I must be searching the wrong 
+phrase(s).
+
+Has anyone else followed this upgrade path and had the same problem?
+Has anyone else moved to the 2.6 kernel and had IPv4 problems?
+
+I've poked around and added line to certain system files and even gave 
+the card a static IPv4 number -- but nothing has corrected this problem.
+
+--------
+-Maurice
+
+
+"Linux -- it not just for breakfast anymore..."
+-Moe
+
+
+
+
+
+Part II
+
+After a lot of off-list help from Phillip, the SMP kernel still wouldn't
+ allow IPv4 activity...
+Thanks for all your help Phillip.
+
+I then did a fresh install of FC2, just to see, and guess what -- nope 
+-- the SMP kernel still wouldn't allow IPv4 traffic, but the non-SMP 
+kernel worked fine.
+So then I installed SuSE 9.1 PRO, same deal, the SMP kernel would not 
+allow IPv4 traffic.
+
+I then tested several LiveCD's;
+Knoppix 3.3 ,        Kernel 2.4.24-xfs #1 smp  (NO)
+LindowsOS 4.5.212,   Kernel 2.4.24             (YES)
+Morphix KDE 0.4.1,   Kernel 2.4.21-xfs #13 smp (NO)
+SLAX 4.0.4,          Kernel 2.4.25             (YES)
+
+The past kernel's used on the SMP box were;
+RH 9,          Kernel 2.4.20-31.9           (YES)
+RH 9,          Kernel 2.4.20-31.9smp        (YES)
+FC1,           Kernel 2.4.22-1.2197.nptl    (YES)
+FC1,           Kernel 2.4.22-1.2197.nptlsmp (YES)
+FC2,           Kernel 2.6.6-1.435.2.3smp    (NO)
+FC2,           Kernel 2.6.6-1.4352.2.3      (YES)
+SuSE 9.1 PRO,  Kernel 2.6.4-52-smp          (NO)
+
+
+
+So there seems to be some issue with the 2.6 kernel and SMP, maybe based
+ on my motherboard and/or NIC combination???
+
+
+
+--------
+-Maurice
+
+"Linux -- it not just for breakfast anymore..."
+-Moe
+
+
+__________________________________________________________________
+Switch to Netscape Internet Service.
+As low as $9.95 a month -- Sign up today at http://isp.netscape.com/register
+
+Netscape. Just the Net You Need.
+
+New! Netscape Toolbar for Internet Explorer
+Search from anywhere on the Web and block those annoying pop-ups.
+Download now at http://channels.netscape.com/ns/search/install.jsp

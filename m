@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314078AbSEXDrm>; Thu, 23 May 2002 23:47:42 -0400
+	id <S314083AbSEXDzj>; Thu, 23 May 2002 23:55:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314083AbSEXDrl>; Thu, 23 May 2002 23:47:41 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22025 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314078AbSEXDrk>; Thu, 23 May 2002 23:47:40 -0400
-Date: Thu, 23 May 2002 20:46:38 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Nathan Scott <nathans@sgi.com>
-cc: Jan Kara <jack@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Quota patches
-In-Reply-To: <20020524123510.A180298@wobbly.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.44.0205232043070.954-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314101AbSEXDzi>; Thu, 23 May 2002 23:55:38 -0400
+Received: from panda.sul.com.br ([200.219.150.4]:1296 "EHLO ns.sul.com.br")
+	by vger.kernel.org with ESMTP id <S314083AbSEXDzh>;
+	Thu, 23 May 2002 23:55:37 -0400
+Date: Thu, 23 May 2002 03:55:13 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Christoph Hellwig <hch@infradead.org>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] include buffer_head.h in actual users instead of fs.h (10/10)
+Message-ID: <20020523065513.GI1144@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020523132746.J24361@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Em Thu, May 23, 2002 at 01:27:46PM +0100, Christoph Hellwig escreveu:
+> No more need to include buffer_head.h in fs.h.  Finally.
 
+Whee! Congratulations :-)
 
-On Fri, 24 May 2002, Nathan Scott wrote:
->
-> Moving to newer interfaces implies use of the new ondisk format
-> for the quota files (exclusively)
-
-Sure. But I'd assume that just running quotacheck should initialize that,
-so..
-
-		Linus
-
+- Arnaldo

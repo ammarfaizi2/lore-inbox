@@ -1,53 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269100AbUJQLVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268889AbUJQLiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269100AbUJQLVr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 07:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269102AbUJQLVr
+	id S268889AbUJQLiw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 07:38:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269010AbUJQLiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 07:21:47 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:45989 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269100AbUJQLVp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 07:21:45 -0400
-Date: Sun, 17 Oct 2004 07:20:14 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Alexandre Oliva <aoliva@redhat.com>
-cc: jmoyer@redhat.com, "Stephen C. Tweedie" <sct@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
-In-Reply-To: <orzn2lpyfc.fsf@livre.redhat.lsd.ic.unicamp.br>
-Message-ID: <Pine.LNX.4.58.0410170715240.16806@devserv.devel.redhat.com>
-References: <16733.50382.569265.183099@segfault.boston.redhat.com>
- <20041005112752.GA21094@logos.cnet> <16739.61314.102521.128577@segfault.boston.redhat.com>
- <20041006120158.GA8024@logos.cnet> <1097119895.4339.12.camel@orbit.scot.redhat.com>
- <20041007101213.GC10234@logos.cnet> <1097519553.2128.115.camel@sisko.scot.redhat.com>
- <16746.55283.192591.718383@segfault.boston.redhat.com>
- <1097531370.2128.356.camel@sisko.scot.redhat.com>
- <16749.15133.627859.786023@segfault.boston.redhat.com>
- <16751.61561.156429.120130@segfault.boston.redhat.com>
- <orzn2lpyfc.fsf@livre.redhat.lsd.ic.unicamp.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 17 Oct 2004 07:38:52 -0400
+Received: from smartmx-06.inode.at ([213.229.60.38]:65466 "EHLO
+	smartmx-06.inode.at") by vger.kernel.org with ESMTP id S268889AbUJQLis
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 07:38:48 -0400
+Subject: [PATCH] Removal of request_module in cpia.c since it causes
+	deadlock with new module-init-tools
+From: Peter Pregler <Peter_Pregler@email.com>
+To: trivial@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org,
+       Duncan Haldane <duncan_haldane@users.sourceforge.net>
+Content-Type: multipart/mixed; boundary="=-vJeUvvgCGt/zgfESmvDg"
+Message-Id: <1098013105.5136.34.camel@gretel-wlan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 17 Oct 2004 13:38:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 17 Oct 2004, Alexandre Oliva wrote:
+--=-vJeUvvgCGt/zgfESmvDg
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-> The reason Squid breaks is that poll (or is it select? I forget) says
-> there's data to be read from cache files (as well as from error message
-> files read during start up), but then read fails with -EAGAIN. If I
-> bring the error files into memory with cat /etc/squid/errors/ERR*, then
-> squid will successfully start up, and then, in order for it to not eat
-> all the available CPU polling data files and attempting to read from
-> them, I need to start a command line this:
+Hi,
 
-the problem is that upon read() we dont 'kick' any IO if there's no data
-available. I.e. the readahead-kicking is necessary after all, because
-squid apparently assumes that re-trying a read will eventually succeed.  
-(Tux on the other hand does not assume this and uses helper threads to
-kick IO.)
+newer versions of module-init-tools do some locking now which leads to a
+dead-lock if cpia.c does a request_module("cpia_usb/pp"). The attached
+patch against 2.6.8 removes the request_module. The problem is actually
+the same as is documented in debian bug #259056 which was caused by alsa
+autoloading some oss-modules. So I guess there might be more places in
+the kernel where this new locking in the module-init-tools might lead to
+dead-locks.
 
-	Ingo
+---
+/usr/src/kernel-source-2.6.8/drivers/media/video/cpia.c.orig	2004-08-14
+07:37:26.000000000 +0200
++++ /usr/src/kernel-source-2.6.8/drivers/media/video/cpia.c	2004-10-17
+13:31:42.000000000 +0200
+@@ -4044,22 +4044,13 @@ static int __init cpia_init(void)
+ 	proc_cpia_create();
+ #endif
+=20
+-#ifdef CONFIG_KMOD
+-#ifdef CONFIG_VIDEO_CPIA_PP_MODULE
+-	request_module("cpia_pp");
+-#endif
+-
+-#ifdef CONFIG_VIDEO_CPIA_USB_MODULE
+-	request_module("cpia_usb");
+-#endif
+-#endif	/* CONFIG_KMOD */
+-
+ #ifdef CONFIG_VIDEO_CPIA_PP
+ 	cpia_pp_init();
+ #endif
+ #ifdef CONFIG_VIDEO_CPIA_USB
+ 	cpia_usb_init();
+ #endif
++
+ 	return 0;
+ }
+=20
+
+
+Signed-off-by: Peter Pregler <Peter_Pregler@email.com>
+
+--=20
+Ich verweigere pers=F6nliches Wirtschaftswachstum
+	-- Maria Ziegelb=F6ck
+-------------------------------
+Email: Peter_Pregler@email.com
+
+--=-vJeUvvgCGt/zgfESmvDg
+Content-Disposition: attachment; filename=cpia-deadlock.patch
+Content-Type: text/x-patch; name=cpia-deadlock.patch; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+--- /usr/src/kernel-source-2.6.8/drivers/media/video/cpia.c.orig	2004-08-14 07:37:26.000000000 +0200
++++ /usr/src/kernel-source-2.6.8/drivers/media/video/cpia.c	2004-10-17 13:31:42.000000000 +0200
+@@ -4044,22 +4044,13 @@ static int __init cpia_init(void)
+ 	proc_cpia_create();
+ #endif
+ 
+-#ifdef CONFIG_KMOD
+-#ifdef CONFIG_VIDEO_CPIA_PP_MODULE
+-	request_module("cpia_pp");
+-#endif
+-
+-#ifdef CONFIG_VIDEO_CPIA_USB_MODULE
+-	request_module("cpia_usb");
+-#endif
+-#endif	/* CONFIG_KMOD */
+-
+ #ifdef CONFIG_VIDEO_CPIA_PP
+ 	cpia_pp_init();
+ #endif
+ #ifdef CONFIG_VIDEO_CPIA_USB
+ 	cpia_usb_init();
+ #endif
++
+ 	return 0;
+ }
+ 
+
+--=-vJeUvvgCGt/zgfESmvDg--
+

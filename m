@@ -1,103 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267345AbTBSUa6>; Wed, 19 Feb 2003 15:30:58 -0500
+	id <S267291AbTBSUdH>; Wed, 19 Feb 2003 15:33:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267346AbTBSUa6>; Wed, 19 Feb 2003 15:30:58 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:52096 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267345AbTBSUa4>; Wed, 19 Feb 2003 15:30:56 -0500
-Subject: [PATCH] IPSec protocol application order
-From: Tom Lendacky <toml@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: davem@redhat.com, kuznet@ms2.inr.ac.ru, toml@us.ibm.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 19 Feb 2003 14:42:19 -0600
-Message-Id: <1045687340.3419.14.camel@tomlt2.austin.ibm.com>
-Mime-Version: 1.0
+	id <S267300AbTBSUdH>; Wed, 19 Feb 2003 15:33:07 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:23813 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267291AbTBSUdF>; Wed, 19 Feb 2003 15:33:05 -0500
+Date: Wed, 19 Feb 2003 15:39:44 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.61 (Yes, there are still Alpha users out there. :-) )
+In-Reply-To: <20030219195543.GW351@lug-owl.de>
+Message-ID: <Pine.LNX.3.96.1030219153452.11297B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/SIGNED; MICALG=pgp-sha1; PROTOCOL="application/pgp-signature"; BOUNDARY=4n3ekn15JG+S0x0c
+Content-ID: <Pine.LNX.3.96.1030219153452.11297C@gatekeeper.tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The IPSec RFC (2401) and IPComp RFC (3173) specify the order in which
-the COMP, ESP and AH protocols must be applied when being applied in
-transport mode.  Specifically, COMP must be applied first, then ESP
-and then AH.  Also, transport mode protocols must be applied before
-tunnel mode protocols.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Here is a patch that creates the xfrm_tmpl structures in the order
-required by the RFCs.  The patch requires that the application order
-of new transformations/protocols be specified for transport mode
-in order to have an xfrm_tmpl structure created.  If this is not
-desired, an additional transport mode loop can be placed ahead of the
-COMP/ESP/AH transport mode loops that creates xfrm_tmpl structures
-for protocols other than COMP/ESP/AH.
+--4n3ekn15JG+S0x0c
+Content-Type: TEXT/PLAIN; CHARSET=iso-8859-1
+Content-ID: <Pine.LNX.3.96.1030219153452.11297D@gatekeeper.tmr.com>
 
-Tom
+On Wed, 19 Feb 2003, Jan-Benedict Glaw wrote:
 
---- linux-2.5.62-orig/net/key/af_key.c	2003-02-17 16:56:09.000000000 -0600
-+++ linux-2.5.62/net/key/af_key.c	2003-02-19 09:00:53.000000000 -0600
-@@ -1562,12 +1562,58 @@
- parse_ipsecrequests(struct xfrm_policy *xp, struct sadb_x_policy *pol)
- {
- 	int err;
--	int len = pol->sadb_x_policy_len*8 - sizeof(struct sadb_x_policy);
--	struct sadb_x_ipsecrequest *rq = (void*)(pol+1);
-+	int len;
-+	struct sadb_x_ipsecrequest *rq;
- 
-+	/* The order of template creation is important (RFC2401/RFC3173):
-+		Transport templates first
-+			COMP then
-+			ESP then
-+			AH then
-+		Tunnel templates in any order */
-+	len = pol->sadb_x_policy_len*8 - sizeof(struct sadb_x_policy);
-+	rq = (void*)(pol+1);
- 	while (len >= sizeof(struct sadb_x_ipsecrequest)) {
--		if ((err = parse_ipsecrequest(xp, rq)) < 0)
--			return err;
-+		if (rq->sadb_x_ipsecrequest_mode == IPSEC_MODE_TRANSPORT &&
-+		    rq->sadb_x_ipsecrequest_proto == IPPROTO_COMP) {
-+			if ((err = parse_ipsecrequest(xp, rq)) < 0)
-+				return err;
-+		}
-+		len -= rq->sadb_x_ipsecrequest_len;
-+		rq = (void*)((u8*)rq + rq->sadb_x_ipsecrequest_len);
-+	}
-+	
-+	len = pol->sadb_x_policy_len*8 - sizeof(struct sadb_x_policy);
-+	rq = (void*)(pol+1);
-+	while (len >= sizeof(struct sadb_x_ipsecrequest)) {
-+		if (rq->sadb_x_ipsecrequest_mode == IPSEC_MODE_TRANSPORT &&
-+		    rq->sadb_x_ipsecrequest_proto == IPPROTO_ESP) {
-+			if ((err = parse_ipsecrequest(xp, rq)) < 0)
-+				return err;
-+		}
-+		len -= rq->sadb_x_ipsecrequest_len;
-+		rq = (void*)((u8*)rq + rq->sadb_x_ipsecrequest_len);
-+	}
-+	
-+	len = pol->sadb_x_policy_len*8 - sizeof(struct sadb_x_policy);
-+	rq = (void*)(pol+1);
-+	while (len >= sizeof(struct sadb_x_ipsecrequest)) {
-+		if (rq->sadb_x_ipsecrequest_mode == IPSEC_MODE_TRANSPORT &&
-+		    rq->sadb_x_ipsecrequest_proto == IPPROTO_AH) {
-+			if ((err = parse_ipsecrequest(xp, rq)) < 0)
-+				return err;
-+		}
-+		len -= rq->sadb_x_ipsecrequest_len;
-+		rq = (void*)((u8*)rq + rq->sadb_x_ipsecrequest_len);
-+	}
-+	
-+	len = pol->sadb_x_policy_len*8 - sizeof(struct sadb_x_policy);
-+	rq = (void*)(pol+1);
-+	while (len >= sizeof(struct sadb_x_ipsecrequest)) {
-+		if (rq->sadb_x_ipsecrequest_mode != IPSEC_MODE_TRANSPORT) {
-+			if ((err = parse_ipsecrequest(xp, rq)) < 0)
-+				return err;
-+		}
- 		len -= rq->sadb_x_ipsecrequest_len;
- 		rq = (void*)((u8*)rq + rq->sadb_x_ipsecrequest_len);
- 	}
+> On Wed, 2003-02-19 13:00:39 -0500, Bill Davidsen <davidsen@tmr.com>
 
+> > Be aware that for Redhat and SuSE distributions (and mandrake??) "make
+> > install" will fail because mkinitrd doesn't know about the new modules
+> > format.
+> > 
+> > So you can give up using modules for anything you want to use to boot,
+> 
+> Which is what I prefer - I personally don't like initrd and I don't use
+> it.
+
+If you have simple needs that's fine. I build for multiple groups of
+machines, and with a working mkinitrd I can just build a file for the boot
+controller on each type of machine, and only build a single kernel which
+will run anywhere with the proper initrd file.
+
+using initrd files also allows easy control of the order in which SCSI
+controllers are loaded, which prevents drives from changing names.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+
+--4n3ekn15JG+S0x0c--

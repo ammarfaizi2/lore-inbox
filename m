@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129830AbQJ3X1N>; Mon, 30 Oct 2000 18:27:13 -0500
+	id <S129543AbQJ3Xcx>; Mon, 30 Oct 2000 18:32:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129697AbQJ3X1E>; Mon, 30 Oct 2000 18:27:04 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:1285 "EHLO
+	id <S129609AbQJ3Xcn>; Mon, 30 Oct 2000 18:32:43 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:2053 "EHLO
 	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129830AbQJ3X0u>; Mon, 30 Oct 2000 18:26:50 -0500
-Date: Mon, 30 Oct 2000 23:26:17 +0000 (GMT)
+	id <S129162AbQJ3Xc1>; Mon, 30 Oct 2000 18:32:27 -0500
+Date: Mon, 30 Oct 2000 23:32:23 +0000 (GMT)
 From: David Woodhouse <dwmw2@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <Pine.LNX.4.21.0010300934200.872-100000@elte.hu>
-Message-ID: <Pine.LNX.4.21.0010302325240.16101-100000@imladris.demon.co.uk>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: / on ramfs, possible?
+In-Reply-To: <39FE03B2.E3E12A23@transmeta.com>
+Message-ID: <Pine.LNX.4.21.0010302329140.16675-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000, Ingo Molnar wrote:
+On Mon, 30 Oct 2000, H. Peter Anvin wrote:
 
-> On Mon, 30 Oct 2000, Jeff V. Merkey wrote:
+> Pardon?!  This doesn't make any sense...
 > 
-> > Is there an option to map Linux into a flat address space [...]
-> 
-> nope, Linux is fundamentally multitasked.
+> The question was: how do switch from the initrd to using the ramfs as /? 
+> Using pivot_root should do it (after the pivot, you can of course nuke
+> the initrd ramdisk.)
 
-uClinux may be able to do this, at the cost of a dramatically reduced
-userspace functionality.
+My question is: What do you want to do that for? You can nuke the initrd
+ramdisk, but you can't drop the rd.c code, or ll_rw_blk.c code, etc. So
+why not just keep your root filesystem in the initrd where it started off?
 
 -- 
 dwmw2

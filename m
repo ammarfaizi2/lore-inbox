@@ -1,64 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262218AbVBQFie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVBQFmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262218AbVBQFie (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 00:38:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVBQFie
+	id S262220AbVBQFmA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 00:42:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVBQFmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 00:38:34 -0500
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:4010 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262218AbVBQFic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 00:38:32 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: ncunningham@cyclades.com
-Subject: Re: Swsusp, resume and kernel versions
-Date: Thu, 17 Feb 2005 00:38:29 -0500
-User-Agent: KMail/1.7.2
-Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>
-References: <200502162346.26143.dtor_core@ameritech.net> <1108617332.4471.33.camel@desktop.cunningham.myip.net.au>
-In-Reply-To: <1108617332.4471.33.camel@desktop.cunningham.myip.net.au>
+	Thu, 17 Feb 2005 00:42:00 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:52185 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S262220AbVBQFlx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 00:41:53 -0500
+Date: Thu, 17 Feb 2005 14:41:55 +0900
+From: Itsuro Oda <oda@valinux.co.jp>
+To: discuss@x86-64.org
+Subject: [BUG][x86-64]nmi_watchdog is not available
+Cc: linux-kernel@vger.kernel.org, oda@valinux.co.jp
+Message-Id: <20050217141942.4C85.ODA@valinux.co.jp>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502170038.30033.dtor_core@ameritech.net>
+X-Mailer: Becky! ver. 2.10.04 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nigel,
+Hi,
 
-On Thursday 17 February 2005 00:15, Nigel Cunningham wrote:
-> Hi Dmitry.
-> 
-> On Thu, 2005-02-17 at 15:46, Dmitry Torokhov wrote:
-> > Pavel,
-> > 
-> > First of all I must say that swsusp has progressed alot and now works
-> > very reliably, at least for my configuration, and I use it a lot. Great
-> > job!
-> > 
-> > But I think there is one pretty severe issue present - even if swsusp
-> > is not enabled kernel should check if there is an image in swap and
-> > erase it. Today I has somewhat unpleasant experience - after suspending
-> > I accidentially loaded a vendor kernel. I was in hurry and decided that
-> > resume just failed for some reason so I did couple of things and left
-> > the box running. In the evening I realized that I am running vendor kernel
-> > and decided to reboot into my devel. version. What I did not expect is for
-> > the kernel to find a valid suspend image and restore it. As you might
-> > imagine messed up my disk somewhat.
-> > 
-> > Any chance this can be done?
-> 
-> One of my suspend2 users had the same thing yesterday. Unfortunately
-> there's no easy way for us to detect that another kernel has been
-> booted.
+nmi_watchdog is not available on my amd64 machine.
+---
+activating NMI Watchdog ... done.
+testing NMI watchdog ... CPU#1: NMI appears to be stuck (0)!
+---
+at least 2.6.9 and later, also 2.6.11-rc3-mm2.
 
-What do you mean? I thought it already compares signatures of the booting
-kernel and suspend image. Just wipe it out if it does not match, or, even
-better, just stop if signature does not match unless one boots with
-"nosuspend". This way even if I start booting wrong image I have a chance
-to select right one and avoid fsck.
+My investigation: this seems a sequence problem between the boot cpu
+and the secondary cpu.
 
+--- boot cpu ---
+smp_boot_cpus
+  + ...
+  + setup_IO_APIC
+     + check_timer
+         + check_nmi_watchdog   (2)
+  + ...
+  + synchronize_tsc_bp  (3)
+----------------
+
+--- secondary cpu ---
+start_secondary
+  + smp_callin
+      + cpu_set(cpuid, cpu_callin_map)
+      + syncronize_tsc_ap   (1) ... wait (3)
+  + enable_NMI_through_LVT0   (4)
+---------------------
+
+check_nmi_watchdog(2) runs before enabling NMI(4). 
+(where cpu_callin_map is already set)
+
+console log is attached. 
+(line marked "<===== #### debuging" are my debugging printk)
+
+Thanks.
 -- 
-Dmitry
+Itsuro ODA <oda@valinux.co.jp>
+
+---
+Bootdata ok (command line is ro root=/dev/hda5 3 console=tty0 console=ttyS0,38400n8r nmi_watchdog=1)
+Linux version 2.6.11-rc2-mm2 (root@fas-opteronR) (gcc version 3.2.3 20030502 (Red Hat Linux 3.2.3-20)) #9 SMP Thu Feb 10 17:59:20 JST 2005
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009b800 (usable)
+ BIOS-e820: 000000000009b800 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000cc000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 00000000fbf70000 (usable)
+ BIOS-e820: 00000000fbf70000 - 00000000fbf76000 (ACPI data)
+ BIOS-e820: 00000000fbf76000 - 00000000fbf80000 (ACPI NVS)
+ BIOS-e820: 00000000fbf80000 - 00000000fc000000 (reserved)
+ BIOS-e820: 00000000fec00000 - 00000000fec00400 (reserved)
+ BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+ BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+ BIOS-e820: 0000000100000000 - 0000000200000000 (usable)
+On node 0 totalpages: 2097152
+  DMA zone: 4096 pages, LIFO batch:1
+  Normal zone: 2093056 pages, LIFO batch:16
+  HighMem zone: 0 pages, LIFO batch:1
+Intel MultiProcessor Specification v1.4
+    Virtual Wire compatibility mode.
+OEM ID: AMD      <6>Product ID: HAMMER       <6>APIC at: 0xFEE00000
+Processor #0 15:5 APIC version 16
+Processor #1 15:5 APIC version 16
+I/O APIC #2 Version 17 at 0xFEC00000.
+I/O APIC #3 Version 17 at 0xFC000000.
+I/O APIC #4 Version 17 at 0xFC001000.
+Setting APIC routing to flat
+Processors: 2
+Checking aperture...
+CPU 0: aperture @ 0 size 32 MB
+No AGP bridge found
+Your BIOS doesn't leave a aperture memory hole
+Please enable the IOMMU option in the BIOS setup
+This costs you 64 MB of RAM
+Mapping aperture over 65536 KB of RAM @ c000000
+Built 1 zonelists
+Initializing CPU#0
+Kernel command line: ro root=/dev/hda5 3 console=tty0 console=ttyS0,38400n8r nmi_watchdog=1
+PID hash table entries: 4096 (order: 12, 131072 bytes)
+time.c: Using 1.193182 MHz PIT timer.
+time.c: Detected 1403.233 MHz processor.
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 2097152 (order: 12, 16777216 bytes)
+Inode-cache hash table entries: 1048576 (order: 11, 8388608 bytes)
+Memory: 8111624k/8388608k available (2325k kernel code, 210112k reserved, 1143k data, 192k init)
+Calibrating delay loop... 2752.51 BogoMIPS (lpj=1376256)
+Mount-cache hash table entries: 256 (order: 0, 4096 bytes)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU0: AMD Opteron(tm) Processor 240 stepping 08
+per-CPU timeslice cutoff: 1023.91 usecs.
+task migration cache decay timeout: 2 msecs.
+Booting processor 1/1 rip 6000 rsp ffff810008027f58
+Initializing CPU#1
+Start SMP Callin       <========== #### debugging
+Calibrating delay loop... 2801.66 BogoMIPS (lpj=1400832)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+Start synchronize tsc ap  <============= #### debugging
+AMD Opteron(tm) Processor 240 stepping 08
+Total of 2 processors activated (5554.17 BogoMIPS).
+Using IO-APIC 2
+Using IO-APIC 3
+Using IO-APIC 4
+activating NMI Watchdog ... done.
+testing NMI watchdog ... CPU#1: NMI appears to be stuck (0)!
+Using local APIC timer interrupts.
+Detected 12.528 MHz APIC timer.
+checking TSC synchronization across 2 CPUs: Finish synchronize tsc ap <====
+Finish SMP Callin                                 <======================== #### debugging
+passed.
+time.c: Using PIT/TSC based timekeeping.
+Disabling 8259A                          <=====
+Enabling NMI through LVTO                <=====  #### debugging
+Enabling 8259A                           <=====
+Brought up 2 CPUs
+CPU0 attaching sched-domain:
+ domain 0: span 00000003
+  groups: 00000001 00000002
+CPU1 attaching sched-domain:
+ domain 0: span 00000003
+  groups: 00000002 00000001
+

@@ -1,75 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbVCLRHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVCLRM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbVCLRHR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 12:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbVCLRHR
+	id S261978AbVCLRM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 12:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbVCLRMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 12:07:17 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:38672 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261971AbVCLRHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 12:07:08 -0500
-Date: Sat, 12 Mar 2005 18:07:06 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Adam Belay <abelay@novell.com>
-Cc: Andrew Morton <akpm@osdl.org>, perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/pnp/: possible cleanups
-Message-ID: <20050312170706.GF3814@stusta.de>
-References: <20050311181606.GC3723@stusta.de> <1110585763.12485.223.camel@localhost.localdomain> <20050311162320.15007aa3.akpm@osdl.org> <1110588297.12485.251.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1110588297.12485.251.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 12 Mar 2005 12:12:23 -0500
+Received: from 70-56-134-246.albq.qwest.net ([70.56.134.246]:41609 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261983AbVCLRKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 12:10:02 -0500
+Date: Sat, 12 Mar 2005 10:11:18 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Peter Chubb <peterc@gelato.unsw.edu.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
+In-Reply-To: <9e473391050312075548fb0f29@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0503121009130.2166@montezuma.fsmlabs.com>
+References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
+ <9e473391050312075548fb0f29@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 11, 2005 at 07:44:56PM -0500, Adam Belay wrote:
-> On Fri, 2005-03-11 at 16:23 -0800, Andrew Morton wrote:
-> > Adam Belay <abelay@novell.com> wrote:
-> > >
-> > > This patch essential makes it impossible for PnP protocols to be
-> > > modules.  Currently, they are all in-kernel.  If that is acceptable...,
-> > > then this patch looks fine to me.  Any comments?
+On Sat, 12 Mar 2005, Jon Smirl wrote:
+
+> On Fri, 11 Mar 2005 14:36:10 +1100, Peter Chubb
+> <peterc@gelato.unsw.edu.au> wrote:
 > > 
-> > You're the maintainer...
+> > As many of you will be aware, we've been working on infrastructure for
+> > user-mode PCI and other drivers.  The first step is to be able to
+> > handle interrupts from user space. Subsequent patches add
+> > infrastructure for setting up DMA for PCI devices.
 > 
-> I've been holding off on making many changes to PnP at the moment,
-> because I have been considering replacing it with a new (more modern and
-> ACPI capable) ISA/LPC bridge driver.  This work would likely begin after
-> my PCI bridge driver rewrite is finished and merged (as the PCI work is
-> in some ways a prerequisite).
+> I've tried implementing this before and could not get around the
+> interrupt problem. Most interrupts on the x86 architecture are shared.
+> Disabling the IRQ at the PIC blocks all of the shared IRQs. This works
+> (hope your userspace handler is last on the shared handler list) until
+> you have a problem in userspace.
 > 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111023821617705&w=2
+> Once you have a problem in userspace there is no way to acknowledge
+> the interrupt anymore. I tried to address that by maintaining a timer
+> and suspending the hardware through the D0 state to reset it. That had
+> some success. Not acknowledging the interrupt results in an interrupt
+> loop and reboot.
 > 
-> Still, if there are changes to fix actual bugs, then I'm all for them.
+> The problem can be mitigated by choosing what slot your hardware to
+> put your hardware in. This can reduce the number of shared interrupts.
+> If you can get exclusive use of the interrupt this method will work.
 > 
-> Also a few features could be added.  Specifically PnPBIOS
-> hotplug/docking station support.  If anyone's interested, I may
-> implement it (and it would use some functions that were removed by this
-> patch).  Furthermore, ISAPnP could be made a module.  PnPBIOS probably
-> couldn't.
->...
+> If I were designing a new bus I would make interrupt acknowledge part
+> of PCI config space in order to allow a single piece of code to
+> acknowledge them. Since we can't change the bus the only safe way to
+> do this is to build a hardware specific driver for each device to
+> acknowledge the interrupt.
+> 
+> Bottom line is that I could find no reliable solution for handing 
+> interrupts.
 
-Note that my patch #if 0's exactly one functions and removes no 
-functions. Most it does is the removal of EXPORT_SYMBOL's, so if any 
-modular code will use any of them, re-adding will be trivial.
+Alan's proposal sounds very plausible and additionally if we find that 
+we have an irq line screaming we could use the same supplied information 
+to disable userspace interrupt handled devices first.
 
-Modular ISAPnP might be interesting in some cases, but this is more 
-legacy code. If someone would work on it to sort all the issues out 
-(starting with the point that most users of __ISAPNP__ will have to be 
-fixed) re-adding the required EXPORT_SYMBOL's won't be hard for him.
-
-> Thanks,
-> Adam
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+	Zwane
 

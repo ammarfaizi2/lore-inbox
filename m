@@ -1,43 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135170AbQL3Uh5>; Sat, 30 Dec 2000 15:37:57 -0500
+	id <S135170AbQL3UxC>; Sat, 30 Dec 2000 15:53:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135519AbQL3Uhr>; Sat, 30 Dec 2000 15:37:47 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:5016 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135170AbQL3Uhd>;
-	Sat, 30 Dec 2000 15:37:33 -0500
-Date: Sat, 30 Dec 2000 15:06:54 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Daniel Phillips <phillips@innominate.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Generic deferred file writing
-In-Reply-To: <00123020452307.00966@gimli>
-Message-ID: <Pine.GSO.4.21.0012301503290.4082-100000@weyl.math.psu.edu>
+	id <S135489AbQL3Uwx>; Sat, 30 Dec 2000 15:52:53 -0500
+Received: from paloma12.e0k.nbg-hannover.de ([62.159.219.12]:3019 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S135170AbQL3Uwe>; Sat, 30 Dec 2000 15:52:34 -0500
+From: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
+Subject: Re: test13-pre6 weird with tdfx.o
+Date: Sat, 30 Dec 2000 21:24:12 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Cc: "Frank Jacobberger" <f1j@xmission.com>, "J Sloan" <jjs@pobox.com>,
+        "Rik Faith" <faith@valinux.com>,
+        "Dri-devel" <Dri-devel@lists.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00123021241200.05112@SunWave1>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> J Sloan wrote:
+>
+> > Frank Jacobberger wrote:
+> >
+> > > This is a first for tdfx.o not loading with XFree 4.01.
+> > >
+> > > All prior kernel build through test13-pre5 would load just fine...
+> > >
+> > > Strange...
+> >
+> > Very strange - others on this list, self included,
+> > have reported something a bit different:
+> >
+> > tdfx.o has not loaded in any kernel since -test12.
 
+It haven't loaded since test13-pre1 for me.
+Only the 'module version' was broken.
+Last test12-pre7 was fine, here.
+It was introduced with the Makefile cleanups.
 
-On Sat, 30 Dec 2000, Daniel Phillips wrote:
-
-> When I saw you put in the if (PageDirty) -->writepage and related code
-> over the last couple of weeks I was wondering if you realize how close
-> we are to having generic deferred file writing in the VFS.  I took some
-> time today to code this little hack and it comes awfully close to doing
-> the job.  However, *** Warning, do not run this on a machine you care
-> about, it will mess it up ***.
+[snip]
+> Hi,
+>
+> This is lets it load.   The same missing symbols happen with mga as well... 
+> This is from a patch posted here two weeks ago:
+>
+> --- linux/drivers/char/drm/drmP.old        Thu Dec 28 16:27:34 2000
+> +++ linux/drivers/char/drm/drmP.h        Sat Dec 23 13:57:08 2000
+> @@ -40,6 +40,7 @@
+>  #include <asm/current.h>
+>  #endif /* __alpha__ */
+>  #include <linux/config.h>
+> +#include <linux/modversions.h>
+>  #include <linux/module.h>
+>  #include <linux/kernel.h>
+>  #include <linux/miscdevice.h>
 > 
-> The advantages of deferred file writing are pretty obvious.  Right now
-> we are deferring just the writeout of data to the disk, but we can also
-> defer the disk mapping, so that metadata blocks don't have to stay
-> around in cache waiting for data blocks to get mapped into them one at
-> a time - a whole group can be done in one flush.
+> Not sure if this is more than a temporay fix though.
+>
+> Ed Tomlins
+[snip]
 
-Except that we've got file-expanding writes outside of ->i_sem. Thanks, but
-no thanks.
+I think this patch is very fine.
+It works here without a hitch.
+Rik?
 
+> > The makefile changes have broken it.
+> >
+> > Are you certain tdfx.o loads for you in prior -test13
+> > versions? If so, that would be a most disturbing
+> > development...
+> >
+> > jjs
+>
+> Yes your right... I just haven't noticed... Why doesn't someone fix it?
+>
+> Frank
+
+I am involved a little bit into the DRI development and I think it is because 
+all the DRI guys (VA Linux) especially Rik Faith are out for vacation...:-)
+
+Happy New Year!
+
+-Dieter
+
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+Cognitive Systems Group
+Vogt-Kölln-Straße 30
+D-22527 Hamburg, Germany
+
+email: nuetzel@kogs.informatik.uni-hamburg.de
+@home: Dieter.Nuetzel@hamburg.de
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

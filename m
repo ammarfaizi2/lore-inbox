@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263752AbTKALin (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 06:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263757AbTKALin
+	id S263757AbTKALmA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 06:42:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263758AbTKALmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 06:38:43 -0500
-Received: from [61.34.40.35] ([61.34.40.35]:2579 "EHLO seodell01.i-mnet.com")
-	by vger.kernel.org with ESMTP id S263752AbTKALim (ORCPT
+	Sat, 1 Nov 2003 06:42:00 -0500
+Received: from cmt-webdesign-gbr.de ([217.160.130.145]:43234 "EHLO
+	p15103836.pureserver.info") by vger.kernel.org with ESMTP
+	id S263757AbTKALl6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 06:38:42 -0500
-Date: Sat, 1 Nov 2003 20:42:19 +0900 (KST)
-From: dave willis <dwillis@stx.rr.com>
-X-X-Sender: dwillis@localhost
+	Sat, 1 Nov 2003 06:41:58 -0500
+From: Christoph Lehnberger <debian@internetists.de>
+Reply-To: debian@internetists.de
+Organization: internetists.de
 To: linux-kernel@vger.kernel.org
-Subject: hacking the keyboard
-Message-ID: <Pine.LNX.4.58.0311011957200.1507@localhost>
+Subject: [2.4.23-pre9] Compilation Error
+Date: Sat, 1 Nov 2003 12:42:01 +0100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200311011242.01886.debian@internetists.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have a korean a4 tech keyboard with several extra "hotkeys," and i'd 
-like to know how to use them all.  i got the values of them using 
-"showkey -s", and they are all e0 keys, but with "showkey -a" and 
-"showkey -k" i get nothing.  there are also two more keys for the korean 
-part (one's meant to enter chinese characters, and the other to switch 
-between korean and ascii) that have values 0xf1 0xf2 when pressed, and 
-nothing when released.  thank you, and please respond to my email address, 
-as i'm not subscribed.
+Good morning,
 
--dave
-(I*NT*x) 
-it's not "politically correct" anymore.  it's "socially affirming."
+
+i try to compile a new kernel for my notebook with a new (the old one works, 
+but i can´t find it) config file, but i get an error at the compilation:
+
+cc -D__KERNEL__ -I/usr/src/linux-2.4.22/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
+-pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix 
+include -DKBUILD_BASENAME=inode  -c -o inode.o inode.c
+inode.c:968: error: redefinition of `iget4'
+/usr/src/linux-2.4.22/include/linux/fs.h:1415: error: `iget4' previously 
+defined here
+make[3]: *** [inode.o] Fehler 1
+make[3]: Leaving directory `/usr/src/linux-2.4.22/fs'
+make[2]: *** [first_rule] Fehler 2
+make[2]: Leaving directory `/usr/src/linux-2.4.22/fs'
+make[1]: *** [_dir_fs] Fehler 2
+make[1]: Leaving directory `/usr/src/linux-2.4.22'
+make: *** [stamp-build] Fehler 2
+
+The kernel-version is 2.4.23-pre9, the name of the directory is 2.4.22
+
+Greetings from Germany
+
+Christoph
+

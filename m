@@ -1,34 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266925AbUIARvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267374AbUIARwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266925AbUIARvu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 13:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266910AbUIARvt
+	id S267374AbUIARwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 13:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266910AbUIARwC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 13:51:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:65211 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267394AbUIARse (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 13:48:34 -0400
-Date: Wed, 1 Sep 2004 10:48:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Kirill Korotaev <kksx@mail.ru>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [1/7] make do_each_task_pid()/while_each_task_pid() typecheck
-In-Reply-To: <20040901172710.GE5492@holomorphy.com>
-Message-ID: <Pine.LNX.4.58.0409011046450.2295@ppc970.osdl.org>
-References: <E1C2TZ1-000JZr-00.kksx-mail-ru@f7.mail.ru> <20040901153624.GA5492@holomorphy.com>
- <20040901165808.GD5492@holomorphy.com> <20040901172710.GE5492@holomorphy.com>
+	Wed, 1 Sep 2004 13:52:02 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:45961 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S267400AbUIARtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 13:49:07 -0400
+Message-ID: <41361953.5020004@myrealbox.com>
+Date: Wed, 01 Sep 2004 11:47:47 -0700
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040831
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: davem@davemloft.net
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Excellent tg3 news
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Dave,
 
-Heh. These improvements look fine, but I definitely don't want to first 
-apply the broken one and then improve upon it - it would be much nicer to 
-get this kind of nice "progression" patch that starts off from a clean 
-thing and just improves on it (maybe that ends up meaning just one patch 
-to replace Kirill's, I don't know..)
+Your latest tg3 update fixed my multi-year-long bug.  Thank you!
 
-		Linus
+I'm the one with the BCM5702 Gigabit Ethernet (rev 02) (asus A7V8X)
+which always required an ifdown/up cycle to get the chip working
+after each boot.
+
+It's obviously time to buy a new mobo and start over ;o)

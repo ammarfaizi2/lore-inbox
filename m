@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288784AbSAXRxs>; Thu, 24 Jan 2002 12:53:48 -0500
+	id <S288787AbSAXSC2>; Thu, 24 Jan 2002 13:02:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288809AbSAXRxc>; Thu, 24 Jan 2002 12:53:32 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:18190 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S288800AbSAXRxQ>; Thu, 24 Jan 2002 12:53:16 -0500
-Date: Thu, 24 Jan 2002 09:52:59 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Sven <luther@dpt-info.u-strasbg.fr>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH] fbdev fbgen cleanup
-In-Reply-To: <20020123183102.A3780@dpt-info.u-strasbg.fr>
-Message-ID: <Pine.LNX.4.10.10201240949370.28447-100000@www.transvirtual.com>
+	id <S288800AbSAXSCJ>; Thu, 24 Jan 2002 13:02:09 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:64713 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288787AbSAXSBu>;
+	Thu, 24 Jan 2002 13:01:50 -0500
+Date: Thu, 24 Jan 2002 20:59:18 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Ingo's O(1) scheduler vs. wait_init_idle
+In-Reply-To: <154900000.1011894435@flay>
+Message-ID: <Pine.LNX.4.33.0201242058170.5795-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > The correct fix is to do something like fb_info.node = NODEV;
-> 
-> And not B_FREE ?
-> 
-> I am unsure about this, but i notice that in the 2.4.17 kernel + pm3fb, the
-> value assigned to .node was -1, which correspond to B_FREE and not NODEV
-> (which is 0).
+On Thu, 24 Jan 2002, Martin J. Bligh wrote:
 
-Looking at it your right. It should be B_FREE.
+> tecpu 1 has don0 init idl0, do246>c u_idot tai 0idle
+> ee doin0000u_idle().
+> 00cpu 09  s done idat i0   edoinf cau_00
 
-> That said, since it is almost never used, it would maybe be best to move it
-> out of the fbdevs and into some of the more generic layers.
+just take out the TSC initialization messages from smpboot.c, that should
+ungarble the output. And/or add this to printk.c:
 
-I agree. In fact it is already does set it. Form rgeister_framebuffer
+	if (smp_processor_id())
+		return;
 
-fb_info->node = mk_kdev(FB_MAJOR, i);
+this way you'll only see a single CPU's printk messages.
 
-So why does any fbdev driver touch it?
-
-> Also, since when does the B_FREE or NODEV exists ? I did put the changes into
-> a #ifdef kernel 2.5, and kept the -1 for kernels 2.4, but i guess i could
-> remove this check altogether if the NODEV was present from the begining. And
-> what about 2.2 kernels ?
-
-It is a 2.5.X thing. 
-
+	Ingo
 

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261370AbSJQLhp>; Thu, 17 Oct 2002 07:37:45 -0400
+	id <S261377AbSJQLnO>; Thu, 17 Oct 2002 07:43:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbSJQLho>; Thu, 17 Oct 2002 07:37:44 -0400
-Received: from precia.cinet.co.jp ([210.166.75.133]:2944 "EHLO
+	id <S261364AbSJQLnN>; Thu, 17 Oct 2002 07:43:13 -0400
+Received: from precia.cinet.co.jp ([210.166.75.133]:3968 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261370AbSJQLem>; Thu, 17 Oct 2002 07:34:42 -0400
-Date: Thu, 17 Oct 2002 20:39:57 +0900
+	id <S261377AbSJQLes>; Thu, 17 Oct 2002 07:34:48 -0400
+Date: Thu, 17 Oct 2002 20:39:59 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][RFC] add support for PC-9800 architecture (5/26) core #2
-Message-ID: <20021017203957.A1170@precia.cinet.co.jp>
+Subject: [PATCH][RFC] add support for PC-9800 architecture (9/26) fs
+Message-ID: <20021017203959.A1194@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,655 +19,594 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part 5/26 of patchset for add support NEC PC-9800 architecture,
+This is part 9/26 of patchset for add support NEC PC-9800 architecture,
 against 2.5.43.
 
 Summary:
- core modules (continued)
+ file system modules
+  - add support PC-9800 partition table.
+  - small hack for access FAT partition made by PC-9800 DOS.
 
 diffstat:
- include/asm-i386/bugs.h         |    2 
- include/asm-i386/dma.h          |    7 +
- include/asm-i386/io.h           |    6 +
- include/asm-i386/irq.h          |    4 
- include/asm-i386/pc9800.h       |   27 ++++
- include/asm-i386/pc9800_debug.h |  152 +++++++++++++++++++++++++
- include/asm-i386/pc9800_dma.h   |  238 ++++++++++++++++++++++++++++++++++++++++
- include/asm-i386/pc9800_sca.h   |   25 ++++
- include/asm-i386/pgtable.h      |    4 
- include/asm-i386/processor.h    |    2 
- include/asm-i386/scatterlist.h  |    6 +
- include/asm-i386/setup.h        |    3 
- include/asm-i386/timex.h        |    4 
- 13 files changed, 479 insertions(+), 1 deletion(-)
+ fs/fat/inode.c          |    9 +
+ fs/partitions/Config.in |    9 +
+ fs/partitions/Makefile  |    2 
+ fs/partitions/check.c   |    8 +
+ fs/partitions/msdos.c   |   15 ++
+ fs/partitions/nec98.c   |  265 ++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/partitions/nec98.h   |   10 +
+ fs/partitions/x68000.c  |   94 +++++++++++++++++
+ fs/partitions/x68000.h  |    6 +
+ 9 files changed, 417 insertions(+), 1 deletion(-)
 
 patch:
-diff -urN linux/include/asm-i386/bugs.h linux98/include/asm-i386/bugs.h
---- linux/include/asm-i386/bugs.h	Sun Jun  9 14:27:38 2002
-+++ linux98/include/asm-i386/bugs.h	Mon Jun 10 20:49:15 2002
-@@ -34,6 +34,7 @@
- 
- __setup("no-hlt", no_halt);
- 
-+#ifndef CONFIG_PC9800
- static int __init mca_pentium(char *s)
- {
- 	mca_pentium_flag = 1;
-@@ -41,6 +42,7 @@
- }
- 
- __setup("mca-pentium", mca_pentium);
-+#endif
- 
- static int __init no_387(char *s)
- {
-diff -urN linux/include/asm-i386/dma.h linux98/include/asm-i386/dma.h
---- linux/include/asm-i386/dma.h	Sat Jul 21 04:52:59 2001
-+++ linux98/include/asm-i386/dma.h	Fri Aug 17 22:15:06 2001
-@@ -10,6 +10,9 @@
- 
- #include <linux/config.h>
- #include <linux/spinlock.h>	/* And spinlocks */
-+#ifdef CONFIG_PC9800
-+#include <asm/pc9800_dma.h>
-+#else /* !CONFIG_PC9800 */
- #include <asm/io.h>		/* need byte IO */
- #include <linux/delay.h>
- 
-@@ -72,8 +75,10 @@
- 
- #define MAX_DMA_CHANNELS	8
- 
-+#ifndef CONFIG_PC9800
- /* The maximum address that we can perform a DMA transfer to on this platform */
- #define MAX_DMA_ADDRESS      (PAGE_OFFSET+0x1000000)
-+#endif
- 
- /* 8237 DMA controllers */
- #define IO_DMA1_BASE	0x00	/* 8 bit slave DMA, channels 0..3 */
-@@ -295,4 +300,6 @@
- #define isa_dma_bridge_buggy 	(0)
- #endif
- 
-+#endif /* CONFIG_PC9800 */
-+
- #endif /* _ASM_DMA_H */
-diff -urN linux/include/asm-i386/io.h linux98/include/asm-i386/io.h
---- linux/include/asm-i386/io.h	Sat Oct 12 13:22:45 2002
-+++ linux98/include/asm-i386/io.h	Sat Oct 12 19:25:19 2002
-@@ -27,6 +27,8 @@
-  *		Linus
+diff -urN linux/fs/fat/inode.c linux98/fs/fat/inode.c
+--- linux/fs/fat/inode.c	Wed Oct 16 13:20:44 2002
++++ linux98/fs/fat/inode.c	Wed Oct 16 15:01:51 2002
+@@ -10,6 +10,7 @@
+  *  	Max Cohan: Fixed invalid FSINFO offset when info_sector is 0
   */
  
 +#include <linux/config.h>
-+
-  /*
-   *  Bit simplified and optimized by Jan Hubicka
-   *  Support of BIGMEM added by Gerhard Wichert, Siemens AG, July 1999.
-@@ -288,7 +290,11 @@
- #ifdef SLOW_IO_BY_JUMPING
- #define __SLOW_DOWN_IO "jmp 1f; 1: jmp 1f; 1:"
- #else
+ #include <linux/module.h>
+ #include <linux/time.h>
+ #include <linux/slab.h>
+@@ -979,7 +980,13 @@
+ 		error = first;
+ 		goto out_fail;
+ 	}
+-	if (FAT_FIRST_ENT(sb, media) != first) {
 +#ifndef CONFIG_PC9800
- #define __SLOW_DOWN_IO "outb %%al,$0x80;"
++	if (FAT_FIRST_ENT(sb, media) != first)
 +#else
-+#define __SLOW_DOWN_IO "outb %%al,$0x5f;"
++	if (FAT_FIRST_ENT(sb, media) != first
++	    && (media != 0xf8 || (first & 0xff) != 0xfe))
 +#endif
++	{
+ 		if (!silent) {
+ 			printk("FAT: invalid first entry of FAT "
+ 			       "(0x%x != 0x%x)\n",
+diff -urN linux/fs/partitions/Config.in linux98/fs/partitions/Config.in
+--- linux/fs/partitions/Config.in	Wed Jul 17 08:49:29 2002
++++ linux98/fs/partitions/Config.in	Fri Jul 19 16:16:58 2002
+@@ -29,19 +29,28 @@
+    if [ "$CONFIG_LDM_PARTITION" = "y" ]; then
+       bool '    Windows LDM extra logging' CONFIG_LDM_DEBUG
+    fi
++   bool '  NEC PC-9800 partition table support' CONFIG_NEC98_PARTITION
++   if [ "$CONFIG_NEC98_PARTITION" = "y" ]; then
++      bool '    BSD disklabel support for NEC PC-9800 type partitions' CONFIG_NEC98_BSD_DISKLABEL
++   fi
+    bool '  SGI partition support' CONFIG_SGI_PARTITION
+    bool '  Ultrix partition table support' CONFIG_ULTRIX_PARTITION
+    bool '  Sun partition tables support' CONFIG_SUN_PARTITION
+    bool '  EFI GUID Partition support' CONFIG_EFI_PARTITION
++   bool '  X680x0 partition table support' CONFIG_X68K_PARTITION
+ else
+    if [ "$CONFIG_ALPHA" = "y" ]; then
+       define_bool CONFIG_OSF_PARTITION y
+    fi
++   if [ "$CONFIG_PC9800" = "y" ]; then
++      define_bool CONFIG_NEC98_PARTITION y
++   else
+    if [ "$CONFIG_AMIGA" != "y" -a "$CONFIG_ATARI" != "y" -a \
+         "$CONFIG_MAC" != "y" -a "$CONFIG_SGI_IP22" != "y" -a \
+ 	"$CONFIG_ARM" != "y" -a "$CONFIG_SGI_IP27" != "y" ]; then
+       define_bool CONFIG_MSDOS_PARTITION y
+    fi
++   fi
+    if [ "$CONFIG_AMIGA" = "y" -o "$CONFIG_AFFS_FS" = "y" ]; then
+       define_bool CONFIG_AMIGA_PARTITION y
+    fi
+diff -urN linux/fs/partitions/Makefile linux98/fs/partitions/Makefile
+--- linux/fs/partitions/Makefile	Sat May 25 10:55:25 2002
++++ linux98/fs/partitions/Makefile	Sat May 25 14:02:24 2002
+@@ -18,6 +18,8 @@
+ obj-$(CONFIG_ULTRIX_PARTITION) += ultrix.o
+ obj-$(CONFIG_IBM_PARTITION) += ibm.o
+ obj-$(CONFIG_EFI_PARTITION) += efi.o
++obj-$(CONFIG_NEC98_PARTITION) += nec98.o msdos.o
++obj-$(CONFIG_X68K_PARTITION) += x68000.o
+ 
+ include $(TOPDIR)/Rules.make
+ 
+diff -urN linux/fs/partitions/check.c linux98/fs/partitions/check.c
+--- linux/fs/partitions/check.c	Wed Oct 16 13:20:46 2002
++++ linux98/fs/partitions/check.c	Wed Oct 16 15:01:51 2002
+@@ -28,11 +28,13 @@
+ #include "ldm.h"
+ #include "mac.h"
+ #include "msdos.h"
++#include "nec98.h"
+ #include "osf.h"
+ #include "sgi.h"
+ #include "sun.h"
+ #include "ibm.h"
+ #include "ultrix.h"
++#include "x68000.h"
+ #include "efi.h"
+ 
+ #if CONFIG_BLK_DEV_MD
+@@ -51,6 +53,9 @@
+ #ifdef CONFIG_LDM_PARTITION
+ 	ldm_partition,		/* this must come before msdos */
  #endif
- 
- static inline void slow_down_io(void) {
-diff -urN linux/include/asm-i386/irq.h linux98/include/asm-i386/irq.h
---- linux/include/asm-i386/irq.h	Sat Sep 21 00:20:16 2002
-+++ linux98/include/asm-i386/irq.h	Sat Sep 21 07:17:56 2002
-@@ -17,7 +17,11 @@
- 
- static __inline__ int irq_cannonicalize(int irq)
- {
-+#ifndef CONFIG_PC9800
- 	return ((irq == 2) ? 9 : irq);
-+#else
-+	return ((irq == 7) ? 11 : irq);
++#ifdef CONFIG_NEC98_PARTITION
++	nec98_partition,	/* must be come before `msdos_partition' */
 +#endif
+ #ifdef CONFIG_MSDOS_PARTITION
+ 	msdos_partition,
+ #endif
+@@ -78,6 +83,9 @@
+ #ifdef CONFIG_IBM_PARTITION
+ 	ibm_partition,
+ #endif
++#ifdef CONFIG_X68K_PARTITION
++	x68k_partition,
++#endif
+ 	NULL
+ };
+  
+diff -urN linux/fs/partitions/msdos.c linux98/fs/partitions/msdos.c
+--- linux/fs/partitions/msdos.c	Sat Oct 12 13:22:10 2002
++++ linux98/fs/partitions/msdos.c	Sun Oct 13 22:23:58 2002
+@@ -20,6 +20,11 @@
+  */
+ 
+ #include <linux/config.h>
++
++#ifdef CONFIG_NEC98_BSD_DISKLABEL
++# define CONFIG_BSD_DISKLABEL
++#endif
++
+ #include <linux/buffer_head.h>		/* for invalidate_bdev() */
+ 
+ #ifdef CONFIG_BLK_DEV_IDE
+@@ -37,6 +42,7 @@
+ #include "msdos.h"
+ #include "efi.h"
+ 
++#if !defined(CONFIG_PC9800) || defined(CONFIG_MSDOS_PARTITION)
+ /*
+  * Many architectures don't like unaligned accesses, which is
+  * frequently the case with the nr_sects and start_sect partition
+@@ -171,6 +177,7 @@
+ done:
+ 	put_dev_sector(sect);
+ }
++#endif /* !defined(CONFIG_PC9800) || defined(CONFIG_MSDOS_PARTITION) */
+ 
+ /* james@bpgc.com: Solaris has a nasty indicator: 0x82 which also
+    indicates linux swap.  Be careful before believing this is Solaris. */
+@@ -179,6 +186,7 @@
+ parse_solaris_x86(struct parsed_partitions *state, struct block_device *bdev,
+ 			u32 offset, u32 size, int origin)
+ {
++#if !defined(CONFIG_PC9800) || defined(CONFIG_MSDOS_PARTITION)
+ #ifdef CONFIG_SOLARIS_X86_PARTITION
+ 	Sector sect;
+ 	struct solaris_x86_vtoc *v;
+@@ -212,6 +220,7 @@
+ 	put_dev_sector(sect);
+ 	printk(" >\n");
+ #endif
++#endif /* !defined(CONFIG_PC9800) || defined(CONFIG_MSDOS_PARTITION) */
  }
  
- extern void disable_irq(unsigned int);
-diff -urN linux/include/asm-i386/pc9800.h linux98/include/asm-i386/pc9800.h
---- linux/include/asm-i386/pc9800.h	Thu Jan  1 09:00:00 1970
-+++ linux98/include/asm-i386/pc9800.h	Fri Aug 17 21:50:18 2001
-@@ -0,0 +1,27 @@
-+/*
-+ *  PC-9800 machine types.
-+ *
-+ *  Copyright (C) 1999	TAKAI Kosuke <tak@kmc.kyoto-u.ac.jp>
-+ *			(Linux/98 Project)
-+ */
-+
-+#ifndef _ASM_PC9800_H_
-+#define _ASM_PC9800_H_
-+
-+#include <asm/pc9800_sca.h>
-+#include <asm/types.h>
-+
-+#define __PC9800SCA(type, pa)	(*(type *) phys_to_virt(pa))
-+#define __PC9800SCA_TEST_BIT(pa, n)	\
-+	((__PC9800SCA(u8, pa) & (1U << (n))) != 0)
-+
-+#define PC9800_HIGHRESO_P()	__PC9800SCA_TEST_BIT(PC9800SCA_BIOS_FLAG, 3)
-+#define PC9800_8MHz_P()		__PC9800SCA_TEST_BIT(PC9800SCA_BIOS_FLAG, 7)
-+
-+				/* 0x2198 is 98 21 on memory... */
-+#define PC9800_9821_P()		(__PC9800SCA(u16, PC9821SCA_ROM_ID) == 0x2198)
-+
-+/* Note PC9821_...() are valid only when PC9800_9821_P() was true. */
-+#define PC9821_IDEIF_DOUBLE_P()	__PC9800SCA_TEST_BIT(PC9821SCA_ROM_FLAG4, 4)
-+
+ #ifdef CONFIG_BSD_DISKLABEL
+@@ -219,7 +228,11 @@
+  * Create devices for BSD partitions listed in a disklabel, under a
+  * dos-like partition. See parse_extended() for more information.
+  */
++#ifndef CONFIG_NEC98_BSD_DISKLABEL
+ static void
++#else
++void
 +#endif
-diff -urN linux/include/asm-i386/pc9800_debug.h linux98/include/asm-i386/pc9800_debug.h
---- linux/include/asm-i386/pc9800_debug.h	Thu Jan  1 09:00:00 1970
-+++ linux98/include/asm-i386/pc9800_debug.h	Fri Aug 17 22:20:21 2001
-@@ -0,0 +1,152 @@
+ parse_bsd(struct parsed_partitions *state, struct block_device *bdev,
+ 		u32 offset, u32 size, int origin, char *flavour,
+ 		int max_partitions)
+@@ -292,6 +305,7 @@
+ #endif
+ }
+ 
++#if !defined(CONFIG_PC9800) || defined(CONFIG_MSDOS_PARTITION)
+ /*
+  * Create devices for Unixware partitions listed in a disklabel, under a
+  * dos-like partition. See parse_extended() for more information.
+@@ -461,3 +475,4 @@
+ 	put_dev_sector(sect);
+ 	return 1;
+ }
++#endif /* !defined(CONFIG_PC9800) || defined(CONFIG_MSDOS_PARTITION) */
+diff -urN linux/fs/partitions/nec98.c linux98/fs/partitions/nec98.c
+--- linux/fs/partitions/nec98.c	Thu Jan  1 09:00:00 1970
++++ linux98/fs/partitions/nec98.c	Thu Aug 29 17:24:07 2002
+@@ -0,0 +1,265 @@
 +/*
-+ * linux/include/asm-i386/pc9800_debug.h: Defines for debug routines
++ *  NEC PC-9800 series partition supports
 + *
-+ * Written by Linux/98 Project, 1998.
-+ *
-+ * Revised by TAKAI Kousuke, Nov 1999.
++ *  Copyright (C) 1999	Kyoto University Microcomputer Club
 + */
 +
-+#ifndef _ASM_PC9800_DEBUG_H
-+#define _ASM_PC9800_DEBUG_H
++#include <linux/config.h>
 +
-+extern unsigned char __pc9800_beep_flag;
++#ifdef CONFIG_NEC98_BSD_DISKLABEL
++#define CONFIG_BSD_DISKLABEL
++#endif
 +
-+/* Don't depend on <asm/io.h> ... */
-+static __inline__ void pc9800_beep_on(void)
++#include <linux/fs.h>
++#include <linux/genhd.h>
++#include <linux/kernel.h>
++#include <linux/blk.h>
++#include <linux/major.h>
++
++#include "check.h"
++#include "nec98.h"
++
++/* #ifdef CONFIG_BLK_DEV_IDEDISK */
++#include <linux/ide.h>
++/* #endif */
++
++/* #ifdef CONFIG_BLK_DEV_SD */
++#include "../../drivers/scsi/scsi.h"
++#include "../../drivers/scsi/sd.h"
++#include "../../drivers/scsi/hosts.h"
++#include <scsi/scsicam.h>
++/* #endif */
++
++struct nec98_partition {
++	__u8	mid;		/* 0x80 - active */
++	__u8	sid;		/* 0x80 - bootable */
++	__u16	pad1;		/* dummy for padding */
++	__u8	ipl_sector;	/* IPL sector	*/
++	__u8	ipl_head;	/* IPL head	*/
++	__u16	ipl_cyl;	/* IPL cylinder	*/
++	__u8	sector;		/* starting sector	*/
++	__u8	head;		/* starting head	*/
++	__u16	cyl;		/* starting cylinder	*/
++	__u8	end_sector;	/* end sector	*/
++	__u8	end_head;	/* end head	*/
++	__u16	end_cyl;	/* end cylinder	*/
++	unsigned char name[16];
++} __attribute__((__packed__));
++
++#define NEC98_BSD_PARTITION_MID 0x14
++#define NEC98_BSD_PARTITION_SID 0x44
++#define MID_SID_16(mid, sid)	(((mid) & 0xFF) | (((sid) & 0xFF) << 8))
++#define NEC98_BSD_PARTITION_MID_SID	\
++	MID_SID_16(NEC98_BSD_PARTITION_MID, NEC98_BSD_PARTITION_SID)
++#define NEC98_VALID_PTABLE_ENTRY(P) \
++	(!(P)->pad1 && (P)->cyl <= (P)->end_cyl)
++
++static inline int
++is_valid_nec98_partition_table(const struct nec98_partition *ptable,
++				__u8 nsectors, __u8 nheads)
 +{
-+	__asm__ ("out%B0 %0,%1" : : "a"((char) 0x6), "N"(0x37));
-+	__pc9800_beep_flag = 0x6;
-+}
++	int i;
++	int valid = 0;
 +
-+static __inline__ void pc9800_beep_off(void)
-+{
-+	__asm__ ("out%B0 %0,%1" : : "a"((char) 0x7), "N"(0x37));
-+	__pc9800_beep_flag = 0x7;
-+}
-+
-+static __inline__ void pc9800_beep_toggle(void)
-+{
-+	__pc9800_beep_flag ^= 1;
-+	__asm__ ("out%B0 %0,%1" : : "a"(__pc9800_beep_flag), "N"(0x37));
-+}
-+
-+static __inline__ void pc9800_udelay(unsigned int __usec)
-+{
-+	if ((__usec = __usec * 10 / 6) > 0)
-+		do
-+			__asm__ ("out%B0 %%al,%0" : : "N"(0x5F));
-+		while (--__usec);
-+}
-+
-+# define assertk(expr)	({						\
-+	if (!(expr)) {							\
-+		__pc9800_saveregs();					\
-+		__assert_fail(__BASE_FILE__, __FILE__, __LINE__,	\
-+			       __PRETTY_FUNCTION__,			\
-+			       __builtin_return_address (0), #expr);	\
-+	}								\
-+})
-+# define check_kernel_pointer(expr)	({				\
-+	void *__p = (expr);						\
-+	if ((unsigned long) __p < PAGE_OFFSET) {			\
-+		__pc9800_saveregs();					\
-+		__invalid_kernel_pointer				\
-+			(__BASE_FILE__, __FILE__, __LINE__,		\
-+			 __PRETTY_FUNCTION__,				\
-+			 __builtin_return_address(0), #expr, __p);	\
-+	}								\
-+})
-+
-+extern void __assert_fail(const char *, const char *, unsigned int,
-+			   const char *, void *, const char *)
-+     __attribute__ ((__noreturn__));
-+extern void __invalid_kernel_pointer(const char *, const char *, unsigned int,
-+				      const char *, void *,
-+				      const char *, void *)
-+     __attribute__ ((__noreturn__));
-+extern void __pc9800_saveregs(void);
-+
-+extern void ucg_saveargs(unsigned int, ...);
-+
-+#ifdef NEED_UNMAP_PHYSPAGE
-+
-+#include <linux/mm.h>
-+#include <asm/pgtable.h>
-+#include <asm/pgalloc.h>
-+
-+/*
-+ * unmap_physpage (addr)
-+ */
-+static __inline__ void
-+unmap_physpage(unsigned long addr)
-+{
-+	pgd_t *pgd = pgd_offset_k(addr);
-+	pmd_t *pmd;
-+	pte_t *pte;
-+
-+	if (pgd_none(*pgd))
-+		panic("%s: No pgd?!?", __BASE_FILE__);
-+	pmd = pmd_offset(pgd, addr);
-+	if (pmd_none(*pmd))
-+		panic("%s: No pmd?!?", __BASE_FILE__);
-+	if (pmd_val(*pmd) & _PAGE_PSE) {
-+		int i;
-+		unsigned long paddr = pmd_val(*pmd) & PAGE_MASK;
-+
-+		pte = (pte_t *) __get_free_page(GFP_KERNEL);
-+		set_pmd(pmd, __pmd(_KERNPG_TABLE + __pa(pte)));
-+		for (i = 0; i < PTRS_PER_PTE; pte++, i++)
-+			*pte = mk_pte_phys(paddr + i * PAGE_SIZE,
-+					    PAGE_KERNEL);
++	for (i = 0; i < 16; i++) {
++		if (!*(__u16 *)&ptable[i])
++			continue;	/* empty slot */
++		if (ptable[i].pad1	/* `pad1' contains junk */
++		    || ptable[i].ipl_sector	>= nsectors
++		    || ptable[i].sector		>= nsectors
++		    || ptable[i].end_sector	>= nsectors
++		    || ptable[i].ipl_head	>= nheads
++		    || ptable[i].head		>= nheads
++		    || ptable[i].end_head	>= nheads
++		    || ptable[i].cyl > ptable[i].end_cyl)
++			return 0;
++		valid = 1;	/* We have a valid partition.  */
 +	}
-+	pte = pte_offset(pmd, addr);
-+
-+	set_pte(pte, pte_modify(*pte, PAGE_NONE));
-+	__flush_tlb_one(addr);
++	/* If no valid PC-9800-style partitions found,
++	   the disk may have other type of partition table.  */
++	return valid;
 +}
-+#endif /* NEED_UNMAP_PHYSPAGE */
 +
-+#ifdef NEED_KERNEL_POINTER_CHECKER
-+# /* no dep */ include <asm/uaccess.h>
++#ifdef CONFIG_NEC98_BSD_DISKLABEL
++extern void parse_bsd(struct parsed_partitions *state,
++			struct block_device *bdev,
++			u32 offset, u32 size, int origin, char *flavour,
++			int max_partitions);
++#endif
 +
-+/*
-+ *  KERNEL_POINTER_VALIDP(PTR) validates kernel pointer PTR.
-+ *  If PTR points vaild memory address for kernel internal use,
-+ *  return nonzero; otherwise return zero.
-+ *
-+ *  Note PTR is invalid if PTR points user area.
-+ */
-+#define KERNEL_POINTER_VALIDP(PTR)	({	\
-+	const int *_ptr = (const int *) (PTR);	\
-+	int _dummy;				\
-+	(unsigned long) _ptr >= PAGE_OFFSET	\
-+		&& !__get_user(_dummy, _ptr);	\
-+})
++int nec98_partition(struct parsed_partitions *state, struct block_device *bdev)
++{
++	unsigned int nr;
++	int g_head, g_sect;
++	Sector sect;
++	const struct nec98_partition *part;
++	unsigned char *data;
++	int sector_size = bdev_hardsect_size(bdev);
 +
-+/*
-+ *  Similar, but validates for a trivial string in kernel.
-+ *  Here `trivial' means that the string has no non-ASCII characters
-+ *  and is shorter than 80 characters.
-+ *
-+ *  Note this is intended for checking various `name' (I/O
-+ *  resources and so on).
-+ */
-+#define KERNEL_POINTER_TRIVIAL_STRING_P(PTR)	({			\
-+	const char *_ptr = (const char *) (PTR);			\
-+	char _dummy;							\
-+	(unsigned long) _ptr >= PAGE_OFFSET				\
-+		&& ({ int _result;					\
-+		      while (!(_result = __get_user(_dummy, _ptr))	\
-+			     && _dummy)					\
-+			      _ptr++;					\
-+		      !_result; }); })
++	switch (major(to_kdev_t(bdev->bd_dev))) {
++#if defined CONFIG_BLK_DEV_HD_ONLY
++	case HD_MAJOR:
++	{
++		extern struct hd_i_struct hd_info[2];
 +
-+#endif /* NEED_VALIDATE_KERNEL_POINTER */
++		g_head = hd_info[minor(to_kdev_t(bdev->bd_dev)) >> 6].head;
++		g_sect = hd_info[minor(to_kdev_t(bdev->bd_dev)) >> 6].sect;
++		break;
++	}
++#endif /* CONFIG_BLK_DEV_HD_ONLY */
++#if defined CONFIG_BLK_DEV_IDEDISK || defined CONFIG_BLK_DEV_IDEDISK_MODULE
++	case IDE0_MAJOR:
++	case IDE1_MAJOR:
++	case IDE2_MAJOR:
++	case IDE3_MAJOR:
++	case IDE4_MAJOR:
++	case IDE5_MAJOR:
++	case IDE6_MAJOR:
++	case IDE7_MAJOR:
++	case IDE8_MAJOR:
++	case IDE9_MAJOR:
++	{
++		ide_drive_t *drive = get_info_ptr(to_kdev_t(bdev->bd_dev));
++		g_head = drive->head;
++		g_sect = drive->sect;
++		break;
++	}
++#endif /* CONFIG_BLK_DEV_IDEDISK(_MODULE) */
++#if defined CONFIG_BLK_DEV_SD || defined CONFIG_BLK_DEV_SD_MODULE
++	case SCSI_DISK0_MAJOR:
++	case SCSI_DISK1_MAJOR:
++	case SCSI_DISK2_MAJOR:
++	case SCSI_DISK3_MAJOR:
++	case SCSI_DISK4_MAJOR:
++	case SCSI_DISK5_MAJOR:
++	case SCSI_DISK6_MAJOR:
++	case SCSI_DISK7_MAJOR:
++	{
++		extern Scsi_Disk * sd_get_sdisk(int);
++#define SCSI_DEVICE_NR(device) (((major(device) & SD_MAJOR_MASK) << (8 - 4)) + (minor(device) >> 4))
++		Scsi_Disk *disk	= sd_get_sdisk(SCSI_DEVICE_NR(to_kdev_t(bdev->bd_dev)));
++		struct Scsi_Host *host = disk->device->host;
++		int diskinfo[3] = { 0, 0, 0 };
 +
-+#endif /* _ASM_PC9800_DEBUG_H */
++		if(host->hostt->bios_param)
++			host->hostt->bios_param(disk, bdev, diskinfo);
++		else
++			scsicam_bios_param(disk, bdev, diskinfo);
++
++		if ((g_head = diskinfo[0]) <= 0)
++			g_head = 8;
++		if ((g_sect = diskinfo[1]) <= 0)
++			g_sect = 17;
++		break;
++	}
++#endif /* CONFIG_BLK_DEV_SD(_MODULE) */
++	default:
++		printk(" unsupported disk (major = %u)\n",
++			major(to_kdev_t(bdev->bd_dev)));
++		return 0;
++	}
++
++	data = read_dev_sector(bdev, 0, &sect);
++	if (!data) {
++		if (warn_no_part)
++			printk(" unable to read partition table\n");
++		return -1;
++	}
++
++	/* magic(?) check */
++	if (*(__u16 *)(data + sector_size - 2) != NEC98_PTABLE_MAGIC) {
++		put_dev_sector(sect);
++		return 0;
++	}
++
++	put_dev_sector(sect);
++	data = read_dev_sector(bdev, 1, &sect);
++	if (!data) {
++		if (warn_no_part)
++			printk(" unable to read partition table\n");
++		return -1;
++	}
++
++	if (!is_valid_nec98_partition_table((struct nec98_partition *)data,
++					     g_sect, g_head)) {
++#if 0
++		if (warn_no_part)
++			printk(" partition table consistency check failed"
++				" (not PC-9800 disk?)\n");
++#endif
++		put_dev_sector(sect);
++		return 0;
++	}
++
++	part = (const struct nec98_partition *)data;
++	for (nr = 0; nr < 16; nr++, part++) {
++		unsigned int start_sect, end_sect;
++
++		if (part->mid == 0 || part->sid == 0)
++			continue;
++
++		if (nr)
++			printk("     ");
++
++		{	/* Print partition name. Fdisk98 might put NUL
++			   characters in partition name... */
++
++			int j;
++			unsigned char *p;
++			unsigned char buf[sizeof (part->name) * 2 + 1];
++
++			for (p = buf, j = 0; j < sizeof (part->name); j++, p++)
++				if ((*p = part->name[j]) < ' ') {
++					*p++ = '^';
++					*p = part->name[j] + '@';
++				}
++
++			*p = 0;
++			printk(" <%s>", buf);
++		}
++		start_sect = (part->cyl * g_head + part->head) * g_sect
++			+ part->sector;
++		end_sect = (part->end_cyl + 1) * g_head * g_sect;
++		if (end_sect <= start_sect) {
++			printk(" (invalid partition info)\n");
++			continue;
++		}
++
++		put_partition(state, nr + 1, start_sect, end_sect - start_sect);
++#ifdef CONFIG_NEC98_BSD_DISKLABEL
++		if ((*(__u16 *)&part->mid & 0x7F7F)
++		    == NEC98_BSD_PARTITION_MID_SID) {
++			printk("!");
++			/* NEC98_BSD_PARTITION_MID_SID is not valid SYSIND for
++			   IBM PC's MS-DOS partition table, so we simply pass
++			   it to bsd_disklabel_partition;
++			   it will just print `<bsd: ... >'. */
++			parse_bsd(state, bdev, start_sect,
++					end_sect - start_sect, nr + 1,
++					"bsd98", BSD_MAXPARTITIONS);
++		}
++#endif
++		{	/* Pretty size printing. */
++			/* XXX sector size? */
++			unsigned int psize = (end_sect - start_sect) / 2;
++			int unit_char = 'K';
++
++			if (psize > 99999) {
++				psize >>= 10;
++				unit_char = 'M';
++			}
++			printk(" %5d%cB (%5d-%5d)\n", 
++			       psize, unit_char, part->cyl, part->end_cyl);
++		}
++	}
++
++	put_dev_sector(sect);
++
++	return nr ? 1 : 0;
++}
 +
 +/*
 + * Local variables:
-+ * c-file-style: "linux"
++ * c-basic-offset: 8
 + * End:
 + */
-diff -urN linux/include/asm-i386/pc9800_dma.h linux98/include/asm-i386/pc9800_dma.h
---- linux/include/asm-i386/pc9800_dma.h	Thu Jan  1 09:00:00 1970
-+++ linux98/include/asm-i386/pc9800_dma.h	Fri Aug 17 22:15:01 2001
-@@ -0,0 +1,238 @@
-+/* $Id: dma.h,v 1.7 1992/12/14 00:29:34 root Exp root $
-+ * linux/include/asm/dma.h: Defines for using and allocating dma channels.
-+ * Written by Hennus Bergman, 1992.
-+ * High DMA channel support & info by Hannu Savolainen
-+ * and John Boyd, Nov. 1992.
+diff -urN linux/fs/partitions/nec98.h linux98/fs/partitions/nec98.h
+--- linux/fs/partitions/nec98.h	Thu Jan  1 09:00:00 1970
++++ linux98/fs/partitions/nec98.h	Fri Jul 26 11:10:08 2002
+@@ -0,0 +1,10 @@
++/*
++ *  NEC PC-9800 series partition supports
++ *
++ *  Copyright (C) 1998-2000	Kyoto University Microcomputer Club
 + */
 +
-+#ifndef _ASM_PC9800_DMA_H
-+#define _ASM_PC9800_DMA_H
++#define NEC98_PTABLE_MAGIC	0xAA55
 +
-+#include <linux/config.h>
-+#include <asm/io.h>		/* need byte IO */
-+#include <linux/delay.h>
-+
-+
-+#ifdef HAVE_REALLY_SLOW_DMA_CONTROLLER
-+#define dma_outb	outb_p
-+#else
-+#define dma_outb	outb
-+#endif
-+
-+#define dma_inb		inb
++extern int nec98_partition(struct parsed_partitions *state,
++				struct block_device *bdev);
+diff -urN linux/fs/partitions/x68000.c linux98/fs/partitions/x68000.c
+--- linux/fs/partitions/x68000.c	Thu Jan  1 09:00:00 1970
++++ linux98/fs/partitions/x68000.c	Fri Aug 17 21:50:17 2001
+@@ -0,0 +1,94 @@
++/*
++ *  fs/partitions/x68000.c
++ *
++ *  X68000 style partition table handler.
++ *
++ *  Copyright (C) 1999-2000  TAKAI Kousuke  <tak@kmc.kyoto-u.ac.jp>
++ *			Linux/98 project, Kyoto Univ. Microcomputer Club
++ */
 +
 +/*
-+ * NOTES about DMA transfers:
++ * Commentary:
++ *  X68000/X68030 are MC68000/MC68EC030-based personal computers
++ *  designed by Sharp Corporation and used to be sold mainly in Japan.
 + *
-+ *  controller 1: channels 0-3, byte operations, ports 00-1F
-+ *  controller 2: channels 4-7, word operations, ports C0-DF
-+ *
-+ *  - ALL registers are 8 bits only, regardless of transfer size
-+ *  - channel 4 is not used - cascades 1 into 2.
-+ *  - channels 0-3 are byte - addresses/counts are for physical bytes
-+ *  - channels 5-7 are word - addresses/counts are for physical words
-+ *  - transfers must not cross physical 64K (0-3) or 128K (5-7) boundaries
-+ *  - transfer count loaded to registers is 1 less than actual count
-+ *  - controller 2 offsets are all even (2x offsets for controller 1)
-+ *  - page registers for 5-7 don't use data bit 0, represent 128K pages
-+ *  - page registers for 0-3 use bit 0, represent 64K pages
-+ *
-+ * DMA transfers are limited to the lower 16MB of _physical_ memory.  
-+ * Note that addresses loaded into registers must be _physical_ addresses,
-+ * not logical addresses (which may differ if paging is active).
-+ *
-+ *  Address mapping for channels 0-3:
-+ *
-+ *   A23 ... A16 A15 ... A8  A7 ... A0    (Physical addresses)
-+ *    |  ...  |   |  ... |   |  ... |
-+ *    |  ...  |   |  ... |   |  ... |
-+ *    |  ...  |   |  ... |   |  ... |
-+ *   P7  ...  P0  A7 ... A0  A7 ... A0   
-+ * |    Page    | Addr MSB | Addr LSB |   (DMA registers)
-+ *
-+ *  Address mapping for channels 5-7:
-+ *
-+ *   A23 ... A17 A16 A15 ... A9 A8 A7 ... A1 A0    (Physical addresses)
-+ *    |  ...  |   \   \   ... \  \  \  ... \  \
-+ *    |  ...  |    \   \   ... \  \  \  ... \  (not used)
-+ *    |  ...  |     \   \   ... \  \  \  ... \
-+ *   P7  ...  P1 (0) A7 A6  ... A0 A7 A6 ... A0   
-+ * |      Page      |  Addr MSB   |  Addr LSB  |   (DMA registers)
-+ *
-+ * Again, channels 5-7 transfer _physical_ words (16 bits), so addresses
-+ * and counts _must_ be word-aligned (the lowest address bit is _ignored_ at
-+ * the hardware level, so odd-byte transfers aren't possible).
-+ *
-+ * Transfer count (_not # bytes_) is limited to 64K, represented as actual
-+ * count - 1 : 64K => 0xFFFF, 1 => 0x0000.  Thus, count is always 1 or more,
-+ * and up to 128K bytes may be transferred on channels 5-7 in one operation. 
-+ *
++ *  We had never heard that Linux runs on them, but here is the partition
++ *  table handling routine for fun. :-)
 + */
 +
-+#define MAX_DMA_CHANNELS	4
++#include <linux/fs.h>
 +
-+/* The maximum address that we can perform a DMA transfer to on this platform */
-+#define MAX_DMA_ADDRESS      (~0UL)
++#include "check.h"
 +
-+/* 8237 DMA controllers */
-+#define IO_DMA_BASE		0x01
++struct x68k_partition {
++	s8	name[8];
++	u32	start;
++	u32	length;
++} __attribute__((__packed__));
 +
-+/* DMA controller registers */
-+#define DMA_CMD_REG			((IO_DMA_BASE)+0x10) /* command register (w) */
-+#define DMA_STAT_REG		((IO_DMA_BASE)+0x10) /* status register (r) */
-+#define DMA_REQ_REG			((IO_DMA_BASE)+0x12) /* request register (w) */
-+#define DMA_MASK_REG		((IO_DMA_BASE)+0x14) /* single-channel mask (w) */
-+#define DMA_MODE_REG		((IO_DMA_BASE)+0x16) /* mode register (w) */
-+#define DMA_CLEAR_FF_REG	((IO_DMA_BASE)+0x18) /* clear pointer flip-flop (w) */
-+#define DMA_TEMP_REG		((IO_DMA_BASE)+0x1A) /* Temporary Register (r) */
-+#define DMA_RESET_REG		((IO_DMA_BASE)+0x1A) /* Master Clear (w) */
-+#define DMA_CLR_MASK_REG	((IO_DMA_BASE)+0x1C) /* Clear Mask */
-+#define DMA_MASK_ALL_REG	((IO_DMA_BASE)+0x1E) /* all-channels mask (w) */
++struct x68k_partition_table {
++	u32	magic;		/* 'X68K' */
++	u32	max;
++	u32	spare;
++	u32	shipping;
++	struct x68k_partition partition[15];
++} __attribute__((__packed__));
 +
-+#define DMA_PAGE_0			0x27	/* DMA page registers */
-+#define DMA_PAGE_1			0x21
-+#define DMA_PAGE_2			0x23
-+#define DMA_PAGE_3			0x25
++#define _X68K_MAGIC	(('X' << 24) | ('6' << 16) | ('8' << 8) | 'K')
++#define X68K_MAGIC	(be32_to_cpu (_X68K_MAGIC))
 +
-+#define DMA_Ex_PAGE_0		0xe05	/* DMA Extended page reg base */
-+#define DMA_Ex_PAGE_1		0xe07
-+#define DMA_Ex_PAGE_2		0xe09
-+#define DMA_Ex_PAGE_3		0xe0b
-+
-+#define DMA_MODE_READ	0x44	/* I/O to memory, no autoinit, increment, single mode */
-+#define DMA_MODE_WRITE	0x48	/* memory to I/O, no autoinit, increment, single mode */
-+#define DMA_AUTOINIT	0x10
-+
-+extern spinlock_t  dma_spin_lock;
-+
-+static __inline__ unsigned long claim_dma_lock(void)
++int x68k_partition (struct gendisk *hd, kdev_t dev,
++		    unsigned long first_sector, int first_minor)
 +{
-+	unsigned long flags;
-+	spin_lock_irqsave(&dma_spin_lock, flags);
-+	return flags;
-+}
++	int part;
++	int sectors_per_record;
++	unsigned long max;
++	struct x68k_partition_table *pt;
++	struct buffer_head *bh;
 +
-+static __inline__ void release_dma_lock(unsigned long flags)
-+{
-+	spin_unlock_irqrestore(&dma_spin_lock, flags);
-+}
++	if (hardsect_size[MAJOR(dev)] == NULL
++	    || (hardsect_size[MAJOR(dev)][MINOR(dev)] != 256
++		&& hardsect_size[MAJOR(dev)][MINOR(dev)] != 512
++		&& hardsect_size[MAJOR(dev)][MINOR(dev)] != 1024))
++		return 0;
 +
-+/* enable/disable a specific DMA channel */
-+static __inline__ void enable_dma(unsigned int dmanr)
-+{
-+	dma_outb(dmanr,  DMA_MASK_REG);
-+}
++	bh = bread(dev, (4 * hardsect_size[MAJOR(dev)][MINOR(dev)]
++			  / blksize_size[MAJOR(dev)][MINOR(dev)]),
++		    blksize_size[MAJOR(dev)][MINOR(dev)]);
++	if (bh == NULL)
++		return -1;
 +
-+static __inline__ void disable_dma(unsigned int dmanr)
-+{
-+	dma_outb(dmanr | 4,  DMA_MASK_REG);
-+}
-+
-+/* Clear the 'DMA Pointer Flip Flop'.
-+ * Write 0 for LSB/MSB, 1 for MSB/LSB access.
-+ * Use this once to initialize the FF to a known state.
-+ * After that, keep track of it. :-)
-+ * --- In order to do that, the DMA routines below should ---
-+ * --- only be used while holding the DMA lock ! ---
-+ */
-+static __inline__ void clear_dma_ff(unsigned int dmanr)
-+{
-+	dma_outb(0,  DMA_CLEAR_FF_REG);
-+}
-+
-+/* set mode (above) for a specific DMA channel */
-+static __inline__ void set_dma_mode(unsigned int dmanr, char mode)
-+{
-+	dma_outb(mode | dmanr,  DMA_MODE_REG);
-+}
-+
-+/* Set only the page register bits of the transfer address.
-+ * This is used for successive transfers when we know the contents of
-+ * the lower 16 bits of the DMA current address register, but a 64k boundary
-+ * may have been crossed.
-+ */
-+static __inline__ void set_dma_page(unsigned int dmanr, unsigned int pagenr)
-+{
-+	unsigned char low=pagenr&0xff;
-+	unsigned char hi=pagenr>>8;
-+
-+	switch(dmanr) {
-+		case 0:
-+			dma_outb(low, DMA_PAGE_0);
-+			dma_outb(hi, DMA_Ex_PAGE_0);
-+			break;
-+		case 1:
-+			dma_outb(low, DMA_PAGE_1);
-+			dma_outb(hi, DMA_Ex_PAGE_1);
-+			break;
-+		case 2:
-+			dma_outb(low, DMA_PAGE_2);
-+			dma_outb(hi, DMA_Ex_PAGE_2);
-+			break;
-+		case 3:
-+			dma_outb(low, DMA_PAGE_3);
-+			dma_outb(hi, DMA_Ex_PAGE_3);
-+			break;
++	pt = ((struct x68k_partition_table *)
++	      ((void *)bh->b_data
++	       + (4 * hardsect_size[MAJOR(dev)][MINOR(dev)]
++		  % blksize_size[MAJOR(dev)][MINOR(dev)])));
++	if (pt->magic != X68K_MAGIC) {
++		brelse(bh);
++		return 0;
 +	}
++	max = be32_to_cpu(pt->max);
++
++	sectors_per_record = 1024 / hardsect_size[MAJOR(dev)][MINOR(dev)];
++
++	for (part = 0; part < 15; part++) {
++		unsigned int start, length;
++
++		if (*(u8 *)&pt->partition[part].start)
++			break;	/* end of partition table */
++		start  = be32_to_cpu(pt->partition[part].start );
++		length = be32_to_cpu(pt->partition[part].length);
++		if (start >= max || (start + length) > max)
++			break;
++		if (!part)
++			printk(" (X68k partition table)\n");
++		add_gd_partition(hd, first_minor,
++				  start  * sectors_per_record,
++				  length * sectors_per_record);
++		printk(" <%-8.8s> %8u+%u\n",
++			pt->partition[part].name, start, length);
++		first_minor++;
++	}
++	brelse(bh);
++
++	return part ? 1 : 0;
 +}
-+
-+/* Set transfer address & page bits for specific DMA channel.
-+ * Assumes dma flipflop is clear.
-+ */
-+static __inline__ void set_dma_addr(unsigned int dmanr, unsigned int a)
-+{
-+	set_dma_page(dmanr, a>>16);
-+	dma_outb( a & 0xff, ((dmanr&3)<<2) + IO_DMA_BASE );
-+	dma_outb( (a>>8) & 0xff, ((dmanr&3)<<2) + IO_DMA_BASE );
-+}
-+
-+
-+/* Set transfer size (max 64k for DMA1..3, 128k for DMA5..7) for
-+ * a specific DMA channel.
-+ * You must ensure the parameters are valid.
-+ * NOTE: from a manual: "the number of transfers is one more
-+ * than the initial word count"! This is taken into account.
-+ * Assumes dma flip-flop is clear.
-+ * NOTE 2: "count" represents _bytes_ and must be even for channels 5-7.
-+ */
-+static __inline__ void set_dma_count(unsigned int dmanr, unsigned int count)
-+{
-+	count--;
-+	dma_outb( count & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA_BASE );
-+	dma_outb( (count>>8) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA_BASE );
-+}
-+
-+
-+/* Get DMA residue count. After a DMA transfer, this
-+ * should return zero. Reading this while a DMA transfer is
-+ * still in progress will return unpredictable results.
-+ * If called before the channel has been used, it may return 1.
-+ * Otherwise, it returns the number of _bytes_ left to transfer.
-+ *
-+ * Assumes DMA flip-flop is clear.
-+ */
-+static __inline__ int get_dma_residue(unsigned int dmanr)
-+{
-+	/* using short to get 16-bit wrap around */
-+	unsigned short count;
-+
-+	count = 1 + dma_inb(((dmanr&3)<<2) + 2 + IO_DMA_BASE);
-+	count += dma_inb(((dmanr&3)<<2) + 2 + IO_DMA_BASE) << 8;
-+	
-+	return count;
-+}
-+
-+
-+/* These are in kernel/dma.c: */
-+extern int request_dma(unsigned int dmanr, const char * device_id);	/* reserve a DMA channel */
-+extern void free_dma(unsigned int dmanr);	/* release it again */
-+
-+/* From PCI */
-+
-+#ifdef CONFIG_PCI
-+extern int isa_dma_bridge_buggy;
-+#else
-+#define isa_dma_bridge_buggy 	(0)
-+#endif
-+
-+#endif /* _ASM_PC9800_DMA_H */
-diff -urN linux/include/asm-i386/pc9800_sca.h linux98/include/asm-i386/pc9800_sca.h
---- linux/include/asm-i386/pc9800_sca.h	Thu Jan  1 09:00:00 1970
-+++ linux98/include/asm-i386/pc9800_sca.h	Fri Aug 17 21:50:18 2001
-@@ -0,0 +1,25 @@
+diff -urN linux/fs/partitions/x68000.h linux98/fs/partitions/x68000.h
+--- linux/fs/partitions/x68000.h	Thu Jan  1 09:00:00 1970
++++ linux98/fs/partitions/x68000.h	Fri Aug 17 21:50:17 2001
+@@ -0,0 +1,6 @@
 +/*
-+ *  System-common area definitions for NEC PC-9800 series
-+ *
-+ *  Copyright (C) 1999	TAKAI Kousuke <tak@kmc.kyoto-u.ac.jp>,
-+ *			Kyoto University Microcomputer Club.
++ *  fs/partitions/x68000.h
 + */
 +
-+#ifndef _ASM_I386_PC9800SCA_H_
-+#define _ASM_I386_PC9800SCA_H_
-+
-+#define PC9800SCA_EXPMMSZ		(0x0401)	/* B */
-+#define PC9800SCA_SCSI_PARAMS		(0x0460)	/* 8 * 4B */
-+#define PC9800SCA_DISK_EQUIPS		(0x0482)	/* B */
-+#define PC9800SCA_XROM_ID		(0x04C0)	/* 52B */
-+#define PC9800SCA_BIOS_FLAG		(0x0501)	/* B */
-+#define PC9800SCA_MMSZ16M		(0x0594)	/* W */
-+
-+/* PC-9821 have additional system common area in their BIOS-ROM segment. */
-+
-+#define PC9821SCA__BASE			(0xF8E8 << 4)
-+#define PC9821SCA_ROM_ID		(PC9821SCA__BASE + 0x00)
-+#define PC9821SCA_ROM_FLAG4		(PC9821SCA__BASE + 0x05)
-+#define PC9821SCA_RSFLAGS		(PC9821SCA__BASE + 0x11)	/* B */
-+
-+#endif /* !_ASM_I386_PC9800SCA_H_ */
-diff -urN linux/include/asm-i386/pgtable.h linux98/include/asm-i386/pgtable.h
---- linux/include/asm-i386/pgtable.h	Mon Apr 15 04:18:55 2002
-+++ linux98/include/asm-i386/pgtable.h	Wed Apr 17 10:37:22 2002
-@@ -58,7 +58,11 @@
- #endif
- #endif
- 
-+#ifndef CONFIG_PC9800
- #define __beep() asm("movb $0x3,%al; outb %al,$0x61")
-+#else
-+#define __beep() asm("movb $0x6,%al; outb %al,$0x37")
-+#endif
- 
- #define PMD_SIZE	(1UL << PMD_SHIFT)
- #define PMD_MASK	(~(PMD_SIZE-1))
-diff -urN linux/include/asm-i386/processor.h linux98/include/asm-i386/processor.h
---- linux/include/asm-i386/processor.h	Sat Sep 21 00:20:15 2002
-+++ linux98/include/asm-i386/processor.h	Sun Sep 22 09:16:38 2002
-@@ -87,7 +87,7 @@
- #define current_cpu_data boot_cpu_data
- #endif
- 
--extern char ignore_irq13;
-+extern char ignore_fpu_irq;
- 
- extern void identify_cpu(struct cpuinfo_x86 *);
- extern void print_cpu_info(struct cpuinfo_x86 *);
-diff -urN linux/include/asm-i386/scatterlist.h linux98/include/asm-i386/scatterlist.h
---- linux/include/asm-i386/scatterlist.h	Mon Apr 15 04:18:52 2002
-+++ linux98/include/asm-i386/scatterlist.h	Wed Apr 17 10:37:22 2002
-@@ -1,6 +1,8 @@
- #ifndef _I386_SCATTERLIST_H
- #define _I386_SCATTERLIST_H
- 
-+#include <linux/config.h>
-+
- struct scatterlist {
-     struct page		*page;
-     unsigned int	offset;
-@@ -8,6 +10,10 @@
-     unsigned int	length;
- };
- 
-+#ifdef CONFIG_PC9800
-+#define ISA_DMA_THRESHOLD (0xffffffff)
-+#else
- #define ISA_DMA_THRESHOLD (0x00ffffff)
-+#endif
- 
- #endif /* !(_I386_SCATTERLIST_H) */
-diff -urN linux/include/asm-i386/setup.h linux98/include/asm-i386/setup.h
---- linux/include/asm-i386/setup.h	Tue Sep 10 02:35:13 2002
-+++ linux98/include/asm-i386/setup.h	Tue Sep 10 09:34:57 2002
-@@ -28,6 +28,9 @@
- #define APM_BIOS_INFO (*(struct apm_bios_info *) (PARAM+0x40))
- #define DRIVE_INFO (*(struct drive_info_struct *) (PARAM+0x80))
- #define SYS_DESC_TABLE (*(struct sys_desc_table_struct*)(PARAM+0xa0))
-+#ifdef CONFIG_PC9800
-+#define PC9800_MISC_FLAGS (*(unsigned char *)(PARAM+0x1AF))
-+#endif
- #define MOUNT_ROOT_RDONLY (*(unsigned short *) (PARAM+0x1F2))
- #define RAMDISK_FLAGS (*(unsigned short *) (PARAM+0x1F8))
- #define VIDEO_MODE (*(unsigned short *) (PARAM+0x1FA))
-diff -urN linux/include/asm-i386/timex.h linux98/include/asm-i386/timex.h
---- linux/include/asm-i386/timex.h	Thu Feb 14 18:09:15 2002
-+++ linux98/include/asm-i386/timex.h	Thu Feb 14 23:58:57 2002
-@@ -9,11 +9,15 @@
- #include <linux/config.h>
- #include <asm/msr.h>
- 
-+#ifdef CONFIG_PC9800
-+   extern int CLOCK_TICK_RATE;
-+#else
- #ifdef CONFIG_MELAN
- #  define CLOCK_TICK_RATE 1189200 /* AMD Elan has different frequency! */
- #else
- #  define CLOCK_TICK_RATE 1193180 /* Underlying HZ */
- #endif
-+#endif
- 
- #define CLOCK_TICK_FACTOR	20	/* Factor of both 1000000 and CLOCK_TICK_RATE */
- #define FINETUNE ((((((long)LATCH * HZ - CLOCK_TICK_RATE) << SHIFT_HZ) * \
++int x68k_partition(struct gendisk *hd, kdev_t dev,
++		   unsigned long first_sector, int first_minor);

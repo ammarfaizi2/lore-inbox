@@ -1,52 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272071AbTHFV46 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 17:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272355AbTHFV46
+	id S272622AbTHFWO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 18:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272623AbTHFWO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 17:56:58 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:30883 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S272071AbTHFV45 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 17:56:57 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "Albert E. Whale, CISSP" <aewhale@ABS-CompTech.com>
-Date: Wed, 6 Aug 2003 23:56:27 +0200
+	Wed, 6 Aug 2003 18:14:28 -0400
+Received: from smtp1.libero.it ([193.70.192.51]:41091 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id S272585AbTHFWOT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 18:14:19 -0400
+From: Willy Gardiol <gardiol@libero.it>
+Reply-To: gardiol@libero.it
+To: Michael Buesch <fsdeveloper@yahoo.de>,
+       Frank Van Damme <frank.vandamme@student.kuleuven.ac.be>
+Subject: Re: [2.6] system is very slow during disk access
+Date: Thu, 7 Aug 2003 00:19:16 +0200
+User-Agent: KMail/1.5.1
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+References: <200308062052.10752.fsdeveloper@yahoo.de> <200308062129.26371.frank.vandamme@student.kuleuven.ac.be> <200308062131.46017.fsdeveloper@yahoo.de>
+In-Reply-To: <200308062131.46017.fsdeveloper@yahoo.de>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Linux Kernel Question - from non-subscriber
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <965253710F1@vcnet.vc.cvut.cz>
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200308070019.17442.gardiol@libero.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  6 Aug 03 at 16:59, Albert E. Whale, CISSP wrote:
-> I have been searching for a Howto (which is not outdated or Broken), on
-> how to mount a Netware 3.x or 4.x Filesystem on Linux.  I have 2.4.21
-> operating on Linux Mandrake 9.1.  I have installed ncpfs-2.2.2 and
-> desire to mount this filesystem to recover lost information for a
-> Non-Profit Organization.  I will post a HOWTO to the Slueth-kit List for
-> future reference.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-nwfs can be used for this. ncpfs is for connecting to the live server,
-and you apparently do not have live server, if I understand it correctly.
- 
-> As the Vender list is non-technical (more of a SCO Flamewar) nature
-> currently, and I am in need of this procedure to mount the Drive (I have
-> a 60 GB Disk on a USB Port with the Ghost Image installed on the drive -
-> full Inode replica).
 
-What's wrong with installing NetWare and accessing data through netware? 
-I think that it is simplest way to go. 
+Try to unmask IRQ, this should realy help... 
+hdparm -u1 /dev/hda
 
-If netware cannot mount the disk, then nwfs will not mount
-it too. Besides that nwfs is unmaintained - or at least I do not know
-where updated code lives.
-                                                Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
+I usually do on my disks:
+hdparm -c1 -u1 -d1 -X69 /dev/hda
+(note: use -X69 only for for an UDMA 100 or 133 drive)
+
+> > Maybe you just didn't enable DMA on them. Use hdparm -v /dev/foo to find
+> > out.
+>
+> DMA is on.
+>
+> root@lfs:/home/mb> hdparm -v /dev/hda
+>
+> /dev/hda:
+>  multcount    = 16 (on)
+>  IO_support   =  1 (32-bit)
+>  unmaskirq    =  0 (off)
+>  using_dma    =  1 (on)
+>  keepsettings =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    = 256 (on)
+>  geometry     = 14244/16/63, sectors = 80418240, start = 0
+>
+>
+> root@lfs:/home/mb> hdparm -v /dev/hdc
+>
+> /dev/hdc:
+>  multcount    = 16 (on)
+>  IO_support   =  1 (32-bit)
+>  unmaskirq    =  0 (off)
+>  using_dma    =  1 (on)
+>  keepsettings =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    = 256 (on)
+>  geometry     = 14244/16/63, sectors = 80418240, start = 0
+
+- -- 
+
+! 
+ Willy Gardiol - gardiol@libero.it
+ gardiol.eu.org
+ Use linux for your freedom.
+
+   "La guerra non farà mai finire 
+    alcuna guerra, nel migliore dei
+    casi sarà stata una guerra in più."
+
+      Gino Strada, Buskashì
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/MX7kQ9qolN/zUk4RApDfAJ9RG7HO3j1rHI/A7ZpfljJdNtzIsgCcC+PS
+hQofsS2lrTLMFh4JwgzAVp4=
+=0g9b
+-----END PGP SIGNATURE-----
 

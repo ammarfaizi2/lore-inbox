@@ -1,67 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268527AbUIGTwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268533AbUIGTzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268527AbUIGTwA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 15:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268525AbUIGTwA
+	id S268533AbUIGTzH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 15:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268539AbUIGTyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 15:52:00 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59662 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S268634AbUIGTkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 15:40:40 -0400
-Date: Tue, 7 Sep 2004 21:40:09 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.6.9-rc1-mm4: Makefile: remove tabs from empty lines
-Message-ID: <20040907194009.GE2454@fs.tum.de>
-References: <20040907020831.62390588.akpm@osdl.org> <20040907190212.GB2454@fs.tum.de> <20040907211422.GA6053@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040907211422.GA6053@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6+20040818i
+	Tue, 7 Sep 2004 15:54:32 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:36849 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S268553AbUIGTbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 15:31:23 -0400
+Message-ID: <413E0C88.6020402@namesys.com>
+Date: Tue, 07 Sep 2004 12:31:20 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: linux-kernel@vger.kernel.org, Alexander Zarochentcev <zam@namesys.com>,
+       vs <vs@thebsh.namesys.com>, Edward Shishkin <edward@namesys.com>
+Subject: Re: [PATCH - EXPERIMENTAL] files with forks in the VFS
+References: <16699.44411.361938.856856@cse.unsw.edu.au>	<413BFCB5.4010608@namesys.com> <16700.60673.453455.255327@cse.unsw.edu.au>
+In-Reply-To: <16700.60673.453455.255327@cse.unsw.edu.au>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07, 2004 at 11:14:22PM +0200, Sam Ravnborg wrote:
-> On Tue, Sep 07, 2004 at 09:02:12PM +0200, Adrian Bunk wrote:
-> > On Tue, Sep 07, 2004 at 02:08:31AM -0700, Andrew Morton wrote:
-> > >...
-> > >  bk-kbuild.patch
-> > >...
-> > >  Latest versions of external trees
-> > >...
-> > 
-> > 
-> > Emacs warns me at every saving of the toplevel Makefile since it 
-> > considers empty lines with a tab suspicious.
-> Why do you need to edit top-level Makefile?
+Neil Brown wrote:
 
-I'm setting CC and HOSTCC.
-(I know I no longer have to edit Makefile for this so, but I'm used to 
- it...)
+>On Sunday September 5, reiser@namesys.com wrote:
+>  
+>
+>>Neil Brown wrote:
+>>
+>>    
+>>
+>>>As a followup to the multi-branching threads about reiser4, I would
+>>>like to present this patch for discussion and exploration.
+>>>It implements files with fork (which are quite different to files that
+>>>provide different views via a subdirectory structure).
+>>> 
+>>>
+>>>      
+>>>
+>>How are they different?  Having a distinguished file is consistent with 
+>>the reiser4 approach.
+>>
+>>    
+>>
+>
+>They are different at least in my perception.  It is possible that a
+>common abstraction and a common implementation could support them
+>both, though I am slightly sceptical.
+>
+>On the one hand, you have a name space within a file which provides
+>access to information that is not part of that file but is only
+>loosely associated with it:  an icon for a desktop app, documentation
+>for a program, a collection of fonts that a document uses.
+>
+>On the other hand, you have a name space within a file which provides
+>alternate views onto information that already exists within that
+>file:  "unzip" which presents the file uncompressed, "tar" which
+>explodes a tar achieve, "tag" which shows tags in a multi-media
+>file. "elf" which exposes sections of an ELF executable.
+>
+>In the first case, the subordinate files should clearly be writable,
+>and should be backed up along with the main file.
+>In the second case, it is not clear that subordinate files should or
+>could be writable in general (though there may well be specific
+>cases), and the data does not need to be backed up.
+>  
+>
+After the file compression plugin we should consider creating a 
+directory compression plugin for directories with lots of small files....
 
-> Amyways I try to avoid these, but my gvim is pretty consistent in adding
-> additional tabs/spaces here and there. Anyone that can tell me how to
-> teach gvim not to do so (and flag trailing tabs/spaces).
+>In the first case, the extra semantic only applies to files, not
+>directories (allowing a directory to have extra streams is nothing
+>new).
+>In the second case, the extra semantic should apply to directories as
+>well (as there may we be different views you might want on a
+>directory). 
+>  
+>
+I don't understand the paragraph above.  Can you say with fewer 
+indirections (e.g. define extra semantic)?
 
-Use Emacs.  ;-)
-*duck'n'run*
-
-> I have included below fix in patch that fixes '-j1' warning.
-
-Thanks!
-
-> 	Sam
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+>NeilBrown
+>
+>
+>  
+>
 

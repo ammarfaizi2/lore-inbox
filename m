@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129640AbQKUPWq>; Tue, 21 Nov 2000 10:22:46 -0500
+	id <S129777AbQKUPX4>; Tue, 21 Nov 2000 10:23:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129777AbQKUPWg>; Tue, 21 Nov 2000 10:22:36 -0500
-Received: from [206.206.98.15] ([206.206.98.15]:45073 "EHLO mail2.thuntek.net")
-	by vger.kernel.org with ESMTP id <S129640AbQKUPWW>;
-	Tue, 21 Nov 2000 10:22:22 -0500
-Message-ID: <002f01c053ca$cc6a6d80$0200a8c0@ruby>
-From: "Ron L. Smith" <hunter@thuntek.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Quota files on root FS get "too large" error after 2.4.x upgrade
-Date: Tue, 21 Nov 2000 07:53:23 -0700
+	id <S130465AbQKUPXq>; Tue, 21 Nov 2000 10:23:46 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:27913 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129777AbQKUPXa>;
+	Tue, 21 Nov 2000 10:23:30 -0500
+To: elenstev@mesatop.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CONFIG_TOSHIBA Configure.help for 2.4.0-test11
+In-Reply-To: <00112018440600.00911@localhost.localdomain>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 21 Nov 2000 15:53:21 +0100
+In-Reply-To: Steven Cole's message of "Mon, 20 Nov 2000 18:44:06 -0700"
+Message-ID: <d37l5xbcm6.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After installing and configuring kernel 2.4.0-test11, all is working well,
-except quota's on the root FS.  I am at a loss as to how to correct this:
+>>>>> "Steven" == Steven Cole <elenstev@mesatop.com> writes:
 
-ls -l /quota.*
-ls: /quota.group: Value too large for defined data type
-ls: /quota.user: Value too large for defined data type
+Steven> I noticed that for 2.4.0-test11 there is no help for
+Steven> CONFIG_TOSHIBA, although there is for 2.2.17.
 
-rm -f /quota.*
-rm: cannot remove `/quota.group': Value too large for defined data type
-rm: cannot remove `/quota.user': Value too large for defined data type
+Steven> The following patch borrows the words for CONFIG_TOSHIBA from
+Steven> the 2.2.17 Documentation/Configure.help, dropping an
+Steven> extraneous "the" from the first line.
 
-I have just started testing with the 2.4.x series kernel, so do not know if
-this would have been seen in any previous testxx version.
+Would probably be a good idea to name the config option
+CONFIG_TOSHIBA_LAPTOP_MGMT or something to avoid the possibility of a
+conflict in case someone else special cases some other Toshiba thing.
 
-
+Jes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

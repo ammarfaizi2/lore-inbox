@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbUK0FrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbUK0Fva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262102AbUK0FrW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 00:47:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbUK0Du7
+	id S262129AbUK0Fva (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 00:51:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUK0Frj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:50:59 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:5572 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262533AbUKZTdm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:33:42 -0500
-Date: Fri, 26 Nov 2004 12:30:40 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: [PATCH] swsusp kconfig: Change in wording (fwd)
-Message-ID: <20041126113040.GB1028@elf.ucw.cz>
+	Sat, 27 Nov 2004 00:47:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4739 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262103AbUK0DvP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 22:51:15 -0500
+Date: Sat, 27 Nov 2004 03:51:13 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Tonnerre <tonnerre@thundrix.ch>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
+       matthew@wil.cx, dwmw2@infradead.org, aoliva@redhat.com,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Message-ID: <20041127035113.GK29035@parcelfarce.linux.theplanet.co.uk>
+References: <19865.1101395592@redhat.com> <20041127042942.GA10774@pauli.thundrix.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041127042942.GA10774@pauli.thundrix.ch>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, Nov 27, 2004 at 05:29:42AM +0100, Tonnerre wrote:
+> Fnord alert: you're trying to change the API and the ABI of Linux. The thing
 
-Vadim says:
+No we aren't.  We're just trying to make the kernel interface more
+explicit.  Nothing should change as far as userspace programs are
+concerned.  It might need some coordination with the various libcs.
 
-I was reading through the kernel/power/Kconfig file, and noticed that
-the wording was slightly unclear. I poked at it a bit, hopefully making
-the description a tad more straightforward, but you be the judge. :)
-Diffed against 2.6.10-rc2.
-
-Please apply,
-								Pavel
-
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-Signed-off-by: Vadim Lobanov <vlobanov@speakeasy.net>
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
-===========================================================================
-diff -Nru a/kernel/power/Kconfig b/kernel/power/Kconfig
---- a/kernel/power/Kconfig      2004-11-14 21:56:22.000000000 -0800
-+++ b/kernel/power/Kconfig      2004-11-25 20:41:57.000000000 -0800
-@@ -35,14 +35,13 @@
-          You may suspend your machine by 'swsusp' or 'shutdown -z <time>'
-          (patch for sysvinit needed).
-
--         It creates an image which is saved in your active swaps. By the next
--         booting the, pass 'resume=/dev/swappartition' and kernel will
--         detect the saved image, restore the memory from
--         it and then it continues to run as before you've suspended.
--         If you don't want the previous state to continue use the 'noresume'
--         kernel option. However note that your partitions will be fsck'd and
--         you must re-mkswap your swap partitions. It does not work with swap
--         files.
-+         It creates an image which is saved in your active swap. Upon next
-+         boot, pass the 'resume=/dev/swappartition' argument to the kernel to
-+         have it detect the saved image, restore memory state from it, and
-+         continue to run as before. If you do not want the previous state to
-+         be reloaded, then use the 'noresume' kernel argument. However, note
-+         that your partitions will be fsck'd and you must re-mkswap your swap
-+         partitions. It does not work with swap files.
-
-          Right now you may boot without resuming and then later resume but
-          in meantime you cannot use those swap partitions/files which were
-===========================================================================
+And enough with the doom-and-gloom big-companies-are-scared approach, OK?
+It's (a) untrue, (b) irrelevant, and (c) many of us work for big companies
+that are doing Linux already.  We don't need to be lectured by you.
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

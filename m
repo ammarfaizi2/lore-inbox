@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261836AbSJJLWo>; Thu, 10 Oct 2002 07:22:44 -0400
+	id <S261866AbSJJL0V>; Thu, 10 Oct 2002 07:26:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261866AbSJJLWn>; Thu, 10 Oct 2002 07:22:43 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:56234 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261836AbSJJLWm>; Thu, 10 Oct 2002 07:22:42 -0400
-Subject: O_STREAMING has insufficient info - how about fadvise() ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: andersen@codepoet.org
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Mark Mielke <mark@mark.mielke.cc>,
-       Giuliano Pochini <pochini@denise.shiny.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021010032950.GA11683@codepoet.org>
-References: <1034104637.29468.1483.camel@phantasy>
-	<XFMail.20021009103325.pochini@shiny.it>
-	<20021009170517.GA5608@mark.mielke.cc> <3DA4852B.7CC89C09@denise.shiny.it>
-	<20021009222438.GD5608@mark.mielke.cc>
-	<20021009232002.GC2654@bjl1.asuk.net>  <20021010032950.GA11683@codepoet.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 10 Oct 2002 12:38:52 +0100
-Message-Id: <1034249932.2044.128.camel@irongate.swansea.linux.org.uk>
+	id <S263369AbSJJL0V>; Thu, 10 Oct 2002 07:26:21 -0400
+Received: from holomorphy.com ([66.224.33.161]:21481 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261866AbSJJL0U>;
+	Thu, 10 Oct 2002 07:26:20 -0400
+Date: Thu, 10 Oct 2002 04:28:44 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Arjan van de Ven <arjanv@fenrus.demon.nl>, colpatch@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, LSE <lse-tech@lists.sourceforge.net>,
+       Andrew Morton <akpm@zip.com.au>, Martin Bligh <mjbligh@us.ibm.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [rfc][patch] Memory Binding API v0.3 2.5.41
+Message-ID: <20021010112844.GW12432@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Arjan van de Ven <arjanv@fenrus.demon.nl>, colpatch@us.ibm.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-mm@kvack.org, LSE <lse-tech@lists.sourceforge.net>,
+	Andrew Morton <akpm@zip.com.au>, Martin Bligh <mjbligh@us.ibm.com>,
+	Michael Hohnbaum <hohnbaum@us.ibm.com>
+References: <3DA4D3E4.6080401@us.ibm.com> <1034244381.3629.8.camel@localhost.localdomain> <1034248971.2044.118.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1034248971.2044.118.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-10 at 04:29, Erik Andersen wrote:
-> I don't think grep is a very good candidate for O_STREAMING.  I
-> usually want the stuff I grep to stay in cache.  O_STREAMING is
-> much better suited to applications like ogle, vlc, xine, xmovie,
-> xmms etc since there is little reason for the OS to cache things
-> like songs and movies you aren't likely to hear/see again any
-> time soon.
+At some point in the past, Matthew Dobson wrote:
+>>> +asmlinkage long sys_mem_setbinding(pid_t pid, unsigned long memblks, 
+>>> +				    unsigned int behavior)
 
-Im not sure O_STREAMING is what you actually want here, its proper
-working drop behind. That -shouldnt- need a magic flag if the kernel is
-doing the VM things right.
+On Thu, 2002-10-10 at 11:06, Arjan van de Ven wrote:
+>> Do you really think exposing low level internals as memory layout / zone
+>> split up to userspace is a good idea ? (and worth it given that the VM
+>> already has a cpu locality preference?)
 
-For streaming media writes you want a thread (we lack aio_fsync it
-seems), you do a regular asynchronous fsync to keep the buffering
-smooth.
+On Thu, Oct 10, 2002 at 12:22:51PM +0100, Alan Cox wrote:
+> At least in the embedded world that level is a good idea. I'm not sure
+> about the syscall interface. An "unsigned long" mask of blocks sounds
+> like a good way to ensure a broken syscall in the future
 
-For streaming media read the kernel ought to be able to get it right,
-and if not then I'd much rather the kernel gave _me_ total control 
+Seconded wrt. memblk bitmask interface.
 
-Instead of O_STREAMING therefore I'd much prefer to have
+IMHO this level of topology exposure is not inappropriate. These kinds
+of details are already exported (unidirectionally) by /proc/, if not
+dmesg(1) and in my mind there is neither an aesthetic nor practical
+barrier to referring to these machine features in userspace API's
+in an advisory way (and absolutely not any kind of reliance). It's
+simply another kind of request, and one which several high-performance
+applications would like to make. I would also be interested in hearing
+more of how embedded applications would make use of this, as my direct
+experience in embedded systems is somewhat lacking.
 
-	fadvise(filehandle, offset, length, FADV_DONTNEED);
+Also, I've already privately replied with some of my stylistic concerns,
+including things like the separability of the for_each_in_zonelist()
+cleanup bundled into the patch and a typedef or so.
 
-Its quite possible that most of the rest of the madvise notions aren't
-worth implementing, but we have the flexibility to do. The fadvise
-interface also lets you pick which ranges you evict, so now I can do
-streaming media but not fadvise out of cache key frames so that my
-chapter starts just happen to generally be in cache as do a few I frames
-behind the read pointer - (for rewind).
 
-Do that with O_STREAMING ?
-
-Alan
-
+Bill

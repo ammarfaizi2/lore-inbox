@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264896AbTK3MtV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 07:49:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbTK3MtV
+	id S264898AbTK3NGi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 08:06:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264901AbTK3NGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 07:49:21 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:49425 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S264896AbTK3MtT (ORCPT
+	Sun, 30 Nov 2003 08:06:38 -0500
+Received: from tristate.vision.ee ([194.204.30.144]:11169 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S264898AbTK3NGh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 07:49:19 -0500
-Date: Sun, 30 Nov 2003 13:49:16 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-Cc: "Andrew Clausen" <clausen@gnu.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
-Message-ID: <20031130124916.GA5738@win.tue.nl>
-References: <13d401c3b710$d6c17bf0$11ee4ca5@DIAMONDLX60>
-Mime-Version: 1.0
+	Sun, 30 Nov 2003 08:06:37 -0500
+From: Lenar =?ISO-8859-1?Q?L=F5hmus?= <lenar@city.ee>
+Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
+To: linux-kernel@vger.kernel.org
+Date: Sun, 30 Nov 2003 15:06:31 +0200
+References: <WSA7.6D.39@gated-at.bofh.it> <WTYM.3ua.7@gated-at.bofh.it> <WVoa.73O.17@gated-at.bofh.it>
+User-Agent: KNode/0.7.6
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <13d401c3b710$d6c17bf0$11ee4ca5@DIAMONDLX60>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7Bit
+Message-Id: <20031130130631.DF0EE9F60@xs.dev>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 30, 2003 at 04:08:22PM +0900, Norman Diamond wrote:
-> Andries Brouwer replied to Andrew Clausen:
+Hello,
+
+Julien Oster wrote:
+
+> No, it's most evidently a mainboard problem, as everybody using an
+> ASUS A7N8X (Deluxe) reported so far that the mainboard will lock up
+> completely unless you turn of ACPI, APIC and local APIC. There is no
+> other possibility to work this lockup madness around, as many users of
+> that mainboard including me really tried *everything*.
 > 
-> > I am happy with that description.
-> > "Disk geometry is: some numbers that your BIOS invents".
-> 
-> I'm happy with that too.  Now, since the Linux kernel has no fantasies about
-> disk geometry, it is fine to refuse to provide such non-existent fantasies
-> to user space.  However, it remains necessary to provide the BIOS's
-> fantasies to user space.  Sometimes user space does something (via the
-> kernel) that will later be interpreted by the BIOS.  User space has to be
-> able to do it in the manner that the BIOS wants.
+> We know that other NForce2 Mainboards don't have this kind of problem,
+> but sadly that isn't of any help whatsoever for us A7N8X users.
 
-The point is just that the Linux kernel has no idea about these BIOS fantasies.
-It may have a more or less elaborate system of guesses, but it has no
-knowledge. In practice things work better if the kernel never tries to
-tell anything to user space, and user space derives the desired BIOS fantasies
-from the partition table.
+I can't agree. I've had experiences with two Epox mobos - 8RDA+ running
+2.6-test kernels and 8RDA3+ running 2.4.22 kernel.
 
-> Anyway, regardless of which OS you're running, the OS isn't running until
-> it's running.  The MBR depends on BIOS functions (e.g. the infamous INT13)
-> to read in the boot loader and the boot loader depends on BIOS functions to
-> read in the kernel.  Yes Dr. Brouwer, I know you know this.  The question is
-> why you think that commands such as parted don't have to know this?
+Both of them locked completely up sometimes (that was after week or so
+without reboot). It seems that compiling Local-APIC out of kernel has
+stopped this behaviour. It's been about a month without lockups for 2.4
+machine. 2.6 hasn't locked up either but it gets a new kernel and a reboot
+every week anyway.
 
-You invent a title for me that I never used.
-You invent an opinion for me that I never had.
+Actually the machine with 2.4 kernel run initially 1.5 months without a
+glitch (and Local-APIC compiled in) before it started to lock up weekly. I
+don't know why. Anyway as I said disabling Local-APIC has stopped all those
+lockups.
 
-
+Lenar

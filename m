@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266448AbRGJOhM>; Tue, 10 Jul 2001 10:37:12 -0400
+	id <S266464AbRGJOmw>; Tue, 10 Jul 2001 10:42:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266465AbRGJOhC>; Tue, 10 Jul 2001 10:37:02 -0400
-Received: from weta.f00f.org ([203.167.249.89]:42626 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S266448AbRGJOgn>;
-	Tue, 10 Jul 2001 10:36:43 -0400
-Date: Wed, 11 Jul 2001 02:36:36 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org,
-        hpa@zytor.com
+	id <S266457AbRGJOmm>; Tue, 10 Jul 2001 10:42:42 -0400
+Received: from fe100.worldonline.dk ([212.54.64.211]:10756 "HELO
+	fe100.worldonline.dk") by vger.kernel.org with SMTP
+	id <S266464AbRGJOmb>; Tue, 10 Jul 2001 10:42:31 -0400
+Message-ID: <3B4B1482.248B868@eisenstein.dk>
+Date: Tue, 10 Jul 2001 14:43:14 +0000
+From: Jesper Juhl <juhl@eisenstein.dk>
+Organization: Eisenstein
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: How many pentium-3 processors does SMP support?
-Message-ID: <20010711023636.E31966@weta.f00f.org>
-In-Reply-To: <20010710161943.A7785@caldera.de> <20010711022509.C31966@weta.f00f.org> <20010710163243.A8818@caldera.de>
-Mime-Version: 1.0
+In-Reply-To: <Pine.GSO.4.21.0107092315140.493-100000@faith.cs.utah.edu> <9ie450$d1p$1@cesium.transmeta.com> <20010711015128.E31799@weta.f00f.org> <3B4B28F8.49A6934A@eisenstein.dk> <20010711023039.D31966@weta.f00f.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010710163243.A8818@caldera.de>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 10, 2001 at 04:32:43PM +0200, Christoph Hellwig wrote:
+Chris Wedgwood wrote:
+> 
+> On Tue, Jul 10, 2001 at 04:10:32PM +0000, Jesper Juhl wrote:
+> 
+>     There are some machines (like the Compaq Proliant ML770 -
+[snip]
+> 
+> Wow... what a beats.  Its CMP based which isn't supported.  I wonder
+> if more details on that are available somewhere?
+> 
 
-    The largest Chipset I know about are the 8 Way ones.
-    (What is SE?).
+More info on the Proliant ML770 is available here:
+http://www.compaq.com/products/servers/proliantml770/specs.html
 
-A moronic attempt as using this funny qwerty layout thing.  It should
-read SW (ServerWorks).
-
-    They must be the Unisys OEM machines.  They are based on some
-    crossbar-architecture called CMP that allows logical partioning,
-    etc..
-
-Yup, turns out they are.
-
-    I have talked to Unisys engineers on last Cebit who said that the
-    NT (now W2k) port required a huge amount of work.  Also I noticed
-    that UnixWare^H^H^H^H^HOpenUnix needed work to run on it.
-
-Well, I guess NetBSD is a good candidate, it has a nice portable MM
-system, linux might not be so bad either, but without knowledge of how
-this works, I am just guessing and probably still talking shit.
+There is a White Paper on CMP available from unisys on this page:
+http://www.unisys.com/hw/servers/enterprise/libr-cm-architecture.asp
 
 
-
-  --cw
+- Jesper Juhl

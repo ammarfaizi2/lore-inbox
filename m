@@ -1,57 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVBAWva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVBAWyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbVBAWva (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 17:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVBAWuj
+	id S262161AbVBAWyj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 17:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVBAWvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 17:50:39 -0500
-Received: from waste.org ([216.27.176.166]:19940 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262158AbVBAWse (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 17:48:34 -0500
-Date: Tue, 1 Feb 2005 14:48:24 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/8] lib/sort: Replace qsort in XFS
-Message-ID: <20050201224824.GF2493@waste.org>
-References: <6.416337461@selenic.com> <7.416337461@selenic.com> <5.416337461@selenic.com> <6.416337461@selenic.com> <3.416337461@selenic.com> <4.416337461@selenic.com> <2.416337461@selenic.com> <3.416337461@selenic.com> <20050201222915.GA9285@taniwha.stupidest.org>
+	Tue, 1 Feb 2005 17:51:38 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:13462 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262149AbVBAWsO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 17:48:14 -0500
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A2)
+From: john stultz <johnstul@us.ibm.com>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <41FFFD4F.9050900@am.sony.com>
+References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
+	 <41FFFD4F.9050900@am.sony.com>
+Content-Type: text/plain
+Date: Tue, 01 Feb 2005 14:48:09 -0800
+Message-Id: <1107298089.2040.184.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050201222915.GA9285@taniwha.stupidest.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 01, 2005 at 02:29:15PM -0800, Chris Wedgwood wrote:
-> On Mon, Jan 31, 2005 at 01:34:59AM -0600, Matt Mackall wrote:
+On Tue, 2005-02-01 at 14:06 -0800, Tim Bird wrote:
+> Minor spelling fix, and a question.
 > 
-> > +#define qsort xfs_sort
-> > +static inline void xfs_sort(void *a, size_t n, size_t s,
-> > +			int (*cmp)(const void *,const void *))
+> john stultz wrote:
+> > linux-2.6.11-rc2_timeofday-core_A2.patch
+> > ========================================
+> > diff -Nru a/drivers/Makefile b/drivers/Makefile
+> > --- a/drivers/Makefile	2005-01-24 13:30:06 -08:00
+> > +++ b/drivers/Makefile	2005-01-24 13:30:06 -08:00
+> ...
+> 
+> > + * all systems. It has the same course resolution as
+> should be "coarse"
+
+Good catch, I'm a terrible speller.
+
+> Do you replace get_cmos_time() - it doesn't look like it.
+
+Nope, its still used on i386 and x86-64, however I had to create an arch
+independent abstraction for set/read_persistent_clock(). 
+
+> You use it in your patch here...
+> 
+> > diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
+> > --- a/arch/i386/kernel/time.c	2005-01-24 13:33:59 -08:00
+> > +++ b/arch/i386/kernel/time.c	2005-01-24 13:33:59 -08:00
+> ...
+> 
+> > +/* arch specific timeofday hooks */
+> > +nsec_t read_persistent_clock(void)
 > > +{
-> > +	sort(a, n, s, cmp, 0);
+> > +	return (nsec_t)get_cmos_time() * NSEC_PER_SEC;
 > > +}
 > > +
 > 
-> why not just:
-> 
-> #define qsort(a, n, s, cmp)	sort(a, n, s, cmp, NULL)
+> I didn't scan for all uses of read_persistent_clock, but
+> in my experience get_cmos_time() has a latency of up to
+> 1 second on x86 because it synchronizes with the rollover
+> of the RTC seconds.
 
-Side-effect avoidance habit, not applicable here.
+I believe you're right. Although we don't call read_persistent_clock()
+very frequently, nor do we call it in ways we don't already call
+get_cmos_time(). So I'm not sure exactly what the concern is.
 
-> On Mon, Jan 31, 2005 at 01:35:00AM -0600, Matt Mackall wrote:
+> This comment in timeofday.c:timeofday_suspend_hook
+> worries me:
 > 
-> > Switch NFS ACLs to lib/sort
+> > +	/* First off, save suspend start time
+> > +	 * then quickly read the time source.
+> > +	 * These two calls hopefully occur quickly
+> > +	 * because the difference will accumulate as
+> > +	 * time drift on resume.
+> > +	 */
+> > +	suspend_start = read_persistent_clock();
 > 
-> > +	sort(acl->a_entries, acl->a_count, sizeof(struct posix_acl_entry),
-> > +	     cmp_acl_entry, 0);
-> 
-> There was a thread about stlye and I though the concensurs for null
-> pointers weas to use NULL and not 0?
+> Do you know if the sync problem is an issue here?
 
-Was it? Grumble. Ok, I'll fix these up.
+I don't believe so. The full context of the code is this:
 
--- 
-Mathematics is the supreme nostalgia of our time.
+	/* First off, save suspend start time
+	 * then quickly read the time source.
+	 * These two calls hopefully occur quickly
+	 * because the difference will accumulate as
+	 * time drift on resume.
+	 */
+	suspend_start = read_persistent_clock();
+	now = read_timesource(timesource);
+
+
+Since we call read_persistent_clock(), it should return right as the
+second changes, thus we will be marking the new second as closely as
+possible with the timesource value. If the order was reversed, I think
+it would be a concern. 
+
+I've only lightly tested the suspend code, but on my system I didn't see
+very much drift appear. Regardless, it should be better then what the
+current suspend/resume code does, which doesn't keep any sub-second
+resolution across suspend.
+
+thanks so much for the code review!
+-john
+

@@ -1,186 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267852AbUIFMW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267872AbUIFM1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267852AbUIFMW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 08:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267872AbUIFMW6
+	id S267872AbUIFM1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 08:27:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267879AbUIFM1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 08:22:58 -0400
-Received: from web8508.mail.in.yahoo.com ([202.43.219.170]:24964 "HELO
-	web8508.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S267852AbUIFMWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 08:22:37 -0400
-Message-ID: <20040906122232.19944.qmail@web8508.mail.in.yahoo.com>
-Date: Mon, 6 Sep 2004 13:22:32 +0100 (BST)
-From: =?iso-8859-1?q?Dinesh=20Ahuja?= <mdlinux7@yahoo.co.in>
-Subject: Re: Mouse Support in Kernel 2.6.8
-To: Yapo Sebastien <sebastien.yapo@e-neyret.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040906095201.18288.qmail@web8502.mail.in.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 6 Sep 2004 08:27:25 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:32158 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S267872AbUIFMZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 08:25:40 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+In-Reply-To: <200409061348.41324.rjw@sisk.pl>
+References: <20040903120957.00665413@mango.fruits.de>
+	 <20040905140249.GA23502@elte.hu> <20040906110626.GA32320@elte.hu>
+	 <200409061348.41324.rjw@sisk.pl>
+Content-Type: text/plain
+Message-Id: <1094473527.13114.4.camel@boxen>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 06 Sep 2004 14:25:28 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have observed something which I would like to share
-with you. Do we need to change XF86Config file when we
-are migrating from Kernel 2.4 to 2.6.8 ?
+On Mon, 2004-09-06 at 13:48, Rafael J. Wysocki wrote:
+> On Monday 06 of September 2004 13:06, Ingo Molnar wrote:
+> > 
+> > i've released the -R6 patch:
+> > 
+> >   
+> http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk12-R6
+> > 
+> > Changes in -R6:
+> > 
+> >  - fixed a CONFIG_SMP + CONFIG_PREEMPT bug that had the potential to
+> >    cause spinlock related lockups. (UP kernels are unaffected.) This bug 
+> >    got introduced in -R5.
+> > 
+> > 2.6.9-rc1-bk12 patching order is:
+> >  
+> >     http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+> >   + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc1.bz2
+> >   + http://redhat.com/~mingo/voluntary-preempt/patch-2.6.9-rc1-bk12.bz2
+> 
+> I did as instructed, but it didn't compile (on a UP x86-64 system).  I got 
+> this:
+> 
+>   CC      arch/x86_64/kernel/irq.o
+> arch/x86_64/kernel/irq.c: In function `request_irq':
+> arch/x86_64/kernel/irq.c:498: warning: implicit declaration of function 
+> `setup_irq'
+>   CC      arch/x86_64/kernel/ptrace.o
+>   CC      arch/x86_64/kernel/i8259.o
+> arch/x86_64/kernel/i8259.c: In function `init_IRQ':
+> arch/x86_64/kernel/i8259.c:570: warning: implicit declaration of function 
+> `setup_irq'
+>   CC      arch/x86_64/kernel/ioport.o
+>   CC      arch/x86_64/kernel/ldt.o
+>   CC      arch/x86_64/kernel/setup.o
+>   CC      arch/x86_64/kernel/time.o
+> arch/x86_64/kernel/time.c: In function `time_init':
+> arch/x86_64/kernel/time.c:820: warning: implicit declaration of function 
+> `setup_irq'
+>   CC      arch/x86_64/kernel/sys_x86_64.o
+> [- snip -]
+> C      kernel/hardirq.o
+> kernel/hardirq.c: In function `recalculate_desc_flags':
+> kernel/hardirq.c:314: error: `SA_NODELAY' undeclared (first use in this 
+> function)
+> kernel/hardirq.c:314: error: (Each undeclared identifier is reported only once
+> kernel/hardirq.c:314: error: for each function it appears in.)
+> kernel/hardirq.c: In function `generic_setup_irq':
+> kernel/hardirq.c:344: error: `SA_NODELAY' undeclared (first use in this 
+> function)
+> kernel/hardirq.c: In function `threaded_read_proc':
+> kernel/hardirq.c:659: error: `SA_NODELAY' undeclared (first use in this 
+> function)
+> kernel/hardirq.c: In function `threaded_write_proc':
+> kernel/hardirq.c:677: error: `SA_NODELAY' undeclared (first use in this 
+> function)
+> make[1]: *** [kernel/hardirq.o] Error 1
+> make: *** [kernel] Error 2
+> 
 
-Whenever I boot my system [ either in Kernel 2.4 or
-2.6.8], I am prompt by kudzu to configure/
-unconfigure the following hardware devices:
+It doesn't look like it is fully ported to x86_64 systems yet, these
+compile errors are easy to move away but the functionality doesn't seem
+to be there. Probably why Ingo hasn't added the PREEMPT_VOLUNTARY to the
+x86_64 Kconfig even though I saw a few bits of x86_64 code in the patch.
 
-1. LGI|8051
-2. Generic PS/2 Wheel Mouse
-
-If I configure LGI|8051 only [not Generic Mouse
-because If I configure Generic Mouse, then I donot get
-Mouse Support in Kernel 2.4] in my Kernel 2.4, then
-everything works fine and I get mouse support. But If
-try to do the same thing in Kernel 2.6.8 [ i.e
-configure LGI|8051 and don't configure Generic PS/2],
-then my Kernel gives error in launching X Server and
-error is as follows:
-xf86OpenSerial can't open device /dev/ttyS1
-
-My XF86Config contents are as follows:
-# XFree86 4 configuration created by
-redhat-config-xfree86
-
-Section "ServerLayout"
-	Identifier     "Default Layout"
-	Screen      0  "Screen0" 0 0
-	InputDevice    "Mouse0" "CorePointer"
-	InputDevice    "Keyboard0" "CoreKeyboard"
-	InputDevice    "DevInputMice" "AlwaysCore"
-EndSection
-
-Section "Files"
-
-# RgbPath is the location of the RGB database.  Note,
-this is the name of the 
-# file minus the extension (like ".txt" or ".db"). 
-There is normally
-# no need to change the default.
-# Multiple FontPath entries are allowed (they are
-concatenated together)
-# By default, Red Hat 6.0 and later now use a font
-server independent of
-# the X server to render fonts.
-	RgbPath      "/usr/X11R6/lib/X11/rgb"
-	FontPath     "unix/:7100"
-EndSection
-
-Section "Module"
-	Load  "dbe"
-	Load  "extmod"
-	Load  "fbdevhw"
-	Load  "glx"
-	Load  "record"
-	Load  "freetype"
-	Load  "type1"
-EndSection
-
-Section "InputDevice"
-
-# Specify which keyboard LEDs can be user-controlled
-(eg, with xset(1))
-#	Option	"Xleds"		"1 2 3"
-# To disable the XKEYBOARD extension, uncomment
-XkbDisable.
-#	Option	"XkbDisable"
-# To customise the XKB settings to suit your keyboard,
-modify the
-# lines below (which are the defaults).  For example,
-for a non-U.S.
-# keyboard, you will probably want to use:
-#	Option	"XkbModel"	"pc102"
-# If you have a US Microsoft Natural keyboard, you can
-use:
-#	Option	"XkbModel"	"microsoft"
-#
-# Then to change the language, change the Layout
-setting.
-# For example, a german layout can be obtained with:
-#	Option	"XkbLayout"	"de"
-# or:
-#	Option	"XkbLayout"	"de"
-#	Option	"XkbVariant"	"nodeadkeys"
-#
-# If you'd like to switch the positions of your
-capslock and
-# control keys, use:
-#	Option	"XkbOptions"	"ctrl:swapcaps"
-# Or if you just want both to be control, use:
-#	Option	"XkbOptions"	"ctrl:nocaps"
-#
-	Identifier  "Keyboard0"
-	Driver      "keyboard"
-	Option	    "XkbRules" "xfree86"
-	Option	    "XkbModel" "pc105"
-	Option	    "XkbLayout" "us"
-EndSection
-
-Section "InputDevice"
-	Identifier  "Mouse0"
-	Driver      "mouse"
-	Option	    "Protocol" "Microsoft"
-	Option	    "Device" "/dev/ttyS1"
-	Option	    "ZAxisMapping" "4 5"
-	Option	    "Emulate3Buttons" "yes"
-EndSection
-
-Section "InputDevice"
-
-# If the normal CorePointer mouse is not a USB mouse
-then
-# this input device can be used in AlwaysCore mode to
-let you
-# also use USB mice at the same time.
-	Identifier  "DevInputMice"
-	Driver      "mouse"
-	Option	    "Protocol" "IMPS/2"
-	Option	    "Device" "/dev/input/mice"
-	Option	    "ZAxisMapping" "4 5"
-	Option	    "Emulate3Buttons" "no"
-EndSection
-
-Section "Monitor"
-	Identifier   "Monitor0"
-	VendorName   "Monitor Vendor"
-	ModelName    "StudioWorks"
-	DisplaySize  270	200
-	HorizSync    30.0 - 54.0
-	VertRefresh  50.0 - 120.0
-	Option	    "dpms"
-EndSection
-
-Section "Device"
-	Identifier  "Videocard0"
-	Driver      "ati"
-	VendorName  "Videocard vendor"
-	BoardName   "ATI Mach64 3D Rage IIC"
-EndSection
-
-Section "Screen"
-	Identifier "Screen0"
-	Device     "Videocard0"
-	Monitor    "Monitor0"
-	DefaultDepth     16
-	SubSection "Display"
-		Depth     16
-		Modes    "800x600" "640x480"
-	EndSubSection
-EndSection
-
-Section "DRI"
-	Group        0
-	Mode         0666
-EndSection
+Or am I missing something?
 
 
-
-
-________________________________________________________________________
-Yahoo! India Matrimony: Find your life partner online
-Go to: http://yahoo.shaadi.com/india-matrimony

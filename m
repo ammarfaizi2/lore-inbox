@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316593AbSFUOy5>; Fri, 21 Jun 2002 10:54:57 -0400
+	id <S316632AbSFUO5k>; Fri, 21 Jun 2002 10:57:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316595AbSFUOy4>; Fri, 21 Jun 2002 10:54:56 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:39751 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S316593AbSFUOy4>; Fri, 21 Jun 2002 10:54:56 -0400
-Date: Fri, 21 Jun 2002 17:54:51 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Andreas Dilger <adilger@clusterfs.com>,
-       Linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
-Message-ID: <20020621145451.GA1548@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Andreas Dilger <adilger@clusterfs.com>,
-	Linux-kernel <linux-kernel@vger.kernel.org>,
-	ext2-devel@lists.sourceforge.net
-References: <Pine.LNX.4.44.0206191256550.20859-100000@localhost.localdomain> <20020620103429.A2464@redhat.com> <20020620101812.GL22427@clusterfs.com> <E17L2G0-00019Q-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17L2G0-00019Q-00@starship>
-User-Agent: Mutt/1.3.25i
+	id <S316636AbSFUO5j>; Fri, 21 Jun 2002 10:57:39 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:27373 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S316632AbSFUO5g>; Fri, 21 Jun 2002 10:57:36 -0400
+To: dalecki@evision-ventures.com, Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: hda: error: DMA in progress..
+In-Reply-To: <3D13098E.2020100@evision-ventures.com>
+References: <20020621092459.GD27090@suse.de> <3D12FA4D.6060500@evision-ventures.com> <20020621101202.GF27090@suse.de> <3D130095.6050207@evision-ventures.com> <20020621103553.GI27090@suse.de> <3D13098E.2020100@evision-ventures.com>
+Message-Id: <E17LPqm-0006S3-00@come.alcove-fr>
+From: Stelian Pop <stelian@fr.alcove.com>
+Date: Fri, 21 Jun 2002 16:57:24 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 20, 2002 at 03:45:51PM +0200, you [Daniel Phillips] wrote:
+> Could you add a reporting about
+> the handler function there:
 > 
-> And in the accidental-untar case that started this thread, Raul would
-> have the same complaint: a directory bloats up and never unbloats
-> until completely emptied.
+>   	if (test_bit(IDE_DMA, ch->active)) {
+> 			printk(KERN_ERR "%s: error: DMA in progress... %p\n",
+>   drive->name, ch->handler);
+> 			break;
+> 		}
+> 
+> And please take a short look at System.map.
+> 
+> This will show which IRQ handler is the culprit...
 
-Not only accidental untar, but buggy progs as well. Recently, I found out
-that named had created tens of thousands of (luckily zero-length) files in a
-single dir on ext2. While it only took couple of hours to delete them with
-"find . -name '...'| xargs -n 5000 rm" commands, I can imagine remote DOS
-attacks through daemons that create local temp files. Accessing such
-directory quickly becomes slow as molasses on ext2.
+Martin, I have the same problem on my Sony Vaio C1VE, 
+Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01), HITACHI_DK23AA-12 disk.
 
-Daniels patch seems great. I also recall someone (Ted T'so? Stephen Tweedie?)
-had another dir access speed-up patch for ext3... Is that applicable to ext2
-or was it already merged?
+It doesn't even boot, the "DMA in progress error..." appears just
+after having mounted the root partition. 2.5.23 worked on this laptop.
 
+I've added, as you suggested the following patch:
 
--- v --
+===== drivers/ide/ide.c 1.110 vs edited =====
+--- 1.110/drivers/ide/ide.c	Thu Jun 20 13:28:43 2002
++++ edited/drivers/ide/ide.c	Fri Jun 21 16:46:29 2002
+@@ -863,7 +863,7 @@
+ 		drive->sleep = 0;
+ 
+ 		if (test_bit(IDE_DMA, ch->active)) {
+-			printk(KERN_ERR "%s: error: DMA in progress...\n", drive->name);
++			printk(KERN_ERR "%s: error: DMA in progress...%p\n", drive->name, ch->handler);
+ 			break;
+ 		}
 
-v@iki.fi
+And the bad news is that ch->handler is NULL...
+
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263807AbTKXQCM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 11:02:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263808AbTKXQCM
+	id S263769AbTKXQmK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 11:42:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbTKXQmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 11:02:12 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19177 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263807AbTKXQCK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 11:02:10 -0500
-Subject: Re: Linux 2.6.0-test10 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0311231804170.17378-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0311231804170.17378-100000@home.osdl.org>
-Content-Type: text/plain
-Message-Id: <1069689810.15740.0.camel@cherrytest.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 24 Nov 2003 08:03:30 -0800
+	Mon, 24 Nov 2003 11:42:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51609 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263769AbTKXQmI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 11:42:08 -0500
+Message-ID: <3FC234D4.30401@pobox.com>
+Date: Mon, 24 Nov 2003 11:41:56 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: benh@kernel.crashing.org
+Subject: [PATCH/CFT] libata bug fix update
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.0-test10   0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
-2.6.0-test9    0w/0e       0w/0e   174w/ 0e  12w/0e   3w/0e    217w/0e
-2.6.0-test8    0w/0e       0w/0e   178w/ 0e  12w/0e   3w/0e    219w/0e
-2.6.0-test7    0w/0e       0w/0e   173w/ 1e   8w/0e   3w/0e    226w/0e
-2.6.0-test6    0w/0e       1w/0e   188w/ 1e  12w/0e   3w/0e    260w/2e
-2.6.0-test5    0w/0e       2w/0e   205w/ 9e  15w/1e   0w/0e    305w/5e
-2.6.0-test4    0w/0e       2w/0e   797w/55e  68w/1e   3w/0e   1016w/34e
-2.6.0-test3    0w/0e       2w/0e   755w/66e  62w/1e   7w/9e    984w/42e
-2.6.0-test2    0w/0e       1w/0e   952w/65e  63w/2e   7w/9e   1201w/43e
-2.6.0-test1    0w/0e       1w/0e  1016w/60e  75w/1e   8w/9e   1319w/38e
+Ben H noticed a bug which may cause some devices to "not be talked to" 
+at probe time...  definitely a bugfix that libata users should obtain. 
+This fix affects all SATA controllers libata supports.
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Daily compiles (ia64): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
+Promise and VIA SATA users:
+If you continue to see negative results, change ATA_FLAG_SRST to 
+ATA_FLAG_SATA_RESET in the sata_{promise,via}.c source code, and re-test.
 
-John
+Patch for 2.6.0-test10:
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.0-test10-libata1.patch.bz2
 
+Patch for 2.4.23-rc3:
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.4.23-rc3-libata1.patch.bz2
+
+BK users:
+http://gkernel.bkbits.net/libata-2.[45]
 
 

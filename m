@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132130AbRDFRah>; Fri, 6 Apr 2001 13:30:37 -0400
+	id <S132121AbRDFRb1>; Fri, 6 Apr 2001 13:31:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132167AbRDFRa1>; Fri, 6 Apr 2001 13:30:27 -0400
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:30344 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S132130AbRDFRaM>; Fri, 6 Apr 2001 13:30:12 -0400
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-Date: Fri, 6 Apr 2001 11:29:39 -0600
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk, chris.ricker@genetics.utah.edu
-Subject: [PATCH] 2.4.3-ac3 update Documentation/Changes URLs for e2fsprogs
+	id <S132125AbRDFRbS>; Fri, 6 Apr 2001 13:31:18 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:33262 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S132121AbRDFRbG>; Fri, 6 Apr 2001 13:31:06 -0400
+Date: Fri, 6 Apr 2001 19:07:45 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+        James Simmons <jsimmons@linux-fbdev.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
+In-Reply-To: <m17l0zw6mx.fsf@frodo.biederman.org>
+Message-ID: <Pine.GSO.3.96.1010406185324.15958G-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Message-Id: <01040611293901.12098@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all,
+On 5 Apr 2001, Eric W. Biederman wrote:
 
-It appears that the URLs listed in Documentation/Changes for e2fsprogs
-are stale.  This patch, against 2.4.3-ac3, provides accurate URLs.
+> The point is on the Alpha all ram is always cached, and i/o space is
+> completely uncached.  You cannot do write-combing for video card
 
-Steven
+ You don't want to cache fb memory, do you?  All you want is write
+combining and you achieve it with memory barriers.  You write to fb memory
+space whatever you need to and write buffers actually deliver data to fb
+memory whenever the bus is idle or they get filled up.  When you finally
+decide you wrote all data and you want ensure it actually reaches the fb
+memory before you perform an operation (say you send a command to fb's
+support circuitry) you issue a write memory barrier.  Or a memory barrier,
+if you want ensure the data reaches the fb memory ASAP.
 
---- linux/Documentation/Changes.orig    Fri Apr  6 11:13:10 2001
-+++ linux/Documentation/Changes Fri Apr  6 11:15:00 2001
-@@ -31,7 +31,7 @@
- Eine deutsche Version dieser Datei finden Sie unter
- <http://www.stefan-winter.de/Changes-2.4.0.txt>.
- 
--Last updated: January 11, 2001
-+Last updated: April 6, 2001
- 
- Chris Ricker (kaboom@gatech.edu or chris.ricker@genetics.utah.edu).
- 
-@@ -311,8 +311,8 @@
- 
- E2fsprogs
- ---------
--o  <ftp://download.sourceforge.net/pub/sourceforge/e2fsprogs/e2fsprogs-1.19.tar.gz>
--o  <ftp://download.sourceforge.net/pub/sourceforge/e2fsprogs/e2fsprogs-1.19.src.rpm>
-+o  <http://prdownloads.sourceforge.net/e2fsprogs/e2fsprogs-1.19.tar.gz>
-+o  <http://prdownloads.sourceforge.net/e2fsprogs/e2fsprogs-1.19-0.src.rpm>
- 
- Reiserfsprogs
- -------------
+ In other words, you have write-combining by default and request
+write-through explicitly.
+
+> memory.  Memory barriers are a separate issue.  On the alpha the
+> natural way to implement it would be in the page table fill code.
+
+ Please forgive me -- I can't see how this is related to write combining.
+
+> Memory barriers are o.k. but the really don't help the case when what
+> you want to do is read the latest value out of a pci register.  
+
+ They do -- you issue an mb and you are sure all pending writes reached
+the involved PCI hw. 
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUCSSUC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 13:20:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUCSSUC
+	id S263075AbUCSShW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 13:37:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbUCSShW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 13:20:02 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:49307 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263100AbUCSST7 (ORCPT
+	Fri, 19 Mar 2004 13:37:22 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:45240 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S263075AbUCSShU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 13:19:59 -0500
-Date: Fri, 19 Mar 2004 19:19:55 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org, Chris Mason <mason@suse.com>
-Subject: Re: [PATCH] barrier patch set
-Message-ID: <20040319181955.GC2423@suse.de>
-References: <20040319153554.GC2933@suse.de> <200403191748.17414@WOLK>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403191748.17414@WOLK>
+	Fri, 19 Mar 2004 13:37:20 -0500
+Message-Id: <200403191836.i2JIajT6023096@eeyore.valparaiso.cl>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Margit Schubert-While <margitsw@t-online.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.xx - linux/firmware.h - missing include 
+In-Reply-To: Your message of "Fri, 19 Mar 2004 15:30:08 GMT."
+             <20040319153008.D14431@flint.arm.linux.org.uk> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Fri, 19 Mar 2004 14:36:45 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 19 2004, Marc-Christian Petersen wrote:
-> On Friday 19 March 2004 16:35, Jens Axboe wrote:
+Russell King <rmk+lkml@arm.linux.org.uk>
+> On Fri, Mar 19, 2004 at 04:17:45PM +0100, Margit Schubert-While wrote:
+> > The prototype for request_firmware uses a struct device parameter.
+> > This is only defined if linux/device.h is included.
+> > Fix is simple : include linux/device.h in linux/firmware.h
 > 
-> Hi Jens,
+> That way leads to madness in the includes.  firmware.h does not need
+> the definition of struct device, it only needs to know that struct
+> device exists.
 > 
-> > A first release of a collected barrier patchset for 2.6.5-rc1-mm2. I
-> > have a few changes planned to support dm/md + sata, I'll do those
-> > changes over the weekend.
-> > Reiser has the best barrier support, ext3 works but only if things don't
-> > go wrong. So only attempt to use the barrier feature on ext3 if on ide
-> > drives, not SCSI nor SATA.
-> > reiserfs-barrier-2.6.5-rc1-mm2-1
-> > 	reiser part.
+> You can do this via:
 > 
-> is this intended? ;)
+> struct device;
 > 
-> -rw-------    1 axboe    axboe        3377 Mar 19 07:32 
-> reiserfs-barrier-2.6.5-rc1-mm2-1.bz2
-> -rw-------    1 axboe    axboe         248 Mar 19 07:32 
-> reiserfs-barrier-2.6.5-rc1-mm2-1.bz2.sign
-> -rw-------    1 axboe    axboe        3473 Mar 19 07:32 
-> reiserfs-barrier-2.6.5-rc1-mm2-1.gz
-> -rw-------    1 axboe    axboe         248 Mar 19 07:32 
-> reiserfs-barrier-2.6.5-rc1-mm2-1.gz.sign
-> -rw-------    1 axboe    axboe         248 Mar 19 07:32 
-> reiserfs-barrier-2.6.5-rc1-mm2-1.sign
-> 
-> means permission denied for us.
+> before its use - this works much the same way as a function declaration
+> vs. function prototype.
 
-Corrected, thanks.
+Iff it is a _pointer_. If it needs a full struct, this won't work. And if
+it is a pointer, a simple:
 
+  int foo(struct bar *);
+
+will do for prototype, even if struct bar hasn't been mentioned earlier.
+
+In case the struct is really needed, it is better just to ensure the
+respective .h are included in the right order, not nest them.
 -- 
-Jens Axboe
-
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

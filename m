@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbUL2VAt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbUL2VCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbUL2VAt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 16:00:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbUL2VAt
+	id S261418AbUL2VCN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 16:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUL2VCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 16:00:49 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:27300 "EHLO
+	Wed, 29 Dec 2004 16:02:13 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:29348 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261406AbUL2VAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 16:00:45 -0500
-Subject: Re: Patch: 2.6.10 - CMSPAR in mxser.c undeclared
+	id S261418AbUL2VA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 16:00:59 -0500
+Subject: Re: running Linus kernel on FC3
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Norbert Tretkowski <tretkowski@inittab.de>
+To: Dave Airlie <airlied@linux.ie>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041229081957.GA31981@rollcage.inittab.de>
-References: <20041229081957.GA31981@rollcage.inittab.de>
+In-Reply-To: <Pine.LNX.4.58.0412290853540.2899@skynet>
+References: <Pine.LNX.4.58.0412290853540.2899@skynet>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1104331638.30080.14.camel@localhost.localdomain>
+Message-Id: <1104331982.30494.17.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 29 Dec 2004 19:56:45 +0000
+Date: Wed, 29 Dec 2004 19:57:01 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-12-29 at 08:19, Norbert Tretkowski wrote:
-> {standard input}: Assembler messages:
-> {standard input}:5: Warning: setting incorrect section attributes for .got
-> drivers/char/mxser.c: In function `mxser_ioctl_special':
-> drivers/char/mxser.c:1564: error: `CMSPAR' undeclared (first use in this function)
-> drivers/char/mxser.c:1564: error: (Each undeclared identifier is reported only once
-> drivers/char/mxser.c:1564: error: for each function it appears in.)
+On Mer, 2004-12-29 at 08:57, Dave Airlie wrote:
+> I'm trying to run a linus bk tree on my FC3 system, but I get a lot of
+> Selinux warnings with minilogd,
+> 
+> Are there some selinux patches that haven't made their way into Linus's
+> tree but are in the FC kernel?
 
-What environment/architecture are you building this on (having built it
-myself just fine ?)
-
-Alan
+As of 2.6.10 none I can think of. 2.6.9 lacked SELinux security
+attributes on tmpfs which was a problem if you ran SELinux seriously.
+Needless to say 2.6.9-ac and 2.6.10-ac kernels are built and tested on
+Fedora Core 2 and 3 along with 2.6.10 base and all worked fine for me.
 

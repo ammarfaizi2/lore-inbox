@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317525AbSGOQYB>; Mon, 15 Jul 2002 12:24:01 -0400
+	id <S317528AbSGOQ1W>; Mon, 15 Jul 2002 12:27:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317528AbSGOQYA>; Mon, 15 Jul 2002 12:24:00 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:23291 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317525AbSGOQX7>; Mon, 15 Jul 2002 12:23:59 -0400
-Subject: Re: HZ, preferably as small as possible
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <agtl95$ihe$1@penguin.transmeta.com>
-References: <59885C5E3098D511AD690002A5072D3C02AB7F88@orsmsx111.jf.intel.com> 
-	<agtl95$ihe$1@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 15 Jul 2002 09:26:53 -0700
-Message-Id: <1026750413.939.97.camel@sinai>
+	id <S317531AbSGOQ1V>; Mon, 15 Jul 2002 12:27:21 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:12798 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S317528AbSGOQ1U>; Mon, 15 Jul 2002 12:27:20 -0400
+Date: Mon, 15 Jul 2002 12:30:11 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Lincoln Dale <ltd@cisco.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Andrea Arcangeli <andrea@suse.de>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>, Steve Lord <lord@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext2 performance in 2.5.25 versus 2.4.19pre8aa2
+Message-ID: <20020715123011.B2487@redhat.com>
+References: <3D2CFA75.FBFD6D92@zip.com.au> <5.1.0.14.2.20020711132113.021a6de0@mira-sjcm-3.cisco.com> <3D2CFF48.9EFF9C59@zip.com.au> <5.1.0.14.2.20020714202539.022c4270@mira-sjcm-3.cisco.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <5.1.0.14.2.20020714202539.022c4270@mira-sjcm-3.cisco.com>; from ltd@cisco.com on Sun, Jul 14, 2002 at 10:22:56PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-14 at 22:06, Linus Torvalds wrote:
+On Sun, Jul 14, 2002 at 10:22:56PM +1000, Lincoln Dale wrote:
+> one-line summary is that some results are better, some are worse; CPU usage 
+> is better in 2.5.25, but thoughput is sometimes
+> worse.
 
-> I've never had good reason to believe the latency/perf benefits myself,
-> but I was approached at OLS about problems with something as simple as
-> DVD playing, where a 100Hz timer means that the DVD player ends up
-> having to busy-loop on gettimeofday() because it cannot sanely sleep due
-> to the lack in sufficient sleeping granularity.
+You might want to rerun your tests on 2.5.25 after redefining HZ to be 100, 
+or setting HZ to 1000 in the 2.4 kernel.
 
-A cleaner solution to this issue is a higher resolution timer, e.g. the
-high-res-timers project which has high resolution POSIX timers.
-
-We could still bump HZ, of course...
-
-	Robert Love
-
+		-ben

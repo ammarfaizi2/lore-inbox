@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315235AbSEYSry>; Sat, 25 May 2002 14:47:54 -0400
+	id <S315214AbSEYSw0>; Sat, 25 May 2002 14:52:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315238AbSEYSrx>; Sat, 25 May 2002 14:47:53 -0400
-Received: from relay04.valueweb.net ([216.219.253.238]:7946 "EHLO
-	relay04.valueweb.net") by vger.kernel.org with ESMTP
-	id <S315235AbSEYSrv>; Sat, 25 May 2002 14:47:51 -0400
-Message-ID: <3CEFDBE4.5BE20C7C@opersys.com>
-Date: Sat, 25 May 2002 14:45:56 -0400
-From: Karim Yaghmour <karim@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Mark Mielke <mark@mark.mielke.cc>
-CC: Linus Torvalds <torvalds@transmeta.com>, Wolfgang Denk <wd@denx.de>,
-        linux-kernel@vger.kernel.org
+	id <S315238AbSEYSwZ>; Sat, 25 May 2002 14:52:25 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39951 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315214AbSEYSwX>; Sat, 25 May 2002 14:52:23 -0400
+Date: Sat, 25 May 2002 11:52:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Wolfgang Denk <wd@denx.de>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-In-Reply-To: <Pine.LNX.4.44.0205251057370.6515-100000@home.transmeta.com> <3CEFD65A.ED871095@opersys.com> <20020525143358.A4481@mark.mielke.cc>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020525183053.C1C8011972@denx.denx.de>
+Message-ID: <Pine.LNX.4.44.0205251146391.17649-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Mark Mielke wrote:
-> None of which proves that it is the right way to do things.
 
-So, this is all about the "right way"? So the right way is to have
-everything in the kernel without memory protection?
+On Sat, 25 May 2002, Wolfgang Denk wrote:
+> > On Sat, 25 May 2002, Wolfgang Denk wrote:
+> > >
+> > > What do you think: it it OK (both from the legal and from  the  ethic
+> > > point  of  view)  that  somebody  writes  and distributes proprietary
+> > > application code?
+> >
+> > That's not my point.
+> ...
+> > Have I made myself sufficiently clear by splitting up the issues into a
+> > technical part and a FUD part?
+>
+> Yes, and I completely agree with you.
+>
+> Nevertheless, you din't answer above question with a clear  "yes"  or
+> "no"...
 
-> >From what I understand, Linux _is_ being considered for RT applications
-> by quite a few heavy-weights in the field including IBM, Intel and
-> quite a few others. The patent issue that you present does not seem to be
-> discouraging them in any way.
+Am I going to sue the RTAI people for doing something like what they are
+doing, considering it "illegal" or "immoral"? Obviously the answer there
+is "no". It's not illegal to disagree with my opinions (*).
 
-True, but see who you're pointing to: Intel and IBM. Both patent heavywheights.
-Do you really think they're going to run scared because of one tiny company
-with a questionnable patent? I personnally don't. They probably even have
-patents which invalidate the rtlinux patent.
+But I don't want to have their FUD down my throat either.
 
-Those who do run scared are all those who develop embedded apps and don't
-have the size of IBM or Intel to carry them. And there a great deal of those.
+Getting people to say "patent issues" to some random inquiry isn't all
+that hard. It's something that it's easy to blame all your problems on,
+and it's something that the open source crowd tends to lap up a bit too
+eagerly in my opinion ("ooh, if it weren't for those evil patents, we'd
+rule the world").
 
-Karim
+It's a hot button, and as such a really easy target for FUD.
 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+		Linus
+
+(*) Although it obviously _should_ be. Mwhaahahahahaaa... You unbelievers
+will all be shot when the revolution comes!
+

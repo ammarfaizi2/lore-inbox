@@ -1,103 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268127AbRGWCVN>; Sun, 22 Jul 2001 22:21:13 -0400
+	id <S268129AbRGWCeg>; Sun, 22 Jul 2001 22:34:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268126AbRGWCVD>; Sun, 22 Jul 2001 22:21:03 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:51081 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S268128AbRGWCUq>; Sun, 22 Jul 2001 22:20:46 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Gordon Lack <gmlack@freenet.co.uk>
-Date: Mon, 23 Jul 2001 12:20:33 +1000 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15195.35313.83387.515099@notabene.cse.unsw.edu.au>
+	id <S268130AbRGWCe1>; Sun, 22 Jul 2001 22:34:27 -0400
+Received: from mnh-1-13.mv.com ([207.22.10.45]:54538 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S268129AbRGWCeK>;
+	Sun, 22 Jul 2001 22:34:10 -0400
+Message-Id: <200107230349.WAA04057@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Andrea Arcangeli <andrea@suse.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFSv3 pathname problems in 2.4 kernels
-In-Reply-To: message from Gordon Lack on Sunday July 22
-In-Reply-To: <3B5B32B2.B96E6BD3@freenet.co.uk>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Subject: Re: 2.4.7pre8aa1 
+In-Reply-To: Your message of "Mon, 23 Jul 2001 03:11:46 +0200."
+             <20010723031146.D23517@athlon.random> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 22 Jul 2001 22:49:42 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sunday July 22, gmlack@freenet.co.uk wrote:
->    I am seeing a problem at the client side when trying to obtain
-> pathnames of NFS-mounted entries.  This occurs when the NFS servers
-> involved are Linux2.4 kernels and the clients are SGI Irix 6.5 or
-> Solaris 2.6 (Linux 2.4 clients are Ok - 2.2 ones won't be using
-> NFSv3). 
+andrea@suse.de said:
+> I should have said "compiles" fine (not "works" fine :). 
 
-This shouldn't be a problem for Solaris 2.6, but definately is for
-Irix.
+2.4.6 "works" fine :-)
 
-> 
->    As an example of what happens.
-> 
-> o The server side has a pathname of /raid/sources/prog1 - a directory.
-> 
-> o /raid is exported
-> 
-> o The client NFS mounts /raid/sources as /projects/sources
-> 
-> o I cd to /projects/sources/prog1 and type /bin/pwd
-> 
->    I expect to get /projects/sources/prog1 as the result, but I actually get /sources/prog1.
-> 
->    Similar mounts from Linux2.2. systems (presumably running NFSv2) produce the expected (correct) result.
-> 
->    I've snoop'ed the network traffic and one thing I can see is that the filehandle used in the NFSv3 mount is reported as being a different length (shorter) than those for v2.
-> 
->    So,
-> 
-> a) has anyone else encountered these problems?
+I just finished fixing 2.4.7.  My fixes are similar to yours (I moved 
+stext rather than moving .data.init).
 
-Yes.  It has been reported on the nfs@lists.sourceforge.net list
-several times.
+> __initdata is broken in uml and the kernel deadlocks because the wait
+> list is empty in complete() despite wait_for_completion actually
+> registered correctly into it. This because wait_for_completion runs in
+> a different address space than complete() and the virtual memory is
+> not shared across the two address spaces (it is not rempped in a
+> MAP_SHARED so it generates a cow). The registration is basically only
+> private to the entity that is registrating and it will never get
+> visible to the waker task that will do nothing. This is a severe bug
+> not just for the completion code in 2.4.7.
 
-> 
-> b) if so, do they have a solution?
+Nice debugging, btw.  I spent an hour this morning chasing that problem.
 
-1/ Don't use irix.
-2/ Don't use NFSv3
-3/ Get a patch from Irix... I believe an upcoming release of Irix
-fixed the problem, but I don't recall the details.
+My 2.4.7 patch is available from the usual places:
 
-> 
-> c) how is the filehandle calculated in the 2.4 kernel for NFSv3?
-> Which routine is it in?  Perhaps I could try (optionally) forcing it
-> to be the same length as a v2 filehandle to see whether that fixes
-> things.  (I'd rather that the 2.4 kernel were optimally compatible
-> rather than paranoically correct.
-> 
+       http://ftp.nl.linux.org/pub/uml/uml-patch-2.4.7-1.bz2
+       http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.4.7-1.bz2
+       http://prdownloads.sourceforge.net/user-mode-linux/uml-patch-2.4.7-1.bz2
 
-Look in fs/nfsd/nfsfh.c, in fh_compose.
-If you change:
-	if (ref_fh &&
-	    ref_fh->fh_handle.fh_version == 0xca &&
-	    parent->d_inode->i_sb->s_op->dentry_to_fh == NULL) {
-to
-	if (parent->d_inode->i_sb->s_op->dentry_to_fh == NULL) {
+				Jeff
 
-you will probably get what you want, for ext2 at least.
-
-As far as making Linux "optimally compatible", I tend to agree.
-There are hacks in place for Solaris7 which confuses itself with
-exclusive creates, and for Tru64 which doesn't include UID information
-in locking requests.
-However in this case it is a clear and blatant bug in Irix client
-code, not a subtly different interpretation or anything forgivable.
-
-It might make sense to have a "broken_client" export option which 
-always uses long filehandles...
-
-> 
->    Hoping someone can help...
-
-"Best" option is to complain to SGI and get a patch.
-
-NeilBrown

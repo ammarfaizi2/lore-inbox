@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265149AbUAMUZO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 15:25:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265384AbUAMUZO
+	id S265148AbUAMUXf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 15:23:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265149AbUAMUXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 15:25:14 -0500
-Received: from rei.purplehat.net ([216.234.116.164]:40123 "EHLO
-	rei.purplehat.net") by vger.kernel.org with ESMTP id S265149AbUAMUZJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 15:25:09 -0500
-Subject: Re: Slow NFS performance over wireless!
-From: "Joshua M. Thompson" <funaho@jurai.org>
-To: hackeron@dsl.pipex.com
+	Tue, 13 Jan 2004 15:23:35 -0500
+Received: from certiflexdimension.com ([66.137.233.209]:60849 "EHLO
+	werewolf.certiflexdimension.com") by vger.kernel.org with ESMTP
+	id S265148AbUAMUXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 15:23:33 -0500
+Date: Tue, 13 Jan 2004 14:23:57 -0600
+From: Jonathan Angliss <jon@netdork.net>
+Reply-To: Jonathan Angliss <jon@netdork.net>
+X-Priority: 3 (Normal)
+Message-ID: <1147750391.20040113142357@netdork.net>
+To: Dave Jones <davej@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200401130155.32894.hackeron@dsl.pipex.com>
-References: <Pine.LNX.4.44.0401060055570.1417-100000@poirot.grange>
-	 <200401130155.32894.hackeron@dsl.pipex.com>
-Content-Type: text/plain
-Message-Id: <1074025508.1987.10.camel@lumiere>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 13 Jan 2004 15:25:08 -0500
+Subject: Re: athlon-xp header issue
+In-Reply-To: <20040113191217.GA29400@redhat.com>
+References: <398633829.20040113113000@netdork.net>
+ <20040113191217.GA29400@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-12 at 20:55, Roman Gaufman wrote:
-> Hey,
-> 
-> I have experienced extremely poor NFS performance over wireless, when I scp a 
-> piece of information from server to laptop, transfer rates stay stable and 
-> file transfers, when I use NFS transfer rates jump constantly, and most of 
-> the time file is NOT transfering.
+Hello Dave,
 
-I've noticed a similar problem here since upgrading to 2.6. In my case
-not has NFS performance gone through the floor vs 2.4.22 but so has
-machine performance during the transfer. In 2.4 the machine would be a
-bit sluggish but usable...under 2.6 the machine is more or less
-*unusable* until the NFS transfer completes. Trying to say, open up
-Evolution may take upwards of ten minutes to complete. Unfortunately due
-to the extreme performance problem it's not even possible to do any
-diagnostics on the machine while it's happening.
+Tuesday, January 13, 2004, 1:12:17 PM, you wrote:
 
+>> This gave me a hint. So I took a look in arch/i386/config.in and
+>> noticed that the check for CONFIG_MK7XP is missing. This results in
+>> the appropriate settings not being set. Is this intentional? Or am
+>> I looking in the wrong area for my problem?
+
+> CONFIG_MK7XP is a gentoo specific bogon. Bug them about it. (For
+> info on why its bogus, search the linux-kernel archives, as it comes
+> up every few months.)
+
+Thanks for the response.  I shall jump on them about it.
+
+-- 
+Jonathan Angliss
+(jon@netdork.net)
+
+Never mind the star, get those camels off my lawn!
 

@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbTEFIaI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 04:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbTEFIaI
+	id S262457AbTEFIdg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 04:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbTEFIdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 04:30:08 -0400
-Received: from holomorphy.com ([66.224.33.161]:24966 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262456AbTEFIaG (ORCPT
+	Tue, 6 May 2003 04:33:35 -0400
+Received: from [12.47.58.20] ([12.47.58.20]:52248 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S262457AbTEFIdd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 04:30:06 -0400
-Date: Tue, 6 May 2003 01:42:29 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: "David S. Miller" <davem@redhat.com>, rusty@rustcorp.com.au,
-       dipankar@in.ibm.com, linux-kernel@vger.kernel.org
+	Tue, 6 May 2003 04:33:33 -0400
+Date: Tue, 6 May 2003 01:47:45 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: dipankar@in.ibm.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] kmalloc_percpu
-Message-ID: <20030506084229.GQ8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>,
-	"David S. Miller" <davem@redhat.com>, rusty@rustcorp.com.au,
-	dipankar@in.ibm.com, linux-kernel@vger.kernel.org
-References: <20030505235549.5df75866.akpm@digeo.com> <20030505.225748.35026531.davem@redhat.com> <20030506002229.631a642a.akpm@digeo.com> <20030505.231553.68055974.davem@redhat.com> <20030506003412.45e0949b.akpm@digeo.com>
+Message-Id: <20030506014745.02508f0d.akpm@digeo.com>
+In-Reply-To: <20030506082948.B371D2C003@lists.samba.org>
+References: <20030505235549.5df75866.akpm@digeo.com>
+	<20030506082948.B371D2C003@lists.samba.org>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030506003412.45e0949b.akpm@digeo.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 May 2003 08:45:58.0516 (UTC) FILETIME=[EA256340:01C313AB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> wrote:
->> As just pointed out by dipankar the only issue is NUMA...
->> so it has to be something more sophisticated than simply
->> kmalloc()[smp_processor_id];
+Rusty Russell <rusty@rustcorp.com.au> wrote:
+>
+> It's a tradeoff, but I think it's worth it for a kmalloc_percpu which
+> is fast, space-efficient and numa-aware, since the code is needed
+> anyway.
 
-On Tue, May 06, 2003 at 12:34:12AM -0700, Andrew Morton wrote:
-> The proposed patch doesn't do anything about that either.
-> +	ptr = alloc_bootmem(PERCPU_POOL_SIZE * NR_CPUS);
-> So yes, we need an api which could be extended to use node-affine memory at
-> some time in the future.  I think we have that.
+I don't beleive that kmalloc_percpu() itself needs to be fast, as you say.
 
-IIRC that can be overridden; I wrote something to do node-local per-cpu
-areas for i386 for some prior incarnations of per-cpu stuff and even
-posted it, and this looks like it bootstraps at the same time (before
-free_area_init_core() that is) and has the same override hook.
+The code is _not_ NUMA-aware.  Is it?
+
+> How about a compromise like the following (scaled with mem)?
+> Untested, but you get the idea...
+
+> +	/* Plenty of memory?  1GB = 64k per-cpu. */
+> +	pool_size = max(((long long)num_physpages << PAGE_SHIFT) / 16384,
+> +			(long long)pool_size);
+
+On 64GB 32-way that's 128MB of lowmem.  Unpopular.  I'd settle for a __setup
+thingy here, and a printk when the memory runs out.
+
+btw, what's wrong with leaving kmalloc_percpu() as-is, and only using this
+allocator for DEFINE_PERCPU()?
 
 
--- wli

@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270048AbUJUDFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268646AbUJTW7y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270048AbUJUDFp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 23:05:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269097AbUJUDE3
+	id S268646AbUJTW7y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 18:59:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270343AbUJTWco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 23:04:29 -0400
-Received: from gort.metaparadigm.com ([203.117.131.12]:24961 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id S270527AbUJUDAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 23:00:19 -0400
-Message-ID: <41772674.50403@metaparadigm.com>
-Date: Thu, 21 Oct 2004 11:01:08 +0800
-From: Michael Clark <michael@metaparadigm.com>
-Organization: Metaparadigm Pte Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <cl6lfq$jlg$1@terminus.zytor.com> <4176DF84.4050401@nortelnetworks.com> <4176E001.1080104@zytor.com>
-In-Reply-To: <4176E001.1080104@zytor.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Oct 2004 18:32:44 -0400
+Received: from convulsion.choralone.org ([212.13.208.157]:37138 "EHLO
+	convulsion.choralone.org") by vger.kernel.org with ESMTP
+	id S270367AbUJTWKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 18:10:38 -0400
+Date: Wed, 20 Oct 2004 23:10:16 +0100
+From: Dave Jones <davej@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
+       Hanna Linder <hannal@us.ibm.com>, davej@codemonkey.org.uk,
+       kernel-janitors <kernel-janitors@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, greg@kroah.com
+Subject: Re: [KJ] [RFT 2.6] intel-agp.c: replace pci_find_device with pci_get_device
+Message-ID: <20041020221016.GB12553@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Matthew Wilcox <matthew@wil.cx>, Hanna Linder <hannal@us.ibm.com>,
+	davej@codemonkey.org.uk,
+	kernel-janitors <kernel-janitors@lists.osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>, greg@kroah.com
+References: <17420000.1098298334@w-hlinder.beaverton.ibm.com> <20041020220347.GZ16153@parcelfarce.linux.theplanet.co.uk> <20041020220638.GA26465@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041020220638.GA26465@infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/21/04 06:00, H. Peter Anvin wrote:
-> Chris Friesen wrote:
-> 
->> H. Peter Anvin wrote:
->>
->>> EIO seems to be The Right Thing[TM]... it pretty much says "yes, we
->>> received something, but it was bad."  What isn't clear to me is how
->>> applications react to EIO.  It could easily be considered a fatal
->>> error... :-/
->>
->>
->>
->>  From an application point of view, The Right Thing would be to do the 
->> checksum validation at select() time if the socket is blocking.
->>
->> If it's nonblocking, then just do as we do now and return EAGAIN at 
->> recvmsg() time.
->>
->> This would ensure that all existing apps get the expected semantics, 
->> but the ones based on blocking sockets would see a performance 
->> degredation.
->>
-> 
-> Doing work twice can hardly be considered The Right Thing.
+On Wed, Oct 20, 2004 at 11:06:38PM +0100, Christoph Hellwig wrote:
 
-Optimisations that break documented interfaces and age old assumptions
-can hardly be considered The Right Thing :)
+ > > > As pci_find_device is going away soon I have converted this file to use
+ > > > pci_get_device instead. I have compile tested it. If anyone has this hardware
+ > > > and could test it that would be great.
+ > > 
+ > > Should be converted to the pci_driver API.
+ > 
+ > No.  It's already using the pci_driver API, but the same device can be
+ > handled differently depending on the presence of another one.  Maybe
+ > pci_dev_present would fit here.
 
-And you only do the checksum once (just earlier), and the copy_to_user
-should be cache hot as most of these UDP apps will call recvmesg right
-after the select.
+Maybe, but if this kind of cleanup work is done on this code,
+I want it sat in -mm for quite a while. This code has been
+quite fragile in the past, and I've lost count how many
+times we've broken some Intel i8xx variant inadvertantly.
 
-That said, an app with many connected sockets will have a high chance
-of losing the cache. Although a handful of unconnected UDP sockets
-(one per interface) are more common in the use case of a large number
-of clients, so in general the performance difference should be minor.
+The fragility is a good indicator however to just how crap
+that code actually is, and was one of my motivations for
+moving the EM64T stuff to the -mch driver.
 
-Doing the same amount work (with chance of lower performance because of
-cache loss) is good IMHO if it means the choice of a reliable vs an
-unreliable interface. You can only take the performance optimisation
-argument so far and when these optimisations start breaking interfaces,
-i think that's too far ie. what to give up efficiency vs. correctness?
+		Dave
 
-Just my 2c in favour of !O_NONBLOCK early UDP checksum test in select.
-
-~mc

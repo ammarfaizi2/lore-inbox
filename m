@@ -1,57 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129032AbRBGTSX>; Wed, 7 Feb 2001 14:18:23 -0500
+	id <S129708AbRBGTTx>; Wed, 7 Feb 2001 14:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130044AbRBGTSN>; Wed, 7 Feb 2001 14:18:13 -0500
-Received: from [194.73.73.138] ([194.73.73.138]:45560 "EHLO ruthenium")
-	by vger.kernel.org with ESMTP id <S129047AbRBGTRz>;
-	Wed, 7 Feb 2001 14:17:55 -0500
-Date: Wed, 7 Feb 2001 19:17:43 +0000 (GMT)
-From: <davej@suse.de>
-X-X-Sender: <davej@athlon.local>
-To: Alan Cox <alan@redhat.com>
-cc: <becker@scyld.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Hamachi not doing pci_enable before reading resources
-Message-ID: <Pine.LNX.4.31.0102071914210.17543-100000@athlon.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129828AbRBGTTd>; Wed, 7 Feb 2001 14:19:33 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:51460 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129708AbRBGTT0>; Wed, 7 Feb 2001 14:19:26 -0500
+Date: Wed, 7 Feb 2001 13:14:39 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Jakub Jelinek <jakub@redhat.com>, Gregory Maxwell <greg@linuxpower.cx>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: PCI-SCI Drivers v1.1-7 released
+Message-ID: <20010207131439.A28015@vger.timpanogas.org>
+In-Reply-To: <20010206182501.A23454@vger.timpanogas.org> <20010206190624.C23960@vger.timpanogas.org> <20010206210731.E1110@xi.linuxpower.cx> <20010207110852.A27089@vger.timpanogas.org> <20010207123213.V16592@devserv.devel.redhat.com> <20010207113147.A27215@vger.timpanogas.org> <20010207103719.A1037@kochanski.internal.splhi.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="jRHKVT23PllUwdXP"
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010207103719.A1037@kochanski.internal.splhi.com>; from timw@splhi.com on Wed, Feb 07, 2001 at 10:37:19AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Alan,
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=us-ascii
 
- Another driver not doing pci_enable_device() early enough.
-
-Dave.
-
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
-diff -urN --exclude-from=/home/davej/.exclude linux/drivers/net/hamachi.c linux-dj/drivers/net/hamachi.c
---- linux/drivers/net/hamachi.c	Wed Feb  7 12:42:39 2001
-+++ linux-dj/drivers/net/hamachi.c	Wed Feb  7 19:09:31 2001
-@@ -562,13 +562,14 @@
- 	if (hamachi_debug > 0  &&  did_version++ == 0)
- 		printk(version);
-
-+	if (pci_enable_device(pdev))
-+		return -EIO;
-+
- 	ioaddr = pci_resource_start(pdev, 0);
- #ifdef __alpha__				/* Really "64 bit addrs" */
- 	ioaddr |= (pci_resource_start(pdev, 1) << 32);
- #endif
-
--	if (pci_enable_device(pdev))
--		return -EIO;
- 	pci_set_master(pdev);
-
- 	ioaddr = (long) ioremap(ioaddr, 0x400);
+On Wed, Feb 07, 2001 at 10:37:19AM -0800, Tim Wright wrote:
+> Umm, I don't know what compiler you've got etc. Jeff, but I just tried gcc-2.96
+> (-69) here, and '#ident' is supported and works perfectly. The only way to even
+> get a warning is to use '-ansi -pedantic' which yields:
+> junk.c:1:2: warning: ISO C does not allow #ident
+> 
+> I don't think the problem is with gcc, at least not the Red Hat 7.0 version.
+> 
+> Tim
 
 
+Try 7.1.  This is where I got the errors.  They are attached.
+
+Jeff
+
+
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="error.txt"
+
+CONFIG_MODVERSIONS=y
+Linux MODVERSIONED symbol support detected
+Linux SMP support disabled in kernel source tree
+OS=Linux
+CPU=INTEL
+ADAPTER=psb64
+Make command is
+LSMP=
+make ADAPTER=psb64 OS=Linux CPU=INTEL
+os is Linux
+make ADAPTER=psb64 OS=Linux CPU=INTEL
++ cd ./LINUX/os
++ make -f Makefile all 'CC=cc -O3 -DEXPORT_SYMTAB' OS=Linux ENDIX=le ENDIAN=-DLITTLE_ENDIAN SILENT=y
+make[1]: Entering directory `/usr/src/redhat/SOURCES/pci-sci-1.1/src/IRM/drv/src/LINUX/os'
+Compiling init.c ....
+In file included from init.c:30:
+../../prolog.h:344:8: invalid #ident
+make[1]: *** [init.o] Error 1
+make[1]: Leaving directory `/usr/src/redhat/SOURCES/pci-sci-1.1/src/IRM/drv/src/LINUX/os'
+make: *** [all.sub] Error 1
+targidr is /usr/src/redhat/SOURCES/pci-sci-1.1/src/IRM/drv/linuxgen
+Building /usr/src/redhat/SOURCES/pci-sci-1.1/src/IRM/lib
+makefile.unix:6: ../drv/INCLUDE/mkirm.def: No such file or directory
+make: *** No rule to make target `../drv/INCLUDE/mkirm.def'.  Stop.
+make ADAPTER=psb64 OS=Linux CPU=INTEL
+make: *** No targets specified and no makefile found.  Stop.
+Building /usr/src/redhat/SOURCES/pci-sci-1.1/src/IRM/util
+make ADAPTER=psb64 OS=Linux CPU=INTEL
+Makefile:7: ../drv/INCLUDE/mkirm.def: No such file or directory
+make: *** No rule to make target `../drv/INCLUDE/mkirm.def'.  Stop.
+removing scidiag from /usr/src/redhat/SOURCES/pci-sci-1.1/src/IRM/bin
+Done
+
+--jRHKVT23PllUwdXP--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

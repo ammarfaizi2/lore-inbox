@@ -1,167 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUF3TPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUF3TOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUF3TPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 15:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUF3TOz
+	id S261239AbUF3TOj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 15:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUF3TOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 15:14:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11394 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261252AbUF3TOe
+	Wed, 30 Jun 2004 15:14:39 -0400
+Received: from mail.shareable.org ([81.29.64.88]:24749 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261239AbUF3TOc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 15:14:34 -0400
-Message-ID: <40E3110B.5070503@pobox.com>
-Date: Wed, 30 Jun 2004 15:14:19 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Travis Morgan <lkml@bigfiber.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SATA problems on two different systems
-References: <1088487355.16294.424.camel@castle.bigfiber.net>
-In-Reply-To: <1088487355.16294.424.camel@castle.bigfiber.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jun 2004 15:14:32 -0400
+Date: Wed, 30 Jun 2004 20:14:28 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Ian Molton <spyro@f2s.com>, linux-arm-kernel@lists.arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: A question about PROT_NONE on ARM and ARM26
+Message-ID: <20040630191428.GC31064@mail.shareable.org>
+References: <20040630024434.GA25064@mail.shareable.org> <20040630091621.A8576@flint.arm.linux.org.uk> <20040630145942.GH29285@mail.shareable.org> <20040630192654.B21104@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040630192654.B21104@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Travis Morgan wrote:
-> scsi1: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 03 30 b7 74 00 00
-> 7d 00 
-> Current sdb: sense = 70  3
-> ASC=11 ASCQ= 4
-> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> 0x00 0x11 0x04 
-> end_request: I/O error, dev sdb, sector 53524340
-> scsi1: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 03 30 b7 75 00 00
-> 7c 00 
-> Current sdb: sense = 70  3
-> ASC=11 ASCQ= 4
-> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> 0x00 0x11 0x04 
-> end_request: I/O error, dev sdb, sector 53524341
-> scsi1: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 03 30 b7 76 00 00
-> 7b 00 
-> Current sdb: sense = 70  3
-> ASC=11 ASCQ= 4
-> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> 0x00 0x11 0x04 
-> end_request: I/O error, dev sdb, sector 53524342
-> scsi1: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 03 30 b7 77 00 00
-> 7a 00 
-> Current sdb: sense = 70  3
-> ASC=11 ASCQ= 4
-> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> 0x00 0x11 0x04 
-> end_request: I/O error, dev sdb, sector 53524343
-> scsi1: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 03 30 b7 78 00 00
-> 79 00 
-> Current sdb: sense = 70  3
-> ASC=11 ASCQ= 4
-> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> 0x00 0x11 0x04 
-> end_request: I/O error, dev sdb, sector 53524344
-> <SNIP>
-> raid1: Disk failure on sdb3, disabling device. 
->         Operation continuing on 1 devices
-> raid1: sdb: unrecoverable I/O read error for block 52737152
-> md: md1: sync done.
-> RAID1 conf printout:
->  --- wd:1 rd:2
->  disk 0, wo:1, o:0, dev:sdb3
->  disk 1, wo:0, o:1, dev:sda3
-> RAID1 conf printout:
->  --- wd:1 rd:2
->  disk 1, wo:0, o:1, dev:sda3
-> md: syncing RAID array md1
-> md: minimum _guaranteed_ reconstruction speed: 1000 KB/sec/disc.
-> md: using maximum available idle IO bandwith (but not more than 200000
-> KB/sec) for reconstruction.
-> md: using 128k window, over a total of 116824064 blocks.
-> md: md1: sync done.
-> RAID1 conf printout:
->  --- wd:1 rd:2
->  disk 1, wo:0, o:1, dev:sda3
+Russell King wrote:
+> We use three domains - one for user, one for kernel and one for IO.
+> Normally all three are in client mode.  However, on set_fs(KERNEL_DS)
+> we switch the kernel domain to manager mode.
 > 
-> This raid volume is on two Seagate Barracuda 120 gig SATA drives running
-> on the system's ICH5 SATA controller.
-[...]
-> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> 0x00 0x11 0x04 
-> end_request: I/O error, dev sda, sector 91683284
-> scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 05 76 f9 d5 00 00
-> 72 00 
-> Current sda: sense = 70  3
-> ASC=11 ASCQ= 4
-> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> 0x00 0x11 0x04 
-> end_request: I/O error, dev sda, sector 91683285
-> scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 05 76 f9 d6 00 00
-> 71 00 
-> Current sda: sense = 70  3
-> ASC=11 ASCQ= 4
-> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> 0x00 0x11 0x04 
-> end_request: I/O error, dev sda, sector 91683286
-> scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 05 76 f9 d7 00 00
-> 70 00 
-> Current sda: sense = 70  3
-> ASC=11 ASCQ= 4
-> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> 0x00 0x11 0x04 
-> end_request: I/O error, dev sda, sector 91683287
-> scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 05 76 f9 d8 00 00
-> 6f 00 
-> Current sda: sense = 70  3
-> ASC=11 ASCQ= 4
-> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> 0x00 0x11 0x04 
-> end_request: I/O error, dev sda, sector 91683288
-> scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 05 76 f9 d9 00 00
-> 6e 00 
-> Current sda: sense = 70  3
-> ASC=11 ASCQ= 4
-> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> 0x00 0x11 0x04 
-> end_request: I/O error, dev sda, sector 91683289
-> scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 05 76 f9 da 00 00
-> 6d 00 
-> Current sda: sense = 70  3
-> ASC=11 ASCQ= 4
-> Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> 0x00 0x11 0x04 
-> end_request: I/O error, dev sda, sector 91683290
-> <SNIP>
+> This means that the user-mode LDR instructions (ldrt / ldrlst etc)
+> will not have their page permissions checked, and therefore the access
+> will succeed - exactly as we require.
+
+Protection permissions (i.e. read-only, PROT_NONE) should still be
+checked after set_fs(KERNEL_DS).  It's only the kernel page vs. user
+page distinction that should be relaxed.
+
+>From your description, it's not obvious that it'll do the right thing
+in that circumstance.
+
+Hopefully,
+
+> [Tables]
+> We have a similar difference in kernel-mode vs user-mode accesses for
+> the ARM case as well - so its all complicated and unless you really
+> understand this... 8)
+
+...this is alluding to a mechanism such that exactly the right thing
+happens for PROT_NONE and PROT_READONLY pages after set_fs(KERNEL_DS), yes?
+
+> Privileged  T-bit     00      01     10         11
+>     Y         0       r/w     r/w    r/w        r/w
+>     Y         1       r/w     read   no access  no access
+>     N         X       r/w     read   no access  no access
 > 
-> This system has two Seagate Barracuda 160 gig SATA drives running on a
-> PDC20376 SATA controller. 
-> 
-> I'm not sure if this is a problem with something I've done or a bug
-> handling SATA in the kernel. I find it disturbing that both these
-> systems have this problem with different hardware configurations but the
-> same type of drives (only different sizes).
-> 
-> The first system, endeavour, was up for over 30 days. It was then
-> rebooted and has crashed for an unknown reason twice since and shows
-> these dmesg entries after booting up.
-> 
-> The second system, castle, gives me those messages when I try to copy
-> some data from sda1 and hangs the process for a very long time while it
-> keeps advancing 'bad sectors'.
-> 
-> If there's anything else I can do to test this let me know.
+> Note: if PAGE_NOT_USER and PAGE_OLD are both clear (iow, young + user
+> page) we use bit pattern 0x.  If PAGE_NOT_USER, PAGE_OLD, PAGE_READONLY
+> and PAGE_CLEAN are all clear, we use bit pattern 00.  Otherwise we use
+> bit pattern 11.
 
+Ok, that explains nicely and should do the right thing on ARM26 with
+PROT_NONE pages, even with set_fs(KERNEL_DS).
 
-You certainly provided the right information, thanks :)
+Because set_fs() is rarely used, I think you can optimise getuser.S
+and putuser.S on ARM26.  Instead of comparing the address against
+TI_ADDR_LIMIT, compare it against the hard-coded userspace limit.
 
-While I certainly would not rule out a driver bug, these errors are 
-normally indicative of some sort of hardware problem.  My first guess is 
-always to replace the SATA cables.
+If that succeeds, continue with ldrt et al.  Note the improvements in
+the common case (fs == USER_DS and no fault): (1) you only compare
+against one limit, not two; (2) no load of TI_ADDR_LIMIT; (3) one less
+ldr instruction.
 
-I'll be instrumenting the SATA driver to provide a lot more verbosity on 
-error very soon, so getting you to test again when that is in place (a 
-few days, a week at most) would be useful.
+If that comparison fails, then branch to a version which checks
+TI_ADDR_LIMIT.
 
-	Jeff
+Here's an example.  It's probably wrong as I haven't written ARM in a
+long time, but illustrates the idea.  Note how the common case takes 4
+instructions instead of 12 in the current code:
 
+__get_user_4:
+	cmp	r0,#0x02000000
+4:	ldrlst	r1, [r0]
+	movls	r0, #0
+	movls	pc, lr
+	bic	r1, sp, #0x1f00
+	bic	r1, r1, #0x00ff
+	str	lr, [sp, #-4]!
+	ldr	r1, [r1, #TI_ADDR_LIMIT]
+	sub	r1, r1, #4
+	cmp	r0, r1
+14:	ldrls	r1, [r0]
+	movls	r0, #0
+	ldmfdls	sp!, {pc}^
+	b	__get_user_bad
 
+-- Jamie

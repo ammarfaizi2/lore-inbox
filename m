@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129107AbRBOQwC>; Thu, 15 Feb 2001 11:52:02 -0500
+	id <S129104AbRBOQ5N>; Thu, 15 Feb 2001 11:57:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129104AbRBOQvx>; Thu, 15 Feb 2001 11:51:53 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34567 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129075AbRBOQvn>; Thu, 15 Feb 2001 11:51:43 -0500
-Subject: Re: [PATCH] pcnet32.c: MAC address may be in CSR registers
-To: eli.carter@inet.com (Eli Carter)
-Date: Thu, 15 Feb 2001 16:49:49 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        root@chaos.analogic.com (Richard B. Johnson),
-        tsbogend@alpha.franken.de, P.Missel@sbs-or.de (Peter Missel),
-        linux-kernel@vger.kernel.org, eli.carter@inet.com (Eli Carter)
-In-Reply-To: <3A8BFBF6.B99CFFF5@inet.com> from "Eli Carter" at Feb 15, 2001 09:55:34 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129111AbRBOQ5C>; Thu, 15 Feb 2001 11:57:02 -0500
+Received: from ns.suse.de ([213.95.15.193]:14353 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129104AbRBOQ4n>;
+	Thu, 15 Feb 2001 11:56:43 -0500
+To: William Stearns <wstearns@pobox.com>
+Cc: Giacomo Catenazzi <cate@debian.org>,
+        ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNONCE] Kernel Autoconfiguration utility v.0.9.1.2
+In-Reply-To: <Pine.LNX.4.30.0102151115170.31520-100000@sparrow.websense.net>
+X-Yow: I love ROCK 'N ROLL!  I memorized the all WORDS to ``WIPE-OUT'' in 1965!!
+From: Andreas Schwab <schwab@suse.de>
+Date: 15 Feb 2001 17:56:39 +0100
+In-Reply-To: <Pine.LNX.4.30.0102151115170.31520-100000@sparrow.websense.net>
+Message-ID: <jeelwzhol4.fsf@hawking.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.98
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14TRbL-0000AR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Peter pointed out that the contents of the CSR12-14 registers are
-> initialized from the EEPROM, so reading the EEPROM is superfluous--we
-> should just read the CSRs and not read the EEPROM.  I think he has a
-> point, so I'll make that change and submit yet another patch pair.  
+William Stearns <wstearns@pobox.com> writes:
 
-I'd rather keep the existing initialisation behaviour of using the eeprom
-for 2.2. There are also some power management cases where I am not sure
-the values are restored on the pcnet/pci.
+|> Good day, Giacomo,
+|> 
+|> On Thu, 15 Feb 2001, Giacomo Catenazzi wrote:
+|> 
+|> > How to use: (now, testing phase)
+|> >   unpack the files (better: in a new directory)
+|> >   > bash autoconfigure.sh | less
+|> >   check the output.
+|> >   no super user privileges required!
+|> 
+|> 	Nice work - that's a neat way to do it.
+|> 	One detail; you appear to assume that bash2 is being used.  If
+|> bash1 is /bin/bash, one gets syntax errors.  The following patch allows
+|> the script to run under bash1 and bash2, with no noticeable problems.
+|> 
+|> --- autoconfigure.sh-0.9.1.2.orig	Wed Feb 14 15:37:30 2001
+|> +++ autoconfigure.sh	Thu Feb 15 10:59:45 2001
+|> @@ -109,7 +109,7 @@
+|>  }
+|>  function found () {
+|>      local conf=CONFIG_$1
+|> -    if [ "${!conf}" !=  "y" ]; then
+|> +    if [ "${conf}" !=  "y" ]; then
+|>  	define $1 y
+|>      else
+|>  	debug "$1=y"
 
-For 2.2 conservatism is the key. For 2.4 by all means default to CSR12-14 and
-print a warning if they dont match the eeprom value and we'll see what it
-shows
+This is plain wrong.  ${!conf} and ${conf} are completely different
+things.
 
-> Alan, do you want me to put your inline version in <linux/etherdevice.h>
-> while I'm at it, or what?
+Andreas.
 
-Sure
+-- 
+Andreas Schwab                                  "And now for something
+SuSE Labs                                        completely different."
+Andreas.Schwab@suse.de
+SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg

@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290523AbSBFNqn>; Wed, 6 Feb 2002 08:46:43 -0500
+	id <S290520AbSBFNuc>; Wed, 6 Feb 2002 08:50:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290527AbSBFNqc>; Wed, 6 Feb 2002 08:46:32 -0500
-Received: from [212.3.242.3] ([212.3.242.3]:22031 "HELO mail.i4gate.net")
-	by vger.kernel.org with SMTP id <S290523AbSBFNq1>;
-	Wed, 6 Feb 2002 08:46:27 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: linux-kernel@vger.kernel.org
-Subject: status on northbridge disconnection apm saving?
-Date: Wed, 6 Feb 2002 14:46:43 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S290527AbSBFNuW>; Wed, 6 Feb 2002 08:50:22 -0500
+Received: from web20507.mail.yahoo.com ([216.136.226.142]:53774 "HELO
+	web20507.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S290520AbSBFNuP>; Wed, 6 Feb 2002 08:50:15 -0500
+Message-ID: <20020206135014.88976.qmail@web20507.mail.yahoo.com>
+Date: Wed, 6 Feb 2002 14:50:14 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: 760MPX IO/APIC Errors...
+To: Ken Brownfield <brownfld@irridia.com>, Willy Tarreau <wtarreau@free.fr>
+Cc: jon-anderson@rogers.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020204172942.C14297@asooo.flowerfire.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020206134630Z290523-13996+17947@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> At what point do your machines stop booting, i.e.,
+> what was the last printed kernel message on the
+> console?  Also, can you send me full
+> dmesgs from your machines after booting?
 
-I was wondering if there has been some development concerning the northbridge 
-disconnection bit and the joined apm saving you can do... I have an amd box, 
-and it is running rather warm... during the periods that it isn't doing 
-anything, i would love to have it 'reduce the heat'...
+I will look ASAP.
+ 
+Willy
 
-I've found the vcool page on the net, but it's an linux-2.4.13 patch... and 
-we're at 17 (stable)... even though i'll probably be able to apply it (with 
-some offsets), i am wondering what the status is.
 
-Thanks!
-
-DK
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.fr

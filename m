@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVAOBoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbVAOBo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262025AbVAOBoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 20:44:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVAOBmX
+	id S262095AbVAOBo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 20:44:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVAOBmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 20:42:23 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:35561 "EHLO
+	Fri, 14 Jan 2005 20:42:04 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:34793 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262025AbVAOBh5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 20:37:57 -0500
-Subject: Re: ServerWorks CSB6 DMA problems
+	id S262095AbVAOBiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 20:38:03 -0500
+Subject: Re: Linux 2.6.10-ac9
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Gian-Carlo Pascutto <gpascutto@nero.com>
+To: Sami Farin <7atbggg02@sneakemail.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41E83C2D.6070101@nero.com>
-References: <41E83C2D.6070101@nero.com>
+In-Reply-To: <20050114030135.GA6032@m.safari.iki.fi>
+References: <1105636996.4644.70.camel@localhost.localdomain>
+	 <20050114030135.GA6032@m.safari.iki.fi>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105744528.9838.37.camel@localhost.localdomain>
+Message-Id: <1105743716.9839.29.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 15 Jan 2005 00:33:25 +0000
+Date: Sat, 15 Jan 2005 00:32:59 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-01-14 at 21:39, Gian-Carlo Pascutto wrote:
-> On a machine with a RHEL3 kernel (2.4.21-27.0.1.EL), the kernel seems to 
-> enable UDMA33 on the first connected disk (Seagate 7200.7) but uses PIO 
-> mode on the second (Maxtor 6Y080P0).
-> 
-> I found out this is for good reasons because after enabling UDMA100 on 
-> both disks, via hdparm, filesystem corruption quickly resulted.
+On Gwe, 2005-01-14 at 03:01, Sami Farin wrote:
+> at this spot I have no /dev/dsp etc.
+> then I reload snd_ens1371:
 
-That all suprises me a great deal, although the modes are normally BIOS
-selected by the Serverworks and then read by the kernel. CBS5/CSB6 IDE
-should be very reliable indeed (OSB4 is a much older chipset and the
-problem it has is OSB4 specific)
+That sounds like the new udev rather than kernel side. The changes from
+ac8 to ac9 are tiny on the audio side and don't involve driver setup
+stuff.
 
-I'd also suggest you raise it with your RHEL support and/or
-bugzilla.redhat.com
+> also, with 2.6.10 I can't disable write cache...
+> I could do it in 2.6.9.
 
-Alan
-
+Works for me in 2.6.10-ac. Are there any diagnostics on dmesg when you
+try and turn the cache off ?
+ 

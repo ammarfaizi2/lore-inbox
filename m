@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261768AbSJCQDe>; Thu, 3 Oct 2002 12:03:34 -0400
+	id <S261370AbSJCQKg>; Thu, 3 Oct 2002 12:10:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261769AbSJCQDd>; Thu, 3 Oct 2002 12:03:33 -0400
-Received: from 62-190-202-9.pdu.pipex.net ([62.190.202.9]:58116 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S261768AbSJCQDb>; Thu, 3 Oct 2002 12:03:31 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210031616.g93GGAjO000918@darkstar.example.net>
-Subject: Re: [OT] 2.6 not 3.0 - (WAS Re: [PATCH-RFC] 4 of 4 - New problem
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Thu, 3 Oct 2002 17:16:10 +0100 (BST)
-Cc: kessler@us.ibm.com, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       saw@saw.sw.com.sg, rusty@rustcorp.com.au, richardj_moore@uk.ibm.com
-In-Reply-To: <Pine.LNX.4.44.0210030852330.2066-100000@home.transmeta.com> from "Linus Torvalds" at Oct 03, 2002 08:57:13 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S261638AbSJCQKg>; Thu, 3 Oct 2002 12:10:36 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:38668 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261370AbSJCQKf>;
+	Thu, 3 Oct 2002 12:10:35 -0400
+Date: Thu, 3 Oct 2002 09:13:20 -0700
+From: Greg KH <greg@kroah.com>
+To: Kevin Corry <corryk@us.ibm.com>, linux-kernel@vger.kernel.org,
+       evms-devel@lists.sourceforge.net
+Cc: Alexander Viro <viro@math.psu.edu>, torvalds@transmeta.com
+Subject: Re: EVMS Submission for 2.5
+Message-ID: <20021003161320.GA32588@kroah.com>
+References: <02100308045305.05904@boiler> <Pine.GSO.4.21.0210031042210.15787-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0210031042210.15787-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 3 Oct 2002 jbradford@dial.pipex.com wrote:
-> > 
-> > I think we should stick to incrementing the major number when binary
-> > compatibility is broken.
+On Thu, Oct 03, 2002 at 10:51:39AM -0400, Alexander Viro wrote:
 > 
-> "Stick to"? We've never had that as any criteria for major numbers in the
-> kernel. Binary compatibility has _never_ been broken as a release policy,
-> only as a "that code is old, and we've given people 5 years to migrate to
-> the new system calls, the old ones are TOAST".
+> 
+> On Thu, 3 Oct 2002, Kevin Corry wrote:
+> 
+> > > I might agree with something along the lines of
+> > > 	* when evms is initialized, it's notified of all existing gendisks
+> > > 	* whenever disk is added after evms initialization, we notify evms
+> > > 	* whenever disk is removed, we notify evms
+> > 
+> > This sounds like it would be exactly what EVMS needs. The only thing we would 
+> > want to add to this list is: "*whenever a disk is modified, notify evms". For 
+> > example, with removable media drives (such as Zip and Jaz), when a cartidge 
+> > is changed, the capacity of the drive might change, and we would like to be 
+> > notified of that event.
+> 
+> Umm...  OK.  There were some plans to add a notifier chain for such events
+> and EVMS looks like a possible user of that beast.  However, it's not
+> obvious whether we need to do any of that in the kernel - we definitely
+> can have userland up and running before _any_ block devices are initialized,
+> so it might be a work for userland helper.
 
-Ah, I was getting confused, I thought that the move to 2.0 was when we moved from a.out to elf.  I didn't really follow kernel development very closely at all back then, to be truthful.
+/sbin/hotplug already gets called for _every_ device that is added to
+the system as of 2.5.40, so you should probably use that as your
+userspace notifier event.  If there's anything that the /sbin/hotplug
+call misses, that you need for evms, please let me know.
 
-> The only policy for major numbers has always been "major capability
-> changes".
+thanks,
 
-Then it definitely shouldn't be 3.0 yet then.
-
-> 1.0 was "networking is stable and generally usable" (by the
-> standards of that time), while 2.0 was "SMP and true multi-architecture
-> support". My planned point for 3.0 was NuMA support, but while we actually
-> have some of that, the hardware just isn't relevant enough to matter.
-
-Hmmm, then for 3.0 I'd vote for fully working and proven stable:
-
-* High memory support, 
-* IPV6
-* IDE-SCSI
-* Bluetooth
-* USB (2)
-* IEEE 1394
-
-> The memory management issues would qualify for 3.0, but my argument there 
-> is really that I doubt everybody really is happy yet. Which was why I 
-> asked for people to test it and complain about VM behaviour - and we've 
-> had some ccomplaints ("too swap-happy") although they haven't sounded like 
-> really horrible problems.
-
-To be completely honest, I dont't see any improvement in 2.5.x over 2.4.x on my boxes that are running both :-(.
-
-John.
+greg k-h

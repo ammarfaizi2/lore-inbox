@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310128AbSCAVNA>; Fri, 1 Mar 2002 16:13:00 -0500
+	id <S310126AbSCAVPa>; Fri, 1 Mar 2002 16:15:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310127AbSCAVMv>; Fri, 1 Mar 2002 16:12:51 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:26505 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S310124AbSCAVMj>;
-	Fri, 1 Mar 2002 16:12:39 -0500
-Date: Fri, 01 Mar 2002 13:10:04 -0800 (PST)
-Message-Id: <20020301.131004.37152108.davem@redhat.com>
-To: jgarzik@mandrakesoft.com
-Cc: alan@lxorguk.ukuu.org.uk, akpm@zip.com.au,
-        aferber@techfak.uni-bielefeld.de, greearb@candelatech.com,
-        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: Various 802.1Q VLAN driver patches. [try2]
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3C7FEA55.2EFFA878@mandrakesoft.com>
-In-Reply-To: <E16gu8n-000515-00@the-village.bc.nu>
-	<3C7FEA55.2EFFA878@mandrakesoft.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S310127AbSCAVPU>; Fri, 1 Mar 2002 16:15:20 -0500
+Received: from ns.suse.de ([213.95.15.193]:55565 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S310126AbSCAVPB>;
+	Fri, 1 Mar 2002 16:15:01 -0500
+Date: Fri, 1 Mar 2002 22:14:59 +0100
+From: Dave Jones <davej@suse.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] moving task_struct
+Message-ID: <20020301221459.P7662@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0203012040220.32042-100000@serv> <3C7FEAC9.DDA73021@mandrakesoft.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C7FEAC9.DDA73021@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Mar 01, 2002 at 03:55:37PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jeff Garzik <jgarzik@mandrakesoft.com>
-   Date: Fri, 01 Mar 2002 15:53:41 -0500
-   
-   Anyway, using CONFIG_xxx_MODULE has the problem I describe above.
+On Fri, Mar 01, 2002 at 03:55:37PM -0500, Jeff Garzik wrote:
+ > > The patch below simply moves task_struct into its own header file.
+ > > This makes thread_info and task_struct indepedent from sched.h and will 
+ > > allows archs to decide themselves the dependencies between these
+ > > structures.
+ > 
+ > nice...   In addition to your second patch, this first patch may be a
+ > small step in paving the way for further unraveling of nasty include
+ > dependencies.
 
-It actually gets used for all the wrong reasons.
+ Indeedy doody. Roman has a nice set of Ruby scripts, which in 
+ conjunction with acme's dependancy graph scripts make for some
+ interesting reading.
 
-For example, in 2.4.x it is used to keep struct sock from bloating up
-in include/net/sock.h unless you have all the protocols enabled.
+ It's tedious work unraveling some of the dependancies, but it's
+ paid off quite a bit already.  (For a real horror story, see
+ the raid includes. They pull in an obscene amount of extra
+ headers 8-)
 
-Whereas with Arnaldo's changes in 2.5.x to split all the non-generic
-junk out from struct sock, *_MODULE testing is no longer is needed for
-that purpose.
-
-Every existing reference I see in my 2.5.x tree for the networking is
-"Duh, delete the ifdef".
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

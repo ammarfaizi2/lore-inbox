@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273565AbRJJBrC>; Tue, 9 Oct 2001 21:47:02 -0400
+	id <S273831AbRJJCBr>; Tue, 9 Oct 2001 22:01:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273648AbRJJBqw>; Tue, 9 Oct 2001 21:46:52 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:19188 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S273565AbRJJBql>;
-	Tue, 9 Oct 2001 21:46:41 -0400
-Date: Tue, 9 Oct 2001 18:47:00 -0700
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: RFC : Wireless Netlink events
-Message-ID: <20011009184700.B16874@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S273818AbRJJCBh>; Tue, 9 Oct 2001 22:01:37 -0400
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:51752 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S273783AbRJJCBX>; Tue, 9 Oct 2001 22:01:23 -0400
+Subject: Re: 2.4.10-ac10-preempt lmbench output.
+From: Robert Love <rml@ufl.edu>
+To: safemode <safemode@speakeasy.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200110100036.UAA128640@ufl.edu>
+In-Reply-To: <200110100036.UAA128640@ufl.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 09 Oct 2001 22:02:36 -0400
+Message-Id: <1002679359.862.24.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+On Tue, 2001-10-09 at 20:36, safemode wrote:
+> I'm very pleased so far with ac10 with the preempt patch.  Much better than
+> 2.4.9-ac18-preempt, which is what i was using.  I'm just going to put up some
+> output from lmbench to see if anyone who is running the non-preempt version
+> is seeing better or worse timings and scores.   Perhaps the improvement is
+> all in my head due to me moving my atapi devices off of the promise card
+> (since you're not supposed to put any on it) and now everything is generally
+> running faster despite the kernel being used.  Heh.  so here they are
 
-	Somebody asked me if it was possible to monitor wireless
-configuration change on 802.11 interfaces.
-	Looking into the kernel, I noticed that RTnetlink was the
-prefered way to export events related to interface changes. So, I
-quickly hacked some RTnetlink Wireless Events, and it basically work
-the way I want.
+I've noticed good improvements on 2.4.10-ac10, too.  You may want to try
+Rik's eatcache patch available at
+http://www.surriel.com/patches/2.4/2.4.10-ac9-eatcache - It does a
+noticeable job of preventing the cache thrashing that occurs during
+heavy cache activity.  This will result in less VM activity, hopefully,
+and thus less lock held time.  He can use the feedback to tune it
+better.
 
-	Now, I've got some questions :
-	o Have I done it the right way ? Is there anything I forgot ?
-	o Is there a way to do a reverse of SIOCGIFINDEX ? If you have
-an interface index, how do you get its name ?
-	o Should I put the full interface name in the event ? That
-would make events larger but help query the interface when receiving
-the event.
-	o Any other comments ?
+Also, you will really want to run lmbench on 2.4.10-ac10-nopreempt
+yourself.  While a lot of lmbench is pretty kernel-specific
+machine-agnostic, a faster MHz CPU will certainly change almost every
+result.
 
-	My plan is to continue experimenting with this patch a few
-days and collect comments, and then do a new update of Wireless
-Extensions with this patch.
-	Regards,
+	Robert Love
 
-	Jean

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264789AbSJaJxC>; Thu, 31 Oct 2002 04:53:02 -0500
+	id <S264806AbSJaJ67>; Thu, 31 Oct 2002 04:58:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264791AbSJaJxC>; Thu, 31 Oct 2002 04:53:02 -0500
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:10762 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S264789AbSJaJxB>; Thu, 31 Oct 2002 04:53:01 -0500
-Date: Thu, 31 Oct 2002 09:59:37 +0000
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.45
-Message-ID: <20021031095937.GA7487@fib011235813.fsnet.co.uk>
-References: <Pine.LNX.4.44.0210301651120.6719-100000@penguin.transmeta.com> <20021031013724.GG2073@asus.verdurin.priv>
+	id <S264807AbSJaJ67>; Thu, 31 Oct 2002 04:58:59 -0500
+Received: from angband.namesys.com ([212.16.7.85]:41604 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S264806AbSJaJ65>; Thu, 31 Oct 2002 04:58:57 -0500
+Date: Thu, 31 Oct 2002 13:05:17 +0300
+From: Oleg Drokin <green@namesys.com>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com
+Subject: [2.4] [PATCH] Make reiserfs to refuse mounting of non 4K blocksize filesystems
+Message-ID: <20021031130517.A13414@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20021031013724.GG2073@asus.verdurin.priv>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 01:37:25AM +0000, Adam Huffman wrote:
->   gcc -Wp,-MD,drivers/md/.dm-ioctl.o.d -D__KERNEL__ -Iinclude -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> -march=athlon -Iarch/i386/mach-generic -nostdinc -iwithprefix include
-> -DKBUILD_BASENAME=dm_ioctl   -c -o drivers/md/dm-ioctl.o
-> drivers/md/dm-ioctl.c
-> drivers/md/dm-ioctl.c: In function `create':
-> drivers/md/dm-ioctl.c:588: incompatible type for argument 1 of
-> `set_device_ro'
-> drivers/md/dm-ioctl.c: In function `reload':
-> drivers/md/dm-ioctl.c:874: incompatible type for argument 1 of
-> `set_device_ro'
-> make[2]: *** [drivers/md/dm-ioctl.o] Error 1
-> make[1]: *** [drivers/md] Error 2
-> make: *** [drivers] Error 2
+Hello!
 
-I've already posted the patches that are needed to the list.  Alternatively get them
-from here:
+   There seems to be some confusion going on among the users who try
+   to use non-standard blocksize reiserfs filesystems with 2.4 kernels
+   (where this support is not yet merged) and are able to easily crash
+   kernel this way, so it seems following patch is necessary for now,
+   that only allows to mount 4K-blocksize reiserfs filesystems.
 
-http://people.sistina.com/~thornber/patches/2.5-stable/2.5.45-dm-1.tar.bz2
+   Please apply.
 
-- Joe
+   Thank you.
+
+Bye,
+    Oleg
+
+===== fs/reiserfs/super.c 1.26 vs edited =====
+--- 1.26/fs/reiserfs/super.c	Thu Sep 12 12:39:21 2002
++++ edited/fs/reiserfs/super.c	Wed Oct 30 16:42:36 2002
+@@ -863,6 +863,12 @@
+ 	s->s_blocksize_bits ++;
+ 
+     brelse (bh);
++
++    if (s->s_blocksize != 4096) {
++	printk("Unsupported reiserfs blocksize: %ld on %s, only 4096 bytes "
++	       "blocksize is supported.\n", s->s_blocksize, kdevname (s->s_dev));
++	return 1;
++    }
+     
+     if (s->s_blocksize != size)
+ 	set_blocksize (s->s_dev, s->s_blocksize);

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135217AbRDRQUk>; Wed, 18 Apr 2001 12:20:40 -0400
+	id <S133031AbRDRQRL>; Wed, 18 Apr 2001 12:17:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135215AbRDRQUa>; Wed, 18 Apr 2001 12:20:30 -0400
-Received: from ns.caldera.de ([212.34.180.1]:15881 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S135217AbRDRQUS>;
-	Wed, 18 Apr 2001 12:20:18 -0400
-Date: Wed, 18 Apr 2001 18:20:12 +0200
+	id <S135215AbRDRQRA>; Wed, 18 Apr 2001 12:17:00 -0400
+Received: from ns.caldera.de ([212.34.180.1]:14089 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S133031AbRDRQQy>;
+	Wed, 18 Apr 2001 12:16:54 -0400
+Date: Wed, 18 Apr 2001 18:16:47 +0200
 From: Marcus Meissner <Marcus.Meissner@caldera.de>
 To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] toshoboe pci enable
-Message-ID: <20010418182012.A24112@caldera.de>
+Subject: [PATCH] pci enable nm256 audio
+Message-ID: <20010418181647.A23776@caldera.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Alan, linux-kernel,
 
-Enable PCI for toshoboe IRDA adapters.
+Some of our customer reported a hang when modprobing nm256_audio, 
+this patch should fix the problem.
 
 Ciao, Marcus
 
-Index: drivers/net/irda/toshoboe.c
+Index: nm256_audio.c
 ===================================================================
-RCS file: /build/mm/work/repository/linux-mm/drivers/net/irda/toshoboe.c,v
-retrieving revision 1.12
-diff -u -r1.12 toshoboe.c
---- drivers/net/irda/toshoboe.c	2001/04/17 17:26:03	1.12
-+++ drivers/net/irda/toshoboe.c	2001/04/18 16:18:24
-@@ -722,6 +722,9 @@
-       return -ENOMEM;
-     }
+RCS file: /build/mm/work/repository/linux-mm/drivers/sound/nm256_audio.c,v
+retrieving revision 1.1
+diff -u -r1.1 nm256_audio.c
+--- nm256_audio.c	2001/04/17 14:50:30	1.1
++++ nm256_audio.c	2001/04/18 16:13:38
+@@ -1042,6 +1042,9 @@
+     struct pm_dev *pmdev;
+     int x;
  
-+  if ((err=pci_enable_device(pci_dev)))
-+	  return err;
++    if (pci_enable_device(pcidev))
++	    return 0;
 +
-   self = kmalloc (sizeof (struct toshoboe_cb), GFP_KERNEL);
- 
-   if (self == NULL)
+     card = kmalloc (sizeof (struct nm256_info), GFP_KERNEL);
+     if (card == NULL) {
+ 	printk (KERN_ERR "NM256: out of memory!\n");

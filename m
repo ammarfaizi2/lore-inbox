@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269814AbUJMU1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269818AbUJMU30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269814AbUJMU1K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 16:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269818AbUJMU1K
+	id S269818AbUJMU30 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 16:29:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269822AbUJMU27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 16:27:10 -0400
-Received: from quechua.inka.de ([193.197.184.2]:10702 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S269814AbUJMU1H (ORCPT
+	Wed, 13 Oct 2004 16:28:59 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:36857 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269818AbUJMU24 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 16:27:07 -0400
-Date: Wed, 13 Oct 2004 22:27:05 +0200
-From: Bernd Eckenfels <be-mail2004@lina.inka.de>
+	Wed, 13 Oct 2004 16:28:56 -0400
+Message-ID: <9625752b04101313283f035423@mail.gmail.com>
+Date: Wed, 13 Oct 2004 13:28:55 -0700
+From: Danny <dannydaemonic@gmail.com>
+Reply-To: Danny <dannydaemonic@gmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: Hirokazu Takata <takata.hirokazu@renesas.com>
-Subject: Re: [PATCH 2.6.9-rc3-mm2] [m32r] SIO driver for m32r
-Message-ID: <20041013202705.GA29258@lina.inka.de>
-References: <20041006.151912.840807084.takata.hirokazu@renesas.com> <E1CF6W4-0001hS-00@calista.eckenfels.6bone.ka-ip.net> <20041012.183507.350531171.takata.hirokazu@renesas.com>
+Subject: Re: mm kernel oops with r8169 & named, PREEMPT
+Cc: netdev@oss.sgi.com
+In-Reply-To: <200410131129.05657.jdmason@us.ltcfwd.linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041012.183507.350531171.takata.hirokazu@renesas.com>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9625752b041012230068619e68@mail.gmail.com>
+	 <9625752b041013091772e26739@mail.gmail.com>
+	 <9625752b04101309182a96fbd2@mail.gmail.com>
+	 <200410131129.05657.jdmason@us.ltcfwd.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 12, 2004 at 06:35:07PM +0900, Hirokazu Takata wrote:
-> > > +       do {
-> > > +               sio_init();
-> > > +       } while ((*status = __sio_in(PLD_ESIO0CR)) != 3);
-> 
-> Hmm..  Do you have any good idea to fix it?
+On Wed, 13 Oct 2004 11:29:05 -0500, Jon Mason wrote:
+> Can you confirm that you are running r8169 driver with NAPI and TSO turned on,
+> along with Preemptable Kernel?  Also, I didn't see anything in the Oops
+> specific to the r8169 driver, do you have another adapter available to run
+> the same test on?  Finally, what is your setup (arch, # of cpus, etc)?
 
-At least a timeout/maxretry, not sure about the context... is there a locked
-blocked? In that case maybe  something like "if !initialized" in all actual
-hardware using methods?
+I am using the r8169 driver with NAPI and preemptable kernel.  I don't
+remember or see any option for offloading but it sounds like something
+I'd turn on.  Let me know what I should look for in my config, or
+check here:
+http://members.cox.net/valenzdu/.config
 
-Bernd
--- 
-  (OO)      -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
- ( .. )      ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
-  o--o     1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+497211606754
-(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!
+I no longer have a 2nd nic adapter, but I did first notice the problem
+when I installed this one.  However, if I don't load that module I'm
+not able to duplicate the problem by running named on the other
+interface.  Running named triggers it 100% of the time on the r8169
+based nic.
+
+The arch is x86 (athlon) with just 1 cpu.  Since I'm not sure what's
+wrong here I'm not sure what's relevant.  Here is more info about my
+setup:
+http://members.cox.net/valenzdu/proc-cpuinfo
+http://members.cox.net/valenzdu/proc-iomem
+http://members.cox.net/valenzdu/proc-ioports
+http://members.cox.net/valenzdu/proc-modules
+http://members.cox.net/valenzdu/proc-version
+http://members.cox.net/valenzdu/stdout-lspci
+http://members.cox.net/valenzdu/stdout-ver_linux

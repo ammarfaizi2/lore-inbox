@@ -1,111 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbTHSIUB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 04:20:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbTHSIUB
+	id S263990AbTHSIbg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 04:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTHSIbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 04:20:01 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:24078 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S263752AbTHSIT4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 04:19:56 -0400
-Message-ID: <05f501c3662a$9ba72d30$c801a8c0@llewella>
-From: "Bas Bloemsaat" <bloemsaa@xs4all.nl>
-To: "Bill Davidsen" <davidsen@tmr.com>, "David S. Miller" <davem@redhat.com>
-Cc: "Willy Tarreau" <willy@w.ods.org>, <alan@lxorguk.ukuu.org.uk>,
-       <carlosev@newipnet.com>, <lamont@scriptkiddie.org>,
-       <marcelo@conectiva.com.br>, <netdev@oss.sgi.com>,
-       <linux-net@vger.kernel.org>, <layes@loran.com>, <torvalds@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.96.1030818171100.2101C-100000@gatekeeper.tmr.com>
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Date: Tue, 19 Aug 2003 09:58:20 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Tue, 19 Aug 2003 04:31:36 -0400
+Received: from unthought.net ([212.97.129.24]:22198 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S263990AbTHSIbe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 04:31:34 -0400
+Date: Tue, 19 Aug 2003 10:31:32 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: David Schwartz <davids@webmaster.com>, Mike Fedyk <mfedyk@matchmail.com>,
+       Hank Leininger <hlein@progressive-comp.com>,
+       linux-kernel@vger.kernel.org
+Subject: Proposal (was: Why are exceptions such as SIGSEGV not logged)
+Message-ID: <20030819083131.GB28162@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	David Schwartz <davids@webmaster.com>,
+	Mike Fedyk <mfedyk@matchmail.com>,
+	Hank Leininger <hlein@progressive-comp.com>,
+	linux-kernel@vger.kernel.org
+References: <MDEHLPKNGKAHNMBLJOLKIEFLFDAA.davids@webmaster.com> <200308190654.h7J6sIL07040@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200308190654.h7J6sIL07040@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Okay, I'll show my ignorance and ask... the Documentation for arp_filter
-> says source routing must be used. Is there some flag I'm missing, or a way
-> to avoid having a rule per address, or is the 8 bit rule number larger in
-> 2.6, or ??? Or is having a lot of IPs on one machine not an imaginable
-> case?
-
-I'll include a conversation I had with David, yesterday. Maybe it clear
-things up:
-
-Someone: Replying again... Alan does mention in the paragraph you've quoted
-Someone: to use arpfilter, which works for every case imaginable.
-
-Me: No it doesn't. When I have two nics on DHCP on the same ethernet
-segment, it
-M: cannot be made to work. I don't know the ip addresses beforehand. And if
-if
-M: I would get them with scripting and crafted some rules on the fly,
-there's
-M: no way I can be sure I'll get the same IP's on a renew, so I'd have to
-check
-M: often.
-
-David: You don't understand how 'arpfilter' works.
-D: It's a netfilter module that allows you to block ARP packets
-D: going in and out of the system using any criteria you want.
-D: It can block on device, on src MAC address, on destination
-D: MAC address, whatever you want.
-
-Me: Maybe you could explain to me how to filter out all ARP
-M: responses to an IP not bound to that mac address, of letting through all
-the
-M: ARP responses for an IP bound to that mac, without specifying the IP
-address
-M: (because that can change, sometimes quite often). I really do not see it.
-
-D: You wouldn't use 'arpfiler' for that.
-
-D: You would use the 'arp_filter' sysctl on your devices and
-D: proper setting of the preferred source in the routes on
-D: your machine.
-
-M: For that I'd still need the IP address. Don't I? And I don't have that
-until
-M: later, and it is prone to change.
-M: So I have a feeling you are sending me in circles.
-
-D: You need to change routes when the IP address changes, so all I'm
-D: asking you to do is setup your routes correctly at those points
-D: in time.
-
-M: Which is on dhcp renew. Which calls for a rewrite of dhcpclient, or a
-daemon
-M: that monitors it.
-
-D: Sure, if software is setting routes manually and it isn't
-D: doing so the way you want it to it'll need changes.
-
-In other words: it keeps being done the way it is now, never mind people
-having problems with it. Never mind the changing it doesn't break anything.
-Never mind I cannot come up with a scenario that actually benefits from the
-current situation over the new situation.
-
-IP Multipathing does not qualify. The current way actually violates IP
-multipathing: Multipathing calls for two seperate, fixed internal IP's which
-are seperated from each other. Multipathing requires you to restore the IP
-address to it's preferred interface if it comes up again. In multipathing,
-all IP's have preferred interfaces, not one left by chance. Remember that
-multipathing doesn't need to be symmetric. It may very way have a fat pipe
-on one end, and a smaller backup pipe.
-
-All of this is not satisfied with the current, broken, linux arp. So we're
-still short of an example that benefits from the current situation
-
-Regards,
-Bas
+On Tue, Aug 19, 2003 at 09:54:17AM +0300, Denis Vlasenko wrote:
+> On 19 August 2003 01:39, David Schwartz wrote:
+...[snip]...
+> > 	This is a perfectly sensible thing for a program to do with well-defined
+> > semantics. If a program wants to create a child every minute like this and
+> > kill it, that's perfectly fine. We should be able to do that in the default
+> > configuration without a sysadmin complaining that we're DoSing his syslogs.
+> 
+> I disagree. _exit(2) is the most sensible way to terminate.
+> 
+> Logginh kernel-induced SEGVs and ILLs are definitely a help when you hunt
+> daemons mysteriously crashing. This outweighs DoS hazard.
 
 
+Ok guys - we will never come to an agreement on what would be the
+sensible thing to do.
+
+For good reasons, too: the purposes and uses of the systems out there,
+and the minds of the people administering them, will be as different as
+anything.
+
+This reminds me of the "core naming wars", the "vm overcommit wars", and
+other "big" (in the minds of people) issues that were solved to
+everyones satisfaction with an entry in /proc.
+
+May I suggest:
+  /proc/sys/kernel/log_signals
+
+Semantics:  Numbers can be written to log_signals - these are signal
+numbers that will cause a log entry to be written, when the given signal
+is delivered. The file can be read, in which case it will list the
+signal numbers that cause log entries to be written.
+
+Examples:
+
+]$ cat /proc/sys/kernel/log_signals
+   4
+   7
+]$ echo +15 > /proc/sys/kernel/log_signals
+]$ cat /proc/sys/kernel/log_signals
+   4
+   7
+   15
+]$ echo -4 > /proc/sys/kernel/log_signals
+]$ cat /proc/sys/kernel/log_signals
+   7
+   15
+]$
+
+Possible extension:
+
+]$ echo '*' > /proc/sys/kernel/log_signals
+]$ cat /proc/sys/kernel/log_signals
+ ... lists all signals ...
+]$ echo '-*' > /proc/sys/kernel/log_signals
+]$ cat /proc/sys/kernel/log_signals
+]$
+
+
+In my oppinion it does not make sense to distinguish between signals
+sent from process to process, and from kernel to process.  Some garbage
+collectors, for example, depend on the kernel sending the SIGSEGV and do
+their own handling of that - while for many other processes that
+situation indicates a problem.   Better to handle that kind of thing in
+user space log auditing tools.
+
+An implementation of the above is left as an exercise for the reader  :)
+
+Comments?
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

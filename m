@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282402AbRLDIzh>; Tue, 4 Dec 2001 03:55:37 -0500
+	id <S282936AbRLDJCH>; Tue, 4 Dec 2001 04:02:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282679AbRLDIz2>; Tue, 4 Dec 2001 03:55:28 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21776 "EHLO
+	id <S282939AbRLDJB6>; Tue, 4 Dec 2001 04:01:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27664 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282402AbRLDIzU>; Tue, 4 Dec 2001 03:55:20 -0500
-Subject: Re: i810 audio patch
-To: nbryant@optonline.net (Nathan Bryant)
-Date: Tue, 4 Dec 2001 09:03:56 +0000 (GMT)
-Cc: dledford@redhat.com (Doug Ledford),
+	id <S282936AbRLDJBo>; Tue, 4 Dec 2001 04:01:44 -0500
+Subject: Re: Linux/Pro  -- clusters
+To: becker@scyld.com (Donald Becker)
+Date: Tue, 4 Dec 2001 09:10:35 +0000 (GMT)
+Cc: davidel@xmailserver.org (Davide Libenzi),
         linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3C0C5CB2.6000602@optonline.net> from "Nathan Bryant" at Dec 04, 2001 12:18:42 AM
+In-Reply-To: <Pine.LNX.4.10.10112032057070.978-100000@vaio.greennet> from "Donald Becker" at Dec 03, 2001 09:09:18 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16BBUa-0001J0-00@the-village.bc.nu>
+Message-Id: <E16BBb1-0001KS-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So there may be some VM/buffer related problem lurking under the covers 
-> still. Originally the oops popped up in kswapd, for me, but I can't 
-> trigger it again.
+>    a SCSI device layer that isn't three half-finished clean-ups
 
-I've seen multiple reports of random kswapd oopses in 2.4.16 so while it
-could be that the i810 code introduced a bug its also quite possible you hit
-an underlying flaw
+Beginning (at last)
+
+>    a VFS layer that doesn't require the kernel to know a priori all of
+>      the filesystem types that might be loaded
+
+That was done a while ago. File systems are one by one being moved from
+using the union of stuff to the fs specific pointer. New file systems don't
+have to go hack the inode etc
 
 Alan

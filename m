@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263788AbUFFQWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263786AbUFFQYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263788AbUFFQWx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 12:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbUFFQWw
+	id S263786AbUFFQYj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 12:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263790AbUFFQYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 12:22:52 -0400
-Received: from may.priocom.com ([213.156.65.50]:45190 "EHLO may.priocom.com")
-	by vger.kernel.org with ESMTP id S263790AbUFFQWn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 12:22:43 -0400
-Subject: [PATCH] 2.6.6 memory allocation checks in SliceBlock()
-From: Yury Umanets <torque@ukrpost.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1086538992.2793.94.camel@firefly>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 06 Jun 2004 19:23:12 +0300
+	Sun, 6 Jun 2004 12:24:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51898 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263786AbUFFQY3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 12:24:29 -0400
+Message-ID: <40C3452B.5010500@pobox.com>
+Date: Sun, 06 Jun 2004 12:24:11 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Disable scheduler debugging
+References: <20040606033238.4e7d72fc.ak@suse.de> <20040606055336.GA15350@elte.hu>
+In-Reply-To: <20040606055336.GA15350@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds memory allocation checks in SliceBlock()
+Ingo Molnar wrote:
+> * Andi Kleen <ak@suse.de> wrote:
+> 
+> 
+>>The domain scheduler spews out a lot of information at boot up, but it
+>>looks mostly redundant because it's just a transformation of what is
+>>in /proc/cpuinfo anyways. Also it is well tested now. Disable it.
+> 
+> 
+> i'd rather keep it some more, there are still open issues and if there's
+> a boot failure or early crash it makes it easier for us to see the
+> actual domain setup. Also, the messages are KERN_DEBUG.
 
- ./linux-2.6.6-modified/drivers/char/drm/sis_ds.c |    4 ++++
- 1 files changed, 4 insertions(+)
 
-Signed-off-by: Yury Umanets <torque@ukrpost.net>
+Unfortunately there are just, flat-out, way too many kernel messages at 
+boot-up.  Making them KERN_DEBUG doesn't solve the fact that SMP boxes 
+often overflow the printk buffer before you boot up to a useful userland 
+that can record the dmesg.
 
-diff -rupN ./linux-2.6.6/drivers/char/drm/sis_ds.c
-./linux-2.6.6-modified/drivers/char/drm/sis_ds.c
---- ./linux-2.6.6/drivers/char/drm/sis_ds.c	Mon May 10 05:33:19 2004
-+++ ./linux-2.6.6-modified/drivers/char/drm/sis_ds.c	Wed Jun  2 14:19:22
-2004
-@@ -231,6 +231,8 @@ static TMemBlock* SliceBlock(TMemBlock *
- 	if (startofs > p->ofs) {
- 		newblock = (TMemBlock*) DRM(calloc)(1, sizeof(TMemBlock),
- 		    DRM_MEM_DRIVER);
-+		if (!newblock)
-+			return NULL;
- 		newblock->ofs = startofs;
- 		newblock->size = p->size - (startofs - p->ofs);
- 		newblock->free = 1;
-@@ -244,6 +246,8 @@ static TMemBlock* SliceBlock(TMemBlock *
- 	if (size < p->size) {
- 		newblock = (TMemBlock*) DRM(calloc)(1, sizeof(TMemBlock),
- 		    DRM_MEM_DRIVER);
-+		if (!newblock)
-+			return NULL;
- 		newblock->ofs = startofs + size;
- 		newblock->size = p->size - size;
- 		newblock->free = 1;
+The IO-APIC code is a _major_ offender in this area, but the CPU code is 
+right up there as well.
 
--- 
-umka
+	Jeff
 

@@ -1,75 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129242AbRCBP3J>; Fri, 2 Mar 2001 10:29:09 -0500
+	id <S129245AbRCBPbj>; Fri, 2 Mar 2001 10:31:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129245AbRCBP2t>; Fri, 2 Mar 2001 10:28:49 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:46861 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129242AbRCBP2l>;
-	Fri, 2 Mar 2001 10:28:41 -0500
-Date: Fri, 2 Mar 2001 16:28:24 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mario Hermann <ario@eikon.tum.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: report bug: System reboots when accessing a loop-device over a second loop-device with 2.4.2-ac7
-Message-ID: <20010302162824.H408@suse.de>
-In-Reply-To: <3A9E66BB.70FB0C75@eikon.tum.de> <20010301172145.T21518@suse.de> <3A9FADAB.F37E5449@eikon.tum.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="YiEDa0DAkWCtVeE4"
-Content-Disposition: inline
-In-Reply-To: <3A9FADAB.F37E5449@eikon.tum.de>; from ario@eikon.tum.de on Fri, Mar 02, 2001 at 03:26:51PM +0100
+	id <S129249AbRCBPba>; Fri, 2 Mar 2001 10:31:30 -0500
+Received: from ns2.cypress.com ([157.95.67.5]:64158 "EHLO ns2.cypress.com")
+	by vger.kernel.org with ESMTP id <S129245AbRCBPbU>;
+	Fri, 2 Mar 2001 10:31:20 -0500
+Message-ID: <3A9FBCB4.3F3931F8@cypress.com>
+Date: Fri, 02 Mar 2001 09:31:00 -0600
+From: Thomas Dodd <ted@cypress.com>
+Organization: Cypress Semiconductor Southeast Design Center
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org,
+        Hylke van der Schaaf <hylke@lx.student.wau.nl>
+Subject: Re: DMA on a AMD7409 controller with kernel 2.4.2
+In-Reply-To: <Pine.LNX.4.10.10103011556310.10136-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---YiEDa0DAkWCtVeE4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Fri, Mar 02 2001, Mario Hermann wrote:
-> There is another small bug with the loop over loop problem. Now it works
-> fine for
-> files but not for Devices:
+> On Thu, 1 Mar 2001, Hylke van der Schaaf wrote:
 > 
-> losetup /dev/loop0 /dev/sr1
-> losetup /dev/loop1 /dev/loop0
-> dd if=/dev/loop1 of=test.dat bs=2048 count=1024
+> > With kernet 2.2.18 DMA mode for my harddisks worked just fine,
+> > getting IDE DMA working on an AMD7409 controller with kernel 2.4.2 is a problem.
+> >
+> > questions:
+> > Why is DMA disabled on revision < C4?
+> > How can I gat DMA working again?
+> > in 2.2.18 I get:
+> > hylke:/home/hylke# hdparm -tT /dev/hda
+> >
+> > /dev/hda:
+> >  Timing buffer-cache reads:   128 MB in  0.89 seconds =143.82 MB/sec
+> >  Timing buffered disk reads:  64 MB in  2.85 seconds = 22.46 MB/sec
+> > ----------------------------
+> >
+> > All was fine.
+> > I compiled 2.4.2, with:
+> >       CONFIG_AMD7409_OVERRIDE=y
 
-Pending miscount, this should fix it.
+I'm not using this, since my drives are not UDMA66 or UDMA100
 
--- 
-Jens Axboe
+> > hylke:/home/hylke# hdparm -v /dev/hda
+> >
+> > /dev/hda:
+> >  multcount    = 16 (on)
+> >  I/O support  =  1 (32-bit)
+> >  unmaskirq    =  1 (on)
+> >  using_dma    =  0 (off)
+> >  keepsettings =  0 (off)
+> >  nowerr       =  0 (off)
+> >  readonly     =  0 (off)
+> >  readahead    =  8 (on)
+> >  geometry     = 2495/255/63, sectors = 40088160, start = 0
+> > hylke:/home/hylke# hdparm -tT /dev/hda
+> >
+> > /dev/hda:
+> >  Timing buffer-cache reads:   128 MB in  0.90 seconds =142.22 MB/sec
+> >  Timing buffered disk reads:  64 MB in 12.59 seconds =  5.08 MB/sec
+
+I get 148.8 and 12 MB/sec on my IBM-DTTA-351010 drives.
+I get the same message about no single word DMA due
+to chip revision.
+# hdparm -v /dev/hda
+
+/dev/hda:
+multcount    = 16 (on)
+I/O support  =  3 (32-bit w/sync)
+unmaskirq    =  0 (off)
+using_dma    =  1 (on)
+keepsettings =  0 (off)
+nowerr       =  0 (off)
+readonly     =  0 (off)
+readahead    =  8 (on)
+geometry     = 19650/16/63, sectors = 19807200, start = 0
+
+What does /proc/ide/hda/settings show?
+What about /proc/ide/amd74xx ?
 
 
---YiEDa0DAkWCtVeE4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename=loop-ac8-1
-
---- /opt/kernel/linux-2.4.2-ac8/drivers/block/loop.c	Fri Mar  2 14:48:24 2001
-+++ drivers/block/loop.c	Fri Mar  2 16:27:31 2001
-@@ -307,6 +307,7 @@
- 		lo->lo_bh = lo->lo_bhtail = bh;
- 	spin_unlock_irqrestore(&lo->lo_lock, flags);
- 
-+	atomic_inc(&lo->lo_pending);
- 	up(&lo->lo_bh_mutex);
- }
- 
-@@ -404,7 +405,6 @@
- 	spin_lock_irq(&lo->lo_lock);
- 	if (lo->lo_state != Lo_bound)
- 		goto inactive;
--	atomic_inc(&lo->lo_pending);
- 	spin_unlock_irq(&lo->lo_lock);
- 
- 	if (rw == WRITE) {
-@@ -452,8 +452,6 @@
- 	return 0;
- 
- err:
--	if (atomic_dec_and_test(&lo->lo_pending))
--		up(&lo->lo_bh_mutex);
- 	loop_put_buffer(bh);
- out:
- 	buffer_IO_error(rbh);
-
---YiEDa0DAkWCtVeE4--
+	-Thomas

@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261627AbRESCNG>; Fri, 18 May 2001 22:13:06 -0400
+	id <S261629AbRESCce>; Fri, 18 May 2001 22:32:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261628AbRESCMq>; Fri, 18 May 2001 22:12:46 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:56847 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S261627AbRESCMh>;
-	Fri, 18 May 2001 22:12:37 -0400
-Date: Fri, 18 May 2001 23:12:32 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+	id <S261634AbRESCcX>; Fri, 18 May 2001 22:32:23 -0400
+Received: from marine.sonic.net ([208.201.224.37]:21818 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S261629AbRESCcG>;
+	Fri, 18 May 2001 22:32:06 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Fri, 18 May 2001 19:32:03 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
 Subject: Re: Linux 2.4.4-ac10
-In-Reply-To: <20010518235852.R8080@redhat.com>
-Message-ID: <Pine.LNX.4.21.0105182310580.5531-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010518193203.C29686@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0105182310580.5531-100000@imladris.rielhome.conectiva>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 May 2001, Stephen C. Tweedie wrote:
-> On Fri, May 18, 2001 at 07:44:39PM -0300, Rik van Riel wrote:
-> 
-> > This is the core of why we cannot (IMHO) have a discussion
-> > of whether a patch introducing new VM tunables can go in:
-> > there is no clear overview of exactly what would need to be
-> > tunable and how it would help.
-> 
-> It's worse than that.  The workload on most typical systems is not
-> static.  The VM *must* be able to cope with dynamic workloads.  You
-> might twiddle all the knobs on your system to make your database run
-> faster, but end up in such a situation that the next time a mail flood
-> arrives for sendmail, the whole box locks up because the VM can no
-> longer adapt.
+On Fri, May 18, 2001 at 11:12:32PM -0300, Rik van Riel wrote:
+> Basic rule for VM: once you start swapping, you cannot
+> win;  All you can do is make sure no situation loses
+> really badly and most situations perform reasonably.
 
-That's another problem, indeed ;)
+Do you mean paging in general or thrashing?
 
-Ingo, Mike, please keep this in mind when designing
-tunables or deciding which test you want to run today
-in order to look how the VM is performing.
+I always thought: paging good, thrashing bad.
 
+A good effecient paging system, always moving data between memory and disk,
+is great.  It's when you have the greater than physical memory working set
+that things go to hell in a hand basket.
 
-Basic rule for VM: once you start swapping, you cannot
-win;  All you can do is make sure no situation loses
-really badly and most situations perform reasonably.
+Did Linux ever do the old trick of "We've too much going on!  You!
+(randomly points to a process) take a seat!  You're not running for a
+while!" and the process gets totatlly swapped out for a "while," not even
+scheduled?
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+mrc
+-- 
+       Mike Castle       Life is like a clock:  You can work constantly
+  dalgoda@ix.netcom.com  and be right all the time, or not work at all
+www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
+    We are all of us living in the shadow of Manhattan.  -- Watchmen

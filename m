@@ -1,58 +1,330 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314080AbSEISad>; Thu, 9 May 2002 14:30:33 -0400
+	id <S314083AbSEIShk>; Thu, 9 May 2002 14:37:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314082AbSEISac>; Thu, 9 May 2002 14:30:32 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:13441 "EHLO segfault.osdl.org")
-	by vger.kernel.org with ESMTP id <S314080AbSEISab>;
-	Thu, 9 May 2002 14:30:31 -0400
-Date: Thu, 9 May 2002 11:26:18 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
-        James Bottomley <James.Bottomley@steeleye.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] PCI reorg fix
-In-Reply-To: <Pine.LNX.4.44.0205091320260.11642-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.33.0205091121450.762-100000@segfault.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314085AbSEIShj>; Thu, 9 May 2002 14:37:39 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:41420 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S314083AbSEIShg>; Thu, 9 May 2002 14:37:36 -0400
+Date: Thu, 9 May 2002 20:37:19 +0200
+From: Andi Kleen <ak@muc.de>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH & call for help: Marking ISA only drivers 
+Message-ID: <20020509203719.A3746@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 9 May 2002, Kai Germaschewski wrote:
+Hallo,
 
-> On Thu, 9 May 2002, Patrick Mochel wrote:
-> 
-> > I would suggest something like:
-> > 
-> > void * 
-> > dev_alloc_consistent(struct device * dev, size_t size, dma_addr_t * dma_handle);
-> > 
-> > and moving dma_mask to struct device. 
-> > 
-> > To handle differences in arch-specific implementations, we could have a 
-> > callback that the generic code calls.
-> > 
-> > Implementing the generic code is ~5 minutes work. However, it will break 
-> > everything. OTOH, it would be the best motivation for modernizing these 
-> > drivers...
-> 
-> Certainly sounds reasonable. I'd guess it's trivial enough to provide
-> wrappers for pci_alloc_consistent(), pci_set_dma_mask() etc., so I don't 
-> see why everything would break?
+This patch tries to make most ISA only drivers dependent on CONFIG_ISA. 
 
-Actually, the point _is_ to break everything. 
+The motivation is that it is a lot of work to get old drivers to compile
+meaningfully (at least without warnings, not even testing them) on x86-64
+and a lot of them are obviously not 64bit safe.  As it is very unlikely
+that x86-64 boxes will ever have ISA slots[1] one simple way for that
+is just removing the old ISA drivers from the configuration.
 
-The fact that there are wrappers emulating old PCI behavior is the reason 
-the SCSI drivers don't use the 2.4 interface. If we provide wrappers for 
-alloc_consistent, they'll never change those, either. 
+BTW I think CONFIG_ISA would be an useful configuration option for 
+i386 too - at least most modern PCs do not come with ISA slots anymore.
 
-At some point, you have to bite the bullet and break the API. It'll be 
-the only way to get drivers to convert. The statement was more of "When we 
-do this, it'll be painful" rather than "If we do it..." :)
+Back to the patch: 
 
-	-pat
+I left drivers/net alone because it looked like it already used CONFIG_ISA
+properly.  I went over drivers/scsi and some other drivers directories
+and just made those that looked like ISA only dependent on CONFIG_ISA.
+Note that I usually don't know much about these devices, I just took
+a quick look at the source of the driver. Of course I may have made mistakes
+during that, so if you see any driver wrongly marked please tell me.
 
+You can test that on i386 by applying the patch, change the
+"define_bool CONFIG_ISA y" in arch/i386/config to n  and run your
+favourite configuration tool and look for any ISA only drivers still appearing
+as configuration choices.
 
+I left out drivers/media/video and drivers/input/joystick - if there are any 
+ISA only devices in there please tell me.
+
+Patch for 2.5.14
+
+Thanks,
+-Andi
+
+[1] If someone later will be ever crazy enough to buy an x86-64 machine
+and put an ISA bridge into it they'll have to pay for that and fix 
+all the ISA drivers they need ;)
+
+diff -X ../../KDIFX -burp linux-vanilla/arch/x86_64/config.in linux/arch/x86_64/config.in
+--- linux-vanilla/arch/x86_64/config.in	Mon May  6 13:11:56 2002
++++ linux/arch/x86_64/config.in	Thu May  9 19:41:56 2002
+@@ -2,12 +2,15 @@
+ # For a description of the syntax of this configuration file,
+ # see Documentation/kbuild/config-language.txt.
+ #
++# Note: ISA is disabled and will hopefully never be enabled.
++#
++
+ mainmenu_name "Linux Kernel Configuration"
+ 
+ define_bool CONFIG_X86_64 y
+ 
+ define_bool CONFIG_X86 y
+-define_bool CONFIG_ISA y
++define_bool CONFIG_ISA n
+ define_bool CONFIG_SBUS n
+ 
+ define_bool CONFIG_UID16 y
+@@ -94,7 +99,7 @@ source drivers/mtd/Config.in
+ 
+ source drivers/parport/Config.in
+ 
+-source drivers/pnp/Config.in
++#source drivers/pnp/Config.in
+ 
+ source drivers/block/Config.in
+ 
+@@ -142,9 +147,10 @@ if [ "$CONFIG_NET" = "y" ]; then
+    bool 'Network device support' CONFIG_NETDEVICES
+    if [ "$CONFIG_NETDEVICES" = "y" ]; then
+       source drivers/net/Config.in
+-      if [ "$CONFIG_ATM" = "y" ]; then
+-         source drivers/atm/Config.in
+-      fi
++# ATM seems to be largely 64bit unsafe and also unmaintained.
++#      if [ "$CONFIG_ATM" = "y" ]; then
++#         source drivers/atm/Config.in
++#      fi
+    fi
+    endmenu
+ fi
+Only in linux/arch/x86_64: config.in-o
+diff -X ../../KDIFX -burp linux-vanilla/drivers/char/Config.in linux/drivers/char/Config.in
+--- linux-vanilla/drivers/char/Config.in	Fri May  3 13:22:24 2002
++++ linux/drivers/char/Config.in	Thu May  9 19:30:51 2002
+@@ -39,7 +39,7 @@ if [ "$CONFIG_SERIAL_NONSTANDARD" = "y" 
+    if [ "$CONFIG_DIGIEPCA" = "n" ]; then
+       tristate '  Digiboard PC/Xx Support' CONFIG_DIGI
+    fi
+-   tristate '  Hayes ESP serial port support' CONFIG_ESPSERIAL
++   dep_tristate '  Hayes ESP serial port support' CONFIG_ESPSERIAL CONFIG_ISA
+    tristate '  Moxa Intellio support' CONFIG_MOXA_INTELLIO
+    tristate '  Moxa SmartIO support' CONFIG_MOXA_SMARTIO
+    if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+Only in linux/drivers/char: Config.in-o
+Only in linux/drivers/char: conmakehash
+diff -X ../../KDIFX -burp linux-vanilla/drivers/media/radio/Config.in linux/drivers/media/radio/Config.in
+--- linux-vanilla/drivers/media/radio/Config.in	Sun Apr 14 21:18:54 2002
++++ linux/drivers/media/radio/Config.in	Thu May  9 20:07:45 2002
+@@ -4,6 +4,7 @@
+ mainmenu_option next_comment
+ comment 'Radio Adapters'
+ 
++if [ "$CONFIG_ISA" = "y" ]; then
+ dep_tristate '  ADS Cadet AM/FM Tuner' CONFIG_RADIO_CADET $CONFIG_VIDEO_DEV
+ dep_tristate '  AIMSlab RadioTrack (aka RadioReveal) support' CONFIG_RADIO_RTRACK $CONFIG_VIDEO_DEV
+ if [ "$CONFIG_RADIO_RTRACK" = "y" ]; then
+@@ -21,9 +22,11 @@ dep_tristate '  GemTek Radio Card suppor
+ if [ "$CONFIG_RADIO_GEMTEK" = "y" ]; then
+    hex '    GemTek i/o port (0x20c, 0x30c, 0x24c or 0x34c)' CONFIG_RADIO_GEMTEK_PORT 34c
+ fi
++fi
+ dep_tristate '  GemTek PCI Radio Card support' CONFIG_RADIO_GEMTEK_PCI $CONFIG_VIDEO_DEV $CONFIG_PCI
+ dep_tristate '  Guillemot MAXI Radio FM 2000 radio' CONFIG_RADIO_MAXIRADIO $CONFIG_VIDEO_DEV
+ dep_tristate '  Maestro on board radio' CONFIG_RADIO_MAESTRO $CONFIG_VIDEO_DEV
++if [ "$CONFIG_ISA" = "y" ]; then
+ dep_tristate '  miroSOUND PCM20 radio' CONFIG_RADIO_MIROPCM20 $CONFIG_VIDEO_DEV $CONFIG_SOUND_ACI_MIXER
+ dep_tristate '    miroSOUND PCM20 radio RDS user interface (EXPERIMENTAL)' CONFIG_RADIO_MIROPCM20_RDS $CONFIG_RADIO_MIROPCM20 $CONFIG_EXPERIMENTAL
+ dep_tristate '  SF16FMI Radio' CONFIG_RADIO_SF16FMI $CONFIG_VIDEO_DEV
+@@ -48,6 +51,7 @@ fi
+ dep_tristate '  Zoltrix Radio' CONFIG_RADIO_ZOLTRIX $CONFIG_VIDEO_DEV
+ if [ "$CONFIG_RADIO_ZOLTRIX" = "y" ]; then
+    hex '    ZOLTRIX I/O port (0x20c or 0x30c)' CONFIG_RADIO_ZOLTRIX_PORT 20c
++fi
+ fi
+ 
+ endmenu
+Only in linux/drivers/media/radio: Config.in-o
+diff -X ../../KDIFX -burp linux-vanilla/drivers/net/hamradio/Config.in linux/drivers/net/hamradio/Config.in
+--- linux-vanilla/drivers/net/hamradio/Config.in	Sun Apr 14 21:18:42 2002
++++ linux/drivers/net/hamradio/Config.in	Thu May  9 19:59:53 2002
+@@ -4,8 +4,10 @@ dep_tristate 'Serial port KISS driver' C
+ dep_tristate 'Serial port 6PACK driver' CONFIG_6PACK $CONFIG_AX25
+ dep_tristate 'BPQ Ethernet driver' CONFIG_BPQETHER $CONFIG_AX25
+     
+-dep_tristate 'High-speed (DMA) SCC driver for AX.25' CONFIG_DMASCC $CONFIG_AX25
+-dep_tristate 'Z8530 SCC driver' CONFIG_SCC $CONFIG_AX25
++if [ "$CONFIG_ISA" = "y" ]; then
++  dep_tristate 'High-speed (DMA) SCC driver for AX.25' CONFIG_DMASCC $CONFIG_AX25
++  dep_tristate 'Z8530 SCC driver' CONFIG_SCC $CONFIG_AX25
++fi
+ if [ "$CONFIG_SCC" != "n" ]; then
+    bool '  additional delay for PA0HZP OptoSCC compatible boards' CONFIG_SCC_DELAY
+    bool '  support for TRX that feedback the tx signal to rx' CONFIG_SCC_TRXECHO
+Only in linux/drivers/net/hamradio: Config.in-o
+diff -X ../../KDIFX -burp linux-vanilla/drivers/net/wan/Config.in linux/drivers/net/wan/Config.in
+--- linux-vanilla/drivers/net/wan/Config.in	Mon May  6 13:11:57 2002
++++ linux/drivers/net/wan/Config.in	Thu May  9 19:59:54 2002
+@@ -9,11 +9,12 @@ bool 'Wan interfaces support' CONFIG_WAN
+ if [ "$CONFIG_WAN" = "y" ]; then
+ # There is no way to detect a comtrol sv11 - force it modular for now.
+ 
++   if [ "$CONFIG_ISA" = "y" ]; then
+    dep_tristate '  Comtrol Hostess SV-11 support' CONFIG_HOSTESS_SV11 m
+-
+ # The COSA/SRP driver has not been tested as non-modular yet.
+ 
+    dep_tristate '  COSA/SRP sync serial boards support' CONFIG_COSA m
++   fi
+ 
+ #
+ # COMX drivers
+Only in linux/drivers/net/wan: Config.in-o
+Only in linux/drivers/pci: gen-devlist
+diff -X ../../KDIFX -burp linux-vanilla/drivers/scsi/Config.in linux/drivers/scsi/Config.in
+--- linux-vanilla/drivers/scsi/Config.in	Fri May  3 13:22:27 2002
++++ linux/drivers/scsi/Config.in	Thu May  9 19:54:28 2002
+@@ -42,11 +42,17 @@ fi
+ if [ "$CONFIG_PCI" = "y" ]; then
+    dep_tristate '3ware Hardware ATA-RAID support' CONFIG_BLK_DEV_3W_XXXX_RAID $CONFIG_SCSI
+ fi
+-dep_tristate '7000FASST SCSI support' CONFIG_SCSI_7000FASST $CONFIG_SCSI
++if [ "$CONFIG_ISA" = "y" ]; then
++   dep_tristate '7000FASST SCSI support' CONFIG_SCSI_7000FASST $CONFIG_SCSI
++fi
+ dep_tristate 'ACARD SCSI support' CONFIG_SCSI_ACARD $CONFIG_SCSI
+-dep_tristate 'Adaptec AHA152X/2825 support' CONFIG_SCSI_AHA152X $CONFIG_SCSI
+-dep_tristate 'Adaptec AHA1542 support' CONFIG_SCSI_AHA1542 $CONFIG_SCSI
+-dep_tristate 'Adaptec AHA1740 support' CONFIG_SCSI_AHA1740 $CONFIG_SCSI
++if [ "$CONFIG_ISA" = "y" ]; then
++   dep_tristate 'Adaptec AHA152X/2825 support' CONFIG_SCSI_AHA152X $CONFIG_SCSI
++   dep_tristate 'Adaptec AHA1542 support' CONFIG_SCSI_AHA1542 $CONFIG_SCSI
++fi
++if [ "$CONFIG_EISA" = "y" ]; then
++  dep_tristate 'Adaptec AHA1740 support' CONFIG_SCSI_AHA1740 $CONFIG_SCSI
++fi
+ source drivers/scsi/aic7xxx/Config.in
+ if [ "$CONFIG_SCSI_AIC7XXX" != "y" ]; then
+    dep_tristate 'Old Adaptec AIC7xxx support' CONFIG_SCSI_AIC7XXX_OLD $CONFIG_SCSI
+@@ -56,10 +62,16 @@ if [ "$CONFIG_SCSI_AIC7XXX" != "y" ]; th
+       bool '  Collect statistics to report in /proc' CONFIG_AIC7XXX_OLD_PROC_STATS
+    fi
+ fi
+-dep_tristate 'Adaptec I2O RAID support ' CONFIG_SCSI_DPT_I2O $CONFIG_SCSI
++# All the I2O code and drivers do not seem to be 64bit safe.
++if [ "$CONFIG_X86_64" != "y" ]; then
++  dep_tristate 'Adaptec I2O RAID support ' CONFIG_SCSI_DPT_I2O $CONFIG_SCSI
++fi
+ dep_tristate 'AdvanSys SCSI support' CONFIG_SCSI_ADVANSYS $CONFIG_SCSI
+ dep_tristate 'Always IN2000 SCSI support' CONFIG_SCSI_IN2000 $CONFIG_SCSI
+-dep_tristate 'AM53/79C974 PCI SCSI support' CONFIG_SCSI_AM53C974 $CONFIG_SCSI $CONFIG_PCI
++# does not use pci dma and seems to be isa/onboard only for old machines
++if [ "$CONFIG_X86_64" != "y" ]; then
++  dep_tristate 'AM53/79C974 PCI SCSI support' CONFIG_SCSI_AM53C974 $CONFIG_SCSI $CONFIG_PCI
++fi
+ dep_tristate 'AMI MegaRAID support' CONFIG_SCSI_MEGARAID $CONFIG_SCSI
+ 
+ dep_tristate 'BusLogic SCSI support' CONFIG_SCSI_BUSLOGIC $CONFIG_SCSI
+@@ -70,7 +82,9 @@ if [ "$CONFIG_PCI" = "y" ]; then
+    dep_tristate 'Compaq Fibre Channel 64-bit/66Mhz HBA support' CONFIG_SCSI_CPQFCTS $CONFIG_SCSI
+ fi
+ dep_tristate 'DMX3191D SCSI support' CONFIG_SCSI_DMX3191D $CONFIG_SCSI $CONFIG_PCI
+-dep_tristate 'DTC3180/3280 SCSI support' CONFIG_SCSI_DTC3280 $CONFIG_SCSI
++if [ "$CONFIG_ISA" != "y" ]; then
++  dep_tristate 'DTC3180/3280 SCSI support' CONFIG_SCSI_DTC3280 $CONFIG_SCSI
++fi
+ dep_tristate 'EATA ISA/EISA/PCI (DPT and generic EATA/DMA-compliant boards) support' CONFIG_SCSI_EATA $CONFIG_SCSI
+ if [ "$CONFIG_SCSI_EATA" != "n" ]; then
+    bool '  enable tagged command queueing' CONFIG_SCSI_EATA_TAGGED_QUEUE
+@@ -84,12 +98,14 @@ if [ "$CONFIG_MCA" = "y" ]; then
+    dep_tristate 'Future Domain MCS-600/700 SCSI support' CONFIG_SCSI_FD_MCS $CONFIG_SCSI
+ fi
+ dep_tristate 'Intel/ICP (former GDT SCSI Disk Array) RAID Controller support' CONFIG_SCSI_GDTH $CONFIG_SCSI
+-dep_tristate 'Generic NCR5380/53c400 SCSI support' CONFIG_SCSI_GENERIC_NCR5380 $CONFIG_SCSI
+-if [ "$CONFIG_SCSI_GENERIC_NCR5380" != "n" ]; then
++if [ "$CONFIG_ISA" = "y" ]; then
++  dep_tristate 'Generic NCR5380/53c400 SCSI support' CONFIG_SCSI_GENERIC_NCR5380 $CONFIG_SCSI
++  if [ "$CONFIG_SCSI_GENERIC_NCR5380" != "n" ]; then
+    bool '  Enable NCR53c400 extensions' CONFIG_SCSI_GENERIC_NCR53C400
+    choice 'NCR5380/53c400 mapping method (use Port for T130B)' \
+ 		"Port CONFIG_SCSI_G_NCR5380_PORT \
+ 		 Memory CONFIG_SCSI_G_NCR5380_MEM" Port
++  fi
+ fi
+ if [ "$CONFIG_MCA" = "y" ]; then
+    dep_tristate 'IBMMCA SCSI support' CONFIG_SCSI_IBMMCA $CONFIG_SCSI
+@@ -111,7 +127,9 @@ if [ "$CONFIG_PARPORT" != "n" ]; then
+       bool  '  ppa/imm option - Assume slow parport control register' CONFIG_SCSI_IZIP_SLOW_CTR
+    fi
+ fi
+-dep_tristate 'NCR53c406a SCSI support' CONFIG_SCSI_NCR53C406A $CONFIG_SCSI
++if [ "$CONFIG_ISA" = "y" ]; then
++  dep_tristate 'NCR53c406a SCSI support' CONFIG_SCSI_NCR53C406A $CONFIG_SCSI
++fi
+ if [ "$CONFIG_MCA" = "y" ]; then
+    dep_tristate 'NCR Dual 700 MCA SCSI support' CONFIG_SCSI_NCR_D700 $CONFIG_SCSI
+    if [ "$CONFIG_SCSI_NCR_D700" != "n" ]; then
+@@ -164,11 +182,17 @@ fi
+ if [ "$CONFIG_MCA" = "y" ]; then
+    dep_tristate 'NCR MCA 53C9x SCSI support' CONFIG_SCSI_MCA_53C9X $CONFIG_SCSI
+ fi
+-dep_tristate 'PAS16 SCSI support' CONFIG_SCSI_PAS16 $CONFIG_SCSI
++if [ "$CONFIG_ISA" = "y" ]; then
++   dep_tristate 'PAS16 SCSI support' CONFIG_SCSI_PAS16 $CONFIG_SCSI
++fi
+ dep_tristate 'PCI2000 support' CONFIG_SCSI_PCI2000 $CONFIG_SCSI
+ dep_tristate 'PCI2220i support' CONFIG_SCSI_PCI2220I $CONFIG_SCSI
+-dep_tristate 'PSI240i support' CONFIG_SCSI_PSI240I $CONFIG_SCSI
+-dep_tristate 'Qlogic FAS SCSI support' CONFIG_SCSI_QLOGIC_FAS $CONFIG_SCSI
++if [ "$CONFIG_ISA" = "y" ]; then
++   dep_tristate 'PSI240i support' CONFIG_SCSI_PSI240I $CONFIG_SCSI
++fi
++if [ "$CONFIG_ISA" = "y" ]; then
++   dep_tristate 'Qlogic FAS SCSI support' CONFIG_SCSI_QLOGIC_FAS $CONFIG_SCSI
++fi
+ if [ "$CONFIG_PCI" = "y" ]; then
+    dep_tristate 'Qlogic ISP SCSI support' CONFIG_SCSI_QLOGIC_ISP $CONFIG_SCSI
+    dep_tristate 'Qlogic ISP FC SCSI support' CONFIG_SCSI_QLOGIC_FC $CONFIG_SCSI
+@@ -177,24 +201,31 @@ if [ "$CONFIG_PCI" = "y" ]; then
+    fi
+    dep_tristate 'Qlogic QLA 1280 SCSI support' CONFIG_SCSI_QLOGIC_1280 $CONFIG_SCSI
+ fi
+-if [ "$CONFIG_X86" = "y" ]; then
++if [ "$CONFIG_X86" = "y" -a "$CONFIG_ISA" = "y" ]; then
+    dep_tristate 'Seagate ST-02 and Future Domain TMC-8xx SCSI support' CONFIG_SCSI_SEAGATE $CONFIG_SCSI
+ fi
+-dep_tristate 'Simple 53c710 SCSI support (Compaq, NCR machines)' CONFIG_SCSI_SIM710 $CONFIG_SCSI
+-dep_tristate 'Symbios 53c416 SCSI support' CONFIG_SCSI_SYM53C416 $CONFIG_SCSI
++# definitely looks note 64bit safe:
++if [ "$CONFIG_ISA" = "y" -o "$CONFIG_MCA" = "y" -a "$CONFIG_X86_64" != "y" ]; then
++  dep_tristate 'Simple 53c710 SCSI support (Compaq, NCR machines)' CONFIG_SCSI_SIM710 $CONFIG_SCSI
++fi
++if [ "$CONFIG_ISA" = "y" ]; then
++  dep_tristate 'Symbios 53c416 SCSI support' CONFIG_SCSI_SYM53C416 $CONFIG_SCSI
++fi
+ if [ "$CONFIG_PCI" = "y" ]; then
+    dep_tristate 'Tekram DC390(T) and Am53/79C974 SCSI support' CONFIG_SCSI_DC390T $CONFIG_SCSI
+    if [ "$CONFIG_SCSI_DC390T" != "n" ]; then
+       bool '  _omit_ support for non-DC390 adapters' CONFIG_SCSI_DC390T_NOGENSUPP
+    fi
+ fi
+-dep_tristate 'Trantor T128/T128F/T228 SCSI support' CONFIG_SCSI_T128 $CONFIG_SCSI
++if [ "$CONFIG_ISA" = "y" ]; then
++  dep_tristate 'Trantor T128/T128F/T228 SCSI support' CONFIG_SCSI_T128 $CONFIG_SCSI
++fi
+ dep_tristate 'UltraStor 14F/34F support' CONFIG_SCSI_U14_34F $CONFIG_SCSI
+-   if [ "$CONFIG_SCSI_U14_34F" != "n" ]; then
++if [ "$CONFIG_SCSI_U14_34F" != "n" ]; then
+       bool '  enable elevator sorting' CONFIG_SCSI_U14_34F_LINKED_COMMANDS
+       int  '  maximum number of queued commands' CONFIG_SCSI_U14_34F_MAX_TAGS 8
+-   fi
+-if [ "$CONFIG_X86" = "y" ]; then
++fi
++if [ "$CONFIG_X86" = "y" -a "$CONFIG_ISA" = "y" ]; then
+    dep_tristate 'UltraStor SCSI support' CONFIG_SCSI_ULTRASTOR $CONFIG_SCSI
+ fi
+ #
+Only in linux/drivers/scsi: Config.in-o

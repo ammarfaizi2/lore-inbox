@@ -1,167 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262805AbSJDRhI>; Fri, 4 Oct 2002 13:37:08 -0400
+	id <S262399AbSJDQVk>; Fri, 4 Oct 2002 12:21:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262807AbSJDRhI>; Fri, 4 Oct 2002 13:37:08 -0400
-Received: from d06lmsgate-6.uk.ibm.com ([194.196.100.252]:26522 "EHLO
-	d06lmsgate-6.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S262805AbSJDRhF> convert rfc822-to-8bit; Fri, 4 Oct 2002 13:37:05 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.40 s390 (20/27): signal quiesce.
-Date: Fri, 4 Oct 2002 16:32:47 +0200
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210041632.47388.schwidefsky@de.ibm.com>
+	id <S262400AbSJDQVj>; Fri, 4 Oct 2002 12:21:39 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:12693 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262399AbSJDQVi>; Fri, 4 Oct 2002 12:21:38 -0400
+Date: Fri, 4 Oct 2002 10:27:07 -0600
+Message-Id: <200210041627.g94GR7M08781@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Greg KH <greg@kroah.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] minor devfs cleanup for 2.5.40
+In-Reply-To: <20021004172457.A3390@infradead.org>
+References: <20021003213908.GB1388@kroah.com>
+	<200210041617.g94GHY008334@vindaloo.ras.ucalgary.ca>
+	<20021004172457.A3390@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add 'signal quiesque' feature to s390 hardware console. A signal quiesce
-is sent from VM or the service element every time the system should shut
-down. We receive the quiesce signal and call ctrl_alt_del(). Finally the
-mainframes have ctrl-alt-del as well :-)
+Christoph Hellwig writes:
+> On Fri, Oct 04, 2002 at 10:17:34AM -0600, Richard Gooch wrote:
+> > Greg KH writes:
+> > > Here's a changeset from Christoph Hellwig that removes some unneeded
+> > > code from the kernel core.  This was leftover from before devfs became
+> > > part of the main kernel tree, and was trying to do some naming fixups in
+> > > kernelspace.  If anyone still has machines using these names, their
+> > > startup scripts should be modified to use the "standard" devfs names.
+> > > 
+> > > Please pull from:  http://linuxusb.bkbits.net/devfs-2.5
+> > 
+> > NO! Dammit, you'll break everyone who is using these compact names to
+> > mount the root FS. Look more closely at the code you're trying to
+> > remove, and you'll see it's *not* used to avoid work in startup
+> > scripts. It's only used to create the devfs entry for the root FS.
+> 
+> This is 2.5 and those names were never in mainline.  Use your new
+> devfs names or plain linux names or just hex numbers.  Linux is
+> not a place were we keep junk around.
 
-diff -urN linux-2.5.40/drivers/s390/char/hwc.h linux-2.5.40-s390/drivers/s390/char/hwc.h
---- linux-2.5.40/drivers/s390/char/hwc.h	Tue Oct  1 09:07:07 2002
-+++ linux-2.5.40-s390/drivers/s390/char/hwc.h	Fri Oct  4 16:16:22 2002
-@@ -22,6 +22,7 @@
- #define ET_PMsgCmd		0x09
- #define ET_CntlProgOpCmd	0x20
- #define ET_CntlProgIdent	0x0B
-+#define ET_SigQuiesce	0x1D
- 
- #define ET_OpCmd_Mask	0x80000000
- #define ET_Msg_Mask		0x40000000
-@@ -29,6 +30,7 @@
- #define ET_PMsgCmd_Mask	0x00800000
- #define ET_CtlProgOpCmd_Mask	0x00000001
- #define ET_CtlProgIdent_Mask	0x00200000
-+#define ET_SigQuiesce_Mask	0x00000008
- 
- #define GMF_DOM		0x8000
- #define GMF_SndAlrm	0x4000
-@@ -218,7 +220,8 @@
- 	0x0000,
- 	0x0000,
- 	sizeof (_hwcb_mask_t),
--	ET_OpCmd_Mask | ET_PMsgCmd_Mask | ET_StateChange_Mask,
-+	ET_OpCmd_Mask | ET_PMsgCmd_Mask |
-+	ET_StateChange_Mask | ET_SigQuiesce_Mask,
- 	ET_Msg_Mask | ET_PMsgCmd_Mask | ET_CtlProgIdent_Mask
- };
- 
-diff -urN linux-2.5.40/drivers/s390/char/hwc_rw.c linux-2.5.40-s390/drivers/s390/char/hwc_rw.c
---- linux-2.5.40/drivers/s390/char/hwc_rw.c	Fri Oct  4 16:16:11 2002
-+++ linux-2.5.40-s390/drivers/s390/char/hwc_rw.c	Fri Oct  4 16:16:22 2002
-@@ -35,6 +35,8 @@
- #define MIN(a,b) (((a<b) ? a : b))
- #endif
- 
-+extern void ctrl_alt_del (void);
-+
- #define HWC_RW_PRINT_HEADER "hwc low level driver: "
- 
- #define  USE_VM_DETECTION
-@@ -172,6 +174,7 @@
- 	unsigned char read_nonprio:1;
- 	unsigned char read_prio:1;
- 	unsigned char read_statechange:1;
-+	unsigned char sig_quiesce:1;
- 
- 	unsigned char flags;
- 
-@@ -222,6 +225,7 @@
- 	    0,
- 	    0,
- 	    0,
-+	    0,
- 	    NULL,
- 	    NULL
- 
-@@ -1529,6 +1533,19 @@
- 				       HWC_RW_PRINT_HEADER
- 				 "can not read state change notifications\n");
- 
-+	hwc_data.sig_quiesce
-+	    = ((mask & ET_SigQuiesce_Mask) == ET_SigQuiesce_Mask);
-+	if (hwc_data.sig_quiesce)
-+		internal_print (
-+				       DELAYED_WRITE,
-+				       HWC_RW_PRINT_HEADER
-+				       "can receive signal quiesce\n");
-+	else
-+		internal_print (
-+				       DELAYED_WRITE,
-+				       HWC_RW_PRINT_HEADER
-+				       "can not receive signal quiesce\n");
-+
- 	hwc_data.read_nonprio
- 	    = ((mask & ET_OpCmd_Mask) == ET_OpCmd_Mask);
- 	if (hwc_data.read_nonprio)
-@@ -1609,6 +1626,47 @@
- 	return retval;
- }
- 
-+#ifdef CONFIG_SMP
-+static volatile unsigned long cpu_quiesce_map;
-+
-+static void 
-+do_load_quiesce_psw (void)
-+{
-+	psw_t quiesce_psw;
-+
-+	clear_bit (smp_processor_id (), &cpu_quiesce_map);
-+	if (smp_processor_id () == 0) {
-+
-+		while (cpu_quiesce_map != 0) ;
-+
-+		quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
-+		quiesce_psw.addr = 0xfff;
-+		__load_psw (quiesce_psw);
-+	}
-+	signal_processor (smp_processor_id (), sigp_stop);
-+}
-+
-+static void 
-+do_machine_quiesce (void)
-+{
-+	cpu_quiesce_map = cpu_online_map;
-+	smp_call_function (do_load_quiesce_psw, NULL, 0, 0);
-+	do_load_quiesce_psw ();
-+}
-+
-+#else
-+static void 
-+do_machine_quiesce (void)
-+{
-+	psw_t quiesce_psw;
-+
-+	quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
-+	queisce_psw.addr = 0xfff;
-+	__load_psw (quiesce_psw);
-+}
-+
-+#endif
-+
- static int 
- process_evbufs (void *start, void *end)
- {
-@@ -1644,6 +1702,13 @@
- 			retval += eval_statechangebuf
- 			    ((statechangebuf_t *) evbuf);
- 			break;
-+		case ET_SigQuiesce:
-+
-+			_machine_restart = do_machine_quiesce;
-+			_machine_halt = do_machine_quiesce;
-+			_machine_power_off = do_machine_quiesce;
-+			ctrl_alt_del ();
-+			break;
- 		default:
- 			internal_print (
- 					       DELAYED_WRITE,
+Those names *were* in mainline. They've been there all through 2.4.x.
+It's a useful feature that is *still* being used. Change this and lots
+of people will get a panic at boot because there root FS is "missing".
 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

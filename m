@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266260AbUBLApg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 19:45:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266264AbUBLApg
+	id S266232AbUBLAlD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 19:41:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266239AbUBLAlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 19:45:36 -0500
-Received: from pirx.hexapodia.org ([65.103.12.242]:62006 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S266260AbUBLApe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 19:45:34 -0500
-Date: Wed, 11 Feb 2004 18:45:32 -0600
-From: Andy Isaacson <adi@hexapodia.org>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Message-ID: <20040212004532.GB29952@hexapodia.org>
-References: <20040209115852.GB877@schottelius.org> <slrn-0.9.7.4-32556-23428-200402111736-tc@hexane.ssi.swin.edu.au> <1076517309.21961.169.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1076517309.21961.169.camel@shaggy.austin.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+	Wed, 11 Feb 2004 19:41:03 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:19979 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S266232AbUBLAlB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 19:41:01 -0500
+x-mimeole: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH] cpqarray update for kernel 2.6.2 [0/5]
+Date: Wed, 11 Feb 2004 18:40:46 -0600
+Message-ID: <CBD6B29E2DA6954FABAC137771769D6504E1597B@cceexc19.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] cpqarray update for kernel 2.6.2 [0/5]
+Thread-Index: AcPl97MDYCr9uBZ6RfOTYAJ7P0onNQLB+cCA
+From: "Wiran, Francis" <francis.wiran@hp.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Cc: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
+X-OriginalArrivalTime: 12 Feb 2004 00:40:47.0740 (UTC) FILETIME=[DB42FBC0:01C3F100]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 11, 2004 at 10:35:10AM -0600, Dave Kleikamp wrote:
-> Yeah, JFS has poor default behavior based on CONFIG_NLS_DEFAULT.  I
-> attempted to explain why it works that way in the first bug listed above
-> if anyone is curious.
+Some updates for cpqarray. It seems cpqarray in kernel 2.6.1 corresponds
+to the one in 2.4.18, so here's the updates from 2.4.19 onward
 
-I think your suggested fix is good, but it begs the question:
+Summary of updates:
+- Modify contact info and version number
+- Fix for segmentation fault when rmmod is called.
+- New variables io_mem_addr and io_mem_length to replace ioaddr.
+- Use PCI APIs (pci_register_driver, pci_unregister_driver, etc).
+Support for EISA cards is also included.
+- Check rc of pci_register_driver()
 
-Why on earth is JFS worried about the filename, anyways?  Why has it
-*ever* had *any* behavior other than "string of bytes, delimited with /,
-terminated with \0" ?
+To do:
+- import 2.4.x updates for ioctl.
 
-I read your response about OS/2, and maybe I'm just slow, but I don't
-see what that has to do with anything.
 
-Does JFS on AIX have the same buggy behavior?
 
-What behavior was the code originally designed to implement, on OS/2?
-Why was that behavior chosen rather than "filenames are a string of
-bytes"?
+Thanks
+-francis-
 
-Feel free to point to a "Design of the OS/2 JFS interface" document if
-such exists and answers my question. :)
-
--andy

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135948AbREGAyA>; Sun, 6 May 2001 20:54:00 -0400
+	id <S135958AbREGBMD>; Sun, 6 May 2001 21:12:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135950AbREGAxu>; Sun, 6 May 2001 20:53:50 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:35849 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135946AbREGAxg>; Sun, 6 May 2001 20:53:36 -0400
-Date: Sun, 6 May 2001 17:53:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Brian Gerst <bgerst@didntduck.org>
-cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 page fault handler not interrupt safe
-In-Reply-To: <3AF4A857.DDA3599A@didntduck.org>
-Message-ID: <Pine.LNX.4.21.0105061750010.11175-100000@penguin.transmeta.com>
+	id <S135955AbREGBLx>; Sun, 6 May 2001 21:11:53 -0400
+Received: from [64.165.192.135] ([64.165.192.135]:38161 "EHLO
+	server1.skystream.com") by vger.kernel.org with ESMTP
+	id <S135958AbREGBLv>; Sun, 6 May 2001 21:11:51 -0400
+Message-ID: <B25E2E5A003CD311B61E00902778AF2A02044631@SERVER1>
+From: Brian Kuschak <brian.kuschak@skystream.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'bkuschak@yahoo.com'" <bkuschak@yahoo.com>
+Subject: kernel BUG at dcache.h:251
+Date: Sun, 6 May 2001 18:10:19 -0700 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Running snmpd or httpd overnight causes this oops: (kernel BUG at
+/home/brian/linux/include/linux/dcache.h:251! - in dget() called from
+d_alloc())
+Occasionally I see: de_put: entry net already free! before the oops.
 
-On Sat, 5 May 2001, Brian Gerst wrote:
->
-> Currently the page fault handler on the x86 can get a clobbered value
-> for %cr2 if an interrupt occurs and causes another page fault (interrupt
-> handler touches a vmalloced area for example) before %cr2 is read.
+I've been able to reliably reproduce the problem in 15 minutes by running
+this instead:
+while /bin/true; do cat /proc/net/* 2>/dev/null > /tmp/junk; done;
 
-That should be ok. 
+The system fails when trying to open /proc/net/tcp, for example, and finds
+that net has a zero dentry->d_count.
 
-Yes, we'll get a clobbered value, but we'll get a _valid_ clobbered value,
-and we'll just end up doing the fixups twice (and returning to the user
-process that didn't get the page it wanted, which will end up re-doing the
-page fault).
+2.4.3 on a PPC405, with root fs (ext2) on ramdisk.  Any ideas on why this is
+happening?  The system is stable otherwise.
 
-[ Looks closer.. ]
-
-Actually, the second time we'd do the fixup we'd be unhappy, because it
-has already been done. That test should probably be removed. Hmm.
-
-Hmm.. The threading people wanted this same thing. Maybe we should just
-make it so.
-
-		Linus
+Thanks, Brian
+(Please CC my email address)
 

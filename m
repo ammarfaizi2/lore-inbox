@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264348AbTKMRBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 12:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264355AbTKMRBQ
+	id S264350AbTKMRDG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 12:03:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbTKMRDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 12:01:16 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:20973 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264348AbTKMRBP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 12:01:15 -0500
-Date: Thu, 13 Nov 2003 18:01:08 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: 2.6.0-test9-mjb2: emulex driver link error
-Message-ID: <20031113170108.GN10456@fs.tum.de>
-References: <85450000.1068220085@[10.10.2.4]>
+	Thu, 13 Nov 2003 12:03:06 -0500
+Received: from services3.virtu.nl ([217.114.97.6]:42394 "EHLO
+	services3.virtu.nl") by vger.kernel.org with ESMTP id S264350AbTKMRDD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 12:03:03 -0500
+Message-Id: <5.1.0.14.2.20031113175123.027970a8@services3.virtu.nl>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 13 Nov 2003 17:58:54 +0100
+To: bert hubert <ahu@ds9a.nl>
+From: Remco van Mook <remco@virtu.nl>
+Subject: Re: buffer/page cache aliasing? Re: 2.4 odd behaviour of
+  ramdisk + cramfs
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031113164544.GA24997@outpost.ds9a.nl>
+References: <5.1.0.14.2.20031113171537.01ee82c8@services3.virtu.nl>
+ <5.1.0.14.2.20031113171537.01ee82c8@services3.virtu.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <85450000.1068220085@[10.10.2.4]>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Virtu-MailScanner-VirusCheck: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 07, 2003 at 07:48:05AM -0800, Martin J. Bligh wrote:
->...
-> emulex driver					Emulex
-> 	Driver for emulex fiberchannel cards
->...
+At 17:45 13-11-2003 +0100, bert hubert wrote:
+>On Thu, Nov 13, 2003 at 05:32:49PM +0100, Remco van Mook wrote:
+>
+> > #! /bin/sh
+> > cat /flash/modules-2.4.21 > /dev/ram1
+> > mount -t cramfs -o ro /dev/ram1 /lib/modules
+> >
+> > Running it once causes the mount to fail with 'cramfs: wrong magic' -
+> > running it twice will make mount succeed on the second try.
+>
+>Sounds like buffer/page cache aliasing perhaps? Does it work with other
+>filesystems?
 
-"copyin" and "copyout" aren't good names for non-static functions:
+I've just checked it with an ext2 filesystem - exactly the same thing happens.
 
-<--  snip  -->
+Now, what's more interesting is that if I try again with a bigger filesystem
+(3MB instead of 750KB) the problem only appears every now and again.
 
-...
-  LD      drivers/built-in.o
-drivers/scsi/built-in.o(.text+0x1182c0): In function `copyout':
-: multiple definition of `copyout'
-drivers/char/built-in.o(.text+0x58fe0): first defined here
-ld: Warning: size of symbol `copyout' changed from 95 in 
-drivers/char/built-in.o to 55 in drivers/scsi/built-in.o
-drivers/scsi/built-in.o(.text+0x118300): In function `copyin':
-: multiple definition of `copyin'
-drivers/char/built-in.o(.text+0x58f60): first defined here
-ld: Warning: size of symbol `copyin' changed from 125 in 
-drivers/char/built-in.o to 88 in drivers/scsi/built-in.o
-make[1]: *** [drivers/built-in.o] Error 1
-make: *** [drivers] Error 2
+So it's probably got nothing to do with cramfs in particular, but more with the
+size of the filesystem.
 
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Remco
 

@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136035AbRD0Nx3>; Fri, 27 Apr 2001 09:53:29 -0400
+	id <S136036AbRD0OOM>; Fri, 27 Apr 2001 10:14:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136036AbRD0NxU>; Fri, 27 Apr 2001 09:53:20 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:22128 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S136035AbRD0NxN>; Fri, 27 Apr 2001 09:53:13 -0400
-Date: Fri, 27 Apr 2001 15:52:46 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Magnus Naeslund(f)" <mag@fbab.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Alpha compile problem solved by Andrea (pte_alloc)
-Message-ID: <20010427155246.O16020@athlon.random>
-In-Reply-To: <052901c0ceca$e6a543c0$020a0a0a@totalmef>
+	id <S136037AbRD0OOC>; Fri, 27 Apr 2001 10:14:02 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:4100 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S136036AbRD0ON5>;
+	Fri, 27 Apr 2001 10:13:57 -0400
+Message-ID: <20010426001323.B351@bug.ucw.cz>
+Date: Thu, 26 Apr 2001 00:13:23 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Grover, Andrew" <andrew.grover@intel.com>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Lid support for ACPI
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDDC9@orsmsx35.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <052901c0ceca$e6a543c0$020a0a0a@totalmef>; from mag@fbab.net on Fri, Apr 27, 2001 at 05:34:01AM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+X-Mailer: Mutt 0.93i
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDDC9@orsmsx35.jf.intel.com>; from Grover, Andrew on Wed, Apr 25, 2001 at 10:23:12AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 27, 2001 at 05:34:01AM +0200, Magnus Naeslund(f) wrote:
-> Hello yesterday i installed redhat6.2 on our little alpha server over here.
-> It's an Ruffian EV56 system, and a hand upgraded redhat to be able to cope
-> with 2.4.
+Hi!
+
+> We already have lid support in the latest ACPI versions (not in the official
+> kernel yet.) You can download this code from
+> http://developer.intel.com/technology/iapc/acpi/downloads.htm .
 > 
-> I got an compile error that told me that pte_alloc was declared wrong in
-> some files..
-> Then in the back of my mind i figured that Andrea does a lot of alpha work,
-> so i grepped after pte_alloc in his patches.
-> 
-> I found:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.3/alpha
-> -numa-2
-> 
-> Now my kernel compiled, and it works great. (Thanks Andrea :))
-> Just a little gotcha if anyone gets this problem (now it's in the mail
-> archives, where i didnt find it).
-> 
-> Andrea:
-> Is that patch harmless, or is it experimental?
+> It'd be great if you could focus your testing and patches on this code base
+> -- I think it's a lot better but it's still a work in progress.
 
-The patch is ready for production. I just submitted it two times to
-Linus but no luck so far. However alternate patches are been merged in
-Linus's tree recently and they fix the compile problems at least.
+I was just browsing its sources:
 
-> Is there any other patches you recommend me to apply to my kernel?
++       if (tz->policy.temperature >=
++               tz->policy.critical.threshold->temperature) {
++               DEBUG_PRINT(ACPI_WARN, ("Critical threshold reached - shutting down system.\n"));
++               /* TODO: 'halt' */
++       }
 
-specifically for the alpha (but of course ok for x86 kernels too) in
-order against pre7:
+Are you sure that kill(init, SIGTERM) is not right answer here?
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.4pre7aa1/00_alpha-numa-6
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.4pre7aa1/00_numa-sched-5
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.4pre7aa1/00_alpha-tlb-page-sym-1
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.4pre7aa1/00_softirq-SMP-fixes-2
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.4pre7aa1/00_rwsem-10
-
-Andrea
+								Pavel
+PS: This seems very strange. What if machine is so crashed so that it
+can no longer shutdown properly. Will that mean that its CPU will
+damage itself?
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

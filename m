@@ -1,49 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274095AbRISPwA>; Wed, 19 Sep 2001 11:52:00 -0400
+	id <S272322AbRISP6K>; Wed, 19 Sep 2001 11:58:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274096AbRISPvu>; Wed, 19 Sep 2001 11:51:50 -0400
-Received: from prfdec.natur.cuni.cz ([195.113.56.1]:64782 "EHLO
-	prfdec.natur.cuni.cz") by vger.kernel.org with ESMTP
-	id <S274095AbRISPvk> convert rfc822-to-8bit; Wed, 19 Sep 2001 11:51:40 -0400
-X-Envelope-From: mmokrejs
-Posted-Date: Wed, 19 Sep 2001 17:51:27 +0200 (MET DST)
-Date: Wed, 19 Sep 2001 17:51:27 +0200 (MET DST)
-From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: __alloc_pages: 0-order allocation failed still in -pre12
-In-Reply-To: <Pine.LNX.4.33L.0109191215180.4279-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.OSF.4.21.0109191749040.12658-100000@prfdec.natur.cuni.cz>
+	id <S274033AbRISP6B>; Wed, 19 Sep 2001 11:58:01 -0400
+Received: from air-1.osdlab.org ([65.201.151.5]:15879 "EHLO
+	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S272322AbRISP5m>; Wed, 19 Sep 2001 11:57:42 -0400
+Message-ID: <3BA8C01D.79FBD7C3@osdlab.org>
+Date: Wed, 19 Sep 2001 08:56:13 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+To: Alan <alan@lxorguk.ukuu.org.uk>, crutcher+kernel@datastacks.com,
+        lkml <linux-kernel@vger.kernel.org>, paulus@au.ibm.com
+Subject: Magic SysRq +# in 2.4.9-ac/2.4.10-pre12
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Sep 2001, Rik van Riel wrote:
+(and maybe earlier...)
 
-> On Wed, 19 Sep 2001, [iso-8859-2] Martin MOKREJ© wrote:
-> 
-> >   I tried 2.4.10-pre12
-> 
-> > I have to say I've been using for a week without any "0-order allocation
-> > failed" patch from Marcelo. Now I see am back to the old stage. ;(
-> 
-> Impossible, the VM code which is in 2.4.10-pre11 and newer
-> wasn't published until sunday night, so you can't have been
-> using it for a week already. ;)
+Simple problems grow...
 
-Sorry, again: I'm currently using plain 2.4.9 patched with -pre12.
-I get the allocation errors. I got the image from kernel.dk/testing/ today
-morning, as someone posted this address on the list.
+Keith Owens has already noted one problem in sysrq.c (2.4.10-pre12).
 
-My previous kernel is plain 2.4.9 patched with Marcelo's patched and in a
-week period I did not receive nay single error message like that.
+Beginning:
 
--- 
-Martin Mokrejs - PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
-MIPS / Institute for Bioinformatics <http://mips.gsf.de>
-GSF - National Research Center for Environment and Health
-Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
+I have an IBM model KB-9910 keyboard.  When I use
+Alt+SysRQ+number (number: 0...9) on it to change the
+console loglevel, only keys 5 and 6 have the desired
+effect.  I used showkey -s to view the scancodes from
+the other <number> keys, but showkey didn't display
+anything for them.  Any other suggestions?
 
+
+For now, I'm just using different (non-number) keys
+to modify the loglevel.
+
+Anyway, in looking at SysRq loglevel handling in
+2.4.9-ac (and 2.4.10-pre12), I see that it has been modified
+quite a bit.  Looks extensible, which can be good.
+However, looking over it gave me several nagging questions
+and problems.
+
+1.  Was this stuff tested?  How ???
+
+It always sets console_loglevel and then restores
+console_loglevel from orig_log_level, so Alt+SysRq+#
+handling is severely broken.
+
+If someone (Crutcher ?) wants to patch it, that's fine.
+If I patched it, I would just add a
+  next_loglevel = -1;
+at the beginning of __handle_sysrq_nolock() and then
+let the loglevel handler(s) set next_loglevel.
+If next_loglevel != -1 at the end of __handle_sysrq_nolock(),
+set console_loglevel to next_loglevel.
+
+2.  I'd really prefer to see callers use
+register_sysrq_key() and unregister_sysrq_key() so that they
+can get/use return values, and not the lower-level functions
+"__sysrq*" functions that are EXPORTed in sysrq.c.
+I don't see a good reason to EXPORT all of these functions.
+
+E.g., arch/ppc64/start/xmon.c calls __sysrq_put_key_op('x', ...).
+It doesn't know (and cannot know) whether this call succeeded
+or not.
+
+3.  And the sysrq_key_table[] (comments) should end with
+w, x, y, z, not with w, x, w, z.
+
+
+~Randy
+
+You can't do anything without having to do something else first. 
+         -- Belefant's Law

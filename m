@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270552AbTGNHzR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 03:55:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270559AbTGNHzQ
+	id S265766AbTGNHyY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 03:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270552AbTGNHyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 03:55:16 -0400
-Received: from mail.gmx.de ([213.165.64.20]:31679 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S270552AbTGNHzL (ORCPT
+	Mon, 14 Jul 2003 03:54:23 -0400
+Received: from [81.2.110.254] ([81.2.110.254]:12793 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S265766AbTGNHyX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 03:55:11 -0400
-Message-Id: <5.2.1.1.2.20030714100438.01be5008@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Mon, 14 Jul 2003 10:14:11 +0200
-To: Davide Libenzi <davidel@xmailserver.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy 
-  ...
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55.0307140004390.3435@bigblue.dev.mcafeelabs.co
- m>
-References: <5.2.1.1.2.20030714063443.01bcc5f0@pop.gmx.net>
- <5.2.1.1.2.20030714063443.01bcc5f0@pop.gmx.net>
+	Mon, 14 Jul 2003 03:54:23 -0400
+Subject: Re: 2.5 'what to expect'
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+Cc: Jamie Lokier <jamie@shareable.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, davej@codemonkey.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030714000324.GA29094@verdi.et.tudelft.nl>
+References: <20030711140219.GB16433@suse.de>
+	 <20030712152406.GA9521@mail.jlokier.co.uk> <3F103018.6020008@pobox.com>
+	 <20030712112722.55f80b60.akpm@osdl.org>
+	 <20030712183929.GA10450@mail.jlokier.co.uk> <3F105B9A.7070803@pobox.com>
+	 <20030712193401.GD10450@mail.jlokier.co.uk> <3F1063AD.40206@pobox.com>
+	 <20030712194624.GF10450@mail.jlokier.co.uk>
+	 <20030713085118.V4482@schatzie.adilger.int>
+	 <20030714000324.GA29094@verdi.et.tudelft.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058169566.561.16.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Jul 2003 09:01:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:12 AM 7/14/2003 -0700, Davide Libenzi wrote:
->On Mon, 14 Jul 2003, Mike Galbraith wrote:
-> > While testing, I spotted something pretty strange.  It's not specific to
-> > SCHED_SOFTRR, SCHED_RR causes it too.  If I fire up xmms's gl visualization
-> > with either policy, X stops getting enough sleep credit to stay at a usable
-> > priority even when cpu usage is low.  Fully repeatable weirdness.  See
-> > attached top snapshots.
->
->RT tasks are pretty powerfull and should not be used to run everything ;)
->What I was seeking with this patch was 1) deterministic latency 2) stave
->protection.
+On Llu, 2003-07-14 at 01:03, Rob van Nieuwkerk wrote:
+> On Sun, Jul 13, 2003 at 08:51:18AM -0700, Andreas Dilger wrote:
+> > ext3 in 2.4 kernels does not support O_DIRECT.  To confuse matters,
+> > recent RH kernels silently ignore O_DIRECT if you are not root, so
+> > you may think O_DIRECT is being used, but it isn't.
+> 
+> Modern RH kernels also ignore O_DIRECT if you are root: O_DIRECT is
+> completely disabled/ignored.
+> 
+> I suspect it is because gcc-3.2.2-5 (in RH9) does not compile 2.4
+> O_DIRECT correctly ..
 
-Yes, I know.  I only fired up the cpu hog as a test to see that the 
-protection would kick in.  I did do that too though, ran _everything_... 
-the whole X/KDE beast SCHED_SOFTRR for grins :)
-
-I should have reported the strangeness in a different thread, it has 
-nothing to do with your patch.
-
-         -Mike  
+Wrong guess.
 

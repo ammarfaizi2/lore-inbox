@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266818AbSKOWSW>; Fri, 15 Nov 2002 17:18:22 -0500
+	id <S266809AbSKOWRh>; Fri, 15 Nov 2002 17:17:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266826AbSKOWSV>; Fri, 15 Nov 2002 17:18:21 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:16066 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S266818AbSKOWST>; Fri, 15 Nov 2002 17:18:19 -0500
-Date: Fri, 15 Nov 2002 14:22:28 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <467166910.1037370147@[10.10.2.3]>
-In-Reply-To: <20021115.133004.65979948.davem@redhat.com>
-References: <20021115.133004.65979948.davem@redhat.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
+	id <S266818AbSKOWRh>; Fri, 15 Nov 2002 17:17:37 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:59599 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S266809AbSKOWRg>; Fri, 15 Nov 2002 17:17:36 -0500
+Date: Fri, 15 Nov 2002 23:24:30 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: lan based kgdb
+Message-ID: <20021115222430.GA1877@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3DD5591E.A3D0506D@efi.com> <334960000.1037397999@flay> <ar3op8$f20$1@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <ar3op8$f20$1@penguin.transmeta.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm more concerned about the inevitable explosion of duplicates
-> and "fixed already"'s.
-> 
-> This is why a lot of people warned early on, and were wary about,
-> having someone full time managing and watching over this bug database.
-> It is specifically to deal with dups and things of this nature.
-> 
-> I don't want to be concerned about spending each morning closing a
-> screenful of dups or "fixed already" reports.  Then the bug database
-> isn't helping me, it's rather making more work for me.
-> 
-> This work is someone else's job.  On linux-kernel, we have a "someone
-> else" to do this already, the entire readership of linux-kernel. :-)
-> 
-> In bugzilla however, all of this work now must be done by whoever at
-> OSDL is watching over the bugzilla database all day long and _ME_.
-> That is an inefficient use of resources.
+On Fri, Nov 15, 2002 at 09:26:00PM +0000, Linus Torvalds wrote:
 
-OK, the easy way to fix this is to change the default owner for the
-category to someone else who can filter the bugs as they arrive in
-"OPEN" state. After filtering, they can be moved to "ASSIGNED" state,
-and the owner changed to you ... how does that sound?
+> I dunno. I might even be willing to apply kgdb patches to my tree if it
+> just could use the regular network card I already have connected on all
+> my machines. None of my laptops have a serial line, for example, but
+> they all have networking.
+> 
+> Soon even _desktops_ probably won't have serial lines any more, only USB.
 
-M.
+Using USB instead of the serial line or the network card would be
+the best IMHO, because:
 
+	* many machines have network cards, but all machines have USB
+	  (and it's gonna stay this way for some time)
+	  
+	* the USB stack seems simpler than the net stack + 
+	  (eventualy) pcmcia + network card driver.
+
+Maybe the 'simpler' USB protocols (usbkbd and usbmouse) could be
+used for this, I don't know...
+
+Stelian, which has a Vaio Picturebook without a serial port.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

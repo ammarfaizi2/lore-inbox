@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262644AbREVQcO>; Tue, 22 May 2001 12:32:14 -0400
+	id <S262648AbREVQlE>; Tue, 22 May 2001 12:41:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262635AbREVQcE>; Tue, 22 May 2001 12:32:04 -0400
-Received: from mail1.ftms.fr ([195.6.68.79]:32018 "HELO servmsg0.ftms.fr")
-	by vger.kernel.org with SMTP id <S262630AbREVQb6>;
-	Tue, 22 May 2001 12:31:58 -0400
-X-WSS-ID: 17144BFA23926-01
-Date: Tue, 22 May 2001 18:31:45 +0200
-From: "FTMS - Secure Mail" <wss@ftms.fr>
-To: linux-kernel@vger.kernel.org
-Message-ID: =?ISO-8859-1?Q?<17144BFA23926-01@S=E9curit=E9=5Fmessagerie=5FFTMS=5F=5Fftms.fr=5F>?=
+	id <S262633AbREVQky>; Tue, 22 May 2001 12:40:54 -0400
+Received: from mail2.rdc2.bc.home.com ([24.2.10.85]:31149 "EHLO
+	mail2.rdc2.bc.home.com") by vger.kernel.org with ESMTP
+	id <S262628AbREVQkh>; Tue, 22 May 2001 12:40:37 -0400
+Date: Tue, 22 May 2001 09:40:19 -0700 (PDT)
+From: Ryan Cumming <bodnar42@bodnar42.dhs.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jan Harkes <jaharkes@cs.cmu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] include/linux/coda.h
+In-Reply-To: <E152DEZ-0001y7-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L2.0105220924560.32368-100000@bodnar42.dhs.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
- boundary="_-==17144BFB63==-_"
-Subject: Message de l'exploitation informatique FTMS
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 22 May 2001, Alan Cox wrote:
 
---_-==17144BFB63==-_
-Content-Type: text/plain
-Content-Disposition: inline
+> If __linux__ is not defined by the cross compiler, then the cross compiler
+> is broken. A cross compiler has the same environment as the native compiler
+> for the target. The only stuff that should break (well should as in might) is
+> tools native built
+>
+> Or am I misunderstanding the report ?
 
-Un message contient un fichier au format VB ou VBS, interdit en
-réception/émission chez FTMS.
-Par sécurité, la pièce jointe a été supprimée du message.
-Information sur le message concerné :the following files were deleted:
-	Mawanella.vbs
+It is not a cross compiler, it is the FreeBSD native gcc. As I understood
+it, Linux is a self contained project and should be targetting the
+native platform, not Linux on that platform. A cross compiler should
+not be needed unless one is building for another CPU.
 
+The coda.h file was doing something along the lines of:
 
---_-==17144BFB63==-_
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+#ifdef __linux__
+#ifdef __KERNEL__
+/* Define things */
+#endif
+#endif
 
-Received: from 199.183.24.194 by servmsg0.ftms.fr with ESMTP (Tumbleweed
- MMS SMTP Relay (MMS v4.7)); Tue, 22 May 2001 18:31:44 +0200
-X-Server-Uuid: ae5cd1d0-2200-11d4-a4d5-0000f6d610e6
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
- id <S262618AbREVQ3o>; Tue, 22 May 2001 12:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id
- <S262624AbREVQ3e>; Tue, 22 May 2001 12:29:34 -0400
-Received: from [65.105.206.211] ([65.105.206.211]:21623
- "EHLO MAIL.confluencenetworks.com") by vger.kernel.org with ESMTP id
- <S262618AbREVQ3T>; Tue, 22 May 2001 12:29:19 -0400
-Subject: Mawanella
-Date: Tue, 22 May 2001 09:29:17 -0700
-MIME-Version: 1.0
-Message-ID: <71AD71402EB8B04AB30F351C1EE5707C01FFF4@MAIL.confluencenetworks.com>
-content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Mawanella
-Thread-Index: AcDi3FhlzozWZ5RDQNi8MrRrvJCAqA==
-From: "Mayank Vasa" <mvasa@confluencenetworks.com>
-To: linux-kernel@vger.kernel.org
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+When compiling the kernel under FreeBSD, __KERNEL__ is defined, but
+__linux__ is not. I think this is an error on the part of the header file,
+because on non-Linux build environments, which would otherwise compile the
+Linux kernel correctly, do not have __linux__ defined.
 
+However, not many people will probably find much use in compiling the
+kernel on other platforms, so if you think this isn't worth inclusion, I
+totally understand. I'm in the process of porting UML to FreeBSD, and
+having this patch in the tree would make my job slightly easier.
 
---_-==17144BFB63==-_--
+-Ryan
 

@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318929AbSICVDe>; Tue, 3 Sep 2002 17:03:34 -0400
+	id <S318932AbSICVBR>; Tue, 3 Sep 2002 17:01:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318930AbSICVDe>; Tue, 3 Sep 2002 17:03:34 -0400
-Received: from triton.neptune.on.ca ([205.233.176.2]:6867 "EHLO
-	triton.neptune.on.ca") by vger.kernel.org with ESMTP
-	id <S318929AbSICVDc>; Tue, 3 Sep 2002 17:03:32 -0400
-Date: Tue, 3 Sep 2002 17:08:08 -0400 (EDT)
-From: Steve Mickeler <steve@neptune.ca>
-X-X-Sender: steve@triton.neptune.on.ca
-To: linux-kernel@vger.kernel.org
-Cc: marcelo@conectiva.com.br
-Subject: Re: [PATCH] drivers/scsi/scsi_scan.c, kernel 2.4.20-pre5
-In-Reply-To: <Pine.LNX.4.44.0209031648170.18923-100000@triton.neptune.on.ca>
-Message-ID: <Pine.LNX.4.44.0209031706180.6858-100000@triton.neptune.on.ca>
+	id <S318934AbSICVBR>; Tue, 3 Sep 2002 17:01:17 -0400
+Received: from pD9E23EAA.dip.t-dialin.net ([217.226.62.170]:57473 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318933AbSICVBP>; Tue, 3 Sep 2002 17:01:15 -0400
+Date: Tue, 3 Sep 2002 15:05:52 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Hacksaw <hacksaw@hacksaw.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c 
+In-Reply-To: <200209032050.g83Ko1CW019969@habitrail.home.fools-errant.com>
+Message-ID: <Pine.LNX.4.44.0209031456210.3373-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Following up with the properly created diff this time :/
+On Tue, 3 Sep 2002, Hacksaw wrote:
+> > > But more importantly, I want controllers that survive total power down.
+> > 
+> > You can't get that with partition tables either.
+> 
+> WHAT? Partition tables written onto the disk certainly do survive total power 
+> down.
 
-This is a patch against the 2.4.20-pre5 code to add BLIST_LARGELUN support
-to the HP OPEN- devices in drivers/scsi/scsi_scan.c
+Disk-backed raid config storage can do that just as well. I don't really 
+think a partition table is the thing you'll want in order to store your 
+raid config.
 
-diff -Naur linux-2.4.20-pre5/drivers/scsi/scsi_scan.c linux/drivers/scsi/scsi_scan.c
---- linux-2.4.20-pre5/drivers/scsi/scsi_scan.c	Tue Sep  3 16:51:49 2002
-+++ linux/drivers/scsi/scsi_scan.c	Tue Sep  3 16:51:57 2002
-@@ -113,7 +113,6 @@
- 	{"HP", "A6188A", "*", BLIST_SPARSELUN},			/* HP Va7100 Array */
- 	{"HP", "A6189A", "*", BLIST_SPARSELUN},			/* HP Va7400 Array */
- 	{"HP", "A6189B", "*", BLIST_SPARSELUN},			/* HP Va7410 Array */
--	{"HP", "OPEN-", "*", BLIST_SPARSELUN},			/* HP XP Arrays */
- 	{"YAMAHA", "CDR100", "1.00", BLIST_NOLUN},		/* Locks up if polled for lun != 0 */
- 	{"YAMAHA", "CDR102", "1.00", BLIST_NOLUN},		/* Locks up if polled for lun != 0
- 								 * extra reset */
-@@ -163,6 +162,7 @@
- 	{"DELL", "PV530F",    "*", BLIST_SPARSELUN | BLIST_LARGELUN}, // Dell PV 530F
- 	{"EMC", "SYMMETRIX", "*", BLIST_SPARSELUN | BLIST_LARGELUN | BLIST_FORCELUN},
- 	{"HP", "A6189A", "*", BLIST_SPARSELUN |  BLIST_LARGELUN}, // HP VA7400, by Alar Aun
-+	{"HP", "OPEN-", "*", BLIST_SPARSELUN | BLIST_LARGELUN},	/* HP XP Arrays */
- 	{"CMD", "CRA-7280", "*", BLIST_SPARSELUN | BLIST_LARGELUN},   // CMD RAID Controller
- 	{"CNSI", "G7324", "*", BLIST_SPARSELUN | BLIST_LARGELUN},     // Chaparral G7324 RAID
- 	{"CNSi", "G8324", "*", BLIST_SPARSELUN},     // Chaparral G8324 RAID
+> Again, with an annoying controller, and having the user change their
+> requirements every so often (like once a day), I do not want to change
+> the RAID setup lots. The last RAID I was working with took up to an hour
+> to commit geometry changes to the disk.
 
-Thanks.
+As mentioned -- there may still be bad hardware out there. And why can't 
+the people just live with it? I mean you can't resize disks either. You 
+could even assign a number of disks of different size to the users, and if 
+one of them needs to get to another level of disk space, shall he. A pool 
+of disks can save you resizes.
 
-[-] Steve Mickeler [ steve@neptune.ca ]
+> Please describe this algorithm? Would this potentially mean looking at
+> every block on the disk, including the giant logical disk that a RAID
+> might present?  Even if you only have to look at the first few bytes of
+> each block, this is a lot of seeking.
 
-[|] Todays root password is brought to you by /dev/random
+(I still wonder how often you resize your partitions, per second.)
 
-[+] 1024D/9AA80CDF = 4103 9E35 2713 D432 924F  3C2E A7B9 A0FE 9AA8 0CDF
+I was talking about saving your time. And I've presented the theory of no 
+partition tables on raid, which reduces the whole thing to backup work on 
+PC, or few seeking on small disks, up to 200 GiB. Yes, currently.
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,53 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279615AbRJXWJp>; Wed, 24 Oct 2001 18:09:45 -0400
+	id <S279624AbRJXWKt>; Wed, 24 Oct 2001 18:10:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279618AbRJXWJU>; Wed, 24 Oct 2001 18:09:20 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:9830 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S279615AbRJXWJP>; Wed, 24 Oct 2001 18:09:15 -0400
-Date: Wed, 24 Oct 2001 23:09:50 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.12 / linux-2.4.13 parallel port problem
-Message-ID: <20011024230950.I7544@redhat.com>
-In-Reply-To: <3BD6E413.5AF9D7EF@firsdown.demon.co.uk> <3MGB7.4641$142.807307317@newssvr17.news.prodigy.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="AWUFm663NYnyV2IX"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3MGB7.4641$142.807307317@newssvr17.news.prodigy.com>; from davidsen@tmr.com on Wed, Oct 24, 2001 at 09:54:07PM +0000
+	id <S279621AbRJXWKl>; Wed, 24 Oct 2001 18:10:41 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28682 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279620AbRJXWKG>; Wed, 24 Oct 2001 18:10:06 -0400
+Subject: Re: linux-2.4.12-ac6 compile errors on sparc64
+To: davem@redhat.com (David S. Miller)
+Date: Wed, 24 Oct 2001 23:16:28 +0100 (BST)
+Cc: ian@penguinhosting.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20011024.132234.115909128.davem@redhat.com> from "David S. Miller" at Oct 24, 2001 01:22:34 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15wWK4-0002mR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> We've said repeatedly that AC kernels will not compile, please use
+> the standard Linus kernels on sparc64.
 
---AWUFm663NYnyV2IX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, Oct 24, 2001 at 09:54:07PM +0000, bill davidsen wrote:
-
-> Curious. I Get rejected when I use irq=auto with 2.4.13-pre6.
-
-What do you mean you get rejected?  If you get an error message, what
-does it say?
-
-Tim.
-*/
-
---AWUFm663NYnyV2IX
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE71zwtyaXy9qA00+cRAnB4AKC65wZbM3Icg0qfT+XEvd1pUt/LPQCgkZeg
-QjVWfwPu84TKDggVELkBn2A=
-=AnDU
------END PGP SIGNATURE-----
-
---AWUFm663NYnyV2IX--
+Or send me patches to fix the problem (me not DaveM). That way people can
+run ext3 and other stuff on sparc. Im happy to take fixes, but obviously
+Dave does have other things to concentrate on

@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbTKIGuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 01:50:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTKIGuJ
+	id S262221AbTKIISg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 03:18:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTKIISg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 01:50:09 -0500
-Received: from sitemail3.everyone.net ([216.200.145.37]:21995 "EHLO
-	omta10.mta.everyone.net") by vger.kernel.org with ESMTP
-	id S262196AbTKIGuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 01:50:07 -0500
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-Date: Sat, 8 Nov 2003 22:50:00 -0800 (PST)
-From: john moser <bluefoxicy@linux.net>
-To: linux-kernel@vger.kernel.org
-Subject: RFC:  (WIP) FoxFS File System
-Reply-To: bluefoxicy@linux.net
-X-Originating-Ip: [68.33.187.247]
-Message-Id: <20031109065000.317E7AC06@sitemail.everyone.net>
+	Sun, 9 Nov 2003 03:18:36 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:27921 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262221AbTKIISf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 03:18:35 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Denis <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6-test6: nanosleep+SIGCONT weirdness
+Date: Sun, 9 Nov 2003 10:18:25 +0200
+X-Mailer: KMail [version 1.4]
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       George Anzinger <george@mvista.com>
+References: <Pine.LNX.4.44.0311081043440.1834-100000@home.osdl.org> <200311082232.59175.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200311082232.59175.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200311091018.25865.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm nearing the very end of my expertise here.  I'll be finishing out the Inode List format and polishing the Superblock handling.  After that I'll need to pick up some help for Quota Acceleration and for putting the final polish on the system.  If properly maintained (defragmented, assembled Inode Lists, contiguated free space), it should be fast.  Metajournaling-- a similar if not identical (I haven't researched it much) concept to what ReiserFS and ext3 use--should be especially useful on floppies and other small media with a journal (4K journal would be quite enough).
+On Saturday 08 November 2003 22:32, Denis wrote:
+> > > That nanosleep restart seems to be broken, and quite frankly,
+> > > looking at the mess in kernel/posix-timers.c I'm not all that
+> > > surprised. The code is total and absolute crap. I have no idea
+> > > how it's even supposed to work.
+> >
+> > I'd suggest just removing the regular nanosleep() emulation from
+> > there. The clock_nanosleep() restart is likely still broken, but at
+> > least this way the _regular_ nanosleep() system call works
+> > correctly, and fixing clock_nanosleep() is likely easier since the
+> > restart stuff doesn't have to worry about _which_ system call it
+> > should restart.
+> >
+> > Denis, does this work for you?
+>
+> Does not seem to work, same symptoms 8(
 
-Any thoughts?  i'm lazy so it'll be a while before the specs are ready for coding.  Please CC replies directly to me.
-
---Bluefox Phoenix Lucid
-
-_____________________________________________________________
-Linux.Net -->Open Source to everyone
-Powered by Linare Corporation
-http://www.linare.com/
+Ok I retested with pristine test9+patch and it works.
+-- 
+vda

@@ -1,146 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVCOVDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVCOVP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbVCOVDr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 16:03:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVCOVDr
+	id S261799AbVCOVP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 16:15:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVCOVP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 16:03:47 -0500
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:21952 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261295AbVCOVCm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 16:02:42 -0500
-Date: Tue, 15 Mar 2005 22:06:15 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: Bodo Eggert <7eggert@gmx.de>, Rene Scharfe <rene.scharfe@lsrfire.ath.cx>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com
-Subject: Re: [PATCH][RFC] Make /proc/<pid> chmod'able
-In-Reply-To: <1110902286.7893.237.camel@cube>
-Message-ID: <Pine.LNX.4.58.0503152048020.2766@be1.lrz>
-References: <1110771251.1967.84.camel@cube>  <42355C78.1020307@lsrfire.ath.cx>
- <1110816803.1949.177.camel@cube>  <Pine.LNX.4.58.0503142333480.6357@be1.lrz>
- <1110854667.7893.203.camel@cube>  <Pine.LNX.4.58.0503151446140.2662@be1.lrz>
- <1110902286.7893.237.camel@cube>
+	Tue, 15 Mar 2005 16:15:58 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:59024 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261799AbVCOVPt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 16:15:49 -0500
+From: David Brownell <david-b@pacbell.net>
+To: dtor_core@ameritech.net
+Subject: Re: [linux-usb-devel] Re: [RFC] Changes to the driver model class code.
+Date: Tue, 15 Mar 2005 13:14:40 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>
+References: <20050315170834.GA25475@kroah.com> <200503151235.02934.david-b@pacbell.net> <d120d50005031512485125db18@mail.gmail.com>
+In-Reply-To: <d120d50005031512485125db18@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503151314.40510.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(refiled the CC list)
-
-On Tue, 15 Mar 2005, Albert Cahalan wrote:
-> On Tue, 2005-03-15 at 15:31 +0100, Bodo Eggert wrote:
-> > On Mon, 14 Mar 2005, Albert Cahalan wrote:
-> > > On Tue, 2005-03-15 at 00:08 +0100, Bodo Eggert wrote:
-> > > > On Mon, 14 Mar 2005, Albert Cahalan wrote:
-
-> > > This really isn't about security.
+On Tuesday 15 March 2005 12:48 pm, Dmitry Torokhov wrote:
+> On Tue, 15 Mar 2005 12:35:02 -0800, David Brownell <david-b@pacbell.net> wrote:
+> > On Tuesday 15 March 2005 12:14 pm, Dmitry Torokhov wrote:
+> > >
+> > > It looks to me (and I might be wrong) that USB was never really
+> > > integrated into the driver model. It was glued with it but the driver
+> > > model came after most of the domain was defined, and it did not get to
+> > > be "bones" of the subsystem. This is why it is so easy to deatch it.
 > > 
-> > Information leakage is a security aspect.
+> > That doesn't seem accurate to me.  Are you thinking maybe about
+> > just how it uses the class device stuff?  ...
+> > 
 > 
-> If you will go to such extremes, Linux is poorly suited.
-> A user can detect activity on the computer by examining
-> the performance of their own activity.
-
-Way to go, better start walking.
-
-> > > Privacy may be undesirable.
-> > 
-> > May. That's why I suggested the min/max sysctl.
-> > 
-> > > With privacy comes anti-social behavior.
-> > 
-> > With anti-social behavior comes the admin and his LART.
-> > 
-> > BTW: If the users want to be anti-social, they'll just rename setiathome 
-> > to something like -bash or soffice.
+> David,
 > 
-> This does not matter: "Rene, your soffice program is eating
-> too much CPU time. Find some other place to run it."
+> I was not criticizing the code, not at all, I was commenting on
+> evolution of the code (at least the way I perceive it). The fact that
+> there is (or was until recently) pre-driver-model binding code shows
+> that merging is still ongoing and this fact makes reversing the
+> process easier.
 
-That's ok for _some_ environments.
+You still haven't answered my question.  My observation was that
+only the class code can in any sense be called "new" ... so your
+blanket statement seemed to overlook several essential points!
 
-> > > Supposing that the
-> > > users do get privacy, perhaps because the have paid for it:
-> > 
-> > Vservers,
-> > > Xen, UML, VM, VMware, separate computers
-> > > 
-> > > Going with separate computers is best.
-> > 
-> > If you like wasting space and energy. If the user's demands don't exceed 
-> > one percent of a historic PC, there is no point in buying more hardware.
-> 
-> Sure there is:
-> 
-> a. info leakage (way more than just /proc)
+Which parts of the driver model were you thinking of?
 
-selinux, rsbac,.
 
-> b. admin control
-> c. budget control
-> d. downtime hits fewer users
+That pre-driver model stuff went away in maybe 2.6.5 or so, I
+forget just when.  If you think those changes can easily be
+reversed, I suggest you think again ... they enabled a LOT of
+likewise-overdue cleanups.  And they only affected the case of
+drivers that bound to multiple interfaces, gettng rid of a
+funky "half bound" state and making it look like the primary
+case (drivers binding to one interface at a time), which has
+been working since 2.5.early.
 
-no central administration, higher expenses.
+It's been a long slog to get to a usb core that's a good
+match to the relatively complex requirements of USB.  With a
+few notable exceptions (like PM non-support for wakeup events
+and for selective suspend, and strange locking side effects),
+converting to the driver model has been a win at every step
+of the way.  It's gone both ways; the driver core has changed
+to work better with USB too.
 
-The battle has ben fought since the early days, and there is still no 
-winner.
+- Dave
 
-> > > Don't forget to use
-> > > network traffic control to keep users from being able to
-> > > detect the network activity of other users.
-> > 
-> > Like that:?
-> > 
-> > $ netstat
-> > Active Internet connections (w/o servers)
-> > Proto Recv-Q Send-Q Local Address           Foreign Address         State
-> > /proc/net/tcp: Permission denied
-> 
-> Nope. If you really care about information leakage, you'll
-> be concerned about the ability to detect network congestion.
-
-Those who should be are able to see the network usage.
-
-On the other hand, the privileged user might open and close ports to 
-signal information to less privileged users.
-
-[examples]
-
-> Hey, if you're going to be paranoid about %CPU and %MEM, you
-> have to be paranoid about %NET too. This requires traffic
-> control unless you have separate networks.
-
-Traffic shaping is available.
-
-> > > > > Users who want privacy can get their
-> > > > > own computer. So, these need to work:
-> > > > > 
-> > > > > ps [...]
-> > > > > w
-> > > > > top
-> > > > 
-> > > > Works as intended. Only pstree breaks, if init isn't visible.
-> > > 
-> > > They work like they do with a rootkit installed.
-> > > Traditional behavior has been broken.
-> > 
-> > They are as broken as finger or ls are if the home directory is chmodded.
-> 
-> Probably something should be done to deal with the problem of
-> a chmodded home directory. It's not ls that matters though.
-> It's du that matters. On a normal shared system, a user should
-> be able to see where all the disk blocks and inodes are going.
-> Filenames need not be visible. Then: "Rene, you're being kind
-> of greedy about the disk space aren't you? You're using 666 GB."
-
-That's what quota is for.
--- 
-If at first you don't succeed call in an air-strike. 
-
-Friﬂ, Spammer: consequently@book4younow.com lXBimztfVI8w@notinuse.biz
- jJb@sewwex.com jGgn@Rvbcm.7eggert.dyndns.org admin@true-values.com

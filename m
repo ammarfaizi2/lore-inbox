@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312241AbSCRIQc>; Mon, 18 Mar 2002 03:16:32 -0500
+	id <S312242AbSCRITg>; Mon, 18 Mar 2002 03:19:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312240AbSCRIQR>; Mon, 18 Mar 2002 03:16:17 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:48901 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S312237AbSCRIQE>; Mon, 18 Mar 2002 03:16:04 -0500
-Message-ID: <3C95A1DB.CA13A822@zip.com.au>
-Date: Mon, 18 Mar 2002 00:14:19 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Joel Becker <jlbec@evilplan.org>
-CC: Anton Altaparmakov <aia21@cam.ac.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: fadvise syscall?
-In-Reply-To: <3C945635.4050101@mandrakesoft.com> <3C945A5A.9673053F@zip.com.au> <3C945D7D.8040703@mandrakesoft.com> <5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk> <20020318080531.W4836@parcelfarce.linux.theplanet.co.uk>
+	id <S312243AbSCRIT0>; Mon, 18 Mar 2002 03:19:26 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:10505 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S312242AbSCRITO>;
+	Mon, 18 Mar 2002 03:19:14 -0500
+Date: Mon, 18 Mar 2002 09:18:45 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
+        alan@lxorguk.ukuu.org.uk, andrea@suse.de
+Subject: Re: [PATCH] page_to_phys() fix for >4GB pages (i386)
+Message-ID: <20020318081845.GF22756@suse.de>
+In-Reply-To: <200203152257.g2FMv9h10896@eng2.beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Becker wrote:
+On Fri, Mar 15 2002, Badari Pulavarty wrote:
+> Hi,
 > 
-> On Sun, Mar 17, 2002 at 01:41:37PM +0000, Anton Altaparmakov wrote:
-> > We don't need fadvise IMHO. That is what open(2) is for. The streaming
-> > request you are asking for is just a normal open(2). It will do read ahead
-> > which is perfect for streaming (of data size << RAM size in its current form).
+> I found that page_to_phys() is broken for pages > 4GB on x86.
+> It is truncating the physical addresses to 32bit, loosing higher
+> bits. (pci_map_sg() uses this).
 > 
->         A quick real world example of where fadvise can work well.
-> Imagine a database appliction that doesn't use O_DIRECT (for whatever
-> reason, could even be that they don't trust the linux implementation yet
-> :-).
+> Here is the patch to fix it. Marcelo, could you consider this
+> patch ? I have not looked at 2.5 yet, it may be needed there also.
+> 
+> Thanks,
+> Badari
+> 
+> 
+> --- linux/include/asm-i386/io.h Fri Mar 15 11:19:28 2002
+> +++ linux.new/include/asm-i386/io.h     Fri Mar 15 11:20:38 2002
+> @@ -76,7 +76,11 @@
+>  /*
+>   * Change "struct page" to physical address.
+>   */
+> +#ifdef CONFIG_HIGHMEM64G
+> +#define page_to_phys(page)     ((u64)(page - mem_map) << PAGE_SHIFT)
+> +#else
+>  #define page_to_phys(page)     ((page - mem_map) << PAGE_SHIFT)
+> +#endif
+> 
+>  extern void * __ioremap(unsigned long offset, unsigned long size, unsigned long flags);
 
-O_DIRECT is broken against RAID0 (at least) in 2.5 at present.  The
-RAID driver gets sent BIOs which straddle two or more chunks and RAID
-spits out lots of unpleasant warnings.  Neil has been informed...
+Ugh, this would indeed explain an unfixed problem with compaq arrays
+corrupting data with > 4gb of ram. Thanks, good spotting!
 
->  So, this database gets a query.  That query requires a full table
-> scan, so it calls fadvise(fd, F_SEQUENTIAL).  Then another query does
-> row-specific access, and caching helps.  So it wants to turn off
-> F_SEQUENTIAL.
+-- 
+Jens Axboe
 
-It'd probably be smarter for the application to hold two fds against
-the same file for this sort of access pattern.
-
-
--

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263100AbSJFAkw>; Sat, 5 Oct 2002 20:40:52 -0400
+	id <S263155AbSJFAs6>; Sat, 5 Oct 2002 20:48:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263102AbSJFAkw>; Sat, 5 Oct 2002 20:40:52 -0400
-Received: from holomorphy.com ([66.224.33.161]:5332 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S263100AbSJFAkv>;
-	Sat, 5 Oct 2002 20:40:51 -0400
-Date: Sat, 5 Oct 2002 17:44:38 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Gigi Duru <giduru@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The end of embedded Linux?
-Message-ID: <20021006004438.GG10722@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Gigi Duru <giduru@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20021005193650.17795.qmail@web13202.mail.yahoo.com>
+	id <S263175AbSJFAs6>; Sat, 5 Oct 2002 20:48:58 -0400
+Received: from bitmover.com ([192.132.92.2]:36486 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S263155AbSJFAsP>;
+	Sat, 5 Oct 2002 20:48:15 -0400
+Date: Sat, 5 Oct 2002 17:53:49 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: New BK License Problem?
+Message-ID: <20021005175349.B9032@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <20021005173057.J12580@work.bitmover.com> <Pine.LNX.4.44L.0210052150480.22735-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021005193650.17795.qmail@web13202.mail.yahoo.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44L.0210052150480.22735-100000@imladris.surriel.com>; from riel@conectiva.com.br on Sat, Oct 05, 2002 at 09:51:58PM -0300
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 05, 2002 at 12:36:50PM -0700, Gigi Duru wrote:
-> As an embedded developer, I can't stand bloat. I think
-> an OS designer should feel the same, and develop in a
-> fully modular and configurable manner, going for both
-> speed and size. For a long time I've felt that Linux
-> has got it right, but lately I'm not that sure
-> anymore. 
+> > > A fix for this would be "make patches available from bkbits.net".
+> >
+> > bkbits.net is a free service.  [snip good arguments]
+> 
+> > But as I said to someone else, why doesn't someone register
+> > "nobkbits.net" and use BK to mirror the repos and then provide the
+> > tarballs/patches as you see fit.
+> 
+> I can do this on NL.linux.org.   I'm already doing it for the
+> 2.4 and 2.5 Linux kernel trees and am willing to run the script
+> for other bitkeeper trees too.
+> 
+> If people want it, just let me know.
 
-Identifying the portions of the kernel with the largest codesize and/or
-static data size would help other developers accommodate your needs.
-Similarly for dynamic boot-time and runtime allocations.
-
-Even better, if you yourself took action to correct this regression it
-would be as welcome as any other Linux development activity.
-
-
-Bill
+If this turns into a serious thing we could polish up the bkbits.net
+infrastructure and provide it with one extra URL that lets you get 
+gnu style patches.  I already have the code for this, I just have it
+disabled for bandwidth reasons.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

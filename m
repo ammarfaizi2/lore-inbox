@@ -1,88 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132904AbRDRAJt>; Tue, 17 Apr 2001 20:09:49 -0400
+	id <S132925AbRDRAKu>; Tue, 17 Apr 2001 20:10:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132925AbRDRAJl>; Tue, 17 Apr 2001 20:09:41 -0400
-Received: from jffdns01.or.intel.com ([134.134.248.3]:21731 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S132904AbRDRAJb>; Tue, 17 Apr 2001 20:09:31 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDD91@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'John Fremlin'" <chief@bandits.org>,
-        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>
-Cc: "'Pavel Machek'" <pavel@suse.cz>,
-        Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Let init know user wants to shutdown
-Date: Tue, 17 Apr 2001 17:07:30 -0700
+	id <S132926AbRDRAKk>; Tue, 17 Apr 2001 20:10:40 -0400
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:20490 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S132925AbRDRAK0>; Tue, 17 Apr 2001 20:10:26 -0400
+Date: Tue, 17 Apr 2001 17:10:22 -0700 (PDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Tim Waugh <twaugh@redhat.com>
+cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: Is printing broke on sparc ?
+In-Reply-To: <20010417134257.J29490@redhat.com>
+Message-ID: <Pine.LNX.4.32.0104171707310.22166-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[do we want to move this to linux-power?]
+On Tue, 17 Apr 2001, Tim Waugh wrote:
+> On Mon, Apr 16, 2001 at 05:54:41PM -0700, Mr. James W. Laferriere wrote:
+> > # /etc/printcap
+> > # Please don't edit this file directly unless you know what you are doing!
+> > # Be warned that the control-panel printtool requires a very strict format!
+> > # Look at the printcap(5) man page for more info.
+> > # This file can be edited with the printtool in the control-panel.
+> > ##PRINTTOOL3## LOCAL POSTSCRIPT 300x300 letter {} PostScript Default {}
+> > lp:\
+> > 	:sd=/var/spool/lpd/lp:\
+> > 	:mx#0:\
+> > 	:sh:\
+> > 	:lp=/dev/lp0:\
+> > 	:if=/var/spool/lpd/lp/filter:
+> [...]
+> > /c#eodiecnyotai rhernili s to rpaemn
+> >                                     s eehpo o-.ROLPR0 roif{\=sl:x
+> >                                                                  	/p:ao/lr
 
-> From: John Fremlin [mailto:chief@bandits.org]
-> > We are going to need some software that handles button events, as
-> > well as thermal events, battery events, polling the battery, AC
-> > adapter status changes, sleeping the system, and more.
-> 
-> Dealing with events should be disjoint from polling the battery or
-> powerstatus. Many processes might reasonably simultaneously want to
-> provide a display to the user of the current power status.
+> This looks like characters are getting missed out, rather than
+> anything getting garbled.  The above characters all appear in
+> /etc/printcap in the order shown.  Obviously there isn't enough
+> redundancy in /etc/printcap for the print-out to be useful despite
+> that. :-)
+	;-) .
 
-There should be only one PM policy agent on the system. I don't care about
-other processes that query for display purposes, but someone needs to be
-alive and checking all the time in order to act on the user's wishes, and
-shut down or sleep when the battery hits x minutes remaining, for example.
-Let us call this "powerd", for sake of argument.
+> Please try adjusting the 'udelay (1)' lines in
+> drivers/parport/ieee1284_ops.c:parport_ieee1284_write_compat to be
+> larger delays (for example, try replacing the 1s with 2s, or 5s, and
+> see if that makes things better).
+	I am going to look and see if there might be a ioctl for that
+	function .  Failing that I shall recompile the kernel with each
+	of those values & test until successful or it seems futile .
 
-> However, button presses and so on should be handled by a single
-> process. Otherwise the kernel is unreasonably complicated by having to
-> deal with multiple processes' veto power, which could just as well and
-> more flexibly be handled in userspace.
-
-Exactly, only one entity can be in charge of setting the system's power
-policy. So, let's not multiply entities needlessly -- let's make the button
-policy manager also be powerd.
-
-> I don't why there needs to be an additional daemon constantly running
-> to deal with button presses and power status changes. Apparently init
-> is already handling similar things: why should it not be extended to
-> include button presses?
-
-Unix philosophy: do one task and do it well. Now that power management is
-big enough to be a task in itself (instead of just a minor feature) we
-should break it out from unrelated functionality.
-
-> Alternatively, why not forgo a daemon altogether? (This scheme is
-> already implemented in the pmpolicy patch, i.e. it is already
-> working.)
-
-Because power policy needs to run continuously. Why? Because we need to poll
-the battery for battery remaining, and we need to keep a moving average,
-because the battery only provides instantaneous power consumption numbers.
-Centralizing this means every UI applet can query it, and will show the same
-battery remaining value.
-
-Also, because thermal control is not 100% event driven - when we start
-passive cooling on the CPU because of a thermal zone overheat, we have to
-throttle, and then sample the temperature periodically until the temp goes
-below the threshold. (ref: ACPI 2.0 spec chapter 12)
-
-> > We need WAY more flexibility than init provides. 
-> 
-> Examples please.
-
-See above. I know you may have an affinity for a call_usermodehelper-based
-solution, but I hope I have been able to be clear on why I believe an actual
-daemon is justified.
-
-Regards -- Andy
-
-PS apm already has apmd (which we would be replacing), so there will be no
-net increase in system daemons.
+> Let me know what you need to change to get it working.
+> Thanks,
+> Tim.
+> */
+		Tnx ,  JimL
+       +----------------------------------------------------------------+
+       | James   W.   Laferriere | System  Techniques | Give me VMS     |
+       | Network        Engineer | 25416      22nd So |  Give me Linux  |
+       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
+       +----------------------------------------------------------------+
 

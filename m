@@ -1,61 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263697AbUAUHmr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 02:42:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263803AbUAUHmr
+	id S262055AbUAUICS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 03:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263561AbUAUICS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 02:42:47 -0500
-Received: from [66.35.79.110] ([66.35.79.110]:28035 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S263697AbUAUHmq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 02:42:46 -0500
-Date: Tue, 20 Jan 2004 23:42:38 -0800
-From: Tim Hockin <thockin@hockin.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: vatsa@in.ibm.com, Rusty Russell <rusty@au1.ibm.com>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       rml@tech9.net
-Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR
-Message-ID: <20040121074238.GB2078@hockin.org>
-References: <400CDCA1.5070200@cyberone.com.au> <20040120075409.GA13897@hockin.org> <400CE354.8060300@cyberone.com.au> <20040120082943.GA15733@hockin.org> <400CE8DC.70307@cyberone.com.au> <20040120084352.GD15733@hockin.org> <20040121093633.A3169@in.ibm.com> <400DFC8B.7020906@cyberone.com.au> <20040121070939.GB31807@hockin.org> <400E2ABA.2060809@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <400E2ABA.2060809@cyberone.com.au>
-User-Agent: Mutt/1.4.1i
+	Wed, 21 Jan 2004 03:02:18 -0500
+Received: from mxfep01.bredband.com ([195.54.107.70]:20717 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S262055AbUAUICQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 03:02:16 -0500
+To: Brian McGroarty <brian@mcgroarty.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HPT370 status [2.4/2.6]
+References: <1g0ZG-2q6-15@gated-at.bofh.it> <400D72B5.40705@gmx.at>
+	<yw1x4quqo1gx.fsf@ford.guide> <20040120204537.GA6820@mcgroarty.net>
+	<yw1xoesymilb.fsf@ford.guide> <20040121043536.GA14390@mcgroarty.net>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Wed, 21 Jan 2004 09:02:14 +0100
+In-Reply-To: <20040121043536.GA14390@mcgroarty.net> (Brian McGroarty's
+ message: 35:36 -0600")
+Message-ID: <yw1xvfn5loft.fsf@ford.guide>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 21, 2004 at 06:31:06PM +1100, Nick Piggin wrote:
-> >If hotplug scripts are failing, you're in really deep trouble.  I can't 
-> >find
-> >a single case where a hotplug script failing would not indicate some other
-> >larger failure.
-> >
-> 
-> sigh. threads-max, pid_max, ulimit, -ENOMEM, oom.
+Brian McGroarty <brian@mcgroarty.net> writes:
 
-These affect ALL hotplug scripts.  If you can't run a hotplug script because
-you've exceeded root's ulimit, or the max # of tasks/threads in the system,
-you're in trouble - regardless of what the hotplug event was - SOMETHING is
-going to go wrong.
+> On Tue, Jan 20, 2004 at 10:10:56PM +0100, M?ns Rullg?rd wrote:
+>> Brian McGroarty <brian@mcgroarty.net> writes:
+>> 
+>> > Wilfried Weissmann <Wilfried.Weissmann@gmx.at> writes:
+>> >> Jan De Luyck wrote:
+>> >>> Hello List,
+>> >>> Before I start frying my disks and all, what's the usability status
+>> >>> of the Hightpoint HPT370 ide "raid" controller on linux 2.4 and 2.6?
+>> >>
+>> >> 2.4 is fine if you use the ataraid code. mirroring is not fault
+>> >> tolerant so you would not want to use that.
+>> >
+>> > No problems with 2.4 here.
+>> >
+>> > 2.6 recognizes my 374, which uses the hpt366 driver like the
+>> > 370. However, no devices are being made available from it [1].
+>> >
+>> > If others' experiences are any different, I'd love to hear.
+>> 
+>> I've been successfully using an hpt374 based board for a year or so.
+>> Right now I'm running Linux 2.6.0 (no reboot after 2.6.1 release).
+>
+> Can you say a bit about your configuration?
+>
+> - What module(s) do you load? Any parameters?
 
-If you get ENOMEM you have a bigger problem.
+The usual bunch, i.e. USB, sound, ethernet, nfs.  Nothing specific to
+the hpt374.
 
-If you get OOM killed, then the OOM killer has gone haywire (not uncommon,
-historically).
+> - What devices do you access the hpt374 through?
 
-> I'd rather not add something that, by design can hang any number of 
-> processes
-> including the entire system if a hotplug script fails. Thats just my honest
-> opinion, I know its rare enough it probably would never happen to anyone.
-> 
-> Sorry I keep repeating this, its not my call and its never going to affect
-> me so I'll shut up now ;)
+Four Seagate Barracuda disks.
 
-I'd rather not add anything like that either.  I'm not saying I advocate
-fast-and-loose at all.  On the contrary, I think any action taken in
-response to a CPU removal needs to be accountable, and wantonly changing
-affinity is NOT.
+> - Are you running a RAID, or individual drives?
 
-It'll probably not affect me either, nor is it my decision :)
+Software RAID.
+
+> Any other info (dmesg, contents of ide procdir, etc) would be great
+> for us to compare.
+
+The evil thing just dumped a bunch of error.  I'll have to check it
+out.
+
+-- 
+Måns Rullgård
+mru@kth.se

@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135259AbRADUfB>; Thu, 4 Jan 2001 15:35:01 -0500
+	id <S135175AbRADUgL>; Thu, 4 Jan 2001 15:36:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132973AbRADUev>; Thu, 4 Jan 2001 15:34:51 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:22538 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S135259AbRADUel>;
-	Thu, 4 Jan 2001 15:34:41 -0500
-Date: Thu, 4 Jan 2001 21:31:46 +0100 (CET)
-From: egger@suse.de
-Reply-To: egger@suse.de
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1010104140542.17050A-100000@chaos.analogic.com>
+	id <S135216AbRADUgB>; Thu, 4 Jan 2001 15:36:01 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:56374 "EHLO
+	amsmta02-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S135175AbRADUfy>; Thu, 4 Jan 2001 15:35:54 -0500
+Date: Thu, 4 Jan 2001 22:42:53 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Sven Koch <haegar@cut.de>,
+        Kernel devel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
+In-Reply-To: <Pine.LNX.4.10.10101041205020.2092-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.21.0101042241420.4090-100000@server.serve.me.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Message-Id: <20010104213355.707A651AA@Nicole.muc.suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  4 Jan, Richard B. Johnson wrote:
+On Thu, 4 Jan 2001, Andre Hedrick wrote:
 
-> A mobile-phone that runs out of battery power will also  lose all the
-> phone numbers you have stored, etc. The same is true for most all
-> embedded systems that save data.
+> 
+> You have a hard destroke clipping on the drive.
+> Go look at you logs.
 
- In your world maybe. I would be quite pissed if my mobile phones lost 
- the stored numbers every time they run out of power. Nearly all embedded 
- devices nowadays keep their settings without power; be it a satellite
- receiver, a PBX, a fax machine or a coffee brewer. 
+Yeah.. I removed the clipping, and the machine won't boot. It halts after
+PnP init. Any way to use full capacity with the clipping enabled ?
 
-> This means that the data-base
-> software has to roll-back and redo the temporarily-lost updates
-> when it restarts. It uses the journal to accomplish this. As
-> N-seconds gets smaller, the overhead necessary to maintain data
-> consistency gets greater, so there are trade-offs.
 
- And depending on the application they may really be worth it.
+	Regards,
 
-> A journaling file-system also needs some number to show the
-> order of operations so that roll-backs and restarts work.
-> Unfortunately, the systems that I have seen all use time for
-> the number! You don't want time to reconstruct 'order'. You
-> need a number that represents 'order'. Time is not your friend.
-
- Since the metadata has to be sync anyway what about using a
- normal transaction counter?
-
--- 
-
-Servus,
-       Daniel
+		Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

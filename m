@@ -1,44 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268368AbUIPR7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268382AbUIPSCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268368AbUIPR7g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 13:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268410AbUIPR6g
+	id S268382AbUIPSCg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 14:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268453AbUIPR77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 13:58:36 -0400
-Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:35781 "EHLO
-	smtp.bensa.ar") by vger.kernel.org with ESMTP id S268270AbUIPR6M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 13:58:12 -0400
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: Jedi/Sector One <j@pureftpd.org>
-Subject: Re: 2.6.9-rc2-mm1
-Date: Thu, 16 Sep 2004 14:57:59 -0300
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20040916024020.0c88586d.akpm@osdl.org> <200409161345.56131.norberto+linux-kernel@bensa.ath.cx> <20040916173732.GA31672@c9x.org>
-In-Reply-To: <20040916173732.GA31672@c9x.org>
+	Thu, 16 Sep 2004 13:59:59 -0400
+Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:32774 "EHLO
+	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S268186AbUIPR6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 13:58:35 -0400
+Message-ID: <4149D655.5070904@hp.com>
+Date: Thu, 16 Sep 2004 14:07:17 -0400
+From: Robert Picco <Robert.Picco@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
+       Jesse Barnes <jbarnes@engr.sgi.com>, venkatesh.pallipadi@intel.com
+Subject: Re: device driver for the SGI system clock, mmtimer
+References: <200409161003.39258.bjorn.helgaas@hp.com> <Pine.LNX.4.58.0409160930300.6765@schroedinger.engr.sgi.com> <200409161054.51467.bjorn.helgaas@hp.com>
+In-Reply-To: <200409161054.51467.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409161458.00031.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jedi/Sector One wrote:
-> On Thu, Sep 16, 2004 at 01:45:55PM -0300, Norberto Bensa wrote:
-> > Andrew Morton wrote:
-> > > +tune-vmalloc-size.patch
-> >
-> > This one of course breaks nvidia's binary driver; so nvidia users should
-> > do a "patch -Rp1" to revert it.
+Bjorn Helgaas wrote:
+
+>On Thursday 16 September 2004 10:32 am, Christoph Lameter wrote:
+>  
 >
-> http://00f.net/blogs/index.php/2004/09/16/nvidia_kernel_module_and_linux_2_
->6_9_rc2
+>>On Thu, 16 Sep 2004, Bjorn Helgaas wrote:
+>>    
+>>
+>>>Christoph Lameter wrote:
+>>>      
+>>>
+>>>>The timer hardware was designed around the multimedia timer specification by Intel
+>>>>but to my knowledge only SGI has implemented that standard. The driver was written
+>>>>by Jesse Barnes.
+>>>>        
+>>>>
+>>>As far as I can see, drivers/char/hpet.c talks to the same hardware.
+>>>HP sx1000 machines (and probably others) also implement the HPET.
+>>>      
+>>>
+>>The Intel Multimedia Standard is a earlier and different timer spec.
+>>    
+>>
+>
+>I have a spec that's labelled "IA-PC Multimedia Timers", preliminary
+>draft of June 2000, revision 0.97, which looks like the one mentioned
+>in your patch.
+>
+>I also have something labelled "IA-PC HPET (High Precision Event
+>Timers) Specification", draft of February 2002, revision 0.98,
+>which is what drivers/char/hpet.c supports.
+>
+>I admit I haven't compared them in great detail, but they certainly
+>*look* like they're close enough that the same driver could support
+>both, and the 0.98 revision history only mentions fairly cosmetic
+>changes (like the name :)).
+>
+>Is there something specific that drivers/char/hpet.c expects that
+>your hardware doesn't implement?
+>
+>  
+>
+Look at HPET revision history.  Specifically 0.98 01/20/2002
+    * Product name changed: from Multimedia Timer to HPET (High 
+Precision Event Timer)
 
-Thanks. Actually, that was going to be my next fix, but ATM I'm trying to get 
-a work done for my CS class.
-
-Best regards,
-Norberto
+Bob

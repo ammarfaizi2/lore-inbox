@@ -1,73 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbTLSJZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 04:25:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbTLSJZQ
+	id S262186AbTLSJlM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 04:41:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTLSJlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 04:25:16 -0500
-Received: from relay5.ftech.net ([195.200.0.100]:48809 "EHLO relay5.ftech.net")
-	by vger.kernel.org with ESMTP id S262110AbTLSJZK (ORCPT
+	Fri, 19 Dec 2003 04:41:12 -0500
+Received: from head.linpro.no ([80.232.36.1]:11711 "EHLO head.linpro.no")
+	by vger.kernel.org with ESMTP id S262186AbTLSJlI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 04:25:10 -0500
-Message-ID: <7C078C66B7752B438B88E11E5E20E72E25CB33@general.hq.farsitecommunications.com>
-From: Kevin Curtis <kevin.curtis@farsite.co.uk>
-To: "'Samuel Flory'" <sflory@rackable.com>,
-       "Chandler, Neville" <chandler@ibiquity.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: non-SMP kernels fail to compile
-Date: Fri, 19 Dec 2003 09:25:08 -0000
+	Fri, 19 Dec 2003 04:41:08 -0500
+To: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: VM-related (?) oops in 2.4.22 + rmap15k
+References: <uk18ylanke9.fsf@ifconfig.linpro.no>
+From: Sigurd Urdahl <sigurdur@linpro.no>
+Organization: Linpro AS
+Date: 19 Dec 2003 10:40:55 +0100
+In-Reply-To: <uk18ylanke9.fsf@ifconfig.linpro.no>
+Message-ID: <uk1zndpm9g8.fsf@ifconfig.linpro.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: -4.9 (----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1AXH7w-0005Bb-60*K9d/C84oHA2*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sigurd Urdahl <sigurdur@linpro.no> writes:
 
-I seem to recall this problem from a long time ago.
-As I remember, doing a make mrproper before starting the Non-SMTP build
-solved the problem for me.
-Remember to save your .config file outside of the Kernel tree as make
-mrproper will delete it.
+> I believe that the kernel is also patched with ACL's and a few other
+> things, but as far as I can gather none of the extra patches should
+> impact on the VM. (The guy who patched together the kernel is away on
+> holiday)
 
+I have some additional info on the applied patchset. The kernel
+started out as a 2.4.22 and has the following applied:
 
-Kevin
+01_-_patch-2.4.22-1000-ckbase-0309132043
+02_-_patch-2422-ck2base-rmap15k-0309210033
+03_-_ea+acl+nfsacl-2.4.22-0.8.64.diff-rmap-compatfixes
+05_-_linux-2.4.21-ipvs-1.0.10.patch
+06_-_linux-2.4.20-VFS-lock.patch-fixed
+07_-_linux-2.4.19-fw-tulip-mtu.patch
+08_-_eepro-vlan-mtu-patch2
+09_-_online-ext3-2.4.19.diff+EA+ACL-compatfixes
+10_-_ebtables-brnf-2_vs_2.4.22.diff
+11_-_rmapfix
+12_-_patch-2.4.22-ck2-fix.patch
+13_-_rmapfix_from_rik
+14_-_do_brk_bounds_check
 
------Original Message-----
-From: Samuel Flory [mailto:sflory@rackable.com] 
-Sent: 18 December 2003 23:21
-To: Chandler, Neville
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: non-SMP kernels fail to compile
+(for reference, our local maintainer is Tore Andersson)
 
-
-Chandler, Neville wrote:
-> Hello,
->  
-> I'm having problems compiling Non-SMP versions of the linux kernel.
-> linux-2.4.23 and linux-2.4.24-pre1 fail to compile with SMP disabled.
-> However, they do compile cleanly when SMP is enabled. Any help would be
-> appreciated.
-> 
-> Thanks.
-> 
-> System: Redhat 9
-> GCC:    3.3.2
-> 
-> 
-
-
-   I've compiled a number of up kernel for 2.4.23 with no issue.  What 
-sort of compile errors are you getting?  Can we get you config file.
+-sig
 
 -- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org More majordomo info at
-http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Sigurd Urdahl                           sigurdur@linpro.no
+Systemkonsulent og sånt        Systems consultant and such
+Linpro A/S                           http://www.linpro.no/

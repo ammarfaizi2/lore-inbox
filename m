@@ -1,72 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263439AbTICPug (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 11:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263532AbTICPug
+	id S262361AbTICPsh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 11:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263439AbTICPsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 11:50:36 -0400
-Received: from mail.rdsor.ro ([193.231.238.10]:27582 "HELO mail.rdsor.ro")
-	by vger.kernel.org with SMTP id S263439AbTICPu0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 11:50:26 -0400
-From: Balint Cristian <rezso@rdsor.ro>
-Organization: Home
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-alpha@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compiling latest 2.6 bk snapshot on Alpha
-Date: Wed, 3 Sep 2003 18:44:43 -0400
-User-Agent: KMail/1.5.2
-References: <20030903143157.GA17699@localhost> <20030903150024.GA18306@localhost> <20030903151532.GH14376@lug-owl.de>
-In-Reply-To: <20030903151532.GH14376@lug-owl.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 3 Sep 2003 11:48:37 -0400
+Received: from rrzd2.rz.uni-regensburg.de ([132.199.1.12]:58001 "EHLO
+	rrzd2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S262361AbTICPsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 11:48:35 -0400
+Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx
+	doesn't work
+From: Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>
+Reply-To: christian.guggenberger@physik.uni-regensburg.de
+To: linux-kernel@vger.kernel.org, dth@ncc1701.cistron.net,
+       Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>
+Content-Type: text/plain
+Message-Id: <1062604114.626.4.camel@bonnie79>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 03 Sep 2003 17:48:34 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309031844.43208.rezso@rdsor.ro>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If using RedHat-7.2 based thing on alpha or older you can use my own maintained RH rawhide for alpha:
+>>Some days ago a patch for 2.6 has been posted on bugzilla, (see some of the 
+>>last entries of Bug #10).
+>>This one got IO-APIC + ACPI working for the first time in a year on my EPOX 
+>>8k5a3+.
+>>(via-rhine, usb , sound )
+>>Please try !
 
-ftp.rdsor.ro/pub/Linux/Distributions/AlphaLinux
+>You mean this one? (so small, probably no-one minds)
 
-There can find very latest gcc/binutils/glibc shaga, it must fit OK with any redhat for alphas.
+yep, this one. 
+please cc me next time, cause I'm not subcribed.
 
-I have no problem compiling latest kernel with tham.
-
-
-Cristian
+Christian
 
 
-On Wednesday 03 September 2003 11:15, Jan-Benedict Glaw wrote:
-> On Wed, 2003-09-03 11:00:24 -0400, Mathieu Chouquet-Stringer
-> <mchouque@online.fr>
->
-> wrote in message <20030903150024.GA18306@localhost>:
-> > On Wed, Sep 03, 2003 at 04:40:31PM +0200, Marc Zyngier wrote:
-> > > Please check your binutils version. Here is the one I use, with great
-> > > success :
-> > >
-> > > maz@panther:/mnt/i386/linux-2.5$ alpha-linux-ld --version
-> > > GNU ld version 2.13.90.0.18 20030121
-> >
-> > Mine is: GNU ld version 2.14.90.0.5 20030722 Debian GNU/Linux
->
-> I've just started a compile run with exactly this ld and gcc-3.3.2
-> 20030812. This may take a while (it's a 166MHz NoName...).
->
-> Maybe you've simply created a too large kernel image. Have you compiled
-> many features into the kernel (where modules would have worked also...)?
->
-> MfG, JBG
-
--- 
-Life in itself has no meaning. 
-Life is an opportunity to create meaning.
-
-              \|/ ____ \|/ 
-              "@'/ .. \`@" 
-              /_| \__/ |_\ 
-                 \__U_/ 
+diff -uNr linux-2.6.0-test4-bk2.orig/drivers/acpi/pci_link.c linux-2.6.0-test4-bk2/drivers/acpi/pci_link.c
+--- linux-2.6.0-test4-bk2.orig/drivers/acpi/pci_link.c	2003-08-23 01:52:08.000000000 +0200
++++ linux-2.6.0-test4-bk2/drivers/acpi/pci_link.c	2003-08-30 10:05:20.514059029 +0200
+@@ -360,6 +360,8 @@
+ 		return_VALUE(-ENODEV);
+ 	}
+ 
++
++#ifdef DONT_REMOVE_CHECK
+ 	/* Make sure the active IRQ is the one we requested. */
+ 	result = acpi_pci_link_get_current(link);
+ 	if (result) {
+@@ -375,6 +377,10 @@
+ 		return_VALUE(-ENODEV);
+ 	}
+ 
++#else
++        link->irq.active = irq;
++#endif
++
+ 	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Set IRQ %d\n", link->irq.active));
+ 	
+ 	return_VALUE(0);
 

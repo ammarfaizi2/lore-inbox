@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313070AbSIADOP>; Sat, 31 Aug 2002 23:14:15 -0400
+	id <S313628AbSIADXa>; Sat, 31 Aug 2002 23:23:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313628AbSIADOP>; Sat, 31 Aug 2002 23:14:15 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:40721 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S313070AbSIADOO>; Sat, 31 Aug 2002 23:14:14 -0400
-Date: Sun, 1 Sep 2002 13:18:32 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Frank Davis <fdavis@si.rr.com>
-cc: linux-kernel@vger.kernel.org, Harald Welte <laforge@gnumonks.org>
-Subject: [PATCH] Re: 2.5.32 : net/ipv4/netfilter/ipfwadm_core.c compile error
-In-Reply-To: <Pine.LNX.4.33.0208300801120.27846-100000@primetime>
-Message-ID: <Mutt.LNX.4.44.0209011232410.14016-100000@blackbird.intercode.com.au>
+	id <S313898AbSIADXa>; Sat, 31 Aug 2002 23:23:30 -0400
+Received: from biglinux.tccw.WKU.EDU ([161.6.10.206]:33180 "EHLO linux")
+	by vger.kernel.org with ESMTP id <S313628AbSIADX3>;
+	Sat, 31 Aug 2002 23:23:29 -0400
+Date: Sat, 31 Aug 2002 22:27:47 -0500 (CDT)
+From: "Brent D. Norris" <brent@linux.wku.edu>
+X-X-Sender: brent@linux
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Vega Buddy B-210A
+Message-ID: <Pine.LNX.4.44.0208312219180.26157-100000@linux>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Aug 2002, Frank Davis wrote:
+I was wondering if anyone could help me with this, or at least point me in
+a direction.
 
-> Hello all, 
->   While 'make modules', I received the following error.
-> 
-> Regards,
-> Frank
-> 
-> ipfwadm_core.c: In function `ip_fw_chk':
-> ipfwadm_core.c:450: structure has no member named `read_locked_map'
-> ipfwadm_core.c:450: structure has no member named `write_locked_map'
+It seems like a while ago I read an article talking about a card that
+could be placed in a Linux machine which added an extra mouse, keyboard
+and VGA port and allowed for two workstations off of one computer.
 
-Please see the fix below.  (The problem only shows up when netfilter 
-debugging is enabled).
+While strolling around today I found something that did this in the Vega
+Buddy B-210A.  This card is PCI and has a Cat5 out.  This cat5 runs to a
+box which breaks the signal out to Mouse, Keyboard, VGA.
 
+Running Redhat 7.3 I can get the OS to detect the Video Adapter that is
+built in to the card, but the rest of the stuff doesn't seem to get
+detected.  Is this possible with linux and if so is there some option that
+needs to be added to the kernel to get it to work?  I understand if it
+isn't, I mean this is kinda a random piece of equipment, but I was sure I
+had read about something like this being used, though I cannot seem to
+find the article via google.
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+Thanks for reading this and any help you might give, also I am not
+subscribed right now, so if you could please CC me on any replies.
 
-diff -urN -X dontdiff linux-2.5.33.w1/net/ipv4/netfilter/ipfwadm_core.c linux-2.5.33.w1-ipfwadm/net/ipv4/netfilter/ipfwadm_core.c
---- linux-2.5.33.w1/net/ipv4/netfilter/ipfwadm_core.c	Wed Aug 28 13:24:30 2002
-+++ linux-2.5.33.w1-ipfwadm/net/ipv4/netfilter/ipfwadm_core.c	Sun Sep  1 12:16:16 2002
-@@ -156,7 +156,7 @@
- #define dprint_ip(a)
- #endif
- 
--static rwlock_t ip_fw_lock = RW_LOCK_UNLOCKED;
-+static DECLARE_RWLOCK(ip_fw_lock);
- 
- #if defined(CONFIG_IP_ACCT) || defined(CONFIG_IP_FIREWALL)
- 
-
+Brent Norris (http://brentnorris.net)
+Assistant Technology Coordinator, Edmonson County Schools
+H: 270.563.9226
 

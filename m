@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317454AbSGTRv0>; Sat, 20 Jul 2002 13:51:26 -0400
+	id <S317458AbSGTSWa>; Sat, 20 Jul 2002 14:22:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317457AbSGTRv0>; Sat, 20 Jul 2002 13:51:26 -0400
-Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:268 "EHLO
-	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S317454AbSGTRv0>;
-	Sat, 20 Jul 2002 13:51:26 -0400
-Message-ID: <3D39A48C.C0863416@tv-sign.ru>
-Date: Sat, 20 Jul 2002 21:57:32 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S317462AbSGTSWa>; Sat, 20 Jul 2002 14:22:30 -0400
+Received: from quechua.inka.de ([212.227.14.2]:13676 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S317458AbSGTSW3>;
+	Sat, 20 Jul 2002 14:22:29 -0400
+From: Bernd Eckenfels <ecki-news2002-06@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-CC: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [announce, patch, RFC] "big IRQ lock" removal, IRQ cleanups.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: close return value
+In-Reply-To: <000e01c22f5c$dce9c600$da5b903f@starbak.net>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E17Vyv9-00060R-00@sites.inka.de>
+Date: Sat, 20 Jul 2002 20:25:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+In article <000e01c22f5c$dce9c600$da5b903f@starbak.net> you wrote:
+> It's an issue when it MIGHT be important.  Such as, fprintf to an important
+> data file should be checked, fprintf to stderr is usually cool not to check.
 
-> - to remove the preemption count increase/decrease code from the lowlevel
->   IRQ assembly code.
+well, writing to stdout/stderr can fail with a normal IO Error. It depends
+on what kind of data you actually output. If it is a log message and you are
+sure you do not need intact audit trails you might ignore it. If you write a
+pipe tool (e.g. sort) you better check that write state and terminate.
 
-So do_IRQ() can start with preempt_count == 0.
-Suppose another cpu sets TIF_NEED_RESCHED flag
-at the same time.
-
-spin_lock(&desc->lock) sets preempt_count == 1.
-Before calling handle_IRQ_event() (which adds IRQ_OFFSET
-to preempt_count), do_IRQ() does spin_unlock(&desc->lock)
-and falls into schedule().
-
-Am I missed something?
-
-It seems to me that call to irq_enter() must be shifted
-from handle_IRQ_event() to do_IRQ().
-
-Oleg.
+Greetings
+Bernd
+yy

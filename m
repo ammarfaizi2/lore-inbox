@@ -1,66 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264822AbUFHEYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264691AbUFHFSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264822AbUFHEYH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 00:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbUFHEYH
+	id S264691AbUFHFSP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 01:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbUFHFSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 00:24:07 -0400
-Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:3819 "EHLO
-	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S264836AbUFHEYD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 00:24:03 -0400
-Message-ID: <40C53F58.1060907@lab.ntt.co.jp>
-Date: Tue, 08 Jun 2004 13:23:52 +0900
-From: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Carrier Grade Linux 3.0 availability draft announcement
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Jun 2004 01:18:15 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:732 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S264691AbUFHFSM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 01:18:12 -0400
+Date: Tue, 8 Jun 2004 09:18:08 +0400
+From: Andrey Panin <pazke@donpac.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-mm2
+Message-ID: <20040608051808.GA19170@pazke>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040603015356.709813e9.akpm@osdl.org> <20040607124125.GT3776@pazke> <20040607220157.1e67ec39.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Content-Disposition: inline
+In-Reply-To: <20040607220157.1e67ec39.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
+X-SMTP-Authenticated: pazke@donpac.ru (cram)
+X-SMTP-TLS: TLSv1:AES256-SHA:256
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
 
-I wanted to let this mailing list know about the availability of an
-early public draft of the Carrier Grade Linux v3.0 Availability
-specification, available at
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-http://www.osdl.org/docs/cgl_availability_req_definition___v30.pdf
+On 159, 06 07, 2004 at 10:01:57 -0700, Andrew Morton wrote:
+> Andrey Panin <pazke@donpac.ru> wrote:
+> >
+> > Could you apply attached patch (only exports DMI check functions) inste=
+ad of them ?
+>=20
+> I'll need a better description of what it does, please.
 
-The requirements in this document are aimed at supporting
-serviceability of a network element in a carrier-grade environment.
+This patch creates and exports 2 functions which can be used
+by the rest of kernel code to perform DMI data checks:
 
-I acknowledge that the requirements in this draft are being
-implemented in a variety of ways and many of the requirements in this
-document exist in current implementations.  I am contacting this
-mailing list because I believe your projects may meet some of the
-requirements and we'd like to solicit feedback.
+ - dmi_check_system() function checks system DMI data against
+given blacklist table and on each match runs corresponding
+callback function;
 
-Again, this is an early draft document of the v3.0 availability
-requirements spec.  Past OSDL Carrier Grade Linux technical documents
-have contained all requirements in a single document.  For OSDL CGL
-v3.0 draft releases, we are releasing them as more granular sections,
-roughly split on functional boundaries.  These boundaries are
-Standards, Serviceability, Clustering, Hardware, Performance,
-Security, and Availability (this document).
-
-More information on Carrier Grade Linux and the Carrier Grade Linux
-Working Group can be found at
-http://osdl.org/lab_activities/carrier_grade_linux/.
-
-Feel free to direct any comments on the spec to me directly at
-ikebe.takashi@lab.ntt.co.jp or to our mailing list at
-cgl_discussion@osdl.org.
--- 
-Takashi Ikebe
-NTT Network Service Systems Laboratories
-9-11, Midori-Cho 3-Chome Musashino-Shi,
-Tokyo 180-8585 Japan
-Tel : +81 422 59 4246, Fax : +81 422 60 4012
-e-mail : ikebe.takashi@lab.ntt.co.jp
+ - dmi_get_system_info() function returns DMI data value.
+Useful for people wanting more complex DMI data check than
+simple string match.
 
 
+Also filling unused match entries with NO_MATCH made optional,
+but existing NO_MATCH occurences are left intact, so people
+are free to continue dmi_scan.c patching without massive
+reject problems.
 
+Best regards.
+
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+
+--opJtzjQTFsWo+cga
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAxUwQby9O0+A2ZecRAkQpAKCyQQ0MsVCV+6giXASBsvgULqmTaACeJGBb
+kBaFvpmmbB5DqgveNsVnZ2I=
+=91vX
+-----END PGP SIGNATURE-----
+
+--opJtzjQTFsWo+cga--

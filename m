@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUHJKax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUHJKco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264260AbUHJKax (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 06:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUHJKax
+	id S263893AbUHJKco (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 06:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbUHJKcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 06:30:53 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:47566 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S264260AbUHJK2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 06:28:50 -0400
-Date: Tue, 10 Aug 2004 12:27:56 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408101027.i7AARuZr012065@burner.fokus.fraunhofer.de>
-To: dwmw2@infradead.org, schilling@fokus.fraunhofer.de
-Cc: James.Bottomley@steeleye.com, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
-       eric@lammerts.org, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Tue, 10 Aug 2004 06:32:43 -0400
+Received: from holomorphy.com ([207.189.100.168]:65255 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263893AbUHJKcj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 06:32:39 -0400
+Date: Tue, 10 Aug 2004 03:32:22 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] preempt-timing-on-2.6.8-rc3-O4.patch
+Message-ID: <20040810103222.GQ11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+	Florian Schmidt <mista.tapas@gmx.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+References: <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040809130558.GA17725@elte.hu> <20040809190201.64dab6ea@mango.fruits.de> <1092103522.761.2.camel@mindpipe> <1092117141.761.15.camel@mindpipe> <20040810080933.GA26081@elte.hu> <1092125864.848.2.camel@mindpipe> <20040810101232.GA2706@elte.hu> <20040810102019.GP11200@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040810102019.GP11200@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 10, 2004 at 12:13:03PM +0200, Ingo Molnar wrote:
+>> i've uploaded a new version of the preempt-timing patch:
+>> http://redhat.com/~mingo/voluntary-preempt/preempt-timing-on-2.6.8-rc3-O4.patch
+>> this patch fixes a number of false positives and false negatives. In
+>> particular it fixes the idle-task false positives, and it now correctly
+>> measures preemption delays in softirq and hardirq contexts and in
+>> bh-disabled process contexts. Maybe this sheds a light on some of the
+>> more mysterious delays that we've seen. (and which were never directly
+>> measured before.)
+>> (the patch also got alot simpler, which should help portability.)
 
->From: David Woodhouse <dwmw2@infradead.org>
+On Tue, Aug 10, 2004 at 03:20:19AM -0700, William Lee Irwin III wrote:
+> Looks really good, this thing is really starting to look slick from all
+> the time you've put in on it.
+> The adding in of the FOOIRQ_OFFSET bits were a rather major oversisght
+> on my part!  Very good catch.
 
->> Cdrecord also needs privilleges to lock memory and to raise prioirity.
-
->Wrong. Cdrecord does not always _need_ to lock memory or to raise its
->priority.
-
->To do so may be useful when using older drives without buffer underrun
->protection, but is not strictly necessary on current hardware. 
-
-Please inform yourself before posting.....
-
-Burn-Proof is switched off by default and other protections (invented later)
-are switched off by cdrecord to get compatibility..... if you only had read the 
-man page......
-
-Switching Burn-Proof on will reduce the quality of the CDs.
+Feh, there has to be a way to say "this is a good patch" without sounding
+like I'm reviewing freshman code. This is a good patch.
 
 
-In addition: if you don't have the experience when Buffer Underruns occur, you 
-should not post speculations that it is not a problem. I know that it _is_ and 
-this should be enough for you. Unless you send me the results from a test done 
-under worst conditions you need to believe in the experience of people who 
-spend more time on CD/DVD recording issues than you.
-
-Proving things to work for a 1/12th dozen only is not sufficient for granting 
-quality.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+-- wli

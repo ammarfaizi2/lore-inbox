@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286491AbRLUAGx>; Thu, 20 Dec 2001 19:06:53 -0500
+	id <S286495AbRLUAQe>; Thu, 20 Dec 2001 19:16:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286489AbRLUAGo>; Thu, 20 Dec 2001 19:06:44 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:23722 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S286495AbRLUAGd>; Thu, 20 Dec 2001 19:06:33 -0500
-Date: Fri, 21 Dec 2001 00:08:06 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: andrea@suse.de, davej@codemonkey.org.uk
-Subject: Possible O_DIRECT problems ?
-Message-ID: <20011221000806.A26849@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, andrea@suse.de,
-	davej@codemonkey.org.uk
-Mime-Version: 1.0
+	id <S286496AbRLUAQZ>; Thu, 20 Dec 2001 19:16:25 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:28679 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S286495AbRLUAQV>; Thu, 20 Dec 2001 19:16:21 -0500
+Message-ID: <3C227F0E.E6A9CF76@zip.com.au>
+Date: Thu, 20 Dec 2001 16:15:10 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: gregor@suhr.home.cs.tu-berlin.de, linux-kernel@vger.kernel.org
+Subject: Re: OOPS  at boot in 2.4.17-rc[12]  (kernel BUG at slab.c:815) maybe 
+ devfs
+In-Reply-To: <3C210AB9.5000900@suhr.home.cs.tu-berlin.de>,
+		<3C210AB9.5000900@suhr.home.cs.tu-berlin.de> <200112202338.fBKNcCI05673@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea, lk,
- I just experimented with O_DIRECT in conjunction with fsx,
-and the results aren't pretty.
+Richard Gooch wrote:
+> 
+> Gregor Suhr writes:
+> > ...
+> > kernel BUG at slab.c:815!
 
-Over NFS it survives around 921 operations, all local filesystems
-(ext2,ext3,reiser tested) just 6 operations.
-I've put the source to a modified fsx at
-http://www.codemonkey.org.uk/cruft/fsx-odirect.c
+Somebody tried to create the same cache twice.  This can
+happen when loading a buggy module the second time, various
+things.
 
-It's possible I've done something wrong here, so look it over.
-Just adding O_DIRECT flag to open() should be all thats necessary
-correct ?
+Please, apply this patch and run it again.
 
-Also note, that by changing the flags on line 988 to have O_DIRECT
-also, we get different failure type.
-
-So, did I get the usage of O_DIRECT correct and find some bugs,
-or have I had a little too much xmas spirits already ? 8-)
-
-
-Dave.
-
--- 
-| Dave Jones.                    http://www.codemonkey.org.uk
-| SuSE Labs .
+--- linux-2.4.17-rc2/mm/slab.c	Tue Dec 18 19:37:31 2001
++++ linux-akpm/mm/slab.c	Thu Dec 20 16:14:19 2001
+@@ -811,8 +811,10 @@ next:
+ 			kmem_cache_t *pc = list_entry(p, kmem_cache_t, next);
+ 
+ 			/* The name field is constant - no lock needed. */
+-			if (!strcmp(pc->name, name))
++			if (!strcmp(pc->name, name)) {
++				printk(__FUNCTION__ ": %s\n", name);
+ 				BUG();
++			}
+ 		}
+ 	}

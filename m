@@ -1,111 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283375AbRK2SUp>; Thu, 29 Nov 2001 13:20:45 -0500
+	id <S283374AbRK2S0f>; Thu, 29 Nov 2001 13:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283376AbRK2SUg>; Thu, 29 Nov 2001 13:20:36 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:35977 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S283375AbRK2SUa>; Thu, 29 Nov 2001 13:20:30 -0500
-Date: Thu, 29 Nov 2001 19:19:38 +0100
-From: Dirk Pritsch <dirk@enterprise.in-berlin.de>
-To: linux-kernel@vger.kernel.org
-Subject: oops with 2.5.1-pre3 in ide-scsi module 
-Message-ID: <20011129191938.A1402@Enterprise.in-berlin.de>
+	id <S283376AbRK2S0Z>; Thu, 29 Nov 2001 13:26:25 -0500
+Received: from marao.utad.pt ([193.136.40.3]:19470 "EHLO marao.utad.pt")
+	by vger.kernel.org with ESMTP id <S283374AbRK2S0N> convert rfc822-to-8bit;
+	Thu, 29 Nov 2001 13:26:13 -0500
+Subject: UPDATE - Re: System temporary freeze (but network layer) while
+	blanking CD-RW w/ ide-scsi [2.4.14 and 2.4.16 w/preempt]
+From: Alvaro Lopes <alvieboy@alvie.com>
+To: Alvaro Lopes <alvieboy@alvie.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C065182.3090909@alvie.com>
+In-Reply-To: <3C065182.3090909@alvie.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 29 Nov 2001 18:22:22 +0000
+Message-Id: <1007058142.1837.0.camel@dwarf>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Well, did some sysrq show tasks while blanking and found processes
+locked (D) in:
 
-just tried the new 2.5.1-pre3 and got the following oops when trying to
-burn a cd (ide-cd/rw with ide-scsi emulation).
-
-I Hope this is some useful information.
-
-
-____
-ksymoops 2.4.3 on i586 2.5.1-pre3.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.1-pre3/ (default)
-     -m /boot/System.map-2.5.1-pre3 (default)
-
-Warning: You did not tell me where to find
-symbol information.  I will
-assume that the log matches the kernel and
-modules that are running
-right now and I'll use the default options
-above for symbol resolution.
-If the current kernel and/or modules do not
-match the log, you can get
-more accurate output by telling me the kernel
-version and where to find
-map, modules, ksyms etc.  ksymoops -h explains
-the options.
+sleep_on()
+wait_on_buffer()
+lock_page()
+___wait_on_page()
 
 
-Unable to handle kernel NULL pointer dereference at virtual address
-00000038
-c01af582
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[idescsi_queue+1158/1396]    Not tainted
-EFLAGS: 00210002
-eax: 00000000   ebx: d3f64320   ecx: d3f64ea0   edx: 00000000
-esi: c0989000   edi: d3f64ea0   ebp: d3f64320   esp: c7321cc4
-ds: 0018   es: 0018   ss: 0018
-Process cdrecord (pid: 1055, stackpage=c7321000)
-Stack: 00200293 d36761d4 d3eef800 d3f2dba0 00000000 c8a76ee0 d3eef858 c0989000 
-       00000001 00000000 c7d5d3c0 c150eee0 c02c3be4 c01a7309 d3eef800 c01a77b4 
-       d3eef800 d36761d4 d3eef8b8 d36761d4 00000000 c01ac422 d3eef800 d3eef800 
-Call Trace: [scsi_dispatch_cmd+257/372] [scsi_done+0/144] [scsi_request_fn+786/808] [__scsi_in sert_special+118/128] [scsi_insert_special_req+25/32] 
-Code: 03 42 38 89 46 00 83 c6 14 89 74 24 1c 83 6c 24 20 01 73 bf 
-Using defaults from ksymoops -t elf32-i386 -a i386
+I issued a ^C to cdrecord but blanking kept on. System resumed normal
+operation after end of blanking.
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   03 42 38                  add    0x38(%edx),%eax
-Code;  00000002 Before first symbol
-   3:   89 46 00                  mov    %eax,0x0(%esi)
-Code;  00000006 Before first symbol
-   6:   83 c6 14                  add    $0x14,%esi
-Code;  00000008 Before first symbol
-   9:   89 74 24 1c               mov %esi,0x1c(%esp,1)
-Code;  0000000c Before first symbol
-   d:   83 6c 24 20 01            subl $0x1,0x20(%esp,1)
-Code;  00000012 Before first symbol
-  12:   73 bf                     jae ffffffd3 <_EIP+0xffffffd3> ffffffd2 <END_OF_CODE+2af53fd0/????>
+BTW I'm using ReiserFS .
+
+Álvaro
 
 
-1 warning issued.  Results may not be reliable.
-____
+On Qui, 2001-11-29 at 15:17, Alvaro Lopes wrote:
+> Hi all
+> 
+> This is very weird. A few days ago I started blanking a CD-RW with a
+> HP9500 IDE drive and after five seconds or so the system froze. I was
+> still able to ping it and SNAT worked properly too. All services (X,
+> ssh, smtp) stopped and were almost fully inacessible (I was still able
+> to see some applets working on X, but no more) and when it finished
+> blanking, system came back to normal as if nothing had happended.
+> 
+> At the time I thought it might be a 2.4.14 issue.
+> 
+> Today I repeated the test with 2.4.16 w/ preemption patch. The same
+> thing happened. This time I was running a 'vmstat 1':
+> 
+> ....
+> ....
+> ....
+>    0  4  1  50524   3932   2984  46168   0   0     0     0  102   151   0   0 100
+>    0  4  1  50524   3932   2984  46168   0   0     0     0  102   154   0   0 100
+>    0  4  1  50524   3928   2984  46168   0   0     0     0  101   149   0   0 100
+>    0  4  1  50524   3928   2984  46168   0   0     0     0  101   154   0   0 100
+>    1  4  1  50524   3928   2984  46168   0   0     0     0  101   150   0   0 100
+>    0  4  1  50524   3928   2984  46168   0   0     0     0  102   151   0   0 100
+>    0  4  1  50524   3924   2984  46168   0   0     0     0  101   156   0   0 100
+>    0  4  1  50524   3924   2984  46168   0   0     0     0  101   152   0   0 100
+>    0  4  1  50524   3924   2984  46168   0   0     0     0  102   155   0   0 100
+>    0  4  1  50524   3924   2984  46168   0   0     0     0  101   150   0   0 100
+>    0  4  1  50524   3916   2984  46168   0   0     0     0  101   150   0   0 100
+>    0  4  1  50524   3916   2984  46168   0   0     0     0  101   151   0   0 100
+> 
+> when it got here, system froze.... and then:
+> 
+>    1  5  1  50584   4216  2820  44996 2348 296 3032  348 113506 165193   0   0 100
+>    1  4  1  50572  11416   3192  37112 348   0   668   596  319  1243   4   3  93
+>    1  1  0  50552  11468   3520  37420   0   0   308   492  315   794   6   3  91
+>    1  0  0  50552  11068   3544  37596   0   0   168     4  127  9301  65   6  29
+>    1  0  0  50552  11064   3544  37596   0   0     0     0  104   652  75   0  25
+>    2  0  0  50552  11064   3544  37596   0   0     0     0  102   604  75   0  25
+>    1  0    procs                      memory    swap          io     system
+>      cpu
+>    r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+>    1  0  1  50552  10992   3616  37596   0   0     0   140  154   721  75   1  25
+>    2  0  0  50552  10992   3616  37596   0   0     0    32  118   679  75   0  25
+>    1  0  0  50552  10988   3616  37596   0   0     0     0  101   610  75   0  25
+>    1  0  0  50552  10988   3616  37596   0   0     0     0  102   602  74   0  26
+>    0  0  0  50552  10104   3652  37664 220   0   308     0  139   741  47   1  52
+>    0  0  0  50552  10104   3652  37664   0   0     0     0  107   491   0   0 100
+>    0  0  0  50552  10012   3744  37664   0   0     0   160  155   598   1   0  99
+>    0  0  0  50552  10320   3744  37704  32   0    84     0  181  1078  18   2  80
+>    0  0  0  50552  10284   3780  37704   0   0     0    44  250   834   1   2  97
+> 
+> 
+> What is happening here ?  Any clues ???
+> 
+> Álvaro Lopes
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-After the oops the following message appeared in syslog:
-
-Nov 29 18:06:01 enterprise kernel:  <6>scsi: device set offline -
-command error recover failed: host 0 channel 0 id 0 lun 0
-
-____
-
-lsmod shows no loaded ide-scsi or cdrom modules, so the oops happened
-before loading them.
-
-____
-
-
-
-
-Please CC: me in replies or if you need further information as I'm not
-subscribed to l-k.
-
-
-Cheers,
-
-Dirk
 

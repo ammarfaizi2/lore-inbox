@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132143AbRAERuU>; Fri, 5 Jan 2001 12:50:20 -0500
+	id <S132472AbRAERvA>; Fri, 5 Jan 2001 12:51:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131384AbRAERuA>; Fri, 5 Jan 2001 12:50:00 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:9461 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129859AbRAERtz>; Fri, 5 Jan 2001 12:49:55 -0500
-Date: Fri, 5 Jan 2001 15:48:57 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Admin Mailing Lists <mlist@intergrafix.net>
-cc: Chris Evans <chris@scary.beasts.org>, Chris Mason <mason@suse.com>,
-        reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: reiserfs patch for 2.4.0-final
-In-Reply-To: <Pine.LNX.4.10.10101051243200.323-100000@athena.intergrafix.net>
-Message-ID: <Pine.LNX.4.21.0101051547160.1295-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132458AbRAERuu>; Fri, 5 Jan 2001 12:50:50 -0500
+Received: from h201.s254.netsol.com ([216.168.254.201]:4738 "EHLO
+	tesla.admin.cto.netsol.com") by vger.kernel.org with ESMTP
+	id <S132135AbRAERuM>; Fri, 5 Jan 2001 12:50:12 -0500
+Date: Fri, 5 Jan 2001 12:50:07 -0500
+From: Pete Toscano <pete@research.netsol.com>
+To: linux-kernel@vger.kernel.org
+Subject: usb + smp + apollo pro 133a + 2.4.0 = still broken
+Message-ID: <20010105125006.B1569@tesla.admin.cto.netsol.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="UHN/qo2QbUvPLonB"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Uptime: 12:46pm  up  1:50,  4 users,  load average: 0.14, 0.09, 0.08
+X-Married: 418 days, 17 hours, 1 minutes, and 21 seconds
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jan 2001, Admin Mailing Lists wrote:
 
-> Is ext2 upgradable to reiserfs or ext3?
+--UHN/qo2QbUvPLonB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> If so, is it transparent..or like a umount, convert, mount..or
-> do you like have to import to a whole new partition?
+just a heads up that usb in smp-enabled 2.4.0 kernels running on
+machines with the via apollo pro 133a chipset is still broken.  the last
+word i heard was that it's a pci irq routing problem.  smp and usb will
+play together pretty nicely if you disable apic (ie. "noapic" to lilo).
 
-ext2 is upgradable to ext3; after you have created a journal
-on the filesystem (either by hand or using tune2fs) you can
-remount the filesystem as ext3.   If it turns out you don't
-like ext3, you can even go back to ext2 by unmounting the ext3
-fs and remounting it ext2.
+i'm more than willing to help test patches and provide any more info to
+people working on this, but i lack the low-level knowledge to actually
+fix it.
 
-Going to reiserfs will require a reformat of your partition,
-because the format is completely different.
+thanks,
+pete
 
-regards,
+--=20
+Pete Toscano    p:sigsegv@psinet.com     w:pete@research.netsol.com
+GPG fingerprint: D8F5 A087 9A4C 56BB 8F78  B29C 1FF0 1BA7 9008 2736
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to loose...
+--UHN/qo2QbUvPLonB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE6VglOH/Abp5AIJzYRAh7nAKChZGz+WlI+CSEZIP+ON58X/mGBFQCgoKz/
+TaXAelB+yKdCrDydOcXx0lU=
+=fbs7
+-----END PGP SIGNATURE-----
+
+--UHN/qo2QbUvPLonB--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

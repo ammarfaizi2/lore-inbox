@@ -1,56 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUHYPmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUHYPok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264903AbUHYPmw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 11:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUHYPmv
+	id S261610AbUHYPok (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 11:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267259AbUHYPok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 11:42:51 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:14759 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S264903AbUHYPms (ORCPT
+	Wed, 25 Aug 2004 11:44:40 -0400
+Received: from maxipes.logix.cz ([81.0.234.97]:6274 "EHLO maxipes.logix.cz")
+	by vger.kernel.org with ESMTP id S261610AbUHYPoX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 11:42:48 -0400
-Date: Wed, 25 Aug 2004 08:42:37 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Subject: Re: [RFC&PATCH 1/2] PCI Error Recovery (readX_check)
-Message-ID: <20040825154237.GA19447@cup.hp.com>
-References: <412AD123.8050605@jp.fujitsu.com> <Pine.LNX.4.58.0408232231070.17766@ppc970.osdl.org> <1093417267.2170.47.camel@gaston>
-Mime-Version: 1.0
+	Wed, 25 Aug 2004 11:44:23 -0400
+Message-ID: <412CB3D2.9020706@suse.cz>
+Date: Wed, 25 Aug 2004 17:44:18 +0200
+From: Michal Ludvig <mludvig@suse.cz>
+Organization: SuSE CR, s.r.o.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040606
+X-Accept-Language: cs, cz, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+Cc: CryptoAPI List <cryptoapi@lists.logix.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /dev/crypto for Linux
+References: <412BB517.4040204@suse.cz> <20040825152651.A8381@infradead.org>
+In-Reply-To: <20040825152651.A8381@infradead.org>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093417267.2170.47.camel@gaston>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 25, 2004 at 05:01:08PM +1000, Benjamin Herrenschmidt wrote:
-...
-> Most drivers already have such a low level lock though, so we may end
-> up replacing it with a bridge-based lock... but depending on the architecture,
-> that would end up sync'ing lots of drivers on the same lock, which may not
-> be good especially if we have no checking to do... 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-multiple drivers acquiring the same bridge lock? ugh.
+Christoph Hellwig told me that:
 
-Which bridge sees an error may be a parent (or child) of the PCI bridge
-we are monitoring. I suspect we will have to live with multiple
-devices being impacted by errors on a bus and the error recovery
-notify/resyncronize with all impacted devices.
+>>+static int
+>>+clonefd(struct file *filp)
+>>+{
+>>+	struct files_struct * files = current->files;
+>>+	int fd;
+>>+
+>>+	fd = get_unused_fd();
+>>+	if (fd >= 0) {
+>>+		get_file(filp);
+>>+		FD_SET(fd, files->open_fds);
+>>+		fd_install(fd, filp);
+>>+	}
+>>+
+>>+	return fd;
+>>+}
+>
+>
+> Yikes.
+>
+>
+>>+static int
+>>+cryptodev_ioctl(struct inode *inode, struct file *filp,
+>>+		unsigned int cmd, unsigned long arg)
+>>+{
+>>+	struct session_op sop;
+>>+	struct crypt_op cop;
+>>+	struct fcrypt *fcr = filp->private_data;
+>>+	uint32_t ses;
+>>+	int ret, fd;
+>>+
+>>+	if (!fcr)
+>>+		BUG();
+>>+
+>>+	switch (cmd) {
+>>+		case CRIOGET:
+>>+			fd = clonefd(filp);
+>>+			put_user(fd, (int*)arg);
+>>+			return 0;
+>
+>
+> Extremly bad API.  Just allow opening the device multiple times,
+> and get a new context each time (can be stored in file->private_data
 
-Does anyone expect to recover from devices attempting unmapped DMA?
-Ie an IOMMU which services multiple PCI busses getting a bad DMA address
-will cause the next MMIO read by any of the (grandchildren) PCI devices to 
-see an error (MCA on IA64). I'm asking only to determine if this is
-outside the scope of what the PCI error recovery is trying to support.
+As I already said - these are relicts from the OpenBSD API. Will be
+redesigned and rewritten.
 
-> I don't know what is the best thing to do here... The arch is the one to
-> know what is the granularity of the error management (per slot ? per segment
-> or per domain ?) and so to know what kind of lock is needed...
+Michal Ludvig
+- --
+SUSE Labs                    mludvig@suse.cz
+(+420) 296.542.396        http://www.suse.cz
+Personal homepage http://www.logix.cz/michal
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-Yeah...I guess my comments are along the same vein.
-
-grant
+iD8DBQFBLLPQDDolCcRbIhgRAvglAJ48SiKsO2NymzGqsn9x8EYZSoMoMQCfWqsC
+t8E+AdtAgZc9Wi2Ta0xz1bs=
+=emM8
+-----END PGP SIGNATURE-----

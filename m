@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVADWTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbVADVve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbVADWTi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 17:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVADWTg
+	id S262370AbVADVve (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 16:51:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVADVsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 17:19:36 -0500
-Received: from dialin-209-183-20-85.tor.primus.ca ([209.183.20.85]:8832 "EHLO
-	node1.opengeometry.net") by vger.kernel.org with ESMTP
-	id S262376AbVADWQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 17:16:18 -0500
-Date: Tue, 4 Jan 2005 17:16:00 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Wait and retry mounting root device
-Message-ID: <20050104221600.GA2619@node1.opengeometry.net>
-Mail-Followup-To: Daniel Drake <dsd@gentoo.org>,
-	lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <41DA8DFC.4030801@gentoo.org>
+	Tue, 4 Jan 2005 16:48:36 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:6376 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262276AbVADVrN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 16:47:13 -0500
+Subject: Re: [PATCH] split bprm_apply_creds into two functions
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       James Morris <jmorris@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050104183043.GA3592@IBM-BWN8ZTBWA01.austin.ibm.com>
+References: <20050104183043.GA3592@IBM-BWN8ZTBWA01.austin.ibm.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1104874872.20724.155.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DA8DFC.4030801@gentoo.org>
-User-Agent: Mutt/1.4.2i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 04 Jan 2005 16:41:12 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 12:37:16PM +0000, Daniel Drake wrote:
-> This is based a patch by William Park <opengeometry@yahoo.ca> included in
-> 2.6.10-mm1, in order to fix booting from usb-storage devices which no longer
-> make their partitions immediately available.
+On Tue, 2005-01-04 at 13:30, Serge E. Hallyn wrote:
+> The following patch splits bprm_apply_creds into two functions,
+> bprm_apply_creds and bprm_post_apply_creds.  The latter is called
+> after the task_lock has been dropped.  Without this patch, SELinux
+> must drop the task_lock and re-acquire it during apply_creds, making
+> the 'unsafe' flag meaningless to any later security modules.  Please
+> apply.
 > 
-> While William's patch fixed the situation where you boot from a "root=8:1"
-> parameter (to correspond to /dev/sda1), it does not allow you to use
-> "root=/dev/sda1" (which apparently worked in 2.6.9 and earlier), because
-> the name-->dev_t discovery is done before the "retry" loop starts, and is
-> not retried during the loop.
+> thanks,
+> -serge
 > 
-> This patch, which replaces William's, solves the above problems.
+> Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 
-It's funny...  Your patch does the opposite.  It works for
-    root=/dev/sda1
-from the kernel command line, but not from Lilo or 'root=8:1' on command
-line. :-)
+Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
 
 -- 
-William Park <opengeometry@yahoo.ca>
-Open Geometry Consulting, Toronto, Canada
-Linux solution for data processing. 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+

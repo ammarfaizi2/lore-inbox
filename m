@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265766AbRF1Nhy>; Thu, 28 Jun 2001 09:37:54 -0400
+	id <S265837AbRF1NoE>; Thu, 28 Jun 2001 09:44:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265796AbRF1Nhe>; Thu, 28 Jun 2001 09:37:34 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32012 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265766AbRF1Nhc>; Thu, 28 Jun 2001 09:37:32 -0400
-Subject: Re: VM Requirement Document - v0.0
-To: tori@unhappy.mine.nu (Tobias Ringstrom)
-Date: Thu, 28 Jun 2001 14:37:20 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mike_phillips@urscorp.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0106281523390.1258-100000@boris.prodako.se> from "Tobias Ringstrom" at Jun 28, 2001 03:33:57 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S265844AbRF1Nnz>; Thu, 28 Jun 2001 09:43:55 -0400
+Received: from gate.westel900.hu ([194.176.224.33]:7482 "EHLO
+	gate.westel900.hu") by vger.kernel.org with ESMTP
+	id <S265837AbRF1Nnj>; Thu, 28 Jun 2001 09:43:39 -0400
+Date: Thu, 28 Jun 2001 15:39:54 +0200
+From: csani@lme.linux.hu
+To: linux-kernel@vger.kernel.org
+Subject: Error while making 2.4.5 bzImage with CONFIG_MPENTIUMIII=y
+Reply-To: csani@lme.linux.hu
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Fbyy-0006xF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
+Message-ID: <15Fc3N-0004je-00@gate.westel900.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > That isnt really down to labelling pages, what you are talking qbout is what
-> > you get for free when page aging works right (eg 2.0.39) but don't get in
-> > 2.2 - and don't yet (although its coming) quite get right in 2.4.6pre.
-> 
-> Correct, but all pages are not equal.
+Hi,
 
-That is the whole point of page aging done right. The use of a page dictates
-how it is aged before being discarded. So pages referenced once are aged
-rapidly, but once they get touched a couple of times then you know they arent
-streaming I/O. There are other related techniques like punishing pages that
-are touched when streaming I/O is done to pages further down the same file -
-FreeBSD does this one for example
+This is the config file:
 
-> The problem with updatedb is that it pushes all applications to the swap,
-> and when you get back in the morning, everything has to be paged back from
-> swap just because the (stupid) OS is prepared for yet another updatedb
-> run.
+http://www.holanyi.hu/config
 
-Updatedb is a bit odd in that it mostly sucks in metadata and the buffer to
-page cache balancing is a bit suspect IMHO.
+produced with make menuconfig on a vanilla tree;
+and this is the log file:
 
-Alan
+http://www.holanyi.hu/bzImage.log
 
+of the command:
+
+time make dep clean bzImage modules moduels_install 2>&1 | tee bzImage.log
+
+The errors do not occur if I switch on SMP. Howver, I would like to get out
+the most of my PIII 500 and would not like to use SMP and would also like to
+use APM stuff.
+Is this a known problem with 2.4.5? Sorry if yes.
+Anyway, I could not find relevant info in the archives of this list about
+this issue.
+
+Is there hope I will be able to compile a suitable kernel for this PIII?
+
+Thanks
+
+Csan
+
+PS: Please Cc: me. However, I will be monitoring the archives, so I will
+catch your mails. :)

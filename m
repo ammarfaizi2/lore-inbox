@@ -1,146 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272299AbTHNHPr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 03:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272305AbTHNHPr
+	id S272227AbTHNHkz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 03:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272236AbTHNHkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 03:15:47 -0400
-Received: from waste.org ([209.173.204.2]:61919 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S272299AbTHNHPj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 03:15:39 -0400
-Date: Thu, 14 Aug 2003 02:15:19 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, jmorris@intercode.com.au,
-       davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cryptoapi: Fix sleeping
-Message-ID: <20030814071519.GJ325@waste.org>
-References: <20030813233957.GE325@waste.org> <3F3AD5F1.8000901@pobox.com> <20030813174436.3db7efb1.akpm@osdl.org> <20030814020323.GI325@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 14 Aug 2003 03:40:55 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:38830
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272227AbTHNHky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 03:40:54 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH] O12.2int for interactivity
+Date: Thu, 14 Aug 2003 17:46:53 +1000
+User-Agent: KMail/1.5.3
+Cc: Timothy Miller <miller@techsource.com>, rob@landley.net,
+       Charlie Baylis <cb-lkml@fish.zetnet.co.uk>,
+       linux-kernel@vger.kernel.org
+References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <200308141659.33447.kernel@kolivas.org> <20030814070119.GN32488@holomorphy.com>
+In-Reply-To: <20030814070119.GN32488@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030814020323.GI325@waste.org>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200308141746.53346.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 09:03:23PM -0500, Matt Mackall wrote:
-> On Wed, Aug 13, 2003 at 05:44:36PM -0700, Andrew Morton wrote:
-> > Jeff Garzik <jgarzik@pobox.com> wrote:
-> > >
-> > > Matt Mackall wrote:
-> > > > We need in_atomic() so that we can call from regions where preempt is
-> > > > disabled, for instance when using per_cpu crypto tfms.
-> > > > 
-> > > > diff -urN -X dontdiff orig/crypto/internal.h work/crypto/internal.h
-> > > > +++ work/crypto/internal.h	2003-08-12 14:38:54.000000000 -0500
-> > > > @@ -37,7 +37,7 @@
-> > > >  
-> > > >  static inline void crypto_yield(struct crypto_tfm *tfm)
-> > > >  {
-> > > > -	if (!in_softirq())
-> > > > +	if (!in_atomic())
-> > > >  		cond_resched();
-> > > 
-> > > 
-> > > Do you really want to schedule inside preempt_disable() ?
-> > > 
-> > 
-> > in_atomic() returns false inside spin_lock() on non-preemptive kernels.
-> > 
-> > Either this code needs to be removed altogether or it should be changed to
-> > 
-> > 	BUG_ON(in_atomic());
-> > 	cond_resched();
-> > 
-> > and the callers should be fixed up.
-> 
-> Cryptoapi probably needs a flag for skipping the yield. I'll look into it.
+On Thu, 14 Aug 2003 17:01, William Lee Irwin III wrote:
+> On Thu, 14 Aug 2003 16:09, William Lee Irwin III wrote:
+> >> "scale" on which scheduling events should happen, and as tasks become
+> >> more cpu-bound, they have longer timeslices, so that two cpu-bound
+> >> tasks of identical priority will RR very slowly and have reduced
+> >> context switch overhead, but are near infinitely preemptible by more
+> >> interactive or short-running tasks.
+>
+> On Thu, Aug 14, 2003 at 04:59:33PM +1000, Con Kolivas wrote:
+> > Actually the timeslice handed out is purely dependent on the static
+> > priority, not the priority it is elevated or demoted to by the
+> > interactivity estimator. However lower priority tasks (cpu bound ones if
+> > the estimator has worked correctly) will always be preempted by higher
+> > priority tasks (interactive ones) whenever they wake up.
+>
+> So it is; the above commentary was rather meant to suggest that the
+> lengthening of timeslices in conventional arrangements did not penalize
+> interactive tasks, not to imply that priority preemption was not done
+> at all in the current scheduler.
 
-Ok, for reference, the code calling yield is stuff like this buried in
-cryptoapi:
+While you're on the subject can I just clarify some details about the arrays. 
+If a task doesn't use up it's full timeslice and goes back to sleep, it 
+starts gaining bonus points which elevate it's interactivity in the eyes of 
+the scheduler. When it wakes up again, it will always go onto the active 
+array. While running, it's bonus points are being burnt off on a time basis. 
+If it then uses up it's timeslice, depending on whether it is above or below 
+a cuttoff (the delta) based on the level of interactivity of the task, the 
+scheduler will decide to put it on the end of the active array again, or 
+expire it. Thus tasks that never sleep are always below the interactive delta 
+so each time they use up their timeslice they go onto the expired array. 
+Tasks with enough bonus points can go back onto the active array if they 
+haven't used up those bonus points.
 
-static void update(struct crypto_tfm *tfm,
-                   struct scatterlist *sg, unsigned int nsg)
-{
-        unsigned int i;
-         
-        for (i = 0; i < nsg; i++) {
-                char *p = crypto_kmap(sg[i].page, 0) + sg[i].offset;
-                tfm->__crt_alg->cra_digest.dia_update(crypto_tfm_ctx(tfm),
-                                                      p,
-						      sg[i].length);
-                crypto_kunmap(p, 0);
-                crypto_yield(tfm);
-        }
-}
+As wli said, most of my tweaks just change what I do with the data given to me 
+by the scheduler, and looks for patterns in the way processes run to choose 
+what bonus to give each process. The rest is the same as the vanilla tree.
 
-It's basically trying to be friendly. Since we can't really detect
-when it's safe to do such yields, we should be explicitly flag the
-uses where its ok. Something like this:
+Lots more to say but that should make it clear enough for understanding. 
 
-diff -urN -X dontdiff orig/crypto/api.c work/crypto/api.c
---- orig/crypto/api.c	2003-07-13 22:38:38.000000000 -0500
-+++ work/crypto/api.c	2003-08-14 01:53:07.000000000 -0500
-@@ -53,7 +53,8 @@
- 
- static int crypto_init_flags(struct crypto_tfm *tfm, u32 flags)
- {
--	tfm->crt_flags = 0;
-+	tfm->crt_flags = flags & CRYPTO_TFM_API_MASK;
-+	flags &= ~CRYPTO_TFM_API_MASK;
- 	
- 	switch (crypto_tfm_alg_type(tfm)) {
- 	case CRYPTO_ALG_TYPE_CIPHER:
-diff -urN -X dontdiff orig/crypto/internal.h work/crypto/internal.h
---- orig/crypto/internal.h	2003-07-13 22:29:11.000000000 -0500
-+++ work/crypto/internal.h	2003-08-14 01:53:28.000000000 -0500
-@@ -37,7 +37,7 @@
- 
- static inline void crypto_yield(struct crypto_tfm *tfm)
- {
--	if (!in_softirq())
-+	if (tfm->crt_flags & CRYPTO_TFM_API_YIELD)
- 		cond_resched();
- }
- 
-diff -urN -X dontdiff orig/include/linux/crypto.h work/include/linux/crypto.h
---- orig/include/linux/crypto.h	2003-07-13 22:32:32.000000000 -0500
-+++ work/include/linux/crypto.h	2003-08-14 01:53:07.000000000 -0500
-@@ -36,7 +36,8 @@
-  */
- #define CRYPTO_TFM_MODE_MASK		0x000000ff
- #define CRYPTO_TFM_REQ_MASK		0x000fff00
--#define CRYPTO_TFM_RES_MASK		0xfff00000
-+#define CRYPTO_TFM_RES_MASK		0x7ff00000
-+#define CRYPTO_TFM_API_MASK		0x80000000
- 
- #define CRYPTO_TFM_MODE_ECB		0x00000001
- #define CRYPTO_TFM_MODE_CBC		0x00000002
-@@ -50,6 +51,9 @@
- #define CRYPTO_TFM_RES_BAD_BLOCK_LEN 	0x00800000
- #define CRYPTO_TFM_RES_BAD_FLAGS 	0x01000000
- 
-+/* Allow for rescheduling after processing each sg element */
-+#define CRYPTO_TFM_API_YIELD		0x80000000
-+
- /*
-  * Miscellaneous stuff.
-  */
-diff -urN -X dontdiff orig/include/linux/sched.h work/include/linux/sched.h
---- orig/include/linux/sched.h	2003-08-14 01:53:04.000000000 -0500
-+++ work/include/linux/sched.h	2003-08-14 01:53:07.000000000 -0500
-@@ -824,6 +824,7 @@
- extern void __cond_resched(void);
- static inline void cond_resched(void)
- {
-+	might_sleep();
- 	if (need_resched())
- 		__cond_resched();
- }
+Con
 
-
-
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon

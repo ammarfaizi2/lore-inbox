@@ -1,76 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261663AbSKRInM>; Mon, 18 Nov 2002 03:43:12 -0500
+	id <S261624AbSKRIlN>; Mon, 18 Nov 2002 03:41:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261664AbSKRInM>; Mon, 18 Nov 2002 03:43:12 -0500
-Received: from descript.sysdoor.net ([81.91.66.78]:40973 "EHLO jenna")
-	by vger.kernel.org with ESMTP id <S261663AbSKRInL>;
-	Mon, 18 Nov 2002 03:43:11 -0500
-Message-ID: <003b01c28edf$9e2b1530$76405b51@romain>
-From: "Vergoz Michael" <mvergoz@sysdoor.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <028901c28ead$10dfbd20$76405b51@romain> <3DD89813.9050608@pobox.com>
-Subject: Re: 8139too.c patch for kernel 2.4.19
-Date: Mon, 18 Nov 2002 09:50:50 +0100
-MIME-Version: 1.0
+	id <S261663AbSKRIlN>; Mon, 18 Nov 2002 03:41:13 -0500
+Received: from postoffice2.mail.cornell.edu ([132.236.56.10]:6358 "EHLO
+	postoffice2.mail.cornell.edu") by vger.kernel.org with ESMTP
+	id <S261624AbSKRIlM>; Mon, 18 Nov 2002 03:41:12 -0500
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+  charset="us-ascii"
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+Organization: ( )
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.4.20-rc2, ATYFB, kernel freeze
+Date: Mon, 18 Nov 2002 03:47:39 -0500
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200211180347.39133.ivg2@cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+Kernel 2.4.20-rc2 freezes after the framebuffer initialization message for 
+ATYFB... same kernel without it doesn't freeze...
 
-What i see is the current driver _doesn't_ work on my realtek 8139C.
-With this one it work fine.
+This is an old problem that has been there for several kernels...
 
-Regards,
-Michael
+Graphics cards:
 
-Sent: Monday, November 18, 2002 8:34 AM
-Subject: Re: 8139too.c patch for kernel 2.4.19
+  Bus  0, device  10, function  0:
+    VGA compatible controller: ATI Technologies Inc 3D Rage Pro 215GP (rev 
+92).
+      IRQ 9.
+      Master Capable.  Latency=32.  Min Gnt=8.
+      Prefetchable 32 bit memory at 0xde000000 [0xdeffffff].
+      I/O at 0xdc00 [0xdcff].
+      Non-prefetchable 32 bit memory at 0xe0000000 [0xe0000fff].
+
+  Bus  1, device   0, function  0:
+    VGA compatible controller: nVidia Corporation NV20 [GeForce3 Ti200] (rev 
+163).
+      IRQ 5.
+      Master Capable.  Latency=248.  Min Gnt=5.Max Lat=1.
+      Non-prefetchable 32 bit memory at 0xdc000000 [0xdcffffff].
+      Prefetchable 32 bit memory at 0xd4000000 [0xd7ffffff].
+      Prefetchable 32 bit memory at 0xd8000000 [0xd807ffff].
 
 
-> Vergoz Michael wrote:
->
-> > Hi list,
-> >
-> > The current 8139too.c linux kernel driver dosn't work.
->
->
-> Please be more specific.
->
-> > There is the patch for the driver 8139too.c at :
-> >
-> > http://descript.sysdoor.net/patch/kernel/2.4.19/8139too.c.diff
-> >
-> > It fix some problems with card mode, new hard detection and new card
-> > added.
-> >
-> > Please read the diff.
->
->
->
-> The diff is huge, mostly unnecessary, and backs out obvious bug fixes
-> (i.e. it _adds_ bugs).  It removes several PCI IDs, eliminating 8139
-> support for some cards.  The "new card" is supported by another driver,
-> 8139cp.c.
->
-> Please send _specific_ changes and bug fixes.
->
-> Jeff
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Kernel options:
+CONFIG_FB_ATY and CONFIG_FB_ATY_CT and CONFIG_FB_RIVA
+Tried disabling RIVA...results are the same...
+..yet the NVidia card could be related somehow, because I remember ATYFB 
+working when I didn't have the geforce..
+
+SYSRQ has no effect after freeze
 

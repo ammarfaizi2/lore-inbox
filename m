@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316594AbSGQTjp>; Wed, 17 Jul 2002 15:39:45 -0400
+	id <S316601AbSGQToM>; Wed, 17 Jul 2002 15:44:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316601AbSGQTjp>; Wed, 17 Jul 2002 15:39:45 -0400
-Received: from ns.suse.de ([213.95.15.193]:45064 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316594AbSGQTjn>;
-	Wed, 17 Jul 2002 15:39:43 -0400
-Date: Wed, 17 Jul 2002 21:42:39 +0200
-From: Dave Jones <davej@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  July 17, 2002
-Message-ID: <20020717214239.A32389@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Guillaume Boissiere <boissiere@adiglobal.com>,
-	linux-kernel@vger.kernel.org
-References: <3D34C75C.13697.11D651E4@localhost> <Pine.LNX.4.44L.0207171625140.12241-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0207171625140.12241-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S316604AbSGQToL>; Wed, 17 Jul 2002 15:44:11 -0400
+Received: from ip68-6-153-107.sd.sd.cox.net ([68.6.153.107]:29531 "EHLO
+	train.sweet-haven.com") by vger.kernel.org with ESMTP
+	id <S316601AbSGQToL>; Wed, 17 Jul 2002 15:44:11 -0400
+Date: Wed, 17 Jul 2002 12:47:04 -0700 (PDT)
+From: Lew Wolfgang <wolfgang@sweet-haven.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks (whither dump?)
+In-Reply-To: <ah4dpn$2tj$1@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.33.0207171233050.25238-100000@train.sweet-haven.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 04:25:56PM -0300, Rik van Riel wrote:
- > On Wed, 17 Jul 2002, Guillaume Boissiere wrote:
- > 
- > > New week, new status update...
- > > The details are at http://www.kernelnewbies.org/status/
- > >
- > > With the code freeze date approaching soon, it is obvious that many
- > > of these projects will not get merged in the next 3 months.
- > > What would you rather me do?  Keep them in here just for reference,
- > > mark them as post-code freeze or just delete them?
- > 
- > Please keep them as post-code freeze.  They might not go into
- > 2.5 and early 2.6, but that doesn't mean we should throw away
- > our TODO list ;)
+Hi Folks,
 
-Indeed. It may even be an idea to take what I started doing at
-http://www.codemonkey.org.uk/Linux-2.5.html, merging the two
-and Guillaume running with this if you have time, because these days,
-between hacking and merging patches, I'm kept pretty busy, so updates
-to that file are getting less frequent.
+As an old dump user (dumpster?) I have to admit that we've
+avoided ext3 and Reiserfs because of this issue.  We couldn't
+live without the "Tower of Hanoi".
 
-        Dave
+I remember using, many years ago (SunOS 3.4), a patched
+dump binary that allowed safe dumps from live UFS filesystems.
+I don't remember all the details (it was 16-years ago) but
+this dump would compare somehow, files before and after writing
+to tape.  If there was a difference it would back out the
+dumped file and preserve the consistency of the tape.  I don't
+remember if it would go back and try the file again.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+I haven't the foggest notion if this would work in these
+modern times, I'm just offering it as food for thought.
+
+Regards,
+Lew Wolfgang
+
+

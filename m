@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265467AbRGHWwB>; Sun, 8 Jul 2001 18:52:01 -0400
+	id <S266031AbRGHWzb>; Sun, 8 Jul 2001 18:55:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266031AbRGHWvv>; Sun, 8 Jul 2001 18:51:51 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:9482 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S265467AbRGHWvl>;
-	Sun, 8 Jul 2001 18:51:41 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Jahn Veach - Veachian64" <V64@Galaxy42.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Unresolved symbols in 2.4.6 
-In-Reply-To: Your message of "Sun, 08 Jul 2001 09:20:46 EST."
-             <008001c107b9$3011c660$66b93604@molybdenum> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 09 Jul 2001 08:51:36 +1000
-Message-ID: <24743.994632696@ocs3.ocs-net>
+	id <S266971AbRGHWzL>; Sun, 8 Jul 2001 18:55:11 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:7181 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S266031AbRGHWzK>;
+	Sun, 8 Jul 2001 18:55:10 -0400
+Date: Mon, 9 Jul 2001 00:55:02 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: swap read ahead bug
+Message-ID: <Pine.LNX.4.33.0107090015160.28551-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jul 2001 09:20:46 -0500, 
-"Jahn Veach - Veachian64" <V64@Galaxy42.com> wrote:
->On Sun, 8 Jul 2001 03:23:17 -0600,
->"Keith Owens" <kaos@ocs.com.au> wrote:
->>What does 'grep printk /proc/ksyms' report on the 2.4.6 kernel?  Also
->>'nm vmlinux | grep printk' against the vmlinux for your 2.4.6 kernel?
->
->My 2.4.6 kernel can't boot because it panics when it goes to mount the root
->filesystem. An nm on the kernel returns 'File format not recognized'. It
->also returns this error when done on my 2.2.17 kernel, which runs just fine.
+Hi,
 
-You do nm on vmlinux, not vmlinuz.  vmlinux is in the top level
-directory of the kernel source tree after the build.
+In do_swap_page() we don't flush read ahead pages to memory, so the cpu
+might read the wrong data into the icache. I can reproduce this on my ppc
+machine and the patch below fixes this problem.
+If the patch is ok, you might also want to remove the wait_on_page() since
+the following lock_page() implies this wait already.
+
+bye, Roman
+
+diff -u -r1.1.1.13 -r1.3
+--- mm/memory.c	2001/07/08 15:05:26	1.1.1.13
++++ mm/memory.c	2001/07/08 17:12:37	1.3
+@@ -1109,8 +1109,6 @@
+ 			return -1;
+ 		}
+ 		wait_on_page(page);
+-		flush_page_to_ram(page);
+-		flush_icache_page(vma, page);
+ 	}
+
+ 	/*
+@@ -1140,6 +1138,8 @@
+ 		pte = pte_mkwrite(pte_mkdirty(pte));
+ 	UnlockPage(page);
+
++	flush_page_to_ram(page);
++	flush_icache_page(vma, page);
+ 	set_pte(page_table, pte);
+
+ 	/* No need to invalidate - it was non-present before */
 

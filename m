@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261552AbSJPWGE>; Wed, 16 Oct 2002 18:06:04 -0400
+	id <S261508AbSJPWBo>; Wed, 16 Oct 2002 18:01:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261550AbSJPWGE>; Wed, 16 Oct 2002 18:06:04 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41396 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261540AbSJPWF7>;
-	Wed, 16 Oct 2002 18:05:59 -0400
-Date: Wed, 16 Oct 2002 15:03:23 -0700 (PDT)
-Message-Id: <20021016.150323.101559793.davem@redhat.com>
-To: mkanand@us.ibm.com
-Cc: akpm@digeo.com, lse-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, hartner@austin.ibm.com,
-       linux-net@vger.kernel.org
-Subject: Re: Skb initialization patch
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3DADD6FD.E898DD61@us.ibm.com>
-References: <3DADD6FD.E898DD61@us.ibm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261511AbSJPWBo>; Wed, 16 Oct 2002 18:01:44 -0400
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:60
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S261508AbSJPWBm>; Wed, 16 Oct 2002 18:01:42 -0400
+Message-ID: <3DADE4C0.9030809@rackable.com>
+Date: Wed, 16 Oct 2002 15:14:24 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Mielke <mark@mark.mielke.cc>
+CC: mcuss@cdlsystems.com, jamesclv@us.ibm.com, root@chaos.analogic.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel reports 4 CPUS instead of 2...
+References: <Pine.LNX.3.95.1021016135105.150A-100000@chaos.analogic.com> <200210161228.58897.jamesclv@us.ibm.com> <0d3901c2754c$7bf17060$2c0e10ac@frinkiac7> <3DADD064.8010707@rackable.com> <20021016214455.GA9624@mark.mielke.cc>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Oct 2002 22:07:40.0148 (UTC) FILETIME=[71827340:01C27560]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Mala Anand <mkanand@us.ibm.com>
-   Date: Wed, 16 Oct 2002 16:15:41 -0500
-   
-   Looks like we were trying to take advantage of this feature by
-   initializing before freeing it and this is good for UNI but for SMP
-   there is no guarantee that the freed skbs will be given back to the
-   same CPU.
+Mark Mielke wrote:
 
-There are not guarentees, but %99 of the time what is supposed to
-happen is that either the per-cpu skb_head_pool[] or the per-cpu slab
-cache give back the data on the same processor.
+>On Wed, Oct 16, 2002 at 01:47:32PM -0700, Samuel Flory wrote:
+>  
+>
+>>  Try shutting off hyperthreading in the bios.  Keep in mind 
+>>hyperthreading is net loss if you are running a single nonthreaded app. 
+>>Also you might want to check if there aren't io speed issues.  
+>>    
+>>
+>
+>Is this true? It seems to me that the 'on-demand execution units' would
+>simply be devoted to the one task, resulting in zero loss.
+>  
+>
 
-If this isn't happening, fix the head pool or SLAB.  Because if
-you fix it there you'll fix the SMP behavior of every other SLAB
-cache in the kernel, not just SKBs.
+  In perfect world yes, but in reality there is overhead.  I've tested 
+this on a quad xeon.  A "make bzImage" is a bit faster with 
+hyperthreading off.  Of course a make -j 8 bzImage is faster with 
+hyperthreading on.  I haven't tried this on a dual xeon.  (It could be a 
+scaling issue 4 vs 8 processors.)
 
-If the current cpu's skb_head_pool[] is being depleted in your
-tests, it should go to the per-cpu SLAB pool, if that is being
-depleted and thus it is going to other cpu's pools you should
-work on making SLAB not hit that case so often.
+>I see hyperthreading becoming a problem if two threads are scheduled to
+>execute at the same time before the operating system, and if they each
+>need access to the same execution units at the same time.
+>  
+>
+And if both threads need different items in L(whatever) cache it gets 
+even worse.
 
-2.5.38 is really old too, results with current 2.5.x would be
-appreciated.  If you are unable to run your tests with current
-2.5.x kernels, work to fix those problems instead of telling me
-"I can't test with current 2.5.x"
+There are a few good overviews on the subject:
+http://www.intel.com/technology/hyperthread/
+http://arstechnica.com/paedia/h/hyperthreading/hyperthreading-1.html
+http://www.anandtech.com/cpu/showdoc.html?i=1576&p=2
 
-Also, I would really appreciate it if you could walk through the
-2.5.x versions between the "good" and "bad" performance points
-you noted in postings yesterday.  Please do not walk off to other
-tasks such as this SKB initialization patch when we have regressions
-in other areas.

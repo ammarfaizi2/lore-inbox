@@ -1,261 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261425AbSIWWcI>; Mon, 23 Sep 2002 18:32:08 -0400
+	id <S261426AbSIWWcz>; Mon, 23 Sep 2002 18:32:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261426AbSIWWcI>; Mon, 23 Sep 2002 18:32:08 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:15108 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261425AbSIWWcF>;
-	Mon, 23 Sep 2002 18:32:05 -0400
-Date: Mon, 23 Sep 2002 15:36:21 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB changes for 2.5.38
-Message-ID: <20020923223621.GD19309@kroah.com>
+	id <S261427AbSIWWcz>; Mon, 23 Sep 2002 18:32:55 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:44806 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S261426AbSIWWct>;
+	Mon, 23 Sep 2002 18:32:49 -0400
+Date: Mon, 23 Sep 2002 18:35:29 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Larry McVoy <lm@bitmover.com>, Peter Waechtler <pwaechtler@mac.com>,
+       linux-kernel@vger.kernel.org, ingo Molnar <mingo@redhat.com>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Message-ID: <20020923183529.A26887@mark.mielke.cc>
+References: <20020923083004.B14944@work.bitmover.com> <Pine.LNX.3.96.1020923152135.13351C-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.96.1020923152135.13351C-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Mon, Sep 23, 2002 at 03:48:58PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 23, 2002 at 03:48:58PM -0400, Bill Davidsen wrote:
+> On Mon, 23 Sep 2002, Larry McVoy wrote:
+> > Sure, there are lotso benchmarks which show how fast user level threads
+> > can context switch amongst each other and it is always faster than going
+> > into the kernel.  So what?  What do you think causes a context switch in
+> > a threaded program?  What?  Could it be blocking on I/O?  Like 99.999%
+> > of the time?  And doesn't that mean you already went into the kernel to
+> > see if the I/O was ready?  And doesn't that mean that in all the real
+> > world applications they are already doing all the work you are arguing
+> > to avoid?
+> Actually you have it just backward. Let me try to explain how this works.
+> The programs which benefit from N:M are exactly those which don't behave
+> the way you describe. Think of programs using locking to access shared
+> memory, or other fast resources which don't require a visit to the kernel.
+> It would seem that the switch could be done much faster without the
+> transition into and out of the kernel.
 
-Please pull from:  bk://linuxusb.bkbits.net/linus-2.5
+For operating systems that require cross-process locks to always be
+kernel ops, yes. For operating systems that provide _any_ way for most
+cross-process locks to be performed completely in user space (i.e. FUTEX),
+the entire argument very quickly disappears.
 
-thanks,
+Is there a situation you can think of that requires M:N threading
+because accessing user space is cheaper than accessing kernel space? 
+What this really means is that the design of the kernel space
+primitives is not optimal, and that a potentially better solution that
+would benefit more people by a great amount, would be to redesign the
+kernel primitives. (i.e. FUTEX)
 
-greg k-h
+> Looking for data before forming an opinion has always seemed to be
+> reasonable, and the way design decisions are usually made in Linux, based
+> on the performance of actual code. The benchmark numbers reports are
+> encouraging, but actual production loads may not show the huge improvement
+> seen in the benchmarks. And I don't think anyone is implying that they
+> will.
 
- Documentation/usb/usb-serial.txt    |   14 
- MAINTAINERS                         |    8 
- drivers/usb/core/usb.c              |    1 
- drivers/usb/host/ehci-dbg.c         |   14 
- drivers/usb/host/ehci-hcd.c         |   68 -
- drivers/usb/host/ehci-hub.c         |    3 
- drivers/usb/host/ehci-q.c           |   88 +
- drivers/usb/host/ehci-sched.c       |   71 -
- drivers/usb/host/ehci.h             |   36 
- drivers/usb/host/ohci-hcd.c         |   22 
- drivers/usb/host/ohci-q.c           |  255 ++---
- drivers/usb/misc/Config.help        |   10 
- drivers/usb/misc/usblcd.c           |    8 
- drivers/usb/serial/usb-serial.h     |    1 
- drivers/usb/serial/usbserial.c      |   26 
- drivers/usb/serial/whiteheat.c      | 1164 +++++++++++++++++-------
- drivers/usb/serial/whiteheat.h      |  274 ++++-
- drivers/usb/serial/whiteheat_fw.h   | 1685 ++++++++++++++++++------------------
- drivers/usb/storage/datafab.c       |   41 
- drivers/usb/storage/freecom.c       |   16 
- drivers/usb/storage/jumpshot.c      |   16 
- drivers/usb/storage/raw_bulk.c      |   22 
- drivers/usb/storage/sddr09.c        |   42 
- drivers/usb/storage/sddr55.c        |   58 -
- drivers/usb/storage/shuttle_usbat.c |   22 
- drivers/usb/storage/transport.c     |   59 -
- drivers/usb/storage/transport.h     |   11 
- 27 files changed, 2409 insertions(+), 1626 deletions(-)
------
+You say that people should look to data before forming an opinion, but
+you also say that benchmarks mean little and you *suspect* real loads may
+be different. It seems to me that you might take your own advice, and
+use 'real data' before reaching your own conclusion.
 
-ChangeSet@1.579.9.10, 2002-09-23 14:30:42-07:00, info@usblcd.de
-  [PATCH] USBLCD updates
-  
-  -increased timeout value because some people reported problems
-  -(important!) Vender ID has changed from 0x1212 to 0x10D2 , my official
-    assigned one.
-  -added usblcd driver to configure.help
+> Given how small the overhead of threading is on a typical i/o bound
+> application such as you mentioned, I'm not sure the improvement will be
+> above the noise. The major improvement from NGPT is not performance in
+> many cases, but elimination of unexpected application behaviour.
 
- drivers/usb/misc/Config.help |   10 ++++++++++
- drivers/usb/misc/usblcd.c    |    8 ++++----
- 2 files changed, 14 insertions(+), 4 deletions(-)
-------
+Many people would argue that threading overhead has been traditional quite
+high. They would have 'real data' to substantiate their claims.
 
-ChangeSet@1.579.9.9, 2002-09-23 14:17:05-07:00, stuartm@connecttech.com
-  [PATCH] usb whiteheat driver update
-  
-  Update to full working driver status. Latest firmware 4.06 too. Driver
-  now officially supported.
+> When someone responds to a technical question with an attack on the
+> question instead of a technical response I always wonder why. In this case
+> other people have provided technical feedback and I'm sure we will see
+> some actual application numbers in a short time. I have an IPC benchmark
+> I'd like to try if I could get any of my test servers to boot a recent
+> kernel :-(
 
- Documentation/usb/usb-serial.txt  |   14 
- MAINTAINERS                       |    8 
- drivers/usb/serial/whiteheat.c    | 1164 ++++++++++++++++++--------
- drivers/usb/serial/whiteheat.h    |  274 ++++--
- drivers/usb/serial/whiteheat_fw.h | 1685 +++++++++++++++++++-------------------
- 5 files changed, 1896 insertions(+), 1249 deletions(-)
-------
+I've always considered 1:1 to be an optimal model, but an unreachable
+model, like cold fusion. :-)
 
-ChangeSet@1.579.9.8, 2002-09-23 14:03:13-07:00, greg@kroah.com
-  [PATCH] USB:  made port_softint global for other usb-serial drivers to use.
-  
-  Based off of a patch from Stuart MacDonald <stuartm@connecttech.com>
+If the kernel can manage the tasks such that they can be very quickly
+switched betweens queues, and the run queue can be minimized to
+contain only tasks that need to run, or that have a very high
+probability of needing to run, and if operations such as locks can be
+done, at least in the common case, completely in user space, there
+is no reason why 1:1 could not be better than M:N.
 
- drivers/usb/serial/usb-serial.h |    1 +
- drivers/usb/serial/usbserial.c  |   13 ++++++++++---
- 2 files changed, 11 insertions(+), 3 deletions(-)
-------
+There _are_ reasons why OS threads could be better than user space
+threads, and the reasons all relate to threads that do actual work.
 
-ChangeSet@1.579.9.7, 2002-09-23 13:56:54-07:00, stuartm@connecttech.com
-  [PATCH] USB: clean up the error logic for open() in the usb-serial driver
-  
-  This cleans up the error path in the open() call to make a bit more
-  sense.
+The line between 1:1 and M:N is artificially bold. M:N is a necessity
+where 1:1 is inefficient. Where 1:1 is efficient, M:N ceases to be a
+necessity.
 
- drivers/usb/serial/usbserial.c |   11 +++++------
- 1 files changed, 5 insertions(+), 6 deletions(-)
-------
+mark
 
-ChangeSet@1.579.9.6, 2002-09-23 13:54:25-07:00, greg@kroah.com
-  [PATCH] USB: fix for ezusb firmware download
-  
-  This fixes a stupid error in the timeout value when downloading firmware
-  to a device.  The WhiteHEAT device now works properly with this patch.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
- drivers/usb/serial/usbserial.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-ChangeSet@1.579.9.5, 2002-09-23 13:16:44-07:00, stern@rowland.org
-  [PATCH] usb-storage: fix return codes...
-  
-  Like the header says, this patch fixes up the various Transfer- and
-  Transport-level return codes.  There were a lot of places in the various
-  subdrivers that were not particularly careful about distinguishing the
-  two; it would help if the people currently maintaining those drivers could
-  take a look at my changes to make sure I haven't screwed anything up.
-  
-  # Converted US_BULK_TRANSFER_xxx to USB_STOR_XFER_xxx, to make it more
-  # easily distinguishable from USB_STOR_TRANSPORT_xxx.  (Also, in the
-  # future these codes may apply to control transfers as well as to bulk
-  # transfers.)
-  #
-  # Changed USB_STOR_XFER_FAILED to USB_STOR_XFER_ERROR, since it implies
-  # a transport error rather than a transport failure.
-  #
-  # Added a USB_STOR_XFER_STALLED code, to indicate a transfer that was
-  # terminated by an endpoint stall.
-  
-  This patch is in preparation for one in which usb_stor_transfer_partial()
-  and usb_stor_transfer() are replaced by usb_stor_bulk_transfer_buf() and
-  usb_stor_bulk_transfer_srb() respectively, with slightly different
-  argument lists.  Ultimately the subdrivers will be able to use these
-  routines in place of the slightly specialized versions they have now and
-  in place of the ones in raw_bulk.c.
-
- drivers/usb/storage/datafab.c       |   41 ++++++++++++-------------
- drivers/usb/storage/freecom.c       |   16 ++++-----
- drivers/usb/storage/jumpshot.c      |   16 ++++-----
- drivers/usb/storage/raw_bulk.c      |   22 ++++++-------
- drivers/usb/storage/sddr09.c        |   42 +++++++++++++++----------
- drivers/usb/storage/sddr55.c        |   58 +++++++++++++++++++++--------------
- drivers/usb/storage/shuttle_usbat.c |   22 +++++++------
- drivers/usb/storage/transport.c     |   59 ++++++++++++++++++------------------
- drivers/usb/storage/transport.h     |   11 +++---
- 9 files changed, 156 insertions(+), 131 deletions(-)
-------
-
-ChangeSet@1.579.9.4, 2002-09-23 13:16:05-07:00, luc.vanoostenryck@easynet.be
-  [PATCH] #include <linux/version.h> missing in drivers/usb/host/ohci-hcd.c
-  
-  compile fails with the following message:
-  
-  	> In file included from ohci-hcd.c:136:
-  	> ohci-dbg.c:318: parse error
-  	> make[3]: *** [ohci-hcd.o] Error 1
-  
-  due to a missing #include <linux/version.h>
-  
-  Here is a trivial patch for this.
-
- drivers/usb/host/ohci-hcd.c |    1 +
- 1 files changed, 1 insertion(+)
-------
-
-ChangeSet@1.579.9.3, 2002-09-23 13:15:28-07:00, david-b@pacbell.net
-  [PATCH] USB shutdown oopser
-  
-  is it guarenteed that callers have zero'd out the device
-  before this is invoked?  Else the following is necessary to
-  prevent potential OOPS's derefencing interface->dev.driver in
-  the generic device layer.
-
- drivers/usb/core/usb.c |    1 +
- 1 files changed, 1 insertion(+)
-------
-
-ChangeSet@1.579.9.2, 2002-09-23 13:14:52-07:00, david-b@pacbell.net
-  [PATCH] ehci-hcd: update
-  
-  Here's an EHCI update, I'll send separate patches to sync 2.4 with
-  this version.  Changes in this version include:
-  
-    - An earlier locking update would give trouble on SPARC, where
-      irqsave "flags" aren't flags.  This resolves that issue by
-      adding a module parameter to limit work done with irqs off.
-      (Some net drivers do the same thing.)
-  
-    - Optionally (now #ifdef DEBUG) collects some statistics on IRQs
-      and URBs.  There are more IAA interrupts than I want to see,
-      during extended usb-storage loading.
-  
-    - Adds a commented-out workaround for a problem I've seen on one
-      VT8235.  Seems likely an issue with this specific motherboard;
-      another tester hasn't reported such issues.
-  
-    - Includes the jiffies time_after() patch from Tim Schmielau.
-  
-    - Minor tweaks to the hcd portability (get rid of another #if).
-  
-    - Minor doc/diagnostic/... updates
-
- drivers/usb/host/ehci-dbg.c   |   14 ++++++
- drivers/usb/host/ehci-hcd.c   |   68 +++++++++++++++++++-------------
- drivers/usb/host/ehci-hub.c   |    3 -
- drivers/usb/host/ehci-q.c     |   88 +++++++++++++++++++++++++-----------------
- drivers/usb/host/ehci-sched.c |   71 +++++++++++++++++----------------
- drivers/usb/host/ehci.h       |   36 +++++++++++++++++
- 6 files changed, 181 insertions(+), 99 deletions(-)
-------
-
-ChangeSet@1.579.9.1, 2002-09-23 13:14:20-07:00, david-b@pacbell.net
-  [PATCH] ohci-hcd, queue fault recovery + rm DEBUG
-  
-  This USB patch updates the OHCI driver:
-  
-    - converts to relying on td_list shadowing the hardware's
-      schedule; only collecting the donelist needs dma_to_td(),
-      and td list handling works much like EHCI or UHCI.
-  
-    - leaves faulted endpoint queues (bulk/intr) disabled until
-      the relevant drivers had a chance to clean up.
-  
-    - fixes minor bugs (unreported) in the affected code:
-        * byteswap problem when unlinking urbs ... symptom would
-          be data toggle confusion (since 2.4.2x) on big-endian cpus
-        * latent bug if folk unlinked queue in LIFO order, not FIFO
-  
-    - removes unnecessary debug code; mostly de-BUG()ged
-  
-  The interesting fix is the "leave queues halted" one.  As
-  discussed on email a while back, this HCD fault handling
-  policy (also followed by EHCI) is sufficient to let device
-  drivers implement the two key fault handling policies that
-  seem to be necessary:
-  
-      (a) Datagram style, where issues on one I/O won't affect
-          the next unless the device halted the endpoint.  The
-          device driver can ignore most errors other than -EPIPE.
-  
-      (b) Stream style, where for example it'd be wrong to ever
-          let block N+1 overwrite block N on the disk.  Once
-          the first URB fails, the rest would just be unlinked
-          in the completion handler.
-  
-  As a consequence of using the td_list, you can now see urb
-  queuing in action in the driverfs 'async' file.  At least, if
-  you look at the right time, or use drivers (networking, etc)
-  that queue (bulk) reads for a long time.
-
- drivers/usb/host/ohci-hcd.c |   21 +--
- drivers/usb/host/ohci-q.c   |  255 +++++++++++++++++++++++---------------------
- 2 files changed, 143 insertions(+), 133 deletions(-)
-------
+                           http://mark.mielke.cc/
 

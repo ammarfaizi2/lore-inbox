@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264037AbTCXQcX>; Mon, 24 Mar 2003 11:32:23 -0500
+	id <S264263AbTCXQc0>; Mon, 24 Mar 2003 11:32:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264270AbTCXQbU>; Mon, 24 Mar 2003 11:31:20 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:33514 "EHLO
+	id <S264269AbTCXQbO>; Mon, 24 Mar 2003 11:31:14 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:32234 "EHLO
 	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S264271AbTCXQat>; Mon, 24 Mar 2003 11:30:49 -0500
-Message-Id: <200303241641.h2OGfx35008214@deviant.impure.org.uk>
-Date: Mon, 24 Mar 2003 16:41:46 +0000
+	id <S264263AbTCXQas>; Mon, 24 Mar 2003 11:30:48 -0500
+Message-Id: <200303241641.h2OGfw35008204@deviant.impure.org.uk>
+Date: Mon, 24 Mar 2003 16:41:45 +0000
 To: torvalds@transmeta.com
 From: davej@codemonkey.org.uk
 Cc: linux-kernel@vger.kernel.org
-Subject: plug DRM memory leak on exit paths.
+Subject: make x86 MSR driver preempt safe
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spotted by Oleg Drokin
-
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/drm/drm_drv.h linux-2.5/drivers/char/drm/drm_drv.h
---- bk-linus/drivers/char/drm/drm_drv.h	2003-03-08 09:56:59.000000000 +0000
-+++ linux-2.5/drivers/char/drm/drm_drv.h	2003-03-17 23:42:16.000000000 +0000
-@@ -581,8 +581,10 @@ static int __init drm_init( void )
- 		init_timer( &dev->timer );
- 		init_waitqueue_head( &dev->context_wait );
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/arch/i386/kernel/msr.c linux-2.5/arch/i386/kernel/msr.c
+--- bk-linus/arch/i386/kernel/msr.c	2003-03-08 09:56:25.000000000 +0000
++++ linux-2.5/arch/i386/kernel/msr.c	2003-03-18 21:22:30.000000000 +0000
+@@ -115,9 +115,13 @@ static void msr_smp_rdmsr(void *cmd_bloc
+ static inline int do_wrmsr(int cpu, u32 reg, u32 eax, u32 edx)
+ {
+   struct msr_command cmd;
++  int ret;
  
--		if ((DRM(minor)[i] = DRM(stub_register)(DRIVER_NAME, &DRM(fops),dev)) < 0)
--			return -EPERM;
-+		if ((DRM(minor)[i] = DRM(stub_register)(DRIVER_NAME, &DRM(fops),dev)) < 0) {
-+			retcode = -EPERM;
-+			goto fail_reg;
-+		}
- 		dev->device = MKDEV(DRM_MAJOR, DRM(minor)[i] );
- 		dev->name   = DRIVER_NAME;
- 
-@@ -591,9 +593,8 @@ static int __init drm_init( void )
- #if __MUST_HAVE_AGP
- 		if ( dev->agp == NULL ) {
- 			DRM_ERROR( "Cannot initialize the agpgart module.\n" );
--			DRM(stub_unregister)(DRM(minor)[i]);
--			DRM(takedown)( dev );
--			return -ENOMEM;
-+			retcode = -ENOMEM;
-+			goto fail;
- 		}
- #endif
- #if __REALLY_HAVE_MTRR
-@@ -609,9 +610,7 @@ static int __init drm_init( void )
- 		retcode = DRM(ctxbitmap_init)( dev );
- 		if( retcode ) {
- 			DRM_ERROR( "Cannot allocate memory for context bitmap.\n" );
--			DRM(stub_unregister)(DRM(minor)[i]);
--			DRM(takedown)( dev );
--			return retcode;
-+			goto fail;
- 		}
- #endif
- 		DRM_INFO( "Initialized %s %d.%d.%d %s on minor %d\n",
-@@ -626,6 +625,15 @@ static int __init drm_init( void )
- 	DRIVER_POSTINIT();
- 
- 	return 0;
-+
-+fail:
-+	DRM(stub_unregister)(DRM(minor)[i]);
-+	DRM(takedown)( dev );
-+
-+fail_reg:
-+	kfree (DRM(device));
-+	kfree (DRM(minor));
-+	return retcode;
++  preempt_disable();
+   if ( cpu == smp_processor_id() ) {
+-    return wrmsr_eio(reg, eax, edx);
++    ret = wrmsr_eio(reg, eax, edx);
++    preempt_enable();
++    return ret;
+   } else {
+     cmd.cpu = cpu;
+     cmd.reg = reg;
+@@ -125,6 +129,7 @@ static inline int do_wrmsr(int cpu, u32 
+     cmd.data[1] = edx;
+     
+     smp_call_function(msr_smp_wrmsr, &cmd, 1, 1);
++    preempt_enable();
+     return cmd.err;
+   }
  }
- 
- /* drm_cleanup is called via cleanup_module at module unload time.

@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269201AbTGJLIS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 07:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269205AbTGJLIS
+	id S269214AbTGJLMc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 07:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269211AbTGJLLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 07:08:18 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:58036
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S269201AbTGJLIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 07:08:14 -0400
-Subject: Re: RFC:  what's in a stable series?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20030710085338.C28672@infradead.org>
-References: <3F0CBC08.1060201@pobox.com>
-	 <Pine.LNX.4.55L.0307100040271.6629@freak.distro.conectiva>
-	 <20030710085338.C28672@infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057835998.8028.6.camel@dhcp22.swansea.linux.org.uk>
+	Thu, 10 Jul 2003 07:11:33 -0400
+Received: from holomorphy.com ([66.224.33.161]:18865 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S269206AbTGJLL2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 07:11:28 -0400
+Date: Thu, 10 Jul 2003 04:27:28 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.74-mm3 OOM killer fubared ?
+Message-ID: <20030710112728.GX15452@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Miquel van Smoorenburg <miquels@cistron.nl>,
+	linux-kernel@vger.kernel.org
+References: <bejhrj$dgg$1@news.cistron.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 10 Jul 2003 12:19:59 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bejhrj$dgg$1@news.cistron.nl>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-07-10 at 08:53, Christoph Hellwig wrote:
-> Also the quota patches don't change any ABI or API - userland can still
-> use the old ABI in addition to the new one, 16bit ondisk quotas are
-> still supported and filesystems couldn't care less which implementation
-> it plugs into - the API is the same.
+On Thu, Jul 10, 2003 at 11:14:59AM +0000, Miquel van Smoorenburg wrote:
+> Enough memory free, no problems at all .. yet every few minutes
+> the OOM killer kills one of my innfeed processes.
+> I notice that in -mm3 this was deleted relative to -vanilla:
+> 
+> -
+> -       /*
+> -        * Enough swap space left?  Not OOM.
+> -        */
+> -       if (nr_swap_pages > 0)
+> -               return;
+> .. is that what causes this ? In any case, that should't vene matter -
+> there's plenty of memory in this box, all buffers and cached, but that
+> should be easily freed ..
 
-Because you hacked v1 support out of Jan Kara's stuff the quota bits are
-pretty useless to most people because they have v1 format files.
+This means we're calling into it more often than we should be.
+Basically, we hit __alloc_pages() with __GFP_WAIT set, find nothing
+we're allowed to touch, dive into try_to_free_pages(), fall through
+scanning there, sleep in blk_congestion_wait(), wake up again, try
+to shrink_slab(), find nothing there either, repeat that 11 more times,
+and then fall through to out_of_memory()... and this happens at at
+least 10Hz.
 
+        since = now - lastkill;
+        if (since < HZ*5)
+                goto out_unlock;
+
+try s/goto out_unlock/goto reset/ and let me know how it goes.
+
+
+-- wli

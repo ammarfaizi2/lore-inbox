@@ -1,61 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280748AbRKOJxS>; Thu, 15 Nov 2001 04:53:18 -0500
+	id <S280799AbRKOJzi>; Thu, 15 Nov 2001 04:55:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280788AbRKOJxI>; Thu, 15 Nov 2001 04:53:08 -0500
-Received: from shell7.ba.best.com ([206.184.139.138]:46610 "EHLO
-	shell7.ba.best.com") by vger.kernel.org with ESMTP
-	id <S280748AbRKOJxC>; Thu, 15 Nov 2001 04:53:02 -0500
-Date: Thu, 15 Nov 2001 01:52:30 -0800
-From: Nathan Myers <ncm@nospam.cantrip.org>
-To: linux-kernel@vger.kernel.org
-Subject: Bad cpu_data macro in include/asm-*/processor.h
-Message-ID: <20011115015230.A9599@shell7.ba.best.com>
-Reply-To: ncm@nospam.cantrip.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S280805AbRKOJzU>; Thu, 15 Nov 2001 04:55:20 -0500
+Received: from mons.uio.no ([129.240.130.14]:17080 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S280801AbRKOJzR>;
+	Thu, 15 Nov 2001 04:55:17 -0500
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: generic_file_llseek() broken?
+In-Reply-To: <UTC200111150055.AAA93544.aeb@cwi.nl>
+	<20011115020259.C5739@lynx.no>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 15 Nov 2001 10:55:07 +0100
+In-Reply-To: <20011115020259.C5739@lynx.no>
+Message-ID: <shsd72kcq9w.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In building 2.4.15-pre4 for non-SMP, I get a compile error at
-kernel/i386/setup.c, line 2791.  This is traceable to 
-include/asm-{i386,mips}/processor.h, the line
+>>>>> " " == Andreas Dilger <adilger@turbolabs.com> writes:
 
-  #define cpu_data &boot_cpu_data
+     > --- linux.orig/fs/read_write.c Tue Aug 14 12:09:09 2001
+     > +++ linux/fs/read_write.c Thu Nov 15 01:54:35 2001
+     > @@ -36,15 +36,24 @@
+     >  		case 1:
+     >  			offset += file->f_pos;
+     >  	}
+     > +
+     > + /* LFS 2.1.1.6: can't seek to a position that doesn't fit in
+     >  	off_t */
+     > + retval = -EOVERFLOW;
+     > + if ((!(file->f_flags & O_LARGEFILE) && offset > MAX_NON_LFS)
+     >  	||
+     > + offset > file->f_dentry->d_inode->i_sb->s_maxbytes)
+     > + goto out;
+     > +
+     >  	retval = -EINVAL;
+     > - if (offset>=0 &&
+     >  	offset<=file->f_dentry->d_inode->i_sb->s_maxbytes) {
+     > - if (offset != file->f_pos) {
+     > - file->f_pos = offset;
+     > - file->f_reada = 0;
+     > - file->f_version = ++event;
+     > - }
+     > - retval = offset;
+     > + if (offset < 0)
+     > + goto out;
+     > +
+     > + if (offset != file->f_pos) {
+     > + file->f_pos = offset;
+     > + file->f_reada = 0;
+     > + file->f_version = ++event;
+     >  	}
+     > + retval = offset;
+     > +out:
+     >  	return retval;
+     >  }
+ 
+     > @@ -64,6 +73,12 @@
+     >  		case 1:
+     >  			offset += file->f_pos;
+     >  	}
+     > +
+     > + /* LFS 2.1.1.6: can't seek to a position that doesn't fit in
+     >  	off_t */
+     > + retval = -EOVERFLOW;
+     > + if (!(file->f_flags & O_LARGEFILE) && offset > MAX_NON_LFS)
+     > + goto out;
+     > +
+     >  	retval = -EINVAL; if (offset >= 0) {
+     >  		if (offset != file->f_pos) {
+     > @@ -73,6 +88,7 @@
+     >  		} retval = offset;
+     >  	}
+     > +out:
+     >  	return retval;
+     >  }
+ 
+     > @@ -103,8 +119,6 @@
+     >  	if (origin <= 2) {
+     >  		loff_t res = llseek(file, offset, origin);
+     >  		retval = res;
+     > - if (res != (loff_t)retval)
+     > - retval = -EOVERFLOW; /* LFS: should only happen on 32 bit
+     >  			platforms */
+     >  	} fput(file);
+     >  bad:
 
-has a very stupid non-syntactic macro.  (This is line 54 in the mips 
-header, 79 in the x86 header.) The minimal fix is obvious:
+This breaks NFS badly for which a directory seek position is *not* a
+file offset, but is an unsigned cookie. Please ensure that the above
+checks are only made on regular files.
 
-  #define cpu_data (&boot_cpu_data)
-
-What stinky code, anyhow.  Why not make it a one-element array
-to begin with?
-
-I grepped for other similar macros with
-
-  grep -n '#define[         ][      ]*[a-zA-Z_][a-zA-Z_0-9]*[       ][      ]*[^-A-Za-z0-9_\\{"(    ]' */*.h */*/*.h | less
-
-and found more (mostly involving unary operator~) in 
-
-  asm-m68k/bvme*.h
-  asm-mips/asm.h,
-  asm-mips64/asm.h
-  asm-ppc/io.h
-  asm-arm/arch-l7200/aug_reg.h
-  linux/pci.h
-  linux/ps2esdi.h
-  net/irda/nsc-ircc.h
-  net/irda/w83977af_ir.h
-
-If you check for things like 
-  #define FOO -1
-which should be 
-  #define FOO (-1)
-you find zillions more.
-
-Feh.
-
-Nathan Myers
-ncm@nospam.cantrip.org
+Cheers,
+   Trond

@@ -1,83 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbULHN1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbULHNaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbULHN1H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 08:27:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbULHN1H
+	id S261210AbULHNaF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 08:30:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbULHNaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 08:27:07 -0500
-Received: from quickstop.soohrt.org ([81.2.155.147]:59087 "EHLO
-	quickstop.soohrt.org") by vger.kernel.org with ESMTP
-	id S261208AbULHN1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 08:27:01 -0500
-Date: Wed, 8 Dec 2004 14:26:57 +0100
-From: Karsten Desler <kdesler@soohrt.org>
-To: jamal <hadi@cyberus.ca>, Robert Olsson <Robert.Olsson@data.slu.se>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>, P@draigBrady.com
-Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
-Message-ID: <20041208132657.GB5036@soohrt.org>
-References: <20041206205305.GA11970@soohrt.org> <20041207211035.GA20286@quickstop.soohrt.org> <1102480318.1050.16.camel@jzny.localdomain>
+	Wed, 8 Dec 2004 08:30:05 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:50406 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261210AbULHN3R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 08:29:17 -0500
+Date: Wed, 8 Dec 2004 14:28:26 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Time sliced CFQ #4
+Message-ID: <20041208132826.GT19522@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1102480318.1050.16.camel@jzny.localdomain>
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* jamal wrote:
-> On Tue, 2004-12-07 at 16:10, Karsten Desler wrote:
-> > I totally forgot to mention: There are approximately 100k concurrent
-> > flows.
-> 
-> ;-> Aha. That would make a huge difference. I know of noone
-> who has actually done this level of testing. I have tried upto about 50K
-> flows myself in early 2.6.x and was eventually compute bound.
-> Really try compiling out totaly iptables/netfilter - it will make a
-> difference.
+Hi,
 
-Unfortunately I need netfilter (for now, I haven't had time to look into
-replacing the rules with tc yet).
+The stupid sort bug warrants another release, as it basically killed
+(well cut by 30%) sequential write performance. This one gets close to
+'AS' tiobench sequential write performance (still 5% off), equalling it
+in others. Changes:
 
-> You may also want to try something like LC trie algorithm that Robert
-> and co are playing with to see if it makes a difference with this many
-> flows.
+- Various little bug fixes
 
-On a scale of one to ten, one being "will crash on the first packet",
-five being "will allow moderate load, but is probably going to crash
-under high load" and ten being "rock stable" how would the patch be rated?
-The announcement doesn't look too promising:
-| Locking.
-| Not yet done.
+- RCU the per-process-per-disk cfq io context. It probably wants a
+  better structure later for the many-disk setup, but at least it runs
+  lockless now.
 
-Also when looking at the profiles, fib_* isn't showing up at (not even
-near) the top. Testworthy none the less?
+- Kill the PF_SYNCWRITE stuff. Belongs to another patch, if at all.
 
-ip route|wc -l:
-40
+- Fix a silly problem that caused very bad sort of dispatch list.
 
-profile:
-     4 fib_validate_source                        0.0064
-    39 fib_semantic_match                         0.1875
-[...]
-    76 ipt_route_hook                             1.5833
-   219 __kmalloc                                  1.7109
-   985 e1000_clean_tx_irq                         1.8107
-   157 kmem_cache_alloc                           1.9625
-   405 skb_release_data                           2.5312
-   633 eth_type_trans                             2.6375
-   394 handle_IRQ_event                           3.5179
-  1017 __kfree_skb                                3.9727
-   989 alloc_skb                                  4.1208
-  1645 ip_route_input                             4.6733
-  5128 ipt_do_table                               6.1635
-  1678 e1000_intr                                 6.9917
-   289 _read_unlock_bh                           18.0625
-   616 _read_lock_bh                             19.2500
-   418 _spin_lock                                26.1250
-  2076 e1000_irq_enable                          43.2500
-   881 _spin_unlock_irqrestore                   55.0625
- 96895 default_idle                             1513.9844
+Might perhaps need a little re-tuning of the slice_async* values after
+the sort fix.
 
-Cheers,
- Karsten
+BK patch:
+
+http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc3/cfq-time-slices-9.gz
+
+-mm patch:
+
+http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc2-mm4/cfq-time-slices-9-mm.gz
+
+Quick benches (reads and reads/writes mixed, 64kb block size for all)
+
+CFQ:
+
+buffered IO:
+
+thread1 (read): err=0, max=398msec, min=0msec, run=30144msec, bw=6091KiB/sec
+thread2 (read): err=0, max=362msec, min=0msec, run=29895msec, bw=7444KiB/sec
+thread3 (write): err=0, max=4535msec, min=0msec, run=28531msec, bw=5735KiB/sec
+thread4 (write): err=0, max=7926msec, min=0msec, run=28816msec, bw=5922KiB/sec
+Run status:
+   READ: io=396672MiB, maxt=30144msec, mint=29895msec, maxb=7444, minb=6091, aggrb=13475
+  WRITE: io=326464MiB, maxt=28816msec, mint=28531msec, maxb=5922, minb=5735, aggrb=11601
+
+thread1 (read): err=0, max=332msec, min=0msec, run=30030msec, bw=6739KiB/sec
+thread2 (read): err=0, max=326msec, min=0msec, run=30049msec, bw=6830KiB/sec
+thread3 (read): err=0, max=333msec, min=0msec, run=30065msec, bw=6779KiB/sec
+thread4 (read): err=0, max=331msec, min=0msec, run=30003msec, bw=6801KiB/sec
+Run status:
+   READ: io=796416MiB, maxt=30065msec, mint=30003msec, maxb=6830, minb=6739, aggrb=27125
+
+direct IO:
+
+thread1 (read): err=0, max=318msec, min=2msec, run=30023msec, bw=6614KiB/sec
+thread2 (read): err=0, max=321msec, min=2msec, run=30042msec, bw=6598KiB/sec
+thread3 (read): err=0, max=329msec, min=2msec, run=30003msec, bw=6557KiB/sec
+thread4 (read): err=0, max=321msec, min=2msec, run=30037msec, bw=6565KiB/sec
+Run status:
+   READ: io=772224MiB, maxt=30042msec, mint=30003msec, maxb=6614, minb=6557, aggrb=26321
+
+AS:
+
+buffered IO:
+
+thread1 (read): err=0, max=285msec, min=0msec, run=30052msec, bw=10432KiB/sec
+thread2 (read): err=0, max=331msec, min=0msec, run=30033msec, bw=10714KiB/sec
+thread3 (write): err=0, max=2815msec, min=0msec, run=29732msec, bw=3857KiB/sec
+thread4 (write): err=0, max=2463msec, min=0msec, run=29739msec, bw=3768KiB/sec
+Run status:
+   READ: io=620416MiB, maxt=30052msec, mint=30033msec, maxb=10714, minb=10432, aggrb=21140
+  WRITE: io=221440MiB, maxt=29739msec, mint=29732msec, maxb=3857, minb=3768, aggrb=7624
+
+thread1 (read): err=0, max=644msec, min=0msec, run=30051msec, bw=7563KiB/sec
+thread2 (read): err=0, max=735msec, min=0msec, run=30034msec, bw=6794KiB/sec
+thread3 (read): err=0, max=843msec, min=0msec, run=30021msec, bw=6239KiB/sec
+thread4 (read): err=0, max=862msec, min=0msec, run=30002msec, bw=6636KiB/sec
+Run status:
+   READ: io=798592MiB, maxt=30051msec, mint=30002msec, maxb=7563, minb=6239, aggrb=27212
+
+direct IO:
+
+thread1 (read): err=0, max=518msec, min=2msec, run=30048msec, bw=6813KiB/sec
+thread2 (read): err=0, max=867msec, min=2msec, run=30031msec, bw=7125KiB/sec
+thread3 (read): err=0, max=939msec, min=2msec, run=30018msec, bw=6540KiB/sec
+thread4 (read): err=0, max=1071msec, min=2msec, run=30000msec, bw=6201KiB/sec
+Run status:
+   READ: io=782336MiB, maxt=30048msec, mint=30000msec, maxb=7125, minb=6201, aggrb=26661
+
+
+-- 
+Jens Axboe
+

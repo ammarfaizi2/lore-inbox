@@ -1,188 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUJYLvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbUJYL4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUJYLvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 07:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbUJYLvJ
+	id S261765AbUJYL4j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 07:56:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbUJYL4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 07:51:09 -0400
-Received: from smtp.publishnet.nl ([212.241.49.8]:56581 "EHLO smtp.pn.nl")
-	by vger.kernel.org with ESMTP id S261763AbUJYLu5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 07:50:57 -0400
-From: "Nico Augustijn." <kernel@janestarz.com>
-To: hvr@gnu.org, clemens@endorphin.org
-Subject: Cryptoloop patch for builtin default passphrase
-Date: Mon, 25 Oct 2004 13:54:31 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
+	Mon, 25 Oct 2004 07:56:39 -0400
+Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:44040 "EHLO
+	longlandclan.hopto.org") by vger.kernel.org with ESMTP
+	id S261765AbUJYL4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 07:56:33 -0400
+Message-ID: <417CE970.4010300@longlandclan.hopto.org>
+Date: Mon, 25 Oct 2004 21:54:24 +1000
+From: Stuart Longland <stuartl@longlandclan.hopto.org>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Timothy Miller <miller@techsource.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com>
+In-Reply-To: <4176E08B.2050706@techsource.com>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410251354.31226.kernel@janestarz.com>
-X-Spam-Processed: smtp.pn.nl, Mon, 25 Oct 2004 13:55:18 +0200
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 212.241.49.61
-X-Return-Path: kernel@janestarz.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: smtp.pn.nl, Mon, 25 Oct 2004 13:55:22 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-My boss wanted to have the filesystem on which our proprietery software is 
-installed to be encrypted to make copying more difficult. And it does just 
-that. It's not impossible to hack into the system.
+Timothy Miller wrote:
+[ ... snip ... ]
 
-This here patch will make the kernel use a default passphrase (compiled into 
-the kernel or cryptoloop.ko module) when you set up a cryptoloop device with:
-losetup -e aes -p 0 /dev/loop0 /path/to/your/encrypted-filesystem </dev/null
-The passphrase can of course be read from the bzImage with dd if=bzImage 
-ibs=<compressed image offset> skip=1 | gunzip -c | strings - | less
-But all that takes some searching. And the passphrase is also XOR-ed with the 
-first 32 bytes of /dev/nvram. If it is compiled as a module, the passphrase 
-is even easier to read.
+> In short, what I have been proposing to my superiors is the development
+> of a graphics card specifically for open source systems.  This means
+> full disclosure on all register interfaces so that no one has to deal
+> with anything closed source (BIOS included).  The goal here is to
+> produce a graphics card which is a Free Software geek's dream in terms
+> of openness.
 
-The added configuration option depends on CONFIG_BLK_DEV_CRYPTOLOOP  and 
-CONFIG_NVRAM.
-The chances of breaking anything else when the option is not activated looks 
-like exactly zero to me.
-But I have been known to be wrong. From time to time.
+This would be my dreams come true.  At the moment I'm running a Radeon
+9200SE in my box -- which really under-performs under Linux using the
+opensource driver.  Unfortunately, ATI's crappy binary (yick! I hate
+binary drivers in general) messed up my X server settings, needless to
+say it was gone in 5 minutes flat.
 
-The affected files are: drivers/block/Kconfig and drivers/block/cryptoloop.c
-The kernel source version is linux-2.6.9 (vanilla).
+An alternate video card manufacturer who is open to everyone would make
+a nice change.
 
-Comments/improvements are welcome. My /dev/null device will be happy to 
-process your flames.
+Perhaps you could test the water with other devices?  Some people
+mentioned sound cards, but also why not ethernet, wireless network
+cards, etc?
 
-Signed-off-by: Nico Augustijn <kernel@janestarz.com>
+> I can produce more detail later, but first, some characteristics and
+> advantages of what I'm proposing:
+>
+[ ... snip ... ]
+> - The card "just works" with Linux because, maybe, the drivers would go
+> into main-line
 
--- 
-Please note: 
-- Email address is a private one, not a corporate one.
-- I am not a member of the linux-kernel email list, so all replies only sent 
-to the list will not be received by yours truly.
+This would be a *big* bonus.  One of the things that drove me away fron
+nVidia and the later ATI cards is having to recompile their crappy
+driver each time I update the kernel.
 
------------------------ begin patch -----------------------
---- drivers/block/cryptoloop.c.org	2004-10-20 13:26:14.000000000 +0200
-+++ drivers/block/cryptoloop.c	2004-10-25 11:16:56.000000000 +0200
-@@ -26,6 +26,9 @@
- #include <linux/crypto.h>
- #include <linux/blkdev.h>
- #include <linux/loop.h>
-+#ifdef CONFIG_USE_CRYPTOLOOP_DEFAULTPASSPHRASE
-+	#include <linux/nvram.h>
-+#endif
- #include <asm/semaphore.h>
- #include <asm/uaccess.h>
- 
-@@ -46,6 +49,48 @@ cryptoloop_init(struct loop_device *lo, 
- 	char *cmsp = cms;			/* c-m string pointer */
- 	struct crypto_tfm *tfm = NULL;
- 
-+
-+#ifdef CONFIG_USE_CRYPTOLOOP_DEFAULTPASSPHRASE
-+#if (!defined(CONFIG_CRYPTOLOOP_DEFAULTPASSPHRASE))
-+ #error Cannot build kernel with NULL or empty default passphrase
-+#endif
-+	int		n;
-+	static struct	loop_info64 default_info;
-+
-+	/* Need a copy or we're gonna be writing to a read-only location. */
-+	memcpy(&default_info, info, sizeof(struct loop_info64));
-+
-+	/* Test if all characters of the encryption key are zero.
-+	 * This would indicate no key was given with 'losetup'. */
-+	for (n = 0; n < info->lo_encrypt_key_size; n++)
-+		if (info->lo_encrypt_key[n] != 0)
-+			break;
-+	/* If above loop was not broken, we can assume no key was given. */
-+	if (n == info->lo_encrypt_key_size)
-+	{
-+		char	passphrase[] = CONFIG_CRYPTOLOOP_DEFAULTPASSPHRASE;
-+		int	passphraselen;
-+
-+		/* Need this only for debugging purposes
-+		printk(KERN_NOTICE "cryptoloop: Using default passphrase.\n"); */
-+
-+		passphraselen = strlen(passphrase);
-+		/* Some bonehead might try an empty passphrase.
-+		 * So then we just use the terminating null character. */
-+		if (passphraselen == 0)
-+			passphraselen = 1;
-+
-+		default_info.lo_encrypt_key_size = LO_KEY_SIZE;
-+		for (n = 0; n < LO_KEY_SIZE; n++)
-+			/* Read a byte from NVRAM, and XOR that with 'n'th char
-+			 * of the default passphrase and make sure we don't try
-+			 * to read beyond the end of the passphrase */
-+			default_info.lo_encrypt_key[n] =
-+				nvram_read_byte(n) ^ passphrase[n % passphraselen];
-+
-+	}
-+#endif
-+
- 	/* encryption breaks for non sector aligned offsets */
- 
- 	if (info->lo_offset % LOOP_IV_SECTOR_SIZE)
-@@ -63,9 +108,14 @@ cryptoloop_init(struct loop_device *lo, 
- 	if (tfm == NULL)
- 		return -EINVAL;
- 
-+#ifdef CONFIG_USE_CRYPTOLOOP_DEFAULTPASSPHRASE
-+	err = tfm->crt_u.cipher.cit_setkey(tfm, default_info.lo_encrypt_key,
-+					   default_info.lo_encrypt_key_size);
-+#else
- 	err = tfm->crt_u.cipher.cit_setkey(tfm, info->lo_encrypt_key,
- 					   info->lo_encrypt_key_size);
--	
-+#endif
-+
- 	if (err != 0)
- 		goto out_free_tfm;
- 
---- drivers/block/Kconfig.org	2004-10-20 13:27:13.000000000 +0200
-+++ drivers/block/Kconfig	2004-10-25 12:23:34.000000000 +0200
-@@ -265,6 +265,37 @@ config BLK_DEV_CRYPTOLOOP
- 	  instead, which can be configured to be on-disk compatible with the
- 	  cryptoloop device.
- 
-+config USE_CRYPTOLOOP_DEFAULTPASSPHRASE
-+	bool "Use default passphrase for cryptoloop"
-+	depends on BLK_DEV_CRYPTOLOOP && NVRAM
-+	---help---
-+	  *** CAUTION ***
-+	  DO NOT USE UNLESS YOU REALLY KNOW WHAT YOU ARE DOING!!
-+	  
-+	  If you are configuring your kernel to run on an unattended or
-+	  embedded system, you can enter a default passphrase for your
-+	  encrypted filesystems here.
-+	  This makes it more difficult (but NOT impossible) to copy data
-+	  from your encrypted filesystems.
-+	  Since this option also reads data from your MB's nvram, 
-+	  YOU SHOULD NEVER CHANGE YOUR CMOS SETTINGS WHEN USING THIS OPTION.
-+	  Because CMOS settings are often written into the nvram.
-+	  In order for this option to work you should also set CONFIG_NVRAM,
-+	  the /dev/nvram driver in character devices.
-+	  This will also make the filesystem usable only with the specific
-+	  version of the MB with the specific nvram settings on which the
-+	  filesystem was created.
-+
-+config CRYPTOLOOP_DEFAULTPASSPHRASE
-+	string "Default cryptoloop passphrase"
-+	depends on USE_CRYPTOLOOP_DEFAULTPASSPHRASE
-+	---help---
-+	  Enter your default passphrase for encrypted filesystems here.
-+	  The minimum recommended length is 16 characters, the max is 32.
-+	  Any characters beyond 32 will be ignored. 
-+	  It is also recommended that you use a really garbled passphrase
-+	  since it will be visible in the output of 'strings bzImage'.
-+
- config BLK_DEV_NBD
- 	tristate "Network block device support"
- 	depends on NET
------------------------ end patch -----------------------
+Not to mention the pain when to compilling programs, only to discover
+that they've fiddled with the openGL libraries.
 
+> (1) Would the sales volumes of this product be enough to make it worth
+> producing (ie. profitable)?
 
+Difficult to say.  Provided it wasn't too expensive, I'd consider it
+worth while.  This is why I suggest testing the water with something
+else for starters... that would get you income you can pour into
+researching and developing a video card chipset.
+
+> (2) How much would you be willing to pay for it?
+
+Bear in mind that I'm a poor uni student :-)
+I spose AU $80 would be as much as I'd pay for a purely 2D graphic card.
+
+> (3) How do you feel about the choice of neglecting 3D performance as a
+> priority?  How important is 3D performance?  In what cases is it not?
+
+This is fair enough... suppose you went with the fully programmable
+firmware idea -- upgrading the card would largely be a case of replacing
+the firmware.  In that case, this would seem reasonable to me.
+
+> (4) How much extra would you be willing to pay for excellent 3D
+> performance?
+
+Quadruple the above price maybe?  That would be absolute TOPS for me.
+
+One question that needs to be asked -- how would one obtain one of these
+cards?  Would I have to somehow order it online or would there be a
+distributor somewhere in Australia where I could obtain one?
+
+> (5) What's most important to you, performance, price, or stability?
+
+1. Stability
+2. Price
+3. Performance
+
+> I haven't worked out a complete design spec for this product.  The
+> reason is that what we think people want and what people REALLY want may
+> not be congruent.  If you have a good idea for a piece of graphics
+> hardware which you think would be beneficial to the free software
+> community (and worth it for a company to produce), then Tech Source, as
+> a graphics company, might be willing to sell it.
+
+I think the idea of implementing OpenGL fully in hardware has some nice
+benefits.  A bit point is that there's less in the driver to go wrong,
+less code to debug.  The other point is that it makes cross-platform
+drivers more trivial.
+
+> Oh, and before you flame me, YES, I AM doing market research for Tech
+> Source here, but NO, I am not doing it at THEIR request.
+
+Hey... I'm glad you had the courage to come here and ask :-) I get to
+have my say that way. :-D
+
+Probably my main comment, if anything would be to initially start small.
+ Okay, the 2D market is more or less sorted -- one can pick up a decent
+Matrox or S3 video card to perform that task for under AU$20, so unless
+you we're really able to cut the costs down, this would not be so
+profitable (except for the embedded market of course).
+
+Is it worth perhaps looking at implementing a card with crude OpenGL
+(i.e. ATI Mach64/NVidia Riva grade) and working up from there?
+
+Again, I'll make the point that it may be worth producing some other
+hardware (e.g. network cards, sound cards, etc) to test the water.  That
+way, you get an idea of what the market is for opensource hardware in
+general.  This will also give you an income that can help fund the
+development of a GPU for use on your final holy grail.
+
+I'd be interested to see how it goes... Good luck with this venture.
+Hope it goes well.
+- --
++-------------------------------------------------------------+
+| Stuart Longland -oOo- http://stuartl.longlandclan.hopto.org |
+| Atomic Linux Project     -oOo-    http://atomicl.berlios.de |
+| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+| I haven't lost my mind - it's backed up on a tape somewhere |
++-------------------------------------------------------------+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBfOlvuarJ1mMmSrkRApNiAJ0TVNnlANztd3KTfCyvYQem3nLPVQCeMCxG
+4WbFlfSAw5k+xfvFmuR42Fs=
+=JkPG
+-----END PGP SIGNATURE-----

@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263332AbTCNOdG>; Fri, 14 Mar 2003 09:33:06 -0500
+	id <S263337AbTCNOkF>; Fri, 14 Mar 2003 09:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263334AbTCNOdG>; Fri, 14 Mar 2003 09:33:06 -0500
-Received: from bitmover.com ([192.132.92.2]:31891 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S263332AbTCNOdF>;
-	Fri, 14 Mar 2003 09:33:05 -0500
-Date: Fri, 14 Mar 2003 06:43:47 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz, lm@bitmover.com
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-Message-ID: <20030314144347.GA8937@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Lars Marowsky-Bree <lmb@suse.de>, Pavel Machek <pavel@suse.cz>,
-	kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
-	lm@bitmover.com
-References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <20030314115055.GR1211@marowsky-bree.de>
+	id <S263339AbTCNOkF>; Fri, 14 Mar 2003 09:40:05 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:57985 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S263337AbTCNOkE>; Fri, 14 Mar 2003 09:40:04 -0500
+Message-Id: <200303141450.h2EEofb4014715@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.2 03/12/2003 with nmh-1.0.4+dev
+To: vlad@geekizoid.com
+Cc: "'kernel list'" <linux-kernel@vger.kernel.org>
+Subject: Re: Never ever send Pavel private mail unless you want him to publish it. 
+In-Reply-To: Your message of "Fri, 14 Mar 2003 08:33:39 CST."
+             <006401c2ea36$b4ac27b0$0200a8c0@wsl3> 
+From: Valdis.Kletnieks@vt.edu
+References: <006401c2ea36$b4ac27b0$0200a8c0@wsl3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030314115055.GR1211@marowsky-bree.de>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+Content-Type: multipart/signed; boundary="==_Exmh_-783317760P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 14 Mar 2003 09:50:41 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14, 2003 at 12:50:55PM +0100, Lars Marowsky-Bree wrote:
-> On 2003-03-14T11:51:32,
->    Pavel Machek <pavel@suse.cz> said:
-> 
-> > As for it being on your own time, let's see if SuSE wants the negative
-> > publicity.  I'm quite willing to make a stink, you've annoyed me and
-> > I've put up with as much as I'm going to.
-> 
-> Ok, Larry, you have finally done the coyote stunt. Please report how it really
-> feels, stepping of the cliff.
+--==_Exmh_-783317760P
+Content-Type: text/plain; charset=us-ascii
 
-It feels just fine, perhaps because I haven't stepped off any cliff. 
+On Fri, 14 Mar 2003 08:33:39 CST, "Vlad@geekizoid.com" <vlad@geekizoid.com>  said:
+> It's called a trademark, or a service mark.  He does have the right to
+> defend the name, but YOU had no right to post private mail to a public list.
 
-You might want to stop and consider what SuSE would do if someone decided
-they didn't like SuSE and came up with a pathetic shell script and started
-describing it as "a system compatible with SuSE".  I'm pretty sure that
-your lawyers would be all over them in about 30 seconds.  Ditto for Red
-Hat, Alan.  I believe it is your founder who has carefully explained to
-all of us the importance of brand.  In fact, isn't the point that Red Hat
-is nothing *but* brand?  So how fast would I get sued if I came out with
-"Larry's Red Hat Linux"?  Pretty fast, right?
+At least in the US, not only does he have the right to defend the name,
+he has the *obligation*.  If a trademark slips into "common usage", the owner
+loses it.  This has already happened to the floor covering 'linoleum', and
+is why a certain manufacturer of copying devices gets rather antsy anytime
+a TV or movie script contains a line like "Let me go xerox this", and then
+shows any other manufacturer's copier.
 
-I stand behind my statements.  If you don't like them, oh, darn.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+
+
+--==_Exmh_-783317760P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+cexAcC3lWbTT17ARAvreAKCFvAGbV40/DTJkuk41w3yNPnXMigCg/nTc
+TSPfNGaHoCYFNgpompS6sXs=
+=d/l8
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-783317760P--

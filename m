@@ -1,42 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268436AbUIWNIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268445AbUIWNKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268436AbUIWNIf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 09:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268438AbUIWNIf
+	id S268445AbUIWNKa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 09:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268438AbUIWNK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 09:08:35 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:45238 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S268436AbUIWNIe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 09:08:34 -0400
-Message-ID: <4152CA7F.5070206@de.ibm.com>
-Date: Thu, 23 Sep 2004 15:07:11 +0200
-From: Einar Lueck <elueck@de.ibm.com>
-Reply-To: lkml@einar-lueck.de
-Organization: IBM Deutschland Entwicklung GmbH
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [RFC][PATCH 1/2] ipv4 multipath routing, bk head
-References: <4151A8E5.6060600@de.ibm.com> <20040922111416.66563786.davem@davemloft.net>
-In-Reply-To: <20040922111416.66563786.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Sep 2004 09:10:29 -0400
+Received: from scanner2.mail.elte.hu ([157.181.151.9]:22694 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268439AbUIWNJH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 09:09:07 -0400
+Date: Thu, 23 Sep 2004 15:09:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S4
+Message-ID: <20040923130949.GB12984@elte.hu>
+References: <20040907115722.GA10373@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <200409230957.29318.norberto+linux-kernel@bensa.ath.cx> <20040923130134.GA12392@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040923130134.GA12392@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
 
->We've all seen your patches already, you don't need to send them
->again.
->
->Thanks.
->  
->
-Sorry, David. I did not post the same patches. I pointed out
-in the mail that there are major changes.
+i've uploaded the correct patch - please download -S4 again.
 
-Regards,
-Einar.
+	Ingo
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> 
+> * Norberto Bensa <norberto+linux-kernel@bensa.ath.cx> wrote:
+> 
+> > Hello,
+> > 
+> > Ingo Molnar wrote:
+> > > i've released the -S4 VP patch:
+> > >
+> > >   
+> > > http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm2-
+> > >S4
+> > 
+> >   CC      arch/i386/kernel/irq.o
+> > arch/i386/kernel/irq.c: In function `do_IRQ':
+> > arch/i386/kernel/irq.c:287: warning: implicit declaration of function 
+> > `redirect_hardirq'
+> > arch/i386/kernel/irq.c:344: error: `noirqdebug' undeclared (first use in this 
+> 
+> 
+> did you do a 'make oldconfig'? Make sure there's
+> CONFIG_GENERIC_HARDIRQ=y in your .config.
+> 
+> 	Ingo

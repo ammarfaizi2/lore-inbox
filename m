@@ -1,52 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUHGNSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUHGNTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUHGNSf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 09:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUHGNSf
+	id S262085AbUHGNTF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 09:19:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUHGNTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 09:18:35 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3589 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262062AbUHGNSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 09:18:33 -0400
+	Sat, 7 Aug 2004 09:19:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28289 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262085AbUHGNTD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 09:19:03 -0400
 Date: Sat, 7 Aug 2004 14:18:29 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-mtd@lists.infradead.org
-Subject: [BUG] 2.6.8-rc3 jffs2 unable to read filesystems
-Message-ID: <20040807141829.D2805@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	linux-mtd@lists.infradead.org
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Amon Ott <ao@rsbac.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux kernel file offset pointer races
+Message-ID: <20040807131825.GE12308@parcelfarce.linux.theplanet.co.uk>
+References: <20040804214056.6369.0@argo.troja.mff.cuni.cz> <1091796995.16306.20.camel@localhost.localdomain> <200408071438.18878.ao@rsbac.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200408071438.18878.ao@rsbac.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following two messages sum up the problem:
+On Sat, Aug 07, 2004 at 02:38:12PM +0200, Amon Ott wrote:
+> Would it not be useful to have per-process or per-thread offsets? Do 
+> parallel processes really need to share the offset?
+> 
+> E.g., the struct file could (optionally) be copied on fork with 
+> copy-on-write to avoid extra memory consumption.
 
-JFFS2 compression type 0x5a06 not avaiable.
-Error: jffs2_decompress returned -5
-
-It appears that a jffs2 change committed on July 15th has caused recent
-2.6.8-rc kernels to be incompatible with jffs2 filesystems modified by
-previous kernel versions.
-
-The "new format" jffs2 filesystem uses both "compr" and "usercompr"
-of the jffs2_raw_inode structure, whereas previous implementations
-left "usercompr" uninitialised and thus contains random data.
-
-This can be seen by tracing through the code from jffs2_alloc_raw_inode()
-and noticing that previous implementations do not initialise this field -
-AFAICS kmem_cache_alloc() does not guarantee that memory returned by
-this function will be initialised.
-
-Therefore, recent 2.6.8-rc kernels must _NOT_ use this field if they
-wish to remain compatible with existing jffs2 filesystems.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+(cat a; cat b) > /tmp/foo

@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311609AbSCTGay>; Wed, 20 Mar 2002 01:30:54 -0500
+	id <S312119AbSCTJrT>; Wed, 20 Mar 2002 04:47:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311611AbSCTGao>; Wed, 20 Mar 2002 01:30:44 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:46052 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S311609AbSCTGa1>; Wed, 20 Mar 2002 01:30:27 -0500
-Date: Tue, 19 Mar 2002 23:30:23 -0700
-Message-Id: <200203200630.g2K6UNw24115@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Felix Braun <Felix.Braun@mail.McGill.ca>
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: devfs mounted twice in linux 2.4.19-pre3
-In-Reply-To: <20020317121954.390bc242.Felix.Braun@mail.McGill.ca>
+	id <S312120AbSCTJrJ>; Wed, 20 Mar 2002 04:47:09 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:43794 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S312119AbSCTJrA>; Wed, 20 Mar 2002 04:47:00 -0500
+Message-ID: <3C985A46.D3C73301@aitel.hist.no>
+Date: Wed, 20 Mar 2002 10:45:42 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.7 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: Nicolas Pitre <nico@cam.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zlib double-free bug
+In-Reply-To: <Pine.LNX.4.44.0203191533360.3615-100000@xanadu.home>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felix Braun writes:
-> Hi Richard,
+Nicolas Pitre wrote:
+
+> > Removable media?
 > 
-> I just noticed that devfs is listed twice in /proc/mounts in linux
-> 2.4.19-pre3, which confuses my shutdown script. Under 2.4.19-pre my
-> /proc/mounts looks like this:
-> 
-> devfs /dev devfs rw 0 0
-> /dev/ide/host0/bus0/target0/lun0/part5 / reiserfs rw 0 0
-> none /dev devfs rw 0 0
-> /proc /proc proc rw 0 0
-> /dev/discs/disc0/part1 /dos vfat rw 0 0
-> /dev/discs/disc0/part9 /opt reiserfs rw,noatime 0 0
-> none /dev/pts devpts rw 0 0
-> /dev/discs/disc0/part7 /usr reiserfs rw 0 0
-> none /dev/shm tmpfs rw 0 0
-> 
-> whereas under 2.4.18 the first line didn't show up. Is that a
-> misconfiguration on my part?
+> Most if not all removable media are not ment to be used with JFFS2.
 
-No, this is due to a change in the kernel (presumably done by Al).
-What seems to be happening is that the kernel temporarily mounts devfs
-and then detaches it again using MNT_DETACH (actually, you need
-2.4.19-pre3-ac2 to get the fix that adds MNT_DETACH). However,
-detached filesystems still appear to be listed in /proc/mounts.
-Arguably, this is incorrect.
+Nothing is _meant_ to be exploited either.  Someone could
+create a cdrom with jffs2 (linux don't demand that cd's use iso9660)
+with an intent to make trouble.  crc's and such would match the 
+bad compressed stuff.  Nothing unusual seems to happen, but
+using the cd installs a back door as the fs uncompresses stuff.
 
-If you were to reboot single-user, and with devfs=nomount, inspection
-of /proc/mounts would show the line:
-devfs /dev devfs rw 0 0
-
-However, if you listed /dev, you would see that it doesn't actually
-contain a devfs. Thus, /proc/mounts is deceiving you.
-
-Al: what is the intended behaviour of MNT_DETACH wrt. /proc/mounts?
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Helge Hafting

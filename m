@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286904AbSABJf0>; Wed, 2 Jan 2002 04:35:26 -0500
+	id <S286871AbSABJvN>; Wed, 2 Jan 2002 04:51:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286893AbSABJfI>; Wed, 2 Jan 2002 04:35:08 -0500
-Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:7235 "HELO
-	top.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S286815AbSABJer>; Wed, 2 Jan 2002 04:34:47 -0500
-From: brian@worldcontrol.com
-Date: Wed, 2 Jan 2002 01:33:05 -0800
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.17 vs 2.2.19 vs rml new VM
-Message-ID: <20020102013305.A5272@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S286895AbSABJvC>; Wed, 2 Jan 2002 04:51:02 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:32529 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S286871AbSABJup>;
+	Wed, 2 Jan 2002 04:50:45 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>,
+        <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: [PATCH] mesh: target 0 aborted
+In-Reply-To: <20020101234546.GO28513@cpe-24-221-152-185.az.sprintbbd.net>
+	<20020102091710.14178@smtp.noos.fr>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <20020102091710.14178@smtp.noos.fr>
+Date: 02 Jan 2002 11:49:56 +0200
+Message-ID: <87g05pytdn.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.19i
-X-No-Archive: yes
-X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd like to say that as of 2.4.17 w/preempt patch, the linux kernel
-seems again to perform as well as 2.2.19 for interactive use and
-reliability, at least in my use.
+>>>>> "Benjamin" == Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-2.4.17 still croaks running some of the giant memory applications
-that I run successfully on 2.2.19. (Machines with 2GB of RAM 
-running 3GB+ apps.)
+>>> This patch makes mesh.c compile, by adapting it to the new
+>>> pmac_feature API (ported from the ppc tree).
+>>> 
+>>> In addition it contains the fix from Thomas Capricelli for the
+>>> infamous "mesh: target 0 aborted" error, which I've been personally
+>>> observing since 2.1.13x.
+>> 
+>> Er, what exactly is this against?  If this is just what's in the
+>> linuxppc_2_4 tree against current 2.4.18pre, this is either (or will be
+>> now :)) on BenH's list of things to resend to Marcelo, or there's a
+>> problem with it still.  If you added in another patch, please re-send
+>> this vs the linuxppc_2_4 tree.
 
-I tried rmap-10 new VM and under my typical load my desktop machine
-froze repeatedly.  Seemed the memory pool was going down the drain
-before the freeze. Meaning apps were failing and getting stuck in
-various odd states.
+Benjamin> The up to date mesh driver didn't get into 2.4.18pre1, either I forgot
+Benjamin> to send it to Marcelo along with the other PPC patches, or he missed it.
 
-No doubt, preempt and rmap-10 are incompatible, but I'm not going to
-give up the preempt patch any time soon.
+Benjamin> I'll take care of this.
 
-All in all 2.4.17 w/preempt is very satisfactory.
+Benjamin> The other patch for getting rid of "target 0 aborted" need some more
+Benjamin> review. You seem to just remove the bus reset. That could be made a
+Benjamin> driver option in case it really cause trouble, but I suppose the bug
+Benjamin> is elsewhere (while beeing triggered by the bus reset).
 
--- 
-Brian Litzinger <brian@worldcontrol.com>
+Benjamin> I'll look into this around next week.
 
-    Copyright (c) 2002 By Brian Litzinger, All Rights Reserved
+Thanks a lot.
+
+Regards,
+-velco

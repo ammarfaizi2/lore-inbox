@@ -1,100 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262289AbSKRKvd>; Mon, 18 Nov 2002 05:51:33 -0500
+	id <S262215AbSKRLHH>; Mon, 18 Nov 2002 06:07:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262314AbSKRKvd>; Mon, 18 Nov 2002 05:51:33 -0500
-Received: from mail.gmx.de ([213.165.65.60]:3504 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262289AbSKRKvY>;
-	Mon, 18 Nov 2002 05:51:24 -0500
-Message-ID: <005b01c28ef0$abdd56a0$6400a8c0@mikeg>
-From: "Mike Galbraith" <EFAULT@gmx.de>
-To: "Tim Connors" <tconnors@astro.swin.edu.au>
-Cc: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0211181849240.26151-100000@hexane.ssi.swin.edu.au>
-Subject: Re: 2.5.47 scheduler problems?
-Date: Mon, 18 Nov 2002 11:52:58 +0100
+	id <S262224AbSKRLHG>; Mon, 18 Nov 2002 06:07:06 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:23557 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S262215AbSKRLHG>;
+	Mon, 18 Nov 2002 06:07:06 -0500
+Message-ID: <3DD8CC44.9060104@domdv.de>
+Date: Mon, 18 Nov 2002 12:17:24 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Vergoz Michael <mvergoz@sysdoor.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 8139too.c patch for kernel 2.4.19
+References: <028901c28ead$10dfbd20$76405b51@romain> <3DD89813.9050608@pobox.com> <003b01c28edf$9e2b1530$76405b51@romain> <3DD8AD5D.9010803@pobox.com>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
------ Original Message -----
-From: "Tim Connors" <tconnors@astro.swin.edu.au>
-To: "Mike Galbraith" <EFAULT@gmx.de>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, November 18, 2002 8:53 AM
-Subject: Re: 2.5.47 scheduler problems?
-
-
-> On Mon, 18 Nov 2002, Mike Galbraith wrote:
->
-> > > > If I do the same in 2.5.47, I have no control of my box.
-Setting
-> > all tasks
-> > > > to SCHED_FIFO or SCHED_RR prior to starting make -j10 bzImage, I
-can
-> > regain
-> > > > control, but interactivity under load is basically not present.
-> > >
-> > > Funny that.
-> > >
-> > > > I used to be able to wave a window poorly at make -j25 (swapping
-> > heftily),
-> > > > fairly smoothly at make -j20, and smoothly at make -j15 or
-below.
-> > This
-> > > > with no SCHED_RR/SCHED_FIFO.  (I haven't done much testing like
-this
-> > in
-> > > > quite a while though)
-> > >
-> > > Perhaps you should consider buying an extra 29 CPU's for you
-desktop?
-> >
-> > I have neither the need for 30 CPUs, nor the cash to pay for such a
-> > beast :)
-> >
-> > I gather you think my test is silly?
->
-> Well, yes, 30 processes at a time on a single CPU does seem a bit
-silly -
-> given that (under the old system), you would not expect X to get more
-than
-> 3% of the CPU time.
-
-I don't try -j30 with X/KDE running.. that's much too heavy for my
-little box.  The whole point of doing -j30 on my box without X/KDE is
-that it juuuust fills up capacity.  It generally adds a minute to build
-time despite quite hefty swapping.  With aa kernels or heavily twiddled
-stock kernels, it's more like 30 seconds.  (with new gcc, -j30 is way
-too much too.. oink oink;)
-
-> Also sceduling normal processes (ie, not real-time processes) as
-RR/FIFO
-> seemed also pretty bad.
-
-That was only to see if I _could_ get some CPU, and with (only:) 10
-copies of gcc running.
-
->
-> However....
->
-> But I have to now admit that I haven't yet played with 2.5.47
-seriously,
-> and wansn't aware of the problems which Andrew just posted.
->
-> mea culpa.
->
->
-> --
-> TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-
-    -Mike
+Jeff,
+just as a hint: I do have a SiS based UP test system around that 
+misbehaves with IO-APIC enabled.
+See 
+http://www.msi.com.tw/program/products/slim_pc/slm/pro_slm_detail.php?UID=134&MODEL=MS-6232 
+  for more system details.
+ From the back of my head: with IO-APIC enabled and 3 RTL8139 (one on 
+board, the other two PCI) the NICs get assigned IRQs 17 and 18 but don't 
+seem to receive any interrupt at all. Without IO-APIC all three NICs 
+share IRQ 11 and do work. Further details on request (very low priority 
+problem for me). Oh, nearly forgot: kernel is 2.4.20rc1.
+-- 
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH
 

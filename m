@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUJIBIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUJIBHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266386AbUJIBIW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 21:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266236AbUJIBIR
+	id S266477AbUJIBHT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 21:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266474AbUJIBHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 21:08:17 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:20962 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266386AbUJIBHi (ORCPT
+	Fri, 8 Oct 2004 21:07:18 -0400
+Received: from gate.crashing.org ([63.228.1.57]:36269 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266459AbUJIBGx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 21:07:38 -0400
-Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Erich Focht <efocht@hpce.nec.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       LSE Tech <lse-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       ckrm-tech@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>,
-       simon.derr@bull.net, frankeh@watson.ibm.com
-In-Reply-To: <200410090051.18693.efocht@hpce.nec.com>
-References: <1097110266.4907.187.camel@arrakis>
-	 <200410081214.20907.efocht@hpce.nec.com> <41666E90.2000208@yahoo.com.au>
-	 <200410090051.18693.efocht@hpce.nec.com>
+	Fri, 8 Oct 2004 21:06:53 -0400
+Subject: Re: [PATCH] amd8111e endian & barrier fixes
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       khawar.chaudhry@amd.com, reeja.john@amd.com
+In-Reply-To: <m3u0t5a0u1.fsf@averell.firstfloor.org>
+References: <2MWTy-5mO-5@gated-at.bofh.it>
+	 <m3u0t5a0u1.fsf@averell.firstfloor.org>
 Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1097283956.6470.152.camel@arrakis>
+Message-Id: <1097283973.3605.11.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 08 Oct 2004 18:05:56 -0700
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 09 Oct 2004 11:06:13 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 15:51, Erich Focht wrote:
-> Hmmm, this is unusable as long as you don't tell me how to create new
-> levels and link them together. Adding CPUs is the simplest
-> part. I'm with Matt here, the filesystem approach is the most
-> elegant. On the other hand something simple for the start wouldn't be
-> bad. It would show immediately whether Matt's or your way of dealing
-> with domains is better suited for relinking and reorganising the
-> domains structure dynamically. Functionality could be something like:
-> - list domains
-> - create domain
-> - add child domains
-> - link in parent domain
-> We're building this from bottom (cpus) up and need to take care of the
-> unlinking of the global domain when inserting something. But otherwise
-> this could be sufficient.
-> 
-> Regards,
-> Erich
+On Fri, 2004-10-08 at 21:47, Andi Kleen wrote:
 
-I personally like to think of it from the top down.  The internal API I
-came up with looks like:
+> It's basically impossible to review the patch properly because
+> of that change. Can you please separate the arbitary white space
+> change into a different patch? 
 
-create_domain(parent_domain, type);
-destroy_domain(domain);
-add_cpu_to_domain(cpu, domain);
+Hrm... I think you are doing too much here ;) The change concerns only a
+single function and is still quite readable :) But anyways, I'll
+eventually do that next week.
 
-So you basically build your domain from the top down, from your 1 or
-more top-level domains, down to your lowest level domains.  You then add
-cpus (1 or more per domain) to the leaf domains in the tree you built. 
-Those cpus cascade up the tree, and the whole tree knows exactly which
-cpus are contained in each domain in it.
+> Also I would suggest you send the patch to the driver 
+> maintainers for review first (cc'ed) 
 
-I think these are the three main functions you need to construct pretty
-much any conceivable, useful sched_domains hierarchy.
+Well, I would have done if any maintainer email was in the source code,
+which isn't the case, but thanks for providing them :)
 
--Matt
+> >From a quick look the change to clear the ring rx flags completely
+> instead of clearing the bit looks bogus. Why did you not just add a
+> endian conversion there?
+
+Because the bits mask was ... 0 :)
+
+> I can test it when it's properly reviewd.
+
+Sure. No hurry.
+
+Ben
 

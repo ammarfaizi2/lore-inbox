@@ -1,114 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbTKCPcb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 10:32:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbTKCPcb
+	id S262086AbTKCPsu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 10:48:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTKCPsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 10:32:31 -0500
-Received: from h234n2fls24o1061.bredband.comhem.se ([217.208.132.234]:31711
-	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S262051AbTKCPc2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 10:32:28 -0500
-Date: Mon, 3 Nov 2003 16:34:55 +0100
-From: Voluspa <lista2@comhem.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: NFS on 2.6.0-test9:
-Message-Id: <20031103163455.57d24178.lista2@comhem.se>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 3 Nov 2003 10:48:50 -0500
+Received: from home.wiggy.net ([213.84.101.140]:39402 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S262072AbTKCPsp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 10:48:45 -0500
+Date: Mon, 3 Nov 2003 16:48:43 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: lock failure when creating raid on 2.6.0-test9
+Message-ID: <20031103154843.GA1719@wiggy.net>
+Mail-Followup-To: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20031103133526.GC24627@wiggy.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031103133526.GC24627@wiggy.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(cc'ing linux-kernel as well since I suspect another subsystem may be
+involved).
 
-On 2003-11-03 13:42:35 Luke Driscoll wrote:
+I noticed something else in addition to the problem below: I also
+can no longer mount /dev/hdc1 since mount tells me the device
+is busy. It looks like something scans the various block devices during
+boot and forgets to release something.
 
->On a kernel 2.6.0-test9 as an NFS client I am having trouble
->transferring data to and from NFS servers. It it extraordinarily
->slow.  I receive the following information in dmesg:
->
->nfs warning: mount version older than kernel
->nfs: server safe not responding, still trying
+Wichert.
 
-You and me the same. Here's a message I sent to
-nfs@lists.sourceforge.net this Friday:
+Previously Wichert Akkerman wrote:
+> I am trying to setup RAID 1 array on two SCSI disks on a 2.6.0-test9
+> kernel but I am hitting the following:
+> 
+> vortex:~# mkraid /dev/md0
+> handling MD device /dev/md0
+> analyzing super-block
+> disk 0: /dev/hda2, 35077927kB, raid superblock at 35077824kB
+> disk 1: /dev/hdc2, 35077927kB, raid superblock at 35077824kB
+> md: bind<hda2>
+> md: could not lock hdc2.
+> md: error, md_import_device() returned -16
+> mkraid: aborted.
+> (In addition to the above messages, see the syslog and /proc/mdstat as well
+>  for potential clues.)
+> 
+> -16 is EBUSY, which is unepexted since nothing else is using that disk.
+> At this stage /proc/mdstat contains:
+> 
+> Personalities : [raid1] 
+> md0 : inactive hda2[0]
+>       35077824 blocks
+> unused devices: <none>
 
---quote--
-xSubject: 2.6.0-test3-bk10-final regression getting out of hand
-xDate: Fri, 31 Oct 2003 21:48:51 +0100
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.
 
-As reported in:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106195494828814&w=2
-I'm experiencing a serious NFS regression since 2.6.0-test3-bk10-final
-(bk-set determined now). Since that, along the road to 2.6.0-test9,
-something has gotten completely out of hand.
-
-cp -a /mnt/oden/etc .
-
-_2.6.0-test3-bk10_
-2 minutes
-
-_2.6.0-test3-bk10-final_
-3 minutes 47 seconds
-
-_2.6.0-test9_
-29 minutes 54 seconds
-
-Nothing has changed in hardware or setup, and the cp tests were done
-today. Not being a programmer I tried to delete individual patches in
-the bk-set, but couldn't find the exact breakage point.
-
-Erasing changes to:
-linux-2.6.0-test3-bk10/fs/nfs/dir.c
-No change.
-
-Erasing changes to:
-linux-2.6.0-test3-bk10/fs/nfs/nfsroot.c
-No change.
-
-Erasing changes to:
-linux-2.6.0-test3-bk10/include/linux/sunrpc/timer.h
-linux-2.6.0-test3-bk10/net/sunrpc/timer.c
-No change.
-
-Erasing changes to:
-linux-2.6.0-test3-bk10/net/sunrpc/clnt.c
-Doesn't compile.
-
-Erasing changes to:
-linux-2.6.0-test3-bk10/include/linux/sunrpc/xprt.h
-linux-2.6.0-test3-bk10/net/sunrpc/xprt.c
-Doesn't compile.
-
-Using TCP or DIRECTIO in -test9 makes no difference. Here's the
-relevant .config-section:
-
-#
-# Network File Systems
-#
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-# CONFIG_NFS_V4 is not set
-# CONFIG_NFS_DIRECTIO is not set
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-# CONFIG_NFSD_V4 is not set
-# CONFIG_NFSD_TCP is not set
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SUNRPC=y
-# CONFIG_SUNRPC_GSS is not set
-# CONFIG_SMB_FS is not set
-# CONFIG_CIFS is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_CODA_FS is not set
-# CONFIG_INTERMEZZO_FS is not set
-# CONFIG_AFS_FS is not set
-
---unquote--
-
-Mvh
-Mats Johannesson

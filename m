@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132338AbRDJQDp>; Tue, 10 Apr 2001 12:03:45 -0400
+	id <S132398AbRDJQFz>; Tue, 10 Apr 2001 12:05:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132385AbRDJQDf>; Tue, 10 Apr 2001 12:03:35 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:57102 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S132338AbRDJQDX>;
-	Tue, 10 Apr 2001 12:03:23 -0400
-Date: Tue, 10 Apr 2001 12:55:31 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Richard Russon <kernel@flatcap.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Swap Corruption in 2.4.3 ?
-In-Reply-To: <986872810.8240.0.camel@home.flatcap.org>
-Message-ID: <Pine.LNX.4.21.0104101254490.11038-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S132395AbRDJQFp>; Tue, 10 Apr 2001 12:05:45 -0400
+Received: from www.thebucket.org ([216.63.180.35]:24851 "EHLO www")
+	by vger.kernel.org with ESMTP id <S132392AbRDJQFj>;
+	Tue, 10 Apr 2001 12:05:39 -0400
+Date: Tue, 10 Apr 2001 11:43:13 -0500 (CDT)
+From: Bart Dorsey <echo@thebucket.org>
+To: linux-kernel@vger.kernel.org
+Subject: Patch to abyss.c against 2.4.2-ac28
+Message-ID: <Pine.LNX.4.21.0104101140410.25307-200000@www>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-76311105-986920993=:25307"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Apr 2001, Richard Russon wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> VM: Undead swap entry 000bb300
-> VM: Undead swap entry 00abb300
-> VM: Undead swap entry 016fb300
+--8323328-76311105-986920993=:25307
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Known bug ... unknown cause ;(
+This is my first time sending in a patch to the kernel. 
 
-http://www.linux-mm.org/bugzilla.shtml has it already listed
+This is a one line fix to the abyss tokenring driver in 2.4.2-ac28
 
-regards,
+I got this fix from the driver maintainer who said 
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+"I guess I really should send this in to Linus"
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+I'm just going to go ahead and jump the gun and submit it ;)
 
+
+
+--8323328-76311105-986920993=:25307
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="patch-abyss-2.4.2-ac28.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0104101143130.25307@www>
+Content-Description: 
+Content-Disposition: attachment; filename="patch-abyss-2.4.2-ac28.diff"
+
+LS0tIGxpbnV4L2RyaXZlcnMvbmV0L3Rva2VucmluZy9hYnlzcy5jLm9sZAlG
+cmkgRmViIDE2IDE4OjAyOjM2IDIwMDENCisrKyBsaW51eC9kcml2ZXJzL25l
+dC90b2tlbnJpbmcvYWJ5c3MuYwlXZWQgTWFyIDE0IDE1OjIwOjAwIDIwMDEN
+CkBAIC0xMzcsNyArMTM3LDcgQEANCiAJICovDQogCWRldi0+YmFzZV9hZGRy
+ICs9IDB4MTA7DQogCQkNCi0JcmV0ID0gdG1zZGV2X2luaXQoZGV2LDAscGRl
+dik7DQorCXJldCA9IHRtc2Rldl9pbml0KGRldiwweGZmZmZmZmZmLHBkZXYp
+Ow0KIAkvKiBYWFg6IHNob3VsZCBiZSB0aGUgbWF4IFBDSTMyIERNQSBtYXgg
+Ki8NCiAJaWYgKHJldCkgew0KIAkJcHJpbnRrKCIlczogdW5hYmxlIHRvIGdl
+dCBtZW1vcnkgZm9yIGRldi0+cHJpdi5cbiIsIA0K
+--8323328-76311105-986920993=:25307--

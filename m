@@ -1,104 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbULIMqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbULIMrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261515AbULIMqR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 07:46:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbULIMqR
+	id S261517AbULIMrb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 07:47:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbULIMra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 07:46:17 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:62155 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261515AbULIMqJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 07:46:09 -0500
-Date: Thu, 9 Dec 2004 18:17:38 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kprobes: dont steal interrupts from vm86
-Message-ID: <20041209124738.GB5528@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-References: <20041109130407.6d7faf10.akpm@osdl.org> <20041110104914.GA3825@in.ibm.com> <4192638C.6040007@aknet.ru> <20041117131552.GA11053@in.ibm.com> <41B1FD4B.9000208@aknet.ru> <20041207055348.GA1305@in.ibm.com> <41B5FA1B.9090507@aknet.ru>
+	Thu, 9 Dec 2004 07:47:30 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:47300 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261516AbULIMrS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 07:47:18 -0500
+Date: Thu, 9 Dec 2004 13:46:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Dean Nelson <dcn@sgi.com>
+Cc: chrisw@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] export sched_setscheduler() for kernel module use
+Message-ID: <20041209124653.GA28578@elte.hu>
+References: <4198F70D.mailxMSZ11J00J@aqua.americas.sgi.com> <20041115105801.T14339@build.pdx.osdl.net> <20041115203343.GA32173@sgi.com> <20041116104821.GA31395@elte.hu> <20041116201841.GA29687@sgi.com> <20041116223608.GA27550@elte.hu> <20041208203426.GA6370@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41B5FA1B.9090507@aknet.ru>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20041208203426.GA6370@sgi.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-> Now the comments (that you just altered)
-> suggest that the break-point can be
-> removed by another CPU. I don't think
-> delivering the fault to the user-space
-> in this case is wise (but that's what
-> I'd care least, as I am not using the
-> kprobes myself yet). Maybe instead
-> it would be better to return 1 when
 
-The patch below takes both the cases into 
-consideration. 
+* Dean Nelson <dcn@sgi.com> wrote:
 
-> Also, you still use the completely
-> invalid addrress and pass it to several
-> functions like get_kprobe() (addr is
-> invalid in either v86 case or when the
-> segmentation is used). Since the
-> deref is now optimized away by gcc, I
-> can't write an Oops test-case for this,
-> but why you do not perform the sanity
-> checks to see whether or not the address
-> is valid? (the checks like I suggested
-> in previous posting)
+> > another potential API would be to use the linear priority range that the
+> > scheduler has internally, from 0 (RT prio 99) to 140 (nice +19). I'm not
+> > sure which solution is the better one. Using the linear priority has the
+> > advantage of not having to pass any policy value - priorities between 0
+> > and 99 implicitly mean SCHED_FIFO, priorities above that would mean
+> > SCHED_NORMAL, a pretty natural and compact interface.
 > 
-I am not able to think of a case, where 
-address is invalid when it enters int3 handler.
-I would appreciate if you can provide such a
-test case.
+> I realize that I don't know where you are ultimately headed with your
+> ideas for scheduling changes, but as things are it doesn't make sense
+> to me to drop the SCHED_RR scheduling policy. There may be existing
+> users who depend on the preemptive nature of this policy. It seems too
+> much of a risk to eliminate this policy at this time.
 
-Your comments are welcome.
+agreed ... that's the weak point. Oh well. So this leaves your original
+patch. If someone wants to change the nice value it can be done
+separately. I.e. roughly the same API for kernelspace as for userspace.
 
-Thanks
-Prasanna
-
-
-Stas reported that kprobes steals int3 exceptions when not in 
-virtual-8086 mode. If processor  executes int 3 INT n type instruction, it
-will end up executing int3 handler. This patch fixes the problem by returning 0,
-if the int3 exceptions does not belong to kprobes and allowing the kernel to 
-handle it.
-
-Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-
-
----
-
- linux-2.6.10-rc3-prasanna/arch/i386/kernel/kprobes.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
-
-diff -puN arch/i386/kernel/kprobes.c~kprobes-steals-int3 arch/i386/kernel/kprobes.c
---- linux-2.6.10-rc3/arch/i386/kernel/kprobes.c~kprobes-steals-int3	2004-12-09 17:09:08.000000000 +0530
-+++ linux-2.6.10-rc3-prasanna/arch/i386/kernel/kprobes.c	2004-12-09 17:09:36.000000000 +0530
-@@ -117,8 +117,12 @@ static inline int kprobe_handler(struct 
- 	p = get_kprobe(addr);
- 	if (!p) {
- 		unlock_kprobes();
--		if (regs->eflags & VM_MASK) {
--			/* We are in virtual-8086 mode. Return 0 */
-+		if ((regs->eflags & VM_MASK) ||
-+				((*addr == 0x3) && (*(addr - 1) == 0xcd))) {
-+			/* Either we are in virtual-8086 mode, or we executed
-+			 * int 3 INT n type instruction. Let kernel handle
-+			 * it, return 0.
-+			 */
- 			goto no_kprobe;
- 		}
- 
-
-_
--- 
-
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+	Ingo

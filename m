@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266300AbRGBA1v>; Sun, 1 Jul 2001 20:27:51 -0400
+	id <S266301AbRGBA3L>; Sun, 1 Jul 2001 20:29:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266301AbRGBA1l>; Sun, 1 Jul 2001 20:27:41 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:25874 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S266300AbRGBA1b>;
-	Sun, 1 Jul 2001 20:27:31 -0400
-Date: Mon, 2 Jul 2001 01:27:27 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Re: gcc: internal compiler error: program cc1 got fatal signal
- 11]
-In-Reply-To: <3B3FBE8C.80803@zytor.com>
-Message-ID: <Pine.LNX.4.33.0107020122350.18977-100000@infradead.org>
+	id <S266302AbRGBA3B>; Sun, 1 Jul 2001 20:29:01 -0400
+Received: from 35.roland.net ([65.112.177.35]:31244 "EHLO earth.roland.net")
+	by vger.kernel.org with ESMTP id <S266301AbRGBA2u>;
+	Sun, 1 Jul 2001 20:28:50 -0400
+Message-ID: <006901c1028e$05d548c0$bb1cfa18@JimWS>
+From: "Jim Roland" <jroland@roland.net>
+To: "Adam Schrotenboer" <ajschrotenboer@lycosmail.com>,
+        "Paul Mundt" <lethal@ChaoticDreams.ORG>
+Cc: "LKML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B3F5F5C.40907@lycosmail.com> <20010701130151.A10989@ChaoticDreams.ORG> <3B3F873A.9000600@lycosmail.com>
+Subject: Re: Uncle Sam Wants YOU!
+Date: Sun, 1 Jul 2001 19:29:14 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Peter.
+[snip]
+> >Get real, look at all the moronic things that various linux distributions
+do.
+> >Is this a reason to hate linux and demand the head of Linus as
+compensation
+> >for your troubles?
+> >
+> >This kind of attitude, and you wonder why MS attacks linux.
+> >
+> Why would that make MS afraid of Linux. It should simply make them
+> ignore them (b/c presumably this would make Linux harmless)
+>
 
- >>>> Wasn't 2.2.12 the kernel that included the `lock halt` bug patch?
-
- >>> Perhaps, but is has absolutely nothing to do with the rest of
- >>> this discussion.
-
- >> The `lock halt` bug patch was specific to the Cyrix processors
- >> (not to be confused with the `lock registers` patch for the
- >> Intel processors, and I noted that the processor in question was
- >> a Cyrix one, hence the comment.
-
- > Oh.  Sorry, I don't know about "lock halt" and its effects.
- > However, if it refers to the instruction sequence LOCK HLT I
- > find it hard to believe it would have the symptoms described.
-
-I don't have the paperwork to hand, and my memory isn't brilliant, but
-the bug was something along the lines of Cyrix processors trashing the
-SP if the instruction preceding (or following, I'm not sure which) a
-HLT opcode was locked, and the patch was to remove some instances in
-the kernel source where that occurred.
-
-It's quite possibly unrelated, but...
-
-Best wishes from Riley.
+Actually if you would read the tech-news articles closely, you will see they
+are attacking Open Source including the GPL license, not specifically Linux.
+Linux is a threat by default because it's very heavy in GPL.
 

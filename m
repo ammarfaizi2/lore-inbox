@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265452AbUBFNq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 08:46:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265457AbUBFNq3
+	id S265466AbUBFNoj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 08:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUBFNoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 08:46:29 -0500
-Received: from sole.infis.univ.trieste.it ([140.105.134.1]:36553 "EHLO
-	sole.infis.univ.trieste.it") by vger.kernel.org with ESMTP
-	id S265452AbUBFNqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 08:46:21 -0500
-Date: Fri, 6 Feb 2004 14:46:19 +0100
-From: Andrea Barisani <lcars@infis.univ.trieste.it>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH: I2C is missing on 2.6.2 with ppc arch
-Message-ID: <20040206134619.GA23338@sole.infis.univ.trieste.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GPG-Key: 0x864C9B9E
-X-GPG-Fingerprint: 0A76 074A 02CD E989 CE7F  AC3F DA47 578E 864C 9B9E
-User-Agent: Mutt/1.5.4i
+	Fri, 6 Feb 2004 08:44:39 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:63209 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265466AbUBFNog
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 08:44:36 -0500
+Date: Fri, 6 Feb 2004 11:44:19 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Michael Frank <mhf@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.25-rc1: BUG: wrong zone alignment, it will crash
+In-Reply-To: <200402061735.07726.mhf@linuxmail.org>
+Message-ID: <Pine.LNX.4.58L.0402061143280.16422@logos.cnet>
+References: <200402061735.07726.mhf@linuxmail.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi guys,
 
-i2c support is missing on 2.6.2 with ppc arch, it was present on 2.6.1 and
-it's needed for many things, most notably dmasound_pmac support.
+On Fri, 6 Feb 2004, Michael Frank wrote:
 
+> As with 2.4.24, using the highmem option causes the BUG message.
+>
+> This is a kernel ex BK without any patches.
+>
+> Linux version 2.4.25-rc1 (root@mhfl4) (gcc version 2.95.3 20010315 (release)) #5 Fri Feb 6 17:27:18 HKT 2004
+> BIOS-provided physical RAM map:
+>  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+>  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+>  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+>  BIOS-e820: 0000000000100000 - 000000001eff0000 (usable)
+>  BIOS-e820: 000000001eff0000 - 000000001eff3000 (ACPI NVS)
+>  BIOS-e820: 000000001eff3000 - 000000001f000000 (ACPI data)
+>  BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
+> 300MB HIGHMEM available.
+> 195MB LOWMEM available.
+> On node 0 totalpages: 126960
+> zone(0): 4096 pages.
+> zone(1): 46064 pages.
+> zone(2): 76800 pages.
+> BUG: wrong zone alignment, it will crash
+> Kernel command line: vga=0xf07 root=/dev/hda4 console=tty0 console=ttyS0,115200n8r devfs=nomount nousb acpi=off highmem=300m
+> Initializing CPU#0
+> Detected 2399.771 MHz processor.
+> Console: colour VGA+ 80x60
+> Calibrating delay loop... 4784.12 BogoMIPS
+> Memory: 498696k/507840k available (1589k kernel code, 8756k reserved, 676k data, 120k init, 307200k highmem)
+>
+> The kernel seems to experience stability problems.
 
-Here's a patch that fix the problem:
+Michael,
 
---- Kconfig.orig	2004-02-06 14:40:23.452443000 +0100
-+++ Kconfig	2004-02-06 14:36:59.412443000 +0100
-@@ -1255,6 +1255,8 @@ endmenu
- 
- source "drivers/char/Kconfig"
- 
-+source "drivers/i2c/Kconfig"
-+
- source "drivers/media/Kconfig"
- 
- source "fs/Kconfig"
+This is totally bogus, you dont have highmem available. Dont use highmem=.
 
-
-Bye
-
-
---
-------------------------------------------------------------
-INFIS Network Administrator & Security Officer         .*. 
-Department of Physics       - University of Trieste     V 
-lcars@infis.univ.trieste.it - GPG Key 0x864C9B9E      (   )
-----------------------------------------------------  (   )
-"How would you know I'm mad?" said Alice.             ^^-^^
-"You must be,'said the Cat,'or you wouldn't have come here."
-------------------------------------------------------------

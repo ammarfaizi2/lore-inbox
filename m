@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281547AbRKMHLX>; Tue, 13 Nov 2001 02:11:23 -0500
+	id <S281546AbRKMH2Q>; Tue, 13 Nov 2001 02:28:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281546AbRKMHLO>; Tue, 13 Nov 2001 02:11:14 -0500
-Received: from [203.197.249.146] ([203.197.249.146]:23947 "EHLO
-	indica.wipsys.stph.net") by vger.kernel.org with ESMTP
-	id <S281489AbRKMHK5>; Tue, 13 Nov 2001 02:10:57 -0500
-Message-ID: <3BF11605.335EBC76@wipro.com>
-Date: Tue, 13 Nov 2001 18:15:57 +0530
-From: "s.srinivas" <srinivas.surabhi@wipro.com>
-Reply-To: srinivas.surabhi@wipro.com
-X-Mailer: Mozilla 4.51 [en] (X11; I; Linux 2.2.5-15 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: % more space reqd. when dd is used? 
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+	id <S281417AbRKMH2G>; Tue, 13 Nov 2001 02:28:06 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:49114 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S281416AbRKMH1y>;
+	Tue, 13 Nov 2001 02:27:54 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 1.6 is available 
+In-Reply-To: Your message of "Fri, 09 Nov 2001 01:34:11 +1100."
+             <21560.1005230051@ocs3.intra.ocs.com.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 13 Nov 2001 18:27:42 +1100
+Message-ID: <13361.1005636462@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Release 1.6 of kernel build for kernel 2.5 (kbuild 2.5) has been
+>released.  http://sourceforge.net/projects/kbuild/, Package kbuild-2.5,
+>download release 1.6.
 
-This is a multi-part message in MIME format.
+There is now a patch from kbuild 2.5 2.4.14 to kbuild 2.5 2.4.15-pre4,
+under release 1.6.  Or there will be once it propagates through
+sourceforge.
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Apply in this order:
 
-hi all,
+  Pristine 2.4.14 kernel
+  kbuild 2.5 2.4.14-1 patch
+  Linus's patch-2.4.15-pre4
+  kbuild 2.5 2.4.15-pre4-2 patch (2.4.15-pre4-1 was incorrect)
 
-I have two  physical harddisks /dev/hda1 and /hdb
-
-1) i want to copy drive (take backup) to a file ( in /hdb)using dd.
-So how much space( in terms percentage)more is required in /hdb
-for it to be copied successfully.
-
-2) After copying using dd if=/dev/hda1 of=/hdb/backup
-
-how to retrive it back again in terms of directories and sub-directories
-and files.
-
-thank u all
-
-regards
-vasu
-
-
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-The Information contained and transmitted by this E-MAIL is proprietary to Wipro and/or its Customer and is intended 
-for use only by the individual or entity to which it is addressed, and may contain information that is privileged,
-confidential or exempt from disclosure under applicable law. If this is a forwarded message, the content of this
-E-MAIL may not have been sent with the authority of the Company. If you are not the intended recipient, an agent
-of the intended recipient or a  person responsible for delivering the information to the named recipient,  you are
-notified that any use, distribution, transmission, printing, copying or dissemination of this information in any way
-or in any manner is strictly prohibited. If you have received this communication in error, please delete this mail &
-notify us immediately at mailadmin@wipro.com
-
---------------InterScan_NT_MIME_Boundary--

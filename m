@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262405AbTI1KUy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 06:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbTI1KUy
+	id S262360AbTI1KXU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 06:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbTI1KXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 06:20:54 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:47057 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S262405AbTI1KUy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 06:20:54 -0400
-Date: Sun, 28 Sep 2003 12:20:53 +0200
-From: Ookhoi <ookhoi@humilis.net>
-To: Stef van der Made <svdmade@planet.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Onstream DI-30 locks up PC when in use
-Message-ID: <20030928102053.GA7863@favonius>
-Reply-To: ookhoi@humilis.net
-References: <1064678738.3578.8.camel@sunshine> <Pine.LNX.4.56.0309271950450.21678@localhost.localdomain> <1064693831.1792.9.camel@sunshine> <3F75F1ED.9010307@planet.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F75F1ED.9010307@planet.nl>
-X-Uptime: 12:53:05 up 110 days, 11:25, 33 users,  load average: 1.87, 1.49, 1.20
-User-Agent: Mutt/1.5.4i
+	Sun, 28 Sep 2003 06:23:20 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:52822 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262360AbTI1KXT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 06:23:19 -0400
+Date: Sun, 28 Sep 2003 12:14:18 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Bernardo Innocenti <bernie@develer.com>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test6
+Message-ID: <Pine.LNX.4.44.0309281213240.4929-100000@callisto>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stef van der Made wrote (ao):
-> I'm trying to get my DI-30 Onstream tapedrive to work. Some pacthes were 
-> put inot linux 2.6-test5. When I bootup it recognizes the drive :-))) 
-> but when I try to use the drive it locks up my PC immediatly.
-> 
-> I've updated the bug on bugzilla 
-> "http://bugzilla.kernel.org/show_bug.cgi?id=967"
-> 
-> but got no reply yet. Are there more people trying to get this drive to 
-> work and if yes what are your experiences with this drive and 2.6 test5
 
-It doesn't work yet in 2.6 due to broken ide-scsi support.
+On Sat, 27 Sep 2003, Linus Torvalds wrote:
+> Bernardo Innocenti:
+>   o GCC 3.3.x/3.4 compatiblity fix in include/linux/init.h
+
+This change breaks 2.95 for some source files, because <linux/init.h> doesn't
+include <linux/compiler.h>. Do you want to have the missing include added to
+<linux/init.h>, or to the individual source files that need it?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,37 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288473AbSBRWPS>; Mon, 18 Feb 2002 17:15:18 -0500
+	id <S288377AbSBRWRS>; Mon, 18 Feb 2002 17:17:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288174AbSBRWO6>; Mon, 18 Feb 2002 17:14:58 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51466 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288308AbSBRWOq>;
-	Mon, 18 Feb 2002 17:14:46 -0500
-Message-ID: <3C717C72.72A994D3@zip.com.au>
-Date: Mon, 18 Feb 2002 14:13:06 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc1 i686)
-X-Accept-Language: en
+	id <S288342AbSBRWRJ>; Mon, 18 Feb 2002 17:17:09 -0500
+Received: from tomts24-srv.bellnexxia.net ([209.226.175.187]:63684 "EHLO
+	tomts24-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S288174AbSBRWQv>; Mon, 18 Feb 2002 17:16:51 -0500
+Date: Mon, 18 Feb 2002 17:16:50 -0500 (EST)
+From: Craig <penguin@wombat.ca>
+X-X-Sender: carsnau@wombat
+To: linux-kernel@vger.kernel.org
+Subject: Serial Console changes in linux 2.4.15??
+Message-ID: <Pine.LNX.4.42.0202181657240.23209-100000@wombat>
 MIME-Version: 1.0
-To: john <john@zlilo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kupdated using all CPU
-In-Reply-To: <20020218134041.A2586@doom.sfo.covalent.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john wrote:
-> 
-> hi,
-> ive searched all over and found many references to this problem, but
-> never found an actual solution.  the problem is that during heavy
-> disk I/O, kupdated will periodically take up ALL the cpu.  
 
-I've seen a couple of reports of this, nothing to indicate that it's
-a common problem?
+Hi all,
 
-In the other reports, it was related to extremely low disk throughput.
-What does `hdparm -t /dev/hda' say?
+I have run into a problem with using my serial port as a console in linux
+2.4.17, and tracked down the change.  Just wondering if anyone could shed some
+light on the situation.  Here's the scoop:
 
--
+In Linux 2.4.10 -> 2.4.14 (and probably earlier than 2.4.10, but i didn't
+check) my serial console port works just fine.  I then started using 2.4.17 and
+the serial port would continue to spit out output, but would not accept any
+input.   I turned on the debugging statements and traced the problem down to the
+following piece of code from "drivers/char/serial.c".
+
+function -> "change_speed"
+
+#if 0 /* breaks serial console during boot stage */
+        /*
+         * !!! ignore all characters if CREAD is not set
+         */
+        if ((cflag & CREAD) == 0)
+                info->ignore_status_mask |= UART_LSR_DR;
+#endif
+
+
+The "#if 0" statements exist in 2.4.10 -> 2.4.14.
+In Linux 2.4.15, the "#if 0" statements were removed, so now that code is hit,
+and all the input characters are now ignored.
+It is still missing in 2.4.16 & 2.4.17.
+If i manually put the lines back (the "#if 0" and "#endif"), then my serial
+console works just fine.
+
+Did someone submit serial.c with the "#if 0" lines removed by accident?
+I did look at the 2.4.15 changelog and could not see any changes regarding this.
+
+My other question is: Why does this break the serial console?
+Someone must have know it has that affect in 2.4 because of the comment that is
+in the "#if 0" line.  Any idea what is causing 'cflag' to be improperly set in
+the serial driver?
+I'd much prefer to fix the root problem, as opposed to putting in the "#if 0"
+work-around.
+
+Any ideas or pointers would be most appreciated.
+Thanks.
+
+--
+Craig.
++------------------------------------------------------+
+http://www.wombat.ca               Why? Why not.
+http://www.washington.edu/pine/    Pine @ the U of Wash.
++-------------=*sent via Pine4.42*=--------------------+
+
+
+
+
+

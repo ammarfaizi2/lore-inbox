@@ -1,83 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUIEH1v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUIEHfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266344AbUIEH1v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 03:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUIEH1v
+	id S266333AbUIEHfo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 03:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUIEHfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 03:27:51 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:30670 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S266316AbUIEH1q (ORCPT
+	Sun, 5 Sep 2004 03:35:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25531 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266333AbUIEHfm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 03:27:46 -0400
-Date: Sun, 5 Sep 2004 17:27:41 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-fsdevel@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: The argument for fs assistance in handling archives (was:
- silent semantic changes with reiser4)
-Message-Id: <20040905172741.78aef274.sfr@canb.auug.org.au>
-In-Reply-To: <Pine.LNX.4.58.0409021315111.2295@ppc970.osdl.org>
-References: <20040826150202.GE5733@mail.shareable.org>
-	<200408282314.i7SNErYv003270@localhost.localdomain>
-	<20040901200806.GC31934@mail.shareable.org>
-	<Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
-	<1094118362.4847.23.camel@localhost.localdomain>
-	<Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org>
-	<1094150760.5809.30.camel@localhost.localdomain>
-	<Pine.LNX.4.58.0409021315111.2295@ppc970.osdl.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sun, 5 Sep 2004 03:35:42 -0400
+Subject: Re: [patch] kernel sysfs events layer
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Robert Love <rml@ximian.com>
+Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, kay.sievers@vrfy.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1094353088.2591.19.camel@localhost>
+References: <1093988576.4815.43.camel@betsy.boston.ximian.com>
+	 <20040831145643.08fdf612.akpm@osdl.org>
+	 <1093989513.4815.45.camel@betsy.boston.ximian.com>
+	 <20040831150645.4aa8fd27.akpm@osdl.org>
+	 <1093989924.4815.56.camel@betsy.boston.ximian.com>
+	 <20040902083407.GC3191@kroah.com>
+	 <1094142321.2284.12.camel@betsy.boston.ximian.com>
+	 <20040904005433.GA18229@kroah.com>  <1094353088.2591.19.camel@localhost>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-g7iuVps7ufSXVfMOVJLZ"
+Organization: Red Hat UK
+Message-Id: <1094369728.2809.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Sun__5_Sep_2004_17_27_41_+1000_K5lqhE1xJJm+C6QO"
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 05 Sep 2004 09:35:28 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__5_Sep_2004_17_27_41_+1000_K5lqhE1xJJm+C6QO
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
 
-On Thu, 2 Sep 2004 13:22:41 -0700 (PDT) Linus Torvalds <torvalds@osdl.org> wrote:
->
-> Well, dnotify() really _is_ inotify(), since it does actually work on 
-> inodes, not dentries.
+--=-g7iuVps7ufSXVfMOVJLZ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The "d" stands for directory not dentry :-)
 
-> I think what they are really complaining about is that dnotify() only 
-> notifies the _directory_ when a file is changed, and they'd like it to 
-> notify the file itself too. Which is a one-liner, really.
+> Look, I agree that unifying the two ideas and transports as much as
+> possible is the right way to proceed.  But the fact is, as you said,
+> transports _are_ important.  And simply always sending out a hotplug
+> event _and_ a netlink event is silly and superfluous.  We need to make
+> up our minds.
 
-I don't think so, since this notify will only happen if the process has
-registered for the notification and there is no way to register unless the
-file is a directory ...
+in addition I consider the 2 *uses* ortogonal. Hotplug historically has
+been 1) reasonably heavy weight and 2) concerned with hardware changes.
+General events such as say, "thermal throttling started" could of course
+be munged into hotplug but to me that is something artificial.
+Saying "look ma, the interfaces have the same types, so it has to be one
+function" is imo the wrong thing to do. The usage is different (although
+I will admit there is an overlapping area). The cost of sending a
+message is different.=20
 
-> Does the following make sense? (Totally untested, use-at-your-own-risk, 
-> I've-never-actually-used-dnotify-in-user-space, whatever).
-
-I had intended to extend dnotify to do file notifies, but I think the
-real killer is needing the keep the file open that you want to be
-notified about when you want to be notified about lots of files ...
-
-I think that is what inotify was trying to fix (but I haven't had a chance
-to look at it recently).  It reminds me of omirr that we had many years
-ago - I wonder what happened to it?
-
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Sun__5_Sep_2004_17_27_41_+1000_K5lqhE1xJJm+C6QO
-Content-Type: application/pgp-signature
+--=-g7iuVps7ufSXVfMOVJLZ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFBOr/t4CJfqux9a+8RAmFmAJ9bV83AgHi9BISVZegmZ+EXeC7RygCfRule
-hyReitE+BU9zAjsiitp+5/E=
-=U2d/
+iD8DBQBBOsHAxULwo51rQBIRAhsMAJ49/toG1VUeav4GMqQY3jf0qNLAdACfXO1Q
+Z/7HQXUovhMrM++XwlD3ulk=
+=FvRQ
 -----END PGP SIGNATURE-----
 
---Signature=_Sun__5_Sep_2004_17_27_41_+1000_K5lqhE1xJJm+C6QO--
+--=-g7iuVps7ufSXVfMOVJLZ--
+

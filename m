@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbUBZGYD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 01:24:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbUBZGYD
+	id S262706AbUBZG1j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 01:27:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbUBZG1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 01:24:03 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2444 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262704AbUBZGXz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 01:23:55 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Early memory patch, revised
-References: <403ADCDD.8080206@zytor.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 25 Feb 2004 23:16:00 -0700
-In-Reply-To: <403ADCDD.8080206@zytor.com>
-Message-ID: <m11xoifjrz.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Thu, 26 Feb 2004 01:27:39 -0500
+Received: from mail013.syd.optusnet.com.au ([211.29.132.67]:41624 "EHLO
+	mail013.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262706AbUBZG1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 01:27:34 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16445.37304.155370.819929@wombat.chubb.wattle.id.au>
+Date: Thu, 26 Feb 2004 17:27:04 +1100
+To: akpm@osdl.org, kingsley@aurema.com
+CC: linux-kernel@vger.kernel.org
+Subject: /proc visibility patch breaks GDB, etc.
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-> Hi all,
 
-While looking and understanding what this code does I have found
-a real bug.
+In fs/proc/base.c:proc_pid_lookup(), the patch
 
-> +/* 
-> + * This is how much memory *in addition to the memory covered up to
-> + * and including _end* we need mapped initially.  We need one bit for
-> + * each possible page, which currently means 2^36/4096/8 = 2 MB
-> + * (64-bit-capable chips can do more, but if you have more than 64 GB
-> + * of memory you *really* should be running a 64-bit kernel.  However,
-> + * if this really bothers someone we could query this dynamically.)
-> + *
-> + * The other thing we may want to do dynamically in the future is to
-> + * detect PSE and skip generating the PTEs.
-> + *
-> + * Modulo rounding, each megabyte assigned here requires a kilobyte of
-> + * memory, which is currently unreclaimed.
-> + *
-> + * This should be a multiple of a page.
->   */
+        read_unlock(&tasklist_lock); 
+        if (!task) 
+                goto out; 
++       if (!thread_group_leader(task)) 
++               goto out_drop_task; 
+  
+        inode = proc_pid_make_inode(dir->i_sb, task, PROC_TGID_INO); 
 
-The comment about the bootmem is wrong and misleading.  The bootmem
-bitmap only included low memory.  So in the worst case with a 4G/4G split
-it can be 2^32/4096/8 = 128KiB.  Normally the worst case is only 32KiB with
-a 3G/1G split.
+means that threads other than the thread group leader don't appear in
+the /proc top-level directory.  Programs that are informed via pid of
+events can no longer find the appropriate process -- for example,
+using gdb on a multi-threaded process, or profiling using perfmon.
 
-> +#define INIT_MAP_BEYOND_END	(2*1024*1024)
+The immediate symptom is GDB saying:
+    Could not open /proc/757/status
+when 757 is a TID not a PID.
 
-#define INIT_MAP_BEYOND_END (128*1024)
-is the correct value here.
-
-Eric

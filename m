@@ -1,33 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264417AbSIVRQB>; Sun, 22 Sep 2002 13:16:01 -0400
+	id <S264425AbSIVRVg>; Sun, 22 Sep 2002 13:21:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264425AbSIVRQB>; Sun, 22 Sep 2002 13:16:01 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11534 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264417AbSIVRQB>; Sun, 22 Sep 2002 13:16:01 -0400
-Date: Sun, 22 Sep 2002 10:22:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Peter Waechtler <pwaechtler@mac.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 1/11 sound/oss replace cli() 
-In-Reply-To: <ED015C41-CDA0-11D6-8873-00039387C942@mac.com>
-Message-ID: <Pine.LNX.4.44.0209221020470.10598-100000@home.transmeta.com>
+	id <S264427AbSIVRVg>; Sun, 22 Sep 2002 13:21:36 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:43022 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S264425AbSIVRVf>; Sun, 22 Sep 2002 13:21:35 -0400
+Date: Sun, 22 Sep 2002 19:26:26 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Ingo Molnar <mingo@elte.hu>
+cc: Karim Yaghmour <karim@opersys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LTT-Dev <ltt-dev@shafik.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
+In-Reply-To: <Pine.LNX.4.44.0209221222060.21475-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0209221830400.8911-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Sat, 21 Sep 2002, Peter Waechtler wrote:
+On Sun, 22 Sep 2002, Ingo Molnar wrote:
+
+> Eg. for the scheduler i wrote a simple tracer, but the rate of
+> trace points that started to make sense for me from a development and
+> debugging POV also made kernel/sched.c butt-ugly and unmaintainable, so i
+> always kept the tracer separate and did the hacking in the untained code.
 >
-> This is a resent with a correction of dmasound_q40.c - I don't touch the
-> IRQ handler anymore.
+> also, the direction things are taking these days seems to be towards
+> hardware-assisted tracing. Ie. on the P4 we can recover a trace of EIPs
+> traversed by the CPU recently. Stuff like this is powerful and can can
+> debug bugs that cannot be debugged via software.
 
-All of your patches are seriously whitespace-damaged: lines word-wrapped, 
-whitespace at end-of-line removed etc etc.
+To summarize: You find tracing useful, but software tracing is only of
+limited value in areas you're working at.
+What about other developers, which only want to develop a simple driver,
+without having to understand the whole kernel? Traces still work where
+printk() or kgdb don't work. I think it's reasonable to ask an user to
+enable tracing and reproduce the problem, which you can't reproduce
+yourself.
 
-Either your mail script is broken again, or Apple Mail is crud.
+> It does have its uses, no doubt, but usually we apply
+> things to the kernel that have either a positive, or at worst, a neutral
+> impact on the kernel proper - kernel tracing clearly is not such a
+> feature.
 
-		Linus
+Last time I checked it has no impact on the kernel as long as it's not
+enabled. Anyway, it would already be very useful to have at least the core
+integrated. How many drivers currently define a "dprint"? Some even
+implement its own tracing. While debug prints are mostly useful during
+early development, they are usually completely useless, when you have to
+reproduce a problem.
+
+> so use the power of the GPL-ed kernel and keep your patches separate,
+> releasing them for specific stable kernel branches (or even development
+> kernels).
+
+While I agree that this acceptable approach for things like kgdb, I think
+it would very useful to have at least the tracing core in the kernel.
+
+bye, Roman
 

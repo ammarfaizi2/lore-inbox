@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262392AbSI2EoH>; Sun, 29 Sep 2002 00:44:07 -0400
+	id <S262393AbSI2FCg>; Sun, 29 Sep 2002 01:02:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262393AbSI2EoH>; Sun, 29 Sep 2002 00:44:07 -0400
-Received: from packet.digeo.com ([12.110.80.53]:59808 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262392AbSI2EoG>;
-	Sun, 29 Sep 2002 00:44:06 -0400
-Message-ID: <3D968652.28AD6766@digeo.com>
-Date: Sat, 28 Sep 2002 21:49:22 -0700
+	id <S262397AbSI2FCg>; Sun, 29 Sep 2002 01:02:36 -0400
+Received: from packet.digeo.com ([12.110.80.53]:8609 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262393AbSI2FCf>;
+	Sun, 29 Sep 2002 01:02:35 -0400
+Message-ID: <3D968AA7.C4054EB@digeo.com>
+Date: Sat, 28 Sep 2002 22:07:51 -0700
 From: Andrew Morton <akpm@digeo.com>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Zach Brown <zab@zabbo.net>
-CC: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH] vma->shared list_head initializations
-References: <20020928234930.F13817@bitchcake.off.net>
+To: thunder7@xs4all.nl, Thomas Molina <tmolina@cox.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.39: SMP, pre-empt, ide-scsi 'sleeping function called from 
+ illegal context' during boot
+References: <20020929044524.GA739@middle.of.nowhere>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Sep 2002 04:49:22.0608 (UTC) FILETIME=[94427B00:01C26773]
+X-OriginalArrivalTime: 29 Sep 2002 05:07:52.0359 (UTC) FILETIME=[29B90B70:01C26776]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown wrote:
+Jurriaan wrote:
 > 
-> more list_head debugging carnage.
+> ...
+> Call Trace:
+>  [<c0118554>]__might_sleep+0x54/0x58
+>  [<c0135dd3>]kmalloc+0x5b/0x1d4
+>  [<c0134905>]get_vm_area+0x29/0x11c
+>  [<c0134bf2>]__vmalloc+0x32/0x10c
+>  [<c0134ce1>]vmalloc+0x15/0x1c
+>  [<c021680c>]sg_init+0xa0/0x138
+>  [<c01fcace>]scsi_register_device+0x76/0x120
+>  [<c01050ab>]init+0x47/0x1bc
+>  [<c0105064>]init+0x0/0x1bc
+>  [<c0105501>]kernel_thread_helper+0x5/0xc
 > 
 
-yup
-
-> --- linux-2.5.39/fs/exec.c.fmuta        Sat Sep 28 19:50:20 2002
-> +++ linux-2.5.39/fs/exec.c      Sat Sep 28 19:51:08 2002
-> @@ -400,6 +400,7 @@
->                 mpnt->vm_ops = NULL;
->                 mpnt->vm_pgoff = 0;
->                 mpnt->vm_file = NULL;
-> +               INIT_LIST_HEAD(&mpnt->shared);
->                 mpnt->vm_private_data = (void *) 0;
->                 insert_vm_struct(mm, mpnt);
->                 mm->total_vm = (mpnt->vm_end - mpnt->vm_start) >> PAGE_SHIFT;
-
-Fair enough, short-term.  But what your patch is really saying
-is "this code stinks".
-
-We need to lose all those open-coded accesses to vm_area_cachep,
-give that cache a constructor and possibly write some helper
-functions.  To lose all this fragile "did I remember to
-initialise everything and has anyone added any more fields
-since I wrote that code" gunk.
-
-<looks hopefully at Christoph>
+sg_init() is performing vmalloc() inside
+write_lock_irqsave(&sg_dev_arr_lock);

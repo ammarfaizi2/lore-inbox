@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270583AbRHNL7b>; Tue, 14 Aug 2001 07:59:31 -0400
+	id <S269232AbRHNMGL>; Tue, 14 Aug 2001 08:06:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270584AbRHNL7L>; Tue, 14 Aug 2001 07:59:11 -0400
-Received: from DSL-1-226.isd.net ([198.144.10.226]:603 "HELO
-	aaieee.daisy-chan.org") by vger.kernel.org with SMTP
-	id <S270583AbRHNL7D>; Tue, 14 Aug 2001 07:59:03 -0400
-Date: Tue, 14 Aug 2001 02:07:30 -0500 (CDT)
-From: "Joshua b. Jore" <josh@greentechnologist.org>
-X-X-Sender: <josh@aaieee.daisy-chan.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Joshua Jore <moomonk@daisy-chan.org>,
-        Anton Altaparmakov <aia21@cus.cam.ac.uk>,
-        Helge Hafting <helgehaf@idb.hist.no>,
-        James Simmons <jsimmons@transvirtual.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] DMCA loop hole
-In-Reply-To: <20010811121054.D35@toy.ucw.cz>
-Message-ID: <Pine.BSO.4.33.0108140204380.22991-100000@aaieee.daisy-chan.org>
+	id <S270594AbRHNMGB>; Tue, 14 Aug 2001 08:06:01 -0400
+Received: from Bf824.pppool.de ([213.7.248.36]:22923 "HELO localhost")
+	by vger.kernel.org with SMTP id <S269232AbRHNMF5>;
+	Tue, 14 Aug 2001 08:05:57 -0400
+Date: Tue, 14 Aug 2001 14:05:59 +0200 (CEST)
+From: Peter Koellner <peter@mezzo.net>
+To: benjilr@free.fr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problem with PCMCIA and kernel 2.4.x
+In-Reply-To: <997777753.3b78e159b004c@imp.free.fr>
+Message-ID: <Pine.LNX.4.21.0108141400020.4006-100000@finnegan.do.mezzo.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd beg to differ with you on that. The way I've heard it is that writing
-viruses is not legal in the US. Some of you aren't here so you have your
-own laws but then you aren't bound by the DMCA. I recall that was the
-impetus for this thread in the first place.
+On Tue, 14 Aug 2001 benjilr@free.fr wrote:
 
-I'll just have to beg off and say that I've understood it that
-'educational' are as illegal as say, something you meant to release into
-the wide world.
+> I've a problem Because when the PCMCIA start, I've the message :
+> PCI : NO IRQ known for interrupt pin A of device 01:02.0 please try
+> using pci=bios, but when this parametre, IRQ is always unknow.
+> 
+> But when kernel Start, I've this message : 
+> PCI : Probing PCI hardware
+> Unknow bridge ressource 2: assuming transparent
+> PCI : Using IRQ router PIIX [8086/244c] at 00:1f.0
 
-Joshua Jore
-Minneapolis Ward 3, precinct 10
+i have the same effect with a sony PCG-FX209, kernel 2.4.8 and 
+pcmcia 3.1.22. what is even stranger is that i have to invoke modprobe 
+yenta_socket without any options first, or else the pci=biosirq option 
+will not be recognized. so the startscript in /etc/init.d/pcmcia reads:
 
-"The irony of this man being imprisoned in the United States and longing
-to return to once-Communist Russia so he can regain his right to free
-speach is simply staggering."
+modprobe pcmcia_core
+modprobe yenta_socket
+modprobe yenta_socket pci=biosirq
 
-On Sat, 11 Aug 2001, Pavel Machek wrote:
+-- 
+peter koellner <peter@mezzo.net>
 
-> Hi!
->
-> > You know, I've heard this arguement a few times in various contexts and
-> > it's bothered me everytime. If a virus was designed with specific
-> > properties that hinder unauthorized copyright infringement then attempts
-> > to circumvent the limitations would be an example of DMCA circumvention.
-> >
-> > This misses the whole point that in order to deliver the second and more
-> > important part of the virus requires the author to self-identify to the
-> > US federal government and somehow get them to prosecute the offender. Now
->
-> Writing virus is not illegal (its just fine for educational purposes). Letting
-> it into wild probably is. So maybe author _could_ identify to government if
-> *he* did not sent virus in the wild.
-> 								Pavel
-> --
-> Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-> details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
->
->
 

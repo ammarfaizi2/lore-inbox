@@ -1,81 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269257AbUIBXGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269169AbUIBXG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269257AbUIBXGz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 19:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269169AbUIBXDl
+	id S269169AbUIBXG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 19:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269235AbUIBXC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 19:03:41 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:25483 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269189AbUIBXCE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:02:04 -0400
-Date: Fri, 3 Sep 2004 01:03:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, paul@linuxaudiosystems.com,
-       rlrevell@joe-job.com, linux-audio-dev@music.columbia.edu,
-       arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040902230336.GA30920@elte.hu>
-References: <20040713220103.GJ974@dualathlon.random> <20040713152532.6df4a163.akpm@osdl.org> <20040713223701.GM974@dualathlon.random> <20040713154448.4d29e004.akpm@osdl.org> <20040713225305.GO974@dualathlon.random> <20040713160628.596b96a3.akpm@osdl.org> <20040713231803.GP974@dualathlon.random> <20040719115952.GA13564@elte.hu> <20040902220301.GA18212@x30.random> <20040902152046.1b34d793.akpm@osdl.org>
+	Thu, 2 Sep 2004 19:02:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60070 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269169AbUIBXCP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:02:15 -0400
+Date: Fri, 3 Sep 2004 00:02:13 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Frank van Maarseveen <frankvm@xs4all.nl>
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@lst.de>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
+Message-ID: <20040902230213.GI23987@parcelfarce.linux.theplanet.co.uk>
+References: <1094160994.31499.19.camel@shaggy.austin.ibm.com> <20040902214806.GA5272@janus> <20040902220027.GD23987@parcelfarce.linux.theplanet.co.uk> <20040902220242.GA5414@janus> <20040902220640.GE23987@parcelfarce.linux.theplanet.co.uk> <20040902221133.GB5414@janus> <20040902221722.GF23987@parcelfarce.linux.theplanet.co.uk> <20040902222650.GA5523@janus> <20040902223324.GG23987@parcelfarce.linux.theplanet.co.uk> <20040902225634.GA5756@janus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040902152046.1b34d793.akpm@osdl.org>
+In-Reply-To: <20040902225634.GA5756@janus>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 03, 2004 at 12:56:34AM +0200, Frank van Maarseveen wrote:
+> And that doesn't mean that the kernel should accept any fs image
+> when a user tries to cd into the file.
 
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> None of these approaches improves worst-case latency at all on SMP. 
-> If we're not going to address the SMP problem we could just make it
-> UP-only, in which case increased locking costs are a non-issue.
-> 
-> I'd prefer that we find a solution for SMP too though.
-
-i have solved the fundamental SMP latency problems in the -Q7 patch, by
-redesigning how SMP preemption is done. Here's the relevant changelog
-entry:
-
-[...]
-
-the main change in this patch are more SMP latency fixes. The stock
-kernel, even with CONFIG_PREEMPT enabled, didnt have any spin-nicely
-preemption logic for the following, commonly used SMP locking
-primitives: read_lock(), spin_lock_irqsave(), spin_lock_irq(),
-spin_lock_bh(), read_lock_irqsave(), read_lock_irq(), read_lock_bh(),
-write_lock_irqsave(), write_lock_irq(), write_lock_bh(). Only
-spin_lock() and write_lock() [the two simplest cases] where covered.
-
-In addition to the preemption latency problems, the _irq() variants in
-the above list didnt do any IRQ-enabling while spinning - possibly
-resulting in excessive irqs-off sections of code!
-
--Q7 fixes all of these latency problems: we now re-enable interrupts
-while spinning in all possible cases, and a spinning op stays
-preemptible if this is a beginning of a new critical section.
-
-[...]
-
-feedback from Mark H Johnson:
-
- http://lkml.org/lkml/2004/8/30/202
-
-the latest patch is:
-
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R0
-
-i'm already in the process of cleaning up the patch and making it ready
-for splitup & merge. The spinlock fixes will be amongst the first
-patches i'll send you.
-
-	Ingo
+No, it shouldn't.  It should say "it's not a directory, bugger off".
+Which it does.

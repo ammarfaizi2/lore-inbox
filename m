@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130670AbRAERRJ>; Fri, 5 Jan 2001 12:17:09 -0500
+	id <S131557AbRAERTJ>; Fri, 5 Jan 2001 12:19:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131557AbRAERQy>; Fri, 5 Jan 2001 12:16:54 -0500
-Received: from firebox-ext.surrey.redhat.com ([194.201.25.236]:21755 "EHLO
-	meme.surrey.redhat.com") by vger.kernel.org with ESMTP
-	id <S131242AbRAERQe>; Fri, 5 Jan 2001 12:16:34 -0500
-Date: Fri, 5 Jan 2001 17:16:32 +0000
-From: Tim Waugh <twaugh@redhat.com>
+	id <S131554AbRAERS7>; Fri, 5 Jan 2001 12:18:59 -0500
+Received: from alibaba.kmit.sk ([194.160.28.1]:6151 "HELO alibaba.kmit.sk")
+	by vger.kernel.org with SMTP id <S131393AbRAERSo> convert rfc822-to-8bit;
+	Fri, 5 Jan 2001 12:18:44 -0500
+From: Marek Gresko <gresko@kmit.sk>
+Reply-To: gresko@kmit.sk
+Organization: Kmit
 To: linux-kernel@vger.kernel.org
-Subject: [patch] 2.4.0: lp superuser check
-Message-ID: <20010105171632.N5253@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Subject: 2.4.0 TCP SYN problem
+Date: Fri, 5 Jan 2001 18:16:34 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <01010518163400.00980@horalka.kmit.sk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch that changes the superuser check in lp to use
-capabilities instead.
+Every SPARC/Solaris machine completely ignores every TCP/SYN segment sourced 
+from my linux 2.4.0 machine. Is it problem of kernel or missconfiguration? Or 
+does Solaris something wrong?
 
-Does anyone see a problem with it before I send it to Linus?
+I have used the kgcc (egcs-2.91.66) on my Red Hat 7.0 linux box for compiling 
+the 2.4.0 kernel.
 
-Tim.
-*/
+Problem appears also when not starting any firewall or packet scheduler.
 
-2001-01-05  Tim Waugh  <twaugh@redhat.com>
+SYN segments really reach the Solaris machine. I have used tcpdump on a 
+router closest to the Solaris machine. But no response is seen. Also netstat 
+on the Solaris machine doesn't report any SYN segment arrival.
 
-	* drivers/char/lp.c: Capability check instead of superuser check.
-	Patch from acme@connectiva.com.br.
+When I initiate connection from Solaris machine everything goes OK. 
+TCP/SYN,ACK segments are OK.
 
---- linux-2.4.0/drivers/char/lp.c.lp	Wed Nov  1 15:06:20 2000
-+++ linux-2.4.0/drivers/char/lp.c	Fri Jan  5 10:58:18 2001
-@@ -485,7 +485,7 @@
- 			if (copy_to_user((int *) arg, &LP_STAT(minor),
- 					sizeof(struct lp_stats)))
- 				return -EFAULT;
--			if (suser())
-+			if (capable(CAP_SYS_ADMIN))
- 				memset(&LP_STAT(minor), 0,
- 						sizeof(struct lp_stats));
- 			break;
+Can anyone help me?
+
+Thanx
+				Marek Gresko
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

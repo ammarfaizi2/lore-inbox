@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268865AbUHLX1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268877AbUHLXc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268865AbUHLX1q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 19:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268880AbUHLXZs
+	id S268877AbUHLXc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 19:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268880AbUHLXc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 19:25:48 -0400
-Received: from gprs214-76.eurotel.cz ([160.218.214.76]:14728 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268865AbUHLXW7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 19:22:59 -0400
-Date: Fri, 13 Aug 2004 01:22:42 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
+	Thu, 12 Aug 2004 19:32:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61929 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268877AbUHLXcN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 19:32:13 -0400
+Date: Thu, 12 Aug 2004 19:17:04 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Charlie Brej <brejc8@vu.a.la>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: is_head_of_free_region slowing down swsusp
-Message-ID: <20040812232242.GI15138@elf.ucw.cz>
-References: <20040812222348.GA10791@elf.ucw.cz> <1092350569.24776.22.camel@laptop.cunninghams>
+Subject: Re: Reproducable user mode system hang
+Message-ID: <20040812221704.GB24479@logos.cnet>
+References: <411BC339.30504@vu.a.la> <20040812190444.GC23182@logos.cnet> <411BDF73.2090600@vu.a.la>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1092350569.24776.22.camel@laptop.cunninghams>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <411BDF73.2090600@vu.a.la>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > is_head_of_free_region with count_and_copy_zone results results in
-> > pretty nasty O(number_of_free_regions^2) behaviour, and some users see
-> > cpu spending 40 seconds there :-(.
-> > 
-> > Actually count_and_copy_zone would probably be happy with
-> > "is_free_page()".
+On Thu, Aug 12, 2004 at 10:21:55PM +0100, Charlie Brej wrote:
+> Marcelo Tosatti wrote:
+> >Can you get any kind of trace (ctrl+sysrq+p or NMI oopser) ? 
 > 
-> Take a look at my implementation. I do a one-time pass through the slow
-> path, building a bitmap of free pages. is_head_of_free_region is then
-> simply a O(1) loop through the bitmap.
+> I will be able to tell you tomorrow when I get back to work
+> 
+> > And also make sure to rerun the tests with newer v2.6's.
+> 
+> Well you are right. It seems to be either fixed in the newer kernel or not 
+> effecting the newer kernel. These two both worked fine with the redhat 
+> compiled 2.6.7:
+> 
+> Linux solem.cs.man.ac.uk 2.6.7-1.517 #1 Wed Aug 11 16:28:33 EDT 2004 i686 
+> athlon i386 GNU/Linux
+> Linux hilly.house 2.6.7-1.517 #1 Wed Aug 11 16:28:33 EDT 2004 i686 i686 
+> i386 GNU/Linux
+> 
+> Did you have an idea of what was causing this?
 
-I've seen that solution (thanks)... I'd like to do something simpler.
-
-									Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Not a clue - but it seems to be fixed in recent kernels :)

@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262759AbSJCGQm>; Thu, 3 Oct 2002 02:16:42 -0400
+	id <S262752AbSJCGct>; Thu, 3 Oct 2002 02:32:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262760AbSJCGQm>; Thu, 3 Oct 2002 02:16:42 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:17421 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S262759AbSJCGQl>; Thu, 3 Oct 2002 02:16:41 -0400
-Message-Id: <200210030616.g936Gxp01048@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Andreas Dilger <adilger@clusterfs.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [RFC][PATCH]  4KB stack + irq stack for x86
-Date: Thu, 3 Oct 2002 09:10:51 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-mm@kvack.org
-References: <3D9B62AC.30607@us.ibm.com> <20021002215649.GY3000@clusterfs.com>
-In-Reply-To: <20021002215649.GY3000@clusterfs.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S262753AbSJCGct>; Thu, 3 Oct 2002 02:32:49 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:4983 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262752AbSJCGcs>; Thu, 3 Oct 2002 02:32:48 -0400
+Date: Thu, 3 Oct 2002 02:38:14 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Pete Zaitcev <zaitcev@redhat.com>
+Subject: virt_to_page(pci_alloc_consistent())
+Message-ID: <20021003023814.A5856@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 October 2002 19:56, Andreas Dilger wrote:
-> Alternately, you could set up an 8kB stack + IRQ stack and "red-zone"
-> the high page of the current 8kB stack and see if it is ever used.
+Guys,
 
-This debugging technique definitely works. Look how many sleeping calls
-under locks apkm has caught recently!
---
-vda
+I just noticed that sound drivers use the address from
+pci_alloc_consistent() as the input to virt_to_page() all
+over the place. I looked into the Documentation/DMA-mapping.txt,
+and it says:
+
+  This routine will allocate RAM for that region, so it acts similarly to
+  __get_free_pages (but takes size instead of a page order).
+
+I know for fact I got it wrong in sparc in whole 2.4, and it seems
+RMK got it wrong in arm. I suggest other architecture maintainers
+to look at it ASAP. May even be oopsabe, by indexing outside of
+mem_map[] with a suitable sound driver.
+
+-- Pete

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291355AbSBXVb6>; Sun, 24 Feb 2002 16:31:58 -0500
+	id <S291372AbSBXVdI>; Sun, 24 Feb 2002 16:33:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291390AbSBXVbt>; Sun, 24 Feb 2002 16:31:49 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14096 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291355AbSBXVbh>;
-	Sun, 24 Feb 2002 16:31:37 -0500
-Message-ID: <3C795BB0.F8BB3818@mandrakesoft.com>
-Date: Sun, 24 Feb 2002 16:31:28 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Martin Dalecki <dalecki@evision-ventures.com>,
+	id <S290184AbSBXVct>; Sun, 24 Feb 2002 16:32:49 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:19214 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S291370AbSBXVcg>;
+	Sun, 24 Feb 2002 16:32:36 -0500
+Date: Sun, 24 Feb 2002 18:32:09 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: <nick@snowman.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
         Troy Benjegerdes <hozer@drgw.net>,
         Linus Torvalds <torvalds@transmeta.com>,
         Andre Hedrick <andre@linuxdiskcert.org>,
-        Rik van Riel <riel@conectiva.com.br>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Flash Back -- kernel 2.1.111
-In-Reply-To: <E16f5z8-0002id-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.21.0202241624330.10803-100000@ns>
+Message-ID: <Pine.LNX.4.33L.0202241831330.7820-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> I know what would actually help here, (the other code wasn't broken IMHO)
-> and would clean this up properly for not just IDE. Add a bus_speed field
-> to the struct pci_bus - that is where the info belongs and its the platform
-> specific bus code that can find the bus speed out (if anyone)
+On Sun, 24 Feb 2002 nick@snowman.net wrote:
 
-agreed
+> None of the chipsets that supported VLB had more than one buss.  What
+> I don't know is some idiot may have built a VLB-VLB bridge, but I
+> doubt it.
 
+There are PCI-VLB bridges.  Though it's unlikely, it may be
+possible that there are systems with multiple such bridges
+around... ;)
+
+regards,
+
+Rik
 -- 
-Jeff Garzik      | "UNIX enhancements aren't."
-Building 1024    |           -- says /usr/games/fortune
-MandrakeSoft     |
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

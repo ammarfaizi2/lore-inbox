@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265547AbTFWWyx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 18:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265554AbTFWWxJ
+	id S265555AbTFWWwx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 18:52:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265554AbTFWWvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 18:53:09 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:36008 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S265550AbTFWWwZ (ORCPT
+	Mon, 23 Jun 2003 18:51:32 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:56270 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S265546AbTFWWtw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 18:52:25 -0400
-Date: Mon, 23 Jun 2003 16:06:31 -0700
+	Mon, 23 Jun 2003 18:49:52 -0400
+Date: Mon, 23 Jun 2003 16:03:59 -0700
 To: Marcelo Tosatti <marcelo@conectiva.com.br>,
        Jeff Garzik <jgarzik@pobox.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4 IrDA] Secondary nack code fixes
-Message-ID: <20030623230631.GF12593@bougret.hpl.hp.com>
+Subject: [PATCH 2.4 IrDA] IrLMP timer race fix
+Message-ID: <20030623230359.GD12593@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,54 +27,112 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Marcelo.
+	Hi Marcelo,
 
-	In case of packet losses, the secondary peer do stupid
-stuff. This fixes it.
+	This fixes a race condition. Race conditions are bad.
 	Please apply ;-)
 
 	Jean
 
 
-ir241_secondary_rr.diff :
------------------------
-	o [CORRECT] fix the secondary function to send RR and frames without
-		the poll bit when it detect packet losses
+ir241_lmp_timer_race-2.diff :
+---------------------------
+	o [CORRECT] Start timer before sending event to fix race condition
+	o [FEATURE] Improve the IrLMP event debugging messages.
 
 
-diff -u -p linux/net/irda/irlap_event.d8.c linux/net/irda/irlap_event.c
---- linux/net/irda/irlap_event.d8.c	Mon Dec  2 16:12:36 2002
-+++ linux/net/irda/irlap_event.c	Mon Dec  2 16:14:20 2002
-@@ -1869,7 +1869,7 @@ static int irlap_state_nrm_s(struct irla
- 				irlap_update_nr_received(self, info->nr);
- 			
- 				irlap_wait_min_turn_around(self, &self->qos_tx);
--				irlap_send_rr_frame(self, CMD_FRAME);
-+				irlap_send_rr_frame(self, RSP_FRAME);
- 			
- 				irlap_start_wd_timer(self, self->wd_timeout);
- 			}
-@@ -2033,18 +2033,18 @@ static int irlap_state_nrm_s(struct irla
- 		irlap_update_nr_received(self, info->nr);
- 		if (self->remote_busy) {
- 			irlap_wait_min_turn_around(self, &self->qos_tx);
--			irlap_send_rr_frame(self, CMD_FRAME);
-+			irlap_send_rr_frame(self, RSP_FRAME);
- 		} else
--			irlap_resend_rejected_frames(self, CMD_FRAME);
-+			irlap_resend_rejected_frames(self, RSP_FRAME);
- 		irlap_start_wd_timer(self, self->wd_timeout);
+diff -u -p linux/net/irda/irlmp_event.d3.c linux/net/irda/irlmp_event.c
+--- linux/net/irda/irlmp_event.d3.c	Thu Sep 12 11:47:45 2002
++++ linux/net/irda/irlmp_event.c	Thu Sep 12 11:54:22 2002
+@@ -515,10 +515,10 @@ static int irlmp_state_disconnected(stru
+ 
+ 		irlmp_next_lsap_state(self, LSAP_SETUP_PEND);
+ 
+-		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
+-
+ 		/* Start watchdog timer (5 secs for now) */
+ 		irlmp_start_watchdog_timer(self, 5*HZ);
++
++		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
  		break;
- 	case RECV_SREJ_CMD:
- 		irlap_update_nr_received(self, info->nr);
- 		if (self->remote_busy) {
- 			irlap_wait_min_turn_around(self, &self->qos_tx);
--			irlap_send_rr_frame(self, CMD_FRAME);
-+			irlap_send_rr_frame(self, RSP_FRAME);
- 		} else
--			irlap_resend_rejected_frame(self, CMD_FRAME);
-+			irlap_resend_rejected_frame(self, RSP_FRAME);
- 		irlap_start_wd_timer(self, self->wd_timeout);
+ 	case LM_CONNECT_INDICATION:
+ 		if (self->conn_skb) {
+@@ -529,8 +529,6 @@ static int irlmp_state_disconnected(stru
+ 
+ 		irlmp_next_lsap_state(self, LSAP_CONNECT_PEND);
+ 
+-		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
+-
+ 		/* Start watchdog timer
+ 		 * This is not mentionned in the spec, but there is a rare
+ 		 * race condition that can get the socket stuck.
+@@ -543,10 +541,12 @@ static int irlmp_state_disconnected(stru
+ 		 * a backup plan. 1 second is plenty (should be immediate).
+ 		 * Jean II */
+ 		irlmp_start_watchdog_timer(self, 1*HZ);
++
++		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
  		break;
- 	case WD_TIMER_EXPIRED:
-
+ 	default:
+-		IRDA_DEBUG(2, "%s(), Unknown event %s\n", 
+-			 __FUNCTION__, irlmp_event[event]);
++		IRDA_DEBUG(1, "%s(), Unknown event %s on LSAP %#02x\n", 
++			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
+ 		if (skb)
+   			dev_kfree_skb(skb);
+ 		break;
+@@ -604,8 +604,8 @@ static int irlmp_state_connect(struct ls
+ 		irlmp_next_lsap_state(self, LSAP_DISCONNECTED);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, "%s(), Unknown event %s\n",
+-			 __FUNCTION__, irlmp_event[event]);
++		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n", 
++			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
+ 		if (skb)
+  			dev_kfree_skb(skb);
+ 		break;
+@@ -666,8 +666,8 @@ static int irlmp_state_connect_pend(stru
+ 		irlmp_next_lsap_state(self, LSAP_DISCONNECTED);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, "%s() Unknown event %s\n", 
+-			 __FUNCTION__, irlmp_event[event]);
++		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n", 
++			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
+ 		if (skb)
+  			dev_kfree_skb(skb);
+ 		break;	
+@@ -756,8 +756,8 @@ static int irlmp_state_dtr(struct lsap_c
+ 		irlmp_disconnect_indication(self, reason, skb);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, "%s(), Unknown event %s\n", 
+-			 __FUNCTION__, irlmp_event[event]);
++		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n", 
++			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
+ 		if (skb)
+  			dev_kfree_skb(skb);
+ 		break;	
+@@ -829,8 +829,8 @@ static int irlmp_state_setup(struct lsap
+ 		irlmp_disconnect_indication(self, LM_CONNECT_FAILURE, NULL);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, "%s(), Unknown event %s\n", 
+-			 __FUNCTION__, irlmp_event[event]);
++		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n", 
++			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
+ 		if (skb)
+  			dev_kfree_skb(skb);
+ 		break;	
+@@ -888,8 +888,8 @@ static int irlmp_state_setup_pend(struct
+ 		irlmp_disconnect_indication(self, reason, NULL);
+ 		break;
+ 	default:
+-		IRDA_DEBUG(0, "%s(), Unknown event %s\n", 
+-			 __FUNCTION__, irlmp_event[event]);
++		IRDA_DEBUG(0, "%s(), Unknown event %s on LSAP %#02x\n", 
++			   __FUNCTION__, irlmp_event[event], self->slsap_sel);
+ 		if (skb)
+  			dev_kfree_skb(skb);
+ 		break;	

@@ -1,60 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136247AbRDVSR4>; Sun, 22 Apr 2001 14:17:56 -0400
+	id <S135241AbRDVSVQ>; Sun, 22 Apr 2001 14:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136256AbRDVSRq>; Sun, 22 Apr 2001 14:17:46 -0400
-Received: from m2ep.pp.htv.fi ([212.90.64.98]:25360 "EHLO m2.pp.htv.fi")
-	by vger.kernel.org with ESMTP id <S136247AbRDVSRn>;
-	Sun, 22 Apr 2001 14:17:43 -0400
-Message-ID: <000701c0cb58$70373240$6786f3d5@pp.htv.fi>
-From: "Ville Holma" <ville.holma@pp.htv.fi>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E14r6WZ-0004XM-00@the-village.bc.nu>
-Subject: Re: a way to restore my hd ?
-Date: Sun, 22 Apr 2001 21:17:05 +0300
+	id <S135242AbRDVSVG>; Sun, 22 Apr 2001 14:21:06 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:58373 "HELO
+	clueserver.org") by vger.kernel.org with SMTP id <S135241AbRDVSUw>;
+	Sun, 22 Apr 2001 14:20:52 -0400
+Date: Sun, 22 Apr 2001 12:29:04 -0700 (PDT)
+From: Alan Olsen <alan@clueserver.org>
+To: Andreas Neidhardt <a-neidhardt@foni.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Error Message
+In-Reply-To: <3AE31D3A.9494A45B@foni.net>
+Message-ID: <Pine.LNX.4.10.10104221227260.29010-100000@clueserver.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank You everybody who helped me solve the problem. I found a working
-back-up of the superblock at -b 32768 and was able to save all of my
-important work from the harddrive. The filesystem was however badly
-corrupted and lots of other files were truncated after e2fsck had finished.
-So I ended up just re-installing my linux distribution but didn't loose any
-valuable work. Lucky me.
 
-So, again, Thank You all for the great help I received. You know who you
-are.
+I am getting the same message with kernel 2.2.19 on a Vaio 505VE. (Celeron
+333 with 128 megs of memory.)  I usually see the message when copying
+large quantites from the PCMCIA CD-ROM to the hard drive.
 
-Ville
+On Sun, 22 Apr 2001, Andreas Neidhardt wrote:
 
+> Hello from Germany,
+> 
+> I have trouble with a 2.2.18 kernel on a Gigabyte GA 5AX Rev. 5.2
+> Mainboard.
+> I have a lot of entrys in /var/log/messages like this:
+> 
+> kernel: probable hardware bug: clock timer configuration lost - probably
+> a VIA686a.
+> horst kernel: probable hardware bug: restoring chip configuration.
+> 
+> The Mainboard has definitely not a VIA686a. It is a Acer M1541 and M1543
+> Chipset ( Aladin V) with a Intel Pentium 200 MMX CPU.
+> 
+> My Linux Computer:
+> 
+> GA 5AX Rev. 5.2
+> 128 MB SDRAM
+> Matrox Mystique PCI 2 MB Graphics Adapter
+> 3Com Fast EtherLink XL 3C905B-COMBO NIC
+> Maxtor 20 GB IDE HDD UDMA 100
+> Fritz PCI ISDN Card
+> TEKRAM SCSI II Controller DC 390 (no SCSI Devices connected)
+> 
+> cat /proc/pci  =>
+> 
+> PCI devices found:
+>   Bus  0, device   0, function  0:
+>     Host bridge: Acer Labs M1541 Aladdin V (rev 4).
+>       Slow devsel.  Master Capable.  Latency=32.
+>       Non-prefetchable 32 bit memory at 0xe0000000 [0xe0000000].
+>   Bus  0, device   1, function  0:
+>     PCI bridge: Acer Labs M5243 AGP (rev 4).
+>       Slow devsel.  Master Capable.  Latency=32.  Min Gnt=4.
+>   Bus  0, device   7, function  0:
+>     ISA bridge: Acer Labs M1533 Aladdin IV (rev 195).
+>       Medium devsel.  Master Capable.  No bursts.
+>   Bus  0, device   8, function  0:
+>     VGA compatible controller: Matrox Mystique (rev 2).
+>       Medium devsel.  Fast back-to-back capable.  IRQ 11.  Master
+> Capable.  Late
+> ncy=32.
+>       Non-prefetchable 32 bit memory at 0xe1000000 [0xe1000000].
+>       Prefetchable 32 bit memory at 0xe2000000 [0xe2000008].
+>       Non-prefetchable 32 bit memory at 0xe3000000 [0xe3000000].
+>   Bus  0, device  10, function  0:
+>     Ethernet controller: 3Com Unknown device (rev 0).
+>       Vendor id=10b7. Device id=9058.
+>       Medium devsel.  IRQ 5.  Master Capable.  Latency=32.  Min
+> Gnt=10.Max Lat=1
+> 0.
+>       I/O at 0xe000 [0xe001].
+>       Non-prefetchable 32 bit memory at 0xe6000000 [0xe6000000].
+>   Bus  0, device  11, function  0:
+>     Non-VGA device: AMD 53C974 (rev 16).
+>       Medium devsel.  IRQ 3.  Master Capable.  Latency=32.  Min
+> Gnt=4.Max Lat=40
+> .
+>       I/O at 0xe400 [0xe401].
+>   Bus  0, device  12, function  0:
+>     Network controller: AVM A1 (Fritz) (rev 2).
+>       Medium devsel.  Fast back-to-back capable.  IRQ 11.
+>       Non-prefetchable 32 bit memory at 0xe6002000 [0xe6002000].
+>       I/O at 0xe800 [0xe801].
+>   Bus  0, device  15, function  0:
+>     IDE interface: Acer Labs M5229 TXpro (rev 194).
+>       Medium devsel.  Fast back-to-back capable.  Master Capable.
+> Latency=32.
+> Min Gnt=2.Max Lat=4.
+>       I/O at 0xf000 [0xf001].
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> best regards
+> 
+> andreas
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-> > The memory I had was however somehow corrupt and after I got my new
-system
-> > booted up and used it a little it became shaky and then locked hard and
-I
-> > could do nothing but reset it. I suppose this was caused by the
-> > malfunctioning memory but I can't be sure, I know there has been
-problems
-> > with the via chipset also.
->
-> Nod
->
-> > debian:~# e2fsck /dev/hdb7
-> > e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-> > Corruption found in superblock.  (frags_per_group = 2147516416).
->
-> Try e2fsck -b 8193 /dev/hdb7
->
-> (and 16384, 32768)
->
-> This is a backup copy of the superblock.
->
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+    "In the future, everything will have its 15 minutes of blame."
 

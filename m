@@ -1,88 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266014AbUE1JTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUE1JZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266014AbUE1JTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 05:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUE1JTP
+	id S262406AbUE1JZY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 05:25:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUE1JZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 05:19:15 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:54476 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S266014AbUE1JTI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 05:19:08 -0400
-Date: Fri, 28 May 2004 11:19:07 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6: future of UMSDOS?
-Message-ID: <20040528091907.GQ1912@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040527202837.GV16099@fs.tum.de> <20040528090345.6C6913F04@latitude.mynet.no-ip.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jsA7DMDlpH4lpqAu"
-Content-Disposition: inline
-In-Reply-To: <20040528090345.6C6913F04@latitude.mynet.no-ip.org>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 28 May 2004 05:25:24 -0400
+Received: from CPE-203-45-91-93.nsw.bigpond.net.au ([203.45.91.93]:22262 "EHLO
+	mudlark.pw.nest") by vger.kernel.org with ESMTP id S262406AbUE1JYk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 05:24:40 -0400
+Message-ID: <40B70542.2060006@aurema.com>
+Date: Fri, 28 May 2004 19:24:18 +1000
+From: Peter Williams <peterw@aurema.com>
+Organization: Aurema Pty Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH][2.6.6] Replacing CPU scheduler active and expired
+ with a single array
+References: <40B6C571.3000103@aurema.com> <20040528090536.GA12933@elte.hu>
+In-Reply-To: <20040528090536.GA12933@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> * Peter Williams <peterw@aurema.com> wrote:
+> 
+> 
+>>-- at the end of each time slice (or when waking up) each task is
+>>given a complete new time slice and, if class SCHED_NORMAL, is put in
+>>a priority slot given by (static_prio + MAX_BONUS - interactive_bonus)
+> 
+> 
+> this is the Achilles' heel of approaches that try to get rid of the
+> active/expired array and/or try to get rid of timeslice tracking. A
+> CPU-bound task which schedules away for small amounts of time will get a
+> disproportionatly larger share of the CPU than a CPU-bound task that
+> doesnt schedule at all.
+> 
+> just try it - run a task that runs 95% of the time and sleeps 5% of the
+> time, and run a (same prio) task that runs 100% of the time. With the
+> current scheduler the slightly-sleeping task gets 45% of the CPU, the
+> looping one gets 55% of the CPU. With your patch the slightly-sleeping
+> process can easily monopolize 90% of the CPU!
 
---jsA7DMDlpH4lpqAu
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If these two tasks have the same nice value they should around robin 
+with each other in the same priority slot and this means that the one 
+doing the smaller bites of CPU each time will in fact get less CPU than 
+the other i.e. the outcome will be the opposite of what you claim.
 
-On Fri, 2004-05-28 11:03:44 +0200, aeriksson@fastmail.fm <aeriksson@fastmai=
-l.fm>
-wrote in message <20040528090345.6C6913F04@latitude.mynet.no-ip.org>:
-> Adrian Bunk wrote:
-> > On Mon, May 24, 2004 at 10:19:09AM -0700, Mark Beyer - Contractor wrote:
-> UMSDOS as-is, no not really, but I would like to see it ported to run
-> on top of smb. Being able to have an smb equivalent to nfsroot would
-> be really cool for disk space limited laptops and the like where you
-> want to run e.g. colinux. All you'd need is a vmlinuz file, a small
-> initrd file, and you're set to go. No need for
-> filesystems-on-big-files and such workarounds...
+This does, of course, not take into account the interactive bonus.  If 
+the task doing the shorter CPU bursts manages to earn a larger 
+interactivity bonus than the other then it will get more CPU but isn't 
+that the intention of the interactivity bonus?
 
-Well, I've done something like that in userspace. For mass installations
-(hundreds to thousands of machines with no interaction, while only a
-Windows machine is available in each location ...), I boot off with
-kernel + ramdisk (containing needed device nodes and the minimal set of
-smbfs binaries to mount the server), then symlinking everything from the
-servers into my ramdisk.
+Peter
+-- 
+Dr Peter Williams, Chief Scientist                peterw@aurema.com
+Aurema Pty Limited                                Tel:+61 2 9698 2322
+PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
+79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
 
-This approach is somewhat limited (eg. it needs to fit on a single
-floppy for re-installing a totally crashed box) because smbfs binaries
-are somewhat large (if you don't cut them down manually:), but it works,
-at least for installation.
-
-I guess that UMSDOS' approach *could* in theory be made to work with any
-filesystem capable of storing plain files, but that'll need some work,
-though:)
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---jsA7DMDlpH4lpqAu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAtwQLHb1edYOZ4bsRAn7vAJ0XSTwoVltap5GkEOOFsAEfJXWSxQCdEWFR
-8nvOXO3yuNB3FZTFdso3pVk=
-=Eig3
------END PGP SIGNATURE-----
-
---jsA7DMDlpH4lpqAu--

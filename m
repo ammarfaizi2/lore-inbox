@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268430AbUHLGnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268425AbUHLGva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268430AbUHLGnj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 02:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268425AbUHLGnj
+	id S268425AbUHLGva (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 02:51:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268431AbUHLGva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 02:43:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53730 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268430AbUHLGng
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 02:43:36 -0400
-Message-ID: <411B118B.4040802@pobox.com>
-Date: Thu, 12 Aug 2004 02:43:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Clem Taylor <clemtaylor@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Any news on a higher performance sata_sil SIL_QUIRK_MOD15WRITE
- workaround?
-References: <411AFD2C.5060701@comcast.net>
-In-Reply-To: <411AFD2C.5060701@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Aug 2004 02:51:30 -0400
+Received: from holomorphy.com ([207.189.100.168]:43657 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268425AbUHLGu5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 02:50:57 -0400
+Date: Wed, 11 Aug 2004 23:50:47 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] 2.6.8-rc4-mm1 - UML fixes
+Message-ID: <20040812065047.GG11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jeff Dike <jdike@addtoit.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <200408120415.i7C4FWJd010494@ccure.user-mode-linux.org> <20040812033012.GE11200@holomorphy.com> <200408120541.i7C5fIJd010913@ccure.user-mode-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408120541.i7C5fIJd010913@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clem Taylor wrote:
-> I've been really disappointed by the performance of the Silicon Image 
-> 3114 on my new x86_box. I spent a bunch of time looking into the 
-> problem, thinking it was a software RAID5 or xfs issue causing 4K IOs.
-> I don't know why I didn't notice the 'applying Seagate errata fix' in 
-> dmesg until after I did a bunch of performance testing and realized that 
-> it was a sata_sil issue.
-> 
-> So, I was wondering what I can do about this problem? I am not currently 
+wli@holomorphy.com said:
+>> Out of curiosity, why are you allocating 4*PAGE_SIZE for the stack if
+>> you're only going to use 2*PAGE_SIZE of it? I saw no other users for
+>> the rest of ->thread_info offhand. 
 
-Get a different controller + disk combination.
+On Thu, Aug 12, 2004 at 01:41:18AM -0400, Jeff Dike wrote:
+> Well, that's slightly misleading.  The other two pages (minus the thread_info)
+> are available for stack if needed.  UML stacks are somewhat larger than the
+> native kernel stacks because of the userspace signal frames, so I allocate
+> 4 pages for now to be safe.
 
+This might confuse CONFIG_DEBUG_PAGEALLOC, which uses THREAD_SIZE to
+detect the end of the kernel stack in store_stackinfo() in mm/slab.c
+and kstack_end() in include/linux/sched.h, and the sizing heuristic
+for max_threads in fork_init().
 
-> getting enough disk performance to justify the amount spent on the 
-> system or enough to satisfy the application I'm working on. Before I go 
-> out and purchase a 3ware controller and re-install the machine (ouch), 
-> is there any chance of a better work around in the near future? I'd be 
-> more than willing to test out a patch.
-> 
-> Is the problem with really with nblocks % 15 == 1? Or is the problem 
-> with nblocks % 15 == 0? If it is the later and I'm using xfs with 4K 
-> blocks, couldn't I just turn off the workaround or will the RAID5 driver 
-> potentially break up larger requests?
-
-The problem is that the Silicon Image controller sends unusual -- but 
-legal -- block sizes to the SATA device.
-
-Older Seagates cannot cope with this unique, but spec-correct behavior.
-
-This issue cannot even be worked around with "nblocks % 15 == 1", as was 
-previously thought.  Using that formula just makes the problem harder to 
-reproduce.
-
-Further, I don't have any plans to address the performance issue, since 
-the set of affected drives is finite.
+Also, how is this meant to interoperate with CONFIG_KERNEL_STACK_ORDER?
+It seems to ignore the setting from the config option.
 
 
-> It would seem that the root of the problem is a Seagate issue. Does 
-> anyone know if Seagate fixed the problem with a firmware update? 
-
-You could find out for us, and let us know :)
-
-	Jeff
-
-
+-- wli

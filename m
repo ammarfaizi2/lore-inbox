@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317501AbSFDXpQ>; Tue, 4 Jun 2002 19:45:16 -0400
+	id <S317503AbSFDXya>; Tue, 4 Jun 2002 19:54:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317502AbSFDXpP>; Tue, 4 Jun 2002 19:45:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35595 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317501AbSFDXpO>;
-	Tue, 4 Jun 2002 19:45:14 -0400
-Message-ID: <3CFD50B9.259366F4@zip.com.au>
-Date: Tue, 04 Jun 2002 16:43:53 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] "laptop mode"
-In-Reply-To: <3CFD453A.B6A43522@zip.com.au> <20020604233124.GA18668@turbolinux.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S317504AbSFDXy3>; Tue, 4 Jun 2002 19:54:29 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:33788 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317503AbSFDXy2>; Tue, 4 Jun 2002 19:54:28 -0400
+Subject: RE: [patch] i386 "General Options" - begone [take 2]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'Dave Jones'" <davej@suse.de>, "'Pavel Machek'" <pavel@suse.cz>,
+        Brad Hards <bhards@bigpond.net.au>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7ED9@orsmsx111.jf.intel.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Jun 2002 02:00:04 +0100
+Message-Id: <1023238804.12671.1.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> 
-> On Jun 04, 2002  15:54 -0700, Andrew Morton wrote:
-> > laptop_writeback_centisecs
-> > --------------------------
-> >
-> > This tunable determines the maximum age of dirty data when the machine
-> > is operating in Laptop mode.  The default value is 30000 - five
-> > minutes.  This means that if applications are generating a small amount
-> > of write traffic, the disk will spin up once per five minutes.
-> 
-> Just FYI, this is probably an optimally bad choice for the default disk
-> spinup interval, as many laptops spindown timers in the same ballpark.
-> I would say 15-20 minutes or more, unless there is a huge amount of
-> VM pressure or something.  Otherwise, you will quickly have a dead
-> laptop harddrive from the overly-frequent spinup/down cycles.
-> 
+On Wed, 2002-06-05 at 00:09, Grover, Andrew wrote:
+> All I can say is using just *part* of ACPI will cause some machine,
+> somewhere, to not work.
 
-Twenty it is, thanks.
+We've established that pretty comprehensively. Any bit of ACPI causes
+some machines somewhere to not work 8)
 
-BTW, the "use a gigabyte of readahead" idea would cause VM hysteria
-if you access a 600 megabyte file, so I've wound that back to
-twenty megs.
+> I want to avoid scenarios where that happens. If
+> there are issues with that, can we discuss them asap, perhaps now?
 
-Also, it has been suggested that the feature become more fully-fleshed,
-to support desktops with one disk spun down, etc.  It's not really
-rocket science to do that - the `struct backing_dev_info' gives
-a specific communication channel between the high-level VFS code and
-the request queue.  But that would require significantly more surgery
-against the writeback code, so I'm fishing for requirements here.  If
-the current (simple) patch is sufficient then, well, it is sufficient.
+It may be that the IRQ routing and other bits of ACPI logic need to know
+that their are dependancies. We handle that already for other legacy
+stuff. If you don't have an MCA bus we don't do MCA bus enumerating. If
+you don't have a PCI BIOS32 irq router we don't consider that option and
+so forth. Having ACPI IRQ/Enumeration code that says if(!acpi) return
+NULL isnt that demanding
 
--

@@ -1,51 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283432AbRK2Xhu>; Thu, 29 Nov 2001 18:37:50 -0500
+	id <S283445AbRK2XlA>; Thu, 29 Nov 2001 18:41:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283436AbRK2Xhk>; Thu, 29 Nov 2001 18:37:40 -0500
-Received: from mail.myrio.com ([63.109.146.2]:15858 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S283432AbRK2Xh2> convert rfc822-to-8bit;
-	Thu, 29 Nov 2001 18:37:28 -0500
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CAE8@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Rene Rebe'" <rene.rebe@gmx.net>
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: RE: [reiserfs-list] ReiserFS on RAID5 Linux-2.4 - speed problem
-Date: Thu, 29 Nov 2001 15:36:48 -0800
+	id <S283439AbRK2Xku>; Thu, 29 Nov 2001 18:40:50 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.1.197.194]:17888 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S283436AbRK2Xkb>;
+	Thu, 29 Nov 2001 18:40:31 -0500
+Message-ID: <3C06C76E.4000106@candelatech.com>
+Date: Thu, 29 Nov 2001 16:40:30 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: kswapd gone nuts in RH 2.4.9-13 kernel
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-René Rebe wrote:
-> Have you tryed:
-> 
-> echo 1023 > /proc/sys/vm/max-readahead
-[...]
+Just in case anyone is running RH's latest updated kernel,
+I just noticed that it's kswapd is running at near MAX CPU usage
+on my just-installed RH 7.2 machine.
 
-Well, I gave that a try.  
+I'm running about 10Mbps of ethernet traffic on the machine, and
+a Java GUI and not much else.
 
-note:
-/dev/md0 is a 180 GB reiserfs on software RAID 5.
-/dev/hda9 is an 18 GB reiserfs on a normal partition.
-System is a dual PIII-800 with 512 MB RAM.
-Kernel is 2.4.16 + Andrew Morton's Low Latency and I/O 
-scheduling patches.
+I guess once again I'll be shipping a bleeding-edge hand-built
+kernel :P
 
-before:
-cat /proc/sys/vm/max-readahead:	31
-dbench 32 on /dev/md0  :	8.11 MB/sec
-dbench 32 on /dev/hda9 :	24.85 MB/sec
+top shows:
 
-after:
-echo 1023 > /proc/sys/vm/max-readahead
-dbench 32 on /dev/md0  :	8.047 MB/sec
-dbench 32 on /dev/hda9 :	24.65 MB/sec
+   3:39pm  up 40 min,  5 users,  load average: 1.83, 2.16, 2.10
+90 processes: 88 sleeping, 2 running, 0 zombie, 0 stopped
+CPU states:  0.7% user, 99.2% system,  0.0% nice,  0.0% idle
+Mem:   253960K av,  249728K used,    4232K free,     900K shrd,   71404K buff
+Swap:  522104K av,   61764K used,  460340K free                   71668K cached
 
-So that change actually made things a little worse,
-at least on this kernel.  :-(
+   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+     5 root      20   0     0    0     0 RW   97.0  0.0  22:57 kswapd
+22996 lanforge   9   0  1064 1064   852 S     0.7  0.4   0:02 top
+24412 lanforge  13   0  1064 1064   832 R     0.7  0.4   0:00 top
+  3694 lanforge   9   0  3168 2672  2672 S     0.3  1.0   0:05 magicdev
+  1234 root       1 -18  4708 4236  3188 S <   0.1  1.6   2:40 btserver
+  4582 lanforge   9   0 32684  27M 25392 S     0.1 10.9   0:06 java
+  4665 lanforge   9   0 32684  27M 25392 S     0.1 10.9   0:26 java
+22888 lanforge   9   0  4280 4232  3424 S     0.1  1.6   0:00 gnome-terminal
+24273 root       9   0   816  800   700 S     0.1  0.3   0:00 in.telnetd
+     1 root       8   0   516  472   472 S     0.0  0.1   0:04 init
+     2 root       9   0     0    0     0 SW    0.0  0.0   0:00 keventd
+     3 root       9   0     0    0     0 SW    0.0  0.0   0:00 kapm-idled
+     4 root      19  19     0    0     0 SWN   0.0  0.0   0:00 ksoftirqd_CPU0
+     6 root       9   0     0    0     0 SW    0.0  0.0   0:00 kreclaimd
+     7 root       9   0     0    0     0 SW    0.0  0.0   0:00 bdflush
+     8 root       9   0     0    0     0 SW    0.0  0.0   0:00 kupdated
+     9 root      -1 -20     0    0     0 SW<   0.0  0.0   0:00 mdrecoveryd
+    13 root       9   0     0    0     0 SW    0.0  0.0   0:00 kjournald
+    88 root       9   0     0    0     0 SW    0.0  0.0   0:00 khubd
+   243 root       9   0     0    0     0 SW    0.0  0.0   0:00 kjournald
+   672 root       9   0   624  572   572 S     0.0  0.2   0:00 syslogd
+   677 root       9   0  1148  500   500 S     0.0  0.1   0:00 klogd
+   697 rpc        9   0   584  492   492 S     0.0  0.1   0:00 portmap
+   725 rpcuser    9   0   764  656   656 S     0.0  0.2   0:00 rpc.statd
+   837 root       9   0   528  472   472 S     0.0  0.1   0:00 apmd
+   894 root       9   0  1248 1052  1052 S     0.0  0.4   0:00 sshd
+   927 root       9   0  1028  912   872 S     0.0  0.3   0:00 xinetd
+   967 root       9   0  2076 1584  1584 S     0.0  0.6   0:00 sendmail
+   986 root       9   0   484  444   444 S     0.0  0.1   0:00 gpm
+  1004 root       8   0   680  616   600 S     0.0  0.2   0:00 crond
+  1074 xfs        9   0  4008 2184  2184 S     0.0  0.8   0:00 xfs
+  1110 daemon     9   0   576  508   508 S     0.0  0.2   0:00 atd
+  1228 root       9   0  1008  836   836 S     0.0  0.3   0:00 run_client_1
+  1230 root       9   0  1004  836   836 S     0.0  0.3   0:00 run_mgr_0
+  1237 root       9   0  5940 5156  4380 S     0.0  2.0   0:08 btserver
+  1250 root       1 -18   784  724   720 S <   0.0  0.2   0:06 gnuserver
+  1258 root       9   0  1240  988   988 S     0.0  0.3   0:00 login
+  1259 root       9   0   440  380   380 S     0.0  0.1   0:00 mingetty
+  1260 root       9   0   440  380   380 S     0.0  0.1   0:00 mingetty
 
-Torrey
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

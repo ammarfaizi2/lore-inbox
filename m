@@ -1,36 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267291AbTAKQvh>; Sat, 11 Jan 2003 11:51:37 -0500
+	id <S267288AbTAKQ5R>; Sat, 11 Jan 2003 11:57:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267283AbTAKQvh>; Sat, 11 Jan 2003 11:51:37 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:7906 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S267291AbTAKQvg>;
-	Sat, 11 Jan 2003 11:51:36 -0500
-Date: Sat, 11 Jan 2003 18:05:47 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
-Subject: Re: [patch] ptrace-fix-2.5.56-A0
-In-Reply-To: <Pine.LNX.4.44.0301111558560.8697-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0301111805320.10432-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267299AbTAKQ5R>; Sat, 11 Jan 2003 11:57:17 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2517 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267288AbTAKQ5P>; Sat, 11 Jan 2003 11:57:15 -0500
+Date: Sat, 11 Jan 2003 18:05:57 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] small cleanup for drivers/scsi/ini9100u.*
+Message-ID: <20030111170556.GP10486@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch below removes some no longer needed #define's from 
+drivers/scsi/ini9100u.* .
 
-the correct patch is:
+cu
+Adrian
 
---- linux/kernel/ptrace.c.orig2	2003-01-11 16:52:48.000000000 +0100
-+++ linux/kernel/ptrace.c	2003-01-11 18:59:32.000000000 +0100
-@@ -115,7 +115,7 @@
- 	__ptrace_link(task, current);
- 	write_unlock_irq(&tasklist_lock);
+
+--- linux-2.5.56/drivers/scsi/ini9100u.h.old	2003-01-11 17:57:40.000000000 +0100
++++ linux-2.5.56/drivers/scsi/ini9100u.h	2003-01-11 17:59:31.000000000 +0100
+@@ -67,13 +67,6 @@
+  *		- Added PCI_ID structure
+  **************************************************************************/
  
--	send_sig(SIGSTOP, task, 1);
-+	force_sig_specific(SIGSTOP, task);
- 	return 0;
+-#ifndef	CVT_LINUX_VERSION
+-#define	CVT_LINUX_VERSION(V,P,S)	(((V) * 65536) + ((P) * 256) + (S))
+-#endif
+-
+-#ifndef	LINUX_VERSION_CODE
+-#include <linux/version.h>
+-#endif
+ #include <linux/types.h>
  
- bad:
-
+ extern int i91u_detect(Scsi_Host_Template *);
+@@ -130,15 +123,6 @@
+ #ifndef NULL
+ #define NULL     0		/* zero          */
+ #endif
+-#ifndef TRUE
+-#define TRUE     (1)		/* boolean true  */
+-#endif
+-#ifndef FALSE
+-#define FALSE    (0)		/* boolean false */
+-#endif
+-#ifndef FAILURE
+-#define FAILURE  (-1)
+-#endif
+ 
+ #define i91u_MAXQUEUE		2
+ #define TOTAL_SG_ENTRY		32
+--- linux-2.5.56/drivers/scsi/ini9100u.c.old	2003-01-11 17:57:46.000000000 +0100
++++ linux-2.5.56/drivers/scsi/ini9100u.c	2003-01-11 17:59:57.000000000 +0100
+@@ -106,14 +106,8 @@
+  *		- Changed the assumption that HZ = 100
+  **************************************************************************/
+ 
+-#define CVT_LINUX_VERSION(V,P,S)        (V * 65536 + P * 256 + S)
+-
+ #error Please convert me to Documentation/DMA-mapping.txt
+ 
+-#ifndef LINUX_VERSION_CODE
+-#include <linux/version.h>
+-#endif
+-
+ #include <linux/module.h>
+ #include <linux/errno.h>
+ #include <linux/delay.h>

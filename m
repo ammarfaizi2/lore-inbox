@@ -1,105 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVBDX7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266563AbVBDX7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVBDX7n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 18:59:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266350AbVBDX5j
+	id S266563AbVBDX7e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 18:59:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263443AbVBDXzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 18:57:39 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:27816
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S266000AbVBDX4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 18:56:50 -0500
-Date: Fri, 4 Feb 2005 15:48:55 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: anton@samba.org, okir@suse.de, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
-Message-Id: <20050204154855.79340cdb.davem@davemloft.net>
-In-Reply-To: <20050204113305.GA12764@gondor.apana.org.au>
-References: <20050131102920.GC4170@suse.de>
-	<E1CvZo6-0001Bz-00@gondolin.me.apana.org.au>
-	<20050203142705.GA11318@krispykreme.ozlabs.ibm.com>
-	<20050203150821.2321130b.davem@davemloft.net>
-	<20050204113305.GA12764@gondor.apana.org.au>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Feb 2005 18:55:13 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:42902 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S266000AbVBDXuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 18:50:05 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.11-rc3-mm1: device_resume() hangs on Athlon64
+Date: Sat, 5 Feb 2005 00:50:37 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>
+References: <20050204103350.241a907a.akpm@osdl.org>
+In-Reply-To: <20050204103350.241a907a.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502050050.38043.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005 22:33:05 +1100
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
+On Friday, 4 of February 2005 19:33, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc3/2.6.11-rc3-mm1/
+> 
 
-> I think you should probably note that some sort of locking or RCU
-> scheme is required to make this safe.  As it is the atomic_inc
-> and the list_add can be reordered such that the atomic_inc occurs
-> after the atomic_dec_and_test.
->
-> Either that or you can modify the example to add an
-> smp_mb__after_atomic_inc().  That'd be a good way to
-> demonstrate its use.
+On my box (Athlon64-based) swsusp hangs forever in device_resume() called
+from swsusp_write(), although interrupts are apparently handled
+normally then (eg magic SysRq works).  The last thing it says is:
 
-Yeah, this example is totally bogus.  I'll make it match the
-neighbour cache case which started this discussion.  Which is
-something like:
+ACPI: PCI interrupt 0000:00:06.0[A] -> GSI 5 (level, low) -> IRQ 5
+PCI: Setting latency timer of device 0000:00:06.0 to 64
+ACPI: PCI interrupt 0000:02:00.0[A] -> GSI 11 (level, low) -> IRQ 11
+ACPI: PCI interrupt 0000:02:01.2[C] -> GSI 11 (level, low) -> IRQ 11
 
-static void obj_list_add(struct obj *obj)
-{
-	obj->active = 1;
-	list_add(&obj->list);
-}
+When I press Alt+SysRq+p it says:
 
-static void obj_list_del(struct obj *obj)
-{
-	list_del(&obj->list);
-	obj->active = 0;
-}
+SysRq : Show Regs
 
-static void obj_destroy(struct obj *obj)
-{
-	BUG_ON(obj->active);
-	kfree(obj);
-}
+Modules linked in: snd_seq snd_seq_device usbserial parport_pc lp parport thermal processor fan button battery ac snd_pcm_oss snd_mixer_oss snd
+Pid: 0, comm: swapper Not tainted 2.6.11-rc3-mm1
+RIP: 0010:[<ffffffff8027915c>] <ffffffff8027915c>{__delay+12}
+RSP: 0018:ffffffff804dae20  EFLAGS: 00000216
+RAX: 00000000000adaaa RBX: ffffffff804dad78 RCX: 00000000d3afd2ab
+RDX: 0000000000000076 RSI: 00000000000088b8 RDI: 00000000000c0a08
+RBP: ffffffff8010f199 R08: 0000000000140040 R09: ffff81001db48ce0
+R10: 00000000ffffffff R11: 0000000000000000 R12: 0000000000000046
+R13: ffffffff801117e2 R14: ffffffff8054d900 R15: ffff81001fde4ab8
+FS:  00002aaaab28b800(0000) GS:ffffffff80565800(0000) knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 00002aaaaabab000 CR3: 000000000d557000 CR4: 00000000000006e0
 
-struct obj *obj_list_peek(struct list_head *head)
-{
-	if (!list_empty(head)) {
-		struct obj *obj;
+Call Trace:<IRQ> <ffffffff80319d3f>{ide_wait_not_busy+31} <ffffffff803177d1>{ide_do_request+1153}
+       <ffffffff80316ad2>{ide_end_drive_cmd+1074} <ffffffff80115c60>{end_8259A_irq+96}
+       <ffffffff803184a4>{ide_intr+1316} <ffffffff8016ba4c>{handle_IRQ_event+44}
+       <ffffffff8016bc56>{__do_IRQ+470} <ffffffff80140d33>{__do_softirq+83}
+       <ffffffff801117e2>{do_IRQ+66} <ffffffff8010f199>{ret_from_intr+0}
+        <EOI> <ffffffff802df1d0>{console_callback+0} <ffffffff803b4c2d>{thread_return+41}
+       <ffffffff8010d230>{default_idle+0} <ffffffff8010d250>{default_idle+32}
+       <ffffffff8010d656>{cpu_idle+54} <ffffffff8057071f>{start_kernel+463}
+       <ffffffff80570240>{_sinittext+576}
 
-		obj = list_entry(head->next, struct obj, list);
-		atomic_inc(&obj->refcnt);
-		return obj;
-	}
-	return NULL;
-}
+This happens 100% of the time.  It also happened on 2.6.11-rc2-mm2, but not on
+2.6.11-rc2-mm1, AFAIR.  It does not occur on the -rc[1-3] kernels.
 
-void obj_poke(void)
-{
-	struct obj *obj;
+Greets,
+Rafael
 
-	spin_lock(&global_list_lock);
-	obj = obj_list_peek(&global_list);
-	spin_unlock(&global_list_lock);
 
-	if (obj) {
-		obj->ops->poke(obj);
-		if (atomic_dec_and_test(&obj->refcnt))
-			obj_destroy(obj);
-	}
-}
-
-void obj_timeout(struct obj *obj)
-{
-	spin_lock(&global_list_lock);
-	obj_list_del(obj);
-	spin_unlock(&global_list_lock);
-
-	if (atomic_dec_and_test(&obj->refcnt))
-		obj_destroy(obj);
-}
-
-Something like that.  I'll update the atomic_ops.txt
-doc and post and updated version later tonight.
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

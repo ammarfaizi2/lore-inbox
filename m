@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUGIFPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUGIFXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264297AbUGIFPn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 01:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUGIFPn
+	id S264299AbUGIFXI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 01:23:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbUGIFXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 01:15:43 -0400
-Received: from gprs214-56.eurotel.cz ([160.218.214.56]:10369 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264297AbUGIFPl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 01:15:41 -0400
-Date: Fri, 9 Jul 2004 07:15:28 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Christoph Hellwig <hch@infradead.org>, Erik Rigtorp <erik@rigtorp.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] swsusp bootsplash support
-Message-ID: <20040709051528.GB23152@elf.ucw.cz>
-References: <20040708110549.GB9919@linux.nu> <20040708133934.GA10997@infradead.org> <20040708204840.GB607@openzaurus.ucw.cz> <20040708210403.GA18049@infradead.org> <20040708225216.GA27815@elf.ucw.cz> <20040708225501.GA20143@infradead.org>
-Mime-Version: 1.0
+	Fri, 9 Jul 2004 01:23:08 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:42143 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S264299AbUGIFXE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 01:23:04 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+Date: Fri, 9 Jul 2004 15:22:45 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040708225501.GA20143@infradead.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16622.11173.888745.161113@cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: raidstart used deprecated START_ARRAY ioctl
+In-Reply-To: message from Norberto Bensa on Friday July 9
+References: <200407090135.12493.norberto+linux-kernel@bensa.ath.cx>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I have not seen SuSE version of bootsplash... I do not want to
-> > see. But this way, SuSE has its own crappy bootsplash, RedHat probably
-> > too, Mandrake probably too, etc.
+On Friday July 9, norberto+linux-kernel@bensa.ath.cx wrote:
+> Hello,
 > 
-> Red Hat gets it right and uses a program that's using fbdev.  They also
-> have no swsusp support, which makes quite a lot of sense given how much
-> in flux the code still is.
+> What does this mean and how do I fix it? 
+> 
+> md: raidstart(pid 4983) used deprecated START_ARRAY ioctl. This will not be 
+> supported beyond 2.6
+> 
 
-Okay, if redhat is actually doing it right, there's no reason for
-encouraging the wrong thing.
+It means that the mechanism (that START_ARRAY ioctl) that 'raidstart'
+uses to start an array is "deprecated", as in it won't be supported in
+future. 
+The reason for this is that it is badly designed and is not reliable.
+If you have a degraded array, there is at-least and even chance that
+raidstart will not successfully start it for you.
 
-But I guess swsusp is going to make this more "interesting" as
-progressbar is nice to have there, and userland can not help at that
-point.
+So, you should stop using raidstart.
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+The options are:
+
+ 1/ use "autodetect".  I'm not a big fan of this personally, but it is
+   much more reliable than START_ARRAY.
+   This is done by set the partition type of all partitions that
+   contain part of an MD array to "Linux Raid Autodetect" (0xFD).
+   Then all arrays are found and assembled at boot time.
+   This requires having all of md (that you need) compiled into the
+   kernel, not as modules.
+
+ 2/ use mdadm.  Read the man page about ASSEMBLE MODE.
+    You have  an /etc/mdadm.conf that lists 
+      - devices (or partitions) to scan
+      - arrays to be started
+      -  UUID of each array
+
+    and mdadm will find and assemble the arrays.
+
+NeilBrown

@@ -1,48 +1,156 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129113AbQKKWrA>; Sat, 11 Nov 2000 17:47:00 -0500
+	id <S129061AbQKKWvA>; Sat, 11 Nov 2000 17:51:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129442AbQKKWqv>; Sat, 11 Nov 2000 17:46:51 -0500
-Received: from PM3Naxs12-218.naxs.com ([216.98.81.218]:23306 "HELO
-	london.progenylinux.com") by vger.kernel.org with SMTP
-	id <S129113AbQKKWqk>; Sat, 11 Nov 2000 17:46:40 -0500
-Date: Sat, 11 Nov 2000 17:46:32 -0500
-From: Adam Lazur <alazur@progeny.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Q: Linux rebooting directly into linux.
-Message-ID: <20001111174632.A17737@progenylinux.com>
-In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <3A0ABB0C.99075A61@holly-springs.nc.us> <m1k8aacmvo.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m1k8aacmvo.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sat, Nov 11, 2000 at 12:46:51PM -0700
+	id <S129097AbQKKWuv>; Sat, 11 Nov 2000 17:50:51 -0500
+Received: from boss.staszic.waw.pl ([195.205.163.66]:33554 "EHLO
+	boss.staszic.waw.pl") by vger.kernel.org with ESMTP
+	id <S129061AbQKKWun>; Sat, 11 Nov 2000 17:50:43 -0500
+Date: Sat, 11 Nov 2000 23:51:19 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com, mingo@redhat.com
+Subject: [PATCH] drivers/md gets md__init/md__exit
+Message-ID: <Pine.LNX.4.21.0011112346500.11176-200000@tricky>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-2069523236-973983079=:11176"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman (ebiederm@xmission.com) said:
-> Michael Rothwell <rothwell@holly-springs.nc.us> writes:
-> > This would rock. One place I can think of using it is with distro
-> > installers. The installer boots a generic i386 kernel, and then installs
-> > an optimized (i.e, PIII, etc.) kernel for run-time.
-> 
-> This would rock?  It already does.  Of course the installers need
-> to actually uses this.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Actually, along the lines of what Scyld uses two kernel monte for with
-their Beowulf2 distribution.
+--8323328-2069523236-973983079=:11176
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-They boot a network enabled kernel which pulls a kernel off of a server
-and then uses two kernel monte to boot with that one.  This allows you
-to centrally admin your cluster with one server. Good stuff...
 
-.adam
+Hi
 
--- 
-[ Adam Lazur, NOW Monkey                          <alazur@progeny.com> ]
-[ Progeny Linux Systems                             http://progeny.com ]
+This patch against 2.4.0-test11-pre2 adds __init/__exit
+to drivers/md... obvious stuff.
+Also it makes modules function more consistent accros raidx.c files...
+
+Regards
+--
+Bartlomiej Zolnierkiewicz
+<bkz@linux-ide.org>
+
+--8323328-2069523236-973983079=:11176
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="240t11p2-md_init.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0011112351190.11176@tricky>
+Content-Description: 
+Content-Disposition: attachment; filename="240t11p2-md_init.diff"
+
+ZGlmZiAtdU5yIGxpbnV4LTI0MHQxMXAyL2luY2x1ZGUvbGludXgvcmFpZC9t
+ZF9jb21wYXRpYmxlLmggbGludXgvaW5jbHVkZS9saW51eC9yYWlkL21kX2Nv
+bXBhdGlibGUuaA0KLS0tIGxpbnV4LTI0MHQxMXAyL2luY2x1ZGUvbGludXgv
+cmFpZC9tZF9jb21wYXRpYmxlLmgJV2VkIE5vdiAgOCAxOTo1MDozMSAyMDAw
+DQorKysgbGludXgvaW5jbHVkZS9saW51eC9yYWlkL21kX2NvbXBhdGlibGUu
+aAlTYXQgTm92IDExIDAwOjQ2OjA0IDIwMDANCkBAIC0xMDksNiArMTA5LDcg
+QEANCiAjaW5jbHVkZSA8bGludXgvaW5pdC5oPg0KIA0KICNkZWZpbmUgbWRf
+X2luaXQgX19pbml0DQorI2RlZmluZSBtZF9fZXhpdCBfX2V4aXQNCiAjZGVm
+aW5lIG1kX19pbml0ZGF0YSBfX2luaXRkYXRhDQogI2RlZmluZSBtZF9faW5p
+dGZ1bmMoX19hcmdpbml0KSBfX2luaXRmdW5jKF9fYXJnaW5pdCkNCiANCmRp
+ZmYgLXVOciBsaW51eC0yNDB0MTFwMi9kcml2ZXJzL21kL2xpbmVhci5jIGxp
+bnV4L2RyaXZlcnMvbWQvbGluZWFyLmMNCi0tLSBsaW51eC0yNDB0MTFwMi9k
+cml2ZXJzL21kL2xpbmVhci5jCVR1ZSBPY3QgIDMgMTQ6Mjc6MzQgMjAwMA0K
+KysrIGxpbnV4L2RyaXZlcnMvbWQvbGluZWFyLmMJU2F0IE5vdiAxMSAwMTow
+MjowMiAyMDAwDQpAQCAtMTkwLDI0ICsxOTAsMTkgQEANCiAJc3RhdHVzOgkJ
+bGluZWFyX3N0YXR1cywNCiB9Ow0KIA0KLSNpZm5kZWYgTU9EVUxFDQotDQog
+dm9pZCBtZF9faW5pdCBsaW5lYXJfaW5pdCAodm9pZCkNCiB7DQogCXJlZ2lz
+dGVyX21kX3BlcnNvbmFsaXR5IChMSU5FQVIsICZsaW5lYXJfcGVyc29uYWxp
+dHkpOw0KIH0NCiANCi0jZWxzZQ0KLQ0KLWludCBpbml0X21vZHVsZSAodm9p
+ZCkNCisjaWZkZWYgTU9EVUxFDQoraW50IG1kX19pbml0IGluaXRfbW9kdWxl
+ICh2b2lkKQ0KIHsNCi0JcmV0dXJuIChyZWdpc3Rlcl9tZF9wZXJzb25hbGl0
+eSAoTElORUFSLCAmbGluZWFyX3BlcnNvbmFsaXR5KSk7DQorCXJldHVybiBs
+aW5lYXJfaW5pdCgpOw0KIH0NCiANCi12b2lkIGNsZWFudXBfbW9kdWxlICh2
+b2lkKQ0KK3ZvaWQgbWRfX2V4aXQgY2xlYW51cF9tb2R1bGUgKHZvaWQpDQog
+ew0KIAl1bnJlZ2lzdGVyX21kX3BlcnNvbmFsaXR5IChMSU5FQVIpOw0KIH0N
+Ci0NCiAjZW5kaWYNCi0NCmRpZmYgLXVOciBsaW51eC0yNDB0MTFwMi9kcml2
+ZXJzL21kL21kLmMgbGludXgvZHJpdmVycy9tZC9tZC5jDQotLS0gbGludXgt
+MjQwdDExcDIvZHJpdmVycy9tZC9tZC5jCUZyaSBOb3YgMTAgMTQ6Mjg6NDIg
+MjAwMA0KKysrIGxpbnV4L2RyaXZlcnMvbWQvbWQuYwlTYXQgTm92IDExIDAw
+OjUwOjA3IDIwMDANCkBAIC0zNTUzLDcgKzM1NTMsNyBAQA0KIH0NCiBfX3Nl
+dHVwKCJyYWlkPSIsIHJhaWRfc2V0dXApOw0KICNlbmRpZg0KLXN0YXRpYyB2
+b2lkIG1kX2dlbmluaXQgKHZvaWQpDQorc3RhdGljIHZvaWQgbWRfX2luaXQg
+bWRfZ2VuaW5pdCAodm9pZCkNCiB7DQogCWludCBpOw0KIA0KQEAgLTM4MDMs
+MTIgKzM4MDMsMTIgQEANCiAjZW5kaWYNCiANCiAjaWZkZWYgTU9EVUxFDQot
+aW50IGluaXRfbW9kdWxlICh2b2lkKQ0KK2ludCBtZF9faW5pdCBpbml0X21v
+ZHVsZSAodm9pZCkNCiB7DQogCXJldHVybiBtZF9pbml0KCk7DQogfQ0KIA0K
+LXN0YXRpYyB2b2lkIGZyZWVfZGV2aWNlX25hbWVzKHZvaWQpDQorc3RhdGlj
+IHZvaWQgbWRfX2V4aXQgZnJlZV9kZXZpY2VfbmFtZXModm9pZCkNCiB7DQog
+CXdoaWxlIChkZXZpY2VfbmFtZXMubmV4dCAhPSAmZGV2aWNlX25hbWVzKSB7
+DQogCQlzdHJ1Y3QgbGlzdF9oZWFkICp0bXAgPSBkZXZpY2VfbmFtZXMubmV4
+dDsNCkBAIC0zODE4LDcgKzM4MTgsNyBAQA0KIH0NCiANCiANCi12b2lkIGNs
+ZWFudXBfbW9kdWxlICh2b2lkKQ0KK3ZvaWQgbWRfX2V4aXQgY2xlYW51cF9t
+b2R1bGUgKHZvaWQpDQogew0KIAlzdHJ1Y3QgZ2VuZGlzayAqKmdlbmRpc2tf
+cHRyOw0KIA0KZGlmZiAtdU5yIGxpbnV4LTI0MHQxMXAyL2RyaXZlcnMvbWQv
+cmFpZDAuYyBsaW51eC9kcml2ZXJzL21kL3JhaWQwLmMNCi0tLSBsaW51eC0y
+NDB0MTFwMi9kcml2ZXJzL21kL3JhaWQwLmMJVHVlIE9jdCAgMyAxNDoyNzoz
+NCAyMDAwDQorKysgbGludXgvZHJpdmVycy9tZC9yYWlkMC5jCVNhdCBOb3Yg
+MTEgMDA6NTU6MjkgMjAwMA0KQEAgLTMzMywyNCArMzMzLDE5IEBADQogCXN0
+YXR1czoJCXJhaWQwX3N0YXR1cywNCiB9Ow0KIA0KLSNpZm5kZWYgTU9EVUxF
+DQotDQotdm9pZCByYWlkMF9pbml0ICh2b2lkKQ0KK3ZvaWQgbWRfX2luaXQg
+cmFpZDBfaW5pdCAodm9pZCkNCiB7DQogCXJlZ2lzdGVyX21kX3BlcnNvbmFs
+aXR5IChSQUlEMCwgJnJhaWQwX3BlcnNvbmFsaXR5KTsNCiB9DQogDQotI2Vs
+c2UNCi0NCi1pbnQgaW5pdF9tb2R1bGUgKHZvaWQpDQorI2lmZGVmIE1PRFVM
+RQ0KK2ludCBtZF9faW5pdCBpbml0X21vZHVsZSAodm9pZCkNCiB7DQotCXJl
+dHVybiAocmVnaXN0ZXJfbWRfcGVyc29uYWxpdHkgKFJBSUQwLCAmcmFpZDBf
+cGVyc29uYWxpdHkpKTsNCisJcmV0dXJuIHJhaWQwX2luaXQoKTsNCiB9DQog
+DQotdm9pZCBjbGVhbnVwX21vZHVsZSAodm9pZCkNCit2b2lkIG1kX19leGl0
+IGNsZWFudXBfbW9kdWxlICh2b2lkKQ0KIHsNCiAJdW5yZWdpc3Rlcl9tZF9w
+ZXJzb25hbGl0eSAoUkFJRDApOw0KIH0NCi0NCiAjZW5kaWYNCi0NCmRpZmYg
+LXVOciBsaW51eC0yNDB0MTFwMi9kcml2ZXJzL21kL3JhaWQxLmMgbGludXgv
+ZHJpdmVycy9tZC9yYWlkMS5jDQotLS0gbGludXgtMjQwdDExcDIvZHJpdmVy
+cy9tZC9yYWlkMS5jCUZyaSBOb3YgMTAgMTQ6Mjg6NDIgMjAwMA0KKysrIGxp
+bnV4L2RyaXZlcnMvbWQvcmFpZDEuYwlTYXQgTm92IDExIDAwOjU0OjA2IDIw
+MDANCkBAIC0xODgyLDE4ICsxODgyLDE4IEBADQogCXN5bmNfcmVxdWVzdDoJ
+cmFpZDFfc3luY19yZXF1ZXN0DQogfTsNCiANCi1pbnQgcmFpZDFfaW5pdCAo
+dm9pZCkNCitpbnQgbWRfX2luaXQgcmFpZDFfaW5pdCAodm9pZCkNCiB7DQog
+CXJldHVybiByZWdpc3Rlcl9tZF9wZXJzb25hbGl0eSAoUkFJRDEsICZyYWlk
+MV9wZXJzb25hbGl0eSk7DQogfQ0KIA0KICNpZmRlZiBNT0RVTEUNCi1pbnQg
+aW5pdF9tb2R1bGUgKHZvaWQpDQoraW50IG1kX19pbml0IGluaXRfbW9kdWxl
+ICh2b2lkKQ0KIHsNCiAJcmV0dXJuIHJhaWQxX2luaXQoKTsNCiB9DQogDQot
+dm9pZCBjbGVhbnVwX21vZHVsZSAodm9pZCkNCit2b2lkIG1kX19leGl0IGNs
+ZWFudXBfbW9kdWxlICh2b2lkKQ0KIHsNCiAJdW5yZWdpc3Rlcl9tZF9wZXJz
+b25hbGl0eSAoUkFJRDEpOw0KIH0NCmRpZmYgLXVOciBsaW51eC0yNDB0MTFw
+Mi9kcml2ZXJzL21kL3JhaWQ1LmMgbGludXgvZHJpdmVycy9tZC9yYWlkNS5j
+DQotLS0gbGludXgtMjQwdDExcDIvZHJpdmVycy9tZC9yYWlkNS5jCVR1ZSBP
+Y3QgIDMgMTQ6Mjc6MzQgMjAwMA0KKysrIGxpbnV4L2RyaXZlcnMvbWQvcmFp
+ZDUuYwlTYXQgTm92IDExIDAwOjUyOjE1IDIwMDANCkBAIC0yMzQyLDcgKzIz
+NDIsNyBAQA0KIAlzeW5jX3JlcXVlc3Q6CXJhaWQ1X3N5bmNfcmVxdWVzdA0K
+IH07DQogDQotaW50IHJhaWQ1X2luaXQgKHZvaWQpDQoraW50IG1kX19pbml0
+IHJhaWQ1X2luaXQgKHZvaWQpDQogew0KIAlpbnQgZXJyOw0KIA0KQEAgLTIz
+NTksMTIgKzIzNTksMTIgQEANCiB9DQogDQogI2lmZGVmIE1PRFVMRQ0KLWlu
+dCBpbml0X21vZHVsZSAodm9pZCkNCitpbnQgbWRfX2luaXQgaW5pdF9tb2R1
+bGUgKHZvaWQpDQogew0KIAlyZXR1cm4gcmFpZDVfaW5pdCgpOw0KIH0NCiAN
+Ci12b2lkIGNsZWFudXBfbW9kdWxlICh2b2lkKQ0KK3ZvaWQgbWRfX2V4aXQg
+Y2xlYW51cF9tb2R1bGUgKHZvaWQpDQogew0KIAl1bnJlZ2lzdGVyX21kX3Bl
+cnNvbmFsaXR5IChSQUlENSk7DQogfQ0KZGlmZiAtdU5yIGxpbnV4LTI0MHQx
+MXAyL2RyaXZlcnMvbWQveG9yLmMgbGludXgvZHJpdmVycy9tZC94b3IuYw0K
+LS0tIGxpbnV4LTI0MHQxMXAyL2RyaXZlcnMvbWQveG9yLmMJVHVlIE9jdCAg
+MyAxNDoyNzozNCAyMDAwDQorKysgbGludXgvZHJpdmVycy9tZC94b3IuYwlT
+YXQgTm92IDExIDAwOjU5OjM3IDIwMDANCkBAIC0yNTc1LDcgKzI1NzUsNyBA
+QA0KICAqLw0KICNkZWZpbmUgU0laRSAoUEFHRV9TSVpFLTYqMzIpDQogDQot
+c3RhdGljIHZvaWQgeG9yX3NwZWVkICggc3RydWN0IHhvcl9ibG9ja190ZW1w
+bGF0ZSAqIGZ1bmMsIA0KK3N0YXRpYyB2b2lkIG1kX19pbml0IHhvcl9zcGVl
+ZCAoIHN0cnVjdCB4b3JfYmxvY2tfdGVtcGxhdGUgKiBmdW5jLCANCiAJc3Ry
+dWN0IGJ1ZmZlcl9oZWFkICpiMSwgc3RydWN0IGJ1ZmZlcl9oZWFkICpiMikN
+CiB7DQogCWludCBzcGVlZDsNCkBAIC0yNjUwLDcgKzI2NTAsNyBAQA0KICAN
+CiBzdGF0aWMgc3RydWN0IGJ1ZmZlcl9oZWFkIGIxLCBiMjsNCiANCi12b2lk
+IGNhbGlicmF0ZV94b3JfYmxvY2sodm9pZCkNCit2b2lkIG1kX19pbml0IGNh
+bGlicmF0ZV94b3JfYmxvY2sodm9pZCkNCiB7DQogCWlmICh4b3JfYmxvY2sp
+DQogCQlyZXR1cm47DQpAQCAtMjcwNiw3ICsyNzA2LDcgQEANCiANCiAjZWxz
+ZSAvKiBfX3NwYXJjX3Y5X18gKi8NCiANCi12b2lkIGNhbGlicmF0ZV94b3Jf
+YmxvY2sodm9pZCkNCit2b2lkIG1kX19pbml0IGNhbGlicmF0ZV94b3JfYmxv
+Y2sodm9pZCkNCiB7DQogCWlmICh4b3JfYmxvY2spDQogCQlyZXR1cm47DQpA
+QCAtMjcyMCw3ICsyNzIwLDcgQEANCiBNRF9FWFBPUlRfU1lNQk9MKGNhbGli
+cmF0ZV94b3JfYmxvY2spOw0KIA0KICNpZmRlZiBNT0RVTEUNCi1pbnQgaW5p
+dF9tb2R1bGUodm9pZCkNCitpbnQgbWRfX2luaXQgaW5pdF9tb2R1bGUodm9p
+ZCkNCiB7DQogCWNhbGlicmF0ZV94b3JfYmxvY2soKTsNCiAJcmV0dXJuIDA7
+DQo=
+--8323328-2069523236-973983079=:11176--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVBYR7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbVBYSDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbVBYR7P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 12:59:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVBYR7P
+	id S262768AbVBYSDc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 13:03:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbVBYSDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 12:59:15 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:48310 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262765AbVBYR7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 12:59:13 -0500
-Date: Fri, 25 Feb 2005 17:59:04 +0000 (GMT)
-From: James Simmons <jsimmons@www.infradead.org>
-X-X-Sender: jsimmons@pentafluge.infradead.org
-To: linux-fbdev-devel@lists.sourceforge.net
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: 2.6.11-rc5
-In-Reply-To: <20050225172945.GA31211@suse.de>
-Message-ID: <Pine.LNX.4.56.0502251758370.20213@pentafluge.infradead.org>
-References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org>
- <20050224145049.GA21313@suse.de> <1109287708.15026.25.camel@gaston>
- <20050225070813.GA13735@suse.de> <1109316551.14993.63.camel@gaston>
- <20050225172945.GA31211@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: 0.0 (/)
+	Fri, 25 Feb 2005 13:03:32 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:14505 "EHLO
+	mail.bitmover.com") by vger.kernel.org with ESMTP id S262768AbVBYSCs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 13:02:48 -0500
+Date: Fri, 25 Feb 2005 10:02:18 -0800
+To: Stelian Pop <stelian@popies.net>,
+       Catalin Marinas <catalin.marinas@arm.com>, linux-kernel@vger.kernel.org
+Subject: Re: BKCVS still updated?
+Message-ID: <20050225180218.GA7347@bitmover.com>
+Mail-Followup-To: lm@bitmover.com, Stelian Pop <stelian@popies.net>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	linux-kernel@vger.kernel.org
+References: <tnxekf71drd.fsf@arm.com> <20050225095837.GA17559@sd291.sivit.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050225095837.GA17559@sd291.sivit.org>
+User-Agent: Mutt/1.5.6+20040907i
+From: lm@bitmover.com (Larry McVoy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> He should be back now, maybe he can tell us more about what happened ?
 
-> cfb_imageblit(320) dst1 fa51a800 base e0b80000 bitstart 1999a800
-> fast_imageblit(237) s daea4000 dst1 fa51a800
-> fast_imageblit(269) j 1 fa51a800 0
-> Unable to handle kernel paging request at virtual address fa51a800
-> 
-> is bitstart incorrect or is the thing just not (yet) mapped?
-
-Looks like the screen_base is not mapped to.
-
+We had a nameserver problem and the machine dedicated to this didn't get
+updated with a new resolve.conf.  It's fixed now and updating, probably
+be there in an hour.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

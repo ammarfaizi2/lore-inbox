@@ -1,78 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264878AbTAYXWc>; Sat, 25 Jan 2003 18:22:32 -0500
+	id <S265037AbTAYXcK>; Sat, 25 Jan 2003 18:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264936AbTAYXWc>; Sat, 25 Jan 2003 18:22:32 -0500
-Received: from packet.digeo.com ([12.110.80.53]:20478 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264878AbTAYXWb>;
-	Sat, 25 Jan 2003 18:22:31 -0500
-Date: Sat, 25 Jan 2003 15:32:17 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59-mm5 hangs on boot
-Message-Id: <20030125153217.6ff6e275.akpm@digeo.com>
-In-Reply-To: <1043534331.1672.71.camel@iso-2146-l1.zeusinc.com>
-References: <1043534331.1672.71.camel@iso-2146-l1.zeusinc.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Jan 2003 23:31:40.0107 (UTC) FILETIME=[E947E9B0:01C2C4C9]
+	id <S265385AbTAYXcK>; Sat, 25 Jan 2003 18:32:10 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:37641
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S265037AbTAYXcJ>; Sat, 25 Jan 2003 18:32:09 -0500
+Date: Sat, 25 Jan 2003 15:36:17 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+cc: stesmi@stesmi.com, aebr@win.tue.nl,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: BIOS setup needed for LBA48?
+In-Reply-To: <200301252120.h0PLKMnA001974@green.mif.pg.gda.pl>
+Message-ID: <Pine.LNX.4.10.10301251501430.1744-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Sightler <ttsig@tuxyturvy.com> wrote:
->
-> I was interested in testing the new IO scheduler in 2.5.59-mm5 because
-> it attempts to correct a problem that has always bothered me
 
-Yup.
+Well doors may know this but the door-stop does not.  The driver has no
+clue currently and so we are back to a pig in a poke.  I have never run
+48-bit on AMD, and iirc NFORCE is a step-child of AMD.
 
-> but with
-> this kernel (using the identical config to -mm2) my system hangs almost
-> immediately after boot.
+It has everything to do with the DMA engine in the ASIC going south.
 
-Several people are reporting this.  We seem to have lost a disk request or
-such.
-
-First up, please see if changing this:
-
-	static int antic_expire = HZ / 25;
-
-to
-
-	static int antic_expire = 0;
-
-in drivers/block/deadline-iosched.c fixes it up.
+Cheers,
 
 
-If not then please confirm that
+On Sat, 25 Jan 2003, Andrzej Krzysztofowicz wrote:
 
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-luuk/2.5.59-luuk.gz
+> 
+> > Yes, if the host controller can not handle the double pump for dma
+> > operations.  Disable DMA int it has to work.  If it does not, you have a
+> > nice pile of junk, and it should be come a door.
+> 
+> Shouldn't the driver disable DMA automatically (not allow to enable it) ?
+> Driver knows the controller type, knows the disk size ...
+> 
+> Or is it not so simple ?
+> 
+> 
+> > On Sat, 25 Jan 2003, Stefan Smietanowski wrote:
+> > 
+> > > >>Can the Linux Kernel use the full drive (160GB/250GB/whatever)
+> > > >>even though the BIOS doesn't? (LBA48)
+> > > > 
+> > > > Usually, yes.
+> > > 
+> > > Is there anything that could make "usually, yes" become a "no"?
+> 
+> -- 
+> =======================================================================
+>   Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+>   phone (48)(58) 347 14 61
+> Faculty of Applied Phys. & Math.,   Gdansk University of Technology
+> 
 
-still causes the problem.
+Andre Hedrick
+LAD Storage Consulting Group
 
-If so then I'd really appreciate it if you could work through the individual
-patches in
-
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-luuk/broken-out/
-
-and find out which one is causing the problem.  The patch application order is
-
-vmlinux-fix.patch
-deadline-np-42.patch
-deadline-np-43.patch
-reiserfs-readpages.patch
-ext3-scheduling-storm.patch
-auto-unplug.patch
-less-unplugging.patch
-kirq.patch
-kirq-up-fix.patch
-ext3-truncate-ordered-pages.patch
-vma-file-merge.patch
-quota-lockfix.patch
-quota-offsem.patch
-dont-wait-on-inode.patch
-
-Thanks.

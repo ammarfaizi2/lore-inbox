@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVCLGYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVCLH40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbVCLGYb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 01:24:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVCLGYb
+	id S261420AbVCLH40 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 02:56:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVCLH40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 01:24:31 -0500
-Received: from fire.osdl.org ([65.172.181.4]:27841 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261880AbVCLGYa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 01:24:30 -0500
-Date: Fri, 11 Mar 2005 22:23:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: mike kravetz <kravetz@us.ibm.com>
-Cc: paulus@samba.org, anton@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PPC64 NUMA memory fixup
-Message-Id: <20050311222358.7f9697ae.akpm@osdl.org>
-In-Reply-To: <20050311221110.GG6360@w-mikek2.ibm.com>
-References: <16942.30144.513313.26103@cargo.ozlabs.ibm.com>
-	<20050310023613.23499386.akpm@osdl.org>
-	<16945.23578.505529.220972@cargo.ozlabs.ibm.com>
-	<20050311221110.GG6360@w-mikek2.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 12 Mar 2005 02:56:26 -0500
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:19399 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261420AbVCLH4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 02:56:23 -0500
+Subject: Re: N00b Asks:  Supporting Linux Power Management HOWTO?
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: "Leo L. Schwab" <ewhac@best.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050311235412.GA12642@best.com>
+References: <20050311235412.GA12642@best.com>
+Content-Type: text/plain
+Message-Id: <1110614282.10615.4.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 12 Mar 2005 18:58:02 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mike kravetz <kravetz@us.ibm.com> wrote:
->
-> Here is another version of the patch.  This one gets the cell sizes
->  before extracting the cells.  I have made this change to existing
->  code in the file, as well as the code I added.  This works fine on
->  my 720, but so did the previous patch. :)  I'd appreciate it if
->  someone could touch test this on a machine known to break with
->  the previous version (such as G5).
+Hi Leo.
 
-That works, thanks.
+We're currently working on this. A lot of discussion has occurred in the
+last week or two on the PowerManagement mailing list, which you'll find
+on OSDL:
+
+http://lists.osdl.org/mailman/listinfo/linux-pm
+
+Perhaps you might like to join us and help in the hammering out :>
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+
+Maintainer of Suspend2 Kernel Patches http://suspend2.net
+

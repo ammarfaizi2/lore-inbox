@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266254AbUG0Gac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266259AbUG0Gd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266254AbUG0Gac (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 02:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbUG0Gab
+	id S266259AbUG0Gd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 02:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266258AbUG0Gd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 02:30:31 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:772 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S266254AbUG0Gaa convert rfc822-to-8bit (ORCPT
+	Tue, 27 Jul 2004 02:33:26 -0400
+Received: from [221.2.232.138] ([221.2.232.138]:60570 "ehlo sohu.com")
+	by vger.kernel.org with ESMTP id S266257AbUG0GdX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 02:30:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org
-Subject: Re: Wireless devices and route settings
-Date: Tue, 27 Jul 2004 09:29:57 +0300
-X-Mailer: KMail [version 1.4]
-References: <pan.2004.07.27.05.34.35.543474@triplehelix.org>
-In-Reply-To: <pan.2004.07.27.05.34.35.543474@triplehelix.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200407270929.57779.vda@port.imtp.ilyichevsk.odessa.ua>
+	Tue, 27 Jul 2004 02:33:23 -0400
+From: "Tony" <zlblzm@sohu.com>
+Subject: Seeking joint-venture partners for ERW oil casing project
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: zlblzm@sohu.com
+Date: Tue, 27 Jul 2004 15:32:53 +0800
+X-Priority: 3
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+Message-Id: <S266257AbUG0GdX/20040727063323Z+746@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 July 2004 08:34, Joshua Kwan wrote:
-> Hello,
->
-> So, I have a wireless interface on a 'guest' Linux box (running 2.6.7-rc1,
-> not bothered to compile a new kernel yet.) It is a fair distance away from
-> the access point and sometimes goes out of range.
->
-> Usually it can go out of range and come back in range without the user
-> noticing anything has happened. But once in a while, when the connection
-> is especially poor, the interface will go down and lose its default route.
+Dear Sir or Madam:
 
-What do you mean "interface will go down"? Down is an administrative state,
-settable only by admin (ifconfig up/down or equivalent).
-If your wireless device driver does that all by itself, it is buggy.
+We are keenly interested in setting up a new factory to produce 120,000 ERW oil casings per year to meet the big market of Shengli Oilfied. Since we lack some starting-up capital, we are seeking for investments. I will give you a brief introduction to the project as follow:
 
-Elaborate on "interface will go down". Provide 
-ifconfig, routing and iwconfig data before and
-after the event.
+I. Background:
+Shengli Oilfield, the second largest oilfield in China and the leading company of Sinopec Corp. (http://www.sinopec.com), as well as neighboring oilfields as Dagang Oilfield, Central Plain Oilfield and Jiangsu Oilfield are potential market of ERW oil casing. It is expected that the total oil casing needed in the above area is about 400,000 tons, including 260,000 tons in Sinopec and 150,000 tons in Shengli Oilfield. To meet the great need, we plan to set up a joint venture to produce 120,000 tons of ERW casings per year in Shengli Oilfield.  With good management and market outlets, we believe that this JV also has the potential to expand beyond China to other nations. 
 
-> When it comes back, it retains its IP, but does not keep the default route.
-> This makes the internet unusable on this machine until i cycle ifdown/ifup
-> which I cannot rely on guests to do.
->
-> There is no daemon watching the network interfaces at all that might be
-> doing this (I'm pretty sure), so I was hoping linux-kernel might know.
->
-> Here's to a prompt solution..
+II. About us
+Shengli Oilfield Engineering Machinery Factory is one of sub-companies of Shengli Oilfield Co., Ltd, with total assets of 267 million yuan, net assets of 170 million yuan and 2462 staff. The factory mainly produces oilfield special equipment such as beam unit, Spiral-seam submerged-arc weldedsteel pipe, sucker rod, line pipe, casing, tubing, plastic compound pipe etc. It produces 200,000 tons of line pipes, 1 million meters of strengthened plastic compound pipes, 500 beam units, 2.5 million meters of sucker rods, 12,000 tons of PP gas pipes and 50,000 tons of oil tubings yearly, and has become important pipe base in Shandong and Shengli Oilfield. Its products have entering many areas as Shengli Oilfield, Daqing Oilfield, Liaohe Oilfield, Dagang Oilfield and so on. In 2002, the sale income amounted to over 600 million yuan.
+The Factory holds Quality accreditations as ISO9001, API and so on.
 
--- 
-vda
+III. Content of the project
+It is planned to introduce Japanese technology and equipment to set up one production line with range of casing diameter from¦Õ114 to ¦Õ339.7 and produce 120,000 tons of ERW casings and delivery pipes per year.
+
+IV. Product specifications
+For Casing: grade of steel are J55 and N80, specification ranges from ¦Õ114 to ¦Õ339.7
+For delivery: grade of steel are X52¡¢X60¡¢X70, specification ranges from ¦Õ114 to ¦Õ339.7.
+
+V. Economic Analysis
+The total investment in this project is 142.41 million yuan. After the completion of the project, it is estimated that the internal financial rate of return before paying tax is 24.9 percent with a payback period of 5.6 years, and the internal rate of return after paying tax is 21.8 percent with a payback period of 5.9 years.
+The break-even point of the project is 46.95 percent, which means the project can keep balance if the annual output amount to 42,000 tons.
+
+VI. Plans for cooperation
+We have set up a joint venture with Japan's Marubeni in the early of the year, with a registered capital of 57 million yuan. The capital structure is as follow:
+a. Shengli Oilfield Bureau of Administration          19.95 million yuan   35£¥
+b. Shengli Oilfield Engineering Machinery Facotry     17.10 million yuan   30£¥
+c. Dongying District State Assets Operation & Management Co., Ltd 5.70million yuan 10£¥
+d. Marubeni Engineering Technology Co., Ltd           14.25 million yuan   25£¥
+
+To meet our capital need for this project, we are now planned to increase our registered capital to 118.88 million yuan. Taking our added investment into consideration, we need another 34.68 million yuan to get the plan executed. So we are seeking a new joint venture partner who'd like to join this project and meet our capital requirement.
+We would like to exchange the information with the manufacturers and suppliers who are interested in this project and have discussion on raw material supply as well as jointly investing the factory establishment. And we hope we could have good cooperation in future.
+For additional information regarding this project, please feel free to contact us.
+
+Looking forward to your prompt reply.
+
+Sincerely yours, 
+
+Tony Leung
+Project officer
+
+Tel: +86-546-833 9362
+Fax:+86-546-832 9817
+Mobile: +86-133 4505 3225
+Email: tony@mpbdy.com

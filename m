@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267474AbSLEWIM>; Thu, 5 Dec 2002 17:08:12 -0500
+	id <S267485AbSLEV4S>; Thu, 5 Dec 2002 16:56:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267510AbSLEWIL>; Thu, 5 Dec 2002 17:08:11 -0500
-Received: from packet.digeo.com ([12.110.80.53]:12191 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267474AbSLEWIK>;
-	Thu, 5 Dec 2002 17:08:10 -0500
-Message-ID: <3DEFD00B.555DE931@digeo.com>
-Date: Thu, 05 Dec 2002 14:15:39 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.50 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: dipankar@gamebox.net
-CC: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
-       Ravikiran G Thirumalai <kiran@in.ibm.com>
-Subject: Re: [patch] kmalloc_percpu  -- 2 of 2
-References: <20021204174209.A17375@in.ibm.com> <20021204174550.B17375@in.ibm.com> <3DEE58CB.737259DB@digeo.com> <20021205091217.A11438@in.ibm.com> <3DEED6FA.B179FAFD@digeo.com> <20021205162329.A12588@in.ibm.com> <3DEFB0EB.9893DB9@digeo.com> <20021206025307.A20657@dikhow>
+	id <S267487AbSLEV4S>; Thu, 5 Dec 2002 16:56:18 -0500
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:51378
+	"HELO mail.theoesters.com") by vger.kernel.org with SMTP
+	id <S267485AbSLEV4Q>; Thu, 5 Dec 2002 16:56:16 -0500
+Date: Thu, 5 Dec 2002 14:03:49 -0800
+From: Phil Oester <kernel@theoesters.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Bingner Sam J Contractor PACAF CSS/SCHE 
+	<Sam.Bingner@hickam.af.mil>,
+       "'ja@ssi.bg'" <ja@ssi.bg>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: hidden interface (ARP) 2.4.20
+Message-ID: <20021205140349.A5998@ns1.theoesters.com>
+References: <A6B0BFA3B496A24488661CC25B9A0EFA333DEF@himl07.hickam.pacaf.ds.af.mil> <1039124530.18881.0.camel@rth.ninka.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Dec 2002 22:15:39.0439 (UTC) FILETIME=[D7D7F3F0:01C29CAB]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1039124530.18881.0.camel@rth.ninka.net>; from davem@redhat.com on Thu, Dec 05, 2002 at 01:42:10PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipankar Sarma wrote:
+So we should enable netfilter for all x-hundred webservers we have?  Or play games with routing tables?
+
+Why was something which:
+
+a) works
+b) was present in 2.2.xx kernels
+c) is trivial to include and doesn't seem to 'hurt' anything
+
+ripped from 2.4 kernels?
+
+What some people fail to grasp is that _many_ people in the real world are using the hidden flag in load balancing scenarios for its simplicity.  Removing it (without any particularly valid reason that anyone is aware of) doesn't make much sense.
+
+-Phil
+
+p.s. flame away, Dave
+
+On Thu, Dec 05, 2002 at 01:42:10PM -0800, David S. Miller wrote:
+> On Thu, 2002-12-05 at 12:53, Bingner Sam J Contractor PACAF CSS/SCHE
+> wrote:
+> > Attached is a patch that seems to work for the hidden flag in 2.4.20... for
+> > anybody else who needs this functionality
 > 
-> On Thu, Dec 05, 2002 at 09:10:16PM +0100, Andrew Morton wrote:
-> >
-> > I'd suggest that you drop the new allocator until a compelling
-> > need for it (in real, live 2.5/2.6 code) has been demonstrated.
-> 
-> Fine with me since atleast one workaround for fragmentation with small
-> allocations is known. I can't see anything in 2.5 timeframe
-> requiring small per-cpu allocations.
-> 
-> Would you like me to resubmit a simple kmalloc-only version ?
-> 
-
-I think that would be best.
-
-BTW, looking at the snmp application of this work:
-
-+#define ICMP_INC_STATS_USER_FIELD(offt)                                \
-+       (*((unsigned long *) ((void *)                                  \
-+                            per_cpu_ptr(icmp_statistics[1],            \
-+                                        smp_processor_id())) + offt))++;
-
-This guy is racy on preempt.  Just a little bit.  It is effectively:
-
-	ptr = per_cpu_ptr(...);
-	(*ptr)++;
-
-On some architectures, `(*ptr)++' is not atomic wrt interrupts.  The
-CPU could be preempted midway through the increment.
-
-Surely it's not an issue for SNMP stats, but for some applications
-such as struct page_state, such a permanent off-by-a-little-bit would
-be a showstopper.
-
-So some big loud comments which describe the worthiness of get_cpu_ptr(),
-and the potential inaccuracy of per_cpu_ptr would be useful.
-
-And as this is the first application of the kmalloc_precpu infrastructure,
-it may be best to convert it to use get_cpu_ptr/put_cpu_ptr.
+> Use the ARP filter netfilter module or the routing based solutions
+> instead, please.

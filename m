@@ -1,84 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314090AbSDKPNs>; Thu, 11 Apr 2002 11:13:48 -0400
+	id <S314089AbSDKPPC>; Thu, 11 Apr 2002 11:15:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314089AbSDKPNr>; Thu, 11 Apr 2002 11:13:47 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:18901 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S314088AbSDKPNq>; Thu, 11 Apr 2002 11:13:46 -0400
-Date: Thu, 11 Apr 2002 16:15:50 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch-2.5.8-pre] swapinfo accounting
-In-Reply-To: <3CB4DD71.DED82F57@zip.com.au>
-Message-ID: <Pine.LNX.4.21.0204111543340.1231-100000@localhost.localdomain>
+	id <S314088AbSDKPPB>; Thu, 11 Apr 2002 11:15:01 -0400
+Received: from e24.nc.us.ibm.com ([32.97.136.230]:40091 "EHLO
+	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S314089AbSDKPOL>; Thu, 11 Apr 2002 11:14:11 -0400
+Message-ID: <3CB5A82B.80C942A0@in.ibm.com>
+Date: Thu, 11 Apr 2002 20:43:47 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+Organization: IBM
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@zip.com.au>
+CC: lkml <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [brokenpatch] page accounting
+In-Reply-To: <3CB41BA7.DAC3A785@zip.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Apr 2002, Andrew Morton wrote:
-> "Randy.Dunlap" wrote:
-> > 
-> > It looks to me like mm/swapfile.c::si_swapinfo()
-> > shouldn't be adding nr_to_be_unused to total_swap_pages
-> > or nr_swap_pages for return in val->freeswap and
-> > val->totalswap.
-
-Good observation, thanks Randy, but wrong fix.
-
-> whee, an si_swapinfo() maintainer.
-
-That might be me?  I rewrote that code for 2.4.10
-(when you called attention to si_swapinfo slowness).
-
-> Your function sucks :)  I'm spending 15 CPU-seconds
-> in there during a kernel build.  The problem appears
-> to be that a fix from 2.4 hasn't been propagated
-> forward.
-
-Not a new fix needing propagation: it was right in 2.5.0.
-
-> 2.4 has:
+Andrew Morton wrote:
 > 
->                 if (swap_info[i].flags != SWP_USED)
+> The patch implements per-CPU accounting of the global number
+> of locked, diry and pagecache pages.
 > 
-> and 2.5 has:
-> 
->                 if (!(swap_info[i].flags & SWP_USED))
+> -#define PG_locked               0      /* Page is locked. Don't touch. */
+> +
+> +/*
+> + * Don't use the *_dontuse flags.  Use the macros.  Otherwise
+> + * you'll break locked- and dirty-page accounting.
+> + */
+> +#define PG_locked_dontuse       0      /* Page is locked. Don't touch. */
+>  #define PG_error                1
+>  #define PG_referenced           2
+>  #define PG_uptodate             3
+> -#define PG_dirty                4
+> +#define PG_dirty_dontuse        4
+>  #define PG_unused               5
+>  #define PG_lru                  6
+>  #define PG_active               7
+> -#define PG_slab                         8
+> -#define PG_skip                        10
+> +#define PG_slab                         8      /* kill me if needed: slab debug */
 
-It was mistakenly changed to this in 2.5.4, when an
-additional SWP_BLOCKDEV flag was added (gone in 2.5.6).
+A little plea for mercy for this tiny bit :)
+Could we keep PG_slab around unless its really causing trouble ? It
+makes life easier for some things we do ... Also its rather nice that
+today as a result of a wide usage of
+slab infrastructure in the kernel, one can easily/directly interpret the
+contents of 
+almost any arbitrary memory location in the kernel, if its a slab page,
+as one knows what type of data it contains. 
 
-> and I think the 2.4 version will fix the accounting
-> problem you're seeing?
 
-Yes, it does.
-
-> (I haven't checked whather it's the _right_ fix, but
-> it looks like it'll make it go away?)
-
-It is the right fix; but since that condition was misunderstood,
-and some other flag might be added in future, the safer patch
-would be this more explicit one (which I'll now send to Linus
-with a briefer description).
-
-But I hope nobody backports this to 2.4, where it would be
-wrong: 2.5.4 confusingly changed the nature of SWP_WRITEOK.
-
-Hugh
-
---- 2.5.8-pre3/mm/swapfile.c	Mon Mar 11 12:30:56 2002
-+++ linux/mm/swapfile.c	Thu Apr 11 15:26:51 2002
-@@ -1095,7 +1095,8 @@
- 	swap_list_lock();
- 	for (i = 0; i < nr_swapfiles; i++) {
- 		unsigned int j;
--		if (!(swap_info[i].flags & SWP_USED))
-+		if (!(swap_info[i].flags & SWP_USED) ||
-+		     (swap_info[i].flags & SWP_WRITEOK))
- 			continue;
- 		for (j = 0; j < swap_info[i].max; ++j) {
- 			switch (swap_info[i].swap_map[j]) {
-
+> +#define PG_skip                        10      /* kill me now: obsolete */
+>  #define PG_highmem             11
+>  #define PG_checked             12      /* kill me in 2.5.<early>. */
+>  #define PG_arch_1              13
+>  #define PG_reserved            14
+>  #define PG_launder             15      /* written out by VM pressure.. */
+> -
+>  #define PG_private             16      /* Has something at ->private */
+>

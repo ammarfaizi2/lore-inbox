@@ -1,67 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVBVTQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVBVTTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbVBVTQf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 14:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVBVTQf
+	id S261433AbVBVTTj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 14:19:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVBVTTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 14:16:35 -0500
-Received: from irulan.endorphin.org ([80.68.90.107]:36619 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S261317AbVBVTQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 14:16:27 -0500
-Subject: Re: [PATCH 01/04] Adding cipher mode context information to
-	crypto_tfm
-From: Fruhwirth Clemens <clemens@endorphin.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davem@davemloft.net, James Morris <jmorris@redhat.com>,
-       linux-kernel@vger.kernel.org, michal@logix.cz, adam@yggdrasil.com
-In-Reply-To: <20050214101615.6882c6ba.akpm@osdl.org>
-References: <Xine.LNX.4.44.0502101247390.9159-100000@thoron.boston.redhat.com>
-	 <1108387234.8086.37.camel@ghanima>
-	 <20050214075655.6dec60cb.davem@davemloft.net>
-	 <1108400799.23133.34.camel@ghanima>
-	 <20050214090726.2d099d96.davem@davemloft.net>
-	 <1108402135.23133.48.camel@ghanima> <20050214101615.6882c6ba.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1jWwCYcfVWkjEHx1otG1"
-Date: Tue, 22 Feb 2005 20:16:24 +0100
-Message-Id: <1109099784.13145.24.camel@ghanima>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Tue, 22 Feb 2005 14:19:39 -0500
+Received: from fire.osdl.org ([65.172.181.4]:35979 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261326AbVBVTTT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 14:19:19 -0500
+Date: Tue, 22 Feb 2005 11:19:10 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
+       xorg@lists.freedesktop.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: POSTing of video cards (WAS: Solo Xgl..)
+In-Reply-To: <9e473391050221204215a079e1@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0502221111410.2378@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0502201049480.18753@skynet> 
+ <4218BAF0.3010603@tungstengraphics.com>  <21d7e997050220150030ea5a68@mail.gmail.com>
+  <9e4733910502201542afb35f7@mail.gmail.com>  <1108973275.5326.8.camel@gaston>
+  <9e47339105022111082b2023c2@mail.gmail.com>  <1109019855.5327.28.camel@gaston>
+  <9e4733910502211717116a4df3@mail.gmail.com>  <1109041968.5412.63.camel@gaston>
+ <9e473391050221204215a079e1@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-1jWwCYcfVWkjEHx1otG1
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2005-02-14 at 10:16 -0800, Andrew Morton wrote:
-> Fruhwirth Clemens <clemens@endorphin.org> wrote:
-> >
-> > First, one has to make kmap fallible.
->=20
-> I think it would be relatively simple and sane to modify the existing
-> kmap() implementations to add a new try_kmap() which is atomic and return=
-s
-> failure if it would have needed to sleep.
+On Mon, 21 Feb 2005, Jon Smirl wrote:
+>
+> I was working on the assumption that all PCI based, VGA class hardware
+> that is not the boot device needs to be posted.
 
-Is anyone going to implement that? I would be willing to rework my
-scatterwalk code one more time, but I'm not going to touch the kernel
-vm.
+I don't think that's true. We certainly don't _want_ it to be true in the 
+long run - and even now there are cards that we can initialize fully 
+without using the BIOS at all.
 
---=20
-Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
+> And that the posting should occur before the drivers are
+> loaded.
 
---=-1jWwCYcfVWkjEHx1otG1
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Personally, I'd much rather let the driver be involved in the decision.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+That may mean that the probe routine knows how to initialize the card, but
+it may mean that it does an "exec_usermodehelper()" kind of thing.  
+Actually, I'd prefer it if this was largely up to "udev": if the driver
+notices that it can't initialize the card, why not just enumerate it
+enough that "udev" knows about it (that's pretty much automatic), and let
+the driver just ignore the card until some (possibly much later) date when
+the user level scripts have found it and initialized it.
 
-iD8DBQBCG4UIbjN8iSMYtrsRAomOAJ9jpnU0F8C4P927EjofS9q6vP5aqACaAlnd
-VLVZt7Q5azq1ZMFm46H4Ju8=
-=o7BW
------END PGP SIGNATURE-----
+That would imply that the driver have some "re-attach" entrypoint (which 
+migth be a ioctl, but might also be just a /sysfs file access), which is 
+the user-lands way of saying "try again - I've now initialized the 
+hardware".
 
---=-1jWwCYcfVWkjEHx1otG1--
+The advantage of that kind of "disconnected" initialization is that you
+don't _need_ to have the card initialization in initramfs or other "very
+early boot" sequence. It gets _detected_ early on, but you can then delay
+initializing it arbitrarily long, and it obviously won't be usable until 
+that point (but who cares? The ones that do care can put the things in 
+their initramfs, others may decide to do it only once the system is 
+up-and-running and /usr has been NFS-mounted).
+
+		Linus

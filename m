@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291339AbSBHCV1>; Thu, 7 Feb 2002 21:21:27 -0500
+	id <S291353AbSBHCW5>; Thu, 7 Feb 2002 21:22:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291353AbSBHCVR>; Thu, 7 Feb 2002 21:21:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48392 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291339AbSBHCVA>;
-	Thu, 7 Feb 2002 21:21:00 -0500
-Message-ID: <3C633608.2D0CDC51@mandrakesoft.com>
-Date: Thu, 07 Feb 2002 21:20:56 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Simon Turvey <turveysp@ntlworld.com>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-pre9
-In-Reply-To: <Pine.LNX.4.21.0202071646550.17201-100000@freak.distro.conectiva> <002001c1b045$631ad760$030ba8c0@mistral>
-Content-Type: text/plain; charset=us-ascii
+	id <S291382AbSBHCWh>; Thu, 7 Feb 2002 21:22:37 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:33669 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S291353AbSBHCW3>;
+	Thu, 7 Feb 2002 21:22:29 -0500
+Date: Thu, 07 Feb 2002 18:20:47 -0800 (PST)
+Message-Id: <20020207.182047.104033670.davem@redhat.com>
+To: gmack@innerfire.net
+Cc: postmaster@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: YIKES MAIL LOOP WARNING
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0202071045161.27853-100000@innerfire.net>
+In-Reply-To: <Pine.LNX.4.21.0202071045161.27853-100000@innerfire.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Turvey wrote:
-> 
-> Can you tell me if the final 2.4.18 will solve the problems with recent
-> binutils?  Or is the onus on the binutils maintainer to fix this?
+   From: gmack@innerfire.net
+   Date: Thu, 7 Feb 2002 10:46:31 +0000 (/etc/localtime)
 
-What driver are you having problems with?
-
-Typically this problem is solved by a one-line fix to a specific driver,
-in 2.4.x.
-
-	Jeff
-
-
-
-
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+   This is not good.. I suspect somone is trying to be funny but it needs to
+   be undone before everyone gets flooded.
+   
+Because he likely won't be able to spoof the auth request, the
+subscription will never succeed.

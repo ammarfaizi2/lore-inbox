@@ -1,77 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315784AbSGXBFM>; Tue, 23 Jul 2002 21:05:12 -0400
+	id <S315988AbSGXBXN>; Tue, 23 Jul 2002 21:23:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315988AbSGXBFM>; Tue, 23 Jul 2002 21:05:12 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:20722 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S315784AbSGXBFL>; Tue, 23 Jul 2002 21:05:11 -0400
-Subject: Re: [patch] irqlock patch -G3. [was Re: odd memory corruption in
-	2.5.27?]
-From: Robert Love <rml@tech9.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: george anzinger <george@mvista.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0207240100150.2732-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0207240100150.2732-100000@localhost.localdomain>
+	id <S316500AbSGXBXN>; Tue, 23 Jul 2002 21:23:13 -0400
+Received: from spud.dpws.nsw.gov.au ([203.202.119.24]:8094 "EHLO
+	spud.dpws.nsw.gov.au") by vger.kernel.org with ESMTP
+	id <S315988AbSGXBXM>; Tue, 23 Jul 2002 21:23:12 -0400
+Message-Id: <sd3e8edb.011@out-gwia.dpws.nsw.gov.au>
+X-Mailer: Novell GroupWise Internet Agent 6.0.1
+Date: Wed, 24 Jul 2002 11:25:42 +1000
+From: "Daniel Lim" <Daniel.Lim@dpws.nsw.gov.au>
+To: "<Andreas Steinmetz" <ast@domdv.de>, <thunder@ngforever.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: mkinitrd problem
+Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 23 Jul 2002 18:08:17 -0700
-Message-Id: <1027472897.927.247.camel@sinai>
-Mime-Version: 1.0
+Content-Disposition: inline
+X-NAIMIME-Disclaimer: 1
+X-NAIMIME-Modified: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-23 at 16:28, Ingo Molnar wrote:
 
-> this is most definitely not the correct fix ...
-> 
-> i'm quite convinced that the fix is to avoid illegal preemption, not to
-> work it around.
+Hi,
+My problem is fixed, it was for some reasons, due to corrupted or
+imcompatible module for
+/lib/modules/2.4.2-2/kernel/drivers/block/loop.o, I restored the module
+and it all worked like charms.
+Thanks for all your help.
 
-I am not sure I am fully convinced one way or the other, but treating
-every bit of code as we find it scares me.  The fact is, if a
-spin_unlock() can magically reenable interrupts that is a bug.
+Regards,
+Daniel
 
-I don't like relying on chance and the possibility your debug tool found
-the problem... but at the same time, Ingo's solution is a lot cleaner.
+>>> Thunder from the hill <thunder@ngforever.de> 23/07/2002 18:25:04
+>>>
+Hi,
 
-Linus, Ingo, comments?
+On Tue, 23 Jul 2002, Daniel Lim wrote:
+> /lib/modules/2.4.2-2/kernel/drivers/block/loop.o: unresolved symbol
+> do_generic_file_read_R63b9dc6b
 
-Attached is the patch George mentioned, against 2.5.27.
+This is you're trying to use the correct module, but it's from the
+wrong 
+kernel version. BTW, yes, you might try losetup -d /dev/loopx (or even
 
-	Robert Love
+better, when no loop devices are mounted,
 
-diff -urN linux-2.5.27/include/asm-i386/system.h linux/include/asm-i386/system.h
---- linux-2.5.27/include/asm-i386/system.h	Sat Jul 20 12:11:05 2002
-+++ linux/include/asm-i386/system.h	Tue Jul 23 18:03:47 2002
-@@ -270,6 +270,13 @@
- /* Compiling for a 386 proper.	Is it worth implementing via cli/sti?  */
- #endif
- 
-+#define MASK_IF			0x200
-+#define interrupts_enabled()	({ \
-+		int flg; \
-+		__save_flags(flg); \
-+		flg & MASK_IF; \
-+})
-+
- /*
-  * Force strict CPU ordering.
-  * And yes, this is required on UP too when we're talking
-diff -urN linux-2.5.27/kernel/sched.c linux/kernel/sched.c
---- linux-2.5.27/kernel/sched.c	Sat Jul 20 12:11:11 2002
-+++ linux/kernel/sched.c	Tue Jul 23 18:02:13 2002
-@@ -899,7 +899,7 @@
- {
- 	struct thread_info *ti = current_thread_info();
- 
--	if (unlikely(ti->preempt_count))
-+	if (unlikely(ti->preempt_count || !interrupts_enabled()))
- 		return;
- 
- need_resched:
+for d in /dev/loop*; do
+	losetup -d $d
+done)
+
+BAW, what's your kernel (uname -r)?
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org 
+More majordomo info at  http://vger.kernel.org/majordomo-info.html 
+Please read the FAQ at  http://www.tux.org/lkml/ 
+
+
+
+ This e-mail message (and attachments) is confidential, and / or privileged and is intended for the use of the addressee only. If you are not the intended recipient of this e-mail you must not copy, distribute, take any action in reliance on it or disclose it to anyone. Any confidentiality or privilege is not waived or lost by reason of mistaken delivery to you. DPWS is not responsible for any information not related to the business of DPWS. If you have received this e-mail in error please destroy the original and notify the sender.
+
+For information on services offered by DPWS, please visit our website at www.dpws.nsw.gov.au
+
+
 

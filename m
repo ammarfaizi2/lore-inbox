@@ -1,49 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284794AbRLZTAP>; Wed, 26 Dec 2001 14:00:15 -0500
+	id <S284791AbRLZTDF>; Wed, 26 Dec 2001 14:03:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284791AbRLZTAG>; Wed, 26 Dec 2001 14:00:06 -0500
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:62533 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S284794AbRLZS7y>; Wed, 26 Dec 2001 13:59:54 -0500
-Posted-Date: Wed, 26 Dec 2001 18:59:44 GMT
-Date: Wed, 26 Dec 2001 18:59:43 +0000 (GMT)
-From: Riley Williams <rhw@MemAlpha.cx>
-Reply-To: Riley Williams <rhw@MemAlpha.cx>
-To: Mike Eldridge <diz@cafes.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-In-Reply-To: <20011220164948.M23621@mail.cafes.net>
-Message-ID: <Pine.LNX.4.21.0112261852450.32161-100000@Consulate.UFP.CX>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284732AbRLZTCz>; Wed, 26 Dec 2001 14:02:55 -0500
+Received: from f44.law4.hotmail.com ([216.33.149.44]:40714 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S284800AbRLZTCe>;
+	Wed, 26 Dec 2001 14:02:34 -0500
+X-Originating-IP: [205.231.90.227]
+From: "victor1 torres" <camel_3@hotmail.com>
+To: pavel@suse.cz, alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Concerning a driver rewrite (NOT THE KERNEL)
+Date: Wed, 26 Dec 2001 19:02:29 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F44U0gwrBMXIXbrbbnA00010b8d@hotmail.com>
+X-OriginalArrivalTime: 26 Dec 2001 19:02:29.0312 (UTC) FILETIME=[DD7CEC00:01C18E3F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mike.
+Alan-
+What do you mean by this??
+(The line interface on the i810 chipset seems to be totally documented. Its
+a dumb digitizer with AC97 2.0 modem on it.)
+Is the Modem just there or is it just able to transfer analog signal?
 
->> [however I've never seen 'Kg' instead of 'kg', but 'mB' or 'mb' are
->> ugly when compared with 'Mb' and 'MB', not counting that 'b' is bit
->> and 'B' is byte ... well ... it's confusing sometimes ...]
-
-> i was going to comment about simply using lowercase equivalents, but
-> then milli already has 'm', although the concept of a millibyte (or
-> even millibit) is absurd.
-
-I remember reading somewhere that the Voyager space probes now
-communicate information back to earth at the incredibly fast rate of 10
-minutes per byte - which my mental maths says is somewhere in the region
-of 1.6 mB per second - using precicely the unit you decry.
-
-> --------------------------------------------------------------------------
->    /~\  The ASCII                       all that is gold does not glitter
->    \ /  Ribbon Campaign                 not all those who wander are lost
->     X   Against HTML                          -- jrr tolkien
->    / \  Email!
-> --------------------------------------------------------------------------
-
-Have you purloined the emblem of the Scottish National Party ???
-Refer to http://www.snp.org.uk/ for details.
-
-Best wishes from Riley.
+_________________________________________________________________
+Chat with friends online, try MSN Messenger: http://messenger.msn.com
 

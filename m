@@ -1,149 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266740AbUAWWqY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 17:46:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266742AbUAWWqY
+	id S266671AbUAWW7V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 17:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266716AbUAWW7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 17:46:24 -0500
-Received: from fed1mtao06.cox.net ([68.6.19.125]:46774 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S266740AbUAWWqR
+	Fri, 23 Jan 2004 17:59:20 -0500
+Received: from node-423a570c.mwc.onnet.us.uu.net ([66.58.87.12]:19974 "EHLO
+	vfemail.net") by vger.kernel.org with ESMTP id S266671AbUAWW7Q
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 17:46:17 -0500
-Date: Fri, 23 Jan 2004 15:46:05 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       George Anzinger <george@mvista.com>
-Subject: Re: PPC KGDB changes and some help?
-Message-ID: <20040123224605.GC15271@stop.crashing.org>
-References: <20040120172708.GN13454@stop.crashing.org> <200401211946.17969.amitkale@emsyssoft.com> <20040121153019.GR13454@stop.crashing.org> <200401212223.13347.amitkale@emsyssoft.com> <20040121184217.GU13454@stop.crashing.org> <20040121192128.GV13454@stop.crashing.org> <20040121192230.GW13454@stop.crashing.org> <20040122174416.GJ15271@stop.crashing.org> <20040122180555.GK15271@stop.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040122180555.GK15271@stop.crashing.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 23 Jan 2004 17:59:16 -0500
+From: Neil Macvicar <blackmogu@vfemail.net>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: strange system hang under 2.6.1 
+Date: Fri, 23 Jan 2004 22:59:06 +0000
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_6caEA2PYuCBw9qH"
+Message-Id: <200401232259.06407.blackmogu@vfemail.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 22, 2004 at 11:05:55AM -0700, Tom Rini wrote:
-[snip]
-> First up:
-> We need to call flush_instruction_cache() on a 'c' or 's' command.
->  arch/ppc/kernel/ppc-stub.c |   19 ++++++-------------
->  1 files changed, 6 insertions(+), 13 deletions(-)
 
-On tpo of this patch, there's the following:
-Put back some code to figure out what signal we're dealing with.
+--Boundary-00=_6caEA2PYuCBw9qH
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
- arch/ppc/kernel/ppc-stub.c |   63 ++++++++++++++++++++++++++++++++++++++++++---
- 1 files changed, 60 insertions(+), 3 deletions(-)
---- 1.15/arch/ppc/kernel/ppc-stub.c	Thu Jan 22 10:53:06 2004
-+++ edited/arch/ppc/kernel/ppc-stub.c	Fri Jan 23 15:43:10 2004
-@@ -3,6 +3,7 @@
-  *
-  * PowerPC-specific bits to work with the common KGDB stub.
-  *
-+ * 1998 (c) Michael AK Tesch (tesch@cs.wisc.edu)
-  * 2003 (c) TimeSys Corporation
-  * 2004 (c) MontaVista Software, Inc.
-  * This file is licensed under the terms of the GNU General Public License
-@@ -19,13 +20,69 @@
- #include <asm/processor.h>
- #include <asm/machdep.h>
- 
-+/* Convert the hardware trap type code to a unix signal number. */
-+/*
-+ * This table contains the mapping between PowerPC hardware trap types, and
-+ * signals, which are primarily what GDB understands.
-+ */
-+static struct hard_trap_info
-+{
-+	unsigned int tt;		/* Trap type code for powerpc */
-+	unsigned char signo;		/* Signal that we map this trap into */
-+} hard_trap_info[] = {
-+#if defined(CONFIG_40x)
-+	{ 0x100, SIGINT  },		/* critical input interrupt */
-+	{ 0x200, SIGSEGV },		/* machine check */
-+	{ 0x300, SIGSEGV },		/* data storage */
-+	{ 0x400, SIGBUS  },		/* instruction storage */
-+	{ 0x500, SIGINT  },		/* interrupt */
-+	{ 0x600, SIGBUS  },		/* alignment */
-+	{ 0x700, SIGILL  },		/* program */
-+	{ 0x800, SIGILL  },		/* reserved */
-+	{ 0x900, SIGILL  },		/* reserved */
-+	{ 0xa00, SIGILL  },		/* reserved */
-+	{ 0xb00, SIGILL  },		/* reserved */
-+	{ 0xc00, SIGCHLD },		/* syscall */
-+	{ 0xd00, SIGILL  },		/* reserved */
-+	{ 0xe00, SIGILL  },		/* reserved */
-+	{ 0xf00, SIGILL  },		/* reserved */
-+	{ 0x2000, SIGTRAP},		/* debug */
-+#else
-+	{ 0x200, SIGSEGV },		/* machine check */
-+	{ 0x300, SIGSEGV },		/* address error (store) */
-+	{ 0x400, SIGBUS },		/* instruction bus error */
-+	{ 0x500, SIGINT },		/* interrupt */
-+	{ 0x600, SIGBUS },		/* alingment */
-+	{ 0x700, SIGTRAP },		/* breakpoint trap */
-+	{ 0x800, SIGFPE },		/* fpu unavail */
-+	{ 0x900, SIGALRM },		/* decrementer */
-+	{ 0xa00, SIGILL },		/* reserved */
-+	{ 0xb00, SIGILL },		/* reserved */
-+	{ 0xc00, SIGCHLD },		/* syscall */
-+	{ 0xd00, SIGTRAP },		/* single-step/watch */
-+	{ 0xe00, SIGFPE },		/* fp assist */
-+#endif
-+	{ 0, 0}				/* Must be last */
-+};
-+
-+static int computeSignal(unsigned int tt)
-+{
-+	struct hard_trap_info *ht;
-+
-+	for (ht = hard_trap_info; ht->tt && ht->signo; ht++)
-+		if (ht->tt == tt)
-+			return ht->signo;
-+
-+	return SIGHUP; /* default for things we don't know about */
-+}
-+
- /*
-  * Routines
-  */
- static void
- kgdb_debugger(struct pt_regs *regs)
- {
--	(*linux_debug_hook) (0, 0, 0, regs);
-+	(*linux_debug_hook) (0, computeSignal(regs->trap), 0, regs);
- 	return;
- }
- 
-@@ -52,14 +109,14 @@
- int
- kgdb_iabr_match(struct pt_regs *regs)
- {
--	(*linux_debug_hook) (0, 0, 0, regs);
-+	(*linux_debug_hook) (0, computeSignal(regs->trap), 0, regs);
- 	return 1;
- }
- 
- int
- kgdb_dabr_match(struct pt_regs *regs)
- {
--	(*linux_debug_hook) (0, 0, 0, regs);
-+	(*linux_debug_hook) (0, computeSignal(regs->trap), 0, regs);
- 	return 1;
- }
- 
+When I leave my system just running, doing something or nothing at all, and 
+come back to it after a period of time (usually after app. 1 hour or 
+greater), as soon as I either use the mouse or keyboard, the system hangs. 
+I've tested this over several different periods of time, and the computer 
+will run fine after several days, until input on either keyboard or mouse 
+occurs. This happens with or without any modules loaded. 
 
-Now, not being as well versed in all of the debugging infos that can be
-passed around, it sounds like this patch could be dropped in the future
-for a cleaner method using some of the dwarf2 bits being talked about.
-But I don't know, and clarification and pointers (if so) to how to do
-this would be appreciated.
+Kernel Version: 2.6.1 (unpatched).
+CPU: PII 450MHz
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+I've attached my config.gz for perusal.
+
+--Neil.
+--Boundary-00=_6caEA2PYuCBw9qH
+Content-Type: application/x-gzip;
+  name="config.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="config.gz"
+
+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
+
+--Boundary-00=_6caEA2PYuCBw9qH--
+

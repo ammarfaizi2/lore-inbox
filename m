@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316322AbSGGSKd>; Sun, 7 Jul 2002 14:10:33 -0400
+	id <S316339AbSGGSO3>; Sun, 7 Jul 2002 14:14:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316339AbSGGSKc>; Sun, 7 Jul 2002 14:10:32 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:13795 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S316322AbSGGSKc>; Sun, 7 Jul 2002 14:10:32 -0400
-Date: Sun, 7 Jul 2002 19:12:32 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: M?ns Rullg?rd <mru@users.sourceforge.net>,
-       Mohamed Ghouse Gurgaon <MohamedG@ggn.hcltech.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Diff b/w 32bit & 64-bit
-Message-ID: <20020707191232.A11999@kushida.apsleyroad.org>
-References: <yw1xpty71bea.fsf@gladiusit.e.kth.se> <200207012152.g61LqjX387143@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200207012152.g61LqjX387143@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Mon, Jul 01, 2002 at 05:52:45PM -0400
+	id <S316342AbSGGSO2>; Sun, 7 Jul 2002 14:14:28 -0400
+Received: from ftp.realnet.co.sz ([196.28.7.3]:61395 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S316339AbSGGSO1>; Sun, 7 Jul 2002 14:14:27 -0400
+Date: Sun, 7 Jul 2002 20:35:01 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ide__sti usage
+In-Reply-To: <Pine.SOL.4.30.0207071859330.1945-100000@mion.elka.pw.edu.pl>
+Message-ID: <Pine.LNX.4.44.0207072034060.1441-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan wrote:
-> don't cast from "foo *" to "bar *" if sizeof(foo)<sizeof(bar)
+On Sun, 7 Jul 2002, Bartlomiej Zolnierkiewicz wrote:
 
-What is the reason for this?  I do it quite routinely ("poor man's
-inheritance").
+> Also for most code in start_request() we dont need lock, we need it only
+> for calling block layer helpers, changing/reading IDE_BUSY bit and
+> ch->handler, timer and drive->rq.
+> 
+> Also we cannot disable interrupts, because we wont know when drive is
+> interrupting us, missed irqs.
 
-cheers,
--- Jamie
+Thanks that explains quite a bit.
+
+Cheers,
+	Zwane Mwaikambo
+
+-- 
+function.linuxpower.ca
+

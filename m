@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265681AbUA1A54 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 19:57:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265709AbUA1A54
+	id S265785AbUA1BHT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 20:07:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265796AbUA1BHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 19:57:56 -0500
-Received: from dp.samba.org ([66.70.73.150]:51373 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265681AbUA1A5q (ORCPT
+	Tue, 27 Jan 2004 20:07:19 -0500
+Received: from mail4-141.ewetel.de ([212.6.122.141]:2205 "EHLO mail4.ewetel.de")
+	by vger.kernel.org with ESMTP id S265785AbUA1BGW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 19:57:46 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, torvalds@osdl.org,
-       stern@rowland.harvard.edu, greg@kroah.com, linux-kernel@vger.kernel.org,
-       mochel@digitalimplant.org
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: PATCH: (as177) Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core 
-In-reply-to: Your message of "Tue, 27 Jan 2004 14:56:06 BST."
-             <Pine.LNX.4.58.0401271142510.7855@serv> 
-Date: Wed, 28 Jan 2004 10:29:23 +1100
-Message-Id: <20040128005801.5B1A92C12C@lists.samba.org>
+	Tue, 27 Jan 2004 20:06:22 -0500
+Date: Wed, 28 Jan 2004 02:06:17 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: MO: opening for write in cdrom.c
+In-Reply-To: <20040128010206.GE11683@suse.de>
+Message-ID: <Pine.LNX.4.44.0401280205210.7029-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.58.0401271142510.7855@serv> you write:
-> Hi,
+On Wed, 28 Jan 2004, Jens Axboe wrote:
 
-Hi Roman!
+> Excellent, thanks a lot for the work and testing.
 
-> Fixing this requires changing every single module, but in the end it
-> would be worth it, as it avoids the duplicated protection and we had
-> decent module unload semantics.
+No problem. It was me, after all, who started to push all this MO
+support stuff for the cdrom drivers. ;)
 
-And I still disagree. <shrug>
+-- 
+Ciao,
+Pascal
 
-If it's any consolation, I don't plan any significant module work in
-2.7.  If you want to work on this, you're welcome to it.  Perhaps you
-can convince Linus et al that it's worth the pain?
-
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

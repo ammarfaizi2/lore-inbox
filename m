@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263800AbUDNS2q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 14:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263860AbUDNS2q
+	id S261416AbUDNS0r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 14:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263787AbUDNS0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 14:28:46 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:24221 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263800AbUDNS2o (ORCPT
+	Wed, 14 Apr 2004 14:26:47 -0400
+Received: from winds.org ([68.75.195.9]:12948 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id S261416AbUDNS0o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 14:28:44 -0400
-Subject: Re: /proc or ps tools bug?  2.6.3, time is off
-From: john stultz <johnstul@us.ibm.com>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: george anzinger <george@mvista.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       David Ford <david+powerix@blue-labs.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0404141353450.21779@gockel.physik3.uni-rostock.de>
-References: <403C014F.2040504@blue-labs.org>
-	 <1077674048.10393.369.camel@cube> <403C2E56.2060503@blue-labs.org>
-	 <1077679677.10393.431.camel@cube>  <403CCD3A.7080200@mvista.com>
-	 <1077725042.8084.482.camel@cube>  <403D0F63.3050101@mvista.com>
-	 <1077760348.2857.129.camel@cog.beaverton.ibm.com>
-	 <403E7BEE.9040203@mvista.com>
-	 <1077837016.2857.171.camel@cog.beaverton.ibm.com>
-	 <403E8D5B.9040707@mvista.com>
-	 <1081895880.4705.57.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.53.0404141353450.21779@gockel.physik3.uni-rostock.de>
-Content-Type: text/plain
-Message-Id: <1081967295.4705.96.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 14 Apr 2004 11:28:15 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Apr 2004 14:26:44 -0400
+Date: Wed, 14 Apr 2004 14:25:47 -0400 (EDT)
+From: Byron Stanoszek <gandalf@winds.org>
+To: marcelo@hera.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: [2.4.26 Patch] Blue line in nVidia framebuffer (rivafb)
+Message-ID: <Pine.LNX.4.58.0404141415350.12872@winds.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1262750147-1363533184-1081967147=:12872"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-14 at 05:10, Tim Schmielau wrote:
-> Excuse me for barging in lately and innocently, but I find this patch
-> hard to comprehend:
->  - shouldn't a foo_to_clock_t() function return a clock?
->  - the x = seems superfluous
->  - the #if is not a shortcut anymore, so why keep it?
-> Shouldn't this patch be more like the following
-> (completely untested)?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Yes, you're cleanups look much better! Although we still have yet to
-hear if it resolves the problem. 
+--1262750147-1363533184-1081967147=:12872
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-thanks
--john
+This patch fixes a regression since Linux 2.4.21. There is an off-by-one error
+with the vertical-blank register in the riva framebuffer driver. The error
+makes a persistent scan line (normally blue) appear on the top of the screen.
 
+Marcelo, please include this patch in the next -pre series.
+
+Thanks,
+ Byron
+
+
+--- linux-2.4.26/drivers/video/riva/fbdev.bak	Wed Apr 14 11:45:26 2004
++++ linux-2.4.26/drivers/video/riva/fbdev.c	Wed Apr 14 14:15:22 2004
+@@ -952,7 +952,7 @@
+ 	newmode.crtc[0x12] = Set8Bits (vDisplay);
+ 	newmode.crtc[0x13] = ((width / 8) * ((bpp + 1) / 8)) & 0xFF;
+ 	newmode.crtc[0x15] = Set8Bits (vBlankStart);
+-	newmode.crtc[0x16] = Set8Bits (vBlankEnd);
++	newmode.crtc[0x16] = Set8Bits (vBlankEnd + 1);
+
+ 	newmode.ext.bpp = bpp;
+ 	newmode.ext.width = width;
+
+
+
+--
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: byron@comtime.com
+--1262750147-1363533184-1081967147=:12872
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="fb.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.58.0404141425470.12872@winds.org>
+Content-Description: 
+Content-Disposition: attachment; filename="fb.diff"
+
+LS0tIGxpbnV4LTIuNC4yNi9kcml2ZXJzL3ZpZGVvL3JpdmEvZmJkZXYuYmFr
+CVdlZCBBcHIgMTQgMTE6NDU6MjYgMjAwNA0KKysrIGxpbnV4LTIuNC4yNi9k
+cml2ZXJzL3ZpZGVvL3JpdmEvZmJkZXYuYwlXZWQgQXByIDE0IDE0OjE1OjIy
+IDIwMDQNCkBAIC05NTIsNyArOTUyLDcgQEANCiAJbmV3bW9kZS5jcnRjWzB4
+MTJdID0gU2V0OEJpdHMgKHZEaXNwbGF5KTsNCiAJbmV3bW9kZS5jcnRjWzB4
+MTNdID0gKCh3aWR0aCAvIDgpICogKChicHAgKyAxKSAvIDgpKSAmIDB4RkY7
+DQogCW5ld21vZGUuY3J0Y1sweDE1XSA9IFNldDhCaXRzICh2QmxhbmtTdGFy
+dCk7DQotCW5ld21vZGUuY3J0Y1sweDE2XSA9IFNldDhCaXRzICh2QmxhbmtF
+bmQpOw0KKwluZXdtb2RlLmNydGNbMHgxNl0gPSBTZXQ4Qml0cyAodkJsYW5r
+RW5kICsgMSk7DQogDQogCW5ld21vZGUuZXh0LmJwcCA9IGJwcDsNCiAJbmV3
+bW9kZS5leHQud2lkdGggPSB3aWR0aDsNCg==
+
+--1262750147-1363533184-1081967147=:12872--

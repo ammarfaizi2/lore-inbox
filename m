@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbUDQDHa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 23:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUDQDHa
+	id S261672AbUDQDLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 23:11:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263613AbUDQDLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 23:07:30 -0400
-Received: from main.gmane.org ([80.91.224.249]:16569 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262389AbUDQDH2 (ORCPT
+	Fri, 16 Apr 2004 23:11:09 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16844 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261672AbUDQDLF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 23:07:28 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Joshua Kwan <joshk@triplehelix.org>
-Subject: [2.6.5] Oversized FB logos
-Date: Fri, 16 Apr 2004 20:07:24 -0700
-Message-ID: <pan.2004.04.17.03.07.22.362894@triplehelix.org>
+	Fri, 16 Apr 2004 23:11:05 -0400
+Date: Fri, 16 Apr 2004 23:08:56 -0400
+From: Bill Nottingham <notting@redhat.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] oops when loading ehci_hcd
+Message-ID: <20040417030856.GA3805@nostromo.devel.redhat.com>
+Mail-Followup-To: David Brownell <david-b@pacbell.net>,
+	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <20040416082311.GA2756@nostromo.devel.redhat.com> <4080229B.4020307@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-68-126-186-145.dsl.pltn13.pacbell.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4080229B.4020307@pacbell.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+David Brownell (david-b@pacbell.net) said: 
+> Looks like a cleanup path needs to handle early failure a bit better;
+> likely just having ehci_stop test for ehci->async non-null (before
+> calling scan-async to clean up any pending work) would suffice.
 
-I'm coming up with a grandma-proof laptop so I made a 800x580 PPM boot
-logo and added it into my 2.6 kernel source. The machine does boot using
-the image, HOWEVER, the first 11 lines of kernel messages after switching
-to FB mode appear on top of the logo.
+This patch solves the oops for me - thanks!
 
-Console: switching to colour frame buffer device 100x37
-lp: driver loaded but no devices found
-Real Time Clock Driver v1.12
-Hangcheck: starting hangcheck timer 0.5.0 (tick is 180 seconds, margin is 60 seconds).
-Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
-parport0: irq 7 detected
-lp0: using parport0 (polling).
-Using anticipatory io scheduler
-Floppy drive(s): fd0 is 1.44M
+Bill
 
-As expected, though, the first line of kernel messages prints;
-the console won't function without at least one line anyway.
-
-This renders the concept of the friendly logo to prevent grandma from
-bugging out from all the kernel messages pretty useless.
-
-Note that I'd be using bootsplash for this but vesafb only works up to
-8bit color and bootsplash requires 16bit color.
-
-Are boot logos in any way supported in this fashion? I'm tempted to just
-nuke the emit_log_char call in printk.c, which I think might serve my
-purpose temporarily...
-
-Any hints/help provided would be highly appreciated. Thanks
-
--- 
-Joshua Kwan
-
+> --- 1.75/drivers/usb/host/ehci-hcd.c	Wed Apr 14 20:20:58 2004
+> +++ edited/drivers/usb/host/ehci-hcd.c	Fri Apr 16 11:03:50 2004
+> @@ -592,7 +592,8 @@
+>  
+>  	/* root hub is shut down separately (first, when possible) */
+>  	spin_lock_irq (&ehci->lock);
+> -	ehci_work (ehci, NULL);
+> +	if (ehci->async)
+> +		ehci_work (ehci, NULL);
+>  	spin_unlock_irq (&ehci->lock);
+>  	ehci_mem_cleanup (ehci);
+>  
 

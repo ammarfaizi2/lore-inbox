@@ -1,176 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317751AbSHKFj5>; Sun, 11 Aug 2002 01:39:57 -0400
+	id <S317752AbSHKFyM>; Sun, 11 Aug 2002 01:54:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317752AbSHKFj5>; Sun, 11 Aug 2002 01:39:57 -0400
-Received: from static-b2-215.highspeed.eol.ca ([64.56.236.215]:11648 "EHLO
-	zeus.home.lan") by vger.kernel.org with ESMTP id <S317751AbSHKFjz>;
-	Sun, 11 Aug 2002 01:39:55 -0400
-Date: Sun, 11 Aug 2002 01:43:41 -0400 (EDT)
-From: Stewart <bdlists@snerk.org>
-X-X-Sender: blackdeath@zeus.home.lan
-Reply-To: Stewart <bdlists@snerk.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 IDE Partition Check issue (again)
-Message-ID: <Pine.LNX.4.44.0208110143120.14122-100000@zeus.home.lan>
+	id <S317767AbSHKFyM>; Sun, 11 Aug 2002 01:54:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45573 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317752AbSHKFyK>;
+	Sun, 11 Aug 2002 01:54:10 -0400
+Message-ID: <3D55FF30.6164040D@zip.com.au>
+Date: Sat, 10 Aug 2002 23:07:44 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Simon Kirby <sim@netnation.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+References: <20020810201027.E306@kushida.apsleyroad.org> <Pine.LNX.4.44.0208101529490.2401-100000@home.transmeta.com> <20020811031705.GA13878@netnation.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Aug 2002 steveb@unix.lancs.ac.uk wrote:
-
-> Sorry if this is an old issue, but I'm still seeing this problem between
-> ALI15x3 and Maxtor drives when DMA is enabled...
-
-> If I run 2.4.19 DMA is not autodetected. I get lousy performance. I can
-> enable DMA (with hdparm) on all but my Maxtor drive, but if I manually
-> enable DMA on the Maxtor drive disk access freezes (to both drives on
-> the channel).
+Simon Kirby wrote:
 > 
-> If I run 2.4.19-ac4 DMA is turned on automatically and the system hangs
-> at the partition check.
+> On Sat, Aug 10, 2002 at 03:42:29PM -0700, Linus Torvalds wrote:
+> 
+> > I _suspect_ that the common behaviour is to read just a few kB at a time
+> > and that is basically doesn't ever really pay to play VM games.
+> >
+> > (The "repeated read of a few kB" case is also likely to be the
+> > best-performing behaviour, simply because it's usually _better_ to do many
+> > small reads that re-use the cache than it is to do one large read that
+> > blows your cache and TLB. Of course, that all depends on what your
+> > patterns are after the read - do you want to have the whole file
+> > accessible or not).
+> 
+> This is only somewhat related, but I'm wondering if the cache effects
+> also apply to readahead block sizes.  Sequential page-sized read()s from
+> a file causes readahead to kick in and grow in size.  Over time, it ends
+> up using very large blocks.  Would it be beneficial to keep the readahead
+> size smaller so that it still stays in cache?
+> 
+> Also, this use of large blocks shouldn't really matter, but I'm seeing a
+> problem where the process ends up sleeping for most of the time,
+> switching between CPU and I/O rather than simply having the I/O for the
+> next read() occur in advance of the current read().
+> 
+> The problem appears to be that readahead isn't awakening the process to
+> present partial results.  The blocks get so large that the process
+> switches between running and being blocked in I/O, which decreases
+> overall performance (think of a "grep" process that at 100% CPU can just
+> saturate the disk I/O).  Working correctly, readahead would not get in
+> the way, it would just have blocks ready for "grep" to use, and grep
+> would use all of the CPU not being used for I/O.  Currently, grep sleeps
+> 50% of the time waiting on I/O.
 
-I'm not quite certain whether my problem is related or not, but I happened 
-to see that you're running the same onboard chipset driver as I am, and 
-I'm having strange large IDE disk problems lately.
+This is interesting.
 
-I'm not sure if this is hardware or not, as this drive is an RMA 
-replacement unit (bad sectors), and the text of this new message puzzles 
-me.
+The 2.5 readahead sort-of does the wrong thing for you.  Note how fs/mpage.c:mpage_end_io_read() walks the BIO's pages backwards when
+unlocking the pages.  And also note that the BIOs are 64kbytes, and
+the readahead window is up to 128k, etc.
 
-Anyways, to the particulars.
+See, a boring old commodity disk drive will read 10,000 pages per
+second.  The BIO code there is designed to *not* result in 10,000
+context-switches per second in the common case.  If the reader is
+capable of processing the data faster than the disk then hold
+them off and present them with large chunks of data.
 
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with 
-idebus=xx
-ALI15X3: IDE controller on PCI bus 00 dev 78
-PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using 
-pci=bi
-ALI15X3: chipset revision 193
-ALI15X3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:pio, hdd:pio
-hda: WDC WD800BB-75CAA0, ATA DISK drive
-ide: Assuming 33MHz system bus speed for PIO modes; override with 
-idebus=xx
-hdc: MATSHITA CR-585, ATAPI CD/DVD-ROM drive
-hdd: IOMEGA ZIP 100 ATAPI, ATAPI FLOPPY drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: setmax LBA 156301488, native  156250000
-hda: 156250000 sectors (80000 MB) w/2048KiB Cache, CHS=9726/255/63, (U)DMA
-spurious 8259A interrupt: IRQ7.
-hdc: ATAPI 24X CD-ROM drive, 128kB Cache, DMA
-Uniform CD-ROM driver Revision: 3.12
-ide-floppy driver 0.99.newide
-hdd: No disk in drive
-hdd: 98304kB, 32/64/96 CHS, 4096 kBps, 512 sector size, 2941 rpm
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 p9 p10 p11 >
-ide-floppy driver 0.99.newide
+And that's usually the right thing to do, because most bulk readers
+read fast - if your grep is really spending 50% of its time not
+asleep then you either have a very slow grep or a very fast IO
+system.  It's applications such as gzip, which perform a significant
+amount of work crunching on the data which are interesting to study,
+and which benefit from readahead.
 
+But that's all disks.  You're not talking about disks.
 
-Shortly before I got home tonight (the clock is wrong; it's supposed to 
-read 1:19; it's been corrected, so ignore it. {smile} ) my system's IDE 
-bus was frozen, so all daemons were dead in their tracks. IP routing was 
-still functional, but none of my servers (hence my mail and web browsing) 
-were cut off at the knees.
+> This problem is showing up with NFS over a slow link, causing streaming
+> audio to be unusable.  On the other end of the speed scale, it probably
+> also affects "grep" and other applications reading from hard disks, etc.
 
-Here's what I found in /var/log/messages, right before the lockup (and 
-reset; C-A-D wouldn't respond);
+Well, the question is "is the link saturated"?  If so then it's not
+solvable.  If is is not then that's a bug.
 
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250000, sector=1527880
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250000, sector=1527880
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250000, sector=1527880
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr:ror }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250685, sector=1528520
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250685, sector=1528520
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250685, sector=1528520
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250685, sector=1528520
-Aug 10 21:09:46 zeus kernel: ide0: reset: success
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250685, sector=1528520
-Aug 10 21:09:46 zeus kernel: end_request: I/O error, dev 03:0b (hda), 
-sector 1528520
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250685, sector=1528528
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250685, sector=1528528
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250685, sector=1528528
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250685, sector=1528528
-Aug 10 21:09:46 zeus kernel: ide0: reset: success
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250685, sector=1528528
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250685, sector=1528528
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=156250685, sector=1528528
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Aug 10 21:09:46 zeus kernel: hda: multwrite_intr: error=0x10 { 
-SectorIdNotFound }, LBAsect=15^G ^N^Amg^Dk<8E>^R^Q<88>^A^@^@^@H^@
+> To demonstrate the problem reliably, I've used "strace -r cat" on a
+> floppy, which is a sufficiently slow medium. :)  This is on a 2.4.19
+> kernel, but 2.5 behaves similarly.  Note how the readahead starts small
+> and gets very large.  Also, note how the start of the first larger
+> readahead occurs shortly after a previous read, and that it blocks early
+> even though the data should already be there (4.9 seconds).  It also
+> appears to stumble a bit later on.  read() times show up as the relative
+> time for the following write() (which is going /dev/null):
 
-After that it just got corrupted for a couple of lines.
+OK, it's doing 128k of readahead there, which is a bit gross for a floppy.
+You can tune that down with `blockdev --setra N /dev/floppy'.  The
+defaults are not good, and I do intend to go through the various block
+drivers and teach them to set their initial readahead size to something
+appropriate.
 
-Written on the drive itself is a sector count of 156250000, which is 
-reported by the line(s) in dmesg;
+But in this example, where the test is `cat', there is nothing to be gained,
+I expect.  The disk is achieving its peak bandwidth.
 
-hda: setmax LBA 156301488, native  156250000
-hda: 156250000 sectors (80000 MB) w/2048KiB Cache, CHS=9726/255/63, (U)DMA
+However if the application was encrypting the data, or playing it
+through loudspeakers then this may not be appropriate behaviour.
+The design goal for readahead is that if an application is capable
+of processing 10 megabytes/second and the disk sustains 11 megabytes/sec
+then the application should never sleep. (I was about to test this,
+but `mke2fs /dev/fd0' oopses in 2.5.30.  ho hum)
 
-So, what I'm curious to know is - why was it trying to write to sectors 
-156250000 and 156250685? By my count, that's the last sector and a sector 
-beyond the end of the drive.
+Tuning the readahead per-fd is easy to do in 2.5.  It would be in
+units of pages, even though for many requirements, milliseconds
+is a more appropriate unit for readahead.  The basic unit of wakeup
+granularity is 64kbytes - the max size of a BIO.  Reducing that
+to 4k for floppies would fix it up for you.  We need some more BIO
+infrastructure for that, and that will happen.  Then we can go and
+wind back the max bio size for floppies.
 
-Anyways, this being a brand-new drive I'm somewhat frustrated by all of 
-this, and I'd love to know whether this is possibly hardware, or software 
-related.
+With some additional radix tree work we can implement the posix_fadvise
+system call nicely, and its POSIX_FADV_WILLNEED could be beneficial.
 
-Thank-you all in advance for any insight.
+The infrastructure is in place for network filesystems to be able to
+tune their own readahead and expose that to user space, although none
+of that has been done.
 
--- 
-  Stewart Honsberger @ http://blackdeath.snerk.org/
-  Linux zeus 2.4.19 #3 Fri Aug 2 23:28:56 EDT 2002 i586 AuthenticAMD
-  1:34am  up 23 min,  2 users,  load average: 1.04, 1.11, 1.01
-  Doesn't it bother you, that we have to search for intelligent life
-  --- OUT THERE??
+I don't think fiddling with readahead either in the application, the
+system setup or the kernel is a satisfactory way of fixing all this.
 
+It needs asynchronous IO.  Then the time-sensitive application
+can explicitly manage its own readahead to its own requirements.
+(Could do this with POSIX_FADV_WILLNEED as well).
 
+So hmm.  Good point, thanks.  I'll go play some MP3's off floppies.
+  
+(Holy crap.  2.5.31!  I'm outta here)

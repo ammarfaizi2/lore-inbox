@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290881AbSBUJoZ>; Thu, 21 Feb 2002 04:44:25 -0500
+	id <S290926AbSBUJrP>; Thu, 21 Feb 2002 04:47:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290926AbSBUJoQ>; Thu, 21 Feb 2002 04:44:16 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:46860 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S290881AbSBUJoH>;
-	Thu, 21 Feb 2002 04:44:07 -0500
-Date: Thu, 21 Feb 2002 12:48:07 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: Allan Sandfeld <linux@sneulv.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Idiot-proof APIC?
-Message-ID: <20020221094807.GA275@pazke.ipt>
-Mail-Followup-To: Allan Sandfeld <linux@sneulv.dk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E16dc5j-0000CB-00@Princess>
+	id <S291152AbSBUJqz>; Thu, 21 Feb 2002 04:46:55 -0500
+Received: from adsl-62-128-214-206.iomart.com ([62.128.214.206]:51849 "EHLO
+	server1.i-a.co.uk") by vger.kernel.org with ESMTP
+	id <S290926AbSBUJqs>; Thu, 21 Feb 2002 04:46:48 -0500
+Date: Thu, 21 Feb 2002 09:46:46 +0000
+From: Andy Jeffries <lkml@andyjeffries.co.uk>
+To: linux-kernel@vger.kernel.org
+Cc: alec@bugs.shadowstar.net
+Subject: Re: HPT372 on KR7A-RAID
+Message-Id: <20020221094646.1c499b6e.lkml@andyjeffries.co.uk>
+In-Reply-To: <Pine.LNX.4.44.0202210427050.27301-100000@bugs.home.shadowstar.net>
+In-Reply-To: <20020221091319.37e74cba.lkml@andyjeffries.co.uk>
+	<Pine.LNX.4.44.0202210427050.27301-100000@bugs.home.shadowstar.net>
+Organization: Scramdisk Linux
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
-Content-Disposition: inline
-In-Reply-To: <E16dc5j-0000CB-00@Princess>
-User-Agent: Mutt/1.3.27i
-X-Uname: Linux pazke 2.5.3-dj3 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 21 Feb 2002 04:28:31 -0500 (EST), Alec Smith <alec@bugs.shadowstar.net> wrote:
+> Did you check Andre Hedrick's IDE patches at http://www.linuxdiskcert.org?
+> For unexplained reasons, the power penguins refuse to take Andre's work
+> into the standard kernel even though he's the official IDE/ATA maintainer.
+> Andre may have already solved your problem.
 
---LQksG6bCIzRHxTLp
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In Andre's 2.4.16 patch (from that website), the chipset_names array still
+doesn't contain the HPT372 chipset and I'm guessing it will still panic
+the kernel because at lines 1433-1437 of the patch it says:
 
-On =D0=A1=D1=80=D0=B4, =D0=A4=D0=B5=D0=B2 20, 2002 at 08:07:47 +0100, Allan=
- Sandfeld wrote:
-> I recently had the misfortune to try to put two celerons on an SMP-board.=
- The=20
++		pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
++		class_rev &= 0xff;
++
++		p += sprintf(p, "\nController: %d\n", i);
++		p += sprintf(p, "Chipset: HPT%s\n", chipset_nums[class_rev]);
 
-If you have Celerons based on Mendocino core you can easily hack
-them to work in SMP even with Socket370 motherboard.
-Celerons based on Copermine core are not SMP capable and can cause=20
-any brain-damaged behavior.=20
+Now, if the class_rev is one higher than the number of items in the array
+(which it is because chipset_names is now called chipset_nums but it just
+contains slightly different strings, i.e. not starting with HPT) it will
+still reference an item in the array beyond bounds.  A hacky patch my boss
+found on the internet (he's the one with the motherboard) did the
+following:
 
-And Linux can't work aroud all crazy combinations of SMP incapable CPUs :))
++	if(class_rev >= (sizeof(chipset_names)/sizeof(char *))) {
++		class_rev = (sizeof(chipset_names)/sizeof(char *)) - 1;
++	}
 
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---LQksG6bCIzRHxTLp
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+I think this is awful, but as I said, I'm not a good enough Kernel
+programmer to die gracefully or depending on a passed in parameter fake it
+to be the end of the chipset array (which the dirty hack above doesn't
+solve, if there are two further revisions it will break again).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Kind regards,
 
-iD8DBQE8dMJXBm4rlNOo3YgRAoOgAKCDUuu8fSBVAHmO7skCh7ylw6Bo2QCfb9dc
-5sFkPEiIr6rT3w5qFU4qo6E=
-=zLmp
------END PGP SIGNATURE-----
 
---LQksG6bCIzRHxTLp--
+-- 
+Andy Jeffries
+Linux/PHP Programmer
+
+- Windows Crash HOWTO: compile the code below in VC++ and run it!
+main (){for(;;){printf("Hung up\t\b\b\b\b\b\b");}}

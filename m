@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288661AbSAIRH0>; Wed, 9 Jan 2002 12:07:26 -0500
+	id <S288781AbSAIRL0>; Wed, 9 Jan 2002 12:11:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288763AbSAIRHV>; Wed, 9 Jan 2002 12:07:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22031 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288661AbSAIRGh>; Wed, 9 Jan 2002 12:06:37 -0500
-Subject: Re: Difficulties in interoperating with Windows
-To: pollard@tomcat.admin.navo.hpc.mil (Jesse Pollard)
-Date: Wed, 9 Jan 2002 17:17:16 +0000 (GMT)
-Cc: aia21@cam.ac.uk, pollard@tomcat.admin.navo.hpc.mil (Jesse Pollard),
-        lkml@andyjeffries.co.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <200201091648.KAA19440@tomcat.admin.navo.hpc.mil> from "Jesse Pollard" at Jan 09, 2002 10:48:47 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S288828AbSAIRLV>; Wed, 9 Jan 2002 12:11:21 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:11970 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S288781AbSAIRLH>; Wed, 9 Jan 2002 12:11:07 -0500
+Date: Wed, 9 Jan 2002 12:10:59 -0500
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+Cc: arjanv@redhat.com, Andrea Arcangeli <andrea@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020109121059.A15002@devserv.devel.redhat.com>
+In-Reply-To: <000a01c19917$0b567ec0$0501a8c0@psuedogod> <20020109152717.J1543@inspiron.school.suse.de> <3C3C58E0.EB1333F0@redhat.com> <200201091705.g09H5YQ25146@maila.telia.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16OMLk-0001kh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200201091705.g09H5YQ25146@maila.telia.com>; from roger.larsson@skelleftea.mail.telia.com on Wed, Jan 09, 2002 at 06:02:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > the same input and output which often requires the exact same algorithm 
-> > otherwise you cannot achieve the same input/output...
+On Wed, Jan 09, 2002 at 06:02:53PM +0100, Roger Larsson wrote:
+> The difference is that the preemptive kernel mostly uses existing 
+> infrastructure. When SMP scalability gets better due to holding locks
+> for a shorter time then the preemptive kernel will improve as well!
+
+Ehm. Holding locks for a shorter time is not guaranteed to improve smp
+scalability. In fact it can completely kill it due to cacheline pingpong
+effects.
+
+> > and if with 40 we can get <= 1ms then everybody will be happy; if you
+> > want, say, 50 usec
+> > latency instead you need RTLinux anyway. With 1ms _worst case_ latency
+> > the "mean" latency
+> > is obviously also very good.......
 > 
-> Yup - and then you hit the "trade secrets" problem.
+> Worst case latency... is VERY hard to prove if you rely on schedule points.
 
-In the EU generally not. For hardware the normal approach is
-to use patented interfaces to ensure for example that nobody can sell
-replacement ink cartridges for your printer. For software its trickier
-and corporations are still working on schemes
+Agreed. It's "worst case" in the soft real time sence. But we've beaten the
+kernel quite hard during such tests....
 
-Trade secrets really only become a problem if you've seen the original for
-other reasons. A microsoft employee leaving MS who spends the next month
-writing an ntfs for unix is likely to get into some trouble 8)
+> With preemptive kernel your worst latency is the longest held spinlock. 
+> PERIOD.
+
+Yes and without the same stuff akpm does that's about 80 to 90 ms right now. 
+
+> Note: that akpm patches usually hava a - "do not do this list" with known
+> problem spots (ok, usually in a hard to break spinlocks).
+
+Usually in hardware related parts. Even with -preempt you'll get this.
+Hopefully only during hardware initialisation, but there are just cases
+where you need to go WAAAY too far if you want to go below, say, 5ms during
+device init.
+
 

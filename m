@@ -1,45 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312488AbSC3OK6>; Sat, 30 Mar 2002 09:10:58 -0500
+	id <S313272AbSC3OT2>; Sat, 30 Mar 2002 09:19:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312494AbSC3OKr>; Sat, 30 Mar 2002 09:10:47 -0500
-Received: from rwcrmhc54.attbi.com ([216.148.227.87]:33951 "EHLO
-	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
-	id <S312488AbSC3OKc>; Sat, 30 Mar 2002 09:10:32 -0500
-From: "Ashok Raj" <ashokr2@attbi.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: linux PCI hotplug
-Date: Sat, 30 Mar 2002 06:09:56 -0800
-Message-ID: <PPENJLMFIMGBGDDHEPBBAEGGCMAA.ashokr2@attbi.com>
+	id <S313238AbSC3OTS>; Sat, 30 Mar 2002 09:19:18 -0500
+Received: from smtp.polyu.edu.hk ([158.132.14.103]:22545 "EHLO
+	hkpa04.polyu.edu.hk") by vger.kernel.org with ESMTP
+	id <S313065AbSC3OTI>; Sat, 30 Mar 2002 09:19:08 -0500
+Message-ID: <001401c1d7f5$d896b7c0$0100a8c0@winxp>
+From: "Anthony Chee" <anthony.chee@polyu.edu.hk>
+To: "Keith Owens" <kaos@ocs.com.au>
+Cc: <linux-kernel@vger.kernel.org>, <kbuild-devel@vger.kernel.org>,
+        <kernelnewbies@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <21554.1017121798@kao2.melbourne.sgi.com>
+Subject: Re: undefined reference 
+Date: Sat, 30 Mar 2002 22:19:01 +0800
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
+X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20020325.234400.03241011.davem@redhat.com>
-Importance: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+> >
+> >Then I use "make bzImage", I got no error message on compiling inode.c,
+but
+> >I got
+> >
+> >"fs/fs.o(.text+0x1377d): undefined reference to `func'"
+>
+> You cannot do that.  The kernel must be self contained.  The only way
+> for the kernel to access module code and data is for the module to
+> register that code and data when the module is loaded and for the
+> kernel to access the module via the registration list.
+>
+> See any module that handles a filesystem.  sys_open() does not call the
+> module directly.  A module registers its file operations on load.  The
+> kernel (dentry_open) calls the module via f->f_op->open.
+>
+>
 
-I have a question on pci hotplug capability.
+Thanks for your help. I use another apporach to communicate with module,
+similiar to the method you stated above.
 
-when a new device is inserted, the hotplug driver enumerates pci, and if the
-driver is already loaded....
+What I did in the kernel source,
 
-for each new device
-	pci_insert->pci_announce->pci_probe
+1. In fs.h, I added one line in struct super_operations
+            int (*query_module) (struct inode *);
 
-if i need to remove a device, the pci_remove would be called, but it does
-not call to check if the device is ready for removal. If there are other
-apps working on this device, how would the hotplug removal be authenticated
-before removal?
+2. In write_inode() of inode.c, added
+            result = inode->i_sb->s_op->query_module(inode);
 
-pci_remove() has no return value, means it cannot fail....
+What I did in the module,
 
-ashokr
+1. Build up my own function, kernel_query_module(struct inode *inode)
+
+2. In init_module(), added
+            struct super_block *sb_ptr;
+            sb_ptr = get_super(MKDEV(8,1));          /* suppose I want to
+get super_block of /dev/sda1 */
+            sb_ptr -> s_op -> query_module = &kernel_query_module;
+
+Then, I compile the module and didi not get error message
+When I compile the kernel, I got the follow error message,
+
+inode.c:195: structure has no member named `query_module'
+
+It made me crazy. Why the module can access the s_op and register the
+address of kernel_query_module, but not the kernel source? I already added
+one more item in the struct super_operation, but got the error message the
+struct has no such member.
+
+Any thing I missed? Thanks.
 

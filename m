@@ -1,85 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262141AbSJNTvu>; Mon, 14 Oct 2002 15:51:50 -0400
+	id <S262157AbSJNUBn>; Mon, 14 Oct 2002 16:01:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262143AbSJNTvu>; Mon, 14 Oct 2002 15:51:50 -0400
-Received: from horkos.telenet-ops.be ([195.130.132.45]:32664 "EHLO
-	horkos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S262141AbSJNTvs> convert rfc822-to-8bit; Mon, 14 Oct 2002 15:51:48 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Bart De Schuymer <bart.de.schuymer@pandora.be>
-To: coreteam@netfilter.org
-Subject: [RFC] place to put bridge-netfilter specific data in the skbuff
-Date: Mon, 14 Oct 2002 21:59:49 +0200
-X-Mailer: KMail [version 1.4]
-References: <20020911223252.GA12517@erik.ca> <200209120836.52062.bart.de.schuymer@pandora.be> <200210141953.38933.bart.de.schuymer@pandora.be>
-In-Reply-To: <200210141953.38933.bart.de.schuymer@pandora.be>
-Cc: linux-kernel@vger.kernel.org, Lennert Buytenhek <buytenh@gnu.org>,
-       "David S. Miller" <davem@redhat.com>
+	id <S262156AbSJNUBa>; Mon, 14 Oct 2002 16:01:30 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:56337 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262154AbSJNUAz>; Mon, 14 Oct 2002 16:00:55 -0400
+Message-ID: <3DAB23CB.5B52ECF1@linux-m68k.org>
+Date: Mon, 14 Oct 2002 22:06:35 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210142159.49290.bart.de.schuymer@pandora.be>
+To: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: linux kernel conf 0.9
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello netfilter team and others,
+Hi,
 
-DaveM suggested I talk to you (netfilter team) about this.
+At http://www.xs4all.nl/~zippel/lc/ you can find as usual the latest
+version of the new config system.
+I still haven't got a single mail from someone who tried it and didn't
+like it, what makes me a bit nervous :), so if you think something must
+be wrong, now is your last chance. Next version will go to Linus.
+Changes:
+- as alternative suggestion for the config name I used "Kconfig" this
+time. I tried "Config", but somehow that's terrible to do find for, as
+one gets to many false positives. Even with a capital 'C' there are
+still these:
+Documentation/networking/Configurable
+scripts/Configure
+(ok, the latter will go away :) ).
+- kbuild fixes (many thanks to Sam Ravnborg), I only added the clean
+targets.
+- the back end is now generated as shared library and loaded by qconf at
+run time.
+- small syntax change: "depends on", "requires" is also accepted besides
+"depends", generated is "depends on".
+- conf displays the help text again.
+- the behaviour difference in qconf between qt2 and qt3, when all
+symbols are shown, is fixed.
 
-What's bridge-netfilter: the mapping of the IPv4 onto the bridge hooks, to 
-make a powerful bridging firewall.
-
-The problem: in the current br-nf patch we add 3 fields to the skbuff, which 
-is (as expected) not acceptable. So we need to find a way to solve this.
-
-We cannot use the control buffer to save this data because tcp uses it while 
-we still need the brnf data.
-
-The solution I like best (and David seems to not mind) is adding one pointer 
-to a struct nf_bridge_info in the skbuff. So, adding one new member.
-
-Another suggestion by David is this:
-
-struct nf_ct_info {
-	union {
-		struct nf_conntrack *master;
-		struct nf_bridge_info *brinfo;
-	} u;
-};
-
-But I don't think this will not work because master will be in use while we 
-need brinfo.
-
-So another solution could be this:
-
-struct nf_ct_info {
-		struct nf_conntrack *master;
-		struct nf_bridge_info *brinfo;
-};
-
-But I don't know anything about the intricacies of adding this.
-
-Do you have any other suggestions? Comments? Help?
-The current patch was already posted on lkml so I won't repeat it.
-
-Also, could you have a look at the current patch, to spot any other 
-obstacles/things you don't like?
-The patch is available at:
-http://users.pandora.be/bart.de.schuymer/ebtables/br-nf/bridge-nf-0.0.10-dev-pre1-against-2.5.42.diff
-There is a little text file explaining the source code more in-depth here:
-http://users.pandora.be/bart.de.schuymer/ebtables/br-nf/bridge-nf-0.0.10-dev-pre1-against-2.5.39-comments.txt
-A high-level explanation of what we're doing is here:
-http://users.pandora.be/bart.de.schuymer/ebtables/br_fw_ia/br_fw_ia.html
-
-
-Another question:
-I've been told it is the general concensus that this bridge firewall should be 
-compiled in the kernel if CONFIG_NETFILTER=y. Or should it be a user option? 
-It is predicted that using a user option will give alot of questions about 
-the bridge firewall not working.
-Do you have any strong opinion about this?
-
--- 
-cheers,
-Bart
-
+bye, Roman

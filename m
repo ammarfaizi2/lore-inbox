@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272620AbRJCKTv>; Wed, 3 Oct 2001 06:19:51 -0400
+	id <S272576AbRJCKbm>; Wed, 3 Oct 2001 06:31:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272592AbRJCKTm>; Wed, 3 Oct 2001 06:19:42 -0400
-Received: from s2.relay.oleane.net ([195.25.12.49]:18436 "HELO
-	s2.relay.oleane.net") by vger.kernel.org with SMTP
-	id <S272576AbRJCKTd>; Wed, 3 Oct 2001 06:19:33 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: James Simmons <jsimmons@transvirtual.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: Huge console switching lags
-Date: Wed, 3 Oct 2001 12:19:44 +0200
-Message-Id: <20011003101944.29249@smtp.adsl.oleane.com>
-In-Reply-To: <E15oYUA-0006HG-00@the-village.bc.nu>
-In-Reply-To: <E15oYUA-0006HG-00@the-village.bc.nu>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+	id <S272592AbRJCKbc>; Wed, 3 Oct 2001 06:31:32 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:36294 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S272576AbRJCKbT>; Wed, 3 Oct 2001 06:31:19 -0400
+Date: 03 Oct 2001 10:33:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8A89yinmw-B@khms.westfalen.de>
+In-Reply-To: <20011003050142.AAA10921@shell.webmaster.com@whenever>
+Subject: Re: Getting system time in kernel..
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <3458.1002015803@redhat.com> <20011003050142.AAA10921@shell.webmaster.com@whenever>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>    The software accel functions needed by the console layer (copyarea,
->> fillrect, and drawimage) have been already written. Okay the drawimage one
->> needs alot of work. I haven't benchmarked the new code versus the current
+davids@webmaster.com (David Schwartz)  wrote on 02.10.01 in <20011003050142.AAA10921@shell.webmaster.com@whenever>:
+
+> On Tue, 02 Oct 2001 10:43:23 +0100, David Woodhouse wrote:
 >
->On x86 they'll probably make no difference at all, unless the old code
->is really really crap. Your bottleneck is the PCI bus. All you can do is
->avoid reads.
+> >mohammedazad@nestec.net said:
+>
+> >> Any idea how to get the system time in a kernel module.... I tried  this
+> >>in solaris... but i am getting only the GMT (that too elapsed  time) how
+> >>do i convert this to my locale time....
+>
+> >You can't. You shouldn't need to convert to localtime inside the kernel.
+> >What, precisely, are you trying to achieve?
+>
+> 	As an example, a filesystem might internally store local times in its
+> inodes. You may not be free to change the on-disk format.
 
-Well, there are indeed a few improvements to get with machine specific
-optimisations on unaccelerated framebuffer.
+Such as FAT and derived filesystems?
 
-One example is, on PPC, the use of a floating point register to do the
-blits 64 bits at a time. This allow the PCI host controller to generate
-bursts of 2 32 bits transactions (for machines with controllers unable
-to write combine). Of course, having such optimisations in the kernel
-is tricky because of the lazy FPU switching (well, at least on PPC),
-but the point is that improvement _is_ possible.
+That's why Linux has sys_tz. Though I think that a mount option to  
+override that might have been wise.
 
-Regards,
-Ben.
-
+MfG Kai

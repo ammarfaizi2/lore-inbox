@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313964AbSDKCB6>; Wed, 10 Apr 2002 22:01:58 -0400
+	id <S313966AbSDKCGe>; Wed, 10 Apr 2002 22:06:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313966AbSDKCB5>; Wed, 10 Apr 2002 22:01:57 -0400
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:11271 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S313964AbSDKCB5>; Wed, 10 Apr 2002 22:01:57 -0400
-To: Padraig Brady <padraig@antefacto.com>
-Cc: Amol Kumar Lad <amolk@ishoni.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Reducing root filesystem
-In-Reply-To: <7CFD7CA8510CD6118F950002A519EA3001067D06@leonoid.in.ishoni.com>
-	<3CB48DF2.10900@antefacto.com>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 11 Apr 2002 10:59:36 +0900
-Message-ID: <buobscr2dx3.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	id <S313967AbSDKCGd>; Wed, 10 Apr 2002 22:06:33 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:40199 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S313966AbSDKCGd>;
+	Wed, 10 Apr 2002 22:06:33 -0400
+Date: Wed, 10 Apr 2002 19:03:54 -0700
+From: Greg KH <greg@kroah.com>
+To: Guillaume Boissiere <boissiere@attbi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [STATUS]  Spring cleanup
+Message-ID: <20020411020354.GA19074@kroah.com>
+In-Reply-To: <3CB48512.17441.E3FE393@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 14 Mar 2002 00:00:25 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Padraig Brady <padraig@antefacto.com> writes:
-> 1. Get busybox working with dietlibc/uclibc (this probably already done)
+On Wed, Apr 10, 2002 at 06:31:46PM -0400, Guillaume Boissiere wrote:
+> 
+> o Pending     Finalize new device naming convention           (Linus Torvalds)
+> --> ???  I am not sure what is going on here -- it seems Linus is
+> waiting for someone to step up and submit a patch following the new
+> device naming convention he vaguely outlined a while back?
 
-busybox works fine with uclibc (you'd hope so, since they have the same
-author!).
+People are slowly working on this, so I'd mark it "in development /
+planning" or something like that.
 
--Miles
--- 
-Run away!  Run away!
+thanks,
+
+greg k-h

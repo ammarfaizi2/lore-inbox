@@ -1,85 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129145AbQKQDcR>; Thu, 16 Nov 2000 22:32:17 -0500
+	id <S130540AbQKQDi5>; Thu, 16 Nov 2000 22:38:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129314AbQKQDb6>; Thu, 16 Nov 2000 22:31:58 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:29147 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S129145AbQKQDby>; Thu, 16 Nov 2000 22:31:54 -0500
-Importance: Normal
-Subject: Re: test11-pre6
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OFF5BA802C.5845C1FB-ON8825699A.00106748@LocalDomain>
-From: "Ying Chen/Almaden/IBM" <ying@almaden.ibm.com>
-Date: Thu, 16 Nov 2000 19:02:25 -0800
-X-MIMETrack: Serialize by Router on D03NM042/03/M/IBM(Release 5.0.5 |September 22, 2000) at
- 11/16/2000 07:01:52 PM
+	id <S129145AbQKQDis>; Thu, 16 Nov 2000 22:38:48 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:54282 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129314AbQKQDig>; Thu, 16 Nov 2000 22:38:36 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Pete Clements <clem@clem.digital.net>
+Date: Fri, 17 Nov 2000 14:08:02 +1100 (EST)
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14868.41234.444045.421346@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org (linux-kernel),
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.4.0-test11-pre6 fails compile (dev.c)
+In-Reply-To: message from Pete Clements on Thursday November 16
+In-Reply-To: <200011170256.VAA10669@clem.digital.net>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday November 16, clem@clem.digital.net wrote:
+> FYI:
+> 
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-test11/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o dev.o dev.c
+> dev.c: In function `run_sbin_hotplug':
+> dev.c:2736: `hotplug_path' undeclared (first use in this function)
+> dev.c:2736: (Each undeclared identifier is reported only once
+> dev.c:2736: for each function it appears in.)
+> make[3]: *** [dev.o] Error 1
+> make[3]: Leaving directory `/sda3/usr/src/linux-2.4.0-test11/net/core'
+> make[2]: *** [first_rule] Error 2
+> 
+> -- 
+> Pete Clements 
+> clem@clem.digital.net
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-Linus,
+The following works for me.... and even looks right.
 
-You forgot about wakeup_bdflush(1) stuff.
+NeilBrown
 
-Here is the patch again (against test10).
-===============================================================
-There are several places where schedule() is called after wakeup_bdflush(1)
-is called. This is completely unnecessary, since wakeup_bdflush(1) already
-gave up the control, and when the control is returned to the calling thread
-who called wakeup_bdflush(1), it should just go on. Calling schedule()
-after wakeup_bdflush(1) will make the calling thread give up control again.
-This is a problem for some of those latency sensitive benchmarks (like SPEC
-SFS) and applications.
 
-============
-diff -ruN mm.orig/highmem.c mm.opt/highmem.c
---- mm.orig/highmem.c   Wed Oct 18 14:25:46 2000
-+++ mm.opt/highmem.c    Fri Nov 10 17:51:39 2000
-@@ -310,8 +310,6 @@
-    bh = kmem_cache_alloc(bh_cachep, SLAB_BUFFER);
-    if (!bh) {
-        wakeup_bdflush(1);  /* Sets task->state to TASK_RUNNING */
--       current->policy |= SCHED_YIELD;
--       schedule();
-        goto repeat_bh;
-    }
-    /*
-@@ -324,8 +322,6 @@
-    page = alloc_page(GFP_BUFFER);
-    if (!page) {
-        wakeup_bdflush(1);  /* Sets task->state to TASK_RUNNING */
--       current->policy |= SCHED_YIELD;
--       schedule();
-        goto repeat_page;
-    }
-    set_bh_page(bh, page, 0);
-diff -ruN fs.orig/buffer.c fs.opt/buffer.c
---- fs.orig/buffer.c    Thu Oct 12 14:19:32 2000
-+++ fs.opt/buffer.c Fri Nov 10 20:05:44 2000
-@@ -707,11 +707,8 @@
-  */
- static void refill_freelist(int size)
- {
--   if (!grow_buffers(size)) {
-+   if (!grow_buffers(size))
-        wakeup_bdflush(1);  /* Sets task->state to TASK_RUNNING */
--       current->policy |= SCHED_YIELD;
--       schedule();
--   }
+--- ./init/main.c	2000/11/17 03:03:23	1.1
++++ ./init/main.c	2000/11/17 03:03:33
+@@ -712,11 +712,13 @@
+ 	init_pcmcia_ds();		/* Do this last */
+ #endif
+ 
++#ifdef CONFIG_HOTPLUG	
+ 	/* do this after other 'do this last' stuff, because we want
+ 	 * to minimize spurious executions of /sbin/hotplug
+ 	 * during boot-up
+ 	 */
+ 	net_notifier_init();
++#endif
+ 
+ 	/* Mount the root filesystem.. */
+ 	mount_root();
+--- ./net/core/dev.c	2000/11/17 03:00:42	1.1
++++ ./net/core/dev.c	2000/11/17 03:03:53
+@@ -2704,7 +2704,7 @@
+ 	return 0;
  }
-
- void init_buffer(struct buffer_head *bh, bh_end_io_t *handler, void
-*private)
-==============================
-
-
-Ying Chen
-
+ 
+-
++#ifdef CONFIG_HOTPLUG
+ /* Notify userspace when a netdevice event occurs,
+  * by running '/sbin/hotplug net' with certain
+  * environment variables set.
+@@ -2765,3 +2765,5 @@
+ 		printk (KERN_WARNING "unable to register netdev notifier\n"
+ 			KERN_WARNING "/sbin/hotplug will not be run.\n");
+ }
++
++#endif
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

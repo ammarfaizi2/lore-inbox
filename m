@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267967AbUJCQqy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268008AbUJCRBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267967AbUJCQqy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 12:46:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268000AbUJCQqx
+	id S268008AbUJCRBw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 13:01:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUJCRBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 12:46:53 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:62625 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267967AbUJCQqw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 12:46:52 -0400
-Message-ID: <9e47339104100309468e6a64f@mail.gmail.com>
-Date: Sun, 3 Oct 2004 12:46:51 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Dave Airlie <airlied@linux.ie>
+	Sun, 3 Oct 2004 13:01:52 -0400
+Received: from pimout6-ext.prodigy.net ([207.115.63.78]:59388 "EHLO
+	pimout6-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S268011AbUJCRBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 13:01:08 -0400
+Date: Sun, 3 Oct 2004 12:59:38 -0400 (EDT)
+From: Vladimir Dergachev <volodya@mindspring.com>
+X-X-Sender: volodya@node2.an-vo.com
+Reply-To: Vladimir Dergachev <volodya@mindspring.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
+       lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Merging DRM and fbdev
-Cc: dri-devel@lists.sf.net, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0410030824280.2325@skynet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e47339104100220553c57624a@mail.gmail.com>
-	 <Pine.LNX.4.58.0410030824280.2325@skynet>
+In-Reply-To: <9e4733910410030924214dd3e3@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0410031254280.17448@node2.an-vo.com>
+References: <9e47339104100220553c57624a@mail.gmail.com> 
+ <Pine.LNX.4.58.0410030824280.2325@skynet>  <9e4733910410030833e8a6683@mail.gmail.com>
+  <Pine.LNX.4.61.0410031145560.17248@node2.an-vo.com>
+ <9e4733910410030924214dd3e3@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Oct 2004 08:26:54 +0100 (IST), Dave Airlie <airlied@linux.ie> wrote:
-> I also want to prepare some patches for the kernel for the previous work
-> you've done ...
+>   km - library
+>
+> Libraries are kernel modules that don't attach to any specific
+> hardware, they just supply routines for other drivers to call. We
+> might want to change the name of these to libdrm, libfb, libkm.
+>
+> I haven't looked into Gatos yet but I'd like to see the radeon
+> converted to follow the model of all of the other vl4 cards instead of
+> having it's own system. In the X on GL world the 2D XAA radeon driver
+> is gone. Gatos support will need to live somewhere else.
 
-Did you get around to making ffb compile?
-Have all of the drivers been given minimal testing? I've done radeon and r128. 
-Is the general consensus that the core model is the way to go for 2.6?
+Jon, this is a common misconception - GATOS km module *does* provide a v4l 
+interface.
 
-Once drm-core makes it into the kernel I can do another patch to
-remove the inter_module_get calls between drm and agp. With those gone
-inter_module can be removed from the kernel.
+What is different is that the device configuration (like setting the tuner 
+or encoding) is done by Xserver.
 
-But there does appear to be one other user of inter_module_...
-MTD driver for "M-Systems Disk-On-Chip Millennium Plus"
-mtd/devices/doc2001plus.c
-mtd/chips/cfi_cmdset_0001.c
+All km does is check whether the card can supply a v4l stream and, if so, 
+it provides it. This is little different from a webcam driver, especially
+if a webcam has its own on/off switch.
 
-> 
-> Dave.
-> 
+The misconception arises from the fact that many v4l programs were only 
+made to work with bt848 cards - they would *not* work with webcams any
+more than they would work with km.
 
+                               best
 
+                                 Vladimir Dergachev
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+>
+> -- 
+> Jon Smirl
+> jonsmirl@gmail.com
+>
+>
+> -------------------------------------------------------
+> This SF.net email is sponsored by: IT Product Guide on ITManagersJournal
+> Use IT products in your business? Tell us what you think of them. Give us
+> Your Opinions, Get Free ThinkGeek Gift Certificates! Click to find out more
+> http://productguide.itmanagersjournal.com/guidepromo.tmpl
+> --
+> _______________________________________________
+> Dri-devel mailing list
+> Dri-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/dri-devel
+>

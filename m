@@ -1,42 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVB0XD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVB0XQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261510AbVB0XD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 18:03:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVB0XD2
+	id S261511AbVB0XQo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 18:16:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVB0XQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 18:03:28 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:59712 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S261511AbVB0XDF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 18:03:05 -0500
-Date: Sun, 27 Feb 2005 17:58:49 -0500
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Subject: Re: ext3 bug
-In-reply-to: <200502271406.30690.kernel-stuff@comcast.net>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <1109545130.7940.2.camel@localhost>
-Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
-MIME-version: 1.0
-X-Mailer: Evolution 2.0.3
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-References: <1109487896.8360.16.camel@localhost>
- <200502271406.30690.kernel-stuff@comcast.net>
+	Sun, 27 Feb 2005 18:16:44 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:33713 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261511AbVB0XQl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 18:16:41 -0500
+Message-ID: <1109546013.4222541d5db16@webmail.grupopie.com>
+Date: Sun, 27 Feb 2005 23:13:33 +0000
+From: "" <pmarques@grupopie.com>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: "" <linux-kernel@vger.kernel.org>, "" <perex@suse.cz>,
+       "" <luming.yu@intel.com>
+Subject: Re: sizeof(ptr) or sizeof(*ptr)?
+References: <1109535904.42222ca0b0b78@webmail.grupopie.com> <20050227204524.GA29026@one-eyed-alien.net>
+In-Reply-To: <20050227204524.GA29026@one-eyed-alien.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 82.154.89.181
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please try stock kernel. 2.6.11-rc3 onwards should be fine. - I saw a similar 
-> problem while running 2.6.10 kernel from Fedora Core 3. It doesn't happen 
-> with stock kernels.
+Quoting Matthew Dharm <mdharm-kernel@one-eyed-alien.net>:
+> [...]
+> 	us->host = scsi_host_alloc(&usb_stor_host_template, sizeof(*us));
+> 
+> This is actually correct as-is.  We're allocating a host, and asking for
+> the sizeof(pointer) in the 'extra storage' section.  We then store the
+> pointer (not what it points to) in the extra storage section a few lines
+> down.
 
-I did use a stock 2.6.10 kernel (I said custom in the sense that it
-wasn't a Debian kernel). After a reboot, I was able to run fsck on the
-disk (many, many errors) and it went fine after.
+Thanks for clarifying that. I guess the weekend effect got me, because at a
+certain point I was starting to read the scsi_host_alloc as if it were a
+kmalloc or something... :P
 
-	Jean-Marc
+Anyway, after improving the tool and checking for false positives, there is only
+one more suspicious piece of code in drivers/acpi/video.c:561
 
--- 
-Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Université de Sherbrooke
+	status = acpi_video_device_lcd_query_levels(device, &obj);
+
+	if (obj && obj->type == ACPI_TYPE_PACKAGE && obj->package.count >= 2) {
+		int count = 0;
+		union acpi_object *o;
+
+		br = kmalloc(sizeof &br, GFP_KERNEL);
+		if (!br) {
+			printk(KERN_ERR "can't allocate memory\n");
+		} else {
+			memset(br, 0, sizeof &br);
+			br->levels = kmalloc(obj->package.count * sizeof &br->levels, GFP_KERNEL);
+			if (!br->levels)
+				goto out;
+
+"br" if of type "struct acpi_video_device_brightness *". 
+
+"sizeof &br" doesn't make much sense there (besides the unconventional use of
+sizeof without parenthesis) because the rest of the code seem to suggest that a
+whole structure should have been allocated. This is the last case I've seen,
+and I've added the maintainer to the cc list, so that he can check the code for
+correctness.
+
+Well, sorry about bothering you with a false positive (that I should've
+recognised on my own, anyway), and thanks for the help.
+
+--
+Paulo Marques - www.grupopie.com
+ 
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)
 

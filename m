@@ -1,762 +1,272 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129053AbRBFX0l>; Tue, 6 Feb 2001 18:26:41 -0500
+	id <S129952AbRBFX3l>; Tue, 6 Feb 2001 18:29:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129106AbRBFX0c>; Tue, 6 Feb 2001 18:26:32 -0500
-Received: from angel.algonet.se ([194.213.74.112]:5795 "HELO angel.algonet.se")
-	by vger.kernel.org with SMTP id <S129053AbRBFX0V>;
-	Tue, 6 Feb 2001 18:26:21 -0500
-Date: Wed, 7 Feb 2001 00:24:49 +0100
-From: André Dahlqvist <anedah-9@sm.luth.se>
+	id <S129956AbRBFX3b>; Tue, 6 Feb 2001 18:29:31 -0500
+Received: from [194.190.163.124] ([194.190.163.124]:21890 "EHLO
+	gamspc7.ihep.su") by vger.kernel.org with ESMTP id <S129952AbRBFX3X>;
+	Tue, 6 Feb 2001 18:29:23 -0500
+Date: Wed, 7 Feb 2001 02:27:57 +0000 (/etc/localtime)
+From: Alexander Zvyagin <zvyagin@gamspc7.ihep.su>
 To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] Spelling fixes for commonly misspelled words
-Message-ID: <20010207002449.A5833@sm.luth.se>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-X-Unexpected-Header: The Spanish Inquisition
+Subject: Problems with Linux 2.4.1
+Message-ID: <Pine.LNX.4.20.0102070207300.1226-500000@gamspc7.ihep.su>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1094550365-31101932-981512877=:1226"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did some grepping for words that are often misspelled, and the below
-patch is the result of that. The patch fixes a large number of spelling
-errors (64 in total.) The changes that have been made (in many places)
-are these:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-adress --> address
-adressed --> addressed
-adressing --> addressing
-adresses --> addresses
-subadress --> subaddress
-aquire --> acquire
-garantee --> guarantee
-existant --> existent
-existance --> existence
-frist --> first
-desiderable --> desirable
+---1094550365-31101932-981512877=:1226
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-The patch is against 2.4.1-ac4.
+Hello,
 
-diff -ur linux-2.4.1-ac4/Documentation/isdn/INTERFACE linux/Documentation/isdn/INTERFACE
---- linux-2.4.1-ac4/Documentation/isdn/INTERFACE	Thu Aug 26 00:18:07 1999
-+++ linux/Documentation/isdn/INTERFACE	Wed Feb  7 00:00:06 2001
-@@ -480,7 +480,7 @@
-     Parameter:
-       driver      = driver-Id
-       command     = ISDN_CMD_PROT_IO
--      arg         = The lower 8 Bits define the adressed protocol as defined
-+      arg         = The lower 8 Bits define the addressed protocol as defined
-                     in ISDN_PTYPE..., the upper bits are used to differenciate
-                     the protocol specific CMD.  
-       
-@@ -734,7 +734,7 @@
-     Parameter:
-       driver      = driver-Id
-       command     = ISDN_STAT_PROT
--      arg         = The lower 8 Bits define the adressed protocol as defined
-+      arg         = The lower 8 Bits define the addressed protocol as defined
-                     in ISDN_PTYPE..., the upper bits are used to differenciate
-                     the protocol specific STAT.  
-       
-diff -ur linux-2.4.1-ac4/Documentation/s390/cds.txt linux/Documentation/s390/cds.txt
---- linux-2.4.1-ac4/Documentation/s390/cds.txt	Thu Oct 12 23:19:31 2000
-+++ linux/Documentation/s390/cds.txt	Wed Feb  7 00:00:06 2001
-@@ -549,7 +549,7 @@
- 
- typedef struct {
-    char            cmd_code; /* command code */
--   char            flags;    /* flags, like IDA adressing, etc. */
-+   char            flags;    /* flags, like IDA addressing, etc. */
-    unsigned short  count;    /* byte count */
-    void           *cda;      /* data address */
- } ccw1_t __attribute__ ((aligned(8)));
-diff -ur linux-2.4.1-ac4/arch/alpha/kernel/smp.c linux/arch/alpha/kernel/smp.c
---- linux-2.4.1-ac4/arch/alpha/kernel/smp.c	Wed Jan  3 01:45:37 2001
-+++ linux/arch/alpha/kernel/smp.c	Wed Feb  7 00:00:06 2001
-@@ -837,7 +837,7 @@
- 	atomic_set(&data.unstarted_count, smp_num_cpus - 1);
- 	atomic_set(&data.unfinished_count, smp_num_cpus - 1);
- 
--	/* Aquire the smp_call_function_data mutex.  */
-+	/* Acquire the smp_call_function_data mutex.  */
- 	if (pointer_lock(&smp_call_function_data, &data, retry))
- 		return -EBUSY;
- 
-diff -ur linux-2.4.1-ac4/arch/cris/boot/compressed/misc.c linux/arch/cris/boot/compressed/misc.c
---- linux-2.4.1-ac4/arch/cris/boot/compressed/misc.c	Wed Feb  7 00:02:53 2001
-+++ linux/arch/cris/boot/compressed/misc.c	Wed Feb  7 00:00:06 2001
-@@ -13,7 +13,7 @@
-  */
- 
- /* where the piggybacked kernel image expects itself to live.
-- * it is the same adress we use when we network load an uncompressed
-+ * it is the same address we use when we network load an uncompressed
-  * image into DRAM, and it is the address the kernel is linked to live
-  * at by etrax100.ld.
-  */
-diff -ur linux-2.4.1-ac4/arch/cris/cris.ld linux/arch/cris/cris.ld
---- linux-2.4.1-ac4/arch/cris/cris.ld	Wed Feb  7 00:02:53 2001
-+++ linux/arch/cris/cris.ld	Wed Feb  7 00:00:06 2001
-@@ -55,7 +55,7 @@
-   	___initcall_start = .;
-   	.initcall.init : { *(.initcall.init) }
-   	___initcall_end = .;
--	__vmlinux_end = .;            /* last adress of the physical file */
-+	__vmlinux_end = .;            /* last address of the physical file */
-   	. = ALIGN(8192);
-   	___init_end = .;
- 
-diff -ur linux-2.4.1-ac4/arch/cris/drivers/ethernet.c linux/arch/cris/drivers/ethernet.c
---- linux-2.4.1-ac4/arch/cris/drivers/ethernet.c	Wed Feb  7 00:02:53 2001
-+++ linux/arch/cris/drivers/ethernet.c	Wed Feb  7 00:00:06 2001
-@@ -273,7 +273,7 @@
- 	return 0;
- }
- 
--/* set MAC adress of the interface. called from the core after a
-+/* set MAC address of the interface. called from the core after a
-  * SIOCSIFADDR ioctl, and from the bootup above.
-  */
- 
-@@ -288,7 +288,7 @@
-         memcpy(dev->dev_addr, addr->sa_data, dev->addr_len);
- 
- 	/* Write it to the hardware.
--	 * Note the way the adress is wrapped:
-+	 * Note the way the address is wrapped:
- 	 * *R_NETWORK_SA_0 = a0_0 | (a0_1 << 8) | (a0_2 << 16) | (a0_3 << 24);
- 	 * *R_NETWORK_SA_1 = a0_4 | (a0_5 << 8);
- 	 */
-diff -ur linux-2.4.1-ac4/arch/i386/mm/fault.c linux/arch/i386/mm/fault.c
---- linux-2.4.1-ac4/arch/i386/mm/fault.c	Sun Nov 12 04:01:11 2000
-+++ linux/arch/i386/mm/fault.c	Wed Feb  7 00:00:06 2001
-@@ -81,7 +81,7 @@
- 
- /*
-  * Unlock any spinlocks which will prevent us from getting the
-- * message out (timerlist_lock is aquired through the
-+ * message out (timerlist_lock is acquired through the
-  * console unblank code)
-  */
- void bust_spinlocks(void)
-diff -ur linux-2.4.1-ac4/arch/ia64/kernel/process.c linux/arch/ia64/kernel/process.c
---- linux-2.4.1-ac4/arch/ia64/kernel/process.c	Thu Jan  4 21:50:17 2001
-+++ linux/arch/ia64/kernel/process.c	Wed Feb  7 00:00:06 2001
-@@ -542,7 +542,7 @@
- 		 * context for the last time. There is a possible race
- 		 * condition in SMP mode between the child and the
- 		 * parent.  by explicitly saving the PMU context here
--		 * we garantee no race.  this call we also stop
-+		 * we guarantee no race.  this call we also stop
- 		 * monitoring
- 		 */
- 		ia64_save_pm_regs(current);
-diff -ur linux-2.4.1-ac4/arch/ia64/sn/io/pci_bus_cvlink.c linux/arch/ia64/sn/io/pci_bus_cvlink.c
---- linux-2.4.1-ac4/arch/ia64/sn/io/pci_bus_cvlink.c	Fri Jan  5 00:25:55 2001
-+++ linux/arch/ia64/sn/io/pci_bus_cvlink.c	Wed Feb  7 00:00:06 2001
-@@ -114,9 +114,9 @@
- 	pci_bus = pci_bus_to_vertex(busnum);
- 	if (!pci_bus) {
- 		/*
--		 * During probing, the Linux pci code invents non existant
-+		 * During probing, the Linux pci code invents non existent
- 		 * bus numbers and pci_dev structures and tries to access
--		 * them to determine existance. Don't crib during probing.
-+		 * them to determine existence. Don't crib during probing.
- 		 */
- 		if (done_probing)
- 			printk("devfn_to_vertex: Invalid bus number %d given.\n", busnum);
-diff -ur linux-2.4.1-ac4/arch/ia64/sn/io/pcibr.c linux/arch/ia64/sn/io/pcibr.c
---- linux-2.4.1-ac4/arch/ia64/sn/io/pcibr.c	Wed Feb  7 00:02:55 2001
-+++ linux/arch/ia64/sn/io/pcibr.c	Wed Feb  7 00:00:06 2001
-@@ -8609,7 +8609,7 @@
- 			BRIDGE_ERRUPPR_ADDRMASK) << 32)));
- 
-     /*
--     * need to ensure that the xtalk adress in ioe
-+     * need to ensure that the xtalk address in ioe
-      * maps to PCI error address read from bridge.
-      * How to convert PCI address back to Xtalk address ?
-      * (better idea: convert XTalk address to PCI address
-diff -ur linux-2.4.1-ac4/arch/mips64/mm/fault.c linux/arch/mips64/mm/fault.c
---- linux-2.4.1-ac4/arch/mips64/mm/fault.c	Wed Nov 29 06:42:04 2000
-+++ linux/arch/mips64/mm/fault.c	Wed Feb  7 00:00:07 2001
-@@ -61,7 +61,7 @@
- 
- /*
-  * Unlock any spinlocks which will prevent us from getting the
-- * message out (timerlist_lock is aquired through the
-+ * message out (timerlist_lock is acquired through the
-  * console unblank code)
-  */
- void bust_spinlocks(void)
-diff -ur linux-2.4.1-ac4/arch/parisc/kernel/semaphore.c linux/arch/parisc/kernel/semaphore.c
---- linux-2.4.1-ac4/arch/parisc/kernel/semaphore.c	Wed Feb  7 00:02:58 2001
-+++ linux/arch/parisc/kernel/semaphore.c	Wed Feb  7 00:00:07 2001
-@@ -187,7 +187,7 @@
- 	while (atomic_read(&sem->count) < 0) {
- 		set_task_state(current, TASK_UNINTERRUPTIBLE);
- 		if (atomic_read(&sem->count) >= 0)
--			break;	/* we must attempt to aquire or bias the lock */
-+			break;	/* we must attempt to acquire or bias the lock */
- 		schedule();
- 	}
- 
-diff -ur linux-2.4.1-ac4/arch/sparc/kernel/ioport.c linux/arch/sparc/kernel/ioport.c
---- linux-2.4.1-ac4/arch/sparc/kernel/ioport.c	Mon Dec 11 21:37:02 2000
-+++ linux/arch/sparc/kernel/ioport.c	Wed Feb  7 00:00:07 2001
-@@ -225,7 +225,7 @@
- 	 * XXX Playing with implementation details here.
- 	 * On sparc64 Ebus has resources with precise boundaries.
- 	 * We share drivers with sparc64. Too clever drivers use
--	 * start of a resource instead of a base adress.
-+	 * start of a resource instead of a base address.
- 	 *
- 	 * XXX-2 This may be not valid anymore, clean when
- 	 * interface to sbus_ioremap() is resolved.
-diff -ur linux-2.4.1-ac4/drivers/block/cciss.c linux/drivers/block/cciss.c
---- linux-2.4.1-ac4/drivers/block/cciss.c	Wed Feb  7 00:03:05 2001
-+++ linux/drivers/block/cciss.c	Wed Feb  7 00:00:07 2001
-@@ -1053,7 +1053,7 @@
- 			printk(KERN_WARNING "cciss: fifo full \n");
- 			return;
- 		}
--		/* Get the frist entry from the Request Q */ 
-+		/* Get the first entry from the Request Q */ 
- 		removeQ(&(h->reqQ), c);
- 		h->Qdepth--;
- 	
-diff -ur linux-2.4.1-ac4/drivers/block/rd.c linux/drivers/block/rd.c
---- linux-2.4.1-ac4/drivers/block/rd.c	Wed Feb  7 00:03:06 2001
-+++ linux/drivers/block/rd.c	Wed Feb  7 00:00:07 2001
-@@ -110,7 +110,7 @@
-  */
- int rd_size = CONFIG_BLK_DEV_RAM_SIZE;		/* Size of the RAM disks */
- /*
-- * It would be very desiderable to have a soft-blocksize (that in the case
-+ * It would be very desirable to have a soft-blocksize (that in the case
-  * of the ramdisk driver is also the hardblocksize ;) of PAGE_SIZE because
-  * doing that we'll achieve a far better MM footprint. Using a rd_blocksize of
-  * BLOCK_SIZE in the worst case we'll make PAGE_SIZE/BLOCK_SIZE buffer-pages
-diff -ur linux-2.4.1-ac4/drivers/char/serial.c linux/drivers/char/serial.c
---- linux-2.4.1-ac4/drivers/char/serial.c	Wed Feb  7 00:03:09 2001
-+++ linux/drivers/char/serial.c	Wed Feb  7 00:00:07 2001
-@@ -5123,7 +5123,7 @@
-  * Given a complete unknown ISA PnP device, try to use some heuristics to
-  * detect modems. Currently use such heuristic set:
-  *     - dev->name or dev->bus->name must contain "modem" substring;
-- *     - device must have only one IO region (8 byte long) with base adress
-+ *     - device must have only one IO region (8 byte long) with base address
-  *       0x2e8, 0x3e8, 0x2f8 or 0x3f8.
-  *
-  * Such detection looks very ugly, but can detect at least some of numerous
-diff -ur linux-2.4.1-ac4/drivers/char/synclink.c linux/drivers/char/synclink.c
---- linux-2.4.1-ac4/drivers/char/synclink.c	Tue Nov  7 19:36:42 2000
-+++ linux/drivers/char/synclink.c	Wed Feb  7 00:00:07 2001
-@@ -1717,7 +1717,7 @@
- 	/* Allocate and claim adapter resources */
- 	retval = mgsl_claim_resources(info);
- 	
--	/* perform existance check and diagnostics */
-+	/* perform existence check and diagnostics */
- 	if ( !retval )
- 		retval = mgsl_adapter_test(info);
- 		
-diff -ur linux-2.4.1-ac4/drivers/gsc/busdevice.c linux/drivers/gsc/busdevice.c
---- linux-2.4.1-ac4/drivers/gsc/busdevice.c	Wed Feb  7 00:03:10 2001
-+++ linux/drivers/gsc/busdevice.c	Wed Feb  7 00:00:07 2001
-@@ -74,7 +74,7 @@
- 	/* See if this Device belongs to a LASI/ASP/WAX we know about */
- 	/* deller: Changed to test only the 3 highest nibbles of the
- 	    address-range, since ASP uses hpa of 0xf080yyyy, but devices are 
--	    at adress 0xf082yyyy ! */
-+	    at address 0xf082yyyy ! */
- 	while (busdev &&
- 		(((unsigned long) busdev->hpa & ~0xfffff) != ((unsigned long) dev->hpa & ~0xfffff)))
- 	{
-diff -ur linux-2.4.1-ac4/drivers/isdn/act2000/capi.h linux/drivers/isdn/act2000/capi.h
---- linux-2.4.1-ac4/drivers/isdn/act2000/capi.h	Fri Nov 17 20:16:20 2000
-+++ linux/drivers/isdn/act2000/capi.h	Wed Feb  7 00:00:07 2001
-@@ -44,7 +44,7 @@
- 	char *description;
- } actcapi_msgdsc;
- 
--/* CAPI Adress */
-+/* CAPI Address */
- typedef struct actcapi_addr {
- 	__u8 len;                            /* Length of element            */
- 	__u8 tnp;                            /* Type/Numbering Plan          */
-diff -ur linux-2.4.1-ac4/drivers/isdn/eicon/idi.h linux/drivers/isdn/eicon/idi.h
---- linux-2.4.1-ac4/drivers/isdn/eicon/idi.h	Mon Dec 11 22:21:41 2000
-+++ linux/drivers/isdn/eicon/idi.h	Wed Feb  7 00:00:07 2001
-@@ -65,7 +65,7 @@
- struct postcall_s {
-   word        command;         /* command = 0x0300 */
-   word        dummy;           /* not used */
--  IDI_CALL    callback;        /* routine adress to call back */
-+  IDI_CALL    callback;        /* routine address to call back */
-   ENTITY      *contxt;         /* ptr to entity to use */
- };
- 
-diff -ur linux-2.4.1-ac4/drivers/isdn/hisax/l3dss1.c linux/drivers/isdn/hisax/l3dss1.c
---- linux-2.4.1-ac4/drivers/isdn/hisax/l3dss1.c	Wed Feb  7 00:03:18 2001
-+++ linux/drivers/isdn/hisax/l3dss1.c	Wed Feb  7 00:00:08 2001
-@@ -2112,7 +2112,7 @@
-         MsgHead(p, pc->callref, MT_FACILITY);
- 
-         for (subp = pc->chan->setup.phone; (*subp) && (*subp != '.'); subp++) len_phone++; /* len of phone number */
--        if (*subp++ == '.') len_sub = strlen(subp) + 2; /* length including info subadress element */ 
-+        if (*subp++ == '.') len_sub = strlen(subp) + 2; /* length including info subaddress element */ 
- 
- 	*p++ = 0x1c;   /* Facility info element */
-         *p++ = len_phone + len_sub + 2 + 2 + 8 + 3 + 3; /* length of element */
-@@ -2138,7 +2138,7 @@
- 	 *p++ = pc->chan->setup.phone[l];
- 
-         if (len_sub)
--	  { *p++ = 0x04; /* called party subadress */
-+	  { *p++ = 0x04; /* called party subaddress */
-             *p++ = len_sub - 2;
-             while (*subp) *p++ = *subp++;
-           }
-diff -ur linux-2.4.1-ac4/drivers/isdn/hisax/l3ni1.c linux/drivers/isdn/hisax/l3ni1.c
---- linux-2.4.1-ac4/drivers/isdn/hisax/l3ni1.c	Wed Feb  7 00:03:18 2001
-+++ linux/drivers/isdn/hisax/l3ni1.c	Wed Feb  7 00:00:08 2001
-@@ -1973,7 +1973,7 @@
-         MsgHead(p, pc->callref, MT_FACILITY);
- 
-         for (subp = pc->chan->setup.phone; (*subp) && (*subp != '.'); subp++) len_phone++; /* len of phone number */
--        if (*subp++ == '.') len_sub = strlen(subp) + 2; /* length including info subadress element */ 
-+        if (*subp++ == '.') len_sub = strlen(subp) + 2; /* length including info subaddress element */ 
- 
- 	*p++ = 0x1c;   /* Facility info element */
-         *p++ = len_phone + len_sub + 2 + 2 + 8 + 3 + 3; /* length of element */
-@@ -1999,7 +1999,7 @@
- 	 *p++ = pc->chan->setup.phone[l];
- 
-         if (len_sub)
--	  { *p++ = 0x04; /* called party subadress */
-+	  { *p++ = 0x04; /* called party subaddress */
-             *p++ = len_sub - 2;
-             while (*subp) *p++ = *subp++;
-           }
-diff -ur linux-2.4.1-ac4/drivers/isdn/icn/icn.h linux/drivers/isdn/icn/icn.h
---- linux-2.4.1-ac4/drivers/isdn/icn/icn.h	Mon Dec 11 22:21:14 2000
-+++ linux/drivers/isdn/icn/icn.h	Wed Feb  7 00:00:08 2001
-@@ -217,9 +217,9 @@
- #ifdef MODULE
- MODULE_AUTHOR("Fritz Elfert");
- MODULE_PARM(portbase, "i");
--MODULE_PARM_DESC(portbase, "Port adress of first card");
-+MODULE_PARM_DESC(portbase, "Port address of first card");
- MODULE_PARM(membase, "i");
--MODULE_PARM_DESC(membase, "Shared memory adress of all cards");
-+MODULE_PARM_DESC(membase, "Shared memory address of all cards");
- MODULE_PARM(icn_id, "s");
- MODULE_PARM_DESC(icn_id, "ID-String of first card");
- MODULE_PARM(icn_id2, "s");
-diff -ur linux-2.4.1-ac4/drivers/media/video/tvaudio.c linux/drivers/media/video/tvaudio.c
---- linux-2.4.1-ac4/drivers/media/video/tvaudio.c	Tue Dec  5 21:43:47 2000
-+++ linux/drivers/media/video/tvaudio.c	Wed Feb  7 00:00:08 2001
-@@ -123,7 +123,7 @@
- 
- 
- /* ---------------------------------------------------------------------- */
--/* i2c adresses                                                           */
-+/* i2c addresses                                                           */
- 
- static unsigned short normal_i2c[] = {
- 	I2C_TDA8425   >> 1,
-diff -ur linux-2.4.1-ac4/drivers/net/irda/irport.c linux/drivers/net/irda/irport.c
---- linux-2.4.1-ac4/drivers/net/irda/irport.c	Mon Nov 13 05:43:07 2000
-+++ linux/drivers/net/irda/irport.c	Wed Feb  7 00:00:08 2001
-@@ -1006,7 +1006,7 @@
- 
- #ifdef MODULE
- MODULE_PARM(io, "1-4i");
--MODULE_PARM_DESC(io, "Base I/O adresses");
-+MODULE_PARM_DESC(io, "Base I/O addresses");
- MODULE_PARM(irq, "1-4i");
- MODULE_PARM_DESC(irq, "IRQ lines");
- 
-diff -ur linux-2.4.1-ac4/drivers/net/skfp/drvfbi.c linux/drivers/net/skfp/drvfbi.c
---- linux-2.4.1-ac4/drivers/net/skfp/drvfbi.c	Mon Mar 13 04:11:17 2000
-+++ linux/drivers/net/skfp/drvfbi.c	Wed Feb  7 00:00:08 2001
-@@ -849,7 +849,7 @@
- 
- #ifdef	EISA
- 
--/*arrays with io adresses of dma controller length and adress registers*/
-+/*arrays with io addresses of dma controller length and address registers*/
- static const int cntr[8] = { 0x001,0x003,0x005,0x007,0,0x0c6,0x0ca,0x0ce } ;
- static const int base[8] = { 0x000,0x002,0x004,0x006,0,0x0c4,0x0c8,0x0cc } ;
- static const int page[8] = { 0x087,0x083,0x081,0x082,0,0x08b,0x089,0x08a } ;
-diff -ur linux-2.4.1-ac4/drivers/net/skfp/hwmtm.c linux/drivers/net/skfp/hwmtm.c
---- linux-2.4.1-ac4/drivers/net/skfp/hwmtm.c	Fri May 12 20:43:26 2000
-+++ linux/drivers/net/skfp/hwmtm.c	Wed Feb  7 00:00:08 2001
-@@ -688,7 +688,7 @@
-  *		interrupt service routine, handles the interrupt requests
-  *		generated by the FDDI adapter.
-  *
-- * NOTE:	The operating system dependent module must garantee that the
-+ * NOTE:	The operating system dependent module must guarantee that the
-  *		interrupts of the adapter are disabled when it calls fddi_isr.
-  *
-  *	About the USE_BREAK_ISR mechanismn:
-diff -ur linux-2.4.1-ac4/drivers/parport/parport_pc.c linux/drivers/parport/parport_pc.c
---- linux-2.4.1-ac4/drivers/parport/parport_pc.c	Wed Feb  7 00:03:43 2001
-+++ linux/drivers/parport/parport_pc.c	Wed Feb  7 00:00:08 2001
-@@ -1426,7 +1426,7 @@
- /*
-  * Checks for port existence, all ports support SPP MODE
-  * Returns: 
-- *         0           :  No parallel port at this adress
-+ *         0           :  No parallel port at this address
-  *  PARPORT_MODE_PCSPP :  SPP port detected 
-  *                        (if the user specified an ioport himself,
-  *                         this shall always be the case!)
-diff -ur linux-2.4.1-ac4/drivers/sbus/char/envctrl.c linux/drivers/sbus/char/envctrl.c
---- linux-2.4.1-ac4/drivers/sbus/char/envctrl.c	Fri Nov 10 00:57:41 2000
-+++ linux/drivers/sbus/char/envctrl.c	Wed Feb  7 00:00:08 2001
-@@ -229,7 +229,7 @@
- 		printk(KERN_INFO "envctrl: Busy bit will not clear.\n");
- }
- 
--/* Function Description: Send the adress for a read access.
-+/* Function Description: Send the address for a read access.
-  * Return : 0 if not acknowledged, otherwise acknowledged.
-  */
- static int envctrl_i2c_read_addr(unsigned char addr)
-@@ -255,7 +255,7 @@
- 	}
- }
- 
--/* Function Description: Send the adress for write mode.  
-+/* Function Description: Send the address for write mode.  
-  * Return : None.
-  */
- static void envctrl_i2c_write_addr(unsigned char addr)
-diff -ur linux-2.4.1-ac4/drivers/scsi/megaraid.c linux/drivers/scsi/megaraid.c
---- linux-2.4.1-ac4/drivers/scsi/megaraid.c	Mon Feb  5 21:00:32 2001
-+++ linux/drivers/scsi/megaraid.c	Wed Feb  7 00:00:08 2001
-@@ -1263,7 +1263,7 @@
- }
- 
- /*--------------------------------------------------------------------
-- * Initializes the adress of the controller's mailbox register
-+ * Initializes the address of the controller's mailbox register
-  *  The mailbox register is used to issue commands to the card.
-  *  Format of the mailbox area:
-  *   00 01 command
-diff -ur linux-2.4.1-ac4/drivers/scsi/ncr53c8xx.c linux/drivers/scsi/ncr53c8xx.c
---- linux-2.4.1-ac4/drivers/scsi/ncr53c8xx.c	Mon Sep 18 22:36:25 2000
-+++ linux/drivers/scsi/ncr53c8xx.c	Wed Feb  7 00:00:09 2001
-@@ -7706,7 +7706,7 @@
- /*==========================================================
- **
- **
--**	Aquire a control block
-+**	Acquire a control block
- **
- **
- **==========================================================
-diff -ur linux-2.4.1-ac4/drivers/scsi/sym53c8xx.c linux/drivers/scsi/sym53c8xx.c
---- linux-2.4.1-ac4/drivers/scsi/sym53c8xx.c	Mon Jan  1 19:23:21 2001
-+++ linux/drivers/scsi/sym53c8xx.c	Wed Feb  7 00:00:09 2001
-@@ -1465,7 +1465,7 @@
- #endif
- 
- /*
--**	If the CPU and the NCR use same endian-ness adressing,
-+**	If the CPU and the NCR use same endian-ness addressing,
- **	no byte reordering is needed for script patching.
- **	Macro cpu_to_scr() is to be used for script patching.
- **	Macro scr_to_cpu() is to be used for getting a DWORD 
-@@ -1504,7 +1504,7 @@
- */
- 
- /*
--**	If the CPU and the NCR use same endian-ness adressing,
-+**	If the CPU and the NCR use same endian-ness addressing,
- **	no byte reordering is needed for accessing chip io 
- **	registers. Functions suffixed by '_raw' are assumed 
- **	to access the chip over the PCI without doing byte 
-@@ -8961,7 +8961,7 @@
- **		scntl3:	(see the manual)
- **
- **	current script command:
--**		dsp:	script adress (relative to start of script).
-+**		dsp:	script address (relative to start of script).
- **		dbc:	first word of script command.
- **
- **	First 24 register of the chip:
-@@ -11869,7 +11869,7 @@
- /*==========================================================
- **
- **
--**	Aquire a control block
-+**	Acquire a control block
- **
- **
- **==========================================================
-diff -ur linux-2.4.1-ac4/drivers/scsi/sym53c8xx_comm.h linux/drivers/scsi/sym53c8xx_comm.h
---- linux-2.4.1-ac4/drivers/scsi/sym53c8xx_comm.h	Mon Oct 16 21:56:50 2000
-+++ linux/drivers/scsi/sym53c8xx_comm.h	Wed Feb  7 00:00:11 2001
-@@ -1115,7 +1115,7 @@
- **	Btw, ncr_offb() and ncr_offw() macros only apply to 
- **	constants and so donnot generate bloated code.
- **
--**	If the CPU and the NCR use same endian-ness adressing,
-+**	If the CPU and the NCR use same endian-ness addressing,
- **	no byte reordering is needed for script patching.
- **	Macro cpu_to_scr() is to be used for script patching.
- **	Macro scr_to_cpu() is to be used for getting a DWORD 
-@@ -1164,7 +1164,7 @@
- **	would have been correctly designed for PCI, this 
- **	option would be useless.
- **
--**	If the CPU and the NCR use same endian-ness adressing,
-+**	If the CPU and the NCR use same endian-ness addressing,
- **	no byte reordering is needed for accessing chip io 
- **	registers. Functions suffixed by '_raw' are assumed 
- **	to access the chip over the PCI without doing byte 
-diff -ur linux-2.4.1-ac4/drivers/video/imsttfb.c linux/drivers/video/imsttfb.c
---- linux-2.4.1-ac4/drivers/video/imsttfb.c	Sat Aug  5 03:06:34 2000
-+++ linux/drivers/video/imsttfb.c	Wed Feb  7 00:00:11 2001
-@@ -178,10 +178,10 @@
- 
- /* TI TVP 3030 RAMDAC Direct Registers */
- enum {
--	TVPADDRW = 0x00,	/* 0  Palette/Cursor RAM Write Adress/Index */
-+	TVPADDRW = 0x00,	/* 0  Palette/Cursor RAM Write Address/Index */
- 	TVPPDATA = 0x04,	/* 1  Palette Data RAM Data */
- 	TVPPMASK = 0x08,	/* 2  Pixel Read-Mask */
--	TVPPADRR = 0x0c,	/* 3  Palette/Cursor RAM Read Adress */
-+	TVPPADRR = 0x0c,	/* 3  Palette/Cursor RAM Read Address */
- 	TVPCADRW = 0x10,	/* 4  Cursor/Overscan Color Write Address */
- 	TVPCDATA = 0x14,	/* 5  Cursor/Overscan Color Data */
- 				/* 6  reserved */
-diff -ur linux-2.4.1-ac4/include/asm-cris/ide.h linux/include/asm-cris/ide.h
---- linux-2.4.1-ac4/include/asm-cris/ide.h	Wed Feb  7 00:04:12 2001
-+++ linux/include/asm-cris/ide.h	Wed Feb  7 00:00:11 2001
-@@ -129,7 +129,7 @@
- #define ide_release_lock(lock)		do {} while (0)
- #define ide_get_lock(lock, hdlr, data)	do {} while (0)
- 
--/* the drive adressing is done through a controller register on the Etrax CPU */
-+/* the drive addressing is done through a controller register on the Etrax CPU */
- void OUT_BYTE(unsigned char data, ide_ioreg_t reg);
- unsigned char IN_BYTE(ide_ioreg_t reg);
- 
-diff -ur linux-2.4.1-ac4/include/asm-cris/page.h linux/include/asm-cris/page.h
---- linux-2.4.1-ac4/include/asm-cris/page.h	Wed Feb  7 00:04:12 2001
-+++ linux/include/asm-cris/page.h	Wed Feb  7 00:00:11 2001
-@@ -100,7 +100,7 @@
- /* to index into the page map. our pages all start at physical addr PAGE_OFFSET so
-  * we can let the map start there. notice that we subtract PAGE_OFFSET because
-  * we start our mem_map there - in other ports they map mem_map physically and
-- * use __pa instead. in our system both the physical and virtual adress of DRAM
-+ * use __pa instead. in our system both the physical and virtual address of DRAM
-  * is too high to let mem_map start at 0, so we do it this way instead (similar
-  * to arm and m68k I think)
-  */ 
-diff -ur linux-2.4.1-ac4/include/asm-i386/highmem.h linux/include/asm-i386/highmem.h
---- linux-2.4.1-ac4/include/asm-i386/highmem.h	Wed Feb  7 00:04:13 2001
-+++ linux/include/asm-i386/highmem.h	Wed Feb  7 00:00:11 2001
-@@ -2,7 +2,7 @@
-  * highmem.h: virtual kernel memory mappings for high memory
-  *
-  * Used in CONFIG_HIGHMEM systems for memory pages which
-- * are not addressable by direct kernel virtual adresses.
-+ * are not addressable by direct kernel virtual addresses.
-  *
-  * Copyright (C) 1999 Gerhard Wichert, Siemens AG
-  *		      Gerhard.Wichert@pdb.siemens.de
-diff -ur linux-2.4.1-ac4/include/asm-ia64/sn/pci/pcibr.h linux/include/asm-ia64/sn/pci/pcibr.h
---- linux-2.4.1-ac4/include/asm-ia64/sn/pci/pcibr.h	Thu Jan  4 22:00:15 2001
-+++ linux/include/asm-ia64/sn/pci/pcibr.h	Wed Feb  7 00:00:12 2001
-@@ -47,7 +47,7 @@
-  *	These functions are normal device driver entry points
-  *	and are called along with the similar entry points from
-  *	other device drivers. They are included here as documentation
-- *	of their existance and purpose.
-+ *	of their existence and purpose.
-  *
-  *	pcibr_init() is called to inform us that there is a pcibr driver
-  *	configured into the kernel; it is responsible for registering
-diff -ur linux-2.4.1-ac4/include/asm-parisc/hardware.h linux/include/asm-parisc/hardware.h
---- linux-2.4.1-ac4/include/asm-parisc/hardware.h	Wed Feb  7 00:04:13 2001
-+++ linux/include/asm-parisc/hardware.h	Wed Feb  7 00:00:12 2001
-@@ -10,7 +10,7 @@
- };
- 
- 
--#define MAX_ADD_ADDRS	5	/* 5 additional adress ranges should be sufficient */
-+#define MAX_ADD_ADDRS	5	/* 5 additional address ranges should be sufficient */
- 
- struct hp_device {
- 	void 		*hpa;
-diff -ur linux-2.4.1-ac4/include/asm-parisc/pdc.h linux/include/asm-parisc/pdc.h
---- linux-2.4.1-ac4/include/asm-parisc/pdc.h	Wed Feb  7 00:04:13 2001
-+++ linux/include/asm-parisc/pdc.h	Wed Feb  7 00:00:12 2001
-@@ -215,7 +215,7 @@
- #ifdef __LP64__
- 		cc_padW:32,
- #endif
--		cc_alias:4,	/* alias boundaries for virtual adresses   */
-+		cc_alias:4,	/* alias boundaries for virtual addresses   */
- 		cc_block: 4,	/* to determine most efficient stride */
- 		cc_line	: 3,	/* maximum amount written back as a result of store (multiple of 16 bytes) */
- 		cc_pad0 : 2,	/* reserved */
-diff -ur linux-2.4.1-ac4/include/asm-ppc/highmem.h linux/include/asm-ppc/highmem.h
---- linux-2.4.1-ac4/include/asm-ppc/highmem.h	Thu Nov  9 04:01:34 2000
-+++ linux/include/asm-ppc/highmem.h	Wed Feb  7 00:00:12 2001
-@@ -4,7 +4,7 @@
-  * PowerPC version, stolen from the i386 version.
-  *
-  * Used in CONFIG_HIGHMEM systems for memory pages which
-- * are not addressable by direct kernel virtual adresses.
-+ * are not addressable by direct kernel virtual addresses.
-  *
-  * Copyright (C) 1999 Gerhard Wichert, Siemens AG
-  *		      Gerhard.Wichert@pdb.siemens.de
-diff -ur linux-2.4.1-ac4/include/asm-ppc/tqm860.h linux/include/asm-ppc/tqm860.h
---- linux-2.4.1-ac4/include/asm-ppc/tqm860.h	Sun Nov 12 03:23:11 2000
-+++ linux/include/asm-ppc/tqm860.h	Wed Feb  7 00:00:12 2001
-@@ -28,7 +28,7 @@
- 	 unsigned long	bi_immr_base;	/* base of IMMR register */
- 	 unsigned long	bi_bootflags;	/* boot / reboot flag (for LynxOS) */
- 	 unsigned long	bi_ip_addr;	/* IP Address */
--	 unsigned char	bi_enetaddr[6];	/* Ethernet adress */
-+	 unsigned char	bi_enetaddr[6];	/* Ethernet address */
- 	 unsigned char	bi_reserved[2];	/* -- just for alignment -- */
- 	 unsigned long	bi_putchar;	/* Addr of monitor putchar() to Console	*/
- 	 unsigned long	bi_intfreq;	/* Internal Freq, in MHz */
-diff -ur linux-2.4.1-ac4/include/asm-ppc/tqm8xxL.h linux/include/asm-ppc/tqm8xxL.h
---- linux-2.4.1-ac4/include/asm-ppc/tqm8xxL.h	Sun Nov 12 03:23:11 2000
-+++ linux/include/asm-ppc/tqm8xxL.h	Wed Feb  7 00:00:12 2001
-@@ -28,7 +28,7 @@
- 	 unsigned long	bi_immr_base;	/* base of IMMR register */
- 	 unsigned long	bi_bootflags;	/* boot / reboot flag (for LynxOS) */
- 	 unsigned long	bi_ip_addr;	/* IP Address */
--	 unsigned char	bi_enetaddr[6];	/* Ethernet adress */
-+	 unsigned char	bi_enetaddr[6];	/* Ethernet address */
- 	 unsigned char	bi_reserved[2];	/* -- just for alignment -- */
- 	 unsigned long	bi_putchar;	/* Addr of monitor putchar() to Console	*/
- 	 unsigned long	bi_intfreq;	/* Internal Freq, in MHz */
-diff -ur linux-2.4.1-ac4/include/asm-s390/irq.h linux/include/asm-s390/irq.h
---- linux-2.4.1-ac4/include/asm-s390/irq.h	Wed Feb  7 00:04:14 2001
-+++ linux/include/asm-s390/irq.h	Wed Feb  7 00:00:12 2001
-@@ -186,7 +186,7 @@
- 
- typedef struct {
-       __u8  cmd_code;/* command code */
--      __u8  flags;   /* flags, like IDA adressing, etc. */
-+      __u8  flags;   /* flags, like IDA addressing, etc. */
-       __u16 count;   /* byte count */
-       __u32 cda;     /* data address */
-    } __attribute__ ((packed,aligned(8))) ccw1_t;
-diff -ur linux-2.4.1-ac4/include/asm-s390x/irq.h linux/include/asm-s390x/irq.h
---- linux-2.4.1-ac4/include/asm-s390x/irq.h	Wed Feb  7 00:04:15 2001
-+++ linux/include/asm-s390x/irq.h	Wed Feb  7 00:00:12 2001
-@@ -186,7 +186,7 @@
- 
- typedef struct {
-       __u8  cmd_code;/* command code */
--      __u8  flags;   /* flags, like IDA adressing, etc. */
-+      __u8  flags;   /* flags, like IDA addressing, etc. */
-       __u16 count;   /* byte count */
-       __u32 cda;     /* data address */
-    } __attribute__ ((packed,aligned(8))) ccw1_t;
-diff -ur linux-2.4.1-ac4/include/asm-sparc/highmem.h linux/include/asm-sparc/highmem.h
---- linux-2.4.1-ac4/include/asm-sparc/highmem.h	Thu Nov  9 04:01:34 2000
-+++ linux/include/asm-sparc/highmem.h	Wed Feb  7 00:00:12 2001
-@@ -2,7 +2,7 @@
-  * highmem.h: virtual kernel memory mappings for high memory
-  *
-  * Used in CONFIG_HIGHMEM systems for memory pages which
-- * are not addressable by direct kernel virtual adresses.
-+ * are not addressable by direct kernel virtual addresses.
-  *
-  * Copyright (C) 1999 Gerhard Wichert, Siemens AG
-  *		      Gerhard.Wichert@pdb.siemens.de
-diff -ur linux-2.4.1-ac4/include/linux/i2c.h linux/include/linux/i2c.h
---- linux-2.4.1-ac4/include/linux/i2c.h	Fri Dec 29 23:35:47 2000
-+++ linux/include/linux/i2c.h	Wed Feb  7 00:00:12 2001
-@@ -454,7 +454,7 @@
-  *	corresponding header files.
-  */
- 				/* -> bit-adapter specific ioctls	*/
--#define I2C_RETRIES	0x0701	/* number times a device adress should	*/
-+#define I2C_RETRIES	0x0701	/* number times a device address should	*/
- 				/* be polled when not acknowledging 	*/
- #define I2C_TIMEOUT	0x0702	/* set timeout - call with int 		*/
- 
-@@ -471,7 +471,7 @@
- #define I2C_FUNCS	0x0705	/* Get the adapter functionality */
- #define I2C_RDWR	0x0707	/* Combined R/W transfer (one stop only)*/
- #if 0
--#define I2C_ACK_TEST	0x0710	/* See if a slave is at a specific adress */
-+#define I2C_ACK_TEST	0x0710	/* See if a slave is at a specific address */
- #endif
- 
- #define I2C_SMBUS	0x0720	/* SMBus-level access */
-diff -ur linux-2.4.1-ac4/kernel/signal.c linux/kernel/signal.c
---- linux-2.4.1-ac4/kernel/signal.c	Thu Jan  4 05:45:26 2001
-+++ linux/kernel/signal.c	Wed Feb  7 00:00:12 2001
-@@ -519,7 +519,7 @@
- 	if (bad_signal(sig, info, t))
- 		goto out_nolock;
- 
--	/* The null signal is a permissions and process existance probe.
-+	/* The null signal is a permissions and process existence probe.
- 	   No signal is actually delivered.  Same goes for zombies. */
- 	ret = 0;
- 	if (!sig || !t->sig)
-diff -ur linux-2.4.1-ac4/mm/filemap.c linux/mm/filemap.c
---- linux-2.4.1-ac4/mm/filemap.c	Wed Feb  7 00:04:18 2001
-+++ linux/mm/filemap.c	Wed Feb  7 00:00:12 2001
-@@ -1689,7 +1689,7 @@
- 	unsigned long end = address + size;
- 	int error = 0;
- 
--	/* Aquire the lock early; it may be possible to avoid dropping
-+	/* Acquire the lock early; it may be possible to avoid dropping
- 	 * and reaquiring it repeatedly.
- 	 */
- 	spin_lock(&vma->vm_mm->page_table_lock);
-diff -ur linux-2.4.1-ac4/mm/swapfile.c linux/mm/swapfile.c
---- linux-2.4.1-ac4/mm/swapfile.c	Wed Feb  7 00:04:19 2001
-+++ linux/mm/swapfile.c	Wed Feb  7 00:00:12 2001
-@@ -818,7 +818,7 @@
- 
- /*
-  * Verify that a swap entry is valid and increment its swap map count.
-- * Kernel_lock is held, which guarantees existance of swap device.
-+ * Kernel_lock is held, which guarantees existence of swap device.
-  *
-  * Note: if swap_map[] reaches SWAP_MAP_MAX the entries are treated as
-  * "permanent", but will be reclaimed by the next swapoff.
-diff -ur linux-2.4.1-ac4/net/core/dev.c linux/net/core/dev.c
---- linux-2.4.1-ac4/net/core/dev.c	Wed Feb  7 00:04:20 2001
-+++ linux/net/core/dev.c	Wed Feb  7 00:00:12 2001
-@@ -429,7 +429,7 @@
- 
- /* 
-    Return value is changed to int to prevent illegal usage in future.
--   It is still legal to use to check for device existance.
-+   It is still legal to use to check for device existence.
- 
-    User should understand, that the result returned by this function
-    is meaningless, if it was not issued under rtnl semaphore.
--- 
+I have several problems with my computer (running RedHat 6.2) under Linux
+2.4.1 kernel. (See attached files for more information).
 
-André Dahlqvist <anedah-9@sm.luth.se>
+Here is a short summary:
+
+1) Audio card (based on SiS chipset) does not work due to incorrect
+   initialization of PCI resources. It seems that this is not a problem of
+   audio driver, but may be I am wrong.
+   The kernel prints this message:
+
+PCI: Cannot allocate resource region 0 of device 00:01.4
+  got res[1000:10ff] for resource 0 of Silicon Integrated Systems [SiS]
+SiS PCI Audio Accelerator
+
+2) Frame-buffer mode does not work with my video card SiS630.
+   But ok, frame-buffer mode is EXPERIMENTAL in linux.
+   Computer boots, but screen is blank. All messages are fine. 
+
+3) Kernel prints (working with DVD-ROM)
+   hdc: packet command error: status=0x51 { DriveReady SeekComplete Error}
+   I tried CONFIG_IDEDISK_MULTI_MODE to set NO and YES
+   but nothing helped. Well, this is a minor problem, because the device
+   works regardless of that message.
+
+4) Sometimes computer hangs up. It does not happen too often
+   (it happend 2 times), but I am curious why? There is no OOPS, and log
+   files do not have any error messages... And I can not reproduce this
+   bug.
+
+I spend already several days in attempts to configure all my hardware
+(mainly audio card) under linux properly. Any help is greatly appreciated.
+
+P.S. Please CC your answer to me because I am not member of your mail
+list.
+
+Thank you,
+Alexander.
+
+---1094550365-31101932-981512877=:1226
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="dmessg.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.20.0102070227570.1226@gamspc7.ihep.su>
+Content-Description: 
+Content-Disposition: attachment; filename="dmessg.txt"
+
+TGludXggdmVyc2lvbiAyLjQuMSAocm9vdEBhei5wcml2YXRlKSAoZ2NjIHZl
+cnNpb24gZWdjcy0yLjkxLjY2IDE5OTkwMzE0L0xpbnV4IChlZ2NzLTEuMS4y
+IHJlbGVhc2UpKSAjMSBTYXQgRmViIDMgMTU6NDI6NDAgTVNLIDIwMDENCkJJ
+T1MtcHJvdmlkZWQgcGh5c2ljYWwgUkFNIG1hcDoNCiBCSU9TLWU4MjA6IDAw
+MDAwMDAwMDAwOWZjMDAgQCAwMDAwMDAwMDAwMDAwMDAwICh1c2FibGUpDQog
+QklPUy1lODIwOiAwMDAwMDAwMDAwMDAwNDAwIEAgMDAwMDAwMDAwMDA5ZmMw
+MCAocmVzZXJ2ZWQpDQogQklPUy1lODIwOiAwMDAwMDAwMDAwMDIwMDAwIEAg
+MDAwMDAwMDAwMDBlMDAwMCAocmVzZXJ2ZWQpDQogQklPUy1lODIwOiAwMDAw
+MDAwMDAzNmYwMDAwIEAgMDAwMDAwMDAwMDEwMDAwMCAodXNhYmxlKQ0KIEJJ
+T1MtZTgyMDogMDAwMDAwMDAwMDAwZmZjMCBAIDAwMDAwMDAwMDM3ZjAwMDAg
+KEFDUEkgZGF0YSkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwMDAwNDAgQCAw
+MDAwMDAwMDAzN2ZmZmMwIChBQ1BJIE5WUykNCiBCSU9TLWU4MjA6IDAwMDAw
+MDAwMDAwNDAwMDAgQCAwMDAwMDAwMGZmZmMwMDAwIChyZXNlcnZlZCkNClNj
+YW4gU01QIGZyb20gYzAwMDAwMDAgZm9yIDEwMjQgYnl0ZXMuDQpTY2FuIFNN
+UCBmcm9tIGMwMDlmYzAwIGZvciAxMDI0IGJ5dGVzLg0KU2NhbiBTTVAgZnJv
+bSBjMDBmMDAwMCBmb3IgNjU1MzYgYnl0ZXMuDQpTY2FuIFNNUCBmcm9tIGMw
+MDlmYzAwIGZvciA0MDk2IGJ5dGVzLg0KT24gbm9kZSAwIHRvdGFscGFnZXM6
+IDE0MzIwDQp6b25lKDApOiA0MDk2IHBhZ2VzLg0Kem9uZSgxKTogMTAyMjQg
+cGFnZXMuDQp6b25lKDIpOiAwIHBhZ2VzLg0KbWFwcGVkIEFQSUMgdG8gZmZm
+ZmUwMDAgKDAxMGVmMDAwKQ0KS2VybmVsIGNvbW1hbmQgbGluZTogQk9PVF9J
+TUFHRT1sIHJvIHJvb3Q9MzAzIHBjaT1iaW9zaXJxDQpJbml0aWFsaXppbmcg
+Q1BVIzANCkRldGVjdGVkIDc5Ny40NjcgTUh6IHByb2Nlc3Nvci4NCkNvbnNv
+bGU6IGNvbG91ciBWR0ErIDgweDUwDQpDYWxpYnJhdGluZyBkZWxheSBsb29w
+Li4uIDE1OTIuNTIgQm9nb01JUFMNCk1lbW9yeTogNTQwNjhrLzU3MjgwayBh
+dmFpbGFibGUgKDEwNTZrIGtlcm5lbCBjb2RlLCAyODI0ayByZXNlcnZlZCwg
+Mzc3ayBkYXRhLCAyMDRrIGluaXQsIDBrIGhpZ2htZW0pDQpEZW50cnktY2Fj
+aGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA4MTkyIChvcmRlcjogNCwgNjU1MzYg
+Ynl0ZXMpDQpCdWZmZXItY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAxMDI0
+IChvcmRlcjogMCwgNDA5NiBieXRlcykNClBhZ2UtY2FjaGUgaGFzaCB0YWJs
+ZSBlbnRyaWVzOiAxNjM4NCAob3JkZXI6IDQsIDY1NTM2IGJ5dGVzKQ0KSW5v
+ZGUtY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA0MDk2IChvcmRlcjogMywg
+MzI3NjggYnl0ZXMpDQpDUFU6IEJlZm9yZSB2ZW5kb3IgaW5pdCwgY2Fwczog
+MDM4M2Y5ZmYgMDAwMDAwMDAgMDAwMDAwMDAsIHZlbmRvciA9IDANCkNQVTog
+TDEgSSBjYWNoZTogMTZLLCBMMSBEIGNhY2hlOiAxNksNCkNQVTogTDIgY2Fj
+aGU6IDI1NksNCkludGVsIG1hY2hpbmUgY2hlY2sgYXJjaGl0ZWN0dXJlIHN1
+cHBvcnRlZC4NCkludGVsIG1hY2hpbmUgY2hlY2sgcmVwb3J0aW5nIGVuYWJs
+ZWQgb24gQ1BVIzAuDQpDUFU6IEFmdGVyIHZlbmRvciBpbml0LCBjYXBzOiAw
+MzgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMA0KQ1BVOiBBZnRl
+ciBnZW5lcmljLCBjYXBzOiAwMzgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAw
+MDAwMDAwMA0KQ1BVOiBDb21tb24gY2FwczogMDM4M2Y5ZmYgMDAwMDAwMDAg
+MDAwMDAwMDAgMDAwMDAwMDANCkNQVTogSW50ZWwgUGVudGl1bSBJSUkgKENv
+cHBlcm1pbmUpIHN0ZXBwaW5nIDA2DQpFbmFibGluZyBmYXN0IEZQVSBzYXZl
+IGFuZCByZXN0b3JlLi4uIGRvbmUuDQpFbmFibGluZyB1bm1hc2tlZCBTSU1E
+IEZQVSBleGNlcHRpb24gc3VwcG9ydC4uLiBkb25lLg0KQ2hlY2tpbmcgJ2hs
+dCcgaW5zdHJ1Y3Rpb24uLi4gT0suDQpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0
+aW5nIGJ5IFVOSUZJWA0KbXRycjogdjEuMzcgKDIwMDAxMTA5KSBSaWNoYXJk
+IEdvb2NoIChyZ29vY2hAYXRuZi5jc2lyby5hdSkNCm10cnI6IGRldGVjdGVk
+IG10cnIgdHlwZTogSW50ZWwNClBDSTogUENJIEJJT1MgcmV2aXNpb24gMi4x
+MCBlbnRyeSBhdCAweGViNDQwLCBsYXN0IGJ1cz0xDQpQQ0k6IFVzaW5nIGNv
+bmZpZ3VyYXRpb24gdHlwZSAxDQpQQ0k6IFByb2JpbmcgUENJIGhhcmR3YXJl
+DQpQQ0k6IFVzaW5nIElSUSByb3V0ZXIgU0lTIFsxMDM5LzAwMDhdIGF0IDAw
+OjAxLjANClBDSTogQ2Fubm90IGFsbG9jYXRlIHJlc291cmNlIHJlZ2lvbiAw
+IG9mIGRldmljZSAwMDowMS40DQogIGdvdCByZXNbMTAwMDoxMGZmXSBmb3Ig
+cmVzb3VyY2UgMCBvZiBTaWxpY29uIEludGVncmF0ZWQgU3lzdGVtcyBbU2lT
+XSBTaVMgUENJIEF1ZGlvIEFjY2VsZXJhdG9yDQogIGdvdCByZXNbMTAwMDAw
+MDA6MTAwMDBmZmZdIGZvciByZXNvdXJjZSAwIG9mIFRleGFzIEluc3RydW1l
+bnRzIFBDSTE0MjANCiAgZ290IHJlc1sxMDAwMTAwMDoxMDAwMWZmZl0gZm9y
+IHJlc291cmNlIDAgb2YgVGV4YXMgSW5zdHJ1bWVudHMgUENJMTQyMCAoIzIp
+DQppc2FwbnA6IFNjYW5uaW5nIGZvciBQbnAgY2FyZHMuLi4NCmlzYXBucDog
+Tm8gUGx1ZyAmIFBsYXkgZGV2aWNlIGZvdW5kDQpMaW51eCBORVQ0LjAgZm9y
+IExpbnV4IDIuNA0KQmFzZWQgdXBvbiBTd2Fuc2VhIFVuaXZlcnNpdHkgQ29t
+cHV0ZXIgU29jaWV0eSBORVQzLjAzOQ0KRE1JIDIuMyBwcmVzZW50Lg0KNDYg
+c3RydWN0dXJlcyBvY2N1cHlpbmcgMTUwOCBieXRlcy4NCkRNSSB0YWJsZSBh
+dCAweDAwMEVEOTMyLg0KQklPUyBWZW5kb3I6IEluc3lkZXN3DQpCSU9TIFZl
+cnNpb246IFZlcnNpb24gNS4wOA0KQklPUyBSZWxlYXNlOiAxMC8yOC8yMDAw
+DQpTeXN0ZW0gVmVuZG9yOiBDTEVWTyBDby4gICAgICAgLg0KUHJvZHVjdCBO
+YW1lOiBMUDIwMC4NClZlcnNpb24gICAgICAuDQpTZXJpYWwgTnVtYmVyICAg
+ICAgIC4NCkJvYXJkIFZlbmRvcjogQ0xFVk8gQ28uICAgICAgIC4NCkJvYXJk
+IE5hbWU6IExQMjAwLg0KQm9hcmQgVmVyc2lvbjogICAgICAuDQphcG06IEJJ
+T1MgdmVyc2lvbiAxLjIgRmxhZ3MgMHgwMyAoRHJpdmVyIHZlcnNpb24gMS4x
+NCkNClN0YXJ0aW5nIGtzd2FwZCB2MS44DQpwYXJwb3J0MDogUEMtc3R5bGUg
+YXQgMHgzNzggW1BDU1BQKCwuLi4pXQ0KcHR5OiAyNTYgVW5peDk4IHB0eXMg
+Y29uZmlndXJlZA0KbHAwOiB1c2luZyBwYXJwb3J0MCAocG9sbGluZykuDQpi
+bG9jazogcXVldWVkIHNlY3RvcnMgbWF4L2xvdyAzNTgzMmtCLzExOTQ0a0Is
+IDEyOCBzbG90cyBwZXIgcXVldWUNClVuaWZvcm0gTXVsdGktUGxhdGZvcm0g
+RS1JREUgZHJpdmVyIFJldmlzaW9uOiA2LjMxDQppZGU6IEFzc3VtaW5nIDMz
+TUh6IHN5c3RlbSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUg
+d2l0aCBpZGVidXM9eHgNClNJUzU1MTM6IElERSBjb250cm9sbGVyIG9uIFBD
+SSBidXMgMDAgZGV2IDAxDQpQQ0k6IE5vIElSUSBrbm93biBmb3IgaW50ZXJy
+dXB0IHBpbiBBIG9mIGRldmljZSAwMDowMC4xLg0KU0lTNTUxMzogY2hpcHNl
+dCByZXZpc2lvbiAyMDgNClNJUzU1MTM6IG5vdCAxMDAlIG5hdGl2ZSBtb2Rl
+OiB3aWxsIHByb2JlIGlycXMgbGF0ZXINClNpUzYzMA0KICAgIGlkZTA6IEJN
+LURNQSBhdCAweDExMDAtMHgxMTA3LCBCSU9TIHNldHRpbmdzOiBoZGE6RE1B
+LCBoZGI6cGlvDQogICAgaWRlMTogQk0tRE1BIGF0IDB4MTEwOC0weDExMGYs
+IEJJT1Mgc2V0dGluZ3M6IGhkYzpETUEsIGhkZDpwaW8NCmhkYTogUVVBTlRV
+TSBGSVJFQkFMTGxjdDE1IDIwLCBBVEEgRElTSyBkcml2ZQ0KaGRjOiBUT1Jp
+U0FOIERWRC1ST00gRFJELVU4MjQsIEFUQVBJIENEL0RWRC1ST00gZHJpdmUN
+CmlkZTAgYXQgMHgxZjAtMHgxZjcsMHgzZjYgb24gaXJxIDE0DQppZGUxIGF0
+IDB4MTcwLTB4MTc3LDB4Mzc2IG9uIGlycSAxNQ0KaGRhOiAzOTg3NjQ4MCBz
+ZWN0b3JzICgyMDQxNyBNQikgdy80MThLaUIgQ2FjaGUsIENIUz0yNDgyLzI1
+NS82MywgVURNQSg2NikNCmhkYzogQVRBUEkgRFZELVJPTSBkcml2ZSwgMjU2
+a0IgQ2FjaGUsIFVETUEoMzMpDQpVbmlmb3JtIENELVJPTSBkcml2ZXIgUmV2
+aXNpb246IDMuMTINClBhcnRpdGlvbiBjaGVjazoNCiBoZGE6IGhkYTEgaGRh
+MiBoZGEzIGhkYTQNCkZsb3BweSBkcml2ZShzKTogZmQwIGlzIDEuNDRNDQpG
+REMgMCBpcyBhIHBvc3QtMTk5MSA4MjA3Nw0KdWRmOiByZWdpc3RlcmluZyBm
+aWxlc3lzdGVtDQpTZXJpYWwgZHJpdmVyIHZlcnNpb24gNS4wMiAoMjAwMC0w
+OC0wOSkgd2l0aCBNQU5ZX1BPUlRTIFNIQVJFX0lSUSBTRVJJQUxfUENJIElT
+QVBOUCBlbmFibGVkDQp0dHlTMDAgYXQgMHgwM2Y4IChpcnEgPSA0KSBpcyBh
+IDE2NTUwQQ0KdHR5UzAxIGF0IDB4MDJmOCAoaXJxID0gMykgaXMgYSAxNjU1
+MEENCnNpczkwMC5jOiB2MS4wNy4wNyAgMTEvMjkvMjAwMA0KUENJOiBGb3Vu
+ZCBJUlEgMTEgZm9yIGRldmljZSAwMDowMS4xDQpQQ0k6IFRoZSBzYW1lIElS
+USB1c2VkIGZvciBkZXZpY2UgMDA6MGQuMA0KZXRoMDogU2lTIDkwMCBQQ0kg
+RmFzdCBFdGhlcm5ldCBhdCAweDMwMDAsIElSUSAxMSwgMDA6OTA6ZjU6MDA6
+NDc6ODYuDQpldGgwOiBTaVMgOTAwIEludGVybmFsIE1JSSBQSFkgdHJhbnNj
+ZWl2ZXIgZm91bmQgYXQgYWRkcmVzcyAxLg0KZXRoMDogVXNpbmcgU2lTIDkw
+MCBJbnRlcm5hbCBNSUkgUEhZIGFzIGRlZmF1bHQNClRyaWRlbnQgNERXYXZl
+L1NpUyA3MDE4L0FMaSA1NDUxIFBDSSBBdWRpbywgdmVyc2lvbiAwLjE0LjYs
+IDE1OjQ0OjA0IEZlYiAgMyAyMDAxDQpQQ0k6IEZvdW5kIElSUSA1IGZvciBk
+ZXZpY2UgMDA6MDEuNA0KUENJOiBUaGUgc2FtZSBJUlEgdXNlZCBmb3IgZGV2
+aWNlIDAwOjAxLjYNClBDSTogVGhlIHNhbWUgSVJRIHVzZWQgZm9yIGRldmlj
+ZSAwMDowYy4xDQp0cmlkZW50OiBTaVMgNzAxOCBQQ0kgQXVkaW8gZm91bmQg
+YXQgSU8gMHgxMDAwLCBJUlEgNQ0KYWM5N19jb2RlYzogQUM5NyAgY29kZWMs
+IGlkOiAweDAwMDA6MHgwMDAwIChVbmtub3duKQ0KYWM5N19jb2RlYzogQUM5
+NyAgY29kZWMsIGlkOiAweDAwMDA6MHgwMDAwIChVbmtub3duKQ0KTkVUNDog
+TGludXggVENQL0lQIDEuMCBmb3IgTkVUNC4wDQpJUCBQcm90b2NvbHM6IElD
+TVAsIFVEUCwgVENQDQpJUDogcm91dGluZyBjYWNoZSBoYXNoIHRhYmxlIG9m
+IDUxMiBidWNrZXRzLCA0S2J5dGVzDQpUQ1A6IEhhc2ggdGFibGVzIGNvbmZp
+Z3VyZWQgKGVzdGFibGlzaGVkIDQwOTYgYmluZCA0MDk2KQ0KTkVUNDogVW5p
+eCBkb21haW4gc29ja2V0cyAxLjAvU01QIGZvciBMaW51eCBORVQ0LjAuDQpB
+Q1BJOiBBUE0gaXMgYWxyZWFkeSBhY3RpdmUsIGV4aXRpbmcNClZGUzogTW91
+bnRlZCByb290IChleHQyIGZpbGVzeXN0ZW0pIHJlYWRvbmx5Lg0KRnJlZWlu
+ZyB1bnVzZWQga2VybmVsIG1lbW9yeTogMjA0ayBmcmVlZA0KQWRkaW5nIFN3
+YXA6IDIwMDgwNGsgc3dhcC1zcGFjZSAocHJpb3JpdHkgLTEpDQo=
+---1094550365-31101932-981512877=:1226
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="lspci.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.20.0102070227571.1226@gamspc7.ihep.su>
+Content-Description: 
+Content-Disposition: attachment; filename="lspci.txt"
+
+MDA6MDAuMCBIb3N0IGJyaWRnZTogU2lsaWNvbiBJbnRlZ3JhdGVkIFN5c3Rl
+bXMgW1NpU10gNjMwIEhvc3QgKHJldiAxMSkNCjAwOjAwLjEgSURFIGludGVy
+ZmFjZTogU2lsaWNvbiBJbnRlZ3JhdGVkIFN5c3RlbXMgW1NpU10gNTUxMyBb
+SURFXSAocmV2IGQwKQ0KMDA6MDEuMCBJU0EgYnJpZGdlOiBTaWxpY29uIElu
+dGVncmF0ZWQgU3lzdGVtcyBbU2lTXSA4NUM1MDMvNTUxMw0KMDA6MDEuMSBF
+dGhlcm5ldCBjb250cm9sbGVyOiBTaWxpY29uIEludGVncmF0ZWQgU3lzdGVt
+cyBbU2lTXSBTaVM5MDAgMTAvMTAwIEV0aGVybmV0IChyZXYgODApDQowMDow
+MS4yIFVTQiBDb250cm9sbGVyOiBTaWxpY29uIEludGVncmF0ZWQgU3lzdGVt
+cyBbU2lTXSA3MDAxIChyZXYgMDcpDQowMDowMS4zIFVTQiBDb250cm9sbGVy
+OiBTaWxpY29uIEludGVncmF0ZWQgU3lzdGVtcyBbU2lTXSA3MDAxIChyZXYg
+MDcpDQowMDowMS40IE11bHRpbWVkaWEgYXVkaW8gY29udHJvbGxlcjogU2ls
+aWNvbiBJbnRlZ3JhdGVkIFN5c3RlbXMgW1NpU106IFVua25vd24gZGV2aWNl
+IDcwMTggKHJldiAwMSkNCjAwOjAxLjYgTW9kZW06IFNpbGljb24gSW50ZWdy
+YXRlZCBTeXN0ZW1zIFtTaVNdOiBVbmtub3duIGRldmljZSA3MDEzIChyZXYg
+YTApDQowMDowMi4wIFBDSSBicmlkZ2U6IFNpbGljb24gSW50ZWdyYXRlZCBT
+eXN0ZW1zIFtTaVNdIDU1OTEvNTU5MiBBR1ANCjAwOjBjLjAgQ2FyZEJ1cyBi
+cmlkZ2U6IFRleGFzIEluc3RydW1lbnRzOiBVbmtub3duIGRldmljZSBhYzUx
+DQowMDowYy4xIENhcmRCdXMgYnJpZGdlOiBUZXhhcyBJbnN0cnVtZW50czog
+VW5rbm93biBkZXZpY2UgYWM1MQ0KMDA6MGQuMCBGaXJlV2lyZSAoSUVFRSAx
+Mzk0KTogVGV4YXMgSW5zdHJ1bWVudHM6IFVua25vd24gZGV2aWNlIDgwMjAN
+CjAxOjAwLjAgVkdBIGNvbXBhdGlibGUgY29udHJvbGxlcjogU2lsaWNvbiBJ
+bnRlZ3JhdGVkIFN5c3RlbXMgW1NpU106IFVua25vd24gZGV2aWNlIDYzMDAg
+KHJldiAxMSkNCg==
+---1094550365-31101932-981512877=:1226
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="interrupts.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.20.0102070227572.1226@gamspc7.ihep.su>
+Content-Description: 
+Content-Disposition: attachment; filename="interrupts.txt"
+
+ICAgICAgICAgICBDUFUwICAgICAgIA0KICAwOiAgICAgMjIxMTU3ICAgICAg
+ICAgIFhULVBJQyAgdGltZXINCiAgMTogICAgICAgNzgwOSAgICAgICAgICBY
+VC1QSUMgIGtleWJvYXJkDQogIDI6ICAgICAgICAgIDAgICAgICAgICAgWFQt
+UElDICBjYXNjYWRlDQogIDU6ICAgICAgICAgIDAgICAgICAgICAgWFQtUElD
+ICBTaVMgNzAxOCBQQ0kgQXVkaW8NCiAxMjogICAgICAgNTcyMCAgICAgICAg
+ICBYVC1QSUMgIFBTLzIgTW91c2UNCiAxNDogICAgICA1NDQ1MCAgICAgICAg
+ICBYVC1QSUMgIGlkZTANCiAxNTogICAgICAgICAgMyAgICAgICAgICBYVC1Q
+SUMgIGlkZTENCk5NSTogICAgICAgICAgMCANCkVSUjogICAgICAgICAgMA0K
+
+---1094550365-31101932-981512877=:1226
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ioports.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.20.0102070227573.1226@gamspc7.ihep.su>
+Content-Description: ioports
+Content-Disposition: attachment; filename="ioports.txt"
+
+MDAwMC0wMDFmIDogZG1hMQ0KMDAyMC0wMDNmIDogcGljMQ0KMDA0MC0wMDVm
+IDogdGltZXINCjAwNjAtMDA2ZiA6IGtleWJvYXJkDQowMDgwLTAwOGYgOiBk
+bWEgcGFnZSByZWcNCjAwYTAtMDBiZiA6IHBpYzINCjAwYzAtMDBkZiA6IGRt
+YTINCjAwZjAtMDBmZiA6IGZwdQ0KMDE3MC0wMTc3IDogaWRlMQ0KMDFmMC0w
+MWY3IDogaWRlMA0KMDJmOC0wMmZmIDogc2VyaWFsKGF1dG8pDQowMzc2LTAz
+NzYgOiBpZGUxDQowMzc4LTAzN2EgOiBwYXJwb3J0MA0KMDNjMC0wM2RmIDog
+dmdhKw0KMDNmNi0wM2Y2IDogaWRlMA0KMDNmOC0wM2ZmIDogc2VyaWFsKGF1
+dG8pDQowY2Y4LTBjZmYgOiBQQ0kgY29uZjENCjEwMDAtMTBmZiA6IFNpbGlj
+b24gSW50ZWdyYXRlZCBTeXN0ZW1zIFtTaVNdIFNpUyBQQ0kgQXVkaW8gQWNj
+ZWxlcmF0b3INCiAgMTAwMC0xMGZmIDogU2lTIDcwMTggUENJIEF1ZGlvDQox
+MTAwLTExMGYgOiBTaWxpY29uIEludGVncmF0ZWQgU3lzdGVtcyBbU2lTXSA1
+NTEzIFtJREVdDQogIDExMDAtMTEwNyA6IGlkZTANCiAgMTEwOC0xMTBmIDog
+aWRlMQ0KMzAwMC0zMGZmIDogU2lsaWNvbiBJbnRlZ3JhdGVkIFN5c3RlbXMg
+W1NpU10gU2lTOTAwIDEwLzEwMCBFdGhlcm5ldA0KICAzMDAwLTMwZmYgOiBl
+dGgwDQozMjAwLTMyZmYgOiBQQ0kgZGV2aWNlIDEwMzk6NzAxMyAoU2lsaWNv
+biBJbnRlZ3JhdGVkIFN5c3RlbXMgW1NpU10pDQozMzAwLTMzN2YgOiBQQ0kg
+ZGV2aWNlIDEwMzk6NzAxMyAoU2lsaWNvbiBJbnRlZ3JhdGVkIFN5c3RlbXMg
+W1NpU10pDQphMDAwLWFmZmYgOiBQQ0kgQnVzICMwMQ0KICBhMDAwLWEwN2Yg
+OiBTaWxpY29uIEludGVncmF0ZWQgU3lzdGVtcyBbU2lTXSBTaVM2MzAgR1VJ
+IEFjY2VsZXJhdG9yKzNEDQo=
+---1094550365-31101932-981512877=:1226--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

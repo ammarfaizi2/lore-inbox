@@ -1,59 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262719AbVBCBOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262888AbVBCB0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbVBCBOK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 20:14:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbVBCBEh
+	id S262888AbVBCB0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 20:26:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbVBCBTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 20:04:37 -0500
-Received: from mail.kroah.org ([69.55.234.183]:21890 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262863AbVBCAa0 (ORCPT
+	Wed, 2 Feb 2005 20:19:42 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:49978 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262834AbVBCBOl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 19:30:26 -0500
-Date: Wed, 2 Feb 2005 16:30:10 -0800
-From: Greg KH <greg@kroah.com>
-To: Pavel Roskin <proski@gnu.org>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org
-Subject: Re: Please open sysfs symbols to proprietary modules
-Message-ID: <20050203003010.GA15481@kroah.com>
-References: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain> <Pine.LNX.4.50.0502021520200.1538-100000@monsoon.he.net> <20050202232909.GA14607@kroah.com> <Pine.LNX.4.62.0502021851050.19621@localhost.localdomain>
+	Wed, 2 Feb 2005 20:14:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=uVfcz3pWhuYsWWDamMXMqZLR5X7CZnvo6ogzVJaPyN2qKfF+pQxZGGCBKtZaYqSuUzhOyJowrHz8zCqL+vNXoZpU2rCVL2U5kzsj37whWfJZfkDvMvcXJmh82Pgfh/AxdEroWYhhC8W4dcAmsIeOm17hVrp0dnWiTmGNyWXaWwk=
+Message-ID: <58cb370e050202171465143ce7@mail.gmail.com>
+Date: Thu, 3 Feb 2005 02:14:35 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <tj@home-tj.org>
+Subject: Re: [PATCH 2.6.11-rc2 14/29] ide: remove NULL checking in ide_error()
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <20050202025728.GO621@htj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0502021851050.19621@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050202024017.GA621@htj.dyndns.org>
+	 <20050202025728.GO621@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2005 at 07:07:21PM -0500, Pavel Roskin wrote:
-> On Wed, 2 Feb 2005, Greg KH wrote:
-> >On Wed, Feb 02, 2005 at 03:23:30PM -0800, Patrick Mochel wrote:
-> >>
-> >>What is wrong with creating a (GPL'd) abstraction layer that exports
-> >>symbols to the proprietary modules?
+On Wed, 2 Feb 2005 11:57:28 +0900, Tejun Heo <tj@home-tj.org> wrote:
+> > 14_ide_error_remove_NULL_test.patch
 > >
-> >Ick, no!
-> >
-> >Please consult with a lawyer before trying this.  I know a lot of them
-> >consider doing this just as forbidden as marking your module
-> >MODULE_LICENSE("GPL"); when it really isn't.
-> 
-> There will be a GPL'd layer, and it's likely that sysfs interaction will 
-> be on the GPL'd side anyway, for purely technical reasons.  But it does 
-> feel like circumvention of the limitations set in the kernel.
+> >       In ide_error(), drive cannot be NULL.  ide_dump_status() can't
+> >       handle NULL drive.
 
-It is.  And as such, it is not allowed.
-
-> I thought it would be polite to ask the developers to lift those
-> limitations, considering that they seem unfair and inconsistent with
-> the stated purpose of EXPORT_SYMBOL_GPL.
-
-No, the stated purpose of that marking is to prevent non-GPLd code from
-using those symbols.  I don't see how you can state that using sysfs
-files in your driver does not make it a "derived work" and force you to
-make all of your driver GPL.
-
-I suggest that you consult your company's lawyers for what to do here.
-
-Good luck,
-
-greg k-h
+applied, you missed Signed-off-by line

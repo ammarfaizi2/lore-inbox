@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264334AbTFEAHu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 20:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264336AbTFEAHu
+	id S264340AbTFEArt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 20:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264343AbTFEArt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 20:07:50 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:22672 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264334AbTFEAHt
+	Wed, 4 Jun 2003 20:47:49 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:45840 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S264340AbTFEArs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 20:07:49 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 4 Jun 2003 17:19:05 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Ed Vance <EdV@macrolink.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] [2.5] Non-blocking write can block
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D1A33EBD@EXCHANGE>
-Message-ID: <Pine.LNX.4.55.0306041717230.3655@bigblue.dev.mcafeelabs.com>
-References: <11E89240C407D311958800A0C9ACF7D1A33EBD@EXCHANGE>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Jun 2003 20:47:48 -0400
+Date: Wed, 4 Jun 2003 17:58:19 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: size of... (was: lk-changelog.pl 0.124)
+Message-ID: <20030605005819.GC19053@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20030604190143.3314F89AEA@merlin.emma.line.org> <20030604190553.GA8666@merlin.emma.line.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030604190553.GA8666@merlin.emma.line.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jun 2003, Ed Vance wrote:
+On Wed, Jun 04, 2003 at 09:05:53PM +0200, Matthias Andree wrote:
+> BTW, what is the maximum size that people will bear for linux-kernel
+> mails? This damn Perl script has grown damn big...
 
-> Do you mean something like the separate O_NDELAY flag under Solar*s? IIRC
-> they also use return code EWOULDBLOCK to differentiate the "could not get
-> resource" cases from the "no room for more data" cases when O_NONBLOCK is
-> used.
+I think you are very close to the limit.
 
-Besides the stupid name O_REALLYNONBLOCK, it really should be different
-from both O_NONBLOCK and O_NDELAY. Currently in Linux they both map to the
-same value, so you really need a new value to not break binary compatibility.
+I'd consider splitting the script up a bit.  Put the
+%addresses hash into a separate file perhaps.  You also
+might just post the changlog and diffs.
 
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-
-- Davide
-
+		Remember Cernan and Schmitt

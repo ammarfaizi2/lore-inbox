@@ -1,75 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266453AbTAFFJf>; Mon, 6 Jan 2003 00:09:35 -0500
+	id <S266434AbTAFFL0>; Mon, 6 Jan 2003 00:11:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266460AbTAFFJf>; Mon, 6 Jan 2003 00:09:35 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:3859 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S266453AbTAFFJd>;
-	Mon, 6 Jan 2003 00:09:33 -0500
-Date: Mon, 6 Jan 2003 00:26:31 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Ian Molton <spyro@f2s.com>
-Cc: graham@barnowl.demon.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030106052631.GA2728@mark.mielke.cc>
-References: <m3isx3lmkt.fsf@home.gmurray.org.uk> <20030105223753.GC31840@mark.mielke.cc> <20030106014322.7b924543.spyro@f2s.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030106014322.7b924543.spyro@f2s.com>
-User-Agent: Mutt/1.4i
+	id <S266435AbTAFFL0>; Mon, 6 Jan 2003 00:11:26 -0500
+Received: from dp.samba.org ([66.70.73.150]:35987 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266434AbTAFFLY>;
+	Mon, 6 Jan 2003 00:11:24 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au,
+       Thomas Sailer <sailer@ife.ee.ethz.ch>,
+       Marcel Holtmann <marcel@holtmann.org>,
+       Jose Orlando Pereira <jop@di.uminho.pt>,
+       J.E.J.Bottomley@HansenPartnership.com
+Subject: Re: [PATCH] Deprecated exec_usermodehelper, enhance call_usermodehelper 
+In-reply-to: Your message of "Sun, 05 Jan 2003 19:54:07 -0800."
+             <Pine.LNX.4.44.0301051952450.3087-100000@home.transmeta.com> 
+Date: Mon, 06 Jan 2003 15:35:45 +1100
+Message-Id: <20030106052000.DE13C2C276@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 01:43:22AM +0000, Ian Molton wrote:
-> On Sun, 5 Jan 2003 17:37:53 -0500 Mark Mielke <mark@mark.mielke.cc> wrote:
-> > Then one day - everybody upgrades to a new version of Linux. My
-> > support lines start ringing off the hook.
-> To which the answer is 'we dont support linux 9.8.4 yet, sorry.'
+In message <Pine.LNX.4.44.0301051952450.3087-100000@home.transmeta.com> you wri
+te:
+> 
+> On Mon, 6 Jan 2003, Rusty Russell wrote:
+> >
+> > Linus, please apply.
+> 
+> Nope, I really don't want to deprecate any more interfaces while my build 
+> is still so noisy about the _existing_ deprecated stuff.
 
-The question of responsibility remains unanswered. If the software causes
-unreasonable damage to the user's computer, who can be sued?
+OK.  I'll work with the various authors to actually remove all 3 users
+in the tree, then submit a patch to rip it out.
 
-A closed source product with an expensive price tag provides this
-level of responsibility to customers. (at least in theory)
+> The noisiness of the current build is quite distracting, and likely makes 
+> people just ignore potentially valid warnings simply because there are too 
+> many of them-
 
-In my opinion, the chosen model should be based on economic feasibility,
-not on religious persuasion. If open source truly is the better model for
-a candidate product, the model will be used. Whether this takes the form
-of the original product becoming open sourced, or a competing open source
-product developed, the result is the same.
+Damn.  I guess you don't want this patch then?
 
-If you want to convince a company to change their model to be of the
-open sourced variety, you will need logic such as the above to convince
-them.
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-mark
+Name: Deprecate cli/sti/restore_flags etc.
+Author: Rusty Russell
+Status: Tested on 2.5.54
 
-P.S. I do realize that many people have experienced better 'support' from
-     open source communities, than from companies. I consider this an
-     amazing blessing that should not be taken for granted. The voluntary
-     contributions that make this possible need to be respected as *beyond*
-     what one should expect, and the volunteers themselves need to be
-     respected as champions of the open source community. Anything less is
-     taking these contributions and contributors for granted as a free
-     resource available to be exploited.
+D: These functions have long been deprecated: they don't exist on SMP.
+D: Mark them deprecated.
 
-     For example, if Red Hat were to claim that you should purchase
-     the Red Hat distribution of Linux/GNU, because the open source
-     community that produces most of the products contained within the
-     distribution will provide better support than other commercially
-     available *nix systems, Red Hat would be obtaining profit from the
-     voluntary contributions of other people. This is not strictly right.
-     (I don't know if Red Hat has ever done this... Just a scenario...)
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5-bk/include/linux/interrupt.h working-2.5-bk-clisti/include/linux/interrupt.h
+--- linux-2.5-bk/include/linux/interrupt.h	Thu Jan  2 12:36:08 2003
++++ working-2.5-bk-clisti/include/linux/interrupt.h	Mon Jan  6 14:41:25 2003
+@@ -5,6 +5,7 @@
+ #include <linux/config.h>
+ #include <linux/linkage.h>
+ #include <linux/bitops.h>
++#include <linux/compiler.h>
+ #include <asm/atomic.h>
+ #include <asm/hardirq.h>
+ #include <asm/ptrace.h>
+@@ -28,12 +29,29 @@ extern void free_irq(unsigned int, void 
+ /*
+  * Temporary defines for UP kernels, until all code gets fixed.
+  */
+-#if !CONFIG_SMP
+-# define cli()			local_irq_disable()
+-# define sti()			local_irq_enable()
+-# define save_flags(x)		local_save_flags(x)
+-# define restore_flags(x)	local_irq_restore(x)
+-# define save_and_cli(x)	local_irq_save(x)
++#ifndef CONFIG_SMP
++static inline void __deprecated cli(void)
++{
++	local_irq_disable();
++}
++static inline void __deprecated sti(void)
++{
++	local_irq_enable();
++}
++static inline void __deprecated deprecated_save_flags(unsigned long *flags)
++{
++	local_save_flags(*flags);
++}
++static inline void __deprecated restore_flags(unsigned long flags)
++{
++	local_irq_restore(flags);
++}
++static inline void __deprecated deprecated_save_and_cli(unsigned long *flags)
++{
++	local_irq_save(*flags);
++}
++# define save_flags(x)		deprecated_save_flags(&(x))
++# define save_and_cli(x)	deprecated_save_and_cli(&(x))
+ #endif
+ 
+ 

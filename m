@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVC3JrC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbVC3Jt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbVC3JrC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 04:47:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVC3JrC
+	id S261831AbVC3Jt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 04:49:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVC3Jt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 04:47:02 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:24207 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261830AbVC3Jq7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 04:46:59 -0500
-Date: Wed, 30 Mar 2005 11:46:34 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Chris Friesen <cfriesen@nortel.com>
-cc: Peter Chubb <peterc@gelato.unsw.edu.au>,
-       krishna <krishna.c@globaledgesoft.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to measure time accurately.
-In-Reply-To: <4249F1B0.6050800@nortel.com>
-Message-ID: <Pine.LNX.4.61.0503301146080.4164@yvahk01.tjqt.qr>
-References: <424779F3.5000306@globaledgesoft.com> <4248E282.1000105@nortel.com>
- <16969.58762.180127.283274@wombat.chubb.wattle.id.au> <4249F1B0.6050800@nortel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Mar 2005 04:49:58 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:39069 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261831AbVC3Jtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 04:49:52 -0500
+Date: Wed, 30 Mar 2005 11:49:50 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       schwidefsky@de.ibm.com, netdev@oss.sgi.com
+Subject: Re: [PATCH] s390: claw network device driver
+Message-ID: <20050330094950.GA31151@wohnheim.fh-wedel.de>
+References: <200503290533.j2T5XEYT028850@hera.kernel.org> <4248FBFD.5000809@pobox.com> <20050328230830.5e90396f.akpm@osdl.org> <20050329071002.GA16204@havoc.gtf.org> <20050329152057.GA27840@wohnheim.fh-wedel.de> <4249B52C.2000300@pobox.com> <20050329212543.GA432@wohnheim.fh-wedel.de> <4249DA51.1070201@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4249DA51.1070201@pobox.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 March 2005 17:44:33 -0500, Jeff Garzik wrote:
+> 
+> <shrug>  It doesn't matter that much to me.  If you want to undertake 
+> the removal of linux-net as your personal mission, I won't stop you :)
 
-> For ppc this only gives 32-bit values, which overflow every 129 seconds on my
-> G5.  Depending on how long you're trying to time, this could be a problem.
+At least it weakens your position when you state "Random newbie John
+Doe failed to pick the correct list, so I never saw his requests for
+review."
 
-Just take an extra measure to "record" overflows (2^32-1 => 0) and you're set.
+And yes, I'd like to see linux-net either used, removed or simply
+forwarded to netdev.
 
+Jörn
 
-
-Jan Engelhardt
 -- 
-No TOFU for me, please.
+Invincibility is in oneself, vulnerability is in the opponent.
+-- Sun Tzu

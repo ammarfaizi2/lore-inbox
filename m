@@ -1,86 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270618AbRHQToW>; Fri, 17 Aug 2001 15:44:22 -0400
+	id <S271023AbRHQUBu>; Fri, 17 Aug 2001 16:01:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270639AbRHQToN>; Fri, 17 Aug 2001 15:44:13 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:57341 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S270618AbRHQToG>; Fri, 17 Aug 2001 15:44:06 -0400
-Message-ID: <3B7D703C.E2517636@mvista.com>
-Date: Fri, 17 Aug 2001 12:27:56 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Strange macros set HZ value for timer channel zero
-In-Reply-To: <Pine.LNX.3.95.1010817091911.6570A-100000@chaos.analogic.com>
+	id <S271016AbRHQUBk>; Fri, 17 Aug 2001 16:01:40 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:58358 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S271023AbRHQUB0>; Fri, 17 Aug 2001 16:01:26 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Fri, 17 Aug 2001 14:00:49 -0600
+To: Nicholas Knight <tegeran@home.com>
+Cc: Adrian Cox <adrian@humboldt.co.uk>, root@chaos.analogic.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+Message-ID: <20010817140049.G17372@turbolinux.com>
+Mail-Followup-To: Nicholas Knight <tegeran@home.com>,
+	Adrian Cox <adrian@humboldt.co.uk>, root@chaos.analogic.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1010817130849.2216A-100000@chaos.analogic.com> <3B7D5603.8080805@humboldt.co.uk> <01081711510800.00814@c779218-a>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <01081711510800.00814@c779218-a>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> To whomever maintains the timer code, greetings.
-> 
-> When using Linux on the AMD SC520 chip, the system time will
-> not be correct because the PIT clock is 1.1882 MHz instead of
-> the usual 1.19318 MHz. Therefore, I put a conditional value
-> in ../linux/include/asm/timex.h .
-> 
-> #ifndef _ASMi386_TIMEX_H
-> #define _ASMi386_TIMEX_H
-> 
-> #include <linux/config.h>
-> #include <asm/msr.h>
-> #ifdef SC520
-> #define CLOCK_TICK_RATE 1188200 /* Underlying HZ */
-> #else
-> #define CLOCK_TICK_RATE 1193180 /* Underlying HZ */
-> #endif
-> 
-> Something is wrong! I now gain 3 hours in a 12 hour period. There
-> are some calculations performed somewhere that result in the
-> wrong divisor for the timer (PIT). I don't understand any of the
-> SHIFT stuff, nor FINE_TUNE stuff. It all seems bogus although
-> it might be the "new math" that's biting me.
-> 
-> The correct value for 100 Hz should be 1188200/100 = 11882 = 0x2e6a
-> for the divisor. If I hard-code the value as a divisor in
-> /usr/src/linux/arch/i386/kernel/i8259.c,  it works. If I use the
-> #defines and macros in the headers, it doesn't.
-> 
-Seems hard to believe.  Try this:
+On Aug 17, 2001  11:51 -0700, Nicholas Knight wrote:
+> Now that we've established that SDRAM doesn't neccisarily get erased from 
+> rebooting, does anyone know how long it takes for SDRAM to clear after 
+> losing power? It seems to me that the fact that the RAM isn't neccisarily 
+> wiped by the BIOS at boot is less important than wether or not shutting 
+> down the system and having it shut down for 10 minutes causes the RAM to 
+> be cleared so that any intruder/thief would be unable to get the 
+> information neccisary to decrypt the swap...
 
-cd ../arch/i386/kernel
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.7-hr/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe  -march=i586    -c -o i8259.o
-i8259.c -E
+Hmm, it was my understanding that all PC BIOSes DO zero out memory,
+although this is not necessarily a requirement of the hardware.  The
+reason I say this is because one of the features of the Linux BIOS
+project is to allow crashdump analysis after a reboot, by pulling
+the dump from the RAM after a reboot.  You apparently are not able
+to do this with normal PC BIOSes because they clear the RAM after
+a reset.
 
-(note the -E, the rest of the line is just cut from the make output, I
-usually make from a shell in emacs so all this output is available... 
-If you are cutting this line from this message, make sure you change the
--I path to match your kernel location.)
+That said, I'm not sure what the requirements of different kinds of
+RAM chips are for initialization, so there may not be a REQUIREMENT
+to clear the memory, but rather it is part of the nebulous "PC spec".
 
-now exit i8259.c and search for your new number, i.e. 118820.  (Or if
-that fails search for "init_IRQ" and look at the outb_p in there.)  For
-the old 1192180 I find:
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-	outb_p(0x34,0x43);		 
-	outb_p(((1193180  + 100 /2) / 100 )  & 0xff , 0x40);	 
-	outb(((1193180  + 100 /2) / 100 )  >> 8 , 0x40);	 
-
-Seems like the new number should do just what you need here.  The
-calibration in time.c is a little wonky, but that will not give the
-errors you are seeing, nor would your change of LATCH (I assume this is
-what you changed in i8259.c) affect that wonky stuff.
-
-Oh, by the way, you will want to purge i8259.o as make will assume it is
-up to date and try to merge it as a *.o file, which will fail rather
-badly.
-
-George

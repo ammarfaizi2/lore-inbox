@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267809AbTBROA6>; Tue, 18 Feb 2003 09:00:58 -0500
+	id <S267846AbTBROID>; Tue, 18 Feb 2003 09:08:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267811AbTBROA6>; Tue, 18 Feb 2003 09:00:58 -0500
-Received: from nimbus19.internetters.co.uk ([209.61.216.65]:53167 "HELO
-	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
-	id <S267809AbTBROA5>; Tue, 18 Feb 2003 09:00:57 -0500
-Subject: Re: Help !! calling function in module from a user program
-From: Alex Bennee <kernel-hacker@bennee.com>
-To: Srinivas Chinta <chintasrinivas_tech@yahoo.com>
-Cc: Sudharsan Vijayaraghavan <svijayar@cisco.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030218134315.91052.qmail@web21206.mail.yahoo.com>
-References: <20030218134315.91052.qmail@web21206.mail.yahoo.com>
-Content-Type: text/plain
-Organization: Hackers Inc
-Message-Id: <1045577057.2506.122.camel@cambridge.braddahead>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1-1mdk 
-Date: 18 Feb 2003 14:04:17 +0000
-Content-Transfer-Encoding: 7bit
+	id <S267847AbTBROID>; Tue, 18 Feb 2003 09:08:03 -0500
+Received: from blr.vsnl.net.in ([202.54.12.6]:51708 "HELO blr.vsnl.net.in")
+	by vger.kernel.org with SMTP id <S267846AbTBROIA>;
+	Tue, 18 Feb 2003 09:08:00 -0500
+Content-Disposition: inline; filename=""
+Content-Transfer-Encoding: binary
+Content-Type: text/plain; name=""
+MIME-Version: 1.0
+X-Mailer: MIME::Lite 1.135  (B2.11; Q2.03)
+To: linux-kernel@vger.kernel.org
+From: <gskiran@bgl.vsnl.net.in>
+Subject: Linux Kernel Message Queue Implementation
+Date: Tue, Feb 18, 2003 at 19:47:52 IST (GMT+0530)
+Message-Id: <20030218141257.1475574B6@blr.vsnl.net.in>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-02-18 at 13:43, Srinivas Chinta wrote:
-> Hi,
-> One way of doing this is , by hooking up your function
-> inside the module as a system call.
-> Here i'm sending two files, module.c and user_space.c.
-> first do "insmod module.o" and then run
-> "./user_space".
-> As i'm also a newbee, i'm not aware of the
-> disadvantages of this approach.
+[1] msgsnd (int, struct msgbuf *, int, int) INTERFACE ERROR !!
 
-The main disadvantage is your driver/module becomes a specialized device
-that can only be accessed by special syscall incantaion by one
-application. The Un*x way is about keeping every thing as standard as
-possible so there is easy interaction between user-mode programs
-accessing the device even if they don't know the details of the
-internals.
+[2] msgsnd() has "struct msgbuf*" as its 2nd parameter. When I tried to write an application which uses message queues for IPC i declared my message queue buffer as -
 
-Most devices can be treated as char devices or block devices and are
-coded as such. This way you can dump the contents of your hard-drive by
-doing "cat /dev/hda1 > dump" without cat having intimate knowledge of
-what a hard drive is and how to access one.
+struct my_msgq_buf
+{
+    long mtype;
+    char *name;
+    double amount;
+};
 
-Of course there will always be times when new system calls need to be
-added but generally this should be done sparinginly.
+I allocated the memory of name dynamically using "malloc" and wrote into the message Queue using msgsnd. And the msgsnd returns successfully. When I do an msgrcv with the above structure type, I always recieve NULL values in my structure buffer !! 
 
--- 
-Alex, homepage: http://www.bennee.com/~alex/
+But, When I use the structure as declared below -
 
-He missed an invaluable opportunity to hold his tongue.
-		-- Andrew Lang
+struct my_msgq_buf
+{
+    long mtype;
+    char name[30];
+    double amount;
+};
+
+Every thing interstingly seems to be working fine.! The interface for msgsnd and msgrcv should have "void *" pointers rather than having a "struct msgbuf *" as parameters.
+
+[3] Kernel
+[4] 2.4.7-10 
+[5] 
+[6]
+[7] i586. Intel Pentium 166 MHz MMX.
+[8]
 

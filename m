@@ -1,103 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbUKJOZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbUKJOlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261986AbUKJOZI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 09:25:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbUKJOVz
+	id S261943AbUKJOlN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 09:41:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUKJN7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 09:21:55 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:5008 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261989AbUKJOR6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 09:17:58 -0500
-Date: Wed, 10 Nov 2004 20:05:18 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
+	Wed, 10 Nov 2004 08:59:46 -0500
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:61826 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261926AbUKJNp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 08:45:59 -0500
+From: Anton Altaparmakov <aia21@cam.ac.uk>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sripathi Kodi <sripathik@in.ibm.com>, linux-kernel@vger.kernel.org,
-       Roland McGrath <roland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] do_wait fix for 2.6.10-rc1
-Message-ID: <20041110143518.GC4502@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <418B4E86.4010709@in.ibm.com> <Pine.LNX.4.58.0411051101500.30457@ppc970.osdl.org> <418F826C.2060500@in.ibm.com> <Pine.LNX.4.58.0411080744320.24286@ppc970.osdl.org> <Pine.LNX.4.58.0411080806400.24286@ppc970.osdl.org> <Pine.LNX.4.58.0411080820110.24286@ppc970.osdl.org> <Pine.LNX.4.58.0411081708000.2301@ppc970.osdl.org> <20041109143118.GA8961@in.ibm.com> <Pine.LNX.4.58.0411090745250.2301@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="WYTEVAkct0FjGQmd"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411090745250.2301@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH 24/26] NTFS 2.1.22 - Bug and race fixes and improved error handling.
+Message-Id: <E1CRsnA-0006Sy-IU@imp.csi.cam.ac.uk>
+Date: Wed, 10 Nov 2004 13:45:44 +0000
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is patch 24/26 in the series.  It contains the following ChangeSet:
 
---WYTEVAkct0FjGQmd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+<aia21@cantab.net> (04/11/09 1.2026.1.64)
+   NTFS: - Fix creation of buffers in fs/ntfs/mft.c::ntfs_sync_mft_mirror().
+           Cannot just call fs/ntfs/aops.c::mark_ntfs_record_dirty() since
+           this also marks the page dirty so we create the buffers by hand
+           and set them uptodate.
+         - Revert the removal of the page uptodate check from
+           fs/ntfs/aops.c::mark_ntfs_record_dirty() as it is no longer called
+           from fs/ntfs/mft.c::ntfs_sync_mft_mirror().
+   
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-On Tue, Nov 09, 2004 at 08:11:41AM -0800, Linus Torvalds wrote:
-> 
-> I think I have a potentially better approach: make the rules for "flag" a 
-> bit more explicit, and make it have structure. We use "flag" for two 
-> things: we use it to determine if we should return -ECHILD (no children), 
-> and for whether we should wait for something that might become available 
-> later. So just split up "flag" into these two meanings, instead of just 
-> trying to use a single bit:
-> 
->  - one bit that says "we found a child that _will_ wake us up when it's 
->    ready". In other words, that's a child that is ours, and is not yet a 
->    zombie.
-> 
->  - one bit that says "we found a child that is ours".
-> 
-> Make "eligible_child()" follow these rules, and then instead of just 
-> setting "flag = 1", we'd set "flag |= ret".
-> 
-> Now, with these rules, we know just what to do: we only do the wait if the 
-> "we have children that will wake us up" bit is set. But we return ECHILD 
-> only if flag is totally clear.
-> 
-> Does that sound like it would fix the problem?
-> 
+Best regards,
 
-How about if we set the flag only in the cases when the exit state is not
-either TASK_DEAD or TASK_ZOMBIE. 
-Patch attached below. I confirmed that this fixes the problem and I also ran 
-some LTP tests
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
 
-Signed-off-by: Dinakar Guniguntala <dino@in.ibm.com>
-Signed-off-by: Sripathi Kodi <sripathik@in.ibm.com>
+===================================================================
 
-
-
---WYTEVAkct0FjGQmd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="do_wait.patch"
-
-diff -Naurp linux-2.6.10-rc1.orig/kernel/exit.c linux-2.6.10-rc1/kernel/exit.c
---- linux-2.6.10-rc1.orig/kernel/exit.c	2004-10-23 03:10:06.000000000 +0530
-+++ linux-2.6.10-rc1/kernel/exit.c	2004-11-10 17:18:20.818103584 +0530
-@@ -1325,14 +1325,15 @@ repeat:
- 			ret = eligible_child(pid, options, p);
- 			if (!ret)
- 				continue;
--			flag = 1;
+diff -Nru a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
+--- a/fs/ntfs/ChangeLog	2004-11-10 13:45:48 +00:00
++++ b/fs/ntfs/ChangeLog	2004-11-10 13:45:48 +00:00
+@@ -89,9 +89,6 @@
+ 	  and write_mft_record_nolock().  From now on we require that the
+ 	  complete runlist for the mft mirror is always mapped into memory.
+ 	- Add creation of buffers to fs/ntfs/mft.c::ntfs_sync_mft_mirror().
+-	- Do not check for the page being uptodate in mark_ntfs_record_dirty()
+-	  as we now call this after marking the page not uptodate during mft
+-	  mirror synchronisation (fs/ntfs/mft.c::ntfs_sync_mft_mirror()).
+ 	- Improve error handling in fs/ntfs/aops.c::ntfs_{read,write}_block().
  
- 			switch (p->state) {
- 			case TASK_TRACED:
-+				flag = 1;
- 				if (!my_ptrace_child(p))
- 					continue;
- 				/*FALLTHROUGH*/
- 			case TASK_STOPPED:
-+				flag = 1;
- 				if (!(options & WUNTRACED) &&
- 				    !my_ptrace_child(p))
- 					continue;
-@@ -1365,6 +1366,7 @@ repeat:
- 						goto end;
- 					break;
- 				}
-+				flag = 1;
- check_continued:
- 				if (!unlikely(options & WCONTINUED))
- 					continue;
-
---WYTEVAkct0FjGQmd--
+ 2.1.21 - Fix some races and bugs, rewrite mft write code, add mft allocator.
+diff -Nru a/fs/ntfs/aops.c b/fs/ntfs/aops.c
+--- a/fs/ntfs/aops.c	2004-11-10 13:45:48 +00:00
++++ b/fs/ntfs/aops.c	2004-11-10 13:45:48 +00:00
+@@ -819,6 +819,12 @@
+ 	BUG_ON(!NInoNonResident(ni));
+ 	BUG_ON(!NInoMstProtected(ni));
+ 	is_mft = (S_ISREG(vi->i_mode) && !vi->i_ino);
++	/*
++	 * NOTE: ntfs_write_mst_block() would be called for $MFTMirr if a page
++	 * in its page cache were to be marked dirty.  However this should
++	 * never happen with the current driver and considering we do not
++	 * handle this case here we do want to BUG(), at least for now.
++	 */
+ 	BUG_ON(!(is_mft || S_ISDIR(vi->i_mode) ||
+ 			(NInoAttr(ni) && ni->type == AT_INDEX_ALLOCATION)));
+ 	BUG_ON(!max_bhs);
+@@ -2282,6 +2288,7 @@
+ 	struct buffer_head *bh, *head, *buffers_to_free = NULL;
+ 	unsigned int end, bh_size, bh_ofs;
+ 
++	BUG_ON(!PageUptodate(page));
+ 	end = ofs + ni->itype.index.block_size;
+ 	bh_size = 1 << VFS_I(ni)->i_blkbits;
+ 	spin_lock(&mapping->private_lock);
+diff -Nru a/fs/ntfs/mft.c b/fs/ntfs/mft.c
+--- a/fs/ntfs/mft.c	2004-11-10 13:45:48 +00:00
++++ b/fs/ntfs/mft.c	2004-11-10 13:45:48 +00:00
+@@ -497,12 +497,20 @@
+ 	kmirr = page_address(page) + page_ofs;
+ 	/* Copy the mst protected mft record to the mirror. */
+ 	memcpy(kmirr, m, vol->mft_record_size);
+-	/*
+-	 * Create buffers if not present and mark the ones belonging to the mft
+-	 * mirror record dirty.
+-	 */
+-	mark_ntfs_record_dirty(page, page_ofs);
+-	BUG_ON(!page_has_buffers(page));
++	/* Create uptodate buffers if not present. */
++	if (unlikely(!page_has_buffers(page))) {
++		struct buffer_head *tail;
++
++		bh = head = alloc_page_buffers(page, blocksize, 1);
++		do {
++			set_buffer_uptodate(bh);
++			tail = bh;
++			bh = bh->b_this_page;
++		} while (bh);
++		tail->b_this_page = head;
++		attach_page_buffers(page, head);
++		BUG_ON(!page_has_buffers(page));
++	}
+ 	bh = head = page_buffers(page);
+ 	BUG_ON(!bh);
+ 	rl = NULL;

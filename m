@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269963AbRHJSLQ>; Fri, 10 Aug 2001 14:11:16 -0400
+	id <S269967AbRHJSOZ>; Fri, 10 Aug 2001 14:14:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269964AbRHJSLG>; Fri, 10 Aug 2001 14:11:06 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:30857
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S269963AbRHJSK4>; Fri, 10 Aug 2001 14:10:56 -0400
-Date: Fri, 10 Aug 2001 11:10:44 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Christian Borntraeger <CBORNTRA@de.ibm.com>, ext3-users@redhat.com,
-        linux-kernel@vger.kernel.org, Carsten Otte <COTTE@de.ibm.com>
-Subject: Re: BUG: Assertion failure with ext3-0.95 for 2.4.7
-Message-ID: <20010810111044.G31136@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <OF5E574EE5.AF3B6F6F-ONC1256AA2.0026D8D3@de.ibm.com> <3B72DD66.A6F65247@zip.com.au>, <3B72DD66.A6F65247@zip.com.au> <20010810104450.F31136@cpe-24-221-152-185.az.sprintbbd.net> <3B74235F.8F6943D9@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B74235F.8F6943D9@zip.com.au>
-User-Agent: Mutt/1.3.20i
+	id <S269966AbRHJSOP>; Fri, 10 Aug 2001 14:14:15 -0400
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:56286 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S269967AbRHJSN6>; Fri, 10 Aug 2001 14:13:58 -0400
+Message-ID: <794826DE8867D411BAB8009027AE9EB91011431F@FMSMSX38>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: linux-kernel@vger.kernel.org
+Subject: free_task_struct() called too early?
+Date: Fri, 10 Aug 2001 11:13:53 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 10, 2001 at 11:09:35AM -0700, Andrew Morton wrote:
-> Tom Rini wrote:
-> > 
-> > With this patch my first oops seems to have gone away.  I'm repeating
-> > the test again, but dbench'ing 2,4,8,16,32 and then 64 (until disk
-> > space ran out) worked this time.
-> 
-> Thanks, Tom and Christian.
-> 
-> Yup, it's definitely a bug and the fix will be in 0.9.6 (in fact the way
-> things are looking at present it'll be the only substantive change in
-> 0.9.6).
-> 
-> If it's possible, could you please also test journalled data mode?
+When a process terminates, it appears that the task structure is freed too
+early.  There are memory references to the kernel task area (task_struct and
+stack space) after free_task_struct(p) is called.
 
-Sure.  It'll take me a bit longer for that tho (I've gotta get my
-spare ppc box happily booting 2.4 off the disk first..)
+If I modify the following line in include/asm-i386/processor.h
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+#define free_task_struct(p)   free_pages((unsigned long) (p), 1) to
+#define free_task_struct(p)   memset((void*) (p), 0xf, PAGE_SIZE*2);
+free_pages((unsigned long) (p), 1)
+then kernel will boot to init and lockup on when first task terminates.
+
+Has anyone looked into or aware of this issue?
+

@@ -1,31 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282418AbRLFS7C>; Thu, 6 Dec 2001 13:59:02 -0500
+	id <S281717AbRLFS7C>; Thu, 6 Dec 2001 13:59:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281717AbRLFS65>; Thu, 6 Dec 2001 13:58:57 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:10484 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S282418AbRLFS6p>; Thu, 6 Dec 2001 13:58:45 -0500
-Date: Thu, 6 Dec 2001 11:02:09 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: drm module question?
-Message-ID: <Pine.LNX.4.33.0112061101070.25729-100000@twin.uoregon.edu>
+	id <S282413AbRLFS64>; Thu, 6 Dec 2001 13:58:56 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52751 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S281717AbRLFS6j>; Thu, 6 Dec 2001 13:58:39 -0500
+Subject: Re: Linux 2.4.17-pre5
+To: marcelo@conectiva.com.br (Marcelo Tosatti)
+Date: Thu, 6 Dec 2001 19:07:35 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (lkml),
+        torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <Pine.LNX.4.21.0112061536270.21518-100000@freak.distro.conectiva> from "Marcelo Tosatti" at Dec 06, 2001 03:39:21 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16C3rs-0002ga-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-does the drm modules for the i810 support the i815 as well?
+> - Pentium IV Hyperthreading support		(Alan Cox)
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
---    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
-The accumulation of all powers, legislative, executive, and judiciary, in 
-the same hands, whether of one, a few, or many, and whether hereditary, 
-selfappointed, or elective, may justly be pronounced the very definition of
-tyranny. - James Madison, Federalist Papers 47 -  Feb 1, 1788
-
-
+Actually that one is  various Intel people not me 8)

@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288944AbSANJ4r>; Mon, 14 Jan 2002 04:56:47 -0500
+	id <S289168AbSANKAr>; Mon, 14 Jan 2002 05:00:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289146AbSANJ4i>; Mon, 14 Jan 2002 04:56:38 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:3853 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S288944AbSANJ4W>;
-	Mon, 14 Jan 2002 04:56:22 -0500
-Date: Mon, 14 Jan 2002 10:49:05 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Robert Love <rml@tech9.net>
-Cc: alan@lxorguk.ukuu.org.uk, zippel@linux-m68k.org, ken@canit.se,
-        arjan@fenrus.demon.nl, landley@trommello.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-Id: <20020114104905.0e389c82.skraw@ithnet.com>
-In-Reply-To: <1010971032.1528.29.camel@phantasy>
-In-Reply-To: <E16PvKx-00005L-00@the-village.bc.nu>
-	<1010971032.1528.29.camel@phantasy>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S289136AbSANKAh>; Mon, 14 Jan 2002 05:00:37 -0500
+Received: from theirongiant.weebeastie.net ([203.62.148.50]:4257 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S289177AbSANKAW>; Mon, 14 Jan 2002 05:00:22 -0500
+Date: Mon, 14 Jan 2002 20:59:57 +1100
+From: CaT <cat@zip.com.au>
+To: Willy Tarreau <wtarreau@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: netfilter oops (Was: Re: Linux 2.4.18-pre2)
+Message-ID: <20020114095957.GJ5211@zip.com.au>
+In-Reply-To: <200201121540.g0CFe7F01606@ns.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200201121540.g0CFe7F01606@ns.home.local>
+User-Agent: Mutt/1.3.25i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Jan 2002 20:17:11 -0500
-Robert Love <rml@tech9.net> wrote:
+On Sat, Jan 12, 2002 at 04:40:07PM +0100, Willy Tarreau wrote:
+> > Writing it down would be a pain so I may opt for the
+> > null-modem cable which may take a week or so for me to
+> > get at though.
+> 
+> You'd better download my kmsgdump patch which will let you save
+> all your kernel messages (including oops) to a floppy disk.
+> Please read the doc in Documentation/kmsgdump.txt to get more info.
+> 
+> http://www-miaif.lip6.fr/willy/linux-patches//kmsgdump/0.4.3/kmsgdump-0.4.3-2.4.16pre1.patch
 
-> For 2.5, however, I tout preempt as the answer.  This does not mean just
-> preempt.  It means a preemptible kernel as a basis for beginning
-> low-latency works in manners other than explicit scheduling statements.
+Well... my floppy drive died and I have no printer. *sigh*
 
-Aha, exactly my thoughts...
+I'll see if Rusty REALLY needs the oops and if so I'll hunt down
+another way to get at it.
 
-Regards,
-Stephan
+Thanks though.
 
-
+-- 
+SOCCER PLAYER IN GENITAL-BITING SCANDAL  ---  "It was something between
+friends that I thought would have no importance until this morning when
+I got up and saw all  the commotion in the news,"  Gallardo told a news
+conference. "It stunned me."
+Reyes told Marca that he had "felt a slight pinch."

@@ -1,34 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265722AbUHSL4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUHSL7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265722AbUHSL4g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 07:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUHSL4f
+	id S265773AbUHSL7q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 07:59:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265776AbUHSL7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 07:56:35 -0400
-Received: from zenon.apartia.fr ([82.66.93.83]:48085 "EHLO zenon.apartia.com")
-	by vger.kernel.org with ESMTP id S265722AbUHSL4d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 07:56:33 -0400
-Message-ID: <41249570.20208@apartia.fr>
-Date: Thu, 19 Aug 2004 13:56:32 +0200
-From: Laurent CARON <lcaron@apartia.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040722 Debian/1.7.1-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Crash using Kernel 2.8.1 and HTB
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Aug 2004 07:59:46 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:30161 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265773AbUHSL7p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 07:59:45 -0400
+Date: Thu, 19 Aug 2004 17:29:12 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
+       fastboot@osdl.org, akpm@osdl.org,
+       Suparna Bhattacharya <suparna@in.ibm.com>, mbligh@aracnet.com,
+       litke@us.ibm.com, ebiederm@xmission.com
+Subject: Re: [PATCH][4/6]Register snapshotting before kexec-boot
+Message-ID: <20040819115912.GA3965@in.ibm.com>
+Reply-To: hari@in.ibm.com
+References: <20040817120239.GA3916@in.ibm.com> <20040817120531.GB3916@in.ibm.com> <20040817120717.GC3916@in.ibm.com> <20040817120809.GD3916@in.ibm.com> <20040817120911.GE3916@in.ibm.com> <20040818134356.GA10970@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040818134356.GA10970@thunk.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Ted,
 
-I'm experiencing a strange behavior with the HTB part of the 2.8.1 kernel.
+On Wed, Aug 18, 2004 at 09:43:59AM -0400, Theodore Ts'o wrote:
+> This patch is needed so that the kexec patches will compile on systems
+> that don't have APIC's enabled.
 
-My computer boots fine, but when I enable HTB (via Fiaif) the computer 
-hangs.
+Thanks a lot for the patch.
 
-Did anyone get the same problem?
-
-Thanks
+Regards, Hari
+-- 
+Hariprasad Nellitheertha
+Linux Technology Center
+India Software Labs
+IBM India, Bangalore

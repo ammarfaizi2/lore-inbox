@@ -1,99 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264157AbTE0UmG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 16:42:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264169AbTE0UmD
+	id S264203AbTE0Uok (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 16:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264183AbTE0UoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 16:42:03 -0400
-Received: from sycorax.lbl.gov ([128.3.5.196]:1942 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S264157AbTE0Ukv (ORCPT
+	Tue, 27 May 2003 16:44:22 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:28823 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264174AbTE0UmJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 16:40:51 -0400
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc5
-References: <Pine.LNX.4.55L.0305271640320.9487@freak.distro.conectiva>
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-Date: Tue, 27 May 2003 13:53:48 -0700
-In-Reply-To: <Pine.LNX.4.55L.0305271640320.9487@freak.distro.conectiva> (message
- from Marcelo Tosatti on Tue, 27 May 2003 16:41:16 -0300 (BRT))
-Message-ID: <8765nw2js3.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 27 May 2003 16:42:09 -0400
+Date: Tue, 27 May 2003 22:55:16 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       manish <manish@storadinc.com>,
+       Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030527205516.GZ845@suse.de>
+References: <3ED2DE86.2070406@storadinc.com> <200305272032.03645.m.c.p@wolk-project.de> <20030527201028.GJ3767@dualathlon.random> <200305272224.22567.m.c.p@wolk-project.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305272224.22567.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+On Tue, May 27 2003, Marc-Christian Petersen wrote:
+> I try to backport BIO and then AS for quite over 2 weeks now, but it
+> seems, at least for me, that it's an impossible mission ;(
 
-> Mainly due to a IDE DMA problem which would happen on boxes with lots of
-> RAM, here is -rc5.
->
-> As I always ask, please test.
+You're nuts, that's not only incredibly silly it's not even needed for
+what you want.
 
-i get the following error:
+What you want is the proper io scheduler abstraction interface. With
+that in place, you can port the 2.5 io schedulers without too much
+trouble. They have very little dependencies on bio itself ('bio' has
+become on of the most abused terms in 2.5. I use it only to describe the
+io structure).
 
-make[5]: Entering directory `/usr/src/linux/drivers/ide/pci'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -I../ -nostdinc -iwithprefix include -DKBUILD_BASENAME=via82cxxx  -c -o via82cxxx.o via82cxxx.c
-via82cxxx.c:77: error: `PCI_DEVICE_ID_VIA_8237' undeclared here (not in a function)
-via82cxxx.c:77: error: initializer element is not constant
-via82cxxx.c:77: error: (near initialization for `via_isa_bridges[0].id')
-via82cxxx.c:77: error: initializer element is not constant
-via82cxxx.c:77: error: (near initialization for `via_isa_bridges[0]')
-via82cxxx.c:78: error: initializer element is not constant
-via82cxxx.c:78: error: (near initialization for `via_isa_bridges[1]')
-via82cxxx.c:79: error: initializer element is not constant
-via82cxxx.c:79: error: (near initialization for `via_isa_bridges[2]')
-via82cxxx.c:80: error: initializer element is not constant
-via82cxxx.c:80: error: (near initialization for `via_isa_bridges[3]')
-via82cxxx.c:81: error: initializer element is not constant
-via82cxxx.c:81: error: (near initialization for `via_isa_bridges[4]')
-via82cxxx.c:82: error: initializer element is not constant
-via82cxxx.c:82: error: (near initialization for `via_isa_bridges[5]')
-via82cxxx.c:83: error: initializer element is not constant
-via82cxxx.c:83: error: (near initialization for `via_isa_bridges[6]')
-via82cxxx.c:84: error: initializer element is not constant
-via82cxxx.c:84: error: (near initialization for `via_isa_bridges[7]')
-via82cxxx.c:85: error: initializer element is not constant
-via82cxxx.c:85: error: (near initialization for `via_isa_bridges[8]')
-via82cxxx.c:86: error: initializer element is not constant
-via82cxxx.c:86: error: (near initialization for `via_isa_bridges[9]')
-via82cxxx.c:87: error: initializer element is not constant
-via82cxxx.c:87: error: (near initialization for `via_isa_bridges[10]')
-via82cxxx.c:88: error: initializer element is not constant
-via82cxxx.c:88: error: (near initialization for `via_isa_bridges[11]')
-via82cxxx.c:89: error: initializer element is not constant
-via82cxxx.c:89: error: (near initialization for `via_isa_bridges[12]')
-via82cxxx.c:90: error: initializer element is not constant
-via82cxxx.c:90: error: (near initialization for `via_isa_bridges[13]')
-via82cxxx.c:91: error: initializer element is not constant
-via82cxxx.c:91: error: (near initialization for `via_isa_bridges[14]')
-via82cxxx.c:92: error: initializer element is not constant
-via82cxxx.c:92: error: (near initialization for `via_isa_bridges[15]')
-via82cxxx.c:93: error: initializer element is not constant
-via82cxxx.c:93: error: (near initialization for `via_isa_bridges[16]')
-via82cxxx.c:94: error: initializer element is not constant
-via82cxxx.c:94: error: (near initialization for `via_isa_bridges[17]')
-via82cxxx.c:95: error: initializer element is not constant
-via82cxxx.c:95: error: (near initialization for `via_isa_bridges[18]')
-make[5]: *** [via82cxxx.o] Error 1
-make[5]: Leaving directory `/usr/src/linux/drivers/ide/pci'
-make[4]: *** [first_rule] Error 2
-make[4]: Leaving directory `/usr/src/linux/drivers/ide/pci'
-make[3]: *** [_subdir_pci] Error 2
-make[3]: Leaving directory `/usr/src/linux/drivers/ide'
-make[2]: *** [_subdir_ide] Error 2
-make[2]: Leaving directory `/usr/src/linux/drivers'
-make[1]: *** [_dir_drivers] Error 2
-make[1]: Leaving directory `/usr/src/linux'
-make: *** [stamp-build] Error 2
+You basically need to pin down users that directly manipulate the queue
+to extract/insert requests. So step one is doing elv_add_request(),
+elv_next_request, and elv_remove_request(). That is a 1:1 mapping to
+what 2.4 has right now, so you should be able to accomplish this change
+without changing how the code works.
 
-this compiled in -rc4.
-
---alex--
+But still, why on earth waste your time with something like this now
+when we are so close to 2.6? 2.4 is a stable code base, it should stay
+that way. I'm really not interested in more esoteric 2.4 backports, the
+vendor kernels are bad enough as it is.
 
 -- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+Jens Axboe
+

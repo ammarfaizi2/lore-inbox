@@ -1,119 +1,139 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154405-23312>; Sun, 25 Oct 1998 23:03:52 -0500
-Received: from campino.Informatik.RWTH-Aachen.DE ([137.226.116.240]:61751 "EHLO campino.informatik.rwth-aachen.de" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154403-23312>; Sun, 25 Oct 1998 23:01:10 -0500
-Date: Mon, 26 Oct 1998 11:58:59 +0100 (MET)
-From: Bernd Schmidt <crux@pool.informatik.rwth-aachen.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andi Kleen <ak@muc.de>, Khimenko Victor <khim@sch57.msk.ru>, linux-kernel@vger.rutgers.edu
-Subject: Re: 2.2.0 and egcs 1.1 was Re: Sorry, wrong gcc-version
-In-Reply-To: <Pine.LNX.3.96.981025144701.3859K-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.02A.9810261116190.15628-100000@matula.informatik.rwth-aachen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: by vger.rutgers.edu id <153986-5740>; Sun, 15 Nov 1998 03:31:13 -0500
+Received: from post-20.mail.demon.net ([194.217.242.27]:55043 "EHLO post.mail.demon.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154076-5740>; Sun, 15 Nov 1998 03:30:41 -0500
+Message-ID: <19981115085947.B1316@tantalophile.demon.co.uk>
+Date: Sun, 15 Nov 1998 08:59:47 +0000
+From: Jamie Lokier <lkd@tantalophile.demon.co.uk>
+To: linux-kernel@vger.rutgers.edu
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: virt_to_bus and >1G of memory (was MAX_DMA_ADDRESS ...)
+References: <199811131032.CAA14582@dm.cobaltmicro.com> <19981113062952.A1449@tantalophile.demon.co.uk> <199811131032.CAA14582@dm.cobaltmicro.com> <19981113124717.A721@tantalophile.demon.co.uk> <199811131625.LAA11646@mercury.mv.net> <19981113182850.A754@tantalophile.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2
+In-Reply-To: <19981113182850.A754@tantalophile.demon.co.uk>; from Jamie Lokier on Fri, Nov 13, 1998 at 06:28:50PM +0000
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+On Fri, Nov 13, 1998 at 11:26:41AM -0500, Jeff Millar wrote:
+> What's the best way to deal with a BIOS that assigns PCI addresses that 
+> differ from the kernel's assumptions? The i386 io.h and page.h files appear 
+> to make a hard coded assumptions about the location of non-prefetchable 
+> memory.
 
-> > Actually this is not entirely correct. Even 2.1.x kernels still have lots
-> > of incorrect inline assembler constraints which can cause the compiler
-> > to misoptimize the kernel.
+I don't see anything in those files to do with non-prefetchable memory.
+PAGE_OFFSET is a kernel virtual address thing only.
 
-First, I should note that there are two issues here: we have bugs related to
-inline assembly in both the kernel, and in the compiler.  The compiler bugs
-are present in every version of gcc, not just gcc-2.8 or egcs.
+> The Ziatech board puts non-prefetchable memory including ethernet, SCSI, and 
+> our special frame buffer device at 0x40000000 and up. But all the other 
+> Linux systems we looked at put non-prefetchable devices at 0xFxxxxxx.
+> We need to load the PCI bus address of our custom frame buffer device into 
+> the video DMA engine of a BT-848 video decoder. But we ran into trouble 
+> with page.h...
 
-1. Explicitly clobbering a register is supposed to make it unavailable for
-   both inputs and outputs of the same statement.  This rule has been there
-   for a long time; it's documented at least since gcc-2.6.0 (I have no earlier
-   docs available at the moment; I suspect it's been there forever).  This is
-   from gcc.info, version 2.6.0:
+> The problem comes when we go to program the frame buffer address via BTTV. 
+> We had to modify the code to not muck around with the high bits. Right now 
+> the code explicitly tests for certain address ranges and programs the BT848 
+> accordingly. But that doesn't make it work if another weird BIOS shows up.
+> What's the right way to solve this problem?
 
-     The input operands are guaranteed not to use any of the clobbered
-     registers, and neither will the output operands' addresses, so you can
-     read and write the clobbered registers as many times as you like. 
+To access MMIO memory from kernel C code, you need to use ioremap() when
+you initialise the driver to get an address you can use, and iounmap()
+when you unload the driver.  It is the PCI *bus* address that you pass
+as argument to ioremap().
 
-   [Obviously, the clobbered regs aren't used for output operands either.]
-   Thus, using a construct like
-   __asm__ (" " : : "a" (somevalue) : "eax")
-   is incorrect.  This sort of thing occurs in the kernel, and it's a bug.
-   It should be written as
-   __asm__ (" " : "=&a" (dummy) : "0" (somevalue));
+To pass the MMIO address of one device to another, simply pass the *bus*
+address directly from one device to another.  Your problem is how to get
+the bus address from a user-space mapping.
 
-2. Clobbers are dangerous on the i386.  The compiler can't guarantee that
-   even for a correctly-written asm, the clobbered register will not be used
-   for another operand.  Thus, it is highly advisable not to use clobbers
-   at all, and to use earlyclobbers as described above.  This is a compiler
-   bug, and it's very closely related to the one that lets you use "a" as
-   a constraint in the example above.
+On a related note, you can pass kmalloc() returned addresses to a device
+using virt_to_bus(), but in a bitter ironic twist, you can't pass
+ioremap() returned addresses in this way.
 
-All of this only affects the i386 and other machines for which gcc has to
-define the macro SMALL_REGISTER_CLASSES in the machine description.  Without
-this macro, which normally isn't defined, gcc doesn't use registers which
-are explicitly mentioned anywhere in the internal representation at all for
-other purposes (like register allocation or for spill registers).  That makes
-the code correct, but it would also make the compiler fail to work at all for
-a machine where registers can be used explicitly (like eax as the function
-return value) and be necessary for certain instructions (like some
-multiplications that also require eax).
+> I have to admit that we don't really understand the kernel memory system all
+> that well.  Alan Cox replied to this by suggesting that we use physical bus
+> addresses...presumably by reading the address of the frame buffer as stored
+> in the PCI base address registers and copying it to the VIDMEM parameter of
+> BTTV.  
 
-Thus, on most machines supported by gcc the incorrect asm statement above
-would cause a spill failure error, if it could be written for other machines
-(most other machine descriptions don't have single-register register classes).
+Yes, that's exactly what I'd suggest.
 
-> I don't agree.
-> 
-> The assembler used to be correct, and the gcc people unilaterally decided
-> to change the rules. As such, I don't think the asm is any more
-> "incorrect" than the new gcc versions are incorrect. 
+> We can do that but we think we prefer to map the frame buffer address
+> into user space via mmap for use by applications and then convert a user
+> space address back to physical to programming the bttv.
+[There are some other problems in bttv.c too, notably a security problem
+with mappings not getting cleaned up on error]
 
-The assembler never was correct.  It happens to work most of the time, because
-even when SMALL_REGISTER_CLASSES is defined, the compiler puts the explicitly
-mentioned registers at the end of the list that it chooses its reload regs
-from.  Only when it can't find any other register will it use any of the
-explicitly mentioned ones.
+Your method certainly sounds like a friendly interface, ideal for video
+to video applications.
 
-> The changes I have seen break older compilers. 
+But this is where you're getting into trouble.  mmaping the frame buffer
+into user space is fine, but converting a generic user space address
+back to a bus address is dubious.  There's code in bttv.c, but...  aha.
+I see the problem now.
 
-In what ways?
+The problem is pte_page returning a kernel direct-mapped virtual address
+(clear? :-).  But the pte actually points to an MMIO physical address,
+which isn't a valid direct-mapped virtual address.  Yucky.
 
-> So Andi, don't go saying that the kernel has problems, when it is equally
-> true to say that gcc has problems. 
+A little further, it seems there is no architecture-independent way to
+translate the physical address in a pte to a bus address.  Nor is there
+any way to get the physical address without it becoming a "virt" address.
 
-Right.  Both have problems.  I'm currently working with the egcs people to
-fix the ones in gcc (make the compiler generate errors for the illegal asms,
-and avoid the whole SMALL_REGISTER_CLASSES nonsense).  However, once the
-compiler is fixed, the current kernels will fail to compile.
+Of course for a specific platform like x86 it can be hacked, but...
+this whole area is messy.
 
-> > In short, if you want to play safe stay with 2.7.2.3 for kernel compilation.
-> 
-> That, I think, everybody can agree on.
+> Hopefully this comment helps you with your driver.  If you have any suggests
+> about how we can deal with this please feel free to comment.
 
-Except that 2.7.2 is buggy as hell.  It has the same problems as egcs when
-it comes to asm statements, it just happens you may not have seen them yet.
-Fact is, any change in the kernel could cause the 2.7.2 to fall over just
-as well.
+You need to fix uvirt_to_bus in bttv.c, it's currently broken by design
+for MMIO mapped regions.  You can hack it for x86 by extracting the
+physical address directly and using it as a bus address.  Why don't you
+try this completely untested patch I just wrote out by hand?
 
-> For example, everybody in the egcs camp just decided that clobbers and
-> inputs must not overlap. Nobody told me why,
+------begin-----------
+--- linux/drivers/char/bttv.c
++++ linux/drivers/char/bttv.c
+@@ -116,19 +116,27 @@
+ static inline unsigned long uvirt_to_phys(unsigned long adr)
+ {
+ 	pgd_t *pgd;
+ 	pmd_t *pmd;
+ 	pte_t *ptep, pte;
+   
+ 	pgd = pgd_offset(current->mm, adr);
+ 	if (pgd_none(*pgd))
+ 		return 0;
+ 	pmd = pmd_offset(pgd, adr);
+ 	if (pmd_none(*pmd))
+ 		return 0;
+ 	ptep = pte_offset(pmd, adr/*&(~PGDIR_MASK)*/);
+ 	pte = *ptep;
+ 	if(pte_present(pte))
+ 		return 
++#ifdef __i386__
++		  __pa((void *)(pte_page(pte)|(adr&(PAGE_SIZE-1))));
++#else
+ 		  virt_to_phys((void *)(pte_page(pte)|(adr&(PAGE_SIZE-1))));
++#endif
+ 	return 0;
+ }
+ 
+ static inline unsigned long uvirt_to_bus(unsigned long adr) 
+ {
++#ifdef __i386__
++	return uvirt_to_phys(adr);
++#else
+ 	return virt_to_bus(phys_to_virt(uvirt_to_phys(adr)));
++#endif
+ }
+---------end-----------
 
-Because it's documented that way.  Because on sane machines, it has always
-worked that way.
-You seem to suggest that the meaning of clobbered registers should be
-redefined so that they work the way you expect them to work.  Technically,
-that's feasible.  However, for the kernel inline assembly, you'd be left with
-the oh-so-stable gcc-2.7.2 which still doesn't work properly.  Worse,
-redefining the meaning of clobbers will suddenly make hundreds of correctly
-written asm statements for other machines as well as for the i386 generate
-incorrect code silently.  Are you seriously proposing this is a good idea?
+Or you can wait for my userdma.c driver which will try to tackle it.
+Though this particular problem will only be solved by a hack, i386 only.
 
-> and why they can't just be
-> automatically converted to early-clobbers inside gcc.
+Thanks very much Jeff, I hadn't noticed this problem until now.
 
-Clobbers in an asm statement can use a register number.  The operands need
-a register class.  There may not be a register class for a register you want
-to clobber (consider clobbering ebp which has no corresponding register class).
-
-Bernd
-
+-- Jamie
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

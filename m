@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318061AbSHGLOu>; Wed, 7 Aug 2002 07:14:50 -0400
+	id <S318047AbSHGLNX>; Wed, 7 Aug 2002 07:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318076AbSHGLOu>; Wed, 7 Aug 2002 07:14:50 -0400
-Received: from ns.suse.de ([213.95.15.193]:48907 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318061AbSHGLOt>;
-	Wed, 7 Aug 2002 07:14:49 -0400
-Date: Wed, 7 Aug 2002 13:18:13 +0200
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 64bit clean drivers was Re: Linux 2.4.20-pre1
-Message-ID: <20020807131813.A25485@wotan.suse.de>
-References: <20020807130417.A19231@wotan.suse.de> <200208071110.g77BAaH05474@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200208071110.g77BAaH05474@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S318035AbSHGLNX>; Wed, 7 Aug 2002 07:13:23 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:43909 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317980AbSHGLNW>; Wed, 7 Aug 2002 07:13:22 -0400
+Date: Wed, 7 Aug 2002 07:18:17 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Dax Kelson <dax@gurulabs.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: ethtool documentation
+In-Reply-To: <Pine.LNX.4.44.0208062318350.4696-100000@mooru.gurulabs.com>
+Message-ID: <Pine.LNX.3.95.1020807070841.28061A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 07, 2002 at 07:10:36AM -0400, Alan Cox wrote:
-> > dep_bool .... $CONFIG_X86_32
+On Tue, 6 Aug 2002, Dax Kelson wrote:
+
+> On Tue, 6 Aug 2002, Richard B. Johnson wrote:
+> 
+> > If you let a user write to this area, you will allow the user
+> > to destroy the connectivity on a LAN.
 > > 
-> > Would that be acceptable for you?  (ok that would not cover ppc32 for 
-> > example, but they may have other issues with the driver) 
+> > Because of this, there is no such thing as 'unused eeprom space' in
+> > the Ethernet Controllers. Be careful about putting this weapon in
+> > the hands of the 'public'. All you need is for one Linux Machine
+> > on a LAN to end up with the same IEEE Station Address as another
+> > on that LAN and connectivity to everything on that segment will
+> > stop. You do this once at an important site and Linux will get a
+> > very black eye.
 > 
-> dep_bool doesnt have negations, bracketing or or operations. Thats why
-> CML1 can't handle it but CML2 probably could have
-
-But you can always define negative symbols (CONFIG_4GB CONFIG_32BIT CONFIG_LITTLE_ENDIAN, 
-no need for !CONFIG_BIG_ENDIAN). I don't see how or should be 
-needed with careful chosing of symbols.
-
+> Dick, this "weapon" has been the in the hands of admins and evil-doers for 
+> YEARS!
 > 
-> > They will discover it when they don't find a driver for an device and
-> > can then find the disabled configuration and look into fixing it
-> > (for someone able to fix the driver checking the configuration should
-> > be trivial) 
+> It is called /sbin/ifconfig
 > 
-> No they'll mail you asking where it has gone
-
-That's fine too.
-
+> With this evil command nearly any NIC can masquerade as any one of
+> ~281474976710656 possible IEEE Station Addresses. This weapon of
+> destruction has seen wide spread proliferation across most Unix varients.
+> Human sacrifice, dogs and cats living together, mass hysteria!
 > 
-> > In my opinion it is just not acceptable when the enable the driver by
-> > mistake or load the wrong module and it crashes.
+> Err, no wait.
 > 
-> Thats a packaging issue for distributed prebuilt kernel trees. Also crashes
-> are the only way you are going to find out what needs fixing, who wants to
-> fix it and the like
+> The sky is not falling, you protest too much.
+> 
+> Dax Kelson
+> 
 
-I disagree. In my opinion such low standards on the kernel configuration
-are not acceptable.  Things that 100% will not work should not be
-visible.
+That capability is not permanent. If you let users write to the
+SEEPROM, permanently changing the IEEE Station Address, you have
+let users permanently break their network boards. I do protest
+when this capability is in the kernel.
 
--Andi
+Anybody, who knows how can, write a driver that can destroy their
+disk drives, their modems, their audio boards, their screen-cards,
+their motherboards, ...the list goes on..., because EEPROMS are
+being used now days. But, you don't put that capability in the
+kernel as a default.
+
+If you do, you get complaints from those who have had the misfortune of
+being interrogated by lawyers.
+
+Also, if you want to destroy Ethernet, mucking with the MAC address
+is an easy way to do it.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
+

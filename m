@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262141AbTIRVOh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 17:14:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbTIRVOh
+	id S262123AbTIRVKS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 17:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbTIRVKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 17:14:37 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:52911 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262141AbTIRVOg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 17:14:36 -0400
-From: tomepperly@comcast.net
-To: linux-kernel@vger.kernel.org
-Subject: Trouble with Cisco Aironet 350 PCMCIA in 2.4.21 & 2.4.22
-Date: Thu, 18 Sep 2003 21:14:34 +0000
-X-Mailer: AT&T Message Center Version 1 (Sep 12 2003)
-X-Authenticated-Sender: dG9tZXBwZXJseUBjb21jYXN0Lm5ldA==
-Message-Id: <S262141AbTIRVOg/20030918211436Z+13414@vger.kernel.org>
+	Thu, 18 Sep 2003 17:10:18 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:35798 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S262123AbTIRVKP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 17:10:15 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: William Lee Irwin III <wli@holomorphy.com>
+Date: Thu, 18 Sep 2003 23:10:06 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: BUG at mm/memory.c:1501 in 2.6.0-test5
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <95932E0ADB@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My Aironet 350 PCMCIA card works fine with 2.4.20 and hasn't worked with vanilla
-2.4.21  or 2.4.22 (with Debian patches). I've got a Dell Latitude with a 1.2GHz
-mobile P3.
+On 18 Sep 03 at 13:43, William Lee Irwin III wrote:
+> On Thu, Sep 18, 2003 at 10:27:58PM +0200, Petr Vandrovec wrote:
+> > EIP:    0060:[<c015be10>]    Tainted: PF 
+> 
+>                 snprintf(buf, sizeof(buf), "Tainted: %c%c%c",
+>                         tainted & TAINT_PROPRIETARY_MODULE ? 'P' : 'G',
+>                         tainted & TAINT_FORCED_MODULE ? 'F' : ' ',
+>                         tainted & TAINT_UNSAFE_SMP ? 'S' : ' ');
+> 
+> This is probably the reason you're not getting much in the way of a
+> response.
 
-Here is what appears in my /var/log/syslog when I plug the card into the laptop.
-Sep 18 13:35:56 driftcreek cardmgr[510]: initializing socket 1
-Sep 18 13:35:57 driftcreek kernel: cs: memory probe 0x0c0000-0x0fffff: excluding
-0xc0000-0xcffff 0xe0000-0xfffff
-Sep 18 13:35:57 driftcreek cardmgr[510]: socket 1: 350 Series Wireless LAN Adapter
-Sep 18 13:35:57 driftcreek cardmgr[510]:   product info: "Cisco Systems", "350
-Series Wireless LAN Adapter"
-Sep 18 13:35:57 driftcreek cardmgr[510]:   manfid: 0x015f, 0x000a  function: 6
-(network)
-Sep 18 13:35:57 driftcreek cardmgr[510]: executing: 'modprobe airo_cs'
-Sep 18 13:35:57 driftcreek kernel: airo:  Probing for PCI adapters
-Sep 18 13:35:57 driftcreek kernel: airo:  Finished probing for PCI adapters
-Sep 18 13:35:57 driftcreek kernel: airo: register interrupt 0 failed, rc -16
-Sep 18 13:35:57 driftcreek kernel: airo_cs: RequestConfiguration: Operation
-succeeded
-Sep 18 13:35:58 driftcreek cardmgr[510]: get dev info on socket 1 failed:
-Resource temporarily unavailable
+I explicitly stated that it happened shortly after I shut down VMware UI,
+and that I spent whole day trying to find what's going on, finally
+politely asking for help, hoping that someone could have a clue
+what went wrong.
+                                            Petr Vandrovec
 
-At this point, the system ignores the keyboard. Otherwise, the system is
-responsive to my USB mouse and X11 continues responding.
 
-Tom

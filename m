@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289970AbSAPP0P>; Wed, 16 Jan 2002 10:26:15 -0500
+	id <S289971AbSAPP2e>; Wed, 16 Jan 2002 10:28:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289971AbSAPP0E>; Wed, 16 Jan 2002 10:26:04 -0500
-Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:63706 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S289970AbSAPPZu>; Wed, 16 Jan 2002 10:25:50 -0500
-Date: Wed, 16 Jan 2002 15:18:52 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Richard Henderson <rth@twiddle.net>,
-        Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-Message-ID: <20020116151852.B31993@kushida.apsleyroad.org>
-In-Reply-To: <20020111141850.A9873@twiddle.net> <E16PAld-0000c9-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16PAld-0000c9-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 11, 2002 at 11:07:21PM +0000
+	id <S289975AbSAPP2Y>; Wed, 16 Jan 2002 10:28:24 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22538 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S289972AbSAPP2S>; Wed, 16 Jan 2002 10:28:18 -0500
+Date: Wed, 16 Jan 2002 10:27:33 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16QXhu-0000wl-00@starship.berlin>
+Message-ID: <Pine.LNX.3.96.1020116102256.28369C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > What's the point of optimizing an IF to a cmov if I have
-> > to insert another IF to see if I can use cmov?
+On Tue, 15 Jan 2002, Daniel Phillips wrote:
+
+> On January 15, 2002 06:26 am, Mark Hahn wrote:
+> > > than the task's float, the completion time of the schedule as a whole will be 
+> > > delayed.  This is no different for a computer than it is for a group of 
+> > > people, it is still a scheduling problem.  Delaying any random task risks 
+> > 
+> > it is quite different.  with computers, there are often STRONG benefits
+> > to clustering, batching, chunking, piggybacking, whatever you want to call it.
 > 
-> I've always wondered. Intel made the instruction optional yet there isnt
-> an obvious way to do runtime fixups on it
+> It's no different.
 
-Yes there is -- emulation! :-)
+Sorry, there are strong benefits from all of the things mentioned. I lack
+time and inclination to explain how caching works, but there are costs of
+changing from one thing to another.
 
--- Jamie
+The other issue is that processes doing i/o (blocking before a whole
+timeslice) will run better if they get priority when they can use the CPU.
+Therefore a system needs to recognize (and be tuned) for both of these.
+
+Computers are very different than people in lines.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,79 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132072AbRDJUCN>; Tue, 10 Apr 2001 16:02:13 -0400
+	id <S132077AbRDJUCN>; Tue, 10 Apr 2001 16:02:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132056AbRDJUCF>; Tue, 10 Apr 2001 16:02:05 -0400
-Received: from tux.mkp.net ([130.225.60.11]:16390 "EHLO tux.mkp.net")
-	by vger.kernel.org with ESMTP id <S132057AbRDJUBx>;
-	Tue, 10 Apr 2001 16:01:53 -0400
-To: linux-lvm@sistina.com
-Cc: lvm-devel@sistina.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [linux-lvm] *** ANNOUNCEMENT *** LVM 0.9.1 Beta 7 available at www.sistina.com
-In-Reply-To: <20010410182550.A20569@sistina.com>
-From: "Martin K. Petersen" <mkp@mkp.net>
-Organization: mkp.net
-Date: 10 Apr 2001 16:01:04 -0400
-In-Reply-To: <20010410182550.A20569@sistina.com>
-Message-ID: <yq1puekr0cf.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.2 (Urania)
+	id <S132072AbRDJUCF>; Tue, 10 Apr 2001 16:02:05 -0400
+Received: from sputnik.senv.net ([213.169.3.101]:7940 "HELO sputnik.senv.net")
+	by vger.kernel.org with SMTP id <S132056AbRDJUBw>;
+	Tue, 10 Apr 2001 16:01:52 -0400
+Date: Tue, 10 Apr 2001 23:01:41 +0300 (EEST)
+From: Jussi Hamalainen <count@theblah.org>
+X-X-Sender: <count@mir.senv.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: lockd trouble
+In-Reply-To: <Pine.LNX.4.30.0104102137470.708-100000@mir.senv.net>
+Message-ID: <Pine.LNX.4.33.0104102258040.3166-100000@mir.senv.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Heinz" == Heinz J Mauelshagen <Mauelshagen@sistina.com> writes:
+On Tue, 10 Apr 2001, Jussi Hamalainen wrote:
 
-Heinz> a tarball of the Linux Logical Volume Manager 0.9.1 Beta 7 is
-Heinz> available now at
+>    program vers proto   port
+>     100000    2   tcp    111  portmapper
+>     100000    2   udp    111  portmapper
+>     100021    1   udp   1024  nlockmgr
+>     100021    3   udp   1024  nlockmgr
+>     100005    1   udp    686  mountd
+>     100005    2   udp    686  mountd
+>     100005    1   tcp    689  mountd
+>     100005    2   tcp    689  mountd
+>     100003    2   udp   2049  nfs
+>     100003    2   tcp   2049  nfs
 
-The following code is baaaad, m'kay...
+Duhh. Obviously I should have read the documentation before bashing
+my head against the wall. I wasn't running statd. Got it working now,
+sorry about that.
 
-[...]
-
-	down(&_pe_lock);
-	if((pe_lock_req.lock == LOCK_PE) &&
-	   (rdev_map == pe_lock_req.data.pv_dev) &&
-	   (rsector_map >= pe_lock_req.data.pv_offset) &&
-	   (rsector_map < (pe_lock_req.data.pv_offset + vg_this->pe_size)) &&
-	   ((rw == WRITE) || (rw == WRITEA))) {
-		/* defer this bh until the PE has moved */
-		if(((int) bh) & 0x3) {
-			printk(KERN_ERR 
-			       "%s -- bh uses low 2 bits of pointer\n",
-			       lvm_name);
-			up(&_pe_lock);
-			goto bad;
-		}
-
-		bh->b_reqnext = _pe_requests;
-		_pe_requests = (struct buffer_head *) ((int) bh | rw);
-		up(&_pe_lock);
-		up(&lv->lv_snapshot_sem);
-		return 0;
-	}
-	up(&_pe_lock);
-
-[...]
-
-		/* handle all deferred io for this PE */
-		while(q) {
-			struct buffer_head *d_bh = 
-			       (struct buffer_head *) (q & ~0x3);
-			int rw = q & 0x3;
-			q = (uint) d_bh->b_reqnext;
- 
-			/* resubmit this buffer head */
-			d_bh->b_reqnext = 0;
-			generic_make_request(rw, d_bh);
-		}
-
-
-Not only is this an evil hack from hell, I don't understand why you go
-through such a huge effort of storing rw in the pointer.  Afaict, the
-only valid value is WRITE.  And WRITEA is #defined to WRITE in lvm.c.
+I do have a question about lockd. How do I get it back if I need
+to restart portmap? Running rpc.lockd doesn't seem to have any
+effect whatsoever on the listed rpc services and I can't just
+reload the module since nfs depends on it.
 
 -- 
-Martin K. Petersen, Principal Linux Consultant, Linuxcare, Inc.
-mkp@linuxcare.com, http://www.linuxcare.com/
-SGI XFS for Linux Developer, http://oss.sgi.com/projects/xfs/
+-=[ Count Zero / TBH - Jussi Hämäläinen - email count@theblah.org ]=-
+

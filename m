@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbUDUONP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbUDUOON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbUDUONP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 10:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262923AbUDUONP
+	id S262634AbUDUOON (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 10:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbUDUOON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 10:13:15 -0400
-Received: from main.gmane.org ([80.91.224.249]:4003 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262794AbUDUONM (ORCPT
+	Wed, 21 Apr 2004 10:14:13 -0400
+Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:31189 "EHLO
+	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S262634AbUDUOOH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 10:13:12 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: [PATCH 6/15] New set of input patches: atkbd soften accusation
-Date: Wed, 21 Apr 2004 16:13:00 +0200
-Message-ID: <MPG.1af09f787ecab63989697@news.gmane.org>
-References: <200404210049.17139.dtor_core@ameritech.net> <200404210054.23583.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-107-142.29-151.libero.it
-X-Newsreader: MicroPlanet Gravity v2.60
+	Wed, 21 Apr 2004 10:14:07 -0400
+To: Tuukka Toivonen <tuukkat@ee.oulu.fi>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, arjanv@redhat.com,
+       Andrew Morton <akpm@osdl.org>, b-gruber@gmx.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: /dev/psaux-Interface
+References: <Pine.GSO.4.58.0402271451420.11281@stekt37>
+	<Pine.GSO.4.58.0404191124220.21825@stekt37>
+	<20040419015221.07a214b8.akpm@osdl.org>
+	<xb77jwci86o.fsf@savona.informatik.uni-freiburg.de>
+	<1082372020.4691.9.camel@laptop.fenrus.com>
+	<16518.20890.380763.581386@cse.unsw.edu.au>
+	<xb71xmhfu9j.fsf@savona.informatik.uni-freiburg.de>
+	<Pine.GSO.4.58.0404211442170.26430@stekt37>
+From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Date: 21 Apr 2004 16:14:06 +0200
+In-Reply-To: <Pine.GSO.4.58.0404211442170.26430@stekt37>
+Message-ID: <xb7smexe7v5.fsf@savona.informatik.uni-freiburg.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 8BIT
+Organization: Universitaet Freiburg, Institut fuer Informatik
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> +				printk(KERN_WARNING "atkbd.c: Unknown key %s "
-> +				       "(%s set %d, code %#x on %s).\n",
-> +				       atkbd->release ? "released" : "pressed",
-> +				       atkbd->translated ? "translated" : "raw",
-> +				       atkbd->set, code, serio->phys);
-> +				printk(KERN_WARNING "atkbd.c: Use 'setkeycodes %s%02x <keycode>' "
-> +				       "to make it known.\n",
-> +				       code & 0x80 ? "e0" : "", code & 0x7f);
+>>>>> "Tuukka" == Tuukka Toivonen <tuukkat@ee.oulu.fi> writes:
 
-By the way, until the atkbd.c / keyboard.c interaction is fixed, using setkeycodes might 
-*not* make the keys known *properly*. (example: try setkeycodes e001 129: you'll notice 
-that a key whose raw code is 0x81 will not produce keycode 129, because the raw mode 
-emulation will actually turn the 0x81 in a 0x85.)
+    Tuukka> We shouldn't want _the_ /dev/psaux, but something similar,
+    Tuukka> possibly better. What I'm after (and probably Sau Dan Lee
+    Tuukka> too) is direct access to at least psaux-port.
 
-(See also the temporary patch I posted recently).
+Right!
+
+
+    Tuukka> My idea is to modify serio to expose all (or at least all
+    Tuukka> unconnected) ports into userspace, where programs can
+    Tuukka> write/read them just like the /dev/psaux before. Then it's
+    Tuukka> just matter of symlinking /dev/psaux into correct device.
+
+Good suggestion.
+
+
+Actually, I  have a  side issue with  input/i8042 related  things: The
+keyboard on  my laptop worked  slightly different: On 2.4.*,  SysRq is
+activated using a [Fn] key-combo,  which agrees with the keycap labels
+on the  laptop keyboard.   After upgrading to  2.6, that  key-combo no
+longer  works.  Instead,  I must  use Alt-PrintScreen  as the  key for
+SysRq.  (And unfortunately, PrintScreen is a [Fn] combo on the laptop,
+thus requiring press  3 keys at the same time for  SysRq, and a fourth
+key to use  the various SysRq features.  Very  inconvenient.)  Is this
+again due to some dirty translation processes down in the input layer?
+Is  the input  layer always  assuming that  Alt-PrintScreen  == SysRq?
+This is not always true.  Can the input layer be so configured that it
+never tries  to interpret  the scancodes, but  pass them to  the upper
+layers?
+
+
 
 -- 
-Giuseppe "Oblomov" Bilotta
+Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
 
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
+E-mail: danlee@informatik.uni-freiburg.de
+Home page: http://www.informatik.uni-freiburg.de/~danlee
 

@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269390AbUINMfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269398AbUINMfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269390AbUINMfT (ORCPT <rfc822;willy@w.ods.org>);
+	id S269398AbUINMfT (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 14 Sep 2004 08:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269418AbUINMeE
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269429AbUINMdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 08:34:04 -0400
-Received: from fbxmetz.linbox.com ([81.56.128.63]:57604 "EHLO xiii.metz")
-	by vger.kernel.org with ESMTP id S269395AbUINMbV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 08:31:21 -0400
-Message-ID: <4146E496.8050904@linbox.com>
-Date: Tue, 14 Sep 2004 14:31:18 +0200
-From: Ludovic Drolez <ludovic.drolez@linbox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en, fr
+	Tue, 14 Sep 2004 08:33:42 -0400
+Received: from [221.140.26.103] ([221.140.26.103]:39947 "HELO
+	sailpennylane.com") by vger.kernel.org with SMTP id S269418AbUINM1C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 08:27:02 -0400
+Date: Tue, 14 Sep 2004 12:28:21 +0000
+From: zampach@erf.net
+Subject: Microsoft disc ounts
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <9IK57F3DD85AI01B@vger.kernel.org>
+In-Reply-To: <9IK57F3DD85AI01B@vger.kernel.org>
+Message-ID: <KB5BL0EBH6F920H9@erf.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: keep the linux logo displayed on 2.6.7
-References: <Pine.LNX.4.44.0307211749400.6905-100000@phoenix.infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0307211749400.6905-100000@phoenix.infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Adobe Acrobat 6.0 Professional - 100.00
+Norton System Works 2004 professional - 40.00
+Adobe Illustrator 10 - 80.00
+Ahead Nero v6.3 Powerpack - 40.00
+Adobe Illustrator 10 - 80.00
+Quark Express 6.0 - 60.00
+Ahead Nero v6.3 Powerpack - 40.00
+Quicken 2004 Premier Home And Business - 40.00
+Adobe Photoshop 7.0 - 60.00
+Adobe Illustrator 10 - 80.00
+Macromedia Studio MX 2004 - 180.00
+Easy CD & DVD Creator 6 - 29.99
+Microsoft Windows 2000 Professional - 50.00
+Macromedia Studio MX 2004 - 180.00
 
-One year ago, I wanted to find a way to keep the linux logo displayed, and I 
-posted this:
-
-Many thanks for the esc sequence hint !
-But it seems there's something broken with it: if I send 'esc[10;20r'
-- the scrolling region is now between lines 10 and 20
-- but, the cursor is moved to 0,0 instead of line 10
-- and the linux logo does not appear...
-Bug or feature ??
-
-James Simmons said 'Bug. Fixed in the latest kernel.', but with a 2.6.7, the 
-escape sequence has the same behavior and the logo does not appear. (cursor 
-moved to 0,0 instead of line 10).
-
-Any ideas on how to really fix that bug ?
-
-Cheers,
-
--- 
-Ludovic DROLEZ                                       Free&ALter Soft
-152, rue de Grigy - Technopole Metz 2000                  57070 METZ
-tel : 03 87 75 55 21                            fax : 03 87 75 19 26
-
+and more http://www.hotoem.info/
 

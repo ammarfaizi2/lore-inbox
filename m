@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130012AbQKKLm5>; Sat, 11 Nov 2000 06:42:57 -0500
+	id <S130643AbQKKLyv>; Sat, 11 Nov 2000 06:54:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130648AbQKKLmr>; Sat, 11 Nov 2000 06:42:47 -0500
-Received: from sjc-wnds-1110.customers.reflexnet.net ([64.6.201.110]:24586
-	"EHLO shambat.jokeslayer.com") by vger.kernel.org with ESMTP
-	id <S130012AbQKKLmg>; Sat, 11 Nov 2000 06:42:36 -0500
-Date: Sat, 11 Nov 2000 03:52:09 -0800 (PST)
-From: Max Inux <maxinux@openpgp.net>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: "H. Peter Anvin" <hpa@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: bzImage ~ 900K with i386 test11-pre2
-In-Reply-To: <Pine.LNX.4.21.0011111133050.1029-100000@saturn.homenet>
-Message-ID: <Pine.LNX.4.30.0011110348540.10847-100000@shambat>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130648AbQKKLyl>; Sat, 11 Nov 2000 06:54:41 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:47378 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130643AbQKKLyb>;
+	Sat, 11 Nov 2000 06:54:31 -0500
+Date: Sat, 11 Nov 2000 12:54:20 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: Ralf Baechle <ralf@uni-koblenz.de>,
+        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
+Message-ID: <20001111125420.B921@inspiron.suse.de>
+In-Reply-To: <3A0C3F30.F5EB076E@timpanogas.org> <3A0C6B7C.110902B4@timpanogas.org> <3A0C6E01.EFA10590@timpanogas.org> <26054.973893835@euclid.cs.niu.edu> <8uhs7c$2hr$1@cesium.transmeta.com> <3A0C76C0.CAC8B9D4@timpanogas.org> <20001111024440.E29352@bacchus.dhis.org> <3A0CA4F5.4715FE49@transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A0CA4F5.4715FE49@transmeta.com>; from hpa@transmeta.com on Fri, Nov 10, 2000 at 05:46:29PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-May I recomend a read of Documentation/i386/boot.txt, it explains exactly
-what is done
+On Fri, Nov 10, 2000 at 05:46:29PM -0800, H. Peter Anvin wrote:
+> Yes, the documentation is broken.  Linus did in fact implement this
 
-Protocol 2.02:  (Kernel 2.4.0-test3-pre3) New command line protocol.
-                Lower the conventional memory ceiling.  No overwrite
-                of the traditional setup area, thus making booting
-                safe for systems which use the EBDA from SMM or 32-bit
-                BIOS entry points.  zImage deprecated but still
-                supported.
+Well, also the implementation could be improved IMHO, think when we have one
+houndred of tasks sleeping in uninterruptible mode because the nfs server is
+down for maintenance. They're no loading the machine at all for half an hour
+even while the load is 100. For sure the fix is not to account only runnable
+tasks though, since when the machine trashes into swap all tasks blocks and
+they almost never runs but in such a case we must report that all tasks are
+trying to make progress and that they're effectively loading the machine even
+if they sleeps in uninterruptible mode all the time. I'd prefer a generic
+approch but also a magic for some case like nfs server down could take care of
+that.
 
-2.01 may have had the issue you speak of, looks like this fixes it.
-
-William Tiemann
-<wtiemann@openpgp.net>
-http://www.OpenPGP.Net
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

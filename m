@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267895AbTAHTyJ>; Wed, 8 Jan 2003 14:54:09 -0500
+	id <S267887AbTAHTxi>; Wed, 8 Jan 2003 14:53:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267894AbTAHTyJ>; Wed, 8 Jan 2003 14:54:09 -0500
-Received: from fc2.capaccess.org ([151.200.199.52]:16140 "EHLO
-	fc2.capaccess.org") by vger.kernel.org with ESMTP
-	id <S267895AbTAHTxj>; Wed, 8 Jan 2003 14:53:39 -0500
-Message-id: <fc.0010c7b2006eafac0010c7b2006d6791.6eafd8@capaccess.org>
-Date: Wed, 08 Jan 2003 15:02:25 -0500
-Subject: Re: The only way around Mi
-To: indigoid@higherplane.net
-Cc: linux-kernel@vger.kernel.org
-From: "Rick A. Hohensee" <rickh@capaccess.org>
-References: <fc.0010c7b2006d67910010c7b2006d6791.6d6795@Capaccess.org>
- <20021231122253.GA26356@gallifrey>
- <fc.0010c7b2006d75640010c7b2006d6791.6d756c@capaccess.org>
- <20030107231025.GE18508@higherplane.net>
-In-Reply-To: <20030107231025.GE18508@higherplane.net>
+	id <S267894AbTAHTxi>; Wed, 8 Jan 2003 14:53:38 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:55758 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S267887AbTAHTxZ> convert rfc822-to-8bit; Wed, 8 Jan 2003 14:53:25 -0500
+content-class: urn:content-classes:message
+Subject: RE: PCI code:  why need  outb (0x01, 0xCFB); ?
+Date: Wed, 8 Jan 2003 11:10:33 -0800
+Message-ID: <3014AAAC8E0930438FD38EBF6DCEB5647D0D1C@fmsmsx407.fm.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PCI code:  why need  outb (0x01, 0xCFB); ?
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
+Thread-Index: AcK3R6r0/FZ+0SM5Edeo8gBQi2jWzAAATRpg
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Jan 2003 19:10:34.0626 (UTC) FILETIME=[9EE77620:01C2B749]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I need some people that haven't forgotten how to use a computer to do
->> basic cleanups like convert "intelligence" in the CIA sense to
-"strinfo",
->> shut down the war on herbs, eliminate using the tax laws as a form of
->> subsidy, et cetera. The better hackers will get cabinet positions.
->> Otherwise I'll promote from the existing staff.
->
->sounds a lot like 'executive orders' by tom clancy.  not one of his
->better books, by the way
->
+Normally all accesses should be long (0xcf8/0xcfc) but x86 is byte addresseable and some chipsets do support byte accesses. 
 
-I don't read much fiction. Besides, like, the Washington Post. I'll have
-to check out that Clancy title. Hmmmm, what was the last fiction I read?
-"Tipping the Velvet". About a lesbian hooker in London before the
-automobile. Didn't finish it.
+We do not encourage use of byte accesses as it will not be supported in future platforms.
 
-Rick Hohensee
+Thanks,
+Jun
 
-
-
+> -----Original Message-----
+> From: H. Peter Anvin [mailto:hpa@zytor.com]
+> Sent: Wednesday, January 08, 2003 10:53 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: PCI code: why need outb (0x01, 0xCFB); ?
+> 
+> Followup to:  <F87sTOHYNhMwqvbLaKL0001615a@hotmail.com>
+> By author:    "fretre lewis" <fretre3618@hotmail.com>
+> In newsgroup: linux.dev.kernel
+> 
+> > 1. which device is at port address 0xCFB?
+> 
+> Hopefully none.
+> 
+> > 2. what is meaning of the writing operation "outb (0x01, 0xCFB);" for
+> THIS
+> > device?, it'seem that PCI spec v2.0 not say anything about it?
+> 
+> It's trying to verify that the PCI northbridge does *NOT* respond to
+> this (byte-wide) reference.
+> 
+> 	-hpa
+> --
+> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+> "Unix gives you enough rope to shoot yourself in the foot."
+> http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

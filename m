@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270117AbTGUO0y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 10:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270120AbTGUO0x
+	id S270138AbTGUOh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 10:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270120AbTGUOh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 10:26:53 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:58515 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id S270117AbTGUO0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 10:26:39 -0400
-Message-Id: <200307211441.h6LEfQT02085@pincoya.inf.utfsm.cl>
-To: RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Suggestion for a new system call: convert file handle to a cookie for transfering file handles between processes. 
-In-reply-to: Your message of "Mon, 21 Jul 2003 11:49:15 +0200."
-             <4cace4bf68.4bf684cace@teleline.es> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Mon, 21 Jul 2003 10:41:25 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 21 Jul 2003 10:37:27 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:16115 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S270138AbTGUOhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 10:37:25 -0400
+Subject: Re: devfsd/2.6.0-test1
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Greg KH <greg@kroah.com>
+Cc: Andrey Borzenkov <arvidjaar@mail.ru>, KML <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+In-Reply-To: <20030721143645.GA9480@kroah.com>
+References: <200307202117.32753.arvidjaar@mail.ru>
+	 <1058741336.19817.147.camel@nosferatu.lan>
+	 <20030721143645.GA9480@kroah.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1058799142.5132.5.camel@workshop.saharacpt.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 21 Jul 2003 16:52:22 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es> said:
-> Although it is posible to use unix sockets, my proposal
-> integrates better with shell scripts.
+On Mon, 2003-07-21 at 16:36, Greg KH wrote:
+> On Mon, Jul 21, 2003 at 12:48:56AM +0200, Martin Schlemmer wrote:
+> > On Sun, 2003-07-20 at 19:17, Andrey Borzenkov wrote:
+> > > > Also, read the threads on the list about udev/hotplug - apparently
+> > > > devfsd is going out ...
+> > > 
+> > > as long as you have memory-based /dev you need devfsd even if it is called 
+> > > differently.
+> > >
+> > 
+> > I have not looked at it myself, but as far as I have it, you do not
+> > mount /dev, and just need udev/hotplug/libsysfs (not sure on libsysfs).
+> > Currently udev still call mknod, but I think Greg said he will fix that
+> > in the future.
+> 
+> What's wrong with calling mknod?
+> 
+> I did say I thought about calling sys_mknod directly from udev, but
+> that's just a minor change.  Is that what you were referring to?
+> 
 
-I fail to see why using sockets et al in shell scripts is that important.
-You have full access to the API from Perl, for one; shell scripts are used
-mostly as scaffolding for calling "normal" programs, so inventing something
-to do what you want and call that from the shell is the way to go IMHO.
-Only if there is absolutely no way to do it sanely outside the kernel, and
-futhermore it is very important to do, should the kernel get involved
-(sure, Linux is way the largest Unix installed base around today, but still
-_far_ from the one that defines the standards in the area, which means a
-Linux-only system call is a step forward and three back, so...)
+Yep.  Nothing major - I just want to remember somebody moaning
+about too much overhead with udev spawning for every event in
+/dev.
+
+
+Cheers,
+
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Martin Schlemmer
+
+

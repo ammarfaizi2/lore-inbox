@@ -1,40 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266997AbUBGSAT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 13:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267007AbUBGSAT
+	id S267001AbUBGR6u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 12:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266997AbUBGR6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 13:00:19 -0500
-Received: from q.bofh.de ([212.126.220.202]:61200 "EHLO q.bofh.de")
-	by vger.kernel.org with ESMTP id S266997AbUBGSAP (ORCPT
+	Sat, 7 Feb 2004 12:58:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:20103 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267010AbUBGR6K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 13:00:15 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: major network performance difference between 2.4 and 2.6.2-rc2
-Mail-Copies-To: nobody
-From: Hilko Bengen <bengen@hilluzination.de>
-In-Reply-To: <402403A5.4090708@tmr.com> (Bill Davidsen's message of "Fri, 06
- Feb 2004 16:14:13 -0500")
-References: <20040204125444.3f2b5e79.akpm@osdl.org>
-	<Pine.GSO.4.58.0402042248300.27381@denali.ccs.neu.edu>
-	<402403A5.4090708@tmr.com>
-Date: Sat, 07 Feb 2004 18:56:15 +0100
-Message-ID: <87znbupydc.fsf@hilluzination.de>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Reasonable Discussion,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 7 Feb 2004 12:58:10 -0500
+Date: Sat, 7 Feb 2004 09:55:39 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Subhasis Kumar Pal <subhasis@isical.ac.in>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM modules loading
+Message-Id: <20040207095539.14e2079f.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0402071354060.764-100000@www.isical.ac.in>
+References: <Pine.LNX.4.44.0402071354060.764-100000@www.isical.ac.in>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> writes:
+On Sat, 7 Feb 2004 14:13:33 +0530 (IST) Subhasis Kumar Pal <subhasis@isical.ac.in> wrote:
 
-> What would be nice is some kind of table approach, hash or tree,
-> which allows operations to be matches against all of the IPs in a
-> group, and obviously to add/delete entries. I think for simplicity
-> individual IPs rather than CIDR blocks are desirable.
+| 
+| Sir,
+|     I am trying to load kernel-2.6.2 in my p-iv machine. I am giving the 
+| following information.
+| 
+| Machine : P-IV
+| OS : Redhat 9(kernel-2.4.20-28.9)
+| 
+| Command for compilation of kernel-2.6.2 after untar the file 
+| (linux-2.6.2.tar).
+| 
+|  1. make mrproper
+|  2. make xconfig
+|  3. make modules
+|  4. make modules_install
+|  5. make install
+| 
+| Error for the command "make install" :
+| 
+| 
+|     make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+|   CHK     include/linux/compile.h
+| Kernel: arch/i386/boot/bzImage is ready
+| sh /root/linux-2.6.2/arch/i386/boot/install.sh 2.6.2 
+| arch/i386/boot/bzImage System.map ""
+| No module aic7xxx found for kernel 2.6.2
+| mkinitrd failed
+| make[1]: *** [install] Error 1
+| make: *** [install] Error 2
+| 
+|    But the module file called aic7xxx.ko is present in the directory at
+| "/lib/module/2.6.2/kernel/drivers/scsi/aic7xxx"
+| 
+| 
+|   I have checked the upper version of the following software is at my 
+| machine. 
+| 
+|    o  Gnu C                  2.95.3                  # gcc --version
+| o  Gnu make               3.78                    # make --version
+| o  binutils               2.12                    # ld -v
+| o  util-linux             2.10o                   # fdformat --version
+| o  module-init-tools      0.9.10                  # depmod -V
+| o  e2fsprogs              1.29                    # tune2fs
+| o  jfsutils               1.1.3                   # fsck.jfs -V
+| o  reiserfsprogs          3.6.3                   # reiserfsck -V 
+| 2>&1|grep reiserfsprogs
+| o  xfsprogs               2.6.0                   # xfs_db -V
+| o  pcmcia-cs              3.1.21                  # cardmgr -V
+| o  quota-tools            3.09                    # quota -V
+| o  PPP                    2.4.0                   # pppd --version
+| o  isdn4k-utils           3.1pre1                 # isdnctrl 2>&1|grep 
+| version
+| o  nfs-utils              1.0.5                   # showmount --version
+| o  procps                 3.1.13                  # ps --version
+| o  oprofile               0.5.3                   # oprofiled --version
+| 
+|     I think it is the problem for module extention (.ko). 
+| 
+|     Please send a suitable solution for the above as early as possible. 
 
-Do you mean something like <http://www.hipac.org/>?
+Please use a current version of mkinitrd.  They know about
+.ko (yes, that is the problem).
 
--Hilko
+Perhaps that list above should include 'mkinitrd' and version number...
 
+--
+~Randy

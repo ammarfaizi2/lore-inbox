@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267511AbSLLUdc>; Thu, 12 Dec 2002 15:33:32 -0500
+	id <S267481AbSLLUro>; Thu, 12 Dec 2002 15:47:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267512AbSLLUdc>; Thu, 12 Dec 2002 15:33:32 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:12731 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267511AbSLLUdb>; Thu, 12 Dec 2002 15:33:31 -0500
-Message-ID: <3DF8F38D.E2A47634@us.ibm.com>
-Date: Thu, 12 Dec 2002 12:37:33 -0800
-From: Nivedita Singhvi <niv@us.ibm.com>
-X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S267484AbSLLUro>; Thu, 12 Dec 2002 15:47:44 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:63978 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267481AbSLLUro>; Thu, 12 Dec 2002 15:47:44 -0500
+Date: Thu, 12 Dec 2002 14:55:28 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: John Bradford <john@grabjohn.com>, <perex@suse.cz>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.51 breaks ALSA AWE32
+In-Reply-To: <20021212205206.GA11836@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.44.0212121454290.17517-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-To: stefano.andreani.ap@h3g.it, linux-kernel@vger.kernel.org
-Subject: Re: R: Kernel bug handling TCP_RTO_MAX?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Never say never ;-) 
-> I need to change it now as a temporary workaround for a problem in the UMTS core \
-> network of my company. But I think there could be thousands of situations where a \
-> fine tuning of this TCP parameter could be useful.
+On Thu, 12 Dec 2002, Sam Ravnborg wrote:
+
+> One detail when looking at the patch:
 > 
-> Any contributes on the problem?
+> > ===== sound/synth/emux/Makefile 1.4 vs edited =====
+> > --- 1.4/sound/synth/emux/Makefile	Tue Jun 18 04:16:20 2002
+> > +++ edited/sound/synth/emux/Makefile	Thu Dec 12 14:20:08 2002
+> > @@ -5,16 +5,11 @@
+> >  
+> >  export-objs  := emux.o
+> >  
+> > -snd-emux-synth-objs := emux.o emux_synth.o emux_seq.o emux_nrpn.o \
+> > -		       emux_effect.o emux_proc.o soundfont.o
+> > -ifeq ($(CONFIG_SND_SEQUENCER_OSS),y)
+> > -  snd-emux-synth-objs += emux_oss.o
+> > -endif
+> > +snd-emux-synth-y := emux.o emux_synth.o emux_seq.o emux_nrpn.o \
+> > +		    emux_effect.o emux_proc.o soundfont.o
+> > +snd-emux-synth-$(CONFIG_SND_SEQUENCER_OSS) += emux_oss.o
+> 
+> snd-emux-synth-objs := $(snd-emux-synth-y)
+
+Nope, kbuild does that for you ;)
+(And yes, lots of places still do it manually, but it's not necessary 
+anymore).
+
+--Kai
 
 
-If what you are trying to do is terminate the connection earlier,
-than reduce the tcp sysctl variable tcp_retries2. This should be the
-maximum number of retransmits TCP will make in established state.
-
-The TCP_RTO_MAX parameter is simply an *upper bound* on the 
-value of the retransmission timeout, which increases exponentially
-from the original timeout value. 
-
-thanks,
-Nivedita

@@ -1,31 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268033AbTAIWKS>; Thu, 9 Jan 2003 17:10:18 -0500
+	id <S268045AbTAIWRt>; Thu, 9 Jan 2003 17:17:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268032AbTAIWKO>; Thu, 9 Jan 2003 17:10:14 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:9201 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S268031AbTAIWI5>; Thu, 9 Jan 2003 17:08:57 -0500
-Message-ID: <F760B14C9561B941B89469F59BA3A847137F49@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: Pavel Machek <pavel@ucw.cz>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: RE: acpi_button misses some static's
-Date: Thu, 9 Jan 2003 14:10:02 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S268046AbTAIWRt>; Thu, 9 Jan 2003 17:17:49 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63630
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268045AbTAIWRV>; Thu, 9 Jan 2003 17:17:21 -0500
+Subject: Re: "Mother" == "computer-illiterate"
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Val Henson <val@nmt.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David van Hoose <davidvh@cox.net>, dpaun@rogers.com, rms@gnu.org,
+       Miles Bader <miles@gnu.org>, lm@bitmover.com, acahalan@cs.uml.edu
+In-Reply-To: <20030109194019.GH26010@boardwalk>
+References: <20030109194019.GH26010@boardwalk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042153890.28469.21.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 09 Jan 2003 23:11:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Already applied to my local tree, will be in the next ACPI patch, which
-should be very soon.
+On Thu, 2003-01-09 at 19:40, Val Henson wrote:
+> P.S. For extra credit (but no ThinkGeek certificate) you can look up
+> the following women in computer science, some of whom are mothers:
+> Mary Baker, Margo Seltzer, Monica Lam, Ellen Spertus, Carla Ellis, and
+> Barbara Simons.
 
-> From: Pavel Machek [mailto:pavel@ucw.cz] 
-> This adds them, please apply.
+and of course Sally Floyd, and even Hedy Lamarr (bonus points for those
+who know what her networking related patent is on)
 
-Thanks -- Regards -- Andy

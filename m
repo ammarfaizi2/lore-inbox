@@ -1,78 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUJRTLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267566AbUJRTQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267254AbUJRTLz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 15:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267514AbUJRTJT
+	id S267566AbUJRTQc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 15:16:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267502AbUJRTJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 15:09:19 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:58640 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S267254AbUJRS6K (ORCPT
+	Mon, 18 Oct 2004 15:09:05 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:5263 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267548AbUJRTDB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 14:58:10 -0400
-Date: Mon, 18 Oct 2004 13:53:46 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, romieu@fr.zoreil.com
-Subject: [patch 2.6.9-rc4] r8169: netconsole support
-Message-ID: <20041018135346.E7539@tuxdriver.com>
-Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-	jgarzik@pobox.com, romieu@fr.zoreil.com
+	Mon, 18 Oct 2004 15:03:01 -0400
+Date: Mon, 18 Oct 2004 21:04:17 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniele Pizzoni <auouo@tin.it>
+Cc: kernel-janitors <kernel-janitors@lists.osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Replace custom Dprintk macro with pr_debug - nmi.c
+Message-ID: <20041018190417.GA5845@elte.hu>
+References: <1098129428.3024.61.camel@pdp11.tsho.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1098129428.3024.61.camel@pdp11.tsho.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a netconsole polling routine to the r8169 driver.
 
-Tested w/ netconsole (& netdump) on x86_64 w/ FC3 Test3...
+looks good.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
---- linux-2.6/drivers/net/r8169.c.orig
-+++ linux-2.6/drivers/net/r8169.c
-@@ -376,6 +376,10 @@ static struct net_device_stats *rtl8169_
- #ifdef CONFIG_R8169_NAPI
- static int rtl8169_poll(struct net_device *dev, int *budget);
- #endif
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+/* for netdump / net console */
-+static void rtl8169_netpoll(struct net_device *netdev);
-+#endif
- 
- static const u16 rtl8169_intr_mask =
- 	SYSErr | LinkChg | RxOverflow | RxFIFOOver | TxErr | TxOK | RxErr | RxOK;
-@@ -1120,6 +1124,9 @@ rtl8169_init_one(struct pci_dev *pdev, c
- 	dev->weight = R8169_NAPI_WEIGHT;
- 	printk(KERN_INFO PFX "NAPI enabled\n");
- #endif
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+	dev->poll_controller = rtl8169_netpoll;
-+#endif
- 	tp->intr_mask = 0xffff;
- 	tp->pci_dev = pdev;
- 	tp->mmio_addr = ioaddr;
-@@ -1950,6 +1957,22 @@ static struct net_device_stats *rtl8169_
- 	return &tp->stats;
- }
- 
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+/*
-+ * Polling 'interrupt' - used by things like netconsole to send skbs
-+ * without having to re-enable interrupts. It's not called while
-+ * the interrupt routine is executing.
-+ */
-+static void
-+rtl8169_netpoll (struct net_device *dev)
-+{
-+	struct rtl8169_private *tp = netdev_priv(dev);
-+	disable_irq(tp->pci_dev->irq);
-+	rtl8169_interrupt(tp->pci_dev->irq, dev, NULL);
-+	enable_irq(tp->pci_dev->irq);
-+}
-+#endif
-+
- static struct pci_driver rtl8169_pci_driver = {
- 	.name		= MODULENAME,
- 	.id_table	= rtl8169_pci_tbl,
+	Ingo
+
+* Daniele Pizzoni <auouo@tin.it> wrote:
+
+> Substituted custom Dprintk macro with pr_debug
+> 
+> Signed-off-by: Daniele Pizzoni
+> 
+> 
+> Index: linux-2.6.9-rc4/arch/i386/kernel/nmi.c
+> ===================================================================
+> --- linux-2.6.9-rc4.orig/arch/i386/kernel/nmi.c	2004-10-18 19:41:13.798118432 +0200
+> +++ linux-2.6.9-rc4/arch/i386/kernel/nmi.c	2004-10-18 21:50:57.884757392 +0200
+> @@ -13,6 +13,8 @@
+>   *  Mikael Pettersson	: PM converted to driver model. Disable/enable API.
+>   */
+>  
+> +//#define DEBUG // pr_debug
+> +#include <linux/kernel.h>
+>  #include <linux/config.h>
+>  #include <linux/mm.h>
+>  #include <linux/irq.h>
+> @@ -332,7 +334,7 @@ static void setup_k7_watchdog(void)
+>  		| K7_NMI_EVENT;
+>  
+>  	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
+> -	Dprintk("setting K7_PERFCTR0 to %08lx\n", -(cpu_khz/nmi_hz*1000));
+> +	pr_debug("setting K7_PERFCTR0 to %08lx\n", -(cpu_khz/nmi_hz*1000));
+>  	wrmsr(MSR_K7_PERFCTR0, -(cpu_khz/nmi_hz*1000), -1);
+>  	apic_write(APIC_LVTPC, APIC_DM_NMI);
+>  	evntsel |= K7_EVNTSEL_ENABLE;
+> @@ -354,7 +356,7 @@ static void setup_p6_watchdog(void)
+>  		| P6_NMI_EVENT;
+>  
+>  	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
+> -	Dprintk("setting P6_PERFCTR0 to %08lx\n", -(cpu_khz/nmi_hz*1000));
+> +	pr_debug("setting P6_PERFCTR0 to %08lx\n", -(cpu_khz/nmi_hz*1000));
+>  	wrmsr(MSR_P6_PERFCTR0, -(cpu_khz/nmi_hz*1000), 0);
+>  	apic_write(APIC_LVTPC, APIC_DM_NMI);
+>  	evntsel |= P6_EVNTSEL0_ENABLE;
+> @@ -395,7 +397,7 @@ static int setup_p4_watchdog(void)
+>  
+>  	wrmsr(MSR_P4_CRU_ESCR0, P4_NMI_CRU_ESCR0, 0);
+>  	wrmsr(MSR_P4_IQ_CCCR0, P4_NMI_IQ_CCCR0 & ~P4_CCCR_ENABLE, 0);
+> -	Dprintk("setting P4_IQ_COUNTER0 to 0x%08lx\n", -(cpu_khz/nmi_hz*1000));
+> +	pr_debug("setting P4_IQ_COUNTER0 to 0x%08lx\n", -(cpu_khz/nmi_hz*1000));
+>  	wrmsr(MSR_P4_IQ_COUNTER0, -(cpu_khz/nmi_hz*1000), -1);
+>  	apic_write(APIC_LVTPC, APIC_DM_NMI);
+>  	wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
+> 

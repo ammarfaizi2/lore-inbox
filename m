@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267520AbTGHSgD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 14:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267521AbTGHSgD
+	id S265172AbTGHSk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 14:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267260AbTGHSk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 14:36:03 -0400
-Received: from h24-78-210-69.ss.shawcable.net ([24.78.210.69]:12 "HELO
-	discworld.dyndns.org") by vger.kernel.org with SMTP id S267520AbTGHSf6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 14:35:58 -0400
-Date: Tue, 8 Jul 2003 12:55:20 -0600
-From: Charles Cazabon <linux@discworld.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Forking shell bombs
-Message-ID: <20030708125520.B27956@discworld.dyndns.org>
-References: <20030708184537.GJ1030@dbz.icequake.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Jul 2003 14:40:28 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:55301 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S265172AbTGHSk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 14:40:27 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Gregoire Favre <greg@magma.unil.ch>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre3-ac1 is very good on heavy load ;-)
+Date: Tue, 8 Jul 2003 20:54:47 +0200
+User-Agent: KMail/1.5.2
+References: <20030708184726.GA900@magma.unil.ch>
+In-Reply-To: <20030708184726.GA900@magma.unil.ch>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030708184537.GJ1030@dbz.icequake.net>; from nemesis-lists@icequake.net on Tue, Jul 08, 2003 at 01:45:37PM -0500
+Message-Id: <200307082053.03878.m.c.p@wolk-project.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Underwood <nemesis-lists@icequake.net> wrote:
-> 
-> [Fork bomb] and watch linux die. (2.4.21 stock)
+On Tuesday 08 July 2003 20:47, Gregoire Favre wrote:
 
-That's what per-user process limits are for.  Doesn't matter if it's a
-shellscript or something else; any system without limits set is vulnerable.
+Hi Gregoire,
 
-Charles
--- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:     http://www.qcc.ca/~charlesc/software/
------------------------------------------------------------------------
+> since 2.4.22-pre3-ac1 the kernel is much better (last tested is
+> 2.4.21-ac4) regarding high load, in fact it's almost perfect ;-)
+> With this kernel I can convert a VDR recording to a DVD and
+> simultaneously reccord two movies in VDR withtout any framedrops!!!
+> I don't know who I should thank for this BIG chnage, but an hudge thank!
+Say many much mega thanks to:
+
+Chris Mason
+Andrea Arcangeli
+Nick Piggin
+
+:-)
+
+It's mostly this:
+
+http://linux.bkbits.net:8080/linux-2.4/cset@1.1024?nav=index.html|ChangeSet@-3d
+
+ciao, Marc
+

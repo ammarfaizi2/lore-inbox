@@ -1,64 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbUBYPqo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 10:46:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbUBYPqo
+	id S261372AbUBYPvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 10:51:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbUBYPvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 10:46:44 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:3005 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261365AbUBYPqm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 10:46:42 -0500
-In-Reply-To: <1077708874.22213.13.camel@gaston>
-References: <1077667227.21201.73.camel@SigurRos.rchland.ibm.com> <20040225012845.GA3909@kroah.com> <opr3woijnwl6e53g@us.ibm.com> <20040225042224.GA5135@kroah.com> <1077708874.22213.13.camel@gaston>
-Mime-Version: 1.0 (Apple Message framework v612)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <C4149BD3-67A9-11D8-B826-000A95A0560C@us.ibm.com>
-Content-Transfer-Encoding: 7bit
-Cc: Ryan Arnold <rsa@us.ibm.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, Dave Boutcher <sleddog@us.ibm.com>
-From: Hollis Blanchard <hollisb@us.ibm.com>
-Subject: Re: device/kobject naming
-Date: Wed, 25 Feb 2004 09:46:24 -0600
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-X-Mailer: Apple Mail (2.612)
+	Wed, 25 Feb 2004 10:51:16 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:4038 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261372AbUBYPvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 10:51:09 -0500
+Date: Wed, 25 Feb 2004 16:51:22 +0100
+From: Christophe Saout <christophe@saout.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jean-Luc Cooke <jlcooke@certainkey.com>, jmorris@intercode.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: cryptoapi highmem bug
+Message-ID: <20040225155121.GA7148@leto.cs.pocnet.net>
+References: <1077655754.14858.0.camel@leto.cs.pocnet.net> <20040224223425.GA32286@certainkey.com> <1077663682.6493.1.camel@leto.cs.pocnet.net> <20040225043209.GA1179@certainkey.com> <20040224220030.13160197.akpm@osdl.org> <20040225153126.GA7395@leto.cs.pocnet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040225153126.GA7395@leto.cs.pocnet.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 25, 2004, at 5:34 AM, Benjamin Herrenschmidt wrote:
-> On Wed, 2004-02-25 at 15:22, Greg KH wrote:
->> I agree.  Is there any reason we _have_ to stick with the OF names?  
->> It
->> seems to me to make more sense here not to, to make it more like the
->> rest of the kernel.
->>
->> That is, if the address after the @ is unique.  Is that always the 
->> case?
->
-> One thing though is that it's only unique at a given level of
-> hierarchy. The Unit Address in OF has no meaning outside of the
-> context of the parent bus. That may be just fine for sysfs, but
-> if I take as an example the PCI devices, they do have a globally
-> unique ID here with the domain number.
+On Wed, Feb 25, 2004 at 04:31:26PM +0100, Christophe Saout wrote:
 
-Yes, that's certainly the case. Every unit address on the virtual bus 
-will be unique, but device_add() uses dev.bus_id as the kobject name, 
-which is system-wide.
+> It's just a proof of concept though, it would be less complicated if we
+> would just pass the other walk struct to the functions that take one
+> and let them do the checking (no need to disable preemption and use
+> per cpu variables). Hmm.
 
-Apparently PCI gets away with multiple busses by encoding the domain 
-and bus IDs into dev.bus_id along with the slot number. Even then, it's 
-just kind of coincidence that nothing else wants to register kobjects 
-with names like 0000:00:0b.0, right? Unless we want to start defining 
-mandatory "domains" for every type of device and prefixing things like 
-that...
+Ok, this also works. It makes copy_chunks and crypt responsible for
+tracking the walk struct which might contain a page to reuse:
 
-At any rate, virtual IO devices effectively have just a slot number and 
-nothing else. Do you really want to start registering kobjects with 
-names like "30000000"? Or what about "vio:30000000", and then have it 
-show up as "/sys/devices/vio/vio:30000000"? Seems redundant to me.
 
--- 
-Hollis Blanchard
-IBM Linux Technology Center
-
+--- linux-2.6.3/crypto/cipher.c	2004-02-25 13:49:53.000000000 +0100
++++ linux-2.6.3.test/crypto/cipher.c	2004-02-25 16:46:58.430294600 +0100
+@@ -29,6 +29,7 @@
+ struct scatter_walk {
+ 	struct scatterlist	*sg;
+ 	struct page		*page;
++	int			out;
+ 	void			*data;
+ 	unsigned int		len_this_page;
+ 	unsigned int		len_this_segment;
+@@ -64,7 +65,7 @@
+ 	return sg + 1;
+ }
+ 
+-void *which_buf(struct scatter_walk *walk, unsigned int nbytes, void *scratch)
++static void *which_buf(struct scatter_walk *walk, unsigned int nbytes, void *scratch)
+ {
+ 	if (nbytes <= walk->len_this_page &&
+ 	    (((unsigned long)walk->data) & (PAGE_CACHE_SIZE - 1)) + nbytes <=
+@@ -96,9 +97,23 @@
+ 	walk->offset = sg->offset;
+ }
+ 
+-static void scatterwalk_map(struct scatter_walk *walk, int out)
++static void scatterwalk_map(struct scatter_walk *walk,
++			    struct scatter_walk *other, int out)
+ {
+-	walk->data = crypto_kmap(walk->page, out) + walk->offset;
++	if (other && other->page == walk->page) {
++		walk->data = (other->data - other->offset) + walk->offset;
++		walk->out = other->out;
++	} else {
++		walk->data = crypto_kmap(walk->page, out) + walk->offset;
++		walk->out = out;
++	}
++}
++
++static void scatterwalk_unmap(struct scatter_walk *walk,
++			      struct scatter_walk *other, int out)
++{
++	if (!other || other->page != walk->page)
++		crypto_kunmap(walk->data, walk->out);
+ }
+ 
+ static void scatter_page_done(struct scatter_walk *walk, int out,
+@@ -125,9 +140,10 @@
+ 	}
+ }
+ 
+-static void scatter_done(struct scatter_walk *walk, int out, int more)
++static void scatter_done(struct scatter_walk *walk,
++			 struct scatter_walk *other, int out, int more)
+ {
+-	crypto_kunmap(walk->data, out);
++	scatterwalk_unmap(walk, other, out);
+ 	if (walk->len_this_page == 0 || !more)
+ 		scatter_page_done(walk, out, more);
+ }
+@@ -137,7 +153,7 @@
+  * has been verified as multiple of the block size.
+  */
+ static int copy_chunks(void *buf, struct scatter_walk *walk,
+-			size_t nbytes, int out)
++		       struct scatter_walk *other, size_t nbytes, int out)
+ {
+ 	if (buf != walk->data) {
+ 		while (nbytes > walk->len_this_page) {
+@@ -145,9 +161,9 @@
+ 			buf += walk->len_this_page;
+ 			nbytes -= walk->len_this_page;
+ 
+-			crypto_kunmap(walk->data, out);
++			scatterwalk_unmap(walk, other, out);
+ 			scatter_page_done(walk, out, 1);
+-			scatterwalk_map(walk, out);
++			scatterwalk_map(walk, other, out);
+ 		}
+ 
+ 		memcpy_dir(buf, walk->data, nbytes, out);
+@@ -189,21 +205,21 @@
+ 	for(;;) {
+ 		u8 *src_p, *dst_p;
+ 
+-		scatterwalk_map(&walk_in, 0);
+-		scatterwalk_map(&walk_out, 1);
++		scatterwalk_map(&walk_in, NULL, 0);
++		scatterwalk_map(&walk_out, &walk_in, 1);
+ 		src_p = which_buf(&walk_in, bsize, tmp_src);
+ 		dst_p = which_buf(&walk_out, bsize, tmp_dst);
+ 
+ 		nbytes -= bsize;
+ 
+-		copy_chunks(src_p, &walk_in, bsize, 0);
++		copy_chunks(src_p, &walk_in, &walk_out, bsize, 0);
+ 
+ 		prfn(tfm, dst_p, src_p, crfn, enc, info);
+ 
+-		scatter_done(&walk_in, 0, nbytes);
++		scatter_done(&walk_in, &walk_out, 0, nbytes);
+ 
+-		copy_chunks(dst_p, &walk_out, bsize, 1);
+-		scatter_done(&walk_out, 1, nbytes);
++		copy_chunks(dst_p, &walk_out, NULL, bsize, 1);
++		scatter_done(&walk_out, NULL, 1, nbytes);
+ 
+ 		if (!nbytes)
+ 			return 0;

@@ -1,129 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbUD1TqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbUD1Tou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbUD1TqY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 15:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUD1TpW
+	id S261821AbUD1Tou (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 15:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbUD1Tog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 15:45:22 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:30431 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S264950AbUD1Qt1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 12:49:27 -0400
-Date: Wed, 28 Apr 2004 18:49:16 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (1/6): core s390.
-Message-ID: <20040428164916.GB2777@mschwid3.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 28 Apr 2004 15:44:36 -0400
+Received: from dialin-212-144-167-044.arcor-ip.net ([212.144.167.44]:36483
+	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S265036AbUD1STn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 14:19:43 -0400
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Transfer-Encoding: 7bit
+Message-Id: <936D457C-9915-11D8-B40E-000A958E35DC@fhm.edu>
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-27--376003280"
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+From: Daniel Egger <degger@fhm.edu>
+Subject: 2.4.26 crash in USB HID
+Date: Wed, 28 Apr 2004 15:11:35 +0200
+X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: core changes.
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+--Apple-Mail-27--376003280
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-s390 core changes:
- - Move setting/clearing of TIF_31BIT thread flag to SET_PERSONALITY.
- - Use TASK_UNMAPPED_BASE in elf_map32 for mmaps with address 0.
- - Define ARCH_KMALLOC_MINALIGN.
- - Define ARCH_MIN_TASKALIGN.
+Hija,
 
-diffstat:
- arch/s390/kernel/binfmt_elf32.c |    9 +++------
- arch/s390/kernel/sys_s390.c     |    1 +
- include/asm-s390/cache.h        |    2 ++
- include/asm-s390/elf.h          |   10 ++--------
- include/asm-s390/processor.h    |    2 ++
- 5 files changed, 10 insertions(+), 14 deletions(-)
+trying to recover from a hanging usblp driver I rebooted
+the machine and experienced an OOPS upon boot. This is not
+reproducible so I cannot provide much further details.
 
-diff -urN linux-2.6/arch/s390/kernel/binfmt_elf32.c linux-2.6-s390/arch/s390/kernel/binfmt_elf32.c
---- linux-2.6/arch/s390/kernel/binfmt_elf32.c	Wed Apr 28 17:51:14 2004
-+++ linux-2.6-s390/arch/s390/kernel/binfmt_elf32.c	Wed Apr 28 17:51:34 2004
-@@ -40,8 +40,7 @@
-    passed in R14. */
- #define ELF_PLAT_INIT(_r, load_addr) \
- 	do { \
--	_r->gprs[14] = 0; \
--	set_thread_flag(TIF_31BIT); \
-+		_r->gprs[14] = 0; \
- 	} while(0)
- 
- #define USE_ELF_CORE_DUMP
-@@ -82,6 +81,7 @@
- 		set_personality(PER_SVR4);              \
- 	else if (current->personality != PER_LINUX32)   \
- 		set_personality(PER_LINUX);             \
-+	set_thread_flag(TIF_31BIT);			\
- } while (0)
- 
- #include "compat_linux.h"
-@@ -194,10 +194,7 @@
- 	unsigned long map_addr;
- 
- 	if (!addr) 
--		addr = 0x40000000; 
--
--	if (prot & PROT_READ) 
--		prot |= PROT_EXEC; 
-+		addr = TASK_UNMAPPED_BASE;
- 
- 	down_write(&current->mm->mmap_sem);
- 	map_addr = do_mmap(filep, ELF_PAGESTART(addr),
-diff -urN linux-2.6/arch/s390/kernel/sys_s390.c linux-2.6-s390/arch/s390/kernel/sys_s390.c
---- linux-2.6/arch/s390/kernel/sys_s390.c	Sun Apr  4 05:36:56 2004
-+++ linux-2.6-s390/arch/s390/kernel/sys_s390.c	Wed Apr 28 17:51:34 2004
-@@ -4,6 +4,7 @@
-  *  S390 version
-  *    Copyright (C) 1999,2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
-  *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
-+ *               Thomas Spatzier (tspat@de.ibm.com)
-  *
-  *  Derived from "arch/i386/kernel/sys_i386.c"
-  *
-diff -urN linux-2.6/include/asm-s390/cache.h linux-2.6-s390/include/asm-s390/cache.h
---- linux-2.6/include/asm-s390/cache.h	Sun Apr  4 05:36:17 2004
-+++ linux-2.6-s390/include/asm-s390/cache.h	Wed Apr 28 17:51:36 2004
-@@ -15,4 +15,6 @@
- #define L1_CACHE_SHIFT     8
- #define L1_CACHE_SHIFT_MAX 8	/* largest L1 which this arch supports */
- 
-+#define ARCH_KMALLOC_MINALIGN	8
-+
- #endif
-diff -urN linux-2.6/include/asm-s390/elf.h linux-2.6-s390/include/asm-s390/elf.h
---- linux-2.6/include/asm-s390/elf.h	Sun Apr  4 05:38:14 2004
-+++ linux-2.6-s390/include/asm-s390/elf.h	Wed Apr 28 17:51:36 2004
-@@ -123,16 +123,10 @@
- 
- /* For SVR4/S390 the function pointer to be registered with `atexit` is
-    passed in R14. */
--#ifndef __s390x__
--#define ELF_PLAT_INIT(_r, load_addr) \
--	_r->gprs[14] = 0
--#else /* __s390x__ */
- #define ELF_PLAT_INIT(_r, load_addr) \
- 	do { \
--	_r->gprs[14] = 0; \
--	clear_thread_flag(TIF_31BIT); \
--	} while(0)
--#endif /* __s390x__ */
-+		_r->gprs[14] = 0; \
-+	} while (0)
- 
- #define USE_ELF_CORE_DUMP
- #define ELF_EXEC_PAGESIZE	4096
-diff -urN linux-2.6/include/asm-s390/processor.h linux-2.6-s390/include/asm-s390/processor.h
---- linux-2.6/include/asm-s390/processor.h	Sun Apr  4 05:37:06 2004
-+++ linux-2.6-s390/include/asm-s390/processor.h	Wed Apr 28 17:51:36 2004
-@@ -98,6 +98,8 @@
- 
- typedef struct thread_struct thread_struct;
- 
-+#define ARCH_MIN_TASKALIGN	8
-+
- #ifndef __s390x__
- # define __SWAPPER_PG_DIR __pa(&swapper_pg_dir[0]) + _SEGMENT_TABLE
- #else /* __s390x__ */
+System: Athlon XP-1700 with SiS 735 chipset
+Kernel: 2.4.26 as provided by kernel-image-2.4.26-k7 in
+         Debian unstable.
+
+The keyboard is a Logitech Internet Navigator keyboard and
+was connected at boottime. It normally works like a charm.
+
+Unable to handle kernel paging request at virtual address 89d4ed13
+e092f447
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<e092f447>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: dd85c000   ebx: 00000000   ecx: 89d4ebff   edx: dd85c000
+esi: dd85c000   edi: dd869e80   ebp: dd763000   esp: dd869db8
+ds: 0018   es: 0018   ss: 0018
+Process khubd (pid: 207, stackpage=dd869000)
+Stack: dd763000 00000000 000086dd 000001f0 00000000 00000000 dd85c000 
+dd869e80
+        dd763000 e092fa75 dd85c000 00000000 00000000 dd869e52 dd85c000 
+e092fdcb
+        dd85c000 dd869e04 dd869e04 00000000 00080000 00000000 00000000 
+00000000
+Call Trace:    [<e092fa75>] [<e092fdcb>] [<e0930ce3>] [<e0930c17>] 
+[<e0934240>]
+   [<e09342a0>] [<e0930f9b>] [<c015403d>] [<e0934240>] [<e09342a0>] 
+[<e091bdf6>]
+   [<e0934240>] [<e0934280>] [<e092a040>] [<e091c26b>] [<e091e4ed>] 
+[<e09200ae>]
+   [<e091fc2c>] [<e0920443>] [<e09204d5>] [<c010726b>] [<e09204a0>]
+Code: 8b 91 14 01 00 00 8b a8 cc 20 00 00 89 54 24 10 89 c2 8b 40
+
+
+ >>EIP; e092f447 <[hid]hid_add_field+47/190>   <=====
+
+ >>eax; dd85c000 <_end+1d55a660/2050b6e0>
+ >>edx; dd85c000 <_end+1d55a660/2050b6e0>
+ >>esi; dd85c000 <_end+1d55a660/2050b6e0>
+ >>edi; dd869e80 <_end+1d5684e0/2050b6e0>
+ >>ebp; dd763000 <_end+1d461660/2050b6e0>
+ >>esp; dd869db8 <_end+1d568418/2050b6e0>
+
+Trace; e092fa75 <[hid]hid_parser_main+95/e0>
+Trace; e092fdcb <[hid]hid_parse_report+16b/1f0>
+Trace; e0930ce3 <[hid]usb_hid_configure+163/400>
+Trace; e0930c17 <[hid]usb_hid_configure+97/400>
+Trace; e0934240 <[hid]hid_usb_ids+0/28>
+Trace; e09342a0 <[hid]hid_driver+20/40>
+Trace; e0930f9b <[hid]hid_probe+1b/180>
+Trace; c015403d <get_new_inode+4d/110>
+Trace; e0934240 <[hid]hid_usb_ids+0/28>
+Trace; e09342a0 <[hid]hid_driver+20/40>
+Trace; e091bdf6 <[usbcore]usb_find_interface_driver+116/210>
+Trace; e0934240 <[hid]hid_usb_ids+0/28>
+Trace; e0934280 <[hid]hid_driver+0/40>
+Trace; e092a040 <[usbcore]usb_driver_list+0/0>
+Trace; e091c26b <[usbcore]usb_find_drivers+8b/a0>
+Trace; e091e4ed <[usbcore]usb_new_device+15d/1b0>
+Trace; e09200ae <[usbcore]usb_hub_port_connect_change+15e/280>
+Trace; e091fc2c <[usbcore]usb_hub_port_status+6c/a0>
+Trace; e0920443 <[usbcore]usb_hub_events+273/2d0>
+Trace; e09204d5 <[usbcore]usb_hub_thread+35/c0>
+Trace; c010726b <arch_kernel_thread+2b/40>
+Trace; e09204a0 <[usbcore]usb_hub_thread+0/c0>
+
+Code;  e092f447 <[hid]hid_add_field+47/190>
+00000000 <_EIP>:
+Code;  e092f447 <[hid]hid_add_field+47/190>   <=====
+    0:   8b 91 14 01 00 00         mov    0x114(%ecx),%edx   <=====
+Code;  e092f44d <[hid]hid_add_field+4d/190>
+    6:   8b a8 cc 20 00 00         mov    0x20cc(%eax),%ebp
+Code;  e092f453 <[hid]hid_add_field+53/190>
+    c:   89 54 24 10               mov    %edx,0x10(%esp,1)
+Code;  e092f457 <[hid]hid_add_field+57/190>
+   10:   89 c2                     mov    %eax,%edx
+Code;  e092f459 <[hid]hid_add_field+59/190>
+   12:   8b 40 00                  mov    0x0(%eax),%eax
+
+
+Servus,
+       Daniel
+
+--Apple-Mail-27--376003280
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
+
+iQEVAwUBQI+thzBkNMiD99JrAQIWDQgAucP36FCKIPiuht/9ik2MmQl3QApl37nc
+bqGXUyE/8qabEeK+6fKA+L/ui8XargrJ6tnIBRFei8rfszuRkkF33t7Z4GOVZFcg
+gY1Py/AA0/+v54rJ9RMcA/K/BU6nj5/hRXIXqtRsdAfcE06A/FDKFWfjI7J2SLRB
+B8laf9h/mqEQVNeyVYDAdb+v2x0mkos5ukcEDNI8/MhvRuBbSRTACxuD07qXfewr
+OiOePMVbdvlmRAmk3y+B2QVpzUp5liG+LlzgXpHqhqtmcEU4dHIc2INDVlYzEU9n
+VOlig07FX+kkKoO9mspZnKxdcPt6MF2HPZcmxzYTBVMPDCT5QH5nig==
+=/ZOU
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-27--376003280--
+

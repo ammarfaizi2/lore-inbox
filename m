@@ -1,39 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284808AbRLPUaM>; Sun, 16 Dec 2001 15:30:12 -0500
+	id <S284791AbRLPU3C>; Sun, 16 Dec 2001 15:29:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284809AbRLPUaC>; Sun, 16 Dec 2001 15:30:02 -0500
-Received: from postfix2-1.free.fr ([213.228.0.9]:60617 "HELO
-	postfix2-1.free.fr") by vger.kernel.org with SMTP
-	id <S284808AbRLPU3o>; Sun, 16 Dec 2001 15:29:44 -0500
-From: Willy Tarreau <wtarreau@free.fr>
-Message-Id: <200112162029.fBGKTdq02390@ns.home.local>
-Subject: Re: Timeouts on 3C575 network device
-To: swsnyder@home.com
-Date: Sun, 16 Dec 2001 21:29:38 +0100 (CET)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL3]
+	id <S284800AbRLPU2w>; Sun, 16 Dec 2001 15:28:52 -0500
+Received: from flrtn-2-m1-236.vnnyca.adelphia.net ([24.55.67.236]:42405 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S284791AbRLPU2h>;
+	Sun, 16 Dec 2001 15:28:37 -0500
+Message-ID: <3C1D03EB.9118B47B@pobox.com>
+Date: Sun, 16 Dec 2001 12:28:27 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-rc1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: David Relson <relson@osagesoftware.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.17-rc1
+In-Reply-To: <Pine.LNX.4.21.0112131841080.28446-100000@freak.distro.conectiva>
+	 <Pine.LNX.4.21.0112131841080.28446-100000@freak.distro.conectiva> <4.3.2.7.2.20011216091040.00d7c180@mail.osagesoftware.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Steve,
+David Relson wrote:
 
-I have the same problem here (3c575 too, K6-2 too). Cardbus bridge TI1251B.
+> IMHO, 2.4.17-rc1 seems to be ready to be promoted to 2.4.17. It's passed a
+> suitable "release candidate" test - available for a couple of days and
+> nobody has found any major problems.
 
-But I noticed that it nearly never occurs when I put my notebook in a cold
-room. Also, it occurs more often when I have transmitted lots of data and the
-notebook is hot. In my case, I believe it comes from the cardbus bridge not
-coping with the card speed. Perhaps under windows the card is underloaded and
-the bridge can keep cool ? but I definitely think it's a hardware problem first
-and perhaps the software can mask it.
+er - the loopback hangs?
 
-If you want to reduce the penalty of these timeouts, you can put this line
-in your /etc/modules.conf : "options 3c59x watchdog=50". It prevents the
-card from hanging more than 50 ms. But take care of your syslog !
+cu
 
-Regards,
-Willy
+jjs
+
+>
+>
+> David
+>
+> At 11:59 PM 12/15/01, Daniel Phillips wrote:
+> >On December 13, 2001 09:44 pm, Marcelo Tosatti wrote:
+> > > rc1:
+> > >
+> > > - Finish MODULE_LICENSE fixups for fs/nls     (Mark Hymers)
+> > > - Console race fix                            (Andrew Morton/Robert Love)
+> > > - Configure.help update                               (Eric S. Raymond)
+> > > - Correctly fix Direct IO bug                 (Linus Benedict Torvalds)
+> > > - Turn off aacraid debugging                  (Alan Cox)
+> > > - Added missing spinlocking in do_loopback()  (Alexander Viro)
+> > > - Added missing __devexit_p() in i82092
+> > >   pcmcia driver                                       (Keith Owens)
+> > > - ns83820 zerocopy bugfix                     (Benjamin LaHaise)
+> > > - Fix VM problems where cache/buffers didn't get
+> > >   freed                                               (me)
+> >
+> >Will there be a rc2?
+> >
+> >--
+> >Daniel
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

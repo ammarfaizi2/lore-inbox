@@ -1,142 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264987AbUEQMQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUEQMdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264987AbUEQMQv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 08:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264996AbUEQMOk
+	id S261159AbUEQMdN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 08:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUEQMdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 08:14:40 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:45983 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264984AbUEQMLq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 08:11:46 -0400
-Date: Mon, 17 May 2004 17:37:51 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: [2.6.6-mm3] sysfs-leaves-symlink.patch
-Message-ID: <20040517120751.GG1249@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20040517120443.GB1249@in.ibm.com> <20040517120543.GC1249@in.ibm.com> <20040517120615.GD1249@in.ibm.com> <20040517120644.GE1249@in.ibm.com> <20040517120715.GF1249@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 17 May 2004 08:33:13 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35725 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261162AbUEQMdL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 08:33:11 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Mike Kordik <Mike@Kordik.net>
+Subject: Re: HDIO_SET_DMA failed: with nforce2 board
+Date: Mon, 17 May 2004 14:34:24 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <pan.2004.05.17.02.15.01.317598@kordik.net> <200405171313.02675.bzolnier@elka.pw.edu.pl> <1084793981.12242.1.camel@Jacob>
+In-Reply-To: <1084793981.12242.1.camel@Jacob>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040517120715.GF1249@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200405171434.24417.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 17 of May 2004 13:39, Mike Kordik wrote:
+> On Mon, 2004-05-17 at 07:13, Bartlomiej Zolnierkiewicz wrote:
+> > On Monday 17 of May 2004 04:15, Mike wrote:
+> > > I have an nforce2 based board and I cannot enable dma.
+> >
+> > 'dmesg' output, please
+>
+> I posted using PAN and I am trying to respond with PAM but todays posts
+> and some of yesterdays are not showing up. I do not know what the
+> problem is but I apologize for responding this way. Here is my dmesg
+> output:
 
+OK, thanks.
 
-=> changes in version 0.6
-  o Re-diffed for 2.6.6-mm3
+> Linux version 2.6.4-rc1-mm1 (root@cdimage) (gcc version 3.3.3 20040217
+> (Gentoo Linux 3.3.3, propolice-3.3-7)) #3 Mon May 17 00:17:40 EDT 2004
 
-=> changes in version 0.5
-  o Use a new struct sysfs_symlink to save information
-    about the symlink name and the pointer to target kobject.
-    This was required to accomodate the latest changes in symlink
-    code in sysfs which implements readlink and follow_link
-    operations.
+...
 
-=> changes in version 0.4
-  o Nil, just re-diffed
+> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+> ide: Assuming 33MHz system bus speed for PIO modes; override with
+> idebus=xx
+> pnp: the driver 'ide' has been registered
+> hda: Maxtor 6Y120L0, ATA DISK drive
+> hdb: WDC WD1600BB-00HTA0, ATA DISK drive
+> hdc: MATSHITADVD-ROM SR-8582, ATAPI CD/DVD-ROM drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> ide1 at 0x170-0x177,0x376 on irq 15
 
-=> changes in version 0.3
-  o Nil, just re-diffed
+AMD/nVidia IDE driver didn't recognize the controller
+(or driver wasn't compiled in for some reason).
 
-=> changes in version 0.2
-  o symlink name passed to sysfs_create_link() can be destroyed by the
-    caller. So, the symlink name should be allocated and copied to the
-    corresponding sysfs dirent instead of directly using the given name
-    string. The allocated string is freed when the corresponding sysfs_dirent
-    is freed through sysfs_put()
+I need full .config and 'lspci -vvv' output to know more.
 
-=================
-  o sysfs_create_link() now does not create a dentry but allocates a
-    sysfs_dirent and links it to the parent kobject.
+Bartlomiej
 
-  o sysfs_dirent corresponding to symlink has an array of two string. One of
-    them is the name of the symlink and the second one is the target path of the
-    symlink
-
-
- fs/sysfs/symlink.c |   42 +++++++++++++++++++++++++++++-------------
- 1 files changed, 29 insertions(+), 13 deletions(-)
-
-diff -puN fs/sysfs/symlink.c~sysfs-leaves-symlink fs/sysfs/symlink.c
---- linux-2.6.6-mm3/fs/sysfs/symlink.c~sysfs-leaves-symlink	2004-05-17 15:29:26.000000000 +0530
-+++ linux-2.6.6-mm3-maneesh/fs/sysfs/symlink.c	2004-05-17 15:29:26.000000000 +0530
-@@ -13,7 +13,7 @@ static struct inode_operations sysfs_sym
- 	.follow_link = sysfs_follow_link,
- };
- 
--static int init_symlink(struct inode * inode)
-+int init_symlink(struct inode * inode)
- {
- 	inode->i_op = &sysfs_symlink_inode_operations;
- 	return 0;
-@@ -53,6 +53,30 @@ static void fill_object_path(struct kobj
- 	}
- }
- 
-+static int sysfs_add_link(struct sysfs_dirent * parent_sd, char * name, 
-+			    struct kobject * target)
-+{
-+	struct sysfs_dirent * sd;
-+	struct sysfs_symlink * sl;
-+
-+	sl = kmalloc(sizeof(*sl), GFP_KERNEL);
-+	if (!sl)
-+		return -ENOMEM;
-+
-+	sl->link_name = kmalloc(strlen(name) + 1, GFP_KERNEL);
-+	strcpy(sl->link_name, name);
-+	sl->target_kobj = kobject_get(target);
-+
-+	sd = sysfs_new_dirent(parent_sd, sl, SYSFS_KOBJ_LINK);
-+	if (sd) {
-+		sd->s_mode = S_IFLNK|S_IRWXUGO;
-+		return 0;
-+	}
-+
-+	kfree(sl);
-+	return -ENOMEM;
-+}
-+
- /**
-  *	sysfs_create_link - create symlink between two objects.
-  *	@kobj:	object whose directory we're creating the link in.
-@@ -62,21 +86,13 @@ static void fill_object_path(struct kobj
- int sysfs_create_link(struct kobject * kobj, struct kobject * target, char * name)
- {
- 	struct dentry * dentry = kobj->dentry;
--	struct dentry * d;
- 	int error = 0;
- 
-+	if (!name)
-+		return -EINVAL;
-+
- 	down(&dentry->d_inode->i_sem);
--	d = sysfs_get_dentry(dentry,name);
--	if (!IS_ERR(d)) {
--		error = sysfs_create(d, S_IFLNK|S_IRWXUGO, init_symlink);
--		if (!error)
--			/* 
--			 * associate the link dentry with the target kobject 
--			 */
--			d->d_fsdata = kobject_get(target);
--		dput(d);
--	} else 
--		error = PTR_ERR(d);
-+	error = sysfs_add_link(dentry->d_fsdata, name, target);
- 	up(&dentry->d_inode->i_sem);
- 	return error;
- }
-
-_
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044999 Fax: 91-80-25268553
-T/L : 9243696

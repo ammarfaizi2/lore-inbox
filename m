@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVBVVKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVBVVPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbVBVVKy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 16:10:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVBVVKy
+	id S261248AbVBVVPf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 16:15:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVBVVPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 16:10:54 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:15295 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261247AbVBVVKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 16:10:36 -0500
-Subject: Re: cfq: depth 4 reached, tagging now on
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050221082044.GW4056@suse.de>
-References: <1108846748.10705.31.camel@krustophenia.net>
-	 <20050221082044.GW4056@suse.de>
-Content-Type: text/plain
-Date: Tue, 22 Feb 2005 16:10:32 -0500
-Message-Id: <1109106633.31071.20.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Feb 2005 16:15:34 -0500
+Received: from mailman2.ppco.com ([138.32.33.140]:7401 "EHLO mailman2.ppco.com")
+	by vger.kernel.org with ESMTP id S261248AbVBVVPa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 16:15:30 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Problems with 2.6.11-rc4, Opteron server and MPTBase : Round 2
+Date: Tue, 22 Feb 2005 15:15:25 -0600
+Message-ID: <D821697F08061F4FBB069FA1AAAA92370C44F9@hoexmb7.conoco.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problems with 2.6.11-rc4, Opteron server and MPTBase : Round 2
+Thread-Index: AcUZI6BXFtqk2uw+Rhuemw3IFFWfSQ==
+From: "Weathers, Norman R." <Norman.R.Weathers@conocophillips.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Feb 2005 21:15:25.0988 (UTC) FILETIME=[A0A89640:01C51923]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-21 at 09:20 +0100, Jens Axboe wrote:
-> On Sat, Feb 19 2005, Lee Revell wrote:
-> > Starting around 2.6.11-rc4 I get this printk during the boot process
-> > after kjournald starts, and again if I stress the filesystem.
-> > 
-> > cfq: depth 4 reached, tagging now on
-> > 
-> > Is this printk intentional?  I am sure users will wonder about it,
-> > especially because (presumably) cfq turns tagging off at some point in
-> > between, and doesn't say anything about it.
-> 
-> It is intentional, but could be supressed. But I'm wondering if the
-> accounting change introduced a bug - what hardware are you using cfq on
-> (ie does it actually do tagged command queueing, is it SCSI?)?
-> 
+OK, some more information concerning the previous problems with
+2.6.11-rc4.
 
-Yes, this is an all SCSI system using the aic7xxx driver.
+Ok, 2.6.11-rc3 does the exact same thing as 2.6.11-rc4 does, which is
+crashes whenever you try and boot up our Opteron based server which has
+an LSI MPT Fusion based SCSI card as the primary card.  Now comes the
+weird part...  It only crashes if the mptbase and mptscsih are modules.
+If the drivers are built into the kernel, the 2.6.11-rc3 kernel boots
+just fine.  I am going to see if the 2.6.11-rc4 kernel boots as well
+when the driver is built in.
 
-> It's a one-time message. CFQ starts out assuming the drive doesn't do
-> TCQ, if the driver depth goes beyond a defined limit (4), it will assume
-> that the hardware can do tagged queueing and change its internal
-> accounting accordingly. The setting stays that way, it's not a
-> transitional state.
-> 
+Thanks again for any help anyone can give.
 
-
-OK.  Then the multiple messages were CFQ enabling TCQ for the different
-drives.
-
-Lee
-
+Norman Weathers

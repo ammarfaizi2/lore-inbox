@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264358AbUFKWHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264365AbUFKWMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264358AbUFKWHW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 18:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264360AbUFKWHW
+	id S264365AbUFKWMY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 18:12:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbUFKWMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 18:07:22 -0400
-Received: from webmail.cs.unm.edu ([64.106.20.39]:61653 "EHLO mail.cs.unm.edu")
-	by vger.kernel.org with ESMTP id S264358AbUFKWHU (ORCPT
+	Fri, 11 Jun 2004 18:12:24 -0400
+Received: from gate.crashing.org ([63.228.1.57]:17588 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264365AbUFKWMV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 18:07:20 -0400
-Message-ID: <40CA36AD.2060808@cs.unm.edu>
-Date: Fri, 11 Jun 2004 16:48:13 -0600
-From: Sushant Sharma <sushant@cs.unm.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: getting list of sk_buffs while calling sk_recvmsg
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 11 Jun 2004 18:12:21 -0400
+Subject: Re: [PATCH][RFC] Spinlock-timeout
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: moilanen@austin.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>
+In-Reply-To: <Pine.A41.4.44.0406111620061.68840-100000@forte.austin.ibm.com>
+References: <Pine.A41.4.44.0406111620061.68840-100000@forte.austin.ibm.com>
+Content-Type: text/plain
+Message-Id: <1086991759.2711.27.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 11 Jun 2004 17:09:20 -0500
 Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan *1BYuB6-0000tI-00*4GcJ7D/ukjg*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All
-I want to know if we
-can get hold of sk_receive_queue while
-calling function sock_recvmsg in file net/socket.c.
-Is it possible to get the list of sk_buffs through
-sock->sk->sk_receive_queue in this function.
 
-Thanks for help
-Sushant
+> Here's the ppc64 add-on for using timebase register for the spinlock
+> timeout.  If no one has any issues w/ the base spin-lock timeout patch, or
+> this one, please apply.
 
-ps: please cc the reply to me
+Same comment, make sure you produce a unified diff.
+
+Ben.
+
 

@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVBRHyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVBRIcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbVBRHyq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 02:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVBRHyq
+	id S261309AbVBRIcb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 03:32:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVBRIcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 02:54:46 -0500
-Received: from simmts6.bellnexxia.net ([206.47.199.164]:32649 "EHLO
-	simmts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261301AbVBRHyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 02:54:43 -0500
-Message-ID: <1451.10.10.10.24.1108713140.squirrel@linux1>
-In-Reply-To: <200502180142.j1I1gJXC007648@laptop11.inf.utfsm.cl>
-References: Message from "Sean" <seanlkml@sympatico.ca> of "Thu, 17 Feb 2005
-    16:24:01 CDT." <4912.10.10.10.24.1108675441.squirrel@linux1>
-    <200502180142.j1I1gJXC007648@laptop11.inf.utfsm.cl>
-Date: Fri, 18 Feb 2005 02:52:20 -0500 (EST)
+	Fri, 18 Feb 2005 03:32:31 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:32318
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261301AbVBRIc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 03:32:28 -0500
+Date: Fri, 18 Feb 2005 09:32:25 +0100
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: lm@bitmover.com, Jeff Sipek <jeffpc@optonline.net>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [BK] upgrade will be needed
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
-Cc: "Chris Friesen" <cfriesen@nortel.com>, "d.c" <aradorlinux@yahoo.es>,
-       tytso@mit.edu, cs@tequila.co.jp, galibert@pobox.com,
-       kernel@crazytrain.com, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a-7
-X-Mailer: SquirrelMail/1.4.3a-7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Message-ID: <20050218083225.GY2071@opteron.random>
+References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <20050214194428.GC8763@merlin.emma.line.org> <20050214200544.GC16029@bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050214200544.GC16029@bitmover.com>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, February 17, 2005 8:42 pm, Horst von Brand said:
+On Mon, Feb 14, 2005 at 12:05:44PM -0800, Larry McVoy wrote:
+> That's not how others are reading it and when we requested clarification
+> from the legal firm we use for contracts (Fenwick&West if you care) they
+> said that it could well be interpreted that if you use BK you are giving
+> up your right to hack on another system.  That wasn't our intent but nor
 
-> Linus clearly considered not just his /own/ workflow, but the workflow
-> for the /whole/ kernel development community. In fact, BK was designed
+You know I'm not a lawyer but that's exactly the way I read it too:
 
-Well, the /whole/ community isn't yet included, that's what we're talking
-about.
+	http://lkml.org/lkml/2004/10/25/224
+	http://lkml.org/lkml/2004/10/25/400
+	http://lkml.org/lkml/2004/10/25/249
 
-> around the requirements Linus and other head hackers laid down for a
-> SCM for use in Linux. And I'm quite sure that if Linus et al had
-> serious misgivings about the license somehow hindering Linux
-> development, they would have got it fixed or dumped BK. Linus has
-> said time and again that he  just cares for the very best kernel
-> possible, nothing else.
+I've been too harsh in the past on this, but the no time limit was
+unbearable to me, and finally some sanity showed up today and things
+become bearable for the first time ever as far as I'm concerned.
 
-Do you think that the developers who must or want to use other SCM tools
-desire less?
+Now it seems that many folks misunderstood the old licence if they're
+complaining about the licence change. Complaints about the new licence
+are a no sense as far as I can see.
 
-> Sure, from the periphery of kernel development using something else looks
-> simple. But you have to consider there are literaly dozens of trees (of
-> the head maintainers) exchanging changesets. The flow of going into
-> 2.6 is astonishing right now, I'd say some 3 or 5 times more than
-> what got into the most furious 2.3 patch frenzies. Existing open
-> source tools just aren't up to the task, as Linus has repeatedly said.
+I'm only amazed you didn't clarify this earlier if your intention was
+really to allow hacking on other systems after a certain amount of time.
+You had ton of chances to clarify it before the layers lined things up,
+including in answer to the above messages.  Anyway I don't care since a
+clarification by email wouldn't been enough as far as I was concerned,
+so I'm glad eventually the licence is changing.
 
-There are ways that the tools could coexist and work together better than
-they do today. If people would stop acting like BK was in jeopardy of
-being taken away from them and realize that others just want the ability
-to use their tools of choice too.
-
-> Just now there are starting to be halfways useful SCM systems (almost
-> all based on the "one central repository" idea, which doesn't cut it
-> for Linux), but they aren't proven enough.
-
-Yeah, there are some glimmers of hope for sure, but you're right they're a
-ways off.
-
-Sean
-
-
-
+A big thanks to Fenwick&West from my part.

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbTL1Pjo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 10:39:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbTL1Pjo
+	id S261660AbTL1Q0H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 11:26:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTL1Q0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 10:39:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41409 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261605AbTL1Pjn
+	Sun, 28 Dec 2003 11:26:06 -0500
+Received: from as1-6-4.ld.bonet.se ([194.236.130.199]:14208 "HELO
+	mail.nicke.nu") by vger.kernel.org with SMTP id S261660AbTL1Q0E
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 10:39:43 -0500
-Date: Sun, 28 Dec 2003 15:39:41 +0000
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: CD burn buffer underruns on 2.6
-Message-ID: <20031228153941.GA851@gallifrey>
-References: <16366.60194.935861.592797@nycap.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16366.60194.935861.592797@nycap.rr.com>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.0 (i686)
-X-Uptime: 15:37:16 up 7 min,  1 user,  load average: 0.07, 0.26, 0.15
-User-Agent: Mutt/1.5.4i
+	Sun, 28 Dec 2003 11:26:04 -0500
+From: "Nicklas Bondesson" <nicke@nicke.nu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000 (PDC20271)
+Date: Sun, 28 Dec 2003 17:26:04 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcPNXtLRp8x7e0IPTH27gUjxlGeduAAAGIzw
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Message-Id: <S261660AbTL1Q0E/20031228162604Z+16979@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* craig duncan (duncan@nycap.rr.com) wrote:
-> 
-> Dec 24 08:24:44 cdw kernel: cdrom_newpc_intr: 110 residual after xfer
+I really hope so :) I think you should wrap it up and send it to the list
+marked as [PATCH].
 
-Hmm - I'm seeing those just playing an audio CD on 2.6.0:
+Many thanks for the help again!
 
-cdrom_newpc_intr: 3 residual after xfer
+/Nicke
 
-(That is a Memorex 24MAXX 1040 CD R/W on an AMD766 controller on a dual
-Athlon MP board).
 
-Dave
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+>Hi Nicke,
+>
+>It's been included in messages to ata-raid, however, I never sent it 
+>there marked as PATCH. I suppose I should wrap it up, describe it and 
+>sent it off the the ata-raid list for completeness. Maybe it'll save 
+>somebody else from the process you just went through :)
+>
+>-Walt
+

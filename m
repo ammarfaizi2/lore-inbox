@@ -1,54 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274547AbRITPyS>; Thu, 20 Sep 2001 11:54:18 -0400
+	id <S274545AbRITPxS>; Thu, 20 Sep 2001 11:53:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274548AbRITPyJ>; Thu, 20 Sep 2001 11:54:09 -0400
-Received: from s2.relay.oleane.net ([195.25.12.49]:57867 "HELO
-	s2.relay.oleane.net") by vger.kernel.org with SMTP
-	id <S274547AbRITPx4>; Thu, 20 Sep 2001 11:53:56 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: 2.4.10pre10 aic7xxx problem
-Date: Thu, 20 Sep 2001 17:54:52 +0200
-Message-Id: <20010920155452.15612@smtp.adsl.oleane.com>
-In-Reply-To: <200108170001.f7H01GI82362@aslan.scsiguy.com>
-In-Reply-To: <200108170001.f7H01GI82362@aslan.scsiguy.com>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+	id <S274547AbRITPxI>; Thu, 20 Sep 2001 11:53:08 -0400
+Received: from air-1.osdlab.org ([65.201.151.5]:62469 "EHLO
+	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S274545AbRITPw6>; Thu, 20 Sep 2001 11:52:58 -0400
+Message-ID: <3BAA107E.4F2FDEE2@osdlab.org>
+Date: Thu, 20 Sep 2001 08:51:26 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: Alan <alan@lxorguk.ukuu.org.uk>, Linus <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>, sfr@canb.auug.org.au,
+        crutcher+kernel@datastacks.com
+Subject: [PATCH] fix register_sysrq() in 2.4.9++
+Content-Type: multipart/mixed;
+ boundary="------------E72DB4ADC1844C52CDF40932"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Justin !
+This is a multi-part message in MIME format.
+--------------E72DB4ADC1844C52CDF40932
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I'm having a problem with the aic7xxx driver in 2.4.10pre10, it used to
-work fine with 2.4.10pre8. The card is a 2960 single channel SCSI2, the
-drive is a SEAGATE ST34520N rev. 1444.
-Weirdly, the 2 drivers have the same rev. (maybe you didn't change it ?),
-the other difference between those kernels is that I compiled 2.4.10pre10
-SMP. The machine is a PowerMac dual G4/450
+Linus, Alan-
 
-Basically, when probing for disks, my external <> gets stuck (activity
-led on) and the driver displays those messages after a longer than usual
-pause:
+register_sysrq_key() is typed #ifdef CONFIG_MAGIC_SYSRQ,
+but untyped if it's not defined, causing problems for callers
+when CONFIG_MAGIC_SYSRQ is not defined.
+This patch fixes that problem.
 
-Attampting to queue an ABORT message
-Device is active, asserting ATN
-Recovery code sleeping
-Recovery code awake
-Timer expired
-aic7xxx_abort returns 8195
-Attempting to queue a TARGET RESET
-aic7xxx_dev_reset returns 8195
-Recovery SCB completes
+arch/i386/kernel/apm.c calls [un]register_sysrq_key() with
+a pointer to a sysrq_poweroff_op data structure that is
+only declared #ifdef CONFIG_MAGIC_SYSRQ.
+This patch also wraps the register/unregister calls with
+#ifdef CONFIG_MAGIC_SYSRQ.
 
-and then more of it... the drive is not detected.
+~Randy
+--------------E72DB4ADC1844C52CDF40932
+Content-Type: text/plain; charset=us-ascii;
+ name="sysrq-if.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sysrq-if.patch"
 
-Any clue ?
+--- linux/include/linux/sysrq.h.org	Mon Sep 17 10:21:07 2001
++++ linux/include/linux/sysrq.h	Thu Sep 20 08:29:15 2001
+@@ -87,8 +87,17 @@
+ }
+ 
+ #else
+-#define register_sysrq_key(a,b)		do {} while(0)
+-#define unregister_sysrq_key(a,b)	do {} while(0)
++
++static inline int register_sysrq_key(int key, struct sysrq_key_op *op_p)
++{
++	return -1;
++}
++
++static inline int unregister_sysrq_key(int key, struct sysrq_key_op *op_p)
++{
++	return 0;
++}
++
+ #endif
+ 
+ /* Deferred actions */
+--- linux/arch/i386/kernel/apm.c.org	Mon Sep 17 10:15:45 2001
++++ linux/arch/i386/kernel/apm.c	Thu Sep 20 08:34:44 2001
+@@ -1564,7 +1564,10 @@
+ 	/* Install our power off handler.. */
+ 	if (power_off)
+ 		pm_power_off = apm_power_off;
+-	register_sysrq_key('o',&sysrq_poweroff_op);
++#ifdef CONFIG_MAGIC_SYSRQ
++	if (register_sysrq_key('o',&sysrq_poweroff_op))
++		printk (KERN_ERR "Error: cannot register APM PowerOff SysRq key\n");
++#endif
+ 
+ 	if (smp_num_cpus == 1) {
+ #if defined(CONFIG_APM_DISPLAY_BLANK) && defined(CONFIG_VT)
+@@ -1780,7 +1783,9 @@
+ 	}
+ 	misc_deregister(&apm_device);
+ 	remove_proc_entry("apm", NULL);
++#ifdef CONFIG_MAGIC_SYSRQ
+ 	unregister_sysrq_key('o',&sysrq_poweroff_op);
++#endif
+ 	if (power_off)
+ 		pm_power_off = NULL;
+ 	exit_kapmd = 1;
 
-Regards,
-Ben.
-
+--------------E72DB4ADC1844C52CDF40932--
 

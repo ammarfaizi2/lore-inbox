@@ -1,71 +1,427 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269971AbRHSEao>; Sun, 19 Aug 2001 00:30:44 -0400
+	id <S269976AbRHSEkT>; Sun, 19 Aug 2001 00:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269974AbRHSEae>; Sun, 19 Aug 2001 00:30:34 -0400
-Received: from c003-h000.c003.snv.cp.net ([209.228.32.214]:20619 "HELO
-	c003.snv.cp.net") by vger.kernel.org with SMTP id <S269971AbRHSEa0> convert rfc822-to-8bit;
-	Sun, 19 Aug 2001 00:30:26 -0400
-X-Sent: 19 Aug 2001 04:30:34 GMT
-Subject: Problem: kernel hang up after restart X and use i810 with DRM 4.1
-	aceleration.
-From: Tigrux <tigrux@avantel.net>
+	id <S269975AbRHSEkB>; Sun, 19 Aug 2001 00:40:01 -0400
+Received: from odyssey.netrox.net ([204.253.4.3]:18848 "EHLO t-rex.netrox.net")
+	by vger.kernel.org with ESMTP id <S269974AbRHSEjv>;
+	Sun, 19 Aug 2001 00:39:51 -0400
+Subject: [PATCH] 2.4.9: let Net Devices feed Entropy (1/2)
+From: Robert Love <rml@tech9.net>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.12 (Preview Release)
-Date: 18 Aug 2001 23:31:11 -0500
-Message-Id: <998195473.10645.21.camel@Terror.comp99>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.18.07.08 (Preview Release)
+Date: 19 Aug 2001 00:40:18 -0400
+Message-Id: <998196020.653.22.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use kernel-2.4.8-ac7, but the problem is general to kernel more newer
-that 2.4.8-ac5 (all kernel with native support to DRM 4.1 and XFree
-4.1).
+against 2.4.9. 2.4.8-ac7 patches available in previous thread.
 
-I start my X sessione, then I run any OpenGL programm (Heavy Gear,
-TuxRacer, Gears, etc), the I restart X, and the... KERNEL DIE!!
+the following patch is a rediff of my previous patch, now against 2.4.9.
+for those who are new, this patch allows user configuration of whether
+net devices contribute to the entropy pool (/dev/random) by introducing
+a new flag for request_irq, SA_SAMPLE_NET_RANDOM. this flag is defines
+to SA_SAMPLE_RANDOM or 0 depending on the value of CONFIG_NET_RANDOM
+which is configurable from Net Devices.
 
-In another hand, if I start X, and do not use OpenGL programms, and then
-restart X, the kernel do not die.
+this is part 1, which is required.  part 2 updates a handfull of devices
+to use the new flag.  all net devices (drivers/net/*.c) should be
+updated.
 
-I'm using:
-  XFree86 4.1
-  Pentium 3 Coppermine 550MHz, 100MHz bus.
-  256 MB swap.
-  256 DIMM RAM.
-  i810 acelerator card on board.
 
-I think the problem is related to the implementation of DRM.
 
--- End of report
-
--- BEGIN ver_linux_info
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
+diff -urN linux-2.4.9-pre4/Documentation/Configure.help linux/Documentation/Configure.help
+--- linux-2.4.9-pre4/Documentation/Configure.help	Wed Aug 15 23:12:28 2001
++++ linux/Documentation/Configure.help	Wed Aug 15 23:19:52 2001
+@@ -7728,6 +7728,19 @@
  
-Linux Terror.comp99 2.4.8-ac7 #4 sáb ago 18 01:37:06 CDT 2001 i686
-unknown
+   If you don't know what to use this for, you don't need it.
  
-Gnu C                  2.95.3
-Gnu make               3.79.1
-binutils               2.10.0.24
-util-linux             2.10o
-mount                  2.10o
-modutils               2.4.6
-e2fsprogs              1.22
-PPP                    2.4.0
-Linux C Library        2.1.3
-Dynamic linker (ldd)   2.1.3
-Procps                 2.0.7
-Net-tools              1.57
-Console-tools          0.2.3
-Sh-utils               2.0
-Modules Loaded         ppp_deflate ymf724 audiobuf opl3 uart401 pnp midi
-ac97 soundbase sndshield ac97_codec imm
--- END ver_linux_info
++Allow Net Devices to contribute to /dev/random
++CONFIG_NET_RANDOM
++  If you say Y here, network device interrupts will contribute to the
++  kernel entropy pool at /dev/random. Normally, block devices and
++  some other devices (keyboard, mouse) add to the pool. Some people,
++  however, feel that network devices should not contribute to /dev/random
++  because an external attacker could manipulate incoming packets in a
++  manner to force the pool into a determinable state. Note this is
++  completely theoretical.
++
++  If you don't mind the risk or are using a headless system and are in
++  need of more entropy, say Y.
++
+ Ethertap network tap (OBSOLETE)
+ CONFIG_ETHERTAP
+   If you say Y here (and have said Y to "Kernel/User network link
+diff -urN linux-2.4.9-pre4/drivers/net/Config.in linux/drivers/net/Config.in
+--- linux-2.4.9-pre4/drivers/net/Config.in	Wed Aug 15 23:09:39 2001
++++ linux/drivers/net/Config.in	Wed Aug 15 23:19:52 2001
+@@ -9,6 +9,7 @@
+ tristate 'Bonding driver support' CONFIG_BONDING
+ tristate 'EQL (serial line load balancing) support' CONFIG_EQUALIZER
+ tristate 'Universal TUN/TAP device driver support' CONFIG_TUN
++bool 'Allow Net Devices to contribute to /dev/random' CONFIG_NET_RANDOM
+ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+    if [ "$CONFIG_NETLINK" = "y" ]; then
+       tristate 'Ethertap network tap (OBSOLETE)' CONFIG_ETHERTAP
+diff -urN linux-2.4.9-pre4/include/asm-alpha/signal.h linux/include/asm-alpha/signal.h
+--- linux-2.4.9-pre4/include/asm-alpha/signal.h	Wed Aug 15 23:09:20 2001
++++ linux/include/asm-alpha/signal.h	Wed Aug 15 23:19:52 2001
+@@ -121,8 +121,20 @@
+ #define SA_PROBE		SA_ONESHOT
+ #define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x40000000
++
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ #define SIG_BLOCK          1	/* for blocking signals */
+ #define SIG_UNBLOCK        2	/* for unblocking signals */
+ #define SIG_SETMASK        3	/* for setting the signal mask */
+diff -urN linux-2.4.9-pre4/include/asm-arm/signal.h linux/include/asm-arm/signal.h
+--- linux-2.4.9-pre4/include/asm-arm/signal.h	Wed Aug 15 23:09:28 2001
++++ linux/include/asm-arm/signal.h	Wed Aug 15 23:19:52 2001
+@@ -124,8 +124,20 @@
+ #define SA_SAMPLE_RANDOM	0x10000000
+ #define SA_IRQNOMASK		0x08000000
+ #define SA_SHIRQ		0x04000000
++
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ #define SIG_BLOCK          0	/* for blocking signals */
+ #define SIG_UNBLOCK        1	/* for unblocking signals */
+ #define SIG_SETMASK        2	/* for setting the signal mask */
+diff -urN linux-2.4.9-pre4/include/asm-cris/signal.h linux/include/asm-cris/signal.h
+--- linux-2.4.9-pre4/include/asm-cris/signal.h	Wed Aug 15 23:09:37 2001
++++ linux/include/asm-cris/signal.h	Wed Aug 15 23:19:52 2001
+@@ -120,8 +120,20 @@
+ #define SA_PROBE		SA_ONESHOT
+ #define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x04000000
++
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ #define SIG_BLOCK          0	/* for blocking signals */
+ #define SIG_UNBLOCK        1	/* for unblocking signals */
+ #define SIG_SETMASK        2	/* for setting the signal mask */
+diff -urN linux-2.4.9-pre4/include/asm-i386/signal.h linux/include/asm-i386/signal.h
+--- linux-2.4.9-pre4/include/asm-i386/signal.h	Wed Aug 15 23:09:17 2001
++++ linux/include/asm-i386/signal.h	Wed Aug 15 23:19:52 2001
+@@ -119,8 +119,20 @@
+ #define SA_PROBE		SA_ONESHOT
+ #define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x04000000
++
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ #define SIG_BLOCK          0	/* for blocking signals */
+ #define SIG_UNBLOCK        1	/* for unblocking signals */
+ #define SIG_SETMASK        2	/* for setting the signal mask */
+diff -urN linux-2.4.9-pre4/include/asm-ia64/signal.h linux/include/asm-ia64/signal.h
+--- linux-2.4.9-pre4/include/asm-ia64/signal.h	Wed Aug 15 23:09:36 2001
++++ linux/include/asm-ia64/signal.h	Wed Aug 15 23:19:52 2001
+@@ -106,6 +106,17 @@
+ #define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x04000000
+ 
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
++#endif
++
+ #endif /* __KERNEL__ */
+ 
+ #define SIG_BLOCK          0	/* for blocking signals */
+diff -urN linux-2.4.9-pre4/include/asm-m68k/signal.h linux/include/asm-m68k/signal.h
+--- linux-2.4.9-pre4/include/asm-m68k/signal.h	Wed Aug 15 23:09:21 2001
++++ linux/include/asm-m68k/signal.h	Wed Aug 15 23:19:52 2001
+@@ -116,8 +116,20 @@
+ #define SA_PROBE		SA_ONESHOT
+ #define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x04000000
++
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ #define SIG_BLOCK          0	/* for blocking signals */
+ #define SIG_UNBLOCK        1	/* for unblocking signals */
+ #define SIG_SETMASK        2	/* for setting the signal mask */
+diff -urN linux-2.4.9-pre4/include/asm-mips/signal.h linux/include/asm-mips/signal.h
+--- linux-2.4.9-pre4/include/asm-mips/signal.h	Wed Aug 15 23:09:18 2001
++++ linux/include/asm-mips/signal.h	Wed Aug 15 23:19:52 2001
+@@ -111,6 +111,17 @@
+ #define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x02000000
+ 
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
++#endif
++
+ #endif /* __KERNEL__ */
+ 
+ #define SIG_BLOCK	1	/* for blocking signals */
+diff -urN linux-2.4.9-pre4/include/asm-mips64/signal.h linux/include/asm-mips64/signal.h
+--- linux-2.4.9-pre4/include/asm-mips64/signal.h	Wed Aug 15 23:09:37 2001
++++ linux/include/asm-mips64/signal.h	Wed Aug 15 23:19:53 2001
+@@ -112,6 +112,17 @@
+ #define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x02000000
+ 
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
++#endif
++
+ #endif /* __KERNEL__ */
+ 
+ #define SIG_BLOCK	1	/* for blocking signals */
+diff -urN linux-2.4.9-pre4/include/asm-parisc/signal.h linux/include/asm-parisc/signal.h
+--- linux-2.4.9-pre4/include/asm-parisc/signal.h	Wed Aug 15 23:09:37 2001
++++ linux/include/asm-parisc/signal.h	Wed Aug 15 23:19:53 2001
+@@ -100,6 +100,17 @@
+ #define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x04000000
+ 
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
++#endif
++
+ #endif /* __KERNEL__ */
+ 
+ #define SIG_BLOCK          0	/* for blocking signals */
+diff -urN linux-2.4.9-pre4/include/asm-ppc/signal.h linux/include/asm-ppc/signal.h
+--- linux-2.4.9-pre4/include/asm-ppc/signal.h	Wed Aug 15 23:09:25 2001
++++ linux/include/asm-ppc/signal.h	Wed Aug 15 23:19:53 2001
+@@ -114,8 +114,20 @@
+ #define SA_PROBE		SA_ONESHOT
+ #define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x04000000
++
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ #define SIG_BLOCK          0	/* for blocking signals */
+ #define SIG_UNBLOCK        1	/* for unblocking signals */
+ #define SIG_SETMASK        2	/* for setting the signal mask */
+diff -urN linux-2.4.9-pre4/include/asm-s390/signal.h linux/include/asm-s390/signal.h
+--- linux-2.4.9-pre4/include/asm-s390/signal.h	Wed Aug 15 23:09:37 2001
++++ linux/include/asm-s390/signal.h	Wed Aug 15 23:20:04 2001
+@@ -127,8 +127,20 @@
+ #define SA_PROBE                SA_ONESHOT
+ #define SA_SAMPLE_RANDOM        SA_RESTART
+ #define SA_SHIRQ                0x04000000
++
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ #define SIG_BLOCK          0    /* for blocking signals */
+ #define SIG_UNBLOCK        1    /* for unblocking signals */
+ #define SIG_SETMASK        2    /* for setting the signal mask */
+diff -urN linux-2.4.9-pre4/include/asm-s390x/signal.h linux/include/asm-s390x/signal.h
+--- linux-2.4.9-pre4/include/asm-s390x/signal.h	Wed Aug 15 23:09:37 2001
++++ linux/include/asm-s390x/signal.h	Wed Aug 15 23:20:04 2001
+@@ -127,8 +127,20 @@
+ #define SA_PROBE                SA_ONESHOT
+ #define SA_SAMPLE_RANDOM        SA_RESTART
+ #define SA_SHIRQ                0x04000000
++
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ #define SIG_BLOCK          0    /* for blocking signals */
+ #define SIG_UNBLOCK        1    /* for unblocking signals */
+ #define SIG_SETMASK        2    /* for setting the signal mask */
+diff -urN linux-2.4.9-pre4/include/asm-sh/signal.h linux/include/asm-sh/signal.h
+--- linux-2.4.9-pre4/include/asm-sh/signal.h	Wed Aug 15 23:09:29 2001
++++ linux/include/asm-sh/signal.h	Wed Aug 15 23:20:04 2001
+@@ -107,8 +107,20 @@
+ #define SA_PROBE		SA_ONESHOT
+ #define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x04000000
++
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ #define SIG_BLOCK          0	/* for blocking signals */
+ #define SIG_UNBLOCK        1	/* for unblocking signals */
+ #define SIG_SETMASK        2	/* for setting the signal mask */
+diff -urN linux-2.4.9-pre4/include/asm-sparc/signal.h linux/include/asm-sparc/signal.h
+--- linux-2.4.9-pre4/include/asm-sparc/signal.h	Wed Aug 15 23:09:23 2001
++++ linux/include/asm-sparc/signal.h	Wed Aug 15 23:20:04 2001
+@@ -176,8 +176,20 @@
+ #define SA_PROBE SA_ONESHOT
+ #define SA_SAMPLE_RANDOM SA_RESTART
+ #define SA_STATIC_ALLOC		0x80
++
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ /* Type of a signal handler.  */
+ #ifdef __KERNEL__
+ typedef void (*__sighandler_t)(int, int, struct sigcontext *, char *);
+diff -urN linux-2.4.9-pre4/include/asm-sparc64/signal.h linux/include/asm-sparc64/signal.h
+--- linux-2.4.9-pre4/include/asm-sparc64/signal.h	Wed Aug 15 23:09:27 2001
++++ linux/include/asm-sparc64/signal.h	Wed Aug 15 23:20:04 2001
+@@ -192,8 +192,20 @@
+ #define SA_PROBE SA_ONESHOT
+ #define SA_SAMPLE_RANDOM SA_RESTART
+ #define SA_STATIC_ALLOC		0x80
++
++/*
++ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
++ * contribute to the kernel entropy pool if users want that
++ * at compile time.
++ */
++#ifdef CONFIG_NET_RANDOM
++#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
++#else
++#define SA_SAMPLE_NET_RANDOM	0
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ /* Type of a signal handler.  */
+ #ifdef __KERNEL__
+ typedef void (*__sighandler_t)(int, struct sigcontext *);
 
-  
-  
+
+
+
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

@@ -1,86 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUIJQya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267650AbUIJQ6B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267601AbUIJQya (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 12:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267646AbUIJQrQ
+	id S267650AbUIJQ6B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 12:58:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267646AbUIJQyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 12:47:16 -0400
-Received: from asplinux.ru ([195.133.213.194]:45070 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S267557AbUIJQpZ (ORCPT
+	Fri, 10 Sep 2004 12:54:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45706 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267666AbUIJQxs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 12:45:25 -0400
-Message-ID: <4141DCCD.9040605@sw.ru>
-Date: Fri, 10 Sep 2004 20:56:45 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] adding per sb inode list to make invalidate_inodes()
- faster
-References: <4140791F.8050207@sw.ru> <Pine.LNX.4.58.0409090844410.5912@ppc970.osdl.org> <414166BA.3020804@sw.ru> <Pine.LNX.4.58.0409100713570.5912@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0409100713570.5912@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 10 Sep 2004 12:53:48 -0400
+Subject: ext2/3: Incomplete/buggy use of s_debts in Orlov
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Stephen Tweedie <sct@redhat.com>, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1094834989.2047.171.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 10 Sep 2004 17:49:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
- > On Fri, 10 Sep 2004, Kirill Korotaev wrote:
+Hi all,
 
- >>>Hmm.. I don't mind the approach per se, but I get very nervous about
- >>>the fact that I don't see any initialization of "inode->i_sb_list".
- >>
- >>inode->i_sb_list is a link list_head, not real list head (real list head
- >>is sb->s_inodes and it's initialized). i.e. it doesn't require
- >>initialization.
- >
- > It _does_ require initialization. And no, there is no difference 
-between a
- > "real" head and a entry "link" in the list. They both need to be
- > initialized.
- >
- >>all the operations I perform on i_sb_list are
- >>- list_add(&inode->i_sb_list, ...);
- >
- > This one is ok without initialzing the entry, since it will do so itself.
- >
- >>- list_del(&inode->i_sb_list);
- >
- > This one is NOT ok. If list_del() is ever done on a link entry that 
-hasn't
- > been initialized, you crash. If "list_del()" is ever done twice on an
- > entry, you will crash and/or corrupt memory elsewhere.
-We never do list_del twice, nor we do list_del on unitialized inodes!
+I've been tidying up the online resize code for -mm and come across one
+nasty item.  The s_debts array is the only dynamic, fs-sized array in
+the entirety of ext2/3, so it's the only dynamic array we need to grow
+when we resize.
 
- >>1. struct inode is allocated only in one place!
- >>it's alloc_inode(). Next alloc_inode() is static and is called from 3
- >>places:
- >>new_inode(), get_new_inode() and get_new_inode_fast().
- >>
- >>All 3 above functions do list_add(&inode->i_sb_list, &sb->s_inodes);
- >>i.e. newly allocated inodes are always in super block list.
+But to get the locking for that right, we need to know what the locking
+for s_debts is in the first place.  Looking at that I found two rather
+odd things:
 
- > Good. _This_ is what I was after.
- >
- >
- >>2. list_del(&inode->i_sb_list) doesn't leave super block list invalid!
- >
- > No, but it leaves _itself_ invalid. There had better not be anything 
-that
- > touches it ever after without an initialization. That wasn't obvious...
-ok. But now I hope I proved that it's ok?
-no one does list_del() twice and no one does list_del() on unitialized 
-inodes.
+On ext2, s_debts is modified with only the per-group lock:
 
-If you want i_sb_list to be really ALWAYS initialized than we can 
-replace list_del with list_del_init and insert INIT_LIST_HEAD(i_sb_list) 
-in inode_init_once().
-But I don't think it's a good idea.
-Moreover, I think that list_del_init() and other initialization 
-functions of link list_heads in such places usually only hide the 
-problems, not solve them.
+	spin_lock(sb_bgl_lock(sbi, group));
+	if (S_ISDIR(mode)) {
+		if (sbi->s_debts[group] < 255)
+			sbi->s_debts[group]++;
 
-Kirill
+where s_debts is defined as
+
+	u8 *s_debts;
+
+in the superblock.  That was OK when we had a global lock_super(sb)
+round every allocation, but it's extremely dangerous to perform byte
+accesses like this when the rest of the memory word is shared with other
+CPUs.  It certainly risks word-tearing on machines like Alpha; I think
+it's theoretically unsafe even on x86.
+
+On ext3, the situation is actually much simpler:
+
+s_debts is never modified at all.
+
+Ever.
+
+It's allocated, carefully checked, then freed.  But never modified.  
+
+Now, that's fine with me --- it makes the locking for s_debts *really*
+easy to get right. :-)   And in my current resize patches, I just nuke
+s_debts entirely.  
+
+But if anybody thinks it really needs to stay, then a Plan B is
+required, and we probably need to start off by fixing the locking in
+ext2 itself.
+
+--Stephen
 

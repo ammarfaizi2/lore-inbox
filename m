@@ -1,70 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290100AbSAKUdo>; Fri, 11 Jan 2002 15:33:44 -0500
+	id <S290102AbSAKUbm>; Fri, 11 Jan 2002 15:31:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290097AbSAKUbX>; Fri, 11 Jan 2002 15:31:23 -0500
-Received: from [213.171.51.190] ([213.171.51.190]:10381 "EHLO ns.yauza.ru")
-	by vger.kernel.org with ESMTP id <S290101AbSAKUbJ>;
-	Fri, 11 Jan 2002 15:31:09 -0500
-Date: Fri, 11 Jan 2002 23:31:07 +0300
-From: Nikita Gergel <fc@yauza.ru>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: {PATCH 2.5.2-pre11] ps2esdi.c 'MINOR' and 'MKDEV' cleanups
-Message-Id: <20020111233107.6a08df3c.fc@yauza.ru>
-Organization: YAUZA-Telecom
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i586-alt-linux)
-X-Face: /kH/`k:.@|9\`-o$p/YBn<xFr)I]mglEQW0$I${i4Q;J|JXWbc}de_p8c1;:W~5{WV,.l%B S|A4'A1hnId[
+	id <S290100AbSAKUbd>; Fri, 11 Jan 2002 15:31:33 -0500
+Received: from adsl-157-194-17.dab.bellsouth.net ([66.157.194.17]:60807 "EHLO
+	midgaard.darktech.org") by vger.kernel.org with ESMTP
+	id <S290102AbSAKUbV>; Fri, 11 Jan 2002 15:31:21 -0500
+Date: Fri, 11 Jan 2002 15:33:41 -0500
+From: Andreas Boman <aboman@goofy.nerdfest.org>
+To: =?ISO-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17 has 2 modules named sym53c8xx.o
+Message-Id: <20020111153341.1ebf02a2.aboman@goofy.nerdfest.org>
+In-Reply-To: <20020111204356.G1567-100000@gerard>
+In-Reply-To: <20020111000052.34204997.aboman@goofy.nerdfest.org>
+	<20020111204356.G1567-100000@gerard>
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i386-nerdfest-linux)
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Fri__11_Jan_2002_23:31:07_+0300_083316d8"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Fri, 11 Jan 2002 21:01:27 +0100 (CET)
+Gérard Roudier <groudier@free.fr> wrote:
 
---Multipart_Fri__11_Jan_2002_23:31:07_+0300_083316d8
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+> 
+> 
+> On Fri, 11 Jan 2002, Andreas Boman wrote:
+> 
+> > It seems a new sym53c8xx was added in 2.4.17, and now there are 2
+modules,
+> > both named sym53c8xx.o (CONFIG_SCSI_SYM53C8XX and
+> > CONFIG_SCSI_SYM53C8XX_2). This was noticed since my mkinitrd script
+isn't
+> > smart enough to destinguish the two. Leading to the question how does
+> > modprobe? Comparing this with the naming scheme used for the two
+aic7xxx
+> > modules (aic7xxx.o and aic7xxx_old.o) it seems like its a bug to me,
+in
+> > either case I'd appritiate some input from somebody clued in on the
+issue.
+> 
+> This is a compatibility feature. Just select _the_ driver you want to
+use
+> but not both. The bug is to build the both drivers without special needs
+> or goal.
+> 
+> Renaming a driver object module will break compatibility of old linux
+> installations depending of the driver selected, and also may break
+> flexibility for who knows what he is doing.
 
-Hello!
+This is a fine argument, until you consider kernels that arent built
+specifically for one platform. I am trying to build a generic kernel that
+will work on any supported hardware its loaded on. The documentation for
+the new sym53c8xx_2.o driver states: "If your system has problems using
+this new major version of the SYM53C8XX driver, you may switch back to
+driver version 1."
 
-I've found some well known compilation bugs in ps2esdi.c.
-This patch fixes them.
+That one sentence makes me think that the old driver should be renamed
+sym53c8xx_old so that both modules can be built and the _old driver loaded
+if the new causes any problems.
 
--- 
-Nikita Gergel					System Administrator
-Moscow, Russia					YAUZA-Telecom
+Further, if you dont rename either of the modules, something should be
+done to prevent build of both modules, and/or the documentation (help)
+should include a blurb about the modules being named the same thing and
+the problems this is bound to cause. As it is there is no indication that
+theese modules will be named the same thing, unless you look in the
+Makefiles.
 
---Multipart_Fri__11_Jan_2002_23:31:07_+0300_083316d8
-Content-Type: application/octet-stream;
- name="ps2esdi.diff"
-Content-Disposition: attachment;
- filename="ps2esdi.diff"
-Content-Transfer-Encoding: base64
+> 
+> By the way, if it ever happens one of the two modules to be renamed in
+> 2.4, it is the old version that will be. As a result, the patch you sent
+> me directly that renames the new version is exactly what I donnot want
+to
+> be done.
 
-ZGlmZiAtdXJOIGxpbnV4LTIuNS4yLXByZTExL2RyaXZlcnMvYmxvY2svcHMyZXNkaS5jIGxpbnV4
-LTIuNS4yLXByZTExLXBhdGNoZWQvZHJpdmVycy9ibG9jay9wczJlc2RpLmMKLS0tIGxpbnV4LTIu
-NS4yLXByZTExL2RyaXZlcnMvYmxvY2svcHMyZXNkaS5jCVdlZCBEZWMgMTYgMjM6MjA6MDAgMjAw
-MQorKysgbGludXgtMi41LjItcHJlMTEtcGF0Y2hlZC9kcml2ZXJzL2Jsb2NrL3BzMmVzZGkuYwlG
-cmkgSmFuIDExIDIzOjExOjAyIDIwMDIKQEAgLTQ4MSw3ICs0ODEsNyBAQAogCX0KIAllbHNlIGlm
-ICgoQ1VSUkVOVF9ERVYgPCBwczJlc2RpX2RyaXZlcykgJiYKIAkgICAgKENVUlJFTlQtPnNlY3Rv
-ciArIENVUlJFTlQtPmN1cnJlbnRfbnJfc2VjdG9ycyA8PQotCSAgICBwczJlc2RpW01JTk9SKENV
-UlJFTlQtPnJxX2RldildLm5yX3NlY3RzKSAmJgorCSAgICBwczJlc2RpW21pbm9yKENVUlJFTlQt
-PnJxX2RldildLm5yX3NlY3RzKSAmJgogCSAgICAJQ1VSUkVOVC0+ZmxhZ3MgJiBSRVFfQ01EKSB7
-CiAjaWYgMAogCQlwcmludGsoIiVzOmdvdCByZXF1ZXN0LiBkZXZpY2UgOiAlZCBtaW5vciA6ICVk
-IGNvbW1hbmQgOiAlZCAgc2VjdG9yIDogJWxkIGNvdW50IDogJWxkXG4iLApAQCAtNTEwLDcgKzUx
-MCw3IEBACiAJLyogaXMgcmVxdWVzdCBpcyB2YWxpZCAqLwogCWVsc2UgewogCQlwcmludGsoIkdy
-cnIuIGVycm9yLiBwczJlc2RpX2RyaXZlczogJWQsICVsdSAlbHVcbiIsIHBzMmVzZGlfZHJpdmVz
-LAotCQkgICAgICAgQ1VSUkVOVC0+c2VjdG9yLCBwczJlc2RpW01JTk9SKENVUlJFTlQtPnJxX2Rl
-dildLm5yX3NlY3RzKTsKKwkJICAgICAgIENVUlJFTlQtPnNlY3RvciwgcHMyZXNkaVttaW5vcihD
-VVJSRU5ULT5ycV9kZXYpXS5ucl9zZWN0cyk7CiAJCWVuZF9yZXF1ZXN0KEZBSUwpOwogCX0KIH0K
-QEAgLTQyMiw3ICs0MjIsNyBAQAoJYmxrX3F1ZXVlX21heF9zZWN0b3JzKEJMS19ERUZBVUxUX1FV
-RVVFKE1BSk9SX05SKSwgMTI4KTsKIAogCWZvciAoaSA9IDA7IGkgPCBwczJlc2RpX2RyaXZlczsg
-aSsrKSB7Ci0JCXJlZ2lzdGVyX2Rpc2soJnBzMmVzZGlfZ2VuZGlzayxNS0RFVihNQUpPUl9OUixp
-PDw2KSwxPDw2LAorCQlyZWdpc3Rlcl9kaXNrKCZwczJlc2RpX2dlbmRpc2ssbWtfa2RldihNQUpP
-Ul9OUixpPDw2KSwxPDw2LAogCQkJCSZwczJlc2RpX2ZvcHMsCiAJCQkJcHMyZXNkaV9pbmZvW2ld
-LmhlYWQgKiBwczJlc2RpX2luZm9baV0uc2VjdCAqCiAJCQkJcHMyZXNkaV9pbmZvW2ldLmN5bCk7
-Cg==
+Wich is as I suggested should be done. The reason I attached that patch
+was just to show that this is an issue that I have had to deal with. And
+as I stated, I renamed the new driver since it has the new config option,
+and resides in the  drivers/scsi/sym53c8xx_2 subdirectory (and was a much
+quicker workaround). 
 
---Multipart_Fri__11_Jan_2002_23:31:07_+0300_083316d8--
+> 
+> In kernel 2.5, SYM53C8XX_2 will replace SYM53C8XX. I already agreed with
+> the proposal to remove the old driver version, and I suggested so
+> implicitely, obviously, by providing SYM53C8XX_2. I hope this will also
+> happen in 2.4 series, but probably a bit later.
+
+Why rename it later (in the 2.4 series) instead of now? The problems
+caused by a renaming would occur at that time as well as it would now.
+
+	Andreas
+ 
+>   Gérard.

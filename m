@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129492AbQKOVmx>; Wed, 15 Nov 2000 16:42:53 -0500
+	id <S129678AbQKOVpc>; Wed, 15 Nov 2000 16:45:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129891AbQKOVmm>; Wed, 15 Nov 2000 16:42:42 -0500
-Received: from tungsten.btinternet.com ([194.73.73.81]:55710 "EHLO
-	tungsten.btinternet.com") by vger.kernel.org with ESMTP
-	id <S129492AbQKOVmg>; Wed, 15 Nov 2000 16:42:36 -0500
-From: davej@suse.de
-Date: Wed, 15 Nov 2000 21:12:13 +0000 (GMT)
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: hpa@zytor.com
+	id <S129658AbQKOVpW>; Wed, 15 Nov 2000 16:45:22 -0500
+Received: from 13dyn206.delft.casema.net ([212.64.76.206]:44804 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129891AbQKOVpE>; Wed, 15 Nov 2000 16:45:04 -0500
+Message-Id: <200011152114.WAA06084@cave.bitwizard.nl>
 Subject: Re: test11-pre5, Athlon, and Machine Check Architecture
-Message-ID: <Pine.LNX.4.21.0011152107420.2791-100000@neo.local>
+In-Reply-To: <8uuqij$ejs$1@cesium.transmeta.com> from "H. Peter Anvin" at "Nov
+ 15, 2000 12:09:55 pm"
+To: "H. Peter Anvin" <hpa@zytor.com>
+Date: Wed, 15 Nov 2000 22:14:44 +0100 (MET)
+CC: linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H. Peter Anvin wrote:
+> crash; I don't expect anyone to actually see an #MF exception in real
+> life.  I'm trying to get confirmation from AMD that the code should
+> be correct even for Athlon.
 
-> However, since at least AMD Athlon actually advertises MCA, I would
-> like to verify that the code works on these processors before
-> submitting it to Linus.
+Peter, 
 
-The Athlon MCA is basically the same architecture-wise as Pentium Pro/II
-But there are some differences..  Until AMD make document 21656 (BIOS
-writers guide) public (or even a subset of it), we'll not be able to take
-advantage of these extra features.
+Would it be an idea to invite people to lower the voltage on their 
+CPUs a bit, to try and trigger #MF's?
 
-I'd suggest that until this happens, we leave bluesmoke.c Intel only.
+(I started thinking about slowly overclocking the CPUs, to try and
+trigger them, but that's not neccesary. At lower voltages, you'll also
+get errors, but shouldn't risk smoking your CPU.... )
 
-regards,
-
-Davej.
+				Roger. 
 
 -- 
-| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-| SuSE Labs
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+*       Common sense is the collection of                                *
+******  prejudices acquired by age eighteen.   -- Albert Einstein ********
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264910AbSKTXoF>; Wed, 20 Nov 2002 18:44:05 -0500
+	id <S264665AbSKUABA>; Wed, 20 Nov 2002 19:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264936AbSKTXnV>; Wed, 20 Nov 2002 18:43:21 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:14017 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S264910AbSKTXmp>; Wed, 20 Nov 2002 18:42:45 -0500
-Message-ID: <001701c290ef$8417f020$94d40a0a@amr.corp.intel.com>
-From: "Rusty Lynch" <rusty@linux.co.intel.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [Coding style question] XXX_register or register_XXX
-Date: Wed, 20 Nov 2002 15:49:50 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S264936AbSKUABA>; Wed, 20 Nov 2002 19:01:00 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:61874 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S264665AbSKUAA7>;
+	Wed, 20 Nov 2002 19:00:59 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 21 Nov 2002 01:07:25 +0100 (MET)
+Message-Id: <UTC200211210007.gAL07Pa07926.aeb@smtp.cwi.nl>
+To: linux-kernel@vger.kernel.org
+Subject: kill i_dev
+Cc: torvalds@transmeta.com, viro@math.psu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there an accepted standard on naming for registration functions?  If have
-a foo
-object that other things can register and unregister with, should the
-function names be:
+One disadvantage of enlarging the size of dev_t is
+that struct inode grows. Bad.
+We used to have i_dev and i_rdev; today i_rdev has split into
+i_rdev, i_bdev and i_cdev. Bad.
 
-int register_foo(&something);
-int unregister_foo(&something);
+It looks like these four fields can be replaced by a single one,
+making struct inode smaller. Not bad.
 
- - or -
+The first step would be to delete the field i_dev, and
+all assignments to it, and replace all remaining occurrences
+by i_sb->s_dev.
 
-int foo_register(&something);
-int foo_unregister(&something);
+Roughly speaking, the only use of this field is in the stat
+system call.
 
-    -rustyl
+Any objections?
+
+Andries
 

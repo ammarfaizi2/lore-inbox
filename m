@@ -1,79 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277299AbRJECPs>; Thu, 4 Oct 2001 22:15:48 -0400
+	id <S277301AbRJEDZM>; Thu, 4 Oct 2001 23:25:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277300AbRJECPh>; Thu, 4 Oct 2001 22:15:37 -0400
-Received: from imo-d07.mx.aol.com ([205.188.157.39]:63977 "EHLO
-	imo-d07.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S277299AbRJECP2>; Thu, 4 Oct 2001 22:15:28 -0400
-Date: Thu, 04 Oct 2001 22:14:29 EDT
-From: Telford002@aol.com
-Subject: PCI Device Setup Question
-To: <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Unknown (No Version)
-Message-ID: <66.154deb31.28ee7185@aol.com>
+	id <S277302AbRJEDZD>; Thu, 4 Oct 2001 23:25:03 -0400
+Received: from albatross-ext.wise.edt.ericsson.se ([194.237.142.116]:53913
+	"EHLO albatross-ext.wise.edt.ericsson.se") by vger.kernel.org
+	with ESMTP id <S277301AbRJEDYw>; Thu, 4 Oct 2001 23:24:52 -0400
+Date: Fri, 05 Oct 2001 11:27:04 +0800 (SGT)
+From: Gregory Hosler <gregory.hosler@eno.ericsson.se>
+Subject: kernel: svc: bad direction / kernel: svc: short len 4, dropping request
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: gregory.hosler@eno.ericsson.se
+Message-id: <XFMail.011005112704.gregory.hosler@eno.ericsson.se>
+Organization: Ericsson Telecommunications, Pte Ltd
+MIME-version: 1.0
+X-Mailer: XFMail 1.3 [p0] on Linux
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 8bit
+X-Priority: 3 (Normal)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I just joined the mailing list and have
-a quick question about the PCI Device Setup
-logic.  I apologize if this is not the right
-forum.
+I'm running Linux kernel 2.4.7, and I'm seeing the following in my syslog:
 
-I am writing a multifunction driver for the
-Aurora serial cards.  The driver supports 
-asynchronous TTYs, synchronous TTYs and a 
-sort of serial ethernet emulation as a network
-device.  A port may act either as a serial TTY
-or as a serial network device, and in fact if
-the system is set up for dial up networking,
-the synchronous serial network interface is
-first brought up by sending commands to the
-corresponding asynchronous call out device.
+Oct  5 09:13:44 camelot kernel: svc: short len 4, dropping request
+Oct  5 09:13:45 camelot kernel: svc: short len 4, dropping request
+Oct  5 09:13:46 camelot kernel: svc: bad direction 525795537, dropping request
+Oct  5 09:13:46 camelot kernel: svc: short len 4, dropping request
+Oct  5 09:13:47 camelot kernel: svc: short len 4, dropping request
+Oct  5 09:13:48 camelot kernel: svc: bad direction 525861077, dropping request
+Oct  5 09:13:48 camelot kernel: svc: bad direction 525927291, dropping request
+Oct  5 09:13:48 camelot kernel: svc: bad direction 525992033, dropping request
+Oct  5 09:13:48 camelot kernel: svc: bad direction 526057939, dropping request
+Oct  5 09:13:48 camelot kernel: svc: bad direction 526123899, dropping request
+Oct  5 09:13:48 camelot kernel: svc: short len 4, dropping request
+Oct  5 09:13:49 camelot kernel: svc: short len 4, dropping request
+Oct  5 09:13:49 camelot kernel: svc: bad direction 526189001, dropping request
+Oct  5 09:13:50 camelot kernel: svc: short len 4, dropping request
+Oct  5 09:13:50 camelot kernel: svc: bad direction 526254179, dropping request
 
-These cards have 4 or 8 synchronous/asynchronous 
-ports on each card which hosts either 1 sab82538 or 
-2 sab82532 serial interface chips.  These cards use 
-the PLX9050 PCI interface chip to communicate with 
-the PCI bus.  Aurora also supplies a PCI extender chassis so that one slot can support 7 of either 
-type of cards, i.e. up to 56 ports per slot.  The
-PCI extender chassis has two DC21150 PCI-PCI
-bridges.
+several (3 to 5) messages per second.
 
-The cards are never masters and do no support
-PCI PREFETCH and if PCI transactions are made
-to them that relate to PCI PREFETCH, they become
-confused and hang.  DC21150s try to be really
-smart about PREFETCH and push the PREFETCH related
-transactions to the limit and therefore drive the
-cards insane if any of the cards memory resources
-is prefetchable (the cards use base address 0 for
-PLX9050 registers and base address 2 for the 
-sab8253x registers).  The PCI bus driver allocates
-the sab8253x registers as prefetchable memory
-resources.  I see no comments in the changelogs
-indicating that anyone has run into the problem. 
-I intend to fix the problem but I would like to
-chat with someone that is knowledgeable about the
-subsystem first.  So I am curious if anyone on the
-list can point me toward someone who is "in charge"
-of this subsystem.
+I have tracked down these messages to coming out of:
 
-As a sort of secondary almost unrelated question,
-I am not sure whether I should treat the Aurora
-card driver as a network device driver or as a
-TTY driver in the kernel build tree.  I have created
-a special directory for it under the path 
-drivers/net/wan/8253x.
+        /usr/src/linux/net/sunrpc/svc.c
 
-Thanks in advance for any assistance!
+but I do not understand what's triggering them, or what to do about them.
 
-Joachim Martillo
+any suggestions, pointers, hints appreciated.
 
+thank you, and regards,
 
+-Greg
 
+----------------------------------
+E-Mail: Gregory Hosler <gregory.hosler@eno.ericsson.se>
+Date: 05-Oct-01
+Time: 11:23:35
+
+   You can release software that's good, software that's inexpensive, or
+   software that's available on time.  You can usually release software
+   that has 2 of these 3 attributes -- but not all 3.
+
+----------------------------------

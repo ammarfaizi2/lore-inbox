@@ -1,71 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVAaUMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVAaUQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbVAaUMk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 15:12:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVAaUMk
+	id S261338AbVAaUQL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 15:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVAaUQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 15:12:40 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:40581 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261338AbVAaUMg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 15:12:36 -0500
-Date: Mon, 31 Jan 2005 21:11:41 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Lorenzo =?iso-8859-1?Q?Hern=E1ndez_Garc=EDa-Hierro?= 
-	<lorenzo@gnu.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Valdis.Kletnieks@vt.edu,
-       Arjan van de Ven <arjan@infradead.org>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, netdev@oss.sgi.com,
-       Hank Leininger <hlein@progressive-comp.com>,
-       "David S. Miller" <davem@redhat.com>, linux@horizon.com
-Subject: Re: [PATCH] OpenBSD Networking-related randomization port
-Message-ID: <20050131201141.GA4879@elte.hu>
-References: <1106932637.3778.92.camel@localhost.localdomain> <20050128100229.5c0e4ea1@dxpl.pdx.osdl.net> <1106937110.3864.5.camel@localhost.localdomain> <20050128105217.1dc5ef42@dxpl.pdx.osdl.net> <1106944492.3864.30.camel@localhost.localdomain> <1106945266.7776.41.camel@laptopd505.fenrus.org> <200501290915.j0T9FkVY012948@turing-police.cc.vt.edu> <20050131165025.GN18316@stusta.de> <1107192218.3754.86.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1107192218.3754.86.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 31 Jan 2005 15:16:11 -0500
+Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:63673 "EHLO
+	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261338AbVAaUQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 15:16:04 -0500
+Message-ID: <41FE91D2.4000903@kolivas.org>
+Date: Tue, 01 Feb 2005 07:15:14 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Jack O'Quin" <joq@io.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Alexander Nyberg <alexn@dsv.su.se>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [PATCH] sched - Implement priority and fifo support for SCHED_ISO
+References: <41F76746.5050801@kolivas.org> <87acqpjuoy.fsf@sulphur.joq.us>
+In-Reply-To: <87acqpjuoy.fsf@sulphur.joq.us>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigEA8B3FDDC8E00059CD551DB0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigEA8B3FDDC8E00059CD551DB0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Lorenzo Hernández García-Hierro <lorenzo@gnu.org> wrote:
-
-> > At least the three clause BSD license is GPL compatible.
+Jack O'Quin wrote:
+> Con Kolivas <kernel@kolivas.org> writes:
 > 
-> Yes, AFAIK :)
 > 
-> I will try to follow Arjan's recommendations on using his functions
-> instead of obsd ones, even if I think it should be alone in the
-> current file. Also I will split up the patch.
+>>While it is not clear what form the final soft real time
+>>implementation is, we should complete the partial implementation of
+>>SCHED_ISO that is in 2.6.11-rc2-mm1.
+> 
+> 
+> I finally had a chance to try this today.  I applied a slightly
+> different patch (2.6.11-rc2-iso3.diff) on top of patch-2.6.11-rc2.  I
+> tried to use 2.6.11-rc2-mm2, but could not due to conflicts with other
+> scheduler updates.
+> 
+> It is not clear whether the realtime threads are running in the new
+> scheduler class.  Checking with schedtool yields odd results.
+> (Before, my old schedtool always said "POLICY I: SCHED_ISO".)
+> 
+> [joq@sulphur] jack_test/ $ pst jackd
+>  2173  2173 TS       -   0  19   0  0.0 SLs  rt_sigsuspend  jackd
+>  2174  2174 ?       21   0  60   0  0.0 SL   -              jackd
+>  2175  2175 TS       -   0  23   0  0.0 SL   rt_sigsuspend  jackd
+>  2176  2176 TS       -   0  23   0  0.0 SL   -              jackd
+>  2177  2177 ?       20   0  59   0  0.0 SL   syscall_call   jackd
+>  2178  2178 ?       10   0  49   0  1.7 SL   -              jackd
+> [joq@sulphur] jack_test/ $ schedtool 2174 2176 2177 2178
+> PID  2174: PRIO  21, POLICY (null)         , NICE  0
+> PID  2176: PRIO   0, POLICY N: SCHED_NORMAL, NICE  0
+> PID  2177: PRIO  20, POLICY (null)         , NICE  0
+> PID  2178: PRIO  10, POLICY (null)         , NICE  0
 
-could you please also react to this feedback:
+They're SCHED_ISO_FIFO which schedtool doesn't know about.
 
-  http://marc.theaimsgroup.com/?l=linux-kernel&m=110698371131630&w=2
+> The results of the first run indicate something is badly wrong.  It is
+> quite possible that I got confused and messed up the build somehow.
+> 
+>   http://www.joq.us/jack/benchmarks/sched-iso3/jack_test3-2.6.11-rc2-q1-200501311225.log
+>   http://www.joq.us/jack/benchmarks/sched-iso3/jack_test3-2.6.11-rc2-q1-200501311225.png
+> 
+> Loading the realtime-lsm and then running with SCHED_FIFO *does* work
+> as expected on this kernel.  I should retry the test with *exactly*
+> the expected patch sequence.  What would that be?
 
-to quote a couple of key points from that very detailed security
-analysis:
+Shouldn't matter. There must still be something wrong with my code... 
+sigh. I'll look into it at some stage, but there doesn't seem much point.
 
-" I'm not sure how the OpenBSD code is better in any way.  (Notice that
-  it uses the same "half_md4_transform" as Linux; you just added another
-  copy.) Is there a design note on how the design was chosen? "
+Cheers,
+Con
 
-that mail also includes a much smaller patch to random.c.
+--------------enigEA8B3FDDC8E00059CD551DB0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-( Obviously the more fundamental questions have to be solved prior
-solving code-level problems, patch splitup and patch ordering - often
-one ends up having a much smaller patch to work with, by thinking more
-about the fundamentals. )
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-	Ingo
+iD8DBQFB/pHSZUg7+tp6mRURAtx0AJ944tz2PLtSwYYCHgzX6KtHje4jJQCfUQxT
+JNrJ2/py6rR3h9eaDONp780=
+=VIev
+-----END PGP SIGNATURE-----
+
+--------------enigEA8B3FDDC8E00059CD551DB0--

@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316937AbSEWQN3>; Thu, 23 May 2002 12:13:29 -0400
+	id <S316939AbSEWQOW>; Thu, 23 May 2002 12:14:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316938AbSEWQN2>; Thu, 23 May 2002 12:13:28 -0400
-Received: from scfdns02.sc.intel.com ([143.183.152.26]:37096 "EHLO
-	crotus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S316937AbSEWQNZ>; Thu, 23 May 2002 12:13:25 -0400
-Message-Id: <200205231612.g4NGCTw28127@unix-os.sc.intel.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Mark Gross <mgross@unix-os.sc.intel.com>
-Reply-To: mgross@unix-os.sc.intel.com
-Organization: SSG Intel
-To: Daniel Jacobowitz <dmj+@andrew.cmu.edu>
-Subject: Re: PATCH Multithreaded core dumps for the 2.5.17 kernel  was ....RE: PATCH Multithreaded core dump support for the 2.5.14 (and 15) kernel.
-Date: Thu, 23 May 2002 09:12:05 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: "Gross, Mark" <mark.gross@intel.com>, "'Erich Focht'" <efocht@ess.nec.de>,
-        "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-        "'Robert Love'" <rml@tech9.net>,
-        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-        "Luck, Tony" <tony.luck@intel.com>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C057B489B@orsmsx111.jf.intel.com> <200205230009.g4N09Ow08254@unix-os.sc.intel.com> <20020522201218.B16554@crack.them.org>
+	id <S316940AbSEWQOV>; Thu, 23 May 2002 12:14:21 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:48629 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S316939AbSEWQOP>;
+	Thu, 23 May 2002 12:14:15 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15597.5462.306200.74695@napali.hpl.hp.com>
+Date: Thu, 23 May 2002 09:14:14 -0700
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ia64 code having CONFIG_X86_LOCAL_APIC
+In-Reply-To: <20020523185719.Z2518@in.ibm.com>
+X-Mailer: VM 7.03 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 May 2002 09:12 pm, Daniel Jacobowitz wrote:
-> > For Ia64 those down_writes are just a pain.  If a user application is
-> > crashing because someone is being rude with GDB corrupting its user pages
-> > then I don't think its worth the hassle of protecting the core dumped
-> > user page mm data from being messed up by a GDB user.
-> > 
-> > I would like to leave the down_write out of elf_core_dump, but it could
-> > be put back if its felt that its needed.
-> > 
-> > Opinions? Comments?
->
-> I'm not worried about the application crashing.  I'm worried about
-> oopsing if someone is poking at the mmap_sem while we are pretending to
-> have it.  If that is not a valid concern, there should at least be a
-> big red flag saying so.
+There is a simple reason for this: the goal is (or at least "was")
+that irq.c would eventually become platform-independent.  To prepare
+for this, I keep the ia64 version of irq.c as much in sync with the
+x86 version as possible (actually, I haven't check recently, so there
+may have been some divergence while I wasn't watching).  So, yes,
+there is some dead code in the ia64 version, but it does serve the
+purpose to minimize the differences with the x86 version.
 
-We are worried about the same thing :)  
-I can add a nice comment to binfmt_elf.c explaining why the current->mmap_sem 
-isn't taken in elf_core_dump.  
+	--david
 
-( I find comments for code that's not there a bit more confusing than 
-comments for code that is there.   I'll try to come up with something 
-meaningful as a comment to the lack of locking policy in elf_core_dump for my 
-next posting.)
+>>>>> On Thu, 23 May 2002 18:57:20 +0530, Ravikiran G Thirumalai <kiran@in.ibm.com> said:
 
-The only risk I can see of oopsing is if some of the user pages get taken 
-away while the core dump is progressing.  With the other processes in the 
-thread group suspended, not holding the  mmap_sem, I truly believe we are 
-good.
+  Ravikiran> Hi folks, linux-2.5.17/arch/ia64/kernel/irq.c has a
+  Ravikiran> #ifdef CONFIG_X86_LOCAL_APIC, but I dont see the config
+  Ravikiran> option in any ia64 config.in files.....  wondering if
+  Ravikiran> this is just some piece of code which will never be
+  Ravikiran> compiled...
 
-I'd like to avoid over locking where no clear need exists.  I understand that 
-this may be the more risky position to take, but I believe its the right 
-thing to do.  Especially on a development kernel.
+  Ravikiran> Also, linux-2.5.17/arch/ia64/kernel/irq.c prints
+  Ravikiran> apic_timer_irqs, and they don't seem to be defined for
+  Ravikiran> ia64.  The piece of code (irq.c) is also covered by
+  Ravikiran> #ifdef CONFIG_X86 wonder if the condition is ever
+  Ravikiran> true.....
 
---mgross
+  Ravikiran> Pls let me know what I am missing
+
+  Ravikiran> disclaimer: I don't know much about ia64
+
+  Ravikiran> Kiran
+
+  Ravikiran> - To unsubscribe from this list: send the line
+  Ravikiran> "unsubscribe linux-kernel" in the body of a message to
+  Ravikiran> majordomo@vger.kernel.org More majordomo info at
+  Ravikiran> http://vger.kernel.org/majordomo-info.html Please read
+  Ravikiran> the FAQ at http://www.tux.org/lkml/
+
+--
+Interested in learning more about IA-64 Linux?  Try http://www.lia64.org/book/

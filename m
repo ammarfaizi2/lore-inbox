@@ -1,74 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271412AbTHHOpS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 10:45:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271414AbTHHOpS
+	id S271388AbTHHOwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 10:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271389AbTHHOwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 10:45:18 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54765 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S271412AbTHHOoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 10:44:17 -0400
-Date: Fri, 8 Aug 2003 16:44:08 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Surprising Kconfig depends semantics
-Message-ID: <20030808144408.GX16091@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 8 Aug 2003 10:52:09 -0400
+Received: from proibm3.portoweb.com.br ([200.248.222.108]:53915 "EHLO
+	portoweb.com.br") by vger.kernel.org with ESMTP id S271388AbTHHOv6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 10:51:58 -0400
+Date: Fri, 8 Aug 2003 11:54:39 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@logos.cnet
+To: Stephan von Krawczynski <skraw@ithnet.com>
+cc: Andrew Morton <akpm@osdl.org>, <andrea@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
+In-Reply-To: <20030808002918.723abb08.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.44.0308081151330.8204-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roman,
-
-I traced some unresolved symbol problems in 2.6.0-test2-mm5 down to the 
-following:
-
-drivers/input/keyboard/Kconfig contains the following:
-
-config KEYBOARD_ATKBD
-        tristate "AT keyboard support" if EMBEDDED || !X86 
-        default y
-        depends on INPUT && INPUT_KEYBOARD && SERIO
 
 
-The .config includes:
-  # CONFIG_EMBEDDED is not set
-  CONFIG_X86=y
-  CONFIG_INPUT=y
-  CONFIG_INPUT_KEYBOARD=y
-  CONFIG_SERIO=m
+On Fri, 8 Aug 2003, Stephan von Krawczynski wrote:
 
-Kconfig sets
-  CONFIG_KEYBOARD_ATKBD=y
+> On Thu, 7 Aug 2003 14:49:17 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+> > >
+> > >  Anyway, you seem to be getting random memory corruption and I have no idea
+> > >  
+> > >  what the hell maybe causing it.
+> > > 
+> > >  Andrea? Andrew? Alan? _Any_ helpful comments?  
+> > 
+> > Not really, sorry.  Ugly.
+> > 
+> > What was the last kernel which didn't crash?
+> > 
+> > You're showing a huge set of reiserfs diffs there, mostly cosmetic though.
+> > 
+> > Running memtest86 for 12 hours is needed.
+> > 
+> > Going back to the last-known-kernel would be useful, just to verify that
+> > the hardware is still good (some connector could have become resistive, or
+> > the power supply could have drifted, etc).
+> > 
+> > Would it be possible to try a different filesystem on that box?
+> > 
+> > Do we know of other people who are using late 2.4 kernels on server-grade
+> > hardware?  If so, are they doing OK?
+> 
+> I can give you this additional info:
+> I tried about everything back to 2.4.21 release, and even this crashes on the
+> box. BUT it is _not_ the only box I can crash 2.4.21. I have another hardware
+> (also SMP) based not on Serverworks but on VIA chipset and with no 64 bit pci
+> and it crashes with 2.4.21 around every 10 - 20 days. It definitely does not
+> with 2.4.19. 
 
-CONFIG_SERIO=m with CONFIG_KEYBOARD_ATKBD=y shouldn't be a valid 
-combination.
+Do you have any traces of the other box crash? 
 
-The correct solution is most likely a
-	default y if INPUT=y && INPUT_KEYBOARD=y && SERIO=y
-	default m if INPUT!=n && INPUT_KEYBOARD!=n && SERIO!=n
+> The only requirement for my usual test-box is a working tg3 driver for the GBit
+> ethernet link.
 
+> Ah yes, and from the long series of tests I can tell that the box won't crash
+> with UP kernel. I can re-check that with rc1 if this is useful.
 
-The semantics that in
-
-config FOO
-	tristate
-	default y if BAR
-
-FOO will be set to y if BAR=m is a bit surprising.
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Okey. Thats useful information. How hard would it be for you to try ext3 
+as the filesystem (as Andrew suggested) ? 
 

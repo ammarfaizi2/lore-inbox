@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268342AbUJJQql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268344AbUJJRAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268342AbUJJQql (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 12:46:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268344AbUJJQql
+	id S268344AbUJJRAl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 13:00:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268346AbUJJRAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 12:46:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51895 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268342AbUJJQqk (ORCPT
+	Sun, 10 Oct 2004 13:00:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60044 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268344AbUJJRAj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 12:46:40 -0400
-Date: Sun, 10 Oct 2004 12:46:38 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Sam Hocevar <sam@zoy.org>
-cc: "Yoshinori K. Okuji" <okuji@gnu.org>, <linux-kernel@vger.kernel.org>,
-       <videolan@videolan.org>
-Subject: Re: possible GPL violation by Free
-In-Reply-To: <20041010162304.GA12933@zoy.org>
-Message-ID: <Pine.LNX.4.44.0410101246000.28406-100000@chimarrao.boston.redhat.com>
+	Sun, 10 Oct 2004 13:00:39 -0400
+Date: Sun, 10 Oct 2004 10:00:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Li, Shaohua" <shaohua.li@intel.com>
+cc: CaT <cat@zip.com.au>, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: RE: promise controller resource alloc problems with ~2.6.8
+In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD305754575A3@pdsmsx402.ccr.corp.intel.com>
+Message-ID: <Pine.LNX.4.58.0410100955120.3897@ppc970.osdl.org>
+References: <16A54BF5D6E14E4D916CE26C9AD305754575A3@pdsmsx402.ccr.corp.intel.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Oct 2004, Sam Hocevar wrote:
-
-> > This leaves Free with 2 options:
-
->    I know the GPL and I know they don't appear to be doing any of these
-> two things. However it might be hidden in some obscure agreement between
-> Free and the user, renounced upon in such an agreement (which would
-> violate the GPL, like QuakeLives did) or indeed not be there at all. And
-> the only people who can verify this are the Freebox users.
-
-Even if the Freebox users were to renounce their own
-rights under the GPL, I do not see how they could
-renounce OUR rights for us ...
 
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+On Sun, 10 Oct 2004, Li, Shaohua wrote:
 
+> >On Thu, Sep 30, 2004 at 04:56:21PM -0700, Linus Torvalds wrote:
+> >> Now, the reason for using "insert_resource()" in arch/i386/pci/i386.c
+> >> should go away with Shaohua Li's patch, so I'd love to hear if
+> applying
+> >> Li's patch _and_ making the "insert_resource()" be a
+> "request_resource()"
+> >> fixes the problem for you.
+> >
+> >You meant this, right?
+> >
+> >if (!pr || insert_resource(pr, r) < 0)
+> >	printk(KERN_ERR "PCI: Cannot allocate resource region %d of bridge
+>  
+> ^^^^^^^^^
+> >%s\n", idx, pci_name(dev));
+> I go through the thread again and I guess you changed the wrong place. 
+
+Ahh.. Yes. I was confused, because there is only one "insert_region()" 
+ain arch/i386/pci/i386.c, so I just automatically assumed CaT changed that 
+one without looking at the details.
+
+So if CaT changed the "request_resource()" in to an "insert_resource()"
+in pcibios_allocate_bus_resources(), then that explains the impossible
+dmesg.
+
+Cat: change that one back, and the function to look at is
+"pcibios_allocate_resources()" (almost the same name, but no "bus" in it),
+which has a "insert_resource()" in it. That "insert_resource()" should be
+a "request_resource()" (and for you it won't matter, but other people will
+likely want to additionally apply Shaohua's patch to put in ACPI resources
+last).
+
+Hope this clears it all up. Knock wood.
+
+		Linus

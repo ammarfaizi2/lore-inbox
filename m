@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276021AbRJ2Pkz>; Mon, 29 Oct 2001 10:40:55 -0500
+	id <S275994AbRJ2Ppp>; Mon, 29 Oct 2001 10:45:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276032AbRJ2Pkf>; Mon, 29 Oct 2001 10:40:35 -0500
-Received: from pl038.nas921.ichikawa.nttpc.ne.jp ([210.165.234.38]:13329 "EHLO
-	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S275990AbRJ2PkZ>;
-	Mon, 29 Oct 2001 10:40:25 -0500
-Date: Tue, 30 Oct 2001 00:39:09 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
+	id <S275990AbRJ2Ppf>; Mon, 29 Oct 2001 10:45:35 -0500
+Received: from f22.law14.hotmail.com ([64.4.21.22]:56079 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S275994AbRJ2PpV>;
+	Mon, 29 Oct 2001 10:45:21 -0500
+X-Originating-IP: [194.237.243.239]
+From: "John Nilsson" <pzycrow@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.2.0-preXX compile errors solved
-Message-Id: <20011030003909.5f60fbd9.bruce@ask.ne.jp>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.8; i686-pc-linux-gnu)
+Subject: Writing a driver for a pci busmaster ide controller, need tutoring.
+Date: Mon, 29 Oct 2001 16:45:52 +0100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+Message-ID: <F22YVWTE5XNKlXyC08X00015176@hotmail.com>
+X-OriginalArrivalTime: 29 Oct 2001 15:45:52.0908 (UTC) FILETIME=[CA5304C0:01C16090]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is probably one of those RTFM and FAQ mails, but I'm desperate.
 
-I was getting compile errors for 2.2.20-pre11 on a Slackware 3.6 box. Since the
-errors involved undefined symbols and unmatched struct definitions, I made the
-silly assumption that I was missing a header file somewhere.
+I have just recived the register specs for a chip called piccolo_s, this is 
+a bus master ide controller found it some older toshiba laptops.
+As this is my first atempt to write a driver I find my self not really 
+having the knowhow to do this. And it is extremely hard to find good 
+tutorials on the subject =)
+So please if anyone find the time and motivation, would you write me one?
+Mabey not but if you were to send me all you know on this topic I might be 
+able to puzzle the bits and pieces together and write this driver.
+It would be easier for me to just let one of you guys write this driver, but 
+if noone is in any hurry I would find this a great learning experience, and 
+fun to ;)
 
-After looking at it a bit more carefully and repatching, I finally noticed that
-patch was failing partway through... :(
+I've found one good documet, "PCI Managment in Linux 2.2 by Alan Cox", but I 
+feel this isn't enough. Alan? would you please give me some pointers?
 
-The problem goes back to 2.2.20-pre4, where the following appears in the section
-of the patch relating to arch/ppc/kernel/openpic.c:
+My experience is not great, I can find my way arond C. I have some basic 
+knowlege of how a computer works (apparantly not enough), but I acctually do 
+not know what this driver is supposed to do, other than setting som 
+registers.
+Also is there a way to use /proc to find devices that don't have a driver? 
+Or is it just not there?
+/John Nilsson
+If you dont feel like sending me private mails, pleas CC me :)
 
--#endif /* CONFIG_PMAC_PBOOK */
-\ No newline at end of file    
-+#endif /* CONFIG_PMAC_PBOOK */
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 
-It would appear that later versions of diff output the "\ No newline..." line
-when they find a file that has, surprise surprise, no newline at the end.
-What I failed to realise was that older versions of patch (in my case, 2.1b)
-choke on this kind of thing with a malformed patch error. I tried a later
-version (2.5), which copes with it quite happily.
-
-While I realise that the answer will most likely be "Upgrade your userland!", it
-might be a good idea to consider filtering these lines out for the 2.2 series,
-since it's more likely to be run on older boxes.
-
-Bruce

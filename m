@@ -1,25 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317007AbSGLUhg>; Fri, 12 Jul 2002 16:37:36 -0400
+	id <S316849AbSGLUgU>; Fri, 12 Jul 2002 16:36:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317959AbSGLUhe>; Fri, 12 Jul 2002 16:37:34 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:42734 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S317007AbSGLUhB>;
-	Fri, 12 Jul 2002 16:37:01 -0400
-Date: Fri, 12 Jul 2002 13:39:49 -0700
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200207122039.g6CKdnV3004060@napali.hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Subject: MAP_NORESERVE with MAP_SHARED
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-to: davidm@hpl.hp.com
+	id <S317007AbSGLUgT>; Fri, 12 Jul 2002 16:36:19 -0400
+Received: from pD9E235D3.dip.t-dialin.net ([217.226.53.211]:43654 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316849AbSGLUgS>; Fri, 12 Jul 2002 16:36:18 -0400
+Date: Fri, 12 Jul 2002 14:38:09 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Joerg Schilling <schilling@fokus.gmd.de>, <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE/ATAPI in 2.5
+In-Reply-To: <Pine.LNX.4.44.0207121356130.3421-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.44.0207121436420.3421-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a good reason why the MAP_NORESERVE flag is ignored when
-MAP_SHARED is specified?  (Hint: it's the call to vm_enough_memory()
-in shmem_file_setup() that's causing MAP_NORESERVE to be ignored.)
+Hi,
 
-	--david
---
-Interested in learning more about IA-64 Linux?  Try http://www.lia64.org/book/
+BTW, a famous quote about this issue (accessing IDE devices over a SCSI 
+layer):
+
+> Hardware is different.
+> You can paint a goose yellow and call it a duck, but it is still a goose.
+> The electrical/electronic interface will kill you!
+						-- Andre Hedrick
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

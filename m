@@ -1,71 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129103AbQJaSMD>; Tue, 31 Oct 2000 13:12:03 -0500
+	id <S130316AbQJaSMx>; Tue, 31 Oct 2000 13:12:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbQJaSLx>; Tue, 31 Oct 2000 13:11:53 -0500
-Received: from atol.icm.edu.pl ([212.87.0.35]:40973 "EHLO atol.icm.edu.pl")
-	by vger.kernel.org with ESMTP id <S129103AbQJaSLj>;
-	Tue, 31 Oct 2000 13:11:39 -0500
-Date: Tue, 31 Oct 2000 19:11:23 +0100
-From: Rafal Maszkowski <rzm@icm.edu.pl>
-To: davem@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: test10-pre7 on Sparc
-Message-ID: <20001031191123.A9831@burza.icm.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.1i
+	id <S130235AbQJaSMe>; Tue, 31 Oct 2000 13:12:34 -0500
+Received: from gromco.com ([209.10.98.91]:11072 "HELO gromco.com")
+	by vger.kernel.org with SMTP id <S130312AbQJaSMW>;
+	Tue, 31 Oct 2000 13:12:22 -0500
+Message-ID: <39FF0A71.FE05FAEB@gromco.com>
+Date: Tue, 31 Oct 2000 13:07:45 -0500
+From: Vladislav Malyshkin <mal@gromco.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Peter Samuelson <peter@cadcamlab.org>, R.E.Wolff@BitWizard.nl,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: test10-pre7
+In-Reply-To: <39FEF039.69FAFDB2@gromco.com> <14846.63285.212616.574188@wire.cadcamlab.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to run 2.4 kernel to have up to date ATM on SPARCstation 10,
-possibly with 2 CPUs. Did not succeed to boot neither Linus nor CVS version
-recently.  Compilation of 2.4.0.10.7:
+Also, the function remove_duplicates can be written using make rules and
+functions.
+Using functions "foreach" "if" from make and comparison you can easily
+build
+a function remove_duplicates in make, no shell involved.
+so instead of $(sort) your will have $(remove_duplicates)
+written entirely in make.
+Vladislav
 
-binfmt_elf.c: In function `create_elf_tables':
-binfmt_elf.c:166: `CLOCKS_PER_SEC' undeclared (first use in this function)
-binfmt_elf.c:166: (Each undeclared identifier is reported only once
-binfmt_elf.c:166: for each function it appears in.)
-make[2]: *** [binfmt_elf.o] Error 1
+Peter Samuelson wrote:
 
-missing
+> [Vladislav Malyshkin <mal@gromco.com>]
+> > You can easily remove duplicates in object files without sorting.
+> > You can just use a shell written function.
+>
+> This is true.  That was something I forgot to mention.  I have looked
+> at that as well, and it strikes me as even more of a hack than the
+> solutions I mentioned: it is yet another external shell process for
+> each invocation of Rules.make (ie each directory).  As I said before,
+> though, one man's hack is another man's clean design, so whatever.
+>
+> Your function is rather long; try this one instead (untested):
+>
+>   remove_duplicates () {
+>     str='';
+>     for i; do
+>       case "$str " in *" $i "*) ;; *) str="$str $i" ;; esac
+>     done
+>     echo "$str"
+>   }
+>
+> I still think anything outside the makefiles that's needed to organize
+> the build process is a hack.  That includes scripts/pathdown.sh (yes, I
+> do have a scheme to get rid of it) and 2.2.18 scripts/kwhich (yes, I
+> did propose a working alternative).  It doesn't include scripts/mkdep.c
+> (which must do a lot of work as efficiently as possible),
+> scripts/Configure et al (which are really standalone programs), or
+> scripts/split-include.c (which is really a continuation of Configure).
+>
+> Peter
 
-#ifdef __KERNEL__
-# define CLOCKS_PER_SEC 100     /* frequency at which times() counts */
-#endif
-
-in include/asm-sparc/param.h
-
-
-gcc -D__KERNEL__ -I/usr/src/6/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -m32 -pipe -
-mno-fpu -fcall-used-g5 -fcall-used-g7    -c -o ip_forward.o ip_forward.c
-ip_forward.c: In function `ip_forward':
-ip_forward.c:139: `NET_RX_BAD' undeclared (first use in this function)
-ip_forward.c:139: (Each undeclared identifier is reported only once
-ip_forward.c:139: for each function it appears in.)
-make[3]: *** [ip_forward.o] Error 1
-
-I changed it to -EINVAL, should not disturb booting even if it is wrong
-
-
-Booting non-SMP version on single CPU, more less:
-
-bootmem_init...
-free_...
-reserve_...
-Booting Linux
-
-Watchdog Reset
-
-ok _
-
-
-I can collect the messages thru a serial console if the details are important.
-
-R.
--- 
-W iskier krzesaniu ¿ywem/Materia³ to rzecz g³ówna
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

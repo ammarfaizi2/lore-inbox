@@ -1,53 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbTFKXC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 19:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbTFKXC4
+	id S264540AbTFKXH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 19:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbTFKXH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 19:02:56 -0400
-Received: from pat.uio.no ([129.240.130.16]:10483 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264537AbTFKXCz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 19:02:55 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Jun 2003 19:07:58 -0400
+Received: from werbeagentur-aufwind.com ([217.160.128.76]:44449 "EHLO
+	mail.werbeagentur-aufwind.com") by vger.kernel.org with ESMTP
+	id S264540AbTFKXH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 19:07:56 -0400
+Subject: Re: ext[23]/lilo/2.5.{68,69,70} -- IDE Problem?
+From: Christophe Saout <christophe@saout.de>
+To: Andy Pfiffer <andyp@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1055369326.1158.252.camel@andyp.pdx.osdl.net>
+References: <1052507057.15923.31.camel@andyp.pdx.osdl.net>
+	 <1052510656.6334.8.camel@chtephan.cs.pocnet.net>
+	 <1052513725.15923.45.camel@andyp.pdx.osdl.net>
+	 <1055369326.1158.252.camel@andyp.pdx.osdl.net>
+Content-Type: text/plain
+Message-Id: <1055373692.16483.8.camel@chtephan.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 12 Jun 2003 01:21:32 +0200
 Content-Transfer-Encoding: 7bit
-Message-ID: <16103.47167.69772.316938@charged.uio.no>
-Date: Thu, 12 Jun 2003 01:16:15 +0200
-To: Frank Cusack <fcusack@fcusack.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode number mismatch)
-In-Reply-To: <20030611152436.A3241@google.com>
-References: <Pine.LNX.4.44.0306110929260.1653-100000@home.transmeta.com>
-	<1055352127.2419.25.camel@dhcp22.swansea.linux.org.uk>
-	<16103.26865.361044.360120@charged.uio.no>
-	<16103.29804.198545.680701@charged.uio.no>
-	<20030611152436.A3241@google.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Frank Cusack <fcusack@fcusack.com> writes:
+Am Don, 2003-06-12 um 00.08 schrieb Andy Pfiffer:
+> On Fri, 2003-05-09 at 13:55, Andy Pfiffer wrote:
+> > On Fri, 2003-05-09 at 13:04, Christophe Saout wrote:
+> > > Am Fre, 2003-05-09 um 21.04 schrieb Andy Pfiffer:
+> > > 
+> > > > [...]
+> > > >  I had an unrelated
+> > > > delay in posting this due to some strange behavior of late with LILO and
+> > > > my ext3-mounted /boot partition (/sbin/lilo would say that it updated,
+> > > > but a subsequent reboot would not include my new kernel)
+> > > 
+> > > So I'm not the only one having this problem... I think I first saw this
+> > > with 2.5.68 but I'm not sure.
+> > 
+> > Well, that makes two of us for sure.
+> > 
+> > > 
+> > > My boot partition is a small ext3 partition on a lvm2 volume accessed
+> > > over device-mapper (I've written a lilo patch for that, but the patch is
+> > > working and) but I don't think that has something to do with the
+> > > problem.
+> > > 
+> > > When syncing, unmounting and waiting some time after running lilo, the
+> > > changes sometimes seem correctly written to disk, I don't know when
+> > > exactly.
+> > 
+> > My /boot is an ext3 partition on an IDE disk.  My symptoms and your
+> > symptoms match -- wait awhile, and it works okay.  If you don't wait
+> > "long enough" the changes made in /etc/lilo.conf are not reflected in
+> > the after running /sbin/lilo and rebooting normally.
+> > 
+> > I have been unable to reproduce this on a uniproc system with SCSI
+> > disks.
+> > 
+> > 2.5.67 seems to work in this regard as expected.
+> > 
+> > > Could it be that the location of /boot/map is not written to the
+> > > partition sector of /dev/hda? Or not flushed correctly or something?
+> > > 
+> > > After reboot the old kernel came up again (though it was moved to
+> > > vmlinuz.old).
+> > 
+> > I don't know -- I haven't isolated it yet.
+> > 
+> > Anyone else?
+> 
+> I have taken another look at this, and can confirm the following:
+> 
+> 1. 2.5.67 works as expected.
+> 2. 2.5.68, 2.5.69, and 2.5.70 do not.
+> 3. ext2 vs. ext3 for /boot: no effect (ie, .68, .69, .70 demonstrate the
+> problem independent of the filesystem used for /boot).
 
-     > On Wed, Jun 11, 2003 at 08:26:52PM +0200, Trond Myklebust
-     > wrote:
-    >> diff -u --recursive --new-file linux-2.4.21-rc6/fs/namei.c
-    >> linux/fs/namei.c
-    >> --- linux-2.4.21-rc6/fs/namei.c 2002-12-30 09:39:54.000000000
-    >>     -0800
-    >> +++ linux/fs/namei.c 2003-06-11 11:16:49.000000000 -0700
-    >> @@ -633,7 +633,8 @@
-    >> * Check the cached dentry for staleness.
-    >> */ dentry = nd->dentry;
-    >> - if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
+I found out that flushb /dev/<boot_device> helps, syncing doesn't. Not
+100% sure if that's right, because right now I'm always doing both, but
+I remember having only synced before and that didn't help.
 
-     > Doesn't the above simply always revalidate?
+> Relative to a 2.5.68 pure BK tree, the deltas from 2.5.67 to 2.5.68 are:
+> 1.971.76.10	/* 2.5.67 */
+> 1.1124		/* 2.5.68 */
+> 
+> The patch exported by BK between these 2 revs is 297K lines ( a sizeable
+> haystack ).  Any ideas about where I should dig for my needle first
+> would be welcomed...
 
-That's the whole problem in a nutshell. Read the thread...
+There don't seem to be too much changes in /drivers/block or /fs, mostly
+cleanups. I personally have no idea where to start, except trying out
+each -bk version inbetween. Hmmm. And I'm not going to do that now...
+:-/
 
-Cheers,
-  Trond
+-- 
+Christophe Saout <christophe@saout.de>
+

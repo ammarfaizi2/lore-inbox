@@ -1,79 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277044AbRJDAfu>; Wed, 3 Oct 2001 20:35:50 -0400
+	id <S277046AbRJDAiV>; Wed, 3 Oct 2001 20:38:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277046AbRJDAfl>; Wed, 3 Oct 2001 20:35:41 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:28421 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S277044AbRJDAfd>; Wed, 3 Oct 2001 20:35:33 -0400
-Date: Wed, 3 Oct 2001 20:36:01 -0400
-Message-Id: <200110040036.f940a1I08480@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel changes
-X-Newsgroups: linux.dev.kernel
-In-Reply-To: <07f901c148b8$720a6230$1a01a8c0@allyourbase>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
+	id <S277049AbRJDAiL>; Wed, 3 Oct 2001 20:38:11 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:5892 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S277046AbRJDAh5>;
+	Wed, 3 Oct 2001 20:37:57 -0400
+Date: Wed, 3 Oct 2001 21:38:07 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Rob Landley <landley@trommello.org>
+Cc: Alexander Viro <viro@math.psu.edu>, Christoph Hellwig <hch@ns.caldera.de>,
+        <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Whining about 2.5 (was Re: [PATCH] Re: bug? in using generic
+ read/write functions to read/write block devices in 2.4.11-pre2)
+In-Reply-To: <01100315551100.00728@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33L.0110032134320.4835-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <07f901c148b8$720a6230$1a01a8c0@allyourbase> dmaas@dcine.com wrote:
-| > The answer is to treat all linus/ac/aa/... kernels as development
-| > kernels.  Don't treat anything as stable until it's been through
-| > a real QA cycle.
-| 
-| I definitely have to second what you guys are saying here... 2.2.x is the
-| stable kernel series, 2.4.x is for caffeine-fueled developers who read the
-| LKML at least once every day...
+On Wed, 3 Oct 2001, Rob Landley wrote:
 
-  Not really. I have found that 2.4 kernels are usefully stable if you
-pick them carefully.
+> (Oh, and what's the deal with "classzones"?  Linus told Andrea
+> classzones were a dumb idea, and we'd regret it when we tried to
+> inflict NUMA architecture on 2.5, but then went with Andrea's VM
+> anyway, which I thought was based on classzones...  Was that ever
+> resolved?  What the problem avoided?  What IS a classzone, anyway?
+> I'd be happy to RTFM, if anybody could tell me where TF the M is
+> hiding...)
 
-| e.g. I consider it extremely embarrassing that fundamental drivers like
-| aic7xxx, emu10k1, tulip, etc. are breaking regularly in the mainline
-| kernels. I haven't had any trouble with things like this in Windows for
-| several years now... Sure the Windows drivers are probably a few percent
-| slower, but as Nathan Myers once wrote, "It is meaningless to compare the
-| efficiency of a running system against one which might have done some
-| operations faster if it had not crashed."
+Classzones used to be a superset of the memory zones, so
+if you have memory zones A, B and C you'd have classzone
+Ac consisting of memory zone A, classzone Bc = {A + B}
+and Cc = {A + B + C}.
 
-  Again, given the choice of the o/s failing every few months or not
-using your hardware, where do you go? I haven't found a 2.2 kernel which
-like running multiple NICs at 85% of max most of the time, while several
-of the 2.4.kernels, most recently 2.4.6 will.
+This gives obvious problems for NUMA, suppose you have 4
+nodes with zones 1A, 1B, 1C, 2A, 2B, 2C, 3A, 3B, 3C, 4A,
+4B and 4C.  Putting together classzones for these isn't
+quite obvious and memory balancing will be complex ;)
 
-| I think we all owe major thanks to Alan Cox, who does his best to keep the
-| house in order amidst the chaos of kernel development (kudos to Mr. Cox for
-| holding on to Rik's VM design long enough for it to stabilize!). If anything
-| I wish there were a third primary maintainer who would take an even more
-| conservative stance, hanging maybe 2 minor versions behind Linus and -ac,
-| and only picking up changes that have been tested widely. Hmm, the people
-| working on distro kernels are probably just about doing this already...
-| Maybe if they could combine efforts somehow?
+Of course, nobody knows the exact definitions of classzones
+in the new 2.4 VM since it's completely undocumented; lets
+hope Andrea will document his code or we'll see a repeat of
+the development chaos we had with the 2.2 VM...
 
-  A quick look at the c.o.l.development.system will show I said ages ago
-that we should QA "stable" kernel releases before sending them out. I
-offered to set up a group to do that for each release candidate, but
-there was no interest.
+cheers,
 
-  The VM work is really needed, but I wish the development was in "pre"
-kernels, not releases. I've been playing while on vacation, and
-2.4.9-ac14 looks much better, 2.4.9-ac16 has minor problems on a machine
-I won't see until I "get back to work," and I haven't deceded if I want
-to try 2.4.9-ac18 or not. Sadly, horror stories on 2.4.10 have suggested
-that I let others try that.
-
-  Given the load of totally new VM stuff dropped in, I admit I'd like to
-see useful stuff which only takes effect if configured (the so-called
-Athlon patch) in the kernel, since many systems simply will not run an
-Athlon kernel without it. I only wish the preempt was being pushed as
-hard as VM, it looks really good on loaded machines.
-
-  Perhaps it's time for 2.5 indeed.
-
+Rik
 -- 
-bill davidsen <davidsen@tmr.com>
- "If I were a diplomat, in the best case I'd go hungry.  In the worst
-  case, people would die."
-		-- Robert Lipe
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

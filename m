@@ -1,48 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130811AbQKANk2>; Wed, 1 Nov 2000 08:40:28 -0500
+	id <S130723AbQKANsb>; Wed, 1 Nov 2000 08:48:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130762AbQKANkT>; Wed, 1 Nov 2000 08:40:19 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:58386 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130809AbQKANjs>; Wed, 1 Nov 2000 08:39:48 -0500
-Date: Wed, 1 Nov 2000 09:41:04 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Yann Dirson <ydirson@altern.org>
-cc: linux-kernel@vger.kernel.org, riel@nl.linux.org, andrea@e-mind.com
-Subject: Re: Looking for better 2.2-based VM (do_try_to_free_pages fails,
- machine hangs)
-In-Reply-To: <20001101133307.A10265@bylbo.nowhere.earth>
-Message-ID: <Pine.LNX.4.21.0011010940450.2774-100000@freak.distro.conectiva>
+	id <S130761AbQKANsV>; Wed, 1 Nov 2000 08:48:21 -0500
+Received: from [212.115.175.146] ([212.115.175.146]:58874 "EHLO
+	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
+	id <S130730AbQKANsM>; Wed, 1 Nov 2000 08:48:12 -0500
+Message-ID: <27525795B28BD311B28D00500481B7601623A0@ftrs1.intranet.FTR.NL>
+From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+To: "'Linux Kernel Development'" <linux-kernel@vger.kernel.org>
+Subject: fork in module?
+Date: Wed, 1 Nov 2000 14:51:38 +0100 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 1 Nov 2000, Yann Dirson wrote:
-
-> Hi,
-> 
-> Using a 2.2.17 kernel I often experience problems where I get messages like
-> "VM: do_try_to_free_pages failed for <some process>", and the machine hangs
-> until the VM can recover, which sometimes takes too long for me to wait.  I
-> suppose that the problem is similar sometimes when I get a frozen system
-> under X, but can't see the kernel messages then.
-> 
-> Yesterday I could reproduce this at will, with a "make -j50" on 2.2.17
-> sources (as unpriviledged user).  In less than half an our syslogd stopped
-> to log anything (at 00:38), and this morning I could only see those messages
-> trying to free pages for (or from ?) wwwoffled.  Last load see by "top" on
-> another VC was ~74.
-> 
-> Have some work been done for 2.2.18 that could help me ?  Are there some
-> 2.2-based VM patches that could help (I found the VM-global patch from
-> Andrea but have no info about what it is
-
-VM-global It should fix your problem. 
-
+what would be the way of starting a sub-process in a module which then would
+run in the background? I guess plain fork() won't work?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269069AbUHaTqM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267263AbUHaTqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269069AbUHaTqM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 15:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUHaTqL
+	id S267263AbUHaTqy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 15:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269072AbUHaTqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 15:46:11 -0400
-Received: from pD9E0ED8C.dip.t-dialin.net ([217.224.237.140]:36996 "EHLO
-	undata.org") by vger.kernel.org with ESMTP id S269062AbUHaTpd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 15:45:33 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
-From: Thomas Charbonnel <thomas@undata.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>, Daniel Schmitt <pnambic@unu.nu>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@raytheon.com
-In-Reply-To: <20040831193029.GA29912@elte.hu>
-References: <1093727453.8611.71.camel@krustophenia.net>
-	 <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net>
-	 <1093737080.1385.2.camel@krustophenia.net>
-	 <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu>
-	 <20040830090608.GA25443@elte.hu> <1093875939.5534.9.camel@localhost>
-	 <20040830180011.GA7419@elte.hu> <1093980227.8005.14.camel@localhost>
-	 <20040831193029.GA29912@elte.hu>
-Content-Type: text/plain
-Message-Id: <1093981507.8005.20.camel@localhost>
+	Tue, 31 Aug 2004 15:46:39 -0400
+Received: from mini.brewt.org ([64.180.111.212]:58378 "HELO mini.brewt.org")
+	by vger.kernel.org with SMTP id S268965AbUHaToU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 15:44:20 -0400
+Date: Tue, 31 Aug 2004 12:44:08 -0700
+From: "Adrian Yee" <brewt-linux-kernel@brewt.org>
+Subject: Re: HDD LED doesn't light.
+To: Eric Mudama <edmudama@gmail.com>
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <GMail.1093981448.21536945.017857081112@brewt.org>
+In-Reply-To: <311601c904082709107a8c8475@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 31 Aug 2004 21:45:08 +0200
-Content-Transfer-Encoding: 7bit
+References: <311601c904082709107a8c8475@mail.gmail.com>
+X-Gmail-Account: brewt@brewt.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote :
-> * Thomas Charbonnel <thomas@undata.org> wrote:
+> Just an FYI... historically, the LED has been driven in PATA with a
+> signal known as /DASP, this is an active-low signal called "Drive
+> Active / Slave Present" and a PATA drive asserts this signal when
+> processing a command.
 > 
-> > As you can see ~1ms was probably an accident, and the latency does not
-> > always come from do_timer. The constant is do_IRQ interrupting the
-> > idle thread.
-> 
-> (do you have any sort of powersaving mode (ACPI/APM) enabled? If yes,
-> could you try to tune it down as much as possible - disable any
-> powersaving option in the BIOS and in the .config - kill apmd, etc.)
-> 
-> but i dont think it's powersaving - why would such an overhead show up
-> in those functions. The only common thing seems to be that both
-> mark_offset_tsc() and mask_and_ack_8259A() does port IO, which is slow -
-> but still it shouldnt take ~0.5 msecs!
-> 
-> 	Ingo
+> If I understand it right, in SATA, instead of a wire-based protocol,
+> we have a serialized packet-based protocol, so there was no driving
+> of
+> an LED in the initial specification.  Revisions to the specification
+> have since commandeered one of the pins on the power connector for
+> use
+> as a /DASP signal to drive an LED.  However, to do that you
+> obviously
+> can't be using a MOLEX->SATA power adapter, you need a motherboard
+> that natively supports SATA.  The 3112 you mention attempts to be a
+> native SATA solution, it doesn't act merely as a PATA->SATA
+> converter.
+>  Therefore, they may not have done the DASP- signal internally.
 
-Indeed, I just checked and my xrun every ~8 seconds problem is back. I
-have acpi compiled in but acpi=off, but it doesn't seem to be honoured
-(it was with 2.6.8.1, IIRC).
+But this doesn't explain why I have two motherboards here where the HDD
+activity LED does not light up in linux (for SATA drives) but does in
+windows .  Note that it only starts working in windows *after* the
+driver has loaded.  One is an ASUS A7N8X Deluxe (rev 1.0) and the other
+an Abit NF7-S (rev 2.0), both with Sil3112 controllers.  On the other
+hand, I have a DFI Ultra Infinity with a Sil3114 whose activity LED
+works fine in linux.
 
-Thomas
-
-
-
-
+Adrian

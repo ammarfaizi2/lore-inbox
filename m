@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278479AbRJPA5J>; Mon, 15 Oct 2001 20:57:09 -0400
+	id <S277005AbRJPBIK>; Mon, 15 Oct 2001 21:08:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278484AbRJPA47>; Mon, 15 Oct 2001 20:56:59 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:16671 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S278479AbRJPA4t>;
-	Mon, 15 Oct 2001 20:56:49 -0400
-Message-ID: <20011016025742.A10992@win.tue.nl>
-Date: Tue, 16 Oct 2001 02:57:42 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: "David S." <davids@idiom.com>, linux-kernel@vger.kernel.org
-Subject: Re: Anomalous results from access(2)
-In-Reply-To: <20011015151809.D372@malign.rad.washington.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20011015151809.D372@malign.rad.washington.edu>; from David S. on Mon, Oct 15, 2001 at 03:18:09PM -0700
+	id <S278484AbRJPBHu>; Mon, 15 Oct 2001 21:07:50 -0400
+Received: from blackhole.compendium-tech.com ([64.156.208.74]:56041 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S277005AbRJPBHh>; Mon, 15 Oct 2001 21:07:37 -0400
+Date: Mon, 15 Oct 2001 18:08:09 -0700 (PDT)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+X-X-Sender: <kernel@sol.compendium-tech.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Which USB hsot controller to use?
+In-Reply-To: <20011003090455.C22631@kroah.com>
+Message-ID: <Pine.LNX.4.33.0110151806230.7302-100000@sol.compendium-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 15, 2001 at 03:18:09PM -0700, David S. wrote:
+I noticed in the kernel configuration that there are two UHCI drivers for
+UHCI-based motherboards/add-in option boards. Which one is better?
 
-> [1.]	Anomalous results from access(2)
-> 
-> [2.]	When by root run against files in the ext2 file system, access(2)
-> 	reports non-executable files as executable.  For a non-privileged
-> 	user, access(2) reports non-executable files as non-executable.
+Thanks,
 
-All is entirely according to specs.  I added the sentence
-
-       If  the process has appropriate privileges, an implementa-
-       tion may indicate success for X_OK even  if  none  of  the
-       execute file permission bits are set.
-
-to access.2.
+ Kelsey Hudson                                           khudson@ctica.com
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------
 

@@ -1,40 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbUKIKGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbUKIKYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbUKIKGM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 05:06:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbUKIKGM
+	id S261463AbUKIKYc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 05:24:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbUKIKYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 05:06:12 -0500
-Received: from main.gmane.org ([80.91.229.2]:51417 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261462AbUKIKGK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 05:06:10 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: BK-kernel-tools/shortlog update
-Date: Tue, 09 Nov 2004 11:06:05 +0100
-Message-ID: <yw1x8y9bwd4i.fsf@ford.inprovide.com>
-References: <20041109084247.C8D97D77E4@merlin.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:Oz6w3tn0BLDcFrWPFa1jckoyL1M=
+	Tue, 9 Nov 2004 05:24:31 -0500
+Received: from zone3.gcu-squad.org ([217.19.50.74]:2824 "EHLO
+	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S261463AbUKIKY0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 05:24:26 -0500
+Date: Tue, 9 Nov 2004 11:17:47 +0100 (CET)
+To: greg@kroah.com, arjan@infradead.org, torvalds@osdl.org
+Subject: Re: [PATCH] I2C update for 2.6.10-rc1
+X-IlohaMail-Blah: khali@gcu.info
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
+Message-ID: <zxUdaK3b.1099995467.6672570.khali@gcu.info>
+In-Reply-To: <10999778553443@kroah.com>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> writes:
 
-> +'mru:inprovide.com' => 'Maans Rullgaard',
->  'mru:kth.se' => 'Mans Rullgard',
+Hi,
 
-If my name must be mangled, I prefer the single-a version.
+>ChangeSet 1.2014.1.8, 2004/11/05 13:42:18-08:00, arjan@infradead.org
+>
+>[PATCH] I2C: remove dead code from i2c
+>
+>i2c-core.c has a few never used functions, patch below removes these dead
+>functions.
+>(...)
+>@@ -1322,11 +1266,7 @@
+> EXPORT_SYMBOL(i2c_smbus_write_byte_data);
+> EXPORT_SYMBOL(i2c_smbus_read_word_data);
+> EXPORT_SYMBOL(i2c_smbus_write_word_data);
+>-EXPORT_SYMBOL(i2c_smbus_process_call);
+>-EXPORT_SYMBOL(i2c_smbus_read_block_data);
+>-EXPORT_SYMBOL(i2c_smbus_write_block_data);
+> EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data);
+>-EXPORT_SYMBOL(i2c_smbus_write_i2c_block_data);
+>
+> EXPORT_SYMBOL(i2c_get_functionality);
+> EXPORT_SYMBOL(i2c_check_functionality);
 
--- 
-Måns Rullgård
-mru@inprovide.com
+U-ho. At least i2c_smbus_read_block_data will have a user soon (the lm93
+driver written by Mark M. Hoffman will certainly be ported to Linux 2.6
+at some point). Also, removing these functions without dropping relevant
+defines, updating the definition of I2C_FUNC_SMBUS_EMUL and removing the
+extern declarations in linux/i2c.h is inconsistent and possibly
+dangerous.
 
+These functions are part of the SMBus specs. The fact that no client uses
+them for now doesn't mean that they will never be used. In particular,
+we see that newer chips such as the LM93, which have a high number of
+registers, tend to use these as a way to lower the pressure of the
+SMBus. It would come to no surprise if newer chips would make use of
+block writes or process calls. Removing these functions at this point
+doesn't sound like a clever move.
+
+This kind of change to the i2c core should really have been discussed on
+the lm_sensors mailing list before hitting the main kernel tree. This
+one in particular wasn't as trivial at it seemed (left apart the
+question of whether the functions should be removed at all).
+
+Thanks,
+Jean

@@ -1,81 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129360AbRBHSQ3>; Thu, 8 Feb 2001 13:16:29 -0500
+	id <S129131AbRBHST7>; Thu, 8 Feb 2001 13:19:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130064AbRBHSQJ>; Thu, 8 Feb 2001 13:16:09 -0500
-Received: from cmr0.ash.ops.us.uu.net ([198.5.241.38]:52167 "EHLO
-	cmr0.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
-	id <S129129AbRBHSPu>; Thu, 8 Feb 2001 13:15:50 -0500
-Message-ID: <3A82E1FB.75361E04@uu.net>
-Date: Thu, 08 Feb 2001 13:14:19 -0500
-From: Alex Deucher <adeucher@UU.NET>
-Organization: UUNET
-X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+	id <S129156AbRBHSTj>; Thu, 8 Feb 2001 13:19:39 -0500
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:48006 "EHLO
+	smtprelay3.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S129131AbRBHSTg>; Thu, 8 Feb 2001 13:19:36 -0500
+Message-ID: <3A82E27A.E718E175@adelphia.net>
+Date: Thu, 08 Feb 2001 13:16:26 -0500
+From: Stephen Wille Padnos <stephenwp@adelphia.net>
+X-Mailer: Mozilla 4.76C-SGI [en] (X11; U; IRIX64 6.5 IP28)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Hartmann <jhartmann@valinux.com>
-CC: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x, drm, g400 and pci_set_master
-In-Reply-To: <14E9CDBC07F1@vcnet.vc.cvut.cz> <3A82DB9B.3050008@valinux.com>
+To: root@chaos.analogic.com
+CC: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        David Howells <dhowells@cambridge.redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] micro-opt DEBUG_ADD_PAGE
+In-Reply-To: <Pine.LNX.3.95.1010208125335.2003B-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Jeff Hartmann wrote:
+"Richard B. Johnson" wrote:
 > 
-> Petr Vandrovec wrote:
+> On Thu, 8 Feb 2001, Stephen Wille Padnos wrote:
 > 
-> > On  8 Feb 01 at 12:15, Alex Deucher wrote:
-> >
-> >> I wasn't talking about the drm driver I was talking about programming
-> >> the PCI controller directly using setpci 1.0.0 .... or some such
-> >> command, I can't remember off hand.  Which turns on busmastering if it
-> >> is off for a particular device.
-> >
-> >
-> > OK.
-> >
-> >> Jeff Hartmann wrote:
-> >>
-> >>> The DRM drivers don't know about the pcidev structure at all.  All this
-> >>> is done in the XFree86 ddx driver.  You can probably add something like
-> >>> this to MGAPreInit (after pMga->PciTag is set, in my copy its
-> >>> mga_driver.c:1232 yours might be at a slightly different line number
-> >>> depending on the version your using):
-> >>>
-> >>> {
-> >>>    CARD32 temp;
-> >>>    temp = pciReadLong(pMga->PciTag, PCI_CMD_STAT_REG);
-> >>>    pciWriteLong(pMga->PciTag, PCI_CMD_STAT_REG, temp |
-> >>> PCI_CMD_MASTER_ENABLE);
-> >>> }
-> >>
-> >
-> > Jeff, do you say that drm code does not use dynamic DMA mapping, which is
-> > specified as only busmastering interface for kernels 2.4.x, at all? Now
-> > I understand what had one friend in the mind when he laughed when I said
-> > that it must be easy to get it to work on Alpha...
-> >                             Thanks anyway for all suggestions,
-> >                                         Petr Vandrovec
-> >                                         vandrove@vc.cvut.cz
-> >
-> >
-> It does not use dynamic DMA mapping, because it doesn't do PCI DMA at
-> all.  It uses AGP DMA.  Actually, it shouldn't be too hard to get it to
-> work on the Alpha (just a few 32/64 bit issues probably.)  Someone just
-> needs to get agpgart working on the Alpha, thats the big step.
+> > "Richard B. Johnson" wrote:
+> > [snip]
+> > > Another problem with 'volatile' has to do with pointers. When
+> > > it's possible for some object to be modified by some external
+> > > influence, we see:
+> > >
+> > >         volatile struct whatever *ptr;
+> > >
+> > > Now, it's unclear if gcc knows that we don't give a damn about
+> > > the address contained in 'ptr'. We know that it's not going to
+> > > change. What we are concerned with are the items within the
+> > > 'struct whatever'. From what I've seen, gcc just reloads the
+> > > pointer.
+> > >
+[snip]
+
+> Yes. My point is that a lot of authors have declared just about everything
+> 'volatile' `grep volatile /usr/src/linux/drivers/net/*.c`, just to
+> be "safe". It's likely that there are many hundreds of thousands of
+> unneeded register-reloads because of this.
 > 
-> -Jeff
+> It might be useful for somebody who has a lot of time on his/her
+> hands to go through some of these drivers.
 
+I would be willing to do this (on the slow boat - I don't have THAT much
+spare time :), but only if we can be sure that the gcc optimizer will
+correctly handle a normal pointer to volatile data.  Your experiences
+would seem to indicate that the optimizer needs fixing before much
+effort should be spent on this.
 
-That shouldn't be too hard since many (all?) AGP alpha boards (UP1000's
-anyway) are based on the AMD 751 Northbridge? And there is already
-support for that in the kernel for x86. 
-
-Alex
+-- 
+Stephen Wille Padnos
+Programmer, Engineer, Problem Solver
+swpadnos@adelphia.net
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

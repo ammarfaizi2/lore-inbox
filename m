@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131222AbRARSUr>; Thu, 18 Jan 2001 13:20:47 -0500
+	id <S130312AbRARSZR>; Thu, 18 Jan 2001 13:25:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131356AbRARSUh>; Thu, 18 Jan 2001 13:20:37 -0500
-Received: from palrel3.hp.com ([156.153.255.226]:38157 "HELO palrel3.hp.com")
-	by vger.kernel.org with SMTP id <S131222AbRARSUX>;
-	Thu, 18 Jan 2001 13:20:23 -0500
-Message-ID: <3A6733E0.6286A388@cup.hp.com>
-Date: Thu, 18 Jan 2001 10:20:16 -0800
+	id <S130282AbRARSZH>; Thu, 18 Jan 2001 13:25:07 -0500
+Received: from palrel1.hp.com ([156.153.255.242]:34316 "HELO palrel1.hp.com")
+	by vger.kernel.org with SMTP id <S130312AbRARSYz>;
+	Thu, 18 Jan 2001 13:24:55 -0500
+Message-ID: <3A6734F0.E436B1A3@cup.hp.com>
+Date: Thu, 18 Jan 2001 10:24:48 -0800
 From: Rick Jones <raj@cup.hp.com>
 Organization: the Unofficial HP
 X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <Pine.LNX.4.10.10101171259470.10031-100000@penguin.transmeta.com> <3A661A00.E3344A18@cup.hp.com> <20010118103414.A18205@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.30.0101181358010.823-100000@elte.hu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+Ingo Molnar wrote:
 > 
-> On Wed, Jan 17, 2001 at 02:17:36PM -0800, Rick Jones wrote:
-> > How does CORKing interact with ACK generation? In particular how it
-> > might interact with (or rather possibly induce) standalone ACKs?
+> On Wed, 17 Jan 2001, Rick Jones wrote:
 > 
-> It doesn't change the ACK generation. If your cork'ed packets gets sent
-> before the delayed ack triggers it is piggy backed, if not it is send
-> individually. When the delayed ack triggers depends; Linux has dynamic
-> delack based on the rtt and also a special quickack mode to speed up slow
-> start.
+> > i'd heard interesting generalities but no specifics. for instance,
+> > when the send is small, does TCP wait exclusively for the app to
+> > flush, or is there an "if all else fails" sort of timer running?
+> 
+> yes there is a per-socket timer for this. According to RFC 1122 a TCP
+> stack 'MUST NOT' buffer app-sent TCP data indefinitely if the PSH bit
+> cannot be explicitly set by a SEND operation. Was this a trick question?
+> :-)
 
-So if I understand  all this correctly...
-
-The difference in ACK generation would be that with nagle it is a race
-between the standalone ack heuristic and the first byte of response
-data, with cork, the race is between the standalone ack heuristic and
-the last byte of response data and an uncork call, or the MSSth byte
-whichever comes first.
-
-If the response bytes are dribbling slowly into the socket, where slowly
-is less than the bandwidth delay product of the connection, cork can
-result in quite fewer packets than nagle would. It would perhaps though
-have one more standalone ACK than nagle
-
-If the response bytes are dribbling quickly into the socket, where
-quickly is greater than the bandwidth delay product of the connection,
-cork will produce one less packet than nagle.
-
-If the response bytes go into the socket together, cork and nagle will
-produce the same number of packets.
+Nope, not a trick question. The nagle heuristic means that small sends
+will not wait indefinitely since sending the first small bit of data
+starts the retransmission timer as a course of normal processing. So, I
+am not in the habit of thinking about a "clear the buffer" timer being
+set when a small send takes place but no transmit happens.
 
 rick jones
+
+btw, as I'm currently on linux-kernel, no need to cc me :)
 -- 
 ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
 these opinions are mine, all mine; HP might not want them anyway... :)

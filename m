@@ -1,87 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVDDWQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVDDWSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbVDDWQs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 18:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVDDWPG
+	id S261451AbVDDWSS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 18:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVDDWOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 18:15:06 -0400
-Received: from fire.osdl.org ([65.172.181.4]:36754 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261434AbVDDWMj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 18:12:39 -0400
-Message-ID: <4251BBC5.8000802@osdl.org>
-Date: Mon, 04 Apr 2005 15:12:21 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: maximilian attems <janitor@sternwelten.at>
-CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl, rusty@rustcorp.com.au
-Subject: Re: [patch 2/3] hd eliminate bad section references
-References: <20050404181102.GB12394@sputnik.stro.at>
-In-Reply-To: <20050404181102.GB12394@sputnik.stro.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 4 Apr 2005 18:14:21 -0400
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:23718 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261441AbVDDWM4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 18:12:56 -0400
+Subject: Re: [ACPI] Re: [RFC 5/6]clean cpu state after hotremove CPU
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Nathan Lynch <ntl@pobox.com>
+Cc: Li Shaohua <shaohua.li@intel.com>, lkml <linux-kernel@vger.kernel.org>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, Len Brown <len.brown@intel.com>,
+       Pavel Machek <pavel@suse.cz>
+In-Reply-To: <20050404153345.GC3611@otto>
+References: <1112580367.4194.344.camel@sli10-desk.sh.intel.com>
+	 <20050404052844.GB3611@otto>
+	 <1112593338.4194.362.camel@sli10-desk.sh.intel.com>
+	 <20050404153345.GC3611@otto>
+Content-Type: text/plain
+Message-Id: <1112652864.3757.31.camel@desktop.cunningham.myip.net.au>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 05 Apr 2005 08:14:25 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-maximilian attems wrote:
-> Fix hd section references:
-> make parse_hd_setup() __init
+Hi.
+
+On Tue, 2005-04-05 at 01:33, Nathan Lynch wrote:
+> > Yes, exactly. Someone who understand do_exit please help clean up the
+> > code. I'd like to remove the idle thread, since the smpboot code will
+> > create a new idle thread.
 > 
-> Error: ./drivers/ide/legacy/hd.o .text refers to 00000943 R_386_PC32
-> .init.text
-> 
-> Signed-off-by: maximilian attems <janitor@sternwelten.at>
-> 
-> 
-> --- linux-2.6.12-rc1-bk5/drivers/ide/legacy/hd.c.orig	2005-04-04 18:39:04.000000000 +0200
-> +++ linux-2.6.12-rc1-bk5/drivers/ide/legacy/hd.c	2005-04-04 19:02:57.908576221 +0200
-> @@ -851,7 +851,7 @@
->  	goto out;
->  }
->  
-> -static int parse_hd_setup (char *line) {
-> +static int __init parse_hd_setup (char *line) {
->  	int ints[6];
->  
->  	(void) get_options(line, ARRAY_SIZE(ints), ints);
+> I'd say fix the smpboot code so that it doesn't create new idle tasks
+> except during boot.
 
-This one is fairly interesting and needs some resolution by someone
-who knows....
+Would that mean that CPUs that were physically hotplugged wouldn't get
+idle threads?
 
-On the surface, the patch is correct.
+Regards,
 
-Rusty, can you explain when __setup functions are called relative
-to in-kernel init functions?  or put another way, can a __setup
-function safely call in __init function?
-
-Here's the function in question:
-
-static int parse_hd_setup (char *line) {
-	int ints[6];
-
-	(void) get_options(line, ARRAY_SIZE(ints), ints);
-	hd_setup(NULL, ints);
-
-	return 1;
-}
-__setup("hd=", parse_hd_setup);
-
-
-
-Should we make parse_hd_setup() __init,
-or make hd_setup() non-__init, or something else?
-
-{time passes, he looks]
-
-OK, I looked at include/linux/init.h.  From what I can see
-there, __setup() causes an .init.setup section to be emitted,
-so marking __setup() function as __init would make sense.
-I think that this patch is good.
-
-Thanks.
+Nigel
 -- 
-~Randy
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+
+Maintainer of Suspend2 Kernel Patches http://suspend2.net
+

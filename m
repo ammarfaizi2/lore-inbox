@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264156AbTICWj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 18:39:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264190AbTICWj4
+	id S263930AbTICW7F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 18:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264290AbTICW7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 18:39:56 -0400
-Received: from mail.kroah.org ([65.200.24.183]:45531 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264156AbTICWjz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 18:39:55 -0400
-Date: Wed, 3 Sep 2003 15:39:37 -0700
-From: Greg KH <greg@kroah.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Linux usb mailing list 
-	<linux-usb-devel@lists.sourceforge.net>
-Subject: Re: USB modem no longer detected in -test4
-Message-ID: <20030903223936.GA7418@kroah.com>
-References: <20030903191701.GA2798@elf.ucw.cz>
-Mime-Version: 1.0
+	Wed, 3 Sep 2003 18:59:05 -0400
+Received: from CPE-203-51-31-218.nsw.bigpond.net.au ([203.51.31.218]:55279
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id S263930AbTICW7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 18:59:03 -0400
+Message-ID: <3F567230.BFC0A2A1@eyal.emu.id.au>
+Date: Thu, 04 Sep 2003 08:58:56 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.23-pre3
+References: <Pine.LNX.4.44.0309031851310.30503-100000@logos.cnet>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030903191701.GA2798@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 09:17:01PM +0200, Pavel Machek wrote:
-> Hi!
+Marcelo Tosatti wrote:
 > 
-> In 2.6.0-test4, USB ELSA modem no longer works. This is UHCI (on
-> toshiba 4030cdt).
-> 
-> Relevant messages seem to be:
-> 
-> PM: Adding info for usb:1-1.2
-> drivers/usb/class/cdc-acm.c: need inactive config#2
-> PM: Adding info for usb:1-1.2:0
-> drivers/usb/class/cdc-acm.c: need inactive config#2
+> Hello, here goes -pre3. Most changes are network and network driver
 
-And this worked just fine in 2.6.0-test3?
+version still says -pre2
 
-thanks,
-
-greg k-h
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

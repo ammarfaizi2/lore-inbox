@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264460AbTFEErZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 00:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbTFEErZ
+	id S264461AbTFEEuO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 00:50:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264469AbTFEEuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 00:47:25 -0400
-Received: from static-ctb-203-29-86-71.webone.com.au ([203.29.86.71]:13829
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S264460AbTFEErX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 00:47:23 -0400
-Message-ID: <3EDECE66.8040508@cyberone.com.au>
-Date: Thu, 05 Jun 2003 15:00:22 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: rwhron@earthlink.net
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
-       Joel Becker <Joel.Becker@oracle.com>
-Subject: Re: [BENCHMARK] AIM7 fserver regressed in 2.5.70*
-References: <20030605024940.GA14406@rushmore>
-In-Reply-To: <20030605024940.GA14406@rushmore>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 5 Jun 2003 00:50:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:49630 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264461AbTFEEuN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 00:50:13 -0400
+Date: Wed, 04 Jun 2003 22:01:17 -0700 (PDT)
+Message-Id: <20030604.220117.26306541.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: albert@users.sourceforge.net, linux-kernel@vger.kernel.org,
+       bcollins@debian.org, wli@holomorphy.com, tom_gall@vnet.ibm.com,
+       anton@samba.org
+Subject: Re: /proc/bus/pci
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0306042117440.2761-100000@home.transmeta.com>
+References: <1054783303.22104.5569.camel@cube>
+	<Pine.LNX.4.44.0306042117440.2761-100000@home.transmeta.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Wed, 4 Jun 2003 21:23:16 -0700 (PDT)
+   
+   On Wed, 4 Jun 2003, Albert Cahalan wrote:
+   > bus/pci/00/00.0 -> ../hose0/bus0/dev0/fn0/config-space
+   
+   Why do we have that stupid "hose" name? Only because of strange alpha 
+   naming, or did somebody else also use that incredibly silly name?
+   
+   Please talk about "domains", at least it makes some sense as a name.
 
-
-rwhron@earthlink.net wrote:
-
->Summary:
->AIM7 fileserver workload behaviour changed with 2.5.70.
->At low task counts (load average), 2.5.70* takes 40% 
->longer than 2.5.69.  As task count increases, regression
->disappears.
->
->Hardware has (4) 700 mhz P3 Xeons.
->3.75 GB RAM
->RAID 0 LUN (hardware raid)
->
->Background:
->AIM7 fserver is the only regressed workload.  In general, 
->2.5.70* has better numbers than 2.5.69* for a variety of
->benchmarks.
->
->
-[snip]
-
->AIM7 fserver workload
->kernel             Tasks  Jobs/Min      Real       CPU
->2.5.69               4	 120.9	      200.5	  32.8
->2.5.69-bk1           4	 122.3	      198.2	  33.8
->2.5.69-mm3           4	 122.3	      198.3	  37.9
->2.5.69-mm5           4	 124.0	      195.5	  38.0
->
-      ^^^^^^
-I think this was the last kernel Joel tested before a
-similar magnitude dropoff in WimMark performance.
-
->
->2.5.70               4	  79.0	      306.9	  34.2
->2.5.70-mjb1          4	  83.4	      290.8	  33.6
->2.5.70-mm3           4	  71.7	      338.0	  34.9
->2.5.70-mm4	     4    73.9        328.0       33.9
-> 
->
-
-I don't know what sort of disk IO fserver does, but it
-could be the same problem.
-
+I agree.
+   
+   I'm also hoping that /proc/bus will eventually go away, so I don't
+   see a major problem with not understanding multiple domains at that
+   level.
+   
+   On a /sys/bus/xxx level we actually should already be able to handle 
+   multiple domains, but the naming is broken. However, in /sys we should be 
+   able to nicely handling non-zero domains by just extending the name space 
+   a bit.
+   
+My only concern is what file lookup algorithm we should be encouraging
+things like xfree86 to use.  Check /sys then /proc/bus?

@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266900AbUHTNYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267205AbUHTN1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266900AbUHTNYA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 09:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266917AbUHTNYA
+	id S267205AbUHTN1N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 09:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUHTN1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 09:24:00 -0400
-Received: from relaycz.systinet.com ([62.168.12.68]:7626 "HELO
-	relaycz.systinet.com") by vger.kernel.org with SMTP id S266900AbUHTNX5
+	Fri, 20 Aug 2004 09:27:13 -0400
+Received: from czf-prosek6.supernetwork.cz ([81.31.22.46]:34944 "EHLO
+	noodles.netw") by vger.kernel.org with ESMTP id S267205AbUHTN1L
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 09:23:57 -0400
-Subject: Re: [RFC] IBM thinkpad Fn+Fx key driver
-From: Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
-To: erik@rigtorp.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040820122809.GA6167@linux.nu>
-References: <20040820122809.GA6167@linux.nu>
-Content-Type: text/plain
-Message-Id: <1093008222.18934.9.camel@narsil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 15:23:42 +0200
+	Fri, 20 Aug 2004 09:27:11 -0400
+From: Jan Spitalnik <jan@spitalnik.net>
+Subject: 2.6.8.1 slews system clock
+Date: Fri, 20 Aug 2004 15:27:07 +0200
+User-Agent: KMail/1.7
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408201527.07126.jan@spitalnik.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Erik,
+Hi,
 
-your module is working here on IBM ThinkPad R40 2681-BAG. Previously
-non-working keys (Fn+ F3, F4, F5, F7, F8, F9, F12) are emitting ACPI
-events now. Note that Fn+ F8, F9 are not marked with blue signs here on
-R40, so there is no official function assigned :-).
+after updating kernel to 2.6.8.1 the system clock slews by 1 second every 10
+seconds into future. I tried turning off ACPI, but that had no effect.
 
-Your driver even survives ACPI suspend to RAM (and wake-up too :-)) and
-that's great.
+root@largo:~# ntpdate tik.cesnet.cz;sleep 10;ntpdate tik.cesnet.cz
+20 Aug 13:55:01 ntpdate[5315]: step time server 195.113.144.201 offset
+-24.488611 sec
+20 Aug 13:55:13 ntpdate[5321]: step time server 195.113.144.201 offset
+-1.042110 sec
 
-Oops, I almost forgot to mention my kernel configuration: Debian's 2.6.7
-(almost vanilla) + ACPI 20040715 (from acpi.sourceforge.net; I need it
-for suspend to RAM).
+on second machine the effect is opposite, ie the clock slews backwards.
+Any ideas?
 
-I can't wait till it gets to mainstream 2.6 kernel.
+Thanks,
 
-That's all for this report.
-
-Regards,
-
-Jan "Pogo" Mynarik
-
-On Fri, 2004-08-20 at 14:28, Erik Rigtorp wrote:
-> I've written a driver for some of the extra keys on the thinkpads. The
-> supported keys are: Fn+ F3, F4, F5, F7, F8, F9, F12. It has been tested on
-> two diffrent thinkpad x31, but I would like some feedback from testing on
-> other thinkpads. 
-> 
-> http://rigtorp.se/files/src/thinkpad-acpi.tar.gz
-> 
-> Just download, extract, run make and insmod thinkpad_acpi.ko
-> 
-> /Erik
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+--
+Jan Spitalnik
+jan@spitalnik.net

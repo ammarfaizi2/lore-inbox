@@ -1,36 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310613AbSCHAHy>; Thu, 7 Mar 2002 19:07:54 -0500
+	id <S310601AbSCHAMy>; Thu, 7 Mar 2002 19:12:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310611AbSCHAHo>; Thu, 7 Mar 2002 19:07:44 -0500
-Received: from are.twiddle.net ([64.81.246.98]:12699 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S310608AbSCHAHk>;
-	Thu, 7 Mar 2002 19:07:40 -0500
-Date: Thu, 7 Mar 2002 16:07:34 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Hubertus Franke <frankeh@watson.ibm.com>,
-        Rusty Russell <rusty@rustcorp.com.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-Message-ID: <20020307160734.A28348@twiddle.net>
-Mail-Followup-To: Davide Libenzi <davidel@xmailserver.org>,
-	Hubertus Franke <frankeh@watson.ibm.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020305231747.5F95B3FE06@smtp.linux.ibm.com> <Pine.LNX.4.44.0203051525460.1475-100000@blue1.dev.mcafeelabs.com>
+	id <S310606AbSCHAMp>; Thu, 7 Mar 2002 19:12:45 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:24084 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S310601AbSCHAM2>; Thu, 7 Mar 2002 19:12:28 -0500
+Date: Fri, 8 Mar 2002 01:11:45 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+        riel@surriel.com, hch@infradead.org, phillips@bonn-fries.net
+Subject: Re: 2.4.19pre2aa1
+Message-ID: <20020308011145.A1356@dualathlon.random>
+In-Reply-To: <20020307092119.A25470@dualathlon.random> <20020307104942.GC786@holomorphy.com> <20020307180300.B25470@dualathlon.random> <20020307201819.GF786@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0203051525460.1475-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Tue, Mar 05, 2002 at 03:26:31PM -0800
+In-Reply-To: <20020307201819.GF786@holomorphy.com>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 03:26:31PM -0800, Davide Libenzi wrote:
-> Yes but this is always true   alignof >= sizeof
+On Thu, Mar 07, 2002 at 12:18:19PM -0800, William Lee Irwin III wrote:
+> On Thu, Mar 07, 2002 at 06:03:00PM +0100, Andrea Arcangeli wrote:
+> > For the other points I think you shouldn't really complain (both at
+> > runtime and in code style as well, please see how clean it is with the
+> > wait_table_t thing), I made a definitive improvement to your code, the
+> > only not obvious part is the hashfn but I really cannot see yours
+> > beating mine because of the total random input, infact it could be the
+> > other way around due the fact if something there's the probability the
+> > pages are physically consecutive and I take care of that fine.
+> 
+> 
+> I don't know whose definition of clean code this is:
+> 
+> +static inline wait_queue_head_t * wait_table_hashfn(struct page * page, wait_table_t * wait_table)
+> +{
+> +#define i (((unsigned long) page)/(sizeof(struct page) & ~ (sizeof(struct page) - 1)))
+> +#define s(x) ((x)+((x)>>wait_table->shift))
+> +	return wait_table->head + (s(i) & (wait_table->size-1));
+> +#undef i
+> +#undef s
+> +}
+> 
+> 
+> I'm not sure I want to find out.
 
-No.  m68k sets alignof to 2 for all types with sizeof >= 2.
+The above is again the hashfunction, the hashfn code doesn't need to be
+nice, the API around wait_table_hashfn has to instead. See the above
+wait_table_t typedef.
 
+During some further auditing I also noticed now that you introduced
+a certain usused wake_up_page. That's buggy, if you use it you'll
+deadlock. Also it would be cleaner if __lock_page wasn't using the
+exclusive waitqueue and that in turn you would keep using wake_up for
+unlock_page. By the time you share the waitqueue nothing can be wake one
+any longer, this is probably the worst drawback of the wait_table
+memory-saving patch. Infact I was considering to solve the collisions
+with additional memory, rather than by having to drop the wake-one
+behaviour when many threads are working on the same chunk of the file
+that your design solution requires. quite frankly I don't think this was
+an urgent thing to change in 2.4 (it only saves some memory and even if
+64G will now boot with CONFIG_1G, the lowmem will be way too much
+unbalanced to be good for general purpose).
 
-r~
+Andrea

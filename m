@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265737AbRF2Has>; Fri, 29 Jun 2001 03:30:48 -0400
+	id <S265743AbRF2HrO>; Fri, 29 Jun 2001 03:47:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265741AbRF2Ha2>; Fri, 29 Jun 2001 03:30:28 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:39431 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S265737AbRF2HaX>; Fri, 29 Jun 2001 03:30:23 -0400
-Date: Fri, 29 Jun 2001 09:29:26 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Blesson Paul <blessonpaul@usa.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Re: gcc: internal compiler error: program cc1 got fatal signal 11]
-Message-ID: <20010629092925.B2559@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010629052337.15050.qmail@wwcst271.netaddress.usa.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010629052337.15050.qmail@wwcst271.netaddress.usa.net>; from blessonpaul@usa.net on Thu, Jun 28, 2001 at 11:23:37PM -0600
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S265747AbRF2HrE>; Fri, 29 Jun 2001 03:47:04 -0400
+Received: from [202.96.44.20] ([202.96.44.20]:21943 "HELO smtp.263.net")
+	by vger.kernel.org with SMTP id <S265743AbRF2Hqy>;
+	Fri, 29 Jun 2001 03:46:54 -0400
+Message-ID: <001501c1006e$fcf37220$0101a8c0@weqeqe>
+Reply-To: "Zeng Yu" <yu_zeng@263.net>
+From: "Zeng Yu" <yu_zeng@263.net>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Ramdisk Bug Report
+Date: Fri, 29 Jun 2001 15:41:57 +0800
+Organization: Capitel
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 28, 2001 at 11:23:37PM -0600, Blesson Paul wrote:
-> 
-> "This is almost always the result of flakiness in your hardware - either
-> RAM (most likely), or motherboard (less likely).  "
->                          
->                               I cannot understand this. There are many other
-> stuffs that I compiled with gcc without any problem. Again compilation is only
-> a application. It  only parse and gernerates object files. How can RAM or
-> motherboard makes different
+Hi all,
 
-Please read the complete Sig11 FAQ (http://www.bitwizard.nl/sig11/ ),
-your question is discussed in it as well.
+Since the first question about ramdisk, I've done more test against the
+problem both on kernel 2.2.16 and 2.4.4/2.4.5. Here's my test result:
+kernel 2.4.4/2.4.5 have two ramdisk bugs.
+1. the ramdisk uses two same size mem of buffers and cache, and the cache
+   can NOT be used by other processes untill the ramdisk be unmounted.
+2. the ramdisk can dynamically grow as more space is required, but it can
+   NOT dynamically shrink as the space is released.
+both bugs don't exist on kernel 2.2.16.
+
+The test method is as follows:(on a 256M pentium 4 box, with default
+mamimum ramdisk_size 100M)
+for bug 1:
+ mke2fs -m0 /dev/ram1; mke2fs -m0 /dev/ram2
+ mount /dev/ram1 /mnt1; mount /dev/ram2 /mnt2
+ dd if=/dev/zero of=/mnt1/data bs=1k count=96000
+ #now ram1 is 100M, should have space for another 100M ramdisk, BUT
+ dd if=/dev/zero of=/mnt2/data bs=1k count=96000
+ system hang!
+
+for bug 2:
+ mke2fs -m0 /dev/ram1; mke2fs -m0 /dev/ram2
+ mount /dev/ram1 /mnt1; mount /dev/ram2 /mnt2
+ dd if=/dev/zero of=/mnt1/data bs=1k count=96000
+ #same as above, but try to free allocated ramdisk buffers first
+ rm /mnt1/data
+ #ram1 should shrink to about zero thus leave space for another 100M
+ #ramdisk, BUT
+ dd if=/dev/zero of=/mnt2/data bs=1k count=96000
+ system still hang!
 
 
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

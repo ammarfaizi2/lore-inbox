@@ -1,76 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265049AbTLFIzs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 03:55:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbTLFIzs
+	id S263463AbTLFJFr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 04:05:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264264AbTLFJFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 03:55:48 -0500
-Received: from service.sh.cvut.cz ([147.32.127.214]:18878 "EHLO
-	service.sh.cvut.cz") by vger.kernel.org with ESMTP id S265049AbTLFIzp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 03:55:45 -0500
-Date: Sat, 6 Dec 2003 09:55:39 +0100
-From: Michal Rokos <m.rokos@sh.cvut.cz>
-To: hirofumi@mail.parknet.co.jp
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.0-test11] VFAT fix for UTF-8 and trailing dots
-Message-ID: <20031206085539.GA3134@nightmare.sh.cvut.cz>
+	Sat, 6 Dec 2003 04:05:47 -0500
+Received: from mail.kroah.org ([65.200.24.183]:11492 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263463AbTLFJFq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 04:05:46 -0500
+Date: Sat, 6 Dec 2003 01:04:14 -0800
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Jim Keniston <jkenisto@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
+       netdev <netdev@oss.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       "Feldman, Scott" <scott.feldman@intel.com>,
+       Larry Kessler <kessler@us.ibm.com>,
+       "David S. Miller" <davem@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 2.6.0-test11] Net device error logging
+Message-ID: <20031206090414.GA23445@kroah.com>
+References: <3FD0E1FE.1D5B1883@us.ibm.com> <3FD0E498.8070703@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Crypto: GnuPG/1.0.6 http://www.gnupg.org
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <3FD0E498.8070703@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Fri, Dec 05, 2003 at 03:03:36PM -0500, Jeff Garzik wrote:
+> I discussed this a bit with David.  My personal feelings are that I 
+> prefer just leaving all the printk's as they are.  But Linus and GregKH 
+> have been accepting patches into other parts of the tree like this one, 
+> and logging additional already-computer-parsed information is probably 
+> not a bad thing long-term, so perhaps I've been being a bit of a Luddite 
+> on this issue.
 
-there is one problem with vfat when UTF-8 option is on...
+To be fair, the patches I've taken (dev_err and friends) are _much_
+simpler than these, so accepting them was not that big of a deal.  It
+enabled the subsystems that have started to use them (USB and I2C) to
+log better messages (we now know exactly which device caused the errors,
+instead of just which driver).
 
-The problem is: even if vfat_striptail_len() counts len of name without
-trailing dots and sets len to the correct value, utf8_mbstowcs() doesn't
-care about len and takes whole name.
-So dirs and files with dots can be created on vfat fs and that will
-cause some problems as you know :)
+So please judge this patch on its own, and feel no pressure due to the
+dev_*() calls :)
 
-This patch just shortens outlen to the correct value - nothing else.
+thanks,
 
-Compiled, tested.
-
-Please concider the inclusion.
-
-Thank you.
-
-	Michal
-
---- linux-2.6.0-test11/fs/vfat/namei.c.old	2003-11-26 21:44:34.000000000 +0100
-+++ linux-2.6.0-test11/fs/vfat/namei.c	2003-12-06 09:34:44.000000000 +0100
-@@ -573,13 +573,18 @@ xlate_to_uni(const unsigned char *name, 
- 	int charlen;
- 
- 	if (utf8) {
-+		int name_len = strlen(name);
-+
- 		*outlen = utf8_mbstowcs((wchar_t *)outname, name, PAGE_SIZE);
--		if (name[len-1] == '.')
--			*outlen-=2;
-+
-+		/* 
-+		 * We stripped '.'s before and set len appropriately,
-+		 * but utf8_mbstowcs doesn't care about len
-+		 */
-+		*outlen -= (name_len-len);
-+
- 		op = &outname[*outlen * sizeof(wchar_t)];
- 	} else {
--		if (name[len-1] == '.') 
--			len--;
- 		if (nls) {
- 			for (i = 0, ip = name, op = outname, *outlen = 0;
- 			     i < len && *outlen <= 260; *outlen += 1)
-
--- 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-Michal Rokos                         Czech Technical University, Prague
-e-mail: m.rokos@sh.cvut.cz    icq: 36118339     jabber: majkl@jabber.cz
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+greg k-h

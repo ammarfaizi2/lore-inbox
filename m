@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266900AbUG1Mvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266899AbUG1MwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266900AbUG1Mvs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 08:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266899AbUG1Mvs
+	id S266899AbUG1MwP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 08:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266905AbUG1MwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 08:51:48 -0400
-Received: from main.gmane.org ([80.91.224.249]:23966 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266912AbUG1Mvg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 08:51:36 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Wed, 28 Jul 2004 08:52:15 -0400
+Received: from out001pub.verizon.net ([206.46.170.140]:12445 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S266899AbUG1MwG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 08:52:06 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
 To: linux-kernel@vger.kernel.org
-From: Benjamin Rutt <rutt.4+news@osu.edu>
-Subject: Re: clearing filesystem cache for I/O benchmarks
-Date: Wed, 28 Jul 2004 08:51:30 -0400
-Message-ID: <874qnscn1p.fsf@osu.edu>
-References: <87vfgeuyf5.fsf@osu.edu> <20040726002524.2ade65c3.akpm@osdl.org>
- <87pt6iq5u2.fsf@osu.edu> <20040726234005.597a94db.akpm@osdl.org>
- <871xixpdky.fsf@osu.edu> <4106B448.2010308@techsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dhcp065-025-157-254.columbus.rr.com
-Mail-Copies-To: nobody
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-Cancel-Lock: sha1:PBluXFzENt5Jq9t+un2b6Dwepo0=
+Subject: Re: 2.6.8-rc2 crashes
+Date: Wed, 28 Jul 2004 08:52:04 -0400
+User-Agent: KMail/1.6.82
+References: <200407271233.04205.gene.heskett@verizon.net> <200407280720.21518.gene.heskett@verizon.net> <10D3E6305A14470B62191D9B@sig-9-145-17-80.uk.ibm.com>
+In-Reply-To: <10D3E6305A14470B62191D9B@sig-9-145-17-80.uk.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200407280852.04763.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [141.153.76.84] at Wed, 28 Jul 2004 07:52:05 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller <miller@techsource.com> writes:
+On Wednesday 28 July 2004 07:38, Andy Whitcroft wrote:
+>> I just had another crash/lockup, running 2.6.8-rc2-bk3
+>> At the instant, I was looking thru the menu's of the new
+>> kde3.3-beta2, in the window decoration, themes etc menu,
+>> where it got 14% loaded in a 60 megabyte file and it went
+>> away.
+>
+>Confused.  Previously (below) you were running 2.6.8-rc2 so the
+> problem was in that version but not in -rc1 if I read you
+> correctly.  So I would expect you to be testing 2.6.8-rc1-bkN
+> snapshots to see where your breakage was introduced.
 
-> I haven't been paying attention, and I don't know if anyone's already
-> suggested this, but going on the title, have you considered running
-> the same benchmark more than once and just throwing away the first
-> result?
+I was having mobo problems back about rc1 times, so I'm not able to 
+positively say that rc1 did/did not do it.  I tried to make that 
+clear in a later message but must not have been.  Motherboard, cpu, 
+memory and psu are all fresh now.
 
-I was gathering from upthread comments that data blocks that are read
-more than once will be given a priority to be retained in cache.  So I
-think reading the same data twice could lead to unwanted cache hits.
-And besides, some of our file sizes are quite small (e.g. 8MB) such
-that reading through them the second time would almost guarantee cache
-hits.  I see your point, though, for reading through a 64GB file on a
-system with 8GB of RAM.  If such a system would retain in cache
-anything except the last ~8GB, I'd be very surprised.
+As this mobo contains the nforce2 chipset, now running the reverse 
+engineered driver, how far back can I go without running into 
+problems with it?
 
-Based on comments from Andrew Morton, I'm going to take the following
-approach to clear cache for read tests:
+>> I have now had 4 crashes while running 2.6.8-rc2, the last one
+>> requiring a full powerdown before the intel-8x0 could
+>> re-establish control over the sound.
+>
+>[...]
+>
+>> I'd revert to rc1, but I'd have to figure out a way to use this
+>> .config
+>
+>As viro put it:
+>>It goes like that:
+>>2.6.7
+>>2.6.7 + 7-bk<n>
+>>2.6.7 + 8-rc1
+>>2.6.7 + 8-rc1 + 8-rc1-bk<n>
+>>2.6.7 + 8-rc2
+>>2.6.7 + 8-rc2 + 8-rc2-bk<n>
+>
+>-apw
 
-1) figure out the available RAM on the test system
-2) write out a throwaway file twice that big, and fsync() it
-3) delete that file
-
-I gather this is optimistically the best way, that would work for all
-filesystem types.
-
-As far as clearing disk/controller cache, I have a plan of (after the
-above has been done) reading through a 2GB "dummy" file that I create
-once before running the test battery.  The 2GB figure comes from the
-fact that we have controllers with a 1GB cache.  Plus, there are
-around 36 disks on the backend, all raided together into one raid
-device.  So each disk brings 8MB of cache that we have to worry about
-as well.  If it is totally obvious that Andrew Morton's above recipe
-will clear the disk/controller caches as well, the please point that
-out, but it isn't obvious to me.
 -- 
-Benjamin Rutt
-
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.23% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

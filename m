@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266669AbUHIPyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUHIPyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266669AbUHIPyL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 11:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266666AbUHIPwv
+	id S266582AbUHIPyc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 11:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUHIPw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 11:52:51 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:42637 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266725AbUHIPvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 11:51:21 -0400
-Subject: Re: dynamic /dev security hole?
-From: Albert Cahalan <albert@users.sf.net>
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: Eric Lammerts <eric@lammerts.org>, Marc Ballarin <Ballarin.Marc@gmx.de>,
-       Greg KH <greg@kroah.com>, albert@users.sourceforge.net,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408091530.55244.mbuesch@freenet.de>
-References: <20040808162115.GA7597@kroah.com>
-	 <20040809000727.1eaf917b.Ballarin.Marc@gmx.de>
-	 <Pine.LNX.4.58.0408090025590.26834@vivaldi.madbase.net>
-	 <200408091530.55244.mbuesch@freenet.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092057570.5761.215.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 09 Aug 2004 09:19:30 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 11:52:28 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:45196 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266347AbUHIPuV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 11:50:21 -0400
+Message-Id: <200408091551.i79FpAeQ063458@northrelay04.pok.ibm.com>
+Subject: [PATCH 1/2] blk_resize_tags_fix
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, brking@us.ibm.com
+From: brking@us.ibm.com
+Date: Mon, 09 Aug 2004 10:50:05 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-09 at 09:30, Michael Buesch wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Quoting Eric Lammerts <eric@lammerts.org>:
-> > Just an idea for a fix for this problem: If udev would change the
-> > permissions to 000 and ownership to root.root just before it unlinks
-> > the device node, the copy would become useless.
-> 
-> Like this?
-> Only compile tested against glibc.
 
-Pretty much, but you must change ownership first to
-keep the user from changing the mode back. There are
-ways for an evildoer to win this race if you don't
-change the ownership first.
+init_tag_map should not initialize the busy_list, refcnt, or busy fields
+in the tag map since blk_queue_resize_tags can call it while requests are
+active. Patch moves this initialization into blk_queue_init_tags.
 
-Now all we need is revoke() and we're all set.
-Ordering: chown, chmod, revoke, unlink
+Signed-off-by: Brian King <brking@us.ibm.com>
+---
 
-BTW, I'm make revoke() just force re-verification
-of file access.
+ linux-2.6.8-rc3-bjking1/drivers/block/ll_rw_blk.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
-> ===== udev-remove.c 1.31 vs edited =====
-> - --- 1.31/udev-remove.c	2004-04-01 04:12:56 +02:00
-> +++ edited/udev-remove.c	2004-08-09 15:23:12 +02:00
-> @@ -79,6 +79,23 @@
->  	strfieldcat(filename, dev->name);
->  
->  	info("removing device node '%s'", filename);
-> +	/* first remove all permissions on the device node.
-> +	 * This fixes a security issue. If the user created
-> +	 * a hard-link to the device node, he can't use this
-> +	 * anymore, if we change permissions.
-> +	 */
-> +	retval = chmod(filename, 0000);
-> +	if (retval) {
-> +		info("chmod(%s, 0000) failed with error '%s'",
-> +		     filename, strerror(errno));
-> +		// we continue nevertheless.
-> +	}
-> +	retval = chown(filename, 0, 0);
-> +	if (retval) {
-> +		info("chown(%s, 0, 0) failed with error '%s'",
-> +		     filename, strerror(errno));
-> +		// we continue nevertheless.
-> +	}
->  	retval = unlink(filename);
->  	if (errno == ENOENT)
->  		retval = 0;
-
-
+diff -puN drivers/block/ll_rw_blk.c~blk_resize_tags_fix drivers/block/ll_rw_blk.c
+--- linux-2.6.8-rc3/drivers/block/ll_rw_blk.c~blk_resize_tags_fix	2004-08-09 10:20:23.000000000 -0500
++++ linux-2.6.8-rc3-bjking1/drivers/block/ll_rw_blk.c	2004-08-09 10:22:56.000000000 -0500
+@@ -559,9 +559,6 @@ init_tag_map(request_queue_t *q, struct 
+ 	for (i = depth; i < bits * BLK_TAGS_PER_LONG; i++)
+ 		__set_bit(i, tags->tag_map);
+ 
+-	INIT_LIST_HEAD(&tags->busy_list);
+-	tags->busy = 0;
+-	atomic_set(&tags->refcnt, 1);
+ 	return 0;
+ fail:
+ 	kfree(tags->tag_index);
+@@ -587,6 +584,10 @@ int blk_queue_init_tags(request_queue_t 
+ 
+ 		if (init_tag_map(q, tags, depth))
+ 			goto fail;
++
++		INIT_LIST_HEAD(&tags->busy_list);
++		tags->busy = 0;
++		atomic_set(&tags->refcnt, 1);
+ 	} else if (q->queue_tags) {
+ 		if ((rc = blk_queue_resize_tags(q, depth)))
+ 			return rc;
+_

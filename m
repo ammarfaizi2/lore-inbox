@@ -1,152 +1,231 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311026AbSCMTJ2>; Wed, 13 Mar 2002 14:09:28 -0500
+	id <S311038AbSCMTO6>; Wed, 13 Mar 2002 14:14:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311030AbSCMTJW>; Wed, 13 Mar 2002 14:09:22 -0500
-Received: from naxos.pdb.sbs.de ([192.109.3.5]:55782 "EHLO naxos.pdb.sbs.de")
-	by vger.kernel.org with ESMTP id <S311026AbSCMTJC>;
-	Wed, 13 Mar 2002 14:09:02 -0500
-Date: Wed, 13 Mar 2002 20:11:17 +0100 (CET)
-From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-To: Ingo Molnar <mingo@elte.hu>, "Maciej W. Rocycki" <macro@ds2.pg.gda.pl>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-        Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-Subject: Severe IRQ problems on Foster (P4 Xeon) system
-Message-ID: <Pine.LNX.4.33.0203131912140.1477-100000@biker.pdb.fsc.net>
+	id <S311035AbSCMTOu>; Wed, 13 Mar 2002 14:14:50 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:65448 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S311029AbSCMTOc>;
+	Wed, 13 Mar 2002 14:14:32 -0500
+Date: Wed, 13 Mar 2002 20:10:11 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+Cc: "Maciej W. Rocycki" <macro@ds2.pg.gda.pl>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
+In-Reply-To: <Pine.LNX.4.33.0203131912140.1477-100000@biker.pdb.fsc.net>
+Message-ID: <Pine.LNX.4.33.0203132006310.28859-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Ingo and Maciej, everybody,
+On Wed, 13 Mar 2002, Martin Wilck wrote:
 
-I am contacting you as the Linux experts for (IO)-Apics.
+> First of all, we see that virtually 100% of all IRQs are handled by
+> CPU 0. I have seen this reported a number of times before. I guess it
+> can become a severe performance problem in IRQ-intensive situations.
 
-We are currrently testing our new Foster (Pentium 4 Xeon with HT
-technology) machines and facing really weird problems particularly
-with the timer interrupt. The machine I am talking about has 2 physical,
-i.e. 4 logical CPUs. It has 4 dual-port Intel Pro/100 network cards
-built in.
+i've written a patch for this, it's enclosed in this email. It implements
+a brownean motion of IRQs, based on load patterns. The concept works
+really well on Foster CPUs - eg. it will redirect IRQs to idle CPUs - but
+if all CPUs are idle then the IRQs are randomly and evenly distributed
+between CPUs.
 
-** Before you read further: I cannot 100% exclude a hardware/BIOS
-   error yet, but something Linux does must have to do with it **
+(the patch can be made cheaper, but i've kept the overhead per-IRQ for the
+time being to have more flexibility.)
 
-First of all, we see that virtually 100% of all IRQs are handled by CPU 0.
-I have seen this reported a number of times before. I guess it can become
-a severe performance problem in IRQ-intensive situations.
+let me know whether this fixes your problem,
 
-But much worse, we encounter the following problem:
+	Ingo
 
-- sporadically the timer interrupt becomes disabled sometime after
-  booting (typically around X startup).
+--- linux/kernel/sched.c.orig	Tue Feb  5 13:11:35 2002
++++ linux/kernel/sched.c	Tue Feb  5 13:12:48 2002
+@@ -118,6 +118,11 @@
+ #define can_schedule(p,cpu) \
+ 	((p)->cpus_runnable & (p)->cpus_allowed & (1 << cpu))
 
-- This is caused by a "junk" value that appears in the mask register
-  of the master 8259a PIC (the system is working in ExtINT mode for timer
-  IRQs.
++int idle_cpu(int cpu)
++{
++	return cpu_curr(cpu) == idle_task(cpu);
++}
++
+ #else
 
-- The system can be "healed" by rewriting the correct value into register
-  0x21.
+ #define idle_task(cpu) (&init_task)
+--- linux/include/linux/sched.h.orig	Tue Feb  5 13:13:09 2002
++++ linux/include/linux/sched.h	Tue Feb  5 13:14:00 2002
+@@ -144,6 +144,7 @@
 
-- We see with a bus logic analyzer that the junk value is read after the
-  completely legal mask 0xfa was last written to the register.
-  However according to my understanding that register should not be
-  written after initialization, because IRQ are disabled through the
-  APIC, not the 8259a?
+ extern void sched_init(void);
+ extern void init_idle(void);
++extern int idle_cpu(int cpu);
+ extern void show_state(void);
+ extern void cpu_init (void);
+ extern void trap_init(void);
+--- linux/include/asm-i386/hardirq.h.orig	Tue Feb  5 13:10:39 2002
++++ linux/include/asm-i386/hardirq.h	Tue Feb  5 13:14:00 2002
+@@ -12,6 +12,7 @@
+ 	unsigned int __local_bh_count;
+ 	unsigned int __syscall_count;
+ 	struct task_struct * __ksoftirqd_task; /* waitqueue is too large */
++	unsigned long idle_timestamp;
+ 	unsigned int __nmi_count;	/* arch dependent */
+ } ____cacheline_aligned irq_cpustat_t;
 
-- The junk value always appears after CPU 1 gets a timer interrupt.
-  As stated above, this hardly happens at all, but CPU 1 seems to get
-  2-6 timer interrupts during each boot. These are all consecutive,
-  and starting with the second one the "junk" value is found in io-port
-  0x21.
+--- linux/arch/i386/kernel/io_apic.c.orig	Tue Feb  5 13:10:37 2002
++++ linux/arch/i386/kernel/io_apic.c	Tue Feb  5 13:15:23 2002
+@@ -28,6 +28,7 @@
+ #include <linux/config.h>
+ #include <linux/smp_lock.h>
+ #include <linux/mc146818rtc.h>
++#include <linux/compiler.h>
 
-Here is an excerpt from my syslog demonstrating this (I put some printk's
-in do_IRQ, printk is triggered if either a CPU other than 0 serves the
-IRQ or if the value in port 0x21 != 0xfa, lines ending):
+ #include <asm/io.h>
+ #include <asm/smp.h>
+@@ -163,6 +164,86 @@
+ 			clear_IO_APIC_pin(apic, pin);
+ }
 
-                                 jiffies | 0x21        desc->status|
-                                         V   V                     V
-Mar 12 16:51:40 pdb0374c kernel: IRQ1: 8931: fa, CPU 1 IRQ 0 status 0
-Mar 12 16:51:40 pdb0374c kernel: IRQ1: 8931: fa, CPU 1 IRQ 0 stat 5
-Mar 12 16:51:40 pdb0374c kernel: IRQ1: 8932: fa, CPU 1 IRQ 0 status 1  <==
-Mar 12 16:51:40 pdb0374c kernel: IRQ1: 8932: 07, CPU 1 IRQ 0 stat 5    <==
-Mar 12 16:51:40 pdb0374c kernel: IRQ1: 8934: 07, CPU 1 IRQ 0 status 0
-Mar 12 16:51:40 pdb0374c kernel: IRQ1: 8934: 07, CPU 0 IRQ 0 stat 0    <==
-Mar 12 16:51:40 pdb0374c kernel: IRQ1: 8935: 07, CPU 1 IRQ 0 stat 0
-Mar 12 16:51:40 pdb0374c kernel: IRQ1: 8935: 07, CPU 1 IRQ 0 status 0
-Mar 12 16:51:40 pdb0374c kernel: IRQ1: 8936: 07, CPU 1 IRQ 0 stat 0
-Mar 12 16:51:40 pdb0374c kernel: IRQ1: 8936: 07, CPU 1 IRQ 0 status 0
-Mar 12 16:51:40 pdb0374c kernel: IRQ1: 8937: 07, CPU 1 IRQ 0 stat 0
-Mar 12 16:51:40 pdb0374c kernel: IRQ1: 8937: 07, CPU 0 IRQ 28 stat 0
-Mar 12 16:51:40 pdb0374c last message repeated 42 times
-[ no more timer interrupts below here ].
++static void set_ioapic_affinity (unsigned int irq, unsigned long mask)
++{
++	unsigned long flags;
++
++	/*
++	 * Only the first 8 bits are valid.
++	 */
++	mask = mask << 24;
++	spin_lock_irqsave(&ioapic_lock, flags);
++	__DO_ACTION(1, = mask, )
++	spin_unlock_irqrestore(&ioapic_lock, flags);
++}
++
++#if CONFIG_SMP
++
++typedef struct {
++	unsigned int cpu;
++	unsigned long timestamp;
++} ____cacheline_aligned irq_balance_t;
++
++static irq_balance_t irq_balance[NR_IRQS] __cacheline_aligned
++			= { [ 0 ... NR_IRQS-1 ] = { 1, 0 } };
++
++extern unsigned long irq_affinity [NR_IRQS];
++
++#endif
++
++#define IDLE_ENOUGH(cpu,now) \
++		(idle_cpu(cpu) && ((now) - irq_stat[(cpu)].idle_timestamp > 1))
++
++#define IRQ_ALLOWED(cpu,allowed_mask) \
++		((1 << cpu) & (allowed_mask))
++
++static unsigned long move(int curr_cpu, unsigned long allowed_mask, unsigned long now, int direction)
++{
++	int search_idle = 1;
++	int cpu = curr_cpu;
++
++	goto inside;
++
++	do {
++		if (unlikely(cpu == curr_cpu))
++			search_idle = 0;
++inside:
++		if (direction == 1) {
++			cpu++;
++			if (cpu >= smp_num_cpus)
++				cpu = 0;
++		} else {
++			cpu--;
++			if (cpu == -1)
++				cpu = smp_num_cpus-1;
++		}
++	} while (!IRQ_ALLOWED(cpu,allowed_mask) ||
++			(search_idle && !IDLE_ENOUGH(cpu,now)));
++
++	return cpu;
++}
++
++static inline void balance_irq(int irq)
++{
++#if CONFIG_SMP
++	irq_balance_t *entry = irq_balance + irq;
++	unsigned long now = jiffies;
++
++	if (unlikely(entry->timestamp != now)) {
++		unsigned long allowed_mask;
++		int random_number;
++
++		rdtscl(random_number);
++		random_number &= 1;
++
++		allowed_mask = cpu_online_map & irq_affinity[irq];
++		entry->timestamp = now;
++		entry->cpu = move(entry->cpu, allowed_mask, now, random_number);
++		set_ioapic_affinity(irq, 1 << entry->cpu);
++	}
++#endif
++}
++
+ /*
+  * support for broken MP BIOSs, enables hand-redirection of PIRQ0-7 to
+  * specific CPU-side IRQs.
+@@ -653,8 +734,7 @@
+ }
 
-Lines ending in "status" represent entry in do_IRQ(), "stat" represents
-exit from do_IRQ() (label "out:").
+ /*
+- * Set up the 8259A-master output pin as broadcast to all
+- * CPUs.
++ * Set up the 8259A-master output pin:
+  */
+ void __init setup_ExtINT_IRQ0_pin(unsigned int pin, int vector)
+ {
+@@ -1174,6 +1254,7 @@
+  */
+ static void ack_edge_ioapic_irq(unsigned int irq)
+ {
++	balance_irq(irq);
+ 	if ((irq_desc[irq].status & (IRQ_PENDING | IRQ_DISABLED))
+ 					== (IRQ_PENDING | IRQ_DISABLED))
+ 		mask_IO_APIC_irq(irq);
+@@ -1213,6 +1294,7 @@
+ 	unsigned long v;
+ 	int i;
 
-Where the <== arrows are, it seems that CPU 0 and 1 are executing the
-timer IRQ in parallel (!). The entry to do_IRQ for CPU 0 is not listed
-because my conditions for printk were not met.
++	balance_irq(irq);
+ /*
+  * It appears there is an erratum which affects at least version 0x11
+  * of I/O APIC (that's the 82093AA and cores integrated into various
+@@ -1268,19 +1350,6 @@
+ }
 
-Very strange, too: After the PIC is masked, we see 4(!) more timer
-interrupts - where do they come from ?
+ static void mask_and_ack_level_ioapic_irq (unsigned int irq) { /* nothing */ }
+-
+-static void set_ioapic_affinity (unsigned int irq, unsigned long mask)
+-{
+-	unsigned long flags;
+-	/*
+-	 * Only the first 8 bits are valid.
+-	 */
+-	mask = mask << 24;
+-
+-	spin_lock_irqsave(&ioapic_lock, flags);
+-	__DO_ACTION(1, = mask, )
+-	spin_unlock_irqrestore(&ioapic_lock, flags);
+-}
 
-My guess: We are in a situation where CPU 0 is overwhelmed by interrupts
-from the 5 network interfaces in this machine. This leads to timer
-interrupts "piling up", and eventually an interrupt is even delivered
-to CPU 1. If this happens to occur simultaneously with CPU 0, we get
-some sort of race condition.
+ /*
+  * Level and edge triggered IO-APIC interrupts need different handling,
+--- linux/arch/i386/kernel/irq.c.orig	Tue Feb  5 13:10:34 2002
++++ linux/arch/i386/kernel/irq.c	Tue Feb  5 13:11:15 2002
+@@ -1076,7 +1076,7 @@
 
-Our PCI bus protocol analysis gives another hint:
+ static struct proc_dir_entry * smp_affinity_entry [NR_IRQS];
 
-It seems that the problem occurs in this code fragment from time.c:
-
-#ifdef CONFIG_X86_IO_APIC
-	if (timer_ack) {
-		/*
-		 * Subtle, when I/O APICs are used we have to ack timer IRQ
-		 * manually to reset the IRR bit for do_slow_gettimeoffset().
-		 * This will also deassert NMI lines for the watchdog if run
-		 * on an 82489DX-based system.
-		 */
-		spin_lock(&i8259A_lock);
-		outb(0x0c, 0x20);
-		/* Ack the IRQ; AEOI will end it automatically. */   <==
-		inb(0x20);
-		spin_unlock(&i8259A_lock);
-	}
-#endif
-
-The above fragment is executed ~50us after the last write of the (correct)
-value 0xfa to port 0x21.
-
-Where the <== arrow is, the analyzer clearly shows the outb (0x0c, 0x20)
-operation. After that, we see strange cycles for ~70us (probably special
-cycles for arbitration, definitely no valid data transfers). The very next bus
-operation is a read on port 0x21 that reveals the junk value 0x07! The
-inb(0x20) call is not captured in our protocol, it must occur long after
-the error. (We saw normal execution of the above code fragment where
-there is ~1us between the outb and inb, where it is >120us here).
-
-That's our state of insight so far. Any hints are very welcome.
-
-Martin
-
-PS We were testing with RedHat's 2.4.9-21 and SuSE's 2.4.16 kernel.
-   AFAICS, there are no significant changes between these and newer
-   kernels wrt APIC handling. The error occurs only once in a few
-   hours, so our testing possibilities are limited by time.
-   And yes, we were using Intel's e100.o driver for the ethernet
-   boards. But the driver is not to blame, the problem occurs even
-   if no driver is loaded for the cards at all.
-
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
-
-
-
-
+-static unsigned long irq_affinity [NR_IRQS] = { [0 ... NR_IRQS-1] = ~0UL };
++unsigned long irq_affinity [NR_IRQS] = { [0 ... NR_IRQS-1] = ~0UL };
+ static int irq_affinity_read_proc (char *page, char **start, off_t off,
+ 			int count, int *eof, void *data)
+ {
 

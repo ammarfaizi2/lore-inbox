@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130610AbRBTUHv>; Tue, 20 Feb 2001 15:07:51 -0500
+	id <S130612AbRBTUJV>; Tue, 20 Feb 2001 15:09:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130612AbRBTUHl>; Tue, 20 Feb 2001 15:07:41 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:52228 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S130610AbRBTUHa>;
-	Tue, 20 Feb 2001 15:07:30 -0500
-Message-ID: <20010220183513.B5102@bug.ucw.cz>
-Date: Tue, 20 Feb 2001 18:35:13 +0100
+	id <S130589AbRBTUJL>; Tue, 20 Feb 2001 15:09:11 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:53252 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S130573AbRBTUJD>;
+	Tue, 20 Feb 2001 15:09:03 -0500
+Date: Sat, 1 Jan 2000 01:11:43 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Manfred Spraul <manfred@colorfullife.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [beta patch] SSE copy_page() / clear_page()
-In-Reply-To: <3A846C84.109F1D7D@colorfullife.com> <200102092240.OAA15902@penguin.transmeta.com> <3A8B08C7.BD79E3B4@colorfullife.com>
+To: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+Cc: Mark Vojkovich <mvojkovich@nvidia.com>, xpert@xfree86.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Xpert]Video drivers and the kernel
+Message-ID: <20000101011143.A32@(none)>
+In-Reply-To: <Pine.LNX.4.21.0102131937590.1564-100000@mvojkovich1.nvidia.com> <3A8AD550.87898BB0@sympatico.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <3A8B08C7.BD79E3B4@colorfullife.com>; from Manfred Spraul on Wed, Feb 14, 2001 at 11:37:59PM +0100
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3A8AD550.87898BB0@sympatico.ca>; from jeremy.jackson@sympatico.ca on Wed, Feb 14, 2001 at 01:58:24PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> --- 2.4/mm/filemap.c	Wed Feb 14 10:51:42 2001
-> +++ build-2.4/mm/filemap.c	Wed Feb 14 22:11:44 2001
-> @@ -1248,6 +1248,20 @@
->  		size = count;
->  
->  	kaddr = kmap(page);
-> +	if (size > 128) {
-> +		int i;
-> +		__asm__ __volatile__(
-> +			"mov %1, %0\n\t"
-> +			: "=r" (i)
-> +			: "r" (kaddr+offset)); /* load tlb entry */
-> +		for(i=0;i<size;i+=64) {
-> +			__asm__ __volatile__(
-> +				"prefetchnta (%1, %0)\n\t"
-> +				"prefetchnta 32(%1, %0)\n\t"
-> +				: /* no output */
-> +				: "r" (i), "r" (kaddr+offset));
-> +		}
-> +	}
->  	left = __copy_to_user(desc->buf, kaddr + offset, size);
->  	kunmap(page);
+> (Aside, is this because X uses keyboard in raw mode?  would be nice to still
+> be able to ctrl-alt-del to rebood from console)  Anyone know about
+> using alt-sysrq to restore console?
 
-This seems bogus -- you need to handle faults --
-i.e. __prefetchnta_to_user() ;-).
+Alt-SysRq-U,S,B. Should work as long as kernel is alive. It is not completely 
+clean shutdown, but will prevent fsck.
 								Pavel
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

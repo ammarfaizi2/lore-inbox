@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268809AbRG0Jxu>; Fri, 27 Jul 2001 05:53:50 -0400
+	id <S268812AbRG0JyA>; Fri, 27 Jul 2001 05:54:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268810AbRG0Jxk>; Fri, 27 Jul 2001 05:53:40 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62213 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268813AbRG0Jx2>; Fri, 27 Jul 2001 05:53:28 -0400
-Subject: Re: 2.4.7 + VIA Pro266 + 2xUltraTx2 lockups
-To: rjh@groucho.maths.monash.edu.au (Robin Humble)
-Date: Fri, 27 Jul 2001 10:54:47 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Robin Humble" at Jul 27, 2001 03:26:02 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S268811AbRG0Jxu>; Fri, 27 Jul 2001 05:53:50 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:27210 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S268814AbRG0Jxk>;
+	Fri, 27 Jul 2001 05:53:40 -0400
+Message-ID: <20010727115350.A9407@win.tue.nl>
+Date: Fri, 27 Jul 2001 11:53:50 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: "J . A . Magallon" <jamagallon@able.es>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mount-2.11e bug ?
+In-Reply-To: <20010727013138.A4186@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Q4KV-0005LU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010727013138.A4186@werewolf.able.es>; from J . A . Magallon on Fri, Jul 27, 2001 at 01:31:38AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> So the system is stable when driving a single Tx2 card, or on a BX,
-> but just not two Tx2's together on the pro266 board :-/ So it's
-> perhaps (I'm guessing here :) a non-trivial Tx2 driver bug or maybe a
-> VIA Pro266 problem?
+On Fri, Jul 27, 2001 at 01:31:38AM +0200, J . A . Magallon wrote:
 
-Firstly please try 2.4.6-ac5 as that has the proper VIA workaround for their
-bridge bugs. Its useful to rule out the very conservative approach the older
-kernels use to avoid the disk corruption problem they had
+> Can anybody tell me if there was a bug in mount from util-linux-2.11e that could
+> do things like this with new kernels:
+> 
+> /etc/fstab:
+> ...
+> tmpfs /dev/shm tmpfs defaults,size=128M 0 0
+> ...
+> 
+> werewolf:~/soft/util/util-linux-2.11e/mount# df
+> Filesystem           1k-blocks      Used Available Use% Mounted on
+> /dev/sda1               248895     83086    152959  36% /
+> /dev/sda2              3099292   2092872    848984  72% /usr
+> /dev/sda3              4095488   1603796   2283652  42% /home
+> /dev/sda5              1027768         8    975552   1% /toast
+> /home/soft/util/util-linux-2.11e/mount/tmpfs
+>                         131072         0    131072   0% /dev/shm
+> 
+> 2.11h works ok.
 
-Alan
+Yes, there was.
+
+Mount does a canonicalize() on the path names of device and mount point.
+Thus, tmpfs when your current directory is ~/soft/util/util-linux-2.11e/mount
+becomes /home/soft/util/util-linux-2.11e/mount/tmpfs.
+
+However, this only happens when the thus obtained pathname points at an
+actual file. In a few mount versions the realpath() routine also did this
+when there is no such file.
+
+Andries

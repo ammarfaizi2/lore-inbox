@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277920AbRJITMW>; Tue, 9 Oct 2001 15:12:22 -0400
+	id <S277919AbRJITQm>; Tue, 9 Oct 2001 15:16:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277919AbRJITMM>; Tue, 9 Oct 2001 15:12:12 -0400
-Received: from cnxt10002.conexant.com ([198.62.10.2]:13098 "EHLO
-	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
-	id <S277918AbRJITL6>; Tue, 9 Oct 2001 15:11:58 -0400
-Date: Tue, 9 Oct 2001 21:11:31 +0200 (CEST)
-From: Rui Sousa <rui.p.m.sousa@clix.pt>
-X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
-        <emu10k1-devel@opensource.creative.com>
-Subject: Re: [Emu10k1-devel] Re: Emu10k1 driver update
-In-Reply-To: <Pine.LNX.3.96.1011009135124.9171F-100000@mandrakesoft.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0110092100040.3012-100000@sophia-sousar2.nice.mindspeed.com>
+	id <S277918AbRJITQc>; Tue, 9 Oct 2001 15:16:32 -0400
+Received: from mercury.lss.emc.com ([168.159.40.77]:4881 "EHLO
+	mercury.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S277916AbRJITQQ>; Tue, 9 Oct 2001 15:16:16 -0400
+Message-ID: <FA2F59D0E55B4B4892EA076FF8704F5507929B@srgraham.eng.emc.com>
+From: "conway, heather" <conway_heather@emc.com>
+To: "'Andre Margis '" <andre@sam.com.br>,
+        "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>
+Subject: RE: EMC SYMMETRIX multiple LUN's
+Date: Tue, 9 Oct 2001 15:16:20 -0400 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, Jeff Garzik wrote:
+Andre,
+There is a problem in the SCSI scanning code in v2.4.7 and up.  As of right
+now, I have not found a patch or fix that will work to correct the problem
+of scanning properly with or without the Symmetrix.  In v2.4.7, the SCSI
+scanning code was changed.  That coupled with the fact that sequentail
+scanning is used instead of a REPORT_LUNs and the fact that the SCSI
+midlayer will scan indefinitely for LUNs can cause a panic or can cause the
+host to scan indefinitely.
+There have been a couple of patches posted, but none have fixed the problem
+yet.  
+Heather 
 
-Point taken.
+-----Original Message-----
+From: Andre Margis
+To: linux-kernel@vger.kernel.org
+Sent: 10/8/01 9:50 AM
+Subject: EMC SYMMETRIX multiple LUN's
 
->From what I see doing locking with a spinlock is quite tricky.
+I testing DELL 8450 under Linux, and kernel probe only two LUN's from
+EMC, 0 
+and 1, but I have 2 and 254, if  I use scsi add-single-device to this
+other 
+LUN's, works perfect. I try to set max_scsi_luns, has the same results.
 
- codec->read_mixer = ac97_read_mixer;  //can be called holding spinlock
- codec->write_mixer = ac97_write_mixer; //can be called holding spinlock
- codec->recmask_io = ac97_recmask_io;
- codec->mixer_ioctl = ac97_mixer_ioctl; //in general can't be called
-holding spinlock
+I test with kernel 2.4.9, 2.4.10-ac7, both have the same problem.
 
-and ac97_mixer_ioctl() itself calls ac97_read/write_mixer().
+With Conectiva Linux Kernel 2.4.5-9cl, he show all LUNS, work fine!
 
-A semaphore on the mixer device open function would do just fine If I
-didn't had an interrupt handler also touching the ac97_codec...
+Any Help?
 
-Rui
 
-> On Tue, 9 Oct 2001, Rui Sousa wrote:
-> > Actually there is no locking implemented for the ac97 codec mixer.
-> > It never seemed worth it, even if there are potential races in the code.
-> > To have two applications accessing the mixer at the same time is a _very_
-> > rare condition and the worse that can happen is to set a wrong volume
-> > value. Anyway, I will give it another look and try to come up with a fix.
->
-> I have a patch in the wings which adds locking to mixer accesses, for
-> via82cxxx_audio, because the lack of locking was causing problems.  So,
-> some people with some apps do indeed notice...
->
-> 	Jeff
->
->
->
->
-> _______________________________________________
-> Emu10k1-devel mailing list
-> Emu10k1-devel@opensource.creative.com
-> http://opensource.creative.com/mailman/listinfo/emu10k1-devel
->
+Thank's
 
+
+
+
+Andre
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVCXCbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262980AbVCXCgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbVCXCbi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 21:31:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbVCXCbi
+	id S262980AbVCXCgG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 21:36:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVCXCgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 21:31:38 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:29586 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261361AbVCXCbh (ORCPT
+	Wed, 23 Mar 2005 21:36:06 -0500
+Received: from fire.osdl.org ([65.172.181.4]:59048 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262980AbVCXCgF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 21:31:37 -0500
-Date: Thu, 24 Mar 2005 13:27:29 +1100 (EST)
-From: Mark Goodwin <markgw@sgi.com>
-X-X-Sender: markgw@woolami.melbourne.sgi.com
-To: Jens Axboe <axboe@suse.de>
-cc: Mark Seger <Mark.Seger@hp.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patch for inconsistent recording of block device statistics
-In-Reply-To: <20050323183329.GG16149@suse.de>
-Message-ID: <Pine.LNX.4.62.0503241325480.8525@woolami.melbourne.sgi.com>
-References: <42409313.1010308@hp.com> <20050323091916.GO24105@suse.de>
- <42417FE3.2090506@hp.com> <20050323155150.GE16149@suse.de> <4241B407.4070700@hp.com>
- <20050323183329.GG16149@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Mar 2005 21:36:05 -0500
+Date: Wed, 23 Mar 2005 18:35:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hirokazu Takata <takata@linux-m32r.org>
+Cc: linux-kernel@vger.kernel.org, sugai@isl.melco.co.jp,
+       ysato@users.sourceforge.jp, inaoka.kazuhiro@renesas.com,
+       fujiwara@linux-m32r.org, takata@linux-m32r.org
+Subject: Re: [PATCH 2.6.12-rc1] m32r: Update MMU-less support (0/3)
+Message-Id: <20050323183535.658d4faf.akpm@osdl.org>
+In-Reply-To: <20050324.104815.304093279.takata.hirokazu@renesas.com>
+References: <20050324.104815.304093279.takata.hirokazu@renesas.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hirokazu Takata <takata@linux-m32r.org> wrote:
+>
+> Here is a patchset to update m32r's MMU-less support.
 
-On Wed, 23 Mar 2005, Jens Axboe wrote:
-> Yes, I will make sure it gets committed. Thanks for your help so far.
-> 
-> -- 
-> Jens Axboe
+I'd prefer it if you could avoid sending multiple patches with the same
+title in future, please.  It mucks up my patch naming and tracking system,
+and surely all three patches weren't doing the same thing?
 
-Jens, 
-
-SGI needs this fix. Will it find it's way into SLES9/SP2?
-Or should we open a SuSE bug?
-
-Thanks
--- Mark Goodwin
+More at http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt, thanks.

@@ -1,403 +1,1988 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVBWTx0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVBWUCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbVBWTx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 14:53:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVBWTx0
+	id S261559AbVBWUCk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 15:02:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVBWUCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 14:53:26 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:10113 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261549AbVBWTwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 14:52:53 -0500
-Subject: Re: More latency regressions with 2.6.11-rc4-RT-V0.7.39-02
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1109182061.16201.6.camel@krustophenia.net>
-References: <1109182061.16201.6.camel@krustophenia.net>
-Content-Type: multipart/mixed; boundary="=-rYdZRaWRStq91AH+bGVE"
-Date: Wed, 23 Feb 2005 14:52:50 -0500
-Message-Id: <1109188371.3174.9.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Wed, 23 Feb 2005 15:02:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65479 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261547AbVBWT5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 14:57:30 -0500
+Message-ID: <421CE018.5030007@pobox.com>
+Date: Wed, 23 Feb 2005 14:57:12 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+CC: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Mark Lord <mlord@pobox.com>
+Subject: [BK PATCHES] 2.6.x libata fixes (mostly)
+Content-Type: multipart/mixed;
+ boundary="------------090203030504070600070301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-rYdZRaWRStq91AH+bGVE
-Content-Type: text/plain
+This is a multi-part message in MIME format.
+--------------090203030504070600070301
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On Wed, 2005-02-23 at 13:07 -0500, Lee Revell wrote:
-> This is all with PREEMPT_DESKTOP.
-> 
+This BK push includes additional hardware support, but that's only 
+because it's (a) obviously low impact and (b) it was in the queue.
 
-Here is another new one, this time in the ext3 reservation code.
+Far more important are:
 
-Lee
+1) API additions, to fix a severe bug:  advanced drivers such as AHCI 
+were directly bitbanging --non-existent-- PCI IDE registers, causing an 
+oops, because of function calls buried deep within libata.
 
---=-rYdZRaWRStq91AH+bGVE
-Content-Disposition: attachment; filename=trace6.txt
-Content-Type: text/plain; name=trace6.txt; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-
-preemption latency trace v1.1.4 on 2.6.11-rc4-RT-V0.7.39-02
---------------------------------------------------------------------
- latency: 296 탎, #339/339, CPU#0 | (M:preempt VP:0, KP:1, SP:1 HP:1 #P:1)
-    -----------------
-    | task: ksoftirqd/0-2 (uid:0 nice:-10 policy:0 rt_prio:0)
-    -----------------
-
-                 _------=> CPU#            
-                / _-----=> irqs-off        
-               | / _----=> need-resched    
-               || / _---=> hardirq/softirq 
-               ||| / _--=> preempt-depth   
-               |||| /                      
-               |||||     delay             
-   cmd     pid ||||| time  |   caller      
-      \   /    |||||   \   |   /           
-(T1/#0)           dbench  3399 0 9 00000002 00000000 [0000784436927163] 0.000ms (+876876.851ms): <6e656264> (<61006863>)
-(T1/#2)           dbench  3399 0 9 00000002 00000002 [0000784436927557] 0.000ms (+0.001ms): __trace_start_sched_wakeup+0x96/0xc0 <c012cbe6> (try_to_wake_up+0x81/0x150 <c010f911>)
-(T1/#3)           dbench  3399 0 9 00000000 00000003 [0000784436928168] 0.001ms (+0.000ms): wake_up_process+0x1c/0x30 <c010f9fc> (do_softirq+0x4b/0x60 <c01042fb>)
-(T6/#4)   dbench-3399  0dn.2    2탎 < (1)
-(T1/#5)           dbench  3399 0 2 00000002 00000005 [0000784436929084] 0.003ms (+0.003ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#6)           dbench  3399 0 2 00000002 00000006 [0000784436931285] 0.006ms (+0.001ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#7)           dbench  3399 0 2 00000002 00000007 [0000784436931964] 0.007ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#8)           dbench  3399 0 2 00000002 00000008 [0000784436932467] 0.008ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#9)           dbench  3399 0 2 00000002 00000009 [0000784436932849] 0.009ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#10)           dbench  3399 0 2 00000002 0000000a [0000784436933339] 0.010ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#11)           dbench  3399 0 2 00000002 0000000b [0000784436933798] 0.011ms (+0.005ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#12)           dbench  3399 0 2 00000002 0000000c [0000784436937044] 0.016ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#13)           dbench  3399 0 2 00000002 0000000d [0000784436937638] 0.017ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#14)           dbench  3399 0 2 00000002 0000000e [0000784436938093] 0.018ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#15)           dbench  3399 0 2 00000002 0000000f [0000784436938460] 0.018ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#16)           dbench  3399 0 2 00000002 00000010 [0000784436938946] 0.019ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#17)           dbench  3399 0 2 00000002 00000011 [0000784436939518] 0.020ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#18)           dbench  3399 0 2 00000002 00000012 [0000784436939929] 0.021ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#19)           dbench  3399 0 2 00000002 00000013 [0000784436940424] 0.022ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#20)           dbench  3399 0 2 00000002 00000014 [0000784436940865] 0.022ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#21)           dbench  3399 0 2 00000002 00000015 [0000784436941335] 0.023ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#22)           dbench  3399 0 2 00000002 00000016 [0000784436941819] 0.024ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#23)           dbench  3399 0 2 00000002 00000017 [0000784436942273] 0.025ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#24)           dbench  3399 0 2 00000002 00000018 [0000784436942674] 0.025ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#25)           dbench  3399 0 2 00000002 00000019 [0000784436943164] 0.026ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#26)           dbench  3399 0 2 00000002 0000001a [0000784436943610] 0.027ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#27)           dbench  3399 0 2 00000002 0000001b [0000784436944010] 0.028ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#28)           dbench  3399 0 2 00000002 0000001c [0000784436944501] 0.028ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#29)           dbench  3399 0 2 00000002 0000001d [0000784436945572] 0.030ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#30)           dbench  3399 0 2 00000002 0000001e [0000784436946139] 0.031ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#31)           dbench  3399 0 2 00000002 0000001f [0000784436946629] 0.032ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#32)           dbench  3399 0 2 00000002 00000020 [0000784436947084] 0.033ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#33)           dbench  3399 0 2 00000002 00000021 [0000784436947556] 0.033ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#34)           dbench  3399 0 2 00000002 00000022 [0000784436948042] 0.034ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#35)           dbench  3399 0 2 00000002 00000023 [0000784436948501] 0.035ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#36)           dbench  3399 0 2 00000002 00000024 [0000784436948897] 0.036ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#37)           dbench  3399 0 2 00000002 00000025 [0000784436949383] 0.036ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#38)           dbench  3399 0 2 00000002 00000026 [0000784436949824] 0.037ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#39)           dbench  3399 0 2 00000002 00000027 [0000784436950229] 0.038ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#40)           dbench  3399 0 2 00000002 00000028 [0000784436950715] 0.039ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#41)           dbench  3399 0 2 00000002 00000029 [0000784436951593] 0.040ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#42)           dbench  3399 0 2 00000002 0000002a [0000784436952106] 0.041ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#43)           dbench  3399 0 2 00000002 0000002b [0000784436952596] 0.042ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#44)           dbench  3399 0 2 00000002 0000002c [0000784436953114] 0.043ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#45)           dbench  3399 0 2 00000002 0000002d [0000784436953528] 0.043ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#46)           dbench  3399 0 2 00000002 0000002e [0000784436954018] 0.044ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#47)           dbench  3399 0 2 00000002 0000002f [0000784436954540] 0.045ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#48)           dbench  3399 0 2 00000002 00000030 [0000784436955197] 0.046ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#49)           dbench  3399 0 2 00000002 00000031 [0000784436955755] 0.047ms (+0.004ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#50)           dbench  3399 0 2 00000002 00000032 [0000784436958356] 0.051ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#51)           dbench  3399 0 2 00000002 00000033 [0000784436958860] 0.052ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#52)           dbench  3399 0 2 00000002 00000034 [0000784436959346] 0.053ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#53)           dbench  3399 0 2 00000002 00000035 [0000784436959801] 0.054ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#54)           dbench  3399 0 2 00000002 00000036 [0000784436960201] 0.054ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#55)           dbench  3399 0 2 00000002 00000037 [0000784436960705] 0.055ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#56)           dbench  3399 0 2 00000002 00000038 [0000784436961223] 0.056ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#57)           dbench  3399 0 2 00000002 00000039 [0000784436961637] 0.057ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#58)           dbench  3399 0 2 00000002 0000003a [0000784436962127] 0.058ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#59)           dbench  3399 0 2 00000002 0000003b [0000784436962717] 0.059ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#60)           dbench  3399 0 2 00000002 0000003c [0000784436963131] 0.059ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#61)           dbench  3399 0 2 00000002 0000003d [0000784436963621] 0.060ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#62)           dbench  3399 0 2 00000002 0000003e [0000784436964062] 0.061ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#63)           dbench  3399 0 2 00000002 0000003f [0000784436964539] 0.062ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#64)           dbench  3399 0 2 00000002 00000040 [0000784436965025] 0.062ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#65)           dbench  3399 0 2 00000002 00000041 [0000784436965642] 0.064ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#66)           dbench  3399 0 2 00000002 00000042 [0000784436966636] 0.065ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#67)           dbench  3399 0 2 00000002 00000043 [0000784436967181] 0.066ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#68)           dbench  3399 0 2 00000002 00000044 [0000784436967716] 0.067ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#69)           dbench  3399 0 2 00000002 00000045 [0000784436968688] 0.069ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#70)           dbench  3399 0 2 00000002 00000046 [0000784436969251] 0.070ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#71)           dbench  3399 0 2 00000002 00000047 [0000784436969840] 0.071ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#72)           dbench  3399 0 2 00000002 00000048 [0000784436970263] 0.071ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#73)           dbench  3399 0 2 00000002 00000049 [0000784436970754] 0.072ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#74)           dbench  3399 0 2 00000002 0000004a [0000784436971276] 0.073ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#75)           dbench  3399 0 2 00000002 0000004b [0000784436971838] 0.074ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#76)           dbench  3399 0 2 00000002 0000004c [0000784436972329] 0.075ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#77)           dbench  3399 0 2 00000002 0000004d [0000784436973184] 0.076ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#78)           dbench  3399 0 2 00000002 0000004e [0000784436973742] 0.077ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#79)           dbench  3399 0 2 00000002 0000004f [0000784436974237] 0.078ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#80)           dbench  3399 0 2 00000002 00000050 [0000784436974691] 0.079ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#81)           dbench  3399 0 2 00000002 00000051 [0000784436975092] 0.079ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#82)           dbench  3399 0 2 00000002 00000052 [0000784436975578] 0.080ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#83)           dbench  3399 0 2 00000002 00000053 [0000784436976019] 0.081ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#84)           dbench  3399 0 2 00000002 00000054 [0000784436976415] 0.081ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#85)           dbench  3399 0 2 00000002 00000055 [0000784436976901] 0.082ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#86)           dbench  3399 0 2 00000002 00000056 [0000784436977423] 0.083ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#87)           dbench  3399 0 2 00000002 00000057 [0000784436977837] 0.084ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#88)           dbench  3399 0 2 00000002 00000058 [0000784436978327] 0.085ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#89)           dbench  3399 0 2 00000002 00000059 [0000784436978845] 0.085ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#90)           dbench  3399 0 2 00000002 0000005a [0000784436979412] 0.086ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#91)           dbench  3399 0 2 00000002 0000005b [0000784436979902] 0.087ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#92)           dbench  3399 0 2 00000002 0000005c [0000784436980361] 0.088ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#93)           dbench  3399 0 2 00000002 0000005d [0000784436980762] 0.089ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#94)           dbench  3399 0 2 00000002 0000005e [0000784436981252] 0.089ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#95)           dbench  3399 0 2 00000002 0000005f [0000784436981698] 0.090ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#96)           dbench  3399 0 2 00000002 00000060 [0000784436982098] 0.091ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#97)           dbench  3399 0 2 00000002 00000061 [0000784436982584] 0.092ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#98)           dbench  3399 0 2 00000002 00000062 [0000784436983021] 0.092ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#99)           dbench  3399 0 2 00000002 00000063 [0000784436983417] 0.093ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#100)           dbench  3399 0 2 00000002 00000064 [0000784436983916] 0.094ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#101)           dbench  3399 0 2 00000002 00000065 [0000784436984357] 0.095ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#102)           dbench  3399 0 2 00000002 00000066 [0000784436984839] 0.095ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#103)           dbench  3399 0 2 00000002 00000067 [0000784436985392] 0.096ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#104)           dbench  3399 0 2 00000002 00000068 [0000784436986108] 0.098ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#105)           dbench  3399 0 2 00000002 00000069 [0000784436986972] 0.099ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#106)           dbench  3399 0 2 00000002 0000006a [0000784436987570] 0.100ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#107)           dbench  3399 0 2 00000002 0000006b [0000784436988083] 0.101ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#108)           dbench  3399 0 2 00000002 0000006c [0000784436988497] 0.102ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#109)           dbench  3399 0 2 00000002 0000006d [0000784436988997] 0.102ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#110)           dbench  3399 0 2 00000002 0000006e [0000784436989442] 0.103ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#111)           dbench  3399 0 2 00000002 0000006f [0000784436990144] 0.104ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#112)           dbench  3399 0 2 00000002 00000070 [0000784436990702] 0.105ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#113)           dbench  3399 0 2 00000002 00000071 [0000784436991157] 0.106ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#114)           dbench  3399 0 2 00000002 00000072 [0000784436991634] 0.107ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#115)           dbench  3399 0 2 00000002 00000073 [0000784436992187] 0.108ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#116)           dbench  3399 0 2 00000002 00000074 [0000784436992646] 0.108ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#117)           dbench  3399 0 2 00000002 00000075 [0000784436993218] 0.109ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#118)           dbench  3399 0 2 00000002 00000076 [0000784436993713] 0.110ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#119)           dbench  3399 0 2 00000002 00000077 [0000784436994167] 0.111ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#120)           dbench  3399 0 2 00000002 00000078 [0000784436994563] 0.112ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#121)           dbench  3399 0 2 00000002 00000079 [0000784436995081] 0.113ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#122)           dbench  3399 0 2 00000002 0000007a [0000784436995679] 0.114ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#123)           dbench  3399 0 2 00000002 0000007b [0000784436996102] 0.114ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#124)           dbench  3399 0 2 00000002 0000007c [0000784436996593] 0.115ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#125)           dbench  3399 0 2 00000002 0000007d [0000784436997038] 0.116ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#126)           dbench  3399 0 2 00000002 0000007e [0000784436997524] 0.117ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#127)           dbench  3399 0 2 00000002 0000007f [0000784436998015] 0.117ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#128)           dbench  3399 0 2 00000002 00000080 [0000784436998532] 0.118ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#129)           dbench  3399 0 2 00000002 00000081 [0000784436999126] 0.119ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#130)           dbench  3399 0 2 00000002 00000082 [0000784436999689] 0.120ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#131)           dbench  3399 0 2 00000002 00000083 [0000784437000193] 0.121ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#132)           dbench  3399 0 2 00000002 00000084 [0000784437000625] 0.122ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#133)           dbench  3399 0 2 00000002 00000085 [0000784437001111] 0.123ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#134)           dbench  3399 0 2 00000002 00000086 [0000784437001822] 0.124ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#135)           dbench  3399 0 2 00000002 00000087 [0000784437002375] 0.125ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#136)           dbench  3399 0 2 00000002 00000088 [0000784437002861] 0.125ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#137)           dbench  3399 0 2 00000002 00000089 [0000784437003320] 0.126ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#138)           dbench  3399 0 2 00000002 0000008a [0000784437003788] 0.127ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#139)           dbench  3399 0 2 00000002 0000008b [0000784437004279] 0.128ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#140)           dbench  3399 0 2 00000002 0000008c [0000784437004859] 0.129ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#141)           dbench  3399 0 2 00000002 0000008d [0000784437005444] 0.130ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#142)           dbench  3399 0 2 00000002 0000008e [0000784437005935] 0.131ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#143)           dbench  3399 0 2 00000002 0000008f [0000784437006398] 0.131ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#144)           dbench  3399 0 2 00000002 00000090 [0000784437006799] 0.132ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#145)           dbench  3399 0 2 00000002 00000091 [0000784437007289] 0.133ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#146)           dbench  3399 0 2 00000002 00000092 [0000784437008005] 0.134ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#147)           dbench  3399 0 2 00000002 00000093 [0000784437008545] 0.135ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#148)           dbench  3399 0 2 00000002 00000094 [0000784437009031] 0.136ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#149)           dbench  3399 0 2 00000002 00000095 [0000784437009546] 0.137ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#150)           dbench  3399 0 2 00000002 00000096 [0000784437009944] 0.137ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#151)           dbench  3399 0 2 00000002 00000097 [0000784437010435] 0.138ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#152)           dbench  3399 0 2 00000002 00000098 [0000784437010871] 0.139ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#153)           dbench  3399 0 2 00000002 00000099 [0000784437011461] 0.140ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#154)           dbench  3399 0 2 00000002 0000009a [0000784437012014] 0.141ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#155)           dbench  3399 0 2 00000002 0000009b [0000784437012464] 0.141ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#156)           dbench  3399 0 2 00000002 0000009c [0000784437012874] 0.142ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#157)           dbench  3399 0 2 00000002 0000009d [0000784437013364] 0.143ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#158)           dbench  3399 0 2 00000002 0000009e [0000784437013823] 0.144ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#159)           dbench  3399 0 2 00000002 0000009f [0000784437014224] 0.144ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#160)           dbench  3399 0 2 00000002 000000a0 [0000784437014714] 0.145ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#161)           dbench  3399 0 2 00000002 000000a1 [0000784437015160] 0.146ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#162)           dbench  3399 0 2 00000002 000000a2 [0000784437015637] 0.147ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#163)           dbench  3399 0 2 00000002 000000a3 [0000784437016127] 0.148ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#164)           dbench  3399 0 2 00000002 000000a4 [0000784437016609] 0.148ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#165)           dbench  3399 0 2 00000002 000000a5 [0000784437017032] 0.149ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#166)           dbench  3399 0 2 00000002 000000a6 [0000784437017603] 0.150ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#167)           dbench  3399 0 2 00000002 000000a7 [0000784437018040] 0.151ms (+0.002ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#168)           dbench  3399 0 2 00000002 000000a8 [0000784437019696] 0.153ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#169)           dbench  3399 0 2 00000002 000000a9 [0000784437020249] 0.154ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#170)           dbench  3399 0 2 00000002 000000aa [0000784437020834] 0.155ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#171)           dbench  3399 0 2 00000002 000000ab [0000784437021392] 0.156ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#172)           dbench  3399 0 2 00000002 000000ac [0000784437021883] 0.157ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#173)           dbench  3399 0 2 00000002 000000ad [0000784437022342] 0.158ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#174)           dbench  3399 0 2 00000002 000000ae [0000784437022828] 0.159ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#175)           dbench  3399 0 2 00000002 000000af [0000784437023327] 0.160ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#176)           dbench  3399 0 2 00000002 000000b0 [0000784437023786] 0.160ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#177)           dbench  3399 0 2 00000002 000000b1 [0000784437024187] 0.161ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#178)           dbench  3399 0 2 00000002 000000b2 [0000784437024677] 0.162ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#179)           dbench  3399 0 2 00000002 000000b3 [0000784437025118] 0.162ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#180)           dbench  3399 0 2 00000002 000000b4 [0000784437025694] 0.163ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#181)           dbench  3399 0 2 00000002 000000b5 [0000784437026198] 0.164ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#182)           dbench  3399 0 2 00000002 000000b6 [0000784437026653] 0.165ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#183)           dbench  3399 0 2 00000002 000000b7 [0000784437027121] 0.166ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#184)           dbench  3399 0 2 00000002 000000b8 [0000784437027683] 0.167ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#185)           dbench  3399 0 2 00000002 000000b9 [0000784437028142] 0.168ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#186)           dbench  3399 0 2 00000002 000000ba [0000784437028538] 0.168ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#187)           dbench  3399 0 2 00000002 000000bb [0000784437029024] 0.169ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#188)           dbench  3399 0 2 00000002 000000bc [0000784437029461] 0.170ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#189)           dbench  3399 0 2 00000002 000000bd [0000784437029857] 0.170ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#190)           dbench  3399 0 2 00000002 000000be [0000784437030343] 0.171ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#191)           dbench  3399 0 2 00000002 000000bf [0000784437030869] 0.172ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#192)           dbench  3399 0 2 00000002 000000c0 [0000784437031337] 0.173ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#193)           dbench  3399 0 2 00000002 000000c1 [0000784437031828] 0.174ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#194)           dbench  3399 0 2 00000002 000000c2 [0000784437032395] 0.175ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#195)           dbench  3399 0 2 00000002 000000c3 [0000784437033169] 0.176ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#196)           dbench  3399 0 2 00000002 000000c4 [0000784437033722] 0.177ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#197)           dbench  3399 0 2 00000002 000000c5 [0000784437034496] 0.178ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#198)           dbench  3399 0 2 00000002 000000c6 [0000784437035036] 0.179ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#199)           dbench  3399 0 2 00000002 000000c7 [0000784437035522] 0.180ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#200)           dbench  3399 0 2 00000002 000000c8 [0000784437035963] 0.181ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#201)           dbench  3399 0 2 00000002 000000c9 [0000784437036436] 0.181ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#202)           dbench  3399 0 2 00000002 000000ca [0000784437037007] 0.182ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#203)           dbench  3399 0 2 00000002 000000cb [0000784437037462] 0.183ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#204)           dbench  3399 0 2 00000002 000000cc [0000784437037939] 0.184ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#205)           dbench  3399 0 2 00000002 000000cd [0000784437038425] 0.185ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#206)           dbench  3399 0 2 00000002 000000ce [0000784437038996] 0.186ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#207)           dbench  3399 0 2 00000002 000000cf [0000784437039563] 0.187ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#208)           dbench  3399 0 2 00000002 000000d0 [0000784437040054] 0.187ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#209)           dbench  3399 0 2 00000002 000000d1 [0000784437040535] 0.188ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#210)           dbench  3399 0 2 00000002 000000d2 [0000784437041017] 0.189ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#211)           dbench  3399 0 2 00000002 000000d3 [0000784437041507] 0.190ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#212)           dbench  3399 0 2 00000002 000000d4 [0000784437041971] 0.191ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#213)           dbench  3399 0 2 00000002 000000d5 [0000784437042443] 0.191ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#214)           dbench  3399 0 2 00000002 000000d6 [0000784437042934] 0.192ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#215)           dbench  3399 0 2 00000002 000000d7 [0000784437043591] 0.193ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#216)           dbench  3399 0 2 00000002 000000d8 [0000784437044005] 0.194ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#217)           dbench  3399 0 2 00000002 000000d9 [0000784437044491] 0.195ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#218)           dbench  3399 0 2 00000002 000000da [0000784437045004] 0.196ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#219)           dbench  3399 0 2 00000002 000000db [0000784437045566] 0.197ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#220)           dbench  3399 0 2 00000002 000000dc [0000784437046061] 0.197ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#221)           dbench  3399 0 2 00000002 000000dd [0000784437046574] 0.198ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#222)           dbench  3399 0 2 00000002 000000de [0000784437046984] 0.199ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#223)           dbench  3399 0 2 00000002 000000df [0000784437047470] 0.200ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#224)           dbench  3399 0 2 00000002 000000e0 [0000784437047983] 0.201ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#225)           dbench  3399 0 2 00000002 000000e1 [0000784437048572] 0.202ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#226)           dbench  3399 0 2 00000002 000000e2 [0000784437049130] 0.202ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#227)           dbench  3399 0 2 00000002 000000e3 [0000784437049639] 0.203ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#228)           dbench  3399 0 2 00000002 000000e4 [0000784437050053] 0.204ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#229)           dbench  3399 0 2 00000002 000000e5 [0000784437050543] 0.205ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#230)           dbench  3399 0 2 00000002 000000e6 [0000784437051061] 0.206ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#231)           dbench  3399 0 2 00000002 000000e7 [0000784437051484] 0.206ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#232)           dbench  3399 0 2 00000002 000000e8 [0000784437051974] 0.207ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#233)           dbench  3399 0 2 00000002 000000e9 [0000784437052492] 0.208ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#234)           dbench  3399 0 2 00000002 000000ea [0000784437053108] 0.209ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#235)           dbench  3399 0 2 00000002 000000eb [0000784437053662] 0.210ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#236)           dbench  3399 0 2 00000002 000000ec [0000784437054166] 0.211ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#237)           dbench  3399 0 2 00000002 000000ed [0000784437054607] 0.212ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#238)           dbench  3399 0 2 00000002 000000ee [0000784437055093] 0.212ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#239)           dbench  3399 0 2 00000002 000000ef [0000784437055529] 0.213ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#240)           dbench  3399 0 2 00000002 000000f0 [0000784437055925] 0.214ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#241)           dbench  3399 0 2 00000002 000000f1 [0000784437056420] 0.215ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#242)           dbench  3399 0 2 00000002 000000f2 [0000784437056933] 0.215ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#243)           dbench  3399 0 2 00000002 000000f3 [0000784437057347] 0.216ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#244)           dbench  3399 0 2 00000002 000000f4 [0000784437057838] 0.217ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#245)           dbench  3399 0 2 00000002 000000f5 [0000784437058355] 0.218ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#246)           dbench  3399 0 2 00000002 000000f6 [0000784437058769] 0.218ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#247)           dbench  3399 0 2 00000002 000000f7 [0000784437059260] 0.219ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#248)           dbench  3399 0 2 00000002 000000f8 [0000784437059701] 0.220ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#249)           dbench  3399 0 2 00000002 000000f9 [0000784437060101] 0.221ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#250)           dbench  3399 0 2 00000002 000000fa [0000784437060592] 0.222ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#251)           dbench  3399 0 2 00000002 000000fb [0000784437061186] 0.223ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#252)           dbench  3399 0 2 00000002 000000fc [0000784437061613] 0.223ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#253)           dbench  3399 0 2 00000002 000000fd [0000784437062104] 0.224ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#254)           dbench  3399 0 2 00000002 000000fe [0000784437062545] 0.225ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#255)           dbench  3399 0 2 00000002 000000ff [0000784437062941] 0.225ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#256)           dbench  3399 0 2 00000002 00000100 [0000784437063463] 0.226ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#257)           dbench  3399 0 2 00000002 00000101 [0000784437063980] 0.227ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#258)           dbench  3399 0 2 00000002 00000102 [0000784437064484] 0.228ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#259)           dbench  3399 0 2 00000002 00000103 [0000784437064970] 0.229ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#260)           dbench  3399 0 2 00000002 00000104 [0000784437065411] 0.230ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#261)           dbench  3399 0 2 00000002 00000105 [0000784437065843] 0.230ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#262)           dbench  3399 0 2 00000002 00000106 [0000784437066334] 0.231ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#263)           dbench  3399 0 2 00000002 00000107 [0000784437066856] 0.232ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#264)           dbench  3399 0 2 00000002 00000108 [0000784437067283] 0.233ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#265)           dbench  3399 0 2 00000002 00000109 [0000784437067774] 0.233ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#266)           dbench  3399 0 2 00000002 0000010a [0000784437068296] 0.234ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#267)           dbench  3399 0 2 00000002 0000010b [0000784437068737] 0.235ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#268)           dbench  3399 0 2 00000002 0000010c [0000784437069227] 0.236ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#269)           dbench  3399 0 2 00000002 0000010d [0000784437069745] 0.237ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#270)           dbench  3399 0 2 00000002 0000010e [0000784437070181] 0.237ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#271)           dbench  3399 0 2 00000002 0000010f [0000784437070681] 0.238ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#272)           dbench  3399 0 2 00000002 00000110 [0000784437071144] 0.239ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#273)           dbench  3399 0 2 00000002 00000111 [0000784437071540] 0.240ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#274)           dbench  3399 0 2 00000002 00000112 [0000784437072026] 0.241ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#275)           dbench  3399 0 2 00000002 00000113 [0000784437072548] 0.241ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#276)           dbench  3399 0 2 00000002 00000114 [0000784437073124] 0.242ms (+0.001ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#277)           dbench  3399 0 2 00000002 00000115 [0000784437073828] 0.244ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#278)           dbench  3399 0 2 00000002 00000116 [0000784437074281] 0.244ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#279)           dbench  3399 0 2 00000002 00000117 [0000784437074758] 0.245ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#280)           dbench  3399 0 2 00000002 00000118 [0000784437075248] 0.246ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#281)           dbench  3399 0 2 00000002 00000119 [0000784437075716] 0.247ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#282)           dbench  3399 0 2 00000002 0000011a [0000784437076130] 0.247ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#283)           dbench  3399 0 2 00000002 0000011b [0000784437076621] 0.248ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#284)           dbench  3399 0 2 00000002 0000011c [0000784437077066] 0.249ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#285)           dbench  3399 0 2 00000002 0000011d [0000784437077467] 0.250ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#286)           dbench  3399 0 2 00000002 0000011e [0000784437077957] 0.250ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#287)           dbench  3399 0 2 00000002 0000011f [0000784437078403] 0.251ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#288)           dbench  3399 0 2 00000002 00000120 [0000784437078803] 0.252ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#289)           dbench  3399 0 2 00000002 00000121 [0000784437079294] 0.253ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#290)           dbench  3399 0 2 00000002 00000122 [0000784437079735] 0.253ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#291)           dbench  3399 0 2 00000002 00000123 [0000784437080315] 0.254ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#292)           dbench  3399 0 2 00000002 00000124 [0000784437080878] 0.255ms (+0.000ms): find_next_reservable_window+0xb/0x60 <c01b58bb> (alloc_new_reservation+0xd2/0x1c0 <c01b59e2>)
-(T1/#293)           dbench  3399 0 2 00000002 00000125 [0000784437081243] 0.256ms (+0.000ms): rb_next+0x8/0x60 <c01d9f88> (find_next_reservable_window+0x39/0x60 <c01b58e9>)
-(T1/#294)           dbench  3399 0 2 00000002 00000126 [0000784437081652] 0.257ms (+0.001ms): rb_next+0x8/0x60 <c01d9f88> (find_next_reservable_window+0x39/0x60 <c01b58e9>)
-(T1/#295)           dbench  3399 0 2 00000002 00000127 [0000784437082466] 0.258ms (+0.000ms): bitmap_search_next_usable_block+0xc/0xd0 <c01b551c> (alloc_new_reservation+0xf7/0x1c0 <c01b5a07>)
-(T1/#296)           dbench  3399 0 2 00000002 00000128 [0000784437082822] 0.259ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#297)           dbench  3399 0 2 00000002 00000129 [0000784437083312] 0.259ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#298)           dbench  3399 0 2 00000002 0000012a [0000784437083906] 0.260ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#299)           dbench  3399 0 2 00000002 0000012b [0000784437084424] 0.261ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#300)           dbench  3399 0 2 00000002 0000012c [0000784437084896] 0.262ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#301)           dbench  3399 0 2 00000002 0000012d [0000784437085396] 0.263ms (+0.000ms): find_next_reservable_window+0xb/0x60 <c01b58bb> (alloc_new_reservation+0xd2/0x1c0 <c01b59e2>)
-(T1/#302)           dbench  3399 0 2 00000002 0000012e [0000784437085756] 0.263ms (+0.000ms): rb_next+0x8/0x60 <c01d9f88> (find_next_reservable_window+0x39/0x60 <c01b58e9>)
-(T1/#303)           dbench  3399 0 2 00000002 0000012f [0000784437086143] 0.264ms (+0.000ms): rb_next+0x8/0x60 <c01d9f88> (find_next_reservable_window+0x39/0x60 <c01b58e9>)
-(T1/#304)           dbench  3399 0 2 00000002 00000130 [0000784437086642] 0.265ms (+0.000ms): bitmap_search_next_usable_block+0xc/0xd0 <c01b551c> (alloc_new_reservation+0xf7/0x1c0 <c01b5a07>)
-(T1/#305)           dbench  3399 0 2 00000002 00000131 [0000784437087002] 0.265ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#306)           dbench  3399 0 2 00000002 00000132 [0000784437087416] 0.266ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#307)           dbench  3399 0 2 00000002 00000133 [0000784437087916] 0.267ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#308)           dbench  3399 0 2 00000002 00000134 [0000784437088361] 0.268ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#309)           dbench  3399 0 2 00000002 00000135 [0000784437088838] 0.269ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#310)           dbench  3399 0 2 00000002 00000136 [0000784437089324] 0.269ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#311)           dbench  3399 0 2 00000002 00000137 [0000784437089801] 0.270ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#312)           dbench  3399 0 2 00000002 00000138 [0000784437090233] 0.271ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#313)           dbench  3399 0 2 00000002 00000139 [0000784437090719] 0.272ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#314)           dbench  3399 0 2 00000002 0000013a [0000784437091160] 0.272ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#315)           dbench  3399 0 2 00000002 0000013b [0000784437091556] 0.273ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#316)           dbench  3399 0 2 00000002 0000013c [0000784437092042] 0.274ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#317)           dbench  3399 0 2 00000002 0000013d [0000784437092483] 0.275ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#318)           dbench  3399 0 2 00000002 0000013e [0000784437092884] 0.275ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#319)           dbench  3399 0 2 00000002 0000013f [0000784437093374] 0.276ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#320)           dbench  3399 0 2 00000002 00000140 [0000784437093820] 0.277ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
-(T1/#321)           dbench  3399 0 2 00000002 00000141 [0000784437094229] 0.277ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
-(T1/#322)           dbench  3399 0 2 00000002 00000142 [0000784437094787] 0.278ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
-(T1/#323)           dbench  3399 0 2 00000001 00000143 [0000784437095705] 0.280ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (ext3_try_to_allocate_with_rsv+0x28f/0x330 <c01b5d5f>)
-(T1/#324)           dbench  3399 0 2 00000000 00000144 [0000784437096304] 0.281ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (ext3_try_to_allocate_with_rsv+0x285/0x330 <c01b5d55>)
-(T1/#325)           dbench  3399 0 3 00000000 00000145 [0000784437096839] 0.282ms (+0.000ms): __schedule+0xe/0x630 <c027c9be> (preempt_schedule+0x4f/0x70 <c027d13f>)
-(T1/#326)           dbench  3399 0 3 00000000 00000146 [0000784437097231] 0.282ms (+0.000ms): profile_hit+0x9/0x50 <c0115749> (__schedule+0x3a/0x630 <c027c9ea>)
-(T1/#327)           dbench  3399 0 3 00000001 00000147 [0000784437097667] 0.283ms (+0.001ms): sched_clock+0xe/0xe0 <c010c3ae> (__schedule+0x62/0x630 <c027ca12>)
-(T1/#328)           dbench  3399 0 3 00000002 00000148 [0000784437098608] 0.285ms (+0.000ms): dequeue_task+0xa/0x50 <c010f4ea> (__schedule+0x1ab/0x630 <c027cb5b>)
-(T1/#329)           dbench  3399 0 3 00000002 00000149 [0000784437099166] 0.286ms (+0.000ms): recalc_task_prio+0xc/0x1a0 <c010f64c> (__schedule+0x1c5/0x630 <c027cb75>)
-(T1/#330)           dbench  3399 0 3 00000002 0000014a [0000784437099611] 0.286ms (+0.000ms): effective_prio+0x8/0x50 <c010f5f8> (recalc_task_prio+0xa6/0x1a0 <c010f6e6>)
-(T1/#331)           dbench  3399 0 3 00000002 0000014b [0000784437100012] 0.287ms (+0.001ms): enqueue_task+0xa/0x80 <c010f53a> (__schedule+0x1cc/0x630 <c027cb7c>)
-(T4/#332) [ =>           dbench ] 0.288ms (+0.001ms)
-(T1/#333)            <...>     2 0 1 00000002 0000014d [0000784437101515] 0.290ms (+0.002ms): __switch_to+0xb/0x1a0 <c0100f5b> (__schedule+0x2bd/0x630 <c027cc6d>)
-(T3/#334)    <...>-2     0d..2  292탎 : __schedule+0x2ea/0x630 <c027cc9a> <dbench-3399> (76 69): 
-(T1/#335)            <...>     2 0 1 00000002 0000014f [0000784437103484] 0.293ms (+0.000ms): finish_task_switch+0xc/0x90 <c010fdec> (__schedule+0x2f6/0x630 <c027cca6>)
-(T1/#336)            <...>     2 0 1 00000001 00000150 [0000784437103916] 0.294ms (+0.000ms): trace_stop_sched_switched+0xa/0x150 <c012cc1a> (finish_task_switch+0x43/0x90 <c010fe23>)
-(T3/#337)    <...>-2     0d..1  294탎 : trace_stop_sched_switched+0x42/0x150 <c012cc52> <<...>-2> (69 0): 
-(T1/#338)            <...>     2 0 1 00000001 00000152 [0000784437105041] 0.295ms (+0.000ms): trace_stop_sched_switched+0xfe/0x150 <c012cd0e> (finish_task_switch+0x43/0x90 <c010fe23>)
+Solution:  add the necessary hooks that should have existed all along, 
+for this functionality.
 
 
-vim:ft=help
+2) Fix stomping on active devices, if pci_request_regions() fails.  It 
+is rather more urgent for libata than other situations, since we must 
+deal with PCI devices that secretly export ISA device regions (legacy 
+IDE 0x1f0, 0x170).
 
---=-rYdZRaWRStq91AH+bGVE--
 
+3) Fix command queue leak, if SCSI->ATA translation fails.
+
+
+
+--------------090203030504070600070301
+Content-Type: text/plain;
+ name="changelog.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="changelog.txt"
+
+Please do a
+
+	bk pull bk://gkernel.bkbits.net/libata-2.6
+
+This will update the following files:
+
+ drivers/scsi/Kconfig        |    8 
+ drivers/scsi/Makefile       |    1 
+ drivers/scsi/ahci.c         |   18 +
+ drivers/scsi/ata_piix.c     |    4 
+ drivers/scsi/libata-core.c  |  115 ++++++-
+ drivers/scsi/libata-scsi.c  |    1 
+ drivers/scsi/libata.h       |    1 
+ drivers/scsi/sata_nv.c      |   10 
+ drivers/scsi/sata_promise.c |    8 
+ drivers/scsi/sata_qstor.c   |  700 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/scsi/sata_sil.c     |   10 
+ drivers/scsi/sata_sis.c     |   10 
+ drivers/scsi/sata_svw.c     |   10 
+ drivers/scsi/sata_sx4.c     |    8 
+ drivers/scsi/sata_uli.c     |   10 
+ drivers/scsi/sata_via.c     |  213 +++++++++----
+ drivers/scsi/sata_vsc.c     |   10 
+ include/linux/libata.h      |   64 ----
+ 18 files changed, 1058 insertions(+), 143 deletions(-)
+
+through these ChangeSets:
+
+<jgarzik@pobox.com> (05/02/23 1.2043)
+   [libata] Add missing hooks, to avoid oops in advanced SATA drivers
+   
+   Advanced SATA drivers should not (and cannot) use the basic
+   PCI IDE hooks for checking the Status and Error registers, as these
+   registers are either in non-standard locations, or simply don't
+   exist.
+   
+   In the error handling path, libata was unconditionally calling some
+   PCI IDE hardware bitbanging functions, which would cause an oops
+   in the AHCI driver and any other advanced libata driver.
+
+<linville@tuxdriver.com> (05/02/18 1.2040)
+   [PATCH] libata: fix command queue leak when xlat_func fails
+   
+   ata_scsi_translate allocates from the libata command queue by calling
+   ata_scsi_qc_new.  If xlat_func returns non-zero, control jumps to
+   err_out which fails to free the allocated command.  Fix is to add a
+   new API to free unused commands.
+   
+   Signed-off-by: John W. Linville <linville@tuxdriver.com>
+   Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+
+<Mat.Loikkanen@synopsys.com> (05/02/17 1.2035.16.1)
+   [libata] add ->bmdma_{stop,status} hooks
+   
+   The timeout/error handling path was assuming that the hardware in
+   question was PCI IDE BMDMA-like, which is incorrect in a few cases.
+   
+   Turn direct function calls into two new hooks.
+
+<lsml@rtr.ca> (05/02/17 1.2038)
+   [PATCH] sata_qstor: new basic driver for Pacific Digital
+   
+   This is a new basic libata SATA driver
+   for the Pacific Digital QStor SATA/RAID card.
+   
+   It features ordinary per-drive SATA with single-request DMA
+   for R/W commands, and PIO for everything else.
+   
+   It currently does not implement any of the hardware RAID support,
+   nor hot-plug, nor the tagged/native command-queuing features.
+   
+   On the other hand, it is small and simple as a result.
+   
+   Signed-off-by: Mark Lord <mlord@pobox.com>
+   Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+
+<jgarzik@pobox.com> (05/02/13 1.2037)
+   [libata] do not call pci_disable_device() for certain errors
+   
+   If PCI request regions fails, then someone else is using the
+   hardware we wish to use.  For that one case, calling pci_disable_device()
+   is rather rude.
+
+<jgarzik@pobox.com> (04/11/16 1.1938.367.2)
+   [libata sata_via] add support for VT6421 SATA
+
+<jgarzik@pobox.com> (04/11/16 1.1938.367.1)
+   [libata sata_via] minor cleanups
+   
+   Preparation for addition of VT6421 support.  Mostly moving bits
+   of code into discrete functions.
+
+
+--------------090203030504070600070301
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+diff -Nru a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
+--- a/drivers/scsi/Kconfig	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/Kconfig	2005-02-23 14:50:15 -05:00
+@@ -457,6 +457,14 @@
+ 
+ 	  If unsure, say N.
+ 
++config SCSI_SATA_QSTOR
++	tristate "Pacific Digital SATA QStor support"
++	depends on SCSI_SATA && PCI
++	help
++	  This option enables support for Pacific Digital Serial ATA QStor.
++
++	  If unsure, say N.
++
+ config SCSI_SATA_SX4
+ 	tristate "Promise SATA SX4 support"
+ 	depends on SCSI_SATA && PCI && EXPERIMENTAL
+diff -Nru a/drivers/scsi/Makefile b/drivers/scsi/Makefile
+--- a/drivers/scsi/Makefile	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/Makefile	2005-02-23 14:50:15 -05:00
+@@ -125,6 +125,7 @@
+ obj-$(CONFIG_SCSI_SATA_SVW)	+= libata.o sata_svw.o
+ obj-$(CONFIG_SCSI_ATA_PIIX)	+= libata.o ata_piix.o
+ obj-$(CONFIG_SCSI_SATA_PROMISE)	+= libata.o sata_promise.o
++obj-$(CONFIG_SCSI_SATA_QSTOR)	+= libata.o sata_qstor.o
+ obj-$(CONFIG_SCSI_SATA_SIL)	+= libata.o sata_sil.o
+ obj-$(CONFIG_SCSI_SATA_VIA)	+= libata.o sata_via.o
+ obj-$(CONFIG_SCSI_SATA_VITESSE)	+= libata.o sata_vsc.o
+diff -Nru a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
+--- a/drivers/scsi/ahci.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/ahci.c	2005-02-23 14:50:15 -05:00
+@@ -179,6 +179,7 @@
+ static void ahci_host_stop(struct ata_host_set *host_set);
+ static void ahci_qc_prep(struct ata_queued_cmd *qc);
+ static u8 ahci_check_status(struct ata_port *ap);
++static u8 ahci_check_err(struct ata_port *ap);
+ static inline int ahci_host_intr(struct ata_port *ap, struct ata_queued_cmd *qc);
+ 
+ static Scsi_Host_Template ahci_sht = {
+@@ -204,6 +205,8 @@
+ 	.port_disable		= ata_port_disable,
+ 
+ 	.check_status		= ahci_check_status,
++	.check_altstatus	= ahci_check_status,
++	.check_err		= ahci_check_err,
+ 	.dev_select		= ata_noop_dev_select,
+ 
+ 	.phy_reset		= ahci_phy_reset,
+@@ -452,6 +455,13 @@
+ 	return readl(mmio + PORT_TFDATA) & 0xFF;
+ }
+ 
++static u8 ahci_check_err(struct ata_port *ap)
++{
++	void *mmio = (void *) ap->ioaddr.cmd_addr;
++
++	return (readl(mmio + PORT_TFDATA) >> 8) & 0xFF;
++}
++
+ static void ahci_fill_sg(struct ata_queued_cmd *qc)
+ {
+ 	struct ahci_port_priv *pp = qc->ap->private_data;
+@@ -940,6 +950,7 @@
+ 	unsigned long base;
+ 	void *mmio_base;
+ 	unsigned int board_idx = (unsigned int) ent->driver_data;
++	int pci_dev_busy = 0;
+ 	int rc;
+ 
+ 	VPRINTK("ENTER\n");
+@@ -952,8 +963,10 @@
+ 		return rc;
+ 
+ 	rc = pci_request_regions(pdev, DRV_NAME);
+-	if (rc)
++	if (rc) {
++		pci_dev_busy = 1;
+ 		goto err_out;
++	}
+ 
+ 	pci_enable_intx(pdev);
+ 
+@@ -1015,7 +1028,8 @@
+ err_out_regions:
+ 	pci_release_regions(pdev);
+ err_out:
+-	pci_disable_device(pdev);
++	if (!pci_dev_busy)
++		pci_disable_device(pdev);
+ 	return rc;
+ }
+ 
+diff -Nru a/drivers/scsi/ata_piix.c b/drivers/scsi/ata_piix.c
+--- a/drivers/scsi/ata_piix.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/ata_piix.c	2005-02-23 14:50:15 -05:00
+@@ -138,6 +138,8 @@
+ 
+ 	.bmdma_setup		= ata_bmdma_setup,
+ 	.bmdma_start		= ata_bmdma_start,
++	.bmdma_stop		= ata_bmdma_stop,
++	.bmdma_status		= ata_bmdma_status,
+ 	.qc_prep		= ata_qc_prep,
+ 	.qc_issue		= ata_qc_issue_prot,
+ 
+@@ -163,6 +165,8 @@
+ 
+ 	.bmdma_setup		= ata_bmdma_setup,
+ 	.bmdma_start		= ata_bmdma_start,
++	.bmdma_stop		= ata_bmdma_stop,
++	.bmdma_status		= ata_bmdma_status,
+ 	.qc_prep		= ata_qc_prep,
+ 	.qc_issue		= ata_qc_issue_prot,
+ 
+diff -Nru a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
+--- a/drivers/scsi/libata-core.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/libata-core.c	2005-02-23 14:50:15 -05:00
+@@ -377,7 +377,7 @@
+ }
+ 
+ /**
+- *	ata_check_status - Read device status reg & clear interrupt
++ *	ata_check_status_pio - Read device status reg & clear interrupt
+  *	@ap: port where the device is
+  *
+  *	Reads ATA taskfile status register for currently-selected device
+@@ -415,6 +415,27 @@
+ 	return ata_check_status_pio(ap);
+ }
+ 
++u8 ata_altstatus(struct ata_port *ap)
++{
++	if (ap->ops->check_altstatus)
++		return ap->ops->check_altstatus(ap);
++
++	if (ap->flags & ATA_FLAG_MMIO)
++		return readb((void __iomem *)ap->ioaddr.altstatus_addr);
++	return inb(ap->ioaddr.altstatus_addr);
++}
++
++u8 ata_chk_err(struct ata_port *ap)
++{
++	if (ap->ops->check_err)
++		return ap->ops->check_err(ap);
++
++	if (ap->flags & ATA_FLAG_MMIO) {
++		return readb((void __iomem *) ap->ioaddr.error_addr);
++	}
++	return inb(ap->ioaddr.error_addr);
++}
++
+ /**
+  *	ata_tf_to_fis - Convert ATA taskfile to SATA FIS structure
+  *	@tf: Taskfile to convert
+@@ -1161,7 +1182,6 @@
+ 	printk(KERN_WARNING "ata%u: dev %u not supported, ignoring\n",
+ 	       ap->id, device);
+ err_out:
+-	ata_irq_on(ap);	/* re-enable interrupts */
+ 	dev->class++;	/* converts ATA_DEV_xxx into ATA_DEV_xxx_UNSUP */
+ 	DPRINTK("EXIT, err\n");
+ }
+@@ -1669,7 +1689,8 @@
+ 		ata_dev_try_classify(ap, 1);
+ 
+ 	/* re-enable interrupts */
+-	ata_irq_on(ap);
++	if (ap->ioaddr.ctl_addr)	/* FIXME: hack. create a hook instead */
++		ata_irq_on(ap);
+ 
+ 	/* is double-select really necessary? */
+ 	if (ap->device[1].class != ATA_DEV_NONE)
+@@ -2601,10 +2622,10 @@
+ 
+ 	case ATA_PROT_DMA:
+ 	case ATA_PROT_ATAPI_DMA:
+-		host_stat = ata_bmdma_status(ap);
++		host_stat = ap->ops->bmdma_status(ap);
+ 
+ 		/* before we do anything else, clear DMA-Start bit */
+-		ata_bmdma_stop(ap);
++		ap->ops->bmdma_stop(ap);
+ 
+ 		/* fall through */
+ 
+@@ -2613,7 +2634,7 @@
+ 		drv_stat = ata_chk_status(ap);
+ 
+ 		/* ack bmdma irq events */
+-		ata_bmdma_ack_irq(ap);
++		ap->ops->irq_clear(ap);
+ 
+ 		printk(KERN_ERR "ata%u: command 0x%x timeout, stat 0x%x host_stat 0x%x\n",
+ 		       ap->id, qc->tf.command, drv_stat, host_stat);
+@@ -2752,6 +2773,24 @@
+ }
+ 
+ /**
++ *	ata_qc_free - free unused ata_queued_cmd
++ *	@qc: Command to complete
++ *
++ *	Designed to free unused ata_queued_cmd object
++ *	in case something prevents using it.
++ *
++ *	LOCKING:
++ *
++ */
++void ata_qc_free(struct ata_queued_cmd *qc)
++{
++	assert(qc != NULL);	/* ata_qc_from_tag _might_ return NULL */
++	assert(qc->waiting == NULL);	/* nothing should be waiting */
++
++	__ata_qc_complete(qc);
++}
++
++/**
+  *	ata_qc_complete - Complete an active ATA command
+  *	@qc: Command to complete
+  *	@drv_stat: ATA status register contents
+@@ -3042,7 +3081,43 @@
+ 
+ void ata_bmdma_irq_clear(struct ata_port *ap)
+ {
+-	ata_bmdma_ack_irq(ap);
++    if (ap->flags & ATA_FLAG_MMIO) {
++        void __iomem *mmio = ((void __iomem *) ap->ioaddr.bmdma_addr) + ATA_DMA_STATUS;
++        writeb(readb(mmio), mmio);
++    } else {
++        unsigned long addr = ap->ioaddr.bmdma_addr + ATA_DMA_STATUS;
++        outb(inb(addr), addr);
++    }
++
++}
++
++u8 ata_bmdma_status(struct ata_port *ap)
++{
++	u8 host_stat;
++	if (ap->flags & ATA_FLAG_MMIO) {
++		void __iomem *mmio = (void __iomem *) ap->ioaddr.bmdma_addr;
++		host_stat = readb(mmio + ATA_DMA_STATUS);
++	} else
++	host_stat = inb(ap->ioaddr.bmdma_addr + ATA_DMA_STATUS);
++	return host_stat;
++}
++
++void ata_bmdma_stop(struct ata_port *ap)
++{
++	if (ap->flags & ATA_FLAG_MMIO) {
++		void __iomem *mmio = (void __iomem *) ap->ioaddr.bmdma_addr;
++
++		/* clear start/stop bit */
++		writeb(readb(mmio + ATA_DMA_CMD) & ~ATA_DMA_START,
++			mmio + ATA_DMA_CMD);
++	} else {
++		/* clear start/stop bit */
++		outb(inb(ap->ioaddr.bmdma_addr + ATA_DMA_CMD) & ~ATA_DMA_START,
++			ap->ioaddr.bmdma_addr + ATA_DMA_CMD);
++	}
++
++	/* one-PIO-cycle guaranteed wait, per spec, for HDMA1:0 transition */
++	ata_altstatus(ap);        /* dummy read */
+ }
+ 
+ /**
+@@ -3072,7 +3147,7 @@
+ 	case ATA_PROT_ATAPI_DMA:
+ 	case ATA_PROT_ATAPI:
+ 		/* check status of DMA engine */
+-		host_stat = ata_bmdma_status(ap);
++		host_stat = ap->ops->bmdma_status(ap);
+ 		VPRINTK("ata%u: host_stat 0x%X\n", ap->id, host_stat);
+ 
+ 		/* if it's not our irq... */
+@@ -3080,7 +3155,7 @@
+ 			goto idle_irq;
+ 
+ 		/* before we do anything else, clear DMA-Start bit */
+-		ata_bmdma_stop(ap);
++		ap->ops->bmdma_stop(ap);
+ 
+ 		/* fall through */
+ 
+@@ -3099,7 +3174,7 @@
+ 			ap->id, qc->tf.protocol, status);
+ 
+ 		/* ack bmdma irq events */
+-		ata_bmdma_ack_irq(ap);
++		ap->ops->irq_clear(ap);
+ 
+ 		/* complete taskfile transaction */
+ 		ata_qc_complete(qc, status);
+@@ -3656,6 +3731,7 @@
+ 	struct ata_port_info *port[2];
+ 	u8 tmp8, mask;
+ 	unsigned int legacy_mode = 0;
++	int disable_dev_on_err = 1;
+ 	int rc;
+ 
+ 	DPRINTK("ENTER\n");
+@@ -3686,8 +3762,10 @@
+ 		return rc;
+ 
+ 	rc = pci_request_regions(pdev, DRV_NAME);
+-	if (rc)
++	if (rc) {
++		disable_dev_on_err = 0;
+ 		goto err_out;
++	}
+ 
+ 	if (legacy_mode) {
+ 		if (!request_region(0x1f0, 8, "libata")) {
+@@ -3697,8 +3775,10 @@
+ 			conflict = ____request_resource(&ioport_resource, &res);
+ 			if (!strcmp(conflict->name, "libata"))
+ 				legacy_mode |= (1 << 0);
+-			else
++			else {
++				disable_dev_on_err = 0;
+ 				printk(KERN_WARNING "ata: 0x1f0 IDE port busy\n");
++			}
+ 		} else
+ 			legacy_mode |= (1 << 0);
+ 
+@@ -3709,8 +3789,10 @@
+ 			conflict = ____request_resource(&ioport_resource, &res);
+ 			if (!strcmp(conflict->name, "libata"))
+ 				legacy_mode |= (1 << 1);
+-			else
++			else {
++				disable_dev_on_err = 0;
+ 				printk(KERN_WARNING "ata: 0x170 IDE port busy\n");
++			}
+ 		} else
+ 			legacy_mode |= (1 << 1);
+ 	}
+@@ -3760,7 +3842,8 @@
+ 		release_region(0x170, 8);
+ 	pci_release_regions(pdev);
+ err_out:
+-	pci_disable_device(pdev);
++	if (disable_dev_on_err)
++		pci_disable_device(pdev);
+ 	return rc;
+ }
+ 
+@@ -3910,6 +3993,8 @@
+ EXPORT_SYMBOL_GPL(ata_tf_to_fis);
+ EXPORT_SYMBOL_GPL(ata_tf_from_fis);
+ EXPORT_SYMBOL_GPL(ata_check_status);
++EXPORT_SYMBOL_GPL(ata_altstatus);
++EXPORT_SYMBOL_GPL(ata_chk_err);
+ EXPORT_SYMBOL_GPL(ata_exec_command);
+ EXPORT_SYMBOL_GPL(ata_port_start);
+ EXPORT_SYMBOL_GPL(ata_port_stop);
+@@ -3918,6 +4003,8 @@
+ EXPORT_SYMBOL_GPL(ata_bmdma_setup);
+ EXPORT_SYMBOL_GPL(ata_bmdma_start);
+ EXPORT_SYMBOL_GPL(ata_bmdma_irq_clear);
++EXPORT_SYMBOL_GPL(ata_bmdma_status);
++EXPORT_SYMBOL_GPL(ata_bmdma_stop);
+ EXPORT_SYMBOL_GPL(ata_port_probe);
+ EXPORT_SYMBOL_GPL(sata_phy_reset);
+ EXPORT_SYMBOL_GPL(__sata_phy_reset);
+diff -Nru a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
+--- a/drivers/scsi/libata-scsi.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/libata-scsi.c	2005-02-23 14:50:15 -05:00
+@@ -701,6 +701,7 @@
+ 	return;
+ 
+ err_out:
++	ata_qc_free(qc);
+ 	ata_bad_cdb(cmd, done);
+ 	DPRINTK("EXIT - badcmd\n");
+ }
+diff -Nru a/drivers/scsi/libata.h b/drivers/scsi/libata.h
+--- a/drivers/scsi/libata.h	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/libata.h	2005-02-23 14:50:15 -05:00
+@@ -37,6 +37,7 @@
+ /* libata-core.c */
+ extern struct ata_queued_cmd *ata_qc_new_init(struct ata_port *ap,
+ 				      struct ata_device *dev);
++extern void ata_qc_free(struct ata_queued_cmd *qc);
+ extern int ata_qc_issue(struct ata_queued_cmd *qc);
+ extern int ata_check_atapi_dma(struct ata_queued_cmd *qc);
+ extern void ata_dev_select(struct ata_port *ap, unsigned int device,
+diff -Nru a/drivers/scsi/sata_nv.c b/drivers/scsi/sata_nv.c
+--- a/drivers/scsi/sata_nv.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/sata_nv.c	2005-02-23 14:50:15 -05:00
+@@ -217,6 +217,8 @@
+ 	.phy_reset		= sata_phy_reset,
+ 	.bmdma_setup		= ata_bmdma_setup,
+ 	.bmdma_start		= ata_bmdma_start,
++	.bmdma_stop		= ata_bmdma_stop,
++	.bmdma_status		= ata_bmdma_status,
+ 	.qc_prep		= ata_qc_prep,
+ 	.qc_issue		= ata_qc_issue_prot,
+ 	.eng_timeout		= ata_eng_timeout,
+@@ -332,6 +334,7 @@
+ 	struct nv_host *host;
+ 	struct ata_port_info *ppi;
+ 	struct ata_probe_ent *probe_ent;
++	int pci_dev_busy = 0;
+ 	int rc;
+ 	u32 bar;
+ 
+@@ -350,8 +353,10 @@
+ 		goto err_out;
+ 
+ 	rc = pci_request_regions(pdev, DRV_NAME);
+-	if (rc)
++	if (rc) {
++		pci_dev_busy = 1;
+ 		goto err_out_disable;
++	}
+ 
+ 	rc = pci_set_dma_mask(pdev, ATA_DMA_MASK);
+ 	if (rc)
+@@ -427,7 +432,8 @@
+ err_out_regions:
+ 	pci_release_regions(pdev);
+ err_out_disable:
+-	pci_disable_device(pdev);
++	if (!pci_dev_busy)
++		pci_disable_device(pdev);
+ err_out:
+ 	return rc;
+ }
+diff -Nru a/drivers/scsi/sata_promise.c b/drivers/scsi/sata_promise.c
+--- a/drivers/scsi/sata_promise.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/sata_promise.c	2005-02-23 14:50:15 -05:00
+@@ -556,6 +556,7 @@
+ 	unsigned long base;
+ 	void *mmio_base;
+ 	unsigned int board_idx = (unsigned int) ent->driver_data;
++	int pci_dev_busy = 0;
+ 	int rc;
+ 
+ 	if (!printed_version++)
+@@ -570,8 +571,10 @@
+ 		return rc;
+ 
+ 	rc = pci_request_regions(pdev, DRV_NAME);
+-	if (rc)
++	if (rc) {
++		pci_dev_busy = 1;
+ 		goto err_out;
++	}
+ 
+ 	rc = pci_set_dma_mask(pdev, ATA_DMA_MASK);
+ 	if (rc)
+@@ -650,7 +653,8 @@
+ err_out_regions:
+ 	pci_release_regions(pdev);
+ err_out:
+-	pci_disable_device(pdev);
++	if (!pci_dev_busy)
++		pci_disable_device(pdev);
+ 	return rc;
+ }
+ 
+diff -Nru a/drivers/scsi/sata_qstor.c b/drivers/scsi/sata_qstor.c
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/drivers/scsi/sata_qstor.c	2005-02-23 14:50:15 -05:00
+@@ -0,0 +1,700 @@
++/*
++ *  sata_qstor.c - Pacific Digital Corporation QStor SATA
++ *
++ *  Maintained by:  Mark Lord <mlord@pobox.com>
++ *
++ *  Copyright 2005 Pacific Digital Corporation.
++ *  (OSL/GPL code release authorized by Jalil Fadavi).
++ *
++ *  The contents of this file are subject to the Open
++ *  Software License version 1.1 that can be found at
++ *  http://www.opensource.org/licenses/osl-1.1.txt and is included herein
++ *  by reference.
++ *
++ *  Alternatively, the contents of this file may be used under the terms
++ *  of the GNU General Public License version 2 (the "GPL") as distributed
++ *  in the kernel source COPYING file, in which case the provisions of
++ *  the GPL are applicable instead of the above.  If you wish to allow
++ *  the use of your version of this file only under the terms of the
++ *  GPL and not to allow others to use your version of this file under
++ *  the OSL, indicate your decision by deleting the provisions above and
++ *  replace them with the notice and other provisions required by the GPL.
++ *  If you do not delete the provisions above, a recipient may use your
++ *  version of this file under either the OSL or the GPL.
++ *
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <linux/init.h>
++#include <linux/blkdev.h>
++#include <linux/delay.h>
++#include <linux/interrupt.h>
++#include <linux/sched.h>
++#include "scsi.h"
++#include <scsi/scsi_host.h>
++#include <asm/io.h>
++#include <linux/libata.h>
++
++#define DRV_NAME	"sata_qstor"
++#define DRV_VERSION	"0.03"
++
++enum {
++	QS_PORTS		= 4,
++	QS_MAX_PRD		= LIBATA_MAX_PRD,
++	QS_CPB_ORDER		= 6,
++	QS_CPB_BYTES		= (1 << QS_CPB_ORDER),
++	QS_PRD_BYTES		= QS_MAX_PRD * 16,
++	QS_PKT_BYTES		= QS_CPB_BYTES + QS_PRD_BYTES,
++
++	QS_DMA_BOUNDARY		= ~0UL,
++
++	/* global register offsets */
++	QS_HCF_CNFG3		= 0x0003, /* host configuration offset */
++	QS_HID_HPHY		= 0x0004, /* host physical interface info */
++	QS_HCT_CTRL		= 0x00e4, /* global interrupt mask offset */
++	QS_HST_SFF		= 0x0100, /* host status fifo offset */
++	QS_HVS_SERD3		= 0x0393, /* PHY enable offset */
++
++	/* global control bits */
++	QS_HPHY_64BIT		= (1 << 1), /* 64-bit bus detected */
++	QS_CNFG3_GSRST		= 0x01,     /* global chip reset */
++	QS_SERD3_PHY_ENA	= 0xf0,     /* PHY detection ENAble*/
++
++	/* per-channel register offsets */
++	QS_CCF_CPBA		= 0x0710, /* chan CPB base address */
++	QS_CCF_CSEP		= 0x0718, /* chan CPB separation factor */
++	QS_CFC_HUFT		= 0x0800, /* host upstream fifo threshold */
++	QS_CFC_HDFT		= 0x0804, /* host downstream fifo threshold */
++	QS_CFC_DUFT		= 0x0808, /* dev upstream fifo threshold */
++	QS_CFC_DDFT		= 0x080c, /* dev downstream fifo threshold */
++	QS_CCT_CTR0		= 0x0900, /* chan control-0 offset */
++	QS_CCT_CTR1		= 0x0901, /* chan control-1 offset */
++	QS_CCT_CFF		= 0x0a00, /* chan command fifo offset */
++
++	/* channel control bits */
++	QS_CTR0_REG		= (1 << 1),   /* register mode (vs. pkt mode) */
++	QS_CTR0_CLER		= (1 << 2),   /* clear channel errors */
++	QS_CTR1_RDEV		= (1 << 1),   /* sata phy/comms reset */
++	QS_CTR1_RCHN		= (1 << 4),   /* reset channel logic */
++	QS_CCF_RUN_PKT		= 0x107,      /* RUN a new dma PKT */
++
++	/* pkt sub-field headers */
++	QS_HCB_HDR		= 0x01,   /* Host Control Block header */
++	QS_DCB_HDR		= 0x02,   /* Device Control Block header */
++
++	/* pkt HCB flag bits */
++	QS_HF_DIRO		= (1 << 0),   /* data DIRection Out */
++	QS_HF_DAT		= (1 << 3),   /* DATa pkt */
++	QS_HF_IEN		= (1 << 4),   /* Interrupt ENable */
++	QS_HF_VLD		= (1 << 5),   /* VaLiD pkt */
++
++	/* pkt DCB flag bits */
++	QS_DF_PORD		= (1 << 2),   /* Pio OR Dma */
++	QS_DF_ELBA		= (1 << 3),   /* Extended LBA (lba48) */
++
++	/* PCI device IDs */
++	board_2068_idx		= 0,	/* QStor 4-port SATA/RAID */
++};
++
++typedef enum { qs_state_idle, qs_state_pkt, qs_state_mmio } qs_state_t;
++
++struct qs_port_priv {
++	u8			*pkt;
++	dma_addr_t		pkt_dma;
++	qs_state_t		state;
++};
++
++static u32 qs_scr_read (struct ata_port *ap, unsigned int sc_reg);
++static void qs_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val);
++static int qs_ata_init_one (struct pci_dev *pdev, const struct pci_device_id *ent);
++static irqreturn_t qs_intr (int irq, void *dev_instance, struct pt_regs *regs);
++static int qs_port_start(struct ata_port *ap);
++static void qs_host_stop(struct ata_host_set *host_set);
++static void qs_port_stop(struct ata_port *ap);
++static void qs_phy_reset(struct ata_port *ap);
++static void qs_qc_prep(struct ata_queued_cmd *qc);
++static int qs_qc_issue(struct ata_queued_cmd *qc);
++static int qs_check_atapi_dma(struct ata_queued_cmd *qc);
++static void qs_bmdma_stop(struct ata_port *ap);
++static u8 qs_bmdma_status(struct ata_port *ap);
++static void qs_irq_clear(struct ata_port *ap);
++
++static Scsi_Host_Template qs_ata_sht = {
++	.module			= THIS_MODULE,
++	.name			= DRV_NAME,
++	.ioctl			= ata_scsi_ioctl,
++	.queuecommand		= ata_scsi_queuecmd,
++	.eh_strategy_handler	= ata_scsi_error,
++	.can_queue		= ATA_DEF_QUEUE,
++	.this_id		= ATA_SHT_THIS_ID,
++	.sg_tablesize		= QS_MAX_PRD,
++	.max_sectors		= ATA_MAX_SECTORS,
++	.cmd_per_lun		= ATA_SHT_CMD_PER_LUN,
++	.emulated		= ATA_SHT_EMULATED,
++	//FIXME .use_clustering		= ATA_SHT_USE_CLUSTERING,
++	.use_clustering		= ENABLE_CLUSTERING,
++	.proc_name		= DRV_NAME,
++	.dma_boundary		= QS_DMA_BOUNDARY,
++	.slave_configure	= ata_scsi_slave_config,
++	.bios_param		= ata_std_bios_param,
++};
++
++static struct ata_port_operations qs_ata_ops = {
++	.port_disable		= ata_port_disable,
++	.tf_load		= ata_tf_load,
++	.tf_read		= ata_tf_read,
++	.check_status		= ata_check_status,
++	.check_atapi_dma	= qs_check_atapi_dma,
++	.exec_command		= ata_exec_command,
++	.dev_select		= ata_std_dev_select,
++	.phy_reset		= qs_phy_reset,
++	.qc_prep		= qs_qc_prep,
++	.qc_issue		= qs_qc_issue,
++	.eng_timeout		= ata_eng_timeout,
++	.irq_handler		= qs_intr,
++	.irq_clear		= qs_irq_clear,
++	.scr_read		= qs_scr_read,
++	.scr_write		= qs_scr_write,
++	.port_start		= qs_port_start,
++	.port_stop		= qs_port_stop,
++	.host_stop		= qs_host_stop,
++	.bmdma_stop		= qs_bmdma_stop,
++	.bmdma_status		= qs_bmdma_status,
++};
++
++static struct ata_port_info qs_port_info[] = {
++	/* board_2068_idx */
++	{
++		.sht		= &qs_ata_sht,
++		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
++				  ATA_FLAG_SATA_RESET |
++				  //FIXME ATA_FLAG_SRST |
++				  ATA_FLAG_MMIO,
++		.pio_mask	= 0x10, /* pio4 */
++		.udma_mask	= 0x7f, /* udma0-6 */
++		.port_ops	= &qs_ata_ops,
++	},
++};
++
++static struct pci_device_id qs_ata_pci_tbl[] = {
++	{ PCI_VENDOR_ID_PDC, 0x2068, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_2068_idx },
++
++	{ }	/* terminate list */
++};
++
++static struct pci_driver qs_ata_pci_driver = {
++	.name			= DRV_NAME,
++	.id_table		= qs_ata_pci_tbl,
++	.probe			= qs_ata_init_one,
++	.remove			= ata_pci_remove_one,
++};
++
++static int qs_check_atapi_dma(struct ata_queued_cmd *qc)
++{
++	return 1;	/* ATAPI DMA not supported */
++}
++
++static void qs_bmdma_stop(struct ata_port *ap)
++{
++	/* nothing */
++}
++
++static u8 qs_bmdma_status(struct ata_port *ap)
++{
++	return 0;
++}
++
++static void qs_irq_clear(struct ata_port *ap)
++{
++	/* nothing */
++}
++
++static void qs_enter_reg_mode(struct ata_port *ap)
++{
++	u8 __iomem *chan = ap->host_set->mmio_base + (ap->port_no * 0x4000);
++
++	writeb(QS_CTR0_REG, chan + QS_CCT_CTR0);
++	readb(chan + QS_CCT_CTR0);        /* flush */
++}
++
++static void qs_phy_reset(struct ata_port *ap)
++{
++	u8 __iomem *chan = ap->host_set->mmio_base + (ap->port_no * 0x4000);
++	struct qs_port_priv *pp = ap->private_data;
++
++	pp->state = qs_state_idle;
++	writeb(QS_CTR1_RCHN, chan + QS_CCT_CTR1);
++	qs_enter_reg_mode(ap);
++	sata_phy_reset(ap);
++}
++
++static u32 qs_scr_read (struct ata_port *ap, unsigned int sc_reg)
++{
++	if (sc_reg > SCR_CONTROL)
++		return ~0U;
++	return readl((void __iomem *)(ap->ioaddr.scr_addr + (sc_reg * 8)));
++}
++
++static void qs_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val)
++{
++	if (sc_reg > SCR_CONTROL)
++		return;
++	writel(val, (void __iomem *)(ap->ioaddr.scr_addr + (sc_reg * 8)));
++}
++
++static void qs_fill_sg(struct ata_queued_cmd *qc)
++{
++	struct scatterlist *sg = qc->sg;
++	struct ata_port *ap = qc->ap;
++	struct qs_port_priv *pp = ap->private_data;
++	unsigned int nelem;
++	u8 *prd = pp->pkt + QS_CPB_BYTES;
++
++	assert(sg != NULL);
++	assert(qc->n_elem > 0);
++
++	for (nelem = 0; nelem < qc->n_elem; nelem++,sg++) {
++		u64 addr;
++		u32 len;
++
++		addr = sg_dma_address(sg);
++		*(u64 *)prd = cpu_to_le64(addr);
++		prd += sizeof(u64);
++
++		len = sg_dma_len(sg);
++		*(u32 *)prd = cpu_to_le32(len);
++		prd += sizeof(u64);
++
++		VPRINTK("PRD[%u] = (0x%llX, 0x%X)\n", nelem,
++					(unsigned long long)addr, len);
++	}
++}
++
++static void qs_qc_prep(struct ata_queued_cmd *qc)
++{
++	struct qs_port_priv *pp = qc->ap->private_data;
++	u8 dflags = QS_DF_PORD, *buf = pp->pkt;
++	u8 hflags = QS_HF_DAT | QS_HF_IEN | QS_HF_VLD;
++	u64 addr;
++
++	VPRINTK("ENTER\n");
++
++	qs_enter_reg_mode(qc->ap);
++	if (qc->tf.protocol != ATA_PROT_DMA) {
++		ata_qc_prep(qc);
++		return;
++	}
++
++	qs_fill_sg(qc);
++
++	if ((qc->tf.flags & ATA_TFLAG_WRITE))
++		hflags |= QS_HF_DIRO;
++	if ((qc->tf.flags & ATA_TFLAG_LBA48))
++		dflags |= QS_DF_ELBA;
++
++	/* host control block (HCB) */
++	buf[ 0] = QS_HCB_HDR;
++	buf[ 1] = hflags;
++	*(u32 *)(&buf[ 4]) = cpu_to_le32(qc->nsect * ATA_SECT_SIZE);
++	*(u32 *)(&buf[ 8]) = cpu_to_le32(qc->n_elem);
++	addr = ((u64)pp->pkt_dma) + QS_CPB_BYTES;
++	*(u64 *)(&buf[16]) = cpu_to_le64(addr);
++
++	/* device control block (DCB) */
++	buf[24] = QS_DCB_HDR;
++	buf[28] = dflags;
++
++	/* frame information structure (FIS) */
++	ata_tf_to_fis(&qc->tf, &buf[32], 0);
++}
++
++static inline void qs_packet_start(struct ata_queued_cmd *qc)
++{
++	struct ata_port *ap = qc->ap;
++	u8 __iomem *chan = ap->host_set->mmio_base + (ap->port_no * 0x4000);
++
++	VPRINTK("ENTER, ap %p\n", ap);
++
++	writeb(QS_CTR0_CLER, chan + QS_CCT_CTR0);
++	wmb();                             /* flush PRDs and pkt to memory */
++	writel(QS_CCF_RUN_PKT, chan + QS_CCT_CFF);
++	readl(chan + QS_CCT_CFF);          /* flush */
++}
++
++static int qs_qc_issue(struct ata_queued_cmd *qc)
++{
++	struct qs_port_priv *pp = qc->ap->private_data;
++
++	switch (qc->tf.protocol) {
++	case ATA_PROT_DMA:
++
++		pp->state = qs_state_pkt;
++		qs_packet_start(qc);
++		return 0;
++
++	case ATA_PROT_ATAPI_DMA:
++		BUG();
++		break;
++
++	default:
++		break;
++	}
++
++	pp->state = qs_state_mmio;
++	return ata_qc_issue_prot(qc);
++}
++
++static inline unsigned int qs_intr_pkt(struct ata_host_set *host_set)
++{
++	unsigned int handled = 0;
++	u8 sFFE;
++	u8 __iomem *mmio_base = host_set->mmio_base;
++
++	do {
++		u32 sff0 = readl(mmio_base + QS_HST_SFF);
++		u32 sff1 = readl(mmio_base + QS_HST_SFF + 4);
++		u8 sEVLD = (sff1 >> 30) & 0x01;	/* valid flag */
++		sFFE  = sff1 >> 31;		/* empty flag */
++
++		if (sEVLD) {
++			u8 sDST = sff0 >> 16;	/* dev status */
++			u8 sHST = sff1 & 0x3f;	/* host status */
++			unsigned int port_no = (sff1 >> 8) & 0x03;
++			struct ata_port *ap = host_set->ports[port_no];
++
++			DPRINTK("SFF=%08x%08x: sCHAN=%u sHST=%d sDST=%02x\n",
++					sff1, sff0, port_no, sHST, sDST);
++			handled = 1;
++			if (ap && (!(ap->flags & ATA_FLAG_PORT_DISABLED))) {
++				struct ata_queued_cmd *qc;
++				struct qs_port_priv *pp = ap->private_data;
++				if (!pp || pp->state != qs_state_pkt)
++					continue;
++				qc = ata_qc_from_tag(ap, ap->active_tag);
++				if (qc && (!(qc->tf.ctl & ATA_NIEN))) {
++					switch (sHST) {
++					case 0: /* sucessful CPB */
++					case 3: /* device error */
++						pp->state = qs_state_idle;
++						qs_enter_reg_mode(qc->ap);
++						ata_qc_complete(qc, sDST);
++						break;
++					default:
++						break;
++					}
++				}
++			}
++		}
++	} while (!sFFE);
++	return handled;
++}
++
++static inline unsigned int qs_intr_mmio(struct ata_host_set *host_set)
++{
++	unsigned int handled = 0, port_no;
++
++	for (port_no = 0; port_no < host_set->n_ports; ++port_no) {
++		struct ata_port *ap;
++		ap = host_set->ports[port_no];
++		if (ap && (!(ap->flags & ATA_FLAG_PORT_DISABLED))) {
++			struct ata_queued_cmd *qc;
++			struct qs_port_priv *pp = ap->private_data;
++			if (!pp || pp->state != qs_state_mmio)
++				continue;
++			qc = ata_qc_from_tag(ap, ap->active_tag);
++			if (qc && (!(qc->tf.ctl & ATA_NIEN))) {
++
++				/* check main status, clearing INTRQ */
++				u8 status = ata_chk_status(ap);
++				if ((status & ATA_BUSY))
++					continue;
++				DPRINTK("ata%u: protocol %d (dev_stat 0x%X)\n",
++					ap->id, qc->tf.protocol, status);
++		
++				/* complete taskfile transaction */
++				pp->state = qs_state_idle;
++				ata_qc_complete(qc, status);
++				handled = 1;
++			}
++		}
++	}
++	return handled;
++}
++
++static irqreturn_t qs_intr(int irq, void *dev_instance, struct pt_regs *regs)
++{
++	struct ata_host_set *host_set = dev_instance;
++	unsigned int handled = 0;
++
++	VPRINTK("ENTER\n");
++
++	spin_lock(&host_set->lock);
++	handled  = qs_intr_pkt(host_set) | qs_intr_mmio(host_set);
++	spin_unlock(&host_set->lock);
++
++	VPRINTK("EXIT\n");
++
++	return IRQ_RETVAL(handled);
++}
++
++static void qs_ata_setup_port(struct ata_ioports *port, unsigned long base)
++{
++	port->cmd_addr		=
++	port->data_addr		= base + 0x400;
++	port->error_addr	=
++	port->feature_addr	= base + 0x408; /* hob_feature = 0x409 */
++	port->nsect_addr	= base + 0x410; /* hob_nsect   = 0x411 */
++	port->lbal_addr		= base + 0x418; /* hob_lbal    = 0x419 */
++	port->lbam_addr		= base + 0x420; /* hob_lbam    = 0x421 */
++	port->lbah_addr		= base + 0x428; /* hob_lbah    = 0x429 */
++	port->device_addr	= base + 0x430;
++	port->status_addr	=
++	port->command_addr	= base + 0x438;
++	port->altstatus_addr	=
++	port->ctl_addr		= base + 0x440;
++	port->scr_addr		= base + 0xc00;
++}
++
++static int qs_port_start(struct ata_port *ap)
++{
++	struct device *dev = ap->host_set->dev;
++	struct qs_port_priv *pp;
++	void __iomem *mmio_base = ap->host_set->mmio_base;
++	void __iomem *chan = mmio_base + (ap->port_no * 0x4000);
++	u64 addr;
++	int rc;
++
++	rc = ata_port_start(ap);
++	if (rc)
++		return rc;
++	qs_enter_reg_mode(ap);
++	pp = kcalloc(1, sizeof(*pp), GFP_KERNEL);
++	if (!pp) {
++		rc = -ENOMEM;
++		goto err_out;
++	}
++	pp->pkt = dma_alloc_coherent(dev, QS_PKT_BYTES, &pp->pkt_dma,
++								GFP_KERNEL);
++	if (!pp->pkt) {
++		rc = -ENOMEM;
++		goto err_out_kfree;
++	}
++	memset(pp->pkt, 0, QS_PKT_BYTES);
++	ap->private_data = pp;
++
++	addr = (u64)pp->pkt_dma;
++	writel((u32) addr,        chan + QS_CCF_CPBA);
++	writel((u32)(addr >> 32), chan + QS_CCF_CPBA + 4);
++	return 0;
++
++err_out_kfree:
++	kfree(pp);
++err_out:
++	ata_port_stop(ap);
++	return rc;
++}
++
++static void qs_port_stop(struct ata_port *ap)
++{
++	struct device *dev = ap->host_set->dev;
++	struct qs_port_priv *pp = ap->private_data;
++
++	if (pp != NULL) {
++		ap->private_data = NULL;
++		if (pp->pkt != NULL)
++			dma_free_coherent(dev, QS_PKT_BYTES, pp->pkt,
++								pp->pkt_dma);
++		kfree(pp);
++	}
++	ata_port_stop(ap);
++}
++
++static void qs_host_stop(struct ata_host_set *host_set)
++{
++	void __iomem *mmio_base = host_set->mmio_base;
++
++	writeb(0, mmio_base + QS_HCT_CTRL); /* disable host interrupts */
++	writeb(QS_CNFG3_GSRST, mmio_base + QS_HCF_CNFG3); /* global reset */
++}
++
++static void qs_host_init(unsigned int chip_id, struct ata_probe_ent *pe)
++{
++	void __iomem *mmio_base = pe->mmio_base;
++	unsigned int port_no;
++
++	writeb(0, mmio_base + QS_HCT_CTRL); /* disable host interrupts */
++	writeb(QS_CNFG3_GSRST, mmio_base + QS_HCF_CNFG3); /* global reset */
++
++	/* reset each channel in turn */
++	for (port_no = 0; port_no < pe->n_ports; ++port_no) {
++		u8 __iomem *chan = mmio_base + (port_no * 0x4000);
++		writeb(QS_CTR1_RDEV|QS_CTR1_RCHN, chan + QS_CCT_CTR1);
++		writeb(QS_CTR0_REG, chan + QS_CCT_CTR0);
++		readb(chan + QS_CCT_CTR0);        /* flush */
++	}
++	writeb(QS_SERD3_PHY_ENA, mmio_base + QS_HVS_SERD3); /* enable phy */
++
++	for (port_no = 0; port_no < pe->n_ports; ++port_no) {
++		u8 __iomem *chan = mmio_base + (port_no * 0x4000);
++		/* set FIFO depths to same settings as Windows driver */
++		writew(32, chan + QS_CFC_HUFT);
++		writew(32, chan + QS_CFC_HDFT);
++		writew(10, chan + QS_CFC_DUFT);
++		writew( 8, chan + QS_CFC_DDFT);
++		/* set CPB size in bytes, as a power of two */
++		writeb(QS_CPB_ORDER,    chan + QS_CCF_CSEP);
++	}
++	writeb(1, mmio_base + QS_HCT_CTRL); /* enable host interrupts */
++}
++
++/*
++ * The QStor understands 64-bit buses, and uses 64-bit fields
++ * for DMA pointers regardless of bus width.  We just have to
++ * make sure our DMA masks are set appropriately for whatever
++ * bridge lies between us and the QStor, and then the DMA mapping
++ * code will ensure we only ever "see" appropriate buffer addresses.
++ * If we're 32-bit limited somewhere, then our 64-bit fields will
++ * just end up with zeros in the upper 32-bits, without any special
++ * logic required outside of this routine (below).
++ */
++static int qs_set_dma_masks(struct pci_dev *pdev, void __iomem *mmio_base)
++{
++	u32 bus_info = readl(mmio_base + QS_HID_HPHY);
++	int rc, have_64bit_bus = (bus_info & QS_HPHY_64BIT);
++
++	if (have_64bit_bus &&
++	    !pci_set_dma_mask(pdev, 0xffffffffffffffffULL)) {
++		rc = pci_set_consistent_dma_mask(pdev, 0xffffffffffffffffULL);
++		if (rc) {
++			rc = pci_set_consistent_dma_mask(pdev, 0xffffffffULL);
++			if (rc) {
++				printk(KERN_ERR DRV_NAME
++					"(%s): 64-bit DMA enable failed\n",
++					pci_name(pdev));
++				return rc;
++			}
++		}
++	} else {
++		rc = pci_set_dma_mask(pdev, 0xffffffffULL);
++		if (rc) {
++			printk(KERN_ERR DRV_NAME
++				"(%s): 32-bit DMA enable failed\n",
++				pci_name(pdev));
++			return rc;
++		}
++		rc = pci_set_consistent_dma_mask(pdev, 0xffffffffULL);
++		if (rc) {
++			printk(KERN_ERR DRV_NAME
++				"(%s): 32-bit consistent DMA enable failed\n",
++				pci_name(pdev));
++			return rc;
++		}
++	}
++	return 0;
++}
++
++static int qs_ata_init_one(struct pci_dev *pdev,
++				const struct pci_device_id *ent)
++{
++	static int printed_version;
++	struct ata_probe_ent *probe_ent = NULL;
++	void __iomem *mmio_base;
++	unsigned int board_idx = (unsigned int) ent->driver_data;
++	int rc, port_no;
++
++	if (!printed_version++)
++		printk(KERN_DEBUG DRV_NAME " version " DRV_VERSION "\n");
++
++	rc = pci_enable_device(pdev);
++	if (rc)
++		return rc;
++
++	rc = pci_request_regions(pdev, DRV_NAME);
++	if (rc)
++		goto err_out;
++
++	if ((pci_resource_flags(pdev, 4) & IORESOURCE_MEM) == 0) {
++		rc = -ENODEV;
++		goto err_out_regions;
++	}
++
++	mmio_base = ioremap(pci_resource_start(pdev, 4),
++		            pci_resource_len(pdev, 4));
++	if (mmio_base == NULL) {
++		rc = -ENOMEM;
++		goto err_out_regions;
++	}
++
++	rc = qs_set_dma_masks(pdev, mmio_base);
++	if (rc)
++		goto err_out_iounmap;
++
++	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
++	if (probe_ent == NULL) {
++		rc = -ENOMEM;
++		goto err_out_iounmap;
++	}
++
++	memset(probe_ent, 0, sizeof(*probe_ent));
++	probe_ent->dev = pci_dev_to_dev(pdev);
++	INIT_LIST_HEAD(&probe_ent->node);
++
++	probe_ent->sht		= qs_port_info[board_idx].sht;
++	probe_ent->host_flags	= qs_port_info[board_idx].host_flags;
++	probe_ent->pio_mask	= qs_port_info[board_idx].pio_mask;
++	probe_ent->mwdma_mask	= qs_port_info[board_idx].mwdma_mask;
++	probe_ent->udma_mask	= qs_port_info[board_idx].udma_mask;
++	probe_ent->port_ops	= qs_port_info[board_idx].port_ops;
++
++	probe_ent->irq		= pdev->irq;
++	probe_ent->irq_flags	= SA_SHIRQ;
++	probe_ent->mmio_base	= mmio_base;
++	probe_ent->n_ports	= QS_PORTS;
++
++	for (port_no = 0; port_no < probe_ent->n_ports; ++port_no) {
++		unsigned long chan = (unsigned long)mmio_base +
++							(port_no * 0x4000);
++		qs_ata_setup_port(&probe_ent->port[port_no], chan);
++	}
++
++	pci_set_master(pdev);
++
++	/* initialize adapter */
++	qs_host_init(board_idx, probe_ent);
++
++	rc = ata_device_add(probe_ent);
++	kfree(probe_ent);
++	if (rc != QS_PORTS)
++		goto err_out_iounmap;
++	return 0;
++
++err_out_iounmap:
++	iounmap(mmio_base);
++err_out_regions:
++	pci_release_regions(pdev);
++err_out:
++	pci_disable_device(pdev);
++	return rc;
++}
++
++static int __init qs_ata_init(void)
++{
++	return pci_module_init(&qs_ata_pci_driver);
++}
++
++static void __exit qs_ata_exit(void)
++{
++	pci_unregister_driver(&qs_ata_pci_driver);
++}
++
++MODULE_AUTHOR("Mark Lord");
++MODULE_DESCRIPTION("Pacific Digital Corporation QStor SATA low-level driver");
++MODULE_LICENSE("GPL");
++MODULE_DEVICE_TABLE(pci, qs_ata_pci_tbl);
++MODULE_VERSION(DRV_VERSION);
++
++module_init(qs_ata_init);
++module_exit(qs_ata_exit);
+diff -Nru a/drivers/scsi/sata_sil.c b/drivers/scsi/sata_sil.c
+--- a/drivers/scsi/sata_sil.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/sata_sil.c	2005-02-23 14:50:15 -05:00
+@@ -139,6 +139,8 @@
+ 	.post_set_mode		= sil_post_set_mode,
+ 	.bmdma_setup            = ata_bmdma_setup,
+ 	.bmdma_start            = ata_bmdma_start,
++	.bmdma_stop		= ata_bmdma_stop,
++	.bmdma_status		= ata_bmdma_status,
+ 	.qc_prep		= ata_qc_prep,
+ 	.qc_issue		= ata_qc_issue_prot,
+ 	.eng_timeout		= ata_eng_timeout,
+@@ -336,6 +338,7 @@
+ 	void *mmio_base;
+ 	int rc;
+ 	unsigned int i;
++	int pci_dev_busy = 0;
+ 	u32 tmp, irq_mask;
+ 
+ 	if (!printed_version++)
+@@ -350,8 +353,10 @@
+ 		return rc;
+ 
+ 	rc = pci_request_regions(pdev, DRV_NAME);
+-	if (rc)
++	if (rc) {
++		pci_dev_busy = 1;
+ 		goto err_out;
++	}
+ 
+ 	rc = pci_set_dma_mask(pdev, ATA_DMA_MASK);
+ 	if (rc)
+@@ -438,7 +443,8 @@
+ err_out_regions:
+ 	pci_release_regions(pdev);
+ err_out:
+-	pci_disable_device(pdev);
++	if (!pci_dev_busy)
++		pci_disable_device(pdev);
+ 	return rc;
+ }
+ 
+diff -Nru a/drivers/scsi/sata_sis.c b/drivers/scsi/sata_sis.c
+--- a/drivers/scsi/sata_sis.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/sata_sis.c	2005-02-23 14:50:15 -05:00
+@@ -102,6 +102,8 @@
+ 	.phy_reset		= sata_phy_reset,
+ 	.bmdma_setup            = ata_bmdma_setup,
+ 	.bmdma_start            = ata_bmdma_start,
++	.bmdma_stop		= ata_bmdma_stop,
++	.bmdma_status		= ata_bmdma_status,
+ 	.qc_prep		= ata_qc_prep,
+ 	.qc_issue		= ata_qc_issue_prot,
+ 	.eng_timeout		= ata_eng_timeout,
+@@ -200,14 +202,17 @@
+ 	int rc;
+ 	u32 genctl;
+ 	struct ata_port_info *ppi;
++	int pci_dev_busy = 0;
+ 
+ 	rc = pci_enable_device(pdev);
+ 	if (rc)
+ 		return rc;
+ 
+ 	rc = pci_request_regions(pdev, DRV_NAME);
+-	if (rc)
++	if (rc) {
++		pci_dev_busy = 1;
+ 		goto err_out;
++	}
+ 
+ 	rc = pci_set_dma_mask(pdev, ATA_DMA_MASK);
+ 	if (rc)
+@@ -259,7 +264,8 @@
+ 	pci_release_regions(pdev);
+ 
+ err_out:
+-	pci_disable_device(pdev);
++	if (!pci_dev_busy)
++		pci_disable_device(pdev);
+ 	return rc;
+ 
+ }
+diff -Nru a/drivers/scsi/sata_svw.c b/drivers/scsi/sata_svw.c
+--- a/drivers/scsi/sata_svw.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/sata_svw.c	2005-02-23 14:50:15 -05:00
+@@ -301,6 +301,8 @@
+ 	.phy_reset		= sata_phy_reset,
+ 	.bmdma_setup		= k2_bmdma_setup_mmio,
+ 	.bmdma_start		= k2_bmdma_start_mmio,
++	.bmdma_stop		= ata_bmdma_stop,
++	.bmdma_status		= ata_bmdma_status,
+ 	.qc_prep		= ata_qc_prep,
+ 	.qc_issue		= ata_qc_issue_prot,
+ 	.eng_timeout		= ata_eng_timeout,
+@@ -338,6 +340,7 @@
+ 	struct ata_probe_ent *probe_ent = NULL;
+ 	unsigned long base;
+ 	void *mmio_base;
++	int pci_dev_busy = 0;
+ 	int rc;
+ 
+ 	if (!printed_version++)
+@@ -359,8 +362,10 @@
+ 
+ 	/* Request PCI regions */
+ 	rc = pci_request_regions(pdev, DRV_NAME);
+-	if (rc)
++	if (rc) {
++		pci_dev_busy = 1;
+ 		goto err_out;
++	}
+ 
+ 	rc = pci_set_dma_mask(pdev, ATA_DMA_MASK);
+ 	if (rc)
+@@ -433,7 +438,8 @@
+ err_out_regions:
+ 	pci_release_regions(pdev);
+ err_out:
+-	pci_disable_device(pdev);
++	if (!pci_dev_busy)
++		pci_disable_device(pdev);
+ 	return rc;
+ }
+ 
+diff -Nru a/drivers/scsi/sata_sx4.c b/drivers/scsi/sata_sx4.c
+--- a/drivers/scsi/sata_sx4.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/sata_sx4.c	2005-02-23 14:50:15 -05:00
+@@ -1366,6 +1366,7 @@
+ 	void *mmio_base, *dimm_mmio = NULL;
+ 	struct pdc_host_priv *hpriv = NULL;
+ 	unsigned int board_idx = (unsigned int) ent->driver_data;
++	int pci_dev_busy = 0;
+ 	int rc;
+ 
+ 	if (!printed_version++)
+@@ -1380,8 +1381,10 @@
+ 		return rc;
+ 
+ 	rc = pci_request_regions(pdev, DRV_NAME);
+-	if (rc)
++	if (rc) {
++		pci_dev_busy = 1;
+ 		goto err_out;
++	}
+ 
+ 	rc = pci_set_dma_mask(pdev, ATA_DMA_MASK);
+ 	if (rc)
+@@ -1471,7 +1474,8 @@
+ err_out_regions:
+ 	pci_release_regions(pdev);
+ err_out:
+-	pci_disable_device(pdev);
++	if (!pci_dev_busy)
++		pci_disable_device(pdev);
+ 	return rc;
+ }
+ 
+diff -Nru a/drivers/scsi/sata_uli.c b/drivers/scsi/sata_uli.c
+--- a/drivers/scsi/sata_uli.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/sata_uli.c	2005-02-23 14:50:15 -05:00
+@@ -97,6 +97,8 @@
+ 
+ 	.bmdma_setup            = ata_bmdma_setup,
+ 	.bmdma_start            = ata_bmdma_start,
++	.bmdma_stop		= ata_bmdma_stop,
++	.bmdma_status		= ata_bmdma_status,
+ 	.qc_prep		= ata_qc_prep,
+ 	.qc_issue		= ata_qc_issue_prot,
+ 
+@@ -185,14 +187,17 @@
+ 	struct ata_port_info *ppi;
+ 	int rc;
+ 	unsigned int board_idx = (unsigned int) ent->driver_data;
++	int pci_dev_busy = 0;
+ 
+ 	rc = pci_enable_device(pdev);
+ 	if (rc)
+ 		return rc;
+ 
+ 	rc = pci_request_regions(pdev, DRV_NAME);
+-	if (rc)
++	if (rc) {
++		pci_dev_busy = 1;
+ 		goto err_out;
++	}
+ 
+ 	rc = pci_set_dma_mask(pdev, ATA_DMA_MASK);
+ 	if (rc)
+@@ -260,7 +265,8 @@
+ 	pci_release_regions(pdev);
+ 
+ err_out:
+-	pci_disable_device(pdev);
++	if (!pci_dev_busy)
++		pci_disable_device(pdev);
+ 	return rc;
+ 
+ }
+diff -Nru a/drivers/scsi/sata_via.c b/drivers/scsi/sata_via.c
+--- a/drivers/scsi/sata_via.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/sata_via.c	2005-02-23 14:50:15 -05:00
+@@ -24,6 +24,11 @@
+    If you do not delete the provisions above, a recipient may use your
+    version of this file under either the OSL or the GPL.
+ 
++   ----------------------------------------------------------------------
++
++   To-do list:
++   * VT6421 PATA support
++
+  */
+ 
+ #include <linux/kernel.h>
+@@ -38,11 +43,14 @@
+ #include <asm/io.h>
+ 
+ #define DRV_NAME	"sata_via"
+-#define DRV_VERSION	"1.0"
++#define DRV_VERSION	"1.1"
+ 
+-enum {
+-	via_sata		= 0,
++enum board_ids_enum {
++	vt6420,
++	vt6421,
++};
+ 
++enum {
+ 	SATA_CHAN_ENAB		= 0x40, /* SATA channel enable */
+ 	SATA_INT_GATE		= 0x41, /* SATA interrupt gating */
+ 	SATA_NATIVE_MODE	= 0x42, /* Native mode enable */
+@@ -50,10 +58,8 @@
+ 
+ 	PORT0			= (1 << 1),
+ 	PORT1			= (1 << 0),
+-
+-	ENAB_ALL		= PORT0 | PORT1,
+-
+-	INT_GATE_ALL		= PORT0 | PORT1,
++	ALL_PORTS		= PORT0 | PORT1,
++	N_PORTS			= 2,
+ 
+ 	NATIVE_MODE_ALL		= (1 << 7) | (1 << 6) | (1 << 5) | (1 << 4),
+ 
+@@ -66,7 +72,8 @@
+ static void svia_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val);
+ 
+ static struct pci_device_id svia_pci_tbl[] = {
+-	{ 0x1106, 0x3149, PCI_ANY_ID, PCI_ANY_ID, 0, 0, via_sata },
++	{ 0x1106, 0x3149, PCI_ANY_ID, PCI_ANY_ID, 0, 0, vt6420 },
++	{ 0x1106, 0x3249, PCI_ANY_ID, PCI_ANY_ID, 0, 0, vt6421 },
+ 
+ 	{ }	/* terminate list */
+ };
+@@ -110,6 +117,9 @@
+ 
+ 	.bmdma_setup            = ata_bmdma_setup,
+ 	.bmdma_start            = ata_bmdma_start,
++	.bmdma_stop		= ata_bmdma_stop,
++	.bmdma_status		= ata_bmdma_status,
++
+ 	.qc_prep		= ata_qc_prep,
+ 	.qc_issue		= ata_qc_issue_prot,
+ 
+@@ -158,18 +168,132 @@
+ 	8, 4, 8, 4, 16, 256
+ };
+ 
++static const unsigned int vt6421_bar_sizes[] = {
++	16, 16, 16, 16, 32, 128
++};
++
+ static unsigned long svia_scr_addr(unsigned long addr, unsigned int port)
+ {
+ 	return addr + (port * 128);
+ }
+ 
++static unsigned long vt6421_scr_addr(unsigned long addr, unsigned int port)
++{
++	return addr + (port * 64);
++}
++
++static void vt6421_init_addrs(struct ata_probe_ent *probe_ent,
++			      struct pci_dev *pdev,
++			      unsigned int port)
++{
++	unsigned long reg_addr = pci_resource_start(pdev, port);
++	unsigned long bmdma_addr = pci_resource_start(pdev, 4) + (port * 8);
++	unsigned long scr_addr;
++
++	probe_ent->port[port].cmd_addr = reg_addr;
++	probe_ent->port[port].altstatus_addr =
++	probe_ent->port[port].ctl_addr = (reg_addr + 8) | ATA_PCI_CTL_OFS;
++	probe_ent->port[port].bmdma_addr = bmdma_addr;
++
++	scr_addr = vt6421_scr_addr(pci_resource_start(pdev, 5), port);
++	probe_ent->port[port].scr_addr = scr_addr;
++
++	ata_std_ports(&probe_ent->port[port]);
++}
++
++static struct ata_probe_ent *vt6420_init_probe_ent(struct pci_dev *pdev)
++{
++	struct ata_probe_ent *probe_ent;
++	struct ata_port_info *ppi = &svia_port_info;
++
++	probe_ent = ata_pci_init_native_mode(pdev, &ppi);
++	if (!probe_ent)
++		return NULL;
++
++	probe_ent->port[0].scr_addr =
++		svia_scr_addr(pci_resource_start(pdev, 5), 0);
++	probe_ent->port[1].scr_addr =
++		svia_scr_addr(pci_resource_start(pdev, 5), 1);
++
++	return probe_ent;
++}
++
++static struct ata_probe_ent *vt6421_init_probe_ent(struct pci_dev *pdev)
++{
++	struct ata_probe_ent *probe_ent;
++	unsigned int i;
++
++	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
++	if (!probe_ent)
++		return NULL;
++
++	memset(probe_ent, 0, sizeof(*probe_ent));
++	probe_ent->dev = pci_dev_to_dev(pdev);
++	INIT_LIST_HEAD(&probe_ent->node);
++
++	probe_ent->sht		= &svia_sht;
++	probe_ent->host_flags	= ATA_FLAG_SATA | ATA_FLAG_SATA_RESET |
++				  ATA_FLAG_NO_LEGACY;
++	probe_ent->port_ops	= &svia_sata_ops;
++	probe_ent->n_ports	= N_PORTS;
++	probe_ent->irq		= pdev->irq;
++	probe_ent->irq_flags	= SA_SHIRQ;
++	probe_ent->pio_mask	= 0x1f;
++	probe_ent->mwdma_mask	= 0x07;
++	probe_ent->udma_mask	= 0x7f;
++
++	for (i = 0; i < N_PORTS; i++)
++		vt6421_init_addrs(probe_ent, pdev, i);
++
++	return probe_ent;
++}
++
++static void svia_configure(struct pci_dev *pdev)
++{
++	u8 tmp8;
++
++	pci_read_config_byte(pdev, PCI_INTERRUPT_LINE, &tmp8);
++	printk(KERN_INFO DRV_NAME "(%s): routed to hard irq line %d\n",
++	       pci_name(pdev),
++	       (int) (tmp8 & 0xf0) == 0xf0 ? 0 : tmp8 & 0x0f);
++
++	/* make sure SATA channels are enabled */
++	pci_read_config_byte(pdev, SATA_CHAN_ENAB, &tmp8);
++	if ((tmp8 & ALL_PORTS) != ALL_PORTS) {
++		printk(KERN_DEBUG DRV_NAME "(%s): enabling SATA channels (0x%x)\n",
++		       pci_name(pdev), (int) tmp8);
++		tmp8 |= ALL_PORTS;
++		pci_write_config_byte(pdev, SATA_CHAN_ENAB, tmp8);
++	}
++
++	/* make sure interrupts for each channel sent to us */
++	pci_read_config_byte(pdev, SATA_INT_GATE, &tmp8);
++	if ((tmp8 & ALL_PORTS) != ALL_PORTS) {
++		printk(KERN_DEBUG DRV_NAME "(%s): enabling SATA channel interrupts (0x%x)\n",
++		       pci_name(pdev), (int) tmp8);
++		tmp8 |= ALL_PORTS;
++		pci_write_config_byte(pdev, SATA_INT_GATE, tmp8);
++	}
++
++	/* make sure native mode is enabled */
++	pci_read_config_byte(pdev, SATA_NATIVE_MODE, &tmp8);
++	if ((tmp8 & NATIVE_MODE_ALL) != NATIVE_MODE_ALL) {
++		printk(KERN_DEBUG DRV_NAME "(%s): enabling SATA channel native mode (0x%x)\n",
++		       pci_name(pdev), (int) tmp8);
++		tmp8 |= NATIVE_MODE_ALL;
++		pci_write_config_byte(pdev, SATA_NATIVE_MODE, tmp8);
++	}
++}
++
+ static int svia_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
+ {
+ 	static int printed_version;
+ 	unsigned int i;
+ 	int rc;
+-	struct ata_port_info *ppi;
+ 	struct ata_probe_ent *probe_ent;
++	int board_id = (int) ent->driver_data;
++	const int *bar_sizes;
++	int pci_dev_busy = 0;
+ 	u8 tmp8;
+ 
+ 	if (!printed_version++)
+@@ -180,20 +304,28 @@
+ 		return rc;
+ 
+ 	rc = pci_request_regions(pdev, DRV_NAME);
+-	if (rc)
++	if (rc) {
++		pci_dev_busy = 1;
+ 		goto err_out;
++	}
+ 
+-	pci_read_config_byte(pdev, SATA_PATA_SHARING, &tmp8);
+-	if (tmp8 & SATA_2DEV) {
+-		printk(KERN_ERR DRV_NAME "(%s): SATA master/slave not supported (0x%x)\n",
+-		       pci_name(pdev), (int) tmp8);
+-		rc = -EIO;
+-		goto err_out_regions;
++	if (board_id == vt6420) {
++		pci_read_config_byte(pdev, SATA_PATA_SHARING, &tmp8);
++		if (tmp8 & SATA_2DEV) {
++			printk(KERN_ERR DRV_NAME "(%s): SATA master/slave not supported (0x%x)\n",
++		       	pci_name(pdev), (int) tmp8);
++			rc = -EIO;
++			goto err_out_regions;
++		}
++
++		bar_sizes = &svia_bar_sizes[0];
++	} else {
++		bar_sizes = &vt6421_bar_sizes[0];
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(svia_bar_sizes); i++)
+ 		if ((pci_resource_start(pdev, i) == 0) ||
+-		    (pci_resource_len(pdev, i) < svia_bar_sizes[i])) {
++		    (pci_resource_len(pdev, i) < bar_sizes[i])) {
+ 			printk(KERN_ERR DRV_NAME "(%s): invalid PCI BAR %u (sz 0x%lx, val 0x%lx)\n",
+ 			       pci_name(pdev), i,
+ 			       pci_resource_start(pdev, i),
+@@ -209,8 +341,11 @@
+ 	if (rc)
+ 		goto err_out_regions;
+ 
+-	ppi = &svia_port_info;
+-	probe_ent = ata_pci_init_native_mode(pdev, &ppi);
++	if (board_id == vt6420)
++		probe_ent = vt6420_init_probe_ent(pdev);
++	else
++		probe_ent = vt6421_init_probe_ent(pdev);
++	
+ 	if (!probe_ent) {
+ 		printk(KERN_ERR DRV_NAME "(%s): out of memory\n",
+ 		       pci_name(pdev));
+@@ -218,42 +353,7 @@
+ 		goto err_out_regions;
+ 	}
+ 
+-	probe_ent->port[0].scr_addr =
+-		svia_scr_addr(pci_resource_start(pdev, 5), 0);
+-	probe_ent->port[1].scr_addr =
+-		svia_scr_addr(pci_resource_start(pdev, 5), 1);
+-
+-	pci_read_config_byte(pdev, PCI_INTERRUPT_LINE, &tmp8);
+-	printk(KERN_INFO DRV_NAME "(%s): routed to hard irq line %d\n",
+-	       pci_name(pdev),
+-	       (int) (tmp8 & 0xf0) == 0xf0 ? 0 : tmp8 & 0x0f);
+-
+-	/* make sure SATA channels are enabled */
+-	pci_read_config_byte(pdev, SATA_CHAN_ENAB, &tmp8);
+-	if ((tmp8 & ENAB_ALL) != ENAB_ALL) {
+-		printk(KERN_DEBUG DRV_NAME "(%s): enabling SATA channels (0x%x)\n",
+-		       pci_name(pdev), (int) tmp8);
+-		tmp8 |= ENAB_ALL;
+-		pci_write_config_byte(pdev, SATA_CHAN_ENAB, tmp8);
+-	}
+-
+-	/* make sure interrupts for each channel sent to us */
+-	pci_read_config_byte(pdev, SATA_INT_GATE, &tmp8);
+-	if ((tmp8 & INT_GATE_ALL) != INT_GATE_ALL) {
+-		printk(KERN_DEBUG DRV_NAME "(%s): enabling SATA channel interrupts (0x%x)\n",
+-		       pci_name(pdev), (int) tmp8);
+-		tmp8 |= INT_GATE_ALL;
+-		pci_write_config_byte(pdev, SATA_INT_GATE, tmp8);
+-	}
+-
+-	/* make sure native mode is enabled */
+-	pci_read_config_byte(pdev, SATA_NATIVE_MODE, &tmp8);
+-	if ((tmp8 & NATIVE_MODE_ALL) != NATIVE_MODE_ALL) {
+-		printk(KERN_DEBUG DRV_NAME "(%s): enabling SATA channel native mode (0x%x)\n",
+-		       pci_name(pdev), (int) tmp8);
+-		tmp8 |= NATIVE_MODE_ALL;
+-		pci_write_config_byte(pdev, SATA_NATIVE_MODE, tmp8);
+-	}
++	svia_configure(pdev);
+ 
+ 	pci_set_master(pdev);
+ 
+@@ -266,7 +366,8 @@
+ err_out_regions:
+ 	pci_release_regions(pdev);
+ err_out:
+-	pci_disable_device(pdev);
++	if (!pci_dev_busy)
++		pci_disable_device(pdev);
+ 	return rc;
+ }
+ 
+diff -Nru a/drivers/scsi/sata_vsc.c b/drivers/scsi/sata_vsc.c
+--- a/drivers/scsi/sata_vsc.c	2005-02-23 14:50:15 -05:00
++++ b/drivers/scsi/sata_vsc.c	2005-02-23 14:50:15 -05:00
+@@ -217,6 +217,8 @@
+ 	.phy_reset		= sata_phy_reset,
+ 	.bmdma_setup            = ata_bmdma_setup,
+ 	.bmdma_start            = ata_bmdma_start,
++	.bmdma_stop		= ata_bmdma_stop,
++	.bmdma_status		= ata_bmdma_status,
+ 	.qc_prep		= ata_qc_prep,
+ 	.qc_issue		= ata_qc_issue_prot,
+ 	.eng_timeout		= ata_eng_timeout,
+@@ -255,6 +257,7 @@
+ 	static int printed_version;
+ 	struct ata_probe_ent *probe_ent = NULL;
+ 	unsigned long base;
++	int pci_dev_busy = 0;
+ 	void *mmio_base;
+ 	int rc;
+ 
+@@ -274,8 +277,10 @@
+ 	}
+ 
+ 	rc = pci_request_regions(pdev, DRV_NAME);
+-	if (rc)
++	if (rc) {
++		pci_dev_busy = 1;
+ 		goto err_out;
++	}
+ 
+ 	/*
+ 	 * Use 32 bit DMA mask, because 64 bit address support is poor.
+@@ -352,7 +357,8 @@
+ err_out_regions:
+ 	pci_release_regions(pdev);
+ err_out:
+-	pci_disable_device(pdev);
++	if (!pci_dev_busy)
++		pci_disable_device(pdev);
+ 	return rc;
+ }
+ 
+diff -Nru a/include/linux/libata.h b/include/linux/libata.h
+--- a/include/linux/libata.h	2005-02-23 14:50:15 -05:00
++++ b/include/linux/libata.h	2005-02-23 14:50:15 -05:00
+@@ -334,6 +334,8 @@
+ 
+ 	void (*exec_command)(struct ata_port *ap, struct ata_taskfile *tf);
+ 	u8   (*check_status)(struct ata_port *ap);
++	u8   (*check_altstatus)(struct ata_port *ap);
++	u8   (*check_err)(struct ata_port *ap);
+ 	void (*dev_select)(struct ata_port *ap, unsigned int device);
+ 
+ 	void (*phy_reset) (struct ata_port *ap);
+@@ -360,6 +362,9 @@
+ 	void (*port_stop) (struct ata_port *ap);
+ 
+ 	void (*host_stop) (struct ata_host_set *host_set);
++
++	void (*bmdma_stop) (struct ata_port *ap);
++	u8   (*bmdma_status) (struct ata_port *ap);
+ };
+ 
+ struct ata_port_info {
+@@ -400,6 +405,8 @@
+ extern void ata_noop_dev_select (struct ata_port *ap, unsigned int device);
+ extern void ata_std_dev_select (struct ata_port *ap, unsigned int device);
+ extern u8 ata_check_status(struct ata_port *ap);
++extern u8 ata_altstatus(struct ata_port *ap);
++extern u8 ata_chk_err(struct ata_port *ap);
+ extern void ata_exec_command(struct ata_port *ap, struct ata_taskfile *tf);
+ extern int ata_port_start (struct ata_port *ap);
+ extern void ata_port_stop (struct ata_port *ap);
+@@ -415,6 +422,8 @@
+ 			      unsigned int ofs, unsigned int len);
+ extern void ata_bmdma_setup (struct ata_queued_cmd *qc);
+ extern void ata_bmdma_start (struct ata_queued_cmd *qc);
++extern void ata_bmdma_stop(struct ata_port *ap);
++extern u8   ata_bmdma_status(struct ata_port *ap);
+ extern void ata_bmdma_irq_clear(struct ata_port *ap);
+ extern void ata_qc_complete(struct ata_queued_cmd *qc, u8 drv_stat);
+ extern void ata_eng_timeout(struct ata_port *ap);
+@@ -452,26 +461,11 @@
+ 		(dev->class == ATA_DEV_ATAPI));
+ }
+ 
+-static inline u8 ata_chk_err(struct ata_port *ap)
+-{
+-	if (ap->flags & ATA_FLAG_MMIO) {
+-		return readb((void __iomem *) ap->ioaddr.error_addr);
+-	}
+-	return inb(ap->ioaddr.error_addr);
+-}
+-
+ static inline u8 ata_chk_status(struct ata_port *ap)
+ {
+ 	return ap->ops->check_status(ap);
+ }
+ 
+-static inline u8 ata_altstatus(struct ata_port *ap)
+-{
+-	if (ap->flags & ATA_FLAG_MMIO)
+-		return readb((void __iomem *)ap->ioaddr.altstatus_addr);
+-	return inb(ap->ioaddr.altstatus_addr);
+-}
+-
+ static inline void ata_pause(struct ata_port *ap)
+ {
+ 	ata_altstatus(ap);
+@@ -593,46 +587,6 @@
+ static inline unsigned int sata_dev_present(struct ata_port *ap)
+ {
+ 	return ((scr_read(ap, SCR_STATUS) & 0xf) == 0x3) ? 1 : 0;
+-}
+-
+-static inline void ata_bmdma_stop(struct ata_port *ap)
+-{
+-	if (ap->flags & ATA_FLAG_MMIO) {
+-		void __iomem *mmio = (void __iomem *) ap->ioaddr.bmdma_addr;
+-
+-		/* clear start/stop bit */
+-		writeb(readb(mmio + ATA_DMA_CMD) & ~ATA_DMA_START,
+-		      mmio + ATA_DMA_CMD);
+-	} else {
+-		/* clear start/stop bit */
+-		outb(inb(ap->ioaddr.bmdma_addr + ATA_DMA_CMD) & ~ATA_DMA_START,
+-		    ap->ioaddr.bmdma_addr + ATA_DMA_CMD);
+-	}
+-
+-	/* one-PIO-cycle guaranteed wait, per spec, for HDMA1:0 transition */
+-	ata_altstatus(ap);	      /* dummy read */
+-}
+-
+-static inline void ata_bmdma_ack_irq(struct ata_port *ap)
+-{
+-	if (ap->flags & ATA_FLAG_MMIO) {
+-		void __iomem *mmio = ((void __iomem *) ap->ioaddr.bmdma_addr) + ATA_DMA_STATUS;
+-		writeb(readb(mmio), mmio);
+-	} else {
+-		unsigned long addr = ap->ioaddr.bmdma_addr + ATA_DMA_STATUS;
+-		outb(inb(addr), addr);
+-	}
+-}
+-
+-static inline u8 ata_bmdma_status(struct ata_port *ap)
+-{
+-	u8 host_stat;
+-	if (ap->flags & ATA_FLAG_MMIO) {
+-		void __iomem *mmio = (void __iomem *) ap->ioaddr.bmdma_addr;
+-		host_stat = readb(mmio + ATA_DMA_STATUS);
+-	} else
+-		host_stat = inb(ap->ioaddr.bmdma_addr + ATA_DMA_STATUS);
+-	return host_stat;
+ }
+ 
+ static inline int ata_try_flush_cache(struct ata_device *dev)
+
+--------------090203030504070600070301--

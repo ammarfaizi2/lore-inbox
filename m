@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbUKKBAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbUKKBEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262075AbUKKBAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 20:00:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbUKKBAZ
+	id S262076AbUKKBEr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 20:04:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbUKKBEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 20:00:25 -0500
-Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:34552 "EHLO
-	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S262075AbUKKBAV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 20:00:21 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: The latest module tool issue
-Date: Wed, 10 Nov 2004 17:00:17 -0800
-Message-ID: <08A354A3A9CCA24F9EE9BE13600CFBC50F3AEC@wcosmb07.cos.agilent.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Welcome to linux-kernel
-thread-index: AcTHh9i7Q23R9MxTRjSe1HcUBFtHJQAADNEw
-From: <yiding_wang@agilent.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <yiding_wang@agilent.com>
-X-OriginalArrivalTime: 11 Nov 2004 01:00:18.0670 (UTC) FILETIME=[CFF678E0:01C4C789]
+	Wed, 10 Nov 2004 20:04:47 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.30]:40940 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S262076AbUKKBEq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 20:04:46 -0500
+Date: Thu, 11 Nov 2004 02:04:26 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Andrew Morton <akpm@osdl.org>, zaphodb@zaphods.net,
+       linux-kernel@vger.kernel.org, piggin@cyberone.com.au
+Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
+Message-ID: <20041111010426.GA26171@mail.muni.cz>
+References: <20041103222447.GD28163@zaphods.net> <20041104121722.GB8537@logos.cnet> <20041104181856.GE28163@zaphods.net> <20041109164113.GD7632@logos.cnet> <20041109223558.GR1309@mail.muni.cz> <20041109144607.2950a41a.akpm@osdl.org> <20041109224423.GC18366@mail.muni.cz> <20041109203348.GD8414@logos.cnet> <20041110212818.GC25410@mail.muni.cz> <20041110181148.GA12867@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041110181148.GA12867@logos.cnet>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using moudle-init-tools-3.1-pre6 with kernel 2.6.9. The new insmod seems have restrictions which failed loading driver module with parameters.
+On Wed, Nov 10, 2004 at 04:11:48PM -0200, Marcelo Tosatti wrote:
+> OK, do you have Nick watermark fixes in? 
 
-My module parameter is in the form of modname="*************** ****", a quite long one.
-Run - insmod modname.o modname="*********** *******" (with a script), it complains about the space and treats the string next to the space to be a "Unknown parameter".
+Well I've applied it and it seems to be ok. Thanks. 
 
-By replacing the space with any character, then it complains 
-"modname: string parameter too long"
+Hope that fix will be included in 2.6.10 final.
 
-Same parameter string works fine under 2.4.25 with original insmod.
-
-Is this a bug or new insmod has restrictions? If it is restriction, it will bring a lot of trouble. 
-
-Thanks!
-
-Eddie
+-- 
+Luká¹ Hejtmánek

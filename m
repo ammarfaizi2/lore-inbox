@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265088AbUFGWA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUFGWCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265088AbUFGWA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 18:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265090AbUFGWA0
+	id S265098AbUFGWCG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 18:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265094AbUFGWCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 18:00:26 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:48315 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S265088AbUFGWAV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 18:00:21 -0400
-Subject: Re: [PATCH 1/3] mull'ify multiplication with HZ in
-	__const_udelay() [Was: Re: Too much error in __const_udelay() ?]
-From: john stultz <johnstul@us.ibm.com>
-To: Dominik Brodowski <linux@dominikbrodowski.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, george anzinger <george@mvista.com>,
-       greg kh <greg@kroah.com>, Chris McDermott <lcm@us.ibm.com>,
-       garloff@suse.de
-In-Reply-To: <20040607212058.GA23106@dominikbrodowski.de>
-References: <1086419565.2234.133.camel@cog.beaverton.ibm.com>
-	 <20040605152326.GA11239@dominikbrodowski.de>
-	 <1086635568.2234.171.camel@cog.beaverton.ibm.com>
-	 <20040607212058.GA23106@dominikbrodowski.de>
-Content-Type: text/plain
-Message-Id: <1086645655.2234.182.camel@cog.beaverton.ibm.com>
+	Mon, 7 Jun 2004 18:02:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9189 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265098AbUFGWBx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 18:01:53 -0400
+Date: Mon, 7 Jun 2004 14:57:23 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: jgarzik@pobox.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] ethtool semantics
+Message-Id: <20040607145723.41da5783.davem@redhat.com>
+In-Reply-To: <20040607212804.GA17012@k3.hellgate.ch>
+References: <20040607212804.GA17012@k3.hellgate.ch>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 07 Jun 2004 15:00:56 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-06-07 at 14:20, Dominik Brodowski wrote:
-> Move the multiplication of (loops_per_jiffy * xloops) with HZ into
-> the "mull" asm operation. This increases the accuracy of the delay functions
-> largely:
+On Mon, 7 Jun 2004 23:28:04 +0200
+Roger Luethi <rl@hellgate.ch> wrote:
+
+> What is the correct response if a user passes ethtool speed or duplex
+> arguments while autoneg is on? Some possible answers are:
 > 
-[snip]
-> diff -ruN linux-original/arch/i386/lib/delay.c linux/arch/i386/lib/delay.c
-> --- linux-original/arch/i386/lib/delay.c	2004-06-07 22:01:46.608351088 +0200
-> +++ linux/arch/i386/lib/delay.c	2004-06-07 22:05:03.299449496 +0200
-> @@ -33,8 +33,8 @@
->  	int d0;
->  	__asm__("mull %0"
->  		:"=d" (xloops), "=&a" (d0)
-> -		:"1" (xloops),"0" (current_cpu_data.loops_per_jiffy));
-> -        __delay(xloops * HZ);
-> +		:"1" (xloops),"0" (current_cpu_data.loops_per_jiffy * HZ));
-> +        __delay(xloops);
->  }
+> a) Yell at the user for doing something stupid.
+> 
+> b) Fail silently (i.e. ignore command).
+> 
+> c) Change advertised value accordingly and initiate new negotiation.
+> 
+> d) Consider "autoneg off" implied, force media accordingly.
+> 
+> The ethtool(8) man page I'm looking at doesn't address that question. The
+> actual behavior I've seen is b) which is by far my least preferred
+> solution.
 
-Kurt Garloff brought up a good point that loops_per_jiffy*HZ is only
-good up to 4Ghz time sources. The workaround he suggested was to
-multiply xloops by 4 first and divide HZ by 4. This will allow for
-frequencies up to 16Ghz. 
-
-So something like:
-
-	xloops *= 4;
-	__asm__("mull %0"
-		:"=d" (xloops), "=&a" (d0)
-		:"1" (xloops),"0" (LPJ*(HZ/4)));
-
--john
-
+speed and duplex fields should be silently ignored in this case

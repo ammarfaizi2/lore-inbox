@@ -1,237 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264954AbUBEAYW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 19:24:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbUBEAPB
+	id S264383AbUBEA1b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 19:27:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265149AbUBEA0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 19:15:01 -0500
-Received: from s6.fpw.ch ([62.12.146.226]:19726 "EHLO server6.fpw.ch")
-	by vger.kernel.org with ESMTP id S264954AbUBEAN1 (ORCPT
+	Wed, 4 Feb 2004 19:26:18 -0500
+Received: from gate.crashing.org ([63.228.1.57]:29829 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264442AbUBEAOF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 19:13:27 -0500
-Subject: Firewire troubles with  SMP kernel
-From: Alexey Goldin <ab_goldin@swissmail.org>
-To: linux-kernel@vger.kernel.org
+	Wed, 4 Feb 2004 19:14:05 -0500
+Subject: Re: [PATCH] PCI / OF linkage in sysfs
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0402041601080.2086@home.osdl.org>
+References: <1075878713.992.3.camel@gaston>
+	 <Pine.LNX.4.58.0402041407160.2086@home.osdl.org>
+	 <20040204231324.GA5078@kroah.com>
+	 <Pine.LNX.4.58.0402041522390.2086@home.osdl.org>
+	 <1075938633.4029.53.camel@gaston>
+	 <Pine.LNX.4.58.0402041601080.2086@home.osdl.org>
 Content-Type: text/plain
-Message-Id: <1075940005.11793.34.camel@hobbit>
+Message-Id: <1075939994.4371.58.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 04 Feb 2004 16:13:26 -0800
+Date: Thu, 05 Feb 2004 11:13:14 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to fine people who helped me to sort out problems with my laptop
-couple of months ago. This is the timeto ask for help again :-)
+On Thu, 2004-02-05 at 11:04, Linus Torvalds wrote:
 
-Please cc: any reply to me as I am not subscribed to the list. 
+> I think that I personally would be a lot happier with the situation if it 
+> wasn't that PCI had magic knowledge about OF in particular.  In other 
+> words, you'd likely be able to sell me on an idea where the PCI layer just 
+> knows about "let the firmware install a few files here", but is totally 
+> firmware-agnostic per se.
+> 
+> In other words, you migth just rename the "OF" functionality as "platform" 
+> functionality, and add dummy (empty) platform handlers for the other 
+> platforms (eg BIOS/EFI whatever). Maybe some day EFI will want to have a 
+> similar pointer..
+> 
+> So while I'd hate to have the PCI layer start having to learn details of 
+> all the platforms out there, I don't think it's necessarily wrong that the 
+> PCI layer knows about the _concept_ of a platform, as long as it doesn't 
+> get too specific.
+> 
+> Would that suit your needs?
 
-Well, I know firewire with SMP is a little bit iffy. 
-However we managed to get it working on one computer and we hoped it
-will work with other. Here is what we have instead.
+What about adding a pcibios_add_platform_entries(device) called by
+pci_sysfs then ? By default an empty inline on asm/* and on PPC,
+I can add my devspec without having OF-aware code in drivers/pci
 
-The first computer is dual Athlon-MP with Tyan mobo, firewire card is 
-fairly basic, we got it from
-http://shop.store.yahoo.com/gooddealpc-store/139pci3p.html 
-We tried it with Western Digital 120GB firewire drives and with IDE
-enclosures:
+Also, if you prefer a different name for "devspec", speak up now ;)
 
-http://www.baber.com/cases/drive_enclosures/multi_bay.htm
+I can still change the name in the macio devices too, nothing uses
+them right now and I expect things that will be fixed to use them
+to rely on 2.6.3 minimum.
 
-
-We had crashes, but after we upgraded to Fedora, kernel 
-2.4.22-1.2115.nptlsmp it worked like a charm.
-
-However we needed these drives to work at another machine. It is not at
-our site, so I still trying to figure out all hardware details. Whatever
-available is shown below. We shipped identical Firewire card to the
-second computer. It is running SuSe. After upgrading to 2.4.22 it could
-see the firewire card and hard drive, but it reports that hard drive has
-0 sectors. Which is probably on a low side, as we can read data from
-this drive just fine  on other computers.
-
-We tried other (newer) kernel versions up to 2.4.24, tried to apply all
-Fedora patches to vanilla 2.4.22 --- no luck. The hard drive is still 0
-sectors big.
-
-Could anyone kindly suggest me where to dig?
-
-Thank you very much!
+Ben.
 
 
-Here is relevant part of /var/log/messages:
-
-Feb  4 12:59:38 kilauea kernel: sbp2: $Rev: 1010 $ Ben Collins
-<bcollins@debian\.org>
-Feb  4 12:59:38 kilauea kernel: scsi2 : SCSI emulation for IEEE-1394
-SBP-2 Devi\ces
-Feb  4 12:59:38 kilauea kernel: blk: queue f426ba18, I/O limit 4095Mb
-(mask 0xf\fffffff)
-Feb  4 12:59:39 kilauea kernel: ieee1394: sbp2: Logged into SBP-2 device
-Feb  4 12:59:39 kilauea kernel: ieee1394: sbp2: Node 0-00:1023: Max
-speed [S400\] - Max payload [2048]
-Feb  4 12:59:39 kilauea insmod: Using
-/lib/modules/2.4.22-ac1/kernel/drivers/ie\ee1394/sbp2.o
-
-.........................................................
-
-Feb  4 12:59:39 kilauea kernel: scsi singledevice 2 0 0 0
-Feb  4 12:59:39 kilauea kernel: blk: queue f5962218, I/O limit 4095Mb
-(mask 0xf\fffffff)
-Feb  4 12:59:39 kilauea kernel:   Vendor: WDIGTL    Model:
-WDCFireWireHD-Ox  Re\v: 2.70
-Feb  4 12:59:39 kilauea kernel:   Type:  
-Direct-Access                      AN\SI SCSI revision: 06
-Feb  4 12:59:39 kilauea kernel: blk: queue f6647818, I/O limit 4095Mb
-(mask 0xf\fffffff)
-Feb  4 12:59:39 kilauea kernel: Attached scsi disk sdd at scsi2, channel
-0, id \0, lun 0
-Feb  4 12:59:39 kilauea kernel: sr0: CDROM (ioctl) reports ILLEGAL
-REQUEST.
-Feb  4 12:59:54 kilauea last message repeated 15 times
-Feb  4 12:59:55 kilauea kernel: SCSI device sdd: 0 512-byte hdwr sectors
-(0 MB)
-                                                 ^^ This is the problem
-
-Feb  4 12:59:55 kilauea kernel: scsi singledevice 2 0 1 0
-Feb  4 12:59:55 kilauea kernel: blk: queue f426b818, I/O limit 4095Mb
-(mask 0xf\fffffff)
-Feb  4 12:59:55 kilauea kernel: scsi singledevice 2 0 2 0
-Feb  4 12:59:55 kilauea kernel: blk: queue f6647818, I/O limit 4095Mb
-(mask 0xf\fffffff)
-
-
-
-
-
-
-
-
-
-
-
- cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Xeon(TM) CPU 2.66GHz
-stepping        : 7
-cpu MHz         : 2665.927
-cache size      : 512 KB
-physical id     : 0
-siblings        : 2
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-bogomips        : 5321.52
- 
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Xeon(TM) CPU 2.66GHz
-stepping        : 7
-cpu MHz         : 2665.927
-cache size      : 512 KB
-physical id     : 0
-siblings        : 2
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-bogomips        : 5321.52
- 
-processor       : 2
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Xeon(TM) CPU 2.66GHz
-stepping        : 7
-cpu MHz         : 2665.927
-cache size      : 512 KB
-physical id     : 3
-siblings        : 2
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-bogomips        : 5321.52
- 
-processor       : 3
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Xeon(TM) CPU 2.66GHz
-stepping        : 7
-cpu MHz         : 2665.927
-cache size      : 512 KB
-physical id     : 3
-siblings        : 2
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-bogomips        : 5321.52
-
- # lspci
-00:00.0 Host bridge: Intel Corp.: Unknown device 2550 (rev 03)
-00:00.1 Class ff00: Intel Corp.: Unknown device 2551 (rev 03)
-00:01.0 PCI bridge: Intel Corp.: Unknown device 2552 (rev 03)
-00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 02)
-00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 02)
-00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 02)
-00:1d.7 USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 02)
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 82)
-00:1f.0 ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 02)
-00:1f.1 IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 02)
-00:1f.3 SMBus: Intel Corp. 82801DB SMBus (rev 02)
-01:00.0 VGA compatible controller: ATI Technologies Inc: Unknown device
-5961 (rev 01)
-01:00.1 Display controller: ATI Technologies Inc: Unknown device 5941
-(rev 01)
-02:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100]
-(rev 10)
-02:06.0 Communication controller: NetMos Technology VScom 021H-EP2 2
-port parallel adaptor (rev 01)
-02:07.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host
-Controller (rev 46)
-02:08.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev
-0a)
-02:08.1 Input device controller: Creative Labs SB Live! MIDI/Game Port
-(rev 0a)
-02:09.0 RAID bus controller: LSI Logic / Symbios Logic PowerEdge
-Expandable RAID Controller 4 (rev 01)
-
-
-
-
-
--- 
-Alexey Goldin <ab_goldin@swissmail.org>
 

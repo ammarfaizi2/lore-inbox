@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132054AbRDFRDe>; Fri, 6 Apr 2001 13:03:34 -0400
+	id <S132039AbRDFQ6z>; Fri, 6 Apr 2001 12:58:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132118AbRDFRDY>; Fri, 6 Apr 2001 13:03:24 -0400
-Received: from ns.suse.de ([213.95.15.193]:47114 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132054AbRDFRDP>;
-	Fri, 6 Apr 2001 13:03:15 -0400
-Date: Fri, 6 Apr 2001 19:02:32 +0200
-From: Andi Kleen <ak@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2 times faster rawio and several fixes (2.4.3aa3)
-Message-ID: <20010406190232.A20258@gruyere.muc.suse.de>
-In-Reply-To: <20010406183440.B28118@athlon.random> <20010406190701.H28118@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010406190701.H28118@athlon.random>; from andrea@suse.de on Fri, Apr 06, 2001 at 07:07:01PM +0200
+	id <S132054AbRDFQ6o>; Fri, 6 Apr 2001 12:58:44 -0400
+Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:33152
+	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with ESMTP id <S132039AbRDFQ6a>; Fri, 6 Apr 2001 12:58:30 -0400
+Date: Fri, 6 Apr 2001 09:57:32 -0700
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Message-Id: <200104061657.f36GvWn01002@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+To: majer@endeca.com, linux-kernel@vger.kernel.org
+Subject: Re: memory allocation problems
+In-Reply-To: <Pine.LNX.4.21.0104061001280.9562-300000@caffeine.ops.endeca.com>
+In-Reply-To: <Pine.LNX.4.21.0104061001280.9562-300000@caffeine.ops.endeca.com>
+Reply-To: whitney@math.berkeley.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 06, 2001 at 07:07:01PM +0200, Andrea Arcangeli wrote:
-> However we can probably stay with the 512k atomic I/O otherwise the iobuf
-> structure will grow again of an order of 2. With 512k of atomic I/O the kiovec
-> structure is just 8756 in size (infact probably I should allocate some of the
-> structures dynamically instead of statics inside the kiobuf.. as it is now
-> with my patch it's not very reliable as it needs an allocation of order 2).
+In mailing-lists.linux-kernel, you wrote:
 
-8756bytes wastes most of an order 2 allocation. Wouldn't it make more sense to 
-round it up to 16k to use the four pages fully ?  (if the increased atomic
-size doesn't have other bad effects -- i guess it's no problem anymore to 
-lock down that much memory?) 
+>  Essentially, the problem can be summarized to be that on a machine
+>  with ample ram (2G, 4G, etc), I am unable to malloc a gig if I ask 
+>  for the memory in small ( <= 128k) chunks. 
 
--Andi
+Take a look at this message by Szabolcs Szakacsits:
 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=97898653909227&w=2
+
+There are other messages that may be of interest to you in that
+thread, although they are spread out in a large thread.
+
+Briefly, malloc in glibc will use brk() for "small" chunks and mmap()
+for "large" chunks.  On a usual i386 linux kernel, the 4GB address
+space is set up so that brk() can get at most 870MB or so and mmap()
+can get at most 2GB.  Newer glibc's allow you to tune the definition
+of "small" via an environment variable.
+
+Cheers,
+Wayne

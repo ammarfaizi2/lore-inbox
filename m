@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270133AbUJTACY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269872AbUJTACZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270133AbUJTACY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 20:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269872AbUJSXqV
+	id S269872AbUJTACZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 20:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268049AbUJSXqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:46:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60043 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270133AbUJSXAE (ORCPT
+	Tue, 19 Oct 2004 19:46:16 -0400
+Received: from gate.firmix.at ([80.109.18.208]:63191 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S269872AbUJSW5i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 19:00:04 -0400
-Date: Tue, 19 Oct 2004 15:52:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alasdair G Kergon <agk@redhat.com>
-Cc: blaisorblade_spam@yahoo.it, linux-kernel@vger.kernel.org,
-       neilb@cse.unsw.edu.au
-Subject: Re: [patch 1/1] dm: fix printk warnings about whether %lu/%Lu is
- right for sector_t
-Message-Id: <20041019155258.75f35416.akpm@osdl.org>
-In-Reply-To: <20041019174115.GC6408@agk.surrey.redhat.com>
-References: <20041008144034.EB891B557@zion.localdomain>
-	<20041008121239.464151bd.akpm@osdl.org>
-	<20041019174115.GC6408@agk.surrey.redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 19 Oct 2004 18:57:38 -0400
+Subject: Re: Linux v2.6.9 and GPL Buyout
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Jim Nelson <james4765@verizon.net>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4175922B.7020505@verizon.net>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+	 <417550FB.8020404@drdos.com>
+	 <1098218286.8675.82.camel@mentorng.gurulabs.com>
+	 <41757478.4090402@drdos.com>  <4175922B.7020505@verizon.net>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Message-Id: <1098226647.26014.26.camel@gimli.at.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 00:57:30 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alasdair G Kergon <agk@redhat.com> wrote:
->
-> On Fri, Oct 08, 2004 at 12:12:39PM -0700, Andrew Morton wrote:
->  > I would prefer that SECTOR_FORMAT be removed altogether.
->   
->  > The industry-standard way of printing a sector_t is:
->  > 	printk("%llu", (unsigned long long)sector);
->   
->  What about reading a sector_t with sscanf, which looks like the
->  reason for the existence of SECTOR_FORMAT?
+On Wed, 2004-10-20 at 00:16, Jim Nelson wrote:
+> <troll-bite>
+[...]
+> done by SCO employees, then why are they suing IBM?
+[...]
+> </troll-bite>
 
-I'm not sure that it has arisen.  I'd do:
+Because they wanted IBM to buy SCO thus rising the stocks even more.
+Nothing else, pure greed.
 
-	unsigned long long temp;
-	sector_t sector;
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-	sscanf(buf, "%llu", &temp);
-	sector = temp;
 

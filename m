@@ -1,78 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbTD2TEf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 15:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbTD2TEf
+	id S261544AbTD2TKb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 15:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbTD2TKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 15:04:35 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:57018 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S261339AbTD2TEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 15:04:33 -0400
-Date: Tue, 29 Apr 2003 21:12:38 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: Michael Frank <mflt1@micrologica.com.hk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [FLAME]: Log and console pollution: ip_tables: (C) 2000-2002 Netfilter core team
-Message-ID: <20030429191238.GF990@sunbeam.de.gnumonks.org>
-References: <200304300136.30478.mflt1@micrologica.com.hk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ieONPShpRWd85B+o"
-Content-Disposition: inline
-In-Reply-To: <200304300136.30478.mflt1@micrologica.com.hk>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux sunbeam 2.4.20-nfpom
-X-Date: Today is Sweetmorn, the 43rd day of Discord in the YOLD 3169
+	Tue, 29 Apr 2003 15:10:31 -0400
+Received: from smtp-out.comcast.net ([24.153.64.116]:43841 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S261544AbTD2TKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 15:10:30 -0400
+Date: Tue, 29 Apr 2003 15:21:21 -0400
+From: rmoser <mlmoser@comcast.net>
+Subject: Re: Swap Compression
+To: linux-kernel@vger.kernel.org
+Message-id: <200304291521210840.0462CAF4@smtp.comcast.net>
+MIME-version: 1.0
+X-Mailer: Calypso Version 3.30.00.00 (3)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <200304251848410590.00DEC185@smtp.comcast.net>
+ <20030426091747.GD23757@wohnheim.fh-wedel.de>
+ <200304261148590300.00CE9372@smtp.comcast.net>
+ <20030426160920.GC21015@wohnheim.fh-wedel.de>
+ <200304262224040410.031419FD@smtp.comcast.net>
+ <20030427090418.GB6961@wohnheim.fh-wedel.de>
+ <200304271324370750.01655617@smtp.comcast.net>
+ <20030427175147.GA5174@wohnheim.fh-wedel.de>
+ <200304271431250990.01A281C7@smtp.comcast.net>
+ <3EAE8899.2010208@techsource.com>
+ <200304291521120230.0462A551@smtp.comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Why keep a fixed page size?  A 4k page can be represented by an
+N bit offset in the swap partition (32 for 4 gig or less) and a 13 bit
+length description.  Let's not go with the overhead of 13 bit; 16 bit
+lengths.  Something divisible by two.  Sure, we gain what
+4 + 2 == 6 bytes per page, but we compress out more than that in
+most cases (in theory).
 
---ieONPShpRWd85B+o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+and as for RAM, I really prefer the user to control swap-on-ram, and
+to have it implimented as such.  4 meg'ers might try SoR but it may
+hurt.  The kernel should default to using the RAM swap as its primary
+swap partition though.  Why make extra overhead chopping up and
+reassembling pages?  We did that with compression.
 
-On Wed, Apr 30, 2003 at 01:36:30AM +0800, Michael Frank wrote:
-> Hi All,
->=20
-> I notice anoying messages in logs and on the console such as the above.
->=20
-> Gladly, most humble authors refrain from this bloat.
+--Bluefox Icy
+(Well that's my opinion)
 
-Well, it is not any more bloat than printing a line like 'ip_tables:
-initialized ip_tables core successfully'.
+*********** REPLY SEPARATOR  ***********
 
-> Could one ban these messages from the console altogether and perhaps
-> mandate sending credits to a seperate "credits log" file
+On 4/29/2003 at 10:13 AM Timothy Miller wrote:
 
-I remember a huge discussion on this subject quite some time (years?)
-ago on lkml, so don't let's repeat a flame war about this.
+>Here's a way to keep the two-level swap complexity down, perhaps.
+>
+>The VM is aware of two kinds of memory space and therefore two kinds of 
+>swap.  The first kind of memory is "normal" memory that is used by 
+>applications.  When the VM has to swap that, it compresses to RAM.  The 
+>second kind of memory is "compressed" memory.  When the VM has to swap 
+>that, it swaps it to disk.
+>
 
-> Regards
-> Michael Frank
+Swap-on-RAM with compression enabled.
 
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+>All swapping operations are done in page units.  Compressed pages will 
+>use arbitrary amounts of memory, so when compressed pages are swapped, 
+>the boundaries between one compressed page and another are not 
+>considered.  Compressed pages will be broken up.  But that's okay, 
+>because if there is a page fault in the compressed memory, the VM just 
+>swaps in from disk.  Perhaps some intelligent memory management could be 
+>employed which reorganizes compressed RAM so that a recently used 
+>compressed page does not share a physical page with a compressed page 
+>that has not been touched in a while.
+>
 
---ieONPShpRWd85B+o
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Ouch.  That introduces extra managment between the compressed RAM
+and the swapping procedure.  On the plus, it would save us the hassle
+of fragmented swap but heck, idle-time and on-urgent page defragmentation
+should take care of that (do I need to explain these concepts?).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+>There has been talk of a "simpler" system which compresses to swap 
+>without the intermediate level.  The thing is, that intermediate level 
+>always exists to some extent.  And trying to manage compressed pages on 
+>disk like that can get quite complex.  If we were to compress to a whole 
+>number of sectors, just so we could keep things separate, then we would 
+>limit the benefit from compressing.  The two level system could be 
+>employed to compress to swap simply by keeping the compressed memory 
+>fixed and very small.
 
-iD8DBQE+rs6mXaXGVTD0i/8RAmzRAJ97kFkmh2HHUiE446Ka233PnUKWAQCfS0ok
-qbNeHfZA23tmO3UplooFZjI=
-=WdmT
------END PGP SIGNATURE-----
 
---ieONPShpRWd85B+o--
+

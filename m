@@ -1,61 +1,86 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316844AbSE1QlE>; Tue, 28 May 2002 12:41:04 -0400
+	id <S316852AbSE1RGp>; Tue, 28 May 2002 13:06:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316845AbSE1QlD>; Tue, 28 May 2002 12:41:03 -0400
-Received: from tomts24-srv.bellnexxia.net ([209.226.175.187]:31886 "EHLO
-	tomts24-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S316844AbSE1QlC>; Tue, 28 May 2002 12:41:02 -0400
-From: Ghozlane Toumi <ghoz@sympatico.ca>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        MR Trivial <trivial@rustcorp.com.au>
-Subject: [patch] mucho trivial update to pci/quirks.c
-Date: Tue, 28 May 2002 12:39:56 -0400
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_KAYTB4AW9SVBQFADQSEY"
-Message-Id: <20020528164102.NGBA9770.tomts24-srv.bellnexxia.net@there>
+	id <S316853AbSE1RGo>; Tue, 28 May 2002 13:06:44 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:59597 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316852AbSE1RGo>;
+	Tue, 28 May 2002 13:06:44 -0400
+Date: Tue, 28 May 2002 22:39:45 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Robert Love <rml@tech9.net>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Paul McKenney <paul.mckenney@us.ibm.com>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 8-CPU (SMP) #s for lockfree rtcache
+Message-ID: <20020528223945.A22573@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <20020528171104.D19734@in.ibm.com> <20020528.042514.92633856.davem@redhat.com> <20020528182806.A21303@in.ibm.com> <1022600998.20317.44.camel@sinai> <20020528215535.A22328@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 28, 2002 at 09:55:35PM +0530, Dipankar Sarma wrote:
+> Hi Robert,
+> 
+> On Tue, May 28, 2002 at 08:49:58AM -0700, Robert Love wrote:
+> > 
+> > > Well, the last time RCU was discussed, Linus said that he would
+> > > like to see someplace where RCU clearly helps.
+> > 
+> > I agree the numbers posted are nice, but I remain skeptical like Linus. 
+> > Sure, the locking overhead is nearly gone in the profiled function where
+> > RCU is used.  But the overhead has just been _moved_ to wherever the RCU
+> > work is now done.  Any benchmark needs to include the damage done there,
+> > too.
+> 
+> Have you looked at the rt_rcu patch ? Where do you think there
+> is overhead compared to what route cache alread does ? In my
+> profiles, rcu routines and kernel mechanisms that it uses
+> don't show high up. If you have any suggestions, then I can
+> do an investigation.
 
---------------Boundary-00=_KAYTB4AW9SVBQFADQSEY
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Hi Robert,
 
-Hi all,
+While we are at it, I think this is good point to analyze.
+So here is an brief analysis of rt_rcu patch from the overhead
+standpoint -
 
-Attached is a really trivial patch that changes an "unknown" PCI_DEVICE_ID 
-0x3112 to PCI_DEVICE_ID_VIA_8361 in drivers/pci/quirks.c .
+1. Read side has no overhead, we just don't take the per-bucket lock.
+2. For just the route cache portion of code, RCU comes into picture
+   only when dst entries are deleted. This however has two issues -
+   a> expiry of dst entries is checked through a non-frequent
+   timer b>lease for recently used dst entries are extended.
+   So we don't do frequent RCU based deletion of dst entries.
+   Periodically a set of dst entries expire and instead of
+   freeing them immediately, we just put them in RCU queue(s)
+   for freeing after the grace period (call_rcu() in rt_free()).
 
-It applies cleanly to 2.5.18 and 2.4.19-pre8.
+Coming to the RCU mechanism -
 
-Ghoz
---------------Boundary-00=_KAYTB4AW9SVBQFADQSEY
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="triv.pci.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="triv.pci.patch"
+1. Grace period detection : Different RCU algorithms do it
+   differently, however if there is no RCU pending *nothing*
+   is done regarding this. One rcu implementation uses
+   a 10ms timer to check for grace period completion and another
+   rcu_poll uses a repeating tasklet to poll for it. The grace period
+   detection is based on a per-cpu context switch counter. I have not seen
+   signficant profile counts for grace period detection scheme, but
+   nevertheless I will put up the profile counts for Dave's test
+   at the LSE website.
 
-ZGlmZiAtTnVyIGxpbnV4LTIuNS4xOC9kcml2ZXJzL3BjaS9xdWlya3MuYyBsaW51eC0yLjUuMTgt
-YS9kcml2ZXJzL3BjaS9xdWlya3MuYwotLS0gbGludXgtMi41LjE4L2RyaXZlcnMvcGNpL3F1aXJr
-cy5jCVNhdCBNYXkgMjUgMTk6Mjg6MjIgMjAwMgorKysgbGludXgtMi41LjE4LWEvZHJpdmVycy9w
-Y2kvcXVpcmtzLmMJTW9uIE1heSAyNyAxNzozOTo0NCAyMDAyCkBAIC00ODYsNyArNDg2LDcgQEAK
-IAl7IFBDSV9GSVhVUF9GSU5BTCwJUENJX1ZFTkRPUl9JRF9TSSwJUENJX0RFVklDRV9JRF9TSV80
-OTYsCQlxdWlya19ub3BjaXBjaSB9LAogCXsgUENJX0ZJWFVQX0ZJTkFMLAlQQ0lfVkVORE9SX0lE
-X1ZJQSwJUENJX0RFVklDRV9JRF9WSUFfODM2M18wLAlxdWlya192aWFsYXRlbmN5IH0sCiAJeyBQ
-Q0lfRklYVVBfRklOQUwsCVBDSV9WRU5ET1JfSURfVklBLAlQQ0lfREVWSUNFX0lEX1ZJQV84Mzcx
-XzEsCXF1aXJrX3ZpYWxhdGVuY3kgfSwKLQl7IFBDSV9GSVhVUF9GSU5BTCwJUENJX1ZFTkRPUl9J
-RF9WSUEsCTB4MzExMgkvKiBOb3Qgb3V0IHlldCA/ICovLAlxdWlya192aWFsYXRlbmN5IH0sCisJ
-eyBQQ0lfRklYVVBfRklOQUwsCVBDSV9WRU5ET1JfSURfVklBLAlQQ0lfREVWSUNFX0lEX1ZJQV84
-MzYxLAlxdWlya192aWFsYXRlbmN5IH0sCiAJeyBQQ0lfRklYVVBfRklOQUwsCVBDSV9WRU5ET1Jf
-SURfVklBLAlQQ0lfREVWSUNFX0lEX1ZJQV84MkM1NzYsCXF1aXJrX3ZzZnggfSwKIAl7IFBDSV9G
-SVhVUF9GSU5BTCwJUENJX1ZFTkRPUl9JRF9WSUEsCVBDSV9ERVZJQ0VfSURfVklBXzgyQzU5N18w
-LAlxdWlya192aWFldGJmIH0sCiAJeyBQQ0lfRklYVVBfSEVBREVSLAlQQ0lfVkVORE9SX0lEX1ZJ
-QSwJUENJX0RFVklDRV9JRF9WSUFfODJDNTk3XzAsCXF1aXJrX3Z0ODJjNTk4X2lkIH0sCg==
+2. Actual update : RCU processes the batched update callbacks from tasklet
+   context. The rt_rcu callbacks don't do anything other than
+   call dst_free(), which would have been called by non-RCU
+   code under lock in any case. I am not sure doing this from
+   tasklet context adds any overhead and I suspect that it doesn't.
 
---------------Boundary-00=_KAYTB4AW9SVBQFADQSEY--
+Comments/suggestions ?
+
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

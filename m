@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312414AbSERKei>; Sat, 18 May 2002 06:34:38 -0400
+	id <S311710AbSERL2b>; Sat, 18 May 2002 07:28:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312426AbSERKeh>; Sat, 18 May 2002 06:34:37 -0400
-Received: from hopi.hostsharing.net ([66.70.34.150]:21977 "EHLO
-	hopi.hostsharing.net") by vger.kernel.org with ESMTP
-	id <S312414AbSERKeh>; Sat, 18 May 2002 06:34:37 -0400
-Date: Sat, 18 May 2002 12:34:35 +0200
-From: Michael Hoennig <michael@hostsharing.net>
-To: Cedric Ware <cedric.ware@enst.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: suid bit on directories
-Message-Id: <20020518123435.6905c1e0.michael@hostsharing.net>
-In-Reply-To: <20020518105252.A3897@enst.fr>
-Organization: http://www.hostsharing.net
-X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S312296AbSERL2a>; Sat, 18 May 2002 07:28:30 -0400
+Received: from infa.abo.fi ([130.232.208.126]:26381 "EHLO infa.abo.fi")
+	by vger.kernel.org with ESMTP id <S311710AbSERL23>;
+	Sat, 18 May 2002 07:28:29 -0400
+Date: Sat, 18 May 2002 14:28:12 +0300
+From: Marcus Alanen <marcus@infa.abo.fi>
+Message-Id: <200205181128.OAA26251@infa.abo.fi>
+To: szepe@pinerecords.com, Russell King <rmk@arm.linux.org.uk>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Subject: Re: Linux-2.5.16
+In-Reply-To: <20020518095125.GC10134@louise.pinerecords.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Cedric,
+>> > <nico@cam.org>
+>> > 	o [ARM 1110/1: fixes to the ARM checksum code
+>> Not quite perfect yet, but I'm not too bothered - that used to be
+>> [ARM PATCH]
+>Now if only we knew which of the scripts Linus used. :)
+>
+>Matthias, is this regexp broken in the recent version of the
+>script too?
 
-> > I do not even see a security hole if nobody other than the user itself
-> > and httpd/web can reach this area in the file system, anyway. And it
-> > is still the users decision that files in this (his) directory should
-> > belong to him.
-> 
-> I guess it is considered a security hole if a user can create files not
-> belonging to him.
+I guess it still is "$_ =~ s/\[?PATCH\]?\s*//i;", which means
+that it still is broken. There certainly are several solutions,
+what do people think of "s/\[?[^\]]*PATCH\]?\W*//i;" ?
+(Maybe a ^ at the beginning?) 
 
-where is it so much different from the guid flat on directories?  That way
-too, you could get rights of a group of which you are not a member.  As
-far as I can see, all what has to be prevented, is to create files with
-suid flag set within such a folder - not even for a microsecond
-(race-condition).  Or do I miss something?  Other issues are quota, but
-this problem already exists with guid bit for directories.  And in my case
-(mod_php), it is even worse the way it is.
-
-> > Actually, the suid bit on directories works at least under FreeBSD. Is
-> 
-> Not under 4.x (nor OpenBSD 2.9); or did I do anything wrong?
-
-OpenBSD is extremely carefully about security issues.  Thus, it might not
-work at all in OpenBSD.  But it works under FreeBSD (as an option which
-has to be compiled into the kernel).  This is exactly what I would like to
-have for Linux.
-
-	Michael
+Marcus
 
 -- 
-Hostsharing eG / c/o Michael Hönnig / Boytinstr. 10 / D-22143 Hamburg
-phone:+49/40/67581419 / mobile:+49/177/3787491 / fax:++49/40/67581426
-http://www.hostsharing.net ---> Webhosting Spielregeln selbst gemacht
+Marcus Alanen
+maalanen@abo.fi

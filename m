@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272608AbTHEJl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 05:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272609AbTHEJl3
+	id S272607AbTHEJsu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 05:48:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272611AbTHEJsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 05:41:29 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:48774 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S272608AbTHEJl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 05:41:28 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 5 Aug 2003 11:41:25 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: muizelaar@rogers.com, linux-kernel@vger.kernel.org,
-       mru@users.sourceforge.net
-Subject: Re: FS: hardlinks on directories
-Message-Id: <20030805114125.30a12916.skraw@ithnet.com>
-In-Reply-To: <16175.6729.962817.135747@gargle.gargle.HOWL>
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<yw1xsmohioah.fsf@users.sourceforge.net>
-	<20030804152226.60204b61.skraw@ithnet.com>
-	<3F2E7C63.2000203@rogers.com>
-	<20030804181500.074aec51.skraw@ithnet.com>
-	<16175.6729.962817.135747@gargle.gargle.HOWL>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 5 Aug 2003 05:48:50 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:1995 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S272607AbTHEJsW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 05:48:22 -0400
+Subject: Re: [PATCH] airo driver: fix races, oops, etc..
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Javier Achirica <achirica@telefonica.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SOL.4.30.0308051048130.2746-100000@tudela.mad.ttd.net>
+References: <Pine.SOL.4.30.0308051048130.2746-100000@tudela.mad.ttd.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1060076891.615.57.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 05 Aug 2003 11:48:12 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Aug 2003 12:45:29 +1000
-Neil Brown <neilb@cse.unsw.edu.au> wrote:
-
-> On Monday August 4, skraw@ithnet.com wrote:
-> > On Mon, 04 Aug 2003 11:31:47 -0400
-> > Jeff Muizelaar <muizelaar@rogers.com> wrote:
-> > 
-> > > Stephan von Krawczynski wrote:
-> > > 
-> > > >
-> > > >I guess this is not really an option if talking about hundreds or
-> > > >thousands of"links", is it?
-> > > >  
-> > > >
-> > > actually hundreds or thounds still should be ok. See...
-> > 
-> > Hm, and I just found out that re-exporting "mount --bind" volumes does not
-> > work over nfs...
-> > 
-> > Is this correct, Neil?
+On Tue, 2003-08-05 at 10:53, Javier Achirica wrote:
+> I've integrated this patch in my code. I've done a major change: Instead
+> of using schedule_delayed_work(), I create a new workqueue and use
+> queue_work() on that queue. As all tasks sleep in the same lock, I can
+> queue them there and make them sleep instead of requeueing them.
 > 
-> Yes, though there is a reasonable chance that it can be made to work
-> with linux-2.6.0 and nfs-utils-1.1.0 (neither of which have been
-> released yet:-)
+> I haven't sent them to Jeff yet, as I want to do more testing. If you want
+> to help testing them, please tell me.
 
-Is this a complex issue? Can you imagine a not-too-big sized patch can make it
-work in 2.4? What is the basic reason it does in fact not work?
+Well... creating a work queue means you create one thread per CPU, that
+sucks a bit don't think ? Maybe using a single thread for the driver
+with your own queuing primitives...
 
-Regards,
-Stephan
-
+Ben.

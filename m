@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261338AbSI3V0t>; Mon, 30 Sep 2002 17:26:49 -0400
+	id <S261354AbSI3Vif>; Mon, 30 Sep 2002 17:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261342AbSI3V0t>; Mon, 30 Sep 2002 17:26:49 -0400
-Received: from gate.perex.cz ([194.212.165.105]:65028 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S261338AbSI3V0s>;
-	Mon, 30 Sep 2002 17:26:48 -0400
-Date: Mon, 30 Sep 2002 23:29:30 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
-To: "David S. Miller" <davem@redhat.com>
-cc: "torvalds@transmeta.com" <torvalds@transmeta.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ALSA update [10/10] - 2002/08/05
-In-Reply-To: <20020930.135203.110291802.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0209302327500.503-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261356AbSI3Vif>; Mon, 30 Sep 2002 17:38:35 -0400
+Received: from jalon.able.es ([212.97.163.2]:10994 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S261354AbSI3Vif>;
+	Mon, 30 Sep 2002 17:38:35 -0400
+Date: Mon, 30 Sep 2002 23:38:12 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK/GNU] net driver 2.4.x series 7
+Message-ID: <20020930213812.GA2185@werewolf.able.es>
+References: <3D97942E.90106@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3D97942E.90106@pobox.com>; from jgarzik@pobox.com on Mon, Sep 30, 2002 at 02:00:46 +0200
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Sep 2002, David S. Miller wrote:
 
->    From: Jaroslav Kysela <perex@suse.cz>
->    Date: Mon, 30 Sep 2002 18:20:24 +0200 (CEST)
-> 
->    On Sun, 29 Sep 2002, David S. Miller wrote:
->    
->    > And where are my SBUS DMA support and sparc build fixes? :-(
->    
->    It's not lost. I've sent ALSA patches up to date CVS 2002/08/05. Your 
->    code will be in second set of ALSA update patches. Sorry for delay.
->    
-> I sent this stuff to Linus seperately last night to save time.
+On 2002.09.30 Jeff Garzik wrote:
+>(just for historical reference)
+>
 
-I need to redo next 7 patches because your update :-(
-My fault, I should be faster.
+>From this (ahd looking to the files) I guesst they are in -pre8 already,
+isn't it ?
 
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project  http://www.alsa-project.org
-SuSE Linux    http://www.suse.com
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.0 (dolphin) for i586
+Linux 2.4.20-pre8-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))

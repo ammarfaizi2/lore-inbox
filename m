@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130210AbQKLH3b>; Sun, 12 Nov 2000 02:29:31 -0500
+	id <S130121AbQKLHtP>; Sun, 12 Nov 2000 02:49:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130215AbQKLH3W>; Sun, 12 Nov 2000 02:29:22 -0500
-Received: from slc97.modem.xmission.com ([166.70.9.97]:50951 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S130210AbQKLH3J>; Sun, 12 Nov 2000 02:29:09 -0500
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q: Linux rebooting directly into linux.
-In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <20001109113524.C14133@animx.eu.org> <m1g0kycm0x.fsf@frodo.biederman.org> <8ukaeb$eh6$1@cesium.transmeta.com> <m13dgycaqh.fsf@frodo.biederman.org> <3A0DE517.3EAF1099@transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 11 Nov 2000 23:31:20 -0700
-In-Reply-To: "H. Peter Anvin"'s message of "Sat, 11 Nov 2000 16:32:23 -0800"
-Message-ID: <m1y9ypbt1j.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S130215AbQKLHtG>; Sun, 12 Nov 2000 02:49:06 -0500
+Received: from dfw-smtpout2.email.verio.net ([129.250.36.42]:35576 "EHLO
+	dfw-smtpout2.email.verio.net") by vger.kernel.org with ESMTP
+	id <S130121AbQKLHsy>; Sun, 12 Nov 2000 02:48:54 -0500
+Date: Sun, 12 Nov 2000 13:55:31 -0600
+From: Eric Shattow <radoni@crosswinds.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test11pre2 ram size detect incorrect
+Reply-To: radoni@crosswinds.net
+X-Mailer: Spruce 0.7.5 for X11 w/smtpio 0.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E13ursj-000112-00@dfw-mmp1.email.verio.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@transmeta.com> writes:
+I am happy to report that I finally got a 2.4.x kernel booted and running.
+To get the kernel booting without an oops, I had to use the kernel option
+"mem=64M" (I have 64 megabytes of ram installed). Aparently, without this
+option the kernel was detecting an absurdly large amount of installed
+memory, and thus dereferenced a null pointer. Should i help find out how to
+get the kernel to recognize the proper amount of memory in my computer
+without the kernel option?  What information should i make available? I am
+new to actual linux development, and do not know if this is something i
+should help fix or if it is just something that requires the kernel option.
 
-> "Eric W. Biederman" wrote:
-> > 
-> > Hmm.  You must mean similiar to milo.
-> > 
-> > Have fun.  With linuxBIOS I'm working exactly the other way.  Killing
-> > off the BIOS.  And letting the initial firmware be just a boot loader.
-> > The reduction is complexity should make it more reliable.
-> > 
-> 
-> ... except that you have to handle every single motherboard architecture
-> out there now.
+regards to the kernel-hackers,
 
-Agreed that is a bit of a risk.  Mostly you just have to handle
-the chipset of the boards and there are a finite number of them.
+eric shattow [radoni@crosswinds.net]
 
-Only time will tell if this is truly feasible.  I think it is certainly
-work a try.  
 
-And I don't have to handle every single one just all of the ones
-I need it to run on :)
-
-With the my kexec patch I'm just getting the infrastructure ready, and that
-is functionality that can be used independently of linuxBIOS.  If
-booting linux from linux would help with what you are doing I love to
-work together on that.
-
-Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

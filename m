@@ -1,68 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315198AbSFOJA1>; Sat, 15 Jun 2002 05:00:27 -0400
+	id <S315182AbSFOJBq>; Sat, 15 Jun 2002 05:01:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315191AbSFOJA0>; Sat, 15 Jun 2002 05:00:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:53188 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315182AbSFOJAZ>;
-	Sat, 15 Jun 2002 05:00:25 -0400
-Date: Sat, 15 Jun 2002 11:00:15 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: bio_chain: proposed solution for bio_alloc failure and large IO simplification
-Message-ID: <20020615090015.GA5869@suse.de>
-In-Reply-To: <200206150852.BAA00805@adam.yggdrasil.com>
+	id <S315200AbSFOJBp>; Sat, 15 Jun 2002 05:01:45 -0400
+Received: from isolaweb.it ([213.82.132.2]:1552 "EHLO web.isolaweb.it")
+	by vger.kernel.org with ESMTP id <S315182AbSFOJBn>;
+	Sat, 15 Jun 2002 05:01:43 -0400
+Message-Id: <5.1.1.6.0.20020615104206.05291720@mail.tekno-soft.it>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Sat, 15 Jun 2002 11:01:44 +0200
+To: David Schwartz <davids@webmaster.com>
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: Re: Developing multi-threading applications
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020614205601.AAA9369@shell.webmaster.com@whenever>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 15 2002, Adam J. Richter wrote:
-> Jens Axboe wrote:
-> >The I/O path allocations all use GFP_NOIO (or GFP_NOFS), which all have
-> >__GFP_WAIT set. So the bio allocations will try normal allocation first,
-> >then fall back to the bio pool. If the bio pool is also empty, we will
-> >block waiting for entries to be freed there. So there never will be a
-> >failure.
-> 
-> 	I did not realize that allocation with __GFP_WAIT was guaranteed
-> to _never_ fail.
+At 13.56 14/06/02 -0700, David Schwartz wrote:
 
-See the mempool implementation. Even before bio used mempool, it used
-the exact same logic to make sure it never fails. Basically the
-heuristic in both cases is:
 
-repeat:
-	bio = normal_alloc
-	if (bio)
-		return bio
+>On Thu, 13 Jun 2002 18:26:54 +0200, Roberto Fichera wrote:
+> >At 04.58 13/06/02 -0700, David Schwartz wrote:
+>
+> >This is a scheduler problem! All threads waiting for I/O are blocked by
+> >the scheduler, and this doesn't have any impact for the context switches
+> >it increase only the waitqueue, using the Ingo's O(1) scheduler, a big piece
+> >of code, it should make a big difference for example.
+>
+>         You are incorrect. If you have ten threads each waiting for an 
+> I/O and all
+>ten I/Os are ready, then ten context switches are needed. If you have one
+>thread waiting for ten I/Os, and then I/Os come ready, one context switch is
+>needed.
 
-	bio = get_from_pool
-	if (bio)
-		return bio
+You are right with this specific case, but always depending what kind of I/O
+you must be done. Not all the case could be reduce to your logic, only a
+specific case. It's a only "local" optimization.
 
-	if (gfp_mask & __GFP_WAIT)
-		start disk i/o
-		goto repeat;
+>[snip]
+>
+> >I don't think "more threads == more work done"! With the thread's approch
+> >it's
+> >possible to split a big sequential program in a variety of concurrent
+> >logical
+> >programs with a big win for code revisions and new implementation.
+>
+>         I'm not advising eliminating the threads approach. I'm only 
+> advising not
+>using threads as your abstraction for clients or work to be done. Use threads
+>as the execution vehicles that pick up work when there's work to be done.
+>(Think thread pools, think separating I/O from computation.)
 
-> 	Even so, if __GFP_WAIT never fails, then it can deadlock (for
-> example, some other device driver has a memory leak).  Under a
-> scheme like bio_chain (provided that it is changed not to call a
-> memory allocator that can deadlock), the only way you deadlock is
-> if there really is deadlock bug in the lower layers that process
-> the underlying request.
+Yes! This is what I want!
 
-This whole dead lock debate has been done to death before, I suggest you
-find the mempool discussions in the lkml archives from the earlier 2.5
-series. Basically we maintain deadlock free allocation although we never
-fail allocs by saying that a single bio allocation is short lived (or
-at least not held indefinetely). That plus a reserve of XX bios makes
-sure that someone will always return a bio to the pool sooner or later
-and at least the get_from_pool alloc above will succeed sooner or later
-even if vm pressure is ridicilous.
+>[snip]
+> >You are right! But depend by the application! If you have todo I/O like
+> >signal acquisition,
+> >sensors acquisitions and so on, you must have a one thread for each type of
+> >data acquisition,
+>
+>         Even if that's true, and it's often not, how many different types 
+> of data
+>acquisition can you have? Ten? Twenty? That's a far cry from 300.
 
--- 
-Jens Axboe
+Currently are 190! Always active are ~110! So thinking by separating I/O from
+the computation we double the threads.
+
+Roberto Fichera.
 

@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268177AbUHTPGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267358AbUHTPIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268177AbUHTPGe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 11:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268174AbUHTPGe
+	id S267358AbUHTPIy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 11:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267243AbUHTPGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 11:06:34 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:31903 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268183AbUHTPBL
+	Fri, 20 Aug 2004 11:06:55 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1413 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264973AbUHTPGK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 11:01:11 -0400
-Date: Fri, 20 Aug 2004 17:00:36 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Ram?n Rey Vicente <ramon.rey@hispalinux.es>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] Firmware Loader is orphan
-Message-ID: <20040820150036.GE16660@thundrix.ch>
-References: <ramon.rey@hispalinux.es> <4123F1E6.2080308@hispalinux.es> <200408191558.i7JFwxw0004307@laptop14.inf.utfsm.cl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PPYy/fEw/8QCHSq3"
-Content-Disposition: inline
-In-Reply-To: <200408191558.i7JFwxw0004307@laptop14.inf.utfsm.cl>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+	Fri, 20 Aug 2004 11:06:10 -0400
+Date: Fri, 20 Aug 2004 11:05:10 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: kernel@wildsau.enemy.org, linux-kernel@vger.kernel.org,
+       fsteiner-mail@bio.ifi.lmu.de, diablod3@gmail.com,
+       B.Zolnierkiewicz@elka.pw.edu.pl, alan@lxorguk.ukuu.org.uk
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+In-Reply-To: <41260C92.nail8WQ243F5E@burner>
+Message-ID: <Pine.LNX.4.53.0408201059530.24153@chaos>
+References: <200408201424.i7KEORxb004765@wildsau.enemy.org>
+ <41260C92.nail8WQ243F5E@burner>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 20 Aug 2004, Joerg Schilling wrote:
 
---PPYy/fEw/8QCHSq3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.enemy.org> wrote:
+>
+> > Typical scenario: small sw-company reports bugs -> reply: "you are too unskilled".
+> >                   big company enters the scene -> things are getting fixed.
+> >
+> > So, you see, Sun is not per se impeccable.
+>
+> The main difference between Sun and Linux as I see here in these discussions
+> is, that Sun remembers who does make a bug report
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Salut,
+He He ... and they try to "get even", too! --Not by fixing bugs,
+but by "reporting" "stupid" clients to their bosses. That's why
+I have the only remaining Sun in the company. I was too lazy
+to turn it back on after a power failure a couple of years ago.
+Therefore, I didn't report any problems to Sun...and got to
+keep the machine.
 
-On Thu, Aug 19, 2004 at 11:58:59AM -0400, Horst von Brand wrote:
-> I's move the data (at least the name) to a THANKS (or some such) file for
-> people who left as maintainers (for whatever reason). I think they deserve
-> our lasting gratitude.
 
-I think he belongs into CREDITS, just like the late Leonard Zubkoff.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-diff -u linux-2.6.8.1/CREDITS~ linux-2.6.8.1/CREDITS
---- linux-2.6.8.1/CREDITS~      2004-08-14 12:55:47.000000000 +0200
-+++ linux-2.6.8.1/CREDITS       2004-08-20 18:59:27.347605928 +0200
-@@ -2838,6 +2838,10 @@
- S: 8006 Zuerich
- S: Switzerland
-=20
-+N: Manuel Estrada Sainz
-+E: ranty@debian.org
-+D: Firmware loader (request_firmware)
-+
- N: Wayne Salamon
- E: wsalamon@tislabs.com
- E: wsalamon@nai.com
 
-			   Tonnerre
-
---PPYy/fEw/8QCHSq3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBJhIT/4bL7ovhw40RApm9AJ972Abi+MXUSa68pXN4iNIHo9TAVwCfUqvm
-6T/FLtwnR/JObv1NJ5YdEVo=
-=rcod
------END PGP SIGNATURE-----
-
---PPYy/fEw/8QCHSq3--

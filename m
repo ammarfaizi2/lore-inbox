@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVCVC7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbVCVDAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbVCVC7e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 21:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVCVC5X
+	id S262547AbVCVDAd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 22:00:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbVCVC7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 21:57:23 -0500
-Received: from fire.osdl.org ([65.172.181.4]:8105 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262558AbVCVC4p (ORCPT
+	Mon, 21 Mar 2005 21:59:46 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:60000 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262269AbVCVC7F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 21:56:45 -0500
-Date: Mon, 21 Mar 2005 18:56:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm2 vs audio for kino and tvtime, now 2.6.12-rc1-mm1
-Message-Id: <20050321185623.5fb2592c.akpm@osdl.org>
-In-Reply-To: <200503212135.07063.gene.heskett@verizon.net>
-References: <200503082326.28737.gene.heskett@verizon.net>
-	<20050321153728.2f239b49.akpm@osdl.org>
-	<200503212135.07063.gene.heskett@verizon.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 21 Mar 2005 21:59:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=FkCATquLNAviKoVpHkheZ+wbE/WgN+IXvRu0XwmuzFGhN+UneCOvO6biQA606t7DkDRhuW2b7YmWGFXItst2+M+g+W3kNhP9YMBZkg5tWna7Ry9wrZVpDwseojDuxTVhE1H57mlnF3xkNrg/wo1/s7sPVKybI+B2ujXQPb/543M=
+Message-ID: <a44ae5cd050321185947448028@mail.gmail.com>
+Date: Mon, 21 Mar 2005 21:59:05 -0500
+From: Miles Lane <miles.lane@gmail.com>
+Reply-To: Miles Lane <miles.lane@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Who should I write to about this OOPS in 2,6,11-mm3?
+Cc: linux-kernel@vger.kernel.org, LM Sensors <sensors@stimpy.netroedge.com>
+In-Reply-To: <20050321184011.78808b8d.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <a44ae5cd05031416392e3addd5@mail.gmail.com>
+	 <200503180702.42247.adaplas@hotpop.com>
+	 <20050317154226.24c1f8f8.akpm@osdl.org>
+	 <200503180754.21258.adaplas@hotpop.com>
+	 <20050321184011.78808b8d.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett <gene.heskett@verizon.net> wrote:
+Yes, I just did.  I used the .config options I mentioned earlier.  I
+am currently testing the suggested patches and options offered by the
+sensors developers.
+
+BTW, I am cross posting because I am not sure how often the LM Sensors
+folks read the linux-kernel list.  Please don't reply to both lists.
+
+    Miles
+
+
+On Mon, 21 Mar 2005 18:40:11 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> "Antonino A. Daplas" <adaplas@hotpop.com> wrote:
+> >
+> > FYI, the original topic of this thread, though, was an oops in
+> >  i2c_add_driver() as mentioned in this thread:
+> >
+> >  http://marc.theaimsgroup.com/?l=linux-kernel&m=111076667232062&w=2
+> >
+> >  Unfortunately, nobody can reproduce this oops.
+> 
+> Miles, are you still able to reproduce the i2c_add_driver() oops in
+> 2.6.12-rc1 or 2.6.12-rc1-mm1?
+> 
+> Thanks.
 >
-> ...
-> tvtime works, no audio glitches in the startup.  This is a pcHDTV-3000 
-> card, running in Never Twice Same Color mode as yet.
-> 
-> xsane works normally I believe, doing a preview scan ok.
-
-Whew.
-
-> kino works, but doesn't really want to time share with the much cpu 
-> hungrier tvtime, this results a very noticeable lag in the preview 
-> video coming in directly from the cameras imager via firewire, and 
-> sometimes an outright freeze of 2-3 seconds duration when kmail is 
-> makeing a mail fetch run.
-
-Is that unexpected?  Are there other kernels which you found better behaved
-in this regard?  There are CPU scheduler changes in -mm, but they're
-unlikely to affect UP or small SMP.
-
-> spcagui works once I'd reinstalled the spca50x stuff
-> 
-> /. pops right up in mozilla-1.7.5, also in firefox
-> 
-> Those seem to be the main things of interest right now, to me.  
-> 
-> Anything else I should specifically check on this UP machine?
-> 
-> As I add content to this message, I am occasionally seeing lags 
-> between what I type and its showing up on the screen but its 
-> certainly better than 2.6.10 or 11 was by quite a ways.  This is 
-> related to the kino lags in that I believe its kmail's net access 
-> that is causeing them.
-
-hm, OK.  Is much disk I/O happening during the lags?
-
-> Overall, I don't have any instant squawks Andrew.  Looks good, 
-> generally feels good.  Itches might develop later though.  I'm using 
-> the cfq scheduler, were there any changes of note there?
-
-Relative to 2.6.121-mm2?  Yes, CFQ underwent radical changes.

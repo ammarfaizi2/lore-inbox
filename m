@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbTLPNlz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 08:41:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTLPNlz
+	id S261779AbTLPNoL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 08:44:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTLPNoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 08:41:55 -0500
-Received: from ftp.ckdenergo.cz ([80.95.97.155]:28615 "EHLO simek")
-	by vger.kernel.org with ESMTP id S261754AbTLPNlx (ORCPT
+	Tue, 16 Dec 2003 08:44:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:7832 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261779AbTLPNoI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 08:41:53 -0500
-Date: Tue, 16 Dec 2003 14:41:31 +0100
-To: linux-kernel@vger.kernel.org
-Subject: undefined reference to `console_list'
-Message-ID: <20031216134131.GA1657@simek>
+	Tue, 16 Dec 2003 08:44:08 -0500
+Subject: Re: filesystem bug?
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: tsuchiya@labs.fujitsu.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <3FDD7DFD.7020306@labs.fujitsu.com>
+References: <3FDD7DFD.7020306@labs.fujitsu.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1071582242.5462.1.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Ladislav Michl <ladis@linux-mips.org>
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 Dec 2003 13:44:02 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-patch-2.1.71 brought posibility to pass list of consoles on kernel
-command line.
-http://www.funet.fi/pub/Linux/PEOPLE/Linus/v2.1/patch-html/patch-2.1.71/linux_kernel_printk.c.html
-http://www.funet.fi/pub/Linux/PEOPLE/Linus/v2.1/patch-html/patch-2.1.71/linux_include_linux_console.h.html
+On Mon, 2003-12-15 at 09:25, Tsuchiya Yoshihiro wrote:
 
-while kernel/printk.c defines
-struct console_cmdline console_cmdline[MAX_CMDLINECONSOLES];
-include/linux/console.h reads
-extern struct console_cmdline console_list[MAX_CMDLINECONSOLES];
+> Following is an Ext2 result and the inode is filled by zero.
+> I think the inode becomes a badinode.
 
-nothing needs fix below at the moment, but to finish MIPS merge it is
-needed either export console_setup(char *) or use fix below and this patch
-ftp://ftp.linux-mips.org/pub/linux/mips/people/ladis/ip22-setup.diff
-but header should be fixed anyway.
+> [root@dell04 tsuchiya]# ls -l /mnt/foo/ae/dir0/mozilla/layout/html/tests/table/bugs/bug2757.html
+> ls: /mnt/foo/ae/dir0/mozilla/layout/html/tests/table/bugs/bug2757.html: Input/output error
 
---- linux-mips-2.4/include/linux/console.h.orig	2003-12-16 13:52:59.000000000 +0100
-+++ linux-mips-2.4/include/linux/console.h	2003-12-16 13:53:10.000000000 +0100
-@@ -80,7 +80,7 @@
- 	char	*options;			/* Options for the driver   */
- };
- #define MAX_CMDLINECONSOLES 8
--extern struct console_cmdline console_list[MAX_CMDLINECONSOLES];
-+extern struct console_cmdline console_cmdline[MAX_CMDLINECONSOLES];
- 
- /*
-  *	The interface for a console, or any other device that
+"Input/output error" can sometimes mean that the kernel has found a
+filesystem problem, but it also often indicates a device-layer problem. 
+Is there anything helpful in the kernel logs?
 
-regards,
-	ladis
+Cheers,
+ Stephen
 
-ps: please cc me, I'm not on the list
+

@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbTKRERl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 23:17:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbTKRERl
+	id S261947AbTKREjB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 23:39:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbTKREjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 23:17:41 -0500
-Received: from out005pub.verizon.net ([206.46.170.143]:21661 "EHLO
-	out005.verizon.net") by vger.kernel.org with ESMTP id S261776AbTKRERk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 23:17:40 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: audio foulup
-Date: Mon, 17 Nov 2003 23:17:39 -0500
-User-Agent: KMail/1.5.1
+	Mon, 17 Nov 2003 23:39:01 -0500
+Received: from nameserver1.brainwerkz.net ([209.251.159.130]:38024 "EHLO
+	nameserver1.mcve.com") by vger.kernel.org with ESMTP
+	id S261947AbTKREi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 23:38:59 -0500
+Message-ID: <3FB9A261.7080500@mcve.com>
+Date: Mon, 17 Nov 2003 23:38:57 -0500
+From: Brad House <brad@mcve.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030921
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, Brad House <brad_mssw@gentoo.org>
+Subject: Re: forcedeth: version 0.17 available
+References: <3FB807A3.8010207@gmx.net> <3FB98C18.8090305@gmx.net>
+In-Reply-To: <3FB98C18.8090305@gmx.net>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311172317.39402.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.12.17] at Mon, 17 Nov 2003 22:17:39 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just had kmail play a short ogg sample to tell me new mail had 
-arrived.  xmms was playing another ogg at the instant.  Xmms was 
-instantly locked out, with a requester from what I think is artsd on 
-the screen.
+Well, the problem I saw was with the 2.6 patch.
 
-I had to restart xmms several times to clear the lockout.
+These lines:
 
-Any clues?  Kernel is 2.6.0.test9-mm3, running the as scheduler at the 
-moment.
++++ build-2.6/drivers/net/forcedeth.c	2003-11-15 23:00:30.000000000 +0100
+@@ -0,0 +1,1416 @@
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+Should be
+
++++ build-2.6/drivers/net/forcedeth.c	2003-11-15 23:00:30.000000000 +0100
+@@ -0,0 +1,1418 @@
+
+
+Otherwise, the last 2 lines:
++module_init(init_nic);
++module_exit(exit_nic);
+
+Get cut off.
+
+-Brad
+
+
+Carl-Daniel Hailfinger wrote:
+> Carl-Daniel Hailfinger wrote:
+> 
+>>version 0.17 of forcedeth for Linux 2.4 and 2.6 is available at
+>>http://www.hailfinger.org/carldani/linux/patches/forcedeth/
+> 
+> 
+> The patches for Linux 2.4 were malformed. Corrected versions have been
+> uploaded a few hours ago.
+> Thanks to Brad House for spotting this.
+> 
+> 
+> Regards,
+> Carl-Daniel
+> 
+> 
+
 

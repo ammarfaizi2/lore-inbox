@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbTIZHZG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 03:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbTIZHZG
+	id S261971AbTIZH1o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 03:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbTIZH1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 03:25:06 -0400
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:52098 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261967AbTIZHZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 03:25:02 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 8/8] Add BTN_TOUCH to Synaptics driver. Update mousedev.
-Date: Fri, 26 Sep 2003 02:24:53 -0500
-User-Agent: KMail/1.5.4
-Cc: akpm@osdl.org, petero2@telia.com, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org
-References: <10645086121286@twilight.ucw.cz> <200309251323.33416.dtor_core@ameritech.net> <20030925223032.GA32130@ucw.cz>
-In-Reply-To: <20030925223032.GA32130@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 26 Sep 2003 03:27:43 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:32968 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261971AbTIZH1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 03:27:42 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Frank v Waveren <fvw@var.cx>
+Cc: Kernel Developer List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030926052636.GA15006@var.cx>
+References: <20030925160351.E26493@one-eyed-alien.net>
+	 <20030926052636.GA15006@var.cx>
+Message-Id: <1064561225.28616.15.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 26 Sep 2003 09:27:05 +0200
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+Subject: Re: How do I access ioports from userspace?
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309260224.54264.dtor_core@ameritech.net>
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 25 September 2003 05:30 pm, Vojtech Pavlik wrote:
-> On Thu, Sep 25, 2003 at 01:23:33PM -0500, Dmitry Torokhov wrote:
-> > - Introducing BTN_TOUCH as far as I can seen does nothing to prevent
-> > joydev grabbing either Synaptics or touchscreens... Is there a patch
-> > missing?
->
-> No. It's a statement you're missing near the beginning of
-> joydev_connect().
->
+On Fri, 2003-09-26 at 07:26, Frank v Waveren wrote:
+> On Thu, Sep 25, 2003 at 04:03:51PM -0700, Matthew Dharm wrote:
+> > I'd like to be able to access some ioports to some custom hardware directly
+> > from userspace, without creating a specialized kernel-level driver.  Is
+> > there a way to do that?
+> Either use /dev/port, or if it's performance critical (but not performance
+> critical enough to do in kernelspace), use ioperm/iopl and inb/outb.
 
-Ok.. I see... and I hate it. We have a mechanism to match input devices to
-input handler and we violate it. What could be done is adding a black list
-to the input handler structure similar to the white list we have now. This
-way all matching conditions will be kept in one place...
+Simple note: the above will work on x86 only...
 
-...But, unless I am missing something again, with introduction of BTN_TOUCH,
-tsdev now will happily claim Synaptics touchpads. We could filter it out
-by checking for example ABS_PRESSURE in tsdev but it would be just a another
-band aid. I could easily see a touch screen reporting pressure and multiple
-fingers. As far as capabilities go touchscreens are almost indistinguishable
-from touch pads, they just operate as true absolute devices.
+Ben.
 
-IMHO we should let input device driver explicitly request which input
-handler it wishes to bind to (for example by passing a bitmap of desired
-input handlers when registering input device and everyone binds to evdev). 
-It is not as flexible as capabilities checking solution but much more 
-simple and predictable. I do not thing that there will be that many handlers 
-implemented...
 
-Should I try to cook something along these lines?
 
-> > BTW, any chance on including pass-through patches? Do you want me to
-> > re-diff them?
->
-> Hmm, I thought I've merged them in already, but obviously I did not.
-> Please resend them (rediffed if possible). Thanks.
-
-I meant reconnect patches that Peter sent in his last mail, sorry for the
-confusion.
-
-Dmitry

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280033AbRKDRJ2>; Sun, 4 Nov 2001 12:09:28 -0500
+	id <S280034AbRKDRTT>; Sun, 4 Nov 2001 12:19:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280034AbRKDRJS>; Sun, 4 Nov 2001 12:09:18 -0500
-Received: from cogito.cam.org ([198.168.100.2]:3855 "EHLO cogito.cam.org")
-	by vger.kernel.org with ESMTP id <S280033AbRKDRJJ>;
-	Sun, 4 Nov 2001 12:09:09 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: [RFC][PATCH] vm_swap_full
-To: linux-kernel@vger.kernel.org
-Reply-To: tomlins@cam.org
-Date: Sun, 04 Nov 2001 12:04:35 -0500
-In-Reply-To: <Pine.LNX.4.33L.0111041436020.2963-100000@imladris.surriel.com>
-Organization: me
-User-Agent: KNode/0.6.1
+	id <S280037AbRKDRTI>; Sun, 4 Nov 2001 12:19:08 -0500
+Received: from cnxt10002.conexant.com ([198.62.10.2]:53016 "EHLO
+	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
+	id <S280034AbRKDRS6>; Sun, 4 Nov 2001 12:18:58 -0500
+Date: Sun, 4 Nov 2001 18:18:25 +0100 (CET)
+From: Rui Sousa <rui.p.m.sousa@clix.pt>
+X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Rui Sousa <rui.p.m.sousa@clix.pt>,
+        "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>, <kwijibo@zianet.com>,
+        <bcrl@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: emu10k emits buzzing and crackling
+In-Reply-To: <3BE572DC.4BD4958E@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0111041813310.3150-100000@sophia-sousar2.nice.mindspeed.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20011104170436.5721DC4E8@oscar.casa.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+On Sun, 4 Nov 2001, Jeff Garzik wrote:
 
-> On Sun, 4 Nov 2001, Ed Tomlinson wrote:
+> Rui Sousa wrote:
+> > With the emu10k1 there is no need to use esd...
 > 
->> -/* Swap 50% full? Release swapcache more aggressively.. */
->> -#define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
->> +/* Free swap less than inactive pages? Release swapcache more
->> aggressively.. */ +#define vm_swap_full() (nr_swap_pages <
->> nr_inactive_pages)
+> emu10k1 provides in-kernel support for multiple userspace apps sharing a
+> single /dev/dsp0 connection?  :)
+
+Yes. :) :)
+
 > 
->> Comments?
-> 
-> Makes absolutely no sense for systems which have more
-> swap than RAM, eg. a 64MB system with 200MB of swap.
+> GNOME pretty much requires esd, like KDE requires arts.
 
-My thinking was allong these lines.  At a given instant in time the max we
-have that might get swapped out is the inactive list.  So if we start 
-aggressive swapping when we have less swap than the size of the inactive 
-list we should be ok.  The premise being that leaving swap mapped can be
-a win for pages swapped in but not changed.
+For most common sound cards. Not when you can have 32 independent stereo 
+sound streams.
 
-Ed Tomlinson
-
+Rui
 

@@ -1,63 +1,84 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316441AbSEOUZP>; Wed, 15 May 2002 16:25:15 -0400
+	id <S316446AbSEOUee>; Wed, 15 May 2002 16:34:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316446AbSEOUZO>; Wed, 15 May 2002 16:25:14 -0400
-Received: from mail5.svr.pol.co.uk ([195.92.193.20]:28992 "EHLO
-	mail5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S316441AbSEOUZN>; Wed, 15 May 2002 16:25:13 -0400
-Date: Wed, 15 May 2002 21:25:26 +0100
-From: Stig Brautaset <stig@brautaset.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: xircom nic itch (drops ip)
-Message-ID: <20020515202526.GA16671@brautaset.org>
-In-Reply-To: <20020512214217.GA19727@brautaset.org> <200205131524.g4DFOAc30622@buggy.badula.org>
+	id <S316482AbSEOUed>; Wed, 15 May 2002 16:34:33 -0400
+Received: from bitmover.com ([192.132.92.2]:718 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S316446AbSEOUec>;
+	Wed, 15 May 2002 16:34:32 -0400
+Date: Wed, 15 May 2002 13:34:32 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Larry McVoy <lm@bitmover.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Changelogs on kernel.org
+Message-ID: <20020515133432.D13795@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Larry McVoy <lm@bitmover.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020515130831.C13795@work.bitmover.com> <20020515122003.A13795@work.bitmover.com> <30386.1021456050@redhat.com> <Pine.LNX.4.44.0205150931500.25038-100000@home.transmeta.com> <20020515122003.A13795@work.bitmover.com> <18732.1021493020@redhat.com> <20020515130831.C13795@work.bitmover.com> <19065.1021493737@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-URL: http://www.brautaset.org
-X-Location: London, UK
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ion,
-
-Thanks for the answer :)
-
-* Ion Badulescu <ionut@cs.columbia.edu> spake thus:
-> > My pcmcia network card drops its ip from time to time. This happens
-[...]
-> Are you using dhcp on that interface? If so, what happens to the dhcp 
-> client daemon when the interface 'loses' the ip? Is it logging anything?
-> Is it dying?
+On Wed, May 15, 2002 at 09:15:37PM +0100, David Woodhouse wrote:
+> lm@bitmover.com said:
+> > It's probably best if you simply view this as a BK limitation which
+> > isn't going away any time soon and don't put junk changesets in the
+> > middle of your stream of changes.  It's easy enough to export the
+> > change you want as a patch, export the comments in the form that bk
+> > comments wants, undo the junk changeset, import the patch, and set the
+> > comments.  Yeah, it's awkward; consider that a feedback loop which
+> > encourages you to think a bit more about what you put in the tree.
 > 
-> If you're not using dhcp, I'm a little stumped..
+> What it actually encourages is for people to have multiple throwaway trees. 
+> (Which isn't quite so much of a BK turnoff once you discover compilercache.)
 
-I am using dhcp from time to time, but the card drops its ip when it is
-allocated statically as well :(
+Yup, we use that here, works great.
 
-However, it *does* seem to drop its ip more frequently if I am using
-dhcp, or between usage of  dhcp and a reboot (I normally just use
-suspend) so this might be the case. I will monitor this a bit closer...
+> If the tree's going to be thrown away anyway, it doesn't matter if it gets 
+> confused -- how about making it a little easier to backport changesets -- 
+> surely it should be possible to make BK import a changeset iff all the 
+> affected files are identical in both trees before the changeset? 
 
-> > The card is a Xircom Cardbus 10/100 NIC (CBEM56G-100), and it use the
-> > kernel's xircom_cb module. I used to use the module in the pcmcia_cs
-> > package before, but I can't remember whether it was any better then (I
-> > don't think it was though).
-> 
-> You could try to use the xircom_tulip_cb module instead, and see if it
-> solves the problem. I don't think it will, but who knows.
+We've already built all the interfaces you need to do this, so would
+you be interested in writing the shell script that does it?  The 
+interfaces you will want:
 
-Can't seem to load that module I'm afraid.. 
+	bk export -tpatch
+	bk import -tpatch
+	bk comments
+	bk changes -v
 
-> Despite what Configure.help says, xircom_tulip_cb is actually better
-> than xircom_cb. The latter should only be used if xircom_tulip_cb
-> has problems -- I haven't heard of any recently, but I do want to hear
-> about them if they still exist.
+You'll want this, I believe that you can take the output of this command
+and feed it into bk comments and have that be a noop.  If that works, this
+is what you need to save as the comments part of the patch, and now it's
+pretty trivial to move the patch backwards.
 
-Thank you very much for your help anyway.
+bk changes -r+ -vd'### Comments for :GFILE:|+\n$each(:C:){(:C:)\n}'
 
-Stig
+If you do write this, let me know if you want it included as a "bk backport"
+command.  
+
+Also note that there is a `bk bin`/bk.script which is a set of shell script
+functions.  Many BK commands start out their life as 
+
+# bk backport - cherry pick a change out of tree A and put it in tree B
+# usage: bk backport -r<rev> from to
+_backport() {
+}
+
+If you start the command with a underscore, then BK will autotranslate that
+into a command that you can use like
+
+	bk backport ....
+
+If you prefer a standalone command (for licensing reasons, perhaps), then
+make it a standalone shell script, put it in `bk bin`, and bk will find it.
 -- 
-brautaset.org
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,89 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266134AbUBDAPa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 19:15:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266234AbUBDAP3
+	id S266222AbUBDAJw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 19:09:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266225AbUBDAJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 19:15:29 -0500
-Received: from grassmarket.ucs.ed.ac.uk ([129.215.166.64]:54718 "EHLO
-	grassmarket.ucs.ed.ac.uk") by vger.kernel.org with ESMTP
-	id S266134AbUBDAP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 19:15:27 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Reply-To: s0348365@sms.ed.ac.uk
-Organization: University of Edinburgh
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc3-mm1
-Date: Wed, 4 Feb 2004 00:17:43 +0000
-User-Agent: KMail/1.5.94
-References: <20040202235817.5c3feaf3.akpm@osdl.org> <200402032347.36489.s0348365@sms.ed.ac.uk> <200402040100.40682.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200402040100.40682.bzolnier@elka.pw.edu.pl>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Tue, 3 Feb 2004 19:09:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:24971 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266222AbUBDAJa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 19:09:30 -0500
+Date: Tue, 3 Feb 2004 16:10:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Alexander Y. Fomichev" <gluk@php4.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Call Trace: page allocation failure - is it normal behaviour?
+Message-Id: <20040203161055.47596de4.akpm@osdl.org>
+In-Reply-To: <200402031806.15439.gluk@php4.ru>
+References: <200402031806.15439.gluk@php4.ru>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402040017.43787.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 February 2004 00:00, Bartlomiej Zolnierkiewicz wrote:
-[snip]
-> > > > UDMA(133) /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
-> > > > hde: max request size: 128KiB
-> > > >
-> > > > 30 seconds later, I get something like:
-> > > >
-> > > > hde: lost interrupt
-> > > > hde: lost interrupt
-> > >
-> > > It seems kernel hangs in ide-disk.c,
-> > > idedisk_setup()->write_cache()->...
-> > >
-> > > > The kernel does not recover. Presumably it is a problem specific to
-> > > > my PDC IDE controller.
-> > >
-> > > Do you run with Promise BIOS disabled?  If so please try booting kernel
-> > > with "hde=autotune hdg=autotune" parameters.  If still no-go, try this
-> > > patch:
-> >
-> > Neither suggestion changes the behaviour. I've got the BIOS enabled, but
-> > in the past it's made no difference. I still see lost interrupts.
+"Alexander Y. Fomichev" <gluk@php4.ru> wrote:
 >
-> Please try this debugging patch to see it hangs on
-> idedisk_setup()->write_cache().
+> Hello,
+> 
+> I noticed some call trace when testing box under heavy load.
+> To create a load following jobs have been running simultaneously.
+> 
+>  ab2 -c 200 -n 10000000 http://192.168.114.239/
+>  fsx-linux -l 900000000 fsx-data3
+>  dbench 100
+> 
+> adt root # w
+>  19:24:32 up 14:58,  6 users,  load average: 90.92, 83.97, 84.28
+> 
+> Some times after dmesg has shown  multiple call traces of two types:
+> 
+> swapper: page allocation failure. order:2, mode:0x20
+> Call Trace:
+>  [<c014059c>] __alloc_pages+0x30c/0x350
+>  [<c0140605>] __get_free_pages+0x25/0x40
+>  [<c01435a7>] cache_grow+0xc7/0x310
+>  [<c01438fe>] cache_alloc_refill+0x10e/0x2c0
+>  [<c0143e01>] __kmalloc+0x71/0x80
+>  [<c0266697>] alloc_skb+0x47/0xe0
+>  [<c0294e7e>] tcp_fragment+0x5e/0x340
+>  [<c02975b8>] tcp_write_wakeup+0xe8/0x280
+>  [<c0298870>] tcp_write_timer+0x0/0x130
+>  [<c029776d>] tcp_send_probe0+0x1d/0x110
+>  [<c0298933>] tcp_write_timer+0xc3/0x130
+>  [<c01298f7>] run_timer_softirq+0xe7/0x1d0
+>  [<c0124e2a>] do_softirq+0xca/0xd0
 >
-> --- linux/drivers/ide/ide-disk.c	2004-02-04 00:57:49.000000000 +0100
-> +++ linux-2.6.2-rc3-bk3/drivers/ide/ide-disk.c	2004-02-04
-> 00:58:58.571025744 +0100 @@ -1668,8 +1668,10 @@
->  #endif	/* CONFIG_IDEDISK_MULTI_MODE */
->  	}
->  	drive->no_io_32bit = id->dword_io ? 1 : 0;
-> +	printk(KERN_INFO "%s: before write_cache()\n", drive->name);
->  	if (drive->id->cfs_enable_2 & 0x3000)
->  		write_cache(drive, (id->cfs_enable_2 & 0x3000));
-> +	printk(KERN_INFO "%s: after write_cache()\n", drive->name);
->
->  #ifdef CONFIG_BLK_DEV_IDE_TCQ_DEFAULT
->  	if (drive->using_dma)
+>  ...
+> bwt I've noticed no visible harm to system and question ruther is
+> whether this behaviour is normal under such circumstances?
 
-Tried the patch. I see both before and after messages for hda, but when hde is 
-probed I see neither. Briefly looking at the IDE code, I see the max request 
-size: printk comes before either of those lines, as as nothing else is 
-printed after that line (see original bug report), I can only assume the 
-problem is somewhere before the write_cache().
+Yes, it is expected and the networking stack will recover.  We'll remove
+that debug code at some point.
 
-I applied the patch on top of your previous changes, as they seemed innocuous 
-enough.
-
--- 
-Cheers,
-Alistair.
-
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/AI Undergraduate
-contact:    7/10 Darroch Court,
-            University of Edinburgh.

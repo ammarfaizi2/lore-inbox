@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265223AbTLaSPF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 13:15:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265224AbTLaSPF
+	id S265218AbTLaS37 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 13:29:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265221AbTLaS36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 13:15:05 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:13192 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265223AbTLaSPB (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 13:15:01 -0500
-Message-Id: <200312311814.hBVIEnA3006253@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] un-document not yet merged CFQ io-scheduler 
-In-Reply-To: Your message of "Tue, 30 Dec 2003 13:04:48 +0100."
-             <Pine.LNX.4.53.0312301301350.27176@gockel.physik3.uni-rostock.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.53.0312301301350.27176@gockel.physik3.uni-rostock.de>
+	Wed, 31 Dec 2003 13:29:58 -0500
+Received: from mail.actcom.co.il ([192.114.47.15]:28330 "EHLO
+	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S265218AbTLaS35
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 13:29:57 -0500
+Date: Wed, 31 Dec 2003 20:29:42 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-rc1-mm1
+Message-ID: <20031231182942.GA1718@actcom.co.il>
+References: <20031231004725.535a89e4.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1002711831P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 31 Dec 2003 13:14:49 -0500
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
+Content-Disposition: inline
+In-Reply-To: <20031231004725.535a89e4.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1002711831P
+
+--J2SCkAp4GZ/dPZZf
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 30 Dec 2003 13:04:48 +0100, Tim Schmielau said:
-> The CFQ io-scheduler isn't yet merged, thus it seems a bit too early 
-> to document it.
+On Wed, Dec 31, 2003 at 12:47:25AM -0800, Andrew Morton wrote:
 
-Yes, I submitted that patch not realizing that CFQ was a -mm feature,
-and that patch should probably be carried along with the rest of the CFQ code.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-rc1/2=
+=2E6.0-rc1-mm1/
 
---==_Exmh_-1002711831P
-Content-Type: application/pgp-signature
+[snip]=20
+=20
+> +trident-cleanup-B1-2.6.0.patch
+>=20
+>  Trident fbdev driver cleanups and fixes
+
+Just a tiny correction - this patch is for the trident OSS sound
+driver, not the trident fbdev driver.=20
+
+Cheers,=20
+Muli
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
+
+"the nucleus of linux oscillates my world" - gccbot@#offtopic
+
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQE/8xIZcC3lWbTT17ARAviNAJwIw62nhDuIrSqmMw8QF8TjfwJ5FACeKizt
-JqaR42aE7+2MfJHlOQeifMg=
-=93n9
+iD8DBQE/8xWVKRs727/VN8sRAocCAKCDozK9FGImVccimw2eYG0neulmrwCdFEQF
++B9KyqB26/zliaOAj/TqrCY=
+=EJCW
 -----END PGP SIGNATURE-----
 
---==_Exmh_-1002711831P--
+--J2SCkAp4GZ/dPZZf--

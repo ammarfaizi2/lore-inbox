@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263979AbSKCXd1>; Sun, 3 Nov 2002 18:33:27 -0500
+	id <S263517AbSKDAES>; Sun, 3 Nov 2002 19:04:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263986AbSKCXd1>; Sun, 3 Nov 2002 18:33:27 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:8210 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263979AbSKCXd0>; Sun, 3 Nov 2002 18:33:26 -0500
-From: Han-Wen Nienhuys <hanwen@cs.uu.nl>
+	id <S263899AbSKDAER>; Sun, 3 Nov 2002 19:04:17 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:18320 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S263517AbSKDAER>; Sun, 3 Nov 2002 19:04:17 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 3 Nov 2002 16:15:46 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, <hch@lst.de>,
+       Benjamin LaHaise <bcrl@redhat.com>
+Subject: Re: interrupt checks for spinlocks
+In-Reply-To: <20021103220816.GY16347@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0211031612250.954-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15813.46294.554277.652708@blauw.xs4all.nl>
-Date: Mon, 4 Nov 2002 00:44:22 +0100
-To: "David McIlwraith" <quack@bigpond.net.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Help!] 2.4.20 IDE-SCSI / CD-writing crash
-In-Reply-To: <051b01c28391$47168530$41368490@archaic>
-References: <3DC59E5B.2040007@yahoo.com>
-	<200211032253.gA3Mrw1B008818@smtpzilla1.xs4all.nl>
-	<1036365120.1540.11.camel@god.stev.org>
-	<15813.44941.592105.853906@blauw.xs4all.nl>
-	<051b01c28391$47168530$41368490@archaic>
-X-Mailer: VM 7.05 under Emacs 21.2.1
-Reply-To: hanwen@cs.uu.nl
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-quack@bigpond.net.au writes:
-> You mean hdc not hdd, I hope?
+On Sun, 3 Nov 2002, William Lee Irwin III wrote:
 
-Ah, brilliant thinking! I'll see what happens if I make it master.
+> I recently thought about interrupt disablement and locking again, or
+> at least such as has gone about in various places, and I got scared.
+>
+> Hence, a wee addition to CONFIG_DEBUG_SPINLOCK:
+>
+> (1) check that spinlocks are not taken in interrupt context without
+> 	interrupts disabled
+> (2) taint spinlocks taken in interrupt context
+> (3) check for tainted spinlocks taken without interrupts disabled
+> (4) check for spinlocking calls unconditionally disabling (and
+> 	hence later re-enabling) interrupts with interrupts disabled
+>
+> The only action taken is printk() and dump_stack(). No arch code has
+> been futzed with to provide irq tainting yet. Looks like a good way
+> to shake out lurking bugs to me (somewhat like may_sleep() etc.).
+
+Wouldn't it be interesting to keep a ( per task ) list of acquired
+spinlocks to be able to diagnose cross locks in case of stall ?
+( obviously under CONFIG_DEBUG_SPINLOCK )
 
 
--- 
 
-Han-Wen Nienhuys   |   hanwen@cs.uu.nl   |   http://www.cs.uu.nl/~hanwen 
+- Davide
+
+

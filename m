@@ -1,64 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129289AbRBLWYS>; Mon, 12 Feb 2001 17:24:18 -0500
+	id <S131416AbRBLW06>; Mon, 12 Feb 2001 17:26:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129555AbRBLWYI>; Mon, 12 Feb 2001 17:24:08 -0500
-Received: from viper.haque.net ([64.0.249.226]:19079 "EHLO viper.haque.net")
-	by vger.kernel.org with ESMTP id <S129289AbRBLWYD>;
-	Mon, 12 Feb 2001 17:24:03 -0500
-Date: Mon, 12 Feb 2001 17:23:37 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-cc: <matti.aarnio@zmailer.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: lkml subject line
-In-Reply-To: <7vh2Hebmw-B@khms.westfalen.de>
-Message-ID: <Pine.LNX.4.32.0102121722120.5225-100000@viper.haque.net>
+	id <S131519AbRBLW0s>; Mon, 12 Feb 2001 17:26:48 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46597 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131416AbRBLW0a>; Mon, 12 Feb 2001 17:26:30 -0500
+Subject: Re: LILO and serial speeds over 9600
+To: hpa@transmeta.com (H. Peter Anvin)
+Date: Mon, 12 Feb 2001 22:25:47 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jas88@cam.ac.uk (James Sutherland),
+        hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
+In-Reply-To: <3A885F72.ED9ADAE8@transmeta.com> from "H. Peter Anvin" at Feb 12, 2001 02:10:58 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14SRPp-0008J1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Or you could just check Sender which is already there.
+> This is true, but one thing I'd really like to have is controlled buffer
+> overrun, which TCP *doesn't* have.  I really think an ad hoc UDP protocol
+> (I've already begun sketching on the details) is more appropriate in this
+> particular case.
 
-On 12 Feb 2001, Kai Henningsen wrote:
-
->
-> Indeed. What a bad idea that would be.
->
-> >   If you want to pre-filter messages traveling thru  linux-kernel  list,
-> >   all you need to do is to check the content of   Return-Path:  header.
->
-> On the other hand, that's also not a very good scheme. There *is* a good
-> way to do this, and it would be really nice if vger could be taught to do
-> it: add a List-Id: header (draft-chandhok-listid-04.txt RFC-to-be,
-> implemented in lots of mailing list managers already).
->
-> Examples from that doc:
->
->     List-Id: List Header Mailing List <list-header.nisto.com>
->     List-Id: <commonspace-users.list-id.within.com>
->     List-Id: "Lena's Personal Joke List"
->              <lenas-jokes.da39efc25c530ad145d41b86f7420c3b.021999.localhost>
->     List-Id: "An internal CMU List" <0Jks9449.list-id.cmu.edu>
->     List-Id: <da39efc25c530ad145d41b86f7420c3b.052000.localhost>
->
-> >   Or perhaps my utter aborrence is due to the way how GNU MAILMAN handles
-> >   that tagging (badly, that is).
->
-> Mailman, incidentally, _has_ List-Id: support.
->
-
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
+Explain 'controlled buffer overrun'. BTW if you make it UDP please include
+something like SHA hash or tea hash and shared secret
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

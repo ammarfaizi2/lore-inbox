@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263039AbSJORl0>; Tue, 15 Oct 2002 13:41:26 -0400
+	id <S264637AbSJORnO>; Tue, 15 Oct 2002 13:43:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264720AbSJORlY>; Tue, 15 Oct 2002 13:41:24 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:43281 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S264673AbSJORkE>;
-	Tue, 15 Oct 2002 13:40:04 -0400
-Date: Tue, 15 Oct 2002 19:45:38 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: Re: nfs-server slowdown in 2.4.20-pre10 with client 2.2.19
-Message-Id: <20021015194538.10f54ef3.skraw@ithnet.com>
-In-Reply-To: <15786.15416.668502.225074@notabene.cse.unsw.edu.au>
-References: <20021013172138.0e394d96.skraw@ithnet.com>
-	<15785.64463.490494.526616@notabene.cse.unsw.edu.au>
-	<20021014045410.4721c209.skraw@ithnet.com>
-	<15786.15416.668502.225074@notabene.cse.unsw.edu.au>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S264673AbSJORnJ>; Tue, 15 Oct 2002 13:43:09 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:2183 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264637AbSJORmx>;
+	Tue, 15 Oct 2002 13:42:53 -0400
+Message-ID: <3DAC52AD.3080904@watson.ibm.com>
+Date: Tue, 15 Oct 2002 13:38:53 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] async poll for 2.5
+References: <3DAB46FD.9010405@watson.ibm.com> <20021015110501.B11395@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Oct 2002 13:38:32 +1000
-Neil Brown <neilb@cse.unsw.edu.au> wrote:
+Benjamin LaHaise wrote:
 
-Hello Neil,
-hello Trond,
+>On Mon, Oct 14, 2002 at 06:36:45PM -0400, Shailabh Nagar wrote:
+>
+>>As of today, there is no scalable alternative to poll/select in the 2.5
+>>kernel even though the topic has been discussed a number of times
+>>before. The case for a scalable poll has been made often so I won't
+>>get into that.
+>>
+>
+>Have you bothered addressing the fact that async poll scales worse than 
+>/dev/epoll?  That was the original reason for dropping it.
+>
+>		-ben
+>
+Hi Ben,
 
-> This night I will try to reduce rsize/wsize from the current 8192 down to
-> 1024 as suggested by Jeff.
+I didn't address async poll's scalability  vs. /dev/epoll because 
+/dev/epoll isn't in the kernel either. I wasn't sure whether you had a 
+better async poll
+in the making.
 
-Ok. The result is: it is again way slower. I was not even capable to transfer 5
-GB within 18 hours, that's when I shot the thing down.
-Anything else I can test?
+Either solution (/dev/epoll or async poll) would be a considerable 
+improvement over what we have today.
 
--- 
-Regards,
-Stephan
+So I guess the question would now be: whats keeping /dev/epoll from 
+being included in the kernel given the time left before the feature freeze ?
+
+-- Shailabh
+
+
+
+

@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269783AbUJMSqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269781AbUJMS42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269783AbUJMSqU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 14:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269781AbUJMSqU
+	id S269781AbUJMS42 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 14:56:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269784AbUJMS42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 14:46:20 -0400
-Received: from mail.kroah.org ([69.55.234.183]:47047 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269783AbUJMSqQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 14:46:16 -0400
-Date: Wed, 13 Oct 2004 10:42:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Alexander Wigen <alex@wigen.net>
-Cc: Pete Zaitcev <zaitcev@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Oleksiy <Oleksiy@kharkiv.com.ua>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: pl2303/usb-serial driver problem in 2.4.27-pre6
-Message-ID: <20041013174251.GB17291@kroah.com>
-References: <416A6CF8.5050106@kharkiv.com.ua> <20041011113609.GB417@logos.cnet> <20041012104848.530a5be7@lembas.zaitcev.lan> <200410131932.28896.alex@wigen.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410131932.28896.alex@wigen.net>
-User-Agent: Mutt/1.5.6i
+	Wed, 13 Oct 2004 14:56:28 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:4784 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S269781AbUJMS41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 14:56:27 -0400
+Message-ID: <416D7A0E.50503@nortelnetworks.com>
+Date: Wed, 13 Oct 2004 12:55:10 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthias Urlichs <smurf@smurf.noris.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: single linked list header in kernel?
+References: <416C1F48.4040407@nortelnetworks.com> <pan.2004.10.13.05.50.46.937470@smurf.noris.de> <416D4255.9080501@nortelnetworks.com> <pan.2004.10.13.18.25.41.367757@smurf.noris.de>
+In-Reply-To: <pan.2004.10.13.18.25.41.367757@smurf.noris.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 13, 2004 at 07:32:28PM +0000, Alexander Wigen wrote:
-> 
-> May I add that I have some problems with a pl2303 GPS device which causes 
-> kernel panics when I pull it out of the USB port.
-> 
-> I don't know if it can be related, the device works fine until I unplug it.
+Matthias Urlichs wrote:
 
-On what kernel version do you have these problems?
+> I dunno, though -- open-coding a singly-linked list isn't that much of a
+> problem; compared to a doubly-linked one, there's simply fewer things that
+> can go horribly wrong. :-/
 
-thanks,
+True.  This is likely why it hasn't yet been done.
 
-greg k-h
+I wonder how many places use the double-linked lists because they're there, not 
+because they actually need them.  If its significant, there could be some space 
+savings due to only needing one pointer rather than two.
+
+Chris

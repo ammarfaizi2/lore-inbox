@@ -1,73 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbTDRB7J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 21:59:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbTDRB7J
+	id S262763AbTDRC0R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 22:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbTDRC0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 21:59:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21471 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262706AbTDRB7I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 21:59:08 -0400
-Message-ID: <3E9F5EAD.2070006@pobox.com>
-Date: Thu, 17 Apr 2003 22:10:53 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Thu, 17 Apr 2003 22:26:16 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54289
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S262763AbTDRC0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 22:26:15 -0400
+Date: Thu, 17 Apr 2003 19:35:49 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.67-ac1 IDE - fix Taskfile IOCTLs
+In-Reply-To: <Pine.SOL.4.30.0304180052130.20946-100000@mion.elka.pw.edu.pl>
+Message-ID: <Pine.LNX.4.10.10304171935301.11686-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: My P3 runs at.... zero Mhz (bug rpt)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just booted into 2.5.67-BK-latest (plus my __builtin_memcpy patch). 
-Everything seems to be running just fine, so naturally one must nitpick 
-little things like being told my CPU is running at 0.000 Mhz.  :)
-
-2.4.x reports the Mhz correctly.  I don't recall if 2.5.x did in the 
-past, but can check if needed.
 
 
+ide_diag_taskfile
 
-sh-2.05b$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 7
-model name      : Pentium III (Katmai)
-stepping        : 3
-cpu MHz         : 0.000
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca 
-cmov pat pse36 mmx fxsr sse
-bogomips        : 494.59
+Do not do that it will break paths!
 
+On Fri, 18 Apr 2003, Bartlomiej Zolnierkiewicz wrote:
 
-Selected dmesg bits:
-Calibrating delay loop... 494.59 BogoMIPS
-Memory: 644596k/655296k available (2192k kernel code, 9960k reserved, 
-694k data, 296k init, 0k highmem)
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 512K
-CPU serial number disabled.
-CPU:     After generic, caps: 0383f9ff 00000000 00000000 00000000
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU: Intel Pentium III (Katmai) stepping 03
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-IA-32 Microcode Update Driver: v1.11 <tigran@veritas.com>
-Enabling SEP on CPU 0
+> 
+> Hey,
+> 
+> This time 5 incremental patches:
+> 
+> 1       - Fix PIO handlers for Taskfile ioctls.
+> 2a + 2b - Taskfile and flagged Taskfile PIO handlers unification.
+> 3       - Map HDIO_DRIVE_CMD ioctl onto taskfile.
+> 4       - Remove dead ide_diag_taskfile() code.
+> 
+> [ More comments inside patches. ]
+> 
+> Special care is needed for patch 3 as it is a bit experimental,
+> but at least hdparm -I /dev/hdx still works :-).
+> I have also made version using direct IO to user pages,
+> it works okay too but needs some more work to be elegant...
+> 
+> You can also get them at:
+> http://home.elka.pw.edu.pl/~bzolnier/patches/2.5.67-ac1/
+> 
+> --
+> bzolnier
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
 

@@ -1,33 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268981AbUJQFZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269056AbUJQF2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268981AbUJQFZs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 01:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269056AbUJQFZs
+	id S269056AbUJQF2L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 01:28:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269057AbUJQF2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 01:25:48 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:56770 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268981AbUJQFZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 01:25:47 -0400
-Message-ID: <41720210.1090706@biomail.ucsd.edu>
-Date: Sat, 16 Oct 2004 22:24:32 -0700
-From: John Gilbert <jgilbert@biomail.ucsd.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ATI drivers and 2.6.9-rc4+
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 17 Oct 2004 01:28:10 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:47060 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269056AbUJQF2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 01:28:06 -0400
+Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: alan@lxorguk.ukuu.org.uk
+Content-Type: text/plain
+Organization: 
+Message-Id: <1097990475.2673.14262.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 17 Oct 2004 01:21:15 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I've fixed svgalib drivers and got them working under 2.6.9-rc4+ by 
-replacing "pci_find_class" with "pci_get_class".
-The ATI closed drivers have a problem with "remap_page_range". What does 
-this translate into (if it's that simple)?
-This seems to have changed from 2.6.8.
-Thanks in advance.
-John Gilbert
-jgilbert@biomail.ucsd.edu
+Alan Cox writes:
+> On Sad, 2004-10-16 at 20:52, Lee Revell wrote:
+>> [Pavel Machek]
+
+>>> What benefits? HZ=1000 takes 1W more on my system.
+>>
+>> Better timer resolution?
+>
+> And heavily reduced accuracy on a lot of laptops
+> where 1000Hz is enough to make the clock slide
+> every time the battery state is queried or an SMM
+> event triggers.
+
+How low is low enough for nearly all of these laptops?
+Some decent choices:
+
+wrongness_%   HZ_diff   PIT_#   HZ     actual_HZ
+-0.00083809  -0.003051   3278   364   363.996949  
+-0.00016762  -0.000483   4143   288   287.999517
+-0.00016762  -0.000724   2762   432   431.999276
+-0.00016762  -0.001448   1381   864   863.998552
++0.00008381  +0.000304   3287   363   363.000304  
++0.00008381  +0.000435   2299   519   519.000435  
++0.00008381  +0.000525   1903   627   627.000525  
+
+

@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVBQXfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVBQXgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbVBQXfh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 18:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVBQXfa
+	id S261228AbVBQXgr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 18:36:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVBQXf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 18:35:30 -0500
-Received: from cantor.suse.de ([195.135.220.2]:4522 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261249AbVBQXex (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 18:34:53 -0500
-Date: Fri, 18 Feb 2005 00:34:48 +0100
-From: Andi Kleen <ak@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andi Kleen <ak@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] page table iterators
-Message-ID: <20050217233448.GB3115@wotan.suse.de>
-References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au> <20050217194336.GA8314@wotan.suse.de> <1108680578.5665.14.camel@gaston> <20050217230342.GA3115@wotan.suse.de> <1108682463.28873.1.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108682463.28873.1.camel@gaston>
+	Thu, 17 Feb 2005 18:35:58 -0500
+Received: from simmts12.bellnexxia.net ([206.47.199.141]:35481 "EHLO
+	simmts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261247AbVBQXeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 18:34:31 -0500
+Message-ID: <1742.10.10.10.24.1108683124.squirrel@linux1>
+In-Reply-To: <200502171825.08631.tomlins@cam.org>
+References: <20050214020802.GA3047@bitmover.com>
+    <4214CC9B.7090001@nortel.com>
+    <3757.10.10.10.24.1108659538.squirrel@linux1>
+    <200502171825.08631.tomlins@cam.org>
+Date: Thu, 17 Feb 2005 18:32:04 -0500 (EST)
+Subject: Re: [BK] upgrade will be needed
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Ed Tomlinson" <tomlins@cam.org>
+Cc: "Chris Friesen" <cfriesen@nortel.com>, "Lee Revell" <rlrevell@joe-job.com>,
+       "d.c" <aradorlinux@yahoo.es>, tytso@mit.edu, cs@tequila.co.jp,
+       galibert@pobox.com, kernel@crazytrain.com, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a-7
+X-Mailer: SquirrelMail/1.4.3a-7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 18, 2005 at 10:21:03AM +1100, Benjamin Herrenschmidt wrote:
-> On Fri, 2005-02-18 at 00:03 +0100, Andi Kleen wrote:
-> 
-> > And to be honest we only have about 6 or 7 of these walkers
-> > in the whole kernel. And 90% of them are in memory.c
-> > While doing 4level I think I changed all of them around several
-> > times and it wasn't that big an issue.  So it's not that we
-> > have a big pressing problem here... 
-> 
-> We have about 50% of them in memory.c :) But my main problem is more
-> that every single of them is implemented slightly differently.
+On Thu, February 17, 2005 6:25 pm, Ed Tomlinson said:
 
-No much more. But I only count real walkers, not stuff like vmalloc. 
+>> Yes, I do remember that post.  But i'm not arguing from an ideological
+>> basis; i'm arguing on practical grounds that the price of using BK is
+>> too
+>> high for its supposed benefits.  I've not seen anyone else make that
+>
+> Huh?  This ideology in my books.
 
-The ioremap duplication over architectures is a bit annoying, but
-the fix for that would be to factor the code out completely, not
-only improve walking.
+No.  It's about recognizing the needs of more people than just the few at
+the top.  Besides, with a free tool at the Head, bk could continue to be
+used underneath by Linus and anyone else.   And others in the community
+could use their preferred tools too.
 
--Andi
+> Linus has tried other SCMs.  They did not suffice.   I remember the preBK
+> days, when you had to post a patch half a dozen time to get it merged.
+> Patches were being missed left right and center.  This changed after BK.
+> We _are_ getting large benefits from BK.  They may be hard to see at our
+> side of the keyboard - but I believe Linus when he says BK is the best
+> tool for him.  That this probably will not be the case for ever.  Think
+> it still is for now though.
+
+It's not a choice between BK or nothing.   Much of the improvements you're
+attributing to BK would have been realized with any other SCM system too.
+
+Cheers,
+Sean
+
+

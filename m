@@ -1,39 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264867AbTBXI5H>; Mon, 24 Feb 2003 03:57:07 -0500
+	id <S265612AbTBXJDd>; Mon, 24 Feb 2003 04:03:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265568AbTBXI5H>; Mon, 24 Feb 2003 03:57:07 -0500
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:11486 "EHLO
-	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S264867AbTBXI5H>; Mon, 24 Feb 2003 03:57:07 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: ioctl32 consolidation
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF1C19BD55.488C2F5A-ONC1256CD7.0036D692@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Mon, 24 Feb 2003 11:05:56 +0100
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 24/02/2003 10:07:01
+	id <S265687AbTBXJDd>; Mon, 24 Feb 2003 04:03:33 -0500
+Received: from krynn.axis.se ([193.13.178.10]:19360 "EHLO krynn.axis.se")
+	by vger.kernel.org with ESMTP id <S265612AbTBXJDa>;
+	Mon, 24 Feb 2003 04:03:30 -0500
+Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE83A@mailse01.axis.se>
+From: Mikael Starvik <mikael.starvik@axis.com>
+To: "'Marc-Christian Petersen'" <m.c.p@wolk-project.de>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: Jonas Holmberg <jonas.holmberg@axis.com>,
+       Sebastian Sjoberg <sebastian.sjoberg@axis.com>
+Subject: RE: oom killer and its superior braindamage in 2.4
+Date: Mon, 24 Feb 2003 10:13:37 +0100
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Does everyone agree that killing a process is always the best approach
+to resolve an OOM? If the OOM is caused by e.g. a growing tmpfs or 
+memory leaks in the kernel it won't help much to kill processes that
+may respawn. 
 
-> For s390, I'd love to see progress in the consolidation. Feel free to
-> submit changes for arch/s390x/kernel/ioctl32.c directly, like
-> Stephen Rothwell does for the syscall32 consolidation. Of course,
-> Martin has the last word here, but I'm rather sure he agress with me
-> in this.
-Everything that moves out of arch/s390x/kernel/ioctl32.c has my blessing.
-I am currently working on the 31 bit emulation. It almost works again and
-I will include the changes in the next patch set.
+Would it be useful if it was possible to register another oom-handler?
+Some architectures could then choose to e.g. reboot the system instead.
 
-blue skies,
-   Martin
+/Mikael
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Marc-Christian
+Petersen
+Sent: Saturday, February 22, 2003 8:35 PM
+To: linux-kernel@vger.kernel.org
+Subject: oom killer and its superior braindamage in 2.4
 
 
+Hi all,
 
+I just thought (ok it was yesterday) about stress testing my mysql db.
+I used this:
+- mystress.pl localhost mysql root test 600 300 60 "select * from user"
+
+It worked like a charme. So I tried:
+- mystress.pl localhost mysql root test 1800 900 60 "select * from user"
+
+My machine has 512MB RAM and 512MB SWAP.
+
+I expected that the 2nd run will OOM my machine but I did not expect this 
+silly behaviour.
+
+The following log entry appeared only _once_ (there were ~700 mysqld running)
+
+- Feb 21 10:03:22 codeman kernel: Out of Memory: Killed process 1463 (mysqld).
+
+
+Instead of really killing either mysqld or mystress.pl the OOM killer decided 
+to kill apache (apache did nothing but had 5 threads sleeping)
+
+- Feb 21 10:04:57 codeman kernel: Out of Memory: Killed process 2657 (apache).
+
+The above log entry (apache) appeared for about 4 hours every some seconds 
+(same PID) until I thought about sysrq-b to get out of this braindead 
+behaviour. The machine was somewhat dead for me because I was not able to do 
+anything but sysrq. The system itself was _not_ dead, there was massive disk 
+i/o. This is 2.4.20 vanilla.
+
+Is there any chance we can fix this up?
+
+ciao, Marc
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,97 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270823AbRHSWbC>; Sun, 19 Aug 2001 18:31:02 -0400
+	id <S270847AbRHSWdw>; Sun, 19 Aug 2001 18:33:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270825AbRHSWaW>; Sun, 19 Aug 2001 18:30:22 -0400
-Received: from con-64-133-52-190-ria.sprinthome.com ([64.133.52.190]:11781
-	"EHLO ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S270823AbRHSWaF>; Sun, 19 Aug 2001 18:30:05 -0400
-Date: Sun, 19 Aug 2001 15:30:17 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Mike Castle <dalgoda@ix.netcom.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        mayfield+usb@sackheads.org
-Subject: Re: [PATCH] config options for USB
-Message-ID: <20010819153017.A24976@one-eyed-alien.net>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	mayfield+usb@sackheads.org
-In-Reply-To: <20010819124459.F30309@thune.mrc-home.com>
+	id <S270849AbRHSWdn>; Sun, 19 Aug 2001 18:33:43 -0400
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:15326 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S270847AbRHSWdc>;
+	Sun, 19 Aug 2001 18:33:32 -0400
+Message-Id: <5.1.0.14.2.20010819233252.0276c450@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 19 Aug 2001 23:33:42 +0100
+To: joeja@mindspring.com
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: 2.4.9 compiler warnings & errors NTFS
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B802776.5F4F39D9@mindspring.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010819124459.F30309@thune.mrc-home.com>; from dalgoda@ix.netcom.com on Sun, Aug 19, 2001 at 12:44:59PM -0700
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 21:54 19/08/01, Joe wrote:
+>Okay I tried kernel the patch to 2.4.9 (I applied 2.4.8 patch on top of
+>a 2.4.7 kernel then 2.4.9 patch).
+>
+>The NTFS module wont build in 2.4.9.  It seems that there is a missing
+>include file in fs/ntfs/unistr.c .  After I added
+>
+>#include <linux/fs.h>
+>
+>to the file it seems to have fixed the problem. (patch at bottom of
+>mail)
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes. Known problem. This is correct fix. You must be the 50th person 
+sending a patch by now... (-;
 
-These two should probably be put under "experimental".
+Cheers,
 
-Matt
+Anton
 
-On Sun, Aug 19, 2001 at 12:44:59PM -0700, Mike Castle wrote:
->=20
-> I noticed that 2.4.8 introduced Jimme Mayfield's Datafab and Jumpshot USB
-> drivers.  However, there are no entries in Config.in.  There were also
-> other new features added (ISD200) that are also missing entries, though
-> since I don't know anything about them, I didn't create entries for them.
->=20
->=20
-> diff -ru linux-2.4.9.orig/drivers/usb/Config.in linux-2.4.9/drivers/usb/C=
-onfig.in
-> --- linux-2.4.9.orig/drivers/usb/Config.in	Wed Jun 27 13:59:32 2001
-> +++ linux-2.4.9/drivers/usb/Config.in	Sun Aug 19 12:29:03 2001
-> @@ -33,6 +33,8 @@
->        bool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG
->        bool '    Freecom USB/ATAPI Bridge support' CONFIG_USB_STORAGE_FRE=
-ECOM
->        bool '    Microtech CompactFlash/SmartMedia reader' CONFIG_USB_STO=
-RAGE_DPCM
-> +      bool '    Datafab MDCFE-B Compact Flash Reader' CONFIG_USB_STORAGE=
-_DATAFAB
-> +      bool '    Lexar Jumpshot Compact Flash Reader' CONFIG_USB_STORAGE_=
-JUMPSHOT
->     fi
->     dep_tristate '  USB Modem (CDC ACM) support' CONFIG_USB_ACM $CONFIG_U=
-SB
->     dep_tristate '  USB Printer support' CONFIG_USB_PRINTER $CONFIG_USB
->=20
-> --=20
->      Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
->     We are all of us living in the shadow of Manhattan.  -- Watchmen
-> fatal ("You are in a maze of twisty compiler features, all different"); -=
-- gcc
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
 
-I'll scuff my feet on the carpet and zap your nose hairs unless you=20
-TALK mister!! Who put you up to this?
-					-- Pitr
-User Friendly, 3/30/1998
+>Joe
+>
+>The following is the error before I added the include:
+>
+>make[3]: Circular passthrough.h <- hwaccess.h dependency dropped.
+>namei.c: In function `msdos_lookup':
+>namei.c:237: warning: implicit declaration of function `fat_brelse'
+>namei.c: In function `msdos_add_entry':
+>namei.c:266: warning: implicit declaration of function
+>`fat_mark_buffer_dirty'
+>unistr.c: In function `ntfs_collate_names':
+>unistr.c:99: warning: implicit declaration of function `min'
+>unistr.c:99: parse error before `unsigned'
+>unistr.c:99: parse error before `)'
+>unistr.c:97: warning: `c1' might be used uninitialized in this function
+>unistr.c: At top level:
+>unistr.c:118: parse error before `if'
+>unistr.c:123: warning: type defaults to `int' in declaration of `c1'
+>unistr.c:123: `name1' undeclared here (not in a function)
+>unistr.c:123: warning: data definition has no type or storage class
+>unistr.c:124: parse error before `if'
+>make[2]: *** [unistr.o] Error 1
+>make[1]: *** [_modsubdir_ntfs] Error 2
+>make: *** [_mod_fs] Error 2
+>cp: cannot stat `ntfs.o': No such file or directory
+>
+>
+>This is the error after I added the include. (It compiled too)
+>
+>sym53c8xx.c: In function `ncr_soft_reset':
+>sym53c8xx.c:6994: warning: `istat' might be used uninitialized in this
+>function
+>make[3]: Circular passthrough.h <- hwaccess.h dependency dropped.
+>namei.c: In function `msdos_lookup':
+>namei.c:237: warning: implicit declaration of function `fat_brelse'
+>namei.c: In function `msdos_add_entry':
+>namei.c:266: warning: implicit declaration of function
+>`fat_mark_buffer_dirty'
+>dir.c: In function `umsdos_readdir_x':
+>dir.c:142: warning: passing arg 3 of `fat_readdir' from incompatible
+>pointer type
+>dir.c: In function `UMSDOS_readdir':
+>dir.c:315: warning: passing arg 5 of `umsdos_readdir_x' from
+>incompatible pointer type
+>ioctl.c: In function `UMSDOS_ioctl_dir':
+>ioctl.c:146: warning: passing arg 3 of `fat_readdir' from incompatible
+>pointer type
+>rdir.c: In function `UMSDOS_rreaddir':
+>rdir.c:70: warning: passing arg 3 of `fat_readdir' from incompatible
+>pointer type
+>
+>################## patch
+>
+>--- fs/ntfs/unistr.c Sun Aug 19 12:31:03 2001
+>+++ linux-test/fs/ntfs/unistr.c Sun Aug 19 13:32:46 2001
+>@@ -24,6 +24,8 @@
+>  #include <linux/string.h>
+>  #include <asm/byteorder.h>
+>
+>+#include <linux/fs.h>
+>+
+>  #include "unistr.h"
+>  #include "macros.h"
+>
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
---SLDf9lqlvOQaIe6s
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7gD35z64nssGU+ykRAlN9AJ9lGNSF2CtO2M22Rtig+mcmdKosjgCgwi63
-yv6Is6RWM+b7sWaVo8JdyKY=
-=Jm/x
------END PGP SIGNATURE-----
-
---SLDf9lqlvOQaIe6s--

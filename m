@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318998AbSHFFnG>; Tue, 6 Aug 2002 01:43:06 -0400
+	id <S318930AbSHEXtQ>; Mon, 5 Aug 2002 19:49:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318999AbSHFFnG>; Tue, 6 Aug 2002 01:43:06 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:23969 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318998AbSHFFnF>;
-	Tue, 6 Aug 2002 01:43:05 -0400
-Date: Tue, 6 Aug 2002 07:42:58 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Steven Cole <elenstev@mesatop.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>,
-       Steven Cole <scole@lanl.gov>
-Subject: Re: Linux v2.4.19-rc5
-Message-ID: <20020806054258.GJ3975@suse.de>
-References: <1028232945.3147.99.camel@spc9.esa.lanl.gov> <Pine.LNX.3.96.1020805234423.4423A-100000@gatekeeper.tmr.com>
+	id <S318940AbSHEXtQ>; Mon, 5 Aug 2002 19:49:16 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:40964 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S318930AbSHEXtP>;
+	Mon, 5 Aug 2002 19:49:15 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: FAQ: Why does make modules_install flag all symbols as missing?
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1020805234423.4423A-100000@gatekeeper.tmr.com>
+Date: Tue, 06 Aug 2002 09:51:15 +1000
+Message-ID: <7867.1028591475@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 05 2002, Bill Davidsen wrote:
-> On 1 Aug 2002, Steven Cole wrote:
-> 
-> > Here are some dbench numbers, from the "for what it's worth" department.
-> > This was done with SMP kernels, on a dual p3 box, SCSI disk, ext2.
-> > The first column is dbench clients.  The numbers are throughput
-> > in MB/sec.  The 2.5.29 kernel had a few RR-supplied smp fixes.
-> > Looks like for this limited test, 2.4.19-rc5 holds up pretty well.
-> > I've also ran this set of tests several times on -rc5 using ext3
-> > and data=writeback, and everything looks fine.
-> > 
-> > Steven
-> 
-> Call me an optimist, but after all the reliability problems we had win the
-> 2.5 series, I sort of hoped it would be better in performance, not
-> increasingly worse. Am I misreading this? Can we fall back to the faster
-> 2.4 code :-(
+This FAQ should be a short term one, not worth adding to lkml faq.
 
-try a work load that excercises the block i/o layer alone (O_DIRECT,
-raw, whatnot) and then compare 2.4 and 2.5. ibm had some slides on this
-from ols, unfortunately I don't know if they have then online.
+Q.  Why does make modules_install flag all symbols as missing?
+    
+    make modules_install
+    ...
+    depmod -ae -F /boot/System.map-2.4.19 2.4.19
 
-please don't put too much wait in dbench numbers for this sort of thing
-:-)
+    All symbols are reported as missing.
 
--- 
-Jens Axboe
+A.  binutils 2.12.90.0.15 changed the format of the output from the nm
+    command and broke modutils.  You need modutils >= 2.4.17 if you are
+    running binutils >= 2.12.90.0.15.
+
+For the curious, the symbol type for kstrtab and ksymtab in System.map
+has been '?' since modules were added.  binutils 2.12.90.0.15 changed
+the symbol type to 'R'.
 

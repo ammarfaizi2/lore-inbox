@@ -1,95 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVC1GKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVC1HDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVC1GKG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 01:10:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVC1GKG
+	id S261184AbVC1HDg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 02:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVC1HDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 01:10:06 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:52960 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261196AbVC1GJx (ORCPT
+	Mon, 28 Mar 2005 02:03:35 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:18304 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261165AbVC1HD2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 01:09:53 -0500
-Message-Id: <200503280154.j2S1s9e6009981@laptop11.inf.utfsm.cl>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Aaron Gyes <floam@sh.nu>, "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!. 
-In-Reply-To: Message from Kyle Moffett <mrmacman_g4@mac.com> 
-   of "Sun, 27 Mar 2005 14:30:41 EST." <32bdf7ca3e679d0b61d1ae06d69d1623@mac.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Sun, 27 Mar 2005 21:54:09 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 28 Mar 2005 02:03:28 -0500
+Date: Sun, 27 Mar 2005 23:03:05 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: torvalds@osdl.org, akpm@osdl.org, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.12-rc1] cpusets GFP_ATOMIC fix: tonedown panic comment
+Message-Id: <20050327230305.2783a353.pj@engr.sgi.com>
+In-Reply-To: <424659D9.9000705@yahoo.com.au>
+References: <20050327065222.25762.37675.sendpatchset@sam.engr.sgi.com>
+	<424659D9.9000705@yahoo.com.au>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett <mrmacman_g4@mac.com> said:
-> On Mar 27, 2005, at 14:16, Aaron Gyes wrote:
-> > So what? Sure, GPL'd drivers are easier for an end-user in that case.
-> > What does that have to do with law?
+This patch applies on top of my patch of March 26, entitled "cpusets
+special case GFP_ATOMIC allocs".  It tones down my panic'y commentary.
 
-> Well, under most interpretations of the GPL, you are *NOT* allowed to
-> even _link_ non-GPL code with GPL code. (Basically, by distributing such
-> a linked binary, you are certifying that you have permission to GPL the
-> entire source-code and are doing so.
+My commentary shouldn't imply that failed GFP_ATOMICs should lead to,
+or normally lead to, panics.  Even though there are a few panic()
+calls following failed GFP_ATOMIC allocs, this is not the usual or
+desired result of a failed GFP_ATOMIC.  The kernel will probably
+drop some detail on the floor and keep on working.
 
-Wrong. You are free to do whatever you like in the privacy of your home,
-but not distribute the result. So you could very well distribute both
-pieces, one under GPL, the other not, and leave the linking to the end
-user.
+Thanks to Nick Piggin for noticing (I hope this answers his point.)
 
-Sure, /creating/ the piece to be linked with the GPLed code might make it
-GPL also, but that is another story.
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-> > What about what's better for the company that made the device?
+Index: 2.6.12-pj/Documentation/cpusets.txt
+===================================================================
+--- 2.6.12-pj.orig/Documentation/cpusets.txt	2005-03-27 22:48:14.000000000 -0800
++++ 2.6.12-pj/Documentation/cpusets.txt	2005-03-27 22:48:22.000000000 -0800
+@@ -264,11 +264,11 @@ Nodes when using hotplug to add or remov
+ 
+ There is a second exception to the above.  GFP_ATOMIC requests are
+ kernel internal allocations that must be satisfied, immediately.
+-The kernel may panic if such a requested page is not allocated.
+-If such a request cannot be satisfied within the cpusets allowed
+-memory, then we relax the cpuset boundaries and allow any page in
+-the system to satisfy a GFP_ATOMIC request.  It is better to violate
+-the cpuset constraints than it is to panic the kernel.
++The kernel may drop some request, in rare cases even panic, if a
++GFP_ATOMIC alloc fails.  If the request cannot be satisfied within
++the current tasks cpuset, then we relax the cpuset, and look for
++memory anywhere we can find it.  It's better to violate the cpuset
++than stress the kernel.
+ 
+ To start a new job that is to be contained within a cpuset, the steps are:
+ 
+Index: 2.6.12-pj/mm/page_alloc.c
+===================================================================
+--- 2.6.12-pj.orig/mm/page_alloc.c	2005-03-27 22:48:14.000000000 -0800
++++ 2.6.12-pj/mm/page_alloc.c	2005-03-27 22:48:42.000000000 -0800
+@@ -782,7 +782,7 @@ __alloc_pages(unsigned int gfp_mask, uns
+ 	 * coming from realtime tasks to go deeper into reserves
+ 	 *
+ 	 * This is the last chance, in general, before the goto nopage.
+-	 * Ignore cpuset if GFP_ATOMIC (!wait) - better that than panic.
++	 * Ignore cpuset if GFP_ATOMIC (!wait) rather than fail alloc.
+ 	 */
+ 	for (i = 0; (z = zones[i]) != NULL; i++) {
+ 		if (!zone_watermark_ok(z, order, z->pages_min,
 
-> Who says that free maintenance and bugfixes *isn't* better for said
-> company?
 
-Not me. But it is not the only consideration involved.
-
-> > Should NVIDIA be forced to give up their secrets to all their
-> > competitors because some over zealous developers say so?
-
-nVidia doesn't want to tell, that is their decision to make. If they don't
-tell, Linux users don't get to use nVidia cards with OSS drivers. Both
-sides loose something, nVidia thinks (right or wrong) that what they loose
-this way is less than what they'd loose by opening up.
-
-> We don't care about their secrets, we just want to be able to interface
-> with their hardware.  Really, we don't care how the hardware does what
-> it does internally, we just care how to tell it to do that.  It's the
-> difference between telling an artist to paint a big picture and
-> watching every thought he makes while he does the painting with a brain
-> scanner.
-
-That the "Linux kernel community" (whoever that might be) doesn't care
-doesn't mean others wouldn't consider mining the Linux drivers for any data
-on their competition.
-
-> > Should the end-users of the current drivers be forced to lose out
-> > on features such as sysfs and udev compatability?
-
-> Should the end-users even *have* features such as sysfs and udev?  If
-> the *open-source* developers hadn't *opened* their *source*, then that
-> code wouldn't exist.  One condition they made when they gave that code
-> for free was that *only* people who also gave their code for free
-> could use it.
-
-Grey area... it could be argued that this is /public/ interfase to the
-kernel, and as such shouldn't be closed off.
-
-> > I love Linux, and a I love that free software has become mildly
-> > successful, but the zealots are hurting both.
-
-> On the contrary, the zealots are what protect us from the even worse
-> proprietary software zealots.  You may not agree with them, but if
-> there were only one kind of zealot then the world would be much
-> worse off.
-
-As long as the opposing zealots keep each other in check... ;-)
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

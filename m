@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264120AbRFHQMe>; Fri, 8 Jun 2001 12:12:34 -0400
+	id <S264165AbRFHQPo>; Fri, 8 Jun 2001 12:15:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264183AbRFHQMO>; Fri, 8 Jun 2001 12:12:14 -0400
-Received: from mail.aslab.com ([205.219.89.194]:22568 "EHLO mail.aslab.com")
-	by vger.kernel.org with ESMTP id <S264120AbRFHQMM>;
-	Fri, 8 Jun 2001 12:12:12 -0400
-Date: Fri, 8 Jun 2001 09:12:07 -0700 (PDT)
-From: Andre Hedrick <andre@aslab.com>
-To: Frank Neuber <neuber@convergence.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux support for PDC20268
-In-Reply-To: <3B20B8BD.410364E0@convergence.de>
-Message-ID: <Pine.LNX.4.04.10106080911110.31794-100000@mail.aslab.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264183AbRFHQPe>; Fri, 8 Jun 2001 12:15:34 -0400
+Received: from olsinka.site.cas.cz ([147.231.11.16]:38017 "EHLO
+	twilight.suse.cz") by vger.kernel.org with ESMTP id <S264165AbRFHQP2>;
+	Fri, 8 Jun 2001 12:15:28 -0400
+Date: Fri, 8 Jun 2001 18:15:21 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [driver] New life for Serial mice
+Message-ID: <20010608181521.A1998@suse.cz>
+In-Reply-To: <20010606125556.A1766@suse.cz> <20010606232133.E38@toy.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010606232133.E38@toy.ucw.cz>; from pavel@suse.cz on Wed, Jun 06, 2001 at 11:21:34PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 06, 2001 at 11:21:34PM +0000, Pavel Machek wrote:
 
-I am betting on CMD and Highpoint.
-I will meet with CMD in Irvine during the next T13 meeting in two weeks.
-
-Andre Hedrick
-ASL Kernel Development
-Linux ATA Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
-
-On Fri, 8 Jun 2001, Frank Neuber wrote:
-
-> Andre Hedrick wrote:
+> > If you still have your 3-button MouseSystems (or any other serial) mouse
+> > somewhere in your driver, forgotten becase of the incredibly slow update
+> > rate causing so much jumping of the pointer on the screen that it is
+> > unusable, you may want to pull it out and give it a try.
 > > 
-> > Frank,
+> > Or if you're still using it with some old 486 computer, this driver is
+> > for you. 
 > > 
-> > "Frank Tiernan" does not exist at Promise anymore, and that company is
-> > HOSTILE towards Linux Now.
-> Hi Andre,
-> thanks for your response. What is your advice for an IDE-Controller
-> in an multi platform environment?
+> > What it does is that it enhances the update rate from 24 (with current
+> > GPM and X drivers) to 96. This is almost what the best USB mice do.
 > 
-> Frank
-> 
-> -- 
-> Dipl.-Ing. Elektrotechnik     convergence integrated media gmbh / HW
-> Frank Neuber                        Rosenthalerstr.51 / 10178 Berlin
-> Email:  neuber@convergence.de           Phone:  +49(0)30-72 62 06 50
-> WWW:    www.convergence.de              Fax:    +49(0)30-72 62 06 55
-> 
+> What's the "prediction" stuff? Does it mean you are guessing some values
+> by interpolation?
 
+Extrapolation, yes.
+
+> [If so, what kind of update rate would it do on USB?]
+
+It wouldn't make any difference - on USB you always get whole packets,
+while over serial port the data is processed byte by byte and thus we
+know a little of the information before the whole packet arrives.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

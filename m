@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265354AbSJXJDx>; Thu, 24 Oct 2002 05:03:53 -0400
+	id <S265358AbSJXJG6>; Thu, 24 Oct 2002 05:06:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265357AbSJXJDx>; Thu, 24 Oct 2002 05:03:53 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:39405 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265354AbSJXJDw>;
-	Thu, 24 Oct 2002 05:03:52 -0400
-Date: Thu, 24 Oct 2002 11:09:27 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrey Panin <pazke@orbita1.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCHSET] PC-9800 architecture (CORE only)
-Message-ID: <20021024110927.A2733@ucw.cz>
-References: <20021022065028.GA304@pazke.ipt> <3DB5706A.9D3915F0@cinet.co.jp> <1035374538.4033.40.camel@irongate.swansea.linux.org.uk> <3DB6A212.74D592D0@cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3DB6A212.74D592D0@cinet.co.jp>; from tomita@cinet.co.jp on Wed, Oct 23, 2002 at 10:20:18PM +0900
+	id <S265359AbSJXJG6>; Thu, 24 Oct 2002 05:06:58 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:22276 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S265358AbSJXJG5>; Thu, 24 Oct 2002 05:06:57 -0400
+Message-Id: <200210240906.g9O96Gp08544@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: "Ashwin Sawant" <sawant_ashwin@rediffmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Workqueues and the Nvidia driver
+Date: Thu, 24 Oct 2002 11:58:51 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <20021023175255.547.qmail@webmail30.rediffmail.com>
+In-Reply-To: <20021023175255.547.qmail@webmail30.rediffmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 10:20:18PM +0900, Osamu Tomita wrote:
-> Alan Cox wrote:
-> > 
-> > On Tue, 2002-10-22 at 16:36, Osamu Tomita wrote:
-> > > IORESOURCE98_SPARSE flag means odd or even only addressing.
-> > > We modify check_region(), request_region() and release_region().
-> > > If length parameter has negative value, addressing is sparse.
-> > > For example,
-> > >  request_region(0x100, -5, "xxx"); gets 0x100, 0x102 and 0x104.
-> > 
-> > Does PC-9800 ever have devices on 0x100/2/4/8 overlapping another device
-> > on 0x101/103/105 ?
-> Yes.
-> Here is io resource definition for PC-9800. (extract from patch)
-> struct resource standard_io_resources[] = {
->         { "pic1", 0x00, 0x02, IORESOURCE_BUSY | IORESOURCE98_SPARSE},
->         { "dma", 0x01, 0x2d, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
->         { "pic2", 0x08, 0x0a, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
->         { "calender clock", 0x20, 0x22, IORESOURCE98_SPARSE },
-> PIC1 uses 0x00 and 0x02.
-> DMA controler uses 0x01, 0x03, 0x05,....0x2d.
-> PIC2 uses 0x08 and 0x0a.
-> RTC uses 0x20 and 0x22.
-> They are overlapping.
+On 23 October 2002 15:52, Ashwin  Sawant wrote:
+> I have successfully compiled the latest Nvidia driver with kernel
+> 2.5.44 on a heavily modified RH 7.2 (original compiler) box  after
+> applying the patch posted to this list previously. However it
+> can't be loaded because insmod bombs out saying that, IIRC,
+> create_workqueue, flush_workqueue, and a couple of other similar
+> symbols are unresolved.
+> nm vmlinux shows that these symbols exist and this is (obviously)
+> reflected in the System.map. However, the proc interface doesn't
+> show them. I use modutils-2.4.6.
 
-For system resources you simply could allocate 0x00-0x2f and be done
-without the sparse flag, but if there are any other devices that have
-overlapping resources, which need separate drivers (IDE, sound, network,
-...) then the sparse ioresource flag is indeed needed. Is it so?
-
--- 
-Vojtech Pavlik
-SuSE Labs
+Way old. Maybe not the cause of your problem, but I see there are
+modutils 2.4.21
+--
+vda

@@ -1,98 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVDDXX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVDDX0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbVDDXX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 19:23:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVDDXXD
+	id S261517AbVDDX0a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 19:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVDDXYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 19:23:03 -0400
-Received: from Giotto.spidernet.net ([194.154.128.30]:19594 "EHLO
-	mail0q.spidernet.net") by vger.kernel.org with ESMTP
-	id S261501AbVDDXUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 19:20:25 -0400
-Subject: Re: UPDATE: out of vmalloc space - but vmalloc parameter does not
-	allow boot
-From: Ranko Zivojnovic <ranko@spidernet.net>
+	Mon, 4 Apr 2005 19:24:45 -0400
+Received: from main.gmane.org ([80.91.229.2]:29325 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261508AbVDDXWw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 19:22:52 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <1112625375.5680.45.camel@localhost.localdomain>
-References: <1112577841.6035.40.camel@localhost.localdomain>
-	 <1112625375.5680.45.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 05 Apr 2005 02:20:06 +0300
-Message-Id: <1112656806.9749.28.camel@localhost.localdomain>
+From: Andres Salomon <dilinger@debian.org>
+Subject: Re: Linux 2.6.12-rc2
+Date: Mon, 04 Apr 2005 19:04:02 -0400
+Message-ID: <pan.2005.04.04.23.03.58.312203@debian.org>
+References: <Pine.LNX.4.58.0504040945100.32180@ppc970.osdl.org> <Pine.LNX.4.58.0504041430070.2215@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cpe-24-194-62-26.nycap.res.rr.com
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I think I've figured it out so I will try and answer my own
-questions (the best part is at the end)...
+On Mon, 04 Apr 2005 14:32:52 -0700, Linus Torvalds wrote:
 
-On Mon, 2005-04-04 at 17:36 +0300, Ranko Zivojnovic wrote:
-> (please do CC replies as I am still not on the list)
 > 
-> As I am kind of pressured to resolve this issue, I've set up a test
-> environment using VMWare in order to reproduce the problem and
-> (un)fortunately the attempt was successful.
 > 
-> I have noticed a few points that relate to the size of the physical RAM
-> and the behavior vmalloc. As I am not sure if this is by design or a
-> bug, so please someone enlighten me:
+> The diffstat output tells the story: this is a lot of very small changes,
+> ie tons of small cleanups and bug fixes. With a few new drivers thrown in
+> for good measure.
 > 
-> The strange thing I have seen is that with the increase of the physical
-> RAM, the VmallocTotal in the /proc/meminfo gets smaller! Is this how it
-> is supposed to be?
+> This is also the point where I ask people to calm down, and not send me
+> anything but clear bug-fixes etc. We're definitely well into -rc land. So 
+> keep it quiet out there,
 > 
-
-As the size of memory grows, more gets allocated to the low memory, less
-to the vmalloc memory - within first 1GB of RAM.
-
-> Now the question: Is this behavior normal? 
-I guess it is (nobody said the oposite).
-
-> Should it not be in reverse -
-> more RAM equals more space for vmalloc?
+> 		Linus
+> 
+> ----
+> Summary of changes from v2.6.12-rc1 to v2.6.12-rc2
+> ==================================================
+> 
+[...]
+> Andres Salomon:
+>   o Possible AMD8111e free irq issue
+>   o Possible VIA-Rhine free irq issue
+>   o fix pci_disable_device in 8139too
 > 
 
-It really depends on the setup and the workload - some reasonable
-defaults (i.e. 128M) have been defined - you can change them using
-vmalloc parameter - but with the _extreme_ care as it gets really tricky
-if your RAM is 1G and above - read on...
-
-> With regards to the 'vmalloc' kernel parameter, I was able to boot
-> normally using kernel parameter vmalloc=192m with RAM sizes 256, 512,
-> 768 but _not_ with 1024M of RAM and above. 
-> 
-> With 1024M of RAM (and apparently everything above), it is unable to
-> boot if vmalloc parameter is specified to a value lager than default
-> 128m. It panics with the following:
-> 
-> EXT2-fs: unable to read superblock
-> isofs_fill_super: bread failed, dev=md0, iso_blknum=16, block=32
-> XFS: SB read failed
-> VFS: Cannot open root device "md0" or unknown-block(9,0)
-> Please append a correct "root=" boot option
-> Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(9,0)
-> 
-And not just - I have just seen the actual culprit message (way up
-front):
-initrd extends beyond end of memory (0x37fef33a > 0x34000000)
-disabling initrd
-
-> Question: Is this inability to boot related to the fact that the system
-> is unable to reserve enough space for vmalloc?
-> 
-
-The resolution (or rather workaround) to the above is to _trick_ the
-GRUB into loading the initrd image into the area below what is _going_
-to be the calculated "end of memory" using the "uppermem" command.
-
-Now:
-1. I hope this is the right way around the problem.
-2. I hope this is going to help someone.
-
-Best regards,
-
-Ranko
+The first two fixes were from Panagiotis Issaris
+<takis@lumumba.luc.ac.be>; I merely forwarded them on.
 
 

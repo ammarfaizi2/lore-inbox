@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268310AbUGXGIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUGXGI1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268310AbUGXGIn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 02:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268311AbUGXGIn
+	id S264097AbUGXGI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 02:08:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268310AbUGXGI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 02:08:43 -0400
-Received: from viefep12-int.chello.at ([213.46.255.25]:38701 "EHLO
-	viefep12-int.chello.at") by vger.kernel.org with ESMTP
-	id S268310AbUGXGIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 02:08:38 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: User-space Keyboard input?
-From: Mario Lang <mlang@delysid.org>
-In-Reply-To: <20040724010256.GA3757@bouh.is-a-geek.org> (Samuel Thibault's
- message of "Sat, 24 Jul 2004 03:02:57 +0200")
-References: <87y8lb80yj.fsf@lexx.delysid.org>
-	<20040724010256.GA3757@bouh.is-a-geek.org>
-Date: Sat, 24 Jul 2004 08:09:17 +0200
-Message-ID: <87llhahr76.fsf@lexx.delysid.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 24 Jul 2004 02:08:27 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:50146 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S264097AbUGXGIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 02:08:17 -0400
+Date: Fri, 23 Jul 2004 23:08:02 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: akpm@osdl.org, paulus@samba.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix ppc64 max_pfn issue
+Message-ID: <20040724060802.GA31385@taniwha.stupidest.org>
+References: <20040724044720.GF4556@krispykreme>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040724044720.GF4556@krispykreme>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel Thibault <samuel.thibault@ens-lyon.org> writes:
+On Sat, Jul 24, 2004 at 02:47:20PM +1000, Anton Blanchard wrote:
 
-> About modifiers, I submitted a patch to Dave to handle them
-> properly.
->
-> But ascii to scancode translation still depends on scancode to ascii
-> translation performed by the kernel indeed and the question still
-> applies. I'll have a look at uinput.
+> I noticed excessive time in the pid hash functions on a ppc64
+> box. It turns out the pid hash is being sized way too small, eg on a
+> 16GB box:
 
-uinput support is now committed to scr_linux.c.  I am using the exernal
-keyboard of my bluetooth capable braille display to type this email already
-via uinput :-).  The same layout is used as is configured on the box.
-Our generic AT2 support maps to VAL_PASSKEY commands and
-the AT2 support for Linux maps the AT2 scancode set to what Linux internally
-uses for scancodes (a sort of XT scancode set, but not really).
+This reminds me (that someone pointed out to me, I forget who) that in
+pid.c we have:
+
+ void __init pidhash_init(void)
+ {
+         int i, j, pidhash_size;
+         unsigned long megabytes = max_pfn >> (20 - PAGE_SHIFT);
+
+         pidhash_shift = max(4, fls(megabytes * 4));
+         pidhash_shift = min(12, pidhash_shift);
+         pidhash_size = 1 << pidhash_shift;
+
+which isn't strictly correct for machines with sparse/discontiguous
+memory as max_pfn may have very little bearing on the overall memory
+size.
+
+Since we cap it at 1<<12 I guess the platform affected might be ARM
+where you would otherwise get a smaller hash size.  That said, I
+wonder if a shift of 12 suffices for really large machines with many
+many processes.
 
 
--- 
-CYa,
-  Mario
+  --cw

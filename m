@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290845AbSBLJJR>; Tue, 12 Feb 2002 04:09:17 -0500
+	id <S290864AbSBLJJQ>; Tue, 12 Feb 2002 04:09:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290839AbSBLJIW>; Tue, 12 Feb 2002 04:08:22 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:59145 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S290850AbSBLJIN>;
-	Tue, 12 Feb 2002 04:08:13 -0500
-Date: Mon, 11 Feb 2002 23:11:03 +0100
+	id <S290845AbSBLJIU>; Tue, 12 Feb 2002 04:08:20 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:58633 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290839AbSBLJIM>;
+	Tue, 12 Feb 2002 04:08:12 -0500
+Date: Tue, 12 Feb 2002 10:01:28 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>, kernel list <linux-kernel@vger.kernel.org>
-Subject: another IDE cleanup: kill duplicated code
-Message-ID: <20020211221102.GA131@elf.ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Kill unused pieces of linux/device.h
+Message-ID: <20020212090128.GA627@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,90 +22,52 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This is slightly longer but also simple cleanup. It kills code
-duplication and removes unneccessary assignments/casts. Please apply,
-
+This kills dead code, please apply,
 								Pavel
 
---- clean-pre3/drivers/ide/ide-disk.c	Sat Feb  9 23:00:02 2002
-+++ linux-dm-pre3/drivers/ide/ide-disk.c	Sun Feb 10 00:06:31 2002
-@@ -172,6 +167,16 @@
- 		return WIN_NOP;
- }
+--- linux/include/linux/device.h	Mon Feb 11 21:10:52 2002
++++ linux-dm/include/linux/device.h	Mon Feb 11 21:57:56 2002
+@@ -54,7 +54,6 @@
+ };
  
-+static void fill_args (ide_task_t *args, struct hd_drive_task_hdr *taskfile, struct hd_drive_hob_hdr *hobfile)
-+{
-+	memcpy(args->tfRegister, taskfile, sizeof(struct hd_drive_task_hdr));
-+	memcpy(args->hobRegister, hobfile, sizeof(struct hd_drive_hob_hdr));
-+	args->command_type	= ide_cmd_type_parser(args);
-+	args->prehandler	= ide_pre_handler_parser(taskfile, hobfile);
-+	args->handler		= ide_handler_parser(taskfile, hobfile);
-+	args->posthandler	= NULL;
-+}
-+
- static ide_startstop_t chs_rw_disk (ide_drive_t *drive, struct request *rq, unsigned long block)
+ struct device;
+-struct iobus;
+ 
+ struct device_driver {
+ 	int	(*probe)	(struct device * dev);
+@@ -94,23 +93,6 @@
+ 	unsigned char *saved_state;	/* saved device state */
+ };
+ 
+-/*
+- * struct bus_type - descriptor for a type of bus
+- * There are some instances when you need to know what type of bus a
+- * device is on. Instead of having some sort of enumerated integer type,
+- * each struct iobus will have a pointer to a struct bus_type that gives
+- * actually meaningful data.
+- * There should be one struct bus_type for each type of bus (one for PCI,
+- * one for USB, etc).
+- */
+-struct iobus_driver {
+-	char	name[16];	/* ascii descriptor of type of bus */
+-	struct	list_head node; /* node in global list of bus drivers */
+-
+-	int	(*scan)		(struct iobus*);
+-	int	(*add_device)	(struct iobus*, char*);
+-};
+-
+ static inline struct device *
+ list_to_dev(struct list_head *node)
  {
- 	struct hd_drive_task_hdr	taskfile;
-@@ -210,16 +215,10 @@
- 	printk("buffer=0x%08lx\n", (unsigned long) rq->buffer);
- #endif
+@@ -122,8 +104,6 @@
+  */
+ extern int device_register(struct device * dev);
  
--	memcpy(args.tfRegister, &taskfile, sizeof(struct hd_drive_task_hdr));
--	memcpy(args.hobRegister, &hobfile, sizeof(struct hd_drive_hob_hdr));
--	args.command_type	= ide_cmd_type_parser(&args);
--	args.prehandler		= ide_pre_handler_parser(&taskfile, &hobfile);
--	args.handler		= ide_handler_parser(&taskfile, &hobfile);
--	args.posthandler	= NULL;
--	args.rq			= (struct request *) rq;
-+	fill_args(&args, &taskfile, &hobfile);
-+	args.rq			= rq;
- 	args.block		= block;
--	rq->special		= NULL;
--	rq->special		= (ide_task_t *)&args;
-+	rq->special		= &args;
+-extern int iobus_register(struct iobus * iobus);
+-
+ extern int device_create_file(struct device *device, struct driver_file_entry * entry);
+ extern void device_remove_file(struct device * dev, const char * name);
  
- 	return do_rw_taskfile(drive, &args);
- }
-@@ -257,16 +255,10 @@
- 	printk("buffer=0x%08lx\n", (unsigned long) rq->buffer);
- #endif
- 
--	memcpy(args.tfRegister, &taskfile, sizeof(struct hd_drive_task_hdr));
--	memcpy(args.hobRegister, &hobfile, sizeof(struct hd_drive_hob_hdr));
--	args.command_type	= ide_cmd_type_parser(&args);
--	args.prehandler		= ide_pre_handler_parser(&taskfile, &hobfile);
--	args.handler		= ide_handler_parser(&taskfile, &hobfile);
--	args.posthandler	= NULL;
--	args.rq			= (struct request *) rq;
-+	fill_args(&args, &taskfile, &hobfile);
-+	args.rq			= rq;
- 	args.block		= block;
--	rq->special		= NULL;
--	rq->special		= (ide_task_t *)&args;
-+	rq->special		= &args;
- 
- 	return do_rw_taskfile(drive, &args);
- }
-@@ -321,16 +313,10 @@
- 	printk("buffer=0x%08lx\n", (unsigned long) rq->buffer);
- #endif
- 
--	memcpy(args.tfRegister, &taskfile, sizeof(struct hd_drive_task_hdr));
--	memcpy(args.hobRegister, &hobfile, sizeof(struct hd_drive_hob_hdr));
--	args.command_type	= ide_cmd_type_parser(&args);
--	args.prehandler		= ide_pre_handler_parser(&taskfile, &hobfile);
--	args.handler		= ide_handler_parser(&taskfile, &hobfile);
--	args.posthandler	= NULL;
--	args.rq			= (struct request *) rq;
-+	fill_args(&args, &taskfile, &hobfile);
-+	args.rq			= rq;
- 	args.block		= block;
--	rq->special		= NULL;
--	rq->special		= (ide_task_t *)&args;
-+	rq->special		= &args;
- 
- 	return do_rw_taskfile(drive, &args);
- }
 
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262742AbTDIEzi (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 00:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbTDIEzi (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 00:55:38 -0400
-Received: from cs-ats40.donpac.ru ([217.107.128.161]:8964 "EHLO pazke")
-	by vger.kernel.org with ESMTP id S262742AbTDIEzf (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 00:55:35 -0400
-Date: Wed, 9 Apr 2003 09:07:11 +0400
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] fix visws breakage in 2.5.67
-Message-ID: <20030409050711.GA24420@pazke>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
+	id S262792AbTDIE75 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 00:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbTDIE75 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 00:59:57 -0400
+Received: from [12.47.58.221] ([12.47.58.221]:37392 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262792AbTDIE7z (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 00:59:55 -0400
+Date: Tue, 8 Apr 2003 22:11:51 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How can I simulate disk failure on 2.4?
+Message-Id: <20030408221151.2089d116.akpm@digeo.com>
+In-Reply-To: <200304090000_MC3-1-339D-2D93@compuserve.com>
+References: <200304090000_MC3-1-339D-2D93@compuserve.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="fUYQa+Pmc3FrFX/N"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Uname: Linux 2.4.20aa1 i686 unknown
-From: Andrey Panin <pazke@orbita1.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Apr 2003 05:11:29.0198 (UTC) FILETIME=[7A480CE0:01C2FE56]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
+>
+>   I need some kind of way to fail a single disk partition (hdg8) while the
+> system is running, then reenable it.  It doesn't have to be general-purpose
+> and
+> I don't mind doing ugly hacks to the disk code to make it happen.
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Stephen Tweedie has a gizmo which does that.
 
-Hi,
+http://people.redhat.com/sct/patches/testdrive/testdrive-1.1-for-2.4.19pre10.patch
 
-someone broke visws again :(
-
-This patch fixes it by adding '#ifdef CONFIG_X86_IO_APIC'
-around call to setup_ioapic_dest() in smp_cpus_done().
-
-Best regards.
-
--- 
-Andrey Panin		| Embedded systems software developer
-pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
-
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch-ioapic-2.5.67"
-
-diff -urN -X /usr/share/dontdiff linux-2.5.67.vanilla/arch/i386/kernel/smpboot.c linux-2.5.67/arch/i386/kernel/smpboot.c
---- linux-2.5.67.vanilla/arch/i386/kernel/smpboot.c	Wed Apr  9 19:43:46 2003
-+++ linux-2.5.67/arch/i386/kernel/smpboot.c	Wed Apr  9 19:16:46 2003
-@@ -1155,7 +1155,9 @@
- 
- void __init smp_cpus_done(unsigned int max_cpus)
- {
-+#ifdef CONFIG_X86_IO_APIC
- 	setup_ioapic_dest(TARGET_CPUS);
-+#endif
- 	zap_low_mappings();
- }
- 
-
---fUYQa+Pmc3FrFX/N--
+The documentation is at google("tweedie testdrive") ;)

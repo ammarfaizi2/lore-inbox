@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265295AbTFMJtg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 05:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265323AbTFMJtg
+	id S265329AbTFMKHy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 06:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265330AbTFMKHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 05:49:36 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:2288 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265295AbTFMJtf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 05:49:35 -0400
-Subject: Re: Pentium M (Centrino) cpufreq device driver (please test me)
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       Anders Karlsson <anders@trudheim.com>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1055497273.5162.49.camel@dhcp22.swansea.linux.org.uk>
-References: <1055371846.4071.52.camel@localhost.localdomain>
-	 <1055406614.2551.6.camel@tor.trudheim.com> <20030612145335.GA14795@suse.de>
-	 <1055497273.5162.49.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-x0ZP8QPOaJaIQOMA10P/"
-Organization: Red Hat, Inc.
-Message-Id: <1055498590.7088.0.camel@laptop.fenrus.com>
+	Fri, 13 Jun 2003 06:07:54 -0400
+Received: from uni00du.unity.ncsu.edu ([152.1.13.100]:3712 "EHLO
+	uni00du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S265329AbTFMKHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 06:07:52 -0400
+From: jlnance@unity.ncsu.edu
+Date: Fri, 13 Jun 2003 06:21:39 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: limit resident memory size
+Message-ID: <20030613102139.GA769@ncsu.edu>
+References: <20030612205557.5874.qmail@web40602.mail.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOEBMDKAA.davids@webmaster.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 13 Jun 2003 12:03:11 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOEBMDKAA.davids@webmaster.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 12, 2003 at 03:15:13PM -0700, David Schwartz wrote:
+> 
+> > I would like to limit the maximum resident memory size
+> > of a process within a threshold, i.e. if its virtual
+> > memory footprint exceeds this threshold, it needs to
+> > swap out pages *only* from within its VM space.
+> 
+> 	Why? If you think this is a good way to be nice to other
+>	processes, you're wrong.
 
---=-x0ZP8QPOaJaIQOMA10P/
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I have to disagree.  I used to use a Digital Unix system, which had this
+feature, to do software development.  The program I was working on was
+large, and linking it required more memory than the 128M that was installed
+on the computer.  All my makes ended with a 10 minute swap storm during
+which the computer was virtually useless.
 
-On Fri, 2003-06-13 at 11:41, Alan Cox wrote:
-> On Iau, 2003-06-12 at 15:53, Dave Jones wrote:
-> > cpufreq inclusion into 2.4 probably won't happen. There is an older
-> > patch in -ac, but has no-one is updating the 2.4 cpufreq branch any
-> > more, it's lacking quite a lot of fixes that have gone into 2.5.
->=20
-> Its basically up to someone who uses the 2.4 one and wants to backport
-> the updates for athlon/centrino etc. Candidates can apply online 8)
+I discovered that if I limited the RSS of the link process so that it left
+a few megs of memory free then I could read mail or look around the web
+while the link was running.  This of course slowed down the link, but I
+was supprised by how little it suffered.  It might have been 10% slower
+and the tradeoff I got was to be able to use the machine while it was
+working rather than sitting there looking at it.
 
-I sent you a patch before to do this.......
+Thanks,
 
---=-x0ZP8QPOaJaIQOMA10P/
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+6aFexULwo51rQBIRAitdAJ0RJhxS+lU1xwwcnkf2qQxrWLwy7QCfauXU
-RWl2r+f7FBiir+FlqqwizX4=
-=puw7
------END PGP SIGNATURE-----
-
---=-x0ZP8QPOaJaIQOMA10P/--
+Jim

@@ -1,120 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263497AbRFKIkm>; Mon, 11 Jun 2001 04:40:42 -0400
+	id <S263521AbRFKIqC>; Mon, 11 Jun 2001 04:46:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263495AbRFKIkc>; Mon, 11 Jun 2001 04:40:32 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:55172 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S263497AbRFKIk0>;
-	Mon, 11 Jun 2001 04:40:26 -0400
-Date: Mon, 11 Jun 2001 10:40:24 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106110840.KAA241979.aeb@vlet.cwi.nl>
+	id <S263524AbRFKIpw>; Mon, 11 Jun 2001 04:45:52 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:48294 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S263521AbRFKIpp>; Mon, 11 Jun 2001 04:45:45 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [OT] madvise.2
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table
+Date: Mon, 11 Jun 2001 08:45:43 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9g20fn$on4$1@forge.intermeta.de>
+In-Reply-To: <9fq2ce$gkb$1@forge.intermeta.de> <200106082254.f58MsWE487361@saturn.cs.uml.edu>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 992249143 18769 212.34.181.4 (11 Jun 2001 08:45:43 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 11 Jun 2001 08:45:43 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that I asked in public for manpages for the not-yet-documented
-system calls, I suppose I should report on received pages in order
-to avoid duplication. Yesterday or so I got an madvise.2 page
-and polished it a bit. Current version below. Comments are welcome.
-Note that comments in mm/filemap.c and what this code does in reality
-differ quite a lot.
+"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
 
-Andries
+>Yep.
 
-------------------------------------------------------------------
-MADVISE(2)          Linux Programmer's Manual          MADVISE(2)
+>Consider a chunk of x86 instructions using a home-grown OS
+>abstraction layer, and drivers that implement that layer for
+>both Linux and any non-GPL operating system. The binary blob
+>is obviously not derived from Linux, and may in fact run
+>without modification in a BSD or Solaris/x86 kernel.
 
+I had an interesting discussion with my brother-in-law at this
+weekend: What is source code?
 
-NAME
-       madvise - give advice about use of memory
+In my (very much younger days), I used to hack in 8085 and Z80
+assembler and even hex codes directly onto the disk / files using all
+those scary tools like DDT and M80/L80 under CP/M (those were the days
+when Microsoft tools were really bleeding edge. ;-) )
 
-SYNOPSIS
-       #include <sys/mman.h>
+What if there is really a warbled indivdual that can write a driver in
+object code? Or at least in x86 assembler and then performs the magic
+necessary to link it into the kernel?
 
-       int madvise(void *start, size_t length, int advice );
+Is this a "binary only" driver or just a driver on par with the NVidia
+that is just "GPL'ed but unreadable"?
 
-DESCRIPTION
-       The  madvise  system  call advises the kernel about how to
-       handle paging input/output in the address range  beginning
-       at  address start and with size length bytes. It allows an
-       application to tell the kernel how it expects to use  some
-       mapped  or  shared  memory  areas,  so that the kernel can
-       choose  appropriate  read-ahead  and  caching  techniques.
-       This call does not influence the semantics of the applica­
-       tion, but may influence its  performance.  The  kernel  is
-       free to ignore the advice.
-
-       For  Linux,  the  address start must be page-aligned.  For
-       Linux, if there are some parts of  the  specified  address
-       range  that  are  not  mapped,  madvise  ignores  them and
-       applies the call to the rest, but returns ENOMEM from  the
-       system call.  For Linux, zero length is permitted.
-
-       The  advice is indicated in the advice parameter which can
-       be
-
-       MADV_NORMAL
-              No special treatment. This is the default.
-
-       MADV_RANDOM
-              Expect page references in  random  order.   (Hence,
-              read ahead may be less useful than normally.)
-
-       MADV_SEQUENTIAL
-              Expect   page   references   in  sequential  order.
-              (Hence, pages in the given  range  can  be  aggres­
-              sively read ahead, and may be freed soon after they
-              are accessed.)
-
-       MADV_WILLNEED
-              Expect access in the near future.  (Hence, it might
-              be a good idea to read some pages ahead.)
-
-       MADV_DONTNEED
-              Do  not expect access in the near future.  (For the
-              time being, the application is  finished  with  the
-              given range, so the kernel can free resources asso­
-              ciated with it.)
-
-RETURN VALUE
-       On success madvise returns zero. On error, it  returns  -1
-       and errno is set appropiately.
-
-ERRORS
-       EINVAL the  value  len  is  negative,  start  is not page-
-              aligned, advice is not a valid value, or the appli­
-              cation  is  attempting  to release locked or shared
-              pages (with MADV_DONTNEED).
-
-       ENOMEM addresses in the specified range are not  currently
-              mapped,  or  are  outside  the address space of the
-              process.
-
-       ENOMEM (for MADV_WILLNEED) Not enough memory -  paging  in
-              failed.
-
-       EIO    (for  MADV_WILLNEED)  Paging  in  this  area  would
-              exceed the process's maximum resident set size.
-
-       EBADF  the map exists, but the area  maps  something  that
-              isn't a file.
-
-       EAGAIN a kernel resource was temporarily unavailable.
+	Regards
+		Henning
 
 
-HISTORY
-       The madvise function first appeared in 4.4BSD.
-
-CONFORMING TO
-       POSIX.1b (POSIX.4).  The Austin draft describes posix_mad­
-       vise with  constants  POSIX_MADV_NORMAL,  etc.,  with  the
-       behaviour described here. There is a similar posix_fadvise
-       for file access.
-
-SEE ALSO
-       getrlimit(2), mmap(2), mincore(2), mprotect(2),  msync(2),
-       munmap(2)
-
-Linux 2.4.5                 2001-06-10                          1
+-- 
+Henning Schmiedehausen     "They took the credit for your second symphony. 
+hps@intermeta.de            Rewritten by machine and "New Technology".         
+henning@forge.franken.de    and now I understand the problems you can see."
+                                                        -- The Buggles, 1979

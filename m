@@ -1,69 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267985AbUHYQAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268111AbUHYQMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267985AbUHYQAx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 12:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUHYQAx
+	id S268111AbUHYQMf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 12:12:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268098AbUHYQMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 12:00:53 -0400
-Received: from mail4.utc.com ([192.249.46.193]:59332 "EHLO mail4.utc.com")
-	by vger.kernel.org with ESMTP id S267985AbUHYQAu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 12:00:50 -0400
-Message-ID: <412CB78F.9020000@cybsft.com>
-Date: Wed, 25 Aug 2004 11:00:15 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ingo Molnar <mingo@elte.hu>, Scott Wood <scott@timesys.com>,
-       manas.saksena@timesys.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P9
-References: <20040823221816.GA31671@yoda.timesys>	 <20040824061459.GA29630@elte.hu>  <412C04DB.9000508@cybsft.com> <1093404161.5678.12.camel@krustophenia.net>
-In-Reply-To: <1093404161.5678.12.camel@krustophenia.net>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Aug 2004 12:12:35 -0400
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:49845 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S268043AbUHYQMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 12:12:33 -0400
+Date: Wed, 25 Aug 2004 18:12:31 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-rc1
+Message-ID: <20040825161231.GA28911@merlin.emma.line.org>
+Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Tue, 2004-08-24 at 23:17, K.R. Foley wrote:
-> 
->>Ingo Molnar wrote:
->>
->>>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P9
->>>
-> 
-> 
->>latency trace of ~148 usec in scsi_request? I don't know if this is real 
->>or not. Note the 79 usec here:
->>
->>00000001 0.107ms (+0.079ms): sd_init_command (scsi_prep_fn)
->>
->>Entire trace is here:
->>
->>http://www.cybsft.com/testresults/2.6.8.1-P9/latency_trace7.txt
->>
->>
->>Is this possible? This is not the first time I have seen this. There is 
->>another one here:
->>
->>http://www.cybsft.com/testresults/2.6.8.1-P9/latency_trace5.txt
->>
-> 
-> 
-> This looks like a real latency.  What is
-> /sys/block/sdX/queue/max_sectors_kb set to?  Does lowering it help?
-> 
-> Lee
-> 
-> 
-Well I had no sooner sent the last message and another one of these 
-popped up. This one is 123 usec:
+On Tue, 24 Aug 2004, Linus Torvalds wrote:
 
-http://www.cybsft.com/testresults/2.6.8.1-P9/latency_trace12.txt
+>  tons of patches merged, with me being away for a week, and also the
+> normal pent-up patch demand after any stable kernel. Special thanks as
 
-kr
+For reasons I haven't yet fully understood, 2.6.9-rc1 appears to break
+Amanda for me. amcheck passes, but amdump waits forever for data from
+other machines while dumping. Older kernels appear to be fine.
+
+Have there been relevant networking or security changes since 2.6.8.1?

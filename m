@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264989AbTGCDFT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 23:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265009AbTGCDFT
+	id S265037AbTGCDlt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 23:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbTGCDlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 23:05:19 -0400
-Received: from cpe-24-159-170-235.spart.sc.charter.com ([24.159.170.235]:61189
-	"HELO 24.159.170.235") by vger.kernel.org with SMTP id S264989AbTGCDFO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 23:05:14 -0400
-From: Amazing Pranks <fyvhkneeing@excite.com>
-To: kneeing@excite.com
-Subject: Jokes
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Thu, 3 Jul 2003 04:17:27 +0100
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-Priority: 1
-Message-Id: <S264989AbTGCDFO/20030703030514Z+15902@vger.kernel.org>
+	Wed, 2 Jul 2003 23:41:49 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:28434 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S265037AbTGCDlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 23:41:47 -0400
+Message-ID: <3F03A958.5060401@snapgear.com>
+Date: Thu, 03 Jul 2003 13:56:08 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.5.74-uc0 (MMU-less support)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=====TELPHONE JOKES=====
+Hi All,
 
-How to use this service:
-  
-1. Choose a Prank from the list below
-2. Make sure you have the telephone number of your chosen target
-3. Call 0906 403 8796
-4. Listen in as the computer dials out to your victim!
+An update of the uClinux (MMU-less) support against 2.5.74.
+A few litle updates, still a few patches to send to Linus,
+but the number is getting smaller :-)
 
-
-The Pranks:
-
-1. Mr Fury
-2. Irate Delivery Driver
-3. Invite to no. 10
-4. Tax Inspector from Hell
-5. Mr Stammer
-6. The Detective
-7. My Daughter`s Pregnant
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.74-uc0.patch.gz
 
 
-Calls  to 0906 no`s cost one pound and fifty pence per minute and last a few  minutes. Service provider: C Fry: Tel:  0871 872 3731. To be excluded from future promotions please call 0871 872 3731.
+Change Log:
  
+    . linux-2.5.74 fixups                me
+. DragonEngine cleanups              Georges Menie
+. gcc-3.3 cleanups                   Bernardo Innocenti
+. fix div64 (for m68knommu)          Bernardo Innocenti
+
+This patch also contains the binfmt_flat shared lib support,
+and the DragonEngine compressed image support from previous
+-uc patch sets.
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+
+
+
+

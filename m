@@ -1,28 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288780AbSA0WEz>; Sun, 27 Jan 2002 17:04:55 -0500
+	id <S289383AbSA1Ulq>; Mon, 28 Jan 2002 15:41:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288782AbSA0WEq>; Sun, 27 Jan 2002 17:04:46 -0500
-Received: from mailhost.teleline.es ([195.235.113.141]:47651 "EHLO
-	tsmtp3.ldap.isp") by vger.kernel.org with ESMTP id <S288780AbSA0WEf>;
-	Sun, 27 Jan 2002 17:04:35 -0500
+	id <S289467AbSA1Ulj>; Mon, 28 Jan 2002 15:41:39 -0500
+Received: from mailhost.teleline.es ([195.235.113.141]:52792 "EHLO
+	tsmtp3.ldap.isp") by vger.kernel.org with ESMTP id <S289398AbSA1Ule>;
+	Mon, 28 Jan 2002 15:41:34 -0500
 From: "Diego Calleja" <grundig@teleline.es>
-To: "lkml" <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: 2.4.17 crashes (VM bug?) after heavy system load
-Date: dom, 27 ene 2002 22:05:03 +0000
-In-Reply-To: <000001c1a77c$78abe8c0$6501a8c0@intranet.invantive.com>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        "lkml" <linux-kernel@vger.kernel.org>
+Subject: Re: fonts corruption with 3dfx drm module
+Date: lun, 28 ene 2002 20:41:56 +0000
+In-Reply-To: <Pine.LNX.4.44.0201281612030.18070-100000@netfinity.realnet.co.sz>
 X-Mailer: Pyne 0.6.7 (Debian/GNU/Linux)
 Content-Type: text/plain
 MIME-Version: 1.0
-Cc: <guido.leenders@invantive.com>
-Message-Id: <20020127220437Z288780-13996+13092@vger.kernel.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, <grundig@teleline.es>
+Message-Id: <20020128204135Z289398-13997+11239@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 ene 2002, 22:49:17, Guido Leenders wrote:
+On 28 ene 2002, 16:12:34, Zwane Mwaikambo wrote:
 > 
-> [1.] One line summary of the problem:    
+> On Mon, 28 Jan 2002, Zwane Mwaikambo wrote:
 > 
-> Especially during times of heavy I/O, swapping and CPU processing, the
-> OS crashes with an Oops.
-I think andrea's patches should be applied into stable mainline NOW. 
+> > Do you guys have CONFIG_MTRR and/or CONFIG_FB_VESA enabled? Also which 
+> > motherboard chipset?
+I have CONFIG_MTRR enabled. CONFIG_FB_VESA is disabled.
+Moterhboard: MS-5571
+Chipset: SIS 5571 Trinity, Video card voodoo 3 3000 PCI
+> 
+> Forgot to mention, which XFree86 version?
+
+X 4.1.0 (debian woody release)
+
+Diego Calleja.
+
+> 
+> Cheers,
+> 	Zwane Mwaikambo
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

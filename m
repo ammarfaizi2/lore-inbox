@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbVCPTKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262762AbVCPTMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262756AbVCPTKz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 14:10:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVCPTKy
+	id S262762AbVCPTMt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 14:12:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVCPTLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 14:10:54 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:16583 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262760AbVCPTJn (ORCPT
+	Wed, 16 Mar 2005 14:11:06 -0500
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:30592 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S262733AbVCPTIc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 14:09:43 -0500
-Message-ID: <4238845E.5060304@colorfullife.com>
-Date: Wed, 16 Mar 2005 20:09:18 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-CC: Christoph Lameter <christoph@lameter.com>, Andrew Morton <akpm@osdl.org>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: Fw: [PATCH] NUMA Slab Allocator
-References: <20050315204110.6664771d.akpm@osdl.org> <42387C2E.4040106@colorfullife.com> <273220000.1110999247@[10.10.2.4]>
-In-Reply-To: <273220000.1110999247@[10.10.2.4]>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 16 Mar 2005 14:08:32 -0500
+In-Reply-To: <20050316190611.GA27945@infradead.org>
+References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk> <20050316143130.GA21959@infradead.org> <Pine.LNX.4.61.0503160959530.4104@chimarrao.boston.redhat.com> <20050316181042.GA26788@infradead.org> <521a4568db3e955cb245d10aaba2d3ce@cl.cam.ac.uk> <20050316190611.GA27945@infradead.org>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <0d70200856fbba2e3fa027d2a66dd2cb@cl.cam.ac.uk>
 Content-Transfer-Encoding: 7bit
+Cc: akpm@osdl.org, Ian.Pratt@cl.cam.ac.uk, linux-kernel@vger.kernel.org,
+       Rik van Riel <riel@redhat.com>, kurt@garloff.de,
+       Christian.Limpach@cl.cam.ac.uk
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
+Date: Wed, 16 Mar 2005 19:11:24 +0000
+To: Christoph Hellwig <hch@infradead.org>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
 
->That'd be my inclination .... but OTOH, we do that for pagecache OK.
+On 16 Mar 2005, at 19:06, Christoph Hellwig wrote:
+
+>> The AGP driver is only configurable for ppc32, alpha, x86, x86_64 and
+>> ia64, all of which have virt_to_bus.
 >
-The page cache doesn't have a global hash table.
+> and ppc64 now, which doesn't.
 
-> Dunno, 
->I'm torn. Depends if there's locality on the file access or not, I guess.
->Is there any *harm* in doing it node local .... perhaps creating a node
->mem pressure imbalance (OTOH, there's loads of stuff that does that anyway ;-))
->
->  
->
-The harm is slower kmem_cache_free and a lower hit ratio for the per-cpu 
-caches: kmem_cache_free must identify and return wrong node objects, and 
-due to these returns, the per-cpu array is more often empty in 
-kmem_cache_alloc.
+Sounds like the new DMA-mapping interface is the way to go then.
 
-IIRC someone from SGI wrote that they have seen bad performance in 
-fork-bomb tests on large cpu count systems which might be caused by 
-inter-node traffic on the mm_struct structure and that they think that a 
-numa aware allocator would help. As far as I know no tests were done to 
-very that assumption.
+  -- Keir
 
---
-    Manfred

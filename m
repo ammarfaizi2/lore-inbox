@@ -1,59 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUGaWQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264774AbUGaWSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUGaWQY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 18:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUGaWQX
+	id S264774AbUGaWSX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 18:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbUGaWSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 18:16:23 -0400
-Received: from smtp18.wxs.nl ([195.121.6.14]:19884 "EHLO smtp18.wxs.nl")
-	by vger.kernel.org with ESMTP id S264763AbUGaWOL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 18:14:11 -0400
-Date: Sun, 01 Aug 2004 00:13:08 +0200
-From: Arvind Autar <Autar022@planet.nl>
-Subject: Hardrive driver issues?
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       b.zolnierkiewicz@elka.pw.edu.pl, jgarzik@pobox.com, Autar022@planet.nl
-Message-id: <1091311988.15039.1.camel@localhost>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.6
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+	Sat, 31 Jul 2004 18:18:22 -0400
+Received: from home.powernetonline.com ([66.84.210.20]:8168 "EHLO
+	home.uspower.net") by vger.kernel.org with ESMTP id S264763AbUGaWRA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 18:17:00 -0400
+Date: Sat, 31 Jul 2004 17:17:36 -0500
+From: John Lenz <jelenz@wisc.edu>
+To: Andrew Zabolotny <zap@homelink.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Backlight and LCD module patches [2]
+Message-ID: <20040731221736.GE5483@hydra.mshome.net>
+References: <20040617223517.59a56c7e.zap@homelink.ru> <20040725215917.GA7279@hydra.mshome.net> <20040728221141.158d8f14.zap@homelink.ru> <20040729232547.GA4565@hydra.mshome.net> <20040730040645.169e4024.zap@homelink.ru> <20040730004950.GA11828@hydra.mshome.net> <20040731000205.4b0d8f01.zap@homelink.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040731000205.4b0d8f01.zap@homelink.ru> (from zap@homelink.ru on Fri, Jul 30, 2004 at 15:02:05 -0500)
+X-Mailer: Balsa 2.0.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-o, here I'm, trying to setup a box.
-I installed debian sarge with 2.4.25-1-386. It ran fine, but didn't
-work with my s-ata disk.
+On 07/30/04 15:02:05, Andrew Zabolotny wrote:
+> On Thu, 29 Jul 2004 19:49:50 -0500
+> John Lenz <jelenz@students.wisc.edu> wrote:
+> 
+> > The only problem is that what happens if the fb device is registered before
+> > the lcd device?  So that means you still need to keep around a list of fb
+> > devices that have been registered so that when a new lcd device is
+> > registered it can check if it matches an old fb device.
+> Right now it happens in a different way. The patch I've published earlier uses
+> notifier objects (linux/notifier.h) so that if framebuffer can't find the
+> matched lcd device, it registers to be notified when new lcd devices appear in
+> the system; when it does it proceeds like usual (e.g. calls lcd_device_find).
+> Until it finds the LCD device framebuffer device cannot even initialize
+> (without powering on the LCD controller in some circumstances it's impossible
+> to do anything useful).
 
-I grabbed 2.6.8-rc2 and 2.6.8-rc1-mm1. Bot gave me the same results.
+I could see it going either way I guess.  The other thing the class_match could
+do is create those symlinks from the two classes of devices.  What other way is
+there from userspace to see which lcd device is associated with fb device?
 
-My ata disk uses Amd74xx Adn the s-ata siimage/sata_sil . The amd74
-got compiled in as * because that's the disk where linux got
-installed. siimage/sata_sil got copmiled as a module, I needed the
-disk to mount my fat32 partition so I could get to mine music files. I
-booted both kernels both of them started to freeze after a while. So I
-started to look in the log files and found this: (see attachment)208K
-Unfortunately I don't have any debugging(?) info from the Amd74xx all
-I know is that it gives some error about kernel bug at
-drivers/ide/ide-10.c:112 and it makes my computer probably freeze. I
-even booted with: 'noirqdebug' but the results I got where
+> 
+> > The only advantage is we let the core class code take care of managing the 2
+> > lists of devices for us (which it is doing anyway).
+> These lists are anyway maintained by the class.c core. You just need a pointer
+> to the 'struct class' variable for classes you are interested in, and locking
+> also comes for free - everything is already implemented. Look in class.c for
+> list_for_each_entry macros - they all are traveling along these lists.
 
-SCSI subsystem initialized
-ACPI : PCI interrupt 0000:01:0b[A] -> GSI 11(level , low ) -> IRQ 11
-ata1 : SATA max UDMA / 100 cmd 0xE0B8E080 ctl 0xE0B8E08A bmdma
-0xE0B8E000 irq 11
-ata2 : SATA max UDMA / 100 cmd 0xE0B8E0C0 ctl 0xE0B8E0CA bmdma
-0xE0B8E008 irq 11
-and then there was a freeze
+Yea I see that, but I was trying to keep all the class related code contained in
+class.c  I feel kinda uncomfortable manipulating lists and locking locks in
+struct class from outside code.
 
-I hope this problem gets solved soon.
+> 
+> I personally don't like to make this device matching too generalized - if we
+> need it for b/l, that's fine, we'll have to implement it for b/l.
+> But it doesn't look too sane, so I'd rather leave it l/b specific.
+> 
 
-Ps: I'm not subscribed to this mailinglist, please CC me.
+Why not?  I see it as a simple extension of the class_interface stuff... it
+could even use the class_interface to implement class_match (or use
+class_interface directly in the lcdbase.c code and forget the class_match stuff).
 
-Arvind.
+Now I could see both solutions as workable and either one or even a bunch more
+could work for the lcd/fb matching.  Now the question is, which one to implement?
+Or actually, the question is, which one is more likely to be accepted into the
+kernel?
 
+The way I see it, we really need a policy decision here, and neither you nor I 
+are "authorized" to make that decision :)  We have two completly seperate devices,
+both have a struct device and both have a struct device_driver.  They can sit on
+completly seperate buses and be mixed together in lots of different combinations.
+One of the devices "knows" if it matches with the other device.
 
+What is the linux preferred way to dynamicly match the two devices together?  Should
+each driver pair make its own decisions and its own constructs, or should we try and
+extend the device/driver/class/bus/etc model to support matching two devices together?
+Use waitqueues and probe functions?  notify.h?  match by a char *name? class_match?
+class_interface? create a virtual bus and use the bus matching code (not a very good
+solution, but one nonetheless)?  Secondly, what is the best way to represent this
+matching to userspace (sysfs)?
 
+We already tried matching together devices by their name, and that was shot down.
+And yet the mtd code matches chips and maps together by their name...  We haven't
+really gotten much feedback in which ways of matching devices together is acceptable
+and which isn't.
 
-
+John

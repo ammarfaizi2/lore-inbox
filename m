@@ -1,90 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130779AbRCTVCh>; Tue, 20 Mar 2001 16:02:37 -0500
+	id <S130791AbRCTVQn>; Tue, 20 Mar 2001 16:16:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130791AbRCTVC2>; Tue, 20 Mar 2001 16:02:28 -0500
-Received: from brauhaus.paderlinx.de ([194.122.103.4]:3778 "EHLO
-	imail.paderlinx.de") by vger.kernel.org with ESMTP
-	id <S130779AbRCTVCR>; Tue, 20 Mar 2001 16:02:17 -0500
-Date: Tue, 20 Mar 2001 22:01:21 +0100 (MET)
-From: Matthias Schniedermeyer <ms@citd.de>
-To: linux-kernel@vger.kernel.org
-Subject: Memory leak in 2.4.2 (+loop-6-patch)???
-Message-ID: <Pine.LNX.4.20.0103202155030.3879-100000@citd.owl.de>
+	id <S130793AbRCTVQc>; Tue, 20 Mar 2001 16:16:32 -0500
+Received: from umail.unify.com ([204.163.170.2]:50612 "EHLO umail.unify.com")
+	by vger.kernel.org with ESMTP id <S130791AbRCTVQQ>;
+	Tue, 20 Mar 2001 16:16:16 -0500
+Message-ID: <419E5D46960FD211A2D5006008CAC79902E5C134@pcmailsrv1.sac.unify.com>
+From: "Manuel A. McLure" <mmt@unify.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: NETDEV WATCHDOG: eth0: transmit timed out on LNE100TX 4.0, kernel
+	 2.4.2-ac11 and earlier.
+Date: Tue, 20 Mar 2001 13:14:59 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#Include <hallo.h>
+System:
+AMD Athlon Thunderbird 900MHz
+MSI K7T Pro (VIA KT133 chipset)
+Network card: Linksys LNE100TX Rev. 4.0 (tulip)
+Kernel: 2.2.18 (with 0.92 Scyld drivers), 2.4.0, 2.4.1, 2.4.2, 2.4.2-ac11
 
+With all the above kernel revisions/drivers, my network card hangs at random
+(sometimes within minutes, other times it takes days). To restart it I need
+to do an ifdown/ifup cycle and it will work fine until the next hang. I
+upgraded to 2.4.2-ac11 because of the documented tulip fixes, but after a
+few days got this again. The error log shows:
 
-After some days of uptime, i just stopped (nearly) all programs, unmounted
-all unnecessary devices.
+Mar 16 18:37:00 ulthar kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Mar 16 18:37:00 ulthar kernel: eth0: Transmit timed out, status fc664010,
+CSR12
+00000000, resetting...
 
-But top & free say that 1/3 of my RAM is still "used"
+ad infinitum until I do ifdown/ifup. The status & CSR12 values are always
+the same. My card is detected as follows by the kernel:
 
+Mar 12 21:38:49 ulthar kernel: Linux Tulip driver version 0.9.14c (March 3,
+2001
+)
+Mar 12 21:38:49 ulthar kernel: PCI: Found IRQ 11 for device 00:0a.0
+Mar 12 21:38:49 ulthar kernel: IRQ routing conflict in pirq table for device
+00:
+07.2
+Mar 12 21:38:49 ulthar kernel: IRQ routing conflict in pirq table for device
+00:
+07.3
+Mar 12 21:38:49 ulthar kernel: PCI: The same IRQ used for device 00:0e.0
+Mar 12 21:38:49 ulthar kernel: eth0: ADMtek Comet rev 17 at 0xdc00,
+00:20:78:0D:
+D2:E1, IRQ 11.
 
-Here is what top means:
+Any ideas on why this might be happening? 
 
-(Swap is 0K because i don't use Swap at all. Should i use swap?)
+--
+Manuel A. McLure - Unify Corp. Technical Support <mmt@unify.com>
+Space Ghost: "Hey, what happened to the-?" Moltar: "It's out." SG: "What
+about-?" M: "It's fixed." SG: "Eh, good. Good."
 
-  9:54pm  up 11 days, 23 min,  4 users,  load average: 0.00, 0.22, 0.52
-30 processes: 29 sleeping, 1 running, 0 zombie, 0 stopped
-CPU0 states:  0.1% user,  0.0% system,  0.0% nice, 99.4% idle
-CPU1 states:  0.0% user,  0.2% system,  0.0% nice, 99.3% idle
-Mem:  1028648K av,  334624K used,  694024K free,       0K shrd,    3556K buff
-Swap:       0K av,       0K used,       0K free                   55136K cached
-
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-    1 root       4   0   100  100    60 S     0.0  0.0   0:17 init
-    2 root       9   0     0    0     0 SW    0.0  0.0   0:00 keventd
-    3 root       9   0     0    0     0 SW    0.0  0.0   0:53 kswapd
-    4 root       9   0     0    0     0 SW    0.0  0.0   0:00 kreclaimd
-    5 root       9   0     0    0     0 SW    0.0  0.0   6:21 bdflush
-    6 root       9   0     0    0     0 SW    0.0  0.0   0:34 kupdate
-    7 root       9   0     0    0     0 SW    0.0  0.0   0:00 khubd
-  294 root       8   0   164  164    72 S     0.0  0.0   0:01 cron
-  373 root       9   0   508  508   144 S     0.0  0.0   0:00 login
-  374 root       9   0   508  508   144 S     0.0  0.0   0:00 login
-  375 root       9   0   508  508   144 S     0.0  0.0   0:00 login
-  380 root       9   0    84   84     0 S     0.0  0.0   0:00 mingetty
-  385 root       9   0   508  508   144 S     0.0  0.0   0:00 login
-  386 root       9   0    84   84     0 S     0.0  0.0   0:00 mingetty
-  389 ms         8   0  1072 1072   736 S     0.0  0.1   0:00 bash
-  396 root       0   0  1264 1264   896 S     0.0  0.1   0:01 bash
-  404 root      11   0  1132 1132   732 S     0.0  0.1   0:01 bash
-  463 citd       8   0  1192 1192   852 S     0.0  0.1   0:00 bash
- 6520 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
- 6521 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
- 6522 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
- 6523 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
- 6524 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
- 6525 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
- 6526 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
- 6527 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
- 6528 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
- 6529 root       9   0   612  612   524 S     0.0  0.0   0:00 mingetty
- 6652 root      12   0  1008 1008   804 R     0.0  0.0   0:00 top
- 6663 root      17   0   544  544   468 S     0.0  0.0   0:00 gpm
-
-uname -a
-Linux leeloo 2.4.2 #18 SMP Fri Feb 23 19:31:03 CET 2001 i686 unknown
-
-gcc --version
-2.95.2
-
-
-
-
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
 
 

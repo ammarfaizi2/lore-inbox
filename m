@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbVCNIel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVCNIjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbVCNIel (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 03:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVCNIek
+	id S261649AbVCNIjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 03:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVCNIjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 03:34:40 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:65175 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261339AbVCNIei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 03:34:38 -0500
-Subject: Re: [PATCH] break_lock forever broken
-From: Arjan van de Ven <arjan@infradead.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Ingo Molnar <mingo@elte.hu>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <42354A3F.4030904@yahoo.com.au>
-References: <Pine.LNX.4.61.0503111847450.9320@goblin.wat.veritas.com>
-	 <20050311203427.052f2b1b.akpm@osdl.org>
-	 <Pine.LNX.4.61.0503122311160.13909@goblin.wat.veritas.com>
-	 <20050314070230.GA24860@elte.hu> <42354562.1080900@yahoo.com.au>
-	 <20050314081402.GA26589@elte.hu>  <42354A3F.4030904@yahoo.com.au>
-Content-Type: text/plain
-Date: Mon, 14 Mar 2005 09:34:30 +0100
-Message-Id: <1110789270.6288.53.camel@laptopd505.fenrus.org>
+	Mon, 14 Mar 2005 03:39:15 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49818 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261649AbVCNIjB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 03:39:01 -0500
+Date: Mon, 14 Mar 2005 09:37:17 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Dave Jones <davej@redhat.com>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: dmesg verbosity [was Re: AGP bogosities]
+Message-ID: <20050314083717.GA19337@elf.ucw.cz>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <20050311021248.GA20697@redhat.com> <16944.65532.632559.277927@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0503101839530.2530@ppc970.osdl.org> <87vf7xg72s.fsf@devron.myhome.or.jp> <20050311222614.GH4185@redhat.com> <20050314081721.GA13817@elf.ucw.cz> <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> >>I'm fascinated that not a single person picked up on this problem
+> >>whilst the agp code sat in -mm. Even if DRI isn't enabled,
+> >>every box out there with AGP that uses the generic routines
+> >>(which is a majority), should have barfed loudly when it hit
+> >>this check during boot.  Does no-one read dmesg output any more ?
+> >
+> >Its way too long these days. Like "so long it overflows even enlarged
+> >buffer". We should prune these messages down to "one line per hw
+> >device or serious problems only".
 > 
-> Yes that's the tradeoff. I just feel that the former may be better,
-> especially because the latter can be timing dependant (so you may get
-> things randomly "happening"), and the former is apparently very low
-> overhead compared with the cost of taking the lock. Any numbers,
-> anyone?
+> especially if you turn on encryption options. I can understand that output 
+> being useful for debugging, but there should be a way to not deal with it 
+> in the normal case.
 
-as I said, since the cacheline just got dirtied, the write is just half
-a cycle which is so much in the noise that it really doesn't matter.
+Perhaps we could have a rule like
 
+"non-experimental driver may only print out one line per actual
+device?"
 
+(and perhaps: dmesg output for boot going okay should fit on one screen).
+
+Or perhaps we should have warnings-like regression testing.
+
+"New kernel 2.8.17 came: 3 errors, 135 warnings, 1890 lines of dmesg
+junk".
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

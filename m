@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311575AbSCQHZa>; Sun, 17 Mar 2002 02:25:30 -0500
+	id <S311865AbSCQH0K>; Sun, 17 Mar 2002 02:26:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311865AbSCQHZU>; Sun, 17 Mar 2002 02:25:20 -0500
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:18450 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S311575AbSCQHZO>;
-	Sun, 17 Mar 2002 02:25:14 -0500
-Date: Sun, 17 Mar 2002 02:25:05 -0500
-From: tytso@mit.edu
-To: Paul Allen <allenp@nwlink.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ext2 zeros inode in directory entry when deleting files.
-Message-ID: <20020317072505.GA768@snap.thunk.org>
-Mail-Followup-To: tytso@mit.edu, Paul Allen <allenp@nwlink.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C93012F.9080601@nwlink.com>
+	id <S311869AbSCQH0B>; Sun, 17 Mar 2002 02:26:01 -0500
+Received: from mail02.vsnl.net ([203.197.12.5]:18685 "EHLO mail02.vsnl.net")
+	by vger.kernel.org with ESMTP id <S311865AbSCQHZl>;
+	Sun, 17 Mar 2002 02:25:41 -0500
+Date: Sun, 17 Mar 2002 12:55:44 +0530
+From: Ashwin D <ashwinds@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: i810 and the AC tree
+Message-Id: <20020317125544.21f12fb2.ashwinds@yahoo.com>
+X-Mailer: Sylpheed version 0.7.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C93012F.9080601@nwlink.com>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 12:24:15AM -0800, Paul Allen wrote:
-> While helping a friend recover from a catastrophic "rm -rf" accident,
-> I discovered that deleted files have the inode number in their old
-> directory entries zeroed.  This makes it impossible to match file
-> names with recovered files.  I've verified this behavior on Mandrake
-> 8.1 with Mandrake's stock 2.4.8 kernel.  In my kernel sources and
-> in the stock 2.4.8 sources, the function ext2_delete_entry() in
-> fs/ext2/dir.c has this line:
-> 
-> 	dir->inode = 0;
-> 
-> Now, I'm tempted to comment the line out in my kernel and see
-> what happens.  But it does occur to me that hackers with more
-> experience than I may zeroing the inode number for a reason and
-> may be depending on it elsewhere in the kernel.  Or perhaps the
-> ext2 flavor of fsck will malfunction if deleted directory entries
-> have a non-zero inode?
+Hi,
+Linux Amateur  Alert!!
 
-Um....  the way directory entries are marked as deleted is by zeroing
-out the inode number.
+I was trying to get Quake 3 going on my i810 kobian motherboard with the 2.4.19-pre2-ac2 kernel and was troubled by the display limiting itself to 1/4 (top) of my 14 inch monitor at a startx depth of 16. At a depth of 24, the display was sized correctly but q3 was too slow -I believe Q3 will only work at a depth of 16. 
 
-So if you take out that line, deleted files will appear not to be
-deleted, the kernel will get confused, and you can be sure that fsck
-will complain.
+I switched to the 2.4.18 kernel and this problem disappeared - so I presume this is a bug attached to the AC tree alone- maybe associated with XFree 4.2 merge in 2.4.18pre9-ac3. The problem also exists in the 2.4.19-pre3-ac3 kernel.
 
-						- Ted
+Iam using Mandrake 8.1 with XFree 4.1.x and fluxbox+rox as wm. 
+
+Hope someone can fix this before Marcelo merges it into his tree. For any further info, please mail me directly/CC since Iam not subscribed to LKML.
+
+Regards,
+ashwin 

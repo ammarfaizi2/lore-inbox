@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264639AbTEPXuY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 19:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264637AbTEPXuX
+	id S264619AbTEPXsM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 19:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbTEPXsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 19:50:23 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:24246 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S264634AbTEPXuU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 19:50:20 -0400
-Subject: Re: 2.5.69-mm6: pccard oops while booting
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>,
-       davej@suse.de
-In-Reply-To: <20030517005538.D26797@flint.arm.linux.org.uk>
-References: <1053004615.586.2.camel@teapot.felipe-alfaro.com>
-	 <20030515144439.A31491@flint.arm.linux.org.uk>
-	 <1053037915.569.2.camel@teapot.felipe-alfaro.com>
-	 <20030515160015.5dfea63f.akpm@digeo.com>
-	 <1053090184.653.0.camel@teapot.felipe-alfaro.com>
-	 <1053110098.648.1.camel@teapot.felipe-alfaro.com>
-	 <20030516132908.62e54266.akpm@digeo.com>
-	 <1053121346.569.1.camel@teapot.felipe-alfaro.com>
-	 <3EC56173.1000306@gmx.net>
-	 <1053128425.607.1.camel@teapot.felipe-alfaro.com>
-	 <20030517005538.D26797@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1053129782.607.5.camel@teapot.felipe-alfaro.com>
+	Fri, 16 May 2003 19:48:12 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:7040 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264619AbTEPXsL (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 19:48:11 -0400
+Message-Id: <200305170001.h4H0113n001351@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional 
+In-Reply-To: Your message of "Fri, 16 May 2003 22:55:42 BST."
+             <1053122141.5589.45.camel@dhcp22.swansea.linux.org.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0305141758070.28007-100000@home.transmeta.com>
+            <1053122141.5589.45.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 17 May 2003 02:03:03 +0200
+Content-Type: multipart/signed; boundary="==_Exmh_607840616P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 16 May 2003 20:01:01 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-05-17 at 01:55, Russell King wrote:
-> On Sat, May 17, 2003 at 01:40:26AM +0200, Felipe Alfaro Solana wrote:
-> > This is getting tricky. How about this one?
-> > Attached is "ymfpci2.patch" with your suggested changes, and "dmesg"
-> > with the new oops info.
+--==_Exmh_607840616P
+Content-Type: text/plain; charset=us-ascii
+
+On Fri, 16 May 2003 22:55:42 BST, Alan Cox said:
+
+> There are arguments in some cases for avoiding the selections (notably
+> adding a zillion ifdefs to remove something thats utterly trivial) but
+> providing most users see only
 > 
-> You need to reproduce the oops you get when you modprobe the module.
-> The oops with this driver built in is different, and akpm's changes
-> won't tell us which one causes the problem.
+> 	Remove kernel features for embedded systems (Y/N)
 > 
-> Instead of adding a character to each of those strings, could you
-> remove the 'Y' character so the strings remain the same length as
-> the original - that may cause the oops to reappear.
+> its no more dangerous/hassle than the kernel debug menu
 
-Yeah! That's exactly what Carl proposed in a previous message. So, I
-did, but now I can't reproduce the oops with ymfpci compiled as a
-module. I can only reproduce the oops if ymfpci is built-into the
-kernel.
+OK.. I know I argued against making it visible to the user at all, but if it's
+phrased like that, it will at least (hopefully) dissuade everybody who
+doesn't know what an embedded system is.
 
-Wops! I'm lost. I'm tired and it's too late, so I'd better get some
-sleep and try to guess a little bit more tomorrow.
+And after all, Linux isn't about dissuading the truly determined, nor is it
+about making moral judgements regarding their wizardry/idiocy ratio....
 
-Thanks!
+--==_Exmh_607840616P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+xXu8cC3lWbTT17ARAqJ5AKCw/aroGXLDb41fwQ7e0NJql4Fw0gCg9p/m
+iVHErVmrPWLkUDgqPo5o66k=
+=V2Oo
+-----END PGP SIGNATURE-----
+
+--==_Exmh_607840616P--

@@ -1,92 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262867AbSJLJvA>; Sat, 12 Oct 2002 05:51:00 -0400
+	id <S262873AbSJLKAs>; Sat, 12 Oct 2002 06:00:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262868AbSJLJvA>; Sat, 12 Oct 2002 05:51:00 -0400
-Received: from gw.openss7.com ([142.179.199.224]:31249 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id <S262867AbSJLJu6>;
-	Sat, 12 Oct 2002 05:50:58 -0400
-Date: Sat, 12 Oct 2002 03:56:42 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Ole Husgaard <osh@sparre.dk>
-Cc: Christoph Hellwig <hch@infradead.org>, David Grothe <dave@gcom.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-       LiS <linux-streams@gsyc.escet.urjc.es>, davem@redhat.com
-Subject: Re: [Linux-streams] Re: [PATCH] Re: export of sys_call_tabl
-Message-ID: <20021012035642.B14955@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Ole Husgaard <osh@sparre.dk>,
-	Christoph Hellwig <hch@infradead.org>, David Grothe <dave@gcom.com>,
-	Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-	LiS <linux-streams@gsyc.escet.urjc.es>, davem@redhat.com
-References: <5.1.0.14.2.20021010115616.04a0de70@localhost> <4386E3211F1@vcnet.vc.cvut.cz> <5.1.0.14.2.20021010115616.04a0de70@localhost> <20021010182740.A23908@infradead.org> <5.1.0.14.2.20021010140426.0271c6a0@localhost> <20021011180209.A30671@infradead.org> <20021011142657.B32421@openss7.org> <3DA78926.FB2299A@sparre.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DA78926.FB2299A@sparre.dk>; from osh@sparre.dk on Sat, Oct 12, 2002 at 04:29:58AM +0200
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+	id <S262877AbSJLKAs>; Sat, 12 Oct 2002 06:00:48 -0400
+Received: from pcow057o.blueyonder.co.uk ([195.188.53.94]:41480 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S262873AbSJLKAr> convert rfc822-to-8bit;
+	Sat, 12 Oct 2002 06:00:47 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Alan Chandler <alan@chandlerfamily.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: How does ide-scsi get loaded?
+Date: Sat, 12 Oct 2002 11:06:52 +0100
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210121106.58559.alan@chandlerfamily.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ole,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I don't think that exporting putpmsg and getpmsg as _GPL will
-stop proprietary modules from being linked with LiS.  LiS exports
-its symbols on a different basis.  There is no need for a proprietary
-module using LiS to access putpmsg or getpmsg or the syscall
-registration facility for that matter.  Is you concern that LiS
-using a _GPL only facility will force GPL on modules linked with LiS
-even though LiS is LGPL?
+Please cc me on replies as I am not subscribed to the list.
 
---brian
+I am running a standard debian 2.4.19-k7 kernel on a configuration that has an 
+ide dvd rom drive and a scsi cd writer.
 
-On Sat, 12 Oct 2002, Ole Husgaard wrote:
+Sometime during boot sequence (I can't find where in any log or dmesg - but 
+looking at the text flying by - soon after the scsi adapter is found and the 
+bus is being scanned for scsi devices) the module ide-scsi gets loaded.
 
-> "Brian F. G. Bidulock" wrote:
-> > On Fri, 11 Oct 2002, Christoph Hellwig wrote:
-> > > It is not.  Sys_call_table was exported to allow iBCS/Linux-ABI
-> > 
-> > I don't know if it matters, but these two calls putpmsg and getpmsg
-> > are the calls used by iBCS.
-> 
-> AFAIK, iBCS use these syscalls to emulate TLI, and iBCS
-> only has this emulation working for the IP protocol suite.
-> 
-> LiS is hooking the same syscalls, and is more protocol
-> independent.
-> 
-> In this way, iBCS and LiS are competing projects, even
-> if their base objectives are very different (iBCS aims
-> for user-level binary portability from SysV, while LiS
-> aims for kernel-level STREAMS code portability from SysV
-> to extend to Linux).
-> 
-> > No, I don't think anyone wants proprietary syscalls to be registered
-> > with this facility.  If _GPL can allow an LGPL module to use the
-> > facility without problems, that will be the best way to go.
-> 
-> An LGPL module with proprietary code linked into it will
-> taint the kernel. LiS is often linked with proprietary
-> code, since it is under LGPL.
-> 
-> IMHO, A not-GPL-only export from the kernel is needed
-> here.
-> 
-> That will not make these syscalls proprietary. Even with
-> proprietary drivers linked into LiS, it is impossible to
-> deviate from the SysV definition of putpmsg/getpmsg
-> unless the code of LiS itself is modified.
-> 
-> Best Regards,
-> 
-> Ole Husgaard.
+The problem is, I don't want it loaded because it prevents mplayer playing my 
+dvds
 
--- 
-Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
-bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
-http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
-                        ¦ Therefore  all  progress  depends on the ¦
-                        ¦ unreasonable man. -- George Bernard Shaw ¦
+I initially assumed it was something in the debian start up that caused it but
+
+a) asking on the debian-user mailing list has not elicited any useful reponse
+b) grep -r ide-scsi /etc throws up nothing (ie there is not reference to 
+ide-scsi in modules or modules.conf or any initialisation sequence doing a 
+modprobe ide-scsi)
+c) scanning all through the initrd.img (loaded through the loop device) does 
+not show any reference to ide-scsi either (although grep finds the sequence 
+in bin/mount and then hangs locking my keyboard)
+d) modules.dep only shows ide-scsi needing other modules (ide-mod, scsi-mod) 
+not the other way round.
+
+I am stuck, where can I look next?
+
+[and I know I could just do a rmmod at the end of the start up sequence but 
+...]
+- -- 
+Alan Chandler
+alan@chandlerfamily.org.uk
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9p/RCuFHxcV2FFoIRAiqmAJ4y7pWivbaNV/L4LKqLyBYpu+VsUgCgnSK2
+5YnCzrh6yVM+iwnBVk1BZQE=
+=N3vq
+-----END PGP SIGNATURE-----
+

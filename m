@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbTKYHgY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 02:36:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTKYHgY
+	id S262092AbTKYHyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 02:54:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbTKYHyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 02:36:24 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:31369 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262081AbTKYHgX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 02:36:23 -0500
-Date: Mon, 24 Nov 2003 23:36:05 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lsawyer@gci.com, linux-kernel@vger.kernel.org
-Subject: Re: error in Sparc64 build: kallsysms modules symbol resolution
-Message-Id: <20031124233605.398dbc3e.davem@redhat.com>
-In-Reply-To: <20031125072913.C53262C0EA@lists.samba.org>
-References: <BF9651D8732ED311A61D00105A9CA315102CD204@berkeley.gci.com>
-	<20031125072913.C53262C0EA@lists.samba.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Tue, 25 Nov 2003 02:54:25 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:23820
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S262092AbTKYHyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 02:54:25 -0500
+Date: Mon, 24 Nov 2003 23:54:21 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: OOps! was: 2.6.0-test9-mm5
+Message-ID: <20031125075421.GA1342@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20031124225527.GB1343@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311241840380.8180@montezuma.fsmlabs.com> <20031124235807.GA1586@mis-mike-wstn.matchmail.com> <20031125003658.GA1342@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311242013270.1859@montezuma.fsmlabs.com> <20031125051018.GA1331@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311250033170.4230@montezuma.fsmlabs.com> <20031125054709.GC1331@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311250053410.4230@montezuma.fsmlabs.com> <20031125063602.GA1329@mis-mike-wstn.matchmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031125063602.GA1329@mis-mike-wstn.matchmail.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Nov 2003 14:38:37 +1100
-Rusty Russell <rusty@rustcorp.com.au> wrote:
+On Mon, Nov 24, 2003 at 10:36:02PM -0800, Mike Fedyk wrote:
+> Reverted pnp-fix-2:
+> Still OOpses.
 
-> In message <BF9651D8732ED311A61D00105A9CA315102CD204@berkeley.gci.com> you write:
-> > I'm still receiving the following error message when compiling
-> > for Sparc64, 2.6.0-pre10  (previously seen in -pre9)
-> 
-> Looks like your toolchain doesn't support weak symbols.  There are
-> other ways of doing this, but weak symbols is the easiest.
-> 
-> This means no kallsyms for you, I'm afraid.
-
-You really need to be using recent tools to build 2.6.x kernels
-on sparc64.
+same with pnp-fix-3

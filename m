@@ -1,55 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277347AbRKHSF1>; Thu, 8 Nov 2001 13:05:27 -0500
+	id <S277316AbRKHSJz>; Thu, 8 Nov 2001 13:09:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276914AbRKHSD7>; Thu, 8 Nov 2001 13:03:59 -0500
-Received: from ns.xdr.com ([209.48.37.1]:65182 "EHLO xdr.com")
-	by vger.kernel.org with ESMTP id <S277431AbRKHSDX>;
-	Thu, 8 Nov 2001 13:03:23 -0500
-Date: Thu, 8 Nov 2001 10:03:21 -0800 (PST)
-From: "Dave Ashley (linux mailing list)" <linux@xdr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mmap + wrapping around to 0
-In-Reply-To: <E161tTi-00009l-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0111080959230.24874-100000@xdr.xdr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277435AbRKHSJq>; Thu, 8 Nov 2001 13:09:46 -0500
+Received: from sushi.toad.net ([162.33.130.105]:13018 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S277294AbRKHSJj>;
+	Thu, 8 Nov 2001 13:09:39 -0500
+Subject: Re: Laptop harddisk spindown?
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 08 Nov 2001 13:08:59 -0500
+Message-Id: <1005242943.20873.928.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PAGE_ALIGN results in a multiple of PAGE_SIZE always.
-If you subtract one inside, the end result will
-be the same.
+> i have a disk access _every_ 5 sec, unregarding the system load,
 
-As an example:
-map 0x1000 bytes at 0xfffff000
-PAGE_ALIGN(0x1000) = 0x1000
-PAGE_ALIGN(0x0fff) = 0x1000
-PAGE_ALIGN(0x1000)-1 = 0x0fff
-The difference is adding 0x1000 or 0xfff to
-0xfffff000, and the result wrapping around
-to 0, or going to 0xffffffff (the later
-result is what we want and the comparison works).
+I used to have this problem sometimes when my CD-ROM drive
+had no disk in it.  I would get an infinite series of
+"disk change detected" messages in the syslog.  The writes
+to the syslog kept the disk from spinning down.
 
--Dave
-
-On Thu, 8 Nov 2001, Alan Cox wrote:
-
-> > in the inline function do_mmap(), change
-> >         if ((offset + PAGE_ALIGN(len)) < offset)
-> > to
-> >         if ((offset + PAGE_ALIGN(len)-1) < offset)
->
-> Shouldnt that be
->
-> 	PAGE_ALIGN(len-1)
->
-> so you compute the page of the last byte ?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Thomas
 

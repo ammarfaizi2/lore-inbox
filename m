@@ -1,102 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286307AbRLJQpF>; Mon, 10 Dec 2001 11:45:05 -0500
+	id <S286315AbRLJQtf>; Mon, 10 Dec 2001 11:49:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284461AbRLJQop>; Mon, 10 Dec 2001 11:44:45 -0500
-Received: from mustard.heime.net ([194.234.65.222]:62661 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S284460AbRLJQoo>; Mon, 10 Dec 2001 11:44:44 -0500
-Date: Mon, 10 Dec 2001 17:44:27 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Promise Ultra ATA 133 TX2 support
-Message-ID: <Pine.LNX.4.30.0112101719390.11051-200000@mustard.heime.net>
+	id <S284460AbRLJQt0>; Mon, 10 Dec 2001 11:49:26 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:51218 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S284461AbRLJQtP>; Mon, 10 Dec 2001 11:49:15 -0500
+Date: Mon, 10 Dec 2001 14:48:55 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: <volodya@mindspring.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: mm question
+In-Reply-To: <Pine.LNX.4.20.0112101112430.17492-100000@node2.localnet.net>
+Message-ID: <Pine.LNX.4.33L.0112101448120.4755-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-356327871-551416135-1008002667=:11219"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, 10 Dec 2001 volodya@mindspring.com wrote:
+> On Mon, 10 Dec 2001, Rik van Riel wrote:
+> > On Mon, 10 Dec 2001, Alan Cox wrote:
+> >
+> > > > I was hoping for something more elegant, but I am not adverse to writing
+> > > > my own get_free_page_from_range().
+> > >
+> > > Thats not a trivial task.
+> >
+> > Especially because we never quite know the users of a
+> > physical page, so moving data around is somewhat hard.
+>
+> I don't want to move them - I just want to collect all that are free
+> and then try to free some more.
 
----356327871-551416135-1008002667=:11219
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I could put it on the TODO list for my VM stuff, but it's
+not exactly near the top of the list so it might take quite
+a while more before I get around to this...
 
-hi all
+http://linuxvm.bkbits.net/
 
-I beleive these three lines are enough to allow for promise udma133/tx2
-support. It looks like they've just increased the version number... Is
-this old news?
+cheers,
 
-roy
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Computers are like air conditioners.
-They stop working when you open Windows.
-
-
-
----356327871-551416135-1008002667=:11219
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="promise-u133tx2.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0112101744270.11219@mustard.heime.net>
-Content-Description: 
-Content-Disposition: attachment; filename="promise-u133tx2.patch"
-
-ZGlmZiAtdXIgbGludXgub2xkL2RyaXZlcnMvaWRlL2lkZS1wY2kuYyBsaW51
-eC9kcml2ZXJzL2lkZS9pZGUtcGNpLmMNCi0tLSBsaW51eC5vbGQvZHJpdmVy
-cy9pZGUvaWRlLXBjaS5jCVNhdCBPY3QgMjcgMTc6MzY6NDMgMjAwMQ0KKysr
-IGxpbnV4L2RyaXZlcnMvaWRlL2lkZS1wY2kuYwlNb24gRGVjIDEwIDE3OjMw
-OjI5IDIwMDENCkBAIC00Nyw2ICs0Nyw3IEBADQogI2RlZmluZSBERVZJRF9Q
-REMyMDI2NwkoKGlkZV9wY2lfZGV2aWRfdCl7UENJX1ZFTkRPUl9JRF9QUk9N
-SVNFLCBQQ0lfREVWSUNFX0lEX1BST01JU0VfMjAyNjd9KQ0KICNkZWZpbmUg
-REVWSURfUERDMjAyNjggICgoaWRlX3BjaV9kZXZpZF90KXtQQ0lfVkVORE9S
-X0lEX1BST01JU0UsIFBDSV9ERVZJQ0VfSURfUFJPTUlTRV8yMDI2OH0pDQog
-I2RlZmluZSBERVZJRF9QREMyMDI2OFIgKChpZGVfcGNpX2RldmlkX3Qpe1BD
-SV9WRU5ET1JfSURfUFJPTUlTRSwgUENJX0RFVklDRV9JRF9QUk9NSVNFXzIw
-MjY4Un0pDQorI2RlZmluZSBERVZJRF9QREMyMDI2OSAgKChpZGVfcGNpX2Rl
-dmlkX3Qpe1BDSV9WRU5ET1JfSURfUFJPTUlTRSwgUENJX0RFVklDRV9JRF9Q
-Uk9NSVNFXzIwMjY5fSkNCiAjZGVmaW5lIERFVklEX1JaMTAwMAkoKGlkZV9w
-Y2lfZGV2aWRfdCl7UENJX1ZFTkRPUl9JRF9QQ1RFQ0gsICBQQ0lfREVWSUNF
-X0lEX1BDVEVDSF9SWjEwMDB9KQ0KICNkZWZpbmUgREVWSURfUloxMDAxCSgo
-aWRlX3BjaV9kZXZpZF90KXtQQ0lfVkVORE9SX0lEX1BDVEVDSCwgIFBDSV9E
-RVZJQ0VfSURfUENURUNIX1JaMTAwMX0pDQogI2RlZmluZSBERVZJRF9TQU1V
-UkFJCSgoaWRlX3BjaV9kZXZpZF90KXtQQ0lfVkVORE9SX0lEX1BDVEVDSCwg
-IFBDSV9ERVZJQ0VfSURfUENURUNIX1NBTVVSQUlfSURFfSkNCkBAIC00MDYs
-NiArNDA3LDcgQEANCiAJICAgcHJldmVudCBMaW51eCBkZXRlY3RpbmcgaXQg
-YW5kIHVzaW5nIG91ciBvd24gcmFpZCBjb2RlLiBXZSB3YW50IHRvIGRldGVj
-dA0KIAkgICBpdCBmb3IgdGhlIGF0YXJhaWQgZHJpdmVycywgc28gd2UgaGF2
-ZSB0byBsaXN0IGJvdGggaGVyZS4uICovDQogCXtERVZJRF9QREMyMDI2OFIs
-IlBEQzIwMjY4IiwJUENJX1BEQzIwMlhYLAlBVEE2Nl9QREMyMDJYWCwJSU5J
-VF9QREMyMDJYWCwJTlVMTCwJCXt7MHgwMCwweDAwLDB4MDB9LCB7MHgwMCww
-eDAwLDB4MDB9fSwJT0ZGX0JPQVJELAkxNiB9LA0KKwl7REVWSURfUERDMjAy
-NjksIlBEQzIwMjY5IiwJUENJX1BEQzIwMlhYLAlBVEE2Nl9QREMyMDJYWCwJ
-SU5JVF9QREMyMDJYWCwJTlVMTCwJCXt7MHgwMCwweDAwLDB4MDB9LCB7MHgw
-MCwweDAwLDB4MDB9fSwJT0ZGX0JPQVJELAkxNiB9LA0KIAl7REVWSURfUlox
-MDAwLAkiUloxMDAwIiwJTlVMTCwJCU5VTEwsCQlJTklUX1JaMTAwMCwJTlVM
-TCwJCXt7MHgwMCwweDAwLDB4MDB9LCB7MHgwMCwweDAwLDB4MDB9fSwgCU9O
-X0JPQVJELAkwIH0sDQogCXtERVZJRF9SWjEwMDEsCSJSWjEwMDEiLAlOVUxM
-LAkJTlVMTCwJCUlOSVRfUloxMDAwLAlOVUxMLAkJe3sweDAwLDB4MDAsMHgw
-MH0sIHsweDAwLDB4MDAsMHgwMH19LCAJT05fQk9BUkQsCTAgfSwNCiAJe0RF
-VklEX1NBTVVSQUksCSJTQU1VUkFJIiwJTlVMTCwJCU5VTEwsCQlJTklUX1NB
-TVVSQUksCU5VTEwsCQl7ezB4MDAsMHgwMCwweDAwfSwgezB4MDAsMHgwMCww
-eDAwfX0sCU9OX0JPQVJELAkwIH0sDQpAQCAtNDU4LDYgKzQ2MCw3IEBADQog
-CQljYXNlIFBDSV9ERVZJQ0VfSURfUFJPTUlTRV8yMDI2NToNCiAJCWNhc2Ug
-UENJX0RFVklDRV9JRF9QUk9NSVNFXzIwMjY3Og0KIAkJY2FzZSBQQ0lfREVW
-SUNFX0lEX1BST01JU0VfMjAyNjg6DQorCQljYXNlIFBDSV9ERVZJQ0VfSURf
-UFJPTUlTRV8yMDI2OToNCiAJCWNhc2UgUENJX0RFVklDRV9JRF9BUlRPUF9B
-VFA4NTBVRjoNCiAJCWNhc2UgUENJX0RFVklDRV9JRF9BUlRPUF9BVFA4NjA6
-DQogCQljYXNlIFBDSV9ERVZJQ0VfSURfQVJUT1BfQVRQODYwUjoNCkBAIC03
-NzUsNiArNzc4LDcgQEANCiAJCSAgICBJREVfUENJX0RFVklEX0VRKGQtPmRl
-dmlkLCBERVZJRF9QREMyMDI2NykgfHwNCiAJCSAgICBJREVfUENJX0RFVklE
-X0VRKGQtPmRldmlkLCBERVZJRF9QREMyMDI2OCkgfHwNCiAJCSAgICBJREVf
-UENJX0RFVklEX0VRKGQtPmRldmlkLCBERVZJRF9QREMyMDI2OFIpIHx8DQor
-CQkgICAgSURFX1BDSV9ERVZJRF9FUShkLT5kZXZpZCwgREVWSURfUERDMjAy
-NjkpIHx8DQogCQkgICAgSURFX1BDSV9ERVZJRF9FUShkLT5kZXZpZCwgREVW
-SURfQUVDNjIxMCkgfHwNCiAJCSAgICBJREVfUENJX0RFVklEX0VRKGQtPmRl
-dmlkLCBERVZJRF9BRUM2MjYwKSB8fA0KIAkJICAgIElERV9QQ0lfREVWSURf
-RVEoZC0+ZGV2aWQsIERFVklEX0FFQzYyNjBSKSB8fA0K
----356327871-551416135-1008002667=:11219--

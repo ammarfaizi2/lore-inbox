@@ -1,84 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVA3RN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVA3RTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVA3RN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 12:13:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVA3RMv
+	id S261738AbVA3RTE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 12:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVA3RTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 12:12:51 -0500
-Received: from fire.osdl.org ([65.172.181.4]:17351 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261740AbVA3RJv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 12:09:51 -0500
-Message-ID: <41FD12D7.90108@osdl.org>
-Date: Sun, 30 Jan 2005 09:01:11 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <juhl-lkml@dif.dk>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Achim Leubner <achim_leubner@adaptec.com>,
-       Boji Tony Kannanthanam <boji.t.kannanthanam@intel.com>,
-       Johannes Dinner <johannes_dinner@adaptec.com>,
-       linux-scsi@vger.kernel.org
-Subject: Re: shouldn't "irq" be module_param_array instead of module_param
- in scsi/gdth.c ?
-References: <Pine.LNX.4.62.0501301653480.2731@dragon.hygekrogen.localhost> <41FD0FED.9000806@osdl.org> <Pine.LNX.4.62.0501301805390.2731@dragon.hygekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.62.0501301805390.2731@dragon.hygekrogen.localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Jan 2005 12:19:03 -0500
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:32135 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S261738AbVA3RSu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 12:18:50 -0500
+Date: Sun, 30 Jan 2005 18:18:49 +0100
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+To: linux-kernel@vger.kernel.org
+Cc: netdev@oss.sgi.com
+Subject: Re: 2.4.29, e100 and a WOL packet causes keventd going mad
+Message-ID: <20050130171849.GA3354@hardeman.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> On Sun, 30 Jan 2005, Randy.Dunlap wrote:
-> 
-> 
->>Jesper Juhl wrote:
->>
->>>This little warning made me take a closer look : drivers/scsi/gdth.c:645:
->>>warning: return from incompatible pointer type
->>>
->>>And line 645 looks like this :
->>>
->>>module_param(irq, int, 0);
->>>
->>>looking a bit up in the file I find :
->>>
->>>/* IRQ list for GDT3000/3020 EISA controllers */
->>>static int irq[MAXHA] __initdata =
->>>{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
->>> 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff};
->>>
->>>That certainly looks like an array to me, so I'm wondering if something like
->>>this patch would be correct?  I'm not familliar enough with module_param* to
->>>be completely confident, but this silences the warning.
->>>
->>>Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
->>>
->>>--- linux-2.6.11-rc2-bk7-orig/drivers/scsi/gdth.c	2005-01-22
->>>21:59:46.000000000 +0100
->>>+++ linux-2.6.11-rc2-bk7/drivers/scsi/gdth.c	2005-01-30 16:52:45.000000000
->>>+0100
->>>@@ -642,7 +642,7 @@ static int probe_eisa_isa = 0;
->>> static int force_dma32 = 0;
->>>  /* parameters for modprobe/insmod */
->>>-module_param(irq, int, 0);
->>>+module_param_array(irq, int, NULL, 0);
->>> module_param(disable, int, 0);
->>> module_param(reserve_mode, int, 0);
->>> module_param_array(reserve_list, int, NULL, 0);
->>
->>Yep, same as:
->>http://marc.theaimsgroup.com/?l=linux-scsi&m=110540330511653&w=2
->>
-> 
-> Ohh, I was not aware of that patch, guess I should have searched the 
-> archives before posting. Thank you for the info.
+Hi,
 
-Or I should have added to my reply:
+I experience the same problems as reported by Michael Gernoth when 
+sending a WOL-packet to computer with a e100 NIC which is already 
+powered on.
 
-Acked-by: Randy Dunlap <rddunlap@osdl.org>   8:}
+In my case, it's running kernel 2.6.8.1 and the NIC is identified by 
+lspci as:
+0000:02:08.0 Ethernet controller: Intel Corp. 82562EZ 10/100 Ethernet 
+Controller (rev 02)
+or numerically:
+0000:02:08.0 0200: 8086:1050 (rev 02)
 
--- 
-~Randy
+The symptoms is that kacpid starts using all the CPU time it can, a 
+shutdown takes 5 - 10 minutes after I've done this (in contrast to 20 - 
+30 seconds when the machine is healthy).
+
+Also, if I do a "shutdown -h" on the machine after sending a WOL packet 
+when it's already powered up, it will shutdown and immediately start up 
+again instead of powering off.
+
+So, any suggestions on how to fix it?
+
+Regards,
+David
+
+Please CC me on any replies.

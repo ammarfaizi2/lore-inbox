@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262333AbTKDQhH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 11:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTKDQhH
+	id S262352AbTKDQad (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 11:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTKDQad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 11:37:07 -0500
-Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:41346
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262333AbTKDQhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 11:37:03 -0500
-Date: Tue, 4 Nov 2003 11:36:28 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6] Dont use cpu_has_pse for WP test branch
-In-Reply-To: <Pine.LNX.4.44.0311040809470.20373-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.53.0311041130040.20595@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.44.0311040809470.20373-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 Nov 2003 11:30:33 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22998 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262352AbTKDQac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 11:30:32 -0500
+Date: Tue, 4 Nov 2003 17:30:31 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: vojtech@suse.cz, kernel list <linux-kernel@vger.kernel.org>
+Subject: Fix alt- -> console switching
+Message-ID: <20031104163031.GB220@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Nov 2003, Linus Torvalds wrote:
+Hi!
 
-> Why?
-> 
-> The reason we test the PSE bit is not that we think it's a good indicator 
-> of "new enough".  It's because if the PSE bit is set, we will use 4MB 
-> pages, and the code below that actually _tests_ whether WP works or not 
-> won't work.
+Take vesafb, do cat /etc/termcap, while it is printing press alt and
+right arrow twice. Oops, it only goes one console to the right.
 
-Agreed, i also retracted the patch due to the reasons behind cpu_has_pse 
-not working was because of CONFIG_DEBUG_PAGEALLOC.
+Problem is that if console is already being switched and you press
+alt- ->, fg_console is still old one and second alt- -> is basically
+lost. Here's a fix.
+								Pavel
 
-> In fact, these days we could remove the test entirely: the only reason it 
-> exists is because traditionally we didn't have the "fixmap" helpers, so we 
-> used the page in lowest kernel memory for testing (which did not exist if 
-> we had PSE, since with PSE the kernel wouldn't use individual pages to map 
-> itself).
 
-Wasn't the test unconditional in 2.4? How about the following then?
-
-Index: linux-2.6.0-test9-mm1/arch/i386/mm/init.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test9-mm1/arch/i386/mm/init.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 init.c
---- linux-2.6.0-test9-mm1/arch/i386/mm/init.c	30 Oct 2003 11:22:42 -0000	1.1.1.1
-+++ linux-2.6.0-test9-mm1/arch/i386/mm/init.c	4 Nov 2003 16:34:45 -0000
-@@ -390,12 +390,6 @@ void __init paging_init(void)
- 
- void __init test_wp_bit(void)
+--- tmp/linux/drivers/char/keyboard.c	2003-11-04 17:13:00.000000000 +0100
++++ linux/drivers/char/keyboard.c	2003-11-04 17:08:57.000000000 +0100
+@@ -528,8 +528,12 @@
+ static void fn_inc_console(struct vc_data *vc, struct pt_regs *regs)
  {
--	if (cpu_has_pse) {
--		/* Ok, all PSE-capable CPUs are definitely handling the WP bit right. */
--		boot_cpu_data.wp_works_ok = 1;
--		return;
--	}
--
- 	printk("Checking if this processor honours the WP bit even in supervisor mode... ");
+ 	int i;
++	int cur = fg_console;
  
- 	/* Any page-aligned address will do, the test is non-destructive */
+-	for (i = fg_console+1; i != fg_console; i++) {
++	if (want_console != -1)
++		cur = want_console;
++
++	for (i = cur+1; i != cur; i++) {
+ 		if (i == MAX_NR_CONSOLES)
+ 			i = 0;
+ 		if (vc_cons_allocated(i))
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

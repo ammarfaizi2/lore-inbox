@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265833AbUFIXUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265891AbUFIXXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265833AbUFIXUX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 19:20:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265957AbUFIXUX
+	id S265891AbUFIXXG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 19:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265919AbUFIXXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 19:20:23 -0400
-Received: from mail.kroah.org ([65.200.24.183]:53148 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265833AbUFIXUU (ORCPT
+	Wed, 9 Jun 2004 19:23:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48352 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265891AbUFIXXD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 19:20:20 -0400
-Date: Wed, 9 Jun 2004 16:19:20 -0700
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
+	Wed, 9 Jun 2004 19:23:03 -0400
+Date: Wed, 9 Jun 2004 16:25:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Clint Byrum <cbyrum@spamaps.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] Couple of sysfs patches
-Message-ID: <20040609231920.GA9132@kroah.com>
-References: <200406090221.24739.dtor_core@ameritech.net> <200406091732.28684.dtor_core@ameritech.net> <20040609224548.GA1393@kroah.com> <200406091754.23303.dtor_core@ameritech.net>
+Subject: Re: 2.6 vm/elevator loading down disks where 2.4 does not
+Message-Id: <20040609162548.63d69b78.akpm@osdl.org>
+In-Reply-To: <1086724300.5467.161.camel@localhost>
+References: <1086724300.5467.161.camel@localhost>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406091754.23303.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 09, 2004 at 05:54:23PM -0500, Dmitry Torokhov wrote:
-> On Wednesday 09 June 2004 05:45 pm, Greg KH wrote:
-> > On Wed, Jun 09, 2004 at 05:32:28PM -0500, Dmitry Torokhov wrote:
-> > > Actually, I myself want someting else -
-> > > 
-> > > int platform_device_register_simple(struct platform_device **ppdev,
-> > > 				    const char *name, int id)
-> > > 
-> > > It will allocate platform device, set name and id and release function to
-> > > platform_device_simple_release which in turn will be hidden from outside
-> > > world. Since the function does allocation for user is should prevent the
-> > > abuse you were concerned about.
-> > 
-> > Ok, that sounds good.  I'll take patches for that kind of interface.
-> > 
-> > But have the function return the pointer, like the class_simple
-> > functions work.  Not the ** like you just specified.
+Clint Byrum <cbyrum@spamaps.org> wrote:
+>
+> When we upgraded one of our production boxes (details below) to 2.6.6,
+> we noticed an immediate loss of 5 - 15 percent efficiency. While these
+> boxes usually had less than 0.5% variation through out the day, this box
+> was consistently doing 10% fewer searches than the others.
 > 
-> I want to do both allocation + registration in one shot and I knowing
-> the error code may be important to users.
+> Upon investigation, we saw that the 2.6 box was reading from the disk
+> about 5 times as much as 2.4. Iin 2.4 we can almost completely saturate
+> the CPUs; they'll get to 90% of the real CPU's, and 15% of the virtual
+> CPUs. With 2.6, they never get above 60/10 because they are in io-wait
+> state constantly (which, under 2.4, is reported as idle IIRC).
 
-That's fine to do.  Again, look at how the class_simple_create()
-function works.  If an error happens, convert it to ERR_PTR() and return
-that.  The caller can check it with IS_ERR() and friends.
-
-> Why do you oppose having double pointers in interface?
-
-It's messy, and with the ERR_PTR() macros, not needed :)
-
-thanks,
-
-greg k-h
+Possibly a memory zone problem.  Could you try booting with "mem=896m" on
+the kernel command line, see how that affects things?

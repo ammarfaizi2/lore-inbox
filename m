@@ -1,35 +1,144 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269517AbRHCTi6>; Fri, 3 Aug 2001 15:38:58 -0400
+	id <S269527AbRHCTjU>; Fri, 3 Aug 2001 15:39:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269527AbRHCTis>; Fri, 3 Aug 2001 15:38:48 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:12534 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269517AbRHCTig>;
-	Fri, 3 Aug 2001 15:38:36 -0400
-Date: Fri, 3 Aug 2001 15:38:44 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Greg Louis <glouis@dynamicro.on.ca>, ext3-users <ext3-users@redhat.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ac4 ext3 recovery failure
-In-Reply-To: <3B6AFBD1.5F43B496@zip.com.au>
-Message-ID: <Pine.GSO.4.21.0108031534210.3272-100000@weyl.math.psu.edu>
+	id <S269568AbRHCTjK>; Fri, 3 Aug 2001 15:39:10 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:39953 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S269527AbRHCTjA>; Fri, 3 Aug 2001 15:39:00 -0400
+Message-ID: <3B6AFF2F.D99F8ECD@zip.com.au>
+Date: Fri, 03 Aug 2001 12:44:47 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: =?iso-8859-1?Q?Andr=E9?= Cruz <afafc@rnl.ist.utl.pt>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BUG can fill process table
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAArqXyEnDnsk6P8VUX1zHRj8KAAAAQAAAAKlzCr9qk3UyKnk0nEVtzhwEAAAAA@rnl.ist.utl.pt>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+André Cruz wrote:
+> 
+> When a process (say dhcpcd) changes the IFF_UP flag to TRUE on an
+> interface (say eth0) to bring it up, a new process is created named
+> after the interface (eth0 in this case) and it's PPID is dhcpcd.
+> 
+> If dhcpcd later changes the IFF_UP flag to FALSE to bring the interface
+> down, the eth0 process dies but stays as a zombie. The problem is that
+> dhcpcd never receives a sigchld (suposedly eth0 is it's child) and even
+> if it executes a wait() no process is reaped and wait() returns -1.
+> 
+> The worse part of this is that when dhcpcd wants to bring up the
+> interface again a NEW eth0 process is created and so this starts to fill
+> up the process table.
+> 
+> I see two solutions for this: either the interface process start with a
+> PPID of 1 (I noticed that init has no problems dealing with them when
+> they die) or dhcpcd should receive a sigchld and be able to reap them.
+> 
+> Btw why are these process even created? 2.2 didn't do it I think.
+> 
+> I don't know where the problem lies so if someone could tell me who to
+> contact about this that would be great. Or maybe if this is already
+> known?
+
+Oh.  That one again.
+
+Could you please try the below patch?
+
+We really need to fix this - we shouldn't be giving random
+userspace tasks surprise children just because some syscall decided
+to create a kernel thread.
+
+This patch _should_ fix it, as well as the problem reported in
+April at http://uwsg.iu.edu/hypermail/linux/kernel/0104.1/0763.html
+But the patch may be incomplete - I did it back in April and got
+distracted partway through testing.
+
+It reparents to init OK, but it's only a partial solution - the other
+problem we have is that these kernel threads will inherit things
+like UIDs, scheduling priority, scheduling policy, etc from the
+parent.  I haven't seen any bug reports attributable to this, but....
+
+I think we should have a standalone function which performs this
+reparenting and also initialises siginficant values in *current to
+useful values.
 
 
-On Fri, 3 Aug 2001, Andrew Morton wrote:
-
-> Do you think this happened during the e2fsck run, or during the
-> actual mount?
-
-actual mount. s/fsync_dev/fsync_no_super/ in fs/jbd/*. Already fixed
-in Alan's tree.
-
-BTW, code around the place in question looks somewhat fishy - looks
-like you have a lot of stuff assuming that journal and fs are on the
-same device.
-
+--- linux-2.4.4-pre3/kernel/sched.c	Sun Apr 15 15:34:25 2001
++++ linux-akpm/kernel/sched.c	Mon Apr 16 20:40:47 2001
+@@ -32,6 +32,7 @@
+ extern void timer_bh(void);
+ extern void tqueue_bh(void);
+ extern void immediate_bh(void);
++extern struct task_struct *child_reaper;
+ 
+ /*
+  * scheduler variables
+@@ -1260,32 +1261,53 @@
+ /*
+  *	Put all the gunge required to become a kernel thread without
+  *	attached user resources in one place where it belongs.
++ *
++ * 	Kernel 2.4.4-pre3, andrewm@uow.edu.au: reparent the caller
++ *	to init and set the exit signal to SIGCHLD so the thread
++ *	will be properly reaped if it exist.
+  */
+ 
+ void daemonize(void)
+ {
+ 	struct fs_struct *fs;
+-
++	struct task_struct *this_task = current;
+ 
+ 	/*
+ 	 * If we were started as result of loading a module, close all of the
+ 	 * user space pages.  We don't need them, and if we didn't close them
+ 	 * they would be locked into memory.
+ 	 */
+-	exit_mm(current);
++	exit_mm(this_task);
+ 
+-	current->session = 1;
+-	current->pgrp = 1;
++	this_task->session = 1;
++	this_task->pgrp = 1;
+ 
+ 	/* Become as one with the init task */
+ 
+-	exit_fs(current);	/* current->fs->count--; */
++	exit_fs(this_task);		/* this_task->fs->count--; */
+ 	fs = init_task.fs;
+-	current->fs = fs;
++	this_task->fs = fs;
+ 	atomic_inc(&fs->count);
+- 	exit_files(current);
+-	current->files = init_task.files;
+-	atomic_inc(&current->files->count);
++ 	exit_files(this_task);		/* this_task->files->count-- */
++	this_task->files = init_task.files;
++	atomic_inc(&this_task->files->count);
++
++	write_lock_irq(&tasklist_lock);
++
++	/* Reparent to init */
++	REMOVE_LINKS(this_task);
++	this_task->p_pptr = child_reaper;
++	this_task->p_opptr = child_reaper;
++	SET_LINKS(this_task);
++
++	/* Set the exit signal to SIGCHLD so we signal init on exit */
++	if (this_task->exit_signal != 0) {
++		printk(KERN_ERR "task `%s' exit_signal %d in daemonize()\n",
++			this_task->comm, this_task->exit_signal);
++	}
++	this_task->exit_signal = SIGCHLD;
++
++	write_unlock_irq(&tasklist_lock);
+ }
+ 
+ void __init init_idle(void)

@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281057AbRKTMle>; Tue, 20 Nov 2001 07:41:34 -0500
+	id <S281058AbRKTMzS>; Tue, 20 Nov 2001 07:55:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281058AbRKTMlY>; Tue, 20 Nov 2001 07:41:24 -0500
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:8064 "EHLO
-	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
-	id <S281057AbRKTMlO>; Tue, 20 Nov 2001 07:41:14 -0500
-Message-ID: <3BFA4F69.D7560BDE@randomlogic.com>
-Date: Tue, 20 Nov 2001 04:41:13 -0800
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S281059AbRKTMzJ>; Tue, 20 Nov 2001 07:55:09 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:4869 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S281058AbRKTMyz>; Tue, 20 Nov 2001 07:54:55 -0500
+Date: Tue, 20 Nov 2001 04:54:05 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: updates for ata/atapi hosts ...
+Message-ID: <Pine.LNX.4.10.10111200451300.12141-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Dual Athlon: Kernel 2.4.14 IDE problems
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just compiled and installed a vanilla 2.4.14 kernel (nope, I haven't
-tweaked this one yet :). Just as a reminder, I have a Tyan Thunder K7
-with 2 1.4GHz Athlons (_NOT_ MP or XP). It has an IBM DTLA-307030
-Ultra100 IDE drive on the Ultra100 IDE interface.
 
-The kernel seems to boot with DMA enabled for this drive which causes
-frequent system lockups. This is the same problem I had with kernels
-through 2.4.9 (including the ac series). Disabling DMA (hdparm -d0
-/dev/hda) solves the problem.
+Greeting All,
 
-Is this a hardware issue with the MP chipset (I have not kept up to date
-on AMD errata due to other projects), or is this drive one of the known
-IDE drives that do not properly support DMA? If a chipset issue, should
-the kernel not detect the problem and disable DMA?
+ide.2.4.13-ac8.11192001.patch.bz2
+ide.2.4.14.11192001.patch.bz2
 
-PGA
--- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
+There will be a future release to convert the drivers to 2.5 ACB IO.
+
+Regards,
+
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
+

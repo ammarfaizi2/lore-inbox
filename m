@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263636AbTLSUh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 15:37:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbTLSUh5
+	id S263638AbTLSUcn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 15:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTLSUcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 15:37:57 -0500
-Received: from linux.us.dell.com ([143.166.224.162]:2993 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S263609AbTLSUhx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 15:37:53 -0500
-Date: Fri, 19 Dec 2003 14:37:49 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [RFC] 2.6.0 EDD enhancements
-Message-ID: <20031219143749.A8351@lists.us.dell.com>
-References: <Pine.LNX.4.44.0312191254550.2465-100000@humbolt.us.dell.com> <20031219130129.B6530@lists.us.dell.com> <1071865401.1943.31.camel@mulgrave>
+	Fri, 19 Dec 2003 15:32:43 -0500
+Received: from holomorphy.com ([199.26.172.102]:9112 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263638AbTLSUck (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 15:32:40 -0500
+Date: Fri, 19 Dec 2003 12:32:27 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christian Meder <chris@onestepahead.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
+Message-ID: <20031219203227.GR31393@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Christian Meder <chris@onestepahead.de>,
+	linux-kernel@vger.kernel.org
+References: <1071864709.1044.172.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1071865401.1943.31.camel@mulgrave>; from James.Bottomley@steeleye.com on Fri, Dec 19, 2003 at 03:23:21PM -0500
+In-Reply-To: <1071864709.1044.172.camel@localhost>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is a bit nasty...you're assuming a lot of hidden knowledge about
-> the layout of sysfs objects in scsi_device in this code.
-> 
-> The current(*) way you should be doing this is to use scsi_device_get()
-> in your edd_match_scsi_dev() and do a scsi_device_put() after creating
-> the link...that should be hotplug robust.
+On Fri, Dec 19, 2003 at 09:11:50PM +0100, Christian Meder wrote:
+> I've got a longstanding regression in gnomemeeting usage when switching
+> between 2.4 and 2.6 kernels.
+> Phenomenon: 
+> Without load gnomemeeting VOIP connections are fine. As soon as some
+> load like a kernel compile is put on the laptop the gnomemeeting audio
+> stream is cut to pieces and gets unintelligible . On 2.4.2x I don't get
+> even the slightest distortion in the audio stream under load. I played
+> around with different nice levels with no success. The problem persisted
+> during the whole 2.6.0-test series no matter whether I used -mm kernels
+> or pristine Linus kernels. Even when nicing the kernel compile to +19
+> the distortions start right away. I tried Nick Piggin's scheduler which
+> fared slightly better after changing the nice level of gnomemeeting to
+> -10 but it's still a far cry from the 2.4.2x feeling without any
+> fiddling with nice values.
+> Any hints where to start looking are greatly appreciated.
 
-Ok, I'll gladly make that change, but I still need a handle on the
-sdev_gendev.kobj in order to make the symlink:
+Please instrument your workload with the following, and send logs of the
+output (preferably compressed) to me and possibly others:
 
->  			rc = sysfs_create_link(&edev->kobj,
-> 					       &sdev->sdev_gendev.kobj,
->  					       "disc");
+top b d 5
+vmstat 5
+while true; do cat /proc/vmstat; sleep 5; done
+while true; do cat /proc/meminfo; sleep 5; done
 
-While there's an accessor function to_scsi_device() to go from the
-struct device to the struct scsi_device, there's not accessor to go from the
-scsi_device to the struct device, which would further abstract
-struct internals.  Can I get such added to a SCSI header file?
-Something like:
+A good way to log commands like this is:
 
-static inline struct device *
-sdev_to_gendev(struct scsi_device *sdev)
-{
-    return &sdev->sdev_gendev;
-}
+(command) > /home/foo.log.1 2>&1 &
+
+where parentheses surround the command in the actual shell input.
 
 
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+-- wli

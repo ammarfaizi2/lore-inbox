@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284017AbRLWHUq>; Sun, 23 Dec 2001 02:20:46 -0500
+	id <S283860AbRLWHQq>; Sun, 23 Dec 2001 02:16:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284264AbRLWHUe>; Sun, 23 Dec 2001 02:20:34 -0500
-Received: from fmfdns01.fm.intel.com ([132.233.247.10]:24535 "EHLO
-	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S284017AbRLWHUZ>; Sun, 23 Dec 2001 02:20:25 -0500
-Message-ID: <59885C5E3098D511AD690002A5072D3C42D81C@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'ebiederm@xmission.com'" <ebiederm@xmission.com>, dcinege@psychosis.com
-Cc: otto.wyss@bluewin.ch,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        Rusty Russell <rusty@rustcorp.com.au>
-Subject: RE: Booting a modular kernel through a multiple streams file
-Date: Sat, 22 Dec 2001 23:20:18 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S284017AbRLWHQe>; Sun, 23 Dec 2001 02:16:34 -0500
+Received: from quechua.inka.de ([212.227.14.2]:22040 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S283860AbRLWHQY>;
+	Sun, 23 Dec 2001 02:16:24 -0500
+From: Bernd Eckenfels <usenet2001-12@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Booting a modular kernel through a multiple streams file
+In-Reply-To: <E16I1Yc-0003eD-00@schizo.psychosis.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E16I2rw-0006zi-00@sites.inka.de>
+Date: Sun, 23 Dec 2001 08:16:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: ebiederm@xmission.com [mailto:ebiederm@xmission.com]
-> > Basically what Grub does is loads the kernel modules from disk
-> > into memory, and 'tells' the kernel the memory location to load
-> > them from, very similar to how an initrd file is loaded. The problem
-> > is Linux, is not MBS compilant and doesn't know to look for and load
-> > the modules. 
-> 
-> So tell me how you make an MBS compliant alpha kernel again?
+In article <E16I1Yc-0003eD-00@schizo.psychosis.com> you wrote:
+> I know this, and have taken rpm's apart buy hand, and wrote 
+> a small util to take them apart using cpio. I consider it a good
+> example of Redhat's many screw up's. Deb's use a pair of .tgz's
+> and header. Much more sane.
 
-1) Someone writes a MBS spec chapter for Alpha
-2) Someone implements it.
+Well, debian is using an "ar" archive with tar.gz contents.
 
-Any volunteers? (Eric? ;-))
+> How many times have you seen ANYTHING ditributed that way?
 
-It's all about scratching an itch, right? Things don't become cross-platform
-by themselves. Linux started out 386-only, after all.
+AFAIK cpio is quite common on SysV Systems. The Problem with cpio and tar is,
+that there are many incompatible versions. Even the Posix.1 format is quite
+limited (255 char path limit). Some others fail short with symlinks or block
+device nodes.
 
-Regards -- Andy
+AFAIK SUS is supporting the use of pax.
+
+http://www.opengroup.org/onlinepubs/7908799/xcu/pax.html 
+
+Greetings
+Bernd

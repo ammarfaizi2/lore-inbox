@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbTJ0NIh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 08:08:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbTJ0NIh
+	id S261705AbTJ0NTl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 08:19:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTJ0NTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 08:08:37 -0500
-Received: from smtp2.libero.it ([193.70.192.52]:41938 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id S261649AbTJ0NIg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 08:08:36 -0500
-Date: Mon, 27 Oct 2003 14:07:04 +0100
-Message-Id: <HNF33S$E6957528DC6E481FFBD29C5C275D0823@libero.it>
-Subject: LETTER OF ASSISTANCE
+	Mon, 27 Oct 2003 08:19:41 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:5830 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id S261705AbTJ0NTk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 08:19:40 -0500
+Message-ID: <3F9D1B6B.901@namesys.com>
+Date: Mon, 27 Oct 2003 16:19:39 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-From: "lam_elisabeth\@libero\.it" <lam_elisabeth@libero.it>
-To: "lam_elisabeth" <lam_elisabeth@libero.it>
-X-XaM3-API-Version: 4.1 (B16)
-X-type: 0
-X-SenderIP: 213.136.96.105
+To: Nikita Danilov <Nikita@Namesys.COM>
+CC: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Burton Windle <bwindle@fint.org>, linux-kernel@vger.kernel.org
+Subject: Re: fsstress causes memory leak in test6, test8
+References: <Pine.LNX.4.58.0310251842570.371@morpheus>	<20031026170241.628069e3.akpm@osdl.org>	<20031027121609.GA27611@redhat.com> <16285.5092.216272.470811@laputa.namesys.com>
+In-Reply-To: <16285.5092.216272.470811@laputa.namesys.com>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LETTER OF ASSISTANCE
-MRS Elisabeth Lamine
-ABIDJAN COTE D'IVOIRE
+Nikita Danilov wrote:
 
-ATTN: SIR
+>Dave Jones writes:
+> > On Sun, Oct 26, 2003 at 05:02:41PM -0800, Andrew Morton wrote:
+> > 
+> >  > It is not a "leak" as such - the dentries will get shrunk in normal usage
+> >  > (create enough non-dir dentries and the "leaked" directory dentries will
+> >  > get reclaimed).  The really deep directories which fsstress creates
+> >  > demonstrated the bug.
+> > 
+> > This could explain the random reiserfs oopses/hangs I was seeing several
+> > months back after running fsstress for a day or so. The reiser folks
+>
+>This could explain hangs, but hardly oopses. System just freezes due to
+>out-of-memory.
+>
+Ah, thanks Nikita.
 
+-- 
+Hans
 
-
-I am Mrs. ELISABETH LAMINE. A CITIZEN OF SIERRA-LEONE AND THE WIFE OF LATE MR. FIDELIS 
-I am a widow being that I lost my husband a couple of months ago late MR .FIDELIS My husband was a serving director of the Cocoa exporting board until his death . He was assassinated last
-january by the rebels following the political uprising.
-
-Before his death he had a foreign account here in Côte d´Ivoire up to the tune of $9.5m which he told the bank was for the importation of cocoa processing machine. I want you to do me a favour to receive this funds to a safe account in your country or any safer place as the beneficiary
-.
-
-I have plans to do investment in your country, like real estate and industrial production. This is my reason for writing to you. Please if you are willing to assist me and my only son, indicate your interest in replying soonest. Thanks and best
-regards.
-MRS ELISABETH LAMINE AND SON.
 

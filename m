@@ -1,66 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131212AbRATLE5>; Sat, 20 Jan 2001 06:04:57 -0500
+	id <S135851AbRATLsw>; Sat, 20 Jan 2001 06:48:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132973AbRATLEr>; Sat, 20 Jan 2001 06:04:47 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:26508 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S131212AbRATLEd>; Sat, 20 Jan 2001 06:04:33 -0500
-Date: Sat, 20 Jan 2001 03:04:30 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: wolfgang@ces.ch, linux-usb-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [PATCH] linux-2.4.1-pre9/drivers/usb/serial/mct_u232.c usb_device_id table broken by new format
-Message-ID: <20010120030430.A3456@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S136445AbRATLsm>; Sat, 20 Jan 2001 06:48:42 -0500
+Received: from [202.123.212.187] ([202.123.212.187]:60428 "EHLO ns1.b2s.com")
+	by vger.kernel.org with ESMTP id <S135851AbRATLs3>;
+	Sat, 20 Jan 2001 06:48:29 -0500
+Message-ID: <3A697B2B.C5C00B31@vtc.edu.hk>
+Date: Sat, 20 Jan 2001 19:48:59 +0800
+From: Nick Urbanik <nicku@vtc.edu.hk>
+Organization: Institute of Vocational Education (Tsing Yi)
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: rsync + ssh fail on raid; okay on 2.2.x
+In-Reply-To: <Pine.LNX.4.10.10101181225030.7200-100000@coffee.psychology.mcmaster.ca> <3A677CFA.DE6F7D93@vtc.edu.hk>
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Urbanik wrote:
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Mark Hahn wrote:
+>
+> > > Kernel: 2.4.0, no patches
+> >
+> > use 2.4.1-pre8.  much better VM tuning.
+>
+> Thank you Mark, I will try that.
+
+Yes, 2.4.1-pre8 fixes this, apparently completely.  Something was severely broken
+in 2.4.0 memory management.
+
+> > > PIII 450MHz, 256MB RAM, Acus P3B-F motherboard (Intel 440BX)
+> > > Mail going to Raid 1 device
+> > > The file Inbox is only 2.9MB
+> > > OS = Red Hat 7 with all updates, both home and work.
+> > > Same with ppp 2.3.x and ppp 2.4.0
+> > > Same whether work machine runs 2.2.16 or 2.4.0 kernel.
+> >
+> > any swap?
+>
+> Yes, 400MB swap, only a small fraction of it used; vmstat 5 looks okay
+> and shows no understandable reason for the error message.  Here are a
+> few lines from vmstat: the point at which free memory jumps up is just
+> after the "Write failed: Cannot allocate memory" message:
+>
+>  2  0  0   9276   1792   8952 110388   0   0   378     0 2400   295  11  26  63
+>
+>  2  0  0   9276   1760   8952 110420   0   0     0     0  492   319   6   2  92
+>
+>  3  0  0   9276   1596   8952 110588   0   0    96     0  754   326   8   5  87
+>
+>  2  1  0   9276   1620   8828 110692   0   0   751   207 5378   275  19  74   7
+>
+>  1  0  0   9276  26680   8828  91760   0   0   115     0 1094   307   9  11  80
+>
+>  2  0  0   9276  26680   8828  91760   0   0     0     0  120   318   4   1  95
+>
+> I have many hundreds of MB or GB of disk space in the various
+> partititions.  I will try the newer kernel, though I am interested in
+> understanding what's going on here too.
+>
+> --
+> Nick Urbanik, Dept. of Computing and Mathematics
+> Hong Kong Institute of Vocational Education (Tsing Yi)
+> email: nicku@vtc.edu.hk
+> Tel:   (852) 2436 8576, (852) 2436 8579   Fax: (852) 2435 1406
+> pgp ID: 7529555D fingerprint: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+
+--
+Nick Urbanik, Dept. of Computing and Mathematics
+Hong Kong Institute of Vocational Education (Tsing Yi)
+email: nicku@vtc.edu.hk
+Tel:   (852) 2436 8576, (852) 2436 8579   Fax: (852) 2435 1406
+pgp ID: 7529555D fingerprint: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B
 
 
-	The format of usb_device_id tables was recently changed
-(just before 2.4.0, I think) to include a match_flags field.  A bit
-set to one in that field indicates that a given member of the structure
-contains a valid value that must match.  A bit set to zero indicates
-a wildcard (skip the comparison).  Compiling a driver that uses the old
-format results in that driver having a usb_device_id structure that
-has an all zeroes match_flags, which means don't compare anything.
-That is, it is a completely wildcard and will match every USB interface.
 
-	As of 2.4.1-pre9, there appears to be only USB driver that
-was missed: drivers/usb/serial/mct_u232.c.  This patch fixes the problem.
-
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
-
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="usb-mct.diff"
-
---- linux-2.4.1-pre9/drivers/usb/serial/mct_u232.c	Thu Dec  7 16:13:38 2000
-+++ linux/drivers/usb/serial/mct_u232.c	Sat Jan 20 02:52:44 2001
-@@ -102,7 +102,7 @@
-  * All of the device info needed for the MCT USB-RS232 converter.
-  */
- static __devinitdata struct usb_device_id id_table [] = {
--	{ idVendor: MCT_U232_VID, idProduct: MCT_U232_PID },
-+	{ USB_DEVICE(MCT_U232_VID, MCT_U232_PID) },
- 	{ }					/* Terminating entry */
- };
- 
-
---ReaqsoxgOBHFXBhH--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,85 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318802AbSH1MvU>; Wed, 28 Aug 2002 08:51:20 -0400
+	id <S318804AbSH1MzP>; Wed, 28 Aug 2002 08:55:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318804AbSH1MvU>; Wed, 28 Aug 2002 08:51:20 -0400
-Received: from atlas.inria.fr ([138.96.66.22]:63145 "EHLO atlas.inria.fr")
-	by vger.kernel.org with ESMTP id <S318802AbSH1MvT>;
-	Wed, 28 Aug 2002 08:51:19 -0400
-Message-Id: <200208281255.g7SCtYQg030108@atlas.inria.fr>
-Content-Type: text/plain; charset=US-ASCII
-From: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
-To: lnz@dandelion.com
-Subject: DAC960 and cache...
-Date: Wed, 28 Aug 2002 14:55:34 +0200
-X-Mailer: KMail [version 1.3]
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S318805AbSH1MzP>; Wed, 28 Aug 2002 08:55:15 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:62649 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S318804AbSH1MzO>; Wed, 28 Aug 2002 08:55:14 -0400
+Date: Wed, 28 Aug 2002 14:23:56 +0200
+From: Richard Zidlicky <rz@linux-m68k.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: readsw/writesw readsl/writesl
+Message-ID: <20020828142356.B4464@linux-m68k.org>
+References: <200208271600.SAA17957@faui02b.informatik.uni-erlangen.de> <20020827092908.31569@192.168.4.1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020827092908.31569@192.168.4.1>; from benh@kernel.crashing.org on Tue, Aug 27, 2002 at 11:29:07AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 27, 2002 at 11:29:07AM +0200, Benjamin Herrenschmidt wrote:
+> >> ...... However, if we decide to go the way
+> >> you describe, the we should probably also provide the raw_{in,out}*
+> >> ones.
+> >
+> >carefull, m68k already has them for other purposes. Original intention
+> >was that raw_{in,out} should never be used outside architecture specific 
+> >stuff anyway.
+> 
+> Then we have a problem... Either we chose to keep 2 different interfaces
+> for MMIO and "PIO" with the "s" versions on PIO and not on MMIO, the
+> raw versions on MMIO but not PIO, etc...
+> 
+> Or we decide to unify this properly.
+> 
+> In all cases, the current abstraction doesn't allow to re-implement
+> {in,out}s{b,w,l}. This is already a problem as if a driver need to
+> pump a fifo with some udelay's (like doing a _p version of one of
+> the above), it can't or has to do some arch specific crap to deal
+> with byteswap, barriers, etc...
 
-Hi, 
 
-I have a Mylex Acceleraid 170 Raid board and i use 
- DAC960 RAID Driver Version 2.4.11 of 11 October 2001 
-under linux (kernel 2.4.18).
-Here is the cat /proc/rd/c0/current_status :
+it is a bit ugly right now, in asm-m68/ide.h we have to include io.h
+and redefine some of the defs. Even more fun with some net drivers (eg 8390)
+which on m68k can accessed over ISA bus, Zorro bus, or Zorro bus +
+ISA bridge and maybe a few other methods. Byteswaps are the smallest
+problem here, we have also to translate adresses and deal with sparsely
+mapped io regions.
 
-***** DAC960 RAID Driver Version 2.4.11 of 11 October 2001 *****
-Copyright 1998-2001 by Leonard N. Zubkoff <lnz@dandelion.com>
-Configuring Mylex AcceleRAID 170 PCI RAID Controller
-  Firmware Version: 6.00-15, Channels: 1, Memory Size: 32MB
-  PCI Bus: 0, Device: 6, Function: 0, I/O Address: Unassigned
-  PCI Address: 0xFC000000 mapped at 0xE0800000, IRQ Channel: 16
-  Controller Queue Depth: 512, Maximum Blocks per Command: 2048
-  Driver Queue Depth: 511, Scatter/Gather Limit: 128 of 257 Segments
-  Physical Devices:
-    0:0  Vendor: QUANTUM   Model: ATLAS10K3_36_SCA  Revision: 020W
-         Wide Synchronous at 160 MB/sec
-         Serial Number: 344208142992
-         Disk Status: Online, 71798784 blocks
-    0:1  Vendor: QUANTUM   Model: ATLAS10K3_36_SCA  Revision: 020W
-         Wide Synchronous at 160 MB/sec
-         Serial Number: 344207749285
-         Disk Status: Online, 71798784 blocks
-    0:2  Vendor: QUANTUM   Model: ATLAS10K3_36_SCA  Revision: 020W
-         Wide Synchronous at 160 MB/sec
-         Serial Number: 344211046648
-         Disk Status: Online, 71798784 blocks
-    0:3  Vendor: QUANTUM   Model: ATLAS10K3_36_SCA  Revision: 020W
-         Wide Synchronous at 160 MB/sec
-         Serial Number: 344211046660
-         Disk Status: Online, 71798784 blocks
-    0:4  Vendor: QUANTUM   Model: ATLAS10K2-TY184J  Revision: DDD6
-         Wide Synchronous at 160 MB/sec
-         Serial Number: 161034310612
-         Disk Status: Online, 35827712 blocks
-    0:5  Vendor: QUANTUM   Model: ATLAS10K2-TY184J  Revision: DDD6
-         Wide Synchronous at 160 MB/sec
-         Serial Number: 161034412602
-         Disk Status: Online, 35827712 blocks
-    0:7  Vendor: MYLEX     Model: AcceleRAID 170    Revision: 0600
-         Wide Synchronous at 160 MB/sec
-         Serial Number:
-  Logical Drives:
-    /dev/rd/c0d0: RAID-6, Online, 107483136 blocks
-                  Logical Device Initialized, BIOS Geometry: 255/63
-                  Stripe Size: 64KB, Segment Size: 8KB
-                  Read Cache Disabled, Write Cache Disabled
-  No Rebuild or Consistency Check in Progress
+A decent solution should use a per device "busops" struct that would
+define in/out and other access methods for the underlying bus.
 
-as you see, both read and write cache are disabled. I don't manage to enable 
-them... would you give me any clue ?
-
-I also think my filesystem is slow : i used 
-mke2fs -b 4096 -R stride=16 -i 16384 /dev/rd/c0d0p4
-but i only get arround 5 Mo/s while doing a       tar c KDE | dd of=/dev/null
-(KDE is a 715 Mo source/compilation tree of KDE)
-Do you have any clue on how to improve this performance (direct sequencial
-access on this disk using dd give me around 50 Mo/s)
-
-Thx in advance for you help.
-
-N. Turro
+Richard

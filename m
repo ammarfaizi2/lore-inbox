@@ -1,79 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285385AbRLGDAs>; Thu, 6 Dec 2001 22:00:48 -0500
+	id <S285388AbRLGDOo>; Thu, 6 Dec 2001 22:14:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285387AbRLGDAj>; Thu, 6 Dec 2001 22:00:39 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:45185 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285385AbRLGDAW>;
-	Thu, 6 Dec 2001 22:00:22 -0500
-Date: Thu, 06 Dec 2001 18:59:48 -0800 (PST)
-Message-Id: <20011206.185948.55509326.davem@redhat.com>
-To: lm@bitmover.com
-Cc: alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net, davidel@xmailserver.org,
-        rusty@rustcorp.com.au, Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
-        lars.spam@nocrew.org, hps@intermeta.de, linux-kernel@vger.kernel.org
+	id <S285389AbRLGDOi>; Thu, 6 Dec 2001 22:14:38 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:26303 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S285388AbRLGDOW>; Thu, 6 Dec 2001 22:14:22 -0500
+Date: Thu, 06 Dec 2001 19:17:39 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>
+cc: alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net, davidel@xmailserver.org,
+        rusty@rustcorp.com.au, riel@conectiva.com.br, lars.spam@nocrew.org,
+        hps@intermeta.de, linux-kernel@vger.kernel.org
 Subject: Re: SMP/cc Cluster description
-From: "David S. Miller" <davem@redhat.com>
+Message-ID: <2643912454.1007666259@[10.10.1.2]>
 In-Reply-To: <20011206184327.B4235@work.bitmover.com>
-In-Reply-To: <20011206161744.V27589@work.bitmover.com>
-	<20011206.183709.71088955.davem@redhat.com>
-	<20011206184327.B4235@work.bitmover.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Mulberry/2.0.5 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Larry McVoy <lm@bitmover.com>
-   Date: Thu, 6 Dec 2001 18:43:27 -0800
-   
-   However, where it wins big is on everything else.  Please explain to me how
-   you are going to make a scheduler that works for 64 CPUS that doesn't suck?
+> However, where it wins big is on everything else.  Please explain to me how
+> you are going to make a scheduler that works for 64 CPUS that doesn't suck?
 
-What stops me from basically doing a scheduler which ends up doing
-what ccCluster does, groups of 4 cpu nodes?  Absolutely nothing of
-course.  How is ccCluster unique in this regard then?
+Modifying the current scheduler to use multiple scheduler queues is not 
+particularly hard.  It's been done already. See http://lse.sourceforge.net or 
+Davide's work.
 
-The scheduler is a mess right now only because Linus hates making
-major changes to it.
+Please explain how you're going to load balance the scheduler queues across 
+your system in a way that doesn't suck.
 
-   We can then go down the path of ... the networking stack ...
-   signals ...
+> And explain to me how that will perform as well as N different scheduler
+> queues which I get for free.  Just as an example. 
 
-Done and done.  Device drivers are mostly done, and what was your
-other category... oh process interfaces, those are done too.
-   
-In fact character devices are the only ugly area in 2.5.x, and
-who really cares if TTYs scale to 64 cpus :-)  But this will get
-mostly done anyways to kill off the global kernel lock completely.
+I dispute that the work that you have to do up front to get ccClusters to work
+is "free". It's free after you've done the work already. You may think it's 
+*easier*, but that's different.
 
-   There is a hell of a lot of threading that has to go on to get to
-   64 cpus and it screws the heck out of the uniprocessor performance.
+So we're going to do our work one step at a time in many small chunks, and
+you're going to do it all at once in one big chunk (and not end up with as
+cohesive a system out of the end of it) .... not necessarily a huge difference
+in overall effort (though I know you think it is, the logic you're using to demonstrate
+your point is fallacious).
 
-Not with CONFIG_SMP turned off.  None of the interesting SMP overhead
-hits the uniprocessor case.
+Your objection to the "more traditional" way of scaling things (which seems
+to be based around what you call the locking cliff) seems to be that it greatly
+increases the complexity of the OS. I would say that splitting the system into
+multiple kernels then trying to glue it all back together also greatly increases
+the complexity of the OS. Oh, and the complexity of the applications that run 
+on it too if they have to worry about seperate bits of the FS for each instance 
+of the sub-OS.
 
-Why do you keep talking about uniprocessor being screwed?  This is why
-we have CONFIG_SMP, to nop the bulk of it out.
+Martin.
 
-   I think you want to prove how studly you are at threading, David,
-
-No, frankly I don't.
-
-What I want is for you to show what is really unique and new about
-ccClusters and what incredible doors are openned up by it.  So far I
-have been shown ONE, and that is the high availability aspect.
-
-To me, it is far from the holy grail you portray it to be.
-
-   Let's go have some beers and talk about it off line.
-
-How about posting some compelling arguments online first? :-)
-
-It all boils down to the same shit currently.  "ccClusters lets you do
-this", and this is leading to "but we can do that already today".
-
-Franks a lot,
-David S. Miller
-davem@redhat.com

@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262839AbVAKRFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262832AbVAKRHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262839AbVAKRFq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 12:05:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262831AbVAKRDm
+	id S262832AbVAKRHa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 12:07:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbVAKRGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 12:03:42 -0500
-Received: from mail.dif.dk ([193.138.115.101]:11458 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262832AbVAKRCf (ORCPT
+	Tue, 11 Jan 2005 12:06:21 -0500
+Received: from maxipes.logix.cz ([217.11.251.249]:43143 "EHLO maxipes.logix.cz")
+	by vger.kernel.org with ESMTP id S262832AbVAKREC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 12:02:35 -0500
-Date: Tue, 11 Jan 2005 18:05:05 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, Steve Bergman <steve@rueb.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Proper procedure for reporting possible security vulnerabilities?
-In-Reply-To: <20050110164001.Q469@build.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.61.0501111758290.3368@dragon.hygekrogen.localhost>
-References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de>
- <41E2F6B3.9060008@rueb.com> <Pine.LNX.4.61.0501102309270.2987@dragon.hygekrogen.localhost>
- <20050110164001.Q469@build.pdx.osdl.net>
+	Tue, 11 Jan 2005 12:04:02 -0500
+Date: Tue, 11 Jan 2005 18:03:57 +0100 (CET)
+From: Michal Ludvig <michal@logix.cz>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: jmorris@redhat.com, cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org
+Subject: PadLock processing multiple blocks at a time
+In-Reply-To: <20041130222442.7b0f4f67.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.61.0412031353120.17402@maxipes.logix.cz>
+References: <Xine.LNX.4.44.0411301009560.11945-100000@thoron.boston.redhat.com>
+ <Pine.LNX.4.61.0411301722270.4409@maxipes.logix.cz>
+ <20041130222442.7b0f4f67.davem@davemloft.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jan 2005, Chris Wright wrote:
+Hi all,
 
-> * Jesper Juhl (juhl-lkml@dif.dk) wrote:
-> > On Mon, 10 Jan 2005, Steve Bergman wrote:
-> > > Actually I am having a discussion with a Pax Team member about how the recent
-> > > exploits discovered by the grsecurity guys should have been handled.  They
-> > > clam that they sent email to Linus and Andrew and did not receive a response
-> > > for 3 weeks, and that is why they released exploit code into the wild.
-> > > 
-> > > Anyone here have any comments on what I should tell him?
-> > > 
-> > I don't know what other people would do or what the general feeling on 
-> > the list is, but personally I'd send such reports to the maintainer and 
-> > CC lkml, if there is no maintainer I'd just send to lkml.
-> 
-> Problem is, the rest of the world uses a security contact for reporting
-> security sensitive bugs to project maintainers and coordinating
-> disclosures.  I think it would be good for the kernel to do that as well.
-> 
-Problem is that the info can then get stuck at a vendor or maintainer 
-outside of public view and risk being mothballed. It also limits the 
-number of people who can work on a solution (including peole getting to 
-work on auditing other code for similar issues). It also prevents admins 
-from taking alternative precautions prior to availability of a fix (you 
-have to assume the bad guys already know of the bug, not just the good 
-guys).
+I have got some improvements for VIA PadLock crypto driver.
 
+1. Generic extension to crypto/cipher.c that allows offloading the 
+   encryption of the whole buffer in a given mode (CBC, ...) to the 
+   algorithm provider (i.e. PadLock). Basically it extends 'struct 
+   cipher_alg' by some new fields:
+
+@@ -69,6 +73,18 @@ struct cipher_alg {
+                          unsigned int keylen, u32 *flags);
+        void (*cia_encrypt)(void *ctx, u8 *dst, const u8 *src);
+        void (*cia_decrypt)(void *ctx, u8 *dst, const u8 *src);
++       size_t cia_max_nbytes;
++       size_t cia_req_align;
++       void (*cia_ecb)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
++                       size_t nbytes, int encdec, int inplace);
++       void (*cia_cbc)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
++                       size_t nbytes, int encdec, int inplace);
++       void (*cia_cfb)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
++                       size_t nbytes, int encdec, int inplace);
++       void (*cia_ofb)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
++                       size_t nbytes, int encdec, int inplace);
++       void (*cia_ctr)(void *ctx, u8 *dst, const u8 *src, u8 *iv,
++                       size_t nbytes, int encdec, int inplace);
+ };
+
+  If cia_<mode> is non-NULL that function is used instead of the 
+  software <mode>_process chaining function (e.g. cbc_process()). In the 
+  case of PadLock it can significantly speed-up the {en,de}cryption.
+
+2. On top of this I have an extension of the padlock module to support 
+   this scheme.
+
+I will send both patches in separate follow ups.
+
+The speedup gained by this change is quite significant (measured with 
+bonnie on ext2 over dm-crypt with aes128):
+
+			No encryption	2.6.10-bk1	multiblock
+Writing with putc()	10454 (100%)	7479  (72%)	9353  (89%)
+Rewriting		16510 (100%)	7628  (46%)	10611 (64%)
+Writing intelligently	61128 (100%)	21132 (35%)	48103 (79%)
+Reading with getc()	9406  (100%)	6916  (74%)	8801  (94%)
+Reading intelligently	35885 (100%)	15271 (43%)	23202 (65%)
+
+Numbers are in kB/s, percents show the slowdown from plaintext run. 
+As can be seen, the multiblock encryption is significantly faster 
+in comparsion to the already comitted single-block-at-a-time 
+processing.
+
+More statistics (e.g. comparsion with aes.ko and aes-i586.ko) are 
+available at http://www.logix.cz/michal/devel/padlock/bench.xp
+
+Dave, if you're OK with these changes, please merge them.
+
+Michal Ludvig
 -- 
-Jesper Juhl
-
+* A mouse is a device used to point at the xterm you want to type in.
+* Personal homepage - http://www.logix.cz/michal

@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270501AbRHIRqh>; Thu, 9 Aug 2001 13:46:37 -0400
+	id <S270514AbRHIRsH>; Thu, 9 Aug 2001 13:48:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270492AbRHIRq1>; Thu, 9 Aug 2001 13:46:27 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:65432 "EHLO
-	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S270481AbRHIRqL>; Thu, 9 Aug 2001 13:46:11 -0400
-Importance: Normal
-Subject: Re:Kernel 2.4.6 & 2.4.7 networking performance: seeing serious delays in
- TCP layer depending upon packet length 
-To: ron.flory@adtran.com
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF867C5EBC.F320CE04-ON87256AA3.00608124@boulder.ibm.com>
-From: "Shirley Ma" <xma@us.ibm.com>
-Date: Thu, 9 Aug 2001 10:46:19 -0700
-X-MIMETrack: Serialize by Router on D03NM037/03/M/IBM(Release 5.0.6 |December 14, 2000) at
- 08/09/2001 11:46:21 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S270491AbRHIRr5>; Thu, 9 Aug 2001 13:47:57 -0400
+Received: from zok.sgi.com ([204.94.215.101]:35308 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S270484AbRHIRrt>;
+	Thu, 9 Aug 2001 13:47:49 -0400
+Subject: Re: [eepro100] Re: Problem with Linux 2.4.7 and builtin eepro on
+	Intel's EEA2 motherboard.
+From: Florin Andrei <florin@sgi.com>
+To: Luc Lalonde <llalonde@giref.ulaval.ca>
+Cc: Ben Greear <greearb@candelatech.com>, LKML <linux-kernel@vger.kernel.org>,
+        "eepro100@scyld.com" <eepro100@scyld.com>
+In-Reply-To: <Pine.LNX.4.33.0108082157470.18777-100000@merlin.giref.ulaval.ca>
+In-Reply-To: <Pine.LNX.4.33.0108082157470.18777-100000@merlin.giref.ulaval.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12 (Preview Release)
+Date: 09 Aug 2001 10:46:17 -0700
+Message-Id: <997379177.31234.5.camel@stantz.corp.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Ron,
+On 08 Aug 2001 21:58:39 -0400, Luc Lalonde wrote:
+> Hello Fiorin,
+> 
+> What is your uptime on this machine.  I've come to the same conclusion and
+> I'm up to 13 days with the Intel e100 driver.
 
-     I am interested the problem you posted. I tried to reproduce this
-problem on my machine and failed. Would you please point your programs to
-me, so I can reproduce this problem and do more investigation? If not,
-please let me know whether it is reproducible, and please collect both
-client/server ethereal log.
+With kernel's driver, the interface was frozen in 30 minutes. I had to
+ifdown / ifup the interface.
+With Intel's driver, it works for days with no problem. But i never had
+an uptime bigger than one week on that system.
 
-Thanks in advance.
-Shirley Ma
-Linux Technology Center Networking Group
-
-"A journey of a thousand miles must begin with a single step"  -- LAO-TZU
-
+-- 
+Florin Andrei
 

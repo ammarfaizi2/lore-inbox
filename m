@@ -1,101 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263747AbUCXPn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 10:43:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263750AbUCXPn7
+	id S263750AbUCXPyx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 10:54:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbUCXPyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 10:43:59 -0500
-Received: from fed1mtao07.cox.net ([68.6.19.124]:59860 "EHLO
-	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S263747AbUCXPn4
+	Wed, 24 Mar 2004 10:54:53 -0500
+Received: from dns2.rocler.qc.ca ([204.101.179.31]:26579 "EHLO
+	chekov.rocler.qc.ca") by vger.kernel.org with ESMTP id S263750AbUCXPyv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 10:43:56 -0500
-Date: Wed, 24 Mar 2004 08:43:55 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: kgdb-bugreport@lists.sourceforge.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Kgdb-bugreport] Document hooks in kgdb
-Message-ID: <20040324154355.GD7126@smtp.west.cox.net>
-References: <20040319162009.GE4569@smtp.west.cox.net> <200403242011.26314.amitkale@emsyssoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403242011.26314.amitkale@emsyssoft.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 24 Mar 2004 10:54:51 -0500
+From: "M. de Bellefeuille" <mdb@rocler.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <rodrigue@rocler.com>
+Subject: Journal_commit_transaction bugs
+Date: Wed, 24 Mar 2004 10:54:48 -0500
+Message-ID: <005a01c411b8$55ed82a0$7902a8c0@securebinary.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.24.0.7; VDF 6.24.0.69
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 24, 2004 at 08:11:26PM +0530, Amit S. Kale wrote:
-> That's a good idea. Go ahead.
-> -Amit
-> On Friday 19 Mar 2004 9:50 pm, Tom Rini wrote:
-> > Hi.  The following is my first attempt at documenting the hooks found in
-> > the KGDB found on kgdb.sf.net.  I'm not quite sure about the description
-> > of some of the optional hooks (used under hw breakpoints) so corrections
-> > / suggestions welcome.  After I got done with it, it hit me that maybe I
-> > should have done this in the code, and in DocBook format, so I'll go and
-> > do that next...
-> >
-> > <-- snip -->
-> > This is an attempt to document the various architecture specific functions
-> > that are part of KGDB.  There are a number of optional functions, depending
-> > on hardware setps, for which empty defaults are provided.  There are also
-> > functions which must be implemented and for which no default is provided.
-> >
-> > The required functions are:
-> > int kgdb_arch_handle_exception(int vector, int signo, int err_code,
-> > 		char *InBuffer, char *outBuffer, struct pt_regs *regs)
-> > 	This function MUST handle the 'c' and 's' command packets,
-> > 	as well packets to set / remove a hardware breakpoint, if used.
-> >
-> > void regs_to_gdb_regs(unsigned long *gdb_regs, struct pt_regs *regs)
-> > 	Convert the ptrace regs in regs into what GDB expects to
-> > 	see for registers, in gdb_regs.
-> >
-> > void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs, struct
-> > task_struct *p) Like regs_to_gdb_regs, except that the process in p is
-> > sleeping,
-> > 	so we cannot get as much information.
-> >
-> > void gdb_regs_to_regs(unsigned long *gdb_regs, struct pt_regs *regs)
-> > 	Convert the GDB regs in gdb_regs into the ptrace regs pointed
-> > 	to in regs.
-> >
-> > The optional functions are:
-> > int kgdb_arch_init(void) :
-> > 	This function will handle the initalization of any architecture
-> > 	specific hooks.  If there is a suitable early output driver,
-> > 	kgdb_serial can be pointed at it now.
-> >
-> > void kgdb_printexceptioninfo(int exceptionNo, int errorcode, char *buffer)
-> > 	Write into buffer and information about the exception that has
-> > 	occured that can be gleaned from exceptionNo and errorcode.
-> >
-> > void kgdb_disable_hw_debug(struct pt_regs *regs)
-> > 	Disable hardware debugging while we are in kgdb.
-> >
-> > void kgdb_correct_hw_break(void)
-> > 	A hook to allow for changes to the hardware breakpoint, called
-> > 	after a single step (s) or continue (c) packet, and once we're about
-> > 	to let the kernel continue running.
-> >
-> > void kgdb_post_master_code(struct pt_regs *regs, int eVector, int err_code)
-> > 	Store the raw vector and error, for later retreival.
-> >
-> > void kgdb_shadowinfo(struct pt_regs *regs, char *buffer, unsigned threadid)
-> > struct task_struct *kgdb_get_shadow_thread(struct pt_regs *regs, int
-> > threadid) struct pt_regs *kgdb_shadow_regs(struct pt_regs *regs, int
-> > threadid) If we have a shadow thread (determined by setting
-> > 	kgdb_ops->shadowth = 1), these functions are required to return
-> > 	information about this thread.
-> 
-> An addition: shadow threads are needed to provide information not retrievable 
-> by gdb. e.g. Backtraces beyond interrupt entrypoints, that aren't retrievable 
-> in absence of debugging info for interrupt entrypoint code.
+Hi,
 
-If I follow everything right, this could go in favor of cfi macros,
-right ?
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+I've got this error on my webserver:
+
+Mar 24 09:28:11 troi kernel: Assertion failure in
+journal_commit_transaction() at commit.c:535: "buffer_jdirty(bh)"
+Mar 24 09:28:11 troi kernel: ------------[ cut here ]------------
+Mar 24 09:28:11 troi kernel: kernel BUG at commit.c:535!
+Mar 24 09:28:11 troi kernel: invalid operand: 0000
+Mar 24 09:28:11 troi kernel: binfmt_misc e1000 usb-ohci usbcore ext3 jbd
+ips sd_mod scsi_mod
+Mar 24 09:28:11 troi kernel: CPU:    3
+Mar 24 09:28:11 troi kernel: EIP:    0010:[<f88400e4>]    Not tainted
+Mar 24 09:28:11 troi kernel: EFLAGS: 00010286
+Mar 24 09:28:11 troi kernel:
+Mar 24 09:28:11 troi kernel: EIP is at journal_commit_transaction [jbd]
+0xb04 (2.4.18-3smp)
+Mar 24 09:28:11 troi kernel: eax: 0000001c   ebx: 0000000a   ecx:
+c02eee60   edx: 0000476d
+Mar 24 09:28:11 troi kernel: esi: ea8c6430   edi: f67c4440   ebp:
+f75a8000   esp: f75a9e78
+Mar 24 09:28:11 troi kernel: ds: 0018   es: 0018   ss: 0018
+Mar 24 09:28:11 troi kernel: Process kjournald (pid: 191,
+stackpage=f75a9000)
+Mar 24 09:28:11 troi kernel: Stack: f8846eee 00000217 f6ca3020 00000000
+00000f9c ec56f064 00000000 e2aa4460
+Mar 24 09:28:11 troi kernel:        d8679190 00001e56 db9b33e0 00000001
+f729f000 f729f1f0 ec5a9e40 ea32d8c0
+Mar 24 09:28:11 troi kernel:        ea6173c0 ea32dce0 ea32d200 eca5b6c0
+d90d61a0 d90d6ec0 ec3e43e0 ec3e4f80
+Mar 24 09:28:11 troi kernel: Call Trace: [<f8846eee>] .rodata.str1.1
+[jbd] 0x26e
+Mar 24 09:28:11 troi kernel: [<c0124eb5>] update_process_times [kernel]
+0x25
+Mar 24 09:28:11 troi kernel: [<c0116049>] smp_apic_timer_interrupt
+[kernel] 0xa9
+Mar 24 09:28:11 troi kernel: [<c0119048>] schedule [kernel] 0x348
+Mar 24 09:28:11 troi kernel: [<f88427d6>] kjournald [jbd] 0x136
+Mar 24 09:28:11 troi kernel: [<f8842680>] commit_timeout [jbd] 0x0
+Mar 24 09:28:11 troi kernel: [<c0107286>] kernel_thread [kernel] 0x26
+Mar 24 09:28:11 troi kernel: [<f88426a0>] kjournald [jbd] 0x0
+
+
+Some application wasn't working, and I was not able to reboot the server
+normaly...I'm not the best one with this kind of problem, I'm not a
+coder. That's why I'm mailling it.
+
+
+Have a nice day
+
+
+Regards,
+
+
+Mathieu de Bellefeuille
+Network administrator
+Rocler inc. - www.rocler.com
+mdb@rocler.com
+

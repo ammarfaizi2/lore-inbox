@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265530AbUFCP6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264908AbUFCQCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265530AbUFCP6U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 11:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265428AbUFCPzW
+	id S264908AbUFCQCN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 12:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265233AbUFCP6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 11:55:22 -0400
-Received: from cantor.suse.de ([195.135.220.2]:28389 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264962AbUFCPy1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 11:54:27 -0400
-Date: Thu, 3 Jun 2004 17:54:22 +0200
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       arjanv@redhat.com, suresh.b.siddha@intel.com, jun.nakajima@intel.com
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86,
- 2.6.7-rc2-bk2
-Message-Id: <20040603175422.4378d901.ak@suse.de>
-In-Reply-To: <20040603124448.GA28775@elte.hu>
-References: <20040602205025.GA21555@elte.hu>
-	<Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org>
-	<20040603072146.GA14441@elte.hu>
-	<20040603124448.GA28775@elte.hu>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jun 2004 11:58:49 -0400
+Received: from mail-ext.curl.com ([66.228.88.132]:59658 "HELO
+	mail-ext.curl.com") by vger.kernel.org with SMTP id S264908AbUFCPzx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 11:55:53 -0400
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: "Frediano Ziglio" <freddyz77@tin.it>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.x partition breakage and dual booting
+References: <40BA2213.1090209@pobox.com> <20040603103907.GV23408@apps.cwi.nl>
+	<s5gaczkwvg8.fsf@patl=users.sf.net>
+	<200406031732.10919.bzolnier@elka.pw.edu.pl>
+From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Message-ID: <s5g1xkwveuu.fsf@patl=users.sf.net>
+Date: 03 Jun 2004 11:55:51 -0400
+In-Reply-To: <200406031732.10919.bzolnier@elka.pw.edu.pl>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jun 2004 14:44:48 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> writes:
 
+> > So one approach is to leave HDIO_GETGEO alone, and to have a
+> > userspace gadget run early to "fix" the kernel's notion of the
+> > geometry.  This would avoid the need to rewrite every partitioning
+> > tool.
+> 
+> This is a bandaid not a solution and it is just silly (you push
+> some values into kernel just to read them back by user-space).
 
-> - in exec.c, since address-space executability is a security-relevant
-> item, we must clear the personality when we exec a setuid binary. I
-> believe this is also a (small) security robustness fix for current
-> 64-bit architectures.
+It might be silly if we were designing all this from scratch.  But in
+the context of current practice and current tools, it is not so
+obvious, at least to me.  HDIO_GETGEO has existed forever, and it is
+used by all current partitioning tools (and some non-partitioning
+tools, such as dosemu).
 
-I'm not sure I like that. This means I cannot earily force an i386 uname 
-or 3GB address space on suid programs anymore on x86-64.
+> Also what if kernel is compiled with CONFIG_PROC_FS=n
+> or if I decide to pull out /proc/ide/hdx/settings one day?
 
-While in theory it could be a small security problem I think the utility
-is much greater.
+Then my code will break.  :-)
 
-It's hard to see how setting NX could cause a security hole. The program
-may crash, but it is unlikely to be exploitable.
+I have no theoretical objection to eliminating HDIO_GETGEO and
+/proc/ide/hdx/settings.  But it would be polite to have a nice long
+deprecation period because these interfaces ARE in use.  It is the
+only way to use Parted for my application, for example.
 
--Andi
+ - Pat

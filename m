@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbUKOGdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbUKOGn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbUKOGdl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 01:33:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbUKOGdl
+	id S261517AbUKOGn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 01:43:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbUKOGny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 01:33:41 -0500
-Received: from corpmail.outblaze.com ([203.86.166.82]:54413 "EHLO
-	corpmail.outblaze.com") by vger.kernel.org with ESMTP
-	id S261507AbUKOGdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 01:33:38 -0500
-Date: Mon, 15 Nov 2004 14:33:25 +0800
-From: Yusuf Goolamabbas <yusufg@outblaze.com>
-To: linux-kernel@vger.kernel.org
-Subject: ext3 reservation seems to cause major slowdown in synctest in 2.6.10-rc2 vs 2.6.9 
-Message-ID: <20041115063325.GA31537@outblaze.com>
+	Mon, 15 Nov 2004 01:43:54 -0500
+Received: from havoc.gtf.org ([69.28.190.101]:39897 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261517AbUKOGns (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 01:43:48 -0500
+Date: Mon, 15 Nov 2004 01:43:46 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [SATA] libata-dev-2.6 queue updated
+Message-ID: <20041115064346.GA14449@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.2-8; VAE: 6.28.0.12; VDF: 6.28.0.70; host: corpmail.outblaze.com)
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a P3-500 box /384 MB ram and 2 scsi disks (sda and sdb).
-OS is on sda and test partions is on sdb
-aic7xxx driver 
-Using anticipatory schedulor with a tag_depth of 4 (this is set via
-modules.conf)
-options aic7xxx aic7xxx=global_tag_depth:4
 
-/dev/sdb1 is created with ext3 and htree is enabled. Mounted as /htree
+BK users:
 
-synctest obtained from here (synctest tries to simulate an MTA
-behaviour)
+	bk pull bk://gkernel.bkbits.net/libata-dev-2.6
 
-http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz
+Patch:
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.10-rc2-libata1-dev1.patch.bz2
 
-I run the following commands on both 2.6.9 and 2.6.10-rc2
+This will update the following files:
 
-/usr/bin/time -p ./synctest -fu -t 100 -p1 -n1 /htree/nfsexport
+ drivers/scsi/Kconfig         |    8 
+ drivers/scsi/Makefile        |    1 
+ drivers/scsi/libata-core.c   |   38 ++
+ drivers/scsi/libata-scsi.c   |  409 +++++++++++++++++++++++++
+ drivers/scsi/libata.h        |    2 
+ drivers/scsi/pata_pdc2027x.c |  694 +++++++++++++++++++++++++++++++++++++++++++
+ drivers/scsi/sata_promise.c  |   56 +++
+ include/linux/ata.h          |    1 
+ include/linux/libata.h       |    2 
+ include/scsi/scsi.h          |    3 
+ 10 files changed, 1203 insertions(+), 11 deletions(-)
 
-timing results
+through these ChangeSets:
 
-2.6.9 
+<albertcc:tw.ibm.com>:
+  o [libata pdc2027x] fix incorrect pio and mwdma masks
+  o [libata pdc2027x] remove quirks and ROM enable
+  o [libata] add driver for Promise PATA 2027x
 
-real 57.35
-user 1.37
-sys 14.26
+<andyw:pobox.com>:
+  o [libata scsi] support 12-byte passthru CDB
+  o [libata scsi] passthru CDB check condition processing
+  o T10/04-262 ATA pass thru - patch
 
-2.6.10-rc2
+<erikbenada:yahoo.ca>:
+  o [libata sata_promise] support PATA ports on SATA controllers
 
-real 86.83
-user 1.32
-sys 14.02
+Brad Campbell:
+  o libata basic detection and errata for PATA->SATA bridges
 
-Mounting with noreservation gives the following numbers
+Jeff Garzik:
+  o [libata pdc2027x] update for upstream struct device conversion
+  o [libata sata_promise] fix merge bugs
+  o [libata] fix build breakage
+  o [libata] fix SATA->PATA bridge detect compile breakage
+  o [libata] fix printk warning
 
-real 58.77
-user 1.46
-sys 14.48
+John W. Linville:
+  o libata: SMART support via ATA pass-thru
+
+Tobias Lorenz:
+  o libata-scsi: get-identity ioctl support
 

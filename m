@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270000AbTGVKFW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 06:05:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270487AbTGVKFW
+	id S270413AbTGVKJc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 06:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270487AbTGVKJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 06:05:22 -0400
-Received: from [213.39.233.138] ([213.39.233.138]:11480 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S270688AbTGVKFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 06:05:19 -0400
-Date: Tue, 22 Jul 2003 12:20:14 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: junkio@cox.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Port SquashFS to 2.6
-Message-ID: <20030722102014.GC29430@wohnheim.fh-wedel.de>
-References: <fa.k0do8p6.ch6pps@ifi.uio.no> <fa.hre90bn.e6k5pf@ifi.uio.no> <7vd6g3uvbc.fsf@assigned-by-dhcp.cox.net> <200307220342.h6M3gbgf003555@turing-police.cc.vt.edu>
+	Tue, 22 Jul 2003 06:09:32 -0400
+Received: from shackc.compushack.de ([195.145.90.67]:57095 "EHLO
+	shackc.compu-shack.com") by vger.kernel.org with ESMTP
+	id S270413AbTGVKJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 06:09:30 -0400
+Subject: Re: CPU Lockup with 2.4.21 and 2.4.22-pre
+From: Michael =?ISO-8859-1?Q?Tro=DF?= <mtross@compu-shack.com>
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <0001F3D0@gwia.compu-shack.com>
+References: <0001F3D0@gwia.compu-shack.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Compu-Shack Production
+Message-Id: <1058869462.2352.79.camel@mtross2.csintern.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307220342.h6M3gbgf003555@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 22 Jul 2003 12:24:24 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 July 2003 23:42:37 -0400, Valdis.Kletnieks@vt.edu wrote:
+Am Mon, 2003-07-21 um 16.17 schrieb Udo A. Steinberg:
+> On Mon, 21 Jul 2003 16:12:26 +0200 Udo A. Steinberg (UAS) wrote:
 > 
-> Not necessarily.  It's quite possible (likely even) that one architecture might
-> have N bytes overhead per call,  and is allowed a 4K stack, and some other
-> architecture has (N+30%) overhead, so 4K isn't enough - 5K is needed. However,
-> other considerations cause a whole-page allocation, so instead of allocating
-> 5K, it goes to 8K, with a 3K wastage....
+> UAS> We have a Dual-Xeon machine with Hyperthreading which keeps locking
+> up hard,
+> UAS> so that not even Sysrq works anymore. I have captured such a lockup
+> using the
+> UAS> NMI oopser. Below you'll find the lockup fed through ksymoops. Note
+> that
+> UAS> after CPU3 locked up, CPU2 did too. But that lockup couldn't be
+> captured
+> UAS> anymore. Kernel is a monolithic 2.4.22-pre6. Problem also happened
+> on
+> UAS> plain 2.4.21. I can provide more information wrt. hardware, config
+> etc.
+> UAS> on request.
 
-And even worse, for short call chains, 4.1k would be enough, but for
-long ones, you need up to 5.2k.  How much is too much?  We don't know
-and it depends, so make a pessimistic guess.
+Would be really useful if you do so.
 
-Joern
+> Sorry, I used the wrong System.map. Below is the fixed decode. Looks
+> like
+> the lockup is caused by the 3rd party Compushack FDDI driver.
+
+What makes you believe this? There is no matching code sequence like the
+one from your dump in the driver, to be exact: in a driver compiled with
+gcc 3.3 and kernel 2.4.21.
+
+> Regards,
+> -Udo.
+
+Regards,
+Michael
+

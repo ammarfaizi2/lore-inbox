@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268347AbTBSKzJ>; Wed, 19 Feb 2003 05:55:09 -0500
+	id <S268350AbTBSK6C>; Wed, 19 Feb 2003 05:58:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268350AbTBSKzJ>; Wed, 19 Feb 2003 05:55:09 -0500
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:35524 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S268347AbTBSKzJ>; Wed, 19 Feb 2003 05:55:09 -0500
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: David Ford <david+cert@blue-labs.org>
-Subject: Re: Linux v2.5.62
-Date: Wed, 19 Feb 2003 12:04:55 +0100
-User-Agent: KMail/1.5
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0302171515110.1150-100000@penguin.transmeta.com> <3E536237.8010502@blue-labs.org>
-In-Reply-To: <3E536237.8010502@blue-labs.org>
+	id <S268353AbTBSK6C>; Wed, 19 Feb 2003 05:58:02 -0500
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:40936 "EHLO
+	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
+	id <S268350AbTBSK6B>; Wed, 19 Feb 2003 05:58:01 -0500
+Message-ID: <3E53645B.3070809@blue-labs.org>
+Date: Wed, 19 Feb 2003 06:02:51 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030209
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Chris Wedgwood <cw@f00f.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: Linux v2.5.62 --- spontaneous reboots
+References: <Pine.LNX.4.44.0302171752560.1754-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0302171752560.1754-100000@home.transmeta.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302191204.55573.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David, sounds like what I described in the email
-"2.5.6x hard freeze playing DVDs".  I have made
-no progress because I don't know how to proceed.
+I have a 2.5.58 box that's a simple firewall/router w/ iptables running 
+on it.  It crashes and reboots automatically roughly every other day.  
+It's been doing that for a  long time and I never had the time to debug 
+it.  I'll put .62 on it with a serial console and see what it comes up 
+with.  It runs two PPPoE channels over ethX.  PPPoE is known to blow up 
+(OOPS) on pppd hangup/restarts.
 
-All the best,
+David
 
-Duncan.
 
-On Wednesday 19 February 2003 11:53, David Ford wrote:
-> 2.5.60+ is rather unstable for me on an Athlon CPU w/ gcc 3.2.2.  If I'm
-> careful and do very little in X, it seems to stay up for a few days.  If
-> I do any sort of fast graphics or sound, etc, it'll die very quickly.
-> 'tis an instant death with no OOPS, nothing at all on screen, nothing on
-> serial console.
->
-> Just an FYI, I'm trying to narrow it down.

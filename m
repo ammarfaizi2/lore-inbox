@@ -1,76 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267137AbTB0WDY>; Thu, 27 Feb 2003 17:03:24 -0500
+	id <S267174AbTB0WMK>; Thu, 27 Feb 2003 17:12:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267153AbTB0WDX>; Thu, 27 Feb 2003 17:03:23 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:54149 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267137AbTB0WDW>; Thu, 27 Feb 2003 17:03:22 -0500
-Message-Id: <200302272213.h1RMDQJT017937@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.1 02/18/2003 with nmh-1.0.4+dev
-To: Kasper Dupont <kasperd@daimi.au.dk>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: About /etc/mtab and /proc/mounts 
-In-Reply-To: Your message of "Thu, 27 Feb 2003 20:47:05 +0100."
-             <3E5E6B39.3DD1C6A@daimi.au.dk> 
-From: Valdis.Kletnieks@vt.edu
-References: <200302271600.h1RG0Cdh011948@eeyore.valparaiso.cl> <200302271740.06139.dominik@kubla.de>
-            <3E5E6B39.3DD1C6A@daimi.au.dk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1450773806P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Feb 2003 17:13:26 -0500
+	id <S267153AbTB0WMJ>; Thu, 27 Feb 2003 17:12:09 -0500
+Received: from alpha6.its.monash.edu.au ([130.194.1.25]:28937 "EHLO
+	ALPHA6.ITS.MONASH.EDU.AU") by vger.kernel.org with ESMTP
+	id <S267126AbTB0WMH>; Thu, 27 Feb 2003 17:12:07 -0500
+Date: Fri, 28 Feb 2003 09:21:38 +1100
+From: Greg Daley <greg.daley@eng.monash.edu.au>
+Subject: Re: anyone ever done multicast AF_UNIX sockets?
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org
+Reply-to: greg.daley@eng.monash.edu.au
+Message-id: <3E5E8F72.2080206@eng.monash.edu.au>
+Organization: Monash University
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en, en-us
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+References: <3E5E7081.6020704@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1450773806P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hi Chris,
 
-On Thu, 27 Feb 2003 20:47:05 +0100, Kasper Dupont said:
+Please check out the uml_switch
+written by jeff dike for Mser Mode Linux.
 
-> mnttab report in those cases? And while we are discussing bind mounts, =
-there
-> is one feature that I have sometimes missed: A possibility to directly =
-mount
-> a subdirectory of a filesystem without having to mount the root of that=
+It is a user-space program which emultates
+an ethernet switch (or hub).  It emulates
+link-layer multicast on UNIX domain sockets.
 
-> filesystem first and use a bindmount afterwards.
+Greg Daley
 
-Hmm.. so what you mean is being able to have a filesystem called (for exa=
-mple)
-/somewhere, and being able to mount /somewhere/deep/path/like/this on a
-mountpoint /wherever/else, but without having /somewhere mounted itself?
-That looks *almost* doable, except that things like quotas or the free
-block list would be a hassle if then you also went and mounted
-/somewhere/deep/other/path on /something/else
+Chris Friesen wrote:
+> 
+> It is fairly common to want to distribute information between a single 
+> sender and multiple receivers on a single box.
+> 
+> Multicast IP sockets are one possibility, but then you have additional 
+> overhead in the IP stack.
+> 
+> Unix sockets are more efficient and give notification if the listener is 
+> not present, but the problem then becomes that you must do one syscall 
+> for each listener.
+> 
+> So, here's my main point--has anyone ever considered the concept of 
+> multicast AF_UNIX sockets?
+> 
+> The main features would be:
+> --ability to associate/disassociate a socket with a multicast address
+> --ability to associate/disassociate with all multicast addresses 
+> (possibly through some kind of raw socket thing, or maybe a simple 
+> wildcard multicast address)
+> --on process death all sockets owned by that process are disassociated 
+> from any multicast addresses that they were associated with
+> --on sending a packet to a multicast address and there are no sockets 
+> associated with it, return -1 with errno=ECONNREFUSED
+> 
+> The association/disassociation could be done using the setsockopt() 
+> calls the same as with udp sockets, everything else would be the same 
+> from a userspace perspective.
+> 
+> Any thoughts?  How hard would this be to put in?
+> 
+> Chris
+> 
+> 
 
-Or did you want to do 'mount /somewhere/deep /wherever/else' when it's
-/wherever that isn't actually mounted?  This looks more.. umm.. interesti=
-ng,
-as you could (for instance) use an automounter to mount /home/fred, /home=
-/george
-/home/sally, and not actually need a /home?  But don't current automounte=
-rs
-almost do this already?
--- =
 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
-
-
---==_Exmh_1450773806P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+Xo2GcC3lWbTT17ARAhgXAKCsqGPv42CwiMEaD9rK2A25OKgiMgCgneVp
-fDZqOCdqrZDa1wUIW5/eOnU=
-=UrGX
------END PGP SIGNATURE-----
-
---==_Exmh_1450773806P--

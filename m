@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267583AbUHJQrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUHJQun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267583AbUHJQrS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 12:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267558AbUHJQo7
+	id S267565AbUHJQun (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 12:50:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUHJQr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 12:44:59 -0400
-Received: from out001pub.verizon.net ([206.46.170.140]:5323 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S267588AbUHJQ2c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 12:28:32 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Date: Tue, 10 Aug 2004 12:28:27 -0400
-User-Agent: KMail/1.6.82
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, dwmw2@infradead.org,
-       James.Bottomley@steeleye.com, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
-       eric@lammerts.org
-References: <200408101027.i7AARuZr012065@burner.fokus.fraunhofer.de>
-In-Reply-To: <200408101027.i7AARuZr012065@burner.fokus.fraunhofer.de>
+	Tue, 10 Aug 2004 12:47:29 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:21661 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267527AbUHJQiY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 12:38:24 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.8-rc4-mm1
+Date: Tue, 10 Aug 2004 09:37:47 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <20040810002110.4fd8de07.akpm@osdl.org>
+In-Reply-To: <20040810002110.4fd8de07.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200408101228.27455.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [141.153.76.4] at Tue, 10 Aug 2004 11:28:28 -0500
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_bnPGBFu6+EaWej6"
+Message-Id: <200408100937.47451.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 August 2004 06:27, Joerg Schilling wrote:
 
->Burn-Proof is switched off by default and other protections
-> (invented later) are switched off by cdrecord to get
-> compatibility..... if you only had read the man page......
->
->Switching Burn-Proof on will reduce the quality of the CDs.
+--Boundary-00=_bnPGBFu6+EaWej6
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-How so Joerg?  Making a blanket statement such as this requires a good 
-proof example IMO.  You not are giving one.
+On Tuesday, August 10, 2004 12:21 am, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc4/2.6
+>.8-rc4-mm1/
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.24% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Needs a build fix for ia64, which is attached.  acpi_noirq wasn't defined for 
+anything but i386, afaict.
+
+Once I fix the build, it hangs in the same way as 2.6.8-rc3-mm2.  I assume wli 
+is still working on fixing that...
+
+Jesse
+
+--Boundary-00=_bnPGBFu6+EaWej6
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="ia64-acpi-build-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ia64-acpi-build-fix.patch"
+
+diff -Napur -X /home/jbarnes/dontdiff linux-2.6.8-rc4.orig/include/asm-ia64/acpi.h linux-2.6.8-rc4/include/asm-ia64/acpi.h
+--- linux-2.6.8-rc4.orig/include/asm-ia64/acpi.h	2004-08-10 09:01:34.000000000 -0700
++++ linux-2.6.8-rc4/include/asm-ia64/acpi.h	2004-08-10 09:26:39.000000000 -0700
+@@ -89,6 +89,7 @@ ia64_acpi_release_global_lock (unsigned 
+ 	((Acq) = ia64_acpi_release_global_lock((unsigned int *) GLptr))
+ 
+ #define acpi_disabled 0	/* ACPI always enabled on IA64 */
++#define acpi_noirq 0	/* ACPI always enabled on IA64 */
+ #define acpi_pci_disabled 0 /* ACPI PCI always enabled on IA64 */
+ #define acpi_strict 1	/* no ACPI spec workarounds on IA64 */
+ static inline void disable_acpi(void) { }
+
+--Boundary-00=_bnPGBFu6+EaWej6--

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264610AbSLVOWt>; Sun, 22 Dec 2002 09:22:49 -0500
+	id <S264620AbSLVOa7>; Sun, 22 Dec 2002 09:30:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264620AbSLVOWt>; Sun, 22 Dec 2002 09:22:49 -0500
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:16628 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S264610AbSLVOWt>; Sun, 22 Dec 2002 09:22:49 -0500
-Message-ID: <3E05CD6C.FF9BF954@wanadoo.fr>
-Date: Sun, 22 Dec 2002 15:34:20 +0100
-From: rmkml <rmkml@wanadoo.fr>
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.21-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S264624AbSLVOa7>; Sun, 22 Dec 2002 09:30:59 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:37577 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264620AbSLVOa7> convert rfc822-to-8bit; Sun, 22 Dec 2002 09:30:59 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
 To: linux-kernel@vger.kernel.org
-Subject: Pbs network card PCnet/FAST 79C971
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: Read this and be ashamed ;) or: Awfull performance loss since 2.4.18 to 2.4.21-pre2
+Date: Sun, 22 Dec 2002 15:38:32 +0100
+User-Agent: KMail/1.4.3
+References: <200212221439.28075.m.c.p@wolk-project.de>
+In-Reply-To: <200212221439.28075.m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212221538.32354.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sunday 22 December 2002 14:47, Marc-Christian Petersen wrote:
 
-Im use kernel 2.4.21pre2,
+Hi again,
 
-and I a pbs on my network card ...
+> root@codeman:[/] # uname -r
+> 2.4.20
+> root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 count=131072
+> 131072+0 records in
+> 131072+0 records out
+> 2147483648 bytes transferred in 172.327570 seconds (12461637 bytes/sec)
 
-I don't use 100BaseTX / Full-duplex !
-I don't use 100BaseTX / Half-duplex !
-I don't use 10BaseT / Full-duplex !
+root@codeman:[/] # uname -r
+2.4.20-rmap15b
+root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 count=131072
+131072+0 records in
+131072+0 records out
+2147483648 bytes transferred in 140.460427 seconds (15288887 bytes/sec)
 
-I use only mode 10BaseT / Half-duplex ...
-
-I compile and run "mii" and don't Fix speed ! (100BaseTX/full-duplex)
-
-My version of pcnet32.c is 1.27b.
-
-Could any help ?
-
-My card in use on very old pc box (HP Kayak Pentium II - 400Mhz)
-
-Regards
-
-
-
+ciao, Marc

@@ -1,91 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291637AbSBTIAg>; Wed, 20 Feb 2002 03:00:36 -0500
+	id <S291676AbSBTIZB>; Wed, 20 Feb 2002 03:25:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290285AbSBTIA1>; Wed, 20 Feb 2002 03:00:27 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:49344 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S291637AbSBTIAQ>; Wed, 20 Feb 2002 03:00:16 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Uli Martens <u.martens@scientific.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] tmpfs: incr. link-count on directory rename
-In-Reply-To: <1013648840.2317.5.camel@isax>
-	<20020214061933.GA17774@mentor.odyssey.cs.cmu.edu>
-	<1013679241.20006.21.camel@pc-um>
-Organisation: SAP LinuxLab
-Date: Tue, 19 Feb 2002 17:39:14 +0100
-In-Reply-To: <1013679241.20006.21.camel@pc-um> (Uli Martens's message of "14
- Feb 2002 10:34:01 +0100")
-Message-ID: <m3y9hpctot.fsf@linux.wdf.sap-ag.de>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Artificial
- Intelligence, i386-suse-linux)
+	id <S291677AbSBTIYv>; Wed, 20 Feb 2002 03:24:51 -0500
+Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:54775
+	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
+	id <S291676AbSBTIYd>; Wed, 20 Feb 2002 03:24:33 -0500
+Message-ID: <3C735D2E.3070808@debian.org>
+Date: Wed, 20 Feb 2002 09:24:14 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
+To: lee johnson <lee@imyourhandiman.com>
+CC: kernel-list <linux-kernel@vger.kernel.org>
+Subject: Re: opengl-nvidia not compiling
+In-Reply-To: <fa.dui02sv.125uf2m@ifi.uio.no> <fa.i651ekv.c3sng3@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Uli,
+lee johnson wrote:
 
-On 14 Feb 2002, Uli Martens wrote:
-> Oops, you're right, the linkcount of old_dir isn't decremented at
-> the moment, too. I will test your patch this evening, but I think it
-> looks better than mine... ;)
+> hi..
+> 
+>    hope i'm not repeating a message here if so sorry,- but by any chance
+> does anyone know that nvidia opengl isn't compiling with 2.5.5pre1..
+> 
 
-I prefer this one.
 
-Linus, Marcelo, please apply.
+Ask nvidia.
+And you should also ask to GPLize the driver, until they don't open the
+source you will see these problems in many new kernel release.
 
-The patch fixes the refcounting of directories on renames in tmpfs.
+	giacomo
 
-Greetings
-		Christoph
-
-diff -uNr 18-rc1/mm/shmem.c c/mm/shmem.c
---- 18-rc1/mm/shmem.c	Thu Jan 17 10:06:05 2002
-+++ c/mm/shmem.c	Tue Feb 19 17:31:23 2002
-@@ -1083,19 +1083,25 @@
-  */
- static int shmem_rename(struct inode * old_dir, struct dentry *old_dentry, struct inode * new_dir,struct dentry *new_dentry)
- {
--	int error = -ENOTEMPTY;
-+	struct inode *inode;
- 
--	if (shmem_empty(new_dentry)) {
--		struct inode *inode = new_dentry->d_inode;
--		if (inode) {
--			inode->i_ctime = CURRENT_TIME;
--			inode->i_nlink--;
--			dput(new_dentry);
--		}
--		error = 0;
--		old_dentry->d_inode->i_ctime = old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME;
-+	if (!shmem_empty(new_dentry)) 
-+		return -ENOTEMPTY;
-+
-+	inode = new_dentry->d_inode;
-+	if (inode) {
-+		inode->i_ctime = CURRENT_TIME;
-+		inode->i_nlink--;
-+		dput(new_dentry);
-+	}
-+	inode = old_dentry->d_inode;
-+	if (S_ISDIR(inode->i_mode)) {
-+		old_dir->i_nlink--;
-+		new_dir->i_nlink++;
- 	}
--	return error;
-+
-+	inode->i_ctime = old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME;
-+	return 0;
- }
- 
- static int shmem_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
 

@@ -1,71 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263268AbTEMRyp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 13:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbTEMRyp
+	id S263311AbTEMSDs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 14:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbTEMSCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 13:54:45 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:49165 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S263268AbTEMRyW (ORCPT
+	Tue, 13 May 2003 14:02:07 -0400
+Received: from horkos.telenet-ops.be ([195.130.132.45]:48849 "EHLO
+	horkos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S263311AbTEMSAR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 13:54:22 -0400
-Date: Tue, 13 May 2003 20:07:05 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org, hch@infradead.org, gregkh@kroah.com,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH] Early init for security modules
-Message-ID: <20030513180705.GB1170@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org, hch@infradead.org,
-	gregkh@kroah.com, linux-security-module@wirex.com
-References: <20030512200309.C20068@figure1.int.wirex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 May 2003 14:00:17 -0400
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: vda@port.imtp.ilyichevsk.odessa.ua, Con Kolivas <kernel@kolivas.org>
+Subject: Re: [2.420] Unexplained repeatable Oops
+Date: Tue, 13 May 2003 20:13:39 +0200
+User-Agent: KMail/1.5.1
+References: <200305112052.51938.devilkin-lkml@blindguardian.org> <200305120721.43384.devilkin-lkml@blindguardian.org> <200305131322.h4DDMSu31637@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200305131322.h4DDMSu31637@Port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org, Torrey Hoffman <thoffman@arnor.net>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20030512200309.C20068@figure1.int.wirex.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200305132013.46118.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 08:03:09PM -0700, Chris Wright wrote:
-> 
-> --- 1.30/arch/i386/vmlinux.lds.S	Tue May  6 06:54:06 2003
-> +++ edited/arch/i386/vmlinux.lds.S	Mon May 12 16:20:10 2003
-> @@ -81,6 +81,9 @@
->    __con_initcall_start = .;
->    .con_initcall.init : { *(.con_initcall.init) }
->    __con_initcall_end = .;
-> +  __security_initcall_start = .;
-> +  .security_initcall.init : { *(.security_initcall.init) }
-> +  __security_initcall_end = .;
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I would much prefer to have only:
+On Tuesday 13 May 2003 15:29, Denis Vlasenko wrote:
+> On 12 May 2003 08:21, DevilKin wrote:
+> > > Good old VIA chipset. I solved a similar problem by underclocking a
+> > > cpu on a similar chipset :-(
+> > >
+> > > Try the mprime client stress test to ensure your hardware is ok.
+> > > www.mersenne.org
+> >
+> > Ah.
+> > Strange thing is that it has worked perfectly for atleast a year,
+> > problems only started yesterday morning while I was doing what I've
+> > done a zillion times before...
+>
+> Maybe your AGP card, RAM or mobo AGP chipset is not healthy anymore.
+> Cosmic rays etc. 8(
 
-+ SECURITY_INIT
+Bah.
 
-and moving the common stuff to include/asm-generic/vmlinux.lds.h.
-Note that I moved definition of _start and _stop inside brackets.
-Doing this makes sure the start address is always correct, independent
-of the end address of last section.
+Memtest86 gives for both RAM dimms the same problem on the same address. 
+I think that 1. both chips are fried, or 2. the bus is fried. I will test the DIMMS in another 
+system to make sure.
 
-Starting a new section will align to member with biggest alignment,
-so we may see _start have a wrong value in some cases.
+Thanks for the answers sofar.
 
-Using SECURITY_INIT will make changes to all architectures
-even more trivial.
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-	Sam
-
-===== include/asm-generic/vmlinux.lds.h 1.7 vs edited =====
---- 1.7/include/asm-generic/vmlinux.lds.h	Mon Feb  3 22:00:30 2003
-+++ edited/include/asm-generic/vmlinux.lds.h	Tue May 13 20:02:45 2003
-@@ -45,3 +45,9 @@
- 		*(__ksymtab_strings)					\
- 	}
- 
-+#define SECURITY_INIT							\
-+	.security_initcall.init : {					\
-+		__security_initcall_start = .;				\
-+	       	*(.security_initcall.init) 				\
-+		__security_initcall_end = .;				\
-+	}
+iD8DBQE+wTXWpuyeqyCEh60RAoZSAJ45Gg14HD+E5dlVVMqF3eM/o5pPBQCeNjIg
+lL3wx/pvuihyI0eEDnxtasA=
+=pXRc
+-----END PGP SIGNATURE-----
 

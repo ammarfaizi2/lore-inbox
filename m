@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbUKCV4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbUKCV4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbUKCV4u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 16:56:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUKCVxJ
+	id S261924AbUKCV4t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 16:56:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUKCVxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 16:53:09 -0500
-Received: from mta06-svc.ntlworld.com ([62.253.162.46]:35799 "EHLO
-	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S261925AbUKCVwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 16:52:23 -0500
-From: Daniel Drake <dsd@gentoo.org>
-To: Jens Axboe <axboe@suse.de>
-Subject: [PATCH] Permit READ_BUFFER_CAPACITY in SG_IO command table
-Date: Thu, 4 Nov 2004 05:35:42 +0800
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_u8UiBsJ7PGbhPFD"
-Message-Id: <200411040535.42286.dsd@gentoo.org>
+	Wed, 3 Nov 2004 16:53:38 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:39593 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261924AbUKCVvv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 16:51:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=uiY+rzcbnKX+r0Nk+JYqLtGC6/iAIVe4zhMdUU7koXOmKe8zqVB1fvHkZHhUltun6E3TQLDLakjejSNStnKsJcruCHiUT0sv/Cpnv6Sht/bLv3LKEVQES3Zr+svbkmmwzP5Ylyiyt75Ng8n+yr5qLSMvUpBgj9+A7EsGQUbLdDk=
+Message-ID: <6707bb6404110313514013794e@mail.gmail.com>
+Date: Wed, 3 Nov 2004 14:51:50 -0700
+From: mark slutz <mystuff.mark@gmail.com>
+Reply-To: mark slutz <mystuff.mark@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: mmap going to wrong physical address
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_u8UiBsJ7PGbhPFD
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I am writting an application that needs control over large (1gig+)
+portions of contiguous memory. I am currently doing this by using
+mem=1024m during boot. My system is a dual opteron with 5 gig of
+memory. In my program I have
 
-Hi,
+if ((fd=open("/dev/mem", O_RDWR))<0)
+{
+perror("open");
+exit(-1);
+}
 
-While burning CD's on 2.6.9 with cdrdao, I noticed it complaining repeatedly:
- ERROR: Read buffer capacity failed.
 
-It tries to read the buffer capacity (MMC command 0x5c) in order to produce a 
-percentage reading of how full the buffer is.
+PtrMemoryBase = (void *) mmap64(
+NULL,
+size,
+PROT_READ | PROT_WRITE,
+MAP_FILE | MAP_SHARED,
+fd,
+base );
 
-This patch permits the READ_BUFFER_CAPACITY command again. Please apply.
+size = 1MB
 
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
+I also have -D_FILE_OFFSET_BITS=64.
 
---Boundary-00=_u8UiBsJ7PGbhPFD
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="scsi_ioctl-permit-read-buffer-capacity.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="scsi_ioctl-permit-read-buffer-capacity.patch"
+If base is between 1 and 3 gig the process works fine. When base is 4
+gig + the mmap64 works but the memory does not seem to be mapped to
+the base location. I write a pattern to PtrMemoryBase then have my
+hardware start doing DMA transfers from the base address but I do not
+get the data I wrote to PtrMemoryBase.
 
-diff -X dontdiff -urNp linux-2.6.9-gentoo-r2/drivers/block/scsi_ioctl.c linux-dsd/drivers/block/scsi_ioctl.c
---- linux-2.6.9-gentoo-r2/drivers/block/scsi_ioctl.c	2004-11-03 21:26:28.000000000 +0000
-+++ linux-dsd/drivers/block/scsi_ioctl.c	2004-11-03 22:05:07.635578808 +0000
-@@ -139,6 +139,7 @@ static int verify_command(struct file *f
- 		safe_for_read(GPCMD_PAUSE_RESUME),
- 
- 		/* CD/DVD data reading */
-+		safe_for_read(GPCMD_READ_BUFFER_CAPACITY),
- 		safe_for_read(GPCMD_READ_CD),
- 		safe_for_read(GPCMD_READ_CD_MSF),
- 		safe_for_read(GPCMD_READ_DISC_INFO),
-diff -X dontdiff -urNp linux-2.6.9-gentoo-r2/include/linux/cdrom.h linux-dsd/include/linux/cdrom.h
---- linux-2.6.9-gentoo-r2/include/linux/cdrom.h	2004-11-03 17:08:47.000000000 +0000
-+++ linux-dsd/include/linux/cdrom.h	2004-11-03 22:01:15.858814232 +0000
-@@ -452,6 +452,7 @@ struct cdrom_generic_command
- #define GPCMD_PREVENT_ALLOW_MEDIUM_REMOVAL  0x1e
- #define GPCMD_READ_10			    0x28
- #define GPCMD_READ_12			    0xa8
-+#define GPCMD_READ_BUFFER_CAPACITY	    0x5c
- #define GPCMD_READ_CDVD_CAPACITY	    0x25
- #define GPCMD_READ_CD			    0xbe
- #define GPCMD_READ_CD_MSF		    0xb9
-
---Boundary-00=_u8UiBsJ7PGbhPFD--
+Thanks for any help
+Mark

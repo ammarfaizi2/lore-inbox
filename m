@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268693AbTBZJqx>; Wed, 26 Feb 2003 04:46:53 -0500
+	id <S268694AbTBZJuk>; Wed, 26 Feb 2003 04:50:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268697AbTBZJqx>; Wed, 26 Feb 2003 04:46:53 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:40858 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S268693AbTBZJqw>; Wed, 26 Feb 2003 04:46:52 -0500
-Message-ID: <20030226095658.21932.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Balarama Krishna Yalavarthi" <balaram@linuxmail.org>
+	id <S268697AbTBZJuk>; Wed, 26 Feb 2003 04:50:40 -0500
+Received: from PentiumII.bedroom.gen.nz ([202.6.5.6]:39181 "EHLO
+	pentiumii.bedroom.gen.nz") by vger.kernel.org with ESMTP
+	id <S268694AbTBZJuj>; Wed, 26 Feb 2003 04:50:39 -0500
+Date: Wed, 26 Feb 2003 23:00:18 +1300 (NZDT)
+From: Clive Nicolson <clive@baby.bedroom.gen.nz>
+X-X-Sender: clive@pentiumii.bedroom.gen.nz
 To: linux-kernel@vger.kernel.org
-Date: Wed, 26 Feb 2003 17:56:58 +0800
-Subject: Linux Kernel- Bluetooth HID Keyboard support?????
-X-Originating-Ip: 203.200.20.226
-X-Originating-Server: ws5-2.us4.outblaze.com
+cc: Clive Nicolson <clive@baby.bedroom.gen.nz>
+Subject: PROBLEM: [2.4.18-3] kernel BUG at softirq.c:194!
+Message-ID: <Pine.LNX.4.44.0302262250460.14311-100000@pentiumii.bedroom.gen.nz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Folks,
-        I am implementing Bluetooth HID profile for Keyboards. Inorder to test it I need a host device (PC).
-        I wonder if the Latest Linux Kernel supports Bluetooth HID Keyboard. 
+I'm (really I'm just the reporter) seeing the above kernel BUG, the code 
+is thus (in tasklet_action):
 
-        A mini driver, which talks to HID Class Driver and Bluetooth Protocol stack(L2CAP to Baseband), is required on the Host side
-        Please let me know the supported linux kernel version and files related to that.
+	while (list) {
+		struct tasklet_struct *t = list;
 
-Best Regards,
-Balarama K Yalavarthi
-+91-80-5210003 (RES)
+		list = list->next;
 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+		if (tasklet_trylock(t)) {
+			if (!atomic_read(&t->count)) {
+				if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+					BUG();
+				t->func(t->data);
+				tasklet_unlock(t);
+				continue;
+			}
+		}
 
-Powered by Outblaze
+I dont see the problem on my slow PC's but it is seen at 900 Mhz!
+
+Can someone give me a clue as to how a device driver may be inducing this!
+
+Thanks
+Clive
+

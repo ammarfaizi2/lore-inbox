@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270931AbRHNX3I>; Tue, 14 Aug 2001 19:29:08 -0400
+	id <S270942AbRHNXlM>; Tue, 14 Aug 2001 19:41:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270936AbRHNX27>; Tue, 14 Aug 2001 19:28:59 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:41478 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S270931AbRHNX2x>; Tue, 14 Aug 2001 19:28:53 -0400
-Message-ID: <3B79B43D.B9350226@delusion.de>
-Date: Wed, 15 Aug 2001 01:29:01 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-ac5 i686)
-X-Accept-Language: en, de
+	id <S270943AbRHNXlB>; Tue, 14 Aug 2001 19:41:01 -0400
+Received: from rockover.demon.co.uk ([158.152.81.109]:52484 "HELO
+	rockover.demon.co.uk") by vger.kernel.org with SMTP
+	id <S270942AbRHNXkp>; Tue, 14 Aug 2001 19:40:45 -0400
+Date: Wed, 15 Aug 2001 00:40:53 +0100 (BST)
+From: Mike Fleetwood <mike@rockover.demon.co.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: crontab -e scuppered by non-updated mtime.  fstat64() lied!
+Message-ID: <Pine.LNX.4.33.0108150035360.1427-100000@rockover.demon.co.uk>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.8-ac5
-In-Reply-To: <20010814221556.A7704@lightning.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> *
-> *       This is a fairly experimental -ac so please treat it with care
-> *
-> 
-> 2.4.8-ac5
+Hello all,
 
-Hi Alan,
+I have found an unexpected behaviour of fstat64() I hope someone here
+can explain.  I used crontab -e but after making a change I got the
+following error:
+    crontab: no changes made to crontab.
 
-2.4.8-ac5 makes the kpnpbios kernel thread go zombie here every time right
-during boot. I know that 2.4.8-ac1 didn't have this problem, but didn't try
--ac2 to -ac4. If you want me to check which -ac release was the last that
-got it right, just say and I'll check.
+The crontab process calls fstat() just before handing a temporary file
+to your favourite editor and just after.  It compares the st_mtime
+value to see it you made a change and updates your crontab if required.
+The problem is I did make a change but crontab didn't see one.  I did
+the following:
 
-Regards,
-Udo.
+    strace -v crontab -e 2> /tmp/crontab.strace
+    ^Z  (Suspended Vim)
+    stat /tmp/crontab.812
+    fg
+    (Made a change and wrote the file)
+    ^Z
+    stat /tmp/crontab.812   (mtime had been updated)
+    fg
+    (Quit Vim)
+    crontab: no changes made to crontab.
 
-bash-2.04# ps uxa
-USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-root         1 13.1  0.0   344  188 ?        S    01:21   0:05 init
-root         2  0.0  0.0     0    0 ?        Z    01:21   0:00 [kpnpbios <defunct>]
-root         3  0.0  0.0     0    0 ?        SW   01:21   0:00 [keventd]
-root         4  3.4  0.0     0    0 ?        SW   01:21   0:01 [kapm-idled]
-root         5  0.0  0.0     0    0 ?        SWN  01:21   0:00 [ksoftirqd_CPU0]
-root         6  0.0  0.0     0    0 ?        SW   01:21   0:00 [kswapd]
-root         7  0.0  0.0     0    0 ?        SW   01:21   0:00 [kreclaimd]
-root         8  0.0  0.0     0    0 ?        SW   01:21   0:00 [bdflush]
-root         9  0.0  0.0     0    0 ?        SW   01:21   0:00 [kupdated]
-root        11  0.0  0.0     0    0 ?        SW   01:21   0:00 [khubd]
-...
+
+The strace file showed that fstat64() returned exactly the same data
+before and after, seeing no change!
+
+fstat64() now becomes inconsistent, if I change my editor to the
+following shell script (/tmp/edit):
+
+    sleep 2
+    echo "# edit $$ was here!" >> "$1"
+
+and run it with:
+
+    EDITOR=/tmp/edit strace -v crontab -e 2> /tmp/crontab.strace-2
+
+
+everything works as expected.  The strace file showed that fstat64()
+reported different mtimes and crontab did its job as expected.
+
+I got the same results with kernel 2.4.8 and RedHat patched 2.4.3-12.
+All file-systems are ext2.
+
+Can anybody else reproduce this behaviour?
+It something broken?
+
+Mike
+

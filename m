@@ -1,124 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265879AbTGLO41 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 10:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265886AbTGLO41
+	id S265848AbTGLOvl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 10:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265853AbTGLOvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 10:56:27 -0400
-Received: from cherryhinton.org.uk ([194.106.52.201]:20325 "EHLO ivimey.org")
-	by vger.kernel.org with ESMTP id S265879AbTGLO4Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 10:56:25 -0400
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-Reply-To: Ruth.Ivimey-Cook@ivimey.org
-To: Samuel Flory <sflory@rackable.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21, patchattached to fix
-Date: Sat, 12 Jul 2003 16:11:13 +0100
-User-Agent: KMail/1.5.2
-Cc: Chad Kitching <CKitching@powerlandcomputers.com>,
-       Steven Dake <sdake@mvista.com>, linux-kernel@vger.kernel.org,
-       andre@linux-ide.org
-References: <Pine.SOL.4.30.0307110011320.6781-100000@mion.elka.pw.edu.pl> <3F0DF118.3080806@rackable.com>
-In-Reply-To: <3F0DF118.3080806@rackable.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307121611.13863.ruth@ivimey.org>
-X-Spam-Score: -1.6 (-)
+	Sat, 12 Jul 2003 10:51:41 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:29640 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S265848AbTGLOvh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 10:51:37 -0400
+Date: Sun, 13 Jul 2003 02:55:23 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: Thoughts wanted on merging Software Suspend enhancements
+In-reply-to: <20030712140057.GC284@elf.ucw.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1058021722.1687.16.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1057963547.3207.22.camel@laptop-linux>
+ <20030712140057.GC284@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Various people wrote:
-> >>Ignore FastTrak BIOS and configure controller for RAID
-> >>CONFIG_PDC202XX_FORCE
-> >>  Forces the driver to use the ATA-RAID capabilities, overriding the
-> >>  BIOS configuration of the controller. Do not enable if you are
-> >>  using Promise's binary module.  This option is compatible with the
-> >>  ataraid driver.
-> >What about this:
-> Much better, but
-> >Ignore FastTrak BIOS
-> >CONFIG_PDC202XX_FORCE
-> >  Forces the driver to use FastTrak controller even if it was disabled
-> >  by BIOS for Promise software RAID driver.
-> This one might confuse people thinking we mean the ataraid driver, and
-> not the binary only driver.
+Don't ask me why I'm awake at 3am. I don't know.
 
-My personal experience of the FastTrak device is that you must always "force" 
-it if you just want JBOD. [Note: I have never used a promise device as the 
-1st controller, because the Southbridge ide controller always comes in 
-first]. Now, I have never tried using ataraid or the promise bin-only driver, 
-so I guess there are occasions when not forcing is a good thing. I assume 
-from other comments that no-force is the right option for the Promise 
-binary-only driver?
-
-I am much of the opinion that "CONFIG_PDC202XX_FORCE" should be a run-time 
-option so that it can be set up correctly for the user's machine even when 
-the kernel is a vendor one with pre-selected config choices. If this doesn't 
-happen, in some cases (e.g. installing a new kernel) the user's disks just 
-disappear and there isn't much you can do about it :-(   See my comments at 
-the end of the mail for more on this.
-
-> Maybe:
-> Forces the driver to use FastTrak controller even if it was disabled
->  by BIOS for Promise's binary only software RAID driver.
->
-> >  Say Y if you do not use Promise's software RAID or
-> >        if you want to use ataraid driver.
+On Sun, 2003-07-13 at 02:00, Pavel Machek wrote:
+> Hi!
+> 
+> > Hi Linus.
 > >
-> >  Say N if you want to use Promise's binary module.
+> 
+> Well, you probably did want Linus to answer, but I see some new stuff
+> here.
 
-I don't like this one, as at least on first reading I completely misunderstood 
-it -- it seemed as if you only had RAID choices, no non-RAID ones. I see now 
-that Y gives you a (veiled) non-RAID choice. Is the following better?
+Yeah, I did. But it wasn't going to happen :>
 
+> > - save a full image rather than freeing just about all the memory first
+> > - highmem support
+> > - image compression support
+> > - swapfile support in progress
+> 
+> This seems extremely hard to do right. If you can do it right and not
+> rewrite half of kernel, that's okay, but I don't think you can do that.
 
-Don't reserve the FastTrak controller for the Promise proprietary RAID driver.
-  Say Y if you:
-    - want to use attached disks quite independently;
-    - want to use attached disks in a Linux Software RAID (mdX) array;
-    - want to use attached disks with the Linux 'ataraid' driver. You must
-      also enable the option CONFIG_BLK_DEV_ATARAID_PDC.
+I assume you mean swapfile only. The first two have been working for a
+while now. For swapfile support, my approach is simple. I'll store the
+info rw_swap_page_base calculates and save it in the pagedir, using it
+to read back the data at resume without requiring any knowledge of the
+filesystem. (Of course I'm assuming the data isn't compressed etc but
+since swapfiles work, this seems to be a reasonable assumption; I can
+always mirror changes in the swapfile code). I'll also take advantage of
+the fact that much of the pagedir data we're storing is very easily
+compressable itself to ensure that this doesn't result in severe bloat
+of the pagedirs. I've already got a little patch to test it the theory,
+and results look very encouraging but I won't try to explain it here.
+I'll just confuse the issue.
 
-  Say N if you want to use Promise's proprietary, binary only, Software
-    RAID driver.
+> > - nice display
+> > - user can abort at any time during suspend (oh, I forgot, I wanted
+> > to...) by just pressing Escape
+> 
+> That seems like missfeature. We don't want joe random user that is at
+> the console to prevent suspend by just pressing Escape. Maybe magic
+> key to do that would be acceptable...
 
-
-I think a better configuration setup than this would be a multiple- choice 
-arrangement that subsumes CONFIG_PDC202XX_FORCE, CONFIG_BLK_DEV_ATARAID_PDC 
-and CONFIG_PDC202XX_NEW option into one question, like this:
-
-
-Configuration of the FastTrak IDE controller
-CONFIG_PDC202XX_MODE
-  Please select the appropriate driver for this controller:
-    [  ]  Promise proprietary, binary only, Software RAID driver
-    [  ]  Linux GPL version of Promise Software RAID driver
-    [  ]  Standard IDE driver, for disks that can be used quite independently
-
-
- However, this still has the problem of what happens if you have multiple 
-controllers and wish to use them in 2 or more different configurations (e.g. 
-2 disks on 1st controller ataraid, 2 disks on another controller as JBOD).
-
-Therefore, IMO the best setup would be to provide options that enable 
-possibilities (e.g enable you to use ataraid by compiling the code) but that 
-the actual use of the disks is defined in a module or command-line switch 
-(e.g. "pdc_ide2=ataraid,pdc_ide3=jbod"). In this case, we will keep the 
-CONFIG_BLK_DEV_ATARAID_PDC and CONFIG_PDC202XX_NEW options but they do not 
-imply a purpose: they just ensure that code is compiled. The option 
-CONFIG_PDC202XX_FORCE becomes a run-time only thing, and so disappears from 
-the config.
-
-Should I think about coding this?
+Magic key? Do you mean a password? I suppose that could be a
+configuration option. I for one love being able to just press escape
+when I realise there was something I wanted to do before I shut the
+computer down, and I'll bet there'll be tons of people who think the
+same way. I could certainly go for a password option. The only question
+would be, how to configure the password. Perhaps a root-only proc entry?
 
 Regards,
 
-Ruth
+Nigel
 
 -- 
-Engineer, Author and Webweaver
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 

@@ -1,86 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315414AbSGUNOi>; Sun, 21 Jul 2002 09:14:38 -0400
+	id <S314553AbSGUNOK>; Sun, 21 Jul 2002 09:14:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315419AbSGUNOi>; Sun, 21 Jul 2002 09:14:38 -0400
-Received: from chello212186127068.14.vie.surfer.at ([212.186.127.68]:59618
-	"EHLO server.home.at") by vger.kernel.org with ESMTP
-	id <S315414AbSGUNOf>; Sun, 21 Jul 2002 09:14:35 -0400
-Subject: Oops with 2.5.27 (swapper)
-From: Christian Thalinger <twisti@complang.tuwien.ac.at>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 21 Jul 2002 15:12:55 +0200
-Message-Id: <1027257175.612.3.camel@sector17.home.at>
+	id <S315413AbSGUNOK>; Sun, 21 Jul 2002 09:14:10 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:15490 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S314553AbSGUNOJ>; Sun, 21 Jul 2002 09:14:09 -0400
+Date: Sun, 21 Jul 2002 16:16:58 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.26 buffer layer error at page-writeback.c:420
+Message-ID: <20020721131658.GK1548@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	linux-kernel@vger.kernel.org
+References: <20020721120837.GJ1548@niksula.cs.hut.fi>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020721120837.GJ1548@niksula.cs.hut.fi>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday i've tried 2.5.27 and got this oops during boot (oops written
-down by hand):
+On Sun, Jul 21, 2002 at 03:08:37PM +0300, you [Ville Herva] wrote:
+> I just booted 2.5.26 to textmode, logged in as root and left it there. After
+> a while I got this. After that, floppy access etc fails.
 
-[root@sector17:/root]# ksymoops -V -K -L -o /lib/modules/2.5.27/ -m
-/boot/System.map-2.5.27 < oops-2.5.27.txt
-ksymoops 2.4.3 on i686 2.4.19-rc3.  Options used
-     -V (specified)
-     -K (specified)
-     -L (specified)
-     -o /lib/modules/2.5.27/ (specified)
-     -m /boot/System.map-2.5.27 (specified)
+Sorry, forgot to mention this is under vmware. It can of course have huge
+influence, although 2.4 runs solid under it.
 
-No modules in ksyms, skipping objects
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c01b6246>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010216
-eax: 00000000   ebx: c1565000   ecx: 00000400   edx: 00000000
-esi: c156500c   edi: 00000001   ebp: c1565000   esp: dffc3ec4
-ds: 0018   es: 0018   ss: 0018
-Stack: dfdf3bc0 c156500c c1565000 c1565000 c0223d60 00000000 00000000
-00000000
-       00000000 00000000 00000000 00000000 dfdf680c 00000001 c01b64fc
-c1565000
-       dfdf3bc0 c156500c c156500c c1565000 00000064 c1565000 c01b7194
-c1565000
-Call Trace: [<c01b64fc>] [<c01b7194>] [<c011549c>] [<c01199e6>]
-[<c0119893>]
-   [<c01b74bc>] [<c01b772c>] [<c01ba1c3>] [<c010508b>] [<c0105728>]
-Code: f3 ab 8b 44 24 34 c7 00 fc 4e 2b a9 8b 43 1c 8b 54 24 34 89
+root = hdc = cdrom ext2,
+/tmp = ramdisk
 
->>EIP; c01b6246 <sync_sbs+76/2d0>   <=====
-Trace; c01b64fc <md_update_sb+5c/190>
-Trace; c01b7194 <do_md_run+284/2e0>
-Trace; c011549c <__wake_up+2c/50>
-Trace; c01199e6 <release_console_sem+d6/e0>
-Trace; c0119892 <printk+142/170>
-Trace; c01b74bc <autorun_array+9c/d0>
-Trace; c01b772c <autorun_devices+23c/2b0>
-Trace; c01ba1c2 <autostart_arrays+c2/c6>
-Trace; c010508a <init+2a/190>
-Trace; c0105728 <kernel_thread+28/40>
-Code;  c01b6246 <sync_sbs+76/2d0>
-00000000 <_EIP>:
-Code;  c01b6246 <sync_sbs+76/2d0>   <=====
-   0:   f3 ab                     repz stos %eax,%es:(%edi)   <=====
-Code;  c01b6248 <sync_sbs+78/2d0>
-   2:   8b 44 24 34               mov    0x34(%esp,1),%eax
-Code;  c01b624c <sync_sbs+7c/2d0>
-   6:   c7 00 fc 4e 2b a9         movl   $0xa92b4efc,(%eax)
-Code;  c01b6252 <sync_sbs+82/2d0>
-   c:   8b 43 1c                  mov    0x1c(%ebx),%eax
-Code;  c01b6254 <sync_sbs+84/2d0>
-   f:   8b 54 24 34               mov    0x34(%esp,1),%edx
-Code;  c01b6258 <sync_sbs+88/2d0>
-  13:   89 00                     mov    %eax,(%eax)
+ATA/ATAPI device driver v7.0.0
+ATA: PCI bus speed 33.3MHz
+ATA: Intel Corp. 82371AB PIIX4 IDE, PCI slot 00:07.1
+ATA: chipset rev.: 1
+ATA: non-legacy mode: IRQ probe delayed
+PIIX: Intel Corp. 82371AB PIIX4 IDE UDMA33 controller on pci00:07.1
+    ide0: BM-DMA at 0x1020-0x1027, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0x1028-0x102f, BIOS settings: hdc:DMA, hdd:pio
+hda: VMware Virtual IDE Hard Drive, DISK drive
+hdb: VMware Virtual IDE CDROM Drive, ATAPI CD/DVD-ROM drive
+hdc: VMware Virtual IDE CDROM Drive, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+ hda: 81648 sectors w/32KiB Cache, CHS=81/16/63, UDMA(33)
+ hda: unknown partition table
+hdb: ATAPI 1X CD-ROM drive, 32kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+hdc: ATAPI 1X CD-ROM drive, 32kB Cache, UDMA(33)
 
 
-I have a raid5 with 3 drives and compiled it with 3.1 and 2.95.3, same
-problem. 2.5.26 did boot up.
+-- v --
 
-Regards.
-
-TWISTI
-
+v@iki.fi

@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275277AbRJFP2x>; Sat, 6 Oct 2001 11:28:53 -0400
+	id <S275268AbRJFP2N>; Sat, 6 Oct 2001 11:28:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275265AbRJFP2p>; Sat, 6 Oct 2001 11:28:45 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:50924 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S275255AbRJFP2c>; Sat, 6 Oct 2001 11:28:32 -0400
-Date: Sat, 6 Oct 2001 08:31:08 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: <kernel@ddx.a2000.nu>
-cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>,
-        <sparclinux@vger.kernel.org>
-Subject: Re: sun + gigabit nic
-In-Reply-To: <Pine.LNX.4.40.0110061551050.11144-100000@ddx.a2000.nu>
-Message-ID: <Pine.LNX.4.33.0110060825280.2949-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275265AbRJFP2D>; Sat, 6 Oct 2001 11:28:03 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:17403 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S275255AbRJFP17>;
+	Sat, 6 Oct 2001 11:27:59 -0400
+Date: Sat, 6 Oct 2001 17:28:29 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Christian =?iso-8859-1?Q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: OOM-Killer in 2.4.11pre4
+Message-ID: <20011006172829.F724@athlon.random>
+In-Reply-To: <E15plMj-0002eK-00@mrvdom01.schlund.de> <20011006162617.A724@athlon.random> <E15pt4D-0002N4-00@mrvdom02.schlund.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E15pt4D-0002N4-00@mrvdom02.schlund.de>; from linux-kernel@borntraeger.net on Sat, Oct 06, 2001 at 05:06:53PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Oct 2001 kernel@ddx.a2000.nu wrote:
+On Sat, Oct 06, 2001 at 05:06:53PM +0200, Christian Bornträger wrote:
+> > to test the oom killer you should try to run out of memory sometime.
+> 
+> I used a test program with an endless dummy=new char[1024] loop.
 
->
-> On Fri, 5 Oct 2001, David S. Miller wrote:
->
-> > No patches needed, 2.2.x (and 2.4.x) supports Syskonnect gigabit cards
-> > out of the box.
-> >
-> > Acenic is supported in 2.4.x, although I don't know why not in 2.2.x
-> > as that should be trivial to make work...
->
-> so the Syskonnect SK-9D21 is supported ?
->
-> what about 3com and intel 1000base-t cards ? (which are much lower priced
-> compared to syskonnect)
->
-> also where can i found more info about Acenic ? (www.Acenic.com doesn't
-> work)
+This loop doesn't generate any page fault, it just allocates virtual
+space.
 
-alteon was aquired by nortel... their subsidiary netgear(part of the bay
-networks aquisition) makes one of the cards.
+> Bytheway,I had this problem without highmem - only 512 MB, and  my problem is 
 
+I cannot reproduce anything like that here with 512M on 2.4.11pre3aa1.
+the reports I had where all with 4G of ram, in particular with the 3.5G
+of virtual memory per-process on x86 which increases the pressure on the
+normal zone that in turn showed me the problem.
 
+Anyways now that I think to have seen the issues with normal zone
+faliures I will try to address them soon without having to introduce
+deadlock prone code into -aa. Probably not today but I hope tomorrow or
+on Monday.
 
-> P.s. system is a sun ultrasparc 10
->
-> Thnx,
-> 	Stephan
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
-
-
+Andrea

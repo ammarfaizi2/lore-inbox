@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267279AbUGNG0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267292AbUGNG2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267279AbUGNG0N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 02:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267292AbUGNG0N
+	id S267292AbUGNG2E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 02:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267293AbUGNG2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 02:26:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:43679 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267279AbUGNG0M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 02:26:12 -0400
-Date: Tue, 13 Jul 2004 23:11:38 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Zabolotny <zap@homelink.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Backlight and LCD module patches [1]
-Message-ID: <20040714061138.GC11803@kroah.com>
-References: <20040617223514.2e129ce9.zap@homelink.ru> <20040617194739.GA15983@kroah.com> <20040618015504.661a50a9.zap@homelink.ru> <20040617220510.GA4122@kroah.com> <20040618095559.20763766.zap@homelink.ru> <20040624213452.GC2477@kroah.com> <20040627002152.20e2da7d.zap@homelink.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040627002152.20e2da7d.zap@homelink.ru>
-User-Agent: Mutt/1.5.6i
+	Wed, 14 Jul 2004 02:28:04 -0400
+Received: from eis-msg-012.jpl.nasa.gov ([137.78.160.40]:2793 "EHLO
+	eis-msg-012.jpl.nasa.gov") by vger.kernel.org with ESMTP
+	id S267292AbUGNG2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 02:28:00 -0400
+Message-ID: <40F4D266.4050006@jpl.nasa.gov>
+Date: Tue, 13 Jul 2004 23:27:50 -0700
+From: Roy Butler <roy.butler@jpl.nasa.gov>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: kconfig's file handling (was: XFS: how to NOT null files on fsck?)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 27, 2004 at 12:21:52AM +0400, Andrew Zabolotny wrote:
-> On Thu, 24 Jun 2004 14:34:52 -0700
-> Greg KH <greg@kroah.com> wrote:
-> 
-> > How about just having every l/b driver containing a pointer to the
-> > fbinfo that it is associated with?  Isn't there some way you can keep
-> > the pointer that you need around within the place that you need to use
-> > it from eventually?
-> It's not a question of b/l driver needing the framebuffer driver; it's the
-> other way around: the framebuffer driver needs the b/l drivers (needs so
-> much that it can fail initialization in some cases if it doesn't find the
-> corresponding b/l device).
+On Tue, Jul 13, 2004 at 02:31:43PM +0200, Waldo Bastian wrote:
+ >
+ > The sentiment among filesystem developers seem to be that they don't 
+care if
+ > they trash files as long as the filesystem itself remains in a consistent
+ > state. This kind of dataloss is the result of that attitude, either go
+ > complain with them if it bothers you, or use a filesystem that does 
+it right.
+ >
 
-Ok, then put a pointer in the fb driver to the backlight.
-And a pointer in the backlight to the fb.  What's wrong with that?
+Exactly.  Don't blame KDE.  Using XFS is equivalent to using 
+non-battery-backed NVRAM on an external disk array.  Great if 
+performance is _the_ metric and lost results can easily be regenerated 
+(like in frame rendering).  By example, if you create a file, write to 
+it, and then delete it fast enough, it will never hit the disk under XFS.
 
-> If you'll ask why not embed the b/l controls directly into the framebuffer
-> drivers, the reason is simple: some video controllers just don't have a
-> predefined way of controlling the b/l, so in every implementation it's
-> different.
 
-Just do it for the ones that you do know, what's wrong with that?
-
-thanks,
-
-greg k-h
+Roy Butler

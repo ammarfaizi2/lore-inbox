@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262686AbREaBl0>; Wed, 30 May 2001 21:41:26 -0400
+	id <S261639AbREaChg>; Wed, 30 May 2001 22:37:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262958AbREaBlQ>; Wed, 30 May 2001 21:41:16 -0400
-Received: from blackhole.compendium-tech.com ([64.156.208.74]:3715 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S262686AbREaBlE>; Wed, 30 May 2001 21:41:04 -0400
-Date: Wed, 30 May 2001 18:40:45 -0700 (PDT)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-X-X-Sender: <kernel@sol.compendium-tech.com>
-To: John Chris Wren <jcwren@jcwren.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: select() - Linux vs. BSD
-In-Reply-To: <NDBBKBJHGFJMEMHPOPEGKEIICHAA.jcwren@jcwren.com>
-Message-ID: <Pine.LNX.4.33.0105301840250.24356-100000@sol.compendium-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262090AbREaChZ>; Wed, 30 May 2001 22:37:25 -0400
+Received: from sgi.SGI.COM ([192.48.153.1]:23377 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S261639AbREaChN>;
+	Wed, 30 May 2001 22:37:13 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
+cc: "'Martin Mares'" <pci-ids@ucw.cz>, "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.x: update for PCI vendor id 0x12d4 
+In-Reply-To: Your message of "Wed, 30 May 2001 15:34:17 -0400."
+             <6B1DF6EEBA51D31182F200902740436802678F04@mail-in.comverse-in.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 31 May 2001 12:36:39 +1000
+Message-ID: <14652.991276599@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 May 2001, John Chris Wren wrote:
+On Wed, 30 May 2001 15:34:17 -0400, 
+"Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com> wrote:
+>BTW I noticed a funny thing: the file devlist.h I tried to 
+>patch doesn't always exist - as it gets built from the file 
+>pci.ids in the same directory. Noone complained on that :)
 
-> 	Should the man pages be changed to reflect reality, or select() fixed to
-> act like BSD?
->
+drivers/pci/ devlist.h, classlist.h and gen-devlist are the generated
+files.  Add them to your "don't diff" list when generating patches.
 
-BSD should be destroyed :)
+>What I don't understand is why pci_ids.h doesn't get
+>generated from pci.ids as well.
 
- Kelsey Hudson                                           khudson@ctica.com
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
+Leave that question for Martin.
 

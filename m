@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130031AbQKNVaa>; Tue, 14 Nov 2000 16:30:30 -0500
+	id <S131350AbQKNVhd>; Tue, 14 Nov 2000 16:37:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130378AbQKNVaU>; Tue, 14 Nov 2000 16:30:20 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:38324 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S130031AbQKNVaH>;
-	Tue, 14 Nov 2000 16:30:07 -0500
-Date: Tue, 14 Nov 2000 22:00:05 +0100
-From: Andries Brouwer <aeb@veritas.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+	id <S131095AbQKNVhX>; Tue, 14 Nov 2000 16:37:23 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:36619 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131350AbQKNVhU>;
+	Tue, 14 Nov 2000 16:37:20 -0500
+Message-ID: <3A11A967.A2EA6D20@mandrakesoft.com>
+Date: Tue, 14 Nov 2000 16:06:47 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: scole@lanl.gov
+CC: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] CONFIG_EISA note in Documentation/Configure.help
-Message-ID: <20001114220005.B25349@veritas.com>
-In-Reply-To: <00111317072200.00727@localhost.localdomain> <20001114205950.A25349@veritas.com> <3A119F29.2BD8E7C@mandrakesoft.com>
-Mime-Version: 1.0
+In-Reply-To: <00111413485901.03227@spc.esa.lanl.gov>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3A119F29.2BD8E7C@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, Nov 14, 2000 at 03:23:05PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 14, 2000 at 03:23:05PM -0500, Jeff Garzik wrote:
-> Andries Brouwer wrote:
-> > However, CONFIG_EISA is almost completely superfluous, is not
-> > required at compile time, can easily be tested at run time,
-> > in other words adding such an option is a very stupid thing to do.
+Steven Cole wrote:
+> Well, the CONFIG_EISA option is there.  My little patch was just intended to
+> slightly enlighten those prone to "lets see what this option does".  I
+> compiled test11-pre4 both with and without CONFIG_EISA and the difference is
+> very slight.  Of course, if you had more items with EISA code, this difference
+> would be bigger.
 > 
-> Each driver's entry in Config.in should be dependent on its
-> CONFIG_{ISA,EISA,PCI,SBUS,...} defines that indicate what buses are
-> defined on this particular architecture.
+>  848 -rw-r--r--    1 root     root       868179 Nov 14 13:32 bzImage
+>  848 -rw-r--r--    1 root     root       867973 Nov 14 13:28 bzImage.no_eisa
+> 
+> The difference probably comes from my 3c59x driver.
+> 
+> I also uglied up the 3c59x.c code with #ifdef CONFIG_EISA around the
+> six sections relavant to EISA to see if that would save anything, and the
+> object file was only 318 bytes smaller, probably not worth the uglyness of
+> the six ifdefs.  That modified code was not used in the above comparison.
 
-No, it should not. I see no CONFIG_VLB in your list above.
-CONFIG_EISA should not be there either.
+When !CONFIG_EISA, the global variable 'EISA_bus' is unconditionally
+zero.  Therefore you merely need to test EISA_bus, as existing code
+already should be doing..  As for 3c59x patches, they should go to the
+maintainer, Andrew Morton..
 
-I said that it is very stupid to pose this question to the user
-who configures the kernel. There are far too many config variables
-already, and nothing in the kernel needs to know the answer.
+	Jeff
 
-That EISA basically is ISA, as far as the kernel is concerned.
-That zero code depends on the variable. That nothing is gained
-by knowing that the system is supposed to be EISA rather than ISA.
-[I discussed the very little that we do not do yet, but might do.]
 
-Andries
+-- 
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

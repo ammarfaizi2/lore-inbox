@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267510AbTALUYj>; Sun, 12 Jan 2003 15:24:39 -0500
+	id <S267499AbTALUSL>; Sun, 12 Jan 2003 15:18:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267491AbTALUXh>; Sun, 12 Jan 2003 15:23:37 -0500
-Received: from zork.zork.net ([66.92.188.166]:40672 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S267497AbTALUXN>;
-	Sun, 12 Jan 2003 15:23:13 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: any chance of 2.6.0-test*?
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Message-Flag: Message text advisory: SALACIOUS IMAGININGS, SLOTHFUL
- INDUCTION
-X-Mailer: Norman
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Alameda: WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
- OAKLAND!!!
-Organization: The Emadonics Institute
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Sun, 12 Jan 2003 20:32:01 +0000
-In-Reply-To: <200301122018.h0CKIcWN004203@turing-police.cc.vt.edu> (Valdis.Kletnieks@vt.edu's
- message of "Sun, 12 Jan 2003 15:18:38 -0500")
-Message-ID: <6uk7haxg72.fsf@zork.zork.net>
-User-Agent: Gnus/5.090011 (Oort Gnus v0.11) Emacs/21.2
- (i386-debian-linux-gnu)
-References: <Pine.LNX.4.44.0301121134340.14031-100000@home.transmeta.com>
-	<1042401596.1209.51.camel@RobsPC.RobertWilkens.com>
-	<200301122018.h0CKIcWN004203@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267500AbTALUSK>; Sun, 12 Jan 2003 15:18:10 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:20747
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267499AbTALUSJ>; Sun, 12 Jan 2003 15:18:09 -0500
+Subject: Re: [PATCH] add explicit Pentium II support
+From: Robert Love <rml@tech9.net>
+To: Luuk van der Duim <l.a.van.der.duim@student.rug.nl>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1042406417.8427.9.camel@cc75757-a.groni1.gr.home.nl>
+References: <Pine.LNX.4.44.0301121125370.14031-100000@home.transmeta.com>
+	 <1042402432.834.70.camel@phantasy>
+	 <1042406417.8427.9.camel@cc75757-a.groni1.gr.home.nl>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042403214.834.82.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 12 Jan 2003 15:26:55 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commence  Valdis.Kletnieks@vt.edu quotation:
+On Sun, 2003-01-12 at 16:20, Luuk van der Duim wrote:
 
-> The real problem is that C doesn't have a good multi-level "break"
-> construct.  On the other hand, I don't know of any language that has
-> a good one - some allow "break 3;" to break 3 levels- but that's
-> still bad because you get screwed if somebody adds an 'if'
-> clause....
+> Aren't those called Willamette based Celerons?
 
-Perl's facility for labelling blocks and jumping to the beginning or
-end with 'next' and 'last' may be close to what you want, but I don't
-know if it's ever been implemented in a language one could sensibly
-use to write a kernel.
+The current ones are, but future ones will surely be based on future
+cores (i.e. I suspect we will see Northwood-based Celerons, soon) and
+this option will be applicable to those, too.
 
--- 
- /                          |
-[|] Sean Neakums            |  Questions are a burden to others;
-[|] <sneakums@zork.net>     |      answers a prison for oneself.
- \                          |
+More importantly, the consumer name is just "Celeron" i.e. the box does
+not mention the core or anything.  The best I think we can offer is
+"P4-based Celeron" which is a nice blanket name.
+
+	Robert Love
+

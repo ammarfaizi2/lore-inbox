@@ -1,90 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267737AbUJHG5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268107AbUJHHAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267737AbUJHG5B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 02:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUJHG5B
+	id S268107AbUJHHAz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 03:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUJHHAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 02:57:01 -0400
-Received: from sicdec1.epfl.ch ([128.178.50.33]:35973 "EHLO sicdec1.epfl.ch")
-	by vger.kernel.org with ESMTP id S267737AbUJHG45 (ORCPT
+	Fri, 8 Oct 2004 03:00:54 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:24785 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268108AbUJHG66 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 02:56:57 -0400
-Message-ID: <1097218606.41663a2ea1ac8@imapwww.epfl.ch>
-X-Imap-User: michel.mengis@epfl.ch
-Date: Fri,  8 Oct 2004 08:56:46 +0200
-From: michel.mengis@epfl.ch
-To: Con Kolivas <lkml@kolivas.org>
-Cc: linux <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.6.8 and DELL's DOTHAN Processor B0
-References: <1097216489.416631e91faf9@imapwww.epfl.ch> <416634FE.60108@kolivas.org>
-In-Reply-To: <416634FE.60108@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.6
-X-Originating-IP: 128.178.9.34
+	Fri, 8 Oct 2004 02:58:58 -0400
+Date: Fri, 8 Oct 2004 09:00:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org,
+       wli@holomorphy.com
+Subject: Re: 2.6.9-rc3-mm3
+Message-ID: <20041008070028.GA30706@elte.hu>
+References: <20041007015139.6f5b833b.akpm@osdl.org> <200410071041.20723.sandersn@btinternet.com> <20041007025007.77ec1a44.akpm@osdl.org> <20041007114040.GV9106@holomorphy.com> <1097184341l.10532l.0l@werewolf.able.es> <1097185597l.10532l.1l@werewolf.able.es> <20041007150708.5d60e1c3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041007150708.5d60e1c3.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I already tried to put all scaling_govenors... nothing changed... coz
-scaling_max_freq is set to 600000 and not to 1700000. ;(
 
-Michel.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Selon Con Kolivas <lkml@kolivas.org>:
+> > There is a problem with this -mm:
+> 
+> Yes, there seems to be a mingo/wli bunfight over prof_cpu_mask.
 
-> michel.mengis@epfl.ch wrote:
-> >
-> > Hi all,
-> >
-> > I have a lot of trouble to bring the kernel 2.6.8-1 to detect my dothan
-> > processor.
-> > It's a Pentium M Dothan B0 version, 1.7Ghz/600Mhz.
-> > The BIOS is DELL's D800 Bios version 09.
-> >
-> > I added 3 patches:
-> > cpufreq-speedstep-dothan-3.patch :add correct frequency table in
-> speedstep.c
-> > dothan-speedstep-fix.patch : add correct Level2 cache
-> > bk-cpufreq.patch : from http://linux-dj.bkbits.net/cpufreq
-> >
-> > I added a lot of output in speedstep-centrino.c, acpi/processor.c to track
-> the
-> > problem.
-> >
-> > I notice that my computer is running always in the lowest speed evenif I'm
-> > stressing it... All ouputs I added show me that Speedstep isn't the cause,
-> > neither CPUFreq but while CPUFreq calls all notifiers, acpi/processor.c's
-> > CPUFREQ_INCOMPATIBLE change the max speed to the lowest evenif during
-> > cpufreq_acpi_cpu_init the max speed is well detected.
-> > Seems to be like it's coz at boot time the kernel doesn't detect correctly
-> the
-> > max speed.
-> > dmesg shows me that a 600Mhz processor has been detected only and not
-> 1.7Ghz.
-> > (on my D600 pentium M not dothan, it detects correctly 1.6Ghz)
-> >
-> > is there a fix for that ?
-> > is it a known bug ?
-> >
-> > thx for all help I can get,
->
-> Sounds like you've chosen powersave as the default power governor in
-> your config. Change it to performance or modify it manually in
-> /sys/devices.... cpufreq/scaling_governor
-> (cant remember the exact position; you'll find it)
->
-> cat the output of that file and see if it says powersave performance or
-> ondemand. You can manually change it from one to the other, or set
-> either powersave or performance in your config during kernel config.
->
-> Cheers,
-> Con
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+yeah.
 
+> Something like this, I think:
 
+great, another 40 lines gone from the generic irq code :)
+
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+	Ingo

@@ -1,80 +1,303 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267108AbSKSGNc>; Tue, 19 Nov 2002 01:13:32 -0500
+	id <S267110AbSKSGQ3>; Tue, 19 Nov 2002 01:16:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267107AbSKSGNc>; Tue, 19 Nov 2002 01:13:32 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:43790
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267104AbSKSGNa>; Tue, 19 Nov 2002 01:13:30 -0500
-Date: Mon, 18 Nov 2002 22:16:02 -0800 (PST)
-From: Andre Hedrick <andre@pyxtechnologies.com>
-To: Douglas Gilbert <dougg@torque.net>
-cc: "J. E. J. Bottomley" <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: linux-2.4.18-modified-scsi-h.patch
-In-Reply-To: <20021118171446.A28459@eng2.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.10.10211182138310.2779-200000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="1430322656-1953087833-1037686562=:2779"
+	id <S267115AbSKSGQ3>; Tue, 19 Nov 2002 01:16:29 -0500
+Received: from dp.samba.org ([66.70.73.150]:50357 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267110AbSKSGQS>;
+	Tue, 19 Nov 2002 01:16:18 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 4/4 Module Parameter Support
+Date: Tue, 19 Nov 2002 17:21:47 +1100
+Message-Id: <20021119062321.999332C47F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Particularly fun to note that MODULE_PARM not only let you do:
+	char foo;
+	MODULE_PARM(foo, "5i"); /* foo is array of 5 integers */
 
---1430322656-1953087833-1037686562=:2779
-Content-Type: text/plain; charset=us-ascii
+It also let you do:
+	MODULE_PARM(var_which_doesnt_exist, "i");
 
+Name: MODULE_PARM support for older modules
+Author: Rusty Russell
+Status: Experimental
+Depends: Module/param-modules.patch.gz
+Depends: Module/forceunload.patch.gz
 
-Greetings Doug et al.
+D: This is the backwards compatibility code for MODULE_PARM, and moves
+D: __MODULE_STRING() down to the graveyard at the bottom of module.h.
 
-Please consider the addition of this simple void ptr to the scsi_request
-struct.  The addition of this simple void pointer allows one to map any
-and all request execution caller the facility to search for a specific
-operation without having to run in circles.  Hunting for these details
-over the global device list of all HBA's is silly and one of the key
-reasons why there error recovery path is so painful.
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .18210-linux-2.5-bk/include/linux/module.h .18210-linux-2.5-bk.updated/include/linux/module.h
+--- .18210-linux-2.5-bk/include/linux/module.h	2002-11-14 15:08:25.000000000 +1100
++++ .18210-linux-2.5-bk.updated/include/linux/module.h	2002-11-14 15:46:59.000000000 +1100
+@@ -15,13 +15,10 @@
+ #include <linux/compiler.h>
+ #include <linux/cache.h>
+ #include <linux/kmod.h>
++#include <linux/stringify.h>
+ #include <asm/module.h>
+ #include <asm/uaccess.h> /* For struct exception_table_entry */
+ 
+-/* Indirect stringification */
+-#define __MODULE_STRING_1(x)	#x
+-#define __MODULE_STRING(x)	__MODULE_STRING_1(x)
+-
+ /* Not Yet Implemented */
+ #define MODULE_LICENSE(name)
+ #define MODULE_AUTHOR(name)
+@@ -289,6 +286,17 @@ extern spinlock_t modlist_lock;
+ #define __MOD_DEC_USE_COUNT(mod) module_put(mod)
+ #define SET_MODULE_OWNER(dev) ((dev)->owner = THIS_MODULE)
+ 
++struct obsolete_modparm { char name[64]; char type[64]; void *addr; };
++#ifdef MODULE
++/* DEPRECATED: Do not use. */
++#define MODULE_PARM(var,type)						    \
++struct obsolete_modparm __parm_##var __attribute__((section(".obsparm"))) = \
++{ __stringify(var), type };
++
++#else
++#define MODULE_PARM(var,type)
++#endif
++
+ /* People do this inside their init routines, when the module isn't
+    "live" yet.  They should no longer be doing that, but
+    meanwhile... */
+@@ -301,11 +309,11 @@ extern spinlock_t modlist_lock;
+ #endif
+ #define MOD_DEC_USE_COUNT module_put(THIS_MODULE)
+ #define try_inc_mod_count(mod) try_module_get(mod)
+-#define MODULE_PARM(parm,string)
+ #define EXPORT_NO_SYMBOLS
+ extern int module_dummy_usage;
+ #define GET_USE_COUNT(module) (module_dummy_usage)
+ #define MOD_IN_USE 0
++#define __MODULE_STRING(x) __stringify(x)
+ #define __mod_between(a_start, a_len, b_start, b_len)		\
+ (((a_start) >= (b_start) && (a_start) <= (b_start)+(b_len))	\
+  || ((a_start)+(a_len) >= (b_start)				\
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .18210-linux-2.5-bk/init/Kconfig .18210-linux-2.5-bk.updated/init/Kconfig
+--- .18210-linux-2.5-bk/init/Kconfig	2002-11-14 15:46:09.000000000 +1100
++++ .18210-linux-2.5-bk.updated/init/Kconfig	2002-11-14 15:46:25.000000000 +1100
+@@ -135,6 +135,15 @@ config MODULE_FORCE_UNLOAD
+ 	  rmmod).  This is mainly for kernel developers and desparate users.
+ 	  If unsure, say N.
+ 
++config OBSOLETE_MODPARM
++	bool
++	default y
++	depends on MODULES
++	help
++	  You need this option to use module parameters on modules which
++	  have not been converted to the new module parameter system yet.
++	  If unsure, say Y.
++
+ config KMOD
+ 	bool "Kernel module loader"
+ 	depends on MODULES
+@@ -150,4 +159,3 @@ config KMOD
+ 	  in <file:Documentation/kmod.txt>.
+ 
+ endmenu
+-
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .18210-linux-2.5-bk/kernel/module.c .18210-linux-2.5-bk.updated/kernel/module.c
+--- .18210-linux-2.5-bk/kernel/module.c	2002-11-14 15:46:09.000000000 +1100
++++ .18210-linux-2.5-bk.updated/kernel/module.c	2002-11-14 15:46:25.000000000 +1100
+@@ -534,6 +534,129 @@ sys_delete_module(const char *name_user,
+ 
+ #endif /* CONFIG_MODULE_UNLOAD */
+ 
++#ifdef CONFIG_OBSOLETE_MODPARM
++static int param_set_byte(const char *val, struct kernel_param *kp)  
++{
++	char *endp;
++	long l;
++
++	if (!val) return -EINVAL;
++	l = simple_strtol(val, &endp, 0);
++	if (endp == val || *endp || ((char)l != l))
++		return -EINVAL;
++	*((char *)kp->arg) = l;
++	return 0;
++}
++
++static int param_string(const char *name, const char *val,
++			unsigned int min, unsigned int max,
++			char *dest)
++{
++	if (strlen(val) < min || strlen(val) > max) {
++		printk(KERN_ERR
++		       "Parameter %s length must be %u-%u characters\n",
++		       name, min, max);
++		return -EINVAL;
++	}
++	strcpy(dest, val);
++	return 0;
++}
++
++extern int set_obsolete(const char *val, struct kernel_param *kp)
++{
++	unsigned int min, max;
++	char *p, *endp;
++	struct obsolete_modparm *obsparm = kp->arg;
++
++	if (!val) {
++		printk(KERN_ERR "Parameter %s needs an argument\n", kp->name);
++		return -EINVAL;
++	}
++
++	/* type is: [min[-max]]{b,h,i,l,s} */
++	p = obsparm->type;
++	min = simple_strtol(p, &endp, 10);
++	if (endp == obsparm->type)
++		min = max = 1;
++	else if (*endp == '-') {
++		p = endp+1;
++		max = simple_strtol(p, &endp, 10);
++	} else
++		max = min;
++	switch (*endp) {
++	case 'b':
++		return param_array(kp->name, val, min, max, obsparm->addr,
++				   1, param_set_byte);
++	case 'h':
++		return param_array(kp->name, val, min, max, obsparm->addr,
++				   sizeof(short), param_set_short);
++	case 'i':
++		return param_array(kp->name, val, min, max, obsparm->addr,
++				   sizeof(int), param_set_int);
++	case 'l':
++		return param_array(kp->name, val, min, max, obsparm->addr,
++				   sizeof(long), param_set_long);
++	case 's':
++		return param_string(kp->name, val, min, max, obsparm->addr);
++	}
++	printk(KERN_ERR "Unknown obsolete parameter type %s\n", obsparm->type);
++	return -EINVAL;
++}
++
++static int obsolete_params(const char *name,
++			   char *args,
++			   struct obsolete_modparm obsparm[],
++			   unsigned int num,
++			   Elf_Shdr *sechdrs,
++			   unsigned int symindex,
++			   const char *strtab)
++{
++	struct kernel_param *kp;
++	unsigned int i;
++	int ret;
++
++	kp = kmalloc(sizeof(kp[0]) * num, GFP_KERNEL);
++	if (!kp)
++		return -ENOMEM;
++
++	for (i = 0; i < num; i++) {
++		kp[i].name = obsparm[i].name;
++		kp[i].perm = 000;
++		kp[i].set = set_obsolete;
++		kp[i].get = NULL;
++		obsparm[i].addr
++			= (void *)find_local_symbol(sechdrs, symindex, strtab,
++						    obsparm[i].name);
++		if (!obsparm[i].addr) {
++			printk("%s: falsely claims to have parameter %s\n",
++			       name, obsparm[i].name);
++			ret = -EINVAL;
++			goto out;
++		}
++		kp[i].arg = &obsparm[i];
++	}
++
++	ret = parse_args(name, args, kp, num, NULL);
++ out:
++	kfree(kp);
++	return ret;
++}
++#else
++static int obsolete_params(const char *name,
++			   char *args,
++			   struct obsolete_modparm obsparm[],
++			   unsigned int num,
++			   Elf_Shdr *sechdrs,
++			   unsigned int symindex,
++			   const char *strtab)
++{
++	if (num != 0)
++		printk(KERN_WARNING "%s: Ignoring obsolete parameters\n",
++		       name);
++	return 0;
++}
++#endif /* CONFIG_OBSOLETE_MODPARM */
++
+ /* Find an symbol for this module (ie. resolve internals first).
+    It we find one, record usage.  Must be holding module_mutex. */
+ unsigned long find_symbol_internal(Elf_Shdr *sechdrs,
+@@ -823,7 +946,7 @@ static struct module *load_module(void *
+ 	Elf_Shdr *sechdrs;
+ 	char *secstrings;
+ 	unsigned int i, symindex, exportindex, strindex, setupindex, exindex,
+-		modnameindex;
++		modnameindex, obsparmindex;
+ 	long arglen;
+ 	unsigned long common_length;
+ 	struct sizes sizes, used;
+@@ -861,7 +984,7 @@ static struct module *load_module(void *
+ 
+ 	/* May not export symbols, or have setup params, so these may
+            not exist */
+-	exportindex = setupindex = 0;
++	exportindex = setupindex = obsparmindex = 0;
+ 
+ 	/* And these should exist, but gcc whinges if we don't init them */
+ 	symindex = strindex = exindex = modnameindex = 0;
+@@ -897,6 +1020,11 @@ static struct module *load_module(void *
+ 			/* Exception table */
+ 			DEBUGP("Exception table found in section %u\n", i);
+ 			exindex = i;
++		} else if (strcmp(secstrings+sechdrs[i].sh_name, ".obsparm")
++			   == 0) {
++			/* Obsolete MODULE_PARM() table */
++			DEBUGP("Obsolete param found in section %u\n", i);
++			obsparmindex = i;
+ 		}
+ #ifndef CONFIG_MODULE_UNLOAD
+ 		/* Don't load .exit sections */
+@@ -1014,13 +1142,23 @@ static struct module *load_module(void *
+ 	if (err < 0)
+ 		goto cleanup;
+ 
+-	/* Size of section 0 is 0, so this works well if no params */
+-	err = parse_args(mod->args,
+-			 (struct kernel_param *)
+-			 sechdrs[setupindex].sh_offset,
+-			 sechdrs[setupindex].sh_size
+-			 / sizeof(struct kernel_param),
+-			 NULL);
++	if (obsparmindex) {
++		err = obsolete_params(mod->name, mod->args,
++				      (struct obsolete_modparm *)
++				      sechdrs[obsparmindex].sh_offset,
++				      sechdrs[obsparmindex].sh_size
++				      / sizeof(struct obsolete_modparm),
++				      sechdrs, symindex,
++				      (char *)sechdrs[strindex].sh_offset);
++	} else {
++		/* Size of section 0 is 0, so this works well if no params */
++		err = parse_args(mod->name, mod->args,
++				 (struct kernel_param *)
++				 sechdrs[setupindex].sh_offset,
++				 sechdrs[setupindex].sh_size
++				 / sizeof(struct kernel_param),
++				 NULL);
++	}
+ 	if (err < 0)
+ 		goto cleanup;
+ 
 
-
-Scsi_Request    *req = sc_cmd->sc_request;
-blah_blah_t     *trace = NULL;
-
-trace = (blah_blah_t *)req->trace_ptr;
-
-
-Therefore the specific transport invoking operations via the midlayer will
-have the ablity to track and trace any operation.
-
-It will save everyone headaches.
-
-Cheers,
-
-
-Andre Hedrick, CTO & Founder 
-iSCSI Software Solutions Provider
-http://www.PyXTechnologies.com/
-
---1430322656-1953087833-1037686562=:2779
-Content-Type: text/plain; charset=us-ascii; name="linux-2.4.18-modified-scsi-h.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <Pine.LNX.4.10.10211182216020.2779@master.linux-ide.org>
-Content-Description: 
-Content-Disposition: attachment; filename="linux-2.4.18-modified-scsi-h.patch"
-
-LS0tIGxpbnV4L2RyaXZlcnMvc2NzaS9zY3NpLmgub3JpZwkyMDAyLTEwLTMx
-IDAxOjQ1OjM5LjAwMDAwMDAwMCAtMDgwMA0KKysrIGxpbnV4L2RyaXZlcnMv
-c2NzaS9zY3NpLmgJMjAwMi0xMC0zMSAwMTo0NjozMS4wMDAwMDAwMDAgLTA4
-MDANCkBAIC02NjcsOCArNjY3LDExIEBADQogCXVuc2lnbmVkIHNob3J0IHNy
-X3NnbGlzdF9sZW47CS8qIHNpemUgb2YgbWFsbG9jJ2Qgc2NhdHRlci1nYXRo
-ZXIgbGlzdCAqLw0KIAl1bnNpZ25lZCBzcl91bmRlcmZsb3c7CS8qIFJldHVy
-biBlcnJvciBpZiBsZXNzIHRoYW4NCiAJCQkJICAgdGhpcyBhbW91bnQgaXMg
-dHJhbnNmZXJyZWQgKi8NCisJdm9pZCAqdHJhY2VfcHRyOwkvKiBjYXBhYmxl
-IG9mIGNtZC1jbW5kLWVycm9yIHRyYWNpbmcgKi8NCiB9Ow0KIA0KKyNkZWZp
-bmUgTU9ESUZJRURfU0NTSV9IDQorDQogLyoNCiAgKiBGSVhNRShlcmljKSAt
-IG9uZSBvZiB0aGUgZ3JlYXQgcmVncmV0cyB0aGF0IEkgaGF2ZSBpcyB0aGF0
-IEkgZmFpbGVkIHRvIGRlZmluZQ0KICAqIHRoZXNlIHN0cnVjdHVyZSBlbGVt
-ZW50cyBhcyBzb21ldGhpbmcgbGlrZSBzY19mb28gaW5zdGVhZCBvZiBmb28u
-ICBUaGlzIHdvdWxkDQo=
---1430322656-1953087833-1037686562=:2779--
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

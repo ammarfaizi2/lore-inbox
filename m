@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbTDYVtp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 17:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTDYVtp
+	id S262406AbTDYVyD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 17:54:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbTDYVyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 17:49:45 -0400
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:47599 "HELO
-	cocodriloo.com") by vger.kernel.org with SMTP id S263713AbTDYVtn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 17:49:43 -0400
-Date: Fri, 25 Apr 2003 15:06:09 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: James Strandboge <jamie@tpptraining.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: odd gnome-terminal behavior in 2.5.67-mm3
-Message-ID: <20030425130609.GI6009@wind.cocodriloo.com>
-References: <Pine.LNX.4.44.0304241518550.31091-100000@sol.cobite.com> <1051277058.1588.70.camel@sirius.strandboge.cxm>
+	Fri, 25 Apr 2003 17:54:02 -0400
+Received: from holomorphy.com ([66.224.33.161]:25525 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262406AbTDYVyC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 17:54:02 -0400
+Date: Fri, 25 Apr 2003 15:06:08 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andi Kleen <ak@muc.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: TASK_UNMAPPED_BASE & stack location
+Message-ID: <20030425220608.GT8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andi Kleen <ak@muc.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel@vger.kernel.org
+References: <20030425204012$4424@gated-at.bofh.it> <m3sms644zz.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1051277058.1588.70.camel@sirius.strandboge.cxm>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <m3sms644zz.fsf@averell.firstfloor.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 25, 2003 at 09:24:18AM -0400, James Strandboge wrote:
-> On Thu, 2003-04-24 at 15:26, David Mansfield wrote:
-> > Hi Andrew, list
-> > 
-> > I've been experiencing some odd behavior running 2.5.67-mm3 on my RH9 
-> > based desktop.
-> > 
-> > It's probably an application bug, but something strange is happening 
-> > anyway that doesn't happen in 'stable' kernels.
-> > 
-> > What happens is that gnome-terminal gets stuck in some sort of 'infinite 
-> > loop' when a lot of output is going to the screen and also keypresses are 
-> > going in (like paging through a large file - holding down pgup/pgdown).
-> > 
-> > Xterm doesn't seem to be affected.
-> 
-> I'll chime in and mention that I've seen this too, and also doing a
-> paste operation via highlight and middle click doesn't work in 2.5
-> either.  I assumed it was a libvte bug.
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
+>> Is there any good reason we can't remove TASK_UNMAPPED_BASE, and just shove
+>> libraries directly above the program text? Red Hat seems to have patches to
+>> dynamically tune it on a per-processes basis anyway ...
 
-I've experienced this also when running "make menuconfig"
-against 2.5.66 while running 2.5.66 on a redhat9 system.
+On Fri, Apr 25, 2003 at 11:54:56PM +0200, Andi Kleen wrote:
+> Yes. You won't get a continuous sbrk/brk heap then anymore. Not sure it is a 
+> big problem though.
+> But apparently Solaris/x86 is doing that.
+> It's probably worth a sysctl at least.
 
-I filled a bug-report on bugzilla.rehat.com and
-they told me "bug is reproduced here. workaround is to
-minimize the gnome-terminal while there is intense
-terminal activity"... so I'm supposed to config my
-kernel while it's terminal is not visible... great :)
+How about a personality? It is a very slightly different ABI.
 
-I'd not mind trying to debug gnome-terminal if
-I didn't need to install bazillons of libs
-for his recompile...
+
+-- wli

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318252AbSHDW0B>; Sun, 4 Aug 2002 18:26:01 -0400
+	id <S318250AbSHDWZW>; Sun, 4 Aug 2002 18:25:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318253AbSHDW0B>; Sun, 4 Aug 2002 18:26:01 -0400
-Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:7552 "EHLO
-	DervishD.pleyades.net") by vger.kernel.org with ESMTP
-	id <S318252AbSHDWZ5>; Sun, 4 Aug 2002 18:25:57 -0400
-Date: Mon, 05 Aug 2002 00:37:11 +0200
-Organization: Pleyades
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Just cosmethic but...
-Message-ID: <3D4DAC97.mailYI11WJXY@viadomus.com>
-User-Agent: nail 9.31 6/18/02
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-From: DervishD <raul@pleyades.net>
-Reply-To: DervishD <raul@pleyades.net>
-X-Mailer: DervishD TWiSTiNG Mailer
+	id <S318252AbSHDWZW>; Sun, 4 Aug 2002 18:25:22 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:14560 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S318250AbSHDWZV>; Sun, 4 Aug 2002 18:25:21 -0400
+Date: Sun, 4 Aug 2002 17:11:58 +0200
+From: Gert Menke <gert@menke.za.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
+Message-ID: <20020804151158.GA30099@mouse.mydomain>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200207260824.g6Q8OqxV000989@darkstar.example.net> <Pine.LNX.4.44.0207280301290.3407-100000@hawkeye.luckynet.adm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207280301290.3407-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :)
+Hi!
 
-    The output of 'cat /proc/meminfo' is ugly by today standards,
-since is very frequent having more than 99 Mb of RAM and the current
-meminfo just supports 8 digits before outputting ugly tabulations.
+I don't know if the mystery has been solved yet, since I didn't follow the
+whole thread, but...
 
-    So, how about raising that 8 digits to at least 10, thus allowing
-pretty tabulations up to 9 Gb of RAM?
+DeepThought ~ # man df
+[...]
+       -i, --inodes
+              List  inode  usage  information  instead  of  block
+              usage.   An  inode  (short for index node) contains
+              information about a file such as its owner, permis-
+              sions, timestamps, and location on the disk.
+[...]
 
-    If it will be accepted I can make the patch against the current
--ac kernel, for example. I know that is only a cosmethic change, but
-I use meminfo a lot and I would like to see a good tabulation ;))
+:-)
 
-    Raúl
+Regards,
+Gert

@@ -1,93 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVBZSSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVBZSi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVBZSSK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 13:18:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVBZSSJ
+	id S261255AbVBZSi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 13:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVBZSi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 13:18:09 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:63197 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261256AbVBZSRe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 13:17:34 -0500
-Message-ID: <4220BD40.6040104@tiscali.de>
-Date: Sat, 26 Feb 2005 19:17:36 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthias.Kunze@gmx-topmail.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] config option for default loglevel
-References: <20050226190556.0def242c.Matthias.Kunze@gmx-topmail.de>
-In-Reply-To: <20050226190556.0def242c.Matthias.Kunze@gmx-topmail.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 26 Feb 2005 13:38:27 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:15767 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261255AbVBZSiX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 13:38:23 -0500
+Date: Sat, 26 Feb 2005 19:38:22 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 4/6] Bind Mount Extensions 0.06
+Message-ID: <20050226183821.GA2514@mail.13thfloor.at>
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Andrew Morton <akpm@osdl.org>,
+	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <20050222121233.GE3682@mail.13thfloor.at> <1109083537.9839.18.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109083537.9839.18.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Kunze wrote:
+On Tue, Feb 22, 2005 at 09:45:37AM -0500, Trond Myklebust wrote:
+> ty den 22.02.2005 Klokka 13:12 (+0100) skreiv Herbert Poetzl:
+> 
+> >   * Special case: O_CREAT|O_EXCL implies O_NOFOLLOW for security
+> >   * reasons.
+> > @@ -1518,23 +1536,28 @@ do_link:
+> >  struct dentry *lookup_create(struct nameidata *nd, int is_dir)
+> >  {
+> >  	struct dentry *dentry;
+> > +	int error;
+> >  
+> >  	down(&nd->dentry->d_inode->i_sem);
+> > -	dentry = ERR_PTR(-EEXIST);
+> > +	error = -EEXIST;
+> >  	if (nd->last_type != LAST_NORM)
+> > -		goto fail;
+> > +		goto out;
+> >  	nd->flags &= ~LOOKUP_PARENT;
+> >  	dentry = lookup_hash(&nd->last, nd->dentry);
+> >  	if (IS_ERR(dentry))
+> > +		goto ret;
+> > +	error = mnt_may_create(nd->mnt, nd->dentry->d_inode, dentry);
+> > +	if (error)
+> >  		goto fail;
+> > +	error = -ENOENT;
+> >  	if (!is_dir && nd->last.name[nd->last.len] && !dentry->d_inode)
+> > -		goto enoent;
+> > +		goto fail;
+> > +ret:
+> >  	return dentry;
+> > -enoent:
+> > -	dput(dentry);
+> > -	dentry = ERR_PTR(-ENOENT);
+> >  fail:
+> > -	return dentry;
+> > +	dput(dentry);
+> > +out:
+> > +	return ERR_PTR(error);
+> >  }
+> 
+> What is the value of adding "error"? The current code is more efficient,
+> and just as readable.
 
->Hi,
->
->I've created a little patch to make the default loglevel a configurable
->option. Is there a chance that this patch will be included in a future
->release?
->
->diff -Naur linux-2.6.10/drivers/video/console/Kconfig linux-2.6.10-new/drivers/video/console/Kconfig
->--- linux-2.6.10/drivers/video/console/Kconfig  2004-12-24 22:34:26.000000000 +0100
->+++ linux-2.6.10-new/drivers/video/console/Kconfig      2005-02-26 17:11:03.000000000 +0100
->@@ -186,5 +186,25 @@
->          big letters (like the letters used in the SPARC PROM). If the
->          standard font is unreadable for you, say Y, otherwise say N.
-> 
->+config DEFAULT_CONSOLE_LOGLEVEL
->+        int "Default Console Loglevel"
->+        range 1 8
->+        default 7
->+        help
->+          All Kernel Messages with a loglevel smaller than the console loglevel
->+          will be printed to the console. This value can later be changed with
->+          klogd or other programs. The loglevels are defined as follows:
->+
->+          0 (KERN_EMERG)        system is unusable
->+          1 (KERN_ALERT)        action must be taken immediately
->+          2 (KERN_CRIT)         critical conditions
->+          3 (KERN_ERR)          error conditions
->+          4 (KERN_WARNING)      warning conditions
->+          5 (KERN_NOTICE)       normal but significant condition
->+          6 (KERN_INFO)         informational
->+          7 (KERN_DEBUG)        debug-level messages
->+
->+          The console loglevel can be set to a value in the range from 1 to 8.
->+
-> endmenu
-> 
->diff -Naur linux-2.6.10/kernel/printk.c linux-2.6.10-new/kernel/printk.c
->--- linux-2.6.10/kernel/printk.c        2005-02-26 16:49:03.000000000 +0100
->+++ linux-2.6.10-new/kernel/printk.c    2005-02-26 17:32:09.000000000 +0100
->@@ -41,7 +41,7 @@
-> 
-> /* We show everything that is MORE important than this.. */
-> #define MINIMUM_CONSOLE_LOGLEVEL 1 /* Minimum loglevel we let people use */
->-#define DEFAULT_CONSOLE_LOGLEVEL 7 /* anything MORE serious than KERN_DEBUG */
->+#define DEFAULT_CONSOLE_LOGLEVEL CONFIG_DEFAULT_CONSOLE_LOGLEVEL
-> 
-> DECLARE_WAIT_QUEUE_HEAD(log_wait);
->
->
->---
->Matthias Kunze
->http://elpp.foofighter.de
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Hi!
-I think this patch is useful and should be included in further Kernel 
-releases.
+okay, had a deeper look at this and now I remember
+why I added 'error' in the first place (quite some
+time ago ;)
 
-Matthias-Christian Ott
+basically we need to check for RO in lookup_create()
+now to give the same (error) results than a 'normal'
+ro mounted filesystem, it is required to do the
+dentry lookup and check the dentry->d_inode to return
+EEXIST before returning EROFS ...
+
+something like this would be the result:
+
+        if (dentry->d_inode) {
+                dput(dentry);
+                dentry = ERR_PTR(-EEXIST);
+                goto fail;
+        }
+        if (MNT_IS_RDONLY(nd->mnt)) {
+                dput(dentry);
+                dentry = ERR_PTR(-EROFS);
+                goto fail;
+        }
+
+I'm currently looking into moving that check upwards
+so that it will happen _after_ the EEXIST one ...
+
+best,
+Herbert
+
+> Cheers,
+>   Trond
+> 
+> -- 
+> Trond Myklebust <trond.myklebust@fys.uio.no>

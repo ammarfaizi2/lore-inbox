@@ -1,43 +1,88 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317066AbSFAVOC>; Sat, 1 Jun 2002 17:14:02 -0400
+	id <S317068AbSFAVT7>; Sat, 1 Jun 2002 17:19:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317067AbSFAVOC>; Sat, 1 Jun 2002 17:14:02 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:11526 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S317066AbSFAVOB>;
-	Sat, 1 Jun 2002 17:14:01 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200206012113.g51LDur14462@oboe.it.uc3m.es>
-Subject: Re: Kernel deadlock using nbd over acenic driver
-In-Reply-To: <200205241011.LAA26311@gw.chygwyn.com> from Steven Whitehouse at
- "May 24, 2002 11:11:22 am"
-To: Steve Whitehouse <Steve@ChyGwyn.com>
-Date: Sat, 1 Jun 2002 23:13:56 +0200 (MET DST)
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S317071AbSFAVT6>; Sat, 1 Jun 2002 17:19:58 -0400
+Received: from mailb.telia.com ([194.22.194.6]:46345 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S317068AbSFAVT5>;
+	Sat, 1 Jun 2002 17:19:57 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Alessandro Suardi <alessandro.suardi@oracle.com>,
+        Patrick Mochel <mochel@osdl.org>
+Subject: Re: 2.5.19 OOPS in pcmcia setup code
+In-Reply-To: <3CF6843C.6090101@oracle.com> <m2bsavpe0p.fsf@ppro.localdomain>
+From: Peter Osterlund <petero2@telia.com>
+Date: 01 Jun 2002 23:19:55 +0200
+Message-ID: <m2g006n1c4.fsf@ppro.localdomain>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Steven Whitehouse wrote:"
+Peter Osterlund <petero2@telia.com> writes:
 
-(somethiung about kernel nbd)
+> My laptop also oopses on boot, but this patch makes things work again:
 
-BTW, are you maintaining kernel nbd? If so, I'd like to propose
-some unifications that would make it possible to run either
-enbd or nbd daemons on the same driver, at least in a "compatibility
-mode".
+I get an oops also in pci_unregister_driver, which happens because
+driver_list in the device structure is never initialized. I'm now
+running with this patch which seems to work:
 
-The starting point would be
+diff -u -r linux.orig/drivers/base/driver.c linux/drivers/base/driver.c
+--- linux.orig/drivers/base/driver.c	Sat Jun  1 19:48:49 2002
++++ linux/drivers/base/driver.c	Sat Jun  1 13:28:41 2002
+@@ -37,6 +37,7 @@
+ 	write_lock(&drv->bus->lock);
+ 	list_add(&drv->bus_list,&drv->bus->drivers);
+ 	write_unlock(&drv->bus->lock);
++	INIT_LIST_HEAD(&drv->devices);
+ 	driver_make_dir(drv);
+ 	put_driver(drv);
+ 	return 0;
+diff -u -r linux.orig/drivers/pci/hotplug.c linux/drivers/pci/hotplug.c
+--- linux.orig/drivers/pci/hotplug.c	Sat Jun  1 19:48:49 2002
++++ linux/drivers/pci/hotplug.c	Sat Jun  1 10:52:05 2002
+@@ -61,7 +61,7 @@
+ 	struct list_head *ln;
+ 
+ 	for(ln=pci_bus_type.drivers.next; ln != &pci_bus_type.drivers; ln=ln->next) {
+-		struct pci_driver *drv = list_entry(ln, struct pci_driver, node);
++		struct pci_driver *drv = list_entry(ln, struct pci_driver, driver.bus_list);
+ 		if (drv->remove && pci_announce_device(drv, dev))
+ 			break;
+ 	}
+diff -u -r linux.orig/drivers/pci/pci-driver.c linux/drivers/pci/pci-driver.c
+--- linux.orig/drivers/pci/pci-driver.c	Sat Jun  1 19:48:49 2002
++++ linux/drivers/pci/pci-driver.c	Sat Jun  1 19:41:58 2002
+@@ -52,6 +52,7 @@
+ 	dev_probe_lock();
+ 	if (drv->probe(dev, id) >= 0) {
+ 		dev->driver = drv;
++		list_add_tail(&dev->dev.driver_list, &drv->driver.devices);
+ 		ret = 1;
+ 	}
+ 	dev_probe_unlock();
+@@ -169,6 +170,7 @@
+ 		pci_dev->driver = NULL;
+ 		dev->driver = NULL;
+ 		list_del_init(&dev->driver_list);
++		node = drv->driver.devices.next;
+ 	}
+ 	put_driver(&drv->driver);
+ }
+diff -u -r linux.orig/include/linux/device.h linux/include/linux/device.h
+--- linux.orig/include/linux/device.h	Sat Jun  1 19:48:50 2002
++++ linux/include/linux/device.h	Sat Jun  1 13:24:52 2002
+@@ -125,7 +125,7 @@
+ 	struct list_head g_list;        /* node in depth-first order list */
+ 	struct list_head node;		/* node in sibling list */
+ 	struct list_head bus_list;	/* node in bus's list */
+-	struct list_head driver_list;
++	struct list_head driver_list;	/* node in device_driver's list */
+ 	struct list_head children;
+ 	struct device 	* parent;
+ 
 
-1) make the over-the-wire data formats the same, which means
-   enlarging kernel nbd's nbd_request and nbd_reply structs
-   to match enbd's, or some compromise.
-
-2) less important .. make the driver structs the same. enbd has more
-   fields there too, for accounting purposes. That's the nbd_device struct.
-
-Later on one can add some cross-ioctls.
-
-Peter
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

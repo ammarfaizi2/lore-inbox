@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314557AbSEQFQi>; Fri, 17 May 2002 01:16:38 -0400
+	id <S315424AbSEQFRl>; Fri, 17 May 2002 01:17:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315423AbSEQFQh>; Fri, 17 May 2002 01:16:37 -0400
-Received: from [210.176.202.14] ([210.176.202.14]:50829 "EHLO
-	mail.shaolinmicro.com") by vger.kernel.org with ESMTP
-	id <S314557AbSEQFQg>; Fri, 17 May 2002 01:16:36 -0400
-Message-ID: <3CE49230.40607@shaolinmicro.com>
-Date: Fri, 17 May 2002 13:16:32 +0800
-From: David Chow <davidchow@shaolinmicro.com>
-Organization: Shaolin Microsystems Ltd.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020501
-X-Accept-Language: zh_TW, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, deanna_bonds@adaptec.com
-Subject: complain about dpt_2o driver and CPU time
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315425AbSEQFRk>; Fri, 17 May 2002 01:17:40 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:46604 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S315424AbSEQFRj>; Fri, 17 May 2002 01:17:39 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Ghozlane Toumi <ghoz@sympatico.ca>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: [PATCH] Fix BUG macro 
+In-Reply-To: Your message of "Thu, 16 May 2002 21:50:16 MST."
+             <3CE48C08.B0E59851@zip.com.au> 
+Date: Fri, 17 May 2002 15:20:38 +1000
+Message-Id: <E178aAR-00020W-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Deanna and others,
+In message <3CE48C08.B0E59851@zip.com.au> you write:
+> Some explanation of how this works, and of why I should not fill
+> your ear with toothpaste would be appreciated here.
 
-I am using the ASR2100 RAID card and running 2.4.17 Linux . It seems the 
-card is very slow in RAID5 computation. I use 5x18GB 10,000rpm seagate 
-drives. The card orginal comes with a 32MB ECC SD RAM as cache buffer. I 
-feel that the card is very slow, the test with Bonnie shows 1810KB/sec 
-with CPU load less than 2%. This shows the CPU time is idle, but the 
-load average go up to around 13-14 . This means the dpt_i2o driver is 
-probably not written very good in releasing the cpu time (call to 
-schedule()) on blocking calls, probably in some IO waiting routines(I am 
-not sure), or it is holding some big locks in a slow place. The CPU is 
-sitting there doing nothing, but this behaviour always block my NFS 
-clients ("server not responding, still trying") and the machine looks 
-like dead not even response to a console keyboard input. Can you tell me 
-about what is going on or who else is suffering from the same result? I 
-would like to do some improvement of the driver, or the card is really 
-that slow? My 10year old SCSI drive (no raid) runs 2200Kb/sec and is 
-even faster than this Ultra-160 SCSI i960 RAID with 32MB cache. If this 
-is the case, I will just throw it away and use my onboard Ultra-160 
-connector with software RAID which runs faster(at least). This is almost 
-unusable for even small workgroup server.
+When an include file is found using "-I dir", __FILE__ in that include
+file is "dir/filename":
 
-regards,
-David
+gcc -D__KERNEL__ -I/usr/src/working-2.5.15-bug/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=delay  -c -o delay.o delay.c
 
+Hope that helps,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268149AbRHFM0Z>; Mon, 6 Aug 2001 08:26:25 -0400
+	id <S268182AbRHFM1Z>; Mon, 6 Aug 2001 08:27:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268137AbRHFM0F>; Mon, 6 Aug 2001 08:26:05 -0400
-Received: from weta.f00f.org ([203.167.249.89]:58256 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S268149AbRHFMZz>;
-	Mon, 6 Aug 2001 08:25:55 -0400
-Date: Tue, 7 Aug 2001 00:26:50 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "David S. Miller" <davem@redhat.com>,
-        David Luyer <david_luyer@pacific.net.au>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: /proc/<n>/maps growing...
-Message-ID: <20010807002650.B23937@weta.f00f.org>
-In-Reply-To: <997080081.3938.28.camel@typhaon> <20010806105904.A28792@athlon.random> <15214.24938.681121.837470@pizda.ninka.net> <20010806125705.I15925@athlon.random>
+	id <S268150AbRHFM1Q>; Mon, 6 Aug 2001 08:27:16 -0400
+Received: from lech.pse.pl ([194.92.3.7]:17543 "EHLO lech.pse.pl")
+	by vger.kernel.org with ESMTP id <S268137AbRHFM1I>;
+	Mon, 6 Aug 2001 08:27:08 -0400
+Date: Mon, 6 Aug 2001 14:27:04 +0200
+From: Lech Szychowski <lech.szychowski@pse.pl>
+To: linux-kernel@vger.kernel.org
+Subject: getty problems
+Message-ID: <20010806142703.A25428@lech.pse.pl>
+Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010806125705.I15925@athlon.random>
 User-Agent: Mutt/1.3.20i
-X-No-Archive: Yes
+Organization: Polskie Sieci Elektroenergetyczne S.A.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 06, 2001 at 12:57:05PM +0200, Andrea Arcangeli wrote:
+In short: on 2.4.7-ac[3-7] getty cannot open /dev/ttyX,
+while on 2.4.5 it can.
 
-    The point here is not if it's simple or difficult. The point is what can
-    be done or not and what is faster or slower. All I'm saying is that I
-    don't see why it's not possible to implement the merge_segments with
-    only an O(1) additional cost of a few cycles per mmap syscall, which
-    will render the feature an obvious improvement (instead of being a
-    dubious improvement like in 2.2 that is walking the tree two times).
+I've done "strace -o /tmp/GETTY-`uname -r` /sbin/getty tty9 vc linux"
+in both cases and compared otput files. The big difference is here:
 
-mmap does merge in many common cases.
+2.4.5:
+open("/dev/tty9", O_RDWR|O_NONBLOCK)    = 0
 
+2.4.7-ac7:
+open("/dev/tty9", O_RDWR|O_NONBLOCK)    = -1 ENODEV (No such device)
 
+And yes, I believe I have terminal support compiled in:
 
-  --cw
+===
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+===
+
+$ gcc -v      
+Reading specs from /usr/lib/gcc-lib/i386-slackware-linux/2.95.3/specs
+gcc version 2.95.3 20010315 (release)
+
+This problem hit me when I compiled and installed new kernel
+(2.4.5 comes with the distribution) - I could not log in because
+all gettys got disabled:
+
+Aug  6 14:10:09 nnet /sbin/agetty[103]: /dev/tty6: cannot open as standard input: No such device
+Aug  6 14:10:09 nnet init: Id "c4" respawning too fast: disabled for 5 minutes
+
+-- 
+	Leszek.
+
+-- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
+-- speaking just for myself...

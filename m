@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262040AbSKCOfr>; Sun, 3 Nov 2002 09:35:47 -0500
+	id <S261950AbSKCO0D>; Sun, 3 Nov 2002 09:26:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262042AbSKCOfr>; Sun, 3 Nov 2002 09:35:47 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:22469 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S262040AbSKCOfq>; Sun, 3 Nov 2002 09:35:46 -0500
-Date: Sun, 3 Nov 2002 15:42:17 +0100
-From: Luc Saillard <luc.saillard@fr.alcove.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops when using ide-cd with 2.5.45 and cdrecord
-Message-ID: <20021103144217.GA9008@cedar.alcove-fr>
-References: <20021102210103.GA25617@cedar.alcove-fr> <20021102213448.GA3612@suse.de> <20021103002346.GA25842@cedar.alcove-fr> <20021103094052.GI3612@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021103094052.GI3612@suse.de>
-User-Agent: Mutt/1.3.25i
+	id <S261955AbSKCO0D>; Sun, 3 Nov 2002 09:26:03 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:1164 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S261950AbSKCO0B>; Sun, 3 Nov 2002 09:26:01 -0500
+Message-ID: <3DC5337C.4090506@quark.didntduck.org>
+Date: Sun, 03 Nov 2002 09:32:28 -0500
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: vasya vasyaev <vasya197@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Machine's high load when HIGHMEM is enabled
+References: <20021103141753.50480.qmail@web20503.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 03, 2002 at 10:40:52AM +0100, Jens Axboe wrote:
- 
-> please reproduce with this debug patch and send me the output:
+vasya vasyaev wrote:
+> Hello,
 > 
- 
-I've no problem with your patch. I've burn 5 cds without problems.
+> I have some strange kind of problem:
+> When HIGHMEM-enabled kernel is used, there is too high
+> CPU load on any task - computer get loaded high while
+> it is doing some minor, usual jobs (load average grows
+> significantly).
 
-Here my ouput for a record:
-hdc: 5a, ptr=cf3a7c00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 51, ptr=cf457e00,len=34,bio=00000000
-hdc: 51, ptr=cf457e00,len=34,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457e00,len=2,bio=00000000
-hdc: 5a, ptr=cf457c00,len=2,bio=00000000
-hdc: 5a, ptr=cf457c00,len=2,bio=00000000
-hdc: 5a, ptr=cf457c00,len=2,bio=00000000
-hdc: 5a, ptr=cf457c00,len=2,bio=00000000
-hdc: 5a, ptr=d0d5f200,len=2,bio=00000000
+2.4 can only do I/O to and from lowmem.  This means highmem pages have 
+to use bounce buffers in lowmem, and th edata is copied to/from highmem 
+which is causing the cpu load.  This has been corrected in 2.5, which 
+can do I/O to any page the device can DMA from.
 
-Luc
+--
+				Brian Gerst
+

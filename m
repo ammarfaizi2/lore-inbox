@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbTEKNod (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 09:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbTEKNoc
+	id S261408AbTEKNpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 09:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbTEKNpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 09:44:32 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:24073 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261405AbTEKNo3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 09:44:29 -0400
-Date: Sun, 11 May 2003 14:56:48 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Kristian Peters <kristian.peters@korseby.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.21-rc2: agpgart_be.c errors
-Message-ID: <20030511145648.C20017@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Kristian Peters <kristian.peters@korseby.net>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20030511150527.5366d9bb.kristian.peters@korseby.net>
+	Sun, 11 May 2003 09:45:25 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:46539 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261408AbTEKNpX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 09:45:23 -0400
+Date: Sun, 11 May 2003 15:57:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.5 patch] remove all #include <blk.h>'s
+Message-ID: <20030511135736.GM837@suse.de>
+References: <20030510163043.GJ1107@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030511150527.5366d9bb.kristian.peters@korseby.net>; from kristian.peters@korseby.net on Sun, May 11, 2003 at 03:05:27PM +0200
+In-Reply-To: <20030510163043.GJ1107@fs.tum.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 11, 2003 at 03:05:27PM +0200, Kristian Peters wrote:
-> Hello.
-> 
-> Under powerpc I've got:
+On Sat, May 10 2003, Adrian Bunk wrote:
+> all #include <blk.h>'s for 2.5 and blk.h does now #error. If people 
 
-Linux 2.4 mainline doesn't support AGP on ppc.
+I think that's _really_ stupid. Make it a warning ala
+
+#warning blk.h is deprecated, use blkdev.h
+
+like we did with malloc.h in 2.4.
+
+> want their drivers to run unmodified under 2.4 it might be necessary to 
+> do a
+>   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,70)
+>   #include <linux/blk.h>
+>   #endif
+
+That is horrible.
+
+-- 
+Jens Axboe
 

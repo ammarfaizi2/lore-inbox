@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315603AbSETAeC>; Sun, 19 May 2002 20:34:02 -0400
+	id <S315560AbSETAjt>; Sun, 19 May 2002 20:39:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315606AbSETAeB>; Sun, 19 May 2002 20:34:01 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:9479 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315603AbSETAeA>; Sun, 19 May 2002 20:34:00 -0400
-Date: Mon, 20 May 2002 02:33:56 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S315600AbSETAjs>; Sun, 19 May 2002 20:39:48 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32787 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315560AbSETAjr>; Sun, 19 May 2002 20:39:47 -0400
+Date: Sun, 19 May 2002 17:39:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Roman Zippel <zippel@linux-m68k.org>
 cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux-2.5.16
-In-Reply-To: <Pine.LNX.4.33.0205180051100.3170-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0205200211380.23394-100000@serv>
+In-Reply-To: <Pine.LNX.4.21.0205200211380.23394-100000@serv>
+Message-ID: <Pine.LNX.4.44.0205191736420.10180-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sat, 18 May 2002, Linus Torvalds wrote:
 
-> The TLB invalidate rewrite will likely have broken all other architectures 
-> (at least performance-wise, if not in any other way), so architecture 
-> maintainers look out!
+On Mon, 20 May 2002, Roman Zippel wrote:
+>
+> Two questions about asm-generic/tlb.h:
+> - freed is never incremented, callers of tlb_remove_page have to do the
+>   rss update themselves?
 
-Two questions about asm-generic/tlb.h:
-- freed is never incremented, callers of tlb_remove_page have to do the
-  rss update themselves?
-- will a non smp version later be added again?
+No, that's just a missed thing (for a while I thought I could use "nr" for
+"freed", so I changed the code and forgot to add back the free'd).
 
-bye, Roman
+> - will a non smp version later be added again?
+
+Not likely, at least not in the form it was before of having two
+completely different paths.
+
+But I was thinking of doing a one-source thing that the compiler can
+statically optimize, with something like
+
+	#ifdef CONFIG_SMP
+	#define fast_case(tlb) ((tlb)->nr == ~0UL)
+	#else
+	#define fast_case(tlb) (1)
+	#endif
+
+which allows us to have one set of sources for both UP and SMP, but the UP
+case gets optimized by the compiler.
+
+Do you want to do the freed and the above and test it?
+
+		Linus
 

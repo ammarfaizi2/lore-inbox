@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbUKIFhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbUKIFla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbUKIFhr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 00:37:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUKIFh0
+	id S261404AbUKIFla (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 00:41:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbUKIFkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 00:37:26 -0500
-Received: from mail.kroah.org ([69.55.234.183]:54430 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261376AbUKIFYz convert rfc822-to-8bit
+	Tue, 9 Nov 2004 00:40:37 -0500
+Received: from mail.kroah.org ([69.55.234.183]:56222 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261377AbUKIFY4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 00:24:55 -0500
+	Tue, 9 Nov 2004 00:24:56 -0500
 Subject: Re: [PATCH] I2C update for 2.6.10-rc1
-In-Reply-To: <10999778553443@kroah.com>
+In-Reply-To: <10999778563931@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 8 Nov 2004 21:24:15 -0800
-Message-Id: <10999778554@kroah.com>
+Date: Mon, 8 Nov 2004 21:24:16 -0800
+Message-Id: <10999778563058@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,638 +22,406 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2014.1.9, 2004/11/05 13:42:51-08:00, khali@linux-fr.org
+ChangeSet 1.2014.1.16, 2004/11/08 16:35:21-08:00, greg@kroah.com
 
-[PATCH] I2C: New LM63 chip driver
+I2C: remove normal_isa_range from I2C sensor drivers, as it's not used.
 
-This is a new I2C chip driver named lm63, which supports National
-Semiconductor's LM63 hardware monitoring chip. The LM63 is similar to
-the LM86 (which we do support through our lm90 driver) with additional
-monitoring and control of a single fan. It is obviously aimed at the CPU
-and high-end graphics adapters markets. This new driver is very similar
-in nature to the lm83 and lm90 driver so I don't have much to add.
-
-I developed the driver on a request from Hard Data Ltd. which are using
-Tyan S4882 boards where four LM63 chips are used (one for each CPU).
-Tyan provided remote access to a test system so that I could test my
-driver on real LM63 chips.
-
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/i2c/chips/Kconfig  |   13 +
- drivers/i2c/chips/Makefile |    1 
- drivers/i2c/chips/lm63.c   |  569 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 583 insertions(+)
+ drivers/i2c/chips/adm1021.c     |    1 -
+ drivers/i2c/chips/adm1025.c     |    1 -
+ drivers/i2c/chips/adm1031.c     |    1 -
+ drivers/i2c/chips/asb100.c      |    1 -
+ drivers/i2c/chips/ds1621.c      |    1 -
+ drivers/i2c/chips/eeprom.c      |    1 -
+ drivers/i2c/chips/fscher.c      |    1 -
+ drivers/i2c/chips/gl518sm.c     |    1 -
+ drivers/i2c/chips/it87.c        |    1 -
+ drivers/i2c/chips/lm63.c        |    1 -
+ drivers/i2c/chips/lm75.c        |    1 -
+ drivers/i2c/chips/lm77.c        |    1 -
+ drivers/i2c/chips/lm78.c        |    1 -
+ drivers/i2c/chips/lm80.c        |    1 -
+ drivers/i2c/chips/lm83.c        |    1 -
+ drivers/i2c/chips/lm85.c        |    1 -
+ drivers/i2c/chips/lm87.c        |    1 -
+ drivers/i2c/chips/lm90.c        |    1 -
+ drivers/i2c/chips/max1619.c     |    1 -
+ drivers/i2c/chips/pc87360.c     |    2 --
+ drivers/i2c/chips/pcf8574.c     |    1 -
+ drivers/i2c/chips/pcf8591.c     |    1 -
+ drivers/i2c/chips/smsc47m1.c    |    2 --
+ drivers/i2c/chips/via686a.c     |    1 -
+ drivers/i2c/chips/w83627hf.c    |    1 -
+ drivers/i2c/chips/w83781d.c     |    1 -
+ drivers/i2c/chips/w83l785ts.c   |    1 -
+ drivers/i2c/i2c-sensor-detect.c |    8 --------
+ include/linux/i2c-sensor.h      |    8 --------
+ 29 files changed, 45 deletions(-)
 
 
-diff -Nru a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
---- a/drivers/i2c/chips/Kconfig	2004-11-08 18:55:43 -08:00
-+++ b/drivers/i2c/chips/Kconfig	2004-11-08 18:55:43 -08:00
-@@ -97,6 +97,19 @@
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called it87.
+diff -Nru a/drivers/i2c/chips/adm1021.c b/drivers/i2c/chips/adm1021.c
+--- a/drivers/i2c/chips/adm1021.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/adm1021.c	2004-11-08 18:55:05 -08:00
+@@ -45,7 +45,6 @@
+ 	0x4c, 0x4e, I2C_CLIENT_END
+ };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
  
-+config SENSORS_LM63
-+	tristate "National Semiconductor LM63"
-+	depends on I2C && EXPERIMENTAL
-+	select I2C_SENSOR
-+	help
-+	  If you say yes here you get support for the National Semiconductor
-+	  LM63 remote diode digital temperature sensor with integrated fan
-+	  control.  Such chips are found on the Tyan S4882 (Thunder K8QS Pro)
-+	  motherboard, among others.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called lm63.
-+
- config SENSORS_LM75
- 	tristate "National Semiconductor LM75 and compatibles"
- 	depends on I2C && EXPERIMENTAL
-diff -Nru a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
---- a/drivers/i2c/chips/Makefile	2004-11-08 18:55:43 -08:00
-+++ b/drivers/i2c/chips/Makefile	2004-11-08 18:55:43 -08:00
-@@ -15,6 +15,7 @@
- obj-$(CONFIG_SENSORS_FSCHER)	+= fscher.o
- obj-$(CONFIG_SENSORS_GL518SM)	+= gl518sm.o
- obj-$(CONFIG_SENSORS_IT87)	+= it87.o
-+obj-$(CONFIG_SENSORS_LM63)	+= lm63.o
- obj-$(CONFIG_SENSORS_LM75)	+= lm75.o
- obj-$(CONFIG_SENSORS_LM77)	+= lm77.o
- obj-$(CONFIG_SENSORS_LM78)	+= lm78.o
+ /* Insmod parameters */
+ SENSORS_INSMOD_8(adm1021, adm1023, max1617, max1617a, thmc10, lm84, gl523sm, mc1066);
+diff -Nru a/drivers/i2c/chips/adm1025.c b/drivers/i2c/chips/adm1025.c
+--- a/drivers/i2c/chips/adm1025.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/adm1025.c	2004-11-08 18:55:05 -08:00
+@@ -62,7 +62,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x2c, 0x2e, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /*
+  * Insmod parameters
+diff -Nru a/drivers/i2c/chips/adm1031.c b/drivers/i2c/chips/adm1031.c
+--- a/drivers/i2c/chips/adm1031.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/adm1031.c	2004-11-08 18:55:05 -08:00
+@@ -60,7 +60,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x2c, 0x2e, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_2(adm1030, adm1031);
+diff -Nru a/drivers/i2c/chips/asb100.c b/drivers/i2c/chips/asb100.c
+--- a/drivers/i2c/chips/asb100.c	2004-11-08 18:55:06 -08:00
++++ b/drivers/i2c/chips/asb100.c	2004-11-08 18:55:06 -08:00
+@@ -61,7 +61,6 @@
+ 
+ /* ISA addresses to scan (none) */
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_1(asb100);
+diff -Nru a/drivers/i2c/chips/ds1621.c b/drivers/i2c/chips/ds1621.c
+--- a/drivers/i2c/chips/ds1621.c	2004-11-08 18:55:06 -08:00
++++ b/drivers/i2c/chips/ds1621.c	2004-11-08 18:55:06 -08:00
+@@ -32,7 +32,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x48, 0x4f, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_1(ds1621);
+diff -Nru a/drivers/i2c/chips/eeprom.c b/drivers/i2c/chips/eeprom.c
+--- a/drivers/i2c/chips/eeprom.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/eeprom.c	2004-11-08 18:55:05 -08:00
+@@ -39,7 +39,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x50, 0x57, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_1(eeprom);
+diff -Nru a/drivers/i2c/chips/fscher.c b/drivers/i2c/chips/fscher.c
+--- a/drivers/i2c/chips/fscher.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/fscher.c	2004-11-08 18:55:05 -08:00
+@@ -40,7 +40,6 @@
+ static unsigned short normal_i2c[] = { 0x73, I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /*
+  * Insmod parameters
+diff -Nru a/drivers/i2c/chips/gl518sm.c b/drivers/i2c/chips/gl518sm.c
+--- a/drivers/i2c/chips/gl518sm.c	2004-11-08 18:55:06 -08:00
++++ b/drivers/i2c/chips/gl518sm.c	2004-11-08 18:55:06 -08:00
+@@ -47,7 +47,6 @@
+ static unsigned short normal_i2c[] = { 0x2c, 0x2d, I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_2(gl518sm_r00, gl518sm_r80);
+diff -Nru a/drivers/i2c/chips/it87.c b/drivers/i2c/chips/it87.c
+--- a/drivers/i2c/chips/it87.c	2004-11-08 18:55:06 -08:00
++++ b/drivers/i2c/chips/it87.c	2004-11-08 18:55:06 -08:00
+@@ -45,7 +45,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x20, 0x2f, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { 0x0290, I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_2(it87, it8712);
 diff -Nru a/drivers/i2c/chips/lm63.c b/drivers/i2c/chips/lm63.c
---- /dev/null	Wed Dec 31 16:00:00 196900
-+++ b/drivers/i2c/chips/lm63.c	2004-11-08 18:55:43 -08:00
-@@ -0,0 +1,569 @@
-+/*
-+ * lm63.c - driver for the National Semiconductor LM63 temperature sensor
-+ *          with integrated fan control
-+ * Copyright (C) 2004  Jean Delvare <khali@linux-fr.org>
-+ * Based on the lm90 driver.
-+ *
-+ * The LM63 is a sensor chip made by National Semiconductor. It measures
-+ * two temperatures (its own and one external one) and the speed of one
-+ * fan, those speed it can additionally control. Complete datasheet can be
-+ * obtained from National's website at:
-+ *   http://www.national.com/pf/LM/LM63.html
-+ *
-+ * The LM63 is basically an LM86 with fan speed monitoring and control
-+ * capabilities added. It misses some of the LM86 features though:
-+ *  - No low limit for local temperature.
-+ *  - No critical limit for local temperature.
-+ *  - Critical limit for remote temperature can be changed only once. We
-+ *    will consider that the critical limit is read-only.
-+ *
-+ * The datasheet isn't very clear about what the tachometer reading is.
-+ * I had a explanation from National Semiconductor though. The two lower
-+ * bits of the read value have to be masked out. The value is still 16 bit
-+ * in width.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-sensor.h>
-+
-+/*
-+ * Addresses to scan
-+ * Address is fully defined internally and cannot be changed.
-+ */
-+
-+static unsigned short normal_i2c[] = { 0x4c, I2C_CLIENT_END };
-+static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
-+static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
-+static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
-+
-+/*
-+ * Insmod parameters
-+ */
-+
-+SENSORS_INSMOD_1(lm63);
-+
-+/*
-+ * The LM63 registers
-+ */
-+
-+#define LM63_REG_CONFIG1		0x03
-+#define LM63_REG_CONFIG2		0xBF
-+#define LM63_REG_CONFIG_FAN		0x4A
-+
-+#define LM63_REG_TACH_COUNT_MSB		0x47
-+#define LM63_REG_TACH_COUNT_LSB		0x46
-+#define LM63_REG_TACH_LIMIT_MSB		0x49
-+#define LM63_REG_TACH_LIMIT_LSB		0x48
-+
-+#define LM63_REG_PWM_VALUE		0x4C
-+#define LM63_REG_PWM_FREQ		0x4D
-+
-+#define LM63_REG_LOCAL_TEMP		0x00
-+#define LM63_REG_LOCAL_HIGH		0x05
-+
-+#define LM63_REG_REMOTE_TEMP_MSB	0x01
-+#define LM63_REG_REMOTE_TEMP_LSB	0x10
-+#define LM63_REG_REMOTE_OFFSET_MSB	0x11
-+#define LM63_REG_REMOTE_OFFSET_LSB	0x12
-+#define LM63_REG_REMOTE_HIGH_MSB	0x07
-+#define LM63_REG_REMOTE_HIGH_LSB	0x13
-+#define LM63_REG_REMOTE_LOW_MSB		0x08
-+#define LM63_REG_REMOTE_LOW_LSB		0x14
-+#define LM63_REG_REMOTE_TCRIT		0x19
-+#define LM63_REG_REMOTE_TCRIT_HYST	0x21
-+
-+#define LM63_REG_ALERT_STATUS		0x02
-+#define LM63_REG_ALERT_MASK		0x16
-+
-+#define LM63_REG_MAN_ID			0xFE
-+#define LM63_REG_CHIP_ID		0xFF
-+
-+/*
-+ * Conversions and various macros
-+ * For tachometer counts, the LM63 uses 16-bit values.
-+ * For local temperature and high limit, remote critical limit and hysteresis
-+ * value, it uses signed 8-bit values with LSB = 1 degree Celcius.
-+ * For remote temperature, low and high limits, it uses signed 11-bit values
-+ * with LSB = 0.125 degree Celcius, left-justified in 16-bit registers.
-+ */
-+
-+#define FAN_FROM_REG(reg)	((reg) == 0xFFFC || (reg) == 0 ? 0 : \
-+				 5400000 / (reg))
-+#define FAN_TO_REG(val)		((val) <= 82 ? 0xFFFC : \
-+				 (5400000 / (val)) & 0xFFFC)
-+#define TEMP8_FROM_REG(reg)	((reg) * 1000)
-+#define TEMP8_TO_REG(val)	((val) <= -128000 ? -128 : \
-+				 (val) >= 127000 ? 127 : \
-+				 (val) < 0 ? ((val) - 500) / 1000 : \
-+				 ((val) + 500) / 1000)
-+#define TEMP11_FROM_REG(reg)	((reg) / 32 * 125)
-+#define TEMP11_TO_REG(val)	((val) <= -128000 ? 0x8000 : \
-+				 (val) >= 127875 ? 0x7FE0 : \
-+				 (val) < 0 ? ((val) - 62) / 125 * 32 : \
-+				 ((val) + 62) / 125 * 32)
-+#define HYST_TO_REG(val)	((val) <= 0 ? 0 : \
-+				 (val) >= 127000 ? 127 : \
-+				 ((val) + 500) / 1000)
-+
-+/*
-+ * Functions declaration
-+ */
-+
-+static int lm63_attach_adapter(struct i2c_adapter *adapter);
-+static int lm63_detach_client(struct i2c_client *client);
-+
-+static struct lm63_data *lm63_update_device(struct device *dev);
-+
-+static int lm63_detect(struct i2c_adapter *adapter, int address, int kind);
-+static void lm63_init_client(struct i2c_client *client);
-+
-+/*
-+ * Driver data (common to all clients)
-+ */
-+
-+static struct i2c_driver lm63_driver = {
-+	.owner		= THIS_MODULE,
-+	.name		= "lm63",
-+	.flags		= I2C_DF_NOTIFY,
-+	.attach_adapter	= lm63_attach_adapter,
-+	.detach_client	= lm63_detach_client,
-+};
-+
-+/*
-+ * Client data (each client gets its own)
-+ */
-+
-+struct lm63_data {
-+	struct i2c_client client;
-+	struct semaphore update_lock;
-+	char valid; /* zero until following fields are valid */
-+	unsigned long last_updated; /* in jiffies */
-+
-+	/* registers values */
-+	u8 config, config_fan;
-+	u16 fan1_input;
-+	u16 fan1_low;
-+	u8 pwm1_freq;
-+	u8 pwm1_value;
-+	s8 temp1_input;
-+	s8 temp1_high;
-+	s16 temp2_input;
-+	s16 temp2_high;
-+	s16 temp2_low;
-+	s8 temp2_crit;
-+	u8 temp2_crit_hyst;
-+	u8 alarms;
-+};
-+
-+/*
-+ * Sysfs callback functions and files
-+ */
-+
-+#define show_fan(value) \
-+static ssize_t show_##value(struct device *dev, char *buf) \
-+{ \
-+	struct lm63_data *data = lm63_update_device(dev); \
-+	return sprintf(buf, "%d\n", FAN_FROM_REG(data->value)); \
-+}
-+show_fan(fan1_input);
-+show_fan(fan1_low);
-+
-+static ssize_t set_fan1_low(struct device *dev, const char *buf,
-+	size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm63_data *data = i2c_get_clientdata(client);
-+	unsigned long val = simple_strtoul(buf, NULL, 10);
-+	data->fan1_low = FAN_TO_REG(val);
-+	i2c_smbus_write_byte_data(client, LM63_REG_TACH_LIMIT_LSB,
-+				  data->fan1_low & 0xFF);
-+	i2c_smbus_write_byte_data(client, LM63_REG_TACH_LIMIT_MSB,
-+				  data->fan1_low >> 8);
-+	return count;
-+}
-+
-+static ssize_t show_pwm1(struct device *dev, char *buf)
-+{
-+	struct lm63_data *data = lm63_update_device(dev);
-+	return sprintf(buf, "%d\n", data->pwm1_value >= 2 * data->pwm1_freq ?
-+		       255 : (data->pwm1_value * 255 + data->pwm1_freq) /
-+		       (2 * data->pwm1_freq));
-+}
-+
-+static ssize_t set_pwm1(struct device *dev, const char *buf, size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm63_data *data = i2c_get_clientdata(client);
-+	unsigned long val;
-+	
-+	if (!(data->config_fan & 0x20)) /* register is read-only */
-+		return -EPERM;
-+
-+	val = simple_strtoul(buf, NULL, 10);
-+	data->pwm1_value = val <= 0 ? 0 :
-+			   val >= 255 ? 2 * data->pwm1_freq :
-+			   (val * data->pwm1_freq * 2 + 127) / 255;
-+	i2c_smbus_write_byte_data(client, LM63_REG_PWM_VALUE, data->pwm1_value);
-+	return count;
-+}
-+
-+static ssize_t show_pwm1_enable(struct device *dev, char *buf)
-+{
-+	struct lm63_data *data = lm63_update_device(dev);
-+	return sprintf(buf, "%d\n", data->config_fan & 0x20 ? 1 : 2);
-+}
-+
-+#define show_temp8(value) \
-+static ssize_t show_##value(struct device *dev, char *buf) \
-+{ \
-+	struct lm63_data *data = lm63_update_device(dev); \
-+	return sprintf(buf, "%d\n", TEMP8_FROM_REG(data->value)); \
-+}
-+#define show_temp11(value) \
-+static ssize_t show_##value(struct device *dev, char *buf) \
-+{ \
-+	struct lm63_data *data = lm63_update_device(dev); \
-+	return sprintf(buf, "%d\n", TEMP11_FROM_REG(data->value)); \
-+}
-+show_temp8(temp1_input);
-+show_temp8(temp1_high);
-+show_temp11(temp2_input);
-+show_temp11(temp2_high);
-+show_temp11(temp2_low);
-+show_temp8(temp2_crit);
-+
-+#define set_temp8(value, reg) \
-+static ssize_t set_##value(struct device *dev, const char *buf, \
-+	size_t count) \
-+{ \
-+	struct i2c_client *client = to_i2c_client(dev); \
-+	struct lm63_data *data = i2c_get_clientdata(client); \
-+	long val = simple_strtol(buf, NULL, 10); \
-+	data->value = TEMP8_TO_REG(val); \
-+	i2c_smbus_write_byte_data(client, reg, data->value); \
-+	return count; \
-+}
-+#define set_temp11(value, reg_msb, reg_lsb) \
-+static ssize_t set_##value(struct device *dev, const char *buf, \
-+	size_t count) \
-+{ \
-+	struct i2c_client *client = to_i2c_client(dev); \
-+	struct lm63_data *data = i2c_get_clientdata(client); \
-+	long val = simple_strtol(buf, NULL, 10); \
-+	data->value = TEMP11_TO_REG(val); \
-+	i2c_smbus_write_byte_data(client, reg_msb, data->value >> 8); \
-+	i2c_smbus_write_byte_data(client, reg_lsb, data->value & 0xff); \
-+	return count; \
-+}
-+set_temp8(temp1_high, LM63_REG_LOCAL_HIGH);
-+set_temp11(temp2_high, LM63_REG_REMOTE_HIGH_MSB, LM63_REG_REMOTE_HIGH_LSB);
-+set_temp11(temp2_low, LM63_REG_REMOTE_LOW_MSB, LM63_REG_REMOTE_LOW_LSB);
-+
-+/* Hysteresis register holds a relative value, while we want to present
-+   an absolute to user-space */
-+static ssize_t show_temp2_crit_hyst(struct device *dev, char *buf)
-+{
-+	struct lm63_data *data = lm63_update_device(dev);
-+	return sprintf(buf, "%d\n", TEMP8_FROM_REG(data->temp2_crit)
-+		       - TEMP8_FROM_REG(data->temp2_crit_hyst));
-+}
-+
-+/* And now the other way around, user-space provides an absolute
-+   hysteresis value and we have to store a relative one */
-+static ssize_t set_temp2_crit_hyst(struct device *dev, const char *buf,
-+	size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm63_data *data = i2c_get_clientdata(client);
-+	int hyst = TEMP8_FROM_REG(data->temp2_crit) -
-+		   simple_strtol(buf, NULL, 10);
-+	i2c_smbus_write_byte_data(client, LM63_REG_REMOTE_TCRIT_HYST,
-+				  HYST_TO_REG(hyst));
-+	return count;
-+}
-+
-+static ssize_t show_alarms(struct device *dev, char *buf)
-+{
-+	struct lm63_data *data = lm63_update_device(dev);
-+	return sprintf(buf, "%u\n", data->alarms);
-+}
-+
-+static DEVICE_ATTR(fan1_input, S_IRUGO, show_fan1_input, NULL);
-+static DEVICE_ATTR(fan1_min, S_IWUSR | S_IRUGO, show_fan1_low,
-+	set_fan1_low);
-+
-+static DEVICE_ATTR(pwm1, S_IWUSR | S_IRUGO, show_pwm1, set_pwm1);
-+static DEVICE_ATTR(pwm1_enable, S_IRUGO, show_pwm1_enable, NULL);
-+
-+static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp1_input, NULL);
-+static DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO, show_temp1_high,
-+	set_temp1_high);
-+
-+static DEVICE_ATTR(temp2_input, S_IRUGO, show_temp2_input, NULL);
-+static DEVICE_ATTR(temp2_min, S_IWUSR | S_IRUGO, show_temp2_low,
-+	set_temp2_low);
-+static DEVICE_ATTR(temp2_max, S_IWUSR | S_IRUGO, show_temp2_high,
-+	set_temp2_high);
-+static DEVICE_ATTR(temp2_crit, S_IRUGO, show_temp2_crit, NULL);
-+static DEVICE_ATTR(temp2_crit_hyst, S_IWUSR | S_IRUGO, show_temp2_crit_hyst,
-+	set_temp2_crit_hyst);
-+
-+static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
-+
-+/*
-+ * Real code
-+ */
-+
-+static int lm63_attach_adapter(struct i2c_adapter *adapter)
-+{
-+	if (!(adapter->class & I2C_CLASS_HWMON))
-+		return 0;
-+	return i2c_detect(adapter, &addr_data, lm63_detect);
-+}
-+
-+/*
-+ * The following function does more than just detection. If detection
-+ * succeeds, it also registers the new chip.
-+ */
-+static int lm63_detect(struct i2c_adapter *adapter, int address, int kind)
-+{
-+	struct i2c_client *new_client;
-+	struct lm63_data *data;
-+	int err = 0;
-+
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
-+		goto exit;
-+
-+	if (!(data = kmalloc(sizeof(struct lm63_data), GFP_KERNEL))) {
-+		err = -ENOMEM;
-+		goto exit;
-+	}
-+	memset(data, 0, sizeof(struct lm63_data));
-+
-+	/* The common I2C client data is placed right before the
-+	   LM63-specific data. */
-+	new_client = &data->client;
-+	i2c_set_clientdata(new_client, data);
-+	new_client->addr = address;
-+	new_client->adapter = adapter;
-+	new_client->driver = &lm63_driver;
-+	new_client->flags = 0;
-+
-+	/* Default to an LM63 if forced */
-+	if (kind == 0)
-+		kind = lm63;
-+
-+	if (kind < 0) { /* must identify */
-+		u8 man_id, chip_id, reg_config1, reg_config2;
-+		u8 reg_alert_status, reg_alert_mask;
-+
-+		man_id = i2c_smbus_read_byte_data(new_client,
-+			 LM63_REG_MAN_ID);
-+		chip_id = i2c_smbus_read_byte_data(new_client,
-+			  LM63_REG_CHIP_ID);
-+		reg_config1 = i2c_smbus_read_byte_data(new_client,
-+			      LM63_REG_CONFIG1);
-+		reg_config2 = i2c_smbus_read_byte_data(new_client,
-+			      LM63_REG_CONFIG2);
-+		reg_alert_status = i2c_smbus_read_byte_data(new_client,
-+				   LM63_REG_ALERT_STATUS);
-+		reg_alert_mask = i2c_smbus_read_byte_data(new_client,
-+				 LM63_REG_ALERT_MASK);
-+
-+		if (man_id == 0x01 /* National Semiconductor */
-+		 && chip_id == 0x41 /* LM63 */
-+		 && (reg_config1 & 0x18) == 0x00
-+		 && (reg_config2 & 0xF8) == 0x00
-+		 && (reg_alert_status & 0x20) == 0x00
-+		 && (reg_alert_mask & 0xA4) == 0xA4) {
-+			kind = lm63;
-+		} else { /* failed */
-+			dev_dbg(&adapter->dev, "Unsupported chip "
-+				"(man_id=0x%02X, chip_id=0x%02X).\n",
-+				man_id, chip_id);
-+			goto exit_free;
-+		}
-+	}
-+
-+	strlcpy(new_client->name, "lm63", I2C_NAME_SIZE);
-+	data->valid = 0;
-+	init_MUTEX(&data->update_lock);
-+
-+	/* Tell the I2C layer a new client has arrived */
-+	if ((err = i2c_attach_client(new_client)))
-+		goto exit_free;
-+
-+	/* Initialize the LM63 chip */
-+	lm63_init_client(new_client);
-+
-+	/* Register sysfs hooks */
-+	if (data->config & 0x04) { /* tachometer enabled */
-+		device_create_file(&new_client->dev, &dev_attr_fan1_input);
-+		device_create_file(&new_client->dev, &dev_attr_fan1_min);
-+	}
-+	device_create_file(&new_client->dev, &dev_attr_pwm1);
-+	device_create_file(&new_client->dev, &dev_attr_pwm1_enable);
-+	device_create_file(&new_client->dev, &dev_attr_temp1_input);
-+	device_create_file(&new_client->dev, &dev_attr_temp2_input);
-+	device_create_file(&new_client->dev, &dev_attr_temp2_min);
-+	device_create_file(&new_client->dev, &dev_attr_temp1_max);
-+	device_create_file(&new_client->dev, &dev_attr_temp2_max);
-+	device_create_file(&new_client->dev, &dev_attr_temp2_crit);
-+	device_create_file(&new_client->dev, &dev_attr_temp2_crit_hyst);
-+	device_create_file(&new_client->dev, &dev_attr_alarms);
-+
-+	return 0;
-+
-+exit_free:
-+	kfree(data);
-+exit:
-+	return err;
-+}
-+
-+/* Idealy we shouldn't have to initialize anything, since the BIOS
-+   should have taken care of everything */
-+static void lm63_init_client(struct i2c_client *client)
-+{
-+	struct lm63_data *data = i2c_get_clientdata(client);
-+
-+	data->config = i2c_smbus_read_byte_data(client, LM63_REG_CONFIG1);
-+	data->config_fan = i2c_smbus_read_byte_data(client,
-+						    LM63_REG_CONFIG_FAN);
-+
-+	/* Start converting if needed */
-+	if (data->config & 0x40) { /* standby */
-+		dev_dbg(&client->dev, "Switching to operational mode");
-+		data->config &= 0xA7;
-+		i2c_smbus_write_byte_data(client, LM63_REG_CONFIG1,
-+					  data->config);
-+	}
-+
-+	/* We may need pwm1_freq before ever updating the client data */
-+	data->pwm1_freq = i2c_smbus_read_byte_data(client, LM63_REG_PWM_FREQ);
-+	if (data->pwm1_freq == 0)
-+		data->pwm1_freq = 1;
-+
-+	/* Show some debug info about the LM63 configuration */
-+	dev_dbg(&client->dev, "Alert/tach pin configured for %s\n",
-+		(data->config & 0x04) ? "tachometer input" :
-+		"alert output");
-+	dev_dbg(&client->dev, "PWM clock %s kHz, output frequency %u Hz\n",
-+		(data->config_fan & 0x04) ? "1.4" : "360",
-+		((data->config_fan & 0x04) ? 700 : 180000) / data->pwm1_freq);
-+	dev_dbg(&client->dev, "PWM output active %s, %s mode\n",
-+		(data->config_fan & 0x10) ? "low" : "high",
-+		(data->config_fan & 0x20) ? "manual" : "auto");
-+}
-+
-+static int lm63_detach_client(struct i2c_client *client)
-+{
-+	int err;
-+
-+	if ((err = i2c_detach_client(client))) {
-+		dev_err(&client->dev, "Client deregistration failed, "
-+			"client not detached\n");
-+		return err;
-+	}
-+
-+	kfree(i2c_get_clientdata(client));
-+	return 0;
-+}
-+
-+static struct lm63_data *lm63_update_device(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lm63_data *data = i2c_get_clientdata(client);
-+
-+	down(&data->update_lock);
-+
-+	if ((jiffies - data->last_updated > HZ) ||
-+	    (jiffies < data->last_updated) ||
-+	    !data->valid) {
-+		if (data->config & 0x04) { /* tachometer enabled  */
-+			/* order matters for fan1_input */
-+			data->fan1_input = i2c_smbus_read_byte_data(client,
-+					   LM63_REG_TACH_COUNT_LSB) & 0xFC;
-+			data->fan1_input |= i2c_smbus_read_byte_data(client,
-+					    LM63_REG_TACH_COUNT_MSB) << 8;
-+			data->fan1_low = (i2c_smbus_read_byte_data(client,
-+					  LM63_REG_TACH_LIMIT_LSB) & 0xFC)
-+				       | (i2c_smbus_read_byte_data(client,
-+					  LM63_REG_TACH_LIMIT_MSB) << 8);
-+		}
-+
-+		data->pwm1_freq = i2c_smbus_read_byte_data(client,
-+				  LM63_REG_PWM_FREQ);
-+		if (data->pwm1_freq == 0)
-+			data->pwm1_freq = 1;
-+		data->pwm1_value = i2c_smbus_read_byte_data(client,
-+				   LM63_REG_PWM_VALUE);
-+
-+		data->temp1_input = i2c_smbus_read_byte_data(client,
-+				    LM63_REG_LOCAL_TEMP);
-+		data->temp1_high = i2c_smbus_read_byte_data(client,
-+				   LM63_REG_LOCAL_HIGH);
-+
-+		/* order matters for temp2_input */
-+		data->temp2_input = i2c_smbus_read_byte_data(client,
-+				    LM63_REG_REMOTE_TEMP_MSB) << 8;
-+		data->temp2_input |= i2c_smbus_read_byte_data(client,
-+				     LM63_REG_REMOTE_TEMP_LSB);
-+		data->temp2_high = (i2c_smbus_read_byte_data(client,
-+				   LM63_REG_REMOTE_HIGH_MSB) << 8)
-+				 | i2c_smbus_read_byte_data(client,
-+				   LM63_REG_REMOTE_HIGH_LSB);
-+		data->temp2_low = (i2c_smbus_read_byte_data(client,
-+				  LM63_REG_REMOTE_LOW_MSB) << 8)
-+				| i2c_smbus_read_byte_data(client,
-+				  LM63_REG_REMOTE_LOW_LSB);
-+		data->temp2_crit = i2c_smbus_read_byte_data(client,
-+				   LM63_REG_REMOTE_TCRIT);
-+		data->temp2_crit_hyst = i2c_smbus_read_byte_data(client,
-+					LM63_REG_REMOTE_TCRIT_HYST);
-+
-+		data->alarms = i2c_smbus_read_byte_data(client,
-+			       LM63_REG_ALERT_STATUS) & 0x7F;
-+
-+		data->last_updated = jiffies;
-+		data->valid = 1;
-+	}
-+
-+	up(&data->update_lock);
-+
-+	return data;
-+}
-+
-+static int __init sensors_lm63_init(void)
-+{
-+	return i2c_add_driver(&lm63_driver);
-+}
-+
-+static void __exit sensors_lm63_exit(void)
-+{
-+	i2c_del_driver(&lm63_driver);
-+}
-+
-+MODULE_AUTHOR("Jean Delvare <khali@linux-fr.org>");
-+MODULE_DESCRIPTION("LM63 driver");
-+MODULE_LICENSE("GPL");
-+
-+module_init(sensors_lm63_init);
-+module_exit(sensors_lm63_exit);
+--- a/drivers/i2c/chips/lm63.c	2004-11-08 18:55:06 -08:00
++++ b/drivers/i2c/chips/lm63.c	2004-11-08 18:55:06 -08:00
+@@ -52,7 +52,6 @@
+ static unsigned short normal_i2c[] = { 0x4c, I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /*
+  * Insmod parameters
+diff -Nru a/drivers/i2c/chips/lm75.c b/drivers/i2c/chips/lm75.c
+--- a/drivers/i2c/chips/lm75.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/lm75.c	2004-11-08 18:55:05 -08:00
+@@ -31,7 +31,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x48, 0x4f, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_1(lm75);
+diff -Nru a/drivers/i2c/chips/lm77.c b/drivers/i2c/chips/lm77.c
+--- a/drivers/i2c/chips/lm77.c	2004-11-08 18:55:06 -08:00
++++ b/drivers/i2c/chips/lm77.c	2004-11-08 18:55:06 -08:00
+@@ -37,7 +37,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x48, 0x4b, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_1(lm77);
+diff -Nru a/drivers/i2c/chips/lm78.c b/drivers/i2c/chips/lm78.c
+--- a/drivers/i2c/chips/lm78.c	2004-11-08 18:55:06 -08:00
++++ b/drivers/i2c/chips/lm78.c	2004-11-08 18:55:06 -08:00
+@@ -30,7 +30,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x20, 0x2f, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { 0x0290, I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_3(lm78, lm78j, lm79);
+diff -Nru a/drivers/i2c/chips/lm80.c b/drivers/i2c/chips/lm80.c
+--- a/drivers/i2c/chips/lm80.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/lm80.c	2004-11-08 18:55:05 -08:00
+@@ -32,7 +32,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x28, 0x2f, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_1(lm80);
+diff -Nru a/drivers/i2c/chips/lm83.c b/drivers/i2c/chips/lm83.c
+--- a/drivers/i2c/chips/lm83.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/lm83.c	2004-11-08 18:55:05 -08:00
+@@ -44,7 +44,6 @@
+ static unsigned short normal_i2c_range[] = { 0x18, 0x1a, 0x29, 0x2b,
+ 	0x4c, 0x4e, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /*
+  * Insmod parameters
+diff -Nru a/drivers/i2c/chips/lm85.c b/drivers/i2c/chips/lm85.c
+--- a/drivers/i2c/chips/lm85.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/lm85.c	2004-11-08 18:55:05 -08:00
+@@ -35,7 +35,6 @@
+ static unsigned short normal_i2c[] = { 0x2c, 0x2d, 0x2e, I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_4(lm85b, lm85c, adm1027, adt7463);
+diff -Nru a/drivers/i2c/chips/lm87.c b/drivers/i2c/chips/lm87.c
+--- a/drivers/i2c/chips/lm87.c	2004-11-08 18:55:06 -08:00
++++ b/drivers/i2c/chips/lm87.c	2004-11-08 18:55:06 -08:00
+@@ -68,7 +68,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x2c, 0x2e, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /*
+  * Insmod parameters
+diff -Nru a/drivers/i2c/chips/lm90.c b/drivers/i2c/chips/lm90.c
+--- a/drivers/i2c/chips/lm90.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/lm90.c	2004-11-08 18:55:05 -08:00
+@@ -78,7 +78,6 @@
+ static unsigned short normal_i2c[] = { 0x4c, 0x4d, I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /*
+  * Insmod parameters
+diff -Nru a/drivers/i2c/chips/max1619.c b/drivers/i2c/chips/max1619.c
+--- a/drivers/i2c/chips/max1619.c	2004-11-08 18:55:06 -08:00
++++ b/drivers/i2c/chips/max1619.c	2004-11-08 18:55:06 -08:00
+@@ -38,7 +38,6 @@
+ static unsigned short normal_i2c_range[] = { 0x18, 0x1a, 0x29, 0x2b,
+ 						0x4c, 0x4e, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /*
+  * Insmod parameters
+diff -Nru a/drivers/i2c/chips/pc87360.c b/drivers/i2c/chips/pc87360.c
+--- a/drivers/i2c/chips/pc87360.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/pc87360.c	2004-11-08 18:55:05 -08:00
+@@ -45,7 +45,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { 0, I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ static struct i2c_force_data forces[] = {{ NULL }};
+ static u8 devid;
+ static unsigned int extra_isa[3];
+@@ -56,7 +55,6 @@
+ 	.normal_i2c		= normal_i2c,
+ 	.normal_i2c_range	= normal_i2c_range,
+ 	.normal_isa		= normal_isa,
+-	.normal_isa_range	= normal_isa_range,
+ 	.forces			= forces,
+ };
+ 
+diff -Nru a/drivers/i2c/chips/pcf8574.c b/drivers/i2c/chips/pcf8574.c
+--- a/drivers/i2c/chips/pcf8574.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/pcf8574.c	2004-11-08 18:55:05 -08:00
+@@ -45,7 +45,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x20, 0x27, 0x38, 0x3f, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_2(pcf8574, pcf8574a);
+diff -Nru a/drivers/i2c/chips/pcf8591.c b/drivers/i2c/chips/pcf8591.c
+--- a/drivers/i2c/chips/pcf8591.c	2004-11-08 18:55:06 -08:00
++++ b/drivers/i2c/chips/pcf8591.c	2004-11-08 18:55:06 -08:00
+@@ -30,7 +30,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x48, 0x4f, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_1(pcf8591);
+diff -Nru a/drivers/i2c/chips/smsc47m1.c b/drivers/i2c/chips/smsc47m1.c
+--- a/drivers/i2c/chips/smsc47m1.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/smsc47m1.c	2004-11-08 18:55:05 -08:00
+@@ -37,7 +37,6 @@
+ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+ /* Address is autodetected, there is no default value */
+ static unsigned int normal_isa[] = { 0x0000, I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ static struct i2c_force_data forces[] = {{NULL}};
+ 
+ enum chips { any_chip, smsc47m1 };
+@@ -45,7 +44,6 @@
+ 	.normal_i2c		= normal_i2c,
+ 	.normal_i2c_range	= normal_i2c_range,
+ 	.normal_isa		= normal_isa,
+-	.normal_isa_range	= normal_isa_range,
+ 	.forces			= forces,
+ };
+ 
+diff -Nru a/drivers/i2c/chips/via686a.c b/drivers/i2c/chips/via686a.c
+--- a/drivers/i2c/chips/via686a.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/via686a.c	2004-11-08 18:55:05 -08:00
+@@ -54,7 +54,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { 0x0000, I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_1(via686a);
+diff -Nru a/drivers/i2c/chips/w83627hf.c b/drivers/i2c/chips/w83627hf.c
+--- a/drivers/i2c/chips/w83627hf.c	2004-11-08 18:55:06 -08:00
++++ b/drivers/i2c/chips/w83627hf.c	2004-11-08 18:55:06 -08:00
+@@ -59,7 +59,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { 0, I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_4(w83627hf, w83627thf, w83697hf, w83637hf);
+diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
+--- a/drivers/i2c/chips/w83781d.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/w83781d.c	2004-11-08 18:55:05 -08:00
+@@ -52,7 +52,6 @@
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x20, 0x2f, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { 0x0290, I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /* Insmod parameters */
+ SENSORS_INSMOD_6(w83781d, w83782d, w83783s, w83627hf, as99127f, w83697hf);
+diff -Nru a/drivers/i2c/chips/w83l785ts.c b/drivers/i2c/chips/w83l785ts.c
+--- a/drivers/i2c/chips/w83l785ts.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/chips/w83l785ts.c	2004-11-08 18:55:05 -08:00
+@@ -49,7 +49,6 @@
+ static unsigned short normal_i2c[] = { 0x2e, I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+-static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+ 
+ /*
+  * Insmod parameters
+diff -Nru a/drivers/i2c/i2c-sensor-detect.c b/drivers/i2c/i2c-sensor-detect.c
+--- a/drivers/i2c/i2c-sensor-detect.c	2004-11-08 18:55:05 -08:00
++++ b/drivers/i2c/i2c-sensor-detect.c	2004-11-08 18:55:06 -08:00
+@@ -93,14 +93,6 @@
+ 					found = 1;
+ 				}
+ 			}
+-			for (i = 0; !found && (address_data->normal_isa_range[i] != I2C_CLIENT_ISA_END); i += 3) {
+-				if ((addr >= address_data->normal_isa_range[i]) &&
+-				    (addr <= address_data->normal_isa_range[i + 1]) &&
+-				    ((addr - address_data->normal_isa_range[i]) % address_data->normal_isa_range[i + 2] == 0)) {
+-					dev_dbg(&adapter->dev, "found normal isa_range entry for adapter %d, addr %04x", adapter_id, addr);
+-					found = 1;
+-				}
+-			}
+ 		} else {
+ 			for (i = 0; !found && (address_data->normal_i2c[i] != I2C_CLIENT_END); i += 1) {
+ 				if (addr == address_data->normal_i2c[i]) {
+diff -Nru a/include/linux/i2c-sensor.h b/include/linux/i2c-sensor.h
+--- a/include/linux/i2c-sensor.h	2004-11-08 18:55:06 -08:00
++++ b/include/linux/i2c-sensor.h	2004-11-08 18:55:06 -08:00
+@@ -48,12 +48,6 @@
+      addresses which should normally be examined.
+    normal_isa: filled in by the module writer. Terminated by SENSORS_ISA_END.
+      A list of ISA addresses which should normally be examined.
+-   normal_isa_range: filled in by the module writer. Terminated by 
+-     SENSORS_ISA_END
+-     A list of triples. The first two elements are ISA addresses, being an
+-     range of addresses which should normally be examined. The third is the
+-     modulo parameter: only addresses which are 0 module this value relative
+-     to the first address of the range are actually considered.
+    probe: insmod parameter. Initialize this list with I2C_CLIENT_ISA_END values.
+      A list of pairs. The first value is a bus number (ANY_I2C_ISA_BUS for
+      the ISA bus, -1 for any I2C bus), the second is the address. These
+@@ -70,7 +64,6 @@
+ 	unsigned short *normal_i2c;
+ 	unsigned short *normal_i2c_range;
+ 	unsigned int *normal_isa;
+-	unsigned int *normal_isa_range;
+ 	unsigned short *probe;
+ 	unsigned short *ignore;
+ 	struct i2c_force_data *forces;
+@@ -92,7 +85,6 @@
+ 			.normal_i2c =		normal_i2c,		\
+ 			.normal_i2c_range =	normal_i2c_range,	\
+ 			.normal_isa =		normal_isa,		\
+-			.normal_isa_range =	normal_isa_range,	\
+ 			.probe =		probe,			\
+ 			.ignore =		ignore,			\
+ 			.forces =		forces,			\
 

@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282491AbRLWPPn>; Sun, 23 Dec 2001 10:15:43 -0500
+	id <S276591AbRLWPnx>; Sun, 23 Dec 2001 10:43:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282511AbRLWPPd>; Sun, 23 Dec 2001 10:15:33 -0500
-Received: from ns.caldera.de ([212.34.180.1]:26847 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S282491AbRLWPP1>;
-	Sun, 23 Dec 2001 10:15:27 -0500
-Date: Sun, 23 Dec 2001 16:15:18 +0100
-Message-Id: <200112231515.fBNFFI530823@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: harri@synopsys.COM (Harald Dunkel)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch: Support for grub at installation time
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <3C25ECBF.AF0E819C@Synopsys.COM>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S279768AbRLWPnn>; Sun, 23 Dec 2001 10:43:43 -0500
+Received: from dc-mx08.cluster0.hsacorp.net ([209.225.8.18]:4041 "EHLO
+	dc-mx08.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id <S276591AbRLWPnd>; Sun, 23 Dec 2001 10:43:33 -0500
+Message-Id: <200112231543.fBNFh0C28576@orf.homelinux.org>
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: port-based bandwidth throttling
+Organization: Department of Tesselating Kumquats
+X-URL: http://orf.cx
+X-face: "(Qpt_9H~41JFy=C&/h^zmz6Dm6]1ZKLat1<W!0bNwz2!LxG-lZ=r@4Me&uUvG>-r\?<DcD
+ b+Y'p'sCMJ
+From: Leigh Orf <orf@mailbag.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 23 Dec 2001 10:43:00 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3C25ECBF.AF0E819C@Synopsys.COM> you wrote:
-> Below you can find a tiny patch to add 2 new targets to the top level 
-> Makefile: bzgrub and zgrub. This is a suggestion about how the Grub 
-> boot loader could be supported.
 
-Please provide a grub-specific /sbin/installkernel instead.
-The lilo targets should die aswell, IMHO.
+Is it possible to throttle the bandwidth of traffic using a specific
+port or range of ports? Say I want to limit the total outgoing traffic
+on ports 12345-12456 to 100 kB/s. Or limit outgoing ftp-data (port
+20) traffic to 200 kB/s (not using ftp software throttling). Is there
+a kernel-based way to do tihs? I've looked at shapecfg but the docs
+didn't help me much, and what I've seen of the QoS stuff goes over my
+head. Some examples/pointers would be great.
 
-> It would be nice if you could consider this patch to be included in 
-> one of the future kernels. I am not the kernel patch specialist, so 
-> please excuse if I missed to follow a specific procedure.
+Leigh Orf
 
-No.  The kernel build process shouldn't know at all about boot loaders.
-
-	Christoph (a happy grub user)
-
--- 
-Of course it doesn't work. We've performed a software upgrade.

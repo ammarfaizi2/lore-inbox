@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbTE0BqW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 21:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbTE0BqW
+	id S262439AbTE0B5K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 21:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbTE0B5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 21:46:22 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:8363 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S262434AbTE0BqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 21:46:20 -0400
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5] [Cool stuff] "checking" mode for kernel builds
-References: <3ED2AEA9.1000401@gmx.net>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 27 May 2003 10:58:35 +0900
-In-Reply-To: <3ED2AEA9.1000401@gmx.net>
-Message-ID: <buowugddub8.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	Mon, 26 May 2003 21:57:10 -0400
+Received: from holomorphy.com ([66.224.33.161]:61895 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262439AbTE0B5I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 21:57:08 -0400
+Date: Mon, 26 May 2003 19:10:02 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: davem@redhat.com, andrea@suse.de, davidsen@tmr.com, haveblue@us.ibm.com,
+       habanero@us.ibm.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org
+Subject: Re: userspace irq balancer
+Message-ID: <20030527021002.GD8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, davem@redhat.com, andrea@suse.de,
+	davidsen@tmr.com, haveblue@us.ibm.com, habanero@us.ibm.com,
+	mbligh@aracnet.com, linux-kernel@vger.kernel.org
+References: <20030527000639.GA3767@dualathlon.random> <20030526.171527.35691510.davem@redhat.com> <20030527004115.GD3767@dualathlon.random> <20030526.174841.116378513.davem@redhat.com> <20030527015307.GC8978@holomorphy.com> <20030526185920.64e9751f.akpm@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030526185920.64e9751f.akpm@digeo.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net> writes:
-> > +# Linus's kernel sanity checking tool
-> 
-> IIRC my english lessons it should be
-> +# Linus' kernel sanity checking tool
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> In
+>>  the userspace implementation the reprogramming is done infrequently
+>>  enough to make even significant cost negligible; in-kernel the cost
+>>  is entirely uncontrolled and the rate of reprogramming unlimited.
 
-BTW, it just follows the sound, and at least I say something sounding
-like `Linusez kernel' -- which would be written "Linus's kernel."
+On Mon, May 26, 2003 at 06:59:20PM -0700, Andrew Morton wrote:
+> eh?
+> #define MAX_BALANCED_IRQ_INTERVAL       (5*HZ)
+> #define MIN_BALANCED_IRQ_INTERVAL       (HZ/2)
 
-[in some cases, e.g. many plurals, you _do_ merge the two uses of S,
-e.g., "The Smiths' car"]
+The number of interrupt sources on a system ends up scaling this up to
+numerous IO-APIC RTE reprograms and ioapic_lock acquisitions per-second
+(granted, with a 5s timeout between reprogramming storms) where it
+competes against IO-APIC interrupt acknowledgements.
 
--Miles
--- 
-I'm beginning to think that life is just one long Yoko Ono album; no rhyme
-or reason, just a lot of incoherent shrieks and then it's over.  --Ian Wolff
+Making the lock per- IO-APIC would at least put a bound on the number
+of competitors mutually interfering with each other, but a tighter
+bound on the amount of work than NR_IRQS would be more useful than that.
+
+
+-- wli

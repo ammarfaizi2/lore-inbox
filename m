@@ -1,47 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVBKVIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVBKVOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262340AbVBKVIu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 16:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVBKVIu
+	id S262341AbVBKVOM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 16:14:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbVBKVOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 16:08:50 -0500
-Received: from mail02.hansenet.de ([213.191.73.62]:26772 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP id S262340AbVBKVHw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 16:07:52 -0500
-Message-ID: <420D1EB4.3080704@web.de>
-Date: Fri, 11 Feb 2005 22:08:04 +0100
-From: Marcus Hartig <m.f.h@web.de>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
+	Fri, 11 Feb 2005 16:14:12 -0500
+Received: from eeout.etn.com ([63.67.43.145]:30522 "EHLO
+	pitpashub01.nasa.ad.etn.com") by vger.kernel.org with ESMTP
+	id S262341AbVBKVOH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 16:14:07 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to disable slow agpgart in kernel config?
-References: <420C4B9A.6020900@web.de> <20050211062100.GB1782@redhat.com> <420CDB93.70506@web.de> <20050211184604.GB15721@redhat.com>
-In-Reply-To: <20050211184604.GB15721@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Self-destruct in 5 seconds?
+Date: Fri, 11 Feb 2005 16:13:57 -0500
+Message-ID: <F0A064EBC8C91C449244D108367426DC0206556E@ra1ncsmb01.nasa.ad.etn.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Self-destruct in 5 seconds?
+Thread-Index: AcUQfu748FByGorMR06bKwU9uD11EA==
+From: "Creech, Matthew" <MattCreech@eaton.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 11 Feb 2005 21:13:57.0895 (UTC) FILETIME=[999B6970:01C5107E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+Hi,
 
-  > *shrug*, if the nvidia module is properly configured, it should make
-> no difference at all. AGPGART operation isn't a performance critical
-> thing, as the hardware does 99% of the work.
+I posted this to the linux-arm mailing list, and Russell King referred
+me to the main list.
 
-Yes, that was also my opinion, but after using AGPGART, hmm.
+I'm running an AT91RM9200DK-based board with the 2.6.10 kernel.  I'm
+trying to use TmpFS for my root so I don't have a hard-coded ramdisk
+size.  My /linuxrc script looks something like this:
 
-And it was on my last 32 bit FC2 systems with other hardware the same slow 
-operations on the desktop. And I'm not alone, there are some nvnews.net 
-linux forum users which report the same slow performance with AGPGART.
+mount -t tmpfs tmpfs /mnt/tmp
+mkdir /mnt/tmp/initrd
 
-Maybe the linux kernel AGPGART do not run well with the nVidia 2D 
-acceleration renderer or the kernel driver and is a nvidia problem.
+[ copy files from / to /mnt/tmp ]
 
-http://www.marcush.de/Xorg.0.log
+mount -t devfs devfs /mnt/tmp/dev
+echo "Changing mount points..."
+cd /mnt/tmp
+pivot_root . initrd
+cd /
+mount -t proc proc /proc
+exec chroot . /sbin/init <dev/console >dev/console 2>&1
 
-Greetings,
-Marcus
+Init then kicks off a "sysinit" script that immediately does this:
 
+echo "Unmounting old root..."
+umount /initrd
+echo "Freeing initrd..."
+freeramdisk /dev/rd/0
+
+This actually works fine.  The system boots properly, my memory usage
+looks good, etc.  But this is what prints to the screen, and it's pretty
+scary looking:
+
+Unmounting old root...
+VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice
+day...
+Freeing initrd...
+
+Although things seem to work [consistently - it does it every time
+during boot], this message frightens me.  Is it safe to ignore, or is my
+embedded device about to self-destruct?  :)  Thanks for the help
+
+-- 
+Matthew L. Creech 

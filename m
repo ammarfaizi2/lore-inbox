@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261842AbSJNGQq>; Mon, 14 Oct 2002 02:16:46 -0400
+	id <S261834AbSJNGVI>; Mon, 14 Oct 2002 02:21:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261844AbSJNGQq>; Mon, 14 Oct 2002 02:16:46 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:52117 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261842AbSJNGQq>;
-	Mon, 14 Oct 2002 02:16:46 -0400
-Date: Sun, 13 Oct 2002 23:15:34 -0700 (PDT)
-Message-Id: <20021013.231534.08939486.davem@redhat.com>
-To: neilb@cse.unsw.edu.au
-Cc: taka@valinux.co.jp, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] zerocopy NFS for 2.5.36
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15786.23306.84580.323313@notabene.cse.unsw.edu.au>
-References: <20020918.171431.24608688.taka@valinux.co.jp>
-	<15786.23306.84580.323313@notabene.cse.unsw.edu.au>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261843AbSJNGVI>; Mon, 14 Oct 2002 02:21:08 -0400
+Received: from rj.sgi.com ([192.82.208.96]:22996 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S261834AbSJNGVH>;
+	Mon, 14 Oct 2002 02:21:07 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: rgooch@atnf.csiro.au, viro@math.psu.edu
+Subject: 2.4.19 breaks devfs mapping for root=
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 14 Oct 2002 16:26:07 +1000
+Message-ID: <26708.1034576767@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Neil Brown <neilb@cse.unsw.edu.au>
-   Date: Mon, 14 Oct 2002 15:50:02 +1000
+A change from 2.4.18 to 2.4.19 has broken the way that devfs maps
+root=.  2.4.18 init/main.c::mount_root() has
 
-    Would you like to see if davem is happy with that bit first and get
-    it in?  Then I will be happy to forward the nfsd specific bit.
-   
-Alexey is working on this, or at least he was. :-)
-(Alexey this is about the UDP cork changes)
+        devfs_make_root (root_device_name);
+        handle = devfs_find_handle (NULL, ROOT_DEVICE_NAME,
+                                    MAJOR (ROOT_DEV), MINOR (ROOT_DEV),
+                                    DEVFS_SPECIAL_BLK, 1);
 
-    I'm bit I'm not very sure about is the 'shadowsock' patch for having
-    several xmit sockets, one per CPU.  What sort of speedup do you get
-    from this?  How important is it really?
-   
-Personally, it seems rather essential for scalability on SMP.
+where ROOT_DEVICE_NAME maps to the value of root= for non-initrd.  This
+allowed devfs to remap an entry such as sda3 to whatever driver was
+implementing sda3, even if that driver used a different major number.
+The correct major was returned in handle.
+
+2.4.19 init/do_mounts.c::mount_root() has
+
+        devfs_make_root(root_device_name);
+        create_dev("/dev/root", ROOT_DEV, root_device_name);
+
+create_dev() has
+
+	handle = devfs_find_handle(NULL, dev ? NULL : devfs_name,
+                    MAJOR(dev), MINOR(dev), DEVFS_SPECIAL_BLK, 1);
+
+The difference in 2.4.19 is that if dev is already set from
+root_dev_names[] then devfs does NOT get the value of root=, forcing
+the use of major from root_dev_names[].  If a driver reimplements one
+of the standard device names and uses a different major or minor number
+then it no longer works in 2.4.19 because devfs is given incomplete
+information.
+
+Quick and dirty workaround
+
+--- 2.4.19/init/do_mounts.c
++++ 2.4.19/init/do_mounts.c
+@@ -368,7 +368,7 @@
+ 	if (!do_devfs)
+ 		return sys_mknod(name, S_IFBLK|0600, kdev_t_to_nr(dev));
+ 
+-	handle = devfs_find_handle(NULL, dev ? NULL : devfs_name,
++	handle = devfs_find_handle(NULL, devfs_name,
+ 				MAJOR(dev), MINOR(dev), DEVFS_SPECIAL_BLK, 1);
+ 	if (!handle)
+ 		return -1;
+
+But that probably breaks initrd.  What should that code be doing to
+cope with both initrd and still allow devfs to remap root=?
+

@@ -1,275 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266749AbTAIO5L>; Thu, 9 Jan 2003 09:57:11 -0500
+	id <S262373AbTAIPJb>; Thu, 9 Jan 2003 10:09:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266735AbTAIO5J>; Thu, 9 Jan 2003 09:57:09 -0500
-Received: from miranda.axis.se ([193.13.178.2]:41193 "EHLO miranda.axis.se")
-	by vger.kernel.org with ESMTP id <S266728AbTAIO5F>;
-	Thu, 9 Jan 2003 09:57:05 -0500
-Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE5F3@mailse01.axis.se>
-From: Mikael Starvik <mikael.starvik@axis.com>
-To: "'Adrian Bunk'" <bunk@fs.tum.de>, Bjorn Wesen <bjorn.wesen@axis.com>,
-       dev-etrax <dev-etrax@axis.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [2.5 patch] small cleanups for arch/cris/drivers/serial.c
-Date: Thu, 9 Jan 2003 16:05:34 +0100 
+	id <S266728AbTAIPJb>; Thu, 9 Jan 2003 10:09:31 -0500
+Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:13164 "EHLO
+	vlad.geekizoid.com") by vger.kernel.org with ESMTP
+	id <S262373AbTAIPJ3>; Thu, 9 Jan 2003 10:09:29 -0500
+Reply-To: <vlad@geekizoid.com>
+From: "Vlad@Vlad.geekizoid.com" <vlad@vlad.geekizoid.com>
+To: "'John Alvord'" <jalvo@mbay.net>
+Cc: <linux-kernel@vger.kernel.org>, <rms@gnu.org>
+Subject: What's in a name?
+Date: Thu, 9 Jan 2003 09:18:32 -0600
+Message-ID: <012201c2b7f2$5ffd4e40$0200a8c0@wsl3>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <nbdq1vo9enjh9c6gnh68mpg0ebt7n22fhi@4ax.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have already done this locally but has not yet been able to 
-get Linus to apply a patch to update CRIS architecture to 2.5
-status.
+And in that same period, look at Linux, and then look at Hurd.  Hurd even
+has the advantage of using giant chunks of Linux code, but it still is
+basically useless.
 
-I suggest that Linus does not apply this patch and instead
-applies our patch that will get CRIS up to date with 2.5.55
-(will be sent to Linus within the next hour).
+Why should Linux be refered to as GNU/Linux because of tools, and yet Hurd
+doesn't give credit where credit is due?  RMS has done more to hurt GNU with
+his current stance on the matter than Microsoft ever could.  He's getting
+annoying, too.
 
-Thanks for caring about our architecture!
-
-/Mikael
+Regards,
+Scott
 
 -----Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Adrian Bunk
-Sent: Thursday, January 09, 2003 3:57 PM
-To: Bjorn Wesen; dev-etrax
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] small cleanups for arch/cris/drivers/serial.c
+From: John Alvord [mailto:jalvo@mbay.net]
+Sent: Thursday, January 09, 2003 2:58 AM
+To: vlad@geekizoid.com
+Cc: rms@gnu.org; linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
 
 
-The patch below makes the following changes to 
-arch/cris/drivers/serial.c:
-- remove #if'd kernel 2.0 and 2.2 compatibility code
-- remove an unused #define MIN
+Try to imagine the last 12 years of Linux without
 
-cu
-Adrian
+gcc
+binutils
+unix programs such as ls, cp, rm, etc
 
+I personally believe the current state of the Linux kernel would have
+been impossible to achieve (at this time) without the above tools.
 
---- linux-2.5.55/arch/cris/drivers/serial.c.old	2003-01-09 15:42:43.000000000 +0100
-+++ linux-2.5.55/arch/cris/drivers/serial.c	2003-01-09 15:53:52.000000000 +0100
-@@ -301,12 +301,8 @@
- #include <linux/fcntl.h>
- #include <linux/mm.h>
- #include <linux/slab.h>
--#if (LINUX_VERSION_CODE >= 131343)
- #include <linux/init.h>
--#endif
--#if (LINUX_VERSION_CODE >= 131336)
- #include <asm/uaccess.h>
--#endif
- #include <linux/kernel.h>
- 
- #include <asm/io.h>
-@@ -323,14 +319,6 @@
- /* while we keep our own stuff (struct e100_serial) in a local .h file */
- #include "serial.h"
- 
--/*
-- * All of the compatibilty code so we can compile serial.c against
-- * older kernels is hidden in serial_compat.h
-- */
--#if defined(LOCAL_HEADERS) || (LINUX_VERSION_CODE < 0x020317) /* 2.3.23 */
--#include "serial_compat.h"
--#endif
--
- #define _INLINE_ inline
- 
- static DECLARE_TASK_QUEUE(tq_serial);
-@@ -639,10 +627,6 @@
- #define E100_DSR_GET(info) ((*e100_modem_pins[(info)->line].port) & (1 << e100_modem_pins[(info)->line].dsr_bit))
- 
- 
--#ifndef MIN
--#define MIN(a,b)	((a) < (b) ? (a) : (b))
--#endif
--
- /*
-  * tmp_buf is used as a temporary buffer by serial_write.  We need to
-  * lock it in case the memcpy_fromfs blocks while swapping in a page,
-@@ -1648,12 +1632,8 @@
- 
- 	restore_flags(flags);
- 
--#if LINUX_VERSION_CODE > KERNEL_VERSION(2,1,66)
- 	/* this includes a check for low-latency */
- 	tty_flip_buffer_push(tty);
--#else
--	queue_task_irq_off(&tty->flip.tqueue, &tq_timer);
--#endif
- 
- 	/* unthrottle if we have throttled */
- 	if (E100_RTS_GET(info) &&
-@@ -2600,9 +2580,7 @@
- 	info->type = new_serial.type;
- 	info->close_delay = new_serial.close_delay;
- 	info->closing_wait = new_serial.closing_wait;
--#if (LINUX_VERSION_CODE > 0x20100)
- 	info->tty->low_latency = (info->flags & ASYNC_LOW_LATENCY) ? 1 : 0;
--#endif
- 
-  check_and_exit:
- 	if (info->flags & ASYNC_INITIALIZED) {
-@@ -2775,41 +2753,6 @@
- /*
-  * This routine sends a break character out the serial port.
-  */
--#if (LINUX_VERSION_CODE < 131394) /* Linux 2.1.66 */
--static void 
--send_break(struct e100_serial * info, int duration)
--{
--	unsigned long flags;	
--
--	if (!info->port)
--		return;
--
--	current->state = TASK_INTERRUPTIBLE;
--	current->timeout = jiffies + duration;
--
--	save_flags(flags);
--	cli();
--
--	/* Go to manual mode and set the txd pin to 0 */
--
--	info->tx_ctrl &= 0x3F; /* Clear bit 7 (txd) and 6 (tr_enable) */
--	info->port[REG_TR_CTRL] = info->tx_ctrl;
--
--	/* wait for "duration" jiffies */
--
--	schedule();
--
--	info->tx_ctrl |= (0x80 | 0x40); /* Set bit 7 (txd) and 6 (tr_enable) */
--	info->port[REG_TR_CTRL] = info->tx_ctrl;
--
--	/* the DMA gets awfully confused if we toggle the tranceiver like this 
--	 * so we need to reset it 
--	 */
--	*info->ocmdadr = 4;
--
--	restore_flags(flags);
--}
--#else
- static void 
- rs_break(struct tty_struct *tty, int break_state)
- {
-@@ -2830,19 +2773,15 @@
- 	info->port[REG_TR_CTRL] = info->tx_ctrl;
- 	restore_flags(flags);
- }
--#endif
- 
- static int 
- rs_ioctl(struct tty_struct *tty, struct file * file,
- 	 unsigned int cmd, unsigned long arg)
- {
- 	struct e100_serial * info = (struct e100_serial *)tty->driver_data;
--#if defined(CONFIG_ETRAX_RS485) || (LINUX_VERSION_CODE < 131394) /* Linux 2.1.66 */
-+#if defined(CONFIG_ETRAX_RS485)
- 	int error;
- #endif
--#if (LINUX_VERSION_CODE < 131394) /* Linux 2.1.66 */
--	int retval;
--#endif
- 	
- 	if ((cmd != TIOCGSERIAL) && (cmd != TIOCSSERIAL) &&
- 	    (cmd != TIOCSERCONFIG) && (cmd != TIOCSERGWILD)  &&
-@@ -2852,45 +2791,6 @@
- 	}
- 	
- 	switch (cmd) {
--#if (LINUX_VERSION_CODE < 131394) /* Linux 2.1.66 */
--	        case TCSBRK:	/* SVID version: non-zero arg --> no break */
--			retval = tty_check_change(tty);
--			if (retval)
--				return retval;
--			tty_wait_until_sent(tty, 0);
--			if (signal_pending(current))
--				return -EINTR;
--			if (!arg) {
--				send_break(info, HZ/4);	/* 1/4 second */
--				if (signal_pending(current))
--					return -EINTR;
--			}
--			return 0;
--		case TCSBRKP:	/* support for POSIX tcsendbreak() */
--			retval = tty_check_change(tty);
--			if (retval)
--				return retval;
--			tty_wait_until_sent(tty, 0);
--			if (signal_pending(current))
--				return -EINTR;
--			send_break(info, arg ? arg*(HZ/10) : HZ/4);
--			if (signal_pending(current))
--				return -EINTR;
--			return 0;
--		case TIOCGSOFTCAR:
--			error = verify_area(VERIFY_WRITE, (void *) arg,sizeof(long));
--			if (error)
--				return error;
--			put_fs_long(C_CLOCAL(tty) ? 1 : 0,
--				    (unsigned long *) arg);
--			return 0;
--		case TIOCSSOFTCAR:
--			arg = get_fs_long((unsigned long *) arg);
--			tty->termios->c_cflag =
--				((tty->termios->c_cflag & ~CLOCAL) |
--				 (arg ? CLOCAL : 0));
--			return 0;
--#endif
- 		case TIOCMGET:
- 			return get_modem_info(info, (unsigned int *) arg);
- 		case TIOCMBIS:
-@@ -3311,9 +3211,7 @@
- 	tty->driver_data = info;
- 	info->tty = tty;
- 
--#if (LINUX_VERSION_CODE > 0x20100)
- 	info->tty->low_latency = (info->flags & ASYNC_LOW_LATENCY) ? 1 : 0;
--#endif
- 
- 	if (!tmp_buf) {
- 		page = get_zeroed_page(GFP_KERNEL);
-@@ -3497,9 +3395,7 @@
-   
- 	memset(&serial_driver, 0, sizeof(struct tty_driver));
- 	serial_driver.magic = TTY_DRIVER_MAGIC;
--#if (LINUX_VERSION_CODE > 0x20100)
- 	serial_driver.driver_name = "serial";
--#endif
- 	serial_driver.name = "ttyS";
- 	serial_driver.major = TTY_MAJOR;
- 	serial_driver.minor_start = 64;
-@@ -3530,14 +3426,10 @@
- 	serial_driver.stop = rs_stop;
- 	serial_driver.start = rs_start;
- 	serial_driver.hangup = rs_hangup;
--#if (LINUX_VERSION_CODE >= 131394) /* Linux 2.1.66 */
- 	serial_driver.break_ctl = rs_break;
--#endif
--#if (LINUX_VERSION_CODE >= 131343)
- 	serial_driver.send_xchar = rs_send_xchar;
- 	serial_driver.wait_until_sent = rs_wait_until_sent;
- 	serial_driver.read_proc = rs_read_proc;
--#endif
- 	  
- 	/*
- 	 * The callout device is just like normal device except for
-@@ -3547,10 +3439,8 @@
- 	callout_driver.name = "cua";
- 	callout_driver.major = TTYAUX_MAJOR;
- 	callout_driver.subtype = SERIAL_TYPE_CALLOUT;
--#if (LINUX_VERSION_CODE >= 131343)
- 	callout_driver.read_proc = 0;
- 	callout_driver.proc_entry = 0;
--#endif
-   
- 	if (tty_register_driver(&serial_driver))
- 		panic("Couldn't register serial driver\n");
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+The Linux kernel development has stood on the shoulders of the GNU
+effort the whole time.
+
+Whether the result should be labeled as GNU/Linux is semantics - what
+is the meaning of "operating system".  And it is redundant... after
+all there is no Linux without GNU, so why force unnecessary
+information on terms. If there was an ATT/Linux and an Intel/Linux,
+having a GNU/Linux would make some sense... but that is not the way it
+is. GNU/Linux is singular, so Linux makes a reasonable contraction.
+
+Distributor marketting wants a neat snapy name that is easy to
+remember. Linux is close enough to unix to merge meanings a bit.
+People who read about Linus Torvalds get the Linus/Linux play on
+words.
+
+Another puzzling aspect to me is that GNU really goes beyond what I
+think of as an operating system. I have a suite of GNU tools installed
+on a Windows NT machine and I use make, ls, cp, mv all day. So I am
+using GNU on a foreign operating system... or does my usage needs to
+be labeled as GNU/Windows NT?
+
+john alvord
+
+On Wed, 8 Jan 2003 20:26:09 -0600, "Vlad@Vlad.geekizoid.com"
+<vlad@vlad.geekizoid.com> wrote:
+
+>Do you actually buy your own bullshit here?  If so, that's sad.  I used to
+>respect you.  I'd like to see you put your money where your mouth is -
+PROVE
+>that GNU (not just people who have release GPL'd software) contributed most
+>of the work to say Slackware, or Debian, or Red Hat.
+>
+>Face it - you're full of it.  You're not fooling anyone either.
+>
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org
+>[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Richard Stallman
+>Sent: Wednesday, January 08, 2003 2:00 AM
+>To: lm@bitmover.com
+>Cc: lm@bitmover.com; acahalan@cs.uml.edu; linux-kernel@vger.kernel.org
+>Subject: Re: Nvidia and its choice to read the GPL "differently"
+>
+>
+>    Great.  So not only is there no legal need to cite GNU in the Linux
+>    name, there is no ethical obligation either.
+>
+>When you take part of my statement, stretch it, interpret it based on
+>assumptions you know I disagree with, and present the result as
+>something I said, that doesn't prove anything.  It is childish.
+>
+>There is no ethical obligation to mention secondary contributions
+>incorporated in a large project.  There ethical obligation is to cite
+>the main developer.  In the GNU/Linux system, the GNU Project is the
+>principal contributor; the system is more GNU than anything else,
+>and we started it.
+

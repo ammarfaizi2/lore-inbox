@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287841AbSATB5a>; Sat, 19 Jan 2002 20:57:30 -0500
+	id <S287852AbSATCDA>; Sat, 19 Jan 2002 21:03:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287852AbSATB5U>; Sat, 19 Jan 2002 20:57:20 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:47373 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S287841AbSATB5A>; Sat, 19 Jan 2002 20:57:00 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 19 Jan 2002 18:02:37 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Andre Hedrick <andre@linuxdiskcert.org>
-cc: Jens Axboe <axboe@suse.de>, Anton Altaparmakov <aia21@cam.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.3-pre1-aia1
-In-Reply-To: <Pine.LNX.4.10.10201191628290.9354-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.40.0201191800250.975-100000@blue1.dev.mcafeelabs.com>
+	id <S287854AbSATCCu>; Sat, 19 Jan 2002 21:02:50 -0500
+Received: from femail45.sdc1.sfba.home.com ([24.254.60.39]:64971 "EHLO
+	femail45.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S287852AbSATCC3>; Sat, 19 Jan 2002 21:02:29 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: "David Luyer" <david_luyer@pacific.net.au>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+        "'Oliver Xymoron'" <oxymoron@waste.org>
+Subject: Re: vm philosophising
+Date: Sat, 19 Jan 2002 13:00:23 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <004301c1a0a3$bd172a90$46943ecb@pacific.net.au>
+In-Reply-To: <004301c1a0a3$bd172a90$46943ecb@pacific.net.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020120020228.SNES23469.femail45.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jan 2002, Andre Hedrick wrote:
+On Friday 18 January 2002 11:42 pm, David Luyer wrote:
 
+> And while precommit may be something people ask for, I'd have to say
+> many
+> of them would, having experienced the difference on identical hardware,
+> then realise what a bad idea it was and go back to the current mode.
+> That is, it sounds like a big waste of time to implement the
+> 'traditional'
+> behaviour which Linux is already so much better than.
 >
-> Yes,
->
-> I have a patch against 2.5.3-pre1 clean, and is up on kernel.org's upload
-> site, but k.o is down.  It can also be gotten off
-> 	http://www.linuxdiskcert.org/
-> It is a tiny 37k patch and bzip2'd to 8k.
+> David.
 
-By applying the patch posted by Anton ( patch-2.5.3-pre1-aia2 ) the
-problem persist. The machine seems usable but time to time the timer hit
-and lost interrupt shows up. I'm going to try your patch now.
+Precommit basically just asks the application to die when it first allocates 
+memory if it's even possible for it to die in the most pathlogical usage case 
+of that memory.
 
+I.E. "die up front" instead of "die while running".  (There's no possible way 
+this can improve performance.  If you want to never swap, just don't mount a 
+swap partition.)  You don't even have to change the VM's behavior, it can 
+still copy on write and such.  You just add a test to cause allocations to 
+fail unnecessarily at times.
 
+Throwing in a little extra code on mmaps and allocations to kill a process 
+wouldn't be too hard.  It would be stupid outside of something like a 
+financial transaction system (and probably even in there), but it technically 
+shouldn't be all that hard to do.
 
+Unless I missed something...?
 
-- Davide
-
-
+Rob

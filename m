@@ -1,147 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263294AbTCNIRo>; Fri, 14 Mar 2003 03:17:44 -0500
+	id <S263315AbTCNIYH>; Fri, 14 Mar 2003 03:24:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263296AbTCNIRo>; Fri, 14 Mar 2003 03:17:44 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:14603 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263294AbTCNIRl>; Fri, 14 Mar 2003 03:17:41 -0500
-Date: Fri, 14 Mar 2003 08:28:27 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: Re: [PATCH] i2c driver changes for 2.5.64
-Message-ID: <20030314082827.C11701@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-	sensors@stimpy.netroedge.com
-References: <1047603318248@kroah.com> <10476033191486@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263316AbTCNIYH>; Fri, 14 Mar 2003 03:24:07 -0500
+Received: from mail1-3.netinsight.se ([212.247.11.2]:58642 "HELO
+	ernst.netinsight.se") by vger.kernel.org with SMTP
+	id <S263315AbTCNIYE>; Fri, 14 Mar 2003 03:24:04 -0500
+From: =?iso-8859-1?q?Bj=F6rn=20Fahller?= <bjorn@netinsight.se>
+To: Oleg Drokin <green@linuxhacker.ru>, alan@redhat.com,
+       linux-kernel@vger.kernel.org, zubarev@us.ibm.com
+Subject: Re: [2.4] Multiple memleaks in IBM Hot Plug Controller Driver
+Date: Fri, 14 Mar 2003 09:34:44 +0100
+User-Agent: KMail/1.5
+References: <20030313204556.GA3475@linuxhacker.ru>
+In-Reply-To: <20030313204556.GA3475@linuxhacker.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <10476033191486@kroah.com>; from greg@kroah.com on Thu, Mar 13, 2003 at 04:55:00PM -0800
+Message-Id: <200303140934.44245.bjorn@netinsight.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 13, 2003 at 04:55:00PM -0800, Greg KH wrote:
-> +#include <linux/i2c.h>
-> +#include <asm/io.h>
-> +
-> +MODULE_LICENSE("GPL");
+On Thursday 13 March 2003 21.45, Oleg Drokin wrote:
 
-This should be at the bottom of the file with the other MODULE_* stuff
+Below, why allocating 2 bytes on heap (str1,) only to non-conditionally free 
+it a few lines further down? Why not keep the two bytes on stack instead? It 
+also seems like a bad idea to strncopy/strcat 1 byte long strings.
+   _
+/Bjorn.
 
-> +#ifdef I2C_FUNC_SMBUS_BLOCK_DATA_PEC
-> +#define HAVE_PEC
-> +#endif
 
-Needs more explanation.
-
-> +
-> +#ifndef PCI_DEVICE_ID_INTEL_82801CA_SMBUS
-> +#define PCI_DEVICE_ID_INTEL_82801CA_SMBUS	0x2483
-> +#endif
-> +
-> +#ifndef PCI_DEVICE_ID_INTEL_82801DB_SMBUS
-> +#define PCI_DEVICE_ID_INTEL_82801DB_SMBUS	0x24C3
-> +#endif
-
-Should go to pci_ids.h
-
-> +
-> +static int supported[] = {PCI_DEVICE_ID_INTEL_82801AA_3,
-> +                          PCI_DEVICE_ID_INTEL_82801AB_3,
-> +                          PCI_DEVICE_ID_INTEL_82801BA_2,
-> +			  PCI_DEVICE_ID_INTEL_82801CA_SMBUS,
-> +			  PCI_DEVICE_ID_INTEL_82801DB_SMBUS,
-> +                          0 };
-
-Shouldn't be required with new-style pci probing.
-
-> +static int force_addr = 0;
-> +MODULE_PARM(force_addr, "i");
-> +MODULE_PARM_DESC(force_addr,
-> +		 "Forcibly enable the I801 at the given address. "
-> +		 "EXTREMELY DANGEROUS!");
-
-What about using Rusty's new module parameter stuff?
-
-> +static unsigned short i801_smba = 0;
-> +static struct pci_dev *I801_dev = NULL;
-> +static int isich4 = 0;
-
-This is in .bss..
-
-> +/* Detect whether a I801 can be found, and initialize it, where necessary.
-> +   Note the differences between kernels with the old PCI BIOS interface and
-> +   newer kernels with the real PCI interface. In compat.h some things are
-> +   defined to make the transition easier. */
-> +int i801_setup(void)
-
-Merge with caller, comment is b0rked.
-
-> +{
-> +	int error_return = 0;
-> +	int *num = supported;
-> +	unsigned char temp;
-> +
-> +	/* First check whether we can access PCI at all */
-> +	if (pci_present() == 0) {
-> +		printk(KERN_WARNING "i2c-i801.o: Error: No PCI-bus found!\n");
-> +		error_return = -ENODEV;
-> +		goto END;
-> +	}
-
-END is a bad name for a label.  
-
-> +	/* Look for each chip */
-> +	/* Note: we keep on searching until we have found 'function 3' */
-> +	I801_dev = NULL;
-> +	do {
-> +		if((I801_dev = pci_find_device(PCI_VENDOR_ID_INTEL,
-> +					      *num, I801_dev))) {
-> +			if(PCI_FUNC(I801_dev->devfn) != 3)
-> +				continue;
+> ===== drivers/hotplug/ibmphp_ebda.c 1.6 vs edited =====
+> --- 1.6/drivers/hotplug/ibmphp_ebda.c	Fri Sep 13 21:56:25 2002
+> +++ edited/drivers/hotplug/ibmphp_ebda.c	Thu Mar 13 23:40:29 2003
+> @@ -608,13 +608,20 @@
+>  		return str;
+>  	default:
+>  		//2 digits number
+> +		str1 = (char *) kmalloc (2, GFP_KERNEL);
+> +		if (!str1) {
 > +			break;
 > +		}
-> +		num++;
-> +	} while (*num != 0);
-
-You already changed it to new-style pci probing in the next patch, didn't
-you?
-
-> +	if (check_region(i801_smba, (isich4 ? 16 : 8))) {
-
-no way!
-
-> +int i801_transaction(void)
-
-static..
-
-> +	int temp;
-> +	int result = 0;
-> +	int timeout = 0;
-> +
-> +#ifdef DEBUG
-> +	printk
-> +	    (KERN_DEBUG "i2c-i801.o: Transaction (pre): CNT=%02x, CMD=%02x, ADD=%02x, DAT0=%02x, "
-> +	     "DAT1=%02x\n", inb_p(SMBHSTCNT), inb_p(SMBHSTCMD),
-> +	     inb_p(SMBHSTADD), inb_p(SMBHSTDAT0), inb_p(SMBHSTDAT1));
-> +#endif
-
-pr_debug
-
-> +		temp = inb_p(SMBHSTSTS);
-> +                if (i == 1) {
-> +                    /* Erronenous conditions before transaction: 
-> +                     * Byte_Done, Failed, Bus_Err, Dev_Err, Intr, Host_Busy */
-> +                    errmask=0x9f; 
-> +                } else {
-> +                    /* Erronenous conditions during transaction: 
-> +                     * Failed, Bus_Err, Dev_Err, Intr */
-> +                    errmask=0x1e; 
-> +                }
-
-Indentation look b0rked.
+> +		memset (str, 0, 3);
+>  		*str1 = (char)(bit + 48);
+>  		strncpy (str, str1, 1);
+>  		memset (str1, 0, 3);
+>  		*str1 = (char)((var % 10) + 48);
+>  		strcat (str, str1);
+> +		kfree(str1);
+>  		return str;
+> -	}
+> +	}
+> +	kfree(str);
+>  	return NULL;
+>  }
+>
+> @@ -1022,6 +1029,10 @@
+>  			bus_info_ptr1 = ibmphp_find_same_bus_num
+> (hpc_ptr->slots[index].slot_bus_num); if (!bus_info_ptr1) {
+>  				iounmap (io_mem);
+> +				kfree (hp_slot_ptr->name);
+> +				kfree (hp_slot_ptr->info);
+> +				kfree (hp_slot_ptr->private);
+> +				kfree (hp_slot_ptr);
+>  				return -ENODEV;
+>  			}
+>  			((struct slot *) hp_slot_ptr->private)->bus_on = bus_info_ptr1;
+> @@ -1036,12 +1047,20 @@
+>  			rc = ibmphp_hpc_fillhpslotinfo (hp_slot_ptr);
+>  			if (rc) {
+>  				iounmap (io_mem);
+> +				kfree (hp_slot_ptr->name);
+> +				kfree (hp_slot_ptr->info);
+> +				kfree (hp_slot_ptr->private);
+> +				kfree (hp_slot_ptr);
+>  				return rc;
+>  			}
+>
+>  			rc = ibmphp_init_devno ((struct slot **) &hp_slot_ptr->private);
+>  			if (rc) {
+>  				iounmap (io_mem);
+> +				kfree (hp_slot_ptr->name);
+> +				kfree (hp_slot_ptr->info);
+> +				kfree (hp_slot_ptr->private);
+> +				kfree (hp_slot_ptr);
+>  				return rc;
+>  			}
+>  			hp_slot_ptr->ops = &ibmphp_hotplug_slot_ops;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136781AbREBAA7>; Tue, 1 May 2001 20:00:59 -0400
+	id <S136785AbREBA3L>; Tue, 1 May 2001 20:29:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136775AbREBAAu>; Tue, 1 May 2001 20:00:50 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:37086 "EHLO
-	c0mailgw03.prontomail.com") by vger.kernel.org with ESMTP
-	id <S136777AbREBAAV>; Tue, 1 May 2001 20:00:21 -0400
-Message-ID: <3AEF4DCB.99D69E5B@mvista.com>
-Date: Tue, 01 May 2001 16:59:07 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S136784AbREBA3A>; Tue, 1 May 2001 20:29:00 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49932 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S136782AbREBA2q>;
+	Tue, 1 May 2001 20:28:46 -0400
+Date: Tue, 1 May 2001 21:28:28 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "J . A . Magallon" <jamagallon@able.es>,
+        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Wakko Warner <wakko@animx.eu.org>,
+        Xavier Bestel <xavier.bestel@free.fr>,
+        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
+        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and 2GB swap partition limit
+In-Reply-To: <20010501140003.A28747@redhat.com>
+Message-ID: <Pine.LNX.4.21.0105012119110.19012-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-CC: Erik Hensema <erik@hensema.xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Meaning of major kernel version number
-In-Reply-To: <20010501224943.A21208@hensema.xs4all.nl> <01050123011105.04685@idun>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum wrote:
-> 
-> On Tuesday,  1. May 2001 22:49, Erik Hensema wrote:
-> > Hi,
-> >
-> > A little question which may be a FAQ: what does the major version number
-> > [1] of the Linux kernel (still) mean? What is the policy on increasing the
-> > major version (eg. on what basis it is decided the next kernel isn't going
-> > to be 2.6 but 3.0)?
-> 
-> Our great fearless leader will talk with the penguin beyond the sky.
-> 
->         HTH
->                 Oliver
-> -
-One definition might be that it changes when user code must be relinked
-to work with the next version.
+On Tue, 1 May 2001, Stephen C. Tweedie wrote:
 
-George
+> The right fix is to reclaim such pages only when we need to.  To
+> disable swap caching when we still have enough swap free would hurt
+> users who have the spare swap to cope with it.
+
+That's easy enough. When we are:
+1. almost out of swap and
+2. need swap space
+
+Then we will be scanning through memory looking for something to
+swap out (otherwise we'd not be in need of swap space, right?).
+At this point we can simply free up swap entries while scanning
+through memory looking for stuff to swap out.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

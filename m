@@ -1,113 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270723AbTGUVKS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 17:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270717AbTGUVKS
+	id S270713AbTGUVJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 17:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270715AbTGUVJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 17:10:18 -0400
-Received: from tudela.mad.ttd.net ([194.179.1.233]:31416 "EHLO
-	tudela.mad.ttd.net") by vger.kernel.org with ESMTP id S270715AbTGUVKH
+	Mon, 21 Jul 2003 17:09:58 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:58241
+	"EHLO x30.random") by vger.kernel.org with ESMTP id S270713AbTGUVJ5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 17:10:07 -0400
-Date: Mon, 21 Jul 2003 23:24:41 +0200 (MEST)
-From: Javier Achirica <achirica@telefonica.net>
-To: Daniel Ritz <daniel.ritz@gmx.ch>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-net <linux-net@vger.kernel.org>,
-       Jean Tourrilhes <jt@bougret.hpl.hp.com>,
-       Mike Kershaw <dragorn@melchior.nerv-un.net>
-Subject: Re: [PATCH 2.5] fixes for airo.c
-In-Reply-To: <200307212301.39264.daniel.ritz@gmx.ch>
-Message-ID: <Pine.SOL.4.30.0307212322440.336-100000@tudela.mad.ttd.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Jul 2003 17:09:57 -0400
+Date: Mon, 21 Jul 2003 17:21:55 -0400
+From: Andrea Arcangeli <andrea@suse.de>
+To: Larry McVoy <lm@work.bitmover.com>, Mike Fedyk <mfedyk@matchmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
+Message-ID: <20030721212155.GF4677@x30.linuxsymposium.org>
+References: <20030721190226.GA14453@matchmail.com> <20030721194514.GA5803@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030721194514.GA5803@work.bitmover.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Larry,
 
+On Mon, Jul 21, 2003 at 12:45:14PM -0700, Larry McVoy wrote:
+> You don't need the tags, use dates.  You can get the date range you want 
+> with an rlog of the ChangeSet file and then use those dates.
 
-On Mon, 21 Jul 2003, Daniel Ritz wrote:
+I realized I could do this, and it can of course be automated with an
+additional bkcvs specific hack in cvsps. But the tag in every file would
+have kept the functionality generic with the already available -r
+option, and since I can't see any downside in the tag in the files, I
+prefer that generic way.
 
-> On Mon July 21 2003 21:44, Javier Achirica wrote:
-> >
-> > On Mon, 21 Jul 2003, Daniel Ritz wrote:
-> >
-> > > On Mon July 21 2003 13:00, Javier Achirica wrote:
-> > > >
-> > > > Daniel,
-> > > >
-> > > > Thank you for your patch. Some comments about it:
-> > > >
-> > > > - I'd rather fix whatever is broken in the current code than going back to
-> > > > spinlocks, as they increase latency and reduce concurrency. In any case,
-> > > > please check your code. I've seen a spinlock in the interrupt handler that
-> > > > may lock the system.
-> > >
-> > > but we need to protect from interrupts while accessing the card and waiting for
-> > > completion. semaphores don't protect you from that. spin_lock_irqsave does. the
-> > > spin_lock in the interrupt handler is there to protect from interrupts from
-> > > other processors in a SMP system (see Documentation/spinlocks.txt) and is btw.
-> > > a no-op on UP. and semaphores are quite heavy....
-> >
-> > Not really. You can still read the received packets from the card (as
-> > you're not issuing any command and are using the other BAP) while a
-> > command is in progress. There are some specific cases in which you need
-> > to have protection, and that cases are avoided with the down_trylock.
-> >
->
-> ok, i think i have to look closer...if the card can handle that then we don't need
-> to irq-protect all the areas i did protect...but i do think that those down_trylock and
-> then the schedule_work should be replaced by a simple spinlock_irq_save...
->
-> i look closer at it tomorrow.
-> you happen to have the tech spec lying aroung?
+But if you're sure the tags aren't coming back we can start adding the
+automation to cvsps.
 
-I have an old one, but I don't think that I'm allowed (by Cisco) to pass
-it around.
+thanks,
 
-> > AFAIK, interrupt serialization is assured by the interrupt handler, so you
-> > don't need to do that.
-> >
-> > > > - The fix for the transmit code you mention, is about fixing the returned
-> > > > value in case of error? If not, please explain it to me as I don't see any
-> > > > other changes.
-> > >
-> > > fixes:
-> > > - return values
-> > > - when to free the skb, when not
-> > > - disabling the queues
-> > > - netif_wake_queue called from the interrupt handler only (and on the right
-> > >   net_device)
-> > > - i think the priv->xmit stuff and then the schedule_work is evil:
-> > >   if you return 0 from the dev->hard_start_xmit then the network layer assumes
-> > >   that the packet was kfree_skb()'ed (which does only frees the packet when the
-> > >   refcount drops to zero.) this is the cause for the keventd killing, for sure!
-> > >
-> > >   if you return 0 you already kfree_skb()'ed the packet. and that's it.
-> >
-> > This is where I have the biggest problems. As I've read in
-> > Documentation/networking/driver.txt, looks like the packet needs to be
-> > freed "soon", but doesn't require to be before returning 0 in
-> > hard_start_xmit. Did I get it wrong?
-> >
->
-> no, i got it wrong. but still...it's the xmit where the oops comes from....
->
-> wait. isn't there a race in airo_do_xmit? at high xfer rates (when it oopses) the
-> queue can wake right after it is stopped in the down_trylock section. so you can
-> happen to loose an skb 'cos the write to priv->xmit is not protected at all and
-> there should be a check so that only one skb can be queue there. no?
-> (and then the irq-handler can wake the queue too)
->
-> ok, i think i got it now. i'll do a new patch tomorrow or so that tries:
-> - to fix the transmit not to oops
-> - to avoid disabling the irq's whenever possible
-> - using spinlocks instead of the heavier semaphores ('cos i think if it's done cleaner
->   than i did it now, it's faster than the semas, and to make hch happy :)
-
-Yes! This is the race that may be causing problems. I'll try to fix it and
-we may compare semaphore vs. spinlock implementation.
-
-Javier Achirica
-
+Andrea

@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264862AbUEVCHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264879AbUEVCOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264862AbUEVCHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 22:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUEVCEZ
+	id S264879AbUEVCOK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 22:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUEVCN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 22:04:25 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8701 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264843AbUEVCDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 22:03:39 -0400
-Date: Wed, 19 May 2004 22:16:39 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ANNOUNCE: CE Linux Forum - Specification V1.0 draft
-Message-ID: <20040519201639.GF24287@fs.tum.de>
-References: <40A90D00.7000005@am.sony.com> <20040517201910.A1932@infradead.org> <40A92D15.2060006@am.sony.com> <20040519152706.GD22742@fs.tum.de> <40AB925C.50001@am.sony.com>
-Mime-Version: 1.0
+	Fri, 21 May 2004 22:13:29 -0400
+Received: from pop.gmx.net ([213.165.64.20]:23968 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264992AbUEVCJp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 22:09:45 -0400
+X-Authenticated: #199736
+Date: Thu, 20 May 2004 00:04:48 +0200
+From: Corin Langosch <corinl@gmx.de>
+Reply-To: Corin Langosch <corinl@gmx.de>
+X-Priority: 3 (Normal)
+Message-ID: <1457910676.20040520000448@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: dual opteron problems, tyan 2870 board
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40AB925C.50001@am.sony.com>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 19, 2004 at 09:59:08AM -0700, Tim Bird wrote:
-> 
-> First, I'll point out that this spec, as you noted, is still
-> a work in progress.
-> 
-> Yes, the rationale is wrong.  Thanks for pointing that out.
-> I'll get it fixed before we release a spec on this.  We have
-> a separate agenda item in our size working group to look at
-> inline expansions (See section 7.9.3 where it lists candidate
-> projects that are not started yet.) There is already valuable
-> work going on in the area of inline reduction, but
-> unfortunately, we don't have anything to contribute to that
-> discussion yet.
+Hi all,
 
-The main problem seems to be that you write much paper instead of 
-simply writing and testing code.
+i just bought a new 2x244 opteron,tyan tiger k8s 2870,
+4gb registered ecc ram system. no addional cards
+inserted, only one IDE and one SATA device.
 
-Your approach might be a good solution for big projects, but if the 
-changes are relatively simple it's not very useful.
+i tried to run the setup with the original debian
+kernel 2.6.6-1-k7-smp, but the system hangs right
+after the line "initrd-tools: 0.1.69".
 
-> As for the patch, you are correct that the kernel makefile system
-> supports compilation with -Os, and someone besides us submitted
-> the patch for that.  However, there is more work needed to
-> validate that the option doesn't break things, on many different
-> architectures.
-> 
-> I have reports from the uClinux crowd that use of
-> the -Os option is fairly typical for users of uClinux, and they
-> have no reports of breakage.  However, we want to take a methodical
-> approach to validating that use of this option is fully supported
-> by the Linux kernel.  Also, we want to test and report the size
-> and performance effects of the use of the flag.  This work is
-> not done yet, so the spec. is still under construction.
->...
+so i downloaded the sources for 2.6.6 and compiled
+them myself, optimized for dual opteron. unluckily
+exactly the same happens.
 
-If you'd have asked people knowing the code (e.g. by sending an email to 
-linux-kernel), you'd have already known:
-- the ARM port always uses -Os in kernel 2.4
-- the ACPI code is always compiled with -Os in kernel 2.4
-- part of the ARM port always uses -Os with "recent" gcc in
-  kernel 2.2
+when i enable the apic 2.0 support in the bios, the
+system hangs even ealier right after the first
+"calibrating delay loop...".
 
-cu
-Adrian
+when i boot the system with the "nosmp" and apic 2.0
+disabled (normal apic still enabled) the system
+hangs somewhere after "hda: max request size...".
 
--- 
+the only way to get the system running is to fully
+disable the apic support in the bios and run the
+system with "nosmp". :-(((
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+additional info:
+when i boot using the 2.4.26-k7-smp kernel, the system also
+hangs. sometimes when saying "loading data into ramdisk.."
+and sometimes later. one time a "decompression error..."
+was displayed. when i boot using "nosmp", the system
+boots fine. with the 2.4.26 kernel, i dont need to disable
+APIC completely.
+
+i hope that anyone could help me,
+corin
 

@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbQLXJaK>; Sun, 24 Dec 2000 04:30:10 -0500
+	id <S129319AbQLXJpq>; Sun, 24 Dec 2000 04:45:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129543AbQLXJaB>; Sun, 24 Dec 2000 04:30:01 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:7693 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129431AbQLXJ3x>;
-	Sun, 24 Dec 2000 04:29:53 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200012240859.eBO8xNU506215@saturn.cs.uml.edu>
-Subject: Re: bigphysarea support in 2.2.19 and 2.4.0 kernels
-To: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sun, 24 Dec 2000 03:59:23 -0500 (EST)
+	id <S129370AbQLXJph>; Sun, 24 Dec 2000 04:45:37 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:61965 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129319AbQLXJpX>;
+	Sun, 24 Dec 2000 04:45:23 -0500
+Date: Sun, 24 Dec 2000 10:14:55 +0100
+From: Andi Kleen <ak@suse.de>
+To: Cesar Eduardo Barros <cesarb@nitnet.com.br>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m1g0jfr0ms.fsf@frodo.biederman.org> from "Eric W. Biederman" at Dec 23, 2000 01:40:43 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+Subject: Re: TCP keepalive seems to send to only one port
+Message-ID: <20001224101455.A11662@gruyere.muc.suse.de>
+In-Reply-To: <20001223213156.A1947@flower.cesarb>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001223213156.A1947@flower.cesarb>; from cesarb@nitnet.com.br on Sat, Dec 23, 2000 at 09:31:56PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman writes:
+On Sat, Dec 23, 2000 at 09:31:56PM -0200, Cesar Eduardo Barros wrote:
+> 
+> I've been doing some experiments with the keepalive code in 2.4.0-test10 here
+> (I want to avoid the 2.2.x NAT I'm using (for which I don't have root) from
+>  timing out my connections). To test it, I reduced both tcp_keepalive_time and
+> tcp_keepalive_intvl to 1. Using ethereal, I saw that the keepalives were sent
+> as expected, but only for one of the two idle TCP connections I had to a given
+> host (I was testing with two remote hosts, each with two idle TCP connections,
+> one in port 5500 and the other in port 5501). I only saw activity on 5500, yet
+> netstat told me both were still active.
 
-> If you are doing a real time task you don't want to very close
-> to your performance envelope.  If you are hitting the performance
-> envelope any small hiccup will cause you to miss your deadline,
-> and close to your performance envelope hiccups are virtually certain.
->
-> Pushing the machine just 5% slower should get everything going
-> with multiple pages, and you wouldn't be pushing the performance
-> envelope so your machine can compensate for the occasional hiccup.
->
->> The data stream is fat and relentless.
->
-> So you add another node if your current nodes can't handle the load
-> without using giant physical areas of memory.  Attempt to redesign
-> the operating system.  Much more cost effective.
+I just tried it and it works fine here with 2.4.0-test13-pre
 
-Nodes can be wicked expensive. :-)
-
-Pushing the performance envelope is important when you want to
-sell lots of systems. Radar is a similar computational task,
-with the added need to reduce space and weight requirements.
-It's not OK to be 5% more expensive, bulky, and heavy.
-
-Also the Airplane Principal: more nodes means more big failures.
+You should be aware that the sysctls are only picked up after a timer timeout
+or when a socket is newly created. When the sockets are already active it
+takes a timeout for them to take effect. The default timeout is 2 hours.
 
 
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

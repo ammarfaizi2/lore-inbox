@@ -1,58 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136581AbREGSfJ>; Mon, 7 May 2001 14:35:09 -0400
+	id <S136597AbREGSft>; Mon, 7 May 2001 14:35:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136597AbREGSfA>; Mon, 7 May 2001 14:35:00 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:61612 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S136581AbREGSeq>; Mon, 7 May 2001 14:34:46 -0400
-Message-Id: <5.1.0.14.2.20010507185638.00a91520@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 07 May 2001 19:35:23 +0100
-To: Linus Torvalds <torvalds@transmeta.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [PATCH] x86 page fault handler not interrupt safe
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Brian Gerst <bgerst@didntduck.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0105071003330.12733-100000@penguin.transmeta
- .com>
-In-Reply-To: <E14wmbg-0003b3-00@the-village.bc.nu>
+	id <S136600AbREGSfa>; Mon, 7 May 2001 14:35:30 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:24842 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S136597AbREGSfT>; Mon, 7 May 2001 14:35:19 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: David Woodhouse <dwmw2@infradead.org>
+cc: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Message-ID: <86256A45.0066044D.00@smtpnotes.altec.com>
+Date: Mon, 7 May 2001 13:34:31 -0500
+Subject: Re: [Solved ?] Re: pcmcia problems after upgrading from 2.4.3-ac7
+	 to 2.4.4
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 18:12 07/05/2001, Linus Torvalds wrote:
->Untested.
+
+
+The thing that confused me here was the help text in menuconfig.  The help for
+CONFIG_I82365 says, "Say Y here to include support for PCMCIA and CardBus host
+bridges that are register compatible with the Intel i82365 and/or the Yenta
+specification: this includes virtually all modern PCMCIA bridges."  Also, the
+help text for both this option and CONFIG_CARDBUS say, "If unsure, say Y," so I
+selected both of them.  It wasn't until Jeff Garzik set me straight recently
+that I began disabling CONFIG_I82365 and using CONFIG_CARDBUS alone.
+
+Wayne
+
+
+
+
+David Woodhouse <dwmw2@infradead.org> on 05/07/2001 03:58:00 AM
+
+To:   "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
+cc:   Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org (bcc:
+      Wayne Brown/Corporate/Altec)
+
+Subject:  Re: [Solved ?] Re: pcmcia problems after upgrading from 2.4.3-ac7 to
+      2.4.4
+
+
+
+
+Martin.Knoblauch@TeraPort.de said:
 >
->In particular, does anybody have a buggy Pentium to test with the F0 0F
->lock-up bug?
+>   I am not sure whether this should be closed alltogether. Maybe
+> i82365 was not the proper choice for my hardware in the first place.
+> Anyway, the module seems to be retired as of 2.4.3-ac10/ac11. Maybe a
+> hint should go into the changes document.
 
-Yes, I have one. 2.4.3-ac6 (plus a few patches) detects the bug on boot up 
-and enables the work around. Running the f00f test program from SGI results 
-in the correct behaviour of a SIGILL signal being sent to the program.
+i82365 is for use only on PCMCIA bridges, not CardBus. It should not be
+'retired' but should probably have the config option renamed to prevent
+confusion.
 
->If anybody has such a beast, please try this kernel patch _and_ running
-
-Oh my, I always considered it as a cute, fluffy bunny. No need to 
-bestialize it unnecessarily... (-;
-
->the F0 0F bug-producing program (search for it on the 'net - it must be
->out there somewhere) to verify that the code still correctly handles that
->case.
-
-Am compiling 2.4.5-pre1 with your patch (manually applied as parts of it 
-were already in .5-pre1) right now. I will follow-up with results when it 
-has finished and I have tested it (i.e. don't hold your breath, it might be 
-a beast but it is a slow one...)
-
-Best regards,
-
-Anton
+--
+dwmw2
 
 
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+
 

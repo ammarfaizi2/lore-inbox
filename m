@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265382AbSKEX4J>; Tue, 5 Nov 2002 18:56:09 -0500
+	id <S265396AbSKFADe>; Tue, 5 Nov 2002 19:03:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265380AbSKEXzH>; Tue, 5 Nov 2002 18:55:07 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36361 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265379AbSKEXyq>; Tue, 5 Nov 2002 18:54:46 -0500
-Date: Tue, 5 Nov 2002 19:00:37 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       olaf.dietsche#list.linux-kernel@t-online.de
-Subject: Re: Filesystem Capabilities in 2.6?
-In-Reply-To: <200211030031.gA30V8a505209@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.3.96.1021105184858.20035C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265397AbSKFADe>; Tue, 5 Nov 2002 19:03:34 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:33437 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S265396AbSKFADb>;
+	Tue, 5 Nov 2002 19:03:31 -0500
+Date: Wed, 6 Nov 2002 01:10:07 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Peter Chubb <peter@chubb.wattle.id.au>, jw schultz <jw@pegasys.ws>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ps performance sucks (was Re: dcache_rcu [performance results])
+Message-ID: <20021106001007.GA15200@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Peter Chubb <peter@chubb.wattle.id.au>, jw schultz <jw@pegasys.ws>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <15816.19206.959160.739312@wombat.chubb.wattle.id.au> <26610000.1036541181@flay> <20021105231649.GA14511@outpost.ds9a.nl> <27920000.1036544267@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <27920000.1036544267@flay>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Nov 2002, Albert D. Cahalan wrote:
+On Tue, Nov 05, 2002 at 04:57:47PM -0800, Martin J. Bligh wrote:
 
+> > 'To measure is to know'
 > 
-> I have to wonder, just how many setuid executables do people have?
-> Implementing filesystem capability bits in ramfs or tmpfs might do
-> the job. At boot, initramfs stuff puts a few trusted executables
-> in /trusted and sets the capability bits. Then "mount --bind" to
-> put /trusted/su over an empty /bin/su file, or use symlinks.
+> Errm... we have profiled it. Look at the subject line ... this started
+> off as a dcache_rcu discussion. The dcache lookup ain't cheap, for 
+> starters, but that's not really the problem ... it's O(number of tasks),
+> which sucks.
 
-It's more useful that you might at first think, in terms of applications.
-If I have an app I want to make available to a limited group, currently I
-can portably make the file setuid to app-owner, then group but not world
-executable, and the people in the group can have access. The app might be
-a database, usenet news, mail system spam filter, whatever. ACLs work, but
-are not widely portable at the moment (if ever).
+Ok - but if opening a few files is the problem, the solution is not to roll
+those files into one but to figure out why opening the files is slow in the
+first place.
 
-> One might as well make "nosuid" the default then, and mount the
-> root filesystem that way. It's not as if a system needs to have
-> gigabytes of setuid executables.
+Apologies for misinterpreting some of the comments I saw, I'm a bit hyper
+from my futex documenting spree.
 
-Well, my point here is not that you can't do this, but that normal users
-may have legitimate reasons for doing this, and that it's desirable to
-avoid having to remount the filesystem to reload some setuid file list.
+Regards,
 
-I would think a mount option which blocks setuid on root owned files and
-files which are world writable would be useful. That would allow the
-mounting of applications, which people in practice do, without
-compromising the whole system.
+bert
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

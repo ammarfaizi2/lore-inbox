@@ -1,81 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262995AbVAFU40@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263023AbVAFUSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262995AbVAFU40 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 15:56:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVAFUwk
+	id S263023AbVAFUSN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 15:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbVAFUQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 15:52:40 -0500
-Received: from [81.23.229.73] ([81.23.229.73]:37551 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S262995AbVAFUvR (ORCPT
+	Thu, 6 Jan 2005 15:16:44 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:21176 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263020AbVAFUNZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 15:51:17 -0500
-From: Norbert van Nobelen <norbert-kernel@edusupport.nl>
-Organization: EduSupport BV
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Open hardware wireless cards
-Date: Thu, 6 Jan 2005 21:51:13 +0100
-User-Agent: KMail/1.6.2
-References: <20050105200526.GL5159@ruslug.rutgers.edu> <200501062006.49542.norbert-kernel@edusupport.nl> <1105044024.15770.7.camel@krustophenia.net>
-In-Reply-To: <1105044024.15770.7.camel@krustophenia.net>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 6 Jan 2005 15:13:25 -0500
+Date: Thu, 6 Jan 2005 12:13:11 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
+       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
+       greghk@us.ibm.com
+Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+Message-ID: <20050106201311.GI1292@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050106190538.GB1618@us.ibm.com> <20050106191441.GM26051@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200501062151.13882.norbert-kernel@edusupport.nl>
+In-Reply-To: <20050106191441.GM26051@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Err, music, computers: Just spend a lot of time to get a series of thin 
-clients running sound over a DSL network (now in testing phase, need to solve 
-some network problems first :-( )
+On Thu, Jan 06, 2005 at 07:14:41PM +0000, Al Viro wrote:
+> On Thu, Jan 06, 2005 at 11:05:38AM -0800, Paul E. McKenney wrote:
+> > Hello, Andrew,
+> > 
+> > Some export-removal work causes breakage for an out-of-tree filesystem.
+> > Could you please apply the attached patch to restore the exports for
+> > files_lock and set_fs_root?
+> 
+> What, in name of everything unholy, is *filesystem* doing with set_fs_root()?
 
-I think the idea for a good sound card is good too, I am only thinking 
-different about the manufacturing. Ordering 100 cards is not going to be 
-attractive in any way with price, then just use the conexant wrappers for 
-windows drivers, and run your card that way. GPL is one issue, wallet content 
-is the next following important issue.
-Wireless cards have to go cheaper all the time. One way to scrape of another 
-50cents of the manufacturing cost is by using an open developed card en 
-driver. That way the card will lie in many stores and is easily obtainable 
-for everybody.
-The extra encryption will get the phreaks on board with it, so spreading the 
-idea of open source development even further, plus it is also a show and tell 
-to the market like: Open source groups are innovative, and not just copycats 
-who want everything for free (like in wallet content).
+It is using it to set the process's view of the source-code control
+system to the desired version.  So process A can see version 2.1 while
+process B sees version 1.5, and so that either process can change the
+version that it sees on the fly.
 
-On Thursday 06 January 2005 21:40, you wrote:
-> On Thu, 2005-01-06 at 20:06 +0100, Norbert van Nobelen wrote:
-> > My personal opinion
-> > Sound is mainly integrated on boards. Since developing a high end card is
-> > not an easy job, and the market is pretty small for that (enough
-> > competition), I think the wireless card is not too weird to do
->
-> Yeah but that's all useless to pro audio users.  And the market for pro
-> audio hardware is a lot more like the general pro audio gear market than
-> the computer hardware market.  Lower volume, much higher margins.
->
-> Compared to the open video card project, this should be a no brainer,
-> and that seems to be taking off...
->
-> > Plus wireless is hot. What we can do is implement the standard and add a
-> > little extra once we are done with that, linux a nice encryption layer
-> > for linux to linux communication, thus giving linux (or a windowsbox with
-> > the right drivers), a nice edge.
->
-> There's a standard for audio-over-firewire but it's inadequate (no
-> routing/connection management) so you can't just implement it.
-
-Firewire or USB: I do not care for an antenna for the simple reason that I 
-just want a powercord (-:
-
->
-> Also making music with computers is pretty hot too if you haven't
-> noticed ;-)
->
-> Lee
-
--- 
-<a href="http://www.edusupport.nl">EduSupport: Linux Desktop for schools and 
-small to medium business in The Netherlands and Belgium</a>
+						Thanx, Paul

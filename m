@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbUKKEsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbUKKEyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262172AbUKKEsm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 23:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbUKKEsm
+	id S262174AbUKKEyp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 23:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUKKEyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 23:48:42 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:3219 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S262172AbUKKEsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 23:48:40 -0500
-Date: Wed, 10 Nov 2004 20:48:09 -0800
-From: Tim Hockin <thockin@google.com>
-To: linux-kernel@vger.kernel.org, greg@kroah.com, akpm@osdl.org
-Subject: small PCI probe patch for odd 64 bit BARs
-Message-ID: <20041111044809.GE19615@google.com>
-Mime-Version: 1.0
+	Wed, 10 Nov 2004 23:54:45 -0500
+Received: from pop.gmx.de ([213.165.64.20]:53677 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262174AbUKKEyH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 23:54:07 -0500
+X-Authenticated: #21910825
+Message-ID: <4192F069.90209@gmx.net>
+Date: Thu, 11 Nov 2004 05:54:01 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040114
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Partitioned loop devices, support for 127 Partitions
+ on SATA, IDE and SCSI
+References: <419199A3.3050806@gmx.net> <cmsb12$pr1$1@sea.gmane.org>
+In-Reply-To: <cmsb12$pr1$1@sea.gmane.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current PCI probe code breaks for 64 bit BARs that do not decode a
-full 64 bits.  Example:
+Alexander E. Patrakov schrieb:
+> Carl-Daniel Hailfinger wrote:
+> 
+> 
+>>Hi,
+>>
+>>having seen the problems people have when switching from traditional IDE
+>>drivers to libata if they have more than 15 partitions, I decided to do
+>>something against it. With this patch (and recreating /dev/loop* nodes)
+>>it is possible to support up to 127 partitions per loop device
+>>regardless what the underlying device supports. It works for me
+>>and has the added bonus that it will be in compatibility mode as long
+>>as you don't specify the max_part parameter.
+> 
+> Why not just use EVMS? Partition code is supposed to be moved to userspace
+> anyway.
 
-We have a device that uses a 64 bit BAR.  When you write all Fs to the
-BARs, you get:
-
-	000000ff ffff0000
-
-It wants 64k, in the first TB of RAM.  The current code totally borks on
-this.
-
-Simple patch against 2.6.9:
-
-Signed-Off-By: Tim Hockin <thockin@google.com>
-
-
-
---- drivers/pci/probe.c.orig	2004-11-10 20:42:03.000000000 -0800
-+++ drivers/pci/probe.c	2004-11-10 20:42:07.000000000 -0800
-@@ -144,9 +144,11 @@
- 			pci_write_config_dword(dev, reg+4, ~0);
- 			pci_read_config_dword(dev, reg+4, &sz);
- 			pci_write_config_dword(dev, reg+4, l);
--			if (~sz)
--				res->end = res->start + 0xffffffff +
--						(((unsigned long) ~sz) << 32);
-+			sz = pci_size(sz, 0xffffffff);
-+			if (sz) {
-+				/* this BAR needs > 4GB?  Wow. */
-+				res->end |= (unsigned long)sz<<32;
-+			}
- #else
- 			if (l) {
- 				printk(KERN_ERR "PCI: Unable to handle 64-bit address for device %s\n", pci_name(dev));
+Because my solution works fine with userspace partitioning code (I tested
+with partx from util-linux) and has the big advantage that partitions
+actually appear at the right place in /sys/block/loopN/loopNpM. Most
+other solutions for many partitions per device failed to make the
+relationship between parent device and partition visible in sysfs.
+I haven't checked yet how EVMS handles this. Could you post
+find /sys/block/$SOME_EVMS_DISK/ -type d
+for a normal disk which is completely managed by EVMS so I can verify
+whether that would be satisfactory. Thanks.
 
 
-
-
-
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/

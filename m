@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261416AbSIZSIJ>; Thu, 26 Sep 2002 14:08:09 -0400
+	id <S261421AbSIZSLq>; Thu, 26 Sep 2002 14:11:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261420AbSIZSIJ>; Thu, 26 Sep 2002 14:08:09 -0400
-Received: from [200.132.40.3] ([200.132.40.3]:30981 "EHLO
-	labinfo.dorothea.com.br") by vger.kernel.org with ESMTP
-	id <S261416AbSIZSII>; Thu, 26 Sep 2002 14:08:08 -0400
-Message-Id: <5.0.2.1.0.20020926151232.00a81610@mail.dorothea.com.br>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Thu, 26 Sep 2002 15:18:04 -0300
-To: linux-kernel@vger.kernel.org
-From: Bruno Germano Bauer <bruno@dorothea.com.br>
-Subject: NAT Bug in kernel 2.4.19
+	id <S261428AbSIZSLq>; Thu, 26 Sep 2002 14:11:46 -0400
+Received: from jdike.solana.com ([198.99.130.100]:2432 "EHLO karaya.com")
+	by vger.kernel.org with ESMTP id <S261421AbSIZSLp>;
+	Thu, 26 Sep 2002 14:11:45 -0400
+Message-Id: <200209261819.g8QIJN701373@karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Shanti Katta <katta@csee.wvu.edu>
+cc: Ben Collins <bcollins@debian.org>, sparc-linux@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: Reg Sparc memory addresses 
+In-Reply-To: Your message of "26 Sep 2002 13:54:57 EDT."
+             <1033062898.2037.43.camel@indus> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 26 Sep 2002 14:19:23 -0400
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+katta@csee.wvu.edu said:
+> So, I guess I need to compile UML as "sparc" target and debug it. I am
+> not sure how much of UML code runs in kernelspace
 
-I´ma facing some problems doing a NAT with kernel 2.4.19
+None of it does.  That's sort of the point of UML.
 
-When I try do do a FTP connection trough a gateway (doing NAT) from my internal network (INVALID IP´S), I can  connect validate my username and password, but when I try a " PORT " the connection goes away ... 
-
-Is there any problem with NAT in kernel 2.4.19 (I don´t have this problem with 2.4.18) ...
-
-Thanks for all ....
-
--------------------------------------------------------------------------------------
-Bruno Germano Bauer - bruno@dorothea.com.br
-Instituto Sinodal Dorothea Schäfke - www.dorothea.com.br
-Taquara/RS
--------------------------------------------------------------------------------------
+				Jeff
 

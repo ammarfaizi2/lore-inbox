@@ -1,61 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271597AbRIOAMN>; Fri, 14 Sep 2001 20:12:13 -0400
+	id <S271620AbRIOAdB>; Fri, 14 Sep 2001 20:33:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271598AbRIOAMF>; Fri, 14 Sep 2001 20:12:05 -0400
-Received: from cr213096-a.rchrd1.on.wave.home.com ([24.157.75.69]:19206 "EHLO
-	cr213096-a.rchrd1.on.wave.home.com") by vger.kernel.org with ESMTP
-	id <S271597AbRIOALy>; Fri, 14 Sep 2001 20:11:54 -0400
-Message-ID: <3BA29CC2.8030008@phobos.sharif.edu>
-Date: Fri, 14 Sep 2001 20:11:46 -0400
-From: Masoud Sharbiani <masu@cr213096-a.rchrd1.on.wave.home.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.19 i686; en-US; rv:0.9.1) Gecko/20010610
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Bruce Blinn <blinn@MissionCriticalLinux.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Reading Windows CD on Linux 2.4.6
-In-Reply-To: <3BA26542.21DC105A@MissionCriticalLinux.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S271627AbRIOAcv>; Fri, 14 Sep 2001 20:32:51 -0400
+Received: from jalon.able.es ([212.97.163.2]:2770 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S271620AbRIOAch>;
+	Fri, 14 Sep 2001 20:32:37 -0400
+Date: Sat, 15 Sep 2001 02:32:54 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: patches for 2.4.9-ac10
+Message-ID: <20010915023254.A1640@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.2.pre3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Can you generate a cdrom image which has that problem (and less than 50 
-megs) in order
-to test?
-thanks,
-Masoud
-Bruce Blinn wrote:
+Hi everyone.
 
->Hello:
->
->I sent the following message to the kernel newbies mailing list, and it
->was suggested that I send it to the kernel mailing list.  I am not a
->subscriber of this mailing list, so I would appreciate any replies being
->sent to me directly.
->
->-----------------------
->
->I have found that after upgrading from 2.2.19 to 2.4.6, I can no longer
->read CD-ROMs that were created under Windows.  Since they work fine on
->2.2.19, I assume there is some configuration option that has changed,
->but I did not see anything that looked suspicious.
->
->I can mount the CD and list the files on it, but when I try to access
->one of the files on it, I get an IO error.
->
->When I created the disk on Windows, I selected the option to "Organize
->the disc so it can be read in most standard CD-ROM drives...".  On
->Linux, I selected the kernel options for ISO 9660 and the Joliet
->extensions.
->
->Does anyone have any ideas about what I am doing wrong?
->
->Thanks,
->Bruce
->
+I have let adjusted patches for 2.4.9-ac10 at
+http://phoebe.cps.unizar.es/~magallon/linux/2.4.9-ac10/
 
+Most apeealing are AIC 6.2.3, (i2c+lm_sensors)-cvs-15-Sept-2001, and updates
+for the bttv and btaudio (version 0.7.79).
 
+Hope this saves work to somebody.
 
+BTW, anybody know how to genrate a patch for ALSA (or a pointer...)???
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.1 (Cooker) for i586
+Linux werewolf 2.4.9-ac10 #1 SMP Sat Sep 8 02:27:41 CEST 2001 i686

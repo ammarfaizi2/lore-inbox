@@ -1,69 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265425AbSJXVzG>; Thu, 24 Oct 2002 17:55:06 -0400
+	id <S265684AbSJXVp5>; Thu, 24 Oct 2002 17:45:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265676AbSJXVzG>; Thu, 24 Oct 2002 17:55:06 -0400
-Received: from amsfep13-int.chello.nl ([213.46.243.24]:20020 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S265425AbSJXVzF>; Thu, 24 Oct 2002 17:55:05 -0400
-Subject: Re: [CFT] faster athlon/duron memory copy implementation
-From: Harm Verhagen <h.verhagen@chello.nl>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 25 Oct 2002 00:01:09 +0200
-Message-Id: <1035496870.5266.3.camel@pchome>
-Mime-Version: 1.0
+	id <S265685AbSJXVp5>; Thu, 24 Oct 2002 17:45:57 -0400
+Received: from ophelia.ess.nec.de ([193.141.139.8]:24738 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S265684AbSJXVpy> convert rfc822-to-8bit; Thu, 24 Oct 2002 17:45:54 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: Michael Hohnbaum <hohnbaum@us.ibm.com>, landley@trommello.org
+Subject: Re: Crunch time -- the musical.  (2.5 merge candidate list 1.5)
+Date: Thu, 24 Oct 2002 23:51:56 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <200210231626.12903.landley@trommello.org> <200210240750.09751.landley@trommello.org> <1035486061.9367.1078.camel@dyn9-47-17-164.beaverton.ibm.com>
+In-Reply-To: <1035486061.9367.1078.camel@dyn9-47-17-164.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210242351.56719.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Athlon XP 1800+, VIA KT333, 256MB DDR2100
+Hi Rob and Michael,
 
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+I need to correct some inexactities and, of course, advertise my aproach
+:-)
 
-copy_page() tests
-copy_page function 'warm up run'         took 16180 cycles per page
-copy_page function '2.4 non MMX'         took 17913 cycles per page
-copy_page function '2.4 MMX fallback'    took 18610 cycles per page
-copy_page function '2.4 MMX version'     took 16200 cycles per page
-copy_page function 'faster_copy'         took 9908 cycles per page
-copy_page function 'even_faster'         took 10117 cycles per page
-copy_page function 'no_prefetch'         took 6993 cycles per page
-[harm@pchome memcpy2]$ ./memcpy
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+On Thursday 24 October 2002 21:01, Michael Hohnbaum wrote:
+> > > > 26) NUMA aware scheduler extenstions (Erich Focht, Michael Hohnbaum)
+> > > >
+> > > > Home page:
+> > > > http://home.arcor.de/efocht/sched/
+> > > >
+> > > > Patch:
+> > > > http://home.arcor.de/efocht/sched/Nod20_numa_sched-2.5.31.patch
 
-copy_page() tests
-copy_page function 'warm up run'         took 16293 cycles per page
-copy_page function '2.4 non MMX'         took 17929 cycles per page
-copy_page function '2.4 MMX fallback'    took 18637 cycles per page
-copy_page function '2.4 MMX version'     took 16209 cycles per page
-copy_page function 'faster_copy'         took 9907 cycles per page
-copy_page function 'even_faster'         took 10122 cycles per page
-copy_page function 'no_prefetch'         took 6964 cycles per page
+These are old. I posted the newer patches (splitted up in order to clearly
+separate the functionality additions) to LKML:
 
-harm@pchome memcpy2]$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 6
-model name      : AMD Athlon(TM) XP 1800+
-stepping        : 2
-cpu MHz         : 1532.941
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat
-pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips        : 3060.53
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103459387719030&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103459387519026&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103459441119407&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103459441319411&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103459441419416&w=2
+They should work for any NUMA platform by just adding a call to
+build_pools() in smp_cpus_done(). They work for non-NUMA platforms
+the same way as the O(1) scheduler (though the code looks different).
+A test overview is in: http://lwn.net/Articles/12546/
+This suggests that taking only patches 01+02 already gives you a VERY
+good NUMA scheduler. They deliver the infrastructure for later
+developments (patches 03+05) which we can further research and tune or
+give only to special customers.
 
+> The 2.5 status list has not been updated to reflect this separate
+> effort, and I believe incorrectly lists this entry as "ready".  There
+> really are now two NUMA scheduler projects:
+>
+> * Simple NUMA scheduler (Michael Hohnbaum)  - ready for inclusion
+> * Node affine NUMA scheduler (Erich Focht)  - Alpha (Beta?)
+This is not correct. We have the node affine scheduler in production
+since 6 months on top of 2.4. kernels and are happy with it. It is a lot
+more than alpha or beta, it already makes customers happy.
 
+The situation is really funny: Everybody seems to agree that the design
+ideas in my NUMA aproach are sane and exactly what we want to have on
+a NUMA platform in the end. But instead of concentrating on tuning the
+parameters for the many different NUMA platforms and reshaping this
+aproach to make it acceptable, IBM concentrates on a very much stripped
+down aproach. I understand that this project has been started to make
+the inclusion of some NUMA scheduler easier. But in the end, the simple
+NUMA scheduler will have to develop to a much more complex thing and in
+some form or another replicate the design ideas of my node affine
+scheduler. On machines with poor NUMA ratio like NUMAQ the simple NUMA
+change helps. For machines with good NUMA ratio like NEC Azusa, NEC TX7
+you need a little bit more. AMD Hammer-SMP and ppc64 are certainly in
+the same class as the Azusa/TX7. And as soon as Hammer SMP systems will
+be around, the pressure for a full featured NUMA scheduler will be much
+higher.
+
+A NUMA scheduler extension of the 2.6 kernel fits very well with the
+development effort done for better scalability and enterprise level
+fitnes of Linux. Check http://lwn.net/Articles/12546/ to see that it
+makes a difference to have more than O(1) on NUMA machines! I'd
+definitely prefer the inclusion of my 01+02 patches (I'd have to
+maintain less code to keep the customers happy), on the other side:
+including Michael's patch would be better than not adding NUMA
+scheduler support at all.
+
+Best regards,
+Erich
 
 

@@ -1,25 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268848AbTGTWpv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 18:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268836AbTGTWpl
+	id S268910AbTGTWnY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 18:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268911AbTGTWnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 18:45:41 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:26502 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S268827AbTGTWpa (ORCPT
+	Sun, 20 Jul 2003 18:43:24 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:12422 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S268910AbTGTWnU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 18:45:30 -0400
-Date: Mon, 21 Jul 2003 01:00:13 +0200
+	Sun, 20 Jul 2003 18:43:20 -0400
+Date: Mon, 21 Jul 2003 00:58:07 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: John Bradford <john@grabjohn.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: Separate ACPI_SLEEP and SOFTWARE_SUSPEND options
-Message-ID: <20030720230013.GA1728@elf.ucw.cz>
-References: <200307202020.h6KKKrxh003150@81-2-122-30.bradfords.org.uk>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Problems contacting Linus
+Message-ID: <20030720225807.GA1729@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307202020.h6KKKrxh003150@81-2-122-30.bradfords.org.uk>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,27 +24,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > >  	  Right now you may boot without resuming and then later resume but
-> > > >  	  in meantime you cannot use those swap partitions/files which were
-> > > >  	  involved in suspending. Also in this case there is a risk that buffers
-> > > >  	  on disk won't match with saved ones.
-> > > 
-> > > What happens on a machine which is sharing swap space between two
-> > > operating systems?  Do we have a way to mark a swap partition which is
-> > > used for suspend data as unusable?  Maybe we could change the
-> > > partition type from 82 to something else.
-> >
-> > swsusp changes swap's signature, so swapon will fail.
-> 
-> Aren't there some OSes that just blindly use the whole partition,
-> without looking for a swap signature?  I suppose that's really a
-> problem that needs to be fixed with the other OS, though, to recognise
-> the swsusp signature and disable swapping during that boot.
+Some of my mails to Linus return with:
 
-Exactly. If the other OS does not honour swap signature, it might as
-well ignore partition type too. You need to fix that hypothetical
-other OS.
+This is the Internet on Line ESMTP server program at host
+smtp-out1.iol.cz.
 
+I'm sorry to have to inform you that the message returned
+below could not be delivered to one or more destinations.
+
+For further assistance, please send mail to <postmaster>
+
+If you do so, please include this problem report. You can
+delete your own text from the message returned below.
+
+                        The Internet on Line ESMTP server program
+
+<torvalds@osdl.com>: host mail.goweb.com[211.174.63.240] said: 550 5.7.1
+    <torvalds@osdl.com>... Relaying denied. Proper authentication required. (in
+    reply to RCPT TO command)
+
+Anyone else seen that? What is the problem?
 								Pavel
 -- 
 When do you have a heart between your knees?

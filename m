@@ -1,75 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265691AbSKFPXN>; Wed, 6 Nov 2002 10:23:13 -0500
+	id <S265703AbSKFPQy>; Wed, 6 Nov 2002 10:16:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265692AbSKFPXN>; Wed, 6 Nov 2002 10:23:13 -0500
-Received: from signup.localnet.com ([207.251.201.46]:40117 "HELO
-	smtp.localnet.com") by vger.kernel.org with SMTP id <S265691AbSKFPXK>;
-	Wed, 6 Nov 2002 10:23:10 -0500
-To: linux-kernel@vger.kernel.org
-Cc: linuxconsole-dev@lists.sourceforge.net
-Subject: 2.5 bk, input driver and dell i8100 nib+pad
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-Date: 06 Nov 2002 10:29:37 -0500
-Message-ID: <m3n0omk97i.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S265704AbSKFPQx>; Wed, 6 Nov 2002 10:16:53 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:3846 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S265703AbSKFPQx>; Wed, 6 Nov 2002 10:16:53 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB183D@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: Manish Lachwani <manish@Zambeel.com>
+Subject: Regarding zerocopy implementation ...
+Date: Wed, 6 Nov 2002 07:23:20 -0800 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying out 2.5, I've got only a partially working mouse.  The usb
-mouse is fully functional, as are both sets of buttons on the
-notebook.  The mouse pad works, but the nib is ignored.
+Is there a zerocopy receive implementation in Linux? I know that FreeBSD
+5.0-CURRENT has such an implementation named zerocopy sockets and when used
+with a Alteon Tigon II NIC with header splitting turned on in Firmware,
+works well. Do we have any such implementation in Linux? Any reponse is
+greatly appreciated ...
 
-Of course, I only ever use the nib and only noticed that the pad was
-working by accident.
-
-I seem to recall a similar post some time back, but cannot find it in
-my archives.  
-
-Any ideas?
-
-I do need to reboot into 2.4 and clone my bk clone from the sbp2 disk
-to the internal disk (ohci1394 is b0rked ATM) to see the .config I
-ended up with....
-
-The relevant X config is:
-
-Section "ServerFlags"
-  Option       "AllowMouseOpenFail"
-EndSection
-
-Section "InputDevice"
-  Driver       "mouse"
-  Identifier   "Mouse[1]"
-  Option       "Device" "/dev/psaux"
-  Option       "InputFashion" "Mouse"
-  Option       "Name" "AutoDetected"
-  Option       "Protocol" "ps/2"
-  Option       "Vendor" "AutoDetected"
-  Option       "Emulate3Buttons" "on"
-EndSection
-
-Section "InputDevice"
-  Driver       "mouse"
-  Identifier   "USBmouse"
-  Option       "Device" "/dev/input/mice"
-  Option       "Name" "AutoDetected"
-  Option       "Protocol" "IMPS/2"
-  Option       "Vendor" "AutoDetected"
-  Option       "ZAxisMapping" "4 5"
-EndSection
-
-Section "ServerLayout"
-  Identifier   "Layout[all]"
-  InputDevice  "Keyboard[0]" "CoreKeyboard"
-  InputDevice  "Mouse[1]" "CorePointer"
-  InputDevice  "USBmouse" "SendCoreEvents"
-  Option       "Clone" "off"
-  Option       "Xinerama" "off"
-  Screen       "Screen[0]"
-EndSection
-
--JimC
-
+Thanks
+Manish

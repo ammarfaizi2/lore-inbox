@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263501AbTHVSRg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 14:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263549AbTHVSRg
+	id S263158AbTHVSOy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 14:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263648AbTHVSOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 14:17:36 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:19082 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263501AbTHVSRe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 14:17:34 -0400
-From: Andrew Theurer <habanero@us.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: CPU boot problem on 2.6.0-test3-bk8
-Date: Fri, 22 Aug 2003 13:16:44 -0500
-User-Agent: KMail/1.5
-Cc: Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>
-References: <200308201658.05433.habanero@us.ibm.com> <200308211202.02871.habanero@us.ibm.com> <20030822171625.GM4306@holomorphy.com>
-In-Reply-To: <20030822171625.GM4306@holomorphy.com>
+	Fri, 22 Aug 2003 14:14:54 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:17669 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263158AbTHVSOx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 14:14:53 -0400
+Date: Fri, 22 Aug 2003 19:14:45 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Christoph Hellwig <hch@lst.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix the -test3 input config damages
+In-Reply-To: <Pine.LNX.4.44.0308220947010.3258-100000@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0308221858370.19303-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308221316.44041.habanero@us.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 August 2003 12:16, William Lee Irwin III wrote:
-> On Thu, Aug 21, 2003 at 12:02:02PM -0500, Andrew Theurer wrote:
-> > Boot log with extra kicked++ removed...
->
-> Say, could you try last night's bk snapshot and let me know how it's
-> doing? I threw in a necessary fix on top of Dave's last night, but I
-> don't know whether it's sufficient for your purposes yet.
 
-Yes, should have it tested in a few, just backed up right now.
+> > There's really no point in forcing in support for all kinds of
+> > optional input devices unless CONFIG_EMBEDDED.
+> 
+> I disagree. We've had too many totally unnecessary bug-reports from 
+> people, and it's just not worth it not having the keyboard and mouse 
+> controller driver.
+> 
+> However, we can certainly improve on it, and the "select INPUT if VT" part 
+> makes fine sense.
+
+   One thing I like to ask is that you removed the if EMBEDDED | !X86 from 
+VGA_CONSOLE. To my knowledge no one had problems with enabling vga console 
+before the EMBEDDED changes. The reason I ask is because as it stands the 
+configuration is forcing everyone on intel to enable the vga console. Even 
+when you want to just run framebuffer console. Most newbie users will not 
+know that they have to go back and enable "Embedded" support on a desktop 
+machine just to disable vgacon. 
+   This is important because on the intel platform people are moving to 
+framebuffer console. Also it would not shock me to see in one or two 
+generations graphics card not supporting VGA cores anymore. For example I 
+have several newer graphics cards for intel with DVI ports instead of VGA.
+Once the market is flooded with DVI monitors and graphics cards there is no
+need for VGA core support anymore.
+

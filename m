@@ -1,57 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263702AbUCYXzM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 18:55:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbUCYXzM
+	id S263574AbUCYX6C (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 18:58:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbUCYX6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 18:55:12 -0500
-Received: from gprs214-160.eurotel.cz ([160.218.214.160]:24193 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263702AbUCYXzA (ORCPT
+	Thu, 25 Mar 2004 18:58:02 -0500
+Received: from waste.org ([209.173.204.2]:45209 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263574AbUCYX54 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 18:55:00 -0500
-Date: Fri, 26 Mar 2004 00:54:40 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp with highmem, testing wanted
-Message-ID: <20040325235440.GL2179@elf.ucw.cz>
-References: <20040324235702.GA497@elf.ucw.cz> <1080185300.1147.62.camel@gaston> <20040325120250.GC300@elf.ucw.cz> <1080254461.1195.40.camel@gaston> <20040325225946.GI2179@elf.ucw.cz> <1080254675.7097.16.camel@calvin.wpcb.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1080254675.7097.16.camel@calvin.wpcb.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Thu, 25 Mar 2004 18:57:56 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+X-PatchBomber: http://selenic.com/scripts/mailpatches
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <2.524465763@selenic.com>
+Message-Id: <3.524465763@selenic.com>
+Subject: [PATCH 2/22] /dev/random: Cleanup sleep logic
+Date: Thu, 25 Mar 2004 17:57:42 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> On Fri, 2004-03-26 at 10:59, Pavel Machek wrote:
-> > > I also think we free too much memory btw (and spend too much time
-> > > trying to free memory). Have you looked at some of Nigel stuffs in
-> > > swsusp2 ? There may be good ideas to borrow... 
-> > 
-> > Yes, swsusp2 is faster. It is also 10x more code. We could probably
-> > stop freeing as soon as half of memory is free; OTOH if memory is
-> > disk cache, it might be faster to drop it than write to swap, then
-> > read back [swsusp2 shows its not usually the case, through].
-> 
-> 10x more code is true, but we also need to ask, how much of that is more
-> functionality? How much is debugging code (that can be removed)? How
-> much is comments?
+Cleanup /dev/random sleep logic
 
-Do you think you could strip down features + debugging etc so that
-swsusp2 is only, say, 3x bigger than swsusp1? It would certainly make
-merging easier.
+Original code checked in output pool rather than input pool for wakeup
+Move to wait_event_interruptible style
+Delete superfluous waitqueue
 
-> 10x implies there's needless bloat and that the two are otherwise
-> equivalent. That's simply not true.
 
-If I implied that I should appologize. (Sorry.) swsusp2 *has* more
-features, many of them make it faster.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+ tiny-mpm/drivers/char/random.c |   23 +++++++++++------------
+ 1 files changed, 11 insertions(+), 12 deletions(-)
+
+diff -puN drivers/char/random.c~fix-random-wait drivers/char/random.c
+--- tiny/drivers/char/random.c~fix-random-wait	2004-03-20 13:35:06.000000000 -0600
++++ tiny-mpm/drivers/char/random.c	2004-03-20 13:35:06.000000000 -0600
+@@ -1556,9 +1556,8 @@ void rand_initialize_disk(struct gendisk
+ static ssize_t
+ random_read(struct file * file, char * buf, size_t nbytes, loff_t *ppos)
+ {
+-	DECLARE_WAITQUEUE(wait, current);
+-	ssize_t			n, retval = 0, count = 0;
+-	
++	ssize_t	n, retval = 0, count = 0;
++
+ 	if (nbytes == 0)
+ 		return 0;
+ 
+@@ -1582,20 +1581,20 @@ random_read(struct file * file, char * b
+ 				retval = -EAGAIN;
+ 				break;
+ 			}
++
++			DEBUG_ENT("sleeping?\n");
++
++			wait_event_interruptible(random_read_wait,
++				random_state->entropy_count >=
++						 random_read_wakeup_thresh);
++
++			DEBUG_ENT("awake\n");
++
+ 			if (signal_pending(current)) {
+ 				retval = -ERESTARTSYS;
+ 				break;
+ 			}
+ 
+-			set_current_state(TASK_INTERRUPTIBLE);
+-			add_wait_queue(&random_read_wait, &wait);
+-
+-			if (sec_random_state->entropy_count / 8 == 0)
+-				schedule();
+-
+-			set_current_state(TASK_RUNNING);
+-			remove_wait_queue(&random_read_wait, &wait);
+-
+ 			continue;
+ 		}
+ 
+
+_

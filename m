@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbUGIGZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264388AbUGIG20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbUGIGZj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 02:25:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbUGIGZi
+	id S264388AbUGIG20 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 02:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbUGIG2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 02:25:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32441 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264382AbUGIGZg (ORCPT
+	Fri, 9 Jul 2004 02:28:25 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:45215 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264401AbUGIG2Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 02:25:36 -0400
-Date: Fri, 9 Jul 2004 08:24:03 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Jakub Jelinek <jakub@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GCC 3.4 and broken inlining.
-Message-ID: <20040709062403.GA15585@devserv.devel.redhat.com>
-References: <1089287198.3988.18.camel@nigel-laptop.wpcb.org.au> <20040708120719.GS21264@devserv.devel.redhat.com> <20040708205225.GI28324@fs.tum.de> <20040708210925.GA13908@devserv.devel.redhat.com> <1089324501.3098.9.camel@nigel-laptop.wpcb.org.au>
+	Fri, 9 Jul 2004 02:28:24 -0400
+Date: Fri, 9 Jul 2004 08:29:10 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       "David S. Miller" <davem@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm6
+Message-ID: <20040709062910.GA2201@elte.hu>
+References: <20040705023120.34f7772b.akpm@osdl.org> <20040706125438.GS21066@holomorphy.com> <20040706233618.GW21066@holomorphy.com> <20040706170247.5bca760c.davem@redhat.com> <20040707073510.GA27609@elte.hu> <20040707140249.2bfe0a4b.davem@redhat.com> <40EE06B1.1090202@yahoo.com.au> <20040709025151.GV21066@holomorphy.com> <40EE288F.20301@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1089324501.3098.9.camel@nigel-laptop.wpcb.org.au>
+In-Reply-To: <40EE288F.20301@yahoo.com.au>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---YZ5djTAD1cGYuMQK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-On Fri, Jul 09, 2004 at 08:08:21AM +1000, Nigel Cunningham wrote:
-> Hi.
+> >Please present a self-contained fixed-up init_idle() cleanup for me to
+> >testboot. Even the one in -mm is not so, as it depends on later patches
+> >to even compile.
 > 
-> On Fri, 2004-07-09 at 07:09, Arjan van de Ven wrote:
-> > the problem I've seen is that when gcc doesn't honor normal inline, it will
-> > often error out if you always inline....
-> > I'm open to removing the < 4 but as jakub said, 3.4 is quit good at honoring
-> > normal inline, and when it doesn't there often is a strong reason.....
-> 
-> I'm busy for the next couple of days, but if you want, I'll make
-> allyesconfig next week and go through fixing the compilation errors so
-> that the < 4 can be removed. Rearranging code so that inline functions
-> are defined before they're called or not declared inline if they can't
-> always be inlined seems to me to be the right thing to do. (Feel free to
-> say I'm wrong!).
+> The patch I just sent (which is on top of -mm6) should hopefully
+> work... if you feel like testing a solution that may still get
+> vetoed by Ingo.
 
-one thing to note is that you also need to monitor stack usage then :)
-inlining somewhat blows up stack usage so do monitor it...
+looks fine to me. It somewhat reduces the utility of copy_process()
+[which we primarily introduced to enable wakeup-less SMP bootstrapping],
+but i cannot see any good solution besides moving copy_thread() out of
+copy_process(), which is unsafe. (ptrace could potentially access the
+new task before copy_thread() is done, etc.) So i'd go for the simple
+solution of CLONE_IDLETASK not doing a wakeup.
 
---YZ5djTAD1cGYuMQK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFA7joDxULwo51rQBIRAmi9AJwOmZzJUEyHtm39DEo8PHqBQn+zGQCghCjt
-9fFoHxSzLdWcs2gSjOXcm6o=
-=amQB
------END PGP SIGNATURE-----
-
---YZ5djTAD1cGYuMQK--
+	Ingo

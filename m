@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261978AbSJNQcd>; Mon, 14 Oct 2002 12:32:33 -0400
+	id <S261955AbSJNQfo>; Mon, 14 Oct 2002 12:35:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262006AbSJNQcd>; Mon, 14 Oct 2002 12:32:33 -0400
-Received: from pop.gmx.de ([213.165.64.20]:49083 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261978AbSJNQcc>;
-	Mon, 14 Oct 2002 12:32:32 -0400
-Message-ID: <3DAAF2DF.9010809@gmx.net>
-Date: Mon, 14 Oct 2002 18:37:51 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.1) Gecko/20020826
-X-Accept-Language: de, en
+	id <S262003AbSJNQfo>; Mon, 14 Oct 2002 12:35:44 -0400
+Received: from packet.digeo.com ([12.110.80.53]:35511 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261955AbSJNQfk>;
+	Mon, 14 Oct 2002 12:35:40 -0400
+Message-ID: <3DAAF3B2.24158D49@digeo.com>
+Date: Mon, 14 Oct 2002 09:41:22 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Loop on top of NFS hangs kernel
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Steve Lord <lord@sgi.com>
+CC: Hugh Dickins <hugh@veritas.com>, lkml <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [patch] remove BKL from inode_setattr
+References: <3DAA6587.2A4C24B0@digeo.com> <1034604439.25231.9.camel@jen.americas.sgi.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Oct 2002 16:41:26.0807 (UTC) FILETIME=[8A102270:01C273A0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Steve Lord wrote:
+> 
+> On Mon, 2002-10-14 at 01:34, Andrew Morton wrote:
+> 
+> >
+> > The number of filsystems which do not take the bkl in truncate/setattr
+> > is in fact quite small.  Here's the patch which removes all doubt:
+> >
+> >
+> >
+> >
+> >  fs/affs/file.c          |   13 ++++++++-----
+> >  fs/attr.c               |    2 --
+> >  fs/cifs/inode.c         |    7 ++++++-
+> >  fs/jfs/file.c           |    3 +++
+> >  fs/reiserfs/file.c      |    2 ++
+> >  fs/smbfs/proc.c         |   18 +++++++++++++++---
+> >  fs/sysv/itree.c         |    6 +++++-
+> >  fs/xfs/linux/xfs_iops.c |   11 +++++++++--
+> >  8 files changed, 48 insertions(+), 14 deletions(-)
+> 
+> XFS deliberately does not take the BKL - anywhere. Our setattr
+> code is doing its own locking. You just added the BKL to a
+> bunch of xfs operations which do not need it. Now, vmtruncate
+> may need it, itself, but if vmtruncate does not, then the xfs
+> callout from vmtruncate certainly does not.
+> 
 
-I have a small problem with my configuration which results in a deadlock
-after ~1 minute. As soon as the copying hangs, I can still switch to another
-console but not execute any command or write anything to any disk. SysRq-S
-and SysRq-U both never complete and the output of SysRq-P or SysRq-T never
-hits the disk.
+Sorry, but that is standard "bkl migration" methodology.  You had it
+before, so you get it after.  It is not my role to change XFS locking.
 
-Steps to reproduce:
-mount -t nfs server:/two /mnt/server/
-losetup -e twofish /dev/loop0 /mnt/server/file.dat
-mount -t ext2 /dev/loop0 /mnt/cryptfs/
-cp -a /usr/bin/* /mnt/cryptfs/
-<hang>
-
-Kernel is 2.4.18-SuSE. I'm willing to try any 2.4 (or for that matter, 2.5) 
-kernel or additional patches if this helps.
-
-_This hang could also be reproduced without any encryption._
-
-The Encryption Howto says the above was not possible with 2.2 kernels back
-in 2000. However, I was unable to find anything more recent with google. If
-(crypto)loop is still impossible over NFS, can I do something to fix it?
-Even a quick hack would be perfect for me.
-
-If the problem is in allocating memory for the loop device, preallocating a
-certain amount of memory and limiting request size for above layers to that
-amount (or a fraction on it, depending on how much memory for encryption is
-needed) should cure the problem, right?
-If the problem is in allocating memory for the NFS client, the preallocation
-trick should work too. Or am I missing something here?
-
-If fixing this problem is impossible, can we at least disallow the setup of 
-loop devices on top of NFS so nobody gets bitten by this one?
-
-Thanks for your help.
-
-Regards,
-
-Carl-Daniel
-
--- 
-Random quote:
-That one can't ever actually happen -- it's effectively a default case in a
-switch statement which can't ever be reached because we'd never get that far
-unless one of the real cases is going to be taken. I think I'll replace the
-return statement with panic("The world is broken");
--- David Woodhouse
-
-
+Anyway, I don't think these patches are going anywhere.

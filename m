@@ -1,157 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290593AbSB0AoB>; Tue, 26 Feb 2002 19:44:01 -0500
+	id <S290796AbSB0Arv>; Tue, 26 Feb 2002 19:47:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290689AbSB0Anu>; Tue, 26 Feb 2002 19:43:50 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:59902 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S290593AbSB0Anc> convert rfc822-to-8bit;
-	Tue, 26 Feb 2002 19:43:32 -0500
-Date: Wed, 27 Feb 2002 01:43:13 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: <nick@snowman.net>
-cc: christophe =?iso-8859-15?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>,
-        lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: 3c59x and cardbus
-In-Reply-To: <Pine.LNX.4.21.0202261932330.14013-100000@ns>
-Message-ID: <Pine.GSO.4.30.0202270141030.29857-100000@balu>
+	id <S290685AbSB0Arl>; Tue, 26 Feb 2002 19:47:41 -0500
+Received: from sleet.ispgateway.de ([62.67.200.125]:35968 "HELO
+	sleet.ispgateway.de") by vger.kernel.org with SMTP
+	id <S290640AbSB0Arc>; Tue, 26 Feb 2002 19:47:32 -0500
+Message-ID: <3C7C2CA1.5080607@ellinger.de>
+Date: Wed, 27 Feb 2002 01:47:29 +0100
+From: Rainer Ellinger <rainer@ellinger.de>
+Organization: Rainers Rechenzentrum
+User-Agent: Mozilla/5.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Congrats Marcelo,
+In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com> <20020226140644.U12832@lynx.adilger.int> <1014760581.5993.159.camel@jen.americas.sgi.com> <E16f8Ey-0002qn-00@starship.berlin> <3C7C18EB.4090509@ellinger.de> <38790000.1014767994@flay>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Martin J. Bligh wrote:
+> the same goals .... feel free to take what is in 2.5 right now,
+> stabilise it, and add these patches, making your own tree
+ > probably make a lot of people happy.
 
-But the weird fact is that after the _first_ load of the module (3c59x),
-both of my cards work perfectly. The problem only occurs (and can be only
-helped by reboot) if I rmmod it, and then try to reload. I don't think i'm
-having irq problems, but i can check it tomorrow.
+That's the arrogant point of view, you can have, if you get paid for it. Please correct me, but I don't know any major tree from 
+volunteers.
 
-
-On Tue, 26 Feb 2002 nick@snowman.net wrote:
-
-> I've gotten this exact same error on various 3c905x cards.  What it
-> usually means for me is IRQ problems of some type.
-> 	Nick
->
-> On Wed, 27 Feb 2002, Pozsar Balazs wrote:
->
-> >
-> > I get very similar error if I remove the module and then reload it (rmmod
-> > followed by a modprobe). So once I rmmod it, It will never be usable again
-> > until i reboot.
-> >
-> > I have to pci 3com 905's, I can send the pci id's if those matters
-> > tomorrow.
-> >
-> >
-> > On Tue, 26 Feb 2002, christophe [iso-8859-15] barbé wrote:
-> >
-> > > Now that the forget_option bug is solved I have the following :
-> > >
-> > > Each time I suspend, the card resume in a bad state but return in a good
-> > > state after that :
-> > >
-> > > NETDEV WATCHDOG: eth0: transmit timed out
-> > > eth0: transmit timed out, tx_status 00 status e000.
-> > >   diagnostics: net 0ee0 media 8800 dma 000000a0.
-> > >   Flags; bus-master 1, dirty 20(4) current 36(4)
-> > >   Transmit list 00af8300 vs. c0af8300.
-> > >   0: @c0af8200  length 80000062 status 00000062
-> > >   1: @c0af8240  length 80000062 status 00000062
-> > >   2: @c0af8280  length 80000062 status 80000062
-> > >   3: @c0af82c0  length 80000062 status 80000062
-> > >   4: @c0af8300  length 80000062 status 00000062
-> > >   5: @c0af8340  length 8000003c status 0000003c
-> > >   6: @c0af8380  length 80000062 status 00000062
-> > >   7: @c0af83c0  length 80000062 status 00000062
-> > >   8: @c0af8400  length 8000003c status 0000003c
-> > >   9: @c0af8440  length 80000062 status 00000062
-> > >   10: @c0af8480  length 80000062 status 00000062
-> > >   11: @c0af84c0  length 80000036 status 00000036
-> > >   12: @c0af8500  length 80000062 status 00000062
-> > >   13: @c0af8540  length 80000062 status 00000062
-> > >   14: @c0af8580  length 80000062 status 00000062
-> > >   15: @c0af85c0  length 80000062 status 00000062
-> > > eth0: Resetting the Tx ring pointer.
-> > >
-> > > The tx ring seems to be in a good state, no ?
-> > >
-> > > Christophe
-> > >
-> > > On Tue, Feb 26, 2002 at 01:59:07PM -0500, christophe barbé wrote:
-> > > > Thank you, I have done something similar and that solve it in my case at
-> > > > least. This driver was clearly not designed for cardbus.
-> > > >
-> > > > I am still looking for my resume/suspend problem.
-> > > > Hope to find the solution soon.
-> > > >
-> > > > Christophe
-> > > >
-> > > > On Tue, Feb 26, 2002 at 10:51:08AM -0800, Andrew Morton wrote:
-> > > > > christophe barbé wrote:
-> > > > > >
-> > > > > > Ok I have found why.
-> > > > > > When I resinsert the card, the driver give it a new id (this driver
-> > > > > > supports multiple cards) and the option as I set it is only defined for
-> > > > > > the card #0. I would expect that the driver give the same id back.
-> > > > > >
-> > > > >
-> > > > > hrm.  OK, hotplugging and slot-positional module parameters weren't
-> > > > > designed to live together.
-> > > > >
-> > > > > This should fix it for single cards.   For multiple cards, you'll
-> > > > > have to make sure you eject them in reverse scan order :)
-> > > > >
-> > > > > Index: drivers/net/3c59x.c
-> > > > > ===================================================================
-> > > > > RCS file: /opt/cvs/lk/drivers/net/3c59x.c,v
-> > > > > retrieving revision 1.74.2.7
-> > > > > diff -u -r1.74.2.7 3c59x.c
-> > > > > --- drivers/net/3c59x.c	2002/02/13 21:03:03	1.74.2.7
-> > > > > +++ drivers/net/3c59x.c	2002/02/26 18:49:24
-> > > > > @@ -2898,6 +2898,9 @@
-> > > > >  		BUG();
-> > > > >  	}
-> > > > >
-> > > > > +	if (vp->card_idx == vortex_cards_found)
-> > > > > +		vortex_cards_found--;
-> > > > > +
-> > > > >  	vp = dev->priv;
-> > > > >
-> > > > >  	/* AKPM: FIXME: we should have
-> > > > >
-> > > > >
-> > > > > -
-> > > >
-> > > > --
-> > > > Christophe Barbé <christophe.barbe@ufies.org>
-> > > > GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
-> > > >
-> > > > Imagination is more important than knowledge.
-> > > >    Albert Einstein, On Science
-> > >
-> > >
-> > >
-> > > --
-> > > Christophe Barbé <christophe.barbe@ufies.org>
-> > > GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
-> > >
-> > > Imagination is more important than knowledge.
-> > >    Albert Einstein, On Science
-> > >
-> >
-> > --
-> > pozsy
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
+I have my own tree integrating XFS, LoopAES, UML, IPVS, Freeswan with X.509, LSM, TUX  and some smaller netfilter things. It's not 
+a big deal integrating these patches, but it's still too much work. Guess, why i am not able to release this to public?
 
 -- 
-pozsy
+rainer@ellinger.de
 

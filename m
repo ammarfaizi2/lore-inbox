@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbTJQMJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 08:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263425AbTJQMJ7
+	id S263434AbTJQMdt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 08:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbTJQMdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 08:09:59 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:56960 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S263424AbTJQMJ6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 08:09:58 -0400
-Date: Fri, 17 Oct 2003 09:12:30 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org,
-       Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
-Subject: Re: LVM Snapshots
-In-Reply-To: <200310151751.23103.m.c.p@wolk-project.de>
-Message-ID: <Pine.LNX.4.44.0310170910120.7586-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 17 Oct 2003 08:33:49 -0400
+Received: from uni00du.unity.ncsu.edu ([152.1.13.100]:36224 "EHLO
+	uni00du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S263434AbTJQMdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 08:33:47 -0400
+From: jlnance@unity.ncsu.edu
+Date: Fri, 17 Oct 2003 08:33:44 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Transparent compression in the FS
+Message-ID: <20031017123344.GA2794@ncsu.edu>
+References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14> <20031016230448.GA29279@pegasys.ws> <20031017094443.GA7738@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031017094443.GA7738@elf.ucw.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 15 Oct 2003, Marc-Christian Petersen wrote:
-
-> On Wednesday 15 October 2003 17:40, Christoph Pleger wrote:
+On Fri, Oct 17, 2003 at 11:44:44AM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> Hi Christoph,
+> > Several months ago we encountered the hash collision problem
+> > with rsync.  This brought about a fair amount of discussion
 > 
-> > I am using a 2.4.22 kernel from www.kernel.org together with an XFS
-> > patch from SGI. I want to use LVM for creating snapshots for backups,
-> > but I found out that I cannot mount the snapshots of journalling
-> > filesystems (EXT3, XFS, Reiser). Only JFS snapshots can be mounted.
-> > My research on internet gave the result that a kernel-patch must be used
-> > to solve that problem, but I could not find such a patch for Linux
-> > 2.4.22, so where can I get it?
-> 
-> Marcelo decided not to apply that needed patch. Here it is for you to play 
-> with :) ... It'll apply with offsets to 2.4.23-pre7.
+> So you found collision in something like md5 or sha1?
 
-Because the patch touches generic fs code.
-
-Dont use LVM with XFS for now.
-
-
-
+No, rsync uses a much weaker hash.  The paper on the rsync alg is
+interesting and has all the details, so you should read if if you
+want to be sure.  But from my memory rsync uses a combination of
+a weak 16 bit hash which it rolls through the data, and a strong
+32 bit hash which it uses to check the 16 bit hash.

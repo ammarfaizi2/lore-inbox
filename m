@@ -1,33 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262699AbVA1SJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVA1SMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262699AbVA1SJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 13:09:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVA1SJQ
+	id S261510AbVA1SMW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 13:12:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVA1SJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 13:09:16 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:38085 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261504AbVA1SER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 13:04:17 -0500
-Date: Fri, 28 Jan 2005 19:04:08 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Lorenzo =?iso-8859-1?Q?Hern=E1ndez_Garc=EDa-Hierro?= 
-	<lorenzo@gnu.org>
+	Fri, 28 Jan 2005 13:09:44 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:5385 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261515AbVA1SIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 13:08:07 -0500
+Subject: Re: [PATCH] OpenBSD Networking-related randomization port
+From: Arjan van de Ven <arjan@infradead.org>
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
 Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
        torvalds@osdl.org
-Subject: Re: [PATCH] OpenBSD Networking-related randomization port
-Message-ID: <20050128180408.GA29635@wohnheim.fh-wedel.de>
-References: <1106932637.3778.92.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 In-Reply-To: <1106932637.3778.92.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+References: <1106932637.3778.92.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 28 Jan 2005 19:07:57 +0100
+Message-Id: <1106935677.7776.29.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 January 2005 18:17:17 +0100, Lorenzo Hernández García-Hierro wrote:
+On Fri, 2005-01-28 at 18:17 +0100, Lorenzo HernÃ¡ndez GarcÃ­a-Hierro
+wrote:
+> Hi,
 > 
 > Attached you can find a split up patch ported from grSecurity [1], as
 > Linus commented that he wouldn't get a whole-sale patch, I was working
@@ -35,24 +50,16 @@ On Fri, 28 January 2005 18:17:17 +0100, Lorenzo Hernández García-Hierro wrote:
 > without a development or maintenance overhead, aka less-invasive
 > implementations.
 
-I can see why Linus isn't too excited about this patch:
 
-o Increased entropy pool sizes are independent.  Should be a seperate
-  patch.
-o Huge numbers of #ifdef's in the code are Plain Wrong(tm).
-o Replacing current randomization functions with new ones without
-  lengthy explanation doesn't make me happy.
+why did you make it a config option? This is the kind of thing that is
+either good or isn't... at which point you can get rid of a lot of, if
+not all the ugly ifdefs the patch adds.
 
-Also, if the patch was inline instead of an attachment, I could easily
-quote it while commenting.
+Also, why does it need to enhance the random driver this much, the
+random driver already has a facility to provide pseudorandom numbers
+good enough for networking use (eg the PRNG rekeys often enough with
+real entropy that brute forcing it shouldn't be possible).
 
+If you can fix those 2 things the patch will look a lot cleaner and has
+a lot higher chance to be merged.
 
-Not sure whether there are useful things in the patch, but in the
-current form I wouldn't want to take it.  And usually I'm less picky
-than Linus.
-
-Jörn
-
--- 
-Eighty percent of success is showing up.
--- Woody Allen

@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293668AbSCKKVa>; Mon, 11 Mar 2002 05:21:30 -0500
+	id <S293670AbSCKKZK>; Mon, 11 Mar 2002 05:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293669AbSCKKVV>; Mon, 11 Mar 2002 05:21:21 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:29594 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S293668AbSCKKVG>; Mon, 11 Mar 2002 05:21:06 -0500
-Date: Mon, 11 Mar 2002 11:20:46 +0100
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Oskar Liljeblad <oskar@osk.mine.nu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: directory notifications lost after fork?
-Message-ID: <20020311112046.A1368@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-Mail-Followup-To: Oskar Liljeblad <oskar@osk.mine.nu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020310210802.GA1695@oskar> <20020311085006.GA1402@oskar>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020311085006.GA1402@oskar>
-User-Agent: Mutt/1.3.23i
+	id <S293672AbSCKKZC>; Mon, 11 Mar 2002 05:25:02 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:8196 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S293670AbSCKKYw>;
+	Mon, 11 Mar 2002 05:24:52 -0500
+Message-ID: <3C8C857A.5090809@evision-ventures.com>
+Date: Mon, 11 Mar 2002 11:22:50 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] BUG check in elevator.c:237
+In-Reply-To: <Pine.LNX.4.44.0203081258500.5383-100000@netfinity.realnet.co.sz> <3C88A796.2070301@evision-ventures.com> <20020311094445.GC31108@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 09:50:06AM +0100, Oskar Liljeblad wrote:
-> On Sunday, March 10, 2002 at 22:02, usel wrote:
-> > The code snipper demonstrates what I consider a bug in the
-> > dnotify facilities in the kernel. After a fork, all registered
-> > notifications are lost in the process where they originally
-> > where registered (the parent process). [..]
+Jens Axboe wrote:
+
+> That's nonsense too. I added the expiry hook to let lower levels decide
+> what should happen when an interrupt timeout occurs. So there's been
+> _no_ interrupt if we enter this from the timer handler.
+
+No interrupt from the same drive right.
+
+>>And plase guess whot? CD-ROM is the only driver which is using
+>>this facility. Please have a look at the last
+>>
 > 
-> FWIW, as long as you keep the child alive after fork the
-> notifications are not lost. Also the same effect when you
-> keep the parent(s) alive and decide to receive notification
-> in the newly created process instead.
-What process are the notifications sent, in this case?
-IMHO, only the parent can catch them, as fcntl called in the parent
-only.
+> Right, it was added to handle long commands like format unit etc.
 
-Anyway, strange effect.
+Hmm seeks on tapes can take awfully long as well...
 
-
-
+>>argument of ide_set_handler(). The second argument is the
+>>interrutp handler for a command. The third is supposed to be
+>>the poll timerout function. But if you look at the
+>>actual poll function found in ide-cd.c (and only there).
+>>You may as well feel to try to just execute its commands directly in
+>>ide_timer_expiry, thus reducing tons of possible races ind the
+>>overall intr handling found currently there.
+>>
 > 
-> Oskar Liljeblad (oskar@osk.mine.nu)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I don't know what tangent you are going off on here, I think you should
+> re-read this code a lot more carefully. There's no polling going on
+> here.
+
+I think the term polling used by me is the only problem here ;-).
+(I consider every command controll which goes without irq notification
+just polling... whatever it polls once or not ;-).
+

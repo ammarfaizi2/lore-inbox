@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291072AbSBLOSY>; Tue, 12 Feb 2002 09:18:24 -0500
+	id <S289787AbSBLOWE>; Tue, 12 Feb 2002 09:22:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291078AbSBLOSO>; Tue, 12 Feb 2002 09:18:14 -0500
-Received: from mail.spylog.com ([194.67.35.220]:41639 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S291072AbSBLOSD>;
-	Tue, 12 Feb 2002 09:18:03 -0500
-Date: Tue, 12 Feb 2002 17:17:56 +0300
-From: Andrey Nekrasov <andy@spylog.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [? bug] 2.4.18pre2aa2
-Message-ID: <20020212141756.GA17812@an.local>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-Organization: SpyLOG ltd.
+	id <S291075AbSBLOV5>; Tue, 12 Feb 2002 09:21:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59403 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289787AbSBLOVq>; Tue, 12 Feb 2002 09:21:46 -0500
+Subject: Re: Linux 2.4.18-pre9-ac1
+To: axboe@suse.de (Jens Axboe)
+Date: Tue, 12 Feb 2002 14:35:18 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andersen@codepoet.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020212092658.Z729@suse.de> from "Jens Axboe" at Feb 12, 2002 09:26:58 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16ae1e-0001ws-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+> > > I want to find out why it was done first and then test it. Leaving it out
+> > > will ensure it bugs me until I test it
+> > 
+> > If you leave it out, you surely want to make sure that the other request
+> > init and re-init paths agree on the clustering for MO devices. Because
+> > they don't.
 
-1. 1 CPU, 2Gb RAM, highmem 4Gb.
+No - I want to run a test set with an M/O drive before and after the change
+and see what it shows in real life. I suspect nothing much.
 
-2.
+> Now, disabling request merging for MO devices might make a whole lot
+> more sense. That might be worth while trying, and I'd be happy to give
+> you a patch to try that out instead.
 
-...
-Feb  5 12:13:50 hydra kernel: Symbols match kernel version 2.4.18.
-Feb  5 12:13:50 hydra kernel: No module symbols loaded - kernel modules not enabled. 
-Feb  8 18:56:52 hydra kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-Feb  8 18:56:53 hydra kernel: f194fe54 e0256ee0 00000000 000001d2 00000000 00104025 00000001 e6b7d45c 
-Feb  8 18:56:53 hydra kernel:        e42cf494 00000001 00000002 e02a95c0 e02a96b0 00000000 000001d2 00000000 
-Feb  8 18:56:53 hydra kernel:        e011f221 91917000 00000001 e6b7d45c ed6b6954 e011f352 e42cf494 ed6b6954 
-Feb  8 18:56:53 hydra kernel: Call Trace: [proc_doulongvec_minmax+17/44] [sysctl_string+186/300] [check_free_space+130/712] [mtrr_file_del+82/124]
-[mtrr_del_page+376/436] 
-Feb  8 18:56:53 hydra kernel:    [do_acct_process+619/836] [do_syslog+39/1936] [do_syslog+516/1936] [do_syslog+1147/1936]
-[interruptible_sleep_on_timeout+106/324] [interruptible_sleep_on+213/304] 
-Feb  8 18:56:53 hydra kernel:    [wait_for_completion+90/404] [setup_frame+412/436] 
-Feb  8 18:56:53 hydra kernel: VM: killing process layers
-...
-    
+I don't think that should be required actually. The killer on M/O disks
+is seek time, and to an extent rotational latency (its 3 trips round a 
+cheaper M/O disk to rewrite a sector). If anything clustering writes to
+the same track should be a big win.
 
-
-
--- 
-bye.
-Andrey Nekrasov, SpyLOG.
+Alan

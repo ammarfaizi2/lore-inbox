@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272246AbTG1Biy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 21:38:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272231AbTG1ABl
+	id S272611AbTG1BkB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 21:40:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272231AbTG1BjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:01:41 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:31477 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272932AbTG0XBf (ORCPT
+	Sun, 27 Jul 2003 21:39:00 -0400
+Received: from rth.ninka.net ([216.101.162.244]:32899 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S272315AbTG1Bhb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:01:35 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "David S. Miller" <davem@redhat.com>
-Cc: arjanv@redhat.com, torvalds@transmeta.com, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove module reference counting. 
-In-reply-to: Your message of "Fri, 25 Jul 2003 10:47:38 MST."
-             <20030725104738.7ffbc118.davem@redhat.com> 
-Date: Mon, 28 Jul 2003 04:50:19 +1000
-Message-Id: <20030727193919.671CA2C086@lists.samba.org>
+	Sun, 27 Jul 2003 21:37:31 -0400
+Date: Sun, 27 Jul 2003 18:52:41 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: PATCH: allow 2.6 to build on old old setups
+Message-Id: <20030727185241.3288a973.davem@redhat.com>
+In-Reply-To: <200307272026.h6RKQauS029828@hraefn.swansea.linux.org.uk>
+References: <200307272026.h6RKQauS029828@hraefn.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030725104738.7ffbc118.davem@redhat.com> you write:
-> On Fri, 25 Jul 2003 04:00:18 +1000
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> 
-> > 	If module removal is to be a rare and unusual event, it
-> > doesn't seem so sensible to go to great lengths in the code to handle
-> > just that case.  In fact, it's easier to leave the module memory in
-> > place, and not have the concept of parts of the kernel text (and some
-> > types of kernel data) vanishing.
-> > 
-> > Polite feedback welcome,
-> 
-> I'm ok with this, with one possible enhancement.
-> 
-> How about we make ->cleanup() return a boolean, which if true
-> causes the caller to do the module_free()?
+On Sun, 27 Jul 2003 21:26:36 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Some "I am the perfect module" flag would probably cause less
-breakage.  But, I'm not sure even that is worth it.
+> +#ifdef STT_REGISTER
+>  		if (info->hdr->e_machine == EM_SPARC ||
+>  		    info->hdr->e_machine == EM_SPARCV9) {
+>  			/* Ignore register directives. */
+>  			if (ELF_ST_TYPE(sym->st_info) == STT_REGISTER)
+>  				break;
+>  		}
+> +#endif
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+This change is wrong.
+
+If you're going to do this, it's much better to define it to the
+correct value in this case (which is decimal '13').

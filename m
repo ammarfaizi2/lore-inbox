@@ -1,72 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263141AbSITRbb>; Fri, 20 Sep 2002 13:31:31 -0400
+	id <S263084AbSITRbQ>; Fri, 20 Sep 2002 13:31:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263143AbSITRbb>; Fri, 20 Sep 2002 13:31:31 -0400
-Received: from m084156.ap.plala.or.jp ([219.164.84.156]:17300 "HELO
-	mana.fennel.org") by vger.kernel.org with SMTP id <S263141AbSITRb1>;
-	Fri, 20 Sep 2002 13:31:27 -0400
-Date: Sat, 21 Sep 2002 02:36:22 +0900 (JST)
-Message-Id: <20020921.023622.72271649.sian@big.or.jp>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.37 export find_task_by_pid
-From: Hiroshi Takekawa <sian@big.or.jp>
-X-Mailer: Mew version 3.0.64 on Emacs 21.3 / Mule 5.0
- =?iso-2022-jp?B?KBskQjgtTFobKEIvU0FLQUtJKQ==?=
+	id <S263141AbSITRbQ>; Fri, 20 Sep 2002 13:31:16 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:41682 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263084AbSITRbP>;
+	Fri, 20 Sep 2002 13:31:15 -0400
+Date: Fri, 20 Sep 2002 23:10:20 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: maneesh@in.ibm.com, William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       viro@math.psu.edu, Hanna Linder <hannal@us.ibm.com>
+Subject: Re: 2.5.36-mm1 dbench 512 profiles
+Message-ID: <20020920231020.A4357@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com> <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com> <3D8B31F8.40900@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D8B31F8.40900@us.ibm.com>; from haveblue@us.ibm.com on Fri, Sep 20, 2002 at 02:37:41PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 20, 2002 at 02:37:41PM +0000, Dave Hansen wrote:
+> Isn't increased hold time _good_ on NUMA-Q?  I thought that the really 
+> costy operation was bouncing the lock around the interconnect, not 
 
-Hi,
+Increased hold time isn't necessarily good. If you acquire the lock
+often, your lock wait time will increase correspondingly. The ultimate
+goal should be to decrease the total number of acquisitions.
 
-ipt_owner calls find_task_by_pid.
-When compiled as module, unresolved error happens.
-My fix is below.  I don't know this is right, though error has gone.
+> holding it.  Has fastwalk ever been tested on NUMA-Q?
 
---
-Hiroshi Takekawa <sian@big.or.jp>
+Fastwalk is in 2.5. You can see wli's profile numbers for dbench 512
+earlier in this thread.
 
+> 
+> Remember when John Stultz tried MCS (fair) locks on NUMA-Q?  They 
+> sucked because low hold times, which result from fairness, aren't 
+> efficient.  It is actually faster to somewhat starve remote CPUs.
 
-diff -Naur linux-2.5.37/kernel/Makefile linux-2.5.37.patched/kernel/Makefile
---- linux-2.5.37/kernel/Makefile	Sat Sep 21 02:23:20 2002
-+++ linux-2.5.37.patched/kernel/Makefile	Sat Sep 21 02:12:41 2002
-@@ -3,7 +3,7 @@
- #
- 
- export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
--		printk.o platform.o suspend.o dma.o
-+		printk.o platform.o suspend.o dma.o pid.o
- 
- obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
- 	    module.o exit.o itimer.o time.o softirq.o resource.o \
-diff -Naur linux-2.5.37/kernel/pid.c linux-2.5.37.patched/kernel/pid.c
---- linux-2.5.37/kernel/pid.c	Sat Sep 21 02:23:20 2002
-+++ linux-2.5.37.patched/kernel/pid.c	Sat Sep 21 02:09:58 2002
-@@ -19,6 +19,7 @@
-  * bytes. The typical fastpath is a single successful setbit. Freeing is O(1).
-  */
- 
-+#include <linux/module.h>
- #include <linux/mm.h>
- #include <linux/slab.h>
- #include <linux/init.h>
-@@ -191,7 +192,7 @@
- 	free_pidmap(nr);
- }
- 
--extern task_t *find_task_by_pid(int nr)
-+task_t *find_task_by_pid(int nr)
- {
- 	struct pid *pid = find_pid(PIDTYPE_PID, nr);
- 
-@@ -199,6 +200,7 @@
- 		return NULL;
- 	return pid_task(pid->task_list.next, PIDTYPE_PID);
- }
-+EXPORT_SYMBOL(find_task_by_pid);
- 
- void __init pidhash_init(void)
- {
+One workaround is to keep scheduling the lock within the CPUs of
+a node as much as possible and release it to a different node
+only if there isn't any CPU available in the current node. Anyway
+these are not real solutions, just band-aids.
+
+> 
+> In any case, we all know often acquired global locks are a bad idea on 
+> a 32-way, and should be avoided like the plague.  I just wish we had a 
+> dcache solution that didn't even need locks as much... :)
+
+You have one - dcache_rcu. It reduces the dcache_lock acquisition
+by about 65% over fastwalk.
+
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

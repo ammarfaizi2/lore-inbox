@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315411AbSEMBFI>; Sun, 12 May 2002 21:05:08 -0400
+	id <S315461AbSEMBIX>; Sun, 12 May 2002 21:08:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315461AbSEMBFH>; Sun, 12 May 2002 21:05:07 -0400
-Received: from [202.135.142.196] ([202.135.142.196]:2576 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S315411AbSEMBFE>; Sun, 12 May 2002 21:05:04 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: andersen@codepoet.org
-Cc: Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Some useless cleanup 
-In-Reply-To: Your message of "Thu, 09 May 2002 16:23:58 CST."
-             <20020509222358.GB8651@codepoet.org> 
-Date: Sun, 12 May 2002 22:09:54 +1000
-Message-Id: <E176sAl-0000ct-00@wagner.rustcorp.com.au>
+	id <S315459AbSEMBIW>; Sun, 12 May 2002 21:08:22 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48400 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315461AbSEMBIU>; Sun, 12 May 2002 21:08:20 -0400
+Date: Sun, 12 May 2002 18:08:28 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: wrose@loislaw.com, <linux-kernel@vger.kernel.org>
+Subject: Re: Segfault hidden in list.h
+In-Reply-To: <20020512.175021.50367158.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0205121805220.15392-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020509222358.GB8651@codepoet.org> you write:
-> On Thu May 09, 2002 at 10:36:50PM +1000, Rusty Russell wrote:
-> > Um, why not simply:
-> > 
-> > static inline void set_name(struct task_struct *tsk, const char *name)
-> > {
-> > 	/* comm is always nul-terminated already */
-> > 	strncpy(tsk->comm, name, sizeof(tsk->comm)-1);
-> > }
-> > 
-> > Your implementation using snprintf is (wasteful and) dangerous,
-> > Rusty.
-> 
-> And both implementations suffer from the fact that if tsk->comm
-> were to change from a fixed length array to a char*, allowing
-> arbitrarily sized names, you would end up copying very little
-> indeed.  :)
 
-Um, yes, if someone were to make a random change to the kernel without
-looking at what it would effect, the kernel would likely break.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+On Sun, 12 May 2002, David S. Miller wrote:
+>
+>    If the coder doesn't lock his data structures, it doesn't matter _what_
+>    order we execute the list modifications in - different architectures will
+>    do different thing with inter-CPU memory ordering, and trying to order
+>    memory accesses on a source level is futile.
+>
+> However, if the list manipulation had some memory barriers
+> added to it...
+
+That would just make _those_ much slower, with some very doubtful end
+results.
+
+Show me numbers, and show me readable source, and show me a proof that the
+memory ordering actually works, and I may consider lockless algorithms
+worthwhile. As it is, they are damn fragile and require more care that I
+personally care to expect out of 99.9% of all programmers.
+
+And I'm sure as hell not going to put any lockless stuff in functions
+meant for "normal human consumption". If we create list macros like that,
+they had better be called "lockless_list_add_be_damn_careful_about_it()"
+rather than "list_add()".
+
+		Linus
+

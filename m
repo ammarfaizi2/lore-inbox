@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267831AbTAHSQR>; Wed, 8 Jan 2003 13:16:17 -0500
+	id <S267847AbTAHSUa>; Wed, 8 Jan 2003 13:20:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267836AbTAHSQR>; Wed, 8 Jan 2003 13:16:17 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:2241 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S267831AbTAHSQP>; Wed, 8 Jan 2003 13:16:15 -0500
-Date: Wed, 8 Jan 2003 13:24:45 -0500
-From: "Murray J. Root" <murrayr@brain.org>
+	id <S267845AbTAHSU3>; Wed, 8 Jan 2003 13:20:29 -0500
+Received: from smtp01.web.de ([217.72.192.180]:44562 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S267847AbTAHSU1>;
+	Wed, 8 Jan 2003 13:20:27 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Thomas Schlichter <thomas.schlichter@web.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: USB CF reader reboots PC
-Message-ID: <20030108182445.GC1189@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030108165130.GA1181@Master.Wizards> <20030108181645.GC3127@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030108181645.GC3127@kroah.com>
-User-Agent: Mutt/1.4i
+Subject: some questions about flush_map() in pageattr.c
+Date: Wed, 8 Jan 2003 19:29:02 +0100
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200301081929.02202.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 08, 2003 at 10:16:45AM -0800, Greg KH wrote:
-> On Wed, Jan 08, 2003 at 11:51:30AM -0500, Murray J. Root wrote:
-> > devfs=mount in lilo.conf
-> >               
-> > Insert CF card. 
-> > ls /dev shows sda and sda1
-> > mount it. 
-> > ls /dev shows sda - no sda1
-> > cd to mounted CF card
-> > process hangs, sd-mod & usb-storage "busy"
-> > rmmod -f usb-storage or sd-mod causes PC to stop
-> > (keyboard & mouse unresponsive, wmfire frozen, net disconnects)
-> > 
-> > reboot
-> > Insert CF card. 
-> > ls /dev shows sda & sda1
-> > mount it. 
-> > ls /dev shows sda - no sda1
-> > umount it
-> > ls /dev shows sda - no sda1
-> > modprobe -r sd-mod && modprobe sd-mod 
-> > ls /dev shows sda & sda1
-> 
-> So if devfs is enabled, everything works just fine?
-> 
-How did you come to that conclusion?
-sda1 is where the data is - when I mount the CF sda1 disappears
-from /dev and accessing the mountpoint hangs the process.
+Hello,
 
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.freenode.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker
-  #cooker = moderated Mandrake Cooker
+currently I am writing a patch to be able to make TLBs on any IO-devices 
+coherent to the CPUs TLBs. So I was looking in the kernel-sources for places 
+where not only the local but all TLBs are flushed. So I came up with 
+flush_map() in the arch/i386/mm/ and the arch/x86_64/mm/ directories.
 
+Now my questions:
+
+1. In the x86_64 part of code the flush_kernel_map() does a 
+local_flush_tlb_one() but in the i386 parts a local_flush_tlb_all(). Is the 
+mentioned athlon bug the cause or can it be changed to work as in the x86_64 
+code?
+
+2. Can the flush_map() function be replaced by a flush_tlb_all() respective 
+flush_tlb_page(). If I can do so, what would be the correct value for the 
+first argument 'vma'?
+
+If it is not posible could you please tell me why not...?
+
+Thank you very much!
+
+  Thomas Schlichter

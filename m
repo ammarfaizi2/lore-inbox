@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132350AbRAGOA3>; Sun, 7 Jan 2001 09:00:29 -0500
+	id <S132517AbRAGOHM>; Sun, 7 Jan 2001 09:07:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132692AbRAGOAN>; Sun, 7 Jan 2001 09:00:13 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53518 "EHLO
+	id <S132601AbRAGOHC>; Sun, 7 Jan 2001 09:07:02 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58126 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132685AbRAGN74>; Sun, 7 Jan 2001 08:59:56 -0500
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-To: cw@f00f.org (Chris Wedgwood)
-Date: Sun, 7 Jan 2001 14:01:05 +0000 (GMT)
-Cc: ebiederm@xmission.com (Eric W. Biederman),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        viro@math.psu.edu (Alexander Viro),
-        stefan@hello-penguin.com (Stefan Traby), linux-kernel@vger.kernel.org
-In-Reply-To: <20010107210818.A2230@metastasis.f00f.org> from "Chris Wedgwood" at Jan 07, 2001 09:08:18 PM
+	id <S132517AbRAGOG5>; Sun, 7 Jan 2001 09:06:57 -0500
+Subject: Re: Which kernel fixes the VM issues?
+To: jim@browsermedia.com (Jim Olsen)
+Date: Sun, 7 Jan 2001 14:08:24 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <01010706312902.10913@jim.cyberjunkees.com> from "Jim Olsen" at Jan 07, 2001 06:31:29 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14FGNf-0002hM-00@the-village.bc.nu>
+Message-Id: <E14FGUl-0002iH-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> THis means we limit all NFS file sizes to 32-bits unless we have
-> NFSv3? (I assume v3 is where the 64-bit file sizes comes from? or
-> does it predate that?)
+> About once a week I get the 'VM: do_try_to_free_pages ...' error and 
+> eventually get a complete system lockup. And just this morning it locked up 
 
-NFSv2 has a 32bit file offset. Thus the largest file on NFSv2 you want to 
-touch is 2Gig.
+Fixed in 2.2.19pre2
 
-Alan
+> again, although this time with a 'VFS: LRU block list corrupted' message in 
+> the logs, which i'm assuming is related to the VM issue as well. 
+
+Unrelated but believed fixed in 2.2.18
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbTHSV1T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 17:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbTHSV1T
+	id S261657AbTHSVoe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 17:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbTHSVoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 17:27:19 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:10710 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261557AbTHSVT2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 17:19:28 -0400
-Subject: [PATCH] Call security hook from pid*_revalidate
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       Chris Wright <chris@wirex.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030819013834.1fa487dc.akpm@osdl.org>
-References: <20030819013834.1fa487dc.akpm@osdl.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1061327958.28439.62.camel@moss-spartans.epoch.ncsc.mil>
+	Tue, 19 Aug 2003 17:44:22 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:42768 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S261533AbTHSVlr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 17:41:47 -0400
+Date: Tue, 19 Aug 2003 23:41:44 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>, akpm@ravnborg.org,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: kbuild: Separate ouput directory support
+Message-ID: <20030819214144.GA30978@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	akpm@ravnborg.org, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 19 Aug 2003 17:19:18 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-19 at 04:38, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test3/2.6.0-test3-mm3/
+The following set of patches introduce support for
+separate output directory when building a kernel.
+Typical usage is building several kernels with different configurations -
+but based on the same kernel src.
 
-This patch against 2.6.0-test3-mm3 adds calls to the
-security_task_to_inode hook to the pid*_revalidate functions to ensure
-that the inode security field is also updated appropriately for
-/proc/pid inodes.  This corresponds with the uid/gid update performed by
-the proc-pid-setuid-ownership-fix.patch that is already in -mm3.
+Consider the following setup:
+/home/sam/bk/linux-2.6		<= kernel src
 
- fs/proc/base.c |    2 ++
- 1 files changed, 2 insertions(+)
+/home/sam/kernel/mars		<= My workstation
+/home/sam/kernel/defconfig	<= defconfig for compiletime testing
 
-diff -X /home/sds/dontdiff -ru linux-2.6.0-test3-mm3/fs/proc/base.c linux-2.6.0-test3-mm3-t2i/fs/proc/base.c
---- linux-2.6.0-test3-mm3/fs/proc/base.c	2003-08-19 14:41:23.000000000 -0400
-+++ linux-2.6.0-test3-mm3-t2i/fs/proc/base.c	2003-08-19 14:45:49.000000000 -0400
-@@ -875,6 +875,7 @@
- 
- 		dentry->d_inode->i_uid = task->euid;
- 		dentry->d_inode->i_gid = task->egid;
-+		security_task_to_inode(task, dentry->d_inode);
- 		return 1;
- 	}
- 	d_drop(dentry);
-@@ -899,6 +900,7 @@
- 			put_files_struct(files);
- 			dentry->d_inode->i_uid = task->euid;
- 			dentry->d_inode->i_gid = task->egid;
-+			security_task_to_inode(task, dentry->d_inode);
- 			return 1;
- 		}
- 		spin_unlock(&files->file_lock);
+Then in order to handle the two different configurations I just have to do:
+cd /home/sam/bk/linux-2.6
+make O=../../kernel/mars
 
+And the same for the defconfig version.
 
+All output files are stored in the output directory, including .config.
+[Thanks to Roman Zippel which made this loong time ago in kconfig].
 
+The patch has been in existence in several months but only lately becoming
+in a suitable state ready for inclusion. It is developed based on an initial
+concept made by Kai Germaschewski, but refined a lot since then.
+It works with a kernel based on default configuration (make defconfig).
 
+It is divided up in the following parts:
+core	the kbuild changes to support separate output directory
+ieee	Fix in ieee Makefile
+i386	Fix in i386 Makefiles + new syntax enabled for always
+	This was required because i386 had an executable located in
+	a subdirectory.
+include	Fixes for errornous include paths, and one place where a generated
+	.c file references a .h file in the kernel tree.
+	
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Please pull from
+	bk pull bk://linux-sam.bkbits.net/kbuild
 
+Patches follows this mail.
+
+	Sam

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbTICJaa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 05:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTICJa3
+	id S261720AbTICJ0c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 05:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbTICJ0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 05:30:29 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:23481 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261757AbTICJaZ (ORCPT
+	Wed, 3 Sep 2003 05:26:32 -0400
+Received: from lidskialf.net ([62.3.233.115]:6278 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S261722AbTICJZ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 05:30:25 -0400
+	Wed, 3 Sep 2003 05:25:29 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Roger Luethi <rl@hellgate.ch>, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] Where do I send APIC victims?
+Date: Wed, 3 Sep 2003 11:23:58 +0100
+User-Agent: KMail/1.5.3
+Cc: acpi-devel@lists.sourceforge.net
+References: <20030903080852.GA27649@k3.hellgate.ch>
+In-Reply-To: <20030903080852.GA27649@k3.hellgate.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16213.46254.376174.466098@gargle.gargle.HOWL>
-Date: Wed, 3 Sep 2003 11:30:22 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Damian Kolkowski <deimos@deimos.one.pl>
-Cc: Danny ter Haar <dth@ncc1701.cistron.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx doesn't work
-In-Reply-To: <20030903074902.GA1786@deimos.one.pl>
-References: <bj447c$el6$1@news.cistron.nl>
-	<20030903074902.GA1786@deimos.one.pl>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Message-Id: <200309031123.58713.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Damian Kolkowski writes:
- > On Wed, Sep 03, 2003 at 07:11:40AM +0000, Danny ter Haar wrote:
- > > vanilla 2.6.0-test4 & test4-mm[45] & the onboard ethernet doesn't seem to work.
- > > No kernel panics, it just doesn't work :-(
- > 
- > It's standard APIC bug that no one care!
+On Wednesday 03 Sep 2003 9:08 am, Roger Luethi wrote:
+> As the maintainer of via-rhine, I get bug reports that almost in their
+> entirety are "fixed" by turning off APIC and/or ACPI. This has been going
+> on for several months now. Every now and then, something promising gets
+> posted on LKML, but so far if anything I've seen an _increase_ in those bug
+> reports. Maybe a fix is floating around and this will be a non-issue RSN. I
+> simply can't tell, since I don't have any IO-APIC hardware to play with.
+>
+> Instead of just telling everybody to turn off APIC, I'd like to point bug
+> reporters to the proper place and tell them what information they should
+> provide so it can get fixed for real. According to MAINTAINERS, Ingo Molnar
+> does Intel APIC, but the problems are with VIA chip sets. So where do I
+> send my users? Any takers?
 
-It's impossible to have an APIC bug on a C3 board, because the processor
-simply doesn't have one!
+Hi, I'm trying to develop patches for ACPI IRQ issues. 
 
-Another respondent today said that disabling ACPI (note ACPI != APIC)
-solved his problems.
+Are these VIA KT333/KT400 chipsets? If so, there's a known bug in many BIOSes 
+with these chipsets. I'm waiting on some docs from VIA to fix this issue.
 
- > > Haven't seen anyone else report this, but this is repeatable and i suspect
- > > more people must have experienced this ?!
- > 
- > I report this bug probably 4 times! And it was since early 2.4.20, then APIC
- > changes, so I can use if.
-
-I saw your previous report. It was basically information-free and impossible
-to base any problem analysis on. If you want your bug reports to have a
-chance of being acted upon, follow the documented bug reporting procedure.

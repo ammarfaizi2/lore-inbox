@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288747AbSA0Vab>; Sun, 27 Jan 2002 16:30:31 -0500
+	id <S288732AbSA0VfO>; Sun, 27 Jan 2002 16:35:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288733AbSA0VaW>; Sun, 27 Jan 2002 16:30:22 -0500
-Received: from mta9n.bluewin.ch ([195.186.1.215]:7836 "EHLO mta9n.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S288732AbSA0VaS>;
-	Sun, 27 Jan 2002 16:30:18 -0500
-Message-ID: <3C51E7C40006DFF2@mta9n.bluewin.ch> (added by postmaster@bluewin.ch)
-From: "Per Jessen" <per@computer.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "vda@port.imtp.ilyichevsk.odessa.ua" 
-	<vda@port.imtp.ilyichevsk.odessa.ua>
-Date: Sun, 27 Jan 2002 22:45:07 +0100
-Reply-To: "Per Jessen" <per@computer.org>
-X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S288748AbSA0VfD>; Sun, 27 Jan 2002 16:35:03 -0500
+Received: from zero.tech9.net ([209.61.188.187]:1796 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288732AbSA0Vev>;
+	Sun, 27 Jan 2002 16:34:51 -0500
+Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
+From: Robert Love <rml@tech9.net>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020127222551.B7548@suse.de>
+In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
+	<1012166472.812.7.camel@phantasy>  <20020127222551.B7548@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Subject: Re: Kudos to NFS developers
+X-Mailer: Evolution/1.0.1 
+Date: 27 Jan 2002 16:40:16 -0500
+Message-Id: <1012167617.1049.10.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->I want to say big fat "THANK YOU!" to all NFS developers, testers and patch 
->submitters!
+On Sun, 2002-01-27 at 16:25, Jens Axboe wrote:
 
-Couldn't agree more.
+> sr already uses DMA for all transfers, so no performance gain was to be
+> expected there. problem is ide-cd using pio for all packet command data
+> transfers currently (modulo fs read write requests, of course)
+> 
+> not a whole lot of pio aic7xxx adapters out there :-)
 
-/Per
+Right.  The patch touches the generic cdrom driver, however, so Andrew
+asked for testing with SCSI readers.  Thankfully it works; of course
+performance didn't go up.
 
-regards,
-Per Jessen, Zurich
-http://www.enidan.com - home of the J1 serial console.
-
-Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
-
+	Robert Love
 

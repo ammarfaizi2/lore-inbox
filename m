@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266438AbTABURM>; Thu, 2 Jan 2003 15:17:12 -0500
+	id <S266497AbTABUbW>; Thu, 2 Jan 2003 15:31:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266456AbTABURM>; Thu, 2 Jan 2003 15:17:12 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:35972 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S266438AbTABURM>; Thu, 2 Jan 2003 15:17:12 -0500
-Message-Id: <4.3.2.7.2.20030102212350.00b5f810@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Thu, 02 Jan 2003 21:26:21 +0100
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: 2.5.54 typo in arch/i386/Kconfig
+	id <S266489AbTABUbW>; Thu, 2 Jan 2003 15:31:22 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:53406 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S266491AbTABUbV> convert rfc822-to-8bit; Thu, 2 Jan 2003 15:31:21 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <paul@clubi.ie>
+CC: <Hell.Surfers@cwctv.net>, <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Thu, 2 Jan 2003 12:39:47 -0800
+In-Reply-To: <Pine.LNX.4.44.0301012356270.8691-100000@fogarty.jakma.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20030102203949.AAA9589@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---- linux-2.5.54/arch/i386/Kconfig      2003-01-02 04:21:10.000000000 +0100
-+++ linux-2.5.54mw0/arch/i386/Kconfig   2003-01-02 21:22:46.000000000 +0100
-@@ -345,7 +345,7 @@
+>How are the standard interfaces not covered by the GPL?
 
-  config X86_PREFETCH
-         bool
--       depends on MPENTIUMIII || MP4
-+       depends on MPENTIUMIII || MPENTIUM4
-         default y
+	Surely you aren't arguing that someone can copyright
 
-  config X86_SSE2
+int open(const char *, int);
 
-	Margit 
+	Are you?
+
+	There's the battle and there's the war. The GPL is the battle. If you argue 
+that any code that goes anywhere near anyone else's code is a derived work, 
+you may win the battle by buttressing the GPL, but you will lose the war.
+
+	The open source community wasn't the first to use  'int open(const char *, 
+int)'. If you want to argue that this is an interface that can be 
+copyrighted, then we're all screwed.
+
+	Defending fair use and first sale type doctrines and rejecting shrink wrap 
+agreements is far more important than defending the GPL.
+
+	Using someone else's header file to develop code is *use*, not distribution. 
+That's what header files are for -- that's how you *use* them, by including 
+them. If someone wants to substitute more stringent restrictions, then they 
+can do that by contract.
+
+	DS
+
 

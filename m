@@ -1,73 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVDBTZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVDBT2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVDBTZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 14:25:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVDBTZ7
+	id S261201AbVDBT2H (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 14:28:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVDBT2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 14:25:59 -0500
-Received: from weber.sscnet.ucla.edu ([128.97.42.3]:23468 "EHLO
-	weber.sscnet.ucla.edu") by vger.kernel.org with ESMTP
-	id S261187AbVDBTZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 14:25:50 -0500
-Message-ID: <424EF19B.7030105@cogweb.net>
-Date: Sat, 02 Apr 2005 11:25:15 -0800
-From: David Liontooth <liontooth@cogweb.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
+	Sat, 2 Apr 2005 14:28:07 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:61785 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261201AbVDBT16 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 14:27:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type;
+        b=dYGqdd2DPTImBg288vTRCVQjhIi0m6vE0G/B8+hoVe+0kpAh67dyF3rou+0//QnuKtmuMY+pXP4M/ZZVnh3Y5Did2qHGibcLm6rcD3PFvYlmglHmPTy6L89r0JzyDl0wFEH0LHIgaS6EbMrbErwhMlKnKDPJzkGKtybCEcnEFBE=
+Message-ID: <424EF1D3.1070604@gmail.com>
+Date: Sat, 02 Apr 2005 22:26:11 +0300
+From: Matan Peled <chaosite@gmail.com>
+Reply-To: chaosite@gmail.com
+Organization: Chaosite Destruction, inc.
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050326)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: venza@brownhat.org, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: ICS1883 LAN PHY not detected
-X-Enigmail-Version: 0.90.0.0
+To: Jacek Luczak <difrost@pin.if.uz.zgora.pl>
+CC: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Something wrong with 2.6.12-rc1-RT-V0.7.43-05
+References: <424EEF39.50805@pin.if.uz.zgora.pl>
+In-Reply-To: <424EEF39.50805@pin.if.uz.zgora.pl>
+X-Enigmail-Version: 0.90.2.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigB6F09DA79A92DC74050F7659"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigB6F09DA79A92DC74050F7659
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Gigabyte's K8NS Ultra-939 mobo has a 100/10 LAN PHY chip, ICS1883, which
-isn't detected by the 2.6.12-rc1 kernel (and likely not previous kernels).
+Jacek Luczak wrote:
+> 
+> Hi
+> 
+> Early morning i made a 2.6.12-rc1 with RT-V0.7.43-05 and this is what I
+> sow in dmesg after 6 hours of computers work:
+> 
+> <SNIP!>
 
-http://www.giga-byte.com/MotherBoard/Products/Products_Spec_GA-K8NS%20Ultra-939.htm
-
-On the other hand, the ports light up when connected.
-
-The device may be similar to ICS1893, which is supported by the sis900 
-driver.
-However, I figure the device first has to be detected?
-
-Any advice appreciated. 
-
-Dave
+Hmm... A lot of that seems to involve ndiswrapper. Is there any way you could
+reproduce this without ndiswrapper loaded?
+-- 
+[Name      ]   ::  [Matan I. Peled    ]
+[Location  ]   ::  [Israel            ]
+[Public Key]   ::  [0xD6F42CA5        ]
+[Keyserver ]   ::  [keyserver.kjsl.com]
+encrypted/signed  plain text  preferred
 
 
+--------------enigB6F09DA79A92DC74050F7659
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-# lspci
-0000:00:00.0 Host bridge: nVidia Corporation: Unknown device 00e1 (rev a1)
-0000:00:01.0 ISA bridge: nVidia Corporation: Unknown device 00e0 (rev a2)
-0000:00:01.1 SMBus: nVidia Corporation: Unknown device 00e4 (rev a1)
-0000:00:02.0 USB Controller: nVidia Corporation: Unknown device 00e7 
-(rev a1)
-0000:00:02.1 USB Controller: nVidia Corporation: Unknown device 00e7 
-(rev a1)
-0000:00:02.2 USB Controller: nVidia Corporation: Unknown device 00e8 
-(rev a2)
-0000:00:05.0 Bridge: nVidia Corporation: Unknown device 00df (rev a2)
-0000:00:06.0 Multimedia audio controller: nVidia Corporation: Unknown 
-device 00ea (rev a1)
-0000:00:08.0 IDE interface: nVidia Corporation: Unknown device 00e5 (rev a2)
-0000:00:0a.0 IDE interface: nVidia Corporation: Unknown device 00e3 (rev a2)
-0000:00:0b.0 PCI bridge: nVidia Corporation: Unknown device 00e2 (rev a2)
-0000:00:0e.0 PCI bridge: nVidia Corporation: Unknown device 00ed (rev a2)
-0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:02:0b.0 Ethernet controller: Marvell Technology Group Ltd. Yukon 
-Gigabit Ethernet 10/100/1000Base-T Adapter (rev 13)
-0000:02:0d.0 Unknown mass storage controller: Silicon Image, Inc. 
-(formerly CMD Technology Inc)SiI 3512 [SATALink/SATARaid] Serial ATA 
-Controller (rev 01)
-0000:02:0e.0 FireWire (IEEE 1394): Texas Instruments TSB82AA2 IEEE-1394b 
-Link Layer Controller (rev 01)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
+iD8DBQFCTvHTA7Qvptb0LKURApukAJ0cNQ6eNlg6lrWmvRlvDCmERj9afwCfRzmW
+p7sMyBok3+WOO/YBzeGRUO8=
+=RfNr
+-----END PGP SIGNATURE-----
+
+--------------enigB6F09DA79A92DC74050F7659--

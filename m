@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276155AbRI1Qj6>; Fri, 28 Sep 2001 12:39:58 -0400
+	id <S276157AbRI1Qmi>; Fri, 28 Sep 2001 12:42:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276154AbRI1Qji>; Fri, 28 Sep 2001 12:39:38 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:14866 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S276155AbRI1Qjc>; Fri, 28 Sep 2001 12:39:32 -0400
-Date: Fri, 28 Sep 2001 13:39:40 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: <stefan@oph.rwth-aachen.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.9-ac16
-In-Reply-To: <3BB49788.100E68FD@die-macht.oph.rwth-aachen.de>
-Message-ID: <Pine.LNX.4.33L.0109281338590.26495-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276156AbRI1Qm3>; Fri, 28 Sep 2001 12:42:29 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:12832 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S276157AbRI1QmU>; Fri, 28 Sep 2001 12:42:20 -0400
+Date: Fri, 28 Sep 2001 18:42:46 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: tip@prs.de
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG]: 2.4.10 lockup using ppp on SMP
+Message-ID: <20010928184246.M1731@gum01m.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>, tip@prs.de,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BB4912A.414B809A@internetwork-ag.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/jvaajy/zP2g41+Q"
+Content-Disposition: inline
+In-Reply-To: <3BB4912A.414B809A@internetwork-ag.de>
+User-Agent: Mutt/1.3.20i
+X-Operating-System: Linux 2.4.10 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Sep 2001, Stefan Becker wrote:
-> Alan Cox wrote:
-> > *       Update the VM to Rik's latest bits
->
-> "swapoff -a" gives:
->
-> Sep 28 17:25:25 unknown kernel: Trying to vfree() nonexistent vm
-> area (e105a000)
 
-It seems Al Viro forgot to remove a free() when cleaning
-up some code. Hugh Dickens has already posted a patch to
-fix this.
+--/jvaajy/zP2g41+Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Rik
---
-IA64: a worthy successor to the i860.
+On Fri, Sep 28, 2001 at 05:03:06PM +0200, Till Immanuel Patzschke wrote:
+> Hi,
+>=20
+> 2.4.10 (and all its 2.4.x predecessors) lock up in ppp_destroy_interface.=
+ Thanks
+> to the kdb I got the two tracebacks below - the all_ppp_lock interferes w=
+ith
+> some other (socket?!) lock...
+> Any help is VERY much appreciated!
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Please try the patch that Chris Mason sent to LKML a day ago.
 
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, DE                                SCSI, Security
+
+--/jvaajy/zP2g41+Q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7tKiGxmLh6hyYd04RAmkhAKCvhLmpuU2aYNjNALUgrcSSJV9FKgCgyNUa
+YaxFfOr+hZicT22ornqa2Xw=
+=A8gz
+-----END PGP SIGNATURE-----
+
+--/jvaajy/zP2g41+Q--

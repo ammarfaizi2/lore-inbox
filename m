@@ -1,68 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269122AbUIHLp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269132AbUIHLrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269122AbUIHLp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 07:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269131AbUIHLp5
+	id S269132AbUIHLrA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 07:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269131AbUIHLrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 07:45:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52114 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269122AbUIHLp2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 07:45:28 -0400
-Date: Wed, 8 Sep 2004 04:43:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch] max-sectors-2.6.9-rc1-bk14-A0
-Message-Id: <20040908044328.46eec88b.akpm@osdl.org>
-In-Reply-To: <20040908104931.GA5523@elte.hu>
-References: <20040908100448.GA4994@elte.hu>
-	<20040908030944.4cd0e3a0.akpm@osdl.org>
-	<20040908104931.GA5523@elte.hu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Sep 2004 07:47:00 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:55237 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S269132AbUIHLqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 07:46:33 -0400
+Date: Wed, 08 Sep 2004 20:51:46 +0900
+From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: [RFC][PATCH] no bitmap buddy allocator : modifies expand() (2/4)
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Cc: linux-mm <linux-mm@kvack.org>, LHMS <lhms-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Hirokazu Takahashi <taka@valinux.co.jp>
+Message-id: <413EF252.8040808@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
+ Gecko/20040113
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
->  > > the attached patch introduces two new /sys/block values:
->  > > 
->  > >    /sys/block/*/queue/max_hw_sectors_kb
->  > >    /sys/block/*/queue/max_sectors_kb
->  > > 
->  > >  max_hw_sectors_kb is the maximum that the driver can handle and is
->  > >  readonly. max_sectors_kb is the current max_sectors value and can be
->  > >  tuned by root. PAGE_SIZE granularity is enforced.
->  > > 
->  > >  It's all locking-safe and all affected layered drivers have been updated
->  > >  as well. The patch has been in testing for a couple of weeks already as
->  > >  part of the voluntary-preempt patches and it works just fine - people
->  > >  use it to reduce IDE IRQ handling latencies.
->  > 
->  > Could you remind us what the cause of the latency is, and its
->  > duration?
->  >
->  > (Am vaguely surprised that it's an issue at, what, 32 pages?  Is
->  > something sucky happening?)
-> 
->  yes, we are touching and completing 32 (or 64?) completely cache-cold
->  structures: the page and the bio which are on two separate cachelines a
->  pop. We also call into the mempool code for every bio completed. With
->  the default max_sectors people reported hardirq latencies up to 1msec or
->  more. You can see a trace of a 600+usec latency at:
-> 
->    http://krustophenia.net/testresults.php?dataset=2.6.8-rc4-bk3-O7#/var/www/2.6.8-rc4-bk3-O7/ide_irq_latency_trace.txt
-> 
->  here it's ~8 usecs per page completion - with 64 pages this completion
->  activity alone is 512 usecs. So people want to have a way to tune down
->  the maximum overhead in hardirq handlers. Users of the VP patches have
->  reported good results (== no significant performance impact) with
->  max_sectors at 32KB (8 pages) or even 16KB (4 pages).
+This is part (2/4) and modifies expand().
 
-Still sounds a bit odd.  How many cachelines can that CPU fetch in 8 usecs?
-Several tens at least?
+This patch removes bitmap operation from alloc_pages().
+
+Instead of using MARK_USED() bitmap operation,
+this patch records page's order in page struct itself, page->private field.
+
+Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+
+
+---
+
+  test-kernel-kamezawa/mm/page_alloc.c |   17 +++++++----------
+  1 files changed, 7 insertions(+), 10 deletions(-)
+
+diff -puN mm/page_alloc.c~eliminate-bitmap-alloc mm/page_alloc.c
+--- test-kernel/mm/page_alloc.c~eliminate-bitmap-alloc	2004-09-08 18:48:40.667294640 +0900
++++ test-kernel-kamezawa/mm/page_alloc.c	2004-09-08 19:04:05.398714096 +0900
+@@ -296,9 +296,6 @@ void __free_pages_ok(struct page *page,
+  	free_pages_bulk(page_zone(page), 1, &list, order);
+  }
+
+-#define MARK_USED(index, order, area) \
+-	__change_bit((index) >> (1+(order)), (area)->map)
+-
+  /*
+   * The order of subdivision here is critical for the IO subsystem.
+   * Please do not alter this order without good reasons and regression
+@@ -315,7 +312,7 @@ void __free_pages_ok(struct page *page,
+   */
+  static inline struct page *
+  expand(struct zone *zone, struct page *page,
+-	 unsigned long index, int low, int high, struct free_area *area)
++       int low, int high, struct free_area *area)
+  {
+  	unsigned long size = 1 << high;
+
+@@ -325,7 +322,9 @@ expand(struct zone *zone, struct page *p
+  		size >>= 1;
+  		BUG_ON(bad_range(zone, &page[size]));
+  		list_add(&page[size].lru, &area->free_list);
+-		MARK_USED(index + size, high, area);
++		/* Note: already have lock, we don't need to use atomic ops */
++		set_page_order(&page[size], high);
++		SetPagePrivate(&page[size]);
+  	}
+  	return page;
+  }
+@@ -379,7 +378,6 @@ static struct page *__rmqueue(struct zon
+  	struct free_area * area;
+  	unsigned int current_order;
+  	struct page *page;
+-	unsigned int index;
+
+  	for (current_order = order; current_order < MAX_ORDER; ++current_order) {
+  		area = zone->free_area + current_order;
+@@ -388,11 +386,10 @@ static struct page *__rmqueue(struct zon
+
+  		page = list_entry(area->free_list.next, struct page, lru);
+  		list_del(&page->lru);
+-		index = page - zone->zone_mem_map;
+-		if (current_order != MAX_ORDER-1)
+-			MARK_USED(index, current_order, area);
++		/* Note: already have lock, we don't need to use atomic ops */
++		ClearPagePrivate(page);
+  		zone->free_pages -= 1UL << order;
+-		return expand(zone, page, index, order, current_order, area);
++		return expand(zone, page, order, current_order, area);
+  	}
+
+  	return NULL;
+
+_
+
+
+
+-- 
+

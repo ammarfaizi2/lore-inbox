@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282836AbRLDB16>; Mon, 3 Dec 2001 20:27:58 -0500
+	id <S284618AbRLDAUv>; Mon, 3 Dec 2001 19:20:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282301AbRLDB0y>; Mon, 3 Dec 2001 20:26:54 -0500
-Received: from femail5.sdc1.sfba.home.com ([24.0.95.85]:64480 "EHLO
-	femail5.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S282306AbRLDB00>; Mon, 3 Dec 2001 20:26:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: John Gluck <jgluck@rogers.com>
-Reply-To: jgluck@rogers.com
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: OSS driver cleanups.
-Date: Mon, 3 Dec 2001 20:18:45 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0112031105230.28692-100000@netfinity.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.33.0112031105230.28692-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011204012615.IBYG23527.femail5.sdc1.sfba.home.com@there>
+	id <S284880AbRLDASQ>; Mon, 3 Dec 2001 19:18:16 -0500
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:4614 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S282993AbRLCJ0X>; Mon, 3 Dec 2001 04:26:23 -0500
+Date: Mon, 3 Dec 2001 09:19:57 +0000
+From: Alan Ford <alan@whirlnet.co.uk>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17-pre2 & PCMCIA Errors
+Message-ID: <20011203091956.A669@whirlnet.co.uk>
+In-Reply-To: <20011202203207.A1014@whirlnet.co.uk> <15370.65477.649725.353028@argo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15370.65477.649725.353028@argo.ozlabs.ibm.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Mon, Dec 03, 2001 at 03:29:57PM +1100, Paul Mackerras wrote:
+> Alan Ford writes:
+> 
+> > Just tried 2.4.17-pre2 (was previously on 2.4.16-pre1) and when pcmcia-cs is
+> > started on bootup, the following happens:
+> > 
+> > cs: IO port probe 0x0c00-0x0cff: clean.
+> > cs: IO port probe 0x0100-0x04ff: excluding 0x4d0-0x4d7
+> > cs: IO port probe 0x0a00-0x0aff: clean.
+> > cs: memory probe 0xa0000000-0xa0ffffff:<1>Unable to handle kernel NULL pointer
+> > dereference at virtual address 00000004
+> 
+> Please try this patch and let me know whether it fixes the problem.
 
-Out of curiosity, will ALSA also be available on the 24..xx kernels??
-Will there be a choice of useing OSS or ALSA??
-Will the ALSA drivers be the 0.9 series or the old 0.5 series??? AFAIK they 
-are very very different in architecture.
+Thank you, that appears to fix the problem.
 
-I welcome the use of ALSA, as it appears to be a more flexibile solution and 
-can be used with OSS compatibility from an application point of view. My only 
-concern is that there is a potential for looseing support for some sound 
-cards.
+The disks are also unmounted correctly now, so that problem was probably
+caused by the kernel getting in a mess (excuse my non-technical language)
+over this pcmcia stuff.
 
-John
-
-On December 3, 2001 04:11 am, Zwane Mwaikambo wrote:
-> I know OSS will be replaced with ALSA soon, but i've got a couple of OSS
-> cleanup patches lined up (module usage count, power management patches
-> for two cards) for both 2.4.x and 2.5.x, should i continue with them or is
-> it not worthwhile?
->
-> Comments appreciated.
->
-> Regards,
-> 	Zwane Mwaikambo
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Alan Ford * alan@whirlnet.co.uk 

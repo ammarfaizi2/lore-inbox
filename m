@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269999AbUJEPzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269969AbUJEP5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269999AbUJEPzx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 11:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269996AbUJEPzx
+	id S269969AbUJEP5g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 11:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269968AbUJEP52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 11:55:53 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:64426 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S269970AbUJEPyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 11:54:32 -0400
-Subject: Re: Core scsi layer crashes in 2.6.8.1
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Mark Lord <lsml@rtr.ca>, Anton Blanchard <anton@samba.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <200410051749.22245.oliver@neukum.org>
-References: <1096401785.13936.5.camel@localhost.localdomain>
-	<4162B345.9000806@rtr.ca> <1096988167.2064.7.camel@mulgrave> 
-	<200410051749.22245.oliver@neukum.org>
-Content-Type: text/plain
+	Tue, 5 Oct 2004 11:57:28 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:21151 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S269696AbUJEP5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 11:57:15 -0400
+Message-ID: <4162C44A.8060804@nortelnetworks.com>
+Date: Tue, 05 Oct 2004 09:56:58 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: High Resolution Timer patches crash with slower DDR memory?
+References: <NFBBICMEBHKIKEFBPLMCEEJGIMAA.aathan-linux-kernel-1542@cloakmail.com>
+In-Reply-To: <NFBBICMEBHKIKEFBPLMCEEJGIMAA.aathan-linux-kernel-1542@cloakmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 05 Oct 2004 10:54:17 -0500
-Message-Id: <1096991666.2064.25.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-05 at 10:49, Oliver Neukum wrote:
-> Then let the driver tell the upper layers whether the device is still
-> connected or not.
+Andrew A. wrote:
+> Does it make sense to anyone that when I run a 2.6.8.1 system patched with HRT using 2 sticks of PC3200 DDR memory (512Meg total) it
+> works fine, but when I add a stick of PC2700 DDR memory (3 sticks total to 1024Meg) it throws kernel panics and page fault errors?
+> Same system running an unpatched kernel has no problems.
 
-Do we have to go over this again?
+Could be bad memory that gets used in one case and not the other.  Try running a 
+memory scanner to see if you have a bad stick.
 
-It would add quite a bit of complexity to the reference counted
-aynchronous model to try and force synchronicity between queuecommand
-and scsi_remove_host in the mid-layer.  Therefore it's much easier to
-let the LLD decide what to do with the command.
-
-James
-
-
+Chris

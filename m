@@ -1,77 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266059AbRGLPcy>; Thu, 12 Jul 2001 11:32:54 -0400
+	id <S265994AbRGLPdD>; Thu, 12 Jul 2001 11:33:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266031AbRGLPcd>; Thu, 12 Jul 2001 11:32:33 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:919 "EHLO mcafee-labs.nai.com")
-	by vger.kernel.org with ESMTP id <S265994AbRGLPcW>;
-	Thu, 12 Jul 2001 11:32:22 -0400
-Message-ID: <XFMail.20010712083453.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S266031AbRGLPcy>; Thu, 12 Jul 2001 11:32:54 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:37903 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S265994AbRGLPcm>;
+	Thu, 12 Jul 2001 11:32:42 -0400
+Date: Thu, 12 Jul 2001 12:32:39 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: "C. Slater" <cslater@wcnet.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Switching Kernels without Rebooting?
+In-Reply-To: <002201c10a59$e5ef0ae0$7fcdae3f@laptop>
+Message-ID: <Pine.LNX.4.33L.0107121230250.20836-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-In-Reply-To: <3B4DBFDC.91C27FFB@kegel.com>
-Date: Thu, 12 Jul 2001 08:34:53 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Dan Kegel <dank@kegel.com>
-Subject: Re: Improving (network) IO performance ...
-Cc: x@xman.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Niels Provos <provos@citi.umich.edu>,
-        Charles Lever <Charles.Lever@netapp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 11 Jul 2001, C. Slater wrote:
 
-On 12-Jul-2001 Dan Kegel wrote:
-> Yes, in fact, it shows that adding more dead connections actually
-> improves performance using your patch :-)
-> 
-> Here's what the little birdie told me exactly:
->> You'll be happy to know I've achieved over 500,000 connections
->> on Pentium hardware with 4G of RAM and 2 1Gbit cards on FreeBSD 4.3.
-> 
-> I think the application was similar to your benchmark configuration;
-> no idea what the ratio of live to dead connections was.
-> Let's see: if you have 1/32nd as much RAM as she had, you ought to 
-> be able to handle 1/32nd as many connections, right?  Since you
-> hit 16000 connections, I guess you just about did.
+> Does it come up often? Well, I have a sourceforge project setup and am
+> currently only waiting on finalizing how it's going to be done.
 
-I've done a couple of changes to the patch :
+I hope you have fun waiting.
 
-1) moved the file callback list handling from fs/file.c to fs/fcblist.c
+If you're really serious about this feature, however,
+you may want to start looking into the technical
+details behind your wish to get an idea of exactly
+how much work it would be to implement this feature.
 
-2) moved the functions definitions from include/linux/file.h to
-        include/linux/fcblist.h
+regards,
 
-3) added a new kernel config param CONFIG_FCBLIST
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-4) renamed the patch from /dev/poll to /dev/epoll ( event poll )
+http://www.surriel.com/		http://distro.conectiva.com/
 
-5) renamed the devpoll.c(.h) files into eventpoll.c(.h)
-
-6) made CONFIG_EPOLL dependent of CONFIG_FCBLIST
-
-7) fixed a locking issue on SMP
-
-8) kmalloc/vmalloc switch for big chunks of mem
-
-9) increased the maximum number of fds to 128000 ( maybe I'll change this to be
-        unbounded )
-
-
-The new stuff will be published today in the same link :
-
-http://www.xmailserver.org/linux-patches/nio-improve.html
-
-About the old /dev/poll patch it seems to have problems when the number of
-connections go over 8000-9000.
-I don't know what it could be coz I've looked deeply inside the patch.
-Maybe Niels or Charles can be more precise about this issue.
-
-
-
-
-- Davide
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262336AbVBQUFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVBQUA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262336AbVBQUFz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 15:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262333AbVBQUFz
+	id S262092AbVBQUA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 15:00:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVBQUA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 15:05:55 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:4817 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262337AbVBQUFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 15:05:31 -0500
-Subject: Re: Oops with oprofile + RT preempt 2.6.11-rc2-RT-V0.7.37-01
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Philippe Elie <phil.el@wanadoo.fr>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050213133020.GA16363@elte.hu>
-References: <1108274835.3739.2.camel@krustophenia.net>
-	 <20050213130058.GA566@zaniah>  <20050213133020.GA16363@elte.hu>
-Content-Type: text/plain
-Date: Thu, 17 Feb 2005 15:05:26 -0500
-Message-Id: <1108670727.11411.6.camel@krustophenia.net>
+	Thu, 17 Feb 2005 15:00:26 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23260 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262333AbVBQUAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 15:00:07 -0500
+Date: Thu, 17 Feb 2005 20:56:52 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: dtor_core@ameritech.net
+Cc: John M Flinchbaugh <john@hjsoft.com>, Pavel Machek <pavel@suse.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Swsusp, resume and kernel versions
+Message-ID: <20050217195651.GB5963@openzaurus.ucw.cz>
+References: <200502162346.26143.dtor_core@ameritech.net> <20050217110731.GE1353@elf.ucw.cz> <20050217162847.GA32488@butterfly.hjsoft.com> <d120d5000502170930ccc3e9e@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000502170930ccc3e9e@mail.gmail.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-02-13 at 14:30 +0100, Ingo Molnar wrote:
-> * Philippe Elie <phil.el@wanadoo.fr> wrote:
+Hi!
+
+> > Just remember you're doing the mkswap if you decide to rearrange your
+> > partitions at all, or code a script smart enough to grep your swap
+> > partitions out of your fstab.
 > 
-> > oprofile_ops.cpu_type == NULL, this has been fixed 3 weeks ago, can
-> > you retry with -rc4 ?
-> 
-> i've uploaded an -rc4 port of the -RT tree half an hour ago (-39-00).
-> 
+> It could be a workaround. Still it will cause loss of unsaved work if
+> I happen to load wrong kernel. Given that the code checking for swsusp
+> image can be marked __init I don't understand the reasons gainst doing
+> it.
 
-Thanks, -rc4 did fix the bug.
+How do you know which partitions to check? swsusp gets it from resume= parameter,
+but if you do not have it compiled, you probably have wrong cmdline, too.
 
-I noticed profiling the kernel with PREEMPT_DESKTOP that mcount and
-__mcount add quite a bit of overhead.  Something like .5% CPU each.
-Sorry, I didn't save the oprofile output.
-
-So, disable CONFIG_MCOUNT if you want minimal overhead from the RT
-patches.  IIRC it was previously stated that the latency tracing
-overhead could be mostly avoided by disabling it at runtime.
-
-Lee 
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

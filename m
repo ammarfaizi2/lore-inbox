@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262822AbRE0RS7>; Sun, 27 May 2001 13:18:59 -0400
+	id <S262826AbRE0RSj>; Sun, 27 May 2001 13:18:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262825AbRE0RSt>; Sun, 27 May 2001 13:18:49 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:25376 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262822AbRE0RSe>; Sun, 27 May 2001 13:18:34 -0400
-Date: Sun, 27 May 2001 19:18:22 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>,
+	id <S262825AbRE0RSU>; Sun, 27 May 2001 13:18:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:54153 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262822AbRE0RSL>;
+	Sun, 27 May 2001 13:18:11 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15121.13986.987230.445825@pizda.ninka.net>
+Date: Sun, 27 May 2001 10:17:22 -0700 (PDT)
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
 Subject: Re: [patch] severe softirq handling performance bug, fix, 2.4.5
-Message-ID: <20010527191822.J676@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0105261920030.3336-200000@localhost.localdomain> <15120.16986.610478.279574@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15120.16986.610478.279574@pizda.ninka.net>; from davem@redhat.com on Sat, May 26, 2001 at 04:55:06PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <20010527190700.H676@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0105261920030.3336-200000@localhost.localdomain>
+	<20010527190700.H676@athlon.random>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 26, 2001 at 04:55:06PM -0700, David S. Miller wrote:
-> And looking at the x86 code, I don't even understand how your fixes
-> can make a difference, what about the do_softirq() call in
-> arch/i386/kernel/irq.c:do_IRQ()???  That should be taking care of all
-> these "error cases" right?
 
-Yes, except when a softirq is marked running again under do_sofitrq (it
-is mostly an issue when the machine is otherwise idle that means we
-will waste cpu if we don't run the sofitrq immediatly, this problem was
-noticed by Manfred last month, but that is just a special case of the
-generic case of a softirq marked running again under do_softirq), and
-all those cases are supposed to be taken care by ksoftirqd.
+[ Linus removed from the CC:, he wouldn't read any of this since
+  he's in Japan currently :-)]
 
-Andrea
+Andrea Arcangeli writes:
+ > On Sat, May 26, 2001 at 07:59:28PM +0200, Ingo Molnar wrote:
+ > > the two error cases are:
+ > > 
+ > >  #1 hard-IRQ interrupts user-space code, activates softirq, and returns to
+ > >     user-space code
+ > 
+ > Before returning to userspace do_IRQ just runs do_softirq by hand from C
+ > code.
+
+Ok, someone agrees with me. :-)
+
+ > >  #2 hard-IRQ interrupts the idle task, activates softirq and returns to
+ > >     the idle task.
+ > 
+ > The problem only happens when we return to the idle task and a softirq
+ > is been marked active again and we cannot keep running it or we risk to
+ > soft deadlock.
+
+I still fail to understand, won't the C code in do_IRQ() handle
+this case as well?  What is so special about returning from an
+interrupt to the idle task on x86?  And what about that special'ness
+makes the code at the end of do_IRQ() magically not run?
+
+In fact, with the do_IRQ() check _and_ the check in schedule() itself,
+the only case entry.S has to really deal with is "end of system call"
+which it does.
+
+Andrea, I think you are talking about a deeper and different problem.
+Specifically, a softirq that makes new softirqs happen, or something
+like this.  Right?
+
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,60 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVAXF6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVAXGCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbVAXF6M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 00:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVAXF6L
+	id S261446AbVAXGCL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 01:02:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVAXGCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 00:58:11 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:5300 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261445AbVAXF6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 00:58:07 -0500
-Message-ID: <41F48E70.5090200@comcast.net>
-Date: Mon, 24 Jan 2005 00:58:08 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: LSM hook addition?
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Jan 2005 01:02:11 -0500
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:52115 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261446AbVAXGCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 01:02:09 -0500
+Date: Sun, 23 Jan 2005 22:02:01 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Ram?n Rey Vicente <rrey@usuarios.retecal.es>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.11-rc2] Badness in local_bh_enable at kernel/softirq.c:140
+Message-ID: <20050124060201.GA2250@taniwha.stupidest.org>
+References: <41F443BE.1030108@usuarios.retecal.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41F443BE.1030108@usuarios.retecal.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Jan 24, 2005 at 01:39:26AM +0100, Ram?n Rey Vicente wrote:
 
-Can someone point me to documentation or give me a small patch to add an
-LSM hook to kernel 2.6.10 in fs/namei.c at line 1986:
+> Badness in local_bh_enable at kernel/softirq.c:140
 
-        new_dentry = lookup_create(&nd, 0);
-        error = PTR_ERR(new_dentry);
-        if (!IS_ERR(new_dentry)) {
-                error = security_inode_make_hardlink(old_nd); // ADD
-                error = vfs_link(old_nd.dentry, nd.dentry->d_inode,
-new_dentry);
+The cause of this was reverted earlier today.
 
-I believe this would be sufficient to finish an LSM module to implement
-linking restrictions from GrSecurity.  I did Symlinks in an LSM module,
-but haven't tested it out; it's purely academic.  I guess adding an LSM
-hook would be an interesting academic experience; I'd enjoy examining a
-patch that adds this hook, and then trying to add another hook myself.
 
-The hook here would be used (in my academic exploration) to prevent hard
-links from being created to files you don't own, unless you're root.
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB9I5vhDd4aOud5P8RAmNNAJ44riGGJ6CP1sCC/CHfIJiD0u6augCeNFEI
-PjjmHxipSD2wRyv4z+JElig=
-=VDIo
------END PGP SIGNATURE-----
+  --cw

@@ -1,98 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317920AbSFSQNj>; Wed, 19 Jun 2002 12:13:39 -0400
+	id <S317923AbSFSQQF>; Wed, 19 Jun 2002 12:16:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317922AbSFSQNj>; Wed, 19 Jun 2002 12:13:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64016 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317920AbSFSQNh>;
-	Wed, 19 Jun 2002 12:13:37 -0400
-Message-ID: <3D10AEBC.176441BA@zip.com.au>
-Date: Wed, 19 Jun 2002 09:18:04 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Craig Kulesa <ckulesa@as.arizona.edu>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
-References: <Pine.LNX.4.44.0206181340380.3031-100000@loke.as.arizona.edu>
-Content-Type: text/plain; charset=us-ascii
+	id <S317925AbSFSQQE>; Wed, 19 Jun 2002 12:16:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8208 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id <S317923AbSFSQQA>;
+	Wed, 19 Jun 2002 12:16:00 -0400
+Date: Wed, 19 Jun 2002 11:15:55 -0500
+From: Tommy Reynolds <reynolds@redhat.com>
+To: "Chris Friesen" <cfriesen@nortelnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: recommended method for hardware to report events to userspace?
+Message-Id: <20020619111555.1abc950e.reynolds@redhat.com>
+In-Reply-To: <3D10A017.C22CDD0D@nortelnetworks.com>
+References: <3D10A017.C22CDD0D@nortelnetworks.com>
+Organization: Red Hat Software, Inc. / Embedded Development
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Craig Kulesa wrote:
+Uttered "Chris Friesen" <cfriesen@nortelnetworks.com>, spoke thus:
+
+> I'm doing some work on a SONET PHY and I was wondering what the recommended
+> method is for asynchronously reporting events to userspace.
 > 
-> ...
-> Various details for the curious or bored:
+> I have some non-critical events (correctable ecc errors, etc) that I poll
+> every once in a while, but there are some critical events (loss of signal, for
+> instance) that I want to report immediately.
 > 
->         - Tested:   UP, 16 MB < mem < 256 MB, x86 arch.
->           Untested: SMP, highmem, other archs.
+> What is the usual way of doing this?  I see three possibilities: 1) the
+> userspace app could register its pid with the driver using ioctl() and on a
+> fault the interrupt handler in the driver could fire off a signal to the
+> registered pids to alert them that something happened, at which point they do
+> another ioctl() to find out exactly what it was,  2) use netlink to provide a
+> socket-based notification of what happened,  3) provide a file descriptor that
+> becomes readable when an event happens.
 > 
->           In particular, I didn't even attempt to port rmap-related
->           changes to 2.5's arch/arm/mm/mm-armv.c.
-> 
->         - page_launder() is coarse and tends to clean/flush too
->           many pages at once.  This is known behavior, but seems slightly
->           worse in 2.5 for some reason.
-> 
->         - pf_gfp_mask() doesn't exist in 2.5, nor does PF_NOIO.  I have
->           simply dropped the call in try_to_free_pages() in vmscan.c, but
->           there is probably a way to reinstate its logic
->           (i.e. avoid memory balancing I/O if the current task
->           can't block on I/O).  I didn't even attempt it.
+> What's the Right Thing to do here?
 
-That's OK.  PF_NOIO is a 2.4 "oh shit" for a loop driver deadlock.
-That all just fixed itself up.
+There's no One Right Way to do this.  Here's my suggested feature
+hierarchy:
 
->         - Writeback:  instead of forcing reinstating a page on the
->           inactive list when !PageActive, page->mapping, !Pagedirty, and
->           !PageWriteback (see mm/page-writeback.c, fs/mpage.c), I just
->           let it go without any LRU list changes.  If the page is
->           inactive and needs attention, it'll end up on the inactive
->           dirty list soon anyway, AFAICT.  Seems okay so far, but that
->           may be flawed/sloppy reasoning... We could always look at the
->           page flags and reinstate the page to the appropriate LRU list
->           (i.e. inactive clean or dirty) if this turns out to be a
->           problem...
+1) Provide a "/proc" file system entry so humans can easily see your
+driver's status.  It's easy to make a simple read-only "/proc" file.
 
-The thinking there was this: the 2.4 shrink_cache() code was walking the
-LRU, running writepage() against dirty pages at the tail.  Each written
-page was moved to the head of the LRU while under writeout, because we
-can't do anything with it yet.  Get it out of the way.
+2) Implement a "poll" method in your device driver that simply blocks
+until one of your anomalous events occurs.  Applications can then do
+a standard select(2) system call to detect these events.  Select(2)
+is quite efficient.  After the select(2) returns, then a simple
+read(2) could get the data.
 
-When I changed that single-page writepage() into a "clustered 32-page
-writeout via ->dirty_pages", the same thing had to happen: get those
-pages onto the "far" end of the inactive list.
+3) Implement a "mmap" method in your device driver so that
+applications could just map in a status buffer.
 
-So basically, you'll need to give them the same treatment as Rik
-was giving them when they were written out in vmscan.c.  Whatever
-that was - it's been a while since I looked at rmap, sorry.
-
-> ...
-> 
->         - To be consistent with 2.4-rmap, this patch includes a
->           minimal BIO-ified port of Andrew Morton's read-latency2 patch
->           (i.e. minus the elvtune ioctl stuff) to 2.5, from his patch
->           sets.  This adds about 7 kB to the patch.
-
-Heh.   Probably we should not include this in your patch.  It gets
-in the way of evaluating rmap.  I suggest we just suffer with the
-existing IO scheduling for the while ;)
-
->         - The patch also includes compilation fixes:
->         (2.5.22)
->               drivers/scsi/constants.c (undeclared integer variable)
->               drivers/pci/pci-driver.c (unresolved symbol in pcmcia_core)
->         (2.5.23)
->               include/linux/smp.h (define cpu_online_map for UP)
->               kernel/ksyms.c    (export default_wake_function for modules)
->               arch/i386/i386_syms.c   (export ioremap_nocache for modules)
-> 
-> Hope this is of use to someone!  It's certainly been a fun and
-> instructive exercise for me so far.  ;)
-
-Good stuff, thanks.
-
--
+4) You could use signals, but these take more handshaking
+infrastructure via ioctl's between the driver and applications than
+do these other suggestions.

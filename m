@@ -1,37 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269631AbUJSSvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269769AbUJSSPR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269631AbUJSSvi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 14:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269604AbUJSSvX
+	id S269769AbUJSSPR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 14:15:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269774AbUJSQ5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 14:51:23 -0400
-Received: from pier.botik.ru ([193.232.174.1]:37480 "EHLO pier.botik.ru")
-	by vger.kernel.org with ESMTP id S269581AbUJSStN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 14:49:13 -0400
-Message-ID: <41755EB8.9010707@namesys.com>
-Date: Tue, 19 Oct 2004 22:36:40 +0400
-From: "E.Gryaznova" <grev@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-CC: Jonathan Corbet <lwn-fedora-test@lwn.net>
-Subject: We can't reproduce benchmarks by Corbet of lwn, can others help us?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Oct 2004 12:57:10 -0400
+Received: from mail.kroah.org ([69.55.234.183]:47812 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269773AbUJSQim convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 12:38:42 -0400
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] Driver Core patches for 2.6.9
+In-Reply-To: <10982037552948@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Tue, 19 Oct 2004 09:35:58 -0700
+Message-Id: <10982037582673@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+ChangeSet 1.1832.55.5, 2004/09/04 01:20:44+02:00, greg@kroah.com
 
-We can't reproduce benchmarks by J.Corbet of lwn 
-(http://lwn.net/Articles/99232/ ).
-Our results :
-http://namesys.com/intbenchmarks/untar-build-find/2004.10.11/Corbet.benchmark.results
+kobject: adjust hotplug_seqnum increment to keep userspace and kernel agreeing.
 
-Can others help us?
 
-Thanks,
-Lena.
+ lib/kobject.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Nru a/lib/kobject.c b/lib/kobject.c
+--- a/lib/kobject.c	2004-10-19 09:23:30 -07:00
++++ b/lib/kobject.c	2004-10-19 09:23:30 -07:00
+@@ -178,7 +178,7 @@
+ 	scratch += sprintf(scratch, "ACTION=%s", action) + 1;
+ 
+ 	spin_lock(&sequence_lock);
+-	seq = hotplug_seqnum++;
++	seq = ++hotplug_seqnum;
+ 	spin_unlock(&sequence_lock);
+ 
+ 	envp [i++] = scratch;
 

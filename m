@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271072AbRIGDu6>; Thu, 6 Sep 2001 23:50:58 -0400
+	id <S271085AbRIGEgQ>; Fri, 7 Sep 2001 00:36:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271082AbRIGDut>; Thu, 6 Sep 2001 23:50:49 -0400
-Received: from 65-45-81-178.customer.algx.net ([65.45.81.178]:14854 "EHLO
-	master.aslab.com") by vger.kernel.org with ESMTP id <S271072AbRIGDug>;
-	Thu, 6 Sep 2001 23:50:36 -0400
-Date: Thu, 6 Sep 2001 20:37:23 -0700 (PDT)
-From: Andre Hedrick <andre@aslab.com>
-To: Samium Gromoff <_deepfire@mail.ru>
-cc: <linux-kernel@vger.kernel.org>, <alan@lxorguk.ukuu.org.uk>
-Subject: Re: IDE UDMA blacklist++
-In-Reply-To: <200109070633.f876XWH01002@vegae.deep.net>
-Message-ID: <Pine.LNX.4.31.0109062036160.26853-100000@postbox.aslab.com>
+	id <S271108AbRIGEgH>; Fri, 7 Sep 2001 00:36:07 -0400
+Received: from adsl-64-171-4-169.dsl.sntc01.pacbell.net ([64.171.4.169]:51963
+	"EHLO devel.office") by vger.kernel.org with ESMTP
+	id <S271085AbRIGEfv>; Fri, 7 Sep 2001 00:35:51 -0400
+Date: Thu, 6 Sep 2001 21:36:11 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: <christoph@devel.office>
+To: Robert Love <rml@tech9.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux Preemptive patch success 2.4.10-pre4 + lots of other
+ patches
+In-Reply-To: <999835218.2456.16.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0109062135280.1643-100000@devel.office>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Given the minimal nature of the patch I would suggest that it become part
+of 2.4.10 or 11
 
-That should be obvious, PIIX3 is a MultiWord DMA limited old southbridge
-design.
+On 7 Sep 2001, Robert Love wrote:
 
-Andre Hedrick
-CTO ASL, Inc.
-Linux ATA Development
------------------------------------------------------------------------------
-ASL, Inc.                                    Tel: (510) 857-0055 x103
-38875 Cherry Street                          Fax: (510) 857-0010
-Newark, CA 94560                             Web: www.aslab.com
-
-On Fri, 7 Sep 2001, Samium Gromoff wrote:
-
->      Now after 20+ days of error-free disk operation,
->   it may be somewhat clean that 60GXP ibm drive doesnt like
->    UDMA on pIIX3 controllers.
->
-> cheers, Sam
->
->
+> As for integrating into the kernel, there has been talk of preemption
+> becoming standard for 2.5.  This is one reason why I keep the patches up
+> to date.  When 2.5 starts, I will have a working patch that has seen
+> some use and hopefully generated some benchmarks and discussions, and I
+> can send a diff off to Linus.  We shall see.
 

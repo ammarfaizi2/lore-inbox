@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264444AbUGHQl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264153AbUGHQpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264444AbUGHQl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 12:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264153AbUGHQl3
+	id S264153AbUGHQpS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 12:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUGHQpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 12:41:29 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:30735 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S264444AbUGHQl0 (ORCPT
+	Thu, 8 Jul 2004 12:45:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:35254 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264153AbUGHQpO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 12:41:26 -0400
-Date: Thu, 8 Jul 2004 18:41:21 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Gabriel Paubert <paubert@iram.es>, tom st denis <tomstdenis@yahoo.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: 0xdeadbeef vs 0xdeadbeefL
-Message-ID: <20040708164121.GA7496@pclin040.win.tue.nl>
-References: <20040707184737.GA25357@infradead.org> <20040707185340.42091.qmail@web41112.mail.yahoo.com> <20040708093249.GC32629@iram.es> <20040708111521.GK12308@parcelfarce.linux.theplanet.co.uk>
+	Thu, 8 Jul 2004 12:45:14 -0400
+Date: Thu, 8 Jul 2004 09:44:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: ck@vds.kolivas.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Autotune swappiness
+Message-Id: <20040708094406.2b0293ea.akpm@osdl.org>
+In-Reply-To: <40ED7534.4010409@kolivas.org>
+References: <40EC13C5.2000101@kolivas.org>
+	<40EC1930.7010805@comcast.net>
+	<40EC1B0A.8090802@kolivas.org>
+	<20040707213822.2682790b.akpm@osdl.org>
+	<cone.1089268800.781084.4554.502@pc.kolivas.org>
+	<20040708001027.7fed0bc4.akpm@osdl.org>
+	<cone.1089273505.418287.4554.502@pc.kolivas.org>
+	<20040708010842.2064a706.akpm@osdl.org>
+	<40ED7534.4010409@kolivas.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040708111521.GK12308@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 08, 2004 at 12:15:21PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> Here is another try at providing feedback to tune the vm_swappiness.
 
-> - Dirichlet Principle bites you anyway.
+I spent some time yesterday trying to demonstrate performance improvements
+from those two patches.  Using
 
-Ah, it took me a few seconds to reconstruct what principle
-you are referring to.
+	make -j4 vmlinux with mem=64m
 
-I am used to seeing "Dirichlet Principle" in a context where
-one wants to solve a boundary value problem for certain elliptic
-partial differential equations. (Then the principle states,
-roughly, that the unique solution is found by minimizing
-some integral.)
+and
 
-You invoke what I am used to call the pigeonhole principle.
+	qsbench -p 4 -m 96 with mem=256m
 
-Andries
+and was not able to do so, which is what I expected.
+
+We do need more quantitative testing on this work.

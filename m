@@ -1,54 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268274AbRGWP64>; Mon, 23 Jul 2001 11:58:56 -0400
+	id <S268278AbRGWQCg>; Mon, 23 Jul 2001 12:02:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268275AbRGWP6q>; Mon, 23 Jul 2001 11:58:46 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:1106 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S268274AbRGWP6k>; Mon, 23 Jul 2001 11:58:40 -0400
-Date: Mon, 23 Jul 2001 17:59:07 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jeff Dike <jdike@karaya.com>, Linus Torvalds <torvalds@transmeta.com>
-Cc: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: user-mode port 0.44-2.4.7
-Message-ID: <20010723175907.N822@athlon.random>
-In-Reply-To: <200107230508.AAA04621@ccure.karaya.com> <20010723175635.L822@athlon.random>
-Mime-Version: 1.0
+	id <S268281AbRGWQCb>; Mon, 23 Jul 2001 12:02:31 -0400
+Received: from archive.osdlab.org ([65.201.151.11]:45220 "EHLO fire.osdlab.org")
+	by vger.kernel.org with ESMTP id <S268280AbRGWQCO>;
+	Mon, 23 Jul 2001 12:02:14 -0400
+Message-ID: <3B5C4A0A.BC9E32FA@osdlab.org>
+Date: Mon, 23 Jul 2001 09:00:10 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+CC: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Problem: Large file I/O waits (almost) forever
+In-Reply-To: <Pine.LNX.4.30.0107231043520.24403-100000@biker.pdb.fsc.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010723175635.L822@athlon.random>; from andrea@suse.de on Mon, Jul 23, 2001 at 05:56:35PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, Jul 23, 2001 at 05:56:35PM +0200, Andrea Arcangeli wrote:
-> BTW, Linus the _below_ patches against mainline are needed to compile
-> the x86 port with gcc-3_0-branch of yesterday, it is safe to include it
-> in mainline:
+Hi-
 
-here another one for reiserfs:
+This sounds like something that was noticed at Intel a couple
+of months ago.  I believe that Linus made a patch for it
+in 2.4.7.  I'll be trying that out today or tomorrow with
+some large files.
 
---- 2.4.7aa1/include/linux/reiserfs_fs.h.~1~	Mon Jul 23 06:56:14 2001
-+++ 2.4.7aa1/include/linux/reiserfs_fs.h	Mon Jul 23 17:57:46 2001
-@@ -828,7 +828,7 @@
- 
- /* compose directory item containing "." and ".." entries (entries are
-    not aligned to 4 byte boundary) */
--extern inline void make_empty_dir_item_v1 (char * body, __u32 dirid, __u32 objid,
-+static inline void make_empty_dir_item_v1 (char * body, __u32 dirid, __u32 objid,
- 					   __u32 par_dirid, __u32 par_objid)
- {
-     struct reiserfs_de_head * deh;
-@@ -859,7 +859,7 @@
- }
- 
- /* compose directory item containing "." and ".." entries */
--extern inline void make_empty_dir_item (char * body, __u32 dirid, __u32 objid,
-+static inline void make_empty_dir_item (char * body, __u32 dirid, __u32 objid,
- 					__u32 par_dirid, __u32 par_objid)
- {
-     struct reiserfs_de_head * deh;
+The problem observed at Intel was in linux/fs/buffer.c.
+The dirty buffer list is scanned Buffers^2 times (with a
+lock) for each dirty buffer (or something like that; I'm not
+sure of the details), so the larger the file and dirty buffers,
+the longer each write took.
 
-Andrea
+~Randy
+
+Martin Wilck wrote:
+> 
+> Hi,
+> 
+> I just came across the following phenomenon and would like to inquire
+> whether it's a feature or a bug, and what to do about it:
+> 
+> I have run our "copy-compare" test during the weekend to test I/O
+> stability on a IA64 server running 2.4.5. The test works by generating
+> a collection of binary files with specified lengths, copying them between
+> different directories, and checking the result a) by checking the
+> predefined binary patterns and b) by comparing source and destination with cmp.
+> 
+> In order to avoid testing only the buffer cache (system has 8GB memory), I
+> used exponentially growing file sizes fro 1kb up to 2GB. The
+> copy/test/compare cycle for each file size was run 1024 times, tests
+> for different file sizes were run simultaneously.
+> 
+> As expected, tests for smaller files run faster than tests for larger
+> ones. However, I observed that the very big files (1 GB and 2GB) hardly
+> proceeded at all while the others were running. When I came back
+> after the weekend, all tests except these two had completed (1024 times
+> each), the 1GB test had completed ~500 times, and the 2GB test had not
+> even completed once. After I killed the 1GB job, 2GB started to run again
+> (i.e. it wasn't dead, just sleeping deeply). Apparently the block requests
+> scheduled for I/O by the processes operating on the large file had to
+> "yield" to other processes over and over again before being submitted.
+> 
+> I think this is a dangerous behaviour, because the test situation is
+> similar to a real-world scenario where applications (e.g. a data
+> base) are doing a lot of small-file I/O while a background process is
+> trying to do a large backup. If the system behaved similar then, it would
+> mean that the backup would take (almost) forever unless database activity
+> would cease.
+> 
+> Any comments/suggestions?
+> 
+> Regards,
+> Martin
+> 
+> PS: I am not subscribed to LK, but I'm reading the archives regularly.

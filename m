@@ -1,98 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269599AbUHZUx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269640AbUHZVAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269599AbUHZUx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269642AbUHZUvQ
+	id S269640AbUHZVAi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 17:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269469AbUHZVA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:51:16 -0400
-Received: from gobio2.net ([82.225.138.2]:40642 "EHLO gobio.gobio2.net")
-	by vger.kernel.org with ESMTP id S269645AbUHZUq7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:46:59 -0400
-Subject: Re: Problem with SiS900 - Unknown PHY
-From: Laurent <laurent@gobio2.net>
-To: linux-kernel@vger.kernel.org
-Cc: webvenza@libero.it
-In-Reply-To: <1093383367.11744.0.camel@caribou.gobio2.net>
-References: <1093383367.11744.0.camel@caribou.gobio2.net>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Thu, 26 Aug 2004 22:47:28 +0200
-Message-Id: <1093553248.5718.17.camel@caribou.gobio2.net>
+	Thu, 26 Aug 2004 17:00:26 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:30648 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269662AbUHZU5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:57:19 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Lee Revell <rlrevell@joe-job.com>
+To: Christophe Saout <christophe@saout.de>
+Cc: Will Dyson <will_dyson@pobox.com>, Jamie Lokier <jamie@shareable.org>,
+       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <1093553429.13881.48.camel@leto.cs.pocnet.net>
+References: <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de>
+	 <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
+	 <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk>
+	 <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org>
+	 <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk>
+	 <20040826001152.GB23423@mail.shareable.org>
+	 <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk>
+	 <20040826010049.GA24731@mail.shareable.org>
+	 <20040826100530.GA20805@taniwha.stupidest.org>
+	 <20040826110258.GC30449@mail.shareable.org>  <412E06B2.7060106@pobox.com>
+	 <1093552705.5678.96.camel@krustophenia.net>
+	 <1093553429.13881.48.camel@leto.cs.pocnet.net>
+Content-Type: text/plain
+Message-Id: <1093553846.5678.102.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93-3mdk 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 26 Aug 2004 16:57:26 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
-
-Because I was  a bit surprise that my problem was just with one easy
-line in the driver, I did more investigations about this problem. 
-With the two versions of the driver, it's the same PHY component which
-is used by the driver. But, if the PHY type is marked as UNKNOWN, 
-the driver send this command to it :
-
-(from drivers/net/sis900 in sis900_default_phy() function)
-
-mdio_write(net_dev, phy->phy_addr, MII_CONTROL,
-				status | MII_CNTL_AUTO |MII_CNTL_ISOLATE);
-
-
-
-According to the PHY documentation (which can be found at the following
-page : http://www.national.com/pf/DP/DP83847.html), it sets the PHY in
-auto-negotiation mode (which is quite normal) and in Isolate mode (which
-I don't understand why) :
-
-"When in the MII isolate mode, the DP83847 does not respond to packet
-data present at TXD[3:0], TX_EN, and TX_ER inputs and presents a high
-impedance on the TX_CLK, RX_CLK, RX_DV, RX_ER, RXD[3:0], COL, and CRS
-outputs. The DP83847 will continue to respond to all management
-transactions.
-
-While in Isolate mode the TD+- outputs will not transmit packet data but
-will continue to source 100BASE-TX scrambled idles or 10BASE-T normal
-link pulses" 
-
-Could someone give me a hint about this setting ?
-
-Laurent
-
-Le mardi 24 août 2004 à 23:36 +0200, Laurent a écrit :
-> Some time ago, I sent on this list a mail about my strange problem with
-> my SiS900 network card (Subject was Sluggish performances with FreeBSD)
+On Thu, 2004-08-26 at 16:50, Christophe Saout wrote:
+> Am Donnerstag, den 26.08.2004, 16:38 -0400 schrieb Lee Revell:
 > 
-> To sum up, when my card is in 100Mb mode, I have poor throughput but in
-> 10Mb, all seems normal.
+> > > It has always bugged me that Gnome and KDE implement their own VFS layers. 
+> > 
+> > Same here.  This always seemed like something the kernel should be able
+> > to handle.  It seems to me that if reiser4 had been available at the
+> > time the Gnome and KDE developers would not have needed to do this.
 > 
-> After some tests, it seems these results was due to a misdetection of
-> the PHY device. mii-tool reports :
->  product info: vendor 08:00:17, model 3 rev 0
+> Well, the kernel doesn't have a filesystem that speaks http, scp and
+> those things. GnomeVFS is URL-based. It has some pseudo-protocols that
+> extract a pseudo directory-tree for all installed applications + the
+> changes the used made, created on the fly from a set of XML files that
+> are read-only and system-wide and the user-overridden changes. I don't
+> know if all of these things would really make sense inside the kernel.
 > 
-> and after some search on the web, I found it's a NS DP83847 which is
-> very similar
-> 
-> Here is the patch :
-> 
-> --- linux/drivers/net/sis900.c.old      2004-08-24 20:51:43.865086208
-> +0200
-> +++ linux/drivers/net/sis900.c  2004-08-24 20:21:48.000000000 +0200
-> @@ -124,6 +124,7 @@
->         { "AMD 79C901 HomePNA PHY",             0x0000, 0x6B90, HOME},
->         { "ICS LAN PHY",                        0x0015, 0xF440, LAN },
->         { "NS 83851 PHY",                       0x2000, 0x5C20, MIX },
-> +       { "NS 83847 PHY",                       0x2000, 0x5C30, MIX },
->         { "Realtek RTL8201 PHY",                0x0000, 0x8200, LAN },
->         { "VIA 6103 PHY",                       0x0101, 0x8f20, LAN },
->         {NULL,},
-> 
-> Hope it can help some people
-> 
-> Laurent Goujon
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+True.  FWIW, I never use most of those features.  It's just too damn
+slow.  Windows seems to implement all of the useful features of
+GnomeVFS, and they are 10x faster.
+
+Lee
 

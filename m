@@ -1,43 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285178AbRLFRNP>; Thu, 6 Dec 2001 12:13:15 -0500
+	id <S284144AbRLFRPP>; Thu, 6 Dec 2001 12:15:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285179AbRLFRNF>; Thu, 6 Dec 2001 12:13:05 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:60818 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S285178AbRLFRM4>; Thu, 6 Dec 2001 12:12:56 -0500
-Date: Thu, 06 Dec 2001 09:11:53 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Henning Schmiedehausen <hps@intermeta.de>
-cc: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
-        Lars Brinkhoff <lars.spam@nocrew.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description [was Linux/Pro]
-Message-ID: <2607566231.1007629913@mbligh.des.sequent.com>
-In-Reply-To: <1007632244.24677.1.camel@forge>
-X-Mailer: Mulberry/2.0.8 (Win32)
+	id <S284147AbRLFRPF>; Thu, 6 Dec 2001 12:15:05 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29710 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284144AbRLFROy>; Thu, 6 Dec 2001 12:14:54 -0500
+Subject: Re: Kernel 2.4.x problem
+To: robin.walser@usad.li (Robin Walser)
+Date: Thu, 6 Dec 2001 17:24:03 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C0FA135.80504@usad.li> from "Robin Walser" at Dec 06, 2001 05:47:49 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <E16C2Ff-0002J7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > We don't agree on any of these points.  Scaling to a 16 way SMP pretty much 
->> > ruins the source base, even when it is done by very careful people.
->> 
->> I'd say that the normal current limit on SMP machines is 8 way.
->> But you're right, we don't agree.  Time will tell who was right.
->> When I say I'm interested in 16 way scalability, I'm not talking about
->> SMP, so perhaps we're talking at slightly cross purposes.
-> 
-> Well I do remember those Sequent Symmetry machines from university which
-> scaled to 24 processors and more. If I remember correctly they ran 16x
-> 386 and 8x 486 in a single box (under Dynix?)
+> AMD xxx 1,2 GHz
+> 512 MB RAM
+> 40 GB Harddisk
+> Riva TNT 2
+> and so on (its a futjsu siemens machine )
 
-Actually they'd scale to about 30 Pentiums. But then again, note that I said
-normal and current. Our Symmetry boxes fit neither of those criteria ;-)
-
-M.
-
+Are you using the nvidia supplied 3d drivers ?

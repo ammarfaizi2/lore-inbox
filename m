@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266095AbTBXJ6Q>; Mon, 24 Feb 2003 04:58:16 -0500
+	id <S266114AbTBXKEj>; Mon, 24 Feb 2003 05:04:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266114AbTBXJ6P>; Mon, 24 Feb 2003 04:58:15 -0500
-Received: from daimi.au.dk ([130.225.16.1]:26512 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S266095AbTBXJ6P>;
-	Mon, 24 Feb 2003 04:58:15 -0500
-Message-ID: <3E59EF0F.2C731C06@daimi.au.dk>
-Date: Mon, 24 Feb 2003 11:08:15 +0100
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-19.7.xsmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Toplica Tanaskovi? <toptan@EUnet.yu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Panic in i810
-References: <3E595ED3.5D86FE45@daimi.au.dk> <200302240250.42872.toptan@EUnet.yu>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S266175AbTBXKEi>; Mon, 24 Feb 2003 05:04:38 -0500
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:20613 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S266114AbTBXKEi>; Mon, 24 Feb 2003 05:04:38 -0500
+Date: Mon, 24 Feb 2003 02:11:36 -0800
+To: Andrew Morton <akpm@digeo.com>
+Cc: wli@holomorphy.com, lm@work.bitmover.com, mbligh@aracnet.com,
+       davidsen@tmr.com, greearb@candelatech.com, linux-kernel@vger.kernel.org,
+       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030224101136.GA7063@gnuppy.monkey.org>
+References: <33350000.1046043468@[10.10.2.4]> <20030224045717.GC4215@work.bitmover.com> <20030224074447.GA4664@gnuppy.monkey.org> <20030224075430.GN10411@holomorphy.com> <20030224080052.GA4764@gnuppy.monkey.org> <20030224004005.5e46758d.akpm@digeo.com> <20030224085617.GA6483@gnuppy.monkey.org> <20030224010938.35de6275.akpm@digeo.com> <20030224092427.GA6733@gnuppy.monkey.org> <20030224015625.2c258894.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030224015625.2c258894.akpm@digeo.com>
+User-Agent: Mutt/1.5.3i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Toplica Tanaskovi? wrote:
+On Mon, Feb 24, 2003 at 01:56:25AM -0800, Andrew Morton wrote:
+> But that is speculation as well - I never observed this aspect to be
+> a real problem.  Probably, it was not.
 > 
-> Dana ponedeljak 24. februar 2003. 00:52, Kasper Dupont je napisao/la:
-> > I have a reproducable kernel panic with different 2.4.x kernels.
-> > I'm using XFree86-4.2.0-8 with a i810 onboard chipset. Sometimes
-> > when I log off X the kernel panics. This can be reproduced by
-> > loging in on a VC as root and typing:
+> Substantiation of your claim requires quality testing and a plausible
+> explanation.  I do not believe we have seen either, OK?
+
+Well, let's back off here. It's not my claim, it's Robert Love's in that
+URL. Not to arrange a fight, but I had to point that out. :)
+
+> > 	http://linuxdevices.com/articles/AT6106723802.html
 > 
->         Have you tried my latest backport for agpgart from 2.5 to 2.4.21-pre4.
+> I did, briefly.  It appears to be claiming that the average scheduling
+> latency of the non-preemptible kernel is ten milliseconds!
 
-No. I notice some talk about that backport, but I see no patch.
-Where can I find it?
+They mention that this is related to the console code. Obviously, if you're
+not checking for reschedule in a big pix map scroll blit, then it's going
+to stick out boldly as a big latency spike.
 
->         If you did not, try it. I do not suggest that it will work correctly with
-> your configuration (you did not mention which graphics card you own).
+A fully preemptive system would only turn off preemption in places that
+would break drivers and other obvious places like scheduler run-queues,
+etc...
 
-All I know is that the PC is a model called "F@MILY net PC" and
-has onboard i810. How do I find more relevant informations?
+> Maybe I need to read that again in the morning.
 
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:aaarep@daimi.au.dk
-for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);
+It's also an old article, but goes over a lot of the basics of a fully
+preemptable kernel like that. Things might not be as dramatic now with
+2.5.62. Not sure how things are now...
+
+bill
+

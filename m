@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129061AbQKFPDB>; Mon, 6 Nov 2000 10:03:01 -0500
+	id <S129109AbQKFPMO>; Mon, 6 Nov 2000 10:12:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129096AbQKFPCv>; Mon, 6 Nov 2000 10:02:51 -0500
-Received: from windsormachine.com ([206.48.122.28]:35846 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S129061AbQKFPCn>; Mon, 6 Nov 2000 10:02:43 -0500
-Message-ID: <3A06C7F8.80D4484C@windsormachine.com>
-Date: Mon, 06 Nov 2000 10:02:16 -0500
-From: Mike Dresser <mdresser@windsormachine.com>
-Organization: Windsor Machine & Stamping
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: en
+	id <S129096AbQKFPME>; Mon, 6 Nov 2000 10:12:04 -0500
+Received: from underdog.barkingdogstudios.com ([206.186.109.131]:4882 "EHLO
+	underdog.barkingdogstudios.com") by vger.kernel.org with ESMTP
+	id <S129109AbQKFPLs>; Mon, 6 Nov 2000 10:11:48 -0500
+Date: Mon, 6 Nov 2000 10:11:11 -0500 (EST)
+From: Michael Vines <mjvines@undergrad.math.uwaterloo.ca>
+To: Catalin BOIE <util@deuroconsult.ro>
+cc: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel hook for open
+In-Reply-To: <20001106155702.F12348@arthur.ubicom.tudelft.nl>
+Message-ID: <Pine.LNX.4.10.10011061009490.9936-100000@barkingdogstudios.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: issues with ide-tape under 2.4.x and with 2.2.x+ide patches
-In-Reply-To: <3A017F1E.C699593A@windsormachine.com> <20001102195403.A18806@suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > ide-tape: ht0: I/O error, pc = 1e, key =  5, asc = 20, ascq =  0
-> > ide-tape: ht0: I/O error, pc =  8, key =  5, asc = 2c, ascq =  0
-> > ide-tape: ht0: I/O error, pc = 1e, key =  5, asc = 20, ascq =  0
-> >
-> > (normal, i get those cause of the lock drive/unlock drive, which the
-> > drive doesn't support)
->
-> Interesting, and this is test10? I submitted a patch for test10 to
-> not attempt prevent-removal commands in the ide-tape drives that
-> do not support it. If this is indeed test10, that would mean that
-> the HP drive misreports that capability. It'd be nice to know.
+On Mon, 6 Nov 2000, Erik Mouw wrote:
 
-Confirmed.
+> On Mon, Nov 06, 2000 at 03:55:41PM +0200, Catalin BOIE wrote:
+> > I wish to know if there is something like a kernel hook for open function.
+> > I want to monitor a file (someting like watchdog on Solaris) and to read
+> > from my own process (module?) and from the file.
+> 
+> I don't know what watchdog is, but maybe strace is what you want (man
+> strace for more info).
+> 
+> > I tried with LD_SO_PRELOAD but it haven't any effect on the so libraries.
+> > For example:
+> > If I use function getpwent (that is in a so library) and my home
+> > made .so library that overwrite "open" function and is in
+> > /etc/ld.so.preload file it doesn't work.
+> > Of course, if I use open ("/etc/hosts") the so library execute my
+> > function. 
+> 
+> Use LD_PRELOAD instead.
 
-promise:~/crap# uname -a
-Linux promise 2.4.0-test10 #4 Mon Oct 30 17:16:16 EST 2000 i686 unknown
+You could also write a simple kernel module that replaces the open system
+call.  See the Linux Kernel Module Programming Guide for details. 
+http://www.linuxdoc.org/guides.html
 
-And i think my clock chip is drifting, it's actually the 6th of November. =)
+specifically http://www.linuxdoc.org/LDP/lkmpg/node20.html
 
-Anyways...... Spent 15 minutes trying to figure out why it couldn't read the
-tape, and kept giving me the errors.  Then i remembered the whole point of
-this bug-report WAS about it not reading tapes.  It's Monday morning, but my
-brain is still out there in the wild blue yonder. :)
-
-I'm interested in why the HP drive won't read tapes, but if i swap in my
-Seagate, it reads them just fine.  Well, aside from media errors.  Seems HP
-can't build a tape drive OR tape media that is reliable =)
-
+        Michael
+       
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,93 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVCSXef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbVCSX5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbVCSXef (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 18:34:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVCSXef
+	id S261928AbVCSX5W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 18:57:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVCSX5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 18:34:35 -0500
-Received: from ns3.dataphone.se ([212.37.0.170]:45775 "EHLO
-	mail-slave.dataphone.se") by vger.kernel.org with ESMTP
-	id S261909AbVCSXe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 18:34:29 -0500
-From: Magnus Damm <damm@opensource.se>
-To: linux-kernel@vger.kernel.org
-Cc: Magnus Damm <damm@opensource.se>
-Message-Id: <20050319230648.19238.42743.71351@clementine.local>
-Subject: [PATCH] disable builtin modules
-Date: Sun, 20 Mar 2005 00:34:27 +0100 (CET)
+	Sat, 19 Mar 2005 18:57:22 -0500
+Received: from mail.dif.dk ([193.138.115.101]:23016 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261928AbVCSX5L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 18:57:11 -0500
+Date: Sun, 20 Mar 2005 00:58:47 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Dave Jones <davej@codemonkey.org.uk>, cpufreq@lists.linux.org.uk,
+       Ingo Molnar <mingo@redhat.com>, Richard Gooch <rgooch@atnf.csiro.au>,
+       Zach Brown <zab@redhat.com>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] get rid of redundant NULL checks before kfree() in arch/i386/
+Message-ID: <Pine.LNX.4.62.0503200047410.5507@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes it possible to disable built in code from the kernel
-command line. The patch is rather simple - it extends the compiled-in case 
-of module_init() to include __setup() with a name based on KBUILD_MODNAME.
 
-Problem: Say that your Firewire PHY breaks and you find yourself unable to 
-boot any installation cd that includes built in Firewire support because 
-the ohci1394 code together with your broken hardware makes the kernel crash 
-during bootup.
+Checking a pointer for NULL before calling kfree() on it is redundant,
+kfree() deals with NULL pointers just fine.
+This patch removes such checks from files in arch/i386/
 
-Solution: Boot a kernel that includes this patch and pass ohci1394=off.
+Since this is a fairly trivial change (and the same change made
+everywhere) I've just made a single patch for all four files and CC all
+authors/maintainers of those files I could find for comments. If spliting
+this into one patch pr file is prefered, then I can easily do that as
+well.
 
-Signed-off-by: Magnus Damm <damm@opensource.se>
+These are the files being modified :
+	arch/i386/kernel/cpu/cpufreq/powernow-k7.c
+	arch/i386/kernel/cpu/intel_cacheinfo.c
+	arch/i386/kernel/cpu/mtrr/generic.c
+	arch/i386/kernel/io_apic.c
+	
+(please CC me on replies to lists other than linux-kernel)
 
-diff -urNp linux-2.6.11.4/include/linux/init.h linux-2.6.11.4-disable_builtin/include/linux/init.h
---- linux-2.6.11.4/include/linux/init.h	2005-03-16 10:56:20.000000000 +0100
-+++ linux-2.6.11.4-disable_builtin/include/linux/init.h	2005-03-19 23:42:29.417496240 +0100
-@@ -143,6 +143,16 @@ struct obs_kernel_param {
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+--- linux-2.6.11-mm4-orig/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2005-03-16 15:45:02.000000000 +0100
++++ linux-2.6.11-mm4/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2005-03-20 00:41:27.000000000 +0100
+@@ -643,9 +643,7 @@ static int powernow_cpu_exit (struct cpu
+ 	}
+ #endif
  
- /* Relies on saved_command_line being set */
- void __init parse_early_param(void);
-+
-+void __init disable_initcall(void *fn);
-+#define __module_init_disable(x)				\
-+static int __init x##_disable_module(char *str)			\
-+{								\
-+	disable_initcall(x);					\
-+	return 1;						\
-+}								\
-+__setup(__stringify(KBUILD_MODNAME) "=off", x##_disable_module)
-+
- #endif /* __ASSEMBLY__ */
+-	if (powernow_table)
+-		kfree(powernow_table);
+-
++	kfree(powernow_table);
+ 	return 0;
+ }
  
- /**
-@@ -153,7 +163,7 @@ void __init parse_early_param(void);
-  * builtin) or at module insertion time (if a module).  There can only
-  * be one per module.
-  */
--#define module_init(x)	__initcall(x);
-+#define module_init(x)	__initcall(x); __module_init_disable(x);  
+--- linux-2.6.11-mm4-orig/arch/i386/kernel/cpu/intel_cacheinfo.c	2005-03-16 15:45:02.000000000 +0100
++++ linux-2.6.11-mm4/arch/i386/kernel/cpu/intel_cacheinfo.c	2005-03-20 00:43:21.000000000 +0100
+@@ -491,12 +491,9 @@ static int cpuid4_cache_sysfs_init(unsig
  
- /**
-  * module_exit() - driver exit entry point
-diff -urNp linux-2.6.11.4/init/main.c linux-2.6.11.4-disable_builtin/init/main.c
---- linux-2.6.11.4/init/main.c	2005-03-16 10:56:20.000000000 +0100
-+++ linux-2.6.11.4-disable_builtin/init/main.c	2005-03-19 23:31:52.676295616 +0100
-@@ -527,6 +527,17 @@ struct task_struct *child_reaper = &init
+ err_out:
+ 	for (i = 0; i < NR_CPUS; i++) {
+-		if(cpuid4_info[i])
+-			kfree(cpuid4_info[i]);
+-		if(cache_kobject[i])
+-			kfree(cache_kobject[i]);
+-		if(index_kobject[i])
+-			kfree(index_kobject[i]);
++		kfree(cpuid4_info[i]);
++		kfree(cache_kobject[i]);
++		kfree(index_kobject[i]);
  
- extern initcall_t __initcall_start[], __initcall_end[];
+ 		cpuid4_info[i] = NULL;
+ 		cache_kobject[i] = NULL;
+@@ -508,12 +505,9 @@ err_out:
  
-+void __init disable_initcall(void *fn)
-+{
-+	initcall_t *call;
-+
-+	for (call = __initcall_start; call < __initcall_end; call++) {
-+
-+		if (*call == fn)
-+			*call = NULL;
-+	}
-+}
-+
- static void __init do_initcalls(void)
+ static int cpuid4_cache_sysfs_exit(unsigned int i)
  {
- 	initcall_t *call;
-@@ -541,7 +552,8 @@ static void __init do_initcalls(void)
- 			printk("\n");
- 		}
+-	if(cpuid4_info[i])
+-		kfree(cpuid4_info[i]);
+-	if(cache_kobject[i])
+-		kfree(cache_kobject[i]);
+-	if(index_kobject[i])
+-		kfree(index_kobject[i]);
++	kfree(cpuid4_info[i]);
++	kfree(cache_kobject[i]);
++	kfree(index_kobject[i]);
  
--		(*call)();
-+		if (*call)
-+			(*call)();
+ 	cpuid4_info[i] = NULL;
+ 	cache_kobject[i] = NULL;
+--- linux-2.6.11-mm4-orig/arch/i386/kernel/cpu/mtrr/generic.c	2005-03-16 15:45:02.000000000 +0100
++++ linux-2.6.11-mm4/arch/i386/kernel/cpu/mtrr/generic.c	2005-03-20 00:43:39.000000000 +0100
+@@ -70,8 +70,7 @@ void __init get_mtrr_state(void)
+ /*  Free resources associated with a struct mtrr_state  */
+ void __init finalize_mtrr_state(void)
+ {
+-	if (mtrr_state.var_ranges)
+-		kfree(mtrr_state.var_ranges);
++	kfree(mtrr_state.var_ranges);
+ 	mtrr_state.var_ranges = NULL;
+ }
  
- 		msg = NULL;
- 		if (preempt_count() != count) {
+--- linux-2.6.11-mm4-orig/arch/i386/kernel/io_apic.c	2005-03-16 15:45:02.000000000 +0100
++++ linux-2.6.11-mm4/arch/i386/kernel/io_apic.c	2005-03-20 00:44:47.000000000 +0100
+@@ -632,10 +632,8 @@ static int __init balanced_irq_init(void
+ 		printk(KERN_ERR "balanced_irq_init: failed to spawn balanced_irq");
+ failed:
+ 	for (i = 0; i < NR_CPUS; i++) {
+-		if(irq_cpu_data[i].irq_delta)
+-			kfree(irq_cpu_data[i].irq_delta);
+-		if(irq_cpu_data[i].last_irq)
+-			kfree(irq_cpu_data[i].last_irq);
++		kfree(irq_cpu_data[i].irq_delta);
++		kfree(irq_cpu_data[i].last_irq);
+ 	}
+ 	return 0;
+ }
+
+

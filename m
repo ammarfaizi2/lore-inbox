@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265369AbSKNWXo>; Thu, 14 Nov 2002 17:23:44 -0500
+	id <S261799AbSKNWaJ>; Thu, 14 Nov 2002 17:30:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265373AbSKNWXo>; Thu, 14 Nov 2002 17:23:44 -0500
-Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:37150
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265369AbSKNWXn>; Thu, 14 Nov 2002 17:23:43 -0500
-Date: Thu, 14 Nov 2002 17:24:11 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5] Remove BUG in cpu_up 
-In-Reply-To: <20021114040920.CF9B82C0F7@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0211141721030.2024-100000@montezuma.mastecende.com>
-X-Operating-System: Linux 2.4.19-pre5-ac3-zm4
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261854AbSKNWaJ>; Thu, 14 Nov 2002 17:30:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:18703 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id <S261799AbSKNWaI>;
+	Thu, 14 Nov 2002 17:30:08 -0500
+Date: Thu, 14 Nov 2002 14:37:01 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: rusty@rustcorp.com.au
+Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: in-kernel linking issues
+Message-ID: <20021114143701.A30355@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Nov 2002, Rusty Russell wrote:
+So you said you had a userland test harness?
 
-> What's wrong with doing it sync?  Are you in a hurry? 8)
-> 
-> That's what the return code is *for*...
-> Rusty.
+Some problems I've seen browsing the code:
 
-Yes, i'd rather a box limp along until i can come up with a solution 
-rather than it sit there indefinitely waiting for a processor which has 
-decided to go on early retirement ;)
+ (1) You make no provision for sections to be loaded in any order
+      except the order they appear in the object file.  This is bad.
+      You *really* need to replicate something akin to obj_load_order_prio
+      from the 2.4 modutils, lest small data sections be placed incorrectly
+      wrt the GOT section.
 
-But i feel like i'm going round in circles, anyone else with opinions on 
-this?
+ (2) I see no provision for small COMMON symbols to be placed in the
+      .sbss section rather than in the .bss section.  Unless you are
+      sorting your allocation of COMMON symbols by size, which I also
+      don't see, this can result in link errors due to SCOMMON symbols
+      not being reachable from the GP.
 
-	Zwane
--- 
-function.linuxpower.ca
+ These will affect at least Alpha, IA-64, and MIPS.
 
+ (3) Alpha and MIPS64 absolutely require that the core and init allocations
+     are "close" (within 2GB).  I don't see how this can be guaranteed with
+     two different vmalloc calls.
+
+     Allocating the two together would also allow us to only have
+     one flush_icache_range call.  Not that I consider module
+     loading particularly performance critical, but it'd be nice.
+
+
+That's all I can think of at the moment.
+
+
+r~

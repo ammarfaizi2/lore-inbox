@@ -1,85 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbUCFJpq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 04:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbUCFJpq
+	id S261631AbUCFKRh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 05:17:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbUCFKRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 04:45:46 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:26325 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261501AbUCFJpo
+	Sat, 6 Mar 2004 05:17:37 -0500
+Received: from mail3.cc.huji.ac.il ([132.64.1.21]:64925 "EHLO
+	mail3.cc.huji.ac.il") by vger.kernel.org with ESMTP id S261631AbUCFKRg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 04:45:44 -0500
-Message-Id: <rt-1633789-5768492.17.5798934375378@freetelecom.fr>
-From: adsl <adsl@rt.freetelecom.fr>
-RT-Ticket: freetelecom.fr #1633789
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
-Reply-To: adsl@rt.freetelecom.fr
-RT-Originator: linux-kernel@vger.kernel.org
-X-RT-Loop-Prevention: freetelecom.fr
-Content-Disposition: inline
-Content-Type: text/plain; charset="iso-8859-1"
-Subject: [freetelecom.fr #1633789]  =?ISO-8859-1?Q?=20R=E9ponse?= Automatique: fake
-In-Reply-To: <rt-1633789@freetelecom.fr>
-Managed-BY: Request Tracker 2.0.9 (http://www.fsck.com/projects/rt/)
+	Sat, 6 Mar 2004 05:17:36 -0500
+Message-ID: <4049A53D.8020304@mscc.huji.ac.il>
+Date: Sat, 06 Mar 2004 12:17:33 +0200
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+Reply-To: Voicu Liviu <pacman@mscc.huji.ac.il>
+Organization: Hebrew University of Jerusalem
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040206
+X-Accept-Language: en-us, en, he
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: linux-kernel@vger.kernel.org
-Date: Sat,  6 Mar 2004 10:45:43 +0100 (MET)
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ping?
+X-Enigmail-Version: 0.83.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+test? does the kernel-list have received my message?
+Thanks
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-Bonjour,
-
-Ce message est envoyé automatiquement suite au mail que vous avez
-adressé au services Hotline de l'offre Haut Débit de FreeTelecom
-    "fake".
-
-Malheureusement, le succès de notre offre ADSL a quelque peu submergé
-le support et nous ne pouvons pas répondre aux messages aussi
-rapidement que nous le souhaiterions.
-
-Aussi, nous vous invitons à vérifier que le probleme que vous
-rencontrez ne serait pas déjà couvert par le site web de support :
-http://adsl.free.fr/
-
-En particulier, vous y trouverez des infos concernant :
-- des questions générales sur le forfait, les boites emails, le
-modem fourni et la connexion
-
-    http://adsl.free.fr/faq/gen.html
-
-- des questions liées à l'inscriptions et les conditions
-d'inscriptions
-
-    http://adsl.free.fr/faq/inscription.html
-
-- les problemes techniques que vous pouvez rencontrer lors du
-branchement de votre modem
-
-    http://adsl.free.fr/faq/tech.html
-
-- les messages d'erreurs renvoyés par Windows lors de tentatives
-de connexions
-
-    http://adsl.free.fr/faq/erreur.html
-
-Si vous y trouvez votre bonheur ou au moins des informations liées
-à votre probleme, merci de le préciser en répondant à ce message
-(cela simplifira le travail des personnes qui vous répondront).
-
-
-Nous avons attribué le numéro d'identification [freetelecom.fr #1633789]
-à votre demande.
-
-Merci d'ajouter la mention (en incluant les crochets):
-     [freetelecom.fr #1633789]
-
-dans le sujet des prochaines correspondances que vous pourriez nous
-adresser sur ce sujet.
-
-Merci.
-
-Le Service Hotline Haut débit de FreeTelecom
-    <hautdebit@freetelecom.fr>
+iD8DBQFASaU5kj4I0Et8EMgRAj1XAJ9sWo0EVHg6sJYYkreIOzLjol8YBACgneZC
+gpZQSHuOjyNeRpsCUhWNz50=
+=nQlT
+-----END PGP SIGNATURE-----

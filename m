@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263016AbTDRJNd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 05:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbTDRJNd
+	id S263017AbTDRJPk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 05:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263018AbTDRJPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 05:13:33 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:54050 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263016AbTDRJNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 05:13:32 -0400
-Date: Fri, 18 Apr 2003 02:26:06 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Andrei Ivanov <andrei.ivanov@ines.ro>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Christoph Hellwig <hch@lst.de>
-Subject: Re: 2.5.67-mm4
-Message-Id: <20030418022606.56357df4.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.50L0.0304181216180.1931-200000@webdev.ines.ro>
-References: <20030418014536.79d16076.akpm@digeo.com>
-	<Pine.LNX.4.50L0.0304181216180.1931-200000@webdev.ines.ro>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Apr 2003 05:15:40 -0400
+Received: from Mail1.KONTENT.De ([81.88.34.36]:46742 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S263017AbTDRJPj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 05:15:39 -0400
+From: Oliver Neukum <oliver@neukum.org>
+Reply-To: oliver@neukum.name
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.x] SCSI Tekram DC395x drivers can be found here.
+Date: Fri, 18 Apr 2003 11:27:26 +0200
+User-Agent: KMail/1.5
+References: <1050615957.628.2.camel@localhost> <3E9F4B33.D155E0D9@eyal.emu.id.au>
+In-Reply-To: <3E9F4B33.D155E0D9@eyal.emu.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Apr 2003 09:25:22.0128 (UTC) FILETIME=[6F887500:01C3058C]
+Content-Disposition: inline
+Message-Id: <200304181127.26504.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrei Ivanov <andrei.ivanov@ines.ro> wrote:
+Am Freitag, 18. April 2003 02:47 schrieb Eyal Lebedinsky:
+> Ali Akcaagac wrote:
+> > Hello,
+> >
+> > Some days ago I was asking for a port help of the driver mentioned in
+> > the subject line and a couple of friendly developers replied to me and
+> > now we have taken over the development and maintainance of the driver
+> > for 2.5.x. So far the driver is working pretty fine and we did a lot of
+> > cleanup (more to come) and hopefully we bring it up to the quality for
+> > today needs. By the way I would very much thank Kurt Garloff for the
+> > long years support of that driver. Without him many of us would have
+> > looked really poor :)
 >
-> 
-> :(
-> 
-> make -f scripts/Makefile.build obj=fs/devfs
->   gcc -Wp,-MD,fs/devfs/.base.o.d -D__KERNEL__ -Iinclude -Wall 
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
-> -pipe -mpreferred-stack-boundary=2 -march=athlon 
-> -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
-> -DKBUILD_BASENAME=base -DKBUILD_MODNAME=devfs -c -o fs/devfs/base.o 
-> fs/devfs/base.c
-> fs/devfs/base.c: In function `devfsd_notify':
-> fs/devfs/base.c:1426: too many arguments to function `devfsd_notify_de'
-> fs/devfs/base.c: In function `devfs_register':
-> fs/devfs/base.c:1460: warning: too few arguments for format
-> make[2]: *** [fs/devfs/base.o] Error 1
-> make[1]: *** [fs/devfs] Error 2
-> make: *** [fs] Error 2
+> Is this a strictly 2.5 driver or will it build on 2.4 too?
 
-Like this I guess.
+2.5 and 2.5 only.
 
+> If not, are you aware on any 2.4 work on it recently?
 
-diff -puN fs/devfs/base.c~devfs-build-fix fs/devfs/base.c
---- 25/fs/devfs/base.c~devfs-build-fix	2003-04-18 02:21:47.000000000 -0700
-+++ 25-akpm/fs/devfs/base.c	2003-04-18 02:22:11.000000000 -0700
-@@ -1423,7 +1423,7 @@ static int devfsd_notify_de (struct devf
- static void devfsd_notify (struct devfs_entry *de,unsigned short type)
- {
- 	devfsd_notify_de(de, type, de->mode, current->euid,
--			 current->egid, &fs_info, 0);
-+			 current->egid, &fs_info);
- } 
- 
- 
-@@ -1457,7 +1457,8 @@ devfs_handle_t devfs_register (devfs_han
-     struct devfs_entry *de;
- 
-     if (flags)
--	printk(KERN_ERR "%s called with flags != 0, please fix!\n");
-+	printk(KERN_ERR "%s called with flags != 0, please fix!\n",
-+			__FUNCTION__);
- 
-     if (name == NULL)
-     {
+No.
 
-_
+	Sorry
+		Oliver
 

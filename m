@@ -1,72 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbUCaFnt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 00:43:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbUCaFns
+	id S261635AbUCaFqw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 00:46:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbUCaFqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 00:43:48 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:4069 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S261745AbUCaFnr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 00:43:47 -0500
-Subject: Re: Status of ACPI PIC mode patches ?
-From: Len Brown <len.brown@intel.com>
-To: sezero@superonline.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F6D64@hdsmsx402.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F6D64@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1080711812.3337.305.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 31 Mar 2004 00:43:32 -0500
+	Wed, 31 Mar 2004 00:46:52 -0500
+Received: from mailgate4.cinetic.de ([217.72.192.167]:7315 "EHLO
+	mailgate4.cinetic.de") by vger.kernel.org with ESMTP
+	id S261635AbUCaFqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 00:46:51 -0500
+Message-ID: <406A5B6E.8050302@web.de>
+Date: Wed, 31 Mar 2004 07:47:26 +0200
+From: Marcus Hartig <m.f.h@web.de>
+Organization: Linux of Borgs
+User-Agent: Mozilla Thunderbird 0.5+ (X11/20040323)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] speed up SATA
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-03-30 at 04:35, O.Sezer wrote:
-> Hello:
-> [Please CC me on replies]
-> 
-> What is the status of PIC mode patches [1] by Andrew de Quincey;
-> are they still needed? The -ac / -pac trees still have them.
+Hallo,
 
-If the 1st one is needed, I want to know about it.
-The 2nd and 3rd have been in for a long time.
+I did not get it work with my Maxtor SATA 80GB 6Y080M0.
 
-> [1] http://marc.theaimsgroup.com/?t=106280426300001&r=1&w=2
-> Also see:
+With 2.6.5-rc2/3 or mm1 no chance to get the higher request size. Is
+this not possible with the the smaller drives and libata? Im not
+sure if this disk has the the lba48 feature?
 
-This is Andrew's PIC-fallback patch.  This is probably
-the most effective and well written patch that I've
-refused to integrate;-)  There are two reasons.
-1. it works for some systems, but breaks others.
-2. when it works, it hides a failure.  Windows doesn't
-have that failure.  We'd rather see the failure, fix it
-and have Linux work as well as Windows.
-
-BTW. SuSE picked up this patch in SL9.0, though I don't
-know if they still use it.
- 
-> http://marc.theaimsgroup.com/?t=106280426300002&r=1&w=2
-
-This has been in the base for about 5 months.  But
-Luming Yu found a better way to handle this issue and
-his patch was integrated into 2.4 and 2.6 in the
-last week:
-http://bugzilla.kernel.org/show_bug.cgi?id=1590
-
-We'll probably delete the original retry code
-in an upcoming cleanup.
-
-> http://marc.theaimsgroup.com/?t=106280426100003&r=1&w=2
-
-This patch by Jun Nakajima was pulled into the base
-about 5 months ago.  It was key to getting VIA systems
-to work.
-
-cheers,
--Len
+Abit NF7-S with an SilImage 3112a is here under Fedora
+running.
 
 
+please cc me,
+
+Marcus

@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316799AbSFDVSe>; Tue, 4 Jun 2002 17:18:34 -0400
+	id <S316825AbSFDVUH>; Tue, 4 Jun 2002 17:20:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316823AbSFDVSe>; Tue, 4 Jun 2002 17:18:34 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:39815 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S316799AbSFDVSb>;
-	Tue, 4 Jun 2002 17:18:31 -0400
-Date: Tue, 4 Jun 2002 14:14:26 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: "David S. Miller" <davem@redhat.com>
-cc: <anton@samba.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.19] Oops during PCI scan on Alpha
-In-Reply-To: <20020604.141412.112289324.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0206041413530.654-100000@geena.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316826AbSFDVUG>; Tue, 4 Jun 2002 17:20:06 -0400
+Received: from ns.suse.de ([213.95.15.193]:29452 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316825AbSFDVUD>;
+	Tue, 4 Jun 2002 17:20:03 -0400
+Date: Tue, 4 Jun 2002 23:20:03 +0200
+From: Dave Jones <davej@suse.de>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'Pavel Machek'" <pavel@suse.cz>, Brad Hards <bhards@bigpond.net.au>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        trivial@rustcorp.com.au
+Subject: Re: [patch] i386 "General Options" - begone [take 2]
+Message-ID: <20020604232003.Y4751@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"Grover, Andrew" <andrew.grover@intel.com>,
+	'Pavel Machek' <pavel@suse.cz>, Brad Hards <bhards@bigpond.net.au>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	trivial@rustcorp.com.au
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7ED5@orsmsx111.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 04, 2002 at 01:59:11PM -0700, Grover, Andrew wrote:
 
-On Tue, 4 Jun 2002, David S. Miller wrote:
+ > This is a tough one because ACPI *is* power management but it is also
+ > configuration. It is equivalent to such things as MPS table parsing, $PIR
+ > parsing, PNPBIOS, as well as APM. The first two don't have CONFIG_ options
+ > at the moment but they should at some point.
+ > The only thing I can think of is a "Platform interface options" menu and
+ > just throw all of the above in that. Any other ideas?
 
->    From: Patrick Mochel <mochel@osdl.org>
->    Date: Tue, 4 Jun 2002 14:10:27 -0700 (PDT)
->    
->    > You people are blowing this shit WAY out of proportion.  Just fix the
->    > bug now and reinplement the initcall hierarchy in a seperate changeset
->    > so people can actually get work done in the 2.5.x tree while you do
->    > that ok?
->    
->    Fine. Use Ivan's; it's appended below, and will be in BK soon. 
->    
->    -subsys_initcall(sys_bus_init);
->    +core_initcall(sys_bus_init);
-> 
-> Does sys_bus_init require the generic bus layer to be initialized
-> first?
+You seem to be halfway down the road of splitting ACPI in two already,
+with the introduction of CONFIG_ACPI_HT_ONLY recently. Why not bundle
+such options under a CONFIG_ACPI_INITIALISATION or the likes, and
+put the rest under the power management menu as Brad suggested ?
 
-Yes, and it is in drivers/base/bus.c just before sys_bus_init is called.
+    Dave.
 
-	-pat
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

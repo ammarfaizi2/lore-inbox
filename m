@@ -1,52 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267167AbSKMLQN>; Wed, 13 Nov 2002 06:16:13 -0500
+	id <S267170AbSKMLdH>; Wed, 13 Nov 2002 06:33:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267168AbSKMLQN>; Wed, 13 Nov 2002 06:16:13 -0500
-Received: from holomorphy.com ([66.224.33.161]:35776 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267167AbSKMLQN>;
-	Wed, 13 Nov 2002 06:16:13 -0500
-Date: Wed, 13 Nov 2002 03:20:28 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Greg KH <greg@kroah.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
-       hohnbaum@us.ibm.com, mochel@osdl.org
-Subject: Re: [0/4] NUMA-Q: remove PCI bus number mangling
-Message-ID: <20021113112028.GI23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Greg KH <greg@kroah.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-	Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
-	hohnbaum@us.ibm.com, mochel@osdl.org
-References: <20021112213906.GW23425@holomorphy.com> <177250000.1037141189@flay> <20021112215305.GZ23425@holomorphy.com> <179150000.1037145229@flay> <20021112225937.GA23425@holomorphy.com> <20021112235824.GG22031@holomorphy.com> <20021113000435.GE32274@kroah.com> <20021113001246.GC23425@holomorphy.com> <20021113002032.GF32274@kroah.com> <20021113101005.GH23425@holomorphy.com>
+	id <S267172AbSKMLdH>; Wed, 13 Nov 2002 06:33:07 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:27346 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S267170AbSKMLdG>;
+	Wed, 13 Nov 2002 06:33:06 -0500
+Date: Wed, 13 Nov 2002 12:39:40 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Sasi =?iso-8859-1?Q?P=E9ter?= <Peter.Sasi@t-systems.co.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE TCQ
+Message-ID: <20021113113940.GE832@suse.de>
+References: <71EE24368CCFB940A79BD7002F14D760409348@exchange.uns.t-systems.tss>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20021113101005.GH23425@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <71EE24368CCFB940A79BD7002F14D760409348@exchange.uns.t-systems.tss>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 04:20:32PM -0800, Greg KH wrote:
->> Ok, then also please fix up drivers/pci/probe.c::pci_setup_device() to
->> set a unique slot_name up for the pci_dev, if you have multiple
->> domains/segments.
->> thanks,
->> greg k-h
+On Tue, Nov 12 2002, Sasi Péter wrote:
+> Dear Jens,
+> 
+> I would like to ask a few simple question: what does it take to make use of this nifty feature?
+> 
+> My example: I have a box with an ABIT BH6 mainboard (Intel chipset,
+> 2xUATA33 channels), A Leadtek WinFast CMD648 with 2xUATA66 channels,
+> and a Promise Ultra100 TX2 2xUATA100.  I have 3x IBM GXP120 120GB
+> UATA100 IDE HDDs (have read you write these to be capable of TCQ).
+> 
+> First set of questions: On which of the three different IDE
+> controllers are the disks supposed to be doing TCQ?
 
-On Wed, Nov 13, 2002 at 02:10:05AM -0800, William Lee Irwin III wrote:
-> Reporting that stuff is trivial, but resolving the deep arch issues
-> with the remaining failures I'm getting (not directly bus-related,
-> actually I/O resource allocation going wrong) have me badly stumped.
-> Push back that ETA to weeks. I'll break off generically mergeable
-> bits and send them your way as I go though. The patch queue is
-> something like 20 long, but most of the content is "resolve one
-> problem after the other". Getting this into a state of "the system
-> works at every step of the way" is tricky, esp. since the end results
-> of today's excursion do not yet include a fully-working system.
+They should all work
 
-Actually benh has straightened me out on this count as of a few minutes
-ago. Something will probably show up here by Friday.
+> Is it limited to UATA100 and up?  Is it limited to specific chipsets?
+> Maybe a combination of these two?
 
+No
 
-Bill
+> Is there any list of the disks that support TCQ?  Or does that come
+> compulsory with eg. UATA100?
+
+The list in the help section for ide tcq is pretty much complete.
+Genereally, IBM deskstar drives support tcq and that's about it.
+
+> Second set of questions: Does it do any good to one-channel-one-disk
+> setups?  Is it supposed to do good to access time, operations/sec,
+> throughput, random reqs rearrangement or what?  Do you have any
+> figures how much TCQ helps performace (e.g. in file serving case)?
+
+Yes it will help any setup. Due to way ide tcq works, it's recommended
+only to use tcq on one drive on a channel right now. This may change in
+the future.
+
+I don't have any general numbers. I did some benchmarking when I first
+implemented it, and it typically shows (as with scsi drives) that having
+just enough tags to keep the disk busy helps a bit. The linux io
+scheduler does the rest. For random reads, 10-30% speed increase was
+observed.
+
+> Now I see I piled up quite a few questions. Maybe it is more polite to
+> ask you if you can recommend any reading on the topic on the web
+> first?
+
+TCQ itself is described in the ata standards, but that's just a
+technical description of how to use it from a driver. For general ide
+tcq discussions, you probably want to search on google for instance.
+
+> Maybe I should rather be asking Andre Hedrick about the internals of
+> TCQ?
+
+You could, I should know a bit about it too though :-)
+
+-- 
+Jens Axboe
+

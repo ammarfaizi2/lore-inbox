@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262053AbUCVPlX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 10:41:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUCVPlX
+	id S262051AbUCVPn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 10:43:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbUCVPn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 10:41:23 -0500
-Received: from 1-1-3-7a.rny.sth.bostream.se ([82.182.133.20]:37130 "EHLO
-	pc16.dolda2000.com") by vger.kernel.org with ESMTP id S262053AbUCVPlQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 10:41:16 -0500
-Message-ID: <405F0924.8010304@dolda2000.com>
-Date: Mon, 22 Mar 2004 10:41:24 -0500
-From: Bruce Park <bpark@dolda2000.com>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
+	Mon, 22 Mar 2004 10:43:56 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:43294 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262051AbUCVPny (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 10:43:54 -0500
+Date: Mon, 22 Mar 2004 15:43:52 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Rik van Riel <riel@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.5-rc2-aa1
+In-Reply-To: <20040322145019.GZ3649@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403221541030.11535-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: ACPI Shutdown 2.6.3
-References: <405DADAC.9010601@dolda2000.com> <20040321190617.GA5650@quadpro.stupendous.org>
-In-Reply-To: <20040321190617.GA5650@quadpro.stupendous.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jurjen Oskam wrote:
+On Mon, 22 Mar 2004, Andrea Arcangeli wrote:
+> On Mon, Mar 22, 2004 at 02:31:15PM +0000, Hugh Dickins wrote:
+> > 
+> > (Aaargh, now we can expect someone to propose
+> > CONFIG_PTE_CHAIN_RMAP, CONFIG_ANON_VMA_RMAP, CONFIG_ANONMM_RMAP etc)
+.....
+> Separating the entry points from the rest of the mm/*.c is sure a good
+> idea, and infact I left those separated in objrmap.c, like they were
+> separated in rmap.c, so you can go ahead and add an anobjrmap.c and we
+> can have a CONFIG_ option to select if to compile with objrmap.c or with
+> anobjrmap.c.
 
-> On Sun, Mar 21, 2004 at 09:58:52AM -0500, Bruce Park wrote:
-> 
-> 
->>I'm experiencing a problem with ACPI and it's ability to shutdown the 
->>machine. I'm currently using Debian GNU/Linux with the 2.6.3 kernel. Before 
-> 
-> 
-> If you boot with the "nolapic" option, does the machine poweroff correctly
-> then?
-> 
-> (This is the case on my Thinkpad T41 - 2.6.x doesn't powerdown unless I
-> boot with "nolapic")
-> 
+You misunderstand me.  I absolutely do not want any such CONFIG_ option.
+We agree on what's best, which may well prove to be your implementation,
+and stick with that.  Please.
 
-I tried this last night. No success.
-
-bp
-
+Hugh
 

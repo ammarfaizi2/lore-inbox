@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264805AbUEKRtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUEKR5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264805AbUEKRtt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 13:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbUEKRtt
+	id S261205AbUEKR5o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 13:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbUEKR5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 13:49:49 -0400
-Received: from cfcafw.sgi.com ([198.149.23.1]:39468 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S264805AbUEKRtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 13:49:47 -0400
-Date: Tue, 11 May 2004 12:49:45 -0500
-To: linux-kernel@vger.kernel.org
-Cc: thockin@sun.com
-Subject: [PATCH] calculate NGROUPS_PER_BLOCK from PAGE_SIZE
-Message-ID: <20040511174944.GA26708@sgi.com>
+	Tue, 11 May 2004 13:57:44 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:28607 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261205AbUEKR5n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 13:57:43 -0400
+Subject: Re: weird clock problem
+From: john stultz <johnstul@us.ibm.com>
+To: nelis@brabys.co.za
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1084282171.8334.46.camel@nelis.brabys.co.za>
+References: <1084282171.8334.46.camel@nelis.brabys.co.za>
+Content-Type: text/plain
+Message-Id: <1084298291.3720.7.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
-From: edwardsg@sgi.com (Greg Edwards)
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 11 May 2004 10:58:11 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ia64, EXEC_PAGESIZE (max page size) is 65536, but the default page
-size is 16k.  This results in NGROUPS_PER_BLOCK in include/linux/sched.h
-being calculated incorrectly when the page size is anything other than
-64k.  For example, on a 16k page size kernel, a setgroups() call with a
-gidsetsize of 65536 will end up walking over memory since only 1/4 of
-the needed pages were allocated for the blocks[] array in the group_info
-struct.
+On Tue, 2004-05-11 at 06:29, Nelis Lamprecht wrote:
+> The problem became evident while copying vast amounts of data across to
+> my machine. While I was copying data to it via scp my random
+> Xscreensaver kicked in displaying the clock and the first thing I
+> noticed was that the clock was advancing at a rapid rate. At the same
+> time I could not type anything as it would just repeat everything I
+> typed 10 fold. Basically the whole system behaved like it was on
+> steroids while I was copying to it and by the time I had finished
+> copying the clock was 2hrs ahead of time. With kernel 2.6.5 ntpd would
+> work on startup and then die saying no servers could be reached which I
+> assume was because my clock was so far off.
+> 
+> I have since downgraded to 2.6.3 and now ntpd is keeping time as it
+> should.
 
-Patch below calculates NGROUPS_PER_BLOCK from PAGE_SIZE instead.
+Are you using the ACPI PM timesource? Could you send me your dmesg and
+kernel config?
 
-Greg
+thanks
+-john
 
 
-===== include/linux/sched.h 1.210 vs edited =====
---- 1.210/include/linux/sched.h	Mon May 10 06:25:34 2004
-+++ edited/include/linux/sched.h	Tue May 11 11:45:29 2004
-@@ -352,7 +352,7 @@
- void exit_io_context(void);
- 
- #define NGROUPS_SMALL		32
--#define NGROUPS_PER_BLOCK	((int)(EXEC_PAGESIZE / sizeof(gid_t)))
-+#define NGROUPS_PER_BLOCK	((int)(PAGE_SIZE / sizeof(gid_t)))
- struct group_info {
- 	int ngroups;
- 	atomic_t usage;

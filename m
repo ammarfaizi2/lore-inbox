@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267298AbSLELDg>; Thu, 5 Dec 2002 06:03:36 -0500
+	id <S267274AbSLEKrT>; Thu, 5 Dec 2002 05:47:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267299AbSLELDg>; Thu, 5 Dec 2002 06:03:36 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:2252 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S267298AbSLELDf>;
-	Thu, 5 Dec 2002 06:03:35 -0500
-Subject: Re: [RFC] generic device DMA implementation
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Miles Bader <miles@gnu.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200212042146.gB4Lkw804422@localhost.localdomain>
-References: <200212042146.gB4Lkw804422@localhost.localdomain>
+	id <S267275AbSLEKqN>; Thu, 5 Dec 2002 05:46:13 -0500
+Received: from holomorphy.com ([66.224.33.161]:43913 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267276AbSLEKqE>;
+	Thu, 5 Dec 2002 05:46:04 -0500
+Date: Thu, 05 Dec 2002 02:52:59 -0800
+From: wli@holomorphy.com
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net,
+       rmk@arm.linux.org.uk, jgarzik@pobox.com, miura@da-cha.org,
+       alan@lxorguk.ukuu.org.uk, viro@math.psu.edu, pavel@ucw.cz
+Subject: [warnings] [2/8] fix uninitialized quot in drivers/serial/core.c
+Message-ID: <0212050252.AaCdAbid6d9cabJbEbmaTdZb7daa.c5a20143@holomorphy.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 05 Dec 2002 12:15:30 +0100
-Message-Id: <1039086930.1609.71.camel@zion>
-Mime-Version: 1.0
+In-Reply-To: <0212050252.hdcd1a.b3aUbzb5bCbGc3dkcCd8a1atc20143@holomorphy.com>
+X-Mailer: patchbomb 0.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-04 at 22:46, James Bottomley wrote:
-> miles@gnu.org said:
-> > How is the driver supposed to tell whether a given dma_addr_t value
-> > represents consistent memory or not?  It seems like an (arch-specific)
-> > `dma_addr_is_consistent' function is necessary, but I couldn't see one
-> > in your patch. 
-> 
-> well, the patch was only for x86, which is fully consistent.  For parisc, that 
-> becomes a field for the dma accessor functions.
-> 
-> However, even on parisc, the (supported) machines are either entirely 
-> consistent or entirely inconsistent.
-> 
-> If you have a machine that has both consistent and inconsistent blocks, you 
-> need to encode that in dma_addr_t (which is a platform definable type).
+Give quot a default value so it's initialized. rmk, this is yours
+to ack.
 
-I don't agree here. Encoding things in dma_addr_t, then special casing
-in consistent_{map,unmap,sync,....) looks really ugly to me ! You want
-dma_addr_t to contain a bus address for the given bus you are working
-with and pass that to your device, period.
-
-Consistency of memory (or simply, in some cases, accessibility of system
-memory by a given device) is really a property of the bus. Tweaking
-magic bits in dma_addr_t and testing them later is a hack. The proper
-implementation is to have the consistent_{alloc,free,map,unmap,sync,...)
-functions be function pointers in the generic bus structure.
-
-Actually, the device model defines a bus "type" structure rather than a
-"bus instance" structure (well, at least it did last I looked a couple
-of weeks ago). That's a problem I beleive here, as those functions are
-really a property of a given bus instance. One solution would eventually
-be to have the set of functions pointers in the generic struct device
-and by default be copied from parent to child.
-
-Actually, to avoid bloat, I think a single pointer to a struct
-containing the whole set of consistent functions is enough though, as
-those will typically be statically defined.
-
-Ben.
-
+===== drivers/serial/core.c 1.24 vs edited =====
+--- 1.24/drivers/serial/core.c	Sun Dec  1 08:37:25 2002
++++ edited/drivers/serial/core.c	Thu Dec  5 00:59:44 2002
+@@ -387,7 +387,7 @@
+ uart_get_divisor(struct uart_port *port, struct termios *termios,
+ 		 struct termios *old_termios)
+ {
+-	unsigned int quot, try;
++	unsigned int quot = 0, try;
+ 
+ 	for (try = 0; try < 3; try ++) {
+ 		unsigned int baud;
+@@ -416,7 +416,7 @@
+ 		termios->c_cflag |= B9600;
+ 	}
+ 
+-	return quot;
++	return quot ? quot : 1;
+ }
+ 
+ EXPORT_SYMBOL(uart_get_divisor);

@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288930AbSBOMdT>; Fri, 15 Feb 2002 07:33:19 -0500
+	id <S288952AbSBOMgU>; Fri, 15 Feb 2002 07:36:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288952AbSBOMdK>; Fri, 15 Feb 2002 07:33:10 -0500
-Received: from unthought.net ([212.97.129.24]:65243 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S288930AbSBOMc6>;
-	Fri, 15 Feb 2002 07:32:58 -0500
-Date: Fri, 15 Feb 2002 13:32:57 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Michael Sinz <msinz@wgate.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Core dump file control
-Message-ID: <20020215133257.G23673@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Martin Dalecki <dalecki@evision-ventures.com>,
-	Michael Sinz <msinz@wgate.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C6BE18F.7B849129@wgate.com> <20020215124036.C23673@unthought.net> <3C6CF4AA.8040808@evision-ventures.com> <20020215131320.E23673@unthought.net> <3C6CFD7A.30503@evision-ventures.com>
+	id <S288958AbSBOMgK>; Fri, 15 Feb 2002 07:36:10 -0500
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:20754 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S288952AbSBOMfx>; Fri, 15 Feb 2002 07:35:53 -0500
+Date: Fri, 15 Feb 2002 23:36:42 +1100
+From: john slee <indigoid@higherplane.net>
+To: Ken Brownfield <brownfld@irridia.com>
+Cc: Robert Love <rml@tech9.net>, J Sloan <joe@tmsusa.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: tux officially in kernel?
+Message-ID: <20020215123642.GB5996@higherplane.net>
+In-Reply-To: <Pine.LNX.4.30.0202111313100.28040-100000@mustard.heime.net> <3C67F327.8010404@tmsusa.com> <20020213135841.GB4826@higherplane.net> <3C6C4942.4050305@lexus.com> <1013730883.807.251.camel@phantasy> <20020214190003.B1518@asooo.flowerfire.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <3C6CFD7A.30503@evision-ventures.com>; from dalecki@evision-ventures.com on Fri, Feb 15, 2002 at 01:22:18PM +0100
+In-Reply-To: <20020214190003.B1518@asooo.flowerfire.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 15, 2002 at 01:22:18PM +0100, Martin Dalecki wrote:
-> Jakob Østergaard wrote:
-..
-> 
-> >And having process names is nicer than having PIDs - I don't mind if my core
-> >files are over-written on subsequent runs, actually it's nice (keeps the disks
-> >from filling up).
-> >
-> They can get long and annoying... They are not suitable for short name 
-> filesystems... They provide a good
-> hint for deliberate overwrites.... and so on. Basically I think this 
-> would be too much of the good.
+On Thu, Feb 14, 2002 at 07:00:03PM -0600, Ken Brownfield wrote:
+> The problem with X15 is that it's unavailable.  I've tried for months
+> and months to get someone at that company to respond or get a copy to
+> try.  Also, is it GPL?  Free?
 
-That is your oppinion, and I disagree.
+i believe it was free for noncommercial use, a restriction imposed by
+the author's company.  i didn't bother to read back on the archives
+though so don't accept this as verified fact :-)
 
-And that is *exactly* why the suggested patch is so great - we just keep
-the "core" name the default, and allow the user to set the name as he
-pleases.
+> As for TUX, I would certainly prefer user-space if it was indeed as fast
 
+also thttpd is very very fast on linux.  really to need this sort of
+performance on modern hardware is quite unusual at least in the public
+internet.
+
+> in all cases.  But I don't think X15 is really a factor in TUX's
+
+maybe not x15 on its own.  but the existence of multiple userspace
+servers that can provide similar performance may be a good reason to not
+include it, as well as ...
+
+> inclusion.  I'd say replacing khttpd with TUX2 is a no-brainer unless
+> X15's performance has been proven and it's GPL.  And while khttpd is an
+
+there's no reason why it can't stay as an external patch.  redhat provide
+tux rpms for example.  i think khttpd should be removed altogether from
+the standard kernel and not replaced with tux.
+
+j.
 
 -- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+R N G G   "Well, there it goes again... And we just sit 
+ I G G G   here without opposable thumbs." -- gary larson

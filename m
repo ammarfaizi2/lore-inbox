@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136021AbRDVKlo>; Sun, 22 Apr 2001 06:41:44 -0400
+	id <S136022AbRDVKlp>; Sun, 22 Apr 2001 06:41:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136022AbRDVKle>; Sun, 22 Apr 2001 06:41:34 -0400
-Received: from [212.150.182.35] ([212.150.182.35]:27144 "EHLO
+	id <S136023AbRDVKle>; Sun, 22 Apr 2001 06:41:34 -0400
+Received: from [212.150.182.35] ([212.150.182.35]:27656 "EHLO
 	exchange.guidelet.com") by vger.kernel.org with ESMTP
-	id <S136021AbRDVKlZ>; Sun, 22 Apr 2001 06:41:25 -0400
-Message-ID: <041c01c0cb21$1dd520c0$910201c0@zapper>
+	id <S136022AbRDVKlZ>; Sun, 22 Apr 2001 06:41:25 -0400
+Message-ID: <041d01c0cb21$1f147e90$910201c0@zapper>
 From: "Alon Ziv" <alonz@nolaviz.org>
 To: <linux-kernel@vger.kernel.org>
 In-Reply-To: <E14qHRp-0007Yc-00@the-village.bc.nu> <Pine.LNX.4.31.0104190944090.4074-100000@penguin.transmeta.com> <E14qXEU-0005xo-00@g212.hadiko.de> <9bqgvi$63q$1@penguin.transmeta.com> <3AE10741.FA4E40BD@gmx.de> <E14rGU8-0003zk-00@g212.hadiko.de>
 Subject: Re: light weight user level semaphores
-Date: Sun, 22 Apr 2001 13:41:04 +0200
+Date: Sun, 22 Apr 2001 13:41:08 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="Windows-1252"

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266263AbRHJIZc>; Fri, 10 Aug 2001 04:25:32 -0400
+	id <S266040AbRHJI0B>; Fri, 10 Aug 2001 04:26:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266158AbRHJIZM>; Fri, 10 Aug 2001 04:25:12 -0400
-Received: from gold.MUSKOKA.COM ([216.123.107.5]:6663 "EHLO gold.muskoka.com")
-	by vger.kernel.org with ESMTP id <S266040AbRHJIZF>;
-	Fri, 10 Aug 2001 04:25:05 -0400
-Message-ID: <3B738353.26AB3B13@yahoo.com>
-Date: Fri, 10 Aug 2001 02:46:43 -0400
+	id <S266158AbRHJIZw>; Fri, 10 Aug 2001 04:25:52 -0400
+Received: from gold.MUSKOKA.COM ([216.123.107.5]:9223 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S266040AbRHJIZk>;
+	Fri, 10 Aug 2001 04:25:40 -0400
+Message-ID: <3B737FE4.3D0998D3@yahoo.com>
+Date: Fri, 10 Aug 2001 02:32:04 -0400
 From: Paul Gortmaker <p_gortmaker@yahoo.com>
 X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.19 i586)
 MIME-Version: 1.0
-To: Paul <pstroud@bellsouth.net>
+To: Riley Williams <rhw@MemAlpha.CX>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Mulitple 3c509 cards 2.4.x Kernel
-In-Reply-To: <3B6ADBA7.2FC0AE2A@bellsouth.net>
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+In-Reply-To: <Pine.LNX.4.33.0108042028320.16941-100000@infradead.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Riley Williams wrote:
+
+> One of my systems has SIX ethernet cards, these being three ISA and
+> two PCI NE2000 clones and a DEC Tulip. Here's the relevant section of
+> modules.conf on the system in question:
 > 
-> I have a x86 server with multiple(2) 3c509 cards. When I build the 3c509
-> driver
-> into the kernel. It will only pick up a single card. The cards are
-> NOT in pnp mode
-> according to isapnp on boot. I have added:
-> 
-> append = "ether=3,0x300,0,0,eth0 ether=10,0x280,0,0,eth1"
-> 
-> to the lilo file and still only one card is detected. The io ports and
+>  Q> alias eth0 ne
+>  Q> options eth0 io=0x340
+>  Q> alias eth1 ne
+>  Q> options eth1 io=0x320
+>  Q> alias eth2 ne
+>  Q> options eth2 io=0x2c0
+>  Q> alias eth3 ne2k-pci
+>  Q> alias eth4 ne2k-pci
+>  Q> alias eth5 tulip
 
-The 3c509 is an anomaly in comparison to other ISA cards, in that
-you DONT want to specify I/O (or irq) values.  3Com used a scheme that
-allows relatively safe ISA probes, and specifying an I/O base will
-do nothing but interfere with that.  (This is documented btw)
-
-In your case, a simple
-
-append = "ether=0,0,eth1"
-
-should do the trick (assuming the ether= parsing is currently 
-functional... :)
+You have six drivers loaded, when you only need three (i.e.
+io=0x340,0x320,0x2c0 for ne options etc. etc).  So you end
+up wasting some memory, and a worse icache behaviour as well.
+(the latter is probably a non-issue if you are happy with ISA)
 
 Paul.
 

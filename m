@@ -1,77 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUHQTvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266669AbUHQTyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266648AbUHQTvS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 15:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUHQTvS
+	id S266669AbUHQTyY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 15:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266670AbUHQTyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 15:51:18 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:41983 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266648AbUHQTvP (ORCPT
+	Tue, 17 Aug 2004 15:54:24 -0400
+Received: from gprs214-122.eurotel.cz ([160.218.214.122]:62081 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S266669AbUHQTyX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 15:51:15 -0400
-Date: Tue, 17 Aug 2004 14:49:50 -0500
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, manuel.lauss@fh-hagenberg.at
-Subject: Re: Fw: 2.6.8.1-mm1: oops with firmware loading
-Message-ID: <20040817194950.GA1536@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20040817110533.036abf8f.akpm@osdl.org>
+	Tue, 17 Aug 2004 15:54:23 -0400
+Date: Tue, 17 Aug 2004 21:54:10 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Dave Jones <davej@redhat.com>, Ray Bryant <raybry@sgi.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: cpufreq deprecation
+Message-ID: <20040817195410.GI19009@elf.ucw.cz>
+References: <20040817105859.GA1497@elf.ucw.cz> <41221890.8070307@sgi.com> <20040817164509.GB19243@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040817110533.036abf8f.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040817164509.GB19243@redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 17, 2004 at 11:05:33AM -0700, Andrew Morton wrote:
+Hi!
+
+>  > A scan of the lkml archives on theaimsgroup for cpufreq shows only this 
+>  > message about deprecation.  Where was this discussed?
 > 
+> Probably cpufreq list around the time cpufreq was first merged to mainline 2.6.
 > 
-> Begin forwarded message:
-> 
-> Date: Tue, 17 Aug 2004 15:28:18 +0200
-> From: Manuel Lauss <manuel.lauss@fh-hagenberg.at>
-> To: akpm@osdl.org, linux-kernel@vger.kernel.org
-> Cc: manuel.lauss@fh-hagenberg.at
-> Subject: 2.6.8.1-mm1: oops with firmware loading
-> 
-> 
-> Hi,
-> 
-> The new sysfs-backingstore patches cause an oops when I ifup a
-> prism54 based device, heres the dmesg section:
-> 
+> I never wanted to really see the proc stuff hit 2.6 at all, but
+> someone (maybe Dominik) suggested that as there were tools using it,
+> (a multitude of cpu scaling daemons appeared), we should drag it into 2.6
+> too, at least until the daemons caught up with the preferred
+> interface.
 
-My fault, a bad typo in fs/sysfs/bin.c.
-
-Manuel, can you try this change in fs/sysfs/bin.c
-
---- bin.c.orig	2004-08-18 05:34:40.883964168 +0530
-+++ bin.c	2004-08-18 05:36:40.316807616 +0530
-@@ -60,8 +60,8 @@
- static int
- flush_write(struct dentry *dentry, char *buffer, loff_t offset, size_t count)
- {
--	struct bin_attribute *attr = to_bin_attr(dentry->d_parent);
--	struct kobject *kobj = to_kobj(dentry);
-+	struct bin_attribute *attr = to_bin_attr(dentry);
-+	struct kobject *kobj = to_kobj(dentry->d_parent);
- 
- 	return attr->write(kobj, buffer, offset, count);
- }
-
-
-Andrew, How do I send the patch? I think hand editting will also work.
-
-Thanks
-Maneesh
-
-
+I do not think changing interface in half of stable series is good
+idea, but yes, it was market deprecated since day one. Keeping at
+least read-only /proc/cpufreq would be nice. Or perhaps merging that
+info into /proc/cpuinfo?
+								Pavel
 -- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Austin
-email: maneesh@in.ibm.com
-Phone: 1-512-838-1896 Fax: 
-T/L : 6781896
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,90 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262394AbVBBMxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVBBNFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262394AbVBBMxf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 07:53:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbVBBMxe
+	id S262432AbVBBNFP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 08:05:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVBBNFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 07:53:34 -0500
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:55740 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262623AbVBBMws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 07:52:48 -0500
-Message-ID: <4200CD15.6080001@kolivas.org>
-Date: Wed, 02 Feb 2005 23:52:37 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Richard Hughes <ee21rh@surrey.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux hangs during IDE initialization at boot for 30 sec
-References: <200502011257.40059.brade@informatik.uni-muenchen.de>  <pan.2005.02.01.20.21.46.334334@surrey.ac.uk> <1107299901.5624.28.camel@gaston> <loom.20050202T134427-571@post.gmane.org>
-In-Reply-To: <loom.20050202T134427-571@post.gmane.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig61119868DCE13E62F2B507E3"
+	Wed, 2 Feb 2005 08:05:15 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:50173 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262432AbVBBNFC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 08:05:02 -0500
+Subject: [PATCH] Minor Kexec bug fix (2.6.11-rc2-mm2)
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       fastboot <fastboot@lists.osdl.org>
+Content-Type: multipart/mixed; boundary="=-26Rfb7gATS1Xf5ynPvNi"
+Organization: 
+Message-Id: <1107352593.11609.146.camel@2fwv946.in.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 02 Feb 2005 19:26:34 +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig61119868DCE13E62F2B507E3
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+
+--=-26Rfb7gATS1Xf5ynPvNi
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Richard Hughes wrote:
-> Benjamin Herrenschmidt <benh <at> kernel.crashing.org> writes:
-> 
->>This looks like bogus HW, or bogus list of IDE interfaces ...
-> 
-> 
-> How can I test to see if this is the case?
-> 
-> 
->>The IDE layer waits up to 30 seconds for a device to drop it's busy bit,
->>which is necessary for some drives that aren't fully initialized yet.
-> 
-> 
-> Sure, make sense.
-> 
-> 
->>I suspect in your case, it's reading "ff", which indicates either that
->>there is no hardware where the kernel tries to probe, or that there is
->>bogus IDE interfaces which don't properly have the D7 line pulled low so
->>that BUSY appears not set in absence of a drive.
-> 
-> 
-> Right. How do I find the value of D7?
-> 
-> 
->>I'm not sure how the list of intefaces is probed on this machine, that's
->>probably where the problem is.
+Hi Andrew,
 
-I've read that people have had this problem go away if they disable this 
-option:
+This patch has been generated against 2.6.11-rc2-mm2. This fixes a very
+minor bug in kexec.
 
-< >     generic/default IDE chipset support
+Thanks
+Vivek
 
-If you have chipset support for your IDE controller this isn't needed, 
-and I'd recommend disabling it. The "why" it made the problem go away is 
-something I can't answer.
 
-Cheers,
-Con
+--=-26Rfb7gATS1Xf5ynPvNi
+Content-Disposition: attachment; filename=kexec_minor_bug_fix.patch
+Content-Type: text/plain; name=kexec_minor_bug_fix.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
---------------enig61119868DCE13E62F2B507E3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+This patch fixes a minor bug in kexec. Changing the data type of flags makes 
+sure proper control flow of code during crash event.
 
-iD8DBQFCAM0VZUg7+tp6mRURAjaKAJ9dzbvsaPf8+UssstBiIgF8He+QOgCeODrC
-LJAP0VjRIblvufzpdok1hwI=
-=DN3g
------END PGP SIGNATURE-----
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
 
---------------enig61119868DCE13E62F2B507E3--
+ linux-2.6.11-rc2-mm2-kdump-vivek/include/linux/kexec.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN include/linux/kexec.h~kexec_minor_bug_fix include/linux/kexec.h
+--- linux-2.6.11-rc2-mm2-kdump/include/linux/kexec.h~kexec_minor_bug_fix	2005-02-02 16:28:18.000000000 +0530
++++ linux-2.6.11-rc2-mm2-kdump-vivek/include/linux/kexec.h	2005-02-02 16:29:01.000000000 +0530
+@@ -79,7 +79,7 @@ struct kimage {
+ 	unsigned long control_page;
+ 
+ 	/* Flags to indicate special processing */
+-	int type : 1;
++	unsigned int type : 1;
+ #define KEXEC_TYPE_DEFAULT 0
+ #define KEXEC_TYPE_CRASH   1
+ };
+_
+
+--=-26Rfb7gATS1Xf5ynPvNi--
+

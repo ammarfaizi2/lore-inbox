@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbTFJUA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 16:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbTFJT7V
+	id S262227AbTFJUHs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 16:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbTFJUGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 15:59:21 -0400
-Received: from auemail2.lucent.com ([192.11.223.163]:55451 "EHLO
-	auemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S262283AbTFJT63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 15:58:29 -0400
-MIME-Version: 1.0
+	Tue, 10 Jun 2003 16:06:13 -0400
+Received: from grieg.holmsjoen.com ([206.124.139.154]:5643 "EHLO
+	grieg.holmsjoen.com") by vger.kernel.org with ESMTP id S262321AbTFJUE7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 16:04:59 -0400
+Date: Tue, 10 Jun 2003 13:17:30 -0700
+From: Randolph Bentson <bentson@holmsjoen.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: David Schwartz <davids@webmaster.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linksys WRT54G and the GPL
+Message-ID: <20030610131730.A26932@grieg.holmsjoen.com>
+References: <20030609213321.GP16164@fs.tum.de> <MDEHLPKNGKAHNMBLJOLKCEMCDIAA.davids@webmaster.com> <20030609222141.GS16164@fs.tum.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16102.15170.653446.711973@gargle.gargle.HOWL>
-Date: Tue, 10 Jun 2003 16:10:42 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: "John Stoffel" <stoffel@lucent.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Zwane Mwaikambo <zwane@holomorphy.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.5.70-mm3 - Oops and hang
-In-Reply-To: <20030610123732.562e7b22.akpm@digeo.com>
-References: <16101.55819.768909.143767@gargle.gargle.HOWL>
-	<20030610123732.562e7b22.akpm@digeo.com>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030609222141.GS16164@fs.tum.de>; from bunk@fs.tum.de on Tue, Jun 10, 2003 at 12:21:41AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 10, 2003 at 12:21:41AM +0200, Adrian Bunk wrote:
+> On Mon, Jun 09, 2003 at 02:50:11PM -0700, David Schwartz wrote:
+> > As I read 3b, it only applies if the person requesting the source
+> > code actually has physical possession of the written offer. (Though
+> > the offer could be transferred to anyone.)
+> 
+> "to give any third party" in 3b is pretty non-ambiguous.
 
-Andrew> This appears to be a visitation from the Great Unsolved Bug of
-Andrew> the 2.5 series.  Someone playing with a freed task_struct.
+You've skipped the qualifing predicate condition.  Every clause
+of section 3 begins with "Accompany it with", referring to the
+distribution of the Program in object code or executable form.
 
-Ouch, not a good thing.
-
-Andrew> Correct me if I'm wrong, but this has only ever been seen with
-Andrew> CONFIG_PREEMPT=y?
-
-I can't say, but I'm willing to apply patches to see if I can help
-track it down.  I'm about to put -mm7 up on my machine and let that
-run for a while.  
-
-Is there anything special you want me to do to stress this out?
-
-John
+-- 
+Randolph Bentson
+bentson@holmsjoen.com

@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268438AbUI2Nnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268283AbUI2NnF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268438AbUI2Nnk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 09:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268435AbUI2Nnj
+	id S268283AbUI2NnF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 09:43:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268447AbUI2Nj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 09:43:39 -0400
-Received: from mproxy.gmail.com ([216.239.56.240]:53923 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268438AbUI2NlR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 09:41:17 -0400
-Message-ID: <21d7e99704092906415ddca034@mail.gmail.com>
-Date: Wed, 29 Sep 2004 23:41:16 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@gmail.com>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       Xserver development <xorg@freedesktop.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: New DRM driver model - gets rid of DRM() macros!
-In-Reply-To: <20040929133759.A11891@infradead.org>
+	Wed, 29 Sep 2004 09:39:59 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:36356 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268372AbUI2Ngq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 09:36:46 -0400
+Date: Wed, 29 Sep 2004 14:36:44 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrea Carpani <andrea.carpani@criticalpath.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Adaptec aic79xx driver status
+Message-ID: <20040929143644.A12725@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrea Carpani <andrea.carpani@criticalpath.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <415AB021.70605@criticalpath.net> <20040929140909.A12373@infradead.org> <415AB9F3.4050803@criticalpath.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e4733910409280854651581e2@mail.gmail.com>
-	 <20040929133759.A11891@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <415AB9F3.4050803@criticalpath.net>; from andrea.carpani@criticalpath.net on Wed, Sep 29, 2004 at 03:34:43PM +0200
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 29, 2004 at 03:34:43PM +0200, Andrea Carpani wrote:
+> Christoph Hellwig wrote:
 > 
->  - once we have Alan's idea of the graphics core implemented drm_init()
->    should go awaw
->  - drm_probe (and it's call to drm_fill_in_dev) looks a little fishy,
->    what about doing the full ->probe callback in each driver where it
->    can do basic hw setup, dealing with pci and calls back into the drm
->    core for minor number allocation and common structure allocations.
+> > Because it's broken in various ways.  We're working with Adaptec to get
+> > the fixes merged but not the bogus parts.  But as Justin didn't cooperate
+> > the new engineer in his position has a hard time to untangle the mess, so
+> > it'll take a while.
+> 
+> I'm trying it right now and it looks as if the freeze errors are gone.
+> What do you mean by "broken in various ways"? Would it be unwise to use 
+> it in a production environment?
 
-We have mentioned this but 90% of the work done by the drivers would
-be common, we might do it the otherway I suppose have a driver probe
-that calls a function in the core,
-
->    This would get rid of the ->preinit and ->postinit hooks.
->  - isn't drm_order just a copy of get_order()?
->  - any chance to use proper kernel-doc comments instead of the bastdized
->    and hard to read version you have currently?
-
-I think we have doxygen comments in there at the moment - the Mesa/DRI
-documentation is done with doxygen...
-
->  - the coding style is a little strange, like spurious whitespaces inside
->    braces, maybe you could run it through scripts/Lindent
-
-there are a fair few of these in there in the kernel, it could
-probably do with a Lindent at some stage over the whole thing...
-
->  - care to use linux/lists.h instead of opencoded lists, e.g. in
->    dev->file_last/dev->file_first or dev->vmalist
->  - drm_flush is a noop.  a NULL ->flush does the same thing, just easier
->  - dito or ->poll
->  - dito for ->read
->  - why do you use DRM_COPY_FROM_USER_IOCTL in Linux-specific code?
->  - drm__mem_info should be converted to fs/seq_file.c functions
->  - dito for functions in drm_proc.c
-
-I think I can apply a lot of these to the current kernel code so I'll
-probably just start doing patches up for these sort of issues
-separately....
-
-I'll get time to create a bitkeeper tree taking Jons changes ready for
-merging to Andrew at least, and maybe Linus for 2.6.10.
-
-Dave.
+we had problem reports for various cards, and lots of problems with error
+handling during load and unload.  If it properly loads and unloads for you
+and the kernel driver doesn't work just use it.  We hope to have a more
+update driver in 2.6.10.

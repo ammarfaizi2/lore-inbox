@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275758AbRJYRXr>; Thu, 25 Oct 2001 13:23:47 -0400
+	id <S275734AbRJYRZH>; Thu, 25 Oct 2001 13:25:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275734AbRJYRXh>; Thu, 25 Oct 2001 13:23:37 -0400
-Received: from genesis.westend.com ([212.117.67.2]:18655 "EHLO
-	genesis.westend.com") by vger.kernel.org with ESMTP
-	id <S275680AbRJYRXU>; Thu, 25 Oct 2001 13:23:20 -0400
-Date: Thu, 25 Oct 2001 19:23:51 +0200
-From: Christian Hammers <ch@westend.com>
-To: Jens Axboe <axboe@suse.de>
+	id <S275778AbRJYRYx>; Thu, 25 Oct 2001 13:24:53 -0400
+Received: from ns.caldera.de ([212.34.180.1]:30667 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S275734AbRJYRYe>;
+	Thu, 25 Oct 2001 13:24:34 -0400
+Date: Thu, 25 Oct 2001 19:24:57 +0200
+From: Christoph Hellwig <hch@caldera.de>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG() in asm/pci.h:142 with 2.4.13
-Message-ID: <20011025192351.A9823@westend.com>
-In-Reply-To: <20011025120701.C6557@westend.com> <20011025131107.C4795@suse.de>
+Subject: [PATCH]
+Message-ID: <20011025192457.C10880@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011025131107.C4795@suse.de>; from axboe@suse.de on Thu, Oct 25, 2001 at 01:11:07PM +0200
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Hi Linus,
 
-On Thu, Oct 25, 2001 at 01:11:07PM +0200, Jens Axboe wrote:
-> > 2.4.13 was the easiest one to reproduce: when starting the tape backup
-> > to a HP DDS3/DAT Streamer (C1537A) via a Adaptec SCSI Controller 
-> > (Adaptec 7892A in /proc/pci) on a Gigabyte GA-6VTXD Dual Motherboard with
-> > two PIII and 2GB of RAM it crashed immediately with the error attached
-> > below. The machine was under "stresstest-simulation" load at this time.
+the appended patch adds four exports needed for Linux-ABI:
 
-> Could you try this patch and see if it fixes the pci.h BUG at least?
-This patch did not prevent the crash. Again immediately after rewinding the
-tape when it began to write. I'll try now the 2.4.12-ac6... and it works.
+ o do_fork & do_pipe because the emulated SysV syscalls call
+   these directly.
+ o the other two are needed by emulated syscongig() support.
 
-> Jens Axboe
-bye,
+Please apply,
 
- -christian- (happy about Alan having forked the kernel tree once ago..)
+	Christoph
 
 -- 
-Christian Hammers    WESTEND GmbH - Aachen und Dueren     Tel 0241/701333-0
-ch@westend.com     Internet & Security for Professionals    Fax 0241/911879
-           WESTEND ist CISCO Systems Partner - Premium Certified
+Of course it doesn't work. We've performed a software upgrade.
 
+diff -uNr -Xdontdiff ../master/linux-2.4.14-pre1/kernel/ksyms.c linux-2.4.14-pre1/kernel/ksyms.c
+--- ../master/linux-2.4.14-pre1/kernel/ksyms.c	Thu Oct 25 19:05:49 2001
++++ linux-2.4.14-pre1/kernel/ksyms.c	Thu Oct 25 19:16:47 2001
+@@ -60,6 +60,7 @@
+ extern void *sys_call_table;
+ 
+ extern struct timezone sys_tz;
++extern int max_threads;
+ extern int request_dma(unsigned int dmanr, char * deviceID);
+ extern void free_dma(unsigned int dmanr);
+ extern spinlock_t dma_spin_lock;
+@@ -550,3 +551,11 @@
+ 
+ EXPORT_SYMBOL(tasklist_lock);
+ EXPORT_SYMBOL(pidhash);
++
++/* for Linux-ABI */
++EXPORT_SYMBOL(do_fork);
++EXPORT_SYMBOL(do_pipe);
++
++/* sysconfig support */
++EXPORT_SYMBOL(nr_free_pages);
++EXPORT_SYMBOL(max_threads);

@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136534AbRD3WnV>; Mon, 30 Apr 2001 18:43:21 -0400
+	id <S136540AbRD3Wnb>; Mon, 30 Apr 2001 18:43:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136538AbRD3WnM>; Mon, 30 Apr 2001 18:43:12 -0400
-Received: from pille1.addcom.de ([62.96.128.35]:54535 "HELO pille1.addcom.de")
-	by vger.kernel.org with SMTP id <S136534AbRD3WnF>;
-	Mon, 30 Apr 2001 18:43:05 -0400
-Date: Tue, 1 May 2001 00:43:25 +0200 (CEST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: <kai@vaio>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] compilation warning fixes
-Message-ID: <Pine.LNX.4.33.0104302329370.24511-100000@vaio>
+	id <S136538AbRD3WnW>; Mon, 30 Apr 2001 18:43:22 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33285 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136537AbRD3WnO>; Mon, 30 Apr 2001 18:43:14 -0400
+Subject: Re: BUG: USB/Reboot
+To: swarm@warpcore.provalue.net (Collectively Unconscious)
+Date: Mon, 30 Apr 2001 23:46:41 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10104250735390.28677-100000@warpcore.provalue.net> from "Collectively Unconscious" at Apr 25, 2001 07:37:24 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14uMRI-0000Zj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I'm not familiar with that option, where would I be setting it? Or even
+> better, where is it documented?
 
-Newer gcc's (particularly the RH 7.0/7.1 2.96 versions) complain about
-implicit declaration of the function abs, and AFAICS they're right.
+Documentation/kernel-parameters.txt
 
-What do people think about the appended patch to fix this?
-(There's more users than just isdn_audio.c, that's why I added a common
-header file).
+and arch/i386/kernel/boot.c
 
---Kai
+                switch (*str) {
+                case 'w': /* "warm" reboot (no memory testing etc) */
+                        reboot_mode = 0x1234;
+                        break;
+                case 'c': /* "cold" reboot (with memory testing etc) */
+                        reboot_mode = 0x0;
+                        break;
+                case 'b': /* "bios" reboot by jumping through the BIOS */
+                        reboot_thru_bios = 1;
+			break;
+                case 'h': /* "hard" reboot by toggling RESET and/or crashing th
+                        reboot_thru_bios = 0;
+                        break;
 
-Index: linux_2_4/drivers/isdn/isdn_audio.c
-diff -u linux_2_4/drivers/isdn/isdn_audio.c:1.1.1.1 linux_2_4/drivers/isdn/isdn_audio.c:1.1.1.1.26.1
---- linux_2_4/drivers/isdn/isdn_audio.c:1.1.1.1	Tue Apr 24 00:13:47 2001
-+++ linux_2_4/drivers/isdn/isdn_audio.c	Mon Apr 30 21:42:11 2001
-@@ -25,6 +25,7 @@
- #define __NO_VERSION__
- #include <linux/module.h>
- #include <linux/isdn.h>
-+#include <linux/stdlib.h>
- #include "isdn_audio.h"
- #include "isdn_common.h"
-
-Index: linux_2_4/include/linux/stdlib.h
-diff -u /dev/null linux_2_4/include/linux/stdlib.h:1.1.4.3
---- /dev/null	Mon Apr 30 23:28:11 2001
-+++ linux_2_4/include/linux/stdlib.h	Mon Apr 30 23:27:46 2001
-@@ -0,0 +1,6 @@
-+#ifndef __STDLIB_H__
-+#define __STDLIB_H__
-+
-+extern int abs (int i);
-+
-+#endif
-
-
+Alan 
 

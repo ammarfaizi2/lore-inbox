@@ -1,78 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbULCNqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbULCOJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbULCNqB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 08:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbULCNqB
+	id S262215AbULCOJs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 09:09:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbULCOJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 08:46:01 -0500
-Received: from procert.cert.dfn.de ([193.174.13.1]:58317 "EHLO
-	procert.cert.dfn.de") by vger.kernel.org with ESMTP id S261457AbULCNpt
+	Fri, 3 Dec 2004 09:09:48 -0500
+Received: from procert.cert.dfn.de ([193.174.13.1]:30927 "EHLO
+	procert.cert.dfn.de") by vger.kernel.org with ESMTP id S262215AbULCOJn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 08:45:49 -0500
-Date: Fri, 3 Dec 2004 14:43:45 +0100
+	Fri, 3 Dec 2004 09:09:43 -0500
+Date: Fri, 3 Dec 2004 15:07:39 +0100
 From: Friedrich Delgado Friedrichs <delgado@dfn-cert.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, delgado@dfn-cert.de
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       delgado@dfn-cert.de
 Subject: Re: Problem: Kernel Panic/Oops on shutdown with 2.6.9 and Dell Optiplex SX280
-Message-ID: <20041203134344.GA13010@kermit.dfn-cert.de>
-Reply-To: linux-kernel@vger.kernel.org, delgado@dfn-cert.de
-References: <20041130160717.GA13106@kermit.dfn-cert.de> <20041130194456.57c5f737.akpm@osdl.org>
+Message-ID: <20041203140739.GB13010@kermit.dfn-cert.de>
+References: <20041130160717.GA13106@kermit.dfn-cert.de> <1101839437.25617.87.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
+	protocol="application/pgp-signature"; boundary="ftEhullJWpWg/VHq"
 Content-Disposition: inline
-In-Reply-To: <20041130194456.57c5f737.akpm@osdl.org>
+In-Reply-To: <1101839437.25617.87.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
 Organization: DFN-CERT Services GmbH
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---KsGdsel6WgEHnImy
+--ftEhullJWpWg/VHq
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hello!
 
-I've applied your patch and thankfully the bug was triggered on the
-next shutdown (after I had installed the new kernel on the first
-workstation).
 
-Andrew Morton schrieb:
-> It's interesting that this only happens during shutdown: something may be
-> racing against an unmount.
+Alan Cox schrieb:
+> Are you running some kind of sniffer tool on these machines. That
+> message itself is the last sniffer type application exiting. If you are
+> running such a tool then it tells you that the shutdown got that far
+> into the shutdown scripts which may help the search.
 
-I doubt that. It appears that the bug is triggered somewhere in this
-sequence:
+Yes, it's arpwatch.
 
-K10arpwatch@
-K10fbset@
-K10powersaved@
-K10running-kernel@
-K10sshd@
-K10update-client@
+In fact there are 5 init scripts which could trigger the bug. One of
+them (powersaved) runs fuser directly. I've traced the other shutdown
+scripts via "sh -x -v" and none of them appears to call fuser.
 
-i.e. after (during) arpwatch shutdown, and before update-client is
-run. The latter is an administration script which performs some
-lengthy operations on mounted filesystems (fetch updates for packages
-and configuration files from a central location).
+The line from /etc/init.d/powersaved is
 
-> I'd suggest that you run with the below patch which, if it's right, will
-> display the offending path and will then pause for ten seconds.  If we can
-> identify which filesystem type that path lives on then perhaps we can make
-> some progress.
+for X in $(fuser /proc/acpi/event);do
 
-Dec  2 17:03:11 kermit arpwatch: exiting
-Dec  2 17:03:12 kermit sshd[4564]: Received signal 15; terminating.
-Dec  2 17:03:12 kermit kernel: __d_path: skipping NULL vfsmnt
-Dec  2 17:03:22 kermit kernel: path: `'
-Dec  2 17:03:22 kermit kernel: device eth0 left promiscuous mode
+> something newer might help. 10rc2 has a fairly number of the problems
+> fixed and  a few new ones (eg it won't boot on some boxes) but might be
+> useful to at least see if you are chaasing a fixed bug
 
-I bet an empty string isn't quite helpful here, or is it?
+This, together with your comment about USB + SCSI bug fixes below
+sounds as if we really want to use 2.6.10rc2 (if it boots), because
+having a machine crash during normal work is a lot worse than on
+shutdown.
 
-I'm not quite sure how to proceed now. I'd like to try out 2.6.10rc2
-as Alan Cox proposed + maybe we could get some more useful information
-out of __d_path
+> > nnpfs 213484 1 - Live 0xe02ad000
+> > subfs 12288 1 - Live 0xe01c4000
+>
+> This is ARLA stuff ?
+
+nnpfs is the kernel-side portion of the AFS Client, subfs is from the
+submount package (km_submount) from SuSE 9.1. It allows users to
+insert cds and change to /media/cdrecorder to access them and also
+allows the user to eject the cd as soon as there's no process in
+/media/cdrecorder any more. See http://submount.sourceforge.net/
+
+Thanks for your help!
+
+I already mentioned to Andrew Morton that right now it seems prudent
+to continue with 2.6.10rc2 (to get rid of the USB and scsi problems)
+and try to convince __d_path to give a conclusive hint about the
+culprit.
 
 Kind regards
      FDF
@@ -81,20 +85,20 @@ Friedrich Delgado Friedrichs (IT-Services), DFN-CERT Services GmbH
 https://www.dfn-cert.de, +49 40 808077-555 (Hotline)
 12. DFN-CERT Workshop und Tutorien, CCH Hamburg, 2-3. Maerz 2005
 
---KsGdsel6WgEHnImy
+--ftEhullJWpWg/VHq
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iQEVAwUBQbBtkPqefzmUpgR/AQHTNgf/YtmuoOoQCOHLHSLMldTh8WQb957hfr1f
-2vLZVNmBjSHNuzohQ0AWBH0TPeSuVHCcJ7xJzBZGyszVqYM82SrY+DDeg+XVuwP4
-s3YGTNrIdlS/Jq7H3XyJ8Zv/yn1Ww78HG05kgCxAhNkhDU9jRIXGkNIQhm68XSSK
-wFiDZl72QBUbfoB6LrUa76uEqBlVq4xzlcLW7oNXpbn7pHOdKNTHYKwIkG/B5VRI
-DsYOWTOuPOgqCuT67r1en1ZavSSR6kGMyrmuyxrJcVJVRdcQBruYWuK+esJqEq4K
-JH0XK9YCMhglMOJy1QcvtHcdsNIhujydzqSf88eASD3WaD3jqhoEmg==
-=AfFn
+iQEVAwUBQbBzKvqefzmUpgR/AQGIowf/e5kbCnnihKaaQvoa1Ay9xf+5iNR9yXz2
+M96kTzlZ7jRyicx7iBCQMdvkCFMEUGoFSfZ70HEzkyR+sLYwRc+5MAyC5uT1OXmq
+I423vvfh17bHymHUj1vorne6cP8JOGiBaUDgRpoXbauYyk22vQVgmGN7xGby6M1m
+8nkkC2G5VSmMm11tU6gGrrHlGuuToDWtzz0Awgx3Eh06cVBZJeAIrPF3FiKyRHtm
++KKmqIpqsQRIwHHOByz+jShGGy8lgDQzejwmYLYemfysJYLyWmZMUREgMYI0a1pp
+SdKo0Lsh0dsTkDFhAaptaEcQBYsmoRZjvCItzwwyx/t90B25+uP/JQ==
+=02n3
 -----END PGP SIGNATURE-----
 
---KsGdsel6WgEHnImy--
+--ftEhullJWpWg/VHq--

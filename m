@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130237AbRBZPml>; Mon, 26 Feb 2001 10:42:41 -0500
+	id <S130209AbRBZPlv>; Mon, 26 Feb 2001 10:41:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130245AbRBZPme>; Mon, 26 Feb 2001 10:42:34 -0500
-Received: from web11205.mail.yahoo.com ([216.136.131.187]:35085 "HELO
-	web11205.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130237AbRBZPm3>; Mon, 26 Feb 2001 10:42:29 -0500
-Message-ID: <20010226154228.48338.qmail@web11205.mail.yahoo.com>
-Date: Mon, 26 Feb 2001 07:42:28 -0800 (PST)
-From: Stephen Mollett <molletts@yahoo.com>
-Subject: "io mapaddr 0xXXXXX not valid" in smc-mca in 2.4.x
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S130237AbRBZPll>; Mon, 26 Feb 2001 10:41:41 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:46854 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S130209AbRBZPl0>; Mon, 26 Feb 2001 10:41:26 -0500
+Date: Mon, 26 Feb 2001 16:37:49 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Chris Mason <mason@suse.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Nick Pasich <npasich@crash.cts.com>, reiserfs-list@namesys.com
+Subject: Re: [PATCH] Re: reiserfs: still problems with tail conversion
+Message-ID: <20010226163749.D12809@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010225183201.D866@arthur.ubicom.tudelft.nl> <1136530000.983155244@tiny> <20010226120704.A12809@arthur.ubicom.tudelft.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010226120704.A12809@arthur.ubicom.tudelft.nl>; from J.A.K.Mouw@ITS.TUDelft.NL on Mon, Feb 26, 2001 at 12:07:04PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In kernel version 2.4.x (x from 0 to 2-ac3), the
-smc-mca driver gives many errors like the following on
-the console log:
+On Mon, Feb 26, 2001 at 12:07:04PM +0100, Erik Mouw wrote:
+> On Sun, Feb 25, 2001 at 09:40:44PM -0500, Chris Mason wrote:
+> > Any testing on non-production machines would be appreciated,
+> > I'll forward to Linus/Alan once I've gotten more feedback.
+> 
+> Yes, this did the trick, I can't repeat it anymore after a first run.
+> I'll let my code run for a couple of times to stress the system, but at
+> first glance the bug seems to be fixed.
 
-io mapaddr 0xXXXXX not valid at smc-mca.c:YYY!
+It has been running for quite some time in the background, and I can't
+reproduce the bug.
 
-where XXXXX is an address within the shared-memory
-assigned to the adapter card, and YYY is 378, 398 or
-408.
 
-I have tested the driver on two IBM MCA systems - a
-9577 and an 8590. I have tried three different network
-adapters in each machine:
+Erik
 
-WD Ethercard PLUS 10T/A (WD8003W/A)
-SMC Ethercard PLUS Elite/A BNC/AUI (WD8013EP/A)
-SMC Ethercard PLUS Elite/A UTP/AUI (WD8013WP/A)
-
-All the adapters give the errors, in both machines.
-All adapters and both PS/2s are known to be good with
-kernel 2.2.17.
-
-* please cc any responses to me <molletts@yahoo.com>
-as I do not subscribe to the list.
-
-Regards,
-Stephen Mollett
-
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

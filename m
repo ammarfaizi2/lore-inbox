@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268908AbUH3SRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268681AbUH3SWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268908AbUH3SRk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 14:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268805AbUH3SPi
+	id S268681AbUH3SWw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 14:22:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266147AbUH3SWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 14:15:38 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:39859 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S268436AbUH3SD1
+	Mon, 30 Aug 2004 14:22:52 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:26803 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S268697AbUH3SDD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 14:03:27 -0400
-Date: Mon, 30 Aug 2004 20:03:56 +0200
+	Mon, 30 Aug 2004 14:03:03 -0400
+Date: Mon, 30 Aug 2004 20:03:29 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390: zfcp host adapater.
-Message-ID: <20040830180356.GC6411@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390: kernel stack options.
+Message-ID: <20040830180329.GB6411@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,1646 +21,1186 @@ User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: zfcp host adapater.
+[PATCH] s390: kernel stack options.
 
-From: Andreas Herrmann <aherrman@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-zfcp host adapater changes:
- - Add ability to enqueue other WKA ports besides the nameserver port.
- - Document and cleanup sg_list functions.
- - Add get_port_by_did/get_adapater_by_busid functions.
- - Improve documentation of some functions and structures.
- - Fix error handling for nameserver requests.
- - Correct size check in zfcp_sg_list_copy_to_user.
- - Correct parameter description for loglevel parameter.
- - Remove unsused code, types and definitions.
- - Add support for exchange_port_data command.
- - Add infrastructure to set timers for ELS and SCSI commands.
- - Avoid adapter shutdown after receiving FSF_SQ_ULP_PROGRAMMING_ERROR.
+This adds support for the new compiler options -mkernel-backchain,
+-mstack-size, -mstack-guard, -mwarn-dynamicstack and -mwarn-framesize.
+
+The option -mkernel-backchain enables the use of modified layout for
+the stack frames of kernel functions. This breaks the ABI, modules
+compiled with the option won't work on a kernel compiled with the
+option and vice versa. The positive effect of the option is a drastic
+reduction of kernel stack use. The trick is that the new frame layout
+allows to overlap the 96 (31 bit)/160 (64 bit) byte bias areas of the
+functions on the call chain. This lowers the minimal stack usage of a
+function from 96 bytes to 16 bytes (31 bit) and 160 bytes to 24 bytes
+(64 bit). The kernel stack use is decreased to a point where it is
+possible to use 4K (31 bit) / 8K (64 bit) stacks. The split into
+process stack and interrupt stack is already in place.
+
+The options -mstack-size and -mstack-guard are used to detect kernel
+stack overflows. The compiler adds code to the prolog of every function
+that causes an illegal operation if the kernel stack is about to overflow.
+
+The options -mwarn-dynamicstack and -mwarn-framesize cause the compiler
+to emit warnings if a function uses dynamic stack allocation or if the
+function frame size is bigger then a specified limit.
+
+To play safe all the new options are configuratable.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- drivers/s390/scsi/zfcp_aux.c           |  315 ++++++++++++++++++++++-----------
- drivers/s390/scsi/zfcp_def.h           |  167 +++++++----------
- drivers/s390/scsi/zfcp_erp.c           |   73 ++++---
- drivers/s390/scsi/zfcp_ext.h           |   26 +-
- drivers/s390/scsi/zfcp_fsf.c           |  225 +++++++++++++----------
- drivers/s390/scsi/zfcp_fsf.h           |    7 
- drivers/s390/scsi/zfcp_scsi.c          |   29 ++-
- drivers/s390/scsi/zfcp_sysfs_adapter.c |    4 
- drivers/s390/scsi/zfcp_sysfs_port.c    |    6 
- 9 files changed, 507 insertions(+), 345 deletions(-)
+ arch/s390/Kconfig              |  126 ++++++++++++++++++++++++++++++++---------
+ arch/s390/Makefile             |   26 +++++++-
+ arch/s390/defconfig            |   14 +++-
+ arch/s390/kernel/asm-offsets.c |    4 +
+ arch/s390/kernel/entry.S       |   85 +++++++++++++++++++--------
+ arch/s390/kernel/entry64.S     |   91 ++++++++++++++++++++---------
+ arch/s390/kernel/head.S        |    6 +
+ arch/s390/kernel/head64.S      |    6 +
+ arch/s390/kernel/process.c     |   68 ++++++++--------------
+ arch/s390/kernel/setup.c       |    4 +
+ arch/s390/kernel/smp.c         |   14 +++-
+ arch/s390/kernel/traps.c       |   96 ++++++++++++++++++++++---------
+ include/asm-s390/lowcore.h     |    8 +-
+ include/asm-s390/processor.h   |   19 ++++++
+ include/asm-s390/thread_info.h |   38 +++++++-----
+ 15 files changed, 428 insertions(+), 177 deletions(-)
 
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_aux.c linux-2.6-s390/drivers/s390/scsi/zfcp_aux.c
---- linux-2.6/drivers/s390/scsi/zfcp_aux.c	Mon Aug 30 19:14:11 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_aux.c	Mon Aug 30 19:14:23 2004
-@@ -29,7 +29,7 @@
-  */
+diff -urN linux-2.6/arch/s390/Kconfig linux-2.6-s390/arch/s390/Kconfig
+--- linux-2.6/arch/s390/Kconfig	Mon Aug 30 19:14:07 2004
++++ linux-2.6-s390/arch/s390/Kconfig	Mon Aug 30 19:14:22 2004
+@@ -48,33 +48,6 @@
+ 	depends on ARCH_S390X = 'n'
+ 	default y
  
- /* this drivers version (do not edit !!! generated and updated by cvs) */
--#define ZFCP_AUX_REVISION "$Revision: 1.121 $"
-+#define ZFCP_AUX_REVISION "$Revision: 1.129 $"
+-choice
+-	prompt "Processor type"
+-	default MARCH_G5
+-
+-config MARCH_G5
+-	bool "S/390 model G5 and G6"
+-	depends on ARCH_S390_31
+-	help
+-	  Select this to build a 31 bit kernel that works
+-	  on all S/390 and zSeries machines.
+-
+-config MARCH_Z900
+-	bool "IBM eServer zSeries model z800 and z900"
+-	help
+-	  Select this to optimize for zSeries machines. This
+-	  will enable some optimizations that are not available
+-	  on older 31 bit only CPUs.
+-
+-config MARCH_Z990
+-	bool "IBM eServer zSeries model z890 and z990"
+-	help
+-	  Select this enable optimizations for model z890/z990.
+-	  This will be slightly faster but does not work on
+-	  older machines such as the z900.
+-
+-endchoice
+-
+ config SMP
+ 	bool "Symmetric multi-processing support"
+ 	---help---
+@@ -149,6 +122,105 @@
+ 	  This allows you to run 32-bit Linux/ELF binaries on your zSeries
+ 	  in 64 bit mode. Everybody wants this; say Y.
  
- #include "zfcp_ext.h"
- 
-@@ -47,7 +47,7 @@
- /* miscellaneous */
- 
- static inline int zfcp_sg_list_alloc(struct zfcp_sg_list *, size_t);
--static inline int zfcp_sg_list_free(struct zfcp_sg_list *);
-+static inline void zfcp_sg_list_free(struct zfcp_sg_list *);
- static inline int zfcp_sg_list_copy_from_user(struct zfcp_sg_list *,
- 					      void __user *, size_t);
- static inline int zfcp_sg_list_copy_to_user(void __user *,
-@@ -95,7 +95,7 @@
- module_param(loglevel, uint, 0);
- MODULE_PARM_DESC(loglevel,
- 		 "log levels, 8 nibbles: "
--		 "(unassigned) FC ERP QDIO CIO Config FSF SCSI Other, "
-+		 "FC ERP QDIO CIO Config FSF SCSI Other, "
- 		 "levels: 0=none 1=normal 2=devel 3=trace");
- 
- #ifdef ZFCP_PRINT_FLAGS
-@@ -257,24 +257,20 @@
- static void __init
- zfcp_init_device_configure(void)
- {
--	int found = 0;
- 	struct zfcp_adapter *adapter;
- 	struct zfcp_port *port;
- 	struct zfcp_unit *unit;
- 
- 	down(&zfcp_data.config_sema);
- 	read_lock_irq(&zfcp_data.config_lock);
--	list_for_each_entry(adapter, &zfcp_data.adapter_list_head, list)
--		if (strcmp(zfcp_data.init_busid,
--			   zfcp_get_busid_by_adapter(adapter)) == 0) {
--			zfcp_adapter_get(adapter);
--			found = 1;
--			break;
--		}
-+	adapter = zfcp_get_adapter_by_busid(zfcp_data.init_busid);
-+	if (adapter)
-+		zfcp_adapter_get(adapter);
- 	read_unlock_irq(&zfcp_data.config_lock);
--	if (!found)
++comment "Code generation options"
 +
-+	if (adapter == NULL)
- 		goto out_adapter;
--	port = zfcp_port_enqueue(adapter, zfcp_data.init_wwpn, 0);
-+	port = zfcp_port_enqueue(adapter, zfcp_data.init_wwpn, 0, 0);
- 	if (!port)
- 		goto out_port;
- 	unit = zfcp_unit_enqueue(port, zfcp_data.init_fcp_lun);
-@@ -377,6 +373,7 @@
-  *              -ENOMEM     - Insufficient memory
-  *              -EFAULT     - User space memory I/O operation fault
-  *              -EPERM      - Cannot create or queue FSF request or create SBALs
-+ *              -ERESTARTSYS- Received signal (is mapped to EAGAIN by VFS)
-  */
- static int
- zfcp_cfdc_dev_ioctl(struct inode *inode, struct file *file,
-@@ -467,22 +464,17 @@
- 		(sense_data.devno >> 16) & 0xFF,
- 		(sense_data.devno & 0xFFFF));
++choice 
++	prompt "Processor type"
++	default MARCH_G5
++
++config MARCH_G5
++	bool "S/390 model G5 and G6"
++	depends on ARCH_S390_31
++	help
++	  Select this to build a 31 bit kernel that works
++	  on all S/390 and zSeries machines.
++
++config MARCH_Z900
++	bool "IBM eServer zSeries model z800 and z900"
++	help
++	  Select this to optimize for zSeries machines. This
++	  will enable some optimizations that are not available
++	  on older 31 bit only CPUs.
++
++config MARCH_Z990
++	bool "IBM eServer zSeries model z890 and z990"
++	help
++	  Select this enable optimizations for model z890/z990.
++	  This will be slightly faster but does not work on
++	  older machines such as the z900.
++
++endchoice 
++
++config PACK_STACK
++	bool "Pack kernel stack"
++	help
++	  This option enables the compiler option -mkernel-backchain if it
++	  is available. If the option is available the compiler supports
++	  the new stack layout which dramatically reduces the minimum stack
++	  frame size. With an old compiler a non-leaf function needs a
++	  minimum of 96 bytes on 31 bit and 160 bytes on 64 bit. With
++	  -mkernel-backchain the minimum size drops to 16 byte on 31 bit
++	  and 24 byte on 64 bit.
++
++	  Say Y if you are unsure.
++
++config SMALL_STACK
++	bool "Use 4kb/8kb for kernel stack instead of 8kb/16kb"
++	depends on PACK_STACK
++	help
++	  If you say Y here and the compiler supports the -mkernel-backchain
++	  option the kernel will use a smaller kernel stack size. For 31 bit
++	  the reduced size is 4kb instead of 8kb and for 64 bit it is 8kb
++	  instead of 16kb. This allows to run more thread on a system and
++	  reduces the pressure on the memory management for higher order
++	  page allocations.
++
++	  Say N if you are unsure.
++	
++
++config CHECK_STACK
++	bool "Detect kernel stack overflow"
++	help
++	  This option enables the compiler option -mstack-guard and
++	  -mstack-size if they are available. If the compiler supports them
++	  it will emit additional code to each function prolog to trigger
++	  an illegal operation if the kernel stack is about to overflow.
++
++	  Say N if you are unsure.
++
++config STACK_GUARD
++	int "Size of the guard area (128-1024)"
++	range 128 1024
++	depends on CHECK_STACK
++	default "256"
++	help
++	  This allows you to specify the size of the guard area at the lower
++	  end of the kernel stack. If the kernel stack points into the guard
++	  area on function entry an illegal operation is triggered. The size
++	  needs to be a power of 2. Please keep in mind that the size of an
++	  interrupt frame is 184 bytes for 31 bit and 328 bytes on 64 bit.
++	  The minimum size for the stack guard should be 256 for 31 bit and
++	  512 for 64 bit.
++
++config WARN_STACK
++	bool "Emit compiler warnings for function with broken stack usage"
++	help
++	  This option enables the compiler options -mwarn-framesize and
++	  -mwarn-dynamicstack. If the compiler supports these options it
++	  will generate warnings for function which either use alloca or
++	  create a stack frame bigger then CONFIG_WARN_STACK_SIZE.
++
++	  Say N if you are unsure.
++
++config WARN_STACK_SIZE
++	int "Maximum frame size considered safe (128-2048)"
++	range 128 2048
++	depends on WARN_STACK
++	default "256"
++	help
++	  This allows you to specify the maximum frame size a function may
++	  have without the compiler complaining about it.
++
+ comment "I/O subsystem configuration"
  
--	retval = -ENXIO;
- 	read_lock_irq(&zfcp_data.config_lock);
--	list_for_each_entry(adapter, &zfcp_data.adapter_list_head, list) {
--		if (strncmp(bus_id, zfcp_get_busid_by_adapter(adapter),
--		    BUS_ID_SIZE) == 0) {
--			zfcp_adapter_get(adapter);
--			retval = 0;
--			break;
--		}
+ config MACHCHK_WARNING
+diff -urN linux-2.6/arch/s390/Makefile linux-2.6-s390/arch/s390/Makefile
+--- linux-2.6/arch/s390/Makefile	Mon Aug 30 19:14:07 2004
++++ linux-2.6-s390/arch/s390/Makefile	Mon Aug 30 19:14:22 2004
+@@ -18,6 +18,7 @@
+ CFLAGS		+= -m31
+ AFLAGS		+= -m31
+ UTS_MACHINE	:= s390
++STACK_SIZE	:= 8192
+ endif
+ 
+ ifdef CONFIG_ARCH_S390X
+@@ -26,16 +27,37 @@
+ CFLAGS		+= -m64
+ AFLAGS		+= -m64
+ UTS_MACHINE	:= s390x
++STACK_SIZE	:= 16384
+ endif
+ 
+ cflags-$(CONFIG_MARCH_G5)   += $(call cc-option,-march=g5)
+ cflags-$(CONFIG_MARCH_Z900) += $(call cc-option,-march=z900)
+ cflags-$(CONFIG_MARCH_Z990) += $(call cc-option,-march=z990)
+ 
+-CFLAGS		+= $(cflags-y)
++ifeq ($(call cc-option-yn,-mkernel-backchain),y)
++cflags-$(CONFIG_PACK_STACK)  += -mkernel-backchain -D__PACK_STACK
++aflags-$(CONFIG_PACK_STACK)  += -D__PACK_STACK
++cflags-$(CONFIG_SMALL_STACK) += -D__SMALL_STACK
++aflags-$(CONFIG_SMALL_STACK) += -D__SMALL_STACK
++ifdef CONFIG_SMALL_STACK
++STACK_SIZE := $(shell echo $$(($(STACK_SIZE)/2)) )
++endif
++endif
++
++ifeq ($(call cc-option-yn,-mstack-size=8192 -mstack-guard=128),y)
++cflags-$(CONFIG_CHECK_STACK) += -mstack-size=$(STACK_SIZE)
++cflags-$(CONFIG_CHECK_STACK) += -mstack-guard=$(CONFIG_STACK_GUARD)
++endif
++
++ifeq ($(call cc-option-yn,-mwarn-dynamicstack),y)
++cflags-$(CONFIG_WARN_STACK) += -mwarn-dynamicstack
++cflags-$(CONFIG_WARN_STACK) += -mwarn-framesize=$(CONFIG_WARN_STACK_SIZE)
++endif
++
++CFLAGS		+= -mbackchain $(cflags-y)
+ CFLAGS		+= $(call cc-option,-finline-limit=10000)
+ CFLAGS 		+= -pipe -fno-strength-reduce -Wno-sign-compare 
+-CFLAGS		+= -mbackchain
++AFLAGS		+= $(aflags-y)
+ 
+ OBJCOPYFLAGS	:= -O binary
+ LDFLAGS_vmlinux := -e start
+diff -urN linux-2.6/arch/s390/defconfig linux-2.6-s390/arch/s390/defconfig
+--- linux-2.6/arch/s390/defconfig	Mon Aug 30 19:14:22 2004
++++ linux-2.6-s390/arch/s390/defconfig	Mon Aug 30 19:14:22 2004
+@@ -58,15 +58,23 @@
+ # CONFIG_ARCH_S390X is not set
+ # CONFIG_64BIT is not set
+ CONFIG_ARCH_S390_31=y
+-CONFIG_MARCH_G5=y
+-# CONFIG_MARCH_Z900 is not set
+-# CONFIG_MARCH_Z990 is not set
+ CONFIG_SMP=y
+ CONFIG_NR_CPUS=32
+ # CONFIG_HOTPLUG_CPU is not set
+ CONFIG_MATHEMU=y
+ 
+ #
++# Code generation options
++#
++CONFIG_MARCH_G5=y
++# CONFIG_MARCH_Z900 is not set
++# CONFIG_MARCH_Z990 is not set
++CONFIG_PACK_STACK=y
++# CONFIG_SMALL_STACK is not set
++# CONFIG_CHECK_STACK is not set
++# CONFIG_WARN_STACK is not set
++
++#
+ # I/O subsystem configuration
+ #
+ CONFIG_MACHCHK_WARNING=y
+diff -urN linux-2.6/arch/s390/kernel/asm-offsets.c linux-2.6-s390/arch/s390/kernel/asm-offsets.c
+--- linux-2.6/arch/s390/kernel/asm-offsets.c	Sat Aug 14 12:55:09 2004
++++ linux-2.6-s390/arch/s390/kernel/asm-offsets.c	Mon Aug 30 19:14:22 2004
+@@ -39,5 +39,9 @@
+ 	DEFINE(__PT_ILC, offsetof(struct pt_regs, ilc),);
+ 	DEFINE(__PT_TRAP, offsetof(struct pt_regs, trap),);
+ 	DEFINE(__PT_SIZE, sizeof(struct pt_regs),);
++	BLANK();
++	DEFINE(__SF_BACKCHAIN, offsetof(struct stack_frame, back_chain),);
++	DEFINE(__SF_GPRS, offsetof(struct stack_frame, gprs),);
++	DEFINE(__SF_EMPTY, offsetof(struct stack_frame, empty1),);
+ 	return 0;
+ }
+diff -urN linux-2.6/arch/s390/kernel/entry.S linux-2.6-s390/arch/s390/kernel/entry.S
+--- linux-2.6/arch/s390/kernel/entry.S	Mon Aug 30 19:14:22 2004
++++ linux-2.6-s390/arch/s390/kernel/entry.S	Mon Aug 30 19:14:22 2004
+@@ -19,6 +19,7 @@
+ #include <asm/thread_info.h>
+ #include <asm/offsets.h>
+ #include <asm/unistd.h>
++#include <asm/page.h>
+ 
+ /*
+  * Stack layout for the system_call stack entry.
+@@ -52,6 +53,9 @@
+ 		 _TIF_RESTART_SVC | _TIF_SINGLE_STEP )
+ _TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NEED_RESCHED)
+ 
++STACK_SHIFT = PAGE_SHIFT + THREAD_ORDER
++STACK_SIZE  = 1 << STACK_SHIFT
++
+ #define BASED(name) name-system_call(%r13)
+ 
+ /*
+@@ -86,10 +90,16 @@
+ 	bnz	BASED(1f)
+ 0:	l	%r14,__LC_ASYNC_STACK	# are we already on the async stack ?
+ 	slr	%r14,%r15
+-	sra	%r14,13
++	sra	%r14,STACK_SHIFT
+ 	be	BASED(2f)
+ 1:	l	%r15,__LC_ASYNC_STACK
+ 	.endif
++#ifdef CONFIG_CHECK_STACK
++	b	BASED(3f)
++2:	tml	%r15,STACK_SIZE - CONFIG_STACK_GUARD
++	bz	BASED(stack_overflow)
++3:
++#endif	
+ 2:	s	%r15,BASED(.Lc_spsize)	# make room for registers & psw
+ 	mvc	SP_PSW(8,%r15),0(%r12)	# move user PSW to stack
+ 	la	%r12,\psworg
+@@ -99,7 +109,7 @@
+ 	st	%r12,SP_ILC(%r15)
+ 	mvc	SP_R12(16,%r15),\savearea # move %r12-%r15 to stack
+ 	la	%r12,0
+-	st	%r12,0(%r15)		# clear back chain
++	st	%r12,__SF_BACKCHAIN(%r15)	# clear back chain
+ 	.endm
+ 
+ 	.macro  RESTORE_ALL sync
+@@ -124,19 +134,19 @@
+ __switch_to_base:
+ 	tm	__THREAD_per(%r3),0xe8		# new process is using per ?
+ 	bz	__switch_to_noper-__switch_to_base(%r1)	# if not we're fine
+-        stctl   %c9,%c11,24(%r15)		# We are using per stuff
+-        clc     __THREAD_per(12,%r3),24(%r15)
++        stctl   %c9,%c11,__SF_EMPTY(%r15)	# We are using per stuff
++        clc     __THREAD_per(12,%r3),__SF_EMPTY(%r15)
+         be      __switch_to_noper-__switch_to_base(%r1)	# we got away w/o bashing TLB's
+         lctl    %c9,%c11,__THREAD_per(%r3)	# Nope we didn't
+ __switch_to_noper:
+-        stm     %r6,%r15,24(%r15)       # store __switch_to registers of prev task
++        stm     %r6,%r15,__SF_GPRS(%r15)# store __switch_to registers of prev task
+ 	st	%r15,__THREAD_ksp(%r2)	# store kernel stack to prev->tss.ksp
+ 	l	%r15,__THREAD_ksp(%r3)	# load kernel stack from next->tss.ksp
+-	lm	%r6,%r15,24(%r15)	# load __switch_to registers of next task
++	lm	%r6,%r15,__SF_GPRS(%r15)# load __switch_to registers of next task
+ 	st	%r3,__LC_CURRENT	# __LC_CURRENT = current task struct
+ 	l	%r3,__THREAD_info(%r3)  # load thread_info from task struct
+ 	st	%r3,__LC_THREAD_INFO
+-	ahi	%r3,8192
++	ahi	%r3,STACK_SIZE
+ 	st	%r3,__LC_KERNEL_STACK	# __LC_KERNEL_STACK = new kernel stack
+ 	br	%r14
+ 
+@@ -146,24 +156,24 @@
+  */
+ 	.global do_call_softirq
+ do_call_softirq:
+-	stnsm	24(%r15),0xfc
+-	stm	%r12,%r15,28(%r15)
++	stnsm	__SF_EMPTY(%r15),0xfc
++	stm	%r12,%r15,__SF_GPRS(%r15)
+ 	lr	%r12,%r15
+         basr    %r13,0
+ do_call_base:
+ 	l	%r0,__LC_ASYNC_STACK
+ 	slr     %r0,%r15
+-	sra	%r0,13
++	sra	%r0,STACK_SHIFT
+ 	be	0f-do_call_base(%r13)
+ 	l	%r15,__LC_ASYNC_STACK
+ 0:	sl	%r15,.Lc_overhead-do_call_base(%r13)
+-        st	%r12,0(%r15)	# store backchain
++        st	%r12,__SF_BACKCHAIN(%r15)	# store backchain
+ 	l	%r1,.Ldo_softirq-do_call_base(%r13)
+ 	basr	%r14,%r1
+-	lm	%r12,%r15,28(%r12)
+-	ssm	24(%r15)
++	lm	%r12,%r15,__SF_GPRS(%r12)
++	ssm	__SF_EMPTY(%r15)
+ 	br	%r14
+-	
++
+ __critical_start:
+ /*
+  * SVC interrupt handler routine. System calls are synchronous events and
+@@ -309,7 +319,7 @@
+ 	st	%r15,SP_R15(%r15)	# store stack pointer for new kthread
+ 0:	l       %r1,BASED(.Lschedtail)
+ 	basr    %r14,%r1
+-        stosm   24(%r15),0x03     # reenable interrupts
++        stosm   __SF_EMPTY(%r15),0x03     # reenable interrupts
+ 	b	BASED(sysc_return)
+ 
+ #
+@@ -460,7 +470,7 @@
+ 	mvc	__THREAD_per+__PER_address(4,%r1),__LC_PER_ADDRESS
+ 	mvc	__THREAD_per+__PER_access_id(1,%r1),__LC_PER_ACCESS_ID
+ 	oi	__TI_flags+3(%r9),_TIF_SINGLE_STEP # set TIF_SINGLE_STEP
+-	stosm	24(%r15),0x03		# reenable interrupts
++	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
+ 	b	BASED(sysc_do_svc)
+ 
+ /*
+@@ -496,16 +506,16 @@
+ 	l	%r1,SP_R15(%r15)
+ 	s	%r1,BASED(.Lc_spsize)
+ 	mvc	SP_PTREGS(__PT_SIZE,%r1),SP_PTREGS(%r15)
+-        xc      0(4,%r1),0(%r1)        # clear back chain
++        xc      __SF_BACKCHAIN(4,%r1),__SF_BACKCHAIN(%r1) # clear back chain
+ 	lr	%r15,%r1
+ io_resume_loop:
+ 	tm	__TI_flags+3(%r9),_TIF_NEED_RESCHED
+ 	bno	BASED(io_leave)
+ 	mvc     __TI_precount(4,%r9),BASED(.Lc_pactive)
+-        stosm   24(%r15),0x03          # reenable interrupts
++        stosm   __SF_EMPTY(%r15),0x03  # reenable interrupts
+         l       %r1,BASED(.Lschedule)
+ 	basr	%r14,%r1	       # call schedule
+-        stnsm   24(%r15),0xfc          # disable I/O and ext. interrupts
++        stnsm   __SF_EMPTY(%r15),0xfc  # disable I/O and ext. interrupts
+ 	xc      __TI_precount(4,%r9),__TI_precount(%r9)
+ 	b	BASED(io_resume_loop)
+ #endif
+@@ -517,7 +527,7 @@
+ 	l	%r1,__LC_KERNEL_STACK
+ 	s	%r1,BASED(.Lc_spsize)
+ 	mvc	SP_PTREGS(__PT_SIZE,%r1),SP_PTREGS(%r15)
+-        xc      0(4,%r1),0(%r1)        # clear back chain
++        xc      __SF_BACKCHAIN(4,%r1),__SF_BACKCHAIN(%r1) # clear back chain
+ 	lr	%r15,%r1
+ #
+ # One of the work bits is on. Find out which one.
+@@ -535,9 +545,9 @@
+ #	
+ io_reschedule:        
+         l       %r1,BASED(.Lschedule)
+-        stosm   24(%r15),0x03          # reenable interrupts
++        stosm   __SF_EMPTY(%r15),0x03  # reenable interrupts
+ 	basr    %r14,%r1	       # call scheduler
+-        stnsm   24(%r15),0xfc          # disable I/O and ext. interrupts
++        stnsm   __SF_EMPTY(%r15),0xfc  # disable I/O and ext. interrupts
+ 	tm	__TI_flags+3(%r9),_TIF_WORK_INT
+ 	bz	BASED(io_leave)        # there is no work to do
+ 	b	BASED(io_work_loop)
+@@ -546,12 +556,12 @@
+ # _TIF_SIGPENDING is set, call do_signal
+ #
+ io_sigpending:     
+-        stosm   24(%r15),0x03          # reenable interrupts
++        stosm   __SF_EMPTY(%r15),0x03  # reenable interrupts
+         la      %r2,SP_PTREGS(%r15)    # load pt_regs
+         sr      %r3,%r3                # clear *oldset
+         l       %r1,BASED(.Ldo_signal)
+ 	basr    %r14,%r1	       # call do_signal
+-        stnsm   24(%r15),0xfc          # disable I/O and ext. interrupts
++        stnsm   __SF_EMPTY(%r15),0xfc  # disable I/O and ext. interrupts
+ 	b	BASED(io_leave)        # out of here, do NOT recheck
+ 
+ /*
+@@ -593,7 +603,7 @@
+         lctl    %c0,%c15,__LC_CREGS_SAVE_AREA # get new ctl regs
+         lam     %a0,%a15,__LC_AREGS_SAVE_AREA
+         stosm   0(%r15),0x04           # now we can turn dat on
+-        lm      %r6,%r15,24(%r15)      # load registers from clone
++        lm      %r6,%r15,__SF_GPRS(%r15) # load registers from clone
+         basr    %r14,0
+         l       %r14,restart_addr-.(%r14)
+         br      %r14                   # branch to start_secondary
+@@ -614,6 +624,31 @@
+ restart_go:
+ #endif
+ 
++#ifdef CONFIG_CHECK_STACK
++/*
++ * The synchronous or the asynchronous stack overflowed. We are dead.
++ * No need to properly save the registers, we are going to panic anyway.
++ * Setup a pt_regs so that show_trace can provide a good call trace.
++ */
++stack_overflow:
++	l	%r15,__LC_PANIC_STACK	# change to panic stack
++	sl	%r15,BASED(.Lc_spsize)
++	mvc	SP_PSW(8,%r15),0(%r12)	# move user PSW to stack
++	stm	%r0,%r11,SP_R0(%r15)	# store gprs %r0-%r11 to kernel stack
++	la	%r1,__LC_SAVE_AREA
++	ch	%r12,BASED(.L0x020)	# old psw addr == __LC_SVC_OLD_PSW ?
++	be	BASED(0f)
++	ch	%r12,BASED(.L0x028)	# old psw addr == __LC_PGM_OLD_PSW ?
++	be	BASED(0f)
++	la	%r1,__LC_SAVE_AREA+16
++0:	mvc	SP_R12(16,%r15),0(%r1)	# move %r12-%r15 to stack
++        xc      __SF_BACKCHAIN(4,%r15),__SF_BACKCHAIN(%r15) # clear back chain
++	l	%r1,BASED(1f)		# branch to kernel_stack_overflow
++        la      %r2,SP_PTREGS(%r15)	# load pt_regs
++	br	%r1
++1:	.long  kernel_stack_overflow
++#endif
++
+ cleanup_table_system_call:
+ 	.long	system_call + 0x80000000, sysc_do_svc + 0x80000000
+ cleanup_table_sysc_return:
+diff -urN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-s390/arch/s390/kernel/entry64.S
+--- linux-2.6/arch/s390/kernel/entry64.S	Mon Aug 30 19:14:22 2004
++++ linux-2.6-s390/arch/s390/kernel/entry64.S	Mon Aug 30 19:14:22 2004
+@@ -19,6 +19,7 @@
+ #include <asm/thread_info.h>
+ #include <asm/offsets.h>
+ #include <asm/unistd.h>
++#include <asm/page.h>
+ 
+ /*
+  * Stack layout for the system_call stack entry.
+@@ -48,6 +49,9 @@
+ SP_TRAP      =  STACK_FRAME_OVERHEAD + __PT_TRAP
+ SP_SIZE      =  STACK_FRAME_OVERHEAD + __PT_SIZE
+ 
++STACK_SHIFT = PAGE_SHIFT + THREAD_ORDER
++STACK_SIZE  = 1 << STACK_SHIFT
++
+ _TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | \
+ 		 _TIF_RESTART_SVC | _TIF_SINGLE_STEP )
+ _TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NEED_RESCHED)
+@@ -85,10 +89,16 @@
+ 	jnz	1f
+ 0:	lg	%r14,__LC_ASYNC_STACK	# are we already on the async. stack ?
+ 	slgr	%r14,%r15
+-	srag	%r14,%r14,14
++	srag	%r14,%r14,STACK_SHIFT
+ 	jz	2f
+ 1:	lg	%r15,__LC_ASYNC_STACK	# load async stack
+ 	.endif
++#ifdef CONFIG_CHECK_STACK
++	j	3f
++2:	tml	%r15,STACK_SIZE - CONFIG_STACK_GUARD
++	jz	stack_overflow
++3:
++#endif	
+ 2:	aghi    %r15,-SP_SIZE		# make room for registers & psw
+ 	mvc     SP_PSW(16,%r15),0(%r12)	# move user PSW to stack
+ 	la	%r12,\psworg
+@@ -98,7 +108,7 @@
+ 	st	%r12,SP_ILC(%r15)
+ 	mvc	SP_R12(32,%r15),\savearea # move %r12-%r15 to stack
+ 	la	%r12,0
+-	stg	%r12,0(%r15)
++	stg	%r12,__SF_BACKCHAIN(%r15)
+         .endm
+ 
+ 	.macro	RESTORE_ALL sync
+@@ -121,19 +131,19 @@
+ __switch_to:
+ 	tm	__THREAD_per+4(%r3),0xe8 # is the new process using per ?
+ 	jz	__switch_to_noper		# if not we're fine
+-        stctg   %c9,%c11,48(%r15)       # We are using per stuff
+-        clc     __THREAD_per(24,%r3),48(%r15)
++        stctg   %c9,%c11,__SF_EMPTY(%r15)# We are using per stuff
++        clc     __THREAD_per(24,%r3),__SF_EMPTY(%r15)
+         je      __switch_to_noper            # we got away without bashing TLB's
+         lctlg   %c9,%c11,__THREAD_per(%r3)	# Nope we didn't
+ __switch_to_noper:
+-        stmg    %r6,%r15,48(%r15)       # store __switch_to registers of prev task
++        stmg    %r6,%r15,__SF_GPRS(%r15)# store __switch_to registers of prev task
+ 	stg	%r15,__THREAD_ksp(%r2)	# store kernel stack to prev->tss.ksp
+ 	lg	%r15,__THREAD_ksp(%r3)	# load kernel stack from next->tss.ksp
+-        lmg     %r6,%r15,48(%r15)       # load __switch_to registers of next task
++        lmg     %r6,%r15,__SF_GPRS(%r15)# load __switch_to registers of next task
+ 	stg	%r3,__LC_CURRENT	# __LC_CURRENT = current task struct
+ 	lg	%r3,__THREAD_info(%r3)  # load thread_info from task struct
+ 	stg	%r3,__LC_THREAD_INFO
+-	aghi	%r3,16384
++	aghi	%r3,STACK_SIZE
+ 	stg	%r3,__LC_KERNEL_STACK	# __LC_KERNEL_STACK = new kernel stack
+ 	br	%r14
+ 
+@@ -143,19 +153,19 @@
+  */
+ 	.global do_call_softirq
+ do_call_softirq:
+-	stnsm	48(%r15),0xfc
+-	stmg	%r12,%r15,56(%r15)
++	stnsm	__SF_EMPTY(%r15),0xfc
++	stmg	%r12,%r15,__SF_GPRS(%r15)
+ 	lgr	%r12,%r15
+ 	lg	%r0,__LC_ASYNC_STACK
+ 	slgr    %r0,%r15
+-	srag	%r0,%r0,14
++	srag	%r0,%r0,STACK_SHIFT
+ 	je	0f
+ 	lg	%r15,__LC_ASYNC_STACK
+ 0:	aghi	%r15,-STACK_FRAME_OVERHEAD
+-	stg	%r12,0(%r15)		# store back chain
++	stg	%r12,__SF_BACKCHAIN(%r15)	# store back chain
+ 	brasl	%r14,do_softirq
+-	lmg	%r12,%r15,56(%r12)
+-	ssm	48(%r15)
++	lmg	%r12,%r15,__SF_GPRS(%r12)
++	ssm	__SF_EMPTY(%r15)
+ 	br	%r14
+ 
+ __critical_start:
+@@ -507,7 +517,7 @@
+ 	mvc	__THREAD_per+__PER_address(8,%r1),__LC_PER_ADDRESS
+ 	mvc	__THREAD_per+__PER_access_id(1,%r1),__LC_PER_ACCESS_ID
+ 	oi	__TI_flags+7(%r9),_TIF_SINGLE_STEP # set TIF_SINGLE_STEP
+-	stosm	48(%r15),0x03		# reenable interrupts
++	stosm	__SF_EMPTY(%r15),0x03	# reenable interrupts
+ 	j	sysc_do_svc
+ 
+ /*
+@@ -542,16 +552,16 @@
+ 	lg	%r1,SP_R15(%r15)
+ 	aghi	%r1,-SP_SIZE
+ 	mvc	SP_PTREGS(__PT_SIZE,%r1),SP_PTREGS(%r15)
+-        xc      0(8,%r1),0(%r1)        # clear back chain
++        xc      __SF_BACKCHAIN(8,%r1),__SF_BACKCHAIN(%r1) # clear back chain
+ 	lgr	%r15,%r1
+ io_resume_loop:
+ 	tm	__TI_flags+7(%r9),_TIF_NEED_RESCHED
+ 	jno	io_leave
+ 	larl    %r1,.Lc_pactive
+ 	mvc     __TI_precount(4,%r9),0(%r1)
+-        stosm   48(%r15),0x03          # reenable interrupts
++        stosm   __SF_EMPTY(%r15),0x03   # reenable interrupts
+ 	brasl   %r14,schedule          # call schedule
+-        stnsm   48(%r15),0xfc          # disable I/O and ext. interrupts
++        stnsm   __SF_EMPTY(%r15),0xfc   # disable I/O and ext. interrupts
+ 	xc      __TI_precount(4,%r9),__TI_precount(%r9)
+ 	j	io_resume_loop
+ #endif
+@@ -563,7 +573,7 @@
+ 	lg	%r1,__LC_KERNEL_STACK
+ 	aghi	%r1,-SP_SIZE
+ 	mvc	SP_PTREGS(__PT_SIZE,%r1),SP_PTREGS(%r15)
+-        xc      0(8,%r1),0(%r1)        # clear back chain
++        xc      __SF_BACKCHAIN(8,%r1),__SF_BACKCHAIN(%r1) # clear back chain
+ 	lgr	%r15,%r1
+ #
+ # One of the work bits is on. Find out which one.
+@@ -580,23 +590,23 @@
+ # _TIF_NEED_RESCHED is set, call schedule
+ #	
+ io_reschedule:        
+-        stosm   48(%r15),0x03       # reenable interrupts
+-        brasl   %r14,schedule       # call scheduler
+-        stnsm   48(%r15),0xfc       # disable I/O and ext. interrupts
++	stosm   __SF_EMPTY(%r15),0x03	# reenable interrupts
++	brasl   %r14,schedule		# call scheduler
++	stnsm   __SF_EMPTY(%r15),0xfc	# disable I/O and ext. interrupts
+ 	tm	__TI_flags+7(%r9),_TIF_WORK_INT
+-	jz	io_leave               # there is no work to do
++	jz	io_leave		# there is no work to do
+ 	j	io_work_loop
+ 
+ #
+ # _TIF_SIGPENDING is set, call do_signal
+ #
+ io_sigpending:     
+-        stosm   48(%r15),0x03       # reenable interrupts
+-        la      %r2,SP_PTREGS(%r15) # load pt_regs
+-        slgr    %r3,%r3             # clear *oldset
+-	brasl	%r14,do_signal      # call do_signal
+-        stnsm   48(%r15),0xfc       # disable I/O and ext. interrupts
+-	j	sysc_leave          # out of here, do NOT recheck
++	stosm   __SF_EMPTY(%r15),0x03	# reenable interrupts
++	la      %r2,SP_PTREGS(%r15)	# load pt_regs
++	slgr    %r3,%r3			# clear *oldset
++	brasl	%r14,do_signal		# call do_signal
++	stnsm   __SF_EMPTY(%r15),0xfc	# disable I/O and ext. interrupts
++	j	sysc_leave		# out of here, do NOT recheck
+ 
+ /*
+  * External interrupt handler routine
+@@ -635,7 +645,7 @@
+         lghi    %r10,__LC_AREGS_SAVE_AREA
+         lam     %a0,%a15,0(%r10)
+         stosm   0(%r15),0x04           # now we can turn dat on
+-        lmg     %r6,%r15,48(%r15)      # load registers from clone
++        lmg     %r6,%r15,__SF_GPRS(%r15) # load registers from clone
+ 	jg      start_secondary
+ #else
+ /*
+@@ -652,6 +662,29 @@
+ restart_go:
+ #endif
+ 
++#ifdef CONFIG_CHECK_STACK
++/*
++ * The synchronous or the asynchronous stack overflowed. We are dead.
++ * No need to properly save the registers, we are going to panic anyway.
++ * Setup a pt_regs so that show_trace can provide a good call trace.
++ */
++stack_overflow:
++	lg	%r15,__LC_PANIC_STACK	# change to panic stack
++	aghi	%r1,-SP_SIZE
++	mvc	SP_PSW(16,%r15),0(%r12)	# move user PSW to stack
++	stmg	%r0,%r11,SP_R0(%r15)	# store gprs %r0-%r11 to kernel stack
++	la	%r1,__LC_SAVE_AREA
++	chi	%r12,__LC_SVC_OLD_PSW
++	je	0f
++	chi	%r12,__LC_PGM_OLD_PSW
++	je	0f
++	la	%r1,__LC_SAVE_AREA+16
++0:	mvc	SP_R12(32,%r15),0(%r1)  # move %r12-%r15 to stack
++        xc      __SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15) # clear back chain
++        la      %r2,SP_PTREGS(%r15)	# load pt_regs
++	jg	kernel_stack_overflow
++#endif
++
+ cleanup_table_system_call:
+ 	.quad	system_call, sysc_do_svc
+ cleanup_table_sysc_return:
+diff -urN linux-2.6/arch/s390/kernel/head.S linux-2.6-s390/arch/s390/kernel/head.S
+--- linux-2.6/arch/s390/kernel/head.S	Sat Aug 14 12:55:09 2004
++++ linux-2.6-s390/arch/s390/kernel/head.S	Mon Aug 30 19:14:22 2004
+@@ -31,6 +31,8 @@
+ #include <asm/setup.h>
+ #include <asm/lowcore.h>
+ #include <asm/offsets.h>
++#include <asm/thread_info.h>
++#include <asm/page.h>
+ 
+ #ifndef CONFIG_IPL
+         .org   0
+@@ -741,10 +743,10 @@
+ #
+         l     %r15,.Linittu-.LPG2(%r13)
+ 	mvc   __LC_CURRENT(4),__TI_task(%r15)
+-        ahi   %r15,8192                 # init_task_union + 8192
++        ahi   %r15,1<<(PAGE_SHIFT+THREAD_ORDER) # init_task_union + THREAD_SIZE
+         st    %r15,__LC_KERNEL_STACK    # set end of kernel stack
+         ahi   %r15,-96
+-        xc    0(4,%r15),0(%r15)         # set backchain to zero
++        xc    __SF_BACKCHAIN(4,%r15),__SF_BACKCHAIN(%r15) # clear backchain
+ 
+ # check control registers
+         stctl  %c0,%c15,0(%r15)
+diff -urN linux-2.6/arch/s390/kernel/head64.S linux-2.6-s390/arch/s390/kernel/head64.S
+--- linux-2.6/arch/s390/kernel/head64.S	Sat Aug 14 12:55:10 2004
++++ linux-2.6-s390/arch/s390/kernel/head64.S	Mon Aug 30 19:14:22 2004
+@@ -31,6 +31,8 @@
+ #include <asm/setup.h>
+ #include <asm/lowcore.h>
+ #include <asm/offsets.h>
++#include <asm/thread_info.h>
++#include <asm/page.h>
+ 
+ #ifndef CONFIG_IPL
+         .org   0
+@@ -741,10 +743,10 @@
+ 	larl  %r15,init_thread_union
+ 	lg    %r14,__TI_task(%r15)      # cache current in lowcore
+ 	stg   %r14,__LC_CURRENT
+-        aghi  %r15,16384                # init_task_union + 16384
++        aghi  %r15,1<<(PAGE_SHIFT+THREAD_ORDER) # init_task_union + THREAD_SIZE
+         stg   %r15,__LC_KERNEL_STACK    # set end of kernel stack
+         aghi  %r15,-160
+-        xc    0(8,%r15),0(%r15)         # set backchain to zero
++        xc    __SF_BACKCHAIN(4,%r15),__SF_BACKCHAIN(%r15) # clear backchain
+ 
+ # check control registers
+         stctg  %c0,%c15,0(%r15)
+diff -urN linux-2.6/arch/s390/kernel/process.c linux-2.6-s390/arch/s390/kernel/process.c
+--- linux-2.6/arch/s390/kernel/process.c	Mon Aug 30 19:14:22 2004
++++ linux-2.6-s390/arch/s390/kernel/process.c	Mon Aug 30 19:14:22 2004
+@@ -58,14 +58,11 @@
+  */
+ unsigned long thread_saved_pc(struct task_struct *tsk)
+ {
+-	unsigned long bc;
++	struct stack_frame *sf;
+ 
+-	bc = *((unsigned long *) tsk->thread.ksp);
+-#ifndef CONFIG_ARCH_S390X
+-	return *((unsigned long *) (bc+56));
+-#else
+-	return *((unsigned long *) (bc+112));
+-#endif
++	sf = (struct stack_frame *) tsk->thread.ksp;
++	sf = (struct stack_frame *) sf->back_chain;
++	return sf->gprs[8];
+ }
+ 
+ /*
+@@ -232,20 +229,13 @@
+ 	unsigned long unused,
+         struct task_struct * p, struct pt_regs * regs)
+ {
+-        struct stack_frame
++        struct fake_frame
+           {
+-            unsigned long back_chain;
+-            unsigned long eos;
+-            unsigned long glue1;
+-            unsigned long glue2;
+-            unsigned long scratch[2];
+-            unsigned long gprs[10];    /* gprs 6 -15                       */
+-            unsigned int  fprs[4];     /* fpr 4 and 6                      */
+-            unsigned int  empty[4];
++	    struct stack_frame sf;
+             struct pt_regs childregs;
+           } *frame;
+ 
+-        frame = ((struct stack_frame *)
++        frame = ((struct fake_frame *)
+ 		 (THREAD_SIZE + (unsigned long) p->thread_info)) - 1;
+         p->thread.ksp = (unsigned long) frame;
+ 	p->set_child_tid = p->clear_child_tid = NULL;
+@@ -253,13 +243,13 @@
+         frame->childregs = *regs;
+ 	frame->childregs.gprs[2] = 0;	/* child returns 0 on fork. */
+         frame->childregs.gprs[15] = new_stackp;
+-        frame->back_chain = frame->eos = 0;
++        frame->sf.back_chain = 0;
+ 
+         /* new return point is ret_from_fork */
+-        frame->gprs[8] = (unsigned long) ret_from_fork;
++        frame->sf.gprs[8] = (unsigned long) ret_from_fork;
+ 
+         /* fake return stack for resume(), don't go back to schedule */
+-        frame->gprs[9] = (unsigned long) frame;
++        frame->sf.gprs[9] = (unsigned long) frame;
+ 
+ 	/* Save access registers to new thread structure. */
+ 	save_access_regs(&p->thread.acrs[0]);
+@@ -402,30 +392,26 @@
+ 
+ unsigned long get_wchan(struct task_struct *p)
+ {
+-	unsigned long r14, r15, bc;
+-	unsigned long stack_page;
+-	int count = 0;
+-	if (!p || p == current || p->state == TASK_RUNNING)
++	struct stack_frame *sf, *low, *high;
++	unsigned long return_address;
++	int count;
++
++	if (!p || p == current || p->state == TASK_RUNNING || !p->thread_info)
+ 		return 0;
+-	stack_page = (unsigned long) p->thread_info;
+-	r15 = p->thread.ksp;
+-	if (!stack_page || r15 < stack_page ||
+-	    r15 >= THREAD_SIZE - sizeof(unsigned long) + stack_page)
++	low = (struct stack_frame *) p->thread_info;
++	high = (struct stack_frame *)
++		((unsigned long) p->thread_info + THREAD_SIZE) - 1;
++	sf = (struct stack_frame *) (p->thread.ksp & PSW_ADDR_INSN);
++	if (sf <= low || sf > high)
+ 		return 0;
+-	bc = (*(unsigned long *) r15) & PSW_ADDR_INSN;
+-	do {
+-		if (bc < stack_page ||
+-		    bc >= THREAD_SIZE - sizeof(unsigned long) + stack_page)
++	for (count = 0; count < 16; count++) {
++		sf = (struct stack_frame *) (sf->back_chain & PSW_ADDR_INSN);
++		if (sf <= low || sf > high)
+ 			return 0;
+-#ifndef CONFIG_ARCH_S390X
+-		r14 = (*(unsigned long *) (bc+56)) & PSW_ADDR_INSN;
+-#else
+-		r14 = *(unsigned long *) (bc+112);
+-#endif
+-		if (!in_sched_functions(r14))
+-			return r14;
+-		bc = (*(unsigned long *) bc) & PSW_ADDR_INSN;
+-	} while (count++ < 16);
++		return_address = sf->gprs[8] & PSW_ADDR_INSN;
++		if (!in_sched_functions(return_address))
++			return return_address;
++	}
+ 	return 0;
+ }
+ 
+diff -urN linux-2.6/arch/s390/kernel/setup.c linux-2.6-s390/arch/s390/kernel/setup.c
+--- linux-2.6/arch/s390/kernel/setup.c	Sat Aug 14 12:54:48 2004
++++ linux-2.6-s390/arch/s390/kernel/setup.c	Mon Aug 30 19:14:22 2004
+@@ -503,6 +503,10 @@
+ 	lc->kernel_stack = ((unsigned long) &init_thread_union) + THREAD_SIZE;
+ 	lc->async_stack = (unsigned long)
+ 		__alloc_bootmem(ASYNC_SIZE, ASYNC_SIZE, 0) + ASYNC_SIZE;
++#ifdef CONFIG_CHECK_STACK
++	lc->panic_stack = (unsigned long)
++		__alloc_bootmem(PAGE_SIZE, PAGE_SIZE, 0) + PAGE_SIZE;
++#endif
+ 	lc->current_task = (unsigned long) init_thread_union.thread_info.task;
+ 	lc->thread_info = (unsigned long) &init_thread_union;
+ #ifdef CONFIG_ARCH_S390X
+diff -urN linux-2.6/arch/s390/kernel/smp.c linux-2.6-s390/arch/s390/kernel/smp.c
+--- linux-2.6/arch/s390/kernel/smp.c	Mon Aug 30 19:14:07 2004
++++ linux-2.6-s390/arch/s390/kernel/smp.c	Mon Aug 30 19:14:22 2004
+@@ -741,7 +741,7 @@
+ 
+ void __init smp_prepare_cpus(unsigned int max_cpus)
+ {
+-	unsigned long async_stack;
++	unsigned long stack;
+ 	unsigned int cpu;
+         int i;
+ 
+@@ -761,12 +761,18 @@
+ 		lowcore_ptr[i] = (struct _lowcore *)
+ 			__get_free_pages(GFP_KERNEL|GFP_DMA, 
+ 					sizeof(void*) == 8 ? 1 : 0);
+-		async_stack = __get_free_pages(GFP_KERNEL,ASYNC_ORDER);
+-		if (lowcore_ptr[i] == NULL || async_stack == 0ULL)
++		stack = __get_free_pages(GFP_KERNEL,ASYNC_ORDER);
++		if (lowcore_ptr[i] == NULL || stack == 0ULL)
+ 			panic("smp_boot_cpus failed to allocate memory\n");
+ 
+ 		*(lowcore_ptr[i]) = S390_lowcore;
+-		lowcore_ptr[i]->async_stack = async_stack + (ASYNC_SIZE);
++		lowcore_ptr[i]->async_stack = stack + (ASYNC_SIZE);
++#ifdef CONFIG_CHECK_STACK
++		stack = __get_free_pages(GFP_KERNEL,0);
++		if (stack == 0ULL)
++			panic("smp_boot_cpus failed to allocate memory\n");
++		lowcore_ptr[i]->panic_stack = stack + (PAGE_SIZE);
++#endif
+ 	}
+ 	set_prefix((u32)(unsigned long) lowcore_ptr[smp_processor_id()]);
+ 
+diff -urN linux-2.6/arch/s390/kernel/traps.c linux-2.6-s390/arch/s390/kernel/traps.c
+--- linux-2.6/arch/s390/kernel/traps.c	Sat Aug 14 12:55:10 2004
++++ linux-2.6-s390/arch/s390/kernel/traps.c	Mon Aug 30 19:14:22 2004
+@@ -67,54 +67,93 @@
+ #define stack_pointer ({ void **sp; asm("la %0,0(15)" : "=&d" (sp)); sp; })
+ 
+ #ifndef CONFIG_ARCH_S390X
+-#define RET_ADDR 56
+ #define FOURLONG "%08lx %08lx %08lx %08lx\n"
+ static int kstack_depth_to_print = 12;
+-
+ #else /* CONFIG_ARCH_S390X */
+-#define RET_ADDR 112
+ #define FOURLONG "%016lx %016lx %016lx %016lx\n"
+ static int kstack_depth_to_print = 20;
+-
+ #endif /* CONFIG_ARCH_S390X */
+ 
+-void show_trace(struct task_struct *task, unsigned long * stack)
++/*
++ * For show_trace we have tree different stack to consider:
++ *   - the panic stack which is used if the kernel stack has overflown
++ *   - the asynchronous interrupt stack (cpu related)
++ *   - the synchronous kernel stack (process related)
++ * The stack trace can start at any of the three stack and can potentially
++ * touch all of them. The order is: panic stack, async stack, sync stack.
++ */
++static unsigned long
++__show_trace(unsigned long sp, unsigned long low, unsigned long high)
+ {
+-	unsigned long backchain, low_addr, high_addr, ret_addr;
++	struct stack_frame *sf;
++	struct pt_regs *regs;
+ 
+-	if (!stack)
+-		stack = (task == NULL) ? *stack_pointer : &(task->thread.ksp);
++	while (1) {
++		sp = sp & PSW_ADDR_INSN;
++		if (sp < low || sp > high - sizeof(*sf))
++			return sp;
++		sf = (struct stack_frame *) sp;
++		printk("([<%016lx>] ", sf->gprs[8] & PSW_ADDR_INSN);
++		print_symbol("%s)\n", sf->gprs[8] & PSW_ADDR_INSN);
++		/* Follow the backchain. */
++		while (1) {
++			low = sp;
++			sp = sf->back_chain & PSW_ADDR_INSN;
++			if (!sp)
++				break;
++			if (sp <= low || sp > high - sizeof(*sf))
++				return sp;
++			sf = (struct stack_frame *) sp;
++			printk(" [<%016lx>] ", sf->gprs[8] & PSW_ADDR_INSN);
++			print_symbol("%s\n", sf->gprs[8] & PSW_ADDR_INSN);
++		}
++		/* Zero backchain detected, check for interrupt frame. */
++		sp = (unsigned long) (sf + 1);
++		if (sp <= low || sp > high - sizeof(*regs))
++			return sp;
++		regs = (struct pt_regs *) sp;
++		printk(" [<%016lx>] ", regs->psw.addr & PSW_ADDR_INSN);
++		print_symbol("%s\n", regs->psw.addr & PSW_ADDR_INSN);
++		low = sp;
++		sp = regs->gprs[15];
++	}
++}
+ 
++void show_trace(struct task_struct *task, unsigned long * stack)
++{
++	register unsigned long __r15 asm ("15");
++	unsigned long sp;
++
++	sp = (unsigned long) stack;
++	if (!sp)
++		sp = task ? task->thread.ksp : __r15;
+ 	printk("Call Trace:\n");
+-	low_addr = ((unsigned long) stack) & PSW_ADDR_INSN;
+-	high_addr = (low_addr & (-THREAD_SIZE)) + THREAD_SIZE;
+-	/* Skip the first frame (biased stack) */
+-	backchain = *((unsigned long *) low_addr) & PSW_ADDR_INSN;
+-	/* Print up to 8 lines */
+-	while  (backchain > low_addr && backchain <= high_addr) {
+-		ret_addr = *((unsigned long *) (backchain+RET_ADDR)) & PSW_ADDR_INSN;
+-		printk(" [<%016lx>] ", ret_addr);
+-		print_symbol("%s\n", ret_addr);
+-		low_addr = backchain;
+-		backchain = *((unsigned long *) backchain) & PSW_ADDR_INSN;
 -	}
-+	adapter = zfcp_get_adapter_by_busid(bus_id);
-+	if (adapter)
-+		zfcp_adapter_get(adapter);
- 	read_unlock_irq(&zfcp_data.config_lock);
++#ifdef CONFIG_CHECK_STACK
++	sp = __show_trace(sp, S390_lowcore.panic_stack - 4096,
++			  S390_lowcore.panic_stack);
++#endif
++	sp = __show_trace(sp, S390_lowcore.async_stack - ASYNC_SIZE,
++			  S390_lowcore.async_stack);
++	if (task)
++		__show_trace(sp, (unsigned long) task->thread_info,
++			     (unsigned long) task->thread_info + THREAD_SIZE);
++	else
++		__show_trace(sp, S390_lowcore.thread_info - THREAD_SIZE,
++			     S390_lowcore.thread_info);
+ 	printk("\n");
+ }
  
- 	kfree(bus_id);
+ void show_stack(struct task_struct *task, unsigned long *sp)
+ {
++	register unsigned long * __r15 asm ("15");
+ 	unsigned long *stack;
+ 	int i;
  
--	if (retval != 0) {
-+	if (adapter == NULL) {
- 		ZFCP_LOG_INFO("invalid adapter\n");
-+		retval = -ENXIO;
- 		goto out;
+ 	// debugging aid: "show_stack(NULL);" prints the
+ 	// back trace for this cpu.
+ 
+-	if (!sp) {
+-		if (task)
+-			sp = (unsigned long *) task->thread.ksp;
+-		else
+-			sp = *stack_pointer;
+-	}
++	if (!sp)
++		sp = task ? (unsigned long *) task->thread.ksp : __r15;
+ 
+ 	stack = sp;
+ 	for (i = 0; i < kstack_depth_to_print; i++) {
+@@ -591,6 +630,11 @@
  	}
- 
-@@ -565,13 +557,16 @@
  }
  
- 
--/*
-- * function:    zfcp_sg_list_alloc
-- *
-- * purpose:     Create a scatter-gather list of the specified size
-+/**
-+ * zfcp_sg_list_alloc - create a scatter-gather list of the specified size
-+ * @sg_list: structure describing a scatter gather list
-+ * @size: size of scatter-gather list
-+ * Return: 0 on success, else -ENOMEM
-  *
-- * returns:     0       - Scatter gather list is created
-- *              -ENOMEM - Insufficient memory (*list_ptr is then set to NULL)
-+ * In sg_list->sg a pointer to the created scatter-gather list is returned,
-+ * or NULL if we run out of memory. sg_list->count specifies the number of
-+ * elements of the scatter-gather list. The maximum size of a single element
-+ * in the scatter-gather list is PAGE_SIZE.
-  */
- static inline int
- zfcp_sg_list_alloc(struct zfcp_sg_list *sg_list, size_t size)
-@@ -579,6 +574,9 @@
- 	struct scatterlist *sg;
- 	unsigned int i;
- 	int retval = 0;
-+	void *address;
-+
-+	BUG_ON(sg_list == NULL);
- 
- 	sg_list->count = size >> PAGE_SHIFT;
- 	if (size & ~PAGE_MASK)
-@@ -594,7 +592,8 @@
- 	for (i = 0, sg = sg_list->sg; i < sg_list->count; i++, sg++) {
- 		sg->length = min(size, PAGE_SIZE);
- 		sg->offset = 0;
--		sg->page = alloc_pages(GFP_KERNEL, 0);
-+		address = (void *) get_zeroed_page(GFP_KERNEL);
-+		zfcp_address_to_sg(address, sg);
- 		if (sg->page == NULL) {
- 			sg_list->count = i;
- 			zfcp_sg_list_free(sg_list);
-@@ -609,38 +608,57 @@
- }
- 
- 
--/*
-- * function:    zfcp_sg_list_free
-- *
-- * purpose:     Destroy a scatter-gather list and release memory
-+/**
-+ * zfcp_sg_list_free - free memory of a scatter-gather list
-+ * @sg_list: structure describing a scatter-gather list
-  *
-- * returns:     Always 0
-+ * Memory for each element in the scatter-gather list is freed.
-+ * Finally sg_list->sg is freed itself and sg_list->count is reset.
-  */
--static inline int
-+static inline void
- zfcp_sg_list_free(struct zfcp_sg_list *sg_list)
- {
- 	struct scatterlist *sg;
- 	unsigned int i;
--	int retval = 0;
- 
- 	BUG_ON(sg_list == NULL);
- 
- 	for (i = 0, sg = sg_list->sg; i < sg_list->count; i++, sg++)
- 		__free_pages(sg->page, 0);
- 
-+	sg_list->count = 0;
- 	kfree(sg_list->sg);
++asmlinkage void kernel_stack_overflow(struct pt_regs * regs)
++{
++	die("Kernel stack overflow", regs, 0);
++	panic("Corrupt kernel stack, can't continue.");
 +}
  
--	return retval;
-+/**
-+ * zfcp_sg_size - determine size of a scatter-gather list
-+ * @sg: array of (struct scatterlist)
-+ * @sg_count: elements in array
-+ * Return: size of entire scatter-gather list
-+ */
-+size_t
-+zfcp_sg_size(struct scatterlist *sg, unsigned int sg_count)
-+{
-+	unsigned int i;
-+	struct scatterlist *p;
-+	size_t size;
-+
-+	size = 0;
-+	for (i = 0, p = sg; i < sg_count; i++, p++) {
-+		BUG_ON(p == NULL);
-+		size += p->length;
-+	}
-+
-+	return size;
- }
  
+ /* init is done in lowcore.S and head.S */
+diff -urN linux-2.6/include/asm-s390/lowcore.h linux-2.6-s390/include/asm-s390/lowcore.h
+--- linux-2.6/include/asm-s390/lowcore.h	Sat Aug 14 12:55:32 2004
++++ linux-2.6-s390/include/asm-s390/lowcore.h	Mon Aug 30 19:14:22 2004
+@@ -68,6 +68,7 @@
+ #define __LC_ASYNC_STACK                0xC48
+ #define __LC_KERNEL_ASCE		0xC4C
+ #define __LC_USER_ASCE			0xC50
++#define __LC_PANIC_STACK                0xC54
+ #define __LC_CPUID                      0xC60
+ #define __LC_CPUADDR                    0xC68
+ #define __LC_IPLDEV                     0xC7C
+@@ -80,6 +81,7 @@
+ #define __LC_ASYNC_STACK                0xD50
+ #define __LC_KERNEL_ASCE		0xD58
+ #define __LC_USER_ASCE			0xD60
++#define __LC_PANIC_STACK                0xD68
+ #define __LC_CPUID                      0xD90
+ #define __LC_CPUADDR                    0xD98
+ #define __LC_IPLDEV                     0xDB8
+@@ -176,7 +178,8 @@
+ 	__u32        async_stack;              /* 0xc48 */
+ 	__u32        kernel_asce;              /* 0xc4c */
+ 	__u32        user_asce;                /* 0xc50 */
+-	__u8         pad10[0xc60-0xc54];       /* 0xc54 */
++	__u32        panic_stack;              /* 0xc54 */
++	__u8         pad10[0xc60-0xc58];       /* 0xc58 */
+ 	/* entry.S sensitive area start */
+ 	struct       cpuinfo_S390 cpu_data;    /* 0xc60 */
+ 	__u32        ipl_device;               /* 0xc7c */
+@@ -257,7 +260,8 @@
+ 	__u64        async_stack;              /* 0xd50 */
+ 	__u64        kernel_asce;              /* 0xd58 */
+ 	__u64        user_asce;                /* 0xd60 */
+-	__u8         pad10[0xd80-0xd68];       /* 0xd68 */
++	__u64        panic_stack;              /* 0xd68 */
++	__u8         pad10[0xd80-0xd70];       /* 0xd70 */
+ 	/* entry.S sensitive area start */
+ 	struct       cpuinfo_S390 cpu_data;    /* 0xd80 */
+ 	__u32        ipl_device;               /* 0xdb8 */
+diff -urN linux-2.6/include/asm-s390/processor.h linux-2.6-s390/include/asm-s390/processor.h
+--- linux-2.6/include/asm-s390/processor.h	Mon Aug 30 19:14:12 2004
++++ linux-2.6-s390/include/asm-s390/processor.h	Mon Aug 30 19:14:22 2004
+@@ -103,6 +103,25 @@
+ 
+ typedef struct thread_struct thread_struct;
+ 
++/*
++ * Stack layout of a C stack frame.
++ */
++#ifndef __PACK_STACK
++struct stack_frame {
++	unsigned long back_chain;
++	unsigned long empty1[5];
++	unsigned long gprs[10];
++	unsigned int  empty2[8];
++};
++#else
++struct stack_frame {
++	unsigned long empty1[5];
++	unsigned int  empty2[8];
++	unsigned long gprs[10];
++	unsigned long back_chain;
++};
++#endif
++
+ #define ARCH_MIN_TASKALIGN	8
+ 
+ #ifndef __s390x__
+diff -urN linux-2.6/include/asm-s390/thread_info.h linux-2.6-s390/include/asm-s390/thread_info.h
+--- linux-2.6/include/asm-s390/thread_info.h	Sat Aug 14 12:55:47 2004
++++ linux-2.6-s390/include/asm-s390/thread_info.h	Mon Aug 30 19:14:22 2004
+@@ -11,6 +11,30 @@
+ 
+ #ifdef __KERNEL__
+ 
++/*
++ * Size of kernel stack for each process
++ */
++#ifndef __s390x__
++#ifndef __SMALL_STACK
++#define THREAD_ORDER 1
++#define ASYNC_ORDER  1
++#else
++#define THREAD_ORDER 0
++#define ASYNC_ORDER  0
++#endif
++#else /* __s390x__ */
++#ifndef __SMALL_STACK_STACK
++#define THREAD_ORDER 2
++#define ASYNC_ORDER  2
++#else
++#define THREAD_ORDER 1
++#define ASYNC_ORDER  1
++#endif
++#endif /* __s390x__ */
++
++#define THREAD_SIZE (PAGE_SIZE << THREAD_ORDER)
++#define ASYNC_SIZE  (PAGE_SIZE << ASYNC_ORDER)
++
+ #ifndef __ASSEMBLY__
+ #include <asm/processor.h>
+ #include <asm/lowcore.h>
+@@ -47,20 +71,6 @@
+ #define init_thread_info	(init_thread_union.thread_info)
+ #define init_stack		(init_thread_union.stack)
  
 -/*
-- * function:    zfcp_sg_list_copy_from_user
-- *
-- * purpose:     Copy data from user space memory to the scatter-gather list
-- *
-- * returns:     0       - The data has been copied from user
-- *              -EFAULT - Memory I/O operation fault
-+/**
-+ * zfcp_sg_list_copy_from_user -copy data from user space to scatter-gather list
-+ * @sg_list: structure describing a scatter-gather list
-+ * @user_buffer: pointer to buffer in user space
-+ * @size: number of bytes to be copied
-+ * Return: 0 on success, -EFAULT if copy_from_user fails.
-  */
- static inline int
- zfcp_sg_list_copy_from_user(struct zfcp_sg_list *sg_list,
-@@ -652,10 +670,14 @@
- 	void *zfcp_buffer;
- 	int retval = 0;
- 
-+	BUG_ON(sg_list == NULL);
-+
-+	if (zfcp_sg_size(sg_list->sg, sg_list->count) < size)
-+		return -EFAULT;
-+
- 	for (sg = sg_list->sg; size > 0; sg++) {
- 		length = min((unsigned int)size, sg->length);
--		zfcp_buffer = (void*)
--			((page_to_pfn(sg->page) << PAGE_SHIFT) + sg->offset);
-+		zfcp_buffer = zfcp_sg_to_address(sg);
- 		if (copy_from_user(zfcp_buffer, user_buffer, length)) {
- 			retval = -EFAULT;
- 			goto out;
-@@ -669,13 +691,12 @@
- }
- 
- 
--/*
-- * function:    zfcp_sg_list_copy_to_user
-- *
-- * purpose:     Copy data from the scatter-gather list to user space memory
-- *
-- * returns:     0       - The data has been copied to user
-- *              -EFAULT - Memory I/O operation fault
-+/**
-+ * zfcp_sg_list_copy_to_user - copy data from scatter-gather list to user space
-+ * @user_buffer: pointer to buffer in user space
-+ * @sg_list: structure describing a scatter-gather list
-+ * @size: number of bytes to be copied
-+ * Return: 0 on success, -EFAULT if copy_to_user fails
-  */
- static inline int
- zfcp_sg_list_copy_to_user(void __user  *user_buffer,
-@@ -687,10 +708,14 @@
- 	void *zfcp_buffer;
- 	int retval = 0;
- 
-+	BUG_ON(sg_list == NULL);
-+
-+	if (zfcp_sg_size(sg_list->sg, sg_list->count) < size)
-+		return -EFAULT;
-+
- 	for (sg = sg_list->sg; size > 0; sg++) {
--		length = min((unsigned int)size, sg->length);
--		zfcp_buffer = (void*)
--			((page_to_pfn(sg->page) << PAGE_SHIFT) + sg->offset);
-+		length = min((unsigned int) size, sg->length);
-+		zfcp_buffer = zfcp_sg_to_address(sg);
- 		if (copy_to_user(user_buffer, zfcp_buffer, length)) {
- 			retval = -EFAULT;
- 			goto out;
-@@ -713,13 +738,12 @@
- #define ZFCP_LOG_AREA			ZFCP_LOG_AREA_CONFIG
- 
- /**
-- * zfcp_get_unit_by_lun - find unit in unit list of port by fcp lun
-+ * zfcp_get_unit_by_lun - find unit in unit list of port by FCP LUN
-  * @port: pointer to port to search for unit
-- * @fcp_lun: lun to search for
-- * Traverses list of all units of a port and returns pointer to a unit
-- * if lun of a unit matches.
-+ * @fcp_lun: FCP LUN to search for
-+ * Traverse list of all units of a port and return pointer to a unit
-+ * with the given FCP LUN.
-  */
+- * Size of kernel stack for each process
+- */
+-#ifndef __s390x__
+-#define THREAD_ORDER 1
+-#define ASYNC_ORDER  1
+-#else /* __s390x__ */
+-#define THREAD_ORDER 2
+-#define ASYNC_ORDER  2
+-#endif /* __s390x__ */
 -
- struct zfcp_unit *
- zfcp_get_unit_by_lun(struct zfcp_port *port, fcp_lun_t fcp_lun)
+-#define THREAD_SIZE (PAGE_SIZE << THREAD_ORDER)
+-#define ASYNC_SIZE  (PAGE_SIZE << ASYNC_ORDER)
+-
+ /* how to get the thread information struct from C */
+ static inline struct thread_info *current_thread_info(void)
  {
-@@ -738,13 +762,12 @@
- }
- 
- /**
-- * zfcp_get_port_by_wwpn - find unit in unit list of port by fcp lun
-+ * zfcp_get_port_by_wwpn - find port in port list of adapter by wwpn
-  * @adapter: pointer to adapter to search for port
-  * @wwpn: wwpn to search for
-- * Traverses list of all ports of an adapter and returns a pointer to a port
-- * if wwpn of a port matches.
-+ * Traverse list of all ports of an adapter and return pointer to a port
-+ * with the given wwpn.
-  */
--
- struct zfcp_port *
- zfcp_get_port_by_wwpn(struct zfcp_adapter *adapter, wwn_t wwpn)
- {
-@@ -753,6 +776,30 @@
- 
- 	list_for_each_entry(port, &adapter->port_list_head, list) {
- 		if ((port->wwpn == wwpn) &&
-+		    !(atomic_read(&port->status) &
-+		      (ZFCP_STATUS_PORT_NO_WWPN | ZFCP_STATUS_COMMON_REMOVE))) {
-+			found = 1;
-+			break;
-+		}
-+	}
-+	return found ? port : NULL;
-+}
-+
-+/**
-+ * zfcp_get_port_by_did - find port in port list of adapter by d_id
-+ * @adapter: pointer to adapter to search for port
-+ * @d_id: d_id to search for
-+ * Traverse list of all ports of an adapter and return pointer to a port
-+ * with the given d_id.
-+ */
-+struct zfcp_port *
-+zfcp_get_port_by_did(struct zfcp_adapter *adapter, u32 d_id)
-+{
-+	struct zfcp_port *port;
-+	int found = 0;
-+
-+	list_for_each_entry(port, &adapter->port_list_head, list) {
-+		if ((port->d_id == d_id) &&
- 		    !atomic_test_mask(ZFCP_STATUS_COMMON_REMOVE, &port->status))
- 		{
- 			found = 1;
-@@ -762,14 +809,38 @@
- 	return found ? port : NULL;
- }
- 
--/*
-- * Enqueues a logical unit at the end of the unit list associated with the 
-- * specified port. Also sets up some unit internal structures.
-+/**
-+ * zfcp_get_adapter_by_busid - find adpater in adapter list by bus_id
-+ * @bus_id: bus_id to search for
-+ * Traverse list of all adapters and return pointer to an adapter
-+ * with the given bus_id.
-+ */
-+struct zfcp_adapter *
-+zfcp_get_adapter_by_busid(char *bus_id)
-+{
-+	struct zfcp_adapter *adapter;
-+	int found = 0;
-+
-+	list_for_each_entry(adapter, &zfcp_data.adapter_list_head, list) {
-+		if ((strncmp(bus_id, zfcp_get_busid_by_adapter(adapter),
-+			     BUS_ID_SIZE) == 0) &&
-+		    !atomic_test_mask(ZFCP_STATUS_COMMON_REMOVE,
-+				      &adapter->status)){
-+			found = 1;
-+			break;
-+		}
-+	}
-+	return found ? adapter : NULL;
-+}
-+
-+/**
-+ * zfcp_unit_enqueue - enqueue unit to unit list of a port.
-+ * @port: pointer to port where unit is added
-+ * @fcp_lun: FCP LUN of unit to be enqueued
-+ * Return: pointer to enqueued unit on success, NULL on error
-+ * Locks: config_sema must be held to serialize changes to the unit list
-  *
-- * returns:	pointer to unit with a usecount of 1 if a new unit was
-- *              successfully enqueued
-- *              NULL otherwise
-- * locks:	config_sema must be held to serialise changes to the unit list
-+ * Sets up some unit internal structures and creates sysfs entry.
-  */
- struct zfcp_unit *
- zfcp_unit_enqueue(struct zfcp_port *port, fcp_lun_t fcp_lun)
-@@ -1030,6 +1101,12 @@
- 	debug_unregister(adapter->in_els_dbf);
- }
- 
-+void
-+zfcp_dummy_release(struct device *dev)
-+{
-+	return;
-+}
-+
- /*
-  * Enqueues an adapter at the end of the adapter list in the driver data.
-  * All adapter internal structures are set up.
-@@ -1121,6 +1198,14 @@
- 	if (zfcp_sysfs_adapter_create_files(&ccw_device->dev))
- 		goto sysfs_failed;
- 
-+	adapter->generic_services.parent = &adapter->ccw_device->dev;
-+	adapter->generic_services.release = zfcp_dummy_release;
-+	snprintf(adapter->generic_services.bus_id, BUS_ID_SIZE,
-+		 "generic_services");
-+
-+	if (device_register(&adapter->generic_services))
-+		goto generic_services_failed;
-+
- 	/* put allocated adapter at list tail */
- 	write_lock_irq(&zfcp_data.config_lock);
- 	atomic_clear_mask(ZFCP_STATUS_COMMON_REMOVE, &adapter->status);
-@@ -1131,6 +1216,8 @@
- 
- 	goto out;
- 
-+ generic_services_failed:
-+	zfcp_sysfs_adapter_remove_files(&adapter->ccw_device->dev);
-  sysfs_failed:
- 	dev_set_drvdata(&ccw_device->dev, NULL);
-  failed_low_mem_buffers:
-@@ -1161,6 +1248,7 @@
- 	int retval = 0;
- 	unsigned long flags;
- 
-+	device_unregister(&adapter->generic_services);
- 	zfcp_sysfs_adapter_remove_files(&adapter->ccw_device->dev);
- 	dev_set_drvdata(&adapter->ccw_device->dev, NULL);
- 	/* sanity check: no pending FSF requests */
-@@ -1203,15 +1291,22 @@
- 	return;
- }
- 
--/*
-- * Enqueues a remote port to the port list. All port internal structures
-- * are set up and the sysfs entry is also generated.
-+/**
-+ * zfcp_port_enqueue - enqueue port to port list of adapter
-+ * @adapter: adapter where remote port is added
-+ * @wwpn: WWPN of the remote port to be enqueued
-+ * @status: initial status for the port
-+ * @d_id: destination id of the remote port to be enqueued
-+ * Return: pointer to enqueued port on success, NULL on error
-+ * Locks: config_sema must be held to serialize changes to the port list
-  *
-- * returns:     pointer to port or NULL
-- * locks:       config_sema must be held to serialise changes to the port list
-+ * All port internal structures are set up and the sysfs entry is generated.
-+ * d_id is used to enqueue ports with a well known address like the Directory
-+ * Service for nameserver lookup.
-  */
- struct zfcp_port *
--zfcp_port_enqueue(struct zfcp_adapter *adapter, wwn_t wwpn, u32 status)
-+zfcp_port_enqueue(struct zfcp_adapter *adapter, wwn_t wwpn, u32 status,
-+		  u32 d_id)
- {
- 	struct zfcp_port *port, *tmp_port;
- 	int check_wwpn;
-@@ -1251,12 +1346,39 @@
- 	atomic_set_mask(status, &port->status);
- 
- 	/* setup for sysfs registration */
--	if (status & ZFCP_STATUS_PORT_NAMESERVER)
--		snprintf(port->sysfs_device.bus_id, BUS_ID_SIZE, "nameserver");
--	else
-+	if (status & ZFCP_STATUS_PORT_WKA) {
-+		switch (d_id) {
-+		case ZFCP_DID_DIRECTORY_SERVICE:
-+			snprintf(port->sysfs_device.bus_id, BUS_ID_SIZE,
-+				 "directory");
-+			break;
-+		case ZFCP_DID_MANAGEMENT_SERVICE:
-+			snprintf(port->sysfs_device.bus_id, BUS_ID_SIZE,
-+				 "management");
-+			break;
-+		case ZFCP_DID_KEY_DISTRIBUTION_SERVICE:
-+			snprintf(port->sysfs_device.bus_id, BUS_ID_SIZE,
-+				 "key_distribution");
-+			break;
-+		case ZFCP_DID_ALIAS_SERVICE:
-+			snprintf(port->sysfs_device.bus_id, BUS_ID_SIZE,
-+				 "alias");
-+			break;
-+		case ZFCP_DID_TIME_SERVICE:
-+			snprintf(port->sysfs_device.bus_id, BUS_ID_SIZE,
-+				 "time");
-+			break;
-+		default:
-+			kfree(port);
-+			return NULL;
-+		}
-+		port->d_id = d_id;
-+		port->sysfs_device.parent = &adapter->generic_services;
-+	} else {
- 		snprintf(port->sysfs_device.bus_id,
- 			 BUS_ID_SIZE, "0x%016llx", wwpn);
- 	port->sysfs_device.parent = &adapter->ccw_device->dev;
-+	}
- 	port->sysfs_device.release = zfcp_sysfs_port_release;
- 	dev_set_drvdata(&port->sysfs_device, port);
- 
-@@ -1295,9 +1417,12 @@
- 		list_add_tail(&port->list, &adapter->port_list_head);
- 	atomic_clear_mask(ZFCP_STATUS_COMMON_REMOVE, &port->status);
- 	atomic_set_mask(ZFCP_STATUS_COMMON_RUNNING, &port->status);
-+	if (d_id == ZFCP_DID_DIRECTORY_SERVICE)
-+		if (!adapter->nameserver_port)
-+			adapter->nameserver_port = port;
-+	adapter->ports++;
- 	write_unlock_irq(&zfcp_data.config_lock);
- 
--	adapter->ports++;
- 	zfcp_adapter_get(adapter);
- 
- 	return port;
-@@ -1309,8 +1434,8 @@
- 	zfcp_port_wait(port);
- 	write_lock_irq(&zfcp_data.config_lock);
- 	list_del(&port->list);
--	write_unlock_irq(&zfcp_data.config_lock);
- 	port->adapter->ports--;
-+	write_unlock_irq(&zfcp_data.config_lock);
- 	zfcp_adapter_put(port->adapter);
- 	zfcp_sysfs_port_remove_files(&port->sysfs_device,
- 				     atomic_read(&port->status));
-@@ -1323,17 +1448,14 @@
- {
- 	struct zfcp_port *port;
- 
--	/* generate port structure */
--	port = zfcp_port_enqueue(adapter, 0, ZFCP_STATUS_PORT_NAMESERVER);
-+	port = zfcp_port_enqueue(adapter, 0, ZFCP_STATUS_PORT_WKA,
-+				 ZFCP_DID_DIRECTORY_SERVICE);
- 	if (!port) {
- 		ZFCP_LOG_INFO("error: enqueue of nameserver port for "
- 			      "adapter %s failed\n",
- 			      zfcp_get_busid_by_adapter(adapter));
- 		return -ENXIO;
- 	}
--	/* set special D_ID */
--	port->d_id = ZFCP_DID_NAMESERVER;
--	adapter->nameserver_port = port;
- 	zfcp_port_put(port);
- 
- 	return 0;
-@@ -1397,7 +1519,7 @@
- 		read_lock_irqsave(&zfcp_data.config_lock, flags);
- 		list_for_each_entry(port, &adapter->port_list_head, list) {
- 			if (atomic_test_mask
--			    (ZFCP_STATUS_PORT_NAMESERVER, &port->status))
-+			    (ZFCP_STATUS_PORT_WKA, &port->status))
- 				continue;
- 			/* Do we know this port? If not skip it. */
- 			if (!atomic_test_mask
-@@ -1654,7 +1776,7 @@
- 	ct_iu_req = zfcp_sg_to_address(ct->req);
- 	ct_iu_resp = zfcp_sg_to_address(ct->resp);
- 
--	if (zfcp_check_ct_response(&ct_iu_resp->header)) {
-+	if ((ct->status != 0) || zfcp_check_ct_response(&ct_iu_resp->header)) {
- 		/* FIXME: do we need some specific erp entry points */
- 		atomic_set_mask(ZFCP_STATUS_PORT_INVALID_WWPN, &port->status);
- 		goto failed;
-@@ -1665,7 +1787,7 @@
- 				"lookup does not match expected wwpn 0x%016Lx "
- 				"for adapter %s\n", ct_iu_req->wwpn, port->wwpn,
- 				zfcp_get_busid_by_port(port));
--		goto failed;
-+		goto mismatch;
- 	}
- 
- 	/* looks like a valid d_id */
-@@ -1675,16 +1797,17 @@
- 		       zfcp_get_busid_by_port(port), port->wwpn, port->d_id);
- 	goto out;
- 
-- failed:
--	ZFCP_LOG_NORMAL("warning: failed gid_pn nameserver request for wwpn "
--			"0x%016Lx for adapter %s\n",
--			port->wwpn, zfcp_get_busid_by_port(port));
-+ mismatch:
- 	ZFCP_LOG_DEBUG("CT IUs do not match:\n");
- 	ZFCP_HEX_DUMP(ZFCP_LOG_LEVEL_DEBUG, (char *) ct_iu_req,
- 		      sizeof(struct ct_iu_gid_pn_req));
- 	ZFCP_HEX_DUMP(ZFCP_LOG_LEVEL_DEBUG, (char *) ct_iu_resp,
- 		      sizeof(struct ct_iu_gid_pn_resp));
- 
-+ failed:
-+	ZFCP_LOG_NORMAL("warning: failed gid_pn nameserver request for wwpn "
-+			"0x%016Lx for adapter %s\n",
-+			port->wwpn, zfcp_get_busid_by_port(port));
-  out:
-         zfcp_gid_pn_buffers_free(gid_pn);
- 	return;
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_def.h linux-2.6-s390/drivers/s390/scsi/zfcp_def.h
---- linux-2.6/drivers/s390/scsi/zfcp_def.h	Mon Aug 30 19:14:11 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_def.h	Mon Aug 30 19:14:23 2004
-@@ -33,7 +33,7 @@
- #define ZFCP_DEF_H
- 
- /* this drivers version (do not edit !!! generated and updated by cvs) */
--#define ZFCP_DEF_REVISION "$Revision: 1.83 $"
-+#define ZFCP_DEF_REVISION "$Revision: 1.91 $"
- 
- /*************************** INCLUDES *****************************************/
- 
-@@ -43,6 +43,7 @@
- #include <linux/major.h>
- #include <linux/blkdev.h>
- #include <linux/delay.h>
-+#include <linux/timer.h>
- #include <scsi/scsi.h>
- #include <scsi/scsi_tcq.h>
- #include <scsi/scsi_cmnd.h>
-@@ -72,12 +73,22 @@
- /* zfcp version number, it consists of major, minor, and patch-level number */
- #define ZFCP_VERSION		"4.1.3"
- 
-+/**
-+ * zfcp_sg_to_address - determine kernel address from struct scatterlist
-+ * @list: struct scatterlist
-+ * Return: kernel address
-+ */
- static inline void *
- zfcp_sg_to_address(struct scatterlist *list)
- {
- 	return (void *) (page_address(list->page) + list->offset);
- }
- 
-+/**
-+ * zfcp_address_to_sg - set up struct scatterlist from kernel address
-+ * @address: kernel address
-+ * @list: struct scatterlist
-+ */
- static inline void
- zfcp_address_to_sg(void *address, struct scatterlist *list)
- {
-@@ -146,6 +157,9 @@
- #define ZFCP_EXCHANGE_CONFIG_DATA_RETRIES	6
- #define ZFCP_EXCHANGE_CONFIG_DATA_SLEEP		50
- 
-+/* timeout value for "default timer" for fsf requests */
-+#define ZFCP_FSF_REQUEST_TIMEOUT (60*HZ);
-+
- /*************** FIBRE CHANNEL PROTOCOL SPECIFIC DEFINES ********************/
- 
- typedef unsigned long long wwn_t;
-@@ -158,7 +172,6 @@
- 
- /* timeout for name-server lookup (in seconds) */
- #define ZFCP_NS_GID_PN_TIMEOUT		10
--#define ZFCP_NS_GA_NXT_TIMEOUT		120
- 
- /* largest SCSI command we can process */
- /* FCP-2 (FCP_CMND IU) allows up to (255-3+16) */
-@@ -276,26 +289,12 @@
- #define R_A_TOV				10 /* seconds */
- #define ZFCP_ELS_TIMEOUT		(2 * R_A_TOV)
- 
--#define ZFCP_LS_RJT			0x01
--#define ZFCP_LS_ACC			0x02
- #define ZFCP_LS_RTV			0x0E
- #define ZFCP_LS_RLS			0x0F
- #define ZFCP_LS_PDISC			0x50
- #define ZFCP_LS_ADISC			0x52
--#define ZFCP_LS_RSCN			0x61
--#define ZFCP_LS_RNID			0x78
--#define ZFCP_LS_RLIR			0x7A
- #define ZFCP_LS_RTV_E_D_TOV_FLAG	0x04000000
- 
--/* LS_ACC Reason Codes */
--#define ZFCP_LS_RJT_INVALID_COMMAND_CODE	0x01
--#define ZFCP_LS_RJT_LOGICAL_ERROR		0x03
--#define ZFCP_LS_RJT_LOGICAL_BUSY		0x05
--#define ZFCP_LS_RJT_PROTOCOL_ERROR		0x07
--#define ZFCP_LS_RJT_UNABLE_TO_PERFORM		0x09
--#define ZFCP_LS_RJT_COMMAND_NOT_SUPPORTED	0x0B
--#define ZFCP_LS_RJT_VENDOR_UNIQUE_ERROR		0xFF
--
- struct zfcp_ls_rjt_par {
- 	u8 action;
-  	u8 reason_code;
-@@ -381,46 +380,6 @@
- 	fc_id_t		nport_id;
- } __attribute__ ((packed));
- 
--struct zfcp_ls_rnid {
--	u8		code;
--	u8		field[3];
--	u8		node_id_format;
--	u8		reserved[3];
--} __attribute__((packed));
--
--/* common identification data */
--struct zfcp_ls_rnid_common_id {
--	u64		n_port_name;
--	u64		node_name;
--} __attribute__((packed));
--
--/* general topology specific identification data */
--struct zfcp_ls_rnid_general_topology_id {
--	u8		vendor_unique[16];
--	u32		associated_type;
--	u32		physical_port_number;
--	u32		nr_attached_nodes;
--	u8		node_management;
--	u8		ip_version;
--	u16		port_number;
--	u8		ip_address[16];
--	u8		reserved[2];
--	u16		vendor_specific;
--} __attribute__((packed));
--
--struct zfcp_ls_rnid_acc {
--	u8		code;
--	u8		field[3];
--	u8		node_id_format;
--	u8		common_id_length;
--	u8		reserved;
--	u8		specific_id_length;
--	struct zfcp_ls_rnid_common_id
--			common_id;
--	struct zfcp_ls_rnid_general_topology_id
--			specific_id;
--} __attribute__((packed));
--
- struct zfcp_rc_entry {
- 	u8 code;
- 	const char *description;
-@@ -533,23 +492,29 @@
- 	       __LINE__ , ##args);
- 
- #define ZFCP_LOG(level, fmt, args...) \
-+do { \
- 	if (ZFCP_LOG_CHECK(level)) \
--		_ZFCP_LOG(fmt , ##args)
-+		_ZFCP_LOG(fmt, ##args); \
-+} while (0)
- 	
- #if ZFCP_LOG_LEVEL_LIMIT < ZFCP_LOG_LEVEL_NORMAL
- # define ZFCP_LOG_NORMAL(fmt, args...)
- #else
- # define ZFCP_LOG_NORMAL(fmt, args...) \
-+do { \
- 	if (ZFCP_LOG_CHECK(ZFCP_LOG_LEVEL_NORMAL)) \
--		printk(KERN_ERR ZFCP_NAME": " fmt , ##args);
-+		printk(KERN_ERR ZFCP_NAME": " fmt, ##args); \
-+} while (0)
- #endif
- 
- #if ZFCP_LOG_LEVEL_LIMIT < ZFCP_LOG_LEVEL_INFO
- # define ZFCP_LOG_INFO(fmt, args...)
- #else
- # define ZFCP_LOG_INFO(fmt, args...) \
-+do { \
- 	if (ZFCP_LOG_CHECK(ZFCP_LOG_LEVEL_INFO)) \
--		printk(KERN_ERR ZFCP_NAME": " fmt , ##args);
-+		printk(KERN_ERR ZFCP_NAME": " fmt, ##args); \
-+} while (0)
- #endif
- 
- #if ZFCP_LOG_LEVEL_LIMIT < ZFCP_LOG_LEVEL_DEBUG
-@@ -571,8 +536,10 @@
- #else
- extern u32 flags_dump;
- # define ZFCP_LOG_FLAGS(level, fmt, args...) \
-+do { \
- 	if (level <= flags_dump) \
--		_ZFCP_LOG(fmt , ##args)
-+		_ZFCP_LOG(fmt, ##args); \
-+} while (0)
- #endif
- 
- /*************** ADAPTER/PORT/UNIT AND FSF_REQ STATUS FLAGS ******************/
-@@ -609,7 +576,12 @@
- 		 ZFCP_STATUS_ADAPTER_REGISTERED)
- 
- 
--#define ZFCP_DID_NAMESERVER			0xFFFFFC
-+/* FC-PH/FC-GS well-known address identifiers for generic services */
-+#define ZFCP_DID_MANAGEMENT_SERVICE		0xFFFFFA
-+#define ZFCP_DID_TIME_SERVICE			0xFFFFFB
-+#define ZFCP_DID_DIRECTORY_SERVICE		0xFFFFFC
-+#define ZFCP_DID_ALIAS_SERVICE			0xFFFFF8
-+#define ZFCP_DID_KEY_DISTRIBUTION_SERVICE	0xFFFFF7
- 
- /* remote port status */
- #define ZFCP_STATUS_PORT_PHYS_OPEN		0x00000001
-@@ -619,7 +591,8 @@
- #define ZFCP_STATUS_PORT_NO_SCSI_ID		0x00000010
- #define ZFCP_STATUS_PORT_INVALID_WWPN		0x00000020
- 
--#define ZFCP_STATUS_PORT_NAMESERVER \
-+/* for ports with well known addresses */
-+#define ZFCP_STATUS_PORT_WKA \
- 		(ZFCP_STATUS_PORT_NO_WWPN | \
- 		 ZFCP_STATUS_PORT_NO_SCSI_ID)
- 
-@@ -792,43 +765,29 @@
- 	wwn_t wwpn;
- } __attribute__ ((packed));
- 
--/* nameserver request CT_IU -- for requests where
-- * a port identifier is required */
--struct ct_iu_ga_nxt_req {
--	struct ct_hdr header;
--	fc_id_t d_id;
--} __attribute__ ((packed));
--
- /* FS_ACC IU and data unit for GID_PN nameserver request */
- struct ct_iu_gid_pn_resp {
- 	struct ct_hdr header;
- 	fc_id_t d_id;
- } __attribute__ ((packed));
- 
--/* FS_ACC IU and data unit for GA_NXT nameserver request */
--struct ct_iu_ga_nxt_resp {
--	struct ct_hdr header;
--        u8 port_type;
--        u8 port_id[3];
--        u64 port_wwn;
--        u8 port_symbolic_name_length;
--        u8 port_symbolic_name[255];
--        u64 node_wwn;
--        u8 node_symbolic_name_length;
--        u8 node_symbolic_name[255];
--        u64 initial_process_associator;
--        u8 node_ip[16];
--        u32 cos;
--        u8 fc4_types[32];
--        u8 port_ip[16];
--        u64 fabric_wwn;
--        u8 reserved;
--        u8 hard_address[3];
--} __attribute__ ((packed));
--
- typedef void (*zfcp_send_ct_handler_t)(unsigned long);
- 
--/* used to pass parameters to zfcp_send_ct() */
-+/**
-+ * struct zfcp_send_ct - used to pass parameters to function zfcp_fsf_send_ct
-+ * @port: port where the request is sent to
-+ * @req: scatter-gather list for request
-+ * @resp: scatter-gather list for response
-+ * @req_count: number of elements in request scatter-gather list
-+ * @resp_count: number of elements in response scatter-gather list
-+ * @handler: handler function (called for response to the request)
-+ * @handler_data: data passed to handler function
-+ * @pool: pointer to memory pool for ct request structure
-+ * @timeout: FSF timeout for this request
-+ * @timer: timer (e.g. for request initiated by erp)
-+ * @completion: completion for synchronization purposes
-+ * @status: used to pass error status to calling function
-+ */
- struct zfcp_send_ct {
- 	struct zfcp_port *port;
- 	struct scatterlist *req;
-@@ -837,7 +796,7 @@
- 	unsigned int resp_count;
- 	zfcp_send_ct_handler_t handler;
- 	unsigned long handler_data;
--	mempool_t *pool;		/* mempool for ct not for fsf_req */
-+	mempool_t *pool;
- 	int timeout;
- 	struct timer_list *timer;
- 	struct completion *completion;
-@@ -856,8 +815,20 @@
- 
- typedef void (*zfcp_send_els_handler_t)(unsigned long);
- 
--/* used to pass parameters to zfcp_send_els() */
--/* ToDo merge send_ct() and send_els() and corresponding structs */
-+/**
-+ * struct zfcp_send_els - used to pass parameters to function zfcp_fsf_send_els
-+ * @port: port where the request is sent to
-+ * @req: scatter-gather list for request
-+ * @resp: scatter-gather list for response
-+ * @req_count: number of elements in request scatter-gather list
-+ * @resp_count: number of elements in response scatter-gather list
-+ * @handler: handler function (called for response to the request)
-+ * @handler_data: data passed to handler function
-+ * @timer: timer (e.g. for request initiated by erp)
-+ * @completion: completion for synchronization purposes
-+ * @ls_code: hex code of ELS command
-+ * @status: used to pass error status to calling function
-+ */
- struct zfcp_send_els {
- 	struct zfcp_port *port;
- 	struct scatterlist *req;
-@@ -866,6 +837,7 @@
- 	unsigned int resp_count;
- 	zfcp_send_els_handler_t handler;
- 	unsigned long handler_data;
-+	struct timer_list *timer;
- 	struct completion *completion;
- 	int ls_code;
- 	int status;
-@@ -895,6 +867,7 @@
- 	struct zfcp_send_ct *send_ct;
- 	struct zfcp_send_els *send_els;
- 	struct zfcp_status_read 	  status_read;
-+	struct fsf_qtcb_bottom_port *port_data;
- };
- 
- struct zfcp_qdio_queue {
-@@ -982,6 +955,7 @@
- 	rwlock_t                cmd_dbf_lock;
- 	struct zfcp_adapter_mempool	pool;      /* Adapter memory pools */
- 	struct qdio_initialize  qdio_init_data;    /* for qdio_establish */
-+	struct device           generic_services;  /* directory for WKA ports */
- };
- 
- /*
-@@ -1083,6 +1057,11 @@
- 	fcp_lun_t               init_fcp_lun;
- };
- 
-+/**
-+ * struct zfcp_sg_list - struct describing a scatter-gather list
-+ * @sg: pointer to array of (struct scatterlist)
-+ * @count: number of elements in scatter-gather list
-+ */
- struct zfcp_sg_list {
- 	struct scatterlist *sg;
- 	unsigned int count;
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_erp.c linux-2.6-s390/drivers/s390/scsi/zfcp_erp.c
---- linux-2.6/drivers/s390/scsi/zfcp_erp.c	Mon Aug 30 19:14:11 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_erp.c	Mon Aug 30 19:14:23 2004
-@@ -31,7 +31,7 @@
- #define ZFCP_LOG_AREA			ZFCP_LOG_AREA_ERP
- 
- /* this drivers version (do not edit !!! generated and updated by cvs) */
--#define ZFCP_ERP_REVISION "$Revision: 1.62 $"
-+#define ZFCP_ERP_REVISION "$Revision: 1.65 $"
- 
- #include "zfcp_ext.h"
- 
-@@ -126,6 +126,25 @@
- static void zfcp_erp_timeout_handler(unsigned long);
- static inline void zfcp_erp_timeout_init(struct zfcp_erp_action *);
- 
-+/**
-+ * zfcp_fsf_request_timeout_handler - called if a request timed out
-+ * @data: pointer to adapter for handler function
-+ *
-+ * This function needs to be called if requests (ELS, Generic Service,
-+ * or SCSI commands) exceed a certain time limit. The assumption is
-+ * that after the time limit the adapter get stuck. So we trigger a reopen of
-+ * the adapter. This should not be used for error recovery, SCSI abort
-+ * commands and SCSI requests from SCSI mid-layer.
-+ */
-+void
-+zfcp_fsf_request_timeout_handler(unsigned long data)
-+{
-+	struct zfcp_adapter *adapter;
-+
-+	adapter = (struct zfcp_adapter *) data;
-+
-+	zfcp_erp_adapter_reopen(adapter, 0);
-+}
- 
- /*
-  * function:	zfcp_fsf_scsi_er_timeout_handler
-@@ -650,14 +669,15 @@
- 	return retval;
- }
- 
--/*
-- * function:	
-- *
-- * purpose:	Wrappper for zfcp_erp_port_reopen_internal
-- *              used to ensure the correct locking
-- *
-- * returns:	0	- initiated action succesfully
-- *		<0	- failed to initiate action
-+/**
-+ * zfcp_erp_port_reopen - initiate reopen of a remote port
-+ * @port: port to be reopened
-+ * @clear_mask: specifies flags in port status to be cleared
-+ * Return: 0 on success, < 0 on error
-+ *
-+ * This is a wrappper function for zfcp_erp_port_reopen_internal. It ensures
-+ * correct locking. An error recovery task is initiated to do the reopen.
-+ * To wait for the completion of the reopen zfcp_erp_wait should be used.
-  */
- int
- zfcp_erp_port_reopen(struct zfcp_port *port, int clear_mask)
-@@ -717,14 +737,15 @@
- 	return retval;
- }
- 
--/*
-- * function:	
-- *
-- * purpose:	Wrappper for zfcp_erp_unit_reopen_internal
-- *              used to ensure the correct locking
-- *
-- * returns:	0	- initiated action succesfully
-- *		<0	- failed to initiate action
-+/**
-+ * zfcp_erp_unit_reopen - initiate reopen of a unit
-+ * @unit: unit to be reopened
-+ * @clear_mask: specifies flags in unit status to be cleared
-+ * Return: 0 on success, < 0 on error
-+ *
-+ * This is a wrappper for zfcp_erp_unit_reopen_internal. It ensures correct
-+ * locking. An error recovery task is initiated to do the reopen.
-+ * To wait for the completion of the reopen zfcp_erp_wait should be used.
-  */
- int
- zfcp_erp_unit_reopen(struct zfcp_unit *unit, int clear_mask)
-@@ -1902,12 +1923,10 @@
- 	return retval;
- }
- 
--/*
-- * function:	
-- *
-- * purpose:	
-- *
-- * returns:
-+/**
-+ * zfcp_erp_wait - wait for completion of error recovery on an adapter
-+ * @adapter: adapter for which to wait for completion of its error recovery
-+ * Return: 0
-  */
- int
- zfcp_erp_wait(struct zfcp_adapter *adapter)
-@@ -2045,7 +2064,7 @@
- 	struct zfcp_port *port;
- 
- 	list_for_each_entry(port, &adapter->port_list_head, list)
--		if (!atomic_test_mask(ZFCP_STATUS_PORT_NAMESERVER, &port->status))
-+		if (!atomic_test_mask(ZFCP_STATUS_PORT_WKA, &port->status))
- 			zfcp_erp_port_reopen_internal(port, clear_mask);
- 
- 	return retval;
-@@ -2640,7 +2659,7 @@
- {
- 	int retval;
- 
--	if (atomic_test_mask(ZFCP_STATUS_PORT_NAMESERVER,
-+	if (atomic_test_mask(ZFCP_STATUS_PORT_WKA,
- 			     &erp_action->port->status))
- 		retval = zfcp_erp_port_strategy_open_nameserver(erp_action);
- 	else
-@@ -2778,10 +2797,10 @@
- 
- 	case ZFCP_ERP_STEP_PORT_OPENING:
- 		if (atomic_test_mask(ZFCP_STATUS_COMMON_OPEN, &port->status)) {
--			ZFCP_LOG_DEBUG("nameserver port is open\n");
-+			ZFCP_LOG_DEBUG("WKA port is open\n");
- 			retval = ZFCP_ERP_SUCCEEDED;
- 		} else {
--			ZFCP_LOG_DEBUG("open failed for nameserver port\n");
-+			ZFCP_LOG_DEBUG("open failed for WKA port\n");
- 			retval = ZFCP_ERP_FAILED;
- 		}
- 		/* this is needed anyway (dont care for retval of wakeup) */
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_ext.h linux-2.6-s390/drivers/s390/scsi/zfcp_ext.h
---- linux-2.6/drivers/s390/scsi/zfcp_ext.h	Mon Aug 30 19:14:11 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_ext.h	Mon Aug 30 19:14:23 2004
-@@ -31,7 +31,7 @@
- #ifndef ZFCP_EXT_H
- #define ZFCP_EXT_H
- /* this drivers version (do not edit !!! generated and updated by cvs) */
--#define ZFCP_EXT_REVISION "$Revision: 1.53 $"
-+#define ZFCP_EXT_REVISION "$Revision: 1.57 $"
- 
- #include "zfcp_def.h"
- 
-@@ -50,15 +50,16 @@
- extern void zfcp_sysfs_unit_release(struct device *);
- 
- /**************************** CONFIGURATION  *********************************/
--extern struct zfcp_unit *zfcp_get_unit_by_lun(struct zfcp_port *,
--					      fcp_lun_t fcp_lun);
--extern struct zfcp_port *zfcp_get_port_by_wwpn(struct zfcp_adapter *,
--					       wwn_t wwpn);
-+extern struct zfcp_unit *zfcp_get_unit_by_lun(struct zfcp_port *, fcp_lun_t);
-+extern struct zfcp_port *zfcp_get_port_by_wwpn(struct zfcp_adapter *, wwn_t);
-+extern struct zfcp_port *zfcp_get_port_by_did(struct zfcp_adapter *, u32);
-+struct zfcp_adapter *zfcp_get_adapter_by_busid(char *);
- extern struct zfcp_adapter *zfcp_adapter_enqueue(struct ccw_device *);
- extern int    zfcp_adapter_debug_register(struct zfcp_adapter *);
- extern void   zfcp_adapter_dequeue(struct zfcp_adapter *);
- extern void   zfcp_adapter_debug_unregister(struct zfcp_adapter *);
--extern struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *, wwn_t, u32);
-+extern struct zfcp_port *zfcp_port_enqueue(struct zfcp_adapter *, wwn_t,
-+					   u32, u32);
- extern void   zfcp_port_dequeue(struct zfcp_port *);
- extern struct zfcp_unit *zfcp_unit_enqueue(struct zfcp_port *, fcp_lun_t);
- extern void   zfcp_unit_dequeue(struct zfcp_unit *);
-@@ -94,8 +95,11 @@
- extern int  zfcp_fsf_close_unit(struct zfcp_erp_action *);
- 
- extern int  zfcp_fsf_exchange_config_data(struct zfcp_erp_action *);
-+extern int  zfcp_fsf_exchange_port_data(struct zfcp_adapter *,
-+					struct fsf_qtcb_bottom_port *);
- extern int  zfcp_fsf_control_file(struct zfcp_adapter *, struct zfcp_fsf_req **,
- 				  u32, u32, struct zfcp_sg_list *);
-+extern void zfcp_fsf_request_timeout_handler(unsigned long);
- extern void zfcp_fsf_scsi_er_timeout_handler(unsigned long);
- extern int  zfcp_fsf_req_dismiss_all(struct zfcp_adapter *);
- extern int  zfcp_fsf_status_read(struct zfcp_adapter *, int);
-@@ -108,7 +112,7 @@
- extern int  zfcp_fsf_send_fcp_command_task(struct zfcp_adapter *,
- 					   struct zfcp_unit *,
- 					   struct scsi_cmnd *,
--					   int);
-+					   struct timer_list*, int);
- extern int  zfcp_fsf_req_complete(struct zfcp_fsf_req *);
- extern void zfcp_fsf_incoming_els(struct zfcp_fsf_req *);
- extern void zfcp_fsf_req_cleanup(struct zfcp_fsf_req *);
-@@ -134,10 +138,10 @@
- extern void zfcp_fsf_start_scsi_er_timer(struct zfcp_adapter *);
- extern fcp_dl_t zfcp_get_fcp_dl(struct fcp_cmnd_iu *);
- 
--extern int zfcp_scsi_command_async(struct zfcp_adapter *,struct zfcp_unit *unit,
--				   struct scsi_cmnd *scsi_cmnd);
--extern int zfcp_scsi_command_sync(struct zfcp_unit *unit,
--				  struct scsi_cmnd *scsi_cmnd);
-+extern int zfcp_scsi_command_async(struct zfcp_adapter *,struct zfcp_unit *,
-+				   struct scsi_cmnd *, struct timer_list *);
-+extern int zfcp_scsi_command_sync(struct zfcp_unit *, struct scsi_cmnd *,
-+				  struct timer_list *);
- extern struct scsi_transport_template *zfcp_transport_template;
- extern struct fc_function_template zfcp_transport_functions;
- 
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_fsf.c linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.c
---- linux-2.6/drivers/s390/scsi/zfcp_fsf.c	Mon Aug 30 19:14:11 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.c	Mon Aug 30 19:14:23 2004
-@@ -29,11 +29,12 @@
-  */
- 
- /* this drivers version (do not edit !!! generated and updated by cvs) */
--#define ZFCP_FSF_C_REVISION "$Revision: 1.59 $"
-+#define ZFCP_FSF_C_REVISION "$Revision: 1.65 $"
- 
- #include "zfcp_ext.h"
- 
- static int zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *);
-+static void zfcp_fsf_exchange_port_data_handler(struct zfcp_fsf_req *);
- static int zfcp_fsf_open_port_handler(struct zfcp_fsf_req *);
- static int zfcp_fsf_close_port_handler(struct zfcp_fsf_req *);
- static int zfcp_fsf_close_physical_port_handler(struct zfcp_fsf_req *);
-@@ -683,13 +684,11 @@
- 		break;
- 	case FSF_SQ_ULP_PROGRAMMING_ERROR:
- 		ZFCP_LOG_FLAGS(0, "FSF_SQ_ULP_PROGRAMMING_ERROR\n");
--		ZFCP_LOG_NORMAL("bug: An illegal amount of data was attempted "
--				"to be sent to the adapter %s "
--				"Stopping all operations on this adapter. ",
-+		ZFCP_LOG_NORMAL("error: not enough SBALs for data transfer "
-+				"(adapter %s)\n",
- 				zfcp_get_busid_by_adapter(fsf_req->adapter));
- 		debug_text_exception(fsf_req->adapter->erp_dbf, 0,
- 				     "fsf_sq_ulp_err");
--		zfcp_erp_adapter_shutdown(fsf_req->adapter, 0);
- 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
- 		break;
- 	case FSF_SQ_INVOKE_LINK_TEST_PROCEDURE:
-@@ -784,6 +783,11 @@
- 		zfcp_fsf_exchange_config_data_handler(fsf_req);
- 		break;
- 
-+	case FSF_QTCB_EXCHANGE_PORT_DATA :
-+		ZFCP_LOG_FLAGS(2, "FSF_QTCB_EXCHANGE_PORT_DATA\n");
-+		zfcp_fsf_exchange_port_data_handler(fsf_req);
-+		break;
-+
- 	case FSF_QTCB_SEND_ELS :
- 		ZFCP_LOG_FLAGS(2, "FSF_QTCB_SEND_ELS\n");
- 		zfcp_fsf_send_els_handler(fsf_req);
-@@ -1623,26 +1627,6 @@
- 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
- 		break;
- 
--	case FSF_REQUEST_BUF_NOT_VALID :
--		ZFCP_LOG_FLAGS(2, "FSF_REQUEST_BUF_NOT_VALID\n");
--		ZFCP_LOG_NORMAL("error: The port 0x%016Lx on adapter %s has "
--				"rejected a generic services command "
--				"due to invalid request buffer.\n",
--				port->wwpn, zfcp_get_busid_by_port(port));
--		debug_text_event(adapter->erp_dbf, 1, "fsf_s_reqiv");
--		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
--		break;
--
--	case FSF_RESPONSE_BUF_NOT_VALID :
--		ZFCP_LOG_FLAGS(2, "FSF_RESPONSE_BUF_NOT_VALID\n");
--		ZFCP_LOG_NORMAL("error: The port 0x%016Lx on adapter %s has "
--				"rejected a generic services command "
--				"due to invalid response buffer.\n",
--				port->wwpn, zfcp_get_busid_by_port(port));
--		debug_text_event(adapter->erp_dbf, 1, "fsf_s_resiv");
--		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
--		break;
--
-         case FSF_PORT_BOXED :
- 		ZFCP_LOG_FLAGS(2, "FSF_PORT_BOXED\n");
- 		ZFCP_LOG_INFO("The remote port 0x%016Lx on adapter %s "
-@@ -1664,9 +1648,10 @@
- 	}
- 
- skip_fsfstatus:
--	if (send_ct->handler != NULL) {
-+	send_ct->status = retval;
-+
-+	if (send_ct->handler != NULL)
- 		send_ct->handler(send_ct->handler_data);
--        }
- 
- 	return retval;
- }
-@@ -1768,7 +1753,7 @@
- 	sbale = zfcp_qdio_sbale_req(fsf_req, fsf_req->sbal_curr, 0);
- 
- 	/* start QDIO request for this FSF request */
--	ret = zfcp_fsf_req_send(fsf_req, NULL);
-+	ret = zfcp_fsf_req_send(fsf_req, els->timer);
- 	if (ret) {
- 		ZFCP_LOG_DEBUG("error: initiation of ELS request failed "
- 			       "(adapter %s, port 0x%016Lx)\n",
-@@ -1924,15 +1909,6 @@
- 			bottom->resp_buf_length);
- 		break;
- 
--	case FSF_UNKNOWN_COMMAND:
--		ZFCP_LOG_FLAGS(2, "FSF_UNKNOWN_COMMAND\n");
--		ZFCP_LOG_INFO(
--			"FSF command 0x%x is not supported by FCP adapter "
--			"(adapter: %s)\n", fsf_req->fsf_command,
--			zfcp_get_busid_by_port(port));
--		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
--		break;
--
- 	case FSF_ACCESS_DENIED:
- 		ZFCP_LOG_FLAGS(2, "FSF_ACCESS_DENIED\n");
- 		ZFCP_LOG_NORMAL("Access denied, cannot send ELS "
-@@ -2220,6 +2196,111 @@
- 	return 0;
- }
- 
-+/**
-+ * zfcp_fsf_exchange_port_data - request information about local port
-+ * @adapter: for which port data is requested
-+ * @data: response to exchange port data request
-+ */
-+int
-+zfcp_fsf_exchange_port_data(struct zfcp_adapter *adapter,
-+			    struct fsf_qtcb_bottom_port *data)
-+{
-+	volatile struct qdio_buffer_element *sbale;
-+	int retval = 0;
-+	unsigned long lock_flags;
-+        struct zfcp_fsf_req *fsf_req;
-+	struct timer_list *timer;
-+
-+        if(!(adapter->supported_features & FSF_FEATURE_HBAAPI_MANAGEMENT)){
-+		ZFCP_LOG_INFO("error: exchange port data "
-+                              "command not supported by adapter %s\n",
-+			      zfcp_get_busid_by_adapter(adapter));
-+                return -EOPNOTSUPP;
-+        }
-+
-+	timer = kmalloc(sizeof(struct timer_list), GFP_KERNEL);
-+	if (!timer)
-+		return -ENOMEM;
-+
-+	/* setup new FSF request */
-+	retval = zfcp_fsf_req_create(adapter, FSF_QTCB_EXCHANGE_PORT_DATA,
-+                                     0, 0, &lock_flags, &fsf_req);
-+	if (retval < 0) {
-+		ZFCP_LOG_INFO("error: Out of resources. Could not create an "
-+                              "exchange port data request for"
-+                              "the adapter %s.\n",
-+			      zfcp_get_busid_by_adapter(adapter));
-+		write_unlock_irqrestore(&adapter->request_queue.queue_lock,
-+					lock_flags);
-+		goto out;
-+	}
-+
-+	sbale = zfcp_qdio_sbale_req(fsf_req, fsf_req->sbal_curr, 0);
-+        sbale[0].flags |= SBAL_FLAGS0_TYPE_READ;
-+        sbale[1].flags |= SBAL_FLAGS_LAST_ENTRY;
-+
-+        fsf_req->data.port_data = data;
-+
-+	init_timer(timer);
-+	timer->function = zfcp_fsf_request_timeout_handler;
-+	timer->data = (unsigned long) adapter;
-+	timer->expires = ZFCP_FSF_REQUEST_TIMEOUT;
-+
-+	retval = zfcp_fsf_req_send(fsf_req, timer);
-+	if (retval) {
-+		ZFCP_LOG_INFO("error: Could not send an exchange port data "
-+                              "command on the adapter %s\n",
-+			      zfcp_get_busid_by_adapter(adapter));
-+		zfcp_fsf_req_free(fsf_req);
-+		write_unlock_irqrestore(&adapter->request_queue.queue_lock,
-+					lock_flags);
-+		goto out;
-+	}
-+
-+	ZFCP_LOG_DEBUG("Exchange Port Data request initiated (adapter %s)\n",
-+		       zfcp_get_busid_by_adapter(adapter));
-+
-+	write_unlock_irqrestore(&adapter->request_queue.queue_lock,
-+				lock_flags);
-+
-+	wait_event(fsf_req->completion_wq,
-+		   fsf_req->status & ZFCP_STATUS_FSFREQ_COMPLETED);
-+	del_timer_sync(timer);
-+	zfcp_fsf_req_cleanup(fsf_req);
-+ out:
-+	kfree(timer);
-+	return retval;
-+}
-+
-+
-+/**
-+ * zfcp_fsf_exchange_port_data_handler - handler for exchange_port_data request
-+ * @fsf_req: pointer to struct zfcp_fsf_req
-+ */
-+static void
-+zfcp_fsf_exchange_port_data_handler(struct zfcp_fsf_req *fsf_req)
-+{
-+	struct fsf_qtcb_bottom_port *bottom;
-+	struct fsf_qtcb_bottom_port *data = fsf_req->data.port_data;
-+
-+	if (fsf_req->status & ZFCP_STATUS_FSFREQ_ERROR)
-+		return;
-+
-+	switch (fsf_req->qtcb->header.fsf_status) {
-+        case FSF_GOOD :
-+                ZFCP_LOG_FLAGS(2,"FSF_GOOD\n");
-+                bottom = &fsf_req->qtcb->bottom.port;
-+                memcpy(data, bottom, sizeof(*data));
-+                break;
-+
-+        default:
-+		debug_text_event(fsf_req->adapter->erp_dbf, 0, "xchg-port-ng");
-+                debug_event(fsf_req->adapter->erp_dbf, 0,
-+			    &fsf_req->qtcb->header.fsf_status, sizeof(u32));
-+	}
-+}
-+
-+
- /*
-  * function:    zfcp_fsf_open_port
-  *
-@@ -3320,19 +3401,19 @@
- 	return retval;
- }
- 
--/*
-- * function:    zfcp_fsf_send_fcp_command_task
-- *
-- * purpose:
-- *
-- * returns:
-- *
-- * note: we do not employ linked commands (not supported by HBA anyway)
-+/**
-+ * zfcp_fsf_send_fcp_command_task - initiate an FCP command (for a SCSI command)
-+ * @adapter: adapter where scsi command is issued
-+ * @unit: unit where command is sent to
-+ * @scsi_cmnd: scsi command to be sent
-+ * @timer: timer to be started when request is initiated
-+ * @req_flags: flags for fsf_request
-  */
- int
- zfcp_fsf_send_fcp_command_task(struct zfcp_adapter *adapter,
- 			       struct zfcp_unit *unit,
--			       struct scsi_cmnd * scsi_cmnd, int req_flags)
-+			       struct scsi_cmnd * scsi_cmnd,
-+			       struct timer_list *timer, int req_flags)
- {
- 	struct zfcp_fsf_req *fsf_req = NULL;
- 	struct fcp_cmnd_iu *fcp_cmnd_iu;
-@@ -3487,7 +3568,7 @@
- 	 * start QDIO request for this FSF request
- 	 *  covered by an SBALE)
- 	 */
--	retval = zfcp_fsf_req_send(fsf_req, NULL);
-+	retval = zfcp_fsf_req_send(fsf_req, timer);
- 	if (unlikely(retval < 0)) {
- 		ZFCP_LOG_INFO("error: Could not send FCP command request "
- 			      "on adapter %s, port 0x%016Lx, unit 0x%016Lx\n",
-@@ -3789,44 +3870,6 @@
- 		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
- 		break;
- 
--		/* FIXME: this should be obsolete, isn' it? */
--	case FSF_INBOUND_DATA_LENGTH_NOT_VALID:
--		ZFCP_LOG_FLAGS(0, "FSF_INBOUND_DATA_LENGTH_NOT_VALID\n");
--		ZFCP_LOG_NORMAL("bug: An invalid inbound data length field "
--				"was found in a command for unit 0x%016Lx "
--				"on port 0x%016Lx on adapter %s.\n",
--				unit->fcp_lun,
--				unit->port->wwpn, zfcp_get_busid_by_unit(unit));
--		/* stop operation for this adapter */
--		debug_text_event(fsf_req->adapter->erp_dbf, 0,
--				 "fsf_s_in_dl_nv");
--		zfcp_erp_adapter_shutdown(unit->port->adapter, 0);
--		zfcp_cmd_dbf_event_fsf("idleninv",
--				       fsf_req,
--				       &header->fsf_status_qual,
--				       sizeof (union fsf_status_qual));
--		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
--		break;
--
--		/* FIXME: this should be obsolete, isn' it? */
--	case FSF_OUTBOUND_DATA_LENGTH_NOT_VALID:
--		ZFCP_LOG_FLAGS(0, "FSF_OUTBOUND_DATA_LENGTH_NOT_VALID\n");
--		ZFCP_LOG_NORMAL("bug: An invalid outbound data length field "
--				"was found in a command unit 0x%016Lx on port "
--				"0x%016Lx on adapter %s\n",
--				unit->fcp_lun,
--				unit->port->wwpn,
--				zfcp_get_busid_by_unit(unit));
--		/* stop operation for this adapter */
--		debug_text_event(fsf_req->adapter->erp_dbf, 0,
--				 "fsf_s_out_dl_nv");
--		zfcp_erp_adapter_shutdown(unit->port->adapter, 0);
--		zfcp_cmd_dbf_event_fsf("odleninv", fsf_req,
--				       &header->fsf_status_qual,
--				       sizeof (union fsf_status_qual));
--		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
--		break;
--
- 	case FSF_CMND_LENGTH_NOT_VALID:
- 		ZFCP_LOG_FLAGS(0, "FSF_CMND_LENGTH_NOT_VALID\n");
- 		ZFCP_LOG_NORMAL
-@@ -4505,16 +4548,6 @@
- 		retval = -EIO;
- 		break;
- 
--	case FSF_UNKNOWN_COMMAND:
--		ZFCP_LOG_FLAGS(2, "FSF_UNKNOWN_COMMAND\n");
--		ZFCP_LOG_NORMAL(
--			"FSF command 0x%x is not supported by the adapter %s\n",
--			fsf_req->fsf_command,
--			zfcp_get_busid_by_adapter(adapter));
--		fsf_req->status |= ZFCP_STATUS_FSFREQ_ERROR;
--		retval = -EINVAL;
--		break;
--
- 	case FSF_UNKNOWN_OP_SUBTYPE:
- 		ZFCP_LOG_FLAGS(2, "FSF_UNKNOWN_OP_SUBTYPE\n");
- 		ZFCP_LOG_NORMAL(
-@@ -4632,7 +4665,7 @@
-  * zfcp_fsf_req_sbal_get - try to get one SBAL in the request queue
-  * @adapter: adapter for which request queue is examined
-  * @req_flags: flags indicating whether to wait for needed SBAL or not
-- * @lock_flags: lock_flags is queue_lock is taken
-+ * @lock_flags: lock_flags if queue_lock is taken
-  * Return: 0 on success, otherwise -EIO, or -ERESTARTSYS
-  * Locks: lock adapter->request_queue->queue_lock on success
-  */
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_fsf.h linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.h
---- linux-2.6/drivers/s390/scsi/zfcp_fsf.h	Mon Aug 30 19:14:11 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.h	Mon Aug 30 19:14:23 2004
-@@ -84,19 +84,12 @@
- #define FSF_SERVICE_CLASS_NOT_SUPPORTED		0x00000006
- #define FSF_FCPLUN_NOT_VALID			0x00000009
- #define FSF_ACCESS_DENIED			0x00000010
--#define FSF_ACCESS_TYPE_NOT_VALID		0x00000011
- #define FSF_LUN_SHARING_VIOLATION               0x00000012
--#define FSF_COMMAND_ABORTED_ULP			0x00000020
--#define FSF_COMMAND_ABORTED_ADAPTER		0x00000021
- #define FSF_FCP_COMMAND_DOES_NOT_EXIST		0x00000022
- #define FSF_DIRECTION_INDICATOR_NOT_VALID	0x00000030
--#define FSF_INBOUND_DATA_LENGTH_NOT_VALID	0x00000031 /* FIX: obsolete? */
--#define FSF_OUTBOUND_DATA_LENGTH_NOT_VALID	0x00000032 /* FIX: obsolete? */
- #define FSF_CMND_LENGTH_NOT_VALID		0x00000033
- #define FSF_MAXIMUM_NUMBER_OF_PORTS_EXCEEDED	0x00000040
- #define FSF_MAXIMUM_NUMBER_OF_LUNS_EXCEEDED	0x00000041
--#define FSF_REQUEST_BUF_NOT_VALID		0x00000042
--#define FSF_RESPONSE_BUF_NOT_VALID		0x00000043
- #define FSF_ELS_COMMAND_REJECTED		0x00000050
- #define FSF_GENERIC_COMMAND_REJECTED		0x00000051
- #define FSF_OPERATION_PARTIALLY_SUCCESSFUL	0x00000052
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_scsi.c linux-2.6-s390/drivers/s390/scsi/zfcp_scsi.c
---- linux-2.6/drivers/s390/scsi/zfcp_scsi.c	Mon Aug 30 19:14:11 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_scsi.c	Mon Aug 30 19:14:23 2004
-@@ -31,7 +31,7 @@
- #define ZFCP_LOG_AREA			ZFCP_LOG_AREA_SCSI
- 
- /* this drivers version (do not edit !!! generated and updated by cvs) */
--#define ZFCP_SCSI_REVISION "$Revision: 1.66 $"
-+#define ZFCP_SCSI_REVISION "$Revision: 1.68 $"
- 
- #include "zfcp_ext.h"
- 
-@@ -247,15 +247,16 @@
- /**
-  * zfcp_scsi_command_async - worker for zfcp_scsi_queuecommand and
-  *	zfcp_scsi_command_sync
-- * @adapter: adapter for where scsi command is issued
-+ * @adapter: adapter where scsi command is issued
-  * @unit: unit to which scsi command is sent
-  * @scpnt: scsi command to be sent
-+ * @timer: timer to be started if request is successfully initiated
-  *
-  * Note: In scsi_done function must be set in scpnt.
-  */
- int
- zfcp_scsi_command_async(struct zfcp_adapter *adapter, struct zfcp_unit *unit,
--			struct scsi_cmnd *scpnt)
-+			struct scsi_cmnd *scpnt, struct timer_list *timer)
- {
- 	int tmp;
- 	int retval;
-@@ -291,7 +292,7 @@
- 		goto out;
- 	}
- 
--	tmp = zfcp_fsf_send_fcp_command_task(adapter, unit, scpnt,
-+	tmp = zfcp_fsf_send_fcp_command_task(adapter, unit, scpnt, timer,
- 					     ZFCP_REQ_AUTO_CLEANUP);
- 
- 	if (unlikely(tmp < 0)) {
-@@ -313,18 +314,28 @@
- 
- /**
-  * zfcp_scsi_command_sync - send a SCSI command and wait for completion
-- * returns 0, errors are indicated by scsi_cmnd->result
-+ * @unit: unit where command is sent to
-+ * @scpnt: scsi command to be sent
-+ * @timer: timer to be started if request is successfully initiated
-+ * Return: 0
-+ *
-+ * Errors are indicated in scpnt->result
-  */
- int
--zfcp_scsi_command_sync(struct zfcp_unit *unit, struct scsi_cmnd *scpnt)
-+zfcp_scsi_command_sync(struct zfcp_unit *unit, struct scsi_cmnd *scpnt,
-+		       struct timer_list *timer)
- {
-+	int ret;
- 	DECLARE_COMPLETION(wait);
- 
- 	scpnt->SCp.ptr = (void *) &wait;  /* silent re-use */
--	scpnt->done = zfcp_scsi_command_sync_handler;
--        zfcp_scsi_command_async(unit->port->adapter, unit, scpnt);
-+	scpnt->scsi_done = zfcp_scsi_command_sync_handler;
-+	ret = zfcp_scsi_command_async(unit->port->adapter, unit, scpnt, timer);
-+	if ((ret == 0) && (scpnt->result == 0))
- 	wait_for_completion(&wait);
- 
-+	scpnt->SCp.ptr = NULL;
-+
- 	return 0;
- }
- 
-@@ -355,7 +366,7 @@
- 	adapter = (struct zfcp_adapter *) scpnt->device->host->hostdata[0];
- 	unit = (struct zfcp_unit *) scpnt->device->hostdata;
- 
--	return zfcp_scsi_command_async(adapter, unit, scpnt);
-+	return zfcp_scsi_command_async(adapter, unit, scpnt, NULL);
- }
- 
- /*
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_sysfs_adapter.c linux-2.6-s390/drivers/s390/scsi/zfcp_sysfs_adapter.c
---- linux-2.6/drivers/s390/scsi/zfcp_sysfs_adapter.c	Mon Aug 30 19:14:11 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_sysfs_adapter.c	Mon Aug 30 19:14:23 2004
-@@ -26,7 +26,7 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
--#define ZFCP_SYSFS_ADAPTER_C_REVISION "$Revision: 1.36 $"
-+#define ZFCP_SYSFS_ADAPTER_C_REVISION "$Revision: 1.37 $"
- 
- #include "zfcp_ext.h"
- 
-@@ -106,7 +106,7 @@
- 	if ((endp + 1) < (buf + count))
- 		goto out;
- 
--	port = zfcp_port_enqueue(adapter, wwpn, 0);
-+	port = zfcp_port_enqueue(adapter, wwpn, 0, 0);
- 	if (!port)
- 		goto out;
- 
-diff -urN linux-2.6/drivers/s390/scsi/zfcp_sysfs_port.c linux-2.6-s390/drivers/s390/scsi/zfcp_sysfs_port.c
---- linux-2.6/drivers/s390/scsi/zfcp_sysfs_port.c	Mon Aug 30 19:14:11 2004
-+++ linux-2.6-s390/drivers/s390/scsi/zfcp_sysfs_port.c	Mon Aug 30 19:14:23 2004
-@@ -26,7 +26,7 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
--#define ZFCP_SYSFS_PORT_C_REVISION "$Revision: 1.43 $"
-+#define ZFCP_SYSFS_PORT_C_REVISION "$Revision: 1.44 $"
- 
- #include "zfcp_ext.h"
- 
-@@ -279,7 +279,7 @@
- 
- 	retval = sysfs_create_group(&dev->kobj, &zfcp_port_common_attr_group);
- 
--	if ((flags & ZFCP_STATUS_PORT_NAMESERVER) || retval)
-+	if ((flags & ZFCP_STATUS_PORT_WKA) || retval)
- 		return retval;
- 
- 	retval = sysfs_create_group(&dev->kobj, &zfcp_port_no_ns_attr_group);
-@@ -299,7 +299,7 @@
- zfcp_sysfs_port_remove_files(struct device *dev, u32 flags)
- {
- 	sysfs_remove_group(&dev->kobj, &zfcp_port_common_attr_group);
--	if (!(flags & ZFCP_STATUS_PORT_NAMESERVER))
-+	if (!(flags & ZFCP_STATUS_PORT_WKA))
- 		sysfs_remove_group(&dev->kobj, &zfcp_port_no_ns_attr_group);
- }
- 

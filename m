@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268714AbRG3Wi6>; Mon, 30 Jul 2001 18:38:58 -0400
+	id <S268691AbRG3Wl5>; Mon, 30 Jul 2001 18:41:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268699AbRG3Wih>; Mon, 30 Jul 2001 18:38:37 -0400
-Received: from [63.195.182.101] ([63.195.182.101]:28934 "EHLO
-	barbados.bluemug.com") by vger.kernel.org with ESMTP
-	id <S268691AbRG3Wi3>; Mon, 30 Jul 2001 18:38:29 -0400
-Date: Mon, 30 Jul 2001 15:37:50 -0700
-To: Bill Pringlemeir <bpringle@sympatico.ca>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [CFT] initramfs patch
-Message-ID: <20010730153750.B20766@bluemug.com>
-Mail-Followup-To: Bill Pringlemeir <bpringle@sympatico.ca>,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0107301646050.19391-100000@weyl.math.psu.edu> <20010730141427.E20284@bluemug.com> <m2ofq26p13.fsf@sympatico.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2ofq26p13.fsf@sympatico.ca>
-X-PGP-ID: 5C09BB33
-X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
-From: Mike Touloumtzis <miket@bluemug.com>
+	id <S268699AbRG3Wlr>; Mon, 30 Jul 2001 18:41:47 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:4597 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S268691AbRG3Wlj>; Mon, 30 Jul 2001 18:41:39 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200107302240.f6UMeWg2001230@webber.adilger.int>
+Subject: Re: Support for serial console on legacy free machines
+In-Reply-To: <3B65D3DA.D70B48A0@fc.hp.com> "from Khalid Aziz at Jul 30, 2001
+ 03:38:34 pm"
+To: Khalid Aziz <khalid@fc.hp.com>
+Date: Mon, 30 Jul 2001 16:40:31 -0600 (MDT)
+CC: Andreas Dilger <adilger@turbolinux.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, Jul 30, 2001 at 06:16:40PM -0400, Bill Pringlemeir wrote:
-> >>>>> "Mike" == Mike Touloumtzis <miket@bluemug.com> writes:
-> [snip]
->  Mike> Hmmm, maybe we need ramfs-backed-by-romfs :-).  But a lot of
->  Mike> people in the embedded/consumer electronics space could get by
->  Mike> just fine with a read-only / and a ramfs or ramdisk on /tmp.
+Khalid Aziz writes:
+> Andreas Dilger wrote:
+> > Has anyone considered allowing console devices to run over bi-directional
+> > parallel ports?  I imagine most of the required code is in PLIP and serial,
+> > which unfortunately I know nothing about.
+> > 
+> > Several newer systems I have today do not have physical serial ports at all,
+> > but all of them (even laptops) still have bi-directional parallel ports.
+> > 
+> > I suppose there may be some difficulties in exporting a "serial-like"
+> > interface to the user apps (e.g. minicom and such), but maybe not.
+> > 
 > 
-> I am not so sure about this.  Typical flash access times are rather
-> long compared to SDRAM.  StrataFlash and other bursting flash are
-> rather new and require specific CPUs or custom logic to access the
-> flash in a sequential mode.
+> SH supports console on line printer which I assume is a parallel port
+> console. You can check if that code will work for you and if it can be
+> ported to x86.
 
-I was actually thinking about kernels running from RAM (e.g. TFTP
-boot or such).  The solution I'm talking about would also work
-from flash, but as you say, most people are moving away from that.
-There are still reasons to run XIP from flash, though: boot speed
-is one.
+ From what I have been told, the "line printer console" is unidirectional
+only.  This would make it OK for console output, but you could not do real
+debugging over such a setup.
 
-miket
+What bothers me is that new systems don't have a serial port, and no ISA
+slots, so there is no hope of getting a "serial console" support without
+ACPI (which is rather heavyweight AFAIK).  USB is far too complex to use
+for early-boot debugging, so what else is left?
+
+There was some talk about using a low level IP console over ethernet,
+but I would imagine this is more complex than the same thing on a
+parallel-port.  I could be wrong.  Of course, an IP console has the
+advantage of being useful over a longer distance than a parallel cable,
+but may have the disadvantage of poor security.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

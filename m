@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262873AbRFGTHy>; Thu, 7 Jun 2001 15:07:54 -0400
+	id <S262868AbRFGTBn>; Thu, 7 Jun 2001 15:01:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262887AbRFGTHo>; Thu, 7 Jun 2001 15:07:44 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:52213 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S262873AbRFGTHf>; Thu, 7 Jun 2001 15:07:35 -0400
-Message-Id: <l0313031cb745811cfc17@[192.168.239.105]>
-In-Reply-To: <Pine.LNX.4.21.0106061705250.3769-100000@freak.distro.conectiva>
+	id <S262873AbRFGTBd>; Thu, 7 Jun 2001 15:01:33 -0400
+Received: from snowbird.megapath.net ([216.200.176.7]:41996 "EHLO
+	megapathdsl.net") by vger.kernel.org with ESMTP id <S262868AbRFGTBW>;
+	Thu, 7 Jun 2001 15:01:22 -0400
+Subject: Re: Break 2.4 VM in five easy steps
+From: Miles Lane <miles@megapathdsl.net>
+To: Derek Glidden <dglidden@illusionary.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B1FA29B.812AA63A@illusionary.com>
+In-Reply-To: <Pine.LNX.4.33.0106062032390.26171-100000@asdf.capslock.lan>
+	<991883613.15447.0.camel@agate>  <3B1FA29B.812AA63A@illusionary.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 07 Jun 2001 12:06:40 -0700
+Message-Id: <991940858.7005.1.camel@agate>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Thu, 7 Jun 2001 20:07:15 +0100
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: [PATCH] Reap dead swap cache earlier v2
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->As suggested by Linus, I've cleaned the reapswap code to be contained
->inside an inline function. (yes, the if statement is really ugly)
+On 07 Jun 2001 11:49:47 -0400, Derek Glidden wrote:
+> Miles Lane wrote:
+> > 
+> > So please, if you have new facts that you want to offer that
+> > will help us characterize and understand these VM issues better
+> > or discover new problems, feel free to share them.  But if you
+> > just want to rant, I, for one, would rather you didn't.
+> 
+> *sigh*
+> 
+> Not to prolong an already pointless thread, but that really was the
+> intent of my original message.  I had figured out a specific way, with
+> easy-to-follow steps, to make the VM misbehave under very certain
+> conditions.  I even offered to help figure out a solution in any way I
+> could, considering I'm not familiar with kernel code.
+> 
+> However, I guess this whole "too much swap" issue has a lot of people on
+> edge and immediately assumed I was talking about this subject, without
+> actually reading my original message.
 
-I can't seem to find the patch which adds this behaviour to the background
-scanning.  Can someone point me to it?
+Actually, I think your original message was useful.  It has
+spurred a reevaluation of some design assumptions implicit in the VM
+in the 2.4 series and has also surfaced some bugs.  It was not you
+who I felt was sending enflammatory remarks, it was the folks who
+have been bellyaching about the current swap disk space requirements
+without offering any new information to help developers remedy
+the situation.
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
+So, thanks for bringing the topic up.  :-)
 
-The key to knowledge is not to rely on people to teach you it.
-
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
-
+Cheers,
+	Miles
 

@@ -1,65 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbTDZQg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 12:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTDZQg2
+	id S261893AbTDZQqT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 12:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbTDZQqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 12:36:28 -0400
-Received: from pat.uio.no ([129.240.130.16]:63211 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261892AbTDZQgU (ORCPT
+	Sat, 26 Apr 2003 12:46:19 -0400
+Received: from d101.x-mailer.de ([212.162.12.2]:17894 "EHLO d101.x-mailer.de")
+	by vger.kernel.org with ESMTP id S261893AbTDZQqR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 12:36:20 -0400
-To: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 NFS file corruption
-References: <Pine.LNX.4.44.0304261742200.18264-100000@pc40.e18.physik.tu-muenchen.de>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 26 Apr 2003 18:44:44 +0200
-In-Reply-To: <Pine.LNX.4.44.0304261742200.18264-100000@pc40.e18.physik.tu-muenchen.de>
-Message-ID: <shsadedrywz.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Sat, 26 Apr 2003 12:46:17 -0400
+From: Andreas Gietl <Listen@e-admin.de>
+Organization: e-admin internet gmbh
+To: Bernhard Kaindl <kaindl@telering.at>
+Subject: Re: [PATCH][2.4-rc1] fix side effects of the kmod/ptrace secfix
+Date: Sat, 26 Apr 2003 18:58:28 +0200
+User-Agent: KMail/1.5.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200304250037.45133.Listen@e-admin.de> <200304251640.22021.Listen@e-admin.de> <Pine.LNX.4.53.0304251607540.26723@hase.a11.local>
+In-Reply-To: <Pine.LNX.4.53.0304251607540.26723@hase.a11.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304261858.28698.Listen@e-admin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de> writes:
+On Friday 25 April 2003 16:30, Bernhard Kaindl wrote:
 
-     > Dear experts!  I'm seeing very strange file corruption, with
-     > parts of the data (most of the bytes, actually) being correct,
-     > but some being 0x00 and others (few) being something else. The
-     > strangest thing however is that this affected exactly the
-     > complete first 4kB page of the file.
+looks like the shutdown problem was not due to a ptrace-problem, but to a 
+IDE-Bug in the ac1-patch:
 
-     > The server and clients run CERN RedHat 7.3.2, which is based on
-     > RedHat 7.3 and has a 2.4.18 kernel with patches upto the
-     > 2.4.21-pre5 range. If you need the list of patches I can look
-     > it up and will happily supply it.
+Hi!
 
-AFAICS, the CERN 2.4.18-27.7.x doesn't appear to have any NFS patches
-in it beyond the standard 2.4.18 + the IRIX patch (i.e. it is
-identical to the RedHat kernel as far as NFS is concerned).
+Here is a first test report for 2.4.21-rc1-ac2:
 
-As such it is missing a good deal of NFS client bugfixes, including
-the close-to-open patches which are important when you are updating
-files centrally on a server.
+*) Shutdown/Reboot problems in 2.4.21-rc1-ac1 due to
+   deadlock in ide_unregister_subdriver() seem to be
+   fixed!
 
-It probably isn't the cause of problems here though (if I read the
-section below correctly).
 
-     > 1) copy the file onto the server's exported directory
-     > 2) create a symlink to it from the same directory
-     > 3) execute the file
-     > 4) process crashes, gets restated (repeatedly, because of
-     >    corruption)
-     > 5) machine is rebooted, everything works fine for several hours
-     > 6) restart at 4)
+rc1-ac2 fixed my shutdown problem.
 
-     > While in this circle, the file was overwritten several times
-     > with updated versions.
+thanx for the support
 
-You are updating an executable while the clients are running it??? 
-Bad! That is not meant to work...
+> On Fri, 25 Apr 2003, Andreas Gietl wrote:
+> > it shows:
+> >   PID TTY      STAT   TIME COMMAND
+> >  2092 ttyp0    S      0:00 su guest -c ps $PPID;wc -m
+> > </proc/$PPID/cmdline 0
+>
+> Ah ok, I tested this with LC_CTYPE=de_DE.UTF-8, in this case wc has
+> to read the contents of the file. When a single-byte locale is used,
+> wc just does fstat64() to get the file size(which returns 0 for the file).
+>
+> > but cat shows:
+> > su guest -c 'ps $PPID; cat /proc/$PPID/cmdline'
+> >   PID TTY      STAT   TIME COMMAND
+> >  2144 ttyp0    S      0:00 su guest -c ps $PPID; cat /proc/$PPID/cmdline
+> > suguest-cps $PPID; cat /proc/$PPID/cmdline
+> >
+> > what happened?
+>
+> This is ok, access_proces_vm() is working.
+>
+> > > [pid  2599] --- SIGSTOP (Stopped (signal)) @ 0 (0) ---
+> > > [pid  2599] write(1, "\n", 1
+> >
+> > it shows:
+> > localhost root # strace -fewrite su -c /bin/echo 2>&1 | grep pid
+> > [pid  2159] write(1, "\n", 1
+>
+> Looks ok also, the task->mm->dumpable check is removed from
+> prace_check_attach
+>
+> > Looks like my results are slightly diffent, Does this mean i did not
+> > apply the patch correctly? I applied it twice manually, because patch did
+> > not succeed
+>
+> The above shows that at least the two-liner task_dumpable diff is applied.
+>
+> > and compiled the kernel 3 times...
+>
+> Sorry for the different output, I should have made my tests safer against
+> system variants. It should have applied clean, maybe some white space issue
+> or so, I'll check it. shutdown didn't change? What does it on your system?
+>
+> Bernd
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Cheers,
-  Trond
+-- 
+e-admin internet gmbh
+Andreas Gietl                                            tel +49 941 3810884
+Ludwig-Thoma-Strasse 35                      fax +49 89 244329104
+93051 Regensburg                                  mobil +49 171 6070008
+
+PGP/GPG-Key unter http://www.e-admin.de/gpg.html
+
+
+
+

@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbUJZQ3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbUJZQfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbUJZQ3y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 12:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbUJZQ3y
+	id S261303AbUJZQfs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 12:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbUJZQfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 12:29:54 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:13737 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S261282AbUJZQ3r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 12:29:47 -0400
-Date: Tue, 26 Oct 2004 18:26:30 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The naming wars continue...
-Message-ID: <20041026162630.GB7739@thundrix.ch>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041023030356.GA5005@animx.eu.org> <20041024133333.GA16901@hh.idb.hist.no> <20041025232654.GC30574@thundrix.ch> <clkrak$rtl$1@terminus.zytor.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="s/l3CgOIzMHHjg/5"
+	Tue, 26 Oct 2004 12:35:47 -0400
+Received: from siaag2ad.compuserve.com ([149.174.40.134]:4066 "EHLO
+	siaag2ad.compuserve.com") by vger.kernel.org with ESMTP
+	id S261303AbUJZQfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 12:35:41 -0400
+Date: Tue, 26 Oct 2004 12:32:19 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: My thoughts on the "new development model"
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Massimo Cetra <mcetra@navynet.it>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Bill Davidsen <davidsen@tmr.com>
+Message-ID: <200410261233_MC3-1-8D2A-5BA7@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <clkrak$rtl$1@terminus.zytor.com>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 26 Oct 2004 at 08:03:13 -0700 William Lee Irwin III wrote:
 
---s/l3CgOIzMHHjg/5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> I'm running 2.6 on a number of machines I rely upon
+> heavily as servers etc. on the open net as well as the usual dedicated
+> kernel hacking machines. The uptimes of the relied-upon systems are
+> measured in months, at times approaching a year.
 
-Salut,
+ "It works for me" doesn't cut it in the OS world.
 
-On Tue, Oct 26, 2004 at 06:37:08AM +0000, H. Peter Anvin wrote:
-> There also were a W, and and X1, X2, ... X11.
 
-I know.  I didn't say there wasn't.  They were all standards  of the X
-protocol, however.
+> More bugs are fixed than are introduced every release by a large margin.
 
-(Note, however, that there is  a tiny difference in the command layout
-between the MIT X protocol specifiaction version 11 and the reality.)
+ Irrelevant.
 
-> However, there is a tendency for numbers to get stuck (witness Linux
-> 2.x).  In particular, X11R6 got encoded in many places including
-> pathnames for no good reason.
 
-Well, I'm driving my X11 from  /opt/xorg and I don't have any problems
-yet. Just  that the NVidia  driver doesn't get  it right, but  I threw
-away my NVidia card in favor of a dual-core Voodoo 5 anyway.
+> And not even your beloved 2.4 is immune to regressions.
 
-			    Tonnerre
+ We're not talking about regression, i.e. reappearance of old bugs.
 
---s/l3CgOIzMHHjg/5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
+> What does the number of patchsets have to do with anything?
 
-iD8DBQFBfnq0/4bL7ovhw40RAgHAAKCoh5MXxKkwlm2a2x37lPjuyjvrQgCfYsUa
-HW0DmkIByIfQjUt7hek3tEs=
-=RLPl
------END PGP SIGNATURE-----
+ Large changes produce bugs -- that's a fact of life.
 
---s/l3CgOIzMHHjg/5--
+ It's not that the changes aren't needed, it's just the the previous 2.6 release
+is kind of like a baby abandoned on a doorstep -- nobody has the time to fix
+those last few bugs.  Even if someone were to step up to the plate and try to
+create a stable 2.6 series, I'd bet the lead developers wouldn't even spend time
+working on it.
+
+
+--Chuck Ebbert  26-Oct-04  12:31:08

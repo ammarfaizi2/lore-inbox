@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265341AbTLHGEh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 01:04:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265344AbTLHGEg
+	id S264564AbTLHGlN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 01:41:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264567AbTLHGlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 01:04:36 -0500
-Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:33153
-	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S265341AbTLHGEf
+	Mon, 8 Dec 2003 01:41:13 -0500
+Received: from mail.willden.org ([63.226.98.113]:65154 "EHLO zedd.willden.org")
+	by vger.kernel.org with ESMTP id S264564AbTLHGlL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 01:04:35 -0500
-Message-Id: <200312080604.hB864YY9009359@orion.dwf.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0 USB/HID problems.
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 07 Dec 2003 23:04:34 -0700
-From: reg@dwf.com
+	Mon, 8 Dec 2003 01:41:11 -0500
+From: Shawn Willden <shawn-lkml@willden.org>
+To: "Jeremy Maitin-Shepard" <jbms@attbi.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Additional clauses to GPL in network drivers
+Date: Sun, 7 Dec 2003 23:40:56 -0700
+User-Agent: KMail/1.5.93
+Cc: "David Schwartz" <davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKAEMBIIAA.davids@webmaster.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEMBIIAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200312072341.07645.shawn-lkml@willden.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am posting this here since I dont seem to be able to post to
-either of the USB lists.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-In working with the code apcupsd, I have found two problems that appeare
-in the 2.6.0-testX kernels that did not appear in the 2.4.x series of kernels.
+On Sunday 07 December 2003 08:51 pm, David Schwartz wrote:
 
-    (1) When doing a read to get hiddev_event structures, 2.4 only
-	gave the 'real' events from the device that one expected.
-	Under 2.6.0-testx there are several ZERO event structures/sec
-	where the entire structure is ZERO, both hid and value.
+> 	It is definitely redundant. The idea is that if a portion of the
+> distribution ever winds up somewhere, the terms are still clear. 
 
-	For the current code there may be a 'real' event every few
-	seconds, and 5-10 of these zero events/sec.  I have no
-	idea where they are coming from.
+The FSF recommends including a notice in every file, also.  The text they 
+suggest is:
 
-    (2) In one thread the code does a select, followed by a read if
-	data is available.  If one just 'falls thru' to the read with
-	the few lines of code it takes to do the checking, one gets
-	up to 45000 messages/minute (750/sec) reading:
+    This file is part of Foobar.
 
-	    kernel: drivers/usb/input/hid-core.c: control queue full
+    Foobar is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-	If one puts a 1/10sec sleep between these two commands, the
-	error messages go away. 
+    Foobar is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-Anyone know anything about either of these errors?
-Or how to report them to the USB people if you cant post to the USB lists?
- 
--- 
-                                        Reg.Clemens
-                                        reg@dwf.com
+    You should have received a copy of the GNU General Public License
+    along with Foobar; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 
+http://www.fsf.org/licenses/gpl-howto.html
+
+For Linux the first paragraph would have to be modified to harmonized with 
+Linus' choice of GPL version.
+
+	Shawn.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/1Bz7p1Ep1JptinARAiGVAJ9yQLLS5O03rvIVAl5AI36ykn19qACfR/YX
+z9L47JHDCRF5Xt5ovP+Pkr4=
+=LXA4
+-----END PGP SIGNATURE-----

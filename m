@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277812AbRJIQ2W>; Tue, 9 Oct 2001 12:28:22 -0400
+	id <S277813AbRJIQaM>; Tue, 9 Oct 2001 12:30:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277813AbRJIQ2M>; Tue, 9 Oct 2001 12:28:12 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:60624 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S277812AbRJIQ17>;
-	Tue, 9 Oct 2001 12:27:59 -0400
-Date: Tue, 9 Oct 2001 12:28:24 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: Re: [PATCH] devfs v194 available
-In-Reply-To: <200110091603.f99G32o28831@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0110091206100.15875-100000@weyl.math.psu.edu>
+	id <S277816AbRJIQaH>; Tue, 9 Oct 2001 12:30:07 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:51975 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S277813AbRJIQ3u>; Tue, 9 Oct 2001 12:29:50 -0400
+Date: Tue, 9 Oct 2001 13:08:14 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: pre6 VM issues
+In-Reply-To: <20011009173937.M15943@athlon.random>
+Message-ID: <Pine.LNX.4.21.0110091303380.5604-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,53 +21,63 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 9 Oct 2001, Richard Gooch wrote:
+On Tue, 9 Oct 2001, Andrea Arcangeli wrote:
 
-> Alexander Viro writes:
-> > ... doesn't fix _under_run in try_modload() (see what happens if
-> > namelen is 255 and parent is devfs root)
+> On Tue, Oct 09, 2001 at 11:34:47AM -0200, Marcelo Tosatti wrote:
+> > The problem may well be in the memory balancing Andrea, but I'm not trying
+> > to hide it with the infinite loop.
 > 
-> What underrun?
-> How can this be a problem? Before I use pos, I have the following
-> check:
->     if (namelen >= STRING_LENGTH) return -ENAMETOOLONG;
+> I assumed fixing the oom faliures with highmem was the main reason of
+> the infinite loop.
 > 
-> so the maximum value that namelen can be is STRING_LENGTH-1. Thus we
-> have:
->     pos = STRING_LENGTH - (STRING_LENGTH - 1) - 1;
-> ->  pos = 0;
+> > The infinite loop is just a guarantee that we'll have a reliable way of
+> > throttling the allocators which can block. Not doing the infinite loop is
+> 
+> Throttling have nothing to do with the infinite loop.
 
-Certainly.  And
-     buf[STRING_LENGTH - namelen - 2] = '/';
-assigns '/' to
-	buf [ STRING_LENGTH - (STRING_LENGTH-1) - 2 ]
-i.e.
-	buf[-1]
+Sorry but the infinite loop does throttles page reclamation until there
+is enough memory for the process allocating memory to go on.
 
-> Ah, shit. I just checked the rwsem implementation. It seems that once
-> we do a down_write() (even if that blocks because someone else has a
-> down_read() already), subsequent down_read() calls will block until
-> the writer is granted access and then does up_write(). Damn. It would
-> have been good for this to be documented somewhere. Those are the
-> kinds of traps that should be mentioned in the header file.
->
-> OK: is there a variant of rwsem which is "unfair" (i.e. readers can
-> starve writers indefinately)?
+> > just way too fragile IMO and it is _prone_ to fail in intensive
+> > loads. 
+> 
+> It is too fragile if the vm is doing the wrong actions and so we must
+> loop over and over again before it finally does the right thing.
+> 
+> If allocation fails that's a nice feedback that tell us "the memory
+> balancing is at least inefficient in doing the right thing, looping
+> would only waste more cache and more time for the allocation".
+> 
+> Think a list where pages can be only freeable or unfreeable.  Now scan
+> _all_ the pages and free all the freeable ones. Finished. If it failed
+> and it couldn't free anything it means there was nothing to free so
+> we're oom. How can that be "fragile"?
 
-	IMO it's a wrong approach.  Notice that all these problems
-have common reason - you are reusing entries.  There's absolutely
-no need to do that.  Separate the logics for "search" and "create",
-so that devfs_register() would fail if entry already exists.
-Detach it from the tree upon unregister().  And add a simple reference
-counter to the damn thing.  Set it to 1 when entry is created. Bump it
-when you use it up/drop when you stop.  And drop it when you detach
-from the tree.  End of story.  Symlink contents is freed along with
-the entry when refcount hits zero.  No semaphores, no new locking
-primitives, no wheels to reinvent.
+That is fragile IMHO, Andrea.
 
-	Now, given the unholy mess in your search_...() functions I
-don't envy you - cleaning them up _will_ hurt.  Ditto for auditing
-the code for places that would retain a reference to unregistered
-entries.  But as far as I can see that's the only realistic way
-to handle these problems.
+The infinite loop is simple, reliable logic which shows to works (as long
+as the OOM killer is working correctly).
+
+> In real life it isn't as simple as that, there's some "race" effect
+> caming from the schedules in between, there are multiple lists, there's
+> swapout etc... so it's a little more complex than just "freeable" and
+> "unfreeable" and a single list, but it can be done, 2.2 does that too,
+> if we loop over and over again and we do no progress in the right
+> direction I prefer to know about that via an allocation faliure rather
+> than by just getting sucking performance. Also an allocation faliure is
+> a minor problem compared to a deadlock that the infinite loop cannot
+> prevent.
+
+If the OOM killer is doing its job correctly, a deadlock will not happen.
+
+> > If the problem is the highmem balancing, I'll love to get your fixes and
+> > integrate with the infinite loop logic, which is a separated (related,
+> > yes, but separate) thing.
+> 
+> The infinite loop shouldn't do anything except introducing the deadlock
+> after that (otherwise it means I failed :), but you're free to go in
+> your direction if you think it's the right one of course (like I'm free
+> to go in my direction since I think it's the right one).
+
+Sure. :) 
 

@@ -1,101 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVAXU1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbVAXXT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbVAXU1A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 15:27:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVAXUZ6
+	id S261724AbVAXXT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 18:19:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVAXXTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 15:25:58 -0500
-Received: from [83.102.214.158] ([83.102.214.158]:2536 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S261625AbVAXUX3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:23:29 -0500
-X-Comment-To: "Stephen C. Tweedie"
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Alex Tomas <alex@clusterfs.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Ext2-devel] [PATCH] JBD: log space management optimization
-References: <m3llapv3i7.fsf@bzzz.home.net>
-	<1106593003.2103.147.camel@sisko.sctweedie.blueyonder.co.uk>
-From: Alex Tomas <alex@clusterfs.com>
-Organization: HOME
-Date: Mon, 24 Jan 2005 23:22:08 +0300
-Message-ID: <m3fz0qd1cf.fsf@bzzz.home.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 24 Jan 2005 18:19:39 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:4167 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261726AbVAXXBe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 18:01:34 -0500
+Subject: Re: DVD burning still have problems
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jens Axboe <axboe@suse.de>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Volker Armin Hemmann <volker.armin.hemmann@tu-clausthal.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1106598811.6154.93.camel@localhost.localdomain>
+References: <200501232126.55191.volker.armin.hemmann@tu-clausthal.de>
+	 <5a4c581d050123125967a65cd7@mail.gmail.com> <20050124150755.GH2707@suse.de>
+	 <1106594023.6154.89.camel@localhost.localdomain>
+	 <20050124204529.GA19242@suse.de>
+	 <1106598811.6154.93.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 25 Jan 2005 00:01:31 +0100
+Message-Id: <1106607691.13336.10.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Stephen C Tweedie (SCT) writes:
-
- SCT> If you returned them to the handle directly, it would be slightly more
- SCT> efficient.
-
-good point. thanks. here is the fixed patch.
-
-
-during truncate ext3 calls journal_forget() for freed blocks, but
-before these blocks go to the transaction and jbd reserves space
-in log for them (->t_outstanding_credits). also, journal_forget()
-removes these blocks from the transaction, but doesn't correct
-log space reservation. for example, removal of 500MB file reserves
-136 blocks, but only 10 blocks go to the log. a commit is expensive
-and correct reservation allows us to avoid needless commits. here
-is the patch. tested on UP.
-
-
-
-Signed-off-by: Alex Tomas <alex@clusterfs.com>
-Index: linux-2.6.7/fs/jbd/transaction.c
-===================================================================
---- linux-2.6.7.orig/fs/jbd/transaction.c	2004-08-26 17:12:40.000000000 +0400
-+++ linux-2.6.7/fs/jbd/transaction.c	2005-01-24 22:51:34.000000000 +0300
-@@ -1204,6 +1204,7 @@
- 	transaction_t *transaction = handle->h_transaction;
- 	journal_t *journal = transaction->t_journal;
- 	struct journal_head *jh;
-+	int drop_reserve = 0;
- 
- 	BUFFER_TRACE(bh, "entry");
- 
-@@ -1227,6 +1228,7 @@
- 		J_ASSERT_JH(jh, !jh->b_committed_data);
- 
- 		__journal_unfile_buffer(jh);
-+		drop_reserve = 1;
- 
- 		/* 
- 		 * We are no longer going to journal this buffer.
-@@ -1249,7 +1251,7 @@
- 				spin_unlock(&journal->j_list_lock);
- 				jbd_unlock_bh_state(bh);
- 				__bforget(bh);
--				return;
-+				goto drop;
- 			}
- 		}
- 	} else if (jh->b_transaction) {
-@@ -1264,6 +1266,7 @@
- 		if (jh->b_next_transaction) {
- 			J_ASSERT(jh->b_next_transaction == transaction);
- 			jh->b_next_transaction = NULL;
-+			drop_reserve = 1;
- 		}
- 	}
- 
-@@ -1271,6 +1274,13 @@
- 	spin_unlock(&journal->j_list_lock);
- 	jbd_unlock_bh_state(bh);
- 	__brelse(bh);
-+
-+drop:
-+	if (drop_reserve) {
-+		/* no need to reserve log space for this block -bzzz */
-+		handle->h_buffer_credits++;
-+	}
-+
- 	return;
- }
- 
+On Mon, 2005-01-24 at 21:44 +0000, Alan Cox wrote:
+> On Llu, 2005-01-24 at 20:45, Jens Axboe wrote:
+> > > I've got several reports like this that only happen with ACPI, and one
+> > > user whose burns report fine but are corrupted if ACPI is allowed to do
+> > > power manglement.
+> > 
+> > Really weird, I cannot begin to explain that. Perhaps the two reporters
+> > in this thread can try it as well?
+> 
+> I can sort of guess - the CPU frequency changes (either from ACPI or
+> perhaps also from cpuspeed if in use ?) involve the CPU disconnecting
+> from the bus and reconnecting. There is much magic involved in this and
+> there are certainly chipset and CPU errata in this area.
+would this mean that i should not use cpu frequency scaling?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

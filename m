@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264094AbTFDUnF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 16:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbTFDUnF
+	id S264054AbTFDUot (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 16:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264063AbTFDUos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 16:43:05 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:26642 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S264094AbTFDUnD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 16:43:03 -0400
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-Organization: K4 Labs
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Subject: Re: 2.4.21-rc7 ACPI broken
-Date: Wed, 4 Jun 2003 21:37:57 +0100
-User-Agent: KMail/1.5.2
-References: <F760B14C9561B941B89469F59BA3A847E96F25@orsmsx401.jf.intel.com>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A847E96F25@orsmsx401.jf.intel.com>
+	Wed, 4 Jun 2003 16:44:48 -0400
+Received: from thumper2.emsphone.com ([199.67.51.102]:35470 "EHLO
+	thumper2.emsphone.com") by vger.kernel.org with ESMTP
+	id S264054AbTFDUn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 16:43:57 -0400
+Date: Wed, 4 Jun 2003 15:57:16 -0500
+From: Andrew Ryan <genanr@emsphone.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+Subject: Re: NFS io errors on transfer from system running 2.4 to system running 2.5
+Message-ID: <20030604205716.GA11537@thumper2.emsphone.com>
+References: <200306031912.53569.mflt1@micrologica.com.hk> <20030603144257.GA31734@thumper2.emsphone.com> <shs7k83p2g6.fsf@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306042138.00895@gjs>
+In-Reply-To: <shs7k83p2g6.fsf@charged.uio.no>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Wednesday 04 of June 2003 21:49, you wrote:
-> > From: Grzegorz Jaskiewicz [mailto:gj@pointblue.com.pl]
-> >
-> > > > ACPI: Core Subsystem version [20011018]
-> > >
-> > > Old ACPI code, get patch from http://sf.net/projects/acpi
-> >
-> > and report back
-> >
-> > > if problems persist.
-> >
-> > Any chance to get patch against latest -rc7 ?
+On Tue, Jun 03, 2003 at 06:10:01PM +0200, Trond Myklebust wrote:
+> 
+> Tough. 'soft' is not a priority of mine. It is a broken feature...
 >
-> It's big, and deemed too risky. We are shooting for 2.4.22-pre1.
-I am just recompliling at the moment :D
-Anyway, ACPI is a one of projects that is not well synchronized in kernel. 
-Latest version 2001.... .. hmm 2 years :]
-It will be good to have always newest one in kernel (at least in stable 
-release version)
-- --
-Grzegorz Jaskiewicz
-K4 Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+No, it is a broken feature in *LINUX* post 2.4.20pre3, it's not broken in
+FreeBSD or Tru64.  Regardless of what Trond says about soft mounts they
+should work in Linux just as well as they do in other OSes, such as FreeBSD.
 
-iD8DBQE+3lioqu082fCQYIgRAi0BAJ4tp4J1z90xDTTwHD89ZmcwxGNydACfehuB
-6ccFu+5ngcwxHxICUUtVpOo=
-=X2fo
------END PGP SIGNATURE-----
+I've tried to debug and I have seen no timeouts.  I believe something is up
+with the congestion routines that were added.
 
+Yes, hard mounts work.  But so soft ones.  Linux should not have a
+broken NFS.
+
+Andy
+
+  

@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279492AbRJXIiN>; Wed, 24 Oct 2001 04:38:13 -0400
+	id <S279496AbRJXIxs>; Wed, 24 Oct 2001 04:53:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279495AbRJXIiE>; Wed, 24 Oct 2001 04:38:04 -0400
-Received: from relay.planetinternet.be ([194.119.232.24]:23056 "EHLO
-	relay.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S279492AbRJXIhz>; Wed, 24 Oct 2001 04:37:55 -0400
-Date: Wed, 24 Oct 2001 10:38:13 +0200 (CEST)
-From: Dirk Moerenhout <dirk@staf.planetinternet.be>
-X-X-Sender: <dmoerenh@dirk>
-To: J Sloan <jjs@lexus.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: More memory == better?
-In-Reply-To: <3BD5E2C5.26F5A133@lexus.com>
-Message-ID: <Pine.LNX.4.33.0110241029100.208-100000@dirk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279497AbRJXIxh>; Wed, 24 Oct 2001 04:53:37 -0400
+Received: from 203-109-153-116.static.ihug.co.nz ([203.109.153.116]:52885 "EHLO
+	umbra") by vger.kernel.org with ESMTP id <S279496AbRJXIxa>;
+	Wed, 24 Oct 2001 04:53:30 -0400
+Date: Wed, 24 Oct 2001 21:56:21 +1300
+From: Tim Nicholas <cilix@lsd.net.nz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.13..
+Message-ID: <20011024215621.A28809@nicholas.net.nz>
+In-Reply-To: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Oct 23, 2001 at 10:52:28PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Oct 2001, J Sloan wrote:
+Hello all, 
+I seem to be having serious issues with 2.4.13.
+After recompiling and rebooting everything seemed to work fine, but
+after having a break to watch Buffy, things seemed to stop
+working... 
 
-> If you don't enable highmem support, you'll
-> be able to use about 960 MB of your 1 GB -
-> no big loss, right?
+Every time i tried to do anything i got the same error....
 
-Actually if you wish you can use your full 1GB just fine without HIGHMEM:
+Inconsistency detected by ld.so: dynamic-link.h: 62: elf_get_dynamic_info: Assertion `! "bad dynamic tag"' failed!
 
-In /proc/meminfo:
-MemTotal:      1025360 kB
-LowTotal:      1025360 kB
+I am assuming that this is a very bad thing? It stopped me from doing
+anything much. Processes which were already running seemed to be
+fine (I was in KDE with mozilla and XMMS running), but other things
+like 'w' and ppp no longer worked. I also couldn't reboot cleanly by
+using Ctrl+Alt+del.
+The problem wasn't happening straight away, but after somewhere
+between 10 and 70 minutes of uptime.... 
 
-At boot:
-kernel: On node 0 totalpages: 262128
-kernel: zone(0): 4096 pages.
-kernel: zone(1): 258032 pages.
-kernel: zone(2): 0 pages.
+Am I the only one? I am running a Tbird 900 with 128MB RAM,
+debian-unstable. The same kernel configuration (updated with make
+oldconfig) worked absolutely fine with 2.4.12.
 
-The related config parameters:
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_1GB is not set
-CONFIG_2GB=y
-# CONFIG_3GB is not set
 
-For what I know this trick just limits you on the amount of swap you can
-have. The suggestion came from Ingo Molnar and it works fine for me.
+Yours, 
 
-Dirk Moerenhout ///// System Administrator ///// Planet Internet NV
+Tim Nicholas
 
+On Tue, Oct 23, 2001 at 10:52:28PM -0700, Linus Torvalds wrote:
+> 
+> Things seem to be calming down a bit, which is nice.
+> 
+> Of course, it might possibly also be that everybody is off flaming about
+> the DMCA and getting no work done ;)
+> 
+> Whatever the cause, here's a 2.4.13. See if you can break it,
+> 
+> 		Linus
+> 
+--
+Tim Nicholas                          ||                      Cilix
+Email: cilix@lsd.net.nz               ||              ICQ# 15869961
+http://tim.nicholas.net.nz/           ||                Dunedin, NZ
+Cell phone# +64 21 113 0399           || Home phone# +64 3 471 8415

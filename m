@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263301AbUEXQpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263162AbUEXQqx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263301AbUEXQpv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 12:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbUEXQpv
+	id S263162AbUEXQqx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 12:46:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264337AbUEXQqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 12:45:51 -0400
-Received: from web12308.mail.yahoo.com ([216.136.173.106]:34177 "HELO
-	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263301AbUEXQpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 12:45:50 -0400
-Message-ID: <20040524164550.11639.qmail@web12308.mail.yahoo.com>
-Date: Mon, 24 May 2004 09:45:50 -0700 (PDT)
-From: Stephen Cameron <smcameron@yahoo.com>
-Subject: Re: x86_64 and ioctls from 32 bit userland
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53.0405211854590.1296@chaos>
-MIME-Version: 1.0
+	Mon, 24 May 2004 12:46:53 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:36803 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S263162AbUEXQqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 12:46:48 -0400
+Message-Id: <200405241733.i4OHXiWC030995@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: uml-patch-2.6.6-1
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Mon, 24 May 2004 13:33:44 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch updates UML to 2.6.6.  Aside from the update, there were a few
+small bug fixes.
 
---- "Richard B. Johnson" <root@chaos.analogic.com> wrote:
-> On Fri, 21 May 2004, Stephen Cameron wrote:
-[...]
-> 
-> Yes. The user-mode 32-bit pointer within a structure is no different
-> than passing a 32-bit user-mode pointer as the third parameter to
-> an ioctl(fd, WHAT, ptr).
-> 
+The 2.6.6-1 UML patch is available at
+	http://www.user-mode-linux.org/mirror/uml-patch-2.6.6-1.bz2
 
-Thanks, I've got it working now.
+BK users can pull my 2.5 repository from
+	http://www.user-mode-linux.org:5000/uml-2.5
 
--- steve
+For the other UML mirrors and other downloads, see 
+        http://user-mode-linux.sourceforge.net/dl-sf.html
+ 
+Other links of interest:
+ 
+        The UML project home page : http://user-mode-linux.sourceforge.net
+        The UML Community site : http://usermodelinux.org
 
+				Jeff
 
-	
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Domains – Claim yours for only $14.70/year
-http://smallbusiness.promotions.yahoo.com/offer 

@@ -1,79 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266353AbUFURqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266342AbUFUR7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266353AbUFURqY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 13:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266355AbUFURqY
+	id S266342AbUFUR7s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 13:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266355AbUFUR7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 13:46:24 -0400
-Received: from smtpout.ev1.net ([207.44.129.135]:9735 "EHLO smtpout.ev1.net")
-	by vger.kernel.org with ESMTP id S266353AbUFURqV (ORCPT
+	Mon, 21 Jun 2004 13:59:47 -0400
+Received: from cs.earlham.edu ([159.28.230.3]:22033 "EHLO quark.cs.earlham.edu")
+	by vger.kernel.org with ESMTP id S266342AbUFUR7p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 13:46:21 -0400
-Date: Mon, 21 Jun 2004 12:45:06 -0500
-From: Michael Langley <nwo@hacked.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with psmouse detecting generic ImExPS/2
-Message-Id: <20040621124506.18b1f67a.nwo@hacked.org>
-In-Reply-To: <20040621082831.GC1200@ucw.cz>
-References: <20040621021651.4667bf43.nwo@hacked.org>
-	<20040621082831.GC1200@ucw.cz>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 21 Jun 2004 13:59:45 -0400
+Date: Mon, 21 Jun 2004 12:59:42 -0500
+From: Skylar Thompson <skylar@cs.earlham.edu>
+To: Meelis Roos <mroos@linux.ee>
+Cc: bikram.assal@wku.edu, linux-kernel@vger.kernel.org
+Subject: Re: eepro100 NIC driver. any bug ?
+Message-ID: <20040621175942.GB12853@quark.cs.earlham.edu>
+Reply-To: Skylar Thompson <skylar@cs.earlham.edu>
+References: <web-68980662@mailadmin.wku.edu> <E1Ba7hC-0001uK-Bl@rhn.tartu-labor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="H+4ONPRPur6+Ovig"
+Content-Disposition: inline
+In-Reply-To: <E1Ba7hC-0001uK-Bl@rhn.tartu-labor>
+User-Agent: Mutt/1.4.2.1i
+X-Accept-Primary-Language: en
+X-Accept-Secondary-Language: es
+SMTP-Mailing-Host: quark.cs.earlham.edu
+X-Operating-System: FreeBSD 4.10-STABLE
+X-Uptime: 12:48PM  up 3 days,  9:33, 16 users, load averages: 0.25, 0.28, 0.27
+X-Editor: VIM - Vi IMproved 6.2 (2003 Jun 1, compiled May 19 2004 13:14:50)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jun 2004 10:28:31 +0200
-Vojtech Pavlik <vojtech@suse.cz> wrote:
 
-> On Mon, Jun 21, 2004 at 02:16:51AM -0500, Michael Langley wrote:
-> > I noticed this after upgrading 2.6.6->2.6.7
-> > 
-> > Even after building psmouse as a module, and specifying the protocol,
-> > all I get is an ImPS/2 Generic Wheel Mouse.
-> > 
-> > [root@purgatory root]# modprobe psmouse proto=exps
-> > Jun 21 01:51:57 purgatory kernel: input: ImPS/2 Generic Wheel Mouse on
-> > isa0060/serio1
-> > 
-> > My ImExPS/2 was detected correctly in <=2.6.6 and after examining the
-> > current psmouse code, and the changes in patch-2.6.7, I can't figure out
-> > what's breaking it.  A little help?
->  
-> Maybe your mouse needs the ImPS/2 init before the ExPS/2 one. You can
-> try to copy and-paste the ImPS/2 init once more in the code, without a
-> return, of course.
-> 
-> -- 
-> Vojtech Pavlik
-> SuSE Labs, SuSE CR
+--H+4ONPRPur6+Ovig
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, Jun 15, 2004 at 09:45:22AM +0300, Meelis Roos wrote:
+> BA> Would you suggest ee100 over eepro100 driver for an INTEL NIC ?
+> BA>=20
+> BA> kernel: NETDEV WATCHDOG: eth1: transmit timed out
+> BA> Jun 2 12:56:24 kernel: eth1: Transmit timed out: status f048 0c00 at =
+1703794288/1703794348 command 200ca000.
+>=20
+> A co-worker had a very similar problem with eepro100 when I switched his
+> computer from 100 Mbps fullduplex switch to 10Mbps halfduplex hub. The
+> problems went away with e100 driver. It was with a revent kernel about a
+> month ago but I don't remeber whether it was a recent 2.4 or a recent
+> 2.6 kernel. The NIC in question is the onboard NIC of Intel D815EEA2
+> mainboard.
 
-Right.  That did the trick.
+I've also had trouble with the eepro100 driver. I help maintain a 16-node
+HPC cluster of VA Linux 2200 2x2 with on-board Intel EtherExpress Pro 100
+NICs. During times of high network traffic, the eepro100 driver would just
+cause the card to lose its carrier. Switching to the e100 driver solved
+this problem.
 
---- a/drivers/input/mouse/psmouse-base.c   2004-06-21 12:21:21.000000000 -0500
-+++ b/drivers/input/mouse/psmouse-base.c   2004-06-21 12:12:39.000000000 -0500
-@@ -455,6 +455,15 @@
-                return PSMOUSE_GENPS;
-        }
+--=20
+-- Skylar Thompson (skylar@cs.earlham.edu)
+-- http://www.cs.earlham.edu/~skylar/
 
-+   if (max_proto >= PSMOUSE_IMPS && intellimouse_detect(psmouse)) {
-+
-+      if (set_properties) {
-+         set_bit(REL_WHEEL, psmouse->dev.relbit);
-+         if (!psmouse->name)
-+            psmouse->name = "Wheel Mouse";
-+      }
-+   }
-+
-        if (max_proto > PSMOUSE_IMEX) {
-                int type = ps2pp_init(psmouse, set_properties);
-                if (type > PSMOUSE_PS2)
+--H+4ONPRPur6+Ovig
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (FreeBSD)
 
-[root@purgatory root]# modprobe psmouse proto=exps
-Jun 21 12:41:36 purgatory kernel: input: ImExPS/2 Generic Wheel Mouse on isa0060/serio1
+iD8DBQFA1yIOsc4yyULgN4YRApU0AKCs0yG+4nugEn8nCQSPTf2UnFzZzwCgspwT
+pZRoYuZachRttBaxHUjuWWs=
+=+Uko
+-----END PGP SIGNATURE-----
 
-Much thanks for the help.  I couldn't live without the extra buttons in X.
+--H+4ONPRPur6+Ovig--

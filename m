@@ -1,84 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262862AbUDQMQI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 08:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUDQMQI
+	id S263972AbUDQMXr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 08:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263970AbUDQMXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 08:16:08 -0400
-Received: from mail.gmx.de ([213.165.64.20]:9614 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262862AbUDQMQD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 08:16:03 -0400
-X-Authenticated: #1226656
-Date: Sat, 17 Apr 2004 14:15:37 +0200
-From: Marc Giger <gigerstyle@gmx.ch>
-To: Willy Tarreau <w@w.ods.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux on UltraSparcII E450
-Message-Id: <20040417141537.2986af5a@vaio.gigerstyle.ch>
-In-Reply-To: <20040417100630.GG596@alpha.home.local>
-References: <20040417105303.7936e413@vaio.gigerstyle.ch>
-	<20040417100630.GG596@alpha.home.local>
-X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 17 Apr 2004 08:23:47 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:24074 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262634AbUDQMXo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 08:23:44 -0400
+Date: Sat, 17 Apr 2004 22:23:22 +1000
+To: Rolf Kutz <kutz@netcologne.de>, 244207@bugs.debian.org,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: Bug#244207: kernel-source-2.6.5: mwave gives warning on suspend
+Message-ID: <20040417122322.GA15052@gondor.apana.org.au>
+References: <20040417104311.9C13A1D802@jamaika.kutz.dyndns.org> <20040417113918.GA4846@gondor.apana.org.au> <20040417124850.C14786@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="dDRMvlgZJXvWKvBx"
+Content-Disposition: inline
+In-Reply-To: <20040417124850.C14786@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Apr 2004 12:06:30 +0200
-Willy Tarreau <w@w.ods.org> wrote:
 
-> Hmmm, I believe you forgot to tell which kernel version you used, and
-> how you configured it :-)
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Sat, Apr 17, 2004 at 12:48:50PM +0100, Russell King wrote:
 > 
-> Willy
+> And that's all it does.  It doesn't stop the oops which potentically can
+> happen when the struct device is freed (by the module being unloaded)
+> while there is still a reference to the struct device.
 
-Oh f**k:-) Sorry for that.
+You're quite right.  Even worse, there was an memset in the init
+function which set the release function back to NULL :)
 
-It is 2.4.26.
+This patch should be better.
 
-Sorry, I can't attach the .config because I'm not near the machine...
+Cheers,
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
-RAID1 + RAID5 code in kernel.
-No preempt but SMP.
-ext3 fs on all disks.
-Most other code as modules configured.
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
 
-Hopefully nothing forgotten this time.
+Index: drivers/char/mwave/mwavedd.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/char/mwave/mwavedd.c,v
+retrieving revision 1.1.1.7
+diff -u -r1.1.1.7 mwavedd.c
+--- a/drivers/char/mwave/mwavedd.c	28 Sep 2003 04:44:12 -0000	1.1.1.7
++++ b/drivers/char/mwave/mwavedd.c	17 Apr 2004 12:20:07 -0000
+@@ -470,7 +470,18 @@
+  * sysfs support <paulsch@us.ibm.com>
+  */
+ 
+-struct device mwave_device;
++static void mwave_device_release(struct device *dev)
++{
++	pMWAVE_DEVICE_DATA pDrvData = &mwave_s_mdd;
++
++	if (pDrvData->device_registered)
++		module_put(THIS_MODULE);
++}
++
++static struct device mwave_device = {
++	.bus_id = "mwave",
++	.release = mwave_device_release,
++};
+ 
+ /* Prevent code redundancy, create a macro for mwave_show_* functions. */
+ #define mwave_show_function(attr_name, format_string, field)		\
+@@ -639,11 +650,9 @@
+ 	/* uart is registered */
+ 
+ 	/* sysfs */
+-	memset(&mwave_device, 0, sizeof (struct device));
+-	snprintf(mwave_device.bus_id, BUS_ID_SIZE, "mwave");
+-
+ 	if (device_register(&mwave_device))
+ 		goto cleanup_error;
++	__module_get(THIS_MODULE);
+ 	pDrvData->device_registered = TRUE;
+ 	for (i = 0; i < ARRAY_SIZE(mwave_dev_attrs); i++) {
+ 		if(device_create_file(&mwave_device, mwave_dev_attrs[i])) {
 
-Thank you!
-
-Regards
-
-Marc
-
-> 
-> On Sat, Apr 17, 2004 at 10:53:03AM +0200, Marc Giger wrote:
-> > Hi All,
-> > 
-> > Last week I had the honor to install Linux on a E450 with 2 cpu's.
-> > All went fine at first. Long compiling sessions were no problem for
-> > the machine. Later we installed 16 additional SCSI disks and we
-> > built 4 x Soft-RAID5 groups with 4 disks each.
-> > After some time during the sync processes the machine stops
-> > responding. Simply dead. The same thing happens after every boot
-> > when the sync process is in action.
-> > 
-> > My question now is: Is it a hardware or a kernel problem? I now it
-> > isn't a simple question with the given infos.
-> > Is it possible that the 4 parallel sync processes are to much for
-> > the SCSI (standard LSI) controllers?
-> > I assume that the kernel RAID5 code is stable on sparc?!
-> > 
-> > Thank you
-> > 
-> > Regards
-> > 
-> > Marc
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
-> > linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
+--dDRMvlgZJXvWKvBx--

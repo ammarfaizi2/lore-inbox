@@ -1,29 +1,49 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155153AbQAaOdx>; Mon, 31 Jan 2000 09:33:53 -0500
-Received: by vger.rutgers.edu id <S154442AbQAaOB6>; Mon, 31 Jan 2000 09:01:58 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:25575 "EHLO mandrakesoft.mandrakesoft.com") by vger.rutgers.edu with ESMTP id <S155142AbQAaN6d>; Mon, 31 Jan 2000 08:58:33 -0500
-Date: Mon, 31 Jan 2000 12:00:00 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Jes Sorensen <Jes.Sorensen@cern.ch>
-Cc: linux-kernel@vger.rutgers.edu, mj@ucw.cz
-Subject: Re: DMA changes in 2.3.41 - how the f* do I get this working on ARM?
-In-Reply-To: <d37lgqquds.fsf@lxplus011.cern.ch>
-Message-ID: <Pine.LNX.3.96.1000131115829.23909i-100000@mandrakesoft.mandrakesoft.com>
+Received: by vger.rutgers.edu via listexpand id <S154185AbQBAMyT>; Tue, 1 Feb 2000 07:54:19 -0500
+Received: by vger.rutgers.edu id <S154232AbQBAMyE>; Tue, 1 Feb 2000 07:54:04 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:1335 "EHLO sgi.com") by vger.rutgers.edu with ESMTP id <S154249AbQBAMwh>; Tue, 1 Feb 2000 07:52:37 -0500
+From: slurn@griffin.engr.sgi.com (Scott Lurndal)
+Message-Id: <200002011703.JAA66461@griffin.engr.sgi.com>
+Subject: [PATCH]  kdb v1.0 for 2.3.29 
+To: linux-kernel@vger.rutgers.edu
+Date: Tue, 1 Feb 2000 09:03:23 -0800 (PST)
+Cc: kdb@oss.sgi.com
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On 31 Jan 2000, Jes Sorensen wrote:
-> Long term merge to a generic device interface sounds good to me. The
 
-FWIW I think we should have a driver_[un]register, not
-pci_driver_register, as this interface approaches a sufficiently generic
-interface.
+I've placed a pre-release of kdb v1.0 (restructured to support 
+additional architectures) for ia32 on 
 
-	Jeff
+http://oss.sgi.com/projects/kdb/download
 
+--
 
+This release restructures the code a bit and adds breakpoint
+instruction style (int 03) breakpoints.   They don't completely
+work yet at this time, so as a workaround, the 'bph' command
+which uses the hardware debug registers should be used to
+establish breakpoints.
 
+There is some debug code present to save and display the contents of the
+last branch register MSR on page-fault entry to the kernel.
+
+A list of changes and features can be found on
+
+http://oss.sgi.com/projects/kdb/news.html
+
+--
+
+I'll be in NYC for linuxworld expo this week, so I won't be able
+to move this forward to 2.3.41 until next week.
+
+--
+
+scott lurndal
+sgi
 
 
 -

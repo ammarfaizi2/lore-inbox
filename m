@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261484AbSIXAAg>; Mon, 23 Sep 2002 20:00:36 -0400
+	id <S261507AbSIXAFs>; Mon, 23 Sep 2002 20:05:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261488AbSIXAAg>; Mon, 23 Sep 2002 20:00:36 -0400
-Received: from ns1.system-techniques.com ([199.33.245.254]:8359 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S261484AbSIXAA3>; Mon, 23 Sep 2002 20:00:29 -0400
-Date: Mon, 23 Sep 2002 20:05:41 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: MBONE and Linux (fwd) ,  And questions .
-Message-ID: <Pine.LNX.4.44.0209232005240.8898-100000@filesrv1.baby-dragons.com>
+	id <S261513AbSIXAFs>; Mon, 23 Sep 2002 20:05:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37125 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261507AbSIXAFr>;
+	Mon, 23 Sep 2002 20:05:47 -0400
+Message-ID: <3D8FAD70.2010404@pobox.com>
+Date: Mon, 23 Sep 2002 20:10:24 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andy Isaacson <adi@hexapodia.org>
+CC: Ingo Molnar <mingo@elte.hu>, Bill Davidsen <davidsen@tmr.com>,
+       Larry McVoy <lm@bitmover.com>, Peter Waechtler <pwaechtler@mac.com>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+References: <Pine.LNX.3.96.1020923152135.13351C-100000@gatekeeper.tmr.com> <Pine.LNX.4.44.0209232218320.2118-100000@localhost.localdomain> <20020923190306.D13340@hexapodia.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-	Hello all ,  A gent posted to the ietf mailing list a message .
-	(a portion of which is shown beloiw , Author removed for privacy)
-	When I went to the url presented below I found the resources there
-	dating from Aug-2000 .  So I think that the project died a quick
-	death .  But I was hoping that someone in the Linux community may
-	have picked it up & carried on .  If anyone knows of a simular
-	project I would be appreciative of the pointer .
-
-	Is this project on going to anyones knowledge ?
-
-	Is there a simular project on going to anyones knowledge ?
-		Tia ,  JimL
-...
-Fro the people that were interested I found:
-http://www.sprintlabs.com/Department/IP-Interworking/multicast/linux-igmpv3/
-
-Which is an alpha implementation of IGMPv3 released under GPL. No router
-capabilities yet... but promising...
-...
-
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Andy Isaacson wrote:
+> Of course this can be (and frequently is) implemented such that there is
+> not one Pthreads thread per object; given simulation environments with 1
+> million objects, and the current crappy state of Pthreads
+> implementations, the researchers have no choice.
 
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-net" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Are these object threads mostly active or inactive?
+
+Regardless, it seems obvious with today's hardware, that 1 million 
+objects should never be one-thread-per-object, pthreads or no.  That's 
+just lazy programming.
+
+	Jeff
+
+
 

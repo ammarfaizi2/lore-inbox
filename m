@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263137AbSJOPRY>; Tue, 15 Oct 2002 11:17:24 -0400
+	id <S263290AbSJOPTS>; Tue, 15 Oct 2002 11:19:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263181AbSJOPRX>; Tue, 15 Oct 2002 11:17:23 -0400
-Received: from crack.them.org ([65.125.64.184]:8717 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S263137AbSJOPRV>;
-	Tue, 15 Oct 2002 11:17:21 -0400
-Date: Tue, 15 Oct 2002 11:10:04 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] x86 transition to 4k stacks (0/3)
-Message-ID: <20021015151004.GA27693@nevyn.them.org>
-Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <3DABAEDB.9070207@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DABAEDB.9070207@us.ibm.com>
-User-Agent: Mutt/1.5.1i
+	id <S263310AbSJOPTS>; Tue, 15 Oct 2002 11:19:18 -0400
+Received: from mta06bw.bigpond.com ([139.134.6.96]:61182 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S263290AbSJOPTQ>; Tue, 15 Oct 2002 11:19:16 -0400
+Message-ID: <3DAC337D.7010804@snapgear.com>
+Date: Wed, 16 Oct 2002 01:25:49 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH]: linux-2.5.42uc1 (MMU-less support)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 10:59:55PM -0700, Dave Hansen wrote:
-> The kernel currently uses an 8k stack, per task.  Here is the 
-> infrastructure needed to allow us to halve that at some point in the 
-> future.
-> 
-> This is a port of work Ben LaHaise did around 2.5.20 time.  I split it
-> up and updated it for the new preempt_count semantics.
-> 
-> I split the original patch up into 3 pieces (apply in this order):
-> * clean thread info infrastructure (1/3)
->   - take out all instances of things like (8191&addr) to get
->     current stack address.
-> * stack checking (3/3)
->   - use gcc's profiling features to check for stack overflows upon
->     entry to functions.
->   - Warn if the task goes over 4k.
->   - Panic if the stack gets within 512 bytes of overflowing.
-> * interrupt stacks (3/3)
->   - allocate per-cpu interrupt stacks.  upon entry to
->     common_interrupt, switch to the current cpu's stack.
->   - inherit the interrupted task's preempt count
-> 
-> Any suggestions on how to deal with "gcc -p" and old, buggy versions
-> of gcc would be appreciated.
+Hi All,
 
-You might have better luck with -finstrument-functions; I don't know if
-it is supported as far back but I don't believe it was buggy.  It has a
-few fewer quirks than mcount profiling.
+An updated uClinux patch is available at:
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc1.patch.gz
+
+Changelog:
+
+1. v850 update
+2. cleaned up mm/page_alloc.c
+
+
+Smaller specific patches:
+
+. FEC ColdFire 5272 ethernet driver
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc1-fec.patch.gz
+
+. m68k/ColdFire/v850 serial drivers
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc1-serial.patch.gz
+
+. 68328 frame buffer
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc1-fb.patch.gz
+
+. binfmt_flat loader
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc1-binflat.patch.gz
+
+. m68knommu architecture
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc1-m68knommu.patch.gz
+
+. v850 architecture
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc1-v850.patch.gz
+
+. mm (MMU-less) only patch
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.42uc1-mm.patch.gz
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+

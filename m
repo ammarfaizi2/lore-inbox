@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319701AbSIMQQK>; Fri, 13 Sep 2002 12:16:10 -0400
+	id <S319703AbSIMQSX>; Fri, 13 Sep 2002 12:18:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319703AbSIMQQK>; Fri, 13 Sep 2002 12:16:10 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:36861
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319701AbSIMQQJ>; Fri, 13 Sep 2002 12:16:09 -0400
-Subject: Re: kernel module and X
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Femitha Majeed <m_femitha@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <F257qNI4lQ5tX60LUDA0000eb84@hotmail.com>
-References: <F257qNI4lQ5tX60LUDA0000eb84@hotmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
-Date: 13 Sep 2002 17:22:12 +0100
-Message-Id: <1031934132.9991.6.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319704AbSIMQSX>; Fri, 13 Sep 2002 12:18:23 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:25040 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S319703AbSIMQSW>; Fri, 13 Sep 2002 12:18:22 -0400
+Date: Fri, 13 Sep 2002 13:22:54 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Con Kolivas <conman@kolivas.net>
+cc: linux-kernel@vger.kernel.org, <gh@us.ibm.com>
+Subject: Re: System response benchmarks in performance patches
+In-Reply-To: <1031933335.3d820d97a13c6@kolivas.net>
+Message-ID: <Pine.LNX.4.44L.0209131320130.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-13 at 17:05, Femitha Majeed wrote:
-> I have a kernel module that reads the files in the /proc directory. It works 
-> fine when I am not using X. But when I use X, it gives me the follwoing 
-> error in the log:
+On Sat, 14 Sep 2002, Con Kolivas wrote:
 
-You don't give enough information. Look at "dmesg" and then debug your
-module from the ksymoops data.
+> I came up with a very simple way of measuring responsiveness that gives
+> me numbers that are meaningful to me. What I've done is the old faithful
+> kernel compile and measured it under different loads to simulate the
+> pc's ability to perform under various loads.
 
-> XFree86 Version 4.1.0 (Red Hat Linux release: 4.1.0-3) / X Window System
-> (protocol Version 11, revision 0, vendor release 6510)
-> Release Date: 2 June 2001
-> 	If the server is older than 6-12 months, or if your card is
-> 	newer than the above date, look for a newer version before
-> 	reporting problems.  (See http://www.XFree86.Org/FAQ)
+Absolutely wonderful.  I'd love to see this easily scriptable
+so we can just run it with one command, eg:
 
-          Also for X stuff ^^^^^^^^^^^^^^^^^^^^^^
+$ ./contest
+
+> Kernel			Time		%CPU
+> 2.4.19			3:00.76		58%
+> 2.4.19-ck7			2:01.68		86%
+> 2.4.19-ck7-rmap		2:05.95		83%
+> 2.4.18-6mdk    	        3:01.48         58%
+
+Very interesting results. People benchmarking just one thing
+at a time won't get variances anywhere near this big, while
+real system workload is pretty much always multitasking.
+
+I think I've finally found a benchmark that gives results which
+are meaningful in the context of a multitasking system.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
 

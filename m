@@ -1,45 +1,190 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264870AbTLWAbt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 19:31:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbTLWA34
+	id S264605AbTLWA3k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 19:29:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264875AbTLWA3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 19:29:56 -0500
-Received: from mail.kroah.org ([65.200.24.183]:36525 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264870AbTLWA31 (ORCPT
+	Mon, 22 Dec 2003 19:29:39 -0500
+Received: from mail.kroah.org ([65.200.24.183]:30637 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264605AbTLWA3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 19:29:27 -0500
-Date: Mon, 22 Dec 2003 16:21:26 -0800
+	Mon, 22 Dec 2003 19:29:21 -0500
+Date: Mon, 22 Dec 2003 16:28:00 -0800
 From: Greg KH <greg@kroah.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: [PATCH] some sysfs patches for 2.6.0 [0/4]
-Message-ID: <20031223002126.GA4805@kroah.com>
+Subject: [PATCH] add sysfs misc device support  [3/4]
+Message-ID: <20031223002800.GD4805@kroah.com>
+References: <20031223002126.GA4805@kroah.com> <20031223002439.GB4805@kroah.com> <20031223002609.GC4805@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20031223002609.GC4805@kroah.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are 4 sysfs related patches for 2.6.0.  They do the following:
+This adds /sys/class/mem which enables all misc char devices to show up
+properly in udev.
 
-  - fix an oops in sysfs when a kobject has been unregistered before
-    it's child has.  An example of this is the oops that happens in
-    2.6.0 whenever a usb-serial device is removed that has a port open
-    by a user (almost all Pilot devices do this by virtue of the
-    protocol...)
+Note, the misc_init() call has been moved to a subsys_initcall as it
+seems there are a lot of platform specific misc devices that are calling
+misc_register before misc_init() is called.
+
+Has been posted to lkml a few times in the past and tested by a wide
+range of people.
 
 
-  - add sysfs support to the following char drivers:
-  	- mem devices (/dev/null and friends)
-	- misc devices (/dev/psaux and other odd devices)
-	- vc devices
-
-Please apply these to 2.6.0 or your -mm tree depending on how
-comfortable you are with them.
-
-thanks,
-
-greg k-h
-	
+diff -Nru a/drivers/char/misc.c b/drivers/char/misc.c
+--- a/drivers/char/misc.c	Mon Dec 22 15:56:26 2003
++++ b/drivers/char/misc.c	Mon Dec 22 15:56:26 2003
+@@ -47,7 +47,7 @@
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/stat.h>
+ #include <linux/init.h>
+-
++#include <linux/device.h>
+ #include <linux/tty.h>
+ #include <linux/kmod.h>
+ 
+@@ -180,6 +180,91 @@
+ 	return err;
+ }
+ 
++/* Misc class implementation */
++
++/* 
++ * TODO for 2.7:
++ *  - add a struct class_device to struct miscdevice and make all usages of
++ *    them dynamic.  This will let us get rid of struct misc_dev below.
++ */
++struct misc_dev {
++	struct list_head node;
++	dev_t dev;
++	struct class_device class_dev;
++};
++#define to_misc_dev(d) container_of(d, struct misc_dev, class_dev)
++
++static LIST_HEAD(misc_dev_list);
++static spinlock_t misc_dev_list_lock = SPIN_LOCK_UNLOCKED;
++
++static void release_misc_dev(struct class_device *class_dev)
++{
++	struct misc_dev *misc_dev = to_misc_dev(class_dev);
++	kfree(misc_dev);
++}
++
++static struct class misc_class = {
++	.name		= "misc",
++	.release	= &release_misc_dev,
++};
++
++static ssize_t show_dev(struct class_device *class_dev, char *buf)
++{
++	struct misc_dev *misc_dev = to_misc_dev(class_dev);
++	return print_dev_t(buf, misc_dev->dev);
++}
++static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
++
++static void misc_add_class_device(struct miscdevice *misc)
++{
++	struct misc_dev *misc_dev = NULL;
++	int retval;
++
++	misc_dev = kmalloc(sizeof(*misc_dev), GFP_KERNEL);
++	if (!misc_dev)
++		return;
++	memset(misc_dev, 0x00, sizeof(*misc_dev));
++
++	misc_dev->dev = MKDEV(MISC_MAJOR, misc->minor);
++	misc_dev->class_dev.dev = misc->dev;
++	misc_dev->class_dev.class = &misc_class;
++	snprintf(misc_dev->class_dev.class_id, BUS_ID_SIZE, "%s", misc->name);
++	retval = class_device_register(&misc_dev->class_dev);
++	if (retval)
++		goto error;
++	class_device_create_file(&misc_dev->class_dev, &class_device_attr_dev);
++	spin_lock(&misc_dev_list_lock);
++	list_add(&misc_dev->node, &misc_dev_list);
++	spin_unlock(&misc_dev_list_lock);
++	return;
++error:
++	kfree(misc_dev);
++}
++
++static void misc_remove_class_device(struct miscdevice *misc)
++{
++	struct misc_dev *misc_dev = NULL;
++	struct list_head *tmp;
++	int found = 0;
++
++	spin_lock(&misc_dev_list_lock);
++	list_for_each(tmp, &misc_dev_list) {
++		misc_dev = list_entry(tmp, struct misc_dev, node);
++		if ((MINOR(misc_dev->dev) == misc->minor)) {
++			found = 1;
++			break;
++		}
++	}
++	if (found) {
++		list_del(&misc_dev->node);
++		spin_unlock(&misc_dev_list_lock);
++		class_device_unregister(&misc_dev->class_dev);
++	} else {
++		spin_unlock(&misc_dev_list_lock);
++	}
++}
++
++
+ static struct file_operations misc_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= misc_open,
+@@ -236,6 +321,7 @@
+ 
+ 	devfs_mk_cdev(MKDEV(MISC_MAJOR, misc->minor),
+ 			S_IFCHR|S_IRUSR|S_IWUSR|S_IRGRP, misc->devfs_name);
++	misc_add_class_device(misc);
+ 
+ 	/*
+ 	 * Add it to the front, so that later devices can "override"
+@@ -265,6 +351,7 @@
+ 
+ 	down(&misc_sem);
+ 	list_del(&misc->list);
++	misc_remove_class_device(misc);
+ 	devfs_remove(misc->devfs_name);
+ 	if (i < DYNAMIC_MINORS && i>0) {
+ 		misc_minors[i>>3] &= ~(1 << (misc->minor & 7));
+@@ -285,6 +372,7 @@
+ 	if (ent)
+ 		ent->proc_fops = &misc_proc_fops;
+ #endif
++	class_register(&misc_class);
+ #ifdef CONFIG_MVME16x
+ 	rtc_MK48T08_init();
+ #endif
+@@ -319,4 +407,4 @@
+ 	}
+ 	return 0;
+ }
+-module_init(misc_init);
++subsys_initcall(misc_init);
+diff -Nru a/include/linux/miscdevice.h b/include/linux/miscdevice.h
+--- a/include/linux/miscdevice.h	Mon Dec 22 15:56:22 2003
++++ b/include/linux/miscdevice.h	Mon Dec 22 15:56:22 2003
+@@ -36,12 +36,15 @@
+ 
+ #define TUN_MINOR	     200
+ 
++struct device;
++
+ struct miscdevice 
+ {
+ 	int minor;
+ 	const char *name;
+ 	struct file_operations *fops;
+ 	struct list_head list;
++	struct device *dev;
+ 	char devfs_name[64];
+ };
+ 

@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318232AbSHPHHU>; Fri, 16 Aug 2002 03:07:20 -0400
+	id <S318237AbSHPHRN>; Fri, 16 Aug 2002 03:17:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318237AbSHPHHU>; Fri, 16 Aug 2002 03:07:20 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:11280
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S318232AbSHPHHT>; Fri, 16 Aug 2002 03:07:19 -0400
-Date: Fri, 16 Aug 2002 00:01:52 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Markus Plail <plail@web.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-2.4.19-ac4.11.patch, late but stable
-In-Reply-To: <87elcz5mgi.fsf@plailis.homelinux.net>
-Message-ID: <Pine.LNX.4.10.10208152353190.12468-100000@master.linux-ide.org>
+	id <S318242AbSHPHRN>; Fri, 16 Aug 2002 03:17:13 -0400
+Received: from web12407.mail.yahoo.com ([216.136.173.134]:21521 "HELO
+	web12407.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S318237AbSHPHRM>; Fri, 16 Aug 2002 03:17:12 -0400
+Message-ID: <20020816072109.53259.qmail@web12407.mail.yahoo.com>
+Date: Fri, 16 Aug 2002 00:21:09 -0700 (PDT)
+From: Amol Lad <dal_loma@yahoo.com>
+Subject: SMP boot query
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+ Lets assume, boot processor has done all its
+initialization and is booting the second processor. 
+In do_boot_cpu(), it calls fork_by_hand() and creates
+an idle task for cpu#2 . 
+It then iniliazes all relevant fields of 'idle' task
+for cpu#2.
+It also does following
+start_eip = setup_trampoline();
+stack_start.esp = (void *) (1024 + PAGE_SIZE + (char
+*)idle);
 
-Greetings Markus,
+After doing lot of APIC related stuff, it sends
+Startup IPI to cpu#2 to start booting from start_eip .
 
-It is a fair question of which I do not have a nice answer.
-I am working on fresh atapi-packet-generic engine but it is not a joy.
-There are oddities like bus-phases or bus-states which their setup and
-feeding of the DMA engine requires a more eligant hammer.
 
-As much as I hate to concept of a DMA mempool, it looks like the direction
-to follow.  Games such as HOST<>DEVICE || feast<>famine of buffer streams
-appear to be the norm to push vast amounts of atapi-dma.  The alternative
-is to have device level request queues and have the queues carry the SG or
-PRD list for that portion.
+cpu#2, from trampoline code jumps to startup_32 and
+from there to initialize_secondary. 
 
-I am open to suggestions for direction.
+initialize_secondary is
 
-Cheers,
+        asm volatile(
+                "movl %0,%%esp\n\t"
+                "jmp *%1"
+                :
+                :"r" (current->thread.esp),"r"
+(current->thread.eip));
 
-Andre Hedrick
-LAD Storage Consulting Group
+Now my questions
+1] what is trampoline ?
+2] I did not understood, how 'current' above is set to
+  new idle task created in fork_by_hand (is some magic
+done in start_stack.esp ?? )
 
-On Fri, 16 Aug 2002, Markus Plail wrote:
+-- Amol
 
-> Hi Andre!
-> 
-> * Andre Hedrick writes:
-> >It is out, require 2.4.19 plus -ac4
-> >http://www.linuxdiskcert.org/ide-2.4.19-ac4.11.patch.bz2
-> 
-> How are chances that DMA will get enabled for higher blocksizes
-> (c2scans, DAO cd writing, audio CD ripping)?
-> Is there any progress on that field in 2.5.* kernels?
-> 
-> regards
-> Markus
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
+
+__________________________________________________
+Do You Yahoo!?
+HotJobs - Search Thousands of New Jobs
+http://www.hotjobs.com

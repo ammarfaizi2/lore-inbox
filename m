@@ -1,77 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292730AbSC3WC6>; Sat, 30 Mar 2002 17:02:58 -0500
+	id <S292957AbSC3WUS>; Sat, 30 Mar 2002 17:20:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292813AbSC3WCr>; Sat, 30 Mar 2002 17:02:47 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:35592
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S292730AbSC3WCd>; Sat, 30 Mar 2002 17:02:33 -0500
-Date: Sat, 30 Mar 2002 14:01:14 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Art Wagner <awagner@westek-systems.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre4-ac[23] do not boot
-In-Reply-To: <3CA51A31.80405@westek-systems.com>
-Message-ID: <Pine.LNX.4.10.10203301400540.10681-100000@master.linux-ide.org>
+	id <S293151AbSC3WUJ>; Sat, 30 Mar 2002 17:20:09 -0500
+Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:27528 "EHLO
+	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S292957AbSC3WUB>; Sat, 30 Mar 2002 17:20:01 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Randy Hron <rwhron@earthlink.net>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Subject: Re: Linux 2.4.19-pre5
+Date: Sat, 30 Mar 2002 17:25:46 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br
+In-Reply-To: <20020330135333.A16794@rushmore> <E16rQNU-00007G-00@gull.prod.itd.earthlink.net> <1017524577.444.61.camel@psuedomode>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16rRCX-00068U-00@avocet.prod.itd.earthlink.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > The sequential read max latency walls for various trees looks like:
+> > tree		# of threads
+> > rmap		128
+> > ac		128
+> > marcelo		32
+> > linus		64
+> > 2.5-akpm-everything	>128 
+> > 2.4 read latency2	>128
+> > 
+> > read request was the unlucky max.  
 
-Fixed now!
-Code drop tonight!
+> Is that to say an ac branch (which uses rmap) can do the 128 but is
+> non-responsive?   
 
-On Fri, 29 Mar 2002, Art Wagner wrote:
+Thanks for testing!  The more the merrier. :)
 
-> Hi;
-> I seem to have the identical problem with system hangs on boot. The 
-> problem I see occurs on a Abit BP6
-> on the first access of the first drive on the HPT-366 interface. The 
-> problem occurs on all -ac-x revisions
-> 1 through 3.  The attached log is from an boot on 2.4.19-pre4 which did 
-> not hang but the log is identical
-> except for the fact that the hang occurs with only the "hde:" portion of 
-> the last line displayed.
-> If I can provide any further information pleas let me know via the list 
-> or direct email.
-> Art Wagner
-> 
-> Andre Hedrick wrote:
-> 
-> >On Fri, 29 Mar 2002, Alan Cox wrote:
-> >
-> >>>This is possible, however one of the problems encountered is the
-> >>>following under several chipsets.  If there is no pio timing set at all,
-> >>>then we can run into host lock issues if the driver drops out of dma.
-> >>>Thus, if it is going to lockup here it would/could lock up in other
-> >>>places when one trys to program the host for PIO.
-> >>>
-> >>Well right at the moment the ALi locks up on boot reliably. That means a
-> >>fix has to be found, or the ALi changes reverted 
-> >>
-> >
-> >Pull out the GOOF-UP of mine :-/
-> >
-> >autotune is enabled and does the same thing, Gurrr....
-> >
-> >Cheers,
-> >
-> >Andre Hedrick
-> >LAD Storage Consulting Group
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
-> 
-> 
+unlucky max is the keyword above.    The average latency is okay
+in general.  It's the requests that are waiting to get serviced that
+may give the impression "it's locked up".   
 
-Andre Hedrick
-LAD Storage Consulting Group
+> the feel i got when running the test was absolutely no effect on
+> responsiveness even as the load hit 110.  
 
+I see you did several runs, but the mail wrapped and it's hard to
+read your results.   With 644 MB RAM, I wouldn't expect you to
+see the "big latency" phenomenon with these scenerios:
+
+128 MB datafiles 128 threads 
+384 MB datafiles 1 thread
+2048 MB datafiles 8 threads
+
+> preempt patch for 2.4.19-pre4-ac3.  I guess I'll try with threads = 256
+
+That's a good number and maybe a 4096MB datafile based on your RAM.
+If you are lucky, only the test's I/O's will win the "unlucky max".
+If you're not, just be patient, the machine will survive.
+
+The big latency wall moved from 32 to 128 tiobench threads in 
+2.4.19-pre9-ac3 after Alan put in rmap12e.
+
+> just to see if this frozen feeling occurs in preempt kernels as well. 
+
+Yeah, that will be interesting.  
+
+> You dont seem to test them anywhere on your own site.  
+
+Most of the tests I run measure throughput.   Tiobench has the nice
+latency metric.  When I tested preempt, it generally had lower 
+throughput.  Low latency is important and I'm glad Robert, 
+Andrew, Ingo and all the others are improving the kernel in 
+that respect.
+
+If you're curious, there is a 2.4.18-pre3 preempt/lockbreak
+and low-latency page at 
+http://home.earthlink.net/~rwhron/kernel/pe.html

@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265274AbUAYUeK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 15:34:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbUAYUeK
+	id S265246AbUAYUjf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 15:39:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUAYUjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 15:34:10 -0500
-Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:15377 "EHLO
-	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S265274AbUAYUeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 15:34:07 -0500
-Message-ID: <4014283D.9040207@blueyonder.co.uk>
-Date: Sun, 25 Jan 2004 20:34:05 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040118
-X-Accept-Language: en, en-us
+	Sun, 25 Jan 2004 15:39:35 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:32918 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S265243AbUAYUjc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 15:39:32 -0500
+From: Marco Rebsamen <mrebsamen@swissonline.ch>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Troubles Compiling 2.6.1 on SuSE 9
+Date: Sun, 25 Jan 2004 21:43:34 +0100
+User-Agent: KMail/1.5.4
+References: <200401242137.34881.mrebsamen@swissonline.ch> <200401251827.23510.mrebsamen@swissonline.ch> <20040125195500.GB5810@mars.ravnborg.org>
+In-Reply-To: <20040125195500.GB5810@mars.ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: John Stoffel <stoffel@lucent.com>
-Subject: Re: 2.6.2-rc1-mm2 kernel oops
-References: <4013D0AA.8060906@blueyonder.co.uk> <16404.8968.349900.566999@gargle.gargle.HOWL>
-In-Reply-To: <16404.8968.349900.566999@gargle.gargle.HOWL>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Jan 2004 20:34:28.0128 (UTC) FILETIME=[A0E76A00:01C3E382]
+Content-Disposition: inline
+Message-Id: <200401252143.34292.mrebsamen@swissonline.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Stoffel wrote:
-> Sid> Andrew Morton wrote:
-> Sid> Sid Boyce <sboyce@xxxxxxxxxxxxxxxx> wrote:
-> 
->>>>I get this on bootup, Athlon XP2200+
->>>>=====================================
->>>>Linux version 2.6.2-rc1-mm2 (root@barrabas) (gcc version 3.3.1 (SuSE
->>>>...
->>>>EIP is at test_wp_bit+0x36/0x90
-> 
-> 
->>>oh crap, why does this thing keep breaking? Please send your .config
->>>over,
->>>thanks.
-> 
-> 
-> Sid> Linus aslso asked if 2.6.2-rc1 work -- I shall build it
-> Sid> shortly. I also get the same error with 2.6.2-rc1-mm3.
-> 
-> It doesn't work for me here, I started with 2.6.2-rc1 and moved up
-> through mm1 and mm3, all either hind on boot (after the uncompressing
-> message) or crashed with the test_wp_bit Oops that seems to be going
-> around.
-> 
-> 2.6.1-mm4 is the last stable version that works for me.
-> 
-> John
->    John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
-> 	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548
-> 
+Am Sonntag, 25. Januar 2004 20:55 schrieben Sie:
+> > I get many messages:
+> > modprobe: modprobe: Can't open dependencies file /lib/
+> > modules/2.4.21-99-default/modules.dep (no such file or dir.)
+>
+> Strange, you are building a 2.6 kernel.
+> Did you execute this as root?
+>
+> 	Sam
 
-See my previous post, I just commented out the line that Adrian Bunk 
-asked me to remove and it's now up and running.
-Regards
-Sid.
+originaly i read this on the Kernelmessages console (alt+F10)
+but i also tried it as root.... the same...
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
+i've never installed the default kernel. The athlond kernel was installed from 
+the beginning. If i make a symlink in this folder that points to the 
+modules.dep in the 2.6.1 dir. then it works. But i guess that isn't a clean 
+solution.....
+
+fu*** suse or stupid user ?? :-P
+

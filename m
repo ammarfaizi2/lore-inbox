@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283007AbRLCIvp>; Mon, 3 Dec 2001 03:51:45 -0500
+	id <S284475AbRLCIve>; Mon, 3 Dec 2001 03:51:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284371AbRLCItl>; Mon, 3 Dec 2001 03:49:41 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:24594 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S284752AbRLCEbt>;
-	Sun, 2 Dec 2001 23:31:49 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S284480AbRLCIul>; Mon, 3 Dec 2001 03:50:41 -0500
+Received: from MAIL1.ANDREW.CMU.EDU ([128.2.10.131]:60864 "EHLO
+	mail1.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S284809AbRLCGP0>; Mon, 3 Dec 2001 01:15:26 -0500
+Message-ID: <3C0B1239.70808@andrew.cmu.edu>
+Date: Mon, 03 Dec 2001 00:48:41 -0500
+From: Jeff Maki <jmaki@andrew.cmu.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011014
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: SMP, MD and Promise IDE Controllers
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15370.65477.649725.353028@argo.ozlabs.ibm.com>
-Date: Mon, 3 Dec 2001 15:29:57 +1100 (EST)
-To: Alan Ford <alan@whirlnet.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17-pre2 & PCMCIA Errors
-In-Reply-To: <20011202203207.A1014@whirlnet.co.uk>
-In-Reply-To: <20011202203207.A1014@whirlnet.co.uk>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Ford writes:
+Hi, everyone! Got an issue with the APIC, SMP and possible MD code - 
+I've got this dual Athlon box with two Promise Ultra100TX2 cards. Each 
+has two IBM disks on it, for a total of four.  I use the RH7.2 installer 
+to install software raid 0, and everything works fine! No errors, 
+nothing. Absolutely perfect. When I boot the *real* kernel, however, I 
+get a number of things:
 
-> Just tried 2.4.17-pre2 (was previously on 2.4.16-pre1) and when pcmcia-cs is
-> started on bootup, the following happens:
-> 
-> cs: IO port probe 0x0c00-0x0cff: clean.
-> cs: IO port probe 0x0100-0x04ff: excluding 0x4d0-0x4d7
-> cs: IO port probe 0x0a00-0x0aff: clean.
-> cs: memory probe 0xa0000000-0xa0ffffff:<1>Unable to handle kernel NULL pointer
-> dereference at virtual address 00000004
+- I/O errors to hdi and hdk (the two disks on the second promise card - 
+which isn't UDMA because the ports can't be probed. The two disks on the 
+first are UDMA - never any errors on those)
+- Spurious interrupt #7
+- APIC error - AMD Errata #22, try noapic.
 
-Please try this patch and let me know whether it fixes the problem.
+The thing works perfectly in single processor mode, by the way. I also 
+tried noapic (although I still get the message to try noapic! Does this 
+flag do anything!?) and also tried changing two bios options - the MP 
+table to revision 1.1 or 1.4, and this strange option to "use IRQ table 
+entries in MP" or some such thing. I tried both options, on and off, and 
+I still get these errors. It seems to be apic related - anyone out there 
+have any ideas on how I might get it working!? I also tried 2.4.14 to a 
+limited fashion, but since he I/O errors corrupt the fs, so I can't try 
+too many things before I have to re-install!
 
-Paul.
+Thanks!!
 
-diff -urN linux-2.4.17-pre2/drivers/pcmcia/rsrc_mgr.c pmac/drivers/pcmcia/rsrc_mgr.c
---- linux-2.4.17-pre2/drivers/pcmcia/rsrc_mgr.c	Sat Dec  1 15:49:24 2001
-+++ pmac/drivers/pcmcia/rsrc_mgr.c	Mon Dec  3 14:28:16 2001
-@@ -107,17 +107,19 @@
- static struct resource *resource_parent(unsigned long b, unsigned long n,
- 					int flags, struct pci_dev *dev)
- {
--	struct resource res;
-+	struct resource res, *pr;
- 
--	if (dev == NULL) {
--		if (flags & IORESOURCE_MEM)
--			return &iomem_resource;
--		return &ioport_resource;
-+	if (dev != NULL) {
-+		res.start = b;
-+		res.end = b + n - 1;
-+		res.flags = flags;
-+		pr = pci_find_parent_resource(dev, &res);
-+		if (pr)
-+			return pr;
- 	}
--	res.start = b;
--	res.end = b + n - 1;
--	res.flags = flags;
--	return pci_find_parent_resource(dev, &res);
-+	if (flags & IORESOURCE_MEM)
-+		return &iomem_resource;
-+	return &ioport_resource;
- }
- 
- static inline int check_io_resource(unsigned long b, unsigned long n,
+-Jeff.
+

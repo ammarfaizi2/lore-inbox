@@ -1,96 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268501AbUIXF5g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268212AbUIXFsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268501AbUIXF5g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 01:57:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268526AbUIXFyX
+	id S268212AbUIXFsz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 01:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUIXFpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 01:54:23 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:50824 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S268501AbUIXFsu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 01:48:50 -0400
-Date: Fri, 24 Sep 2004 01:48:44 -0400
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>,
-       Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [1/1] connector: Kernel connector - userspace <-> kernelspace "linker".
-Message-ID: <20040924054844.GO30131@ruslug.rutgers.edu>
-Mail-Followup-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-	"Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>,
-	Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
-	linux-kernel@vger.kernel.org
-References: <1095331899.18219.58.camel@uganda> <20040921124623.GA6942@uganda.factory.vocord.ru> <20040924000739.112f07dd@zanzibar.2ka.mipt.ru> <20040923215447.GD30131@ruslug.rutgers.edu> <1095997232.17587.8.camel@uganda>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kr14OxHsRwZHHqxS"
-Content-Disposition: inline
-In-Reply-To: <1095997232.17587.8.camel@uganda>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: 2.4.18-1-686
-Organization: Rutgers University Student Linux Users Group
-From: mcgrof@studorgs.rutgers.edu (Luis R. Rodriguez)
+	Fri, 24 Sep 2004 01:45:50 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:13495 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S267974AbUIXFng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 01:43:36 -0400
+Date: Fri, 24 Sep 2004 14:45:22 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: [PATCH] Updated patches for PCI IRQ resource deallocation support [0/3]
+To: greg@kroah.com, len.brown@intel.com, tony.luck@intel.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org
+Message-id: <4153B472.5020109@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: ja
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
+ Gecko/20030624 Netscape/7.1 (ax)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Greg, Len and Tony,
 
---kr14OxHsRwZHHqxS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Here is an updated set of patches for PCI IRQ resource deallocation
+based on some feedbacks. This set of patches has the following three
+patches:
 
-On Fri, Sep 24, 2004 at 07:40:32AM +0400, Evgeniy Polyakov wrote:
-> On Fri, 2004-09-24 at 01:54, Luis R. Rodriguez wrote:
-> > RFC:=20
-> >=20
-> > Can and should we work towards using this as interface for drivers that
-> > need callbacks from an external (closed source) library/HAL?
->=20
-> As I mentioned to Richard Jonson, it can be considered as
-> ioctl. ioctl-ng!
-> Unified interface (as ioctl) can be used for any type of modules.
-> It is just a bit extended ioctl :)
->=20
-> And _yes_, it can be used to turn on/off binary-only callbacks.
-> Remember pwc - closed part can register callback and open part can
-> send message, or even closed part can register notification when
-> open part registers itself and begin to "trash the kernel".
->=20
-> I understand that it is not right way to include it is into the kernel,
-> but I personally do not understand how it is different=20
-> from just extended ioctl. It was designed to be usefull and convenient,
-> and it is.
->=20
-> BTW, any binary-only module can _itself_ create netlink socket
-> with input callback. And that is all - it will be absolutely
-> the same as above.
->=20
-> One may consider connector as yet-another-netlink-helper.
->=20
+    - Patch [1/3]: This is for PCI code that has no dependencies. This
+      is the latest version (against 2.6.9-rc2-mm1) of the patch
+      posted in the other therad. Please see:
+      http://marc.theaimsgroup.com/?l=linux-kernel&m=109533945101033&w=2
 
-Eh. I'm just wondering if there's any *right* way of using binary
-callbacks on a linux driver so that it doesn't *taint* and possibly
-*trash it*, as you said. I was wondering if perhaps through the
-connector we could somehow protect the kernel of possibly ill-behaved callb=
-acks.
+    - Patch [2/3]: This is for ACPI code that has no dependencies.
 
-Comments?
+    - Patch [3/3]: This is for ia64 code that depends on patch [1/3]
+      and patch [2/3].
 
-	Luis
+Patch [3/3] is waiting for the others to be applied, because it
+depends on patch [1/3] and patch [2/3].
 
---=20
-GnuPG Key fingerprint =3D 113F B290 C6D2 0251 4D84  A34A 6ADD 4937 E20A 525E
+Greg and Len, could you apply patch [1/3] and patch [2/3] onto each
+your tree first?
 
---kr14OxHsRwZHHqxS
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Thanks,
+Kenji Kaneshige
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+----
+Architecture dependent IRQ resources such as interrupt vector for PCI
+devices are allocated at pci_enable_device() time on i386, x86-64 and
+ia64 platform. Today, however, these IRQ resources are never
+deallocated even if they are no longer used. The following set of
+patches adds supports to deallocate IRQ resources at
+pci_disable_device() time.
 
-iD8DBQFBU7U7at1JN+IKUl4RAmPrAJ9wEi5xKV+97H/viSOrxyda89l6yACgmRZr
-3ilj8b4TnhHMG0xOeASvblk=
-=YK7d
------END PGP SIGNATURE-----
+The motivation of the set of patches is as follows:
 
---kr14OxHsRwZHHqxS--
+    - IRQ resources such as interrupt vectors should be freed if they
+      are no longer used because the amount of these resources are
+      limited. By deallocating IRQ resources, we can recycle them.
+
+    - I think some hardwares will support hot-pluggable I/O units with
+      I/O xAPICs in the near future. So I/O xAPIC hot-plug support by
+      OS will be needed soon. IRQ resouces deallocation will be one of
+      the most important stuff for I/O xAPIC hot-plug.
+
+To realize IRQ resource deallocation, the following set of patches
+defines new interfaces:
+
+    - void pcibios_disable_device (struct pci_dev *dev)
+
+      This is a opposite portion of pcibios_enable_device(). It's a
+      hook to call architecture specific code for deallocating PCI
+      resources.
+      
+    - void acpi_unregister_gsi (int irq)
+
+      This is a opposite portion of acpi_register_gsi(). This has a
+      responsibility for deallocating IRQ resources associated with
+      the specified linux IRQ number. 
+
+For details of these interfaces, please see the description in each
+patch.
+
+The set of patches containes the following patches:
+
+    - add_pcibios_disable_device_hook.patch
+
+      This patch defines new a interface pcibios_disable_device(). It
+      has already been posted to LKML before. Please see:
+      http://marc.theaimsgroup.com/?l=linux-kernel&m=109533945101033&w=2
+
+    - IRQ_deallocation_acpi.patch
+
+      This is a acpi portion of IRQ resource deallocation. It defines
+      a new interface acpi_unregister_gsi().
+
+    - IRQ_deallocation_ia64.patch
+
+      This is a ia64 portion of IRQ resource deallocation. It
+      implements pcibios_disable_device() and acpi_unregister_gsi()
+      for ia64.
+
+For now, the following set of patches has ia64 implementation only.
+i386 and x86_64 implementations are TBD.
+
+

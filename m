@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbUJ0TcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262596AbUJ0SpC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbUJ0TcL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 15:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbUJ0TVS
+	id S262596AbUJ0SpC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 14:45:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUJ0Som
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 15:21:18 -0400
-Received: from out009pub.verizon.net ([206.46.170.131]:52867 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S262636AbUJ0TDt
+	Wed, 27 Oct 2004 14:44:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46798 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262618AbUJ0SeF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 15:03:49 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCHES] ide-2.6 update
-Date: Wed, 27 Oct 2004 15:03:36 -0400
-User-Agent: KMail/1.7
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-ide@vger.kernel.org
-References: <58cb370e04102706074c20d6d7@mail.gmail.com> <200410271426.04051.gene.heskett@verizon.net> <Pine.LNX.4.58.0410271139530.28839@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0410271139530.28839@ppc970.osdl.org>
+	Wed, 27 Oct 2004 14:34:05 -0400
+Message-ID: <417FEA09.6080502@pobox.com>
+Date: Wed, 27 Oct 2004 14:33:45 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Christoph Hellwig <hch@infradead.org>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>
+Subject: Re: news about IDE PIO HIGHMEM bug
+References: <58cb370e041027074676750027@mail.gmail.com> <417FBB6D.90401@pobox.com> <1246230000.1098892359@[10.10.2.4]> <1246750000.1098892883@[10.10.2.4]> <20041027180816.GA32436@infradead.org>
+In-Reply-To: <20041027180816.GA32436@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410271503.36426.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [141.153.91.102] at Wed, 27 Oct 2004 14:03:39 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 October 2004 14:41, Linus Torvalds wrote:
->On Wed, 27 Oct 2004, Gene Heskett wrote:
->> I don't know for sure if I'm having a problem or not Linus, but I
->> had to dl fc3rc1's iso's several times to get all good md5sums.
->
->I don't think it was your side, I saw it too.
->
->They seem to have replaced the test-rc ISO images in the middle or
-> had some server trouble, so the md5sums simply didn't match
-> originally.
->
->  Linus
+Christoph Hellwig wrote:
+>>To repeat what I said in IRC ... ;-)
+>>
+>>Actually, you could check this with the pfns being the same when >> MAX_ORDER-1.
+>>We should be aligned on a MAX_ORDER boundary, I think.
+>>
+>>However, pfn_to_page(page_to_pfn(page) + 1) might be safer. If rather slower.
+> 
+> 
+> I think this is the wrong level of interface exposed.  Just add two hepler
+> kmap_atomic_sg/kunmap_atomic_sg that gurantee to map/unmap a sg list entry,
+> even if it's bigger than a page.
 
-Good, so I'm not crazy after all, as someone on the fedora list 
-accused me of yesterday when I went off topic, at length, responding 
-to a political rant about the shrub and about freedoms in general.  
-Thanks, I needed that. :)
+Why bother mapping anything larger than a page, when none of the users 
+need it?
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+	Jeff
+
+
+
+P.S. In your scheme you would need four helpers; you forgot kmap_sg() 
+and kunmap_sg().

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317096AbSHYKLq>; Sun, 25 Aug 2002 06:11:46 -0400
+	id <S317101AbSHYKNB>; Sun, 25 Aug 2002 06:13:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317101AbSHYKLq>; Sun, 25 Aug 2002 06:11:46 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:24013 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S317096AbSHYKLp>;
-	Sun, 25 Aug 2002 06:11:45 -0400
-Message-ID: <1030270557.3d68ae5dd2b04@kolivas.net>
-Date: Sun, 25 Aug 2002 20:15:57 +1000
-From: conman@kolivas.net
-To: Paul Drain <pd@cipherfunk.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 kernel patches - any chance of a seperation?
-References: <1030171275.7728.83.camel@tickle-me-elmo.int.ridge.com.au>  <1030171550.3d672b9e0a17f@kolivas.net> <1030173093.30956.97.camel@tickle-me-elmo.int.ridge.com.au>
-In-Reply-To: <1030173093.30956.97.camel@tickle-me-elmo.int.ridge.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+	id <S317102AbSHYKNB>; Sun, 25 Aug 2002 06:13:01 -0400
+Received: from mta2n.bluewin.ch ([195.186.4.220]:57706 "EHLO mta2n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S317101AbSHYKNA>;
+	Sun, 25 Aug 2002 06:13:00 -0400
+Date: Sun, 25 Aug 2002 12:16:54 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Luca Barbieri <ldb@ldb.ods.org>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Kernel Janitors ML 
+	<kernel-janitor-discuss@lists.sourceforge.net>
+Subject: Re: Broken inlines all over the source tree
+Message-ID: <20020825101654.GA3707@k3.hellgate.ch>
+Mail-Followup-To: Luca Barbieri <ldb@ldb.ods.org>,
+	Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+	Kernel Janitors ML <kernel-janitor-discuss@lists.sourceforge.net>
+References: <1030232838.1451.99.camel@ldb>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1030232838.1451.99.camel@ldb>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.19 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Paul Drain <pd@cipherfunk.org>:
-> What I was looking to do is just take:
-> 
-> - O1+ck
-> - preempt+ck
-> 
-> and
-> 
-> - rmap+ck (and merge the other slab based cleanups i've yet to push to
-> Rik and co.) 
-> 
-> and drop those in as 000- individual patches. (if you look in
-> ftp://cipherfunk.org/pub/kernels/v2.4/individual/2.4.19/fnk4/ you'll see
-> an individually seperated set of patches that form my -fnk4 patch)
+On Sun, 25 Aug 2002 01:47:18 +0200, Luca Barbieri wrote:
+> ./drivers/net/via-rhine.c
 
-Ask and ye shall receive. Incremental patches are now available for download :)
-http://kernel.kolivas.net
+via_restart_tx() was already defined before use.
+clear_tally_counters() is now fixed in my tree.
 
-Cheers,
-Con Kolivas
+Thx.

@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264986AbSJaApr>; Wed, 30 Oct 2002 19:45:47 -0500
+	id <S265064AbSJaAxF>; Wed, 30 Oct 2002 19:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264992AbSJaApr>; Wed, 30 Oct 2002 19:45:47 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:60891 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264986AbSJaApq>;
-	Wed, 30 Oct 2002 19:45:46 -0500
-Subject: How to get a local IPv4 address from within a kernel module?
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OFC7D1C5DF.EA41CD79-ON87256C63.00044A15@us.ibm.com>
-From: Juan Gomez <juang@us.ibm.com>
-Date: Wed, 30 Oct 2002 16:52:05 -0800
-X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0|September 26, 2002) at
- 10/30/2002 17:52:05
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	id <S265058AbSJaAxF>; Wed, 30 Oct 2002 19:53:05 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:2978 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S265064AbSJaAwn>;
+	Wed, 30 Oct 2002 19:52:43 -0500
+Date: Wed, 30 Oct 2002 16:59:06 -0800
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] pcibus_to_node() addition to topology infrastructure
+Message-ID: <20021031005906.GA1365@sgi.com>
+Mail-Followup-To: Matthew Dobson <colpatch@us.ibm.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3DC06E75.6010003@us.ibm.com> <20021031000326.GA3049@sgi.com> <3DC0782D.20401@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DC0782D.20401@us.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 30, 2002 at 04:24:13PM -0800, Matthew Dobson wrote:
+> Ah, yes...  The p-bricks, i-bricks, etc. right?
 
-Is there any standard way of doing this? I looked into ipv4 code but I did
-not find a function that would provide a direct, clean way to query the
-local IPv4 addresses of a given node.
-If this information is not available could we create an interface for it?
-Any suggestions on the way to do it?
+Yup.
 
-The interfaces provided to user-level applications do the copy to/from user
-that I guess will not work with kernel modules...
+> Yes, I suppose a round-robin return for the SGI version of the macro 
+> would work...  Certainly not ideal, but it would work.  The problem is 
 
-Juan
+Can you think of any better way to do it?  Perhaps make pcibus_to_node
+return a list of nodes?
 
+Thanks,
+Jesse

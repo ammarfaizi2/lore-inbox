@@ -1,110 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289492AbSAOPsW>; Tue, 15 Jan 2002 10:48:22 -0500
+	id <S289977AbSAOPsW>; Tue, 15 Jan 2002 10:48:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289977AbSAOPsN>; Tue, 15 Jan 2002 10:48:13 -0500
-Received: from Morgoth.esiway.net ([193.194.16.157]:44041 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S289490AbSAOPsC>; Tue, 15 Jan 2002 10:48:02 -0500
-Date: Tue, 15 Jan 2002 16:47:59 +0100 (CET)
-From: Marco Colombo <marco@esi.it>
-To: Giacomo Catenazzi <cate@debian.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery
- --the elegant solution)
-In-Reply-To: <3C444441.3080608@debian.org>
-Message-ID: <Pine.LNX.4.33.0201151607280.11441-100000@Megathlon.ESI>
+	id <S289490AbSAOPsO>; Tue, 15 Jan 2002 10:48:14 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:4868 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S289492AbSAOPsF>; Tue, 15 Jan 2002 10:48:05 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15428.23828.941425.774587@laputa.namesys.com>
+Date: Tue, 15 Jan 2002 19:47:16 +0300
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, Hans-Peter Jansen <hpj@urpla.net>,
+        linux-kernel@vger.kernel.org,
+        Reiserfs mail-list <Reiserfs-List@Namesys.COM>,
+        "David L. Parsley" <parsley@roanoke.edu>
+Subject: Re: [BUG] symlink problem with knfsd and reiserfs
+In-Reply-To: <E16QVf3-0002NG-00@charged.uio.no>
+In-Reply-To: <20020115115019.89B55143B@shrek.lisa.de>
+	<15428.12621.682479.589568@charged.uio.no>
+	<15428.19063.859280.833041@laputa.namesys.com>
+	<E16QVf3-0002NG-00@charged.uio.no>
+X-Mailer: VM 7.00 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jan 2002, Giacomo Catenazzi wrote:
+Trond Myklebust writes:
+ > On Tuesday 15. January 2002 16:27, Nikita Danilov wrote:
+ > 
+ > > In reiserfs there is no static inode table, so we keep global generation
+ > > counter in a super block which is incremented on each inode deletion,
+ > > this generation is stored in the new inodes. Not that good as per-inode
+ > > generation, but we cannot do better without changing disk format.
+ > 
+ > Am I right in assuming that you therefore cannot check that the filehandle is 
+ > stale if the client presents you with the filehandle of the 'old' inode 
+ > (prior to deletion)?
+ > However if the client compares the 'old' and 'new' filehandle, it will find 
+ > them to be different?
 
-> 
-> 
-> Marco Colombo wrote:
-> 
-> >>
-> >>The main discussion was in kbuild-devel list.
-> >>
-> > 
-> > Uh, my mailbox hurts just at the thought of even more posting on the suject.
-> > 
-> 
-> 
-> In kbuild: less people, less traffic, more discussion, less flames
-> 
-> > Kernel tarballs are for hackers. Marcelo can't test any configuration
-> > the autoconfigurator can produce. So basically it means an untested
-> > kernel. Running untested kernel isn't a job for Joe User, and never
-> > will be.
-> 
-> 
-> Also what are the stable series?
+Sorry for being vague. Reiserfs keeps global "inode generation counter"
+->s_inode_generation in a super block. This counter is incremented each
+time reiserfs inode is being deleted on a disk. When new inode is
+created, current value of ->s_inode_generation is stored in inode's
+on-disk representation. Inode number (objectid in reiserfs parlance) is
+reusable once inode was deleted. The same pair (i_ino, i_generation) can
+be assigned to different inode only after ->s_inode_generation
+overflows, which requires 2**32 file deletions.
 
-The *starting* point to build a working solution. And stable != supported.
-The "working solution" being a distro kernel (well, the whole thing really),
-which happens to be supported (and supportable), too...
+So, no, reiserfs can tell stale filehandle, although not as reliable as
+file systems with static inode tables.
 
-> But you think your distribution test the kernel in all possible
-> use? With all possible hardware configuration?
+Hans-Peter, please tell me, what reiserfs format are you using. 3.5
+doesn't support NFS reliably. If you are using 3.5 you'll have to
+upgrade to 3.6 format (copy data to the new file system). mount -o conv
+will not eliminate this problem completely, but will make it much less
+probable, so you can try this first.
 
-They *virtually* do. Why do they have (slightly) DIFFERENT hardware
-compatibility lists? I don't care if they do really test a given HW
-configuration as long as they support it.  You can't ask Marcelo to
-actively support any HW conf. I'd expect him to "support" just the HW
-he uses to build tarballs.
+ > 
+ > Cheers,
+ >   Trond
+ > 
 
-> Autoconfiguration will configure a compile and booting kernel.
-> (but on old machine). Neither vendor can assure you that the kernel
-> will work for a particolar permutation of hardware, and mainly
-> it is indipendent from configuration.
-
-Uh? After autoconfiguration you *hope* the kernel boots. In late 2.2
-times, vanilla 2.2 used to be almost useless for just less-than-naive
-users. Think of RAID @ redhat, or ReiserFS @ suse.
-BTW, if I buy a RH Linux CD set (+support), and install it on a PC made
-by parts all included in RH HW compatibility list, I expect:
-1) it to work;
-2) failing 1), Red Hat to solve any problem when I call them for support;
-3) failing 2), Red Hat to return the money for the CDs.
-That's what vendors are for.
-
-> > Vendors and kernel developers have different goals. That horrible hack
-> > that fixes some bug or misbehavior fits fine into a vendor kernel, and
-> > has no place in Marcelo's tree; the same for that C++ written, cross OS
-> > crap driver for hardware XYZ. Users want it, vendors provide it.
-> > Different goals, different targets.
-> 
-> 
-> Change distribution. In Debian/unstable developers and distribution are
-> hardly linked!
-
-Are you suggesting that Joe User should run Debian/*unstable*? What
-it Debian/stable for, then?
-
-> Why do you need someone in the 'layer' between developers
-> and user?
-
-The user isn't expected to do any QA. And Marcelo and other kernel
-maitainers aren't, either. 
-
-> > Autoconfiguration is nice. But please move the topic elsewhere.
-> 
-> Right. Let stop it
-
-No problem for me. Feel free to answer me privately, as the above is 
-hardly kernel-related (it applies to any other piece of software).
-
-> 
-> 	giacomo
-
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
-
+Nikita.

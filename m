@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbUCCAtz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 19:49:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbUCCAtz
+	id S262304AbUCCA6y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 19:58:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbUCCA6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 19:49:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:205 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261420AbUCCAtx (ORCPT
+	Tue, 2 Mar 2004 19:58:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:15059 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262304AbUCCA6x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 19:49:53 -0500
-Date: Tue, 2 Mar 2004 16:49:51 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Rik Faith <faith@redhat.com>
+	Tue, 2 Mar 2004 19:58:53 -0500
+Date: Tue, 2 Mar 2004 16:59:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Art Haas" <ahaas@airmail.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Light-weight Auditing Framework
-Message-ID: <20040302164951.Q22989@build.pdx.osdl.net>
-References: <16451.25789.72815.763592@neuro.alephnull.com> <20040301122618.O22989@build.pdx.osdl.net> <chrisw@osdl.org> <16453.354.904646.836231@neuro.alephnull.com>
+Subject: Re: [PATCH] Compile kernel with GCC-3.5 and without regparm
+Message-Id: <20040302165928.3bdd918d.akpm@osdl.org>
+In-Reply-To: <20040303002339.GA20651@artsapartment.org>
+References: <20040303002339.GA20651@artsapartment.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <16453.354.904646.836231@neuro.alephnull.com>; from faith@redhat.com on Tue, Mar 02, 2004 at 04:49:22PM -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Rik Faith (faith@redhat.com) wrote:
-> > Doesn't seem like CONFIG_AUDIT=n disables all the code.
+"Art Haas" <ahaas@airmail.net> wrote:
 >
-> The bit tests in entry.S are still there, but those are the same tests
-> that are used for ptrace, and there is nothing that sets the bits.  So,
-> aside from that test, all of the code should be disabled.
+> I tried to build the kernel with my CVS GCC-3.5 compiler today, and had
+> all sorts of failures about prototypes not matching.
 
-I think, e.g. the code that calls audit_get/putname is still there.
+-mm is where the gcc-3.5 action is.  There seems to be a bit of an arms
+race going on wherein the gcc developers are trying to break the kernel
+build faster than I and others can fix it.
 
-> Except where noted below, I have either incorporated all your
-> suggestions or made notes in the code to do so later.  The new patch is
-> at: http://people.redhat.com/faith/audit/audit-20040302.1632.patch
-
-Oops, I wasn't clear re: the static initialized data...I just meant to
-give a couple examples, there were more:
-
-+static int         audit_default = 0;
-+static int         audit_pid = 0;
-+static int         audit_rate_limit    = 0;
-+static int         audit_freelist_count = 0;
-etc...
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+See the fastcall-* patches.

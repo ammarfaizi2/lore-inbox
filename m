@@ -1,31 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262856AbTDIG41 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 02:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbTDIG41 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 02:56:27 -0400
-Received: from smtp5.wanadoo.fr ([193.252.22.29]:24990 "EHLO
-	mwinf0202.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S262856AbTDIG41 (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 02:56:27 -0400
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Ricardo Correia <wizeman@netvisao.pt>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] bttv locks up
-Date: Wed, 9 Apr 2003 09:07:54 +0200
-User-Agent: KMail/1.5.1
-Cc: kraxel@bytesex.org, video4linux-list@redhat.com
-References: <200304090351.25480.wizeman@netvisao.pt>
-In-Reply-To: <200304090351.25480.wizeman@netvisao.pt>
+	id S262866AbTDIHEz (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 03:04:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbTDIHEz (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 03:04:55 -0400
+Received: from grunt5.ihug.co.nz ([203.109.254.45]:55482 "EHLO
+	grunt5.ihug.co.nz") by vger.kernel.org with ESMTP id S262866AbTDIHEy (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 03:04:54 -0400
+Message-ID: <002e01c2ff18$2f043ca0$0b721cac@stacy>
+From: "dave" <davekern@ihug.co.nz>
+To: <linux-kernel@vger.kernel.org>
+Subject: help DMA FIFO buffer
+Date: Wed, 9 Apr 2003 21:18:01 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304090907.55298.baldrick@wanadoo.fr>
+X-Priority: 1
+X-MSMail-Priority: High
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did you read README.freeze in Documentation/video4linux/bttv?
+Hi I am writing a device driver LNVRM is uses DMA for commands and data
+i need a function that will wait until their is enough room in the FIFO for
+the new
+data this function works but their must be a better way I need a formula
+that dose
+not have if's in it
 
-Not that it helped me (I am also getting hangs).
+Like this
 
-All the best,
+#define NV04_DMA_WAIT_FREE(free)                 while((dma->size -
+(dma->put - dma->control->get)) < free)
 
-Duncan.
+thank you .
+
+also it thear is no way can this be made inline ?
+
+void lnvrm_dmaNv04WaitFree(struct _nvxf_dmaChannel dma , unsigned long)
+{
+  unsigned long get , put = dma->put , size = dma->mask + 1 , free , f = 0 ;
+
+ loop1:
+  get = dma->control->Get ;
+
+  if(put < get)
+    free = size - (size - get + put) ;
+  else
+    free = size - (put - get) ;
+
+  if(count <= free) return ; /* Get out as quick as possible */
+
+  if(f) { ErrorF("lnvrm_dmaNv04WaitFree: FIFO FULL free = %8.8lX needed =
+%8.8lX\n",free,count) ; f++ }
+  goto loop1 ;
+}
+

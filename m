@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262318AbVCIMDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVCIMGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262318AbVCIMDa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 07:03:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVCIMDa
+	id S262360AbVCIMGR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 07:06:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVCIMGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 07:03:30 -0500
-Received: from colin2.muc.de ([193.149.48.15]:25604 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262326AbVCIMCw (ORCPT
+	Wed, 9 Mar 2005 07:06:16 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:17880 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S262360AbVCIMFn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 07:02:52 -0500
-Date: 9 Mar 2005 13:02:51 +0100
-Date: Wed, 9 Mar 2005 13:02:51 +0100
-From: Andi Kleen <ak@muc.de>
-To: torvalds@osdl.org, roland@redhat.com, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Bad patch to schedule()
-Message-ID: <20050309120251.GA4374@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 9 Mar 2005 07:05:43 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: "remap_page_range" compile ERROR
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Wed, 9 Mar 2005 17:35:18 +0530
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB348113A4897@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: "remap_page_range" compile ERROR
+Thread-Index: AcUkoEMLthoc5dUPQxuu51Qk7kMe7A==
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
+Cc: <arjan@infradead.org>, <alan@lxorguk.ukuu.org.uk>, <martin.frey@scs.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I just see that this patch went into mainline.
+Hi all,
 
-[PATCH] posix-timers: high-resolution CPU clocks for POSIX clock_* syscalls
+I am running Redhat 9 Linux.
+I have problem with compiling the i810fb driver downloaded from
+Sourceforge site. I have D/W the i810fb patch
+"linux-i810fb-0.0.35.tar.bz2".
 
-This patch provides support for thread and process CPU time clocks in the
-....
+When I run the make modules I get the following ERROR
 
- /*
-+ * This is called on clock ticks and on context switches.
-+ * Bank in p->sched_time the ns elapsed since the last tick or switch.
-+ */
-+static inline void update_cpu_clock(task_t *p, runqueue_t *rq,
-+				    unsigned long long now)
-+{
-+	unsigned long long last = max(p->timestamp, rq->timestamp_last_tick);
-+	p->sched_time += now - last;
-+}
-+
+i810_main.c: 643: warning: passing arg 1 of 'remap_page_range_R2baf18f2'
+makes pointer from integer without a cast
+i810_main.c: 643: incompatible type for argument 4 of
+'remap_page_range_R2baf18f2'
+i810_main.c: 643: too few arguments to function
+'remap_page_range_R2baf18f2'
+Make[3]: *** [I810_main.c] Error 1
+........
+......
 
-called from schedule(). The problem with this is that it completely
-messes up the register allocation for i386 schedule() because it 
-does long long arithmetic. This causes gcc to spill everything
-else because it needs four registers, and i386 only has 6 usable
-ones.
+The call to "remap_page_range()" is as follows:-
 
-I think a critical path like the scheduler needs a little bit more
-care.  Also it is totally unclear if this obscure POSIX feature
-is really worth making schedule() slower. I think not.
+return (io_remap_page_range(vma->vm_start, off, vma->vm_end -
+vma->vm_start, vma->vm_page_prot)) ? -EAGAIN : 0;
 
-In case it is kept it should be done in a way that doesn't impact
-i386 unduly e.g. by avoiding long long arithmetic here and 
-making sure fast paths stay fast.
 
-I would propose to back this patch out again until this is resolved.
+Please suggest me what could be the problem.
 
--Andi
+Regards,
+Mukund jampala
+
+
 
 

@@ -1,94 +1,204 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263007AbTJaEzj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 23:55:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbTJaEzi
+	id S263009AbTJaE64 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 23:58:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263018AbTJaE6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 23:55:38 -0500
-Received: from agminet02.oracle.com ([141.146.126.229]:37030 "EHLO
-	agminet02.oracle.com") by vger.kernel.org with ESMTP
-	id S263007AbTJaEzg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 23:55:36 -0500
-From: Junji Kanemaru <junji.kanemaru@oracle.com>
-Reply-To: junji.kanemaru@datacentrix.co.jp
-Organization: Oracle Japan
-To: linux-kernel@vger.kernel.org
-Subject: patch: logips2pp.c - Wheel(middle) button fix
-Date: Fri, 31 Oct 2003 13:58:53 +0900
-User-Agent: KMail/1.5
+	Thu, 30 Oct 2003 23:58:55 -0500
+Received: from web12304.mail.yahoo.com ([216.136.173.102]:41489 "HELO
+	web12304.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263009AbTJaE6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 23:58:49 -0500
+Message-ID: <20031031045849.14921.qmail@web12304.mail.yahoo.com>
+Date: Thu, 30 Oct 2003 20:58:49 -0800 (PST)
+From: Vinayak Kariappa <c_vinayak@yahoo.com>
+Subject: 3Dfx framebuffer driver tdfxfb_cursor() bit-wise ANDing
+To: linux-kernel maillist <linux-kernel@vger.kernel.org>, hmallat@cc.hut.fi
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310311358.54109.junji.kanemaru@oracle.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linux Kernel Hackers
+Following is the code section from 
+ linux-2.6.0-test9\drivers\video\tdfxfb.c
 
-Recently I switched to 2.6.0-test8,9 kernel and encountered
-a problem that my mouse's middle button no longer works.
-My mouse, Arvel MFS07MT,  has a wheel and it is also 
-a button, I was able to paste text by pressing it with 2.4.x
-kernel but 2.6.0-8,9.
+This is the 3Dfx framebuffer driver.
 
-I looked into input driver code and found where the problem
-resides. The problem is my mouse is buggy.
-There's code that clears BTN_MIDDLE bit in logips2pp.c
-line 157-158 if the mouse says it has less than 3 buttons.
-My mouse should set 3 in param[1] but it sets 2.
-So that's why my mouse's middle button gets disabled.
-But I really need my mouse's middle button working and
-I think there may be other mice have same problem out
-there we have to work out on this problem.
+I have noticed that if statements with bit-wise AND 
+(&) is been typed as logical AND (&&) 
+i.e. all the if statements anding with FB_CUR_*
 
-First I thought setting the BTN_MIDDLE bit back at the enf of
-ps2pp_detect_model() function, right before it's returning
-zero(0) when it fails to detect model. But even with this fix
-there might be some buggy mice are still there that they are
-detected as valid model and report they have two buttons
-though they have wheel-button at middle.
-So probably the best way to fix this problem without getting
-into complicated mouse detection, just leave BTN_MIDDLE bit
-on if param[1] >= 2, clear it when param[1] < 2.
+as I don't have a 3Dfx card I am unable to test.
+Sorry for not attaching a patch file.
 
-Below is my tiny fix. Not 100% sure if I did right thing or not.
-If this fix is acceptable for maintainer of logips2pp.c then
-please apply.
+
+---code section---
+
+static int tdfxfb_cursor(struct fb_info *info, struct
+fb_cursor *cursor)
+{
+	struct tdfx_par *par = (struct tdfx_par *) info->par;
+	unsigned long flags;
+
+	/*
+	 * If the cursor is not be changed this means either
+we want the 
+	 * current cursor state (if enable is set) or we want
+to query what
+	 * we can do with the cursor (if enable is not set) 
+ 	 */
+	if (!cursor->set) return 0;
+
+	/* Too large of a cursor :-( */
+	if (cursor->image.width > 64 || cursor->image.height
+> 64)
+		return -ENXIO;
+
+	/* 
+	 * If we are going to be changing things we should
+disable
+	 * the cursor first 
+	 */
+	if (info->cursor.enable) {
+		spin_lock_irqsave(&par->DAClock, flags);
+		info->cursor.enable = 0;
+		del_timer(&(par->hwcursor.timer));
+		tdfx_outl(par, VIDPROCCFG, par->hwcursor.disable);
+		spin_unlock_irqrestore(&par->DAClock, flags);
+	}
+
+	/* Disable the Cursor */
+	if ((cursor->set && FB_CUR_SETCUR) &&
+!cursor->enable)
+		return 0;
+
+	/* fix cursor color - XFree86 forgets to restore it
+properly */
+	if (cursor->set && FB_CUR_SETCMAP) {
+		struct fb_cmap cmap = cursor->image.cmap;
+		unsigned long bg_color, fg_color;
+
+		cmap.len = 2;/* Voodoo 3+ only support 2 color
+cursors*/
+		fg_color = ((cmap.red[cmap.start] << 16) |
+			    (cmap.green[cmap.start] << 8)  |
+			    (cmap.blue[cmap.start]));
+		bg_color = ((cmap.red[cmap.start+1] << 16) |
+			    (cmap.green[cmap.start+1] << 8) |
+			    (cmap.blue[cmap.start+1]));
+		fb_copy_cmap(&cmap, &info->cursor.image.cmap, 0);
+		spin_lock_irqsave(&par->DAClock, flags);
+		banshee_make_room(par, 2);
+		tdfx_outl(par, HWCURC0, bg_color);
+		tdfx_outl(par, HWCURC1, fg_color);
+		spin_unlock_irqrestore(&par->DAClock, flags);
+	}
+
+	if (cursor->set && FB_CUR_SETPOS) {
+		int x, y;
+
+		x = cursor->image.dx;
+		y = cursor->image.dy;
+		y -= info->var.yoffset;
+		info->cursor.image.dx = x;
+		info->cursor.image.dy = y;
+		x += 63;
+		y += 63;
+		spin_lock_irqsave(&par->DAClock, flags);
+		banshee_make_room(par, 1);
+		tdfx_outl(par, HWCURLOC, (y << 16) + x);
+		spin_unlock_irqrestore(&par->DAClock, flags);
+	}
+
+	/* Not supported so we fake it */
+	if (cursor->set && FB_CUR_SETHOT) {
+		info->cursor.hot.x = cursor->hot.x;
+		info->cursor.hot.y = cursor->hot.y;
+	}
+
+	if (cursor->set && FB_CUR_SETSHAPE) {
+		/*
+	 	 * Voodoo 3 and above cards use 2 monochrome cursor
+patterns.
+		 *    The reason is so the card can fetch 8 words at
+a time
+		 * and are stored on chip for use for the next 8
+scanlines.
+		 * This reduces the number of times for access to
+draw the
+		 * cursor for each screen refresh.
+		 *    Each pattern is a bitmap of 64 bit wide and 64
+bit high
+		 * (total of 8192 bits or 1024 Kbytes). The two
+patterns are
+		 * stored in such a way that pattern 0 always
+resides in the
+		 * lower half (least significant 64 bits) of a 128
+bit word
+		 * and pattern 1 the upper half. If you examine the
+data of
+		 * the cursor image the graphics card uses then from
+the
+		 * begining you see line one of pattern 0, line one
+of
+		 * pattern 1, line two of pattern 0, line two of
+pattern 1,
+		 * etc etc. The linear stride for the cursor is
+always 16 bytes
+		 * (128 bits) which is the maximum cursor width
+times two for
+		 * the two monochrome patterns.
+		 */
+		u8 *cursorbase = (u8 *) info->cursor.image.data;
+		char *bitmap = (char *)cursor->image.data;
+		char *mask = cursor->mask;
+		int i, j, k, h = 0;
+
+		for (i = 0; i < 64; i++) {
+			if (i < cursor->image.height) {
+				j = (cursor->image.width + 7) >> 3;
+				k = 8 - j;
+
+				for (;j > 0; j--) {
+				/* Pattern 0. Copy the cursor bitmap to it */
+					fb_writeb(*bitmap, cursorbase + h);
+					bitmap++;
+				/* Pattern 1. Copy the cursor mask to it */
+					fb_writeb(*mask, cursorbase + h + 8);
+					mask++;
+					h++;
+				}
+				for (;k > 0; k--) {
+					fb_writeb(0, cursorbase + h);
+					fb_writeb(~0, cursorbase + h + 8);
+					h++;
+				}
+			} else {
+				fb_writel(0, cursorbase + h);
+				fb_writel(0, cursorbase + h + 4);
+				fb_writel(~0, cursorbase + h + 8);
+				fb_writel(~0, cursorbase + h + 12);
+				h += 16;
+			}
+		}
+	}
+	/* Turn the cursor on */
+	cursor->enable = 1;
+	info->cursor = *cursor;
+	mod_timer(&par->hwcursor.timer, jiffies+HZ/2);
+	spin_lock_irqsave(&par->DAClock, flags);
+	banshee_make_room(par, 1);
+	tdfx_outl(par, VIDPROCCFG, par->hwcursor.enable);
+	spin_unlock_irqrestore(&par->DAClock, flags);
+	return 0;
+}
+
 
 Thanks,
-
--- Junji Kanemaru
-Data Centrix Co., Ltd.
-Tokyo Japan
+Vinayak
 
 
---- linux-2.6.0-test9/drivers/input/mouse/logips2pp.c   2003-10-26 
-03:43:59.000000000 +0900
-+++ linux-2.6.0-test9-debug/drivers/input/mouse/logips2pp.c 2003-10-31 
-13:48:38.000000000 +0900
-@@ -154,10 +154,18 @@
-    psmouse->vendor = "Logitech";
-    psmouse->model = ((param[0] >> 4) & 0x07) | ((param[0] << 3) & 0x78);
-
--   if (param[1] < 3)
--       clear_bit(BTN_MIDDLE, psmouse->dev.keybit);
--   if (param[1] < 2)
-+   /*
-+    * We clear middle BTN_MIDDLE only when the mouse says
-+    * there's only one button on it(param[1] < 2).
-+    * This is a workaround for some buggy mice which report
-+    * they have only 2 buttons though they have wheel-button
-+    * which also works as middle button.
-+    * 10/31/2003 - junji.kanemaru@datacentrix.co.jp
-+    */
-+   if (param[1] < 2) {
-        clear_bit(BTN_RIGHT, psmouse->dev.keybit);
-+       clear_bit(BTN_MIDDLE, psmouse->dev.keybit);
-+    }
-
-    psmouse->type = PSMOUSE_PS2;
-
-
-
+__________________________________
+Do you Yahoo!?
+Exclusive Video Premiere - Britney Spears
+http://launch.yahoo.com/promos/britneyspears/

@@ -1,967 +1,1173 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261337AbSKIRHZ>; Sat, 9 Nov 2002 12:07:25 -0500
+	id <S261678AbSKIRrN>; Sat, 9 Nov 2002 12:47:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261433AbSKIRHZ>; Sat, 9 Nov 2002 12:07:25 -0500
-Received: from vmail.mclink.it ([195.110.128.11]:9485 "EHLO vmail.mclink.it")
-	by vger.kernel.org with ESMTP id <S261337AbSKIRHO>;
-	Sat, 9 Nov 2002 12:07:14 -0500
-Message-ID: <3DCD5073.7050201@arpacoop.it>
-Date: Sat, 09 Nov 2002 19:14:11 +0100
-From: Carlo Scarfoglio <scarfoglio@arpacoop.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021108
+	id <S262129AbSKIRrN>; Sat, 9 Nov 2002 12:47:13 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:49823 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261678AbSKIRqe>;
+	Sat, 9 Nov 2002 12:46:34 -0500
+Message-ID: <3DCD4B30.2090204@colorfullife.com>
+Date: Sat, 09 Nov 2002 18:51:44 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PDC20276 driver not working in kernel 2.5.46
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: [PATCH] numa slab, rediffed against 2.5.46
+Content-Type: multipart/mixed;
+ boundary="------------090700010801050401070407"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to say that the two disks connected to my Asus A7V board with 
-integrated Promise 20276 controller are not detected on boot (the driver 
-is loaded and says everything is OK) and are not usable with kernel 
-2.5.46. Kernel 2.5.34 works. SuSE 8.0 pretty standard.
-See the two boot.msg below for more info.
+This is a multi-part message in MIME format.
+--------------090700010801050401070407
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-TIA
-	Carlo Scarfoglio
+Attached is my numa aware slab allocator, rediffed against 2.5.46.
+It makes the objects that are returned from kmem_cache_alloc strictly 
+node local. Unfortunately this means that kmem_cache_free must return 
+objects to the home node, which is expensive. (The return is batched, 
+but it's still expensive)
 
+I'm not sure that the patch will improve the performance - benchmarks 
+are now needed.
 
+TODO:
+- implement ptr_to_nodeid() for all archs.The current implementation is 
+a dummy, to test the code on non-NUMA systems.
+- switch from MAX_NUMNODES to numnodes - Anton proposed that.
+- improve the handling of nodes without cpus or without memory.
+- add a kmem_cache_alloc_fromnode() function
+- replace the kmem_list3 array with an array of pointers, and allocate 
+the storage from the right node.
+- allocate the head arrays from the node that is local to the cpu that 
+accesses the head array.
+- check for regressions - I was careful not to undo any cleanups that 
+happened between 2.5.42 and 46, but it's possible that I missed some.
 
-This is kernel 2.5.34 boot.msg
-Inspecting /boot/System.map
-Symbol table has incorrect version number.
+--
+    Manfred
 
-Cannot find map file.
-No module symbols loaded.
-klogd 1.4.1, log source = ksyslog started.
-0:58:29 CEST 2002
-<4>Video mode to be used for restore is ffff
-<6>BIOS-provided physical RAM map:
-<4> BIOS-e820: 0000000000000000 - 000000000009d800 (usable)
-<4> BIOS-e820: 000000000009d800 - 00000000000a0000 (reserved)
-<4> BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
-<4> BIOS-e820: 0000000000100000 - 000000001fffc000 (usable)
-<4> BIOS-e820: 000000001fffc000 - 000000001ffff000 (ACPI data)
-<4> BIOS-e820: 000000001ffff000 - 0000000020000000 (ACPI NVS)
-<4> BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
-<4> BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
-<4> BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-<5>511MB LOWMEM available.
-<4>On node 0 totalpages: 131068
-<4>  DMA zone: 4096 pages
-<4>  Normal zone: 126972 pages
-<4>  HighMem zone: 0 pages
-<6>ACPI: RSDP (v000 ASUS                       ) @ 0x000f5e30
-<6>ACPI: RSDT (v001 ASUS   A7V333   16944.11825) @ 0x1fffc000
-<6>ACPI: FADT (v001 ASUS   A7V333   16944.11825) @ 0x1fffc0b2
-<6>ACPI: BOOT (v001 ASUS   A7V333   16944.11825) @ 0x1fffc030
-<6>ACPI: MADT (v001 ASUS   A7V333   16944.11825) @ 0x1fffc058
-<6>ACPI: Local APIC address 0xfee00000
-<6>ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
-<4>Processor #0 6:6 APIC version 16
-<6>ACPI: LAPIC_NMI (acpi_id[0x00] polarity[0x1] trigger[0x1] lint[0x1])
-<6>ACPI: IOAPIC (id[0x02] address[0xfec00000] global_irq_base[0x0])
-<6>IOAPIC[0]: Assigned apic_id 2
-<4>IOAPIC[0]: apic_id 2, version 2, address 0xfec00000, IRQ 0-23
-<6>ACPI: INT_SRC_OVR (bus[0] irq[0x0] global_irq[0x2] polarity[0x0] 
-trigger[0x1])
-<6>ACPI: INT_SRC_OVR (bus[0] irq[0x9] global_irq[0x9] polarity[0x3] 
-trigger[0x3])
-<6>Using ACPI (MADT) for SMP configuration information
-<4>Kernel command line: auto BOOT_IMAGE=linux2534 ro root=301
-<6>Initializing CPU#0
-<4>Detected 1532.808 MHz processor.
-<4>Console: colour VGA+ 80x25
-<4>Calibrating delay loop... 3014.65 BogoMIPS
-<4>Memory: 515204k/524272k available (2173k kernel code, 8672k reserved, 
-755k data, 296k init, 0k highmem)
-<6>Security Scaffold v1.0.0 initialized
-<4>Dentry-cache hash table entries: 65536 (order: 7, 524288 bytes)
-<4>Inode-cache hash table entries: 32768 (order: 6, 262144 bytes)
-<4>Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-<7>CPU: Before vendor init, caps: 0383fbff c1cbfbff 00000000, vendor = 2
-<6>CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-<6>CPU: L2 Cache: 256K (64 bytes/line)
-<7>CPU: After vendor init, caps: 0383fbff c1cbfbff 00000000 00000000
-<6>Intel machine check architecture supported.
-<6>Intel machine check reporting enabled on CPU#0.
-<6>Machine check exception polling timer started.
-<7>CPU:     After generic, caps: 0383fbff c1cbfbff 00000000 00000000
-<7>CPU:             Common caps: 0383fbff c1cbfbff 00000000 00000000
-<4>CPU: AMD Athlon(TM) XP 1800+ stepping 02
-<6>Enabling fast FPU save and restore... done.
-<6>Enabling unmasked SIMD FPU exception support... done.
-<6>Checking 'hlt' instruction... OK.
-<4>POSIX conformance testing by UNIFIX
-<4>enabled ExtINT on CPU#0
-<4>ESR value before enabling vector: 00000000
-<4>ESR value after enabling vector: 00000000
-<4>ENABLING IO-APIC IRQs
-<7>init IO_APIC IRQs
-<7> IO-APIC (apicid-pin) 2-0, 2-16, 2-17, 2-18, 2-19, 2-20, 2-21, 2-22, 
-2-23 not connected.
-<6>..TIMER: vector=0x31 pin1=2 pin2=0
-<7>number of MP IRQ sources: 16.
-<7>number of IO-APIC #2 registers: 24.
-<6>testing the IO APIC.......................
-<4>
-<7>IO APIC #2......
-<7>.... register #00: 02000000
-<7>.......    : physical APIC id: 02
-<7>.... register #01: 00178002
-<7>.......     : max redirection entries: 0017
-<7>.......     : PRQ implemented: 1
-<7>.......     : IO APIC version: 0002
-<4> WARNING: unexpected IO-APIC, please mail
-<4>          to linux-smp@vger.kernel.org
-<7>.... IRQ redirection table:
-<7> NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:
-<7> 00 000 00  1    0    0   0   0    0    0    00
-<7> 01 001 01  0    0    0   0   0    1    1    39
-<7> 02 001 01  0    0    0   0   0    1    1    31
-<7> 03 001 01  0    0    0   0   0    1    1    41
-<7> 04 001 01  0    0    0   0   0    1    1    49
-<7> 05 001 01  0    0    0   0   0    1    1    51
-<7> 06 001 01  0    0    0   0   0    1    1    59
-<7> 07 001 01  0    0    0   0   0    1    1    61
-<7> 08 001 01  0    0    0   0   0    1    1    69
-<7> 09 001 01  1    1    0   1   0    1    1    71
-<7> 0a 001 01  0    0    0   0   0    1    1    79
-<7> 0b 001 01  0    0    0   0   0    1    1    81
-<7> 0c 001 01  0    0    0   0   0    1    1    89
-<7> 0d 001 01  0    0    0   0   0    1    1    91
-<7> 0e 001 01  0    0    0   0   0    1    1    99
-<7> 0f 001 01  0    0    0   0   0    1    1    A1
-<7> 10 000 00  1    0    0   0   0    0    0    00
-<7> 11 000 00  1    0    0   0   0    0    0    00
-<7> 12 000 00  1    0    0   0   0    0    0    00
-<7> 13 000 00  1    0    0   0   0    0    0    00
-<7> 14 000 00  1    0    0   0   0    0    0    00
-<7> 15 000 00  1    0    0   0   0    0    0    00
-<7> 16 000 00  1    0    0   0   0    0    0    00
-<7> 17 000 00  1    0    0   0   0    0    0    00
-<7>IRQ to pin mappings:
-<7>IRQ0 -> 0:2
-<7>IRQ1 -> 0:1
-<7>IRQ3 -> 0:3
-<7>IRQ4 -> 0:4
-<7>IRQ5 -> 0:5
-<7>IRQ6 -> 0:6
-<7>IRQ7 -> 0:7
-<7>IRQ8 -> 0:8
-<7>IRQ9 -> 0:9
-<7>IRQ10 -> 0:10
-<7>IRQ11 -> 0:11
-<7>IRQ12 -> 0:12
-<7>IRQ13 -> 0:13
-<7>IRQ14 -> 0:14
-<7>IRQ15 -> 0:15
-<6>.................................... done.
-<4>Using local APIC timer interrupts.
-<4>calibrating APIC timer ...
-<4>..... CPU clock speed is 1532.0661 MHz.
-<4>..... host bus clock speed is 266.0549 MHz.
-<4>cpu: 0, clocks: 266549, slice: 133274
-<4>CPU0<T0:266544,T1:133264,D:6,S:133274,C:266549>
-<6>Linux NET4.0 for Linux 2.4
-<6>Based upon Swansea University Computer Society NET3.039
-<4>Initializing RT netlink socket
-<6>PCI: PCI BIOS revision 2.10 entry at 0xf1aa0, last bus=1
-<6>PCI: Using configuration type 1
-<6>ACPI: Subsystem revision 20020829
-<6>ACPI: Interpreter enabled
-<6>ACPI: Using IOAPIC for interrupt routing
-<6>ACPI: System [ACPI] (supports S0 S1 S4 S5)
-<4>ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 10 *11 12 14 15)
-<4>ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 *10 11 12 14 15)
-<4>ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 10 11 *12 14 15)
-<4>ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 *5 6 7 10 11 12 14 15)
-<4>ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 10 11 12 14, enabled 
-at IRQ 9)
-<6>ACPI: PCI Root Bridge [PCI0] (00:00)
-<4>PCI: Probing PCI hardware (bus 00)
-<7>ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-<7>ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1._PRT]
-<6>usb.c: registered new driver usbfs
-<6>usb.c: registered new driver hub
-<7>IOAPIC[0]: Set PCI routing entry (2-17 -> 0xa9 -> IRQ 17)
-<7>00:00:05[A] -> 2-17 -> vector 0xa9 -> IRQ 17
-<7>IOAPIC[0]: Set PCI routing entry (2-18 -> 0xb1 -> IRQ 18)
-<7>00:00:05[B] -> 2-18 -> vector 0xb1 -> IRQ 18
-<7>IOAPIC[0]: Set PCI routing entry (2-19 -> 0xb9 -> IRQ 19)
-<7>00:00:06[A] -> 2-19 -> vector 0xb9 -> IRQ 19
-<7>Pin 2-17 already programmed
-<7>Pin 2-19 already programmed
-<7>IOAPIC[0]: Set PCI routing entry (2-16 -> 0xc1 -> IRQ 16)
-<7>00:00:0c[B] -> 2-16 -> vector 0xc1 -> IRQ 16
-<7>Pin 2-17 already programmed
-<7>Pin 2-18 already programmed
-<7>Pin 2-16 already programmed
-<7>Pin 2-17 already programmed
-<7>Pin 2-18 already programmed
-<7>Pin 2-19 already programmed
-<7>Pin 2-17 already programmed
-<7>Pin 2-18 already programmed
-<7>Pin 2-19 already programmed
-<7>Pin 2-16 already programmed
-<7>Pin 2-18 already programmed
-<7>Pin 2-19 already programmed
-<7>Pin 2-16 already programmed
-<7>Pin 2-17 already programmed
-<7>Pin 2-19 already programmed
-<7>Pin 2-16 already programmed
-<7>Pin 2-17 already programmed
-<7>Pin 2-18 already programmed
-<7>IOAPIC[0]: Set PCI routing entry (2-21 -> 0xc9 -> IRQ 21)
-<7>00:00:11[D] -> 2-21 -> vector 0xc9 -> IRQ 21
-<7>Pin 2-19 already programmed
-<7>Pin 2-16 already programmed
-<7>Pin 2-17 already programmed
-<7>Pin 2-16 already programmed
-<7>Pin 2-17 already programmed
-<4>PCI: No IRQ known for interrupt pin A of device 00:11.1<6>PCI: Using 
-ACPI for IRQ routing
-<6>PCI: if you experience problems, try using option 'pci=noacpi'
-<6>SBF: Simple Boot Flag extension found and enabled.
-<6>SBF: Setting boot flags 0x1
-<6>apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)
-<5>apm: overridden by ACPI.
-<4>Starting kswapd
-<4>BIO: pool of 256 setup, 14Kb (56 bytes/bio)
-<4>biovec: init pool 0, 1 entries, 12 bytes
-<4>biovec: init pool 1, 4 entries, 48 bytes
-<4>biovec: init pool 2, 16 entries, 192 bytes
-<4>biovec: init pool 3, 64 entries, 768 bytes
-<4>biovec: init pool 4, 128 entries, 1536 bytes
-<4>biovec: init pool 5, 256 entries, 3072 bytes
-<5>aio_setup: sizeof(struct page) = 40
-<6>NTFS driver 2.1.0 [Flags: R/O].
-<6>Capability LSM initialized
-<6>PCI: Via IRQ fixup for 00:11.2, from 9 to 5
-<6>PCI: Via IRQ fixup for 00:11.3, from 9 to 5
-<6>Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing disabled
-<4>ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-<4>ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-<6>parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
-<6>parport0: irq 7 detected
-<7>parport0: cpp_mux: aa55f00f52ad51(86)
-<7>parport0: cpp_daisy: aa5500ff(38)
-<7>parport0: assign_addrs: aa5500ff(38)
-<7>parport0: cpp_mux: aa55f00f52ad51(86)
-<7>parport0: cpp_daisy: aa5500ff(30)
-<7>parport0: assign_addrs: aa5500ff(30)
-<6>i2c-core.o: i2c core module version 2.6.4 (20020719)
-<6>i2c-dev.o: i2c /dev entries driver module version 2.6.4 (20020719)
-<7>i2c-core.o: driver i2c-dev dummy driver registered.
-<6>i2c-algo-bit.o: i2c bit algorithm module version 2.6.4 (20020719)
-<6>i2c-proc.o version 2.6.4 (20020719)
-<4>pty: 256 Unix98 ptys configured
-<6>lp0: using parport0 (polling).
-<6>Real Time Clock Driver v1.11
-<6>Linux agpgart interface v0.99 (c) Jeff Hartmann
-<6>agpgart: Maximum main memory to use for agp memory: 439M
-<6>agpgart: Detected Via Apollo Pro KT266 chipset
-<6>agpgart: AGP aperture is 128M @ 0xe0000000
-<6>[drm] AGP 0.99 on VIA Apollo KT133 @ 0xe0000000 128MB
-<6>[drm] Initialized mga 3.0.2 20010321 on minor 0
-<4>block: 256 slots per queue, batch=32
-<6>Floppy drive(s): fd0 is 1.44M
-<6>FDC 0 is a post-1991 82077
-<6>loop: loaded (max 8 devices)
-<6>PPP generic driver version 2.4.2
-<6>PPP Deflate Compression module registered
-<6>PPP BSD Compression module registered
-<6>8139too Fast Ethernet driver 0.9.26
-<6>eth0: RealTek RTL8139 Fast Ethernet at 0xe082f000, 00:10:a7:14:6f:68, 
-IRQ 17
-<7>eth0:  Identified 8139 chip type 'RTL-8139C'
-<6>Uniform Multi-Platform E-IDE driver Revision: 6.31
-<4>ide: Assuming 33MHz system bus speed for PIO modes; override with 
-idebus=xx
-<4>PDC20276: IDE controller on PCI bus 00 dev 30
-<4>PDC20276: chipset revision 1
-<4>PDC20276: not 100%% native mode: will probe irqs later
-<4>    ide2: BM-DMA at 0xb000-0xb007, BIOS settings: hde:pio, hdf:pio
-<4>    ide3: BM-DMA at 0xb008-0xb00f, BIOS settings: hdg:pio, hdh:pio
-<4>VP_IDE: IDE controller on PCI bus 00 dev 89
-<4>PCI: No IRQ known for interrupt pin A of device 00:11.1VP_IDE: 
-chipset revision 6
-<4>VP_IDE: not 100%% native mode: will probe irqs later
-<4>ide: Assuming 33MHz system bus speed for PIO modes; override with 
-idebus=xx
-<6>VP_IDE: VIA vt8233a (rev 00) IDE UDMA133 controller on pci00:11.1
-<4>    ide0: BM-DMA at 0x9800-0x9807, BIOS settings: hda:DMA, hdb:pio
-<4>    ide1: BM-DMA at 0x9808-0x980f, BIOS settings: hdc:DMA, hdd:pio
-<4>hda: IC35L040AVVA07-0, ATA DISK drive
-<4>blk: queue c0464884, I/O limit 4095Mb (mask 0xffffffff)
-<4>hdc: IBM-DHEA-38451, ATA DISK drive
-<4>blk: queue c0464c48, I/O limit 4095Mb (mask 0xffffffff)
-<4>hde: IBM-DPTA-372050, ATA DISK drive
-<4>blk: queue c046500c, I/O limit 4095Mb (mask 0xffffffff)
-<4>hdh: IBM-DTLA-307045, ATA DISK drive
-<4>blk: queue c046554c, I/O limit 4095Mb (mask 0xffffffff)
-<4>ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-<4>ide1 at 0x170-0x177,0x376 on irq 15
-<4>ide2 at 0xd400-0xd407,0xd002 on irq 19
-<4>ide3 at 0xb800-0xb807,0xb402 on irq 19
-<4>hdh: host protected area => 1
-<6>hdh: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=89355/16/63, 
-UDMA(100)
-<6> hdh: hdh1 hdh2
-<4>hde: host protected area => 1
-<6>hde: 40088160 sectors (20525 MB) w/1961KiB Cache, CHS=39770/16/63, 
-UDMA(66)
-<6> hde: hde1 hde2
-<6>hdc: 16514064 sectors (8455 MB) w/472KiB Cache, CHS=16383/16/63, UDMA(33)
-<6> hdc: hdc1 < >
-<4>hda: host protected area => 1
-<6>hda: 80418240 sectors (41174 MB) w/1863KiB Cache, CHS=5005/255/63, 
-UDMA(100)
-<6> hda: hda1 hda2 hda3
-<6>SCSI subsystem driver Revision: 1.00
-<4>ahc_pci:0:13:0: Host Adapter Bios disabled.  Using default SCSI 
-device parameters
-<6>scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.4
-<4>        <Adaptec 2902/04/10/15/20/30C SCSI adapter>
-<4>        aic7850: Single Channel A, SCSI Id=7, 3/253 SCBs
-<4>
-<4>(scsi0:A:2): 10.000MB/s transfers (10.000MHz, offset 15)
-<5>  Vendor: SCSI-CD   Model: ReWritable-2x2x6  Rev: 2.00
-<5>  Type:   CD-ROM                             ANSI SCSI revision: 02
-<5>  Vendor: TEAC      Model: CD-ROM CD-532S    Rev: 1.0A
-<5>  Type:   CD-ROM                             ANSI SCSI revision: 02
-<4>(scsi0:A:3): 10.000MB/s transfers (10.000MHz, offset 15)
-<4>Attached scsi CD-ROM sr0 at scsi0, channel 0, id 2, lun 0
-<4>Attached scsi CD-ROM sr1 at scsi0, channel 0, id 3, lun 0
-<4>sr0: scsi3-mmc drive: 2x/6x writer cd/rw xa/form2 cdda tray
-<6>Uniform CD-ROM driver Revision: 3.12
-<4>sr1: scsi3-mmc drive: 2x/6x xa/form2 cdda tray
-<6>uhci-hcd.c: USB Universal Host Controller Interface driver v2.0
-<6>hcd-pci.c: uhci-hcd @ 00:11.2, VIA Technologies, Inc. USB
-<6>hcd-pci.c: irq 21, io base 00009400
-<6>hcd.c: new USB bus registered, assigned bus number 1
-<6>hub.c: USB hub found at 0
-<6>hub.c: 2 ports detected
-<6>hcd-pci.c: uhci-hcd @ 00:11.3, VIA Technologies, Inc. USB (#2)
-<6>hcd-pci.c: irq 21, io base 00009000
-<6>hcd.c: new USB bus registered, assigned bus number 2
-<6>hub.c: USB hub found at 0
-<6>hub.c: 2 ports detected
-<6>usb.c: registered new driver usblp
-<6>usblp.c: v0.12: USB Printer Device Class driver
-<6>Initializing USB Mass Storage driver...
-<6>usb.c: registered new driver usb-storage
-<6>USB Mass Storage support registered.
-<6>usb.c: registered new driver hiddev
-<6>usb.c: registered new driver hid
-<6>hid-core.c: v2.0:USB HID core driver
-<7>register interface 'mouse' with class 'input
-<6>mice: PS/2 mouse device common for all mice
-<7>register interface 'event' with class 'input
-<6>serio: i8042 AUX port at 0x60,0x64 irq 12
-<6>input: AT Set 2 Extended keyboard on isa0060/serio0
-<6>serio: i8042 KBD port at 0x60,0x64 irq 1
-<6>Advanced Linux Sound Architecture Driver Version 0.9.0rc2 (Wed Jun 19 
-08:56:25 2002 UTC).
-<3>request_module[snd-card-0]: not ready
-<3>request_module[snd-card-1]: not ready
-<3>request_module[snd-card-2]: not ready
-<3>request_module[snd-card-3]: not ready
-<3>request_module[snd-card-4]: not ready
-<3>request_module[snd-card-5]: not ready
-<3>request_module[snd-card-6]: not ready
-<3>request_module[snd-card-7]: not ready
-<6>ALSA device list:
-<6>  #0: C-Media PCI CMI8738-MC6 (model 55) at 0xd800, irq 17
-<6>  #1: Ensoniq AudioPCI ES1371 at 0xa000, irq 18
-<6>NET4: Linux TCP/IP 1.0 for NET4.0
-<6>IP Protocols: ICMP, UDP, TCP, IGMP
-<6>IP: routing cache hash table of 4096 buckets, 32Kbytes
-<6>TCP: Hash tables configured (established 32768 bind 32768)
-<4>ip_conntrack version 2.1 (4095 buckets, 32760 max) - 292 bytes per 
-conntrack
-<4>ip_tables: (C) 2000-2002 Netfilter core team
-<4>arp_tables: (C) 2002 David S. Miller
-<6>NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-<3>request_module[nls_iso8859-1]: not ready
-<4>Unable to load NLS charset iso8859-1
-<4>found reiserfs format "3.6" with standard journal
-<6>hub.c: new USB device 00:11.2-2, assigned address 2
-<6>input: USB HID v1.00 Mouse [Microsoft Microsoft IntelliMouse ® with 
-IntelliEye] on usb-00:11.2-2
-<4>Reiserfs journal params: device ide0(3,1), size 8192, journal first 
-block 18, max trans len 1024, max batch 900, max commit age 30, max 
-trans age 30
-<4>reiserfs: checking transaction log (ide0(3,1)) for (ide0(3,1))
-<4>Using r5 hash to sort names
-<4>VFS: Mounted root (reiserfs filesystem) readonly.
-<4>Freeing unused kernel memory: 296k freed
-<6>Adding 1052248k swap on /dev/hda2.  Priority:42 extents:1
-<4>found reiserfs format "3.6" with standard journal
-<4>Reiserfs journal params: device ide0(3,3), size 8192, journal first 
-block 18, max trans len 1024, max batch 900, max commit age 30, max 
-trans age 30
-<4>reiserfs: checking transaction log (ide0(3,3)) for (ide0(3,3))
-<4>Using r5 hash to sort names
-Kernel logging (ksyslog) stopped.
-Kernel log daemon terminating.
+--------------090700010801050401070407
+Content-Type: text/plain;
+ name="patch-slab-numa"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-slab-numa"
 
+--- 2.5/mm/slab.c	2002-11-09 00:45:37.000000000 +0100
++++ build-2.5/mm/slab.c	2002-11-09 15:25:05.000000000 +0100
+@@ -10,6 +10,8 @@
+  *
+  * Cleanup, make the head arrays unconditional, preparation for NUMA
+  * 	(c) 2002 Manfred Spraul
++ * Initial NUMA implementation
++ *      (c) 2002 Manfred Spraul
+  *
+  * An implementation of the Slab Allocator as described in outline in;
+  *	UNIX Internals: The New Frontiers by Uresh Vahalia
+@@ -85,6 +87,29 @@
+ #include	<asm/uaccess.h>
+ 
+ /*
++ * Enable the NUMA mode for slab
++ * This is a separate define from CONFIG_DISCONTIGMEM, because it only
++ * applies if ZONE_NORMAL allocations are possible on all zones.
++ * TODO:
++ * - move ptr_to_nodeid into include/asm-
++ * - make the cache structures themselves node local
++ * - is it possible to use the cpu alloc interface?
++ * - the behaviour is bad if get_free_pages returns returns
++ *   memory from the another node: 
++ *   The page is used just for one refill, then left on the
++ *   other node's partial list.
++ *   Is that acceptable?
++ * - determine the optimal placement for the chache spinlock:
++ *   node local or global?
++ * - which additional statistic counters would be interesting?
++ * - disable object return for the hopeless caches [journal head,
++ *   buffer head, dentry - we'll trash cachelines anyway]
++ */
++#define CONFIG_SLAB_NUMA
++#undef MAX_NUMNODES
++#define MAX_NUMNODES 4
++ 
++/*
+  * DEBUG	- 1 for kmem_cache_create() to honour; SLAB_DEBUG_INITIAL,
+  *		  SLAB_RED_ZONE & SLAB_POISON.
+  *		  0 for faster, smaller code (especially in the critical paths).
+@@ -174,6 +199,10 @@
+  *
+  * The limit is stored in the per-cpu structure to reduce the data cache
+  * footprint.
++ * On NUMA systems, 2 per-cpu structures exist: one for the current
++ * node, one for wrong node free calls.
++ * Memory from the wrong node is never returned by alloc, it's returned
++ * to the home node as soon as the cpu cache is filled
+  *
+  */
+ struct array_cache {
+@@ -183,8 +212,17 @@
+ 	unsigned int touched;
+ };
+ 
++struct cpucache_wrapper {
++	struct array_cache *native;
++#ifdef CONFIG_SLAB_NUMA
++	struct array_cache *alien;
++#endif
++};
+ /* bootstrap: The caches do not work without cpuarrays anymore,
+  * but the cpuarrays are allocated from the generic caches...
++ *
++ * sizeof(struct arraycache_init) must be <= the size of the first
++ * 	kmalloc general cache, otherwise the bootstrap will crash.
+  */
+ #define BOOT_CPUCACHE_ENTRIES	1
+ struct arraycache_init {
+@@ -206,20 +244,31 @@
+ 	unsigned long	free_objects;
+ 	int		free_touched;
+ 	unsigned long	next_reap;
++#if STATS
++	unsigned long		num_allocations;
++
++	unsigned long		grown;
++	unsigned long		high_mark;
++	unsigned long		num_active;
++#endif
+ };
+ 
+-#define LIST3_INIT(parent) \
+-	{ \
+-		.slabs_full	= LIST_HEAD_INIT(parent.slabs_full), \
+-		.slabs_partial	= LIST_HEAD_INIT(parent.slabs_partial), \
+-		.slabs_free	= LIST_HEAD_INIT(parent.slabs_free) \
+-	}
+-#define list3_data(cachep) \
+-	(&(cachep)->lists)
++#if STATS
++#define	STATS_INC_GROWN(x)	((x)->grown++)
++#define	STATS_INC_ALLOCED(x)	((x)->num_allocations++)
++#define	STATS_INC_ACTIVE(x)	do { (x)->num_active++; \
++				     if ((x)->num_active > (x)->high_mark) \
++					(x)->high_mark = (x)->num_active; \
++				} while (0)
++#define	STATS_DEC_ACTIVE(x)	((x)->num_active--)
++#else
++#define	STATS_INC_GROWN(x)	do { } while (0)
++#define	STATS_INC_ALLOCED(x)	do { } while (0)
++#define	STATS_INC_ACTIVE(x)	do { } while (0)
+ 
+-/* NUMA: per-node */
+-#define list3_data_ptr(cachep, ptr) \
+-		list3_data(cachep)
++#define	STATS_DEC_ACTIVE(x)	do { } while (0)
++
++#endif
+ 
+ /*
+  * kmem_cache_t
+@@ -229,12 +278,11 @@
+ 	
+ struct kmem_cache_s {
+ /* 1) per-cpu data, touched during every alloc/free */
+-	struct array_cache	*array[NR_CPUS];
++	struct cpucache_wrapper	cpudata[NR_CPUS];
+ 	unsigned int		batchcount;
+ 	unsigned int		limit;
+ /* 2) touched by every alloc & free from the backend */
+-	struct kmem_list3	lists;
+-	/* NUMA: kmem_3list_t	*nodelists[NR_NODES] */
++	struct kmem_list3	lists[MAX_NUMNODES];	/* NUMA: pointers would be better */
+ 	unsigned int		objsize;
+ 	unsigned int	 	flags;	/* constant flags */
+ 	unsigned int		num;	/* # of objs per slab */
+@@ -252,7 +300,6 @@
+ 	unsigned int		colour_off;	/* colour offset */
+ 	unsigned int		colour_next;	/* cache colouring */
+ 	kmem_cache_t		*slabp_cache;
+-	unsigned int		dflags;		/* dynamic flags */
+ 
+ 	/* constructor func */
+ 	void (*ctor)(void *, kmem_cache_t *, unsigned long);
+@@ -266,17 +313,15 @@
+ 
+ /* 5) statistics */
+ #if STATS
+-	unsigned long		num_active;
+-	unsigned long		num_allocations;
+-	unsigned long		high_mark;
+-	unsigned long		grown;
+-	unsigned long		reaped;
+-	unsigned long 		errors;
+-	unsigned long		max_freeable;
+-	atomic_t		allochit;
+-	atomic_t		allocmiss;
+-	atomic_t		freehit;
+-	atomic_t		freemiss;
++	atomic_t	errors;
++
++	atomic_t	allochit[NR_CPUS];
++	atomic_t	allocmiss[NR_CPUS];
++	atomic_t	freehit[NR_CPUS];
++	atomic_t	freemiss[NR_CPUS];
++#ifdef CONFIG_SLAB_NUMA
++	atomic_t	foreign[NR_CPUS];
++#endif
+ #endif
+ };
+ 
+@@ -296,39 +341,21 @@
+ #define REAPTIMEOUT_LIST3	(4*HZ)
+ 
+ #if STATS
+-#define	STATS_INC_ACTIVE(x)	((x)->num_active++)
+-#define	STATS_DEC_ACTIVE(x)	((x)->num_active--)
+-#define	STATS_INC_ALLOCED(x)	((x)->num_allocations++)
+-#define	STATS_INC_GROWN(x)	((x)->grown++)
+-#define	STATS_INC_REAPED(x)	((x)->reaped++)
+-#define	STATS_SET_HIGH(x)	do { if ((x)->num_active > (x)->high_mark) \
+-					(x)->high_mark = (x)->num_active; \
+-				} while (0)
+-#define	STATS_INC_ERR(x)	((x)->errors++)
+-#define	STATS_SET_FREEABLE(x, i) \
+-				do { if ((x)->max_freeable < i) \
+-					(x)->max_freeable = i; \
+-				} while (0)
++#define	STATS_INC_ERR(x)	atomic_inc(&(x)->errors)
+ 
+-#define STATS_INC_ALLOCHIT(x)	atomic_inc(&(x)->allochit)
+-#define STATS_INC_ALLOCMISS(x)	atomic_inc(&(x)->allocmiss)
+-#define STATS_INC_FREEHIT(x)	atomic_inc(&(x)->freehit)
+-#define STATS_INC_FREEMISS(x)	atomic_inc(&(x)->freemiss)
++#define STATS_INC_ALLOCHIT(x)	atomic_inc(&(x)->allochit[smp_processor_id()])
++#define STATS_INC_ALLOCMISS(x)	atomic_inc(&(x)->allocmiss[smp_processor_id()])
++#define STATS_INC_FREEHIT(x)	atomic_inc(&(x)->freehit[smp_processor_id()])
++#define STATS_INC_FREEMISS(x)	atomic_inc(&(x)->freemiss[smp_processor_id()])
++#define STATS_INC_FOREIGN(x)	atomic_inc(&(x)->foreign[smp_processor_id()])
+ #else
+-#define	STATS_INC_ACTIVE(x)	do { } while (0)
+-#define	STATS_DEC_ACTIVE(x)	do { } while (0)
+-#define	STATS_INC_ALLOCED(x)	do { } while (0)
+-#define	STATS_INC_GROWN(x)	do { } while (0)
+-#define	STATS_INC_REAPED(x)	do { } while (0)
+-#define	STATS_SET_HIGH(x)	do { } while (0)
+-#define	STATS_INC_ERR(x)	do { } while (0)
+-#define	STATS_SET_FREEABLE(x, i) \
+-				do { } while (0)
++#define STATS_INC_ERR(x)	do { } while (0)
+ 
+ #define STATS_INC_ALLOCHIT(x)	do { } while (0)
+ #define STATS_INC_ALLOCMISS(x)	do { } while (0)
+ #define STATS_INC_FREEHIT(x)	do { } while (0)
+ #define STATS_INC_FREEMISS(x)	do { } while (0)
++#define STATS_INC_FOREIGN(x)	do { } while (0)	
+ #endif
+ 
+ #if DEBUG
+@@ -436,8 +463,6 @@
+ 
+ /* internal cache of cache description objs */
+ static kmem_cache_t cache_cache = {
+-	.lists		= LIST3_INIT(cache_cache.lists),
+-	.array		= { [0] = &initarray_cache.cache },
+ 	.batchcount	= 1,
+ 	.limit		= BOOT_CPUCACHE_ENTRIES,
+ 	.objsize	= sizeof(kmem_cache_t),
+@@ -514,6 +539,23 @@
+ 	}
+ }
+ 
++static struct array_cache *alloc_acdata(int limit, int batchcount)
++{
++	int memsize;
++	struct array_cache *nc;
++
++	memsize = sizeof(void*)*limit+sizeof(struct array_cache);
++	nc = kmalloc(memsize, GFP_KERNEL);
++	if (!nc)
++		return NULL;
++	nc->avail = 0;
++	nc->limit = limit;
++	nc->batchcount = batchcount;
++	nc->touched = 0;
++
++	return nc;
++}
++
+ /*
+  * Note: if someone calls kmem_cache_alloc() on the new
+  * cpu before the cpuup callback had a chance to allocate
+@@ -531,25 +573,27 @@
+ 	case CPU_UP_PREPARE:
+ 		down(&cache_chain_sem);
+ 		list_for_each(p, &cache_chain) {
+-			int memsize;
+ 			struct array_cache *nc;
+ 
+ 			kmem_cache_t* cachep = list_entry(p, kmem_cache_t, next);
+-			memsize = sizeof(void*)*cachep->limit+sizeof(struct array_cache);
+-			nc = kmalloc(memsize, GFP_KERNEL);
++			nc = alloc_acdata(cachep->limit, cachep->batchcount);
+ 			if (!nc)
+ 				goto bad;
+-			nc->avail = 0;
+-			nc->limit = cachep->limit;
+-			nc->batchcount = cachep->batchcount;
+-			nc->touched = 0;
+ 
+ 			spin_lock_irq(&cachep->spinlock);
+-			cachep->array[cpu] = nc;
++			cachep->cpudata[cpu].native = nc;
+ 			cachep->free_limit = (1+num_online_cpus())*cachep->batchcount
+ 						+ cachep->num;
+ 			spin_unlock_irq(&cachep->spinlock);
++#ifdef CONFIG_SLAB_NUMA
++			nc = alloc_acdata(cachep->limit, cachep->limit);
++			if (!nc)
++				goto bad;
+ 
++			spin_lock_irq(&cachep->spinlock);
++			cachep->cpudata[cpu].alien = nc;
++			spin_unlock_irq(&cachep->spinlock);
++#endif
+ 		}
+ 		up(&cache_chain_sem);
+ 		break;
+@@ -564,9 +608,14 @@
+ 			struct array_cache *nc;
+ 			kmem_cache_t* cachep = list_entry(p, kmem_cache_t, next);
+ 
+-			nc = cachep->array[cpu];
+-			cachep->array[cpu] = NULL;
++			nc = cachep->cpudata[cpu].native;
++			cachep->cpudata[cpu].native = NULL;
+ 			kfree(nc);
++#ifdef CONFIG_SLAB_NUMA
++			nc = cachep->cpudata[cpu].alien;
++			cachep->cpudata[cpu].alien = NULL;
++			kfree(nc);
++#endif
+ 		}
+ 		up(&cache_chain_sem);
+ 		break;
+@@ -584,20 +633,74 @@
+ 	return (void**)(ac+1);
+ }
+ 
+-static inline struct array_cache *ac_data(kmem_cache_t *cachep)
++/*
++ * Helper functions/macros to access the per-cpu
++ * and per-node structures
++ */
++
++#define ac_data(cachep) \
++	((cachep)->cpudata[smp_processor_id()].native)
++
++#define list3_data(cachep) \
++	(&(cachep)->lists[__cpu_to_node(smp_processor_id())])
++
++#ifdef CONFIG_SLAB_NUMA
++/*
++ * NUMA: check where ptr points, and select the appropriate storage
++ * 	for the object.
++ */
++/* FIXME - this function must be somewhere in include/asm- */
++static inline int ptr_to_node(void *obj)
+ {
+-	return cachep->array[smp_processor_id()];
++	return (((unsigned long)obj)/4/1024/1024)%MAX_NUMNODES;
+ }
+ 
++static inline struct array_cache * ac_data_ptr(kmem_cache_t *cachep, void *objp)
++{
++	if (ptr_to_node(objp) == __cpu_to_node(smp_processor_id()))
++		return cachep->cpudata[smp_processor_id()].native;
++	STATS_INC_FOREIGN(cachep);
++	return cachep->cpudata[smp_processor_id()].alien;
++}
++#define DEFINE_NUMALIST_PTR(x)	\
++	struct kmem_list3 *x
++
++#define set_numalist_ptr(x, cachep, objp) \
++		do { x = &cachep->lists[ptr_to_node(objp)]; } while(0)
++#define set_numalist_cur(x, cachep) \
++		do { x = &cachep->lists[__cpu_to_node(smp_processor_id())]; } while(0)
++#define access_numalist_ptr(cachep, x) \
++		(x)
++
++#else
++
++#define ac_data_ptr(cachep, ptr)	 ac_data(cachep)
++
++#define DEFINE_NUMALIST_PTR(x)	
++#define set_numalist_ptr(x, cachep, objp)	do { } while(0)
++#define set_numalist_cur(x, cachep)	 	do { } while(0)
++
++#define access_numalist_ptr(cachep, x)	 	(&(cachep->lists[0]))
++
++#endif
++
+ /* Initialisation - setup the `cache' cache. */
+ void __init kmem_cache_init(void)
+ {
+ 	size_t left_over;
++	int i;
+ 
+ 	init_MUTEX(&cache_chain_sem);
+ 	INIT_LIST_HEAD(&cache_chain);
+ 	list_add(&cache_cache.next, &cache_chain);
+ 
++	for (i=0;i<MAX_NUMNODES;i++) {
++		INIT_LIST_HEAD(&cache_cache.lists[i].slabs_full);
++		INIT_LIST_HEAD(&cache_cache.lists[i].slabs_partial);
++		INIT_LIST_HEAD(&cache_cache.lists[i].slabs_free);
++	}
++	ac_data(&cache_cache) = &initarray_cache.cache;
++
+ 	cache_estimate(0, cache_cache.objsize, 0,
+ 			&left_over, &cache_cache.num);
+ 	if (!cache_cache.num)
+@@ -657,20 +760,33 @@
+ 	 */
+ 	{
+ 		void * ptr;
++#ifdef CONFIG_SLAB_NUMA
++		void * ptr2;
++#endif
+ 		
+-		ptr = kmalloc(sizeof(struct arraycache_init), GFP_KERNEL);
++		ptr = alloc_acdata(1, 1);
++#ifdef CONFIG_SLAB_NUMA
++		ptr2 = alloc_acdata(1, 1);
++#endif
+ 		local_irq_disable();
+-		BUG_ON(ac_data(&cache_cache) != &initarray_cache.cache);
+-		memcpy(ptr, ac_data(&cache_cache), sizeof(struct arraycache_init));
+-		cache_cache.array[smp_processor_id()] = ptr;
++		BUG_ON(cache_cache.cpudata[smp_processor_id()].native != &initarray_cache.cache);
++		cache_cache.cpudata[smp_processor_id()].native = ptr;
++#ifdef CONFIG_SLAB_NUMA
++		cache_cache.cpudata[smp_processor_id()].alien = ptr2;
++#endif
+ 		local_irq_enable();
+ 	
+-		ptr = kmalloc(sizeof(struct arraycache_init), GFP_KERNEL);
++		ptr = alloc_acdata(1, 1);
++#ifdef CONFIG_SLAB_NUMA
++		ptr2 = alloc_acdata(1, 1);
++#endif
+ 		local_irq_disable();
+-		BUG_ON(ac_data(malloc_sizes[0].cs_cachep) != &initarray_generic.cache);
+-		memcpy(ptr, ac_data(malloc_sizes[0].cs_cachep),
+-				sizeof(struct arraycache_init));
+-		malloc_sizes[0].cs_cachep->array[smp_processor_id()] = ptr;
++		BUG_ON(malloc_sizes[0].cs_cachep->cpudata[smp_processor_id()].native !=
++				&initarray_generic.cache);
++		malloc_sizes[0].cs_cachep->cpudata[smp_processor_id()].native = ptr;
++#ifdef CONFIG_SLAB_NUMA
++		malloc_sizes[0].cs_cachep->cpudata[smp_processor_id()].alien = ptr2;
++#endif
+ 		local_irq_enable();
+ 	}
+ }
+@@ -850,6 +966,7 @@
+ 	const char *func_nm = KERN_ERR "kmem_create: ";
+ 	size_t left_over, align, slab_size;
+ 	kmem_cache_t *cachep = NULL;
++	int i;
+ 
+ 	/*
+ 	 * Sanity checks... these are all serious usage bugs.
+@@ -1000,10 +1117,11 @@
+ 		cachep->gfpflags |= GFP_DMA;
+ 	spin_lock_init(&cachep->spinlock);
+ 	cachep->objsize = size;
+-	/* NUMA */
+-	INIT_LIST_HEAD(&cachep->lists.slabs_full);
+-	INIT_LIST_HEAD(&cachep->lists.slabs_partial);
+-	INIT_LIST_HEAD(&cachep->lists.slabs_free);
++	for (i=0;i<MAX_NUMNODES;i++) {
++		INIT_LIST_HEAD(&cachep->lists[i].slabs_full);
++		INIT_LIST_HEAD(&cachep->lists[i].slabs_partial);
++		INIT_LIST_HEAD(&cachep->lists[i].slabs_free);
++	}
+ 
+ 	if (flags & CFLGS_OFF_SLAB)
+ 		cachep->slabp_cache = kmem_find_general_cachep(slab_size,0);
+@@ -1019,24 +1137,26 @@
+ 			 * the cache that's used by kmalloc(24), otherwise
+ 			 * the creation of further caches will BUG().
+ 			 */
+-			cachep->array[smp_processor_id()] = &initarray_generic.cache;
++			ac_data(cachep) = &initarray_generic.cache;
+ 			g_cpucache_up = PARTIAL;
+ 		} else {
+-			cachep->array[smp_processor_id()] = kmalloc(sizeof(struct arraycache_init),GFP_KERNEL);
++			ac_data(cachep) = alloc_acdata(1,1);
++#ifdef CONFIG_SLAB_NUMA
++			cachep->cpudata[smp_processor_id()].alien =
++					alloc_acdata(1,1);
++#endif
+ 		}
+-		BUG_ON(!ac_data(cachep));
+-		ac_data(cachep)->avail = 0;
+-		ac_data(cachep)->limit = BOOT_CPUCACHE_ENTRIES;
+-		ac_data(cachep)->batchcount = 1;
+-		ac_data(cachep)->touched = 0;
+ 		cachep->batchcount = 1;
+ 		cachep->limit = BOOT_CPUCACHE_ENTRIES;
+ 		cachep->free_limit = (1+num_online_cpus())*cachep->batchcount
+ 					+ cachep->num;
+ 	} 
+ 
+-	cachep->lists.next_reap = jiffies + REAPTIMEOUT_LIST3 +
+-					((unsigned long)cachep)%REAPTIMEOUT_LIST3;
++	for (i=0;i< MAX_NUMNODES;i++) {
++		cachep->lists[i].next_reap = jiffies + REAPTIMEOUT_LIST3 +
++					((unsigned long)cachep)%REAPTIMEOUT_LIST3 +
++					i*HZ/10;
++	}
+ 
+ 	/* Need the semaphore to access the chain. */
+ 	down(&cache_chain_sem);
+@@ -1128,38 +1248,41 @@
+ }
+ 
+ 
+-/* NUMA shrink all list3s */
+ static int __cache_shrink(kmem_cache_t *cachep)
+ {
+ 	struct slab *slabp;
+ 	int ret;
++	int i;
+ 
+ 	drain_cpu_caches(cachep);
+ 
+ 	check_irq_on();
+ 	spin_lock_irq(&cachep->spinlock);
+ 
+-	for(;;) {
+-		struct list_head *p;
++	ret = 0;
++	for (i=0;i<MAX_NUMNODES;i++) {
++		for(;;) {
++			struct list_head *p;
+ 
+-		p = cachep->lists.slabs_free.prev;
+-		if (p == &cachep->lists.slabs_free)
+-			break;
++			p = cachep->lists[i].slabs_free.prev;
++			if (p == &cachep->lists[i].slabs_free)
++				break;
+ 
+-		slabp = list_entry(cachep->lists.slabs_free.prev, struct slab, list);
++			slabp = list_entry(cachep->lists[i].slabs_free.prev, struct slab, list);
+ #if DEBUG
+-		if (slabp->inuse)
+-			BUG();
++			if (slabp->inuse)
++				BUG();
+ #endif
+-		list_del(&slabp->list);
++			list_del(&slabp->list);
+ 
+-		cachep->lists.free_objects -= cachep->num;
+-		spin_unlock_irq(&cachep->spinlock);
+-		slab_destroy(cachep, slabp);
+-		spin_lock_irq(&cachep->spinlock);
++			cachep->lists[i].free_objects -= cachep->num;
++			spin_unlock_irq(&cachep->spinlock);
++			slab_destroy(cachep, slabp);
++			spin_lock_irq(&cachep->spinlock);
++		}
++		ret |= !list_empty(&cachep->lists[i].slabs_full);
++		ret |= !list_empty(&cachep->lists[i].slabs_partial);
+ 	}
+-	ret = !list_empty(&cachep->lists.slabs_full) ||
+-		!list_empty(&cachep->lists.slabs_partial);
+ 	spin_unlock_irq(&cachep->spinlock);
+ 	return ret;
+ }
+@@ -1217,9 +1340,12 @@
+ 	}
+ 	{
+ 		int i;
+-		for (i = 0; i < NR_CPUS; i++)
+-			kfree(cachep->array[i]);
+-		/* NUMA: free the list3 structures */
++		for (i = 0; i < NR_CPUS; i++) {
++			kfree(cachep->cpudata[i].native);
++#ifdef CONFIG_SLAB_NUMA
++			kfree(cachep->cpudata[i].alien);
++#endif
++		}
+ 	}
+ 	kmem_cache_free(&cache_cache, cachep);
+ 
+@@ -1316,7 +1442,7 @@
+  * Grow (by 1) the number of slabs within a cache.  This is called by
+  * kmem_cache_alloc() when there are no active objs left in a cache.
+  */
+-static int cache_grow (kmem_cache_t * cachep, int flags)
++static struct kmem_list3 *cache_grow (kmem_cache_t * cachep, int flags)
+ {
+ 	struct slab	*slabp;
+ 	struct page	*page;
+@@ -1324,6 +1450,7 @@
+ 	size_t		 offset;
+ 	unsigned int	 i, local_flags;
+ 	unsigned long	 ctor_flags;
++	DEFINE_NUMALIST_PTR(l3);
+ 
+ 	/* Be lazy and only check for valid flags here,
+  	 * keeping it out of the critical path in kmem_cache_alloc().
+@@ -1394,15 +1521,17 @@
+ 	spin_lock(&cachep->spinlock);
+ 
+ 	/* Make slab active. */
+-	list_add_tail(&slabp->list, &(list3_data(cachep)->slabs_free));
+-	STATS_INC_GROWN(cachep);
+-	list3_data(cachep)->free_objects += cachep->num;
++	set_numalist_ptr(l3, cachep, slabp->s_mem);
++	list_add_tail(&slabp->list, &(access_numalist_ptr(cachep, l3)->slabs_free));
++	STATS_INC_GROWN(access_numalist_ptr(cachep, l3));
++	access_numalist_ptr(cachep, l3)->free_objects += cachep->num;
+ 	spin_unlock(&cachep->spinlock);
+-	return 1;
++	return access_numalist_ptr(cachep, l3);
+ opps1:
+ 	kmem_freepages(cachep, objp);
+ failed:
+-	return 0;
++	STATS_INC_ERR(cachep);
++	return NULL;
+ }
+ 
+ /*
+@@ -1502,25 +1631,6 @@
+ #endif
+ }
+ 
+-static inline void * cache_alloc_one_tail (kmem_cache_t *cachep,
+-						struct slab *slabp)
+-{
+-	void *objp;
+-
+-	check_spinlock_acquired(cachep);
+-
+-	STATS_INC_ALLOCED(cachep);
+-	STATS_INC_ACTIVE(cachep);
+-	STATS_SET_HIGH(cachep);
+-
+-	/* get obj pointer */
+-	slabp->inuse++;
+-	objp = slabp->s_mem + slabp->free*cachep->objsize;
+-	slabp->free=slab_bufctl(slabp)[slabp->free];
+-
+-	return objp;
+-}
+-
+ static inline void cache_alloc_listfixup(struct kmem_list3 *l3, struct slab *slabp)
+ {
+ 	list_del(&slabp->list);
+@@ -1539,6 +1649,7 @@
+ 
+ 	check_irq_off();
+ 	ac = ac_data(cachep);
++	l3 = list3_data(cachep);
+ retry:
+ 	batchcount = ac->batchcount;
+ 	if (!ac->touched && batchcount > BATCHREFILL_LIMIT) {
+@@ -1548,7 +1659,6 @@
+ 		 */
+ 		batchcount = BATCHREFILL_LIMIT;
+ 	}
+-	l3 = list3_data(cachep);
+ 
+ 	BUG_ON(ac->avail > 0);
+ 	spin_lock(&cachep->spinlock);
+@@ -1566,9 +1676,16 @@
+ 
+ 		slabp = list_entry(entry, struct slab, list);
+ 		check_slabp(cachep, slabp);
+-		while (slabp->inuse < cachep->num && batchcount--)
++		while (slabp->inuse < cachep->num && batchcount--) {
++			STATS_INC_ALLOCED(l3);
++			STATS_INC_ACTIVE(l3);
++
++			slabp->inuse++;
++			/* get obj pointer */
+ 			ac_entry(ac)[ac->avail++] =
+-				cache_alloc_one_tail(cachep, slabp);
++					slabp->s_mem + slabp->free*cachep->objsize;
++			slabp->free=slab_bufctl(slabp)[slabp->free];
++		}
+ 		check_slabp(cachep, slabp);
+ 		cache_alloc_listfixup(l3, slabp);
+ 	}
+@@ -1578,12 +1695,11 @@
+ 	spin_unlock(&cachep->spinlock);
+ 
+ 	if (unlikely(!ac->avail)) {
+-		int x;
+-		x = cache_grow(cachep, flags);
++		l3 = cache_grow(cachep, flags);
+ 		
+ 		// cache_grow can reenable interrupts, then ac could change.
+ 		ac = ac_data(cachep);
+-		if (!x && ac->avail == 0)	// no objects in sight? abort
++		if (!l3 && ac->avail == 0)	// no objects in sight? abort
+ 			return NULL;
+ 
+ 		if (!ac->avail)		// objects refilled by interrupt?
+@@ -1654,51 +1770,48 @@
+ 	return objp;
+ }
+ 
+-/* 
+- * NUMA: different approach needed if the spinlock is moved into
+- * the l3 structure
+- */
+-
+-static inline void
+-__free_block(kmem_cache_t *cachep, void **objpp, int nr_objects)
++static inline void __free_block (kmem_cache_t* cachep, void** objpp, int len)
+ {
+-	int i;
+-
+ 	check_irq_off();
+ 	spin_lock(&cachep->spinlock);
++#ifndef CONFIG_SLAB_NUMA
++	cachep->lists[0].free_objects += len;
++#endif
+ 
+-	/* NUMA: move add into loop */
+-	cachep->lists.free_objects += nr_objects;
+-
+-	for (i = 0; i < nr_objects; i++) {
+-		void *objp = objpp[i];
+-		struct slab *slabp;
+-		unsigned int objnr;
++	for ( ; len > 0; len--, objpp++) {
++		struct slab* slabp;
++		void *objp = *objpp;
++		DEFINE_NUMALIST_PTR(l3);
+ 
+ 		slabp = GET_PAGE_SLAB(virt_to_page(objp));
+ 		list_del(&slabp->list);
+-		objnr = (objp - slabp->s_mem) / cachep->objsize;
+-		slab_bufctl(slabp)[objnr] = slabp->free;
+-		slabp->free = objnr;
+-		STATS_DEC_ACTIVE(cachep);
+-		slabp->inuse--;
++		{
++			unsigned int objnr = (objp-slabp->s_mem)/cachep->objsize;
+ 
++			slab_bufctl(slabp)[objnr] = slabp->free;
++			slabp->free = objnr;
++		}
++	
++		set_numalist_ptr(l3, cachep, objp);
++		STATS_DEC_ACTIVE(access_numalist_ptr(cachep, l3));
++#ifdef CONFIG_SLAB_NUMA
++		l3->free_objects++;
++#endif
+ 		/* fixup slab chains */
+-		if (slabp->inuse == 0) {
+-			if (cachep->lists.free_objects > cachep->free_limit) {
+-				cachep->lists.free_objects -= cachep->num;
++		if (unlikely(!--slabp->inuse)) {
++			if (access_numalist_ptr(cachep, l3)->free_objects > cachep->free_limit) {
++				access_numalist_ptr(cachep, l3)->free_objects -= cachep->num;
+ 				slab_destroy(cachep, slabp);
+ 			} else {
+ 				list_add(&slabp->list,
+-				&list3_data_ptr(cachep, objp)->slabs_free);
++						&(access_numalist_ptr(cachep, l3)->slabs_free));
+ 			}
+ 		} else {
+ 			/* Unconditionally move a slab to the end of the
+ 			 * partial list on free - maximum time for the
+ 			 * other objects to be freed, too.
+ 			 */
+-			list_add_tail(&slabp->list,
+-				&list3_data_ptr(cachep, objp)->slabs_partial);
++			list_add_tail(&slabp->list, &(access_numalist_ptr(cachep, l3)->slabs_partial));
+ 		}
+ 	}
+ 	spin_unlock(&cachep->spinlock);
+@@ -1720,26 +1833,6 @@
+ 	check_irq_off();
+ 	__free_block(cachep, &ac_entry(ac)[0], batchcount);
+ 
+-#if STATS
+-	{
+-		int i = 0;
+-		struct list_head *p;
+-
+-		spin_lock(&cachep->spinlock);
+-		p = list3_data(cachep)->slabs_free.next;
+-		while (p != &(list3_data(cachep)->slabs_free)) {
+-			struct slab *slabp;
+-
+-			slabp = list_entry(p, struct slab, list);
+-			BUG_ON(slabp->inuse);
+-
+-			i++;
+-			p = p->next;
+-		}
+-		STATS_SET_FREEABLE(cachep, i);
+-		spin_unlock(&cachep->spinlock);
+-	}
+-#endif
+ 	ac->avail -= batchcount;
+ 	memmove(&ac_entry(ac)[0], &ac_entry(ac)[batchcount],
+ 			sizeof(void*)*ac->avail);
+@@ -1754,7 +1847,7 @@
+  */
+ static inline void __cache_free (kmem_cache_t *cachep, void* objp)
+ {
+-	struct array_cache *ac = ac_data(cachep);
++	struct array_cache *ac = ac_data_ptr(cachep, objp);
+ 
+ 	check_irq_off();
+ 	objp = cache_free_debugcheck(cachep, objp);
+@@ -1890,6 +1983,9 @@
+ struct ccupdate_struct {
+ 	kmem_cache_t *cachep;
+ 	struct array_cache *new[NR_CPUS];
++#ifdef CONFIG_SLAB_NUMA
++	struct array_cache *new_alien[NR_CPUS];
++#endif
+ };
+ 
+ static void do_ccupdate_local(void *info)
+@@ -1898,10 +1994,15 @@
+ 	struct array_cache *old;
+ 
+ 	check_irq_off();
+-	old = ac_data(new->cachep);
+-	
+-	new->cachep->array[smp_processor_id()] = new->new[smp_processor_id()];
++	old = new->cachep->cpudata[smp_processor_id()].native;
++	new->cachep->cpudata[smp_processor_id()].native = new->new[smp_processor_id()];
+ 	new->new[smp_processor_id()] = old;
++
++#ifdef CONFIG_SLAB_NUMA
++	old = new->cachep->cpudata[smp_processor_id()].alien;
++	new->cachep->cpudata[smp_processor_id()].alien = new->new_alien[smp_processor_id()];
++	new->new_alien[smp_processor_id()] = old;
++#endif
+ }
+ 
+ 
+@@ -1909,22 +2010,22 @@
+ {
+ 	struct ccupdate_struct new;
+ 	int i;
++	int ret;
+ 
+ 	memset(&new.new,0,sizeof(new.new));
+ 	for (i = 0; i < NR_CPUS; i++) {
+-		struct array_cache *ccnew;
+-
+-		ccnew = kmalloc(sizeof(void*)*limit+
+-				sizeof(struct array_cache), GFP_KERNEL);
+-		if (!ccnew) {
+-			for (i--; i >= 0; i--) kfree(new.new[i]);
+-			return -ENOMEM;
+-		}
+-		ccnew->avail = 0;
+-		ccnew->limit = limit;
+-		ccnew->batchcount = batchcount;
+-		ccnew->touched = 0;
+-		new.new[i] = ccnew;
++		new.new[i] = alloc_acdata(limit, batchcount);
++		if (!new.new[i]) {
++			ret = -ENOMEM;
++			goto out;
++		}
++#ifdef CONFIG_SLAB_NUMA
++		new.new_alien[i] = alloc_acdata(limit, limit);
++		if (!new.new_alien[i]) {
++			ret = -ENOMEM;
++			goto out;
++		}
++#endif
+ 	}
+ 	new.cachep = cachep;
+ 
+@@ -1936,17 +2037,30 @@
+ 	cachep->limit = limit;
+ 	cachep->free_limit = (1+num_online_cpus())*cachep->batchcount + cachep->num;
+ 	spin_unlock_irq(&cachep->spinlock);
+-
++	
++	ret = 0;
++out:
+ 	for (i = 0; i < NR_CPUS; i++) {
+-		struct array_cache *ccold = new.new[i];
+-		if (!ccold)
+-			continue;
+-		local_irq_disable();
+-		free_block(cachep, ac_entry(ccold), ccold->avail);
+-		local_irq_enable();
+-		kfree(ccold);
++		struct array_cache* ccold;
++		
++		ccold = new.new[i];
++		if (ccold) {
++			local_irq_disable();
++			free_block(cachep, ac_entry(ccold), ccold->avail);
++			local_irq_enable();
++			kfree(ccold);
++		}
++#ifdef CONFIG_SLAB_NUMA
++		ccold = new.new_alien[i];
++		if (ccold) {
++			local_irq_disable();
++			free_block(cachep, ac_entry(ccold), ccold->avail);
++			local_irq_enable();
++			kfree(ccold);
++		}
++#endif
+ 	}
+-	return 0;
++	return ret;
+ }
+ 
+ 
+@@ -1998,6 +2112,7 @@
+ 		int tofree;
+ 		struct array_cache *ac;
+ 		struct slab *slabp;
++		DEFINE_NUMALIST_PTR(l3);
+ 
+ 		searchp = list_entry(walk, kmem_cache_t, next);
+ 
+@@ -2019,36 +2134,41 @@
+ 			memmove(&ac_entry(ac)[0], &ac_entry(ac)[tofree],
+ 					sizeof(void*)*ac->avail);
+ 		}
+-		if(time_after(searchp->lists.next_reap, jiffies))
++#ifdef CONFIG_SLAB_NUMA
++		ac = searchp->cpudata[smp_processor_id()].alien;
++		free_block(searchp, ac_entry(ac), ac->avail);
++		ac->avail = 0;
++#endif
++		set_numalist_cur(l3, searchp);
++		if(time_after(access_numalist_ptr(searchp, l3)->next_reap, jiffies))
+ 			goto next_irqon;
+ 
+ 		spin_lock(&searchp->spinlock);
+-		if(time_after(searchp->lists.next_reap, jiffies)) {
++		if(time_after(access_numalist_ptr(searchp, l3)->next_reap, jiffies)) {
+ 			goto next_unlock;
+ 		}
+-		searchp->lists.next_reap = jiffies + REAPTIMEOUT_LIST3;
+-		if (searchp->lists.free_touched) {
+-			searchp->lists.free_touched = 0;
++		access_numalist_ptr(searchp, l3)->next_reap = jiffies + REAPTIMEOUT_LIST3;
++		if (access_numalist_ptr(searchp, l3)->free_touched) {
++			access_numalist_ptr(searchp, l3)->free_touched = 0;
+ 			goto next_unlock;
+ 		}
+ 
+ 		tofree = (searchp->free_limit+5*searchp->num-1)/(5*searchp->num);
+ 		do {
+-			p = list3_data(searchp)->slabs_free.next;
+-			if (p == &(list3_data(searchp)->slabs_free))
++			p = access_numalist_ptr(searchp, l3)->slabs_free.next;
++			if (p == &(access_numalist_ptr(searchp, l3)->slabs_free))
+ 				break;
+ 
+ 			slabp = list_entry(p, struct slab, list);
+ 			BUG_ON(slabp->inuse);
+ 			list_del(&slabp->list);
+-			STATS_INC_REAPED(searchp);
+ 
+ 			/* Safe to drop the lock. The slab is no longer
+ 			 * linked to the cache.
+ 			 * searchp cannot disappear, we hold
+ 			 * cache_chain_lock
+ 			 */
+-			searchp->lists.free_objects -= searchp->num;
++			access_numalist_ptr(searchp, l3)->free_objects -= searchp->num;
+ 			spin_unlock_irq(&searchp->spinlock);
+ 			slab_destroy(searchp, slabp);
+ 			spin_lock_irq(&searchp->spinlock);
+@@ -2075,7 +2195,7 @@
+ 	struct timer_list *rt = &reap_timers[cpu];
+ 
+ 	cache_reap();
+-	mod_timer(rt, jiffies + REAPTIMEOUT_CPUC + cpu);
++	mod_timer(rt, jiffies + REAPTIMEOUT_CPUC);
+ }
+ 
+ #ifdef CONFIG_PROC_FS
+@@ -2116,19 +2236,16 @@
+ {
+ 	kmem_cache_t *cachep = p;
+ 	struct list_head *q;
+-	struct slab	*slabp;
+-	unsigned long	active_objs;
+-	unsigned long	num_objs;
+-	unsigned long	active_slabs = 0;
+-	unsigned long	num_slabs;
++	struct slab		*slabp;
+ 	const char *name; 
++	int i;
+ 
+ 	if (p == (void*)1) {
+ 		/*
+ 		 * Output format version, so at least we can change it
+ 		 * without _too_ many complaints.
+ 		 */
+-		seq_puts(m, "slabinfo - version: 1.2"
++		seq_puts(m, "slabinfo - version: 2.0"
+ #if STATS
+ 				" (statistics)"
+ #endif
+@@ -2136,33 +2253,7 @@
+ 		return 0;
+ 	}
+ 
+-	check_irq_on();
+-	spin_lock_irq(&cachep->spinlock);
+-	active_objs = 0;
+-	num_slabs = 0;
+-	list_for_each(q,&cachep->lists.slabs_full) {
+-		slabp = list_entry(q, struct slab, list);
+-		if (slabp->inuse != cachep->num)
+-			BUG();
+-		active_objs += cachep->num;
+-		active_slabs++;
+-	}
+-	list_for_each(q,&cachep->lists.slabs_partial) {
+-		slabp = list_entry(q, struct slab, list);
+-		BUG_ON(slabp->inuse == cachep->num || !slabp->inuse);
+-		active_objs += slabp->inuse;
+-		active_slabs++;
+-	}
+-	list_for_each(q,&cachep->lists.slabs_free) {
+-		slabp = list_entry(q, struct slab, list);
+-		if (slabp->inuse)
+-			BUG();
+-		num_slabs++;
+-	}
+-	num_slabs+=active_slabs;
+-	num_objs = num_slabs*cachep->num;
+-	BUG_ON(num_objs - active_objs != cachep->lists.free_objects);
+-
++	/* line 1: global stats */
+ 	name = cachep->name; 
+ 	{
+ 	char tmp; 
+@@ -2175,33 +2266,76 @@
+ 	set_fs(old_fs);
+ 	} 	
+ 
+-	seq_printf(m, "%-17s %6lu %6lu %6u %4lu %4lu %4u",
+-		name, active_objs, num_objs, cachep->objsize,
+-		active_slabs, num_slabs, (1<<cachep->gfporder));
++	seq_printf(m, "%-17s : %6u %6u %4u 0x%04x %6u %4u %4u",
++		name, cachep->objsize, cachep->num, (1<<cachep->gfporder),
++		cachep->flags, cachep->free_limit, cachep->limit, cachep->batchcount);
++#if STATS
++	seq_printf(m, " %4u", atomic_read(&cachep->errors));
++#endif
++
++	seq_putc(m, '\n');
++
++
++	check_irq_on();
++	/* block 2: list3 data */
++	spin_lock_irq(&cachep->spinlock);
++	for (i=0;i<MAX_NUMNODES;i++) {
++		struct kmem_list3 *l3 = &cachep->lists[i];
++		unsigned long	active_objs = 0;
++		unsigned long	num_objs = 0;
++		unsigned long	active_slabs = 0;
++		unsigned long	num_slabs = 0;
++
++		list_for_each(q,&l3->slabs_full) {
++			slabp = list_entry(q, struct slab, list);
++			if (slabp->inuse != cachep->num)
++				BUG();
++			active_objs += cachep->num;
++			active_slabs++;
++		}
++		list_for_each(q,&l3->slabs_partial) {
++			slabp = list_entry(q, struct slab, list);
++			BUG_ON(slabp->inuse == cachep->num || !slabp->inuse);
++			active_objs += slabp->inuse;
++			active_slabs++;
++		}
++		list_for_each(q,&l3->slabs_free) {
++			slabp = list_entry(q, struct slab, list);
++			if (slabp->inuse)
++				BUG();
++			num_slabs++;
++		}
++		num_slabs+=active_slabs;
++		num_objs = num_slabs*cachep->num;
++
++		BUG_ON(num_objs - active_objs != l3->free_objects);
++		seq_printf(m, "# Node %2u         : %6lu %6lu %8lu %8lu",
++			i, active_slabs, num_slabs, active_objs, num_objs);
++#if STATS
++		BUG_ON(active_objs != l3->num_active);
+ 
+-	seq_printf(m, " : %4u %4u", cachep->limit, cachep->batchcount);
++		seq_printf(m, " %8lu %8lu %6lu", l3->num_allocations, 
++					l3->high_mark, l3->grown);
++#endif
++		seq_putc(m, '\n');
++	}
++	/* block 3: array data */
+ #if STATS
+-	{	// list3 stats
+-		unsigned long high = cachep->high_mark;
+-		unsigned long allocs = cachep->num_allocations;
+-		unsigned long grown = cachep->grown;
+-		unsigned long reaped = cachep->reaped;
+-		unsigned long errors = cachep->errors;
+-		unsigned long max_freeable = cachep->max_freeable;
+-		unsigned long free_limit = cachep->free_limit;
+-
+-		seq_printf(m, " : %6lu %7lu %5lu %4lu %4lu %4lu %4lu",
+-				high, allocs, grown, reaped, errors, 
+-				max_freeable, free_limit);
+-	}
+-	{	// cpucache stats
+-		unsigned long allochit = atomic_read(&cachep->allochit);
+-		unsigned long allocmiss = atomic_read(&cachep->allocmiss);
+-		unsigned long freehit = atomic_read(&cachep->freehit);
+-		unsigned long freemiss = atomic_read(&cachep->freemiss);
++	for (i=0;i<NR_CPUS;i++) {
++		if (!cpu_online(i))
++			continue;
+ 
+-		seq_printf(m, " : %6lu %6lu %6lu %6lu",
+-				allochit, allocmiss, freehit, freemiss);
++		seq_printf(m, "# Cpu %2i          : %6u %6u %6u %6u",
++				i, 
++				atomic_read(&cachep->allochit[i]),
++				atomic_read(&cachep->allocmiss[i]),
++				atomic_read(&cachep->freehit[i]),
++				atomic_read(&cachep->freemiss[i]));
++#ifdef CONFIG_SLAB_NUMA
++		seq_printf(m, " %6u",
++				atomic_read(&cachep->foreign[i]));
++#endif
++		seq_putc(m, '\n');
+ 	}
+ #endif
+ 	spin_unlock_irq(&cachep->spinlock);
 
-Kernel 2.5.46 boot.msg
-Inspecting /boot/System.map
-Symbol table has incorrect version number.
+--------------090700010801050401070407--
 
-Cannot find map file.
-No module symbols loaded.
-klogd 1.4.1, log source = ksyslog started.
-RQ10 -> 0:10
-<7>IRQ11 -> 0:11
-<7>IRQ12 -> 0:12
-<7>IRQ13 -> 0:13
-<7>IRQ14 -> 0:14
-<7>IRQ15 -> 0:15
-<6>.................................... done.
-<4>Using local APIC timer interrupts.
-<4>calibrating APIC timer ...
-<4>..... CPU clock speed is 1532.0661 MHz.
-<4>..... host bus clock speed is 266.0549 MHz.
-<6>Linux NET4.0 for Linux 2.4
-<6>Based upon Swansea University Computer Society NET3.039
-<4>Initializing RT netlink socket
-<4>mtrr: v2.0 (20020519)
-<6>Linux Plug and Play Support v0.9 (c) Adam Belay
-<6>PCI: PCI BIOS revision 2.10 entry at 0xf1aa0, last bus=1
-<6>PCI: Using configuration type 1
-<7>Registering system device cpu0
-<7>adding 'CPU 0' to cpu class interfaces
-<4>BIO: pool of 256 setup, 15Kb (60 bytes/bio)
-<4>biovec pool[0]:   1 bvecs: 256 entries (12 bytes)
-<4>biovec pool[1]:   4 bvecs: 256 entries (48 bytes)
-<4>biovec pool[2]:  16 bvecs: 256 entries (192 bytes)
-<4>biovec pool[3]:  64 bvecs: 256 entries (768 bytes)
-<4>biovec pool[4]: 128 bvecs: 256 entries (1536 bytes)
-<4>biovec pool[5]: 256 bvecs: 256 entries (3072 bytes)
-<6>ACPI: Subsystem revision 20021101
-<4>    ACPI-0508: *** Info: GPE Block0 defined as GPE0 to GPE15
-<6>ACPI: Interpreter enabled
-<6>ACPI: Using IOAPIC for interrupt routing
-<4>ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 10 *11 12 14 15)
-<4>ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 *10 11 12 14 15)
-<4>ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 10 11 *12 14 15)
-<4>ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 *5 6 7 10 11 12 14 15)
-<4>ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 10 11 12 14, enabled 
-at IRQ 9)
-<6>ACPI: PCI Root Bridge [PCI0] (00:00)
-<4>PCI: Probing PCI hardware (bus 00)
-<7>ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-<7>ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1._PRT]
-<4>block request queues:
-<4> 128 requests per read queue
-<4> 128 requests per write queue
-<4> 8 requests per batch
-<4> enter congestion at 31
-<4> exit congestion at 33
-<6>PnPBIOS: Found PnP BIOS installation structure at 0xc00f9c60
-<6>PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x9c90, dseg 0xf0000
-<6>pnp: 00:11: ioport range 0x290-0x297 has been reserved
-<6>pnp: 00:11: ioport range 0x3f0-0x3f1 has been reserved
-<6>pnp: 00:11: ioport range 0xe400-0xe47f has been reserved
-<6>pnp: 00:11: ioport range 0xec00-0xec3f has been reserved
-<6>PnPBIOS: 14 nodes reported by PnP BIOS; 14 recorded by driver
-<6>isapnp: Scanning for PnP cards...
-<6>isapnp: No Plug & Play device found
-<6>drivers/usb/core/usb.c: registered new driver usbfs
-<6>drivers/usb/core/usb.c: registered new driver hub
-<7>IOAPIC[0]: Set PCI routing entry (2-17 -> 0xa9 -> IRQ 17)
-<7>00:00:05[A] -> 2-17 -> IRQ 17
-<7>IOAPIC[0]: Set PCI routing entry (2-18 -> 0xb1 -> IRQ 18)
-<7>00:00:05[B] -> 2-18 -> IRQ 18
-<7>IOAPIC[0]: Set PCI routing entry (2-19 -> 0xb9 -> IRQ 19)
-<7>00:00:06[A] -> 2-19 -> IRQ 19
-<7>Pin 2-17 already programmed
-<7>Pin 2-19 already programmed
-<7>IOAPIC[0]: Set PCI routing entry (2-16 -> 0xc1 -> IRQ 16)
-<7>00:00:0c[B] -> 2-16 -> IRQ 16
-<7>Pin 2-17 already programmed
-<7>Pin 2-18 already programmed
-<7>Pin 2-16 already programmed
-<7>Pin 2-17 already programmed
-<7>Pin 2-18 already programmed
-<7>Pin 2-19 already programmed
-<7>Pin 2-17 already programmed
-<7>Pin 2-18 already programmed
-<7>Pin 2-19 already programmed
-<7>Pin 2-16 already programmed
-<7>Pin 2-18 already programmed
-<7>Pin 2-19 already programmed
-<7>Pin 2-16 already programmed
-<7>Pin 2-17 already programmed
-<7>Pin 2-19 already programmed
-<7>Pin 2-16 already programmed
-<7>Pin 2-17 already programmed
-<7>Pin 2-18 already programmed
-<7>IOAPIC[0]: Set PCI routing entry (2-21 -> 0xc9 -> IRQ 21)
-<7>00:00:11[D] -> 2-21 -> IRQ 21
-<7>Pin 2-19 already programmed
-<7>Pin 2-16 already programmed
-<7>Pin 2-17 already programmed
-<7>Pin 2-16 already programmed
-<7>Pin 2-17 already programmed
-<4>ACPI: No IRQ known for interrupt pin A of device 00:11.1<6>PCI: Using 
-ACPI for IRQ routing
-<6>PCI: if you experience problems, try using option 'pci=noacpi' or 
-even 'acpi=off'
-<7>Registering system device pic0
-<7>Registering system device rtc0
-<6>SBF: Simple Boot Flag extension found and enabled.
-<6>SBF: Setting boot flags 0x1
-<6>apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16ac)
-<5>apm: overridden by ACPI.
-<6>slab: reap timer started for cpu 0
-<4>Starting kswapd
-<5>aio_setup: sizeof(struct page) = 40
-<6>[dff8e040] eventpoll: driver installed.
-<6>Capability LSM initialized
-<6>Initializing Cryptographic API
-<4>
-<4>testing md5
-<4>test 1:
-<4>d41d8cd98f00b204e9800998ecf8427e
-<4>pass
-<4>test 2:
-<4>0cc175b9c0f1b6a831c399e269772661
-<4>pass
-<4>test 3:
-<4>900150983cd24fb0d6963f7d28e17f72
-<4>pass
-<4>test 4:
-<4>f96b697d7cb7938d525a2f31aaf161d0
-<4>pass
-<4>test 5:
-<4>c3fcd3d76192e4007dfb496cca67e13b
-<4>pass
-<4>test 6:
-<4>d174ab98d277d9f5a5611c2c9f419d9f
-<4>pass
-<4>test 7:
-<4>57edf4a22be3c955ac49da2e2107b67a
-<4>pass
-<4>
-<4>testing md5 across pages
-<4>c3fcd3d76192e4007dfb496cca67e13b
-<4>pass
-<4>
-<4>testing hmac_md5
-<4>test 1:
-<4>9294727a3638bb1c13f48ef8158bfc9d
-<4>pass
-<4>test 2:
-<4>750c783e6ab0b503eaa86e310a5db738
-<4>pass
-<4>test 3:
-<4>56be34521d144c88dbb8c733f0e8b3f6
-<4>pass
-<4>test 4:
-<4>697eaf0aca3a3aea3a75164746ffaa79
-<4>pass
-<4>test 5:
-<4>56461ef2342edc00f9bab995690efd4c
-<4>pass
-<4>test 6:
-<4>6b1ab7fe4bd7bf8f0b62e6ce61b9d0cd
-<4>pass
-<4>test 7:
-<4>6f630fad67cda0ee1fb1f562db3aa53e
-<4>pass
-<4>
-<4>testing hmac_md5 across pages
-<4>750c783e6ab0b503eaa86e310a5db738
-<4>pass
-<4>
-<4>testing sha1
-<4>test 1:
-<4>a9993e364706816aba3e25717850c26c9cd0d89d
-<4>pass
-<4>test 2:
-<4>84983e441c3bd26ebaae4aa1f95129e5e54670f1
-<4>pass
-<4>
-<4>testing sha1 across pages
-<4>84983e441c3bd26ebaae4aa1f95129e5e54670f1
-<4>pass
-<4>
-<4>testing hmac_sha1
-<4>test 1:
-<4>b617318655057264e28bc0b6fb378c8ef146be00
-<4>pass
-<4>test 2:
-<4>effcdf6ae5eb2fa2d27416d5f184df9c259a7c79
-<4>pass
-<4>test 3:
-<4>125d7342b9ac11cd91a39af48aa17b4f63f175d3
-<4>pass
-<4>test 4:
-<4>4c9007f4026250c6bc8414f9bf50c86c2d7235da
-<4>pass
-<4>test 5:
-<4>4c1a03424b55e07fe7f27be1d58bb9324a9a5a04
-<4>pass
-<4>test 6:
-<4>aa4ae5e15272d00e95705637ce8a3b55ed402112
-<4>pass
-<4>test 7:
-<4>e8e99d0f45237d786d6bbaa7965c7808bbff1a91
-<4>pass
-<4>
-<4>testing hmac_sha1 across pages
-<4>effcdf6ae5eb2fa2d27416d5f184df9c259a7c79
-<4>pass
-<4>
-<4>testing des encryption
-<4>test 1:
-<4>c95744256a5ed31d
-<4>pass
-<4>test 2:
-<4>f79c892a338f4a8b
-<4>pass
-<4>test 3:
-<4>690f5b0d9a26939b
-<4>pass
-<4>test 4:
-<4>c95744256a5ed31df79c892a338f4a8bb49926f71fe1d490
-<4>pass
-<4>test 5:
-<4>setkey() failed flags=100100
-<4>c95744256a5ed31d
-<4>pass
-<4>
-<4>testing des ecb encryption across pages
-<4>0123456789abcdef
-<4>page 1
-<4>c95744256a5ed31d
-<4>pass
-<4>page 2
-<4>f79c892a338f4a8b
-<4>pass
-<4>
-<4>testing des ecb encryption chunking scenario A
-<4>page 1
-<4>c95744256a5ed31df79c892a338f
-<4>pass
-<4>page 2
-<4>4a8bb49926f71fe1d490
-<4>pass
-<4>page 3
-<4>f79c892a338f4a8b
-<4>pass
-<4>
-<4>testing des ecb encryption chunking scenario B
-<4>page 1
-<4>c957
-<4>pass
-<4>page 2
-<4>44
-<4>pass
-<4>page 3
-<4>256a5e
-<4>pass
-<4>page 4
-<4>d31df79c892a338f4a8bb49926f71fe1d490
-<4>pass
-<4>
-<4>testing des ecb encryption chunking scenario C
-<4>page 1
-<4>c957
-<4>pass
-<4>page 2
-<4>4425
-<4>pass
-<4>page 3
-<4>6a5e
-<4>pass
-<4>page 4
-<4>d31d
-<4>pass
-<4>page 5
-<4>f79c892a338f4a8b
-<4>pass
-<4>
-<4>testing des ecb encryption chunking scenario D (atomic)
-<4>c95744256a5ed31d
-<4>pass
-<4>
-<4>testing des decryption
-<4>test 1:
-<4>0123456789abcde7
-<4>pass
-<4>test 2:
-<4>01a1d6d039776742
-<4>pass
-<4>
-<4>testing des ecb decryption across pages
-<4>page 1
-<4>0123456789abcde7
-<4>pass
-<4>page 2
-<4>2233445566778899
-<4>pass
-<4>
-<4>testing des ecb decryption chunking scenario E
-<4>page 1
-<4>012345
-<4>pass
-<4>page 2
-<4>6789abcde7a3997bcaaf69a0
-<4>pass
-<4>page 3
-<4>f5
-<4>pass
-<4>
-<4>testing des cbc encryption (atomic)
-<4>test 1:
-<4>ccd173ffab2039f4acd8aefddfd8a1eb468e91157888ba68
-<4>pass
-<4>test 2:
-<4>e5c7cdde872bf27c
-<4>pass
-<4>test 3:
-<4>43e934008c389c0f
-<4>pass
-<4>test 4:
-<4>683788499a7c05f6
-<4>pass
-<4>
-<4>testing des cbc encryption chunking scenario F
-<4>page 1
-<4>ccd173ffab2039f4acd8aefddf
-<4>pass
-<4>page 2
-<4>d8a1eb468e91157888ba68
-<4>pass
-<4>
-<4>testing des cbc decryption
-<4>test 1:
-<4>e5c7cdde872bf27c
-<4>4e6f772069732074
-<4>pass
-<4>test 2:
-<4>43e934008c389c0f
-<4>68652074696d6520
-<4>pass
-<4>test 3:
-<4>683788499a7c05f6
-<4>666f7220616c6c20
-<4>pass
-<4>
-<4>testing des cbc decryption chunking scenario G
-<4>page 1
-<4>666f7220
-<4>pass
-<4>page 2
-<4>616c6c20
-<4>pass
-<4>
-<4>testing des3 ede encryption
-<4>test 1:
-<4>18d748e563620572
-<4>pass
-<4>test 2:
-<4>c07d2a0fa566fa30
-<4>pass
-<4>test 3:
-<4>e1ef62c332fe825b
-<4>pass
-<4>
-<4>testing des3 ede decryption
-<4>test 1:
-<4>736f6d6564617461
-<4>pass
-<4>test 2:
-<4>7371756967676c65
-<4>pass
-<4>test 3:
-<4>0000000000000000
-<4>pass
-<4>
-<4>testing md4
-<4>test 1:
-<4>31d6cfe0d16ae931b73c59d7e0c089c0
-<4>pass
-<4>test 2:
-<4>bde52cb31de33e46245e05fbdbd6fb24
-<4>pass
-<4>test 3:
-<4>a448017aaf21d8525fc10ae87aa6729d
-<4>pass
-<4>test 4:
-<4>d9130a8164549fe818874806e1c7014b
-<4>pass
-<4>test 5:
-<4>d79e1c308aa5bbcdeea8ed63df412da9
-<4>pass
-<4>test 6:
-<4>043f8582f241db351ce627e153e7f0e4
-<4>pass
-<4>test 7:
-<4>e33b4ddc9c38f2199c3e7b164fcc0536
-<4>pass
-<6>PCI: Via IRQ fixup for 00:11.2, from 9 to 5
-<6>PCI: Via IRQ fixup for 00:11.3, from 9 to 5
-<6>Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing disabled
-<4>ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-<4>ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-<4>ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-<4>ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-<6>parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
-<6>parport0: irq 7 detected
-<7>parport0: cpp_mux: aa55f00f52ad51(86)
-<7>parport0: cpp_daisy: aa5500ff(38)
-<7>parport0: assign_addrs: aa5500ff(38)
-<7>parport0: cpp_mux: aa55f00f52ad51(86)
-<7>parport0: cpp_daisy: aa5500ff(38)
-<7>parport0: assign_addrs: aa5500ff(30)
-<6>i2c-core.o: i2c core module version 2.6.4 (20020719)
-<6>i2c-dev.o: i2c /dev entries driver module version 2.6.4 (20020719)
-<6>i2c-algo-bit.o: i2c bit algorithm module version 2.6.4 (20020719)
-<6>i2c-proc.o version 2.6.4 (20020719)
-<4>pty: 256 Unix98 ptys configured
-<6>lp0: using parport0 (polling).
-<6>Real Time Clock Driver v1.11
-<6>Linux agpgart interface v0.99 (c) Jeff Hartmann
-<6>agpgart: Maximum main memory to use for agp memory: 439M
-<6>agpgart: Detected Via Apollo Pro KT266 chipset
-<6>agpgart: AGP aperture is 128M @ 0xe0000000
-<6>[drm] AGP 0.99 on VIA Apollo KT133 @ 0xe0000000 128MB
-<6>[drm] Initialized mga 3.0.2 20010321 on minor 0
-<6>Floppy drive(s): fd0 is 1.44M
-<6>FDC 0 is a post-1991 82077
-<6>loop: loaded (max 8 devices)
-<6>PPP generic driver version 2.4.2
-<6>PPP Deflate Compression module registered
-<6>PPP BSD Compression module registered
-<6>8139too Fast Ethernet driver 0.9.26
-<6>eth0: RealTek RTL8139 Fast Ethernet at 0xe0806000, 00:10:a7:14:6f:68, 
-IRQ 17
-<7>eth0:  Identified 8139 chip type 'RTL-8139C'
-<6>Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-<4>ide: Assuming 33MHz system bus speed for PIO modes; override with 
-idebus=xx
-<6>PDC20276: IDE controller at PCI slot 00:06.0
-<6>PDC20276: chipset revision 1
-<6>PDC20276: not 100%% native mode: will probe irqs later
-<6>PDC20276: neither IDE port enabled (BIOS)
-<6>VP_IDE: IDE controller at PCI slot 00:11.1
-<4>ACPI: No IRQ known for interrupt pin A of device 00:11.1<6>VP_IDE: 
-chipset revision 6
-<6>VP_IDE: not 100%% native mode: will probe irqs later
-<4>ide: Assuming 33MHz system bus speed for PIO modes; override with 
-idebus=xx
-<6>VP_IDE: VIA vt8233a (rev 00) IDE UDMA133 controller on pci00:11.1
-<4>    ide0: BM-DMA at 0x9800-0x9807, BIOS settings: hda:DMA, hdb:pio
-<4>    ide1: BM-DMA at 0x9808-0x980f, BIOS settings: hdc:DMA, hdd:pio
-<4>hda: IC35L040AVVA07-0, ATA DISK drive
-<4>hda: DMA disabled
-<4>ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-<4>hdc: IBM-DHEA-38451, ATA DISK drive
-<4>hdc: DMA disabled
-<4>ide1 at 0x170-0x177,0x376 on irq 15
-<4>hda: host protected area => 1
-<6>hda: 80418240 sectors (41174 MB) w/1863KiB Cache, CHS=5005/255/63, 
-UDMA(100)
-<6> hda: hda1 hda2 hda3
-<6>hdc: 16514064 sectors (8455 MB) w/472KiB Cache, CHS=16383/16/63, UDMA(33)
-<6> hdc: hdc1 < >
-<6>SCSI subsystem driver Revision: 1.00
-<4>ahc_pci:0:13:0: Host Adapter Bios disabled.  Using default SCSI 
-device parameters
-<6>scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.4
-<4>        <Adaptec 2902/04/10/15/20/30C SCSI adapter>
-<4>        aic7850: Single Channel A, SCSI Id=7, 3/253 SCBs
-<4>
-<4>(scsi0:A:2): 10.000MB/s transfers (10.000MHz, offset 15)
-<5>  Vendor: SCSI-CD   Model: ReWritable-2x2x6  Rev: 2.00
-<5>  Type:   CD-ROM                             ANSI SCSI revision: 02
-<5>  Vendor: TEAC      Model: CD-ROM CD-532S    Rev: 1.0A
-<5>  Type:   CD-ROM                             ANSI SCSI revision: 02
-<4>(scsi0:A:3): 10.000MB/s transfers (10.000MHz, offset 15)
-<4>sr0: scsi3-mmc drive: 2x/6x writer cd/rw xa/form2 cdda tray
-<6>Uniform CD-ROM driver Revision: 3.12
-<4>Attached scsi CD-ROM sr0 at scsi0, channel 0, id 2, lun 0
-<4>sr1: scsi3-mmc drive: 2x/6x cd/rw xa/form2 cdda tray
-<4>Attached scsi CD-ROM sr1 at scsi0, channel 0, id 3, lun 0
-<6>drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface 
-driver v2.0
-<6>drivers/usb/core/hcd-pci.c: uhci-hcd @ 00:11.2, VIA Technologies, 
-Inc. USB
-<6>drivers/usb/core/hcd-pci.c: irq 21, io base 00009400
-<6>drivers/usb/core/hcd.c: new USB bus registered, assigned bus number 1
-<6>drivers/usb/core/hub.c: USB hub found at 0
-<6>drivers/usb/core/hub.c: 2 ports detected
-<6>drivers/usb/core/hcd-pci.c: uhci-hcd @ 00:11.3, VIA Technologies, 
-Inc. USB (#2)
-<6>drivers/usb/core/hcd-pci.c: irq 21, io base 00009000
-<6>drivers/usb/core/hcd.c: new USB bus registered, assigned bus number 2
-<6>drivers/usb/core/hub.c: USB hub found at 0
-<6>drivers/usb/core/hub.c: 2 ports detected
-<6>drivers/usb/core/usb.c: registered new driver usblp
-<6>drivers/usb/class/usblp.c: v0.12: USB Printer Device Class driver
-<6>Initializing USB Mass Storage driver...
-<6>drivers/usb/core/usb.c: registered new driver usb-storage
-<6>USB Mass Storage support registered.
-<6>drivers/usb/core/usb.c: registered new driver hiddev
-<6>drivers/usb/core/usb.c: registered new driver hid
-<6>drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-<7>register interface 'mouse' with class 'input
-<6>mice: PS/2 mouse device common for all mice
-<7>register interface 'event' with class 'input
-<6>serio: i8042 AUX port at 0x60,0x64 irq 12
-<6>input: AT Set 2 keyboard on isa0060/serio0
-<6>serio: i8042 KBD port at 0x60,0x64 irq 1
-<6>i2c-core.o: i2c core module version 2.6.4 (20020719)
-<6>i2c-dev.o: i2c /dev entries driver module version 2.6.4 (20020719)
-<6>i2c-proc.o version 2.6.4 (20020719)
-<6>Advanced Linux Sound Architecture Driver Version 0.9.0rc5 (Tue Oct 29 
-09:19:27 2002 UTC).
-<3>request_module[snd-card-0]: not ready
-<3>request_module[snd-card-1]: not ready
-<3>request_module[snd-card-2]: not ready
-<3>request_module[snd-card-3]: not ready
-<3>request_module[snd-card-4]: not ready
-<3>request_module[snd-card-5]: not ready
-<3>request_module[snd-card-6]: not ready
-<3>request_module[snd-card-7]: not ready
-<6>ALSA device list:
-<6>  #0: C-Media PCI CMI8738-MC6 (model 55) at 0xd800, irq 17
-<6>  #1: Ensoniq AudioPCI ES1371 at 0xa000, irq 18
-<6>NET4: Linux TCP/IP 1.0 for NET4.0
-<6>IP: routing cache hash table of 4096 buckets, 32Kbytes
-<6>TCP: Hash tables configured (established 32768 bind 32768)
-<4>ip_conntrack version 2.1 (4095 buckets, 32760 max) - 296 bytes per 
-conntrack
-<4>ip_tables: (C) 2000-2002 Netfilter core team
-<4>arp_tables: (C) 2002 David S. Miller
-<6>NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-<4>found reiserfs format "3.6" with standard journal
-<6>drivers/usb/core/hub.c: new USB device 00:11.2-2, assigned address 2
-<6>input: USB HID v1.00 Mouse [Microsoft Microsoft IntelliMouse ® with 
-IntelliEye] on usb-00:11.2-2
-<4>Reiserfs journal params: device ide0(3,1), size 8192, journal first 
-block 18, max trans len 1024, max batch 900, max commit age 30, max 
-trans age 30
-<4>reiserfs: checking transaction log (ide0(3,1)) for (ide0(3,1))
-<4>Using r5 hash to sort names
-<4>VFS: Mounted root (reiserfs filesystem) readonly.
-<6>Freeing unused kernel memory: 312k freed
-<6>Adding 1052248k swap on /dev/hda2.  Priority:42 extents:1
-<4>found reiserfs format "3.6" with standard journal
-<4>Reiserfs journal params: device ide0(3,3), size 8192, journal first 
-block 18, max trans len 1024, max batch 900, max commit age 30, max 
-trans age 30
-<4>reiserfs: checking transaction log (ide0(3,3)) for (ide0(3,3))
-<4>Using r5 hash to sort names
-Kernel logging (ksyslog) stopped.
-Kernel log daemon terminating.
 

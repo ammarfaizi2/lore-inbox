@@ -1,25 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268658AbUIGV3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268678AbUIGVax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268658AbUIGV3I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 17:29:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268261AbUIGV1T
+	id S268678AbUIGVax (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 17:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268261AbUIGV3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 17:27:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58793 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268669AbUIGVZk (ORCPT
+	Tue, 7 Sep 2004 17:29:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10666 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268663AbUIGV2L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 17:25:40 -0400
-Date: Tue, 7 Sep 2004 14:23:38 -0700
+	Tue, 7 Sep 2004 17:28:11 -0400
+Date: Tue, 7 Sep 2004 14:26:13 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: BlaisorBlade <blaisorblade_spam@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net, jdike@addtoit.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] Re: [patch 1/3] uml-ubd-no-empty-queue
-Message-Id: <20040907142338.73b2d1c6.akpm@osdl.org>
-In-Reply-To: <200409072004.03343.blaisorblade_spam@yahoo.it>
-References: <20040906174447.238788D1E@zion.localdomain>
-	<20040906142641.067fdeb6.akpm@osdl.org>
-	<200409072004.03343.blaisorblade_spam@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net, hch@infradead.org,
+       jdike@addtoit.com, linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] Re: [patch 1/1] uml: no extraversion in
+ arch/um/Makefile for mainline
+Message-Id: <20040907142613.2ab5775e.akpm@osdl.org>
+In-Reply-To: <200409072016.01749.blaisorblade_spam@yahoo.it>
+References: <20040906173524.EE034B977@zion.localdomain>
+	<20040906193620.A8502@infradead.org>
+	<200409072016.01749.blaisorblade_spam@yahoo.it>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -29,46 +30,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 BlaisorBlade <blaisorblade_spam@yahoo.it> wrote:
 >
-> On Monday 06 September 2004 23:26, Andrew Morton wrote:
->  > Please don't use a filename like uml-ubd-no-empty-queue as the Subject:
->  > of your patches.  Please prepare an English-language summary.  See
->  > http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
->  Ok, but how can I specify the filename you'll give to the patch?
+> On Monday 06 September 2004 20:36, Christoph Hellwig wrote:
+>  > Could you please fix UML to not use ghash.h and remove that one before
+>  > playing with new toys?  This has been requested a few times now.
+>  Yes, I can try - but I'd like to know the exact reason (I'm not developing UML 
+>  as long as Jeff does).
 > 
->  It would make management between my tree and yours easier for me, if possible.
+>  My idea is that ghash.h is just trivial boilerplate which does not deserve 
+>  generalized code, so that even rewriting the same exact code without using 
+>  those macros (and maybe embedding some assumptions about this usage) would be 
+>  a fine solution; also, there is just one user of it 
+>  (arch/um/kernel/physmem.c, with just one hash defined), so it shouldn't be 
+>  hard.
+> 
+>  However, if the problem with ghash.h is different, I need more explainations.
 
-hm.  By choosing a suitable Subject:, I guess.
+Take one look at ghash.h and you'll see why we don't want it in the tree.
 
-Start the Subject with "uml:" and then avoid getting fancy in the rest of
-the subject and things should work out OK.  Spaces and other funny
-characters are replaced with "-" and underscores are retained.
-
-I use the below piece of ad-hoc revoltium to canonicalise Subject:s into
-filenames:
-
-line=$(echo "$line" | tr 'A-Z' 'a-z')
-line=$(echo "$line" | sed -e 's/^subject:[ 	]*//')
-line=$(echo "$line" | sed -e 's/^fw:[ 	]*//')
-line=$(echo "$line" | sed -e 's/^fwd:[ 	]*//')
-line=$(echo "$line" | sed -e 's/^aw:[ 	]*//')
-line=$(echo "$line" | sed -e 's/^re:[ 	]*//')
-
-line=$(echo "$line" | sed -e 's/^patch//')
-line=$(echo "$line" | sed -e "s/['\(\)\<\>\{\}\,\.\\]//g")
-line=$(echo "$line" | sed -e "s/[\#\*\&\+\^\!\~\`\:\?\;]//g")
-line=$(echo "$line" | sed -e "s/[\$]//g")
-line=$(echo "$line" | sed -e 's/"//g')
-line=$(echo "$line" | sed -e 's/^[-]*//g')
-line=$(echo "$line" | sed -e 's/\[[^]]*\]//g')
-line=$(echo "$line" | sed -e 's/[ 	]*\[patch\][	]*//')
-line=$(echo "$line" | sed -e 's/\[//g')
-line=$(echo "$line" | sed -e 's/\]//g')
-line=$(echo "$line" | sed -e 's/^[ 	]*//')
-line=$(echo "$line" | sed -e 's/ -/-/g')
-line=$(echo "$line" | sed -e 's/- /-/g')
-line=$(echo "$line" | sed -e 's/[ 	][ 	]*/-/g')
-line=$(echo "$line" | sed -e 's,/,-,g')
-line=$(echo "$line" | sed -e 's/--/-/g')
-line=$(echo "$line" | sed -e 's/-$//g')
-line=$(echo "$line" | sed -e 's/^-//g')
+ghash was removed for a while and it was not intended that it come back -
+it snuck back by accident.  Please, rewrite that piece of UML so we can
+again remove ghash.h.
 

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129683AbQK2Dm1>; Tue, 28 Nov 2000 22:42:27 -0500
+        id <S129998AbQK2DoH>; Tue, 28 Nov 2000 22:44:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129998AbQK2DmR>; Tue, 28 Nov 2000 22:42:17 -0500
-Received: from pixar.pixar.com ([138.72.10.20]:48044 "EHLO pixar.pixar.com")
-        by vger.kernel.org with ESMTP id <S129683AbQK2DmP>;
-        Tue, 28 Nov 2000 22:42:15 -0500
-Date: Tue, 28 Nov 2000 19:12:09 -0800 (PST)
-From: Kiril Vidimce <vkire@pixar.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Dan Hollis <goemon@anime.net>,
-        Petter Sundlöf <odd@findus.dhs.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes [solved]
-In-Reply-To: <E140x2k-0005Ou-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0011281907260.1353-100000@nevena.pixar.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S130135AbQK2Dn5>; Tue, 28 Nov 2000 22:43:57 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:6920 "EHLO
+        wire.cadcamlab.org") by vger.kernel.org with ESMTP
+        id <S129998AbQK2Dns>; Tue, 28 Nov 2000 22:43:48 -0500
+Date: Tue, 28 Nov 2000 21:13:27 -0600
+To: Remi Turk <remi@a2zis.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CLONE_NAMESPACE, links for dirs and mount(2) for normal users questions
+Message-ID: <20001128211327.K8881@wire.cadcamlab.org>
+In-Reply-To: <3A1FFA2C.A8980FD8@a2zis.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A1FFA2C.A8980FD8@a2zis.com>; from remi@a2zis.com on Sat, Nov 25, 2000 at 06:43:08PM +0100
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, Alan Cox wrote:
-> > I've never seen such thing as code without bugs. In my experience,
-> > the NVIDIA drivers are by far the most complete and solid 3D drivers 
-> > under Linux.
-> 
-> You are welcome to your opinion. I've got this great bridge to sell you too
+[Remi Turk]
+> Do I understand correctly that this means hardlinks to directories
+> (except . and ..) are fundamentally impossible in Linux?
 
-BTW, in case this is not clear, I am not saying that there are no problems
-with the drivers. In fact, I have some issues with them but have reasonable
-workarounds for the moment. However, if there are bugs, that doesn't mean 
-that the drivers are completely broken.
+Why do you want to be able to do that?  Use symlinks or loopback mounts
+and stay out of trouble.
 
-KV
---
-  ___________________________________________________________________
-  Studio Tools                                        vkire@pixar.com
-  Pixar Animation Studios                        http://www.pixar.com/
+> (I'm thinking about trying to write a garbage collected filesystem
+> with hardlinks to directories.)
 
+Sounds like a lot of extra complexity.  Is this academic or do you have
+a practical use for it?
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

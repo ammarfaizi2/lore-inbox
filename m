@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbRBHQTW>; Thu, 8 Feb 2001 11:19:22 -0500
+	id <S129127AbRBHQZm>; Thu, 8 Feb 2001 11:25:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129127AbRBHQTM>; Thu, 8 Feb 2001 11:19:12 -0500
-Received: from omecihuatl.rz.Uni-Osnabrueck.DE ([131.173.17.35]:34313 "EHLO
-	omecihuatl.rz.uni-osnabrueck.de") by vger.kernel.org with ESMTP
-	id <S129055AbRBHQTF>; Thu, 8 Feb 2001 11:19:05 -0500
-Date: Thu, 8 Feb 2001 17:16:02 +0100 (MET)
-From: ARND BERGMANN <std7652@et.FH-Osnabrueck.DE>
-To: Francois Romieu <romieu@cogenit.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: epic100 in current -ac kernels
-In-Reply-To: <20010208162030.A9703@se1.cogenit.fr>
-Message-ID: <Pine.GSO.4.21.0102081714160.15579-100000@gamma10>
+	id <S129130AbRBHQZc>; Thu, 8 Feb 2001 11:25:32 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:32164 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S129127AbRBHQZM>; Thu, 8 Feb 2001 11:25:12 -0500
+Date: Thu, 8 Feb 2001 16:24:23 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        David Howells <dhowells@cambridge.redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] micro-opt DEBUG_ADD_PAGE
+In-Reply-To: <Pine.LNX.4.10.10102071336230.5084-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0102081549210.12077-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Feb 2001, Francois Romieu wrote:
-
+On Wed, 7 Feb 2001, Linus Torvalds wrote:
+> On Wed, 7 Feb 2001, Hugh Dickins wrote:
 > > 
-> > Working epic100 drivers:
-> >  - 2.4.0
-> >  - 2.4.0-ac9
+> > None of those optimizes this: I believe the semantics of "||" (don't
+> > try next test if first succeeds) forbid the optimization "|" gives?
 > 
-> Could you give a look at ac12 (fine here) ?
-> 
-No, does not work, same problem.
+> No. The optimization is entirely legal - but the fact that
+> "constant_test_bit()" uses a "volatile unsigned int *" is the reason why
+> gcc thinks it can't optimize it.
 
-Arnd <><
+Ah, yes, I hadn't noticed that, the "volatile" is indeed why it ends up
+with three "mov"s.  But take the "volatile"s out of constant_test_bit(),
+and DEBUG_ADD_PAGE still expands to three tests and three (four if 2.97)
+jumps - which is what originally offended me.
+
+But Mark (in test program in private mail) shows gcc combining bits
+into one test and one jump, just as we'd hope (and I wrongly thought
+forbidden).  Perhaps the inline function nature of constant_test_bit()
+(which Mark didn't use) gets in the way of combining those tests.
+
+> You could try to remove the volatile from test_bit, and see if that fixes
+> it - but then we'd have to find and add the proper "rmb()" calls to people
+> who do the endless loop kind of thing like above.
+
+That is not an inviting path to me, at least not any time soon!
+
+I think this all argues for the little patch I suggested - just avoid
+test_bit() here.  But it was only intended as a quick little suggestion:
+looks like our tastes differ, and you prefer taking the _tiny_ hit of
+using the regular macros, to seeing "1<<PG_bitshift"s in DEBUG_ADD_PAGE.
+
+Hugh
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

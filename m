@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317444AbSFIINA>; Sun, 9 Jun 2002 04:13:00 -0400
+	id <S317402AbSFIIKF>; Sun, 9 Jun 2002 04:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317572AbSFIIM7>; Sun, 9 Jun 2002 04:12:59 -0400
-Received: from emory.viawest.net ([216.87.64.6]:9657 "EHLO emory.viawest.net")
-	by vger.kernel.org with ESMTP id <S317444AbSFIIM4>;
-	Sun, 9 Jun 2002 04:12:56 -0400
-Date: Sun, 9 Jun 2002 01:12:23 -0700
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: Miles Lane <miles@megapathdsl.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.21 -- sound/core/misc.c:93: `file' undeclared in function `snd_printd'
-Message-ID: <20020609081223.GA2861@wizard.com>
-In-Reply-To: <1023607742.5775.7.camel@turbulence.megapathdsl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317403AbSFIIKE>; Sun, 9 Jun 2002 04:10:04 -0400
+Received: from mta06ps.bigpond.com ([144.135.25.138]:49119 "EHLO
+	mta06ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S317402AbSFIIKD>; Sun, 9 Jun 2002 04:10:03 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Chris Faherty <rallymonkey@bellsouth.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Logitech Mouseman Dual Optical defaults to 400cpi
+Date: Sun, 9 Jun 2002 18:07:11 +1000
+User-Agent: KMail/1.4.5
+In-Reply-To: <20020608165243Z317422-22020+923@vger.kernel.org> <20020609002448Z317485-22020+1014@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux/2.5.7 (i686)
-X-uptime: 1:06am  up  4:27,  2 users,  load average: 0.45, 0.12, 0.04
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+Message-Id: <200206091807.11524.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 09, 2002 at 12:29:02AM -0700, Miles Lane wrote:
->   gcc -Wp,-MD,.misc.o.d -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=misc   -c -o misc.o misc.c
-> misc.c: In function `snd_printd':
-> misc.c:93: `file' undeclared (first use in this function)
-> misc.c:93: (Each undeclared identifier is reported only once
-> misc.c:93: for each function it appears in.)
-> misc.c:93: `line' undeclared (first use in this function)
-> make[2]: *** [misc.o] Error 1
-> make[2]: Leaving directory `/usr/src/linux/sound/core'
-> 
+On Sun, 9 Jun 2002 10:25, Chris Faherty wrote:
+> On Saturday 08 June 2002 12:53 pm, Chris Faherty wrote:
+> > I can't find any information on how to switch it into 800cpi mode.
+>
+> Well, I managed to figure it out today.  Sending the special code to the
+Was that using Snoopy?
 
-        Known problem since 2.5.13. Jaroslav's patch below fixes this.
+> MouseMan Dual Optical turns it into 800cpi mode.. much better!  Anyhow, I
+> just put a test for this particular mouse in the hid_probe() and wrote the
+> codes to the mouse.  Not sure if that's the best place.
+>
+> This is for 2.2.20:
+Any objections to me taking this to 2.4 and 2.5?
 
-                                                        BL.
+> --- hid.c-orig  Sun Mar 25 11:37:37 2001
+> +++ hid.c       Sat Jun  8 17:55:02 2002
+> @@ -1523,6 +1523,19 @@
+>
+>         printk(" on usb%d:%d.%d\n", dev->bus->busnum, dev->devnum, ifnum);
+>
+> +#define USB_VENDOR_ID_LOGITECH          0x046d
+> +#define USB_DEVICE_ID_LOGITECH_DOPTICAL 0xc012
+> +    if ((hid->dev->descriptor.idVendor == USB_VENDOR_ID_LOGITECH) &&
+> +        (hid->dev->descriptor.idProduct ==
+> USB_DEVICE_ID_LOGITECH_DOPTICAL)) {
+> +        printk("Setting Logitech MouseMan Dual Optical for 800cpi\n");
+> +        usb_control_msg(hid->dev, usb_sndctrlpipe(hid->dev, 0),
+> +            0x0a, USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_ENDPOINT,
+> +            0x0000, 0x0000, NULL, 0, HZ);
+> +        usb_control_msg(hid->dev, usb_sndctrlpipe(hid->dev, 0),
+> +            0x02, USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_ENDPOINT,
+> +            0x000e, 0x0004, NULL, 0, HZ);
+> +    }
+> +
+>         return hid;
+>  }
+This could have been handled by a blacklist table quirk. Any reason why you 
+chose to do it this way?
 
-This patch fixes the problem:
-
---- misc.c	29 Apr 2002 15:57:08 -0000	1.13
-+++ misc.c	3 May 2002 07:42:33 -0000	1.14
-@@ -96,10 +96,10 @@
- 	if (format[0] == '<' && format[1] >= '0' && format[1] <= '9' && format[2] == '>') {
- 		char tmp[] = "<0>";
- 		tmp[1] = format[1];
--		printk("%sALSA %s:%d: ", tmp, file, line);
-+		printk("%sALSA: ", tmp);
- 		format += 3;
- 	} else {
--		printk(KERN_DEBUG "ALSA %s:%d: ", file, line);
-+		printk(KERN_DEBUG "ALSA: ");
- 	}
- 	va_start(args, format);
- 	vsnprintf(tmpbuf, sizeof(tmpbuf)-1, format, args);
-
+Brad
 
 -- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
-
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.

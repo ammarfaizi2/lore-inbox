@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318300AbSHPLJy>; Fri, 16 Aug 2002 07:09:54 -0400
+	id <S318299AbSHPLT1>; Fri, 16 Aug 2002 07:19:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318304AbSHPLJy>; Fri, 16 Aug 2002 07:09:54 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:59120 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318300AbSHPLJx>; Fri, 16 Aug 2002 07:09:53 -0400
-Subject: Re: PCI MMIO flushing, write-combining etc
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3d6sjele5.fsf@defiant.pm.waw.pl>
-References: <m3d6sjele5.fsf@defiant.pm.waw.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 16 Aug 2002 12:12:35 +0100
-Message-Id: <1029496355.31514.44.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318304AbSHPLT1>; Fri, 16 Aug 2002 07:19:27 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32272
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318299AbSHPLT0>; Fri, 16 Aug 2002 07:19:26 -0400
+Date: Fri, 16 Aug 2002 04:13:57 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: Part 2: Re: 2.5.31 boot failure on pdc20267
+In-Reply-To: <22B231216B8@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.10.10208160411360.12468-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-16 at 00:45, Krzysztof Halasa wrote:
-> I understand writes to PR1 can be reordered, merged, and delayed.
-> What should I do to flush the write buffers? I understand reading from
-> PR1 would do. Would reading from NPR2 flush PR1 write buffers?
-> Would writing to NPR2 flush them?
+On Fri, 16 Aug 2002, Petr Vandrovec wrote:
 
-That one I can't actually remember. 
+> On 16 Aug 02 at 3:23, Andre Hedrick wrote:
+> > Try reading the entire document first before commenting and showing why
+> > people should not believe you.
+> > 
+> > The author went through great lengths to explain and capture what
+> > SFF-8038i defined.  The object is to show the difference.
+> > 
+> > Now carefully look and see that BAR4 in d1510 is not the same as 
+> > BAR 4 for SFF-8038i.
+> 
+> Chapter 5 describes IDE class devices, PCI class 0101. If this chapter 
+> 
+> Chapter 3, ATA Host Adapters, and also document name, ATA Host Adapters
 
-> Now NPR2, the non-prefetchable MMIO region.
-> Is it possible that the writes there are reordered, merged and/or
-> delayed (delayed = not making it to the PCI device when the writel()
-> completes)?
+ATA class devices, PCI class 0105.
 
-All PCI writes are posted. Think of PCI as messages otherwise you'll go
-slowly insane debugging code. If you want to know your write completed
-you need to read, when the read returns both have completed
+This what you missed, this what we are debating.  :-/
 
-> We have ioremap() and ioremap_nocache(). What is the exact difference
-> between them? Would the ioremap_nocache() disable all A) read- and
-> B) write-caching on a) prefetchable MMIO b) non-prefetchable MMIO ?
+Cheers,
 
-They make no difference
+
+Andre Hedrick
+LAD Storage Consulting Group
 

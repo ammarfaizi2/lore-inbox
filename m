@@ -1,61 +1,456 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267803AbTB1MHy>; Fri, 28 Feb 2003 07:07:54 -0500
+	id <S267808AbTB1MGv>; Fri, 28 Feb 2003 07:06:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267806AbTB1MHy>; Fri, 28 Feb 2003 07:07:54 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:63635 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S267803AbTB1MHx>; Fri, 28 Feb 2003 07:07:53 -0500
-Message-ID: <20030228121806.16285.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	id <S267812AbTB1MGv>; Fri, 28 Feb 2003 07:06:51 -0500
+Received: from lakemtao08.cox.net ([68.1.17.113]:12429 "EHLO
+	lakemtao08.cox.net") by vger.kernel.org with ESMTP
+	id <S267808AbTB1MGn>; Fri, 28 Feb 2003 07:06:43 -0500
+Subject: Re: 2.5.63-mm1
+From: steven roemen <sdroemen1@cox.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20030227025900.1205425a.akpm@digeo.com>
+References: <20030227025900.1205425a.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1046434612.4418.5.camel@lws04.home.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 28 Feb 2003 06:16:52 -0600
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org
-Date: Fri, 28 Feb 2003 13:18:06 +0100
-Subject: Re: anticipatory scheduling questions
-X-Originating-Ip: 213.4.13.153
-X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: Andrew Morton <akpm@digeo.com> 
-Date: Thu, 27 Feb 2003 15:26:04 -0800 
-To: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org> 
-Subject: Re: anticipatory scheduling questions 
- 
-> "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org> wrote: 
-> > Indeed, this can be tested interactively with an application like Evolution: 
-> > I have configured Evolution to use 2 dictionaries (English and Spanish) for 
-> > spell checking in e-mail messages. When running 2.4.20, if I choose to reply 
-> > to a large message, it only takes a few seconds to read both dictionaries 
-> > from disk and perform the spell checking.  
-> > However, on 2.5.63-mm1 the same process takes considerably longer. Any 
-> > reason for this?  
->  
-> Could you boot with elevator-deadline and retest? 
- 
-I have done benchmark tests with Evolution under the following conditions: (times measured since the reply 
-button is clicked until the message is opened) 
- 
-2.4.20-2.54 -> 9s 
-2.5.63-mm1 w/Deadline -> 34s 
-2.5.63-mm1 w/AS -> 33s 
- 
-The 2.4.20-2.54 is *not* a stock kernel, but Red Hat's own patched kernel (I think they include most of Alan Cox 
-patches). Times are measured manually (don't know how to "time" the time elapsed since I click a button and 
-the reply window is opened). Also, the filesystem is "ext2" running on a laptop (not a really fast hard disk). 
- 
-> How large are the dictionary files? 
- 
-Well, the aspell dictionary files are roughly 16MB for the Spanish dictionary and 4MB for the English one. 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
 
-Powered by Outblaze
+the kernel oopses when i2c is compiled into the kernel with -mm1, and
+-mm1 with dave mccraken's patch.  
+
+also when i remove i2c from the kernel and boot into it with AS as the
+elevator, the load (via top) starts at 2.00, yet the processors aren't
+loaded very much at all.  is this a known issue(this is the first -mm
+kernel i've run)?
+
+-steve
+
+On Thu, 2003-02-27 at 04:59, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.63/2.5.63-mm1/
+> 
+> . Tons of changes to the anticipatory scheduler.  It may not be working
+>   very well at present.  Please use "elevator=deadline" if it causes
+>   problems.
+> 
+> . Updated smalldevfs patch.
+> 
+> . A fix for the VMA-based reverse mapping patch.
+> 
+> . Added Ingo's latest CPU scheduler update.
+> 
+> . Lots of random fixes.
+> 
+> 
+> 
+>  linus.patch
+> 
+>  Latest from Linus
+> 
+> -initial-jiffies.patch
+> -user-times-jiffies-wrap-fix.patch
+> -put_page-speedup.patch
+> -slab-batchcount-limit-fix.patch
+> -crc32-speedup-2.patch
+> -flush-tlb-all-2.patch
+> -linux-2.5.62-early_ioremap_A0.patch
+> -linux-2.5.62-x440disco_A0.patch
+> -use-find_get_page.patch
+> -irda-interruptible-sleep.patch
+> -dget-BUG.patch
+> -disk-accounting-fix.patch
+> -hugh-inode-pruning-race-fix.patch
+> -kill-bogus-wakeup-messge.patch
+> -dont-sync-with-stopped-pdflush.patch
+> -irq-balance-disable-fix.patch
+> -oom-killer-dont-spin-on-same-task.patch
+> -add-missing-global_flush_tlb-calls.patch
+> -ext3-O_SYNC-speedup.patch
+> -remove-MAX_BLKDEV-from-genhd.patch
+> 
+>  Merged
+> 
+> +separate.patch
+> 
+>  My contribution to the spelling bee.
+> 
+> +rpc_rmdir-fix.patch
+> 
+>  Fix the NFS oops
+> 
+> +ppc64-scruffiness.patch
+> 
+>  Fix some warnings
+> 
+> -reiserfs_file_write-4.patch
+> +reiserfs_file_write-5.patch
+> 
+>  Updated (I don't think it changed)
+> 
+> +limit-write-latency.patch
+> 
+>  Fix potential source of write-vs-write latency in VFS
+> 
+> +lockd-lockup-fix-2.patch
+> 
+>  Updated patch from Neil for an NFS server deadlock
+> 
+> +loop-hack.patch
+> 
+>  Fix an OOM and oops in loop
+> 
+> +flock-fix.patch
+> 
+>  File locking fix from Matthew
+> 
+> +sysfs-dget-fix-2.patch
+> 
+>  Fix a sysfs dentry race (this isn't right)
+> 
+> +irq-sharing-fix.patch
+> 
+>  Fix SA_INTERRUPT for shared interrupts
+> 
+> +anticipation_is_killing_me.patch
+> +as-fix-hughs-problem.patch
+> +as-cleanup.patch
+> +as-start-stop-anticipation-helpers.patch
+> +as-cleanup-2.patch
+> +as-cleanup-3.patch
+> +as-cleanup-3-write-latency-fix.patch
+> +as-handle-exitted-tasks.patch
+> +as-handle-exitted-tasks-fix.patch
+> +as-no-plugging-and-cleanups.patch
+> +as-remove-debug.patch
+> +as-track-queued-reads.patch
+> +as-accounting-fix.patch
+> +as-nr_reads-fix.patch
+> +as-tuning.patch
+> +as-disable-nr_reads.patch
+> 
+>  Anticipatory scheduler work
+> 
+>  smalldevfs.patch
+> 
+>  Updated
+> 
+> -smalldevfs-dcache_rcu-fix.patch
+> 
+>  Folded into smalldevfs.patch
+> 
+> +objrmap-X-fix.patch
+> 
+>  Fix VMA-based reverse mapping
+> 
+> +per-cpu-disk-stats.patch
+> 
+>  Use per-cpu data for disk accounting
+> 
+> +presto_get_sb-fix.patch
+> 
+>  Fix an intermezzo oops
+> 
+> +on_each_cpu.patch
+> +on_each_cpu-ldt-cleanup.patch
+> 
+>  preempt-safety for smp_call_function()
+> 
+> +notsc-panic.patch
+> 
+>  x86 TSC cleanup
+> 
+> +alloc_pages_cleanup.patch
+> 
+>  Code consolidation
+> 
+> +ext2-handle-htree-flag.patch
+> 
+>  ext2 htree back-compatibility
+> 
+> +sched-a3.patch
+> 
+>  CPU scheduler update
+> 
+> +mpparse-typo-fix.patch
+> 
+>  Fix a printk bug
+> 
+> +i386-no-swap-fix.patch
+> 
+>  Fix ia32 CONFIG_SWAP=n
+> 
+> +remove-hugetlb_key.patch
+> +hugetlbpage-doc-update.patch
+> +hugetlb-valid-page-ranges.patch
+> 
+>  Hugetlbpage work
+> 
+> 
+> 
+> 
+> All 88 patches:
+> 
+> linus.patch
+>   Latest from Linus
+> 
+> separate.patch
+> 
+> mm.patch
+>   add -mmN to EXTRAVERSION
+> 
+> rpc_rmdir-fix.patch
+>   Fix nfs oops during mount
+> 
+> ppc64-reloc_hide.patch
+> 
+> ppc64-pci-patch.patch
+>   Subject: pci patch
+> 
+> ppc64-e100-fix.patch
+>   fix e100 for big-endian machines
+> 
+> ppc64-aio-32bit-emulation.patch
+>   32/64bit emulation for aio
+> 
+> ppc64-64-bit-exec-fix.patch
+>   Subject: 64bit exec
+> 
+> ppc64-scruffiness.patch
+>   Fix some PPC64 compile warnings
+> 
+> sym-do-160.patch
+>   make the SYM driver do 160 MB/sec
+> 
+> kgdb.patch
+> 
+> nfsd-disable-softirq.patch
+>   Fix race in svcsock.c in 2.5.61
+> 
+> report-lost-ticks.patch
+>   make lost-tick detection more informative
+> 
+> devfs-fix.patch
+> 
+> ptrace-flush.patch
+>   cache flushing in the ptrace code
+> 
+> buffer-debug.patch
+>   buffer.c debugging
+> 
+> warn-null-wakeup.patch
+> 
+> ext3-truncate-ordered-pages.patch
+>   ext3: explicitly free truncated pages
+> 
+> deadline-dispatching-fix.patch
+>   deadline IO scheduler dispatching fix
+> 
+> nfs-unstable-pages.patch
+>   "unstable" page accounting for NFS.
+> 
+> limit-write-latency.patch
+> 
+> reiserfs_file_write-5.patch
+> 
+> tcp-wakeups.patch
+>   Use fast wakeups in TCP/IPV4
+> 
+> lockd-lockup-fix-2.patch
+>   Subject: Re: Fw: Re: 2.4.20 NFS server lock-up (SMP)
+> 
+> rcu-stats.patch
+>   RCU statistics reporting
+> 
+> ext3-journalled-data-assertion-fix.patch
+>   Remove incorrect assertion from ext3
+> 
+> nfs-speedup.patch
+> 
+> nfs-oom-fix.patch
+>   nfs oom fix
+> 
+> sk-allocation.patch
+>   Subject: Re: nfs oom
+> 
+> nfs-more-oom-fix.patch
+> 
+> nfs-sendfile.patch
+>   Implement sendfile() for NFS
+> 
+> rpciod-atomic-allocations.patch
+>   Make rcpiod use atomic allocations
+> 
+> linux-isp.patch
+> 
+> isp-update-1.patch
+> 
+> remove-unused-congestion-stuff.patch
+>   Subject: [PATCH] remove unused congestion stuff
+> 
+> aic-makefile-fix.patch
+>   aicasm Makefile fix
+> 
+> loop-hack.patch
+>   loop: Fix OOM and oops
+> 
+> atm_dev_sem.patch
+>   convert atm_dev_lock from spinlock to semaphore
+> 
+> flock-fix.patch
+>   flock fixes for 2.5.62
+> 
+> sysfs-dget-fix-2.patch
+> 
+> irq-sharing-fix.patch
+>   fix irq sharing and SA_INTERRUPT on x86
+> 
+> as-iosched.patch
+>   anticipatory I/O scheduler
+> 
+> as-comments-and-tweaks.patch
+>   antsched: commentary and
+> 
+> as-hz-1000-fix.patch
+>   Fix anticipatory scheduler for HZ=100
+> 
+> as-tidy-up-rename.patch
+>   tidy up AS rename
+> 
+> anticipation_is_killing_me.patch
+> 
+> as-update-1.patch
+>   AS update
+> 
+> as-break-anticipation-on-write.patch
+>   AS break on write
+> 
+> as-break-if-readahead.patch
+>   detect overlapping reads and writes
+> 
+> as-fix-hughs-problem.patch
+>   Add a pointer to the queue into struct as_data
+> 
+> as-cleanup.patch
+>   anticipatory scheduler cleanups
+> 
+> as-start-stop-anticipation-helpers.patch
+>   AS: add anticipation stop/start helper functions
+> 
+> as-cleanup-2.patch
+>   Subject: [PATCH] some cleanups 2
+> 
+> as-cleanup-3.patch
+>   AS: more cleanups
+> 
+> as-cleanup-3-write-latency-fix.patch
+>   Fix as-cleanup-3
+> 
+> as-handle-exitted-tasks.patch
+> 
+> as-handle-exitted-tasks-fix.patch
+>   fix for as IO contexts
+> 
+> as-no-plugging-and-cleanups.patch
+>   AS no plugging + cleanups
+> 
+> as-remove-debug.patch
+> 
+> as-track-queued-reads.patch
+>   AS: track queued reads
+> 
+> as-accounting-fix.patch
+>   AS: track queued reads (fix)
+> 
+> as-nr_reads-fix.patch
+>   AS: read accounting fix
+> 
+> as-tuning.patch
+>   AS: tuning
+> 
+> as-disable-nr_reads.patch
+>   AS: disable per-process in-flight read logic
+> 
+> readahead-shrink-to-zero.patch
+>   Allow VFS readahead to fall to zero
+> 
+> cfq-2.patch
+>   CFQ scheduler, #2
+> 
+> smalldevfs.patch
+>   smalldevfs
+> 
+> objrmap-2.5.62-5.patch
+>   object-based rmap
+> 
+> objrmap-X-fix.patch
+>   objrmap fix for X
+> 
+> oprofile-up-fix.patch
+>   fix oprofile on UP (lockless sync)
+> 
+> update_atime-speedup.patch
+>   speed up update_atime()
+> 
+> ext2-update_atime_speedup.patch
+>   Use one_sec_update_atime in ext2
+> 
+> ext3-update_atime_speedup.patch
+>   Use one_sec_update_atime in ext2
+> 
+> UPDATE_ATIME-to-update_atime.patch
+>   Rename UPDATE_ATIME to update_atime
+> 
+> per-cpu-disk-stats.patch
+>   Make diskstats per-cpu using kmalloc_percpu
+> 
+> presto_get_sb-fix.patch
+>   fix presto_get_sb() return value and oops.
+> 
+> on_each_cpu.patch
+>   fix preempt-issues with smp_call_function()
+> 
+> on_each_cpu-ldt-cleanup.patch
+> 
+> notsc-panic.patch
+>   Don't panic if TSC is enabled and notsc is used
+> 
+> alloc_pages_cleanup.patch
+>   clean up redundant code for alloc_pages
+> 
+> ext2-handle-htree-flag.patch
+>   ext2: clear ext3 htree flag on directories
+> 
+> sched-a3.patch
+>   "HT scheduler", sched-2.5.63-A3
+> 
+> mpparse-typo-fix.patch
+>   fix typo in arch/i386/kernel/mpparse.c in printk
+> 
+> i386-no-swap-fix.patch
+>   allow CONFIG_SWAP=n for i386
+> 
+> remove-hugetlb_key.patch
+>   remove dead hugetlb_key forward decl
+> 
+> hugetlbpage-doc-update.patch
+>   hugetlbpage documentation update
+> 
+> hugetlb-valid-page-ranges.patch
+>   hugetlb: fix MAP_FIXED handling
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

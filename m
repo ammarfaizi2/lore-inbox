@@ -1,49 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUDWUO2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbUDWUVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUDWUO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 16:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbUDWUO2
+	id S261326AbUDWUVg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 16:21:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUDWUVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 16:14:28 -0400
-Received: from twin.uoregon.edu ([128.223.214.27]:29068 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id S261252AbUDWUOZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 16:14:25 -0400
-Date: Fri, 23 Apr 2004 13:14:08 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Paul Jackson <pj@sgi.com>
-cc: Timothy Miller <miller@techsource.com>, <tytso@mit.edu>,
-       <miquels@cistron.nl>, <linux-kernel@vger.kernel.org>
-Subject: Re: File system compression, not at the block layer
-In-Reply-To: <20040423113435.245f918a.pj@sgi.com>
-Message-ID: <Pine.LNX.4.44.0404231300470.27087-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Apr 2004 16:21:36 -0400
+Received: from email-out2.iomega.com ([147.178.1.83]:248 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S261340AbUDWUVd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 16:21:33 -0400
+Subject: Re: Unable to read UDF fs on a DVD
+From: Pat LaVarre <p.lavarre@ieee.org>
+To: kronos@kronoz.cjb.net
+Cc: linux_udf@hpesjro.fc.hp.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20040423195004.GA1885@dreamland.darkstar.lan>
+References: <20040423162801.GA5396@dreamland.darkstar.lan><1082743002.3099. 
+	23.camel@patibmrh9><20040423195004.GA1885@dreamland.darkstar.lan>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1082751675.3163.106.camel@patibmrh9>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Apr 2004 14:21:15 -0600
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Apr 2004 20:21:32.0100 (UTC) FILETIME=[911EB040:01
+	C42970]
+X-imss-version: 2.0
+X-imss-result: Passed
+X-imss-scores: Clean:16.79060 C:49 M:1 S:5 R:5
+X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Apr 2004, Paul Jackson wrote:
+> http://web.tiscali.it/kronoz/ucf_test.log
+> I don't see anything strange.
 
-> > SO... in addition to the brilliance of AS, is there anything else that 
-> > can be done (using compression or something else) which could aid in 
-> > reducing seek time?
+I now agree, that disc passed fsck and mount well enough to make the ls
+failure interesting.
+
+What to try next after fsck passes, I do not know, ouch, sorry.
+
+Offline I'm working to comment the fs/udf/ source.  Even me finishing
+that might not do you much good, unless we can figure out how to
+reproduce your trouble at my desk.
+
+Pat LaVarre
+
+P.S. Five postscripts:
+
+1)
+
+> even with ide-scsi, though.
+
+Whoa.  You weren't engaging in the taboo act of running ide-scsi in 2.6
+back when ls failed, were you?  (If you are, then please remove
+ide-scsi, substitute ide-cd, and confirm or deny that exercise actually
+made no difference.)
+
+2)
+
+The disc didn't actually pass the phgfsck without complaint:  The
+standard phgfsck egrep is:
+
+$ egrep -i '(info|warning|error):' http://web.tiscali.it/kronoz/ucf_test.log
+        PVD  72  Warning: Volume Set Identifier: "040420_0906",
+        PVD  72  Warning: Volume Set Identifier: "040420_0906",
+        Error: Number of AVDPs less than 2: 1, AVDP at 256
+$
+
+Non-compliance!
+
+All the same, I'm guessing these complaints do Not explain the ls
+failure, since to my newbie ear these sound like mount issues and we
+know you can mount.
+
+3)
+
+I can't now rapidly reproduce the collection of file lengths you report,
+because sparse files in UDF, even when the underlying volume is not
+sparse, as yet crash my Linux-2.6.5.
+
+3)
+
+> Btw, don't know if it's related but I was unable to run ucf_test without
+> scsi emulation: it complained about unknown image chunk size. I can't
+> read files even with ide-scsi, though.
+
+Yes phgfsck trouble like that is normal, thanks for asking.
+
+4)
+
+> > P.S. The subscriber-only archives of linux_udf@h... currently show
+> > Linux-2.6.5 issues now under discussion, including an issue people have
+> > reproduced by downloading a huge trial .exe into Windows and then
+> > copying a file of more than 2 GiB to the disc.
 > 
-> Buy more disks and only use a small portion of each for all but the
-> most infrequently accessed data.
+> I think that this is a different issue, files on my disk are smaller.
 
-faster drives. The biggest disks at this point are far slower that the 
-fastest... the average read service time on a maxtor atlas 15k is like 
-5.7ms on 250GB western digital sata, 14.1ms, so that more than twice as 
-many reads can be executed on the fastest disks you can buy now... of 
-course then you pay for it in cost, heat, density, and controller costs. 
-everthing is a tradeoff though.
- 
-> 
+I agree your conclusion is reasonable, I do not myself yet know the
+udf.ko code well enough to firmly confirm or deny your conclusion.
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+5)
+
+> http://web.tiscali.it/kronoz/ucf_test.log
+
+Any chance this link will still work, a year from now?  (I ask because
+I'm hoping to see a collection of observed UDF non-compliance come into
+being.)
 
 

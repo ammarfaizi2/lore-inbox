@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbTEMQEj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 12:04:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbTEMQEi
+	id S261944AbTEMQAU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 12:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTEMQAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 12:04:38 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:5576 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262013AbTEMQDw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 12:03:52 -0400
-Date: Tue, 13 May 2003 06:58:25 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: bharata@in.ibm.com
-cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>
-Subject: Re: 2.5.69-mjb1: undefined reference to `blk_queue_empty'
-Message-ID: <25840000.1052834304@[10.10.2.4]>
-In-Reply-To: <20030513124807.A31823@in.ibm.com>
-References: <9380000.1052624649@[10.10.2.4]> <20030512205139.GT1107@fs.tum.de> <20570000.1052797864@[10.10.2.4]> <20030513124807.A31823@in.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Tue, 13 May 2003 12:00:17 -0400
+Received: from pat.uio.no ([129.240.130.16]:6127 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261864AbTEMP7I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 11:59:08 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <16065.6462.15209.428226@charged.uio.no>
+Date: Tue, 13 May 2003 18:11:42 +0200
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v2
+In-Reply-To: <20030513155901.GA26116@nevyn.them.org>
+References: <20030512155417.67a9fdec.akpm@digeo.com>
+	<20030512155511.21fb1652.akpm@digeo.com>
+	<shswugvjcy9.fsf@charged.uio.no>
+	<20030513155901.GA26116@nevyn.them.org>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: Please contact postmaster@uio.no for more information
+X-UiO-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have already sent you a fix for this. Anyway here it is again.
+>>>>> " " == Daniel Jacobowitz <dan@debian.org> writes:
 
-Oops, I must have dropped it - thanks, I'll stick it in the next release.
- 
-> --- linux-2.5.69/drivers/dump/dump_blockdev.c.orig	Tue May 13 12:30:49 2003
-> +++ linux-2.5.69/drivers/dump/dump_blockdev.c	Tue May 13 12:34:09 2003
-> @@ -261,7 +261,7 @@
->  
->  	/* For now we assume we have the device to ourselves */
->  	/* Just a quick sanity check */
-> -	if (!blk_queue_empty(bdev_get_queue(dump_bdev->bdev))) {
-> +	if (elv_next_request(bdev_get_queue(dump_bdev->bdev))) {
->  		/* i/o in flight - safer to quit */
->  		return -EBUSY;
->  	}
+     > Well, using BK as of Friday last week I'm still having a
+     > complete disaster of NFS support.
 
+Please try a more recent snapshot. The OOM situation was only fixed
+with the patches that Linus pulled for patch-2.5.69-bk7
+(i.e. yesterday's snapshot).
+
+Oh. Please also turn off any 'soft' mount option that you may
+have. Like it or not, those *will* cause EIO errors.
+
+Cheers,
+ Trond

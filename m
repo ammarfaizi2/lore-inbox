@@ -1,262 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130029AbRA2UzQ>; Mon, 29 Jan 2001 15:55:16 -0500
+	id <S129292AbRA2U5g>; Mon, 29 Jan 2001 15:57:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130110AbRA2UzG>; Mon, 29 Jan 2001 15:55:06 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:152 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S130029AbRA2Uys>; Mon, 29 Jan 2001 15:54:48 -0500
-Date: Mon, 29 Jan 2001 15:53:47 -0500 (EST)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: <mingo@devserv.devel.redhat.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: <dcinege@psychosis.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: [patch] raid-B1, 2.4.1-pre11, fixes, cleanups
-In-Reply-To: <14965.53759.893603.65327@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.32.0101291547160.732-200000@devserv.devel.redhat.com>
+	id <S130316AbRA2U50>; Mon, 29 Jan 2001 15:57:26 -0500
+Received: from www.topmail.de ([212.255.16.226]:18852 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S129292AbRA2U5N> convert rfc822-to-8bit;
+	Mon, 29 Jan 2001 15:57:13 -0500
+Message-ID: <032601c08a36$0c8d5570$0100a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Torrey Hoffman" <torrey.hoffman@myrio.com>,
+        "'Keith Owens'" <kaos@ocs.com.au>,
+        "Matthew Pitts" <mpitts@suite224.net>
+Cc: "Jacob Anawalt" <anawaltaj@qwest.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <4461B4112BDB2A4FB5635DE1995874320223F3@mail0.myrio.com>
+Subject: Re: Knowing what options a kernel was compiled with 
+Date: Mon, 29 Jan 2001 20:56:12 -0000
+Organization: eccesys.net Linux Distribution Development
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1345348566-78021221-980801627=:732"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+From: "Torrey Hoffman" <torrey.hoffman@myrio.com>
+> Should someone submit a patch to copy the .config to a standard location as
+> part of "make install" or "make modules_install"? If included in the
+> official sources, that good example would encourage the distribution
+> maintainers do the same. 
+> 
+> Torrey Hoffman
 
----1345348566-78021221-980801627=:732
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I dont do make install because it could do something unwanted.
+modules_install isn't good either because some prefer monolithic
+kernels. But split-include could do the job, as it's called as of 2.2
+for each compile.
+
+-mirabilos
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12+(proprietary extensions) # Updated:20010129 nick=mirabilos
+GO/S d@ s--: a--- C++ UL++++ P--- L++$(-^lang) E----(joe) W+(++) loc=.de
+N? o K? w-(+$) O+>+++ M-- V- PS+++@ PE(--) Y+ PGP t+ 5? X+ R+ !tv(silly)
+b++++* DI- D+ G(>++) e(^age) h! r(-) y--(!y+) /* lang=NASM;GW-BASIC;C */
+------END GEEK CODE BLOCK------
 
 
-On Tue, 30 Jan 2001, Neil Brown wrote:
-
-> > -#define MAX_MD_BOOT_DEVS     8
-> > +#define MAX_MD_BOOT_DEVS     MAX_MD_DEVS
-
-> Actually, this is not fine.  Check the code that says:
-
-indeed - it will work only up to 32 devices.
-
-i've fixed the code to not have this assumption - it's init-time code only
-anyway. There are also a few other cleanups in raid-2.4.1-B1:
-
- - CONFIG_MD_BOOT gone. __init thing and people actually use it.
-
- - CONFIG_AUTODETECT_RAID gone. __init thing, and can be turned off via
-   command-line. Needs special partition ID to be activated anyway.
-
- - static-init cleanups (no need to initialize to zero)
-
- - new RAID_AUTORUN ioctrl for initrd kernels to be able to start up
-   autostart arrays.
-
-code is cleaner and simpler now. The patch removes a total of 7 lines,
-while adding a new feature :-)
-
-Dave, does this patch do the trick for you? (raid-2.4.1-B1 is against the
-2.4.1-pre11 kernel.)
-
-	Ingo
-
----1345348566-78021221-980801627=:732
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="raid-2.4.1-B1"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.32.0101291553470.732@devserv.devel.redhat.com>
-Content-Description: 
-Content-Disposition: attachment; filename="raid-2.4.1-B1"
-
-LS0tIGxpbnV4L2ZzL3BhcnRpdGlvbnMvbXNkb3MuYy5vcmlnCVdlZCBKdWwg
-MTkgMDg6Mjk6MTYgMjAwMA0KKysrIGxpbnV4L2ZzL3BhcnRpdGlvbnMvbXNk
-b3MuYwlNb24gSmFuIDI5IDIzOjQxOjUzIDIwMDENCkBAIC0zNiw3ICszNiw3
-IEBADQogI2luY2x1ZGUgImNoZWNrLmgiDQogI2luY2x1ZGUgIm1zZG9zLmgi
-DQogDQotI2lmIENPTkZJR19CTEtfREVWX01EICYmIENPTkZJR19BVVRPREVU
-RUNUX1JBSUQNCisjaWYgQ09ORklHX0JMS19ERVZfTUQNCiBleHRlcm4gdm9p
-ZCBtZF9hdXRvZGV0ZWN0X2RldihrZGV2X3QgZGV2KTsNCiAjZW5kaWYNCiAN
-CkBAIC0xMzYsNyArMTM2LDcgQEANCiAJCQlhZGRfZ2RfcGFydGl0aW9uKGhk
-LCBjdXJyZW50X21pbm9yLA0KIAkJCQkJIHRoaXNfc2VjdG9yK1NUQVJUX1NF
-Q1QocCkqc2VjdG9yX3NpemUsDQogCQkJCQkgTlJfU0VDVFMocCkqc2VjdG9y
-X3NpemUpOw0KLSNpZiBDT05GSUdfQkxLX0RFVl9NRCAmJiBDT05GSUdfQVVU
-T0RFVEVDVF9SQUlEDQorI2lmIENPTkZJR19CTEtfREVWX01EDQogCQkJaWYg
-KFNZU19JTkQocCkgPT0gTElOVVhfUkFJRF9QQVJUSVRJT04pIHsNCiAJCQkg
-ICAgbWRfYXV0b2RldGVjdF9kZXYoTUtERVYoaGQtPm1ham9yLGN1cnJlbnRf
-bWlub3IpKTsNCiAJCQl9DQpAQCAtNDQ4LDcgKzQ0OCw3IEBADQogCQkJY29u
-dGludWU7DQogCQlhZGRfZ2RfcGFydGl0aW9uKGhkLCBtaW5vciwgZmlyc3Rf
-c2VjdG9yK1NUQVJUX1NFQ1QocCkqc2VjdG9yX3NpemUsDQogCQkJCSBOUl9T
-RUNUUyhwKSpzZWN0b3Jfc2l6ZSk7DQotI2lmIENPTkZJR19CTEtfREVWX01E
-ICYmIENPTkZJR19BVVRPREVURUNUX1JBSUQNCisjaWYgQ09ORklHX0JMS19E
-RVZfTUQNCiAJCWlmIChTWVNfSU5EKHApID09IExJTlVYX1JBSURfUEFSVElU
-SU9OKSB7DQogCQkJbWRfYXV0b2RldGVjdF9kZXYoTUtERVYoaGQtPm1ham9y
-LG1pbm9yKSk7DQogCQl9DQotLS0gbGludXgvaW5jbHVkZS9saW51eC9yYWlk
-L21kX3UuaC5vcmlnCVR1ZSBOb3YgMTQgMjI6MTY6MzcgMjAwMA0KKysrIGxp
-bnV4L2luY2x1ZGUvbGludXgvcmFpZC9tZF91LmgJTW9uIEphbiAyOSAyMzo0
-MTo1MyAyMDAxDQpAQCAtMjIsNiArMjIsNyBAQA0KICNkZWZpbmUgR0VUX0FS
-UkFZX0lORk8JCV9JT1IgKE1EX01BSk9SLCAweDExLCBtZHVfYXJyYXlfaW5m
-b190KQ0KICNkZWZpbmUgR0VUX0RJU0tfSU5GTwkJX0lPUiAoTURfTUFKT1Is
-IDB4MTIsIG1kdV9kaXNrX2luZm9fdCkNCiAjZGVmaW5lIFBSSU5UX1JBSURf
-REVCVUcJX0lPIChNRF9NQUpPUiwgMHgxMykNCisjZGVmaW5lIFJBSURfQVVU
-T1JVTgkJX0lPIChNRF9NQUpPUiwgMHgxNCkNCiANCiAvKiBjb25maWd1cmF0
-aW9uICovDQogI2RlZmluZSBDTEVBUl9BUlJBWQkJX0lPIChNRF9NQUpPUiwg
-MHgyMCkNCi0tLSBsaW51eC9kcml2ZXJzL21kL21kLmMub3JpZwlNb24gRGVj
-IDExIDIyOjE5OjM1IDIwMDANCisrKyBsaW51eC9kcml2ZXJzL21kL21kLmMJ
-TW9uIEphbiAyOSAyMzo0Mjo1MyAyMDAxDQpAQCAtMjAzMyw2OCArMjAzMyw2
-NSBAQA0KIHN0cnVjdCB7DQogCWludCBzZXQ7DQogCWludCBub2F1dG9kZXRl
-Y3Q7DQorfSByYWlkX3NldHVwX2FyZ3MgbWRfX2luaXRkYXRhOw0KIA0KLX0g
-cmFpZF9zZXR1cF9hcmdzIG1kX19pbml0ZGF0YSA9IHsgMCwgMCB9Ow0KLQ0K
-LXZvaWQgbWRfc2V0dXBfZHJpdmUodm9pZCkgbWRfX2luaXQ7DQordm9pZCBt
-ZF9zZXR1cF9kcml2ZSAodm9pZCkgbWRfX2luaXQ7DQogDQogLyoNCiAgKiBT
-ZWFyY2hlcyBhbGwgcmVnaXN0ZXJlZCBwYXJ0aXRpb25zIGZvciBhdXRvcnVu
-IFJBSUQgYXJyYXlzDQogICogYXQgYm9vdCB0aW1lLg0KICAqLw0KLSNpZmRl
-ZiBDT05GSUdfQVVUT0RFVEVDVF9SQUlEDQotc3RhdGljIGludCBkZXRlY3Rl
-ZF9kZXZpY2VzWzEyOF0gbWRfX2luaXRkYXRhID0geyAwLCB9Ow0KLXN0YXRp
-YyBpbnQgZGV2X2NudD0wOw0KK3N0YXRpYyBpbnQgZGV0ZWN0ZWRfZGV2aWNl
-c1sxMjhdIG1kX19pbml0ZGF0YTsNCitzdGF0aWMgaW50IGRldl9jbnQ7DQor
-DQogdm9pZCBtZF9hdXRvZGV0ZWN0X2RldihrZGV2X3QgZGV2KQ0KIHsNCiAJ
-aWYgKGRldl9jbnQgPj0gMCAmJiBkZXZfY250IDwgMTI3KQ0KIAkJZGV0ZWN0
-ZWRfZGV2aWNlc1tkZXZfY250KytdID0gZGV2Ow0KIH0NCi0jZW5kaWYNCiAN
-Ci1pbnQgbWRfX2luaXQgbWRfcnVuX3NldHVwKHZvaWQpDQorDQorc3RhdGlj
-IHZvaWQgYXV0b3N0YXJ0X2FycmF5cyAodm9pZCkNCiB7DQotI2lmZGVmIENP
-TkZJR19BVVRPREVURUNUX1JBSUQNCiAJbWRrX3JkZXZfdCAqcmRldjsNCiAJ
-aW50IGk7DQogDQotCWlmIChyYWlkX3NldHVwX2FyZ3Mubm9hdXRvZGV0ZWN0
-KQ0KLQkJcHJpbnRrKEtFUk5fSU5GTyAic2tpcHBpbmcgYXV0b2RldGVjdGlv
-biBvZiBSQUlEIGFycmF5c1xuIik7DQotCWVsc2Ugew0KLQ0KLQkJcHJpbnRr
-KEtFUk5fSU5GTyAiYXV0b2RldGVjdGluZyBSQUlEIGFycmF5c1xuIik7DQor
-CXByaW50ayhLRVJOX0lORk8gImF1dG9kZXRlY3RpbmcgUkFJRCBhcnJheXNc
-biIpOw0KIA0KLQkJZm9yIChpPTA7IGk8ZGV2X2NudDsgaSsrKSB7DQotCQkJ
-a2Rldl90IGRldiA9IGRldGVjdGVkX2RldmljZXNbaV07DQorCWZvciAoaT0w
-OyBpPGRldl9jbnQ7IGkrKykgew0KKwkJa2Rldl90IGRldiA9IGRldGVjdGVk
-X2RldmljZXNbaV07DQogDQotCQkJaWYgKG1kX2ltcG9ydF9kZXZpY2UoZGV2
-LDEpKSB7DQotCQkJCXByaW50ayhLRVJOX0FMRVJUICJjb3VsZCBub3QgaW1w
-b3J0ICVzIVxuIiwNCi0JCQkJICAgICAgIHBhcnRpdGlvbl9uYW1lKGRldikp
-Ow0KLQkJCQljb250aW51ZTsNCi0JCQl9DQotCQkJLyoNCi0JCQkgKiBTYW5p
-dHkgY2hlY2tzOg0KLQkJCSAqLw0KLQkJCXJkZXYgPSBmaW5kX3JkZXZfYWxs
-KGRldik7DQotCQkJaWYgKCFyZGV2KSB7DQotCQkJCU1EX0JVRygpOw0KLQkJ
-CQljb250aW51ZTsNCi0JCQl9DQotCQkJaWYgKHJkZXYtPmZhdWx0eSkgew0K
-LQkJCQlNRF9CVUcoKTsNCi0JCQkJY29udGludWU7DQotCQkJfQ0KLQkJCW1k
-X2xpc3RfYWRkKCZyZGV2LT5wZW5kaW5nLCAmcGVuZGluZ19yYWlkX2Rpc2tz
-KTsNCisJCWlmIChtZF9pbXBvcnRfZGV2aWNlKGRldiwxKSkgew0KKwkJCXBy
-aW50ayhLRVJOX0FMRVJUICJjb3VsZCBub3QgaW1wb3J0ICVzIVxuIiwNCisJ
-CQkgICAgICAgcGFydGl0aW9uX25hbWUoZGV2KSk7DQorCQkJY29udGludWU7
-DQogCQl9DQotDQotCQlhdXRvcnVuX2RldmljZXMoLTEpOw0KKwkJLyoNCisJ
-CSAqIFNhbml0eSBjaGVja3M6DQorCQkgKi8NCisJCXJkZXYgPSBmaW5kX3Jk
-ZXZfYWxsKGRldik7DQorCQlpZiAoIXJkZXYpIHsNCisJCQlNRF9CVUcoKTsN
-CisJCQljb250aW51ZTsNCisJCX0NCisJCWlmIChyZGV2LT5mYXVsdHkpIHsN
-CisJCQlNRF9CVUcoKTsNCisJCQljb250aW51ZTsNCisJCX0NCisJCW1kX2xp
-c3RfYWRkKCZyZGV2LT5wZW5kaW5nLCAmcGVuZGluZ19yYWlkX2Rpc2tzKTsN
-CiAJfQ0KIA0KKwlhdXRvcnVuX2RldmljZXMoLTEpOw0KK30NCisNCitpbnQg
-bWRfX2luaXQgbWRfcnVuX3NldHVwKHZvaWQpDQorew0KKwlpZiAocmFpZF9z
-ZXR1cF9hcmdzLm5vYXV0b2RldGVjdCkNCisJCXByaW50ayhLRVJOX0lORk8g
-InNraXBwaW5nIGF1dG9kZXRlY3Rpb24gb2YgUkFJRCBhcnJheXNcbiIpOw0K
-KwllbHNlDQorCQlhdXRvc3RhcnRfYXJyYXlzKCk7DQogCWRldl9jbnQgPSAt
-MTsgLyogbWFrZSBzdXJlIGZ1cnRoZXIgY2FsbHMgdG8gbWRfYXV0b2RldGVj
-dF9kZXYgYXJlIGlnbm9yZWQgKi8NCi0jZW5kaWYNCi0jaWZkZWYgQ09ORklH
-X01EX0JPT1QNCiAJbWRfc2V0dXBfZHJpdmUoKTsNCi0jZW5kaWYNCiAJcmV0
-dXJuIDA7DQogfQ0KIA0KQEAgLTI1NTgsNiArMjU1NSwxMSBAQA0KIAkJCW1k
-X3ByaW50X2RldmljZXMoKTsNCiAJCQlnb3RvIGRvbmVfdW5sb2NrOw0KIA0K
-KwkJY2FzZSBSQUlEX0FVVE9SVU46DQorCQkJZXJyID0gMDsNCisJCQlhdXRv
-c3RhcnRfYXJyYXlzKCk7DQorCQkJZ290byBkb25lOw0KKw0KIAkJY2FzZSBC
-TEtHRVRTSVpFOiAgIC8qIFJldHVybiBkZXZpY2Ugc2l6ZSAqLw0KIAkJCWlm
-ICghYXJnKSB7DQogCQkJCWVyciA9IC1FSU5WQUw7DQpAQCAtMzYzOSwxNCAr
-MzY0MSwxMiBAQA0KIAlyZXR1cm4gKDApOw0KIH0NCiANCi0jaWZkZWYgQ09O
-RklHX01EX0JPT1QNCi0jZGVmaW5lIE1BWF9NRF9CT09UX0RFVlMJOA0KLXN0
-cnVjdCB7DQotCXVuc2lnbmVkIGxvbmcgc2V0Ow0KLQlpbnQgcGVyc1tNQVhf
-TURfQk9PVF9ERVZTXTsNCi0JaW50IGNodW5rW01BWF9NRF9CT09UX0RFVlNd
-Ow0KLQlrZGV2X3QgZGV2aWNlc1tNQVhfTURfQk9PVF9ERVZTXVtNRF9TQl9E
-SVNLU107DQotfSBtZF9zZXR1cF9hcmdzIG1kX19pbml0ZGF0YSA9IHsgMCwg
-fTsNCitzdGF0aWMgc3RydWN0IHsNCisJY2hhciBkZXZpY2Vfc2V0IFtNQVhf
-TURfREVWU107DQorCWludCBwZXJzW01BWF9NRF9ERVZTXTsNCisJaW50IGNo
-dW5rW01BWF9NRF9ERVZTXTsNCisJa2Rldl90IGRldmljZXNbTUFYX01EX0RF
-VlNdW01EX1NCX0RJU0tTXTsNCit9IG1kX3NldHVwX2FyZ3MgbWRfX2luaXRk
-YXRhOw0KIA0KIC8qDQogICogUGFyc2UgdGhlIGNvbW1hbmQtbGluZSBwYXJh
-bWV0ZXJzIGdpdmVuIG91ciBrZXJuZWwsIGJ1dCBkbyBub3QNCkBAIC0zNjc2
-LDEwICszNjc2LDEwIEBADQogCQlwcmludGsoIm1kOiBUb28gZmV3IGFyZ3Vt
-ZW50cyBzdXBwbGllZCB0byBtZD0uXG4iKTsNCiAJCXJldHVybiAwOw0KIAl9
-DQotCWlmIChtaW5vciA+PSBNQVhfTURfQk9PVF9ERVZTKSB7DQorCWlmICht
-aW5vciA+PSBNQVhfTURfREVWUykgew0KIAkJcHJpbnRrICgibWQ6IE1pbm9y
-IGRldmljZSBudW1iZXIgdG9vIGhpZ2guXG4iKTsNCiAJCXJldHVybiAwOw0K
-LQl9IGVsc2UgaWYgKG1kX3NldHVwX2FyZ3Muc2V0ICYgKDEgPDwgbWlub3Ip
-KSB7DQorCX0gZWxzZSBpZiAobWRfc2V0dXBfYXJncy5kZXZpY2Vfc2V0W21p
-bm9yXSkgew0KIAkJcHJpbnRrICgibWQ6IFdhcm5pbmcgLSBtZD0lZCwuLi4g
-aGFzIGJlZW4gc3BlY2lmaWVkIHR3aWNlO1xuIg0KIAkJCSIgICAgd2lsbCBk
-aXNjYXJkIHRoZSBmaXJzdCBkZWZpbml0aW9uLlxuIiwgbWlub3IpOw0KIAl9
-DQpAQCAtMzczNyw3ICszNzM3LDcgQEANCiAJcHJpbnRrICgibWQ6IFdpbGwg
-Y29uZmlndXJlIG1kJWQgKCVzKSBmcm9tICVzLCBiZWxvdy5cbiIsDQogCQlt
-aW5vciwgcGVybmFtZSwgZGV2bmFtZXMpOw0KIAltZF9zZXR1cF9hcmdzLmRl
-dmljZXNbbWlub3JdW2ldID0gKGtkZXZfdCkgMDsNCi0JbWRfc2V0dXBfYXJn
-cy5zZXQgfD0gKDEgPDwgbWlub3IpOw0KKwltZF9zZXR1cF9hcmdzLmRldmlj
-ZV9zZXRbbWlub3JdID0gMTsNCiAJcmV0dXJuIDE7DQogfQ0KIA0KQEAgLTM3
-NDcsMTAgKzM3NDcsMTEgQEANCiAJa2Rldl90IGRldjsNCiAJbWRkZXZfdCpt
-ZGRldjsNCiANCi0JZm9yIChtaW5vciA9IDA7IG1pbm9yIDwgTUFYX01EX0JP
-T1RfREVWUzsgbWlub3IrKykgew0KKwlmb3IgKG1pbm9yID0gMDsgbWlub3Ig
-PCBNQVhfTURfREVWUzsgbWlub3IrKykgew0KIAkJbWR1X2Rpc2tfaW5mb190
-IGRpbmZvOw0KLQkJaW50IGVycj0wOw0KLQkJaWYgKCEobWRfc2V0dXBfYXJn
-cy5zZXQgJiAoMSA8PCBtaW5vcikpKQ0KKw0KKwkJaW50IGVyciA9IDA7DQor
-CQlpZiAoIW1kX3NldHVwX2FyZ3MuZGV2aWNlX3NldFttaW5vcl0pDQogCQkJ
-Y29udGludWU7DQogCQlwcmludGsoIm1kOiBMb2FkaW5nIG1kJWQuXG4iLCBt
-aW5vcik7DQogCQlpZiAobWRkZXZfbWFwW21pbm9yXS5tZGRldikgew0KQEAg
-LTM3NzYsNyArMzc3Nyw3IEBADQogCQkJYWluZm8ubGF5b3V0ID0gMDsNCiAJ
-CQlhaW5mby5jaHVua19zaXplID0gbWRfc2V0dXBfYXJncy5jaHVua1ttaW5v
-cl07DQogCQkJZXJyID0gc2V0X2FycmF5X2luZm8obWRkZXYsICZhaW5mbyk7
-DQotCQkJZm9yIChpPTA7ICFlcnIgJiYgKGRldiA9IG1kX3NldHVwX2FyZ3Mu
-ZGV2aWNlc1ttaW5vcl1baV0pOyBpKyspIHsNCisJCQlmb3IgKGkgPSAwOyAh
-ZXJyICYmIChkZXYgPSBtZF9zZXR1cF9hcmdzLmRldmljZXNbbWlub3JdW2ld
-KTsgaSsrKSB7DQogCQkJCWRpbmZvLm51bWJlciA9IGk7DQogCQkJCWRpbmZv
-LnJhaWRfZGlzayA9IGk7DQogCQkJCWRpbmZvLnN0YXRlID0gKDE8PE1EX0RJ
-U0tfQUNUSVZFKXwoMTw8TURfRElTS19TWU5DKTsNCkBAIC0zODA3LDcgKzM4
-MDgsNiBAQA0KIH0NCiANCiBfX3NldHVwKCJtZD0iLCBtZF9zZXR1cCk7DQot
-I2VuZGlmDQogDQogI2lmZGVmIE1PRFVMRQ0KIGludCBpbml0X21vZHVsZSAo
-dm9pZCkNCkBAIC0zODU5LDkgKzM4NTksNyBAQA0KICNlbmRpZg0KIA0KIF9f
-aW5pdGNhbGwobWRfaW5pdCk7DQotI2lmIGRlZmluZWQoQ09ORklHX0FVVE9E
-RVRFQ1RfUkFJRCkgfHwgZGVmaW5lZChDT05GSUdfTURfQk9PVCkNCiBfX2lu
-aXRjYWxsKG1kX3J1bl9zZXR1cCk7DQotI2VuZGlmDQogDQogTURfRVhQT1JU
-X1NZTUJPTChtZF9zaXplKTsNCiBNRF9FWFBPUlRfU1lNQk9MKHJlZ2lzdGVy
-X21kX3BlcnNvbmFsaXR5KTsNCi0tLSBsaW51eC9kcml2ZXJzL21kL0NvbmZp
-Zy5pbi5vcmlnCU1vbiBPY3QgIDIgMjE6MDA6MDcgMjAwMA0KKysrIGxpbnV4
-L2RyaXZlcnMvbWQvQ29uZmlnLmluCU1vbiBKYW4gMjkgMjM6NDE6NTMgMjAw
-MQ0KQEAgLTExLDEwICsxMSw2IEBADQogZGVwX3RyaXN0YXRlICcgIFJBSUQt
-MCAoc3RyaXBpbmcpIG1vZGUnIENPTkZJR19NRF9SQUlEMCAkQ09ORklHX0JM
-S19ERVZfTUQNCiBkZXBfdHJpc3RhdGUgJyAgUkFJRC0xIChtaXJyb3Jpbmcp
-IG1vZGUnIENPTkZJR19NRF9SQUlEMSAkQ09ORklHX0JMS19ERVZfTUQNCiBk
-ZXBfdHJpc3RhdGUgJyAgUkFJRC00L1JBSUQtNSBtb2RlJyBDT05GSUdfTURf
-UkFJRDUgJENPTkZJR19CTEtfREVWX01EDQotaWYgWyAiJENPTkZJR19NRF9M
-SU5FQVIiID0gInkiIC1vICIkQ09ORklHX01EX1JBSUQwIiA9ICJ5IiAtbyAi
-JENPTkZJR19NRF9SQUlEMSIgPSAieSIgLW8gIiRDT05GSUdfTURfUkFJRDUi
-ID0gInkiIF07IHRoZW4NCi0gICAgICAgIGJvb2wgJyAgQm9vdCBzdXBwb3J0
-JyBDT05GSUdfTURfQk9PVA0KLSAgICAgICAgYm9vbCAnICBBdXRvIERldGVj
-dCBzdXBwb3J0JyBDT05GSUdfQVVUT0RFVEVDVF9SQUlEDQotZmkNCiANCiBk
-ZXBfdHJpc3RhdGUgJyBMb2dpY2FsIHZvbHVtZSBtYW5hZ2VyIChMVk0pIHN1
-cHBvcnQnIENPTkZJR19CTEtfREVWX0xWTSAkQ09ORklHX01EDQogZGVwX21i
-b29sICcgICBMVk0gaW5mb3JtYXRpb24gaW4gcHJvYyBmaWxlc3lzdGVtJyBD
-T05GSUdfTFZNX1BST0NfRlMgJENPTkZJR19CTEtfREVWX0xWTQ0KLS0tIGxp
-bnV4L0RvY3VtZW50YXRpb24vQ29uZmlndXJlLmhlbHAub3JpZwlNb24gSmFu
-IDI5IDIzOjQzOjU1IDIwMDENCisrKyBsaW51eC9Eb2N1bWVudGF0aW9uL0Nv
-bmZpZ3VyZS5oZWxwCU1vbiBKYW4gMjkgMjM6NDQ6MDIgMjAwMQ0KQEAgLTE1
-NjUsMjAgKzE1NjUsNiBAQA0KIA0KICAgSWYgdW5zdXJlLCBzYXkgWS4NCiAN
-Ci1SQUlEIEJvb3Qgc3VwcG9ydA0KLUNPTkZJR19NRF9CT09UDQotICBUbyBi
-b290IHdpdGggYW4gaW5pdGlhbCByYWlkIHZvbHVtZSAoYW55IHR5cGUpIHlv
-dSBjYW4gc2VsZWN0DQotICBhdXRvZGV0ZWN0LCBvciBhbnN3ZXIgWSBoZXJl
-IGFuZCBhcHByb3ByaWF0ZSBvcHRpb25zIHRvIHRoZSBrZXJuZWwNCi0gIGF0
-IGJvb3QgdGltZS4NCi0gIEZvciBsaWxvIGFuZCBsb2FkbGluIG9wdGlvbnMg
-c2VlIHRoZSBmaWxlIERvY3VtZW50YXRpb24vbWQudHh0Lg0KLQ0KLVJBSUQg
-QXV0b0RldGVjdCBzdXBwb3J0DQotQ09ORklHX0FVVE9ERVRFQ1RfUkFJRA0K
-LSAgQW4gYWx0ZXJuYXRpdmUgdG8gIlJhaWQgQm9vdCBzdXBwb3J0IiBpcyBh
-dXRvZGV0ZWN0IHN1cHBvcnQuDQotICBXaXRoIHRoaXMgc2VsZWN0ZWQsIGFu
-eSBwYXJ0aXRvbnMgb2YgdHlwZSAweEZEIHdpbGwgYmUgY29uc2lkZXJlZCBm
-b3INCi0gIGluY2x1c2lvbiBpbiBhIFJBSUQgYXJyYXkuICBJbmZvcm1hdGlv
-biBpbiB0aGUgUkFJRC1zdXBlcmJsb2NrIG9uDQotICB0aGUgcGFydGl0aW9u
-IHdpbGwgZGV0ZXJtaW5lIGhvdyBpdCBpcyBpbmNsdWRlZC4NCi0NCiBTdXBw
-b3J0IGZvciBBY2VyIFBJQ0EgMSBjaGlwc2V0DQogQ09ORklHX0FDRVJfUElD
-QV82MQ0KICAgVGhpcyBpcyBhIG1hY2hpbmUgd2l0aCBhIFI0NDAwIDEzMy8x
-NTAgTUh6IENQVS4gVG8gY29tcGlsZSBhIExpbnV4DQotLS0gbGludXgvbW8u
-ZGVidWcub3JpZwlNb24gSmFuIDI5IDIzOjQ0OjI5IDIwMDENCisrKyBsaW51
-eC9tby5kZWJ1ZwlNb24gSmFuIDI5IDIzOjQ0OjI5IDIwMDENCkBAIC0wLDAg
-KzEgQEANCisgDQotLS0gbGludXgvbW8ub3JpZwlNb24gSmFuIDI5IDIzOjQ0
-OjI5IDIwMDENCisrKyBsaW51eC9tbwlNb24gSmFuIDI5IDIzOjQ0OjI5IDIw
-MDENCkBAIC0wLDAgKzEsMTAgQEANCisjIS9iaW4vYmFzaA0KKw0KKyh0aW1l
-IG1ha2UgLWoxMCBtb2R1bGVzIDI+JjEgfCB0ZWUgZSkNCitpZiBbICIkPyIg
-PSAiMCIgXTsgdGhlbg0KKwllY2hvIG5vIGNvbXBpbGF0aW9uIGVycm9ycyAu
-Li4NCisjc3UgLWMgLi9kDQorZWxzZQ0KKwllY2hvICdjb21waWxhdGlvbiBF
-UlJPUlMhJw0KK2ZpDQorY2F0IGUgPj4gLmUubG9nDQo=
----1345348566-78021221-980801627=:732--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

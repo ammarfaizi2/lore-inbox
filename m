@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262581AbTCIT2D>; Sun, 9 Mar 2003 14:28:03 -0500
+	id <S262584AbTCIT2C>; Sun, 9 Mar 2003 14:28:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262585AbTCIT1A>; Sun, 9 Mar 2003 14:27:00 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37394 "EHLO
+	id <S262586AbTCIT1Y>; Sun, 9 Mar 2003 14:27:24 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36114 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262581AbTCIT0T>; Sun, 9 Mar 2003 14:26:19 -0500
-Date: Sun, 9 Mar 2003 19:36:56 +0000
+	id <S262584AbTCIT0C>; Sun, 9 Mar 2003 14:26:02 -0500
+Date: Sun, 9 Mar 2003 19:36:39 +0000
 From: Russell King <rmk@arm.linux.org.uk>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Fwd: [PATCH] cpufreq (7/7): update documentation
-Message-ID: <20030309193656.H26266@flint.arm.linux.org.uk>
+Subject: Fwd: [PATCH] cpufreq (5/7): add support for ICH4-M chipset in speedstep driver
+Message-ID: <20030309193639.F26266@flint.arm.linux.org.uk>
 Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,75 +24,81 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 From: Dominik Brodowski <linux@brodo.de>
 To: torvalds@transmeta.com
 Cc: cpufreq@www.linux.org.uk
-Subject: [PATCH] cpufreq (7/7): update documentation
-Date: Fri, 7 Mar 2003 11:09:28 +0100
+Subject: [PATCH] cpufreq (5/7): add support for ICH4-M chipset in speedstep driver
+Date: Fri, 7 Mar 2003 11:09:16 +0100
 
-The sysfs directory where the cpufreq-related files are stored changed due
-to the new device interface code, so the documentation needs to be updated
-accordingly. Also, add some information about the reference counting and the
-exporting of sysfs files by the drivers.
+Intel ICH4-M soutbridges use exactly the same register interface for SpeedStep 
+as ICH2-M and ICH3-M southbridges -- which makes adding support for this 
+bridge (almost) trivial.
 
 Please apply,
+
 	Dominik
 
- core.txt        |    4 ++++
- cpu-drivers.txt |    3 +++
- user-guide.txt  |    8 ++++----
- 3 files changed, 11 insertions(+), 4 deletions(-)
+ speedstep.c |   16 +++++++++++++++-
+ 1 files changed, 15 insertions(+), 1 deletion(-)
 
-
-diff -ruN linux-original/Documentation/cpu-freq/core.txt linux/Documentation/cpu-freq/core.txt
---- linux-original/Documentation/cpu-freq/core.txt	2003-03-06 19:13:31.000000000 +0100
-+++ linux/Documentation/cpu-freq/core.txt	2003-03-06 22:05:27.000000000 +0100
-@@ -35,6 +35,10 @@
- kernel "constant" loops_per_jiffy is updated on frequency changes
- here.
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/speedstep.c linux/arch/i386/kernel/cpu/cpufreq/speedstep.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-03-06 21:56:18.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-03-06 21:57:07.000000000 +0100
+@@ -29,6 +29,9 @@
  
-+Reference counting is done by cpufreq_get_cpu and cpufreq_put_cpu,
-+which make sure that the cpufreq processor driver is correctly
-+registered with the core, and will not be unloaded until
-+cpufreq_put_cpu is called.
+ #include <asm/msr.h>
  
- 2. CPUFreq notifiers
- ====================
-diff -ruN linux-original/Documentation/cpu-freq/cpu-drivers.txt linux/Documentation/cpu-freq/cpu-drivers.txt
---- linux-original/Documentation/cpu-freq/cpu-drivers.txt	2003-03-06 19:13:31.000000000 +0100
-+++ linux/Documentation/cpu-freq/cpu-drivers.txt	2003-03-06 23:15:39.000000000 +0100
-@@ -63,6 +63,9 @@
++#ifndef PCI_DEVICE_ID_INTEL_82801DB_12
++#define PCI_DEVICE_ID_INTEL_82801DB_12  0x24cc
++#endif
  
- cpufreq_driver.exit -		A pointer to a per-CPU cleanup function.
+ /* speedstep_chipset:
+  *   It is necessary to know which chipset is used. As accesses to 
+@@ -40,7 +43,7 @@
  
-+cpufreq_driver.attr -		A pointer to a NULL-terminated list of
-+				"struct freq_attr" which allow to
-+				export values to sysfs.
+ #define SPEEDSTEP_CHIPSET_ICH2M         0x00000002
+ #define SPEEDSTEP_CHIPSET_ICH3M         0x00000003
+-
++#define SPEEDSTEP_CHIPSET_ICH4M         0x00000004
  
+ /* speedstep_processor
+  */
+@@ -106,6 +109,7 @@
+ 	switch (speedstep_chipset) {
+ 	case SPEEDSTEP_CHIPSET_ICH2M:
+ 	case SPEEDSTEP_CHIPSET_ICH3M:
++	case SPEEDSTEP_CHIPSET_ICH4M:
+ 		/* get PMBASE */
+ 		pci_read_config_dword(speedstep_chipset_dev, 0x40, &pmbase);
+ 		if (!(pmbase & 0x01))
+@@ -166,6 +170,7 @@
+ 	switch (speedstep_chipset) {
+ 	case SPEEDSTEP_CHIPSET_ICH2M:
+ 	case SPEEDSTEP_CHIPSET_ICH3M:
++	case SPEEDSTEP_CHIPSET_ICH4M:
+ 		/* get PMBASE */
+ 		pci_read_config_dword(speedstep_chipset_dev, 0x40, &pmbase);
+ 		if (!(pmbase & 0x01))
+@@ -245,6 +250,7 @@
+ 	switch (speedstep_chipset) {
+ 	case SPEEDSTEP_CHIPSET_ICH2M:
+ 	case SPEEDSTEP_CHIPSET_ICH3M:
++	case SPEEDSTEP_CHIPSET_ICH4M:
+ 	{
+ 		u16             value = 0;
  
- 1.2 Per-CPU Initialization
-diff -ruN linux-original/Documentation/cpu-freq/user-guide.txt linux/Documentation/cpu-freq/user-guide.txt
---- linux-original/Documentation/cpu-freq/user-guide.txt	2003-03-06 19:13:31.000000000 +0100
-+++ linux/Documentation/cpu-freq/user-guide.txt	2003-03-06 22:08:21.000000000 +0100
-@@ -114,9 +114,9 @@
- ------------------------------
- 
- The preferred interface is located in the sysfs filesystem. If you
--mounted it at /sys, the cpufreq interface is located in the 
--cpu-device directory (e.g. /sys/devices/sys/cpu0/ for the first
--CPU).
-+mounted it at /sys, the cpufreq interface is located in a subdirectory
-+"cpufreq" within the cpu-device directory
-+(e.g. /sys/devices/sys/cpu0/cpufreq/ for the first CPU).
- 
- cpuinfo_min_freq :		this file shows the minimum operating
- 				frequency the processor can run at(in kHz) 
-@@ -125,7 +125,7 @@
- scaling_driver :		this file shows what cpufreq driver is
- 				used to set the frequency on this CPU
- 
--available_scaling_governors :	this file shows the CPUfreq governors
-+scaling_available_governors :	this file shows the CPUfreq governors
- 				available in this kernel. You can see the
- 				currently activated governor in
- 
+@@ -277,6 +283,14 @@
+ static unsigned int speedstep_detect_chipset (void)
+ {
+ 	speedstep_chipset_dev = pci_find_subsys(PCI_VENDOR_ID_INTEL,
++			      PCI_DEVICE_ID_INTEL_82801DB_12, 
++			      PCI_ANY_ID,
++			      PCI_ANY_ID,
++			      NULL);
++	if (speedstep_chipset_dev)
++		return SPEEDSTEP_CHIPSET_ICH4M;
++
++	speedstep_chipset_dev = pci_find_subsys(PCI_VENDOR_ID_INTEL,
+ 			      PCI_DEVICE_ID_INTEL_82801CA_12, 
+ 			      PCI_ANY_ID,
+ 			      PCI_ANY_ID,
 
 _______________________________________________
 Cpufreq mailing list

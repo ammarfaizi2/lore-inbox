@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270774AbRH1Lm5>; Tue, 28 Aug 2001 07:42:57 -0400
+	id <S270779AbRH1Lrr>; Tue, 28 Aug 2001 07:47:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270783AbRH1Lmr>; Tue, 28 Aug 2001 07:42:47 -0400
-Received: from fe100.worldonline.dk ([212.54.64.211]:40453 "HELO
-	fe100.worldonline.dk") by vger.kernel.org with SMTP
-	id <S270774AbRH1Lmf>; Tue, 28 Aug 2001 07:42:35 -0400
-Date: Tue, 28 Aug 2001 13:45:45 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Christoph Rohland <cr@sap.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch] zero-bounce block highmem I/O, #13
-Message-ID: <20010828134545.N642@suse.de>
-In-Reply-To: <20010827123700.B1092@suse.de> <m3itf85vlr.fsf@linux.local> <20010828125520.L642@suse.de> <m3elpw5smc.fsf@linux.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3elpw5smc.fsf@linux.local>
+	id <S270784AbRH1Lrh>; Tue, 28 Aug 2001 07:47:37 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:36791 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S270779AbRH1Lrd>; Tue, 28 Aug 2001 07:47:33 -0400
+Date: Tue, 28 Aug 2001 12:27:55 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: find_get_swapcache_page() question
+In-Reply-To: <Pine.LNX.4.21.0108272123380.7385-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0108281154030.1015-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 28 2001, Christoph Rohland wrote:
-> Hi Jens,
+On Mon, 27 Aug 2001, Marcelo Tosatti wrote:
 > 
-> On Tue, 28 Aug 2001, Jens Axboe wrote:
-> > On Tue, Aug 28 2001, Christoph Rohland wrote:
-> >> Hi Jens,
-> >> 
-> >> I tested both #11 and #13 on my 8GB machine with sym53c8xx. The
-> >> initialization of a SAP DB database takes 20 minutes with 2.4.9 and
-> >> with 2.4.9+b13 it took nearly 2.5 hours :-(
-> > 
-> > DaveM hinted that it's probably the bounce test failing, so it's
-> > bouncing all the time. That would explain the much worse
-> > performance.  Could you try with this incremental patch on top of
-> > b13 for 2.4.9? I still want to see the boot detection info, btw.
-> 
-> Apparently it did not help. See attachments: vmstat was 'vmstat
-> 5'. The b13 output is only the end. The b13-1 is still running but the
-> blockout rate is again low. So I do not wait another 2 hours...
+> Looking at find_get_swapcache_page(), I can't see _how_ we can find a
+> page on the swapper pagecache table that is not a swapcache page.
 
-Nope fine, no need to wait :-)
+I had a look at this a couple of weeks back.  If I remember rightly,
+the page found by __find_page_nolock() cannot be other than a swapcache
+page, and will always have PageSwapCache bit set... until pagecache_lock
+is dropped on return to its only caller lookup_swap_cache().  In which the 
+		if (!PageSwapCache(found))
+			BUG();
+		if (found->mapping != &swapper_space)
+			BUG();
+are not safe, since there may a concurrent remove_from_swap_cache(),
+either from try_to_unuse() or from Rik's new vm_swap_full() deletion.
+Those tests would be safe if the page were locked, but it's not.
 
-The -2 patch I sent should fix it, performance looks good here (just a
-5min test run to verify).
+I say find_get_swapcache_page() serves no purpose, should be deleted,
+and find_get_page() used instead.  That was one of various things in
+the swapoff patch I posted to linux-mm on 16 Aug, which I need to
+finish off, cut into pieces and submit to Linus.
 
-What happened was that we would fall back to single segment requests all
-the time. A real performance killer for SCSI.
-
--- 
-Jens Axboe
+Hugh
 

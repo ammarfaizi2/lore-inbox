@@ -1,56 +1,91 @@
 Return-Path: <linux-kernel-owner+ralf=40uni-koblenz.de@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S313181AbSEMMNk>; Mon, 13 May 2002 08:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S313182AbSEMMNj>; Mon, 13 May 2002 08:13:39 -0400
-Received: from [63.97.180.122] ([63.97.180.122]:28085 "EHLO acsints11.acsonline.com") by vger.kernel.org with ESMTP id <S313181AbSEMMNi>; Mon, 13 May 2002 08:13:38 -0400
-Date: Mon, 13 May 2002 07:12:13 -0500 (CDT)
-From: 310017912650-0001@t-dialin.net
-Message-Id: <200205131212.HAA19764@acsints11.acsonline.com>
-To: unlisted-recipients:; (no To-header on input)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S316628AbSEQRmE>; Fri, 17 May 2002 13:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S316629AbSEQRmD>; Fri, 17 May 2002 13:42:03 -0400
+Received: from [216.52.69.50] ([216.52.69.50]:51465 "EHLO btex01.btol.com") by vger.kernel.org with ESMTP id <S316628AbSEQRmC>; Fri, 17 May 2002 13:42:02 -0400
+Message-ID: <6BE463028E20174B923AA5F7B266BC3701F577B0@btex01.btol.com>
+From: "GroupShield for Exchange (BTEX01)" <NAISomervilleBTEX01@btol.com>
+To: "'linux-kernel'" <linux-kernel@vger.kernel.org>, Electser <electser@btol.com>
+Subject: ALERT -  GroupShield ticket number OA66_1021657306_BTEX01_3 was g enerated
+Date: Fri, 17 May 2002 13:41:53 -0400
+X-MS-TNEF-Correlator: <6BE463028E20174B923AA5F7B266BC3701F577B0@btex01.btol.com>
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: multipart/mixed; boundary="----_=_NextPart_000_01C1FDCA.219C0A20"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-,ImCrðM:úÁacsints10.acsonline.com63.97.180.116<linux-kernel-owner+brian.fiegel=40acs-inc.com@vger.kernel.org>c=us;a= ;p=acs;l=DALEXU010205130632KQK26KSGjCS;o men    <brian.fiegel@acs-inc.com>rfc822;brian.fiegel@acs-inc.comly@vqeEwLsReceived: from acsints10.acsonline.com (63.97.180.116 [63.97.180.116]) by dalexu01.exchange.acsad.acs-inc.com with SMTP (Microsoft Exchange Internet Mail Service Version 5.5.2653.13)
-	id KQK26KSG; Mon, 13 May 2002 01:32:45 -0500
-Received: from vger.kernel.org (vger.kernel.org [209.116.70.75])
-	by acsints10.acsonline.com (8.10.2+Sun/8.10.2) with ESMTP id g4D6XxY17591
-	for <brian.fiegel@acs-inc.com>; Mon, 13 May 2002 01:33:59 -0500 (CDT)
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315851AbSEMGcI>; Mon, 13 May 2002 02:32:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315855AbSEMGcH>; Mon, 13 May 2002 02:32:07 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:60642 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S315851AbSEMGcG>; Mon, 13 May 2002 02:32:06 -0400
-Received: from fwd06.sul.t-online.de 
-	by mailout02.sul.t-online.com with smtp 
-	id 1779HG-00068F-0D; Mon, 13 May 2002 08:25:46 +0200
-Received: from there (310017912650-0001@[217.0.226.242]) by fwd06.sul.t-online.com
-	with smtp id 1779HB-01zk0WC; Mon, 13 May 2002 08:25:41 +0200
-Content-Type: 	text/plain; charset=US-ASCII
-From: oliver.kowalke@t-online.de (Oliver Kowalke)
-To: linux-kernel@vger.kernel.org
-Subject: error : preempt_count 1
-Date: 	Mon, 13 May 2002 08:25:41 +0200
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <1779HB-01zk0WC@fwd06.sul.t-online.com>
-X-Sender: 310017912650-0001@t-dialin.net
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: 	linux-kernel@vger.kernel.org
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-Hello,
+------_=_NextPart_000_01C1FDCA.219C0A20
+Content-Type: text/plain
 
-after shutdown (kernel 2.5.15) I've got :
+Action Taken:
+The attachment was quarantined from the message and replaced with a text
+file informing the recipient of the action taken.
 
-erro: halt[8635] exited with preempt_count 1
+To:
+electser@btol.com <electser@btol.com>
 
-What does it mean?
-so long,
-Oliver
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+From:
+linux-kernel <linux-kernel@vger.kernel.org>
+
+Sent:
+481694336,29490634
+
+Subject:
+CELLPADDING
+
+Attachment Details:-
+
+Attachment Name: SIZE.scr
+File: SIZE.scr
+Infected? No
+Repaired? No
+Blocked? Yes
+Deleted? No
+Virus Name: 
+
+
+
+	
+
+------_=_NextPart_000_01C1FDCA.219C0A20
+Content-Type: application/ms-tnef
+Content-Transfer-Encoding: base64
+
+eJ8+IjYRAQaQCAAEAAAAAAABAAEAAQeQBgAIAAAA5AQAAAAAAADoAAEIgAcAGQAAAElQTS5BbnRp
+LVZpcnVzLlJlcG9ydC40NQAnCAEFgAMADgAAANIHBQARAA0AKQA1AAUAXwEBIIADAA4AAADSBwUA
+EQANACkANQAFAF8BAQmAAQAhAAAAQjI3MzM4OTY4MjM1QzI0REE3RTE1QjJDREZFRkQzNkYAWQcB
+BIABAEoAAABBTEVSVCAtICBHcm91cFNoaWVsZCB0aWNrZXQgbnVtYmVyIE9BNjZfMTAyMTY1NzMw
+Nl9CVEVYMDFfMyB3YXMgZ2VuZXJhdGVkAPEWAQ2ABAACAAAAAgACAAEDkAYAMAYAAB8AAABAADkA
+IAqcIcr9wQEDAPE/CQQAAB4AMUABAAAAFAAAAE5BSVNPTUVSVklMTEVCVEVYMDEAAwAaQAAAAAAe
+ADBAAQAAABQAAABOQUlTT01FUlZJTExFQlRFWDAxAAMAGUAAAAAAAgEJEAEAAAC2AQAAsgEAAPAC
+AABMWkZ1JpZ0B4cACgENA0N0ZXh0Aff/AqQD5AXrAoMAUALzBrQCgyYyA8UCAGNoCsBzZdh0MCAH
+EwKAfQqACM9/CdkCgAqECzcSwgHQE+BjhHRpAiAgVGFrCfAGOgqjCoBUaGUgYRsCQADQaAeAAjAg
+d2G5BCBxdQrAAHAX8G4JgDIgA1IgdBkhB4FzYbpnGTFuGuAVQAtRYxrR/wPwG1AZQBtADwEa8AMQ
+GTDTC4ACEHJtC4BnG0MVQM5jBSAIkBnRb2YbQwDQtxfzAZAYYS4YpRimbxiWDmUdwBfgE6ByQGJ0
+rQbwLgWgGzA8Ij8+ILwWRgNhGJZsC4B1eC2fGGAEoCNgI0AmKkB2G+DUci4mhC4FsGckfQZgAwIw
+GJY0ODE2OTQgMzM2LDIqsDkwiDYzNCjddWJqIlEBGJZDRUxMUEFEUERJTkcgvEEZaETDE7ALcGxz
+Oi0uHxmGFE5hB4A6BgBJWkXeLgTxJPYdsTIPSR4AIlHVCYA/B7BvGKVSHGALcGsVQTTpQhTQYxhg
+NNFZXweQGKUvoB3ANLxWNdB1nwehMdMgvDpNAZEgfTvwAAADAP0/5AQAAB4AcAABAAAASgAAAEFM
+RVJUIC0gIEdyb3VwU2hpZWxkIHRpY2tldCBudW1iZXIgT0E2Nl8xMDIxNjU3MzA2X0JURVgwMV8z
+IHdhcyBnZW5lcmF0ZWQAAAACAXEAAQAAABYAAAABwf3KIZ4KEN3kKNlB/r8wA2sUJHFnAAACAUcA
+AQAAADQAAABjPVVTO2E9IDtwPUJha2VyVGF5bG9yIDtsPUJURVgwMS0wMjA1MTcxNzQxNTNaLTU4
+MjMAAgH5PwEAAABnAAAAAAAAANynQMjAQhAatLkIACsv4YIBAAAAAAAAAC9PPUJBS0VSICYgVEFZ
+TE9SLCBJTkMuL09VPVNPTUVSVklMTEUvQ049UkVDSVBJRU5UUy9DTj1OQUlTT01FUlZJTExFQlRF
+WDAxAAAeAPg/AQAAAB4AAABHcm91cFNoaWVsZCBFeGNoYW5nZSAoQlRFWDAxKQAAAB4AOEABAAAA
+FAAAAE5BSVNPTUVSVklMTEVCVEVYMDEAAgH7PwEAAABnAAAAAAAAANynQMjAQhAatLkIACsv4YIB
+AAAAAAAAAC9PPUJBS0VSICYgVEFZTE9SLCBJTkMuL09VPVNPTUVSVklMTEUvQ049UkVDSVBJRU5U
+Uy9DTj1OQUlTT01FUlZJTExFQlRFWDAxAAAeAPo/AQAAACIAAABHcm91cFNoaWVsZCBmb3IgRXhj
+aGFuZ2UgKEJURVgwMSkAAAAeADlAAQAAABQAAABOQUlTT01FUlZJTExFQlRFWDAxAEAABzC4Ypch
+yv3BAUAACDDi16whyv3BAR4APQABAAAAAQAAAAAAAAAeAB0OAQAAAEoAAABBTEVSVCAtICBHcm91
+cFNoaWVsZCB0aWNrZXQgbnVtYmVyIE9BNjZfMTAyMTY1NzMwNl9CVEVYMDFfMyB3YXMgZ2VuZXJh
+dGVkAAAAHgA1EAEAAAA7AAAAPDZCRTQ2MzAyOEUyMDE3NEI5MjNBQTVGN0IyNjZCQzM3MDFGNTc3
+QjBAYnRleDAxLmJ0b2wuY29tPgAAAwA2AAAAAAALACkAAAAAAAsAIwAAAAAAAwAGEDc+PIcDAAcQ
+VgEAAAMAEBAAAAAAAwAREAAAAAAeAAgQAQAAAGUAAABBQ1RJT05UQUtFTjpUSEVBVFRBQ0hNRU5U
+V0FTUVVBUkFOVElORURGUk9NVEhFTUVTU0FHRUFORFJFUExBQ0VEV0lUSEFURVhURklMRUlORk9S
+TUlOR1RIRVJFQ0lQSUVOVE9GAAAAAAIBfwABAAAAOwAAADw2QkU0NjMwMjhFMjAxNzRCOTIzQUE1
+RjdCMjY2QkMzNzAxRjU3N0IwQGJ0ZXgwMS5idG9sLmNvbT4AAAqQ
+
+------_=_NextPart_000_01C1FDCA.219C0A20--

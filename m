@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278702AbRJTAaH>; Fri, 19 Oct 2001 20:30:07 -0400
+	id <S278701AbRJTA0h>; Fri, 19 Oct 2001 20:26:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278703AbRJTA35>; Fri, 19 Oct 2001 20:29:57 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:40265 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S278702AbRJTA3n>; Fri, 19 Oct 2001 20:29:43 -0400
-Message-ID: <3BD0C4FE.9010805@blue-labs.org>
-Date: Fri, 19 Oct 2001 20:27:42 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011016
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Ken Brownfield <brownfld@irridia.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [compile bug] 2.4.13-pre4 | i2o_pci.c:165 structure has no member named `pdev'
-In-Reply-To: <3BCF44C2.5030504@blue-labs.org> <20011019185603.A13465@asooo.flowerfire.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S278702AbRJTA01>; Fri, 19 Oct 2001 20:26:27 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.247.199]:19986 "EHLO paip.net")
+	by vger.kernel.org with ESMTP id <S278701AbRJTA0V>;
+	Fri, 19 Oct 2001 20:26:21 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: Is writing to /dev/ramdom a security flaw (vserver project)
+Date: 20 Oct 2001 00:26:45 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <9qqgc5$4ht$1@abraham.cs.berkeley.edu>
+In-Reply-To: <20011019172309.4219c22e9a53@remtk.solucorp.qc.ca>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1003537605 4669 128.32.45.153 (20 Oct 2001 00:26:45 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 20 Oct 2001 00:26:45 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to a few posts the last few days, it's part of an incomplete 
-merge betwixt -ac and linus.  I assume it will get completed shortly.
+Jacques Gelinas  wrote:
+>Is this a security issue if an administrator of a vserver is allowed to write
+>in /dev/random ?
 
-David
-
-Ken Brownfield wrote:
-
->It looks like this has been an issue since -pre1 -- we've seen this too
->with i2o as a module.  Between .11 and the parport issue with .12, it's
->certainly been interesting recently. :)
->
->Anyone have any news on this?  Sorry if I've missed it.
->
->Thanks much,
->
-
-
+If you're talking about write(2), it should be safe, since the entropy
+count is not affected.  If you're talking about doing an ioctl(2) on
+/dev/random, this is risky (since root can modify the entropy counter),
+but it looks like all those code paths are protected by a capability
+check, so my guess is that you're probably ok this, too.

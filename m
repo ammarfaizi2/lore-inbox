@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287115AbSABWpY>; Wed, 2 Jan 2002 17:45:24 -0500
+	id <S287116AbSABWoy>; Wed, 2 Jan 2002 17:44:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287131AbSABWpP>; Wed, 2 Jan 2002 17:45:15 -0500
-Received: from t2.redhat.com ([199.183.24.243]:51443 "EHLO dot.cygnus.com")
-	by vger.kernel.org with ESMTP id <S287115AbSABWpA>;
-	Wed, 2 Jan 2002 17:45:00 -0500
-Date: Wed, 2 Jan 2002 14:44:35 -0800
-From: Richard Henderson <rth@redhat.com>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020102144435.A10500@redhat.com>
-Mail-Followup-To: Richard Henderson <rth@redhat.com>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-	gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-	Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-	Paul Mackerras <paulus@samba.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Corey Minyard <minyard@acm.org>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102133632.C10362@redhat.com> <20020102220548.GL1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102142712.B10474@redhat.com> <20020102223557.GM1803@cpe-24-221-152-185.az.sprintbbd.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020102223557.GM1803@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Wed, Jan 02, 2002 at 03:35:57PM -0700
+	id <S287101AbSABWoo>; Wed, 2 Jan 2002 17:44:44 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:19984 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S287116AbSABWog>; Wed, 2 Jan 2002 17:44:36 -0500
+Date: Wed, 2 Jan 2002 14:48:13 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Peter Osterlund <petero2@telia.com>
+cc: lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] scheduler fixups ...
+In-Reply-To: <m28zbgpeqf.fsf@pengo.localdomain>
+Message-ID: <Pine.LNX.4.40.0201021438500.1034-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 03:35:57PM -0700, Tom Rini wrote:
-> That's not really an option.
+On 2 Jan 2002, Peter Osterlund wrote:
 
-Oh come on.  It shouldn't take very much code at all to properly
-relocate the binary.  You can use either -fpic or -mrelocatable
-to get hold of the set of addresses in question.
+> Davide Libenzi <davidel@xmailserver.org> writes:
+>
+> > a still lower ts
+>
+> This also lowers the effectiveness of nice values. In 2.5.2-pre6, if I
+> run two cpu hogs at nice values 0 and 19 respectively, the niced task
+> will get approximately 20% cpu time (on x86 with HZ=100) and this
+> patch will give even more cpu time to the niced task. Isn't 20% too
+> much?
+
+The problem is that with HZ == 100 you don't have enough granularity to
+correctly scale down nice time slices. Shorter time slices helps the
+interactive feel that's why i'm pushing for this. Anyway i'm currently
+running experiments with 30-40ms time slices. Another thing to remember is
+that cpu hog processes will sit at dyn_prio 0 while processes like for
+example gcc during a kernel build will range between 5-8 to 36 and in this
+case their ts is actually doubled by the fact that they can require
+another extra ts. For all processes that does not sit at dyn_prio 0 ( 90%
+) the nice tasks cpu time is going to be half.
 
 
-r~
+
+
+- Davide
+
+

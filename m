@@ -1,194 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbTEVPrl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 11:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTEVPrl
+	id S262423AbTEVPsy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 11:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbTEVPsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 11:47:41 -0400
-Received: from holomorphy.com ([66.224.33.161]:35212 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262319AbTEVPre (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 11:47:34 -0400
-Date: Thu, 22 May 2003 09:00:29 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: jsimmons@infradead.org
-Cc: linux-kernel@vger.kernel.org
-Subject: keyboard.c/kd.h field width fixes
-Message-ID: <20030522160029.GS29926@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	jsimmons@infradead.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Thu, 22 May 2003 11:48:54 -0400
+Received: from pcp02462394pcs.chrchv01.md.comcast.net ([68.33.20.149]:54535
+	"EHLO mail.jettisonnetworks.com") by vger.kernel.org with ESMTP
+	id S262423AbTEVPsu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 11:48:50 -0400
+From: "David Lewis" <dlewis@vnxsolutions.com>
+To: "Marc-Christian Petersen" <m.c.p@wolk-project.de>,
+       <linux-kernel@vger.kernel.org>
+Cc: "Erin Britz" <ebritz@vnxsolutions.com>
+Subject: RE: [OOPS] kswapd 2.4.20
+Date: Thu, 22 May 2003 12:01:40 -0400
+Message-ID: <EMEOIBCHEHCPNABJGHGOOEKPCNAA.dlewis@vnxsolutions.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <200305221027.00184.m.c.p@wolk-project.de>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These guys get massive numbers of warnings about comparisons always true
-or false due to limited ranges of data types. This appears to kill off
-the warnings.
+Hiya Marc,
+
+Thanks for the pointers to the new VM systems. I changed the kernel over to
+2.4.21-rc2-ac2 (has rmap in it, right?) and I am rerunning my tests to see
+if that solves the problem.
+
+I agree with Andrea about bugs.. I certainly accept them as a necessary
+evil. I tend to get frustrated when faced with something that I dont have
+the skill to solve myself however. Especially so when I cant seem to get
+pointed in the right direction by anyone. :)
+
+Thanks again for your suggestion, and I will let you know if it works out!
+
+David Lewis
+Senior Security Engineer
+VNX Solutions, Inc <http://www.vnxsolutions.com>
+dlewis@vnxsolutions.com <mailto:dlewis@vnxsolutions.com>
+410-459-7428 Cell
 
 
--- wli
 
-diff -prauN mm8-2.5.69-1/drivers/char/keyboard.c mm8-2.5.69-2/drivers/char/keyboard.c
---- mm8-2.5.69-1/drivers/char/keyboard.c	2003-05-22 04:54:50.000000000 -0700
-+++ mm8-2.5.69-2/drivers/char/keyboard.c	2003-05-22 08:02:02.000000000 -0700
-@@ -76,7 +76,7 @@ void compute_shiftstate(void);
- 	k_meta,		k_ascii,	k_lock,		k_lowercase,\
- 	k_slock,	k_dead2,	k_ignore,	k_ignore
- 
--typedef void (k_handler_fn)(struct vc_data *vc, unsigned char value, 
-+typedef void (k_handler_fn)(struct vc_data *vc, unsigned short value, 
- 			    char up_flag, struct pt_regs *regs);
- static k_handler_fn K_HANDLERS;
- static k_handler_fn *k_handler[16] = { K_HANDLERS };
-@@ -589,11 +589,11 @@ static void fn_null(struct vc_data *vc, 
- /*
-  * Special key handlers
-  */
--static void k_ignore(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_ignore(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- }
- 
--static void k_spec(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_spec(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	if (up_flag)
- 		return;
-@@ -606,12 +606,12 @@ static void k_spec(struct vc_data *vc, u
- 	fn_handler[value](vc, regs);
- }
- 
--static void k_lowercase(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_lowercase(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	printk(KERN_ERR "keyboard.c: k_lowercase was called - impossible\n");
- }
- 
--static void k_self(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_self(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	if (up_flag)
- 		return;		/* no action, if this is a key release */
-@@ -632,7 +632,7 @@ static void k_self(struct vc_data *vc, u
-  * dead keys modifying the same character. Very useful
-  * for Vietnamese.
-  */
--static void k_dead2(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_dead2(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	if (up_flag)
- 		return;
-@@ -642,21 +642,21 @@ static void k_dead2(struct vc_data *vc, 
- /*
-  * Obsolete - for backwards compatibility only
-  */
--static void k_dead(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_dead(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	static unsigned char ret_diacr[NR_DEAD] = {'`', '\'', '^', '~', '"', ',' };
- 	value = ret_diacr[value];
- 	k_dead2(vc, value, up_flag, regs);
- }
- 
--static void k_cons(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_cons(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	if (up_flag)
- 		return;
- 	set_console(value);
- }
- 
--static void k_fn(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_fn(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	if (up_flag)
- 		return;
-@@ -667,7 +667,7 @@ static void k_fn(struct vc_data *vc, uns
- 		printk(KERN_ERR "k_fn called with value=%d\n", value);
- }
- 
--static void k_cur(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_cur(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	static const char *cur_chars = "BDCA";
- 
-@@ -676,7 +676,7 @@ static void k_cur(struct vc_data *vc, un
- 	applkey(vc, cur_chars[value], vc_kbd_mode(kbd, VC_CKMODE));
- }
- 
--static void k_pad(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_pad(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	static const char *pad_chars = "0123456789+-*/\015,.?()#";
- 	static const char *app_map = "pqrstuvwxylSRQMnnmPQS";
-@@ -733,7 +733,7 @@ static void k_pad(struct vc_data *vc, un
- 		put_queue(vc, 10);
- }
- 
--static void k_shift(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_shift(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	int old_state = shift_state;
- 
-@@ -774,7 +774,7 @@ static void k_shift(struct vc_data *vc, 
- 	}
- }
- 
--static void k_meta(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_meta(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	if (up_flag)
- 		return;
-@@ -786,7 +786,7 @@ static void k_meta(struct vc_data *vc, u
- 		put_queue(vc, value | 0x80);
- }
- 
--static void k_ascii(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_ascii(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	int base;
- 
-@@ -808,14 +808,14 @@ static void k_ascii(struct vc_data *vc, 
- 		npadch = npadch * base + value;
- }
- 
--static void k_lock(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_lock(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	if (up_flag || rep)
- 		return;
- 	chg_vc_kbd_lock(kbd, value);
- }
- 
--static void k_slock(struct vc_data *vc, unsigned char value, char up_flag, struct pt_regs *regs)
-+static void k_slock(struct vc_data *vc, unsigned short value, char up_flag, struct pt_regs *regs)
- {
- 	k_shift(vc, value, up_flag, regs);
- 	if (up_flag || rep)
-diff -prauN mm8-2.5.69-1/include/linux/kd.h mm8-2.5.69-2/include/linux/kd.h
---- mm8-2.5.69-1/include/linux/kd.h	2003-05-04 16:53:37.000000000 -0700
-+++ mm8-2.5.69-2/include/linux/kd.h	2003-05-22 07:57:24.000000000 -0700
-@@ -95,8 +95,8 @@ struct unimapinit {
- #define	KDSKBLED	0x4B65	/* set led flags (not lights) */
- 
- struct kbentry {
--	unsigned char kb_table;
--	unsigned char kb_index;
-+	unsigned short kb_table;
-+	unsigned short kb_index;
- 	unsigned short kb_value;
- };
- #define		K_NORMTAB	0x00
-@@ -108,7 +108,7 @@ struct kbentry {
- #define KDSKBENT	0x4B47	/* sets one entry in translation table */
- 
- struct kbsentry {
--	unsigned char kb_func;
-+	unsigned short kb_func;
- 	unsigned char kb_string[512];
- };
- #define KDGKBSENT	0x4B48	/* gets one function key string entry */
+-----Original Message-----
+From: Marc-Christian Petersen [mailto:m.c.p@wolk-project.de]
+Sent: Thursday, May 22, 2003 4:41 AM
+To: David Lewis; linux-kernel@vger.kernel.org
+Cc: Erin Britz
+Subject: Re: [OOPS] kswapd 2.4.20
+
+
+On Wednesday 21 May 2003 16:45, David Lewis wrote:
+
+Hi David,
+
+> Fourth one sent to list.. Please advise if any other information is
+needed.
+> A reply would be appreciated even if it is to say that this is the wrong
+> place.
+> May 21 03:23:50 nicebox kernel: Unable to handle kernel paging request at
+> virtual address 938a909e
+> May 21 03:23:50 nicebox kernel: Process kswapd (pid: 5,
+stackpage=df6d5000)
+I really don't know how often I've seen this in recent 2.4 kernels
+(.17,.18,.19,.20 (mainstream) and so on).
+
+For me, I use the rmap VM. The problem is eliminated in that tree. Also the
+-aa VM does not have that problem.
+
+I am pretty sure Andrea sent a fix for this issue more than once a while ago
+to the list cc'ed Marcelo (correct me if I am wrong), but to quote Andrea:
+"We are here to fix bugs. If bug fixes are not accepted we can stop right
+here
+to fix bugs".
+
+ciao, Marc
+
+

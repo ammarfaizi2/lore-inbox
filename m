@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129350AbRB0At0>; Mon, 26 Feb 2001 19:49:26 -0500
+	id <S129364AbRB0Av4>; Mon, 26 Feb 2001 19:51:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129354AbRB0AtQ>; Mon, 26 Feb 2001 19:49:16 -0500
-Received: from itaipu.nitnet.com.br ([200.255.111.241]:784 "HELO
-	itaipu.nitnet.com.br") by vger.kernel.org with SMTP
-	id <S129350AbRB0AtE>; Mon, 26 Feb 2001 19:49:04 -0500
-Date: Mon, 26 Feb 2001 21:49:00 -0300
-To: linux-kernel@vger.kernel.org
-Subject: CPU name for "pure" i386 missing
-Message-ID: <20010226214900.A11142@flower.cesarb>
-Mime-Version: 1.0
+	id <S129372AbRB0Avq>; Mon, 26 Feb 2001 19:51:46 -0500
+Received: from k2.llnl.gov ([134.9.1.1]:33015 "EHLO k2.llnl.gov")
+	by vger.kernel.org with ESMTP id <S129364AbRB0Avf>;
+	Mon, 26 Feb 2001 19:51:35 -0500
+Message-ID: <3A9AF9E7.D0924A4C@scs.ch>
+Date: Mon, 26 Feb 2001 16:50:47 -0800
+From: Reto Baettig <baettig@scs.ch>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mingo@elte.hu
+CC: MM Linux <linux-mm@kvack.org>, Kernel Linux <linux-kernel@vger.kernel.org>,
+        Martin Frey <frey@scs.ch>
+Subject: Re: RFC: vmalloc improvements
+In-Reply-To: <Pine.LNX.4.30.0102240129200.5327-100000@elte.hu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-From: Cesar Eduardo Barros <cesarb@nitnet.com.br>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> question: what is this application, and why does it need so much virtual
+> memory? vmalloc()-able memory is maximized to 128 MB right now, and
+> increasing it conflicts with directly mapping RAM, so generally it's a
+> good idea to avoid vmalloc() as much as possible.
 
-Looks like every time the CPU detection code is rewritten, the printing of the
-CPU name for "pure" (i.e. "original") 386s suffer. Last time, the "\n" after
-the "CPU: 386" line was missing.
+We implemented a RPC mechanism over a fast network in the kernel. The
+end application is a distributed filesystem. The RPC server needs lots
+of 2MB receive buffers which are allocated using vmalloc because the NIC
+has its own pagetables.
+The buffers then get handed to the consumer (lots of threads) which
+eventually frees them. This way, we have a performance on the RPC layer
+of 200MBytes/s.
 
-This time it's worse. It's tripping the "unknown CPU" code path:
+The 128MB limit is probably an Intel limitation since we don't see it on
+our Alpha Machines (Linux 2.2.18 Alpha SMP)
 
-CPU: Before vendor init, caps: 00000000 00000000 00000000, vendor = 255
-[...]
-CPU: ff/00
-
-and looking at /proc/cpuinfo:
-
-processor       : 0
-vendor_id       : unknown
-cpu family      : 3
-model           : 0
-model name      : ff/00
-stepping        : unknown
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : no
-fpu_exception   : no
-cpuid level     : -1
-wp              : no
-flags           :
-bogomips        : 3.62
-
-
-Shouldn't the code be supposed to figure that, since there is no cpuid, it
-should be a 386 or an early 486?
-
-I think that table_lookup_model in arch/i386/kernel/setup.c should code a
-vendor of 255 as a special case and return "386" or something like that instead
-of bailing out. If everybody agrees, I'll make a patch for Linus.
-
--- 
-Cesar Eduardo Barros
-cesarb@nitnet.com.br
-cesarb@dcc.ufrj.br
+Reto

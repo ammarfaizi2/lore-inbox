@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262760AbTJPIta (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 04:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262777AbTJPIt3
+	id S262759AbTJPIsI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 04:48:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbTJPIsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 04:49:29 -0400
-Received: from mail.actcom.co.il ([192.114.47.15]:56276 "EHLO
-	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S262760AbTJPItO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 04:49:14 -0400
-Date: Thu, 16 Oct 2003 10:44:05 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [PCM OSS] via82xx soundcard Oops
-Message-ID: <20031016084404.GR5017@actcom.co.il>
-References: <20031016083103.GA25472@outpost.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tqN4RWvJTb9VNux/"
+	Thu, 16 Oct 2003 04:48:07 -0400
+Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:6069 "EHLO
+	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S262759AbTJPIsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 04:48:04 -0400
+Message-ID: <20031016084759.13936.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <20031016083103.GA25472@outpost.ds9a.nl>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "drn ayngl" <dzt@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 16 Oct 2003 16:47:59 +0800
+Subject: concentration of string literals with _FUNCTION_ is depreciated
+X-Originating-Ip: 65.30.202.235
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---tqN4RWvJTb9VNux/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Oct 16, 2003 at 10:31:03AM +0200, bert hubert wrote:
-
-> Via82xx soundcard, on running wavesurfer
-> (http://www.speech.kth.se/wavesurfer/download.html - excellent), I often =
-get
-> an oops in snd_pcm_format_set_silence, especially with short segments of
-> sound:
-
-Fixed in ALSA CVS and in Linus's bitkeeper tree. Will show up in
--test8.=20
-
-Cheers,=20
-Muli=20
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
+using gcc while compiling  for modules i am getting   
+ 
+errors such as; 
+ 
+concentration of string literals with _FUNCTION_ is depreciated 
+ 
+setup_string is defined but no used 
+ 
+warning : implicit declaration of ... 
+ 
+warning : duplicate const... 
+ 
+what are these messages related to? 
+what might be causing them? 
+ 
+thanks 
+-- 
+______________________________________________
+Check out the latest SMS services @ http://www.linuxmail.org 
+This allows you to send and receive SMS through your mailbox.
 
 
---tqN4RWvJTb9VNux/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/jlpUKRs727/VN8sRAoptAJ9MT3bLWHTJpOaVb/IeGGzByJbIEQCgrsNd
-0dNayyHa7Nsq1OBFPB/GE+o=
-=vB93
------END PGP SIGNATURE-----
-
---tqN4RWvJTb9VNux/--
+Powered by Outblaze

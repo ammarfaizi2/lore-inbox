@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286978AbSABM0L>; Wed, 2 Jan 2002 07:26:11 -0500
+	id <S286987AbSABMiY>; Wed, 2 Jan 2002 07:38:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286979AbSABM0B>; Wed, 2 Jan 2002 07:26:01 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:59398 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S286978AbSABMZr>;
-	Wed, 2 Jan 2002 07:25:47 -0500
-Date: Wed, 2 Jan 2002 10:25:23 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: <brian@worldcontrol.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.17 vs 2.2.19 vs rml new VM
-In-Reply-To: <20020102013305.A5272@top.worldcontrol.com>
-Message-ID: <Pine.LNX.4.33L.0201021015390.24031-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S286991AbSABMiM>; Wed, 2 Jan 2002 07:38:12 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:51473 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S286989AbSABMiF> convert rfc822-to-8bit;
+	Wed, 2 Jan 2002 07:38:05 -0500
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102112821.GA13212@vitelus.com>
+From: Momchil Velikov <velco@fadata.bg>
+Date: 02 Jan 2002 13:40:06 +0200
+In-Reply-To: <20020102112821.GA13212@vitelus.com>
+Message-ID: <87u1u5yoa1.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002 brian@worldcontrol.com wrote:
+>>>>> "Aaron" == Aaron Lehmann <aaronl@vitelus.com> writes:
 
-> I tried rmap-10 new VM and under my typical load my desktop machine
-> froze repeatedly.  Seemed the memory pool was going down the drain
-> before the freeze. Meaning apps were failing and getting stuck in
-> various odd states.
+Aaron> On Wed, Jan 02, 2002 at 01:03:25AM +0200, Momchil Velikov wrote:
+>> Thus 
+>> strcpy (dst, "abcdef" + 2)
+>> gives
+>> memcpy (dst, "abcdef" + 2, 5)
 
-There's a stupid logic inversion bug in rmap-10, which is
-fixed in rmap-10a. Andrew Morton tracked it down about an
-hour after I released rmap-10.
+Aaron> IMHO gcc should not be touching these function calls, as they are not
+Aaron> made to a standard C library, and thus have different behaviors. I'm
+Aaron> suprised that gcc tries to optimize calls to these functions just
+Aaron> based on their names.
 
-Basically in wakeup_kswapd() user processes go to sleep
-if the pressure on the VM is _really_ high *and* the user
-process has all the same GFP options set as kswapd itself,
-so the process can sleep on kswapd.
+IIRC, these identifiers are reserved by the C standard, thus the
+compiler is right to assume that they have standard behavior. And note
+that they DO have the standard behavior. It even doesn't matter if GCC
+is right to judge by the names in each and every case, it is right
+in _this_ case.
 
-	if ((gfp_mask & GFP_KSWAPD) == GFP_KSWAPD)
-		return;
+Aaron> The gcc manpage mentions
 
-Thinking about it, rmap-10a doesn't do the right thing,
-either, releasing patches at 4 am isn't the right thing ;)
+Aaron>        -ffreestanding
+Aaron>            Assert that compilation takes place in a freestanding
+Aaron>            environment.  This implies -fno-builtin.  A freestand­
+Aaron>            ing environment is one in which the standard library
+Aaron>            may not exist, and program startup may not necessarily
+Aaron>            be at "main".  The most obvious example is an OS ker­
+Aaron>            nel.  This is equivalent to -fno-hosted.
 
-In vmscan.c, line 707 _should_ be:
+Aaron> Why is Linux not using this? It sounds very appropriate. The only
 
-	if ((gfp_mask & GFP_KSWAPD) != GFP_KSWAPD)
-		return;
+Because it results in less optimization. I see no point in
+deliberately preventing the compiler from doing optimizations.
 
-This way tasks which cannot safely sleep on kswapd will
-return immediately, allowing only tasks which _can_
-sleep on kswapd to go for a break.
-
-Oh well, time for testing and releasing rmap-11 ;)
-
-regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Regards,
+-velco

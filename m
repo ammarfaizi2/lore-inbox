@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUG1SGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUG1SHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUG1SGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 14:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUG1SGZ
+	id S261405AbUG1SHW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 14:07:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUG1SHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 14:06:25 -0400
-Received: from host85.200-117-133.telecom.net.ar ([200.117.133.85]:51657 "EHLO
-	smtp.bensa.ar") by vger.kernel.org with ESMTP id S261239AbUG1SGX
+	Wed, 28 Jul 2004 14:07:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51434 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261405AbUG1SHP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 14:06:23 -0400
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: reiser4, kallsyms_lookup, 2.6.7-mm7
-Date: Wed, 28 Jul 2004 15:06:12 -0300
-User-Agent: KMail/1.6.82
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jul 2004 14:07:15 -0400
+Date: Wed, 28 Jul 2004 19:07:13 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: stat very inefficient
+Message-ID: <20040728180713.GI12308@parcelfarce.linux.theplanet.co.uk>
+References: <20040727201301.2723f5ad.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200407281506.12876.norberto+linux-kernel@bensa.ath.cx>
+In-Reply-To: <20040727201301.2723f5ad.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
+On Tue, Jul 27, 2004 at 08:13:01PM -0700, David S. Miller wrote:
+ 
+> I was about to make sparc64 specific copies of all the stat
+> system calls in order to optimize this properly.  But that
+> makes little sense, instead I think fs/stat.c should call
+> upon arch-specific stat{,64} structure fillin routines that
+> can do the magic, given a kstat struct.
+> 
+> Comments?
 
-well, just out of curiosity (I wanted to play with reiser4) I've patched my 
-2.6.7-mm7 tree; no rejects. But I get this:
-
-*** Warning: "kallsyms_lookup" [fs/reiser4/reiser4.ko] undefined!
-
-How do I get around that warning?
-
-The patch was 
-http://www.namesys.com/auto-snapshots/reiser4-2004.07.27-19.37-linux-2.6.7-mm7.diff.gz
-
-
-Thanks in advance,
-Norberto
+I'm not sure that it's worth doing for anything below the "widest" version
+of stat.  For that one - yeah, no objections.

@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129217AbQJaBn7>; Mon, 30 Oct 2000 20:43:59 -0500
+	id <S129730AbQJaBtl>; Mon, 30 Oct 2000 20:49:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129730AbQJaBnt>; Mon, 30 Oct 2000 20:43:49 -0500
-Received: from mnh-1-17.mv.com ([207.22.10.49]:49671 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S129217AbQJaBnk>;
-	Mon, 30 Oct 2000 20:43:40 -0500
-Message-Id: <200010310251.VAA05375@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Mirko.Klemm@t-online.de (Mirko Klemm)
-cc: linux-kernel@vger.kernel.org
-Subject: Re: request advice: how stable is devfs in 2.4.0-test9? 
-In-Reply-To: Your message of "Mon, 30 Oct 2000 22:45:48 +0100."
-             <00103022454801.00908@trabant> 
+	id <S129768AbQJaBtc>; Mon, 30 Oct 2000 20:49:32 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:51728 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129730AbQJaBtW>;
+	Mon, 30 Oct 2000 20:49:22 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Christoph Hellwig <hch@ns.caldera.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: test10-pre7 
+In-Reply-To: Your message of "Mon, 30 Oct 2000 16:47:15 -0800."
+             <Pine.LNX.4.10.10010301643300.1789-100000@penguin.transmeta.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 30 Oct 2000 21:51:30 -0500
-From: Jeff Dike <jdike@karaya.com>
+Date: Tue, 31 Oct 2000 12:49:12 +1100
+Message-ID: <13675.972956952@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mirko.Klemm@t-online.de said:
-> I am currently using 2.4.0-test* as an "ordinary user" and want to try
-> some  of the 2.4 specific new features out, but this is my only system
-> and I don't  want it to be messed up so much, so I'd like to hear some
-> comments first.
+On Mon, 30 Oct 2000 16:47:15 -0800 (PST), 
+Linus Torvalds <torvalds@transmeta.com> wrote:
+>Actually, I think I have an even simpler solution, which is to change the
+>newstyle rule to something very simple:
+>
+>	# Translate to Rules.make lists.
+>
+>	O_OBJS          := $(obj-y)
+>	M_OBJS          := $(obj-m)
+>	MIX_OBJS        := $(export-objs)
 
-This is one of the things that user-mode Linux (http://user-mode-linux.sourcefo
-rge.net) is for.  I've been shipping kernels with devfs since devfs made it 
-into the mainline pool.
+It makes kbuild variables in USB mean something different from the rest
+of the kernel.  Unless you plan to change all Makefiles (code freeze,
+what code freeze?).
 
-With UML, you can boot up a virtual machine, and play with devfs all you want 
-without any chance of messing up the host.
+make modules depends on MIX_OBJS, with the above change make modules
+now depends on kernel objects.  Can be fixed in Rules.make, but only if
+every Makefile is changed (code freeze, what code freeze?).
 
-				Jeff
+You will compile all export objects, whether they are configured or
+not.  The "obvious" fix does not work.
 
+	MIX_OBJS        := $(filter $(export-objs),$(obj-y) $(obj-m))
+
+export_objs contains usb.o, obj-y contains usb_core.o, it does not
+contain usb.o.  Multi lists in obj-y and obj-m need to be expanded
+while preserving the required link order (which is where we came in).
+
+It still does not document the only real link order constraint in USB.
+The almost complete lack of documentation on which link orders are
+required and which are historical is extremely annoying and _must_ be
+fixed, instead we just propagate the problem.
+
+If you cannot do sort then you cannot (easily) remove duplicate objects
+from the lists, resulting in make warning messages.  Doing an explicit
+link first, list last then sort the rest also fixes the problem of
+duplicate objects.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

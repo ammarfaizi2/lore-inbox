@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262497AbRENVPw>; Mon, 14 May 2001 17:15:52 -0400
+	id <S262500AbRENVMc>; Mon, 14 May 2001 17:12:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262498AbRENVPm>; Mon, 14 May 2001 17:15:42 -0400
-Received: from titan.mcs.anl.gov ([140.221.16.102]:64388 "EHLO
-	titan.mcs.anl.gov") by vger.kernel.org with ESMTP
-	id <S262497AbRENVPd>; Mon, 14 May 2001 17:15:33 -0400
-Date: Mon, 14 May 2001 16:15:12 -0500
-To: linux-kernel@vger.kernel.org
-Subject: TCP capture effect (was Re: Linux TCP impotency)
-Message-ID: <20010514161509.B3192@titan.mcs.anl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: Samuel Meder <meder@mcs.anl.gov>
+	id <S262499AbRENVMW>; Mon, 14 May 2001 17:12:22 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:32009 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S262502AbRENVMK>; Mon, 14 May 2001 17:12:10 -0400
+Date: Mon, 14 May 2001 18:11:50 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <viro@math.psu.edu>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0105141802070.18102-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 14 May 2001, Linus Torvalds wrote:
 
-Alan Cox wrote:
+> End of discussion.
 
-> > causes the earlier started one to survive and the later to
-> > starve. Running bcp instead of the second (which uses UDP) at
-> > 11000 bytes per second caused the utilization in both directions
-> > to go up nearly to 100%.  
-> > 
-> > Is this a normal TCP stack behaviour? 
->
-> Yes. TCP is not fair. Look up 'capture effect' if you want to know more. 
+I've been doubting whether to work on both the -ac kernels
+and the -linus tree, but this is a pretty good argument for
+sticking with -ac and just ignoring the -linus tree...
 
+Lets see what happens...
 
-I'm seeing a similar effect myself. When I use all my available sdsl
-bandwidth (say doing a bulk data transfer), DNS lookups will often
-time out. This is with the default buffer settings/2.4.4. 
-I'm curious about this effect so I've been trying to find information
-on this and while I can find lots of information on the Ethernet
-capture effect there doesn't seem to be anything on the TCP capture
-effect. Could someone point me at an explanation of this effect?
+regards,
 
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
-Thanks
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-/Sam Meder
-
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

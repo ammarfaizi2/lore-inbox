@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVADP4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVADP7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVADP4H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 10:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVADP4G
+	id S261694AbVADP7G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 10:59:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVADP7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 10:56:06 -0500
-Received: from [212.20.225.142] ([212.20.225.142]:60446 "EHLO
-	orlando.wolfsonmicro.main") by vger.kernel.org with ESMTP
-	id S261699AbVADPzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 10:55:54 -0500
-Subject: Re: [PATCH 1/2] AC97 plugin suspend/resume
-From: Liam Girdwood <Liam.Girdwood@wolfsonmicro.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>,
-       Vincent Sanders <vince@simtec.co.uk>
-In-Reply-To: <20050104151911.B22890@flint.arm.linux.org.uk>
-References: <1104850243.9143.333.camel@cearnarfon>
-	 <20050104151911.B22890@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1104854148.9143.377.camel@cearnarfon>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 04 Jan 2005 15:55:48 +0000
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Jan 2005 15:55:49.0007 (UTC) FILETIME=[DC0BC1F0:01C4F275]
+	Tue, 4 Jan 2005 10:59:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30136 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261694AbVADP7C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 10:59:02 -0500
+Date: Tue, 4 Jan 2005 07:58:50 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [bk patches] Long delayed input update
+In-Reply-To: <20050104135859.GA9167@ucw.cz>
+Message-ID: <Pine.LNX.4.58.0501040756230.2294@ppc970.osdl.org>
+References: <20041227142821.GA5309@ucw.cz> <200412271419.46143.dtor_core@ameritech.net>
+ <20050103131848.GH26949@ucw.cz> <Pine.LNX.4.58.0501032148210.2294@ppc970.osdl.org>
+ <20050104135859.GA9167@ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-04 at 15:19, Russell King wrote:
-> Liam,
+
+
+On Tue, 4 Jan 2005, Vojtech Pavlik wrote:
 > 
-> Please consider giving credit where credit is due.  Thanks.
+> What machine this was on? Kernel config won't allow you to unselect that
+> option if AT Keyboard is selected, and that's always selected when
+> CONFIG_PC is.
 
-Sorry Russell,
+Ahh. It's a G5 mac, so I guess it isn't needed. Even so, that thing 
+shouldn't show up. If I don't have AT keyboard _or_ mouse selected, it 
+shouldn't be there - they should "select" it, and if nothing uses it, then 
+there isn't anything to do. In no case should it show up as a question.
 
-I had no idea who in the group had originally made the change since
-yourself and Vince were accepting the kernel patches. I thought it would
-be better to submit it signed rather than unsigned. 
+> > and has it in any way been tested on the millions of different
+> > versions of kbd controller clones out there?
+> 
+> Does a few months in Andrew's tree count?
 
-Please let me know who is responsible and if it's ok, I'll then
-re-submit.
+So it has been part of the -mm tree? Good.
 
-Best Regards
-
-Liam 
-
+		Linus

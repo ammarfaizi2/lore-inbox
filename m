@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285584AbRLYQUJ>; Tue, 25 Dec 2001 11:20:09 -0500
+	id <S285593AbRLYQib>; Tue, 25 Dec 2001 11:38:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285654AbRLYQT7>; Tue, 25 Dec 2001 11:19:59 -0500
-Received: from dialin-145-254-150-198.arcor-ip.net ([145.254.150.198]:56847
-	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
-	id <S285584AbRLYQTu>; Tue, 25 Dec 2001 11:19:50 -0500
-Message-ID: <3C28A640.9C9B8462@loewe-komp.de>
-Date: Tue, 25 Dec 2001 17:16:00 +0100
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: B16
-X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.14-xfs i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: nknight@pocketinet.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Who fixed via82cxxx_audio.c ?
-In-Reply-To: <WHITExvWvqzAoa2JB1n000005b3@white.pocketinet.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S285633AbRLYQiW>; Tue, 25 Dec 2001 11:38:22 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:48794 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S285593AbRLYQiM>;
+	Tue, 25 Dec 2001 11:38:12 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 25 Dec 2001 16:38:11 GMT
+Message-Id: <UTC200112251638.QAA94646.aeb@cwi.nl>
+To: jlladono@pie.xtec.es
+Subject: Re: 2.4.x kernels, big ide disks and old bios
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicholas Knight schrieb:
-> 
-> Several months back, I started trying to get the via82cxxx_audio.c
-> sound driver fixed, it was causing lockup problems whenever something
-> opened and/or used the mixer. A similar route was taken as I took with
-> the Athlon optimization problems, trying to get everyone to send as
-> much information as possible on their cards using this driver. This
-> never really led anywhere, and the only information gleaned was that
-> dropping buffers down to extremely low levels helped in some cases, but
-> not all, and didn't always completely fix it.
-> 
-> After 2.4.10 was released, I stopped updating my kernel for a variety
-> of reasons (less time spent in linux, long story.) However a while back
-> I updated to 2.4.16, and decided to load XMMS just for the hell of it,
-> not 5 minutes ago. To my delight, the problem is completely solved. I
-> checked all the changelogs from 2.4.10 to now, and the only mention I
-> found searching for "97" (ac97 codec is used) and "via82" was in the
-> 2.4.*17* changelog, saying Jeff was no longer the maintainer.
-> I'd like to know who managed to find and fix the underlying cause, so I
-> can both thank them, and find out what the heck this problem that
-> plagued me for many months was.
+Josep Lladonosa i Capell:
+
+> Linux adopts the 'false' geometry (65530/16/63) ) to bypass the bios
+> boot.
+
+You can see that this is the wrong way around.
+When you start your computer, first the BIOS boots, then Linux.
+But maybe you mean to say that you set a jumper on the disk
+so as to bypass the BIOS boot problem, and that as a result
+also Linux sees a smaller disk?
+
+> hdc: IC35L060AVER07-0, ATA DISK drive
+> hdc: 66055247 sectors (33820 MB) w/1916KiB Cache, CHS=119150/16/63,
+
+Funny. Where did this CHS come from? Did you give boot parameters?
+
+> setmax.c does its job for my ide ibm - 60Gb, but kernel
+> leaves bios parameters - 32Gb
+
+Can you be more explicit? What precisely do you do?
+Call setmax in a boot script? And afterwards you can access
+the entire disk, but some proc files still mention the old
+geometry? Or are there any real problems?
+What precisely do you mean by "kernel leaves bios parameters"?
 
 
-I would check the ChangeLog of the audio driver, since the
-hardware access to the ac97 mixer is done there.
+Santiago Garcia Mantinan:
 
---
-ciao
-Peter
+: What I'm using is change the geometry after the boot and before any
+: partition besides root is mounted, I do this at the beginning of
+: checkroot.sh by calling "/sbin/setmax -d 0 /dev/hda"
+: This works ok for me, of course you can have other solutions.
+
+Good to hear that it works OK. Sooner or later setmax or something
+similar must become part of the standard kernel, but so far I've
+gotten almost no feedback. Can you give the disk manufacturer and model
+(mail aeb@cwi.nl)?
+
+Andries

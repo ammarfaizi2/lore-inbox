@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264763AbTE1UiC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 16:38:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264864AbTE1UiC
+	id S264864AbTE1Uil (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 16:38:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264865AbTE1Uil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 16:38:02 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:36815 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264763AbTE1UiC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 16:38:02 -0400
-Date: Wed, 28 May 2003 16:51:16 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux390@de.ibm.com, James Antill <jantill@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Patch for strncmp use in s390 (sclp)
-Message-ID: <20030528165116.B21984@devserv.devel.redhat.com>
-References: <20030528162019.A3492@devserv.devel.redhat.com>
+	Wed, 28 May 2003 16:38:41 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:26583 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264864AbTE1Uik (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 16:38:40 -0400
+Date: Wed, 28 May 2003 13:51:50 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.70-osdl1
+Message-Id: <20030528135150.602b8eff.shemminger@osdl.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030528162019.A3492@devserv.devel.redhat.com>; from zaitcev@redhat.com on Wed, May 28, 2003 at 04:20:19PM -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This one is different from the one in setup.c, being an actual bug.
 
--- Pete
+http://prdownloads.sourceforge.net/osdldcl/patch-2.5.70-osdl1.bz2?download
 
---- linux-2.4.20-1.1931.2.199.z0/drivers/s390/char/sclp_tty.c	2003-05-19 17:16:59.000000000 -0400
-+++ linux-2.4.20-1.1931.2.199.z1/drivers/s390/char/sclp_tty.c	2003-05-28 12:40:01.000000000 -0400
-@@ -500,7 +500,7 @@
- 		memcpy(sclp_tty->flip.char_buf_ptr, buf, count);
- 		if (count < 2 ||
- 		    (strncmp ((const char *) buf + count - 2, "^n", 2) &&
--		     strncmp ((const char *) buf + count - 2, "\0252n", 2))) {
-+		     strncmp ((const char *) buf + count - 2, "\252n", 2))) {
- 			sclp_tty->flip.char_buf_ptr[count] = '\n';
- 			count++;
- 		} else
+or OSDL Patch Lifecycle Manager (http://www.osdl.org/cgi-bin/plm/)
+	osdl-2.5.670-1	PLM # 1862
+
+No new features; just merged up to 2.5.70 kernel.
+
+o Linux Trace Toolkit (LTT)             (Karim Yaghmour)
+  includes relayfs
+o Kexec 				(Eric Biederman, Andy Pfiffer)
+o Lockmeter
+o Atomic 64 bit i_size access		(Daniel McNeil)
+o Pentium Performance Counters		(Mikael Pettersson)
+o Kernel Config (ikconfig)		(Randy Dunlap)
+o RCU statistics               		(Dipankar Sarma)
+o Scheduler tunables            	(Robert Love)
+

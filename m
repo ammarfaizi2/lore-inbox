@@ -1,42 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbUKWScA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbUKWSdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbUKWScA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 13:32:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbUKWSaI
+	id S261499AbUKWSdz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 13:33:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbUKWScT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 13:30:08 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:58254 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261479AbUKWS2j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 13:28:39 -0500
-In-Reply-To: <20041123104215.GE27064@mail.shareable.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-fsdevel-owner@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>
+	Tue, 23 Nov 2004 13:32:19 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:27786 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261479AbUKWSbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 13:31:42 -0500
+Date: Tue, 23 Nov 2004 18:31:21 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Michael Kerrisk <mtk-lkml@gmx.net>, <torvalds@osdl.org>,
+       <michael.kerrisk@gmx.net>, <linux-kernel@vger.kernel.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [PATCH 2.6.10-rc2] RLIMIT_MEMLOCK accounting of shmctl() SHM_LOCK
+    is broken
+In-Reply-To: <20041123090449.1672494f.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0411231812180.3050-100000@localhost.localdomain>
 MIME-Version: 1.0
-Subject: Re: [PATCH] Remove pointless <0 comparison for unsigned variable in fs/fcntl.c
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF1B36F096.86C07CEE-ON88256F55.00653896-88256F55.00658654@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Tue, 23 Nov 2004 10:28:23 -0800
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_M3_11102004|November 10, 2004) at
- 11/23/2004 13:28:37,
-	Serialize complete at 11/23/2004 13:28:37
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->The unusual thing about this function is that "arg" is really
->polymorphic, but given type "unsigned long" in the kernel.  It is
->really a way to hold arbitrary values of any type.
+On Tue, 23 Nov 2004, Andrew Morton wrote:
+> 
+> True.  We should make the same change to user_shm_unlock(), and we may as
+> well tweak the excessive spinlock coverage in there too.
+> ...
+> and then ask Hugh and Manfred to double-check.
 
-As you've described it, what's wrong with this code is not that it tests 
-arg < 0, but that it should cast arg to int before doing so:
+Looked good to me.
 
-  int signal_arg = (int) arg;
-  if (signal_arg < 0) ...
+Examining that code for the first time, I did wonder about a couple of
+minor irrelevancies with regard to lock_limit - should it too be rounded
+up?  Well, not necessarily, you can argue that the limit should be treated
+strictly.  And it certainly shouldn't be rounded up (wrapping to 0) if it's
+RLIM_INFINITY.  Which raises the question, should we avoid shifting it
+down if it's RLIM_INFINITY?  And should there be a wrapping check on
+locked + user->locked_shm?  Well, locking that much memory will meet
+its own problems, probably not worth worrying here.
 
+> Looking at the callers, we do:
+> 
+> 	user_shm_lock(inode->i_size, ...);
+> 
+> then, later:
+> 
+> 	user_shm_unlock(inode->i_size, ...);
+> 
+> which does make one wonder "what happens if the file got larger while it
+> was locked"?
+
+They're only used on objects created by shmem_file_setup, and for those
+(unlike tmpfs files) there's no interface by which they might change
+their size after creation; and this isn't the only place which assumes
+that characteristic.  So, it's okay (but not at all obvious).
+
+Hugh
 

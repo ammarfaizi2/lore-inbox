@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288930AbSATTCJ>; Sun, 20 Jan 2002 14:02:09 -0500
+	id <S288936AbSATTGt>; Sun, 20 Jan 2002 14:06:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288932AbSATTCA>; Sun, 20 Jan 2002 14:02:00 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:6412 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S288930AbSATTBu>;
-	Sun, 20 Jan 2002 14:01:50 -0500
-Date: Sun, 20 Jan 2002 01:08:18 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ed Sweetman <ed.sweetman@wmich.edu>, arjan@fenrus.demon.nl,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020120000817.GA31124@elf.ucw.cz>
-In-Reply-To: <005b01c19b9e$90a5af40$0501a8c0@psuedogod> <E16PUSi-00032N-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16PUSi-00032N-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S288948AbSATTGj>; Sun, 20 Jan 2002 14:06:39 -0500
+Received: from paloma16.e0k.nbg-hannover.de ([62.181.130.16]:29926 "HELO
+	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S288932AbSATTG3>; Sun, 20 Jan 2002 14:06:29 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: OT: AOL want take RedHat? --- Washington Post
+Date: Sun, 20 Jan 2002 20:05:51 +0100
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020120190634Z288932-13996+8672@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sunday, 20. January 2002 19:42, you wrote:
+> Sorry,
+>
+> for OT but what's up?
 
-> > hardware to hardware could have a higher priority than normal programs being
-> > run.   That way they're not preempted by simple programs, it would have to
-> > be purposely preempted by the user.
-> 
-> How do you know they are there. How do you detect the situation, or do you
-> plan to audit every driver ?
+Ups, I am very sorry about my post. There is still a thread.
+So STOP it here, please.
 
-Any driver which depends on timing is broken. 2.4.9 was happy to spend
-two seconds in interrupt (console switch). So I doubt too much drivers
-are broken like that. 
+-Dieter
 
-And... The drivers were broken already. That is not reason against the
-patch!
-									Pavel
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

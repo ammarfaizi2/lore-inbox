@@ -1,63 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262870AbTJNScS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 14:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbTJNScR
+	id S262373AbTJNSwV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 14:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTJNSvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 14:32:17 -0400
-Received: from [212.57.164.72] ([212.57.164.72]:39686 "EHLO mail.ward.six")
-	by vger.kernel.org with ESMTP id S262745AbTJNScN (ORCPT
+	Tue, 14 Oct 2003 14:51:37 -0400
+Received: from tux.rsn.bth.se ([194.47.143.135]:60800 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S262373AbTJNSus (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 14:32:13 -0400
-Date: Wed, 15 Oct 2003 00:30:36 +0600
-From: Denis Zaitsev <zzz@anda.ru>
-To: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Subject: [PATCH TRIVIAL] Compile error in 2.4.22 without PCI
-Message-ID: <20031015003036.A10226@natasha.ward.six>
+	Tue, 14 Oct 2003 14:50:48 -0400
+Subject: Re: NULL pointer dereference in sysfs_hash_and_remove()
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+In-Reply-To: <20031013163200.43e5d1bf.shemminger@osdl.org>
+References: <1065220892.31749.39.camel@tux.rsn.bth.se>
+	 <20031013163200.43e5d1bf.shemminger@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0aUiYSDu5jwesMQwEtGO"
+Message-Id: <1066157445.740.2.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 14 Oct 2003 20:50:45 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have these warnings when I'm compiling 2.4.22 for a 486 EISA system:
 
-aic7xxx_osm.c: In function `ahc_softc_comp':
-aic7xxx_osm.c:1560: warning: implicit declaration of function `ahc_get_pci_bus'
-aic7xxx_osm.c:1568: warning: implicit declaration of function `ahc_get_pci_slot'
+--=-0aUiYSDu5jwesMQwEtGO
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-And then the make finishes with an error, because these functions
-really exist only if the PCI support is turned on.
+On Tue, 2003-10-14 at 01:32, Stephen Hemminger wrote:
+> On Sat, 04 Oct 2003 00:41:32 +0200
+> Martin Josefsson <gandalf@wlug.westbo.se> wrote:
+>=20
+> > Hi
+> >=20
+> > I compiled 2.6.0-test6 and ran it on a laptop with cardbus.
+> > I have an Xircom NIC and if I remove it during operation I get the bug
+> > below.
+> >=20
+> > I have yenta_socket and xircom_cb loaded as modules.
+>=20
+>=20
+> The driver was setting the statistics pointer after registration had occu=
+rred,
+> so on unregister the network code was removing a non-existent sysfs direc=
+tory.
+>=20
+> Try this please.
 
-The patch below fixes this.  And the same patch fits for the 2.6
-kernels.  Please, apply it.
+I've applied this patch and=20
+"[PATCH] sysfs -- don't crash if removing non-existant attribute group"
+and now it works great.
 
+Thanks.
 
---- drivers/scsi/aic7xxx/aic7xxx_osm.c.orig	2003-09-15 01:56:14.000000000 +0600
-+++ drivers/scsi/aic7xxx/aic7xxx_osm.c	2003-10-15 00:23:37.000000000 +0600
-@@ -1552,6 +1552,7 @@ ahc_softc_comp(struct ahc_softc *lahc, s
- 
- 	/* Still equal.  Sort by BIOS address, ioport, or bus/slot/func. */
- 	switch (rvalue) {
-+#ifdef CONFIG_PCI
- 	case AHC_PCI:
- 	{
- 		char primary_channel;
-@@ -1584,6 +1585,8 @@ ahc_softc_comp(struct ahc_softc *lahc, s
- 			value = 1;
- 		break;
- 	}
-+#endif
-+#ifdef CONFIG_EISA
- 	case AHC_EISA:
- 		if ((rahc->flags & AHC_BIOS_ENABLED) != 0) {
- 			value = rahc->platform_data->bios_address
-@@ -1593,6 +1596,7 @@ ahc_softc_comp(struct ahc_softc *lahc, s
- 			      - lahc->bsh.ioport; 
- 		}
- 		break;
-+#endif
- 	default:
- 		panic("ahc_softc_sort: invalid bus type");
- 	}
+--=20
+/Martin
+
+--=-0aUiYSDu5jwesMQwEtGO
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/jEWFWm2vlfa207ERAhF8AKCAFiUOZUmcxjEvEmpw9uA7w+nk5wCdEwG+
+xk/Ch/NO8NUa/06vTa1S/yA=
+=g+ip
+-----END PGP SIGNATURE-----
+
+--=-0aUiYSDu5jwesMQwEtGO--
